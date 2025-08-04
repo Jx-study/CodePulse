@@ -3,8 +3,9 @@ import '../styles/main.scss';
 
 // 導入各個元件
 import Hero from '../components/Hero/Hero';
-import Features from '../components/Introduction/Features/Features';
-import Audience from '../components/Introduction/TargetGroup/Audience';
+import Features from '../components/Home_content/Features/Features';
+import DataStructureAlgorithm from '../components/Home_content/DataStructureAlgorithm/DataStructureAlgorithm';
+import Audience from '../components/Home_content/TargetGroup/Audience';
 import Demo from '../components/Demo/Demo';
 
 function Home() {
@@ -53,6 +54,7 @@ function Home() {
   return (
     <div className="App">
       <Hero />
+      <DataStructureAlgorithm />
       <Features />
       <Audience />
       <Demo />

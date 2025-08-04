@@ -8,7 +8,6 @@
 
     h1, h3 {
         font-weight: 800;
-        margin-bottom: $spacing-md;
         background: $gradient-primary;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -17,7 +16,10 @@
     }
     
     h1 { font-size: $hero-h1-size; }
-    h3 { font-size: $hero-h3-size; }
+    h3 { 
+        font-size: $hero-h3-size;
+        margin-bottom: $spacing-md;
+    }
     
     p {
         font-size: 1.25rem;

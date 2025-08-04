@@ -2,7 +2,7 @@
 
 // ========== 顔色變數 ==========
 $light-bg-primary: #ffffff;         // 主背景
-$light-bg-secondary: #f1f5ff;       // Hero 區域背景
+$light-bg-secondary: #f1f5ff;       // 區域背景
 $light-bg-tertiary: #ffffff;        // 卡片背景
 $light-text-primary: #0f172a;       // 主要文字
 $light-text-secondary: #475569;     // 次要文字
@@ -22,9 +22,8 @@ $dark-card-bg: #1f2937;         // 卡片背景
 $dark-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
 
 // 漸變色定義 - 科技風格
-$gradient-primary: linear-gradient(135deg, #9b23ea 0%, #5f72bd 100%);
+$gradient-primary: linear-gradient(#9b23ea 0%, #8545d4 70%, #5f72bd 100%);
 $gradient-secondary: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-$gradient-accent: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
 $gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #a8edea 100%);
 
 // 狀態色彩
