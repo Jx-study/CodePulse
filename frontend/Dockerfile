@@ -1,5 +1,6 @@
 # ---快速開發使用Vite dev server----
-FROM node:20
+ARG REGISTRY_PREFIX=""
+FROM ${REGISTRY_PREFIX}node:20
 
 WORKDIR /app
 

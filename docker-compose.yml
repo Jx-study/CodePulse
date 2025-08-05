@@ -1,6 +1,9 @@
 services:
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      args:
+        REGISTRY_PREFIX: ${REGISTRY_PREFIX:-}
     ports:
       - "5000:5000"
     volumes:
@@ -11,7 +14,10 @@ services:
 
   # Vite dev server
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      args:
+        REGISTRY_PREFIX: ${REGISTRY_PREFIX:-}
     ports:
       - "5173:5173"
     volumes:
