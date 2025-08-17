@@ -1,4 +1,5 @@
 @use './variables' as *;
+@use './mixins' as *;
 // common.scss == 全局共用樣式：包含重置、通用樣式等
 a {
     text-decoration: none;
@@ -91,6 +92,33 @@ a {
   display: grid;
   gap: $spacing-lg;
   margin-top: $spacing-xl;
+  grid-template-columns: repeat(4, 1fr);
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Star Rating System
+.star {
+  font-size: 16px;
+  color: #e5e7eb;
+  transition: color 0.2s ease;
+
+  &.filled {
+    color: #fbbf24;
+    text-shadow: 0 0 4px rgba(251, 191, 36, 0.3);
+  }
+}
+
+.difficulty {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 // Call To Action Button

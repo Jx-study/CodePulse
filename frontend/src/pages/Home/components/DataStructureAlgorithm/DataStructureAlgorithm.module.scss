@@ -9,20 +9,7 @@
   }
 
   .algorithmGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
     transition: transform 0.5s ease-in-out;
-
-    @include mobile {
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    @include tablet {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 25px;
-    }
   }
 
   .sorting:hover {
@@ -81,23 +68,10 @@
     }
 
     .difficulty {
-      display: flex;
-      align-items: center;
-      gap: 2px;
       margin-left: 15px;
     }
   }
 
-  .star {
-    font-size: 16px;
-    color: #e5e7eb;
-    transition: color 0.2s ease;
-
-    &.filled {
-      color: #fbbf24;
-      text-shadow: 0 0 4px rgba(251, 191, 36, 0.3);
-    }
-  }
 
   .description {
     color: var(--text-secondary);

@@ -7,7 +7,7 @@ import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
 
 // Pages
-import Home from './pages/Home';
+import Home from './pages/Home/Home';
 import AuthPage from './pages/Authentication/Auth';
 
 function App() {

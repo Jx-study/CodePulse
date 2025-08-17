@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import LoginForm from '../../components/Auth/LoginForm';
-import SignupForm from '../../components/Auth/SignupForm';
+import LoginForm from './components/Auth/LoginForm';
+import SignupForm from './components/Auth/SignupForm';
 import authService from '../../services/authService';
 import styles from './Auth.module.scss';
 

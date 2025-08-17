@@ -18,7 +18,7 @@ function Features() {
       <div className='container'>
         <h2 className='section-title'>{t('features_section.title')}</h2>
         
-        <div className={`${styles.featuresGrid} common-grid`}>
+        <div className="common-grid">
           <div className="common-card">
             <div className="featureIcon">
               <img src={interactiveFlowchartImg} alt="Interactive Flowchart" />

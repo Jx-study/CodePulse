@@ -1,12 +1,11 @@
 import { useEffect } from 'react'
-import '../styles/main.scss'; 
+import '../../styles/main.scss'; 
 
 // 導入各個元件
-import Hero from '../components/Hero/Hero';
-import Features from '../components/Home_content/Features/Features';
-import DataStructureAlgorithm from '../components/Home_content/DataStructureAlgorithm/DataStructureAlgorithm';
-import Audience from '../components/Home_content/TargetGroup/Audience';
-import Demo from '../components/Demo/Demo';
+import Hero from './components/Hero/Hero';
+import Features from './components/Features/Features';
+import DataStructureAlgorithm from './components/DataStructureAlgorithm/DataStructureAlgorithm';
+import Demo from './components/Demo/Demo';
 
 function Home() {
   // 平滑滾動
@@ -33,7 +32,7 @@ function Home() {
       
       let current = '';
       sections.forEach(section => {
-        const sectionTop = section.getBoundingClientRect().top;
+    const sectionTop = section.getBoundingClientRect().top;
         if (sectionTop <= 100) {
           current = section.getAttribute('id');
         }
@@ -56,7 +55,6 @@ function Home() {
       <Hero />
       <DataStructureAlgorithm />
       <Features />
-      <Audience />
       <Demo />
     </div>
   );

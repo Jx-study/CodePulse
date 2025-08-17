@@ -1,5 +1,3 @@
-@use 'sass:color';
-
 .header {
     background: #1e293b;
     padding: $spacing-sm 0;
@@ -18,64 +16,8 @@
     padding: 0 $spacing-sm;
 }
 
-.logo {
+.rightSection {
     display: flex;
     align-items: center;
-
-    img {
-        height: 40px;
-        width: auto;
-    }
-}
-
-.navMenu {
-    display: flex;
-    list-style: none;
     gap: $spacing-lg;
-}
-
-.navMenu a {
-    color: #cbd5e1;  
-    text-decoration: none;
-    padding: $spacing-xs $spacing-sm;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-.navMenu a:hover,
-.navMenu a.active {
-    background: #334155;
-    color: #ffffff;
-}
-
-.languageSwitcher,
-.authButtons {
-    display: flex;
-    gap: $spacing-xs;
-}
-
-.btnLogin {
-    color: #cbd5e1;
-    text-decoration: none;
-    padding: $spacing-xs $spacing-sm;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-.btnLogin:hover {
-    background: #334155;
-    color: #ffffff;
-}
-
-.btnRegister {
-    background: $primary-color;
-    color: #ffffff;
-    text-decoration: none;
-    padding: $spacing-xs $spacing-sm;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-.btnRegister:hover {
-    background: color.adjust($primary-color, $lightness: -10%);
 }
