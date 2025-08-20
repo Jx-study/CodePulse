@@ -1,0 +1,14 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.explorer {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: $spacing-xl 0;
+}
+
+.content {
+  text-align: center;
+  color: var(--text-primary);
+  margin-top: $spacing-xl;
+}

@@ -9,6 +9,10 @@ import AuthLayout from './layouts/AuthLayout';
 // Pages
 import Home from './pages/Home/Home';
 import AuthPage from './pages/Authentication/Auth';
+import Tutorial from './pages/Tutorial/Tutorial';
+import Explorer from './pages/Explorer/Explorer';
+import About from './pages/About/About';
+import LearningDashboard from './pages/LearningDashboard/LearningDashboard';
 
 function App() {
   const { i18n } = useTranslation();
@@ -23,6 +27,10 @@ function App() {
       {/* 主布局 */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/tutorial" element={<Tutorial />} />
+        <Route path="/explorer" element={<Explorer />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/dashboard" element={<LearningDashboard />} />
       </Route>
 
       {/* 其他页面布局 */}

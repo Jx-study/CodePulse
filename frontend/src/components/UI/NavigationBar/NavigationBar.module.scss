@@ -1,19 +1,6 @@
 .navigationBar {
   display: flex;
   align-items: center;
-  flex: 1;
-}
-
-.logo {
-  img {
-    width: 80px;
-    height: auto;
-    transition: $transition-base;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
 }
 
 .navMenu {
@@ -21,25 +8,50 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  margin-left: 60px;
   gap: 40px;
 
   li {
     a {
-      color: var(--text-secondary);
+      color: white;
       text-decoration: none;
       font-weight: 500;
       font-size: $font-base;
       transition: $transition-base;
       position: relative;
+      border: 2px solid transparent;
+      padding: 8px 16px;
+      border-radius: 4px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background: $primary-color;
+        z-index: -1;
+        transition: width 0.5s ease;
+        border-radius: 2px;
+      }
 
       &:hover {
-        color: var(--text-primary);
+        color: white;
+        border-color: $primary-color;
+
+        &::before {
+          width: 100%;
+        }
       }
 
       &.active {
-        color: $primary-color;
         font-weight: 600;
+        border-color: $primary-color;
+        background: $primary-color;
+
+        &::before {
+          width: 100%;
+        }
 
         &::after {
           content: '';

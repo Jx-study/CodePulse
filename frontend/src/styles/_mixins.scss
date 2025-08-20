@@ -69,7 +69,7 @@
   transition: 0.3s;
 
   &:hover {
-    background: darken($bg, 10%);
+    filter: brightness(0.9);
   }
 }
 

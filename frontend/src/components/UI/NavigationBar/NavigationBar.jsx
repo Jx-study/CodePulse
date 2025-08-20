@@ -1,26 +1,49 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styles from './NavigationBar.module.scss';
-import logo from '/images/codePulse_logo.png';
 
 function NavigationBar() {
   const { t } = useTranslation();
+  const location = useLocation();
 
   return (
-    <div className={styles.navigationBar}>
-      <div className={styles.logo}>
-        <Link to="/"><img src={logo} alt="logo" /></Link>
-      </div>
-      
+    <nav className={styles.navigationBar}>
       <ul className={styles.navMenu}>
-        <li><Link to="/" className={styles.active}>{t('home')}</Link></li>
-        <li><Link to="/analysis">{t('features')}</Link></li>
-        <li><a href="#demo">{t('demo')}</a></li>
-        <li><a href="#docs">{t('docs')}</a></li>
-        <li><a href="#about">{t('about')}</a></li>
+        <li>
+          <Link 
+            to="/" 
+            className={location.pathname === '/' ? styles.active : ''}
+          >
+            {t('home')}
+          </Link>
+        </li>
+        <li>
+          <Link 
+            to="/tutorial" 
+            className={location.pathname === '/tutorial' ? styles.active : ''}
+          >
+            {t('tutorial')}
+          </Link>
+        </li>
+        <li>
+          <Link 
+            to="/explorer" 
+            className={location.pathname === '/explorer' ? styles.active : ''}
+          >
+            {t('explorer')}
+          </Link>
+        </li>
+        <li>
+          <Link 
+            to="/about" 
+            className={location.pathname === '/about' ? styles.active : ''}
+          >
+            {t('aboutUs')}
+          </Link>
+        </li>
       </ul>
-    </div>
+    </nav>
   );
 }
 
