@@ -23,22 +23,18 @@ $dark-card-bg: #1f2937; // 卡片背景
 $dark-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4),
   0 2px 4px -1px rgba(0, 0, 0, 0.25);
 
-// 漸變色定義
-$gradient-primary: linear-gradient(135deg, #6f86d6 0%, #48c6ef 100%);
-$gradient-secondary: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-$gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #a8edea 100%);
+// 漸變色定義 (Stripe 風格 - 簡化)
+$gradient-primary: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
+$gradient-secondary: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+$gradient-hero: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
 
-// 狀態色彩
-$success-color: #22c55e;
-$warning-color: #f59e0b;
+// 狀態色彩 (Stripe 風格)
 $error-color: #ef4444;
-$info-color: #06b6d4;
 
 // 元件中仍使用的通用變數
-
-$primary-color: #2563eb;
-$execution-color: #10b981;
-$accent-color: #f59e0b;
+$primary-color: #635bff;
+$execution-color: #28a745;
+$accent-color: #ff6b35;
 
 // ========== 互動狀態變數 ==========
 // 互動狀態

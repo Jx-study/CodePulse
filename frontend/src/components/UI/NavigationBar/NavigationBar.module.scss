@@ -29,14 +29,19 @@
         left: 0;
         width: 0;
         height: 100%;
-        background: $primary-color;
+
+        // new update
+        // border-color: $primary-color;
+        border-style: solid;
+        border-width: 0 2px 2px 0;
+        // background: $primary-color;
         z-index: -1;
         transition: width 0.5s ease;
-        border-radius: 2px;
+        border-radius: 4px;
       }
 
       &:hover {
-        color: white;
+        // color: white;
         border-color: $primary-color;
 
         &::before {
@@ -47,16 +52,19 @@
       &.active {
         font-weight: 600;
         border-color: $primary-color;
-        background: $primary-color;
+        // background: #920192;
+        background-color: $primary-color;
+        // color: #1e293b;
 
         &::before {
+          content: '';
           width: 100%;
         }
 
         &::after {
           content: '';
           position: absolute;
-          bottom: -8px;
+          bottom: -12px;
           left: 0;
           right: 0;
           height: 2px;

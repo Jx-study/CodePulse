@@ -11,35 +11,35 @@ function NavigationBar() {
     <nav className={styles.navigationBar}>
       <ul className={styles.navMenu}>
         <li>
-          <Link 
-            to="/" 
-            className={location.pathname === '/' ? styles.active : ''}
+          <Link
+            to="/"
+            className={location.pathname === "/" ? styles.active : ""}
           >
-            {t('home')}
+            {t("home")}
           </Link>
         </li>
         <li>
-          <Link 
-            to="/tutorial" 
-            className={location.pathname === '/tutorial' ? styles.active : ''}
+          <Link
+            to="/dashboard"
+            className={location.pathname === "/dashboard" ? styles.active : ""}
           >
-            {t('tutorial')}
+            {t("dashboardLabel")}
           </Link>
         </li>
         <li>
-          <Link 
-            to="/explorer" 
-            className={location.pathname === '/explorer' ? styles.active : ''}
+          <Link
+            to="/explorer"
+            className={location.pathname === "/explorer" ? styles.active : ""}
           >
-            {t('explorer')}
+            {t("explorer")}
           </Link>
         </li>
         <li>
-          <Link 
-            to="/about" 
-            className={location.pathname === '/about' ? styles.active : ''}
+          <Link
+            to="/about"
+            className={location.pathname === "/about" ? styles.active : ""}
           >
-            {t('aboutUs')}
+            {t("aboutUs")}
           </Link>
         </li>
       </ul>

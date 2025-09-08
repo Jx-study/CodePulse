@@ -1,28 +1,36 @@
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import styles from './PulseBackground.module.scss';
 
 const PulseBackground = forwardRef((props, ref) => {
   const canvasRef = useRef(null);
+  // Wandering particles
   const particles = useRef([]);
-  const deadParticles = useRef([]); // 物件池：存放死亡的粒子以便重用
-  const animationFrameId = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const deadParticles = useRef([]); // Object pool for wandering particles
   
-  // 粒子限制和管理
-  const MAX_PARTICLES = 10; // 最大活躍粒子數
-  const MAX_DEAD_PARTICLES = 15; // 物件池最大容量
+  const animationFrameId = useRef(null);
+  const particleIntervalId = useRef(null);
+  const isAttractingMode = useRef(false);
 
-  // 粒子顏色
+  // Particle limits
+  const MAX_WANDERING_PARTICLES = 15;
+  const MAX_DEAD_PARTICLES = 15;
+
+  // Particle colors
   const colors = ["#FF0000", "#FFFF00", "#0000FF"];
 
-  // 漫遊粒子類別
+  const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+  };
+
+  // --- WanderingParticle Class ---
   class WanderingParticle {
-    // 四個移動方向常數（按順時針順序排列）
     static DIRECTIONS = [
-      { dx: 0, dy: -1 },  // 上 (0)
-      { dx: -1, dy: 0 },  // 左 (1)
-      { dx: 0, dy: 1 },   // 下 (2)
-      { dx: 1, dy: 0 }    // 右 (3)
+      { dx: 0, dy: -1 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 1, dy: 0 }
     ];
 
     constructor(x, y, canvas) {
@@ -32,21 +40,24 @@ const PulseBackground = forwardRef((props, ref) => {
       this.size = 3;
       this.color = colors[Math.floor(Math.random() * colors.length)];
       
-      // 隨機選擇四個方向之一：上、下、左、右
-      const direction = WanderingParticle.DIRECTIONS[Math.floor(Math.random() * 4)];
-      const speed = 2; // 統一速度
-      this.dx = direction.dx * speed;
-      this.dy = direction.dy * speed;
+      this.currentDirection = Math.floor(Math.random() * 4);
+      const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
+      this.normalSpeed = 2;
+      this.attractSpeed = 4;
+      this.dx = direction.dx * this.normalSpeed;
+      this.dy = direction.dy * this.normalSpeed;
       
-      // 轉向計時器
       this.turnTimer = 0;
       this.turnInterval = 2000 + Math.random() * 2000; 
       this.lastTime = performance.now();
       
-      // 拖尾軌跡
       this.trail = [];
-      this.maxTrailLength = 55; // 拖尾長度
+      this.maxTrailLength = 55;
       
+      // Attraction properties
+      this.isAttracted = false;
+      this.targetX = 0;
+      this.targetY = 0;
     }
 
     update() {
@@ -54,64 +65,94 @@ const PulseBackground = forwardRef((props, ref) => {
       const deltaTime = currentTime - this.lastTime;
       this.lastTime = currentTime;
       
-      // 記錄當前位置到拖尾軌跡
       this.trail.push({ x: this.x, y: this.y });
       if (this.trail.length > this.maxTrailLength) {
         this.trail.shift();
       }
       
-      // 更新位置
+      if (this.isAttracted) {
+        this.updateWithAttraction();
+      } else {
+        this.updateNormal(deltaTime);
+      }
+    }
+
+    updateNormal(deltaTime) {
       this.x += this.dx;
       this.y += this.dy;
       
-      // 轉向邏輯
       this.turnTimer += deltaTime;
       if (this.turnTimer >= this.turnInterval) {
         this.changeDirection();
         this.turnTimer = 0;
-        this.turnInterval = 2000 + Math.random() * 1000; // 重設下次轉向時間
+        this.turnInterval = 2000 + Math.random() * 1000;
       }
     }
 
+    updateWithAttraction() {
+      // 貪婪算法：選擇使距離目標最近的方向
+      const distanceX = this.targetX - this.x;
+      const distanceY = this.targetY - this.y;
+      
+      // 檢查是否已經接近目標 - 使用較小的距離以確保能進入銷毀狀態
+      if (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10) {
+        return; // 停止移動，已經足夠接近目標
+      }
+      
+      // 選擇移動方向（上下左右）
+      let bestDirection = 0;
+      let minDistance = Infinity;
+      
+      // 檢查四個可能的方向
+      WanderingParticle.DIRECTIONS.forEach((dir, index) => {
+        const newX = this.x + dir.dx * this.attractSpeed;
+        const newY = this.y + dir.dy * this.attractSpeed;
+        const distance = Math.abs(this.targetX - newX) + Math.abs(this.targetY - newY);
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          bestDirection = index;
+        }
+      });
+      
+      // 設置新的方向和速度
+      this.currentDirection = bestDirection;
+      const direction = WanderingParticle.DIRECTIONS[bestDirection];
+      this.dx = direction.dx * this.attractSpeed;
+      this.dy = direction.dy * this.attractSpeed;
+      
+      // 移動
+      this.x += this.dx;
+      this.y += this.dy;
+    }
+
+
     changeDirection() {
-      // 70% 機率轉向
       if (Math.random() < 0.7) {
-        const speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
-        
-        // 獲取當前方向
-        let currentDir = 0;
-        if (this.dx === 0 && this.dy < 0) currentDir = 0; // 上
-        else if (this.dx > 0 && this.dy === 0) currentDir = 1; // 左
-        else if (this.dx === 0 && this.dy > 0) currentDir = 2; // 下
-        else if (this.dx < 0 && this.dy === 0) currentDir = 3; // 右
-        
-        // 選擇轉向：0=繼續直行, 1=左轉90度, 2=右轉90度
+        const speed = this.normalSpeed;
         const turnChoice = Math.floor(Math.random() * 3);
         
-        let newDir = currentDir;
+        let newDirection = this.currentDirection;
         if (turnChoice === 1) {
-          // 左轉90度
-          newDir = (currentDir + 1) % 4;
+          newDirection = (this.currentDirection + 1) % 4;
         } else if (turnChoice === 2) {
-          // 右轉90度
-          newDir = (currentDir + 3) % 4;
+          newDirection = (this.currentDirection + 3) % 4;
         }
         
-        this.dx = WanderingParticle.DIRECTIONS[newDir].dx * speed;
-        this.dy = WanderingParticle.DIRECTIONS[newDir].dy * speed;
+        this.currentDirection = newDirection;
+        this.dx = WanderingParticle.DIRECTIONS[newDirection].dx * speed;
+        this.dy = WanderingParticle.DIRECTIONS[newDirection].dy * speed;
       }
     }
 
     draw(ctx) {
       ctx.save();
       
-      // 繪製拖尾軌跡
       if (this.trail.length > 1) {
         for (let i = 0; i < this.trail.length - 1; i++) {
           const point = this.trail[i];
           const nextPoint = this.trail[i + 1];
           
-          // 計算透明度和大小（從後到前漸增）
           const alpha = (i / this.trail.length) * 0.2 + 0.05;
           const size = (i / this.trail.length) * this.size;
           
@@ -129,16 +170,13 @@ const PulseBackground = forwardRef((props, ref) => {
         }
       }
       
-      // 恢復透明度
       ctx.globalAlpha = 1;
       
-      // 繪製主粒子
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fillStyle = this.color;
       ctx.fill();
       
-      // 添加發光效果
       ctx.shadowColor = this.color;
       ctx.shadowBlur = 100;
       ctx.fill();
@@ -147,84 +185,118 @@ const PulseBackground = forwardRef((props, ref) => {
     }
 
     isDead() {
-      // 設定邊界容許範圍
       const margin = 100;
       
-      // 檢查是否超出畫布邊界
-      if (this.x < -margin || this.x > this.canvas.width + margin || 
-          this.y < -margin || this.y > this.canvas.height + margin) {
-        return true;
-      }
+      // 檢查邊界條件
+      const outOfBounds = (this.x < -margin || this.x > this.canvas.width + margin || 
+                          this.y < -margin || this.y > this.canvas.height + margin);
       
-      return false;
+      // 檢查是否到達目標點（CTA）
+      const reachedTarget = this.isAttracted && 
+                           Math.abs(this.targetX - this.x) < 20 && 
+                           Math.abs(this.targetY - this.y) < 20;
+      
+      return outOfBounds || reachedTarget;
     }
 
-    // 清理方法，用於物件重用
     cleanup() {
-      this.trail.length = 0; // 清空軌跡陣列
+      this.trail.length = 0;
       this.turnTimer = 0;
       this.lastTime = performance.now();
     }
 
-    // 重新初始化方法，用於物件池
+    setAttractTarget(targetX, targetY) {
+      this.isAttracted = true;
+      this.targetX = targetX;
+      this.targetY = targetY;
+    }
+
+    resetAttract() {
+      this.isAttracted = false;
+      // 恢復正常移動
+      const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
+      this.dx = direction.dx * this.normalSpeed;
+      this.dy = direction.dy * this.normalSpeed;
+    }
+
     reset(x, y, canvas) {
       this.x = x;
       this.y = y;
       this.canvas = canvas;
       this.color = colors[Math.floor(Math.random() * colors.length)];
       
-      // 隨機選擇四個方向之一：上、下、左、右
-      const direction = WanderingParticle.DIRECTIONS[Math.floor(Math.random() * 4)];
-      const speed = 2; // 統一速度
-      this.dx = direction.dx * speed;
-      this.dy = direction.dy * speed;
+      this.currentDirection = Math.floor(Math.random() * 4);
+      const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
+      this.dx = direction.dx * this.normalSpeed;
+      this.dy = direction.dy * this.normalSpeed;
       
       this.turnInterval = 2000 + Math.random() * 2000;
+      
+      this.isAttracted = false;
+      this.targetX = 0;
+      this.targetY = 0;
       
       this.cleanup();
     }
   }
 
-  // 暴露給父組件的方法
   useImperativeHandle(ref, () => ({
-    addParticleAt: (x, y) => {
+    addWanderingParticle: (x, y) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      
-      // 限制粒子數量，如果超過限制則移除最舊的粒子
-      if (particles.current.length >= MAX_PARTICLES) {
+
+      if (particles.current.length >= MAX_WANDERING_PARTICLES) {
         const oldParticle = particles.current.shift();
         if (deadParticles.current.length < MAX_DEAD_PARTICLES) {
           oldParticle.cleanup();
           deadParticles.current.push(oldParticle);
         }
       }
-      
-      // 在指定位置產生新粒子（使用物件池）
-      const particle = createOrReuseParticle(x, y, canvas);
+
+      const particle = createOrReuseWanderingParticle(x, y, canvas);
       particles.current.push(particle);
+    },
+    attractParticles: (targetX, targetY) => {
+      // 設置吸引模式，停止生成新粒子
+      isAttractingMode.current = true;
+      if (particleIntervalId.current) {
+        clearInterval(particleIntervalId.current);
+        particleIntervalId.current = null;
+      }
+      
+      particles.current.forEach((particle) => {
+        particle.setAttractTarget(targetX, targetY);
+      });
+    },
+    resetParticles: () => {
+      // 退出吸引模式，恢復粒子生成
+      isAttractingMode.current = false;
+      if (!particleIntervalId.current) {
+        particleIntervalId.current = setInterval(generateWanderingParticle, 3000);
+      }
+      
+      particles.current.forEach((particle) => {
+        particle.resetAttract();
+      });
     }
   }));
 
-  // 動畫循環
+  // --- Animation Loop ---
   const animate = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    
-    // 清除畫布
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 更新和繪製所有粒子，同時移除死亡的粒子
+    // Update and draw WanderingParticles
     for (let i = particles.current.length - 1; i >= 0; i--) {
       const particle = particles.current[i];
       particle.update();
       
       if (particle.isDead()) {
-        // 將死亡的粒子移到物件池（如果池子未滿）
         if (deadParticles.current.length < MAX_DEAD_PARTICLES) {
-          particle.cleanup(); // 清理粒子狀態
+          particle.cleanup();
           deadParticles.current.push(particle);
         }
         particles.current.splice(i, 1);
@@ -236,24 +308,23 @@ const PulseBackground = forwardRef((props, ref) => {
     animationFrameId.current = requestAnimationFrame(animate);
   };
 
-  // 創建或重用粒子的輔助函數
-  const createOrReuseParticle = (x, y, canvas) => {
+  // Helper for WanderingParticles
+  const createOrReuseWanderingParticle = (x, y, canvas) => {
     if (deadParticles.current.length > 0) {
-      // 從物件池重用粒子
       const particle = deadParticles.current.pop();
       particle.reset(x, y, canvas);
       return particle;
     } else {
-      // 創建新粒子
       return new WanderingParticle(x, y, canvas);
     }
   };
 
-  // 產生新漫遊粒子
-  const generateParticle = () => {
+  // Helper to generate new WanderingParticles periodically
+  const generateWanderingParticle = () => {
     const canvas = canvasRef.current;
-    if (canvas && particles.current.length < MAX_PARTICLES) {
-      const particle = createOrReuseParticle(
+    // 只有在非吸引模式下才生成新粒子
+    if (canvas && !isAttractingMode.current && particles.current.length < MAX_WANDERING_PARTICLES) {
+      const particle = createOrReuseWanderingParticle(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
         canvas
@@ -275,9 +346,9 @@ const PulseBackground = forwardRef((props, ref) => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // 初始化粒子
+    // Initialize WanderingParticles
     for (let i = 0; i < 3; i++) {
-      const particle = createOrReuseParticle(
+      const particle = createOrReuseWanderingParticle(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
         canvas
@@ -285,23 +356,22 @@ const PulseBackground = forwardRef((props, ref) => {
       particles.current.push(particle);
     }
 
-    // 開始動畫
     animate();
 
-    // 定期產生新粒子（每3秒）
-    const particleInterval = setInterval(generateParticle, 3000);
+    // 開始粒子生成定時器
+    particleIntervalId.current = setInterval(generateWanderingParticle, 3000);
 
-    // 清理函數（cleanup function）
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      clearInterval(particleInterval);
+      if (particleIntervalId.current) {
+        clearInterval(particleIntervalId.current);
+      }
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
       
-      // 清理所有粒子和物件池，釋放記憶體
-      particles.current.forEach(particle => particle.cleanup());
-      deadParticles.current.forEach(particle => particle.cleanup());
+      particles.current.forEach(p => p.cleanup && p.cleanup());
+      deadParticles.current.forEach(p => p.cleanup && p.cleanup());
       particles.current.length = 0;
       deadParticles.current.length = 0;
     };
