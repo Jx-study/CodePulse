@@ -19,11 +19,12 @@
   }
 
   .btnLogin {
-    color: var(--text-primary);
+    color: white;
     border: 1px solid var(--border);
     background: transparent;
 
     &:hover {
+      color: #0f172a;
       background: var(--bg-secondary);
       border-color: var(--text-secondary);
     }
@@ -35,8 +36,7 @@
     border: 1px solid $primary-color;
 
     &:hover {
-      background: rgba(37, 99, 235, 0.9);
-      border-color: rgba(37, 99, 235, 0.9);
+      background: $gradient-primary;
     }
   }
 }

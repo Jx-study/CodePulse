@@ -1,6 +1,11 @@
 .navigationBar {
+  justify-self: center;
   display: flex;
   align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 4px;
+  backdrop-filter: blur(10px);
 }
 
 .navMenu {
@@ -8,10 +13,16 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 40px;
+  gap: 0;
 
   li {
+    flex: 1;
+    min-width: max-content;
+    position: relative;
+    
     a {
+      display: block;
+      text-align: center;
       color: white;
       text-decoration: none;
       font-weight: 500;
@@ -19,7 +30,7 @@
       transition: $transition-base;
       position: relative;
       border: 2px solid transparent;
-      padding: 8px 16px;
+      padding: 8px 12px;
       border-radius: 4px;
 
       &::before {
@@ -29,19 +40,14 @@
         left: 0;
         width: 0;
         height: 100%;
-
-        // new update
-        // border-color: $primary-color;
         border-style: solid;
         border-width: 0 2px 2px 0;
-        // background: $primary-color;
         z-index: -1;
         transition: width 0.5s ease;
         border-radius: 4px;
+        border-right-color: $dark-text-tertiary
       }
-
       &:hover {
-        // color: white;
         border-color: $primary-color;
 
         &::before {
@@ -52,9 +58,7 @@
       &.active {
         font-weight: 600;
         border-color: $primary-color;
-        // background: #920192;
         background-color: $primary-color;
-        // color: #1e293b;
 
         &::before {
           content: '';
@@ -75,12 +79,23 @@
     }
   }
 
+  // 第一个 li 元素
+  li:first-child {
+    a::before {
+      border-right-color: transparent;
+    }
+    
+    a:hover::before {
+      border-right-color: $primary-color;
+    }
+  }
+
   @include mobile {
-    display: none; // 手機版隱藏導航選單，後續可實現漢堡選單
+    display: none;
   }
 
   @include tablet {
     margin-left: 30px;
-    gap: 25px;
+    gap: 0;
   }
 }
