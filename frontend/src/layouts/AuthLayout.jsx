@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import AuthHeader from '../components/Header/AuthHeader';
+import { AuthHeader } from '@/components';
 
 function AuthLayout() {
   return (

@@ -54,7 +54,6 @@ const PulseBackground = forwardRef((props, ref) => {
       this.trail = [];
       this.maxTrailLength = 55;
       
-      // Attraction properties
       this.isAttracted = false;
       this.targetX = 0;
       this.targetY = 0;

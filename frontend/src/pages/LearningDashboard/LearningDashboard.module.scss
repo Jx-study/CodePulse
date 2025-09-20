@@ -1,14 +1,44 @@
 @use '../../styles/variables' as *;
 @use '../../styles/mixins' as *;
 
-.learningDashboard {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  padding: $spacing-xl 0;
+.tempTutorialSection {
+  margin-top: $spacing-xl;
+  
+  h2 {
+    color: $dark-text-primary;
+    margin-bottom: $spacing-lg;
+    font-size: $font-2xl;
+  }
 }
 
-.content {
-  text-align: center;
-  color: var(--text-primary);
-  margin-top: $spacing-xl;
+.algorithmGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-lg;
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: $transition-base;
+    
+    &:hover {
+      transform: $hover-transform;
+    }
+    
+    h3 {
+      color: $primary-color;
+      margin-bottom: $spacing-sm;
+      font-size: $font-lg;
+    }
+    
+    p {
+      color: $dark-text-secondary;
+      margin-bottom: $spacing-sm;
+    }
+  }
+}
+
+.difficulty {
+  color: #fbbf24;
+  font-size: $font-sm;
 }
