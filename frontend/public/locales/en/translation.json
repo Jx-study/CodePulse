@@ -7,8 +7,14 @@
   "demo": "Demo",
   "docs": "Docs",
   "about": "About",
+  "dashboardLabel": "Dashboard",
   "login": "Login",
   "register": "Register",
+  
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "backToDashboard": "Back to Dashboard"
+  },
   
   "hero": {
     "title": "CodePulse",
@@ -169,6 +175,40 @@
       "LOGIN_SUCCESS": "Login successful!",
       "REGISTRATION_SUCCESS": "Registration successful!",
       "EMAIL_VERIFICATION_SENT": "Please check your email for verification before logging in"
+    }
+  },
+  
+  "dashboard": {
+    "title": "Learning Dashboard",
+    "progressOverview": "Learning Progress Overview",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "totalAlgorithms": "Total Algorithms",
+    "algorithms": "algorithms",
+    "algorithmCategories": "Algorithm Categories",
+    "recentActivity": "Recent Activity",
+    "recommendedPaths": "Recommended Learning Paths",
+    "hoursAgo": "hours ago",
+    "dayAgo": "day ago",
+    "daysAgo": "days ago",
+    "quickSort": "Quick Sort",
+    "binarySearch": "Binary Search",
+    "bubbleSort": "Bubble Sort",
+    "categories": {
+      "sorting": "Sorting Algorithms",
+      "sortingDesc": "Master various sorting techniques from basic to advanced",
+      "search": "Search Algorithms",
+      "searchDesc": "Core techniques for efficient data retrieval",
+      "graph": "Graph Algorithms",
+      "graphDesc": "Powerful tools for solving complex network problems",
+      "dp": "Dynamic Programming",
+      "dpDesc": "Classic methods for optimizing problem-solving approaches"
+    },
+    "paths": {
+      "beginner": "Beginner Path",
+      "beginnerDesc": "Start from basics and progressively master algorithmic thinking",
+      "interview": "Interview Preparation",
+      "interviewDesc": "Core algorithm training for technical interviews"
     }
   }
 }

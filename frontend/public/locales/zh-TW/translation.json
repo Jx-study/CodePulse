@@ -3,13 +3,19 @@
   "description": "您的終極程式碼分析工具。",
   "language_switcher": "語言",
   "home": "首頁",
-  "features": "功能特色", 
+  "features": "功能特色",
   "demo": "線上體驗",
   "docs": "文件",
   "about": "關於我們",
+  "dashboardLabel": "學習導覽",
   "login": "登入",
   "register": "註冊",
-  
+
+  "breadcrumb": {
+    "dashboard": "學習導覽",
+    "backToDashboard": "回到學習導覽"
+  },
+
   "hero": {
     "title": "CodePulse",
     "subtitle": "程式執行視覺化平台",
@@ -19,7 +25,7 @@
     },
     "cta": "立即體驗"
   },
-  
+
   "features_section": {
     "title": "核心功能",
     "interactive_flowchart": {
@@ -47,7 +53,7 @@
       "description": "專為教學場景設計，支援師生互動討論，讓程式教學更加生動有效。"
     }
   },
-  
+
   "demo_section": {
     "title": "程式執行示範",
     "subtitle": "體驗 CodePulse 如何讓程式執行過程變得清晰可見",
@@ -56,7 +62,7 @@
     "analysis_text": "目前在第一層迴圈，i = 0，準備開始氣泡排序的第一輪比較",
     "cta": "開始使用 CodePulse"
   },
-  
+
   "algorithms_section": {
     "title": "資料結構與演算法",
     "learn_more": "了解更多",
@@ -68,7 +74,7 @@
       "5": "專家"
     }
   },
-  
+
   "algorithms": {
     "bubble_sort": {
       "name": "氣泡排序",
@@ -124,7 +130,7 @@
       "description": "正在學習資料結構與演算法的學生和工程師，需要視覺化工具輔助理解"
     }
   },
-  
+
   "footer": {
     "tagline": "將抽象演算法化為視覺故事，讓程式設計與除錯成為直觀且引人入勝的學習旅程。",
     "resources": {
@@ -141,18 +147,18 @@
     },
     "copyright": "© 2025 CodePulse。 本項目採用 MIT 許可證。| 專為程式學習而設計。"
   },
-  
+
   "tech": {
     "python": "Python",
     "javascript": "JavaScript",
-    "react": "React", 
+    "react": "React",
     "flask": "Flask",
     "api": "API",
     "leetcode": "LeetCode",
     "github": "GitHub",
     "docker": "Docker"
   },
-  
+
   "auth": {
     "errors": {
       "MISSING_REQUIRED_FIELD": "缺少必要欄位",
@@ -169,6 +175,40 @@
       "LOGIN_SUCCESS": "登入成功！",
       "REGISTRATION_SUCCESS": "註冊成功！",
       "EMAIL_VERIFICATION_SENT": "請檢查信箱並完成驗證後登入"
+    }
+  },
+
+  "dashboard": {
+    "title": "學習導覽",
+    "progressOverview": "學習進度概覽",
+    "completed": "已完成",
+    "inProgress": "進行中",
+    "totalAlgorithms": "總演算法數",
+    "algorithms": "個演算法",
+    "algorithmCategories": "演算法分類",
+    "recentActivity": "最近學習",
+    "recommendedPaths": "推薦學習路徑",
+    "hoursAgo": "小時前",
+    "dayAgo": "天前",
+    "daysAgo": "天前",
+    "quickSort": "快速排序",
+    "binarySearch": "二分搜尋",
+    "bubbleSort": "氣泡排序",
+    "categories": {
+      "sorting": "排序演算法",
+      "sortingDesc": "掌握各種排序技巧，從基礎到進階",
+      "search": "搜尋演算法",
+      "searchDesc": "高效查找資料的核心技術",
+      "graph": "圖論演算法",
+      "graphDesc": "解決複雜網路問題的強大工具",
+      "dp": "動態規劃",
+      "dpDesc": "優化解題思路的經典方法"
+    },
+    "paths": {
+      "beginner": "初學者路徑",
+      "beginnerDesc": "從基礎開始，循序漸進掌握演算法思維",
+      "interview": "面試準備",
+      "interviewDesc": "針對技術面試的核心演算法訓練"
     }
   }
 }
