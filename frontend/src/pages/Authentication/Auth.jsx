@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import LoginForm from './components/Auth/LoginForm';
 import SignupForm from './components/Auth/SignupForm';
-import authService from '../../services/authService';
+import authService from '../../modules/user/services/authService';
 import styles from './Auth.module.scss';
 
 function AuthPage() {

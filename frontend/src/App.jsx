@@ -3,8 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 // Layouts
-import MainLayout from './layouts/MainLayout';
-import AuthLayout from './layouts/AuthLayout';
+import MainLayout from './shared/layouts/MainLayout';
+import AuthLayout from './shared/layouts/AuthLayout';
 
 // Pages
 import Home from './pages/Home/Home';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { MainHeader, Footer } from '@/components';
+import { MainHeader, Footer } from '../components';
 
 function MainLayout() {
   return (

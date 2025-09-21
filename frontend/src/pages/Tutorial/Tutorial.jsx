@@ -1,7 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumb, CodeEditor } from '@/components/UI';
+import { Breadcrumb } from '../../shared/components';
+import CodeEditor from '../../modules/core/components/CodeEditor/CodeEditor';
 import AlgorithmInfo from './components/AlgorithmInfo/AlgorithmInfo';
 import AnimationArea from './components/AnimationArea/AnimationArea';
 import ControlBar from './components/ControlBar/ControlBar';

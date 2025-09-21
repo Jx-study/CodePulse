@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import '../../styles/main.scss'; 
+import '../../shared/styles/main.scss'; 
 
 // 導入各個元件
 import Hero from './components/Hero/Hero';

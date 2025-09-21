@@ -20,8 +20,8 @@ export default defineConfig({
       scss: {
         additionalData: 
         `
-          @use "@/styles/_variables" as *;
-          @use "@/styles/_mixins" as *;
+          @use "@/shared/styles/_variables" as *;
+          @use "@/shared/styles/_mixins" as *;
         `
       }
     }
