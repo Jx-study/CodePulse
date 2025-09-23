@@ -1,17 +1,23 @@
+import type { User, AuthResponse, ErrorResponse } from '../../../types';
+
 const API_BASE_URL = 'http://localhost:5000/api';
 
+type TranslationFunction = (key: string) => string;
+
 class AuthService {
+  private t: TranslationFunction | null;
+
   constructor() {
     this.t = null; // 翻譯函數將由外部注入
   }
 
   // 設定翻譯函數
-  setTranslation(t) {
+  setTranslation(t: TranslationFunction): void {
     this.t = t;
   }
 
   // 處理錯誤訊息翻譯
-  translateError(errorData) {
+  translateError(errorData: ErrorResponse): string {
     if (!this.t || !errorData.error_code) {
       return errorData.message || 'Unknown error';
     }
@@ -26,7 +32,7 @@ class AuthService {
     return translatedMessage;
   }
   // 登入
-  async login(email, password) {
+  async login(email: string, password: string): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
@@ -58,7 +64,7 @@ class AuthService {
   }
 
   // 註冊
-  async register(email, password, username = '') {
+  async register(email: string, password: string, username: string = ''): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
@@ -90,7 +96,7 @@ class AuthService {
   }
 
   // 登出
-  async logout() {
+  async logout(): Promise<void> {
     try {
       const token = localStorage.getItem('access_token');
       
@@ -114,7 +120,7 @@ class AuthService {
   }
 
   // 獲取當前用戶資訊
-  async getCurrentUser() {
+  async getCurrentUser(): Promise<{ user: User }> {
     try {
       const token = localStorage.getItem('access_token');
       
@@ -145,7 +151,7 @@ class AuthService {
   }
 
   // 刷新 token
-  async refreshToken() {
+  async refreshToken(): Promise<AuthResponse> {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
       
@@ -182,18 +188,18 @@ class AuthService {
   }
 
   // 檢查是否已登入
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     return !!localStorage.getItem('access_token');
   }
 
   // 獲取儲存的用戶資訊
-  getStoredUser() {
+  getStoredUser(): User | null {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   }
 
   // 獲取 access token
-  getAccessToken() {
+  getAccessToken(): string | null {
     return localStorage.getItem('access_token');
   }
 }

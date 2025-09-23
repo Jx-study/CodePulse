@@ -27,17 +27,17 @@ function UserStatus() {
   // }, []);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // 處理點擊外部關閉菜單
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
       }
     }
 
-    function handleEscKey(event) {
+    function handleEscKey(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setShowUserMenu(false);
         setShowSettingPanel(false);
