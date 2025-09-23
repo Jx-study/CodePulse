@@ -1,0 +1,41 @@
+.tempTutorialSection {
+  margin-top: $spacing-xl;
+  
+  h2 {
+    color: $dark-text-primary;
+    margin-bottom: $spacing-lg;
+    font-size: $font-2xl;
+  }
+}
+
+.algorithmGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-lg;
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: $transition-base;
+    
+    &:hover {
+      transform: $hover-transform;
+    }
+    
+    h3 {
+      color: $primary-color;
+      margin-bottom: $spacing-sm;
+      font-size: $font-lg;
+    }
+    
+    p {
+      color: $dark-text-secondary;
+      margin-bottom: $spacing-sm;
+    }
+  }
+}
+
+.difficulty {
+  color: #fbbf24;
+  font-size: $font-sm;
+}

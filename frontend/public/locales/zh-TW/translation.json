@@ -3,13 +3,19 @@
   "description": "您的終極程式碼分析工具。",
   "language_switcher": "語言",
   "home": "首頁",
-  "features": "功能特色", 
+  "features": "功能特色",
   "demo": "線上體驗",
   "docs": "文件",
   "about": "關於我們",
+  "dashboardLabel": "學習導覽",
   "login": "登入",
   "register": "註冊",
-  
+
+  "breadcrumb": {
+    "dashboard": "學習導覽",
+    "backToDashboard": "回到學習導覽"
+  },
+
   "hero": {
     "title": "CodePulse",
     "subtitle": "程式執行視覺化平台",
@@ -19,7 +25,7 @@
     },
     "cta": "立即體驗"
   },
-  
+
   "features_section": {
     "title": "核心功能",
     "interactive_flowchart": {
@@ -47,7 +53,7 @@
       "description": "專為教學場景設計，支援師生互動討論，讓程式教學更加生動有效。"
     }
   },
-  
+
   "demo_section": {
     "title": "程式執行示範",
     "subtitle": "體驗 CodePulse 如何讓程式執行過程變得清晰可見",
@@ -56,7 +62,59 @@
     "analysis_text": "目前在第一層迴圈，i = 0，準備開始氣泡排序的第一輪比較",
     "cta": "開始使用 CodePulse"
   },
-  
+
+  "algorithms_section": {
+    "title": "資料結構與演算法",
+    "learn_more": "了解更多",
+    "difficulty_levels": {
+      "1": "初學者",
+      "2": "簡單",
+      "3": "中等",
+      "4": "進階",
+      "5": "專家"
+    }
+  },
+
+  "algorithms": {
+    "bubble_sort": {
+      "name": "氣泡排序",
+      "description": "一種簡單的比較排序演算法，重複地走訪過要排列的數列，一次比較兩個元素，如果它們的順序錯誤就把它們交換過來。"
+    },
+    "quick_sort": {
+      "name": "快速排序",
+      "description": "一種高效的分治排序演算法，通過選擇一個基準元素並將陣列分割成兩部分來進行排序。"
+    },
+    "merge_sort": {
+      "name": "合併排序",
+      "description": "一種穩定的分治排序演算法，將陣列分成兩半分別排序，然後將已排序的部分合併起來。"
+    },
+    "binary_search": {
+      "name": "二分搜尋",
+      "description": "一種在已排序陣列中查找特定元素的高效搜尋演算法，通過重複將搜尋區間對半分割來縮小搜尋範圍。"
+    },
+    "linear_search": {
+      "name": "線性搜尋",
+      "description": "一種簡單的搜尋演算法，按順序檢查列表中的每個元素，直到找到目標元素。"
+    },
+    "dfs": {
+      "name": "深度優先搜尋",
+      "description": "一種圖形遍歷演算法，在回溯之前會盡可能深入地沿著每個分支進行探索。"
+    },
+    "bfs": {
+      "name": "廣度優先搜尋",
+      "description": "一種圖形遍歷演算法，在移動到下一層深度的頂點之前，會先探索當前深度的所有頂點。"
+    },
+    "dijkstra": {
+      "name": "戴克斯特拉演算法",
+      "description": "一種用於尋找圖中具有非負邊權重的節點之間最短路徑的演算法。"
+    },
+    "categories": {
+      "sorting": "排序",
+      "search": "搜尋",
+      "graph": "圖論"
+    }
+  },
+
   "audience_section": {
     "title": "適用對象",
     "beginners": {
@@ -72,7 +130,7 @@
       "description": "正在學習資料結構與演算法的學生和工程師，需要視覺化工具輔助理解"
     }
   },
-  
+
   "footer": {
     "tagline": "將抽象演算法化為視覺故事，讓程式設計與除錯成為直觀且引人入勝的學習旅程。",
     "resources": {
@@ -89,15 +147,68 @@
     },
     "copyright": "© 2025 CodePulse。 本項目採用 MIT 許可證。| 專為程式學習而設計。"
   },
-  
+
   "tech": {
     "python": "Python",
     "javascript": "JavaScript",
-    "react": "React", 
+    "react": "React",
     "flask": "Flask",
     "api": "API",
     "leetcode": "LeetCode",
     "github": "GitHub",
     "docker": "Docker"
+  },
+
+  "auth": {
+    "errors": {
+      "MISSING_REQUIRED_FIELD": "缺少必要欄位",
+      "PASSWORD_TOO_SHORT": "密碼至少需要6個字符",
+      "REGISTRATION_FAILED": "註冊失敗，請稍後再試",
+      "EMAIL_ALREADY_EXISTS": "此信箱已被註冊",
+      "INVALID_PASSWORD_FORMAT": "密碼格式不符要求",
+      "REGISTRATION_ERROR": "註冊失敗，請稍後再試",
+      "MISSING_CREDENTIALS": "請輸入信箱和密碼",
+      "INVALID_CREDENTIALS": "信箱或密碼錯誤",
+      "LOGIN_ERROR": "登入失敗，請稍後再試"
+    },
+    "success": {
+      "LOGIN_SUCCESS": "登入成功！",
+      "REGISTRATION_SUCCESS": "註冊成功！",
+      "EMAIL_VERIFICATION_SENT": "請檢查信箱並完成驗證後登入"
+    }
+  },
+
+  "dashboard": {
+    "title": "學習導覽",
+    "progressOverview": "學習進度概覽",
+    "completed": "已完成",
+    "inProgress": "進行中",
+    "totalAlgorithms": "總演算法數",
+    "algorithms": "個演算法",
+    "algorithmCategories": "演算法分類",
+    "recentActivity": "最近學習",
+    "recommendedPaths": "推薦學習路徑",
+    "hoursAgo": "小時前",
+    "dayAgo": "天前",
+    "daysAgo": "天前",
+    "quickSort": "快速排序",
+    "binarySearch": "二分搜尋",
+    "bubbleSort": "氣泡排序",
+    "categories": {
+      "sorting": "排序演算法",
+      "sortingDesc": "掌握各種排序技巧，從基礎到進階",
+      "search": "搜尋演算法",
+      "searchDesc": "高效查找資料的核心技術",
+      "graph": "圖論演算法",
+      "graphDesc": "解決複雜網路問題的強大工具",
+      "dp": "動態規劃",
+      "dpDesc": "優化解題思路的經典方法"
+    },
+    "paths": {
+      "beginner": "初學者路徑",
+      "beginnerDesc": "從基礎開始，循序漸進掌握演算法思維",
+      "interview": "面試準備",
+      "interviewDesc": "針對技術面試的核心演算法訓練"
+    }
   }
 }

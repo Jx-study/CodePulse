@@ -1,0 +1,37 @@
+.header {
+    background: #1e293b;
+    padding: $spacing-sm 0;
+    box-shadow: $shadow-md;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navContainer {
+    max-width: $desktop;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 0 $spacing-lg;
+    gap: $spacing-lg;
+}
+
+.logo {
+    img {
+        width: 120px;
+        height: auto;
+        transition: $transition-base;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    justify-self: end;
+}

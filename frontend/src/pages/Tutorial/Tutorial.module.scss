@@ -1,0 +1,38 @@
+.tutorialPage {
+  min-height: calc(100vh - 64px);
+  background: $dark-bg-primary;
+}
+
+.breadcrumbContainer {
+  max-width: $desktop;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+}
+
+.contentContainer {
+  max-width: $desktop;
+  margin: 0 auto;
+  padding: $spacing-lg;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-xl;
+  min-height: calc(100vh - 140px);
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+    padding: 0 $spacing-md;
+  }
+}
+
+.leftPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}

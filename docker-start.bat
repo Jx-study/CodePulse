@@ -41,7 +41,7 @@ if %errorlevel% == 0 (
     echo ✗ 應用啟動失敗 (錯誤代碼: %errorlevel%)
     echo.
     echo 故障排除建議:
-    echo   1. 檢查 Docker Desktop 是否正在運行
+    echo   1. 檢查 Docker Desktop 是否正在運行(輸入docker version)
     echo   2. 確認網路連接穩定
     echo   3. 直接執行: docker-compose up --build
 )

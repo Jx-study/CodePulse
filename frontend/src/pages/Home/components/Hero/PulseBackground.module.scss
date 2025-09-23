@@ -1,0 +1,20 @@
+.pulseCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  
+  // 支援 prefers-reduced-motion
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+  
+  // 行動裝置簡化
+  @media (max-width: 768px) {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

@@ -7,9 +7,15 @@
   "demo": "在线体验",
   "docs": "文档",
   "about": "关于我们",
+  "dashboardLabel": "学习导览",
   "login": "登录",
   "register": "注册",
-  
+
+  "breadcrumb": {
+    "dashboard": "学习导览",
+    "backToDashboard": "回到学习导览"
+  },
+
   "hero": {
     "title": "CodePulse",
     "subtitle": "程序执行可视化平台",
@@ -19,11 +25,11 @@
     },
     "cta": "立即体验"
   },
-  
+
   "hero_title": "CodePulse",
   "hero_description": "结合静态分析与动态追踪的程序执行可视化平台\n让程序运作变得一目了然，让学习调试更加高效",
   "hero_cta": "立即体验",
-  
+
   "features_section": {
     "title": "核心功能",
     "interactive_flowchart": {
@@ -51,7 +57,7 @@
       "description": "专为教学场景设计，支持师生互动讨论，让程序教学更加生动有效。"
     }
   },
-  
+
   "demo_section": {
     "title": "程序执行演示",
     "subtitle": "体验 CodePulse 如何让程序执行过程变得清晰可见",
@@ -60,7 +66,7 @@
     "analysis_text": "当前在第一层循环，i = 0，准备开始冒泡排序的第一轮比较",
     "cta": "开始使用 CodePulse"
   },
-  
+
   "audience_section": {
     "title": "适用对象",
     "beginners": {
@@ -76,7 +82,7 @@
       "description": "正在学习数据结构与算法的学生和工程师，需要可视化工具辅助理解"
     }
   },
-  
+
   "footer": {
     "tagline": "将抽象演算法化为视觉故事，让程式设计与除错成为直观且引人入胜的学习旅程。",
     "resources": {
@@ -93,15 +99,49 @@
     },
     "copyright": "© 2025 CodePulse. 本项目采用 MIT 许可证。| 专为程序学习而设计。"
   },
-  
+
   "tech": {
     "python": "Python",
     "javascript": "JavaScript",
-    "react": "React", 
+    "react": "React",
     "flask": "Flask",
     "api": "API",
     "leetcode": "LeetCode",
     "github": "GitHub",
     "docker": "Docker"
+  },
+
+  "dashboard": {
+    "title": "学习导览",
+    "progressOverview": "学习进度概览",
+    "completed": "已完成",
+    "inProgress": "进行中",
+    "totalAlgorithms": "总算法数",
+    "algorithms": "个算法",
+    "algorithmCategories": "算法分类",
+    "recentActivity": "最近学习",
+    "recommendedPaths": "推荐学习路径",
+    "hoursAgo": "小时前",
+    "dayAgo": "天前",
+    "daysAgo": "天前",
+    "quickSort": "快速排序",
+    "binarySearch": "二分搜索",
+    "bubbleSort": "冒泡排序",
+    "categories": {
+      "sorting": "排序算法",
+      "sortingDesc": "掌握各种排序技巧，从基础到进阶",
+      "search": "搜索算法",
+      "searchDesc": "高效查找数据的核心技术",
+      "graph": "图论算法",
+      "graphDesc": "解决复杂网络问题的强大工具",
+      "dp": "动态规划",
+      "dpDesc": "优化解题思路的经典方法"
+    },
+    "paths": {
+      "beginner": "初学者路径",
+      "beginnerDesc": "从基础开始，循序渐进掌握算法思维",
+      "interview": "面试准备",
+      "interviewDesc": "针对技术面试的核心算法训练"
+    }
   }
 }
