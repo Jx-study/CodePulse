@@ -1,11 +1,13 @@
-import { useEffect } from 'react'
-import '../../shared/styles/main.scss'; 
+import { useEffect, Suspense, lazy } from 'react'
+import '../../shared/styles/main.scss';
 
-// 導入各個元件
+// 立即載入首屏元件
 import Hero from './components/Hero/Hero';
-import Features from './components/Features/Features';
-import DataStructureAlgorithm from './components/DataStructureAlgorithm/DataStructureAlgorithm';
-import Demo from './components/Demo/Demo';
+
+// 懶載入非首屏元件
+const Features = lazy(() => import('./components/Features/Features'));
+const DataStructureAlgorithm = lazy(() => import('./components/DataStructureAlgorithm/DataStructureAlgorithm'));
+const Demo = lazy(() => import('./components/Demo/Demo'));
 
 function Home() {
   // 平滑滾動
@@ -53,9 +55,15 @@ function Home() {
   return (
     <div className="App">
       <Hero />
-      <DataStructureAlgorithm />
-      <Features />
-      <Demo />
+      <Suspense fallback={<div className="loading-section">載入中...</div>}>
+        <DataStructureAlgorithm />
+      </Suspense>
+      <Suspense fallback={<div className="loading-section">載入中...</div>}>
+        <Features />
+      </Suspense>
+      <Suspense fallback={<div className="loading-section">載入中...</div>}>
+        <Demo />
+      </Suspense>
     </div>
   );
 }
