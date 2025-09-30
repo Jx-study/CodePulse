@@ -2,17 +2,28 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './AuthForm.module.scss';
 
-function SignupForm({ onSubmit }) {
+interface SignupFormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface SignupFormErrors {
+  [key: string]: string;
+}
+
+function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void }) {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignupFormData>({
     username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<SignupFormErrors>({});
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -29,7 +40,7 @@ function SignupForm({ onSubmit }) {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: SignupFormErrors = {};
 
     // 用戶名驗證
     if (!formData.username.trim()) {
@@ -67,7 +78,7 @@ function SignupForm({ onSubmit }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSubmit(formData);

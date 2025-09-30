@@ -2,16 +2,26 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './AuthForm.module.scss';
 
-function LoginForm({ onSubmit }) {
+interface LoginFormData {
+  usernameOrEmail: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+interface LoginFormErrors {
+  [key: string]: string;
+}
+
+function LoginForm({ onSubmit }: { onSubmit: (formData: LoginFormData) => void }) {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginFormData>({
     usernameOrEmail: '',
     password: '',
     rememberMe: false
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<LoginFormErrors>({});
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -28,7 +38,7 @@ function LoginForm({ onSubmit }) {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: LoginFormErrors = {};
 
     if (!formData.usernameOrEmail.trim()) {
       newErrors.usernameOrEmail = '請輸入用戶名或信箱';
@@ -44,7 +54,7 @@ function LoginForm({ onSubmit }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSubmit(formData);
