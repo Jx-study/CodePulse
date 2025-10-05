@@ -5,7 +5,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   server: {
-    historyApiFallback: true, // 支持 HTML5 History API
+    // historyApiFallback: true, // 支持 HTML5 History API
     host: true,               // 等同於 --host，讓外部可以連接
     port: 5173                // 預設端口
   },
