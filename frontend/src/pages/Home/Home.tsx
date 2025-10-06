@@ -5,9 +5,8 @@ import '../../shared/styles/main.scss';
 import Hero from './components/Hero/Hero';
 
 // 懶載入非首屏元件
-const Features = lazy(() => import('./components/Features/Features'));
+const Features = lazy(() => import('../../shared/components/Features/Features'));
 const DataStructureAlgorithm = lazy(() => import('./components/DataStructureAlgorithm/DataStructureAlgorithm'));
-const Demo = lazy(() => import('./components/Demo/Demo'));
 
 function Home() {
   // 平滑滾動
@@ -60,9 +59,6 @@ function Home() {
       </Suspense>
       <Suspense fallback={<div className="loading-section">載入中...</div>}>
         <Features />
-      </Suspense>
-      <Suspense fallback={<div className="loading-section">載入中...</div>}>
-        <Demo />
       </Suspense>
     </div>
   );
