@@ -3,3 +3,8 @@ flask==3.0.3
 flask-cors
 flask-login==0.6.3
 flask-sqlalchemy==3.1.1
+psycopg2-binary==2.9.7
+supabase==2.9.0
+python-dotenv==1.0.0
+bcrypt==4.0.1
+pyjwt==2.8.0

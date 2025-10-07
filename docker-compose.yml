@@ -14,7 +14,7 @@ services:
 
   # Vite dev server
   frontend:
-    build: 
+    build:
       context: ./frontend
       args:
         REGISTRY_PREFIX: ${REGISTRY_PREFIX:-}
@@ -25,6 +25,8 @@ services:
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+      # 使用 localhost:5000 因為瀏覽器是從主機訪問，不是從容器內
+      - VITE_API_URL=http://localhost:5000/api
     depends_on:
       - backend
 
