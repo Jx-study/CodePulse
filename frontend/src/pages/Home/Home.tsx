@@ -5,6 +5,7 @@ import '../../shared/styles/main.scss';
 import Hero from './components/Hero/Hero';
 import Features from './components/Features/Features';
 import DataStructureAlgorithm from './components/DataStructureAlgorithm/DataStructureAlgorithm';
+import Audience from './components/TargetGroup/Audience';
 import Demo from './components/Demo/Demo';
 
 function Home() {
@@ -55,6 +56,7 @@ function Home() {
       <Hero />
       <DataStructureAlgorithm />
       <Features />
+      <Audience />
       <Demo />
     </div>
   );

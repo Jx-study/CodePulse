@@ -157,58 +157,5 @@
     "leetcode": "LeetCode",
     "github": "GitHub",
     "docker": "Docker"
-  },
-
-  "auth": {
-    "errors": {
-      "MISSING_REQUIRED_FIELD": "缺少必要欄位",
-      "PASSWORD_TOO_SHORT": "密碼至少需要6個字符",
-      "REGISTRATION_FAILED": "註冊失敗，請稍後再試",
-      "EMAIL_ALREADY_EXISTS": "此信箱已被註冊",
-      "INVALID_PASSWORD_FORMAT": "密碼格式不符要求",
-      "REGISTRATION_ERROR": "註冊失敗，請稍後再試",
-      "MISSING_CREDENTIALS": "請輸入信箱和密碼",
-      "INVALID_CREDENTIALS": "信箱或密碼錯誤",
-      "LOGIN_ERROR": "登入失敗，請稍後再試"
-    },
-    "success": {
-      "LOGIN_SUCCESS": "登入成功！",
-      "REGISTRATION_SUCCESS": "註冊成功！",
-      "EMAIL_VERIFICATION_SENT": "請檢查信箱並完成驗證後登入"
-    }
-  },
-
-  "dashboard": {
-    "title": "學習導覽",
-    "progressOverview": "學習進度概覽",
-    "completed": "已完成",
-    "inProgress": "進行中",
-    "totalAlgorithms": "總演算法數",
-    "algorithms": "個演算法",
-    "algorithmCategories": "演算法分類",
-    "recentActivity": "最近學習",
-    "recommendedPaths": "推薦學習路徑",
-    "hoursAgo": "小時前",
-    "dayAgo": "天前",
-    "daysAgo": "天前",
-    "quickSort": "快速排序",
-    "binarySearch": "二分搜尋",
-    "bubbleSort": "氣泡排序",
-    "categories": {
-      "sorting": "排序演算法",
-      "sortingDesc": "掌握各種排序技巧，從基礎到進階",
-      "search": "搜尋演算法",
-      "searchDesc": "高效查找資料的核心技術",
-      "graph": "圖論演算法",
-      "graphDesc": "解決複雜網路問題的強大工具",
-      "dp": "動態規劃",
-      "dpDesc": "優化解題思路的經典方法"
-    },
-    "paths": {
-      "beginner": "初學者路徑",
-      "beginnerDesc": "從基礎開始，循序漸進掌握演算法思維",
-      "interview": "面試準備",
-      "interviewDesc": "針對技術面試的核心演算法訓練"
-    }
   }
 }

@@ -4,6 +4,8 @@ node_modules/
 build/
 frontend/dist/
 .env
+.env.local
+.env.*.local
 
 # Backend (Python)
 __pycache__/
