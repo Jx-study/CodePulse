@@ -3,6 +3,8 @@ node_modules/
 # Frontend
 build/
 .env
+.env.local
+.env.*.local
 
 # Backend (Python)
 __pycache__/

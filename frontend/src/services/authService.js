@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+// 根據環境決定 API URL
+// 在 Docker 環境中使用服務名稱，本地開發使用 localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class AuthService {
   constructor() {
