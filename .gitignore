@@ -2,6 +2,7 @@ node_modules/
 
 # Frontend
 build/
+frontend/dist/
 .env
 .env.local
 .env.*.local

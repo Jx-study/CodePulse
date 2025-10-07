@@ -1,0 +1,104 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm 0;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: none;
+  border: none;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-base;
+
+  &:hover {
+    background: var(--bg-secondary);
+    color: $primary-color;
+    
+    .backIcon {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.backIcon {
+  font-size: 1.1em;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.backText {
+  @include mobile {
+    display: none;
+  }
+}
+
+.breadcrumbList {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-left: $spacing-sm;
+}
+
+.separator {
+  color: var(--text-tertiary);
+  margin: 0 2px;
+  font-weight: 300;
+}
+
+.breadcrumbItem {
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: $transition-base;
+  white-space: nowrap;
+  
+  &.clickable {
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--bg-secondary);
+      color: $primary-color;
+    }
+  }
+  
+  &.current {
+    color: var(--text-primary);
+    font-weight: 600;
+    background: rgba($primary-color, 0.1);
+  }
+
+  @include mobile {
+    font-size: $font-xs;
+  }
+}
+
+// 響應式設計
+@include mobile {
+  .breadcrumb {
+    gap: $spacing-sm;
+  }
+  
+  .breadcrumbList {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}

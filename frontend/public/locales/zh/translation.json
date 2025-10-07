@@ -3,13 +3,14 @@
   "description": "您的終極程式碼分析工具。",
   "language_switcher": "語言",
   "home": "首頁",
-  "features": "功能特色", 
+  "features": "功能特色",
   "demo": "線上體驗",
   "docs": "文件",
   "about": "關於我們",
+  "dashboardLabel": "學習中心",
   "login": "登入",
   "register": "註冊",
-  
+
   "hero": {
     "title": "CodePulse",
     "subtitle": "程式執行視覺化平台",
@@ -19,7 +20,7 @@
     },
     "cta": "立即體驗"
   },
-  
+
   "features_section": {
     "title": "核心功能",
     "interactive_flowchart": {
@@ -47,7 +48,7 @@
       "description": "專為教學場景設計，支援師生互動討論，讓程式教學更加生動有效。"
     }
   },
-  
+
   "demo_section": {
     "title": "程式執行示範",
     "subtitle": "體驗 CodePulse 如何讓程式執行過程變得清晰可見",
@@ -56,7 +57,7 @@
     "analysis_text": "目前在第一層迴圈，i = 0，準備開始氣泡排序的第一輪比較",
     "cta": "開始使用 CodePulse"
   },
-  
+
   "audience_section": {
     "title": "適用對象",
     "beginners": {
@@ -72,7 +73,7 @@
       "description": "正在學習資料結構與演算法的學生和工程師，需要視覺化工具輔助理解"
     }
   },
-  
+
   "footer": {
     "tagline": "將抽象演算法化為視覺故事，讓程式設計與除錯成為直觀且引人入勝的學習旅程。",
     "resources": {
@@ -89,11 +90,11 @@
     },
     "copyright": "© 2025 CodePulse。 本項目採用 MIT 許可證。| 專為程式學習而設計。"
   },
-  
+
   "tech": {
     "python": "Python",
     "javascript": "JavaScript",
-    "react": "React", 
+    "react": "React",
     "flask": "Flask",
     "api": "API",
     "leetcode": "LeetCode",

@@ -1,0 +1,30 @@
+.languageSetting {
+  display: flex;
+  align-items: center;
+}
+
+.languageSelect {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: white;
+  font-size: $font-sm;
+  cursor: pointer;
+  outline: none;
+  transition: $transition-base;
+
+  &:hover {
+    border-color: var(--text-secondary);
+  }
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  }
+
+  option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}

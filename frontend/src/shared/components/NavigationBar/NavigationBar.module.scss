@@ -1,0 +1,101 @@
+.navigationBar {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 4px;
+  backdrop-filter: blur(10px);
+}
+
+.navMenu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+
+  li {
+    flex: 1;
+    min-width: max-content;
+    position: relative;
+    
+    a {
+      display: block;
+      text-align: center;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: $font-base;
+      transition: $transition-base;
+      position: relative;
+      border: 2px solid transparent;
+      padding: 8px 12px;
+      border-radius: 4px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        border-style: solid;
+        border-width: 0 2px 2px 0;
+        z-index: -1;
+        transition: width 0.5s ease;
+        border-radius: 4px;
+        border-right-color: $dark-text-tertiary
+      }
+      &:hover {
+        border-color: $primary-color;
+
+        &::before {
+          width: 100%;
+        }
+      }
+
+      &.active {
+        font-weight: 600;
+        border-color: $primary-color;
+        background-color: $primary-color;
+
+        &::before {
+          content: '';
+          width: 100%;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -12px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: $primary-color;
+          border-radius: 1px;
+        }
+      }
+    }
+  }
+
+  // 第一个 li 元素
+  li:first-child {
+    a::before {
+      border-right-color: transparent;
+    }
+    
+    a:hover::before {
+      border-right-color: $primary-color;
+    }
+  }
+
+  @include mobile {
+    display: none;
+  }
+
+  @include tablet {
+    margin-left: 30px;
+    gap: 0;
+  }
+}

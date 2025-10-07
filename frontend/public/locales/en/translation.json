@@ -7,8 +7,14 @@
   "demo": "Demo",
   "docs": "Docs",
   "about": "About",
+  "dashboardLabel": "Dashboard",
   "login": "Login",
   "register": "Register",
+  
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "backToDashboard": "Back to Dashboard"
+  },
   
   "hero": {
     "title": "CodePulse",
@@ -151,24 +157,5 @@
     "leetcode": "LeetCode",
     "github": "GitHub",
     "docker": "Docker"
-  },
-  
-  "auth": {
-    "errors": {
-      "MISSING_REQUIRED_FIELD": "Missing required field",
-      "PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
-      "REGISTRATION_FAILED": "Registration failed, please try again",
-      "EMAIL_ALREADY_EXISTS": "Email already registered",
-      "INVALID_PASSWORD_FORMAT": "Invalid password format",
-      "REGISTRATION_ERROR": "Registration failed, please try again",
-      "MISSING_CREDENTIALS": "Please enter email and password",
-      "INVALID_CREDENTIALS": "Invalid email or password",
-      "LOGIN_ERROR": "Login failed, please try again"
-    },
-    "success": {
-      "LOGIN_SUCCESS": "Login successful!",
-      "REGISTRATION_SUCCESS": "Registration successful!",
-      "EMAIL_VERIFICATION_SENT": "Please check your email for verification before logging in"
-    }
   }
 }

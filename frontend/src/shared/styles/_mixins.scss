@@ -1,0 +1,119 @@
+// ===========================
+//  Flex 工具
+// ===========================
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex($justify: flex-start, $align: stretch, $direction: row) {
+  display: flex;
+  justify-content: $justify;
+  align-items: $align;
+  flex-direction: $direction;
+}
+
+
+// ===========================
+//  文字截斷
+// ===========================
+// 單行文字截斷
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 多行文字截斷
+@mixin text-multiline-ellipsis($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+// ===========================
+//  RWD (媒體查詢)
+// ===========================
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+
+// ===========================
+//  按鈕樣式
+// ===========================
+@mixin button($bg, $color: #fff) {
+  padding: 8px 16px;
+  background: $bg;
+  color: $color;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
+
+
+// ===========================
+//  陰影與圓角
+// ===========================
+@mixin box-shadow($x: 0, $y: 4px, $blur: 6px, $color: rgba(0, 0, 0, 0.1)) {
+  box-shadow: $x $y $blur $color;
+}
+
+@mixin rounded($radius: 4px) {
+  border-radius: $radius;
+}
+
+
+// ===========================
+//  動畫與過渡
+// ===========================
+@mixin transition($props: all, $time: 0.3s, $ease: ease-in-out) {
+  transition: $props $time $ease;
+}
+
+// 定義 blink 動畫關鍵幀
+:global {
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+}
+
+@mixin blink($duration: 1s, $opacity: 0.5, $timing: ease-in-out) {
+  --blink-opacity: #{$opacity};
+  animation: blink $duration $timing infinite;
+}
+
+
+// ===========================
+//  容器寬度
+// ===========================
+@mixin container($width: 1200px) {
+  max-width: $width;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+
