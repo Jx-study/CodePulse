@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from './AuthForm.module.scss';
+import styles from '../../styles/AuthForm.module.scss';
 
 interface SignupFormData {
   username: string;
@@ -13,7 +13,12 @@ interface SignupFormErrors {
   [key: string]: string;
 }
 
-function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void }) {
+interface SignupFormProps {
+  onSubmit: (formData: SignupFormData) => void;
+  disabled?: boolean;
+}
+
+function SignupForm({ onSubmit, disabled }: SignupFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<SignupFormData>({
     username: '',
@@ -91,15 +96,16 @@ function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void
       <form onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
           <label htmlFor="username">用戶名</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="username"
             name="username"
             value={formData.username}
             onChange={handleChange}
             placeholder="請輸入用戶名"
             className={errors.username ? styles.error : ''}
-            required 
+            disabled={disabled}
+            required
           />
           {errors.username && (
             <span className={styles.errorMessage}>{errors.username}</span>
@@ -108,15 +114,16 @@ function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void
 
         <div className={styles.formGroup}>
           <label htmlFor="email">信箱</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             placeholder="請輸入信箱"
             className={errors.email ? styles.error : ''}
-            required 
+            disabled={disabled}
+            required
           />
           {errors.email && (
             <span className={styles.errorMessage}>{errors.email}</span>
@@ -125,15 +132,16 @@ function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void
         
         <div className={styles.formGroup}>
           <label htmlFor="signupPassword">密碼</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             id="signupPassword"
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="請輸入密碼"
             className={errors.password ? styles.error : ''}
-            required 
+            disabled={disabled}
+            required
           />
           {errors.password && (
             <span className={styles.errorMessage}>{errors.password}</span>
@@ -142,22 +150,23 @@ function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void
 
         <div className={styles.formGroup}>
           <label htmlFor="confirmPassword">確認密碼</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             id="confirmPassword"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="請再次輸入密碼"
             className={errors.confirmPassword ? styles.error : ''}
-            required 
+            disabled={disabled}
+            required
           />
           {errors.confirmPassword && (
             <span className={styles.errorMessage}>{errors.confirmPassword}</span>
           )}
         </div>
 
-        <button type="submit" className={styles.submitBtn}>
+        <button type="submit" className={styles.submitBtn} disabled={disabled}>
           {t('register')}
         </button>
       </form>

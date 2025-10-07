@@ -88,11 +88,11 @@
 .tabButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  
+
   &:hover {
     background: var(--bg-tertiary);
   }
-  
+
   &.active:hover {
     background: $gradient-primary;
   }
