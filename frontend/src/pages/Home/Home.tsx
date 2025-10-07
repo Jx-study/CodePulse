@@ -5,21 +5,23 @@ import '../../shared/styles/main.scss';
 import Hero from './components/Hero/Hero';
 import Features from './components/Features/Features';
 import DataStructureAlgorithm from './components/DataStructureAlgorithm/DataStructureAlgorithm';
-import Audience from './components/TargetGroup/Audience';
 import Demo from './components/Demo/Demo';
 
 function Home() {
   // 平滑滾動
   useEffect(() => {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e: Event) => {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
+        const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
+        if (href) {
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
         }
       });
     });
@@ -31,7 +33,7 @@ function Home() {
       const sections = document.querySelectorAll('section[id]');
       const navLinks = document.querySelectorAll('.nav-menu a');
       
-      let current = '';
+      let current: string | null = '';
       sections.forEach(section => {
     const sectionTop = section.getBoundingClientRect().top;
         if (sectionTop <= 100) {
@@ -56,7 +58,6 @@ function Home() {
       <Hero />
       <DataStructureAlgorithm />
       <Features />
-      <Audience />
       <Demo />
     </div>
   );

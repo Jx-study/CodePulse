@@ -12,7 +12,12 @@ interface LoginFormErrors {
   [key: string]: string;
 }
 
-function LoginForm({ onSubmit }: { onSubmit: (formData: LoginFormData) => void }) {
+interface LoginFormProps {
+  onSubmit: (formData: LoginFormData) => void;
+  disabled?: boolean;
+}
+
+function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<LoginFormData>({
     usernameOrEmail: '',

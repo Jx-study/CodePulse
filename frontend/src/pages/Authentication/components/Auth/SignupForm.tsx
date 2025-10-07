@@ -13,7 +13,12 @@ interface SignupFormErrors {
   [key: string]: string;
 }
 
-function SignupForm({ onSubmit }: { onSubmit: (formData: SignupFormData) => void }) {
+interface SignupFormProps {
+  onSubmit: (formData: SignupFormData) => void;
+  disabled?: boolean;
+}
+
+function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<SignupFormData>({
     username: '',

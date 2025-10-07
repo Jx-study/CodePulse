@@ -6,64 +6,85 @@ import SignupForm from './components/Auth/SignupForm';
 import authService from '../../modules/user/services/authService';
 import styles from './Auth.module.scss';
 
+// 型別定義
+type TabType = 'login' | 'signup';
+
+interface LoginFormData {
+  usernameOrEmail: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+interface SignupFormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface MessageState {
+  type: string;
+  text: string;
+}
+
 function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('login');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [activeTab, setActiveTab] = useState<TabType>('login');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
 
   // 注入翻譯函數到 authService
   React.useEffect(() => {
     authService.setTranslation(t);
   }, [t]);
 
-  const showTab = (tab) => {
+  const showTab = (tab: TabType) => {
     setActiveTab(tab);
     setMessage({ type: '', text: '' }); // 清除訊息
   };
 
-  const handleLoginSubmit = async (formData) => {
+  const handleLoginSubmit = async (formData: LoginFormData) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
-      // 使用 email 欄位進行登入
-      const email = formData.usernameOrEmail;
-      const response = await authService.login(email, formData.password);
-      
+      // 使用 usernameOrEmail 欄位進行登入 (支援 email 或 username)
+      const response = await authService.login(formData.usernameOrEmail, formData.password);
+
       if (response.success) {
         setMessage({ type: 'success', text: response.message || t('auth.success.LOGIN_SUCCESS') });
-        
+
         // 延遲跳轉到首頁
         setTimeout(() => {
           navigate('/');
         }, 1500);
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.message || t('auth.errors.LOGIN_ERROR')
+      const errorMessage = error instanceof Error ? error.message : t('auth.errors.LOGIN_ERROR');
+      setMessage({
+        type: 'error',
+        text: errorMessage
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignupSubmit = async (formData) => {
+  const handleSignupSubmit = async (formData: SignupFormData) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
       const response = await authService.register(
-        formData.email, 
-        formData.password, 
+        formData.email,
+        formData.password,
         formData.username
       );
-      
+
       if (response.success) {
         setMessage({ type: 'success', text: response.message || t('auth.success.REGISTRATION_SUCCESS') });
-        
+
         // 如果有 session（自動登入），跳轉到首頁
         if (response.session) {
           setTimeout(() => {
@@ -78,9 +99,10 @@ function AuthPage() {
         }
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.message || t('auth.errors.REGISTRATION_ERROR')
+      const errorMessage = error instanceof Error ? error.message : t('auth.errors.REGISTRATION_ERROR');
+      setMessage({
+        type: 'error',
+        text: errorMessage
       });
     } finally {
       setLoading(false);

@@ -58,22 +58,6 @@
     "cta": "開始使用 CodePulse"
   },
 
-  "audience_section": {
-    "title": "適用對象",
-    "beginners": {
-      "title": "程式初學者",
-      "description": "剛開始學習程式設計的小白，想要深入理解程式的執行邏輯與運作方式"
-    },
-    "developers": {
-      "title": "需要除錯的工程師",
-      "description": "專業程式開發者，需要更直觀的工具來分析和除錯複雜的程式邏輯"
-    },
-    "students": {
-      "title": "演算法學習者",
-      "description": "正在學習資料結構與演算法的學生和工程師，需要視覺化工具輔助理解"
-    }
-  },
-
   "footer": {
     "tagline": "將抽象演算法化為視覺故事，讓程式設計與除錯成為直觀且引人入勝的學習旅程。",
     "resources": {

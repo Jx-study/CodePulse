@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify
-from database import get_supabase_client
+from database import get_supabase_client, get_supabase_admin_client
 import logging
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
+# TODO: 後續調整為為新的table存取用戶的信息，避免登入時一直使用 admin client 查詢所有用戶
 @auth_bp.route('/register', methods=['POST'])
 def register():
     """用戶註冊 - 使用 Supabase Auth"""
@@ -97,24 +98,79 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """用戶登入 - 使用 Supabase Auth"""
+    """用戶登入 - 使用 Supabase Auth，支援 email 或 username"""
     try:
         data = request.get_json()
-        
-        # 驗證必要欄位
-        if not data.get('email') or not data.get('password'):
+        username_or_email = data.get('usernameOrEmail')
+        password = data.get('password')
+
+        if not username_or_email or not password:
             return jsonify({
                 'success': False,
                 'error_code': 'MISSING_CREDENTIALS',
-                'message': '請輸入信箱和密碼'
+                'message': '請輸入用戶名/信箱和密碼'
             }), 400
-        
-        email = data['email'].strip().lower()
-        password = data['password']
-        
-        # 使用 Supabase Auth 登入
+
+        username_or_email = username_or_email.strip()
+
+        # 判斷輸入是 email 還是 username
+        email = None
+        if '@' in username_or_email:
+            # 輸入包含 @，視為 email
+            email = username_or_email.lower()
+        else:
+            # 輸入不含 @，視為 username，需要查詢對應的 email
+            try:
+                # 使用 Admin client 查詢用戶
+                supabase_admin = get_supabase_admin_client()
+
+                if not supabase_admin:
+                    logging.error("Admin client 未初始化，無法查詢 username")
+                    return jsonify({
+                        'success': False,
+                        'error_code': 'ADMIN_API_UNAVAILABLE',
+                        'message': 'Username 登入功能暫時無法使用，請使用 email 登入'
+                    }), 503
+
+                # 從 Supabase 查詢所有用戶（明確指定分頁參數）
+                response = supabase_admin.auth.admin.list_users(page=1, per_page=1000)
+                # Supabase Python SDK 直接返回 list，不是物件
+                users = response if isinstance(response, list) else []
+
+                logging.info(f"查詢 username: {username_or_email}, 找到 {len(users)} 個用戶")
+
+                # 查找匹配的 username
+                for user in users:
+                    user_metadata = getattr(user, 'user_metadata', None)
+
+                    logging.info(f"檢查用戶 {user.email}: metadata = {user_metadata}")
+
+                    username_in_db = user_metadata.get('username', '') if isinstance(user_metadata, dict) else ''
+
+                    if username_in_db and username_in_db.lower() == username_or_email.lower():
+                        # logging.info(f"找到匹配的用戶: {user.email}")
+                        email = user.email
+                        # 檢查 email 是否已驗證
+                        if not getattr(user, 'email_confirmed_at', None):
+                            return jsonify({
+                                'success': False,
+                                'error_code': 'EMAIL_NOT_VERIFIED',
+                                'message': '請先驗證 Email 後再登入'
+                            }), 403
+                        break
+
+                if not email:
+                    return jsonify({
+                        'success': False,
+                        'error_code': 'USER_NOT_FOUND',
+                        'message': '找不到此用戶名'
+                    }), 404
+            except Exception as e:
+                # 如果查詢失敗，嘗試直接當作 email 使用
+                email = username_or_email.lower()
+
+        # 使用一般 client 進行登入
         supabase = get_supabase_client()
-        
         auth_response = supabase.auth.sign_in_with_password({
             'email': email,
             'password': password
