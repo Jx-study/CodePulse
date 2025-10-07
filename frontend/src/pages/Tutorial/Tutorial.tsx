@@ -3,10 +3,10 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumb } from '../../shared/components';
 import CodeEditor from '../../modules/core/components/CodeEditor/CodeEditor';
-import AlgorithmInfo from './components/AlgorithmInfo/AlgorithmInfo';
-import AnimationArea from './components/AnimationArea/AnimationArea';
-import ControlBar from './components/ControlBar/ControlBar';
-import VariableStatus from './components/VariableStatus/VariableStatus';
+import AlgorithmInfo from '../../modules/learning/components/AlgorithmInfo/AlgorithmInfo';
+import AnimationArea from '../../modules/learning/components/AnimationArea/AnimationArea';
+import ControlBar from '../../modules/learning/components/ControlBar/ControlBar';
+import VariableStatus from '../../modules/learning/components/VariableStatus/VariableStatus';
 import styles from './Tutorial.module.scss';
 
 function Tutorial() {
