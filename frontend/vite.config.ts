@@ -24,5 +24,18 @@ export default defineConfig({
         `
       }
     }
+  },
+  // 代碼分割優化
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          i18n: ['i18next', 'react-i18next', 'i18next-browser-languagedetector', 'i18next-http-backend'],
+          monaco: ['@monaco-editor/react']
+        }
+      }
+    }
   }
 });

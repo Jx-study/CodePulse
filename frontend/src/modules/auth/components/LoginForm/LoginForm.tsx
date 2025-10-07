@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from './AuthForm.module.scss';
+import styles from '../../styles/AuthForm.module.scss';
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -12,7 +12,12 @@ interface LoginFormErrors {
   [key: string]: string;
 }
 
-function LoginForm({ onSubmit }: { onSubmit: (formData: LoginFormData) => void }) {
+interface LoginFormProps {
+  onSubmit: (formData: LoginFormData) => void;
+  disabled?: boolean;
+}
+
+function LoginForm({ onSubmit, disabled }: LoginFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<LoginFormData>({
     usernameOrEmail: '',
@@ -67,15 +72,16 @@ function LoginForm({ onSubmit }: { onSubmit: (formData: LoginFormData) => void }
       <form onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
           <label htmlFor="usernameOrEmail">用戶名或信箱</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="usernameOrEmail"
             name="usernameOrEmail"
             value={formData.usernameOrEmail}
             onChange={handleChange}
             placeholder="請輸入用戶名或信箱"
             className={errors.usernameOrEmail ? styles.error : ''}
-            required 
+            disabled={disabled}
+            required
           />
           {errors.usernameOrEmail && (
             <span className={styles.errorMessage}>{errors.usernameOrEmail}</span>
@@ -84,15 +90,16 @@ function LoginForm({ onSubmit }: { onSubmit: (formData: LoginFormData) => void }
         
         <div className={styles.formGroup}>
           <label htmlFor="password">密碼</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="請輸入密碼"
             className={errors.password ? styles.error : ''}
-            required 
+            disabled={disabled}
+            required
           />
           {errors.password && (
             <span className={styles.errorMessage}>{errors.password}</span>
@@ -101,17 +108,18 @@ function LoginForm({ onSubmit }: { onSubmit: (formData: LoginFormData) => void }
 
         <div className={styles.formGroup}>
           <label className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               name="rememberMe"
               checked={formData.rememberMe}
               onChange={handleChange}
+              disabled={disabled}
             />
             記住我
           </label>
         </div>
 
-        <button type="submit" className={styles.submitBtn}>
+        <button type="submit" className={styles.submitBtn} disabled={disabled}>
           {t('login')}
         </button>
 

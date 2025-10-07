@@ -83,12 +83,12 @@ function Hero() {
         <h1>{t('hero.title')}</h1>
         <h3>{t('hero.subtitle')}</h3>
         <p>
-          {t('hero.description.main')} 
+          {t('hero.description.main')}
           <br />
           {t('hero.description.sub')}
         </p>
-        <a 
-          href="#demo" 
+        <a
+          href="#demo"
           className='cta-button'
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
@@ -96,6 +96,9 @@ function Hero() {
         >
           {t('hero.cta')}
         </a>
+        <div className={styles.demoContainer}>
+          <Demo />
+        </div>
       </div>
     </section>
   );
