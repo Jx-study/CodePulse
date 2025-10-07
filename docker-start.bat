@@ -22,12 +22,75 @@ if %errorlevel% == 0 (
 )
 
 echo.
-echo [3/3] 啟動 Docker Compose...
-echo 執行命令: docker-compose up --build
+echo [3/3] 啟動選項
+echo ========================================
+echo 請選擇啟動方式:
+echo   [1] 快速啟動 (不重新構建，適合代碼無變更)
+echo   [2] 完整構建後啟動 (--build，適合 Dockerfile 或依賴有變更)
+echo   [3] 智能檢測 (自動判斷是否需要構建)
+echo ========================================
+echo.
+set /p CHOICE="請輸入選項 (1/2/3，預設為 3): "
+
+REM 如果使用者直接按 Enter，使用預設值 3
+if "%CHOICE%"=="" set CHOICE=3
+
 echo.
 
-REM 執行 docker-compose
-docker-compose up --build
+if "%CHOICE%"=="1" (
+    echo 執行命令: docker-compose up
+    echo.
+    docker-compose up
+) else if "%CHOICE%"=="2" (
+    echo 執行命令: docker-compose up --build
+    echo.
+    docker-compose up --build
+) else if "%CHOICE%"=="3" (
+    echo 正在檢測映像狀態...
+
+    REM 檢查後端映像
+    docker images -q codepulse-backend >nul 2>&1
+    set BACKEND_EXISTS=%errorlevel%
+
+    REM 檢查前端映像
+    docker images -q codepulse-frontend >nul 2>&1
+    set FRONTEND_EXISTS=%errorlevel%
+
+    if %BACKEND_EXISTS% neq 0 (
+        echo ⚠ 後端映像不存在，需要構建
+        echo 執行命令: docker-compose up --build
+        echo.
+        docker-compose up --build
+    ) else if %FRONTEND_EXISTS% neq 0 (
+        echo ⚠ 前端映像不存在，需要構建
+        echo 執行命令: docker-compose up --build
+        echo.
+        docker-compose up --build
+    ) else (
+        echo ✓ 映像已存在，執行快速啟動
+        echo 執行命令: docker-compose up
+        echo.
+        echo 💡 提示: 如果 Dockerfile 或依賴有變更，請選擇選項 2 重新構建
+        echo.
+        docker-compose up
+    )
+) else (
+    echo ✗ 無效的選項，使用預設選項 3 (智能檢測)
+    echo.
+
+    REM 重複選項 3 的邏輯
+    docker images -q codepulse-backend >nul 2>&1
+    if %errorlevel% neq 0 (
+        docker-compose up --build
+    ) else (
+        docker images -q codepulse-frontend >nul 2>&1
+        if %errorlevel% neq 0 (
+            docker-compose up --build
+        ) else (
+            docker-compose up
+        )
+    )
+)
 
 if %errorlevel% == 0 (
     echo.

@@ -38,26 +38,26 @@
         width: fit-content;
         animation: scrollLeft 20s linear infinite;
 
-        .common-card {
+        .featureCard {
             flex: 0 0 auto;
-            width: 280px;
-            min-height: 320px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: $card-width-default;
+            min-height: $card-height-default;
+            transition: $transition-base;
 
             &:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+                transform: $hover-transform;
+                box-shadow: $shadow-lg;
                 animation-play-state: paused; // 暫停滾動當 hover
             }
 
             @include tablet {
-                width: 260px;
-                min-height: 300px;
+                width: $card-width-tablet;
+                min-height: $card-height-tablet;
             }
 
             @include mobile {
-                width: 240px;
-                min-height: 280px;
+                width: $card-width-mobile;
+                min-height: $card-height-mobile;
             }
         }
 
@@ -78,34 +78,32 @@
     }
 
     .featureTitle {
-        margin: 1rem 0 0.5rem 0;
-        font-size: 1.25rem;
+        margin: $spacing-sm 0 $spacing-xs 0;
+        font-size: $font-xl;
         font-weight: 600;
         color: var(--text-primary);
         line-height: 1.3;
     }
 
     .featureDescription {
-        font-size: 0.95rem;
+        font-size: $font-sm;
         line-height: 1.6;
         color: var(--text-secondary);
-        margin-bottom: 1rem;
+        margin-bottom: $spacing-sm;
         flex: 1;
     }
 
-    // 響應動畫偏好設定
     @media (prefers-reduced-motion: reduce) {
         .cardContainer {
             animation: none;
         }
     }
 
-    // Responsive adjustments
     @include desktop {
         .cardContainer {
-            .common-card {
-                width: 300px;
-                min-height: 340px;
+            .featureCard {
+                width: $card-width-desktop;
+                min-height: $card-height-desktop;
             }
         }
     }
@@ -114,9 +112,9 @@
         .cardContainer {
             gap: $spacing-md;
 
-            .common-card {
-                width: 260px;
-                min-height: 300px;
+            .featureCard {
+                width: $card-width-tablet;
+                min-height: $card-height-tablet;
             }
         }
     }
@@ -125,16 +123,16 @@
         padding: $spacing-xl 0;
 
         .scrollContainer {
-            margin: 0 -$spacing-md; // Extend to container edges
-            padding: 0 $spacing-md; // Add back horizontal padding
+            margin: 0 -$spacing-md;
+            padding: 0 $spacing-md;
         }
 
         .cardContainer {
             gap: $spacing-md;
 
-            .common-card {
-                width: 240px;
-                min-height: 280px;
+            .featureCard {
+                width: $card-width-mobile;
+                min-height: $card-height-mobile; 
 
                 &:first-child {
                     margin-left: 0;

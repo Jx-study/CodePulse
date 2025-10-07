@@ -1,4 +1,3 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
 import styles from './Features.module.scss';
 import { useTranslation } from 'react-i18next';
 
@@ -55,14 +54,15 @@ function Features() {
 
   return (
     <section className={styles.features} id="features">
-      <div className='container'>
-        <h2 className='section-title'>{t('features_section.title')}</h2>
+      <div className="container">
+        <h2 className="section-title">{t("features_section.title")}</h2>
 
-        {/* 連續滾動容器 */}
+        {/* 無限滾動容器 - 最多同時顯示 4 個卡片 */}
         <div className={styles.scrollContainer}>
           <div className={styles.cardContainer}>
             {infiniteFeatures.map((feature, index) => (
-              <div key={`${feature.id}-${index}`} className="common-card">
+              <div
+                key={`${feature.id}-${index}`} className={`common-card ${styles.featureCard}`}>
                 <div className="featureIcon">
                   <img
                     src={feature.image}
@@ -72,7 +72,9 @@ function Features() {
                   />
                 </div>
                 <h3 className={styles.featureTitle}>{feature.title}</h3>
-                <p className={styles.featureDescription}>{feature.description}</p>
+                <p className={styles.featureDescription}>
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
