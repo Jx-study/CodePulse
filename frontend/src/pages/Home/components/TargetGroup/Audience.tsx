@@ -15,11 +15,8 @@ function Audience() {
       <div className='container'>
         <h2 className='section-title'>{t('audience_section.title')}</h2>
         
-<<<<<<<< HEAD:frontend/src/components/Home_content/TargetGroup/Audience.jsx
-        <div className={`${styles.audienceGrid} common-grid`}>
-========
+        {/* <div className={`${styles.audienceGrid} common-grid`}> */}
         <div className="common-grid">
->>>>>>>> main:frontend/src/pages/Home/components/TargetGroup/Audience.tsx
           <div className={`common-card ${styles.audienceCard}`}>
             <div className="audienceIcon">
               <img src={beginnersImg} alt="Beginners" />
