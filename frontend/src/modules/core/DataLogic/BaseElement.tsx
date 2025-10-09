@@ -21,4 +21,5 @@ export abstract class BaseElement {
   moveTo(x: number, y: number) { this.position = { x, y }; }
   setStatus(s: Status) { this.status = s; }
   getColor() { return statusColorMap[this.status]; }
+  
 }
