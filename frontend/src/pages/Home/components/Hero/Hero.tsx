@@ -39,6 +39,9 @@ function Hero() {
     }
   };
 
+
+  
+
   return (
     <section 
       className={styles.hero} 
