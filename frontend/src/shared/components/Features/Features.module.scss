@@ -123,7 +123,7 @@
         padding: $spacing-xl 0;
 
         .scrollContainer {
-            margin: 0 -$spacing-md;
+            margin: 0 calc(-1 * $spacing-md);
             padding: 0 $spacing-md;
         }
 

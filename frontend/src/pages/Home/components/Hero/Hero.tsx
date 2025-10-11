@@ -43,29 +43,33 @@ function Hero() {
   
 
   return (
-    <section 
-      className={styles.hero} 
-      id="home" 
+    <section
+      className={styles.hero}
+      id="home"
       ref={heroRef}
       onClick={handleHeroClick}
     >
       <PulseBackground ref={pulseBackgroundRef} />
       <div className={styles.heroContent}>
-        <h1>{t('hero.title')}</h1>
-        <h3>{t('hero.subtitle')}</h3>
+        <h1>{t("hero.title")}</h1>
+        <h3>{t("hero.subtitle")}</h3>
         <p>
-          {t('hero.description.main')}
+          {t("hero.description.main")}
           <br />
-          {t('hero.description.sub')}
+          {t("hero.description.sub")}
         </p>
+
+        <div className={styles.demoContainer}>
+          <Demo />
+        </div>
         <a
           href="#demo"
-          className='cta-button'
+          className="cta-button"
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
           onMouseLeave={handleCtaLeave}
         >
-          {t('hero.cta')}
+          {t("hero.cta")}
         </a>
         <div className={styles.demoContainer}>
           <Demo />

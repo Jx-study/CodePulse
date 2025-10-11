@@ -3,28 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import styles from './UserStatus.module.scss';
 import SettingPanel from '../SettingPanel/SettingPanel';
+import { useAuth } from '../../../../shared/contexts/AuthContext';
 
 function UserStatus() {
   const { t } = useTranslation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // TODO: 從後端獲取真實登入狀態
-  // TODO: 添加用戶狀態檢查邏輯
-  // useEffect(() => {
-  //   const checkUserStatus = async () => {
-  //     try {
-  //       const response = await fetch('/api/user/status', {
-  //         credentials: 'include'  // 發送 cookies
-  //       });
-  //       if (response.ok) {
-  //         const userData = await response.json();
-  //         setIsLoggedIn(userData.isAuthenticated);
-  //       }
-  //     } catch (error) {
-  //       console.error('檢查用戶狀態失敗:', error);
-  //       setIsLoggedIn(false);
-  //     }
-  //   };
-  //   checkUserStatus();
-  // }, []);
+  const { isAuthenticated, user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -64,18 +47,55 @@ function UserStatus() {
     setShowUserMenu(false);
   };
 
-  const handleLogout = () => {
-    // TODO: 調用後端登出 API - POST /api/user/logout
-    setIsLoggedIn(false);
-    setShowUserMenu(false);
-    // TODO: 清除本地存儲的用戶數據
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setShowUserMenu(false);
+    } catch (error) {
+      console.error('登出失敗:', error);
+      setShowUserMenu(false);
+    }
   };
 
-  if (isLoggedIn) {
+  // 提取用戶名第一個字母
+  const getAvatarLetter = (username: string): string => {
+    return username?.charAt(0).toUpperCase() || '?';
+  };
+
+  // 根據用戶名生成穩定的背景顏色
+  const getAvatarColor = (username: string): string => {
+    const colors = [
+      '#3b82f6', // 藍色
+      '#10b981', // 綠色
+      '#8b5cf6', // 紫色
+      '#f59e0b', // 橙色
+      '#ef4444', // 紅色
+      '#06b6d4', // 青色
+      '#ec4899', // 粉色
+      '#6366f1'  // 靛色
+    ];
+
+    // 簡單 hash 算法：計算字串 charCode 總和
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash += username.charCodeAt(i);
+    }
+
+    return colors[hash % colors.length];
+  };
+
+  if (isAuthenticated) {
     return (
       <div className={styles.userStatus} ref={menuRef}>
-        <div className={styles.userAvatar} onClick={handleUserMenuToggle}>
-          <img src="/images/default-avatar.png" alt="User Avatar" />
+        <div
+          className={styles.userAvatar}
+          onClick={handleUserMenuToggle}
+          style={{ backgroundColor: getAvatarColor(user?.username || '') }}
+          title={user?.username || ''}
+        >
+          <span className={styles.avatarLetter}>
+            {getAvatarLetter(user?.username || '')}
+          </span>
         </div>
         
         {showUserMenu && (

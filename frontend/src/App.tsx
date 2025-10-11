@@ -2,6 +2,9 @@ import React, { useEffect, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+// Auth Context
+import { AuthProvider } from './shared/contexts/AuthContext';
+
 // Layouts
 import MainLayout from './shared/layouts/MainLayout';
 import AuthLayout from './shared/layouts/AuthLayout';
@@ -23,24 +26,26 @@ function App() {
   }, [i18n.language]);
 
   return (
-    <Suspense fallback={<div className="loading-spinner">載入中...</div>}>
-      <Routes>
-        {/* 主布局 */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/tutorial" element={<Tutorial />} />
-          <Route path="/tutorial/:category/:algorithm" element={<Tutorial />} />
-          <Route path="/explorer" element={<Explorer />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/dashboard" element={<LearningDashboard />} />
-        </Route>
+    <AuthProvider>
+      <Suspense fallback={<div className="loading-spinner">載入中...</div>}>
+        <Routes>
+          {/* 主布局 */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/tutorial" element={<Tutorial />} />
+            <Route path="/tutorial/:category/:algorithm" element={<Tutorial />} />
+            <Route path="/explorer" element={<Explorer />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/dashboard" element={<LearningDashboard />} />
+          </Route>
 
-        {/* 其他页面布局 */}
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route index element={<AuthPage />} />
-        </Route>
-      </Routes>
-    </Suspense>
+          {/* 其他页面布局 */}
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route index element={<AuthPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </AuthProvider>
   );
 }
 

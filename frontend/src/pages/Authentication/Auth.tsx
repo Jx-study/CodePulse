@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import LoginForm from '../../modules/auth/components/LoginForm/LoginForm';
 import SignupForm from '../../modules/auth/components/SignupForm/SignupForm';
-import authService from '../../modules/auth/services/authService';
+import { useAuth } from '../../shared/contexts/AuthContext';
 import styles from './Auth.module.scss';
 
 // 型別定義
@@ -30,14 +30,11 @@ interface MessageState {
 function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { login, register } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('login');
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
 
-  // 注入翻譯函數到 authService
-  React.useEffect(() => {
-    authService.setTranslation(t);
-  }, [t]);
 
   const showTab = (tab: TabType) => {
     setActiveTab(tab);
@@ -50,16 +47,15 @@ function AuthPage() {
 
     try {
       // 使用 usernameOrEmail 欄位進行登入 (支援 email 或 username)
-      const response = await authService.login(formData.usernameOrEmail, formData.password);
+      await login(formData.usernameOrEmail, formData.password);
 
-      if (response.success) {
-        setMessage({ type: 'success', text: response.message || t('auth.success.LOGIN_SUCCESS') });
+      // 登入成功
+      setMessage({ type: 'success', text: t('auth.success.LOGIN_SUCCESS') });
 
-        // 延遲跳轉到首頁
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-      }
+      // 延遲跳轉到首頁
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('auth.errors.LOGIN_ERROR');
       setMessage({
@@ -76,28 +72,19 @@ function AuthPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await authService.register(
+      await register(
         formData.email,
         formData.password,
         formData.username
       );
 
-      if (response.success) {
-        setMessage({ type: 'success', text: response.message || t('auth.success.REGISTRATION_SUCCESS') });
+      // 註冊成功（AuthContext 會自動登入並跳轉）
+      setMessage({ type: 'success', text: t('auth.success.REGISTRATION_SUCCESS') });
 
-        // 如果有 session（自動登入），跳轉到首頁
-        if (response.session) {
-          setTimeout(() => {
-            navigate('/');
-          }, 1500);
-        } else {
-          // 否則切換到登入頁面
-          setTimeout(() => {
-            setActiveTab('login');
-            setMessage({ type: 'info', text: t('auth.success.EMAIL_VERIFICATION_SENT') });
-          }, 2000);
-        }
-      }
+      // 延遲跳轉到首頁
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('auth.errors.REGISTRATION_ERROR');
       setMessage({
