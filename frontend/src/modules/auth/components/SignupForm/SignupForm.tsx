@@ -18,7 +18,7 @@ interface SignupFormProps {
   disabled?: boolean;
 }
 
-function SignupForm({ onSubmit, disabled }: SignupFormProps) {
+function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<SignupFormData>({
     username: '',

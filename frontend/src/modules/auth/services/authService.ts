@@ -31,15 +31,15 @@ class AuthService {
     
     return translatedMessage;
   }
-  // 登入
-  async login(email: string, password: string): Promise<AuthResponse> {
+  // 登入 (支援 email 或 username)
+  async login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ usernameOrEmail, password }),
       });
 
       const data = await response.json();

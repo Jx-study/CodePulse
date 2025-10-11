@@ -17,7 +17,7 @@ interface LoginFormProps {
   disabled?: boolean;
 }
 
-function LoginForm({ onSubmit, disabled }: LoginFormProps) {
+function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<LoginFormData>({
     usernameOrEmail: '',

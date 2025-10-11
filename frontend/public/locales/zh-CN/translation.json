@@ -67,22 +67,6 @@
     "cta": "开始使用 CodePulse"
   },
 
-  "audience_section": {
-    "title": "适用对象",
-    "beginners": {
-      "title": "程序初学者",
-      "description": "刚开始学习程序设计的小白，想要深入理解程序的执行逻辑与运作方式"
-    },
-    "developers": {
-      "title": "需要调试的工程师",
-      "description": "专业程序开发者，需要更直观的工具来分析和调试复杂的程序逻辑"
-    },
-    "students": {
-      "title": "算法学习者",
-      "description": "正在学习数据结构与算法的学生和工程师，需要可视化工具辅助理解"
-    }
-  },
-
   "footer": {
     "tagline": "将抽象演算法化为视觉故事，让程式设计与除错成为直观且引人入胜的学习旅程。",
     "resources": {
