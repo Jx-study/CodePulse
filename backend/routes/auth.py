@@ -3,7 +3,6 @@ from database import get_supabase_client, get_supabase_admin_client
 import logging
 
 auth_bp = Blueprint('auth', __name__)
-print("Auth Blueprint URL Prefix:", auth_bp.url_prefix)
 
 # TODO: 後續調整為為新的table存取用戶的信息，避免登入時一直使用 admin client 查詢所有用戶
 @auth_bp.route('/register', methods=['POST'])

@@ -61,8 +61,6 @@ def create_app(config_name=None):
                 'health': '/api/health'
             }
         })
-    for rule in app.url_map.iter_rules():
-        print(rule)
 
     return app
 
