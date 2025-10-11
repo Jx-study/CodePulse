@@ -6,6 +6,27 @@ import SignupForm from '../../modules/auth/components/SignupForm/SignupForm';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import styles from './Auth.module.scss';
 
+// 型別定義
+type TabType = 'login' | 'signup';
+
+interface LoginFormData {
+  usernameOrEmail: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+interface SignupFormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface MessageState {
+  type: string;
+  text: string;
+}
+
 function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -13,39 +34,48 @@ function AuthPage() {
   const [activeTab, setActiveTab] = useState('login');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [activeTab, setActiveTab] = useState<TabType>('login');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
 
-  const showTab = (tab: string) => {
+  // 注入翻譯函數到 authService
+  React.useEffect(() => {
+    authService.setTranslation(t);
+  }, [t]);
+
+  const showTab = (tab: TabType) => {
     setActiveTab(tab);
     setMessage({ type: '', text: '' }); // 清除訊息
   };
 
-  const handleLoginSubmit = async (formData: any) => {
+  const handleLoginSubmit = async (formData: LoginFormData) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
-      // 使用 email 欄位進行登入
-      const email = formData.usernameOrEmail;
-      await login(email, formData.password);
+      // 使用 usernameOrEmail 欄位進行登入 (支援 email 或 username)
+      const response = await authService.login(formData.usernameOrEmail, formData.password);
 
       // 登入成功
       setMessage({ type: 'success', text: t('auth.success.LOGIN_SUCCESS') });
 
-      // 延遲跳轉到首頁
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
-    } catch (error: any) {
+        // 延遲跳轉到首頁
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('auth.errors.LOGIN_ERROR');
       setMessage({
         type: 'error',
-        text: error.message || t('auth.errors.LOGIN_ERROR')
+        text: errorMessage
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignupSubmit = async (formData: any) => {
+  const handleSignupSubmit = async (formData: SignupFormData) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
@@ -59,14 +89,24 @@ function AuthPage() {
       // 註冊成功（AuthContext 會自動登入）
       setMessage({ type: 'success', text: t('auth.success.REGISTRATION_SUCCESS') });
 
-      // 跳轉到首頁
-      setTimeout(() => {
-        navigate('/');
-      }, 1500);
-    } catch (error: any) {
+        // 如果有 session（自動登入），跳轉到首頁
+        if (response.session) {
+          setTimeout(() => {
+            navigate('/');
+          }, 1500);
+        } else {
+          // 否則切換到登入頁面
+          setTimeout(() => {
+            setActiveTab('login');
+            setMessage({ type: 'info', text: t('auth.success.EMAIL_VERIFICATION_SENT') });
+          }, 2000);
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('auth.errors.REGISTRATION_ERROR');
       setMessage({
         type: 'error',
-        text: error.message || t('auth.errors.REGISTRATION_ERROR')
+        text: errorMessage
       });
     } finally {
       setLoading(false);

@@ -34,7 +34,7 @@ def create_app(config_name=None):
         logging.warning(f"Supabase 初始化失敗: {e}")
     
     # 註冊藍圖
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(analyze_bp)
     app.register_blueprint(summary_bp)
     
@@ -61,11 +61,13 @@ def create_app(config_name=None):
                 'health': '/api/health'
             }
         })
-    
+    for rule in app.url_map.iter_rules():
+        print(rule)
+
     return app
 
 # 創建應用程式實例
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=app.config['DEBUG'])
+    app.run(host='0.0.0.0', port=5000, debug=app.config['DEBUG'], use_reloader=True)

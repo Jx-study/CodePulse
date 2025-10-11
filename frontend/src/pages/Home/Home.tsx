@@ -15,8 +15,8 @@ const DataStructureAlgorithm = lazy(
 function Home() {
   // 平滑滾動
   useEffect(() => {
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e: Event) => {
         e.preventDefault();
         const href = (e.currentTarget as HTMLAnchorElement).getAttribute(
           "href"

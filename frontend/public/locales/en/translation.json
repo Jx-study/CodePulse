@@ -115,22 +115,6 @@
     }
   },
 
-  "audience_section": {
-    "title": "Target Audience",
-    "beginners": {
-      "title": "Programming Beginners",
-      "description": "Newcomers to programming who want to deeply understand program execution logic and operation mechanisms"
-    },
-    "developers": {
-      "title": "Engineers Needing Debugging",
-      "description": "Professional developers who need more intuitive tools to analyze and debug complex program logic"
-    },
-    "students": {
-      "title": "Algorithm Learners",
-      "description": "Students and engineers learning data structures and algorithms who need visualization tools to aid understanding"
-    }
-  },
-  
   "footer": {
     "tagline": "Transform abstract algorithms into visual stories. Make programming and debugging an intuitive, engaging journey.",
     "resources": {
