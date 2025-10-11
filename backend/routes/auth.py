@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from database import get_supabase_client, get_supabase_admin_client
 import logging
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+auth_bp = Blueprint('auth', __name__)
+print("Auth Blueprint URL Prefix:", auth_bp.url_prefix)
 
 # TODO: 後續調整為為新的table存取用戶的信息，避免登入時一直使用 admin client 查詢所有用戶
 @auth_bp.route('/register', methods=['POST'])
@@ -176,47 +177,42 @@ def login():
             'password': password
         })
         
-        if auth_response.user and auth_response.session:
-            return jsonify({
-                'success': True,
-                'message': '登入成功',
-                'user': {
-                    'id': auth_response.user.id,
-                    'email': auth_response.user.email,
-                    'username': auth_response.user.user_metadata.get('username'),
-                    'email_confirmed': auth_response.user.email_confirmed_at is not None,
-                    'last_sign_in': auth_response.user.last_sign_in_at,
-                },
-                'session': {
-                    'access_token': auth_response.session.access_token,
-                    'refresh_token': auth_response.session.refresh_token,
-                    'expires_at': auth_response.session.expires_at,
-                }
-            }), 200
-        else:
-            return jsonify({
-                'success': False,
-                'error_code': 'INVALID_CREDENTIALS',
-                'message': '信箱或密碼錯誤'
-            }), 401
+        # Supabase 認證成功必定有 user 和 session，這裡可以直接使用
+        return jsonify({
+            'success': True,
+            'message': '登入成功',
+            'user': {
+                'id': auth_response.user.id,
+                'email': auth_response.user.email,
+                'username': auth_response.user.user_metadata.get('username'),
+                'email_confirmed': auth_response.user.email_confirmed_at is not None,
+                'last_sign_in': auth_response.user.last_sign_in_at,
+            },
+            'session': {
+                'access_token': auth_response.session.access_token,
+                'refresh_token': auth_response.session.refresh_token,
+                'expires_at': auth_response.session.expires_at,
+            }
+        }), 200
         
     except Exception as e:
         logging.error(f"登入錯誤: {e}")
-        error_message = str(e)
+        error_message = str(e).lower()
         
-        # 處理常見錯誤
-        if 'invalid' in error_message.lower() or 'credentials' in error_message.lower():
+        # 處理認證失敗（帳號密碼錯誤）
+        if 'invalid' in error_message or 'credentials' in error_message:
             return jsonify({
                 'success': False,
                 'error_code': 'INVALID_CREDENTIALS',
                 'message': '信箱或密碼錯誤'
             }), 401
-        else:
-            return jsonify({
-                'success': False,
-                'error_code': 'LOGIN_ERROR',
-                'message': '登入失敗，請稍後再試'
-            }), 500
+        
+        # 其他未預期的錯誤
+        return jsonify({
+            'success': False,
+            'error_code': 'LOGIN_ERROR',
+            'message': '登入失敗，請稍後再試'
+        }), 500
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
@@ -297,17 +293,17 @@ def refresh_token():
     try:
         data = request.get_json()
         refresh_token = data.get('refresh_token')
-        
+
         if not refresh_token:
             return jsonify({
                 'success': False,
                 'message': '缺少 refresh token'
             }), 400
-        
+
         # 使用 Supabase Auth 刷新 token
         supabase = get_supabase_client()
         auth_response = supabase.auth.refresh_session(refresh_token)
-        
+
         if auth_response.session:
             return jsonify({
                 'success': True,
@@ -322,10 +318,58 @@ def refresh_token():
                 'success': False,
                 'message': 'Refresh token 無效或已過期'
             }), 401
-        
+
     except Exception as e:
         logging.error(f"Token 刷新錯誤: {e}")
         return jsonify({
             'success': False,
             'message': 'Token 刷新失敗'
         }), 500
+
+@auth_bp.route('/status', methods=['GET'])
+def get_user_status():
+    """檢查用戶登入狀態 - 用於前端 UserStatus 組件
+
+    TODO: 考慮加入 CORS 檢查，確保僅信任的 origin 可呼叫
+    TODO: 實作 rate limiting 防止暴力攻擊
+    """
+    try:
+        # 從請求頭獲取 token
+        auth_header = request.headers.get('Authorization')
+
+        # 未提供 token，返回未登入狀態
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({
+                'isAuthenticated': False
+            }), 200
+
+        access_token = auth_header.split(' ')[1]
+
+        # 使用 Supabase Auth 驗證 token
+        supabase = get_supabase_client()
+        user_response = supabase.auth.get_user(access_token)
+
+        if user_response.user:
+            return jsonify({
+                'isAuthenticated': True,
+                'user': {
+                    'id': user_response.user.id,
+                    'email': user_response.user.email,
+                    'username': user_response.user.user_metadata.get('username'),
+                    'avatar': user_response.user.user_metadata.get('avatar'),
+                    'email_confirmed': user_response.user.email_confirmed_at is not None,
+                    'created_at': user_response.user.created_at,
+                    'last_sign_in': user_response.user.last_sign_in_at,
+                }
+            }), 200
+        else:
+            return jsonify({
+                'isAuthenticated': False
+            }), 200
+
+    except Exception as e:
+        logging.error(f"檢查用戶狀態錯誤: {e}")
+        # 發生錯誤時，返回未登入狀態（安全降級）
+        return jsonify({
+            'isAuthenticated': False
+        }), 200
