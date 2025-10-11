@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import LoginForm from './components/Auth/LoginForm';
-import SignupForm from './components/Auth/SignupForm';
-import authService from '../../modules/user/services/authService';
+import LoginForm from '../../modules/auth/components/LoginForm/LoginForm';
+import SignupForm from '../../modules/auth/components/SignupForm/SignupForm';
+import authService from '../../modules/auth/services/authService';
 import styles from './Auth.module.scss';
 
 // 型別定義
@@ -112,14 +112,14 @@ function AuthPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.tabs}>
-        <button 
+        <button
           className={`${styles.tabButton} ${activeTab === 'login' ? styles.active : ''}`}
           onClick={() => showTab('login')}
           disabled={loading}
         >
           {t('login')}
         </button>
-        <button 
+        <button
           className={`${styles.tabButton} ${activeTab === 'signup' ? styles.active : ''}`}
           onClick={() => showTab('signup')}
           disabled={loading}
