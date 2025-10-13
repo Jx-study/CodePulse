@@ -148,7 +148,11 @@ function DataStructureAlgorithm() {
                 )}`}
               >
                 <div className="algorithmImage">
-                  <img src={algorithm.image} alt={algorithm.name} />
+                  <img
+                    src={algorithm.image}
+                    alt={algorithm.name}
+                    loading="lazy"
+                  />
                 </div>
                 <div className={styles.cardHeader}>
                   <h3>{algorithm.name}</h3>

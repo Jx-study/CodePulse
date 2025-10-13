@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './SettingPanel.module.scss';
+import { Icon } from '../../../../shared/components/Icon';
 
 function SettingPanel({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { t } = useTranslation();
@@ -20,32 +21,38 @@ function SettingPanel({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
         <div className={styles.header}>
           <h2>{t('settingPanel')}</h2>
           <button className={styles.closeBtn} onClick={onClose}>
-            ✕
+            <Icon name="times" size="lg" ariaLabel="關閉" />
           </button>
         </div>
 
         <div className={styles.content}>
           <div className={styles.sidebar}>
             <nav className={styles.tabs}>
-              <button 
+              <button
                 className={`${styles.tab} ${activeTab === 'profile' ? styles.active : ''}`}
                 onClick={() => setActiveTab('profile')}
               >
-                <span className={styles.tabIcon}>👤</span>
+                <span className={styles.tabIcon}>
+                  <Icon name="user" size="sm" />
+                </span>
                 {t('profile')}
               </button>
-              <button 
+              <button
                 className={`${styles.tab} ${activeTab === 'account' ? styles.active : ''}`}
                 onClick={() => setActiveTab('account')}
               >
-                <span className={styles.tabIcon}>⚙️</span>
+                <span className={styles.tabIcon}>
+                  <Icon name="cog" size="sm" />
+                </span>
                 {t('accountSetting')}
               </button>
-              <button 
+              <button
                 className={`${styles.tab} ${activeTab === 'appearance' ? styles.active : ''}`}
                 onClick={() => setActiveTab('appearance')}
               >
-                <span className={styles.tabIcon}>🎨</span>
+                <span className={styles.tabIcon}>
+                  <Icon name="palette" size="sm" />
+                </span>
                 {t('appearance')}
               </button>
             </nav>

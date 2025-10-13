@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import styles from './UserStatus.module.scss';
 import SettingPanel from '../SettingPanel/SettingPanel';
 import { useAuth } from '../../../../shared/contexts/AuthContext';
+import { Icon } from '../../../../shared/components/Icon';
 
 function UserStatus() {
   const { t } = useTranslation();
@@ -103,19 +104,25 @@ function UserStatus() {
             <ul>
               <li>
                 <button onClick={handleSettingPanelOpen}>
-                  <span className={styles.menuIcon}>⚙️</span>
+                  <span className={styles.menuIcon}>
+                    <Icon name="cog" size="sm" />
+                  </span>
                   {t('settingPanel')}
                 </button>
               </li>
               <li>
                 <button>
-                  <span className={styles.menuIcon}>❓</span>
+                  <span className={styles.menuIcon}>
+                    <Icon name="question-circle" size="sm" />
+                  </span>
                   {t('getHelp')}
                 </button>
               </li>
               <li>
                 <button onClick={handleLogout}>
-                  <span className={styles.menuIcon}>🚪</span>
+                  <span className={styles.menuIcon}>
+                    <Icon name="sign-out-alt" size="sm" />
+                  </span>
                   {t('logout')}
                 </button>
               </li>

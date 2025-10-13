@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styles from './Breadcrumb.module.scss';
+import { Icon } from '../Icon';
 
 const Breadcrumb = ({ items = [], showBackButton = true }) => {
   const { t } = useTranslation();
@@ -20,12 +21,14 @@ const Breadcrumb = ({ items = [], showBackButton = true }) => {
   return (
     <nav className={styles.breadcrumb} aria-label="breadcrumb">
       {showBackButton && (
-        <button 
+        <button
           className={styles.backButton}
           onClick={handleBackClick}
           aria-label={t('breadcrumb.backToDashboard')}
         >
-          <span className={styles.backIcon}>←</span>
+          <span className={styles.backIcon}>
+            <Icon name="arrow-left" size="sm" />
+          </span>
           <span className={styles.backText}>{t('breadcrumb.dashboard')}</span>
         </button>
       )}

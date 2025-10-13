@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from "react-router-dom";
 import styles from './Hero.module.scss';
 import PulseBackground from './PulseBackground';
 import Demo from '../Demo/Demo';
@@ -62,18 +63,15 @@ function Hero() {
         <div className={styles.demoContainer}>
           <Demo />
         </div>
-        <a
-          href="#demo"
+        <Link
+          to="/explorer"
           className="cta-button"
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
           onMouseLeave={handleCtaLeave}
         >
           {t("hero.cta")}
-        </a>
-        <div className={styles.demoContainer}>
-          <Demo />
-        </div>
+        </Link>
       </div>
     </section>
   );
