@@ -5,7 +5,10 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // 加快 React Fast Refresh
+      fastRefresh: true,
+    }),
     // Gzip 壓縮
     viteCompression({
       algorithm: "gzip",
@@ -17,6 +20,26 @@ export default defineConfig({
   server: {
     host: true, // 等同於 --host，讓外部可以連接
     port: 5173, // 預設端口
+    watch: {
+      usePolling: true,  // Docker 環境下使用輪詢模式
+      interval: 100,     // 檢查間隔（毫秒）
+    },
+  },
+  // 依賴預構建優化
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'i18next',
+      'react-i18next',
+      'i18next-browser-languagedetector',
+      '@fortawesome/fontawesome-svg-core',
+      '@fortawesome/react-fontawesome',
+      '@fortawesome/free-solid-svg-icons',
+      '@fortawesome/free-regular-svg-icons',
+    ],
+    force: false, // 不強制重新預構建，使用快取
   },
   resolve: {
     alias: {
