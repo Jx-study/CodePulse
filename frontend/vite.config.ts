@@ -1,9 +1,13 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // 載入環境變數
+  const env = loadEnv(mode, process.cwd(), '');
+
+  return {
   plugins: [
     react({
       // 加快 React Fast Refresh
@@ -83,4 +87,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });

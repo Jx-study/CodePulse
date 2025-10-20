@@ -63,10 +63,10 @@ function Home() {
   return (
     <div className="App">
       <Hero />
-      <Suspense fallback={<div className="loading-section">載入中...</div>}>
+      <Suspense fallback={<div className="loading-section">Loading...</div>}>
         <DataStructureAlgorithm />
       </Suspense>
-      <Suspense fallback={<div className="loading-section">載入中...</div>}>
+      <Suspense fallback={<div className="loading-section">Loading...</div>}>
         <Features />
       </Suspense>
     </div>
