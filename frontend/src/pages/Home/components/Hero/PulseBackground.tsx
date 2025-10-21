@@ -2,23 +2,20 @@ import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react
 import styles from './PulseBackground.module.scss';
 
 const PulseBackground = forwardRef((props, ref) => {
-  const canvasRef = useRef(null);
-  // Wandering particles
-  const particles = useRef([]);
-  const deadParticles = useRef([]); // Object pool for wandering particles
-  
-  const animationFrameId = useRef(null);
-  const particleIntervalId = useRef(null);
-  const isAttractingMode = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particles = useRef<WanderingParticle[]>([]);
+  const deadParticles = useRef<WanderingParticle[]>([]); // Object pool for wandering particles
 
-  // Particle limits
+  const animationFrameId = useRef<number | null>(null);
+  const particleIntervalId = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isAttractingMode = useRef<boolean>(false);
+
   const MAX_WANDERING_PARTICLES = 15;
   const MAX_DEAD_PARTICLES = 15;
 
-  // Particle colors
   const colors = ["#FF0000", "#FFFF00", "#0000FF"];
 
-  const hexToRgb = (hex) => {
+  const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),
@@ -33,7 +30,27 @@ const PulseBackground = forwardRef((props, ref) => {
       { dx: 0, dy: -1 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 1, dy: 0 }
     ];
 
-    constructor(x, y, canvas) {
+    // Instance properties
+    x: number;
+    y: number;
+    canvas: HTMLCanvasElement;
+    size: number;
+    color: string;
+    currentDirection: number;
+    normalSpeed: number;
+    attractSpeed: number;
+    dx: number;
+    dy: number;
+    turnTimer: number;
+    turnInterval: number;
+    lastTime: number;
+    trail: Array<{ x: number; y: number }>;
+    maxTrailLength: number;
+    isAttracted: boolean;
+    targetX: number;
+    targetY: number;
+
+    constructor(x: number, y: number, canvas: HTMLCanvasElement) {
       this.x = x;
       this.y = y;
       this.canvas = canvas;
@@ -42,8 +59,8 @@ const PulseBackground = forwardRef((props, ref) => {
       
       this.currentDirection = Math.floor(Math.random() * 4);
       const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
-      this.normalSpeed = 2;
-      this.attractSpeed = 4;
+      this.normalSpeed = 120; // pixels per second
+      this.attractSpeed = 240; // pixels per second
       this.dx = direction.dx * this.normalSpeed;
       this.dy = direction.dy * this.normalSpeed;
       
@@ -63,23 +80,25 @@ const PulseBackground = forwardRef((props, ref) => {
       const currentTime = performance.now();
       const deltaTime = currentTime - this.lastTime;
       this.lastTime = currentTime;
-      
+
       this.trail.push({ x: this.x, y: this.y });
       if (this.trail.length > this.maxTrailLength) {
         this.trail.shift();
       }
-      
+
       if (this.isAttracted) {
-        this.updateWithAttraction();
+        this.updateWithAttraction(deltaTime);
       } else {
         this.updateNormal(deltaTime);
       }
     }
 
-    updateNormal(deltaTime) {
-      this.x += this.dx;
-      this.y += this.dy;
-      
+    updateNormal(deltaTime: number) {
+      // Apply deltaTime to make movement frame-rate independent
+      const timeScale = deltaTime / 1000; // convert ms to seconds
+      this.x += this.dx * timeScale;
+      this.y += this.dy * timeScale;
+
       this.turnTimer += deltaTime;
       if (this.turnTimer >= this.turnInterval) {
         this.changeDirection();
@@ -88,41 +107,45 @@ const PulseBackground = forwardRef((props, ref) => {
       }
     }
 
-    updateWithAttraction() {
+    updateWithAttraction(deltaTime: number) {
       // 貪婪算法：選擇使距離目標最近的方向
       const distanceX = this.targetX - this.x;
       const distanceY = this.targetY - this.y;
-      
+
       // 檢查是否已經接近目標 - 使用較小的距離以確保能進入銷毀狀態
       if (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10) {
         return; // 停止移動，已經足夠接近目標
       }
-      
+
+      // Apply deltaTime to make movement frame-rate independent
+      const timeScale = deltaTime / 1000; // convert ms to seconds
+      const moveDistance = this.attractSpeed * timeScale;
+
       // 選擇移動方向（上下左右）
       let bestDirection = 0;
       let minDistance = Infinity;
-      
+
       // 檢查四個可能的方向
       WanderingParticle.DIRECTIONS.forEach((dir, index) => {
-        const newX = this.x + dir.dx * this.attractSpeed;
-        const newY = this.y + dir.dy * this.attractSpeed;
+        const newX = this.x + dir.dx * moveDistance;
+        const newY = this.y + dir.dy * moveDistance;
         const distance = Math.abs(this.targetX - newX) + Math.abs(this.targetY - newY);
-        
+
         if (distance < minDistance) {
           minDistance = distance;
           bestDirection = index;
         }
       });
-      
+
       // 設置新的方向和速度
       this.currentDirection = bestDirection;
       const direction = WanderingParticle.DIRECTIONS[bestDirection];
       this.dx = direction.dx * this.attractSpeed;
       this.dy = direction.dy * this.attractSpeed;
-      
-      // 移動
-      this.x += this.dx;
-      this.y += this.dy;
+
+      // 移動（應用時間縮放）
+      this.x += direction.dx * moveDistance;
+      this.y += direction.dy * moveDistance;
     }
 
 
@@ -144,7 +167,7 @@ const PulseBackground = forwardRef((props, ref) => {
       }
     }
 
-    draw(ctx) {
+    draw(ctx: CanvasRenderingContext2D) {
       ctx.save();
       
       if (this.trail.length > 1) {
@@ -204,7 +227,7 @@ const PulseBackground = forwardRef((props, ref) => {
       this.lastTime = performance.now();
     }
 
-    setAttractTarget(targetX, targetY) {
+    setAttractTarget(targetX: number, targetY: number) {
       this.isAttracted = true;
       this.targetX = targetX;
       this.targetY = targetY;
@@ -218,7 +241,7 @@ const PulseBackground = forwardRef((props, ref) => {
       this.dy = direction.dy * this.normalSpeed;
     }
 
-    reset(x, y, canvas) {
+    reset(x: number, y: number, canvas: HTMLCanvasElement) {
       this.x = x;
       this.y = y;
       this.canvas = canvas;
@@ -240,7 +263,7 @@ const PulseBackground = forwardRef((props, ref) => {
   }
 
   useImperativeHandle(ref, () => ({
-    addWanderingParticle: (x, y) => {
+    addWanderingParticle: (x: number, y: number) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
@@ -255,7 +278,7 @@ const PulseBackground = forwardRef((props, ref) => {
       const particle = createOrReuseWanderingParticle(x, y, canvas);
       particles.current.push(particle);
     },
-    attractParticles: (targetX, targetY) => {
+    attractParticles: (targetX: number, targetY: number) => {
       // 設置吸引模式，停止生成新粒子
       isAttractingMode.current = true;
       if (particleIntervalId.current) {
@@ -308,9 +331,9 @@ const PulseBackground = forwardRef((props, ref) => {
   };
 
   // Helper for WanderingParticles
-  const createOrReuseWanderingParticle = (x, y, canvas) => {
+  const createOrReuseWanderingParticle = (x: number, y: number, canvas: HTMLCanvasElement): WanderingParticle => {
     if (deadParticles.current.length > 0) {
-      const particle = deadParticles.current.pop();
+      const particle = deadParticles.current.pop()!;
       particle.reset(x, y, canvas);
       return particle;
     } else {

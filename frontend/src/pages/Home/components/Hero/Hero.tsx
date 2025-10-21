@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import styles from './Hero.module.scss';
 import PulseBackground from './PulseBackground';
 import Demo from '../Demo/Demo';
+import Button from '../../../../shared/components/Button/Button';
 
 function Hero() {
   const { t } = useTranslation();
@@ -63,15 +64,17 @@ function Hero() {
         <div className={styles.demoContainer}>
           <Demo />
         </div>
-        <Link
+        <Button
+          variant="primary"
+          size="lg"
+          as={Link}
           to="/explorer"
-          className="cta-button"
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
           onMouseLeave={handleCtaLeave}
         >
           {t("hero.cta")}
-        </Link>
+        </Button>
       </div>
     </section>
   );

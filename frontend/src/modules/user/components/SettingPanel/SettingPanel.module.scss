@@ -55,22 +55,6 @@
     color: var(--text-primary);
     font-size: 1.5rem;
   }
-
-  .closeBtn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: $transition-base;
-
-    &:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
-  }
 }
 
 .content {
@@ -253,33 +237,4 @@
   gap: $spacing-md;
   padding: $spacing-lg;
   border-top: 1px solid var(--border);
-
-  button {
-    padding: $spacing-sm $spacing-lg;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: $transition-base;
-    font-weight: 500;
-  }
-
-  .btnCancel {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-
-    &:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
-  }
-
-  .btnSave {
-    background: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    color: white;
-
-    &:hover {
-      background: rgba(37, 99, 235, 0.9);
-    }
-  }
 }

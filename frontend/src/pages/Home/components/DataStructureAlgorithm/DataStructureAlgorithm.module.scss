@@ -97,24 +97,6 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-
-    .learnMore {
-      background: transparent;
-      border: 2px solid $primary-color;
-      color: $primary-color;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: $font-sm;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background: $primary-color;
-        color: white;
-        transform: translateY(-2px);
-      }
-    }
   }
 
   .dotsContainer {
@@ -125,25 +107,10 @@
     gap: 12px;
   }
 
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(37, 99, 235, 0.3);
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: rgba(37, 99, 235, 0.6);
-      transform: scale(1.2);
-    }
-
-    &.active {
-      background: $primary-color;
-      transform: scale(1.3);
-      box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
-    }
+  .active {
+    background: $primary-color !important;
+    transform: scale(1.3) !important;
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.4) !important;
   }
 
   @include mobile {
@@ -164,10 +131,6 @@
       flex-direction: column;
       gap: 15px;
       align-items: stretch;
-
-      .learnMore {
-        text-align: center;
-      }
     }
   }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './SettingPanel.module.scss';
 import { Icon } from '../../../../shared/components/Icon';
+import Button from '../../../../shared/components/Button/Button';
 
 function SettingPanel({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { t } = useTranslation();
@@ -20,9 +21,9 @@ function SettingPanel({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
       <div className={styles.settingPanel}>
         <div className={styles.header}>
           <h2>{t('settingPanel')}</h2>
-          <button className={styles.closeBtn} onClick={onClose}>
-            <Icon name="times" size="lg" ariaLabel="關閉" />
-          </button>
+          <Button variant="icon" onClick={onClose} aria-label="關閉">
+            <Icon name="times" size="lg" />
+          </Button>
         </div>
 
         <div className={styles.content}>
@@ -143,13 +144,13 @@ function SettingPanel({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.btnCancel} onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             {t('cancel')}
-          </button>
-          <button className={styles.btnSave}>
+          </Button>
+          <Button variant="primary">
             {t('saveChanges')}
             {/* TODO: 保存設定到後端 - PUT /api/user/settings */}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./DataStructureAlgorithm.module.scss";
 import { useTranslation } from "react-i18next";
+import Button from "../../../../shared/components/Button/Button";
 
 // Import images
 import bubbleSortImg from "./assets/bubble-sort.png";
@@ -94,7 +95,7 @@ function DataStructureAlgorithm() {
     return () => clearInterval(interval);
   }, [totalSlides]);
 
-  const handleDotClick = (slideIndex) => {
+  const handleDotClick = (slideIndex: number) => {
     setCurrentSlide(slideIndex);
   };
 
@@ -105,7 +106,7 @@ function DataStructureAlgorithm() {
   };
 
   // 渲染星星难度
-  const renderStars = (difficulty) => {
+  const renderStars = (difficulty: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
@@ -120,7 +121,7 @@ function DataStructureAlgorithm() {
     return stars;
   };
 
-  const getCategoryColor = (category) => {
+  const getCategoryColor = (category: string) => {
     switch (category) {
       case "sorting":
         return styles.sorting;
@@ -165,9 +166,9 @@ function DataStructureAlgorithm() {
                   <span className={styles.category}>
                     {t(`algorithms.categories.${algorithm.category}`)}
                   </span>
-                  <button className={styles.learnMore}>
+                  <Button variant="primaryOutline" size="sm">
                     {t("algorithms_section.learn_more")}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -175,11 +176,11 @@ function DataStructureAlgorithm() {
 
           <div className={styles.dotsContainer}>
             {Array.from({ length: totalSlides }).map((_, index) => (
-              <button
+              <Button
                 key={index}
-                className={`${styles.dot} ${
-                  index === currentSlide ? styles.active : ""
-                }`}
+                variant="dot"
+                size="md"
+                className={index === currentSlide ? styles.active : ""}
                 onClick={() => handleDotClick(index)}
                 aria-label={`Go to slide ${index + 1}`}
               />
