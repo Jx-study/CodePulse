@@ -4,129 +4,48 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumb, Button } from '../../shared/components';
 import CodeEditor from '../../modules/core/components/CodeEditor/CodeEditor';
 import { D3Canvas } from '../../modules/core/Render/D3Canvas';
-import { Box } from '../../modules/core/DataLogic/Box';
-import { BaseElement } from '../../modules/core/DataLogic/BaseElement';
 import ControlBar from '../../modules/core/components/ControlBar/ControlBar';
 import { BreadcrumbItem } from '../../types';
+import { getAlgorithmConfig } from '../../data/algorithms';
 import styles from './Tutorial.module.scss';
-
-// 動畫步驟資料結構
-interface AnimationStep {
-  stepNumber: number;
-  description: string;
-  elements: BaseElement[];
-}
-
-// Mock 動畫步驟資料
-function createMockAnimationSteps(): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  const values = [5, 2, 8, 1, 9];
-
-  // Helper: 創建 box 元素
-  const createBoxes = (statusMap: { [id: string]: any }) => {
-    return values.map((value, i) => {
-      const box = new Box();
-      box.id = `box-${i}`;
-      box.moveTo(150 + i * 80, 200);
-      box.width = 60;
-      box.height = 60;
-      box.value = value;
-      box.description = `${value}`;
-      box.setStatus(statusMap[box.id] || 'unfinished');
-      return box;
-    });
-  };
-
-  // Step 1: 初始狀態
-  steps.push({
-    stepNumber: 1,
-    description: '初始陣列',
-    elements: createBoxes({}),
-  });
-
-  // Step 2: 選擇 pivot
-  steps.push({
-    stepNumber: 2,
-    description: '選擇 pivot = 9',
-    elements: createBoxes({ 'box-4': 'target' }),
-  });
-
-  // Step 3: 開始分割
-  steps.push({
-    stepNumber: 3,
-    description: '比較元素與 pivot',
-    elements: createBoxes({ 'box-4': 'target', 'box-0': 'prepare' }),
-  });
-
-  // Step 4: 繼續比較
-  steps.push({
-    stepNumber: 4,
-    description: '5 < 9，繼續',
-    elements: createBoxes({
-      'box-4': 'target',
-      'box-0': 'complete',
-      'box-1': 'prepare',
-    }),
-  });
-
-  // Step 5: 完成分割
-  steps.push({
-    stepNumber: 5,
-    description: '分割完成',
-    elements: createBoxes({
-      'box-0': 'complete',
-      'box-1': 'complete',
-      'box-2': 'complete',
-      'box-3': 'complete',
-      'box-4': 'target',
-    }),
-  });
-
-  return steps;
-}
 
 function Tutorial() {
   const { t } = useTranslation();
-  const { category, algorithm } = useParams();
+  const { category, algorithm } = useParams<{ category: string; algorithm: string }>();
   const navigate = useNavigate();
 
-  // 載入 mock 動畫資料
-  const animationSteps = createMockAnimationSteps();
+  // 根據路由參數載入演算法配置
+  const algorithmConfig = category && algorithm ? getAlgorithmConfig(category, algorithm) : null;
+
+  // 如果找不到演算法配置，顯示錯誤
+  if (!algorithmConfig) {
+    return (
+      <div className={styles.tutorialPage}>
+        <div className={styles.errorContainer}>
+          <h2>演算法不存在</h2>
+          <p>找不到演算法：{category}/{algorithm}</p>
+          <Button onClick={() => navigate('/dashboard')}>返回首頁</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // 載入動畫步驟資料
+  const animationSteps = algorithmConfig.createAnimationSteps();
 
   // State 管理
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
-  // Mock data
-  const algorithmData = {
-    name: '快速排序',
-    category: '排序演算法',
-    pseudoCode: `function quickSort(arr, left, right):
-    if left < right:
-        pivotIndex = partition(arr, left, right)
-        quickSort(arr, left, pivotIndex - 1)
-        quickSort(arr, pivotIndex + 1, right)
-
-function partition(arr, left, right):
-    pivot = arr[right]
-    i = left - 1
-    for j = left to right - 1:
-        if arr[j] <= pivot:
-            i = i + 1
-            swap arr[i] and arr[j]
-    swap arr[i + 1] and arr[right]
-    return i + 1`,
-  };
-
-  // 生成面包屑数据
+  // 生成面包屑數據
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: algorithmData.category,
+      label: algorithmConfig.categoryName,
       path: `/dashboard?category=${category}`,
     },
     {
-      label: algorithmData.name,
+      label: algorithmConfig.name,
       path: null, // 当前页面，不可点击
     },
   ];
@@ -201,7 +120,7 @@ function partition(arr, left, right):
             <CodeEditor
               mode="single"
               language="python"
-              value={algorithmData.pseudoCode}
+              value={algorithmConfig.pseudoCode}
               readOnly={true}
               theme="auto"
             />
@@ -249,11 +168,7 @@ function partition(arr, left, right):
         <div className={styles.infoContent}>
           <div className={styles.infoBlock}>
             <h4>演算法簡介</h4>
-            <p>
-              快速排序是一種高效的排序演算法，採用分治法（Divide and Conquer）策略。
-              它的核心思想是選擇一個基準值（pivot），將陣列分為兩部分：小於基準值的元素和大於基準值的元素，
-              然後遞迴地對這兩部分進行排序。
-            </p>
+            <p>{algorithmConfig.introduction}</p>
           </div>
 
           <div className={styles.infoBlock}>
@@ -261,19 +176,19 @@ function partition(arr, left, right):
             <div className={styles.complexityTable}>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>時間複雜度（最佳）：</span>
-                <span className={styles.complexityValue}>O(n log n)</span>
+                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeBest}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>時間複雜度（平均）：</span>
-                <span className={styles.complexityValue}>O(n log n)</span>
+                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeAverage}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>時間複雜度（最差）：</span>
-                <span className={styles.complexityValue}>O(n²)</span>
+                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeWorst}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>O(log n)</span>
+                <span className={styles.complexityValue}>{algorithmConfig.complexity.space}</span>
               </div>
             </div>
           </div>
