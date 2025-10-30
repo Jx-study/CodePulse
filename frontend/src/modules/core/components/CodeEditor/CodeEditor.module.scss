@@ -1,6 +1,215 @@
 @use '../../../../shared/styles/variables' as *;
 @use '../../../../shared/styles/mixins' as *;
 
+// ==================== CodeEditor 主容器 ====================
+
 .codeEditor {
-  /* Your styles here */
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  position: relative;
+
+  // 拖曳中的樣式
+  &.dragging {
+    user-select: none;
+    cursor: ns-resize;
+
+    * {
+      pointer-events: none;
+    }
+  }
+}
+
+// ==================== 分屏模式佈局 ====================
+
+.topEditor,
+.bottomEditor {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+
+  // 確保 Monaco Editor 容器填滿父元素
+  > div {
+    height: 100% !important;
+  }
+}
+
+.topEditor {
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg-tertiary);
+}
+
+.bottomEditor {
+  background-color: var(--bg-primary);
+}
+
+// ==================== 分隔線（可拖曳） ====================
+
+.resizer {
+  height: 8px;
+  background-color: var(--border);
+  cursor: ns-resize;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition-base;
+  z-index: 10;
+  flex-shrink: 0;
+
+  &:hover,
+  &.active {
+    background-color: $primary-color;
+    height: 10px;
+  }
+
+  // 拖曳手把
+  .resizerHandle {
+    width: 60px;
+    height: 4px;
+    background-color: var(--text-tertiary);
+    border-radius: 2px;
+    pointer-events: none;
+    transition: $transition-base;
+  }
+
+  &:hover .resizerHandle,
+  &.active .resizerHandle {
+    background-color: #ffffff;
+    width: 80px;
+    height: 5px;
+  }
+}
+
+// ==================== 行高亮樣式 ====================
+
+.highlightedLine {
+  background-color: rgba(99, 91, 255, 0.15) !important;
+  border-left: 3px solid $primary-color !important;
+  animation: highlightPulse 1s ease-in-out;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(99, 91, 255, 0.25) !important;
+  }
+}
+
+.highlightedLineGlyph {
+  background-color: $primary-color !important;
+  width: 4px !important;
+  margin-left: 3px;
+  border-radius: 2px;
+}
+
+@keyframes highlightPulse {
+  0%,
+  100% {
+    background-color: rgba(99, 91, 255, 0.15);
+  }
+  50% {
+    background-color: rgba(99, 91, 255, 0.3);
+  }
+}
+
+// ==================== 響應式設計 ====================
+
+// 桌面端（≥1024px）：完整功能
+@media (min-width: $tablet) {
+  .codeEditor {
+    min-height: 500px;
+    border-radius: 12px;
+  }
+}
+
+// 平板端（768px-1023px）
+@media (min-width: $mobile) and (max-width: $tablet - 1px) {
+  .codeEditor {
+    min-height: 450px;
+    border-radius: 10px;
+  }
+
+  .resizer {
+    height: 10px;
+
+    &:hover,
+    &.active {
+      height: 12px;
+    }
+  }
+}
+
+// 手機端（<768px）
+@media (max-width: $mobile - 1px) {
+  .codeEditor {
+    min-height: 300px;
+    border-radius: 8px;
+    box-shadow: $shadow-sm;
+  }
+
+  .resizer {
+    height: 12px;
+
+    .resizerHandle {
+      width: 50px;
+    }
+
+    &:hover .resizerHandle,
+    &.active .resizerHandle {
+      width: 70px;
+    }
+  }
+}
+
+// ==================== 深色模式微調 ====================
+
+@media (prefers-color-scheme: dark) {
+  .codeEditor {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5),
+      0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .resizer {
+    &:hover,
+    &.active {
+      background-color: #7c6fff; // $primary-color 淡化版本
+    }
+  }
+}
+
+// ==================== 無障礙設計 ====================
+
+.codeEditor {
+  &:focus-within {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// 高對比度模式支援
+@media (prefers-contrast: high) {
+  .codeEditor {
+    border-width: 2px;
+  }
+
+  .highlightedLine {
+    background-color: rgba(99, 91, 255, 0.4) !important;
+    border-left-width: 5px !important;
+  }
+
+  .resizer {
+    height: 10px;
+    background-color: $primary-color;
+
+    &:hover,
+    &.active {
+      height: 14px;
+    }
+  }
 }
