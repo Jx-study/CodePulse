@@ -1,4 +1,5 @@
 // Shared Components Barrel Exports
+export { default as Button } from './Button/Button';
 export { default as Breadcrumb } from './Breadcrumb/Breadcrumb';
 export { default as NavigationBar } from './NavigationBar/NavigationBar';
 export { default as MainHeader } from './Header/MainHeader';
