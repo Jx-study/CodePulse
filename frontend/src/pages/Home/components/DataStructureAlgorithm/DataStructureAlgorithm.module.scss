@@ -103,7 +103,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 40px;
+    margin-top: $spacing-lg;
+    padding: $spacing-sm 0;
     gap: 12px;
   }
 

@@ -42,6 +42,14 @@ import {
   faSave,
   faUpload,
 
+  // 播放控制
+  faPlay,
+  faPause,
+  faStepBackward,
+  faStepForward,
+  faSync,
+  faRedo,
+
   // 其他常用
   faSearch,
   faBars,
@@ -83,6 +91,12 @@ library.add(
   faTrash,
   faSave,
   faUpload,
+  faPlay,
+  faPause,
+  faStepBackward,
+  faStepForward,
+  faSync,
+  faRedo,
   faSearch,
   faBars,
   faEllipsisV,
@@ -135,6 +149,14 @@ export type IconName =
   | 'trash'
   | 'save'
   | 'upload'
+
+  // 播放控制
+  | 'play'
+  | 'pause'
+  | 'step-backward'
+  | 'step-forward'
+  | 'sync'
+  | 'redo'
 
   // 其他常用
   | 'search'

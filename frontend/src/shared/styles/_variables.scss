@@ -36,6 +36,12 @@ $primary-color: #635bff;
 $execution-color: #28a745;
 $accent-color: #ff6b35;
 
+// 骨架屏顏色
+$skeleton-bg: #e0e0e0;
+$skeleton-shimmer: rgba(255, 255, 255, 0.3);
+$skeleton-bg-dark: #2a2a2a;
+$skeleton-shimmer-dark: rgba(255, 255, 255, 0.1);
+
 // ========== 互動狀態變數 ==========
 // 互動狀態
 $hover-transform: translateY(-2px);

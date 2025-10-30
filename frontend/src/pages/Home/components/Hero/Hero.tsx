@@ -13,12 +13,11 @@ function Hero() {
   const heroRef = useRef();
 
   const handleHeroClick = (event) => {
-    if (pulseBackgroundRef.current) {
-      const heroElement = event.currentTarget;
-      const rect = heroElement.getBoundingClientRect();
+    if (pulseBackgroundRef.current && heroRef.current) {
+      const rect = heroRef.current.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      
+
       pulseBackgroundRef.current.addWanderingParticle(x, y);
     }
   };

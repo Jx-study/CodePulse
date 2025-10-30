@@ -9,6 +9,14 @@
   gap: 12px;
 }
 
+.btnLogin {
+  color: #f8fafc !important;
+
+  :hover {
+    color: black;
+  }
+}
+
 .userAvatar {
   width: 36px;
   height: 36px;

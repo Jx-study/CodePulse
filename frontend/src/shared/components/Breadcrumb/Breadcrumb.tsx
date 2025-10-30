@@ -3,8 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styles from './Breadcrumb.module.scss';
 import { Icon } from '../Icon';
+import { BreadcrumbItem } from '../../../types';
 
-const Breadcrumb = ({ items = [], showBackButton = true }) => {
+interface BreadcrumbProps {
+  items?: BreadcrumbItem[];
+  showBackButton?: boolean;
+}
+
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ items = [], showBackButton = true }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -12,7 +18,7 @@ const Breadcrumb = ({ items = [], showBackButton = true }) => {
     navigate('/dashboard');
   };
 
-  const handleItemClick = (path) => {
+  const handleItemClick = (path: string) => {
     if (path) {
       navigate(path);
     }
