@@ -1,3 +1,11 @@
 .controlBar {
-  /* Your styles here */
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: $spacing-lg;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  min-height: 80px;
 }

@@ -4,7 +4,7 @@ import styles from './AnimationArea.module.scss';
 function AnimationArea() {
   return (
     <div className={styles.animationArea}>
-      {/* Your implementation here */}
+      <h1>Animation Area</h1>
     </div>
   );
 }

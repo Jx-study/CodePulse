@@ -4,7 +4,7 @@ import styles from './CodeEditor.module.scss';
 function CodeEditor() {
   return (
     <div className={styles.codeEditor}>
-      {/* Your implementation here */}
+      <h1>Code Editor</h1>
     </div>
   );
 }

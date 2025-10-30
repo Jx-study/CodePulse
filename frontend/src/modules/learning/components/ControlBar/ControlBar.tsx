@@ -4,7 +4,7 @@ import styles from './ControlBar.module.scss';
 function ControlBar() {
   return (
     <div className={styles.controlBar}>
-      {/* Your implementation here */}
+      <h1>Control Bar</h1>
     </div>
   );
 }
