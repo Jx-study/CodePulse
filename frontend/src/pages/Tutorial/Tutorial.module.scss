@@ -10,13 +10,14 @@
 }
 
 .contentContainer {
-  max-width: $desktop;
+  max-width: 1600px;
   margin: 0 auto;
   padding: $spacing-lg;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-xl;
+  grid-template-columns: 1fr 3fr;
+  gap: $spacing-lg;
   min-height: calc(100vh - 140px);
+  height: calc(100vh - 140px);
 
   @include mobile {
     grid-template-columns: 1fr;
@@ -28,11 +29,25 @@
 .leftPanel {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .rightPanel {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-lg;
+  height: 100%;
+  
+  // Control Bar 保持內容高度
+  > :first-child {
+    flex: 0 0 auto;
+  }
+  
+  // Animation Area 占據剩餘空間
+  > :last-child {
+    flex: 1;
+    min-height: 0;
+  }
 }
