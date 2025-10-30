@@ -1,44 +1,45 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Breadcrumb } from '../../shared/components';
-import CodeEditor from '../../modules/core/components/CodeEditor/CodeEditor';
-import AlgorithmInfo from '../../modules/learning/components/AlgorithmInfo/AlgorithmInfo';
-import AnimationArea from '../../modules/learning/components/AnimationArea/AnimationArea';
-import ControlBar from '../../modules/learning/components/ControlBar/ControlBar';
-import VariableStatus from '../../modules/learning/components/VariableStatus/VariableStatus';
-import styles from './Tutorial.module.scss';
+import { useParams, Navigate } from "react-router-dom";
+import { Breadcrumb } from "../../shared/components";
+import type { BreadcrumbItem } from "../../shared/components/Breadcrumb/Breadcrumb";
+import CodeEditor from "../../modules/core/components/CodeEditor/CodeEditor";
+import AlgorithmInfo from "../../modules/learning/components/AlgorithmInfo/AlgorithmInfo";
+import AnimationArea from "../../modules/learning/components/AnimationArea/AnimationArea";
+import ControlBar from "../../modules/learning/components/ControlBar/ControlBar";
+import VariableStatus from "../../modules/learning/components/VariableStatus/VariableStatus";
+import { getTutorialData } from "../../config/tutorialConfig";
+import styles from "./Tutorial.module.scss";
 
 function Tutorial() {
-  const { t } = useTranslation();
-  const { category, algorithm } = useParams();
+  const { category, algorithm } = useParams<{
+    category: string;
+    algorithm: string;
+  }>();
 
-  // Mock data - 将来从后端获取
-  const algorithmData = {
-    name: '快速排序',
-    category: '排序演算法'
-  };
+  // 從配置獲取教學數據
+  const tutorialData = getTutorialData(category || "", algorithm || "");
 
-  // 生成面包屑数据
-  const breadcrumbItems = [
+  // 如果找不到對應的教學內容，重定向到 dashboard
+  if (!tutorialData) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // 生成面包屑數據
+  const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: algorithmData.category,
-      path: `/dashboard?category=${category}`
+      label: tutorialData.categoryName,
+      path: `/dashboard?category=${category}`,
     },
     {
-      label: algorithmData.name,
-      path: null // 当前页面，不可点击
-    }
+      label: tutorialData.name,
+      path: null, // 當前頁面，不可點擊
+    },
   ];
 
   return (
     <div className={styles.tutorialPage}>
       {/* Breadcrumb Navigation */}
       <div className={styles.breadcrumbContainer}>
-        <Breadcrumb 
-          items={breadcrumbItems}
-          showBackButton={true}
-        />
+        <Breadcrumb items={breadcrumbItems} showBackButton={true} />
       </div>
 
       {/* Main Content */}
@@ -46,14 +47,14 @@ function Tutorial() {
         {/* Left Panel */}
         <div className={styles.leftPanel}>
           <CodeEditor />
-          <AlgorithmInfo />
+          {/* <AlgorithmInfo /> */}
         </div>
 
         {/* Right Panel */}
         <div className={styles.rightPanel}>
-          <AnimationArea />
           <ControlBar />
-          <VariableStatus />
+          {/* <VariableStatus /> */}
+          <AnimationArea />
         </div>
       </div>
     </div>
