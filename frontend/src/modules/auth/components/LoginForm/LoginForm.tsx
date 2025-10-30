@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from '../../styles/AuthForm.module.scss';
+import Button from '../../../../shared/components/Button/Button';
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -119,9 +120,9 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
           </label>
         </div>
 
-        <button type="submit" className={styles.submitBtn} disabled={disabled}>
+        <Button type="submit" variant="primary" fullWidth disabled={disabled}>
           {t('login')}
-        </button>
+        </Button>
 
         <div className={styles.forgotPassword}>
           <a href="#forgot-password">忘記密碼？</a>

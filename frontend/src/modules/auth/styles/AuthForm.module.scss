@@ -78,30 +78,6 @@
   }
 }
 
-.submitBtn {
-  background: $gradient-primary;
-  color: white;
-  border: none;
-  padding: $spacing-sm;
-  border-radius: 6px;
-  font-size: $font-base;
-  font-weight: 600;
-  cursor: pointer;
-  transition: $transition-base;
-  margin-top: $spacing-sm;
-
-  &:hover {
-    transform: $hover-transform;
-    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.4);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-}
-
 .forgotPassword {
   text-align: center;
   margin-top: $spacing-sm;

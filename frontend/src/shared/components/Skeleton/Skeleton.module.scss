@@ -1,0 +1,432 @@
+@use '../../../shared/styles/variables' as *;
+@use '../../../shared/styles/mixins' as *;
+
+// ========== Base Skeleton Styles ==========
+.skeleton {
+  background-color: var(--skeleton-bg, #e0e0e0);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--skeleton-bg-dark, #2a2a2a);
+  }
+
+  // Variant styles
+  &.rectangular {
+    border-radius: 4px;
+  }
+
+  &.rounded {
+    border-radius: 8px;
+  }
+
+  &.circular {
+    border-radius: 50%;
+  }
+}
+
+// ========== Animations ==========
+// Shimmer animation (光澤掃過效果)
+.shimmer {
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+
+    @media (prefers-color-scheme: dark) {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Pulse animation (呼吸效果)
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// No animation
+.none {
+  // Static skeleton, no animation
+}
+
+// Respect user preference for reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    &.shimmer::after,
+    &.pulse {
+      animation: none;
+    }
+  }
+}
+
+// ========== Component-specific Styles ==========
+.skeletonTextContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.skeletonCardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  border-radius: 12px;
+}
+
+.skeletonButton {
+  border-radius: 6px;
+}
+
+// ========== Features Skeleton Styles ==========
+.featuresSkeleton {
+  padding: $spacing-xxl 0;
+  background: var(--bg-primary);
+
+  .titleSkeleton {
+    text-align: center;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .scrollContainer {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    // Gradient masks at edges
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg-primary), transparent);
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg-primary), transparent);
+    }
+  }
+
+  .cardContainer {
+    display: flex;
+    gap: $spacing-lg;
+    padding: $spacing-sm 0;
+  }
+
+  .featureCardSkeleton {
+    flex: 0 0 auto;
+    width: $card-width-default;
+    min-height: $card-height-default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    padding: $spacing-lg;
+    border-radius: 12px;
+
+    @include tablet {
+      width: $card-width-tablet;
+      min-height: $card-height-tablet;
+    }
+
+    @include mobile {
+      width: $card-width-mobile;
+      min-height: $card-height-mobile;
+    }
+  }
+
+  @include mobile {
+    padding: $spacing-xl 0;
+
+    .scrollContainer {
+      margin: 0 calc(-1 * $spacing-md);
+      padding: 0 $spacing-md;
+    }
+
+    .cardContainer {
+      gap: $spacing-md;
+    }
+  }
+}
+
+// ========== Algorithm Skeleton Styles ==========
+.algorithmSkeleton {
+  padding: $spacing-xxl 0;
+  background: var(--bg-primary);
+
+  .titleSkeleton {
+    text-align: center;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .sliderContainer {
+    position: relative;
+  }
+
+  .algorithmGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
+  }
+
+  .algorithmCardSkeleton {
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border-radius: 12px;
+  }
+
+  .cardHeader,
+  .cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .dotsContainer {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: $spacing-sm 0;
+  }
+
+  @include mobile {
+    padding: $spacing-xl 0;
+  }
+}
+
+// ========== Page Skeleton Styles ==========
+.pageSkeleton {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+
+  // Header Skeleton
+  .headerSkeleton {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    padding: $spacing-md 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    .headerContent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: $spacing-lg;
+
+      @include mobile {
+        flex-wrap: wrap;
+      }
+    }
+
+    .navSkeleton {
+      display: flex;
+      gap: $spacing-lg;
+      flex: 1;
+      justify-content: center;
+
+      @include mobile {
+        display: none;
+      }
+    }
+
+    .authButtonsSkeleton {
+      display: flex;
+      gap: $spacing-sm;
+
+      @include mobile {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  // Hero Skeleton
+  .heroSkeleton {
+    padding: $spacing-xxl 0;
+    background: var(--bg-secondary);
+
+    .heroContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: $spacing-lg;
+    }
+
+    .heroSubtitle {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+      margin-top: $spacing-md;
+      width: 100%;
+      align-items: center;
+    }
+
+    .heroButtons {
+      display: flex;
+      gap: $spacing-md;
+      margin-top: $spacing-md;
+
+      @include mobile {
+        flex-direction: column;
+        width: 100%;
+      }
+    }
+
+    .heroImage {
+      width: 100%;
+      max-width: 800px;
+      margin-top: $spacing-xl;
+    }
+
+    @include mobile {
+      padding: $spacing-xl 0;
+    }
+  }
+
+  // Content Skeleton
+  .contentSkeleton {
+    padding: $spacing-xxl 0;
+    background: var(--bg-primary);
+
+    .sectionTitle {
+      text-align: center;
+      margin-bottom: $spacing-xl;
+      display: flex;
+      justify-content: center;
+    }
+
+    .cardsGrid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: $spacing-lg;
+
+      @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @include mobile {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cardSkeleton {
+      background: var(--card-bg);
+      box-shadow: var(--card-shadow);
+      border-radius: 12px;
+      padding: $spacing-lg;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+
+      .cardFooter {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+      }
+    }
+
+    @include mobile {
+      padding: $spacing-xl 0;
+    }
+  }
+
+  // Footer Skeleton
+  .footerSkeleton {
+    margin-top: auto;
+    padding: $spacing-xl 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+
+    .footerContent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      @include mobile {
+        flex-direction: column;
+        gap: $spacing-md;
+        text-align: center;
+      }
+    }
+
+    .footerLinks {
+      display: flex;
+      gap: $spacing-lg;
+
+      @include mobile {
+        flex-direction: column;
+        gap: $spacing-sm;
+      }
+    }
+  }
+}

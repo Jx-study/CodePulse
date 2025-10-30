@@ -37,10 +37,6 @@ function Demo() {
             <strong>💡{t('demo_section.analysis')} ：</strong> {t('demo_section.analysis_text')}
           </div>
         </div>
-        
-        <div style={{ marginTop: '2rem' }}>
-          <a href="#" className='cta-button'>{t('demo_section.cta')}</a>
-        </div>
       </div>
     </section>
   );

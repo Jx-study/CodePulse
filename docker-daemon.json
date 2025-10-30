@@ -1,8 +1,0 @@
-{
-  "registry-mirrors": [
-    "https://dockerproxy.com"
-  ],
-  "insecure-registries": [],
-  "debug": false,
-  "experimental": false
-}

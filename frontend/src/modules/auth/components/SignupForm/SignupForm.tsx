@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from '../../styles/AuthForm.module.scss';
+import Button from '../../../../shared/components/Button/Button';
 
 interface SignupFormData {
   username: string;
@@ -166,9 +167,9 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
           )}
         </div>
 
-        <button type="submit" className={styles.submitBtn} disabled={disabled}>
+        <Button type="submit" variant="primary" fullWidth disabled={disabled}>
           {t('register')}
-        </button>
+        </Button>
       </form>
     </div>
   );

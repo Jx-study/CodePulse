@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./Breadcrumb.module.scss";
+import { Icon } from '../Icon';
+import { BreadcrumbItem } from '../../../types';
 
 export interface BreadcrumbItem {
   label: string;
@@ -38,8 +40,10 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           onClick={handleBackClick}
           aria-label={t("breadcrumb.backToDashboard")}
         >
-          <span className={styles.backIcon}>←</span>
-          <span className={styles.backText}>{t("breadcrumb.dashboard")}</span>
+          <span className={styles.backIcon}>
+            <Icon name="arrow-left" size="sm" />
+          </span>
+          <span className={styles.backText}>{t('breadcrumb.dashboard')}</span>
         </button>
       )}
 

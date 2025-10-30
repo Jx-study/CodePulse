@@ -1,0 +1,145 @@
+export default {
+  "welcome": "Welcome to CodePulse!",
+  "description": "Your ultimate code analysis tool.",
+  "language_switcher": "Language",
+  "home": "Home",
+  "features": "Features",
+  "demo": "Demo",
+  "docs": "Docs",
+  "about": "About",
+  "dashboardLabel": "Dashboard",
+  "login": "Login",
+  "register": "Register",
+
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "backToDashboard": "Back to Dashboard"
+  },
+
+  "hero": {
+    "title": "CodePulse",
+    "subtitle": "Code Execution Visualization Platform",
+    "description": {
+      "main": "A code execution visualization platform combining static analysis and dynamic tracing",
+      "sub": "Make program execution clear and intuitive, enhancing learning and debugging efficiency"
+    },
+    "cta": "Get Started"
+  },
+
+  "features_section": {
+    "title": "Core Features",
+    "interactive_flowchart": {
+      "title": "Interactive Flowchart",
+      "description": "Visualize program execution flow with intuitive flowcharts, supporting breakpoints and step-by-step execution to make complex program logic crystal clear."
+    },
+    "memory_visualization": {
+      "title": "Memory Visualization",
+      "description": "Real-time display of variable states and memory reference relationships, helping understand list/dict pass-by-reference behavior and data transfer between functions."
+    },
+    "smart_summary": {
+      "title": "Smart Program Summary",
+      "description": "Automatically analyze program structure and generate clear execution summaries and explanations, helping beginners quickly grasp program operation principles."
+    },
+    "dynamic_tracking": {
+      "title": "Dynamic Tracking Technology",
+      "description": "Combines AST static analysis with sys.settrace dynamic tracing to provide precise program execution analysis."
+    },
+    "breakpoint_system": {
+      "title": "Breakpoint Playback System",
+      "description": "Supports pause, play, and rewind functions for program execution, facilitating in-depth analysis of specific program segments."
+    },
+    "teaching_interface": {
+      "title": "Teaching-Friendly Interface",
+      "description": "Designed specifically for educational scenarios, supporting teacher-student interactive discussions to make programming education more engaging and effective."
+    }
+  },
+
+  "demo_section": {
+    "title": "Program Execution Demo",
+    "subtitle": "Experience how CodePulse makes program execution processes clear and visible",
+    "current_line": "Current executing line",
+    "analysis": "Real-time Analysis",
+    "analysis_text": "Currently in the first loop, i = 0, preparing to start the first round of bubble sort comparison",
+    "cta": "Start Using CodePulse"
+  },
+
+  "algorithms_section": {
+    "title": "Data Structures & Algorithms",
+    "learn_more": "Learn More",
+    "difficulty_levels": {
+      "1": "Beginner",
+      "2": "Easy",
+      "3": "Intermediate",
+      "4": "Advanced",
+      "5": "Expert"
+    }
+  },
+
+  "algorithms": {
+    "bubble_sort": {
+      "name": "Bubble Sort",
+      "description": "A simple comparison-based sorting algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order."
+    },
+    "quick_sort": {
+      "name": "Quick Sort",
+      "description": "An efficient divide-and-conquer sorting algorithm that picks a pivot element and partitions the array around the pivot."
+    },
+    "merge_sort": {
+      "name": "Merge Sort",
+      "description": "A stable divide-and-conquer sorting algorithm that divides the array into halves, sorts them separately, then merges them back."
+    },
+    "binary_search": {
+      "name": "Binary Search",
+      "description": "An efficient search algorithm that finds the position of a target value within a sorted array by repeatedly dividing the search interval in half."
+    },
+    "linear_search": {
+      "name": "Linear Search",
+      "description": "A simple search algorithm that checks every element in a list sequentially until the target element is found."
+    },
+    "dfs": {
+      "name": "Depth-First Search",
+      "description": "A graph traversal algorithm that explores as far as possible along each branch before backtracking."
+    },
+    "bfs": {
+      "name": "Breadth-First Search",
+      "description": "A graph traversal algorithm that explores all vertices at the current depth before moving to vertices at the next depth level."
+    },
+    "dijkstra": {
+      "name": "Dijkstra's Algorithm",
+      "description": "An algorithm for finding the shortest paths between nodes in a graph with non-negative edge weights."
+    },
+    "categories": {
+      "sorting": "Sorting",
+      "search": "Search",
+      "graph": "Graph"
+    }
+  },
+
+  "footer": {
+    "tagline": "Transform abstract algorithms into visual stories. Make programming and debugging an intuitive, engaging journey.",
+    "resources": {
+      "title": "Learning Resources",
+      "tutorial": "Usage Tutorial",
+      "examples": "Sample Programs",
+      "faq": "FAQ"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "github": "GitHub",
+      "support": "Technical Support",
+      "feedback": "Feedback"
+    },
+    "copyright": "© 2025 CodePulse. Licensed under the MIT License. | Designed for programming learning."
+  },
+
+  "tech": {
+    "python": "Python",
+    "javascript": "JavaScript",
+    "react": "React",
+    "flask": "Flask",
+    "api": "API",
+    "leetcode": "LeetCode",
+    "github": "GitHub",
+    "docker": "Docker"
+  }
+} as const;

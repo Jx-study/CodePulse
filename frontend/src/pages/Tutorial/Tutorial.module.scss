@@ -1,53 +1,201 @@
 .tutorialPage {
   min-height: calc(100vh - 64px);
-  background: $dark-bg-primary;
+  background: var(--bg-primary);
+  padding-bottom: $spacing-xl;
 }
 
 .breadcrumbContainer {
-  max-width: $desktop;
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-md $spacing-lg;
+}
+
+// Top Section - Pseudo Code + Canvas
+.topSection {
+  width: 100%;
   margin: 0 auto;
   padding: 0 $spacing-lg;
-}
+  display: flex;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  min-height: 600px;
 
-.contentContainer {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: $spacing-lg;
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  gap: $spacing-lg;
-  min-height: calc(100vh - 140px);
-  height: calc(100vh - 140px);
-
-  @include mobile {
-    grid-template-columns: 1fr;
+  @media (max-width: $tablet) {
+    flex-direction: column;
     gap: $spacing-md;
     padding: 0 $spacing-md;
+    min-height: auto;
   }
-}
-
-.leftPanel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  flex: 1;
-  min-height: 0;
 }
 
 .rightPanel {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
-  height: 100%;
-  
-  // Control Bar 保持內容高度
-  > :first-child {
-    flex: 0 0 auto;
+  gap: $spacing-md;
+}
+
+// Section Header 通用樣式
+.sectionHeader {
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 8px 8px 0 0;
+
+  .sectionTitle {
+    font-size: $font-lg;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
   }
-  
-  // Animation Area 占據剩餘空間
-  > :last-child {
+}
+
+// Pseudo Code Section - 左側欄
+.pseudoCodeSection {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+  background: lightgreen;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+
+  @media (max-width: $tablet) {
+    flex: 1 1 auto;
+    min-height: 400px;
+  }
+
+  .pseudoCodeEditor {
     flex: 1;
-    min-height: 0;
+    overflow: hidden;
+    min-height: 500px;
+  }
+}
+
+// Algorithm Info Section - 底部全寬
+.algorithmInfoSection {
+  max-width: 1400px;
+  margin: 0 auto $spacing-xl;
+  padding: 0 $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+
+  @media (max-width: $tablet) {
+    padding: 0 $spacing-md;
+  }
+
+  .infoContent {
+    padding: $spacing-lg;
+    display: flex;
+    gap: $spacing-xl;
+
+    @media (max-width: $tablet) {
+      flex-direction: column;
+      padding: $spacing-md;
+      gap: $spacing-md;
+    }
+
+    .infoBlock {
+      flex: 1;
+      min-width: 400px;
+
+      @media (max-width: $tablet) {
+        min-width: auto;
+      }
+
+      h4 {
+        font-size: $font-lg;
+        font-weight: 600;
+        color: $primary-color;
+        margin-bottom: $spacing-md;
+      }
+
+      p {
+        font-size: $font-sm;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+      }
+    }
+  }
+}
+
+// 複雜度表格
+.complexityTable {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  .complexityRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-xs $spacing-sm;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    font-size: $font-sm;
+
+    .complexityLabel {
+      color: var(--text-secondary);
+    }
+
+    .complexityValue {
+      font-family: $font-family-code;
+      color: $primary-color;
+      font-weight: 600;
+    }
+  }
+}
+
+// Visualization Section
+.visualizationSection {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.visualizationArea {
+  background: #111;
+  border-radius: 4px;
+  padding: $spacing-sm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+
+  @media (max-width: $mobile) {
+    min-height: 300px;
+  }
+}
+
+.stepDescription {
+  margin-top: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  border-left: 3px solid $primary-color;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.actionButtons {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: center;
+  margin-top: $spacing-xl;
+  padding: 0 $spacing-lg;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: $mobile) {
+    flex-direction: column;
+    padding: 0 $spacing-md;
   }
 }

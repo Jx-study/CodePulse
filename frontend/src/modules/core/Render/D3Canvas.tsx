@@ -1,4 +1,6 @@
+
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { renderAll } from "./D3Renderer";
 import type { Link } from "./D3Renderer";
@@ -21,6 +23,9 @@ export const D3Canvas = forwardRef<D3CanvasRef, {
 
   useEffect(() => {
     if (!ref.current) return;
+    const svg = d3.select(ref.current);
+    svg.selectAll("*").remove();
+
     renderAll(ref.current, elements, links);
   }, [elements, links]);
 

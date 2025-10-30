@@ -32,8 +32,8 @@ echo ========================================
 echo.
 set /p CHOICE="請輸入選項 (1/2/3): "
 
-REM 如果使用者直接按 Enter，使用預設值 3
-if "%CHOICE%"=="" set CHOICE=3
+REM 如果使用者直接按 Enter，使用預設值 1
+if "%CHOICE%"=="" set CHOICE=1
 
 echo.
 

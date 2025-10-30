@@ -9,6 +9,9 @@ import { AuthProvider } from './shared/contexts/AuthContext';
 import MainLayout from './shared/layouts/MainLayout';
 import AuthLayout from './shared/layouts/AuthLayout';
 
+// Skeleton Loading
+import { PageSkeleton } from './shared/components/Skeleton';
+
 // Pages - 使用動態導入進行代碼分割
 const Home = React.lazy(() => import('./pages/Home/Home'));
 const AuthPage = React.lazy(() => import('./pages/Authentication/Auth'));
@@ -27,7 +30,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <Suspense fallback={<div className="loading-spinner">載入中...</div>}>
+      <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* 主布局 */}
           <Route element={<MainLayout />}>
