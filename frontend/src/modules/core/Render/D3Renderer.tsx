@@ -93,7 +93,6 @@ export function animateConnect(
   });
 }
 
-
 export function renderAll(
   svgEl: SVGSVGElement,
   elements: BaseElement[],
