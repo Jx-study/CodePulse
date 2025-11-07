@@ -5,7 +5,7 @@
 }
 
 .footerContent {
-    display: flex;
+    @include flex;
     flex-wrap: wrap;
     gap: $spacing-lg;
     margin: $spacing-lg;
@@ -47,7 +47,7 @@
     a {
         color: var(--text-tertiary);
         text-decoration: none;
-        transition: color 0.3s ease;
+        @include transition(color, 0.3s, ease);
         
         &:hover {
             color: #60a5fa;

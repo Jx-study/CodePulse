@@ -30,8 +30,7 @@
 }
 
 .rightSection {
-    display: flex;
-    align-items: center;
+    @include flex($align: center);
     gap: $spacing-lg;
     justify-self: end;
 }

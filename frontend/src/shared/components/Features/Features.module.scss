@@ -32,7 +32,7 @@
     }
 
     .cardContainer {
-        display: flex;
+        @include flex;
         gap: $spacing-lg;
         padding: $spacing-sm 0;
         width: fit-content;

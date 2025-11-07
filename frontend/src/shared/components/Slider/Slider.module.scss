@@ -1,0 +1,200 @@
+// ==================== Slider 容器 ====================
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 150px;
+}
+
+// ==================== Slider 主體 ====================
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 120px;
+  height: 6px;
+  background: transparent;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: $transition-base;
+  position: relative;
+
+  // ========== Thumb（拖曳手把）- WebKit ==========
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: $primary-color;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    z-index: 2;
+
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+      transform: scale(1.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // ========== Thumb（拖曳手把）- Firefox ==========
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: $primary-color;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+      transform: scale(1.1);
+    }
+  }
+
+  // ========== Track（滑軌）- WebKit ==========
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(
+      to right,
+      $primary-color 0%,
+      $primary-color var(--slider-progress),
+      var(--border-color) var(--slider-progress),
+      var(--border-color) 100%
+    );
+    border-radius: 3px;
+    transition: background 0.1s ease;
+  }
+
+  // ========== Track（滑軌）- Firefox ==========
+  &::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+  }
+
+  &::-moz-range-progress {
+    background: $primary-color;
+    height: 6px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  // ========== Focus 狀態 ==========
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  // ========== Disabled 狀態 ==========
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      cursor: not-allowed;
+      background: var(--text-tertiary);
+    }
+
+    &::-moz-range-thumb {
+      cursor: not-allowed;
+      background: var(--text-tertiary);
+    }
+
+    &::-webkit-slider-runnable-track {
+      background: var(--bg-tertiary);
+    }
+
+    &::-moz-range-track {
+      background: var(--bg-tertiary);
+    }
+  }
+}
+
+// ==================== 數值顯示 ====================
+
+.valueDisplay {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 40px;
+  text-align: right;
+  user-select: none;
+}
+
+// ==================== 響應式設計 ====================
+
+// 手機端：Slider 全寬顯示
+@media (max-width: $mobile) {
+  .sliderContainer {
+    width: 100%;
+  }
+
+  .slider {
+    width: 100%;
+    min-width: 150px;
+  }
+}
+
+// ==================== 深色模式微調 ====================
+
+@media (prefers-color-scheme: dark) {
+  .slider {
+    &::-webkit-slider-runnable-track {
+      background: linear-gradient(
+        to right,
+        $primary-color 0%,
+        $primary-color var(--slider-progress),
+        rgba(255, 255, 255, 0.1) var(--slider-progress),
+        rgba(255, 255, 255, 0.1) 100%
+      );
+    }
+
+    &::-moz-range-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// ==================== 高對比度模式 ====================
+
+@media (prefers-contrast: high) {
+  .slider {
+    &::-webkit-slider-thumb {
+      border: 2px solid var(--text-primary);
+    }
+
+    &::-moz-range-thumb {
+      border: 2px solid var(--text-primary);
+    }
+
+    &::-webkit-slider-runnable-track {
+      border: 1px solid var(--text-primary);
+    }
+
+    &::-moz-range-track {
+      border: 1px solid var(--text-primary);
+    }
+  }
+}

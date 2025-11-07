@@ -1,7 +1,6 @@
 .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
+  display: inline-flex; // 保持 inline-flex
   gap: 8px;
   border: none;
   border-radius: 8px;
@@ -237,18 +236,18 @@
 
 // ========== 圖標間距 ==========
 .iconLeft {
+  @include flex($align: center);
   display: inline-flex;
-  align-items: center;
 }
 
 .iconRight {
+  @include flex($align: center);
   display: inline-flex;
-  align-items: center;
 }
 
 .content {
+  @include flex($align: center);
   display: inline-flex;
-  align-items: center;
 }
 
 // ========== 響應式設計 ==========

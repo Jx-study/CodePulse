@@ -14,15 +14,13 @@
   }
 
   form {
-    display: flex;
-    flex-direction: column;
+    @include flex($direction: column);
     gap: $spacing-md;
   }
 }
 
 .formGroup {
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   gap: $spacing-xs;
 
   label {
@@ -64,9 +62,7 @@
 }
 
 .checkboxLabel {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
+  @include flex($align: center) !important;
   gap: $spacing-xs;
   font-size: $font-sm !important;
   color: var(--text-secondary) !important;

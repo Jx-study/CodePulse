@@ -15,7 +15,7 @@
   width: 100%;
   margin: 0 auto;
   padding: 0 $spacing-lg;
-  display: flex;
+  @include flex;
   gap: $spacing-xl;
   margin-bottom: $spacing-xl;
   min-height: 600px;
@@ -30,8 +30,7 @@
 
 .rightPanel {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   gap: $spacing-md;
 }
 
@@ -53,8 +52,7 @@
 // Pseudo Code Section - 左側欄
 .pseudoCodeSection {
   flex: 0 0 35%;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background: lightgreen;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -77,8 +75,7 @@
   max-width: 1400px;
   margin: 0 auto $spacing-xl;
   padding: 0 $spacing-lg;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -90,7 +87,7 @@
 
   .infoContent {
     padding: $spacing-lg;
-    display: flex;
+    @include flex;
     gap: $spacing-xl;
 
     @media (max-width: $tablet) {
@@ -126,14 +123,11 @@
 
 // 複雜度表格
 .complexityTable {
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   gap: $spacing-xs;
 
   .complexityRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    @include flex($justify: space-between, $align: center);
     padding: $spacing-xs $spacing-sm;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 4px;
@@ -163,9 +157,7 @@
   background: #111;
   border-radius: 4px;
   padding: $spacing-sm;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include flex-center;
   min-height: 400px;
 
   @media (max-width: $mobile) {
@@ -185,9 +177,8 @@
 }
 
 .actionButtons {
-  display: flex;
+  @include flex($justify: center);
   gap: $spacing-md;
-  justify-content: center;
   margin-top: $spacing-xl;
   padding: 0 $spacing-lg;
   max-width: 1400px;

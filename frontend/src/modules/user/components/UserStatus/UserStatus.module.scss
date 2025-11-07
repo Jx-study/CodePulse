@@ -1,11 +1,10 @@
 .userStatus {
   position: relative;
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
 }
 
 .authButtons {
-  display: flex;
+  @include flex;
   gap: 12px;
 }
 
@@ -23,9 +22,7 @@
   border-radius: 50%;
   cursor: pointer;
   transition: $transition-base;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
 
   &:hover {
     transform: scale(1.05);

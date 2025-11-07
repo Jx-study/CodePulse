@@ -9,7 +9,7 @@
 // ==================== 主要內容區域 ====================
 
 .mainContent {
-  display: flex;
+  @include flex;
   gap: $spacing-lg;
   margin-top: $spacing-lg;
   height: calc(100vh - 200px); // 扣除 header 和標題的高度
@@ -31,8 +31,7 @@
 
 .editorPanel {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background: var(--card-bg);
   border-radius: 12px;
   padding: $spacing-md;
@@ -48,8 +47,7 @@
 
 .canvasPanel {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background: var(--card-bg);
   border-radius: 12px;
   padding: $spacing-md;
@@ -76,9 +74,7 @@
 
 .canvasContainer {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   background: var(--bg-secondary);
   border-radius: 8px;
   overflow: hidden;
