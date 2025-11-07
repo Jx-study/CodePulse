@@ -10,7 +10,7 @@ function LearningDashboard() {
       <div className="container">
         <h1>{t("dashboard.title")}</h1>
 
-        {/* 临时 Tutorial 入口 */}
+        {/* 臨時 Tutorial 入口 */}
         <div className={styles.tempTutorialSection}>
           <h2>演算法教學</h2>
           <div className={styles.algorithmGrid}>
@@ -39,7 +39,7 @@ function LearningDashboard() {
           <h2>資料結構教學</h2>
           <div className={styles.algorithmGrid}>
             <Link
-              to="/tutorial/datastructure/linkedlist"
+              to="/tutorial/datastructure/linear/linkedlist"
               className="common-card"
             >
               <h3>鏈結串列 (Linked List)</h3>
@@ -47,13 +47,19 @@ function LearningDashboard() {
               <span className={styles.difficulty}>⭐⭐</span>
             </Link>
 
-            <Link to="/tutorial/datastructure/stack" className="common-card">
+            <Link
+              to="/tutorial/datastructure/linear/stack"
+              className="common-card"
+            >
               <h3>堆疊 (Stack)</h3>
               <p>後進先出資料結構</p>
               <span className={styles.difficulty}>⭐</span>
             </Link>
 
-            <Link to="/tutorial/datastructure/queue" className="common-card">
+            <Link
+              to="/tutorial/datastructure/linear/queue"
+              className="common-card"
+            >
               <h3>佇列 (Queue)</h3>
               <p>先進先出資料結構</p>
               <span className={styles.difficulty}>⭐</span>

@@ -1,6 +1,9 @@
-import { Box } from '../../../modules/core/DataLogic/Box';
-import { Status } from '../../../modules/core/DataLogic/BaseElement';
-import { AnimationStep, DataStructureConfig } from '../../../types/dataStructure';
+import { Node } from "../../../modules/core/DataLogic/Node";
+import { Status } from "../../../modules/core/DataLogic/BaseElement";
+import {
+  AnimationStep,
+  DataStructureConfig,
+} from "../../../types/dataStructure";
 
 /**
  * 創建鏈表的動畫步驟
@@ -15,17 +18,16 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
     statusMap: { [id: string]: Status } = {},
     startX: number = 100
   ) => {
-    const nodes: Box[] = [];
+    const nodes: Node[] = [];
     for (let i = 0; i < nodeCount; i++) {
-      const box = new Box();
-      box.id = `node-${i}`;
-      box.moveTo(startX + i * 120, 200);
-      box.width = 80;
-      box.height = 60;
-      box.value = values[i];
-      box.description = `${values[i]}`;
-      box.setStatus(statusMap[box.id] || 'unfinished');
-      nodes.push(box);
+      const Node1 = new Node();
+      Node1.id = `node-${i}`;
+      Node1.moveTo(startX + i * 120, 200);
+      Node1.radius = 80;
+      Node1.value = values[i];
+      Node1.description = `${values[i]}`;
+      Node1.setStatus(statusMap[Node1.id] || "unfinished");
+      nodes.push(Node1);
     }
     return nodes;
   };
@@ -33,148 +35,148 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
   // Step 1: 初始鏈表
   steps.push({
     stepNumber: 1,
-    description: '初始鏈表：1 → 2 → 3 → null',
+    description: "初始鏈表：1 → 2 → 3 → null",
     elements: createNodes(3, [1, 2, 3]),
   });
 
   // Step 2: 準備在頭部插入新節點
   steps.push({
     stepNumber: 2,
-    description: '準備在頭部插入新節點 0',
+    description: "準備在頭部插入新節點 0",
     elements: createNodes(3, [1, 2, 3], {
-      'node-0': 'target',
+      "node-0": "target",
     }),
   });
 
   // Step 3: 在頭部插入節點
   steps.push({
     stepNumber: 3,
-    description: '在頭部插入節點 0 → 1 → 2 → 3 → null',
+    description: "在頭部插入節點 0 → 1 → 2 → 3 → null",
     elements: createNodes(4, [0, 1, 2, 3], {
-      'node-0': 'complete',
+      "node-0": "complete",
     }),
   });
 
   // Step 4: 準備在中間插入節點
   steps.push({
     stepNumber: 4,
-    description: '準備在位置 2 插入新節點 5',
+    description: "準備在位置 2 插入新節點 5",
     elements: createNodes(4, [0, 1, 2, 3], {
-      'node-1': 'prepare',
-      'node-2': 'target',
+      "node-1": "prepare",
+      "node-2": "target",
     }),
   });
 
   // Step 5: 在中間插入節點
   steps.push({
     stepNumber: 5,
-    description: '插入節點：0 → 1 → 5 → 2 → 3 → null',
+    description: "插入節點：0 → 1 → 5 → 2 → 3 → null",
     elements: createNodes(5, [0, 1, 5, 2, 3], {
-      'node-2': 'complete',
+      "node-2": "complete",
     }),
   });
 
   // Step 6: 準備在尾部插入節點
   steps.push({
     stepNumber: 6,
-    description: '準備在尾部插入新節點 9',
+    description: "準備在尾部插入新節點 9",
     elements: createNodes(5, [0, 1, 5, 2, 3], {
-      'node-4': 'target',
+      "node-4": "target",
     }),
   });
 
   // Step 7: 在尾部插入節點
   steps.push({
     stepNumber: 7,
-    description: '在尾部插入節點：0 → 1 → 5 → 2 → 3 → 9 → null',
+    description: "在尾部插入節點：0 → 1 → 5 → 2 → 3 → 9 → null",
     elements: createNodes(6, [0, 1, 5, 2, 3, 9], {
-      'node-5': 'complete',
+      "node-5": "complete",
     }),
   });
 
   // Step 8: 準備刪除節點
   steps.push({
     stepNumber: 8,
-    description: '準備刪除節點 5',
+    description: "準備刪除節點 5",
     elements: createNodes(6, [0, 1, 5, 2, 3, 9], {
-      'node-1': 'prepare',
-      'node-2': 'target',
-      'node-3': 'prepare',
+      "node-1": "prepare",
+      "node-2": "target",
+      "node-3": "prepare",
     }),
   });
 
   // Step 9: 刪除節點
   steps.push({
     stepNumber: 9,
-    description: '刪除節點 5：0 → 1 → 2 → 3 → 9 → null',
+    description: "刪除節點 5：0 → 1 → 2 → 3 → 9 → null",
     elements: createNodes(5, [0, 1, 2, 3, 9]),
   });
 
   // Step 10: 遍歷鏈表 - 節點 1
   steps.push({
     stepNumber: 10,
-    description: '遍歷鏈表：訪問節點 0',
+    description: "遍歷鏈表：訪問節點 0",
     elements: createNodes(5, [0, 1, 2, 3, 9], {
-      'node-0': 'target',
+      "node-0": "target",
     }),
   });
 
   // Step 11: 遍歷鏈表 - 節點 2
   steps.push({
     stepNumber: 11,
-    description: '遍歷鏈表：訪問節點 1',
+    description: "遍歷鏈表：訪問節點 1",
     elements: createNodes(5, [0, 1, 2, 3, 9], {
-      'node-0': 'complete',
-      'node-1': 'target',
+      "node-0": "complete",
+      "node-1": "target",
     }),
   });
 
   // Step 12: 遍歷鏈表 - 節點 3
   steps.push({
     stepNumber: 12,
-    description: '遍歷鏈表：訪問節點 2',
+    description: "遍歷鏈表：訪問節點 2",
     elements: createNodes(5, [0, 1, 2, 3, 9], {
-      'node-0': 'complete',
-      'node-1': 'complete',
-      'node-2': 'target',
+      "node-0": "complete",
+      "node-1": "complete",
+      "node-2": "target",
     }),
   });
 
   // Step 13: 遍歷鏈表 - 節點 4
   steps.push({
     stepNumber: 13,
-    description: '遍歷鏈表：訪問節點 3',
+    description: "遍歷鏈表：訪問節點 3",
     elements: createNodes(5, [0, 1, 2, 3, 9], {
-      'node-0': 'complete',
-      'node-1': 'complete',
-      'node-2': 'complete',
-      'node-3': 'target',
+      "node-0": "complete",
+      "node-1": "complete",
+      "node-2": "complete",
+      "node-3": "target",
     }),
   });
 
   // Step 14: 遍歷鏈表 - 節點 5
   steps.push({
     stepNumber: 14,
-    description: '遍歷鏈表：訪問節點 9',
+    description: "遍歷鏈表：訪問節點 9",
     elements: createNodes(5, [0, 1, 2, 3, 9], {
-      'node-0': 'complete',
-      'node-1': 'complete',
-      'node-2': 'complete',
-      'node-3': 'complete',
-      'node-4': 'target',
+      "node-0": "complete",
+      "node-1": "complete",
+      "node-2": "complete",
+      "node-3": "complete",
+      "node-4": "target",
     }),
   });
 
   // Step 15: 遍歷完成
   steps.push({
     stepNumber: 15,
-    description: '遍歷完成：0 → 1 → 2 → 3 → 9 → null',
+    description: "遍歷完成：0 → 1 → 2 → 3 → 9 → null",
     elements: createNodes(5, [0, 1, 2, 3, 9], {
-      'node-0': 'complete',
-      'node-1': 'complete',
-      'node-2': 'complete',
-      'node-3': 'complete',
-      'node-4': 'complete',
+      "node-0": "complete",
+      "node-1": "complete",
+      "node-2": "complete",
+      "node-3": "complete",
+      "node-4": "complete",
     }),
   });
 
@@ -185,11 +187,11 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
  * 鏈表數據結構配置
  */
 export const linkedListConfig: DataStructureConfig = {
-  id: 'linkedlist',
-  name: '鏈表',
-  category: 'list',
-  categoryName: '線性表',
-  description: '動態的線性數據結構',
+  id: "linkedlist",
+  name: "鏈結串列 (Linked List)",
+  category: "linear",
+  categoryName: "線性表",
+  description: "動態的線性數據結構",
   pseudoCode: `class Node:
     value: any
     next: Node
@@ -235,10 +237,10 @@ class LinkedList:
             print(current.value)
             current = current.next`,
   complexity: {
-    timeBest: 'O(1)',
-    timeAverage: 'O(n)',
-    timeWorst: 'O(n)',
-    space: 'O(1)',
+    timeBest: "O(1)",
+    timeAverage: "O(n)",
+    timeWorst: "O(n)",
+    space: "O(1)",
   },
   introduction: `鏈表是一種基本的線性數據結構，由一系列節點組成，每個節點包含數據和指向下一個節點的指針。
 與陣列不同，鏈表的元素在記憶體中不是連續存儲的，這使得插入和刪除操作更加高效。
@@ -246,4 +248,3 @@ class LinkedList:
 適合需要頻繁插入和刪除的場景，但訪問特定位置的元素需要從頭開始遍歷。`,
   createAnimationSteps: createLinkedListAnimationSteps,
 };
-

@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Breadcrumb, Button } from '../../shared/components';
-import CodeEditor from '../../modules/core/components/CodeEditor/CodeEditor';
-import { D3Canvas } from '../../modules/core/Render/D3Canvas';
-import ControlBar from '../../modules/core/components/ControlBar/ControlBar';
-import { BreadcrumbItem } from '../../types';
-import { getAlgorithmConfig } from '../../data/algorithms';
-import { getDataStructureConfig } from '../../data/DataStructure';
-import styles from './Tutorial.module.scss';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Breadcrumb, Button } from "../../shared/components";
+import CodeEditor from "../../modules/core/components/CodeEditor/CodeEditor";
+import { D3Canvas } from "../../modules/core/Render/D3Canvas";
+import ControlBar from "../../modules/core/components/ControlBar/ControlBar";
+import { BreadcrumbItem } from "../../types";
+import { getAlgorithmConfig } from "../../data/algorithms";
+import { getDataStructureConfig } from "../../data/DataStructure";
+import styles from "./Tutorial.module.scss";
 
 function Tutorial() {
   const { t } = useTranslation();
-  const { category, topicType } = useParams<{ category: string; topicType: string }>();
+  const { category, subcategory, topicType } = useParams<{
+    category: string;
+    subcategory?: string;
+    topicType: string;
+  }>();
   const navigate = useNavigate();
 
   // 根據路由參數載入配置
   let topicTypeConfig = null;
 
-  // 如果 category 是 datastructure，從 dataStructure 中獲取
-  if (category === 'datastructure' && topicType) {
-    // 需要將 linkedlist 映射到正確的 key
-    // 或者需要調整 getDataStructureConfig 的邏輯
-    topicTypeConfig = getDataStructureConfig('list', topicType);
+  if (category === "datastructure" && subcategory && topicType) {
+    topicTypeConfig = getDataStructureConfig(subcategory, topicType);
   } else if (category && topicType) {
-    // 否則從 topicType 中獲取
     topicTypeConfig = getAlgorithmConfig(category, topicType);
   }
 
@@ -33,8 +33,10 @@ function Tutorial() {
       <div className={styles.tutorialPage}>
         <div className={styles.errorContainer}>
           <h2>不存在</h2>
-          <p>找不到：{category}/{topicType}</p>
-          <Button onClick={() => navigate('/dashboard')}>返回首頁</Button>
+          <p>
+            找不到：{category}/{topicType}
+          </p>
+          <Button onClick={() => navigate("/dashboard")}>返回首頁</Button>
         </div>
       </div>
     );
@@ -56,7 +58,7 @@ function Tutorial() {
     },
     {
       label: topicTypeConfig.name,
-      path: null, // 当前页面，不可点击
+      path: null, // 當前頁面，不可點擊
     },
   ];
 
@@ -99,7 +101,7 @@ function Tutorial() {
 
   // Debug logging
   useEffect(() => {
-    console.log('Tutorial Debug:', {
+    console.log("Tutorial Debug:", {
       currentStep,
       totalSteps: animationSteps.length,
       isPlaying,
@@ -110,7 +112,13 @@ function Tutorial() {
         elementsCount: currentStepData?.elements?.length,
       },
     });
-  }, [currentStep, currentStepData, isPlaying, playbackSpeed, animationSteps.length]);
+  }, [
+    currentStep,
+    currentStepData,
+    isPlaying,
+    playbackSpeed,
+    animationSteps.length,
+  ]);
 
   return (
     <div className={styles.tutorialPage}>
@@ -185,20 +193,34 @@ function Tutorial() {
             <h4>複雜度分析</h4>
             <div className={styles.complexityTable}>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（最佳）：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeBest}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（最佳）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.timeBest}
+                </span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（平均）：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeAverage}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（平均）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.timeAverage}
+                </span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（最差）：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeWorst}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（最差）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.timeWorst}
+                </span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.space}</span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.space}
+                </span>
               </div>
             </div>
           </div>

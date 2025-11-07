@@ -1,4 +1,4 @@
-import { BaseElement } from '../modules/core/DataLogic/BaseElement';
+import { BaseElement } from "../modules/core/DataLogic/BaseElement";
 
 /**
  * 動畫步驟資料結構
@@ -20,7 +20,7 @@ export interface ComplexityInfo {
 }
 
 /**
- * 演算法完整配置
+ * 資料結構完整配置
  */
 export interface DataStructureConfig {
   id: string;
@@ -35,11 +35,17 @@ export interface DataStructureConfig {
 }
 
 /**
- * 演算法類別
+ * 資料結構類別
  */
-export type DataStructureCategory = 'list' | 'array' | 'stack' | 'queue' | 'tree' | 'graph';
+export type DataStructureCategory = "linear" | "nonlinear";
 
 /**
- * 演算法 ID
+ * 資料結構 ID
  */
-export type DataStructureId = 'linkedlist' | 'array' | 'stack' | 'queue' | 'tree' | 'graph';
+export type DataStructureId =
+  | "linkedlist"
+  | "array"
+  | "stack"
+  | "queue"
+  | "tree"
+  | "graph";
