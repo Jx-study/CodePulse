@@ -7,23 +7,33 @@ import { D3Canvas } from '../../modules/core/Render/D3Canvas';
 import ControlBar from '../../modules/core/components/ControlBar/ControlBar';
 import { BreadcrumbItem } from '../../types';
 import { getAlgorithmConfig } from '../../data/algorithms';
+import { getDataStructureConfig } from '../../data/DataStructure';
 import styles from './Tutorial.module.scss';
 
 function Tutorial() {
   const { t } = useTranslation();
-  const { category, algorithm } = useParams<{ category: string; algorithm: string }>();
+  const { category, topicType } = useParams<{ category: string; topicType: string }>();
   const navigate = useNavigate();
 
-  // 根據路由參數載入演算法配置
-  const algorithmConfig = category && algorithm ? getAlgorithmConfig(category, algorithm) : null;
+  // 根據路由參數載入配置
+  let topicTypeConfig = null;
 
-  // 如果找不到演算法配置，顯示錯誤
-  if (!algorithmConfig) {
+  // 如果 category 是 datastructure，從 dataStructure 中獲取
+  if (category === 'datastructure' && topicType) {
+    // 需要將 linkedlist 映射到正確的 key
+    // 或者需要調整 getDataStructureConfig 的邏輯
+    topicTypeConfig = getDataStructureConfig('list', topicType);
+  } else if (category && topicType) {
+    // 否則從 topicType 中獲取
+    topicTypeConfig = getAlgorithmConfig(category, topicType);
+  }
+
+  if (!topicTypeConfig) {
     return (
       <div className={styles.tutorialPage}>
         <div className={styles.errorContainer}>
-          <h2>演算法不存在</h2>
-          <p>找不到演算法：{category}/{algorithm}</p>
+          <h2>不存在</h2>
+          <p>找不到：{category}/{topicType}</p>
           <Button onClick={() => navigate('/dashboard')}>返回首頁</Button>
         </div>
       </div>
@@ -31,7 +41,7 @@ function Tutorial() {
   }
 
   // 載入動畫步驟資料
-  const animationSteps = algorithmConfig.createAnimationSteps();
+  const animationSteps = topicTypeConfig.createAnimationSteps();
 
   // State 管理
   const [currentStep, setCurrentStep] = useState(0);
@@ -41,11 +51,11 @@ function Tutorial() {
   // 生成面包屑數據
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: algorithmConfig.categoryName,
+      label: topicTypeConfig.categoryName,
       path: `/dashboard?category=${category}`,
     },
     {
-      label: algorithmConfig.name,
+      label: topicTypeConfig.name,
       path: null, // 当前页面，不可点击
     },
   ];
@@ -120,7 +130,7 @@ function Tutorial() {
             <CodeEditor
               mode="single"
               language="python"
-              value={algorithmConfig.pseudoCode}
+              value={topicTypeConfig.pseudoCode}
               readOnly={true}
               theme="auto"
             />
@@ -168,7 +178,7 @@ function Tutorial() {
         <div className={styles.infoContent}>
           <div className={styles.infoBlock}>
             <h4>演算法簡介</h4>
-            <p>{algorithmConfig.introduction}</p>
+            <p>{topicTypeConfig.introduction}</p>
           </div>
 
           <div className={styles.infoBlock}>
@@ -176,19 +186,19 @@ function Tutorial() {
             <div className={styles.complexityTable}>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>時間複雜度（最佳）：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeBest}</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeBest}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>時間複雜度（平均）：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeAverage}</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeAverage}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>時間複雜度（最差）：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeWorst}</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeWorst}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.space}</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.space}</span>
               </div>
             </div>
           </div>

@@ -145,10 +145,7 @@ function Explorer() {
             </div>
           </div>
         </div>
-        <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
-          <button onClick={triggerLink}>{t('connect') || 'Connect n1->n2'}</button>
-          <button onClick={clearLink}>{t('clear') || 'Clear'}</button>
-        </div>
+        
         <D3Canvas ref={canvasRef} elements={elements} links={links} width={1000} height={800} />
       </div>
     </div>

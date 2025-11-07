@@ -1,4 +1,5 @@
 import { Box } from '../../../modules/core/DataLogic/Box';
+import { Status } from '../../../modules/core/DataLogic/BaseElement';
 import { AnimationStep, AlgorithmConfig } from '../../../types/algorithm';
 
 /**
@@ -11,7 +12,7 @@ export function createMergeSortAnimationSteps(): AnimationStep[] {
   // Helper: 創建 box 元素
   const createBoxes = (
     customValues: number[] = values,
-    statusMap: { [id: string]: string } = {},
+    statusMap: { [id: string]: Status } = {},
     xOffset: number = 150
   ) => {
     return customValues.map((value, i) => {

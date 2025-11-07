@@ -5,11 +5,6 @@ import styles from "./Breadcrumb.module.scss";
 import { Icon } from '../Icon';
 import { BreadcrumbItem } from '../../../types';
 
-export interface BreadcrumbItem {
-  label: string;
-  path: string | null;
-}
-
 interface BreadcrumbProps {
   items?: BreadcrumbItem[];
   showBackButton?: boolean;

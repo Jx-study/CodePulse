@@ -36,7 +36,8 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/tutorial" element={<Tutorial />} />
-            <Route path="/tutorial/:category/:algorithm" element={<Tutorial />} />
+            <Route path="/tutorial/:category/:topicType" element={<Tutorial />} />
+            {/* <Route path="/tutorial/:category/:dataStructure" element={<Tutorial />} /> */}
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/about" element={<About />} />
             <Route path="/dashboard" element={<LearningDashboard />} />

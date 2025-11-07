@@ -129,7 +129,7 @@
 }
 
 // 平板端（768px-1023px）
-@media (min-width: $mobile) and (max-width: $tablet - 1px) {
+@media (min-width: $mobile) and (max-width: ($tablet - 1px)) {
   .codeEditor {
     min-height: 450px;
     border-radius: 10px;
@@ -146,7 +146,7 @@
 }
 
 // 手機端（<768px）
-@media (max-width: $mobile - 1px) {
+@media (max-width: ($mobile - 1px)) {
   .codeEditor {
     min-height: 300px;
     border-radius: 8px;
