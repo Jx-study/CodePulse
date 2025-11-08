@@ -1,6 +1,7 @@
 import { DataStructureConfig } from "../../types/dataStructure";
 import { linkedListConfig } from "./linear/LinkedList";
 import { StackConfig } from "./linear/Stack";
+import { QueueConfig } from "./linear/Queue";
 
 /**
  * 所有資料結構配置的集合
@@ -9,12 +10,13 @@ import { StackConfig } from "./linear/Stack";
 export const dataStructuresMap: Record<string, DataStructureConfig> = {
   "linear/linkedlist": linkedListConfig,
   "linear/stack": StackConfig,
+  "linear/queue": QueueConfig,
 };
 
 /**
  * 根據 subcategory 和 dataStructure 獲取資料結構配置
  * @param subcategory 資料結構類別（如 'linear', 'nonlinear'）
- * @param dataStructure 資料結構 ID（如 'quicksort', 'mergesort'）
+ * @param dataStructure 資料結構 ID（如 'stack', 'queue'）
  * @returns 資料結構配置，如果不存在則返回 null
  */
 export function getDataStructureConfig(

@@ -162,9 +162,10 @@
 .visualizationArea {
   background: #111;
   border-radius: 4px;
-  padding: $spacing-sm;
+  // width: 100%;
+  // padding: $spacing-sm;
   display: flex;
-  justify-content: center;
+  // justify-content: center;
   align-items: center;
   min-height: 400px;
 

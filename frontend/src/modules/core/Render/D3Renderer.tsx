@@ -51,24 +51,24 @@ export function animateConnect(
   return new Promise((resolve) => {
     const svg = d3.select(svgEl);
     const scene = svg.select<SVGGElement>("g.scene");
-    
+
     // 建立連線
     manager.connect(sourceId, targetId);
-    
+
     // 查找節點
     const byId = new Map(elements.map((e) => [String(e.id), e]));
     const sourceNode = byId.get(sourceId);
     const targetNode = byId.get(targetId);
-    
+
     if (!(sourceNode instanceof Node) || !(targetNode instanceof Node)) {
       resolve();
       return;
     }
-    
+
     // 計算起點與終點（圓邊界）
     const p1 = getCircleBoundaryPoint(sourceNode, targetNode);
     const p2 = getCircleBoundaryPoint(targetNode, sourceNode);
-    
+
     // 建立臨時動畫線段
     const animLine = scene
       .append("line")
@@ -77,7 +77,7 @@ export function animateConnect(
       .attr("y1", p1.y)
       .attr("x2", p1.x) // 起點與終點相同，線段長度為 0
       .attr("y2", p1.y);
-    
+
     // 從 0 伸長到 1 的動畫
     animLine
       .transition()
@@ -113,7 +113,7 @@ export function renderAll(
     .attr("markerHeight", 6)
     .attr("orient", "auto")
     .append("path")
-    .attr("d", "M0,-5L10,0L0,5")
+    .attr("d", "M0,-5L10,0L0,5");
 
   // 根 <g>
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
@@ -141,13 +141,10 @@ export function renderAll(
 
   linkSel.exit().remove();
 
-  const linkEnter = linkSel
-    .enter()
-    .append("line")
-    .attr("class", "link");
-    // .attr("stroke", "#888")
-    // .attr("stroke-width", 2)
-    // .attr("marker-end", "url(#arrowhead)");
+  const linkEnter = linkSel.enter().append("line").attr("class", "link");
+  // .attr("stroke", "#888")
+  // .attr("stroke-width", 2)
+  // .attr("marker-end", "url(#arrowhead)");
 
   const linkMerged = linkEnter.merge(linkSel as any);
 
@@ -175,7 +172,8 @@ export function renderAll(
     } else if (d instanceof Box) {
       g.append("rect");
     }
-    g.append("text").attr("class", "desc"); // ← 這個會顯示 description
+    g.append("text").attr("class", "desc"); // 顯示 description
+    g.append("text").attr("class", "val"); // 顯示 value
   });
 
   const merged = enter.merge(items as any);
@@ -204,6 +202,13 @@ export function renderAll(
         .attr("font-size", 12)
         .attr("fill", "#ccc")
         .text(d.description || "");
+      // 文字置中，放在圓中間
+      g.select<SVGTextElement>("text.val")
+        .attr("text-anchor", "middle")
+        .attr("y", d.radius / 2 - 9)
+        .attr("font-size", 18)
+        .attr("fill", "#ccc")
+        .text(d.value || "");
     } else if (d instanceof Box) {
       g.select<SVGRectElement>("rect")
         .attr("x", -d.width / 2)
@@ -215,15 +220,21 @@ export function renderAll(
         .attr("stroke", d.getColor())
         .attr("stroke-width", 2);
 
-      // 文字置中，放在盒子底下（高度一半 + 14px）
+      // 文字置中，放在 Box 底下（高度一半 + 14px）
       g.select<SVGTextElement>("text.desc")
         .attr("text-anchor", "middle")
         .attr("y", d.height / 2 + 14)
         .attr("font-size", 12)
         .attr("fill", "#ccc")
         .text(d.description || "");
+
+      // 文字置中，放在 Box 中間（高度一半）
+      g.select<SVGTextElement>("text.val")
+        .attr("text-anchor", "middle")
+        .attr("y", d.height / 2 - 22)
+        .attr("font-size", 18)
+        .attr("fill", "#ccc")
+        .text(d.value || "");
     }
   });
-
-  
 }

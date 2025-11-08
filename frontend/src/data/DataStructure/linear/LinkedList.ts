@@ -16,16 +16,16 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
     nodeCount: number,
     values: number[],
     statusMap: { [id: string]: Status } = {},
-    startX: number = 100
+    startX: number = 200
   ) => {
     const nodes: Node[] = [];
     for (let i = 0; i < nodeCount; i++) {
       const Node1 = new Node();
       Node1.id = `node-${i}`;
-      Node1.moveTo(startX + i * 120, 200);
-      Node1.radius = 80;
+      Node1.moveTo(startX + i * 110, 200);
+      Node1.radius = 30;
       Node1.value = values[i];
-      Node1.description = `${values[i]}`;
+      Node1.description = `${i}`;
       Node1.setStatus(statusMap[Node1.id] || "unfinished");
       nodes.push(Node1);
     }

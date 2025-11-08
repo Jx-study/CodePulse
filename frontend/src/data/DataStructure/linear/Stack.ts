@@ -8,7 +8,7 @@ import {
 export function createStackAnimationSteps(): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
-  const createboxs = (
+  const createBoxes = (
     boxCount: number,
     values: number[],
     statusMap: { [id: string]: Status } = {},
@@ -19,16 +19,21 @@ export function createStackAnimationSteps(): AnimationStep[] {
       const box = new Box();
       box.id = `box-${i}`;
       box.moveTo(startX + i * 120, 200);
-      box.width = 80;
+      box.width = 60;
       box.height = 60;
       box.value = values[i];
-      box.description = `${values[i]}`;
+      box.description = `${i}`;
       box.setStatus(statusMap[box.id] || "unfinished");
       boxs.push(box);
     }
     return boxs;
   };
-
+  // Step 1: 初始化堆疊
+  steps.push({
+    stepNumber: 1,
+    description: "初始堆疊：1 → 2 → 3 → null",
+    elements: createBoxes(3, [1, 2, 3]),
+  });
   return steps;
 }
 
