@@ -16,9 +16,6 @@ function Demo() {
   return (
     <section className={styles.demo} id="demo">
       <div className='container'>
-        <h2 className='section-title'>{t('demo_section.title')}</h2>
-        <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>{t('demo_section.subtitle')}</p>
-        
         <div className={styles.demoPreview}>
           <div className={styles.codeWindow}>
             <div className={styles.codeLine}>def bubble_sort(arr):</div>

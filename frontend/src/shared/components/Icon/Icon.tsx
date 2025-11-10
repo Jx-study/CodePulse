@@ -16,32 +16,16 @@ export type IconAnimation = 'spin' | 'pulse';
 
 // Icon Component Props
 export interface IconProps {
-  /** 圖標名稱 (必填) */
-  name: IconName;
-
-  /** 圖標尺寸 (預設: md) */
+  name: IconName; // 必填
   size?: IconSize;
-
-  /** 圖標顏色 (預設: inherit) */
   color?: IconColor;
-
-  /** 圖標動畫效果 */
   animation?: IconAnimation;
-
-  /** 自定義 className */
   className?: string;
-
-  /** 無障礙標籤 */
-  ariaLabel?: string;
-
-  /** Hover 提示文字 */
+  ariaLabel?: string;   // 無障礙標籤
   title?: string;
-
-  /** 點擊事件處理 */
   onClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
 
-  /** 是否裝飾性圖標 (無語義，對螢幕閱讀器隱藏) */
-  decorative?: boolean;
+  decorative?: boolean //是否裝飾性圖標 (無語義，對螢幕閱讀器隱藏)
 }
 
 /**

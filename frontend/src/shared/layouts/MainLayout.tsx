@@ -1,15 +1,23 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { MainHeader, Footer } from '../components';
 
+// 集中管理不显示 Footer 的路径配置
+const NO_FOOTER_PATHS = [
+  '/dashboard',
+  '/tutorial',
+];
+
 function MainLayout() {
+  const { pathname } = useLocation();
+  const showFooter = !NO_FOOTER_PATHS.some(path => pathname.startsWith(path));
+
   return (
     <>
       <MainHeader />
       <main>
         <Outlet />
       </main>
-      <Footer />
+      {showFooter && <Footer />}
     </>
   );
 }

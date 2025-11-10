@@ -124,6 +124,7 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
             placeholder="請輸入信箱"
             className={errors.email ? styles.error : ''}
             disabled={disabled}
+            autoComplete='email'
             required
           />
           {errors.email && (
@@ -142,6 +143,7 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
             placeholder="請輸入密碼"
             className={errors.password ? styles.error : ''}
             disabled={disabled}
+            autoComplete='new-password'
             required
           />
           {errors.password && (

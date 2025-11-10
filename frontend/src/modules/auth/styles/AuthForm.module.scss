@@ -62,7 +62,7 @@
 }
 
 .checkboxLabel {
-  @include flex($align: center) !important;
+  @include flex($align: center);
   gap: $spacing-xs;
   font-size: $font-sm !important;
   color: var(--text-secondary) !important;

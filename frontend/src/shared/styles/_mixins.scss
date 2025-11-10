@@ -1,17 +1,19 @@
 // ===========================
 //  Flex 工具
 // ===========================
-@mixin flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 @mixin flex($justify: flex-start, $align: stretch, $direction: row) {
   display: flex;
   justify-content: $justify;
   align-items: $align;
   flex-direction: $direction;
+}
+
+@mixin flex-center {
+  @include flex(center, center);
+}
+
+@mixin flex-between {
+  @include flex(space-between, center);
 }
 
 

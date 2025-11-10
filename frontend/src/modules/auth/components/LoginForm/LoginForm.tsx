@@ -69,7 +69,7 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
 
   return (
     <div className={styles.formContent}>
-      <h2>{t('login')}</h2>
+      <h2>{t("login")}</h2>
       <form onSubmit={handleSubmit}>
         <div className={styles.formGroup}>
           <label htmlFor="usernameOrEmail">用戶名或信箱</label>
@@ -80,15 +80,18 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
             value={formData.usernameOrEmail}
             onChange={handleChange}
             placeholder="請輸入用戶名或信箱"
-            className={errors.usernameOrEmail ? styles.error : ''}
+            className={errors.usernameOrEmail ? styles.error : ""}
             disabled={disabled}
+            autoComplete='username'
             required
           />
           {errors.usernameOrEmail && (
-            <span className={styles.errorMessage}>{errors.usernameOrEmail}</span>
+            <span className={styles.errorMessage}>
+              {errors.usernameOrEmail}
+            </span>
           )}
         </div>
-        
+
         <div className={styles.formGroup}>
           <label htmlFor="password">密碼</label>
           <input
@@ -98,8 +101,9 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
             value={formData.password}
             onChange={handleChange}
             placeholder="請輸入密碼"
-            className={errors.password ? styles.error : ''}
+            className={errors.password ? styles.error : ""}
             disabled={disabled}
+            autoComplete="current-password"
             required
           />
           {errors.password && (
@@ -121,7 +125,7 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
         </div>
 
         <Button type="submit" variant="primary" fullWidth disabled={disabled}>
-          {t('login')}
+          {t("login")}
         </Button>
 
         <div className={styles.forgotPassword}>
