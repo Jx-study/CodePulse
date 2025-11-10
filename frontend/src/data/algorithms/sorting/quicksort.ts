@@ -10,7 +10,7 @@ export function createQuickSortAnimationSteps(): AnimationStep[] {
   const values = [5, 2, 8, 1, 9];
 
   // Helper: 創建 box 元素
-  const createBoxes = (statusMap: { [id: string]: Status } = {) => {
+  const createBoxes = (statusMap: { [id: string]: Status } )=> {
     return values.map((value, i) => {
       const box = new Box();
       box.id = `box-${i}`;
