@@ -1,5 +1,6 @@
 import Button from '../../../../shared/components/Button/Button';
 import Icon from '../../../../shared/components/Icon/Icon';
+import Slider from '../../../../shared/components/Slider/Slider';
 import styles from './ControlBar.module.scss';
 
 export interface ControlBarProps {
@@ -13,6 +14,7 @@ export interface ControlBarProps {
   onPrev: () => void;
   onReset: () => void;
   onSpeedChange: (speed: number) => void;
+  showSpeedSlider?: boolean;
 }
 
 function ControlBar({
@@ -26,6 +28,7 @@ function ControlBar({
   onPrev,
   onReset,
   onSpeedChange,
+  showSpeedSlider = true,
 }: ControlBarProps) {
   const speeds = [0.5, 1, 1.5, 2];
 
@@ -88,21 +91,37 @@ function ControlBar({
 
       {/* Speed Selector */}
       <div className={styles.speedSelector}>
-        <span className={styles.speedLabel}>Speed:</span>
-        <div className={styles.speedButtons}>
-          {speeds.map((speed) => (
-            <button
-              key={speed}
-              className={`${styles.speedButton} ${
-                playbackSpeed === speed ? styles.active : ''
-              }`}
-              onClick={() => onSpeedChange(speed)}
-              aria-label={`Set speed to ${speed}x`}
-            >
-              {speed}x
-            </button>
-          ))}
+        <div className={styles.speedRow}>
+          <span className={styles.speedLabel}>Speed:</span>
+          <div className={styles.speedButtons}>
+            {speeds.map((speed) => (
+              <button
+                key={speed}
+                className={`${styles.speedButton} ${
+                  Math.abs(playbackSpeed - speed) < 0.05 ? styles.active : ''
+                }`}
+                onClick={() => onSpeedChange(speed)}
+                aria-label={`Set speed to ${speed}x`}
+              >
+                {speed}x
+              </button>
+            ))}
+          </div>
         </div>
+        {showSpeedSlider && (
+          <div className={styles.sliderRow}>
+            <Slider
+              min={0.1}
+              max={3.0}
+              step={0.1}
+              value={playbackSpeed}
+              onChange={onSpeedChange}
+              showValue={true}
+              formatValue={(v) => `${v.toFixed(1)}x`}
+              ariaLabel="Playback speed"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

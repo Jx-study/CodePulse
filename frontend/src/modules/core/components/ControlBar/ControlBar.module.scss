@@ -29,8 +29,13 @@
 }
 
 .speedSelector {
-  @include flex($align: center);
-  gap: $spacing-sm;
+  @include flex($direction: column);
+  gap: $spacing-xs;
+
+  .speedRow {
+    @include flex($align: center);
+    gap: $spacing-sm;
+  }
 
   .speedLabel {
     font-size: $font-sm;
@@ -69,6 +74,19 @@
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+  }
+
+  .sliderRow {
+    @include flex($align: center);
+    width: 100%;
+  }
+
+  @media (max-width: $mobile) {
+    width: 100%;
+
+    .sliderRow {
+      justify-content: center;
     }
   }
 }
