@@ -248,3 +248,22 @@ class LinkedList:
 適合需要頻繁插入和刪除的場景，但訪問特定位置的元素需要從頭開始遍歷。`,
   createAnimationSteps: createLinkedListAnimationSteps,
 };
+
+export function generateStepsFromData(values: number[]): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  // 這裡可以寫得很複雜（包含插入過程的動畫），或者簡單地回傳當前狀態
+  steps.push({
+    stepNumber: 1,
+    description: `更新鏈表: ${values.join(" → ")}`,
+    elements: values.map((v, i) => {
+      const n = new Node();
+      n.id = `node-${Date.now()}-${i}`; // 簡單的唯一 ID
+      n.value = v;
+      n.moveTo(100 + i * 120, 200);
+      return n;
+    }),
+  });
+
+  return steps;
+}

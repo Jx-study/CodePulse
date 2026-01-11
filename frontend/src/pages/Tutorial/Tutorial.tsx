@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Breadcrumb, Button } from "../../shared/components";
@@ -9,6 +9,9 @@ import { BreadcrumbItem } from "../../types";
 import { getAlgorithmConfig } from "../../data/algorithms";
 import { getDataStructureConfig } from "../../data/DataStructure";
 import styles from "./Tutorial.module.scss";
+import { Link } from "../../modules/core/Render/D3Renderer";
+import { Node as DataNode } from "../../modules/core/DataLogic/Node";
+import { DataActionBar } from "../../modules/core/components/DataActionBar/DataActionBar";
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -96,8 +99,43 @@ function Tutorial() {
     setPlaybackSpeed(speed);
   };
 
+  const [listData, setListData] = useState<number[]>([1, 2, 3]);
+
+  // 2. 定義處理新增節點的函式
+  const handleAddNode = (value: number) => {
+    console.log("Adding node with value:", value);
+    // 更新資料狀態
+    setListData((prev) => [...prev, value]);
+
+    // 注意：這裡後續需要呼叫 generateStepsFromData(newListData)
+    // 來重新生成動畫步驟，目前先確保函式存在以消除報錯
+  };
+
+  // 3. 定義處理刪除節點的函式
+  const handleDeleteNode = (value: number) => {
+    console.log("Deleting node with value:", value);
+    // 更新資料狀態
+    setListData((prev) => prev.filter((v) => v !== value));
+  };
   // 獲取當前步驟資料
   const currentStepData = animationSteps[currentStep];
+
+  const currentLinks: Link[] = [];
+  if (currentStepData?.elements) {
+    const nodes = currentStepData.elements.filter(
+      (e) => e instanceof DataNode
+    ) as DataNode[];
+    nodes.forEach((node, index) => {
+      // 這裡根據你的邏輯：如果 i 指向 i+1
+      if (index < nodes.length - 1) {
+        currentLinks.push({
+          key: `${node.id}->${nodes[index + 1].id}`,
+          sourceId: node.id,
+          targetId: nodes[index + 1].id,
+        });
+      }
+    });
+  }
 
   // Debug logging
   useEffect(() => {
@@ -154,6 +192,7 @@ function Tutorial() {
             <div className={styles.visualizationArea}>
               <D3Canvas
                 elements={currentStepData?.elements || []}
+                links={currentLinks}
                 width={600}
                 height={400}
               />
@@ -162,7 +201,10 @@ function Tutorial() {
               {currentStepData?.description}
             </div>
           </div>
-
+          <DataActionBar
+            onAddNode={handleAddNode}
+            onDeleteNode={handleDeleteNode}
+          />
           <ControlBar
             isPlaying={isPlaying}
             currentStep={currentStep}

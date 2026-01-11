@@ -3,7 +3,7 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
-import "./D3Renderer.scss";
+import "./D3Renderer.module.scss";
 
 export interface Link {
   key: string;
@@ -101,8 +101,8 @@ export function renderAll(
   const svg = d3.select(svgEl);
 
   // defs：箭頭標記（只建一次）
-  const defs = svg.selectAll("defs#arrowDefs").data([null]);
-  const defsEnter = defs.enter().append("defs").attr("id", "arrowDefs");
+  const defs = svg.selectAll("defs").data([null]);
+  const defsEnter = defs.enter().append("defs");
   defsEnter
     .append("marker")
     .attr("id", "arrowhead")
@@ -113,7 +113,8 @@ export function renderAll(
     .attr("markerHeight", 6)
     .attr("orient", "auto")
     .append("path")
-    .attr("d", "M0,-5L10,0L0,5");
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#888");
 
   // 根 <g>
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
@@ -141,15 +142,20 @@ export function renderAll(
 
   linkSel.exit().remove();
 
-  const linkEnter = linkSel.enter().append("line").attr("class", "link");
-  // .attr("stroke", "#888")
-  // .attr("stroke-width", 2)
-  // .attr("marker-end", "url(#arrowhead)");
+  const linkEnter = linkSel
+    .enter()
+    .append("line")
+    .attr("class", "link")
+    .attr("stroke", "#888")
+    .attr("stroke-width", 2)
+    .attr("marker-end", "url(#arrowhead)");
 
   const linkMerged = linkEnter.merge(linkSel as any);
 
   // 初始位置（圓邊到圓邊）
   linkMerged
+    .transition()
+    .duration(500)
     .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
     .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
