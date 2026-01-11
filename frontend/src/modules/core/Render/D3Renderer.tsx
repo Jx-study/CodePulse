@@ -148,7 +148,12 @@ export function renderAll(
     .attr("class", "link")
     .attr("stroke", "#888")
     .attr("stroke-width", 2)
-    .attr("marker-end", "url(#arrowhead)");
+    .attr("marker-end", "url(#arrowhead)")
+    // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
+    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("x2", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y2", (d) => getCircleBoundaryPoint(d.s, d.t).y);
 
   const linkMerged = linkEnter.merge(linkSel as any);
 
@@ -156,6 +161,7 @@ export function renderAll(
   linkMerged
     .transition()
     .duration(500)
+    .ease(d3.easeQuadOut)
     .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
     .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)

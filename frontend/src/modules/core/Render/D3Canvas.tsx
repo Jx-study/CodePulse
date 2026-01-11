@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
@@ -9,23 +8,23 @@ export interface D3CanvasRef {
   getSVGElement: () => SVGSVGElement | null;
 }
 
-export const D3Canvas = forwardRef<D3CanvasRef, {
-  elements: BaseElement[];
-  links?: Link[];
-  width?: number;
-  height?: number;
-}>(({ elements, links = [], width = 800, height = 600 }, forwardedRef) => {
+export const D3Canvas = forwardRef<
+  D3CanvasRef,
+  {
+    elements: BaseElement[];
+    links?: Link[];
+    width?: number;
+    height?: number;
+  }
+>(({ elements, links = [], width = 800, height = 600 }, forwardedRef) => {
   const ref = useRef<SVGSVGElement | null>(null);
 
   useImperativeHandle(forwardedRef, () => ({
-    getSVGElement: () => ref.current
+    getSVGElement: () => ref.current,
   }));
 
   useEffect(() => {
     if (!ref.current) return;
-    const svg = d3.select(ref.current);
-    svg.selectAll("*").remove();
-
     renderAll(ref.current, elements, links);
   }, [elements, links]);
 

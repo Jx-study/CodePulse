@@ -63,6 +63,26 @@
 
 // ==================== 面板標題 ====================
 
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-sm;
+  border-bottom: 2px solid var(--border);
+
+  .panelTitle {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.controls {
+  display: flex;
+  gap: $spacing-sm;
+}
+
 .panelTitle {
   font-size: $font-lg;
   font-weight: 600;
