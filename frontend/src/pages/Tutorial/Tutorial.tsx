@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Breadcrumb, Button } from "../../shared/components";
@@ -12,6 +12,9 @@ import styles from "./Tutorial.module.scss";
 import { Link } from "../../modules/core/Render/D3Renderer";
 import { Node as DataNode } from "../../modules/core/DataLogic/Node";
 import { DataActionBar } from "../../modules/core/components/DataActionBar/DataActionBar";
+import { generateStepsFromData } from "../../data/DataStructure/linear/LinkedList"; // 確保導入此函數
+import { AnimationStep } from "../../types/dataStructure";
+import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -22,156 +25,133 @@ function Tutorial() {
   }>();
   const navigate = useNavigate();
 
-  // 根據路由參數載入配置
-  let topicTypeConfig = null;
+  // 1. 根據路由參數載入配置
+  const topicTypeConfig = useMemo(() => {
+    if (category === "datastructure" && subcategory && topicType) {
+      return getDataStructureConfig(subcategory, topicType);
+    } else if (category && topicType) {
+      return getAlgorithmConfig(category, topicType);
+    }
+    return null;
+  }, [category, subcategory, topicType]);
 
-  if (category === "datastructure" && subcategory && topicType) {
-    topicTypeConfig = getDataStructureConfig(subcategory, topicType);
-  } else if (category && topicType) {
-    topicTypeConfig = getAlgorithmConfig(category, topicType);
-  }
-
-  if (!topicTypeConfig) {
-    return (
-      <div className={styles.tutorialPage}>
-        <div className={styles.errorContainer}>
-          <h2>不存在</h2>
-          <p>
-            找不到：{category}/{topicType}
-          </p>
-          <Button onClick={() => navigate("/dashboard")}>返回首頁</Button>
-        </div>
-      </div>
-    );
-  }
-
-  // 載入動畫步驟資料
-  const animationSteps = topicTypeConfig.createAnimationSteps();
-
-  // State 管理
+  // 2. 狀態管理
+  const [listData, setListData] = useState<number[]>([1, 2, 3]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [activeSteps, setActiveSteps] = useState<AnimationStep[]>([]);
 
-  // 生成面包屑數據
-  const breadcrumbItems: BreadcrumbItem[] = [
-    {
-      label: topicTypeConfig.categoryName,
-      path: `/dashboard?category=${category}`,
-    },
-    {
-      label: topicTypeConfig.name,
-      path: null, // 當前頁面，不可點擊
-    },
-  ];
+  // 3. 計算目前的動畫步驟 (當 listData 改變時重新計算)
+  useEffect(() => {
+    if (topicTypeConfig) {
+      setActiveSteps(
+        topicTypeConfig.id === "linkedlist"
+          ? generateStepsFromData(listData)
+          : topicTypeConfig.createAnimationSteps()
+      );
+    }
+  }, [topicTypeConfig]);
 
-  // 動畫播放邏輯
+  const currentStepData = activeSteps[currentStep];
+
+  // 4. 動畫播放邏輯
   useEffect(() => {
     if (!isPlaying) return;
-
     const interval = setInterval(() => {
       setCurrentStep((prevStep) => {
-        if (prevStep >= animationSteps.length - 1) {
+        if (prevStep >= activeSteps.length - 1) {
           setIsPlaying(false);
           return prevStep;
         }
         return prevStep + 1;
       });
     }, 1000 / playbackSpeed);
-
     return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, animationSteps.length]);
+  }, [isPlaying, playbackSpeed, activeSteps.length]);
 
-  // 控制邏輯
+  // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
+  const currentLinks = useMemo(() => {
+    const links: Link[] = [];
+    if (currentStepData?.elements) {
+      const nodes = currentStepData.elements.filter(
+        (e: BaseElement) => e instanceof DataNode
+      ) as DataNode[];
+
+      nodes.forEach((sourceNode) => {
+        // 遍歷每個節點的 pointers 陣列
+        sourceNode.pointers.forEach((targetNode) => {
+          links.push({
+            key: `${sourceNode.id}->${targetNode.id}`,
+            sourceId: sourceNode.id,
+            targetId: targetNode.id,
+          });
+        });
+      });
+    }
+    return links;
+  }, [currentStepData]);
+
+  // 6. 控制行為
+  const handleAddNode = (value: number) => {
+    const newListData = [...listData, value];
+    setListData(newListData);
+    const animationProcess = generateStepsFromData(newListData, value);
+    setActiveSteps(animationProcess);
+    setCurrentStep(0);
+    setIsPlaying(true);
+  };
+
+  const handleDeleteNode = (value: number) => {
+    const newListData = listData.filter((v) => v !== value);
+    setListData(newListData);
+    // 這裡也要加上對應的刪除動畫生成邏輯，先以重置步驟替代
+    if (topicTypeConfig?.id === "linkedlist") {
+      setActiveSteps(generateStepsFromData(newListData));
+    }
+    setCurrentStep(0);
+    setIsPlaying(true);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
-  const handleNext = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, animationSteps.length - 1));
-  };
-  const handlePrev = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
+  const handleNext = () =>
+    setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
+  const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
     setCurrentStep(0);
     setIsPlaying(false);
   };
-  const handleSpeedChange = (speed: number) => {
-    setPlaybackSpeed(speed);
-  };
 
-  const [listData, setListData] = useState<number[]>([1, 2, 3]);
-  // test
-  // 2. 定義處理新增節點的函式
-  const handleAddNode = (value: number) => {
-    console.log("Adding node with value:", value);
-    // 更新資料狀態
-    setListData((prev) => [...prev, value]);
-
-    // 注意：這裡後續需要呼叫 generateStepsFromData(newListData)
-    // 來重新生成動畫步驟，目前先確保函式存在以消除報錯
-  };
-
-  // 3. 定義處理刪除節點的函式
-  const handleDeleteNode = (value: number) => {
-    console.log("Deleting node with value:", value);
-    // 更新資料狀態
-    setListData((prev) => prev.filter((v) => v !== value));
-  };
-  // 獲取當前步驟資料
-  const currentStepData = animationSteps[currentStep];
-
-  const currentLinks: Link[] = [];
-  if (currentStepData?.elements) {
-    const nodes = currentStepData.elements.filter(
-      (e) => e instanceof DataNode
-    ) as DataNode[];
-    nodes.forEach((node, index) => {
-      // 這裡根據你的邏輯：如果 i 指向 i+1
-      if (index < nodes.length - 1) {
-        currentLinks.push({
-          key: `${node.id}->${nodes[index + 1].id}`,
-          sourceId: node.id,
-          targetId: nodes[index + 1].id,
-        });
-      }
-    });
+  if (!topicTypeConfig) {
+    return null;
+    // return (
+    // <div className={styles.tutorialPage}>
+    //   <div className={styles.errorContainer}>
+    //     <h2>不存在</h2>
+    //     <Button onClick={() => navigate("/dashboard")}>返回首頁</Button>
+    //   </div>
+    // </div>
+    // );
   }
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Tutorial Debug:", {
-      currentStep,
-      totalSteps: animationSteps.length,
-      isPlaying,
-      playbackSpeed,
-      currentStepData: {
-        stepNumber: currentStepData?.stepNumber,
-        description: currentStepData?.description,
-        elementsCount: currentStepData?.elements?.length,
-      },
-    });
-  }, [
-    currentStep,
-    currentStepData,
-    isPlaying,
-    playbackSpeed,
-    animationSteps.length,
-  ]);
+  const breadcrumbItems: BreadcrumbItem[] = [
+    {
+      label: topicTypeConfig.categoryName,
+      path: `/dashboard?category=${category}`,
+    },
+    { label: topicTypeConfig.name, path: null },
+  ];
 
   return (
     <div className={styles.tutorialPage}>
-      {/* Breadcrumb Navigation */}
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
       </div>
 
-      {/* Main Content - Top Section */}
       <div className={styles.topSection}>
-        {/* Pseudo Code Section */}
         <div className={styles.pseudoCodeSection}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>Pseudo Code</h3>
-          </div>
+          <h3 className={styles.sectionTitle}>Pseudo Code</h3>
           <div className={styles.pseudoCodeEditor}>
             <CodeEditor
               mode="single"
@@ -183,17 +163,14 @@ function Tutorial() {
           </div>
         </div>
 
-        {/* Right Panel - Canvas & Control Bar */}
         <div className={styles.rightPanel}>
           <div className={styles.visualizationSection}>
-            <div className={styles.sectionHeader}>
-              <h3 className={styles.sectionTitle}>視覺化動畫</h3>
-            </div>
+            <h3 className={styles.sectionTitle}>視覺化動畫</h3>
             <div className={styles.visualizationArea}>
               <D3Canvas
                 elements={currentStepData?.elements || []}
                 links={currentLinks}
-                width={600}
+                width={1000}
                 height={400}
               />
             </div>
@@ -201,21 +178,25 @@ function Tutorial() {
               {currentStepData?.description}
             </div>
           </div>
+
+          {/* 資料操作列 */}
           <DataActionBar
             onAddNode={handleAddNode}
             onDeleteNode={handleDeleteNode}
           />
+
+          {/* 播放控制列 */}
           <ControlBar
             isPlaying={isPlaying}
             currentStep={currentStep}
-            totalSteps={animationSteps.length}
+            totalSteps={activeSteps.length}
             playbackSpeed={playbackSpeed}
             onPlay={handlePlay}
             onPause={handlePause}
             onNext={handleNext}
             onPrev={handlePrev}
             onReset={handleReset}
-            onSpeedChange={handleSpeedChange}
+            onSpeedChange={setPlaybackSpeed}
           />
         </div>
       </div>

@@ -183,6 +183,91 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
   return steps;
 }
 
+export function generateStepsFromData(
+  values: number[],
+  actionValue?: number
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const startX = 200;
+  const gap = 120;
+
+  // 使用固定的 ID 生成邏輯，例如 node-0, node-1，而非 Date.now()
+  const createNodesArray = (
+    vals: number[],
+    statusMap: Record<number, Status> = {}
+  ) => {
+    return vals.map((v, i) => {
+      const n = new Node();
+      n.id = `node-${i}`; // ID 必須固定，D3 才能追蹤位置變化
+      n.value = v;
+      n.moveTo(startX + i * gap, 200);
+      n.setStatus(statusMap[i] || "unfinished");
+      return n;
+    });
+  };
+
+  // Step 1: 建立新節點 (Target 狀態)
+  if (actionValue !== undefined) {
+    const oldValues = values.slice(0, -1);
+
+    // 步驟 1: 新節點出現，但還沒連線
+    steps.push({
+      stepNumber: 1,
+      description: `準備插入新節點: ${actionValue}`,
+      elements: createNodesArray(values, { [values.length - 1]: "target" }),
+    });
+
+    // 步驟 2: 建立連線 (此時 Tutorial 的 useMemo 會算出 Link，D3 就會跑伸長動畫)
+    const linkedNodes = createNodesArray(values, {
+      [values.length - 1]: "target",
+    });
+    if (linkedNodes.length > 1) {
+      // 讓最後二個節點指向最後一個 (Tail 插入)
+      const prev = linkedNodes[linkedNodes.length - 2] as Node;
+      const curr = linkedNodes[linkedNodes.length - 1] as Node;
+      prev.addPointer(curr);
+    }
+    steps.push({
+      stepNumber: 2,
+      description: `建立指標連線`,
+      elements: linkedNodes,
+    });
+
+    // 步驟 3: 完工
+    steps.push({
+      stepNumber: 3,
+      description: `插入完成`,
+      elements: createNodesArray(values, { [values.length - 1]: "complete" }),
+    });
+  } else {
+    // 初始狀態
+    steps.push({
+      stepNumber: 1,
+      description: "初始鏈表",
+      elements: createNodesArray(values),
+    });
+  }
+
+  return steps;
+}
+
+function createNodeInstance(
+  id: string,
+  val: number,
+  index: number,
+  startX: number,
+  gap: number,
+  status: Status = "unfinished"
+) {
+  const n = new Node();
+  n.id = id;
+  n.value = val;
+  n.moveTo(startX + index * gap, 200);
+  n.setStatus(status);
+  n.description = `${index}`;
+  return n;
+}
+
 /**
  * 鏈表數據結構配置
  */
@@ -248,22 +333,3 @@ class LinkedList:
 適合需要頻繁插入和刪除的場景，但訪問特定位置的元素需要從頭開始遍歷。`,
   createAnimationSteps: createLinkedListAnimationSteps,
 };
-
-export function generateStepsFromData(values: number[]): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  // 這裡可以寫得很複雜（包含插入過程的動畫），或者簡單地回傳當前狀態
-  steps.push({
-    stepNumber: 1,
-    description: `更新鏈表: ${values.join(" → ")}`,
-    elements: values.map((v, i) => {
-      const n = new Node();
-      n.id = `node-${Date.now()}-${i}`; // 簡單的唯一 ID
-      n.value = v;
-      n.moveTo(100 + i * 120, 200);
-      return n;
-    }),
-  });
-
-  return steps;
-}

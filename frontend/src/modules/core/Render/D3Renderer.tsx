@@ -140,7 +140,14 @@ export function renderAll(
     .selectAll<SVGLineElement, { s: Node; t: Node }>("line.link")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
-  linkSel.exit().remove();
+  // 終點縮向起點
+  linkSel
+    .exit()
+    .transition()
+    .duration(500)
+    .attr("x2", (d: any) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y2", (d: any) => getCircleBoundaryPoint(d.s, d.t).y)
+    .remove();
 
   const linkEnter = linkSel
     .enter()

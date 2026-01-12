@@ -1,5 +1,4 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
-import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { renderAll } from "./D3Renderer";
 import type { Link } from "./D3Renderer";
