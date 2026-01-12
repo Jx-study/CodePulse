@@ -147,24 +147,49 @@ function Tutorial() {
     console.log("Searching for:", value);
   };
 
+  // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
+  const handleRandomData = () => {
+    const count = Math.floor(Math.random() * (maxNodes - 2)) + 3; // 至少 3 筆
+    const newData = Array.from(
+      { length: count },
+      () => Math.floor(Math.random() * 199) - 99
+    );
+
+    setListData(newData);
+    const steps = generateStepsFromData(newData); // 產生初始化步驟
+    setActiveSteps(steps);
+    setCurrentStep(0);
+    setIsPlaying(false); // 這種操作通常不需要自動播放
+  };
+
+  // 重設：回到預設 10, 40, 30, 20
+  const handleResetData = () => {
+    const defaultData = [10, 40, 30, 20];
+    setListData(defaultData);
+    const steps = generateStepsFromData(defaultData);
+    setActiveSteps(steps);
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
+  // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
     const parsed = raw
       .split(",")
       .map((v) => parseInt(v.trim()))
       .filter((v) => !isNaN(v));
-    setListData(parsed.slice(0, maxNodes));
-  };
 
-  const handleResetData = () => {
-    setListData([10, 40, 30, 20, 50]);
-  };
+    if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
+    if (parsed.length > maxNodes) {
+      alert(`資料過長，已自動裁剪至前 ${maxNodes} 筆`);
+    }
 
-  const handleRandomData = () => {
-    const len = Math.floor(Math.random() * (maxNodes - 3)) + 3;
-    const rand = Array.from({ length: len }, () =>
-      Math.floor(Math.random() * 100)
-    );
-    setListData(rand);
+    const finalData = parsed.slice(0, maxNodes);
+    setListData(finalData);
+    const steps = generateStepsFromData(finalData);
+    setActiveSteps(steps);
+    setCurrentStep(0);
+    setIsPlaying(false);
   };
 
   const handlePlay = () => setIsPlaying(true);

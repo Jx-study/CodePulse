@@ -370,6 +370,23 @@ export function generateStepsFromData(
       description: "插入完成",
       elements: doneNodes,
     });
+  } else {
+    // 處理：初始載入、隨機資料、重設資料、載入輸入
+    const doneNodes = values.map((v, i) =>
+      createNodeInstance(
+        i === values.length - 1 ? "node-new" : `node-${i}`,
+        v,
+        startX + i * gap,
+        baseY,
+        "complete"
+      )
+    );
+    linkNodes(doneNodes);
+    steps.push({
+      stepNumber: 1,
+      description: "更新鏈結串列結構",
+      elements: doneNodes,
+    });
   }
 
   return steps;
