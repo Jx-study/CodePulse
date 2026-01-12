@@ -99,6 +99,8 @@ export function renderAll(
   links: Link[] = []
 ) {
   const svg = d3.select(svgEl);
+  const transitionDuration = 500; // 統一動畫時間
+  const transitionEase = d3.easeQuadOut;
 
   // defs：箭頭標記（只建一次）
   const defs = svg.selectAll("defs").data([null]);
@@ -144,7 +146,7 @@ export function renderAll(
   linkSel
     .exit()
     .transition()
-    .duration(500)
+    .duration(transitionDuration)
     .attr("x2", (d: any) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y2", (d: any) => getCircleBoundaryPoint(d.s, d.t).y)
     .remove();
@@ -162,13 +164,11 @@ export function renderAll(
     .attr("x2", (d) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y2", (d) => getCircleBoundaryPoint(d.s, d.t).y);
 
-  const linkMerged = linkEnter.merge(linkSel as any);
-
-  // 初始位置（圓邊到圓邊）
-  linkMerged
+  linkEnter
+    .merge(linkSel as any)
     .transition()
-    .duration(500)
-    .ease(d3.easeQuadOut)
+    .duration(transitionDuration)
+    .ease(transitionEase)
     .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
     .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
@@ -181,7 +181,11 @@ export function renderAll(
 
   items.exit().remove();
 
-  const enter = items.enter().append("g").attr("class", "el");
+  const enter = items
+    .enter()
+    .append("g")
+    .attr("class", "el")
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
 
   // 依型別建立一次對應圖形元素
   enter.each(function (d: any) {
@@ -195,13 +199,26 @@ export function renderAll(
     g.append("text").attr("class", "val"); // 顯示 value
   });
 
+  const linkMerged = linkEnter.merge(linkSel as any);
+
+  linkMerged
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    // 使用 attrTween 確保在 transition 過程中每一幀都重新計算座標
+    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
+    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
+
+  // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
 
-  // 統一位置
-  merged.attr(
-    "transform",
-    (d) => `translate(${d.position.x}, ${d.position.y})`
-  );
+  merged
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {

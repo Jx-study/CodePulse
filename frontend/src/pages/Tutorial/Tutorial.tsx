@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Breadcrumb, Button } from "../../shared/components";
+import { Breadcrumb } from "../../shared/components";
 import CodeEditor from "../../modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "../../modules/core/Render/D3Canvas";
 import ControlBar from "../../modules/core/components/ControlBar/ControlBar";
@@ -23,7 +23,6 @@ function Tutorial() {
     subcategory?: string;
     topicType: string;
   }>();
-  const navigate = useNavigate();
 
   // 1. 根據路由參數載入配置
   const topicTypeConfig = useMemo(() => {
@@ -36,11 +35,14 @@ function Tutorial() {
   }, [category, subcategory, topicType]);
 
   // 2. 狀態管理
-  const [listData, setListData] = useState<number[]>([1, 2, 3]);
+  const [listData, setListData] = useState<number[]>([10, 40, 30, 20]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [activeSteps, setActiveSteps] = useState<AnimationStep[]>([]);
+
+  const [maxNodes, setMaxNodes] = useState(15);
+  const [hasTailMode, setHasTailMode] = useState(false);
 
   // 3. 計算目前的動畫步驟 (當 listData 改變時重新計算)
   useEffect(() => {
@@ -93,24 +95,76 @@ function Tutorial() {
   }, [currentStepData]);
 
   // 6. 控制行為
-  const handleAddNode = (value: number) => {
-    const newListData = [...listData, value];
-    setListData(newListData);
-    const animationProcess = generateStepsFromData(newListData, value);
-    setActiveSteps(animationProcess);
+  const handleAddNode = (value: number, mode: string) => {
+    if (listData.length >= maxNodes) return alert("已達最大節點數");
+
+    const newListData =
+      mode === "Head" ? [value, ...listData] : [...listData, value];
+    const steps = generateStepsFromData(newListData, {
+      type: "add",
+      value,
+      mode,
+    });
+    setActiveSteps(steps);
+    setCurrentStep(0);
+    setIsPlaying(true);
+  };
+  // const handleAddNode = (value: number, mode: string, index?: number) => {
+  //   if (listData.length >= maxNodes) return alert("已達最大節點數");
+
+  //   let newList = [...listData];
+  //   if (mode === "Head") newList = [value, ...listData];
+  //   else if (mode === "Tail") newList = [...listData, value];
+  //   else if (mode === "Node N" && index !== undefined) {
+  //     newList.splice(index + 1, 0, value);
+  //   }
+
+  //   setListData(newList);
+  //   // 生成該動作專屬的多步驟動畫並播放
+  //   const animationProcess = generateStepsFromData(newList, value);
+  //   setActiveSteps(animationProcess);
+  //   setCurrentStep(0);
+  //   setIsPlaying(true);
+  // };
+
+  const handleDeleteNode = (mode: string, index?: number) => {
+    if (listData.length === 0) return;
+
+    let newList = [...listData];
+    if (mode === "Head") newList.shift();
+    else if (mode === "Tail") newList.pop();
+    else if (mode === "Node N" && index !== undefined) {
+      newList.splice(index, 1);
+    }
+
+    setListData(newList);
     setCurrentStep(0);
     setIsPlaying(true);
   };
 
-  const handleDeleteNode = (value: number) => {
-    const newListData = listData.filter((v) => v !== value);
-    setListData(newListData);
-    // 這裡也要加上對應的刪除動畫生成邏輯，先以重置步驟替代
-    if (topicTypeConfig?.id === "linkedlist") {
-      setActiveSteps(generateStepsFromData(newListData));
-    }
-    setCurrentStep(0);
-    setIsPlaying(true);
+  const handleSearchNode = (value: number) => {
+    // 這裡未來可以介接 buildFindAnimation
+    console.log("Searching for:", value);
+  };
+
+  const handleLoadData = (raw: string) => {
+    const parsed = raw
+      .split(",")
+      .map((v) => parseInt(v.trim()))
+      .filter((v) => !isNaN(v));
+    setListData(parsed.slice(0, maxNodes));
+  };
+
+  const handleResetData = () => {
+    setListData([10, 40, 30, 20, 50]);
+  };
+
+  const handleRandomData = () => {
+    const len = Math.floor(Math.random() * (maxNodes - 3)) + 3;
+    const rand = Array.from({ length: len }, () =>
+      Math.floor(Math.random() * 100)
+    );
+    setListData(rand);
   };
 
   const handlePlay = () => setIsPlaying(true);
@@ -183,6 +237,12 @@ function Tutorial() {
           <DataActionBar
             onAddNode={handleAddNode}
             onDeleteNode={handleDeleteNode}
+            onSearchNode={handleSearchNode}
+            onLoadData={handleLoadData}
+            onResetData={handleResetData}
+            onRandomData={handleRandomData}
+            onMaxNodesChange={setMaxNodes}
+            onTailModeChange={setHasTailMode}
           />
 
           {/* 播放控制列 */}

@@ -183,76 +183,197 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
   return steps;
 }
 
+/**
+ * 輔助函式：根據索引移動節點位置
+ */
+function shiftNodes(nodes: Node[], offset: number, gap: number = 120) {
+  nodes.forEach((n) => {
+    n.moveTo(n.position.x + offset * gap, n.position.y);
+  });
+}
+
+/**
+ * 建立節點實例的工廠函式
+ */
+function createNodeInstance(
+  id: string,
+  val: number,
+  x: number,
+  y: number,
+  status: Status = "unfinished"
+) {
+  const n = new Node();
+  n.id = id;
+  n.value = val;
+  n.moveTo(x, y);
+  n.setStatus(status);
+  return n;
+}
+
+function linkNodes(nodes: Node[]) {
+  for (let i = 0; i < nodes.length - 1; i++) {
+    nodes[i].pointers = [nodes[i + 1]];
+  }
+}
+
 export function generateStepsFromData(
   values: number[],
-  actionValue?: number
+  action?: { type: string; value: number; mode: string }
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const startX = 200;
   const gap = 120;
+  const baseY = 200;
 
-  const createLinkedNodes = (
-    vals: number[],
-    statusMap: Record<number, Status> = {}
-  ) => {
-    const nodes = vals.map((v, i) => {
-      const n = new Node();
-      n.id = `node-${i}`;
-      n.value = v;
-      n.moveTo(startX + i * gap, 200);
-      n.setStatus(statusMap[i] || "unfinished");
-      return n;
-    });
+  // 初始/靜態渲染
+  if (!action) {
+    const nodes = values.map((v, i) =>
+      createNodeInstance(`node-${i}`, v, startX + i * gap, baseY)
+    );
+    linkNodes(nodes);
+    steps.push({ stepNumber: 1, description: "初始鏈表", elements: nodes });
+    return steps;
+  }
 
-    // 自動建立串列連線：i -> i+1
-    for (let i = 0; i < nodes.length - 1; i++) {
-      nodes[i].addPointer(nodes[i + 1]);
-    }
-    return nodes;
-  };
+  const { type, value, mode } = action;
 
-  // Step 1: 建立新節點 (Target 狀態)
-  if (actionValue !== undefined) {
-    // Step 1: 建立新節點，但此時舊節點還沒指向它 (這會讓箭頭稍後伸長)
-    const step1Nodes = createLinkedNodes(values, {
-      [values.length - 1]: "target",
-    });
-    const lastNode = step1Nodes[step1Nodes.length - 1];
-    const prevNode = step1Nodes[step1Nodes.length - 2];
-    if (prevNode) {
-      prevNode.pointers = prevNode.pointers.filter((p) => p.id !== lastNode.id); // 強制斷開最後一條線
-    }
+  // --- Insert Head 邏輯 ---
+  if (type === "add" && mode === "Head") {
+    const oldValues = values.slice(1);
+
+    // Step 1: 新節點在左側出現
+    const s1Nodes = oldValues.map((v, i) =>
+      createNodeInstance(`node-${i}`, v, startX + i * gap, baseY)
+    );
+    linkNodes(s1Nodes);
+    const newNodeId = `node-head-new-${value}`;
+    const newNode = createNodeInstance(
+      newNodeId,
+      value,
+      startX - gap,
+      baseY,
+      "target"
+    );
     steps.push({
       stepNumber: 1,
-      description: `建立新節點: ${actionValue}`,
-      elements: step1Nodes,
+      description: `建立新節點 ${value}`,
+      elements: [newNode, ...s1Nodes],
     });
 
-    // Step 2: 建立連線 (此時 prevNode 指向 lastNode)
+    // Step 2: 箭頭伸長指向 Head
+    const s2Nodes = oldValues.map((v, i) =>
+      createNodeInstance(`node-${i}`, v, startX + i * gap, baseY)
+    );
+    const newNodeS2 = createNodeInstance(
+      "node-new",
+      value,
+      startX - gap,
+      baseY,
+      "target"
+    );
+    const allS2 = [newNodeS2, ...s2Nodes];
+    linkNodes(allS2); // 這裡會建立 new -> oldHead 的連線
     steps.push({
       stepNumber: 2,
-      description: `建立指標連線`,
-      elements: createLinkedNodes(values, { [values.length - 1]: "target" }),
+      description: "建立連線指向原 Head",
+      elements: allS2,
     });
 
-    // Step 3: 完成
+    // Step 3: 全體向右平移 (D3 會平滑移動圓心與箭頭)
+    const s3Nodes = values.map((v, i) =>
+      createNodeInstance(
+        i === 0 ? "node-new" : `node-${i - 1}`,
+        v,
+        startX + i * gap,
+        baseY,
+        "complete"
+      )
+    );
+    linkNodes(s3Nodes);
     steps.push({
       stepNumber: 3,
-      description: `插入完成`,
-      elements: createLinkedNodes(values, { [values.length - 1]: "complete" }),
+      description: "移動串列對齊位置",
+      elements: s3Nodes,
     });
-  } else {
-    // 情況 B: 初始畫面 (必須有連線)
+  }
+
+  // --- Insert Tail (無 Tail 模式) 邏輯 ---
+  else if (type === "add" && mode === "Tail") {
+    const oldValues = values.slice(0, -1);
+
+    // Step 1 ~ N: 遍歷過程
+    for (let i = 0; i < oldValues.length; i++) {
+      const traverseNodes = oldValues.map((v, idx) =>
+        createNodeInstance(
+          `node-${v}-${idx}`,
+          v,
+          startX + idx * gap,
+          baseY,
+          idx === i ? "prepare" : "unfinished"
+        )
+      );
+      linkNodes(traverseNodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `遍歷中：檢查節點 ${oldValues[i]}`,
+        elements: traverseNodes,
+      });
+    }
+
+    // Step N+1: 在最後建立新節點（未連線）
+    const lastNodes = oldValues.map((v, i) =>
+      createNodeInstance(
+        `node-${i}`,
+        v,
+        startX + i * gap,
+        baseY,
+        i === oldValues.length - 1 ? "prepare" : "unfinished"
+      )
+    );
+    linkNodes(lastNodes);
+    const newNodeTail = createNodeInstance(
+      "node-new",
+      value,
+      startX + oldValues.length * gap,
+      baseY,
+      "target"
+    );
     steps.push({
-      stepNumber: 1,
-      description: "初始鏈表",
-      elements: createLinkedNodes(values),
+      stepNumber: steps.length + 1,
+      description: "建立新節點",
+      elements: [...lastNodes, newNodeTail],
+    });
+
+    // Step N+2: 伸長箭頭連線
+    const finalNodes = [...lastNodes, newNodeTail];
+    linkNodes(finalNodes); // 建立最後一根箭頭
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: "連接新節點",
+      elements: finalNodes,
+    });
+
+    // Step N+3: 完成
+    const doneNodes = values.map((v, i) =>
+      createNodeInstance(
+        i === values.length - 1 ? "node-new" : `node-${i}`,
+        v,
+        startX + i * gap,
+        baseY,
+        "complete"
+      )
+    );
+    linkNodes(doneNodes);
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: "插入完成",
+      elements: doneNodes,
     });
   }
 
   return steps;
 }
-
 /**
  * 鏈表數據結構配置
  */
