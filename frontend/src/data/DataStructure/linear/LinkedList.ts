@@ -127,6 +127,101 @@ export function generateStepsFromData(
 
   const { type, value, mode } = action;
 
+  if (type === "search") {
+    const totalLen = dataList.length;
+    let isFound = false;
+
+    if (totalLen === 0) {
+      steps.push({
+        stepNumber: 1,
+        description: "鏈結串列為空，無法搜尋",
+        elements: [],
+      });
+      return steps;
+    }
+
+    // 開始遍歷
+    for (let i = 0; i < totalLen; i++) {
+      // Step A: 比較中 (Highlight current node)
+      const compareNodes = dataList.map((item, idx) => {
+        let status: Status = "unfinished";
+        let extra = undefined;
+
+        // 當前遍歷到的節點
+        if (idx === i) {
+          status = "prepare"; // 橘色/準備狀態代表 "Comparing"
+          extra = "tmp"; // 顯示 tmp 標籤
+        }
+
+        return createNode(
+          item,
+          idx,
+          totalLen,
+          startX + idx * gap,
+          baseY,
+          status,
+          undefined,
+          extra
+        );
+      });
+      linkNodes(compareNodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `遍歷 node ${i}：比較 ${dataList[i].value} 是否等於目標值 ${value}`,
+        elements: compareNodes,
+      });
+
+      // Step B: 檢查是否符合
+      if (dataList[i].value === value) {
+        isFound = true;
+
+        const foundNodes = dataList.map((item, idx) => {
+          let status: Status = "unfinished";
+          let extra = undefined;
+
+          if (idx === i) {
+            status = "complete";
+            extra = "tmp";
+          }
+
+          return createNode(
+            item,
+            idx,
+            totalLen,
+            startX + idx * gap,
+            baseY,
+            status,
+            undefined,
+            extra
+          );
+        });
+        linkNodes(foundNodes);
+
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `搜尋成功！在第 ${i} 個節點 (index ${i}) 找到數值 ${value}。`,
+          elements: foundNodes,
+        });
+
+        break;
+      }
+    }
+
+    if (!isFound) {
+      const notFoundNodes = dataList.map((item, idx) =>
+        createNode(item, idx, totalLen, startX + idx * gap, baseY, "unfinished")
+      );
+      linkNodes(notFoundNodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `搜尋結束：未在鏈結串列中找到數值 ${value}。`,
+        elements: notFoundNodes,
+      });
+    }
+  }
+
   // --- Insert Head 邏輯 ---
   if (type === "add" && mode === "Head") {
     const newNodeData = dataList[0];

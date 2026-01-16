@@ -167,8 +167,19 @@ function Tutorial() {
   };
 
   const handleSearchNode = (value: number) => {
-    // 這裡未來可以介接 buildFindAnimation
-    console.log("Searching for:", value);
+    const steps = generateStepsFromData(
+      listData,
+      {
+        type: "search",
+        value: value,
+        mode: "Search", // mode 在這裡只作佔位，邏輯主要看 type
+      },
+      hasTailMode
+    );
+
+    setActiveSteps(steps);
+    setCurrentStep(0);
+    setIsPlaying(true);
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
