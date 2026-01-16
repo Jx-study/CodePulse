@@ -285,7 +285,7 @@ export function generateStepsFromData(
     });
 
     // Step 3: 全體向右平移
-    // 這時候我們遍歷完整的 dataList，重新計算 X 座標
+    // 遍歷完整的 dataList，重新計算 X 座標
     const s3Nodes = dataList.map((item, i) =>
       createNode(item, startX + i * gap, baseY, "complete")
     );
@@ -347,7 +347,22 @@ export function generateStepsFromData(
     });
 
     // Step N+2: 連接
-    const finalNodes = [...lastNodes, newNodeTail];
+    const stepLinkOldNodes = oldNodesData.map((item, i) =>
+      createNode(
+        item,
+        startX + i * gap,
+        baseY,
+        i === oldNodesData.length - 1 ? "prepare" : "unfinished"
+      )
+    );
+    const stepLinkNewNode = createNode(
+      newNodeData,
+      startX + oldNodesData.length * gap,
+      baseY,
+      "target"
+    );
+
+    const finalNodes = [...stepLinkOldNodes, stepLinkNewNode];
     linkNodes(finalNodes);
 
     steps.push({
@@ -371,9 +386,8 @@ export function generateStepsFromData(
 
   return steps;
 }
-/**
- * 鏈表數據結構配置
- */
+
+// 鏈表數據結構配置
 export const linkedListConfig: DataStructureConfig = {
   id: "linkedlist",
   name: "鏈結串列 (Linked List)",
