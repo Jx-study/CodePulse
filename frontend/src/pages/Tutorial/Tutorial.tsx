@@ -55,16 +55,20 @@ function Tutorial() {
   const [maxNodes, setMaxNodes] = useState(15);
   const [hasTailMode, setHasTailMode] = useState(false);
 
-  // 3. 計算目前的動畫步驟 (當 listData 改變時重新計算)
+  // 3. 計算目前的動畫步驟
   useEffect(() => {
     if (topicTypeConfig) {
       setActiveSteps(
         topicTypeConfig.id === "linkedlist"
-          ? generateStepsFromData(listData)
+          ? generateStepsFromData(listData, undefined, hasTailMode)
           : topicTypeConfig.createAnimationSteps()
       );
+      if (!isPlaying) {
+        setCurrentStep(0);
+      }
     }
-  }, [topicTypeConfig]);
+    // 注意：這裡刻意不加 listData，避免與 handleAddNode 的動畫衝突
+  }, [topicTypeConfig, hasTailMode]);
 
   const currentStepData = activeSteps[currentStep];
 
@@ -113,12 +117,17 @@ function Tutorial() {
     const newNode = { id: `node-${newId}`, value };
     const newListData =
       mode === "Head" ? [newNode, ...listData] : [...listData, newNode];
-    const steps = generateStepsFromData(newListData, {
-      type: "add",
-      value,
-      mode,
-      targetId: `node-${newId}`,
-    });
+    const steps = generateStepsFromData(
+      newListData,
+      {
+        type: "add",
+        value,
+        mode,
+        targetId: `node-${newId}`,
+      },
+      hasTailMode
+    );
+
     setListData(newListData);
     setActiveSteps(steps);
     setCurrentStep(0);
@@ -175,7 +184,7 @@ function Tutorial() {
     }
 
     setListData(newData);
-    const steps = generateStepsFromData(newData); // 產生初始化步驟
+    const steps = generateStepsFromData(newData, undefined, hasTailMode); // 產生初始化步驟
     setActiveSteps(steps);
     setCurrentStep(0);
     setIsPlaying(false); // 這種操作通常不需要自動播放
@@ -189,7 +198,7 @@ function Tutorial() {
       value: v,
     }));
     setListData(newData);
-    const steps = generateStepsFromData(newData);
+    const steps = generateStepsFromData(newData, undefined, hasTailMode);
     setActiveSteps(steps);
     setCurrentStep(0);
     setIsPlaying(false);
@@ -212,7 +221,7 @@ function Tutorial() {
       value: v,
     }));
     setListData(finalData);
-    const steps = generateStepsFromData(finalData);
+    const steps = generateStepsFromData(finalData, undefined, hasTailMode);
     setActiveSteps(steps);
     setCurrentStep(0);
     setIsPlaying(false);
