@@ -15,6 +15,7 @@ interface ActionType {
   value: number;
   mode: string;
   targetId?: string;
+  index?: number;
 }
 
 // 創建鏈表的動畫步驟
@@ -47,6 +48,7 @@ function linkNodes(nodes: Node[]) {
   for (let i = 0; i < nodes.length - 1; i++) {
     nodes[i].pointers = [nodes[i + 1]];
   }
+  return nodes;
 }
 
 function getLabel(
@@ -56,18 +58,9 @@ function getLabel(
   extra: string = ""
 ): string {
   const labels: string[] = [];
-
-  if (index === 0) {
-    labels.push("head");
-  }
-
-  if (hasTailMode && index === totalLength - 1) {
-    labels.push("tail");
-  }
-
-  if (extra) {
-    labels.push(extra);
-  }
+  if (index === 0) labels.push("head");
+  if (hasTailMode && index === totalLength - 1) labels.push("tail");
+  if (extra) labels.push(extra);
 
   // 如果有多個標籤用 / 分隔 (例如 "head/tail")
   return labels.length > 0 ? labels.join("/") : "";
@@ -553,6 +546,200 @@ export function generateStepsFromData(
         elements: doneNodes,
       });
     }
+  }
+  if (type === "add" && mode === "Node N") {
+    const N = action.index !== undefined ? action.index : -1;
+
+    // 雖然 Tutorial.tsx 有防呆，這裡保險起見再做一次資料分割
+    // dataList 已經是插入後的結果，我們需要還原出舊的列表
+    // 在 handleAddNode 中我們是 splice(N+1, 0, newNode)
+    // 所以 dataList[N+1] 是新節點
+    const newNodeData = dataList[N + 1];
+    const oldNodesData = [...dataList];
+    oldNodesData.splice(N + 1, 1); // 移除新節點，還原舊列表
+
+    const oldLen = oldNodesData.length;
+    const totalLen = dataList.length;
+
+    // Edge Case 0: 判斷是否轉為 Head 或 Tail 處理
+    // (視覺上這已經由 Tutorial.tsx 決定好了，若 N<0 或 N>=oldLen-1 會走其他分支，
+    // 但若漏接會流到這裡，我們用通用邏輯處理)
+
+    // --- Step 1: 遍歷到 Node N ---
+    // 這部分跟 Search 類似，只遍歷到 N
+    for (let i = 0; i <= N; i++) {
+      const traverseNodes = oldNodesData.map((item, idx) => {
+        let status: Status = "unfinished";
+        if (idx <= i) status = "prepare"; // 走過的路徑
+        if (idx === i) status = "target"; // 當前 N 為 target
+
+        // 標籤處理
+        let extra = undefined;
+        if (idx === i) extra = "curr"; // 標示 current
+
+        return createNode(
+          item,
+          idx,
+          oldLen,
+          startX + idx * gap,
+          baseY,
+          status,
+          undefined,
+          extra
+        );
+      });
+      linkNodes(traverseNodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `遍歷：找到位置 ${i} (Node ${i})`,
+        elements: traverseNodes,
+      });
+    }
+
+    // --- Step 2: 右移 (Shift) 與 拉伸箭頭 ---
+    // Node 0 ~ N: 位置不變
+    // Node N+1 ~ End: 位置右移 (x += gap)
+    // 箭頭：保持舊的連接結構 (N 指向 N+1)，所以箭頭會被拉長
+    const s2Nodes = oldNodesData.map((item, i) => {
+      let x = startX + i * gap;
+      if (i > N) x += gap; // N 後面的右移一格
+
+      let status: Status = "unfinished";
+      if (i <= N) status = "prepare";
+
+      return createNode(item, i, oldLen, x, baseY, status);
+    });
+    linkNodes(s2Nodes); // D3 會自動繪製 N 到 N+1 的長箭頭
+
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `1. 將 Node ${N} 之後的節點右移，騰出空間`,
+      elements: s2Nodes,
+    });
+
+    // --- Step 3: 創建節點 (上方出現) ---
+    // 舊節點維持 Step 2 狀態
+    const s3OldNodes = oldNodesData.map((item, i) => {
+      let x = startX + i * gap;
+      if (i > N) x += gap;
+      let status: Status = "unfinished";
+      if (i <= N) status = "prepare";
+      return createNode(item, i, oldLen, x, baseY, status);
+    });
+    linkNodes(s3OldNodes); // 箭頭仍是 N -> N+1
+
+    // 新節點：位置在 N+1 的空位上方
+    const s3NewNode = createNode(
+      newNodeData,
+      N + 1,
+      totalLen,
+      startX + (N + 1) * gap,
+      baseY - 60,
+      "target",
+      "new"
+    );
+
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `2. 在 Node ${N} 後方建立新節點`,
+      elements: [...s3OldNodes, s3NewNode],
+    });
+
+    // --- Step 4: Link New -> Node N+1 ---
+    // 這裡需要手動構建 pointers
+    // 需要把所有節點放在一起，但只改變 NewNode 的 pointer
+    const s4OldNodes = oldNodesData.map((item, i) => {
+      let x = startX + i * gap;
+      if (i > N) x += gap;
+      return createNode(
+        item,
+        i,
+        oldLen,
+        x,
+        baseY,
+        i <= N ? "prepare" : "unfinished"
+      );
+    });
+    // 連結舊的： N -> N+1 依然存在
+    linkNodes(s4OldNodes);
+
+    const s4NewNode = createNode(
+      newNodeData,
+      N + 1,
+      totalLen,
+      startX + (N + 1) * gap,
+      baseY - 60,
+      "target",
+      "new"
+    );
+
+    // 手動設定新節點指向 oldNode[N+1] (如果存在)
+    // oldNode[N+1] 在 s4OldNodes 陣列中的 index 也是 N+1
+    if (N + 1 < s4OldNodes.length) {
+      s4NewNode.pointers = [s4OldNodes[N + 1]];
+    }
+
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `3. 將新節點指向 Node ${N + 1}`,
+      elements: [...s4OldNodes, s4NewNode],
+    });
+
+    // --- Step 5: 縮回箭頭 (Relink Node N -> New) ---
+    // 這是最複雜的一步：我们要斷開 N->N+1，改為 N->New
+    const s5OldNodes = oldNodesData.map((item, i) => {
+      let x = startX + i * gap;
+      if (i > N) x += gap;
+      return createNode(
+        item,
+        i,
+        oldLen,
+        x,
+        baseY,
+        i <= N ? "prepare" : "unfinished"
+      );
+    });
+    // 先連好基本的 0->1...->N->...
+    linkNodes(s5OldNodes);
+
+    const s5NewNode = createNode(
+      newNodeData,
+      N + 1,
+      totalLen,
+      startX + (N + 1) * gap,
+      baseY - 60,
+      "target",
+      "new"
+    );
+    // 新節點依然指向 N+1
+    if (N + 1 < s5OldNodes.length) {
+      s5NewNode.pointers = [s5OldNodes[N + 1]];
+    }
+
+    // 修改 Node N 的 pointer，使其指向 NewNode
+    // s5OldNodes[N] 是 Node N
+    s5OldNodes[N].pointers = [s5NewNode];
+    // 這樣 D3 會移除 N->N+1 的長線，改畫 N->New (往右上指)
+
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `4. 將 Node ${N} 指向新節點`,
+      elements: [...s5OldNodes, s5NewNode],
+    });
+
+    // --- Step 6: 下放 (Drop) 與 完成 ---
+    // 使用標準生成邏輯，所有節點回到標準位置，Y 軸歸零，ID 順序正確
+    const s6Nodes = dataList.map((item, i) =>
+      createNode(item, i, totalLen, startX + i * gap, baseY, "complete")
+    );
+    linkNodes(s6Nodes);
+
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `5. 調整位置，插入完成`,
+      elements: s6Nodes,
+    });
   }
 
   return steps;

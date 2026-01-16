@@ -110,13 +110,32 @@ function Tutorial() {
   }, [currentStepData]);
 
   // 6. 控制行為
-  const handleAddNode = (value: number, mode: string) => {
+  const handleAddNode = (value: number, mode: string, index?: number) => {
     if (listData.length >= maxNodes) return alert("已達最大節點數");
 
     const newId = nextIdRef.current++;
     const newNode = { id: `node-${newId}`, value };
-    const newListData =
-      mode === "Head" ? [newNode, ...listData] : [...listData, newNode];
+    let newListData = [...listData];
+    let insertIndex = -1;
+
+    if (mode === "Head") {
+      newListData.unshift(newNode);
+    } else if (mode === "Tail") {
+      newListData.push(newNode);
+    } else if (mode === "Node N") {
+      // 這裡僅做簡單防呆，詳細邏輯交給 generateStepsFromData 處理
+      const idx = index !== undefined ? index : -1;
+      // 邏輯：插入在第 N 個節點「後」，即 index N+1 的位置
+      if (idx < 0) {
+        newListData.unshift(newNode);
+      } else if (idx >= listData.length - 1) {
+        newListData.push(newNode);
+      } else {
+        newListData.splice(idx + 1, 0, newNode);
+        insertIndex = idx;
+      }
+    }
+
     const steps = generateStepsFromData(
       newListData,
       {
@@ -124,6 +143,7 @@ function Tutorial() {
         value,
         mode,
         targetId: `node-${newId}`,
+        index: insertIndex,
       },
       hasTailMode
     );
