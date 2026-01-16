@@ -5,6 +5,17 @@ import {
   DataStructureConfig,
 } from "../../../types/dataStructure";
 
+interface ListNodeData {
+  id: string;
+  value: number;
+}
+
+interface ActionType {
+  type: string;
+  value: number;
+  mode: string;
+  targetId?: string;
+}
 /**
  * 創建鏈表的動畫步驟
  */
@@ -184,15 +195,6 @@ export function createLinkedListAnimationSteps(): AnimationStep[] {
 }
 
 /**
- * 輔助函式：根據索引移動節點位置
- */
-function shiftNodes(nodes: Node[], offset: number, gap: number = 120) {
-  nodes.forEach((n) => {
-    n.moveTo(n.position.x + offset * gap, n.position.y);
-  });
-}
-
-/**
  * 建立節點實例的工廠函式
  */
 function createNodeInstance(
@@ -217,18 +219,27 @@ function linkNodes(nodes: Node[]) {
 }
 
 export function generateStepsFromData(
-  values: number[],
-  action?: { type: string; value: number; mode: string }
+  dataList: ListNodeData[],
+  action?: ActionType
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const startX = 200;
   const gap = 120;
   const baseY = 200;
 
+  const createNode = (
+    item: ListNodeData,
+    x: number,
+    y: number,
+    status: Status = "unfinished"
+  ) => {
+    return createNodeInstance(`node-${item.id}`, item.value, x, y, status);
+  };
+
   // 初始/靜態渲染
   if (!action) {
-    const nodes = values.map((v, i) =>
-      createNodeInstance(`node-${i}`, v, startX + i * gap, baseY)
+    const nodes = dataList.map((item, i) =>
+      createNode(item, startX + i * gap, baseY, "complete")
     );
     linkNodes(nodes);
     steps.push({ stepNumber: 1, description: "初始鏈表", elements: nodes });
@@ -239,74 +250,64 @@ export function generateStepsFromData(
 
   // --- Insert Head 邏輯 ---
   if (type === "add" && mode === "Head") {
-    const oldValues = values.slice(1);
+    const newNodeData = dataList[0];
+    const oldNodesData = dataList.slice(1);
 
     // Step 1: 新節點在左側出現
-    const s1Nodes = oldValues.map((v, i) =>
-      createNodeInstance(`node-${i}`, v, startX + i * gap, baseY)
+    const s1OldNodes = oldNodesData.map((item, i) =>
+      createNode(item, startX + i * gap, baseY, "complete")
     );
-    linkNodes(s1Nodes);
-    const newNodeId = `node-head-new-${value}`;
-    const newNode = createNodeInstance(
-      newNodeId,
-      value,
-      startX - gap,
-      baseY,
-      "target"
-    );
+    linkNodes(s1OldNodes);
+
+    const s1NewNode = createNode(newNodeData, startX - gap, baseY, "target"); // 新節點在左邊
+
     steps.push({
       stepNumber: 1,
       description: `建立新節點 ${value}`,
-      elements: [newNode, ...s1Nodes],
+      elements: [s1NewNode, ...s1OldNodes],
     });
 
-    // Step 2: 箭頭伸長指向 Head
-    const s2Nodes = oldValues.map((v, i) =>
-      createNodeInstance(`node-${i}`, v, startX + i * gap, baseY)
+    // Step 2: 建立連線 (New -> OldHead)
+    // 物件是重新 new 出來的，但 ID 與 Step 1 相同，動畫不會受到影響
+    const s2OldNodes = oldNodesData.map((item, i) =>
+      createNode(item, startX + i * gap, baseY, "complete")
     );
-    const newNodeS2 = createNodeInstance(
-      "node-new",
-      value,
-      startX - gap,
-      baseY,
-      "target"
-    );
-    const allS2 = [newNodeS2, ...s2Nodes];
-    linkNodes(allS2); // 這裡會建立 new -> oldHead 的連線
+    const s2NewNode = createNode(newNodeData, startX - gap, baseY, "target");
+
+    // 連接：新節點 -> 舊的 HEAD
+    const allS2 = [s2NewNode, ...s2OldNodes];
+    linkNodes(allS2);
+
     steps.push({
       stepNumber: 2,
       description: "建立連線指向原 Head",
       elements: allS2,
     });
 
-    // Step 3: 全體向右平移 (D3 會平滑移動圓心與箭頭)
-    const s3Nodes = values.map((v, i) =>
-      createNodeInstance(
-        i === 0 ? "node-new" : `node-${i - 1}`,
-        v,
-        startX + i * gap,
-        baseY,
-        "complete"
-      )
+    // Step 3: 全體向右平移
+    // 這時候我們遍歷完整的 dataList，重新計算 X 座標
+    const s3Nodes = dataList.map((item, i) =>
+      createNode(item, startX + i * gap, baseY, "complete")
     );
     linkNodes(s3Nodes);
+
     steps.push({
       stepNumber: 3,
-      description: "移動串列對齊位置",
+      description: "新增完成",
       elements: s3Nodes,
     });
   }
 
-  // --- Insert Tail (無 Tail 模式) 邏輯 ---
+  // --- Insert Tail 邏輯 ---
   else if (type === "add" && mode === "Tail") {
-    const oldValues = values.slice(0, -1);
+    const oldNodesData = dataList.slice(0, -1); // 排除最後一個(剛新增的)
+    const newNodeData = dataList[dataList.length - 1];
 
     // Step 1 ~ N: 遍歷過程
-    for (let i = 0; i < oldValues.length; i++) {
-      const traverseNodes = oldValues.map((v, idx) =>
-        createNodeInstance(
-          `node-${v}-${idx}`,
-          v,
+    for (let i = 0; i < oldNodesData.length; i++) {
+      const traverseNodes = oldNodesData.map((item, idx) =>
+        createNode(
+          item,
           startX + idx * gap,
           baseY,
           idx === i ? "prepare" : "unfinished"
@@ -316,75 +317,54 @@ export function generateStepsFromData(
 
       steps.push({
         stepNumber: steps.length + 1,
-        description: `遍歷中：檢查節點 ${oldValues[i]}`,
+        description: `遍歷中：檢查節點 ${oldNodesData[i].value}`,
         elements: traverseNodes,
       });
     }
 
-    // Step N+1: 在最後建立新節點（未連線）
-    const lastNodes = oldValues.map((v, i) =>
-      createNodeInstance(
-        `node-${i}`,
-        v,
+    // Step N+1: 在最後建立新節點
+    const lastNodes = oldNodesData.map((item, i) =>
+      createNode(
+        item,
         startX + i * gap,
         baseY,
-        i === oldValues.length - 1 ? "prepare" : "unfinished"
+        i === oldNodesData.length - 1 ? "prepare" : "unfinished"
       )
     );
     linkNodes(lastNodes);
-    const newNodeTail = createNodeInstance(
-      "node-new",
-      value,
-      startX + oldValues.length * gap,
+
+    const newNodeTail = createNode(
+      newNodeData,
+      startX + oldNodesData.length * gap,
       baseY,
       "target"
     );
+
     steps.push({
       stepNumber: steps.length + 1,
       description: "建立新節點",
       elements: [...lastNodes, newNodeTail],
     });
 
-    // Step N+2: 伸長箭頭連線
+    // Step N+2: 連接
     const finalNodes = [...lastNodes, newNodeTail];
-    linkNodes(finalNodes); // 建立最後一根箭頭
+    linkNodes(finalNodes);
+
     steps.push({
       stepNumber: steps.length + 1,
       description: "連接新節點",
       elements: finalNodes,
     });
 
-    // Step N+3: 完成
-    const doneNodes = values.map((v, i) =>
-      createNodeInstance(
-        i === values.length - 1 ? "node-new" : `node-${i}`,
-        v,
-        startX + i * gap,
-        baseY,
-        "complete"
-      )
+    // Step N+3: 完成狀態
+    const doneNodes = dataList.map((item, i) =>
+      createNode(item, startX + i * gap, baseY, "complete")
     );
     linkNodes(doneNodes);
+
     steps.push({
       stepNumber: steps.length + 1,
       description: "插入完成",
-      elements: doneNodes,
-    });
-  } else {
-    // 處理：初始載入、隨機資料、重設資料、載入輸入
-    const doneNodes = values.map((v, i) =>
-      createNodeInstance(
-        i === values.length - 1 ? "node-new" : `node-${i}`,
-        v,
-        startX + i * gap,
-        baseY,
-        "complete"
-      )
-    );
-    linkNodes(doneNodes);
-    steps.push({
-      stepNumber: 1,
-      description: "更新鏈結串列結構",
       elements: doneNodes,
     });
   }

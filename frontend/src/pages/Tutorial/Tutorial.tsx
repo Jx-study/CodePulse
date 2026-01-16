@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Breadcrumb } from "../../shared/components";
@@ -15,6 +15,11 @@ import { DataActionBar } from "../../modules/core/components/DataActionBar/DataA
 import { generateStepsFromData } from "../../data/DataStructure/linear/LinkedList"; // 確保導入此函數
 import { AnimationStep } from "../../types/dataStructure";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
+
+interface ListNodeData {
+  id: string;
+  value: number;
+}
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -35,7 +40,13 @@ function Tutorial() {
   }, [category, subcategory, topicType]);
 
   // 2. 狀態管理
-  const [listData, setListData] = useState<number[]>([10, 40, 30, 20]);
+  const [listData, setListData] = useState<ListNodeData[]>([
+    { id: "node-1", value: 10 },
+    { id: "node-2", value: 40 },
+    { id: "node-3", value: 30 },
+    { id: "node-4", value: 20 },
+  ]);
+  const nextIdRef = useRef(5);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -98,13 +109,17 @@ function Tutorial() {
   const handleAddNode = (value: number, mode: string) => {
     if (listData.length >= maxNodes) return alert("已達最大節點數");
 
+    const newId = nextIdRef.current++;
+    const newNode = { id: `node-${newId}`, value };
     const newListData =
-      mode === "Head" ? [value, ...listData] : [...listData, value];
+      mode === "Head" ? [newNode, ...listData] : [...listData, newNode];
     const steps = generateStepsFromData(newListData, {
       type: "add",
       value,
       mode,
+      targetId: `node-${newId}`,
     });
+    setListData(newListData);
     setActiveSteps(steps);
     setCurrentStep(0);
     setIsPlaying(true);
@@ -150,10 +165,14 @@ function Tutorial() {
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
   const handleRandomData = () => {
     const count = Math.floor(Math.random() * (maxNodes - 2)) + 3; // 至少 3 筆
-    const newData = Array.from(
-      { length: count },
-      () => Math.floor(Math.random() * 199) - 99
-    );
+    const newData: ListNodeData[] = [];
+
+    for (let i = 0; i < count; i++) {
+      newData.push({
+        id: `node-${nextIdRef.current++}`,
+        value: Math.floor(Math.random() * 199) - 99,
+      });
+    }
 
     setListData(newData);
     const steps = generateStepsFromData(newData); // 產生初始化步驟
@@ -164,9 +183,13 @@ function Tutorial() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    const defaultData = [10, 40, 30, 20];
-    setListData(defaultData);
-    const steps = generateStepsFromData(defaultData);
+    const defaultValues = [10, 40, 30, 20];
+    const newData = defaultValues.map((v) => ({
+      id: `node-${nextIdRef.current++}`,
+      value: v,
+    }));
+    setListData(newData);
+    const steps = generateStepsFromData(newData);
     setActiveSteps(steps);
     setCurrentStep(0);
     setIsPlaying(false);
@@ -184,7 +207,10 @@ function Tutorial() {
       alert(`資料過長，已自動裁剪至前 ${maxNodes} 筆`);
     }
 
-    const finalData = parsed.slice(0, maxNodes);
+    const finalData = parsed.slice(0, maxNodes).map((v) => ({
+      id: `node-${nextIdRef.current++}`,
+      value: v,
+    }));
     setListData(finalData);
     const steps = generateStepsFromData(finalData);
     setActiveSteps(steps);
