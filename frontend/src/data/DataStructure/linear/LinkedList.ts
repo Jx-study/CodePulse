@@ -741,10 +741,45 @@ export function generateStepsFromData(
       value: value,
     };
 
-    if (mode === "Head") {
-      const currentLen = dataList.length;
-      // 刪除後長度，原本長度 = currentLen + 1
+    // 刪除後長度
+    const currentLen = dataList.length;
 
+    if (currentLen === 0) {
+      // Step 1: 標記唯一節點 (準備刪除)
+      const s1DelNode = createNode(
+        deletedNodeData,
+        0,
+        1,
+        startX,
+        baseY,
+        "target",
+        "head/tail"
+      );
+
+      steps.push({
+        stepNumber: 1,
+        description: "1. 標記唯一節點準備刪除",
+        elements: [s1DelNode],
+      });
+
+      // Step 2: 刪除節點 (消失)
+      steps.push({
+        stepNumber: 2,
+        description: "2. 移除節點",
+        elements: [],
+      });
+
+      // Step 3: 完成 (空狀態)
+      steps.push({
+        stepNumber: 3,
+        description: "3. 刪除完成，鏈結串列為空",
+        elements: [],
+      });
+
+      return steps;
+    }
+
+    if (mode === "Head") {
       // Step 1: 標記 Head (準備刪除)
       const s1DelNode = createNode(
         deletedNodeData,
@@ -845,9 +880,6 @@ export function generateStepsFromData(
 
     // Delete Tail
     else if (mode === "Tail") {
-      const currentLen = dataList.length;
-      // 原本長度 = currentLen + 1
-
       // Step 1: 遍歷 (tmp 找 tail, pre 找倒數第二)
       for (let i = 0; i < currentLen; i++) {
         // 構建包含舊 Tail 的完整列表
