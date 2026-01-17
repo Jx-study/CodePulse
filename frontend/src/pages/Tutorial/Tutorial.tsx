@@ -153,35 +153,48 @@ function Tutorial() {
     setCurrentStep(0);
     setIsPlaying(true);
   };
-  // const handleAddNode = (value: number, mode: string, index?: number) => {
-  //   if (listData.length >= maxNodes) return alert("已達最大節點數");
-
-  //   let newList = [...listData];
-  //   if (mode === "Head") newList = [value, ...listData];
-  //   else if (mode === "Tail") newList = [...listData, value];
-  //   else if (mode === "Node N" && index !== undefined) {
-  //     newList.splice(index + 1, 0, value);
-  //   }
-
-  //   setListData(newList);
-  //   // 生成該動作專屬的多步驟動畫並播放
-  //   const animationProcess = generateStepsFromData(newList, value);
-  //   setActiveSteps(animationProcess);
-  //   setCurrentStep(0);
-  //   setIsPlaying(true);
-  // };
 
   const handleDeleteNode = (mode: string, index?: number) => {
-    if (listData.length === 0) return;
+    if (listData.length === 0) return alert("鏈結串列為空，無法刪除");
 
-    let newList = [...listData];
-    if (mode === "Head") newList.shift();
-    else if (mode === "Tail") newList.pop();
-    else if (mode === "Node N" && index !== undefined) {
-      newList.splice(index, 1);
+    let newListData = [...listData];
+    let delIndex = -1;
+    let delNode: ListNodeData | undefined;
+
+    if (mode === "Head") {
+      delNode = newListData[0];
+      newListData.shift();
+    } else if (mode === "Tail") {
+      delNode = newListData[newListData.length - 1];
+      newListData.pop();
+    } else if (mode === "Node N") {
+      const idx = index !== undefined ? index : -1;
+      // Node N 的防呆與邏輯待下個問題處理，這裡先保留基礎結構
+      if (idx >= 0 && idx < listData.length) {
+        delNode = newListData[idx];
+        newListData.splice(idx, 1);
+        delIndex = idx;
+      } else {
+        return alert("無效的 Index");
+      }
     }
 
-    setListData(newList);
+    if (!delNode) return;
+
+    const steps = generateStepsFromData(
+      newListData, // 這是刪除後的結果
+      {
+        type: "delete",
+        value: delNode.value,
+        mode,
+        index: delIndex,
+        targetId: delNode.id,
+      },
+      hasTailMode
+    );
+
+    setListData(newListData);
+    setActiveSteps(steps);
     setCurrentStep(0);
     setIsPlaying(true);
   };

@@ -244,7 +244,7 @@ export function renderAll(
         .attr("y", d.radius / 2 - 9)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value || "");
+        .text(d.value !== undefined ? d.value : "");
     } else if (d instanceof Box) {
       g.select<SVGRectElement>("rect")
         .attr("x", -d.width / 2)

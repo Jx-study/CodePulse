@@ -91,14 +91,7 @@ export function generateStepsFromData(
         ? overrideLabel
         : getLabel(i, total, hasTailMode, extraLabel);
 
-    return createNodeInstance(
-      `node-${item.id}`,
-      item.value,
-      x,
-      y,
-      status,
-      label
-    );
+    return createNodeInstance(item.id, item.value, x, y, status, label);
   };
 
   // 初始/靜態渲染
@@ -118,7 +111,7 @@ export function generateStepsFromData(
     return steps;
   }
 
-  const { type, value, mode } = action;
+  const { type, value, mode, targetId } = action;
 
   if (type === "search") {
     const totalLen = dataList.length;
@@ -740,6 +733,276 @@ export function generateStepsFromData(
       description: `5. 調整位置，插入完成`,
       elements: s6Nodes,
     });
+  }
+
+  if (type === "delete") {
+    const deletedNodeData = {
+      id: targetId || "temp-del",
+      value: value,
+    };
+
+    if (mode === "Head") {
+      const currentLen = dataList.length;
+      // 刪除後長度，原本長度 = currentLen + 1
+
+      // Step 1: 標記 Head (準備刪除)
+      const s1DelNode = createNode(
+        deletedNodeData,
+        0,
+        currentLen + 1,
+        startX,
+        baseY,
+        "target",
+        "head"
+      );
+      const s1RestNodes = dataList.map((item, i) =>
+        createNode(
+          item,
+          i + 1,
+          currentLen + 1,
+          startX + (i + 1) * gap,
+          baseY,
+          "unfinished"
+        )
+      );
+      const allS1 = [s1DelNode, ...s1RestNodes];
+      linkNodes(allS1);
+
+      steps.push({
+        stepNumber: 1,
+        description: "1. 標記 Head 節點準備刪除",
+        elements: allS1,
+      });
+
+      // Step 2: 標記新 Head (原本的 Node 1)
+      const s2DelNode = createNode(
+        deletedNodeData,
+        0,
+        currentLen + 1,
+        startX,
+        baseY,
+        "target",
+        ""
+      );
+
+      const s2RestNodes = dataList.map((item, i) => {
+        let label = undefined;
+        if (i === 0) label = "head";
+        if (hasTailMode && i === currentLen - 1) label = "tail";
+        if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
+
+        return createNode(
+          item,
+          i + 1,
+          currentLen + 1,
+          startX + (i + 1) * gap,
+          baseY,
+          "prepare",
+          label
+        );
+      });
+      const allS2 = [s2DelNode, ...s2RestNodes];
+      s2DelNode.pointers = [];
+      linkNodes(s2RestNodes);
+
+      steps.push({
+        stepNumber: 2,
+        description: "2. 將 Head 指標移至下一個節點，斷開舊連結",
+        elements: allS2,
+      });
+
+      // Step 3: 刪除節點 (消失)
+      const s3Nodes = dataList.map((item, i) =>
+        createNode(
+          item,
+          i,
+          currentLen,
+          startX + (i + 1) * gap,
+          baseY,
+          "prepare"
+        )
+      );
+      linkNodes(s3Nodes);
+
+      steps.push({
+        stepNumber: 3,
+        description: "3. 移除舊 Head 節點",
+        elements: s3Nodes,
+      });
+
+      // Step 4: 左移歸位 (完成)
+      const s4Nodes = dataList.map((item, i) =>
+        createNode(item, i, currentLen, startX + i * gap, baseY, "complete")
+      );
+      linkNodes(s4Nodes);
+
+      steps.push({
+        stepNumber: 4,
+        description: "4. 調整位置，刪除完成",
+        elements: s4Nodes,
+      });
+    }
+
+    // Delete Tail
+    else if (mode === "Tail") {
+      const currentLen = dataList.length;
+      // 原本長度 = currentLen + 1
+
+      // Step 1: 遍歷 (tmp 找 tail, pre 找倒數第二)
+      for (let i = 0; i < currentLen; i++) {
+        // 構建包含舊 Tail 的完整列表
+        const traverseNodes = [
+          ...dataList.map((item, idx) =>
+            createNode(
+              item,
+              idx,
+              currentLen + 1,
+              startX + idx * gap,
+              baseY,
+              "unfinished"
+            )
+          ),
+          createNode(
+            deletedNodeData,
+            currentLen,
+            currentLen + 1,
+            startX + currentLen * gap,
+            baseY,
+            "unfinished",
+            hasTailMode ? "tail" : ""
+          ),
+        ];
+        linkNodes(traverseNodes);
+
+        // 設定標籤
+        // tmp 遍歷到 i
+        // pre 在 i-1 (若 i>0)
+        // 這裡我們直接操作 traverseNodes[i] 的 description
+        const tmpNode = traverseNodes[i];
+        tmpNode.description = tmpNode.description
+          ? `${tmpNode.description}/tmp`
+          : "tmp";
+
+        if (i > 0) {
+          const preNode = traverseNodes[i - 1];
+          // 如果 preNode 還是 head，保留 head
+          const preLabel = preNode.description;
+          // 簡單處理：覆蓋為 pre (或疊加)
+          preNode.description = preLabel.includes("head") ? "head/pre" : "pre";
+        } else {
+          // i=0, pre = null (或 head 兼任 pre 的語意，視需求)
+          // 這裡假設 pre 還沒進場
+        }
+
+        // 當 tmp 走到最後一個 (新 Tail) 時，它其實遇到了舊 Tail 的前一個
+        // 此時 tmp 是 pre, 舊 Tail 是 target
+        if (i === currentLen) {
+          traverseNodes[i].setStatus("prepare"); // pre (新 tail)
+          traverseNodes[currentLen].setStatus("target"); // 舊 tail
+        } else {
+          traverseNodes[i].setStatus("prepare"); // 遍歷中
+        }
+
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `遍歷：tmp 指向 index ${i}`,
+          elements: traverseNodes,
+        });
+      }
+
+      // Step 2: 轉移 Tail 標籤 (若有 Tail Mode) & 斷開連結
+      // 新 Tail (dataList 最後一個) 獲得 "tail"
+      // 舊 Tail 失去 "tail"
+      const s2Nodes = [
+        ...dataList.map((item, idx) => {
+          let label = undefined;
+          if (idx === 0) label = "head";
+          if (hasTailMode && idx === currentLen - 1)
+            label = (label ? label + "/" : "") + "tail";
+          if (idx === currentLen - 1) {
+            label = (label ? label + "/" : "") + "pre";
+          }
+
+          return createNode(
+            item,
+            idx,
+            currentLen,
+            startX + idx * gap,
+            baseY,
+            idx === currentLen - 1 ? "prepare" : "unfinished",
+            label
+          );
+        }),
+        createNode(
+          deletedNodeData,
+          currentLen,
+          currentLen + 1,
+          startX + currentLen * gap,
+          baseY,
+          "target",
+          "tmp"
+        ), // 舊 tail 變成 tmp (因為 tmp 其實是指向要被刪除的那個)
+      ];
+
+      linkNodes(s2Nodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: "找到 Tail",
+        elements: s2Nodes,
+      });
+
+      // Step 3: 斷開連結
+      const s3Nodes = [
+        ...dataList.map((item, idx) => {
+          let label = undefined;
+          if (idx === 0) label = "head";
+          if (hasTailMode && idx === currentLen - 1)
+            label = (label ? label + "/" : "") + "tail";
+          if (idx === currentLen - 1)
+            label = (label ? label + "/" : "") + "pre";
+          return createNode(
+            item,
+            idx,
+            currentLen,
+            startX + idx * gap,
+            baseY,
+            idx === currentLen - 1 ? "prepare" : "unfinished",
+            label
+          );
+        }),
+        createNode(
+          deletedNodeData,
+          currentLen,
+          currentLen + 1,
+          startX + currentLen * gap,
+          baseY,
+          "target",
+          "tmp"
+        ),
+      ];
+
+      linkNodes(s3Nodes);
+      s3Nodes[currentLen - 1].pointers = []; // 斷開連結：新 Tail 指向 null
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: "斷開前一個節點 (Pre) 的連結",
+        elements: s3Nodes,
+      });
+
+      // Step 4: 刪除節點 (消失)
+      const s4Nodes = dataList.map((item, i) =>
+        createNode(item, i, currentLen, startX + i * gap, baseY, "complete")
+      );
+      linkNodes(s4Nodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: "移除舊 Tail 節點，完成刪除",
+        elements: s4Nodes,
+      });
+    }
   }
 
   return steps;
