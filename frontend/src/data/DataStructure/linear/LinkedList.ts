@@ -111,7 +111,7 @@ export function generateStepsFromData(
     return steps;
   }
 
-  const { type, value, mode, targetId } = action;
+  const { type, value, mode, targetId, index: actionIndex } = action;
 
   if (type === "search") {
     const totalLen = dataList.length;
@@ -743,6 +743,13 @@ export function generateStepsFromData(
 
     // 刪除後長度
     const currentLen = dataList.length;
+    const originalLen = currentLen + 1;
+
+    const N = actionIndex !== undefined ? actionIndex : -1;
+
+    const isDeleteHead = mode === "Head" || (mode === "Node N" && N === 0);
+    const isDeleteTail =
+      mode === "Tail" || (mode === "Node N" && N === currentLen);
 
     if (currentLen === 0) {
       // Step 1: 標記唯一節點 (準備刪除)
@@ -779,7 +786,7 @@ export function generateStepsFromData(
       return steps;
     }
 
-    if (mode === "Head") {
+    if (isDeleteHead) {
       // Step 1: 標記 Head (準備刪除)
       const s1DelNode = createNode(
         deletedNodeData,
@@ -879,7 +886,7 @@ export function generateStepsFromData(
     }
 
     // Delete Tail
-    else if (mode === "Tail") {
+    else if (isDeleteTail) {
       // Step 1: 遍歷 (tmp 找 tail, pre 找倒數第二)
       for (let i = 0; i < currentLen; i++) {
         // 構建包含舊 Tail 的完整列表
@@ -1034,9 +1041,175 @@ export function generateStepsFromData(
         description: "移除舊 Tail 節點，完成刪除",
         elements: s4Nodes,
       });
+    } else if (mode === "Node N") {
+      // 1. 重建舊列表 (為了遍歷)
+      const oldList = [...dataList];
+      oldList.splice(N, 0, deletedNodeData); // 把刪除的節點塞回去，還原舊列表
+
+      // Step 1: 遍歷 (找到 Node N 和 Pre)
+      for (let i = 0; i <= N; i++) {
+        const traverseNodes = oldList.map((item, idx) => {
+          let status: Status = "unfinished";
+          if (idx === i - 1) status = "prepare";
+          if (idx === i) status = "target"; // 當前 tmp
+
+          let extra = undefined;
+          if (idx === i) extra = "tmp";
+
+          // Pre 標籤 (當 tmp 走到 i 時，i-1 是 pre)
+          if (i > 0 && idx === i - 1) {
+            const baseLabel = getLabel(idx, originalLen, hasTailMode);
+            const newLabel = baseLabel ? `${baseLabel}/pre` : "pre";
+
+            return createNode(
+              item,
+              idx,
+              originalLen,
+              startX + idx * gap,
+              baseY,
+              status,
+              newLabel
+            );
+          }
+
+          return createNode(
+            item,
+            idx,
+            originalLen,
+            startX + idx * gap,
+            baseY,
+            status,
+            undefined,
+            extra
+          );
+        });
+        linkNodes(traverseNodes);
+
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `遍歷：尋找 Node ${N} (tmp 指向 ${i})`,
+          elements: traverseNodes,
+        });
+      }
+
+      // Step 2: Node N 上移 (Target)
+      // 畫面：Pre(N-1) -> N(上移) -> Next(N+1)
+      const s2Nodes = oldList.map((item, idx) => {
+        let y = baseY;
+        if (idx === N) y = baseY - 60; // Node N 上移
+
+        let label = undefined;
+        if (idx === N - 1)
+          label = getLabel(idx, originalLen, hasTailMode) + "pre";
+        if (idx === N) label = "tmp";
+
+        let status: Status = idx === N - 1 ? "prepare" : "unfinished";
+        if (idx === N) status = "target";
+
+        return createNode(
+          item,
+          idx,
+          originalLen,
+          startX + idx * gap,
+          y,
+          status,
+          label
+        );
+      });
+      linkNodes(s2Nodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `找到 Node ${N}，將其移出`,
+        elements: s2Nodes,
+      });
+
+      // Step 3: 連接 Pre -> Next (拉長箭頭)
+      // 畫面：Pre 直接連到 Next，Node N 依然連著 Next
+      const s3Nodes = oldList.map((item, idx) => {
+        let y = baseY;
+        if (idx === N) y = baseY - 60;
+
+        let label = undefined;
+        if (idx === N - 1)
+          label = getLabel(idx, originalLen, hasTailMode) + "pre";
+        if (idx === N) label = "tmp";
+
+        let status: Status = idx === N - 1 ? "prepare" : "unfinished";
+        if (idx === N) status = "target";
+
+        return createNode(
+          item,
+          idx,
+          originalLen,
+          startX + idx * gap,
+          y,
+          status,
+          label
+        );
+      });
+
+      // 手動連接：先連一般的，再改 Pre 的
+      linkNodes(s3Nodes);
+      // Pre (N-1) 指向 Next (N+1)
+      if (N - 1 >= 0 && N + 1 < originalLen) {
+        s3Nodes[N - 1].pointers = [s3Nodes[N + 1]];
+      }
+      // Node N (浮在上面) 依然指向 Next (N+1)
+      if (N + 1 < originalLen) {
+        s3Nodes[N].pointers = [s3Nodes[N + 1]];
+      }
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `將 Pre (Node ${N - 1}) 指向 Next (Node ${N + 1})`,
+        elements: s3Nodes,
+      });
+
+      // Step 4: 刪除 Node N (消失)
+      // 畫面：Node N 消失，Pre 指向 Next
+      const s4Nodes = dataList.map((item, idx) => {
+        // idx 是在新 list 的索引
+        // 如果原本在 N 之後 (現在 idx >= N)，位置要在 (idx+1) * gap
+        let posIdx = idx;
+        if (idx >= N) posIdx = idx + 1; // 留出空隙
+
+        let label = undefined;
+        if (idx === N - 1)
+          label = getLabel(idx, originalLen, hasTailMode) + "pre";
+
+        return createNode(
+          item,
+          idx,
+          originalLen,
+          startX + posIdx * gap,
+          baseY,
+          idx === N - 1 ? "prepare" : "unfinished",
+          label
+        );
+      });
+
+      linkNodes(s4Nodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `移除 Node ${N} (tmp)`,
+        elements: s4Nodes,
+      });
+
+      // Step 5: 左移補齊 (完成)
+      const s5Nodes = dataList.map((item, idx) =>
+        createNode(item, idx, currentLen, startX + idx * gap, baseY, "complete")
+      );
+      linkNodes(s5Nodes);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: "調整位置，刪除完成",
+        elements: s5Nodes,
+      });
     }
   }
-
   return steps;
 }
 
