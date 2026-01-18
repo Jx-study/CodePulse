@@ -147,6 +147,12 @@ function Tutorial() {
     setIsPlaying(false);
   };
 
+  const handlePeek = () => {
+    executeAction("peek", { hasTailMode });
+    setCurrentStep(0);
+    setIsPlaying(true);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
@@ -168,6 +174,7 @@ function Tutorial() {
           onAddNode={handleAddNode}
           onDeleteNode={handleDeleteNode}
           onSearchNode={handleSearchNode}
+          onPeek={handlePeek}
           onLoadData={handleLoadData}
           onResetData={handleResetData}
           onRandomData={handleRandomData}

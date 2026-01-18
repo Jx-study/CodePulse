@@ -159,6 +159,52 @@ export function createQueueAnimationSteps(
       description: "調整位置，完成",
       elements: createBoxes(dataList, "complete"),
     });
+  } else if (type === "peek") {
+    const s1Boxes = dataList.map((item, i) => {
+      const b = new Box();
+      b.id = item.id;
+      b.value = item.value;
+      b.width = 60;
+      b.height = 60;
+      b.moveTo(startX + i * gap, startY);
+
+      if (i === 0) {
+        b.setStatus("prepare");
+        b.description = "Top";
+      } else {
+        b.setStatus("unfinished");
+      }
+      return b;
+    });
+
+    steps.push({
+      stepNumber: 1,
+      description: `Peek: 標記 Front，會回傳該 value`,
+      elements: s1Boxes,
+    });
+
+    const s2Boxes = dataList.map((item, i) => {
+      const b = new Box();
+      b.id = item.id;
+      b.value = item.value;
+      b.width = 60;
+      b.height = 60;
+      b.moveTo(startX + i * gap, startY);
+
+      if (i === 0) {
+        b.setStatus("complete");
+        b.description = "Top";
+      } else {
+        b.setStatus("unfinished");
+      }
+      return b;
+    });
+
+    steps.push({
+      stepNumber: 2,
+      description: `Peek: 佇列前端是 ${value}`,
+      elements: s2Boxes,
+    });
   }
 
   return steps;

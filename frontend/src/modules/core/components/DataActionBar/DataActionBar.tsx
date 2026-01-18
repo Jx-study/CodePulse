@@ -10,6 +10,7 @@ export interface DataActionBarProps {
   onAddNode: (value: number, mode: string, index?: number) => void;
   onDeleteNode: (mode: string, index?: number) => void;
   onSearchNode: (value: number) => void;
+  onPeek?: () => void;
 
   // 資料管理
   onLoadData: (data: string) => void;
@@ -28,6 +29,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onAddNode,
   onDeleteNode,
   onSearchNode,
+  onPeek,
   onLoadData,
   onResetData,
   onRandomData,
@@ -69,6 +71,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     structureType === "linkedlist" && insertMode === "Node N";
   const showTailMode = structureType === "linkedlist";
   const showSearchMode = structureType === "linkedlist";
+  const showPeek = structureType === "stack" || structureType === "queue";
 
   // 判斷操作選項
   const getModeOptions = () => {
@@ -234,6 +237,12 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         <Button size="sm" onClick={handleDelete} disabled={disabled}>
           {delBtnText}
         </Button>
+
+        {showPeek && onPeek && (
+          <Button size="sm" onClick={onPeek} disabled={disabled}>
+            Peek
+          </Button>
+        )}
 
         {showSearchMode && (
           <div

@@ -120,6 +120,13 @@ export const useDataStructureLogic = (config: any) => {
           value = delBox.value;
           payload.mode = "Pop";
         }
+      } else if (actionType === "peek") {
+        if (newData.length > 0) {
+          const topNode = newData[newData.length - 1];
+          targetId = topNode.id;
+          value = topNode.value;
+          payload.mode = "Peek";
+        }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
@@ -159,6 +166,14 @@ export const useDataStructureLogic = (config: any) => {
           targetId = delBox.id;
           value = delBox.value;
           payload.mode = "Dequeue";
+        }
+      } else if (actionType === "peek") {
+        // Queue Peek: 看第一個 (Front)
+        if (newData.length > 0) {
+          const frontNode = newData[0];
+          targetId = frontNode.id;
+          value = frontNode.value;
+          payload.mode = "Peek";
         }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
