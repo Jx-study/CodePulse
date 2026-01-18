@@ -12,14 +12,8 @@ import styles from "./Tutorial.module.scss";
 import { Link } from "../../modules/core/Render/D3Renderer";
 import { Node as DataNode } from "../../modules/core/DataLogic/Node";
 import { DataActionBar } from "../../modules/core/components/DataActionBar/DataActionBar";
-import { generateStepsFromData } from "../../data/DataStructure/linear/LinkedList"; // 確保導入此函數
-import { AnimationStep } from "../../types/dataStructure";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
-
-interface ListNodeData {
-  id: string;
-  value: number;
-}
+import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -40,17 +34,11 @@ function Tutorial() {
   }, [category, subcategory, topicType]);
 
   // 2. 狀態管理
-  const [listData, setListData] = useState<ListNodeData[]>([
-    { id: "node-1", value: 10 },
-    { id: "node-2", value: 40 },
-    { id: "node-3", value: 30 },
-    { id: "node-4", value: 20 },
-  ]);
-  const nextIdRef = useRef(5);
+  const { data, activeSteps, executeAction } =
+    useDataStructureLogic(topicTypeConfig);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [activeSteps, setActiveSteps] = useState<AnimationStep[]>([]);
 
   const [maxNodes, setMaxNodes] = useState(15);
   const [hasTailMode, setHasTailMode] = useState(false);
@@ -58,17 +46,11 @@ function Tutorial() {
   // 3. 計算目前的動畫步驟
   useEffect(() => {
     if (topicTypeConfig) {
-      setActiveSteps(
-        topicTypeConfig.id === "linkedlist"
-          ? generateStepsFromData(listData, undefined, hasTailMode)
-          : topicTypeConfig.createAnimationSteps()
-      );
-      if (!isPlaying) {
-        setCurrentStep(0);
-      }
+      setCurrentStep(0);
+      setIsPlaying(false);
     }
     // 注意：這裡刻意不加 listData，避免與 handleAddNode 的動畫衝突
-  }, [topicTypeConfig, hasTailMode]);
+  }, [topicTypeConfig]);
 
   const currentStepData = activeSteps[currentStep];
 
@@ -111,139 +93,33 @@ function Tutorial() {
 
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
-    if (listData.length >= maxNodes) return alert("已達最大節點數");
-
-    const newId = nextIdRef.current++;
-    const newNode = { id: `node-${newId}`, value };
-    let newListData = [...listData];
-    let insertIndex = -1;
-
-    if (mode === "Head") {
-      newListData.unshift(newNode);
-    } else if (mode === "Tail") {
-      newListData.push(newNode);
-    } else if (mode === "Node N") {
-      // 這裡僅做簡單防呆，詳細邏輯交給 generateStepsFromData 處理
-      const idx = index !== undefined ? index : -1;
-      // 邏輯：插入在第 N 個節點「後」，即 index N+1 的位置
-      if (idx < 0) {
-        newListData.unshift(newNode);
-      } else if (idx >= listData.length - 1) {
-        newListData.push(newNode);
-      } else {
-        newListData.splice(idx + 1, 0, newNode);
-        insertIndex = idx;
-      }
-    }
-
-    const steps = generateStepsFromData(
-      newListData,
-      {
-        type: "add",
-        value,
-        mode,
-        targetId: `node-${newId}`,
-        index: insertIndex,
-      },
-      hasTailMode
-    );
-
-    setListData(newListData);
-    setActiveSteps(steps);
+    executeAction("add", { value, mode, index, maxNodes, hasTailMode });
     setCurrentStep(0);
     setIsPlaying(true);
   };
 
   const handleDeleteNode = (mode: string, index?: number) => {
-    if (listData.length === 0) return alert("鏈結串列為空，無法刪除");
-
-    let newListData = [...listData];
-    let delIndex = -1;
-    let delNode: ListNodeData | undefined;
-
-    if (mode === "Head") {
-      delNode = newListData[0];
-      newListData.shift();
-    } else if (mode === "Tail") {
-      delNode = newListData[newListData.length - 1];
-      newListData.pop();
-    } else if (mode === "Node N") {
-      const idx = index !== undefined ? index : -1;
-      // Node N 的防呆與邏輯待下個問題處理，這裡先保留基礎結構
-      if (idx >= 0 && idx < listData.length) {
-        delNode = newListData[idx];
-        newListData.splice(idx, 1);
-        delIndex = idx;
-      } else {
-        return alert("無效的 Index");
-      }
-    }
-
-    if (!delNode) return;
-
-    const steps = generateStepsFromData(
-      newListData, // 這是刪除後的結果
-      {
-        type: "delete",
-        value: delNode.value,
-        mode,
-        index: delIndex,
-        targetId: delNode.id,
-      },
-      hasTailMode
-    );
-
-    setListData(newListData);
-    setActiveSteps(steps);
+    executeAction("delete", { mode, index, hasTailMode });
     setCurrentStep(0);
     setIsPlaying(true);
   };
 
   const handleSearchNode = (value: number) => {
-    const steps = generateStepsFromData(
-      listData,
-      {
-        type: "search",
-        value: value,
-        mode: "Search", // mode 在這裡只作佔位，邏輯主要看 type
-      },
-      hasTailMode
-    );
-
-    setActiveSteps(steps);
+    executeAction("search", { value, hasTailMode });
     setCurrentStep(0);
     setIsPlaying(true);
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
   const handleRandomData = () => {
-    const count = Math.floor(Math.random() * (maxNodes - 2)) + 3; // 至少 3 筆
-    const newData: ListNodeData[] = [];
-
-    for (let i = 0; i < count; i++) {
-      newData.push({
-        id: `node-${nextIdRef.current++}`,
-        value: Math.floor(Math.random() * 199) - 99,
-      });
-    }
-
-    setListData(newData);
-    const steps = generateStepsFromData(newData, undefined, hasTailMode); // 產生初始化步驟
-    setActiveSteps(steps);
+    executeAction("random", { maxNodes, hasTailMode });
     setCurrentStep(0);
-    setIsPlaying(false); // 這種操作通常不需要自動播放
+    setIsPlaying(false); // 不需要自動播放
   };
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    const defaultValues = [10, 40, 30, 20];
-    const newData = defaultValues.map((v) => ({
-      id: `node-${nextIdRef.current++}`,
-      value: v,
-    }));
-    setListData(newData);
-    const steps = generateStepsFromData(newData, undefined, hasTailMode);
-    setActiveSteps(steps);
+    executeAction("reset", { hasTailMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -256,17 +132,7 @@ function Tutorial() {
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
-    if (parsed.length > maxNodes) {
-      alert(`資料過長，已自動裁剪至前 ${maxNodes} 筆`);
-    }
-
-    const finalData = parsed.slice(0, maxNodes).map((v) => ({
-      id: `node-${nextIdRef.current++}`,
-      value: v,
-    }));
-    setListData(finalData);
-    const steps = generateStepsFromData(finalData, undefined, hasTailMode);
-    setActiveSteps(steps);
+    executeAction("load", { data: parsed, maxNodes, hasTailMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -283,15 +149,31 @@ function Tutorial() {
 
   if (!topicTypeConfig) {
     return null;
-    // return (
-    // <div className={styles.tutorialPage}>
-    //   <div className={styles.errorContainer}>
-    //     <h2>不存在</h2>
-    //     <Button onClick={() => navigate("/dashboard")}>返回首頁</Button>
-    //   </div>
-    // </div>
-    // );
   }
+
+  const renderActionBar = () => {
+    if (
+      topicTypeConfig.id === "linkedlist" ||
+      topicTypeConfig.id === "stack" ||
+      topicTypeConfig.id === "queue"
+    ) {
+      return (
+        <DataActionBar
+          onAddNode={handleAddNode}
+          onDeleteNode={handleDeleteNode}
+          onSearchNode={handleSearchNode}
+          onLoadData={handleLoadData}
+          onResetData={handleResetData}
+          onRandomData={handleRandomData}
+          onMaxNodesChange={setMaxNodes}
+          onTailModeChange={setHasTailMode}
+        />
+      );
+    }
+    // else if (topicTypeConfig.id === "bst") { return <TreeActionBar ... />; }
+
+    return <div>此資料結構暫無操作介面</div>;
+  };
 
   const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -338,16 +220,7 @@ function Tutorial() {
           </div>
 
           {/* 資料操作列 */}
-          <DataActionBar
-            onAddNode={handleAddNode}
-            onDeleteNode={handleDeleteNode}
-            onSearchNode={handleSearchNode}
-            onLoadData={handleLoadData}
-            onResetData={handleResetData}
-            onRandomData={handleRandomData}
-            onMaxNodesChange={setMaxNodes}
-            onTailModeChange={setHasTailMode}
-          />
+          {renderActionBar()}
 
           {/* 播放控制列 */}
           <ControlBar

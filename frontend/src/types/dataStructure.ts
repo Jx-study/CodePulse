@@ -31,7 +31,12 @@ export interface DataStructureConfig {
   pseudoCode: string;
   complexity: ComplexityInfo;
   introduction: string;
-  createAnimationSteps: () => AnimationStep[];
+  defaultData: any;
+  createAnimationSteps: (
+    data: any,
+    action?: any,
+    config?: any
+  ) => AnimationStep[];
 }
 
 /**

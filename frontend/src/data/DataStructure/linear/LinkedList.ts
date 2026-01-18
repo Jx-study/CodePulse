@@ -568,7 +568,7 @@ export function generateStepsFromData(
 
         // 標籤處理
         let extra = undefined;
-        if (idx === i) extra = "curr"; // 標示 current
+        if (idx === i) extra = "tmp"; // 標示 tmp
 
         return createNode(
           item,
@@ -600,8 +600,16 @@ export function generateStepsFromData(
 
       let status: Status = "unfinished";
       if (i <= N) status = "prepare";
-
-      return createNode(item, i, oldLen, x, baseY, status);
+      return createNode(
+        item,
+        i,
+        oldLen,
+        x,
+        baseY,
+        status,
+        undefined,
+        i === N ? "tmp" : undefined
+      );
     });
     linkNodes(s2Nodes); // D3 會自動繪製 N 到 N+1 的長箭頭
 
@@ -839,22 +847,62 @@ export function generateStepsFromData(
           currentLen + 1,
           startX + (i + 1) * gap,
           baseY,
-          "prepare",
+          i === 0 ? "prepare" : "unfinished",
           label
         );
       });
       const allS2 = [s2DelNode, ...s2RestNodes];
-      s2DelNode.pointers = [];
-      linkNodes(s2RestNodes);
+
+      linkNodes(allS2);
 
       steps.push({
         stepNumber: 2,
-        description: "2. 將 Head 指標移至下一個節點，斷開舊連結",
+        description: "2. 將 Head 指標移至下一個節點",
         elements: allS2,
       });
 
-      // Step 3: 刪除節點 (消失)
-      const s3Nodes = dataList.map((item, i) =>
+      // Step 3: 斷開連結
+      const s3DelNode = createNode(
+        deletedNodeData,
+        0,
+        currentLen + 1,
+        startX,
+        baseY,
+        "target",
+        ""
+      );
+
+      const s3RestNodes = dataList.map((item, i) => {
+        let label = undefined;
+        if (i === 0) label = "head";
+        if (hasTailMode && i === currentLen - 1) label = "tail";
+        if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
+
+        return createNode(
+          item,
+          i + 1,
+          currentLen + 1,
+          startX + (i + 1) * gap,
+          baseY,
+          i === 0 ? "prepare" : "unfinished",
+          label
+        );
+      });
+
+      const allS3 = [s3DelNode, ...s3RestNodes];
+
+      // 斷開連結：s3DelNode 指向空，其餘節點互連
+      s3DelNode.pointers = [];
+      linkNodes(s3RestNodes);
+
+      steps.push({
+        stepNumber: 3,
+        description: "3. 斷開舊 Head 的連結",
+        elements: allS3,
+      });
+
+      // Step 4: 刪除節點 (消失)
+      const s4Nodes = dataList.map((item, i) =>
         createNode(
           item,
           i,
@@ -864,24 +912,24 @@ export function generateStepsFromData(
           "prepare"
         )
       );
-      linkNodes(s3Nodes);
-
-      steps.push({
-        stepNumber: 3,
-        description: "3. 移除舊 Head 節點",
-        elements: s3Nodes,
-      });
-
-      // Step 4: 左移歸位 (完成)
-      const s4Nodes = dataList.map((item, i) =>
-        createNode(item, i, currentLen, startX + i * gap, baseY, "complete")
-      );
       linkNodes(s4Nodes);
 
       steps.push({
         stepNumber: 4,
-        description: "4. 調整位置，刪除完成",
+        description: "4. 移除舊 Head 節點",
         elements: s4Nodes,
+      });
+
+      // Step 5: 左移歸位
+      const s5Nodes = dataList.map((item, i) =>
+        createNode(item, i, currentLen, startX + i * gap, baseY, "complete")
+      );
+      linkNodes(s5Nodes);
+
+      steps.push({
+        stepNumber: 5,
+        description: "5. 調整位置，刪除完成",
+        elements: s5Nodes,
       });
     }
 
@@ -1274,5 +1322,11 @@ class LinkedList:
 與陣列不同，鏈表的元素在記憶體中不是連續存儲的，這使得插入和刪除操作更加高效。
 鏈表分為單向鏈表、雙向鏈表和循環鏈表等類型。單向鏈表的每個節點只有一個指向下一個節點的指針，
 適合需要頻繁插入和刪除的場景，但訪問特定位置的元素需要從頭開始遍歷。`,
-  createAnimationSteps: createLinkedListAnimationSteps,
+  defaultData: [
+    { id: "node-1", value: 10 },
+    { id: "node-2", value: 40 },
+    { id: "node-3", value: 30 },
+    { id: "node-4", value: 20 },
+  ],
+  createAnimationSteps: generateStepsFromData,
 };
