@@ -162,11 +162,7 @@ function Tutorial() {
   }
 
   const renderActionBar = () => {
-    if (
-      topicTypeConfig.id === "linkedlist" ||
-      topicTypeConfig.id === "stack" ||
-      topicTypeConfig.id === "queue"
-    ) {
+    if (["linkedlist", "stack", "queue"].includes(topicTypeConfig.id)) {
       return (
         <DataActionBar
           onAddNode={handleAddNode}
@@ -177,6 +173,7 @@ function Tutorial() {
           onRandomData={handleRandomData}
           onMaxNodesChange={setMaxNodes}
           onTailModeChange={setHasTailMode}
+          structureType={topicTypeConfig.id as any}
           disabled={isProcessing}
         />
       );
