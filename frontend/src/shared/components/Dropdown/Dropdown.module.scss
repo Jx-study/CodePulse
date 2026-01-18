@@ -20,6 +20,19 @@
   }
 }
 
+// 当 trigger 需要显示 chevron 时，应用此样式
+.triggerWithChevron {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: $spacing-xs !important;
+}
+
+.chevronIcon {
+  flex-shrink: 0;
+  transition: transform $transition-base;
+  opacity: 0.7;
+}
+
 // ========== Menu ==========
 .menu {
   position: absolute;

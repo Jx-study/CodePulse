@@ -95,8 +95,10 @@ function ControlBar({
           <span className={styles.speedLabel}>Speed:</span>
           <div className={styles.speedButtons}>
             {speeds.map((speed) => (
-              <button
+              <Button
                 key={speed}
+                variant="ghost"
+                size="sm"
                 className={`${styles.speedButton} ${
                   Math.abs(playbackSpeed - speed) < 0.05 ? styles.active : ''
                 }`}
@@ -104,7 +106,7 @@ function ControlBar({
                 aria-label={`Set speed to ${speed}x`}
               >
                 {speed}x
-              </button>
+              </Button>
             ))}
           </div>
         </div>

@@ -1,6 +1,3 @@
-@use "@/shared/styles/variables" as *;
-@use "@/shared/styles/mixins" as *;
-
 // ========== Base Skeleton Styles ==========
 .skeleton {
   background-color: var(--skeleton-bg, #e0e0e0);

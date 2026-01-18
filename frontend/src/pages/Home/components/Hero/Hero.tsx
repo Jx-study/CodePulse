@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import styles from "./Hero.module.scss";
 import PulseBackground from "./PulseBackground";
 import Demo from "../Demo/Demo";
-import Button from "@/shared/components/Button/Button";
+import Button from "@/shared/components/Button";
 
 function Hero() {
   const { t } = useTranslation();

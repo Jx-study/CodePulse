@@ -6,6 +6,7 @@ import styles from './Card.module.scss';
 
 const Card: React.FC<CardProps> = ({
   variant = 'default',
+  layout = 'vertical',
   size = 'md',
   image,
   icon,
@@ -43,6 +44,7 @@ const Card: React.FC<CardProps> = ({
   const cardClasses = [
     styles.card,
     styles[variant],
+    styles[layout],
     styles[size],
     hoverable && styles.hoverable,
     isClickable && styles.clickable,
@@ -115,16 +117,33 @@ const Card: React.FC<CardProps> = ({
     );
   };
 
-  const renderStructuredContent = () => (
-    <>
-      {renderMedia()}
-      {renderHeader()}
-      {description && (
-        <p className={styles.description}>{description}</p>
-      )}
-      {renderFooter()}
-    </>
-  );
+  const renderStructuredContent = () => {
+    if (layout === 'horizontal') {
+      return (
+        <>
+          {renderMedia()}
+          <div className={styles.contentWrapper}>
+            {renderHeader()}
+            {description && (
+              <p className={styles.description}>{description}</p>
+            )}
+            {renderFooter()}
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {renderMedia()}
+        {renderHeader()}
+        {description && (
+          <p className={styles.description}>{description}</p>
+        )}
+        {renderFooter()}
+      </>
+    );
+  };
 
   return (
     <div

@@ -36,6 +36,8 @@ $success-color: #4caf50;
 $primary-color: #635bff;
 $execution-color: #10b981;
 $accent-color: #ff6b35;
+$white-color: #ffffff;
+$black-color: #000000;
 
 // 骨架屏顏色
 $skeleton-bg: #e0e0e0;
@@ -64,6 +66,20 @@ $hero-h1-size: 3.5rem; // 56px - 主標題
 $hero-h2-size: 2.75rem; // 44px - 副標題
 $hero-h3-size: 2.5rem; // 40px - 副標題
 $section-title-size: 2rem; // 32px - 區塊標題
+
+// 響應式字體 - Hero Section
+$hero-h1-size-mobile: 2rem;        // 32px
+$hero-h1-size-tablet: 2.75rem;     // 44px
+$hero-h1-size-desktop: 3.5rem;     // 56px
+
+$hero-h3-size-mobile: 1.5rem;      // 24px
+$hero-h3-size-tablet: 2rem;        // 32px
+$hero-h3-size-desktop: 2.5rem;     // 40px
+
+// 響應式字體 - Section Title
+$section-title-mobile: 1.75rem;    // 28px
+$section-title-tablet: 2rem;       // 32px
+$section-title-desktop: 2.5rem;    // 40px
 
 // 主要字體棧
 $font-family: "Inter", "Source Han Sans SC", "Noto Sans CJK SC",

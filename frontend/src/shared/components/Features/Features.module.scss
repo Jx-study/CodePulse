@@ -2,11 +2,23 @@
     padding: $spacing-xxl 0;
     background: var(--bg-primary);
 
+    @include mobile {
+        padding: $spacing-xl 0;
+    }
+
     .scrollContainer {
         overflow: hidden;
         margin-top: $spacing-xl;
         position: relative;
         width: 100%;
+
+        @include mobile {
+            margin-top: $spacing-lg;
+
+            &::before, &::after {
+                display: none;  // 手機版移除邊緣遮罩
+            }
+        }
 
         // Add subtle gradient masks at edges
         &::before,
@@ -18,6 +30,10 @@
             width: 40px;
             pointer-events: none;
             z-index: 2;
+
+            @include tablet {
+                width: 30px;
+            }
         }
 
         &::before {
@@ -38,26 +54,35 @@
         width: fit-content;
         animation: scrollLeft 20s linear infinite;
 
+        @include mobile {
+            gap: $spacing-md;
+            animation: scrollLeft 30s linear infinite;
+        }
+
+        @include tablet {
+            gap: $spacing-md;
+        }
+
         .featureCard {
             flex: 0 0 auto;
-            width: $card-width-default;
-            min-height: $card-height-default;
+            max-width: 600px;
             transition: $transition-base;
+            min-width: 240px;
+
+            @include tablet {
+                min-width: 250px;
+                max-width: 500px;
+            }
+
+            @include desktop {
+                min-width: 280px;
+                max-width: 600px;
+            }
 
             &:hover {
                 transform: $hover-transform;
                 box-shadow: $shadow-lg;
-                animation-play-state: paused; // 暫停滾動當 hover
-            }
-
-            @include tablet {
-                width: $card-width-tablet;
-                min-height: $card-height-tablet;
-            }
-
-            @include mobile {
-                width: $card-width-mobile;
-                min-height: $card-height-mobile;
+                animation-play-state: paused;
             }
         }
 
@@ -83,23 +108,9 @@
         }
     }
 
-    @include desktop {
-        .cardContainer {
-            .featureCard {
-                width: $card-width-desktop;
-                min-height: $card-height-desktop;
-            }
-        }
-    }
-
     @include tablet {
         .cardContainer {
             gap: $spacing-md;
-
-            .featureCard {
-                width: $card-width-tablet;
-                min-height: $card-height-tablet;
-            }
         }
     }
 
@@ -115,9 +126,6 @@
             gap: $spacing-md;
 
             .featureCard {
-                width: $card-width-mobile;
-                min-height: $card-height-mobile; 
-
                 &:first-child {
                     margin-left: 0;
                 }

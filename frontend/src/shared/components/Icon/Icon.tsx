@@ -2,6 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import type { IconProps, IconSize, IconColor, IconAnimation } from '@/types';
+import { iconMap } from '@/shared/lib/iconMap';
 import styles from './Icon.module.scss';
 
 // Re-export types for backward compatibility
@@ -38,8 +39,14 @@ const Icon: React.FC<IconProps> = ({
   onClick,
   decorative = false,
 }) => {
-  // 處理 Regular 圖標的前綴
-  const iconPrefix = name === 'circle' || name === 'check-circle' ? 'far' : 'fas';
+  // 從 iconMap 獲取對應的圖標定義
+  const iconDefinition = iconMap[name as keyof typeof iconMap];
+
+  // 如果圖標不存在，顯示警告
+  if (!iconDefinition) {
+    console.warn(`Icon "${name}" not found in iconMap. Please add it to iconMap.ts`);
+    return null;
+  }
 
   // 組合 className
   const iconClassName = classNames(
@@ -63,7 +70,7 @@ const Icon: React.FC<IconProps> = ({
       tabIndex={onClick ? 0 : undefined}
     >
       <FontAwesomeIcon
-        icon={[iconPrefix, name] as any}
+        icon={iconDefinition}
         spin={animation === 'spin'}
         pulse={animation === 'pulse'}
       />

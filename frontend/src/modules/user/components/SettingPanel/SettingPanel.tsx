@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./SettingPanel.module.scss";
-import Icon  from "@/shared/components/Icon";
-import Button from "@/shared/components/Button/Button";
+import Icon from "@/shared/components/Icon";
+import Button from "@/shared/components/Button";
+import Switch from "@/shared/components/Switch/Switch";
+import Dialog from "@/shared/components/Dialog/Dialog";
 
 function SettingPanel({
   isOpen,
@@ -14,54 +16,57 @@ function SettingPanel({
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("profile");
 
-  if (!isOpen) return null;
-
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+  const footer = (
+    <>
+      <Button variant="secondary" onClick={onClose}>
+        {t("cancel")}
+      </Button>
+      <Button variant="primary">
+        {t("saveChanges")}
+        {/* TODO: 保存設定到後端 - PUT /api/user/settings */}
+      </Button>
+    </>
+  );
 
   return (
-    <div className={styles.backdrop} onClick={handleBackdropClick}>
-      <div className={styles.settingPanel}>
-        <div className={styles.header}>
-          <h2>{t("settingPanel")}</h2>
-          <Button variant="icon" onClick={onClose} aria-label="關閉">
-            <Icon name="times" size="lg" />
-          </Button>
-        </div>
-
-        <div className={styles.content}>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t("settingPanel")}
+      size="lg"
+      footer={footer}
+      closeOnOverlayClick={true}
+      closeOnEscape={true}
+      preventScroll={true}
+      className={styles.settingDialog}
+    >
+      <div className={styles.content}>
           <div className={styles.sidebar}>
             <nav className={styles.tabs}>
-              <button
+              <Button
+                variant="ghost"
                 className={`${styles.tab} ${activeTab === "profile" ? styles.active : ""}`}
                 onClick={() => setActiveTab("profile")}
+                iconLeft={<Icon name="user" size="sm" />}
               >
-                <span className={styles.tabIcon}>
-                  <Icon name="user" size="sm" />
-                </span>
                 {t("profile")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
                 className={`${styles.tab} ${activeTab === "account" ? styles.active : ""}`}
                 onClick={() => setActiveTab("account")}
+                iconLeft={<Icon name="cog" size="sm" />}
               >
-                <span className={styles.tabIcon}>
-                  <Icon name="cog" size="sm" />
-                </span>
                 {t("accountSetting")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
                 className={`${styles.tab} ${activeTab === "appearance" ? styles.active : ""}`}
                 onClick={() => setActiveTab("appearance")}
+                iconLeft={<Icon name="palette" size="sm" />}
               >
-                <span className={styles.tabIcon}>
-                  <Icon name="palette" size="sm" />
-                </span>
                 {t("appearance")}
-              </button>
+              </Button>
             </nav>
           </div>
 
@@ -83,7 +88,9 @@ function SettingPanel({
                   <label>{t("avatar")}</label>
                   <div className={styles.avatarUpload}>
                     <img src="/images/default-avatar.png" alt="Avatar" />
-                    <button>{t("changeAvatar")}</button>
+                    <Button variant="primary" size="sm">
+                      {t("changeAvatar")}
+                    </Button>
                     {/* TODO: 實作頭像上傳 - POST /api/user/avatar */}
                   </div>
                 </div>
@@ -103,14 +110,14 @@ function SettingPanel({
                 <div className={styles.field}>
                   <label>{t("notificationSettings")}</label>
                   <div className={styles.switchGroup}>
-                    <div className={styles.switchItem}>
-                      <span>{t("emailNotifications")}</span>
-                      <input type="checkbox" />
-                    </div>
-                    <div className={styles.switchItem}>
-                      <span>{t("pushNotifications")}</span>
-                      <input type="checkbox" />
-                    </div>
+                    <Switch
+                      label={t("emailNotifications")}
+                      labelPosition="left"
+                    />
+                    <Switch
+                      label={t("pushNotifications")}
+                      labelPosition="left"
+                    />
                   </div>
                 </div>
               </div>
@@ -122,21 +129,21 @@ function SettingPanel({
                 <div className={styles.field}>
                   <label>{t("theme")}</label>
                   <div className={styles.themeSelector}>
-                    <button className={styles.themeOption}>
+                    <Button variant="ghost" className={styles.themeOption}>
                       <span
                         className={styles.themePreview}
                         style={{ background: "#ffffff" }}
                       ></span>
                       {t("lightMode")}
-                    </button>
-                    <button className={styles.themeOption}>
+                    </Button>
+                    <Button variant="ghost" className={styles.themeOption}>
                       <span
                         className={styles.themePreview}
                         style={{ background: "#1a1a1a" }}
                       ></span>
                       {t("darkMode")}
-                    </button>
-                    <button className={styles.themeOption}>
+                    </Button>
+                    <Button variant="ghost" className={styles.themeOption}>
                       <span
                         className={styles.themePreview}
                         style={{
@@ -145,7 +152,7 @@ function SettingPanel({
                         }}
                       ></span>
                       {t("systemDefault")}
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className={styles.field}>
@@ -161,19 +168,8 @@ function SettingPanel({
               </div>
             )}
           </div>
-        </div>
-
-        <div className={styles.footer}>
-          <Button variant="secondary" onClick={onClose}>
-            {t("cancel")}
-          </Button>
-          <Button variant="primary">
-            {t("saveChanges")}
-            {/* TODO: 保存設定到後端 - PUT /api/user/settings */}
-          </Button>
-        </div>
       </div>
-    </div>
+    </Dialog>
   );
 }
 

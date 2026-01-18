@@ -5,6 +5,10 @@
   border-radius: 12px;
   padding: 4px;
   backdrop-filter: blur(10px);
+
+  @include belowTablet {
+    padding: 0px;
+  }
 }
 
 .navMenu {

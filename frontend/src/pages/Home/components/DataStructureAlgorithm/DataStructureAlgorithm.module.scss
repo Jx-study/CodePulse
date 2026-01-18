@@ -2,6 +2,10 @@
   padding: $spacing-xxl 0;
   background: var(--bg-primary);
 
+  @include mobile {
+    padding: $spacing-xl 0;
+  }
+
   .sliderContainer {
     position: relative;
     width: 100%;
@@ -20,20 +24,22 @@
     align-items: center;
     margin-top: $spacing-lg;
     padding: $spacing-sm 0;
-    gap: 12px;
+    gap: $spacing-sm;
+
+    @include mobile {
+      gap: $spacing-xs;
+      margin-top: $spacing-md;
+      padding: $spacing-xs 0;
+    }
   }
 
   .active {
     background: $primary-color !important;
     transform: scale(1.3) !important;
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.4) !important;
-  }
 
-  @include mobile {
-    padding: $spacing-xl 0;
-  }
-
-  @include tablet {
-    padding: $spacing-xxl 0;
+    @include mobile {
+      transform: scale(1.2) !important;
+    }
   }
 }

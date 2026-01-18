@@ -15,6 +15,27 @@
     align-items: center;
     padding: 0 $spacing-lg;
     gap: $spacing-lg;
+
+    @include mobile {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0 $spacing-md;
+        gap: $spacing-xl;
+    }
+}
+
+.leftSection {
+    @include flex($align: center);
+    gap: $spacing-md;
+}
+
+.hamburgerButton {
+    display: none !important;
+
+    @include mobile {
+        display: flex !important;
+    }
 }
 
 .logo {
@@ -26,6 +47,10 @@
         &:hover {
             transform: scale(1.05);
         }
+
+        @include mobile {
+            width: 90px;
+        }
     }
 }
 
@@ -33,4 +58,8 @@
     @include flex($align: center);
     gap: $spacing-lg;
     justify-self: end;
+
+    @include mobile {
+        gap: $spacing-sm;
+    }
 }

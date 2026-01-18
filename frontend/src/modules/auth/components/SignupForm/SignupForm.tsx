@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "@/styles/AuthForm.module.scss";
-import Button from "@/shared/components/Button/Button";
+import styles from "../../styles/AuthForm.module.scss";
+import Button from "@/shared/components/Button";
 
 interface SignupFormData {
   username: string;

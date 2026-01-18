@@ -30,7 +30,8 @@ export interface CardCategory {
 }
 
 export interface CardProps {
-  variant?: 'default' | 'algorithm' | 'feature' | 'audience';
+  variant?: 'default' | 'algorithm';
+  layout?: 'vertical' | 'horizontal';
   size?: 'sm' | 'md' | 'lg';
   image?: React.ReactNode | string;
   icon?: React.ReactNode;

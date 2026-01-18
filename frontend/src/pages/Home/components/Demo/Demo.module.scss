@@ -10,6 +10,12 @@
     padding: $spacing-lg;
     margin-top: $spacing-xl;
     box-shadow: var(--card-shadow);
+
+    @include mobile {
+        padding: $spacing-md;
+        margin-top: $spacing-lg;
+        border-radius: 8px;
+    }
 }
 
 .codeWindow {
@@ -21,6 +27,13 @@
     color: #d4edda;
     text-align: left;
     position: relative;
+
+    @include mobile {
+        padding: $spacing-sm;
+        font-size: $font-xs;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
 }
 
 .codeLine {
@@ -28,6 +41,10 @@
     padding: 0.25rem 0;
     border-radius: 4px;
     transition: $transition-base;
+
+    @include mobile {
+        padding: 0.2rem 0;
+    }
 }
 
 .codeLine.executing {
@@ -35,6 +52,11 @@
     border-left: 3px solid $execution-color;
     padding-left: $spacing-sm;
     @include blink(1.2s, 0.4);
+
+    @include mobile {
+        border-left-width: 2px;
+        padding-left: $spacing-xs;
+    }
 }
 
 .breakpoint {
@@ -46,4 +68,33 @@
     border-radius: 50%;
     top: 50%;
     transform: translateY(-50%);
+
+    @include mobile {
+        left: -$spacing-sm;
+        width: 8px;
+        height: 8px;
+    }
+}
+
+.analysisBox {
+    margin-top: $spacing-lg;
+    padding: $spacing-lg;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid $execution-color;
+    text-align: left;
+    line-height: 1.6;
+
+    @include mobile {
+        margin-top: $spacing-md;
+        padding: $spacing-md;
+        border-left-width: 3px;
+        border-radius: 6px;
+        font-size: $font-sm;
+    }
+
+    strong {
+        font-weight: 600;
+        color: $execution-color;
+    }
 }

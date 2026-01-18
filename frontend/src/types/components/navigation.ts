@@ -30,8 +30,10 @@ export interface DropdownProps {
   placement?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
   closeOnSelect?: boolean;
   disabled?: boolean;
+  showChevron?: boolean;
   className?: string;
   menuClassName?: string;
+  triggerClassName?: string;
   onSelect?: (key: string) => void;
   'aria-label'?: string;
   [key: string]: any;

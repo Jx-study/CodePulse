@@ -16,6 +16,12 @@
   }
 }
 
+.btnRegister {
+  @include mobile {
+    display: none;  // 手機版隱藏註冊按鈕
+  }
+}
+
 // Avatar now handled by Avatar component
 
 .userMenu {

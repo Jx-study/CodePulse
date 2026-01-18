@@ -7,6 +7,10 @@
   overflow: hidden;
   gap: $spacing-xs;
 
+  @include mobile {
+    padding: $spacing-xl 0;
+  }
+
   h1,
   h3 {
     font-weight: 800;
@@ -18,19 +22,51 @@
   }
 
   h1 {
-    font-size: $hero-h1-size;
+    font-size: $hero-h1-size-mobile;
+
+    @include tablet {
+      font-size: $hero-h1-size-tablet;
+    }
+
+    @include desktop {
+      font-size: $hero-h1-size-desktop;
+    }
   }
+
   h3 {
-    font-size: $hero-h3-size;
+    font-size: $hero-h3-size-mobile;
+    margin-top: $spacing-sm;
+
+    @include tablet {
+      font-size: $hero-h3-size-tablet;
+    }
+
+    @include desktop {
+      font-size: $hero-h3-size-desktop;
+    }
   }
 
   p {
-    font-size: 1.25rem;
+    font-size: $font-base;
     margin-bottom: $spacing-lg;
     opacity: 0.9;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+
+    @include mobile {
+      font-size: $font-sm;
+      max-width: 100%;
+      padding: 0 $spacing-md;
+    }
+
+    @include tablet {
+      font-size: $font-lg;
+    }
+
+    @include desktop {
+      font-size: $font-xl;
+    }
   }
 }
 
@@ -55,4 +91,8 @@
   padding: 0 $spacing-lg;
   position: relative;
   z-index: 2;
+
+  @include mobile {
+    padding: 0 $spacing-md;
+  }
 }

@@ -35,9 +35,8 @@
   overflow: hidden;
 }
 
-
 // ===========================
-//  RWD (媒體查詢)
+//  Responsive Media Queries
 // ===========================
 @mixin mobile {
   @media (max-width: 767px) {
@@ -53,6 +52,35 @@
 
 @mixin desktop {
   @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop-lg {
+  @media (min-width: 1400px) {
+    @content;
+  }
+}
+
+// Max-width media query
+@mixin max-width($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+
+// Min-width media query
+@mixin min-width($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
+@mixin belowTablet {
+  @include tablet {
+    @content;
+  }
+  @include mobile {
     @content;
   }
 }

@@ -30,8 +30,8 @@ function Demo() {
             <div className={styles.codeLine}>    return arr</div>
           </div>
           
-          <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
-            <strong>💡{t('demo_section.analysis')} ：</strong> {t('demo_section.analysis_text')}
+          <div className={styles.analysisBox}>
+            <strong>💡{t('demo_section.analysis')}：</strong> {t('demo_section.analysis_text')}
           </div>
         </div>
       </div>

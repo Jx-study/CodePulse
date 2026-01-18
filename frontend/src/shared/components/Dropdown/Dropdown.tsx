@@ -1,17 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import type { DropdownItem, DropdownProps } from '@/types';
-import styles from './Dropdown.module.scss';
+import React, { useState, useRef, useEffect } from "react";
+import type { DropdownItem, DropdownProps } from "@/types";
+import styles from "./Dropdown.module.scss";
+import Icon from "../Icon";
 
 const Dropdown: React.FC<DropdownProps> = ({
   trigger,
   items,
-  placement = 'bottom-right',
+  placement = "bottom-right",
   closeOnSelect = true,
   disabled = false,
-  className = '',
-  menuClassName = '',
+  showChevron = false,
+  className = "",
+  menuClassName = "",
+  triggerClassName = "",
   onSelect,
-  'aria-label': ariaLabel,
+  "aria-label": ariaLabel,
   ...restProps
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,11 +22,11 @@ const Dropdown: React.FC<DropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const enabledItems = items.filter(item => !item.disabled && !item.divider);
+  const enabledItems = items.filter((item) => !item.disabled && !item.divider);
 
   const handleToggle = () => {
     if (!disabled) {
-      setIsOpen(prev => !prev);
+      setIsOpen((prev) => !prev);
       setFocusedIndex(-1);
     }
   };
@@ -41,7 +44,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
         e.preventDefault();
         setIsOpen(true);
         setFocusedIndex(0);
@@ -50,42 +53,42 @@ const Dropdown: React.FC<DropdownProps> = ({
     }
 
     switch (e.key) {
-      case 'Escape':
+      case "Escape":
         e.preventDefault();
         setIsOpen(false);
         setFocusedIndex(-1);
         break;
 
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setFocusedIndex(prev => {
+        setFocusedIndex((prev) => {
           const nextIndex = prev + 1;
           return nextIndex >= enabledItems.length ? 0 : nextIndex;
         });
         break;
 
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setFocusedIndex(prev => {
+        setFocusedIndex((prev) => {
           const nextIndex = prev - 1;
           return nextIndex < 0 ? enabledItems.length - 1 : nextIndex;
         });
         break;
 
-      case 'Enter':
-      case ' ':
+      case "Enter":
+      case " ":
         e.preventDefault();
         if (focusedIndex >= 0 && focusedIndex < enabledItems.length) {
           handleItemClick(enabledItems[focusedIndex]);
         }
         break;
 
-      case 'Home':
+      case "Home":
         e.preventDefault();
         setFocusedIndex(0);
         break;
 
-      case 'End':
+      case "End":
         e.preventDefault();
         setFocusedIndex(enabledItems.length - 1);
         break;
@@ -100,20 +103,25 @@ const Dropdown: React.FC<DropdownProps> = ({
     if (!isOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setFocusedIndex(-1);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // Focus management
   useEffect(() => {
     if (isOpen && focusedIndex >= 0 && menuRef.current) {
-      const itemElements = menuRef.current.querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])');
+      const itemElements = menuRef.current.querySelectorAll(
+        '[role="menuitem"]:not([aria-disabled="true"])',
+      );
       const focusedElement = itemElements[focusedIndex] as HTMLElement;
       focusedElement?.focus();
     }
@@ -122,17 +130,44 @@ const Dropdown: React.FC<DropdownProps> = ({
   const containerClasses = [
     styles.dropdown,
     disabled && styles.disabled,
-    className
-  ].filter(Boolean).join(' ');
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const menuClasses = [
     styles.menu,
     styles[placement],
     isOpen && styles.open,
-    menuClassName
-  ].filter(Boolean).join(' ');
+    menuClassName,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const triggerClasses = [styles.trigger, triggerClassName]
+    .filter(Boolean)
+    .join(" ");
 
   let enabledItemIndex = -1;
+
+  // 如果需要顯示 chevron，則將其新增至 trigger 內部
+  const triggerWithChevron =
+    showChevron && React.isValidElement(trigger)
+      ? React.cloneElement(trigger as React.ReactElement<any>, {
+          className:
+            `${(trigger as any).props.className || ""} ${styles.triggerWithChevron}`.trim(),
+          children: (
+            <>
+              {(trigger as any).props.children}
+              <Icon
+                name={isOpen ? "chevron-down" : "chevron-right"}
+                size="sm"
+                className={styles.chevronIcon}
+              />
+            </>
+          ),
+        })
+      : trigger;
 
   return (
     <div
@@ -142,7 +177,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       {...restProps}
     >
       <div
-        className={styles.trigger}
+        className={triggerClasses}
         onClick={handleToggle}
         role="button"
         tabIndex={disabled ? -1 : 0}
@@ -151,7 +186,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         aria-label={ariaLabel}
         aria-disabled={disabled}
       >
-        {trigger}
+        {triggerWithChevron}
       </div>
 
       {isOpen && (
@@ -163,20 +198,28 @@ const Dropdown: React.FC<DropdownProps> = ({
         >
           {items.map((item, index) => {
             if (item.divider) {
-              return <div key={item.key || `divider-${index}`} className={styles.divider} />;
+              return (
+                <div
+                  key={item.key || `divider-${index}`}
+                  className={styles.divider}
+                />
+              );
             }
 
             if (!item.disabled) {
               enabledItemIndex++;
             }
 
-            const isFocused = !item.disabled && enabledItemIndex === focusedIndex;
+            const isFocused =
+              !item.disabled && enabledItemIndex === focusedIndex;
 
             const itemClasses = [
               styles.item,
               item.disabled && styles.itemDisabled,
-              isFocused && styles.itemFocused
-            ].filter(Boolean).join(' ');
+              isFocused && styles.itemFocused,
+            ]
+              .filter(Boolean)
+              .join(" ");
 
             return (
               <div
@@ -187,7 +230,9 @@ const Dropdown: React.FC<DropdownProps> = ({
                 aria-disabled={item.disabled}
                 onClick={() => handleItemClick(item)}
               >
-                {item.icon && <span className={styles.itemIcon}>{item.icon}</span>}
+                {item.icon && (
+                  <span className={styles.itemIcon}>{item.icon}</span>
+                )}
                 <span className={styles.itemLabel}>{item.label}</span>
               </div>
             );

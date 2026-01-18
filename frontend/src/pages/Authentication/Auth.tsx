@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import LoginForm from "@/modules/auth/components/LoginForm/LoginForm";
 import SignupForm from "@/modules/auth/components/SignupForm/SignupForm";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import Button from "@/shared/components/Button";
 import styles from "./Auth.module.scss";
 
 // 型別定義
@@ -101,20 +102,22 @@ function AuthPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.tabs}>
-        <button
+        <Button
+          variant="ghost"
           className={`${styles.tabButton} ${activeTab === "login" ? styles.active : ""}`}
           onClick={() => showTab("login")}
           disabled={loading}
         >
           {t("login")}
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
           className={`${styles.tabButton} ${activeTab === "signup" ? styles.active : ""}`}
           onClick={() => showTab("signup")}
           disabled={loading}
         >
           {t("register")}
-        </button>
+        </Button>
       </div>
 
       {/* 訊息顯示區域 */}

@@ -1,12 +1,6 @@
 import styles from './Features.module.scss';
 import { useTranslation } from 'react-i18next';
-import Card from '../Card/Card';
-
-// Import feature images
-import interactiveFlowchartImg from './assets/interactive-flowchart.png';
-import memoryVisualizationImg from './assets/memory-visualization.png';
-import smartSummaryImg from './assets/smart-summary.png';
-import teachingInterfaceImg from './assets/teaching-interface.png';
+import Card from '../Card';
 
 function Features() {
   const { t } = useTranslation();
@@ -17,36 +11,27 @@ function Features() {
       id: 'interactive-flowchart',
       title: t('features_section.interactive_flowchart.title'),
       description: t('features_section.interactive_flowchart.description'),
-      image: interactiveFlowchartImg,
       alt: 'Interactive Flowchart'
     },
     {
       id: 'memory-visualization',
       title: t('features_section.memory_visualization.title'),
       description: t('features_section.memory_visualization.description'),
-      image: memoryVisualizationImg,
       alt: 'Memory Visualization'
     },
     {
       id: 'smart-summary',
       title: t('features_section.smart_summary.title'),
       description: t('features_section.smart_summary.description'),
-      image: smartSummaryImg,
       alt: 'Smart Summary'
     },
     {
       id: 'teaching-interface',
       title: t('features_section.teaching_interface.title'),
       description: t('features_section.teaching_interface.description'),
-      image: teachingInterfaceImg,
       alt: 'Teaching Interface'
     }
   ];
-
-  // Image error handling
-  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    event.currentTarget.src = "/assets/features/default-feature.png";
-  };
 
   // 創建無限滾動的卡片陣列 (重複卡片以實現無縫循環)
   const infiniteFeatures = [...features, ...features];
@@ -62,16 +47,8 @@ function Features() {
             {infiniteFeatures.map((feature, index) => (
               <Card
                 key={`${feature.id}-${index}`}
-                variant="feature"
-                icon={
-                  <img
-                    src={feature.image}
-                    alt={feature.alt}
-                    onError={handleImageError}
-                    loading="lazy"
-                  />
-                }
                 title={feature.title}
+                layout='horizontal'
                 description={feature.description}
                 className={styles.featureCard}
               />
