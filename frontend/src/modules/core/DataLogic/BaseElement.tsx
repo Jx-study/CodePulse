@@ -1,10 +1,10 @@
 export type Status = "unfinished" | "prepare" | "target" | "complete";
 
 export const statusColorMap: Record<Status, string> = {
-  unfinished: "blue",
+  unfinished: "#1d79cfff",
   prepare: "yellow",
   target: "orange",
-  complete: "green",
+  complete: "#46f336ff",
 };
 
 export abstract class BaseElement {
@@ -18,8 +18,13 @@ export abstract class BaseElement {
   protected constructor(kind: "node" | "box") {
     this.kind = kind;
   }
-  moveTo(x: number, y: number) { this.position = { x, y }; }
-  setStatus(s: Status) { this.status = s; }
-  getColor() { return statusColorMap[this.status]; }
-  
+  moveTo(x: number, y: number) {
+    this.position = { x, y };
+  }
+  setStatus(s: Status) {
+    this.status = s;
+  }
+  getColor() {
+    return statusColorMap[this.status];
+  }
 }

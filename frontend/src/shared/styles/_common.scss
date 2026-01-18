@@ -123,32 +123,3 @@ a {
   align-items: center;
   gap: 2px;
 }
-
-// Call To Action Button
-.cta-button {
-  background: $gradient-primary;
-  color: white;
-  border: none;
-  padding: 12px 32px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 8px 0 rgba(99, 91, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: $hover-transform;
-    // 螢光特效
-    box-shadow: 
-      0 0 20px rgba(99, 91, 255, 0.7),        
-      0 0 40px rgba(124, 58, 237, 0.5),
-      0 0 60px rgba(99, 91, 255, 0.3), 
-      0 6px 20px 0 rgba(99, 91, 255, 0.4);
-    
-    // 增加按鈕亮度和光暈
-    filter: brightness(0.9);
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
-    background: linear-gradient(135deg, #7c6aff 0%, #9333ea 100%);
-  }
-}

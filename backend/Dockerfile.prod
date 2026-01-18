@@ -1,0 +1,27 @@
+# 生產環境 Dockerfile (適用於 Render)
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# 安裝依賴
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 複製應用程式代碼
+COPY . .
+
+# 設置環境變數
+ENV FLASK_ENV=production
+ENV PYTHONUNBUFFERED=1
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python -c "import requests; requests.get('http://localhost:5000/api/health')"
+
+# 使用 gunicorn 啟動應用 (生產級 WSGI server)
+# --workers: 根據 CPU 核心數設置 worker 數量
+# --bind: 綁定到所有網路介面
+# --timeout: 請求超時時間
+# --access-logfile: 存取日誌
+# --error-logfile: 錯誤日誌
+CMD gunicorn --workers=4 --bind=0.0.0.0:$PORT --timeout=120 --access-logfile=- --error-logfile=- "app:app"

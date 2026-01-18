@@ -1,18 +1,31 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { renderAll } from "./D3Renderer";
+import type { Link } from "./D3Renderer";
 
-export function D3Canvas({ elements, width = 800, height = 600 }: {
-  elements: BaseElement[];
-  width?: number;
-  height?: number;
-}) {
+export interface D3CanvasRef {
+  getSVGElement: () => SVGSVGElement | null;
+}
+
+export const D3Canvas = forwardRef<
+  D3CanvasRef,
+  {
+    elements: BaseElement[];
+    links?: Link[];
+    width?: number;
+    height?: number;
+  }
+>(({ elements, links = [], width = 800, height = 600 }, forwardedRef) => {
   const ref = useRef<SVGSVGElement | null>(null);
+
+  useImperativeHandle(forwardedRef, () => ({
+    getSVGElement: () => ref.current,
+  }));
 
   useEffect(() => {
     if (!ref.current) return;
-    renderAll(ref.current, elements);
-  }, [elements]);
+    renderAll(ref.current, elements, links);
+  }, [elements, links]);
 
   return (
     <svg
@@ -22,4 +35,4 @@ export function D3Canvas({ elements, width = 800, height = 600 }: {
       style={{ background: "#111", display: "block" }}
     />
   );
-}
+});

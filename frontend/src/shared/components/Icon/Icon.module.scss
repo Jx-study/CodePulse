@@ -1,0 +1,93 @@
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition-base;
+  vertical-align: middle;
+
+  // ========== 尺寸系統 ==========
+  &--xs {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+
+  &--sm {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &--md {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &--lg {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &--xl {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &--2xl {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  // ========== 顏色系統 ==========
+  &--primary {
+    color: $primary-color;
+  }
+
+  &--secondary {
+    color: var(--text-secondary);
+  }
+
+  &--danger {
+    color: $error-color;
+  }
+
+  &--muted {
+    color: var(--text-tertiary);
+  }
+
+  &--inherit {
+    color: inherit;
+  }
+
+  // ========== 互動狀態 ==========
+  &--clickable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  // ========== 無障礙性 ==========
+  &[role='button'] {
+    &:focus {
+      outline: none;
+    }
+  }
+}

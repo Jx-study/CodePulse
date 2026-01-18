@@ -1,12 +1,416 @@
-import React from 'react';
+import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import Editor, { OnChange, OnMount } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
 
-function CodeEditor() {
+// ==================== 類型定義 ====================
+
+export interface CodeEditorProps {
+  // 基本配置
+  mode?: 'single' | 'split';
+  language?: string;
+  theme?: 'light' | 'dark' | 'auto';
+
+  // 內容
+  value?: string;
+  topContent?: string;
+  bottomContent?: string;
+
+  // 配置選項
+  readOnly?: boolean;
+  showLineNumbers?: boolean;
+  enableAutoComplete?: boolean;
+  enableFormatting?: boolean;
+
+  // 分屏配置
+  splitRatio?: number;
+  highlightedLine?: number | null;
+
+  // 回調函數
+  onChange?: (value: string) => void;
+  onBottomChange?: (value: string) => void;
+  onLanguageChange?: (language: string) => void;
+  onFormatComplete?: () => void;
+
+  // 樣式
+  className?: string;
+}
+
+export interface CodeEditorHandle {
+  // 獲取編輯器內容
+  getValue: () => string;
+  getTopValue: () => string;
+  getBottomValue: () => string;
+
+  // 設置編輯器內容
+  setValue: (value: string) => void;
+  setTopValue: (value: string) => void;
+  setBottomValue: (value: string) => void;
+
+  // 語言切換
+  setLanguage: (language: string) => void;
+
+  // 主題切換
+  setTheme: (theme: 'light' | 'dark') => void;
+
+  // 高亮指定行
+  highlightLine: (lineNumber: number, editorType?: 'top' | 'bottom') => void;
+
+  // 格式化程式碼
+  formatCode: () => void;
+
+  // 匯出程式碼
+  exportCode: (filename?: string) => void;
+
+  // 匯入程式碼
+  importCode: (file: File) => Promise<void>;
+
+  // 調整分屏比例
+  setSplitRatio: (ratio: number) => void;
+}
+
+// ==================== 語言對應表 ====================
+
+const LANGUAGE_EXTENSIONS: Record<string, string> = {
+  python: 'py',
+  javascript: 'js',
+  typescript: 'ts',
+  cpp: 'cpp',
+  java: 'java',
+  c: 'c',
+  go: 'go',
+  rust: 'rs',
+  ruby: 'rb',
+  php: 'php',
+};
+
+const EXTENSION_TO_LANGUAGE: Record<string, string> = {
+  py: 'python',
+  js: 'javascript',
+  ts: 'typescript',
+  jsx: 'javascript',
+  tsx: 'typescript',
+  cpp: 'cpp',
+  cc: 'cpp',
+  cxx: 'cpp',
+  c: 'c',
+  h: 'c',
+  java: 'java',
+  go: 'go',
+  rs: 'rust',
+  rb: 'ruby',
+  php: 'php',
+};
+
+// ==================== CodeEditor 組件 ====================
+
+const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) => {
+  const {
+    mode = 'single',
+    language = 'python',
+    theme = 'auto',
+    value = '',
+    topContent = '',
+    bottomContent = '',
+    readOnly = false,
+    showLineNumbers = true,
+    enableAutoComplete = true,
+    enableFormatting = true,
+    splitRatio: propSplitRatio = 0.5,
+    highlightedLine,
+    onChange,
+    onBottomChange,
+    onLanguageChange,
+    onFormatComplete,
+    className = '',
+  } = props;
+
+  // ========== State ==========
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
+  const [currentLanguage, setCurrentLanguage] = useState(language);
+  const [splitRatio, setSplitRatio] = useState(propSplitRatio);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // ========== Refs ==========
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const topEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const bottomEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const currentDecorationsRef = useRef<string[]>([]);
+  const topDecorationsRef = useRef<string[]>([]);
+  const bottomDecorationsRef = useRef<string[]>([]);
+
+  // ========== 主題檢測 ==========
+  useEffect(() => {
+    const detectTheme = () => {
+      if (theme === 'auto') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setCurrentTheme(isDark ? 'dark' : 'light');
+      } else {
+        setCurrentTheme(theme);
+      }
+    };
+
+    detectTheme();
+
+    if (theme === 'auto') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = () => detectTheme();
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    }
+  }, [theme]);
+
+  // ========== 語言更新 ==========
+  useEffect(() => {
+    setCurrentLanguage(language);
+  }, [language]);
+
+  // ========== Monaco Editor 配置 ==========
+  const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+    readOnly,
+    lineNumbers: showLineNumbers ? 'on' : 'off',
+    automaticLayout: true,
+    minimap: { enabled: true },
+    scrollBeyondLastLine: false,
+    fontSize: 14,
+    tabSize: 4,
+    wordWrap: 'on',
+    quickSuggestions: enableAutoComplete,
+    formatOnPaste: enableFormatting,
+    formatOnType: enableFormatting,
+    theme: currentTheme === 'dark' ? 'vs-dark' : 'vs',
+    padding: { top: 12, bottom: 12 },
+  };
+
+  // ========== 單一編輯器 Mount ==========
+  const handleEditorMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+  };
+
+  // ========== 上方編輯器 Mount (分屏模式) ==========
+  const handleTopEditorMount: OnMount = (editor, monaco) => {
+    topEditorRef.current = editor;
+  };
+
+  // ========== 下方編輯器 Mount (分屏模式) ==========
+  const handleBottomEditorMount: OnMount = (editor, monaco) => {
+    bottomEditorRef.current = editor;
+  };
+
+  // ========== 內容變更處理 ==========
+  const handleChange: OnChange = (newValue) => {
+    onChange?.(newValue || '');
+  };
+
+  const handleBottomContentChange: OnChange = (newValue) => {
+    onBottomChange?.(newValue || '');
+  };
+
+  // ========== 分屏拖曳處理 ==========
+  const handleResizerMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+
+    const startY = e.clientY;
+    const startRatio = splitRatio;
+    const containerHeight = containerRef.current?.offsetHeight || 600;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaY = moveEvent.clientY - startY;
+      const newRatio = startRatio + deltaY / containerHeight;
+      const clampedRatio = Math.max(0.2, Math.min(0.8, newRatio));
+      setSplitRatio(clampedRatio);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // ========== 行高亮功能 ==========
+  const highlightLineInternal = (lineNumber: number, editorType?: 'top' | 'bottom') => {
+    let editor: monaco.editor.IStandaloneCodeEditor | null = null;
+    let decorationsRef: React.MutableRefObject<string[]> | null = null;
+
+    if (mode === 'split') {
+      if (editorType === 'top') {
+        editor = topEditorRef.current;
+        decorationsRef = topDecorationsRef;
+      } else {
+        editor = bottomEditorRef.current;
+        decorationsRef = bottomDecorationsRef;
+      }
+    } else {
+      editor = editorRef.current;
+      decorationsRef = currentDecorationsRef;
+    }
+
+    if (!editor || !decorationsRef) return;
+
+    // 清除舊的高亮
+    decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
+
+    // 添加新的高亮
+    decorationsRef.current = editor.deltaDecorations(
+      [],
+      [
+        {
+          range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+          options: {
+            isWholeLine: true,
+            className: styles.highlightedLine,
+            glyphMarginClassName: styles.highlightedLineGlyph,
+          },
+        },
+      ]
+    );
+
+    // 滾動到該行
+    editor.revealLineInCenter(lineNumber);
+  };
+
+  // ========== 監聽 highlightedLine prop 變化 ==========
+  useEffect(() => {
+    if (highlightedLine !== null && highlightedLine !== undefined) {
+      highlightLineInternal(highlightedLine, mode === 'split' ? 'bottom' : undefined);
+    }
+  }, [highlightedLine, mode]);
+
+  // ========== 匯出程式碼 ==========
+  const exportCodeInternal = (filename?: string) => {
+    const content = editorRef.current?.getValue() || '';
+    const extension = LANGUAGE_EXTENSIONS[currentLanguage] || 'txt';
+    const defaultFilename = filename || `code.${extension}`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = defaultFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // ========== 匯入程式碼 ==========
+  const importCodeInternal = async (file: File): Promise<void> => {
+    const content = await file.text();
+    editorRef.current?.setValue(content);
+
+    // 根據副檔名自動切換語言
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    const detectedLanguage = EXTENSION_TO_LANGUAGE[extension];
+    if (detectedLanguage) {
+      setCurrentLanguage(detectedLanguage);
+      onLanguageChange?.(detectedLanguage);
+    }
+  };
+
+  // ========== 格式化程式碼 ==========
+  const formatCodeInternal = () => {
+    const editor = mode === 'split' ? bottomEditorRef.current : editorRef.current;
+    if (editor) {
+      editor.getAction('editor.action.formatDocument')?.run();
+      onFormatComplete?.();
+    }
+  };
+
+  // ========== useImperativeHandle ==========
+  useImperativeHandle(ref, () => ({
+    getValue: () => editorRef.current?.getValue() || '',
+    getTopValue: () => topEditorRef.current?.getValue() || '',
+    getBottomValue: () => bottomEditorRef.current?.getValue() || '',
+
+    setValue: (newValue: string) => editorRef.current?.setValue(newValue),
+    setTopValue: (newValue: string) => topEditorRef.current?.setValue(newValue),
+    setBottomValue: (newValue: string) => bottomEditorRef.current?.setValue(newValue),
+
+    setLanguage: (newLanguage: string) => {
+      setCurrentLanguage(newLanguage);
+      onLanguageChange?.(newLanguage);
+    },
+
+    setTheme: (newTheme: 'light' | 'dark') => {
+      setCurrentTheme(newTheme);
+    },
+
+    highlightLine: highlightLineInternal,
+    formatCode: formatCodeInternal,
+    exportCode: exportCodeInternal,
+    importCode: importCodeInternal,
+    setSplitRatio: (ratio: number) => {
+      setSplitRatio(Math.max(0.2, Math.min(0.8, ratio)));
+    },
+  }));
+
+  // ========== 渲染 ==========
   return (
-    <div className={styles.codeEditor}>
-      {/* Your implementation here */}
+    <div
+      ref={containerRef}
+      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''}`}
+    >
+      {mode === 'split' ? (
+        <>
+          {/* 上方編輯器（Pseudo Code，唯讀） */}
+          <div className={styles.topEditor} style={{ height: `${splitRatio * 100}%` }}>
+            <Editor
+              height="100%"
+              language="pseudocode"
+              value={topContent}
+              theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
+              options={{
+                ...editorOptions,
+                readOnly: true,
+                minimap: { enabled: false },
+              }}
+              onMount={handleTopEditorMount}
+            />
+          </div>
+
+          {/* 分隔線（可拖曳） */}
+          <div
+            className={`${styles.resizer} ${isDragging ? styles.active : ''}`}
+            onMouseDown={handleResizerMouseDown}
+          >
+            <div className={styles.resizerHandle}></div>
+          </div>
+
+          {/* 下方編輯器（實作程式碼，可編輯） */}
+          <div className={styles.bottomEditor} style={{ height: `${(1 - splitRatio) * 100}%` }}>
+            <Editor
+              height="100%"
+              language={currentLanguage}
+              value={bottomContent}
+              theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
+              options={editorOptions}
+              onChange={handleBottomContentChange}
+              onMount={handleBottomEditorMount}
+            />
+          </div>
+        </>
+      ) : (
+        /* 單一編輯器模式 */
+        <Editor
+          height="100%"
+          language={currentLanguage}
+          value={value}
+          theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
+          options={editorOptions}
+          onChange={handleChange}
+          onMount={handleEditorMount}
+        />
+      )}
     </div>
   );
-}
+});
+
+CodeEditor.displayName = 'CodeEditor';
 
 export default CodeEditor;

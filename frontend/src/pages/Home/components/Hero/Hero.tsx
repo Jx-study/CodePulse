@@ -1,8 +1,10 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from "react-router-dom";
 import styles from './Hero.module.scss';
 import PulseBackground from './PulseBackground';
 import Demo from '../Demo/Demo';
+import Button from '../../../../shared/components/Button/Button';
 
 function Hero() {
   const { t } = useTranslation();
@@ -11,12 +13,11 @@ function Hero() {
   const heroRef = useRef();
 
   const handleHeroClick = (event) => {
-    if (pulseBackgroundRef.current) {
-      const heroElement = event.currentTarget;
-      const rect = heroElement.getBoundingClientRect();
+    if (pulseBackgroundRef.current && heroRef.current) {
+      const rect = heroRef.current.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      
+
       pulseBackgroundRef.current.addWanderingParticle(x, y);
     }
   };
@@ -62,18 +63,17 @@ function Hero() {
         <div className={styles.demoContainer}>
           <Demo />
         </div>
-        <a
-          href="#demo"
-          className="cta-button"
+        <Button
+          variant="primary"
+          size="lg"
+          as={Link}
+          to="/explorer"
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
           onMouseLeave={handleCtaLeave}
         >
           {t("hero.cta")}
-        </a>
-        <div className={styles.demoContainer}>
-          <Demo />
-        </div>
+        </Button>
       </div>
     </section>
   );

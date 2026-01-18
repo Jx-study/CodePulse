@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import styles from './UserStatus.module.scss';
 import SettingPanel from '../SettingPanel/SettingPanel';
 import { useAuth } from '../../../../shared/contexts/AuthContext';
+import { Icon } from '../../../../shared/components/Icon';
+import Button from '../../../../shared/components/Button/Button';
 
 function UserStatus() {
   const { t } = useTranslation();
@@ -102,22 +104,33 @@ function UserStatus() {
           <div className={styles.userMenu}>
             <ul>
               <li>
-                <button onClick={handleSettingPanelOpen}>
-                  <span className={styles.menuIcon}>⚙️</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSettingPanelOpen}
+                  iconLeft={<Icon name="cog" size="sm" />}
+                >
                   {t('settingPanel')}
-                </button>
+                </Button>
               </li>
               <li>
-                <button>
-                  <span className={styles.menuIcon}>❓</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={<Icon name="question-circle" size="sm" />}
+                >
                   {t('getHelp')}
-                </button>
+                </Button>
               </li>
               <li>
-                <button onClick={handleLogout}>
-                  <span className={styles.menuIcon}>🚪</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  iconLeft={<Icon name="sign-out-alt" size="sm" />}
+                >
                   {t('logout')}
-                </button>
+                </Button>
               </li>
             </ul>
           </div>
@@ -134,8 +147,12 @@ function UserStatus() {
   return (
     <div className={styles.userStatus}>
       <div className={styles.authButtons}>
-        <Link to="/auth" className={styles.btnLogin}>{t('login')}</Link>
-        <Link to="/auth" className={styles.btnRegister}>{t('register')}</Link>
+        <Button variant="secondary" size="sm" as={Link} to="/auth" className={styles.btnLogin}>
+          {t('login')}
+        </Button>
+        <Button variant="primary" size="sm" as={Link} to="/auth">
+          {t('register')}
+        </Button>
       </div>
     </div>
   );

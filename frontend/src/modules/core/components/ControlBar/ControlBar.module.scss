@@ -1,0 +1,80 @@
+.controlBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+
+  @media (max-width: $mobile) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+
+  .stepText {
+    font-size: $font-sm;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+}
+
+.speedSelector {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  .speedLabel {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .speedButtons {
+    display: flex;
+    gap: $spacing-xs;
+  }
+
+  .speedButton {
+    padding: 4px 12px;
+    font-size: $font-xs;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: $transition-base;
+
+    &:hover {
+      background: var(--bg-primary);
+      border-color: $primary-color;
+      color: var(--text-primary);
+    }
+
+    &.active {
+      background: $primary-color;
+      color: white;
+      border-color: $primary-color;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

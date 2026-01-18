@@ -23,8 +23,14 @@ def create_app(config_name=None):
     # 設置日誌
     logging.basicConfig(level=logging.INFO)
     
-    # 初始化擴展
-    CORS(app)  # 允許跨域請求
+    # 初始化擴展 - 使用配置的 CORS 來源
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": app.config['CORS_ORIGINS'],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
     
     # 初始化 Supabase
     try:
