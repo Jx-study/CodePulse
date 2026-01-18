@@ -74,7 +74,7 @@ export function createQueueAnimationSteps(
     s1NewBox.value = newNode.value;
     s1NewBox.width = 60;
     s1NewBox.height = 60;
-    s1NewBox.moveTo(startX + oldList.length * gap + 100, startY); // 右側滑入
+    s1NewBox.moveTo(950, startY); // 右側滑入
     s1NewBox.setStatus("target");
     s1NewBox.description = "New";
 

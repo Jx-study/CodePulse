@@ -227,6 +227,7 @@ function Tutorial() {
                 links={currentLinks}
                 width={1000}
                 height={400}
+                structureType={topicTypeConfig?.id}
               />
             </div>
             <div className={styles.stepDescription}>

@@ -71,7 +71,7 @@ export function createStackAnimationSteps(
     s1NewBox.value = newNode.value;
     s1NewBox.width = 60;
     s1NewBox.height = 60;
-    s1NewBox.moveTo(startX + oldList.length * gap + 100, startY);
+    s1NewBox.moveTo(950, startY);
     s1NewBox.setStatus("target");
     s1NewBox.description = "New";
 
@@ -130,7 +130,7 @@ export function createStackAnimationSteps(
 
       if (i === fullList.length - 1) {
         // 被刪除的節點：往右移
-        b.moveTo(startX + i * gap + 100, startY);
+        b.moveTo(950, startY);
         b.setStatus("target");
       } else {
         // 其他節點：位置不變

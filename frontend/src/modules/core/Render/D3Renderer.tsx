@@ -93,10 +93,87 @@ export function animateConnect(
   });
 }
 
+function drawContainer(
+  scene: d3.Selection<SVGGElement, unknown, null, undefined>,
+  type: string
+) {
+  // 清除舊的容器線條 (避免重繪疊加)
+  scene.selectAll(".container-line").remove();
+
+  const lineColor = "#555";
+  const lineWidth = 4;
+
+  const topY = 150;
+  const bottomY = 250;
+  const startX = 55;
+  const endX = 900; // 畫長一點涵蓋整個視窗
+
+  if (type === "stack") {
+    // Stack: 畫「左」、「上」、「下」 (開口向右)
+    // 上線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY)
+      .attr("x2", endX)
+      .attr("y2", topY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+
+    // 下線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", bottomY)
+      .attr("x2", endX)
+      .attr("y2", bottomY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+
+    // 左底線 (封閉左邊)
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY - lineWidth / 2) // 微調接合處
+      .attr("x2", startX)
+      .attr("y2", bottomY + lineWidth / 2)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+  } else if (type === "queue") {
+    // Queue: 畫「上」、「下」 (兩端開口通道)
+
+    // 上線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY) // Queue 可以更長一點
+      .attr("x2", endX)
+      .attr("y2", topY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+
+    // 下線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", bottomY)
+      .attr("x2", endX)
+      .attr("y2", bottomY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+  }
+}
+
 export function renderAll(
   svgEl: SVGSVGElement,
   elements: BaseElement[],
-  links: Link[] = []
+  links: Link[] = [],
+  structureType: string = "linkedlist"
 ) {
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
@@ -122,6 +199,8 @@ export function renderAll(
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
   root.enter().append("g").attr("class", "scene");
   const scene = svg.select<SVGGElement>("g.scene");
+
+  drawContainer(scene, structureType);
 
   // === 先畫 LINKS（在底層）===
   // 依 id 找 element
