@@ -16,11 +16,7 @@ interface ActionType {
   mode: string; // "Push", "Pop"
 }
 
-const createBoxes = (
-  list: BoxData[],
-  highlightIndex: number = -1,
-  status: Status = "unfinished"
-) => {
+const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
   const startX = 100;
   const startY = 200;
   const gap = 70;
@@ -35,11 +31,7 @@ const createBoxes = (
     box.value = item.value;
     box.description = i === list.length - 1 ? "Top" : "";
 
-    if (i === highlightIndex) box.setStatus("target");
-    else
-      box.setStatus(
-        status === "unfinished" && i === highlightIndex ? "target" : status
-      );
+    box.setStatus(status);
 
     return box;
   });
@@ -72,20 +64,20 @@ export function createStackAnimationSteps(
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];
 
-    // Step 1: 舊元素不動，新元素出現在上方
+    // Step 1: 顯示舊元素，新元素從右側滑入
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
     s1NewBox.value = newNode.value;
     s1NewBox.width = 60;
     s1NewBox.height = 60;
-    s1NewBox.moveTo(startX + oldList.length * gap, startY - 100); // 上方
+    s1NewBox.moveTo(startX + oldList.length * gap + 100, startY);
     s1NewBox.setStatus("target");
     s1NewBox.description = "New";
 
     steps.push({
       stepNumber: 1,
-      description: `Push ${value}: 新元素出現`,
+      description: `Push ${value}: 新元素準備入棧`,
       elements: [...s1Boxes, s1NewBox],
     });
 
@@ -93,47 +85,75 @@ export function createStackAnimationSteps(
     steps.push({
       stepNumber: 2,
       description: `Push ${value}: 放入堆疊頂端`,
-      elements: createBoxes(dataList, dataList.length - 1),
+      elements: createBoxes(dataList, "complete"),
     });
   }
   // Pop
   else if (type === "delete") {
-    //因為沒有傳入被刪除的節點資訊，我們只能做簡單的消失動畫
-    // 更好的做法是在 useDataStructureLogic 傳入 targetId 和 value
-    // 這裡假設 action.value 是被刪除的值
-
-    // 重建被刪除的節點 (ID 暫時用 fake，如果能從 action 傳入最好)
-    const deletedNode = { id: "deleted-temp", value: value };
+    const deletedNode = {
+      id: (action as any).targetId || "deleted-temp",
+      value: value,
+    };
     const fullList = [...dataList, deletedNode];
 
     // Step 1: 標記 Top (準備刪除)
-    steps.push({
-      stepNumber: 1,
-      description: "Pop: 標記頂端元素",
-      elements: createBoxes(fullList, fullList.length - 1, "target"),
+    const s1Boxes = fullList.map((item, i) => {
+      const b = new Box();
+      b.id = item.id;
+      b.value = item.value;
+      b.width = 60;
+      b.height = 60;
+      b.moveTo(startX + i * gap, startY);
+
+      if (i === fullList.length - 1) {
+        b.setStatus("target");
+        b.description = "Top";
+      } else {
+        b.setStatus("unfinished");
+      }
+      return b;
     });
 
-    // Step 2: 移出 (上浮)
-    const s2Boxes = createBoxes(dataList); // 剩下的
-    const s2DelBox = new Box();
-    s2DelBox.id = deletedNode.id;
-    s2DelBox.value = deletedNode.value;
-    s2DelBox.width = 60;
-    s2DelBox.height = 60;
-    s2DelBox.moveTo(startX + dataList.length * gap, startY - 100);
-    s2DelBox.setStatus("target");
+    steps.push({
+      stepNumber: 1,
+      description: `Pop ${value}: 標記頂端元素`,
+      elements: s1Boxes,
+    });
+
+    // Step 2: 往右移除
+    const s2Boxes = fullList.map((item, i) => {
+      const b = new Box();
+      b.id = item.id;
+      b.value = item.value;
+      b.width = 60;
+      b.height = 60;
+
+      if (i === fullList.length - 1) {
+        // 被刪除的節點：往右移
+        b.moveTo(startX + i * gap + 100, startY);
+        b.setStatus("target");
+      } else {
+        // 其他節點：位置不變
+        b.moveTo(startX + i * gap, startY);
+        b.setStatus("unfinished");
+
+        // 標記新的 Top (倒數第二個)
+        if (i === fullList.length - 2) b.description = "Top";
+      }
+      return b;
+    });
 
     steps.push({
       stepNumber: 2,
-      description: "Pop: 移出頂端元素",
-      elements: [...s2Boxes, s2DelBox],
+      description: "Pop: 移出頂端元素，Top 更新",
+      elements: s2Boxes,
     });
 
     // Step 3: 消失
     steps.push({
       stepNumber: 3,
       description: "Pop 完成",
-      elements: createBoxes(dataList, -1, "complete"),
+      elements: createBoxes(dataList, "complete"),
     });
   }
 
