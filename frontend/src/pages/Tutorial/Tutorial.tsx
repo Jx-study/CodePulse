@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Breadcrumb } from "../../shared/components";
@@ -39,6 +39,9 @@ function Tutorial() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const isProcessing =
+    isPlaying ||
+    (activeSteps.length > 1 && currentStep < activeSteps.length - 1);
 
   const [maxNodes, setMaxNodes] = useState(15);
   const [hasTailMode, setHasTailMode] = useState(false);
@@ -51,6 +54,13 @@ function Tutorial() {
     }
     // 注意：這裡刻意不加 listData，避免與 handleAddNode 的動畫衝突
   }, [topicTypeConfig]);
+
+  useEffect(() => {
+    if (topicTypeConfig && !isProcessing) {
+      executeAction("refresh", { hasTailMode });
+      setCurrentStep(0);
+    }
+  }, [hasTailMode]);
 
   const currentStepData = activeSteps[currentStep];
 
@@ -167,6 +177,7 @@ function Tutorial() {
           onRandomData={handleRandomData}
           onMaxNodesChange={setMaxNodes}
           onTailModeChange={setHasTailMode}
+          disabled={isProcessing}
         />
       );
     }

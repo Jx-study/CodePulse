@@ -16,6 +16,8 @@ export interface DataActionBarProps {
   // 設置
   onMaxNodesChange: (max: number) => void;
   onTailModeChange: (hasTail: boolean) => void;
+
+  disabled?: boolean;
 }
 
 export const DataActionBar: React.FC<DataActionBarProps> = ({
@@ -27,16 +29,16 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onRandomData,
   onMaxNodesChange,
   onTailModeChange,
+  disabled = false,
 }) => {
-  // 狀態管理
   const [inputValue, setInputValue] = useState<string>(""); // 節點數值
   const [indexValue, setIndexValue] = useState<string>(""); // N (索引)
   const [bulkInput, setBulkInput] = useState<string>(""); // 10,20,30...
   const [insertMode, setInsertMode] = useState<string>("Head"); // Head, Tail, Node N
   const [maxNodes, setMaxNodes] = useState<number>(15);
 
-  // 處理新增邏輯
   const handleAdd = () => {
+    if (disabled) return;
     const val = Number(inputValue);
     const idx = indexValue !== "" ? Number(indexValue) : undefined;
     if (!isNaN(val)) {
@@ -45,8 +47,8 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     }
   };
 
-  // 處理刪除邏輯
   const handleDelete = () => {
+    if (disabled) return;
     const idx = indexValue !== "" ? Number(indexValue) : undefined;
     onDeleteNode(insertMode, idx);
   };
@@ -65,14 +67,24 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           onChange={(e) => setBulkInput(e.target.value)}
           className={styles.input}
           style={{ width: "150px" }}
+          disabled={disabled}
         />
-        <Button size="sm" onClick={() => onLoadData(bulkInput)}>
+        <Button
+          size="sm"
+          onClick={() => onLoadData(bulkInput)}
+          disabled={disabled}
+        >
           載入資料
         </Button>
-        <Button size="sm" variant="ghost" onClick={onResetData}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onResetData}
+          disabled={disabled}
+        >
           重設
         </Button>
-        <Button size="sm" onClick={onRandomData}>
+        <Button size="sm" onClick={onRandomData} disabled={disabled}>
           隨機
         </Button>
 
@@ -92,12 +104,14 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               color: "#fff",
               border: "1px solid #555",
             }}
+            disabled={disabled}
           />
         </div>
 
         <select
           onChange={(e) => onTailModeChange(e.target.value === "hasTail")}
           className={styles.select}
+          disabled={disabled}
         >
           <option value="noTail">無 tail 模式</option>
           <option value="hasTail">有 tail 模式</option>
@@ -110,6 +124,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           value={insertMode}
           onChange={(e) => setInsertMode(e.target.value)}
           className={styles.select}
+          disabled={disabled}
         >
           <option value="Head">Head</option>
           <option value="Tail">Tail</option>
@@ -123,6 +138,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           onChange={(e) => setInputValue(e.target.value)}
           className={styles.input}
           style={{ width: "80px" }}
+          disabled={disabled}
         />
 
         {insertMode === "Node N" && (
@@ -133,13 +149,19 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             onChange={(e) => setIndexValue(e.target.value)}
             className={styles.input}
             style={{ width: "50px" }}
+            disabled={disabled}
           />
         )}
 
-        <Button size="sm" onClick={handleAdd}>
+        <Button size="sm" onClick={handleAdd} disabled={disabled}>
           Insert
         </Button>
-        <Button size="sm" variant="ghost" onClick={handleDelete}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleDelete}
+          disabled={disabled}
+        >
           Delete
         </Button>
 
@@ -158,6 +180,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             id="searchVal"
             className={styles.input}
             style={{ width: "80px" }}
+            disabled={disabled}
           />
           <Button
             size="sm"
@@ -167,6 +190,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               );
               onSearchNode(val);
             }}
+            disabled={disabled}
           >
             Search
           </Button>
