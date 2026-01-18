@@ -16,11 +16,7 @@ interface ActionType {
   mode: string; // "Enqueue", "Dequeue"
 }
 
-const createBoxes = (
-  list: BoxData[],
-  highlightId: string | null = null,
-  status: Status = "unfinished"
-) => {
+const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
   const startX = 100;
   const startY = 200;
   const gap = 70;
@@ -37,9 +33,7 @@ const createBoxes = (
     if (i === 0) desc = "Front";
     if (i === list.length - 1) desc += desc ? "/Rear" : "Rear";
     box.description = desc;
-
-    if (item.id === highlightId) box.setStatus("target");
-    else box.setStatus(status);
+    box.setStatus(status);
 
     return box;
   });
@@ -68,7 +62,7 @@ export function createQueueAnimationSteps(
 
   const { type, value } = action;
 
-  // Enqueue (Add Tail)
+  // Enqueue
   if (type === "add") {
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];
@@ -80,7 +74,7 @@ export function createQueueAnimationSteps(
     s1NewBox.value = newNode.value;
     s1NewBox.width = 60;
     s1NewBox.height = 60;
-    s1NewBox.moveTo(startX + oldList.length * gap + 100, startY); // 右側
+    s1NewBox.moveTo(startX + oldList.length * gap + 100, startY); // 右側滑入
     s1NewBox.setStatus("target");
     s1NewBox.description = "New";
 
@@ -94,18 +88,20 @@ export function createQueueAnimationSteps(
     steps.push({
       stepNumber: 2,
       description: `Enqueue ${value} 完成`,
-      elements: createBoxes(dataList, newNode.id, "complete"),
+      elements: createBoxes(dataList, "complete"),
     });
   }
-  // Dequeue (Delete Head)
+  // Dequeue
   else if (type === "delete") {
     // dataList 是刪除後的 [1...N]
     // 重建被刪除的 Front
-    const deletedNode = { id: "del-temp", value: value };
+    const deletedNode = {
+      id: (action as any).targetId || "del-temp",
+      value: value,
+    };
     const fullList = [deletedNode, ...dataList];
 
     // Step 1: 標記 Front
-    // 這裡我們手動建立 fullList 的位置
     const s1Boxes = fullList.map((item, i) => {
       const b = new Box();
       b.id = item.id;
@@ -113,12 +109,14 @@ export function createQueueAnimationSteps(
       b.width = 60;
       b.height = 60;
       b.moveTo(startX + i * gap, startY);
-      if (i === 0) {
-        b.setStatus("target");
-        b.description = "Front";
-      } else {
-        b.setStatus("unfinished");
-      }
+
+      let desc = "";
+      if (i === 0) desc = "Front";
+      else if (i === fullList.length - 1) desc = "Rear";
+      b.description = desc;
+
+      if (i === 0) b.setStatus("target"); // 標記要刪除的
+      else b.setStatus("unfinished");
       return b;
     });
 
@@ -128,16 +126,24 @@ export function createQueueAnimationSteps(
       elements: s1Boxes,
     });
 
-    // Step 2: Front 消失 (下沉或淡出)，其餘暫時不動
-    const s2Boxes = dataList.map((item, i) => {
-      // dataList 的第 0 個其實是原本的第 1 個，所以位置要 +1 gap
+    // Step 2: Front 消失 (往左移)，其餘暫時不動
+    const s2Boxes = fullList.map((item, i) => {
       const b = new Box();
       b.id = item.id;
       b.value = item.value;
       b.width = 60;
       b.height = 60;
-      b.moveTo(startX + (i + 1) * gap, startY);
-      b.setStatus("prepare");
+      if (i === 0) {
+        // 被刪除的節點：往左移
+        b.moveTo(startX - 150, startY);
+        b.setStatus("target");
+      } else {
+        // 其他節點：位置不變 (i * gap)
+        b.moveTo(startX + i * gap, startY);
+        b.setStatus("unfinished");
+
+        if (i === fullList.length - 1) b.description = "Rear";
+      }
       return b;
     });
 
@@ -151,7 +157,7 @@ export function createQueueAnimationSteps(
     steps.push({
       stepNumber: 3,
       description: "調整位置",
-      elements: createBoxes(dataList, null, "complete"),
+      elements: createBoxes(dataList, "complete"),
     });
   }
 

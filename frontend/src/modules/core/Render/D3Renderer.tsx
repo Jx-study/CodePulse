@@ -271,7 +271,7 @@ export function renderAll(
         .attr("y", d.height / 2 - 22)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value || "");
+        .text(d.value !== undefined ? d.value : "");
     }
   });
 }
