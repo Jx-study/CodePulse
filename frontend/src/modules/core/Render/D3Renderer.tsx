@@ -190,11 +190,12 @@ export function renderAll(
   // 依型別建立一次對應圖形元素
   enter.each(function (d: any) {
     const g = d3.select(this);
-    if (d instanceof Node) {
+    if (d.kind === "node" || d instanceof Node) {
       g.append("circle");
-    } else if (d instanceof Box) {
+    } else if (d.kind === "box" || d instanceof Box) {
       g.append("rect");
     }
+
     g.append("text").attr("class", "desc"); // 顯示 description
     g.append("text").attr("class", "val"); // 顯示 value
   });
@@ -224,7 +225,7 @@ export function renderAll(
   merged.each(function (d) {
     const g = d3.select(this);
 
-    if (d instanceof Node) {
+    if (d.kind === "node" || d instanceof Node) {
       g.select<SVGCircleElement>("circle")
         .attr("r", d.radius)
         .attr("fill", "none")
@@ -245,7 +246,7 @@ export function renderAll(
         .attr("font-size", 18)
         .attr("fill", "#ccc")
         .text(d.value !== undefined ? d.value : "");
-    } else if (d instanceof Box) {
+    } else if (d.kind === "box" || d instanceof Box) {
       g.select<SVGRectElement>("rect")
         .attr("x", -d.width / 2)
         .attr("y", -d.height / 2)

@@ -25,7 +25,15 @@ export const useDataStructureLogic = (config: any) => {
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
     let newData = [...data]; // 這裡假設 data 是 array，如果是 Tree/Graph 需深拷貝
-    let { value, mode, index, targetId, hasTailMode } = payload; // 解構常用參數
+    let {
+      value,
+      mode,
+      index,
+      targetId,
+      hasTailMode,
+      maxNodes,
+      data: loadData,
+    } = payload; // 解構常用參數
 
     let isResetAction = false;
 
@@ -97,9 +105,86 @@ export const useDataStructureLogic = (config: any) => {
         isResetAction = true;
       }
       // search 不需要改變 newData
+    } else if (config.id === "stack") {
+      if (actionType === "add") {
+        const newId = `box-${nextIdRef.current++}`;
+        const newBox = { id: newId, value: value };
+        newData.push(newBox);
+
+        targetId = newId;
+        payload.mode = "Push";
+      } else if (actionType === "delete") {
+        const delBox = newData.pop();
+        if (delBox) {
+          targetId = delBox.id;
+          value = delBox.value;
+          payload.mode = "Pop";
+        }
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+        if (actionType === "random") {
+          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          newData = [];
+          for (let i = 0; i < count; i++)
+            newData.push({
+              id: `box-${nextIdRef.current++}`,
+              value: Math.floor(Math.random() * 100),
+            });
+        } else if (actionType === "reset") {
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: `box-${nextIdRef.current++}`,
+          }));
+        } else if (actionType === "load") {
+          if (loadData && Array.isArray(loadData)) {
+            newData = loadData.map((v: number) => ({
+              id: `box-${nextIdRef.current++}`,
+              value: v,
+            }));
+          }
+        }
+      }
+    } else if (config.id === "queue") {
+      if (actionType === "add") {
+        const newId = `box-${nextIdRef.current++}`;
+        const newBox = { id: newId, value: value };
+        newData.push(newBox);
+
+        targetId = newId;
+        payload.mode = "Enqueue";
+      } else if (actionType === "delete") {
+        // 刪除第一個
+        const delBox = newData.shift();
+        if (delBox) {
+          targetId = delBox.id;
+          value = delBox.value;
+          payload.mode = "Dequeue";
+        }
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+        if (actionType === "random") {
+          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          newData = [];
+          for (let i = 0; i < count; i++)
+            newData.push({
+              id: `box-${nextIdRef.current++}`,
+              value: Math.floor(Math.random() * 100),
+            });
+        } else if (actionType === "reset") {
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: `box-${nextIdRef.current++}`,
+          }));
+        } else if (actionType === "load") {
+          if (loadData && Array.isArray(loadData)) {
+            newData = loadData.map((v: number) => ({
+              id: `box-${nextIdRef.current++}`,
+              value: v,
+            }));
+          }
+        }
+      }
     }
-    // else if (config.id === "bst") { ... }
-    // else if (config.id === "graph") { ... }
 
     const finalPayload = {
       type: actionType,
