@@ -1,0 +1,103 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.levelDialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 1200px;
+  height: 80vh;
+  background: $dark-bg-secondary;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, -50%) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.dialogHeader {
+  @include flex-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h2 {
+    color: $dark-text-primary;
+    font-size: $font-2xl;
+    margin: 0;
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    color: $dark-text-secondary;
+    font-size: $font-2xl;
+    cursor: pointer;
+    padding: $spacing-sm;
+    transition: $transition-base;
+
+    &:hover {
+      color: $dark-text-primary;
+      transform: scale(1.1);
+    }
+  }
+}
+
+.dialogContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: calc(100% - 80px);
+  gap: 0;
+}
+
+// 響應式設計：手機版改為上下堆疊
+@media (max-width: 768px) {
+  .levelDialog {
+    width: 95vw;
+    height: 90vh;
+  }
+
+  .dialogHeader {
+    padding: $spacing-md $spacing-lg;
+
+    h2 {
+      font-size: $font-xl;
+    }
+  }
+
+  .dialogContent {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+  }
+}

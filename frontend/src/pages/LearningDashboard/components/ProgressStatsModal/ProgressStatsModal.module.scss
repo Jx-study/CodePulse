@@ -1,0 +1,80 @@
+// Modal structure now handled by Modal component
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: $spacing-lg;
+  transition: $transition-base;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+
+  h3 {
+    color: $primary-color;
+    font-size: $font-lg;
+    margin: 0 0 $spacing-md 0;
+  }
+
+  .progressBarContainer {
+    // Progress bar now handled by ProgressBar component
+    margin-bottom: $spacing-sm;
+  }
+
+  .percentage {
+    color: $dark-text-primary;
+    font-size: $font-3xl;
+    font-weight: 700;
+    margin: 0;
+    text-align: center;
+  }
+
+  .statValue {
+    @include flex-center;
+    gap: $spacing-sm;
+    margin: 0;
+    font-size: $font-3xl;
+    font-weight: 700;
+
+    .current {
+      color: $success-color;
+    }
+
+    .separator {
+      color: $dark-text-secondary;
+    }
+
+    .total {
+      color: $dark-text-secondary;
+    }
+  }
+
+  .label {
+    color: $dark-text-secondary;
+    font-size: $font-base;
+    margin: $spacing-sm 0 0;
+    text-align: center;
+  }
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .statCard {
+    padding: $spacing-md;
+
+    .statValue {
+      font-size: $font-2xl;
+    }
+
+    .percentage {
+      font-size: $font-2xl;
+    }
+  }
+}

@@ -1,0 +1,80 @@
+.practiceSection {
+  padding: $spacing-xl;
+  overflow-y: auto;
+  @include flex($direction: column);
+  gap: $spacing-lg;
+
+  h3 {
+    color: $success-color;
+    font-size: $font-xl;
+    margin: 0;
+  }
+
+  h4 {
+    color: $dark-text-primary;
+    font-size: $font-lg;
+    margin: 0 0 $spacing-sm 0;
+  }
+}
+
+.practiceProgress {
+  // Progress bar now handled by ProgressBar component
+}
+
+.bestScore {
+  // Stars now handled by StarRating component
+}
+
+.requirements {
+  ul {
+    margin: 0;
+    padding-left: $spacing-lg;
+    color: $dark-text-secondary;
+    line-height: 1.8;
+
+    li {
+      margin-bottom: $spacing-xs;
+    }
+  }
+}
+
+.stats {
+  @include flex($direction: row);
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+
+  .label {
+    color: $dark-text-secondary;
+    font-size: $font-sm;
+  }
+
+  .value {
+    color: $dark-text-primary;
+    font-size: $font-sm;
+    font-weight: 600;
+  }
+}
+
+.startPracticeButton {
+  width: 100%;
+  margin-top: auto;
+  background: linear-gradient(135deg, $success-color 0%, #45a049 100%);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  }
+}
+
+.completedBadge {
+  // Badge now handled by Badge component
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .practiceSection {
+    padding: $spacing-lg;
+  }
+}

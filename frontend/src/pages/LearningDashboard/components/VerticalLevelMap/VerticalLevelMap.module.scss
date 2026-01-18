@@ -1,0 +1,50 @@
+.verticalLevelMap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #1a1a2e 0%, #0f0f1e 100%);
+  cursor: grab;
+  user-select: none;
+
+  &.dragging {
+    cursor: grabbing;
+
+    .mapContent {
+      transition: none; // 拖動時禁用過渡動畫
+    }
+  }
+}
+
+.mapContent {
+  position: absolute;
+  width: 100%;
+  min-height: 100%;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
+.pathLine {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 200%; // 足夠覆蓋所有關卡
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.15) 0,
+    rgba(255, 255, 255, 0.15) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  pointer-events: none; // 不阻擋點擊事件
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .pathLine {
+    width: 3px;
+  }
+}

@@ -1,0 +1,85 @@
+tutorialSection {
+  padding: $spacing-xl;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+  @include flex($direction: column);
+  gap: $spacing-lg;
+
+  h3 {
+    color: $primary-color;
+    font-size: $font-xl;
+    margin: 0;
+  }
+
+  h4 {
+    color: $dark-text-primary;
+    font-size: $font-lg;
+    margin: 0 0 $spacing-sm 0;
+  }
+}
+
+.levelInfo {
+  @include flex($direction: column);
+  gap: $spacing-sm;
+
+  .infoRow {
+    @include flex($direction: row);
+    gap: $spacing-sm;
+
+    .label {
+      color: $dark-text-secondary;
+      font-size: $font-sm;
+    }
+
+    .value {
+      color: $dark-text-primary;
+      font-size: $font-sm;
+      font-weight: 600;
+    }
+  }
+}
+
+.description {
+  p {
+    color: $dark-text-secondary;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.objectives {
+  ul {
+    margin: 0;
+    padding-left: $spacing-lg;
+    color: $dark-text-secondary;
+    line-height: 1.8;
+
+    li {
+      margin-bottom: $spacing-xs;
+    }
+  }
+}
+
+.startTutorialButton {
+  width: 100%;
+  margin-top: auto;
+  background: linear-gradient(135deg, $primary-color 0%, #764ba2 100%);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+}
+
+.completedBadge {
+  // Badge now handled by Badge component
+}
+
+// 響應式設計
+@media (max-width: 768px) {
+  .tutorialSection {
+    padding: $spacing-lg;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
