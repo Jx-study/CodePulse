@@ -1,0 +1,85 @@
+{
+  "algorithms": [
+    {
+      "id": 1,
+      "levelId": "bubble-sort",
+      "category": "sorting",
+      "difficulty": 2,
+      "image": "bubble-sort.png",
+      "translationKey": "bubble_sort"
+    },
+    {
+      "id": 2,
+      "levelId": "quick-sort",
+      "category": "sorting",
+      "difficulty": 4,
+      "image": "quick-sort.png",
+      "translationKey": "quick_sort"
+    },
+    {
+      "id": 3,
+      "levelId": "merge-sort",
+      "category": "sorting",
+      "difficulty": 4,
+      "image": "merge-sort.png",
+      "translationKey": "merge_sort"
+    },
+    {
+      "id": 4,
+      "levelId": "binary-search",
+      "category": "search",
+      "difficulty": 3,
+      "image": "binary-search.png",
+      "translationKey": "binary_search"
+    },
+    {
+      "id": 5,
+      "levelId": "linear-search",
+      "category": "search",
+      "difficulty": 1,
+      "image": "linear-search.png",
+      "translationKey": "linear_search"
+    },
+    {
+      "id": 6,
+      "levelId": "dfs",
+      "category": "graph",
+      "difficulty": 4,
+      "image": "dfs.png",
+      "translationKey": "dfs"
+    },
+    {
+      "id": 7,
+      "levelId": "bfs",
+      "category": "graph",
+      "difficulty": 3,
+      "image": "bfs.png",
+      "translationKey": "bfs"
+    },
+    {
+      "id": 8,
+      "levelId": "dijkstra",
+      "category": "graph",
+      "difficulty": 5,
+      "image": "dijkstra.png",
+      "translationKey": "dijkstra"
+    }
+  ],
+  "levelMapping": {
+    "bubble-sort": "sorting/bubble-sort",
+    "selection-sort": "sorting/selection-sort",
+    "insertion-sort": "sorting/insertion-sort",
+    "merge-sort": "sorting/merge-sort",
+    "quick-sort": "sorting/quick-sort",
+    "binary-search": "searching/binary-search",
+    "linear-search": "searching/linear-search",
+    "dfs": "graph/dfs",
+    "bfs": "graph/bfs",
+    "dijkstra": "graph/dijkstra"
+  },
+  "developedAlgorithms": [
+    "quick-sort",
+    "merge-sort",
+    "binary-search"
+  ]
+}

@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import styles from './PulseBackground.module.scss';
 
-const PulseBackground = forwardRef((props, ref) => {
+const PulseBackground = forwardRef((_props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<WanderingParticle[]>([]);
   const deadParticles = useRef<WanderingParticle[]>([]); // Object pool for wandering particles
@@ -14,15 +14,6 @@ const PulseBackground = forwardRef((props, ref) => {
   const MAX_DEAD_PARTICLES = 15;
 
   const colors = ["#FF0000", "#FFFF00", "#0000FF"];
-
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-  };
 
   // --- WanderingParticle Class ---
   class WanderingParticle {
@@ -269,7 +260,7 @@ const PulseBackground = forwardRef((props, ref) => {
 
       if (particles.current.length >= MAX_WANDERING_PARTICLES) {
         const oldParticle = particles.current.shift();
-        if (deadParticles.current.length < MAX_DEAD_PARTICLES) {
+        if (oldParticle && deadParticles.current.length < MAX_DEAD_PARTICLES) {
           oldParticle.cleanup();
           deadParticles.current.push(oldParticle);
         }
@@ -309,6 +300,7 @@ const PulseBackground = forwardRef((props, ref) => {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Update and draw WanderingParticles
@@ -361,6 +353,7 @@ const PulseBackground = forwardRef((props, ref) => {
 
     const resizeCanvas = () => {
       const container = canvas.parentElement;
+      if (!container) return;
       canvas.width = container.offsetWidth;
       canvas.height = container.offsetHeight;
     };

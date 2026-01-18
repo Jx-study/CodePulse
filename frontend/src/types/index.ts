@@ -1,41 +1,35 @@
-// 基本類型定義
+/**
+ * Types Index
+ * 統一導出所有類型定義
+ */
 
-export interface User {
-  id: string;
-  email: string;
-  username?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+// ==================== Algorithm Types ====================
+export * from './algorithm';
 
-export interface AuthSession {
-  access_token: string;
-  refresh_token: string;
-}
+// ==================== Component Types ====================
+export * from './components/common';
+export * from './components/form';
+export * from './components/feedback';
+export * from './components/navigation';
+export * from './components/display';
+export * from './components/skeleton';
 
-export interface AuthResponse {
-  user: User;
-  session: AuthSession;
-  message?: string;
-}
+// ==================== Page Types ====================
+export * from './pages/dashboard';
 
-export interface ErrorResponse {
-  error_code?: string;
-  message: string;
-}
+// ==================== Context Types ====================
+export * from './contexts/auth';
 
-export interface BreadcrumbItem {
-  label: string;
-  path: string | null;
-}
+// ==================== API Types ====================
+export * from './api/common';
 
+// ==================== General Types ====================
 export interface AlgorithmData {
   name: string;
   category: string;
   description?: string;
 }
 
-// React 組件 Props 類型
 export interface ComponentProps {
   className?: string;
   children?: React.ReactNode;

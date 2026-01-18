@@ -16,25 +16,7 @@
   }
 }
 
-.userAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: $transition-base;
-  @include flex-center;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-.avatarLetter {
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  user-select: none;
-}
+// Avatar now handled by Avatar component
 
 .userMenu {
   position: absolute;

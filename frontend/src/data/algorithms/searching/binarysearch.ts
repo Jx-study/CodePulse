@@ -1,5 +1,6 @@
-import { Box } from '../../../modules/core/DataLogic/Box';
-import { AnimationStep, AlgorithmConfig } from '../../../types/algorithm';
+import { Box } from '@/modules/core/DataLogic/Box';
+import { AnimationStep, AlgorithmConfig } from '@/types/algorithm';
+import type { Status } from '@/modules/core/DataLogic/BaseElement';
 
 /**
  * 創建二分搜尋的動畫步驟
@@ -10,7 +11,7 @@ export function createBinarySearchAnimationSteps(): AnimationStep[] {
   const target = 11;
 
   // Helper: 創建 box 元素
-  const createBoxes = (statusMap: { [id: string]: string } = {}) => {
+  const createBoxes = (statusMap: Record<string, Status> = {}) => {
     return values.map((value, i) => {
       const box = new Box();
       box.id = `box-${i}`;
@@ -19,10 +20,11 @@ export function createBinarySearchAnimationSteps(): AnimationStep[] {
       box.height = 50;
       box.value = value;
       box.description = `${value}`;
-      box.setStatus(statusMap[box.id] || 'unfinished');
+      box.setStatus(statusMap[box.id] ?? "unfinished");
       return box;
     });
   };
+
 
   // Step 1: 初始狀態
   steps.push({

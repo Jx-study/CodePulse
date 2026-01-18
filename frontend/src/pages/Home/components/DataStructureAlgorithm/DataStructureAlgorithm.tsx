@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./DataStructureAlgorithm.module.scss";
 import { useTranslation } from "react-i18next";
-import Button from "../../../../shared/components/Button/Button";
+import Button from "@/shared/components/Button";
+import Card from "@/shared/components/Card";
+import { getAllAlgorithmsMetadata, getLevelIdFromHomeAlgorithm } from "@/data/algorithmMapping";
 
-// Import images
+// Import all algorithm images dynamically
 import bubbleSortImg from "./assets/bubble-sort.png";
 import quickSortImg from "./assets/quick-sort.png";
 import mergeSortImg from "./assets/merge-sort.png";
@@ -13,76 +16,33 @@ import dfsImg from "./assets/dfs.png";
 import bfsImg from "./assets/bfs.png";
 import dijkstraImg from "./assets/dijkstra.png";
 
+export const algorithmImages: Record<string, string> = {
+  "bubble-sort.png": bubbleSortImg,
+  "quick-sort.png": quickSortImg,
+  "merge-sort.png": mergeSortImg,
+  "binary-search.png": binarySearchImg,
+  "linear-search.png": linearSearchImg,
+  "dfs.png": dfsImg,
+  "bfs.png": bfsImg,
+  "dijkstra.png": dijkstraImg,
+};
+
 function DataStructureAlgorithm() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const algorithms = [
-    {
-      id: 1,
-      name: t("algorithms.bubble_sort.name"),
-      description: t("algorithms.bubble_sort.description"),
-      difficulty: 2,
-      category: "sorting",
-      image: bubbleSortImg,
-    },
-    {
-      id: 2,
-      name: t("algorithms.quick_sort.name"),
-      description: t("algorithms.quick_sort.description"),
-      difficulty: 4,
-      category: "sorting",
-      image: quickSortImg,
-    },
-    {
-      id: 3,
-      name: t("algorithms.merge_sort.name"),
-      description: t("algorithms.merge_sort.description"),
-      difficulty: 4,
-      category: "sorting",
-      image: mergeSortImg,
-    },
-    {
-      id: 4,
-      name: t("algorithms.binary_search.name"),
-      description: t("algorithms.binary_search.description"),
-      difficulty: 3,
-      category: "search",
-      image: binarySearchImg,
-    },
-    {
-      id: 5,
-      name: t("algorithms.linear_search.name"),
-      description: t("algorithms.linear_search.description"),
-      difficulty: 1,
-      category: "search",
-      image: linearSearchImg,
-    },
-    {
-      id: 6,
-      name: t("algorithms.dfs.name"),
-      description: t("algorithms.dfs.description"),
-      difficulty: 4,
-      category: "graph",
-      image: dfsImg,
-    },
-    {
-      id: 7,
-      name: t("algorithms.bfs.name"),
-      description: t("algorithms.bfs.description"),
-      difficulty: 3,
-      category: "graph",
-      image: bfsImg,
-    },
-    {
-      id: 8,
-      name: t("algorithms.dijkstra.name"),
-      description: t("algorithms.dijkstra.description"),
-      difficulty: 5,
-      category: "graph",
-      image: dijkstraImg,
-    },
-  ];
+  // Get algorithms from centralized metadata
+  const algorithms = useMemo(() => {
+    return getAllAlgorithmsMetadata().map(meta => ({
+      id: meta.id,
+      name: t(`algorithms.${meta.translationKey}.name`),
+      description: t(`algorithms.${meta.translationKey}.description`),
+      difficulty: meta.difficulty,
+      category: meta.category,
+      image: algorithmImages[meta.image],
+    }));
+  }, [t]);
 
   const cardsPerSlide = 4;
   const totalSlides = Math.ceil(algorithms.length / cardsPerSlide);
@@ -99,38 +59,32 @@ function DataStructureAlgorithm() {
     setCurrentSlide(slideIndex);
   };
 
+  const handleLearnMore = (algorithmId: number) => {
+    const levelId = getLevelIdFromHomeAlgorithm(algorithmId);
+    if (levelId) {
+      // Navigate to LearningDashboard with levelId query parameter
+      navigate(`/dashboard?levelId=${levelId}`);
+    } else {
+      console.warn(`No level mapping found for algorithm ID: ${algorithmId}`);
+    }
+  };
+
   const getCurrentSlideAlgorithms = () => {
     const startIndex = currentSlide * cardsPerSlide;
     const endIndex = startIndex + cardsPerSlide;
     return algorithms.slice(startIndex, endIndex);
   };
 
-  // 渲染星星难度
-  const renderStars = (difficulty: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          className={`star ${i <= difficulty ? "filled" : ""}`}
-        >
-          ★
-        </span>
-      );
-    }
-    return stars;
-  };
-
-  const getCategoryColor = (category: string) => {
+  const getCategoryVariant = (category: string): 'primary' | 'success' | 'warning' => {
     switch (category) {
       case "sorting":
-        return styles.sorting;
+        return "primary";
       case "search":
-        return styles.search;
+        return "success";
       case "graph":
-        return styles.graph;
+        return "warning";
       default:
-        return "";
+        return "primary";
     }
   };
 
@@ -142,35 +96,28 @@ function DataStructureAlgorithm() {
         <div className={styles.sliderContainer}>
           <div className={`${styles.algorithmGrid} common-grid`}>
             {getCurrentSlideAlgorithms().map((algorithm) => (
-              <div
+              <Card
                 key={algorithm.id}
-                className={`common-card ${getCategoryColor(
-                  algorithm.category
-                )}`}
-              >
-                <div className="algorithmImage">
-                  <img
-                    src={algorithm.image}
-                    alt={algorithm.name}
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.cardHeader}>
-                  <h3>{algorithm.name}</h3>
-                  <div className="difficulty">
-                    {renderStars(algorithm.difficulty)}
-                  </div>
-                </div>
-                <p className={styles.description}>{algorithm.description}</p>
-                <div className={styles.cardFooter}>
-                  <span className={styles.category}>
-                    {t(`algorithms.categories.${algorithm.category}`)}
-                  </span>
-                  <Button variant="primaryOutline" size="sm">
+                variant="algorithm"
+                image={algorithm.image}
+                title={algorithm.name}
+                description={algorithm.description}
+                difficulty={algorithm.difficulty}
+                category={{
+                  label: t(`algorithms.categories.${algorithm.category}`),
+                  variant: getCategoryVariant(algorithm.category)
+                }}
+                footer={
+                  <Button
+                    variant="primaryOutline"
+                    size="sm"
+                    onClick={() => handleLearnMore(algorithm.id)}
+                  >
                     {t("algorithms_section.learn_more")}
                   </Button>
-                </div>
-              </div>
+                }
+                hoverable
+              />
             ))}
           </div>
 

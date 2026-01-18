@@ -1,5 +1,3 @@
-@use '../../shared/styles/variables' as *;
-
 .explorer {
   min-height: 100vh;
   background: var(--bg-primary);
@@ -21,7 +19,7 @@
   }
 
   // 手機/平板端：上下堆疊
-  @media (max-width: $tablet - 1px) {
+  @media (max-width: $tablet-max) {
     flex-direction: column;
     height: auto;
   }
@@ -38,7 +36,7 @@
   box-shadow: var(--card-shadow);
   overflow: hidden;
 
-  @media (max-width: $tablet - 1px) {
+  @media (max-width: $tablet-max) {
     min-height: 500px;
   }
 }
@@ -54,7 +52,7 @@
   box-shadow: var(--card-shadow);
   overflow: hidden;
 
-  @media (max-width: $tablet - 1px) {
+  @media (max-width: $tablet-max) {
     min-height: 500px;
   }
 }
@@ -90,7 +88,7 @@
 // ==================== 響應式調整 ====================
 
 // 手機端（<768px）
-@media (max-width: $mobile - 1px) {
+@media (max-width: $mobile-max) {
   .mainContent {
     gap: $spacing-md;
     margin-top: $spacing-md;

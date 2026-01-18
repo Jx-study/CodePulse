@@ -2,6 +2,9 @@ node_modules/
 .idea/
 *.iml
 
+*.md
+!README.md
+
 # Frontend
 build/
 frontend/dist/

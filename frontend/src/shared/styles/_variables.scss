@@ -32,9 +32,9 @@ $gradient-hero: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
 $error-color: #ef4444;
 $success-color: #4caf50;
 
-// 元件中仍使用的通用變數
+// 元件使用的通用變數
 $primary-color: #635bff;
-$execution-color: #28a745;
+$execution-color: #10b981;
 $accent-color: #ff6b35;
 
 // 骨架屏顏色
@@ -82,7 +82,9 @@ $font-family-code: "SF Mono", "Monaco", "Consolas", "Liberation Mono",
 // ========== 其他 ==========
 // 斷點
 $mobile: 768px;
+$mobile-max: 767px; // 手機端最大寬度
 $tablet: 1024px;
+$tablet-max: 1023px; // 平板端最大寬度
 $desktop: 1200px;
 
 // 陰影

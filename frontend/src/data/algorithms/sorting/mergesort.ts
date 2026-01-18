@@ -1,5 +1,6 @@
-import { Box } from '../../../modules/core/DataLogic/Box';
-import { AnimationStep, AlgorithmConfig } from '../../../types/algorithm';
+import { Box } from '@/modules/core/DataLogic/Box';
+import { AnimationStep, AlgorithmConfig } from '@/types/algorithm';
+import type { Status } from '@/modules/core/DataLogic/BaseElement';
 
 /**
  * 創建合併排序的動畫步驟
@@ -11,7 +12,7 @@ export function createMergeSortAnimationSteps(): AnimationStep[] {
   // Helper: 創建 box 元素
   const createBoxes = (
     customValues: number[] = values,
-    statusMap: { [id: string]: string } = {},
+    statusMap: Record<string, Status> = {},
     xOffset: number = 150
   ) => {
     return customValues.map((value, i) => {
@@ -22,7 +23,7 @@ export function createMergeSortAnimationSteps(): AnimationStep[] {
       box.height = 60;
       box.value = value;
       box.description = `${value}`;
-      box.setStatus(statusMap[box.id] || 'unfinished');
+      box.setStatus(statusMap[box.id] ?? 'unfinished');
       return box;
     });
   };

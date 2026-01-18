@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import styles from './Explorer.module.scss';
-import { D3Canvas } from "../../modules/core/Render/D3Canvas";
-import { Node } from "../../modules/core/DataLogic/Node";
-import { Box } from "../../modules/core/DataLogic/Box";
-import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import styles from "./Explorer.module.scss";
+import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Box } from "@/modules/core/DataLogic/Box";
+import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 
 // 預設程式碼範例
 const DEFAULT_CODE: Record<string, string> = {
@@ -100,7 +100,7 @@ function Explorer() {
   return (
     <div className={styles.explorer}>
       <div className="container">
-        <h1 className="section-title">{t('explorer')}</h1>
+        <h1 className="section-title">{t("explorer")}</h1>
 
         {/* 主要內容區域：左右分屏 */}
         <div className={styles.mainContent}>
@@ -113,6 +113,7 @@ function Explorer() {
               value={code}
               onChange={setCode}
               theme="auto"
+              highlightedLine={4}
             />
           </div>
 

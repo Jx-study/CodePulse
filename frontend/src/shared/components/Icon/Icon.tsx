@@ -1,32 +1,11 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import type { IconName } from '../../utils/icons';
-import '../../utils/icons'; // 確保圖標庫已註冊
+import type { IconProps, IconSize, IconColor, IconAnimation } from '@/types';
 import styles from './Icon.module.scss';
 
-//Icon 尺寸類型
-export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-
-// Icon 顏色類型
-export type IconColor = 'primary' | 'secondary' | 'danger' | 'muted' | 'inherit';
-
-// Icon 動畫類型
-export type IconAnimation = 'spin' | 'pulse';
-
-// Icon Component Props
-export interface IconProps {
-  name: IconName; // 必填
-  size?: IconSize;
-  color?: IconColor;
-  animation?: IconAnimation;
-  className?: string;
-  ariaLabel?: string;   // 無障礙標籤
-  title?: string;
-  onClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
-
-  decorative?: boolean //是否裝飾性圖標 (無語義，對螢幕閱讀器隱藏)
-}
+// Re-export types for backward compatibility
+export type { IconSize, IconColor, IconAnimation };
 
 /**
  * Icon Component

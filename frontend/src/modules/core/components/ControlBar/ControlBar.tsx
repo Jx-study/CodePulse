@@ -1,6 +1,6 @@
-import Button from '../../../../shared/components/Button/Button';
-import Icon from '../../../../shared/components/Icon/Icon';
-import Slider from '../../../../shared/components/Slider/Slider';
+import Button from '@/shared/components/Button';
+import Icon from '@/shared/components/Icon';
+import Slider from '@/shared/components/Slider';
 import styles from './ControlBar.module.scss';
 
 export interface ControlBarProps {

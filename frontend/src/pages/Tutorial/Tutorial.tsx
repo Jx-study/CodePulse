@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Breadcrumb, Button } from '../../shared/components';
-import CodeEditor from '../../modules/core/components/CodeEditor/CodeEditor';
-import { D3Canvas } from '../../modules/core/Render/D3Canvas';
-import ControlBar from '../../modules/core/components/ControlBar/ControlBar';
-import { BreadcrumbItem } from '../../types';
-import { getAlgorithmConfig } from '../../data/algorithms';
-import styles from './Tutorial.module.scss';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import type { BreadcrumbItem } from "@/types";
+import Breadcrumb from "@/shared/components/Breadcrumb";
+import Button from "@/shared/components/Button";
+import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
+import { getAlgorithmConfig } from "@/data/algorithms";
+import styles from "./Tutorial.module.scss";
 
 function Tutorial() {
-  const { t } = useTranslation();
-  const { category, algorithm } = useParams<{ category: string; algorithm: string }>();
+  const { category, algorithm } = useParams<{
+    category: string;
+    algorithm: string;
+  }>();
   const navigate = useNavigate();
 
   // 根據路由參數載入演算法配置
-  const algorithmConfig = category && algorithm ? getAlgorithmConfig(category, algorithm) : null;
+  const algorithmConfig =
+    category && algorithm ? getAlgorithmConfig(category, algorithm) : null;
 
   // 如果找不到演算法配置，顯示錯誤
   if (!algorithmConfig) {
@@ -23,8 +26,10 @@ function Tutorial() {
       <div className={styles.tutorialPage}>
         <div className={styles.errorContainer}>
           <h2>演算法不存在</h2>
-          <p>找不到演算法：{category}/{algorithm}</p>
-          <Button onClick={() => navigate('/dashboard')}>返回首頁</Button>
+          <p>
+            找不到演算法：{category}/{algorithm}
+          </p>
+          <Button onClick={() => navigate("/dashboard")}>返回首頁</Button>
         </div>
       </div>
     );
@@ -89,7 +94,7 @@ function Tutorial() {
 
   // Debug logging
   useEffect(() => {
-    console.log('Tutorial Debug:', {
+    console.log("Tutorial Debug:", {
       currentStep,
       totalSteps: animationSteps.length,
       isPlaying,
@@ -100,7 +105,13 @@ function Tutorial() {
         elementsCount: currentStepData?.elements?.length,
       },
     });
-  }, [currentStep, currentStepData, isPlaying, playbackSpeed, animationSteps.length]);
+  }, [
+    currentStep,
+    currentStepData,
+    isPlaying,
+    playbackSpeed,
+    animationSteps.length,
+  ]);
 
   return (
     <div className={styles.tutorialPage}>
@@ -175,20 +186,34 @@ function Tutorial() {
             <h4>複雜度分析</h4>
             <div className={styles.complexityTable}>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（最佳）：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeBest}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（最佳）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {algorithmConfig.complexity.timeBest}
+                </span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（平均）：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeAverage}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（平均）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {algorithmConfig.complexity.timeAverage}
+                </span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（最差）：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.timeWorst}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（最差）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {algorithmConfig.complexity.timeWorst}
+                </span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>{algorithmConfig.complexity.space}</span>
+                <span className={styles.complexityValue}>
+                  {algorithmConfig.complexity.space}
+                </span>
               </div>
             </div>
           </div>

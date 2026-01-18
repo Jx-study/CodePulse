@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import styles from '../../styles/AuthForm.module.scss';
-import Button from '../../../../shared/components/Button/Button';
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import styles from "@/styles/AuthForm.module.scss";
+import Button from "@/shared/components/Button/Button";
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -21,24 +21,24 @@ interface LoginFormProps {
 function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<LoginFormData>({
-    usernameOrEmail: '',
-    password: '',
-    rememberMe: false
+    usernameOrEmail: "",
+    password: "",
+    rememberMe: false,
   });
   const [errors, setErrors] = useState<LoginFormErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     // 清除錯誤訊息
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -47,13 +47,13 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
     const newErrors: LoginFormErrors = {};
 
     if (!formData.usernameOrEmail.trim()) {
-      newErrors.usernameOrEmail = '請輸入用戶名或信箱';
+      newErrors.usernameOrEmail = "請輸入用戶名或信箱";
     }
 
     if (!formData.password) {
-      newErrors.password = '請輸入密碼';
+      newErrors.password = "請輸入密碼";
     } else if (formData.password.length < 6) {
-      newErrors.password = '密碼至少需要6個字符';
+      newErrors.password = "密碼至少需要6個字符";
     }
 
     setErrors(newErrors);
@@ -82,7 +82,7 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
             placeholder="請輸入用戶名或信箱"
             className={errors.usernameOrEmail ? styles.error : ""}
             disabled={disabled}
-            autoComplete='username'
+            autoComplete="username"
             required
           />
           {errors.usernameOrEmail && (

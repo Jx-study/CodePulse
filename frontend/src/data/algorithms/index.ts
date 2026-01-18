@@ -1,16 +1,16 @@
-import { AlgorithmConfig } from '../../types/algorithm';
-import { quickSortConfig } from './sorting/quicksort';
-import { mergeSortConfig } from './sorting/mergesort';
-import { binarySearchConfig } from './searching/binarysearch';
+import { AlgorithmConfig } from "@/types/algorithm";
+import { quickSortConfig } from "./sorting/quicksort";
+import { mergeSortConfig } from "./sorting/mergesort";
+import { binarySearchConfig } from "./searching/binarysearch";
 
 /**
  * 所有演算法配置的集合
- * 使用 category/algorithm 作為 key
+ * 使用 category/algorithm 作為 key (統一 kebab-case 命名)
  */
 export const algorithmsMap: Record<string, AlgorithmConfig> = {
-  'sorting/quicksort': quickSortConfig,
-  'sorting/mergesort': mergeSortConfig,
-  'searching/binarysearch': binarySearchConfig,
+  "sorting/quick-sort": quickSortConfig, // ✅ 改為 kebab-case（與 mockData.ts 一致）
+  "sorting/merge-sort": mergeSortConfig, // ✅ 改為 kebab-case
+  "searching/binary-search": binarySearchConfig, // ✅ 改為 kebab-case
 };
 
 /**
@@ -21,7 +21,7 @@ export const algorithmsMap: Record<string, AlgorithmConfig> = {
  */
 export function getAlgorithmConfig(
   category: string,
-  algorithm: string
+  algorithm: string,
 ): AlgorithmConfig | null {
   const key = `${category}/${algorithm}`;
   return algorithmsMap[key] || null;
@@ -42,6 +42,6 @@ export function getAllAlgorithms(): AlgorithmConfig[] {
  */
 export function getAlgorithmsByCategory(category: string): AlgorithmConfig[] {
   return Object.values(algorithmsMap).filter(
-    (config) => config.category === category
+    (config) => config.category === category,
   );
 }

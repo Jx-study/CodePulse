@@ -1,12 +1,11 @@
 import styles from './Features.module.scss';
 import { useTranslation } from 'react-i18next';
+import Card from '../Card/Card';
 
 // Import feature images
 import interactiveFlowchartImg from './assets/interactive-flowchart.png';
 import memoryVisualizationImg from './assets/memory-visualization.png';
 import smartSummaryImg from './assets/smart-summary.png';
-import dynamicTrackingImg from './assets/dynamic-tracking.png';
-import breakpointSystemImg from './assets/breakpoint-system.png';
 import teachingInterfaceImg from './assets/teaching-interface.png';
 
 function Features() {
@@ -45,8 +44,8 @@ function Features() {
   ];
 
   // Image error handling
-  const handleImageError = (event) => {
-    event.target.src = '/assets/features/default-feature.png';
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.src = "/assets/features/default-feature.png";
   };
 
   // 創建無限滾動的卡片陣列 (重複卡片以實現無縫循環)
@@ -61,21 +60,21 @@ function Features() {
         <div className={styles.scrollContainer}>
           <div className={styles.cardContainer}>
             {infiniteFeatures.map((feature, index) => (
-              <div
-                key={`${feature.id}-${index}`} className={`common-card ${styles.featureCard}`}>
-                <div className="featureIcon">
+              <Card
+                key={`${feature.id}-${index}`}
+                variant="feature"
+                icon={
                   <img
                     src={feature.image}
                     alt={feature.alt}
                     onError={handleImageError}
                     loading="lazy"
                   />
-                </div>
-                <h3 className={styles.featureTitle}>{feature.title}</h3>
-                <p className={styles.featureDescription}>
-                  {feature.description}
-                </p>
-              </div>
+                }
+                title={feature.title}
+                description={feature.description}
+                className={styles.featureCard}
+              />
             ))}
           </div>
         </div>

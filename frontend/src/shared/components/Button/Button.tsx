@@ -1,24 +1,6 @@
 import React from 'react';
+import type { ButtonProps } from '@/types';
 import styles from './Button.module.scss';
-
-export interface ButtonProps {
-  variant?: 'primary' | 'primaryOutline' | 'secondary' | 'ghost' | 'danger' | 'icon' | 'dot';
-  size?: 'xs' | 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  loading?: boolean;
-  fullWidth?: boolean;
-  iconLeft?: React.ReactNode;
-  iconRight?: React.ReactNode;
-  type?: 'button' | 'submit' | 'reset';
-  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
-  className?: string;
-  children?: React.ReactNode;
-  'aria-label'?: string;
-  as?: React.ElementType; // 支援自定義元素類型 (如 Link)
-  to?: string; // 支援 React Router Link 的 to prop
-  href?: string; // 支援原生 <a> 的 href
-  [key: string]: any; // 支援其他額外 props
-}
 
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',

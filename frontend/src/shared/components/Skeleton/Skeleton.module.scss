@@ -1,5 +1,5 @@
-@use '../../../shared/styles/variables' as *;
-@use '../../../shared/styles/mixins' as *;
+@use "@/shared/styles/variables" as *;
+@use "@/shared/styles/mixins" as *;
 
 // ========== Base Skeleton Styles ==========
 .skeleton {
@@ -30,7 +30,7 @@
 // Shimmer animation (光澤掃過效果)
 .shimmer {
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
@@ -70,7 +70,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -134,7 +135,7 @@
     // Gradient masks at edges
     &::before,
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       bottom: 0;

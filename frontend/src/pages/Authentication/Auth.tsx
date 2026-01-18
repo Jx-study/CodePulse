@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import LoginForm from '../../modules/auth/components/LoginForm/LoginForm';
-import SignupForm from '../../modules/auth/components/SignupForm/SignupForm';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import styles from './Auth.module.scss';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import LoginForm from "@/modules/auth/components/LoginForm/LoginForm";
+import SignupForm from "@/modules/auth/components/SignupForm/SignupForm";
+import { useAuth } from "@/shared/contexts/AuthContext";
+import styles from "./Auth.module.scss";
 
 // 型別定義
-type TabType = 'login' | 'signup';
+type TabType = "login" | "signup";
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -31,36 +31,36 @@ function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, register } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('login');
+  const [activeTab, setActiveTab] = useState<TabType>("login");
   const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
-
+  const [message, setMessage] = useState<MessageState>({ type: "", text: "" });
 
   const showTab = (tab: TabType) => {
     setActiveTab(tab);
-    setMessage({ type: '', text: '' }); // 清除訊息
+    setMessage({ type: "", text: "" }); // 清除訊息
   };
 
   const handleLoginSubmit = async (formData: LoginFormData) => {
     setLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
       // 使用 usernameOrEmail 欄位進行登入 (支援 email 或 username)
       await login(formData.usernameOrEmail, formData.password);
 
       // 登入成功
-      setMessage({ type: 'success', text: t('auth.success.LOGIN_SUCCESS') });
+      setMessage({ type: "success", text: t("auth.success.LOGIN_SUCCESS") });
 
       // 延遲跳轉到首頁
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 1500);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('auth.errors.LOGIN_ERROR');
+      const errorMessage =
+        error instanceof Error ? error.message : t("auth.errors.LOGIN_ERROR");
       setMessage({
-        type: 'error',
-        text: errorMessage
+        type: "error",
+        text: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -69,27 +69,29 @@ function AuthPage() {
 
   const handleSignupSubmit = async (formData: SignupFormData) => {
     setLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
-      await register(
-        formData.email,
-        formData.password,
-        formData.username
-      );
+      await register(formData.email, formData.password, formData.username);
 
       // 註冊成功（AuthContext 會自動登入並跳轉）
-      setMessage({ type: 'success', text: t('auth.success.REGISTRATION_SUCCESS') });
+      setMessage({
+        type: "success",
+        text: t("auth.success.REGISTRATION_SUCCESS"),
+      });
 
       // 延遲跳轉到首頁
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 1500);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('auth.errors.REGISTRATION_ERROR');
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : t("auth.errors.REGISTRATION_ERROR");
       setMessage({
-        type: 'error',
-        text: errorMessage
+        type: "error",
+        text: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -100,18 +102,18 @@ function AuthPage() {
     <div className={styles.authContainer}>
       <div className={styles.tabs}>
         <button
-          className={`${styles.tabButton} ${activeTab === 'login' ? styles.active : ''}`}
-          onClick={() => showTab('login')}
+          className={`${styles.tabButton} ${activeTab === "login" ? styles.active : ""}`}
+          onClick={() => showTab("login")}
           disabled={loading}
         >
-          {t('login')}
+          {t("login")}
         </button>
         <button
-          className={`${styles.tabButton} ${activeTab === 'signup' ? styles.active : ''}`}
-          onClick={() => showTab('signup')}
+          className={`${styles.tabButton} ${activeTab === "signup" ? styles.active : ""}`}
+          onClick={() => showTab("signup")}
           disabled={loading}
         >
-          {t('register')}
+          {t("register")}
         </button>
       </div>
 
@@ -124,17 +126,15 @@ function AuthPage() {
 
       {/* Loading 狀態 */}
       {loading && (
-        <div className={styles.loading}>
-          {t('loading', '處理中...')}
-        </div>
+        <div className={styles.loading}>{t("loading", "處理中...")}</div>
       )}
 
       <div className={styles.formContainer}>
-        {activeTab === 'login' && (
+        {activeTab === "login" && (
           <LoginForm onSubmit={handleLoginSubmit} disabled={loading} />
         )}
 
-        {activeTab === 'signup' && (
+        {activeTab === "signup" && (
           <SignupForm onSubmit={handleSignupSubmit} disabled={loading} />
         )}
       </div>

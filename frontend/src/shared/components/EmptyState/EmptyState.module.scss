@@ -1,0 +1,127 @@
+@use "@/shared/styles/variables" as *;
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $spacing-xl;
+  gap: $spacing-md;
+}
+
+// ========== Size Variants ==========
+.sm {
+  padding: $spacing-lg;
+  gap: $spacing-sm;
+}
+
+.md {
+  padding: $spacing-xl;
+  gap: $spacing-md;
+}
+
+.lg {
+  padding: $spacing-xxl;
+  gap: $spacing-lg;
+}
+
+// ========== Icon ==========
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.sm .icon {
+  font-size: 48px;
+}
+
+.md .icon {
+  font-size: 64px;
+}
+
+.lg .icon {
+  font-size: 96px;
+}
+
+// ========== Title ==========
+.title {
+  font-size: $font-xl;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sm .title {
+  font-size: $font-lg;
+}
+
+.md .title {
+  font-size: $font-xl;
+}
+
+.lg .title {
+  font-size: $font-2xl;
+}
+
+// ========== Description ==========
+.description {
+  font-size: $font-base;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.sm .description {
+  font-size: $font-sm;
+  max-width: 400px;
+}
+
+.md .description {
+  font-size: $font-base;
+  max-width: 500px;
+}
+
+.lg .description {
+  font-size: $font-lg;
+  max-width: 600px;
+}
+
+// ========== Action ==========
+.action {
+  margin-top: $spacing-sm;
+}
+
+// ========== Variant Styles ==========
+.error .icon {
+  color: $error-color;
+}
+
+.success .icon {
+  color: $success-color;
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .emptyState {
+    padding: $spacing-lg;
+  }
+
+  .icon {
+    font-size: 48px;
+  }
+
+  .title {
+    font-size: $font-lg;
+  }
+
+  .description {
+    font-size: $font-sm;
+    max-width: 100%;
+  }
+}

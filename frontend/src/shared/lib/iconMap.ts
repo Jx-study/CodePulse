@@ -1,0 +1,108 @@
+/*
+* Icon Library Configuration
+- 此檔案負責註冊所有需要使用的 FontAwesome 圖標
+- 只有在此處註冊的圖標才能在 Icon Component 中使用
+*/
+
+import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import {
+  faArrowLeft,
+  faArrowRight,
+  faBars,
+  faCheck,
+  faChevronDown,
+  faChevronLeft,
+  faChevronRight,
+  faChevronUp,
+  faCircleNotch,
+  faCog,
+  faEdit,
+  faEllipsisV,
+  faExclamationCircle,
+  faHome,
+  faInfoCircle,
+  faMinus,
+  faMoon,
+  faPalette,
+  faPause,
+  faPlay,
+  faPlus,
+  faQuestionCircle,
+  faRedo,
+  faSave,
+  faSearch,
+  faSignOutAlt,
+  faSpinner,
+  faStepBackward,
+  faStepForward,
+  faSun,
+  faSync,
+  faTimes,
+  faTrash,
+  faUpload,
+  faUser,
+  faUserCircle,
+} from "@fortawesome/free-solid-svg-icons";
+
+import {
+  faCircle as farCircle,
+  faCheckCircle as farCheckCircle,
+} from '@fortawesome/free-regular-svg-icons';
+
+/**
+ * 1. 集中管理映射表
+ * 這樣做的好處是：名稱與對象一一對應，且 VS Code 能自動推斷類型
+ */
+export const iconMap = {
+  "arrow-left": faArrowLeft,
+  "arrow-right": faArrowRight,
+  "bars": faBars,
+  "check": faCheck,
+  "check-circle": farCheckCircle,
+  "chevron-down": faChevronDown,
+  "chevron-left": faChevronLeft,
+  "chevron-right": faChevronRight,
+  "chevron-up": faChevronUp,
+  "circle": farCircle,
+  "circle-notch": faCircleNotch,
+  "cog": faCog,
+  "edit": faEdit,
+  "ellipsis-v": faEllipsisV,
+  "exclamation-circle": faExclamationCircle,
+  "home": faHome,
+  "info-circle": faInfoCircle,
+  "minus": faMinus,
+  "moon": faMoon,
+  "palette": faPalette,
+  "pause": faPause,
+  "play": faPlay,
+  "plus": faPlus,
+  "question-circle": faQuestionCircle,
+  "redo": faRedo,
+  "save": faSave,
+  "search": faSearch,
+  "sign-out-alt": faSignOutAlt,
+  "spinner": faSpinner,
+  "step-backward": faStepBackward,
+  "step-forward": faStepForward,
+  "sun": faSun,
+  "sync": faSync,
+  "times": faTimes,
+  "trash": faTrash,
+  "upload": faUpload,
+  "user": faUser,
+  "user-circle": faUserCircle,
+} as const;
+
+/**
+ * 2. 自動執行註冊
+ * Object.values 會抓出所有的 IconDefinition
+ */
+library.add(...(Object.values(iconMap) as IconDefinition[]));
+
+/**
+ * 3. 自動生成類型
+ * 這行代碼會自動提取 iconMap 的所有 Key
+ * 你以後不需要手動寫 | 'user' | 'cog' ...
+ */
+export type IconName = keyof typeof iconMap;
