@@ -156,7 +156,7 @@ export function createQueueAnimationSteps(
     // Step 3: 全體左移
     steps.push({
       stepNumber: 3,
-      description: "調整位置",
+      description: "調整位置，完成",
       elements: createBoxes(dataList, "complete"),
     });
   }
