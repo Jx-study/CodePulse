@@ -70,7 +70,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   // 判斷是否顯示某些控制項
   const showIndexInput =
     (structureType === "linkedlist" && insertMode === "Node N") ||
-    (structureType === "array" && insertMode === "Update");
+    structureType === "array";
   const showTailMode = structureType === "linkedlist";
   const showSearchMode =
     structureType === "linkedlist" || structureType === "array";
@@ -200,14 +200,16 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 ? "Array Operations"
                 : "Linked List Operations"}
             </div>
-            <select
-              value={insertMode}
-              onChange={(e) => setInsertMode(e.target.value)}
-              className={styles.select}
-              disabled={disabled}
-            >
-              {getModeOptions()}
-            </select>
+            {structureType === "linkedlist" && (
+              <select
+                value={insertMode}
+                onChange={(e) => setInsertMode(e.target.value)}
+                className={styles.select}
+                disabled={disabled}
+              >
+                {getModeOptions()}
+              </select>
+            )}
           </>
         ) : (
           <div

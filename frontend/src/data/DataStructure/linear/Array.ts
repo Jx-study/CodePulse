@@ -24,7 +24,8 @@ const createBoxes = (
   highlightIndex: number = -1,
   status: Status = "unfinished",
   forceXShiftIndex: number = -1, // 從哪個 index 開始強迫右移 (用於 Insert 動畫)
-  shiftDirection: number = 0 // 0: 不移, 1: 右移, -1: 左移
+  shiftDirection: number = 0, // 0: 不移, 1: 右移, -1: 左移
+  overrideStatusMap: Record<number, Status> = {}
 ) => {
   const startX = 50;
   const startY = 200;
@@ -54,7 +55,9 @@ const createBoxes = (
     box.value = item.value;
     box.description = `${i}`; // 顯示 Index
 
-    if (i === highlightIndex) {
+    if (overrideStatusMap[i]) {
+      box.setStatus(overrideStatusMap[i]);
+    } else if (i === highlightIndex) {
       box.setStatus(status === "unfinished" ? "target" : status);
     } else {
       box.setStatus("unfinished");
@@ -73,9 +76,6 @@ export function createArrayAnimationSteps(
   action?: ActionType
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
-  //   const startX = 50;
-  //   const startY = 200;
-  //   const gap = 70;
 
   // 1. 靜態渲染
   if (!action) {
@@ -210,41 +210,77 @@ export function createArrayAnimationSteps(
   // Delete (Shift Left)
   else if (type === "delete") {
     const idx = index !== undefined ? index : -1;
-
     if (idx >= 0) {
-      // dataList 是刪除後的結果
-      // 還原舊列表 (包含被刪除的那個)
-      const deletedNode = {
-        id: (action as any).targetId || "del-temp",
-        value: value,
+      const poppedNode = {
+        id: (action as any).targetId || "temp-pop",
+        value: 0, // 數值稍後會被還原邏輯覆蓋
       };
-      const oldList = [...dataList];
-      oldList.splice(idx, 0, deletedNode); // 插回去
 
-      // Step 1: 標記要刪除的元素
+      // 複製一份 dataList 並把 pop 的加回去
+      // currentList 初始狀態: [20, 30, 0] (ID: box-0, box-1, box-2)
+      let currentList = [...dataList, poppedNode].map((item) => ({ ...item }));
+
+      // 還原數值：從尾端開始，把 i-1 的值給 i
+      // 也就是把 [20, 30, ?] 還原成 [10, 20, 30]
+      for (let i = currentList.length - 1; i > idx; i--) {
+        currentList[i].value = currentList[i - 1].value;
+      }
+      // 最後把被刪除的值 (10) 放回 idx
+      currentList[idx].value = value;
+
+      // Step 1: 標記要刪除的目標
       steps.push({
         stepNumber: 1,
-        description: `選取 Index ${idx} 準備刪除`,
-        elements: createBoxes(oldList, idx, "target"),
+        description: `標記 Index ${idx} (值: ${value}) 準備刪除`,
+        elements: createBoxes(currentList, idx, "target"),
       });
 
-      // Step 2: 元素消失，留下空位
-      // 我們過濾掉 idx 的元素，但後面的元素位置暫時不變
-      const s2Boxes = createBoxes(oldList).filter((_, i) => i !== idx);
-      // 此時 s2Boxes 裡的元素位置還是原本的 (會有空缺)
+      for (let i = idx; i < currentList.length - 1; i++) {
+        // Step A: 標記 prepare (兩個都要變色)
+        const mapPrepare: Record<number, Status> = {};
+        mapPrepare[i] = "prepare";
+        mapPrepare[i + 1] = "prepare";
 
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `準備將 Index ${i + 1} (${
+            currentList[i + 1].value
+          }) 移至 Index ${i}`,
+          elements: createBoxes(
+            currentList,
+            -1,
+            "unfinished",
+            -1,
+            0,
+            mapPrepare
+          ),
+        });
+
+        // Step B: 執行搬移 (數值覆蓋)
+        currentList[i].value = currentList[i + 1].value;
+
+        const mapSwap: Record<number, Status> = {};
+        mapSwap[i] = "target"; // 變成新值了
+        mapSwap[i + 1] = "prepare"; // 來源
+
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `搬移完成：Index ${i} 現在是 ${currentList[i].value}`,
+          elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapSwap),
+        });
+      }
+
+      // Step Final: 標記最後一個多餘的空間 (準備 Pop)
       steps.push({
-        stepNumber: 2,
-        description: "移除元素，留下空位",
-        elements: s2Boxes,
+        stepNumber: steps.length + 1,
+        description: "刪除最後一個多餘的空間",
+        elements: createBoxes(currentList, currentList.length - 1, "target"),
       });
 
-      // Step 3: 左移補位
-      // 這其實就是 dataList 的標準排列，但我們可以加個說明
-      // 為了動畫順暢，如果能模擬移動更好，但直接顯示 dataList D3 也會自動補間
+      // Step Done: 顯示最終結果
       steps.push({
-        stepNumber: 3,
-        description: "後方元素左移補位",
+        stepNumber: steps.length + 1,
+        description: "刪除完成",
         elements: createBoxes(dataList, -1, "complete"),
       });
     }

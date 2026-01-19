@@ -103,21 +103,35 @@ function Tutorial() {
 
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
-    executeAction("add", { value, mode, index, maxNodes, hasTailMode });
-    setCurrentStep(0);
-    setIsPlaying(true);
+    const steps = executeAction("add", {
+      value,
+      mode,
+      index,
+      maxNodes,
+      hasTailMode,
+    });
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
   };
 
   const handleDeleteNode = (mode: string, index?: number) => {
-    executeAction("delete", { mode, index, hasTailMode });
-    setCurrentStep(0);
-    setIsPlaying(true);
+    const steps = executeAction("delete", { mode, index, hasTailMode });
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
+    }
   };
 
   const handleSearchNode = (value: number) => {
-    executeAction("search", { value, hasTailMode });
-    setCurrentStep(0);
-    setIsPlaying(true);
+    const steps = executeAction("search", { value, hasTailMode });
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
@@ -142,15 +156,23 @@ function Tutorial() {
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
-    executeAction("load", { data: parsed, maxNodes, hasTailMode });
-    setCurrentStep(0);
-    setIsPlaying(false);
+    const steps = executeAction("load", {
+      data: parsed,
+      maxNodes,
+      hasTailMode,
+    });
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(false);
+    }
   };
 
   const handlePeek = () => {
-    executeAction("peek", { hasTailMode });
-    setCurrentStep(0);
-    setIsPlaying(true);
+    const steps = executeAction("peek", { hasTailMode });
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
   };
 
   const handlePlay = () => setIsPlaying(true);
