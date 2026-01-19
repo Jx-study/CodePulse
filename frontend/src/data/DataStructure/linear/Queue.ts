@@ -170,9 +170,12 @@ export function createQueueAnimationSteps(
 
       if (i === 0) {
         b.setStatus("prepare");
-        b.description = "Top";
+        b.description = "Front";
       } else {
         b.setStatus("unfinished");
+        if (i === dataList.length - 1) {
+          b.description = "Rear";
+        }
       }
       return b;
     });
@@ -193,9 +196,12 @@ export function createQueueAnimationSteps(
 
       if (i === 0) {
         b.setStatus("complete");
-        b.description = "Top";
+        b.description = "Front";
       } else {
         b.setStatus("unfinished");
+        if (i === dataList.length - 1) {
+          b.description = "Rear";
+        }
       }
       return b;
     });
