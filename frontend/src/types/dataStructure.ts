@@ -7,6 +7,21 @@ export interface AnimationStep {
   stepNumber: number;
   description: string;
   elements: BaseElement[];
+  actionTag?: string; // 新增：用於對應代碼高亮的標籤
+}
+
+/**
+ * 代碼配置介面
+ */
+export interface CodeConfig {
+  pseudo: {
+    content: string;
+    mappings: Record<string, number[]>; // actionTag -> 行號陣列 (0-based)
+  };
+  python: {
+    content: string;
+    mappings: Record<string, number[]>; // 預留
+  };
 }
 
 /**
@@ -28,7 +43,8 @@ export interface DataStructureConfig {
   category: string;
   categoryName: string;
   description: string;
-  pseudoCode: string;
+  pseudoCode: string; // 保持相容性，舊的純文字
+  codeConfig?: CodeConfig; // 新增：結構化代碼配置
   complexity: ComplexityInfo;
   introduction: string;
   defaultData: any;
