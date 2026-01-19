@@ -168,7 +168,9 @@ function Tutorial() {
   }
 
   const renderActionBar = () => {
-    if (["linkedlist", "stack", "queue"].includes(topicTypeConfig.id)) {
+    if (
+      ["linkedlist", "stack", "queue", "array"].includes(topicTypeConfig.id)
+    ) {
       return (
         <DataActionBar
           onAddNode={handleAddNode}

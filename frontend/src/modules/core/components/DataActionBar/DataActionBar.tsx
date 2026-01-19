@@ -47,6 +47,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   useEffect(() => {
     if (structureType === "stack") setInsertMode("Push");
     else if (structureType === "queue") setInsertMode("Enqueue");
+    else if (structureType === "array") setInsertMode("Insert");
     else setInsertMode("Head");
   }, [structureType]);
 
@@ -68,9 +69,11 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
   // 判斷是否顯示某些控制項
   const showIndexInput =
-    structureType === "linkedlist" && insertMode === "Node N";
+    (structureType === "linkedlist" && insertMode === "Node N") ||
+    (structureType === "array" && insertMode === "Update");
   const showTailMode = structureType === "linkedlist";
-  const showSearchMode = structureType === "linkedlist";
+  const showSearchMode =
+    structureType === "linkedlist" || structureType === "array";
   const showPeek = structureType === "stack" || structureType === "queue";
 
   // 判斷操作選項
@@ -89,6 +92,16 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         </option>,
       ];
     }
+    if (structureType === "array") {
+      return [
+        <option key="insert" value="Insert">
+          Insert
+        </option>,
+        <option key="update" value="Update">
+          Update
+        </option>,
+      ];
+    }
     // Default: Linked List
     return [
       <option key="head" value="Head">
@@ -104,18 +117,14 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   };
 
   // 按鈕文字動態化
-  const addBtnText =
-    structureType === "stack"
-      ? "Push"
-      : structureType === "queue"
-      ? "Enqueue"
-      : "Insert";
-  const delBtnText =
-    structureType === "stack"
-      ? "Pop"
-      : structureType === "queue"
-      ? "Dequeue"
-      : "Delete";
+  let addBtnText = "Insert";
+  if (structureType === "stack") addBtnText = "Push";
+  else if (structureType === "queue") addBtnText = "Enqueue";
+  else if (structureType === "array") addBtnText = insertMode;
+
+  let delBtnText = "Delete";
+  if (structureType === "stack") delBtnText = "Pop";
+  else if (structureType === "queue") delBtnText = "Dequeue";
 
   return (
     <div
@@ -181,13 +190,15 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
       {/* 第二行：操作控制 (OperationManager) */}
       <div className={styles.actionGroup}>
-        {structureType === "linkedlist" ? (
+        {structureType === "linkedlist" || structureType === "array" ? (
           <>
             <div
               className={styles.staticLabel}
               style={{ color: "#ccc", padding: "0 8px" }}
             >
-              Linked List
+              {structureType === "array"
+                ? "Array Operations"
+                : "Linked List Operations"}
             </div>
             <select
               value={insertMode}
@@ -222,11 +233,11 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         {showIndexInput && (
           <input
             type="number"
-            placeholder="N"
+            placeholder="Index"
             value={indexValue}
             onChange={(e) => setIndexValue(e.target.value)}
             className={styles.input}
-            style={{ width: "50px" }}
+            style={{ width: "60px" }}
             disabled={disabled}
           />
         )}

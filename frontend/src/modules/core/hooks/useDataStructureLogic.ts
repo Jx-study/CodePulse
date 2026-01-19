@@ -199,6 +199,10 @@ export const useDataStructureLogic = (config: any) => {
           }
         }
       }
+    } else if (config.id === "array") {
+      if (actionType === "add") {
+      }
+      //...
     }
 
     const finalPayload = {
