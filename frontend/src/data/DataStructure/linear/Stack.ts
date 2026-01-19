@@ -2,6 +2,7 @@ import { Box } from "../../../modules/core/DataLogic/Box";
 import { Status } from "../../../modules/core/DataLogic/BaseElement";
 import {
   AnimationStep,
+  CodeConfig,
   DataStructureConfig,
 } from "../../../types/dataStructure";
 
@@ -14,7 +15,88 @@ interface ActionType {
   type: string;
   value: number;
   mode: string; // "Push", "Pop"
+  maxNodes?: number;
 }
+
+// 定義 Stack 的結構化代碼配置
+const stackCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Class Stack:
+  Data:
+    top ← -1
+    stack ← Array of Size
+    max_size ← Size
+
+  Procedure push(value):
+    If is_full() Then
+      Return Error
+    End If
+    top ← top + 1
+    stack[top] ← value
+  End Procedure
+
+  Procedure pop():
+    If is_empty() Then
+      Return Error
+    End If
+    removed_value ← stack[top]
+    top ← top - 1
+    Return removed_value
+  End Procedure
+
+  Procedure peek():
+    If is_empty() Then
+      Return null
+    End If
+    Return stack[top]
+  End Procedure`,
+    mappings: {
+      "INITIAL": [2, 3, 4, 5],
+      // Push 區塊
+      "PUSH_START": [7, 8],  // 進入函式並執行 is_full 檢查
+      "PUSH_IS_FULL": [8, 9],       // 錯誤路徑：滿值報錯
+      "PUSH_WRITE": [11, 12],       // 核心動作：位移與寫入
+      // Pop 區塊
+      "POP_START": [15],        // 開始
+      "POP_CHECK_EMPTY": [16, 17, 18], // 進入函式並執行 is_empty 檢查
+      "POP_IS_EMPTY": [16, 17],     // 錯誤路徑：空值報錯
+      "POP_READ": [19],             // 讀取暫存
+      "POP_DEC_TOP": [19, 20],      // 核心動作：讀取與位移
+      "POP_END": [21],              // 結束
+      // Peek 區塊
+      "PEEK_START": [24],
+      "PEEK_CHECK_EMPTY": [25], // 進入函式並執行 is_empty 檢查
+      "PEEK_IS_EMPTY": [26],    // 錯誤路徑：空值報錯
+      "PEEK_RETURN": [28],          // 核心動作：回傳
+    },
+  },
+  python: {
+    content: `class Stack:
+    def __init__(self, size: int):
+        self.stack = []
+        self.size = size
+        self.top = -1
+
+    def push(self, value: int) -> None:
+        if self.top >= self.size - 1:
+            raise Exception("Stack Overflow")
+        self.top += 1
+        self.stack.append(value)
+
+    def pop(self) -> int:
+        if self.top == -1:
+            raise Exception("Stack Underflow")
+        value = self.stack[self.top]
+        self.top -= 1
+        return value
+
+    def peek(self) -> int:
+        if self.top == -1:
+            return None
+        return self.stack[self.top]`,
+    mappings: {},
+  },
+};
 
 const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
   const startX = 100;
@@ -52,6 +134,7 @@ export function createStackAnimationSteps(
       stepNumber: 1,
       description: "Stack 狀態",
       elements: createBoxes(dataList),
+      actionTag: "INITIAL",
     });
     return steps;
   }
@@ -60,7 +143,21 @@ export function createStackAnimationSteps(
 
   // Push
   if (type === "add") {
-    // dataList 已經包含新元素 (在最後面)
+    const maxNodes = action.maxNodes || 15;
+
+    // 如果加入新元素後超過 maxNodes，代表原本就已經滿了 (或剛好滿)
+    // 注意：dataList 是執行動作後的狀態
+    if (dataList.length > maxNodes) {
+      const oldList = dataList.slice(0, -1);
+      steps.push({
+        stepNumber: 1,
+        description: `Push 失敗: 堆疊已滿 (Stack Overflow)`,
+        elements: createBoxes(oldList),
+        actionTag: "PUSH_IS_FULL",
+      });
+      return steps;
+    }
+
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];
 
@@ -79,6 +176,7 @@ export function createStackAnimationSteps(
       stepNumber: 1,
       description: `Push ${value}: 新元素準備入棧`,
       elements: [...s1Boxes, s1NewBox],
+      actionTag: "PUSH_START",
     });
 
     // Step 2: 下放
@@ -86,10 +184,22 @@ export function createStackAnimationSteps(
       stepNumber: 2,
       description: `Push ${value}: 放入堆疊頂端`,
       elements: createBoxes(dataList, "complete"),
+      actionTag: "PUSH_WRITE",
     });
   }
   // Pop
   else if (type === "delete") {
+    // 檢查是否為空 (Stack Underflow 邏輯)
+    if (dataList.length === 0 && !action.value) {
+      steps.push({
+        stepNumber: 1,
+        description: "Pop 失敗: 堆疊為空 (Stack Underflow)",
+        elements: [],
+        actionTag: "POP_IS_EMPTY",
+      });
+      return steps;
+    }
+
     const deletedNode = {
       id: (action as any).targetId || "deleted-temp",
       value: value,
@@ -118,6 +228,7 @@ export function createStackAnimationSteps(
       stepNumber: 1,
       description: `Pop ${value}: 標記頂端元素`,
       elements: s1Boxes,
+      actionTag: "POP_CHECK_EMPTY",
     });
 
     // Step 2: 往右移除
@@ -147,6 +258,7 @@ export function createStackAnimationSteps(
       stepNumber: 2,
       description: "Pop: 移出頂端元素，Top 更新",
       elements: s2Boxes,
+      actionTag: "POP_DEC_TOP",
     });
 
     // Step 3: 消失
@@ -154,8 +266,20 @@ export function createStackAnimationSteps(
       stepNumber: 3,
       description: "Pop 完成",
       elements: createBoxes(dataList, "complete"),
+      actionTag: "POP_END",
     });
   } else if (type === "peek") {
+    // 檢查是否為空
+    if (dataList.length === 0) {
+      steps.push({
+        stepNumber: 1,
+        description: "Peek 失敗: 堆疊為空",
+        elements: [],
+        actionTag: "PEEK_IS_EMPTY",
+      });
+      return steps;
+    }
+
     const s1Boxes = dataList.map((item, i) => {
       const b = new Box();
       b.id = item.id;
@@ -177,6 +301,7 @@ export function createStackAnimationSteps(
       stepNumber: 1,
       description: `Peek: 標記 Top，會回傳該 value`,
       elements: s1Boxes,
+      actionTag: "PEEK_CHECK_EMPTY",
     });
 
     const s2Boxes = dataList.map((item, i) => {
@@ -200,6 +325,7 @@ export function createStackAnimationSteps(
       stepNumber: 2,
       description: `Peek: 回傳為 ${value}`,
       elements: s2Boxes,
+      actionTag: "PEEK_RETURN",
     });
   }
 
@@ -263,6 +389,7 @@ class Stack:
     space: "O(n)",
   },
   introduction: `堆疊是一種後進先出的資料結構...堆起來。`,
+  codeConfig: stackCodeConfig,
   defaultData: [
     { id: "box-1", value: 1 },
     { id: "box-2", value: 2 },
