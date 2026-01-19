@@ -200,9 +200,75 @@ export const useDataStructureLogic = (config: any) => {
         }
       }
     } else if (config.id === "array") {
-      if (actionType === "add") {
+      if (actionType === "add" && mode === "Insert") {
+        const idx = index !== undefined ? index : newData.length;
+        // 防呆：如果 index 超出範圍，修正或報錯
+        const safeIdx = Math.max(0, Math.min(idx, newData.length));
+
+        const newId = `box-${nextIdRef.current++}`;
+        const newBox = { id: newId, value: value };
+
+        newData.splice(safeIdx, 0, newBox); // 插入到指定位置
+
+        targetId = newId;
+        payload.index = safeIdx; // 更新 payload 確保動畫正確
       }
-      //...
+      // Update(Add 動作的一種，只是不改變長度)
+      else if (actionType === "add" && mode === "Update") {
+        const idx = index !== undefined ? index : -1;
+        if (idx >= 0 && idx < newData.length) {
+          const newBox = { ...newData[idx], value: value }; // ID 不變，只改數值
+          newData[idx] = newBox;
+
+          targetId = newBox.id;
+          payload.index = idx;
+        } else {
+          console.warn("Update index out of bounds");
+          return [];
+        }
+      } else if (actionType === "delete") {
+        const idx = index !== undefined ? index : -1;
+        if (idx >= 0 && idx < newData.length) {
+          const delBox = newData[idx];
+          newData.splice(idx, 1);
+
+          targetId = delBox.id;
+          value = delBox.value;
+          payload.index = idx;
+        } else {
+          console.warn("Delete index out of bounds");
+          return [];
+        }
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+        if (actionType === "random") {
+          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          newData = [];
+          for (let i = 0; i < count; i++)
+            newData.push({
+              id: `box-${nextIdRef.current++}`,
+              value: Math.floor(Math.random() * 100),
+            });
+        } else if (actionType === "reset") {
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: `box-${nextIdRef.current++}`,
+          }));
+        } else if (actionType === "load") {
+          if (loadData && Array.isArray(loadData)) {
+            newData = loadData.map((v: number) => ({
+              id: `box-${nextIdRef.current++}`,
+              value: v,
+            }));
+          }
+        }
+        // if (actionType === "load" && loadData) {
+        //   newData = loadData.map((v: number) => ({
+        //     id: `box-${nextIdRef.current++}`,
+        //     value: v,
+        //   }));
+        // }
+      }
     }
 
     const finalPayload = {
