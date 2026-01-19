@@ -8,7 +8,7 @@ import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
 import type { Link } from "@/modules/core/Render/D3Renderer";
 import { animateConnect } from "@/modules/core/Render/D3Renderer";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
-import { Button } from "@/shared/components";
+import  Button from "@/shared/components/Button";
 
 // 預設程式碼範例
 const DEFAULT_CODE: Record<string, string> = {
