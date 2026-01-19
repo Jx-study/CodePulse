@@ -23,6 +23,9 @@ function Tutorial() {
     topicType: string;
   }>();
 
+  // 新增：代碼模式狀態
+  const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
+
   // 1. 根據路由參數載入配置
   const topicTypeConfig = useMemo(() => {
     if (category === "datastructure" && subcategory && topicType) {
@@ -46,13 +49,29 @@ function Tutorial() {
   const [maxNodes, setMaxNodes] = useState(15);
   const [hasTailMode, setHasTailMode] = useState(false);
 
-  // 3. 計算目前的動畫步驟
+  // 計算目前的動畫步驟數據
+  const currentStepData = activeSteps[currentStep];
+
+  // 計算需要高亮的行號
+  const highlightLines = useMemo(() => {
+    if (!topicTypeConfig?.codeConfig || !currentStepData?.actionTag) return [];
+    
+    const config = topicTypeConfig.codeConfig[codeMode];
+    return config.mappings[currentStepData.actionTag] || [];
+  }, [topicTypeConfig, currentStepData, codeMode]);
+
+  // 切換模式時重置動畫
+  const handleModeToggle = (mode: "pseudo" | "python") => {
+    setCodeMode(mode);
+    handleReset();
+  };
+
+  // 3. 初始重置
   useEffect(() => {
     if (topicTypeConfig) {
       setCurrentStep(0);
       setIsPlaying(false);
     }
-    // 注意：這裡刻意不加 listData，避免與 handleAddNode 的動畫衝突
   }, [topicTypeConfig]);
 
   useEffect(() => {
@@ -61,8 +80,6 @@ function Tutorial() {
       setCurrentStep(0);
     }
   }, [hasTailMode]);
-
-  const currentStepData = activeSteps[currentStep];
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -206,14 +223,39 @@ function Tutorial() {
 
       <div className={styles.topSection}>
         <div className={styles.pseudoCodeSection}>
-          <h3 className={styles.sectionTitle}>Pseudo Code</h3>
+          <div className={styles.codeHeader}>
+            <h3 className={styles.sectionTitle}>代碼實作</h3>
+            <div className={styles.codeToggle}>
+              <button
+                className={`${styles.toggleBtn} ${
+                  codeMode === "pseudo" ? styles.active : ""
+                }`}
+                onClick={() => handleModeToggle("pseudo")}
+              >
+                Pseudo
+              </button>
+              <button
+                className={`${styles.toggleBtn} ${
+                  codeMode === "python" ? styles.active : ""
+                }`}
+                onClick={() => handleModeToggle("python")}
+              >
+                Python
+              </button>
+            </div>
+          </div>
           <div className={styles.pseudoCodeEditor}>
             <CodeEditor
               mode="single"
-              language="python"
-              value={topicTypeConfig.pseudoCode}
-              readOnly={true}
-              theme="auto"
+              value={
+                topicTypeConfig.codeConfig
+                  ? topicTypeConfig.codeConfig[codeMode].content
+                  : topicTypeConfig.pseudoCode
+              }
+              language={codeMode === "python" ? "python" : "python"}
+              highlightLines={highlightLines}
+              readOnly={codeMode === "pseudo"}
+              theme="dark"
             />
           </div>
         </div>
