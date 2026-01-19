@@ -2,24 +2,186 @@ import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
+import { LinkManager } from "../DataLogic/LinkManager";
+import "./D3Renderer.module.scss";
 
-interface Link {
+export interface Link {
   key: string;
   sourceId: string;
   targetId: string;
 }
 
+// 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
+function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
+  const cx = fromNode.position.x;
+  const cy = fromNode.position.y;
+  const tx = toNode.position.x;
+  const ty = toNode.position.y;
+
+  let dx = tx - cx;
+  let dy = ty - cy;
+  if (dx === 0 && dy === 0) {
+    return { x: cx, y: cy };
+  }
+  const len = Math.hypot(dx, dy);
+  const ux = dx / len;
+  const uy = dy / len;
+  const r = fromNode.radius ?? 0;
+  return { x: cx + ux * r, y: cy + uy * r };
+}
+
+/**
+ * 從 node1 的邊緣開始，動畫伸長到 node2 的邊緣
+ * @param svgEl SVG 元素
+ * @param elements 所有元素
+ * @param manager LinkManager 實例
+ * @param sourceId 來源節點 ID
+ * @param targetId 目標節點 ID
+ * @param duration 動畫持續時間（毫秒），預設 800ms
+ * @returns Promise，動畫完成後 resolve
+ */
+export function animateConnect(
+  svgEl: SVGSVGElement,
+  elements: BaseElement[],
+  manager: LinkManager,
+  sourceId: string,
+  targetId: string,
+  duration: number = 800
+): Promise<void> {
+  return new Promise((resolve) => {
+    const svg = d3.select(svgEl);
+    const scene = svg.select<SVGGElement>("g.scene");
+
+    // 建立連線
+    manager.connect(sourceId, targetId);
+
+    // 查找節點
+    const byId = new Map(elements.map((e) => [String(e.id), e]));
+    const sourceNode = byId.get(sourceId);
+    const targetNode = byId.get(targetId);
+
+    if (!(sourceNode instanceof Node) || !(targetNode instanceof Node)) {
+      resolve();
+      return;
+    }
+
+    // 計算起點與終點（圓邊界）
+    const p1 = getCircleBoundaryPoint(sourceNode, targetNode);
+    const p2 = getCircleBoundaryPoint(targetNode, sourceNode);
+
+    // 建立臨時動畫線段
+    const animLine = scene
+      .append("line")
+      .attr("class", "link-anim")
+      .attr("x1", p1.x)
+      .attr("y1", p1.y)
+      .attr("x2", p1.x) // 起點與終點相同，線段長度為 0
+      .attr("y2", p1.y);
+
+    // 從 0 伸長到 1 的動畫
+    animLine
+      .transition()
+      .duration(duration)
+      .ease(d3.easeQuadOut)
+      .attr("x2", p2.x)
+      .attr("y2", p2.y)
+      .on("end", () => {
+        // 動畫完成後移除臨時線段
+        animLine.remove();
+        resolve();
+      });
+  });
+}
+
+function drawContainer(
+  scene: d3.Selection<SVGGElement, unknown, null, undefined>,
+  type: string
+) {
+  // 清除舊的容器線條 (避免重繪疊加)
+  scene.selectAll(".container-line").remove();
+
+  const lineColor = "#555";
+  const lineWidth = 4;
+
+  const topY = 150;
+  const bottomY = 250;
+  const startX = 55;
+  const endX = 900; // 畫長一點涵蓋整個視窗
+
+  if (type === "stack") {
+    // Stack: 畫「左」、「上」、「下」 (開口向右)
+    // 上線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY)
+      .attr("x2", endX)
+      .attr("y2", topY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+
+    // 下線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", bottomY)
+      .attr("x2", endX)
+      .attr("y2", bottomY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+
+    // 左底線 (封閉左邊)
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY - lineWidth / 2) // 微調接合處
+      .attr("x2", startX)
+      .attr("y2", bottomY + lineWidth / 2)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+  } else if (type === "queue") {
+    // Queue: 畫「上」、「下」 (兩端開口通道)
+
+    // 上線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY) // Queue 可以更長一點
+      .attr("x2", endX)
+      .attr("y2", topY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+
+    // 下線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", bottomY)
+      .attr("x2", endX)
+      .attr("y2", bottomY)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineWidth);
+  }
+}
 
 export function renderAll(
   svgEl: SVGSVGElement,
   elements: BaseElement[],
-  links: Link[] = []
+  links: Link[] = [],
+  structureType: string = "linkedlist"
 ) {
   const svg = d3.select(svgEl);
+  const transitionDuration = 500; // 統一動畫時間
+  const transitionEase = d3.easeQuadOut;
 
   // defs：箭頭標記（只建一次）
-  const defs = svg.selectAll("defs#arrowDefs").data([null]);
-  const defsEnter = defs.enter().append("defs").attr("id", "arrowDefs");
+  const defs = svg.selectAll("defs").data([null]);
+  const defsEnter = defs.enter().append("defs");
   defsEnter
     .append("marker")
     .attr("id", "arrowhead")
@@ -38,22 +200,35 @@ export function renderAll(
   root.enter().append("g").attr("class", "scene");
   const scene = svg.select<SVGGElement>("g.scene");
 
+  drawContainer(scene, structureType);
+
   // === 先畫 LINKS（在底層）===
   // 依 id 找 element
   const byId = new Map(elements.map((e) => [String(e.id), e]));
+  // 僅保留 Node -> Node 的連線
   const linkData = links
     .map((lk) => {
       const s = byId.get(String(lk.sourceId));
       const t = byId.get(String(lk.targetId));
-      return s && t ? { s, t } : null;
+      if (s instanceof Node && t instanceof Node) {
+        return { s, t };
+      }
+      return null;
     })
-    .filter(Boolean) as { s: BaseElement; t: BaseElement }[];
+    .filter(Boolean) as { s: Node; t: Node }[];
 
   const linkSel = scene
-    .selectAll<SVGLineElement, { s: BaseElement; t: BaseElement }>("line.link")
+    .selectAll<SVGLineElement, { s: Node; t: Node }>("line.link")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
-  linkSel.exit().remove();
+  // 終點縮向起點
+  linkSel
+    .exit()
+    .transition()
+    .duration(transitionDuration)
+    .attr("x2", (d: any) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y2", (d: any) => getCircleBoundaryPoint(d.s, d.t).y)
+    .remove();
 
   const linkEnter = linkSel
     .enter()
@@ -61,37 +236,22 @@ export function renderAll(
     .attr("class", "link")
     .attr("stroke", "#888")
     .attr("stroke-width", 2)
-    .attr("marker-end", "url(#arrowhead)");
+    .attr("marker-end", "url(#arrowhead)")
+    // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
+    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("x2", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y2", (d) => getCircleBoundaryPoint(d.s, d.t).y);
 
-  const linkMerged = linkEnter.merge(linkSel as any);
-
-  // 初始位置
-  linkMerged
-    .attr("x1", (d) => d.s.position.x)
-    .attr("y1", (d) => d.s.position.y)
-    .attr("x2", (d) => d.t.position.x)
-    .attr("y2", (d) => d.t.position.y);
-
-  // 箭頭「伸縮」動畫：用 d3.timer 週期性調整 x2,y2 在 source->target 方向的比例
-  // k(t) 在 [0.5, 1.0] 間往返
-  let t0 = performance.now();
-  d3.timer((now) => {
-    const dt = (now - t0) / 1000; // 秒
-    const oscillate = (Math.sin(dt * 2 * Math.PI * 0.5) + 1) / 2; // 0..1 (0.5Hz)
-    const k = 0.5 + 0.5 * oscillate; // 0.5..1.0
-
-    linkMerged.each(function (d) {
-      const x1 = d.s.position.x;
-      const y1 = d.s.position.y;
-      const xT = d.t.position.x;
-      const yT = d.t.position.y;
-      const x2 = x1 + (xT - x1) * k;
-      const y2 = y1 + (yT - y1) * k;
-      d3.select(this).attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2);
-    });
-    // 回傳 false 讓 timer 持續跑（交給 React 卸載時自行處理銷毀）
-    return false;
-  });
+  linkEnter
+    .merge(linkSel as any)
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
+    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
 
   // === 再畫 NODES / BOXES（在上層）===
   const items = scene
@@ -100,32 +260,51 @@ export function renderAll(
 
   items.exit().remove();
 
-  const enter = items.enter().append("g").attr("class", "el");
+  const enter = items
+    .enter()
+    .append("g")
+    .attr("class", "el")
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
 
   // 依型別建立一次對應圖形元素
   enter.each(function (d: any) {
     const g = d3.select(this);
-    if (d instanceof Node) {
+    if (d.kind === "node" || d instanceof Node) {
       g.append("circle");
-    } else if (d instanceof Box) {
+    } else if (d.kind === "box" || d instanceof Box) {
       g.append("rect");
     }
-    g.append("text").attr("class", "desc"); // ← 這個會顯示 description
+
+    g.append("text").attr("class", "desc"); // 顯示 description
+    g.append("text").attr("class", "val"); // 顯示 value
   });
 
+  const linkMerged = linkEnter.merge(linkSel as any);
+
+  linkMerged
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    // 使用 attrTween 確保在 transition 過程中每一幀都重新計算座標
+    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
+    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
+    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
+
+  // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
 
-  // 統一位置
-  merged.attr(
-    "transform",
-    (d) => `translate(${d.position.x}, ${d.position.y})`
-  );
+  merged
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {
     const g = d3.select(this);
 
-    if (d instanceof Node) {
+    if (d.kind === "node" || d instanceof Node) {
       g.select<SVGCircleElement>("circle")
         .attr("r", d.radius)
         .attr("fill", "none")
@@ -139,7 +318,14 @@ export function renderAll(
         .attr("font-size", 12)
         .attr("fill", "#ccc")
         .text(d.description || "");
-    } else if (d instanceof Box) {
+      // 文字置中，放在圓中間
+      g.select<SVGTextElement>("text.val")
+        .attr("text-anchor", "middle")
+        .attr("y", d.radius / 2 - 9)
+        .attr("font-size", 18)
+        .attr("fill", "#ccc")
+        .text(d.value !== undefined ? d.value : "");
+    } else if (d.kind === "box" || d instanceof Box) {
       g.select<SVGRectElement>("rect")
         .attr("x", -d.width / 2)
         .attr("y", -d.height / 2)
@@ -150,42 +336,21 @@ export function renderAll(
         .attr("stroke", d.getColor())
         .attr("stroke-width", 2);
 
-      // 文字置中，放在盒子底下（高度一半 + 14px）
+      // 文字置中，放在 Box 底下（高度一半 + 14px）
       g.select<SVGTextElement>("text.desc")
         .attr("text-anchor", "middle")
         .attr("y", d.height / 2 + 14)
         .attr("font-size", 12)
         .attr("fill", "#ccc")
         .text(d.description || "");
+
+      // 文字置中，放在 Box 中間（高度一半）
+      g.select<SVGTextElement>("text.val")
+        .attr("text-anchor", "middle")
+        .attr("y", d.height / 2 - 22)
+        .attr("font-size", 18)
+        .attr("fill", "#ccc")
+        .text(d.value !== undefined ? d.value : "");
     }
-  });
-
-
-  // 連線畫法（擷取關鍵）
-  // const link = scene.selectAll("line.link").data(links, (d: Link) => d.key);
-  const link = scene
-  .selectAll<SVGLineElement, Link>("line.link")
-  .data(links, (d: Link) => d.key);
-  
-  link.enter().append("line")
-    .attr("class", "link")
-    .attr("marker-end", "url(#arrowhead)")
-    .attr("stroke", "#888")
-    .attr("stroke-width", 2);
-
-  const merged2 = link.merge(linkEnter as any);
-
-  let t1 = performance.now();
-  d3.timer(now => {
-    const k = 0.5 + 0.5 * (Math.sin((now - t1) / 1000 * Math.PI) ); // 0..1
-    merged2.each(function(d: Link) {
-      const s = byId.get(d.sourceId)!; const t = byId.get(d.targetId)!;
-      const x1 = s.position.x, y1 = s.position.y;
-      const xt = t.position.x, yt = t.position.y;
-      const x2 = x1 + (xt - x1) * k;
-      const y2 = y1 + (yt - y1) * k;
-      d3.select(this).attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2);
-    });
-    return false; // 持續跑
   });
 }

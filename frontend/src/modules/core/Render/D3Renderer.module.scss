@@ -1,0 +1,17 @@
+@use '../../../shared/styles/variables' as *;
+
+.link-anim {
+  stroke: $light-border;
+  stroke-width: 2;
+  marker-end: url(#arrowhead);
+}
+
+.link {
+  stroke: $light-border;
+  stroke-width: 2;
+  marker-end: url(#arrowhead);
+}
+
+#arrowhead {
+  fill: $light-border;
+}

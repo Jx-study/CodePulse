@@ -3,7 +3,7 @@ import styles from './VariableStatus.module.scss';
 function VariableStatus() {
   return (
     <div className={styles.variableStatus}>
-      {/* Your implementation here */}
+     <h1>Variable Status</h1>
     </div>
   );
 }

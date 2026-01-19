@@ -30,6 +30,13 @@ export interface AlgorithmData {
   description?: string;
 }
 
+export interface DataStructureData {
+  name: string;
+  category: string;
+  description?: string;
+}
+
+// React 組件 Props 類型
 export interface ComponentProps {
   className?: string;
   children?: React.ReactNode;

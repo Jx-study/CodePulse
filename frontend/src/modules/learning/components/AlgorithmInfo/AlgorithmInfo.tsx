@@ -3,7 +3,7 @@ import styles from './AlgorithmInfo.module.scss';
 function AlgorithmInfo() {
   return (
     <div className={styles.algorithmInfo}>
-      {/* Your implementation here */}
+      <h1>Algorithm Info</h1>
     </div>
   );
 }

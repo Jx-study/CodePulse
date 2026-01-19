@@ -6,6 +6,7 @@ import styles from "./Breadcrumb.module.scss";
 import Icon from "../Icon";
 import Button from "../Button";
 
+
 const Breadcrumb: React.FC<BreadcrumbProps> = ({
   items = [],
   showBackButton = true,
@@ -17,7 +18,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     navigate("/dashboard");
   };
 
-  const handleItemClick = (path: string) => {
+  const handleItemClick = (path: string | null) => {
     if (path) {
       navigate(path);
     }
