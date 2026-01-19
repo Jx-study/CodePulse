@@ -18,15 +18,7 @@ interface ActionType {
   index?: number;
 }
 
-// 創建鏈表的動畫步驟
-
-export function createLinkedListAnimationSteps(): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  return steps;
-}
-
 // 建立節點實例的函式
-
 function createNodeInstance(
   id: string,
   val: number,
@@ -66,7 +58,7 @@ function getLabel(
   return labels.length > 0 ? labels.join("/") : "";
 }
 
-export function generateStepsFromData(
+export function createLinkedListAnimationSteps(
   dataList: ListNodeData[],
   action?: ActionType,
   hasTailMode: boolean = false
@@ -1328,5 +1320,5 @@ class LinkedList:
     { id: "node-3", value: 30 },
     { id: "node-4", value: 20 },
   ],
-  createAnimationSteps: generateStepsFromData,
+  createAnimationSteps: createLinkedListAnimationSteps,
 };

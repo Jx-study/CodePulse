@@ -147,6 +147,12 @@ function Tutorial() {
     setIsPlaying(false);
   };
 
+  const handlePeek = () => {
+    executeAction("peek", { hasTailMode });
+    setCurrentStep(0);
+    setIsPlaying(true);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
@@ -162,21 +168,19 @@ function Tutorial() {
   }
 
   const renderActionBar = () => {
-    if (
-      topicTypeConfig.id === "linkedlist" ||
-      topicTypeConfig.id === "stack" ||
-      topicTypeConfig.id === "queue"
-    ) {
+    if (["linkedlist", "stack", "queue"].includes(topicTypeConfig.id)) {
       return (
         <DataActionBar
           onAddNode={handleAddNode}
           onDeleteNode={handleDeleteNode}
           onSearchNode={handleSearchNode}
+          onPeek={handlePeek}
           onLoadData={handleLoadData}
           onResetData={handleResetData}
           onRandomData={handleRandomData}
           onMaxNodesChange={setMaxNodes}
           onTailModeChange={setHasTailMode}
+          structureType={topicTypeConfig.id as any}
           disabled={isProcessing}
         />
       );
@@ -223,6 +227,7 @@ function Tutorial() {
                 links={currentLinks}
                 width={1000}
                 height={400}
+                structureType={topicTypeConfig?.id}
               />
             </div>
             <div className={styles.stepDescription}>
