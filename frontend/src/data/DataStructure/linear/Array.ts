@@ -57,6 +57,8 @@ const createBoxes = (
 
     if (overrideStatusMap[i]) {
       box.setStatus(overrideStatusMap[i]);
+    } else if (highlightIndex === -1) {
+      box.setStatus(status);
     } else if (i === highlightIndex) {
       box.setStatus(status === "unfinished" ? "target" : status);
     } else {
