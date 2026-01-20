@@ -237,11 +237,14 @@ export const useDataStructureLogic = (config: any) => {
       else if (actionType === "add" && mode === "Update") {
         const idx = index !== undefined ? index : -1;
         if (idx >= 0 && idx < newData.length) {
+          const oldValue = newData[idx].value;
+
           const newBox = { ...newData[idx], value: value };
           newData[idx] = newBox;
 
           targetId = newBox.id;
           payload.index = idx;
+          payload.oldValue = oldValue;
         }
       } else if (actionType === "delete") {
         let idx = index;

@@ -125,22 +125,31 @@ export function createArrayAnimationSteps(
   // Update (Access & Modify)
   else if (type === "add" && action.mode === "Update") {
     const idx = index !== undefined ? index : -1;
+    const oldValue =
+      (action as any).oldValue !== undefined ? (action as any).oldValue : value;
 
     if (idx >= 0 && idx < dataList.length) {
-      // dataList 已經是更新後的結果了，我們需要模擬一下「原本的樣子」
-      // 但為了簡化，我們直接顯示「選中 -> 變更」
+      // Step 1: 標記目標 (顯示舊數值)
+      const s1Boxes = createBoxes(dataList, idx, "target");
+      s1Boxes[idx].value = oldValue;
 
-      // Step 1: 選中該格 (顯示新值或舊值都可以，這裡顯示新值但標記 target)
       steps.push({
         stepNumber: 1,
         description: `存取 Index ${idx}`,
-        elements: createBoxes(dataList, idx, "target"),
+        elements: s1Boxes,
       });
 
-      // Step 2: 完成
+      // Step 2: 數值變更 (顯示新數值)
       steps.push({
         stepNumber: 2,
         description: `將 Index ${idx} 更新為 ${value}`,
+        elements: createBoxes(dataList, idx, "target"),
+      });
+
+      // Step 3: 完成 (變綠色)
+      steps.push({
+        stepNumber: 3,
+        description: "更新完成",
         elements: createBoxes(dataList, idx, "complete"),
       });
     } else {
