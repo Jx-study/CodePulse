@@ -7,7 +7,7 @@ import {
 
 interface BoxData {
   id: string;
-  value: number;
+  value: number | undefined;
 }
 
 interface ActionType {
@@ -163,58 +163,74 @@ export function createArrayAnimationSteps(
 
   // Insert (Shift Right)
   else if (type === "add") {
-    // mode === "Insert" or "Head"/"Tail"
-    // dataList 是插入後的結果： [A, B, New, C]
-    // 我們需要還原插入前的狀態： [A, B, C]
-
     const idx = index !== undefined ? index : dataList.length - 1;
-    const newNode = dataList[idx];
 
-    // 還原舊列表
-    const oldList = [...dataList];
-    oldList.splice(idx, 1); // 移除新元素
+    let currentList = dataList.map((item) => ({ ...item }));
 
-    // Step 1: 標記插入點之後的元素 (準備右移)
-    // 使用 oldList，但在 idx 之後的元素標記為 prepare
+    // 還原數值：
+    // 目前 dataList 在 idx 處是新值，idx 之後的值都已經被往右移了一格
+    // 要左移回去，來模擬「還沒搬移」的狀態
+    // [10, New, 20, 30] -> [10, 20, 30, 0]
+
+    // 把 dataList[i+1] 的值還原給 currentList[i]
+    for (let i = idx; i < dataList.length - 1; i++) {
+      currentList[i].value = dataList[i + 1].value;
+    }
+
+    currentList[currentList.length - 1].value = undefined;
+
+    // Step 1: 標記新增的空位
     steps.push({
       stepNumber: 1,
-      description: `準備在 Index ${idx} 插入：後方元素準備右移`,
-      elements: createBoxes(oldList, -1, "unfinished", idx, 0), // 0 表示還沒移，但可標記顏色
+      description: "在陣列尾端擴充一個空間",
+      elements: createBoxes(currentList, currentList.length - 1, "target"),
     });
 
-    // Step 2: 右移騰出空間
-    // 這裡我們用 createBoxes 的 forceXShiftIndex 功能
-    // 讓 oldList 從 idx 開始的元素畫在 x + gap 的位置
+    // 開始搬移迴圈：從尾端開始，把 i-1 搬給 i
+    // [10, 20, 30, 0] -> [10, 20, 30, 30] -> [10, 20, 20, 30]
+    for (let i = currentList.length - 1; i > idx; i--) {
+      const mapPrepare: Record<number, Status> = {};
+      mapPrepare[i] = "prepare"; // 目標空位
+      mapPrepare[i - 1] = "prepare"; // 來源值
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `準備將 Index ${i - 1} (${
+          currentList[i - 1].value
+        }) 右移至 Index ${i}`,
+        elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapPrepare),
+      });
+
+      // Step B: 搬移
+      currentList[i].value = currentList[i - 1].value;
+
+      const mapSwap: Record<number, Status> = {};
+      mapSwap[i] = "target"; // 變成新值
+      mapSwap[i - 1] = "prepare"; // 來源位
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `搬移完成：Index ${i} 現在是 ${currentList[i].value}`,
+        elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapSwap),
+      });
+    }
+
+    // Step Final: 填入新數值
+    // 此時 currentList 在 idx 的位置是舊值 (例如 [10, 20, 20, 30])
+    // 我們要將 idx 更新為 new value
+    currentList[idx].value = value;
+
     steps.push({
-      stepNumber: 2,
-      description: `元素右移，騰出 Index ${idx} 的空間`,
-      elements: createBoxes(oldList, -1, "unfinished", idx, 1), // 1 表示右移
+      stepNumber: steps.length + 1,
+      description: `在 Index ${idx} 填入新數值 ${value}`,
+      elements: createBoxes(currentList, idx, "target"),
     });
 
-    // Step 3: 放入新元素
-    // 舊元素保持右移狀態，新元素從上方出現
-    const movedBoxes = createBoxes(oldList, -1, "unfinished", idx, 1);
-
-    const s3NewBox = new Box();
-    s3NewBox.id = newNode.id;
-    s3NewBox.value = newNode.value;
-    s3NewBox.width = 60;
-    s3NewBox.height = 60;
-    s3NewBox.moveTo(50 + idx * 80, 200 - 80); // 出現在目標位置上方
-    s3NewBox.setStatus("target");
-    s3NewBox.description = "New";
-
+    // Step Done: 完成 (全亮)
     steps.push({
-      stepNumber: 3,
-      description: `放入新元素 ${value}`,
-      elements: [...movedBoxes, s3NewBox],
-    });
-
-    // Step 4: 完成
-    steps.push({
-      stepNumber: 4,
+      stepNumber: steps.length + 1,
       description: "插入完成",
-      elements: createBoxes(dataList, idx, "complete"),
+      elements: createBoxes(dataList, -1, "complete"),
     });
   }
 
