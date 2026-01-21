@@ -8,7 +8,9 @@ export const useDataStructureLogic = (config: any) => {
   // 初始化
   useEffect(() => {
     if (config) {
-      const initData = config.defaultData || [];
+      const initData = (config.defaultData || []).map((item: any) => ({
+        ...item,
+      }));
       setData(initData);
 
       if (config.createAnimationSteps) {
@@ -24,7 +26,7 @@ export const useDataStructureLogic = (config: any) => {
 
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
-    let newData = [...data]; // 這裡假設 data 是 array，如果是 Tree/Graph 需深拷貝
+    let newData = data.map((item: any) => ({ ...item }));
     let {
       value,
       mode,
@@ -55,6 +57,10 @@ export const useDataStructureLogic = (config: any) => {
           else newData.splice(idx + 1, 0, newNode);
         }
       } else if (actionType === "delete") {
+        if (newData.length === 0) {
+          alert("Singly Linked List is empty");
+          return [];
+        }
         let deletedNode = null;
         if (mode === "Head") {
           deletedNode = newData[0];
@@ -74,8 +80,7 @@ export const useDataStructureLogic = (config: any) => {
           targetId = deletedNode.id;
           value = deletedNode.value; // 確保動畫能顯示被刪除的數值
         } else {
-          // 如果沒刪到東西（例如空陣列），直接 return 避免錯誤
-          console.warn("No node deleted");
+          // 如果沒刪到東西，直接 return 避免錯誤
           return [];
         }
       } else if (actionType === "load") {
@@ -114,6 +119,10 @@ export const useDataStructureLogic = (config: any) => {
         targetId = newId;
         payload.mode = "Push";
       } else if (actionType === "delete") {
+        if (newData.length === 0) {
+          alert("Stack is empty");
+          return [];
+        }
         const delBox = newData.pop();
         if (delBox) {
           targetId = delBox.id;
@@ -160,6 +169,10 @@ export const useDataStructureLogic = (config: any) => {
         targetId = newId;
         payload.mode = "Enqueue";
       } else if (actionType === "delete") {
+        if (newData.length === 0) {
+          alert("Queue is empty");
+          return [];
+        }
         // 刪除第一個
         const delBox = newData.shift();
         if (delBox) {
@@ -198,6 +211,98 @@ export const useDataStructureLogic = (config: any) => {
             }));
           }
         }
+      }
+    } else if (config.id === "array") {
+      if (actionType === "add" && mode === "Insert") {
+        const idx = index !== undefined ? index : newData.length;
+        // 防呆：如果 index 超出範圍，修正或報錯
+        const safeIdx = Math.max(0, Math.min(idx, newData.length));
+
+        const newId = `box-${nextIdRef.current++}`;
+        const tailBox = { id: newId, value: 0 };
+
+        newData.push(tailBox); // 插入到指定位置
+
+        // [A, B, C, New] -> 搬移 -> [A, B, B, C] -> 賦值 -> [A, New, B, C]
+        for (let i = newData.length - 1; i > safeIdx; i--) {
+          newData[i].value = newData[i - 1].value;
+        }
+
+        newData[safeIdx].value = value;
+
+        targetId = newId;
+        payload.index = safeIdx;
+      }
+      // Update(Add 動作的一種，只是不改變長度)
+      else if (actionType === "add" && mode === "Update") {
+        const idx = index !== undefined ? index : -1;
+        if (idx >= 0 && idx < newData.length) {
+          const oldValue = newData[idx].value;
+
+          const newBox = { ...newData[idx], value: value };
+          newData[idx] = newBox;
+
+          targetId = newBox.id;
+          payload.index = idx;
+          payload.oldValue = oldValue;
+        }
+      } else if (actionType === "delete") {
+        let idx = index;
+
+        if (newData.length === 0) {
+          alert("Array is empty");
+          return [];
+        }
+
+        if (idx === undefined || idx >= newData.length)
+          idx = newData.length - 1;
+        else if (idx < 0) idx = 0;
+
+        if (idx >= 0 && idx < newData.length) {
+          value = newData[idx].value;
+
+          const lastBox = newData[newData.length - 1];
+          targetId = lastBox.id;
+
+          // [A, Del, B, C] -> 搬移 -> [A, B, C, C] -> Pop -> [A, B, C]
+          for (let i = idx; i < newData.length - 1; i++) {
+            newData[i].value = newData[i + 1].value;
+          }
+
+          // 移除最後一個元素
+          newData.pop();
+
+          payload.index = idx;
+        }
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+        if (actionType === "random") {
+          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          newData = [];
+          for (let i = 0; i < count; i++)
+            newData.push({
+              id: `box-${nextIdRef.current++}`,
+              value: Math.floor(Math.random() * 100),
+            });
+        } else if (actionType === "reset") {
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: `box-${nextIdRef.current++}`,
+          }));
+        } else if (actionType === "load") {
+          if (loadData && Array.isArray(loadData)) {
+            newData = loadData.map((v: number) => ({
+              id: `box-${nextIdRef.current++}`,
+              value: v,
+            }));
+          }
+        }
+        // if (actionType === "load" && loadData) {
+        //   newData = loadData.map((v: number) => ({
+        //     id: `box-${nextIdRef.current++}`,
+        //     value: v,
+        //   }));
+        // }
       }
     }
 

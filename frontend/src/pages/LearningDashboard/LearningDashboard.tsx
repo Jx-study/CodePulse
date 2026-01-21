@@ -64,6 +64,15 @@ function LearningDashboard() {
               <p>先進先出資料結構</p>
               <span className={styles.difficulty}>⭐</span>
             </Link>
+
+            <Link
+              to="/tutorial/datastructure/linear/array"
+              className="common-card"
+            >
+              <h3>陣列 (Array)</h3>
+              <p>索引資料結構</p>
+              <span className={styles.difficulty}>⭐</span>
+            </Link>
           </div>
         </div>
       </div>

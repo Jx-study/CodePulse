@@ -44,9 +44,11 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const [insertMode, setInsertMode] = useState<string>("Head"); // Head, Tail, Node N
   const [maxNodes, setMaxNodes] = useState<number>(10);
 
+  // init
   useEffect(() => {
     if (structureType === "stack") setInsertMode("Push");
     else if (structureType === "queue") setInsertMode("Enqueue");
+    else if (structureType === "array") setInsertMode("Insert");
     else setInsertMode("Head");
   }, [structureType]);
 
@@ -60,6 +62,19 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     }
   };
 
+  const handleUpdate = () => {
+    if (disabled) return;
+    const val = Number(inputValue);
+    const idx = indexValue !== "" ? Number(indexValue) : undefined;
+
+    if (!isNaN(val) && idx !== undefined) {
+      onAddNode(val, "Update", idx);
+      setInputValue("");
+    } else {
+      alert("Update 需要輸入數值與索引");
+    }
+  };
+
   const handleDelete = () => {
     if (disabled) return;
     const idx = indexValue !== "" ? Number(indexValue) : undefined;
@@ -68,10 +83,13 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
   // 判斷是否顯示某些控制項
   const showIndexInput =
-    structureType === "linkedlist" && insertMode === "Node N";
+    (structureType === "linkedlist" && insertMode === "Node N") ||
+    structureType === "array";
   const showTailMode = structureType === "linkedlist";
-  const showSearchMode = structureType === "linkedlist";
+  const showSearchMode =
+    structureType === "linkedlist" || structureType === "array";
   const showPeek = structureType === "stack" || structureType === "queue";
+  const showUpdateButton = structureType === "array";
 
   // 判斷操作選項
   const getModeOptions = () => {
@@ -89,6 +107,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         </option>,
       ];
     }
+    if (structureType === "array") {
+      return null;
+    }
     // Default: Linked List
     return [
       <option key="head" value="Head">
@@ -104,18 +125,14 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   };
 
   // 按鈕文字動態化
-  const addBtnText =
-    structureType === "stack"
-      ? "Push"
-      : structureType === "queue"
-      ? "Enqueue"
-      : "Insert";
-  const delBtnText =
-    structureType === "stack"
-      ? "Pop"
-      : structureType === "queue"
-      ? "Dequeue"
-      : "Delete";
+  let addBtnText = "Insert";
+  if (structureType === "stack") addBtnText = "Push";
+  else if (structureType === "queue") addBtnText = "Enqueue";
+  else if (structureType === "array") addBtnText = "Insert";
+
+  let delBtnText = "Delete";
+  if (structureType === "stack") delBtnText = "Pop";
+  else if (structureType === "queue") delBtnText = "Dequeue";
 
   return (
     <div
@@ -181,32 +198,29 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
       {/* 第二行：操作控制 (OperationManager) */}
       <div className={styles.actionGroup}>
-        {structureType === "linkedlist" ? (
-          <>
-            <div
-              className={styles.staticLabel}
-              style={{ color: "#ccc", padding: "0 8px" }}
-            >
-              Linked List
-            </div>
-            <select
-              value={insertMode}
-              onChange={(e) => setInsertMode(e.target.value)}
-              className={styles.select}
-              disabled={disabled}
-            >
-              {getModeOptions()}
-            </select>
-          </>
-        ) : (
-          <div
-            className={styles.staticLabel}
-            style={{ color: "#ccc", padding: "0 8px" }}
+        {/* 標籤顯示 */}
+        <div
+          className={styles.staticLabel}
+          style={{ color: "#ccc", padding: "0 8px" }}
+        >
+          {structureType === "array"
+            ? "Array Operations"
+            : structureType === "linkedlist"
+            ? "Linked List Operations"
+            : structureType === "stack"
+            ? "Stack Operations"
+            : "Queue Operations"}
+        </div>
+
+        {structureType === "linkedlist" && (
+          <select
+            value={insertMode}
+            onChange={(e) => setInsertMode(e.target.value)}
+            className={styles.select}
+            disabled={disabled}
           >
-            {structureType === "stack"
-              ? "Stack Operations"
-              : "Queue Operations"}
-          </div>
+            {getModeOptions()}
+          </select>
         )}
 
         <input
@@ -222,11 +236,11 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         {showIndexInput && (
           <input
             type="number"
-            placeholder="N"
+            placeholder="Index"
             value={indexValue}
             onChange={(e) => setIndexValue(e.target.value)}
             className={styles.input}
-            style={{ width: "50px" }}
+            style={{ width: "60px" }}
             disabled={disabled}
           />
         )}
@@ -234,6 +248,18 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         <Button size="sm" onClick={handleAdd} disabled={disabled}>
           {addBtnText}
         </Button>
+
+        {showUpdateButton && (
+          <Button
+            size="sm"
+            onClick={handleUpdate}
+            disabled={disabled}
+            style={{ marginLeft: "4px" }}
+          >
+            Update
+          </Button>
+        )}
+
         <Button size="sm" onClick={handleDelete} disabled={disabled}>
           {delBtnText}
         </Button>
