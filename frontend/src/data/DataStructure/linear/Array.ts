@@ -1,75 +1,33 @@
-import { Box } from "../../../modules/core/DataLogic/Box";
 import { Status } from "../../../modules/core/DataLogic/BaseElement";
 import {
   AnimationStep,
   DataStructureConfig,
 } from "../../../types/dataStructure";
-
-interface BoxData {
-  id: string;
-  value: number | undefined;
-}
-
-interface ActionType {
-  type: string;
-  value: number;
-  mode: string; // "Index" (Update), "Value" (Search)
-  index?: number;
-  targetId?: string;
-}
+import {
+  LinearData as BoxData,
+  LinearAction as ActionType,
+  createBoxes as baseCreateBoxes,
+} from "./utils";
 
 // Array 的 description 顯示的是 Index 0, 1...
 const createBoxes = (
   list: BoxData[],
   highlightIndex: number = -1,
   status: Status = "unfinished",
-  forceXShiftIndex: number = -1, // 從哪個 index 開始強迫右移 (用於 Insert 動畫)
-  shiftDirection: number = 0, // 0: 不移, 1: 右移, -1: 左移
+  forceXShiftIndex: number = -1,
+  shiftDirection: number = 0,
   overrideStatusMap: Record<number, Status> = {}
 ) => {
-  const startX = 50;
-  const startY = 200;
-  const gap = 70;
-
-  return list.map((item, i) => {
-    const box = new Box();
-    box.id = item.id;
-
-    let x = startX + i * gap;
-
-    // 處理位移動畫邏輯
-    if (forceXShiftIndex !== -1) {
-      // Insert: 從 forceXShiftIndex 開始往右移
-      if (shiftDirection === 1 && i >= forceXShiftIndex) {
-        x += gap;
-      }
-      // Delete: 從 forceXShiftIndex 開始往左移 (通常是刪除後的補位)
-      else if (shiftDirection === -1 && i >= forceXShiftIndex) {
-        x -= gap;
-      }
-    }
-
-    box.moveTo(x, startY);
-    box.width = 60;
-    box.height = 60;
-    box.value = item.value;
-    box.description = `${i}`; // 顯示 Index
-
-    if (overrideStatusMap[i]) {
-      box.setStatus(overrideStatusMap[i]);
-    } else if (highlightIndex === -1) {
-      box.setStatus(status);
-    } else if (i === highlightIndex) {
-      box.setStatus(status === "unfinished" ? "target" : status);
-    } else {
-      box.setStatus("unfinished");
-    }
-
-    if (forceXShiftIndex !== -1 && i >= forceXShiftIndex) {
-      if (i !== highlightIndex) box.setStatus("prepare");
-    }
-
-    return box;
+  return baseCreateBoxes(list, {
+    startX: 50,
+    startY: 200,
+    gap: 70,
+    highlightIndex,
+    status,
+    forceXShiftIndex,
+    shiftDirection,
+    overrideStatusMap,
+    getDescription: (_, i) => `${i}`,
   });
 };
 
@@ -195,9 +153,8 @@ export function createArrayAnimationSteps(
 
       steps.push({
         stepNumber: steps.length + 1,
-        description: `準備將 Index ${i - 1} (${
-          currentList[i - 1].value
-        }) 右移至 Index ${i}`,
+        description: `準備將 Index ${i - 1} (${currentList[i - 1].value
+          }) 右移至 Index ${i}`,
         elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapPrepare),
       });
 
@@ -270,9 +227,8 @@ export function createArrayAnimationSteps(
 
         steps.push({
           stepNumber: steps.length + 1,
-          description: `準備將 Index ${i + 1} (${
-            currentList[i + 1].value
-          }) 移至 Index ${i}`,
+          description: `準備將 Index ${i + 1} (${currentList[i + 1].value
+            }) 移至 Index ${i}`,
           elements: createBoxes(
             currentList,
             -1,
