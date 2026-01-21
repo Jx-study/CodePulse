@@ -4,38 +4,24 @@ import {
   AnimationStep,
   DataStructureConfig,
 } from "../../../types/dataStructure";
-
-interface BoxData {
-  id: string;
-  value: number;
-}
-
-interface ActionType {
-  type: string;
-  value: number;
-  mode: string; // "Enqueue", "Dequeue"
-}
+import {
+  LinearData as BoxData,
+  LinearAction as ActionType,
+  createBoxes as baseCreateBoxes,
+} from "./utils";
 
 const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
-  const startX = 100;
-  const startY = 200;
-  const gap = 70;
-
-  return list.map((item, i) => {
-    const box = new Box();
-    box.id = item.id;
-    box.moveTo(startX + i * gap, startY);
-    box.width = 60;
-    box.height = 60;
-    box.value = item.value;
-
-    let desc = "";
-    if (i === 0) desc = "Front";
-    if (i === list.length - 1) desc += desc ? "/Rear" : "Rear";
-    box.description = desc;
-    box.setStatus(status);
-
-    return box;
+  return baseCreateBoxes(list, {
+    startX: 100,
+    startY: 200,
+    gap: 70,
+    status,
+    getDescription: (_, i, total) => {
+      let desc = "";
+      if (i === 0) desc = "Front";
+      if (i === total - 1) desc += desc ? "/Rear" : "Rear";
+      return desc;
+    },
   });
 };
 
