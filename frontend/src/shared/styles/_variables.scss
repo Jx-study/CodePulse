@@ -8,7 +8,8 @@ $light-text-primary: #1e1b4b; // 主要文字
 $light-text-secondary: #4b5563; // 次要文字
 $light-text-tertiary: #6b7280; // 輔助文字
 $light-border: #e5e1f0; // 邊框
-$light-card-shadow: 0 4px 6px -1px rgba(30, 27, 75, 0.08),
+$light-card-shadow:
+  0 4px 6px -1px rgba(30, 27, 75, 0.08),
   0 2px 4px -1px rgba(30, 27, 75, 0.04);
 
 $dark-bg-primary: #0f0d1a; // 主背景
@@ -18,7 +19,8 @@ $dark-text-primary: #e2e8f0; // 主要文字
 $dark-text-secondary: #a5b4c4; // 次要文字
 $dark-text-tertiary: #6b7a8a; // 輔助文字
 $dark-border: #2d2a3d; // 邊框
-$dark-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4),
+$dark-card-shadow:
+  0 4px 6px -1px rgba(0, 0, 0, 0.4),
   0 2px 4px -1px rgba(0, 0, 0, 0.25);
 
 // 漸變色定義
@@ -74,32 +76,39 @@ $hero-h3-size: 2.5rem; // 40px - 副標題
 $section-title-size: 2rem; // 32px - 區塊標題
 
 // 響應式字體 - Hero Section
-$hero-h1-size-mobile: 2rem;        // 32px
-$hero-h1-size-tablet: 2.75rem;     // 44px
-$hero-h1-size-desktop: 3.5rem;     // 56px
+$hero-h1-size-mobile: 2rem; // 32px
+$hero-h1-size-tablet: 2.75rem; // 44px
+$hero-h1-size-desktop: 3.5rem; // 56px
 
-$hero-h3-size-mobile: 1.5rem;      // 24px
-$hero-h3-size-tablet: 2rem;        // 32px
-$hero-h3-size-desktop: 2.5rem;     // 40px
+$hero-h3-size-mobile: 1.5rem; // 24px
+$hero-h3-size-tablet: 2rem; // 32px
+$hero-h3-size-desktop: 2.5rem; // 40px
 
 // 響應式字體 - Section Title
-$section-title-mobile: 1.75rem;    // 28px
-$section-title-tablet: 2rem;       // 32px
-$section-title-desktop: 2.5rem;    // 40px
+$section-title-mobile: 1.75rem; // 28px
+$section-title-tablet: 2rem; // 32px
+$section-title-desktop: 2.5rem; // 40px
 
 // 主要字體棧
-$font-family: "Inter", "Source Han Sans SC", "Noto Sans CJK SC",
-  "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont,
-  "Segoe UI", sans-serif;
+$font-family:
+  "Inter",
+  "Source Han Sans SC",
+  "Noto Sans CJK SC",
+  "Microsoft YaHei",
+  "PingFang SC",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  sans-serif;
 
 // 針對語言的專用字體
-$font-family-zh: "Inter", "Source Han Sans SC", "Source Han Sans TW",
-  "Source Han Sans CN", "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑",
-  "PingFang SC", sans-serif;
+$font-family-zh:
+  "Inter", "Source Han Sans SC", "Source Han Sans TW", "Source Han Sans CN",
+  "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑", "PingFang SC", sans-serif;
 
 // 程式碼專用字體
-$font-family-code: "SF Mono", "Monaco", "Consolas", "Liberation Mono",
-  "Courier New", monospace;
+$font-family-code:
+  "SF Mono", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
 
 // ========== 其他 ==========
 // 斷點
@@ -126,7 +135,7 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
 // 覆蓋層/模態框陰影
 $overlay-color: rgba(0, 0, 0, 0.7);
-$shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.5);
+$shadow-dialog: 0 20px 60px rgba(0, 0, 0, 0.5);
 
 // 連結顏色
 $link-color: #60a5fa;

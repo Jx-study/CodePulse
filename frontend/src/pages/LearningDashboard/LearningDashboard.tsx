@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
 // 組件導入
-import ProgressStatsModal from "./components/ProgressStatsModal/ProgressStatsModal";
+import ProgressStatsDialog from "./components/ProgressStatsDialog/ProgressStatsDialog";
 import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
 import VerticalLevelMap from "./components/VerticalLevelMap/VerticalLevelMap";
 import LevelNode from "./components/LevelNode/LevelNode";
@@ -25,7 +25,7 @@ function LearningDashboard() {
   const [userProgress, setUserProgress] =
     useState<UserProgress>(loadUserProgress());
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
-  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+  const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(
     searchParams.get("category") || "all",
   );
@@ -211,7 +211,7 @@ function LearningDashboard() {
           variant="primary"
           size="sm"
           className={styles.controlButton}
-          onClick={() => setIsProgressModalOpen(true)}
+          onClick={() => setIsProgressDialogOpen(true)}
         >
           學習進度
         </Button>
@@ -258,9 +258,9 @@ function LearningDashboard() {
       />
 
       {/* 進度統計彈窗 */}
-      <ProgressStatsModal
-        isOpen={isProgressModalOpen}
-        onClose={() => setIsProgressModalOpen(false)}
+      <ProgressStatsDialog
+        isOpen={isProgressDialogOpen}
+        onClose={() => setIsProgressDialogOpen(false)}
         totalLevels={totalLevels}
         completedLevels={completedLevels}
         totalStars={totalStars}

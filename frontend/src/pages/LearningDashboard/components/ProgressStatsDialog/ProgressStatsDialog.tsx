@@ -1,8 +1,8 @@
-import styles from './ProgressStatsModal.module.scss';
-import  Dialog from '@/shared/components/Dialog';
-import ProgressBar from '@/shared/components/ProgressBar';
+import styles from "./ProgressStatsDialog.module.scss";
+import Dialog from "@/shared/components/Dialog";
+import ProgressBar from "@/shared/components/ProgressBar";
 
-interface ProgressStatsModalProps {
+interface ProgressStatsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   totalLevels: number;
@@ -12,15 +12,15 @@ interface ProgressStatsModalProps {
   completionRate: number;
 }
 
-function ProgressStatsModal({
+function ProgressStatsDialog({
   isOpen,
   onClose,
   totalLevels,
   completedLevels,
   totalStars,
   earnedStars,
-  completionRate
-}: ProgressStatsModalProps) {
+  completionRate,
+}: ProgressStatsDialogProps) {
   return (
     <Dialog
       isOpen={isOpen}
@@ -70,4 +70,4 @@ function ProgressStatsModal({
   );
 }
 
-export default ProgressStatsModal;
+export default ProgressStatsDialog;

@@ -9,8 +9,13 @@ export interface Level {
   levelNumber: number;
   name: string;
   nameEn: string;
-  category: 'sorting' | 'searching' | 'graph' | 'dynamic-programming' | 'data-structures';
-  difficulty: 'easy' | 'medium' | 'hard';
+  category:
+    | "sorting"
+    | "searching"
+    | "graph"
+    | "dynamic-programming"
+    | "data-structures";
+  difficulty: "easy" | "medium" | "hard";
   estimatedTime: number;
   description: string;
   learningObjectives: string[];
@@ -20,7 +25,7 @@ export interface Level {
 
 export interface LevelProgress {
   levelId: string;
-  status: 'locked' | 'unlocked' | 'in-progress' | 'completed';
+  status: "locked" | "unlocked" | "in-progress" | "completed";
   stars: number;
   attempts: number;
   bestTime: number;
@@ -75,15 +80,21 @@ export interface VerticalLevelMapProps {
 }
 
 // ==================== Category Filter Component ====================
-export type DashboardCategory = 'all' | 'sorting' | 'searching' | 'graph' | 'dynamic-programming' | 'data-structures';
+export type DashboardCategory =
+  | "all"
+  | "sorting"
+  | "searching"
+  | "graph"
+  | "dynamic-programming"
+  | "data-structures";
 
 export interface CategoryFilterProps {
   selectedCategory: DashboardCategory;
   onCategoryChange: (category: DashboardCategory) => void;
 }
 
-// ==================== Progress Stats Modal Component ====================
-export interface ProgressStatsModalProps {
+// ==================== Progress Stats Dialog Component ====================
+export interface ProgressStatsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   userProgress: UserProgress;
