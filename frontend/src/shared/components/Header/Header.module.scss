@@ -1,4 +1,5 @@
 .header {
+    width: 100%;
     background: #1e293b;
     padding: $spacing-sm 0;
     box-shadow: $shadow-md;
@@ -15,6 +16,11 @@
     align-items: center;
     padding: 0 $spacing-lg;
     gap: $spacing-lg;
+
+    @include tablet {
+        padding: 0 $spacing-md;
+        gap: $spacing-md;
+    }
 
     @include mobile {
         display: flex;

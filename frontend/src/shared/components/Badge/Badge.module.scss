@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: $spacing-xs;
   font-weight: 500;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -34,27 +34,27 @@
 .xs {
   padding: 2px 6px;
   font-size: 10px;
-  border-radius: 4px;
+  border-radius: $radius-sm;
 
   &.pill {
-    border-radius: 8px;
+    border-radius: $radius-lg;
   }
 }
 
 .sm {
   padding: 4px 10px;
   font-size: $font-xs;
-  border-radius: 6px;
+  border-radius: $radius-md;
 
   &.pill {
-    border-radius: 12px;
+    border-radius: $radius-xl;
   }
 }
 
 .md {
   padding: 6px 12px;
   font-size: $font-sm;
-  border-radius: 8px;
+  border-radius: $radius-lg;
 
   &.pill {
     border-radius: 15px;
@@ -64,7 +64,7 @@
 .lg {
   padding: 8px 16px;
   font-size: $font-base;
-  border-radius: 8px;
+  border-radius: $radius-lg;
 
   &.pill {
     border-radius: 20px;
@@ -73,16 +73,16 @@
 
 // ========== Shape Variants ==========
 .square {
-  border-radius: 4px !important;
+  border-radius: $radius-sm !important;
 }
 
 // ========== Color Variants ==========
 .primary {
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba($primary-color, 0.1);
   color: $primary-color;
 
   &:hover.clickable {
-    background: rgba(37, 99, 235, 0.15);
+    background: rgba($primary-color, 0.15);
   }
 }
 
@@ -96,38 +96,38 @@
 }
 
 .success {
-  background: rgba(76, 175, 80, 0.1);
+  background: rgba($success-color, 0.1);
   color: $success-color;
 
   &:hover.clickable {
-    background: rgba(76, 175, 80, 0.15);
+    background: rgba($success-color, 0.15);
   }
 }
 
 .warning {
-  background: rgba(255, 107, 53, 0.1);
+  background: rgba($accent-color, 0.1);
   color: $accent-color;
 
   &:hover.clickable {
-    background: rgba(255, 107, 53, 0.15);
+    background: rgba($accent-color, 0.15);
   }
 }
 
 .danger {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba($error-color, 0.1);
   color: $error-color;
 
   &:hover.clickable {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba($error-color, 0.15);
   }
 }
 
 .info {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba($execution-color, 0.1);
   color: $execution-color;
 
   &:hover.clickable {
-    background: rgba(16, 185, 129, 0.15);
+    background: rgba($execution-color, 0.15);
   }
 }
 
