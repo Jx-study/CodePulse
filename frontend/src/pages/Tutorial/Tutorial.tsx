@@ -49,9 +49,11 @@ function Tutorial() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const isProcessing =
     isPlaying ||
-    (activeSteps.length > 1 && currentStep < activeSteps.length - 1);
+    (activeSteps.length > 1 &&
+      currentStep > 0 &&
+      currentStep < activeSteps.length - 1);
 
-  const [maxNodes, setMaxNodes] = useState(15);
+  const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
 
   // 3. 計算目前的動畫步驟

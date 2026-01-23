@@ -446,6 +446,8 @@ export function renderAll(
           .attr("height", box.height)
           .attr("rx", 8)
           .attr("fill", "none")
+          .attr("fill", box.getColor())
+          .attr("fill-opacity", 0.2)
           .attr("stroke", box.getColor())
           .attr("stroke-width", 2);
 
