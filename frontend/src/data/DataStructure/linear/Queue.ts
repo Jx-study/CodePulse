@@ -1,9 +1,7 @@
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
-import {
-  AnimationStep,
-  DataStructureConfig,
-} from "../../../types/dataStructure";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { AnimationStep } from "@/types/animation";
+import { DataStructureConfig } from "@/types/dataStructure";
 
 interface BoxData {
   id: string;

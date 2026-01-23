@@ -1,6 +1,6 @@
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep, AlgorithmConfig } from "@/types/algorithm";
+import type { AnimationStep, AlgorithmConfig } from "@/types";
 
 /**
  * 創建快速排序的動畫步驟

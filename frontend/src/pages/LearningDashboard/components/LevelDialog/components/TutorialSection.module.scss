@@ -1,9 +1,9 @@
-tutorialSection {
-  padding: $spacing-xl;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+.tutorialSection {
+  padding: $spacing-lg;
+  border-right: 1px solid var(--border);
   overflow-y: auto;
   @include flex($direction: column);
-  gap: $spacing-lg;
+  gap: $spacing-xs;
 
   h3 {
     color: $primary-color;
@@ -12,7 +12,7 @@ tutorialSection {
   }
 
   h4 {
-    color: $dark-text-primary;
+    color: var(--text-primary);
     font-size: $font-lg;
     margin: 0 0 $spacing-sm 0;
   }
@@ -27,12 +27,12 @@ tutorialSection {
     gap: $spacing-sm;
 
     .label {
-      color: $dark-text-secondary;
+      color: var(--text-secondary);
       font-size: $font-sm;
     }
 
     .value {
-      color: $dark-text-primary;
+      color: var(--text-primary);
       font-size: $font-sm;
       font-weight: 600;
     }
@@ -41,7 +41,7 @@ tutorialSection {
 
 .description {
   p {
-    color: $dark-text-secondary;
+    color: var(--text-secondary);
     line-height: 1.6;
     margin: 0;
   }
@@ -51,23 +51,19 @@ tutorialSection {
   ul {
     margin: 0;
     padding-left: $spacing-lg;
-    color: $dark-text-secondary;
+    color: var(--text-secondary);
     line-height: 1.8;
-
-    li {
-      margin-bottom: $spacing-xs;
-    }
   }
 }
 
 .startTutorialButton {
   width: 100%;
   margin-top: auto;
-  background: linear-gradient(135deg, $primary-color 0%, #764ba2 100%);
+  background: $gradient-primary;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transform: $hover-transform;
+    box-shadow: 0 4px 12px rgba($primary-color, 0.4);
   }
 }
 
@@ -76,10 +72,10 @@ tutorialSection {
 }
 
 // 響應式設計
-@media (max-width: 768px) {
+@media (max-width: $mobile-max) {
   .tutorialSection {
     padding: $spacing-lg;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border);
   }
 }

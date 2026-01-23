@@ -13,8 +13,16 @@ import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 
 // 資料導入
-import { MOCK_LEVELS, loadUserProgress, saveUserProgress } from "./mockData";
-import { calculateNodePosition } from "./components/VerticalLevelMap/utils/positionCalculator";
+import { getAllLevels } from "@/data/levels/levelDefinitions";
+import { loadUserProgress, saveUserProgress } from "@/data/userProgress";
+import {
+  calculateNodePosition,
+  calculateGraphNodePosition,
+} from "./components/VerticalLevelMap/utils/positionCalculator";
+import {
+  computeAllUnlockStatus,
+  filterLevelsByCategory,
+} from "./utils/graphUtils";
 import type { Level, UserProgress } from "@/types";
 
 function LearningDashboard() {
@@ -31,27 +39,34 @@ function LearningDashboard() {
   );
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
-  // 計算解鎖狀態（線性邏輯）
-  const levelsWithUnlockStatus = MOCK_LEVELS.map((level, index) => {
-    if (index === 0) {
-      return { ...level, isUnlocked: true }; // 第一關預設解鎖
-    }
-    const previousLevel = MOCK_LEVELS[index - 1];
-    const previousLevelProgress = userProgress.levels[previousLevel.id];
-    const isPreviousCompleted = previousLevelProgress?.status === "completed";
-    return { ...level, isUnlocked: isPreviousCompleted };
-  });
+  // 從統一配置獲取所有關卡
+  const allLevels = getAllLevels();
+
+  // 計算解鎖狀態
+  const levelsWithUnlockStatus = computeAllUnlockStatus(
+    allLevels,
+    userProgress,
+  );
 
   // 過濾關卡（按分類）
-  const filteredLevels =
-    activeCategory === "all"
-      ? levelsWithUnlockStatus
-      : levelsWithUnlockStatus.filter(
-          (level) => level.category === activeCategory,
-        );
+  const filteredLevels = filterLevelsByCategory(
+    levelsWithUnlockStatus,
+    activeCategory,
+  );
+
+  // Helper function: 獲取關卡進度（若不存在則返回預設值）
+  const getLevelProgress = (levelId: string) => {
+    return userProgress.levels[levelId] || {
+      levelId,
+      status: 'locked' as const,
+      stars: 0,
+      attempts: 0,
+      bestTime: 0
+    };
+  };
 
   // 計算進度統計
-  const totalLevels = MOCK_LEVELS.length;
+  const totalLevels = allLevels.length;
   const completedLevels = Object.values(userProgress.levels).filter(
     (progress) => progress.status === "completed",
   ).length;
@@ -62,6 +77,41 @@ function LearningDashboard() {
   );
   const completionRate =
     totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
+
+  // 計算按分類的進度統計
+  const categoryProgress = allLevels.reduce((acc, level) => {
+    const category = level.category;
+
+    if (!acc[category]) {
+      acc[category] = {
+        name: level.category,
+        completedLevels: 0,
+        totalLevels: 0,
+        completionRate: 0,
+        isBossCompleted: false,
+      };
+    }
+
+    acc[category].totalLevels += 1;
+
+    const levelProgress = userProgress.levels[level.id];
+    if (levelProgress?.status === "completed") {
+      acc[category].completedLevels += 1;
+    }
+
+    // 檢查是否為 Boss Level
+    if (level.pathMetadata?.pathType === "boss" && levelProgress?.status === "completed") {
+      acc[category].isBossCompleted = true;
+    }
+
+    // 計算完成率
+    acc[category].completionRate =
+      acc[category].totalLevels > 0
+        ? (acc[category].completedLevels / acc[category].totalLevels) * 100
+        : 0;
+
+    return acc;
+  }, {} as Record<string, { name: string; completedLevels: number; totalLevels: number; completionRate: number; isBossCompleted: boolean; }>);
 
   // 更新 URL 參數
   useEffect(() => {
@@ -134,12 +184,13 @@ function LearningDashboard() {
   const handleStartPractice = () => {
     if (selectedLevel) {
       // 更新關卡狀態為「進行中」
+      const currentProgress = getLevelProgress(selectedLevel.id);
       const updatedProgress = {
         ...userProgress,
         levels: {
           ...userProgress.levels,
           [selectedLevel.id]: {
-            ...userProgress.levels[selectedLevel.id],
+            ...currentProgress,
             status: "in-progress" as const,
           },
         },
@@ -158,43 +209,62 @@ function LearningDashboard() {
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
       <VerticalLevelMap levels={filteredLevels} userProgress={userProgress}>
-        {(level, index, position) => (
-          <>
-            {/* 路徑連接線 */}
-            {index > 0 && (
-              <PathConnection
-                fromNode={calculateNodePosition(
-                  index - 1,
-                  filteredLevels.length,
-                )}
-                toNode={position}
-                isCompleted={
-                  userProgress.levels[level.id]?.status === "completed"
-                }
-              />
-            )}
+        {(level, index, position) => {
+          // v2.0: 根據 prerequisites 繪製連線
+          const prereqIds = level.prerequisites?.levelIds || [];
+          const prereqType = level.prerequisites?.type || "AND";
 
-            {/* 關卡節點 */}
-            <LevelNode
-              level={level}
-              status={
-                level.isUnlocked
-                  ? userProgress.levels[level.id]?.status || "unlocked"
-                  : "locked"
-              }
-              stars={userProgress.levels[level.id]?.stars || 0}
-              isLocked={!level.isUnlocked} // 用戶解鎖狀態（控制 Practice 按鈕）
-              isDeveloped={level.isDeveloped} // 功能開發狀態（控制節點能否點擊）
-              position={position.position}
-              style={{
-                position: "absolute",
-                left: position.x,
-                top: `${position.y}px`,
-              }}
-              onClick={() => handleLevelClick(level)}
-            />
-          </>
-        )}
+          return (
+            <>
+              {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
+              {prereqIds.map((prereqId) => {
+                const prereqLevel = filteredLevels.find(
+                  (l) => l.id === prereqId,
+                );
+                if (!prereqLevel) return null;
+
+                const fromPosition = prereqLevel.graphPosition
+                  ? calculateGraphNodePosition(prereqLevel, filteredLevels)
+                  : calculateNodePosition(
+                      filteredLevels.indexOf(prereqLevel),
+                      filteredLevels.length,
+                    );
+
+                return (
+                  <PathConnection
+                    key={`${prereqId}-${level.id}`}
+                    fromNode={fromPosition}
+                    toNode={position}
+                    isCompleted={
+                      userProgress.levels[prereqId]?.status === "completed"
+                    }
+                    connectionType={prereqType}
+                  />
+                );
+              })}
+
+              {/* 關卡節點 */}
+              <LevelNode
+                level={level}
+                status={
+                  level.isUnlocked
+                    ? userProgress.levels[level.id]?.status || "unlocked"
+                    : "locked"
+                }
+                stars={userProgress.levels[level.id]?.stars || 0}
+                isLocked={!level.isUnlocked}
+                isDeveloped={level.isDeveloped}
+                alignment={position.alignment}
+                style={{
+                  position: "absolute",
+                  left: position.x,
+                  top: `${position.y}px`,
+                }}
+                onClick={() => handleLevelClick(level)}
+              />
+            </>
+          );
+        }}
       </VerticalLevelMap>
 
       {/* 浮動控制面板（右上角） */}
@@ -266,6 +336,7 @@ function LearningDashboard() {
         totalStars={totalStars}
         earnedStars={earnedStars}
         completionRate={completionRate}
+        categoryProgress={categoryProgress}
       />
 
       {/* 關卡詳細資訊彈窗 */}
@@ -276,7 +347,7 @@ function LearningDashboard() {
           onClose={() => setSelectedLevel(null)}
           onStartTutorial={handleStartTutorial}
           onStartPractice={handleStartPractice}
-          userProgress={userProgress.levels[selectedLevel.id]}
+          userProgress={getLevelProgress(selectedLevel.id)}
           isLocked={!selectedLevel.isUnlocked}
         />
       )}

@@ -40,7 +40,7 @@ function App() {
             <Route path="/dashboard" element={<LearningDashboard />} />
             <Route path="/tutorial" element={<Tutorial />} />
             <Route
-              path="/tutorial/:category/:subcategory?/:topicType"
+              path="/tutorial/:category/:levelId"
               element={<Tutorial />}
             />
             <Route path="/explorer" element={<Explorer />} />

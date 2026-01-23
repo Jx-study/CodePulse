@@ -26,6 +26,13 @@ $dark-card-shadow:
 // 漸變色定義
 $gradient-primary: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
 $gradient-secondary: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+$gradient-in-progress: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+$gradient-completed: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+// 關卡節點顏色
+$level-undeveloped-bg: #424242;
+$level-in-progress-glow: rgba(245, 87, 108, 0.5);
+$level-in-progress-glow-strong: rgba(245, 87, 108, 0.8);
 
 // 狀態色彩
 $error-color: #ef4444;
@@ -111,6 +118,9 @@ $font-family-code:
   "SF Mono", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
 
 // ========== 其他 ==========
+// 佈局尺寸
+$header-height: 64px;
+
 // 斷點
 $mobile: 768px;
 $mobile-max: 767px; // 手機端最大寬度
@@ -142,6 +152,7 @@ $link-color: #60a5fa;
 $link-hover-color: #93c5fd;
 
 // 邊距
+$spacing-2xs: 0.25rem;
 $spacing-xs: 0.5rem;
 $spacing-sm: 1rem;
 $spacing-md: 1.5rem;
@@ -159,3 +170,9 @@ $card-height-mobile: 17.5rem; // 280px
 $card-height-tablet: 18.75rem; // 300px
 $card-height-default: 20rem; // 320px
 $card-height-desktop: 21.25rem; // 340px
+
+// 關卡節點尺寸
+$level-node-size: 5rem; // 80px
+$level-node-size-mobile: 4rem; // 64px
+$level-node-radius: 2.5rem; // 40px (半徑)
+$level-node-radius-mobile: 2rem; // 32px (半徑)

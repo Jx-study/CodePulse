@@ -11,7 +11,7 @@ interface LevelDialogProps {
   onClose: () => void;
   onStartTutorial: () => void;
   onStartPractice: () => void;
-  userProgress: LevelProgress;
+  userProgress?: LevelProgress;
   isLocked: boolean;
 }
 
@@ -24,35 +24,33 @@ function LevelDialog({
   userProgress,
   isLocked
 }: LevelDialogProps) {
-  const completionPercentage = userProgress.status === 'completed' ? 100 : 0;
+  const completionPercentage = userProgress?.status === 'completed' ? 100 : 0;
 
   return (
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={`關卡 ${level.levelNumber}: ${level.name}`}
+      title={`關卡 : ${level.name}`}
       size="lg"
       closeOnOverlayClick={true}
       closeOnEscape={true}
       preventScroll={true}
       className={styles.levelDialog}
+      contentClassName={styles.dialogContent}
     >
-      <div className={styles.dialogContent}>
-        <TutorialSection
-          level={level}
-          onStartTutorial={onStartTutorial}
-          isCompleted={userProgress.status === "completed"}
-        />
-
-        <PracticeSection
-          level={level}
-          onStartPractice={onStartPractice}
-          completionPercentage={completionPercentage}
-          bestStars={userProgress.stars}
-          attempts={userProgress.attempts}
-          isLocked={isLocked}
-        />
-      </div>
+      <TutorialSection
+        level={level}
+        onStartTutorial={onStartTutorial}
+        isCompleted={userProgress?.status === "completed"}
+      />
+      <PracticeSection
+        level={level}
+        onStartPractice={onStartPractice}
+        completionPercentage={completionPercentage}
+        bestStars={userProgress?.stars ?? 0}
+        attempts={userProgress?.attempts ?? 0}
+        isLocked={isLocked}
+      />
     </Dialog>
   );
 }

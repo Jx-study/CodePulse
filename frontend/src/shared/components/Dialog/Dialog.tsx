@@ -102,7 +102,7 @@ const Dialog: React.FC<DialogProps> = ({
       className={overlayClasses}
       onClick={handleOverlayClick}
       role="dialog"
-      aria-dialog="true"
+      aria-modal="true"
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedBy}
     >

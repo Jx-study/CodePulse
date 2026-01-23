@@ -1,9 +1,7 @@
-import { Node } from "../../../modules/core/DataLogic/Node";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
-import {
-  AnimationStep,
-  DataStructureConfig,
-} from "../../../types/dataStructure";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { AnimationStep } from "@/types/animation";
+import { DataStructureConfig } from "@/types/dataStructure";
 
 interface ListNodeData {
   id: string;

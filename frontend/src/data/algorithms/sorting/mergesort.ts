@@ -1,5 +1,5 @@
 import { Box } from '@/modules/core/DataLogic/Box';
-import { AnimationStep, AlgorithmConfig } from '@/types/algorithm';
+import type { AnimationStep, AlgorithmConfig } from '@/types';
 import type { Status } from '@/modules/core/DataLogic/BaseElement';
 
 /**

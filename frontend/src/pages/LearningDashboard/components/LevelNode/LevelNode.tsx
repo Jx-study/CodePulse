@@ -9,7 +9,7 @@ interface LevelNodeProps {
   stars: number;
   isLocked: boolean; // 用戶是否解鎖（控制 Practice 按鈕）
   isDeveloped: boolean; // 功能是否開發（控制節點能否點擊）
-  position: "left" | "right";
+  alignment: "left" | "right" | "center"; 
   style?: React.CSSProperties;
   onClick: () => void;
 }
@@ -20,7 +20,7 @@ function LevelNode({
   stars,
   isLocked,
   isDeveloped,
-  position,
+  alignment,
   style,
   onClick,
 }: LevelNodeProps) {
@@ -59,20 +59,28 @@ function LevelNode({
     }
   };
 
+  const nodeClassName = [
+    styles.levelNode,
+    styles[status],
+    styles[alignment],
+    !isDeveloped && styles.undeveloped,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div
-      className={`${styles.levelNode} ${styles[status]} ${styles[position]} ${!isDeveloped ? styles.undeveloped : ""}`}
+      className={nodeClassName}
       style={style}
       onClick={handleClick}
       role="button"
       tabIndex={isDeveloped ? 0 : -1}
-      aria-label={`關卡 ${level.levelNumber}: ${level.name}`}
+      aria-label={`關卡: ${level.name}`}
       aria-disabled={!isDeveloped}
       data-level-id={level.id}
     >
       <div className={styles.nodeContent}>
         {renderStatusIcon()}
-        <span className={styles.levelNumber}>{level.levelNumber}</span>
         <span className={styles.levelName}>{level.name}</span>
         {renderStars()}
       </div>

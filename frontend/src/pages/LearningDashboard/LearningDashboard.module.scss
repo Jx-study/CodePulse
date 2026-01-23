@@ -5,8 +5,8 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background: $dark-bg-primary;
-  padding-top: 64px; // Header 高度（临时硬编码）
+  background: var(--bg-primary);
+  padding-top: $header-height;
   z-index: 0;
 }
 

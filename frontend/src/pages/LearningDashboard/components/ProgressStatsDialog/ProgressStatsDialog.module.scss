@@ -8,13 +8,13 @@
 
 .statCard {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: $radius-xl;
   padding: $spacing-lg;
   transition: $transition-base;
 
   &:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
+    transform: $hover-transform;
   }
 
   h3 {
@@ -29,7 +29,7 @@
   }
 
   .percentage {
-    color: $dark-text-primary;
+    color: var(--text-primary);
     font-size: $font-3xl;
     font-weight: 700;
     margin: 0;
@@ -48,16 +48,16 @@
     }
 
     .separator {
-      color: $dark-text-secondary;
+      color: var(--text-secondary);
     }
 
     .total {
-      color: $dark-text-secondary;
+      color: var(--text-secondary);
     }
   }
 
   .label {
-    color: $dark-text-secondary;
+    color: var(--text-secondary);
     font-size: $font-base;
     margin: $spacing-sm 0 0;
     text-align: center;
@@ -65,7 +65,7 @@
 }
 
 // 響應式設計
-@media (max-width: 768px) {
+@media (max-width: $mobile-max) {
   .statCard {
     padding: $spacing-md;
 

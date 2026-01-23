@@ -7,8 +7,7 @@ import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
 import type { BreadcrumbItem } from "@/types";
-import { getAlgorithmConfig } from "@/data/algorithms";
-import { getDataStructureConfig } from "@/data/DataStructure";
+import { getLevelImplementation } from "@/data/levels/levelDefinitions";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
@@ -18,21 +17,19 @@ import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogi
 
 function Tutorial() {
   const { t } = useTranslation();
-  const { category, subcategory, topicType } = useParams<{
+  const { category, levelId } = useParams<{
     category: string;
-    subcategory?: string;
-    topicType: string;
+    levelId: string;
   }>();
 
   // 1. 根據路由參數載入配置
   const topicTypeConfig = useMemo(() => {
-    if (category === "datastructure" && subcategory && topicType) {
-      return getDataStructureConfig(subcategory, topicType);
-    } else if (category && topicType) {
-      return getAlgorithmConfig(category, topicType);
-    }
-    return null;
-  }, [category, subcategory, topicType]);
+    if (!levelId) return null;
+
+    // 透過 levelId 取得實作配置
+    const implementation = getLevelImplementation(levelId);
+    return implementation;
+  }, [levelId]);
 
   // 2. 狀態管理
   const { data, activeSteps, executeAction } =

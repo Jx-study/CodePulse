@@ -1,16 +1,7 @@
 import styles from "./ProgressStatsDialog.module.scss";
 import Dialog from "@/shared/components/Dialog";
 import ProgressBar from "@/shared/components/ProgressBar";
-
-interface ProgressStatsDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  totalLevels: number;
-  completedLevels: number;
-  totalStars: number;
-  earnedStars: number;
-  completionRate: number;
-}
+import type { ProgressStatsDialogProps } from "@/types";
 
 function ProgressStatsDialog({
   isOpen,
@@ -20,6 +11,7 @@ function ProgressStatsDialog({
   totalStars,
   earnedStars,
   completionRate,
+  categoryProgress,
 }: ProgressStatsDialogProps) {
   return (
     <Dialog
@@ -65,6 +57,26 @@ function ProgressStatsDialog({
           </p>
           <p className={styles.label}>⭐</p>
         </div>
+
+        {/* 按分類進度 */}
+        {Object.entries(categoryProgress).map(([category, info]) => (
+          <div key={category} className={styles.statCard}>
+            <h3>{info.name}</h3>
+            <ProgressBar
+              value={info.completionRate}
+              max={100}
+              variant="primary"
+              size="sm"
+              showLabel
+            />
+            <p className={styles.statValue}>
+              <span className={styles.current}>{info.completedLevels}</span>
+              <span className={styles.separator}>/</span>
+              <span className={styles.total}>{info.totalLevels}</span>
+            </p>
+            {info.isBossCompleted && <p className={styles.bossCompleted}>👑 Boss 已完成</p>}
+          </div>
+        ))}
       </div>
     </Dialog>
   );

@@ -11,15 +11,19 @@ interface TutorialSectionProps {
 
 function TutorialSection({ level, onStartTutorial, isCompleted }: TutorialSectionProps) {
   const difficultyColors = {
-    easy: '#4caf50',
-    medium: '#ff9800',
-    hard: '#f44336'
+    1: '#4caf50',
+    2: '#4caf50',
+    3: '#ff9800',
+    4: '#f44336',
+    5: '#f44336'
   };
 
   const difficultyLabels = {
-    easy: '簡單',
-    medium: '中等',
-    hard: '困難'
+    1: '非常簡單',
+    2: '簡單',
+    3: '中等',
+    4: '困難',
+    5: '非常困難'
   };
 
   return (
@@ -35,11 +39,6 @@ function TutorialSection({ level, onStartTutorial, isCompleted }: TutorialSectio
           >
             {difficultyLabels[level.difficulty]}
           </span>
-        </div>
-
-        <div className={styles.infoRow}>
-          <span className={styles.label}>預估時間：</span>
-          <span className={styles.value}>{level.estimatedTime} 分鐘</span>
         </div>
       </div>
 

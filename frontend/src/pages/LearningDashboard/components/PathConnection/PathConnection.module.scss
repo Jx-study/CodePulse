@@ -1,20 +1,38 @@
 .pathConnection {
   z-index: 0;
+  pointer-events: none;
 }
 
 .path {
-  stroke-width: 3;
   stroke-linecap: round;
-  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+  transition: all 0.5s $ease-smooth;
+  fill: none;
+}
+
+.andConnection {
+  stroke-width: 2;
 
   &.incomplete {
-    stroke: rgba(255, 255, 255, 0.2);
-    stroke-dasharray: 8, 8;
+    stroke: #374151; // 灰色 - 鎖定狀態
   }
 
   &.completed {
-    stroke: $primary-color;
-    stroke-width: 4;
-    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.6));
+    stroke: $execution-color; // 翠綠色 - 已完成路徑
+    stroke-width: 3;
+  }
+}
+
+// v2.0: OR 連線 - 虛線
+.orConnection {
+  stroke-dasharray: 10, 8;
+  stroke-width: 2;
+
+  &.incomplete {
+    stroke: #374151; // 灰色 - 鎖定狀態
+  }
+
+  &.completed {
+    stroke: $warning-color; // 橙黃色 - 已完成 OR 路徑
+    stroke-width: 3;
   }
 }
