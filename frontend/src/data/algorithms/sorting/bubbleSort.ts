@@ -10,7 +10,7 @@ const generateFrame = (
 ) => {
   const boxes = createBoxes(list, {
     startX: 50,
-    startY: 300, // Bar Chart 建議 Y 軸放低一點，讓它有空間往上長
+    startY: 250, // 0 的軸線位置
     gap: 70,
     overrideStatusMap,
     getDescription: (_item, index) => `${index}`,
@@ -58,8 +58,8 @@ export function createBubbleSortAnimationSteps(
 
       // Step A: 比較 (Compare)
       const compareStatus: Record<number, Status> = {};
-      compareStatus[j] = "target";
-      compareStatus[j + 1] = "target";
+      compareStatus[j] = "prepare";
+      compareStatus[j + 1] = "prepare";
 
       steps.push({
         stepNumber: steps.length + 1,
@@ -74,6 +74,8 @@ export function createBubbleSortAnimationSteps(
         arr[j] = arr[j + 1];
         arr[j + 1] = temp;
         swapped = true;
+        compareStatus[j] = "target";
+        compareStatus[j + 1] = "target";
 
         // Step B: 交換後
         // 因為 ID 位置變了，D3 會自動計算位置差並執行動畫

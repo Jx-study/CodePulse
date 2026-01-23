@@ -386,16 +386,16 @@ export function renderAll(
       const textVal = g.select<SVGTextElement>("text.val");
       const textDesc = g.select<SVGTextElement>("text.desc");
 
-      // === AutoScale Logic ===
+      // AutoScale Logic
       if (box.autoScale && scaleY) {
         const val = box.value || 0;
         const absVal = Math.abs(val);
         const barHeight = scaleY(absVal);
         const barWidth = box.width;
 
-        // 基準線：對於 autoScale，假設 Box 的 position.y 是基準線 (0 線)
-        // 正數：從 0 往上長 (y = -height)
-        // 負數：從 0 往下長 (y = 0)
+        // 判斷高度是否足夠容納文字
+        const MIN_BAR_HEIGHT_FOR_TEXT = 25;
+        const isBarTooShort = barHeight < MIN_BAR_HEIGHT_FOR_TEXT;
 
         let rectY = 0;
         if (val >= 0) {
@@ -411,29 +411,40 @@ export function renderAll(
           .attr("y", rectY)
           .attr("width", barWidth)
           .attr("height", barHeight)
-          .attr("rx", 8)
-          .attr("fill", box.getColor()) // AutoScale 通常填滿顏色比較好看，或用 stroke
+          .attr("rx", 8) // 圓角
+          .attr("fill", box.getColor())
           .attr("fill-opacity", 0.2)
           .attr("stroke", box.getColor())
           .attr("stroke-width", 2);
 
         // 文字位置調整
+        textVal.attr("fill", "#ccc");
         if (val >= 0) {
-          // 正數：數值在 Bar 內部上方，描述在 0 線下方
-          textVal
-            .attr("y", -barHeight + 20) // Bar 頂端內側
-            .attr("fill", "#fff");
+          // 正數
+          if (isBarTooShort) {
+            // Bar 太矮 -> 數值顯示在 Bar 上方 (浮在空中)
+            textVal.attr("y", -barHeight - 10);
+          } else {
+            // Bar 足夠高 -> 數值顯示在 Bar 內部頂端
+            textVal.attr("y", -barHeight + 20);
+          }
 
           textDesc
             .attr("y", 20) // 0 線下方
-            .attr("fill", "#ccc");
+            .attr("fill", "rgba(255, 241, 228, 1)");
         } else {
-          // 負數：數值在 Bar 內部下方，描述在 0 線上方
-          textVal.attr("y", barHeight - 10).attr("fill", "#fff");
+          // 負數
+          if (isBarTooShort) {
+            // Bar 太矮 -> 數值顯示在 Bar 下方
+            textVal.attr("y", barHeight + 20);
+          } else {
+            // Bar 足夠高 -> 數值顯示在 Bar 內部底端
+            textVal.attr("y", barHeight - 10);
+          }
 
           textDesc
             .attr("y", -10) // 0 線上方
-            .attr("fill", "#ccc");
+            .attr("fill", "rgba(250, 242, 234, 1)");
         }
       } else {
         // === 一般模式 (固定大小) ===
