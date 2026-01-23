@@ -44,11 +44,11 @@ export const CATEGORIES = {
 // 教學內容映射
 export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
   sorting: {
-    quicksort: {
-      id: "quicksort",
-      name: "快速排序",
-      description: "分治法排序演算法",
-      difficulty: 3,
+    bubblesort: {
+      id: "bubblesort",
+      name: "泡沫排序",
+      description: "基礎排序演算法",
+      difficulty: 1,
       category: "sorting",
       categoryName: "排序演算法",
     },
