@@ -1,4 +1,4 @@
-import { BaseElement } from '../modules/core/DataLogic/BaseElement';
+import { BaseElement } from "../modules/core/DataLogic/BaseElement";
 
 /**
  * 動畫步驟資料結構
@@ -37,9 +37,19 @@ export interface AlgorithmConfig {
 /**
  * 演算法類別
  */
-export type AlgorithmCategory = 'sorting' | 'searching' | 'graph' | 'tree' | 'dynamic-programming';
+export type AlgorithmCategory =
+  | "sorting"
+  | "searching"
+  | "graph"
+  | "tree"
+  | "dynamic-programming";
 
 /**
  * 演算法 ID
  */
-export type AlgorithmId = 'quicksort' | 'mergesort' | 'bubblesort' | 'binarysearch' | 'linearsearch';
+export type AlgorithmId =
+  | "selectionsort"
+  | "insertionsort"
+  | "bubblesort"
+  | "binarysearch"
+  | "linearsearch";

@@ -1,22 +1,24 @@
-import { AlgorithmConfig } from '../../types/algorithm';
-import { quickSortConfig } from './sorting/quicksort';
-import { mergeSortConfig } from './sorting/mergesort';
-import { binarySearchConfig } from './searching/binarysearch';
+import { AlgorithmConfig } from "../../types/algorithm";
+import { bubbleSortConfig } from "./sorting/bubbleSort";
+import { selectionSortConfig } from "./sorting/selectionSort";
+import { insertionSortConfig } from "./sorting/insertionSort";
+import { binarySearchConfig } from "./searching/binarysearch";
 
 /**
  * 所有演算法配置的集合
  * 使用 category/algorithm 作為 key
  */
 export const algorithmsMap: Record<string, AlgorithmConfig> = {
-  'sorting/quicksort': quickSortConfig,
-  'sorting/mergesort': mergeSortConfig,
-  'searching/binarysearch': binarySearchConfig,
+  "sorting/bubblesort": bubbleSortConfig,
+  "sorting/selectionsort": selectionSortConfig,
+  "sorting/insertionsort": insertionSortConfig,
+  "searching/binarysearch": binarySearchConfig,
 };
 
 /**
  * 根據 category 和 algorithm 獲取演算法配置
  * @param category 演算法類別（如 'sorting', 'searching'）
- * @param algorithm 演算法 ID（如 'quicksort', 'mergesort'）
+ * @param algorithm 演算法 ID（如 'bubblesort', 'selectionsort'）
  * @returns 演算法配置，如果不存在則返回 null
  */
 export function getAlgorithmConfig(
