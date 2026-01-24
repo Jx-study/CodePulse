@@ -14,10 +14,10 @@ function LearningDashboard() {
         <div className={styles.tempTutorialSection}>
           <h2>演算法教學</h2>
           <div className={styles.algorithmGrid}>
-            <Link to="/tutorial/sorting/quicksort" className="common-card">
-              <h3>快速排序</h3>
-              <p>分治法排序演算法</p>
-              <span className={styles.difficulty}>⭐⭐⭐</span>
+            <Link to="/tutorial/sorting/bubblesort" className="common-card">
+              <h3>泡沫排序</h3>
+              <p>基礎排序演算法</p>
+              <span className={styles.difficulty}>⭐</span>
             </Link>
 
             <Link to="/tutorial/sorting/selectionsort" className="common-card">
