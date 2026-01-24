@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./SettingPanel.module.scss";
 import Icon from "@/shared/components/Icon";

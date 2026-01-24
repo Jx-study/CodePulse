@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { TabItem, TabsProps } from '@/types';
+import type { TabsProps } from '@/types';
 import styles from './Tabs.module.scss';
 
 const Tabs: React.FC<TabsProps> = ({

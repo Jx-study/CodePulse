@@ -13,13 +13,10 @@ export interface ButtonProps {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
   type?: 'button' | 'submit' | 'reset';
-  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
   children?: React.ReactNode;
   'aria-label'?: string;
-  as?: React.ElementType;
-  to?: string;
-  href?: string;
   [key: string]: any;
 }
 

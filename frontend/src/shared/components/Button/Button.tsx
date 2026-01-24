@@ -1,8 +1,7 @@
-import React from 'react';
 import type { ButtonProps } from '@/types';
 import styles from './Button.module.scss';
 
-const Button: React.FC<ButtonProps> = ({
+function Button({
   variant = 'primary',
   size = 'md',
   disabled = false,
@@ -15,16 +14,44 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   children,
   'aria-label': ariaLabel,
-  as,
-  to,
-  href,
   ...restProps
-}) => {
-  // 決定渲染的元素類型
-  const Component = as || (to || href ? 'a' : 'button');
+}: ButtonProps) {
+  const getVariantClass = () => {
+    switch (variant) {
+      case 'primary':
+        return styles.primary;
+      case 'primaryOutline':
+        return styles.primaryOutline;
+      case 'secondary':
+        return styles.secondary;
+      case 'ghost':
+        return styles.ghost;
+      case 'danger':
+        return styles.danger;
+      case 'icon':
+        return styles.icon;
+      case 'dot':
+        return styles.dot;
+      default:
+        return styles.primary;
+    }
+  };
 
-  // 點擊事件處理（防止 disabled 或 loading 時觸發）
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+  const getSizeClass = () => {
+    switch (size) {
+      case 'xs':
+        return styles.xs;
+      case 'sm':
+        return styles.sm;
+      case 'lg':
+        return styles.lg;
+      case 'md':
+      default:
+        return styles.md;
+    }
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled || loading) {
       event.preventDefault();
       return;
@@ -32,56 +59,37 @@ const Button: React.FC<ButtonProps> = ({
     onClick?.(event);
   };
 
-  // 動態 className 生成
   const buttonClasses = [
     styles.button,
-    styles[variant],
-    styles[size],
+    getVariantClass(),
+    getSizeClass(),
     disabled && styles.disabled,
     loading && styles.loading,
     fullWidth && styles.fullWidth,
-    className
-  ].filter(Boolean).join(' ');
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
-  // Loading Spinner 渲染
-  const renderSpinner = () => (
-    <span className={styles.spinner} />
-  );
-
-  // 準備 props（根據元素類型）
-  const elementProps: any = {
-    className: buttonClasses,
-    onClick: handleClick,
-    'aria-label': ariaLabel,
-    'aria-busy': loading,
-    'aria-disabled': disabled,
-    ...restProps,
-  };
-
-  // 如果是 button 元素，添加 type 和 disabled
-  if (Component === 'button') {
-    elementProps.type = type;
-    elementProps.disabled = disabled || loading;
-  }
-
-  // 如果有 to prop (React Router Link)
-  if (to) {
-    elementProps.to = to;
-  }
-
-  // 如果有 href prop (原生 <a>)
-  if (href) {
-    elementProps.href = href;
-  }
+  const renderSpinner = () => <span className={styles.spinner} />;
 
   return (
-    <Component {...elementProps}>
+    <button
+      type={type}
+      className={buttonClasses}
+      onClick={handleClick}
+      disabled={disabled || loading}
+      aria-label={ariaLabel}
+      aria-busy={loading}
+      aria-disabled={disabled}
+      {...restProps}
+    >
       {loading && renderSpinner()}
       {!loading && iconLeft && <span className={styles.iconLeft}>{iconLeft}</span>}
       {children && <span className={styles.content}>{children}</span>}
       {!loading && iconRight && <span className={styles.iconRight}>{iconRight}</span>}
-    </Component>
+    </button>
   );
-};
+}
 
-export default React.memo(Button);
+export default Button;

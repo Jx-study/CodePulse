@@ -9,7 +9,7 @@ import Button from "@/shared/components/Button";
 function Hero() {
   const { t } = useTranslation();
   const pulseBackgroundRef = useRef<any>(null);
-  const ctaButtonRef = useRef<HTMLButtonElement>(null);
+  const ctaButtonRef = useRef<HTMLAnchorElement>(null);
   const heroRef = useRef<HTMLElement>(null);
 
   const handleHeroClick = (event: React.MouseEvent) => {
@@ -60,17 +60,16 @@ function Hero() {
         <div className={styles.demoContainer}>
           <Demo />
         </div>
-        <Button
-          variant="primary"
-          size="lg"
-          as={Link}
+        <Link
           to="/explorer"
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
           onMouseLeave={handleCtaLeave}
         >
-          {t("hero.cta")}
-        </Button>
+          <Button variant="primary" size="lg">
+            {t("hero.cta")}
+          </Button>
+        </Link>
       </div>
     </section>
   );
