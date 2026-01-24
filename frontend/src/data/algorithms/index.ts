@@ -3,6 +3,7 @@ import { bubbleSortConfig } from "./sorting/bubbleSort";
 import { selectionSortConfig } from "./sorting/selectionSort";
 import { insertionSortConfig } from "./sorting/insertionSort";
 import { binarySearchConfig } from "./searching/binarysearch";
+import { prefixSumConfig } from "./technique/prefixSum";
 
 /**
  * 所有演算法配置的集合
@@ -13,6 +14,7 @@ export const algorithmsMap: Record<string, AlgorithmConfig> = {
   "sorting/selectionsort": selectionSortConfig,
   "sorting/insertionsort": insertionSortConfig,
   "searching/binarysearch": binarySearchConfig,
+  "technique/prefixsum": prefixSumConfig,
 };
 
 /**

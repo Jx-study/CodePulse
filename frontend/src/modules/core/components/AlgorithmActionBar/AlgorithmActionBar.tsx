@@ -91,7 +91,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           className={styles.staticLabel}
           style={{ color: "#ccc", padding: "0 8px" }}
         >
-          {isSearching ? "Searching Control" : "Sorting Control"}
+          {isSearching
+            ? "Searching Control"
+            : category === "technique"
+            ? "Technique Control"
+            : "Sorting Control"}
         </div>
 
         {isSearching && (
@@ -112,7 +116,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           disabled={disabled}
           style={{ width: "100px", background: "#2e7d32" }}
         >
-          {isSearching ? "開始搜尋" : "開始排序"}
+          {isSearching
+            ? "開始搜尋"
+            : category === "technique"
+            ? "開始演示"
+            : "開始排序"}
         </Button>
       </div>
     </div>
