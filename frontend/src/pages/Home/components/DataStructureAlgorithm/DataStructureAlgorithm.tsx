@@ -6,7 +6,7 @@ import Button from "../../../../shared/components/Button/Button";
 // Import images
 import bubbleSortImg from "./assets/bubble-sort.png";
 import quickSortImg from "./assets/quick-sort.png";
-import mergeSortImg from "./assets/merge-sort.png";
+import selectionsortImg from "./assets/merge-sort.png";
 import binarySearchImg from "./assets/binary-search.png";
 import linearSearchImg from "./assets/linear-search.png";
 import dfsImg from "./assets/dfs.png";
@@ -40,7 +40,7 @@ function DataStructureAlgorithm() {
       description: t("algorithms.merge_sort.description"),
       difficulty: 4,
       category: "sorting",
-      image: mergeSortImg,
+      image: selectionsortImg,
     },
     {
       id: 4,
@@ -110,10 +110,7 @@ function DataStructureAlgorithm() {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span
-          key={i}
-          className={`star ${i <= difficulty ? "filled" : ""}`}
-        >
+        <span key={i} className={`star ${i <= difficulty ? "filled" : ""}`}>
           ★
         </span>
       );

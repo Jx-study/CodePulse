@@ -1,6 +1,7 @@
 import { AlgorithmConfig } from "../../types/algorithm";
 import { bubbleSortConfig } from "./sorting/bubbleSort";
-import { mergeSortConfig } from "./sorting/mergesort";
+import { selectionSortConfig } from "./sorting/selectionSort";
+import { insertionSortConfig } from "./sorting/insertionSort";
 import { binarySearchConfig } from "./searching/binarysearch";
 
 /**
@@ -9,14 +10,15 @@ import { binarySearchConfig } from "./searching/binarysearch";
  */
 export const algorithmsMap: Record<string, AlgorithmConfig> = {
   "sorting/bubblesort": bubbleSortConfig,
-  "sorting/mergesort": mergeSortConfig,
+  "sorting/selectionsort": selectionSortConfig,
+  "sorting/insertionsort": insertionSortConfig,
   "searching/binarysearch": binarySearchConfig,
 };
 
 /**
  * 根據 category 和 algorithm 獲取演算法配置
  * @param category 演算法類別（如 'sorting', 'searching'）
- * @param algorithm 演算法 ID（如 'bubblesort', 'mergesort'）
+ * @param algorithm 演算法 ID（如 'bubblesort', 'selectionsort'）
  * @returns 演算法配置，如果不存在則返回 null
  */
 export function getAlgorithmConfig(

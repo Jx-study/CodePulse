@@ -20,10 +20,16 @@ function LearningDashboard() {
               <span className={styles.difficulty}>⭐</span>
             </Link>
 
-            <Link to="/tutorial/sorting/mergesort" className="common-card">
-              <h3>合併排序</h3>
-              <p>穩定的分治排序</p>
-              <span className={styles.difficulty}>⭐⭐⭐</span>
+            <Link to="/tutorial/sorting/selectionsort" className="common-card">
+              <h3>選擇排序</h3>
+              <p>一種選擇排序</p>
+              <span className={styles.difficulty}>⭐⭐</span>
+            </Link>
+
+            <Link to="/tutorial/sorting/insertionsort" className="common-card">
+              <h3>插入排序</h3>
+              <p>一種可以插入的排序</p>
+              <span className={styles.difficulty}>⭐⭐</span>
             </Link>
 
             <Link to="/tutorial/searching/binarysearch" className="common-card">

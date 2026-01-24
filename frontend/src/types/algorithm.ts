@@ -53,7 +53,8 @@ export type AlgorithmCategory =
  * 演算法 ID
  */
 export type AlgorithmId =
-  | "mergesort"
+  | "selectionsort"
+  | "insertionsort"
   | "bubblesort"
   | "binarysearch"
   | "linearsearch";
