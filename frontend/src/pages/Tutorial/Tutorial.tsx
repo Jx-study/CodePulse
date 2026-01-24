@@ -12,8 +12,10 @@ import styles from "./Tutorial.module.scss";
 import { Link } from "../../modules/core/Render/D3Renderer";
 import { Node as DataNode } from "../../modules/core/DataLogic/Node";
 import { DataActionBar } from "../../modules/core/components/DataActionBar/DataActionBar";
+import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar/AlgorithmActionBar";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
+import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -33,17 +35,25 @@ function Tutorial() {
     return null;
   }, [category, subcategory, topicType]);
 
-  // 2. 狀態管理
-  const { data, activeSteps, executeAction } =
-    useDataStructureLogic(topicTypeConfig);
+  const isAlgorithm = category !== "datastructure";
+
+  // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
+  const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
+  const algoLogic = useAlgorithmLogic(isAlgorithm ? topicTypeConfig : null);
+
+  const logic = isAlgorithm ? algoLogic : dsLogic;
+  const { activeSteps, executeAction } = logic;
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const isProcessing =
     isPlaying ||
-    (activeSteps.length > 1 && currentStep < activeSteps.length - 1);
+    (activeSteps.length > 1 &&
+      currentStep > 0 &&
+      currentStep < activeSteps.length - 1);
 
-  const [maxNodes, setMaxNodes] = useState(15);
+  const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
 
   // 3. 計算目前的動畫步驟
@@ -56,11 +66,11 @@ function Tutorial() {
   }, [topicTypeConfig]);
 
   useEffect(() => {
-    if (topicTypeConfig && !isProcessing) {
+    if (!isAlgorithm && topicTypeConfig && !isProcessing) {
       executeAction("refresh", { hasTailMode });
       setCurrentStep(0);
     }
-  }, [hasTailMode]);
+  }, [hasTailMode, isAlgorithm]);
 
   const currentStepData = activeSteps[currentStep];
 
@@ -103,6 +113,7 @@ function Tutorial() {
 
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
+    if (isAlgorithm) return;
     const steps = executeAction("add", {
       value,
       mode,
@@ -117,6 +128,7 @@ function Tutorial() {
   };
 
   const handleDeleteNode = (mode: string, index?: number) => {
+    if (isAlgorithm) return;
     const steps = executeAction("delete", { mode, index, hasTailMode });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -127,6 +139,7 @@ function Tutorial() {
   };
 
   const handleSearchNode = (value: number) => {
+    if (isAlgorithm) return;
     const steps = executeAction("search", { value, hasTailMode });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -168,7 +181,17 @@ function Tutorial() {
   };
 
   const handlePeek = () => {
+    if (isAlgorithm) return;
     const steps = executeAction("peek", { hasTailMode });
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
+  };
+
+  const handleRunAlgorithm = () => {
+    if (!isAlgorithm) return;
+    const steps = executeAction("run", {}); // 執行演算法
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -190,28 +213,38 @@ function Tutorial() {
   }
 
   const renderActionBar = () => {
-    if (
-      ["linkedlist", "stack", "queue", "array"].includes(topicTypeConfig.id)
-    ) {
+    if (isAlgorithm) {
       return (
-        <DataActionBar
-          onAddNode={handleAddNode}
-          onDeleteNode={handleDeleteNode}
-          onSearchNode={handleSearchNode}
-          onPeek={handlePeek}
+        <AlgorithmActionBar
           onLoadData={handleLoadData}
-          onResetData={handleResetData}
           onRandomData={handleRandomData}
-          onMaxNodesChange={setMaxNodes}
-          onTailModeChange={setHasTailMode}
-          structureType={topicTypeConfig.id as any}
+          onResetData={handleResetData}
+          onRun={handleRunAlgorithm}
           disabled={isProcessing}
         />
       );
+    } else {
+      if (
+        ["linkedlist", "stack", "queue", "array"].includes(topicTypeConfig.id)
+      ) {
+        return (
+          <DataActionBar
+            onAddNode={handleAddNode}
+            onDeleteNode={handleDeleteNode}
+            onSearchNode={handleSearchNode}
+            onPeek={handlePeek}
+            onLoadData={handleLoadData}
+            onResetData={handleResetData}
+            onRandomData={handleRandomData}
+            onMaxNodesChange={setMaxNodes}
+            onTailModeChange={setHasTailMode}
+            structureType={topicTypeConfig.id as any}
+            disabled={isProcessing}
+          />
+        );
+      }
     }
-    // else if (topicTypeConfig.id === "bst") { return <TreeActionBar ... />; }
-
-    return <div>此資料結構暫無操作介面</div>;
+    return <div>此主題暫無操作介面</div>;
   };
 
   const breadcrumbItems: BreadcrumbItem[] = [
