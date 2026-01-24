@@ -41,13 +41,17 @@ const generateFrame = (
   boxes.forEach((element, i) => {
     const box = element as Box;
 
-    // 如果已經找到目標，標記為 complete
+    // 如果 overrideStatusMap 有指定，它會優先 (由 createBoxes 處理)
+    // 但 createBoxes 已經執行完了，所以這裡如果想要 override，需要手動檢查
+    // 不過通常 overrideStatusMap 只會包含 mid (prepare/target)，mid 一定在範圍內，所以不會衝突。
+
+    if (i < left || i > right) {
+      box.setStatus("inactive");
+    }
+
     if (foundIndex !== -1 && i === foundIndex) {
       box.setStatus("complete");
     }
-    // [視覺優化] 將搜尋範圍外 (L~R 之外) 的元素「淡化」或保持未選取
-    // 這裡我們反過來：範圍內的預設是 unfinished (藍)，範圍外的我們就不特別處理
-    // 或者可以將範圍內的 overrideStatusMap 沒覆蓋到的設為另一種顏色，這裡保持簡潔即可
   });
 
   return boxes;

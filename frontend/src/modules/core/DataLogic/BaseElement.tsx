@@ -1,10 +1,16 @@
-export type Status = "unfinished" | "prepare" | "target" | "complete";
+export type Status =
+  | "unfinished"
+  | "prepare"
+  | "target"
+  | "complete"
+  | "inactive";
 
 export const statusColorMap: Record<Status, string> = {
   unfinished: "#1d79cfff",
   prepare: "yellow",
   target: "orange",
   complete: "#46f336ff",
+  inactive: "#555555",
 };
 
 export abstract class BaseElement {
