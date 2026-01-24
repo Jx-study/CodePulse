@@ -6,6 +6,7 @@
 import type { Level, LevelConfig, AlgorithmCategory } from '@/types/pages/dashboard';
 import type { AlgorithmConfig } from '@/types/algorithm';
 import type { DataStructureConfig } from '@/types/dataStructure';
+import type { Category, UserProgress } from "@/types";
 
 import { algorithmsMap } from '../algorithms/index';
 import { dataStructuresMap } from '../DataStructure';
@@ -23,40 +24,40 @@ interface CategoryConfigInternal {
 
 /** 所有分類配置 */
 export const CATEGORIES: Record<AlgorithmCategory, CategoryConfigInternal> = {
-  'data-structures': {
-    id: 'data-structures',
-    name: '資料結構',
-    nameEn: 'Data Structures',
-    description: '學習各種資料結構的運作原理與應用',
-    icon: 'database',
-    colorTheme: '#635bff',
+  "data-structures": {
+    id: "data-structures",
+    name: "資料結構",
+    nameEn: "Data Structures",
+    description: "學習各種資料結構的運作原理與應用",
+    icon: "sitemap",
+    colorTheme: "#635bff",
     order: 1,
   },
   sorting: {
-    id: 'sorting',
-    name: '排序演算法',
-    nameEn: 'Sorting Algorithms',
-    description: '掌握各種排序演算法的實作與效能分析',
-    icon: 'sort',
-    colorTheme: '#ff6b6b',
+    id: "sorting",
+    name: "排序演算法",
+    nameEn: "Sorting Algorithms",
+    description: "掌握各種排序演算法的實作與效能分析",
+    icon: "signal",
+    colorTheme: "#ff6b6b",
     order: 2,
   },
   searching: {
-    id: 'searching',
-    name: '搜尋演算法',
-    nameEn: 'Searching Algorithms',
-    description: '探索高效的搜尋策略與技巧',
-    icon: 'search',
-    colorTheme: '#51cf66',
+    id: "searching",
+    name: "搜尋演算法",
+    nameEn: "Searching Algorithms",
+    description: "探索高效的搜尋策略與技巧",
+    icon: "magnifying-glass",
+    colorTheme: "#51cf66",
     order: 3,
   },
   graph: {
-    id: 'graph',
-    name: '圖論演算法',
-    nameEn: 'Graph Algorithms',
-    description: '深入理解圖論的核心演算法',
-    icon: 'project-diagram',
-    colorTheme: '#ffd43b',
+    id: "graph",
+    name: "圖論演算法",
+    nameEn: "Graph Algorithms",
+    description: "深入理解圖論的核心演算法",
+    icon: "diagram-project",
+    colorTheme: "#ffd43b",
     order: 4,
   },
 };
@@ -77,7 +78,7 @@ export const LEVELS_CONFIG: LevelConfig[] = [
       '分析時間複雜度'
     ],
     isDeveloped: true,
-    isUnlocked: false,
+    isUnlocked: true,
     prerequisites: { type: 'NONE', levelIds: [] },
     graphPosition: { layer: 0, branch: 'main', horizontalIndex: 0 },
     pathMetadata: { pathType: 'main' },
@@ -123,6 +124,48 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     pathMetadata: { pathType: 'branch', branchLabel: 'FIFO 結構' },
     implementationType: 'dataStructure',
     implementationKey: 'linear/queue'
+  },
+  {
+    id: 'doubly-linked-list',
+    name: '雙向鏈結串列',
+    nameEn: 'Doubly Linked List',
+    category: 'data-structures',
+    difficulty: 2,
+    description: '進階鏈結結構，支援雙向遍歷',
+    learningObjectives: [
+      '理解雙向鏈結的優勢',
+      '掌握前後指標管理',
+      '應用於 LRU Cache'
+    ],
+    isDeveloped: false,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['stack', 'queue'] },
+    graphPosition: { layer: 2, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: { pathType: 'boss' },
+    implementationType: 'dataStructure',
+    implementationKey: 'linear/doubly-linkedlist'
+  },
+  {
+    id: 'portal-to-sorting',
+    name: '傳送門：排序演算法',
+    nameEn: 'Portal: Sorting Algorithms',
+    category: 'data-structures',
+    difficulty: 1,
+    description: '完成資料結構的學習，前往排序演算法領域',
+    learningObjectives: [
+      '完成所有資料結構關卡',
+      '準備學習排序演算法',
+    ],
+    isDeveloped: true,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['doubly-linked-list'] },
+    graphPosition: { layer: 3, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: {
+      pathType: 'portal',
+      targetCategory: 'sorting'
+    },
+    implementationType: 'algorithm',
+    implementationKey: 'sorting/bubble-sort' // Portal 使用下一個 category 的第一個關卡
   },
   // ============ Sorting 類別 ============
   {
@@ -225,6 +268,28 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     implementationType: 'algorithm',
     implementationKey: 'sorting/quick-sort'
   },
+  {
+    id: 'portal-to-searching',
+    name: '傳送門：搜尋演算法',
+    nameEn: 'Portal: Searching Algorithms',
+    category: 'sorting',
+    difficulty: 1,
+    description: '完成排序演算法的學習，前往搜尋演算法領域',
+    learningObjectives: [
+      '完成所有排序演算法關卡',
+      '準備學習搜尋演算法',
+    ],
+    isDeveloped: true,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['quick-sort'] },
+    graphPosition: { layer: 4, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: {
+      pathType: 'portal',
+      targetCategory: 'searching'
+    },
+    implementationType: 'algorithm',
+    implementationKey: 'searching/binary-search'
+  },
 
   // ============ Searching 類別 ============
   {
@@ -240,7 +305,7 @@ export const LEVELS_CONFIG: LevelConfig[] = [
       '分析時間複雜度 O(log n)'
     ],
     isDeveloped: true,
-    isUnlocked: false,
+    isUnlocked: true,
     prerequisites: { type: 'NONE', levelIds: [] },
     graphPosition: { layer: 0, branch: 'main', horizontalIndex: 0 },
     pathMetadata: { pathType: 'main' },
@@ -263,9 +328,31 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     isUnlocked: false,
     prerequisites: { type: 'AND', levelIds: ['binary-search'] },
     graphPosition: { layer: 1, branch: 'main', horizontalIndex: 0 },
-    pathMetadata: { pathType: 'main' },
+    pathMetadata: { pathType: 'boss' },
     implementationType: 'algorithm',
     implementationKey: 'searching/linear-search'
+  },
+  {
+    id: 'portal-to-graph',
+    name: '傳送門：圖論演算法',
+    nameEn: 'Portal: Graph Algorithms',
+    category: 'searching',
+    difficulty: 1,
+    description: '完成搜尋演算法的學習，前往圖論演算法領域',
+    learningObjectives: [
+      '完成所有搜尋演算法關卡',
+      '準備學習圖論演算法',
+    ],
+    isDeveloped: true,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['linear-search'] },
+    graphPosition: { layer: 2, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: {
+      pathType: 'portal',
+      targetCategory: 'graph'
+    },
+    implementationType: 'algorithm',
+    implementationKey: 'graph/bfs'
   },
 
   // ============ Graph 類別 ============
@@ -282,10 +369,52 @@ export const LEVELS_CONFIG: LevelConfig[] = [
       '應用於最短路徑問題'
     ],
     isDeveloped: false,
-    isUnlocked: false,
+    isUnlocked: true,
     prerequisites: { type: 'NONE', levelIds: [] },
     graphPosition: { layer: 0, branch: 'main', horizontalIndex: 0 },
     pathMetadata: { pathType: 'main' },
+    implementationType: 'algorithm',
+    implementationKey: 'graph/bfs'
+  },
+  {
+    id: 'dfs',
+    name: '深度優先搜尋',
+    nameEn: 'DFS',
+    category: 'graph',
+    difficulty: 3,
+    description: '使用堆疊或遞迴實作的圖遍歷演算法',
+    learningObjectives: [
+      '理解 DFS 的遍歷順序',
+      '掌握遞迴實作技巧',
+      '應用於路徑搜尋問題'
+    ],
+    isDeveloped: false,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['bfs'] },
+    graphPosition: { layer: 1, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: { pathType: 'boss' },
+    implementationType: 'algorithm',
+    implementationKey: 'graph/dfs'
+  },
+  {
+    id: 'portal-complete',
+    name: '完成旅程',
+    nameEn: 'Journey Complete',
+    category: 'graph',
+    difficulty: 1,
+    description: '恭喜完成所有演算法與資料結構的學習！',
+    learningObjectives: [
+      '完成所有圖論演算法關卡',
+      '掌握核心演算法與資料結構',
+    ],
+    isDeveloped: true,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['dfs'] },
+    graphPosition: { layer: 2, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: {
+      pathType: 'portal',
+      targetCategory: 'data-structures' // 最後一個 Portal 可以循環回起點或設為 null
+    },
     implementationType: 'algorithm',
     implementationKey: 'graph/bfs'
   },
@@ -348,4 +477,119 @@ export function getCategoryName(categoryId: AlgorithmCategory): string {
 /** 獲取所有分類配置 */
 export function getAllCategories(): CategoryConfigInternal[] {
   return Object.values(CATEGORIES);
+}
+
+/**
+ * 取得所有 Category 配置（包含解鎖狀態）
+ * @param userProgress - 使用者進度
+ * @returns Category 陣列（按 order 排序）
+ */
+export function getCategories(userProgress: UserProgress): Category[] {
+  const categories: Category[] = [];
+
+  for (const [id, config] of Object.entries(CATEGORIES)) {
+    const categoryId = id as AlgorithmCategory;
+
+    categories.push({
+      id: categoryId,
+      name: config.name,
+      nameEn: config.nameEn,
+      description: config.description,
+      icon: config.icon,
+      colorTheme: config.colorTheme,
+      isUnlocked: userProgress.categoryUnlocks?.[categoryId] ?? false,
+      order: config.order,
+    });
+  }
+
+  // 按 order 排序
+  return categories.sort((a, b) => a.order - b.order);
+}
+
+/**
+ * 取得指定 Category 的 Boss Level
+ * @param categoryId - Category ID
+ * @returns Boss Level 或 undefined
+ */
+export function getCategoryBossLevel(categoryId: AlgorithmCategory): Level | undefined {
+  const levels = LEVELS_CONFIG.filter((l) => l.category === categoryId);
+  const bossConfig = levels.find((l) => l.pathMetadata?.pathType === 'boss');
+  return bossConfig ? levelConfigToLevel(bossConfig) : undefined;
+}
+
+/**
+ * 取得 Category 的下一個 Category（用於 Boss Level 完成後解鎖）
+ * @param currentCategoryId - 當前 Category ID
+ * @returns 下一個 Category ID 或 null
+ */
+export function getNextCategory(currentCategoryId: AlgorithmCategory): AlgorithmCategory | null {
+  const currentOrder = CATEGORIES[currentCategoryId]?.order;
+  if (!currentOrder) return null;
+
+  const nextCategory = Object.values(CATEGORIES).find(
+    (cat) => cat.order === currentOrder + 1
+  );
+
+  return nextCategory?.id ?? null;
+}
+
+/**
+ * 取得指定 Category 的 Portal Node
+ * @param categoryId - Category ID
+ * @returns Portal Node 或 undefined
+ */
+export function getCategoryPortalNode(categoryId: AlgorithmCategory): Level | undefined {
+  const levels = LEVELS_CONFIG.filter((l) => l.category === categoryId);
+  const portalConfig = levels.find((l) => l.pathMetadata?.pathType === 'portal');
+  return portalConfig ? levelConfigToLevel(portalConfig) : undefined;
+}
+
+/**
+ * 檢查關卡是否為 Portal Node
+ * @param levelId - Level ID
+ * @returns 是否為 Portal Node
+ */
+export function isPortalNode(levelId: string): boolean {
+  const level = getLevelById(levelId);
+  return level?.pathMetadata?.pathType === 'portal';
+}
+
+/**
+ * 檢查關卡是否為 Boss Level
+ * @param levelId - Level ID
+ * @returns 是否為 Boss Level
+ */
+export function isBossLevel(levelId: string): boolean {
+  const level = getLevelById(levelId);
+  return level?.pathMetadata?.pathType === 'boss';
+}
+
+/**
+ * 取得 Portal Node 的目標 Category
+ * @param portalLevelId - Portal Node 的 Level ID
+ * @returns 目標 Category ID 或 null
+ */
+export function getPortalTargetCategory(portalLevelId: string): AlgorithmCategory | null {
+  const level = getLevelById(portalLevelId);
+  if (!level || !isPortalNode(portalLevelId)) return null;
+  return level.pathMetadata?.targetCategory ?? null;
+}
+
+/**
+ * 檢查 Portal Node 是否已解鎖（Boss Level 是否完成）
+ * @param portalLevelId - Portal Node 的 Level ID
+ * @param userProgress - 使用者進度
+ * @returns Portal 是否解鎖
+ */
+export function isPortalUnlocked(portalLevelId: string, userProgress: UserProgress): boolean {
+  const portalLevel = getLevelById(portalLevelId);
+  if (!portalLevel || !isPortalNode(portalLevelId)) return false;
+
+  // 檢查前置關卡（Boss Level）是否完成
+  const prerequisites = portalLevel.prerequisites?.levelIds || [];
+  if (prerequisites.length === 0) return true;
+
+  const bossLevelId = prerequisites[0]; // Portal 的前置條件應該只有一個 Boss Level
+  const bossProgress = userProgress.levels?.[bossLevelId];
+  return bossProgress?.status === 'completed';
 }

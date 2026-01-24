@@ -1,28 +1,33 @@
 import { useState, useRef, useEffect } from 'react';
-import styles from './VerticalLevelMap.module.scss';
+import styles from './GraphContainer.module.scss';
 import {
   calculateNodePosition,
   calculateGraphNodePosition,
-  type NodePosition,
 } from './utils/positionCalculator';
-import type { Level, UserProgress, Point2D } from '@/types';
-
-interface VerticalLevelMapProps {
-  levels: Level[];
-  userProgress: UserProgress;
-  children: (level: Level, index: number, position: NodePosition) => React.ReactNode;
-}
+import { useZoom } from '../../hooks/useZoom';
+import ZoomControls from '../ZoomControls/ZoomControls';
+import type { Point2D, GraphContainerProps } from '@/types';
 
 const LEVEL_NODE_HEIGHT = 150;
-const LEVEL_NODE_WIDTH = 80;
 
-function VerticalLevelMap({ levels, userProgress, children }: VerticalLevelMapProps) {
+function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
   const [currentScroll, setCurrentScroll] = useState<Point2D>({ x: 0, y: 0 });
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<Point2D | null>(null);
 
   const mapRef = useRef<HTMLDivElement>(null);
+
+  // 縮放功能
+  const { zoomLevel, zoomIn, zoomOut, resetZoom } = useZoom({
+    minZoom: 0.5,
+    maxZoom: 2.0,
+    initialZoom: 1.0,
+    step: 0.1,
+    enableWheelZoom: true,
+    enablePinchZoom: true,
+    targetRef: mapRef as React.RefObject<HTMLElement>,
+  });
 
   const maxScrollY = Math.max(0, (levels.length - 1) * LEVEL_NODE_HEIGHT);
   const maxScrollX = 300; // 允許左右各移動約 300px
@@ -64,7 +69,7 @@ function VerticalLevelMap({ levels, userProgress, children }: VerticalLevelMapPr
 
     setCurrentScroll({
       x: Math.max(-maxScrollX, Math.min(maxScrollX, newScroll.x)), // X 軸左右滾動限制
-      y: Math.max(-maxScrollY, Math.min(0, newScroll.y)) // Y 軸向上滾動是負值
+      y: Math.max(0, Math.min(maxScrollY, newScroll.y)) // Y 軸底部為 0，向上擴展為正值
     });
   };
 
@@ -95,7 +100,7 @@ function VerticalLevelMap({ levels, userProgress, children }: VerticalLevelMapPr
 
     setCurrentScroll({
       x: Math.max(-maxScrollX, Math.min(maxScrollX, newScroll.x)), // X 軸左右滾動限制
-      y: Math.max(-maxScrollY, Math.min(0, newScroll.y))
+      y: Math.max(0, Math.min(maxScrollY, newScroll.y)) // Y 軸底部為 0，向上擴展為正值
     });
   };
 
@@ -110,7 +115,7 @@ function VerticalLevelMap({ levels, userProgress, children }: VerticalLevelMapPr
   return (
     <div
       ref={mapRef}
-      className={`${styles.verticalLevelMap} ${isDragging ? styles.dragging : ''}`}
+      className={`${styles.graphContainer} ${isDragging ? styles.dragging : ''}`}
       style={{
         top: `${headerHeight}px`,
         height: `calc(100% - ${headerHeight}px)`,
@@ -125,7 +130,10 @@ function VerticalLevelMap({ levels, userProgress, children }: VerticalLevelMapPr
     >
       <div
         className={styles.mapContent}
-        style={{ transform: `translate(${currentScroll.x}px, ${currentScroll.y}px)` }}
+        style={{
+          transform: `translate(${currentScroll.x}px, ${currentScroll.y}px) scale(${zoomLevel})`,
+          transformOrigin: 'center center'
+        }}
       >
 
         {/* 渲染關卡節點 */}
@@ -141,8 +149,16 @@ function VerticalLevelMap({ levels, userProgress, children }: VerticalLevelMapPr
           );
         })}
       </div>
+
+      {/* 縮放控制按鈕 */}
+      <ZoomControls
+        currentZoom={zoomLevel}
+        onZoomIn={zoomIn}
+        onZoomOut={zoomOut}
+        onResetZoom={resetZoom}
+      />
     </div>
   );
 }
 
-export default VerticalLevelMap;
+export default GraphContainer;

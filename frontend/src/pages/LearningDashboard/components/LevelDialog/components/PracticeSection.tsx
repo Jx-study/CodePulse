@@ -8,6 +8,7 @@ import type { Level } from '@/types';
 interface PracticeSectionProps {
   level: Level;
   onStartPractice: () => void;
+  onCompleteLevel?: () => void;
   completionPercentage: number;
   bestStars: number;
   attempts: number;
@@ -17,6 +18,7 @@ interface PracticeSectionProps {
 function PracticeSection({
   level,
   onStartPractice,
+  onCompleteLevel,
   completionPercentage,
   bestStars,
   attempts,
@@ -79,6 +81,18 @@ function PracticeSection({
       >
         {completionPercentage > 0 ? '重新挑戰' : '開始練習'}
       </Button>
+
+      {onCompleteLevel && (
+        <Button
+          variant="success"
+          onClick={onCompleteLevel}
+          disabled={isLocked || completionPercentage === 100}
+          className={styles.startPracticeButton}
+          fullWidth
+        >
+          {completionPercentage === 100 ? '已完成' : '測試：完成關卡'}
+        </Button>
+      )}
 
       {isLocked && (
         <p className={styles.lockedHint}>

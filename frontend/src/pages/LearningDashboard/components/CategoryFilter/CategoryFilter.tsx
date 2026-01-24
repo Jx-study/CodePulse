@@ -1,20 +1,13 @@
 import styles from "./CategoryFilter.module.scss";
 import Button from "@/shared/components/Button";
+import Icon from "@/shared/components/Icon";
+import type { Category, AlgorithmCategory } from "@/types/pages/dashboard";
 
 interface CategoryFilterProps {
-  categories: string[];
-  activeCategory: string;
-  onCategoryChange: (category: string) => void;
+  categories: Category[];
+  activeCategory: AlgorithmCategory;
+  onCategoryChange: (category: AlgorithmCategory) => void;
 }
-
-const categoryLabels: Record<string, string> = {
-  all: "全部",
-  sorting: "排序演算法",
-  searching: "搜尋演算法",
-  graph: "圖論",
-  "dynamic-programming": "動態規劃",
-  "data-structures": "資料結構",
-};
 
 function CategoryFilter({
   categories,
@@ -23,18 +16,34 @@ function CategoryFilter({
 }: CategoryFilterProps) {
   return (
     <div className={styles.categoryFilter}>
-      {categories.map((category) => (
-        <Button
-          key={category}
-          variant="ghost"
-          className={`${styles.categoryButton} ${
-            activeCategory === category ? styles.active : ""
-          }`}
-          onClick={() => onCategoryChange(category)}
-        >
-          {categoryLabels[category] || category}
-        </Button>
-      ))}
+      {categories.map((category) => {
+        const isActive = activeCategory === category.id;
+
+        return (
+          <div key={category.id}>
+            <Button
+              variant="ghost"
+              className={`${styles.categoryButton} ${
+                isActive ? styles.active : ""
+              }`}
+              onClick={() => onCategoryChange(category.id)}
+              aria-label={category.name}
+            >
+              {/* 圖示 */}
+              {category.icon && (
+                <Icon
+                  name={category.icon}
+                  className={styles.categoryIcon}
+                  aria-hidden="true"
+                />
+              )}
+
+              {/* 分類名稱 */}
+              <span className={styles.categoryName}>{category.name}</span>
+            </Button>
+          </div>
+        );
+      })}
     </div>
   );
 }

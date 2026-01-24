@@ -84,12 +84,16 @@ function UserStatus() {
   return (
     <div className={styles.userStatus}>
       <div className={styles.authButtons}>
-        <Button variant="secondary" size="sm" as={Link} to="/auth" className={styles.btnLogin}>
-          {t('login')}
-        </Button>
-        <Button variant="primary" size="sm" as={Link} to="/auth" className={styles.btnRegister}>
-          {t('register')}
-        </Button>
+        <Link to="/auth">
+          <Button variant="secondary" size="sm" className={styles.btnLogin}>
+            {t("login")}
+          </Button>
+        </Link>
+        <Link to="/auth" className={styles.btnRegister}>
+          <Button variant="primary" size="sm">
+            {t("register")}
+          </Button>
+        </Link>
       </div>
     </div>
   );

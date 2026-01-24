@@ -25,10 +25,9 @@ $dark-card-shadow:
 
 // 漸變色定義
 $gradient-primary: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
-$gradient-secondary: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+$gradient-completed: linear-gradient(#43e97b 0%, #38f9d7 100%);
 $gradient-in-progress: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-$gradient-completed: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-
+$gradient-unlocked: linear-gradient(#9EFBD3 0%, #57E9F2 48%, #45D4FB 100%);
 // 關卡節點顏色
 $level-undeveloped-bg: #424242;
 $level-in-progress-glow: rgba(245, 87, 108, 0.5);
@@ -67,6 +66,7 @@ $disabled-opacity: 0.5;
 
 // ========== 字體變數 ==========
 // 基礎字體大小
+$font-2xs: 0.625rem; // 10px
 $font-xs: 0.75rem; // 12px
 $font-sm: 0.875rem; // 14px
 $font-base: 1rem; // 16px
@@ -124,6 +124,7 @@ $header-height: 64px;
 // 斷點
 $mobile: 768px;
 $mobile-max: 767px; // 手機端最大寬度
+$tablet-min: 768px; // 平板端最小寬度
 $tablet: 1024px;
 $tablet-max: 1023px; // 平板端最大寬度
 $desktop: 1200px;

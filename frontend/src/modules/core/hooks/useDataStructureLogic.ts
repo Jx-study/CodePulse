@@ -31,7 +31,6 @@ export const useDataStructureLogic = (config: any) => {
       index,
       targetId,
       hasTailMode,
-      maxNodes,
       data: loadData,
     } = payload; // 解構常用參數
 

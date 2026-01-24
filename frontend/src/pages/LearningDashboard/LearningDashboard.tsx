@@ -5,25 +5,27 @@ import styles from "./LearningDashboard.module.scss";
 // 組件導入
 import ProgressStatsDialog from "./components/ProgressStatsDialog/ProgressStatsDialog";
 import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
-import VerticalLevelMap from "./components/VerticalLevelMap/VerticalLevelMap";
+import GraphContainer from "./components/GraphContainer/GraphContainer";
 import LevelNode from "./components/LevelNode/LevelNode";
+import PortalNode from "./components/PortalNode/PortalNode";
 import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 
 // 資料導入
-import { getAllLevels } from "@/data/levels/levelDefinitions";
-import { loadUserProgress, saveUserProgress } from "@/data/userProgress";
+import { getAllLevels, getCategories, getCategoryName, getPortalTargetCategory } from "@/data/levels/levelDefinitions";
+import { loadUserProgress, saveUserProgress, updateCategoryUnlocks } from "@/data/userProgress";
 import {
   calculateNodePosition,
   calculateGraphNodePosition,
-} from "./components/VerticalLevelMap/utils/positionCalculator";
+} from "./components/GraphContainer/utils/positionCalculator";
 import {
   computeAllUnlockStatus,
   filterLevelsByCategory,
 } from "./utils/graphUtils";
 import type { Level, UserProgress } from "@/types";
+import type { AlgorithmCategory } from "@/types/pages/dashboard";
 
 function LearningDashboard() {
   const navigate = useNavigate();
@@ -34,13 +36,17 @@ function LearningDashboard() {
     useState<UserProgress>(loadUserProgress());
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(
-    searchParams.get("category") || "all",
+  const [activeCategory, setActiveCategory] = useState<AlgorithmCategory>(
+    (searchParams.get("category") as AlgorithmCategory) || "data-structures",
   );
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // 從統一配置獲取所有關卡
   const allLevels = getAllLevels();
+
+  // 取得 Categories（包含解鎖狀態）
+  const categories = getCategories(userProgress);
 
   // 計算解鎖狀態
   const levelsWithUnlockStatus = computeAllUnlockStatus(
@@ -115,12 +121,31 @@ function LearningDashboard() {
 
   // 更新 URL 參數
   useEffect(() => {
-    if (activeCategory !== "all") {
-      setSearchParams({ category: activeCategory });
-    } else {
-      setSearchParams({});
-    }
+    setSearchParams({ category: activeCategory });
   }, [activeCategory, setSearchParams]);
+
+  // Boss Level 自動解鎖邏輯
+  useEffect(() => {
+    const updatedProgress = updateCategoryUnlocks(userProgress);
+
+    if (updatedProgress !== userProgress) {
+      setUserProgress(updatedProgress);
+      saveUserProgress(updatedProgress);
+
+      // 找出新解鎖的 Category
+      const newlyUnlockedCategories = Object.entries(updatedProgress.categoryUnlocks)
+        .filter(([id, unlocked]) => unlocked && !userProgress.categoryUnlocks[id as AlgorithmCategory])
+        .map(([id]) => id as AlgorithmCategory);
+
+      if (newlyUnlockedCategories.length > 0) {
+        const categoryName = getCategoryName(newlyUnlockedCategories[0]);
+        setToastMessage(`🎉 恭喜！解鎖新領域：${categoryName}`);
+
+        // 3 秒後自動消失
+        setTimeout(() => setToastMessage(null), 3000);
+      }
+    }
+  }, [userProgress.levels]); // 僅監聽 levels 變化
 
   // 自動打開指定的 Level Dialog（從 URL 參數讀取 levelId）
   useEffect(() => {
@@ -202,17 +227,56 @@ function LearningDashboard() {
     }
   };
 
+  // TODO:測試用->完成關卡
+  const handleCompleteLevel = () => {
+    if (selectedLevel) {
+      const currentProgress = getLevelProgress(selectedLevel.id);
+      const newStars = Math.max(currentProgress.stars, 1) as 1 | 2 | 3 | 4 | 5;
+      const updatedProgress: UserProgress = {
+        ...userProgress,
+        levels: {
+          ...userProgress.levels,
+          [selectedLevel.id]: {
+            ...currentProgress,
+            status: "completed" as const,
+            stars: newStars,
+            attempts: currentProgress.attempts + 1,
+          },
+        },
+        totalLevelsCompleted: userProgress.totalLevelsCompleted + (currentProgress.status !== "completed" ? 1 : 0),
+        totalStarsEarned: userProgress.totalStarsEarned + (currentProgress.status !== "completed" ? 1 : 0),
+      };
+      setUserProgress(updatedProgress);
+      saveUserProgress(updatedProgress);
+
+      // 顯示完成提示
+      setToastMessage(`🎉 完成關卡：${selectedLevel.name}`);
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
   // 側邊栏狀態
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
-      <VerticalLevelMap levels={filteredLevels} userProgress={userProgress}>
+      <GraphContainer levels={filteredLevels} userProgress={userProgress}>
         {(level, index, position) => {
           // v2.0: 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
           const prereqType = level.prerequisites?.type || "AND";
+          const isPortal = level.pathMetadata?.pathType === "portal";
+
+          // Portal Node 點擊處理：直接跳轉到目標分類
+          const handlePortalClick = () => {
+            if (level.isUnlocked && isPortal) {
+              const targetCategory = getPortalTargetCategory(level.id);
+              if (targetCategory) {
+                setActiveCategory(targetCategory);
+              }
+            }
+          };
 
           return (
             <>
@@ -243,29 +307,35 @@ function LearningDashboard() {
                 );
               })}
 
-              {/* 關卡節點 */}
-              <LevelNode
-                level={level}
-                status={
-                  level.isUnlocked
-                    ? userProgress.levels[level.id]?.status || "unlocked"
-                    : "locked"
-                }
-                stars={userProgress.levels[level.id]?.stars || 0}
-                isLocked={!level.isUnlocked}
-                isDeveloped={level.isDeveloped}
-                alignment={position.alignment}
-                style={{
-                  position: "absolute",
-                  left: position.x,
-                  top: `${position.y}px`,
-                }}
-                onClick={() => handleLevelClick(level)}
-              />
+              {/* 節點渲染：Portal Node 或 Level Node */}
+              {isPortal ? (
+                <PortalNode
+                  targetCategory={level.pathMetadata?.targetCategory || "data-structures"}
+                  targetCategoryName={getCategoryName(level.pathMetadata?.targetCategory || "data-structures")}
+                  isUnlocked={level.isUnlocked}
+                  position={position}
+                  onClick={handlePortalClick}
+                />
+              ) : (
+                <LevelNode
+                  level={level}
+                  status={
+                    !level.isUnlocked
+                      ? "locked"
+                      : userProgress.levels[level.id]?.status || "unlocked"
+                  }
+                  stars={userProgress.levels[level.id]?.stars || 0}
+                  isLocked={!level.isUnlocked}
+                  position={position}
+                  onClick={() => handleLevelClick(level)}
+                  isBossLevel={level.pathMetadata?.pathType === "boss"}
+                  pathMetadata={level.pathMetadata}
+                />
+              )}
             </>
           );
         }}
-      </VerticalLevelMap>
+      </GraphContainer>
 
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
@@ -304,14 +374,7 @@ function LearningDashboard() {
         </div>
         <div className={styles.sidebarContent}>
           <CategoryFilter
-            categories={[
-              "all",
-              "sorting",
-              "searching",
-              "graph",
-              "dynamic-programming",
-              "data-structures",
-            ]}
+            categories={categories}
             activeCategory={activeCategory}
             onCategoryChange={(category) => {
               setActiveCategory(category);
@@ -347,9 +410,17 @@ function LearningDashboard() {
           onClose={() => setSelectedLevel(null)}
           onStartTutorial={handleStartTutorial}
           onStartPractice={handleStartPractice}
+          onCompleteLevel={handleCompleteLevel}
           userProgress={getLevelProgress(selectedLevel.id)}
           isLocked={!selectedLevel.isUnlocked}
         />
+      )}
+
+      {/* Toast 提示 */}
+      {toastMessage && (
+        <div className={styles.toast}>
+          {toastMessage}
+        </div>
       )}
     </div>
   );

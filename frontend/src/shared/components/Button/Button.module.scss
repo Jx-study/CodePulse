@@ -248,6 +248,7 @@
 .content {
   @include flex($align: center);
   display: inline-flex;
+  gap: $spacing-sm;
 }
 
 // ========== 響應式設計 ==========

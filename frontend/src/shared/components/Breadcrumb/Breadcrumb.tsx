@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { BreadcrumbItem, BreadcrumbProps } from "@/types";
+import type { BreadcrumbProps } from "@/types";
 import styles from "./Breadcrumb.module.scss";
 import Icon from "../Icon";
 import Button from "../Button";

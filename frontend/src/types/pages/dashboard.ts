@@ -201,12 +201,9 @@ export interface LayoutConfig {
 }
 
 export interface GraphContainerProps {
-  categoryId: AlgorithmCategory;           // 當前 Category ID
   levels: Level[];              // 當前 Graph 的關卡清單
   userProgress: UserProgress;   // 使用者進度
-  onLevelClick: (level: Level) => void;
-  zoomLevel: number;            // 當前縮放等級 (0.5 - 2.0)
-  onZoomChange: (zoom: number) => void;
+  children: (level: Level, index: number, position: NodePosition) => React.ReactNode;
 }
 
 export interface GraphPosition {

@@ -6,6 +6,8 @@
 }
 
 .categoryButton {
+  @include flex($align: center);
+  gap: $spacing-xl !important;
   padding: $spacing-sm $spacing-lg;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
@@ -15,11 +17,13 @@
   font-weight: 500;
   cursor: pointer;
   transition: $transition-base;
+  position: relative;
 
-  &:hover {
+  &:hover:not(.locked) {
     background: rgba(255, 255, 255, 0.1);
     border-color: $primary-color;
     color: var(--text-primary);
+    transform: translateY(-2px);
   }
 
   &.active {
@@ -27,7 +31,37 @@
     border-color: $primary-color;
     color: $white-color;
     font-weight: 600;
+    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
   }
+
+  // 鎖定樣式
+  &.locked {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      transform: none;
+      background: rgba(255, 255, 255, 0.02);
+    }
+  }
+}
+
+.categoryIcon {
+  font-size: $font-base;
+  flex-shrink: 0;
+}
+
+.categoryName {
+  white-space: nowrap;
+}
+
+.lockIcon {
+  font-size: $font-xs;
+  margin-left: $spacing-xs;
+  color: var(--text-disabled);
 }
 
 // 響應式設計
@@ -39,5 +73,24 @@
   .categoryButton {
     padding: $spacing-xs $spacing-md;
     font-size: $font-xs;
+    gap: $spacing-2xs;
+  }
+
+  .categoryIcon {
+    font-size: $font-sm;
+  }
+
+  .categoryName {
+    display: none; // 手機版只顯示圖示
+  }
+
+  .lockIcon {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: $tablet-min) and (max-width: $tablet-max) {
+  .categoryButton {
+    padding: $spacing-sm $spacing-md;
   }
 }

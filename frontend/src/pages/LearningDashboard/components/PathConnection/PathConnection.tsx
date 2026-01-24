@@ -57,8 +57,8 @@ function PathConnection({
   const toY = toNode.y;
 
   // 連線起點和終點（從節點邊緣開始）
-  const startY = fromY + nodeRadius;
-  const endY = toY - nodeRadius;
+  const startY = fromY - nodeRadius;
+  const endY = toY + nodeRadius;
 
   // 計算貝塞爾曲線控制點（基於節點間距）
   const deltaY = endY - startY;

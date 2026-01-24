@@ -1,4 +1,3 @@
-import React from 'react';
 import TutorialSection from './components/TutorialSection';
 import PracticeSection from './components/PracticeSection';
 import styles from './LevelDialog.module.scss';
@@ -11,6 +10,7 @@ interface LevelDialogProps {
   onClose: () => void;
   onStartTutorial: () => void;
   onStartPractice: () => void;
+  onCompleteLevel?: () => void;
   userProgress?: LevelProgress;
   isLocked: boolean;
 }
@@ -21,6 +21,7 @@ function LevelDialog({
   onClose,
   onStartTutorial,
   onStartPractice,
+  onCompleteLevel,
   userProgress,
   isLocked
 }: LevelDialogProps) {
@@ -46,6 +47,7 @@ function LevelDialog({
       <PracticeSection
         level={level}
         onStartPractice={onStartPractice}
+        onCompleteLevel={onCompleteLevel}
         completionPercentage={completionPercentage}
         bestStars={userProgress?.stars ?? 0}
         attempts={userProgress?.attempts ?? 0}

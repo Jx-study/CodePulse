@@ -16,11 +16,6 @@ export interface AlgorithmConfig {
 }
 
 /**
- * 演算法類別
- */
-export type AlgorithmCategory = 'sorting' | 'searching' | 'graph' | 'tree' | 'dynamic-programming';
-
-/**
  * 演算法 ID
  */
 export type AlgorithmId = 'quicksort' | 'mergesort' | 'bubblesort' | 'binarysearch' | 'linearsearch';

@@ -1,0 +1,171 @@
+@import '@/shared/styles/variables';
+@import '@/shared/styles/mixins';
+
+.portalNode {
+  width: 6.25rem; // 100px
+  height: 6.25rem; // 100px
+  border-radius: $radius-full;
+  @include flex(center, center, column);
+  cursor: pointer;
+  transition: $transition-base;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 10;
+  border: 3px solid transparent;
+  overflow: hidden;
+
+  &.unlocked {
+    background: radial-gradient(circle, #667eea 0%, #764ba2 100%);
+    border-color: rgba($white-color, 0.9);
+    box-shadow:
+      0 0 1.875rem rgba(102, 126, 234, 0.6),
+      0 0 3.125rem rgba(118, 75, 162, 0.5),
+      0 0.5rem 1.25rem rgba(102, 126, 234, 0.4),
+      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+    animation: portalGlow 3s ease-in-out infinite, portalHue 8s linear infinite;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(180deg, rgba($white-color, 0.4) 0%, transparent 100%);
+      border-radius: $radius-full $radius-full 0 0;
+      pointer-events: none;
+    }
+
+    &:hover {
+      transform: translateX(-50%) translateY(-50%) scale(1.15);
+      box-shadow:
+        0 0 2.5rem rgba(102, 126, 234, 0.8),
+        0 0 4rem rgba(118, 75, 162, 0.7),
+        0 0.75rem 1.5rem rgba(102, 126, 234, 0.6),
+        inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+
+      .portalTooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0);
+      }
+    }
+  }
+
+  &.locked {
+    background: $level-undeveloped-bg;
+    border-color: rgba($black-color, 0.2);
+    cursor: not-allowed;
+    box-shadow: $shadow-md;
+
+    &:hover {
+      transform: translateX(-50%) translateY(-50%) scale(1.05);
+
+      .portalTooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0);
+      }
+    }
+  }
+}
+
+.portalContent {
+  @include flex(center, center, column);
+  gap: $spacing-2xs;
+  color: $white-color;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.portalIcon {
+  font-size: 2.5rem; // 40px
+  filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+  animation: portalFloat 3s ease-in-out infinite;
+}
+
+.lockIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem; // 24px
+  filter: drop-shadow(0 2px 4px rgba($black-color, 0.8));
+}
+
+.portalTooltip {
+  position: absolute;
+  top: calc(100% + $spacing-sm);
+  left: 50%;
+  transform: translate(-50%, 8px);
+  background: rgba($dark-bg-tertiary, 0.95);
+  color: $white-color;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-md;
+  border: 1px solid rgba($white-color, 0.1);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: $transition-base;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  box-shadow: $shadow-lg;
+}
+
+// 傳送門發光動畫
+@keyframes portalGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 1.875rem rgba(102, 126, 234, 0.6),
+      0 0 3.125rem rgba(118, 75, 162, 0.5),
+      0 0.5rem 1.25rem rgba(102, 126, 234, 0.4),
+      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 2.5rem rgba(102, 126, 234, 0.8),
+      0 0 4rem rgba(118, 75, 162, 0.7),
+      0 0.75rem 1.5rem rgba(102, 126, 234, 0.6),
+      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+  }
+}
+
+// 色相旋轉動畫 (彩虹效果)
+@keyframes portalHue {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+// 傳送門圖示浮動動畫
+@keyframes portalFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+// 響應式設計
+@media (max-width: $mobile-max) {
+  .portalNode {
+    width: 5rem; // 80px
+    height: 5rem; // 80px
+
+    .portalIcon {
+      font-size: 2rem; // 32px
+    }
+
+    .lockIcon {
+      font-size: 1.25rem; // 20px
+    }
+  }
+}

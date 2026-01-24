@@ -30,17 +30,6 @@ export * from './contexts/auth';
 export * from './api/common';
 
 // ==================== General Types ====================
-export interface AlgorithmData {
-  name: string;
-  category: string;
-  description?: string;
-}
-
-export interface DataStructureData {
-  name: string;
-  category: string;
-  description?: string;
-}
 
 // React 組件 Props 類型
 export interface ComponentProps {
