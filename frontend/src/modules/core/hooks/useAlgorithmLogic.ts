@@ -13,9 +13,9 @@ export const useAlgorithmLogic = (config: any) => {
     }));
   };
 
-  const generateSteps = (inputData: any[]) => {
+  const generateSteps = (inputData: any[], actionParams?: any) => {
     if (config && config.createAnimationSteps) {
-      return config.createAnimationSteps(inputData);
+      return config.createAnimationSteps(inputData, actionParams);
     }
     return [];
   };
@@ -38,12 +38,21 @@ export const useAlgorithmLogic = (config: any) => {
     let newData = [...data];
 
     if (actionType === "random") {
-      const count = 10;
-      const randomValues = Array.from(
-        { length: count },
-        () => Math.floor(Math.random() * 100) - 20
-      );
-      newData = initData(randomValues);
+      if (config.id === "binarysearch") {
+        // 做個排序
+        const sortedValues = Array.from({ length: 10 }, () =>
+          Math.floor(Math.random() * 100)
+        ).sort((a, b) => a - b);
+        newData = initData(sortedValues);
+      } else {
+        // 原本隨機邏輯
+        const count = 10;
+        const randomValues = Array.from(
+          { length: count },
+          () => Math.floor(Math.random() * 100) - 20
+        );
+        newData = initData(randomValues);
+      }
 
       // 隨機資料生成後，立刻計算所有步驟
       const steps = generateSteps(newData);
@@ -55,9 +64,13 @@ export const useAlgorithmLogic = (config: any) => {
       return steps;
     } else if (actionType === "load") {
       if (payload.data && Array.isArray(payload.data)) {
-        newData = initData(payload.data);
+        let loadValues = payload.data;
+        if (config.id === "binarysearch") {
+          // 做個排序
+          loadValues = [...payload.data].sort((a: number, b: number) => a - b);
+        }
+        newData = initData(loadValues);
         const steps = generateSteps(newData);
-
         setData(newData);
         setActiveSteps(steps);
         return steps;
@@ -78,7 +91,11 @@ export const useAlgorithmLogic = (config: any) => {
       // 因為在資料改變時 (random/load/reset) 已經生成好步驟了
       // 這裡只需要回傳當前的 activeSteps 讓 UI 知道要開始播放即可
       // 或者也可以選擇在這裡才生成步驟，這邊假設步驟已就緒
-      return activeSteps;
+      if (config.createAnimationSteps) {
+        const steps = config.createAnimationSteps(newData, payload);
+        setActiveSteps(steps);
+        return steps;
+      }
     }
 
     return [];

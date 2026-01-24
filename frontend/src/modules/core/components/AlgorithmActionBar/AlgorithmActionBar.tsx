@@ -6,8 +6,9 @@ interface AlgorithmActionBarProps {
   onLoadData: (data: string) => void;
   onRandomData: () => void;
   onResetData: () => void;
-  onRun: () => void;
+  onRun: (searchValue?: number) => void;
   disabled?: boolean;
+  category?: string;
 }
 
 export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
@@ -16,9 +17,26 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onResetData,
   onRun,
   disabled = false,
+  category = "sorting",
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
   const [dataSize, setDataSize] = useState<number>(10);
+  const [searchValue, setSearchValue] = useState<string>("");
+
+  const isSearching = category === "searching";
+
+  const handleRun = () => {
+    if (isSearching) {
+      const val = parseInt(searchValue);
+      if (!isNaN(val)) {
+        onRun(val);
+      } else {
+        alert("請輸入有效的搜尋數值");
+      }
+    } else {
+      onRun();
+    }
+  };
 
   return (
     <div
@@ -73,15 +91,28 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           className={styles.staticLabel}
           style={{ color: "#ccc", padding: "0 8px" }}
         >
-          Sorting Control
+          {isSearching ? "Searching Control" : "Sorting Control"}
         </div>
+
+        {isSearching && (
+          <input
+            type="number"
+            placeholder="搜尋值"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className={styles.input}
+            style={{ width: "80px", marginRight: "8px" }}
+            disabled={disabled}
+          />
+        )}
+
         <Button
           size="sm"
-          onClick={onRun}
+          onClick={handleRun}
           disabled={disabled}
           style={{ width: "100px", background: "#2e7d32" }}
         >
-          開始排序
+          {isSearching ? "開始搜尋" : "開始排序"}
         </Button>
       </div>
     </div>
