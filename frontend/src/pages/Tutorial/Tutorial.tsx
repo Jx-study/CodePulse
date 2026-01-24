@@ -189,9 +189,9 @@ function Tutorial() {
     }
   };
 
-  const handleRunAlgorithm = () => {
+  const handleRunAlgorithm = (searchValue?: number) => {
     if (!isAlgorithm) return;
-    const steps = executeAction("run", {}); // 執行演算法
+    const steps = executeAction("run", { value: searchValue }); // 執行演算法
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -221,6 +221,7 @@ function Tutorial() {
           onResetData={handleResetData}
           onRun={handleRunAlgorithm}
           disabled={isProcessing}
+          category={topicTypeConfig?.category}
         />
       );
     } else {
