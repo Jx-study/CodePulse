@@ -86,6 +86,7 @@ export const calculateGraphNodePosition = (
 
 /**
  * 計算分支的 X 座標
+ * 支援同一 layer 有 3 個以上的節點（left、main、right 等）
  * @param graphPos 當前節點的圖位置
  * @param sameCategoryLevels 同類別的所有關卡（已篩選）
  * @param config 佈局配置
@@ -96,6 +97,7 @@ function calculateBranchX(
   config: LayoutConfig
 ): { x: string; alignment: 'left' | 'right' | 'center' } {
   const { branch, layer, horizontalIndex } = graphPos;
+  const nodeSpacing = config.nodeSpacing;
   const horizontalOffset = getHorizontalOffset(config);
 
   // 找出同一層的所有節點（同類別內）
@@ -108,7 +110,44 @@ function calculateBranchX(
     return { x: '50%', alignment: 'center' };
   }
 
-  // 多節點根據 branch 決定位置
+  // 如果有 horizontalIndex，優先使用精確定位（支援 3+ 個節點）
+  if (horizontalIndex !== undefined) {
+    // 將所有同層節點按 horizontalIndex 排序
+    const sortedLevels = [...sameLayerLevels].sort(
+      (a, b) => (a.graphPosition?.horizontalIndex ?? 0) - (b.graphPosition?.horizontalIndex ?? 0)
+    );
+
+    const totalNodes = sortedLevels.length;
+
+    // 找到當前節點在排序後的位置
+    const currentIndex = sortedLevels.findIndex((l) =>
+      l.graphPosition?.horizontalIndex === horizontalIndex && l.id
+    );
+
+    if (currentIndex === -1) {
+      return { x: '50%', alignment: 'center' };
+    }
+
+    // 計算中心點（0-based）
+    const centerIndex = (totalNodes - 1) / 2;
+
+    // 計算偏移量：使用 nodeSpacing 來控制節點間距
+    // 如果 nodeSpacing 為 0，則使用 horizontalOffset（向後兼容）
+    const spacing = nodeSpacing > 0 ? nodeSpacing : horizontalOffset;
+    const offset = (currentIndex - centerIndex) * spacing;
+
+    // 確保生成標準的 'calc(50% + Xpx)' 或 'calc(50% - Xpx)' 格式
+    // 避免出現 'calc(50% + -120px)' 導致解析錯誤
+    const operator = offset >= 0 ? '+' : '-';
+    const absOffset = Math.abs(offset);
+
+    return {
+      x: `calc(50% ${operator} ${absOffset}px)`,
+      alignment: offset < 0 ? 'left' : offset > 0 ? 'right' : 'center',
+    };
+  }
+
+  // 向後兼容：如果沒有 horizontalIndex，使用舊的 branch 系統（只支援 left/right 2 個節點）
   if (branch === 'left') {
     return {
       x: `calc(50% - ${horizontalOffset}px)`,
@@ -120,17 +159,6 @@ function calculateBranchX(
     return {
       x: `calc(50% + ${horizontalOffset}px)`,
       alignment: 'right',
-    };
-  }
-
-  // main branch 或其他：置中或根據 horizontalIndex 偏移
-  if (sameLayerLevels.length > 1 && horizontalIndex !== undefined) {
-    const totalNodes = sameLayerLevels.length;
-    const centerIndex = (totalNodes - 1) / 2;
-    const offset = (horizontalIndex - centerIndex) * horizontalOffset;
-    return {
-      x: `calc(50% + ${offset}px)`,
-      alignment: offset < 0 ? 'left' : offset > 0 ? 'right' : 'center',
     };
   }
 
@@ -166,19 +194,23 @@ export const calculatePathD = (
  * @returns 計算後的像素值
  */
 export const resolveCalcToPixels = (calcStr: string, containerWidth: number): number => {
-  // 簡化解析：假設格式為 'calc(50% ± Xpx)'
-  const match = calcStr.match(/calc\(50%\s*([+-])\s*(\d+)px\)/);
+  // 增強版 Regex：支援標準格式 'calc(50% ± Xpx)' 以及可能的負數
+  const match = calcStr.match(/calc\(50%\s*([+-])\s*(-?\d+)px\)/);
 
   if (!match) {
-    // 如果不是 calc 表達式，嘗試直接解析數字
-    const numMatch = calcStr.match(/(\d+)/);
-    return numMatch ? parseInt(numMatch[1]) : 0;
+    // 如果不是 calc 表達式，檢查是否為純 50%
+    if (calcStr === '50%') {
+      return containerWidth / 2;
+    }
+    // Fallback: 回傳容器中心
+    return containerWidth / 2;
   }
 
   const operator = match[1];
-  const offset = parseInt(match[2]);
+  const offset = parseInt(match[2]); // parseInt 會自動處理負號
   const halfWidth = containerWidth / 2;
 
+  // 處理運算符：如果原本是 calc(50% + -120px)，operator 是 '+'，offset 是 -120
   return operator === '-' ? halfWidth - offset : halfWidth + offset;
 };
 

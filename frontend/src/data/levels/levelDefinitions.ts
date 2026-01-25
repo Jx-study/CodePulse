@@ -120,7 +120,7 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     isDeveloped: true,
     isUnlocked: false,
     prerequisites: { type: 'AND', levelIds: ['linked-list'] },
-    graphPosition: { layer: 1, branch: 'right', horizontalIndex: 0 },
+    graphPosition: { layer: 1, branch: 'right', horizontalIndex: 1 },
     pathMetadata: { pathType: 'branch', branchLabel: 'FIFO 結構' },
     implementationType: 'dataStructure',
     implementationKey: 'linear/queue'
@@ -145,6 +145,64 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     implementationType: 'dataStructure',
     implementationKey: 'linear/doubly-linkedlist'
   },
+  // 測試：同一 layer 有 3 個節點
+  {
+    id: 'test-node-1',
+    name: '測試節點 1',
+    nameEn: 'Test Node 1',
+    category: 'data-structures',
+    difficulty: 1,
+    description: '這是測試節點 1（最左邊）',
+    learningObjectives: [
+      '展示 horizontalIndex = 0',
+      '使用 nodeSpacing 控制間距',
+    ],
+    isDeveloped: false,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['doubly-linked-list'] },
+    graphPosition: { layer: 3, branch: 'main', horizontalIndex: 0 },
+    pathMetadata: { pathType: 'main' },
+    implementationType: 'dataStructure',
+    implementationKey: 'linear/linkedlist'
+  },
+  {
+    id: 'test-node-2',
+    name: '測試節點 2',
+    nameEn: 'Test Node 2',
+    category: 'data-structures',
+    difficulty: 1,
+    description: '這是測試節點 2（中間）',
+    learningObjectives: [
+      '展示 horizontalIndex = 1',
+      '使用 nodeSpacing 控制間距',
+    ],
+    isDeveloped: false,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['doubly-linked-list'] },
+    graphPosition: { layer: 3, branch: 'main', horizontalIndex: 1 },
+    pathMetadata: { pathType: 'main' },
+    implementationType: 'dataStructure',
+    implementationKey: 'linear/stack'
+  },
+  {
+    id: 'test-node-3',
+    name: '測試節點 3',
+    nameEn: 'Test Node 3',
+    category: 'data-structures',
+    difficulty: 1,
+    description: '這是測試節點 3（最右邊）',
+    learningObjectives: [
+      '展示 horizontalIndex = 2',
+      '使用 nodeSpacing 控制間距',
+    ],
+    isDeveloped: false,
+    isUnlocked: false,
+    prerequisites: { type: 'AND', levelIds: ['doubly-linked-list'] },
+    graphPosition: { layer: 3, branch: 'main', horizontalIndex: 2 },
+    pathMetadata: { pathType: 'main' },
+    implementationType: 'dataStructure',
+    implementationKey: 'linear/queue'
+  },
   {
     id: 'portal-to-sorting',
     name: '傳送門：排序演算法',
@@ -153,8 +211,8 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     difficulty: 1,
     isDeveloped: true,
     isUnlocked: false,
-    prerequisites: { type: 'AND', levelIds: ['doubly-linked-list'] },
-    graphPosition: { layer: 3, branch: 'main', horizontalIndex: 0 },
+    prerequisites: { type: 'OR', levelIds: ['test-node-1', 'test-node-2', 'test-node-3'] },
+    graphPosition: { layer: 4, branch: 'main', horizontalIndex: 0 },
     pathMetadata: {
       pathType: 'portal',
       targetCategory: 'sorting'
@@ -218,7 +276,7 @@ export const LEVELS_CONFIG: LevelConfig[] = [
     isDeveloped: false,
     isUnlocked: false,
     prerequisites: { type: 'AND', levelIds: ['bubble-sort'] },
-    graphPosition: { layer: 1, branch: 'right', horizontalIndex: 0 },
+    graphPosition: { layer: 1, branch: 'right', horizontalIndex: 1 },
     pathMetadata: { pathType: 'branch', branchLabel: '插入排序' },
     implementationType: 'algorithm',
     implementationKey: 'sorting/insertion-sort'
