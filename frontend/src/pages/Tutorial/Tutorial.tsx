@@ -6,7 +6,7 @@ import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
 import type { BreadcrumbItem } from "@/types";
-import { getLevelImplementation } from "@/data/levels/levelDefinitions";
+import { getLevelImplementation } from "@/data/levels/levelAdapter";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";

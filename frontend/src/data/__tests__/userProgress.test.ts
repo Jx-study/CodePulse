@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { UserProgress } from '@/types';
 import { updateCategoryUnlocks } from '../userProgress';
 
-// Mock levelDefinitions
-vi.mock('../levels/levelDefinitions', () => ({
+// Mock levelAdapter
+vi.mock('../levels/levelAdapter', () => ({
   getCategoryBossLevel: vi.fn((categoryId) => {
     const bosses: Record<string, any> = {
       'data-structures': {
@@ -13,20 +13,20 @@ vi.mock('../levels/levelDefinitions', () => ({
         pathMetadata: { pathType: 'boss' },
       },
       'sorting': {
-        id: 'heap-sort',
-        name: 'Heap Sort',
+        id: 'quick-sort',
+        name: 'Quick Sort',
         category: 'sorting',
         pathMetadata: { pathType: 'boss' },
       },
       'searching': {
-        id: 'advanced-search',
-        name: 'Advanced Search',
+        id: 'linear-search',
+        name: 'Linear Search',
         category: 'searching',
         pathMetadata: { pathType: 'boss' },
       },
       'graph': {
-        id: 'a-star',
-        name: 'A* Algorithm',
+        id: 'dfs',
+        name: 'DFS',
         category: 'graph',
         pathMetadata: { pathType: 'boss' },
       },
@@ -96,8 +96,8 @@ describe('updateCategoryUnlocks', () => {
           attempts: 2,
           bestTime: 180,
         },
-        'heap-sort': {
-          levelId: 'heap-sort',
+        'quick-sort': {
+          levelId: 'quick-sort',
           status: 'completed',
           stars: 2,
           attempts: 3,
@@ -182,8 +182,8 @@ describe('updateCategoryUnlocks', () => {
         'graph': false,
       },
       levels: {
-        'advanced-search': {
-          levelId: 'advanced-search',
+        'linear-search': {
+          levelId: 'linear-search',
           status: 'in-progress',
           stars: 1,
           attempts: 5,
@@ -207,8 +207,8 @@ describe('updateCategoryUnlocks', () => {
         'graph': false,
       },
       levels: {
-        'advanced-search': {
-          levelId: 'advanced-search',
+        'linear-search': {
+          levelId: 'linear-search',
           status: 'completed',
           stars: 3,
           attempts: 3,
@@ -304,15 +304,15 @@ describe('updateCategoryUnlocks', () => {
           attempts: 2,
           bestTime: 180,
         },
-        'heap-sort': {
-          levelId: 'heap-sort',
+        'quick-sort': {
+          levelId: 'quick-sort',
           status: 'completed',
           stars: 3,
           attempts: 1,
           bestTime: 150,
         },
-        'advanced-search': {
-          levelId: 'advanced-search',
+        'linear-search': {
+          levelId: 'linear-search',
           status: 'completed',
           stars: 3,
           attempts: 2,

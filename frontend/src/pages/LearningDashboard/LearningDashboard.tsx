@@ -14,7 +14,7 @@ import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 
 // 資料導入
-import { getAllLevels, getCategories, getCategoryName, getPortalTargetCategory } from "@/data/levels/levelDefinitions";
+import { getAllLevels, getCategories, getCategoryName, getPortalTargetCategory } from "@/data/levels/levelAdapter";
 import { loadUserProgress, saveUserProgress, updateCategoryUnlocks } from "@/data/userProgress";
 import {
   calculateNodePosition,
@@ -25,7 +25,7 @@ import {
   filterLevelsByCategory,
 } from "./utils/graphUtils";
 import type { Level, UserProgress } from "@/types";
-import type { AlgorithmCategory } from "@/types/pages/dashboard";
+import type { AlgorithmCategory } from "@/types";
 
 function LearningDashboard() {
   const navigate = useNavigate();

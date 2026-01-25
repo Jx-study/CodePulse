@@ -143,10 +143,10 @@ export const resetUserProgress = (): void => {
   }
 };
 
-// ==================== Phase 4: Boss Level 自動解鎖邏輯 ====================
+// ==================== Boss Level 自動解鎖邏輯 ====================
 
-import { getNextCategory, getCategoryBossLevel } from './levels/levelDefinitions';
-import type { AlgorithmCategory } from '@/types/pages/dashboard';
+import { getNextCategory, getCategoryBossLevel } from './levels/levelAdapter';
+import type { AlgorithmCategory } from '@/types';
 
 /**
  * 檢查並更新 Category 解鎖狀態（根據 Boss Level 完成情況）
@@ -154,41 +154,58 @@ import type { AlgorithmCategory } from '@/types/pages/dashboard';
  * @returns 更新後的進度（如果有變更）
  */
 export function updateCategoryUnlocks(progress: UserProgress): UserProgress {
-  const updatedProgress = { ...progress };
+  let updatedProgress = { ...progress };
   let hasChanges = false;
 
   // 確保 categoryUnlocks 存在
   if (!updatedProgress.categoryUnlocks) {
     updatedProgress.categoryUnlocks = {
-      'data-structures': true,
-      'sorting': false,
-      'searching': false,
-      'graph': false
+      "data-structures": true,
+      sorting: false,
+      searching: false,
+      graph: false,
     };
     hasChanges = true;
   }
 
-  const categories: AlgorithmCategory[] = ['data-structures', 'sorting', 'searching', 'graph'];
+  const categories: AlgorithmCategory[] = [
+    "data-structures",
+    "sorting",
+    "searching",
+    "graph",
+  ];
 
-  for (const categoryId of categories) {
-    const bossLevel = getCategoryBossLevel(categoryId);
-    if (!bossLevel) continue;
+  // 持續檢查直到無法解鎖更多類別​​為止（級聯解鎖）
+  let continueChecking = true;
+  while (continueChecking) {
+    continueChecking = false;
 
-    const bossProgress = progress.levels[bossLevel.id];
-    const isBossCompleted = bossProgress?.status === 'completed';
+    for (const categoryId of categories) {
+      const bossLevel = getCategoryBossLevel(categoryId);
+      if (!bossLevel) continue;
 
-    if (isBossCompleted) {
-      const nextCategory = getNextCategory(categoryId);
+      const bossProgress = updatedProgress.levels[bossLevel.id];
+      const isBossCompleted = bossProgress?.status === "completed";
 
-      if (nextCategory && !updatedProgress.categoryUnlocks[nextCategory]) {
-        // 解鎖下一個 Category
-        updatedProgress.categoryUnlocks = {
-          ...updatedProgress.categoryUnlocks,
-          [nextCategory]: true,
-        };
-        hasChanges = true;
+      if (isBossCompleted) {
+        const nextCategory = getNextCategory(categoryId);
 
-        console.log(`🎉 解鎖新領域：${nextCategory}`);
+        if (nextCategory) {
+          const nextCat: AlgorithmCategory = nextCategory;
+          const isNextCategoryLocked = !updatedProgress.categoryUnlocks[nextCat];
+          if (isNextCategoryLocked) {
+            // 解鎖下一個 Category
+            updatedProgress = {
+              ...updatedProgress,
+              categoryUnlocks: {
+                ...updatedProgress.categoryUnlocks,
+                [nextCat]: true,
+              },
+            };
+            hasChanges = true;
+            continueChecking = true; // Continue checking for more unlocks
+          }
+        }
       }
     }
   }

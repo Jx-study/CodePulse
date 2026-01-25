@@ -4,7 +4,7 @@ import styles from "./DataStructureAlgorithm.module.scss";
 import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
-import { getAllAlgorithmsMetadata, getLevelIdFromHomeAlgorithm } from "@/data/algorithmMapping";
+import { getHomePageAlgorithms } from "@/data/levels/levelAdapter";
 
 // Import all algorithm images dynamically
 import bubbleSortImg from "./assets/bubble-sort.png";
@@ -15,6 +15,9 @@ import linearSearchImg from "./assets/linear-search.png";
 import dfsImg from "./assets/dfs.png";
 import bfsImg from "./assets/bfs.png";
 import dijkstraImg from "./assets/dijkstra.png";
+import linkedListImg from "./assets/linked-list.png";
+import stackImg from "./assets/stack.png";
+import queueImg from "./assets/queue.png";
 
 export const algorithmImages: Record<string, string> = {
   "bubble-sort.png": bubbleSortImg,
@@ -25,6 +28,9 @@ export const algorithmImages: Record<string, string> = {
   "dfs.png": dfsImg,
   "bfs.png": bfsImg,
   "dijkstra.png": dijkstraImg,
+  "linked-list.png": linkedListImg,
+  "stack.png": stackImg,
+  "queue.png": queueImg,
 };
 
 function DataStructureAlgorithm() {
@@ -34,8 +40,9 @@ function DataStructureAlgorithm() {
 
   // Get algorithms from centralized metadata
   const algorithms = useMemo(() => {
-    return getAllAlgorithmsMetadata().map(meta => ({
+    return getHomePageAlgorithms().map(meta => ({
       id: meta.id,
+      levelId: meta.levelId,
       name: t(`algorithms.${meta.translationKey}.name`),
       description: t(`algorithms.${meta.translationKey}.description`),
       difficulty: meta.difficulty,
@@ -59,14 +66,9 @@ function DataStructureAlgorithm() {
     setCurrentSlide(slideIndex);
   };
 
-  const handleLearnMore = (algorithmId: number) => {
-    const levelId = getLevelIdFromHomeAlgorithm(algorithmId);
-    if (levelId) {
-      // Navigate to LearningDashboard with levelId query parameter
-      navigate(`/dashboard?levelId=${levelId}`);
-    } else {
-      console.warn(`No level mapping found for algorithm ID: ${algorithmId}`);
-    }
+  const handleLearnMore = (levelId: string) => {
+    // Navigate to LearningDashboard with levelId query parameter
+    navigate(`/dashboard?levelId=${levelId}`);
   };
 
   const getCurrentSlideAlgorithms = () => {
@@ -113,7 +115,7 @@ function DataStructureAlgorithm() {
                   <Button
                     variant="primaryOutline"
                     size="sm"
-                    onClick={() => handleLearnMore(algorithm.id)}
+                    onClick={() => handleLearnMore(algorithm.levelId)}
                   >
                     {t("algorithms_section.learn_more")}
                   </Button>

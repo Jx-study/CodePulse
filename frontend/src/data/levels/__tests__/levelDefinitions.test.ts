@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { UserProgress, AlgorithmCategory } from '@/types';
+import type { UserProgress, AlgorithmCategory } from "@/types";
 import {
   getCategories,
   getCategoryBossLevel,
   getNextCategory,
-} from '../levelDefinitions';
+} from '../levelAdapter';
 
 describe('Category Helper Functions', () => {
   let mockUserProgress: UserProgress;

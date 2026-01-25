@@ -47,14 +47,16 @@ function TutorialSection({ level, onStartTutorial, isCompleted }: TutorialSectio
         <p>{level.description}</p>
       </div>
 
-      <div className={styles.objectives}>
-        <h4>學習目標</h4>
-        <ul>
-          {level.learningObjectives.map((objective, index) => (
-            <li key={index}>{objective}</li>
-          ))}
-        </ul>
-      </div>
+      {level.learningObjectives && level.learningObjectives.length > 0 && (
+        <div className={styles.objectives}>
+          <h4>學習目標</h4>
+          <ul>
+            {level.learningObjectives.map((objective, index) => (
+              <li key={index}>{objective}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <Button
         variant="ghost"
