@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./LevelNode.module.scss";
 import Icon from "@/shared/components/Icon";
-import type { LevelNodeProps } from "@/types/pages/dashboard";
+import type { LevelNodeProps } from "@/types";
 
 function LevelNode({
   level,
@@ -60,9 +60,9 @@ function LevelNode({
 
     // 弧形定位計算：左星星、中間星星、右星星
     const starPositions = [
-      { x: -20, y: 2 },  // 左星星：左移20px，下移2px
-      { x: 0, y: -4 },    // 中間星星：中心位置，上移4px
-      { x: 20, y: 2 },   // 右星星：右移20px，下移2px
+      { x: -20, y: 2 }, // 左星星：左移20px，下移2px
+      { x: 0, y: -4 }, // 中間星星：中心位置，上移4px
+      { x: 20, y: 2 }, // 右星星：右移20px，下移2px
     ];
 
     return (
@@ -75,7 +75,7 @@ function LevelNode({
               key={index}
               className={`${styles.star} ${isFilled ? styles.filled : styles.empty}`}
               style={{
-                left: '50%',
+                left: "50%",
                 transform: `translateX(calc(-50% + ${pos.x}px)) translateY(${pos.y}px)`,
               }}
             >
@@ -118,9 +118,7 @@ function LevelNode({
       {renderStars()}
 
       {/* 節點內容（顯示狀態圖標） */}
-      <div className={styles.nodeContent}>
-        {renderStatusIcon()}
-      </div>
+      <div className={styles.nodeContent}>{renderStatusIcon()}</div>
 
       {/* 關卡名稱標籤 */}
       <div className={styles.levelTooltip}>

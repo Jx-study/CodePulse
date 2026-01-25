@@ -1,4 +1,4 @@
-import type { AnimationStep, ComplexityInfo } from './animation';
+import type { AnimationStep, ComplexityInfo } from '@/types';
 
 /**
  * 演算法完整配置

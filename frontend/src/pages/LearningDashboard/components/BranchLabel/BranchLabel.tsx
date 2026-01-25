@@ -1,5 +1,5 @@
-import styles from './BranchLabel.module.scss';
-import type { BranchLabelProps } from '@/types/pages/dashboard';
+import styles from "./BranchLabel.module.scss";
+import type { BranchLabelProps } from "@/types";
 
 /**
  * BranchLabel - 分支路徑標籤組件
@@ -14,11 +14,7 @@ import type { BranchLabelProps } from '@/types/pages/dashboard';
  *   color="#635bff"
  * />
  */
-function BranchLabel({
-  label,
-  position,
-  color = '#635bff',
-}: BranchLabelProps) {
+function BranchLabel({ label, position, color = "#635bff" }: BranchLabelProps) {
   return (
     <div
       className={styles.branchLabel}

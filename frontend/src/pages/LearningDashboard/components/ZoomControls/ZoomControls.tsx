@@ -1,5 +1,5 @@
-import styles from './ZoomControls.module.scss';
-import type { ZoomControlsProps } from '@/types/pages/dashboard';
+import styles from "./ZoomControls.module.scss";
+import type { ZoomControlsProps } from "@/types";
 
 /**
  * ZoomControls - 縮放控制組件
@@ -31,9 +31,7 @@ function ZoomControls({
   return (
     <div className={styles.zoomControls}>
       {/* 顯示當前縮放百分比 */}
-      <div className={styles.zoomDisplay}>
-        {zoomPercentage}%
-      </div>
+      <div className={styles.zoomDisplay}>{zoomPercentage}%</div>
 
       {/* 縮放按鈕組 */}
       <div className={styles.buttonGroup}>

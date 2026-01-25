@@ -1,7 +1,7 @@
 import styles from "./CategoryFilter.module.scss";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
-import type { Category, AlgorithmCategory } from "@/types/pages/dashboard";
+import type { Category, AlgorithmCategory } from "@/types";
 
 interface CategoryFilterProps {
   categories: Category[];

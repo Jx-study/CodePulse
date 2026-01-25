@@ -1,4 +1,4 @@
-import { AnimationStep, AlgorithmConfig } from "../../../types/algorithm";
+import { AnimationStep, AlgorithmConfig } from "@/types";
 import { Box } from "../../../modules/core/DataLogic/Box";
 import { Status } from "../../../modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";

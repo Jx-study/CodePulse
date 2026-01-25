@@ -1,6 +1,6 @@
-import styles from './PortalNode.module.scss';
-import Icon from '@/shared/components/Icon';
-import type { PortalNodeProps } from '@/types/pages/dashboard';
+import styles from "./PortalNode.module.scss";
+import Icon from "@/shared/components/Icon";
+import type { PortalNodeProps } from "@/types";
 
 function PortalNode({
   targetCategory,
@@ -20,13 +20,13 @@ function PortalNode({
     isUnlocked ? styles.unlocked : styles.locked,
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   return (
     <div
       className={nodeClassName}
       style={{
-        position: 'absolute',
+        position: "absolute",
         left: position.x,
         top: `${position.y}px`,
       }}
@@ -58,9 +58,7 @@ function PortalNode({
       {/* 懸浮標籤 */}
       <div className={styles.portalTooltip}>
         <span>
-          {isUnlocked
-            ? `前往 ${targetCategoryName}`
-            : `完成 Boss Level 以解鎖`}
+          {isUnlocked ? `前往 ${targetCategoryName}` : `完成 Boss Level 以解鎖`}
         </span>
       </div>
     </div>

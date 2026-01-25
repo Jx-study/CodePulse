@@ -1,13 +1,13 @@
-import styles from './PathConnection.module.scss';
-import type { PathConnectionProps } from '@/types/pages/dashboard';
-import { getCurrentNodeRadius } from '../LevelNode/constants';
+import styles from "./PathConnection.module.scss";
+import type { PathConnectionProps } from "@/types";
+import { getCurrentNodeRadius } from "../LevelNode/constants";
 
 function PathConnection({
   fromNode,
   toNode,
   status,
   containerWidth,
-  connectionType = 'AND',
+  connectionType = "AND",
 }: PathConnectionProps) {
   // 獲取實際容器寬度（使用 window.innerWidth 如果未提供）
   const actualWidth = containerWidth || window.innerWidth;
@@ -15,7 +15,7 @@ function PathConnection({
   // 將 calc() 表達式或百分比轉換為像素值
   const resolvePosition = (calcStr: string): number => {
     // 處理純百分比（如 '50%'）
-    if (calcStr === '50%') return actualWidth / 2;
+    if (calcStr === "50%") return actualWidth / 2;
 
     const match = calcStr.match(/calc\(50%\s*([+-])\s*(\d+)px\)/);
     if (!match) return actualWidth / 2;
@@ -24,12 +24,12 @@ function PathConnection({
     const offset = parseInt(match[2]);
     const halfWidth = actualWidth / 2;
 
-    return operator === '-' ? halfWidth - offset : halfWidth + offset;
+    return operator === "-" ? halfWidth - offset : halfWidth + offset;
   };
 
   // 決定連線樣式類別
   const getConnectionClass = (): string => {
-    if (connectionType === 'OR') return styles.orConnection;
+    if (connectionType === "OR") return styles.orConnection;
     return styles.andConnection;
   };
 
@@ -78,12 +78,12 @@ function PathConnection({
     <svg
       className={styles.pathConnection}
       style={{
-        position: 'absolute',
+        position: "absolute",
         left: minX,
         top: minY,
         width,
         height,
-        pointerEvents: 'none'
+        pointerEvents: "none",
       }}
       viewBox={`0 0 ${width} ${height}`}
     >
