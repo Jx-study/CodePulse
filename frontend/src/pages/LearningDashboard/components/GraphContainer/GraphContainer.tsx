@@ -1,19 +1,20 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import styles from './GraphContainer.module.scss';
 import {
   calculateNodePosition,
   calculateGraphNodePosition,
+  calculateContentBounds,
 } from './utils/positionCalculator';
 import { useZoom } from '../../hooks/useZoom';
 import ZoomControls from '../ZoomControls/ZoomControls';
 import type { Point2D, GraphContainerProps } from '@/types';
 
-const LEVEL_NODE_HEIGHT = 150;
-
+const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見 
 function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
   const [currentScroll, setCurrentScroll] = useState<Point2D>({ x: 0, y: 0 });
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const dragStartRef = useRef<Point2D | null>(null);
 
   const mapRef = useRef<HTMLDivElement>(null);
@@ -29,8 +30,56 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     targetRef: mapRef as React.RefObject<HTMLElement>,
   });
 
-  const maxScrollY = Math.max(0, (levels.length - 1) * LEVEL_NODE_HEIGHT);
-  const maxScrollX = 150; // 允許左右各移動約 150px
+  // 計算內容邊界（考慮所有節點的實際位置）
+  const contentBounds = useMemo(() => {
+    const bounds = calculateContentBounds(levels);
+    return {
+      minY: bounds.minY - CONTENT_PADDING, // 最上面的節點 - padding
+      maxY: bounds.maxY + CONTENT_PADDING,  // 最下面的節點 + padding
+    };
+  }, [levels]);
+
+  // 動態計算滾動限制（考慮縮放等級）
+  const scrollLimits = useMemo(() => {
+    if (!mapRef.current) {
+      return { minScrollY: -1000, maxScrollY: 1000, maxScrollX: 300 };
+    }
+
+    const containerHeight = mapRef.current.clientHeight;
+
+    // 內容的實際高度（考慮縮放）
+    const contentHeight = (contentBounds.maxY - contentBounds.minY) * zoomLevel;
+
+    // 內容最上面的實際位置（考慮縮放）
+    const contentTop = contentBounds.minY * zoomLevel;
+
+    // 內容最下面的實際位置（考慮縮放）
+    const contentBottom = contentBounds.maxY * zoomLevel;
+
+    // Y 軸滾動限制：
+    // maxScrollY: 內容底部對齊容器底部時的 scroll 值（通常是 0 或正值）
+    // minScrollY: 內容頂部對齊容器頂部時的 scroll 值（負值，向下拖動內容）
+    const maxScrollY = Math.max(0, -contentTop);
+    const minScrollY = Math.min(0, containerHeight - contentBottom);
+
+    // X 軸：考慮縮放後的水平偏移
+    const maxScrollX = 200 * zoomLevel;
+
+    return {
+      minScrollY,
+      maxScrollY,
+      maxScrollX,
+    };
+  }, [contentBounds, zoomLevel]);
+
+  // 找到當前進度的關卡（第一個未完成的關卡）
+  const currentLevelIndex = useMemo(() => {
+    const index = levels.findIndex((level) => {
+      const progress = userProgress.levels[level.id];
+      return !progress || !progress.completedAt;
+    });
+    return index !== -1 ? index : levels.length - 1; // 如果都完成了，定位到最後一關
+  }, [levels, userProgress]);
 
   // 動態計算 header 高度
   useEffect(() => {
@@ -47,6 +96,39 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
       return () => window.removeEventListener('resize', updateHeaderHeight);
     }
   }, []);
+
+  // 初始化：自動定位到當前進度關卡
+  useEffect(() => {
+    if (isInitialized || !mapRef.current || levels.length === 0) return;
+
+    const containerHeight = mapRef.current.clientHeight;
+    const currentLevel = levels[currentLevelIndex];
+
+    if (currentLevel) {
+      // 計算當前關卡的位置
+      const position = currentLevel.graphPosition
+        ? calculateGraphNodePosition(currentLevel, levels)
+        : calculateNodePosition(currentLevelIndex, levels.length);
+
+      // 目標：將當前關卡定位到容器中央偏下的位置（距離底部 30%）
+      const targetPositionInContainer = containerHeight * 0.7; // 距離頂部 70%
+
+      // 計算需要的 scroll 值
+      // transform: translate(x, scrollY) 會將內容移動 scrollY
+      // 我們希望：position.y * zoomLevel + scrollY = targetPositionInContainer
+      // 所以：scrollY = targetPositionInContainer - position.y * zoomLevel
+      const idealScrollY = targetPositionInContainer - position.y * zoomLevel;
+
+      // 確保在滾動限制範圍內
+      const initialScrollY = Math.max(
+        scrollLimits.minScrollY,
+        Math.min(scrollLimits.maxScrollY, idealScrollY)
+      );
+
+      setCurrentScroll({ x: 0, y: initialScrollY });
+      setIsInitialized(true);
+    }
+  }, [isInitialized, levels, currentLevelIndex, scrollLimits, zoomLevel]);
 
   // ==================== 滑鼠事件 ====================
 
@@ -68,8 +150,8 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     };
 
     setCurrentScroll({
-      x: Math.max(-maxScrollX, Math.min(maxScrollX, newScroll.x)), // X 軸左右滾動限制
-      y: Math.max(0, Math.min(maxScrollY, newScroll.y)) // Y 軸底部為 0，向上擴展為正值
+      x: Math.max(-scrollLimits.maxScrollX, Math.min(scrollLimits.maxScrollX, newScroll.x)),
+      y: Math.max(scrollLimits.minScrollY, Math.min(scrollLimits.maxScrollY, newScroll.y))
     });
   };
 
@@ -99,8 +181,8 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     };
 
     setCurrentScroll({
-      x: Math.max(-maxScrollX, Math.min(maxScrollX, newScroll.x)), // X 軸左右滾動限制
-      y: Math.max(0, Math.min(maxScrollY, newScroll.y)) // Y 軸底部為 0，向上擴展為正值
+      x: Math.max(-scrollLimits.maxScrollX, Math.min(scrollLimits.maxScrollX, newScroll.x)),
+      y: Math.max(scrollLimits.minScrollY, Math.min(scrollLimits.maxScrollY, newScroll.y))
     });
   };
 

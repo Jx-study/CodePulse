@@ -181,3 +181,39 @@ export const resolveCalcToPixels = (calcStr: string, containerWidth: number): nu
 
   return operator === '-' ? halfWidth - offset : halfWidth + offset;
 };
+
+/**
+ * 計算內容的邊界範圍
+ * @param levels 所有關卡
+ * @param config 可選的佈局配置
+ * @returns 內容的最小和最大 y 座標（考慮節點高度和偏移）
+ */
+export const calculateContentBounds = (
+  levels: Level[],
+  config?: LayoutConfig
+): { minY: number; maxY: number } => {
+  if (levels.length === 0) {
+    return { minY: 0, maxY: 0 };
+  }
+
+  const layoutConfig = config ?? getLayoutConfig();
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  levels.forEach((level, index) => {
+    const position = level.graphPosition
+      ? calculateGraphNodePosition(level, levels, layoutConfig)
+      : calculateNodePosition(index, levels.length, layoutConfig);
+
+    // 節點使用 translateY(-50%) 偏移，所以需要考慮節點高度的一半
+    // PortalNode: 100px, LevelNode: 80px，取最大值 100px
+    const nodeHalfHeight = 50; // 100px / 2
+
+    // 實際的頂部位置 = position.y - nodeHalfHeight
+    // 實際的底部位置 = position.y + nodeHalfHeight
+    minY = Math.min(minY, position.y - nodeHalfHeight);
+    maxY = Math.max(maxY, position.y + nodeHalfHeight);
+  });
+
+  return { minY, maxY };
+};
