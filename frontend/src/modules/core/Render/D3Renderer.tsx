@@ -179,60 +179,70 @@ export function renderAll(
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;
 
-  // Pre-calculation for AutoScale
-  let scaleY: d3.ScaleLinear<number, number> | null = null;
+  // Pre-calculation for AutoScale(Grouping Support)
+  const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
 
   const autoScaleBoxes = elements.filter(
     (e): e is Box => e instanceof Box && e.autoScale
   );
 
-  if (autoScaleBoxes.length > 0) {
-    // 找出最大最小值
-    const values = autoScaleBoxes
-      .map((b) => b.value)
-      .filter((v) => v !== undefined) as number[];
+  const groupData = new Map<string, { values: number[]; maxH: number }>();
+  const DEFAULT_MAX_H = 150;
 
+  autoScaleBoxes.forEach((box) => {
+    const group = box.scaleGroup || "default";
+    if (!groupData.has(group))
+      groupData.set(group, { values: [], maxH: DEFAULT_MAX_H });
+
+    const entry = groupData.get(group)!;
+
+    if (box.value !== undefined) {
+      entry.values.push(box.value);
+    }
+
+    // 這裡的邏輯是：只要該組有任一 Box 指定了高度，就採用該高度 (取最小值)
+    if (box.maxHeight) {
+      if (entry.maxH) {
+        entry.maxH = Math.min(box.maxHeight, entry.maxH);
+      }
+      entry.maxH = box.maxHeight;
+    }
+  });
+
+  groupData.forEach(({ values, maxH }, groupName) => {
     let minVal = 0;
-    let maxVal = 100; // 預設
+    let maxVal = 100;
 
     if (values.length > 0) {
       minVal = Math.min(...values);
       maxVal = Math.max(...values);
 
-      // Edge case: 只有一個值，或者 min == max
       if (minVal === maxVal) {
         if (minVal === 0) {
           maxVal = 10;
           minVal = -10;
-        } // 都是 0
-        else if (minVal > 0) {
+        } else if (minVal > 0) {
           minVal = 0;
           maxVal = maxVal * 1.5;
-        } // 正數
-        else {
+        } else {
           maxVal = 0;
           minVal = minVal * 1.5;
-        } // 負數
+        }
       } else {
-        // 加一點 Padding 讓圖表不要頂天立地
         const range = maxVal - minVal;
         maxVal += range * 0.1;
         if (minVal < 0) minVal -= range * 0.1;
-        else minVal = 0; // 如果都是正數，min 鎖定 0
+        else minVal = 0;
       }
     }
 
-    // 設定 Bar Chart 高度範圍
-    const MAX_BAR_HEIGHT = 150;
-
-    // 定義比例尺：數值 -> 高度 (px)
-    // 這裡算的是「長度」，不是座標
-    scaleY = d3
+    const scale = d3
       .scaleLinear()
       .domain([0, Math.max(Math.abs(minVal), Math.abs(maxVal))])
-      .range([0, MAX_BAR_HEIGHT]);
-    // 簡化處理：統一用絕對值轉高度，正負由繪製邏輯決定方向
-  }
+      .range([0, maxH]);
+
+    scaleYMap.set(groupName, scale);
+  });
 
   // defs：箭頭標記（只建一次）
   const defs = svg.selectAll("defs").data([null]);
@@ -387,64 +397,69 @@ export function renderAll(
       const textDesc = g.select<SVGTextElement>("text.desc");
 
       // AutoScale Logic
-      if (box.autoScale && scaleY) {
-        const val = box.value || 0;
-        const absVal = Math.abs(val);
-        const barHeight = scaleY(absVal);
-        const barWidth = box.width;
+      if (box.autoScale) {
+        const group = box.scaleGroup || "default";
+        const scaleY = scaleYMap.get(group);
 
-        // 判斷高度是否足夠容納文字
-        const MIN_BAR_HEIGHT_FOR_TEXT = 25;
-        const isBarTooShort = barHeight < MIN_BAR_HEIGHT_FOR_TEXT;
+        if (scaleY) {
+          const val = box.value || 0;
+          const absVal = Math.abs(val);
+          const barHeight = scaleY(absVal);
+          const barWidth = box.width;
 
-        let rectY = 0;
-        if (val >= 0) {
-          rectY = -barHeight; // 往上長
-        } else {
-          rectY = 0; // 往下長
-        }
+          // 判斷高度是否足夠容納文字
+          const MIN_BAR_HEIGHT_FOR_TEXT = 25;
+          const isBarTooShort = barHeight < MIN_BAR_HEIGHT_FOR_TEXT;
 
-        rect
-          .transition()
-          .duration(transitionDuration)
-          .attr("x", -barWidth / 2)
-          .attr("y", rectY)
-          .attr("width", barWidth)
-          .attr("height", barHeight)
-          .attr("rx", 8) // 圓角
-          .attr("fill", box.getColor())
-          .attr("fill-opacity", 0.2)
-          .attr("stroke", box.getColor())
-          .attr("stroke-width", 2);
-
-        // 文字位置調整
-        textVal.attr("fill", "#ccc");
-        if (val >= 0) {
-          // 正數
-          if (isBarTooShort) {
-            // Bar 太矮 -> 數值顯示在 Bar 上方 (浮在空中)
-            textVal.attr("y", -barHeight - 10);
+          let rectY = 0;
+          if (val >= 0) {
+            rectY = -barHeight; // 往上長
           } else {
-            // Bar 足夠高 -> 數值顯示在 Bar 內部頂端
-            textVal.attr("y", -barHeight + 20);
+            rectY = 0; // 往下長
           }
 
-          textDesc
-            .attr("y", 20) // 0 線下方
-            .attr("fill", "rgba(255, 241, 228, 1)");
-        } else {
-          // 負數
-          if (isBarTooShort) {
-            // Bar 太矮 -> 數值顯示在 Bar 下方
-            textVal.attr("y", barHeight + 20);
-          } else {
-            // Bar 足夠高 -> 數值顯示在 Bar 內部底端
-            textVal.attr("y", barHeight - 10);
-          }
+          rect
+            .transition()
+            .duration(transitionDuration)
+            .attr("x", -barWidth / 2)
+            .attr("y", rectY)
+            .attr("width", barWidth)
+            .attr("height", barHeight)
+            .attr("rx", 8) // 圓角
+            .attr("fill", box.getColor())
+            .attr("fill-opacity", 0.2)
+            .attr("stroke", box.getColor())
+            .attr("stroke-width", 2);
 
-          textDesc
-            .attr("y", -10) // 0 線上方
-            .attr("fill", "rgba(250, 242, 234, 1)");
+          // 文字位置調整
+          textVal.attr("fill", "#ccc");
+          if (val >= 0) {
+            // 正數
+            if (isBarTooShort) {
+              // Bar 太矮 -> 數值顯示在 Bar 上方 (浮在空中)
+              textVal.attr("y", -barHeight - 10);
+            } else {
+              // Bar 足夠高 -> 數值顯示在 Bar 內部頂端
+              textVal.attr("y", -barHeight + 20);
+            }
+
+            textDesc
+              .attr("y", 20) // 0 線下方
+              .attr("fill", "rgba(255, 241, 228, 1)");
+          } else {
+            // 負數
+            if (isBarTooShort) {
+              // Bar 太矮 -> 數值顯示在 Bar 下方
+              textVal.attr("y", barHeight + 20);
+            } else {
+              // Bar 足夠高 -> 數值顯示在 Bar 內部底端
+              textVal.attr("y", barHeight - 10);
+            }
+
+            textDesc
+              .attr("y", -10) // 0 線上方
+              .attr("fill", "rgba(250, 242, 234, 1)");
+          }
         }
       } else {
         // === 一般模式 (固定大小) ===

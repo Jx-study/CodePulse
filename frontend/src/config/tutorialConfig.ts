@@ -20,6 +20,16 @@ export const CATEGORIES = {
     name: "搜尋演算法",
     path: "/dashboard?category=searching",
   },
+  dp: {
+    id: "dynamic-programming",
+    name: "動態規劃 (DP)",
+    path: "/dashboard?category=dynamic-programming",
+  },
+  technique: {
+    id: "technique",
+    name: "演算法技巧 (Techniques)",
+    path: "/dashboard?category=technique",
+  },
   datastructure: {
     id: "datastructure",
     name: "資料結構",
@@ -77,6 +87,50 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
       difficulty: 2,
       category: "searching",
       categoryName: "搜尋演算法",
+    },
+  },
+  technique: {
+    prefixsum: {
+      id: "prefixsum",
+      name: "前綴和 (Prefix Sum)",
+      description: "快速計算區間和",
+      difficulty: 1,
+      category: "technique",
+      categoryName: "演算法技巧",
+    },
+    slidingwindow: {
+      id: "slidingwindow",
+      name: "滑動窗口 (Sliding Window)",
+      description: "處理連續子陣列問題",
+      difficulty: 2,
+      category: "technique",
+      categoryName: "演算法技巧",
+    },
+    twopointers: {
+      id: "twopointers",
+      name: "雙指標 (Two Pointers)",
+      description: "遍歷陣列的高效技巧",
+      difficulty: 2,
+      category: "technique",
+      categoryName: "演算法技巧",
+    },
+  },
+  "dynamic-programming": {
+    fibonacci: {
+      id: "fibonacci",
+      name: "費氏數列 (Fibonacci)",
+      description: "DP 的入門磚",
+      difficulty: 1,
+      category: "dynamic-programming",
+      categoryName: "動態規劃",
+    },
+    knapsack: {
+      id: "knapsack",
+      name: "背包問題 (Knapsack)",
+      description: "經典 DP 問題",
+      difficulty: 3,
+      category: "dynamic-programming",
+      categoryName: "動態規劃",
     },
   },
   datastructure: {

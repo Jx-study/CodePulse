@@ -45,6 +45,7 @@ export interface AlgorithmConfig {
 export type AlgorithmCategory =
   | "sorting"
   | "searching"
+  | "technique"
   | "graph"
   | "tree"
   | "dynamic-programming";
@@ -57,4 +58,9 @@ export type AlgorithmId =
   | "insertionsort"
   | "bubblesort"
   | "binarysearch"
-  | "linearsearch";
+  | "linearsearch"
+  | "prefixsum"
+  | "slidingwindow"
+  | "twopointers"
+  | "fibonacci"
+  | "knapsack";

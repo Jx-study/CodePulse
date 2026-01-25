@@ -6,9 +6,10 @@ interface AlgorithmActionBarProps {
   onLoadData: (data: string) => void;
   onRandomData: () => void;
   onResetData: () => void;
-  onRun: (searchValue?: number) => void;
+  onRun: (params?: { searchValue?: number; range?: [number, number] }) => void;
   disabled?: boolean;
   category?: string;
+  algorithmId?: string;
 }
 
 export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
@@ -18,20 +19,39 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onRun,
   disabled = false,
   category = "sorting",
+  algorithmId,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
   const [dataSize, setDataSize] = useState<number>(10);
+
   const [searchValue, setSearchValue] = useState<string>("");
 
+  const [rangeStart, setRangeStart] = useState<string>("");
+  const [rangeEnd, setRangeEnd] = useState<string>("");
+
   const isSearching = category === "searching";
+  const isPrefixSum = algorithmId === "prefixsum";
 
   const handleRun = () => {
     if (isSearching) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
-        onRun(val);
+        onRun({ searchValue: val });
       } else {
         alert("請輸入有效的搜尋數值");
+      }
+    } else if (isPrefixSum) {
+      // 處理區間查詢
+      const start = parseInt(rangeStart);
+      const end = parseInt(rangeEnd);
+
+      // 如果沒輸入，就跑預設演示
+      if (isNaN(start) && isNaN(end)) {
+        onRun({}); // 空物件代表建構
+      } else if (!isNaN(start) && !isNaN(end)) {
+        onRun({ range: [start, end] });
+      } else {
+        alert("請輸入完整的區間 (Start, End)");
       }
     } else {
       onRun();
@@ -47,7 +67,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       <div className={styles.actionGroup}>
         <input
           type="text"
-          placeholder="10,5,8,3..."
+          placeholder="3,5,8,10..."
           value={bulkInput}
           onChange={(e) => setBulkInput(e.target.value)}
           className={styles.input}
@@ -91,7 +111,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           className={styles.staticLabel}
           style={{ color: "#ccc", padding: "0 8px" }}
         >
-          {isSearching ? "Searching Control" : "Sorting Control"}
+          {isSearching
+            ? "Searching Control"
+            : category === "technique"
+            ? "Technique Control"
+            : "Sorting Control"}
         </div>
 
         {isSearching && (
@@ -106,13 +130,48 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           />
         )}
 
+        {isPrefixSum && (
+          <div
+            style={{
+              display: "flex",
+              gap: "4px",
+              alignItems: "center",
+              marginRight: "8px",
+            }}
+          >
+            <input
+              type="number"
+              placeholder="L"
+              value={rangeStart}
+              onChange={(e) => setRangeStart(e.target.value)}
+              className={styles.input}
+              style={{ width: "50px" }}
+              disabled={disabled}
+            />
+            <span style={{ color: "#ccc" }}>-</span>
+            <input
+              type="number"
+              placeholder="R"
+              value={rangeEnd}
+              onChange={(e) => setRangeEnd(e.target.value)}
+              className={styles.input}
+              style={{ width: "50px" }}
+              disabled={disabled}
+            />
+          </div>
+        )}
+
         <Button
           size="sm"
           onClick={handleRun}
           disabled={disabled}
           style={{ width: "100px", background: "#2e7d32" }}
         >
-          {isSearching ? "開始搜尋" : "開始排序"}
+          {isSearching
+            ? "開始搜尋"
+            : category === "technique"
+            ? "開始演示"
+            : "開始排序"}
         </Button>
       </div>
     </div>

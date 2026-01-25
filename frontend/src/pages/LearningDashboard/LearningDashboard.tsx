@@ -37,6 +37,12 @@ function LearningDashboard() {
               <p>高效搜尋演算法</p>
               <span className={styles.difficulty}>⭐⭐</span>
             </Link>
+
+            <Link to="/tutorial/technique/prefixsum" className="common-card">
+              <h3>前綴和</h3>
+              <p>前綴挺多的</p>
+              <span className={styles.difficulty}>⭐⭐</span>
+            </Link>
           </div>
         </div>
 
