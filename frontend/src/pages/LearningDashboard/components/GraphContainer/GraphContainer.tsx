@@ -30,7 +30,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
   });
 
   const maxScrollY = Math.max(0, (levels.length - 1) * LEVEL_NODE_HEIGHT);
-  const maxScrollX = 300; // 允許左右各移動約 300px
+  const maxScrollX = 150; // 允許左右各移動約 150px
 
   // 動態計算 header 高度
   useEffect(() => {
@@ -138,7 +138,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
 
         {/* 渲染關卡節點 */}
         {levels.map((level, index) => {
-          // v2.0: 使用 graphPosition 計算位置，否則退回到舊邏輯
+          // 使用 graphPosition 計算位置，否則退回到舊邏輯
           const position = level.graphPosition
             ? calculateGraphNodePosition(level, levels)
             : calculateNodePosition(index, levels.length);

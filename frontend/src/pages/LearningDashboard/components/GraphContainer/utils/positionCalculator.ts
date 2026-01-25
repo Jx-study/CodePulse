@@ -3,7 +3,6 @@ import {
   getLayoutConfig,
   getHorizontalOffset,
   getVerticalSpacing,
-  getCategoryGap,
   type LayoutConfig,
 } from './layoutConfig';
 
