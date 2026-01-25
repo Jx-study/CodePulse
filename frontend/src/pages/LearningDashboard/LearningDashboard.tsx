@@ -71,6 +71,61 @@ function LearningDashboard() {
     };
   };
 
+  // Helper function: 判斷關卡應該顯示的狀態
+  // 規則：
+  // 1. 在同一 category 中，找出所有已解鎖但未完成的關卡
+  // 2. 只有 layer 最小的關卡才會顯示為可玩狀態
+  // 3. 如果整個 category 只有一個可玩關卡，顯示為 "in-progress"
+  // 4. 如果有多個可玩關卡，顯示為 "unlocked"
+  const getDisplayStatus = (level: Level & { isUnlocked: boolean }) => {
+    // 如果關卡被鎖定，直接返回 "locked"
+    if (!level.isUnlocked) {
+      return "locked";
+    }
+
+    // 獲取用戶進度中的狀態
+    const progressStatus = userProgress.levels[level.id]?.status;
+
+    // 如果已經是 "completed" 或 "in-progress"，保持原狀態
+    if (progressStatus === "completed" || progressStatus === "in-progress") {
+      return progressStatus;
+    }
+
+    // 找出所有已解鎖但未完成的關卡
+    const unlockedNotCompletedLevels = filteredLevels.filter(
+      (l) => l.isUnlocked &&
+             userProgress.levels[l.id]?.status !== "completed" &&
+             userProgress.levels[l.id]?.status !== "in-progress"
+    );
+
+    // 如果沒有未完成的關卡，返回 "locked"
+    if (unlockedNotCompletedLevels.length === 0) {
+      return "locked";
+    }
+
+    // 找到 layer 最小的關卡
+    const minLayer = Math.min(...unlockedNotCompletedLevels.map((l) => l.graphPosition?.layer ?? 0));
+
+    // 找出所有 layer 最小的未完成關卡
+    const minLayerLevels = unlockedNotCompletedLevels.filter(
+      (l) => l.graphPosition?.layer === minLayer
+    );
+
+    // 如果當前關卡不是 layer 最小的，顯示為 "locked"
+    const isInMinLayer = minLayerLevels.some((l) => l.id === level.id);
+    if (!isInMinLayer) {
+      return "locked";
+    }
+
+    // 如果只有一個 layer 最小的未完成關卡（就是當前這個），顯示為 "in-progress"
+    if (minLayerLevels.length === 1) {
+      return "in-progress";
+    }
+
+    // 如果有多個 layer 最小的未完成關卡，顯示為 "unlocked"
+    return "unlocked";
+  };
+
   // 計算進度統計
   const totalLevels = allLevels.length;
   const completedLevels = Object.values(userProgress.levels).filter(
@@ -263,14 +318,24 @@ function LearningDashboard() {
       {/* 全屏垂直關卡地圖 */}
       <GraphContainer levels={filteredLevels} userProgress={userProgress}>
         {(level, index, position) => {
-          // v2.0: 根據 prerequisites 繪製連線
+          // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
           const prereqType = level.prerequisites?.type || "AND";
           const isPortal = level.pathMetadata?.pathType === "portal";
 
+          // Portal 的解鎖狀態：檢查目標 category 是否已解鎖
+          const getPortalUnlockStatus = () => {
+            if (!isPortal) return false;
+            const targetCategory = level.pathMetadata?.targetCategory;
+            if (!targetCategory) return false;
+            return userProgress.categoryUnlocks?.[targetCategory] ?? false;
+          };
+
+          const portalIsUnlocked = isPortal ? getPortalUnlockStatus() : false;
+
           // Portal Node 點擊處理：直接跳轉到目標分類
           const handlePortalClick = () => {
-            if (level.isUnlocked && isPortal) {
+            if (portalIsUnlocked && isPortal) {
               const targetCategory = getPortalTargetCategory(level.id);
               if (targetCategory) {
                 setActiveCategory(targetCategory);
@@ -294,14 +359,19 @@ function LearningDashboard() {
                       filteredLevels.length,
                     );
 
+                // 決定連線狀態：目標關卡（toNode）的狀態決定連線顏色
+                const targetStatus = getDisplayStatus(level);
+                const pathStatus: 'locked' | 'unlocked' | 'completed' =
+                  targetStatus === 'completed' ? 'completed' :
+                  targetStatus === 'unlocked' || targetStatus === 'in-progress' ? 'unlocked' :
+                  'locked';
+
                 return (
                   <PathConnection
                     key={`${prereqId}-${level.id}`}
                     fromNode={fromPosition}
                     toNode={position}
-                    isCompleted={
-                      userProgress.levels[prereqId]?.status === "completed"
-                    }
+                    status={pathStatus}
                     connectionType={prereqType}
                   />
                 );
@@ -319,11 +389,7 @@ function LearningDashboard() {
               ) : (
                 <LevelNode
                   level={level}
-                  status={
-                    !level.isUnlocked
-                      ? "locked"
-                      : userProgress.levels[level.id]?.status || "unlocked"
-                  }
+                  status={getDisplayStatus(level)}
                   stars={userProgress.levels[level.id]?.stars || 0}
                   isLocked={!level.isUnlocked}
                   position={position}
