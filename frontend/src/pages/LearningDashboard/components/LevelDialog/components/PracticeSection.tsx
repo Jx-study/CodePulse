@@ -84,7 +84,7 @@ function PracticeSection({
 
       {onCompleteLevel && (
         <Button
-          variant="success"
+          variant="primary"
           onClick={onCompleteLevel}
           disabled={isLocked || completionPercentage === 100}
           className={styles.startPracticeButton}

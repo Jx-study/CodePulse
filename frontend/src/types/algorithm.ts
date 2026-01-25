@@ -1,23 +1,4 @@
-import { BaseElement } from '../modules/core/DataLogic/BaseElement';
-
-/**
- * 動畫步驟資料結構
- */
-export interface AnimationStep {
-  stepNumber: number;
-  description: string;
-  elements: BaseElement[];
-}
-
-/**
- * 複雜度資訊
- */
-export interface ComplexityInfo {
-  timeBest: string;
-  timeAverage: string;
-  timeWorst: string;
-  space: string;
-}
+import type { AnimationStep, ComplexityInfo } from './animation';
 
 /**
  * 演算法完整配置
@@ -42,8 +23,12 @@ export interface AlgorithmConfig {
 /**
  * 演算法類別
  */
-export type AlgorithmCategory = 'sorting' | 'searching' | 'graph' | 'tree' | 'dynamic-programming';
-
+// 關卡分類
+export type AlgorithmCategory =
+  | "data-structures"
+  | "sorting"
+  | "searching"
+  | "graph";
 /**
  * 演算法 ID
  */

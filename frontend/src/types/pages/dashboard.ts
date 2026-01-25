@@ -4,6 +4,7 @@
  */
 
 import type { DialogProps } from '../components/feedback';
+import type { AlgorithmCategory } from '../algorithm';
 
 // 先決條件類型
 export type PrerequisiteType = 'AND' | 'OR' |'NONE';
@@ -13,13 +14,6 @@ export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
 // 關卡狀態類型
 export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
-
-// 關卡分類
-export type AlgorithmCategory =
-  | "data-structures"
-  | "sorting"
-  | "searching"
-  | "graph";
   
 /**
  * pathType 說明：
@@ -162,10 +156,8 @@ export interface PortalNodeProps extends BaseNodeProps {
 export interface PathConnectionProps {
   fromNode: NodePosition;
   toNode: NodePosition;
-  /** v2.5: 連線狀態 - locked(灰黑) / unlocked(藍色) / completed(綠色) */
   status: 'locked' | 'unlocked' | 'completed';
   containerWidth?: number;
-  /** v2.0: 連線類型 - AND(實線) / OR(虛線) / NONE(預設) */
   connectionType?: PrerequisiteType;
 }
 
@@ -176,21 +168,7 @@ export interface BranchLabelProps {
   color?: string; // 標籤顏色（對應路徑主題色）
 }
 
-// ==================== Graph Container ====================
-// TODO: remove
-export interface DragState {
-  isDragging: boolean;
-  startY: number;
-  scrollTop: number;
-}
-
-// TODO: remove
-export interface VerticalLevelMapProps {
-  levels: Level[];
-  userProgress: UserProgress;
-  onLevelClick: (level: Level) => void;
-}
-
+// ==================== Graph Container ====================}
 export interface LayoutConfig {
   layerSpacing: number; // 垂直間距
   branchSpacing: number; // 分支間距
