@@ -1,7 +1,6 @@
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep } from "@/types/animation";
-import { DataStructureConfig } from "@/types/dataStructure";
+import { AnimationStep, DataStructureConfig } from "@/types";
 import {
   LinearData as ListNodeData,
   LinearAction as ActionType,

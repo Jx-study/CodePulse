@@ -1,6 +1,6 @@
 import { AnimationStep, AlgorithmConfig } from "@/types";
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 // 復用 BubbleSort 的 Frame 生成邏輯
