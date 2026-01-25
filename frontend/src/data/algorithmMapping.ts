@@ -15,7 +15,7 @@ import * as algorithmsData from './algorithms.json';
 export interface AlgorithmMetadata {
   id: number;
   levelId: string;
-  category: 'sorting' | 'search' | 'graph';
+  category: 'data-structures' | 'sorting' | 'search' | 'graph';
   difficulty: number;
   image: string;
   translationKey: string;
@@ -87,6 +87,6 @@ export function getCategoryFromLevelId(levelId: string): string {
 /**
  * Get algorithms by category
  */
-export function getAlgorithmsByCategory(category: 'sorting' | 'search' | 'graph'): AlgorithmMetadata[] {
+export function getAlgorithmsByCategory(category: 'data-structures' | 'sorting' | 'search' | 'graph'): AlgorithmMetadata[] {
   return algorithmsData.algorithms.filter(algo => algo.category === category) as AlgorithmMetadata[];
 }

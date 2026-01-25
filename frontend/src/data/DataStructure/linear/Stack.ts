@@ -2,36 +2,19 @@ import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types/animation";
 import { DataStructureConfig } from "@/types/dataStructure";
-
-interface BoxData {
-  id: string;
-  value: number;
-}
-
-interface ActionType {
-  type: string;
-  value: number;
-  mode: string; // "Push", "Pop"
-}
+import {
+  LinearData as BoxData,
+  LinearAction as ActionType,
+  createBoxes as baseCreateBoxes,
+} from "./utils";
 
 const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
-  const startX = 100;
-  const startY = 200;
-  const gap = 70;
-
-  return list.map((item, i) => {
-    const box = new Box();
-    box.id = item.id;
-    // Stack 視覺化：橫向排列 (0 是底部，最後一個是頂部)
-    box.moveTo(startX + i * gap, startY);
-    box.width = 60;
-    box.height = 60;
-    box.value = item.value;
-    box.description = i === list.length - 1 ? "Top" : "";
-
-    box.setStatus(status);
-
-    return box;
+  return baseCreateBoxes(list, {
+    startX: 100,
+    startY: 200,
+    gap: 70,
+    status,
+    getDescription: (_, i, total) => (i === total - 1 ? "Top" : ""),
   });
 };
 

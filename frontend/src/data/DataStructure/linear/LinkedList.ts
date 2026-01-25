@@ -2,44 +2,12 @@ import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types/animation";
 import { DataStructureConfig } from "@/types/dataStructure";
-
-interface ListNodeData {
-  id: string;
-  value: number;
-}
-
-interface ActionType {
-  type: string;
-  value: number;
-  mode: string;
-  targetId?: string;
-  index?: number;
-}
-
-// 建立節點實例的函式
-function createNodeInstance(
-  id: string,
-  val: number,
-  x: number,
-  y: number,
-  status: Status = "unfinished",
-  desc: string = ""
-) {
-  const n = new Node();
-  n.id = id;
-  n.value = val;
-  n.moveTo(x, y);
-  n.setStatus(status);
-  n.description = desc;
-  return n;
-}
-
-function linkNodes(nodes: Node[]) {
-  for (let i = 0; i < nodes.length - 1; i++) {
-    nodes[i].pointers = [nodes[i + 1]];
-  }
-  return nodes;
-}
+import {
+  LinearData as ListNodeData,
+  LinearAction as ActionType,
+  createNodeInstance,
+  linkNodes,
+} from "./utils";
 
 function getLabel(
   index: number,

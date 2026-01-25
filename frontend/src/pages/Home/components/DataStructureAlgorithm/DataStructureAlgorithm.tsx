@@ -77,12 +77,14 @@ function DataStructureAlgorithm() {
 
   const getCategoryVariant = (category: string): 'primary' | 'success' | 'warning' => {
     switch (category) {
-      case "sorting":
+      case "data-structures":
         return "primary";
-      case "search":
+      case "sorting":
         return "success";
-      case "graph":
+      case "search":
         return "warning";
+      case "graph":
+        return "primary";
       default:
         return "primary";
     }
