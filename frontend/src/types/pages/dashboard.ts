@@ -72,8 +72,8 @@ export interface Level {
   nameEn: string;
   category: AlgorithmCategory;
   difficulty: DifficultyLevel;
-  description: string;
-  learningObjectives: string[];
+  description?: string;  
+  learningObjectives?: string[];  
   isDeveloped: boolean;
   isUnlocked: boolean;
 
@@ -162,11 +162,11 @@ export interface PortalNodeProps extends BaseNodeProps {
 export interface PathConnectionProps {
   fromNode: NodePosition;
   toNode: NodePosition;
-  isCompleted: boolean;
-
-  connectionType: PrerequisiteType;
-  isMultiPath?: boolean; // 是否為多路徑（影響顏色）
-  pathData?: string; // D3 計算的 SVG path d 屬性
+  /** v2.5: 連線狀態 - locked(灰黑) / unlocked(藍色) / completed(綠色) */
+  status: 'locked' | 'unlocked' | 'completed';
+  containerWidth?: number;
+  /** v2.0: 連線類型 - AND(實線) / OR(虛線) / NONE(預設) */
+  connectionType?: PrerequisiteType;
 }
 
 // 顯示分支路徑的標籤
