@@ -116,10 +116,10 @@
     }
   }
 
-  // v2.0: Boss Level - 更大、漸層、發光動畫
+  // Boss Level
   &.boss {
-    width: 7.5rem; // 120px
-    height: 7.5rem; // 120px
+    width: 6rem; // 96px
+    height: 6rem; // 96px
     background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ffd93d 100%);
     border-color: rgba($white-color, 0.9);
     box-shadow:
@@ -156,18 +156,18 @@
 
     .nodeContent {
       .bossIcon {
-        font-size: $font-4xl;
+        font-size: $font-3xl;
       }
     }
 
     .starsContainer {
-      top: -28px;
-      width: 96px;
-      height: 28px;
+      top: -26px;
+      width: 80px;
+      height: 26px;
     }
 
     .star {
-      font-size: $font-xl;
+      font-size: $font-lg;
     }
   }
 }
@@ -304,23 +304,23 @@
 
     // Mobile Boss Level
     &.boss {
-      width: 6rem; // 96px
-      height: 6rem; // 96px
+      width: 5rem; // 80px
+      height: 5rem; // 80px
 
       .nodeContent {
         .bossIcon {
-          font-size: $font-3xl; // 32px - Mobile Boss 皇冠
+          font-size: $font-2xl; // 24px - Mobile Boss 皇冠
         }
       }
 
       .starsContainer {
-        top: -22px;
-        width: 72px;
-        height: 22px;
+        top: -20px;
+        width: 64px;
+        height: 20px;
       }
 
       .star {
-        font-size: $font-base;
+        font-size: $font-sm;
       }
     }
   }

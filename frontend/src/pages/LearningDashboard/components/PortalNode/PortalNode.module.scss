@@ -1,7 +1,5 @@
-@import '@/shared/styles/variables';
-@import '@/shared/styles/mixins';
-
 .portalNode {
+  position: absolute;
   width: 6.25rem; // 100px
   height: 6.25rem; // 100px
   border-radius: $radius-full;
@@ -11,7 +9,7 @@
   transform: translateX(-50%) translateY(-50%);
   z-index: 10;
   border: 3px solid transparent;
-  overflow: hidden;
+  overflow: visible; // 允許能量封印顯示在節點外部
 
   &.unlocked {
     background: radial-gradient(circle, #667eea 0%, #764ba2 100%);
@@ -56,6 +54,13 @@
     border-color: rgba($black-color, 0.2);
     cursor: not-allowed;
     box-shadow: $shadow-md;
+    animation: none; // 停止動畫
+    filter: brightness(0.7); // 降低亮度
+
+    .portalIcon {
+      animation: none; // 停止浮動動畫
+      opacity: 0.6; // 降低不透明度
+    }
 
     &:hover {
       transform: translateX(-50%) translateY(-50%) scale(1.05);
@@ -65,8 +70,35 @@
         visibility: visible;
         transform: translate(-50%, 0);
       }
+
+      .energySeal {
+        animation: energySealPulse 1.5s ease-in-out 1; // 輕微波動
+      }
     }
   }
+}
+
+// 能量封印層 - 半透明覆蓋層
+.energySeal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%;
+  height: 110%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(102, 126, 234, 0.15) 0%,
+    rgba(118, 75, 162, 0.25) 50%,
+    rgba(102, 126, 234, 0.1) 100%
+  );
+  border-radius: $radius-full;
+  border: 2px solid rgba(102, 126, 234, 0.4);
+  box-shadow:
+    0 0 1rem rgba(102, 126, 234, 0.3),
+    inset 0 0 1rem rgba(102, 126, 234, 0.2);
+  pointer-events: none;
+  z-index: 5;
 }
 
 .portalContent {
@@ -80,17 +112,47 @@
 
 .portalIcon {
   font-size: 2.5rem; // 40px
+  color: $white-color;
   filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
   animation: portalFloat 3s ease-in-out infinite;
+  transition: opacity 0.3s ease;
 }
 
-.lockIcon {
+// 鎖定覆蓋層容器
+.lockOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  @include flex(center, center, column);
+  z-index: 2;
+  pointer-events: none;
+}
+
+// 鎖鏈裝飾層
+.chainDecoration {
   position: absolute;
   top: 50%;
   left: 50%;
+  width: 80%;
+  height: 80%;
   transform: translate(-50%, -50%);
+  @include flex(center, center);
+  opacity: 0.7;
+}
+
+.chainLink {
+  font-size: 2rem; // 32px
+  filter: drop-shadow(0 2px 6px rgba($black-color, 0.8));
+  animation: chainSway 2s ease-in-out infinite;
+}
+
+.lockIcon {
   font-size: 1.5rem; // 24px
+  color: $white-color;
   filter: drop-shadow(0 2px 4px rgba($black-color, 0.8));
+  z-index: 3;
 }
 
 .portalTooltip {
@@ -154,6 +216,30 @@
   }
 }
 
+// 鎖鏈搖擺動畫
+@keyframes chainSway {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+// 能量封印脈衝動畫 (hover 觸發)
+@keyframes energySealPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 1rem rgba(102, 126, 234, 0.3),
+      inset 0 0 1rem rgba(102, 126, 234, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 2rem rgba(102, 126, 234, 0.6),
+      inset 0 0 1.5rem rgba(102, 126, 234, 0.4);
+  }
+}
+
 // 響應式設計
 @media (max-width: $mobile-max) {
   .portalNode {
@@ -166,6 +252,10 @@
 
     .lockIcon {
       font-size: 1.25rem; // 20px
+    }
+
+    .chainLink {
+      font-size: 1.5rem; // 24px
     }
   }
 }

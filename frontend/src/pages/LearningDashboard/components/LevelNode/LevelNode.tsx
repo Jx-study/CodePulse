@@ -26,7 +26,7 @@ function LevelNode({
   const renderStatusIcon = () => {
     // Boss Level 顯示皇冠圖示
     if (isBossLevel) {
-      return <span className={styles.bossIcon}>👑</span>;
+      return <Icon name="crown" className={styles.bossIcon} />;
     }
 
     switch (status) {
@@ -35,8 +35,9 @@ function LevelNode({
       case "completed":
         return <Icon name="check" className={styles.icon} />;
       case "in-progress":
+        return <Icon name="play" className={styles.icon} />;
       case "unlocked":
-        return <Icon name="screwdriver-wrench" className={styles.icon} />;
+        return <Icon name="location-crosshairs" className={styles.icon} />;
       default:
         return null;
     }

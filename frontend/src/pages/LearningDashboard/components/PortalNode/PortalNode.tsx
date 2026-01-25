@@ -1,4 +1,5 @@
 import styles from './PortalNode.module.scss';
+import Icon from '@/shared/components/Icon';
 import type { PortalNodeProps } from '@/types/pages/dashboard';
 
 function PortalNode({
@@ -36,12 +37,22 @@ function PortalNode({
       aria-disabled={!isUnlocked}
       data-portal-target={targetCategory}
     >
-      <div className={styles.portalContent}>
-        {/* 傳送門圖示 */}
-        <span className={styles.portalIcon}>🚪</span>
+      {/* 能量封印層 (鎖定時顯示) */}
+      {!isUnlocked && <div className={styles.energySeal} />}
 
-        {/* 鎖定圖示 (未解鎖時顯示) */}
-        {!isUnlocked && <span className={styles.lockIcon}>🔒</span>}
+      <div className={styles.portalContent}>
+        {/* 傳送門圖示 - 使用 dungeon icon */}
+        <Icon name="dungeon" className={styles.portalIcon} />
+
+        {/* 鎖鏈/封印符文 (未解鎖時顯示) */}
+        {!isUnlocked && (
+          <div className={styles.lockOverlay}>
+            <div className={styles.chainDecoration}>
+              <span className={styles.chainLink}>⛓️</span>
+            </div>
+            <Icon name="lock" className={styles.lockIcon} />
+          </div>
+        )}
       </div>
 
       {/* 懸浮標籤 */}
@@ -49,7 +60,7 @@ function PortalNode({
         <span>
           {isUnlocked
             ? `前往 ${targetCategoryName}`
-            : `🔒 完成 Boss Level 以解鎖`}
+            : `完成 Boss Level 以解鎖`}
         </span>
       </div>
     </div>
