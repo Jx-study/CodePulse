@@ -12,13 +12,23 @@
 .andConnection {
   stroke-width: 2;
 
-  &.incomplete {
-    stroke: #374151; // 灰色 - 鎖定狀態
+  // 鎖定狀態 - 灰黑色
+  &.locked {
+    stroke: #374151;
   }
 
+  // 已解鎖 - 藍色
+  &.unlocked {
+    stroke: $info-color;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px rgba($info-color, 0.4));
+  }
+
+  // 已完成 - 綠色
   &.completed {
-    stroke: $execution-color; // 翠綠色 - 已完成路徑
+    stroke: $execution-color;
     stroke-width: 3;
+    filter: drop-shadow(0 0 6px rgba($execution-color, 0.5));
   }
 }
 
@@ -27,12 +37,22 @@
   stroke-dasharray: 10, 8;
   stroke-width: 2;
 
-  &.incomplete {
-    stroke: #374151; // 灰色 - 鎖定狀態
+  // v2.5: 鎖定狀態 - 灰黑色
+  &.locked {
+    stroke: #374151;
   }
 
+  // v2.5: 已解鎖 - 藍色（與 LevelNode unlocked 一致）
+  &.unlocked {
+    stroke: $primary-color;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px rgba($primary-color, 0.4));
+  }
+
+  // v2.5: 已完成 - 橙黃色（OR 路徑特殊顏色）
   &.completed {
-    stroke: $warning-color; // 橙黃色 - 已完成 OR 路徑
+    stroke: $warning-color;
     stroke-width: 3;
+    filter: drop-shadow(0 0 6px rgba($warning-color, 0.5));
   }
 }

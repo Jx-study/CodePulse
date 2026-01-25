@@ -1,26 +1,11 @@
 import styles from './PathConnection.module.scss';
-import type { PrerequisiteType } from '@/types';
+import type { PathConnectionProps } from '@/types/pages/dashboard';
 import { getCurrentNodeRadius } from '../LevelNode/constants';
-
-interface NodePosition {
-  x: string;
-  y: number;
-  alignment: 'left' | 'right' | 'center';
-}
-
-interface PathConnectionProps {
-  fromNode: NodePosition;
-  toNode: NodePosition;
-  isCompleted: boolean;
-  containerWidth?: number;
-  /** v2.0: 連線類型 - AND(實線) / OR(虛線) / NONE(預設) */
-  connectionType?: PrerequisiteType;
-}
 
 function PathConnection({
   fromNode,
   toNode,
-  isCompleted,
+  status,
   containerWidth,
   connectionType = 'AND',
 }: PathConnectionProps) {
@@ -104,7 +89,7 @@ function PathConnection({
     >
       <path
         d={pathD}
-        className={`${styles.path} ${getConnectionClass()} ${isCompleted ? styles.completed : styles.incomplete}`}
+        className={`${styles.path} ${getConnectionClass()} ${styles[status]}`}
         fill="none"
       />
     </svg>
