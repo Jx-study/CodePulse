@@ -32,7 +32,8 @@ function Tutorial() {
     return implementation;
   }, [levelId]);
 
-  const isAlgorithm = category !== "datastructure";
+  const isAlgorithm = category !== "data-structures";
+  console.log(category);
 
   // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
   const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
@@ -262,7 +263,7 @@ function Tutorial() {
 
   // Debug logging
   useEffect(() => {
-    console.log('Tutorial Debug:', {
+    console.log("Tutorial Debug:", {
       currentStep,
       totalSteps: activeSteps.length,
       isPlaying,
@@ -273,7 +274,13 @@ function Tutorial() {
         elementsCount: currentStepData?.elements?.length,
       },
     });
-  }, [currentStep, currentStepData, isPlaying, playbackSpeed, activeSteps.length]);
+  }, [
+    currentStep,
+    currentStepData,
+    isPlaying,
+    playbackSpeed,
+    activeSteps.length,
+  ]);
 
   return (
     <div className={styles.tutorialPage}>
@@ -346,20 +353,34 @@ function Tutorial() {
             <h4>複雜度分析</h4>
             <div className={styles.complexityTable}>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（最佳）：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeBest}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（最佳）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.timeBest}
+                </span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（平均）：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeAverage}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（平均）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.timeAverage}
+                </span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>時間複雜度（最差）：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeWorst}</span>
+                <span className={styles.complexityLabel}>
+                  時間複雜度（最差）：
+                </span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.timeWorst}
+                </span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>{topicTypeConfig.complexity.space}</span>
+                <span className={styles.complexityValue}>
+                  {topicTypeConfig.complexity.space}
+                </span>
               </div>
             </div>
           </div>

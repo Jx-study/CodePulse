@@ -27,14 +27,7 @@ export const useDataStructureLogic = (config: any) => {
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
     let newData = data.map((item: any) => ({ ...item }));
-    let {
-      value,
-      mode,
-      index,
-      targetId,
-      hasTailMode,
-      data: loadData,
-    } = payload; // 解構常用參數
+    let { value, mode, index, targetId, hasTailMode, data: loadData } = payload; // 解構常用參數
 
     let isResetAction = false;
 
@@ -302,6 +295,37 @@ export const useDataStructureLogic = (config: any) => {
         //     value: v,
         //   }));
         // }
+      }
+    } else if (config.id === "binarytree") {
+      // [新增] 處理二元樹的資料操作
+      if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+
+        if (actionType === "random") {
+          // 隨機生成 N 個節點
+          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          newData = [];
+          for (let i = 0; i < count; i++) {
+            newData.push({
+              id: `node-${nextIdRef.current++}`,
+              value: Math.floor(Math.random() * 100),
+            });
+          }
+        } else if (actionType === "reset") {
+          // 重設為預設資料
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: `node-${nextIdRef.current++}`,
+          }));
+        } else if (actionType === "load") {
+          // 載入自定義資料
+          if (loadData && Array.isArray(loadData)) {
+            newData = loadData.map((v: number) => ({
+              id: `node-${nextIdRef.current++}`,
+              value: v,
+            }));
+          }
+        }
       }
     }
 
