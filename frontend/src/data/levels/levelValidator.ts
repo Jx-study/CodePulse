@@ -320,7 +320,7 @@ export function autoValidateInDev(): void {
         console.error(`  [${error.type}] ${error.message}`);
       });
     } else {
-      console.log('✅ levels.json 驗證通過');
+      // console.log('✅ levels.json 驗證通過');
     }
 
     if (result.warnings.length > 0) {

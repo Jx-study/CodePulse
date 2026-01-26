@@ -9,7 +9,7 @@ import { getHomePageAlgorithms } from "@/data/levels/levelAdapter";
 // Import all algorithm images dynamically
 import bubbleSortImg from "./assets/bubble-sort.png";
 import quickSortImg from "./assets/quick-sort.png";
-import selectionsortImg from "./assets/merge-sort.png";
+import mergeSortImg from "./assets/merge-sort.png";
 import binarySearchImg from "./assets/binary-search.png";
 import linearSearchImg from "./assets/linear-search.png";
 import dfsImg from "./assets/dfs.png";
