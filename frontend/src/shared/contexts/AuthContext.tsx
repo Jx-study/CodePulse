@@ -1,26 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
-// ==================== 類型定義 ====================
-
-interface User {
-  id: string;
-  email: string;
-  username?: string;
-  avatar?: string;
-  email_confirmed?: boolean;
-  created_at?: string;
-  last_sign_in?: string;
-}
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  user: User | null;
-  isLoading: boolean;
-  login: (usernameOrEmail: string, password: string) => Promise<void>;
-  register: (email: string, password: string, username?: string) => Promise<void>;
-  logout: () => Promise<void>;
-  checkAuthStatus: () => Promise<void>;
-}
+import type { User, AuthContextType } from '@/types';
 
 // ==================== Context 建立 ====================
 
@@ -66,8 +45,8 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const token = tokenManager.getAccessToken();
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...options.headers,
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
   };
 
   if (token) {

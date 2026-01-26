@@ -1,18 +1,18 @@
-import React, { useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import styles from './Hero.module.scss';
-import PulseBackground from './PulseBackground';
-import Demo from '../Demo/Demo';
-import Button from '../../../../shared/components/Button/Button';
+import styles from "./Hero.module.scss";
+import PulseBackground from "./PulseBackground";
+import Demo from "../Demo/Demo";
+import Button from "@/shared/components/Button";
 
 function Hero() {
   const { t } = useTranslation();
-  const pulseBackgroundRef = useRef();
-  const ctaButtonRef = useRef();
-  const heroRef = useRef();
+  const pulseBackgroundRef = useRef<any>(null);
+  const ctaButtonRef = useRef<HTMLAnchorElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
 
-  const handleHeroClick = (event) => {
+  const handleHeroClick = (event: React.MouseEvent) => {
     if (pulseBackgroundRef.current && heroRef.current) {
       const rect = heroRef.current.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -26,10 +26,10 @@ function Hero() {
     if (pulseBackgroundRef.current && ctaButtonRef.current && heroRef.current) {
       const heroRect = heroRef.current.getBoundingClientRect();
       const ctaRect = ctaButtonRef.current.getBoundingClientRect();
-      
+
       const targetX = ctaRect.left + ctaRect.width / 2 - heroRect.left;
       const targetY = ctaRect.top + ctaRect.height / 2 - heroRect.top;
-      
+
       pulseBackgroundRef.current.attractParticles(targetX, targetY);
     }
   };
@@ -39,9 +39,6 @@ function Hero() {
       pulseBackgroundRef.current.resetParticles();
     }
   };
-
-
-  
 
   return (
     <section
@@ -63,17 +60,16 @@ function Hero() {
         <div className={styles.demoContainer}>
           <Demo />
         </div>
-        <Button
-          variant="primary"
-          size="lg"
-          as={Link}
+        <Link
           to="/explorer"
           ref={ctaButtonRef}
           onMouseEnter={handleCtaHover}
           onMouseLeave={handleCtaLeave}
         >
-          {t("hero.cta")}
-        </Button>
+          <Button variant="primary" size="lg">
+            {t("hero.cta")}
+          </Button>
+        </Link>
       </div>
     </section>
   );

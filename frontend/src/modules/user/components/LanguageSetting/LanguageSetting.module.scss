@@ -1,9 +1,15 @@
 .languageSetting {
   display: flex;
   align-items: center;
+
+  @include mobile {
+    display: none;  // 手機版隱藏語言選擇器
+  }
 }
 
-.languageSelect {
+.languageTrigger {
+  @include flex($align: center);
+  gap: $spacing-xs;
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -11,20 +17,15 @@
   color: white;
   font-size: $font-sm;
   cursor: pointer;
-  outline: none;
   transition: $transition-base;
 
   &:hover {
     border-color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
   }
+}
 
-  &:focus {
-    border-color: $primary-color;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-  }
-
-  option {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-  }
+.currentLanguage {
+  white-space: nowrap;
+  font-weight: 500;
 }

@@ -1,0 +1,178 @@
+@use "@/shared/styles/variables" as *;
+
+.switchContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  user-select: none;
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    cursor: wait;
+  }
+
+  &.labelLeft {
+    flex-direction: row-reverse;
+  }
+}
+
+// ========== Label ==========
+.label {
+  font-size: $font-sm;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+// ========== Switch ==========
+.switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+
+  &:focus-visible + .slider {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// ========== Slider ==========
+.slider {
+  position: relative;
+  display: block;
+  background: rgba(107, 114, 128, 0.3);
+  border-radius: 100px;
+  transition: $transition-base;
+  cursor: pointer;
+
+  .disabled & {
+    cursor: not-allowed;
+  }
+}
+
+.thumb {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: $transition-base;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+// ========== Checked State ==========
+.checked .slider {
+  background: $primary-color;
+}
+
+// ========== Size Variants ==========
+.sm {
+  .switch {
+    width: 36px;
+    height: 20px;
+  }
+
+  .slider {
+    height: 20px;
+  }
+
+  .thumb {
+    width: 16px;
+    height: 16px;
+    left: 2px;
+  }
+
+  &.checked .thumb {
+    left: 18px;
+  }
+
+  .label {
+    font-size: $font-xs;
+  }
+}
+
+.md {
+  .switch {
+    width: 44px;
+    height: 24px;
+  }
+
+  .slider {
+    height: 24px;
+  }
+
+  .thumb {
+    width: 20px;
+    height: 20px;
+    left: 2px;
+  }
+
+  &.checked .thumb {
+    left: 22px;
+  }
+
+  .label {
+    font-size: $font-sm;
+  }
+}
+
+.lg {
+  .switch {
+    width: 52px;
+    height: 28px;
+  }
+
+  .slider {
+    height: 28px;
+  }
+
+  .thumb {
+    width: 24px;
+    height: 24px;
+    left: 2px;
+  }
+
+  &.checked .thumb {
+    left: 26px;
+  }
+
+  .label {
+    font-size: $font-base;
+  }
+}
+
+// ========== Loading State ==========
+.loading .thumb {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .switchContainer {
+    gap: $spacing-xs;
+  }
+
+  .label {
+    font-size: $font-xs;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './Demo.module.scss';
 import { useTranslation } from 'react-i18next';
 
@@ -16,9 +16,6 @@ function Demo() {
   return (
     <section className={styles.demo} id="demo">
       <div className='container'>
-        <h2 className='section-title'>{t('demo_section.title')}</h2>
-        <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>{t('demo_section.subtitle')}</p>
-        
         <div className={styles.demoPreview}>
           <div className={styles.codeWindow}>
             <div className={styles.codeLine}>def bubble_sort(arr):</div>
@@ -33,8 +30,8 @@ function Demo() {
             <div className={styles.codeLine}>    return arr</div>
           </div>
           
-          <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
-            <strong>💡{t('demo_section.analysis')} ：</strong> {t('demo_section.analysis_text')}
+          <div className={styles.analysisBox}>
+            <strong>💡{t('demo_section.analysis')}：</strong> {t('demo_section.analysis_text')}
           </div>
         </div>
       </div>

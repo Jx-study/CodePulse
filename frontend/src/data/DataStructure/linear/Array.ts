@@ -1,8 +1,6 @@
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
-import {
-  AnimationStep,
-  DataStructureConfig,
-} from "../../../types/dataStructure";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { AnimationStep } from "@/types";
+import { DataStructureConfig } from "@/types/dataStructure";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,

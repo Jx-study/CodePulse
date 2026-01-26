@@ -1,6 +1,5 @@
 .breadcrumb {
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   gap: $spacing-md;
   padding: $spacing-sm 0;
   font-size: $font-sm;
@@ -8,8 +7,7 @@
 }
 
 .backButton {
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   gap: $spacing-xs;
   background: none;
   border: none;
@@ -38,7 +36,7 @@
 .backIcon {
   font-size: 1.1em;
   font-weight: bold;
-  transition: transform 0.2s ease;
+  @include transition(transform, 0.2s, ease);
 }
 
 .backText {
@@ -48,8 +46,7 @@
 }
 
 .breadcrumbList {
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   gap: $spacing-xs;
   margin-left: $spacing-sm;
 }

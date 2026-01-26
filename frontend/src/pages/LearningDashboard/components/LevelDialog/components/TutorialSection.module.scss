@@ -1,0 +1,81 @@
+.tutorialSection {
+  padding: $spacing-lg;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  @include flex($direction: column);
+  gap: $spacing-xs;
+
+  h3 {
+    color: $primary-color;
+    font-size: $font-xl;
+    margin: 0;
+  }
+
+  h4 {
+    color: var(--text-primary);
+    font-size: $font-lg;
+    margin: 0 0 $spacing-sm 0;
+  }
+}
+
+.levelInfo {
+  @include flex($direction: column);
+  gap: $spacing-sm;
+
+  .infoRow {
+    @include flex($direction: row);
+    gap: $spacing-sm;
+
+    .label {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+    }
+
+    .value {
+      color: var(--text-primary);
+      font-size: $font-sm;
+      font-weight: 600;
+    }
+  }
+}
+
+.description {
+  p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.objectives {
+  ul {
+    margin: 0;
+    padding-left: $spacing-lg;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+}
+
+.startTutorialButton {
+  width: 100%;
+  margin-top: auto;
+  background: $gradient-primary;
+
+  &:hover {
+    transform: $hover-transform;
+    box-shadow: 0 4px 12px rgba($primary-color, 0.4);
+  }
+}
+
+.completedBadge {
+  // Badge now handled by Badge component
+}
+
+// 響應式設計
+@media (max-width: $mobile-max) {
+  .tutorialSection {
+    padding: $spacing-lg;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}

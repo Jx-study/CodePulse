@@ -1,17 +1,19 @@
 // ===========================
 //  Flex 工具
 // ===========================
-@mixin flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 @mixin flex($justify: flex-start, $align: stretch, $direction: row) {
   display: flex;
   justify-content: $justify;
   align-items: $align;
   flex-direction: $direction;
+}
+
+@mixin flex-center {
+  @include flex(center, center);
+}
+
+@mixin flex-between {
+  @include flex(space-between, center);
 }
 
 
@@ -33,9 +35,8 @@
   overflow: hidden;
 }
 
-
 // ===========================
-//  RWD (媒體查詢)
+//  Responsive Media Queries
 // ===========================
 @mixin mobile {
   @media (max-width: 767px) {
@@ -51,6 +52,35 @@
 
 @mixin desktop {
   @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop-lg {
+  @media (min-width: 1400px) {
+    @content;
+  }
+}
+
+// Max-width media query
+@mixin max-width($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+
+// Min-width media query
+@mixin min-width($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
+@mixin belowTablet {
+  @include tablet {
+    @content;
+  }
+  @include mobile {
     @content;
   }
 }
@@ -93,6 +123,13 @@
   transition: $props $time $ease;
 }
 
+// 減少動態效果偏好
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
 // 定義 blink 動畫關鍵幀
 :global {
   @keyframes blink {
@@ -104,6 +141,10 @@
 @mixin blink($duration: 1s, $opacity: 0.5, $timing: ease-in-out) {
   --blink-opacity: #{$opacity};
   animation: blink $duration $timing infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 
@@ -114,6 +155,23 @@
   max-width: $width;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+
+// ===========================
+//  無障礙工具
+// ===========================
+// 螢幕閱讀器專用隱藏（視覺隱藏但保留可訪問性）
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 

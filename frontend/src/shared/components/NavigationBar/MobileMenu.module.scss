@@ -1,0 +1,106 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 80vw;
+  background: #1e293b;
+  z-index: 1101;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawerHeader {
+  @include flex-between;
+  padding: $spacing-lg;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drawerTitle {
+  font-size: $font-xl;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: $spacing-xs;
+  transition: $transition-base;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: $spacing-md 0;
+  flex: 1;
+  overflow-y: auto;
+
+  li a {
+    @include flex($align: center);
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    color: white;
+    text-decoration: none;
+    font-size: $font-lg;
+    font-weight: 500;
+    transition: $transition-base;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: $primary-color;
+    }
+
+    &.active {
+      background: rgba(99, 91, 255, 0.15);
+      color: $primary-color;
+      border-left: 4px solid $primary-color;
+      padding-left: calc($spacing-lg - 4px);
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@include desktop {
+  .overlay, .drawer {
+    display: none;
+  }
+}

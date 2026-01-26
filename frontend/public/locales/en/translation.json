@@ -76,9 +76,29 @@
   },
   
   "algorithms": {
+    "linked_list": {
+      "name": "Linked List",
+      "description": "A linear data structure where elements are stored in nodes, each pointing to the next node in the sequence."
+    },
+    "stack": {
+      "name": "Stack",
+      "description": "A Last-In-First-Out (LIFO) data structure supporting push and pop operations at one end."
+    },
+    "queue": {
+      "name": "Queue",
+      "description": "A First-In-First-Out (FIFO) data structure supporting enqueue and dequeue operations."
+    },
     "bubble_sort": {
       "name": "Bubble Sort",
       "description": "A simple comparison-based sorting algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order."
+    },
+    "selection_sort": {
+      "name": "Selection Sort",
+      "description": "A sorting algorithm that repeatedly selects the minimum element from the unsorted portion and places it at the beginning."
+    },
+    "insertion_sort": {
+      "name": "Insertion Sort",
+      "description": "A sorting algorithm that builds the final sorted array one item at a time by inserting elements into their correct position."
     },
     "quick_sort": {
       "name": "Quick Sort",
@@ -109,8 +129,9 @@
       "description": "An algorithm for finding the shortest paths between nodes in a graph with non-negative edge weights."
     },
     "categories": {
+      "data-structures": "Data Structures",
       "sorting": "Sorting",
-      "search": "Search",
+      "searching": "Searching",
       "graph": "Graph"
     }
   },

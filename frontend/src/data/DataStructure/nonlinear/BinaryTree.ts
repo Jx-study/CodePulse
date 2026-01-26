@@ -1,7 +1,5 @@
-import {
-  AnimationStep,
-  DataStructureConfig,
-} from "../../../types/dataStructure";
+import { DataStructureConfig } from "@/types/dataStructure";
+import { AnimationStep } from "@/types";
 import { createTreeNodes } from "./utils";
 
 export function createBinaryTreeAnimationSteps(

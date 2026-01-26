@@ -37,17 +37,17 @@ function App() {
           {/* 主布局 */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<LearningDashboard />} />
             <Route path="/tutorial" element={<Tutorial />} />
             <Route
-              path="/tutorial/:category/:subcategory?/:topicType"
+              path="/tutorial/:category/:levelId"
               element={<Tutorial />}
             />
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<LearningDashboard />} />
           </Route>
 
-          {/* 其他頁面布局 */}
+          {/* 登入页面布局 */}
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<AuthPage />} />
           </Route>

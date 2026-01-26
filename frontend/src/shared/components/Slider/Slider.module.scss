@@ -1,0 +1,204 @@
+// ==================== Slider 容器 ====================
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 9.375rem;
+}
+
+// ==================== Slider 主體 ====================
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 7.5rem;
+  height: 0.375rem; 
+  background: transparent;
+  border-radius: 0.1875rem; 
+  outline: none;
+  cursor: pointer;
+  transition: $transition-base;
+  position: relative;
+
+  // ========== Thumb（拖曳手把）- WebKit ==========
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    background: $primary-color;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: $shadow-sm;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    z-index: 2;
+    margin-top: -0.3125rem; 
+
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: $shadow-md;
+    }
+    
+    &:active {
+      transform: scale(1.1);
+      box-shadow: $shadow-sm; // 按下時恢復預設陰影
+    }
+  }
+
+  // ========== Thumb（拖曳手把）- Firefox ==========
+  &::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    background: $primary-color;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: $shadow-sm; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: $shadow-md; 
+    }
+
+    &:active {
+      transform: scale(1.1);
+      box-shadow: $shadow-sm; // 按下時恢復預設陰影
+    }
+  }
+
+  // ========== Track（滑軌）- WebKit ==========
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 0.375rem;
+    background: linear-gradient(
+      to right,
+      $primary-color 0%,
+      $primary-color var(--slider-progress),
+      var(--bg-tertiary) var(--slider-progress),
+      var(--bg-tertiary) 100%
+    );
+    border-radius: 0.1875rem;
+    transition: background 0.1s ease;
+  }
+
+  // ========== Track（滑軌）- Firefox ==========
+  &::-moz-range-track {
+    width: 100%;
+    height: 0.375rem;
+    background: var(--bg-tertiary);
+    border-radius: 0.1875rem;
+  }
+
+  &::-moz-range-progress {
+    background: $primary-color;
+    height: 0.375rem;
+    border-radius: 0.1875rem 0 0 0.1875rem;
+  }
+
+  // ========== Focus 狀態 ==========
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid $primary-color;
+    outline-offset: 0.125rem;
+    border-radius: 0.1875rem;
+  }
+
+  // ========== Disabled 狀態 ==========
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      cursor: not-allowed;
+      background: var(--text-tertiary);
+    }
+
+    &::-moz-range-thumb {
+      cursor: not-allowed;
+      background: var(--text-tertiary);
+    }
+
+    &::-webkit-slider-runnable-track {
+      background: var(--bg-tertiary);
+    }
+
+    &::-moz-range-track {
+      background: var(--bg-tertiary);
+    }
+  }
+}
+
+// ==================== 數值顯示 ====================
+
+.valueDisplay {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 40px;
+  text-align: right;
+  user-select: none;
+}
+
+// ==================== 響應式設計 ====================
+
+// 手機端：Slider 全寬顯示
+@media (max-width: $mobile) {
+  .sliderContainer {
+    width: 100%;
+  }
+
+  .slider {
+    width: 100%;
+    min-width: 9.375rem;
+  }
+}
+
+// ==================== 深色模式 ====================
+
+@media (prefers-color-scheme: dark) {
+  .slider {
+    // 深色模式無需特別覆蓋，var(--bg-tertiary) 會自動切換
+    // 如需更高對比度，可取消註釋以下代碼：
+    // &::-webkit-slider-runnable-track {
+    //   background: linear-gradient(
+    //     to right,
+    //     $primary-color 0%,
+    //     $primary-color var(--slider-progress),
+    //     rgba(255, 255, 255, 0.15) var(--slider-progress),
+    //     rgba(255, 255, 255, 0.15) 100%
+    //   );
+    // }
+    //
+    // &::-moz-range-track {
+    //   background: rgba(255, 255, 255, 0.15);
+    // }
+  }
+}
+
+// ==================== 高對比度模式 ====================
+
+@media (prefers-contrast: high) {
+  .slider {
+    &::-webkit-slider-thumb {
+      border: 0.125rem solid var(--text-primary);
+    }
+
+    &::-moz-range-thumb {
+      border: 0.125rem solid var(--text-primary);
+    }
+
+    &::-webkit-slider-runnable-track {
+      border: 0.0625rem solid var(--text-primary);
+    }
+
+    &::-moz-range-track {
+      border: 0.0625rem solid var(--text-primary);
+    }
+  }
+}

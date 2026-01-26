@@ -1,0 +1,190 @@
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  transition: $transition-base;
+
+  &.collapsible .title {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// ========== Size Variants ==========
+.sm {
+  padding: $spacing-sm;
+  gap: $spacing-xs;
+}
+
+.md {
+  padding: $spacing-lg;
+  gap: $spacing-sm;
+}
+
+.lg {
+  padding: $spacing-xl;
+  gap: $spacing-md;
+}
+
+// ========== Variant Styles ==========
+.default {
+  background: transparent;
+}
+
+.outlined {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.filled {
+  background: var(--bg-secondary);
+  border: 1px solid transparent;
+}
+
+// ========== Title ==========
+.title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: $primary-color;
+  flex-shrink: 0;
+}
+
+.titleText {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.collapseIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+// ========== Content ==========
+.content {
+  color: var(--text-secondary);
+  font-size: $font-base;
+  line-height: 1.6;
+  animation: fadeIn 0.2s ease;
+
+  ul,
+  ol {
+    margin: 0;
+    padding-left: $spacing-lg;
+  }
+
+  li {
+    margin-bottom: $spacing-xs;
+  }
+
+  p {
+    margin: 0 0 $spacing-sm 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ========== Footer ==========
+.footer {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border);
+}
+
+// ========== Collapsed State ==========
+.collapsed {
+  .content,
+  .footer {
+    display: none;
+  }
+}
+
+// ========== Size-specific Title Styles ==========
+.sm .titleText {
+  font-size: $font-base;
+}
+
+.sm .content {
+  font-size: $font-sm;
+}
+
+.md .titleText {
+  font-size: $font-lg;
+}
+
+.md .content {
+  font-size: $font-base;
+}
+
+.lg .titleText {
+  font-size: $font-xl;
+}
+
+.lg .content {
+  font-size: $font-lg;
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .infoBlock {
+    &.sm {
+      padding: $spacing-xs;
+    }
+
+    &.md {
+      padding: $spacing-md;
+    }
+
+    &.lg {
+      padding: $spacing-lg;
+    }
+  }
+
+  .titleText {
+    font-size: $font-base;
+  }
+
+  .content {
+    font-size: $font-sm;
+  }
+}

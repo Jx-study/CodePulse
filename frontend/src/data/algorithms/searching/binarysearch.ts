@@ -1,6 +1,6 @@
-import { AnimationStep, AlgorithmConfig } from "../../../types/algorithm";
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
+import { Box } from '@/modules/core/DataLogic/Box';
+import type { AnimationStep, AlgorithmConfig } from '@/types';
+import type { Status } from '@/modules/core/DataLogic/BaseElement';
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 interface Pointers {

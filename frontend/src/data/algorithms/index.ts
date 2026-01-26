@@ -1,20 +1,20 @@
-import { AlgorithmConfig } from "../../types/algorithm";
+import { AlgorithmConfig } from "@/types/algorithm";
+import { binarySearchConfig } from "./searching/binarysearch";
 import { bubbleSortConfig } from "./sorting/bubbleSort";
 import { selectionSortConfig } from "./sorting/selectionSort";
 import { insertionSortConfig } from "./sorting/insertionSort";
-import { binarySearchConfig } from "./searching/binarysearch";
 import { prefixSumConfig } from "./technique/prefixSum";
 
 /**
  * 所有演算法配置的集合
- * 使用 category/algorithm 作為 key
+ * 使用 category/algorithm 作為 key (統一 kebab-case 命名)
  */
 export const algorithmsMap: Record<string, AlgorithmConfig> = {
-  "sorting/bubblesort": bubbleSortConfig,
-  "sorting/selectionsort": selectionSortConfig,
-  "sorting/insertionsort": insertionSortConfig,
-  "searching/binarysearch": binarySearchConfig,
-  "technique/prefixsum": prefixSumConfig,
+  'sorting/bubblesort': bubbleSortConfig,
+  'sorting/selectionsort': selectionSortConfig,
+  'sorting/insertionsort': insertionSortConfig,
+  'searching/binarysearch': binarySearchConfig,
+  'technique/prefixsum': prefixSumConfig,
 };
 
 /**
@@ -25,7 +25,7 @@ export const algorithmsMap: Record<string, AlgorithmConfig> = {
  */
 export function getAlgorithmConfig(
   category: string,
-  algorithm: string
+  algorithm: string,
 ): AlgorithmConfig | null {
   const key = `${category}/${algorithm}`;
   return algorithmsMap[key] || null;
@@ -46,6 +46,6 @@ export function getAllAlgorithms(): AlgorithmConfig[] {
  */
 export function getAlgorithmsByCategory(category: string): AlgorithmConfig[] {
   return Object.values(algorithmsMap).filter(
-    (config) => config.category === category
+    (config) => config.category === category,
   );
 }

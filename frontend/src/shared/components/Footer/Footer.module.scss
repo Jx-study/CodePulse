@@ -1,72 +1,96 @@
 .footer {
-    background: #1e293b;
+    width: 100%;
+    background: $dark-bg-secondary;
     color: var(--text-tertiary);
-    padding: $spacing-sm;
+    padding: $spacing-sm 0;
 }
 
 .footerContent {
-    display: flex;
+    @include flex;
     flex-wrap: wrap;
     gap: $spacing-lg;
-    margin: $spacing-lg;
-    
-    .footerSection {
-        flex: 1;
-        min-width: 250px;
-        
-        // 讓第一個區域更寬
-        &:first-child {
-            flex: 2; // 2倍寬度
-        }
+    max-width: $desktop;
+    margin: $spacing-lg auto;
+    padding: 0 $spacing-lg;
+
+    @include tablet {
+        padding: 0 $spacing-md;
     }
-    
+
     @include mobile {
         flex-direction: column;
-        
-        .footerSection:first-child {
-            flex: 1; // 手機版取消特殊寬度
-        }
+        gap: $spacing-md;
+        margin: $spacing-md auto;
+        padding: 0 $spacing-md;
     }
 }
 
 .footerSection {
+    flex: 1;
+    min-width: 200px;
+
+    // 第一個區域（品牌介紹）較寬
+    &:first-child {
+        flex: 2;
+
+        p {
+            line-height: 1.6;
+            color: $dark-text-secondary;
+        }
+    }
+
     h2, h4 {
-        color: #cbd5e1;
+        color: $dark-text-secondary;
         margin-bottom: $spacing-xs;
     }
-    h2{ 
+
+    h2 {
         font-size: $font-2xl;
+
+        @include mobile {
+            font-size: $font-xl;
+        }
     }
-    
+
     ul {
         list-style: none;
         padding: 0;
         margin: 0;
     }
-    
+
     a {
         color: var(--text-tertiary);
         text-decoration: none;
-        transition: color 0.3s ease;
-        
+        @include transition(color, 0.3s, ease);
+
         &:hover {
-            color: #60a5fa;
+            color: $link-color;
         }
     }
-    
-    &:first-child {
-        p {
-            line-height: 1.6;
-            color: #cbd5e1;
+
+    @include mobile {
+        min-width: unset;
+
+        &:first-child {
+            flex: 1;
         }
     }
 }
 
 .footerBottom {
     border-top: 1px solid var(--border);
-    margin-top: $spacing-lg;
-    padding-top: $spacing-sm;
+    max-width: $desktop;
+    margin: $spacing-lg auto 0;
+    padding: $spacing-sm $spacing-lg 0;
     text-align: center;
     color: var(--text-secondary);
-    grid-column: 1 / -1;
+
+    @include tablet {
+        padding: $spacing-sm $spacing-md 0;
+    }
+
+    @include mobile {
+        margin-top: $spacing-md;
+        padding: $spacing-sm $spacing-md 0;
+    }
 }

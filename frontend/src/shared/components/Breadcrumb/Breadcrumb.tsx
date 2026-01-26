@@ -1,14 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import type { BreadcrumbProps } from "@/types";
 import styles from "./Breadcrumb.module.scss";
-import { Icon } from '../Icon';
-import { BreadcrumbItem } from '../../../types';
+import Icon from "../Icon";
+import Button from "../Button";
 
-interface BreadcrumbProps {
-  items?: BreadcrumbItem[];
-  showBackButton?: boolean;
-}
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({
   items = [],
@@ -30,16 +27,15 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   return (
     <nav className={styles.breadcrumb} aria-label="breadcrumb">
       {showBackButton && (
-        <button
+        <Button
+          variant="ghost"
           className={styles.backButton}
           onClick={handleBackClick}
           aria-label={t("breadcrumb.backToDashboard")}
+          iconLeft={<Icon name="arrow-left" size="sm" />}
         >
-          <span className={styles.backIcon}>
-            <Icon name="arrow-left" size="sm" />
-          </span>
-          <span className={styles.backText}>{t('breadcrumb.dashboard')}</span>
-        </button>
+          {t("breadcrumb.dashboard")}
+        </Button>
       )}
 
       {items.length > 0 && (
