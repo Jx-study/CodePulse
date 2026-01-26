@@ -1,40 +1,50 @@
 // 由 main.scss 轉換為 CSS Variables
 
 // ========== 顔色變數 ==========
-$light-bg-primary: #ffffff; // 主背景
-$light-bg-secondary: #f1f5ff; // 區域背景
+$light-bg-primary: #fafafa; // 主背景
+$light-bg-secondary: #f5f3ff; // 區域背景
 $light-bg-tertiary: #ffffff; // 卡片背景
-$light-text-primary: #0f172a; // 主要文字
-$light-text-secondary: #475569; // 次要文字
-$light-text-tertiary: #64748b; // 輔助文字
-$light-border: #e1e7ef; // 邊框
-$light-card-bg: #ffffff; // 卡片背景
-$light-card-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08),
-  0 2px 4px -1px rgba(15, 23, 42, 0.04);
+$light-text-primary: #1e1b4b; // 主要文字
+$light-text-secondary: #4b5563; // 次要文字
+$light-text-tertiary: #6b7280; // 輔助文字
+$light-border: #e5e1f0; // 邊框
+$light-card-shadow:
+  0 4px 6px -1px rgba(30, 27, 75, 0.08),
+  0 2px 4px -1px rgba(30, 27, 75, 0.04);
 
-$dark-bg-primary: #0a0e1a; // 主背景
-$dark-bg-secondary: #1a1f2e; // Hero 區域背景
-$dark-bg-tertiary: #1f2937; // 卡片背景
-$dark-text-primary: #4c6c8b; // 主要文字
-$dark-text-secondary: #cbd5e1; // 次要文字
-$dark-text-tertiary: #94a3b8; // 輔助文字
-$dark-border: #374151; // 邊框
-$dark-card-bg: #1f2937; // 卡片背景
-$dark-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4),
+$dark-bg-primary: #0f0d1a; // 主背景
+$dark-bg-secondary: #1a1625; // Hero 區域背景
+$dark-bg-tertiary: #252231; // 卡片背景
+$dark-text-primary: #e2e8f0; // 主要文字
+$dark-text-secondary: #a5b4c4; // 次要文字
+$dark-text-tertiary: #6b7a8a; // 輔助文字
+$dark-border: #2d2a3d; // 邊框
+$dark-card-shadow:
+  0 4px 6px -1px rgba(0, 0, 0, 0.4),
   0 2px 4px -1px rgba(0, 0, 0, 0.25);
 
 // 漸變色定義
 $gradient-primary: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
-$gradient-secondary: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-$gradient-hero: linear-gradient(135deg, #635bff 0%, #7c3aed 100%);
+$gradient-completed: linear-gradient(#43e97b 0%, #38f9d7 100%);
+$gradient-in-progress: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+$gradient-unlocked: linear-gradient(#9EFBD3 0%, #57E9F2 48%, #45D4FB 100%);
+// 關卡節點顏色
+$level-undeveloped-bg: #424242;
+$level-in-progress-glow: rgba(245, 87, 108, 0.5);
+$level-in-progress-glow-strong: rgba(245, 87, 108, 0.8);
 
 // 狀態色彩
 $error-color: #ef4444;
+$success-color: #4caf50;
+$warning-color: #f59e0b;
+$info-color: #3b82f6;
 
-// 元件中仍使用的通用變數
+// 元件使用的通用變數
 $primary-color: #635bff;
-$execution-color: #28a745;
+$execution-color: #10b981;
 $accent-color: #ff6b35;
+$white-color: #ffffff;
+$black-color: #000000;
 
 // 骨架屏顏色
 $skeleton-bg: #e0e0e0;
@@ -45,10 +55,18 @@ $skeleton-shimmer-dark: rgba(255, 255, 255, 0.1);
 // ========== 互動狀態變數 ==========
 // 互動狀態
 $hover-transform: translateY(-2px);
-$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: all 0.3s $ease-smooth;
+
+// 焦點環顏色
+$focus-ring-color: rgba($primary-color, 0.4);
+
+// 統一禁用透明度
+$disabled-opacity: 0.5;
 
 // ========== 字體變數 ==========
 // 基礎字體大小
+$font-2xs: 0.625rem; // 10px
 $font-xs: 0.75rem; // 12px
 $font-sm: 0.875rem; // 14px
 $font-base: 1rem; // 16px
@@ -64,25 +82,61 @@ $hero-h2-size: 2.75rem; // 44px - 副標題
 $hero-h3-size: 2.5rem; // 40px - 副標題
 $section-title-size: 2rem; // 32px - 區塊標題
 
+// 響應式字體 - Hero Section
+$hero-h1-size-mobile: 2rem; // 32px
+$hero-h1-size-tablet: 2.75rem; // 44px
+$hero-h1-size-desktop: 3.5rem; // 56px
+
+$hero-h3-size-mobile: 1.5rem; // 24px
+$hero-h3-size-tablet: 2rem; // 32px
+$hero-h3-size-desktop: 2.5rem; // 40px
+
+// 響應式字體 - Section Title
+$section-title-mobile: 1.75rem; // 28px
+$section-title-tablet: 2rem; // 32px
+$section-title-desktop: 2.5rem; // 40px
+
 // 主要字體棧
-$font-family: "Inter", "Source Han Sans SC", "Noto Sans CJK SC",
-  "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont,
-  "Segoe UI", sans-serif;
+$font-family:
+  "Inter",
+  "Source Han Sans SC",
+  "Noto Sans CJK SC",
+  "Microsoft YaHei",
+  "PingFang SC",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  sans-serif;
 
 // 針對語言的專用字體
-$font-family-zh: "Inter", "Source Han Sans SC", "Source Han Sans TW",
-  "Source Han Sans CN", "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑",
-  "PingFang SC", sans-serif;
+$font-family-zh:
+  "Inter", "Source Han Sans SC", "Source Han Sans TW", "Source Han Sans CN",
+  "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑", "PingFang SC", sans-serif;
 
 // 程式碼專用字體
-$font-family-code: "SF Mono", "Monaco", "Consolas", "Liberation Mono",
-  "Courier New", monospace;
+$font-family-code:
+  "SF Mono", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
 
 // ========== 其他 ==========
+// 佈局尺寸
+$header-height: 64px;
+
 // 斷點
 $mobile: 768px;
+$mobile-max: 767px; // 手機端最大寬度
+$tablet-min: 768px; // 平板端最小寬度
 $tablet: 1024px;
+$tablet-max: 1023px; // 平板端最大寬度
 $desktop: 1200px;
+
+// 圓角系統
+$radius-xs: 2px;
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;
 
 // 陰影
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -90,7 +144,16 @@ $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
+// 覆蓋層/模態框陰影
+$overlay-color: rgba(0, 0, 0, 0.7);
+$shadow-dialog: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+// 連結顏色
+$link-color: #60a5fa;
+$link-hover-color: #93c5fd;
+
 // 邊距
+$spacing-2xs: 0.25rem;
 $spacing-xs: 0.5rem;
 $spacing-sm: 1rem;
 $spacing-md: 1.5rem;
@@ -108,3 +171,9 @@ $card-height-mobile: 17.5rem; // 280px
 $card-height-tablet: 18.75rem; // 300px
 $card-height-default: 20rem; // 320px
 $card-height-desktop: 21.25rem; // 340px
+
+// 關卡節點尺寸
+$level-node-size: 5rem; // 80px
+$level-node-size-mobile: 4rem; // 64px
+$level-node-radius: 2.5rem; // 40px (半徑)
+$level-node-radius-mobile: 2rem; // 32px (半徑)

@@ -1,36 +1,88 @@
 // main.scss == 全局入口：只做整合
 // 變數與工具
-@use './_variables' as *;
-@use './_mixins' as *;
+@use "./_variables" as *;
+@use "./_mixins" as *;
 
 // 全局共用樣式
-@use './_reset';
-@use './_common';
+@use "./_reset";
+@use "./_common";
 
 // 主題
 :root {
-    /* Light Mode */
-    --bg-primary: #{$light-bg-primary};
-    --bg-secondary: #{$light-bg-secondary};
-    --bg-tertiary: #{$light-bg-tertiary};
-    --text-primary: #{$light-text-primary};
-    --text-secondary: #{$light-text-secondary};
-    --text-tertiary: #{$light-text-tertiary};
-    --border: #{$light-border};
-    --card-bg: #{$light-card-bg};
-    --card-shadow: #{$light-card-shadow};
+  /* Light Mode */
+  --bg-primary: #{$light-bg-primary};
+  --bg-secondary: #{$light-bg-secondary};
+  --bg-tertiary: #{$light-bg-tertiary};
+  --text-primary: #{$light-text-primary};
+  --text-secondary: #{$light-text-secondary};
+  --text-tertiary: #{$light-text-tertiary};
+  --border: #{$light-border};
+  --card-bg: #{$light-bg-tertiary};
+  --card-shadow: #{$light-card-shadow};
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --bg-primary: #{$dark-bg-primary};
-        --bg-secondary: #{$dark-bg-secondary};
-        --bg-tertiary: #{$dark-bg-tertiary};
-        --text-primary: #{$dark-text-primary};
-        --text-secondary: #{$dark-text-secondary};
-        --text-tertiary: #{$dark-text-tertiary};
-        --border: #{$dark-border};
-        --card-bg: #{$dark-card-bg};
-        --card-shadow: #{$dark-card-shadow};
-    }
+  :root {
+    --bg-primary: #{$dark-bg-primary};
+    --bg-secondary: #{$dark-bg-secondary};
+    --bg-tertiary: #{$dark-bg-tertiary};
+    --text-primary: #{$dark-text-primary};
+    --text-secondary: #{$dark-text-secondary};
+    --text-tertiary: #{$dark-text-tertiary};
+    --border: #{$dark-border};
+    --card-bg: #{$dark-bg-tertiary};
+    --card-shadow: #{$dark-card-shadow};
+  }
+}
+
+// ==================== Monaco Editor 執行行高亮樣式 ====================
+
+// 執行行背景 - 青色主題 + 脈衝動畫 + 箭頭指示
+.monaco-editor .execution-line-background,
+.execution-line-background {
+  background: rgba(16, 185, 129, 0.25) !important;
+  background-color: rgba(16, 185, 129, 0.25) !important;
+  border-left: 4px solid #{$execution-color} !important; // 左側青色色條
+
+  position: relative !important;
+  animation: executionPulse 1s ease-in-out infinite !important; // 脈衝動畫
+  transition: $transition-base !important;
+  box-sizing: border-box !important;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(16, 185, 129, 0.35) !important;
+    background-color: rgba(16, 185, 129, 0.35) !important;
+  }
+}
+
+// 左側色條指示（Glyph Margin）
+.monaco-editor .execution-line-glyph,
+.execution-line-glyph {
+  margin-left: 2px !important;
+
+  // 箭頭指示器（左側，指向代碼）
+  &::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-top: 8px solid transparent !important;
+    border-bottom: 8px solid transparent !important;
+    border-left: 10px solid #{$execution-color} !important; // 箭頭指向右側
+    z-index: 10 !important;
+  }
+}
+
+// 執行行脈衝動畫
+@keyframes executionPulse {
+  0%,
+  100% {
+    background-color: rgba(16, 185, 129, 0.25) !important;
+  }
+  50% {
+    background-color: rgba(16, 185, 129, 0.4) !important;
+  }
 }

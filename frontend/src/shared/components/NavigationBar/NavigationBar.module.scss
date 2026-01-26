@@ -1,15 +1,18 @@
 .navigationBar {
   justify-self: center;
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 4px;
   backdrop-filter: blur(10px);
+
+  @include belowTablet {
+    padding: 0px;
+  }
 }
 
 .navMenu {
-  display: flex;
+  @include flex;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -90,12 +93,7 @@
     }
   }
 
-  @include mobile {
+  @include belowTablet {
     display: none;
-  }
-
-  @include tablet {
-    margin-left: 30px;
-    gap: 0;
   }
 }

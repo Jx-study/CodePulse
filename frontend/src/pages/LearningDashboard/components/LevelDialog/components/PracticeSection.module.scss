@@ -1,0 +1,68 @@
+.practiceSection {
+  padding: $spacing-lg  ;
+  overflow-y: auto;
+  @include flex($direction: column);
+  gap: $spacing-xs;
+
+  h3 {
+    color: $success-color;
+    font-size: $font-xl;
+    margin: 0;
+  }
+
+  h4 {
+    color: var(--text-primary);
+    font-size: $font-lg;
+    margin: 0 0 $spacing-sm 0;
+  }
+}
+
+.requirements {
+  ul {
+    margin: 0;
+    padding-left: $spacing-lg;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+}
+
+.stats {
+  @include flex($direction: row);
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: $radius-lg;
+
+  .label {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+  }
+
+  .value {
+    color: var(--text-primary);
+    font-size: $font-sm;
+    font-weight: 600;
+  }
+}
+
+.startPracticeButton {
+  width: 100%;
+  margin-top: auto;
+  background: $gradient-primary;
+
+  &:hover {
+    transform: $hover-transform;
+    box-shadow: 0 4px 12px rgba($success-color, 0.4);
+  }
+}
+
+.completedBadge {
+  // Badge now handled by Badge component
+}
+
+// 響應式設計
+@media (max-width: $mobile-max) {
+  .practiceSection {
+    padding: $spacing-lg;
+  }
+}

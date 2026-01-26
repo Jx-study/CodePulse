@@ -76,9 +76,29 @@
   },
 
   "algorithms": {
+    "linked_list": {
+      "name": "鏈結串列",
+      "description": "一種線性資料結構，元素儲存在節點中，每個節點指向序列中的下一個節點。"
+    },
+    "stack": {
+      "name": "堆疊",
+      "description": "一種後進先出 (LIFO) 的資料結構，支援在一端進行推入和彈出操作。"
+    },
+    "queue": {
+      "name": "佇列",
+      "description": "一種先進先出 (FIFO) 的資料結構，支援入列和出列操作。"
+    },
     "bubble_sort": {
       "name": "氣泡排序",
       "description": "一種簡單的比較排序演算法，重複地走訪過要排列的數列，一次比較兩個元素，如果它們的順序錯誤就把它們交換過來。"
+    },
+    "selection_sort": {
+      "name": "選擇排序",
+      "description": "一種排序演算法，重複地從未排序部分選擇最小元素並將其放在已排序部分的末尾。"
+    },
+    "insertion_sort": {
+      "name": "插入排序",
+      "description": "一種排序演算法，通過將元素逐一插入到正確位置來建立最終的排序陣列。"
     },
     "quick_sort": {
       "name": "快速排序",
@@ -109,8 +129,9 @@
       "description": "一種用於尋找圖中具有非負邊權重的節點之間最短路徑的演算法。"
     },
     "categories": {
+      "data-structures": "資料結構",
       "sorting": "排序",
-      "search": "搜尋",
+      "searching": "搜尋",
       "graph": "圖論"
     }
   },

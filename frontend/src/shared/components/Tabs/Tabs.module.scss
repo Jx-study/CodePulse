@@ -1,0 +1,218 @@
+.tabs {
+  display: flex;
+  gap: $spacing-lg;
+
+  &.horizontal {
+    flex-direction: column;
+  }
+
+  &.vertical {
+    flex-direction: row;
+  }
+}
+
+// ========== Tab List ==========
+.tabList {
+  display: flex;
+  gap: $spacing-sm;
+  border-bottom: 2px solid var(--border);
+
+  .vertical & {
+    flex-direction: column;
+    border-bottom: none;
+    border-right: 2px solid var(--border);
+    min-width: 200px;
+  }
+
+  &.fullWidth {
+    .tab {
+      flex: 1;
+    }
+  }
+}
+
+// ========== Tab Button ==========
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  background: none;
+  border: none;
+  padding: $spacing-sm $spacing-lg;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: $font-base;
+  font-weight: 500;
+  transition: $transition-base;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+
+  &:hover:not(.disabled) {
+    color: var(--text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+    border-radius: 4px;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========== Size Variants ==========
+.sm .tab {
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-sm;
+}
+
+.md .tab {
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-base;
+}
+
+.lg .tab {
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-lg;
+}
+
+// ========== Style Variants ==========
+// Default variant
+.default {
+  .tab.active {
+    color: $primary-color;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: $primary-color;
+    }
+  }
+
+  &.vertical .tab.active::after {
+    top: 0;
+    bottom: 0;
+    left: auto;
+    right: -2px;
+    width: 2px;
+    height: 100%;
+  }
+}
+
+// Pills variant
+.pills {
+  .tabList {
+    border-bottom: none;
+  }
+
+  &.vertical .tabList {
+    border-right: none;
+  }
+
+  .tab {
+    border-radius: 8px;
+
+    &.active {
+      background: $primary-color;
+      color: #ffffff;
+    }
+  }
+}
+
+// Underline variant
+.underline {
+  .tab.active {
+    color: $primary-color;
+    border-bottom: 2px solid $primary-color;
+    margin-bottom: -2px;
+  }
+
+  &.vertical .tab.active {
+    border-bottom: none;
+    border-right: 2px solid $primary-color;
+    margin-bottom: 0;
+    margin-right: -2px;
+  }
+}
+
+// ========== Tab Icon & Label ==========
+.tabIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+}
+
+.tabLabel {
+  line-height: 1;
+}
+
+// ========== Tab Content ==========
+.tabContent {
+  flex: 1;
+  padding: $spacing-lg 0;
+  animation: fadeIn 0.2s ease;
+
+  .vertical & {
+    padding: 0 $spacing-lg;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .tabs.vertical {
+    flex-direction: column;
+  }
+
+  .tabList {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .vertical & {
+      flex-direction: row;
+      border-right: none;
+      border-bottom: 2px solid var(--border);
+      min-width: auto;
+      width: 100%;
+    }
+  }
+
+  .tab {
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-sm;
+    flex-shrink: 0;
+  }
+
+  .tabContent {
+    padding: $spacing-md 0;
+
+    .vertical & {
+      padding: $spacing-md 0;
+    }
+  }
+}

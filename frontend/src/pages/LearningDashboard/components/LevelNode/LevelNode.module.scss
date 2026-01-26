@@ -1,0 +1,327 @@
+.levelNode {
+  position: absolute;
+  width: 5rem; // 80px
+  height: 5rem; // 80px
+  border-radius: $radius-full;
+  @include flex(center, center, column);
+  cursor: pointer;
+  transition: $transition-base;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 10;
+  border: 2px solid transparent;
+  overflow: visible; // 允許星星顯示在節點外部
+
+  &:hover:not(.undeveloped) {
+    transform: translateX(-50%) translateY(-50%) scale(1.15);
+    transition: all 0.3s $ease-smooth;
+
+    .levelTooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  // 未開發的功能（灰色）
+  &.undeveloped {
+    background: $level-undeveloped-bg;
+    border-color: rgba($black-color, 0.2);
+    cursor: not-allowed;
+    box-shadow: $shadow-sm;
+  }
+
+  // 鎖定狀態 - 灰色
+  &.locked {
+    background: $level-undeveloped-bg;
+    border-color: rgba($black-color, 0.2);
+    box-shadow: $shadow-md;
+  }
+
+  // 已解鎖 - 藍發光效果
+  &.unlocked {
+    background: $gradient-unlocked;
+    border-color: rgba($white-color, 0.8);
+    box-shadow:
+      0 0 0.9375rem rgba($primary-color, 0.5),
+      0 0.25rem 0.625rem rgba($primary-color, 0.3),
+      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(
+        180deg,
+        rgba($white-color, 0.3) 0%,
+        transparent 100%
+      );
+      border-radius: $radius-full $radius-full 0 0;
+      pointer-events: none;
+    }
+  }
+
+  // 進行中 - 粉紅脈動發光
+  &.in-progress {
+    background: $gradient-in-progress;
+    border-color: rgba($white-color, 0.8);
+    box-shadow:
+      0 0 1.25rem $level-in-progress-glow,
+      0 0.25rem 0.75rem rgba($accent-color, 0.4),
+      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
+    animation: gemPulse 2s ease-in-out infinite;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(
+        180deg,
+        rgba($white-color, 0.4) 0%,
+        transparent 100%
+      );
+      border-radius: $radius-full $radius-full 0 0;
+      pointer-events: none;
+    }
+  }
+
+  // 已完成 - 綠光
+  &.completed {
+    background: $gradient-completed;
+    border-color: rgba($white-color, 0.5);
+    box-shadow:
+      0 0 1.25rem rgba($execution-color, 0.6),
+      0 0.25rem 0.75rem rgba($execution-color, 0.4),
+      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(
+        180deg,
+        rgba($white-color, 0.3) 0%,
+        transparent 100%
+      );
+      border-radius: $radius-full $radius-full 0 0;
+      pointer-events: none;
+    }
+  }
+
+  // Boss Level
+  &.boss {
+    width: 6rem; // 96px
+    height: 6rem; // 96px
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ffd93d 100%);
+    border-color: rgba($white-color, 0.9);
+    box-shadow:
+      0 0 1.875rem rgba(255, 107, 107, 0.6),
+      0 0 3.125rem rgba(255, 140, 66, 0.4),
+      0 0.5rem 1.25rem rgba(255, 107, 107, 0.3),
+      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+    animation: bossPulse 2.5s ease-in-out infinite;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(
+        180deg,
+        rgba($white-color, 0.5) 0%,
+        transparent 100%
+      );
+      border-radius: $radius-full $radius-full 0 0;
+      pointer-events: none;
+    }
+
+    &:hover:not(.undeveloped) {
+      transform: translateX(-50%) translateY(-50%) scale(1.1);
+      box-shadow:
+        0 0 2.5rem rgba(255, 107, 107, 0.8),
+        0 0 4rem rgba(255, 140, 66, 0.6),
+        0 0.75rem 1.5rem rgba(255, 107, 107, 0.5),
+        inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+    }
+
+    .nodeContent {
+      .bossIcon {
+        font-size: $font-3xl;
+      }
+    }
+
+    .starsContainer {
+      top: -26px;
+      width: 80px;
+      height: 26px;
+    }
+
+    .star {
+      font-size: $font-lg;
+    }
+  }
+}
+
+@keyframes gemPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 1.25rem $level-in-progress-glow,
+      0 0.25rem 0.75rem rgba($accent-color, 0.4),
+      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 2.5rem $level-in-progress-glow-strong,
+      0 0.25rem 0.75rem rgba($accent-color, 0.6),
+      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
+  }
+}
+
+// Boss Level 脈衝動畫
+@keyframes bossPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 1.875rem rgba(255, 107, 107, 0.6),
+      0 0 3.125rem rgba(255, 140, 66, 0.4),
+      0 0.5rem 1.25rem rgba(255, 107, 107, 0.3),
+      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 2.5rem rgba(255, 107, 107, 0.8),
+      0 0 4rem rgba(255, 140, 66, 0.6),
+      0 0.75rem 1.5rem rgba(255, 107, 107, 0.5),
+      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
+  }
+}
+
+.nodeContent {
+  @include flex-center;
+  color: $white-color;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+
+  .icon {
+    font-size: $font-3xl; // 32px
+    filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+  }
+
+  .bossIcon {
+    font-size: $font-4xl; // 36px
+    filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+  }
+}
+
+// 星星容器 - 顯示在節點外部上方
+.starsContainer {
+  position: absolute;
+  top: -24px; // 在節點上方
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 24px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  font-size: $font-lg;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+  display: inline-block;
+
+  &.filled {
+    color: #ffd93d; // 黃色星星
+    filter: drop-shadow(0 0 8px rgba(255, 217, 61, 0.8))
+      drop-shadow(0 2px 4px rgba($black-color, 0.6));
+  }
+
+  &.empty {
+    color: rgba($white-color, 0.6); // 灰色輪廓
+    filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+  }
+}
+
+.levelTooltip {
+  position: absolute;
+  top: calc(100% + $spacing-xs);
+  left: 50%;
+  transform: translate(-50%, 0);
+  background: rgba($dark-bg-tertiary, 0.6);
+  color: $dark-text-primary;
+  padding: $spacing-2xs $spacing-md;
+  border-radius: $radius-sm;
+  border: 1px solid rgba($dark-text-primary, 0.1);
+  white-space: nowrap;
+  font-size: $font-2xs;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  opacity: 1;
+  transition: $transition-base;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  box-shadow: $shadow-lg;
+}
+
+// 響應式設計
+@media (max-width: $mobile-max) {
+  .levelNode {
+    width: 4rem; // 64px
+    height: 4rem; // 64px
+
+    .nodeContent {
+      .icon {
+        font-size: $font-2xl; // 24px
+      }
+    }
+
+    .starsContainer {
+      top: -20px;
+      width: 64px;
+      height: 20px;
+    }
+
+    .star {
+      font-size: $font-sm;
+    }
+
+    // Mobile Boss Level
+    &.boss {
+      width: 5rem; // 80px
+      height: 5rem; // 80px
+
+      .nodeContent {
+        .bossIcon {
+          font-size: $font-2xl; // 24px - Mobile Boss 皇冠
+        }
+      }
+
+      .starsContainer {
+        top: -20px;
+        width: 64px;
+        height: 20px;
+      }
+
+      .star {
+        font-size: $font-sm;
+      }
+    }
+  }
+}

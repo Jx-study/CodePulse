@@ -1,0 +1,119 @@
+.progressWrapper {
+  width: 100%;
+}
+
+// ========== Container ==========
+.progressBarContainer {
+  position: relative;
+  width: 100%;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// ========== Size Variants ==========
+.sm {
+  height: 6px;
+  border-radius: 4px;
+}
+
+.md {
+  height: 10px;
+  border-radius: 6px;
+}
+
+.lg {
+  height: 16px;
+  border-radius: 8px;
+}
+
+// ========== Progress Bar ==========
+.progressBar {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: inherit;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.animated {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.striped {
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.15) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.15) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+  }
+}
+
+@keyframes progress-bar-stripes {
+  0% {
+    background-position: 1rem 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+// ========== Color Variants ==========
+.primary {
+  background: linear-gradient(90deg, $primary-color, #3b82f6);
+}
+
+.success {
+  background: linear-gradient(90deg, $success-color, #34d399);
+}
+
+.warning {
+  background: linear-gradient(90deg, $accent-color, #fbbf24);
+}
+
+.danger {
+  background: linear-gradient(90deg, $error-color, #f87171);
+}
+
+.info {
+  background: linear-gradient(90deg, $execution-color, #34d399);
+}
+
+// ========== Labels ==========
+.label {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.labelTop {
+  margin-bottom: $spacing-xs;
+}
+
+.labelBottom {
+  margin-top: $spacing-xs;
+}
+
+.labelInside {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .label {
+    font-size: $font-xs;
+  }
+}

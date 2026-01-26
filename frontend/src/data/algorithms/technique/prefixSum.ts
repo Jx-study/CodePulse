@@ -1,6 +1,6 @@
-import { AnimationStep, AlgorithmConfig } from "../../../types/algorithm";
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
+import { AnimationStep, AlgorithmConfig } from "@/types";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 // 輔助函式：同時產生「原始陣列」與「前綴和陣列」的畫面

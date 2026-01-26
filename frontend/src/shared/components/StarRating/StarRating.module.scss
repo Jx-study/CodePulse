@@ -1,0 +1,147 @@
+.starRating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  &.interactive {
+    cursor: pointer;
+  }
+}
+
+// ========== Size Variants ==========
+.xs {
+  font-size: 12px;
+
+  &.emoji {
+    font-size: 16px;
+  }
+}
+
+.sm {
+  font-size: 16px;
+
+  &.emoji {
+    font-size: 20px;
+  }
+}
+
+.md {
+  font-size: 20px;
+
+  &.emoji {
+    font-size: $font-2xl;
+  }
+}
+
+.lg {
+  font-size: $font-2xl;
+
+  &.emoji {
+    font-size: $font-3xl;
+  }
+}
+
+.xl {
+  font-size: $font-3xl;
+
+  &.emoji {
+    font-size: $font-4xl;
+  }
+}
+
+// ========== Star Styles ==========
+.star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition-base;
+  user-select: none;
+
+  &.filled {
+    // Filled state - use color variants
+  }
+
+  &.empty {
+    filter: grayscale(100%);
+    opacity: 0.3;
+  }
+
+  &.half {
+    // Half-star styling (for future interactive use)
+    position: relative;
+
+    &::after {
+      content: "★";
+      position: absolute;
+      left: 0;
+      width: 50%;
+      overflow: hidden;
+    }
+  }
+
+  // Interactive states
+  &.interactive {
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.15);
+    }
+  }
+}
+
+// ========== Icon Type ==========
+.symbol .star {
+  &.filled {
+    color: #fbbf24;
+    text-shadow: 0 0 4px rgba(251, 191, 36, 0.3);
+  }
+
+  &.empty {
+    color: #e5e7eb;
+  }
+}
+
+.emoji .star {
+  &.filled {
+    filter: none;
+  }
+
+  &.empty {
+    filter: grayscale(100%);
+    opacity: 0.3;
+  }
+}
+
+// ========== Color Variants ==========
+.colorDefault .filled {
+  color: #fbbf24;
+  text-shadow: 0 0 4px rgba(251, 191, 36, 0.3);
+}
+
+.colorPrimary .filled {
+  color: $primary-color;
+  text-shadow: 0 0 4px rgba(99, 91, 255, 0.3);
+}
+
+.colorSuccess .filled {
+  color: $success-color;
+  text-shadow: 0 0 4px rgba(76, 175, 80, 0.3);
+}
+
+.colorWarning .filled {
+  color: $accent-color;
+  text-shadow: 0 0 4px rgba(255, 107, 53, 0.3);
+}
+
+// ========== Value Display ==========
+.valueDisplay {
+  margin-left: $spacing-sm;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  font-weight: 600;
+}
+
+// ========== Emoji Gap ==========
+.emoji {
+  gap: $spacing-xs;
+}

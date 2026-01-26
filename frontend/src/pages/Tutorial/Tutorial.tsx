@@ -1,17 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Breadcrumb } from "../../shared/components";
-import CodeEditor from "../../modules/core/components/CodeEditor/CodeEditor";
-import { D3Canvas } from "../../modules/core/Render/D3Canvas";
-import ControlBar from "../../modules/core/components/ControlBar/ControlBar";
-import { BreadcrumbItem } from "../../types";
-import { getAlgorithmConfig } from "../../data/algorithms";
-import { getDataStructureConfig } from "../../data/DataStructure";
+import Breadcrumb from "@/shared/components/Breadcrumb";
+import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
+import type { BreadcrumbItem } from "@/types";
+import { getLevelImplementation } from "@/data/levels/levelAdapter";
 import styles from "./Tutorial.module.scss";
-import { Link } from "../../modules/core/Render/D3Renderer";
-import { Node as DataNode } from "../../modules/core/DataLogic/Node";
-import { DataActionBar } from "../../modules/core/components/DataActionBar/DataActionBar";
+import { Link } from "@/modules/core/Render/D3Renderer";
+import { Node as DataNode } from "@/modules/core/DataLogic/Node";
+import { DataActionBar } from "@/modules/core/components/DataActionBar/DataActionBar";
 import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar/AlgorithmActionBar";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
@@ -19,21 +18,19 @@ import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 
 function Tutorial() {
   const { t } = useTranslation();
-  const { category, subcategory, topicType } = useParams<{
+  const { category, levelId } = useParams<{
     category: string;
-    subcategory?: string;
-    topicType: string;
+    levelId: string;
   }>();
 
   // 1. 根據路由參數載入配置
   const topicTypeConfig = useMemo(() => {
-    if (category === "datastructure" && subcategory && topicType) {
-      return getDataStructureConfig(subcategory, topicType);
-    } else if (category && topicType) {
-      return getAlgorithmConfig(category, topicType);
-    }
-    return null;
-  }, [category, subcategory, topicType]);
+    if (!levelId) return null;
+
+    // 透過 levelId 取得實作配置
+    const implementation = getLevelImplementation(levelId);
+    return implementation;
+  }, [levelId]);
 
   const isAlgorithm = category !== "datastructure";
 
@@ -208,6 +205,9 @@ function Tutorial() {
     setCurrentStep(0);
     setIsPlaying(false);
   };
+  const handleSpeedChange = (speed: number) => {
+    setPlaybackSpeed(speed);
+  };
 
   if (!topicTypeConfig) {
     return null;
@@ -257,6 +257,21 @@ function Tutorial() {
     },
     { label: topicTypeConfig.name, path: null },
   ];
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Tutorial Debug:', {
+      currentStep,
+      totalSteps: activeSteps.length,
+      isPlaying,
+      playbackSpeed,
+      currentStepData: {
+        stepNumber: currentStepData?.stepNumber,
+        description: currentStepData?.description,
+        elementsCount: currentStepData?.elements?.length,
+      },
+    });
+  }, [currentStep, currentStepData, isPlaying, playbackSpeed, activeSteps.length]);
 
   return (
     <div className={styles.tutorialPage}>
@@ -329,34 +344,20 @@ function Tutorial() {
             <h4>複雜度分析</h4>
             <div className={styles.complexityTable}>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最佳）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeBest}
-                </span>
+                <span className={styles.complexityLabel}>時間複雜度（最佳）：</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeBest}</span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（平均）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeAverage}
-                </span>
+                <span className={styles.complexityLabel}>時間複雜度（平均）：</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeAverage}</span>
               </div>
               <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最差）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeWorst}
-                </span>
+                <span className={styles.complexityLabel}>時間複雜度（最差）：</span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.timeWorst}</span>
               </div>
               <div className={styles.complexityRow}>
                 <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.space}
-                </span>
+                <span className={styles.complexityValue}>{topicTypeConfig.complexity.space}</span>
               </div>
             </div>
           </div>

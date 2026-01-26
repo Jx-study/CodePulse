@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Header.module.scss';
 import logo from '/images/codePulse_logo.png';

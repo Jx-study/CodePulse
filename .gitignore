@@ -4,6 +4,9 @@ node_modules/
 *.md
 !README.md
 
+*.md
+!README.md
+
 # Frontend
 build/
 frontend/dist/

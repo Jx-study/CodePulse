@@ -1,5 +1,3 @@
-@use '../../shared/styles/variables' as *;
-
 .explorer {
   min-height: 100vh;
   background: var(--bg-primary);
@@ -9,7 +7,7 @@
 // ==================== 主要內容區域 ====================
 
 .mainContent {
-  display: flex;
+  @include flex;
   gap: $spacing-lg;
   margin-top: $spacing-lg;
   height: calc(100vh - 200px); // 扣除 header 和標題的高度
@@ -21,7 +19,7 @@
   }
 
   // 手機/平板端：上下堆疊
-  @media (max-width: $tablet - 1px) {
+  @media (max-width: $tablet-max) {
     flex-direction: column;
     height: auto;
   }
@@ -31,15 +29,14 @@
 
 .editorPanel {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background: var(--card-bg);
   border-radius: 12px;
   padding: $spacing-md;
   box-shadow: var(--card-shadow);
   overflow: hidden;
 
-  @media (max-width: $tablet - 1px) {
+  @media (max-width: $tablet-max) {
     min-height: 500px;
   }
 }
@@ -48,15 +45,14 @@
 
 .canvasPanel {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background: var(--card-bg);
   border-radius: 12px;
   padding: $spacing-md;
   box-shadow: var(--card-shadow);
   overflow: hidden;
 
-  @media (max-width: $tablet - 1px) {
+  @media (max-width: $tablet-max) {
     min-height: 500px;
   }
 }
@@ -96,9 +92,7 @@
 
 .canvasContainer {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   background: var(--bg-secondary);
   border-radius: 8px;
   overflow: hidden;
@@ -114,7 +108,7 @@
 // ==================== 響應式調整 ====================
 
 // 手機端（<768px）
-@media (max-width: $mobile - 1px) {
+@media (max-width: $mobile-max) {
   .mainContent {
     gap: $spacing-md;
     margin-top: $spacing-md;
