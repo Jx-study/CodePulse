@@ -85,6 +85,15 @@ function LearningDashboard() {
               <p>索引資料結構</p>
               <span className={styles.difficulty}>⭐</span>
             </Link>
+
+            <Link
+              to="/tutorial/datastructure/nonlinear/binarytree"
+              className="common-card"
+            >
+              <h3>二元樹 (Binary Tree)</h3>
+              <p>非線性資料結構</p>
+              <span className={styles.difficulty}>⭐⭐⭐</span>
+            </Link>
           </div>
         </div>
       </div>

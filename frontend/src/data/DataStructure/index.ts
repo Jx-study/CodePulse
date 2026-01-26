@@ -3,6 +3,7 @@ import { linkedListConfig } from "./linear/LinkedList";
 import { StackConfig } from "./linear/Stack";
 import { QueueConfig } from "./linear/Queue";
 import { ArrayConfig } from "./linear/Array";
+import { BinaryTreeConfig } from "./nonlinear/BinaryTree";
 
 /**
  * 所有資料結構配置的集合
@@ -13,6 +14,7 @@ export const dataStructuresMap: Record<string, DataStructureConfig> = {
   "linear/stack": StackConfig,
   "linear/queue": QueueConfig,
   "linear/array": ArrayConfig,
+  "nonlinear/binarytree": BinaryTreeConfig,
 };
 
 /**

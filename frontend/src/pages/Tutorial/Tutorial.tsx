@@ -228,7 +228,9 @@ function Tutorial() {
       );
     } else {
       if (
-        ["linkedlist", "stack", "queue", "array"].includes(topicTypeConfig.id)
+        ["linkedlist", "stack", "queue", "array", "binarytree"].includes(
+          topicTypeConfig.id
+        )
       ) {
         return (
           <DataActionBar

@@ -52,5 +52,5 @@ export type DataStructureId =
   | "array"
   | "stack"
   | "queue"
-  | "tree"
+  | "binarytree"
   | "graph";
