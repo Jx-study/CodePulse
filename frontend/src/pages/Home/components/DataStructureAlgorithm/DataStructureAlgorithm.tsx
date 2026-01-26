@@ -116,6 +116,7 @@ function DataStructureAlgorithm() {
                     variant="primaryOutline"
                     size="sm"
                     onClick={() => handleLearnMore(algorithm.levelId)}
+                    className={styles.learnMoreButton}
                   >
                     {t("algorithms_section.learn_more")}
                   </Button>

@@ -209,7 +209,19 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  gap: $spacing-sm;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+
+  > :first-child {
+    flex-shrink: 1;
+    min-width: 0; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  > :last-child {
+    flex-shrink: 0; 
+  }
 
   @include mobile {
     flex-direction: column;

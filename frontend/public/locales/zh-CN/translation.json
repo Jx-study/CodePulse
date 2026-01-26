@@ -67,6 +67,79 @@
     "cta": "开始使用 CodePulse"
   },
 
+  "algorithms_section": {
+    "title": "数据结构与算法",
+    "learn_more": "了解更多",
+    "difficulty_levels": {
+      "1": "初学者",
+      "2": "简单",
+      "3": "中等",
+      "4": "进阶",
+      "5": "专家"
+    }
+  },
+
+  "algorithms": {
+    "linked_list": {
+      "name": "链表",
+      "description": "一种线性数据结构，元素存储在节点中，每个节点指向序列中的下一个节点。"
+    },
+    "stack": {
+      "name": "栈",
+      "description": "一种后进先出 (LIFO) 的数据结构，支持在一端进行推入和弹出操作。"
+    },
+    "queue": {
+      "name": "队列",
+      "description": "一种先进先出 (FIFO) 的数据结构，支持入队和出队操作。"
+    },
+    "bubble_sort": {
+      "name": "冒泡排序",
+      "description": "一种简单的比较排序算法，重复地遍历要排列的数列，一次比较两个元素，如果它们的顺序错误就把它们交换过来。"
+    },
+    "selection_sort": {
+      "name": "选择排序",
+      "description": "一种排序算法，重复地从未排序部分选择最小元素并将其放在已排序部分的末尾。"
+    },
+    "insertion_sort": {
+      "name": "插入排序",
+      "description": "一种排序算法，通过将元素逐一插入到正确位置来建立最终的排序数组。"
+    },
+    "quick_sort": {
+      "name": "快速排序",
+      "description": "一种高效的分治排序算法，通过选择一个基准元素并将数组分割成两部分来进行排序。"
+    },
+    "merge_sort": {
+      "name": "归并排序",
+      "description": "一种稳定的分治排序算法，将数组分成两半分别排序，然后将已排序的部分合并起来。"
+    },
+    "binary_search": {
+      "name": "二分查找",
+      "description": "一种在已排序数组中查找特定元素的高效查找算法，通过重复将搜索区间对半分割来缩小搜索范围。"
+    },
+    "linear_search": {
+      "name": "线性查找",
+      "description": "一种简单的查找算法，按顺序检查列表中的每个元素，直到找到目标元素。"
+    },
+    "dfs": {
+      "name": "深度优先搜索",
+      "description": "一种图形遍历算法，在回溯之前会尽可能深入地沿着每个分支进行探索。"
+    },
+    "bfs": {
+      "name": "广度优先搜索",
+      "description": "一种图形遍历算法，在移动到下一层深度的顶点之前，会先探索当前深度的所有顶点。"
+    },
+    "dijkstra": {
+      "name": "迪杰斯特拉算法",
+      "description": "一种用于寻找图中具有非负边权重的节点之间最短路径的算法。"
+    },
+    "categories": {
+      "data-structures": "数据结构",
+      "sorting": "排序",
+      "searching": "查找",
+      "graph": "图论"
+    }
+  },
+
   "footer": {
     "tagline": "将抽象演算法化为视觉故事，让程式设计与除错成为直观且引人入胜的学习旅程。",
     "resources": {

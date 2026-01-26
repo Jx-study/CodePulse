@@ -42,9 +42,12 @@
 }
 
 .sm {
-  padding: 4px 10px;
-  font-size: $font-xs;
+  padding: 4px 8px;
+  font-size: $font-2xs; // 10px - smaller to fit better
   border-radius: $radius-md;
+  max-width: 100%; // Prevent overflow
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &.pill {
     border-radius: $radius-xl;

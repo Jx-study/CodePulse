@@ -15,8 +15,10 @@
   .algorithmGrid {
     transition: transform 0.5s ease-in-out;
   }
-
-  // Card-specific styles now handled by Card component
+  
+  .learnMoreButton {
+    align-self: center !important;
+  }
 
   .dotsContainer {
     display: flex;
