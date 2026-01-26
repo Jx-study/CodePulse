@@ -12,6 +12,8 @@ export interface ButtonProps {
   fullWidth?: boolean;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
+  icon?: string;
+  iconOnly?: boolean;
   type?: 'button' | 'submit' | 'reset';
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
