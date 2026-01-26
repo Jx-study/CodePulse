@@ -33,7 +33,6 @@ function Tutorial() {
   }, [levelId]);
 
   const isAlgorithm = category !== "data-structures";
-  console.log(category);
 
   // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
   const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
@@ -136,9 +135,9 @@ function Tutorial() {
     }
   };
 
-  const handleSearchNode = (value: number) => {
+  const handleSearchNode = (value: number, mode?: string) => {
     if (isAlgorithm) return;
-    const steps = executeAction("search", { value, hasTailMode });
+    const steps = executeAction("search", { value, mode, hasTailMode });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
