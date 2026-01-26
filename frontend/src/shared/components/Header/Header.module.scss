@@ -19,7 +19,13 @@
 
     @include tablet {
         padding: 0 $spacing-md;
-        gap: $spacing-md;
+        gap: $spacing-sm;
+        grid-template-columns: auto auto;
+
+        // Hide navigation bar on tablet to prevent overflow
+        > nav {
+            display: none;
+        }
     }
 
     @include mobile {
@@ -39,7 +45,7 @@
 .hamburgerButton {
     display: none !important;
 
-    @include mobile {
+    @include belowTablet {
         display: flex !important;
     }
 }

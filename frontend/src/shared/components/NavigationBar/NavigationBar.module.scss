@@ -93,12 +93,7 @@
     }
   }
 
-  @include mobile {
+  @include belowTablet {
     display: none;
-  }
-
-  @include tablet {
-    margin-left: 30px;
-    gap: 0;
   }
 }
