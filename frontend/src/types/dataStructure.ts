@@ -9,8 +9,7 @@ export interface DataStructureConfig {
   category: string;
   categoryName: string;
   description: string;
-  pseudoCode: string; // 保持相容性，舊的純文字
-  codeConfig?: CodeConfig; // 新增：結構化代碼配置
+  codeConfig: CodeConfig; // 結構化代碼配置（必填）
   complexity: ComplexityInfo;
   introduction: string;
   defaultData: any;

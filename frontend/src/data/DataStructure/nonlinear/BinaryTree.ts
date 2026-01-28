@@ -1,5 +1,5 @@
 import { DataStructureConfig } from "@/types/dataStructure";
-import { AnimationStep } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types/animation";
 import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
@@ -378,19 +378,36 @@ export function createBinaryTreeAnimationSteps(
   return steps;
 }
 
-export const BinaryTreeConfig: DataStructureConfig = {
-  id: "binarytree",
-  name: "二元樹 (Binary Tree)",
-  category: "nonlinear",
-  categoryName: "非線性表",
-  description: "每個節點最多有兩個子節點的樹狀結構",
-  pseudoCode: `
+const binaryTreeCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `
 function preorder(node):
     if node is null: return
     visit(node)      // 1. 根
     preorder(node.left)  // 2. 左
     preorder(node.right) // 3. 右
   `,
+    mappings: {},
+  },
+  python: {
+    content: `
+def preorder(node):
+    if node is None: return
+    visit(node)      # 1. 根
+    preorder(node.left)  # 2. 左
+    preorder(node.right) # 3. 右
+  `,
+    mappings: {},
+  },
+};
+
+export const BinaryTreeConfig: DataStructureConfig = {
+  id: "binarytree",
+  name: "二元樹 (Binary Tree)",
+  category: "nonlinear",
+  categoryName: "非線性表",
+  description: "每個節點最多有兩個子節點的樹狀結構",
+  codeConfig: binaryTreeCodeConfig,
   complexity: {
     timeBest: "O(n)",
     timeAverage: "O(n)",

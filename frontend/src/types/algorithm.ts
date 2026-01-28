@@ -1,4 +1,4 @@
-import type { AnimationStep, ComplexityInfo } from '@/types';
+import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
 
 /**
  * 演算法完整配置
@@ -9,7 +9,7 @@ export interface AlgorithmConfig {
   category: string;
   categoryName: string;
   description: string;
-  pseudoCode: string;
+  codeConfig: CodeConfig; // 結構化代碼配置（必填）
   complexity: ComplexityInfo;
   introduction: string;
   defaultData: any;

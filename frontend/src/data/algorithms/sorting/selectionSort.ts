@@ -1,4 +1,4 @@
-import { AnimationStep, AlgorithmConfig } from "@/types";
+import { AnimationStep, AlgorithmConfig, CodeConfig } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -54,9 +54,8 @@ export function createSelectionSortAnimationSteps(
     // 標記 minIdx 為 target (橘色)
     steps.push({
       stepNumber: steps.length + 1,
-      description: `第 ${i + 1} 輪：暫定 Index ${i} (${
-        arr[i].value
-      }) 為最小值，並標記為交換最小值的位置`,
+      description: `第 ${i + 1} 輪：暫定 Index ${i} (${arr[i].value
+        }) 為最小值，並標記為交換最小值的位置`,
       elements: generateFrame(arr, { [minIdx]: "target" }, sortedIndices),
     });
 
@@ -136,18 +135,37 @@ export function createSelectionSortAnimationSteps(
   return steps;
 }
 
+
+const selectionSortCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `
+for i from 0 to n-1:
+  minIdx = i
+  for j from i+1 to n:
+    if arr[j] < arr[minIdx]:
+      minIdx = j
+  swap(arr[i], arr[minIdx])`,
+    mappings: {},
+  },
+  python: {
+    content: `
+for i in range(n):
+  minIdx = i
+  for j in range(i+1, n):
+    if arr[j] < arr[minIdx]:
+      minIdx = j
+  arr[i], arr[minIdx] = arr[minIdx], arr[i]`,
+    mappings: {},
+  },
+};
+
 export const selectionSortConfig: AlgorithmConfig = {
   id: "selectionsort",
   name: "選擇排序 (Selection Sort)",
   category: "sorting",
   categoryName: "排序演算法",
   description: "每次從未排序區間中選出最小值，放到已排序區間的末尾。",
-  pseudoCode: `for i from 0 to n-1:
-  minIdx = i
-  for j from i+1 to n:
-    if arr[j] < arr[minIdx]:
-      minIdx = j
-  swap(arr[i], arr[minIdx])`,
+  codeConfig: selectionSortCodeConfig,
   complexity: {
     timeBest: "O(n²)",
     timeAverage: "O(n²)",

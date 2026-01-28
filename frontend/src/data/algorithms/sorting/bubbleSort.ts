@@ -1,4 +1,4 @@
-import { AnimationStep, AlgorithmConfig } from "@/types";
+import { AnimationStep, AlgorithmConfig, CodeConfig } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -119,18 +119,34 @@ export function createBubbleSortAnimationSteps(
   return steps;
 }
 
+const bubbleSortCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `
+for i from 0 to n-1:
+  for j from 0 to n-i-1:
+    if arr[j] > arr[j+1]:
+      swap(arr[j], arr[j+1])
+  `,
+    mappings: {},
+  },
+  python: {
+    content: `
+for i in range(n):
+  for j in range(n-i-1):
+    if arr[j] > arr[j+1]:
+      arr[j], arr[j+1] = arr[j+1], arr[j]
+  `,
+    mappings: {},
+  },
+};
+
 export const bubbleSortConfig: AlgorithmConfig = {
   id: "bubblesort",
   name: "泡沫排序 (Bubble Sort)",
   category: "sorting",
   categoryName: "排序演算法",
   description: "透過重複交換相鄰的逆序元素，將最大值浮動到陣列頂端。",
-  pseudoCode: `
-for i from 0 to n-1:
-  for j from 0 to n-i-1:
-    if arr[j] > arr[j+1]:
-      swap(arr[j], arr[j+1])
-  `,
+  codeConfig: bubbleSortCodeConfig,
   complexity: {
     timeBest: "O(n)",
     timeAverage: "O(n²)",

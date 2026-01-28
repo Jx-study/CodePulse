@@ -1,5 +1,5 @@
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types";
 import { DataStructureConfig } from "@/types/dataStructure";
 import {
   LinearData as BoxData,
@@ -269,13 +269,24 @@ export function createArrayAnimationSteps(
   return steps;
 }
 
+const arrayCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `arr[i] = value  // O(1)\narr.insert(i, val) // O(n)\narr.remove(i) // O(n)`,
+    mappings: {},
+  },
+  python: {
+    content: `arr[i] = value  // O(1)\narr.insert(i, val) // O(n)\narr.remove(i) // O(n)`,
+    mappings: {},
+  },
+};
+
 export const ArrayConfig: DataStructureConfig = {
   id: "array",
   name: "陣列 (Array)",
   category: "linear",
   categoryName: "線性表",
   description: "連續記憶體空間",
-  pseudoCode: `arr[i] = value  // O(1)\narr.insert(i, val) // O(n)\narr.remove(i) // O(n)`,
+  codeConfig: arrayCodeConfig,
   complexity: {
     timeBest: "O(1)", // Access
     timeAverage: "O(n)", // Insert/Delete/Search

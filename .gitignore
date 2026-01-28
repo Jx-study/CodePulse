@@ -1,4 +1,5 @@
 node_modules/
+.claudignore
 .idea/
 *.iml
 *.md

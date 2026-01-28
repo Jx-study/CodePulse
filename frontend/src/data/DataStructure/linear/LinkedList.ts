@@ -1,6 +1,6 @@
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep, DataStructureConfig } from "@/types";
+import { AnimationStep, DataStructureConfig, CodeConfig } from "@/types";
 import {
   LinearData as ListNodeData,
   LinearAction as ActionType,
@@ -1218,6 +1218,217 @@ export function createLinkedListAnimationSteps(
   return steps;
 }
 
+// TODO: 完成 LinkedList 的 actionTag mappings 對應
+// 定義 LinkedList 的結構化代碼配置
+const linkedListCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Class Node:
+  Data:
+    value ← null
+    next ← null
+
+Class LinkedList:
+  Data:
+    head ← null
+
+  Procedure insertAtHead(value):
+    newNode ← new Node(value)
+    newNode.next ← head
+    head ← newNode
+  End Procedure
+
+  Procedure insertAtTail(value):
+    newNode ← new Node(value)
+    If head = null Then
+      head ← newNode
+    Else
+      current ← head
+      While current.next ≠ null Do
+        current ← current.next
+      End While
+      current.next ← newNode
+    End If
+  End Procedure
+
+  Procedure insertAtIndex(index, value):
+    If index = 0 Then
+      insertAtHead(value)
+      Return
+    End If
+    newNode ← new Node(value)
+    current ← head
+    For i ← 0 To index - 1 Do
+      current ← current.next
+    End For
+    newNode.next ← current.next
+    current.next ← newNode
+  End Procedure
+
+  Procedure deleteAtHead():
+    If head = null Then
+      Return Error
+    End If
+    head ← head.next
+  End Procedure
+
+  Procedure deleteAtTail():
+    If head = null Then
+      Return Error
+    End If
+    If head.next = null Then
+      head ← null
+      Return
+    End If
+    current ← head
+    While current.next.next ≠ null Do
+      current ← current.next
+    End While
+    current.next ← null
+  End Procedure
+
+  Procedure deleteAtIndex(index):
+    If index = 0 Then
+      deleteAtHead()
+      Return
+    End If
+    current ← head
+    For i ← 0 To index - 1 Do
+      current ← current.next
+    End For
+    current.next ← current.next.next
+  End Procedure
+
+  Procedure search(value):
+    current ← head
+    index ← 0
+    While current ≠ null Do
+      If current.value = value Then
+        Return index
+      End If
+      current ← current.next
+      index ← index + 1
+    End While
+    Return -1
+  End Procedure`,
+    mappings: {
+      // TODO: 實作 LinkedList 的 actionTag 對應 pseudo code 行號
+      // Insert Head
+      "INSERT_HEAD_START": [],
+      "INSERT_HEAD_CREATE": [],
+      "INSERT_HEAD_LINK": [],
+      "INSERT_HEAD_UPDATE": [],
+      "INSERT_HEAD_END": [],
+      // Insert Tail
+      "INSERT_TAIL_START": [],
+      "INSERT_TAIL_TRAVERSE": [],
+      "INSERT_TAIL_CREATE": [],
+      "INSERT_TAIL_LINK": [],
+      "INSERT_TAIL_END": [],
+      // Insert At Index
+      "INSERT_INDEX_START": [],
+      "INSERT_INDEX_TRAVERSE": [],
+      "INSERT_INDEX_CREATE": [],
+      "INSERT_INDEX_LINK": [],
+      "INSERT_INDEX_END": [],
+      // Delete Head
+      "DELETE_HEAD_START": [],
+      "DELETE_HEAD_CHECK": [],
+      "DELETE_HEAD_UPDATE": [],
+      "DELETE_HEAD_END": [],
+      // Delete Tail
+      "DELETE_TAIL_START": [],
+      "DELETE_TAIL_TRAVERSE": [],
+      "DELETE_TAIL_UNLINK": [],
+      "DELETE_TAIL_END": [],
+      // Delete At Index
+      "DELETE_INDEX_START": [],
+      "DELETE_INDEX_TRAVERSE": [],
+      "DELETE_INDEX_UNLINK": [],
+      "DELETE_INDEX_END": [],
+      // Search
+      "SEARCH_START": [],
+      "SEARCH_COMPARE": [],
+      "SEARCH_FOUND": [],
+      "SEARCH_NEXT": [],
+      "SEARCH_NOT_FOUND": [],
+    },
+  },
+  python: {
+    content: `class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def insert_at_head(self, value):
+        new_node = Node(value)
+        new_node.next = self.head
+        self.head = new_node
+
+    def insert_at_tail(self, value):
+        new_node = Node(value)
+        if self.head is None:
+            self.head = new_node
+        else:
+            current = self.head
+            while current.next is not None:
+                current = current.next
+            current.next = new_node
+
+    def insert_at_index(self, index, value):
+        if index == 0:
+            self.insert_at_head(value)
+            return
+        new_node = Node(value)
+        current = self.head
+        for i in range(index - 1):
+            current = current.next
+        new_node.next = current.next
+        current.next = new_node
+
+    def delete_at_head(self):
+        if self.head is None:
+            raise Exception("List is empty")
+        self.head = self.head.next
+
+    def delete_at_tail(self):
+        if self.head is None:
+            raise Exception("List is empty")
+        if self.head.next is None:
+            self.head = None
+            return
+        current = self.head
+        while current.next.next is not None:
+            current = current.next
+        current.next = None
+
+    def delete_at_index(self, index):
+        if index == 0:
+            self.delete_at_head()
+            return
+        current = self.head
+        for i in range(index - 1):
+            current = current.next
+        current.next = current.next.next
+
+    def search(self, value):
+        current = self.head
+        index = 0
+        while current is not None:
+            if current.value == value:
+                return index
+            current = current.next
+            index += 1
+        return -1`,
+    mappings: {
+      // TODO: 實作 LinkedList 的 actionTag 對應 Python code 行號
+    },
+  },
+};
+
 // 鏈表數據結構配置
 export const linkedListConfig: DataStructureConfig = {
   id: "linkedlist",
@@ -1225,50 +1436,7 @@ export const linkedListConfig: DataStructureConfig = {
   category: "linear",
   categoryName: "線性表",
   description: "動態的線性數據結構",
-  pseudoCode: `class Node:
-    value: any
-    next: Node
-
-class LinkedList:
-    head: Node
-
-    // 在頭部插入節點
-    insertAtHead(value):
-        newNode = new Node(value)
-        newNode.next = head
-        head = newNode
-
-    // 在尾部插入節點
-    insertAtTail(value):
-        newNode = new Node(value)
-        if head is null:
-            head = newNode
-        else:
-            current = head
-            while current.next is not null:
-                current = current.next
-            current.next = newNode
-
-    // 刪除節點
-    deleteNode(value):
-        if head is null:
-            return
-        if head.value == value:
-            head = head.next
-            return
-        current = head
-        while current.next is not null:
-            if current.next.value == value:
-                current.next = current.next.next
-                return
-            current = current.next
-
-    // 遍歷鏈表
-    traverse():
-        current = head
-        while current is not null:
-            print(current.value)
-            current = current.next`,
+  codeConfig: linkedListCodeConfig,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(n)",

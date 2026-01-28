@@ -1,5 +1,5 @@
 import { Box } from '@/modules/core/DataLogic/Box';
-import type { AnimationStep, AlgorithmConfig } from '@/types';
+import type { AnimationStep, AlgorithmConfig, CodeConfig} from '@/types';
 import type { Status } from '@/modules/core/DataLogic/BaseElement';
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
@@ -171,27 +171,60 @@ export function createBinarySearchAnimationSteps(
   return steps;
 }
 
+// TODO: 完成 Binary Search 的 actionTag mappings 對應
+const binarySearchCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Function binarySearch(arr, target):
+  left ← 0
+  right ← length of arr - 1
+
+  While left ≤ right Do
+    mid ← (left + right) / 2
+
+    If arr[mid] = target Then
+      Return mid
+    Else If arr[mid] < target Then
+      left ← mid + 1
+    Else
+      right ← mid - 1
+    End If
+  End While
+
+  Return -1  // 未找到
+End Function`,
+    mappings: {
+      // TODO: 實作 Binary Search 的 actionTag 對應 pseudo code 行號
+    },
+  },
+  python: {
+    content: `def binary_search(arr: list, target: int) -> int:
+    left = 0
+    right = len(arr) - 1
+
+    while left <= right:
+        mid = (left + right) // 2
+
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return -1  # 未找到`,
+    mappings: {
+      // TODO: 實作 Binary Search 的 actionTag 對應 Python code 行號
+    },
+  },
+};
+
 export const binarySearchConfig: AlgorithmConfig = {
   id: "binarysearch",
   name: "二分搜尋 (Binary Search)",
   category: "searching",
   categoryName: "搜尋演算法",
   description: "高效的搜尋演算法，適用於已排序陣列",
-  pseudoCode: `function binarySearch(arr, target):
-    left = 0
-    right = length of arr - 1
-
-    while left <= right:
-        mid = floor((left + right) / 2)
-
-        if arr[mid] == target:
-            return mid
-        else if arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-
-    return -1`,
+  codeConfig: binarySearchCodeConfig,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(log n)",

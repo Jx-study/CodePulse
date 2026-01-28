@@ -1,4 +1,4 @@
-import { AnimationStep, AlgorithmConfig } from "@/types";
+import { AnimationStep, AlgorithmConfig, CodeConfig } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -147,14 +147,10 @@ export function createInsertionSortAnimationSteps(
   return steps;
 }
 
-export const insertionSortConfig: AlgorithmConfig = {
-  id: "insertionsort",
-  name: "插入排序 (Insertion Sort)",
-  category: "sorting",
-  categoryName: "排序演算法",
-  description:
-    "類似整理撲克牌，每次將一張新牌插入到已排好序的手牌中的正確位置。",
-  pseudoCode: `
+
+const insertionSortCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `
 for i from 1 to n-1:
   key = arr[i]
   j = i - 1
@@ -163,6 +159,29 @@ for i from 1 to n-1:
     j = j - 1
   arr[j+1] = key
   `,
+    mappings: {},
+  },
+  python: {
+    content: `
+for i in range(1, n):
+  key = arr[i]
+  j = i - 1
+  while j >= 0 and arr[j] > key:
+    arr[j+1] = arr[j]
+    j = j - 1
+  arr[j+1] = key`,
+    mappings: {},
+  },
+};
+
+export const insertionSortConfig: AlgorithmConfig = {
+  id: "insertionsort",
+  name: "插入排序 (Insertion Sort)",
+  category: "sorting",
+  categoryName: "排序演算法",
+  description:
+    "類似整理撲克牌，每次將一張新牌插入到已排好序的手牌中的正確位置。",
+  codeConfig: insertionSortCodeConfig,
   complexity: {
     timeBest: "O(n)",
     timeAverage: "O(n²)",

@@ -338,7 +338,7 @@ export const QueueConfig: DataStructureConfig = {
   category: "linear",
   categoryName: "線性表",
   description: "FIFO (First In First Out)",
-  pseudoCode: `// 已移動至 codeConfig`,
+  codeConfig: queueCodeConfig,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(1)",
@@ -346,7 +346,6 @@ export const QueueConfig: DataStructureConfig = {
     space: "O(n)",
   },
   introduction: `佇列是一種先進先出的資料結構，類似於排隊。最早進入佇列的元素最先被移除。核心操作為入列 (Enqueue) 與出列 (Dequeue)。`,
-  codeConfig: queueCodeConfig,
   defaultData: [
     { id: "box-0", value: 1 },
     { id: "box-1", value: 2 },

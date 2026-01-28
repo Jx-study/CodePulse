@@ -61,8 +61,8 @@ function Tutorial() {
 
   // 計算需要高亮的行號
   const highlightLines = useMemo(() => {
-    if (!topicTypeConfig?.codeConfig || !currentStepData?.actionTag) return [];
-    
+    if (!topicTypeConfig || !currentStepData?.actionTag) return [];
+
     const config = topicTypeConfig.codeConfig[codeMode];
     return config.mappings[currentStepData.actionTag] || [];
   }, [topicTypeConfig, currentStepData, codeMode]);
@@ -330,11 +330,7 @@ function Tutorial() {
           <div className={styles.pseudoCodeEditor}>
             <CodeEditor
               mode="single"
-              value={
-                topicTypeConfig.codeConfig
-                  ? topicTypeConfig.codeConfig[codeMode].content
-                  : topicTypeConfig.pseudoCode
-              }
+              value={topicTypeConfig.codeConfig[codeMode].content}
               language={codeMode === "python" ? "python" : "python"}
               highlightLines={highlightLines}
               readOnly={codeMode === "pseudo"}
