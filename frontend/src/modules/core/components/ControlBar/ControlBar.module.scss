@@ -1,7 +1,5 @@
 .controlBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex($align: center, $justify: space-between);
   gap: $spacing-md;
   padding: $spacing-md;
   background: var(--bg-secondary);
@@ -15,15 +13,12 @@
 }
 
 .controls {
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   gap: $spacing-xs;
 }
 
 .stepIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   min-width: 120px;
 
   .stepText {
@@ -34,9 +29,13 @@
 }
 
 .speedSelector {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
+  @include flex($direction: column);
+  gap: $spacing-xs;
+
+  .speedRow {
+    @include flex($align: center);
+    gap: $spacing-sm;
+  }
 
   .speedLabel {
     font-size: $font-sm;
@@ -45,7 +44,7 @@
   }
 
   .speedButtons {
-    display: flex;
+    @include flex;
     gap: $spacing-xs;
   }
 
@@ -75,6 +74,19 @@
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+  }
+
+  .sliderRow {
+    @include flex($align: center);
+    width: 100%;
+  }
+
+  @media (max-width: $mobile) {
+    width: 100%;
+
+    .sliderRow {
+      justify-content: center;
     }
   }
 }

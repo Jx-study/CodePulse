@@ -1,0 +1,120 @@
+@use "@/shared/styles/variables" as *;
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  flex-shrink: 0;
+  transition: $transition-base;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
+  }
+
+  &.bordered {
+    border: 2px solid var(--border);
+  }
+}
+
+// ========== Size Variants ==========
+.xs {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.sm {
+  width: 32px;
+  height: 32px;
+  font-size: $font-xs;
+}
+
+.md {
+  width: 40px;
+  height: 40px;
+  font-size: $font-sm;
+}
+
+.lg {
+  width: 56px;
+  height: 56px;
+  font-size: $font-lg;
+}
+
+.xl {
+  width: 80px;
+  height: 80px;
+  font-size: $font-2xl;
+}
+
+// ========== Shape Variants ==========
+.circle {
+  border-radius: 50%;
+}
+
+.square {
+  border-radius: 8px;
+}
+
+// ========== Image ==========
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// ========== Initials ==========
+.initials {
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+// ========== Color Schemes ==========
+.colorPrimary {
+  background: linear-gradient(135deg, $primary-color, #3b82f6);
+}
+
+.colorSuccess {
+  background: linear-gradient(135deg, $success-color, #34d399);
+}
+
+.colorWarning {
+  background: linear-gradient(135deg, $accent-color, #fbbf24);
+}
+
+.colorDanger {
+  background: linear-gradient(135deg, $error-color, #f87171);
+}
+
+.colorInfo {
+  background: linear-gradient(135deg, $execution-color, #34d399);
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .avatar {
+    &.lg {
+      width: 48px;
+      height: 48px;
+      font-size: $font-base;
+    }
+
+    &.xl {
+      width: 64px;
+      height: 64px;
+      font-size: $font-xl;
+    }
+  }
+}

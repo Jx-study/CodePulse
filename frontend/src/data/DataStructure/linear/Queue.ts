@@ -1,146 +1,25 @@
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { AnimationStep, CodeConfig } from "@/types/animation";
+import { DataStructureConfig } from "@/types/dataStructure";
 import {
-  AnimationStep,
-  CodeConfig,
-  DataStructureConfig,
-} from "../../../types/dataStructure";
-
-interface BoxData {
-  id: string;
-  value: number;
-}
-
-interface ActionType {
-  type: string;
-  value: number;
-  mode: string; // "Enqueue", "Dequeue"
-  maxNodes?: number;
-}
-
-// 定義 Queue 的結構化代碼配置
-const queueCodeConfig: CodeConfig = {
-  pseudo: {
-    content: `Class Queue:
-  Data:
-    front ← 0
-    rear ← -1
-    size ← 0
-    queue ← Array of Size
-    capacity ← Size
-
-  Procedure enqueue(value):
-    If is_full() Then
-      Return Error
-    End If
-    rear ← (rear + 1) % capacity
-    queue[rear] ← value
-    size ← size + 1
-  End Procedure
-
-  Procedure dequeue():
-    If is_empty() Then
-      Return Error
-    End If
-    removed_value ← queue[front]
-    front ← (front + 1) % capacity
-    size ← size - 1
-    Return removed_value
-  End Procedure
-
-  Procedure peek():
-    If is_empty() Then
-      Return null
-    End If
-    Return queue[front]
-  End Procedure`,
-    mappings: {
-      "INITIAL": [2, 3, 4, 5, 6],
-      // Enqueue 區塊
-      "ENQUEUE_START": [8, 9],
-      "ENQUEUE_FULL": [9, 10],
-      "ENQUEUE_UPDATE": [12, 14],
-      "ENQUEUE_WRITE": [13],
-      // Dequeue 區塊
-      "DEQUEUE_START": [17, 18],
-      "DEQUEUE_EMPTY": [18, 19],
-      "DEQUEUE_READ": [21],
-      "DEQUEUE_UPDATE": [22, 23],
-      "DEQUEUE_END": [24],
-      // Peek 區塊
-      "PEEK_START": [27],
-      "PEEK_CHECK_EMPTY": [28],
-      "PEEK_IS_EMPTY": [29],
-      "PEEK_RETURN": [31],
-    },
-  },
-  python: {
-    content: `class Queue:
-    def __init__(self, capacity: int):
-        self.queue = [None] * capacity
-        self.capacity = capacity
-        self.front = 0
-        self.rear = -1
-        self.size = 0
-
-    def enqueue(self, value: int) -> None:
-        if self.size >= self.capacity:
-            raise Exception("Queue Overflow")
-        self.rear = (self.rear + 1) % self.capacity
-        self.queue[self.rear] = value
-        self.size += 1
-
-    def dequeue(self) -> int:
-        if self.size == 0:
-            raise Exception("Queue Underflow")
-        value = self.queue[self.front]
-        self.front = (self.front + 1) % self.capacity
-        self.size -= 1
-        return value
-
-    def peek(self) -> int:
-        if self.size == 0:
-            return None
-        return self.queue[self.front]`,
-    mappings: {
-      "INITIAL": [2, 3, 4, 5, 6, 7],
-      "ENQUEUE_START": [9, 10],
-      "ENQUEUE_FULL": [10, 11],
-      "ENQUEUE_UPDATE": [12, 14],
-      "ENQUEUE_WRITE": [13],
-      "DEQUEUE_START": [16, 17],
-      "DEQUEUE_EMPTY": [17, 18],
-      "DEQUEUE_READ": [19],
-      "DEQUEUE_UPDATE": [20, 21],
-      "DEQUEUE_END": [22],
-      "PEEK_START": [24, 25],
-      "PEEK_CHECK_EMPTY": [25],
-      "PEEK_IS_EMPTY": [26],
-      "PEEK_RETURN": [27],
-    },
-  },
-};
+  LinearData as BoxData,
+  LinearAction as ActionType,
+  createBoxes as baseCreateBoxes,
+} from "./utils";
 
 const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
-  const startX = 100;
-  const startY = 200;
-  const gap = 70;
-
-  return list.map((item, i) => {
-    const box = new Box();
-    box.id = item.id;
-    box.moveTo(startX + i * gap, startY);
-    box.width = 60;
-    box.height = 60;
-    box.value = item.value;
-
-    let desc = "";
-    if (i === 0) desc = "Front";
-    if (i === list.length - 1) desc += desc ? "/Rear" : "Rear";
-    box.description = desc;
-    box.setStatus(status);
-
-    return box;
+  return baseCreateBoxes(list, {
+    startX: 100,
+    startY: 200,
+    gap: 70,
+    status,
+    getDescription: (_, i, total) => {
+      let desc = "";
+      if (i === 0) desc = "Front";
+      if (i === total - 1) desc += desc ? "/Rear" : "Rear";
+      return desc;
+    },
   });
 };
 
@@ -170,20 +49,6 @@ export function createQueueAnimationSteps(
 
   // Enqueue
   if (type === "add") {
-    const maxNodes = action.maxNodes || 15;
-
-    // 檢查 Overflow
-    if (dataList.length > maxNodes) {
-      const oldList = dataList.slice(0, -1);
-      steps.push({
-        stepNumber: 1,
-        description: `Enqueue 失敗: 佇列已滿 (Queue Overflow)`,
-        elements: createBoxes(oldList),
-        actionTag: "ENQUEUE_FULL",
-      });
-      return steps;
-    }
-
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];
 
@@ -320,6 +185,9 @@ export function createQueueAnimationSteps(
         b.description = "Front";
       } else {
         b.setStatus("unfinished");
+        if (i === dataList.length - 1) {
+          b.description = "Rear";
+        }
       }
       return b;
     });
@@ -344,6 +212,9 @@ export function createQueueAnimationSteps(
         b.description = "Front";
       } else {
         b.setStatus("unfinished");
+        if (i === dataList.length - 1) {
+          b.description = "Rear";
+        }
       }
       return b;
     });
@@ -358,6 +229,108 @@ export function createQueueAnimationSteps(
 
   return steps;
 }
+
+const queueCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Class Queue:
+  Data:
+    front ← 0
+    rear ← -1
+    size ← 0
+    queue ← Array of Size
+    capacity ← Size
+
+  Procedure enqueue(value):
+    If is_full() Then
+      Return Error
+    End If
+    rear ← (rear + 1) % capacity
+    queue[rear] ← value
+    size ← size + 1
+  End Procedure
+
+  Procedure dequeue():
+    If is_empty() Then
+      Return Error
+    End If
+    removed_value ← queue[front]
+    front ← (front + 1) % capacity
+    size ← size - 1
+    Return removed_value
+  End Procedure
+
+  Procedure peek():
+    If is_empty() Then
+      Return null
+    End If
+    Return queue[front]
+  End Procedure`,
+    mappings: {
+      "INITIAL": [2, 3, 4, 5, 6],
+      // Enqueue 區塊
+      "ENQUEUE_START": [8, 9],
+      "ENQUEUE_FULL": [9, 10],
+      "ENQUEUE_UPDATE": [12, 14],
+      "ENQUEUE_WRITE": [13],
+      // Dequeue 區塊
+      "DEQUEUE_START": [17, 18],
+      "DEQUEUE_EMPTY": [18, 19],
+      "DEQUEUE_READ": [21],
+      "DEQUEUE_UPDATE": [22, 23],
+      "DEQUEUE_END": [24],
+      // Peek 區塊
+      "PEEK_START": [27],
+      "PEEK_CHECK_EMPTY": [28],
+      "PEEK_IS_EMPTY": [29],
+      "PEEK_RETURN": [31],
+    },
+  },
+  python: {
+    content: `class Queue:
+    def __init__(self, capacity: int):
+        self.queue = [None] * capacity
+        self.capacity = capacity
+        self.front = 0
+        self.rear = -1
+        self.size = 0
+
+    def enqueue(self, value: int) -> None:
+        if self.size >= self.capacity:
+            raise Exception("Queue Overflow")
+        self.rear = (self.rear + 1) % self.capacity
+        self.queue[self.rear] = value
+        self.size += 1
+
+    def dequeue(self) -> int:
+        if self.size == 0:
+            raise Exception("Queue Underflow")
+        value = self.queue[self.front]
+        self.front = (self.front + 1) % self.capacity
+        self.size -= 1
+        return value
+
+    def peek(self) -> int:
+        if self.size == 0:
+            return None
+        return self.queue[self.front]`,
+    mappings: {
+      "INITIAL": [2, 3, 4, 5, 6, 7],
+      "ENQUEUE_START": [9, 10],
+      "ENQUEUE_FULL": [10, 11],
+      "ENQUEUE_UPDATE": [12, 14],
+      "ENQUEUE_WRITE": [13],
+      "DEQUEUE_START": [16, 17],
+      "DEQUEUE_EMPTY": [17, 18],
+      "DEQUEUE_READ": [19],
+      "DEQUEUE_UPDATE": [20, 21],
+      "DEQUEUE_END": [22],
+      "PEEK_START": [24, 25],
+      "PEEK_CHECK_EMPTY": [25],
+      "PEEK_IS_EMPTY": [26],
+      "PEEK_RETURN": [27],
+    },
+  },
+};
 
 export const QueueConfig: DataStructureConfig = {
   id: "queue",
@@ -381,3 +354,4 @@ export const QueueConfig: DataStructureConfig = {
   ],
   createAnimationSteps: createQueueAnimationSteps,
 };
+

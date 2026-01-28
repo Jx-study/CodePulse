@@ -3,13 +3,18 @@ import Button from "../../../../shared/components/Button/Button";
 import styles from "./DataActionBar.module.scss";
 
 // 定義支援的結構類型
-export type StructureType = "linkedlist" | "stack" | "queue" | "array";
+export type StructureType =
+  | "linkedlist"
+  | "stack"
+  | "queue"
+  | "array"
+  | "binarytree";
 
 export interface DataActionBarProps {
   // 基本操作
   onAddNode: (value: number, mode: string, index?: number) => void;
   onDeleteNode: (mode: string, index?: number) => void;
-  onSearchNode: (value: number) => void;
+  onSearchNode: (value: number, mode?: string) => void;
   onPeek?: () => void;
 
   // 資料管理
@@ -44,9 +49,11 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const [insertMode, setInsertMode] = useState<string>("Head"); // Head, Tail, Node N
   const [maxNodes, setMaxNodes] = useState<number>(10);
 
+  // init
   useEffect(() => {
     if (structureType === "stack") setInsertMode("Push");
     else if (structureType === "queue") setInsertMode("Enqueue");
+    else if (structureType === "array") setInsertMode("Insert");
     else setInsertMode("Head");
   }, [structureType]);
 
@@ -60,6 +67,19 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     }
   };
 
+  const handleUpdate = () => {
+    if (disabled) return;
+    const val = Number(inputValue);
+    const idx = indexValue !== "" ? Number(indexValue) : undefined;
+
+    if (!isNaN(val) && idx !== undefined) {
+      onAddNode(val, "Update", idx);
+      setInputValue("");
+    } else {
+      alert("Update 需要輸入數值與索引");
+    }
+  };
+
   const handleDelete = () => {
     if (disabled) return;
     const idx = indexValue !== "" ? Number(indexValue) : undefined;
@@ -68,10 +88,14 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
   // 判斷是否顯示某些控制項
   const showIndexInput =
-    structureType === "linkedlist" && insertMode === "Node N";
+    (structureType === "linkedlist" && insertMode === "Node N") ||
+    structureType === "array";
   const showTailMode = structureType === "linkedlist";
-  const showSearchMode = structureType === "linkedlist";
+  const showSearchMode =
+    structureType === "linkedlist" || structureType === "array";
   const showPeek = structureType === "stack" || structureType === "queue";
+  const showUpdateButton = structureType === "array";
+  const isBinaryTree = structureType === "binarytree";
 
   // 判斷操作選項
   const getModeOptions = () => {
@@ -89,6 +113,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         </option>,
       ];
     }
+    if (structureType === "array") {
+      return null;
+    }
     // Default: Linked List
     return [
       <option key="head" value="Head">
@@ -104,18 +131,14 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   };
 
   // 按鈕文字動態化
-  const addBtnText =
-    structureType === "stack"
-      ? "Push"
-      : structureType === "queue"
-      ? "Enqueue"
-      : "Insert";
-  const delBtnText =
-    structureType === "stack"
-      ? "Pop"
-      : structureType === "queue"
-      ? "Dequeue"
-      : "Delete";
+  let addBtnText = "Insert";
+  if (structureType === "stack") addBtnText = "Push";
+  else if (structureType === "queue") addBtnText = "Enqueue";
+  else if (structureType === "array") addBtnText = "Insert";
+
+  let delBtnText = "Delete";
+  if (structureType === "stack") delBtnText = "Pop";
+  else if (structureType === "queue") delBtnText = "Dequeue";
 
   return (
     <div
@@ -178,104 +201,151 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           </select>
         )}
       </div>
-
       {/* 第二行：操作控制 (OperationManager) */}
+
       <div className={styles.actionGroup}>
-        {structureType === "linkedlist" ? (
+        {/* 標籤顯示 */}
+        <div
+          className={styles.staticLabel}
+          style={{ color: "#ccc", padding: "0 8px" }}
+        >
+          {structureType === "array"
+            ? "Array Operations"
+            : structureType === "linkedlist"
+            ? "Linked List Operations"
+            : structureType === "stack"
+            ? "Stack Operations"
+            : structureType === "queue"
+            ? "Queue Operations"
+            : structureType === "binarytree"
+            ? "Binary Tree Traversals"
+            : "Operations"}
+        </div>
+        {isBinaryTree ? (
           <>
-            <div
-              className={styles.staticLabel}
-              style={{ color: "#ccc", padding: "0 8px" }}
-            >
-              Linked List
-            </div>
-            <select
-              value={insertMode}
-              onChange={(e) => setInsertMode(e.target.value)}
-              className={styles.select}
+            <Button
+              size="sm"
+              onClick={() => onSearchNode(0, "preorder")}
               disabled={disabled}
             >
-              {getModeOptions()}
-            </select>
+              Preorder
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => onSearchNode(0, "inorder")}
+              disabled={disabled}
+            >
+              Inorder
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => onSearchNode(0, "postorder")}
+              disabled={disabled}
+            >
+              Postorder
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => onSearchNode(0, "bfs")}
+              disabled={disabled}
+            >
+              BFS (Level-order)
+            </Button>
           </>
         ) : (
-          <div
-            className={styles.staticLabel}
-            style={{ color: "#ccc", padding: "0 8px" }}
-          >
-            {structureType === "stack"
-              ? "Stack Operations"
-              : "Queue Operations"}
-          </div>
-        )}
+          <>
+            {structureType === "linkedlist" && (
+              <select
+                value={insertMode}
+                onChange={(e) => setInsertMode(e.target.value)}
+                className={styles.select}
+                disabled={disabled}
+              >
+                {getModeOptions()}
+              </select>
+            )}
 
-        <input
-          type="number"
-          placeholder="數值"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className={styles.input}
-          style={{ width: "80px" }}
-          disabled={disabled}
-        />
-
-        {showIndexInput && (
-          <input
-            type="number"
-            placeholder="N"
-            value={indexValue}
-            onChange={(e) => setIndexValue(e.target.value)}
-            className={styles.input}
-            style={{ width: "50px" }}
-            disabled={disabled}
-          />
-        )}
-
-        <Button size="sm" onClick={handleAdd} disabled={disabled}>
-          {addBtnText}
-        </Button>
-        <Button size="sm" onClick={handleDelete} disabled={disabled}>
-          {delBtnText}
-        </Button>
-
-        {showPeek && onPeek && (
-          <Button size="sm" onClick={onPeek} disabled={disabled}>
-            Peek
-          </Button>
-        )}
-
-        {showSearchMode && (
-          <div
-            style={{
-              marginLeft: "12px",
-              borderLeft: "1px solid #555",
-              paddingLeft: "12px",
-              display: "flex",
-              gap: "8px",
-            }}
-          >
             <input
               type="number"
-              placeholder="搜尋值"
-              id="searchVal"
+              placeholder="數值"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
               className={styles.input}
               style={{ width: "80px" }}
               disabled={disabled}
             />
-            <Button
-              size="sm"
-              onClick={() => {
-                const val = Number(
-                  (document.getElementById("searchVal") as HTMLInputElement)
-                    .value
-                );
-                onSearchNode(val);
-              }}
-              disabled={disabled}
-            >
-              Search
+
+            {showIndexInput && (
+              <input
+                type="number"
+                placeholder="Index"
+                value={indexValue}
+                onChange={(e) => setIndexValue(e.target.value)}
+                className={styles.input}
+                style={{ width: "60px" }}
+                disabled={disabled}
+              />
+            )}
+
+            <Button size="sm" onClick={handleAdd} disabled={disabled}>
+              {addBtnText}
             </Button>
-          </div>
+
+            {showUpdateButton && (
+              <Button
+                size="sm"
+                onClick={handleUpdate}
+                disabled={disabled}
+                style={{ marginLeft: "4px" }}
+              >
+                Update
+              </Button>
+            )}
+
+            <Button size="sm" onClick={handleDelete} disabled={disabled}>
+              {delBtnText}
+            </Button>
+
+            {showPeek && onPeek && (
+              <Button size="sm" onClick={onPeek} disabled={disabled}>
+                Peek
+              </Button>
+            )}
+
+            {showSearchMode && (
+              <div
+                style={{
+                  marginLeft: "12px",
+                  borderLeft: "1px solid #555",
+                  paddingLeft: "12px",
+                  display: "flex",
+                  gap: "8px",
+                }}
+              >
+                <input
+                  type="number"
+                  placeholder="搜尋值"
+                  id="searchVal"
+                  className={styles.input}
+                  style={{ width: "80px" }}
+                  disabled={disabled}
+                />
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const val = Number(
+                      (document.getElementById("searchVal") as HTMLInputElement)
+                        .value
+                    );
+                    onSearchNode(val);
+                  }}
+                  disabled={disabled}
+                >
+                  Search
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

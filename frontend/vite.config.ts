@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
 
@@ -9,10 +8,6 @@ export default defineConfig(({ mode }) => {
 
   return {
   plugins: [
-    react({
-      // 加快 React Fast Refresh
-      fastRefresh: true,
-    }),
     // Gzip 壓縮
     viteCompression({
       algorithm: "gzip",

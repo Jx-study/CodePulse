@@ -24,7 +24,7 @@ export interface CodeEditorProps {
 
   // 分屏配置
   splitRatio?: number;
-  highlightLines?: number[] | null;
+  highlightedLine?: number[] | null;
 
   // 回調函數
   onChange?: (value: string) => void;
@@ -117,7 +117,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     enableAutoComplete = true,
     enableFormatting = true,
     splitRatio: propSplitRatio = 0.5,
-    highlightLines: propHighlightLines,
+    highlightedLine,
     onChange,
     onBottomChange,
     onLanguageChange,
@@ -181,11 +181,20 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     formatOnType: enableFormatting,
     theme: currentTheme === 'dark' ? 'vs-dark' : 'vs',
     padding: { top: 12, bottom: 12 },
+    glyphMargin: true, // 启用左侧装饰标记区域
   };
 
   // ========== 單一編輯器 Mount ==========
   const handleEditorMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+
+    // 編輯器加載完成後，如果有初始高亮行，立即應用
+    if (highlightedLine !== null && highlightedLine !== undefined) {
+      // 使用 setTimeout 確保編輯器完全初始化
+      setTimeout(() => {
+        highlightLineInternal(highlightedLine);
+      }, 100);
+    }
   };
 
   // ========== 上方編輯器 Mount (分屏模式) ==========
@@ -196,6 +205,14 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   // ========== 下方編輯器 Mount (分屏模式) ==========
   const handleBottomEditorMount: OnMount = (editor, monaco) => {
     bottomEditorRef.current = editor;
+
+    // 編輯器加載完成後，如果有初始高亮行，立即應用到底部編輯器
+    if (highlightedLine !== null && highlightedLine !== undefined) {
+      // 使用 setTimeout 確保編輯器完全初始化
+      setTimeout(() => {
+        highlightLineInternal(highlightedLine, 'bottom');
+      }, 100);
+    }
   };
 
   // ========== 內容變更處理 ==========
@@ -275,15 +292,19 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     editor.revealLineInCenter(lineArray[0]);
   };
 
-  // ========== 監聽 highlightLines prop 變化 ==========
+  // ========== 監聽 highlightLine prop 變化 ==========
   useEffect(() => {
-    if (propHighlightLines && propHighlightLines.length > 0) {
-      highlightLineInternal(propHighlightLines, mode === 'split' ? 'bottom' : undefined);
-    } else if (propHighlightLines !== undefined) {
-      // 如果傳入空陣列，則清除高亮
-      highlightLineInternal([], mode === 'split' ? 'bottom' : undefined);
+    if (highlightedLine !== null && highlightedLine !== undefined) {
+      // 檢查編輯器是否已經準備好
+      const targetEditor = mode === 'split' ? bottomEditorRef.current : editorRef.current;
+
+      if (targetEditor) {
+        // 編輯器已準備好，立即執行高亮
+        highlightLineInternal(highlightedLine, mode === 'split' ? 'bottom' : undefined);
+      }
+      // 如果編輯器還沒準備好，onMount 回調會處理初始高亮
     }
-  }, [propHighlightLines, mode]);
+  }, [highlightedLine, mode]);
 
   // ========== 匯出程式碼 ==========
   const exportCodeInternal = (filename?: string) => {

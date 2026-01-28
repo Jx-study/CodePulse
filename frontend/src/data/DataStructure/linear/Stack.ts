@@ -1,22 +1,12 @@
 import { Box } from "../../../modules/core/DataLogic/Box";
 import { Status } from "../../../modules/core/DataLogic/BaseElement";
-import {
-  AnimationStep,
-  CodeConfig,
-  DataStructureConfig,
-} from "../../../types/dataStructure";
-
-interface BoxData {
-  id: string;
-  value: number;
-}
-
-interface ActionType {
-  type: string;
-  value: number;
-  mode: string; // "Push", "Pop"
-  maxNodes?: number;
-}
+import { AnimationStep, CodeConfig } from "../../../types/animation";
+import { DataStructureConfig } from "../../../types/dataStructure";
+import { 
+  LinearData as BoxData,
+  LinearAction as ActionType,
+  createBoxes as baseCreateBoxes, 
+} from "./utils";
 
 // 定義 Stack 的結構化代碼配置
 const stackCodeConfig: CodeConfig = {
@@ -99,23 +89,12 @@ const stackCodeConfig: CodeConfig = {
 };
 
 const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
-  const startX = 100;
-  const startY = 200;
-  const gap = 70;
-
-  return list.map((item, i) => {
-    const box = new Box();
-    box.id = item.id;
-    // Stack 視覺化：橫向排列 (0 是底部，最後一個是頂部)
-    box.moveTo(startX + i * gap, startY);
-    box.width = 60;
-    box.height = 60;
-    box.value = item.value;
-    box.description = i === list.length - 1 ? "Top" : "";
-
-    box.setStatus(status);
-
-    return box;
+  return baseCreateBoxes(list, {
+    startX: 100,
+    startY: 200,
+    gap: 70,
+    status,
+    getDescription: (_, i, total) => (i === total - 1 ? "Top" : ""),
   });
 };
 
@@ -143,20 +122,20 @@ export function createStackAnimationSteps(
 
   // Push
   if (type === "add") {
-    const maxNodes = action.maxNodes || 15;
+    // const maxNodes = action.maxNodes || 15;
 
     // 如果加入新元素後超過 maxNodes，代表原本就已經滿了 (或剛好滿)
     // 注意：dataList 是執行動作後的狀態
-    if (dataList.length > maxNodes) {
-      const oldList = dataList.slice(0, -1);
-      steps.push({
-        stepNumber: 1,
-        description: `Push 失敗: 堆疊已滿 (Stack Overflow)`,
-        elements: createBoxes(oldList),
-        actionTag: "PUSH_IS_FULL",
-      });
-      return steps;
-    }
+    // if (dataList.length > maxNodes) {
+    //   const oldList = dataList.slice(0, -1);
+    //   steps.push({
+    //     stepNumber: 1,
+    //     description: `Push 失敗: 堆疊已滿 (Stack Overflow)`,
+    //     elements: createBoxes(oldList),
+    //     actionTag: "PUSH_IS_FULL",
+    //   });
+    //   return steps;
+    // }
 
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];

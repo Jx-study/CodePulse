@@ -1,0 +1,155 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ========== Trigger ==========
+.trigger {
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// 当 trigger 需要显示 chevron 时，应用此样式
+.triggerWithChevron {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: $spacing-xs !important;
+}
+
+.chevronIcon {
+  flex-shrink: 0;
+  transition: transform $transition-base;
+  opacity: 0.7;
+}
+
+// ========== Menu ==========
+.menu {
+  position: absolute;
+  min-width: 200px;
+  max-width: 300px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: $shadow-lg;
+  padding: $spacing-xs 0;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  &.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+// ========== Placement ==========
+.menu {
+  &.bottomLeft {
+    top: calc(100% + 8px);
+    left: 0;
+  }
+
+  &.bottomRight {
+    top: calc(100% + 8px);
+    right: 0;
+  }
+
+  &.topLeft {
+    bottom: calc(100% + 8px);
+    left: 0;
+    transform: translateY(10px);
+
+    &.open {
+      transform: translateY(0);
+    }
+  }
+
+  &.topRight {
+    bottom: calc(100% + 8px);
+    right: 0;
+    transform: translateY(10px);
+
+    &.open {
+      transform: translateY(0);
+    }
+  }
+}
+
+// ========== Menu Item ==========
+.item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: $font-sm;
+  transition: $transition-base;
+  user-select: none;
+
+  &:hover,
+  &.itemFocused {
+    background: var(--bg-secondary);
+  }
+
+  &:focus {
+    outline: none;
+    background: var(--bg-secondary);
+  }
+
+  &.itemDisabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.itemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.itemLabel {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ========== Divider ==========
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: $spacing-xs 0;
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .menu {
+    min-width: 180px;
+    max-width: 90vw;
+  }
+
+  .item {
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-xs;
+  }
+}

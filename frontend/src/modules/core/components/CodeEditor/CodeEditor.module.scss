@@ -1,14 +1,10 @@
-@use '../../../../shared/styles/variables' as *;
-@use '../../../../shared/styles/mixins' as *;
-
 // ==================== CodeEditor 主容器 ====================
 
 .codeEditor {
   width: 100%;
   height: 100%;
   min-height: 400px;
-  display: flex;
-  flex-direction: column;
+  @include flex($direction: column);
   background-color: var(--bg-primary);
   border-radius: 8px;
   overflow: hidden;
@@ -58,9 +54,7 @@
   background-color: var(--border);
   cursor: ns-resize;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   transition: $transition-base;
   z-index: 10;
   flex-shrink: 0;
@@ -134,6 +128,7 @@
 }
 
 // ==================== 響應式設計 ====================
+// 注意：行高亮樣式已移至 main.scss 全局樣式中
 
 // 桌面端（≥1024px）：完整功能
 @media (min-width: $tablet) {
@@ -144,7 +139,7 @@
 }
 
 // 平板端（768px-1023px）
-@media (min-width: $mobile) and (max-width: ($tablet - 1px)) {
+@media (min-width: $mobile) and (max-width: $tablet-max) {
   .codeEditor {
     min-height: 450px;
     border-radius: 10px;
@@ -161,7 +156,7 @@
 }
 
 // 手機端（<768px）
-@media (max-width: ($mobile - 1px)) {
+@media (max-width: $mobile-max) {
   .codeEditor {
     min-height: 300px;
     border-radius: 8px;
@@ -212,11 +207,6 @@
 @media (prefers-contrast: high) {
   .codeEditor {
     border-width: 2px;
-  }
-
-  .highlightedLine {
-    background-color: rgba(99, 91, 255, 0.4) !important;
-    border-left-width: 5px !important;
   }
 
   .resizer {

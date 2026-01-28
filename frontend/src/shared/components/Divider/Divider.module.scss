@@ -1,0 +1,169 @@
+@use "@/shared/styles/variables" as *;
+
+.divider {
+  border: 0;
+  border-style: solid;
+}
+
+// ========== Orientation ==========
+.horizontal {
+  width: 100%;
+  border-top-width: 1px;
+
+  &.withLabel {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    border: none;
+
+    .line {
+      flex: 1;
+      height: 1px;
+      border: 0;
+      border-top-width: 1px;
+      border-style: inherit;
+      border-color: inherit;
+    }
+  }
+}
+
+.vertical {
+  height: 100%;
+  border-left-width: 1px;
+  display: inline-block;
+}
+
+// ========== Spacing ==========
+.spacingXs {
+  &.horizontal {
+    margin: $spacing-xs 0;
+  }
+
+  &.vertical {
+    margin: 0 $spacing-xs;
+  }
+}
+
+.spacingSm {
+  &.horizontal {
+    margin: $spacing-sm 0;
+  }
+
+  &.vertical {
+    margin: 0 $spacing-sm;
+  }
+}
+
+.spacingMd {
+  &.horizontal {
+    margin: $spacing-md 0;
+  }
+
+  &.vertical {
+    margin: 0 $spacing-md;
+  }
+}
+
+.spacingLg {
+  &.horizontal {
+    margin: $spacing-lg 0;
+  }
+
+  &.vertical {
+    margin: 0 $spacing-lg;
+  }
+}
+
+.spacingXl {
+  &.horizontal {
+    margin: $spacing-xl 0;
+  }
+
+  &.vertical {
+    margin: 0 $spacing-xl;
+  }
+}
+
+// ========== Color ==========
+.colorDefault {
+  border-color: var(--border);
+}
+
+.colorPrimary {
+  border-color: $primary-color;
+}
+
+.colorLight {
+  border-color: rgba(107, 114, 128, 0.2);
+}
+
+// ========== Thickness ==========
+.thicknessThin {
+  &.horizontal {
+    border-top-width: 1px;
+
+    &.withLabel .line {
+      border-top-width: 1px;
+    }
+  }
+
+  &.vertical {
+    border-left-width: 1px;
+  }
+}
+
+.thicknessMedium {
+  &.horizontal {
+    border-top-width: 2px;
+
+    &.withLabel .line {
+      border-top-width: 2px;
+    }
+  }
+
+  &.vertical {
+    border-left-width: 2px;
+  }
+}
+
+.thicknessThick {
+  &.horizontal {
+    border-top-width: 3px;
+
+    &.withLabel .line {
+      border-top-width: 3px;
+    }
+  }
+
+  &.vertical {
+    border-left-width: 3px;
+  }
+}
+
+// ========== Variant ==========
+.solid {
+  border-style: solid;
+}
+
+.dashed {
+  border-style: dashed;
+}
+
+.dotted {
+  border-style: dotted;
+}
+
+// ========== Label ==========
+.label {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .label {
+    font-size: $font-xs;
+  }
+}

@@ -1,14 +1,14 @@
 import { useCallback, useRef, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./Explorer.module.scss";
-import { D3Canvas, D3CanvasRef } from "../../modules/core/Render/D3Canvas";
-import { Node } from "../../modules/core/DataLogic/Node";
-import { Box } from "../../modules/core/DataLogic/Box";
-import { LinkManager } from "../../modules/core/DataLogic/LinkManager";
-import type { Link } from "../../modules/core/Render/D3Renderer";
-import { animateConnect } from "../../modules/core/Render/D3Renderer";
+import { D3Canvas, D3CanvasRef } from "@/modules/core/Render/D3Canvas";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
+import type { Link } from "@/modules/core/Render/D3Renderer";
+import { animateConnect } from "@/modules/core/Render/D3Renderer";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
-import { Button } from "@/shared/components";
+import  Button from "@/shared/components/Button";
 
 // 預設程式碼範例
 const DEFAULT_CODE: Record<string, string> = {
@@ -138,6 +138,7 @@ function Explorer() {
               value={code}
               onChange={setCode}
               theme="auto"
+              highlightedLine={4}
             />
           </div>
 

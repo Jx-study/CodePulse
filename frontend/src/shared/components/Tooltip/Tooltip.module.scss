@@ -1,0 +1,63 @@
+@use "@/shared/styles/variables" as *;
+
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: 6px;
+  font-size: $font-xs;
+  line-height: 1.4;
+  max-width: 300px;
+  word-wrap: break-word;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+// ========== Arrow ==========
+.arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(15, 23, 42, 0.95);
+  transform: rotate(45deg);
+}
+
+// ========== Placement ==========
+.top .arrow {
+  bottom: -4px;
+  left: 50%;
+  margin-left: -4px;
+}
+
+.bottom .arrow {
+  top: -4px;
+  left: 50%;
+  margin-left: -4px;
+}
+
+.left .arrow {
+  right: -4px;
+  top: 50%;
+  margin-top: -4px;
+}
+
+.right .arrow {
+  left: -4px;
+  top: 50%;
+  margin-top: -4px;
+}
+
+// ========== Responsive Design ==========
+@media (max-width: $mobile) {
+  .tooltip {
+    max-width: 90vw;
+    font-size: 11px;
+  }
+}

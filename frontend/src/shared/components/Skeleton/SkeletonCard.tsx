@@ -1,15 +1,7 @@
+import type { SkeletonCardProps } from '@/types';
 import styles from './Skeleton.module.scss';
 
-interface SkeletonCardProps {
-  width?: string | number;
-  height?: string | number;
-  variant?: 'rectangular' | 'rounded' | 'circular';
-  animation?: 'shimmer' | 'pulse' | 'none';
-  className?: string;
-  children?: React.ReactNode;
-}
-
-function SkeletonCard({
+export function SkeletonCard({
   width = '100%',
   height = '200px',
   variant = 'rounded',

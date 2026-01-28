@@ -3,6 +3,7 @@ node_modules/
 *.iml
 *.md
 !README.md 
+.claudignore
 
 # Frontend
 build/
