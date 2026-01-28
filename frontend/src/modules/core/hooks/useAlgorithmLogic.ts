@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 export const useAlgorithmLogic = (config: any) => {
   const [data, setData] = useState<any[]>([]);
@@ -38,15 +39,15 @@ export const useAlgorithmLogic = (config: any) => {
     let newData = [...data];
 
     if (actionType === "random") {
+      const count = Math.min(payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
       if (config.id === "binarysearch") {
         // 做個排序
-        const sortedValues = Array.from({ length: 10 }, () =>
+        const sortedValues = Array.from({ length: count }, () =>
           Math.floor(Math.random() * 100)
         ).sort((a, b) => a - b);
         newData = initData(sortedValues);
       } else {
         // 原本隨機邏輯
-        const count = 10;
         const randomValues = Array.from(
           { length: count },
           () => Math.floor(Math.random() * 100) - 20

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import Button from "../../../../shared/components/Button/Button";
+import Button from "@/shared/components/Button/Button";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
 interface AlgorithmActionBarProps {
@@ -7,6 +8,8 @@ interface AlgorithmActionBarProps {
   onRandomData: () => void;
   onResetData: () => void;
   onRun: (params?: { searchValue?: number; range?: [number, number] }) => void;
+  onRandomCountChange?: (count: number) => void;
+  onLimitExceeded?: () => void;
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
@@ -17,12 +20,15 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onRandomData,
   onResetData,
   onRun,
+  onRandomCountChange,
+  onLimitExceeded,
   disabled = false,
   category = "sorting",
   algorithmId,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
-  const [dataSize, setDataSize] = useState<number>(10);
+  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT));
 
   const [searchValue, setSearchValue] = useState<string>("");
 
@@ -86,11 +92,33 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         </Button>
 
         <div className={styles.settingItem}>
-          <label style={{ color: "#ccc", fontSize: "12px" }}>筆數:</label>
+          <label style={{ color: "#ccc", fontSize: "12px" }}>隨機筆數:</label>
           <input
             type="number"
-            value={dataSize}
-            onChange={(e) => setDataSize(Number(e.target.value))}
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={DATA_LIMITS.MAX_NODES}
+            onChange={(e) => setRandomCountInput(e.target.value)}
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                setRandomCountInput(String(randomCount));
+              } else {
+                // 超過上限時顯示提示
+                if (num > DATA_LIMITS.MAX_NODES) {
+                  onLimitExceeded?.();
+                }
+                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onRandomCountChange?.(v);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
             style={{
               width: "50px",
               background: "#222",

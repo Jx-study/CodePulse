@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Button from "../../../../shared/components/Button/Button";
+import Button from "@/shared/components/Button/Button";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./DataActionBar.module.scss";
 
 // 定義支援的結構類型
@@ -23,8 +24,9 @@ export interface DataActionBarProps {
   onRandomData: () => void;
 
   // 設置
-  onMaxNodesChange: (max: number) => void;
+  onRandomCountChange: (count: number) => void;
   onTailModeChange: (hasTail: boolean) => void;
+  onLimitExceeded?: () => void;
 
   disabled?: boolean;
   structureType: StructureType;
@@ -38,8 +40,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onLoadData,
   onResetData,
   onRandomData,
-  onMaxNodesChange,
+  onRandomCountChange,
   onTailModeChange,
+  onLimitExceeded,
   disabled = false,
   structureType,
 }) => {
@@ -47,7 +50,8 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const [indexValue, setIndexValue] = useState<string>(""); // N (索引)
   const [bulkInput, setBulkInput] = useState<string>(""); // 10,20,30...
   const [insertMode, setInsertMode] = useState<string>("Head"); // Head, Tail, Node N
-  const [maxNodes, setMaxNodes] = useState<number>(10);
+  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT)); // 輸入顯示用
 
   // init
   useEffect(() => {
@@ -171,14 +175,34 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         </Button>
 
         <div className={styles.settingItem}>
-          <label style={{ color: "#ccc", fontSize: "12px" }}>最大筆數: </label>
+          <label style={{ color: "#ccc", fontSize: "12px" }}>隨機筆數: </label>
           <input
             type="number"
-            value={maxNodes}
-            onChange={(e) => {
-              const v = Number(e.target.value);
-              setMaxNodes(v);
-              onMaxNodesChange(v);
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={DATA_LIMITS.MAX_NODES}
+            onChange={(e) => setRandomCountInput(e.target.value)}
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                // 無效輸入，回退到之前的值
+                setRandomCountInput(String(randomCount));
+              } else {
+                // 超過上限時顯示提示
+                if (num > DATA_LIMITS.MAX_NODES) {
+                  onLimitExceeded?.();
+                }
+                // 限制範圍並更新
+                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onRandomCountChange(v);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
             }}
             style={{
               width: "50px",

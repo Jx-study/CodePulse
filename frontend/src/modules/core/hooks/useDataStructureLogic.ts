@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 export const useDataStructureLogic = (config: any) => {
   const [data, setData] = useState<any>(config?.defaultData || []);
@@ -82,7 +83,7 @@ export const useDataStructureLogic = (config: any) => {
         }));
         isResetAction = true;
       } else if (actionType === "random") {
-        const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+        const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
         newData = [];
         for (let i = 0; i < count; i++) {
           newData.push({
@@ -131,7 +132,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -183,7 +184,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -269,7 +270,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -289,19 +290,13 @@ export const useDataStructureLogic = (config: any) => {
             }));
           }
         }
-        // if (actionType === "load" && loadData) {
-        //   newData = loadData.map((v: number) => ({
-        //     id: `box-${nextIdRef.current++}`,
-        //     value: v,
-        //   }));
-        // }
       }
     } else if (config.id === "binarytree") {
       if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
 
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++) {
             newData.push({

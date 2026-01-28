@@ -5,8 +5,10 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
+import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
 import { getLevelImplementation } from "@/data/levels/levelAdapter";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
@@ -53,8 +55,9 @@ function Tutorial() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
-  const [maxNodes, setMaxNodes] = useState(10);
+  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
   const [hasTailMode, setHasTailMode] = useState(false);
+  const [showLimitToast, setShowLimitToast] = useState(false);
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -128,11 +131,16 @@ function Tutorial() {
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
+    // 檢查是否超過最大筆數限制
+    const currentCount = dsLogic.data?.length || 0;
+    if (currentCount >= DATA_LIMITS.MAX_NODES) {
+      setShowLimitToast(true);
+      return;
+    }
     const steps = executeAction("add", {
       value,
       mode,
       index,
-      maxNodes,
       hasTailMode,
     });
     if (steps && steps.length > 0) {
@@ -161,9 +169,9 @@ function Tutorial() {
     }
   };
 
-  // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
+  // 隨機資料：筆數不超過 randomCount
   const handleRandomData = () => {
-    executeAction("random", { maxNodes, hasTailMode });
+    executeAction("random", { randomCount, hasTailMode });
     setCurrentStep(0);
     setIsPlaying(false); // 不需要自動播放
   };
@@ -183,9 +191,13 @@ function Tutorial() {
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
+    // 檢查是否超過最大筆數限制
+    if (parsed.length > DATA_LIMITS.MAX_NODES) {
+      setShowLimitToast(true);
+      return;
+    }
     const steps = executeAction("load", {
       data: parsed,
-      maxNodes,
       hasTailMode,
     });
     if (steps && steps.length > 0) {
@@ -238,6 +250,8 @@ function Tutorial() {
           onRandomData={handleRandomData}
           onResetData={handleResetData}
           onRun={handleRunAlgorithm}
+          onRandomCountChange={setRandomCount}
+          onLimitExceeded={() => setShowLimitToast(true)}
           disabled={isProcessing}
           category={topicTypeConfig?.category}
           algorithmId={topicTypeConfig?.id}
@@ -258,8 +272,9 @@ function Tutorial() {
             onLoadData={handleLoadData}
             onResetData={handleResetData}
             onRandomData={handleRandomData}
-            onMaxNodesChange={setMaxNodes}
+            onRandomCountChange={setRandomCount}
             onTailModeChange={setHasTailMode}
+            onLimitExceeded={() => setShowLimitToast(true)}
             structureType={topicTypeConfig.id as any}
             disabled={isProcessing}
           />
@@ -423,6 +438,13 @@ function Tutorial() {
           </div>
         </div>
       </div>
+
+      {/* 資料數量限制警告 Toast */}
+      <LimitWarningToast
+        isOpen={showLimitToast}
+        onClose={() => setShowLimitToast(false)}
+        maxLimit={DATA_LIMITS.MAX_NODES}
+      />
     </div>
   );
 }
