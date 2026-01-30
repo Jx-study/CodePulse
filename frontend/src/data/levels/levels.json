@@ -211,8 +211,10 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "AND",
+        "levelIds": [
+          "portal-to-sorting"
+        ]
       },
       "graphPosition": {
         "layer": 100,
@@ -402,8 +404,10 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "AND",
+        "levelIds": [
+          "portal-to-searching"
+        ]
       },
       "graphPosition": {
         "layer": 200,
@@ -531,8 +535,10 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "AND",
+        "levelIds": [
+          "portal-to-graph"
+        ]
       },
       "graphPosition": {
         "layer": 300,
