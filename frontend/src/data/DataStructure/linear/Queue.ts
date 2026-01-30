@@ -1,6 +1,7 @@
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep, DataStructureConfig } from "@/types/animation";
+import { AnimationStep } from "@/types/animation";
+import { LevelImplementationConfig } from "@/types/implementation";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
@@ -199,10 +200,10 @@ export function createQueueAnimationSteps(
   return steps;
 }
 
-export const QueueConfig: DataStructureConfig = {
+export const QueueConfig: LevelImplementationConfig = {
   id: "queue",
+  type: "dataStructure",
   name: "佇列 (Queue)",
-  category: "linear",
   categoryName: "線性表",
   description: "FIFO (First In First Out)",
   pseudoCode: `class box:

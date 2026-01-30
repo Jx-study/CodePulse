@@ -1,6 +1,7 @@
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep, DataStructureConfig } from "@/types";
+import { AnimationStep } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
@@ -186,10 +187,10 @@ export function createStackAnimationSteps(
   return steps;
 }
 
-export const StackConfig: DataStructureConfig = {
+export const StackConfig: LevelImplementationConfig = {
   id: "stack",
+  type: "dataStructure",
   name: "堆疊 (Stack)",
-  category: "linear",
   categoryName: "線性表",
   description: "LIFO (Last In First Out)",
   pseudoCode: `class box:
