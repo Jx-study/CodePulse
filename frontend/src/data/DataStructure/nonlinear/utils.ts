@@ -62,9 +62,9 @@ export function createTreeNodes(
   } = {}
 ): Node[] {
   const {
-    width = 800,
+    width = 700,
     height = 300,
-    offsetX = 100,
+    offsetX = 0,
     offsetY = 50,
     degree = 2,
   } = options;
