@@ -1,6 +1,39 @@
 {
   "levels": [
     {
+      "id": "array",
+      "name": "陣列",
+      "nameEn": "Array",
+      "category": "data-structures",
+      "difficulty": 1,
+      "description": "最基礎的線性資料結構",
+      "learningObjectives": [
+        "理解陣列的記憶體配置",
+        "掌握索引存取方式",
+        "分析時間與空間複雜度"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": true,
+      "prerequisites": {
+        "type": "NONE",
+        "levelIds": []
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "linear",
+        "horizontalIndex": 0
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "array",
+      "homePageMetadata": {
+        "image": "array.png",
+        "translationKey": "array",
+        "showOnHomePage": true
+      }
+    },
+    {
       "id": "linked-list",
       "name": "鏈結串列",
       "nameEn": "Linked List",
@@ -13,23 +46,23 @@
         "分析時間複雜度"
       ],
       "isDeveloped": true,
-      "isUnlocked": true,
+      "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "AND",
+        "levelIds": [
+          "array"
+        ]
       },
       "graphPosition": {
-        "layer": 0,
-        "branch": "main",
+        "layer": 1,
+        "branch": "linear",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationType": "dataStructure",
-      "implementationKey": "linear/linkedlist",
+      "implementationKey": "linkedlist",
       "homePageMetadata": {
-        "displayOrder": 1,
         "image": "linked-list.png",
         "translationKey": "linked_list",
         "showOnHomePage": true
@@ -51,21 +84,21 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["linked-list"]
+        "levelIds": [
+          "linked-list"
+        ]
       },
       "graphPosition": {
-        "layer": 1,
-        "branch": "left",
+        "layer": 2,
+        "branch": "linear",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabel": "LIFO 結構"
       },
-      "implementationType": "dataStructure",
-      "implementationKey": "linear/stack",
+      "implementationKey": "stack",
       "homePageMetadata": {
-        "displayOrder": 2,
         "image": "stack.png",
         "translationKey": "stack",
         "showOnHomePage": true
@@ -87,21 +120,21 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["linked-list"]
+        "levelIds": [
+          "linked-list"
+        ]
       },
       "graphPosition": {
-        "layer": 1,
-        "branch": "right",
+        "layer": 2,
+        "branch": "linear",
         "horizontalIndex": 1
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabel": "FIFO 結構"
       },
-      "implementationType": "dataStructure",
-      "implementationKey": "linear/queue",
+      "implementationKey": "queue",
       "homePageMetadata": {
-        "displayOrder": 3,
         "image": "queue.png",
         "translationKey": "queue",
         "showOnHomePage": true
@@ -123,18 +156,20 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["stack", "queue"]
+        "levelIds": [
+          "stack",
+          "queue"
+        ]
       },
       "graphPosition": {
-        "layer": 2,
+        "layer": 3,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "boss"
       },
-      "implementationType": "dataStructure",
-      "implementationKey": "linear/doubly-linkedlist"
+      "implementationKey": "doubly-linkedlist"
     },
     {
       "id": "portal-to-sorting",
@@ -146,10 +181,12 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["doubly-linked-list"]
+        "levelIds": [
+          "doubly-linked-list"
+        ]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 4,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -157,8 +194,7 @@
         "pathType": "portal",
         "targetCategory": "sorting"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "sorting/bubblesort"
+      "implementationKey": "bubblesort"
     },
     {
       "id": "bubble-sort",
@@ -179,17 +215,15 @@
         "levelIds": []
       },
       "graphPosition": {
-        "layer": 0,
+        "layer": 100,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "sorting/bubblesort",
+      "implementationKey": "bubblesort",
       "homePageMetadata": {
-        "displayOrder": 4,
         "image": "bubble-sort.png",
         "translationKey": "bubble_sort",
         "showOnHomePage": true
@@ -211,10 +245,12 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["bubble-sort"]
+        "levelIds": [
+          "bubble-sort"
+        ]
       },
       "graphPosition": {
-        "layer": 1,
+        "layer": 101,
         "branch": "left",
         "horizontalIndex": 0
       },
@@ -222,10 +258,8 @@
         "pathType": "branch",
         "branchLabel": "比較排序"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "sorting/selectionsort",
+      "implementationKey": "selectionsort",
       "homePageMetadata": {
-        "displayOrder": 5,
         "image": "merge-sort.png",
         "translationKey": "selection_sort",
         "showOnHomePage": true
@@ -247,10 +281,12 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["bubble-sort"]
+        "levelIds": [
+          "bubble-sort"
+        ]
       },
       "graphPosition": {
-        "layer": 1,
+        "layer": 101,
         "branch": "right",
         "horizontalIndex": 1
       },
@@ -258,10 +294,8 @@
         "pathType": "branch",
         "branchLabel": "插入排序"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "sorting/insertionsort",
+      "implementationKey": "insertionsort",
       "homePageMetadata": {
-        "displayOrder": 6,
         "image": "quick-sort.png",
         "translationKey": "insertion_sort",
         "showOnHomePage": true
@@ -283,18 +317,20 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
-        "levelIds": ["selection-sort", "insertion-sort"]
+        "levelIds": [
+          "selection-sort",
+          "insertion-sort"
+        ]
       },
       "graphPosition": {
-        "layer": 2,
+        "layer": 102,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "convergence"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "sorting/mergesort"
+      "implementationKey": "mergesort"
     },
     {
       "id": "quick-sort",
@@ -312,18 +348,19 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["merge-sort"]
+        "levelIds": [
+          "merge-sort"
+        ]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 103,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "boss"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "sorting/quicksort"
+      "implementationKey": "quicksort"
     },
     {
       "id": "portal-to-searching",
@@ -335,10 +372,12 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["quick-sort"]
+        "levelIds": [
+          "quick-sort"
+        ]
       },
       "graphPosition": {
-        "layer": 4,
+        "layer": 104,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -346,8 +385,7 @@
         "pathType": "portal",
         "targetCategory": "searching"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "searching/binarysearch"
+      "implementationKey": "binarysearch"
     },
     {
       "id": "binary-search",
@@ -368,17 +406,15 @@
         "levelIds": []
       },
       "graphPosition": {
-        "layer": 0,
+        "layer": 200,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "searching/binarysearch",
+      "implementationKey": "binarysearch",
       "homePageMetadata": {
-        "displayOrder": 7,
         "image": "binary-search.png",
         "translationKey": "binary_search",
         "showOnHomePage": true
@@ -400,22 +436,57 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["binary-search"]
+        "levelIds": [
+          "binary-search"
+        ]
       },
       "graphPosition": {
-        "layer": 1,
-        "branch": "main",
+        "layer": 201,
+        "branch": "left",
         "horizontalIndex": 0
       },
       "pathMetadata": {
-        "pathType": "boss"
+        "pathType": "branch"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "searching/linearsearch",
+      "implementationKey": "linearsearch",
       "homePageMetadata": {
-        "displayOrder": 8,
         "image": "linear-search.png",
         "translationKey": "linear_search",
+        "showOnHomePage": true
+      }
+    },
+    {
+      "id": "prefix-sum",
+      "name": "前綴和",
+      "nameEn": "Prefix Sum",
+      "category": "searching",
+      "difficulty": 2,
+      "description": "預先計算累加和，實現區間查詢的優化",
+      "learningObjectives": [
+        "理解前綴和的核心思想",
+        "掌握區間查詢優化技巧",
+        "分析時間複雜度的改善"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": [
+          "binary-search"
+        ]
+      },
+      "graphPosition": {
+        "layer": 201,
+        "branch": "right",
+        "horizontalIndex": 1
+      },
+      "pathMetadata": {
+        "pathType": "branch"
+      },
+      "implementationKey": "prefixsum",
+      "homePageMetadata": {
+        "image": "prefix-sum.png",
+        "translationKey": "prefix_sum",
         "showOnHomePage": true
       }
     },
@@ -428,11 +499,14 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "AND",
-        "levelIds": ["linear-search"]
+        "type": "OR",
+        "levelIds": [
+          "linear-search",
+          "prefix-sum"
+        ]
       },
       "graphPosition": {
-        "layer": 2,
+        "layer": 202,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -440,8 +514,7 @@
         "pathType": "portal",
         "targetCategory": "graph"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "graph/bfs"
+      "implementationKey": "bfs"
     },
     {
       "id": "bfs",
@@ -462,15 +535,14 @@
         "levelIds": []
       },
       "graphPosition": {
-        "layer": 0,
+        "layer": 300,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "graph/bfs"
+      "implementationKey": "bfs"
     },
     {
       "id": "dfs",
@@ -488,18 +560,19 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["bfs"]
+        "levelIds": [
+          "bfs"
+        ]
       },
       "graphPosition": {
-        "layer": 1,
+        "layer": 301,
         "branch": "main",
         "horizontalIndex": 0
       },
       "pathMetadata": {
         "pathType": "boss"
       },
-      "implementationType": "algorithm",
-      "implementationKey": "graph/dfs"
+      "implementationKey": "dfs"
     }
   ],
   "categories": {
@@ -510,7 +583,8 @@
       "description": "學習各種資料結構的運作原理與應用",
       "icon": "sitemap",
       "colorTheme": "#635bff",
-      "order": 1
+      "order": 1,
+      "layerOffset": 0
     },
     "sorting": {
       "id": "sorting",
@@ -519,16 +593,18 @@
       "description": "掌握各種排序演算法的實作與效能分析",
       "icon": "signal",
       "colorTheme": "#ff6b6b",
-      "order": 2
+      "order": 2,
+      "layerOffset": 100
     },
     "searching": {
       "id": "searching",
-      "name": "搜尋演算法",
+      "name": "搜尋與查詢演算法",
       "nameEn": "Searching Algorithms",
       "description": "探索高效的搜尋策略與技巧",
       "icon": "magnifying-glass",
       "colorTheme": "#51cf66",
-      "order": 3
+      "order": 3,
+      "layerOffset": 200
     },
     "graph": {
       "id": "graph",
@@ -537,7 +613,8 @@
       "description": "深入理解圖論的核心演算法",
       "icon": "diagram-project",
       "colorTheme": "#ffd43b",
-      "order": 4
+      "order": 4,
+      "layerOffset": 300
     }
   }
 }
