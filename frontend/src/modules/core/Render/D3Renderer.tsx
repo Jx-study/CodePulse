@@ -172,7 +172,6 @@ function drawContainer(
     const topY = 50;
     const bottomY = 380;
 
-    // 畫一個開口向上的 U 型
     // 左線
     scene
       .append("line")
@@ -196,22 +195,22 @@ function drawContainer(
       .attr("stroke-width", 2);
 
     // 底部
-    scene
-      .append("line")
-      .attr("class", "container-line")
-      .attr("x1", startX)
-      .attr("y1", bottomY)
-      .attr("x2", endX)
-      .attr("y2", bottomY)
-      .attr("stroke", "#555")
-      .attr("stroke-width", 2);
+    // scene
+    //   .append("line")
+    //   .attr("class", "container-line")
+    //   .attr("x1", startX)
+    //   .attr("y1", bottomY)
+    //   .attr("x2", endX)
+    //   .attr("y2", bottomY)
+    //   .attr("stroke", "#555")
+    //   .attr("stroke-width", 2);
 
     // Label
     scene
       .append("text")
       .attr("x", startX)
       .attr("y", bottomY + 20)
-      .text("Call Stack")
+      .text("Call Stack/Queue")
       .attr("fill", "#888")
       .attr("font-size", 12);
   }
