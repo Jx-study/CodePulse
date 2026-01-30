@@ -14,13 +14,28 @@ import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 
 // 資料導入
-import { getAllLevels, getPortalTargetCategory } from "@/services/LevelService";
-import { getCategories, getCategoryName } from "@/services/CategoryService";
+import {
+  getAllLevels,
+  getPortalTargetCategory,
+  isPortalUnlocked,
+} from "@/services/LevelService";
+import {
+  getCategories,
+  getCategoryName,
+  updateCategoryUnlocks,
+} from "@/services/CategoryService";
 import {
   loadUserProgress,
   saveUserProgress,
-  updateCategoryUnlocks,
-} from "@/data/userProgress";
+} from "@/services/UserProgressService";
+import {
+  getLevelProgress,
+  calculateDisplayStatus,
+  calculateOverallProgress,
+  calculateCategoryProgress,
+  completeLevel,
+  startLevel,
+} from "@/services/ProgressService";
 import {
   calculateNodePosition,
   calculateGraphNodePosition,
@@ -65,139 +80,16 @@ function LearningDashboard() {
     activeCategory,
   );
 
-  // Helper function: 獲取關卡進度（若不存在則返回預設值）
-  const getLevelProgress = (levelId: string) => {
-    return (
-      userProgress.levels[levelId] || {
-        levelId,
-        status: "locked" as const,
-        stars: 0,
-        attempts: 0,
-        bestTime: 0,
-      }
-    );
-  };
-
-  // Helper function: 判斷關卡應該顯示的狀態
-  // 規則：
-  // 1. 在同一 category 中，找出所有已解鎖但未完成的關卡
-  // 2. 只有 layer 最小的關卡才會顯示為可玩狀態
-  // 3. 如果整個 category 只有一個可玩關卡，顯示為 "in-progress"
-  // 4. 如果有多個可玩關卡，顯示為 "unlocked"
+  // 使用 ProgressService 計算顯示狀態
   const getDisplayStatus = (level: Level & { isUnlocked: boolean }) => {
-    // 如果關卡被鎖定，直接返回 "locked"
-    if (!level.isUnlocked) {
-      return "locked";
-    }
-
-    // 獲取用戶進度中的狀態
-    const progressStatus = userProgress.levels[level.id]?.status;
-
-    // 如果已經是 "completed" 或 "in-progress"，保持原狀態
-    if (progressStatus === "completed" || progressStatus === "in-progress") {
-      return progressStatus;
-    }
-
-    // 找出所有已解鎖但未完成的關卡
-    const unlockedNotCompletedLevels = filteredLevels.filter(
-      (l) =>
-        l.isUnlocked &&
-        userProgress.levels[l.id]?.status !== "completed" &&
-        userProgress.levels[l.id]?.status !== "in-progress",
-    );
-
-    // 如果沒有未完成的關卡，返回 "locked"
-    if (unlockedNotCompletedLevels.length === 0) {
-      return "locked";
-    }
-
-    // 找到 layer 最小的關卡
-    const minLayer = Math.min(
-      ...unlockedNotCompletedLevels.map((l) => l.graphPosition?.layer ?? 0),
-    );
-
-    // 找出所有 layer 最小的未完成關卡
-    const minLayerLevels = unlockedNotCompletedLevels.filter(
-      (l) => l.graphPosition?.layer === minLayer,
-    );
-
-    // 如果當前關卡不是 layer 最小的，顯示為 "locked"
-    const isInMinLayer = minLayerLevels.some((l) => l.id === level.id);
-    if (!isInMinLayer) {
-      return "locked";
-    }
-
-    // 如果只有一個 layer 最小的未完成關卡（就是當前這個），顯示為 "in-progress"
-    if (minLayerLevels.length === 1) {
-      return "in-progress";
-    }
-
-    // 如果有多個 layer 最小的未完成關卡，顯示為 "unlocked"
-    return "unlocked";
+    return calculateDisplayStatus(level, filteredLevels, userProgress);
   };
 
-  // 計算進度統計
-  const totalLevels = allLevels.length;
-  const completedLevels = Object.values(userProgress.levels).filter(
-    (progress) => progress.status === "completed",
-  ).length;
-  const totalStars = totalLevels * 3;
-  const earnedStars = Object.values(userProgress.levels).reduce(
-    (sum, progress) => sum + progress.stars,
-    0,
-  );
-  const completionRate =
-    totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
+  // 使用 ProgressService 計算進度統計
+  const { totalLevels, completedLevels, totalStars, earnedStars, completionRate } =
+    calculateOverallProgress(allLevels, userProgress);
 
-  // 計算按分類的進度統計
-  const categoryProgress = allLevels.reduce(
-    (acc, level) => {
-      const category = level.category;
-
-      if (!acc[category]) {
-        acc[category] = {
-          name: level.category,
-          completedLevels: 0,
-          totalLevels: 0,
-          completionRate: 0,
-          isBossCompleted: false,
-        };
-      }
-
-      acc[category].totalLevels += 1;
-
-      const levelProgress = userProgress.levels[level.id];
-      if (levelProgress?.status === "completed") {
-        acc[category].completedLevels += 1;
-      }
-
-      // 檢查是否為 Boss Level
-      if (
-        level.pathMetadata?.pathType === "boss" &&
-        levelProgress?.status === "completed"
-      ) {
-        acc[category].isBossCompleted = true;
-      }
-
-      // 計算完成率
-      acc[category].completionRate =
-        acc[category].totalLevels > 0
-          ? (acc[category].completedLevels / acc[category].totalLevels) * 100
-          : 0;
-
-      return acc;
-    },
-    {} as Record<
-      string,
-      {
-        name: string;
-        completedLevels: number;
-        totalLevels: number;
-        completionRate: number;
-        isBossCompleted: boolean;
-      }
-    >,
-  );
+  const categoryProgress = calculateCategoryProgress(allLevels, userProgress);
 
   // 更新 URL 參數
   useEffect(() => {
@@ -208,7 +100,11 @@ function LearningDashboard() {
   useEffect(() => {
     const updatedProgress = updateCategoryUnlocks(userProgress);
 
-    if (updatedProgress !== userProgress) {
+    // 比較 categoryUnlocks 是否有變化
+    const hasChanges = JSON.stringify(updatedProgress.categoryUnlocks) !==
+      JSON.stringify(userProgress.categoryUnlocks);
+
+    if (hasChanges) {
       setUserProgress(updatedProgress);
       saveUserProgress(updatedProgress);
 
@@ -230,7 +126,7 @@ function LearningDashboard() {
         setTimeout(() => setToastMessage(null), 3000);
       }
     }
-  }, [userProgress.levels]); // 僅監聽 levels 變化
+  }, [userProgress]); // 監聽整個 userProgress
 
   // 自動打開指定的 Level Dialog（從 URL 參數讀取 levelId）
   useEffect(() => {
@@ -293,18 +189,8 @@ function LearningDashboard() {
   // 跳轉到 Practice Page
   const handleStartPractice = () => {
     if (selectedLevel) {
-      // 更新關卡狀態為「進行中」
-      const currentProgress = getLevelProgress(selectedLevel.id);
-      const updatedProgress = {
-        ...userProgress,
-        levels: {
-          ...userProgress.levels,
-          [selectedLevel.id]: {
-            ...currentProgress,
-            status: "in-progress" as const,
-          },
-        },
-      };
+      // 使用 ProgressService 更新關卡狀態為「進行中」
+      const updatedProgress = startLevel(selectedLevel.id, userProgress);
       setUserProgress(updatedProgress);
       saveUserProgress(updatedProgress);
 
@@ -312,29 +198,14 @@ function LearningDashboard() {
     }
   };
 
-  // TODO:測試用->完成關卡
+  // TODO:測試用->完成關卡（練習頁面完成後可移除）
   const handleCompleteLevel = () => {
     if (selectedLevel) {
-      const currentProgress = getLevelProgress(selectedLevel.id);
+      const currentProgress = getLevelProgress(selectedLevel.id, userProgress);
       const newStars = Math.max(currentProgress.stars, 1) as 1 | 2 | 3 | 4 | 5;
-      const updatedProgress: UserProgress = {
-        ...userProgress,
-        levels: {
-          ...userProgress.levels,
-          [selectedLevel.id]: {
-            ...currentProgress,
-            status: "completed" as const,
-            stars: newStars,
-            attempts: currentProgress.attempts + 1,
-          },
-        },
-        totalLevelsCompleted:
-          userProgress.totalLevelsCompleted +
-          (currentProgress.status !== "completed" ? 1 : 0),
-        totalStarsEarned:
-          userProgress.totalStarsEarned +
-          (currentProgress.status !== "completed" ? 1 : 0),
-      };
+
+      // 使用 ProgressService 更新進度
+      const updatedProgress = completeLevel(selectedLevel.id, userProgress, newStars);
       setUserProgress(updatedProgress);
       saveUserProgress(updatedProgress);
 
@@ -357,19 +228,12 @@ function LearningDashboard() {
           const prereqType = level.prerequisites?.type || "AND";
           const isPortal = level.pathMetadata?.pathType === "portal";
 
-          // Portal 的解鎖狀態：檢查目標 category 是否已解鎖
-          const getPortalUnlockStatus = () => {
-            if (!isPortal) return false;
-            const targetCategory = level.pathMetadata?.targetCategory;
-            if (!targetCategory) return false;
-            return userProgress.categoryUnlocks?.[targetCategory] ?? false;
-          };
-
-          const portalIsUnlocked = isPortal ? getPortalUnlockStatus() : false;
+          // 使用 LevelService 檢查 Portal 解鎖狀態
+          const portalUnlocked = isPortal && isPortalUnlocked(level.id, userProgress);
 
           // Portal Node 點擊處理：直接跳轉到目標分類
           const handlePortalClick = () => {
-            if (portalIsUnlocked && isPortal) {
+            if (portalUnlocked) {
               const targetCategory = getPortalTargetCategory(level.id);
               if (targetCategory) {
                 setActiveCategory(targetCategory);
@@ -518,8 +382,10 @@ function LearningDashboard() {
           onStartTutorial={handleStartTutorial}
           onStartPractice={handleStartPractice}
           onCompleteLevel={handleCompleteLevel}
-          userProgress={getLevelProgress(selectedLevel.id)}
-          isLocked={!selectedLevel.isUnlocked}
+          userProgress={getLevelProgress(selectedLevel.id, userProgress)}
+          tutorialLocked={false}
+          practiceLocked={!selectedLevel.isUnlocked}
+          prerequisiteInfo={selectedLevel.prerequisites}
         />
       )}
 
