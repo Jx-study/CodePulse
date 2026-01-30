@@ -14,8 +14,13 @@ import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 
 // 資料導入
-import { getAllLevels, getCategories, getCategoryName, getPortalTargetCategory } from "@/data/levels/levelAdapter";
-import { loadUserProgress, saveUserProgress, updateCategoryUnlocks } from "@/data/userProgress";
+import { getAllLevels, getPortalTargetCategory } from "@/services/LevelService";
+import { getCategories, getCategoryName } from "@/services/CategoryService";
+import {
+  loadUserProgress,
+  saveUserProgress,
+  updateCategoryUnlocks,
+} from "@/data/userProgress";
 import {
   calculateNodePosition,
   calculateGraphNodePosition,
@@ -25,7 +30,7 @@ import {
   filterLevelsByCategory,
 } from "./utils/graphUtils";
 import type { Level, UserProgress } from "@/types";
-import type { AlgorithmCategory } from "@/types";
+import type { CategoryType } from "@/types";
 
 function LearningDashboard() {
   const navigate = useNavigate();
@@ -36,8 +41,8 @@ function LearningDashboard() {
     useState<UserProgress>(loadUserProgress());
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<AlgorithmCategory>(
-    (searchParams.get("category") as AlgorithmCategory) || "data-structures",
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(
+    (searchParams.get("category") as CategoryType) || "data-structures",
   );
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -62,13 +67,15 @@ function LearningDashboard() {
 
   // Helper function: 獲取關卡進度（若不存在則返回預設值）
   const getLevelProgress = (levelId: string) => {
-    return userProgress.levels[levelId] || {
-      levelId,
-      status: 'locked' as const,
-      stars: 0,
-      attempts: 0,
-      bestTime: 0
-    };
+    return (
+      userProgress.levels[levelId] || {
+        levelId,
+        status: "locked" as const,
+        stars: 0,
+        attempts: 0,
+        bestTime: 0,
+      }
+    );
   };
 
   // Helper function: 判斷關卡應該顯示的狀態
@@ -93,9 +100,10 @@ function LearningDashboard() {
 
     // 找出所有已解鎖但未完成的關卡
     const unlockedNotCompletedLevels = filteredLevels.filter(
-      (l) => l.isUnlocked &&
-             userProgress.levels[l.id]?.status !== "completed" &&
-             userProgress.levels[l.id]?.status !== "in-progress"
+      (l) =>
+        l.isUnlocked &&
+        userProgress.levels[l.id]?.status !== "completed" &&
+        userProgress.levels[l.id]?.status !== "in-progress",
     );
 
     // 如果沒有未完成的關卡，返回 "locked"
@@ -104,11 +112,13 @@ function LearningDashboard() {
     }
 
     // 找到 layer 最小的關卡
-    const minLayer = Math.min(...unlockedNotCompletedLevels.map((l) => l.graphPosition?.layer ?? 0));
+    const minLayer = Math.min(
+      ...unlockedNotCompletedLevels.map((l) => l.graphPosition?.layer ?? 0),
+    );
 
     // 找出所有 layer 最小的未完成關卡
     const minLayerLevels = unlockedNotCompletedLevels.filter(
-      (l) => l.graphPosition?.layer === minLayer
+      (l) => l.graphPosition?.layer === minLayer,
     );
 
     // 如果當前關卡不是 layer 最小的，顯示為 "locked"
@@ -140,39 +150,54 @@ function LearningDashboard() {
     totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
 
   // 計算按分類的進度統計
-  const categoryProgress = allLevels.reduce((acc, level) => {
-    const category = level.category;
+  const categoryProgress = allLevels.reduce(
+    (acc, level) => {
+      const category = level.category;
 
-    if (!acc[category]) {
-      acc[category] = {
-        name: level.category,
-        completedLevels: 0,
-        totalLevels: 0,
-        completionRate: 0,
-        isBossCompleted: false,
-      };
-    }
+      if (!acc[category]) {
+        acc[category] = {
+          name: level.category,
+          completedLevels: 0,
+          totalLevels: 0,
+          completionRate: 0,
+          isBossCompleted: false,
+        };
+      }
 
-    acc[category].totalLevels += 1;
+      acc[category].totalLevels += 1;
 
-    const levelProgress = userProgress.levels[level.id];
-    if (levelProgress?.status === "completed") {
-      acc[category].completedLevels += 1;
-    }
+      const levelProgress = userProgress.levels[level.id];
+      if (levelProgress?.status === "completed") {
+        acc[category].completedLevels += 1;
+      }
 
-    // 檢查是否為 Boss Level
-    if (level.pathMetadata?.pathType === "boss" && levelProgress?.status === "completed") {
-      acc[category].isBossCompleted = true;
-    }
+      // 檢查是否為 Boss Level
+      if (
+        level.pathMetadata?.pathType === "boss" &&
+        levelProgress?.status === "completed"
+      ) {
+        acc[category].isBossCompleted = true;
+      }
 
-    // 計算完成率
-    acc[category].completionRate =
-      acc[category].totalLevels > 0
-        ? (acc[category].completedLevels / acc[category].totalLevels) * 100
-        : 0;
+      // 計算完成率
+      acc[category].completionRate =
+        acc[category].totalLevels > 0
+          ? (acc[category].completedLevels / acc[category].totalLevels) * 100
+          : 0;
 
-    return acc;
-  }, {} as Record<string, { name: string; completedLevels: number; totalLevels: number; completionRate: number; isBossCompleted: boolean; }>);
+      return acc;
+    },
+    {} as Record<
+      string,
+      {
+        name: string;
+        completedLevels: number;
+        totalLevels: number;
+        completionRate: number;
+        isBossCompleted: boolean;
+      }
+    >,
+  );
 
   // 更新 URL 參數
   useEffect(() => {
@@ -188,9 +213,14 @@ function LearningDashboard() {
       saveUserProgress(updatedProgress);
 
       // 找出新解鎖的 Category
-      const newlyUnlockedCategories = Object.entries(updatedProgress.categoryUnlocks)
-        .filter(([id, unlocked]) => unlocked && !userProgress.categoryUnlocks[id as AlgorithmCategory])
-        .map(([id]) => id as AlgorithmCategory);
+      const newlyUnlockedCategories = Object.entries(
+        updatedProgress.categoryUnlocks,
+      )
+        .filter(
+          ([id, unlocked]) =>
+            unlocked && !userProgress.categoryUnlocks[id as CategoryType],
+        )
+        .map(([id]) => id as CategoryType);
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = getCategoryName(newlyUnlockedCategories[0]);
@@ -298,8 +328,12 @@ function LearningDashboard() {
             attempts: currentProgress.attempts + 1,
           },
         },
-        totalLevelsCompleted: userProgress.totalLevelsCompleted + (currentProgress.status !== "completed" ? 1 : 0),
-        totalStarsEarned: userProgress.totalStarsEarned + (currentProgress.status !== "completed" ? 1 : 0),
+        totalLevelsCompleted:
+          userProgress.totalLevelsCompleted +
+          (currentProgress.status !== "completed" ? 1 : 0),
+        totalStarsEarned:
+          userProgress.totalStarsEarned +
+          (currentProgress.status !== "completed" ? 1 : 0),
       };
       setUserProgress(updatedProgress);
       saveUserProgress(updatedProgress);
@@ -361,10 +395,13 @@ function LearningDashboard() {
 
                 // 決定連線狀態：目標關卡（toNode）的狀態決定連線顏色
                 const targetStatus = getDisplayStatus(level);
-                const pathStatus: 'locked' | 'unlocked' | 'completed' =
-                  targetStatus === 'completed' ? 'completed' :
-                  targetStatus === 'unlocked' || targetStatus === 'in-progress' ? 'unlocked' :
-                  'locked';
+                const pathStatus: "locked" | "unlocked" | "completed" =
+                  targetStatus === "completed"
+                    ? "completed"
+                    : targetStatus === "unlocked" ||
+                        targetStatus === "in-progress"
+                      ? "unlocked"
+                      : "locked";
 
                 return (
                   <PathConnection
@@ -380,8 +417,12 @@ function LearningDashboard() {
               {/* 節點渲染：Portal Node 或 Level Node */}
               {isPortal ? (
                 <PortalNode
-                  targetCategory={level.pathMetadata?.targetCategory || "data-structures"}
-                  targetCategoryName={getCategoryName(level.pathMetadata?.targetCategory || "data-structures")}
+                  targetCategory={
+                    level.pathMetadata?.targetCategory || "data-structures"
+                  }
+                  targetCategoryName={getCategoryName(
+                    level.pathMetadata?.targetCategory || "data-structures",
+                  )}
                   isUnlocked={level.isUnlocked}
                   position={position}
                   onClick={handlePortalClick}
@@ -483,11 +524,7 @@ function LearningDashboard() {
       )}
 
       {/* Toast 提示 */}
-      {toastMessage && (
-        <div className={styles.toast}>
-          {toastMessage}
-        </div>
-      )}
+      {toastMessage && <div className={styles.toast}>{toastMessage}</div>}
     </div>
   );
 }

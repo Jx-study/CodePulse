@@ -1,8 +1,6 @@
 node_modules/
 .idea/
 *.iml
-*.md
-!README.md
 
 *.md
 !README.md
