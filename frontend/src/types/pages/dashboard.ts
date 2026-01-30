@@ -11,6 +11,9 @@ export type PrerequisiteType = "AND" | "OR" | "NONE";
 // 難度類型（1-5 星）
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
+// 分數等級（0-3 星）
+export type ScoreLevel = 0 | 1 | 2 | 3;
+
 // 關卡狀態類型
 export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
 
@@ -94,7 +97,7 @@ export interface LevelConfig extends Level {
 export interface LevelProgress {
   levelId: string;
   status: LevelStatus;
-  stars: DifficultyLevel;
+  stars: ScoreLevel;
   attempts: number;
   bestTime: number;
   completedAt?: string;
@@ -123,6 +126,7 @@ export interface LevelDialogProps extends Pick<
   level: Level;
   onStartTutorial: () => void;
   onStartPractice: () => void;
+  onCompleteLevel?: () => void; // 測試用：完成關卡（練習頁面完成後可移除）
   userProgress: LevelProgress;
 
   // 雙模式權限控制
