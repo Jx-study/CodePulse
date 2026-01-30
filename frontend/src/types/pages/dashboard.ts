@@ -3,18 +3,17 @@
  * 學習儀表板頁面相關的類型定義
  */
 
-import type { DialogProps } from '../components/feedback';
-import type { AlgorithmCategory } from '../algorithm';
+import type { DialogProps } from "../components/feedback";
 
 // 先決條件類型
-export type PrerequisiteType = 'AND' | 'OR' |'NONE';
+export type PrerequisiteType = "AND" | "OR" | "NONE";
 
 // 難度類型（1-5 星）
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
 // 關卡狀態類型
 export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
-  
+
 /**
  * pathType 說明：
  * `main`：主線路徑
@@ -24,20 +23,32 @@ export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
  * `boss`：Boss Level
  * `portal`：Portal Node
  */
-export type PathType = 'main' | 'branch' | 'convergence' | 'choice-point' | 'boss' | 'portal';
-
+export type PathType =
+  | "main"
+  | "branch"
+  | "convergence"
+  | "choice-point"
+  | "boss"
+  | "portal";
 
 //路徑元數據
 export interface PathMetadata {
   pathType: PathType;
-  branchLabel?: string;             // 分支標籤（'Sorting Path'）
-  colorTheme?: string;              // 自定義顏色（覆蓋 Category 主題色）
-  targetCategory?: AlgorithmCategory;          // Portal 目標 Category（僅 Portal Node，當 pathType === 'portal'）
+  branchLabel?: string; // 分支標籤（'Sorting Path'）
+  colorTheme?: string; // 自定義顏色（覆蓋 Category 主題色）
+  targetCategory?: CategoryType; // Portal 目標 Category（僅 Portal Node，當 pathType === 'portal'）
 }
 
 // ==================== Category Types ====================
+// 關卡分類
+export type CategoryType =
+  | "data-structures"
+  | "sorting"
+  | "searching"
+  | "graph";
+
 export interface Category {
-  id: AlgorithmCategory;
+  id: CategoryType;
   name: string; // '資料結構'
   nameEn: string; // 'Data Structures'
   description: string; // 簡介
@@ -49,8 +60,8 @@ export interface Category {
 
 export interface CategoryFilterProps {
   categories: Category[];
-  activeCategory: AlgorithmCategory; // 當前選中的 Category ID
-  onCategoryChange: (categoryId: AlgorithmCategory) => void;
+  activeCategory: CategoryType; // 當前選中的 Category ID
+  onCategoryChange: (categoryId: CategoryType) => void;
 }
 
 // ==================== Level Types ====================
@@ -64,10 +75,10 @@ export interface Level {
   id: string;
   name: string;
   nameEn: string;
-  category: AlgorithmCategory;
+  category: CategoryType;
   difficulty: DifficultyLevel;
-  description?: string;  
-  learningObjectives?: string[];  
+  description?: string;
+  learningObjectives?: string[];
   isDeveloped: boolean;
   isUnlocked: boolean;
 
@@ -77,7 +88,6 @@ export interface Level {
 }
 
 export interface LevelConfig extends Level {
-  implementationType: "algorithm" | "dataStructure";
   implementationKey: string; // 例如: 'sorting/quick-sort' 或 'linear/stack'
 }
 
@@ -100,13 +110,16 @@ export interface UserProgress {
   lastAccessedDate: string;
 
   categoryUnlocks: {
-    [K in AlgorithmCategory]?: boolean;
+    [K in CategoryType]?: boolean;
   };
-  activeCategory: AlgorithmCategory; // 使用者目前解鎖到的最高 Category ID
+  activeCategory: CategoryType; // 使用者目前解鎖到的最高 Category ID
 }
 
 // ==================== Level Dialog Component ====================
-export interface LevelDialogProps extends Pick<DialogProps, 'isOpen' | 'onClose'> {
+export interface LevelDialogProps extends Pick<
+  DialogProps,
+  "isOpen" | "onClose"
+> {
   level: Level;
   onStartTutorial: () => void;
   onStartPractice: () => void;
@@ -143,20 +156,20 @@ export interface LevelNodeProps extends BaseNodeProps {
   stars: DifficultyLevel;
   isLocked: boolean;
 
-  isBossLevel?: boolean;        // 是否為 Boss Level
-  pathMetadata?: PathMetadata;  // 路徑元數據
+  isBossLevel?: boolean; // 是否為 Boss Level
+  pathMetadata?: PathMetadata; // 路徑元數據
 }
 
 export interface PortalNodeProps extends BaseNodeProps {
-  targetCategory: AlgorithmCategory;
+  targetCategory: CategoryType;
   targetCategoryName: string;
-  isUnlocked: boolean;          // 是否解鎖（完成 Boss Level）
+  isUnlocked: boolean; // 是否解鎖（完成 Boss Level）
 }
 
 export interface PathConnectionProps {
   fromNode: NodePosition;
   toNode: NodePosition;
-  status: 'locked' | 'unlocked' | 'completed';
+  status: "locked" | "unlocked" | "completed";
   containerWidth?: number;
   connectionType?: PrerequisiteType;
 }
@@ -179,15 +192,19 @@ export interface LayoutConfig {
 }
 
 export interface GraphContainerProps {
-  levels: Level[];              // 當前 Graph 的關卡清單
-  userProgress: UserProgress;   // 使用者進度
-  children: (level: Level, index: number, position: NodePosition) => React.ReactNode;
+  levels: Level[]; // 當前 Graph 的關卡清單
+  userProgress: UserProgress; // 使用者進度
+  children: (
+    level: Level,
+    index: number,
+    position: NodePosition,
+  ) => React.ReactNode;
 }
 
 export interface GraphPosition {
-  layer: number;                // 層級（0 = 底部入口）
-  branch: string;               // 分支名稱（'sorting-basic', 'search-path'）
-  horizontalIndex: number;      // 同一層內的水平位置（0, 1, 2...）
+  layer: number; // 層級（0 = 底部入口）
+  branch: string; // 分支名稱（'sorting-basic', 'search-path'）
+  horizontalIndex: number; // 同一層內的水平位置（0, 1, 2...）
 }
 
 export interface ZoomControlsProps {
@@ -201,7 +218,7 @@ export interface ZoomControlsProps {
 export interface CategoryFilterItem extends Category {
   levels: Level[]; // 該 Category 的所有關卡
   bossLevelId?: string; // Boss Level 的 ID
-  portalTargetCategory?: AlgorithmCategory; // Portal 目標 Category ID
+  portalTargetCategory?: CategoryType; // Portal 目標 Category ID
 }
 
 // ==================== Progress Stats Dialog Component ====================
@@ -214,7 +231,10 @@ export interface CategoryProgressInfo {
   isBossCompleted: boolean; // Boss Level 是否完成
 }
 
-export interface ProgressStatsDialogProps extends Pick<DialogProps, 'isOpen' | 'onClose'> {
+export interface ProgressStatsDialogProps extends Pick<
+  DialogProps,
+  "isOpen" | "onClose"
+> {
   // 總體進度
   totalLevels: number; // 所有 Graph 的關卡總數
   completedLevels: number; // 已完成關卡總數
@@ -224,6 +244,6 @@ export interface ProgressStatsDialogProps extends Pick<DialogProps, 'isOpen' | '
 
   // 按 Category 分組進度
   categoryProgress: {
-    [K in AlgorithmCategory]?: CategoryProgressInfo;
+    [K in CategoryType]?: CategoryProgressInfo;
   };
 }
