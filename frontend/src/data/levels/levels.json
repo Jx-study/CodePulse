@@ -1,6 +1,41 @@
 {
   "levels": [
     {
+      "id": "array",
+      "name": "陣列",
+      "nameEn": "Array",
+      "category": "data-structures",
+      "difficulty": 1,
+      "description": "最基礎的線性資料結構，支援隨機存取",
+      "learningObjectives": [
+        "理解陣列的記憶體配置",
+        "掌握索引存取與更新 (O(1))",
+        "理解插入與刪除的搬移成本 (O(n))"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": true,
+      "prerequisites": {
+        "type": "NONE",
+        "levelIds": []
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "main",
+        "horizontalIndex": -1
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "linear/array",
+      "homePageMetadata": {
+        "displayOrder": 0,
+        "image": "array.png",
+        "translationKey": "array",
+        "showOnHomePage": true
+      }
+    },
+    {
       "id": "linked-list",
       "name": "鏈結串列",
       "nameEn": "Linked List",
@@ -108,6 +143,72 @@
       }
     },
     {
+      "id": "binarytree",
+      "name": "二元樹",
+      "nameEn": "Binary Tree",
+      "category": "data-structures",
+      "difficulty": 2,
+      "description": "每個節點最多有兩個子節點的基礎樹狀結構",
+      "learningObjectives": [
+        "理解樹狀結構與節點關係",
+        "掌握前序、中序、後序遍歷",
+        "理解遞迴在樹中的應用"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["linked-list"]
+      },
+      "graphPosition": {
+        "layer": 1,
+        "branch": "right",
+        "horizontalIndex": 2
+      },
+      "pathMetadata": {
+        "pathType": "branch",
+        "branchLabel": "樹狀結構"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "nonlinear/binarytree",
+      "homePageMetadata": {
+        "displayOrder": 4,
+        "image": "binary-tree.png",
+        "translationKey": "binary_tree",
+        "showOnHomePage": true
+      }
+    },
+    {
+      "id": "bst",
+      "name": "二元搜尋樹",
+      "nameEn": "Binary Search Tree",
+      "category": "data-structures",
+      "difficulty": 3,
+      "description": "具有排序性質的二元樹，左子樹小於根，右子樹大於根",
+      "learningObjectives": [
+        "理解 BST 的排序性質",
+        "掌握搜尋、插入與刪除邏輯",
+        "分析平衡性對效能的影響"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["binarytree"]
+      },
+      "graphPosition": {
+        "layer": 2,
+        "branch": "right",
+        "horizontalIndex": 1
+      },
+      "pathMetadata": {
+        "pathType": "branch",
+        "branchLabel": "進階樹結構"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "nonlinear/bst"
+    },
+    {
       "id": "doubly-linked-list",
       "name": "雙向鏈結串列",
       "nameEn": "Doubly Linked List",
@@ -161,6 +262,35 @@
       "implementationKey": "sorting/bubblesort"
     },
     {
+      "id": "prefix-sum",
+      "name": "前綴和",
+      "nameEn": "Prefix Sum",
+      "category": "technique",
+      "difficulty": 2,
+      "description": "快速計算區間和的預處理技巧",
+      "learningObjectives": [
+        "理解前綴和陣列的建構",
+        "掌握 O(1) 區間查詢",
+        "應用於頻繁查詢場景"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["array"]
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "main",
+        "horizontalIndex": 0
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "algorithm",
+      "implementationKey": "technique/prefixsum"
+    },
+    {
       "id": "bubble-sort",
       "name": "氣泡排序",
       "nameEn": "Bubble Sort",
@@ -189,7 +319,7 @@
       "implementationType": "algorithm",
       "implementationKey": "sorting/bubblesort",
       "homePageMetadata": {
-        "displayOrder": 4,
+        "displayOrder": 5,
         "image": "bubble-sort.png",
         "translationKey": "bubble_sort",
         "showOnHomePage": true
@@ -225,7 +355,7 @@
       "implementationType": "algorithm",
       "implementationKey": "sorting/selectionsort",
       "homePageMetadata": {
-        "displayOrder": 5,
+        "displayOrder": 6,
         "image": "merge-sort.png",
         "translationKey": "selection_sort",
         "showOnHomePage": true
@@ -261,7 +391,7 @@
       "implementationType": "algorithm",
       "implementationKey": "sorting/insertionsort",
       "homePageMetadata": {
-        "displayOrder": 6,
+        "displayOrder": 7,
         "image": "quick-sort.png",
         "translationKey": "insertion_sort",
         "showOnHomePage": true
@@ -378,7 +508,7 @@
       "implementationType": "algorithm",
       "implementationKey": "searching/binarysearch",
       "homePageMetadata": {
-        "displayOrder": 7,
+        "displayOrder": 8,
         "image": "binary-search.png",
         "translationKey": "binary_search",
         "showOnHomePage": true
@@ -413,7 +543,7 @@
       "implementationType": "algorithm",
       "implementationKey": "searching/linearsearch",
       "homePageMetadata": {
-        "displayOrder": 8,
+        "displayOrder": 9,
         "image": "linear-search.png",
         "translationKey": "linear_search",
         "showOnHomePage": true
@@ -444,6 +574,35 @@
       "implementationKey": "graph/bfs"
     },
     {
+      "id": "graph-structure",
+      "name": "圖形結構",
+      "nameEn": "Graph Structure",
+      "category": "graph",
+      "difficulty": 2,
+      "description": "由節點 (Vertex) 與邊 (Edge) 組成的非線性資料結構",
+      "learningObjectives": [
+        "理解圖的基本組成與術語",
+        "比較鄰接矩陣與鄰接表",
+        "區分有向圖與無向圖"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "NONE",
+        "levelIds": []
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "main",
+        "horizontalIndex": 0
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "nonlinear/graph"
+    },
+    {
       "id": "bfs",
       "name": "廣度優先搜尋",
       "nameEn": "BFS",
@@ -458,11 +617,11 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "AND",
+        "levelIds": ["graph-structure"]
       },
       "graphPosition": {
-        "layer": 0,
+        "layer": 1,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -491,7 +650,7 @@
         "levelIds": ["bfs"]
       },
       "graphPosition": {
-        "layer": 1,
+        "layer": 2,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -512,6 +671,15 @@
       "colorTheme": "#635bff",
       "order": 1
     },
+    "technique": {
+      "id": "technique",
+      "name": "演算法技巧",
+      "nameEn": "Algorithmic Techniques",
+      "description": "學習通用的解題模式與優化技巧",
+      "icon": "lightbulb",
+      "colorTheme": "#e67e22",
+      "order": 2
+    },
     "sorting": {
       "id": "sorting",
       "name": "排序演算法",
@@ -519,7 +687,7 @@
       "description": "掌握各種排序演算法的實作與效能分析",
       "icon": "signal",
       "colorTheme": "#ff6b6b",
-      "order": 2
+      "order": 3
     },
     "searching": {
       "id": "searching",
@@ -528,7 +696,7 @@
       "description": "探索高效的搜尋策略與技巧",
       "icon": "magnifying-glass",
       "colorTheme": "#51cf66",
-      "order": 3
+      "order": 4
     },
     "graph": {
       "id": "graph",
@@ -537,7 +705,7 @@
       "description": "深入理解圖論的核心演算法",
       "icon": "diagram-project",
       "colorTheme": "#ffd43b",
-      "order": 4
+      "order": 5
     }
   }
 }
