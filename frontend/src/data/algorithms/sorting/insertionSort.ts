@@ -1,4 +1,5 @@
-import { AnimationStep, AlgorithmConfig } from "@/types";
+import { AnimationStep } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -147,10 +148,10 @@ export function createInsertionSortAnimationSteps(
   return steps;
 }
 
-export const insertionSortConfig: AlgorithmConfig = {
+export const insertionSortConfig: LevelImplementationConfig = {
   id: "insertionsort",
+  type: "algorithm",
   name: "插入排序 (Insertion Sort)",
-  category: "sorting",
   categoryName: "排序演算法",
   description:
     "類似整理撲克牌，每次將一張新牌插入到已排好序的手牌中的正確位置。",
