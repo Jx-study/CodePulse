@@ -29,6 +29,7 @@ function PathConnection({
 
   // 決定連線樣式類別
   const getConnectionClass = (): string => {
+    if (connectionType === "GHOST") return styles.ghostConnection;
     if (connectionType === "OR") return styles.orConnection;
     return styles.andConnection;
   };
@@ -42,8 +43,11 @@ function PathConnection({
   const toY = toNode.y;
 
   // 連線起點和終點（從節點邊緣開始）
-  const startY = fromY - nodeRadius;
-  const endY = toY + nodeRadius;
+  // 判斷連線方向：如果 toY > fromY（目標在下方），從 from 底部連到 to 頂部
+  // 如果 toY < fromY（目標在上方），從 from 頂部連到 to 底部
+  const isDownward = toY > fromY;
+  const startY = isDownward ? fromY + nodeRadius : fromY - nodeRadius;
+  const endY = isDownward ? toY - nodeRadius : toY + nodeRadius;
 
   // 計算貝塞爾曲線控制點（基於節點間距）
   const deltaY = endY - startY;

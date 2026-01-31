@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
@@ -8,6 +8,7 @@ import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
 import GraphContainer from "./components/GraphContainer/GraphContainer";
 import LevelNode from "./components/LevelNode/LevelNode";
 import PortalNode from "./components/PortalNode/PortalNode";
+import GhostNode from "./components/GhostNode/GhostNode";
 import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
@@ -242,6 +243,31 @@ function LearningDashboard() {
             }
           };
 
+          // Ghost Node 點擊處理：跳轉到目標分類並滾動到目標關卡
+          const handleGhostClick = (targetLevelId: string, targetCategory: CategoryType) => {
+            // 1. 切換到目標 category
+            setActiveCategory(targetCategory);
+
+            // 2. 延遲滾動到目標節點（等待 category 切換完成）
+            setTimeout(() => {
+              const levelElement = document.querySelector(
+                `[data-level-id="${targetLevelId}"]`
+              );
+              if (levelElement) {
+                levelElement.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+
+                // 可選：高亮目標節點 2 秒
+                levelElement.classList.add('highlight-flash');
+                setTimeout(() => {
+                  levelElement.classList.remove('highlight-flash');
+                }, 2000);
+              }
+            }, 300);
+          };
+
           return (
             <>
               {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
@@ -296,7 +322,7 @@ function LearningDashboard() {
                 <LevelNode
                   level={level}
                   status={getDisplayStatus(level)}
-                  stars={userProgress.levels[level.id]?.stars || 0}
+                  stars={(userProgress.levels[level.id]?.stars || 0) as 1 | 2 | 3 | 4 | 5}
                   isLocked={!level.isUnlocked}
                   position={position}
                   onClick={() => handleLevelClick(level)}
@@ -304,6 +330,50 @@ function LearningDashboard() {
                   pathMetadata={level.pathMetadata}
                 />
               )}
+
+              {/* 幽靈參考節點 */}
+              {level.ghostReferences?.map((ghostRef, ghostIndex) => {
+                // 計算幽靈節點位置
+                const ghostPosition = calculateGraphNodePosition(
+                  { ...level, graphPosition: ghostRef.position },
+                  filteredLevels
+                );
+
+                // 繪製虛線連接（從當前 level 到 ghost node）
+                const ghostConnection = (
+                  <PathConnection
+                    key={`ghost-${level.id}-${ghostIndex}`}
+                    fromNode={position}
+                    toNode={ghostPosition}
+                    status="unlocked"
+                    connectionType="GHOST"
+                  />
+                );
+
+                // 渲染幽靈節點（點擊時動態查詢 targetLevel）
+                const ghostNode = (
+                  <GhostNode
+                    key={`ghost-node-${ghostRef.targetLevelId}-${ghostIndex}`}
+                    targetLevelId={ghostRef.targetLevelId}
+                    label={ghostRef.label || ghostRef.targetLevelId}
+                    position={ghostPosition}
+                    onClick={() => {
+                      // 在點擊時才查詢目標 Level
+                      const targetLevel = allLevels.find((l: Level) => l.id === ghostRef.targetLevelId);
+                      if (targetLevel) {
+                        handleGhostClick(targetLevel.id, targetLevel.category);
+                      }
+                    }}
+                  />
+                );
+
+                return (
+                  <React.Fragment key={`ghost-fragment-${ghostIndex}`}>
+                    {ghostConnection}
+                    {ghostNode}
+                  </React.Fragment>
+                );
+              })}
             </>
           );
         }}

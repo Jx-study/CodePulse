@@ -288,8 +288,19 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "ghostReferences": [
+        {
+          "targetLevelId": "array",
+          "position": {
+            "layer": -1,
+            "branch": "main",
+            "horizontalIndex": 0
+          },
+          "label": "陣列"
+        }
+      ],
       "implementationType": "algorithm",
-      "implementationKey": "technique/prefixsum"
+      "implementationKey": "prefixsum"
     },
     {
       "id": "bubble-sort",

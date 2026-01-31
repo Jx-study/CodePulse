@@ -13,6 +13,7 @@ import type {
   PrerequisiteConfig,
   GraphPosition,
   PathMetadata,
+  GhostReference,
   Category,
   DifficultyLevel,
   CategoryType,
@@ -40,6 +41,7 @@ interface RawLevelData {
   prerequisites: PrerequisiteConfig;
   graphPosition: GraphPosition;
   pathMetadata: PathMetadata;
+  ghostReferences?: GhostReference[];
   implementationKey: string;
   homePageMetadata?: HomePageMetadata;
 }
@@ -74,6 +76,7 @@ export function rawToLevelConfig(raw: RawLevelData): LevelConfig {
     prerequisites: raw.prerequisites,
     graphPosition: raw.graphPosition,
     pathMetadata: raw.pathMetadata,
+    ghostReferences: raw.ghostReferences,
     implementationKey: raw.implementationKey,
   };
 }
