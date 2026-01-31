@@ -1,4 +1,4 @@
-import { AnimationStep, AlgorithmConfig } from "@/types";
+import { AnimationStep, AlgorithmConfig, CodeConfig } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -248,19 +248,39 @@ export function createPrefixSumAnimationSteps(
   return steps;
 }
 
-export const prefixSumConfig: AlgorithmConfig = {
-  id: "prefixsum",
-  name: "前綴和 (Prefix Sum)",
-  category: "technique",
-  categoryName: "演算法技巧",
-  description: "透過預處理陣列，在 O(1) 時間內計算任意區間的總和。",
-  pseudoCode: `// 建構前綴和 P
+const prefixSumCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `// 建構前綴和 P
 P[0] = A[0]
 for i from 1 to n-1:
   P[i] = P[i-1] + A[i]
 
 // 查詢區間 [L, R] 的和
 RangeSum(L, R) = P[R] - P[L-1]`,
+    mappings: {},
+  },
+  python: {
+    content: `# 建構前綴和 P
+P = [0] * n
+P[0] = A[0]
+for i in range(1, n):
+    P[i] = P[i-1] + A[i]
+
+# 查詢區間 [L, R] 的和
+def range_sum(L, R):
+    if L == 0:
+        return P[R]
+    return P[R] - P[L-1]`,
+  },
+};
+
+export const prefixSumConfig: AlgorithmConfig = {
+  id: "prefixsum",
+  name: "前綴和 (Prefix Sum)",
+  category: "technique",
+  categoryName: "演算法技巧",
+  description: "透過預處理陣列，在 O(1) 時間內計算任意區間的總和。",
+  codeConfig: prefixSumCodeConfig,
   complexity: {
     timeBest: "O(n)",
     timeAverage: "O(n)",
