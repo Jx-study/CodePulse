@@ -8,6 +8,7 @@ export interface AnimationStep {
   description: string;
   elements: BaseElement[];
   actionTag?: string; // 新增：用於對應代碼高亮的標籤
+  variables?: Record<string, string | number | boolean | null>; // 新增：變數狀態追蹤
 }
 
 /**

@@ -17,6 +17,8 @@ import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
+import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableWatch";
+
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -62,12 +64,13 @@ function Tutorial() {
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
-  // 計算需要高亮的行號
+  // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
   const highlightLines = useMemo(() => {
     if (!topicTypeConfig || !currentStepData?.actionTag) return [];
+    if (codeMode !== "pseudo") return []; // python 不需要高亮
 
-    const config = topicTypeConfig.codeConfig[codeMode];
-    return config.mappings[currentStepData.actionTag] || [];
+    const pseudoConfig = topicTypeConfig.codeConfig.pseudo;
+    return pseudoConfig.mappings[currentStepData.actionTag] || [];
   }, [topicTypeConfig, currentStepData, codeMode]);
 
   // 切換模式時重置動畫
@@ -369,6 +372,8 @@ function Tutorial() {
             <div className={styles.stepDescription}>
               {currentStepData?.description}
             </div>
+            
+            <VariableWatch variables={currentStepData?.variables} />
           </div>
 
           {/* 資料操作列 */}
