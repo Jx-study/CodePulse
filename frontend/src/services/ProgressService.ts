@@ -57,15 +57,15 @@ export function calculateDisplayStatus(
     return "locked";
   }
 
-  // 獲取用戶進度中的狀態
-  const progressStatus = userProgress.levels[level.id]?.status;
+  // 獲取用戶進度中的狀態（若不存在則視為 "locked"）
+  const progressStatus = userProgress.levels[level.id]?.status || "locked";
 
   // 如果已經是 "completed" 或 "in-progress"，保持原狀態
   if (progressStatus === "completed" || progressStatus === "in-progress") {
     return progressStatus;
   }
 
-  // 找出所有已解鎖但未完成的關卡
+  // 找出所有已解鎖但未完成的關卡（包含 status 為 "locked" 或 "unlocked" 的）
   const unlockedNotCompletedLevels = filteredLevels.filter(
     (l) =>
       l.isUnlocked &&
@@ -73,9 +73,9 @@ export function calculateDisplayStatus(
       userProgress.levels[l.id]?.status !== "in-progress",
   );
 
-  // 如果沒有未完成的關卡，返回 "locked"
+  // 如果沒有未完成的關卡，返回 "unlocked"（這種情況應該不會發生，因為當前關卡也是已解鎖的）
   if (unlockedNotCompletedLevels.length === 0) {
-    return "locked";
+    return "unlocked";
   }
 
   // 找到 layer 最小的關卡
@@ -88,10 +88,10 @@ export function calculateDisplayStatus(
     (l) => l.graphPosition?.layer === minLayer,
   );
 
-  // 如果當前關卡不是 layer 最小的，顯示為 "locked"
+  // 如果當前關卡不是 layer 最小的，顯示為 "unlocked"（已解鎖但不是推薦順序）
   const isInMinLayer = minLayerLevels.some((l) => l.id === level.id);
   if (!isInMinLayer) {
-    return "locked";
+    return "unlocked";
   }
 
   // 如果只有一個 layer 最小的未完成關卡（就是當前這個），顯示為 "in-progress"
@@ -193,7 +193,7 @@ export function calculateCategoryProgress(
 export function completeLevel(
   levelId: string,
   userProgress: UserProgress,
-  newStars: 1 | 2 | 3 | 4 | 5,
+  newStars: 0 | 1 | 2 | 3,
 ): UserProgress {
   const currentProgress = getLevelProgress(levelId, userProgress);
   const wasCompleted = currentProgress.status === "completed";
@@ -205,7 +205,7 @@ export function completeLevel(
       [levelId]: {
         ...currentProgress,
         status: "completed" as const,
-        stars: Math.max(currentProgress.stars, newStars) as 1 | 2 | 3 | 4 | 5,
+        stars: Math.max(currentProgress.stars, newStars) as 0 | 1 | 2 | 3,
         attempts: currentProgress.attempts + 1,
       },
     },

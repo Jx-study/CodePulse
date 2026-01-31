@@ -159,7 +159,7 @@ export interface BaseNodeProps {
 export interface LevelNodeProps extends BaseNodeProps {
   level: Level;
   status: LevelStatus;
-  stars: DifficultyLevel;
+  stars: ScoreLevel;
   isLocked: boolean;
 
   isBossLevel?: boolean; // 是否為 Boss Level

@@ -204,7 +204,7 @@ function LearningDashboard() {
   const handleCompleteLevel = () => {
     if (selectedLevel) {
       const currentProgress = getLevelProgress(selectedLevel.id, userProgress);
-      const newStars = Math.max(currentProgress.stars, 1) as 1 | 2 | 3 | 4 | 5;
+      const newStars = Math.max(currentProgress.stars, 3) as 0 | 1 | 2 | 3;
 
       // 使用 ProgressService 更新進度
       const updatedProgress = completeLevel(selectedLevel.id, userProgress, newStars);
@@ -322,7 +322,7 @@ function LearningDashboard() {
                 <LevelNode
                   level={level}
                   status={getDisplayStatus(level)}
-                  stars={(userProgress.levels[level.id]?.stars || 0) as 1 | 2 | 3 | 4 | 5}
+                  stars={userProgress.levels[level.id]?.stars || 0}
                   isLocked={!level.isUnlocked}
                   position={position}
                   onClick={() => handleLevelClick(level)}
