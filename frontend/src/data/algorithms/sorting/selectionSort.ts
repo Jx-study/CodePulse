@@ -1,4 +1,5 @@
-import { AnimationStep, AlgorithmConfig, CodeConfig } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -134,8 +135,6 @@ export function createSelectionSortAnimationSteps(
 
   return steps;
 }
-
-
 const selectionSortCodeConfig: CodeConfig = {
   pseudo: {
     content: `
@@ -158,10 +157,10 @@ for i in range(n):
   },
 };
 
-export const selectionSortConfig: AlgorithmConfig = {
+export const selectionSortConfig: LevelImplementationConfig = {
   id: "selectionsort",
+  type: "algorithm",
   name: "選擇排序 (Selection Sort)",
-  category: "sorting",
   categoryName: "排序演算法",
   description: "每次從未排序區間中選出最小值，放到已排序區間的末尾。",
   codeConfig: selectionSortCodeConfig,

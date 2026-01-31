@@ -1,9 +1,9 @@
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Pointer } from "../../../modules/core/DataLogic/Pointer";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
-import { AnimationStep, CodeConfig } from "../../../types/animation";
-import { DataStructureConfig } from "../../../types/dataStructure";
-import { 
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Pointer } from "@/modules/core/DataLogic/Pointer";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { AnimationStep, CodeConfig } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
+import {
   LinearData as BoxData,
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes, 
@@ -455,10 +455,10 @@ const stackCodeConfig: CodeConfig = {
   },
 };
 
-export const StackConfig: DataStructureConfig = {
+export const StackConfig: LevelImplementationConfig = {
   id: "stack",
+  type: "dataStructure",
   name: "堆疊 (Stack)",
-  category: "linear",
   categoryName: "線性表",
   description: "LIFO (Last In First Out)",
   codeConfig: stackCodeConfig,

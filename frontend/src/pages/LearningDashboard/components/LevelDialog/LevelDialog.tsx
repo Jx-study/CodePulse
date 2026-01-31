@@ -2,18 +2,7 @@ import TutorialSection from './components/TutorialSection';
 import PracticeSection from './components/PracticeSection';
 import styles from './LevelDialog.module.scss';
 import Dialog from '@/shared/components/Dialog/Dialog';
-import type { Level, LevelProgress } from '@/types';
-
-interface LevelDialogProps {
-  level: Level;
-  isOpen: boolean;
-  onClose: () => void;
-  onStartTutorial: () => void;
-  onStartPractice: () => void;
-  onCompleteLevel?: () => void;
-  userProgress?: LevelProgress;
-  isLocked: boolean;
-}
+import type { LevelDialogProps } from '@/types';
 
 function LevelDialog({
   level,
@@ -23,9 +12,11 @@ function LevelDialog({
   onStartPractice,
   onCompleteLevel,
   userProgress,
-  isLocked
+  tutorialLocked,
+  practiceLocked,
+  prerequisiteInfo
 }: LevelDialogProps) {
-  const completionPercentage = userProgress?.status === 'completed' ? 100 : 0;
+  const completionPercentage = userProgress.status === 'completed' ? 100 : 0;
 
   return (
     <Dialog
@@ -42,16 +33,18 @@ function LevelDialog({
       <TutorialSection
         level={level}
         onStartTutorial={onStartTutorial}
-        isCompleted={userProgress?.status === "completed"}
+        isCompleted={userProgress.status === "completed"}
+        isLocked={tutorialLocked}
       />
       <PracticeSection
         level={level}
         onStartPractice={onStartPractice}
         onCompleteLevel={onCompleteLevel}
         completionPercentage={completionPercentage}
-        bestStars={userProgress?.stars ?? 0}
-        attempts={userProgress?.attempts ?? 0}
-        isLocked={isLocked}
+        bestStars={userProgress.stars}
+        attempts={userProgress.attempts}
+        isLocked={practiceLocked}
+        prerequisiteInfo={prerequisiteInfo}
       />
     </Dialog>
   );

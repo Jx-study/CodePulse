@@ -7,7 +7,7 @@ import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
 import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
-import { getLevelImplementation } from "@/data/levels/levelAdapter";
+import { getImplementationByLevelId } from "@/services/ImplementationService";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
@@ -35,7 +35,7 @@ function Tutorial() {
     if (!levelId) return null;
 
     // 透過 levelId 取得實作配置
-    const implementation = getLevelImplementation(levelId);
+    const implementation = getImplementationByLevelId(levelId);
     return implementation;
   }, [levelId]);
 
@@ -256,7 +256,7 @@ function Tutorial() {
           onRandomCountChange={setRandomCount}
           onLimitExceeded={() => setShowLimitToast(true)}
           disabled={isProcessing}
-          category={topicTypeConfig?.category}
+          category={category as any}
           algorithmId={topicTypeConfig?.id}
         />
       );

@@ -167,6 +167,53 @@ function drawContainer(
       .attr("y2", bottomY)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
+  } else if (type === "binarytree") {
+    const startX = 750;
+    const endX = 950;
+    const topY = 50;
+    const bottomY = 380;
+
+    // 左線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", startX)
+      .attr("y1", topY)
+      .attr("x2", startX)
+      .attr("y2", bottomY)
+      .attr("stroke", "#555")
+      .attr("stroke-width", 2);
+
+    // 右線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", endX)
+      .attr("y1", topY)
+      .attr("x2", endX)
+      .attr("y2", bottomY)
+      .attr("stroke", "#555")
+      .attr("stroke-width", 2);
+
+    // 底部
+    // scene
+    //   .append("line")
+    //   .attr("class", "container-line")
+    //   .attr("x1", startX)
+    //   .attr("y1", bottomY)
+    //   .attr("x2", endX)
+    //   .attr("y2", bottomY)
+    //   .attr("stroke", "#555")
+    //   .attr("stroke-width", 2);
+
+    // Label
+    scene
+      .append("text")
+      .attr("x", startX)
+      .attr("y", bottomY + 20)
+      .text("Call Stack/Queue")
+      .attr("fill", "#888")
+      .attr("font-size", 12);
   }
 }
 

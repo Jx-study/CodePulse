@@ -47,13 +47,8 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
 
     const containerHeight = mapRef.current.clientHeight;
 
-    // 內容的實際高度（考慮縮放）
-    const contentHeight = (contentBounds.maxY - contentBounds.minY) * zoomLevel;
-
-    // 內容最上面的實際位置（考慮縮放）
+    // 內容最上面 & 最下面的實際位置
     const contentTop = contentBounds.minY * zoomLevel;
-
-    // 內容最下面的實際位置（考慮縮放）
     const contentBottom = contentBounds.maxY * zoomLevel;
 
     // Y 軸滾動限制：

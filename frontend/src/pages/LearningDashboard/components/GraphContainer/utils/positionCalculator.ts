@@ -1,4 +1,4 @@
-import type { Level, GraphPosition } from '@/types';
+import type { Level } from '@/types';
 import {
   getLayoutConfig,
   getHorizontalOffset,
@@ -45,7 +45,7 @@ export const calculateNodePosition = (
 };
 
 /**
- * v2.0 多分支佈局計算
+ * 多分支佈局計算
  * 根據 graphPosition 計算節點位置
  * @param level 目標關卡
  * @param levels 所有關卡
@@ -77,42 +77,88 @@ export const calculateGraphNodePosition = (
   // 注意：這裡不使用 categoryOffset，因為我們希望所有類別都從底部開始
   const y = (maxLayer - graphPos.layer) * layoutConfig.layerSpacing;
 
-  // x 座標：根據 branch 和 horizontalIndex 計算（只看同類別同層）
-  const { x, alignment } = calculateBranchX(graphPos, sameCategoryLevels, layoutConfig);
+  // x 座標：基於前置節點的位置繼承
+  const { x, alignment } = calculateBranchX(level, sameCategoryLevels, layoutConfig);
 
   return { x, y, alignment };
 };
 
 
 /**
- * 計算分支的 X 座標
- * 支援同一 layer 有 3 個以上的節點（left、main、right 等）
- * @param graphPos 當前節點的圖位置
+ * 從 calc 表達式中提取偏移量（像素值）
+ * @param calcStr CSS calc 字串
+ * @returns 相對於 50% 的偏移量（負數表示左，正數表示右，0 表示中心）
+ */
+function extractOffsetFromCalc(calcStr: string): number {
+  if (calcStr === '50%') {
+    return 0;
+  }
+
+  const match = calcStr.match(/calc\(50%\s*([+-])\s*(-?\d+)px\)/);
+  if (!match) {
+    return 0;
+  }
+
+  const operator = match[1];
+  const offset = parseInt(match[2]);
+  return operator === '-' ? -offset : offset;
+}
+
+/**
+ * 將偏移量轉換為 calc 表達式
+ * @param offset 相對於 50% 的偏移量
+ * @returns CSS calc 字串和對齊方式
+ */
+function offsetToCalc(offset: number): { x: string; alignment: 'left' | 'right' | 'center' } {
+  if (offset === 0) {
+    return { x: '50%', alignment: 'center' };
+  }
+
+  const operator = offset >= 0 ? '+' : '-';
+  const absOffset = Math.abs(offset);
+
+  return {
+    x: `calc(50% ${operator} ${absOffset}px)`,
+    alignment: offset < 0 ? 'left' : 'right',
+  };
+}
+
+/**
+ * 計算分支的 X 座標 - v3.0 優先使用 horizontalIndex，否則基於前置節點繼承
+ *
+ * 計算邏輯優先順序：
+ * 1. 如果有 horizontalIndex：使用精確定位（支援同層多節點，如 ghost nodes）
+ * 2. 如果無前置節點（Portal/起點）：置中
+ * 3. 如果有前置節點：繼承父節點位置，choice-point 時根據兄弟節點數量分配
+ *
+ * @param currentLevel 當前關卡
  * @param sameCategoryLevels 同類別的所有關卡（已篩選）
  * @param config 佈局配置
  */
 function calculateBranchX(
-  graphPos: GraphPosition,
+  currentLevel: Level,
   sameCategoryLevels: Level[],
   config: LayoutConfig
 ): { x: string; alignment: 'left' | 'right' | 'center' } {
-  const { branch, layer, horizontalIndex } = graphPos;
-  const nodeSpacing = config.nodeSpacing;
-  const horizontalOffset = getHorizontalOffset(config);
+  const graphPos = currentLevel.graphPosition;
 
-  // 找出同一層的所有節點（同類別內）
-  const sameLayerLevels = sameCategoryLevels.filter(
-    (l) => l.graphPosition?.layer === layer
-  );
-
-  // 單一節點置中
-  if (sameLayerLevels.length === 1) {
+  if (!graphPos) {
     return { x: '50%', alignment: 'center' };
   }
 
-  // 如果有 horizontalIndex，優先使用精確定位（支援 3+ 個節點）
+  const { layer, horizontalIndex } = graphPos;
+  const nodeSpacing = config.nodeSpacing;
+  const horizontalOffset = getHorizontalOffset(config);
+  const spacing = nodeSpacing > 0 ? nodeSpacing : horizontalOffset;
+
+  // ========== 1. 優先檢查 horizontalIndex（精確定位） ==========
   if (horizontalIndex !== undefined) {
-    // 將所有同層節點按 horizontalIndex 排序
+    // 找出同一層的所有有 horizontalIndex 的節點
+    const sameLayerLevels = sameCategoryLevels.filter(
+      (l) => l.graphPosition?.layer === layer && l.graphPosition?.horizontalIndex !== undefined
+    );
+
+    // 按 horizontalIndex 排序
     const sortedLevels = [...sameLayerLevels].sort(
       (a, b) => (a.graphPosition?.horizontalIndex ?? 0) - (b.graphPosition?.horizontalIndex ?? 0)
     );
@@ -121,47 +167,77 @@ function calculateBranchX(
 
     // 找到當前節點在排序後的位置
     const currentIndex = sortedLevels.findIndex((l) =>
-      l.graphPosition?.horizontalIndex === horizontalIndex && l.id
+      l.graphPosition?.horizontalIndex === horizontalIndex && l.id === currentLevel.id
     );
 
-    if (currentIndex === -1) {
-      return { x: '50%', alignment: 'center' };
+    if (currentIndex !== -1 && totalNodes > 0) {
+      // 計算中心點（0-based）
+      const centerIndex = (totalNodes - 1) / 2;
+      const offset = (currentIndex - centerIndex) * spacing;
+
+      return offsetToCalc(offset);
+    }
+  }
+
+  // ========== 2. 檢查前置節點 ==========
+  const prerequisites = currentLevel.prerequisites;
+  const prerequisiteNodes = prerequisites?.levelIds
+    ?.map(id => sameCategoryLevels.find(l => l.id === id))
+    .filter(Boolean) as Level[] | undefined;
+
+  // 2a. 無前置節點（Portal Node / 起點）：置中
+  if (!prerequisiteNodes || prerequisiteNodes.length === 0) {
+    return { x: '50%', alignment: 'center' };
+  }
+
+  // 2b. 單一前置節點：檢查是否為 choice-point
+  if (prerequisiteNodes.length === 1) {
+    const parentNode = prerequisiteNodes[0];
+
+    // 找出所有從該前置節點分出的同層子節點（且沒有 horizontalIndex）
+    const siblingNodes = sameCategoryLevels.filter(l =>
+      l.prerequisites?.levelIds.includes(parentNode.id) &&
+      l.graphPosition?.layer === layer &&
+      l.graphPosition?.horizontalIndex === undefined
+    );
+
+    // 只有一個子節點：直接繼承父節點的 x 位置
+    if (siblingNodes.length === 1) {
+      return calculateBranchX(parentNode, sameCategoryLevels, config);
     }
 
-    // 計算中心點（0-based）
-    const centerIndex = (totalNodes - 1) / 2;
+    // 多個子節點（choice-point）：根據兄弟節點分配位置
+    const sortedSiblings = [...siblingNodes].sort((a, b) => a.id.localeCompare(b.id));
+    const currentIndex = sortedSiblings.findIndex(l => l.id === currentLevel.id);
 
-    // 計算偏移量：使用 nodeSpacing 來控制節點間距
-    // 如果 nodeSpacing 為 0，則使用 horizontalOffset（向後兼容）
-    const spacing = nodeSpacing > 0 ? nodeSpacing : horizontalOffset;
-    const offset = (currentIndex - centerIndex) * spacing;
+    if (currentIndex !== -1) {
+      // 獲取父節點的偏移量
+      const parentX = calculateBranchX(parentNode, sameCategoryLevels, config);
+      const parentOffset = extractOffsetFromCalc(parentX.x);
 
-    // 確保生成標準的 'calc(50% + Xpx)' 或 'calc(50% - Xpx)' 格式
-    // 避免出現 'calc(50% + -120px)' 導致解析錯誤
-    const operator = offset >= 0 ? '+' : '-';
-    const absOffset = Math.abs(offset);
+      // 計算子節點的分布（以父節點為中心）
+      const totalNodes = sortedSiblings.length;
+      const centerIndex = (totalNodes - 1) / 2;
+      const relativeOffset = (currentIndex - centerIndex) * spacing;
+      const finalOffset = parentOffset + relativeOffset;
 
-    return {
-      x: `calc(50% ${operator} ${absOffset}px)`,
-      alignment: offset < 0 ? 'left' : offset > 0 ? 'right' : 'center',
-    };
+      return offsetToCalc(finalOffset);
+    }
   }
 
-  // 向後兼容：如果沒有 horizontalIndex，使用舊的 branch 系統（只支援 left/right 2 個節點）
-  if (branch === 'left') {
-    return {
-      x: `calc(50% - ${horizontalOffset}px)`,
-      alignment: 'left',
-    };
+  // 2c. 多個前置節點（convergence）：計算它們的中心位置
+  if (prerequisiteNodes.length > 1) {
+    const parentOffsets = prerequisiteNodes.map(node => {
+      const pos = calculateBranchX(node, sameCategoryLevels, config);
+      return extractOffsetFromCalc(pos.x);
+    });
+
+    const averageOffset = parentOffsets.reduce((sum, offset) => sum + offset, 0) / parentOffsets.length;
+
+    return offsetToCalc(averageOffset);
   }
 
-  if (branch === 'right') {
-    return {
-      x: `calc(50% + ${horizontalOffset}px)`,
-      alignment: 'right',
-    };
-  }
-
+  // Fallback: 置中
   return { x: '50%', alignment: 'center' };
 }
 

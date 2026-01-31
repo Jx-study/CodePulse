@@ -1,4 +1,5 @@
-import { AnimationStep, AlgorithmConfig, CodeConfig } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -139,10 +140,10 @@ for i in range(n):
   },
 };
 
-export const bubbleSortConfig: AlgorithmConfig = {
+export const bubbleSortConfig: LevelImplementationConfig = {
   id: "bubblesort",
+  type: "algorithm",
   name: "泡沫排序 (Bubble Sort)",
-  category: "sorting",
   categoryName: "排序演算法",
   description: "透過重複交換相鄰的逆序元素，將最大值浮動到陣列頂端。",
   codeConfig: bubbleSortCodeConfig,

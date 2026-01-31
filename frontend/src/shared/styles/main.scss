@@ -17,6 +17,7 @@
   --text-secondary: #{$light-text-secondary};
   --text-tertiary: #{$light-text-tertiary};
   --border: #{$light-border};
+  --border-color: #{$light-border};
   --card-bg: #{$light-bg-tertiary};
   --card-shadow: #{$light-card-shadow};
 }
@@ -30,6 +31,7 @@
     --text-secondary: #{$dark-text-secondary};
     --text-tertiary: #{$dark-text-tertiary};
     --border: #{$dark-border};
+    --border-color: #{$dark-border};
     --card-bg: #{$dark-bg-tertiary};
     --card-shadow: #{$dark-card-shadow};
   }

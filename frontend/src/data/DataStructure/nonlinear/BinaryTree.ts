@@ -1,8 +1,9 @@
-import { DataStructureConfig } from "@/types/dataStructure";
-import { AnimationStep, CodeConfig } from "@/types/animation";
+import { LevelImplementationConfig } from "@/types/implementation";
+import { AnimationStep, CodeConfig } from "@/types";
 import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
+import { Box } from "@/modules/core/DataLogic/Box";
 
 // 1. 定義邏輯節點
 interface LogicTreeNode {
@@ -38,26 +39,81 @@ function buildLogicalTree(data: any[]): LogicTreeNode | null {
   return root;
 }
 
+type StackAnimationState = "idle" | "pushing" | "popping";
+
 // 3. 輔助函式：產生 Frame
 const generateFrame = (
   inputData: any[],
   statusMap: Record<string, Status>,
-  description: string
+  description: string,
+  linearList: LogicTreeNode[] = [],
+  animationState: StackAnimationState = "idle",
+  containerType: "stack" | "queue" = "stack"
 ): AnimationStep => {
-  const elements = createTreeNodes(inputData, { degree: 2 });
+  const treeElements = createTreeNodes(inputData, {
+    degree: 2,
+    width: 700,
+    height: 300,
+    offsetX: 0,
+    offsetY: 50,
+  });
 
   // 根據 statusMap 更新節點顏色
-  elements.forEach((el) => {
+  treeElements.forEach((el) => {
     if (el instanceof Node) {
       const status = statusMap[el.id] ? statusMap[el.id] : "inactive";
       el.setStatus(status);
     }
   });
 
+  const listElements = linearList.map((node, index) => {
+    const box = new Box();
+    box.id = `${containerType}-${node.id}`;
+    box.value = node.value;
+    const baseX = 850;
+    const baseY = 355 - index * 35;
+
+    let isActiveItem = false;
+    if (containerType === "stack") {
+      isActiveItem = index === linearList.length - 1; // Stack Top
+    } else {
+      // Queue:
+      // Pushing (Enqueue): 影響最後一個 (Tail)
+      // Popping (Dequeue): 影響第一個 (Head)
+      if (animationState === "pushing")
+        isActiveItem = index === linearList.length - 1;
+      else if (animationState === "popping") isActiveItem = index === 0;
+    }
+
+    if (isActiveItem) {
+      if (animationState === "pushing") {
+        box.moveTo(baseX, 50);
+        box.setStatus("prepare");
+      } else if (animationState === "popping") {
+        if (containerType === "stack") {
+          box.moveTo(baseX, -50);
+        } else {
+          box.moveTo(baseX, 420);
+        }
+        box.setStatus("complete");
+      } else {
+        box.moveTo(baseX, baseY);
+        box.setStatus("target");
+      }
+    } else {
+      box.moveTo(baseX, baseY);
+      box.setStatus("unfinished");
+    }
+
+    box.width = 120;
+    box.height = 30; // 壓扁一點
+    return box;
+  });
+
   return {
     stepNumber: 0, // 外部會重算，這裡填 0 即可
     description,
-    elements,
+    elements: [...treeElements, ...listElements],
   };
 };
 
@@ -66,31 +122,55 @@ function runPreorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
   const root = buildLogicalTree(inputData);
+  const callStack: LogicTreeNode[] = [];
 
-  // 初始狀態
-  steps.push(
-    generateFrame(inputData, {}, "開始前序遍歷 (Root -> Left -> Right)")
-  );
+  // 初始狀態：準備 Push Root
+  // 手動構造一個包含 Root 的 Stack，狀態為 pushing
+  if (root) {
+    steps.push(
+      generateFrame(
+        inputData,
+        {},
+        "開始前序遍歷 (Root -> Left -> Right)：Push Root",
+        [root],
+        "pushing"
+      )
+    );
+  } else {
+    steps.push(generateFrame(inputData, {}, "空樹"));
+  }
 
   if (!root) return steps;
 
-  // 遞迴函式
   const traverse = (node: LogicTreeNode | undefined) => {
     if (!node) return;
 
-    // 訪問根節點 (Root)
-    statusMap[node.id] = "target";
-    steps.push(generateFrame(inputData, statusMap, `訪問節點 ${node.value}`));
+    callStack.push(node);
 
+    // 因為上一步 Prepare 時已經演過 Pushing 了，這裡直接 Idle
+    statusMap[node.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `訪問節點 ${node.value}`,
+        [...callStack],
+        "idle"
+      )
+    );
     statusMap[node.id] = "complete";
 
     if (node.left) {
       statusMap[node.left.id] = "prepare";
+      // 構造包含左子節點的臨時 Stack
+      const nextStack = [...callStack, node.left];
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `準備進入左子節點 ${node.left.value}`
+          `準備進入左子節點 ${node.left.value}`,
+          nextStack,
+          "pushing"
         )
       );
 
@@ -107,19 +187,23 @@ function runPreorder(inputData: any[]): AnimationStep[] {
         generateFrame(
           inputData,
           statusMap,
-          `左子樹遍歷結束，回到節點 ${node.value}`
+          `左子樹結束，回到 ${node.value}`,
+          [...callStack],
+          "idle"
         )
       );
       statusMap[node.id] = originalStatus; // 還原狀態 (complete)
     } else {
-      // 如果沒有左子樹，顯示訊息
+      // 無左子節點，不用預判 Stack
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = "target";
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `節點 ${node.value} 無左子節點，返回`
+          `節點 ${node.value} 無左子節點`,
+          [...callStack],
+          "idle"
         )
       );
       statusMap[node.id] = originalStatus;
@@ -127,27 +211,30 @@ function runPreorder(inputData: any[]): AnimationStep[] {
 
     if (node.right) {
       statusMap[node.right.id] = "prepare";
+      // 構造包含右子節點的臨時 Stack
+      const nextStack = [...callStack, node.right];
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `準備進入右子節點 ${node.right.value}`
+          `準備進入右子節點 ${node.right.value}`,
+          nextStack,
+          "pushing"
         )
       );
 
       delete statusMap[node.right.id];
-
-      // Recursion
       traverse(node.right);
 
-      // Backtrack (回到這裡)
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = "target";
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `右子樹遍歷結束，回到節點 ${node.value}`
+          `右子樹結束，回到 ${node.value}`,
+          [...callStack],
+          "idle"
         )
       );
       statusMap[node.id] = originalStatus;
@@ -159,15 +246,28 @@ function runPreorder(inputData: any[]): AnimationStep[] {
         generateFrame(
           inputData,
           statusMap,
-          `節點 ${node.value} 無右子節點，返回`
+          `節點 ${node.value} 無右子節點`,
+          [...callStack],
+          "idle"
         )
       );
       statusMap[node.id] = originalStatus;
     }
+
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `Pop ${node.value}`,
+        [...callStack],
+        "popping"
+      )
+    );
+    callStack.pop();
   };
 
   traverse(root);
-  steps.push(generateFrame(inputData, statusMap, "前序遍歷完成"));
+  steps.push(generateFrame(inputData, statusMap, "前序遍歷完成", []));
   return steps;
 }
 
@@ -176,53 +276,90 @@ function runInorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
   const root = buildLogicalTree(inputData);
+  const callStack: LogicTreeNode[] = [];
 
-  steps.push(
-    generateFrame(inputData, {}, "開始中序遍歷 (Left -> Root -> Right)")
-  );
+  if (root) {
+    steps.push(
+      generateFrame(
+        inputData,
+        {},
+        "開始中序遍歷 (Left -> Root -> Right)：Push Root",
+        [root],
+        "pushing"
+      )
+    );
+  }
+
   if (!root) return steps;
 
   const traverse = (node: LogicTreeNode | undefined) => {
     if (!node) return;
 
-    // 抵達節點 (還沒 Process，先標記 Target)
+    callStack.push(node);
+
     statusMap[node.id] = "target";
-    steps.push(generateFrame(inputData, statusMap, `抵達節點 ${node.value}`));
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `抵達 ${node.value}`,
+        [...callStack],
+        "idle"
+      )
+    );
     statusMap[node.id] = "unfinished";
 
     if (node.left) {
       statusMap[node.left.id] = "prepare";
+      // 預判
+      const nextStack = [...callStack, node.left];
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `準備進入左子節點 ${node.left.value}`
+          `準備進入左子節點 ${node.left.value}`,
+          nextStack,
+          "pushing"
         )
       );
       delete statusMap[node.left.id];
 
       traverse(node.left);
     } else {
-      steps.push(
-        generateFrame(inputData, statusMap, `節點 ${node.value} 無左子節點`)
-      );
-    }
-
-    statusMap[node.id] = "target";
-    steps.push(generateFrame(inputData, statusMap, `回到節點 ${node.value}`));
-
-    statusMap[node.id] = "complete";
-    steps.push(
-      generateFrame(inputData, statusMap, `標記節點 ${node.value} (完成)`)
-    );
-
-    if (node.right) {
-      statusMap[node.right.id] = "prepare";
+      statusMap[node.id] = "target";
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `準備進入右子節點 ${node.right.value}`
+          `節點 ${node.value} 無左子節點`,
+          [...callStack],
+          "idle"
+        )
+      );
+    }
+
+    statusMap[node.id] = "complete";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `標記節點 ${node.value} (完成)`,
+        [...callStack],
+        "idle"
+      )
+    );
+
+    if (node.right) {
+      statusMap[node.right.id] = "prepare";
+      // 預判
+      const nextStack = [...callStack, node.right];
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `準備進入右子節點 ${node.right.value}`,
+          nextStack,
+          "pushing"
         )
       );
       delete statusMap[node.right.id];
@@ -236,7 +373,9 @@ function runInorder(inputData: any[]): AnimationStep[] {
         generateFrame(
           inputData,
           statusMap,
-          `右子樹結束，回到節點 ${node.value}`
+          `右子樹結束，回到 ${node.value}`,
+          [...callStack],
+          "idle"
         )
       );
       statusMap[node.id] = original;
@@ -244,14 +383,38 @@ function runInorder(inputData: any[]): AnimationStep[] {
       const original = statusMap[node.id];
       statusMap[node.id] = "target";
       steps.push(
-        generateFrame(inputData, statusMap, `節點 ${node.value} 無右子節點`)
+        generateFrame(
+          inputData,
+          statusMap,
+          `節點 ${node.value} 無右子節點`,
+          [...callStack],
+          "idle"
+        )
       );
       statusMap[node.id] = original;
     }
+
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `Pop ${node.value}`,
+        [...callStack],
+        "popping"
+      )
+    );
+    callStack.pop();
   };
 
   traverse(root);
-  steps.push(generateFrame(inputData, statusMap, "中序遍歷完成"));
+  steps.push(
+    generateFrame(
+      inputData,
+      statusMap,
+      "中序遍歷完成，如果是 BST 會得到排序後的數列",
+      []
+    )
+  );
   return steps;
 }
 
@@ -260,30 +423,48 @@ function runPostorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
   const root = buildLogicalTree(inputData);
+  const callStack: LogicTreeNode[] = [];
+
+  if (!root) return steps;
 
   steps.push(
-    generateFrame(inputData, {}, "開始後序遍歷 (Left -> Right -> Root)")
+    generateFrame(
+      inputData,
+      {},
+      "開始後序遍歷 (Left -> Right -> Root)：Push Root",
+      [root],
+      "pushing"
+    )
   );
-  if (!root) return steps;
 
   const traverse = (node: LogicTreeNode | undefined) => {
     if (!node) return;
 
-    // 抵達節點
+    callStack.push(node);
+
     statusMap[node.id] = "target";
     steps.push(
-      generateFrame(inputData, statusMap, `抵達節點 ${node.value} (尚未處理)`)
+      generateFrame(
+        inputData,
+        statusMap,
+        `抵達節點 ${node.value}`,
+        [...callStack],
+        "idle"
+      )
     );
     statusMap[node.id] = "unfinished";
 
-    // 1. Left
     if (node.left) {
       statusMap[node.left.id] = "prepare";
+      // 預判
+      const nextStack = [...callStack, node.left];
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `準備進入左子節點 ${node.left.value}`
+          `準備進入左子節點 ${node.left.value}`,
+          nextStack,
+          "pushing"
         )
       );
       delete statusMap[node.left.id];
@@ -296,59 +477,219 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         generateFrame(
           inputData,
           statusMap,
-          `左子樹結束，回到節點 ${node.value}`
+          `左子樹結束，回到 ${node.value}`,
+          [...callStack],
+          "idle"
         )
       );
       statusMap[node.id] = "unfinished";
     } else {
-      steps.push(
-        generateFrame(inputData, statusMap, `節點 ${node.value} 無左子節點`)
-      );
-    }
-
-    // 2. Right
-    if (node.right) {
-      statusMap[node.right.id] = "prepare";
+      statusMap[node.id] = "target";
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `準備進入右子節點 ${node.right.value}`
+          `節點 ${node.value} 無左子節點`,
+          [...callStack],
+          "idle"
+        )
+      );
+    }
+
+    if (node.right) {
+      statusMap[node.right.id] = "prepare";
+      // 預判
+      const nextStack = [...callStack, node.right];
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `準備進入右子節點 ${node.right.value}`,
+          nextStack,
+          "pushing"
         )
       );
       delete statusMap[node.right.id];
 
       traverse(node.right);
 
-      // 3. Backtrack
       statusMap[node.id] = "target";
       steps.push(
         generateFrame(
           inputData,
           statusMap,
-          `右子樹結束，回到節點 ${node.value}`
+          `右子樹結束，回到 ${node.value}`,
+          [...callStack],
+          "idle"
         )
       );
     } else {
       statusMap[node.id] = "target";
       steps.push(
-        generateFrame(inputData, statusMap, `節點 ${node.value} 無右子節點`)
+        generateFrame(
+          inputData,
+          statusMap,
+          `節點 ${node.value} 無右子節點`,
+          [...callStack],
+          "idle"
+        )
       );
     }
 
-    // 4. Process (Complete)
     statusMap[node.id] = "complete";
     steps.push(
       generateFrame(
         inputData,
         statusMap,
-        `左右子樹皆完成，處理節點 ${node.value}`
+        `左右子樹皆完成，標記節點 ${node.value} (完成)`,
+        [...callStack],
+        "idle"
       )
     );
+
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `Pop ${node.value}`,
+        [...callStack],
+        "popping"
+      )
+    );
+    callStack.pop();
   };
 
   traverse(root);
-  steps.push(generateFrame(inputData, statusMap, "後序遍歷完成"));
+  steps.push(generateFrame(inputData, statusMap, "後序遍歷完成", []));
+  return steps;
+}
+
+function runBFS(inputData: any[]): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const statusMap: Record<string, Status> = {};
+  const root = buildLogicalTree(inputData);
+  const queue: LogicTreeNode[] = [];
+
+  if (root) {
+    statusMap[root.id] = "prepare";
+    steps.push(
+      generateFrame(
+        inputData,
+        {},
+        "開始層序遍歷 (BFS)：Enqueue Root",
+        [root],
+        "pushing",
+        "queue"
+      )
+    );
+  }
+
+  if (!root) return steps;
+
+  statusMap[root.id] = "unfinished";
+  queue.push(root);
+  steps.push(
+    generateFrame(
+      inputData,
+      statusMap,
+      "Root 入隊完成",
+      [...queue],
+      "idle",
+      "queue"
+    )
+  );
+
+  while (queue.length > 0) {
+    const curr = queue[0];
+
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `Dequeue ${curr.value} 並訪問`,
+        [...queue],
+        "popping",
+        "queue"
+      )
+    );
+
+    queue.shift();
+
+    statusMap[curr.id] = "complete";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `標記節點 ${curr.value} (完成)`,
+        [...queue],
+        "idle",
+        "queue"
+      )
+    );
+
+    if (curr.left) {
+      statusMap[curr.left.id] = "prepare";
+      const nextQ = [...queue, curr.left];
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `左子節點 ${curr.left.value} 入隊`,
+          nextQ,
+          "pushing",
+          "queue"
+        )
+      );
+
+      statusMap[curr.left.id] = "unfinished";
+      queue.push(curr.left);
+
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `左子節點 ${curr.left.value} 入隊完成`,
+          [...queue],
+          "idle",
+          "queue"
+        )
+      );
+    }
+
+    if (curr.right) {
+      statusMap[curr.right.id] = "prepare";
+      const nextQ = [...queue, curr.right];
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `右子節點 ${curr.right.value} 入隊`,
+          nextQ,
+          "pushing",
+          "queue"
+        )
+      );
+
+      statusMap[curr.right.id] = "unfinished";
+      queue.push(curr.right);
+
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `右子節點 ${curr.right.value} 入隊完成`,
+          [...queue],
+          "idle",
+          "queue"
+        )
+      );
+    }
+  }
+
+  steps.push(
+    generateFrame(inputData, statusMap, "BFS 遍歷完成", [], "idle", "queue")
+  );
   return steps;
 }
 
@@ -359,11 +700,14 @@ export function createBinaryTreeAnimationSteps(
   // 如果有指定模式，執行對應演算法
   if (action?.mode === "preorder") {
     return runPreorder(inputData);
-  } else if (action?.mode === "inorder") {
+  }
+  if (action?.mode === "inorder") {
     return runInorder(inputData);
-  } else if (action?.mode === "postorder") {
+  }
+  if (action?.mode === "postorder") {
     return runPostorder(inputData);
   }
+  if (action?.mode === "bfs") return runBFS(inputData);
 
   // 預設：只顯示初始結構
   const steps: AnimationStep[] = [];
@@ -400,10 +744,10 @@ def preorder(node):
   },
 };
 
-export const BinaryTreeConfig: DataStructureConfig = {
+export const BinaryTreeConfig: LevelImplementationConfig = {
   id: "binarytree",
+  type: "dataStructure",
   name: "二元樹 (Binary Tree)",
-  category: "nonlinear",
   categoryName: "非線性表",
   description: "每個節點最多有兩個子節點的樹狀結構",
   codeConfig: binaryTreeCodeConfig,

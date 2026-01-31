@@ -1,5 +1,6 @@
 import { Box } from '@/modules/core/DataLogic/Box';
-import type { AnimationStep, AlgorithmConfig, CodeConfig} from '@/types';
+import type { AnimationStep, CodeConfig } from '@/types';
+import type { LevelImplementationConfig } from '@/types/implementation';
 import type { Status } from '@/modules/core/DataLogic/BaseElement';
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
@@ -215,10 +216,10 @@ End Function`,
   },
 };
 
-export const binarySearchConfig: AlgorithmConfig = {
+export const binarySearchConfig: LevelImplementationConfig = {
   id: "binarysearch",
+  type: "algorithm",
   name: "二分搜尋 (Binary Search)",
-  category: "searching",
   categoryName: "搜尋演算法",
   description: "高效的搜尋演算法，適用於已排序陣列",
   codeConfig: binarySearchCodeConfig,

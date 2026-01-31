@@ -4,34 +4,19 @@ import styles from "./DataStructureAlgorithm.module.scss";
 import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
-import { getHomePageAlgorithms } from "@/data/levels/levelAdapter";
+import { getHomePageLevels } from "@/services/LevelService";
 
-// Import all algorithm images dynamically
-import bubbleSortImg from "./assets/bubble-sort.png";
-import quickSortImg from "./assets/quick-sort.png";
-import mergeSortImg from "./assets/merge-sort.png";
-import binarySearchImg from "./assets/binary-search.png";
-import linearSearchImg from "./assets/linear-search.png";
-import dfsImg from "./assets/dfs.png";
-import bfsImg from "./assets/bfs.png";
-import dijkstraImg from "./assets/dijkstra.png";
-import linkedListImg from "./assets/linked-list.png";
-import stackImg from "./assets/stack.png";
-import queueImg from "./assets/queue.png";
+// 動態導入所有 assets 資料夾中的圖片
+// Vite 會在編譯時處理這個 glob 導入
+const imageModules = import.meta.glob<{ default: string }>('./assets/*.png', { eager: true });
 
-export const algorithmImages: Record<string, string> = {
-  "bubble-sort.png": bubbleSortImg,
-  "quick-sort.png": quickSortImg,
-  "merge-sort.png": mergeSortImg,
-  "binary-search.png": binarySearchImg,
-  "linear-search.png": linearSearchImg,
-  "dfs.png": dfsImg,
-  "bfs.png": bfsImg,
-  "dijkstra.png": dijkstraImg,
-  "linked-list.png": linkedListImg,
-  "stack.png": stackImg,
-  "queue.png": queueImg,
-};
+// 建立圖片映射表：檔名 -> 圖片路徑
+export const algorithmImages: Record<string, string> = Object.keys(imageModules).reduce((acc, path) => {
+  // 從路徑提取檔名，例如 './assets/bubble-sort.png' -> 'bubble-sort.png'
+  const fileName = path.replace('./assets/', '');
+  acc[fileName] = imageModules[path].default;
+  return acc;
+}, {} as Record<string, string>);
 
 function DataStructureAlgorithm() {
   const { t } = useTranslation();
@@ -40,7 +25,7 @@ function DataStructureAlgorithm() {
 
   // Get algorithms from centralized metadata
   const algorithms = useMemo(() => {
-    return getHomePageAlgorithms().map(meta => ({
+    return getHomePageLevels().map(meta => ({
       id: meta.id,
       levelId: meta.levelId,
       name: t(`algorithms.${meta.translationKey}.name`),

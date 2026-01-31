@@ -3,16 +3,17 @@ import Button from '@/shared/components/Button';
 import StarRating from '@/shared/components/StarRating';
 import ProgressBar from '@/shared/components/ProgressBar';
 import Badge from '@/shared/components/Badge';
-import type { Level } from '@/types';
+import type { Level, PrerequisiteConfig } from '@/types';
 
 interface PracticeSectionProps {
   level: Level;
   onStartPractice: () => void;
-  onCompleteLevel?: () => void;
+  onCompleteLevel?: () => void; // 測試用：完成關卡
   completionPercentage: number;
   bestStars: number;
   attempts: number;
   isLocked: boolean;
+  prerequisiteInfo?: PrerequisiteConfig;
 }
 
 function PracticeSection({
@@ -22,7 +23,8 @@ function PracticeSection({
   completionPercentage,
   bestStars,
   attempts,
-  isLocked
+  isLocked,
+  prerequisiteInfo
 }: PracticeSectionProps) {
   return (
     <div className={styles.practiceSection}>
@@ -94,9 +96,17 @@ function PracticeSection({
         </Button>
       )}
 
-      {isLocked && (
+      {isLocked && prerequisiteInfo && (
         <p className={styles.lockedHint}>
-          完成前一關以解鎖練習模式
+          {prerequisiteInfo.type === 'AND'
+            ? `需要完成所有前置關卡才能解鎖練習模式`
+            : `完成任一前置關卡即可解鎖練習模式`}
+        </p>
+      )}
+
+      {isLocked && !prerequisiteInfo && (
+        <p className={styles.lockedHint}>
+          完成前置關卡以解鎖練習模式
         </p>
       )}
 

@@ -1,6 +1,7 @@
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { AnimationStep, DataStructureConfig, CodeConfig } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
 import {
   LinearData as ListNodeData,
   LinearAction as ActionType,
@@ -1425,12 +1426,11 @@ class LinkedList:
         return -1`,
   },
 };
-
 // 鏈表數據結構配置
-export const linkedListConfig: DataStructureConfig = {
+export const linkedListConfig: LevelImplementationConfig = {
   id: "linkedlist",
+  type: "dataStructure",
   name: "鏈結串列 (Linked List)",
-  category: "linear",
   categoryName: "線性表",
   description: "動態的線性數據結構",
   codeConfig: linkedListCodeConfig,
