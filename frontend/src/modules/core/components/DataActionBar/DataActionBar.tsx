@@ -8,7 +8,8 @@ export type StructureType =
   | "stack"
   | "queue"
   | "array"
-  | "binarytree";
+  | "binarytree"
+  | "bst";
 
 export interface DataActionBarProps {
   // 基本操作
@@ -53,7 +54,8 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   useEffect(() => {
     if (structureType === "stack") setInsertMode("Push");
     else if (structureType === "queue") setInsertMode("Enqueue");
-    else if (structureType === "array") setInsertMode("Insert");
+    else if (structureType === "array" || structureType === "bst")
+      setInsertMode("Insert");
     else setInsertMode("Head");
   }, [structureType]);
 
@@ -82,17 +84,29 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
   const handleDelete = () => {
     if (disabled) return;
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
-    onDeleteNode(insertMode, idx);
+    if (structureType === "bst") {
+      const val = Number(inputValue);
+      if (!isNaN(val)) {
+        // 用 index 參數傳 value，或者要在上層 Hook 處理
+        onDeleteNode("DeleteValue", val);
+        setInputValue("");
+      } else {
+        alert("請輸入要刪除的數值");
+      }
+    } else {
+      const idx = indexValue !== "" ? Number(indexValue) : undefined;
+      onDeleteNode(insertMode, idx);
+    }
   };
 
   // 判斷是否顯示某些控制項
+  const isBST = structureType === "bst";
   const showIndexInput =
     (structureType === "linkedlist" && insertMode === "Node N") ||
     structureType === "array";
   const showTailMode = structureType === "linkedlist";
   const showSearchMode =
-    structureType === "linkedlist" || structureType === "array";
+    structureType === "linkedlist" || structureType === "array" || isBST;
   const showPeek = structureType === "stack" || structureType === "queue";
   const showUpdateButton = structureType === "array";
   const isBinaryTree = structureType === "binarytree";
@@ -134,11 +148,13 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   let addBtnText = "Insert";
   if (structureType === "stack") addBtnText = "Push";
   else if (structureType === "queue") addBtnText = "Enqueue";
-  else if (structureType === "array") addBtnText = "Insert";
+  else if (structureType === "array" || structureType === "bst")
+    addBtnText = "Insert";
 
   let delBtnText = "Delete";
   if (structureType === "stack") delBtnText = "Pop";
   else if (structureType === "queue") delBtnText = "Dequeue";
+  else if (structureType === "bst") delBtnText = "Delete";
 
   return (
     <div
@@ -342,6 +358,44 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                   disabled={disabled}
                 >
                   Search
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onSearchNode(0, "min")}
+                  disabled={disabled}
+                >
+                  Min
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onSearchNode(0, "max")}
+                  disabled={disabled}
+                >
+                  Max
+                </Button>
+
+                {/* Floor/Ceil 需要參考輸入框的值 */}
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const val = Number(inputValue);
+                    if (!isNaN(val)) onSearchNode(val, "floor");
+                    else alert("Floor 需要輸入參考數值");
+                  }}
+                  disabled={disabled}
+                >
+                  Floor
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const val = Number(inputValue);
+                    if (!isNaN(val)) onSearchNode(val, "ceil");
+                    else alert("Ceil 需要輸入參考數值");
+                  }}
+                  disabled={disabled}
+                >
+                  Ceil
                 </Button>
               </div>
             )}
