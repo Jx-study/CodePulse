@@ -7,9 +7,10 @@ interface TutorialSectionProps {
   level: Level;
   onStartTutorial: () => void;
   isCompleted: boolean;
+  isLocked: boolean;
 }
 
-function TutorialSection({ level, onStartTutorial, isCompleted }: TutorialSectionProps) {
+function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: TutorialSectionProps) {
   const difficultyColors = {
     1: '#4caf50',
     2: '#4caf50',
@@ -61,11 +62,18 @@ function TutorialSection({ level, onStartTutorial, isCompleted }: TutorialSectio
       <Button
         variant="ghost"
         onClick={onStartTutorial}
+        disabled={isLocked}
         className={styles.startTutorialButton}
         fullWidth
       >
         {isCompleted ? '重新學習' : '開始教學'}
       </Button>
+
+      {isLocked && (
+        <p className={styles.lockedHint}>
+          此教學尚未解鎖
+        </p>
+      )}
 
       {isCompleted && (
         <Badge

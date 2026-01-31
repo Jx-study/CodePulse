@@ -1,4 +1,4 @@
-import { DataStructureConfig } from "@/types/dataStructure";
+import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep } from "@/types";
 import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
@@ -722,10 +722,10 @@ export function createBinaryTreeAnimationSteps(
   return steps;
 }
 
-export const BinaryTreeConfig: DataStructureConfig = {
+export const BinaryTreeConfig: LevelImplementationConfig = {
   id: "binarytree",
+  type: "dataStructure",
   name: "二元樹 (Binary Tree)",
-  category: "nonlinear",
   categoryName: "非線性表",
   description: "每個節點最多有兩個子節點的樹狀結構",
   pseudoCode: `

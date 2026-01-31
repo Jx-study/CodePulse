@@ -1,12 +1,12 @@
 import styles from "./CategoryFilter.module.scss";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
-import type { Category, AlgorithmCategory } from "@/types";
+import type { Category, CategoryType } from "@/types";
 
 interface CategoryFilterProps {
   categories: Category[];
-  activeCategory: AlgorithmCategory;
-  onCategoryChange: (category: AlgorithmCategory) => void;
+  activeCategory: CategoryType;
+  onCategoryChange: (category: CategoryType) => void;
 }
 
 function CategoryFilter({

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Button from "../../../../shared/components/Button/Button";
+import React, { useState, useEffect } from "react";
+import Button from "@/shared/components/Button/Button";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
 interface AlgorithmActionBarProps {
@@ -23,17 +23,29 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
   const [dataSize, setDataSize] = useState<number>(10);
-
   const [searchValue, setSearchValue] = useState<string>("");
-
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
 
+  // 判斷演算法類型
   const isSearching = category === "searching";
+  const isSorting = category === "sorting";
+  const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
 
+  // 根據演算法類型設定預設資料筆數
+  useEffect(() => {
+    if (isSorting) {
+      setDataSize(10);
+    } else if (isSearching && !isPrefixSum) {
+      setDataSize(15);
+    } else if (isPrefixSum) {
+      setDataSize(8);
+    }
+  }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
+
   const handleRun = () => {
-    if (isSearching) {
+    if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
         onRun({ searchValue: val });
@@ -41,13 +53,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         alert("請輸入有效的搜尋數值");
       }
     } else if (isPrefixSum) {
-      // 處理區間查詢
       const start = parseInt(rangeStart);
       const end = parseInt(rangeEnd);
 
-      // 如果沒輸入，就跑預設演示
       if (isNaN(start) && isNaN(end)) {
-        onRun({}); // 空物件代表建構
+        onRun({});
       } else if (!isNaN(start) && !isNaN(end)) {
         onRun({ range: [start, end] });
       } else {
@@ -57,6 +67,28 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       onRun();
     }
   };
+
+  // 根據演算法類型動態生成控制區域標籤
+  const getControlLabel = () => {
+    if (isSorting) return "Sorting Control";
+    if (isSearching && !isPrefixSum) return "Searching Control";
+    if (isPrefixSum) return "Prefix Sum Control";
+    if (isTechnique) return "Technique Control";
+    return "Algorithm Control";
+  };
+
+  // 根據演算法類型動態生成按鈕文字
+  const getRunButtonText = () => {
+    if (isSorting) return "開始排序";
+    if (isSearching && !isPrefixSum) return "開始搜尋";
+    if (isPrefixSum) return "開始演示";
+    if (isTechnique) return "開始演示";
+    return "開始執行";
+  };
+
+  // 判斷是否顯示特定輸入欄位
+  const showSearchInput = isSearching && !isPrefixSum;
+  const showRangeInput = isPrefixSum;
 
   return (
     <div
@@ -111,14 +143,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           className={styles.staticLabel}
           style={{ color: "#ccc", padding: "0 8px" }}
         >
-          {isSearching
-            ? "Searching Control"
-            : category === "technique"
-            ? "Technique Control"
-            : "Sorting Control"}
+          {getControlLabel()}
         </div>
 
-        {isSearching && (
+        {/* 搜尋演算法的搜尋值輸入 */}
+        {showSearchInput && (
           <input
             type="number"
             placeholder="搜尋值"
@@ -130,7 +159,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           />
         )}
 
-        {isPrefixSum && (
+        {/* Prefix Sum 的區間輸入 */}
+        {showRangeInput && (
           <div
             style={{
               display: "flex",
@@ -165,13 +195,16 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           size="sm"
           onClick={handleRun}
           disabled={disabled}
-          style={{ width: "100px", background: "#2e7d32" }}
+          style={{
+            width: "100px",
+            background: isSorting
+              ? "#2e7d32"
+              : isSearching
+              ? "#1976d2"
+              : "#f57c00",
+          }}
         >
-          {isSearching
-            ? "開始搜尋"
-            : category === "technique"
-            ? "開始演示"
-            : "開始排序"}
+          {getRunButtonText()}
         </Button>
       </div>
     </div>

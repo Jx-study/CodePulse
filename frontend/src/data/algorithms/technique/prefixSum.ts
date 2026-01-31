@@ -1,4 +1,5 @@
-import { AnimationStep, AlgorithmConfig } from "@/types";
+import { AnimationStep } from "@/types";
+import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -248,10 +249,10 @@ export function createPrefixSumAnimationSteps(
   return steps;
 }
 
-export const prefixSumConfig: AlgorithmConfig = {
+export const prefixSumConfig: LevelImplementationConfig = {
   id: "prefixsum",
+  type: "algorithm",
   name: "前綴和 (Prefix Sum)",
-  category: "technique",
   categoryName: "演算法技巧",
   description: "透過預處理陣列，在 O(1) 時間內計算任意區間的總和。",
   pseudoCode: `// 建構前綴和 P

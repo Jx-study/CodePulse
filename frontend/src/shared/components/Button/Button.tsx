@@ -1,4 +1,5 @@
 import type { ButtonProps } from '@/types';
+import Icon from '@/shared/components/Icon';
 import styles from './Button.module.scss';
 
 function Button({
@@ -9,6 +10,8 @@ function Button({
   fullWidth = false,
   iconLeft,
   iconRight,
+  icon,
+  iconOnly = false,
   type = 'button',
   onClick,
   className = '',
@@ -66,6 +69,7 @@ function Button({
     disabled && styles.disabled,
     loading && styles.loading,
     fullWidth && styles.fullWidth,
+    iconOnly && styles.iconOnly,
     className,
   ]
     .filter(Boolean)
@@ -85,8 +89,9 @@ function Button({
       {...restProps}
     >
       {loading && renderSpinner()}
+      {!loading && icon && <Icon name={icon} />}
       {!loading && iconLeft && <span className={styles.iconLeft}>{iconLeft}</span>}
-      {children && <span className={styles.content}>{children}</span>}
+      {!iconOnly && children && <span className={styles.content}>{children}</span>}
       {!loading && iconRight && <span className={styles.iconRight}>{iconRight}</span>}
     </button>
   );

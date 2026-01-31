@@ -1,6 +1,6 @@
-import { Box } from "../../../modules/core/DataLogic/Box";
-import { Status } from "../../../modules/core/DataLogic/BaseElement";
-import { Node } from "../../../modules/core/DataLogic/Node";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { Node } from "@/modules/core/DataLogic/Node";
 
 export interface LinearData {
   id: string;

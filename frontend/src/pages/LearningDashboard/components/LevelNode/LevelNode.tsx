@@ -15,6 +15,12 @@ function LevelNode({
 }: LevelNodeProps) {
   const isDeveloped = level.isDeveloped;
 
+  // 統一狀態判斷：與 LevelDialog 一致
+  const isCompleted = status === "completed";
+  const isInProgress = status === "in-progress";
+  const isUnlocked = status === "unlocked";
+  const isLockedState = status === "locked";
+
   const handleClick = () => {
     // 只有已開發的功能才能點擊
     if (isDeveloped) {
@@ -24,23 +30,30 @@ function LevelNode({
 
   // 根據 status 顯示不同圖標
   const renderStatusIcon = () => {
-    // Boss Level 顯示皇冠圖示
-    if (isBossLevel) {
+    // Boss Level 且鎖定時不顯示皇冠，顯示鎖頭 overlay
+    if (isBossLevel && !isLockedState) {
       return <Icon name="crown" className={styles.bossIcon} />;
     }
 
-    switch (status) {
-      case "locked":
-        return <Icon name="lock" className={styles.icon} />;
-      case "completed":
-        return <Icon name="check" className={styles.icon} />;
-      case "in-progress":
-        return <Icon name="play" className={styles.icon} />;
-      case "unlocked":
-        return <Icon name="location-crosshairs" className={styles.icon} />;
-      default:
-        return null;
+    if (isBossLevel && isLockedState) {
+      // 鎖定的 Boss Level 不在這裡顯示圖標，由 lockOverlay 顯示
+      return null;
     }
+
+    // 普通關卡根據狀態顯示圖標
+    if (isLockedState) {
+      return <Icon name="lock" className={styles.icon} />;
+    }
+    if (isCompleted) {
+      return <Icon name="check" className={styles.icon} />;
+    }
+    if (isInProgress) {
+      return <Icon name="play" className={styles.icon} />;
+    }
+    if (isUnlocked) {
+      return <Icon name="location-crosshairs" className={styles.icon} />;
+    }
+    return null;
   };
 
   // 渲染星星（固定3顆，完成度映射顏色）
@@ -48,7 +61,7 @@ function LevelNode({
     // stars 範圍: 1-5 (DifficultyLevel)
     // 映射到 3 顆星: 1-2 stars = 1顆黃 | 3 stars = 2顆黃 | 4-5 stars = 3顆黃
     let filledStars = 0;
-    if (status === "completed") {
+    if (isCompleted) {
       if (stars >= 4) {
         filledStars = 3; // 100%
       } else if (stars === 3) {
@@ -114,11 +127,23 @@ function LevelNode({
       aria-disabled={!isDeveloped}
       data-level-id={level.id}
     >
+      {/* Boss Level 鎖定時顯示黑色半透明遮罩 */}
+      {isBossLevel && status === "locked" && (
+        <div className={styles.bossLockOverlay} />
+      )}
+
       {/* 星星顯示在節點外部上方 */}
       {renderStars()}
 
       {/* 節點內容（顯示狀態圖標） */}
       <div className={styles.nodeContent}>{renderStatusIcon()}</div>
+
+      {/* Boss Level 鎖定時顯示鎖頭 icon */}
+      {isBossLevel && status === "locked" && (
+        <div className={styles.lockOverlay}>
+          <Icon name="lock" className={styles.lockIcon} />
+        </div>
+      )}
 
       {/* 關卡名稱標籤 */}
       <div className={styles.levelTooltip}>

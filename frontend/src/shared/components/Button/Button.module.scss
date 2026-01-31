@@ -189,6 +189,18 @@
   }
 }
 
+// IconOnly（只顯示圖標的按鈕）
+.iconOnly {
+  padding: 8px;
+  min-width: unset;
+  aspect-ratio: 1 / 1;
+
+  &.xs { padding: 4px; }
+  &.sm { padding: 6px; }
+  &.md { padding: 8px; }
+  &.lg { padding: 12px; }
+}
+
 // Dot（圓形指示器按鈕）- .dot
 .dot {
   width: 12px;

@@ -169,7 +169,50 @@
     .star {
       font-size: $font-lg;
     }
+
+    // Boss Level 鎖定狀態：移除動畫和發光效果
+    &.locked {
+      animation: none;
+      filter: brightness(0.7);
+      cursor: not-allowed;
+
+      &:hover {
+        transform: translateX(-50%) translateY(-50%) scale(1.05);
+      }
+    }
   }
+}
+
+// Boss Level 鎖定遮罩層 - 黑色半透明
+.bossLockOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba($black-color, 0.5);
+  border-radius: $radius-full;
+  pointer-events: none;
+  z-index: 2;
+}
+
+// 鎖定覆蓋層容器
+.lockOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  @include flex(center, center, column);
+  z-index: 3;
+  pointer-events: none;
+}
+
+// 鎖頭 icon
+.lockIcon {
+  font-size: 1.5rem; // 24px - 與 PortalNode 一致
+  color: $white-color;
+  filter: drop-shadow(0 2px 4px rgba($black-color, 0.8));
 }
 
 @keyframes gemPulse {

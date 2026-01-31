@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Button from "../../../../shared/components/Button/Button";
+import Button from "@/shared/components/Button/Button";
 import styles from "./DataActionBar.module.scss";
 
 // 定義支援的結構類型

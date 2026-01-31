@@ -1,6 +1,6 @@
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types";
-import { DataStructureConfig } from "@/types/dataStructure";
+import { LevelImplementationConfig } from "@/types/implementation";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
@@ -269,10 +269,10 @@ export function createArrayAnimationSteps(
   return steps;
 }
 
-export const ArrayConfig: DataStructureConfig = {
+export const ArrayConfig: LevelImplementationConfig = {
   id: "array",
+  type: "dataStructure",
   name: "陣列 (Array)",
-  category: "linear",
   categoryName: "線性表",
   description: "連續記憶體空間",
   pseudoCode: `arr[i] = value  // O(1)\narr.insert(i, val) // O(n)\narr.remove(i) // O(n)`,

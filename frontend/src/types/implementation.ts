@@ -1,12 +1,13 @@
 import type { AnimationStep, ComplexityInfo } from '@/types';
 
 /**
- * 演算法完整配置
+ * 統一的實作配置介面
+ * 合併了 AlgorithmConfig 和 DataStructureConfig
  */
-export interface AlgorithmConfig {
+export interface LevelImplementationConfig {
   id: string;
+  type: "algorithm" | "dataStructure";
   name: string;
-  category: string;
   categoryName: string;
   description: string;
   pseudoCode: string;
@@ -21,21 +22,20 @@ export interface AlgorithmConfig {
 }
 
 /**
- * 演算法類別
+ * 所有實作的 ID 聯集
  */
-// 關卡分類
-export type AlgorithmCategory =
-  | "data-structures"
-  | "sorting"
-  | "searching"
-  | "graph";
-/**
- * 演算法 ID
- */
-export type AlgorithmId =
+export type ImplementationId =
+  // 資料結構
+  | "array"
+  | "linkedlist"
+  | "stack"
+  | "queue"
+  | "tree"
+  | "graph"
+  // 演算法
+  | "bubblesort"
   | "selectionsort"
   | "insertionsort"
-  | "bubblesort"
   | "binarysearch"
   | "linearsearch"
   | "prefixsum"
@@ -43,3 +43,8 @@ export type AlgorithmId =
   | "twopointers"
   | "fibonacci"
   | "knapsack";
+
+/**
+ * 實作配置映射表
+ */
+export type ImplementationMap = Record<string, LevelImplementationConfig>;
