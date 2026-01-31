@@ -700,7 +700,8 @@
       "description": "掌握各種排序演算法的實作與效能分析",
       "icon": "signal",
       "colorTheme": "#ff6b6b",
-      "order": 2
+      "order": 2,
+      "layerOffset": 100
     },
     "searching": {
       "id": "searching",
@@ -709,7 +710,8 @@
       "description": "探索高效的搜尋策略與技巧",
       "icon": "magnifying-glass",
       "colorTheme": "#51cf66",
-      "order": 3
+      "order": 3,
+      "layerOffset": 200
     },
     "graph": {
       "id": "graph",
@@ -718,7 +720,8 @@
       "description": "深入理解圖論的核心演算法",
       "icon": "diagram-project",
       "colorTheme": "#ffd43b",
-      "order": 4
+      "order": 4,
+      "layerOffset": 300
     }
   }
 }
