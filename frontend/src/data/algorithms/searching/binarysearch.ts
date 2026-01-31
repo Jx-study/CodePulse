@@ -70,14 +70,16 @@ export function createBinarySearchAnimationSteps(
   let arr = dataList.map((d) => ({ ...d }));
 
   // 1. 決定搜尋目標 (Target)
-  // 如果 action 有傳入 value 就用，否則預設找陣列中間那個值 (確保 Demo 成功)
-  // 或是找一個固定值 (例如 42)
+  // 優先使用 action.searchValue (來自 AlgorithmActionBar)，其次是 action.value
   let target = 42;
-  if (action && typeof action.value === "number") {
+  if (action && typeof action.searchValue === "number") {
+    target = action.searchValue;
+  } else if (action && typeof action.value === "number") {
     target = action.value;
   } else if (arr.length > 0) {
-    // 預設找 Index 4 的值 (如果有的話)
-    target = arr[Math.min(4, arr.length - 1)].value || 0;
+    // 預設選擇靠近開頭的值，這樣可以展示多次迭代過程
+    const targetIndex = Math.min(1, arr.length - 1);
+    target = arr[targetIndex].value || 0;
   }
 
   let left = 0;
