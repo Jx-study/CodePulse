@@ -6,12 +6,6 @@
 // ==================== Animation Types (Shared) ====================
 export * from './animation';
 
-// ==================== Algorithm Types ====================
-export * from './algorithm';
-
-// ==================== Data Structure Types ====================
-export * from './dataStructure';
-
 // ==================== Component Types ====================
 export * from './components/common';
 export * from './components/form';
