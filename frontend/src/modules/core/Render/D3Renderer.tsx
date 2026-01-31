@@ -3,6 +3,7 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
+import { Pointer } from "../DataLogic/Pointer";
 import "./D3Renderer.module.scss";
 
 export interface Link {
@@ -318,7 +319,7 @@ export function renderAll(
     .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
     .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
 
-  // === 再畫 NODES / BOXES（在上層）===
+  // === 再畫 NODES / BOXES / POINTERS（在上層）===
   const items = scene
     .selectAll<SVGGElement, BaseElement>("g.el")
     .data(elements, (d: any) => String(d.id));
@@ -337,24 +338,37 @@ export function renderAll(
     if (d.kind === "node" || d instanceof Node) {
       g.append("circle");
     } else if (d.kind === "box" || d instanceof Box) {
-      g.append("rect");
+      const rect = g.append("rect");
+      
+      // === 處理 Box 出現動畫策略 ===
+      if (d instanceof Box && d.appearAnim === "instant") {
+        rect
+          .attr("x", -d.width / 2)
+          .attr("y", -d.height / 2)
+          .attr("width", d.width)
+          .attr("height", d.height)
+          .attr("rx", 8)
+          .attr("fill", d.getColor())
+          .attr("fill-opacity", 0.2)
+          .attr("stroke", d.getColor())
+          .attr("stroke-width", 2);
+      }
+    } else if (d.kind === "pointer" || d instanceof Pointer) {
+      // Pointer: 繪製箭頭與標籤
+      // 箭頭 (向上指)
+      g.append("path")
+        .attr("d", "M0,0 L-5,10 L5,10 Z") // 簡單的三角形箭頭
+        .attr("fill", "#ffeb3b"); // 黃色箭頭
+      
+      // 標籤文字
+      g.append("text").attr("class", "ptr-label");
     }
 
     g.append("text").attr("class", "desc"); // 顯示 description
     g.append("text").attr("class", "val"); // 顯示 value
   });
 
-  const linkMerged = linkEnter.merge(linkSel as any);
-
-  linkMerged
-    .transition()
-    .duration(transitionDuration)
-    .ease(transitionEase)
-    // 使用 attrTween 確保在 transition 過程中每一幀都重新計算座標
-    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
-    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
-    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
+  // ... (link transitions)
 
   // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
@@ -477,6 +491,13 @@ export function renderAll(
           .attr("stroke", box.getColor())
           .attr("stroke-width", 2);
 
+        // 支援虛線樣式
+        if (box.borderStyle === "dashed") {
+          rect.attr("stroke-dasharray", "5,5");
+        } else {
+          rect.attr("stroke-dasharray", null);
+        }
+
         textVal
           .attr("y", 5) // 置中
           .attr("fill", "#ccc");
@@ -495,6 +516,17 @@ export function renderAll(
         .attr("text-anchor", "middle")
         .attr("font-size", 14)
         .text(box.value !== undefined ? box.value : "");
+    } else if (d.kind === "pointer" || d instanceof Pointer) {
+      const ptr = d as Pointer;
+      const textLabel = g.select<SVGTextElement>("text.ptr-label");
+      
+      textLabel
+        .attr("text-anchor", "middle")
+        .attr("y", 25) // 箭頭下方
+        .attr("font-size", 14)
+        .attr("font-weight", "bold")
+        .attr("fill", "#ffeb3b")
+        .text(ptr.label);
     }
   });
 }

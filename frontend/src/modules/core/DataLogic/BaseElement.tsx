@@ -14,7 +14,7 @@ export const statusColorMap: Record<Status, string> = {
 };
 
 export abstract class BaseElement {
-  readonly kind: "node" | "box";
+  readonly kind: "node" | "box" | "pointer";
   id: string = "";
   // if value undefined will not be rendered
   value: number | undefined = 0;
@@ -22,7 +22,7 @@ export abstract class BaseElement {
   status: Status = "unfinished";
   description = "";
 
-  protected constructor(kind: "node" | "box") {
+  protected constructor(kind: "node" | "box" | "pointer") {
     this.kind = kind;
   }
   moveTo(x: number, y: number) {

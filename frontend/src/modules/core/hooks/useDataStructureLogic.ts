@@ -112,14 +112,15 @@ export const useDataStructureLogic = (config: any) => {
         targetId = newId;
         payload.mode = "Push";
       } else if (actionType === "delete") {
-        if (newData.length === 0) {
-          alert("Stack is empty");
-          return [];
-        }
-        const delBox = newData.pop();
-        if (delBox) {
-          targetId = delBox.id;
-          value = delBox.value;
+        if (newData.length > 0) {
+          const delBox = newData.pop();
+          if (delBox) {
+            targetId = delBox.id;
+            value = delBox.value;
+            payload.mode = "Pop";
+          }
+        } else {
+          value = undefined; 
           payload.mode = "Pop";
         }
       } else if (actionType === "peek") {
@@ -127,6 +128,10 @@ export const useDataStructureLogic = (config: any) => {
           const topNode = newData[newData.length - 1];
           targetId = topNode.id;
           value = topNode.value;
+          payload.mode = "Peek";
+        }
+        else {
+          value = undefined; 
           payload.mode = "Peek";
         }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
