@@ -254,9 +254,10 @@ export const useDataStructureLogic = (config: any) => {
           return [];
         }
 
-        if (idx === undefined || idx >= newData.length)
-          idx = newData.length - 1;
-        else if (idx < 0) idx = 0;
+        if (idx === undefined || idx >= newData.length || idx < 0) {
+          alert("Invalid index");
+          return [];
+        }
 
         if (idx >= 0 && idx < newData.length) {
           value = newData[idx].value;
