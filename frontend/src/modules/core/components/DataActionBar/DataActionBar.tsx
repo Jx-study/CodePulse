@@ -381,7 +381,13 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                     <Button
                       size="sm"
                       onClick={() => {
-                        const val = Number(inputValue);
+                        const val = Number(
+                          (
+                            document.getElementById(
+                              "searchVal"
+                            ) as HTMLInputElement
+                          ).value
+                        );
                         if (!isNaN(val)) onSearchNode(val, "floor");
                         else alert("Floor 需要輸入參考數值");
                       }}
@@ -392,7 +398,13 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                     <Button
                       size="sm"
                       onClick={() => {
-                        const val = Number(inputValue);
+                        const val = Number(
+                          (
+                            document.getElementById(
+                              "searchVal"
+                            ) as HTMLInputElement
+                          ).value
+                        );
                         if (!isNaN(val)) onSearchNode(val, "ceil");
                         else alert("Ceil 需要輸入參考數值");
                       }}

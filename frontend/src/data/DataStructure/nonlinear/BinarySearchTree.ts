@@ -350,6 +350,225 @@ function runMax(inputData: any[]): AnimationStep[] {
   return steps;
 }
 
+// Floor(key): 小於等於 key 的最大值
+function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const root = buildBST(inputData);
+  const statusMap: Record<string, Status> = {};
+
+  if (!root) return steps;
+
+  steps.push(generateFrame(inputData, {}, `尋找 Floor(${targetValue})`));
+
+  let curr: LogicTreeNode | undefined = root;
+  let floorNode: LogicTreeNode | null = null; // 目前的最佳解
+
+  while (curr) {
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `比較：${targetValue} vs ${curr.value}`
+      )
+    );
+
+    if (curr.value === targetValue) {
+      // 找到完全相等 = 最佳解
+      if (floorNode) statusMap[floorNode.id] = "unfinished"; // 舊候選人：unfinished
+      statusMap[curr.id] = "complete"; // 新候選人：Complete
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `找到相等值，Floor 為 ${curr.value}`
+        )
+      );
+      return steps;
+    }
+
+    if (curr.value > targetValue) {
+      // 當前值太大 -> 往左找
+      // 當前節點不可能是 Floor -> unfinished
+      if (curr.left) {
+        statusMap[curr.left.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} > ${targetValue}，往左尋找`
+          )
+        );
+        delete statusMap[curr.left.id];
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} > ${targetValue}，無左子樹`
+          )
+        );
+      }
+      statusMap[curr.id] = "unfinished"; // 走過的路：藍色
+      curr = curr.left;
+    } else {
+      // 當前值 < target -> 它是候選人 (Candidate) -> complete
+
+      if (floorNode) statusMap[floorNode.id] = "unfinished"; // 舊候選人：unfinished
+      floorNode = curr;
+      statusMap[curr.id] = "complete"; // 新候選人：Complete
+
+      if (curr.right) {
+        statusMap[curr.right.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} < ${targetValue}，暫定 Floor 為 ${curr.value}，往右尋找更大的`
+          )
+        );
+        delete statusMap[curr.right.id];
+        // curr 保持 complete，因為它是目前的最佳解
+        curr = curr.right;
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} < ${targetValue}，無右子樹`
+          )
+        );
+        break;
+      }
+    }
+  }
+
+  if (floorNode) {
+    // floorNode 已經是 complete 了
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `搜尋結束，Floor 為 ${floorNode.value}`
+      )
+    );
+  } else {
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `搜尋結束，未找到小於等於 ${targetValue} 的值`
+      )
+    );
+  }
+
+  return steps;
+}
+
+// Ceil(key): 大於等於 key 的最小值
+function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const root = buildBST(inputData);
+  const statusMap: Record<string, Status> = {};
+
+  if (!root) return steps;
+
+  steps.push(generateFrame(inputData, {}, `尋找 Ceil(${targetValue})`));
+
+  let curr: LogicTreeNode | undefined = root;
+  let ceilNode: LogicTreeNode | null = null;
+
+  while (curr) {
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `比較：${targetValue} vs ${curr.value}`
+      )
+    );
+
+    if (curr.value === targetValue) {
+      if (ceilNode) statusMap[ceilNode.id] = "unfinished";
+      statusMap[curr.id] = "complete";
+      steps.push(
+        generateFrame(inputData, statusMap, `找到相等值，Ceil 為 ${curr.value}`)
+      );
+      return steps;
+    }
+
+    if (curr.value < targetValue) {
+      // 當前值太小 -> 往右找
+      // 當前節點不可能是 Ceil -> unfinished
+      if (curr.right) {
+        statusMap[curr.right.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} < ${targetValue}，往右尋找`
+          )
+        );
+        delete statusMap[curr.right.id];
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} < ${targetValue}，無右子樹`
+          )
+        );
+      }
+      statusMap[curr.id] = "unfinished";
+      curr = curr.right;
+    } else {
+      // 當前值 > target -> 它是候選人 -> complete
+
+      if (ceilNode) statusMap[ceilNode.id] = "unfinished"; // 舊候選人：unfinished
+      ceilNode = curr;
+      statusMap[curr.id] = "complete"; // 新候選人：Complete
+
+      if (curr.left) {
+        statusMap[curr.left.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} > ${targetValue}，暫定 Ceil 為 ${curr.value}，往左尋找更小的`
+          )
+        );
+        delete statusMap[curr.left.id];
+        // curr 保持 complete
+        curr = curr.left;
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${curr.value} > ${targetValue}，無左子樹`
+          )
+        );
+        break;
+      }
+    }
+  }
+
+  if (ceilNode) {
+    steps.push(
+      generateFrame(inputData, statusMap, `搜尋結束，Ceil 為 ${ceilNode.value}`)
+    );
+  } else {
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `搜尋結束，未找到大於等於 ${targetValue} 的值`
+      )
+    );
+  }
+
+  return steps;
+}
 function runLoad(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   // 直接顯示最終樹
@@ -374,6 +593,12 @@ export function createBinarySearchTreeAnimationSteps(
   }
   if (action?.mode === "max") {
     return runMax(inputData);
+  }
+  if (action?.mode === "floor") {
+    return runFloor(inputData, action.value);
+  }
+  if (action?.mode === "ceil") {
+    return runCeil(inputData, action.value);
   }
   if (["load", "random", "reset"].includes(action?.type)) {
     return runLoad(inputData);
