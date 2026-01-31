@@ -27,14 +27,7 @@ export const useDataStructureLogic = (config: any) => {
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
     let newData = data.map((item: any) => ({ ...item }));
-    let {
-      value,
-      mode,
-      index,
-      targetId,
-      hasTailMode,
-      data: loadData,
-    } = payload; // 解構常用參數
+    let { value, mode, index, targetId, hasTailMode, data: loadData } = payload; // 解構常用參數
 
     let isResetAction = false;
 
@@ -302,6 +295,33 @@ export const useDataStructureLogic = (config: any) => {
         //     value: v,
         //   }));
         // }
+      }
+    } else if (config.id === "binarytree") {
+      if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+
+        if (actionType === "random") {
+          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          newData = [];
+          for (let i = 0; i < count; i++) {
+            newData.push({
+              id: `node-${nextIdRef.current++}`,
+              value: Math.floor(Math.random() * 100),
+            });
+          }
+        } else if (actionType === "reset") {
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: `node-${nextIdRef.current++}`,
+          }));
+        } else if (actionType === "load") {
+          if (loadData && Array.isArray(loadData)) {
+            newData = loadData.map((v: number) => ({
+              id: `node-${nextIdRef.current++}`,
+              value: v,
+            }));
+          }
+        }
       }
     }
 

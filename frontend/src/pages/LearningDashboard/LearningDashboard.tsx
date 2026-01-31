@@ -52,8 +52,9 @@ function LearningDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // State
-  const [userProgress, setUserProgress] =
-    useState<UserProgress>(loadUserProgress());
+  const [userProgress, setUserProgress] = useState<UserProgress>(
+    loadUserProgress()
+  );
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
@@ -71,13 +72,13 @@ function LearningDashboard() {
   // 計算解鎖狀態
   const levelsWithUnlockStatus = computeAllUnlockStatus(
     allLevels,
-    userProgress,
+    userProgress
   );
 
   // 過濾關卡（按分類）
   const filteredLevels = filterLevelsByCategory(
     levelsWithUnlockStatus,
-    activeCategory,
+    activeCategory
   );
 
   // 使用 ProgressService 計算顯示狀態
@@ -135,7 +136,7 @@ function LearningDashboard() {
     // 只在第一次載入時自動打開，避免重複觸發
     if (levelId && !hasAutoOpened) {
       const targetLevel = levelsWithUnlockStatus.find(
-        (level) => level.id === levelId,
+        (level) => level.id === levelId
       );
 
       if (targetLevel) {
@@ -147,7 +148,7 @@ function LearningDashboard() {
           // 滾動到對應的關卡節點（延遲執行以確保 DOM 已渲染）
           setTimeout(() => {
             const levelElement = document.querySelector(
-              `[data-level-id="${levelId}"]`,
+              `[data-level-id="${levelId}"]`
             );
             if (levelElement) {
               levelElement.scrollIntoView({
@@ -246,7 +247,7 @@ function LearningDashboard() {
               {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
               {prereqIds.map((prereqId) => {
                 const prereqLevel = filteredLevels.find(
-                  (l) => l.id === prereqId,
+                  (l) => l.id === prereqId
                 );
                 if (!prereqLevel) return null;
 
@@ -254,7 +255,7 @@ function LearningDashboard() {
                   ? calculateGraphNodePosition(prereqLevel, filteredLevels)
                   : calculateNodePosition(
                       filteredLevels.indexOf(prereqLevel),
-                      filteredLevels.length,
+                      filteredLevels.length
                     );
 
                 // 決定連線狀態：目標關卡（toNode）的狀態決定連線顏色
@@ -330,7 +331,9 @@ function LearningDashboard() {
 
       {/* 分類側邊欄 */}
       <div
-        className={`${styles.categorySidebar} ${isSidebarOpen ? styles.open : ""}`}
+        className={`${styles.categorySidebar} ${
+          isSidebarOpen ? styles.open : ""
+        }`}
       >
         <div className={styles.sidebarHeader}>
           <h2>演算法分類</h2>
@@ -357,7 +360,9 @@ function LearningDashboard() {
 
       {/* 側邊欄遮罩層 */}
       <div
-        className={`${styles.sidebarOverlay} ${isSidebarOpen ? styles.visible : ""}`}
+        className={`${styles.sidebarOverlay} ${
+          isSidebarOpen ? styles.visible : ""
+        }`}
         onClick={() => setIsSidebarOpen(false)}
       />
 

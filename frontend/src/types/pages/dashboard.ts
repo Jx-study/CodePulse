@@ -46,6 +46,7 @@ export interface PathMetadata {
 // 關卡分類
 export type CategoryType =
   | "data-structures"
+  | "technique"
   | "sorting"
   | "searching"
   | "graph";

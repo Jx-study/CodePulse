@@ -141,6 +141,72 @@
       }
     },
     {
+      "id": "binarytree",
+      "name": "二元樹",
+      "nameEn": "Binary Tree",
+      "category": "data-structures",
+      "difficulty": 2,
+      "description": "每個節點最多有兩個子節點的基礎樹狀結構",
+      "learningObjectives": [
+        "理解樹狀結構與節點關係",
+        "掌握前序、中序、後序遍歷",
+        "理解遞迴在樹中的應用"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["linked-list"]
+      },
+      "graphPosition": {
+        "layer": 1,
+        "branch": "nonlinear",
+        "horizontalIndex": 2
+      },
+      "pathMetadata": {
+        "pathType": "branch",
+        "branchLabel": "樹狀結構"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "nonlinear/binarytree",
+      "homePageMetadata": {
+        "displayOrder": 4,
+        "image": "binary-tree.png",
+        "translationKey": "binary_tree",
+        "showOnHomePage": true
+      }
+    },
+    {
+      "id": "bst",
+      "name": "二元搜尋樹",
+      "nameEn": "Binary Search Tree",
+      "category": "data-structures",
+      "difficulty": 3,
+      "description": "具有排序性質的二元樹，左子樹小於根，右子樹大於根",
+      "learningObjectives": [
+        "理解 BST 的排序性質",
+        "掌握搜尋、插入與刪除邏輯",
+        "分析平衡性對效能的影響"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["binarytree"]
+      },
+      "graphPosition": {
+        "layer": 2,
+        "branch": "nonlinear",
+        "horizontalIndex": 1
+      },
+      "pathMetadata": {
+        "pathType": "branch",
+        "branchLabel": "進階樹結構"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "nonlinear/bst"
+    },
+    {
       "id": "doubly-linked-list",
       "name": "雙向鏈結串列",
       "nameEn": "Doubly Linked List",
@@ -195,6 +261,35 @@
         "targetCategory": "sorting"
       },
       "implementationKey": "bubblesort"
+    },
+    {
+      "id": "prefix-sum",
+      "name": "前綴和",
+      "nameEn": "Prefix Sum",
+      "category": "technique",
+      "difficulty": 2,
+      "description": "快速計算區間和的預處理技巧",
+      "learningObjectives": [
+        "理解前綴和陣列的建構",
+        "掌握 O(1) 區間查詢",
+        "應用於頻繁查詢場景"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["array"]
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "main",
+        "horizontalIndex": 0
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "algorithm",
+      "implementationKey": "technique/prefixsum"
     },
     {
       "id": "bubble-sort",
@@ -262,6 +357,7 @@
       },
       "implementationKey": "selectionsort",
       "homePageMetadata": {
+        "displayOrder": 5,
         "image": "merge-sort.png",
         "translationKey": "selection_sort",
         "showOnHomePage": true
@@ -298,6 +394,7 @@
       },
       "implementationKey": "insertionsort",
       "homePageMetadata": {
+        "displayOrder": 6,
         "image": "quick-sort.png",
         "translationKey": "insertion_sort",
         "showOnHomePage": true
@@ -419,6 +516,7 @@
       },
       "implementationKey": "binarysearch",
       "homePageMetadata": {
+        "displayOrder": 7,
         "image": "binary-search.png",
         "translationKey": "binary_search",
         "showOnHomePage": true
@@ -454,43 +552,9 @@
       },
       "implementationKey": "linearsearch",
       "homePageMetadata": {
+        "displayOrder": 8,
         "image": "linear-search.png",
         "translationKey": "linear_search",
-        "showOnHomePage": true
-      }
-    },
-    {
-      "id": "prefix-sum",
-      "name": "前綴和",
-      "nameEn": "Prefix Sum",
-      "category": "searching",
-      "difficulty": 2,
-      "description": "預先計算累加和，實現區間查詢的優化",
-      "learningObjectives": [
-        "理解前綴和的核心思想",
-        "掌握區間查詢優化技巧",
-        "分析時間複雜度的改善"
-      ],
-      "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "AND",
-        "levelIds": [
-          "binary-search"
-        ]
-      },
-      "graphPosition": {
-        "layer": 201,
-        "branch": "right",
-        "horizontalIndex": 1
-      },
-      "pathMetadata": {
-        "pathType": "branch"
-      },
-      "implementationKey": "prefixsum",
-      "homePageMetadata": {
-        "image": "prefix-sum.png",
-        "translationKey": "prefix_sum",
         "showOnHomePage": true
       }
     },
@@ -521,6 +585,35 @@
       "implementationKey": "bfs"
     },
     {
+      "id": "graph-structure",
+      "name": "圖形結構",
+      "nameEn": "Graph Structure",
+      "category": "graph",
+      "difficulty": 2,
+      "description": "由節點 (Vertex) 與邊 (Edge) 組成的非線性資料結構",
+      "learningObjectives": [
+        "理解圖的基本組成與術語",
+        "比較鄰接矩陣與鄰接表",
+        "區分有向圖與無向圖"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "NONE",
+        "levelIds": []
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "main",
+        "horizontalIndex": 0
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "nonlinear/graph"
+    },
+    {
       "id": "bfs",
       "name": "廣度優先搜尋",
       "nameEn": "BFS",
@@ -535,13 +628,11 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "AND",
-        "levelIds": [
-          "portal-to-graph"
-        ]
+        "type": "NONE",
+        "levelIds": []
       },
       "graphPosition": {
-        "layer": 300,
+        "layer": 0,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -571,7 +662,7 @@
         ]
       },
       "graphPosition": {
-        "layer": 301,
+        "layer": 1,
         "branch": "main",
         "horizontalIndex": 0
       },
@@ -592,6 +683,16 @@
       "order": 1,
       "layerOffset": 0
     },
+    "technique": {
+      "id": "technique",
+      "name": "演算法技巧",
+      "nameEn": "Algorithmic Techniques",
+      "description": "學習通用的解題模式與優化技巧",
+      "icon": "lightbulb",
+      "colorTheme": "#e67e22",
+      "order": 2,
+      "layerOffset": 0
+    },
     "sorting": {
       "id": "sorting",
       "name": "排序演算法",
@@ -599,8 +700,7 @@
       "description": "掌握各種排序演算法的實作與效能分析",
       "icon": "signal",
       "colorTheme": "#ff6b6b",
-      "order": 2,
-      "layerOffset": 100
+      "order": 2
     },
     "searching": {
       "id": "searching",
@@ -609,8 +709,7 @@
       "description": "探索高效的搜尋策略與技巧",
       "icon": "magnifying-glass",
       "colorTheme": "#51cf66",
-      "order": 3,
-      "layerOffset": 200
+      "order": 3
     },
     "graph": {
       "id": "graph",
@@ -619,8 +718,7 @@
       "description": "深入理解圖論的核心演算法",
       "icon": "diagram-project",
       "colorTheme": "#ffd43b",
-      "order": 4,
-      "layerOffset": 300
+      "order": 4
     }
   }
 }
