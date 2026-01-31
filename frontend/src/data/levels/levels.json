@@ -20,8 +20,7 @@
       },
       "graphPosition": {
         "layer": 0,
-        "branch": "linear",
-        "horizontalIndex": 0
+        "branch": "linear"
       },
       "pathMetadata": {
         "pathType": "main"
@@ -55,13 +54,12 @@
       },
       "graphPosition": {
         "layer": 1,
-        "branch": "linear",
-        "horizontalIndex": 0
+        "branch": "linear"
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationKey": "linkedlist",
+      "implementationKey": "linkedList",
       "homePageMetadata": {
         "image": "linked-list.png",
         "translationKey": "linked_list",
@@ -90,8 +88,7 @@
       },
       "graphPosition": {
         "layer": 2,
-        "branch": "linear",
-        "horizontalIndex": 0
+        "branch": "linear"
       },
       "pathMetadata": {
         "pathType": "branch",
@@ -126,8 +123,7 @@
       },
       "graphPosition": {
         "layer": 2,
-        "branch": "linear",
-        "horizontalIndex": 1
+        "branch": "linear"
       },
       "pathMetadata": {
         "pathType": "branch",
@@ -159,16 +155,15 @@
         "levelIds": ["linked-list"]
       },
       "graphPosition": {
-        "layer": 1,
-        "branch": "nonlinear",
-        "horizontalIndex": 2
+        "layer": 2,
+        "branch": "nonlinear"
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabel": "樹狀結構"
       },
       "implementationType": "dataStructure",
-      "implementationKey": "nonlinear/binarytree",
+      "implementationKey": "binaryTree",
       "homePageMetadata": {
         "displayOrder": 4,
         "image": "binary-tree.png",
@@ -195,16 +190,15 @@
         "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 2,
-        "branch": "nonlinear",
-        "horizontalIndex": 1
+        "layer": 3,
+        "branch": "nonlinear"
       },
       "pathMetadata": {
-        "pathType": "branch",
+        "pathType": "main",
         "branchLabel": "進階樹結構"
       },
       "implementationType": "dataStructure",
-      "implementationKey": "nonlinear/bst"
+      "implementationKey": "bst"
     },
     {
       "id": "doubly-linked-list",
@@ -229,13 +223,12 @@
       },
       "graphPosition": {
         "layer": 3,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "boss"
       },
-      "implementationKey": "doubly-linkedlist"
+      "implementationKey": "doublyLinkedList"
     },
     {
       "id": "portal-to-sorting",
@@ -253,14 +246,13 @@
       },
       "graphPosition": {
         "layer": 4,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "portal",
         "targetCategory": "sorting"
       },
-      "implementationKey": "bubblesort"
+      "implementationKey": "bubbleSort"
     },
     {
       "id": "prefix-sum",
@@ -282,8 +274,7 @@
       },
       "graphPosition": {
         "layer": 0,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "main"
@@ -293,14 +284,13 @@
           "targetLevelId": "array",
           "position": {
             "layer": -1,
-            "branch": "main",
-            "horizontalIndex": 0
+            "branch": "main"
           },
           "label": "陣列"
         }
       ],
       "implementationType": "algorithm",
-      "implementationKey": "prefixsum"
+      "implementationKey": "prefixSum"
     },
     {
       "id": "bubble-sort",
@@ -324,13 +314,12 @@
       },
       "graphPosition": {
         "layer": 100,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationKey": "bubblesort",
+      "implementationKey": "bubbleSort",
       "homePageMetadata": {
         "image": "bubble-sort.png",
         "translationKey": "bubble_sort",
@@ -359,14 +348,13 @@
       },
       "graphPosition": {
         "layer": 101,
-        "branch": "left",
-        "horizontalIndex": 0
+        "branch": "left"
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabel": "比較排序"
       },
-      "implementationKey": "selectionsort",
+      "implementationKey": "selectionSort",
       "homePageMetadata": {
         "displayOrder": 5,
         "image": "merge-sort.png",
@@ -396,14 +384,13 @@
       },
       "graphPosition": {
         "layer": 101,
-        "branch": "right",
-        "horizontalIndex": 1
+        "branch": "right"
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabel": "插入排序"
       },
-      "implementationKey": "insertionsort",
+      "implementationKey": "insertionSort",
       "homePageMetadata": {
         "displayOrder": 6,
         "image": "quick-sort.png",
@@ -434,13 +421,12 @@
       },
       "graphPosition": {
         "layer": 102,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "convergence"
       },
-      "implementationKey": "mergesort"
+      "implementationKey": "mergeSort"
     },
     {
       "id": "quick-sort",
@@ -464,13 +450,12 @@
       },
       "graphPosition": {
         "layer": 103,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "boss"
       },
-      "implementationKey": "quicksort"
+      "implementationKey": "quickSort"
     },
     {
       "id": "portal-to-searching",
@@ -488,14 +473,13 @@
       },
       "graphPosition": {
         "layer": 104,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "portal",
         "targetCategory": "searching"
       },
-      "implementationKey": "binarysearch"
+      "implementationKey": "binarySearch"
     },
     {
       "id": "binary-search",
@@ -519,13 +503,12 @@
       },
       "graphPosition": {
         "layer": 200,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationKey": "binarysearch",
+      "implementationKey": "binarySearch",
       "homePageMetadata": {
         "displayOrder": 7,
         "image": "binary-search.png",
@@ -555,13 +538,12 @@
       },
       "graphPosition": {
         "layer": 201,
-        "branch": "left",
-        "horizontalIndex": 0
+        "branch": "left"
       },
       "pathMetadata": {
         "pathType": "branch"
       },
-      "implementationKey": "linearsearch",
+      "implementationKey": "linearSearch",
       "homePageMetadata": {
         "displayOrder": 8,
         "image": "linear-search.png",
@@ -586,8 +568,7 @@
       },
       "graphPosition": {
         "layer": 202,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "portal",
@@ -599,7 +580,7 @@
       "id": "graph-structure",
       "name": "圖形結構",
       "nameEn": "Graph Structure",
-      "category": "graph",
+      "category": "x",
       "difficulty": 2,
       "description": "由節點 (Vertex) 與邊 (Edge) 組成的非線性資料結構",
       "learningObjectives": [
@@ -615,14 +596,13 @@
       },
       "graphPosition": {
         "layer": 0,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "main"
       },
       "implementationType": "dataStructure",
-      "implementationKey": "nonlinear/graph"
+      "implementationKey": "graph"
     },
     {
       "id": "bfs",
@@ -644,8 +624,7 @@
       },
       "graphPosition": {
         "layer": 0,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "main"
@@ -674,8 +653,7 @@
       },
       "graphPosition": {
         "layer": 1,
-        "branch": "main",
-        "horizontalIndex": 0
+        "branch": "main"
       },
       "pathMetadata": {
         "pathType": "boss"

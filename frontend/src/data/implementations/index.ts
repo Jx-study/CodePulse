@@ -11,7 +11,7 @@ import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree";
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
 import { selectionSortConfig } from "../algorithms/sorting/selectionSort";
 import { insertionSortConfig } from "../algorithms/sorting/insertionSort";
-import { binarySearchConfig } from "../algorithms/searching/binarysearch";
+import { binarySearchConfig } from "../algorithms/searching/binarySearch";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 
 /**
@@ -22,17 +22,17 @@ import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 export const implementationsMap: ImplementationMap = {
   // Data Structures
   array: ArrayConfig,
-  linkedlist: linkedListConfig,
+  linkedList: linkedListConfig,
   stack: StackConfig,
   queue: QueueConfig,
-  binarytree: BinaryTreeConfig,
+  binaryTree: BinaryTreeConfig,
 
   // Algorithms
-  bubblesort: bubbleSortConfig,
-  selectionsort: selectionSortConfig,
-  insertionsort: insertionSortConfig,
-  binarysearch: binarySearchConfig,
-  prefixsum: prefixSumConfig,
+  bubbleSort: bubbleSortConfig,
+  selectionSort: selectionSortConfig,
+  insertionSort: insertionSortConfig,
+  binarySearch: binarySearchConfig,
+  prefixSum: prefixSumConfig,
 };
 
 /**
