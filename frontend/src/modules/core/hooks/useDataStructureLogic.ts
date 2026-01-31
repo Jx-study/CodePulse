@@ -289,15 +289,16 @@ export const useDataStructureLogic = (config: any) => {
             }));
           }
         }
-        // if (actionType === "load" && loadData) {
-        //   newData = loadData.map((v: number) => ({
-        //     id: `box-${nextIdRef.current++}`,
-        //     value: v,
-        //   }));
-        // }
       }
-    } else if (config.id === "binarytree") {
-      if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    } else if (config.id === "binarytree" || config.id === "bst") {
+      if (actionType === "add") {
+        const newId = `node-${nextIdRef.current++}`;
+        newData.push({
+          id: newId,
+          value: value,
+        });
+        targetId = newId;
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
 
         if (actionType === "random") {

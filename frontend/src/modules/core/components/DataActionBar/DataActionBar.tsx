@@ -235,6 +235,8 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             ? "Queue Operations"
             : structureType === "binarytree"
             ? "Binary Tree Traversals"
+            : structureType === "bst"
+            ? "Binary Search Tree Operations"
             : "Operations"}
         </div>
         {isBinaryTree ? (
