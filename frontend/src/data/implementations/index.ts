@@ -11,7 +11,7 @@ import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree";
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
 import { selectionSortConfig } from "../algorithms/sorting/selectionSort";
 import { insertionSortConfig } from "../algorithms/sorting/insertionSort";
-import { binarySearchConfig } from "../algorithms/searching/binarySearch";
+import { binarySearchConfig } from "../algorithms/searching/binarysearch";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 
 /**
