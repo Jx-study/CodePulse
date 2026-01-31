@@ -176,6 +176,180 @@ function runInsert(inputData: any[]): AnimationStep[] {
   return steps;
 }
 
+function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const root = buildBST(inputData);
+  const statusMap: Record<string, Status> = {};
+
+  if (!root) {
+    steps.push(generateFrame(inputData, {}, "樹為空，無法搜尋"));
+    return steps;
+  }
+
+  steps.push(generateFrame(inputData, {}, `開始搜尋數值：${targetValue}`));
+
+  let curr: LogicTreeNode | undefined = root;
+  let found = false;
+
+  while (curr) {
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `比較：${targetValue} vs ${curr.value}`
+      )
+    );
+
+    if (targetValue === curr.value) {
+      statusMap[curr.id] = "complete";
+      steps.push(
+        generateFrame(inputData, statusMap, `找到目標值 ${targetValue}`)
+      );
+      found = true;
+      break;
+    } else if (targetValue < curr.value) {
+      if (curr.left) {
+        statusMap[curr.left.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} < ${curr.value}，往左尋找`
+          )
+        );
+        delete statusMap[curr.left.id];
+        statusMap[curr.id] = "unfinished"; // 標記路徑
+        curr = curr.left;
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} < ${curr.value}，但無左子節點`
+          )
+        );
+        statusMap[curr.id] = "unfinished";
+        break;
+      }
+    } else {
+      if (curr.right) {
+        statusMap[curr.right.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} > ${curr.value}，往右尋找`
+          )
+        );
+        delete statusMap[curr.right.id];
+        statusMap[curr.id] = "unfinished"; // 標記路徑
+        curr = curr.right;
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} > ${curr.value}，但無右子節點`
+          )
+        );
+        statusMap[curr.id] = "unfinished";
+        break;
+      }
+    }
+  }
+
+  if (!found) {
+    steps.push(
+      generateFrame(inputData, statusMap, `未找到數值 ${targetValue}`)
+    );
+  }
+
+  return steps;
+}
+
+// Min 邏輯 (一路向左)
+function runMin(inputData: any[]): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const root = buildBST(inputData);
+  const statusMap: Record<string, Status> = {};
+
+  if (!root) return steps;
+
+  steps.push(generateFrame(inputData, {}, "尋找最小值 (Min)：一路向左"));
+
+  let curr: LogicTreeNode = root;
+  while (curr.left) {
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `當前節點 ${curr.value}，還有左子節點`
+      )
+    );
+
+    statusMap[curr.left.id] = "prepare";
+    steps.push(generateFrame(inputData, statusMap, "往左移動"));
+    delete statusMap[curr.left.id];
+
+    statusMap[curr.id] = "unfinished";
+    curr = curr.left;
+  }
+
+  statusMap[curr.id] = "complete";
+  steps.push(
+    generateFrame(
+      inputData,
+      statusMap,
+      `抵達最左節點 ${curr.value}，即為最小值`
+    )
+  );
+
+  return steps;
+}
+
+// Max 邏輯 (一路向右)
+function runMax(inputData: any[]): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const root = buildBST(inputData);
+  const statusMap: Record<string, Status> = {};
+
+  if (!root) return steps;
+
+  steps.push(generateFrame(inputData, {}, "尋找最大值 (Max)：一路向右"));
+
+  let curr: LogicTreeNode = root;
+  while (curr.right) {
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `當前節點 ${curr.value}，還有右子節點`
+      )
+    );
+
+    statusMap[curr.right.id] = "prepare";
+    steps.push(generateFrame(inputData, statusMap, "往右移動"));
+    delete statusMap[curr.right.id];
+
+    statusMap[curr.id] = "unfinished";
+    curr = curr.right;
+  }
+
+  statusMap[curr.id] = "complete";
+  steps.push(
+    generateFrame(
+      inputData,
+      statusMap,
+      `抵達最右節點 ${curr.value}，即為最大值`
+    )
+  );
+
+  return steps;
+}
+
 function runLoad(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   // 直接顯示最終樹
@@ -192,12 +366,16 @@ export function createBinarySearchTreeAnimationSteps(
   if (action?.type === "add" || action?.mode === "Insert") {
     return runInsert(inputData);
   }
-
-  if (
-    action?.type === "load" ||
-    action?.type === "random" ||
-    action?.type === "reset"
-  ) {
+  if (action?.mode === "search") {
+    return runSearch(inputData, action.value);
+  }
+  if (action?.mode === "min") {
+    return runMin(inputData);
+  }
+  if (action?.mode === "max") {
+    return runMax(inputData);
+  }
+  if (["load", "random", "reset"].includes(action?.type)) {
     return runLoad(inputData);
   }
 

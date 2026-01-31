@@ -355,50 +355,53 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                       (document.getElementById("searchVal") as HTMLInputElement)
                         .value
                     );
-                    onSearchNode(val);
+                    onSearchNode(val, "search");
                   }}
                   disabled={disabled}
                 >
                   Search
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() => onSearchNode(0, "min")}
-                  disabled={disabled}
-                >
-                  Min
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => onSearchNode(0, "max")}
-                  disabled={disabled}
-                >
-                  Max
-                </Button>
-
-                {/* Floor/Ceil 需要參考輸入框的值 */}
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const val = Number(inputValue);
-                    if (!isNaN(val)) onSearchNode(val, "floor");
-                    else alert("Floor 需要輸入參考數值");
-                  }}
-                  disabled={disabled}
-                >
-                  Floor
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const val = Number(inputValue);
-                    if (!isNaN(val)) onSearchNode(val, "ceil");
-                    else alert("Ceil 需要輸入參考數值");
-                  }}
-                  disabled={disabled}
-                >
-                  Ceil
-                </Button>
+                {isBST && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => onSearchNode(0, "min")}
+                      disabled={disabled}
+                    >
+                      Min
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => onSearchNode(0, "max")}
+                      disabled={disabled}
+                    >
+                      Max
+                    </Button>
+                    {/* Floor/Ceil 需要參考輸入框的值 */}
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const val = Number(inputValue);
+                        if (!isNaN(val)) onSearchNode(val, "floor");
+                        else alert("Floor 需要輸入參考數值");
+                      }}
+                      disabled={disabled}
+                    >
+                      Floor
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const val = Number(inputValue);
+                        if (!isNaN(val)) onSearchNode(val, "ceil");
+                        else alert("Ceil 需要輸入參考數值");
+                      }}
+                      disabled={disabled}
+                    >
+                      Ceil
+                    </Button>{" "}
+                  </>
+                )}
               </div>
             )}
           </>
