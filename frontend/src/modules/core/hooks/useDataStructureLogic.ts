@@ -168,8 +168,10 @@ export const useDataStructureLogic = (config: any) => {
         payload.mode = "Enqueue";
       } else if (actionType === "delete") {
         if (newData.length === 0) {
-          alert("Queue is empty");
-          return [];
+          // alert("Queue is empty");
+          // return [];
+          value = undefined; 
+          payload.mode = "Dequeue";
         }
         // 刪除第一個
         const delBox = newData.shift();
