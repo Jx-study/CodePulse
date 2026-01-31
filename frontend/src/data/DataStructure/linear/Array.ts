@@ -276,7 +276,6 @@ const arrayCodeConfig: CodeConfig = {
   },
   python: {
     content: `arr[i] = value  // O(1)\narr.insert(i, val) // O(n)\narr.remove(i) // O(n)`,
-    mappings: {},
   },
 };
 

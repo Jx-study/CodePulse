@@ -238,12 +238,8 @@ const stackCodeConfig: CodeConfig = {
   Data:
     top ← -1
     stack ← Array of Size
-    max_size ← Size
 
   Procedure push(value):
-    If is_full() Then
-      Return Error
-    End If
     top ← top + 1
     stack[top] ← value
   End Procedure
@@ -264,23 +260,23 @@ const stackCodeConfig: CodeConfig = {
     Return stack[top]
   End Procedure`,
     mappings: {
-      "INITIAL": [2, 3, 4, 5],
+      // TODO: animation的動作&描述與pseudo code的行號有不對應的情況，需要修正
+      "INITIAL": [2, 3, 4],
       // Push 區塊
-      "PUSH_START": [7],  // 進入函式並執行 is_full 檢查
-      "PUSH_IS_FULL": [8, 9],       // 錯誤路徑：滿值報錯
-      "PUSH_WRITE": [11, 12],       // 核心動作：位移與寫入
+      "PUSH_START": [6],  // 進入函式並執行 is_full 檢查
+      "PUSH_WRITE": [7, 8],       // 核心動作：位移與寫入
       // Pop 區塊
       "POP_START": [15],        // 開始
-      "POP_CHECK_EMPTY": [16, 17, 18], // 進入函式並執行 is_empty 檢查
-      "POP_IS_EMPTY": [16, 17],     // 錯誤路徑：空值報錯
-      "POP_READ": [19],             // 讀取暫存
-      "POP_DEC_TOP": [19, 20],      // 核心動作：讀取與位移
-      "POP_END": [21],              // 結束
+      "POP_CHECK_EMPTY": [12], // 進入函式並執行 is_empty 檢查
+      "POP_IS_EMPTY": [13],     // 錯誤路徑：空值報錯
+      "POP_READ": [17],             // TODO:讀取暫存
+      "POP_DEC_TOP": [16],      // 核心動作：讀取與位移
+      "POP_END": [18],              // 結束
       // Peek 區塊
       "PEEK_START": [24],
-      "PEEK_CHECK_EMPTY": [25], // 進入函式並執行 is_empty 檢查
-      "PEEK_IS_EMPTY": [26],    // 錯誤路徑：空值報錯
-      "PEEK_RETURN": [28],          // 核心動作：回傳
+      "PEEK_CHECK_EMPTY": [21], // 進入函式並執行 is_empty 檢查
+      "PEEK_IS_EMPTY": [22],    // 錯誤路徑：空值報錯
+      "PEEK_RETURN": [24],          // 核心動作：回傳
     },
   },
   python: {
@@ -307,8 +303,6 @@ const stackCodeConfig: CodeConfig = {
         if self.top == -1:
             return None
         return self.stack[self.top]`,
-    // TODO: 實作 Stack 的 actionTag 對應 Python code 行號
-    mappings: {},
   },
 };
 

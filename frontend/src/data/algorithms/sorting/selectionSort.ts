@@ -155,7 +155,6 @@ for i in range(n):
     if arr[j] < arr[minIdx]:
       minIdx = j
   arr[i], arr[minIdx] = arr[minIdx], arr[i]`,
-    mappings: {},
   },
 };
 

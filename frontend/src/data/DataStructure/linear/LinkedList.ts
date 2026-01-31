@@ -1423,9 +1423,6 @@ class LinkedList:
             current = current.next
             index += 1
         return -1`,
-    mappings: {
-      // TODO: 實作 LinkedList 的 actionTag 對應 Python code 行號
-    },
   },
 };
 

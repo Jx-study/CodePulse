@@ -170,7 +170,6 @@ for i in range(1, n):
     arr[j+1] = arr[j]
     j = j - 1
   arr[j+1] = key`,
-    mappings: {},
   },
 };
 

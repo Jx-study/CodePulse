@@ -313,22 +313,6 @@ const queueCodeConfig: CodeConfig = {
         if self.size == 0:
             return None
         return self.queue[self.front]`,
-    mappings: {
-      "INITIAL": [2, 3, 4, 5, 6, 7],
-      "ENQUEUE_START": [9, 10],
-      "ENQUEUE_FULL": [10, 11],
-      "ENQUEUE_UPDATE": [12, 14],
-      "ENQUEUE_WRITE": [13],
-      "DEQUEUE_START": [16, 17],
-      "DEQUEUE_EMPTY": [17, 18],
-      "DEQUEUE_READ": [19],
-      "DEQUEUE_UPDATE": [20, 21],
-      "DEQUEUE_END": [22],
-      "PEEK_START": [24, 25],
-      "PEEK_CHECK_EMPTY": [25],
-      "PEEK_IS_EMPTY": [26],
-      "PEEK_RETURN": [27],
-    },
   },
 };
 

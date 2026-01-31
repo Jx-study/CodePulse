@@ -1,10 +1,10 @@
 node_modules/
-.claudignore
 .idea/
 *.iml
 *.md
 !README.md 
 .claudignore
+.cursorrules
 
 # Frontend
 build/

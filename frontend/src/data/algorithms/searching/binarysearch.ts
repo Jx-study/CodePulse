@@ -212,9 +212,6 @@ End Function`,
             right = mid - 1
 
     return -1  # 未找到`,
-    mappings: {
-      // TODO: 實作 Binary Search 的 actionTag 對應 Python code 行號
-    },
   },
 };
 

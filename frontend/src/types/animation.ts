@@ -30,6 +30,5 @@ export interface CodeConfig {
   };
   python: {
     content: string;
-    mappings: Record<string, number[]>; // 預留
   };
 }

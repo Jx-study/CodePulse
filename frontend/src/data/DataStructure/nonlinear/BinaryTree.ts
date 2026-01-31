@@ -397,7 +397,6 @@ def preorder(node):
     preorder(node.left)  # 2. 左
     preorder(node.right) # 3. 右
   `,
-    mappings: {},
   },
 };
 

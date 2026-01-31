@@ -346,8 +346,8 @@ function Tutorial() {
             <CodeEditor
               mode="single"
               value={topicTypeConfig.codeConfig[codeMode].content}
-              language={codeMode === "python" ? "python" : "python"}
-              highlightLines={highlightLines}
+              language="python"
+              highlightedLine={highlightLines}
               readOnly={codeMode === "pseudo"}
               theme="dark"
             />
