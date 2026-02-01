@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Panel, Group, PanelImperativeHandle } from "react-resizable-panels";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
@@ -15,8 +16,23 @@ import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
+import { ResizeHandle } from "./components/ResizeHandle/ResizeHandle";
+import { PanelHeader } from "./components/PanelHeader/PanelHeader";
 
 function Tutorial() {
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
+
+  // Panel refs for programmatic control
+  const leftPanelRef = useRef<PanelImperativeHandle>(null);
+  const canvasPanelRef = useRef<PanelImperativeHandle>(null);
+
+  // Collapse states
+  const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
+  const [isCanvasPanelCollapsed, setIsCanvasPanelCollapsed] = useState(false);
+  const [isControlBarCollapsed, setIsControlBarCollapsed] = useState(false);
+  const [isActionBarCollapsed, setIsActionBarCollapsed] = useState(false);
+
   const { t } = useTranslation();
   const { category, levelId } = useParams<{
     category: string;
@@ -32,7 +48,8 @@ function Tutorial() {
     return implementation;
   }, [levelId]);
 
-  const isAlgorithm = category !== "data-structures";
+  // 改用 topicTypeConfig.type 判斷類型（不再依賴 URL 參數）
+  const isAlgorithm = topicTypeConfig?.type === "algorithm";
 
   // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
   const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
@@ -52,6 +69,25 @@ function Tutorial() {
 
   const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
+
+  // 監聽 canvas 容器尺寸變化
+  useEffect(() => {
+    const container = canvasContainerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setCanvasSize({
+          width: Math.max(400, width - 32), // 減去 padding
+          height: Math.max(300, height - 32),
+        });
+      }
+    });
+
+    resizeObserver.observe(container);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   // 3. 計算目前的動畫步驟
   useEffect(() => {
@@ -91,7 +127,7 @@ function Tutorial() {
     const links: Link[] = [];
     if (currentStepData?.elements) {
       const nodes = currentStepData.elements.filter(
-        (e: BaseElement) => e instanceof DataNode
+        (e: BaseElement) => e instanceof DataNode,
       ) as DataNode[];
 
       nodes.forEach((sourceNode) => {
@@ -208,13 +244,54 @@ function Tutorial() {
   const handleSpeedChange = (speed: number) => {
     setPlaybackSpeed(speed);
   };
+  const handleStepChange = (step: number) => {
+    setCurrentStep(step);
+    setIsPlaying(false); // 手動跳轉時暫停播放
+  };
+
+  // Panel collapse/expand handlers
+  const handleToggleLeftPanel = () => {
+    const panel = leftPanelRef.current;
+    if (!panel) return;
+
+    if (panel.isCollapsed()) {
+      panel.expand();
+      setIsLeftPanelCollapsed(false);
+    } else {
+      panel.collapse();
+      setIsLeftPanelCollapsed(true);
+    }
+  };
+
+  const handleToggleCanvasPanel = () => {
+    const panel = canvasPanelRef.current;
+    if (!panel) return;
+
+    if (panel.isCollapsed()) {
+      panel.expand();
+      setIsCanvasPanelCollapsed(false);
+    } else {
+      panel.collapse();
+      setIsCanvasPanelCollapsed(true);
+    }
+  };
+
+  const handleToggleControlBar = () => {
+    setIsControlBarCollapsed((prev) => !prev);
+  };
+
+  const handleToggleActionBar = () => {
+    setIsActionBarCollapsed((prev) => !prev);
+  };
 
   if (!topicTypeConfig) {
     return null;
   }
 
   const renderActionBar = () => {
-    if (isAlgorithm) {
+    if (!topicTypeConfig) return <div>載入中...</div>;
+
+    if (topicTypeConfig.type === "algorithm") {
       return (
         <AlgorithmActionBar
           onLoadData={handleLoadData}
@@ -226,10 +303,10 @@ function Tutorial() {
           algorithmId={topicTypeConfig?.id}
         />
       );
-    } else {
+    } else if (topicTypeConfig.type === "dataStructure") {
       if (
         ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id
+          topicTypeConfig.id,
         )
       ) {
         return (
@@ -248,6 +325,8 @@ function Tutorial() {
           />
         );
       }
+    } else {
+      return <div>未知的實作類型</div>;
     }
     return <div>此主題暫無操作介面</div>;
   };
@@ -288,53 +367,134 @@ function Tutorial() {
       </div>
 
       <div className={styles.topSection}>
-        <div className={styles.pseudoCodeSection}>
-          <h3 className={styles.sectionTitle}>Pseudo Code</h3>
-          <div className={styles.pseudoCodeEditor}>
-            <CodeEditor
-              mode="single"
-              language="python"
-              value={topicTypeConfig.pseudoCode}
-              readOnly={true}
-              theme="auto"
-            />
-          </div>
-        </div>
-
-        <div className={styles.rightPanel}>
-          <div className={styles.visualizationSection}>
-            <h3 className={styles.sectionTitle}>視覺化動畫</h3>
-            <div className={styles.visualizationArea}>
-              <D3Canvas
-                elements={currentStepData?.elements || []}
-                links={currentLinks}
-                width={1000}
-                height={400}
-                structureType={topicTypeConfig?.id}
-              />
+        <Group orientation="horizontal" id="tutorial-layout-h-v1">
+          {/* Left Panel: Pseudo Code */}
+          <Panel
+            defaultSize={35}
+            minSize="20%"
+            collapsible
+            panelRef={leftPanelRef}
+            onResize={() => {
+              // Check if panel is collapsed after resize
+              setIsLeftPanelCollapsed(leftPanelRef.current?.isCollapsed() ?? false);
+            }}
+          >
+            <div className={styles.pseudoCodeSection}>
+              <PanelHeader title="Pseudo Code" />
+              <div className={styles.pseudoCodeEditor}>
+                <CodeEditor
+                  mode="single"
+                  language="python"
+                  value={topicTypeConfig.pseudoCode}
+                  readOnly={true}
+                  theme="auto"
+                />
+              </div>
             </div>
-            <div className={styles.stepDescription}>
-              {currentStepData?.description}
-            </div>
-          </div>
+          </Panel>
 
-          {/* 資料操作列 */}
-          {renderActionBar()}
-
-          {/* 播放控制列 */}
-          <ControlBar
-            isPlaying={isPlaying}
-            currentStep={currentStep}
-            totalSteps={activeSteps.length}
-            playbackSpeed={playbackSpeed}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            onReset={handleReset}
-            onSpeedChange={setPlaybackSpeed}
+          <ResizeHandle
+            direction="horizontal"
+            onDoubleClick={handleToggleLeftPanel}
+            showCollapseButton={true}
+            isCollapsed={isLeftPanelCollapsed}
+            onToggleCollapse={handleToggleLeftPanel}
+            collapseButtonPosition="end"
           />
-        </div>
+
+          {/* Right Panel: Visualization + Controls */}
+          <Panel defaultSize={65} minSize="50%">
+            <div className={styles.rightPanel}>
+              <Group orientation="vertical" id="tutorial-layout-v-v1">
+                {/* Canvas Panel with ControlBar */}
+                <Panel
+                  defaultSize={60}
+                  minSize="100%"
+                  collapsible
+                  panelRef={canvasPanelRef}
+                  onResize={() => {
+                    setIsCanvasPanelCollapsed(canvasPanelRef.current?.isCollapsed() ?? false);
+                  }}
+                >
+                  <div className={styles.visualizationSection}>
+                    <PanelHeader
+                      title="視覺化動畫"
+                      isCollapsed={isCanvasPanelCollapsed}
+                      onToggleCollapse={handleToggleCanvasPanel}
+                    />
+                    {!isCanvasPanelCollapsed && (
+                      <>
+                        <div
+                          ref={canvasContainerRef}
+                          className={styles.visualizationArea}
+                        >
+                          <D3Canvas
+                            elements={currentStepData?.elements || []}
+                            links={currentLinks}
+                            width={canvasSize.width}
+                            height={canvasSize.height}
+                            structureType={topicTypeConfig?.id}
+                          />
+                        </div>
+                        <div className={styles.stepDescription}>
+                          {currentStepData?.description}
+                        </div>
+                        {/* 播放控制列*/}
+                        <div className={styles.controlBarSection}>
+                          <PanelHeader
+                            title="播放控制"
+                            collapsible
+                            isCollapsed={isControlBarCollapsed}
+                            onToggleCollapse={handleToggleControlBar}
+                          />
+                          {!isControlBarCollapsed && (
+                            <div className={styles.controlBarContainer}>
+                              <ControlBar
+                                isPlaying={isPlaying}
+                                currentStep={currentStep}
+                                totalSteps={activeSteps.length}
+                                playbackSpeed={playbackSpeed}
+                                onPlay={handlePlay}
+                                onPause={handlePause}
+                                onNext={handleNext}
+                                onPrev={handlePrev}
+                                onReset={handleReset}
+                                onSpeedChange={setPlaybackSpeed}
+                                onStepChange={handleStepChange}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </Panel>
+
+                <ResizeHandle
+                  direction="vertical"
+                  onDoubleClick={handleToggleCanvasPanel}
+                />
+
+                {/* Action Panel - 只包含 ActionBar */}
+                <Panel defaultSize={40} minSize="20%">
+                  <div className={styles.actionPanel}>
+                    <PanelHeader
+                      title="資料操作"
+                      collapsible
+                      isCollapsed={isActionBarCollapsed}
+                      onToggleCollapse={handleToggleActionBar}
+                    />
+                    {!isActionBarCollapsed && (
+                      <div className={styles.actionBarContainer}>
+                        {renderActionBar()}
+                      </div>
+                    )}
+                  </div>
+                </Panel>
+              </Group>
+            </div>
+          </Panel>
+        </Group>
       </div>
 
       {/* Algorithm Info Section - Bottom */}

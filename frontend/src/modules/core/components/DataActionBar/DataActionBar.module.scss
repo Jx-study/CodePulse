@@ -1,15 +1,9 @@
 .controlBar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: $spacing-md;
-  padding: $spacing-md;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
 
   @media (max-width: $mobile) {
-    flex-direction: column;
     gap: $spacing-sm;
   }
 }
@@ -50,13 +44,13 @@
   }
 
   .speedButton {
-    padding: 4px 12px;
+    padding: $spacing-2xs $spacing-sm;
     font-size: $font-xs;
     font-weight: 600;
     border: 1px solid var(--border-color);
     background: var(--bg-tertiary);
     color: var(--text-secondary);
-    border-radius: 4px;
+    border-radius: $radius-sm;
     cursor: pointer;
     transition: $transition-base;
 
@@ -81,18 +75,18 @@
 
 .actionGroup {
   display: flex;
-  gap: 10px;
+  gap: $spacing-sm;
   align-items: center;
-  background-color: #333;
-  padding: 12px 20px;
-  border-radius: 8px;
-  border: 1px solid #555;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
 }
 
 .select {
-  background: #c07373;
-  color: #fff;
-  padding: 4px;
-  border-radius: 4px;
-  border: 1px solid #666;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: $spacing-2xs;
+  border-radius: $radius-sm;
+  border: 1px solid var(--border-color);
 }

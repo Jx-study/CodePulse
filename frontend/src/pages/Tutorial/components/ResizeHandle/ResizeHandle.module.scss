@@ -1,0 +1,132 @@
+@use "sass:color";
+
+.resizeHandle {
+  position: relative;
+  background: transparent;
+  z-index: 10;
+  touch-action: none;
+  user-select: none;
+
+  // --- 指示線 (The Line) ---
+  .handleIndicator {
+    position: absolute;
+    background: var(--border-color);
+    border-radius: 99px;
+    @include transition(all, 0.15s, ease);
+    z-index: 1;
+  }
+
+  // --- 按鈕容器定位 ---
+  .buttonWrapper {
+    position: absolute;
+    z-index: 20;
+    opacity: 0; // 隱藏
+    pointer-events: none; 
+
+    // 只對 opacity 做過渡，避免影響佈局
+    @include transition(opacity, 0.1s, linear);
+  }
+
+  // --- 覆蓋sharedComponent Button 的樣式 ---
+  .resizeButton {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: none !important;
+    transition: none !important;
+
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: $primary-color;
+      color: $primary-color;
+      // 確保 hover 時也不會動
+      transform: none !important;
+    }
+  }
+
+  // --- 交互狀態 (Hover/Active) ---
+
+  // 當滑鼠 Hover 在 Handle 上時
+  &:hover {
+    .handleIndicator {
+      background: $primary-color;
+    }
+
+    .buttonWrapper {
+      opacity: 1;
+      pointer-events: auto; // 顯示後才允許點擊
+    }
+  }
+
+  // 拖動中 (Active)
+  &:active {
+    .handleIndicator {
+      background: color.adjust($primary-color, $lightness: -10%);
+    }
+    .buttonWrapper {
+      opacity: 0;
+    }
+  }
+
+  // --- 方向變體：水平排列 (Horizontal Layout) ---
+  // 分隔線是「垂直」的，左右調整
+  &.horizontal {
+    width: 10px;
+    cursor: col-resize;
+    margin: 0 -1px;
+
+    .handleIndicator {
+      width: 1px;
+      height: 100%;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+    }
+
+    &:hover .handleIndicator {
+      width: 2px;
+    }
+
+    // 按鈕位置
+    .buttonTop { top: 16px; left: 50%; transform: translateX(-50%); }
+    .buttonBottom { bottom: 16px; left: 50%; transform: translateX(-50%); }
+  }
+
+  // --- 方向變體：垂直排列 (Vertical Layout) ---
+  // 分隔線是「水平」的，上下調整
+  &.vertical {
+    height: 10px;
+    cursor: row-resize;
+    margin: -1px 0;
+
+    .handleIndicator {
+      width: 100%;
+      height: 1px;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    &:hover .handleIndicator {
+      height: 2px;
+    }
+
+    // 按鈕位置
+    .buttonLeft { left: 16px; top: 50%; transform: translateY(-50%); }
+    .buttonRight { right: 16px; top: 50%; transform: translateY(-50%); }
+  }
+}
+
+// --- 折疊狀態 (Collapsed) ---
+// 當面板折疊時，按鈕保持顯示，方便用戶發現如何展開
+.collapsed {
+  .buttonWrapper {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // 折疊時指示線樣式改變
+  .handleIndicator {
+    opacity: 0.5;
+  }
+}

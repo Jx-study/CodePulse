@@ -1,0 +1,62 @@
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+  min-height: 3rem;
+  flex-shrink: 0;
+
+  .leftSection {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex: 1;
+  }
+
+  .icon {
+    display: flex;
+    align-items: center;
+    font-size: $font-lg;
+  }
+
+  .title {
+    font-size: $font-base;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .actions {
+    display: flex;
+    gap: $spacing-xs;
+  }
+
+  .iconButton {
+    padding: $spacing-xs;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    color: var(--text-primary);
+    font-size: $font-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem; // 32px
+    height: 2rem; // 32px
+    border-radius: $radius-sm;
+
+    &:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}

@@ -6,31 +6,65 @@
 .breadcrumbContainer {
   width: 100%;
   margin: 0 auto;
-  padding: $spacing-md $spacing-lg;
+  padding: $spacing-xs $spacing-lg;
 }
 
-// Top Section - Pseudo Code + Canvas
+// Top Section - Resizable Panels Layout
 .topSection {
   width: 100%;
   margin: 0 auto;
   padding: 0 $spacing-lg;
-  @include flex;
-  gap: $spacing-xl;
   margin-bottom: $spacing-xl;
-  min-height: 600px;
+  height: calc(100vh - 64px - 8rem); // 扣除 header + breadcrumb + 底部間距
+  min-height: 37.5rem; // 600px
+
+  > div {
+    height: 100%;
+  }
 
   @media (max-width: $tablet) {
-    flex-direction: column;
-    gap: $spacing-md;
     padding: 0 $spacing-md;
-    min-height: auto;
+    height: auto;
+    min-height: 31.25rem; // 500px
   }
 }
 
 .rightPanel {
-  flex: 1;
   @include flex($direction: column);
-  gap: $spacing-md;
+  height: 100%;
+
+  // 确保内部垂直 Group 撑满容器
+  > div {
+    height: 100%;
+  }
+}
+
+// Action Panel - 只包含 ActionBar
+.actionPanel {
+  @include flex($direction: column);
+  height: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  .actionBarContainer {
+    flex: 1;
+    padding: $spacing-md;
+    overflow-y: auto;
+  }
+}
+
+// ControlBar Section - 可折叠的播放控制区域
+.controlBarSection {
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
+}
+
+// ControlBar Container - 在 Canvas 下方
+.controlBarContainer {
+  padding: $spacing-md;
 }
 
 // Section Header 通用樣式
@@ -38,7 +72,9 @@
   padding: $spacing-sm $spacing-md;
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid var(--border-color);
-  border-radius: 8px 8px 0 0;
+  border-radius: $radius-lg $radius-lg 0 0;
+  min-height: 3rem;
+  flex-shrink: 0;
 
   .sectionTitle {
     font-size: $font-lg;
@@ -48,24 +84,20 @@
   }
 }
 
-// Pseudo Code Section - 左側欄
+// Pseudo Code Section - 左側面板
 .pseudoCodeSection {
-  flex: 0 0 35%;
   @include flex($direction: column);
-  background: lightgreen;
+  height: 100%;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: $radius-lg;
   overflow: hidden;
-
-  @media (max-width: $tablet) {
-    flex: 1 1 auto;
-    min-height: 400px;
-  }
 
   .pseudoCodeEditor {
     flex: 1;
-    overflow: hidden;
-    min-height: 500px;
+    overflow: auto;
+    min-height: 12.5rem; // 200px - 降低最小高度
+    max-height: 100%; // 防止超出容器
   }
 }
 
@@ -77,7 +109,7 @@
   @include flex($direction: column);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: $radius-lg;
   overflow: hidden;
 
   @media (max-width: $tablet) {
@@ -129,7 +161,7 @@
     @include flex($justify: space-between, $align: center);
     padding: $spacing-xs $spacing-sm;
     background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: $font-sm;
 
     .complexityLabel {
@@ -146,33 +178,35 @@
 
 // Visualization Section
 .visualizationSection {
+  @include flex($direction: column);
+  height: 100%;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: $radius-lg;
   overflow: hidden;
 }
 
 .visualizationArea {
+  flex: 1;
   background: #111;
-  border-radius: 4px;
+  border-radius: $radius-sm;
   padding: $spacing-sm;
   @include flex-center;
-  min-height: 400px;
-
-  @media (max-width: $mobile) {
-    min-height: 300px;
-  }
+  min-height: 12.5rem; // 200px - 降低最小高度
+  max-height: 100%; // 防止超出容器
+  overflow: hidden;
 }
 
 .stepDescription {
-  margin-top: $spacing-md;
   padding: $spacing-sm $spacing-md;
   background: var(--bg-tertiary);
-  border-radius: 4px;
-  border-left: 3px solid $primary-color;
+  border-top: 1px solid var(--border-color);
   font-size: $font-sm;
   color: var(--text-secondary);
   font-weight: 500;
+  min-height: 3rem; // 48px
+  flex-shrink: 0;
+  @include flex($align: center);
 }
 
 .actionButtons {
