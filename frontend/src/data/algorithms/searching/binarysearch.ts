@@ -4,6 +4,17 @@ import type { LevelImplementationConfig } from '@/types/implementation';
 import type { Status } from '@/modules/core/DataLogic/BaseElement';
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
+const TAGS = {
+  INIT: "INIT",
+  CHECK_WHILE: "CHECK_WHILE",
+  CALC_MID: "CALC_MID",
+  COMPARE: "COMPARE",
+  FOUND: "FOUND",
+  UPDATE_LEFT: "UPDATE_LEFT",
+  UPDATE_RIGHT: "UPDATE_RIGHT",
+  NOT_FOUND: "NOT_FOUND",
+};
+
 interface Pointers {
   left: number;
   right: number;
@@ -42,10 +53,7 @@ const generateFrame = (
   boxes.forEach((element, i) => {
     const box = element as Box;
 
-    // 如果 overrideStatusMap 有指定，它會優先 (由 createBoxes 處理)
-    // 但 createBoxes 已經執行完了，所以這裡如果想要 override，需要手動檢查
-    // 不過通常 overrideStatusMap 只會包含 mid (prepare/target)，mid 一定在範圍內，所以不會衝突。
-
+    // 視覺化重點：將不在搜尋範圍內的元素變灰 (Inactive)
     if (i < left || i > right) {
       box.setStatus("inactive");
     }
@@ -60,56 +68,80 @@ const generateFrame = (
 
 export function createBinarySearchAnimationSteps(
   inputData: any[],
-  action?: any // 允許接收外部傳入的參數 (例如 target)
+  action?: any
 ): AnimationStep[] {
-  // 強制轉型
   const dataList = inputData as LinearData[];
   const steps: AnimationStep[] = [];
 
-  // 深拷貝資料 (雖然搜尋不改變資料，但為了保險)
+  // 深拷貝資料
   let arr = dataList.map((d) => ({ ...d }));
 
   // 1. 決定搜尋目標 (Target)
-  // 優先使用 action.searchValue (來自 AlgorithmActionBar)，其次是 action.value
   let target = 42;
   if (action && typeof action.searchValue === "number") {
     target = action.searchValue;
   } else if (action && typeof action.value === "number") {
     target = action.value;
   } else if (arr.length > 0) {
-    // 預設選擇靠近開頭的值，這樣可以展示多次迭代過程
-    const targetIndex = Math.min(1, arr.length - 1);
+    // 預設選擇中間偏右的值，展示較完整的搜尋路徑
+    const targetIndex = Math.min(6, arr.length - 1);
     target = arr[targetIndex].value || 0;
   }
 
   let left = 0;
   let right = arr.length - 1;
-  let mid = -1; // 尚未計算
+  let mid = -1;
 
   // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
-    description: `開始二分搜尋：目標值為 ${target}，搜尋範圍 [${left}, ${right}]`,
+    description: `開始二分搜尋：目標值為 ${target}`,
+    actionTag: TAGS.INIT,
+    variables: { 
+      left, 
+      right, 
+      target,
+      totalItems: arr.length 
+    },
     elements: generateFrame(arr, { left, right, mid: -1 }),
   });
 
+  // Main Loop
   while (left <= right) {
+    // Step: 檢查迴圈條件
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `檢查：Left (${left}) <= Right (${right})，繼續搜尋`,
+      actionTag: TAGS.CHECK_WHILE,
+      variables: { left, right, condition: `${left} <= ${right}`, result: true },
+      elements: generateFrame(arr, { left, right, mid: -1 }),
+    });
+
     // 1. 計算 Mid
     mid = Math.floor((left + right) / 2);
 
-    // Step A: 標記 Mid (Prepare)
+    // Step A: 計算與標記 Mid
     steps.push({
       stepNumber: steps.length + 1,
-      description: `計算中間位置 Mid = floor((${left} + ${right}) / 2) = ${mid}`,
+      description: `計算中間點：Mid = floor((${left} + ${right}) / 2) = ${mid}`,
+      actionTag: TAGS.CALC_MID,
+      variables: { left, right, mid },
       elements: generateFrame(arr, { left, right, mid }, { [mid]: "prepare" }),
     });
 
     const midVal = arr[mid].value ?? 0;
 
-    // Step B: 比對 (Target)
+    // Step B: 比對 (Compare)
     steps.push({
       stepNumber: steps.length + 1,
       description: `比對：Index ${mid} (${midVal}) vs 目標 (${target})`,
+      actionTag: TAGS.COMPARE,
+      variables: { 
+        mid, 
+        midVal, 
+        target,
+        compareCondition: `${midVal} == ${target}` 
+      },
       elements: generateFrame(arr, { left, right, mid }, { [mid]: "target" }),
     });
 
@@ -118,6 +150,8 @@ export function createBinarySearchAnimationSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: `找到目標！${midVal} 等於 ${target}，位於 Index ${mid}`,
+        actionTag: TAGS.FOUND,
+        variables: { foundIndex: mid, midVal },
         elements: generateFrame(
           arr,
           { left, right, mid },
@@ -128,31 +162,42 @@ export function createBinarySearchAnimationSteps(
       return steps; // 結束
     } else if (midVal < target) {
       // 中間值太小，往右找
-      const newLeft = mid + 1; // 先計算，但不馬上覆蓋 left 變數
+      const newLeft = mid + 1;
 
-      // Step C: 更新範圍
-      // 這裡顯示的是：Left 即將變動，但 Mid 還停留在原本的位置 (作為參考)
-      // 或者可以讓 Mid 消失，只顯示 Left 移動
-      // 這裡選擇讓 Mid 消失 (設為 -1)，強調「舊的 Mid 已經沒用了，新的範圍產生了」
+      // Step C: 更新範圍 (Update Left)
       steps.push({
         stepNumber: steps.length + 1,
-        description: `${midVal} < ${target}，目標在右半部，更新 Left = ${mid} + 1 = ${newLeft}`,
+        description: `${midVal} < ${target} (太小)，目標在右半部，更新 Left = ${mid} + 1`,
+        actionTag: TAGS.UPDATE_LEFT,
+        variables: { 
+          midVal, 
+          target, 
+          oldLeft: left,
+          newLeft: newLeft 
+        },
         elements: generateFrame(
           arr,
           { left: newLeft, right, mid: -1 }, // Mid 消失，Left 更新
-          {} // 移除所有顏色標記，準備下一輪
+          {} 
         ),
       });
 
-      left = newLeft; // 真正更新變數
+      left = newLeft;
     } else {
       // 中間值太大，往左找
       const newRight = mid - 1;
 
-      // Step C: 更新範圍
+      // Step C: 更新範圍 (Update Right)
       steps.push({
         stepNumber: steps.length + 1,
-        description: `${midVal} > ${target}，目標在左半部，更新 Right = ${mid} - 1 = ${newRight}`,
+        description: `${midVal} > ${target} (太大)，目標在左半部，更新 Right = ${mid} - 1`,
+        actionTag: TAGS.UPDATE_RIGHT,
+        variables: { 
+          midVal, 
+          target, 
+          oldRight: right,
+          newRight: newRight
+        },
         elements: generateFrame(
           arr,
           { left, right: newRight, mid: -1 }, // Mid 消失，Right 更新
@@ -160,7 +205,7 @@ export function createBinarySearchAnimationSteps(
         ),
       });
 
-      right = newRight; // 真正更新變數
+      right = newRight;
     }
   }
 
@@ -168,21 +213,22 @@ export function createBinarySearchAnimationSteps(
   steps.push({
     stepNumber: steps.length + 1,
     description: `搜尋結束：範圍已空 (Left > Right)，未找到目標 ${target}`,
+    actionTag: TAGS.NOT_FOUND,
+    variables: { left, right, found: false },
     elements: generateFrame(arr, { left, right, mid: -1 }),
   });
 
   return steps;
 }
 
-// TODO: 完成 Binary Search 的 actionTag mappings 對應
 const binarySearchCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Function binarySearch(arr, target):
+    content: `Procedure BinarySearch(arr, target):
   left ← 0
   right ← length of arr - 1
 
   While left ≤ right Do
-    mid ← (left + right) / 2
+    mid ← floor((left + right) / 2)
 
     If arr[mid] = target Then
       Return mid
@@ -193,14 +239,22 @@ const binarySearchCodeConfig: CodeConfig = {
     End If
   End While
 
-  Return -1  // 未找到
-End Function`,
+  Return -1
+End Procedure`,
     mappings: {
-      // TODO: 實作 Binary Search 的 actionTag 對應 pseudo code 行號
+      [TAGS.INIT]: [2, 3],
+      [TAGS.CHECK_WHILE]: [5],
+      [TAGS.CALC_MID]: [6],
+      // COMPARE 包含 If 和 Else If 的判斷行
+      [TAGS.COMPARE]: [8, 10], 
+      [TAGS.FOUND]: [9],
+      [TAGS.UPDATE_LEFT]: [11],
+      [TAGS.UPDATE_RIGHT]: [13],
+      [TAGS.NOT_FOUND]: [17],
     },
   },
   python: {
-    content: `def binary_search(arr: list, target: int) -> int:
+    content: `def binary_search(arr, target):
     left = 0
     right = len(arr) - 1
 
@@ -214,7 +268,7 @@ End Function`,
         else:
             right = mid - 1
 
-    return -1  # 未找到`,
+    return -1`,
   },
 };
 
@@ -233,7 +287,6 @@ export const binarySearchConfig: LevelImplementationConfig = {
   },
   introduction: `二分搜尋是一種高效的搜尋演算法，用於在已排序的陣列中尋找特定元素。它的核心思想是每次將搜尋範圍縮小一半，通過比較中間元素與目標值來決定接下來要搜尋左半部還是右半部。
 由於每次都將搜尋範圍減半，因此時間複雜度為 O(log n)。注意：資料必須要是已排序的。`,
-  // 預設資料：必須是已排序的！
   defaultData: [
     { id: "box-0", value: 10 },
     { id: "box-1", value: 25 },
