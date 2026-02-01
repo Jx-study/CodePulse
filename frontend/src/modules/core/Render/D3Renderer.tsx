@@ -47,7 +47,7 @@ export function animateConnect(
   manager: LinkManager,
   sourceId: string,
   targetId: string,
-  duration: number = 800
+  duration: number = 800,
 ): Promise<void> {
   return new Promise((resolve) => {
     const svg = d3.select(svgEl);
@@ -96,7 +96,7 @@ export function animateConnect(
 
 function drawContainer(
   scene: d3.Selection<SVGGElement, unknown, null, undefined>,
-  type: string
+  type: string,
 ) {
   // 清除舊的容器線條 (避免重繪疊加)
   scene.selectAll(".container-line").remove();
@@ -221,7 +221,7 @@ export function renderAll(
   svgEl: SVGSVGElement,
   elements: BaseElement[],
   links: Link[] = [],
-  structureType: string = "linkedlist"
+  structureType: string = "linkedlist",
 ) {
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
@@ -231,7 +231,7 @@ export function renderAll(
   const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
 
   const autoScaleBoxes = elements.filter(
-    (e): e is Box => e instanceof Box && e.autoScale
+    (e): e is Box => e instanceof Box && e.autoScale,
   );
 
   const groupData = new Map<string, { values: number[]; maxH: number }>();
@@ -386,7 +386,7 @@ export function renderAll(
       g.append("circle");
     } else if (d.kind === "box" || d instanceof Box) {
       const rect = g.append("rect");
-      
+
       // === 處理 Box 出現動畫策略 ===
       if (d instanceof Box && d.appearAnim === "instant") {
         rect
@@ -409,7 +409,7 @@ export function renderAll(
       g.append("path")
         .attr("d", isDown ? "M0,0 L-5,-10 L5,-10 Z" : "M0,0 L-5,10 L5,10 Z") // down: 向下指 (頂點在 0,0), up: 向上指 (頂點在 0,0)
         .attr("fill", "#ffeb3b"); // 黃色箭頭
-      
+
       // 標籤文字
       g.append("text").attr("class", "ptr-label");
     }
@@ -570,7 +570,7 @@ export function renderAll(
       const ptr = d as Pointer;
       const textLabel = g.select<SVGTextElement>("text.ptr-label");
       const isDown = ptr.direction === "down";
-      
+
       textLabel
         .attr("text-anchor", "middle")
         .attr("y", isDown ? -20 : 25) // down: 文字在箭頭上方, up: 文字在箭頭下方

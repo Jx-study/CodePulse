@@ -45,12 +45,22 @@ export function createBubbleSortAnimationSteps(
   steps.push({
     stepNumber: 0,
     description: "開始泡沫排序",
+    actionTag: TAGS.INIT,
+    variables: { totalItems: n },
     elements: generateFrame(arr, {}, sortedIndices),
   });
 
   // 演算法主迴圈
   for (let i = 0; i < n - 1; i++) {
     let swapped = false;
+
+    steps.push({
+      stepNumber: steps.length + 1,
+      description: `第 ${i + 1} 輪開始`,
+      actionTag: TAGS.ROUND_START,
+      variables: { round: i, hasSwapped: false, unsortedRange: n - i - 2 },
+      elements: generateFrame(arr, {}, sortedIndices),
+    });
 
     for (let j = 0; j < n - i - 1; j++) {
       // 防呆：確保數值存在
@@ -65,11 +75,35 @@ export function createBubbleSortAnimationSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: `比較 Index ${j} (${val1}) 和 Index ${j + 1} (${val2})`,
+        actionTag: TAGS.COMPARE,
+        variables: {
+          round: i,
+          index: j,
+          currentVal: val1,
+          nextVal: val2,
+          hasSwapped: swapped,
+        },
         elements: generateFrame(arr, compareStatus, sortedIndices),
       });
 
       // 判斷交換
       if (val1 > val2) {
+        // Step B: 交換前 (Decision Frame)
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `判斷：${val1} > ${val2} 為真，準備交換`,
+          actionTag: TAGS.COMPARE,
+          variables: {
+            round: i,
+            index: j,
+            currentVal: val1,
+            nextVal: val2,
+            condition: `${val1} > ${val2}`,
+            result: true,
+          },
+          elements: generateFrame(arr, compareStatus, sortedIndices),
+        });
+
         // 交換整個物件，讓 ID 跟著跑，D3 才會產生位移動畫
         const temp = arr[j];
         arr[j] = arr[j + 1];
@@ -78,11 +112,32 @@ export function createBubbleSortAnimationSteps(
         compareStatus[j] = "target";
         compareStatus[j + 1] = "target";
 
-        // Step B: 交換後
-        // 因為 ID 位置變了，D3 會自動計算位置差並執行動畫
+        // Step C: 交換後
         steps.push({
           stepNumber: steps.length + 1,
-          description: `交換：${val1} > ${val2}`,
+          description: `交換完成：${val1} 和 ${val2} 位置對調`,
+          actionTag: TAGS.SWAP,
+          variables: {
+            round: i,
+            index: j,
+            [`collection[${j}]`]: arr[j].value ?? null,
+            [`collection[${j + 1}]`]: arr[j + 1].value ?? null,
+            hasSwapped: true,
+          },
+          elements: generateFrame(arr, compareStatus, sortedIndices),
+        });
+      } else {
+        // Decision Frame for no swap
+        steps.push({
+          stepNumber: steps.length + 1,
+          description: `判斷：${val1} > ${val2} 為假，不需交換`,
+          actionTag: TAGS.COMPARE,
+          variables: {
+            round: i,
+            index: j,
+            condition: `${val1} > ${val2}`,
+            result: false,
+          },
           elements: generateFrame(arr, compareStatus, sortedIndices),
         });
       }
@@ -94,6 +149,8 @@ export function createBubbleSortAnimationSteps(
     steps.push({
       stepNumber: steps.length + 1,
       description: `本輪結束，Index ${n - 1 - i} 已就定位`,
+      actionTag: TAGS.ROUND_END,
+      variables: { round: i, hasSwapped: swapped },
       elements: generateFrame(arr, {}, sortedIndices),
     });
 
@@ -114,29 +171,74 @@ export function createBubbleSortAnimationSteps(
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
+    actionTag: TAGS.DONE,
+    variables: { isSorted: true },
     elements: generateFrame(arr, {}, sortedIndices),
   });
 
   return steps;
 }
 
+const TAGS = {
+  INIT: "INIT",
+  ROUND_START: "ROUND_START",
+  INNER_LOOP_START: "INNER_LOOP_START",
+  COMPARE: "COMPARE",
+  DECISION: "DECISION",
+  SWAP: "SWAP",
+  ROUND_END: "ROUND_END",
+  DONE: "DONE",
+};
+
 const bubbleSortCodeConfig: CodeConfig = {
   pseudo: {
-    content: `
-for i from 0 to n-1:
-  for j from 0 to n-i-1:
-    if arr[j] > arr[j+1]:
-      swap(arr[j], arr[j+1])
-  `,
-    mappings: {},
+    content: `Procedure BubbleSort(collection):
+  totalItems ← length of collection
+  
+  For round ← 0 To totalItems - 2 Do
+    hasSwapped ← false
+    unsortedRange ← totalItems - round - 2
+    
+    For index ← 0 To unsortedRange Do
+      currentVal ← collection[index]
+      nextVal ← collection[index + 1]
+      
+      If currentVal > nextVal Then
+        collection[index] ← nextVal
+        collection[index + 1] ← currentVal
+        hasSwapped ← true
+      End If
+    End For
+    
+    If hasSwapped = false Then Break
+  End For
+End Procedure`,
+    mappings: {
+      [TAGS.INIT]: [2], 
+      [TAGS.ROUND_START]: [4, 5, 6],
+      [TAGS.COMPARE]: [8, 9, 10, 12],
+      [TAGS.SWAP]: [13, 14, 15],
+      [TAGS.ROUND_END]: [19],
+      [TAGS.DONE]: [21],
+    },
   },
   python: {
-    content: `
-for i in range(n):
-  for j in range(n-i-1):
-    if arr[j] > arr[j+1]:
-      arr[j], arr[j+1] = arr[j+1], arr[j]
-  `,
+    content: `def bubble_sort(collection):
+    total_items = len(collection)
+    
+    for round in range(total_items - 1):
+        has_swapped = False
+        unsorted_range = total_items - 1 - round
+        
+        for index in range(unsorted_range):
+            if collection[index] > collection[index + 1]:
+                collection[index], collection[index + 1] = collection[index + 1], collection[index]
+                has_swapped = True
+        
+        if not has_swapped:
+            break
+            
+    return collection`,
   },
 };
 
