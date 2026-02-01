@@ -127,17 +127,50 @@ export const useAlgorithmLogic = (config: any) => {
       // 不自動播放 (return null 或空陣列)，除非想自動播
       return steps;
     } else if (actionType === "load") {
-      if (payload.data && Array.isArray(payload.data)) {
-        let loadValues = payload.data;
+      let loadValues: number[] = [];
+      let gridCols = 5; // 預設
+      let isGridLoad = false;
+
+      // 檢查是否為 Grid 特殊格式 (如果是字串)
+      if (
+        typeof payload.data === "string" &&
+        payload.data.startsWith("GRID:")
+      ) {
+        const parts = payload.data.split(":");
+        if (parts.length === 3) {
+          gridCols = parseInt(parts[1]);
+          loadValues = parts[2].split(",").map(Number);
+          isGridLoad = true;
+        }
+      } else if (Array.isArray(payload.data)) {
+        loadValues = payload.data;
         if (config.id === "binarysearch") {
           // 做個排序
           loadValues = [...payload.data].sort((a: number, b: number) => a - b);
         }
-        newData = initLinearData(loadValues);
-        const steps = generateSteps(newData, payload);
-        setData(newData);
-        setActiveSteps(steps);
-        return steps;
+      }
+
+      if (loadValues.length > 0) {
+        if (isGridLoad) {
+          newData = loadValues.map((val, i) => ({
+            id: `box-${i}`,
+            val: val,
+          }));
+
+          const steps = generateSteps(newData, {
+            mode: "grid",
+            cols: gridCols,
+          });
+          setData(newData);
+          setActiveSteps(steps);
+          return steps;
+        } else {
+          newData = initLinearData(loadValues);
+          const steps = generateSteps(newData, payload);
+          setData(newData);
+          setActiveSteps(steps);
+          return steps;
+        }
       }
       return [];
     } else if (actionType === "reset") {

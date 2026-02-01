@@ -42,6 +42,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const [rangeEnd, setRangeEnd] = useState<string>("");
   const [gridRows, setGridRows] = useState<string>("3");
   const [gridCols, setGridCols] = useState<string>("5");
+  const [showGridLoader, setShowGridLoader] = useState(false);
+  const [gridInputText, setGridInputText] = useState(
+    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0"
+  );
 
   // 判斷演算法類型
   const isSearching = category === "searching";
@@ -115,6 +119,33 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
     (onRandomData as any)({ rows: r, cols: c });
   };
 
+  const handleLoadGridData = () => {
+    // 解析輸入字串
+    const rowsArr = gridInputText.trim().split("\n");
+    const gridData: number[] = [];
+    let cols = 0;
+    let rows = 0;
+
+    rowsArr.forEach((rowStr) => {
+      // 支援空格或逗號分隔
+      const cells = rowStr
+        .trim()
+        .split(/[\s,]+/)
+        .map(Number);
+      if (cells.length > 0) {
+        gridData.push(...cells);
+        cols = Math.max(cols, cells.length); // 取最長的一列作為 cols
+        rows++;
+      }
+    });
+
+    const flatData = gridData.join(",");
+    const payload = `GRID:${cols}:${flatData}`; // 自定義格式
+
+    onLoadData(payload);
+    setShowGridLoader(false);
+  };
+
   // 判斷是否顯示特定輸入欄位
   const showSearchInput = isSearching && !isPrefixSum;
   const showRangeInput = isPrefixSum;
@@ -124,42 +155,121 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       className={styles.dataActionBarContainer}
       style={{ display: "flex", flexDirection: "column", gap: "12px" }}
     >
+      {showGridLoader && (
+        <div
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000,
+            background: "#222",
+            padding: "24px",
+            border: "1px solid #555",
+            borderRadius: "8px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+          }}
+        >
+          <h4 style={{ margin: "0", color: "#fff", fontSize: "16px" }}>
+            輸入迷宮資料 (0=路, 1=牆)
+          </h4>
+          <textarea
+            value={gridInputText}
+            onChange={(e) => setGridInputText(e.target.value)}
+            rows={5}
+            style={{
+              width: "350px",
+              fontFamily: "monospace",
+              fontSize: "14px",
+              padding: "12px",
+              background: "#111",
+              color: "#eee",
+              border: "1px solid #444",
+              borderRadius: "4px",
+              resize: "none",
+            }}
+            placeholder="0 0 0&#10;0 1 0&#10;0 0 0"
+          />
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              marginTop: "8px",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              size="sm"
+              onClick={() => setShowGridLoader(false)}
+              style={{ background: "#555" }}
+            >
+              取消
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleLoadGridData}
+              style={{ background: "#2e7d32" }}
+            >
+              確認載入
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* 第一行：資料生成 */}
       <div className={styles.actionGroup}>
-        <input
-          type="text"
-          placeholder="3,5,8,10..."
-          value={bulkInput}
-          onChange={(e) => setBulkInput(e.target.value)}
-          className={styles.input}
-          style={{ width: "150px" }}
-          disabled={disabled}
-        />
-        <Button
-          size="sm"
-          onClick={() => onLoadData(bulkInput)}
-          disabled={disabled}
-        >
-          載入資料
-        </Button>
+        {viewMode === "grid" && isGraphAlgo ? (
+          <Button
+            size="sm"
+            onClick={() => setShowGridLoader(!showGridLoader)}
+            disabled={disabled}
+            style={{ marginRight: "8px" }}
+          >
+            載入迷宮資料
+          </Button>
+        ) : (
+          <>
+            <input
+              type="text"
+              placeholder="3,5,8,10..."
+              value={bulkInput}
+              onChange={(e) => setBulkInput(e.target.value)}
+              className={styles.input}
+              style={{ width: "150px" }}
+              disabled={disabled}
+            />
+            <Button
+              size="sm"
+              onClick={() => onLoadData(bulkInput)}
+              disabled={disabled}
+            >
+              載入資料
+            </Button>
+          </>
+        )}
         <Button size="sm" onClick={onResetData} disabled={disabled}>
           重設
         </Button>
-        <div className={styles.settingItem}>
-          <label style={{ color: "#ccc", fontSize: "12px" }}>筆數:</label>
-          <input
-            type="number"
-            value={dataSize}
-            onChange={(e) => setDataSize(Number(e.target.value))}
-            style={{
-              width: "50px",
-              background: "#222",
-              color: "#fff",
-              border: "1px solid #555",
-            }}
-            disabled={disabled}
-          />
-        </div>
+        {!(viewMode === "grid" && isGraphAlgo) && (
+          <div className={styles.settingItem}>
+            <label style={{ color: "#ccc", fontSize: "12px" }}>筆數:</label>
+            <input
+              type="number"
+              value={dataSize}
+              onChange={(e) => setDataSize(Number(e.target.value))}
+              style={{
+                width: "50px",
+                background: "#222",
+                color: "#fff",
+                border: "1px solid #555",
+              }}
+              disabled={disabled}
+            />
+          </div>
+        )}
         <Button
           size="sm"
           onClick={() => {

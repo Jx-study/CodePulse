@@ -166,6 +166,19 @@ function Tutorial() {
 
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
+    if (raw.startsWith("GRID:")) {
+      const steps = executeAction("load", {
+        data: raw,
+        maxNodes,
+        hasTailMode,
+      });
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
     const parsed = raw
       .split(",")
       .map((v) => parseInt(v.trim()))
