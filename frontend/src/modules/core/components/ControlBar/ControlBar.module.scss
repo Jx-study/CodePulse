@@ -18,13 +18,19 @@
 }
 
 .stepIndicator {
-  @include flex-center;
-  min-width: 120px;
+  @include flex($justify: center, $direction: column, $align: center);
+  gap: $spacing-sm;
+  min-width: 200px;
+  flex: 1;
 
   .stepText {
     font-size: $font-sm;
     font-weight: 600;
     color: var(--text-primary);
+  }
+
+  .stepSlider {
+    width: 100%;
   }
 }
 

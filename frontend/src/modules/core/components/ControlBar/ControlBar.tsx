@@ -20,6 +20,7 @@ export interface ControlBarProps {
   onPrev: () => void;
   onReset: () => void;
   onSpeedChange: (speed: number) => void;
+  onStepChange: (step: number) => void;
   showSpeedSlider?: boolean;
 }
 
@@ -34,6 +35,7 @@ function ControlBar({
   onPrev,
   onReset,
   onSpeedChange,
+  onStepChange,
   showSpeedSlider = true,
 }: ControlBarProps) {
   const { t } = useTranslation();
@@ -110,6 +112,17 @@ function ControlBar({
         <span className={styles.stepText}>
           Step {currentStep + 1} / {totalSteps}
         </span>
+        <div className={styles.stepSlider}>
+          <Slider
+            min={0}
+            max={totalSteps - 1}
+            step={1}
+            value={currentStep}
+            onChange={onStepChange}
+            showValue={false}
+            ariaLabel="Step progress"
+          />
+        </div>
       </div>
 
       {/* Speed Selector */}
