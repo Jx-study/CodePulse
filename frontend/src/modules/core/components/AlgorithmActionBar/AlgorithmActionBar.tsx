@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button/Button";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
+export type AlgorithmViewMode = "graph" | "grid";
+
 interface AlgorithmActionBarProps {
   onLoadData: (data: string) => void;
   onRandomData: () => void;
@@ -10,6 +12,8 @@ interface AlgorithmActionBarProps {
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
+  viewMode: AlgorithmViewMode;
+  onViewModeChange: (mode: AlgorithmViewMode) => void;
 }
 
 export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
@@ -20,6 +24,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   disabled = false,
   category = "sorting",
   algorithmId,
+  viewMode,
+  onViewModeChange,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
   const [dataSize, setDataSize] = useState<number>(10);
@@ -32,6 +38,9 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const isSorting = category === "sorting";
   const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
+  const isGraphAlgo =
+    category === "graph" ||
+    (algorithmId && ["bfs", "dfs"].includes(algorithmId));
 
   // 根據演算法類型設定預設資料筆數
   useEffect(() => {
@@ -145,6 +154,40 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         >
           {getControlLabel()}
         </div>
+
+        {isGraphAlgo && (
+          <div
+            style={{
+              marginRight: "12px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{ color: "#888", fontSize: "12px", marginRight: "6px" }}
+            >
+              視圖:
+            </span>
+            <select
+              value={viewMode}
+              onChange={(e) =>
+                onViewModeChange(e.target.value as AlgorithmViewMode)
+              }
+              disabled={disabled}
+              className={styles.select}
+              style={{
+                padding: "4px 8px",
+                borderRadius: "4px",
+                background: "#333",
+                color: "#fff",
+                border: "1px solid #555",
+              }}
+            >
+              <option value="graph">Graph (節點圖)</option>
+              <option value="grid">Grid (迷宮圖)</option>
+            </select>
+          </div>
+        )}
 
         {/* 搜尋演算法的搜尋值輸入 */}
         {showSearchInput && (

@@ -1,6 +1,83 @@
 import * as d3 from "d3";
 import { Node } from "../../../modules/core/DataLogic/Node";
+import { Box } from "../../../modules/core/DataLogic/Box";
 import { createNodeInstance } from "../linear/utils";
+
+export function createGridElements(
+  rawGrid: { id: string; val: number }[]
+): Box[] {
+  const elements: Box[] = [];
+  // 假設固定 5 列 (配合你的 defaultData 15 個元素)
+  const cols = 5;
+  const cellSize = 50;
+  const padding = 10;
+  const startX = 100;
+  const startY = 100;
+
+  rawGrid.forEach((item, index) => {
+    const box = new Box();
+    box.id = item.id;
+    box.value = item.val; // 0:路, 1:牆
+
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+
+    let x = startX + col * (cellSize + padding);
+    let y = startY + row * (cellSize + padding);
+
+    box.moveTo(x, y);
+    box.width = cellSize;
+    box.height = cellSize;
+
+    box.setStatus("inactive");
+
+    elements.push(box);
+  });
+
+  return elements;
+}
+
+export function createGraphElements(rawGraph: {
+  nodes: any[];
+  edges: string[][];
+}): Node[] {
+  const { nodes: rawNodes, edges } = rawGraph;
+  const elements: Node[] = [];
+  const nodeMap = new Map<string, Node>();
+
+  // 設定圓形佈局參數
+  const centerX = 400;
+  const centerY = 200;
+  const radius = 120;
+  const angleStep = (2 * Math.PI) / rawNodes.length;
+
+  // 建立節點
+  rawNodes.forEach((n, index) => {
+    const node = new Node();
+    node.id = n.id;
+    node.value = n.value ?? index; // 如果沒有 value 就用 index
+
+    // 計算座標 (圓形)
+    const x = centerX + radius * Math.cos(index * angleStep - Math.PI / 2);
+    const y = centerY + radius * Math.sin(index * angleStep - Math.PI / 2);
+
+    node.moveTo(x, y);
+    elements.push(node);
+    nodeMap.set(n.id, node);
+  });
+
+  // 建立連線
+  edges.forEach(([sourceId, targetId]) => {
+    const source = nodeMap.get(sourceId);
+    const target = nodeMap.get(targetId);
+    if (source && target) {
+      source.pointers.push(target);
+      // 如果是無向圖，這裡可以加 target.pointers.push(source);
+    }
+  });
+
+  return elements;
+}
 
 export interface HierarchyDatum {
   id: string;

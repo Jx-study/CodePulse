@@ -52,6 +52,7 @@ function Tutorial() {
 
   const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
+  const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
 
   // 3. 計算目前的動畫步驟
   useEffect(() => {
@@ -196,12 +197,22 @@ function Tutorial() {
     }
   };
 
+  const handleViewModeChange = (mode: "graph" | "grid") => {
+    if (isProcessing) return;
+    setViewMode(mode);
+
+    executeAction("switchMode", { mode });
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
+    executeAction("reset", { hasTailMode, mode: viewMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -224,6 +235,8 @@ function Tutorial() {
           disabled={isProcessing}
           category={category as any}
           algorithmId={topicTypeConfig?.id}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
         />
       );
     } else {

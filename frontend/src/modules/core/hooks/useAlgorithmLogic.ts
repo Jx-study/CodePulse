@@ -5,12 +5,18 @@ export const useAlgorithmLogic = (config: any) => {
   const [activeSteps, setActiveSteps] = useState<any[]>([]);
   const nextIdRef = useRef(100);
 
-  const initData = (rawValues: number[]) => {
+  // 將純數字陣列轉為 Box 物件 (給排序/搜尋用)
+  const initLinearData = (rawValues: number[]) => {
     return rawValues.map((val) => ({
       id: `box-${nextIdRef.current++}`,
       value: val,
       position: { x: 0, y: 0 },
     }));
+  };
+
+  // 深拷貝資料 (給 Graph/Grid 用，避免修改到 config)
+  const cloneData = (source: any) => {
+    return JSON.parse(JSON.stringify(source));
   };
 
   const generateSteps = (inputData: any[], actionParams?: any) => {
@@ -22,12 +28,32 @@ export const useAlgorithmLogic = (config: any) => {
 
   useEffect(() => {
     if (config?.defaultData) {
-      const initialData = config.defaultData.map((d: any) => ({
-        ...d,
-        id: d.id || `box-${nextIdRef.current++}`, // 確保有 ID
-      }));
+      let initialData;
 
-      const steps = generateSteps(initialData);
+      // 判斷資料類型
+      if (Array.isArray(config.defaultData)) {
+        // A. 排序/搜尋：純數字陣列 -> 轉物件
+        // 如果 defaultData 裡已經是物件 (像 BFS grid 定義)，直接 clone
+        const isObjectArray = typeof config.defaultData[0] === "object";
+        if (isObjectArray) {
+          initialData = cloneData(config.defaultData);
+        } else {
+          initialData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: d.id || `box-${nextIdRef.current++}`,
+          }));
+        }
+      } else {
+        // B. Graph/BFS：複合物件 ({ graph: ..., grid: ... })
+        // 預設先載入 graph
+        if (config.defaultData.graph) {
+          initialData = cloneData(config.defaultData.graph);
+        } else {
+          initialData = cloneData(config.defaultData);
+        }
+      }
+
+      const steps = generateSteps(initialData, { mode: "graph" });
 
       setData(initialData);
       setActiveSteps(steps);
@@ -35,7 +61,7 @@ export const useAlgorithmLogic = (config: any) => {
   }, [config]);
 
   const executeAction = (actionType: string, payload: any) => {
-    let newData = [...data];
+    let newData = cloneData(data);
 
     if (actionType === "random") {
       if (config.id === "binarysearch") {
@@ -43,7 +69,12 @@ export const useAlgorithmLogic = (config: any) => {
         const sortedValues = Array.from({ length: 10 }, () =>
           Math.floor(Math.random() * 100)
         ).sort((a, b) => a - b);
-        newData = initData(sortedValues);
+        newData = initLinearData(sortedValues);
+      } else if (config.id === "bfs" || config.id === "dfs") {
+        // 針對 BFS/DFS 的隨機 (這裡先保留原樣或實作隨機圖形)
+        // 暫時重置回預設，避免報錯
+        const mode = payload?.mode || "graph";
+        newData = cloneData(config.defaultData[mode]);
       } else {
         // 原本隨機邏輯
         const count = 10;
@@ -51,11 +82,11 @@ export const useAlgorithmLogic = (config: any) => {
           { length: count },
           () => Math.floor(Math.random() * 100) - 20
         );
-        newData = initData(randomValues);
+        newData = initLinearData(randomValues);
       }
 
       // 隨機資料生成後，立刻計算所有步驟
-      const steps = generateSteps(newData);
+      const steps = generateSteps(newData, payload);
 
       setData(newData);
       setActiveSteps(steps);
@@ -69,20 +100,36 @@ export const useAlgorithmLogic = (config: any) => {
           // 做個排序
           loadValues = [...payload.data].sort((a: number, b: number) => a - b);
         }
-        newData = initData(loadValues);
-        const steps = generateSteps(newData);
+        newData = initLinearData(loadValues);
+        const steps = generateSteps(newData, payload);
         setData(newData);
         setActiveSteps(steps);
         return steps;
       }
       return [];
     } else if (actionType === "reset") {
-      newData = (config.defaultData || []).map((d: any) => ({
-        ...d,
-        id: d.id || `box-${nextIdRef.current++}`,
-      }));
+      if (Array.isArray(config.defaultData)) {
+        // Linear
+        const isObjectArray = typeof config.defaultData[0] === "object";
+        if (isObjectArray) {
+          newData = cloneData(config.defaultData);
+        } else {
+          newData = config.defaultData.map((d: any) => ({
+            ...d,
+            id: d.id || `box-${nextIdRef.current++}`,
+          }));
+        }
+      } else {
+        // Graph/BFS (預設回 graph，或根據當前 mode?)
+        // 通常 reset 會想回到當前 mode 的預設值
+        // 但這裡沒存 mode，只好先回 graph，或者透過 payload 傳入 mode
+        const mode = payload?.mode || "graph";
+        newData = cloneData(
+          config.defaultData[mode] || config.defaultData.graph
+        );
+      }
 
-      const steps = generateSteps(newData);
+      const steps = generateSteps(newData, payload);
 
       setData(newData);
       setActiveSteps(steps);
@@ -96,8 +143,23 @@ export const useAlgorithmLogic = (config: any) => {
         setActiveSteps(steps);
         return steps;
       }
-    }
+    } else if (actionType === "switchMode") {
+      if (payload.mode === "graph") {
+        newData = cloneData(config.defaultData.graph);
+      } else {
+        newData = cloneData(config.defaultData.grid);
+      }
 
+      const steps = config.createAnimationSteps(newData, {
+        ...payload, // 包含 mode: 'graph' | 'grid'
+        action: actionType,
+      });
+
+      setData(newData);
+      setActiveSteps(steps);
+
+      return steps;
+    }
     return [];
   };
 
