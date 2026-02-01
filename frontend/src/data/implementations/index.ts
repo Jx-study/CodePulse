@@ -6,6 +6,7 @@ import { linkedListConfig } from "../DataStructure/linear/LinkedList";
 import { StackConfig } from "../DataStructure/linear/Stack";
 import { QueueConfig } from "../DataStructure/linear/Queue";
 import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree";
+import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
@@ -26,6 +27,7 @@ export const implementationsMap: ImplementationMap = {
   stack: StackConfig,
   queue: QueueConfig,
   binaryTree: BinaryTreeConfig,
+  bst: BinarySearchTreeConfig,
 
   // Algorithms
   bubbleSort: bubbleSortConfig,

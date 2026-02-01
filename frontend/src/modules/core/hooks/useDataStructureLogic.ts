@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { getBSTArrayAfterDelete } from "@/data/DataStructure/nonlinear/BinarySearchTree";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 export const useDataStructureLogic = (config: any) => {
@@ -28,6 +29,7 @@ export const useDataStructureLogic = (config: any) => {
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
     let newData = data.map((item: any) => ({ ...item }));
+    let finalData = null;
     let { value, mode, index, targetId, hasTailMode, data: loadData } = payload; // 解構常用參數
 
     let isResetAction = false;
@@ -308,8 +310,33 @@ export const useDataStructureLogic = (config: any) => {
           }
         }
       }
-    } else if (config.id === "binarytree") {
-      if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    } else if (config.id === "binarytree" || config.id === "bst") {
+      if (actionType === "add") {
+        const newId = `node-${nextIdRef.current++}`;
+        newData.push({
+          id: newId,
+          value: value,
+        });
+        targetId = newId;
+      } else if (actionType === "delete") {
+        const delValue = index;
+        const delIndex = newData.findIndex(
+          (node: any) => node.value === delValue
+        );
+
+        if (delIndex !== -1) {
+          if (config.id === "bst") {
+            finalData = getBSTArrayAfterDelete(newData, delValue);
+          } else {
+            const temp = [...newData];
+            temp.splice(delIndex, 1);
+            finalData = temp;
+          }
+        } else {
+          alert(`數值 ${delValue} 不存在`);
+          return [];
+        }
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
 
         if (actionType === "random") {
@@ -353,7 +380,7 @@ export const useDataStructureLogic = (config: any) => {
       hasTailMode
     );
 
-    setData(newData);
+    setData(finalData || newData);
     setActiveSteps(steps);
     return steps;
   };
