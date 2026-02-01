@@ -25,12 +25,12 @@ function runGraphBFS(graphData: any): AnimationStep[] {
 }
 
 // 迷宮最短路徑
-function runGridBFS(gridData: any): AnimationStep[] {
+function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
   let elements: Box[] = [];
 
   // 判斷是否為陣列 (Grid data 是陣列)
   if (Array.isArray(gridData)) {
-    elements = createGridElements(gridData);
+    elements = createGridElements(gridData, cols);
   }
 
   const steps: AnimationStep[] = [];
@@ -49,7 +49,8 @@ export function createBFSAnimationSteps(
   action?: any
 ): AnimationStep[] {
   if (action?.mode === "grid") {
-    return runGridBFS(inputData);
+    const gridCols = action?.cols || 5;
+    return runGridBFS(inputData, gridCols);
   }
   return runGraphBFS(inputData);
 }

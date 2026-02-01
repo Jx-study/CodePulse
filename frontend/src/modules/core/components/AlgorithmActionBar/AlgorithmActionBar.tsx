@@ -32,6 +32,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const [searchValue, setSearchValue] = useState<string>("");
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
+  const [gridRows, setGridRows] = useState<string>("3");
+  const [gridCols, setGridCols] = useState<string>("5");
 
   // 判斷演算法類型
   const isSearching = category === "searching";
@@ -95,6 +97,12 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
     return "開始執行";
   };
 
+  const handleRandomGrid = () => {
+    const r = parseInt(gridRows) || 3;
+    const c = parseInt(gridCols) || 5;
+    (onRandomData as any)({ rows: r, cols: c });
+  };
+
   // 判斷是否顯示特定輸入欄位
   const showSearchInput = isSearching && !isPrefixSum;
   const showRangeInput = isPrefixSum;
@@ -125,7 +133,6 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         <Button size="sm" onClick={onResetData} disabled={disabled}>
           重設
         </Button>
-
         <div className={styles.settingItem}>
           <label style={{ color: "#ccc", fontSize: "12px" }}>筆數:</label>
           <input
@@ -141,9 +148,46 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             disabled={disabled}
           />
         </div>
-        <Button size="sm" onClick={() => onRandomData()} disabled={disabled}>
-          隨機
-        </Button>
+        {isGraphAlgo && viewMode === "grid" ? (
+          <Button
+            size="sm"
+            onClick={() => handleRandomGrid()}
+            disabled={disabled}
+          >
+            隨機
+          </Button>
+        ) : (
+          <Button size="sm" onClick={() => onRandomData()} disabled={disabled}>
+            隨機
+          </Button>
+        )}
+        {viewMode === "grid" && isGraphAlgo && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              marginRight: "8px",
+            }}
+          >
+            <label style={{ color: "#ccc", fontSize: "12px" }}>R:</label>
+            <input
+              type="number"
+              value={gridRows}
+              onChange={(e) => setGridRows(e.target.value)}
+              className={styles.input}
+              style={{ width: "40px" }}
+            />
+            <label style={{ color: "#ccc", fontSize: "12px" }}>C:</label>
+            <input
+              type="number"
+              value={gridCols}
+              onChange={(e) => setGridCols(e.target.value)}
+              className={styles.input}
+              style={{ width: "40px" }}
+            />
+          </div>
+        )}
       </div>
 
       {/* 第二行：執行控制 */}

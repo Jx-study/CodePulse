@@ -29,6 +29,7 @@ export const useAlgorithmLogic = (config: any) => {
   useEffect(() => {
     if (config?.defaultData) {
       let initialData;
+      let initialMode = "graph";
 
       // 判斷資料類型
       if (Array.isArray(config.defaultData)) {
@@ -48,17 +49,34 @@ export const useAlgorithmLogic = (config: any) => {
         // 預設先載入 graph
         if (config.defaultData.graph) {
           initialData = cloneData(config.defaultData.graph);
+          initialMode = "graph";
         } else {
           initialData = cloneData(config.defaultData);
         }
       }
 
-      const steps = generateSteps(initialData, { mode: "graph" });
+      const steps = generateSteps(initialData, { mode: initialMode });
 
       setData(initialData);
       setActiveSteps(steps);
     }
   }, [config]);
+
+  const generateRandomGrid = (rows: number, cols: number) => {
+    const grid = [];
+    for (let i = 0; i < rows * cols; i++) {
+      // 40% 機率是牆 (1)，60% 是路 (0)
+      const isWall = Math.random() < 0.4 ? 1 : 0;
+      grid.push({
+        id: `box-${i}`,
+        val: isWall,
+      });
+    }
+    // 確保起點 (0) 和終點 (最後一個) 是路
+    grid[0].val = 0;
+    grid[grid.length - 1].val = 0;
+    return grid;
+  };
 
   const executeAction = (actionType: string, payload: any) => {
     let newData = cloneData(data);
@@ -74,7 +92,22 @@ export const useAlgorithmLogic = (config: any) => {
         // 針對 BFS/DFS 的隨機 (這裡先保留原樣或實作隨機圖形)
         // 暫時重置回預設，避免報錯
         const mode = payload?.mode || "graph";
-        newData = cloneData(config.defaultData[mode]);
+        if (mode === "grid") {
+          const rows = payload?.rows || 3;
+          const cols = payload?.cols || 5;
+          console.log("generate random grid:", rows, cols);
+
+          newData = generateRandomGrid(rows, cols);
+
+          const steps = generateSteps(newData, { mode: "grid", cols: cols });
+
+          setData(newData);
+          setActiveSteps(steps);
+          return steps;
+        }
+        // (graph random logic)
+
+        // newData = cloneData(config.defaultData[mode]);
       } else {
         // 原本隨機邏輯
         const count = 10;

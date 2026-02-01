@@ -146,8 +146,13 @@ function Tutorial() {
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
-  const handleRandomData = () => {
-    executeAction("random", { maxNodes, hasTailMode });
+  const handleRandomData = (params?: any) => {
+    executeAction("random", {
+      maxNodes,
+      hasTailMode,
+      mode: viewMode,
+      ...params,
+    });
     setCurrentStep(0);
     setIsPlaying(false); // 不需要自動播放
   };

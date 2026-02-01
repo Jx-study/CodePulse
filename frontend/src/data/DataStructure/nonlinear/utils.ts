@@ -3,12 +3,16 @@ import { Node } from "../../../modules/core/DataLogic/Node";
 import { Box } from "../../../modules/core/DataLogic/Box";
 import { createNodeInstance } from "../linear/utils";
 
+export interface GridCellData {
+  id: string;
+  val: number;
+}
+
 export function createGridElements(
-  rawGrid: { id: string; val: number }[]
+  rawGrid: GridCellData[],
+  cols: number = 5
 ): Box[] {
   const elements: Box[] = [];
-  // 假設固定 5 列 (配合你的 defaultData 15 個元素)
-  const cols = 5;
   const cellSize = 50;
   const padding = 10;
   const startX = 100;
