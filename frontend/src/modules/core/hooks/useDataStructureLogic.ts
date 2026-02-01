@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { getBSTArrayAfterDelete } from "@/data/DataStructure/nonlinear/BinarySearchTree";
 
 export const useDataStructureLogic = (config: any) => {
   const [data, setData] = useState<any>(config?.defaultData || []);
@@ -27,6 +28,7 @@ export const useDataStructureLogic = (config: any) => {
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
     let newData = data.map((item: any) => ({ ...item }));
+    let finalData = null;
     let { value, mode, index, targetId, hasTailMode, data: loadData } = payload; // 解構常用參數
 
     let isResetAction = false;
@@ -298,6 +300,24 @@ export const useDataStructureLogic = (config: any) => {
           value: value,
         });
         targetId = newId;
+      } else if (actionType === "delete") {
+        const delValue = index;
+        const delIndex = newData.findIndex(
+          (node: any) => node.value === delValue
+        );
+
+        if (delIndex !== -1) {
+          if (config.id === "bst") {
+            finalData = getBSTArrayAfterDelete(newData, delValue);
+          } else {
+            const temp = [...newData];
+            temp.splice(delIndex, 1);
+            finalData = temp;
+          }
+        } else {
+          alert(`數值 ${delValue} 不存在`);
+          return [];
+        }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
 
@@ -342,7 +362,7 @@ export const useDataStructureLogic = (config: any) => {
       hasTailMode
     );
 
-    setData(newData);
+    setData(finalData || newData);
     setActiveSteps(steps);
     return steps;
   };

@@ -569,6 +569,313 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
 
   return steps;
 }
+
+export function getBSTArrayAfterDelete(
+  data: any[],
+  targetValue: number
+): any[] {
+  const root = buildBST(data);
+  if (!root) return [];
+
+  const newRoot = deleteNodeFromTree(root, targetValue);
+  // 前序方式轉回陣列 (Preorder) 以保持結構
+  const result: any[] = [];
+  serializePreorder(newRoot, result);
+
+  return result.map((node) => ({
+    id: node.id,
+    value: node.value,
+  }));
+}
+
+function deleteNodeFromTree(
+  root: LogicTreeNode | undefined,
+  key: number
+): LogicTreeNode | undefined {
+  if (!root) return undefined;
+  if (key < root.value) {
+    root.left = deleteNodeFromTree(root.left, key);
+  } else if (key > root.value) {
+    root.right = deleteNodeFromTree(root.right, key);
+  } else {
+    // 找到節點 (root)
+    // Case 1 & 2: No child or One child
+    if (!root.left) return root.right;
+    if (!root.right) return root.left;
+
+    // Case 3: Two children
+    // 找右子樹的最小值 (Successor)
+    let temp = root.right;
+    while (temp.left) {
+      temp = temp.left;
+    }
+
+    // 替換數值 (ID 不變，值改變)
+    root.value = temp.value;
+
+    // 刪除那個 Successor
+    root.right = deleteNodeFromTree(root.right, temp.value);
+  }
+
+  return root;
+}
+
+function serializePreorder(node: LogicTreeNode | undefined, list: any[]) {
+  if (!node) return;
+
+  list.push(node);
+
+  serializePreorder(node.left, list);
+  serializePreorder(node.right, list);
+}
+
+function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  const root = buildBST(inputData);
+  const statusMap: Record<string, Status> = {};
+
+  if (!root) {
+    steps.push(generateFrame(inputData, {}, "樹為空，無法刪除"));
+    return steps;
+  }
+
+  steps.push(generateFrame(inputData, {}, `準備刪除節點：${targetValue}`));
+
+  // Phase 1: Search
+  let curr: LogicTreeNode | undefined = root;
+  let foundNode: LogicTreeNode | undefined = undefined;
+
+  while (curr) {
+    statusMap[curr.id] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `尋找刪除目標：${targetValue} vs ${curr.value}`
+      )
+    );
+
+    if (targetValue === curr.value) {
+      foundNode = curr;
+      statusMap[curr.id] = "complete";
+      steps.push(
+        generateFrame(inputData, statusMap, `找到目標節點 ${targetValue}`)
+      );
+      break;
+    }
+
+    if (targetValue < curr.value) {
+      if (curr.left) {
+        statusMap[curr.left.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} < ${curr.value}，往左`
+          )
+        );
+        delete statusMap[curr.left.id];
+        statusMap[curr.id] = "unfinished";
+        curr = curr.left;
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} < ${curr.value}，但無左子節點`
+          )
+        );
+        statusMap[curr.id] = "unfinished";
+        break;
+      }
+    } else {
+      if (curr.right) {
+        statusMap[curr.right.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} > ${curr.value}，往右`
+          )
+        );
+        delete statusMap[curr.right.id];
+        statusMap[curr.id] = "unfinished";
+        curr = curr.right;
+      } else {
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `${targetValue} > ${curr.value}，但無右子節點`
+          )
+        );
+        statusMap[curr.id] = "unfinished";
+        break;
+      }
+    }
+  }
+
+  if (!foundNode) {
+    steps.push(
+      generateFrame(inputData, statusMap, `未找到數值 ${targetValue}，刪除失敗`)
+    );
+    return steps;
+  }
+
+  // Phase 2: Delete
+  const targetId = foundNode.id;
+
+  // Case 1: Leaf Node (保持不變)
+  if (!foundNode.left && !foundNode.right) {
+    statusMap[targetId] = "target";
+    steps.push(
+      generateFrame(inputData, statusMap, `檢查子節點：無 (葉子節點)，直接移除`)
+    );
+    const finalData = inputData.filter((d: any) => d.id !== targetId);
+    finalData.forEach((d: any) => {
+      statusMap[d.id] = "complete";
+    });
+    steps.push(generateFrame(finalData, statusMap, `刪除完成`));
+  }
+  // Case 2: One Child (保持不變)
+  else if (!foundNode.left || !foundNode.right) {
+    const child = foundNode.left ? foundNode.left : foundNode.right;
+    statusMap[targetId] = "target";
+
+    // 增加判斷說明
+    if (foundNode.left) {
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `檢查子節點：只有左子樹 (${foundNode.left.value})，無右子樹`
+        )
+      );
+    } else {
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `檢查子節點：只有右子樹 (${foundNode.right!.value})，無左子樹`
+        )
+      );
+    }
+
+    statusMap[child!.id] = "prepare";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `將以子節點 ${child!.value} 取代 ${targetValue}`
+      )
+    );
+
+    const finalData = inputData.filter((d: any) => d.id !== targetId);
+    finalData.forEach((d: any) => {
+      statusMap[d.id] = "complete";
+    });
+    steps.push(generateFrame(finalData, statusMap, `刪除完成`));
+  }
+  // Case 3: Two Children
+  else {
+    statusMap[targetId] = "target";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `檢查子節點：左右皆有。需尋找後繼者 (右子樹的最小值)`
+      )
+    );
+
+    // 1. 進入右子樹
+    let successor = foundNode.right;
+    statusMap[successor.id] = "prepare";
+    steps.push(
+      generateFrame(
+        inputData,
+        statusMap,
+        `Step 1: 進入右子樹根節點 ${successor.value}`
+      )
+    );
+    delete statusMap[successor.id];
+    statusMap[successor.id] = "unfinished"; // 標記原本路徑
+
+    // 2. 循環尋找最小值 (一路向左)
+    while (true) {
+      // 檢查左子樹
+      statusMap[successor.id] = "target"; // 當前檢查點為 target
+      steps.push(
+        generateFrame(
+          inputData,
+          statusMap,
+          `檢查 ${successor.value} 是否有左子節點 (更小的值)?`
+        )
+      );
+
+      if (successor.left) {
+        // 有 -> 往左走
+        statusMap[successor.left.id] = "prepare";
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `有左子節點 ${successor.left.value}，繼續往左尋找`
+          )
+        );
+
+        delete statusMap[successor.left.id];
+        statusMap[successor.id] = "unfinished";
+        successor = successor.left;
+      } else {
+        // 沒有 -> 找到最小值了
+        steps.push(
+          generateFrame(
+            inputData,
+            statusMap,
+            `無左子節點，${successor.value} 即為右子樹的最小值 (Successor)`
+          )
+        );
+        break;
+      }
+    }
+
+    // 3. 找到 Successor
+    statusMap[successor.id] = "complete";
+    steps.push(
+      generateFrame(inputData, statusMap, `鎖定後繼者: ${successor.value}`)
+    );
+
+    // 4. 替換值
+    const replacedData = inputData.map((d: any) =>
+      d.id === targetId ? { ...d, value: successor!.value } : d
+    );
+    steps.push(
+      generateFrame(
+        replacedData,
+        statusMap,
+        `將目標節點 ${targetValue} 的值替換為 ${successor.value}`
+      )
+    );
+
+    // 5. 移除 Successor
+    const finalData = replacedData.filter((d: any) => d.id !== successor!.id);
+
+    finalData.forEach((d: any) => {
+      statusMap[d.id] = "complete";
+    });
+
+    steps.push(
+      generateFrame(
+        finalData,
+        statusMap,
+        `移除原本的後繼者節點 ${successor.value}，重組結構，刪除完成`
+      )
+    );
+  }
+
+  return steps;
+}
+
 function runLoad(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   // 直接顯示最終樹
@@ -584,6 +891,9 @@ export function createBinarySearchTreeAnimationSteps(
 ): AnimationStep[] {
   if (action?.type === "add" || action?.mode === "Insert") {
     return runInsert(inputData);
+  }
+  if (action?.type === "delete" || action?.mode === "DeleteValue") {
+    return runDelete(inputData, action.index);
   }
   if (action?.mode === "search") {
     return runSearch(inputData, action.value);
