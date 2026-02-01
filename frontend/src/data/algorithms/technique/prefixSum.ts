@@ -88,7 +88,7 @@ export function createPrefixSumAnimationSteps(
   }
 
   // ==========================================
-  // Mode 1: Query Mode
+  // Mode 1: Query Mode (查詢模式)
   // ==========================================
   if (action && action.range && Array.isArray(action.range)) {
     const [L, R] = action.range;
@@ -103,7 +103,7 @@ export function createPrefixSumAnimationSteps(
     // Step 0: Start
     steps.push({
       stepNumber: 0,
-      description: `Query range sum for [${L}, ${R}]`,
+      description: `開始查詢：計算區間 [${L}, ${R}] 的總和`,
       actionTag: TAGS.QUERY_START,
       variables: { L, R },
       elements: generateFrame(sourceData, prefixArrForQuery, allCompleteMap),
@@ -112,7 +112,7 @@ export function createPrefixSumAnimationSteps(
     // Step 1: Get P[R]
     steps.push({
       stepNumber: 1,
-      description: `Step 1: Get prefix sum at right boundary P[${R}] = ${prefixArrForQuery[R]}`,
+      description: `步驟 1：取得右邊界的前綴和 P[${R}] = ${prefixArrForQuery[R]}`,
       actionTag: TAGS.QUERY_GET_R,
       variables: { 
         R, 
@@ -133,7 +133,7 @@ export function createPrefixSumAnimationSteps(
       // Step 2: Get P[L-1] (Enter If check)
       steps.push({
         stepNumber: 2,
-        description: `Step 2: Since L > 0, get P[${L}-1] = ${valL_1}`,
+        description: `步驟 2：因為 L > 0，取得左邊界前一個位置的前綴和 P[${L}-1] = ${valL_1}`,
         actionTag: TAGS.QUERY_GET_L,
         variables: { 
           L, 
@@ -153,7 +153,7 @@ export function createPrefixSumAnimationSteps(
       
       steps.push({
         stepNumber: 3,
-        description: `Result: Return ${valR} - ${valL_1} = ${result}`,
+        description: `計算結果：${valR} - ${valL_1} = ${result}`,
         actionTag: TAGS.QUERY_RETURN_SUB,
         variables: { 
           valR, 
@@ -167,7 +167,7 @@ export function createPrefixSumAnimationSteps(
       // Step 2: Else case (L = 0)
       steps.push({
         stepNumber: 2,
-        description: `Step 2: Since L = 0, no subtraction needed`,
+        description: `步驟 2：因為 L = 0，不需要減去任何前綴`,
         actionTag: TAGS.QUERY_ELSE,
         variables: { L },
         elements: generateFrame(sourceData, prefixArrForQuery, {
@@ -179,7 +179,7 @@ export function createPrefixSumAnimationSteps(
       // Step 3: Return Direct
       steps.push({
         stepNumber: 3,
-        description: `Result: Return P[${R}] = ${valR}`,
+        description: `直接回傳：P[${R}] = ${valR}`,
         actionTag: TAGS.QUERY_RETURN_DIRECT,
         variables: { result: valR },
         elements: generateFrame(sourceData, prefixArrForQuery, {
@@ -193,13 +193,13 @@ export function createPrefixSumAnimationSteps(
   }
 
   // ==========================================
-  // Mode 2: Construction Mode
+  // Mode 2: Construction Mode (建構模式)
   // ==========================================
   let prefixArr: (number | null)[] = new Array(n).fill(null);
 
   steps.push({
     stepNumber: 0,
-    description: "Start constructing prefix sum array P",
+    description: "開始建構前綴和陣列 P",
     actionTag: TAGS.BUILD_INIT,
     variables: { n },
     elements: generateFrame(sourceData, prefixArr, {}, {}),
@@ -211,7 +211,7 @@ export function createPrefixSumAnimationSteps(
 
     steps.push({
       stepNumber: steps.length + 1,
-      description: `Initialize: P[0] = A[0] = ${val0}`,
+      description: `初始化：P[0] = A[0] = ${val0}`,
       actionTag: TAGS.BUILD_BASE,
       variables: { val0 },
       elements: generateFrame(sourceData, prefixArr, { 0: "complete" }, { 0: "target" }),
@@ -225,7 +225,7 @@ export function createPrefixSumAnimationSteps(
 
     steps.push({
       stepNumber: steps.length + 1,
-      description: `Calculate P[${i}] = P[${i - 1}] (${prevSum}) + A[${i}] (${currentVal})`,
+      description: `計算 P[${i}]：前一個總和 P[${i - 1}] (${prevSum}) + 當前元素 A[${i}] (${currentVal})`,
       actionTag: TAGS.BUILD_CALC,
       variables: { i, prevSum, currentVal, newSum },
       elements: generateFrame(
@@ -239,7 +239,7 @@ export function createPrefixSumAnimationSteps(
     prefixArr[i] = newSum;
     steps.push({
       stepNumber: steps.length + 1,
-      description: `Update P[${i}] = ${newSum}`,
+      description: `更新 P[${i}] = ${newSum}`,
       actionTag: TAGS.BUILD_CALC,
       variables: { i, newSum },
       elements: generateFrame(
@@ -256,7 +256,7 @@ export function createPrefixSumAnimationSteps(
 
   steps.push({
     stepNumber: steps.length + 1,
-    description: "Construction complete",
+    description: "建構完成",
     actionTag: TAGS.BUILD_DONE,
     elements: generateFrame(sourceData, prefixArr, finalCompleteMap, {}),
   });
