@@ -4,11 +4,19 @@ import styles from "../DataActionBar/DataActionBar.module.scss";
 
 export type AlgorithmViewMode = "graph" | "grid";
 
+export interface RunParams {
+  searchValue?: number;
+  range?: [number, number];
+  mode?: "graph" | "grid";
+  rows?: number;
+  cols?: number;
+}
+
 interface AlgorithmActionBarProps {
   onLoadData: (data: string) => void;
   onRandomData: () => void;
   onResetData: () => void;
-  onRun: (params?: { searchValue?: number; range?: [number, number] }) => void;
+  onRun: (params?: RunParams) => void;
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
@@ -56,7 +64,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
 
   const handleRun = () => {
-    if (isSearching && !isPrefixSum) {
+    if (viewMode === "grid" && isGraphAlgo) {
+      const r = parseInt(gridRows) || 3;
+      const c = parseInt(gridCols) || 5;
+      onRun({ mode: "grid", rows: r, cols: c });
+    } else if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
         onRun({ searchValue: val });
@@ -148,19 +160,19 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             disabled={disabled}
           />
         </div>
-        {isGraphAlgo && viewMode === "grid" ? (
-          <Button
-            size="sm"
-            onClick={() => handleRandomGrid()}
-            disabled={disabled}
-          >
-            隨機
-          </Button>
-        ) : (
-          <Button size="sm" onClick={() => onRandomData()} disabled={disabled}>
-            隨機
-          </Button>
-        )}
+        <Button
+          size="sm"
+          onClick={() => {
+            if (viewMode === "grid" && isGraphAlgo) {
+              handleRandomGrid();
+            } else {
+              onRandomData();
+            }
+          }}
+          disabled={disabled}
+        >
+          隨機
+        </Button>
         {viewMode === "grid" && isGraphAlgo && (
           <div
             style={{
