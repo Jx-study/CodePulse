@@ -1,13 +1,12 @@
 import * as d3 from "d3";
 import { Node } from "../../../modules/core/DataLogic/Node";
-// 假設 createNodeInstance 在 linear/utils 或者是共用的 core utils
-// 為了方便，這裡假設你可以從原本的 utils 匯入，或者你也把 createNodeInstance 搬到更上層
 import { createNodeInstance } from "../linear/utils";
 
 export interface HierarchyDatum {
   id: string;
   value: number;
   children?: HierarchyDatum[];
+  isDummy?: boolean; // 標記是否增加隱形節點，將單一節點推到左側或右側(為了美觀)
 }
 
 /**
@@ -38,12 +37,83 @@ export function buildD3HierarchyData(
           queue.push(nodes[i]);
           i++;
         } else {
-          break; // 資料沒了就停
+          break;
         }
       }
     }
   }
   return root;
+}
+
+export function buildBSTHierarchyData(
+  data: { id: string; value: number }[]
+): HierarchyDatum | null {
+  if (data.length === 0) return null;
+
+  const nodes = data.map((d) => ({
+    ...d,
+    children: [] as HierarchyDatum[],
+    left: null as any,
+    right: null as any,
+  }));
+
+  const root = nodes[0];
+
+  for (let i = 1; i < data.length; i++) {
+    let curr = root;
+    const newNode = nodes[i];
+
+    while (true) {
+      if (newNode.value < curr.value) {
+        if (curr.left) {
+          curr = curr.left;
+        } else {
+          curr.left = newNode;
+          break;
+        }
+      } else {
+        if (curr.right) {
+          curr = curr.right;
+        } else {
+          curr.right = newNode;
+          break;
+        }
+      }
+    }
+  }
+
+  convertToChildren(root);
+  return root;
+}
+
+function convertToChildren(node: any) {
+  if (node.left || node.right) {
+    if (node.left) {
+      node.children.push(node.left);
+      convertToChildren(node.left);
+    } else {
+      // 補一個左側隱形節點
+      node.children.push({
+        id: `dummy-${node.id}-left`,
+        value: 0,
+        isDummy: true,
+        children: [],
+      });
+    }
+
+    if (node.right) {
+      node.children.push(node.right);
+      convertToChildren(node.right);
+    } else {
+      // 補一個右側隱形節點
+      node.children.push({
+        id: `dummy-${node.id}-right`,
+        value: 0,
+        isDummy: true,
+        children: [],
+      });
+    }
+  }
 }
 
 /**
@@ -59,6 +129,7 @@ export function createTreeNodes(
     offsetX?: number;
     offsetY?: number;
     degree?: number;
+    type?: "bst" | "binarytree";
   } = {}
 ): Node[] {
   const {
@@ -67,10 +138,15 @@ export function createTreeNodes(
     offsetX = 0,
     offsetY = 50,
     degree = 2,
+    type = "binarytree",
   } = options;
 
   // 1. 轉換資料
-  const hierarchyData = buildD3HierarchyData(inputData, degree);
+  const hierarchyData =
+    type === "bst"
+      ? buildBSTHierarchyData(inputData)
+      : buildD3HierarchyData(inputData, degree);
+
   if (!hierarchyData) return [];
 
   // 2. D3 Layout
@@ -84,6 +160,7 @@ export function createTreeNodes(
 
   // (A) 建立節點 (使用 createNodeInstance)
   rootWithPos.descendants().forEach((d) => {
+    if (d.data.isDummy) return;
     const node = createNodeInstance(
       d.data.id,
       d.data.value,
@@ -96,6 +173,8 @@ export function createTreeNodes(
 
   // (B) 建立連線 (設定 pointers)
   rootWithPos.links().forEach((link) => {
+    if (link.target.data.isDummy) return;
+
     const sourceNode = nodeMap.get(link.source.data.id);
     const targetNode = nodeMap.get(link.target.data.id);
 

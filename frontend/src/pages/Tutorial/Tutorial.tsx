@@ -228,7 +228,7 @@ function Tutorial() {
       );
     } else {
       if (
-        ["linkedlist", "stack", "queue", "array", "binarytree"].includes(
+        ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
           topicTypeConfig.id
         )
       ) {
