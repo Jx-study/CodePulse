@@ -5,6 +5,7 @@ node_modules/
 !README.md 
 .claudignore
 .cursorrules
+tools/everything-claude-code/
 
 # Frontend
 build/
