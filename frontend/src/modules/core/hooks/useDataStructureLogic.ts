@@ -45,9 +45,18 @@ export const useDataStructureLogic = (config: any) => {
           newData.push(newNode);
         } else if (mode === "Node N") {
           const idx = index !== undefined ? index : -1;
-          if (idx < 0) newData.unshift(newNode);
-          else if (idx >= data.length) newData.push(newNode);
-          else newData.splice(idx + 1, 0, newNode);
+          if (idx < 0) {
+            alert("Invalid index: Index cannot be negative.");
+            return [];
+          }
+          if (idx > data.length) {
+            alert(`Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`);
+            return [];
+          }
+          
+          if (idx === 0) newData.unshift(newNode);
+          else if (idx === data.length) newData.push(newNode);
+          else newData.splice(idx, 0, newNode);
         }
       } else if (actionType === "delete") {
         if (newData.length === 0) {

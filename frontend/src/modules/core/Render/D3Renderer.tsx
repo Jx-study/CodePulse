@@ -402,9 +402,12 @@ export function renderAll(
       }
     } else if (d.kind === "pointer" || d instanceof Pointer) {
       // Pointer: 繪製箭頭與標籤
-      // 箭頭 (向上指)
+      const ptr = d as Pointer;
+      const isDown = ptr.direction === "down";
+
+      // 箭頭
       g.append("path")
-        .attr("d", "M0,0 L-5,10 L5,10 Z") // 簡單的三角形箭頭
+        .attr("d", isDown ? "M0,0 L-5,-10 L5,-10 Z" : "M0,0 L-5,10 L5,10 Z") // down: 向下指 (頂點在 0,0), up: 向上指 (頂點在 0,0)
         .attr("fill", "#ffeb3b"); // 黃色箭頭
       
       // 標籤文字
@@ -566,10 +569,11 @@ export function renderAll(
     } else if (d.kind === "pointer" || d instanceof Pointer) {
       const ptr = d as Pointer;
       const textLabel = g.select<SVGTextElement>("text.ptr-label");
+      const isDown = ptr.direction === "down";
       
       textLabel
         .attr("text-anchor", "middle")
-        .attr("y", 25) // 箭頭下方
+        .attr("y", isDown ? -20 : 25) // down: 文字在箭頭上方, up: 文字在箭頭下方
         .attr("font-size", 14)
         .attr("font-weight", "bold")
         .attr("fill", "#ffeb3b")

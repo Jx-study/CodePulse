@@ -19,6 +19,7 @@ export interface LevelImplementationConfig {
     action?: any,
     config?: any
   ) => AnimationStep[];
+  getCodeConfig?: (payload?: any) => CodeConfig;
 }
 
 /**

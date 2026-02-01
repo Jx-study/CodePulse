@@ -64,14 +64,23 @@ function Tutorial() {
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
+  // 新增：根據 hasTailMode 動態計算當前的 codeConfig
+  const currentCodeConfig = useMemo(() => {
+    if (!topicTypeConfig) return null;
+    if (topicTypeConfig.getCodeConfig) {
+      return topicTypeConfig.getCodeConfig({ hasTailMode });
+    }
+    return topicTypeConfig.codeConfig;
+  }, [topicTypeConfig, hasTailMode]);
+
   // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
   const highlightLines = useMemo(() => {
-    if (!topicTypeConfig || !currentStepData?.actionTag) return [];
+    if (!currentCodeConfig || !currentStepData?.actionTag) return [];
     if (codeMode !== "pseudo") return []; // python 不需要高亮
 
-    const pseudoConfig = topicTypeConfig.codeConfig.pseudo;
+    const pseudoConfig = currentCodeConfig.pseudo;
     return pseudoConfig.mappings[currentStepData.actionTag] || [];
-  }, [topicTypeConfig, currentStepData, codeMode]);
+  }, [currentCodeConfig, currentStepData, codeMode]);
 
   // 切換模式時重置動畫
   const handleModeToggle = (mode: "pseudo" | "python") => {
@@ -348,7 +357,7 @@ function Tutorial() {
           <div className={styles.pseudoCodeEditor}>
             <CodeEditor
               mode="single"
-              value={topicTypeConfig.codeConfig[codeMode].content}
+              value={currentCodeConfig?.[codeMode]?.content || ""}
               language="python"
               highlightedLine={highlightLines}
               readOnly={codeMode === "pseudo"}
