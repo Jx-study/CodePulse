@@ -65,7 +65,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       if (isNaN(start) && isNaN(end)) {
         onRun({});
-      } else if (!isNaN(start) && !isNaN(end)) {
+      } else if (!isNaN(start) && !isNaN(end) && start <= end && start >= 0 && end >= 0) {
         onRun({ range: [start, end] });
       } else {
         alert("請輸入完整的區間 (Start, End)");
