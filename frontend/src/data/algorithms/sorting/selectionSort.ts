@@ -217,7 +217,6 @@ End Procedure`,
     for current_pos in range(total_items - 1):
         min_pos = current_pos
         
-        # 尋找未排序區間中的最小值
         for scan_pos in range(current_pos + 1, total_items):
             scan_val = collection[scan_pos]
             min_val = collection[min_pos]
@@ -225,7 +224,6 @@ End Procedure`,
             if scan_val < min_val:
                 min_pos = scan_pos
                 
-        # 將找到的最小值換到目前位置
         if min_pos != current_pos:
             collection[current_pos], collection[min_pos] = collection[min_pos], collection[current_pos]
             
