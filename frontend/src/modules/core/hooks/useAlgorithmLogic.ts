@@ -1,7 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 
+interface AlgorithmNode {
+  id: string;
+  value?: number | string;
+  x?: number;
+  y?: number;
+  position?: { x: number; y: number };
+  [key: string]: any;
+}
+
+interface GraphData {
+  nodes: AlgorithmNode[];
+  edges: string[][];
+}
+
+type AlgorithmData = AlgorithmNode[] | GraphData;
+
 export const useAlgorithmLogic = (config: any) => {
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<AlgorithmData>([]);
   const [activeSteps, setActiveSteps] = useState<any[]>([]);
   const nextIdRef = useRef(100);
 
@@ -15,11 +31,11 @@ export const useAlgorithmLogic = (config: any) => {
   };
 
   // 深拷貝資料 (給 Graph/Grid 用，避免修改到 config)
-  const cloneData = (source: any) => {
+  const cloneData = <T>(source: T): T => {
     return JSON.parse(JSON.stringify(source));
   };
 
-  const generateSteps = (inputData: any[], actionParams?: any) => {
+  const generateSteps = (inputData: AlgorithmData, actionParams?: any) => {
     if (config && config.createAnimationSteps) {
       return config.createAnimationSteps(inputData, actionParams);
     }
@@ -83,11 +99,18 @@ export const useAlgorithmLogic = (config: any) => {
     return grid;
   };
 
-  const syncCoordinates = (rawData: any, calculatedElements: any[]) => {
+  const syncCoordinates = (
+    rawData: AlgorithmData,
+    calculatedElements: AlgorithmNode[],
+  ) => {
     if (!rawData || !calculatedElements) return;
 
+    const isGraphData = (d: any): d is GraphData => {
+      return d && !Array.isArray(d) && Array.isArray(d.nodes);
+    };
+
     // 只有 Graph 模式 (rawData 是物件且有 nodes) 需要同步座標
-    if (!Array.isArray(rawData) && rawData.nodes) {
+    if (isGraphData(rawData)) {
       const nodeMap = new Map(calculatedElements.map((el) => [el.id, el]));
 
       rawData.nodes.forEach((rawNode: any) => {
@@ -109,7 +132,6 @@ export const useAlgorithmLogic = (config: any) => {
             rawNode.x = x;
             rawNode.y = y;
           } else {
-            // 防呆：如果計算失敗，至少給個預設值在中間
             rawNode.x = 500;
             rawNode.y = 200;
           }
@@ -296,18 +318,21 @@ export const useAlgorithmLogic = (config: any) => {
           return steps;
         } else {
           // Graph Reset
-          const oldData = data as any; // 參照舊資料
-          newData = cloneData(config.defaultData.graph); // 重置為預設資料
+          const oldData = data; // 參照舊資料
+          newData = cloneData(config.defaultData.graph) as GraphData; // 重置為預設資料
 
-          // 保留其座標
-          if (oldData && !Array.isArray(oldData) && oldData.nodes) {
+          const isGraphData = (d: any): d is GraphData => {
+            return d && !Array.isArray(d) && Array.isArray(d.nodes);
+          };
+
+          if (isGraphData(oldData)) {
             const coordMap = new Map(
-              oldData.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+              oldData.nodes.map((n) => [n.id, { x: n.x, y: n.y }]),
             );
 
-            newData.nodes.forEach((n: any) => {
-              const saved = coordMap.get(n.id) as any;
-              if (saved && saved.x != null) {
+            newData.nodes.forEach((n) => {
+              const saved = coordMap.get(n.id);
+              if (saved && saved.x != null && saved.y != null) {
                 n.x = saved.x;
                 n.y = saved.y;
               }
