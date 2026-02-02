@@ -99,6 +99,47 @@ export const useAlgorithmLogic = (config: any) => {
     return grid;
   };
 
+  const generateRandomGraph = (nodeCount: number): GraphData => {
+    const nodes: AlgorithmNode[] = [];
+    const edges: string[][] = [];
+
+    // 1. 建立節點
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({ id: `node-${i}` });
+    }
+
+    // 2. 確保連通性 (生成一棵隨機樹)
+    // 策略：對於每個節點 i (從 1 開始)，隨機連到一個前面的節點 (0 ~ i-1)
+    // 這保證了圖是連通的，且每個節點至少有一條邊
+    for (let i = 1; i < nodeCount; i++) {
+      const targetIndex = Math.floor(Math.random() * i);
+      edges.push([`node-${i}`, `node-${targetIndex}`]);
+    }
+
+    // 3. 增加額外的隨機邊 (讓圖看起來更像網狀，而不只是樹)
+    // 嘗試增加 nodeCount * 0.5 條邊
+    const extraEdges = Math.floor(nodeCount * 0.5);
+    for (let k = 0; k < extraEdges; k++) {
+      const u = Math.floor(Math.random() * nodeCount);
+      const v = Math.floor(Math.random() * nodeCount);
+
+      if (u !== v) {
+        // 簡單檢查邊是否重複 (無向圖需檢查 u-v 和 v-u)
+        const exists = edges.some(
+          (e) =>
+            (e[0] === `node-${u}` && e[1] === `node-${v}`) ||
+            (e[0] === `node-${v}` && e[1] === `node-${u}`),
+        );
+
+        if (!exists) {
+          edges.push([`node-${u}`, `node-${v}`]);
+        }
+      }
+    }
+
+    return { nodes, edges };
+  };
+
   const syncCoordinates = (
     rawData: AlgorithmData,
     calculatedElements: AlgorithmNode[],
@@ -161,10 +202,21 @@ export const useAlgorithmLogic = (config: any) => {
           setData(newData);
           setActiveSteps(steps);
           return steps;
-        }
-        // (graph random logic)
+        } else {
+          const randomCount = Math.floor(Math.random() * 6) + 5;
+          newData = generateRandomGraph(randomCount);
 
-        // newData = cloneData(config.defaultData[mode]);
+          const steps = generateSteps(newData, { mode: "graph" });
+
+          // 記得同步座標，因為是新生成的圖，需要 D3 計算排版
+          if (steps.length > 0) {
+            syncCoordinates(newData, steps[0].elements);
+          }
+
+          setData(newData);
+          setActiveSteps(steps);
+          return steps;
+        }
       } else {
         // 原本隨機邏輯
         const count = 10;

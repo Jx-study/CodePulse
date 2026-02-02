@@ -85,8 +85,8 @@ export function createGraphElements(rawGraph: {
     const simNodes: SimNode[] = rawNodes.map((n, i) => ({
       id: n.id,
       val: n.value ?? i,
-      // 初始位置隨機分布在畫布中央附近
-      x: CANVAS_W / 2 + (Math.random() - 0.5) * 50,
+      // 初始位置：X 軸隨機分布在整個寬度 (10% ~ 90%)，Y 軸集中在中間
+      x: CANVAS_W * 0.1 + Math.random() * (CANVAS_W * 0.8),
       y: CANVAS_H / 2 + (Math.random() - 0.5) * 50,
     }));
 
@@ -103,17 +103,18 @@ export function createGraphElements(rawGraph: {
         d3
           .forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance(100), // 連線距離
+          .distance(200), // 連線距離
       )
-      .force("charge", d3.forceManyBody().strength(-300)) // 斥力：增加強度避免重疊
+      .force("charge", d3.forceManyBody().strength(-450)) // 斥力：增加強度避免重疊
       .force("center", d3.forceCenter(CANVAS_W / 2, CANVAS_H / 2)) // 畫布中心
       .force("collide", d3.forceCollide(45)) // 碰撞半徑略大於節點半徑
-      // 加入 Y 軸引力，讓圖形盡量保持在水平帶狀，避免上下溢出太嚴重
-      .force("y", d3.forceY(CANVAS_H / 2).strength(0.05))
-      .force("x", d3.forceX(CANVAS_W / 2).strength(0.05));
+      // Y 軸引力較強 (0.1)，把節點壓扁在水平帶狀區域
+      .force("y", d3.forceY(CANVAS_H / 2).strength(0.1))
+      // X 軸引力極弱 (0.01)，允許它們左右飄移擴散
+      .force("x", d3.forceX(CANVAS_W / 2).strength(0.01));
 
     // 跑模擬 (靜態計算)
-    simulation.tick(300);
+    simulation.tick(500);
     simulation.stop();
 
     // 轉換回 Node 物件並套用邊界限制 (Clamping)
