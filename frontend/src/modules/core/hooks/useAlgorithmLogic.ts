@@ -57,6 +57,11 @@ export const useAlgorithmLogic = (config: any) => {
 
       const steps = generateSteps(initialData, { mode: initialMode });
 
+      // 初始化時也要同步座標 (如果是 Graph)
+      if (initialMode === "graph" && steps.length > 0) {
+        syncCoordinates(initialData, steps[0].elements);
+      }
+
       setData(initialData);
       setActiveSteps(steps);
     }
@@ -78,6 +83,24 @@ export const useAlgorithmLogic = (config: any) => {
     return grid;
   };
 
+  const syncCoordinates = (rawData: any, calculatedElements: any[]) => {
+    if (!rawData || !calculatedElements) return;
+
+    // 只有 Graph 模式 (rawData 是物件且有 nodes) 需要同步座標
+    if (!Array.isArray(rawData) && rawData.nodes) {
+      const nodeMap = new Map(calculatedElements.map((el) => [el.id, el]));
+
+      rawData.nodes.forEach((rawNode: any) => {
+        const calculatedNode = nodeMap.get(rawNode.id);
+        // 如果找到對應的已計算節點，且它有座標
+        if (calculatedNode && calculatedNode.position) {
+          rawNode.x = calculatedNode.position.x;
+          rawNode.y = calculatedNode.position.y;
+        }
+      });
+    }
+  };
+
   const executeAction = (actionType: string, payload: any) => {
     let newData = cloneData(data);
 
@@ -85,22 +108,17 @@ export const useAlgorithmLogic = (config: any) => {
       if (config.id === "binarysearch") {
         // 做個排序
         const sortedValues = Array.from({ length: 10 }, () =>
-          Math.floor(Math.random() * 100)
+          Math.floor(Math.random() * 100),
         ).sort((a, b) => a - b);
         newData = initLinearData(sortedValues);
       } else if (config.id === "bfs" || config.id === "dfs") {
-        // 針對 BFS/DFS 的隨機 (這裡先保留原樣或實作隨機圖形)
-        // 暫時重置回預設，避免報錯
         const mode = payload?.mode || "graph";
         if (mode === "grid") {
           const rows = payload?.rows || 3;
           const cols = payload?.cols || 5;
-          console.log("generate random grid:", rows, cols);
-
           newData = generateRandomGrid(rows, cols);
 
           const steps = generateSteps(newData, { mode: "grid", cols: cols });
-
           setData(newData);
           setActiveSteps(steps);
           return steps;
@@ -113,7 +131,7 @@ export const useAlgorithmLogic = (config: any) => {
         const count = 10;
         const randomValues = Array.from(
           { length: count },
-          () => Math.floor(Math.random() * 100) - 20
+          () => Math.floor(Math.random() * 100) - 20,
         );
         newData = initLinearData(randomValues);
       }
@@ -191,7 +209,7 @@ export const useAlgorithmLogic = (config: any) => {
         // 但這裡沒存 mode，只好先回 graph，或者透過 payload 傳入 mode
         const mode = payload?.mode || "graph";
         newData = cloneData(
-          config.defaultData[mode] || config.defaultData.graph
+          config.defaultData[mode] || config.defaultData.graph,
         );
       }
 
@@ -204,11 +222,22 @@ export const useAlgorithmLogic = (config: any) => {
       // 因為在資料改變時 (random/load/reset) 已經生成好步驟了
       // 這裡只需要回傳當前的 activeSteps 讓 UI 知道要開始播放即可
       // 或者也可以選擇在這裡才生成步驟，這邊假設步驟已就緒
-      if (config.createAnimationSteps) {
-        const steps = config.createAnimationSteps(newData, payload);
-        setActiveSteps(steps);
-        return steps;
+      // if (config.createAnimationSteps) {
+      //   const steps = config.createAnimationSteps(newData, payload);
+      //   setActiveSteps(steps);
+      //   return steps;
+      // }
+      const steps = config.createAnimationSteps(newData, payload);
+
+      if (steps.length > 0 && !Array.isArray(newData)) {
+        syncCoordinates(newData, steps[0].elements);
       }
+
+      // 這裡不需要 setData，因為 newData 只是多填了 x,y，結構沒變
+      // 但為了讓 React 狀態一致，還是 set 一下
+      setData(newData);
+      setActiveSteps(steps);
+      return steps;
     } else if (actionType === "switchMode") {
       if (payload.mode === "graph") {
         newData = cloneData(config.defaultData.graph);
@@ -220,6 +249,11 @@ export const useAlgorithmLogic = (config: any) => {
         ...payload, // 包含 mode: 'graph' | 'grid'
         action: actionType,
       });
+
+      // 同步座標：計算完第一次 Layout 後，存回 newData
+      if (payload.mode === "graph" && steps.length > 0) {
+        syncCoordinates(newData, steps[0].elements);
+      }
 
       setData(newData);
       setActiveSteps(steps);

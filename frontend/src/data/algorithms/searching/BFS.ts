@@ -11,7 +11,7 @@ const generateGridFrame = (
   gridData: any[],
   cols: number,
   statusMap: Record<number, Status>, // Key 是 index, Value 是狀態
-  description: string
+  description: string,
 ): AnimationStep => {
   const elements = createGridElements(gridData, cols);
 
@@ -30,19 +30,200 @@ const generateGridFrame = (
   };
 };
 
-function runGraphBFS(graphData: any): AnimationStep[] {
-  let elements: Node[] = [];
-  if (graphData.nodes && graphData.edges) {
-    elements = createGraphElements(graphData);
-  }
+const generateGraphFrame = (
+  baseElements: Node[],
+  statusMap: Record<string, Status>,
+  distanceMap: Record<string, number>,
+  description: string,
+): AnimationStep => {
+  const frameElements = baseElements.map((node) => {
+    const newNode = new Node();
+    newNode.id = node.id;
+    newNode.value = node.value;
+    let x = node.position.x;
+    let y = node.position.y;
+    newNode.moveTo(x, y);
+    newNode.radius = node.radius;
+    newNode.pointers = node.pointers;
 
+    const status = statusMap[node.id];
+    if (status) newNode.setStatus(status);
+    else {
+      newNode.setStatus("inactive");
+    }
+
+    if (distanceMap[node.id] !== undefined) {
+      newNode.value = distanceMap[node.id];
+    } else {
+      newNode.value = 0;
+    }
+    return newNode;
+  });
+
+  return {
+    stepNumber: 0,
+    description,
+    elements: frameElements,
+  };
+};
+
+function runGraphBFS(
+  graphData: any,
+  startId?: string,
+  endId?: string,
+): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
-  steps.push({
-    stepNumber: 0,
-    description: "Graph 初始化完成，準備執行 BFS",
-    elements: elements,
-  });
+  // 1. 建立基礎圖形結構
+  let baseElements: Node[] = [];
+  if (graphData.nodes && graphData.edges) {
+    baseElements = createGraphElements(graphData);
+  } else {
+    return steps;
+  }
+
+  // 建立 ID 對照表
+  const nodeMap = new Map<string, Node>();
+  baseElements.forEach((node) => nodeMap.set(node.id, node));
+
+  // 決定起點與終點
+  // 若未指定，預設第一個節點為起點，最後一個節點為終點
+  const realStartId =
+    startId && nodeMap.has(startId) ? startId : baseElements[0].id;
+  const realEndId =
+    endId && nodeMap.has(endId)
+      ? endId
+      : baseElements[baseElements.length - 1].id;
+
+  const statusMap: Record<string, Status> = {};
+  const distanceMap: Record<string, number> = {}; // 記錄每個節點的層數 (距離)
+  const visited = new Set<string>();
+  const parentMap = new Map<string, string>(); // child -> parent (用於回溯)
+
+  // 初始畫面
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      {},
+      {},
+      `Graph 初始化完成，起點: ${realStartId}, 終點: ${realEndId}`,
+    ),
+  );
+
+  // 2. BFS 初始化
+  const queue: string[] = [realStartId];
+  visited.add(realStartId);
+  statusMap[realStartId] = "prepare";
+  distanceMap[realStartId] = 0; // 起點距離為 0
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      distanceMap,
+      `將起點 ${realStartId} 加入佇列 (距離: 0)`,
+    ),
+  );
+
+  let found = false;
+
+  // 3. BFS 主迴圈
+  while (queue.length > 0) {
+    // A. Dequeue
+    const currId = queue.shift()!;
+    const currNode = nodeMap.get(currId);
+
+    statusMap[currId] = "target";
+
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        statusMap,
+        distanceMap,
+        `取出 ${currId} (層數: ${distanceMap[currId]})，檢查鄰居`,
+      ),
+    );
+
+    // 檢查是否到達終點
+    if (currId === realEndId) {
+      found = true;
+      break;
+    }
+
+    // B. 訪問鄰居
+    if (currNode) {
+      const neighbors = currNode.pointers;
+      const newNeighbors: string[] = [];
+      const currentDist = distanceMap[currId];
+
+      // 排序以保持動畫順序穩定
+      neighbors.sort((a, b) => a.id.localeCompare(b.id));
+
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor.id)) {
+          visited.add(neighbor.id);
+          parentMap.set(neighbor.id, currId);
+          queue.push(neighbor.id);
+          newNeighbors.push(neighbor.id);
+
+          statusMap[neighbor.id] = "prepare";
+          distanceMap[neighbor.id] = currentDist + 1; // 鄰居距離 = 當前距離 + 1
+        }
+      }
+
+      if (newNeighbors.length > 0) {
+        steps.push(
+          generateGraphFrame(
+            baseElements,
+            statusMap,
+            distanceMap,
+            `發現鄰居 ${newNeighbors.join(", ")}，距離更新為 ${currentDist + 1}，加入佇列`,
+          ),
+        );
+      }
+    }
+
+    // C. 處理完畢 -> Unfinished
+    statusMap[currId] = "unfinished";
+  }
+
+  // 4. 路徑回溯與結束
+  if (found) {
+    // 回溯路徑
+    let curr = realEndId;
+    const path: string[] = [realEndId];
+
+    // 先標終點
+    statusMap[realEndId] = "complete";
+
+    while (curr !== realStartId) {
+      const parent = parentMap.get(curr);
+      if (!parent) break;
+      path.push(parent);
+      curr = parent;
+    }
+
+    // 將路徑上所有節點標示為 complete
+    path.forEach((id) => (statusMap[id] = "complete"));
+
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        statusMap,
+        distanceMap,
+        `找到終點！最短路徑長度: ${distanceMap[realEndId]} (綠色)`,
+      ),
+    );
+  } else {
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        statusMap,
+        distanceMap,
+        "佇列已空，無法到達終點",
+      ),
+    );
+  }
 
   return steps;
 }
@@ -65,7 +246,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
   // 確保起點終點不是牆 (防呆)
   if (gridData[startIndex].val === 1 || gridData[endIndex].val === 1) {
     steps.push(
-      generateGridFrame(gridData, cols, {}, "起點或終點被牆壁阻擋，無法開始")
+      generateGridFrame(gridData, cols, {}, "起點或終點被牆壁阻擋，無法開始"),
     );
     return steps;
   }
@@ -76,8 +257,8 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
       gridData,
       cols,
       {},
-      `準備開始 BFS，起點 (0,0)，終點 (${rows - 1},${cols - 1})`
-    )
+      `準備開始 BFS，起點 (0,0)，終點 (${rows - 1},${cols - 1})`,
+    ),
   );
 
   // BFS 初始化
@@ -110,8 +291,8 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
-        `當前層級遍歷：處理 ${currentLevelIndices.length} 個節點`
-      )
+        `當前層級遍歷：處理 ${currentLevelIndices.length} 個節點`,
+      ),
     );
 
     // 檢查是否包含終點
@@ -153,8 +334,8 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
           gridData,
           cols,
           statusMap,
-          `發現 ${prepareIndices.length} 個鄰居，加入佇列 (黃色)`
-        )
+          `發現 ${prepareIndices.length} 個鄰居，加入佇列 (黃色)`,
+        ),
       );
     }
 
@@ -171,7 +352,12 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
     // A. 標記終點
     statusMap[endIndex] = "complete";
     steps.push(
-      generateGridFrame(gridData, cols, statusMap, `找到終點！開始回溯最短路徑`)
+      generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        `找到終點！開始回溯最短路徑`,
+      ),
     );
 
     // B. 回溯路徑 (Backtracking)
@@ -194,12 +380,12 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
-        `最短路徑長度：${path.length} (綠色路徑)`
-      )
+        `最短路徑長度：${path.length} (綠色路徑)`,
+      ),
     );
   } else {
     steps.push(
-      generateGridFrame(gridData, cols, statusMap, "佇列已空，無法到達終點")
+      generateGridFrame(gridData, cols, statusMap, "佇列已空，無法到達終點"),
     );
   }
 
@@ -208,13 +394,16 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
 
 export function createBFSAnimationSteps(
   inputData: any[],
-  action?: any
+  action?: any,
 ): AnimationStep[] {
   if (action?.mode === "grid") {
     const gridCols = action?.cols || 5;
     return runGridBFS(inputData, gridCols);
   }
-  return runGraphBFS(inputData);
+  const startNodeId = action?.startNode;
+  const endNodeId = action?.endNode;
+
+  return runGraphBFS(inputData, startNodeId, endNodeId);
 }
 
 export const BFSConfig: LevelImplementationConfig = {
@@ -251,6 +440,9 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
         { id: "node-3" },
         { id: "node-4" },
         { id: "node-5" },
+        { id: "node-6" },
+        { id: "node-7" },
+        { id: "node-8" },
       ],
       edges: [
         ["node-0", "node-1"],
@@ -258,6 +450,11 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
         ["node-1", "node-3"],
         ["node-2", "node-4"],
         ["node-3", "node-4"],
+        ["node-3", "node-5"],
+        ["node-4", "node-6"],
+        ["node-5", "node-7"],
+        ["node-6", "node-8"],
+        ["node-7", "node-8"],
       ],
     },
     grid: [

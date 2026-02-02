@@ -41,6 +41,16 @@ export function createGridElements(
   return elements;
 }
 
+interface SimNode extends d3.SimulationNodeDatum {
+  id: string;
+  val: number;
+}
+
+interface SimLink extends d3.SimulationLinkDatum<SimNode> {
+  source: string | SimNode;
+  target: string | SimNode;
+}
+
 export function createGraphElements(rawGraph: {
   nodes: any[];
   edges: string[][];
@@ -49,28 +59,86 @@ export function createGraphElements(rawGraph: {
   const elements: Node[] = [];
   const nodeMap = new Map<string, Node>();
 
-  // 設定圓形佈局參數
-  const centerX = 400;
-  const centerY = 200;
-  const radius = 120;
-  const angleStep = (2 * Math.PI) / rawNodes.length;
+  // 定義畫布邊界與內距 (避免節點切到邊邊)
+  const CANVAS_W = 1000;
+  const CANVAS_H = 400;
+  const PADDING = 40; // 節點半徑約 20-30，留 40 比較安全
 
-  // 建立節點
-  rawNodes.forEach((n, index) => {
-    const node = new Node();
-    node.id = n.id;
-    node.value = n.value ?? index; // 如果沒有 value 就用 index
+  // 檢查是否所有節點都已經有座標 (快取機制)
+  const hasCachedPositions = rawNodes.every(
+    (n) => typeof n.x === "number" && typeof n.y === "number",
+  );
 
-    // 計算座標 (圓形)
-    const x = centerX + radius * Math.cos(index * angleStep - Math.PI / 2);
-    const y = centerY + radius * Math.sin(index * angleStep - Math.PI / 2);
+  if (hasCachedPositions) {
+    // 直接使用現有座標 (跳過 D3 Simulation)
+    rawNodes.forEach((n, i) => {
+      const node = new Node();
+      node.id = n.id;
+      node.value = n.value ?? i;
+      node.moveTo(n.x, n.y); // 直接使用儲存的座標
 
-    node.moveTo(x, y);
-    elements.push(node);
-    nodeMap.set(n.id, node);
-  });
+      elements.push(node);
+      nodeMap.set(node.id, node);
+    });
+  } else {
+    // 準備 D3 Simulation 資料
+    const simNodes: SimNode[] = rawNodes.map((n, i) => ({
+      id: n.id,
+      val: n.value ?? i,
+      // 初始位置隨機分布在畫布中央附近
+      x: CANVAS_W / 2 + (Math.random() - 0.5) * 50,
+      y: CANVAS_H / 2 + (Math.random() - 0.5) * 50,
+    }));
 
-  // 建立連線
+    const simLinks: SimLink[] = edges.map(([source, target]) => ({
+      source,
+      target,
+    }));
+
+    // 執行 Force Simulation
+    const simulation = d3
+      .forceSimulation(simNodes)
+      .force(
+        "link",
+        d3
+          .forceLink(simLinks)
+          .id((d: any) => d.id)
+          .distance(100), // 連線距離
+      )
+      .force("charge", d3.forceManyBody().strength(-300)) // 斥力：增加強度避免重疊
+      .force("center", d3.forceCenter(CANVAS_W / 2, CANVAS_H / 2)) // 畫布中心
+      .force("collide", d3.forceCollide(45)) // 碰撞半徑略大於節點半徑
+      // 加入 Y 軸引力，讓圖形盡量保持在水平帶狀，避免上下溢出太嚴重
+      .force("y", d3.forceY(CANVAS_H / 2).strength(0.05))
+      .force("x", d3.forceX(CANVAS_W / 2).strength(0.05));
+
+    // 跑模擬 (靜態計算)
+    simulation.tick(300);
+    simulation.stop();
+
+    // 轉換回 Node 物件並套用邊界限制 (Clamping)
+    simNodes.forEach((simNode) => {
+      const node = new Node();
+      node.id = simNode.id;
+      node.value = simNode.val;
+
+      // 取出計算後的座標 (若無則預設中心)
+      let x = simNode.x ?? CANVAS_W / 2;
+      let y = simNode.y ?? CANVAS_H / 2;
+
+      // 強制限制在畫布範圍內 (Math.max, Math.min)
+      // 確保 x 在 [padding, 1000 - padding]
+      // 確保 y 在 [padding, 400 - padding]
+      x = Math.max(PADDING, Math.min(CANVAS_W - PADDING, x));
+      y = Math.max(PADDING, Math.min(CANVAS_H - PADDING, y));
+
+      node.moveTo(x, y);
+      elements.push(node);
+      nodeMap.set(node.id, node);
+    });
+  }
+
+  // 建立連線 (雙向)
   edges.forEach(([sourceId, targetId]) => {
     const source = nodeMap.get(sourceId);
     const target = nodeMap.get(targetId);
