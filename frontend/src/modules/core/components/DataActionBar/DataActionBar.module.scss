@@ -10,6 +10,7 @@
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: $spacing-xs;
 }
@@ -29,6 +30,7 @@
 
 .speedSelector {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: $spacing-sm;
 
@@ -40,6 +42,7 @@
 
   .speedButtons {
     display: flex;
+    flex-wrap: wrap;
     gap: $spacing-xs;
   }
 
@@ -75,6 +78,7 @@
 
 .actionGroup {
   display: flex;
+  flex-wrap: wrap;
   gap: $spacing-sm;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.03);
@@ -89,4 +93,47 @@
   padding: $spacing-2xs;
   border-radius: $radius-sm;
   border: 1px solid var(--border-color);
+}
+
+// AlgorithmActionBar 专用样式
+.dataActionBarContainer {
+  @include flex($direction: column);
+  gap: $spacing-sm;
+}
+
+.settingItem {
+  @include flex($align: center);
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.staticLabel {
+  color: var(--text-secondary);
+  padding: 0 $spacing-xs;
+  font-size: $font-sm;
+}
+
+.input {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  padding: $spacing-2xs $spacing-xs;
+  font-size: $font-sm;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.rangeInput {
+  @include flex($align: center);
+  flex-wrap: wrap;
+  gap: $spacing-2xs;
 }

@@ -1,5 +1,6 @@
 .controlBar {
   @include flex($align: center, $justify: space-between);
+  flex-wrap: wrap;
   gap: $spacing-md;
 
   @media (max-width: $mobile) {
@@ -10,14 +11,16 @@
 
 .controls {
   @include flex($align: center);
+  flex-wrap: wrap;
   gap: $spacing-xs;
 }
 
 .stepIndicator {
   @include flex($justify: center, $direction: column, $align: center);
+  flex-wrap: wrap;
   gap: $spacing-sm;
-  min-width: 200px;
-  flex: 1;
+  min-width: 12.5rem; // 200px
+  flex: 1 1 auto; // 允许收缩和扩展
 
   .stepText {
     font-size: $font-sm;
@@ -35,7 +38,9 @@
   gap: $spacing-xs;
 
   .speedRow {
-    @include flex($align: center);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: $spacing-sm;
   }
 

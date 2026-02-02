@@ -91,10 +91,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const showRangeInput = isPrefixSum;
 
   return (
-    <div
-      className={styles.dataActionBarContainer}
-      style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-    >
+    <div className={styles.dataActionBarContainer}>
       {/* 第一行：資料生成 */}
       <div className={styles.actionGroup}>
         <input
@@ -103,7 +100,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           value={bulkInput}
           onChange={(e) => setBulkInput(e.target.value)}
           className={styles.input}
-          style={{ width: "150px" }}
+          style={{ minWidth: "9.375rem" }} // 150px
           disabled={disabled}
         />
         <Button
@@ -118,17 +115,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         </Button>
 
         <div className={styles.settingItem}>
-          <label style={{ color: "#ccc", fontSize: "12px" }}>筆數:</label>
+          <label className={styles.staticLabel}>筆數:</label>
           <input
             type="number"
             value={dataSize}
             onChange={(e) => setDataSize(Number(e.target.value))}
-            style={{
-              width: "50px",
-              background: "#222",
-              color: "#fff",
-              border: "1px solid #555",
-            }}
+            className={styles.input}
+            style={{ width: "3.125rem" }} // 50px
             disabled={disabled}
           />
         </div>
@@ -139,10 +132,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {/* 第二行：執行控制 */}
       <div className={styles.actionGroup}>
-        <div
-          className={styles.staticLabel}
-          style={{ color: "#ccc", padding: "0 8px" }}
-        >
+        <div className={styles.staticLabel}>
           {getControlLabel()}
         </div>
 
@@ -154,38 +144,31 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className={styles.input}
-            style={{ width: "80px", marginRight: "8px" }}
+            style={{ width: "5rem" }} // 80px
             disabled={disabled}
           />
         )}
 
         {/* Prefix Sum 的區間輸入 */}
         {showRangeInput && (
-          <div
-            style={{
-              display: "flex",
-              gap: "4px",
-              alignItems: "center",
-              marginRight: "8px",
-            }}
-          >
+          <div className={styles.rangeInput}>
             <input
               type="number"
               placeholder="L"
               value={rangeStart}
               onChange={(e) => setRangeStart(e.target.value)}
               className={styles.input}
-              style={{ width: "50px" }}
+              style={{ width: "3.125rem" }} // 50px
               disabled={disabled}
             />
-            <span style={{ color: "#ccc" }}>-</span>
+            <span className={styles.staticLabel}>-</span>
             <input
               type="number"
               placeholder="R"
               value={rangeEnd}
               onChange={(e) => setRangeEnd(e.target.value)}
               className={styles.input}
-              style={{ width: "50px" }}
+              style={{ width: "3.125rem" }} // 50px
               disabled={disabled}
             />
           </div>
@@ -196,7 +179,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           onClick={handleRun}
           disabled={disabled}
           style={{
-            width: "100px",
+            minWidth: "6.25rem", // 100px
             background: isSorting
               ? "#2e7d32"
               : isSearching
