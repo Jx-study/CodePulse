@@ -1,7 +1,7 @@
-import { Box } from '@/modules/core/DataLogic/Box';
-import type { AnimationStep } from '@/types';
-import type { LevelImplementationConfig } from '@/types/implementation';
-import type { Status } from '@/modules/core/DataLogic/BaseElement';
+import { Box } from "@/modules/core/DataLogic/Box";
+import type { AnimationStep } from "@/types";
+import type { LevelImplementationConfig } from "@/types/implementation";
+import type { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 interface Pointers {
@@ -15,7 +15,7 @@ const generateFrame = (
   list: LinearData[],
   pointers: Pointers,
   overrideStatusMap: Record<number, Status> = {},
-  foundIndex: number = -1
+  foundIndex: number = -1,
 ) => {
   const { left, right, mid } = pointers;
 
@@ -60,7 +60,7 @@ const generateFrame = (
 
 export function createBinarySearchAnimationSteps(
   inputData: any[],
-  action?: any // 允許接收外部傳入的參數 (例如 target)
+  action?: any, // 允許接收外部傳入的參數 (例如 target)
 ): AnimationStep[] {
   // 強制轉型
   const dataList = inputData as LinearData[];
@@ -73,8 +73,8 @@ export function createBinarySearchAnimationSteps(
   // 如果 action 有傳入 value 就用，否則預設找陣列中間那個值 (確保 Demo 成功)
   // 或是找一個固定值 (例如 42)
   let target = 42;
-  if (action && typeof action.value === "number") {
-    target = action.value;
+  if (action && typeof action.searchValue === "number") {
+    target = action.searchValue;
   } else if (arr.length > 0) {
     // 預設找 Index 4 的值 (如果有的話)
     target = arr[Math.min(4, arr.length - 1)].value || 0;
@@ -120,7 +120,7 @@ export function createBinarySearchAnimationSteps(
           arr,
           { left, right, mid },
           { [mid]: "complete" },
-          mid
+          mid,
         ),
       });
       return steps; // 結束
@@ -138,7 +138,7 @@ export function createBinarySearchAnimationSteps(
         elements: generateFrame(
           arr,
           { left: newLeft, right, mid: -1 }, // Mid 消失，Left 更新
-          {} // 移除所有顏色標記，準備下一輪
+          {}, // 移除所有顏色標記，準備下一輪
         ),
       });
 
@@ -154,7 +154,7 @@ export function createBinarySearchAnimationSteps(
         elements: generateFrame(
           arr,
           { left, right: newRight, mid: -1 }, // Mid 消失，Right 更新
-          {}
+          {},
         ),
       });
 
