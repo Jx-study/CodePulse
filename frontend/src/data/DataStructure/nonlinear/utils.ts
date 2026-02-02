@@ -10,7 +10,7 @@ export interface GridCellData {
 
 export function createGridElements(
   rawGrid: GridCellData[],
-  cols: number = 5
+  cols: number = 5,
 ): Box[] {
   const elements: Box[] = [];
   const cellSize = 50;
@@ -76,7 +76,7 @@ export function createGraphElements(rawGraph: {
     const target = nodeMap.get(targetId);
     if (source && target) {
       source.pointers.push(target);
-      // 如果是無向圖，這裡可以加 target.pointers.push(source);
+      target.pointers.push(source);
     }
   });
 
@@ -96,7 +96,7 @@ export interface HierarchyDatum {
  */
 export function buildD3HierarchyData(
   data: { id: string; value: number }[],
-  degree: number = 2
+  degree: number = 2,
 ): HierarchyDatum | null {
   if (data.length === 0) return null;
 
@@ -127,7 +127,7 @@ export function buildD3HierarchyData(
 }
 
 export function buildBSTHierarchyData(
-  data: { id: string; value: number }[]
+  data: { id: string; value: number }[],
 ): HierarchyDatum | null {
   if (data.length === 0) return null;
 
@@ -211,7 +211,7 @@ export function createTreeNodes(
     offsetY?: number;
     degree?: number;
     type?: "bst" | "binarytree";
-  } = {}
+  } = {},
 ): Node[] {
   const {
     width = 700,
@@ -246,7 +246,7 @@ export function createTreeNodes(
       d.data.id,
       d.data.value,
       d.x + offsetX,
-      d.y + offsetY
+      d.y + offsetY,
     );
     elements.push(node);
     nodeMap.set(d.data.id, node);
