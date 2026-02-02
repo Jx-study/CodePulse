@@ -92,7 +92,7 @@ function Tutorial() {
     const links: Link[] = [];
     if (currentStepData?.elements) {
       const nodes = currentStepData.elements.filter(
-        (e: BaseElement) => e instanceof DataNode
+        (e: BaseElement) => e instanceof DataNode,
       ) as DataNode[];
 
       nodes.forEach((sourceNode) => {
@@ -159,7 +159,7 @@ function Tutorial() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode });
+    executeAction("reset", { hasTailMode, mode: viewMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -260,7 +260,7 @@ function Tutorial() {
     } else {
       if (
         ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id
+          topicTypeConfig.id,
         )
       ) {
         return (

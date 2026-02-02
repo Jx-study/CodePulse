@@ -204,13 +204,47 @@ export const useAlgorithmLogic = (config: any) => {
           }));
         }
       } else {
-        // Graph/BFS (預設回 graph，或根據當前 mode?)
-        // 通常 reset 會想回到當前 mode 的預設值
-        // 但這裡沒存 mode，只好先回 graph，或者透過 payload 傳入 mode
         const mode = payload?.mode || "graph";
-        newData = cloneData(
-          config.defaultData[mode] || config.defaultData.graph,
-        );
+
+        if (mode === "grid") {
+          // 從 config 載入預設的 Grid 資料
+          newData = cloneData(config.defaultData.grid);
+
+          // 如果 defaultData 有變更，這裡的 5 也要跟著改，或是寫在 config 裡
+          const defaultCols = 5;
+
+          // 生成初始步驟 (必須傳入 cols，否則 utils 會算錯座標)
+          const steps = generateSteps(newData, {
+            mode: "grid",
+            cols: defaultCols,
+            ...payload,
+          });
+
+          setData(newData);
+          setActiveSteps(steps);
+          return steps;
+        } else {
+          let tmpData = cloneData(config.defaultData.graph);
+
+          newData.nodes.forEach((n: any) => {
+            const coords = tmpData.nodes.find(
+              (tmp: any) => tmp.id === n.id,
+            )?.coords;
+            if (coords) {
+              n.x = coords.x;
+              n.y = coords.y;
+            }
+          });
+
+          const steps = generateSteps(newData, {
+            mode: "graph",
+            ...payload,
+          });
+
+          setData(newData);
+          setActiveSteps(steps);
+          return steps;
+        }
       }
 
       const steps = generateSteps(newData, payload);
@@ -221,12 +255,6 @@ export const useAlgorithmLogic = (config: any) => {
     } else if (actionType === "run") {
       // 因為在資料改變時 (random/load/reset) 已經生成好步驟了
       // 這裡只需要回傳當前的 activeSteps 讓 UI 知道要開始播放即可
-      // 或者也可以選擇在這裡才生成步驟，這邊假設步驟已就緒
-      // if (config.createAnimationSteps) {
-      //   const steps = config.createAnimationSteps(newData, payload);
-      //   setActiveSteps(steps);
-      //   return steps;
-      // }
       const steps = config.createAnimationSteps(newData, payload);
 
       if (steps.length > 0 && !Array.isArray(newData)) {
