@@ -57,7 +57,7 @@
   margin: 0 auto;
   padding: 0 $spacing-lg;
   margin-bottom: $spacing-xl;
-  height: calc(100vh - 64px - 8rem); // 扣除 header + breadcrumb + 底部間距
+  height: calc(100vh - 64px - 6rem); // 扣除 header + breadcrumb + 底部間距
   min-height: 37.5rem; // 600px
 
   > div {
@@ -237,9 +237,10 @@
   border-radius: $radius-sm;
   padding: $spacing-sm;
   @include flex-center;
-  min-height: 12.5rem; // 200px - 降低最小高度
-  max-height: 100%; // 防止超出容器
-  overflow: hidden;
+  min-height: 12.5rem;
+  max-height: 100%;
+  overflow: hidden; 
+  position: relative; 
 }
 
 .stepDescription {

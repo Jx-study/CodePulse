@@ -10,6 +10,7 @@ interface ResizeHandleProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   collapseButtonPosition?: 'start' | 'end';
+  collapseDirection?: 'left' | 'right'; 
 }
 
 export function ResizeHandle({
@@ -19,16 +20,26 @@ export function ResizeHandle({
   showCollapseButton = false,
   isCollapsed = false,
   onToggleCollapse,
-  collapseButtonPosition = 'end'
+  collapseButtonPosition = 'end',
+  collapseDirection
 }: ResizeHandleProps) {
 
   const getCollapseIcon = () => {
     if (direction === 'horizontal') {
-      // 水平排列時，分隔線是垂直的
-      // 折疊時顯示向右箭頭（展開），未折疊時顯示向左箭頭（折疊）
+      // 水平排列時，如果明確指定了折疊方向
+      if (collapseDirection) {
+        if (isCollapsed) {
+          // 折疊狀態：顯示展開的箭頭（與折疊方向相反）
+          return collapseDirection === 'left' ? 'chevron-right' : 'chevron-left';
+        } else {
+          // 未折疊狀態：顯示折疊的箭頭（與折疊方向相同）
+          return collapseDirection === 'left' ? 'chevron-left' : 'chevron-right';
+        }
+      }
+      // 默認邏輯：向左折疊
       return isCollapsed ? 'chevron-right' : 'chevron-left';
     } else {
-      // 垂直排列時，分隔線是水平的
+      // 垂直排列時，分隔線是水平的，向上折疊
       return isCollapsed ? 'chevron-down' : 'chevron-up';
     }
   };
