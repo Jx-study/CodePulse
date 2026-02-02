@@ -166,7 +166,7 @@ function Tutorial() {
 
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
-    if (raw.startsWith("GRID:")) {
+    if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
       const steps = executeAction("load", {
         data: raw,
         maxNodes,

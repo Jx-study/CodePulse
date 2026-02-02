@@ -44,7 +44,12 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const [gridCols, setGridCols] = useState<string>("5");
   const [showGridLoader, setShowGridLoader] = useState(false);
   const [gridInputText, setGridInputText] = useState(
-    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0"
+    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0",
+  );
+  const [showGraphLoader, setShowGraphLoader] = useState(false);
+  const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
+  const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
+    "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
   );
 
   // 判斷演算法類型
@@ -146,6 +151,32 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
     setShowGridLoader(false);
   };
 
+  const handleLoadGraphData = () => {
+    const nodeCount = parseInt(graphNodeCount);
+    if (isNaN(nodeCount) || nodeCount <= 0) {
+      alert("請輸入有效的節點數量");
+      return;
+    }
+
+    // 將邊的字串 (換行分隔) 壓縮成單行或特定格式傳遞
+
+    // 1. 將輸入字串依換行分割
+    // 2. 去除前後空白
+    // 3. 過濾空行
+    // 4. 用逗號連接
+    const edges = graphEdgeInput
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "")
+      .join(",");
+
+    // 格式協定: "GRAPH:nodeCount:edgeString"
+    const payload = `GRAPH:${nodeCount}:${edges}`;
+
+    onLoadData(payload);
+    setShowGraphLoader(false);
+  };
+
   // 判斷是否顯示特定輸入欄位
   const showSearchInput = isSearching && !isPrefixSum;
   const showRangeInput = isPrefixSum;
@@ -219,9 +250,112 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         </div>
       )}
 
+      {showGraphLoader && (
+        <div
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000,
+            background: "#222",
+            padding: "24px",
+            border: "1px solid #555",
+            borderRadius: "8px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+          }}
+        >
+          <h4 style={{ margin: "0", color: "#fff", fontSize: "16px" }}>
+            自定義 Graph 資料
+          </h4>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <label style={{ color: "#ccc", fontSize: "14px" }}>
+              節點數量 (0 ~ N-1):
+            </label>
+            <input
+              type="number"
+              value={graphNodeCount}
+              onChange={(e) => setGraphNodeCount(e.target.value)}
+              className={styles.input}
+              style={{ width: "60px" }}
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <label style={{ color: "#ccc", fontSize: "14px" }}>
+              邊 (格式: 來源 目標)
+            </label>
+            <textarea
+              value={graphEdgeInput}
+              onChange={(e) => setGraphEdgeInput(e.target.value)}
+              rows={6}
+              style={{
+                width: "300px",
+                fontFamily: "monospace",
+                fontSize: "14px",
+                padding: "12px",
+                background: "#111",
+                color: "#eee",
+                border: "1px solid #444",
+                borderRadius: "4px",
+                resize: "none",
+              }}
+              placeholder="0 1&#10;1 2&#10;2 0" // Placeholder: 0 1 (換行) 1 2 ...
+            />
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              justifyContent: "flex-end",
+              marginTop: "8px",
+            }}
+          >
+            <Button
+              size="sm"
+              onClick={() => setShowGraphLoader(false)}
+              style={{ background: "#555" }}
+            >
+              取消
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleLoadGraphData}
+              style={{ background: "#2e7d32" }}
+            >
+              確認載入
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {(showGridLoader || showGraphLoader) && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 999,
+            backdropFilter: "blur(2px)",
+          }}
+          onClick={() => {
+            setShowGridLoader(false);
+            setShowGraphLoader(false);
+          }}
+        />
+      )}
+
       {/* 第一行：資料生成 */}
       <div className={styles.actionGroup}>
-        {viewMode === "grid" && isGraphAlgo ? (
+        {viewMode === "grid" && isGraphAlgo && (
           <Button
             size="sm"
             onClick={() => setShowGridLoader(!showGridLoader)}
@@ -230,7 +364,18 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           >
             載入迷宮資料
           </Button>
-        ) : (
+        )}
+        {viewMode === "graph" && isGraphAlgo && (
+          <Button
+            size="sm"
+            onClick={() => setShowGraphLoader(true)}
+            disabled={disabled}
+            style={{ marginRight: "8px" }}
+          >
+            載入圖形資料
+          </Button>
+        )}
+        {!(isGraphAlgo && (viewMode === "grid" || viewMode === "graph")) && (
           <>
             <input
               type="text"
@@ -409,8 +554,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             background: isSorting
               ? "#2e7d32"
               : isSearching
-              ? "#1976d2"
-              : "#f57c00",
+                ? "#1976d2"
+                : "#f57c00",
           }}
         >
           {getRunButtonText()}
