@@ -11,6 +11,8 @@ interface PanelHeaderProps {
   closeable?: boolean;
   onClose?: () => void;
   className?: string;
+  draggable?: boolean;
+  dragHandleProps?: any;
 }
 
 export function PanelHeader({
@@ -22,10 +24,17 @@ export function PanelHeader({
   closeable = false,
   onClose,
   className = '',
+  draggable = false,
+  dragHandleProps,
 }: PanelHeaderProps) {
   return (
-    <div className={`${styles.panelHeader} ${className}`}>
+    <div className={`${styles.panelHeader} ${className} ${draggable ? styles.draggable : ''}`}>
       <div className={styles.leftSection}>
+        {draggable && (
+          <div {...dragHandleProps} className={styles.dragHandle}>
+            <span className={styles.dragIcon}>⋮⋮</span>
+          </div>
+        )}
         {icon && <span className={styles.icon}>{icon}</span>}
         <h3 className={styles.title}>{title}</h3>
       </div>
@@ -35,7 +44,7 @@ export function PanelHeader({
           <Button
             variant="ghost"
             size="xs"
-            icon={isCollapsed ? "chevron-down" : "chevron-up"}
+            icon={isCollapsed ? "chevron-up" : "chevron-down"}
             iconOnly
             className={styles.iconButton}
             onClick={onToggleCollapse}

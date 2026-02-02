@@ -2,12 +2,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-sm $spacing-md;
+  padding: $spacing-xs $spacing-sm;
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid var(--border-color);
   user-select: none;
   min-height: 3rem;
   flex-shrink: 0;
+  transition: background 0.2s ease;
+
+  &.draggable {
+    cursor: move;
+    cursor: grab;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
 
   .leftSection {
     display: flex;
@@ -16,14 +30,37 @@
     flex: 1;
   }
 
+  .dragHandle {
+    display: flex;
+    align-items: center;
+    padding: $spacing-xs;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    cursor: grab;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .dragIcon {
+    font-size: $font-base;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
   .icon {
     display: flex;
     align-items: center;
-    font-size: $font-lg;
+    font-size: $font-base;
   }
 
   .title {
-    font-size: $font-base;
+    font-size: $font-sm;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;

@@ -7,6 +7,48 @@
   width: 100%;
   margin: 0 auto;
   padding: $spacing-xs $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.swapButton {
+  padding: $spacing-xs $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  color: var(--text-primary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.dragOverlay {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: $font-lg;
+  min-width: 200px;
+  text-align: center;
+  cursor: grabbing;
 }
 
 // Top Section - Resizable Panels Layout
@@ -24,8 +66,13 @@
 
   @media (max-width: $tablet) {
     padding: 0 $spacing-md;
-    height: auto;
-    min-height: 31.25rem; // 500px
+    height: calc(100vh - 64px - 4rem);
+    min-height: 50rem; // 800px - 垂直布局需要更高
+  }
+
+  @media (max-width: $mobile) {
+    height: auto; // 移動端使用自動高度
+    min-height: unset;
   }
 }
 
@@ -33,13 +80,12 @@
   @include flex($direction: column);
   height: 100%;
 
-  // 确保内部垂直 Group 撑满容器
+  // 確保內部垂直 Group 撐滿容器
   > div {
     height: 100%;
   }
 }
 
-// Action Panel - 只包含 ActionBar
 .actionPanel {
   @include flex($direction: column);
   height: 100%;
@@ -47,6 +93,7 @@
   border: 1px solid var(--border-color);
   border-radius: $radius-lg;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   .actionBarContainer {
     flex: 1;
@@ -55,14 +102,12 @@
   }
 }
 
-// ControlBar Section - 可折叠的播放控制区域
 .controlBarSection {
   border-top: 1px solid var(--border-color);
   background: var(--bg-tertiary);
   flex-shrink: 0;
 }
 
-// ControlBar Container - 在 Canvas 下方
 .controlBarContainer {
   padding: $spacing-md;
 }
@@ -96,8 +141,7 @@
   .pseudoCodeEditor {
     flex: 1;
     overflow: auto;
-    min-height: 12.5rem; // 200px - 降低最小高度
-    max-height: 100%; // 防止超出容器
+    min-height: 12.5rem; // 200px
   }
 }
 
@@ -184,6 +228,7 @@
   border: 1px solid var(--border-color);
   border-radius: $radius-lg;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .visualizationArea {
