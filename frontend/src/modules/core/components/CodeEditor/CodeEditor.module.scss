@@ -194,6 +194,32 @@
   }
 }
 
+// ==================== 時間複雜度樣式 ====================
+
+:global(.complexity-line-decoration) {
+  position: relative;
+}
+
+:global(.complexity-line-decoration)::after {
+  position: absolute;
+  right: 10px;
+  font-style: italic;
+  font-size: 12px;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.withComplexity {
+  :global(.monaco-editor .scroll-view) {
+    padding-right: 140px;
+  }
+}
+
 // ==================== 無障礙設計 ====================
 
 .codeEditor {

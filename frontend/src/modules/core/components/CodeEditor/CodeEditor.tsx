@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef } f
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
+import { useTimeComplexityDecorations } from './features/TimeComplexity';
 
 // ==================== 類型定義 ====================
 
@@ -34,6 +35,9 @@ export interface CodeEditorProps {
 
   // 樣式
   className?: string;
+
+  // 時間複雜度顯示
+  showTimeComplexity?: boolean;
 }
 
 export interface CodeEditorHandle {
@@ -123,6 +127,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     onLanguageChange,
     onFormatComplete,
     className = '',
+    showTimeComplexity = false,
   } = props;
 
   // ========== State ==========
@@ -130,6 +135,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [splitRatio, setSplitRatio] = useState(propSplitRatio);
   const [isDragging, setIsDragging] = useState(false);
+  const [internalValue, setInternalValue] = useState(value);
+  const [internalBottomValue, setInternalBottomValue] = useState(bottomContent);
 
   // ========== Refs ==========
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -166,12 +173,20 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     setCurrentLanguage(language);
   }, [language]);
 
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    setInternalBottomValue(bottomContent);
+  }, [bottomContent]);
+
   // ========== Monaco Editor 配置 ==========
   const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
     readOnly,
     lineNumbers: showLineNumbers ? 'on' : 'off',
     automaticLayout: true,
-    minimap: { enabled: true },
+    minimap: { enabled: false },
     scrollBeyondLastLine: false,
     fontSize: 14,
     tabSize: 4,
@@ -180,7 +195,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     formatOnPaste: enableFormatting,
     formatOnType: enableFormatting,
     theme: currentTheme === 'dark' ? 'vs-dark' : 'vs',
-    padding: { top: 12, bottom: 12 },
+    padding: { 
+      top: 12, 
+      bottom: 12,
+    },
     glyphMargin: true, // 启用左侧装饰标记区域
   };
 
@@ -215,16 +233,24 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     }
   };
 
-  // ========== 內容變更處理 ==========
   const handleChange: OnChange = (newValue) => {
-    onChange?.(newValue || '');
+    const val = newValue || '';
+    setInternalValue(val);
+    onChange?.(val);
   };
 
   const handleBottomContentChange: OnChange = (newValue) => {
-    onBottomChange?.(newValue || '');
+    const val = newValue || '';
+    setInternalBottomValue(val);
+    onBottomChange?.(val);
   };
+  
+  useTimeComplexityDecorations(
+    mode === 'split' ? bottomEditorRef.current : editorRef.current,
+    mode === 'split' ? internalBottomValue : internalValue,
+    { enabled: showTimeComplexity && currentLanguage === 'python' }
+  );
 
-  // ========== 分屏拖曳處理 ==========
   const handleResizerMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -378,7 +404,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   return (
     <div
       ref={containerRef}
-      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''}`}
+      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''} ${showTimeComplexity ? styles.withComplexity : ''}`}
     >
       {mode === 'split' ? (
         <>
