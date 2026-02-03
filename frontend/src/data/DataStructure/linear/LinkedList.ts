@@ -1722,8 +1722,7 @@ const linkedListNoTailCodeConfig: CodeConfig = {
       [TAGS.DELETE_TAIL_UNLINK]: [61],
       [TAGS.DELETE_TAIL_END]: [62],
 
-      // Delete At Index (Lines 63-76)
-      [TAGS.DELETE_INDEX_START]: [63],
+      [TAGS.DELETE_INDEX_START]: [64],
       [TAGS.DELETE_INDEX_IFZERO]: [64, 65, 66],
       [TAGS.DELETE_INDEX_TRAVERSE]: [68, 69, 70, 71, 72, 73, 74],
       [TAGS.DELETE_INDEX_UNLINK]: [75],

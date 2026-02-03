@@ -74,8 +74,8 @@ export function createBubbleSortAnimationSteps(
 
       steps.push({
         stepNumber: steps.length + 1,
-        description: `比較 Index ${j} (${val1}) 和 Index ${j + 1} (${val2})`,
-        actionTag: TAGS.COMPARE,
+        description: `抓取 Index ${j} (${val1}) 和 Index ${j + 1} (${val2})`,
+        actionTag: TAGS.GET_VALUES,
         variables: {
           round: i,
           index: j,
@@ -183,6 +183,7 @@ const TAGS = {
   INIT: "INIT",
   ROUND_START: "ROUND_START",
   INNER_LOOP_START: "INNER_LOOP_START",
+  GET_VALUES: "GET_VALUES",
   COMPARE: "COMPARE",
   DECISION: "DECISION",
   SWAP: "SWAP",
@@ -216,7 +217,8 @@ End Procedure`,
     mappings: {
       [TAGS.INIT]: [2], 
       [TAGS.ROUND_START]: [4, 5, 6],
-      [TAGS.COMPARE]: [8, 9, 10, 12],
+      [TAGS.GET_VALUES]: [8, 9, 10],
+      [TAGS.COMPARE]: [12],
       [TAGS.SWAP]: [13, 14, 15],
       [TAGS.ROUND_END]: [19],
       [TAGS.DONE]: [21],
