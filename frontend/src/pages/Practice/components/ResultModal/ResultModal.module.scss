@@ -1,0 +1,358 @@
+@import '@/shared/styles/_variables';
+@import '@/shared/styles/_mixins';
+
+.resultDialog {
+  overflow: visible;
+}
+
+.resultContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.scoreSummary {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba(124, 58, 237, 0.05));
+  border-radius: $radius-lg;
+}
+
+.scoreCircle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: $gradient-primary;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: $shadow-lg;
+  animation: scaleIn 0.5s ease;
+
+  &[data-passed='false'] {
+    background: linear-gradient(135deg, $error-color, darken($error-color, 10%));
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.scoreValue {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: $font-sm;
+  color: rgba(white, 0.9);
+  margin-top: $spacing-xs;
+}
+
+.scoreDetails {
+  flex: 1;
+}
+
+.gradeText {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 $spacing-sm 0;
+}
+
+.encouragementText {
+  font-size: $font-base;
+  color: var(--text-secondary);
+  margin: 0 0 $spacing-md 0;
+}
+
+.starContainer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  :global(.starRating) {
+    font-size: 2rem;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.statValue {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $primary-color;
+}
+
+.statLabel {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin-top: $spacing-xs;
+}
+
+.wrongAnswerSection {
+  border-top: 1px solid var(--border);
+  padding-top: $spacing-lg;
+}
+
+.wrongAnswerTitle {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $error-color;
+  margin: 0 0 $spacing-md 0;
+}
+
+.wrongAnswerList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  max-height: 300px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: $radius-sm;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: $radius-sm;
+
+    &:hover {
+      background: var(--text-tertiary);
+    }
+  }
+}
+
+.wrongAnswerItem {
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $error-color;
+  }
+}
+
+.wrongAnswerHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: rgba($error-color, 0.05);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba($error-color, 0.1);
+  }
+}
+
+.questionNumber {
+  font-weight: 600;
+  color: $error-color;
+  white-space: nowrap;
+}
+
+.questionPreview {
+  flex: 1;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expandIcon {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+}
+
+.wrongAnswerDetail {
+  padding: $spacing-md;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.fullQuestion {
+  font-size: $font-base;
+  color: var(--text-primary);
+  margin: 0 0 $spacing-md 0;
+  line-height: 1.6;
+}
+
+.answerComparison {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.userAnswer,
+.correctAnswer {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  border-radius: $radius-sm;
+}
+
+.userAnswer {
+  background: rgba($error-color, 0.1);
+
+  .answerValue {
+    color: $error-color;
+  }
+}
+
+.correctAnswer {
+  background: rgba($success-color, 0.1);
+
+  .answerValue {
+    color: $success-color;
+  }
+}
+
+.answerLabel {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.answerValue {
+  font-size: $font-sm;
+  font-weight: 500;
+}
+
+.explanation {
+  background: var(--bg-secondary);
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  border-left: 3px solid $primary-color;
+}
+
+.explanationLabel {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $primary-color;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.explanationText {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: center;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border);
+}
+
+.retryButton,
+.dashboardButton {
+  min-width: 150px;
+}
+
+@media (max-width: $mobile-max) {
+  .scoreSummary {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .scoreCircle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .scoreValue {
+    font-size: 2rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .retryButton,
+  .dashboardButton {
+    width: 100%;
+  }
+
+  .wrongAnswerHeader {
+    flex-wrap: wrap;
+  }
+
+  .questionPreview {
+    order: 3;
+    width: 100%;
+    margin-top: $spacing-xs;
+  }
+}

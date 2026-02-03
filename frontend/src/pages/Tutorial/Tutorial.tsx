@@ -362,6 +362,7 @@ function Tutorial() {
               highlightedLine={highlightLines}
               readOnly={codeMode === "pseudo"}
               theme="dark"
+              showTimeComplexity={codeMode === "python"}
             />
           </div>
         </div>
