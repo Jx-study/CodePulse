@@ -4,11 +4,7 @@ import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 
-// ==========================================
-// 1. 定義 Namespaced TAGS
-// ==========================================
 const TAGS = {
-  // Insert Tags
   INSERT_INIT: "INSERT_INIT",
   INSERT_COMPARE: "INSERT_COMPARE",
   INSERT_LEFT: "INSERT_LEFT",
@@ -17,25 +13,23 @@ const TAGS = {
   INSERT_FOUND_RIGHT: "INSERT_FOUND_RIGHT",
   INSERT_ACT: "INSERT_ACT",
 
-  // Search Tags (Also used for Floor/Ceil)
   SEARCH_INIT: "SEARCH_INIT",
   SEARCH_COMPARE: "SEARCH_COMPARE",
   SEARCH_LEFT: "SEARCH_LEFT",
   SEARCH_RIGHT: "SEARCH_RIGHT",
   SEARCH_FOUND: "SEARCH_FOUND",
 
-  // Delete Tags
   DELETE_INIT: "DELETE_INIT",
   DELETE_COMPARE: "DELETE_COMPARE",
   DELETE_LEFT: "DELETE_LEFT",
   DELETE_RIGHT: "DELETE_RIGHT",
   DELETE_FOUND: "DELETE_FOUND",
   
-  DELETE_LEAF: "DELETE_LEAF",         // Case 1
-  DELETE_ONE_PREPARE: "DELETE_ONE_PREPARE", // Case 2: 準備複製
-  DELETE_ONE_COPY: "DELETE_ONE_COPY",       // Case 2: 執行複製與刪除
+  DELETE_LEAF: "DELETE_LEAF",       
+  DELETE_ONE_PREPARE: "DELETE_ONE_PREPARE", 
+  DELETE_ONE_COPY: "DELETE_ONE_COPY",       
   
-  DELETE_TWO: "DELETE_TWO",           // Case 3
+  DELETE_TWO: "DELETE_TWO",           
   DELETE_FIND_MIN: "DELETE_FIND_MIN",
   DELETE_SWAP: "DELETE_SWAP",
   DELETE_RECURSE: "DELETE_RECURSE",
@@ -57,9 +51,6 @@ interface LogicTreeNode {
   right?: LogicTreeNode;
 }
 
-// ==========================================
-// 2. 基礎輔助函式
-// ==========================================
 function buildBST(data: any[]): LogicTreeNode | null {
   if (data.length === 0) return null;
   const rootData = data[0];
@@ -99,9 +90,6 @@ const generateFrame = (
   };
 };
 
-// ==========================================
-// 3. 狀態更新輔助函式
-// ==========================================
 export function getBSTArrayAfterDelete(
   data: any[],
   targetValue: number
@@ -127,14 +115,11 @@ function deleteNodeFromTree(
   } else if (key > root.value) {
     root.right = deleteNodeFromTree(root.right, key);
   } else {
-    // Found
     if (!root.left && !root.right) return undefined; // Leaf
     
-    // One Child: 模擬數值覆蓋邏輯 (Value Copy)
     if (!root.left) return root.right; 
     if (!root.right) return root.left;
 
-    // Two Children
     let temp = root.right;
     while (temp.left) temp = temp.left;
     root.value = temp.value;
@@ -150,9 +135,6 @@ function serializePreorder(node: LogicTreeNode | undefined, list: LogicTreeNode[
   serializePreorder(node.right, list);
 }
 
-// ==========================================
-// 4. 動畫邏輯: Insert & Search
-// ==========================================
 function runInsert(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   if (inputData.length === 0) return steps;
@@ -329,9 +311,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
   return steps;
 }
 
-// ==========================================
-// 5. Operation: Delete (Value Copy for Case 2)
-// ==========================================
 function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
@@ -348,7 +327,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     variables: { deleteVal: targetValue }
   });
 
-  // Phase 1: Search
   let curr: LogicTreeNode | undefined = root;
   let foundNode: LogicTreeNode | undefined = undefined;
 
@@ -417,10 +395,8 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     return steps;
   }
 
-  // Phase 2: Delete
   const targetId = foundNode.id;
 
-  // Case 1: Leaf Node
   if (!foundNode.left && !foundNode.right) {
     statusMap[targetId] = "target";
     steps.push({
@@ -435,12 +411,10 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     
     steps.push(generateFrame(finalData, finalStatus, `刪除完成`));
   }
-  // Case 2: One Child (Value Copy)
   else if (!foundNode.left || !foundNode.right) {
     const child = foundNode.left ? foundNode.left : foundNode.right;
     statusMap[targetId] = "target";
     
-    // 1. Identify Child
     if (foundNode.left) {
       steps.push({
         ...generateFrame(inputData, statusMap, `Case 2: 只有左子樹 (${foundNode.left.value})，準備覆蓋數值`),
@@ -455,7 +429,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       });
     }
 
-    // 2. Highlight Child as Prepare
     statusMap[child!.id] = "prepare";
     steps.push({
       ...generateFrame(inputData, statusMap, `鎖定子節點 ${child!.value}`),
@@ -463,7 +436,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       variables: { replacement: child!.value }
     });
 
-    // 3. Swap/Copy Value
     const replacedData = inputData.map((d: any) =>
         d.id === targetId ? { ...d, value: child!.value } : d
     );
@@ -473,7 +445,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       variables: { op: "copy_value", newVal: child!.value }
     });
 
-    // 4. Remove Child
     const finalData = replacedData.filter((d: any) => d.id !== child!.id);
     const finalStatus: Record<string, Status> = {};
     finalData.forEach((d: any) => { finalStatus[d.id] = "complete"; });
@@ -484,7 +455,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       variables: { op: "delete_child" }
     });
   }
-  // Case 3: Two Children
   else {
     statusMap[targetId] = "target";
     steps.push({
@@ -493,7 +463,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       variables: { case: "two_children" }
     });
 
-    // 1. Enter Right
     let successor = foundNode.right;
     statusMap[successor.id] = "prepare";
     steps.push({
@@ -505,7 +474,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     delete statusMap[successor.id];
     statusMap[successor.id] = "unfinished";
 
-    // 2. Go Left
     while (successor.left) {
       statusMap[successor.id] = "target";
       steps.push({
@@ -535,7 +503,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       }
     }
 
-    // 3. Lock Successor
     statusMap[successor.id] = "complete";
     steps.push({
       ...generateFrame(inputData, statusMap, `鎖定後繼者: ${successor.value}`),
@@ -543,7 +510,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       variables: { successor: successor.value }
     });
 
-    // 4. Swap Value
     const replacedData = inputData.map((d: any) =>
       d.id === targetId ? { ...d, value: successor!.value } : d
     );
@@ -553,7 +519,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       variables: { target: targetValue, newVal: successor.value }
     });
 
-    // 5. Remove Successor
     const finalData = replacedData.filter((d: any) => d.id !== successor!.id);
     const finalStatus: Record<string, Status> = {};
     finalData.forEach((d: any) => { finalStatus[d.id] = "complete"; });
@@ -568,9 +533,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
   return steps;
 }
 
-// ==========================================
-// 6. Operation: Floor (Refactored to match Standard)
-// ==========================================
 function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
@@ -579,7 +541,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
 
   steps.push({
     ...generateFrame(inputData, {}, `尋找 Floor(${targetValue})`),
-    actionTag: TAGS.SEARCH_INIT, // Reuse Search Tag
+    actionTag: TAGS.SEARCH_INIT, 
     variables: { target: targetValue }
   });
 
@@ -590,7 +552,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
     statusMap[curr.id] = "target";
     steps.push({
       ...generateFrame(inputData, statusMap, `比較：${targetValue} vs ${curr.value}`),
-      actionTag: TAGS.SEARCH_COMPARE, // Reuse
+      actionTag: TAGS.SEARCH_COMPARE, 
       variables: { curr: curr.value, target: targetValue }
     });
 
@@ -606,7 +568,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
     }
 
     if (curr.value > targetValue) {
-      // Too big, go left
       if (curr.left) {
         steps.push({
           ...generateFrame(inputData, statusMap, `${curr.value} > ${targetValue}，往左尋找`),
@@ -617,14 +578,12 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
       statusMap[curr.id] = "unfinished";
       curr = curr.left;
     } else {
-      // Candidate found, go right to find larger
       if (floorNode) statusMap[floorNode.id] = "unfinished";
       floorNode = curr;
-      statusMap[curr.id] = "complete"; // Candidate highlighted
+      statusMap[curr.id] = "complete"; 
       
       steps.push({
         ...generateFrame(inputData, statusMap, `更新候選人：${curr.value}，往右找看看有沒有更大的`),
-        // Note: We don't have UPDATE_CANDIDATE in TAGS yet, reuse SEARCH_RIGHT for context
         actionTag: TAGS.SEARCH_RIGHT, 
         variables: { candidate: curr.value }
       });
@@ -655,9 +614,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
   return steps;
 }
 
-// ==========================================
-// 7. Operation: Ceil
-// ==========================================
 function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
@@ -693,7 +649,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
     }
 
     if (curr.value < targetValue) {
-      // Too small, go right
       if (curr.right) {
         steps.push({
           ...generateFrame(inputData, statusMap, `${curr.value} < ${targetValue}，往右尋找`),
@@ -704,7 +659,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
       statusMap[curr.id] = "unfinished";
       curr = curr.right;
     } else {
-      // Candidate found, go left to find smaller
       if (ceilNode) statusMap[ceilNode.id] = "unfinished";
       ceilNode = curr;
       statusMap[curr.id] = "complete";
@@ -741,7 +695,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
   return steps;
 }
 
-// ... runMin, runMax, runLoad ... (省略，邏輯同上)
 function runLoad(inputData: any[]): AnimationStep[] {
   return [{
     stepNumber: 0,
@@ -770,7 +723,6 @@ export function createBinarySearchTreeAnimationSteps(
   }];
 }
 
-// CodeConfig and Export remain same
 const binarySearchTreeCodeConfig: CodeConfig = {
   pseudo: {
     content: `// Operation: Insert
@@ -812,7 +764,6 @@ Procedure Delete(node, key):
     node.value ← successor.value
     node.right ← Delete(node.right, successor.value)`,
     mappings: {
-      // --- Insert Mappings ---
       [TAGS.INSERT_INIT]: [3],
       [TAGS.INSERT_COMPARE]: [4],
       [TAGS.INSERT_LEFT]: [5],
@@ -821,14 +772,12 @@ Procedure Delete(node, key):
       [TAGS.INSERT_FOUND_LEFT]: [3, 5], 
       [TAGS.INSERT_FOUND_RIGHT]: [3, 7],
 
-      // --- Search Mappings ---
       [TAGS.SEARCH_INIT]: [11],
       [TAGS.SEARCH_COMPARE]: [12, 13],
       [TAGS.SEARCH_LEFT]: [14],
       [TAGS.SEARCH_RIGHT]: [16],
       [TAGS.SEARCH_FOUND]: [12],
 
-      // --- Delete Mappings ---
       [TAGS.DELETE_INIT]: [22],
       [TAGS.DELETE_COMPARE]: [22, 24],
       [TAGS.DELETE_LEFT]: [23],
@@ -837,11 +786,9 @@ Procedure Delete(node, key):
       
       [TAGS.DELETE_LEAF]: [28],
       
-      // Case 2: One Child (Value Copy)
-      [TAGS.DELETE_ONE_PREPARE]: [29], // GetChild
-      [TAGS.DELETE_ONE_COPY]: [31, 32], // Copy value & re-link
+      [TAGS.DELETE_ONE_PREPARE]: [29], 
+      [TAGS.DELETE_ONE_COPY]: [31, 32], 
       
-      // Case 3: Two Children
       [TAGS.DELETE_TWO]: [35],
       [TAGS.DELETE_FIND_MIN]: [36],
       [TAGS.DELETE_SWAP]: [37],
