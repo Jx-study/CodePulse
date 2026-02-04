@@ -6,37 +6,11 @@
   right: $spacing-md;
   bottom: $spacing-md;
   z-index: 1000;
-}
 
-.zoomDisplay {
-  @include flex(center, center, row);
-  background: rgba($dark-bg-secondary, 0.9);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba($white-color, 0.15);
-  border-radius: $radius-md;
-  padding: $spacing-xs $spacing-sm;
-  box-shadow: $shadow-lg;
-  font-size: $font-sm;
-  font-weight: 700;
-  color: $white-color;
-  letter-spacing: 0.5px;
-  min-width: 60px;
-  user-select: none;
-
-  // 微妙的發光效果
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: $radius-md;
-    background: linear-gradient(
-      135deg,
-      rgba($primary-color, 0.2),
-      rgba($accent-color, 0.2)
-    );
-    opacity: 0.3;
-    z-index: -1;
-    filter: blur(8px);
+  // 左下角位置變體
+  &.left {
+    right: auto;
+    left: $spacing-md;
   }
 }
 
@@ -111,12 +85,10 @@
     right: $spacing-sm;
     bottom: $spacing-sm;
     gap: $spacing-2xs;
-  }
 
-  .zoomDisplay {
-    padding: $spacing-2xs $spacing-xs;
-    font-size: 12px;
-    min-width: 52px;
+    &.left {
+      left: $spacing-sm;
+    }
   }
 
   .zoomButton {

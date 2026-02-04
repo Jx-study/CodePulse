@@ -1,11 +1,27 @@
 import styles from "./ZoomControls.module.scss";
-import type { ZoomControlsProps } from "@/types";
+
+export interface ZoomControlsProps {
+  /** 當前縮放等級 (0.5 ~ 2.0) */
+  currentZoom: number;
+  /** 放大回調 */
+  onZoomIn: () => void;
+  /** 縮小回調 */
+  onZoomOut: () => void;
+  /** 重置縮放回調 */
+  onResetZoom: () => void;
+  /** 最小縮放等級 (預設: 0.5) */
+  minZoom?: number;
+  /** 最大縮放等級 (預設: 2.0) */
+  maxZoom?: number;
+  /** 是否顯示在左下角 (預設: false，顯示在右下角) */
+  positionLeft?: boolean;
+}
 
 /**
  * ZoomControls - 縮放控制組件
  *
- * 浮動在右下角的縮放按鈕，僅在 Tablet/Mobile 顯示
- * Desktop 使用 Ctrl + Scroll 進行縮放
+ * 浮動的縮放按鈕，支援放大、縮小、重置功能
+ * 可配置顯示位置（左下角或右下角）
  *
  * @example
  * <ZoomControls
@@ -13,6 +29,7 @@ import type { ZoomControlsProps } from "@/types";
  *   onZoomIn={() => setZoom(prev => Math.min(prev + 0.1, 2.0))}
  *   onZoomOut={() => setZoom(prev => Math.max(prev - 0.1, 0.5))}
  *   onResetZoom={() => setZoom(1.0)}
+ *   positionLeft={true}
  * />
  */
 function ZoomControls({
@@ -20,19 +37,15 @@ function ZoomControls({
   onZoomIn,
   onZoomOut,
   onResetZoom,
+  minZoom = 0.5,
+  maxZoom = 2.0,
+  positionLeft = false,
 }: ZoomControlsProps) {
-  const MIN_ZOOM = 0.5;
-  const MAX_ZOOM = 2.0;
-
-  const isZoomInDisabled = currentZoom >= MAX_ZOOM;
-  const isZoomOutDisabled = currentZoom <= MIN_ZOOM;
-  const zoomPercentage = Math.round(currentZoom * 100);
+  const isZoomInDisabled = currentZoom >= maxZoom;
+  const isZoomOutDisabled = currentZoom <= minZoom;
 
   return (
-    <div className={styles.zoomControls}>
-      {/* 顯示當前縮放百分比 */}
-      <div className={styles.zoomDisplay}>{zoomPercentage}%</div>
-
+    <div className={`${styles.zoomControls} ${positionLeft ? styles.left : ''}`}>
       {/* 縮放按鈕組 */}
       <div className={styles.buttonGroup}>
         {/* Zoom In 按鈕 */}

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * useZoom Hook - 縮放控制邏輯
  *
  * 支援三種縮放方式：
- * 1. Mouse Wheel 縮放（純 Scroll，避免觸發瀏覽器縮放）
+ * 1. Mouse Wheel 縮放（支援以滑鼠位置為中心）
  * 2. 雙指捏合手勢（Tablet/Mobile）
  * 3. ZoomControls 按鈕縮放
  *
@@ -12,11 +12,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * @returns 縮放狀態和控制函數
  *
  * @example
- * const { zoomLevel, zoomIn, zoomOut, resetZoom } = useZoom({
+ * const { zoomLevel, zoomIn, zoomOut, resetZoom, transformOrigin } = useZoom({
  *   minZoom: 0.5,
  *   maxZoom: 2.0,
  *   initialZoom: 1.0,
  *   step: 0.1,
+ *   enableMouseCenteredZoom: true,
  * });
  */
 
@@ -33,6 +34,8 @@ interface UseZoomOptions {
   enableWheelZoom?: boolean;
   /** 是否啟用雙指捏合縮放 (預設: true) */
   enablePinchZoom?: boolean;
+  /** 是否啟用以滑鼠位置為中心的縮放 (預設: false) */
+  enableMouseCenteredZoom?: boolean;
   /** 目標元素 Ref (用於監聽事件) */
   targetRef?: React.RefObject<HTMLElement>;
 }
@@ -48,6 +51,8 @@ interface UseZoomReturn {
   resetZoom: () => void;
   /** 設定縮放等級 */
   setZoomLevel: (zoom: number | ((prev: number) => number)) => void;
+  /** Transform origin 座標（用於以滑鼠為中心縮放） */
+  transformOrigin: string;
 }
 
 export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
@@ -58,10 +63,12 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     step = 0.1,
     enableWheelZoom = true,
     enablePinchZoom = true,
+    enableMouseCenteredZoom = false,
     targetRef,
   } = options;
 
   const [zoomLevel, setZoomLevelState] = useState(initialZoom);
+  const [transformOrigin, setTransformOrigin] = useState('center center');
   const wheelListenerRef = useRef<((e: WheelEvent) => void) | null>(null);
   const touchStartDistanceRef = useRef<number | null>(null);
   const lastZoomRef = useRef<number>(initialZoom);
@@ -84,24 +91,35 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
    */
   const zoomIn = useCallback(() => {
     setZoomLevel((prev) => prev + step);
-  }, [setZoomLevel, step]);
+    // 按鈕縮放使用固定中心點
+    if (enableMouseCenteredZoom) {
+      setTransformOrigin('center center');
+    }
+  }, [setZoomLevel, step, enableMouseCenteredZoom]);
 
   /**
    * 縮小
    */
   const zoomOut = useCallback(() => {
     setZoomLevel((prev) => prev - step);
-  }, [setZoomLevel, step]);
+    // 按鈕縮放使用固定中心點
+    if (enableMouseCenteredZoom) {
+      setTransformOrigin('center center');
+    }
+  }, [setZoomLevel, step, enableMouseCenteredZoom]);
 
   /**
    * 重置縮放
    */
   const resetZoom = useCallback(() => {
     setZoomLevel(initialZoom);
-  }, [setZoomLevel, initialZoom]);
+    if (enableMouseCenteredZoom) {
+      setTransformOrigin('center center');
+    }
+  }, [setZoomLevel, initialZoom, enableMouseCenteredZoom]);
 
   /**
-   * Wheel 縮放（純 Scroll）
+   * Wheel 縮放（支援以滑鼠位置為中心）
    */
   useEffect(() => {
     if (!enableWheelZoom) return;
@@ -111,6 +129,19 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     const handleWheel = (e: WheelEvent) => {
       // 阻止預設的頁面縮放行為
       e.preventDefault();
+
+      // 如果啟用以滑鼠為中心的縮放，計算 transform-origin
+      if (enableMouseCenteredZoom && targetElement) {
+        const rect = targetElement.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // 計算相對於元素的百分比位置
+        const percentX = (x / rect.width) * 100;
+        const percentY = (y / rect.height) * 100;
+
+        setTransformOrigin(`${percentX}% ${percentY}%`);
+      }
 
       // 計算縮放方向和增量
       const delta = e.deltaY > 0 ? -step : step;
@@ -125,7 +156,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
         targetElement.removeEventListener('wheel', wheelListenerRef.current);
       }
     };
-  }, [enableWheelZoom, step, setZoomLevel, targetRef]);
+  }, [enableWheelZoom, enableMouseCenteredZoom, step, setZoomLevel, targetRef]);
 
   /**
    * 雙指捏合縮放（Touch Pinch Gesture）
@@ -144,6 +175,16 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
       return Math.sqrt(dx * dx + dy * dy);
     };
 
+    /**
+     * 計算兩點的中心點
+     */
+    const getMidpoint = (touch1: Touch, touch2: Touch): { x: number; y: number } => {
+      return {
+        x: (touch1.clientX + touch2.clientX) / 2,
+        y: (touch1.clientY + touch2.clientY) / 2,
+      };
+    };
+
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
         // 阻止預設的雙指縮放行為
@@ -152,6 +193,19 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
         // 記錄初始雙指距離
         touchStartDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
         lastZoomRef.current = zoomLevel;
+
+        // 計算雙指中心點作為縮放中心
+        if (enableMouseCenteredZoom && targetElement) {
+          const rect = targetElement.getBoundingClientRect();
+          const midpoint = getMidpoint(e.touches[0], e.touches[1]);
+          const x = midpoint.x - rect.left;
+          const y = midpoint.y - rect.top;
+
+          const percentX = (x / rect.width) * 100;
+          const percentY = (y / rect.height) * 100;
+
+          setTransformOrigin(`${percentX}% ${percentY}%`);
+        }
       }
     };
 
@@ -190,7 +244,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
       targetElement.removeEventListener('touchend', handleTouchEnd);
       targetElement.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [enablePinchZoom, setZoomLevel, targetRef, zoomLevel]);
+  }, [enablePinchZoom, enableMouseCenteredZoom, setZoomLevel, targetRef, zoomLevel]);
 
   return {
     zoomLevel,
@@ -198,6 +252,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     zoomOut,
     resetZoom,
     setZoomLevel,
+    transformOrigin,
   };
 }
 

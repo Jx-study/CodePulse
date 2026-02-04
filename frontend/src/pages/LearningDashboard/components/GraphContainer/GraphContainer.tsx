@@ -5,8 +5,8 @@ import {
   calculateGraphNodePosition,
   calculateContentBounds,
 } from './utils/positionCalculator';
-import { useZoom } from '../../hooks/useZoom';
-import ZoomControls from '../ZoomControls/ZoomControls';
+import { useZoom } from '@/shared/hooks/useZoom';
+import ZoomControls from '@/shared/components/ZoomControls';
 import type { Point2D, GraphContainerProps } from '@/types';
 
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見 
