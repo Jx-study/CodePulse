@@ -426,15 +426,16 @@ function TutorialContent() {
       attributes,
       listeners,
       setNodeRef,
+      setActivatorNodeRef,
       transform,
       transition,
       isDragging,
     } = useSortable({ id: "canvas" });
 
     const dragHandleProps = {
+      ref: setActivatorNodeRef,
       ...attributes,
       ...listeners,
-      style: { touchAction: 'none' }
     };
 
     const sortableStyle = {
@@ -518,15 +519,16 @@ function TutorialContent() {
       attributes,
       listeners,
       setNodeRef,
+      setActivatorNodeRef,
       transform,
       transition,
       isDragging,
     } = useSortable({ id: "actionBar" });
 
     const dragHandleProps = {
+      ref: setActivatorNodeRef,
       ...attributes,
       ...listeners,
-      style: { touchAction: 'none' }
     };
 
     const sortableStyle = {
@@ -604,6 +606,7 @@ function TutorialContent() {
                       <PanelHeader title="Pseudo Code" />
                       <div className={styles.pseudoCodeEditor}>
                         <CodeEditor
+                          key={`editor-${mainPanelOrder.join('-')}`}
                           mode="single"
                           language="python"
                           value={topicTypeConfig?.pseudoCode || ''}
@@ -712,6 +715,7 @@ function TutorialContent() {
                       <PanelHeader title="Pseudo Code" />
                       <div className={styles.pseudoCodeEditor}>
                         <CodeEditor
+                          key={`editor-${mainPanelOrder.join('-')}`}
                           mode="single"
                           language="python"
                           value={topicTypeConfig?.pseudoCode || ''}
