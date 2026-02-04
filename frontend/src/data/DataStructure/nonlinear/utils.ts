@@ -1,20 +1,17 @@
 import * as d3 from "d3";
-import { Node } from "../../../modules/core/DataLogic/Node";
-import { createNodeInstance } from "../linear/utils";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { createNodeInstance } from "@/data/DataStructure/linear/utils";
 
 export interface HierarchyDatum {
   id: string;
   value: number;
+  count?: number;
   children?: HierarchyDatum[];
-  isDummy?: boolean; // 標記是否增加隱形節點，將單一節點推到左側或右側(為了美觀)
+  isDummy?: boolean;
 }
 
-/**
- * 將線性陣列 (Level Order) 轉為 D3 Hierarchy 結構
- * @param degree 分支度 (2=二元樹, 3=三元樹...)
- */
 export function buildD3HierarchyData(
-  data: { id: string; value: number }[],
+  data: { id: string; value: number; count?: number }[],
   degree: number = 2
 ): HierarchyDatum | null {
   if (data.length === 0) return null;
@@ -46,7 +43,7 @@ export function buildD3HierarchyData(
 }
 
 export function buildBSTHierarchyData(
-  data: { id: string; value: number }[]
+  data: { id: string; value: number; count?: number }[]
 ): HierarchyDatum | null {
   if (data.length === 0) return null;
 
@@ -92,7 +89,6 @@ function convertToChildren(node: any) {
       node.children.push(node.left);
       convertToChildren(node.left);
     } else {
-      // 補一個左側隱形節點
       node.children.push({
         id: `dummy-${node.id}-left`,
         value: 0,
@@ -105,7 +101,6 @@ function convertToChildren(node: any) {
       node.children.push(node.right);
       convertToChildren(node.right);
     } else {
-      // 補一個右側隱形節點
       node.children.push({
         id: `dummy-${node.id}-right`,
         value: 0,
@@ -118,8 +113,6 @@ function convertToChildren(node: any) {
 
 /**
  * 通用的樹狀結構生成器
- * @param inputData 線性輸入資料
- * @param options 版面配置選項
  */
 export function createTreeNodes(
   inputData: any[],
@@ -141,7 +134,6 @@ export function createTreeNodes(
     type = "binarytree",
   } = options;
 
-  // 1. 轉換資料
   const hierarchyData =
     type === "bst"
       ? buildBSTHierarchyData(inputData)
@@ -149,29 +141,32 @@ export function createTreeNodes(
 
   if (!hierarchyData) return [];
 
-  // 2. D3 Layout
   const root = d3.hierarchy<HierarchyDatum>(hierarchyData);
   const treeLayout = d3.tree<HierarchyDatum>().size([width, height]);
   const rootWithPos = treeLayout(root);
 
-  // 3. 轉換為我們系統的 Node
   const elements: Node[] = [];
   const nodeMap = new Map<string, Node>();
 
-  // (A) 建立節點 (使用 createNodeInstance)
   rootWithPos.descendants().forEach((d) => {
     if (d.data.isDummy) return;
+
+    const count = d.data.count;
+    const descText = count && count > 1 ? `Count: ${count}` : "";
+
     const node = createNodeInstance(
       d.data.id,
       d.data.value,
       d.x + offsetX,
-      d.y + offsetY
+      d.y + offsetY,
+      "inactive",
+      descText
     );
+
     elements.push(node);
     nodeMap.set(d.data.id, node);
   });
 
-  // (B) 建立連線 (設定 pointers)
   rootWithPos.links().forEach((link) => {
     if (link.target.data.isDummy) return;
 
