@@ -111,8 +111,12 @@ function TutorialContent() {
     });
 
     resizeObserver.observe(container);
-    return () => resizeObserver.disconnect();
-  }, []);
+
+    // 清理函數：確保在組件卸載或 ref 變更時正確 disconnect
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []); // 空依賴陣列確保只在 mount/unmount 時執行
 
   // 3. 計算目前的動畫步驟
   useEffect(() => {
@@ -310,7 +314,7 @@ function TutorialContent() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 8px movement required to trigger drag
+        distance: 8,  // 需要移動 8 像素才能觸發拖曳
       },
     })
   );
@@ -325,12 +329,9 @@ function TutorialContent() {
 
     if (!over || active.id === over.id) return;
 
-    // Check if we're reordering main panels (horizontal)
     if (mainPanelOrder.includes(active.id as string) && mainPanelOrder.includes(over.id as string)) {
-      // For main panels, we just swap them
       swapMainPanels();
     }
-    // Check if we're reordering right panels (vertical)
     else if (rightPanelOrder.includes(active.id as string) && rightPanelOrder.includes(over.id as string)) {
       const oldIndex = rightPanelOrder.indexOf(active.id as string);
       const newIndex = rightPanelOrder.indexOf(over.id as string);

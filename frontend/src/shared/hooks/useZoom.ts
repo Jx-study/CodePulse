@@ -192,7 +192,11 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
 
         // 記錄初始雙指距離
         touchStartDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
-        lastZoomRef.current = zoomLevel;
+        // 使用 state 回調函數來獲取最新的 zoomLevel，避免依賴 zoomLevel
+        setZoomLevelState((currentZoom) => {
+          lastZoomRef.current = currentZoom;
+          return currentZoom;
+        });
 
         // 計算雙指中心點作為縮放中心
         if (enableMouseCenteredZoom && targetElement) {
@@ -244,7 +248,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
       targetElement.removeEventListener('touchend', handleTouchEnd);
       targetElement.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [enablePinchZoom, enableMouseCenteredZoom, setZoomLevel, targetRef, zoomLevel]);
+  }, [enablePinchZoom, enableMouseCenteredZoom, setZoomLevel, targetRef]); // 🔴 移除 zoomLevel 依賴
 
   return {
     zoomLevel,

@@ -1,4 +1,5 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle, useState } from "react";
+import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { renderAll } from "./D3Renderer";
 import type { Link } from "./D3Renderer";
@@ -61,8 +62,19 @@ export const D3Canvas = forwardRef<
     }));
 
     useEffect(() => {
-      if (!svgRef.current) return;
-      renderAll(svgRef.current, elements, links, structureType);
+      const svgElement = svgRef.current;
+      if (!svgElement) return;
+
+      renderAll(svgElement, elements, links, structureType);
+
+      // 清理函數：當組件卸載或依賴變更時，中斷所有進行中的 D3 transition
+      return () => {
+        if (svgElement) {
+          // 選擇所有正在進行的 transition 並中斷它們
+          const svg = d3.select(svgElement);
+          svg.selectAll('*').interrupt();
+        }
+      };
     }, [elements, links, structureType]);
 
     // ==================== 拖拽平移事件處理 ====================
