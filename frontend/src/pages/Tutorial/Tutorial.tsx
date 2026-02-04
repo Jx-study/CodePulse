@@ -5,10 +5,10 @@ import {
   DndContext,
   DragEndEvent,
   DragOverlay,
-  PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { SmartPointerSensor } from "@/shared/utils/SmartPointerSensor";
 import { SortableContext, horizontalListSortingStrategy, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
@@ -28,6 +28,206 @@ import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 import { ResizeHandle } from "./components/ResizeHandle/ResizeHandle";
 import { PanelHeader } from "./components/PanelHeader/PanelHeader";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
+
+// ==================== Canvas Panel Component ====================
+interface CanvasPanelProps {
+  canvasPanelRef: React.RefObject<PanelImperativeHandle>;
+  isCanvasPanelCollapsed: boolean;
+  setIsCanvasPanelCollapsed: (collapsed: boolean) => void;
+  handleToggleCanvasPanel: () => void;
+  isControlBarCollapsed: boolean;
+  handleToggleControlBar: () => void;
+  isMobile: boolean;
+  canvasContainerRef: React.RefObject<HTMLDivElement>;
+  currentStepData: any;
+  currentLinks: Link[];
+  canvasSize: { width: number; height: number };
+  topicTypeConfig: any;
+  isPlaying: boolean;
+  currentStep: number;
+  activeStepsLength: number;
+  playbackSpeed: number;
+  handlePlay: () => void;
+  handlePause: () => void;
+  handleNext: () => void;
+  handlePrev: () => void;
+  handleReset: () => void;
+  setPlaybackSpeed: (speed: number) => void;
+  handleStepChange: (step: number) => void;
+}
+
+const CanvasPanel = ({
+  canvasPanelRef,
+  isCanvasPanelCollapsed,
+  setIsCanvasPanelCollapsed,
+  handleToggleCanvasPanel,
+  isControlBarCollapsed,
+  handleToggleControlBar,
+  isMobile,
+  canvasContainerRef,
+  currentStepData,
+  currentLinks,
+  canvasSize,
+  topicTypeConfig,
+  isPlaying,
+  currentStep,
+  activeStepsLength,
+  playbackSpeed,
+  handlePlay,
+  handlePause,
+  handleNext,
+  handlePrev,
+  handleReset,
+  setPlaybackSpeed,
+  handleStepChange,
+}: CanvasPanelProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: "canvas" });
+
+  const dragHandleProps = {
+    ref: setActivatorNodeRef,
+    ...attributes,
+    ...listeners,
+  };
+
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || 'transform 200ms ease',
+    opacity: isDragging ? 0 : 1,
+  };
+
+  return (
+    <Panel
+      defaultSize={80}
+      minSize="50%"
+      collapsible
+      panelRef={canvasPanelRef}
+      onResize={() => {
+        setIsCanvasPanelCollapsed(
+          canvasPanelRef.current?.isCollapsed() ?? false,
+        );
+      }}
+    >
+      <div ref={setNodeRef} style={sortableStyle} className={styles.visualizationSection}>
+        <PanelHeader
+          title="視覺化動畫"
+          isCollapsed={isCanvasPanelCollapsed}
+          onToggleCollapse={handleToggleCanvasPanel}
+          draggable={!isMobile}
+          dragHandleProps={dragHandleProps}
+        />
+        {!isCanvasPanelCollapsed && (
+          <>
+            <div
+              ref={canvasContainerRef}
+              className={styles.visualizationArea}
+            >
+              <D3Canvas
+                elements={currentStepData?.elements || []}
+                links={currentLinks}
+                width={canvasSize.width}
+                height={canvasSize.height}
+                structureType={topicTypeConfig?.id}
+              />
+            </div>
+            <div className={styles.stepDescription}>
+              {currentStepData?.description}
+            </div>
+            <div className={styles.controlBarSection}>
+              <PanelHeader
+                title="播放控制"
+                collapsible
+                isCollapsed={isControlBarCollapsed}
+                onToggleCollapse={handleToggleControlBar}
+              />
+              {!isControlBarCollapsed && (
+                <div className={styles.controlBarContainer}>
+                  <ControlBar
+                    isPlaying={isPlaying}
+                    currentStep={currentStep}
+                    totalSteps={activeStepsLength}
+                    playbackSpeed={playbackSpeed}
+                    onPlay={handlePlay}
+                    onPause={handlePause}
+                    onNext={handleNext}
+                    onPrev={handlePrev}
+                    onReset={handleReset}
+                    onSpeedChange={setPlaybackSpeed}
+                    onStepChange={handleStepChange}
+                  />
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </Panel>
+  );
+};
+
+// ==================== Action Bar Panel Component ====================
+interface ActionBarPanelProps {
+  isActionBarCollapsed: boolean;
+  handleToggleActionBar: () => void;
+  isMobile: boolean;
+  renderActionBar: () => React.ReactNode;
+}
+
+const ActionBarPanel = ({
+  isActionBarCollapsed,
+  handleToggleActionBar,
+  isMobile,
+  renderActionBar,
+}: ActionBarPanelProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: "actionBar" });
+
+  const dragHandleProps = {
+    ref: setActivatorNodeRef,
+    ...attributes,
+    ...listeners,
+  };
+
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || 'transform 200ms ease',
+    opacity: isDragging ? 0 : 1,
+  };
+
+  return (
+    <Panel defaultSize={20} minSize="10%">
+      <div ref={setNodeRef} style={sortableStyle} className={styles.actionPanel}>
+        <PanelHeader
+          title="資料操作"
+          collapsible
+          isCollapsed={isActionBarCollapsed}
+          onToggleCollapse={handleToggleActionBar}
+          draggable={!isMobile}
+          dragHandleProps={dragHandleProps}
+        />
+        {!isActionBarCollapsed && (
+          <div className={styles.actionBarContainer}>
+            {renderActionBar()}
+          </div>
+        )}
+      </div>
+    </Panel>
+  );
+};
 
 function TutorialContent() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -312,7 +512,7 @@ function TutorialContent() {
 
   // Drag and Drop handlers
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(SmartPointerSensor, {
       activationConstraint: {
         distance: 8,  // 需要移動 8 像素才能觸發拖曳
       },
@@ -420,142 +620,39 @@ function TutorialContent() {
     activeSteps.length,
   ]);
 
-  // Canvas Panel Component with sortable
-  const CanvasPanel = () => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      setActivatorNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: "canvas" });
-
-    const dragHandleProps = {
-      ref: setActivatorNodeRef,
-      ...attributes,
-      ...listeners,
-    };
-
-    const sortableStyle = {
-      transform: CSS.Transform.toString(transform),
-      transition: transition || 'transform 200ms ease',
-      opacity: isDragging ? 0 : 1,
-    };
-
-    return (
-      <Panel
-        defaultSize={80}
-        minSize="50%"
-        collapsible
-        panelRef={canvasPanelRef}
-        onResize={() => {
-          setIsCanvasPanelCollapsed(
-            canvasPanelRef.current?.isCollapsed() ?? false,
-          );
-        }}
-      >
-        <div ref={setNodeRef} style={sortableStyle} className={styles.visualizationSection}>
-          <PanelHeader
-            title="視覺化動畫"
-            isCollapsed={isCanvasPanelCollapsed}
-            onToggleCollapse={handleToggleCanvasPanel}
-            draggable={!isMobile}
-            dragHandleProps={dragHandleProps}
-          />
-          {!isCanvasPanelCollapsed && (
-            <>
-              <div
-                ref={canvasContainerRef}
-                className={styles.visualizationArea}
-              >
-                <D3Canvas
-                  elements={currentStepData?.elements || []}
-                  links={currentLinks}
-                  width={canvasSize.width}
-                  height={canvasSize.height}
-                  structureType={topicTypeConfig?.id}
-                />
-              </div>
-              <div className={styles.stepDescription}>
-                {currentStepData?.description}
-              </div>
-              <div className={styles.controlBarSection}>
-                <PanelHeader
-                  title="播放控制"
-                  collapsible
-                  isCollapsed={isControlBarCollapsed}
-                  onToggleCollapse={handleToggleControlBar}
-                />
-                {!isControlBarCollapsed && (
-                  <div className={styles.controlBarContainer}>
-                    <ControlBar
-                      isPlaying={isPlaying}
-                      currentStep={currentStep}
-                      totalSteps={activeSteps.length}
-                      playbackSpeed={playbackSpeed}
-                      onPlay={handlePlay}
-                      onPause={handlePause}
-                      onNext={handleNext}
-                      onPrev={handlePrev}
-                      onReset={handleReset}
-                      onSpeedChange={setPlaybackSpeed}
-                      onStepChange={handleStepChange}
-                    />
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </Panel>
-    );
+  // Props for CanvasPanel
+  const canvasPanelProps: CanvasPanelProps = {
+    canvasPanelRef,
+    isCanvasPanelCollapsed,
+    setIsCanvasPanelCollapsed,
+    handleToggleCanvasPanel,
+    isControlBarCollapsed,
+    handleToggleControlBar,
+    isMobile,
+    canvasContainerRef,
+    currentStepData,
+    currentLinks,
+    canvasSize,
+    topicTypeConfig,
+    isPlaying,
+    currentStep,
+    activeStepsLength: activeSteps.length,
+    playbackSpeed,
+    handlePlay,
+    handlePause,
+    handleNext,
+    handlePrev,
+    handleReset,
+    setPlaybackSpeed,
+    handleStepChange,
   };
 
-  // Action Bar Panel Component with sortable
-  const ActionBarPanel = () => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      setActivatorNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: "actionBar" });
-
-    const dragHandleProps = {
-      ref: setActivatorNodeRef,
-      ...attributes,
-      ...listeners,
-    };
-
-    const sortableStyle = {
-      transform: CSS.Transform.toString(transform),
-      transition: transition || 'transform 200ms ease',
-      opacity: isDragging ? 0 : 1,
-    };
-
-    return (
-      <Panel defaultSize={20} minSize="10%">
-        <div ref={setNodeRef} style={sortableStyle} className={styles.actionPanel}>
-          <PanelHeader
-            title="資料操作"
-            collapsible
-            isCollapsed={isActionBarCollapsed}
-            onToggleCollapse={handleToggleActionBar}
-            draggable={!isMobile}
-            dragHandleProps={dragHandleProps}
-          />
-          {!isActionBarCollapsed && (
-            <div className={styles.actionBarContainer}>
-              {renderActionBar()}
-            </div>
-          )}
-        </div>
-      </Panel>
-    );
+  // Props for ActionBarPanel
+  const actionBarPanelProps: ActionBarPanelProps = {
+    isActionBarCollapsed,
+    handleToggleActionBar,
+    isMobile,
+    renderActionBar,
   };
 
   return (
@@ -638,7 +735,7 @@ function TutorialContent() {
                             if (panelId === "canvas") {
                               return (
                                 <Fragment key={panelId}>
-                                  <CanvasPanel />
+                                  <CanvasPanel {...canvasPanelProps} />
                                   {index < rightPanelOrder.length - 1 && (
                                     <ResizeHandle
                                       direction="vertical"
@@ -648,7 +745,7 @@ function TutorialContent() {
                                 </Fragment>
                               );
                             } else if (panelId === "actionBar") {
-                              return <ActionBarPanel key="actionBar" />;
+                              return <ActionBarPanel key="actionBar" {...actionBarPanelProps} />;
                             }
                             return null;
                           })}
@@ -670,7 +767,7 @@ function TutorialContent() {
                             if (panelId === "canvas") {
                               return (
                                 <Fragment key={panelId}>
-                                  <CanvasPanel />
+                                  <CanvasPanel {...canvasPanelProps} />
                                   {index < rightPanelOrder.length - 1 && (
                                     <ResizeHandle
                                       direction="vertical"
@@ -680,7 +777,7 @@ function TutorialContent() {
                                 </Fragment>
                               );
                             } else if (panelId === "actionBar") {
-                              return <ActionBarPanel key="actionBar" />;
+                              return <ActionBarPanel key="actionBar" {...actionBarPanelProps} />;
                             }
                             return null;
                           })}
