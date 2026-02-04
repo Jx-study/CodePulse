@@ -137,3 +137,11 @@
   flex-wrap: wrap;
   gap: $spacing-2xs;
 }
+
+.formFieldWrapper {
+  margin: 0;
+
+  label {
+    display: none;
+  }
+}
