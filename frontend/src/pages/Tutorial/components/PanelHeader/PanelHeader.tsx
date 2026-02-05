@@ -30,8 +30,12 @@ export function PanelHeader({
   return (
     <div className={`${styles.panelHeader} ${className} ${draggable ? styles.draggable : ''}`}>
       <div className={styles.leftSection}>
-        {draggable && (
-          <div {...dragHandleProps} className={styles.dragHandle}>
+        {draggable && dragHandleProps && (
+          <div
+            ref={dragHandleProps.ref}
+            {...(({ ref, ...rest }) => rest)(dragHandleProps)}
+            className={styles.dragHandle}
+          >
             <span className={styles.dragIcon}>⋮⋮</span>
           </div>
         )}
