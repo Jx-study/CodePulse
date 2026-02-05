@@ -12,6 +12,7 @@ import { SmartPointerSensor } from "@/shared/utils/SmartPointerSensor";
 import { SortableContext, horizontalListSortingStrategy, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
+import Button from "@/shared/components/Button/Button";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
@@ -31,14 +32,14 @@ import { PanelProvider, usePanelContext } from "./context/PanelContext";
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
-  canvasPanelRef: React.RefObject<PanelImperativeHandle>;
+  canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
   isCanvasPanelCollapsed: boolean;
   setIsCanvasPanelCollapsed: (collapsed: boolean) => void;
   handleToggleCanvasPanel: () => void;
   isControlBarCollapsed: boolean;
   handleToggleControlBar: () => void;
   isMobile: boolean;
-  canvasContainerRef: React.RefObject<HTMLDivElement>;
+  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
@@ -660,13 +661,15 @@ function TutorialContent() {
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
         {!isMobile && (
-          <button
+          <Button
+            variant="secondary"
             className={styles.swapButton}
             onClick={swapMainPanels}
             title="交換左右面板"
+            icon="right-left"
           >
-            ⇄ 交換佈局
-          </button>
+             交換佈局
+          </Button>
         )}
       </div>
 
