@@ -188,21 +188,3 @@
     width: 280px;
   }
 }
-
-// 跳轉後的高亮閃爍動畫
-:global(.highlight-flash) {
-  animation: highlightPulse 2s ease-in-out;
-}
-
-@keyframes highlightPulse {
-  0%,
-  100% {
-    box-shadow: inherit;
-  }
-  50% {
-    box-shadow:
-      0 0 2rem rgba($primary-color, 0.8),
-      0 0 3rem rgba($primary-color, 0.6),
-      0 0.5rem 1rem rgba($primary-color, 0.4);
-  }
-}
