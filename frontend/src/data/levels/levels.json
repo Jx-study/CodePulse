@@ -48,9 +48,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "array"
-        ]
+        "levelIds": ["array"]
       },
       "graphPosition": {
         "layer": 1,
@@ -82,9 +80,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "linked-list"
-        ]
+        "levelIds": ["linked-list"]
       },
       "graphPosition": {
         "layer": 2,
@@ -117,9 +113,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "linked-list"
-        ]
+        "levelIds": ["linked-list"]
       },
       "graphPosition": {
         "layer": 2,
@@ -216,10 +210,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "stack",
-          "queue"
-        ]
+        "levelIds": ["stack", "queue"]
       },
       "graphPosition": {
         "layer": 3,
@@ -240,9 +231,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "doubly-linked-list"
-        ]
+        "levelIds": ["doubly-linked-list"]
       },
       "graphPosition": {
         "layer": 4,
@@ -308,9 +297,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-sorting"
-        ]
+        "levelIds": ["portal-to-sorting"]
       },
       "graphPosition": {
         "layer": 100,
@@ -342,9 +329,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bubble-sort"
-        ]
+        "levelIds": ["bubble-sort"]
       },
       "graphPosition": {
         "layer": 101,
@@ -378,9 +363,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bubble-sort"
-        ]
+        "levelIds": ["bubble-sort"]
       },
       "graphPosition": {
         "layer": 101,
@@ -414,10 +397,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
-        "levelIds": [
-          "selection-sort",
-          "insertion-sort"
-        ]
+        "levelIds": ["selection-sort", "insertion-sort"]
       },
       "graphPosition": {
         "layer": 102,
@@ -444,9 +424,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "merge-sort"
-        ]
+        "levelIds": ["merge-sort"]
       },
       "graphPosition": {
         "layer": 103,
@@ -467,9 +445,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "quick-sort"
-        ]
+        "levelIds": ["quick-sort"]
       },
       "graphPosition": {
         "layer": 104,
@@ -497,9 +473,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-searching"
-        ]
+        "levelIds": ["portal-to-searching"]
       },
       "graphPosition": {
         "layer": 200,
@@ -532,9 +506,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "binary-search"
-        ]
+        "levelIds": ["binary-search"]
       },
       "graphPosition": {
         "layer": 201,
@@ -561,10 +533,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
-        "levelIds": [
-          "linear-search",
-          "prefix-sum"
-        ]
+        "levelIds": ["linear-search", "prefix-sum"]
       },
       "graphPosition": {
         "layer": 202,
@@ -616,8 +585,8 @@
         "掌握佇列的使用方式",
         "應用於最短路徑問題"
       ],
-      "isDeveloped": false,
-      "isUnlocked": false,
+      "isDeveloped": true,
+      "isUnlocked": true,
       "prerequisites": {
         "type": "NONE",
         "levelIds": []
@@ -643,13 +612,11 @@
         "掌握遞迴實作技巧",
         "應用於路徑搜尋問題"
       ],
-      "isDeveloped": false,
-      "isUnlocked": false,
+      "isDeveloped": true,
+      "isUnlocked": true,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bfs"
-        ]
+        "levelIds": ["bfs"]
       },
       "graphPosition": {
         "layer": 1,

@@ -13,6 +13,8 @@ import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
 import { selectionSortConfig } from "../algorithms/sorting/selectionSort";
 import { insertionSortConfig } from "../algorithms/sorting/insertionSort";
 import { binarySearchConfig } from "../algorithms/searching/binarySearch";
+import { BFSConfig } from "../algorithms/searching/BFS";
+import { DFSConfig } from "../algorithms/searching/DFS";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 
 /**
@@ -34,6 +36,8 @@ export const implementationsMap: ImplementationMap = {
   selectionSort: selectionSortConfig,
   insertionSort: insertionSortConfig,
   binarySearch: binarySearchConfig,
+  bfs: BFSConfig,
+  dfs: DFSConfig,
   prefixSum: prefixSumConfig,
 };
 

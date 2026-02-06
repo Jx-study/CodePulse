@@ -46,7 +46,7 @@ export function animateConnect(
   manager: LinkManager,
   sourceId: string,
   targetId: string,
-  duration: number = 800
+  duration: number = 800,
 ): Promise<void> {
   return new Promise((resolve) => {
     const svg = d3.select(svgEl);
@@ -95,7 +95,7 @@ export function animateConnect(
 
 function drawContainer(
   scene: d3.Selection<SVGGElement, unknown, null, undefined>,
-  type: string
+  type: string,
 ) {
   // 清除舊的容器線條 (避免重繪疊加)
   scene.selectAll(".container-line").remove();
@@ -220,7 +220,7 @@ export function renderAll(
   svgEl: SVGSVGElement,
   elements: BaseElement[],
   links: Link[] = [],
-  structureType: string = "linkedlist"
+  structureType: string = "linkedlist",
 ) {
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
@@ -230,7 +230,7 @@ export function renderAll(
   const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
 
   const autoScaleBoxes = elements.filter(
-    (e): e is Box => e instanceof Box && e.autoScale
+    (e): e is Box => e instanceof Box && e.autoScale,
   );
 
   const groupData = new Map<string, { values: number[]; maxH: number }>();
@@ -292,6 +292,8 @@ export function renderAll(
   });
 
   // defs：箭頭標記（只建一次）
+  const hideArrow = ["bfs", "dfs", "binarytree", "bst"].includes(structureType);
+  const markerUrl = hideArrow ? null : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
   defsEnter
@@ -348,7 +350,7 @@ export function renderAll(
     .attr("class", "link")
     .attr("stroke", "#888")
     .attr("stroke-width", 2)
-    .attr("marker-end", "url(#arrowhead)")
+    .attr("marker-end", markerUrl)
     // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
     .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
