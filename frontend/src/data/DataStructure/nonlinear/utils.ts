@@ -1,6 +1,8 @@
 import * as d3 from "d3";
 import { Node } from "../../../modules/core/DataLogic/Node";
 import { Box } from "../../../modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
 
 export interface GridCellData {
@@ -50,6 +52,87 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
   source: string | SimNode;
   target: string | SimNode;
 }
+
+export const generateGridFrame = (
+  gridData: any[],
+  cols: number,
+  statusMap: Record<number, Status>,
+  distanceMap: Record<number, number>,
+  description: string,
+  showIdAsValue: boolean = false,
+): AnimationStep => {
+  const elements = createGridElements(gridData, cols);
+
+  elements.forEach((box, index) => {
+    if (box.value === 1) {
+      box.value = "wall" as any;
+      return;
+    }
+
+    if (showIdAsValue) {
+      box.value = index;
+    } else {
+      // 顯示距離
+      if (distanceMap[index] !== undefined) {
+        box.value = distanceMap[index];
+      } else {
+        box.value = "∞" as any; // 未訪問
+      }
+    }
+
+    if (statusMap[index]) {
+      box.setStatus(statusMap[index]);
+    }
+  });
+
+  return {
+    stepNumber: 0,
+    description,
+    elements,
+  };
+};
+
+export const generateGraphFrame = (
+  baseElements: Node[],
+  statusMap: Record<string, Status>,
+  distanceMap: Record<string, number>,
+  description: string,
+  showIdAsValue: boolean = false,
+): AnimationStep => {
+  const frameElements = baseElements.map((node) => {
+    const newNode = new Node();
+    newNode.id = node.id;
+
+    if (showIdAsValue) {
+      const numId = parseInt(node.id.replace("node-", ""), 10);
+      newNode.value = isNaN(numId) ? -1 : numId;
+    } else {
+      const dist = distanceMap[node.id];
+      newNode.value = (dist === undefined || dist === 99 ? "∞" : dist) as any;
+    }
+
+    let x = node.position.x;
+    let y = node.position.y;
+    newNode.moveTo(x, y);
+    newNode.radius = node.radius;
+    newNode.pointers = node.pointers;
+
+    const status = statusMap[node.id];
+    if (status) {
+      newNode.setStatus(status);
+    } else {
+      newNode.setStatus("inactive");
+    }
+
+    return newNode;
+  });
+
+  return {
+    stepNumber: 0,
+    description,
+    elements: frameElements,
+  };
+};
 
 export function createGraphElements(rawGraph: {
   nodes: any[];

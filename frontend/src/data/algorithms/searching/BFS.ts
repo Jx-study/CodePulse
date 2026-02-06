@@ -1,97 +1,12 @@
 import type { AnimationStep } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
-import {
-  createGridElements,
-  createGraphElements,
-} from "@/data/DataStructure/nonlinear/utils";
+import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
 import { Node } from "../../../modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-
-const generateGridFrame = (
-  gridData: any[],
-  cols: number,
-  statusMap: Record<number, Status>, // Key 是 index, Value 是狀態
-  distanceMap: Record<number, number>,
-  description: string,
-  showIdAsValue: boolean = false,
-): AnimationStep => {
-  const elements = createGridElements(gridData, cols);
-
-  elements.forEach((box, index) => {
-    if (box.value === 1) {
-      box.value = "wall" as any;
-      return;
-    }
-
-    if (showIdAsValue) {
-      box.value = index;
-    } else {
-      // 顯示距離
-      if (distanceMap[index] !== undefined) {
-        box.value = distanceMap[index];
-      } else {
-        box.value = "∞" as any; // 未訪問
-      }
-    }
-
-    if (statusMap[index]) {
-      box.setStatus(statusMap[index]);
-    }
-  });
-
-  return {
-    stepNumber: 0,
-    description,
-    elements,
-  };
-};
-
-const generateGraphFrame = (
-  baseElements: Node[],
-  statusMap: Record<string, Status>,
-  distanceMap: Record<string, number>,
-  description: string,
-  showIdAsValue: boolean = false,
-): AnimationStep => {
-  const frameElements = baseElements.map((node) => {
-    const newNode = new Node();
-    newNode.id = node.id;
-
-    if (showIdAsValue) {
-      const numId = parseInt(node.id.replace("node-", ""), 10);
-      newNode.value = isNaN(numId) ? -1 : numId;
-    } else {
-      if (distanceMap[node.id] !== undefined) {
-        // 如果是 99 (無限大)，顯示 "∞"
-        newNode.value = (
-          distanceMap[node.id] === 99 ? "∞" : distanceMap[node.id]
-        ) as any;
-      } else {
-        newNode.value = 0; // 或 "∞"
-      }
-    }
-
-    let x = node.position.x;
-    let y = node.position.y;
-    newNode.moveTo(x, y);
-    newNode.radius = node.radius;
-    newNode.pointers = node.pointers;
-
-    const status = statusMap[node.id];
-    if (status) newNode.setStatus(status);
-    else {
-      newNode.setStatus("inactive");
-    }
-
-    return newNode;
-  });
-
-  return {
-    stepNumber: 0,
-    description,
-    elements: frameElements,
-  };
-};
+import {
+  generateGridFrame,
+  generateGraphFrame,
+} from "@/data/DataStructure/nonlinear/utils";
 
 function runGraphBFS(
   graphData: any,
