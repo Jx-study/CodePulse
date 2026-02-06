@@ -1,25 +1,100 @@
 import { useState, useEffect, useRef } from "react";
 import { getBSTArrayAfterDelete } from "@/data/DataStructure/nonlinear/BinarySearchTree";
 
+interface GraphNode {
+  id: string;
+  value?: number | string;
+  x?: number;
+  y?: number;
+  position?: { x: number; y: number };
+  [key: string]: any;
+}
+
+interface GraphData {
+  nodes: GraphNode[];
+  edges: string[][];
+}
+
 export const useDataStructureLogic = (config: any) => {
   const [data, setData] = useState<any>(config?.defaultData || []);
   const [activeSteps, setActiveSteps] = useState<any[]>([]);
   const nextIdRef = useRef(100); // 通用 ID 計數器
 
+  const cloneData = (source: any) => {
+    return JSON.parse(JSON.stringify(source));
+  };
+
+  const generateRandomGraph = (nodeCount: number): GraphData => {
+    const nodes: GraphNode[] = [];
+    const edges: string[][] = [];
+
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({ id: `node-${i}`, value: String(i) });
+    }
+
+    // 確保連通
+    for (let i = 1; i < nodeCount; i++) {
+      const targetIndex = Math.floor(Math.random() * i);
+      edges.push([`node-${i}`, `node-${targetIndex}`]);
+    }
+
+    // 增加隨機邊
+    const extraEdges = Math.floor(nodeCount * 0.5);
+    for (let k = 0; k < extraEdges; k++) {
+      const u = Math.floor(Math.random() * nodeCount);
+      const v = Math.floor(Math.random() * nodeCount);
+      if (u !== v) {
+        const exists = edges.some(
+          (e) =>
+            (e[0] === `node-${u}` && e[1] === `node-${v}`) ||
+            (e[0] === `node-${v}` && e[1] === `node-${u}`),
+        );
+        if (!exists) edges.push([`node-${u}`, `node-${v}`]);
+      }
+    }
+    return { nodes, edges };
+  };
+
+  const syncCoordinates = (rawData: any, calculatedElements: any[]) => {
+    if (!rawData || !calculatedElements || !rawData.nodes) return;
+    const nodeMap = new Map(calculatedElements.map((el) => [el.id, el]));
+
+    rawData.nodes.forEach((rawNode: any) => {
+      const calculatedNode = nodeMap.get(rawNode.id);
+      if (calculatedNode) {
+        const x = calculatedNode.position?.x ?? calculatedNode.x;
+        const y = calculatedNode.position?.y ?? calculatedNode.y;
+        if (typeof x === "number" && typeof y === "number") {
+          rawNode.x = x;
+          rawNode.y = y;
+        }
+      }
+    });
+  };
+
   // 初始化
   useEffect(() => {
     if (config) {
-      const initData = (config.defaultData || []).map((item: any) => ({
-        ...item,
-      }));
+      const initData = cloneData(config.defaultData || []);
       setData(initData);
 
       if (config.createAnimationSteps) {
+        const initParams =
+          config.id === "graph" ? { mode: "graph" } : undefined;
         const initSteps = config.createAnimationSteps(
           initData,
-          undefined,
-          false
+          initParams,
+          false,
         );
+        // const initSteps = config.createAnimationSteps(
+        //   initData,
+        //   undefined,
+        //   false,
+        // );
+        if (config.id === "graph" && initSteps.length > 0) {
+          syncCoordinates(initData, initSteps[0].elements);
+        }
+
         setActiveSteps(initSteps);
       }
     }
@@ -27,7 +102,7 @@ export const useDataStructureLogic = (config: any) => {
 
   // 通用操作介面
   const executeAction = (actionType: string, payload: any) => {
-    let newData = data.map((item: any) => ({ ...item }));
+    let newData = cloneData(data);
     let finalData = null;
     let { value, mode, index, targetId, hasTailMode, data: loadData } = payload; // 解構常用參數
 
@@ -303,7 +378,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (actionType === "delete") {
         const delValue = index;
         const delIndex = newData.findIndex(
-          (node: any) => node.value === delValue
+          (node: any) => node.value === delValue,
         );
 
         if (delIndex !== -1) {
@@ -344,6 +419,126 @@ export const useDataStructureLogic = (config: any) => {
           }
         }
       }
+    } else if (config.id === "graph") {
+      if (Array.isArray(newData) || !newData.nodes) {
+        console.error("Graph data structure mismatch:", newData);
+        return [];
+      }
+
+      const { nodes, edges } = newData; // 解構 graph data
+
+      if (actionType === "addVertex") {
+        // payload.value 是輸入框的值 (例如 "A")
+        const val = payload.value
+          ? String(payload.value)
+          : `node-${nodes.length}`;
+        // 使用 value 當 id
+        const id = `node-${val}`;
+
+        if (!nodes.find((n: any) => n.id === id)) {
+          nodes.push({ id: id, value: val }); // 新增節點
+        } else {
+          alert(`節點 ${val} 已存在`);
+          return [];
+        }
+      } else if (actionType === "removeVertex") {
+        // payload.id 是輸入框的值 (例如 "A")，要轉成內部 id "node-A"
+        const targetVal = String(payload.id);
+        const targetId = `node-${targetVal}`;
+
+        const idx = nodes.findIndex((n: any) => n.id === targetId);
+        if (idx !== -1) {
+          nodes.splice(idx, 1);
+          newData.edges = edges.filter(
+            (e: any[]) => e[0] !== targetId && e[1] !== targetId,
+          );
+        } else {
+          alert(`節點 ${targetVal} 不存在`);
+          return [];
+        }
+      } else if (actionType === "addEdge") {
+        const sourceVal = String(payload.source);
+        const targetVal = String(payload.target);
+        const sourceId = `node-${sourceVal}`;
+        const targetId = `node-${targetVal}`;
+
+        const sExists = nodes.find((n: any) => n.id === sourceId);
+        const tExists = nodes.find((n: any) => n.id === targetId);
+
+        if (sExists && tExists) {
+          const exists = edges.some(
+            (e: any[]) =>
+              (e[0] === sourceId && e[1] === targetId) ||
+              (!payload.isDirected && e[0] === targetId && e[1] === sourceId),
+          );
+
+          if (!exists) {
+            // Push edge: [source, target]
+            // 要 push 到 newData.edges (也就是 edges 引用)
+            edges.push([sourceId, targetId]);
+          } else {
+            alert("邊已存在");
+            return [];
+          }
+        } else {
+          alert("來源或目標節點不存在");
+          return [];
+        }
+      } else if (actionType === "removeEdge") {
+        const sourceId = `node-${payload.source}`;
+        const targetId = `node-${payload.target}`;
+
+        newData.edges = edges.filter(
+          (e: any[]) =>
+            !(e[0] === sourceId && e[1] === targetId) &&
+            !(e[0] === targetId && e[1] === sourceId),
+        );
+      } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
+        isResetAction = true;
+
+        if (actionType === "random") {
+          const randomCount = Math.floor(Math.random() * 6) + 5; // 5~10 個節點
+          newData = generateRandomGraph(randomCount);
+        } else if (actionType === "reset") {
+          newData = cloneData(config.defaultData);
+        } else if (actionType === "load") {
+          if (typeof loadData === "string" && loadData.startsWith("GRAPH:")) {
+            const parts = loadData.split(":");
+            if (parts.length >= 3) {
+              const nodeCount = parseInt(parts[1]);
+              const edgeStr = parts.slice(2).join(":");
+
+              const nodes = [];
+              for (let i = 0; i < nodeCount; i++)
+                nodes.push({ id: `node-${i}`, value: String(i) });
+
+              const edges: string[][] = [];
+              if (edgeStr.trim() !== "") {
+                edgeStr.split(",").forEach((pair) => {
+                  const [u, v] = pair.trim().split(/\s+/);
+                  if (u && v) edges.push([`node-${u}`, `node-${v}`]);
+                });
+              }
+              newData = { nodes, edges };
+            }
+          }
+        }
+      }
+
+      // Get Neighbors / Adjacent 不會改變結構
+      const steps = config.createAnimationSteps(newData, {
+        type: actionType,
+        ...payload,
+      });
+
+      // Graph 必須同步座標，否則 Random/Load 後會擠在一起
+      // if (steps.length > 0) {
+      //   syncCoordinates(newData, steps[0].elements);
+      // }
+
+      setData(newData);
+      setActiveSteps(steps);
+      return steps;
     }
 
     const finalPayload = {
@@ -359,7 +554,7 @@ export const useDataStructureLogic = (config: any) => {
     const steps = config.createAnimationSteps(
       newData,
       actionParam,
-      hasTailMode
+      hasTailMode,
     );
 
     setData(finalData || newData);

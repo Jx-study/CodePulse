@@ -7,6 +7,7 @@ import { StackConfig } from "../DataStructure/linear/Stack";
 import { QueueConfig } from "../DataStructure/linear/Queue";
 import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree";
 import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree";
+import { GraphConfig } from "../DataStructure/nonlinear/Graph";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
@@ -30,6 +31,7 @@ export const implementationsMap: ImplementationMap = {
   queue: QueueConfig,
   binaryTree: BinaryTreeConfig,
   bst: BinarySearchTreeConfig,
+  graph: GraphConfig,
 
   // Algorithms
   bubbleSort: bubbleSortConfig,
@@ -65,6 +67,6 @@ export function getAllImplementations() {
  */
 export function getImplementationsByType(type: "algorithm" | "dataStructure") {
   return Object.values(implementationsMap).filter(
-    (config) => config.type === type
+    (config) => config.type === type,
   );
 }

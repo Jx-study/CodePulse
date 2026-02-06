@@ -224,6 +224,17 @@ function Tutorial() {
     setIsPlaying(false);
   };
 
+  const handleGraphAction = (action: string, payload: any) => {
+    if (isProcessing) return;
+
+    const steps = dsLogic.executeAction(action, payload);
+
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
@@ -260,9 +271,15 @@ function Tutorial() {
       );
     } else {
       if (
-        ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id,
-        )
+        [
+          "linkedlist",
+          "stack",
+          "queue",
+          "array",
+          "binarytree",
+          "bst",
+          "graph",
+        ].includes(topicTypeConfig.id)
       ) {
         return (
           <DataActionBar
@@ -270,6 +287,7 @@ function Tutorial() {
             onDeleteNode={handleDeleteNode}
             onSearchNode={handleSearchNode}
             onPeek={handlePeek}
+            onGraphAction={handleGraphAction}
             onLoadData={handleLoadData}
             onResetData={handleResetData}
             onRandomData={handleRandomData}

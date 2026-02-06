@@ -9,7 +9,8 @@ export type StructureType =
   | "queue"
   | "array"
   | "binarytree"
-  | "bst";
+  | "bst"
+  | "graph";
 
 export interface DataActionBarProps {
   // 基本操作
@@ -17,6 +18,8 @@ export interface DataActionBarProps {
   onDeleteNode: (mode: string, index?: number) => void;
   onSearchNode: (value: number, mode?: string) => void;
   onPeek?: () => void;
+
+  onGraphAction?: (action: string, payload: any) => void;
 
   // 資料管理
   onLoadData: (data: string) => void;
@@ -36,6 +39,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onDeleteNode,
   onSearchNode,
   onPeek,
+  onGraphAction,
   onLoadData,
   onResetData,
   onRandomData,
@@ -50,6 +54,11 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const [insertMode, setInsertMode] = useState<string>("Head"); // Head, Tail, Node N
   const [maxNodes, setMaxNodes] = useState<number>(10);
 
+  const [sourceNode, setSourceNode] = useState<string>("");
+  const [targetNode, setTargetNode] = useState<string>("");
+  const [edgeWeight, setEdgeWeight] = useState<string>("1");
+  const [isDirected, setIsDirected] = useState<boolean>(false);
+
   // init
   useEffect(() => {
     if (structureType === "stack") setInsertMode("Push");
@@ -59,6 +68,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     else setInsertMode("Head");
   }, [structureType]);
 
+  // Linear / Tree Handlers
   const handleAdd = () => {
     if (disabled) return;
     const val = Number(inputValue);
@@ -99,7 +109,37 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     }
   };
 
+  const handleGraphAction = (action: string) => {
+    if (disabled || !onGraphAction) return;
+
+    // 封裝 payload
+    const payload: any = {
+      isDirected,
+      weight: parseInt(edgeWeight) || 1,
+    };
+
+    if (action === "addVertex") {
+      payload.value = inputValue; // 節點名稱/值
+    } else if (action === "removeVertex") {
+      payload.id = inputValue; // 節點 ID
+    } else if (action === "addEdge") {
+      payload.source = sourceNode;
+      payload.target = targetNode;
+    } else if (action === "removeEdge") {
+      payload.source = sourceNode;
+      payload.target = targetNode;
+    } else if (action === "getNeighbors") {
+      payload.id = inputValue;
+    } else if (action === "checkAdjacent") {
+      payload.source = sourceNode;
+      payload.target = targetNode;
+    }
+
+    onGraphAction(action, payload);
+  };
+
   // 判斷是否顯示某些控制項
+  const isGraph = structureType === "graph";
   const isBST = structureType === "bst";
   const showIndexInput =
     (structureType === "linkedlist" && insertMode === "Node N") ||
@@ -228,193 +268,321 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           {structureType === "array"
             ? "Array Operations"
             : structureType === "linkedlist"
-            ? "Linked List Operations"
-            : structureType === "stack"
-            ? "Stack Operations"
-            : structureType === "queue"
-            ? "Queue Operations"
-            : structureType === "binarytree"
-            ? "Binary Tree Traversals"
-            : structureType === "bst"
-            ? "Binary Search Tree Operations"
-            : "Operations"}
+              ? "Linked List Operations"
+              : structureType === "stack"
+                ? "Stack Operations"
+                : structureType === "queue"
+                  ? "Queue Operations"
+                  : structureType === "binarytree"
+                    ? "Binary Tree Traversals"
+                    : structureType === "bst"
+                      ? "Binary Search Tree Operations"
+                      : structureType === "graph"
+                        ? "Graph Operations"
+                        : "Operations"}
         </div>
-        {isBinaryTree ? (
+        {isGraph ? (
           <>
-            <Button
-              size="sm"
-              onClick={() => onSearchNode(0, "preorder")}
-              disabled={disabled}
+            {/* 節點操作區 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                marginRight: "12px",
+                paddingRight: "12px",
+                borderRight: "1px solid #555",
+              }}
             >
-              Preorder
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onSearchNode(0, "inorder")}
-              disabled={disabled}
-            >
-              Inorder
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onSearchNode(0, "postorder")}
-              disabled={disabled}
-            >
-              Postorder
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onSearchNode(0, "bfs")}
-              disabled={disabled}
-            >
-              BFS (Level-order)
-            </Button>
-          </>
-        ) : (
-          <>
-            {structureType === "linkedlist" && (
-              <select
-                value={insertMode}
-                onChange={(e) => setInsertMode(e.target.value)}
-                className={styles.select}
-                disabled={disabled}
-              >
-                {getModeOptions()}
-              </select>
-            )}
-
-            <input
-              type="number"
-              placeholder="數值"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className={styles.input}
-              style={{ width: "80px" }}
-              disabled={disabled}
-            />
-
-            {showIndexInput && (
+              <span style={{ color: "#aaa", fontSize: "12px" }}>節點:</span>
               <input
-                type="number"
-                placeholder="Index"
-                value={indexValue}
-                onChange={(e) => setIndexValue(e.target.value)}
+                placeholder="ID"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 className={styles.input}
                 style={{ width: "60px" }}
                 disabled={disabled}
               />
-            )}
-
-            <Button size="sm" onClick={handleAdd} disabled={disabled}>
-              {addBtnText}
-            </Button>
-
-            {showUpdateButton && (
               <Button
                 size="sm"
-                onClick={handleUpdate}
+                onClick={() => handleGraphAction("addVertex")}
                 disabled={disabled}
-                style={{ marginLeft: "4px" }}
               >
-                Update
+                新增
               </Button>
-            )}
-
-            <Button size="sm" onClick={handleDelete} disabled={disabled}>
-              {delBtnText}
-            </Button>
-
-            {showPeek && onPeek && (
-              <Button size="sm" onClick={onPeek} disabled={disabled}>
-                Peek
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("removeVertex")}
+                disabled={disabled}
+              >
+                刪除
               </Button>
-            )}
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("getNeighbors")}
+                disabled={disabled}
+                style={{ fontSize: "10px" }}
+              >
+                找鄰居
+              </Button>
+            </div>
 
-            {showSearchMode && (
-              <div
+            {/* 邊操作區 */}
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ color: "#aaa", fontSize: "12px" }}>邊:</span>
+              <input
+                placeholder="Src"
+                value={sourceNode}
+                onChange={(e) => setSourceNode(e.target.value)}
+                className={styles.input}
+                style={{ width: "40px" }}
+                disabled={disabled}
+              />
+              <span style={{ color: "#ccc" }}>→</span>
+              <input
+                placeholder="Dst"
+                value={targetNode}
+                onChange={(e) => setTargetNode(e.target.value)}
+                className={styles.input}
+                style={{ width: "40px" }}
+                disabled={disabled}
+              />
+              {/* 權重 (暫時隱藏或保留) */}
+              {/* <input
+                placeholder="W"
+                value={edgeWeight}
+                onChange={(e) => setEdgeWeight(e.target.value)}
+                className={styles.input}
+                style={{ width: "30px" }}
+              /> */}
+
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("addEdge")}
+                disabled={disabled}
+              >
+                連線
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("removeEdge")}
+                disabled={disabled}
+              >
+                斷線
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("checkAdjacent")}
+                disabled={disabled}
+                style={{ fontSize: "10px" }}
+              >
+                檢查
+              </Button>
+
+              <label
                 style={{
-                  marginLeft: "12px",
-                  borderLeft: "1px solid #555",
-                  paddingLeft: "12px",
+                  color: "#ccc",
+                  fontSize: "12px",
+                  marginLeft: "4px",
                   display: "flex",
-                  gap: "8px",
+                  alignItems: "center",
+                  cursor: "pointer",
                 }}
               >
                 <input
+                  type="checkbox"
+                  checked={isDirected}
+                  onChange={(e) => setIsDirected(e.target.checked)}
+                  disabled={disabled}
+                  style={{ marginRight: "2px" }}
+                />
+                有向
+              </label>
+            </div>
+          </>
+        ) : (
+          <>
+            {isBinaryTree ? (
+              <>
+                <Button
+                  size="sm"
+                  onClick={() => onSearchNode(0, "preorder")}
+                  disabled={disabled}
+                >
+                  Preorder
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onSearchNode(0, "inorder")}
+                  disabled={disabled}
+                >
+                  Inorder
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onSearchNode(0, "postorder")}
+                  disabled={disabled}
+                >
+                  Postorder
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => onSearchNode(0, "bfs")}
+                  disabled={disabled}
+                >
+                  BFS (Level-order)
+                </Button>
+              </>
+            ) : (
+              <>
+                {structureType === "linkedlist" && (
+                  <select
+                    value={insertMode}
+                    onChange={(e) => setInsertMode(e.target.value)}
+                    className={styles.select}
+                    disabled={disabled}
+                  >
+                    {getModeOptions()}
+                  </select>
+                )}
+
+                <input
                   type="number"
-                  placeholder="搜尋值"
-                  id="searchVal"
+                  placeholder="數值"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   className={styles.input}
                   style={{ width: "80px" }}
                   disabled={disabled}
                 />
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const val = Number(
-                      (document.getElementById("searchVal") as HTMLInputElement)
-                        .value
-                    );
-                    onSearchNode(val, "search");
-                  }}
-                  disabled={disabled}
-                >
-                  Search
-                </Button>
-                {isBST && (
-                  <>
-                    <Button
-                      size="sm"
-                      onClick={() => onSearchNode(0, "min")}
-                      disabled={disabled}
-                    >
-                      Min
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => onSearchNode(0, "max")}
-                      disabled={disabled}
-                    >
-                      Max
-                    </Button>
-                    {/* Floor/Ceil 需要參考輸入框的值 */}
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const val = Number(
-                          (
-                            document.getElementById(
-                              "searchVal"
-                            ) as HTMLInputElement
-                          ).value
-                        );
-                        if (!isNaN(val)) onSearchNode(val, "floor");
-                        else alert("Floor 需要輸入參考數值");
-                      }}
-                      disabled={disabled}
-                    >
-                      Floor
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const val = Number(
-                          (
-                            document.getElementById(
-                              "searchVal"
-                            ) as HTMLInputElement
-                          ).value
-                        );
-                        if (!isNaN(val)) onSearchNode(val, "ceil");
-                        else alert("Ceil 需要輸入參考數值");
-                      }}
-                      disabled={disabled}
-                    >
-                      Ceil
-                    </Button>{" "}
-                  </>
+
+                {showIndexInput && (
+                  <input
+                    type="number"
+                    placeholder="Index"
+                    value={indexValue}
+                    onChange={(e) => setIndexValue(e.target.value)}
+                    className={styles.input}
+                    style={{ width: "60px" }}
+                    disabled={disabled}
+                  />
                 )}
-              </div>
+
+                <Button size="sm" onClick={handleAdd} disabled={disabled}>
+                  {addBtnText}
+                </Button>
+
+                {showUpdateButton && (
+                  <Button
+                    size="sm"
+                    onClick={handleUpdate}
+                    disabled={disabled}
+                    style={{ marginLeft: "4px" }}
+                  >
+                    Update
+                  </Button>
+                )}
+
+                <Button size="sm" onClick={handleDelete} disabled={disabled}>
+                  {delBtnText}
+                </Button>
+
+                {showPeek && onPeek && (
+                  <Button size="sm" onClick={onPeek} disabled={disabled}>
+                    Peek
+                  </Button>
+                )}
+
+                {showSearchMode && (
+                  <div
+                    style={{
+                      marginLeft: "12px",
+                      borderLeft: "1px solid #555",
+                      paddingLeft: "12px",
+                      display: "flex",
+                      gap: "8px",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      placeholder="搜尋值"
+                      id="searchVal"
+                      className={styles.input}
+                      style={{ width: "80px" }}
+                      disabled={disabled}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const val = Number(
+                          (
+                            document.getElementById(
+                              "searchVal",
+                            ) as HTMLInputElement
+                          ).value,
+                        );
+                        onSearchNode(val, "search");
+                      }}
+                      disabled={disabled}
+                    >
+                      Search
+                    </Button>
+                    {isBST && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => onSearchNode(0, "min")}
+                          disabled={disabled}
+                        >
+                          Min
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => onSearchNode(0, "max")}
+                          disabled={disabled}
+                        >
+                          Max
+                        </Button>
+                        {/* Floor/Ceil 需要參考輸入框的值 */}
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            const val = Number(
+                              (
+                                document.getElementById(
+                                  "searchVal",
+                                ) as HTMLInputElement
+                              ).value,
+                            );
+                            if (!isNaN(val)) onSearchNode(val, "floor");
+                            else alert("Floor 需要輸入參考數值");
+                          }}
+                          disabled={disabled}
+                        >
+                          Floor
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            const val = Number(
+                              (
+                                document.getElementById(
+                                  "searchVal",
+                                ) as HTMLInputElement
+                              ).value,
+                            );
+                            if (!isNaN(val)) onSearchNode(val, "ceil");
+                            else alert("Ceil 需要輸入參考數值");
+                          }}
+                          disabled={disabled}
+                        >
+                          Ceil
+                        </Button>{" "}
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
