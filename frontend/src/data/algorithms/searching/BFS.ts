@@ -11,12 +11,22 @@ const generateGridFrame = (
   gridData: any[],
   cols: number,
   statusMap: Record<number, Status>, // Key 是 index, Value 是狀態
+  distanceMap: Record<number, number>,
   description: string,
 ): AnimationStep => {
   const elements = createGridElements(gridData, cols);
 
   elements.forEach((box, index) => {
-    if (box.value === 1) return;
+    if (box.value === 1) {
+      box.value = "wall" as any;
+      return;
+    }
+
+    if (distanceMap[index] !== undefined) {
+      box.value = distanceMap[index];
+    } else {
+      box.value = "∞" as any; // 未訪問顯示無限大
+    }
 
     if (statusMap[index]) {
       box.setStatus(statusMap[index]);
@@ -264,11 +274,18 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
   const visited = new Set<number>();
   const parentMap = new Map<number, number>(); // childIndex -> parentIndex (用於回溯路徑)
   const statusMap: Record<number, Status> = {};
+  const distanceMap: Record<number, number> = {};
 
   // 確保起點終點不是牆 (防呆)
   if (gridData[startIndex].val === 1 || gridData[endIndex].val === 1) {
     steps.push(
-      generateGridFrame(gridData, cols, {}, "起點或終點被牆壁阻擋，無法開始"),
+      generateGridFrame(
+        gridData,
+        cols,
+        {},
+        {},
+        "起點或終點被牆壁阻擋，無法開始",
+      ),
     );
     return steps;
   }
@@ -279,6 +296,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
       gridData,
       cols,
       {},
+      {},
       `準備開始 BFS，起點 (0,0)，終點 (${rows - 1},${cols - 1})`,
     ),
   );
@@ -287,6 +305,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
   let queue: number[] = [startIndex];
   visited.add(startIndex);
   statusMap[startIndex] = "target";
+  distanceMap[startIndex] = 0;
 
   let found = false;
 
@@ -313,6 +332,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
+        distanceMap,
         `當前層級遍歷：處理 ${currentLevelIndices.length} 個節點`,
       ),
     );
@@ -329,6 +349,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
     for (const currIndex of queue) {
       const r = Math.floor(currIndex / cols);
       const c = currIndex % cols;
+      const currentDist = distanceMap[currIndex];
 
       for (const [dr, dc] of directions) {
         const nr = r + dr;
@@ -344,6 +365,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
             nextQueue.push(nIndex);
             prepareIndices.push(nIndex);
             statusMap[nIndex] = "prepare"; // 標記為下階段 (Prepare)
+            distanceMap[nIndex] = currentDist + 1;
           }
         }
       }
@@ -356,6 +378,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
           gridData,
           cols,
           statusMap,
+          distanceMap,
           `發現 ${prepareIndices.length} 個鄰居，加入佇列 (黃色)`,
         ),
       );
@@ -378,6 +401,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
+        distanceMap,
         `找到終點！開始回溯最短路徑`,
       ),
     );
@@ -402,12 +426,19 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
+        distanceMap,
         `最短路徑長度：${path.length} (綠色路徑)`,
       ),
     );
   } else {
     steps.push(
-      generateGridFrame(gridData, cols, statusMap, "佇列已空，無法到達終點"),
+      generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        "佇列已空，無法到達終點",
+      ),
     );
   }
 

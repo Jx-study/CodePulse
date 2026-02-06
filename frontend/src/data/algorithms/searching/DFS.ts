@@ -12,12 +12,23 @@ const generateGridFrame = (
   gridData: any[],
   cols: number,
   statusMap: Record<number, Status>,
+  distanceMap: Record<number, number>,
   description: string,
 ): AnimationStep => {
   const elements = createGridElements(gridData, cols);
 
   elements.forEach((box, index) => {
-    if (box.value === 1) return;
+    if (box.value === 1) {
+      box.value = "wall" as any;
+      return;
+    }
+
+    if (distanceMap[index] !== undefined) {
+      box.value = distanceMap[index];
+    } else {
+      box.value = "∞" as any;
+    }
+
     if (statusMap[index]) {
       box.setStatus(statusMap[index]);
     }
@@ -261,10 +272,11 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
   const visited = new Set<number>();
   const parentMap = new Map<number, number>();
   const statusMap: Record<number, Status> = {};
+  const distanceMap: Record<number, number> = {};
 
   // 檢查起點終點
   if (gridData[startIndex].val === 1 || gridData[endIndex].val === 1) {
-    steps.push(generateGridFrame(gridData, cols, {}, "起點或終點是牆壁"));
+    steps.push(generateGridFrame(gridData, cols, {}, {}, "起點或終點是牆壁"));
     return steps;
   }
 
@@ -274,12 +286,14 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
       gridData,
       cols,
       {},
+      {},
       `DFS 準備開始 (堆疊實作)，目標：(${rows - 1}, ${cols - 1})`,
     ),
   );
 
   const stack: number[] = [startIndex];
   visited.add(startIndex);
+  distanceMap[startIndex] = 0;
   statusMap[startIndex] = "prepare"; // 在 stack 中先顯示黃色
 
   let found = false;
@@ -302,6 +316,7 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
+        distanceMap,
         `深入探索：處理節點 ${currIndex}`,
       ),
     );
@@ -310,7 +325,9 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
     if (currIndex === endIndex) {
       found = true;
       statusMap[currIndex] = "complete";
-      steps.push(generateGridFrame(gridData, cols, statusMap, "找到終點！"));
+      steps.push(
+        generateGridFrame(gridData, cols, statusMap, distanceMap, "找到終點！"),
+      );
       break;
     }
 
@@ -333,6 +350,10 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
           parentMap.set(nIndex, currIndex);
           stack.push(nIndex);
 
+          distanceMap[nIndex] =
+            distanceMap[currIndex] !== undefined
+              ? distanceMap[currIndex] + 1
+              : 1;
           statusMap[nIndex] = "prepare"; // 加入 Stack 變黃色
           addedNeighbors++;
         }
@@ -345,6 +366,7 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
           gridData,
           cols,
           statusMap,
+          distanceMap,
           `發現 ${addedNeighbors} 個未訪問鄰居，推入堆疊 (黃色)`,
         ),
       );
@@ -355,6 +377,7 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
           gridData,
           cols,
           statusMap,
+          distanceMap,
           `無路可走 (死胡同)，回溯 (Backtrack)`,
         ),
       );
@@ -382,12 +405,19 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
         gridData,
         cols,
         statusMap,
+        distanceMap,
         `DFS 搜尋結束，路徑長度：${path.length}`,
       ),
     );
   } else {
     steps.push(
-      generateGridFrame(gridData, cols, statusMap, "堆疊已空，無法到達終點"),
+      generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        "堆疊已空，無法到達終點",
+      ),
     );
   }
 
