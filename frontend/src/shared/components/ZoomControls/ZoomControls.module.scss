@@ -14,6 +14,22 @@
   }
 }
 
+.zoomDisplay {
+  @include flex(center, center, row);
+  background: rgba($dark-bg-secondary, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($white-color, 0.15);
+  border-radius: $radius-md;
+  padding: $spacing-xs $spacing-sm;
+  box-shadow: $shadow-lg;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $white-color;
+  letter-spacing: 0.5px;
+  min-width: 60px;
+  user-select: none;
+}
+
 .buttonGroup {
   @include flex(center, center, column);
   gap: $spacing-2xs;

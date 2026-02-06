@@ -80,6 +80,9 @@ function ZoomControls({
           <span className={styles.icon}>⟲</span>
         </button>
       </div>
+
+      {/* 縮放比例顯示 */}
+      <div className={styles.zoomDisplay}>{Math.round(currentZoom * 100)}%</div>
     </div>
   );
 }
