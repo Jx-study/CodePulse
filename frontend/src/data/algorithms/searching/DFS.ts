@@ -14,6 +14,7 @@ const generateGridFrame = (
   statusMap: Record<number, Status>,
   distanceMap: Record<number, number>,
   description: string,
+  showIdAsValue: boolean = false,
 ): AnimationStep => {
   const elements = createGridElements(gridData, cols);
 
@@ -23,10 +24,15 @@ const generateGridFrame = (
       return;
     }
 
-    if (distanceMap[index] !== undefined) {
-      box.value = distanceMap[index];
+    if (showIdAsValue) {
+      box.value = index;
     } else {
-      box.value = "∞" as any;
+      // 顯示距離
+      if (distanceMap[index] !== undefined) {
+        box.value = distanceMap[index];
+      } else {
+        box.value = "∞" as any; // 未訪問
+      }
     }
 
     if (statusMap[index]) {
@@ -287,7 +293,20 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
       cols,
       {},
       {},
-      `DFS 準備開始 (堆疊實作)，目標：(${rows - 1}, ${cols - 1})`,
+      `DFS 準備開始：顯示格子索引 (ID)。起點: ${startIndex}, 終點: ${endIndex}`,
+      true, // showIdAsValue = true
+    ),
+  );
+
+  // Step 1: 準備開始，數值轉為距離 (∞)
+  steps.push(
+    generateGridFrame(
+      gridData,
+      cols,
+      {},
+      {},
+      `初始化距離為 ∞`,
+      false, // 轉回顯示距離模式
     ),
   );
 
