@@ -10,6 +10,8 @@ export interface RunParams {
   mode?: "graph" | "grid";
   rows?: number;
   cols?: number;
+  startNode?: string;
+  endNode?: string;
 }
 
 interface AlgorithmActionBarProps {
@@ -22,6 +24,7 @@ interface AlgorithmActionBarProps {
   algorithmId?: string;
   viewMode: AlgorithmViewMode;
   onViewModeChange: (mode: AlgorithmViewMode) => void;
+  currentData?: any;
 }
 
 export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
@@ -34,6 +37,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   algorithmId,
   viewMode,
   onViewModeChange,
+  currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
   const [dataSize, setDataSize] = useState<number>(10);
@@ -51,6 +55,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
     "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
   );
+  const [graphStartNode, setGraphStartNode] = useState<string>("");
+  const [graphEndNode, setGraphEndNode] = useState<string>("");
 
   // 判斷演算法類型
   const isSearching = category === "searching";
@@ -77,6 +83,42 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       const r = parseInt(gridRows) || 3;
       const c = parseInt(gridCols) || 5;
       onRun({ mode: "grid", rows: r, cols: c });
+    } else if (viewMode === "graph" && isGraphAlgo) {
+      let startId = undefined;
+      let endId = undefined;
+
+      // 1. 如果使用者有輸入，進行驗證
+      if (graphStartNode !== "" || graphEndNode !== "") {
+        // 確保 currentData 存在且是 Graph 格式
+        if (!currentData || !currentData.nodes) {
+          alert("目前沒有圖形資料，無法指定起點/終點");
+          return;
+        }
+
+        const nodes = currentData.nodes as { id: string }[];
+
+        // 驗證起點
+        if (graphStartNode !== "") {
+          const targetId = `node-${graphStartNode}`;
+          if (!nodes.find((n) => n.id === targetId)) {
+            alert(`起點 node-${graphStartNode} 不存在`);
+            return;
+          }
+          startId = targetId;
+        }
+
+        // 驗證終點
+        if (graphEndNode !== "") {
+          const targetId = `node-${graphEndNode}`;
+          if (!nodes.find((n) => n.id === targetId)) {
+            alert(`終點 node-${graphEndNode} 不存在`);
+            return;
+          }
+          endId = targetId;
+        }
+      }
+
+      onRun({ mode: "graph", startNode: startId, endNode: endId });
     } else if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
@@ -497,6 +539,37 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               <option value="graph">Graph (節點圖)</option>
               <option value="grid">Grid (迷宮圖)</option>
             </select>
+          </div>
+        )}
+
+        {viewMode === "graph" && isGraphAlgo && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              marginRight: "8px",
+            }}
+          >
+            <input
+              type="text"
+              placeholder="起點(0)"
+              value={graphStartNode}
+              onChange={(e) => setGraphStartNode(e.target.value)}
+              className={styles.input}
+              style={{ width: "60px", fontSize: "12px" }}
+              disabled={disabled}
+            />
+            <span style={{ color: "#888" }}>-</span>
+            <input
+              type="text"
+              placeholder="終點(N)"
+              value={graphEndNode}
+              onChange={(e) => setGraphEndNode(e.target.value)}
+              className={styles.input}
+              style={{ width: "60px", fontSize: "12px" }}
+              disabled={disabled}
+            />
           </div>
         )}
 

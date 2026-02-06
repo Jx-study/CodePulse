@@ -255,6 +255,7 @@ function Tutorial() {
           algorithmId={topicTypeConfig?.id}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
+          currentData={logic.data}
         />
       );
     } else {
