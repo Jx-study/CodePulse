@@ -35,11 +35,26 @@ const generateGraphFrame = (
   statusMap: Record<string, Status>,
   distanceMap: Record<string, number>,
   description: string,
+  showIdAsValue: boolean = false,
 ): AnimationStep => {
   const frameElements = baseElements.map((node) => {
     const newNode = new Node();
     newNode.id = node.id;
-    newNode.value = node.value;
+
+    if (showIdAsValue) {
+      const numId = parseInt(node.id.replace("node-", ""), 10);
+      newNode.value = isNaN(numId) ? -1 : numId;
+    } else {
+      if (distanceMap[node.id] !== undefined) {
+        // 如果是 99 (無限大)，顯示 "∞"
+        newNode.value = (
+          distanceMap[node.id] === 99 ? "∞" : distanceMap[node.id]
+        ) as any;
+      } else {
+        newNode.value = 0; // 或 "∞"
+      }
+    }
+
     let x = node.position.x;
     let y = node.position.y;
     newNode.moveTo(x, y);
@@ -52,11 +67,6 @@ const generateGraphFrame = (
       newNode.setStatus("inactive");
     }
 
-    if (distanceMap[node.id] !== undefined) {
-      newNode.value = distanceMap[node.id];
-    } else {
-      newNode.value = 0;
-    }
     return newNode;
   });
 
@@ -86,27 +96,39 @@ function runGraphBFS(
   const nodeMap = new Map<string, Node>();
   baseElements.forEach((node) => nodeMap.set(node.id, node));
 
+  const sortedIds = baseElements.map((n) => n.id).sort();
+
   // 決定起點與終點
   // 若未指定，預設第一個節點為起點，最後一個節點為終點
-  const realStartId =
-    startId && nodeMap.has(startId) ? startId : baseElements[0].id;
+  const realStartId = startId && nodeMap.has(startId) ? startId : sortedIds[0];
   const realEndId =
-    endId && nodeMap.has(endId)
-      ? endId
-      : baseElements[baseElements.length - 1].id;
+    endId && nodeMap.has(endId) ? endId : sortedIds[sortedIds.length - 1];
 
   const statusMap: Record<string, Status> = {};
   const distanceMap: Record<string, number> = {}; // 記錄每個節點的層數 (距離)
   const visited = new Set<string>();
   const parentMap = new Map<string, string>(); // child -> parent (用於回溯)
 
-  // 初始畫面
+  baseElements.forEach((n) => (distanceMap[n.id] = 99));
+
+  // Step 0: 初始畫面 (顯示 ID)
   steps.push(
     generateGraphFrame(
       baseElements,
       {},
+      distanceMap,
+      `Graph 初始化完成 (顯示 ID)，起點: ${realStartId}, 終點: ${realEndId}`,
+      true, // showIdAsValue = true
+    ),
+  );
+
+  // Step 1: 準備開始，數值轉為距離 (∞)
+  steps.push(
+    generateGraphFrame(
+      baseElements,
       {},
-      `Graph 初始化完成，起點: ${realStartId}, 終點: ${realEndId}`,
+      distanceMap,
+      `準備開始 BFS，初始化距離為 ∞`,
     ),
   );
 
