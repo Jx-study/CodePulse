@@ -267,14 +267,19 @@ function runGraphBFS(
 }
 
 // 迷宮最短路徑
-function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
+function runGridBFS(
+  gridData: any,
+  cols: number = 5,
+  startId?: string,
+  endId?: string,
+): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
   if (!Array.isArray(gridData) || gridData.length === 0) return steps;
 
   const rows = Math.ceil(gridData.length / cols);
-  const startIndex = 0; // 起點暫定 (0,0)
-  const endIndex = gridData.length - 1; // 終點暫定 (最後一格)
+  const startIndex = startId ? parseInt(startId) : 0;
+  const endIndex = endId ? parseInt(endId) : gridData.length - 1;
 
   // 狀態記錄
   const visited = new Set<number>();
@@ -291,6 +296,7 @@ function runGridBFS(gridData: any, cols: number = 5): AnimationStep[] {
         {},
         {},
         "起點或終點被牆壁阻擋，無法開始",
+        true,
       ),
     );
     return steps;
@@ -468,12 +474,13 @@ export function createBFSAnimationSteps(
   inputData: any[],
   action?: any,
 ): AnimationStep[] {
-  if (action?.mode === "grid") {
-    const gridCols = action?.cols || 5;
-    return runGridBFS(inputData, gridCols);
-  }
   const startNodeId = action?.startNode;
   const endNodeId = action?.endNode;
+
+  if (action?.mode === "grid") {
+    const gridCols = action?.cols || 5;
+    return runGridBFS(inputData, gridCols, startNodeId, endNodeId);
+  }
 
   return runGraphBFS(inputData, startNodeId, endNodeId);
 }

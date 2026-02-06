@@ -266,14 +266,19 @@ function runGraphDFS(
 }
 
 // 迷宮最短路徑
-function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
+function runGridDFS(
+  gridData: any,
+  cols: number = 5,
+  startId?: string,
+  endId?: string,
+): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
   if (!Array.isArray(gridData) || gridData.length === 0) return steps;
 
   const rows = Math.ceil(gridData.length / cols);
-  const startIndex = 0;
-  const endIndex = gridData.length - 1;
+  const startIndex = startId ? parseInt(startId) : 0;
+  const endIndex = endId ? parseInt(endId) : gridData.length - 1;
 
   const visited = new Set<number>();
   const parentMap = new Map<number, number>();
@@ -282,7 +287,9 @@ function runGridDFS(gridData: any, cols: number = 5): AnimationStep[] {
 
   // 檢查起點終點
   if (gridData[startIndex].val === 1 || gridData[endIndex].val === 1) {
-    steps.push(generateGridFrame(gridData, cols, {}, {}, "起點或終點是牆壁"));
+    steps.push(
+      generateGridFrame(gridData, cols, {}, {}, "起點或終點是牆壁", true),
+    );
     return steps;
   }
 
@@ -447,12 +454,13 @@ export function createDFSAnimationSteps(
   inputData: any[],
   action?: any,
 ): AnimationStep[] {
-  if (action?.mode === "grid") {
-    const gridCols = action?.cols || 5;
-    return runGridDFS(inputData, gridCols);
-  }
   const startNodeId = action?.startNode;
   const endNodeId = action?.endNode;
+
+  if (action?.mode === "grid") {
+    const gridCols = action?.cols || 5;
+    return runGridDFS(inputData, gridCols, startNodeId, endNodeId);
+  }
 
   return runGraphDFS(inputData, startNodeId, endNodeId);
 }

@@ -55,8 +55,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
     "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
   );
-  const [graphStartNode, setGraphStartNode] = useState<string>("");
-  const [graphEndNode, setGraphEndNode] = useState<string>("");
+  const [graphStartElement, setgraphStartElement] = useState<string>("");
+  const [graphEndElement, setgraphEndElement] = useState<string>("");
+
+  const [gridStartElement, setGridStartElement] = useState<string>("");
+  const [gridEndElement, setGridEndElement] = useState<string>("");
 
   // 判斷演算法類型
   const isSearching = category === "searching";
@@ -80,15 +83,68 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
   const handleRun = () => {
     if (viewMode === "grid" && isGraphAlgo) {
+      let startId = undefined;
+      let endId = undefined;
+
+      // 1. 如果使用者有輸入，進行驗證
+      if (gridStartElement !== "" || gridEndElement !== "") {
+        // 確保 currentData 存在且是 Graph 格式
+        if (!currentData || !Array.isArray(currentData)) {
+          alert("目前沒有圖形資料，無法指定起點/終點");
+          return;
+        }
+
+        const maxIndex = currentData.length - 1;
+
+        // 驗證起點
+        if (gridStartElement !== "") {
+          const s = parseInt(gridStartElement, 10);
+
+          // 檢查範圍
+          if (isNaN(s) || s < 0 || s > maxIndex) {
+            alert(`起點索引 ${s} 超出範圍 (0 ~ ${maxIndex})`);
+            return;
+          }
+          // 檢查是否為牆壁
+          if (currentData[s].val === "wall") {
+            alert(`起點索引 ${s} 是牆壁，無法通行`);
+            return;
+          }
+          startId = s.toString();
+        }
+
+        // 驗證終點
+        if (gridEndElement !== "") {
+          const e = parseInt(gridEndElement, 10);
+
+          if (isNaN(e) || e < 0 || e > maxIndex) {
+            alert(`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
+            return;
+          }
+          if (currentData[e].val === 1) {
+            alert(`終點索引 ${e} 是牆壁，無法通行`);
+            return;
+          }
+          endId = e.toString();
+        }
+      }
+
       const r = parseInt(gridRows) || 3;
       const c = parseInt(gridCols) || 5;
-      onRun({ mode: "grid", rows: r, cols: c });
+
+      onRun({
+        mode: "grid",
+        rows: r,
+        cols: c,
+        startNode: startId,
+        endNode: endId,
+      });
     } else if (viewMode === "graph" && isGraphAlgo) {
       let startId = undefined;
       let endId = undefined;
 
       // 1. 如果使用者有輸入，進行驗證
-      if (graphStartNode !== "" || graphEndNode !== "") {
+      if (graphStartElement !== "" || graphEndElement !== "") {
         // 確保 currentData 存在且是 Graph 格式
         if (!currentData || !currentData.nodes) {
           alert("目前沒有圖形資料，無法指定起點/終點");
@@ -98,20 +154,20 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         const nodes = currentData.nodes as { id: string }[];
 
         // 驗證起點
-        if (graphStartNode !== "") {
-          const targetId = `node-${graphStartNode}`;
+        if (graphStartElement !== "") {
+          const targetId = `node-${graphStartElement}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`起點 node-${graphStartNode} 不存在`);
+            alert(`起點 node-${graphStartElement} 不存在`);
             return;
           }
           startId = targetId;
         }
 
         // 驗證終點
-        if (graphEndNode !== "") {
-          const targetId = `node-${graphEndNode}`;
+        if (graphEndElement !== "") {
+          const targetId = `node-${graphEndElement}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`終點 node-${graphEndNode} 不存在`);
+            alert(`終點 node-${graphEndElement} 不存在`);
             return;
           }
           endId = targetId;
@@ -542,7 +598,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
         )}
 
-        {viewMode === "graph" && isGraphAlgo && (
+        {isGraphAlgo && (
           <div
             style={{
               display: "flex",
@@ -554,8 +610,14 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             <input
               type="text"
               placeholder="起點(0)"
-              value={graphStartNode}
-              onChange={(e) => setGraphStartNode(e.target.value)}
+              value={
+                viewMode === "graph" ? graphStartElement : gridStartElement
+              }
+              onChange={(e) =>
+                viewMode === "graph"
+                  ? setgraphStartElement(e.target.value)
+                  : setGridStartElement(e.target.value)
+              }
               className={styles.input}
               style={{ width: "60px", fontSize: "12px" }}
               disabled={disabled}
@@ -564,8 +626,12 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             <input
               type="text"
               placeholder="終點(N)"
-              value={graphEndNode}
-              onChange={(e) => setGraphEndNode(e.target.value)}
+              value={viewMode === "graph" ? graphEndElement : gridEndElement}
+              onChange={(e) =>
+                viewMode === "graph"
+                  ? setgraphEndElement(e.target.value)
+                  : setGridEndElement(e.target.value)
+              }
               className={styles.input}
               style={{ width: "60px", fontSize: "12px" }}
               disabled={disabled}
