@@ -1,0 +1,64 @@
+@import '@/shared/styles/variables';
+@import '@/shared/styles/mixins';
+
+// Top Section - Resizable Panels Layout
+.topSection {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  margin-bottom: $spacing-xl;
+  height: calc(100vh - var(--header-height) - $spacing-xl);
+  min-height: 37.5rem; // 600px
+
+  > div {
+    height: 100%;
+  }
+
+  @media (max-width: $tablet) {
+    padding: 0 $spacing-md;
+    min-height: 50rem; // 800px - 垂直布局需要更高
+  }
+}
+
+// Right Panel Container
+.rightPanel {
+  @include flex($direction: column);
+  height: 100%;
+
+  // 確保內部垂直 Group 撐滿容器
+  > div {
+    height: 100%;
+  }
+}
+
+// Pseudo Code Section
+.pseudoCodeSection {
+  @include flex($direction: column);
+  height: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  .pseudoCodeEditor {
+    flex: 1;
+    overflow: auto;
+    min-height: 12.5rem; // 200px
+  }
+}
+
+// Drag Overlay
+.dragOverlay {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: $font-lg;
+  min-width: 200px;
+  text-align: center;
+  cursor: grabbing;
+}

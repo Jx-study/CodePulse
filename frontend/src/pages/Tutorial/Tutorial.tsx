@@ -1,23 +1,19 @@
-import { useState, useEffect, useMemo, useRef, Fragment } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Panel, Group, PanelImperativeHandle } from "react-resizable-panels";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import { SmartPointerSensor } from "@/shared/utils/SmartPointerSensor";
-import { SortableContext, horizontalListSortingStrategy, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { Panel, PanelImperativeHandle } from "react-resizable-panels";
+import { DragEndEvent } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button/Button";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
+import PanelHeader  from "./components/PanelHeader";
+import { PANEL_REGISTRY } from "./components/PanelRegistry";
+import type { TabConfig } from "@/shared/components/Tabs";
+import TopSection from "./components/TopSection";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
@@ -26,8 +22,6 @@ import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
-import { ResizeHandle } from "./components/ResizeHandle/ResizeHandle";
-import { PanelHeader } from "./components/PanelHeader/PanelHeader";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 
 // ==================== Canvas Panel Component ====================
@@ -36,14 +30,14 @@ interface CanvasPanelProps {
   isCanvasPanelCollapsed: boolean;
   setIsCanvasPanelCollapsed: (collapsed: boolean) => void;
   handleToggleCanvasPanel: () => void;
-  isControlBarCollapsed: boolean;
-  handleToggleControlBar: () => void;
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
+
+  // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;
@@ -62,8 +56,6 @@ const CanvasPanel = ({
   isCanvasPanelCollapsed,
   setIsCanvasPanelCollapsed,
   handleToggleCanvasPanel,
-  isControlBarCollapsed,
-  handleToggleControlBar,
   isMobile,
   canvasContainerRef,
   currentStepData,
@@ -106,6 +98,7 @@ const CanvasPanel = ({
 
   return (
     <Panel
+      id="canvas-panel"
       defaultSize={80}
       minSize="50%"
       collapsible
@@ -141,95 +134,27 @@ const CanvasPanel = ({
             <div className={styles.stepDescription}>
               {currentStepData?.description}
             </div>
-            <div className={styles.controlBarSection}>
-              <PanelHeader
-                title="播放控制"
-                collapsible
-                isCollapsed={isControlBarCollapsed}
-                onToggleCollapse={handleToggleControlBar}
-              />
-              {!isControlBarCollapsed && (
-                <div className={styles.controlBarContainer}>
-                  <ControlBar
-                    isPlaying={isPlaying}
-                    currentStep={currentStep}
-                    totalSteps={activeStepsLength}
-                    playbackSpeed={playbackSpeed}
-                    onPlay={handlePlay}
-                    onPause={handlePause}
-                    onNext={handleNext}
-                    onPrev={handlePrev}
-                    onReset={handleReset}
-                    onSpeedChange={setPlaybackSpeed}
-                    onStepChange={handleStepChange}
-                  />
-                </div>
-              )}
-            </div>
+
+            {/* ControlBar 直接渲染,無 PanelHeader */}
+            <ControlBar
+              isPlaying={isPlaying}
+              currentStep={currentStep}
+              totalSteps={activeStepsLength}
+              playbackSpeed={playbackSpeed}
+              onPlay={handlePlay}
+              onPause={handlePause}
+              onNext={handleNext}
+              onPrev={handlePrev}
+              onReset={handleReset}
+              onSpeedChange={setPlaybackSpeed}
+              onStepChange={handleStepChange}
+            />
           </>
         )}
       </div>
     </Panel>
   );
 };
-
-// ==================== Action Bar Panel Component ====================
-interface ActionBarPanelProps {
-  isActionBarCollapsed: boolean;
-  handleToggleActionBar: () => void;
-  isMobile: boolean;
-  renderActionBar: () => React.ReactNode;
-}
-
-const ActionBarPanel = ({
-  isActionBarCollapsed,
-  handleToggleActionBar,
-  isMobile,
-  renderActionBar,
-}: ActionBarPanelProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: "actionBar" });
-
-  const dragHandleProps = {
-    ref: setActivatorNodeRef,
-    ...attributes,
-    ...listeners,
-  };
-
-  const sortableStyle = {
-    transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 200ms ease',
-    opacity: isDragging ? 0 : 1,
-  };
-
-  return (
-    <Panel defaultSize={20} minSize="10%">
-      <div ref={setNodeRef} style={sortableStyle} className={styles.actionPanel}>
-        <PanelHeader
-          title="資料操作"
-          collapsible
-          isCollapsed={isActionBarCollapsed}
-          onToggleCollapse={handleToggleActionBar}
-          draggable={!isMobile}
-          dragHandleProps={dragHandleProps}
-        />
-        {!isActionBarCollapsed && (
-          <div className={styles.actionBarContainer}>
-            {renderActionBar()}
-          </div>
-        )}
-      </div>
-    </Panel>
-  );
-};
-
 function TutorialContent() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
@@ -238,15 +163,22 @@ function TutorialContent() {
   const { mainPanelOrder, rightPanelOrder, swapMainPanels, reorderRightPanels } = usePanelContext();
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
+  // Debug: Log panel order
+  useEffect(() => {
+    console.log('Tutorial Debug - Panel Order:', {
+      mainPanelOrder,
+      rightPanelOrder,
+    });
+  }, [mainPanelOrder, rightPanelOrder]);
+
   // Panel refs for programmatic control
   const leftPanelRef = useRef<PanelImperativeHandle>(null);
   const canvasPanelRef = useRef<PanelImperativeHandle>(null);
+  const inspectorPanelRef = useRef<PanelImperativeHandle>(null);
 
   // Collapse states
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [isCanvasPanelCollapsed, setIsCanvasPanelCollapsed] = useState(false);
-  const [isControlBarCollapsed, setIsControlBarCollapsed] = useState(false);
-  const [isActionBarCollapsed, setIsActionBarCollapsed] = useState(false);
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -503,23 +435,7 @@ function TutorialContent() {
     }
   };
 
-  const handleToggleControlBar = () => {
-    setIsControlBarCollapsed((prev) => !prev);
-  };
-
-  const handleToggleActionBar = () => {
-    setIsActionBarCollapsed((prev) => !prev);
-  };
-
   // Drag and Drop handlers
-  const sensors = useSensors(
-    useSensor(SmartPointerSensor, {
-      activationConstraint: {
-        distance: 8,  // 需要移動 8 像素才能觸發拖曳
-      },
-    })
-  );
-
   const handleDragStart = (event: any) => {
     setActiveDragId(event.active.id);
   };
@@ -592,6 +508,64 @@ function TutorialContent() {
     return <div>此主題暫無操作介面</div>;
   };
 
+  // ==================== Inspector Panel Component ====================
+  const InspectorPanelInternal = () => {
+    const { activePanels } = usePanelContext();
+    const [activeInspectorTab, setActiveInspectorTab] = useState<string>("actionBar");
+
+    // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
+    const inspectorTabs: TabConfig[] = useMemo(() => {
+      return Object.values(PANEL_REGISTRY)
+        .filter(config => config.isTab && config.tabGroup === "inspector")
+        .filter(config => activePanels.includes(config.id))
+        .map(config => ({
+          key: config.id,
+          label: config.title,
+          icon: config.icon,
+        }));
+    }, [activePanels]);
+
+    // 拖拽邏輯
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+      useSortable({ id: "inspector", disabled: isMobile });
+
+    const sortableStyle = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    // 渲染當前 Tab 的內容
+    const renderTabContent = () => {
+      switch (activeInspectorTab) {
+        case 'actionBar':
+          return <div className={styles.tabContent}>{renderActionBar()}</div>;
+        case 'variableStatus':
+          return <div className={styles.tabContent}>變數狀態面板 - 即將推出</div>;
+        case 'callStack':
+          return <div className={styles.tabContent}>Call Stack 面板 - 即將推出</div>;
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <div ref={setNodeRef} style={sortableStyle} {...attributes} className={styles.inspectorPanel}>
+        <PanelHeader
+          title="資訊面板"
+          draggable={!isMobile}
+          dragHandleProps={listeners}
+          tabs={inspectorTabs}
+          activeTab={activeInspectorTab}
+          onTabChange={setActiveInspectorTab}
+        />
+        <div className={styles.tabContentArea}>
+          {renderTabContent()}
+        </div>
+      </div>
+    );
+  };
+
   const breadcrumbItems: BreadcrumbItem[] = [
     {
       label: topicTypeConfig.categoryName,
@@ -627,8 +601,6 @@ function TutorialContent() {
     isCanvasPanelCollapsed,
     setIsCanvasPanelCollapsed,
     handleToggleCanvasPanel,
-    isControlBarCollapsed,
-    handleToggleControlBar,
     isMobile,
     canvasContainerRef,
     currentStepData,
@@ -648,206 +620,44 @@ function TutorialContent() {
     handleStepChange,
   };
 
-  // Props for ActionBarPanel
-  const actionBarPanelProps: ActionBarPanelProps = {
-    isActionBarCollapsed,
-    handleToggleActionBar,
-    isMobile,
-    renderActionBar,
-  };
-
   return (
     <div className={styles.tutorialPage}>
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
         {!isMobile && (
-          <Button
-            variant="secondary"
-            className={styles.swapButton}
-            onClick={swapMainPanels}
-            title="交換左右面板"
-            icon="right-left"
-          >
-             交換佈局
-          </Button>
+          <div className={styles.buttonGroup}>
+            <Button
+              variant="secondary"
+              className={styles.swapButton}
+              onClick={swapMainPanels}
+              title="交換左右面板"
+              icon="right-left"
+            >
+               交換佈局
+            </Button>
+          </div>
         )}
       </div>
 
-      <div className={styles.topSection}>
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <SortableContext
-            items={mainPanelOrder}
-            strategy={horizontalListSortingStrategy}
-          >
-            <Group
-              orientation={isMobile ? "vertical" : "horizontal"}
-              id="tutorial-layout-h-v1"
-            >
-              {mainPanelOrder[0] === "codeEditor" ? (
-                <>
-                  <Panel
-                    key="codeEditor"
-                    defaultSize={isMobile ? 30 : 35}
-                    minSize="20%"
-                    collapsible
-                    panelRef={leftPanelRef}
-                    onResize={() => {
-                      setIsLeftPanelCollapsed(
-                        leftPanelRef.current?.isCollapsed() ?? false,
-                      );
-                    }}
-                  >
-                    <div className={styles.pseudoCodeSection}>
-                      <PanelHeader title="Pseudo Code" />
-                      <div className={styles.pseudoCodeEditor}>
-                        <CodeEditor
-                          key={`editor-${mainPanelOrder.join('-')}`}
-                          mode="single"
-                          language="python"
-                          value={topicTypeConfig?.pseudoCode || ''}
-                          readOnly={true}
-                          theme="auto"
-                        />
-                      </div>
-                    </div>
-                  </Panel>
-
-                  <ResizeHandle
-                    direction={isMobile ? "vertical" : "horizontal"}
-                    onDoubleClick={handleToggleLeftPanel}
-                    showCollapseButton={!isMobile}
-                    isCollapsed={isLeftPanelCollapsed}
-                    onToggleCollapse={handleToggleLeftPanel}
-                    collapseButtonPosition="end"
-                    collapseDirection="left"
-                  />
-
-                  <Panel key="rightPanel" defaultSize={isMobile ? 70 : 65} minSize={isMobile ? "50%" : "60%"}>
-                    <div className={styles.rightPanel}>
-                      <SortableContext
-                        items={rightPanelOrder}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <Group orientation="vertical" id="tutorial-layout-v-v1">
-                          {rightPanelOrder.map((panelId, index) => {
-                            if (panelId === "canvas") {
-                              return (
-                                <Fragment key={panelId}>
-                                  <CanvasPanel {...canvasPanelProps} />
-                                  {index < rightPanelOrder.length - 1 && (
-                                    <ResizeHandle
-                                      direction="vertical"
-                                      onDoubleClick={handleToggleCanvasPanel}
-                                    />
-                                  )}
-                                </Fragment>
-                              );
-                            } else if (panelId === "actionBar") {
-                              return <ActionBarPanel key="actionBar" {...actionBarPanelProps} />;
-                            }
-                            return null;
-                          })}
-                        </Group>
-                      </SortableContext>
-                    </div>
-                  </Panel>
-                </>
-              ) : (
-                <>
-                  <Panel key="rightPanel" defaultSize={isMobile ? 70 : 65} minSize={isMobile ? "50%" : "60%"}>
-                    <div className={styles.rightPanel}>
-                      <SortableContext
-                        items={rightPanelOrder}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <Group orientation="vertical" id="tutorial-layout-v-v1">
-                          {rightPanelOrder.map((panelId, index) => {
-                            if (panelId === "canvas") {
-                              return (
-                                <Fragment key={panelId}>
-                                  <CanvasPanel {...canvasPanelProps} />
-                                  {index < rightPanelOrder.length - 1 && (
-                                    <ResizeHandle
-                                      direction="vertical"
-                                      onDoubleClick={handleToggleCanvasPanel}
-                                    />
-                                  )}
-                                </Fragment>
-                              );
-                            } else if (panelId === "actionBar") {
-                              return <ActionBarPanel key="actionBar" {...actionBarPanelProps} />;
-                            }
-                            return null;
-                          })}
-                        </Group>
-                      </SortableContext>
-                    </div>
-                  </Panel>
-
-                  <ResizeHandle
-                    direction={isMobile ? "vertical" : "horizontal"}
-                    onDoubleClick={handleToggleLeftPanel}
-                    showCollapseButton={!isMobile}
-                    isCollapsed={isLeftPanelCollapsed}
-                    onToggleCollapse={handleToggleLeftPanel}
-                    collapseButtonPosition="start"
-                    collapseDirection="right"
-                  />
-
-                  <Panel
-                    key="codeEditor"
-                    defaultSize={isMobile ? 30 : 30}
-                    minSize="20%"
-                    collapsible
-                    panelRef={leftPanelRef}
-                    onResize={() => {
-                      setIsLeftPanelCollapsed(
-                        leftPanelRef.current?.isCollapsed() ?? false,
-                      );
-                    }}
-                  >
-                    <div className={styles.pseudoCodeSection}>
-                      <PanelHeader title="Pseudo Code" />
-                      <div className={styles.pseudoCodeEditor}>
-                        <CodeEditor
-                          key={`editor-${mainPanelOrder.join('-')}`}
-                          mode="single"
-                          language="python"
-                          value={topicTypeConfig?.pseudoCode || ''}
-                          readOnly={true}
-                          theme="auto"
-                        />
-                      </div>
-                    </div>
-                  </Panel>
-                </>
-              )}
-            </Group>
-          </SortableContext>
-
-          <DragOverlay dropAnimation={null}>
-            {activeDragId ? (
-              <div className={styles.dragOverlay}>
-                <PanelHeader
-                  title={activeDragId === "canvas" ? "視覺化動畫" : "資料操作"}
-                  draggable={true}
-                  dragHandleProps={{
-                    style: {
-                      touchAction: 'none',
-                      cursor: 'grabbing',
-                    }
-                  }}
-                />
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      </div>
+      <TopSection
+        activeDragId={activeDragId}
+        mainPanelOrder={mainPanelOrder}
+        rightPanelOrder={rightPanelOrder}
+        handleDragStart={handleDragStart}
+        handleDragEnd={handleDragEnd}
+        handleDragCancel={handleDragCancel}
+        isMobile={isMobile}
+        leftPanelRef={leftPanelRef}
+        canvasPanelRef={canvasPanelRef}
+        inspectorPanelRef={inspectorPanelRef}
+        CanvasPanel={CanvasPanel}
+        canvasPanelProps={canvasPanelProps}
+        InspectorPanelInternal={InspectorPanelInternal}
+        isLeftPanelCollapsed={isLeftPanelCollapsed}
+        handleToggleLeftPanel={handleToggleLeftPanel}
+        handleToggleCanvasPanel={handleToggleCanvasPanel}
+        topicTypeConfig={topicTypeConfig}
+      />
 
       {/* Algorithm Info Section - Bottom */}
       <div className={styles.algorithmInfoSection}>

@@ -1,5 +1,4 @@
 .tutorialPage {
-  min-height: calc(100vh - 64px);
   background: var(--bg-primary);
 }
 
@@ -11,6 +10,12 @@
   align-items: center;
   justify-content: space-between;
   gap: $spacing-md;
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
 }
 
 .swapButton {
@@ -55,9 +60,9 @@
 .topSection {
   width: 100%;
   margin: 0 auto;
-  padding: 0 $spacing-lg;
+  padding: 0;
   margin-bottom: $spacing-xl;
-  height: calc(100vh - 64px - 6rem); // 扣除 header + breadcrumb + 底部間距
+  height: calc(100vh - var(--header-height) - $spacing-xl);
   min-height: 37.5rem; // 600px
 
   > div {
@@ -66,13 +71,11 @@
 
   @media (max-width: $tablet) {
     padding: 0 $spacing-md;
-    height: calc(100vh - 64px - 4rem);
     min-height: 50rem; // 800px - 垂直布局需要更高
   }
 
   @media (max-width: $mobile) {
     height: auto; // 移動端使用自動高度
-    min-height: unset;
   }
 }
 
@@ -86,31 +89,7 @@
   }
 }
 
-.actionPanel {
-  @include flex($direction: column);
-  height: 100%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  .actionBarContainer {
-    flex: 1;
-    padding: $spacing-md;
-    overflow-y: auto;
-  }
-}
-
-.controlBarSection {
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-tertiary);
-  flex-shrink: 0;
-}
-
-.controlBarContainer {
-  padding: $spacing-md;
-}
+// 移除 .actionPanel, .controlBarSection, .controlBarContainer (不再使用)
 
 // Section Header 通用樣式
 .sectionHeader {
@@ -229,6 +208,10 @@
   border-radius: $radius-lg;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  // 啟用容器查詢支持 (為 ControlBar 的 @container 查詢)
+  container-type: size;
+  container-name: canvas-panel;
 }
 
 .visualizationArea {
@@ -250,7 +233,7 @@
   font-size: $font-sm;
   color: var(--text-secondary);
   font-weight: 500;
-  min-height: 3rem; // 48px
+  min-height: 2.5rem; // 減少高度 (原 3rem)
   flex-shrink: 0;
   @include flex($align: center);
 }
@@ -268,4 +251,33 @@
     flex-direction: column;
     padding: 0 $spacing-md;
   }
+}
+
+// ==================== Inspector Panel ====================
+.inspectorPanel {
+  @include flex($direction: column);
+  height: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 0;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.tabContentArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabContent {
+  height: 100%;
+  overflow-y: auto;
 }
