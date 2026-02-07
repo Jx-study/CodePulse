@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button";
-import FormField from "@/shared/components/FormField";
+import Input from "@/shared/components/Input";
+import Select from "@/shared/components/Select";
 import styles from "./DataActionBar.module.scss";
 
 // 定義支援的結構類型
@@ -131,14 +132,14 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     >
       {/* 第一行：資料控制 (DataManager) */}
       <div className={styles.actionGroup}>
-        <FormField
+        <Input
           type="text"
           placeholder="10,40,30..."
           value={bulkInput}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBulkInput(e.target.value)}
-          inputClassName={styles.input}
-          className={styles.formFieldWrapper}
+          className={styles.input}
           disabled={disabled}
+          fullWidth={false}
           aria-label="Bulk data input"
         />
         <Button
@@ -157,7 +158,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
         <div className={styles.settingItem}>
           <label className={styles.staticLabel}>最大筆數: </label>
-          <FormField
+          <Input
             type="number"
             value={maxNodes}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,19 +166,17 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               setMaxNodes(v);
               onMaxNodesChange(v);
             }}
-            inputClassName={styles.input}
-            className={styles.formFieldWrapper}
+            className={styles.input}
             disabled={disabled}
+            fullWidth={false}
             aria-label="Maximum nodes"
           />
         </div>
 
         {showTailMode && (
-          <FormField
-            type="select"
+          <Select
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onTailModeChange(e.target.value === "hasTail")}
-            inputClassName={styles.select}
-            className={styles.formFieldWrapper}
+            className={styles.select}
             disabled={disabled}
             options={[
               { value: "noTail", label: "無 tail 模式" },
@@ -243,12 +242,10 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         ) : (
           <>
             {structureType === "linkedlist" && (
-              <FormField
-                type="select"
+              <Select
                 value={insertMode}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setInsertMode(e.target.value)}
-                inputClassName={styles.select}
-                className={styles.formFieldWrapper}
+                className={styles.select}
                 disabled={disabled}
                 options={[
                   { value: "Head", label: "Head" },
@@ -259,26 +256,26 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               />
             )}
 
-            <FormField
+            <Input
               type="number"
               placeholder="數值"
               value={inputValue}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-              inputClassName={styles.input}
-              className={styles.formFieldWrapper}
+              className={styles.input}
               disabled={disabled}
+              fullWidth={false}
               aria-label="Node value"
             />
 
             {showIndexInput && (
-              <FormField
+              <Input
                 type="number"
                 placeholder="Index"
                 value={indexValue}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIndexValue(e.target.value)}
-                inputClassName={styles.input}
-                className={styles.formFieldWrapper}
+                className={styles.input}
                 disabled={disabled}
+                fullWidth={false}
                 aria-label="Node index"
               />
             )}
@@ -318,15 +315,15 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                   gap: "8px",
                 }}
               >
-                <FormField
+                <Input
                   type="number"
                   placeholder="搜尋值"
                   id="searchVal"
-                  value=""
+                  defaultValue=""
                   onChange={() => {}}
-                  inputClassName={styles.input}
-                  className={styles.formFieldWrapper}
+                  className={styles.input}
                   disabled={disabled}
+                  fullWidth={false}
                   aria-label="Search value"
                 />
                 <Button

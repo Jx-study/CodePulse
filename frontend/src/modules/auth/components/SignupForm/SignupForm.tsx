@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/AuthForm.module.scss";
 import Button from "@/shared/components/Button";
+import FormItem from "@/shared/components/FormItem";
+import Input from "@/shared/components/Input";
 
 interface SignupFormData {
   username: string;
@@ -28,6 +30,7 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<SignupFormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,6 +46,14 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
         [name]: "",
       }));
     }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
   };
 
   const validateForm = () => {
@@ -91,85 +102,106 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
     }
   };
 
+  // 檢查是否有成功狀態
+  const isUsernameValid = touched.username && !errors.username && formData.username.length >= 3;
+  const isEmailValid = touched.email && !errors.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+  const isPasswordValid = touched.password && !errors.password && formData.password.length >= 6;
+  const isConfirmPasswordValid = touched.confirmPassword && !errors.confirmPassword && formData.confirmPassword === formData.password;
+
   return (
     <div className={styles.formContent}>
       <h2>{t("register")}</h2>
       <form onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label htmlFor="username">用戶名</label>
-          <input
+        <FormItem
+          label="用戶名"
+          error={errors.username}
+          success={isUsernameValid}
+          successMessage={isUsernameValid ? "用戶名可用" : undefined}
+          tooltip="用戶名只能包含字母、數字和下劃線，至少3個字符"
+          maxLength={20}
+          currentLength={formData.username.length}
+          showCharCount={formData.username.length > 0}
+          required
+          htmlFor="username"
+        >
+          <Input
             type="text"
-            id="username"
             name="username"
             value={formData.username}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="請輸入用戶名"
-            className={errors.username ? styles.error : ""}
+            hasError={!!errors.username}
             disabled={disabled}
             required
           />
-          {errors.username && (
-            <span className={styles.errorMessage}>{errors.username}</span>
-          )}
-        </div>
+        </FormItem>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="email">信箱</label>
-          <input
+        <FormItem
+          label="信箱"
+          error={errors.email}
+          success={isEmailValid}
+          successMessage={isEmailValid ? "信箱格式正確" : undefined}
+          tooltip="請使用有效的電子郵件地址進行註冊"
+          required
+          htmlFor="email"
+        >
+          <Input
             type="email"
-            id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="請輸入信箱"
-            className={errors.email ? styles.error : ""}
+            hasError={!!errors.email}
             disabled={disabled}
             autoComplete="email"
             required
           />
-          {errors.email && (
-            <span className={styles.errorMessage}>{errors.email}</span>
-          )}
-        </div>
+        </FormItem>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="signupPassword">密碼</label>
-          <input
+        <FormItem
+          label="密碼"
+          error={errors.password}
+          success={isPasswordValid}
+          helperText={!errors.password && !isPasswordValid ? "密碼必須包含大小寫字母和數字，至少6個字符" : undefined}
+          required
+          htmlFor="password"
+        >
+          <Input
             type="password"
-            id="signupPassword"
             name="password"
             value={formData.password}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="請輸入密碼"
-            className={errors.password ? styles.error : ""}
+            hasError={!!errors.password}
             disabled={disabled}
             autoComplete="new-password"
             required
           />
-          {errors.password && (
-            <span className={styles.errorMessage}>{errors.password}</span>
-          )}
-        </div>
+        </FormItem>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="confirmPassword">確認密碼</label>
-          <input
+        <FormItem
+          label="確認密碼"
+          error={errors.confirmPassword}
+          success={isConfirmPasswordValid}
+          successMessage={isConfirmPasswordValid ? "密碼一致" : undefined}
+          required
+          htmlFor="confirmPassword"
+        >
+          <Input
             type="password"
-            id="confirmPassword"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
+            onBlur={handleBlur}
             placeholder="請再次輸入密碼"
-            className={errors.confirmPassword ? styles.error : ""}
+            hasError={!!errors.confirmPassword}
             disabled={disabled}
             required
           />
-          {errors.confirmPassword && (
-            <span className={styles.errorMessage}>
-              {errors.confirmPassword}
-            </span>
-          )}
-        </div>
+        </FormItem>
 
         <Button type="submit" variant="primary" fullWidth disabled={disabled}>
           {t("register")}

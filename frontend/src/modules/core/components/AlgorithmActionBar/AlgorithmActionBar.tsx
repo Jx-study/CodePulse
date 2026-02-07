@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button";
-import FormField from "@/shared/components/FormField";
+import Input from "@/shared/components/Input";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
 interface AlgorithmActionBarProps {
@@ -95,14 +95,14 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
     <div className={styles.dataActionBarContainer}>
       {/* 第一行：資料生成 */}
       <div className={styles.actionGroup}>
-        <FormField
+        <Input
           type="text"
           placeholder="3,5,8,10..."
           value={bulkInput}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBulkInput(e.target.value)}
-          inputClassName={styles.input}
-          className={styles.formFieldWrapper}
+          className={styles.input}
           disabled={disabled}
+          fullWidth={false}
           aria-label="Bulk data input"
         />
         <Button
@@ -118,13 +118,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
         <div className={styles.settingItem}>
           <label className={styles.staticLabel}>筆數:</label>
-          <FormField
+          <Input
             type="number"
             value={dataSize}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDataSize(Number(e.target.value))}
-            inputClassName={styles.input}
-            className={styles.formFieldWrapper}
+            className={styles.input}
             disabled={disabled}
+            fullWidth={false}
             aria-label="Data size"
           />
         </div>
@@ -141,14 +141,14 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
         {/* 搜尋演算法的搜尋值輸入 */}
         {showSearchInput && (
-          <FormField
+          <Input
             type="number"
             placeholder="搜尋值"
             value={searchValue}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value)}
-            inputClassName={styles.input}
-            className={styles.formFieldWrapper}
+            className={styles.input}
             disabled={disabled}
+            fullWidth={false}
             aria-label="Search value"
           />
         )}
@@ -156,25 +156,25 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         {/* Prefix Sum 的區間輸入 */}
         {showRangeInput && (
           <div className={styles.rangeInput}>
-            <FormField
+            <Input
               type="number"
               placeholder="L"
               value={rangeStart}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRangeStart(e.target.value)}
-              inputClassName={styles.input}
-              className={styles.formFieldWrapper}
+              className={styles.input}
               disabled={disabled}
+              fullWidth={false}
               aria-label="Range start"
             />
             <span className={styles.staticLabel}>-</span>
-            <FormField
+            <Input
               type="number"
               placeholder="R"
               value={rangeEnd}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRangeEnd(e.target.value)}
-              inputClassName={styles.input}
-              className={styles.formFieldWrapper}
+              className={styles.input}
               disabled={disabled}
+              fullWidth={false}
               aria-label="Range end"
             />
           </div>
