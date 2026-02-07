@@ -93,6 +93,7 @@ export const useDataStructureLogic = (config: any) => {
         // );
         if (config.id === "graph" && initSteps.length > 0) {
           syncCoordinates(initData, initSteps[0].elements);
+          setData(cloneData(initData)); // 同步座標後更新 state
         }
 
         setActiveSteps(initSteps);
@@ -500,7 +501,34 @@ export const useDataStructureLogic = (config: any) => {
           const randomCount = Math.floor(Math.random() * 6) + 5; // 5~10 個節點
           newData = generateRandomGraph(randomCount);
         } else if (actionType === "reset") {
-          newData = cloneData(config.defaultData);
+          newData = cloneData(config.defaultData) as GraphData;
+
+          const oldData = data;
+
+          const isGraphData = (d: any): d is GraphData => {
+            return d && !Array.isArray(d) && Array.isArray(d.nodes);
+          };
+
+          if (isGraphData(oldData)) {
+            const coordMap = new Map(
+              oldData.nodes.map((n: GraphNode) => [n.id, { x: n.x, y: n.y }]),
+            );
+
+            // 遍歷新產生的(重置的)節點，填回舊座標
+            newData.nodes.forEach((n: GraphNode) => {
+              const saved = coordMap.get(n.id);
+              if (saved && saved.x !== undefined && saved.y !== undefined) {
+                n.x = saved.x;
+                n.y = saved.y;
+
+                if (!n.position) n.position = { x: saved.x, y: saved.y };
+                else {
+                  n.position.x = saved.x;
+                  n.position.y = saved.y;
+                }
+              }
+            });
+          }
         } else if (actionType === "load") {
           if (typeof loadData === "string" && loadData.startsWith("GRAPH:")) {
             const parts = loadData.split(":");
@@ -532,9 +560,9 @@ export const useDataStructureLogic = (config: any) => {
       });
 
       // Graph 必須同步座標，否則 Random/Load 後會擠在一起
-      // if (steps.length > 0) {
-      //   syncCoordinates(newData, steps[0].elements);
-      // }
+      if (steps.length > 0) {
+        syncCoordinates(newData, steps[0].elements);
+      }
 
       setData(newData);
       setActiveSteps(steps);
