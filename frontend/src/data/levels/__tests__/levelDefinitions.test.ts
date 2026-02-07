@@ -127,7 +127,7 @@ describe("Category Helper Functions", () => {
 
       // 可能有也可能沒有，這取決於實際配置
       // 測試只確認函數不會出錯
-      expect(boss === undefined || boss.pathMetadata?.pathType === "boss").toBe(
+      expect(boss === undefined || boss?.pathMetadata?.pathType === "boss").toBe(
         true,
       );
     });

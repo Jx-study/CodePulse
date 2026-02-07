@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Button from '@/shared/components/Button';
 import styles from './Tabs.module.scss';
 
