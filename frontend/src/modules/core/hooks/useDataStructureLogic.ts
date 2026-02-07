@@ -448,12 +448,21 @@ export const useDataStructureLogic = (config: any) => {
           return [];
         }
       } else if (actionType === "removeVertex") {
+        if (!payload.id || String(payload.id).trim() === "") {
+          alert("請輸入節點 ID");
+          return [];
+        }
+
         // payload.id 是輸入框的值 (例如 "A")，要轉成內部 id "node-A"
         const targetVal = String(payload.id);
         const targetId = `node-${targetVal}`;
-
         const idx = nodes.findIndex((n: any) => n.id === targetId);
+
+        let deletedNodeCoords = { x: 0, y: 0 };
+
         if (idx !== -1) {
+          deletedNodeCoords = { x: nodes[idx].x, y: nodes[idx].y };
+          payload.deletedNodeCoords = deletedNodeCoords;
           nodes.splice(idx, 1);
           newData.edges = edges.filter(
             (e: any[]) => e[0] !== targetId && e[1] !== targetId,
