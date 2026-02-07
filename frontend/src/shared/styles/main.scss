@@ -20,6 +20,13 @@
   --border-color: #{$light-border};
   --card-bg: #{$light-bg-tertiary};
   --card-shadow: #{$light-card-shadow};
+
+  /* Header Height */
+  --header-height: #{$header-height};
+
+  @include mobile {
+    --header-height: #{$header-height-mobile};
+  }
 }
 
 @media (prefers-color-scheme: dark) {

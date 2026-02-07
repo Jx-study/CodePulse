@@ -122,7 +122,7 @@ function LearningDashboard() {
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = getCategoryName(newlyUnlockedCategories[0]);
-        setToastMessage(`🎉 恭喜！解鎖新領域：${categoryName}`);
+        setToastMessage(`恭喜！解鎖新領域：${categoryName}`);
 
         // 3 秒後自動消失
         setTimeout(() => setToastMessage(null), 3000);
@@ -228,7 +228,7 @@ function LearningDashboard() {
       saveUserProgress(updatedProgress);
 
       // 顯示完成提示
-      setToastMessage(`🎉 完成關卡：${selectedLevel.name}`);
+      setToastMessage(`完成關卡：${selectedLevel.name}`);
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
