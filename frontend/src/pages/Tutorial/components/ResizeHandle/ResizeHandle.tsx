@@ -79,3 +79,5 @@ export function ResizeHandle({
     </Separator>
   );
 }
+
+export default ResizeHandle;

@@ -79,3 +79,5 @@ export function DraggablePanel({
     </Panel>
   );
 }
+
+export default DraggablePanel;

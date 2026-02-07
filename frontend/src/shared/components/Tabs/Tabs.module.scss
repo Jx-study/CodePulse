@@ -144,6 +144,33 @@
   }
 }
 
+// Minimal variant (for embedding in PanelHeader)
+.minimal {
+  .tabList {
+    border-bottom: none;
+    gap: $spacing-xs;
+  }
+
+  &.vertical .tabList {
+    border-right: none;
+  }
+
+  .tab {
+    padding: $spacing-xs $spacing-sm;
+    border-radius: 4px;
+    font-size: $font-sm;
+
+    &.active {
+      background: rgba(var(--primary-rgb), 0.1);
+      color: $primary-color;
+    }
+
+    &:hover:not(.disabled):not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
 // ========== Tab Icon & Label ==========
 .tabIcon {
   display: flex;

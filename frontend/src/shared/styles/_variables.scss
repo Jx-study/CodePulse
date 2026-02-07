@@ -119,7 +119,8 @@ $font-family-code:
 
 // ========== 其他 ==========
 // 佈局尺寸
-$header-height: 64px;
+$header-height: 5rem; // 80px - 桌面/平板版
+$header-height-mobile: 4.5rem; // 72px - 手機版
 
 // 斷點
 $mobile: 768px;
