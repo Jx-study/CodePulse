@@ -134,10 +134,13 @@ export const generateGraphFrame = (
   };
 };
 
-export function createGraphElements(rawGraph: {
-  nodes: any[];
-  edges: string[][];
-}): Node[] {
+export function createGraphElements(
+  rawGraph: {
+    nodes: any[];
+    edges: string[][];
+  },
+  isDirected: boolean = false,
+): Node[] {
   const { nodes: rawNodes, edges } = rawGraph;
   const elements: Node[] = [];
   const nodeMap = new Map<string, Node>();
@@ -222,13 +225,15 @@ export function createGraphElements(rawGraph: {
     });
   }
 
-  // 建立連線 (雙向)
+  // 建立連線 (單/雙向)
   edges.forEach(([sourceId, targetId]) => {
     const source = nodeMap.get(sourceId);
     const target = nodeMap.get(targetId);
     if (source && target) {
       source.pointers.push(target);
-      target.pointers.push(source);
+      if (!isDirected) {
+        target.pointers.push(source);
+      }
     }
   });
 

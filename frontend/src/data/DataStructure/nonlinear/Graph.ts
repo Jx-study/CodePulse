@@ -7,17 +7,13 @@ import {
 import { Node } from "../../../modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
-function runGraphExplore(
-  graphData: any,
-  startId?: string,
-  endId?: string,
-): AnimationStep[] {
+function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
-  // 1. 建立結構
+  // 建立結構
   let baseElements: Node[] = [];
   if (graphData.nodes && graphData.edges) {
-    baseElements = createGraphElements(graphData);
+    baseElements = createGraphElements(graphData, isDirected);
   } else {
     return steps;
   }
@@ -25,119 +21,14 @@ function runGraphExplore(
   const nodeMap = new Map<string, Node>();
   baseElements.forEach((node) => nodeMap.set(node.id, node));
 
-  // 決定起點與終點 (預設頭尾)
-  const sortedIds = baseElements.map((n) => n.id).sort();
-  const realStartId = startId && nodeMap.has(startId) ? startId : sortedIds[0];
-  const realEndId =
-    endId && nodeMap.has(endId) ? endId : sortedIds[sortedIds.length - 1];
-
-  const statusMap: Record<string, Status> = {};
-  const distanceMap: Record<string, number> = {};
-  const visited = new Set<string>();
-  const parentMap = new Map<string, string>();
-
-  // 初始化距離顯示
-  baseElements.forEach((n) => (distanceMap[n.id] = 99));
-
-  // Step 0: 初始靜態畫面 (顯示 ID)
+  // 初始靜態畫面
   steps.push(
     generateGraphFrame(
       baseElements,
       {},
-      distanceMap,
-      `圖形結構展示：節點 (Nodes) 與邊 (Edges)。起點: ${realStartId}`,
+      {},
+      `圖形結構展示：節點 (Nodes) 與邊 (Edges)。`,
       true, // 顯示 ID
-    ),
-  );
-
-  // Step 1: 準備開始
-  steps.push(
-    generateGraphFrame(
-      baseElements,
-      {},
-      distanceMap,
-      `準備進行連通性探索 (基於 BFS)`,
-      false, // 轉為顯示距離/數值
-    ),
-  );
-
-  // 開始遍歷
-  const queue: string[] = [realStartId];
-  visited.add(realStartId);
-  statusMap[realStartId] = "prepare";
-  distanceMap[realStartId] = 0;
-
-  steps.push(
-    generateGraphFrame(
-      baseElements,
-      statusMap,
-      distanceMap,
-      `從起點 ${realStartId} 開始探索`,
-    ),
-  );
-
-  let found = false;
-
-  while (queue.length > 0) {
-    const currId = queue.shift()!;
-    const currNode = nodeMap.get(currId);
-
-    statusMap[currId] = "target";
-
-    steps.push(
-      generateGraphFrame(
-        baseElements,
-        statusMap,
-        distanceMap,
-        `訪問節點 ${currId}，尋找相鄰節點 (Neighbors)`,
-      ),
-    );
-
-    if (currId === realEndId) {
-      found = true;
-    }
-
-    if (currNode) {
-      const neighbors = currNode.pointers;
-      const newNeighbors: string[] = [];
-      const currentDist = distanceMap[currId];
-
-      neighbors.sort((a, b) => a.id.localeCompare(b.id));
-
-      for (const neighbor of neighbors) {
-        if (!visited.has(neighbor.id)) {
-          visited.add(neighbor.id);
-          parentMap.set(neighbor.id, currId);
-          queue.push(neighbor.id);
-          newNeighbors.push(neighbor.id);
-
-          statusMap[neighbor.id] = "prepare";
-          distanceMap[neighbor.id] = currentDist + 1;
-        }
-      }
-
-      if (newNeighbors.length > 0) {
-        steps.push(
-          generateGraphFrame(
-            baseElements,
-            statusMap,
-            distanceMap,
-            `發現未訪問的鄰居：${newNeighbors.join(", ")}`,
-          ),
-        );
-      }
-    }
-
-    statusMap[currId] = "unfinished";
-  }
-
-  // 結束畫面
-  steps.push(
-    generateGraphFrame(
-      baseElements,
-      statusMap,
-      distanceMap,
-      "圖形遍歷完成，所有可到達的節點已標示",
     ),
   );
 
@@ -243,6 +134,147 @@ function runRemoveNode(
   return steps;
 }
 
+function runAddEdge(
+  graphData: any,
+  sourceId: string,
+  targetId: string,
+  isDirected: boolean,
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  const sId = sourceId.startsWith("node-") ? sourceId : `node-${sourceId}`;
+  const tId = targetId.startsWith("node-") ? targetId : `node-${targetId}`;
+
+  const sNode = baseElements.find((n) => n.id === sId);
+  const tNode = baseElements.find((n) => n.id === tId);
+
+  // 暫時移除連線
+  // 把已經存在的 pointer 拿掉，讓這一幀看起來就像還沒連線
+  if (sNode) {
+    sNode.pointers = sNode.pointers.filter((n) => n.id !== tId);
+  }
+  // 如果是無向圖，雙向都有 pointer
+  if (!isDirected && tNode) {
+    tNode.pointers = tNode.pointers.filter((n) => n.id !== sId);
+  }
+
+  const statusMap: Record<string, Status> = {};
+  statusMap[sId] = "target";
+  statusMap[tId] = "target";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `選擇節點 ${sourceId} 與 ${targetId} 準備連線`,
+      true,
+    ),
+  );
+
+  // 恢復連線
+  if (sNode && tNode) {
+    // 檢查是否已經存在 (避免重複添加)
+    if (!sNode.pointers.find((n) => n.id === tId)) {
+      sNode.pointers = [...sNode.pointers, tNode];
+    }
+    // 雙向處理
+    if (!isDirected) {
+      if (!tNode.pointers.find((n) => n.id === sId)) {
+        tNode.pointers = [...tNode.pointers, sNode];
+      }
+    }
+  }
+
+  statusMap[sId] = "complete";
+  statusMap[tId] = "complete";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `邊已新增：${sourceId} - ${targetId}`,
+      true,
+    ),
+  );
+
+  return steps;
+}
+
+function runRemoveEdge(
+  graphData: any,
+  sourceId: string,
+  targetId: string,
+  isDirected: boolean,
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  const sId = sourceId.startsWith("node-") ? sourceId : `node-${sourceId}`;
+  const tId = targetId.startsWith("node-") ? targetId : `node-${targetId}`;
+
+  const sNode = baseElements.find((n) => n.id === sId);
+  const tNode = baseElements.find((n) => n.id === tId);
+
+  // 標記兩點 + 手動補回連線 (Ghost Edge)
+  const statusMap: Record<string, Status> = {};
+  statusMap[sId] = "target";
+  statusMap[tId] = "target";
+
+  if (sNode && tNode) {
+    sNode.pointers = [...sNode.pointers, tNode];
+
+    // 如果是無向圖，把反向的加回去
+    if (!isDirected) {
+      tNode.pointers = [...tNode.pointers, sNode];
+    }
+  }
+
+  steps.push(
+    generateGraphFrame(
+      baseElements, // 包含手動加入的 Ghost Edge
+      statusMap,
+      {},
+      `選中節點 ${sourceId} 與 ${targetId}，準備斷開連線`,
+      true,
+    ),
+  );
+
+  // 移除連線
+  if (sNode && tNode) {
+    sNode.pointers = sNode.pointers.filter((n) => n.id !== tId);
+
+    // 如果是無向圖，也要移除反向的連線
+    if (!isDirected) {
+      tNode.pointers = tNode.pointers.filter((n) => n.id !== sId);
+    }
+  }
+
+  statusMap[sId] = "complete";
+  statusMap[tId] = "complete";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `連線已移除：${sourceId} - ${targetId}`,
+      true,
+    ),
+  );
+
+  return steps;
+}
+
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
@@ -258,7 +290,23 @@ export function createGraphAnimationSteps(
       action.deletedNodeCoords?.y,
     );
   }
-  return runGraphExplore(inputData);
+  if (action?.type === "addEdge") {
+    return runAddEdge(
+      inputData,
+      action.source,
+      action.target,
+      action.isDirected,
+    );
+  }
+  if (action?.type === "removeEdge") {
+    return runRemoveEdge(
+      inputData,
+      action.source,
+      action.target,
+      action.isDirected,
+    );
+  }
+  return runRefresh(inputData, action.isDirected);
 }
 
 export const GraphConfig: LevelImplementationConfig = {

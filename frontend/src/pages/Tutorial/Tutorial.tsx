@@ -53,6 +53,7 @@ function Tutorial() {
   const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
   const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
+  const [isDirected, setIsDirected] = useState(false);
 
   // 3. 計算目前的動畫步驟
   useEffect(() => {
@@ -65,10 +66,10 @@ function Tutorial() {
 
   useEffect(() => {
     if (!isAlgorithm && topicTypeConfig && !isProcessing) {
-      executeAction("refresh", { hasTailMode });
+      executeAction("refresh", { hasTailMode, isDirected });
       setCurrentStep(0);
     }
-  }, [hasTailMode, isAlgorithm]);
+  }, [hasTailMode, isAlgorithm, isDirected]);
 
   const currentStepData = activeSteps[currentStep];
 
@@ -295,6 +296,8 @@ function Tutorial() {
             onTailModeChange={setHasTailMode}
             structureType={topicTypeConfig.id as any}
             disabled={isProcessing}
+            isDirected={isDirected}
+            onIsDirectedChange={setIsDirected}
           />
         );
       }
@@ -361,6 +364,7 @@ function Tutorial() {
                 width={1000}
                 height={400}
                 structureType={topicTypeConfig?.id}
+                isDirected={isDirected}
               />
             </div>
             <div className={styles.stepDescription}>

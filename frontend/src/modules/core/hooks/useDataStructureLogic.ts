@@ -427,6 +427,7 @@ export const useDataStructureLogic = (config: any) => {
       }
 
       const { nodes, edges } = newData; // 解構 graph data
+      const isDirected = payload.isDirected;
 
       if (actionType === "addVertex") {
         if (!payload.value || String(payload.value).trim() === "") {
@@ -487,14 +488,12 @@ export const useDataStructureLogic = (config: any) => {
               (!payload.isDirected && e[0] === targetId && e[1] === sourceId),
           );
 
-          if (!exists) {
-            // Push edge: [source, target]
-            // 要 push 到 newData.edges (也就是 edges 引用)
-            edges.push([sourceId, targetId]);
-          } else {
-            alert("邊已存在");
+          if (exists) {
+            alert("該連線已存在");
             return [];
           }
+
+          edges.push([sourceId, targetId]);
         } else {
           alert("來源或目標節點不存在");
           return [];
@@ -502,12 +501,24 @@ export const useDataStructureLogic = (config: any) => {
       } else if (actionType === "removeEdge") {
         const sourceId = `node-${payload.source}`;
         const targetId = `node-${payload.target}`;
+        const initialLength = edges.length;
 
-        newData.edges = edges.filter(
-          (e: any[]) =>
-            !(e[0] === sourceId && e[1] === targetId) &&
-            !(e[0] === targetId && e[1] === sourceId),
-        );
+        newData.edges = edges.filter((e: any[]) => {
+          // 檢查是否為正向邊 (Source -> Target)
+          const isForward = e[0] === sourceId && e[1] === targetId;
+
+          // 檢查是否為反向邊 (Target -> Source)
+          const isBackward = e[0] === targetId && e[1] === sourceId;
+
+          if (isDirected)
+            return !isForward; // 有向：只刪正向
+          else return !(isForward || isBackward); // 無向：雙向都刪
+        });
+
+        if (newData.edges.length === initialLength) {
+          alert("找不到該連線，無法刪除");
+          return [];
+        }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
 

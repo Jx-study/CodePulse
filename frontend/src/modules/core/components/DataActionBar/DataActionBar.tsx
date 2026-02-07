@@ -32,6 +32,9 @@ export interface DataActionBarProps {
 
   disabled?: boolean;
   structureType: StructureType;
+
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
 }
 
 export const DataActionBar: React.FC<DataActionBarProps> = ({
@@ -47,6 +50,8 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onTailModeChange,
   disabled = false,
   structureType,
+  isDirected = false,
+  onIsDirectedChange,
 }) => {
   const [inputValue, setInputValue] = useState<string>(""); // 節點數值
   const [indexValue, setIndexValue] = useState<string>(""); // N (索引)
@@ -57,7 +62,6 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const [sourceNode, setSourceNode] = useState<string>("");
   const [targetNode, setTargetNode] = useState<string>("");
   const [edgeWeight, setEdgeWeight] = useState<string>("1");
-  const [isDirected, setIsDirected] = useState<boolean>(false);
 
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
@@ -525,7 +529,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 <input
                   type="checkbox"
                   checked={isDirected}
-                  onChange={(e) => setIsDirected(e.target.checked)}
+                  onChange={(e) =>
+                    onIsDirectedChange && onIsDirectedChange(e.target.checked)
+                  }
                   disabled={disabled}
                   style={{ marginRight: "2px" }}
                 />
