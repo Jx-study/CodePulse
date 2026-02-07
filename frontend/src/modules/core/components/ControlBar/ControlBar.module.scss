@@ -1,58 +1,56 @@
 .controlBar {
   @include flex($align: center, $justify: space-between);
-  flex-wrap: wrap;
-  gap: $spacing-md;
-
-  @media (max-width: $mobile) {
-    flex-direction: column;
-    gap: $spacing-sm;
-  }
+  gap: clamp(0.25rem, 1cqh, 0.75rem); // 基於容器高度: 4px~12px
+  padding: clamp(0.5rem, 1.5cqh, 1rem); // 基於容器高度: 8px~16px
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .controls {
-  @include flex($align: center);
-  flex-wrap: wrap;
-  gap: $spacing-xs;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.25rem, 0.8cqh, 0.5rem); // 按鈕間距: 4px~8px
+  justify-content: center;
 }
 
 .stepIndicator {
   @include flex($justify: center, $direction: column, $align: center);
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-  min-width: 12.5rem; // 200px
-  flex: 1 1 auto; // 允许收缩和扩展
+  gap: clamp(0.5rem, 1cqh, 0.75rem);
 
   .stepText {
-    font-size: $font-sm;
+    font-size: clamp(0.75rem, 1.2cqh, 0.875rem); // 12px~14px
+    white-space: nowrap;
     font-weight: 600;
     color: var(--text-primary);
   }
 
   .stepSlider {
-    width: 100%;
+    flex: 1;
   }
 }
 
 .speedSelector {
   @include flex($direction: column);
-  gap: $spacing-xs;
+  gap: clamp(0.25rem, 0.8cqh, 0.5rem);
 
   .speedRow {
-    display: flex;
+    @include flex($align: center, $justify: center);
+    gap: clamp(0.25rem, 0.8cqh, 0.5rem);
     flex-wrap: wrap;
-    align-items: center;
-    gap: $spacing-sm;
-  }
 
-  .speedLabel {
-    font-size: $font-sm;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
+    .speedLabel {
+      font-size: clamp(0.75rem, 1.2cqh, 0.875rem);
+      white-space: nowrap;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
 
-  .speedButtons {
-    @include flex;
-    gap: $spacing-xs;
+    .speedButtons {
+      display: flex;
+      gap: clamp(0.125rem, 0.5cqh, 0.25rem);
+    }
   }
 
   .speedButton {
