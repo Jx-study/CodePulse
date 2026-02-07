@@ -16,6 +16,7 @@ export * from './components/skeleton';
 
 // ==================== Page Types ====================
 export * from './pages/dashboard';
+export * from './pages/tutorial';
 
 // ==================== Context Types ====================
 export * from './contexts/auth';

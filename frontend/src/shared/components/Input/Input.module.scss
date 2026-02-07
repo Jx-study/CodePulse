@@ -1,0 +1,86 @@
+// ==================== Base Input ====================
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-sm;
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  transition: all $transition-base;
+  outline: none;
+
+  // Auto width variant (for inline inputs in ActionBar)
+  &.inputAuto {
+    width: auto;
+    min-width: 4rem;
+    max-width: 8rem;
+  }
+
+  &::placeholder {
+    color: var(--text-tertiary);
+    opacity: 0.7;
+  }
+
+  // ========== Focus State ==========
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  // ========== Hover State ==========
+  &:hover:not(:disabled):not(:read-only) {
+    border-color: var(--input-border-hover);
+  }
+
+  // ========== Error State ==========
+  &.inputError {
+    border-color: var(--danger-color);
+
+    &:focus {
+      border-color: var(--danger-color);
+      box-shadow: 0 0 0 3px rgba(var(--danger-color-rgb), 0.1);
+    }
+  }
+
+  // ========== Disabled State ==========
+  &.inputDisabled,
+  &:disabled {
+    background-color: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // ========== ReadOnly State ==========
+  &.inputReadOnly,
+  &:read-only {
+    background-color: var(--bg-secondary);
+    cursor: default;
+  }
+}
+
+// ==================== Input Types ====================
+// Number input - hide spinner
+input[type='number'].input {
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+// Password input
+input[type='password'].input {
+  letter-spacing: 0.5px;
+}
+
+// ==================== Responsive Design ====================
+@media (max-width: $mobile) {
+  .input {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-xs;
+  }
+}
