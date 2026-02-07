@@ -429,6 +429,11 @@ export const useDataStructureLogic = (config: any) => {
       const { nodes, edges } = newData; // 解構 graph data
 
       if (actionType === "addVertex") {
+        if (!payload.value || String(payload.value).trim() === "") {
+          alert("請輸入節點 ID");
+          return [];
+        }
+
         // payload.value 是輸入框的值 (例如 "A")
         const val = payload.value
           ? String(payload.value)

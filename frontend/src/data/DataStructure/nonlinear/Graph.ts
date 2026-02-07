@@ -144,10 +144,54 @@ function runGraphExplore(
   return steps;
 }
 
+function runAddNode(graphData: any, newNodeId: string): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  // 建立基本元素 (包含剛剛新增的 Node)
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData);
+  }
+
+  const statusMap: Record<string, Status> = {};
+  const distanceMap: Record<string, number> = {};
+
+  const targetId = newNodeId.startsWith("node-")
+    ? newNodeId
+    : `node-${newNodeId}`;
+  statusMap[targetId] = "target";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      distanceMap,
+      `新增節點：${newNodeId}`,
+      true, // 顯示 ID
+    ),
+  );
+
+  statusMap[targetId] = "complete";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      distanceMap,
+      `節點新增完成：${newNodeId}`,
+      true, // 顯示 ID
+    ),
+  );
+  return steps;
+}
+
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
 ): AnimationStep[] {
+  if (action?.type === "addVertex") {
+    return runAddNode(inputData, action.value);
+  }
   return runGraphExplore(inputData);
 }
 
