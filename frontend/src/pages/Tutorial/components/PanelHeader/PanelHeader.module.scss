@@ -66,6 +66,15 @@
     margin: 0;
   }
 
+  .rightContent {
+    flex: 1; // 讓 rightContent (Tabs) 佔據剩餘空間
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; // Tabs 靠右對齊
+    overflow: hidden; // 防止 Tabs 溢出
+    padding-right: $spacing-xs;
+  }
+
   .actions {
     display: flex;
     gap: $spacing-xs;
