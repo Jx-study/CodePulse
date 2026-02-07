@@ -59,6 +59,12 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const [edgeWeight, setEdgeWeight] = useState<string>("1");
   const [isDirected, setIsDirected] = useState<boolean>(false);
 
+  const [showGraphLoader, setShowGraphLoader] = useState(false);
+  const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
+  const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
+    "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
+  );
+
   // init
   useEffect(() => {
     if (structureType === "stack") setInsertMode("Push");
@@ -138,6 +144,23 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     onGraphAction(action, payload);
   };
 
+  const handleLoadGraphData = () => {
+    const nodeCount = parseInt(graphNodeCount);
+    if (isNaN(nodeCount) || nodeCount <= 0) {
+      alert("請輸入有效的節點數量");
+      return;
+    }
+    const edges = graphEdgeInput
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "")
+      .join(",");
+
+    const payload = `GRAPH:${nodeCount}:${edges}`;
+    onLoadData(payload);
+    setShowGraphLoader(false);
+  };
+
   // 判斷是否顯示某些控制項
   const isGraph = structureType === "graph";
   const isBST = structureType === "bst";
@@ -203,22 +226,132 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     >
       {/* 第一行：資料控制 (DataManager) */}
       <div className={styles.actionGroup}>
-        <input
-          type="text"
-          placeholder="10,40,30..."
-          value={bulkInput}
-          onChange={(e) => setBulkInput(e.target.value)}
-          className={styles.input}
-          style={{ width: "150px" }}
-          disabled={disabled}
-        />
-        <Button
-          size="sm"
-          onClick={() => onLoadData(bulkInput)}
-          disabled={disabled}
-        >
-          載入資料
-        </Button>
+        {showGraphLoader && (
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 1000,
+              background: "#222",
+              padding: "24px",
+              border: "1px solid #555",
+              borderRadius: "8px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
+            <h4 style={{ margin: "0", color: "#fff", fontSize: "16px" }}>
+              自定義 Graph 資料
+            </h4>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <label style={{ color: "#ccc", fontSize: "14px" }}>
+                節點數量 (0 ~ N-1):
+              </label>
+              <input
+                type="number"
+                value={graphNodeCount}
+                onChange={(e) => setGraphNodeCount(e.target.value)}
+                className={styles.input}
+                style={{ width: "60px" }}
+              />
+            </div>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <label style={{ color: "#ccc", fontSize: "14px" }}>
+                邊 (格式: 來源 目標)
+              </label>
+              <textarea
+                value={graphEdgeInput}
+                onChange={(e) => setGraphEdgeInput(e.target.value)}
+                rows={6}
+                style={{
+                  width: "300px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  padding: "12px",
+                  background: "#111",
+                  color: "#eee",
+                  border: "1px solid #444",
+                  borderRadius: "4px",
+                  resize: "none",
+                }}
+                placeholder="0 1&#10;1 2&#10;2 0"
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                justifyContent: "flex-end",
+                marginTop: "8px",
+              }}
+            >
+              <Button
+                size="sm"
+                onClick={() => setShowGraphLoader(false)}
+                style={{ background: "#555" }}
+              >
+                取消
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleLoadGraphData}
+                style={{ background: "#2e7d32" }}
+              >
+                確認載入
+              </Button>
+            </div>
+          </div>
+        )}
+        {showGraphLoader && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.5)",
+              zIndex: 999,
+              backdropFilter: "blur(2px)",
+            }}
+            onClick={() => setShowGraphLoader(false)}
+          />
+        )}
+        {isGraph ? (
+          <Button
+            size="sm"
+            onClick={() => setShowGraphLoader(true)}
+            disabled={disabled}
+            style={{ marginRight: "8px" }}
+          >
+            載入 Graph 資料
+          </Button>
+        ) : (
+          <>
+            <input
+              type="text"
+              placeholder="10,40,30..."
+              value={bulkInput}
+              onChange={(e) => setBulkInput(e.target.value)}
+              className={styles.input}
+              style={{ width: "150px" }}
+              disabled={disabled}
+            />
+            <Button
+              size="sm"
+              onClick={() => onLoadData(bulkInput)}
+              disabled={disabled}
+            >
+              載入資料
+            </Button>
+          </>
+        )}
         <Button size="sm" onClick={onResetData} disabled={disabled}>
           重設
         </Button>
@@ -257,8 +390,8 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           </select>
         )}
       </div>
-      {/* 第二行：操作控制 (OperationManager) */}
 
+      {/* 第二行：操作控制 (OperationManager) */}
       <div className={styles.actionGroup}>
         {/* 標籤顯示 */}
         <div
