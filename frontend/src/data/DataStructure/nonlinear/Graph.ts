@@ -416,6 +416,91 @@ function runCheckAdjacent(
   return steps;
 }
 
+function runGetDegree(
+  graphData: any,
+  nodeId: string,
+  isDirected: boolean,
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  const targetId = nodeId.startsWith("node-") ? nodeId : `node-${nodeId}`;
+  const targetNode = baseElements.find((n) => n.id === targetId);
+
+  const statusMap: Record<string, Status> = {};
+  statusMap[targetId] = "target";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `準備計算節點 ${nodeId} 的度數 (${isDirected ? "有向" : "無向"})...`,
+      true,
+    ),
+  );
+
+  // In: prepare, Out: unfinished
+  if (targetNode) {
+    let msg = "";
+
+    // 有向圖邏輯
+    if (isDirected) {
+      // Out-Degree (出度): Target 指向別人
+      // 狀態設為 "unfinished"
+      const outDegree = targetNode.pointers.length;
+      targetNode.pointers.forEach((neighbor) => {
+        statusMap[neighbor.id] = "unfinished";
+      });
+
+      // In-Degree (入度): 別人指向 Target
+      // 狀態設為 "prepare"
+      let inDegree = 0;
+      baseElements.forEach((otherNode) => {
+        // 檢查 otherNode 是否指向 targetId
+        if (otherNode.pointers.some((n) => n.id === targetId)) {
+          // 如果發生雙向 (A<->B) 或 自環 (A->A)，顏色會被覆蓋。
+          // 這裡 "prepare" (In) 會覆蓋掉 "unfinished" (Out)
+          statusMap[otherNode.id] = "prepare";
+          inDegree++;
+        }
+      });
+
+      msg = `節點 ${nodeId}：In-Degree (入度/黃) = ${inDegree}, Out-Degree (出度/藍) = ${outDegree}`;
+    } else {
+      // 無向圖邏輯
+
+      // Degree: 所有相連的都算，統一設為 "prepare"
+      const degree = targetNode.pointers.length;
+      targetNode.pointers.forEach((neighbor) => {
+        statusMap[neighbor.id] = "prepare";
+      });
+
+      msg = `節點 ${nodeId}：Degree (度數) = ${degree}`;
+    }
+
+    statusMap[targetId] = "complete";
+
+    steps.push(generateGraphFrame(baseElements, statusMap, {}, msg, true));
+  } else {
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        {},
+        {},
+        `錯誤：節點 ${nodeId} 不存在`,
+        true,
+      ),
+    );
+  }
+
+  return steps;
+}
+
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
@@ -457,6 +542,9 @@ export function createGraphAnimationSteps(
       action.target,
       action.isDirected,
     );
+  }
+  if (action?.type === "getDegree") {
+    return runGetDegree(inputData, action.id, action.isDirected);
   }
   return runRefresh(inputData, action.isDirected);
 }

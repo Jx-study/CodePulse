@@ -136,7 +136,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     } else if (action === "removeEdge") {
       payload.source = sourceNode;
       payload.target = targetNode;
-    } else if (action === "getNeighbors") {
+    } else if (action === "getNeighbors" || action === "getDegree") {
       payload.id = inputValue;
     } else if (action === "checkAdjacent") {
       payload.source = sourceNode;
@@ -459,6 +459,13 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               >
                 找鄰居
               </Button>
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("getDegree")}
+                disabled={disabled}
+              >
+                度數
+              </Button>
             </div>
 
             {/* 邊操作區 */}
@@ -525,6 +532,33 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 />
                 有向
               </label>
+            </div>
+            {/* 分析操作區 */}
+            <div
+              style={{
+                marginLeft: "12px",
+                paddingLeft: "12px",
+                borderLeft: "1px solid #555",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <span style={{ color: "#aaa", fontSize: "12px" }}>分析:</span>
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("checkConnected")}
+                disabled={disabled}
+              >
+                連通性
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleGraphAction("checkCycle")}
+                disabled={disabled}
+              >
+                是否有環
+              </Button>
             </div>
           </>
         ) : (

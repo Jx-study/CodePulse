@@ -530,6 +530,17 @@ export const useDataStructureLogic = (config: any) => {
           alert(`節點 ${payload.id} 不存在`);
           return [];
         }
+      } else if (actionType === "getDegree") {
+        if (!payload.id || String(payload.id).trim() === "") {
+          alert("請輸入節點 ID");
+          return [];
+        }
+
+        const targetId = `node-${payload.id}`;
+        if (!nodes.find((n: any) => n.id === targetId)) {
+          alert(`節點 ${payload.id} 不存在`);
+          return [];
+        }
       } else if (actionType === "checkAdjacent") {
         if (
           !payload.source ||
@@ -548,6 +559,15 @@ export const useDataStructureLogic = (config: any) => {
           !nodes.find((n: any) => n.id === tId)
         ) {
           alert("來源或目標節點不存在");
+          return [];
+        }
+      } else if (
+        actionType === "checkConnected" ||
+        actionType === "checkCycle"
+      ) {
+        // 如果圖是空的擋下來或執行顯示空圖
+        if (nodes.length === 0) {
+          alert("圖形為空");
           return [];
         }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
