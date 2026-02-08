@@ -216,7 +216,7 @@
 
 .visualizationArea {
   flex: 1;
-  background: #111;
+  background: $dark-bg-primary;
   border-radius: $radius-sm;
   padding: $spacing-sm;
   @include flex-center;
