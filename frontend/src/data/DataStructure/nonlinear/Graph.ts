@@ -501,6 +501,109 @@ function runGetDegree(
   return steps;
 }
 
+function runCheckConnected(
+  graphData: any,
+  isDirected: boolean,
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  if (baseElements.length === 0) return steps;
+
+  // 建立一個「無向」的鄰接表 (Adjacency List) 用於演算法計算
+  // 目的：不管使用者選有向或無向，知道「結構上」是否連在一起
+  const undirectedAdj = new Map<string, string[]>();
+
+  baseElements.forEach((n) => undirectedAdj.set(n.id, []));
+
+  // 填入邊 (強制雙向)
+  baseElements.forEach((source) => {
+    source.pointers.forEach((target) => {
+      // 正向
+      undirectedAdj.get(source.id)?.push(target.id);
+      // 反向 (確保回頭路也能走，這樣才算檢查結構連通)
+      undirectedAdj.get(target.id)?.push(source.id);
+    });
+  });
+
+  // BFS 初始化
+  const startNode = baseElements[0]; // 從第一個節點開始
+  const visited = new Set<string>();
+  const queue: string[] = [startNode.id];
+  visited.add(startNode.id);
+
+  const statusMap: Record<string, Status> = {};
+
+  statusMap[startNode.id] = "target";
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `採用 BFS，從節點 ${startNode.id} 開始檢查連通性 (忽略方向)`,
+      true,
+    ),
+  );
+
+  // BFS 過程
+  // 為了動畫流暢，我們不要每一步都畫，而是把「一層」做成一個 Frame
+
+  // 逐步感染的動畫
+  while (queue.length > 0) {
+    const currId = queue.shift()!;
+
+    statusMap[currId] = "complete";
+
+    const neighbors = undirectedAdj.get(currId) || [];
+
+    let newFound = false;
+    neighbors.forEach((neighborId) => {
+      if (!visited.has(neighborId)) {
+        visited.add(neighborId);
+        queue.push(neighborId);
+        statusMap[neighborId] = "prepare";
+        newFound = true;
+      }
+    });
+
+    // 如果有新發現的節點，推一個 Frame 顯示擴散進度
+    if (newFound) {
+      steps.push(
+        generateGraphFrame(
+          baseElements,
+          { ...statusMap },
+          {},
+          `擴散中... 已訪問 ${visited.size} / ${baseElements.length} 個節點`,
+          true,
+        ),
+      );
+    }
+  }
+
+  // Frame Final: 結果判定
+  const isConnected = visited.size === baseElements.length;
+  let resultMsg = "";
+
+  if (isConnected) {
+    resultMsg = "結果：圖是連通的 (Connected)！所有節點皆可達。";
+  } else {
+    resultMsg = "結果：圖不連通 (Disconnected)。紅色節點為孤島。";
+    baseElements.forEach((n) => {
+      if (!visited.has(n.id)) {
+        statusMap[n.id] = "target";
+      }
+    });
+  }
+
+  steps.push(generateGraphFrame(baseElements, statusMap, {}, resultMsg, true));
+
+  return steps;
+}
+
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
@@ -545,6 +648,11 @@ export function createGraphAnimationSteps(
   }
   if (action?.type === "getDegree") {
     return runGetDegree(inputData, action.id, action.isDirected);
+  }
+  if (action?.type === "checkConnected") {
+    // 這裡傳入 isDirected 用於產生正確的視覺箭頭
+    // 內部的演算法會視為無向來檢查結構
+    return runCheckConnected(inputData, action.isDirected);
   }
   return runRefresh(inputData, action.isDirected);
 }
