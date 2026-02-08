@@ -604,6 +604,172 @@ function runCheckConnected(
   return steps;
 }
 
+// 檢查是否有環 (DFS)
+function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  const visited = new Set<string>();
+  const recStack = new Set<string>(); // 僅用於有向圖 (Recursion Stack)
+  const pathStack: string[] = []; // 用於記錄路徑順序，以便抓出完整的環
+  const statusMap: Record<string, Status> = {};
+
+  // 用來儲存找到的環，以便在最後一步顯示
+  let cyclePath: string[] = [];
+  // 用來儲存造成環的那個「連接點」，讓路徑顯示更完整 (A->B->C->A)
+  let cycleConnectTo: string = "";
+  let hasCycle = false;
+
+  const dfs = (
+    currId: string,
+    parentId: string | null, // 僅用於無向圖，避免走回頭路
+  ): boolean => {
+    visited.add(currId);
+    pathStack.push(currId);
+
+    // 有向圖：加入遞迴堆疊
+    if (isDirected) recStack.add(currId);
+
+    statusMap[currId] = "target";
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        { ...statusMap },
+        {},
+        `訪問節點 ${currId} ...`,
+        true,
+      ),
+    );
+
+    statusMap[currId] = "prepare";
+
+    const currNode = baseElements.find((n) => n.id === currId);
+    if (currNode) {
+      for (const neighbor of currNode.pointers) {
+        const neighborId = neighbor.id;
+
+        if (!visited.has(neighborId)) {
+          // 如果沒訪問過，繼續往下鑽
+          if (dfs(neighborId, currId)) return true;
+
+          statusMap[currId] = "target";
+          steps.push(
+            generateGraphFrame(
+              baseElements,
+              { ...statusMap },
+              {},
+              `回到節點 ${currId}`,
+              true,
+            ),
+          );
+          statusMap[currId] = "prepare";
+        } else {
+          // 發現已訪問過的節點，檢查是否為環
+
+          let isCycle = false;
+          if (isDirected) {
+            if (recStack.has(neighborId)) isCycle = true;
+          } else {
+            if (neighborId !== parentId) isCycle = true;
+          }
+
+          if (isCycle) {
+            const startIndex = pathStack.indexOf(neighborId);
+            cyclePath = pathStack.slice(startIndex);
+            cycleConnectTo = neighborId; // 記錄最後接回哪裡
+
+            // 當下發現時的動畫，先把環上的節點都標成 target
+            cyclePath.forEach((id) => (statusMap[id] = "target"));
+
+            steps.push(
+              generateGraphFrame(
+                baseElements,
+                { ...statusMap },
+                {},
+                `發現環！(${currId} -> ${neighborId})`,
+                true,
+              ),
+            );
+            return true;
+          }
+        }
+      }
+    }
+
+    // 離開節點 (Backtrack)
+    if (isDirected) recStack.delete(currId);
+    pathStack.pop();
+
+    statusMap[currId] = "complete";
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        { ...statusMap },
+        {},
+        `節點 ${currId} 處理完成 (無環發現)`,
+        true,
+      ),
+    );
+
+    return false;
+  };
+
+  // 對每個未訪問的節點執行 DFS (處理森林/非連通圖的情況)
+  // 如果是無向圖，需要先將 baseElements 排序或按順序遍歷，避免順序混亂
+  for (const node of baseElements) {
+    if (!visited.has(node.id)) {
+      if (dfs(node.id, null)) {
+        hasCycle = true;
+        break; // 只要找到一個環就可以結束了
+      }
+    }
+  }
+
+  // 最終結果
+  if (!hasCycle) {
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        statusMap, // 全綠
+        {},
+        "檢查結束：此圖無環 (Acyclic)。",
+        true,
+      ),
+    );
+  } else {
+    const finalStatusMap: Record<string, Status> = {};
+
+    visited.forEach((id) => {
+      finalStatusMap[id] = "complete";
+    });
+
+    cyclePath.forEach((id) => {
+      finalStatusMap[id] = "target"; // 環設 target
+    });
+
+    // 格式化路徑字串 (例如: A -> B -> C -> A)
+    const pathNames = cyclePath.map((id) => id.replace("node-", ""));
+    const connectToName = cycleConnectTo.replace("node-", "");
+    const fullPathStr = [...pathNames, connectToName].join(" -> ");
+
+    steps.push(
+      generateGraphFrame(
+        baseElements,
+        finalStatusMap,
+        {},
+        `檢查結束：發現環 (Cyclic)。路徑：${fullPathStr}`,
+        true,
+      ),
+    );
+  }
+
+  return steps;
+}
+
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
@@ -653,6 +819,9 @@ export function createGraphAnimationSteps(
     // 這裡傳入 isDirected 用於產生正確的視覺箭頭
     // 內部的演算法會視為無向來檢查結構
     return runCheckConnected(inputData, action.isDirected);
+  }
+  if (action?.type === "checkCycle") {
+    return runCheckCycle(inputData, action.isDirected);
   }
   return runRefresh(inputData, action.isDirected);
 }
