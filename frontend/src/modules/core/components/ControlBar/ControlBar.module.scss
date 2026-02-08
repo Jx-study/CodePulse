@@ -18,6 +18,10 @@
 .stepIndicator {
   @include flex($justify: center, $direction: column, $align: center);
   gap: clamp(0.5rem, 1cqh, 0.75rem);
+  flex: 1;          
+  width: 100%;      
+  min-width: 0;
+  margin: 0 $spacing-sm;
 
   .stepText {
     font-size: clamp(0.75rem, 1.2cqh, 0.875rem); // 12px~14px
@@ -28,6 +32,7 @@
 
   .stepSlider {
     flex: 1;
+    width: 100%;
   }
 }
 
@@ -84,7 +89,6 @@
 
   .sliderRow {
     @include flex($align: center);
-    width: 100%;
   }
 
   @media (max-width: $mobile) {

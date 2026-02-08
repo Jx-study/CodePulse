@@ -99,7 +99,18 @@
     border-radius: 0.1875rem 0 0 0.1875rem;
   }
 
-  // ========== Focus 狀態 ==========
+  // ==================== 狀態樣式 ====================
+  &:hover {
+    &::-webkit-slider-runnable-track {
+      outline: 2px solid $primary-color;
+    }
+
+    &::-moz-range-track {
+      outline: 2px solid $primary-color;
+    }
+  }
+
+  
   &:focus {
     outline: none;
   }
@@ -110,7 +121,6 @@
     border-radius: 0.1875rem;
   }
 
-  // ========== Disabled 狀態 ==========
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
