@@ -32,11 +32,19 @@
   height: 100%;
 }
 
+.statusLegendContainer {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  z-index: 100;
+  pointer-events: auto;
+}
+
 .resetButtonContainer {
   position: absolute;
   right: $spacing-md;
   bottom: $spacing-md;
-  z-index: 1000;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
@@ -44,8 +52,6 @@
 
 .resetButton {
   @include flex(center, center, row);
-  width: 48px !important;
-  height: 48px !important;
   background: rgba($dark-bg-secondary, 0.9) !important;
   backdrop-filter: blur(16px);
   border: 1px solid rgba($white-color, 0.15) !important;
@@ -54,9 +60,7 @@
   transition: $transition-base;
   box-shadow: $shadow-md;
   color: $white-color !important;
-  font-size: $font-lg !important;
   font-weight: 700;
-  padding: 0 !important;
   position: relative;
 
   // 毛玻璃效果
@@ -93,6 +97,11 @@
 
 // Mobile 優化
 @media (max-width: $mobile-max) {
+  .statusLegendContainer {
+    top: $spacing-sm;
+    right: $spacing-sm;
+  }
+
   .resetButtonContainer {
     right: $spacing-sm;
     bottom: $spacing-sm;

@@ -6,6 +6,7 @@ import type { Link } from "./D3Renderer";
 import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
 import Button from "@/shared/components/Button";
+import StatusLegend from "../components/StatusLegend";
 import styles from './D3Canvas.module.scss';
 
 export interface D3CanvasRef {
@@ -134,16 +135,22 @@ export const D3Canvas = forwardRef<
           />
         </div>
 
+        {/* 狀態圖例 */}
+        <div className={styles.statusLegendContainer}>
+          <StatusLegend />
+        </div>
+
         {/* Reset 按鈕 */}
         {(enableZoom || enablePan) && (
           <div className={styles.resetButtonContainer}>
             <Button
               variant="icon"
-              size="md"
+              size="sm"
               onClick={handleResetView}
               aria-label="重置視圖"
               className={styles.resetButton}
               icon="rotate-right"
+              iconOnly
             >
             </Button>
           </div>
