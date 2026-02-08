@@ -519,6 +519,37 @@ export const useDataStructureLogic = (config: any) => {
           alert("找不到該連線，無法刪除");
           return [];
         }
+      } else if (actionType === "getNeighbors") {
+        if (!payload.id || String(payload.id).trim() === "") {
+          alert("請輸入節點 ID");
+          return [];
+        }
+
+        const targetId = `node-${payload.id}`;
+        if (!nodes.find((n: any) => n.id === targetId)) {
+          alert(`節點 ${payload.id} 不存在`);
+          return [];
+        }
+      } else if (actionType === "checkAdjacent") {
+        if (
+          !payload.source ||
+          String(payload.source).trim() === "" ||
+          !payload.target ||
+          String(payload.target).trim() === ""
+        ) {
+          alert("請輸入來源與目標節點 ID");
+          return [];
+        }
+
+        const sId = `node-${payload.source}`;
+        const tId = `node-${payload.target}`;
+        if (
+          !nodes.find((n: any) => n.id === sId) ||
+          !nodes.find((n: any) => n.id === tId)
+        ) {
+          alert("來源或目標節點不存在");
+          return [];
+        }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
 

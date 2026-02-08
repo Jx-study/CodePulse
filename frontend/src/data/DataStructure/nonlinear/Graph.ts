@@ -275,6 +275,147 @@ function runRemoveEdge(
   return steps;
 }
 
+function runGetNeighbors(
+  graphData: any,
+  nodeId: string,
+  isDirected: boolean,
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  const targetId = nodeId.startsWith("node-") ? nodeId : `node-${nodeId}`;
+  const targetNode = baseElements.find((n) => n.id === targetId);
+
+  const statusMap: Record<string, Status> = {};
+  statusMap[targetId] = "target";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `準備尋找節點 ${nodeId} 的鄰居 (讀取 Adjacency List)...`,
+      true,
+    ),
+  );
+
+  if (targetNode) {
+    const neighbors = targetNode.pointers;
+
+    if (neighbors.length === 0) {
+      steps.push(
+        generateGraphFrame(
+          baseElements,
+          statusMap,
+          {},
+          `節點 ${nodeId} 沒有鄰居 (Out-Degree = 0)。`,
+          true,
+        ),
+      );
+    } else {
+      neighbors.forEach((neighbor, index) => {
+        statusMap[neighbor.id] = "prepare";
+
+        steps.push(
+          generateGraphFrame(
+            baseElements,
+            { ...statusMap },
+            {},
+            `發現第 ${index + 1} 個鄰居：${neighbor.id.replace("node-", "")}`,
+            true,
+          ),
+        );
+
+        statusMap[neighbor.id] = "complete";
+      });
+
+      const neighborNames = neighbors.map((n) => n.id.replace("node-", ""));
+      steps.push(
+        generateGraphFrame(
+          baseElements,
+          statusMap,
+          {},
+          `搜尋完成，共有 ${neighbors.length} 個鄰居：${neighborNames.join(", ")}`,
+          true,
+        ),
+      );
+    }
+  } else {
+    steps.push(
+      generateGraphFrame(baseElements, {}, {}, `節點 ${nodeId} 不存在`, true),
+    );
+  }
+
+  return steps;
+}
+
+function runCheckAdjacent(
+  graphData: any,
+  sourceId: string,
+  targetId: string,
+  isDirected: boolean,
+): AnimationStep[] {
+  const steps: AnimationStep[] = [];
+
+  let baseElements: Node[] = [];
+  if (graphData.nodes) {
+    baseElements = createGraphElements(graphData, isDirected);
+  }
+
+  const sId = sourceId.startsWith("node-") ? sourceId : `node-${sourceId}`;
+  const tId = targetId.startsWith("node-") ? targetId : `node-${targetId}`;
+  const sNode = baseElements.find((n) => n.id === sId);
+  const tNode = baseElements.find((n) => n.id === tId);
+
+  const statusMap: Record<string, Status> = {};
+  statusMap[sId] = "target";
+  statusMap[tId] = "target";
+
+  steps.push(
+    generateGraphFrame(
+      baseElements,
+      statusMap,
+      {},
+      `檢查 ${sourceId} 是否連通至 ${targetId} (${isDirected ? "有向" : "無向"})`,
+      true,
+    ),
+  );
+
+  if (sNode && tNode) {
+    const isConnected = sNode.pointers.some((n) => n.id === tId);
+
+    if (isConnected) {
+      statusMap[sId] = "complete";
+      statusMap[tId] = "complete";
+      steps.push(
+        generateGraphFrame(
+          baseElements,
+          statusMap,
+          {},
+          `結果：True (存在邊 ${sourceId} -> ${targetId})`,
+          true,
+        ),
+      );
+    } else {
+      steps.push(
+        generateGraphFrame(
+          baseElements,
+          statusMap,
+          {},
+          `結果：False (不存在從 ${sourceId} 到 ${targetId} 的邊)`,
+          true,
+        ),
+      );
+    }
+  }
+
+  return steps;
+}
+
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
@@ -300,6 +441,17 @@ export function createGraphAnimationSteps(
   }
   if (action?.type === "removeEdge") {
     return runRemoveEdge(
+      inputData,
+      action.source,
+      action.target,
+      action.isDirected,
+    );
+  }
+  if (action?.type === "getNeighbors") {
+    return runGetNeighbors(inputData, action.id, action.isDirected);
+  }
+  if (action?.type === "checkAdjacent") {
+    return runCheckAdjacent(
       inputData,
       action.source,
       action.target,

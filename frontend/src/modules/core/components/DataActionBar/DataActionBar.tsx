@@ -61,7 +61,6 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
   const [sourceNode, setSourceNode] = useState<string>("");
   const [targetNode, setTargetNode] = useState<string>("");
-  const [edgeWeight, setEdgeWeight] = useState<string>("1");
 
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
@@ -125,7 +124,6 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
     // 封裝 payload
     const payload: any = {
       isDirected,
-      weight: parseInt(edgeWeight) || 1,
     };
 
     if (action === "addVertex") {
@@ -458,7 +456,6 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 size="sm"
                 onClick={() => handleGraphAction("getNeighbors")}
                 disabled={disabled}
-                style={{ fontSize: "10px" }}
               >
                 找鄰居
               </Button>
@@ -484,14 +481,6 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 style={{ width: "40px" }}
                 disabled={disabled}
               />
-              {/* 權重 (暫時隱藏或保留) */}
-              {/* <input
-                placeholder="W"
-                value={edgeWeight}
-                onChange={(e) => setEdgeWeight(e.target.value)}
-                className={styles.input}
-                style={{ width: "30px" }}
-              /> */}
 
               <Button
                 size="sm"
@@ -511,7 +500,6 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 size="sm"
                 onClick={() => handleGraphAction("checkAdjacent")}
                 disabled={disabled}
-                style={{ fontSize: "10px" }}
               >
                 檢查
               </Button>
