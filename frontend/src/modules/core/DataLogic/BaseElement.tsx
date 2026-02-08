@@ -6,11 +6,11 @@ export type Status =
   | "inactive";
 
 export const statusColorMap: Record<Status, string> = {
-  unfinished: "#1d79cfff",
-  prepare: "yellow",
-  target: "orange",
-  complete: "#46f336ff",
-  inactive: "#555555",
+  unfinished: "#1d79cfff", // $status-unfinished
+  prepare: "#f59e0b", // $status-prepare
+  target: "#ff6b35", // $status-target 
+  complete: "#46f336ff", // $status-complete
+  inactive: "#555555", // $status-inactive
 };
 
 export abstract class BaseElement {

@@ -39,6 +39,13 @@ $success-color: #4caf50;
 $warning-color: #f59e0b;
 $info-color: #3b82f6;
 
+// 資料結構狀態顏色（對應 BaseElement Status）
+$status-unfinished: #1d79cfff;
+$status-prepare: #f59e0b;
+$status-target: #ff6b35;
+$status-complete: #46f336ff;
+$status-inactive: #555555;
+
 // 元件使用的通用變數
 $primary-color: #635bff;
 $execution-color: #10b981;
