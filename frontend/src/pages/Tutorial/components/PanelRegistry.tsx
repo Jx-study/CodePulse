@@ -9,10 +9,10 @@ const D3Canvas = React.lazy(() =>
   }))
 );
 
-const DataActionBar = React.lazy(() =>
-  import("@/modules/core/components/DataActionBar/DataActionBar").then(
-    (module) => ({ default: module.DataActionBar })
-  )
+const SmartActionBar = React.lazy(() =>
+  import("./SmartActionBar").then((module) => ({
+    default: module.SmartActionBar,
+  }))
 );
 
 
@@ -35,7 +35,7 @@ export const PANEL_REGISTRY: PanelRegistry = {
     id: "actionBar",
     title: "操作面板",
     icon: <Icon name="sliders" />,
-    component: DataActionBar,
+    component: SmartActionBar,
     defaultSize: 35,
     category: "control",
     required: false, // actionBar 變為可選

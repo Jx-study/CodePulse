@@ -9,8 +9,6 @@ interface PanelHeaderProps {
   collapsible?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
-  closeable?: boolean;
-  onClose?: () => void;
   className?: string;
   draggable?: boolean;
   dragHandleProps?: any;
@@ -26,8 +24,6 @@ export function PanelHeader({
   collapsible = false,
   isCollapsed = false,
   onToggleCollapse,
-  closeable = false,
-  onClose,
   className = '',
   draggable = false,
   dragHandleProps,
@@ -82,18 +78,6 @@ export function PanelHeader({
               onClick={onToggleCollapse}
               aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
               title={isCollapsed ? "展開" : "折疊"}
-            />
-          )}
-          {closeable && (
-            <Button
-              variant="ghost"
-              size="xs"
-              className={styles.iconButton}
-              onClick={onClose}
-              aria-label="Close panel"
-              title="關閉"
-              icon="times"
-              iconOnly
             />
           )}
         </div>

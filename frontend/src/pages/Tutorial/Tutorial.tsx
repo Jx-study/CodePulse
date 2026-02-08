@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -17,8 +17,6 @@ import TopSection from "./components/TopSection";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
-import { DataActionBar } from "@/modules/core/components/DataActionBar/DataActionBar";
-import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar/AlgorithmActionBar";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
@@ -465,49 +463,6 @@ function TutorialContent() {
     return null;
   }
 
-  const renderActionBar = () => {
-    if (!topicTypeConfig) return <div>載入中...</div>;
-
-    if (topicTypeConfig.type === "algorithm") {
-      return (
-        <AlgorithmActionBar
-          onLoadData={handleLoadData}
-          onRandomData={handleRandomData}
-          onResetData={handleResetData}
-          onRun={handleRunAlgorithm}
-          disabled={isProcessing}
-          category={category as any}
-          algorithmId={topicTypeConfig?.id}
-        />
-      );
-    } else if (topicTypeConfig.type === "dataStructure") {
-      if (
-        ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id,
-        )
-      ) {
-        return (
-          <DataActionBar
-            onAddNode={handleAddNode}
-            onDeleteNode={handleDeleteNode}
-            onSearchNode={handleSearchNode}
-            onPeek={handlePeek}
-            onLoadData={handleLoadData}
-            onResetData={handleResetData}
-            onRandomData={handleRandomData}
-            onMaxNodesChange={setMaxNodes}
-            onTailModeChange={setHasTailMode}
-            structureType={topicTypeConfig.id as any}
-            disabled={isProcessing}
-          />
-        );
-      }
-    } else {
-      return <div>未知的實作類型</div>;
-    }
-    return <div>此主題暫無操作介面</div>;
-  };
-
   // ==================== Inspector Panel Component ====================
   const InspectorPanelInternal = () => {
     const { activePanels } = usePanelContext();
@@ -537,16 +492,47 @@ function TutorialContent() {
 
     // 渲染當前 Tab 的內容
     const renderTabContent = () => {
-      switch (activeInspectorTab) {
-        case 'actionBar':
-          return <div className={styles.tabContent}>{renderActionBar()}</div>;
-        case 'variableStatus':
-          return <div className={styles.tabContent}>變數狀態面板 - 即將推出</div>;
-        case 'callStack':
-          return <div className={styles.tabContent}>Call Stack 面板 - 即將推出</div>;
-        default:
-          return null;
+      const panelConfig = PANEL_REGISTRY[activeInspectorTab];
+
+      if (!panelConfig) {
+        return null;
       }
+
+      const PanelComponent = panelConfig.component;
+
+      // 為 actionBar 準備特殊的 props
+      if (activeInspectorTab === 'actionBar') {
+        return (
+          <div className={styles.tabContent}>
+            <Suspense fallback={<div>載入中...</div>}>
+              <PanelComponent
+                topicTypeConfig={topicTypeConfig}
+                category={category}
+                onLoadData={handleLoadData}
+                onRandomData={handleRandomData}
+                onResetData={handleResetData}
+                disabled={isProcessing}
+                onRun={handleRunAlgorithm}
+                onAddNode={handleAddNode}
+                onDeleteNode={handleDeleteNode}
+                onSearchNode={handleSearchNode}
+                onPeek={handlePeek}
+                onMaxNodesChange={setMaxNodes}
+                onTailModeChange={setHasTailMode}
+              />
+            </Suspense>
+          </div>
+        );
+      }
+
+      // 其他 Tab (variableStatus, callStack) 不需要 props
+      return (
+        <div className={styles.tabContent}>
+          <Suspense fallback={<div>載入中...</div>}>
+            <PanelComponent />
+          </Suspense>
+        </div>
+      );
     };
 
     return (

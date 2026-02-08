@@ -114,10 +114,10 @@ export function TopSection(props: TopSectionProps) {
           strategy={horizontalListSortingStrategy}
         >
           <Group
-            orientation={isMobile ? 'vertical' : 'horizontal'}
+            orientation={isMobile ? "vertical" : "horizontal"}
             id="tutorial-layout-h-v1"
           >
-            {mainPanelOrder[0] === 'codeEditor' ? (
+            {mainPanelOrder[0] === "codeEditor" ? (
               <>
                 <Panel
                   id="code-editor-panel"
@@ -136,10 +136,10 @@ export function TopSection(props: TopSectionProps) {
                     <PanelHeader title="Pseudo Code" />
                     <div className={styles.pseudoCodeEditor}>
                       <CodeEditor
-                        key={`editor-${mainPanelOrder.join('-')}`}
+                        key={`editor-${mainPanelOrder.join("-")}`}
                         mode="single"
                         language="python"
-                        value={topicTypeConfig?.pseudoCode || ''}
+                        value={topicTypeConfig?.pseudoCode || ""}
                         readOnly={true}
                         theme="auto"
                       />
@@ -148,7 +148,7 @@ export function TopSection(props: TopSectionProps) {
                 </Panel>
 
                 <ResizeHandle
-                  direction={isMobile ? 'vertical' : 'horizontal'}
+                  direction={isMobile ? "vertical" : "horizontal"}
                   onDoubleClick={handleToggleLeftPanel}
                   showCollapseButton={!isMobile}
                   isCollapsed={isLeftPanelCollapsed}
@@ -161,7 +161,7 @@ export function TopSection(props: TopSectionProps) {
                   id="right-panel-container"
                   key="rightPanel"
                   defaultSize={isMobile ? 70 : 65}
-                  minSize={isMobile ? '50%' : '60%'}
+                  minSize={isMobile ? "50%" : "60%"}
                 >
                   <div className={styles.rightPanel}>
                     <SortableContext
@@ -169,12 +169,12 @@ export function TopSection(props: TopSectionProps) {
                       strategy={verticalListSortingStrategy}
                     >
                       <Group
-                        key={`group-${rightPanelOrder.join('-')}`}
+                        key={`group-${rightPanelOrder.join("-")}`}
                         orientation="vertical"
                         id="tutorial-layout-v-v1"
                       >
                         {rightPanelOrder.map((panelId, index) => {
-                          if (panelId === 'canvas') {
+                          if (panelId === "canvas") {
                             return (
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
@@ -186,7 +186,7 @@ export function TopSection(props: TopSectionProps) {
                                 )}
                               </Fragment>
                             );
-                          } else if (panelId === 'inspector') {
+                          } else if (panelId === "inspector") {
                             return (
                               <Fragment key={panelId}>
                                 <Panel
@@ -216,7 +216,7 @@ export function TopSection(props: TopSectionProps) {
                   id="right-panel-container"
                   key="rightPanel"
                   defaultSize={isMobile ? 70 : 65}
-                  minSize={isMobile ? '50%' : '60%'}
+                  minSize={isMobile ? "50%" : "60%"}
                 >
                   <div className={styles.rightPanel}>
                     <SortableContext
@@ -224,12 +224,12 @@ export function TopSection(props: TopSectionProps) {
                       strategy={verticalListSortingStrategy}
                     >
                       <Group
-                        key={`group-${rightPanelOrder.join('-')}`}
+                        key={`group-${rightPanelOrder.join("-")}`}
                         orientation="vertical"
                         id="tutorial-layout-v-v1"
                       >
                         {rightPanelOrder.map((panelId, index) => {
-                          if (panelId === 'canvas') {
+                          if (panelId === "canvas") {
                             return (
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
@@ -241,7 +241,7 @@ export function TopSection(props: TopSectionProps) {
                                 )}
                               </Fragment>
                             );
-                          } else if (panelId === 'inspector') {
+                          } else if (panelId === "inspector") {
                             return (
                               <Fragment key={panelId}>
                                 <Panel
@@ -266,7 +266,7 @@ export function TopSection(props: TopSectionProps) {
                 </Panel>
 
                 <ResizeHandle
-                  direction={isMobile ? 'vertical' : 'horizontal'}
+                  direction={isMobile ? "vertical" : "horizontal"}
                   onDoubleClick={handleToggleLeftPanel}
                   showCollapseButton={!isMobile}
                   isCollapsed={isLeftPanelCollapsed}
@@ -292,10 +292,10 @@ export function TopSection(props: TopSectionProps) {
                     <PanelHeader title="Pseudo Code" />
                     <div className={styles.pseudoCodeEditor}>
                       <CodeEditor
-                        key={`editor-${mainPanelOrder.join('-')}`}
+                        key={`editor-${mainPanelOrder.join("-")}`}
                         mode="single"
                         language="python"
-                        value={topicTypeConfig?.pseudoCode || ''}
+                        value={topicTypeConfig?.pseudoCode || ""}
                         readOnly={true}
                         theme="auto"
                       />
@@ -311,12 +311,12 @@ export function TopSection(props: TopSectionProps) {
           {activeDragId ? (
             <div className={styles.dragOverlay}>
               <PanelHeader
-                title={activeDragId === 'canvas' ? '視覺化動畫' : '資料操作'}
+                title={activeDragId === "canvas" ? "視覺化動畫" : "資料操作"}
                 draggable={true}
                 dragHandleProps={{
                   style: {
-                    touchAction: 'none',
-                    cursor: 'grabbing',
+                    touchAction: "none",
+                    cursor: "grabbing",
                   },
                 }}
               />
