@@ -99,10 +99,12 @@ $section-title-desktop: 2.5rem; // 40px
 // 主要字體棧
 $font-family:
   "Inter",
+  "Noto Sans TC",
+  "PingFang TC",
+  "Microsoft JhengHei",
+  "Source Han Sans TW",
   "Source Han Sans SC",
   "Noto Sans CJK SC",
-  "Microsoft YaHei",
-  "PingFang SC",
   -apple-system,
   BlinkMacSystemFont,
   "Segoe UI",
@@ -110,9 +112,17 @@ $font-family:
 
 // 針對語言的專用字體
 $font-family-zh:
-  "Inter", "Source Han Sans SC", "Source Han Sans TW", "Source Han Sans CN",
-  "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑", "PingFang SC", sans-serif;
-
+  "Inter", 
+  "Noto Sans TC", 
+  "Source Han Sans TW", 
+  "PingFang TC", 
+  "Microsoft JhengHei", 
+  "Source Han Sans SC",
+  "Source Han Sans CN", 
+  "Noto Sans CJK SC", 
+  "Microsoft YaHei", 
+  sans-serif;
+  
 // 程式碼專用字體
 $font-family-code:
   "SF Mono", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
