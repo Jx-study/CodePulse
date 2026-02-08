@@ -90,6 +90,10 @@ function Tutorial() {
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
+    if (currentStepData?.links) {
+      return currentStepData.links;
+    }
+
     const links: Link[] = [];
     if (currentStepData?.elements) {
       const nodes = currentStepData.elements.filter(

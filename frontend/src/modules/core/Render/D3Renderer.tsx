@@ -9,6 +9,7 @@ export interface Link {
   key: string;
   sourceId: string;
   targetId: string;
+  status?: "default" | "visiting" | "target" | "complete";
 }
 
 // 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
@@ -300,6 +301,17 @@ export function renderAll(
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;
 
+  const COLORS = {
+    default: "#888",
+    visiting: "yellow",
+    target: "orange",
+    complete: "#46f336ff",
+  };
+
+  const getColor = (status?: string) => {
+    return COLORS[status as keyof typeof COLORS] || COLORS.default;
+  };
+
   // Pre-calculation for AutoScale(Grouping Support)
   const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
 
@@ -375,18 +387,39 @@ export function renderAll(
   const markerUrl = shouldHideArrow ? null : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
-  defsEnter
-    .append("marker")
-    .attr("id", "arrowhead")
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 10) // 箭頭參考點，讓箭頭頂到線終點
-    .attr("refY", 0)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", "M0,-5L10,0L0,5")
-    .attr("fill", "#888");
+  if (svg.select("#arrowhead").empty()) {
+    defsEnter
+      .append("marker")
+      .attr("id", "arrowhead")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 10) // 箭頭參考點，讓箭頭頂到線終點
+      .attr("refY", 0)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .attr("fill", "#888");
+  }
+
+  Object.entries(COLORS).forEach(([status, color]) => {
+    // 檢查是否已存在，避免重複 append (雖然 data([null]) 會擋，但保險起見)
+    if (svg.select(`#arrowhead-${status}`).empty()) {
+      svg
+        .select("defs")
+        .append("marker")
+        .attr("id", `arrowhead-${status}`)
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", color);
+    }
+  });
 
   // 根 <g>
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
@@ -407,14 +440,17 @@ export function renderAll(
       const s = byId.get(String(lk.sourceId));
       const t = byId.get(String(lk.targetId));
       if (s instanceof Node && t instanceof Node) {
-        return { s, t };
+        return { s, t, status: lk.status };
       }
       return null;
     })
-    .filter(Boolean) as { s: Node; t: Node }[];
+    .filter(Boolean) as { s: Node; t: Node; status?: string }[];
 
   const linkSel = scene
-    .selectAll<SVGPathElement, { s: Node; t: Node }>("path.link")
+    .selectAll<
+      SVGPathElement,
+      { s: Node; t: Node; status?: string }
+    >("path.link")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
   // 終點縮向起點
@@ -439,13 +475,23 @@ export function renderAll(
 
   linkEnter
     .merge(linkSel as any)
-    .attr("marker-end", markerUrl)
+    .attr("marker-end", (d) => {
+      if (shouldHideArrow) return null;
+      const status = d.status || "default";
+      return `url(#arrowhead-${status})`;
+    })
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("d", (d) => getLinkPath(d.s, d.t));
+    .attr("d", (d) => getLinkPath(d.s, d.t))
 
-  // === 再畫 NODES / BOXES（在上層）===
+    .attr("stroke", (d) => getColor(d.status))
+    .attr("stroke-width", 2)
+    .on("end", function (d) {
+      if (d.status) d3.select(this).raise();
+    });
+
+  // NODES / BOXES（在上層）
   const items = scene
     .selectAll<SVGGElement, BaseElement>("g.el")
     .data(elements, (d: any) => String(d.id));

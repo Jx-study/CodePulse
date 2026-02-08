@@ -4,8 +4,9 @@ import {
   createGraphElements,
   generateGraphFrame,
 } from "@/data/DataStructure/nonlinear/utils";
-import { Node } from "../../../modules/core/DataLogic/Node";
+import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { getLinkKey } from "@/data/DataStructure/nonlinear/utils";
 
 function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -614,15 +615,32 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
   }
 
   const visited = new Set<string>();
-  const recStack = new Set<string>(); // 僅用於有向圖 (Recursion Stack)
-  const pathStack: string[] = []; // 用於記錄路徑順序，以便抓出完整的環
+  const recStack = new Set<string>();
+  const pathStack: string[] = [];
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
 
   // 用來儲存找到的環，以便在最後一步顯示
   let cyclePath: string[] = [];
   // 用來儲存造成環的那個「連接點」，讓路徑顯示更完整 (A->B->C->A)
   let cycleConnectTo: string = "";
   let hasCycle = false;
+
+  // 設定連線狀態 (自動處理無向圖的反向邊)
+  const setLinkStatus = (u: string, v: string, status: string) => {
+    linkStatusMap[getLinkKey(u, v)] = status;
+    if (!isDirected) {
+      linkStatusMap[getLinkKey(v, u)] = status;
+    }
+  };
+
+  // 移除連線狀態
+  const removeLinkStatus = (u: string, v: string) => {
+    delete linkStatusMap[getLinkKey(u, v)];
+    if (!isDirected) {
+      delete linkStatusMap[getLinkKey(v, u)];
+    }
+  };
 
   const dfs = (
     currId: string,
@@ -642,6 +660,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         {},
         `訪問節點 ${currId} ...`,
         true,
+        { ...linkStatusMap },
       ),
     );
 
@@ -652,11 +671,15 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
       for (const neighbor of currNode.pointers) {
         const neighborId = neighbor.id;
 
+        setLinkStatus(currId, neighborId, "visiting");
+
         if (!visited.has(neighborId)) {
-          // 如果沒訪問過，繼續往下鑽
           if (dfs(neighborId, currId)) return true;
 
           statusMap[currId] = "target";
+
+          removeLinkStatus(currId, neighborId);
+
           steps.push(
             generateGraphFrame(
               baseElements,
@@ -664,6 +687,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
               {},
               `回到節點 ${currId}`,
               true,
+              { ...linkStatusMap },
             ),
           );
           statusMap[currId] = "prepare";
@@ -678,11 +702,26 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
           }
 
           if (isCycle) {
+            setLinkStatus(currId, neighborId, "target");
+
             const startIndex = pathStack.indexOf(neighborId);
             cyclePath = pathStack.slice(startIndex);
             cycleConnectTo = neighborId; // 記錄最後接回哪裡
 
+            // 環路徑上的邊設為 target
+            for (let i = 0; i < cyclePath.length - 1; i++) {
+              const u = cyclePath[i];
+              const v = cyclePath[i + 1];
+              setLinkStatus(u, v, "target");
+            }
+
             // 當下發現時的動畫，先把環上的節點都標成 target
+            setLinkStatus(
+              cyclePath[cyclePath.length - 1],
+              cycleConnectTo,
+              "target",
+            );
+
             cyclePath.forEach((id) => (statusMap[id] = "target"));
 
             steps.push(
@@ -692,10 +731,14 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
                 {},
                 `發現環！(${currId} -> ${neighborId})`,
                 true,
+                { ...linkStatusMap },
               ),
             );
             return true;
           }
+
+          // 若不是環，移除狀態
+          removeLinkStatus(currId, neighborId);
         }
       }
     }
@@ -710,8 +753,9 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         baseElements,
         { ...statusMap },
         {},
-        `節點 ${currId} 處理完成 (無環發現)`,
+        `節點 ${currId} 處理完成`,
         true,
+        { ...linkStatusMap }, // 這裡通常是空的，或者是其他遞迴層留下的顏色
       ),
     );
 
@@ -738,6 +782,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         {},
         "檢查結束：此圖無環 (Acyclic)。",
         true,
+        {},
       ),
     );
   } else {
@@ -763,6 +808,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         {},
         `檢查結束：發現環 (Cyclic)。路徑：${fullPathStr}`,
         true,
+        linkStatusMap,
       ),
     );
   }

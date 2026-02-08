@@ -5,6 +5,8 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
 
+export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
+
 export interface GridCellData {
   id: string;
   val: number;
@@ -98,6 +100,7 @@ export const generateGraphFrame = (
   distanceMap: Record<string, number>,
   description: string,
   showIdAsValue: boolean = false,
+  linkStatusMap: Record<string, string> = {},
 ): AnimationStep => {
   const frameElements = baseElements.map((node) => {
     const newNode = new Node();
@@ -127,10 +130,24 @@ export const generateGraphFrame = (
     return newNode;
   });
 
+  const links: { sourceId: string; targetId: string; status?: string }[] = [];
+
+  baseElements.forEach((source) => {
+    source.pointers.forEach((target) => {
+      const key = getLinkKey(source.id, target.id);
+      links.push({
+        sourceId: source.id,
+        targetId: target.id,
+        status: linkStatusMap[key],
+      });
+    });
+  });
+
   return {
     stepNumber: 0,
     description,
     elements: frameElements,
+    links: links,
   };
 };
 
