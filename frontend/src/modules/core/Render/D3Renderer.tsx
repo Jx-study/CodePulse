@@ -30,6 +30,79 @@ function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
   return { x: cx + ux * r, y: cy + uy * r };
 }
 
+function getLinkPath(source: Node, target: Node): string {
+  if (
+    isNaN(source.position.x) ||
+    isNaN(source.position.y) ||
+    isNaN(target.position.x) ||
+    isNaN(target.position.y)
+  ) {
+    return "";
+  }
+
+  const r = source.radius || 20;
+
+  // Case 1: 自環 (Self-loop)
+  if (source.id === target.id) {
+    const x = source.position.x;
+    const y = source.position.y;
+
+    const startX = x - r * 0.7;
+    const startY = y - r * 0.7;
+    const endX = x + r * 0.7;
+    const endY = y - r * 0.7;
+
+    const cp1X = x - r * 2.5;
+    const cp1Y = y - r * 2.5;
+    const cp2X = x + r * 2.5;
+    const cp2Y = y - r * 2.5;
+
+    // 格式：M 起點 C 控制點1 控制點2 終點
+    return `M ${startX},${startY} C ${cp1X},${cp1Y} ${cp2X},${cp2Y} ${endX},${endY}`;
+  }
+
+  // Case 2: 一般連線 (Straight Line -> 偽裝成 Curve)
+  const p1 = getCircleBoundaryPoint(source, target);
+  const p2 = getCircleBoundaryPoint(target, source);
+
+  if (isNaN(p1.x) || isNaN(p1.y) || isNaN(p2.x) || isNaN(p2.y)) {
+    return "";
+  }
+
+  // 用 C (Bezier) 來畫直線。
+  // 設為：控制點1 = 起點, 控制點2 = 終點
+
+  return `M ${p1.x},${p1.y} C ${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x},${p2.y}`;
+}
+
+function getZeroLengthPath(source: Node, target: Node): string {
+  if (
+    isNaN(source.position.x) ||
+    isNaN(source.position.y) ||
+    isNaN(target.position.x) ||
+    isNaN(target.position.y)
+  ) {
+    return "";
+  }
+
+  // Case 1: 自環 (Self-loop)
+  // 讓初始點停留在自環的「起點」 (x - r*0.7)，而不是圓心
+  if (source.id === target.id) {
+    const r = source.radius || 20;
+    const x = source.position.x;
+    const y = source.position.y;
+    const startX = x - r * 0.7;
+    const startY = y - r * 0.7;
+    // 縮成一個點
+    return `M ${startX},${startY} C ${startX},${startY} ${startX},${startY} ${startX},${startY}`;
+  }
+
+  // Case 2: 一般連線
+  // 取得圓邊界上的一個點
+  const { x, y } = getCircleBoundaryPoint(source, target);
+  return `M ${x},${y} C ${x},${y} ${x},${y} ${x},${y}`;
+}
+
 /**
  * 從 node1 的邊緣開始，動畫伸長到 node2 的邊緣
  * @param svgEl SVG 元素
@@ -321,6 +394,9 @@ export function renderAll(
   const scene = svg.select<SVGGElement>("g.scene");
 
   drawContainer(scene, structureType);
+  // 清除舊的連線 (避免重繪疊加)
+  // 不知道有沒有用
+  scene.selectAll("line.link").remove();
 
   // === 先畫 LINKS（在底層）===
   // 依 id 找 element
@@ -338,7 +414,7 @@ export function renderAll(
     .filter(Boolean) as { s: Node; t: Node }[];
 
   const linkSel = scene
-    .selectAll<SVGLineElement, { s: Node; t: Node }>("line.link")
+    .selectAll<SVGPathElement, { s: Node; t: Node }>("path.link")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
   // 終點縮向起點
@@ -346,21 +422,20 @@ export function renderAll(
     .exit()
     .transition()
     .duration(transitionDuration)
-    .attr("x2", (d: any) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y2", (d: any) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("d", (d: any) => getZeroLengthPath(d.s, d.t))
     .remove();
 
   const linkEnter = linkSel
     .enter()
-    .append("line")
+    .append("path")
     .attr("class", "link")
     .attr("stroke", "#888")
     .attr("stroke-width", 2)
-    // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
-    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
-    .attr("x2", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y2", (d) => getCircleBoundaryPoint(d.s, d.t).y);
+    .attr("fill", "none") // 設為 none，不然自環中間會被填滿黑色
+    .attr("marker-end", markerUrl)
+    // 初始狀態：從起點長出來
+    .attr("d", (d) => getZeroLengthPath(d.s, d.t));
+  // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
 
   linkEnter
     .merge(linkSel as any)
@@ -368,10 +443,7 @@ export function renderAll(
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
-    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
-    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
+    .attr("d", (d) => getLinkPath(d.s, d.t));
 
   // === 再畫 NODES / BOXES（在上層）===
   const items = scene
@@ -398,18 +470,6 @@ export function renderAll(
     g.append("text").attr("class", "desc"); // 顯示 description
     g.append("text").attr("class", "val"); // 顯示 value
   });
-
-  const linkMerged = linkEnter.merge(linkSel as any);
-
-  linkMerged
-    .transition()
-    .duration(transitionDuration)
-    .ease(transitionEase)
-    // 使用 attrTween 確保在 transition 過程中每一幀都重新計算座標
-    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
-    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
-    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
 
   // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
