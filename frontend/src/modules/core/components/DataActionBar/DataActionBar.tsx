@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import styles from "./DataActionBar.module.scss";
+import Icon from "@/shared/components/Icon";
 
 // 定義支援的結構類型
 export type StructureType =
@@ -136,7 +137,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           type="text"
           placeholder="10,40,30..."
           value={bulkInput}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBulkInput(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setBulkInput(e.target.value)
+          }
           className={styles.input}
           disabled={disabled}
           fullWidth={false}
@@ -146,13 +149,26 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           size="sm"
           onClick={() => onLoadData(bulkInput)}
           disabled={disabled}
+          icon="download"
         >
           載入資料
         </Button>
-        <Button size="sm" onClick={onResetData} disabled={disabled}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onResetData}
+          disabled={disabled}
+          icon="rotate-right"
+        >
           重設
         </Button>
-        <Button size="sm" onClick={onRandomData} disabled={disabled}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onRandomData}
+          disabled={disabled}
+          icon="shuffle"
+        >
           隨機
         </Button>
 
@@ -175,7 +191,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
 
         {showTailMode && (
           <Select
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onTailModeChange(e.target.value === "hasTail")}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onTailModeChange(e.target.value === "hasTail")
+            }
             className={styles.select}
             disabled={disabled}
             options={[
@@ -197,44 +215,52 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
           {structureType === "array"
             ? "Array Operations"
             : structureType === "linkedlist"
-            ? "Linked List Operations"
-            : structureType === "stack"
-            ? "Stack Operations"
-            : structureType === "queue"
-            ? "Queue Operations"
-            : structureType === "binarytree"
-            ? "Binary Tree Traversals"
-            : structureType === "bst"
-            ? "Binary Search Tree Operations"
-            : "Operations"}
+              ? "Linked List Operations"
+              : structureType === "stack"
+                ? "Stack Operations"
+                : structureType === "queue"
+                  ? "Queue Operations"
+                  : structureType === "binarytree"
+                    ? "Binary Tree Traversals"
+                    : structureType === "bst"
+                      ? "Binary Search Tree Operations"
+                      : "Operations"}
         </div>
         {isBinaryTree ? (
           <>
             <Button
               size="sm"
+              variant="secondary"
               onClick={() => onSearchNode(0, "preorder")}
               disabled={disabled}
+              className={styles.btnSearch}
             >
               Preorder
             </Button>
             <Button
               size="sm"
+              variant="secondary"
               onClick={() => onSearchNode(0, "inorder")}
               disabled={disabled}
+              className={styles.btnSearch}
             >
               Inorder
             </Button>
             <Button
               size="sm"
+              variant="secondary"
               onClick={() => onSearchNode(0, "postorder")}
               disabled={disabled}
+              className={styles.btnSearch}
             >
               Postorder
             </Button>
             <Button
               size="sm"
+              variant="secondary"
               onClick={() => onSearchNode(0, "bfs")}
               disabled={disabled}
+              className={styles.btnSearch}
             >
               BFS (Level-order)
             </Button>
@@ -244,7 +270,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             {structureType === "linkedlist" && (
               <Select
                 value={insertMode}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setInsertMode(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setInsertMode(e.target.value)
+                }
                 className={styles.select}
                 disabled={disabled}
                 options={[
@@ -260,7 +288,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               type="number"
               placeholder="數值"
               value={inputValue}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputValue(e.target.value)
+              }
               className={styles.input}
               disabled={disabled}
               fullWidth={false}
@@ -272,7 +302,9 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 type="number"
                 placeholder="Index"
                 value={indexValue}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIndexValue(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setIndexValue(e.target.value)
+                }
                 className={styles.input}
                 disabled={disabled}
                 fullWidth={false}
@@ -280,27 +312,50 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               />
             )}
 
-            <Button size="sm" onClick={handleAdd} disabled={disabled}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleAdd}
+              disabled={disabled}
+              className={styles.btnInsert}
+              icon="plus"
+            >
               {addBtnText}
             </Button>
 
             {showUpdateButton && (
               <Button
                 size="sm"
+                variant="secondary"
                 onClick={handleUpdate}
                 disabled={disabled}
-                style={{ marginLeft: "4px" }}
+                className={styles.btnUpdate}
+                icon="pencil"
               >
                 Update
               </Button>
             )}
 
-            <Button size="sm" onClick={handleDelete} disabled={disabled}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleDelete}
+              disabled={disabled}
+              className={styles.btnDelete}
+              icon="trash"
+            >
               {delBtnText}
             </Button>
 
             {showPeek && onPeek && (
-              <Button size="sm" onClick={onPeek} disabled={disabled}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={onPeek}
+                disabled={disabled}
+                className={styles.btnQuery}
+                icon="eye"
+              >
                 Peek
               </Button>
             )}
@@ -328,14 +383,17 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                 />
                 <Button
                   size="sm"
+                  variant="secondary"
                   onClick={() => {
                     const val = Number(
                       (document.getElementById("searchVal") as HTMLInputElement)
-                        .value
+                        .value,
                     );
                     onSearchNode(val, "search");
                   }}
                   disabled={disabled}
+                  className={styles.btnSearch}
+                  icon="search"
                 >
                   Search
                 </Button>
@@ -343,50 +401,58 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                   <>
                     <Button
                       size="sm"
+                      variant="secondary"
                       onClick={() => onSearchNode(0, "min")}
                       disabled={disabled}
+                      className={styles.btnQuery}
                     >
                       Min
                     </Button>
                     <Button
                       size="sm"
+                      variant="secondary"
                       onClick={() => onSearchNode(0, "max")}
                       disabled={disabled}
+                      className={styles.btnQuery}
                     >
                       Max
                     </Button>
                     {/* Floor/Ceil 需要參考輸入框的值 */}
                     <Button
                       size="sm"
+                      variant="secondary"
                       onClick={() => {
                         const val = Number(
                           (
                             document.getElementById(
-                              "searchVal"
+                              "searchVal",
                             ) as HTMLInputElement
-                          ).value
+                          ).value,
                         );
                         if (!isNaN(val)) onSearchNode(val, "floor");
                         else alert("Floor 需要輸入參考數值");
                       }}
                       disabled={disabled}
+                      className={styles.btnQuery}
                     >
                       Floor
                     </Button>
                     <Button
                       size="sm"
+                      variant="secondary"
                       onClick={() => {
                         const val = Number(
                           (
                             document.getElementById(
-                              "searchVal"
+                              "searchVal",
                             ) as HTMLInputElement
-                          ).value
+                          ).value,
                         );
                         if (!isNaN(val)) onSearchNode(val, "ceil");
                         else alert("Ceil 需要輸入參考數值");
                       }}
                       disabled={disabled}
+                      className={styles.btnQuery}
                     >
                       Ceil
                     </Button>{" "}
