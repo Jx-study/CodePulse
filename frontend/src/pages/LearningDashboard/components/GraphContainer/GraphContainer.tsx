@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import styles from './GraphContainer.module.scss';
 import {
   calculateNodePosition,
@@ -6,29 +6,14 @@ import {
   calculateContentBounds,
 } from './utils/positionCalculator';
 import { useZoom } from '@/shared/hooks/useZoom';
+import { useDrag } from '@/shared/hooks/useDrag';
 import ZoomControls from '@/shared/components/ZoomControls';
-import type { Point2D, GraphContainerProps } from '@/types';
+import type { GraphContainerProps } from '@/types';
 
-const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見 
+const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見
 function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
-  const [currentScroll, setCurrentScroll] = useState<Point2D>({ x: 0, y: 0 });
   const [headerHeight, setHeaderHeight] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const dragStartRef = useRef<Point2D | null>(null);
-
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  // 縮放功能
-  const { zoomLevel, zoomIn, zoomOut, resetZoom } = useZoom({
-    minZoom: 0.5,
-    maxZoom: 2.0,
-    initialZoom: 1.0,
-    step: 0.1,
-    enableWheelZoom: true,
-    enablePinchZoom: true,
-    targetRef: mapRef as React.RefObject<HTMLElement>,
-  });
 
   // 計算內容邊界（考慮所有節點的實際位置）
   const contentBounds = useMemo(() => {
@@ -39,13 +24,23 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     };
   }, [levels]);
 
-  // 動態計算滾動限制（考慮縮放等級）
-  const scrollLimits = useMemo(() => {
-    if (!mapRef.current) {
+  // 縮放功能
+  const { zoomLevel, zoomIn, zoomOut, resetZoom } = useZoom({
+    minZoom: 0.5,
+    maxZoom: 2.0,
+    initialZoom: 1.0,
+    step: 0.1,
+    enableWheelZoom: true,
+    enablePinchZoom: true,
+  });
+
+  // 動態計算滾動限制的輔助函數
+  const calculateScrollBounds = useCallback((container: HTMLElement | null | undefined) => {
+    if (!container) {
       return { minScrollY: -1000, maxScrollY: 1000, maxScrollX: 300 };
     }
 
-    const containerHeight = mapRef.current.clientHeight;
+    const containerHeight = container.clientHeight;
 
     // 內容最上面 & 最下面的實際位置
     const contentTop = contentBounds.minY * zoomLevel;
@@ -66,6 +61,20 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
       maxScrollX,
     };
   }, [contentBounds, zoomLevel]);
+
+  // 拖拽功能 (使用 useDrag hook，動態計算邊界)
+  const drag = useDrag<HTMLDivElement>({
+    enabled: true,
+    calculateBounds: (container) => {
+      const bounds = calculateScrollBounds(container);
+      return {
+        minX: -bounds.maxScrollX,
+        maxX: bounds.maxScrollX,
+        minY: bounds.minScrollY,
+        maxY: bounds.maxScrollY,
+      };
+    },
+  });
 
   // 找到當前進度的關卡（第一個未完成的關卡）
   const currentLevelIndex = useMemo(() => {
@@ -94,9 +103,9 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
 
   // 初始化：自動定位到當前進度關卡
   useEffect(() => {
-    if (isInitialized || !mapRef.current || levels.length === 0) return;
+    if (isInitialized || !drag.containerRef.current || levels.length === 0) return;
 
-    const containerHeight = mapRef.current.clientHeight;
+    const containerHeight = drag.containerRef.current.clientHeight;
     const currentLevel = levels[currentLevelIndex];
 
     if (currentLevel) {
@@ -109,106 +118,44 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
       const targetPositionInContainer = containerHeight * 0.7; // 距離頂部 70%
 
       // 計算需要的 scroll 值
-      // transform: translate(x, scrollY) 會將內容移動 scrollY
-      // 我們希望：position.y * zoomLevel + scrollY = targetPositionInContainer
-      // 所以：scrollY = targetPositionInContainer - position.y * zoomLevel
       const idealScrollY = targetPositionInContainer - position.y * zoomLevel;
+
+      // 獲取當前的邊界限制
+      const bounds = calculateScrollBounds(drag.containerRef.current);
 
       // 確保在滾動限制範圍內
       const initialScrollY = Math.max(
-        scrollLimits.minScrollY,
-        Math.min(scrollLimits.maxScrollY, idealScrollY)
+        bounds.minScrollY,
+        Math.min(bounds.maxScrollY, idealScrollY)
       );
 
-      setCurrentScroll({ x: 0, y: initialScrollY });
+      drag.setOffset({ x: 0, y: initialScrollY });
       setIsInitialized(true);
     }
-  }, [isInitialized, levels, currentLevelIndex, scrollLimits, zoomLevel]);
-
-  // ==================== 滑鼠事件 ====================
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    dragStartRef.current = {
-      x: e.clientX - currentScroll.x,
-      y: e.clientY - currentScroll.y
-    };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !dragStartRef.current) return;
-
-    e.preventDefault();
-    const newScroll = {
-      x: e.clientX - dragStartRef.current.x,
-      y: e.clientY - dragStartRef.current.y
-    };
-
-    setCurrentScroll({
-      x: Math.max(-scrollLimits.maxScrollX, Math.min(scrollLimits.maxScrollX, newScroll.x)),
-      y: Math.max(scrollLimits.minScrollY, Math.min(scrollLimits.maxScrollY, newScroll.y))
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    dragStartRef.current = null;
-  };
-
-  // ==================== 觸控事件 ====================
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setIsDragging(true);
-    dragStartRef.current = {
-      x: touch.clientX - currentScroll.x,
-      y: touch.clientY - currentScroll.y
-    };
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !dragStartRef.current) return;
-
-    const touch = e.touches[0];
-    const newScroll = {
-      x: touch.clientX - dragStartRef.current.x,
-      y: touch.clientY - dragStartRef.current.y
-    };
-
-    setCurrentScroll({
-      x: Math.max(-scrollLimits.maxScrollX, Math.min(scrollLimits.maxScrollX, newScroll.x)),
-      y: Math.max(scrollLimits.minScrollY, Math.min(scrollLimits.maxScrollY, newScroll.y))
-    });
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-    dragStartRef.current = null;
-  };
-
+  }, [isInitialized, levels, currentLevelIndex, zoomLevel, drag, calculateScrollBounds]);
 
   // ==================== 渲染 ====================
 
   return (
     <div
-      ref={mapRef}
-      className={`${styles.graphContainer} ${isDragging ? styles.dragging : ''}`}
+      ref={drag.containerRef}
+      className={`${styles.graphContainer} ${drag.isDragging ? styles.dragging : ''}`}
       style={{
         top: `${headerHeight}px`,
         height: `calc(100% - ${headerHeight}px)`,
       }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      onMouseDown={drag.handleMouseDown}
+      onMouseMove={drag.handleMouseMove}
+      onMouseUp={drag.handleMouseUp}
+      onMouseLeave={drag.handleMouseUp}
+      onTouchStart={drag.handleTouchStart}
+      onTouchMove={drag.handleTouchMove}
+      onTouchEnd={drag.handleTouchEnd}
     >
       <div
         className={styles.mapContent}
         style={{
-          transform: `translate(${currentScroll.x}px, ${currentScroll.y}px) scale(${zoomLevel})`,
+          transform: `translate(${drag.offset.x}px, ${drag.offset.y}px) scale(${zoomLevel})`,
           transformOrigin: 'center center'
         }}
       >

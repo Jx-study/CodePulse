@@ -30,7 +30,7 @@ function ControlBar({
   onSpeedChange,
   onStepChange,
 }: ControlBarProps) {
-  const speeds = [0.5, 1, 1.5, 2];
+  const speeds = [0.5, 1, 1.5, 2, 3];
 
   return (
     <div className={styles.controlBar}>

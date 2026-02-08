@@ -97,7 +97,7 @@ const CanvasPanel = ({
   return (
     <Panel
       id="canvas-panel"
-      defaultSize={80}
+      defaultSize={75}
       minSize="50%"
       collapsible
       panelRef={canvasPanelRef}

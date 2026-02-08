@@ -37,7 +37,7 @@ interface UseZoomOptions {
   /** 是否啟用以滑鼠位置為中心的縮放 (預設: false) */
   enableMouseCenteredZoom?: boolean;
   /** 目標元素 Ref (用於監聽事件) */
-  targetRef?: React.RefObject<HTMLElement>;
+  targetRef?: React.RefObject<HTMLElement | null>;
 }
 
 interface UseZoomReturn {

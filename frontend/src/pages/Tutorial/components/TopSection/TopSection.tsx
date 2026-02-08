@@ -247,8 +247,8 @@ export function TopSection(props: TopSectionProps) {
                                 <Panel
                                   id="inspector-panel"
                                   panelRef={inspectorPanelRef}
-                                  defaultSize={50}
-                                  minSize={20}
+                                  defaultSize={25}
+                                  minSize="20%"
                                 >
                                   <InspectorPanelInternal />
                                 </Panel>

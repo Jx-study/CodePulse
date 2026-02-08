@@ -31,3 +31,77 @@
   width: 100%;
   height: 100%;
 }
+
+.resetButtonContainer {
+  position: absolute;
+  right: $spacing-md;
+  bottom: $spacing-md;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.resetButton {
+  @include flex(center, center, row);
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba($dark-bg-secondary, 0.9) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($white-color, 0.15) !important;
+  border-radius: $radius-md !important;
+  cursor: pointer;
+  transition: $transition-base;
+  box-shadow: $shadow-md;
+  color: $white-color !important;
+  font-size: $font-lg !important;
+  font-weight: 700;
+  padding: 0 !important;
+  position: relative;
+
+  // 毛玻璃效果
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(
+      180deg,
+      rgba($white-color, 0.1) 0%,
+      transparent 100%
+    );
+    border-radius: $radius-md $radius-md 0 0;
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba($dark-bg-secondary, 0.95) !important;
+    border-color: rgba($primary-color, 0.5) !important;
+    box-shadow:
+      $shadow-lg,
+      0 0 12px rgba($primary-color, 0.3);
+    transform: scale(1.05) !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95) !important;
+    box-shadow: $shadow-sm;
+  }
+}
+
+// Mobile 優化
+@media (max-width: $mobile-max) {
+  .resetButtonContainer {
+    right: $spacing-sm;
+    bottom: $spacing-sm;
+    gap: $spacing-2xs;
+  }
+
+  .resetButton {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: $font-base !important;
+  }
+}

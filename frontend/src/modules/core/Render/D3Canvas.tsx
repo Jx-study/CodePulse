@@ -4,7 +4,8 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { renderAll } from "./D3Renderer";
 import type { Link } from "./D3Renderer";
 import { useZoom } from "@/shared/hooks/useZoom";
-import type { Point2D } from '@/types';
+import { useDrag } from "@/shared/hooks/useDrag";
+import Button from "@/shared/components/Button";
 import styles from './D3Canvas.module.scss';
 
 export interface D3CanvasRef {
@@ -38,7 +39,6 @@ export const D3Canvas = forwardRef<
     forwardedRef,
   ) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
-    const containerRef = useRef<HTMLDivElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
 
     // 動態 viewBox 狀態
@@ -46,13 +46,14 @@ export const D3Canvas = forwardRef<
       `0 0 ${width} ${height}`,
     );
 
-    // 拖拽平移狀態
-    const [offset, setOffset] = useState<Point2D>({ x: 0, y: 0 });
-    const [isDragging, setIsDragging] = useState(false);
-    const dragStartRef = useRef<Point2D | null>(null);
+    // 拖拽功能 (使用 useDrag hook，邊界係數 0.7)
+    const drag = useDrag<HTMLDivElement>({
+      enabled: enablePan,
+      boundaryRatio: 0.7,
+    });
 
     // 縮放功能
-    const { zoomLevel, transformOrigin } = useZoom({
+    const { zoomLevel, transformOrigin, resetZoom } = useZoom({
       minZoom: 0.5,
       maxZoom: 2.0,
       initialZoom: 1.0,
@@ -60,8 +61,14 @@ export const D3Canvas = forwardRef<
       enableWheelZoom: enableZoom,
       enablePinchZoom: enableZoom,
       enableMouseCenteredZoom: enableZoom,
-      targetRef: containerRef as React.RefObject<HTMLElement>,
+      targetRef: drag.containerRef,
     });
+
+    // 重置視圖（縮放 + 位移）
+    const handleResetView = () => {
+      resetZoom();
+      drag.setOffset({ x: 0, y: 0 });
+    };
 
     useImperativeHandle(forwardedRef, () => ({
       getSVGElement: () => svgRef.current,
@@ -99,116 +106,24 @@ export const D3Canvas = forwardRef<
       };
     }, [elements, links, structureType, width, height]);
 
-    // ==================== 拖拽平移事件處理 ====================
-
-    /**
-     * 計算並限制新的位移量
-     * @param clientX 當前鼠標/觸摸 X
-     * @param clientY 當前鼠標/觸摸 Y
-     */
-    const calculateNewOffset = (clientX: number, clientY: number) => {
-      if (!containerRef.current || !dragStartRef.current) return offset;
-
-      const { clientWidth, clientHeight } = containerRef.current;
-
-      // 計算滑鼠移動的距離差 (Delta)
-      // 原理: 新的 offset = 當前 clientX - 基準點
-      const rawNewX = clientX - dragStartRef.current.x;
-      const rawNewY = clientY - dragStartRef.current.y;
-
-      // 設定邊界係數 (0.8 表示允許拖曳直到中心點偏離容器中心的 80%)
-      const boundaryRatio = 0.8;
-
-      // 使用容器實際尺寸計算限制範圍
-      const limitX = clientWidth * boundaryRatio;
-      const limitY = clientHeight * boundaryRatio;
-
-      return {
-        x: Math.max(-limitX, Math.min(limitX, rawNewX)),
-        y: Math.max(-limitY, Math.min(limitY, rawNewY)),
-      };
-    };
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      if (!enablePan) return;
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: e.clientX - offset.x,
-        y: e.clientY - offset.y,
-      };
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-      if (!enablePan || !isDragging || !dragStartRef.current) return;
-      e.preventDefault();
-      const newOffset = calculateNewOffset(e.clientX, e.clientY);
-      setOffset(newOffset);
-    };
-
-    const handleMouseUp = () => {
-      if (!enablePan) return;
-      setIsDragging(false);
-      dragStartRef.current = null;
-    };
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-      if (!enablePan || e.touches.length !== 1) return;
-
-      const touch = e.touches[0];
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: touch.clientX - offset.x,
-        y: touch.clientY - offset.y,
-      };
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-      if (
-        !enablePan ||
-        !isDragging ||
-        !dragStartRef.current ||
-        e.touches.length !== 1
-      )
-        return;
-
-      const touch = e.touches[0];
-
-      // 限制平移範圍，防止拖出可視區域
-      const maxOffset = Math.min(width, height) * 0.5; // 最大平移距離為畫布尺寸的一半
-      const newX = touch.clientX - dragStartRef.current.x;
-      const newY = touch.clientY - dragStartRef.current.y;
-
-      const newOffset = {
-        x: Math.max(-maxOffset, Math.min(maxOffset, newX)),
-        y: Math.max(-maxOffset, Math.min(maxOffset, newY)),
-      };
-      setOffset(newOffset);
-    };
-
-    const handleTouchEnd = () => {
-      if (!enablePan) return;
-      setIsDragging(false);
-      dragStartRef.current = null;
-    };
-
     return (
       <div
-        ref={containerRef}
-        className={`${styles.canvasContainer} ${isDragging ? styles.dragging : ""} ${enablePan ? styles["pan-enabled"] : ""}`}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        ref={drag.containerRef}
+        className={`${styles.canvasContainer} ${drag.isDragging ? styles.dragging : ""} ${enablePan ? styles["pan-enabled"] : ""}`}
+        onMouseDown={drag.handleMouseDown}
+        onMouseMove={drag.handleMouseMove}
+        onMouseUp={drag.handleMouseUp}
+        onMouseLeave={drag.handleMouseUp}
+        onTouchStart={drag.handleTouchStart}
+        onTouchMove={drag.handleTouchMove}
+        onTouchEnd={drag.handleTouchEnd}
       >
         <div
           ref={contentRef}
-          className={`${styles.canvasContent} ${isDragging ? styles.dragging : ""}`}
+          className={`${styles.canvasContent} ${drag.isDragging ? styles.dragging : ""}`}
           style={{
             transformOrigin: transformOrigin,
-            transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoomLevel})`,
+            transform: `translate(${drag.offset.x}px, ${drag.offset.y}px) scale(${zoomLevel})`,
           }}
         >
           <svg
@@ -218,6 +133,21 @@ export const D3Canvas = forwardRef<
             className={styles.canvas}
           />
         </div>
+
+        {/* Reset 按鈕 */}
+        {(enableZoom || enablePan) && (
+          <div className={styles.resetButtonContainer}>
+            <Button
+              variant="icon"
+              size="md"
+              onClick={handleResetView}
+              aria-label="重置視圖"
+              className={styles.resetButton}
+              icon="rotate-right"
+            >
+            </Button>
+          </div>
+        )}
       </div>
     );
   }

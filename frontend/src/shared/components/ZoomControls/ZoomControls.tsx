@@ -1,3 +1,4 @@
+import Button from "../Button";
 import styles from "./ZoomControls.module.scss";
 
 export interface ZoomControlsProps {
@@ -49,36 +50,36 @@ function ZoomControls({
       {/* 縮放按鈕組 */}
       <div className={styles.buttonGroup}>
         {/* Zoom In 按鈕 */}
-        <button
+        <Button
           className={styles.zoomButton}
           onClick={onZoomIn}
           disabled={isZoomInDisabled}
           aria-label="放大"
           title="放大 (Zoom In)"
+          icon="plus"
         >
-          <span className={styles.icon}>+</span>
-        </button>
+        </Button>
 
         {/* Zoom Out 按鈕 */}
-        <button
+        <Button
           className={styles.zoomButton}
           onClick={onZoomOut}
           disabled={isZoomOutDisabled}
           aria-label="縮小"
           title="縮小 (Zoom Out)"
+          icon="minus"
         >
-          <span className={styles.icon}>−</span>
-        </button>
+        </Button>
 
         {/* Reset 按鈕 */}
-        <button
+        <Button
           className={styles.zoomButton}
           onClick={onResetZoom}
           aria-label="重置縮放"
           title="重置縮放 (100%)"
+          icon="rotate-right"
         >
-          <span className={styles.icon}>⟲</span>
-        </button>
+        </Button>
       </div>
 
       {/* 縮放比例顯示 */}
