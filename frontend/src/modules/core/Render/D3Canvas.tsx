@@ -5,6 +5,7 @@ import { renderAll } from "./D3Renderer";
 import type { Link } from "./D3Renderer";
 import { useZoom } from "@/shared/hooks/useZoom";
 import type { Point2D } from '@/types';
+import styles from './D3Canvas.module.scss';
 
 export interface D3CanvasRef {
   getSVGElement: () => SVGSVGElement | null;
@@ -34,11 +35,16 @@ export const D3Canvas = forwardRef<
       enableZoom = true,
       enablePan = true,
     },
-    forwardedRef
+    forwardedRef,
   ) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
+
+    // 動態 viewBox 狀態
+    const [dynamicViewBox, setDynamicViewBox] = useState(
+      `0 0 ${width} ${height}`,
+    );
 
     // 拖拽平移狀態
     const [offset, setOffset] = useState<Point2D>({ x: 0, y: 0 });
@@ -67,17 +73,61 @@ export const D3Canvas = forwardRef<
 
       renderAll(svgElement, elements, links, structureType);
 
+      // 動態計算 viewBox 以適應內容
+      try {
+        const bbox = svgElement.getBBox();
+        const padding = 40;
+
+        // 如果 bbox 有效（非零寬高），則更新 viewBox
+        if (bbox.width > 0 && bbox.height > 0) {
+          const newViewBox = `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`;
+          setDynamicViewBox(newViewBox);
+        }
+      } catch (error) {
+        // getBBox 可能在某些情況下失敗（如 SVG 為空），使用預設值
+        console.warn("Failed to calculate SVG bounding box:", error);
+        setDynamicViewBox(`0 0 ${width} ${height}`);
+      }
+
       // 清理函數：當組件卸載或依賴變更時，中斷所有進行中的 D3 transition
       return () => {
         if (svgElement) {
           // 選擇所有正在進行的 transition 並中斷它們
           const svg = d3.select(svgElement);
-          svg.selectAll('*').interrupt();
+          svg.selectAll("*").interrupt();
         }
       };
-    }, [elements, links, structureType]);
+    }, [elements, links, structureType, width, height]);
 
     // ==================== 拖拽平移事件處理 ====================
+
+    /**
+     * 計算並限制新的位移量
+     * @param clientX 當前鼠標/觸摸 X
+     * @param clientY 當前鼠標/觸摸 Y
+     */
+    const calculateNewOffset = (clientX: number, clientY: number) => {
+      if (!containerRef.current || !dragStartRef.current) return offset;
+
+      const { clientWidth, clientHeight } = containerRef.current;
+
+      // 計算滑鼠移動的距離差 (Delta)
+      // 原理: 新的 offset = 當前 clientX - 基準點
+      const rawNewX = clientX - dragStartRef.current.x;
+      const rawNewY = clientY - dragStartRef.current.y;
+
+      // 設定邊界係數 (0.8 表示允許拖曳直到中心點偏離容器中心的 80%)
+      const boundaryRatio = 0.8;
+
+      // 使用容器實際尺寸計算限制範圍
+      const limitX = clientWidth * boundaryRatio;
+      const limitY = clientHeight * boundaryRatio;
+
+      return {
+        x: Math.max(-limitX, Math.min(limitX, rawNewX)),
+        y: Math.max(-limitY, Math.min(limitY, rawNewY)),
+      };
+    };
 
     const handleMouseDown = (e: React.MouseEvent) => {
       if (!enablePan) return;
@@ -90,18 +140,8 @@ export const D3Canvas = forwardRef<
 
     const handleMouseMove = (e: React.MouseEvent) => {
       if (!enablePan || !isDragging || !dragStartRef.current) return;
-
       e.preventDefault();
-
-      // 限制平移範圍，防止拖出可視區域
-      const maxOffset = Math.min(width, height) * 0.5; // 最大平移距離為畫布尺寸的一半
-      const newX = e.clientX - dragStartRef.current.x;
-      const newY = e.clientY - dragStartRef.current.y;
-
-      const newOffset = {
-        x: Math.max(-maxOffset, Math.min(maxOffset, newX)),
-        y: Math.max(-maxOffset, Math.min(maxOffset, newY)),
-      };
+      const newOffset = calculateNewOffset(e.clientX, e.clientY);
       setOffset(newOffset);
     };
 
@@ -123,7 +163,13 @@ export const D3Canvas = forwardRef<
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
-      if (!enablePan || !isDragging || !dragStartRef.current || e.touches.length !== 1) return;
+      if (
+        !enablePan ||
+        !isDragging ||
+        !dragStartRef.current ||
+        e.touches.length !== 1
+      )
+        return;
 
       const touch = e.touches[0];
 
@@ -148,17 +194,7 @@ export const D3Canvas = forwardRef<
     return (
       <div
         ref={containerRef}
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          overflow: "hidden", // 改回 hidden，防止內容拖出區域
-          background: "#111",
-          cursor: enablePan ? (isDragging ? "grabbing" : "grab") : "default",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className={`${styles.canvasContainer} ${isDragging ? styles.dragging : ""} ${enablePan ? styles["pan-enabled"] : ""}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -169,20 +205,17 @@ export const D3Canvas = forwardRef<
       >
         <div
           ref={contentRef}
+          className={`${styles.canvasContent} ${isDragging ? styles.dragging : ""}`}
           style={{
-            width: width,
-            height: height,
             transformOrigin: transformOrigin,
             transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoomLevel})`,
-            transition: isDragging ? "none" : "transform 0.1s ease-out",
-            pointerEvents: "auto",
           }}
         >
           <svg
             ref={svgRef}
-            width={width}
-            height={height}
-            style={{ background: "transparent", display: "block" }}
+            viewBox={dynamicViewBox}
+            preserveAspectRatio="xMidYMid meet"
+            className={styles.canvas}
           />
         </div>
       </div>
