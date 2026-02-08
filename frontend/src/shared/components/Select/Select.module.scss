@@ -2,6 +2,7 @@
 .select {
   width: 100%;
   padding: $spacing-sm $spacing-md;
+  padding-right: 40px; // 留空間給自訂箭頭
   font-size: $font-sm;
   color: var(--text-primary);
   background-color: var(--input-bg);
@@ -10,6 +11,17 @@
   transition: all $transition-base;
   outline: none;
   cursor: pointer;
+
+  // 核心：移除瀏覽器預設外觀
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  // 自訂下拉箭頭（使用 SVG）
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a5b4c4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
 
   // ========== Auto Width ==========
   &.selectAuto {
@@ -24,7 +36,8 @@
 
   // ========== Hover State ==========
   &:hover:not(:disabled) {
-    border-color: var(--input-border-hover);
+    border-color: $primary-color;
+    background-color: rgba($primary-color, 0.05);
   }
 
   // ========== Error State ==========
