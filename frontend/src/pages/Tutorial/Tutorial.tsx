@@ -152,6 +152,7 @@ function Tutorial() {
       maxNodes,
       hasTailMode,
       mode: viewMode,
+      isDirected,
       ...params,
     });
     setCurrentStep(0);
@@ -160,7 +161,7 @@ function Tutorial() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -172,6 +173,7 @@ function Tutorial() {
         data: raw,
         maxNodes,
         hasTailMode,
+        isDirected,
       });
       if (steps && steps.length > 0) {
         setCurrentStep(0);
