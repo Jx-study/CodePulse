@@ -279,4 +279,27 @@ RangeSum(L, R) = P[R] - P[L-1]`,
     { id: "box-4", value: 4 },
   ],
   createAnimationSteps: createPrefixSumAnimationSteps,
+  relatedProblems: [
+    {
+      id: 303,
+      title: "Range Sum Query - Immutable",
+      concept: "經典前綴和問題：快速計算陣列區間和",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/range-sum-query-immutable/",
+    },
+    {
+      id: 560,
+      title: "Subarray Sum Equals K",
+      concept: "前綴和 + Hash Map：計算和為 K 的連續子陣列數量",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/subarray-sum-equals-k/",
+    },
+    {
+      id: 304,
+      title: "Range Sum Query 2D - Immutable",
+      concept: "二維前綴和：擴展到二維矩陣的區間和查詢",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/range-sum-query-2d-immutable/",
+    },
+  ],
 };

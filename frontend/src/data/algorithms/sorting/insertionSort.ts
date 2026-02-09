@@ -179,4 +179,27 @@ for i from 1 to n-1:
     { id: "box-4", value: 6 },
   ],
   createAnimationSteps: createInsertionSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 147,
+      title: "Insertion Sort List",
+      concept: "直接應用：在鏈結串列上實作插入排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/insertion-sort-list/",
+    },
+    {
+      id: 148,
+      title: "Sort List",
+      concept: "進階排序：鏈結串列排序問題，可用插入排序或合併排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-list/",
+    },
+    {
+      id: 88,
+      title: "Merge Sorted Array",
+      concept: "插入排序概念延伸：合併兩個已排序陣列",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/merge-sorted-array/",
+    },
+  ],
 };

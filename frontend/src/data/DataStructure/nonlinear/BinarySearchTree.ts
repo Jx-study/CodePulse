@@ -961,4 +961,27 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
     { id: "node-7", value: 80 },
   ],
   createAnimationSteps: createBinarySearchTreeAnimationSteps,
+  relatedProblems: [
+    {
+      id: 700,
+      title: "Search in a Binary Search Tree",
+      concept: "BST 基礎操作：在二元搜尋樹中查找節點",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/search-in-a-binary-search-tree/",
+    },
+    {
+      id: 701,
+      title: "Insert into a Binary Search Tree",
+      concept: "BST 插入操作：在二元搜尋樹中插入新節點",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/insert-into-a-binary-search-tree/",
+    },
+    {
+      id: 98,
+      title: "Validate Binary Search Tree",
+      concept: "BST 驗證：判斷二元樹是否為有效的二元搜尋樹",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/validate-binary-search-tree/",
+    },
+  ],
 };

@@ -1287,4 +1287,27 @@ class LinkedList:
     { id: "node-4", value: 20 },
   ],
   createAnimationSteps: createLinkedListAnimationSteps,
+  relatedProblems: [
+    {
+      id: 206,
+      title: "Reverse Linked List",
+      concept: "鏈結串列基礎操作：反轉單向鏈結串列",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/reverse-linked-list/",
+    },
+    {
+      id: 141,
+      title: "Linked List Cycle",
+      concept: "快慢指標應用：檢測鏈結串列是否有環",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/linked-list-cycle/",
+    },
+    {
+      id: 21,
+      title: "Merge Two Sorted Lists",
+      concept: "鏈結串列合併：合併兩個已排序的鏈結串列",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/merge-two-sorted-lists/",
+    },
+  ],
 };

@@ -250,4 +250,27 @@ class Stack:
     { id: "box-3", value: 3 },
   ],
   createAnimationSteps: createStackAnimationSteps,
+  relatedProblems: [
+    {
+      id: 20,
+      title: "Valid Parentheses",
+      concept: "堆疊經典應用：檢查括號是否匹配",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/valid-parentheses/",
+    },
+    {
+      id: 155,
+      title: "Min Stack",
+      concept: "堆疊設計：實作支援 O(1) 取得最小值的堆疊",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/min-stack/",
+    },
+    {
+      id: 232,
+      title: "Implement Queue using Stacks",
+      concept: "堆疊應用：用堆疊實作佇列的功能",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/implement-queue-using-stacks/",
+    },
+  ],
 };

@@ -761,4 +761,27 @@ while queue not empty:
     { id: "node-7", value: 7 },
   ],
   createAnimationSteps: createBinaryTreeAnimationSteps,
+  relatedProblems: [
+    {
+      id: 144,
+      title: "Binary Tree Preorder Traversal",
+      concept: "前序遍歷：Root -> Left -> Right (迭代與遞迴實作)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/binary-tree-preorder-traversal/",
+    },
+    {
+      id: 94,
+      title: "Binary Tree Inorder Traversal",
+      concept: "中序遍歷：Left -> Root -> Right (BST 會得到排序結果)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+    },
+    {
+      id: 102,
+      title: "Binary Tree Level Order Traversal",
+      concept: "層序遍歷 (BFS)：逐層訪問節點",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+    },
+  ],
 };

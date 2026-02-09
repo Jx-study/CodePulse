@@ -1,6 +1,18 @@
 import type { AnimationStep, ComplexityInfo } from '@/types';
 
 /**
+ * 補充問題參考資料結構
+ * 用於展示演算法在不同情境下的應用範例
+ */
+export interface ProblemReference {
+  id: string | number;
+  title: string;
+  concept: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  url: string;
+}
+
+/**
  * 統一的實作配置介面
  * 合併了 AlgorithmConfig 和 DataStructureConfig
  */
@@ -19,6 +31,7 @@ export interface LevelImplementationConfig {
     action?: any,
     config?: any
   ) => AnimationStep[];
+  relatedProblems?: ProblemReference[];
 }
 
 /**

@@ -1,0 +1,105 @@
+.derivedContentWrapper {
+  padding: $spacing-lg;
+  border-top: 1px solid var(--border-color);
+
+  @media (max-width: $tablet) {
+    padding: $spacing-md;
+  }
+}
+
+.derivedContentTitle {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $primary-color;
+  margin-bottom: $spacing-md;
+}
+
+.derivedContentList {
+  @include flex($direction: column);
+  gap: $spacing-sm;
+}
+
+.derivedCard {
+  display: block;
+  padding: $spacing-md;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  text-decoration: none;
+  transition: all 0.2s $ease-smooth;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: $primary-color;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 91, 255, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.cardContent {
+  @include flex($direction: column);
+  gap: $spacing-xs;
+}
+
+.cardHeader {
+  @include flex($justify: space-between, $align: center);
+  margin-bottom: $spacing-2xs;
+}
+
+.difficultyBadge {
+  display: inline-block;
+  padding: $spacing-2xs $spacing-xs;
+  font-size: $font-xs;
+  font-weight: 600;
+  border-radius: $radius-sm;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.easy {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+  }
+
+  &.medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  &.hard {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+}
+
+.externalIcon {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s $ease-smooth;
+
+  .derivedCard:hover & {
+    opacity: 1;
+  }
+}
+
+.cardConcept {
+  font-size: $font-base;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cardTitle {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 400;
+}

@@ -21,6 +21,7 @@ import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
+import DerivedContent from "@/shared/components/DerivedContent/DerivedContent";
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -692,6 +693,9 @@ function TutorialContent() {
             </div>
           </div>
         </div>
+
+        {/* Derived Content Section */}
+        <DerivedContent problems={topicTypeConfig.relatedProblems} />
       </div>
     </div>
   );

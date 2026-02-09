@@ -263,4 +263,27 @@ class Queue:
     { id: "box-2", value: 3 },
   ],
   createAnimationSteps: createQueueAnimationSteps,
+  relatedProblems: [
+    {
+      id: 225,
+      title: "Implement Stack using Queues",
+      concept: "佇列應用：用佇列實作堆疊的功能",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/implement-stack-using-queues/",
+    },
+    {
+      id: 622,
+      title: "Design Circular Queue",
+      concept: "佇列設計：實作環形佇列 (Circular Queue)",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/design-circular-queue/",
+    },
+    {
+      id: 933,
+      title: "Number of Recent Calls",
+      concept: "佇列的實際應用：計算最近請求數量 (滑動窗口)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/number-of-recent-calls/",
+    },
+  ],
 };

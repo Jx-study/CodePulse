@@ -292,4 +292,27 @@ export const ArrayConfig: LevelImplementationConfig = {
     { id: "box-4", value: 50 },
   ],
   createAnimationSteps: createArrayAnimationSteps,
+  relatedProblems: [
+    {
+      id: 1,
+      title: "Two Sum",
+      concept: "陣列基礎應用：在陣列中尋找兩數之和",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/two-sum/",
+    },
+    {
+      id: 27,
+      title: "Remove Element",
+      concept: "陣列刪除操作：移除指定元素 (In-place)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/remove-element/",
+    },
+    {
+      id: 189,
+      title: "Rotate Array",
+      concept: "陣列操作進階：旋轉陣列元素",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/rotate-array/",
+    },
+  ],
 };

@@ -147,4 +147,27 @@ for i from 0 to n-1:
     { id: "box-4", value: 10 },
   ],
   createAnimationSteps: createBubbleSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 912,
+      title: "Sort an Array",
+      concept: "基礎排序應用：使用任意排序演算法對陣列進行排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-an-array/",
+    },
+    {
+      id: 75,
+      title: "Sort Colors",
+      concept: "變體應用：三向分割問題，可用排序思想優化至 O(n)",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-colors/",
+    },
+    {
+      id: 242,
+      title: "Valid Anagram",
+      concept: "排序的實際應用：判斷兩字串是否為變位詞",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/valid-anagram/",
+    },
+  ],
 };
