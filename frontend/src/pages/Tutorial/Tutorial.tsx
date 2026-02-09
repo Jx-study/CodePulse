@@ -226,6 +226,7 @@ function TutorialContent() {
 
   const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
+  const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
 
   // 監聽 canvas 容器尺寸變化
   useEffect(() => {
@@ -342,21 +343,39 @@ function TutorialContent() {
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
-  const handleRandomData = () => {
-    executeAction("random", { maxNodes, hasTailMode });
+  const handleRandomData = (params?: any) => {
+    executeAction("random", {
+      maxNodes,
+      hasTailMode,
+      mode: viewMode,
+      ...params,
+    });
     setCurrentStep(0);
     setIsPlaying(false); // 不需要自動播放
   };
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode });
+    executeAction("reset", { hasTailMode, mode: viewMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
 
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
+    if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
+      const steps = executeAction("load", {
+        data: raw,
+        maxNodes,
+        hasTailMode,
+      });
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
     const parsed = raw
       .split(",")
       .map((v) => parseInt(v.trim()))
@@ -393,12 +412,22 @@ function TutorialContent() {
     }
   };
 
+  const handleViewModeChange = (mode: "graph" | "grid") => {
+    if (isProcessing) return;
+    setViewMode(mode);
+
+    executeAction("switchMode", { mode });
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
+    executeAction("reset", { hasTailMode, mode: viewMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -520,6 +549,9 @@ function TutorialContent() {
                 onPeek={handlePeek}
                 onMaxNodesChange={setMaxNodes}
                 onTailModeChange={setHasTailMode}
+                viewMode={viewMode}
+                onViewModeChange={handleViewModeChange}
+                currentData={logic.data}
               />
             </Suspense>
           </div>
