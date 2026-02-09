@@ -60,6 +60,7 @@ function Tutorial() {
   const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
   const [hasTailMode, setHasTailMode] = useState(false);
   const [showLimitToast, setShowLimitToast] = useState(false);
+  const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -123,7 +124,7 @@ function Tutorial() {
     const links: Link[] = [];
     if (currentStepData?.elements) {
       const nodes = currentStepData.elements.filter(
-        (e: BaseElement) => e instanceof DataNode
+        (e: BaseElement) => e instanceof DataNode,
       ) as DataNode[];
 
       nodes.forEach((sourceNode) => {
@@ -190,13 +191,26 @@ function Tutorial() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode });
+    executeAction("reset", { hasTailMode, mode: viewMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
 
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
+    if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
+      const steps = executeAction("load", {
+        data: raw,
+        randomCount,
+        hasTailMode,
+      });
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
     const parsed = raw
       .split(",")
       .map((v) => parseInt(v.trim()))
@@ -237,12 +251,22 @@ function Tutorial() {
     }
   };
 
+  const handleViewModeChange = (mode: "graph" | "grid") => {
+    if (isProcessing) return;
+    setViewMode(mode);
+
+    executeAction("switchMode", { mode });
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
+    executeAction("reset", { hasTailMode, mode: viewMode });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -267,12 +291,15 @@ function Tutorial() {
           disabled={isProcessing}
           category={category as any}
           algorithmId={topicTypeConfig?.id}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          currentData={logic.data}
         />
       );
     } else {
       if (
         ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id
+          topicTypeConfig.id,
         )
       ) {
         return (
