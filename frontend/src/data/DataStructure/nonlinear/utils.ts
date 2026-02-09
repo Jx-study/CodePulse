@@ -7,6 +7,24 @@ import { createNodeInstance } from "../linear/utils";
 
 export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
 
+export const updateLinkStatus = (
+  map: Record<string, string>,
+  u: string,
+  v: string,
+  status: string | undefined,
+  isDirected: boolean,
+) => {
+  const k1 = getLinkKey(u, v);
+  const k2 = getLinkKey(v, u);
+  if (status) {
+    map[k1] = status;
+    if (!isDirected) map[k2] = status;
+  } else {
+    delete map[k1];
+    if (!isDirected) delete map[k2];
+  }
+};
+
 export interface GridCellData {
   id: string;
   val: number;

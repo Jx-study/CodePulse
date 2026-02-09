@@ -9,7 +9,7 @@ export interface Link {
   key: string;
   sourceId: string;
   targetId: string;
-  status?: "default" | "visiting" | "target" | "complete";
+  status?: "default" | "visited" | "path" | "target" | "complete";
 }
 
 // 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
@@ -303,7 +303,8 @@ export function renderAll(
 
   const COLORS = {
     default: "#888",
-    visiting: "yellow",
+    visited: "cyan",
+    path: "yellow",
     target: "orange",
     complete: "#46f336ff",
   };
