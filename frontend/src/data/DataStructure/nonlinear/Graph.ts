@@ -608,6 +608,13 @@ function runCheckConnected(
           "complete",
           isDirected,
         );
+        updateLinkStatus(
+          linkStatusMap,
+          neighborId,
+          currId,
+          "complete",
+          isDirected,
+        );
       }
     });
 
@@ -618,7 +625,7 @@ function runCheckConnected(
           baseElements,
           { ...statusMap },
           {},
-          `擴散中... 已訪問 ${visited.size} / ${baseElements.length} 個節點`,
+          `擴散中... 已訪問 ${visited.size} / ${baseElements.length} 個節點 (忽略方向)`,
           true,
           { ...linkStatusMap },
         ),
