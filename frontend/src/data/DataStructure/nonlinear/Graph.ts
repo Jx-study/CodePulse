@@ -169,6 +169,7 @@ function runAddEdge(
   }
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
   statusMap[sId] = "target";
   statusMap[tId] = "target";
 
@@ -187,11 +188,13 @@ function runAddEdge(
     // 檢查是否已經存在 (避免重複添加)
     if (!sNode.pointers.find((n) => n.id === tId)) {
       sNode.pointers = [...sNode.pointers, tNode];
+      updateLinkStatus(linkStatusMap, sId, tId, "complete", isDirected);
     }
     // 雙向處理
     if (!isDirected) {
       if (!tNode.pointers.find((n) => n.id === sId)) {
         tNode.pointers = [...tNode.pointers, sNode];
+        updateLinkStatus(linkStatusMap, tId, sId, "complete", isDirected);
       }
     }
   }
@@ -206,6 +209,7 @@ function runAddEdge(
       {},
       `邊已新增：${sourceId} - ${targetId}`,
       true,
+      { ...linkStatusMap },
     ),
   );
 
@@ -233,15 +237,19 @@ function runRemoveEdge(
 
   // 標記兩點 + 手動補回連線 (Ghost Edge)
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
+
   statusMap[sId] = "target";
   statusMap[tId] = "target";
 
   if (sNode && tNode) {
     sNode.pointers = [...sNode.pointers, tNode];
+    updateLinkStatus(linkStatusMap, sId, tId, "target", isDirected);
 
     // 如果是無向圖，把反向的加回去
     if (!isDirected) {
       tNode.pointers = [...tNode.pointers, sNode];
+      updateLinkStatus(linkStatusMap, tId, sId, "target", isDirected);
     }
   }
 
@@ -252,6 +260,7 @@ function runRemoveEdge(
       {},
       `選中節點 ${sourceId} 與 ${targetId}，準備斷開連線`,
       true,
+      { ...linkStatusMap },
     ),
   );
 
