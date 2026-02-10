@@ -1,7 +1,7 @@
-import { Box } from '@/modules/core/DataLogic/Box';
-import type { AnimationStep, CodeConfig } from '@/types';
-import type { LevelImplementationConfig } from '@/types/implementation';
-import type { Status } from '@/modules/core/DataLogic/BaseElement';
+import { Box } from "@/modules/core/DataLogic/Box";
+import type { AnimationStep, CodeConfig } from "@/types";
+import type { LevelImplementationConfig } from "@/types/implementation";
+import type { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 const TAGS = {
@@ -26,7 +26,7 @@ const generateFrame = (
   list: LinearData[],
   pointers: Pointers,
   overrideStatusMap: Record<number, Status> = {},
-  foundIndex: number = -1
+  foundIndex: number = -1,
 ) => {
   const { left, right, mid } = pointers;
 
@@ -68,7 +68,7 @@ const generateFrame = (
 
 export function createBinarySearchAnimationSteps(
   inputData: any[],
-  action?: any
+  action?: any, // 允許接收外部傳入的參數 (例如 target)
 ): AnimationStep[] {
   const dataList = inputData as LinearData[];
   const steps: AnimationStep[] = [];
@@ -80,8 +80,6 @@ export function createBinarySearchAnimationSteps(
   let target = 42;
   if (action && typeof action.searchValue === "number") {
     target = action.searchValue;
-  } else if (action && typeof action.value === "number") {
-    target = action.value;
   } else if (arr.length > 0) {
     // 預設選擇中間偏右的值，展示較完整的搜尋路徑
     const targetIndex = Math.min(6, arr.length - 1);
@@ -156,7 +154,7 @@ export function createBinarySearchAnimationSteps(
           arr,
           { left, right, mid },
           { [mid]: "complete" },
-          mid
+          mid,
         ),
       });
       return steps; // 結束
@@ -178,7 +176,7 @@ export function createBinarySearchAnimationSteps(
         elements: generateFrame(
           arr,
           { left: newLeft, right, mid: -1 }, // Mid 消失，Left 更新
-          {} 
+          {}, // 移除所有顏色標記，準備下一輪
         ),
       });
 
@@ -201,7 +199,7 @@ export function createBinarySearchAnimationSteps(
         elements: generateFrame(
           arr,
           { left, right: newRight, mid: -1 }, // Mid 消失，Right 更新
-          {}
+          {},
         ),
       });
 

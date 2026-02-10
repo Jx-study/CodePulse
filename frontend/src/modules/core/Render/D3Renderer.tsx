@@ -293,6 +293,8 @@ export function renderAll(
   });
 
   // defs：箭頭標記（只建一次）
+  const hideArrow = ["bfs", "dfs", "binarytree", "bst"].includes(structureType);
+  const markerUrl = hideArrow ? null : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
   defsEnter
@@ -349,7 +351,7 @@ export function renderAll(
     .attr("class", "link")
     .attr("stroke", "#888")
     .attr("stroke-width", 2)
-    .attr("marker-end", "url(#arrowhead)")
+    .attr("marker-end", markerUrl)
     // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
     .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
     .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
