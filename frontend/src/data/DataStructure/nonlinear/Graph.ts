@@ -538,6 +538,7 @@ function runCheckConnected(
   visited.add(startNode.id);
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
 
   statusMap[startNode.id] = "target";
   steps.push(
@@ -557,7 +558,7 @@ function runCheckConnected(
   while (queue.length > 0) {
     const currId = queue.shift()!;
 
-    statusMap[currId] = "complete";
+    statusMap[currId] = "target";
 
     const neighbors = undirectedAdj.get(currId) || [];
 
@@ -568,6 +569,13 @@ function runCheckConnected(
         queue.push(neighborId);
         statusMap[neighborId] = "prepare";
         newFound = true;
+        updateLinkStatus(
+          linkStatusMap,
+          currId,
+          neighborId,
+          "complete",
+          isDirected,
+        );
       }
     });
 
@@ -580,9 +588,11 @@ function runCheckConnected(
           {},
           `擴散中... 已訪問 ${visited.size} / ${baseElements.length} 個節點`,
           true,
+          { ...linkStatusMap },
         ),
       );
     }
+    statusMap[currId] = "complete";
   }
 
   // Frame Final: 結果判定
@@ -600,7 +610,11 @@ function runCheckConnected(
     });
   }
 
-  steps.push(generateGraphFrame(baseElements, statusMap, {}, resultMsg, true));
+  steps.push(
+    generateGraphFrame(baseElements, statusMap, {}, resultMsg, true, {
+      ...linkStatusMap,
+    }),
+  );
 
   return steps;
 }
