@@ -7,7 +7,6 @@ import {
 } from "@/data/DataStructure/nonlinear/utils";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { getLinkKey } from "@/data/DataStructure/nonlinear/utils";
 
 function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -649,7 +648,9 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         { ...linkStatusMap },
       ),
     );
-
+    if (parentId !== null) {
+      updateLinkStatus(linkStatusMap, currId, parentId, "path", isDirected);
+    }
     statusMap[currId] = "prepare";
 
     const currNode = baseElements.find((n) => n.id === currId);
@@ -665,40 +666,8 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
           isDirected,
         );
 
-        // 如果是無向圖回看父節點，通常不視為試探，直接跳過動畫，避免閃爍
-        // const isParent = !isDirected && neighborId === parentId;
-
-        // if (!isParent) {
-        //     steps.push(
-        //       generateGraphFrame(
-        //         baseElements,
-        //         { ...statusMap },
-        //         {},
-        //         `檢查邊：${currId} -> ${neighborId}`,
-        //         true,
-        //         { ...linkStatusMap }
-        //       )
-        //     );
-        // }
-
         if (!visited.has(neighborId)) {
-          updateLinkStatus(
-            linkStatusMap,
-            currId,
-            neighborId,
-            "target",
-            isDirected,
-          );
-
           if (dfs(neighborId, currId)) return true;
-
-          updateLinkStatus(
-            linkStatusMap,
-            currId,
-            neighborId,
-            "visited",
-            isDirected,
-          );
 
           statusMap[currId] = "target";
 
@@ -713,13 +682,6 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
             ),
           );
           statusMap[currId] = "prepare";
-          updateLinkStatus(
-            linkStatusMap,
-            currId,
-            neighborId,
-            "path",
-            isDirected,
-          );
         } else {
           // 發現已訪問過的節點，檢查是否為環
           let isCycle = false;
@@ -730,14 +692,6 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
           }
 
           if (isCycle) {
-            updateLinkStatus(
-              linkStatusMap,
-              currId,
-              neighborId,
-              "target",
-              isDirected,
-            );
-
             const startIndex = pathStack.indexOf(neighborId);
             cyclePath = pathStack.slice(startIndex);
             cycleConnectTo = neighborId; // 記錄最後接回哪裡
@@ -748,15 +702,6 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
               const v = cyclePath[i + 1];
               updateLinkStatus(linkStatusMap, u, v, "target", isDirected);
             }
-
-            // 當下發現時的動畫，先把環上的節點都標成 target
-            updateLinkStatus(
-              linkStatusMap,
-              cyclePath[cyclePath.length - 1],
-              cycleConnectTo,
-              "target",
-              isDirected,
-            );
 
             cyclePath.forEach((id) => (statusMap[id] = "target"));
 
@@ -771,8 +716,16 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
               ),
             );
             return true;
+          } else if (neighborId !== parentId) {
+            // 已經走訪過，非環，不在堆疊裡，標成 visited
+            updateLinkStatus(
+              linkStatusMap,
+              currId,
+              neighborId,
+              "visited",
+              isDirected,
+            );
           } else {
-            // 若不是環，移除狀態
             updateLinkStatus(
               linkStatusMap,
               currId,
@@ -797,9 +750,12 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         {},
         `節點 ${currId} 處理完成`,
         true,
-        { ...linkStatusMap }, // 這裡通常是空的，或者是其他遞迴層留下的顏色
+        { ...linkStatusMap },
       ),
     );
+    if (parentId !== null) {
+      updateLinkStatus(linkStatusMap, currId, parentId, "visited", isDirected);
+    }
 
     return false;
   };
