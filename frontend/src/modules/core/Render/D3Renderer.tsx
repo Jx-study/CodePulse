@@ -303,7 +303,7 @@ export function renderAll(
 
   const COLORS = {
     default: "#888",
-    visited: "cyan",
+    visited: "#1d79cfff",
     path: "yellow",
     target: "orange",
     complete: "#46f336ff",

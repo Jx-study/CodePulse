@@ -36,13 +36,17 @@ function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
   return steps;
 }
 
-function runAddNode(graphData: any, newNodeId: string): AnimationStep[] {
+function runAddNode(
+  graphData: any,
+  newNodeId: string,
+  isDirected: boolean,
+): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
   // 建立基本元素 (包含剛剛新增的 Node)
   let baseElements: Node[] = [];
   if (graphData.nodes) {
-    baseElements = createGraphElements(graphData);
+    baseElements = createGraphElements(graphData, isDirected);
   }
 
   const statusMap: Record<string, Status> = {};
@@ -80,6 +84,7 @@ function runAddNode(graphData: any, newNodeId: string): AnimationStep[] {
 function runRemoveNode(
   graphData: any,
   deletedNodeId: string,
+  isDirected: boolean,
   deletedNodeX?: number,
   deletedNodeY?: number,
 ): AnimationStep[] {
@@ -88,7 +93,7 @@ function runRemoveNode(
   // 建立「已刪除後」的基本元素
   let baseElements: Node[] = [];
   if (graphData.nodes) {
-    baseElements = createGraphElements(graphData);
+    baseElements = createGraphElements(graphData, isDirected);
   }
 
   const statusMap: Record<string, Status> = {};
@@ -860,12 +865,13 @@ export function createGraphAnimationSteps(
   action?: any,
 ): AnimationStep[] {
   if (action?.type === "addVertex") {
-    return runAddNode(inputData, action.value);
+    return runAddNode(inputData, action.value, action.isDirected);
   }
   if (action?.type === "removeVertex") {
     return runRemoveNode(
       inputData,
       action.id,
+      action.isDirected,
       action.deletedNodeCoords?.x,
       action.deletedNodeCoords?.y,
     );
