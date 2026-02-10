@@ -433,6 +433,8 @@ function runGetDegree(
   const targetNode = baseElements.find((n) => n.id === targetId);
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
+
   statusMap[targetId] = "target";
 
   steps.push(
@@ -456,6 +458,13 @@ function runGetDegree(
       const outDegree = targetNode.pointers.length;
       targetNode.pointers.forEach((neighbor) => {
         statusMap[neighbor.id] = "unfinished";
+        updateLinkStatus(
+          linkStatusMap,
+          targetId,
+          neighbor.id,
+          "visited",
+          isDirected,
+        );
       });
 
       // In-Degree (入度): 別人指向 Target
@@ -467,6 +476,13 @@ function runGetDegree(
           // 如果發生雙向 (A<->B) 或 自環 (A->A)，顏色會被覆蓋。
           // 這裡 "prepare" (In) 會覆蓋掉 "unfinished" (Out)
           statusMap[otherNode.id] = "prepare";
+          updateLinkStatus(
+            linkStatusMap,
+            otherNode.id,
+            targetId,
+            "path",
+            isDirected,
+          );
           inDegree++;
         }
       });
@@ -479,6 +495,13 @@ function runGetDegree(
       const degree = targetNode.pointers.length;
       targetNode.pointers.forEach((neighbor) => {
         statusMap[neighbor.id] = "prepare";
+        updateLinkStatus(
+          linkStatusMap,
+          targetId,
+          neighbor.id,
+          "path",
+          isDirected,
+        );
       });
 
       msg = `節點 ${nodeId}：Degree (度數) = ${degree}`;
@@ -486,7 +509,11 @@ function runGetDegree(
 
     statusMap[targetId] = "complete";
 
-    steps.push(generateGraphFrame(baseElements, statusMap, {}, msg, true));
+    steps.push(
+      generateGraphFrame(baseElements, statusMap, {}, msg, true, {
+        ...linkStatusMap,
+      }),
+    );
   } else {
     steps.push(
       generateGraphFrame(
