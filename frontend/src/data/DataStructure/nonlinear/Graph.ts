@@ -306,6 +306,7 @@ function runGetNeighbors(
   const targetNode = baseElements.find((n) => n.id === targetId);
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
   statusMap[targetId] = "target";
 
   steps.push(
@@ -334,7 +335,13 @@ function runGetNeighbors(
     } else {
       neighbors.forEach((neighbor, index) => {
         statusMap[neighbor.id] = "prepare";
-
+        updateLinkStatus(
+          linkStatusMap,
+          targetId,
+          neighbor.id,
+          "path",
+          isDirected,
+        );
         steps.push(
           generateGraphFrame(
             baseElements,
@@ -342,9 +349,16 @@ function runGetNeighbors(
             {},
             `發現第 ${index + 1} 個鄰居：${neighbor.id.replace("node-", "")}`,
             true,
+            { ...linkStatusMap },
           ),
         );
-
+        updateLinkStatus(
+          linkStatusMap,
+          targetId,
+          neighbor.id,
+          "complete",
+          isDirected,
+        );
         statusMap[neighbor.id] = "complete";
       });
 
@@ -356,6 +370,7 @@ function runGetNeighbors(
           {},
           `搜尋完成，共有 ${neighbors.length} 個鄰居：${neighborNames.join(", ")}`,
           true,
+          { ...linkStatusMap },
         ),
       );
     }
