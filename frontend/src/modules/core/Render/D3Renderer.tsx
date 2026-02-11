@@ -5,11 +5,21 @@ import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
 import "./D3Renderer.module.scss";
 
+export type linkStatus = "default" | "visited" | "path" | "target" | "complete";
+
+export const linkStatusColorMap: Record<linkStatus, string> = {
+  default: "#888",
+  visited: "#1d79cfff",
+  path: "yellow",
+  target: "orange",
+  complete: "#46f336ff",
+};
+
 export interface Link {
   key: string;
   sourceId: string;
   targetId: string;
-  status?: "default" | "visited" | "path" | "target" | "complete";
+  status?: linkStatus;
 }
 
 // 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
@@ -301,16 +311,10 @@ export function renderAll(
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;
 
-  const COLORS = {
-    default: "#888",
-    visited: "#1d79cfff",
-    path: "yellow",
-    target: "orange",
-    complete: "#46f336ff",
-  };
-
   const getColor = (status?: string) => {
-    return COLORS[status as keyof typeof COLORS] || COLORS.default;
+    return (
+      linkStatusColorMap[status as linkStatus] || linkStatusColorMap.default
+    );
   };
 
   // Pre-calculation for AutoScale(Grouping Support)
@@ -403,7 +407,7 @@ export function renderAll(
       .attr("fill", "#888");
   }
 
-  Object.entries(COLORS).forEach(([status, color]) => {
+  Object.entries(linkStatusColorMap).forEach(([status, color]) => {
     // 檢查是否已存在，避免重複 append (雖然 data([null]) 會擋，但保險起見)
     if (svg.select(`#arrowhead-${status}`).empty()) {
       svg

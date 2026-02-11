@@ -7,6 +7,7 @@ import {
 } from "@/data/DataStructure/nonlinear/utils";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -97,7 +98,7 @@ function runRemoveNode(
   }
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
   const distanceMap: Record<string, number> = {};
 
   const targetId = deletedNodeId.startsWith("node-")
@@ -188,7 +189,7 @@ function runAddEdge(
   }
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
   statusMap[sId] = "target";
   statusMap[tId] = "target";
 
@@ -256,7 +257,7 @@ function runRemoveEdge(
 
   // 標記兩點 + 手動補回連線 (Ghost Edge)
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
 
   statusMap[sId] = "target";
   statusMap[tId] = "target";
@@ -325,7 +326,7 @@ function runGetNeighbors(
   const targetNode = baseElements.find((n) => n.id === targetId);
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
   statusMap[targetId] = "target";
 
   steps.push(
@@ -421,7 +422,7 @@ function runCheckAdjacent(
   const tNode = baseElements.find((n) => n.id === tId);
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
   statusMap[sId] = "target";
   statusMap[tId] = "target";
 
@@ -486,7 +487,7 @@ function runGetDegree(
   const targetNode = baseElements.find((n) => n.id === targetId);
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
 
   statusMap[targetId] = "target";
 
@@ -618,7 +619,7 @@ function runCheckConnected(
   visited.add(startNode.id);
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
 
   statusMap[startNode.id] = "target";
   steps.push(
@@ -632,7 +633,7 @@ function runCheckConnected(
   );
 
   // BFS 過程
-  // 為了動畫流暢，我們不要每一步都畫，而是把「一層」做成一個 Frame
+  // 為了動畫流暢，把「一層」做成一個 Frame
 
   // 逐步感染的動畫
   while (queue.length > 0) {
@@ -720,7 +721,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
   const pathStack: string[] = [];
 
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, string> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
 
   // 用來儲存找到的環，以便在最後一步顯示
   let cyclePath: string[] = [];

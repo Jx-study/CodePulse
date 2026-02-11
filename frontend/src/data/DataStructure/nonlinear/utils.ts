@@ -4,14 +4,15 @@ import { Box } from "../../../modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
 
 export const updateLinkStatus = (
-  map: Record<string, string>,
+  map: Record<string, linkStatus>,
   u: string,
   v: string,
-  status: string | undefined,
+  status: linkStatus | undefined,
   isDirected: boolean,
 ) => {
   const k1 = getLinkKey(u, v);
@@ -118,7 +119,7 @@ export const generateGraphFrame = (
   distanceMap: Record<string, number>,
   description: string,
   showIdAsValue: boolean = false,
-  linkStatusMap: Record<string, string> = {},
+  linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const frameElements = baseElements.map((node) => {
     const newNode = new Node();
@@ -148,7 +149,8 @@ export const generateGraphFrame = (
     return newNode;
   });
 
-  const links: { sourceId: string; targetId: string; status?: string }[] = [];
+  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
+    [];
 
   baseElements.forEach((source) => {
     source.pointers.forEach((target) => {
