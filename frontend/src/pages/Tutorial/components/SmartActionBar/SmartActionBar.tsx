@@ -44,6 +44,7 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
         disabled={restProps.disabled}
         category={category}
         algorithmId={topicTypeConfig.id}
+        viewMode={topicTypeConfig.viewMode || "graph"}
       />
     );
   }

@@ -204,3 +204,181 @@
     color: $primary-color !important;
   }
 }
+
+// ========== Modal/Loader 樣式 ==========
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($black-color, 0.5);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+}
+
+.modalContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  background: $dark-bg-tertiary;
+  padding: $spacing-md;
+  border: 1px solid $dark-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-dialog;
+  @include flex($direction: column);
+  gap: $spacing-sm;
+}
+
+.modalTitle {
+  margin: 0;
+  color: $dark-text-primary;
+  font-size: $font-base;
+}
+
+.modalTextarea {
+  width: 21.875rem; // 350px
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  padding: $spacing-sm;
+  background: $dark-bg-primary;
+  color: $dark-text-primary;
+  border: 1px solid $dark-border;
+  border-radius: $radius-sm;
+  resize: none;
+}
+
+.modalGraphTextarea {
+  width: 18.75rem; // 300px
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  padding: $spacing-sm;
+  background: $dark-bg-primary;
+  color: $dark-text-primary;
+  border: 1px solid $dark-border;
+  border-radius: $radius-sm;
+  resize: none;
+}
+
+.modalButtonGroup {
+  @include flex();
+  gap: $spacing-xs;
+  margin-top: $spacing-xs;
+  justify-content: flex-end;
+}
+
+.modalFieldRow {
+  @include flex($align: center);
+  gap: $spacing-xs;
+}
+
+.modalFieldColumn {
+  @include flex($direction: column);
+  gap: $spacing-2xs;
+}
+
+.modalLabel {
+  color: $dark-text-secondary;
+  font-size: $font-sm;
+}
+
+.modalCancelButton {
+  background: #555;
+}
+
+.modalConfirmButton {
+  background: $success-color;
+}
+
+// ========== Grid/Graph 特定控制項 ==========
+
+.gridRowsColsContainer {
+  @include flex($align: center);
+  gap: $spacing-2xs;
+  margin-right: $spacing-xs;
+}
+
+.gridRowColInput {
+  width: 2.5rem; // 40px
+}
+
+.nodeCountInput {
+  width: 3.75rem; // 60px
+}
+
+// ========== 視圖模式控制 ==========
+
+.viewModeContainer {
+  margin-right: $spacing-sm;
+  @include flex($align: center);
+}
+
+.viewModeLabel {
+  color: $dark-text-tertiary;
+  font-size: $font-xs;
+  margin-right: $spacing-xs;
+}
+
+.viewModeSelect {
+  padding: $spacing-2xs $spacing-xs;
+  border-radius: $radius-sm;
+  background: $dark-bg-secondary;
+  color: $dark-text-primary;
+  border: 1px solid $dark-border;
+}
+
+// ========== 起點終點輸入 ==========
+
+.startEndContainer {
+  @include flex($align: center);
+  gap: $spacing-2xs;
+  margin-right: $spacing-xs;
+}
+
+.startEndInput {
+  width: 3.75rem; // 60px
+  font-size: $font-xs;
+}
+
+.startEndSeparator {
+  color: $dark-text-tertiary;
+}
+
+// ========== 筆數輸入樣式 ==========
+
+.dataSizeInput {
+  width: 3.125rem; // 50px
+  background: $dark-bg-tertiary;
+  color: $dark-text-primary;
+  border: 1px solid $dark-border;
+}
+
+.bulkDataInput {
+  width: 9.375rem; // 150px
+}
+
+.smallLabel {
+  color: $dark-text-secondary;
+  font-size: $font-xs;
+}
+
+// ========== 執行按鈕樣式 ==========
+
+.runButton {
+  min-width: 6.25rem; // 100px
+}
+
+.runButtonSorting {
+  background: $success-color;
+}
+
+.runButtonSearching {
+  background: $info-color;
+}
+
+.runButtonTechnique {
+  background: $warning-color;
+}
