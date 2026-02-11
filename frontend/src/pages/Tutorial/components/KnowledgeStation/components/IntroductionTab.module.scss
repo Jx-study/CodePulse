@@ -1,0 +1,26 @@
+.introductionTab {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: rgba(var(--primary-rgb, 139, 92, 246), 0.05);
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+
+  .cardTitle {
+    font-size: $font-lg;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 $spacing-md 0;
+  }
+
+  .cardContent {
+    font-size: $font-base;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}

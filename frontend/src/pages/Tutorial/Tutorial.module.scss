@@ -1,5 +1,7 @@
 .tutorialPage {
   background: var(--bg-primary);
+  overflow-y: hidden;
+  height: 100vh;
 }
 
 .breadcrumbContainer {
@@ -121,81 +123,6 @@
     flex: 1;
     overflow: auto;
     min-height: 12.5rem; // 200px
-  }
-}
-
-// Algorithm Info Section - 底部全寬
-.algorithmInfoSection {
-  max-width: 1400px;
-  margin: 0 auto $spacing-xl;
-  padding: 0 $spacing-lg;
-  @include flex($direction: column);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: $radius-lg;
-  overflow: hidden;
-
-  @media (max-width: $tablet) {
-    padding: 0 $spacing-md;
-  }
-
-  .infoContent {
-    padding: $spacing-lg;
-    @include flex;
-    gap: $spacing-xl;
-
-    @media (max-width: $tablet) {
-      flex-direction: column;
-      padding: $spacing-md;
-      gap: $spacing-md;
-    }
-
-    .infoBlock {
-      flex: 1;
-      min-width: 400px;
-
-      @media (max-width: $tablet) {
-        min-width: auto;
-      }
-
-      h4 {
-        font-size: $font-lg;
-        font-weight: 600;
-        color: $primary-color;
-        margin-bottom: $spacing-md;
-      }
-
-      p {
-        font-size: $font-sm;
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin: 0;
-      }
-    }
-  }
-}
-
-// 複雜度表格
-.complexityTable {
-  @include flex($direction: column);
-  gap: $spacing-xs;
-
-  .complexityRow {
-    @include flex($justify: space-between, $align: center);
-    padding: $spacing-xs $spacing-sm;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: $radius-sm;
-    font-size: $font-sm;
-
-    .complexityLabel {
-      color: var(--text-secondary);
-    }
-
-    .complexityValue {
-      font-family: $font-family-code;
-      color: $primary-color;
-      font-weight: 600;
-    }
   }
 }
 

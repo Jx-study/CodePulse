@@ -10,7 +10,7 @@ import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
-import PanelHeader  from "./components/PanelHeader";
+import PanelHeader from "./components/PanelHeader";
 import { PANEL_REGISTRY } from "./components/PanelRegistry";
 import type { TabConfig } from "@/shared/components/Tabs";
 import TopSection from "./components/TopSection";
@@ -21,7 +21,7 @@ import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
-import DerivedContent from "@/shared/components/DerivedContent/DerivedContent";
+import KnowledgeStation from "./components/KnowledgeStation";
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -91,7 +91,7 @@ const CanvasPanel = ({
 
   const sortableStyle = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 200ms ease',
+    transition: transition || "transform 200ms ease",
     opacity: isDragging ? 0 : 1,
   };
 
@@ -108,7 +108,11 @@ const CanvasPanel = ({
         );
       }}
     >
-      <div ref={setNodeRef} style={sortableStyle} className={styles.visualizationSection}>
+      <div
+        ref={setNodeRef}
+        style={sortableStyle}
+        className={styles.visualizationSection}
+      >
         <PanelHeader
           title="視覺化動畫"
           isCollapsed={isCanvasPanelCollapsed}
@@ -118,10 +122,7 @@ const CanvasPanel = ({
         />
         {!isCanvasPanelCollapsed && (
           <>
-            <div
-              ref={canvasContainerRef}
-              className={styles.visualizationArea}
-            >
+            <div ref={canvasContainerRef} className={styles.visualizationArea}>
               <D3Canvas
                 elements={currentStepData?.elements || []}
                 links={currentLinks}
@@ -159,16 +160,13 @@ function TutorialContent() {
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
 
   // Use panel context for drag and drop
-  const { mainPanelOrder, rightPanelOrder, swapMainPanels, reorderRightPanels } = usePanelContext();
+  const {
+    mainPanelOrder,
+    rightPanelOrder,
+    swapMainPanels,
+    reorderRightPanels,
+  } = usePanelContext();
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
-
-  // Debug: Log panel order
-  useEffect(() => {
-    console.log('Tutorial Debug - Panel Order:', {
-      mainPanelOrder,
-      rightPanelOrder,
-    });
-  }, [mainPanelOrder, rightPanelOrder]);
 
   // Panel refs for programmatic control
   const leftPanelRef = useRef<PanelImperativeHandle>(null);
@@ -178,6 +176,9 @@ function TutorialContent() {
   // Collapse states
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [isCanvasPanelCollapsed, setIsCanvasPanelCollapsed] = useState(false);
+
+  // Knowledge Station state
+  const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -474,10 +475,15 @@ function TutorialContent() {
 
     if (!over || active.id === over.id) return;
 
-    if (mainPanelOrder.includes(active.id as string) && mainPanelOrder.includes(over.id as string)) {
+    if (
+      mainPanelOrder.includes(active.id as string) &&
+      mainPanelOrder.includes(over.id as string)
+    ) {
       swapMainPanels();
-    }
-    else if (rightPanelOrder.includes(active.id as string) && rightPanelOrder.includes(over.id as string)) {
+    } else if (
+      rightPanelOrder.includes(active.id as string) &&
+      rightPanelOrder.includes(over.id as string)
+    ) {
       const oldIndex = rightPanelOrder.indexOf(active.id as string);
       const newIndex = rightPanelOrder.indexOf(over.id as string);
       reorderRightPanels(oldIndex, newIndex);
@@ -488,7 +494,6 @@ function TutorialContent() {
     setActiveDragId(null);
   };
 
-
   if (!topicTypeConfig) {
     return null;
   }
@@ -496,14 +501,15 @@ function TutorialContent() {
   // ==================== Inspector Panel Component ====================
   const InspectorPanelInternal = () => {
     const { activePanels } = usePanelContext();
-    const [activeInspectorTab, setActiveInspectorTab] = useState<string>("actionBar");
+    const [activeInspectorTab, setActiveInspectorTab] =
+      useState<string>("actionBar");
 
     // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
     const inspectorTabs: TabConfig[] = useMemo(() => {
       return Object.values(PANEL_REGISTRY)
-        .filter(config => config.isTab && config.tabGroup === "inspector")
-        .filter(config => activePanels.includes(config.id))
-        .map(config => ({
+        .filter((config) => config.isTab && config.tabGroup === "inspector")
+        .filter((config) => activePanels.includes(config.id))
+        .map((config) => ({
           key: config.id,
           label: config.title,
           icon: config.icon,
@@ -511,8 +517,14 @@ function TutorialContent() {
     }, [activePanels]);
 
     // 拖拽邏輯
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-      useSortable({ id: "inspector", disabled: isMobile });
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: "inspector", disabled: isMobile });
 
     const sortableStyle = {
       transform: CSS.Transform.toString(transform),
@@ -531,7 +543,7 @@ function TutorialContent() {
       const PanelComponent = panelConfig.component;
 
       // 為 actionBar 準備特殊的 props
-      if (activeInspectorTab === 'actionBar') {
+      if (activeInspectorTab === "actionBar") {
         return (
           <div className={styles.tabContent}>
             <Suspense fallback={<div>載入中...</div>}>
@@ -569,7 +581,12 @@ function TutorialContent() {
     };
 
     return (
-      <div ref={setNodeRef} style={sortableStyle} {...attributes} className={styles.inspectorPanel}>
+      <div
+        ref={setNodeRef}
+        style={sortableStyle}
+        {...attributes}
+        className={styles.inspectorPanel}
+      >
         <PanelHeader
           title="資訊面板"
           draggable={!isMobile}
@@ -578,9 +595,7 @@ function TutorialContent() {
           activeTab={activeInspectorTab}
           onTabChange={setActiveInspectorTab}
         />
-        <div className={styles.tabContentArea}>
-          {renderTabContent()}
-        </div>
+        <div className={styles.tabContentArea}>{renderTabContent()}</div>
       </div>
     );
   };
@@ -592,27 +607,6 @@ function TutorialContent() {
     },
     { label: topicTypeConfig.name, path: null },
   ];
-
-  // Debug logging
-  useEffect(() => {
-    console.log("Tutorial Debug:", {
-      currentStep,
-      totalSteps: activeSteps.length,
-      isPlaying,
-      playbackSpeed,
-      currentStepData: {
-        stepNumber: currentStepData?.stepNumber,
-        description: currentStepData?.description,
-        elementsCount: currentStepData?.elements?.length,
-      },
-    });
-  }, [
-    currentStep,
-    currentStepData,
-    isPlaying,
-    playbackSpeed,
-    activeSteps.length,
-  ]);
 
   // Props for CanvasPanel
   const canvasPanelProps: CanvasPanelProps = {
@@ -647,12 +641,20 @@ function TutorialContent() {
           <div className={styles.buttonGroup}>
             <Button
               variant="secondary"
+              onClick={() => setIsKnowledgeStationOpen(true)}
+              title="開啟知識補充站"
+              icon="lightbulb"
+            >
+              知識補充站
+            </Button>
+            <Button
+              variant="secondary"
               className={styles.swapButton}
               onClick={swapMainPanels}
               title="交換左右面板"
               icon="right-left"
             >
-               交換佈局
+              交換佈局
             </Button>
           </div>
         )}
@@ -678,57 +680,14 @@ function TutorialContent() {
         topicTypeConfig={topicTypeConfig}
       />
 
-      {/* Algorithm Info Section - Bottom */}
-      <div className={styles.algorithmInfoSection}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>演算法說明</h3>
-        </div>
-        <div className={styles.infoContent}>
-          <div className={styles.infoBlock}>
-            <h4>演算法簡介</h4>
-            <p>{topicTypeConfig.introduction}</p>
-          </div>
-
-          <div className={styles.infoBlock}>
-            <h4>複雜度分析</h4>
-            <div className={styles.complexityTable}>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最佳）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeBest}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（平均）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeAverage}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最差）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeWorst}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.space}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Derived Content Section */}
-        <DerivedContent problems={topicTypeConfig.relatedProblems} />
-      </div>
+      {/* Knowledge Station Dialog */}
+      {topicTypeConfig && (
+        <KnowledgeStation
+          isOpen={isKnowledgeStationOpen}
+          onClose={() => setIsKnowledgeStationOpen(false)}
+          topicTypeConfig={topicTypeConfig}
+        />
+      )}
     </div>
   );
 }

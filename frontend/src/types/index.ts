@@ -6,6 +6,8 @@
 // ==================== Animation Types (Shared) ====================
 export * from './animation';
 
+export * from './implementation';
+
 // ==================== Component Types ====================
 export * from './components/common';
 export * from './components/form';
