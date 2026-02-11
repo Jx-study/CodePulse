@@ -85,33 +85,52 @@ function runRemoveNode(
   graphData: any,
   deletedNodeId: string,
   isDirected: boolean,
+  deletedEdges: string[][] = [],
   deletedNodeX?: number,
   deletedNodeY?: number,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
-  // 建立「已刪除後」的基本元素
   let baseElements: Node[] = [];
   if (graphData.nodes) {
     baseElements = createGraphElements(graphData, isDirected);
   }
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
   const distanceMap: Record<string, number> = {};
 
-  // 標示要刪除的節點 (Ghost Node)
   const targetId = deletedNodeId.startsWith("node-")
     ? deletedNodeId
     : `node-${deletedNodeId}`;
 
-  // 複製目前的元素列表，準備加入幽靈節點
   const ghostElements = [...baseElements];
 
   const ghostNode = new Node();
+
   if (deletedNodeX !== undefined && deletedNodeY !== undefined) {
     ghostNode.moveTo(deletedNodeX, deletedNodeY);
   }
+
   ghostNode.id = targetId;
+
+  deletedEdges.forEach(([source, target]) => {
+    if (source === targetId) {
+      const targetNode = baseElements.find((n) => n.id === target);
+      if (targetNode) {
+        ghostNode.pointers.push(targetNode);
+        updateLinkStatus(linkStatusMap, targetId, target, "target", isDirected);
+      }
+    }
+
+    if (target === targetId) {
+      const sourceNode = baseElements.find((n) => n.id === source);
+      if (sourceNode) {
+        sourceNode.pointers.push(ghostNode);
+        updateLinkStatus(linkStatusMap, source, targetId, "target", isDirected);
+      }
+    }
+  });
   ghostElements.push(ghostNode);
 
   statusMap[targetId] = "target";
@@ -123,10 +142,10 @@ function runRemoveNode(
       distanceMap,
       `刪除節點：${deletedNodeId} 及其連接的邊`,
       true,
+      { ...linkStatusMap },
     ),
   );
 
-  // 真正刪除後的狀態，顯示剩下的節點
   steps.push(
     generateGraphFrame(
       baseElements, // 使用原本 inputData 產生的列表 (已無該節點)
@@ -908,6 +927,7 @@ export function createGraphAnimationSteps(
       inputData,
       action.id,
       action.isDirected,
+      action.deletedEdges,
       action.deletedNodeCoords?.x,
       action.deletedNodeCoords?.y,
     );

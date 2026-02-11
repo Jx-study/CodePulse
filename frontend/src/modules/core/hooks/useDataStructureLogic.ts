@@ -462,8 +462,15 @@ export const useDataStructureLogic = (config: any) => {
         let deletedNodeCoords = { x: 0, y: 0 };
 
         if (idx !== -1) {
+          const relatedEdges = edges.filter(
+            (e: any[]) => e[0] === targetId || e[1] === targetId,
+          );
+
+          payload.deletedEdges = relatedEdges;
+
           deletedNodeCoords = { x: nodes[idx].x, y: nodes[idx].y };
           payload.deletedNodeCoords = deletedNodeCoords;
+
           nodes.splice(idx, 1);
           newData.edges = edges.filter(
             (e: any[]) => e[0] !== targetId && e[1] !== targetId,
