@@ -387,6 +387,7 @@ function runCheckAdjacent(
   const tNode = baseElements.find((n) => n.id === tId);
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, string> = {};
   statusMap[sId] = "target";
   statusMap[tId] = "target";
 
@@ -406,6 +407,7 @@ function runCheckAdjacent(
     if (isConnected) {
       statusMap[sId] = "complete";
       statusMap[tId] = "complete";
+      updateLinkStatus(linkStatusMap, sId, tId, "complete", isDirected);
       steps.push(
         generateGraphFrame(
           baseElements,
@@ -413,9 +415,12 @@ function runCheckAdjacent(
           {},
           `結果：True (存在邊 ${sourceId} -> ${targetId})`,
           true,
+          { ...linkStatusMap },
         ),
       );
     } else {
+      statusMap[sId] = "complete";
+      statusMap[tId] = "complete";
       steps.push(
         generateGraphFrame(
           baseElements,
