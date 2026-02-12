@@ -16,13 +16,11 @@ import { Panel, Group, PanelImperativeHandle } from 'react-resizable-panels';
 import ResizeHandle from '../ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
+import { usePanelContext } from '../../context/PanelContext';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
   canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
-  isCanvasPanelCollapsed: boolean;
-  setIsCanvasPanelCollapsed: (collapsed: boolean) => void;
-  handleToggleCanvasPanel: () => void;
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
@@ -56,6 +54,7 @@ interface TopSectionProps {
 
   // Panel Refs
   leftPanelRef: React.RefObject<PanelImperativeHandle | null>;
+  rightPanelRef: React.RefObject<PanelImperativeHandle | null>;
   canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
   inspectorPanelRef: React.RefObject<PanelImperativeHandle | null>;
 
@@ -69,7 +68,6 @@ interface TopSectionProps {
   // Collapse 控制
   isLeftPanelCollapsed: boolean;
   handleToggleLeftPanel: () => void;
-  handleToggleCanvasPanel: () => void;
 
   // Topic 配置
   topicTypeConfig: any;
@@ -85,15 +83,17 @@ export function TopSection(props: TopSectionProps) {
     handleDragCancel,
     isMobile,
     leftPanelRef,
+    rightPanelRef,
     inspectorPanelRef,
     CanvasPanel,
     canvasPanelProps,
     InspectorPanelInternal,
     isLeftPanelCollapsed,
     handleToggleLeftPanel,
-    handleToggleCanvasPanel,
     topicTypeConfig,
   } = props;
+
+  const { panelSizes, setCollapsed } = usePanelContext();
 
   const sensors = useSensors(
     useSensor(SmartPointerSensor, {
@@ -115,20 +115,25 @@ export function TopSection(props: TopSectionProps) {
         >
           <Group
             orientation={isMobile ? "vertical" : "horizontal"}
-            id="tutorial-layout-h-v1"
+            id={`tutorial-layout-h-${mainPanelOrder.join('-')}`}
           >
             {mainPanelOrder[0] === "codeEditor" ? (
               <>
                 <Panel
                   id="code-editor-panel"
                   key="codeEditor"
-                  defaultSize={isMobile ? 30 : 35}
+                  defaultSize={
+                    isLeftPanelCollapsed
+                      ? 0
+                      : (isMobile ? 30 : panelSizes.codeEditor)
+                  }
                   minSize="20%"
                   collapsible
                   panelRef={leftPanelRef}
-                  onResize={() => {
-                    if (leftPanelRef.current) {
-                      // This callback is handled by parent
+                  onResize={(size) => {
+                    const collapsed = size.asPercentage === 0;
+                    if (collapsed !== isLeftPanelCollapsed) {
+                      setCollapsed('codeEditor', collapsed);
                     }
                   }}
                 >
@@ -160,8 +165,9 @@ export function TopSection(props: TopSectionProps) {
                 <Panel
                   id="right-panel-container"
                   key="rightPanel"
-                  defaultSize={isMobile ? 70 : 65}
+                  defaultSize={isMobile ? 70 : panelSizes.rightPanel}
                   minSize={isMobile ? "50%" : "60%"}
+                  panelRef={rightPanelRef}
                 >
                   <div className={styles.rightPanel}>
                     <SortableContext
@@ -179,10 +185,7 @@ export function TopSection(props: TopSectionProps) {
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle
-                                    direction="vertical"
-                                    onDoubleClick={handleToggleCanvasPanel}
-                                  />
+                                  <ResizeHandle direction="vertical" />
                                 )}
                               </Fragment>
                             );
@@ -215,8 +218,9 @@ export function TopSection(props: TopSectionProps) {
                 <Panel
                   id="right-panel-container"
                   key="rightPanel"
-                  defaultSize={isMobile ? 70 : 65}
+                  defaultSize={isMobile ? 70 : panelSizes.rightPanel}
                   minSize={isMobile ? "50%" : "60%"}
+                  panelRef={rightPanelRef}
                 >
                   <div className={styles.rightPanel}>
                     <SortableContext
@@ -234,10 +238,7 @@ export function TopSection(props: TopSectionProps) {
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle
-                                    direction="vertical"
-                                    onDoubleClick={handleToggleCanvasPanel}
-                                  />
+                                  <ResizeHandle direction="vertical" />
                                 )}
                               </Fragment>
                             );
@@ -278,13 +279,18 @@ export function TopSection(props: TopSectionProps) {
                 <Panel
                   id="code-editor-panel"
                   key="codeEditor"
-                  defaultSize={isMobile ? 30 : 30}
+                  defaultSize={
+                    isLeftPanelCollapsed
+                      ? 0
+                      : (isMobile ? 30 : panelSizes.codeEditor)
+                  }
                   minSize="20%"
                   collapsible
                   panelRef={leftPanelRef}
-                  onResize={() => {
-                    if (leftPanelRef.current) {
-                      // This callback is handled by parent
+                  onResize={(size) => {
+                    const collapsed = size.asPercentage === 0;
+                    if (collapsed !== isLeftPanelCollapsed) {
+                      setCollapsed('codeEditor', collapsed);
                     }
                   }}
                 >

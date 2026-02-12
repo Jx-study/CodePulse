@@ -26,9 +26,6 @@ import KnowledgeStation from "./components/KnowledgeStation";
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
   canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
-  isCanvasPanelCollapsed: boolean;
-  setIsCanvasPanelCollapsed: (collapsed: boolean) => void;
-  handleToggleCanvasPanel: () => void;
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
@@ -52,9 +49,6 @@ interface CanvasPanelProps {
 
 const CanvasPanel = ({
   canvasPanelRef,
-  isCanvasPanelCollapsed,
-  setIsCanvasPanelCollapsed,
-  handleToggleCanvasPanel,
   isMobile,
   canvasContainerRef,
   currentStepData,
@@ -100,13 +94,7 @@ const CanvasPanel = ({
       id="canvas-panel"
       defaultSize={75}
       minSize="50%"
-      collapsible
       panelRef={canvasPanelRef}
-      onResize={() => {
-        setIsCanvasPanelCollapsed(
-          canvasPanelRef.current?.isCollapsed() ?? false,
-        );
-      }}
     >
       <div
         ref={setNodeRef}
@@ -115,42 +103,36 @@ const CanvasPanel = ({
       >
         <PanelHeader
           title="視覺化動畫"
-          isCollapsed={isCanvasPanelCollapsed}
-          onToggleCollapse={handleToggleCanvasPanel}
           draggable={!isMobile}
           dragHandleProps={dragHandleProps}
         />
-        {!isCanvasPanelCollapsed && (
-          <>
-            <div ref={canvasContainerRef} className={styles.visualizationArea}>
-              <D3Canvas
-                elements={currentStepData?.elements || []}
-                links={currentLinks}
-                width={canvasSize.width}
-                height={canvasSize.height}
-                structureType={topicTypeConfig?.id}
-              />
-            </div>
-            <div className={styles.stepDescription}>
-              {currentStepData?.description}
-            </div>
+        <div ref={canvasContainerRef} className={styles.visualizationArea}>
+          <D3Canvas
+            elements={currentStepData?.elements || []}
+            links={currentLinks}
+            width={canvasSize.width}
+            height={canvasSize.height}
+            structureType={topicTypeConfig?.id}
+          />
+        </div>
+        <div className={styles.stepDescription}>
+          {currentStepData?.description}
+        </div>
 
-            {/* ControlBar 直接渲染,無 PanelHeader */}
-            <ControlBar
-              isPlaying={isPlaying}
-              currentStep={currentStep}
-              totalSteps={activeStepsLength}
-              playbackSpeed={playbackSpeed}
-              onPlay={handlePlay}
-              onPause={handlePause}
-              onNext={handleNext}
-              onPrev={handlePrev}
-              onReset={handleReset}
-              onSpeedChange={setPlaybackSpeed}
-              onStepChange={handleStepChange}
-            />
-          </>
-        )}
+        {/* ControlBar 直接渲染,無 PanelHeader */}
+        <ControlBar
+          isPlaying={isPlaying}
+          currentStep={currentStep}
+          totalSteps={activeStepsLength}
+          playbackSpeed={playbackSpeed}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onReset={handleReset}
+          onSpeedChange={setPlaybackSpeed}
+          onStepChange={handleStepChange}
+        />
       </div>
     </Panel>
   );
@@ -165,17 +147,20 @@ function TutorialContent() {
     rightPanelOrder,
     swapMainPanels,
     reorderRightPanels,
+    panelSizes,
+    collapsedPanels,
+    setCollapsed,
   } = usePanelContext();
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
   // Panel refs for programmatic control
   const leftPanelRef = useRef<PanelImperativeHandle>(null);
+  const rightPanelRef = useRef<PanelImperativeHandle>(null);
   const canvasPanelRef = useRef<PanelImperativeHandle>(null);
   const inspectorPanelRef = useRef<PanelImperativeHandle>(null);
 
-  // Collapse states
-  const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
-  const [isCanvasPanelCollapsed, setIsCanvasPanelCollapsed] = useState(false);
+  // Collapse states (使用 context 的 collapsed state)
+  const isLeftPanelCollapsed = collapsedPanels.has('codeEditor');
 
   // Knowledge Station state
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
@@ -228,29 +213,6 @@ function TutorialContent() {
   const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
   const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
-
-  // 監聽 canvas 容器尺寸變化
-  useEffect(() => {
-    const container = canvasContainerRef.current;
-    if (!container) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        setCanvasSize({
-          width: Math.max(400, width - 32), // 減去 padding
-          height: Math.max(300, height - 32),
-        });
-      }
-    });
-
-    resizeObserver.observe(container);
-
-    // 清理函數：確保在組件卸載或 ref 變更時正確 disconnect
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []); // 空依賴陣列確保只在 mount/unmount 時執行
 
   // 3. 計算目前的動畫步驟
   useEffect(() => {
@@ -444,24 +406,37 @@ function TutorialContent() {
 
     if (panel.isCollapsed()) {
       panel.expand();
-      setIsLeftPanelCollapsed(false);
+      setCollapsed('codeEditor', false);
     } else {
       panel.collapse();
-      setIsLeftPanelCollapsed(true);
+      setCollapsed('codeEditor', true);
     }
   };
 
-  const handleToggleCanvasPanel = () => {
-    const panel = canvasPanelRef.current;
-    if (!panel) return;
-
-    if (panel.isCollapsed()) {
-      panel.expand();
-      setIsCanvasPanelCollapsed(false);
-    } else {
-      panel.collapse();
-      setIsCanvasPanelCollapsed(true);
+  // 交換主面板並記錄當前尺寸
+  const handleSwapMainPanels = () => {
+    // 獲取當前面板尺寸
+    const codeEditorPanel = leftPanelRef.current;
+    const rightPanel = rightPanelRef.current;
+    if (!codeEditorPanel || !rightPanel) {
+      swapMainPanels();
+      return;
     }
+
+    // 從 react-resizable-panels 獲取當前尺寸
+    let codeEditorSize = codeEditorPanel.getSize().asPercentage;
+    let rightPanelSize = rightPanel.getSize().asPercentage;
+
+    // 如果 codeEditor 是 collapsed (size = 0)，使用之前保存的尺寸
+    if (isLeftPanelCollapsed && codeEditorSize === 0) {
+      codeEditorSize = panelSizes.codeEditor || 35; // 使用保存的值或預設值
+      rightPanelSize = 100 - codeEditorSize;
+    }
+
+    // 交換順序
+    swapMainPanels(codeEditorSize, rightPanelSize);
+
+    // collapsedPanels 狀態會保留，TopSection 會根據這個狀態設置正確的 defaultSize
   };
 
   // Drag and Drop handlers
@@ -479,7 +454,7 @@ function TutorialContent() {
       mainPanelOrder.includes(active.id as string) &&
       mainPanelOrder.includes(over.id as string)
     ) {
-      swapMainPanels();
+      handleSwapMainPanels();
     } else if (
       rightPanelOrder.includes(active.id as string) &&
       rightPanelOrder.includes(over.id as string)
@@ -611,9 +586,6 @@ function TutorialContent() {
   // Props for CanvasPanel
   const canvasPanelProps: CanvasPanelProps = {
     canvasPanelRef,
-    isCanvasPanelCollapsed,
-    setIsCanvasPanelCollapsed,
-    handleToggleCanvasPanel,
     isMobile,
     canvasContainerRef,
     currentStepData,
@@ -650,7 +622,7 @@ function TutorialContent() {
             <Button
               variant="secondary"
               className={styles.swapButton}
-              onClick={swapMainPanels}
+              onClick={handleSwapMainPanels}
               title="交換左右面板"
               icon="right-left"
             >
@@ -669,6 +641,7 @@ function TutorialContent() {
         handleDragCancel={handleDragCancel}
         isMobile={isMobile}
         leftPanelRef={leftPanelRef}
+        rightPanelRef={rightPanelRef}
         canvasPanelRef={canvasPanelRef}
         inspectorPanelRef={inspectorPanelRef}
         CanvasPanel={CanvasPanel}
@@ -676,7 +649,6 @@ function TutorialContent() {
         InspectorPanelInternal={InspectorPanelInternal}
         isLeftPanelCollapsed={isLeftPanelCollapsed}
         handleToggleLeftPanel={handleToggleLeftPanel}
-        handleToggleCanvasPanel={handleToggleCanvasPanel}
         topicTypeConfig={topicTypeConfig}
       />
 

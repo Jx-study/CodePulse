@@ -9,7 +9,7 @@ interface PanelContextValue {
   // Main panel order (horizontal): left/right main panels
   mainPanelOrder: string[];
 
-  // Right panel order (vertical): canvas, controls, action bar
+  // Right panel order (vertical): canvas, controlsBar
   rightPanelOrder: string[];
 
   // Active panels (for dynamic panel management)
@@ -18,8 +18,11 @@ interface PanelContextValue {
   // Collapsed panels tracking
   collapsedPanels: Set<string>;
 
+  // Panel sizes (for maintaining size during swap)
+  panelSizes: { [key: string]: number };
+
   // Methods
-  swapMainPanels: () => void;
+  swapMainPanels: (currentCodeEditorSize?: number, currentRightPanelSize?: number) => void;
   reorderRightPanels: (oldIndex: number, newIndex: number) => void;
   setCollapsed: (panelId: string, collapsed: boolean) => void;
   togglePanel: (panelId: string) => void;
@@ -57,8 +60,22 @@ export function PanelProvider({ children }: PanelProviderProps) {
     new Set()
   );
 
-  const swapMainPanels = () => {
+  // Panel sizes tracking (記錄每個面板的當前尺寸)
+  const [panelSizes, setPanelSizes] = useState<{ [key: string]: number }>({
+    codeEditor: 35,
+    rightPanel: 65,
+  });
+
+  const swapMainPanels = (currentCodeEditorSize?: number, currentRightPanelSize?: number) => {
     setMainPanelOrder((prev) => [...prev].reverse());
+    // 記錄當前實際尺寸，不交換值
+    // codeEditor 無論在左還是右，都保持自己的大小
+    if (currentCodeEditorSize !== undefined && currentRightPanelSize !== undefined) {
+      setPanelSizes({
+        codeEditor: currentCodeEditorSize,
+        rightPanel: currentRightPanelSize,
+      });
+    }
   };
 
   const reorderRightPanels = (oldIndex: number, newIndex: number) => {
@@ -128,6 +145,7 @@ export function PanelProvider({ children }: PanelProviderProps) {
     rightPanelOrder,
     activePanels,
     collapsedPanels,
+    panelSizes,
     swapMainPanels,
     reorderRightPanels,
     setCollapsed,
