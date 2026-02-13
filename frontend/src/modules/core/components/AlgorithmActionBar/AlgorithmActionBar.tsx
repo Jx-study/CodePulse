@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button/Button";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
 export type AlgorithmViewMode = "graph" | "grid";
@@ -19,6 +20,8 @@ interface AlgorithmActionBarProps {
   onRandomData: () => void;
   onResetData: () => void;
   onRun: (params?: RunParams) => void;
+  onRandomCountChange?: (count: number) => void;
+  onLimitExceeded?: () => void;
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
@@ -32,6 +35,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onRandomData,
   onResetData,
   onRun,
+  onRandomCountChange,
+  onLimitExceeded,
   disabled = false,
   category = "sorting",
   algorithmId,
@@ -40,7 +45,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
-  const [dataSize, setDataSize] = useState<number>(10);
+  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT));
   const [searchValue, setSearchValue] = useState<string>("");
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
@@ -72,12 +78,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
   // 根據演算法類型設定預設資料筆數
   useEffect(() => {
+    // TODO: check
     if (isSorting) {
-      setDataSize(10);
+      setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isSearching && !isPrefixSum) {
-      setDataSize(15);
+      setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isPrefixSum) {
-      setDataSize(8);
+      setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
 
@@ -194,7 +201,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       if (isNaN(start) && isNaN(end)) {
         onRun({});
-      } else if (!isNaN(start) && !isNaN(end)) {
+      } else if (!isNaN(start) && !isNaN(end) && start <= end && start >= 0 && end >= 0) {
         onRun({ range: [start, end] });
       } else {
         alert("請輸入完整的區間 (Start, End)");
@@ -502,34 +509,45 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         <Button size="sm" onClick={onResetData} disabled={disabled}>
           重設
         </Button>
-        {!(viewMode === "grid" && isGraphAlgo) && (
-          <div className={styles.settingItem}>
-            <label style={{ color: "#ccc", fontSize: "12px" }}>筆數:</label>
-            <input
-              type="number"
-              value={dataSize}
-              onChange={(e) => setDataSize(Number(e.target.value))}
-              style={{
-                width: "50px",
-                background: "#222",
-                color: "#fff",
-                border: "1px solid #555",
-              }}
-              disabled={disabled}
-            />
-          </div>
-        )}
-        <Button
-          size="sm"
-          onClick={() => {
-            if (viewMode === "grid" && isGraphAlgo) {
-              handleRandomGrid();
-            } else {
-              onRandomData();
-            }
-          }}
-          disabled={disabled}
-        >
+
+        <div className={styles.settingItem}>
+          <label style={{ color: "#ccc", fontSize: "12px" }}>隨機筆數:</label>
+          <input
+            type="number"
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={DATA_LIMITS.MAX_NODES}
+            onChange={(e) => setRandomCountInput(e.target.value)}
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                setRandomCountInput(String(randomCount));
+              } else {
+                // 超過上限時顯示提示
+                if (num > DATA_LIMITS.MAX_NODES) {
+                  onLimitExceeded?.();
+                }
+                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onRandomCountChange?.(v);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            style={{
+              width: "50px",
+              background: "#222",
+              color: "#fff",
+              border: "1px solid #555",
+            }}
+            disabled={disabled}
+          />
+        </div>
+        <Button size="sm" onClick={() => onRandomData()} disabled={disabled}>
           隨機
         </Button>
         {viewMode === "grid" && isGraphAlgo && (

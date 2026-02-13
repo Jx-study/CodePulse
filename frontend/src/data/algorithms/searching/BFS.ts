@@ -416,22 +416,19 @@ export function createBFSAnimationSteps(
   return runGraphBFS(inputData, startNodeId, endNodeId);
 }
 
+// TODO: 補完 BFS 的 pseudo code 與 mappings
+const bfsCodeConfig = {
+  pseudo: { content: "", mappings: {} as Record<string, number[]> },
+  python: { content: "" },
+};
+
 export const BFSConfig: LevelImplementationConfig = {
   id: "bfs",
   type: "algorithm",
   name: "廣度優先搜尋 (Breadth-First Search)",
   categoryName: "搜尋演算法",
   description: "廣度優先搜尋演算法，用於圖或樹的遍歷",
-  pseudoCode: `Q = Queue()
-Q.enqueue(start_node)
-mark start_node as visited
-while Q is not empty:
-    curr = Q.dequeue()
-    process(curr)
-    for neighbor in curr.neighbors:
-        if neighbor not visited:
-            mark neighbor as visited
-            Q.enqueue(neighbor)`,
+  codeConfig: bfsCodeConfig,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(V + E)",

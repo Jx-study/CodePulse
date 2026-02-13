@@ -5,8 +5,10 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
+import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
@@ -15,6 +17,8 @@ import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
+import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableWatch";
+
 
 function Tutorial() {
   const { t } = useTranslation();
@@ -22,6 +26,9 @@ function Tutorial() {
     category: string;
     levelId: string;
   }>();
+
+  // 新增：代碼模式狀態
+  const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
 
   // 1. 根據路由參數載入配置
   const topicTypeConfig = useMemo(() => {
@@ -50,18 +57,46 @@ function Tutorial() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
-  const [maxNodes, setMaxNodes] = useState(10);
+  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
   const [hasTailMode, setHasTailMode] = useState(false);
+  const [showLimitToast, setShowLimitToast] = useState(false);
   const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
   const [isDirected, setIsDirected] = useState(false);
 
-  // 3. 計算目前的動畫步驟
+  // 計算目前的動畫步驟數據
+  const currentStepData = activeSteps[currentStep];
+
+  // 新增：根據 hasTailMode 動態計算當前的 codeConfig
+  const currentCodeConfig = useMemo(() => {
+    if (!topicTypeConfig) return null;
+    if (topicTypeConfig.getCodeConfig) {
+      return topicTypeConfig.getCodeConfig({ hasTailMode });
+    }
+    return topicTypeConfig.codeConfig ?? null;
+  }, [topicTypeConfig, hasTailMode]);
+
+  // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
+  const highlightLines = useMemo(() => {
+    if (!currentCodeConfig || !currentStepData?.actionTag) return [];
+    if (codeMode !== "pseudo") return []; // python 不需要高亮
+
+    const pseudoConfig = currentCodeConfig.pseudo;
+    const mappings = pseudoConfig?.mappings;
+    return (mappings && mappings[currentStepData.actionTag]) || [];
+  }, [currentCodeConfig, currentStepData, codeMode]);
+
+  // 切換模式時重置動畫
+  const handleModeToggle = (mode: "pseudo" | "python") => {
+    setCodeMode(mode);
+    handleReset();
+  };
+
+  // 3. 初始重置
   useEffect(() => {
     if (topicTypeConfig) {
       setCurrentStep(0);
       setIsPlaying(false);
     }
-    // 注意：這裡刻意不加 listData，避免與 handleAddNode 的動畫衝突
   }, [topicTypeConfig]);
 
   useEffect(() => {
@@ -70,8 +105,6 @@ function Tutorial() {
       setCurrentStep(0);
     }
   }, [hasTailMode, isAlgorithm, isDirected]);
-
-  const currentStepData = activeSteps[currentStep];
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -117,11 +150,16 @@ function Tutorial() {
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
+    // 檢查是否超過最大筆數限制
+    const currentCount = dsLogic.data?.length || 0;
+    if (currentCount >= DATA_LIMITS.MAX_NODES) {
+      setShowLimitToast(true);
+      return;
+    }
     const steps = executeAction("add", {
       value,
       mode,
       index,
-      maxNodes,
       hasTailMode,
     });
     if (steps && steps.length > 0) {
@@ -153,7 +191,7 @@ function Tutorial() {
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
   const handleRandomData = (params?: any) => {
     executeAction("random", {
-      maxNodes,
+      randomCount,
       hasTailMode,
       mode: viewMode,
       isDirected,
@@ -175,7 +213,7 @@ function Tutorial() {
     if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
       const steps = executeAction("load", {
         data: raw,
-        maxNodes,
+        randomCount,
         hasTailMode,
         isDirected,
       });
@@ -192,9 +230,13 @@ function Tutorial() {
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
+    // 檢查是否超過最大筆數限制
+    if (parsed.length > DATA_LIMITS.MAX_NODES) {
+      setShowLimitToast(true);
+      return;
+    }
     const steps = executeAction("load", {
       data: parsed,
-      maxNodes,
       hasTailMode,
     });
     if (steps && steps.length > 0) {
@@ -248,7 +290,7 @@ function Tutorial() {
     setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -268,6 +310,8 @@ function Tutorial() {
           onRandomData={handleRandomData}
           onResetData={handleResetData}
           onRun={handleRunAlgorithm}
+          onRandomCountChange={setRandomCount}
+          onLimitExceeded={() => setShowLimitToast(true)}
           disabled={isProcessing}
           category={category as any}
           algorithmId={topicTypeConfig?.id}
@@ -298,8 +342,9 @@ function Tutorial() {
             onLoadData={handleLoadData}
             onResetData={handleResetData}
             onRandomData={handleRandomData}
-            onMaxNodesChange={setMaxNodes}
+            onRandomCountChange={setRandomCount}
             onTailModeChange={setHasTailMode}
+            onLimitExceeded={() => setShowLimitToast(true)}
             structureType={topicTypeConfig.id as any}
             disabled={isProcessing}
             isDirected={isDirected}
@@ -348,14 +393,35 @@ function Tutorial() {
 
       <div className={styles.topSection}>
         <div className={styles.pseudoCodeSection}>
-          <h3 className={styles.sectionTitle}>Pseudo Code</h3>
+          <div className={styles.codeHeader}>
+            <h3 className={styles.sectionTitle}>代碼實作</h3>
+            <div className={styles.codeToggle}>
+              <button
+                className={`${styles.toggleBtn} ${
+                  codeMode === "pseudo" ? styles.active : ""
+                }`}
+                onClick={() => handleModeToggle("pseudo")}
+              >
+                Pseudo
+              </button>
+              <button
+                className={`${styles.toggleBtn} ${
+                  codeMode === "python" ? styles.active : ""
+                }`}
+                onClick={() => handleModeToggle("python")}
+              >
+                Python
+              </button>
+            </div>
+          </div>
           <div className={styles.pseudoCodeEditor}>
             <CodeEditor
               mode="single"
+              value={currentCodeConfig?.[codeMode]?.content || ""}
               language="python"
-              value={topicTypeConfig.pseudoCode}
-              readOnly={true}
-              theme="auto"
+              highlightedLine={highlightLines}
+              readOnly={codeMode === "pseudo"}
+              theme="dark"
             />
           </div>
         </div>
@@ -376,6 +442,8 @@ function Tutorial() {
             <div className={styles.stepDescription}>
               {currentStepData?.description}
             </div>
+            
+            <VariableWatch variables={currentStepData?.variables} />
           </div>
 
           {/* 資料操作列 */}
@@ -445,6 +513,13 @@ function Tutorial() {
           </div>
         </div>
       </div>
+
+      {/* 資料數量限制警告 Toast */}
+      <LimitWarningToast
+        isOpen={showLimitToast}
+        onClose={() => setShowLimitToast(false)}
+        maxLimit={DATA_LIMITS.MAX_NODES}
+      />
     </div>
   );
 }

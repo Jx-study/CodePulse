@@ -1,0 +1,72 @@
+// Toast 容器 - 固定在頂部中央
+.toastContainer {
+  position: fixed;
+  top: $spacing-md;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  animation: slideDown 0.3s $ease-smooth;
+}
+
+// Toast 主體
+.toast {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  background: $dark-bg-tertiary;
+  border: 1px solid $warning-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  min-width: 280px;
+  max-width: 400px;
+}
+
+// 警告圖示
+.iconWrapper {
+  color: $warning-color;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+// 訊息文字
+.message {
+  color: $dark-text-primary;
+  font-size: $font-sm;
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+}
+
+// 關閉按鈕
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: $dark-text-tertiary;
+  cursor: pointer;
+  padding: $spacing-2xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  transition: $transition-base;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $dark-text-primary;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// 滑入動畫
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

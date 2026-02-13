@@ -24,7 +24,7 @@ export interface CodeEditorProps {
 
   // 分屏配置
   splitRatio?: number;
-  highlightedLine?: number | null;
+  highlightedLine?: number[] | null;
 
   // 回調函數
   onChange?: (value: string) => void;
@@ -54,7 +54,7 @@ export interface CodeEditorHandle {
   setTheme: (theme: 'light' | 'dark') => void;
 
   // 高亮指定行
-  highlightLine: (lineNumber: number, editorType?: 'top' | 'bottom') => void;
+  highlightLine: (lines: number | number[], editorType?: 'top' | 'bottom') => void;
 
   // 格式化程式碼
   formatCode: () => void;
@@ -251,7 +251,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   };
 
   // ========== 行高亮功能 ==========
-  const highlightLineInternal = (lineNumber: number, editorType?: 'top' | 'bottom') => {
+  const highlightLineInternal = (lines: number | number[], editorType?: 'top' | 'bottom') => {
     let editor: monaco.editor.IStandaloneCodeEditor | null = null;
     let decorationsRef: React.MutableRefObject<string[]> | null = null;
 
@@ -273,26 +273,26 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     // 清除舊的高亮
     decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
 
-    // 添加新的高亮
-    decorationsRef.current = editor.deltaDecorations(
-      [],
-      [
-        {
-          range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-          options: {
-            isWholeLine: true,
-            className: 'execution-line-background',
-            glyphMarginClassName: 'execution-line-glyph',
-          },
-        },
-      ]
-    );
+    const lineArray = Array.isArray(lines) ? lines : [lines];
+    if (lineArray.length === 0) return;
 
-    // 滾動到該行
-    editor.revealLineInCenter(lineNumber);
+    // 添加新的高亮
+    const newDecorations = lineArray.map(line => ({
+      range: new monaco.Range(line, 1, line, 1),
+      options: {
+        isWholeLine: true,
+        className: styles.highlightedLine,
+        glyphMarginClassName: styles.highlightedLineGlyph,
+      },
+    }));
+
+    decorationsRef.current = editor.deltaDecorations([], newDecorations);
+
+    // 滾動到第一行高亮處
+    editor.revealLineInCenter(lineArray[0]);
   };
 
-  // ========== 監聽 highlightedLine prop 變化 ==========
+  // ========== 監聽 highlightLine prop 變化 ==========
   useEffect(() => {
     if (highlightedLine !== null && highlightedLine !== undefined) {
       // 檢查編輯器是否已經準備好

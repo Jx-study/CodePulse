@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { getBSTArrayAfterDelete } from "@/data/DataStructure/nonlinear/BinarySearchTree";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 interface GraphNode {
   id: string;
@@ -122,9 +123,18 @@ export const useDataStructureLogic = (config: any) => {
           newData.push(newNode);
         } else if (mode === "Node N") {
           const idx = index !== undefined ? index : -1;
-          if (idx < 0) newData.unshift(newNode);
-          else if (idx >= data.length) newData.push(newNode);
-          else newData.splice(idx + 1, 0, newNode);
+          if (idx < 0) {
+            alert("Invalid index: Index cannot be negative.");
+            return [];
+          }
+          if (idx > data.length) {
+            alert(`Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`);
+            return [];
+          }
+          
+          if (idx === 0) newData.unshift(newNode);
+          else if (idx === data.length) newData.push(newNode);
+          else newData.splice(idx, 0, newNode);
         }
       } else if (actionType === "delete") {
         if (newData.length === 0) {
@@ -160,7 +170,7 @@ export const useDataStructureLogic = (config: any) => {
         }));
         isResetAction = true;
       } else if (actionType === "random") {
-        const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+        const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
         newData = [];
         for (let i = 0; i < count; i++) {
           newData.push({
@@ -189,14 +199,15 @@ export const useDataStructureLogic = (config: any) => {
         targetId = newId;
         payload.mode = "Push";
       } else if (actionType === "delete") {
-        if (newData.length === 0) {
-          alert("Stack is empty");
-          return [];
-        }
-        const delBox = newData.pop();
-        if (delBox) {
-          targetId = delBox.id;
-          value = delBox.value;
+        if (newData.length > 0) {
+          const delBox = newData.pop();
+          if (delBox) {
+            targetId = delBox.id;
+            value = delBox.value;
+            payload.mode = "Pop";
+          }
+        } else {
+          value = undefined; 
           payload.mode = "Pop";
         }
       } else if (actionType === "peek") {
@@ -206,10 +217,14 @@ export const useDataStructureLogic = (config: any) => {
           value = topNode.value;
           payload.mode = "Peek";
         }
+        else {
+          value = undefined; 
+          payload.mode = "Peek";
+        }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -240,8 +255,10 @@ export const useDataStructureLogic = (config: any) => {
         payload.mode = "Enqueue";
       } else if (actionType === "delete") {
         if (newData.length === 0) {
-          alert("Queue is empty");
-          return [];
+          // alert("Queue is empty");
+          // return [];
+          value = undefined; 
+          payload.mode = "Dequeue";
         }
         // 刪除第一個
         const delBox = newData.shift();
@@ -261,7 +278,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -324,9 +341,10 @@ export const useDataStructureLogic = (config: any) => {
           return [];
         }
 
-        if (idx === undefined || idx >= newData.length)
-          idx = newData.length - 1;
-        else if (idx < 0) idx = 0;
+        if (idx === undefined || idx >= newData.length || idx < 0) {
+          alert("Invalid index");
+          return [];
+        }
 
         if (idx >= 0 && idx < newData.length) {
           value = newData[idx].value;
@@ -347,7 +365,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -398,7 +416,7 @@ export const useDataStructureLogic = (config: any) => {
         isResetAction = true;
 
         if (actionType === "random") {
-          const count = Math.floor(Math.random() * (payload.maxNodes - 2)) + 3;
+          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
           newData = [];
           for (let i = 0; i < count; i++) {
             newData.push({

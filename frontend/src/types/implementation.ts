@@ -1,4 +1,4 @@
-import type { AnimationStep, ComplexityInfo } from '@/types';
+import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
 
 /**
  * 統一的實作配置介面
@@ -10,7 +10,7 @@ export interface LevelImplementationConfig {
   name: string;
   categoryName: string;
   description: string;
-  pseudoCode: string;
+  codeConfig: CodeConfig; // 結構化代碼配置（必填）
   complexity: ComplexityInfo;
   introduction: string;
   defaultData: any;
@@ -19,6 +19,7 @@ export interface LevelImplementationConfig {
     action?: any,
     config?: any
   ) => AnimationStep[];
+  getCodeConfig?: (payload?: any) => CodeConfig;
 }
 
 /**

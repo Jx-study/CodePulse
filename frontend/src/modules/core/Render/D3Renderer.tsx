@@ -3,6 +3,7 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
+import { Pointer } from "../DataLogic/Pointer";
 import "./D3Renderer.module.scss";
 
 export type linkStatus = "default" | "visited" | "path" | "target" | "complete";
@@ -515,7 +516,33 @@ export function renderAll(
     if (d.kind === "node" || d instanceof Node) {
       g.append("circle");
     } else if (d.kind === "box" || d instanceof Box) {
-      g.append("rect");
+      const rect = g.append("rect");
+
+      // === 處理 Box 出現動畫策略 ===
+      if (d instanceof Box && d.appearAnim === "instant") {
+        rect
+          .attr("x", -d.width / 2)
+          .attr("y", -d.height / 2)
+          .attr("width", d.width)
+          .attr("height", d.height)
+          .attr("rx", 8)
+          .attr("fill", d.getColor())
+          .attr("fill-opacity", 0.2)
+          .attr("stroke", d.getColor())
+          .attr("stroke-width", 2);
+      }
+    } else if (d.kind === "pointer" || d instanceof Pointer) {
+      // Pointer: 繪製箭頭與標籤
+      const ptr = d as Pointer;
+      const isDown = ptr.direction === "down";
+
+      // 箭頭
+      g.append("path")
+        .attr("d", isDown ? "M0,0 L-5,-10 L5,-10 Z" : "M0,0 L-5,10 L5,10 Z") // down: 向下指 (頂點在 0,0), up: 向上指 (頂點在 0,0)
+        .attr("fill", "#ffeb3b"); // 黃色箭頭
+
+      // 標籤文字
+      g.append("text").attr("class", "ptr-label");
     }
 
     g.append("text").attr("class", "desc"); // 顯示 description
@@ -647,6 +674,13 @@ export function renderAll(
           .attr("y", 5) // 置中
           .attr("fill", "#ccc");
 
+        // 支援虛線樣式
+        if (box.borderStyle === "dashed") {
+          rect.attr("stroke-dasharray", "5,5");
+        } else {
+          rect.attr("stroke-dasharray", null);
+        }
+
         textDesc
           .attr("y", box.height / 2 + 16) // 底部下方
           .attr("fill", "#ccc");
@@ -661,6 +695,18 @@ export function renderAll(
         .attr("text-anchor", "middle")
         .attr("font-size", 14)
         .text(box.value !== undefined ? box.value : "");
+    } else if (d.kind === "pointer" || d instanceof Pointer) {
+      const ptr = d as Pointer;
+      const textLabel = g.select<SVGTextElement>("text.ptr-label");
+      const isDown = ptr.direction === "down";
+
+      textLabel
+        .attr("text-anchor", "middle")
+        .attr("y", isDown ? -20 : 25) // down: 文字在箭頭上方, up: 文字在箭頭下方
+        .attr("font-size", 14)
+        .attr("font-weight", "bold")
+        .attr("fill", "#ffeb3b")
+        .text(ptr.label);
     }
   });
 }

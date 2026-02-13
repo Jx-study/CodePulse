@@ -987,15 +987,11 @@ export const GraphConfig: LevelImplementationConfig = {
   categoryName: "非線性表",
   description:
     "由節點 (Vertex) 與邊 (Edge) 組成的資料結構，用於描述物件之間的關係。",
-  pseudoCode: `Graph G = (V, E)
-V: Set of Vertices (Nodes)
-E: Set of Edges (Connections)
-
-// 鄰接表表示法 (Adjacency List)
-Node A: [B, C]
-Node B: [A, D]
-Node C: [A]
-Node D: [B]`,
+  // TODO: 補完 Graph 的 pseudo code 與 mappings
+  codeConfig: {
+    pseudo: { content: "", mappings: {} as Record<string, number[]> },
+    python: { content: "" },
+  },
   complexity: {
     timeBest: "O(1)", // 存取特定節點
     timeAverage: "O(V + E)", // 遍歷

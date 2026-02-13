@@ -394,13 +394,19 @@ export function createDFSAnimationSteps(
   return runGraphDFS(inputData, startNodeId, endNodeId);
 }
 
+// TODO: 補完 DFS 的 pseudo code 與 mappings
+const dfsCodeConfig = {
+  pseudo: { content: "", mappings: {} as Record<string, number[]> },
+  python: { content: "" },
+};
+
 export const DFSConfig: LevelImplementationConfig = {
   id: "dfs",
   type: "algorithm",
   name: "深度優先搜尋 (Depth-First Search)",
   categoryName: "搜尋演算法",
   description: "深度優先搜尋演算法，用於圖或樹的遍歷",
-  pseudoCode: ``,
+  codeConfig: dfsCodeConfig,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(log n)",

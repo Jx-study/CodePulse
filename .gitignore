@@ -1,9 +1,11 @@
 node_modules/
 .idea/
 *.iml
-
 *.md
-!README.md
+!README.md 
+.claudignore
+.cursorrules
+tools/everything-claude-code/
 
 # Frontend
 build/
