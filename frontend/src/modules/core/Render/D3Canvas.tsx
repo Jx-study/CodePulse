@@ -7,6 +7,7 @@ import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
+import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import styles from './D3Canvas.module.scss';
 
 export interface D3CanvasRef {
@@ -25,6 +26,10 @@ export const D3Canvas = forwardRef<
     enableZoom?: boolean;
     /** 是否啟用拖拽平移功能 (預設: true) */
     enablePan?: boolean;
+    /** Optional custom status color map - 可選的自訂狀態顏色映射表 */
+    statusColorMap?: StatusColorMap;
+    /** Optional custom status configuration - 可選的自訂狀態配置 */
+    statusConfig?: StatusConfig;
   }
 >(
   (
@@ -36,6 +41,8 @@ export const D3Canvas = forwardRef<
       structureType = "linkedlist", // default value
       enableZoom = true,
       enablePan = true,
+      statusColorMap,
+      statusConfig,
     },
     forwardedRef,
   ) => {
@@ -79,7 +86,7 @@ export const D3Canvas = forwardRef<
       const svgElement = svgRef.current;
       if (!svgElement) return;
 
-      renderAll(svgElement, elements, links, structureType);
+      renderAll(svgElement, elements, links, structureType, statusColorMap);
 
       // 動態計算 viewBox 以適應內容
       try {
@@ -105,7 +112,7 @@ export const D3Canvas = forwardRef<
           svg.selectAll("*").interrupt();
         }
       };
-    }, [elements, links, structureType, width, height]);
+    }, [elements, links, structureType, width, height, statusColorMap]);
 
     return (
       <div
@@ -137,7 +144,7 @@ export const D3Canvas = forwardRef<
 
         {/* 狀態圖例 */}
         <div className={styles.statusLegendContainer}>
-          <StatusLegend />
+          <StatusLegend statusConfig={statusConfig} />
         </div>
 
         {/* Reset 按鈕 */}

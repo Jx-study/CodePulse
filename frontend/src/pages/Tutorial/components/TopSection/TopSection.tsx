@@ -27,6 +27,8 @@ interface CanvasPanelProps {
   currentLinks: any[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
+  currentStatusColorMap: any;
+  currentStatusConfig: any;
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;

@@ -22,6 +22,7 @@ import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogi
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
+import { buildStatusColorMap, DEFAULT_STATUS_CONFIG } from "@/types/statusConfig";
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -32,6 +33,8 @@ interface CanvasPanelProps {
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
+  currentStatusColorMap: any;
+  currentStatusConfig: any;
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
@@ -55,6 +58,8 @@ const CanvasPanel = ({
   currentLinks,
   canvasSize,
   topicTypeConfig,
+  currentStatusColorMap,
+  currentStatusConfig,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -113,6 +118,8 @@ const CanvasPanel = ({
             width={canvasSize.width}
             height={canvasSize.height}
             structureType={topicTypeConfig?.id}
+            statusColorMap={currentStatusColorMap}
+            statusConfig={currentStatusConfig}
           />
         </div>
         <div className={styles.stepDescription}>
@@ -190,6 +197,19 @@ function TutorialContent() {
     const implementation = getImplementationByLevelId(levelId);
     return implementation;
   }, [levelId]);
+
+  // 計算當前演算法的狀態顏色映射表（memoized）
+  const currentStatusColorMap = useMemo(() => {
+    if (topicTypeConfig?.statusConfig) {
+      return buildStatusColorMap(topicTypeConfig.statusConfig);
+    }
+    return buildStatusColorMap(DEFAULT_STATUS_CONFIG);
+  }, [topicTypeConfig]);
+
+  // 計算當前演算法的狀態配置（memoized）
+  const currentStatusConfig = useMemo(() => {
+    return topicTypeConfig?.statusConfig ?? DEFAULT_STATUS_CONFIG;
+  }, [topicTypeConfig]);
 
   // 改用 topicTypeConfig.type 判斷類型（不再依賴 URL 參數）
   const isAlgorithm = topicTypeConfig?.type === "algorithm";
@@ -592,6 +612,8 @@ function TutorialContent() {
     currentLinks,
     canvasSize,
     topicTypeConfig,
+    currentStatusColorMap,
+    currentStatusConfig,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,

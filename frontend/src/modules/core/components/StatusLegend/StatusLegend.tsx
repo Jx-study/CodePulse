@@ -1,31 +1,26 @@
-import { statusColorMap, Status } from "../../DataLogic/BaseElement";
+import { StatusConfig, DEFAULT_STATUS_CONFIG } from "@/types/statusConfig";
 import styles from "./StatusLegend.module.scss";
 
 interface StatusLegendProps {
   className?: string;
+  /** Optional custom status configuration - 可選的自訂狀態配置 */
+  statusConfig?: StatusConfig;
 }
 
-const statusLabels: Record<Status, string> = {
-  unfinished: "未完成",
-  prepare: "準備中",
-  target: "目標",
-  complete: "完成",
-  inactive: "未啟用",
-};
-
-const StatusLegend = ({ className }: StatusLegendProps) => {
-  const statuses = Object.keys(statusColorMap) as Status[];
+const StatusLegend = ({ className, statusConfig }: StatusLegendProps) => {
+  // Use provided config or fall back to default
+  const config = statusConfig ?? DEFAULT_STATUS_CONFIG;
 
   return (
     <div className={`${styles.legend} ${className || ""}`}>
       <div className={styles.items}>
-        {statuses.map((status) => (
-          <div key={status} className={styles.item}>
+        {config.statuses.map((status) => (
+          <div key={status.key} className={styles.item}>
             <span
               className={styles.colorCircle}
-              style={{ backgroundColor: statusColorMap[status] }}
+              style={{ backgroundColor: status.color }}
             />
-            <span className={styles.label}>{statusLabels[status]}</span>
+            <span className={styles.label}>{status.label}</span>
           </div>
         ))}
       </div>

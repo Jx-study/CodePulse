@@ -1,4 +1,5 @@
 import type { AnimationStep, ComplexityInfo } from '@/types';
+import type { StatusConfig } from './statusConfig';
 
 /**
  * 補充問題參考資料結構
@@ -32,6 +33,8 @@ export interface LevelImplementationConfig {
     config?: any
   ) => AnimationStep[];
   relatedProblems?: ProblemReference[];
+  /** Optional custom status configuration - 可選的自訂狀態配置 */
+  statusConfig?: StatusConfig;
 }
 
 /**
