@@ -5,7 +5,6 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
 
-// 1. 定義邏輯節點
 interface LogicTreeNode {
   id: string;
   value: number;
@@ -39,7 +38,6 @@ const TAGS = {
   BFS_ENQUEUE: "BFS_ENQUEUE",
 };
 
-// 2. 輔助函式：將線性資料轉為邏輯樹 (Level Order)
 function buildLogicalTree(data: any[]): LogicTreeNode | null {
   if (data.length === 0) return null;
   const nodes = data.map((d) => ({ ...d }));
@@ -65,7 +63,6 @@ function buildLogicalTree(data: any[]): LogicTreeNode | null {
 
 type StackAnimationState = "idle" | "pushing" | "popping";
 
-// 3. 輔助函式：產生 Frame (僅在末尾新增 actionTag 與 variables)
 const generateFrame = (
   inputData: any[],
   statusMap: Record<string, Status>,
@@ -84,7 +81,6 @@ const generateFrame = (
     offsetY: 50,
   });
 
-  // 根據 statusMap 更新節點顏色
   treeElements.forEach((el) => {
     if (el instanceof Node) {
       const status = statusMap[el.id] ? statusMap[el.id] : "inactive";
@@ -137,14 +133,11 @@ const generateFrame = (
     stepNumber: 0,
     description,
     elements: [...treeElements, ...listElements],
-    actionTag, // 新增
-    variables, // 新增
+    actionTag,
+    variables,
   };
 };
 
-// --- 4. 遍歷演算法實作 ---
-
-// A. 前序遍歷 (Root -> Left -> Right)
 function runPreorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
@@ -231,7 +224,6 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       delete statusMap[node.left.id];
       traverse(node.left);
 
-      // Backtrack
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = "target";
       steps.push(
@@ -394,7 +386,6 @@ function runPreorder(inputData: any[]): AnimationStep[] {
   return steps;
 }
 
-// B. 中序遍歷 (Left -> Root -> Right)
 function runInorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
@@ -447,7 +438,6 @@ function runInorder(inputData: any[]): AnimationStep[] {
     );
     statusMap[node.id] = "unfinished";
 
-    // --- 左子樹處理 ---
     if (node.left) {
       statusMap[node.left.id] = "prepare";
       steps.push(
@@ -522,7 +512,6 @@ function runInorder(inputData: any[]): AnimationStep[] {
       statusMap[node.id] = originalStatus;
     }
 
-    // --- 訪問當前節點 ---
     statusMap[node.id] = "complete";
     visited.push(node.value);
     steps.push(
@@ -538,7 +527,6 @@ function runInorder(inputData: any[]): AnimationStep[] {
       ),
     );
 
-    // --- 右子樹處理 ---
     if (node.right) {
       statusMap[node.right.id] = "prepare";
       steps.push(
@@ -644,7 +632,6 @@ function runInorder(inputData: any[]): AnimationStep[] {
   return steps;
 }
 
-// C. 後序遍歷 (Left -> Right -> Root)
 function runPostorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
@@ -697,7 +684,6 @@ function runPostorder(inputData: any[]): AnimationStep[] {
     );
     statusMap[node.id] = "unfinished";
 
-    // --- 左子樹處理 ---
     if (node.left) {
       statusMap[node.left.id] = "prepare";
       steps.push(
@@ -769,7 +755,6 @@ function runPostorder(inputData: any[]): AnimationStep[] {
       );
     }
 
-    // --- 右子樹處理 ---
     if (node.right) {
       statusMap[node.right.id] = "prepare";
       steps.push(
@@ -840,7 +825,6 @@ function runPostorder(inputData: any[]): AnimationStep[] {
       );
     }
 
-    // --- 訪問當前節點 ---
     statusMap[node.id] = "complete";
     visited.push(node.value);
     steps.push(
@@ -887,7 +871,6 @@ function runPostorder(inputData: any[]): AnimationStep[] {
   return steps;
 }
 
-// D. 層序遍歷 (BFS)
 function runBFS(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
@@ -963,7 +946,6 @@ function runBFS(inputData: any[]): AnimationStep[] {
       ),
     );
 
-    // --- 檢查左子節點 ---
     if (curr.left) {
       statusMap[curr.left.id] = "prepare";
       steps.push(
@@ -995,7 +977,6 @@ function runBFS(inputData: any[]): AnimationStep[] {
       );
     }
 
-    // --- 檢查右子節點 ---
     if (curr.right) {
       statusMap[curr.right.id] = "prepare";
       steps.push(
@@ -1062,7 +1043,6 @@ export function createBinaryTreeAnimationSteps(
   return steps;
 }
 
-// 5. CodeConfig 配置 (包含行號映射)
 const binaryTreeCodeConfig: CodeConfig = {
   pseudo: {
     content: `Procedure Preorder(node):
