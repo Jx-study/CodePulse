@@ -6,17 +6,17 @@ import { LevelImplementationConfig } from "@/types/implementation";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
-  createBoxes as baseCreateBoxes, 
+  createBoxes as baseCreateBoxes,
 } from "./utils";
 
 const TAGS = {
   INIT: "INIT",
-  // Push
+
   PUSH_START: "PUSH_START",
   PUSH_INC_TOP: "PUSH_INC_TOP",
   PUSH_ASSIGN: "PUSH_ASSIGN",
   PUSH_COMPLETE: "PUSH_COMPLETE",
-  // Pop
+
   POP_START: "POP_START",
   POP_CHECK_EMPTY: "POP_CHECK_EMPTY",
   POP_ERROR: "POP_ERROR",
@@ -24,7 +24,7 @@ const TAGS = {
   POP_DEC_TOP: "POP_DEC_TOP",
   POP_RETURN: "POP_RETURN",
   POP_COMPLETE: "POP_COMPLETE",
-  // Peek
+
   PEEK_START: "PEEK_START",
   PEEK_CHECK_EMPTY: "PEEK_CHECK_EMPTY",
   PEEK_ERROR: "PEEK_ERROR",
@@ -38,48 +38,53 @@ const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
     startY: 200,
     gap: 70,
     status,
-    getDescription: (_, i, total) => String(i), // 只顯示索引，不再自動標記 Top
+    getDescription: (_, i, total) => String(i),
   });
 };
 
-const createTopPointer = (index: number, startX: number, startY: number, gap: number) => {
+const createTopPointer = (
+  index: number,
+  startX: number,
+  startY: number,
+  gap: number,
+) => {
   const ptr = new Pointer("Top");
-  // 指標位置設定在 Box 下方
-  ptr.moveTo(startX + index * gap, startY + 50); 
+
+  ptr.moveTo(startX + index * gap, startY + 50);
   return ptr;
 };
 
 export function createStackAnimationSteps(
   dataList: BoxData[],
-  action?: ActionType
+  action?: ActionType,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const startX = 100;
   const startY = 200;
   const gap = 70;
 
-  // 初始狀態
   if (!action) {
     const currentTop = dataList.length - 1;
     steps.push({
       stepNumber: 1,
       description: "Stack 初始化",
-      elements: [...createBoxes(dataList), createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList),
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.INIT,
-      variables: { top: currentTop, size: dataList.length }
+      variables: { top: currentTop, size: dataList.length },
     });
     return steps;
   }
 
   const { type, value } = action;
 
-  // Push Operation
   if (type === "add") {
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];
     let currentTop = oldList.length - 1;
 
-    // Step 1: Start
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
@@ -93,25 +98,28 @@ export function createStackAnimationSteps(
     steps.push({
       stepNumber: 1,
       description: `Push(${value}): 準備推入新元素`,
-      elements: [...s1Boxes, s1NewBox, createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...s1Boxes,
+        s1NewBox,
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.PUSH_START,
-      variables: { top: currentTop, value }
+      variables: { top: currentTop, value },
     });
 
-    // Step 2: Increment Top
     currentTop++;
     const s2Boxes = createBoxes(oldList);
-    // 創建一個虛線框代表空位
+
     const emptyBox = new Box();
     emptyBox.id = "empty-slot";
     emptyBox.value = undefined;
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentTop * gap, startY);
-    emptyBox.setStatus("inactive"); 
+    emptyBox.setStatus("inactive");
     emptyBox.borderStyle = "dashed";
-    emptyBox.description = String(currentTop); 
-    
+    emptyBox.description = String(currentTop);
+
     const s2NewBox = new Box();
     Object.assign(s2NewBox, s1NewBox);
 
@@ -122,20 +130,19 @@ export function createStackAnimationSteps(
       description: `top = top + 1 (現在 top 指向 ${currentTop})`,
       elements: [...s2Boxes, emptyBox, s2NewBox, s2Pointer],
       actionTag: TAGS.PUSH_INC_TOP,
-      variables: { top: currentTop, value }
+      variables: { top: currentTop, value },
     });
 
-    // Step 3: Assign Value 
     const s3Boxes = createBoxes(oldList);
     const s3NewBox = new Box();
     s3NewBox.id = newNode.id;
     s3NewBox.value = newNode.value;
     s3NewBox.width = 60;
     s3NewBox.height = 60;
-    s3NewBox.moveTo(startX + currentTop * gap, startY); 
+    s3NewBox.moveTo(startX + currentTop * gap, startY);
     s3NewBox.setStatus("target");
     s3NewBox.description = String(currentTop);
-    
+
     const s3Pointer = createTopPointer(currentTop, startX, startY, gap);
 
     steps.push({
@@ -143,36 +150,34 @@ export function createStackAnimationSteps(
       description: `stack[${currentTop}] = ${value}`,
       elements: [...s3Boxes, s3NewBox, s3Pointer],
       actionTag: TAGS.PUSH_ASSIGN,
-      variables: { top: currentTop, value }
+      variables: { top: currentTop, value },
     });
 
-    // Step 4: Complete
     steps.push({
       stepNumber: 4,
       description: "Push 完成",
-      elements: [...createBoxes(dataList, "complete"), createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList, "complete"),
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.PUSH_COMPLETE,
-      variables: { top: currentTop, value }
+      variables: { top: currentTop, value },
     });
-  }
-  // Pop Operation
-  else if (type === "delete") {
-    
-    // Step 1: Start / Check Empty
+  } else if (type === "delete") {
     if (value === undefined) {
-       steps.push({
+      steps.push({
         stepNumber: 1,
         description: "Pop: 堆疊為空",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.POP_CHECK_EMPTY,
-        variables: { top: -1 }
+        variables: { top: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "錯誤: 堆疊下溢 (Stack Underflow)",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.POP_ERROR,
-        variables: { top: -1 }
+        variables: { top: -1 },
       });
       return steps;
     }
@@ -187,12 +192,14 @@ export function createStackAnimationSteps(
     steps.push({
       stepNumber: 1,
       description: "Pop(): 檢查是否為空",
-      elements: [...createBoxes(fullList), createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...createBoxes(fullList),
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.POP_CHECK_EMPTY,
-      variables: { top: currentTop }
+      variables: { top: currentTop },
     });
 
-    // Step 2: Get Value & Move 
     const s2Boxes: Box[] = [];
     let movingBox: Box | null = null;
     let ghostBox: Box | null = null;
@@ -205,11 +212,11 @@ export function createStackAnimationSteps(
         movingBox.width = 60;
         movingBox.height = 60;
         movingBox.description = "removed_value";
-        movingBox.moveTo(950, startY); 
+        movingBox.moveTo(950, startY);
         movingBox.setStatus("prepare");
 
         ghostBox = new Box();
-        ghostBox.id = `${item.id}-ghost`; 
+        ghostBox.id = `${item.id}-ghost`;
         ghostBox.value = item.value;
         ghostBox.width = 60;
         ghostBox.height = 60;
@@ -240,28 +247,27 @@ export function createStackAnimationSteps(
       description: `removed_value = stack[${currentTop}] (${value})`,
       elements: step2Elements,
       actionTag: TAGS.POP_GET_VALUE,
-      variables: { top: currentTop, removed_value: value }
+      variables: { top: currentTop, removed_value: value },
     });
 
-    // Step 3: Decrement Top
     currentTop--;
-    
+
     const s3Boxes: Box[] = [];
-    
-    fullList.slice(0, -1).forEach((item, i) => { 
-       const b = new Box();
-       b.id = item.id;
-       b.value = item.value;
-       b.width = 60;
-       b.height = 60;
-       b.description = String(i);
-       b.moveTo(startX + i * gap, startY);
-       b.setStatus("unfinished");
-       s3Boxes.push(b);
+
+    fullList.slice(0, -1).forEach((item, i) => {
+      const b = new Box();
+      b.id = item.id;
+      b.value = item.value;
+      b.width = 60;
+      b.height = 60;
+      b.description = String(i);
+      b.moveTo(startX + i * gap, startY);
+      b.setStatus("unfinished");
+      s3Boxes.push(b);
     });
 
     const s3GhostBox = new Box();
-    s3GhostBox.id = `${deletedNode.id}-ghost`; 
+    s3GhostBox.id = `${deletedNode.id}-ghost`;
     s3GhostBox.value = deletedNode.value;
     s3GhostBox.width = 60;
     s3GhostBox.height = 60;
@@ -272,7 +278,7 @@ export function createStackAnimationSteps(
     s3GhostBox.appearAnim = "instant";
 
     const s3MovingBox = new Box();
-    s3MovingBox.id = deletedNode.id; 
+    s3MovingBox.id = deletedNode.id;
     s3MovingBox.value = deletedNode.value;
     s3MovingBox.width = 60;
     s3MovingBox.height = 60;
@@ -283,13 +289,18 @@ export function createStackAnimationSteps(
     steps.push({
       stepNumber: 3,
       description: `top = top - 1 (現在 top 指向 ${currentTop})`,
-      elements: [...s3Boxes, s3GhostBox, s3MovingBox, createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...s3Boxes,
+        s3GhostBox,
+        s3MovingBox,
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.POP_DEC_TOP,
-      variables: { top: currentTop, removed_value: value }
+      variables: { top: currentTop, removed_value: value },
     });
 
     const s4GhostBox = new Box();
-    s4GhostBox.id = `${deletedNode.id}-ghost`; 
+    s4GhostBox.id = `${deletedNode.id}-ghost`;
     s4GhostBox.value = deletedNode.value;
     s4GhostBox.width = 60;
     s4GhostBox.height = 60;
@@ -299,7 +310,7 @@ export function createStackAnimationSteps(
     s4GhostBox.borderStyle = "dashed";
 
     const s4ReturnBox = new Box();
-    s4ReturnBox.id = deletedNode.id; 
+    s4ReturnBox.id = deletedNode.id;
     s4ReturnBox.value = deletedNode.value;
     s4ReturnBox.width = 60;
     s4ReturnBox.height = 60;
@@ -307,43 +318,46 @@ export function createStackAnimationSteps(
     s4ReturnBox.moveTo(950, startY);
     s4ReturnBox.setStatus("target");
 
-    // Step 4: Return
     steps.push({
       stepNumber: 4,
       description: `回傳 ${value}`,
-      elements: [...createBoxes(dataList, "unfinished"), createTopPointer(currentTop, startX, startY, gap), s4ReturnBox, s4GhostBox],
+      elements: [
+        ...createBoxes(dataList, "unfinished"),
+        createTopPointer(currentTop, startX, startY, gap),
+        s4ReturnBox,
+        s4GhostBox,
+      ],
       actionTag: TAGS.POP_RETURN,
-      variables: { top: currentTop, removed_value: value }
+      variables: { top: currentTop, removed_value: value },
     });
 
-    // Step 5: Complete
     steps.push({
       stepNumber: 5,
       description: "Pop 完成",
-      elements: [...createBoxes(dataList, "complete"), createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList, "complete"),
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.POP_COMPLETE,
-      variables: { top: currentTop, removed_value: value }
+      variables: { top: currentTop, removed_value: value },
     });
-  }
-  // Peek Operation
-  else if (type === "peek") {
+  } else if (type === "peek") {
     let currentTop = dataList.length - 1;
 
-    // Step 1: Check Empty
     if (dataList.length === 0) {
-       steps.push({
+      steps.push({
         stepNumber: 1,
         description: "Peek: 堆疊為空",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.PEEK_CHECK_EMPTY,
-        variables: { top: -1 }
+        variables: { top: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "回傳 Null",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.PEEK_ERROR,
-        variables: { top: -1 }
+        variables: { top: -1 },
       });
       return steps;
     }
@@ -351,12 +365,14 @@ export function createStackAnimationSteps(
     steps.push({
       stepNumber: 1,
       description: "Peek(): 檢查是否為空",
-      elements: [...createBoxes(dataList), createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList),
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.PEEK_CHECK_EMPTY,
-      variables: { top: currentTop }
+      variables: { top: currentTop },
     });
 
-    // Step 2: Return Top
     const s2Boxes = createBoxes(dataList);
     s2Boxes[currentTop].setStatus("target");
 
@@ -365,16 +381,18 @@ export function createStackAnimationSteps(
       description: `回傳 stack[${currentTop}] (${value})`,
       elements: [...s2Boxes, createTopPointer(currentTop, startX, startY, gap)],
       actionTag: TAGS.PEEK_RETURN,
-      variables: { top: currentTop, value: value }
+      variables: { top: currentTop, value: value },
     });
 
-    // Step 3: Complete
     steps.push({
       stepNumber: 3,
       description: "Peek 完成",
-      elements: [...createBoxes(dataList, "complete"), createTopPointer(currentTop, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList, "complete"),
+        createTopPointer(currentTop, startX, startY, gap),
+      ],
       actionTag: TAGS.PEEK_COMPLETE,
-      variables: { top: currentTop, value: value }
+      variables: { top: currentTop, value: value },
     });
   }
 

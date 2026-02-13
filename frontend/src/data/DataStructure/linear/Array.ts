@@ -8,29 +8,27 @@ import {
 } from "./utils";
 
 const TAGS = {
-  // Search
   SEARCH_START: "SEARCH_START",
   SEARCH_COMPARE: "SEARCH_COMPARE",
   SEARCH_FOUND: "SEARCH_FOUND",
   SEARCH_NOT_FOUND: "SEARCH_NOT_FOUND",
-  // Update
+
   UPDATE_START: "UPDATE_START",
   UPDATE_ASSIGN: "UPDATE_ASSIGN",
   UPDATE_COMPLETE: "UPDATE_COMPLETE",
   UPDATE_ERROR: "UPDATE_ERROR",
-  // Insert
+
   INSERT_START: "INSERT_START",
   INSERT_SHIFT: "INSERT_SHIFT",
   INSERT_ASSIGN: "INSERT_ASSIGN",
   INSERT_COMPLETE: "INSERT_COMPLETE",
-  // Delete
+
   DELETE_START: "DELETE_START",
   DELETE_SHIFT: "DELETE_SHIFT",
   DELETE_REMOVE: "DELETE_REMOVE",
   DELETE_COMPLETE: "DELETE_COMPLETE",
 };
 
-// Array 的 description 顯示的是 Index 0, 1...
 const createBoxes = (
   list: BoxData[],
   highlightIndex: number = -1,
@@ -58,7 +56,6 @@ export function createArrayAnimationSteps(
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
-  // 1. 靜態渲染
   if (!action) {
     steps.push({
       stepNumber: 1,
@@ -71,11 +68,9 @@ export function createArrayAnimationSteps(
 
   const { type, value, index } = action;
 
-  // Search (Linear Search)
   if (type === "search") {
     let found = false;
     
-    // Step 0: Start
     steps.push({
         stepNumber: steps.length + 1,
         description: `開始搜尋數值 ${value}`,
@@ -85,7 +80,6 @@ export function createArrayAnimationSteps(
     });
 
     for (let i = 0; i < dataList.length; i++) {
-      // Step A: 比較中
       steps.push({
         stepNumber: steps.length + 1,
         description: `檢查 Index ${i}: ${dataList[i].value} 是否等於 ${value}?`,
@@ -94,7 +88,6 @@ export function createArrayAnimationSteps(
         variables: { target: value, i: i, current_val: dataList[i].value || 0 }
       });
 
-      // Step B: 找到
       if (dataList[i].value === value) {
         found = true;
         steps.push({
@@ -118,14 +111,12 @@ export function createArrayAnimationSteps(
     }
   }
 
-  // Update (Access & Modify)
   else if (type === "add" && action.mode === "Update") {
     const idx = index !== undefined ? index : -1;
     const oldValue =
       (action as any).oldValue !== undefined ? (action as any).oldValue : value;
 
     if (idx >= 0 && idx < dataList.length) {
-      // Step 1: 標記目標 (顯示舊數值)
       const s1Boxes = createBoxes(dataList, idx, "target");
       s1Boxes[idx].value = oldValue;
 
@@ -137,7 +128,6 @@ export function createArrayAnimationSteps(
         variables: { index: idx, value: value, [`data[${idx}]`]: oldValue }
       });
 
-      // Step 2: 數值變更 (顯示新數值)
       steps.push({
         stepNumber: 2,
         description: `將 Index ${idx} 更新為 ${value}`,
@@ -146,7 +136,6 @@ export function createArrayAnimationSteps(
         variables: { index: idx, value: value, [`data[${idx}]`]: value }
       });
 
-      // Step 3: 完成 (變綠色)
       steps.push({
         stepNumber: 3,
         description: "更新完成",
@@ -165,25 +154,17 @@ export function createArrayAnimationSteps(
     }
   }
 
-  // Insert (Shift Right)
   else if (type === "add") {
     const idx = index !== undefined ? index : dataList.length - 1;
 
     let currentList = dataList.map((item) => ({ ...item }));
 
-    // 還原數值：
-    // 目前 dataList 在 idx 處是新值，idx 之後的值都已經被往右移了一格
-    // 要左移回去，來模擬「還沒搬移」的狀態
-    // [10, New, 20, 30] -> [10, 20, 30, 0]
-
-    // 把 dataList[i+1] 的值還原給 currentList[i]
     for (let i = idx; i < dataList.length - 1; i++) {
       currentList[i].value = dataList[i + 1].value;
     }
 
     currentList[currentList.length - 1].value = undefined;
 
-    // Step 1: 標記新增的空位
     steps.push({
       stepNumber: 1,
       description: "在陣列尾端擴充一個空間",
@@ -192,12 +173,10 @@ export function createArrayAnimationSteps(
       variables: { index: idx, value: value, length: currentList.length }
     });
 
-    // 開始搬移迴圈：從尾端開始，把 i-1 搬給 i
-    // [10, 20, 30, 0] -> [10, 20, 30, 30] -> [10, 20, 20, 30]
     for (let i = currentList.length - 1; i > idx; i--) {
       const mapPrepare: Record<number, Status> = {};
-      mapPrepare[i] = "prepare"; // 目標空位
-      mapPrepare[i - 1] = "prepare"; // 來源值
+      mapPrepare[i] = "prepare"; 
+      mapPrepare[i - 1] = "prepare"; 
 
       steps.push({
         stepNumber: steps.length + 1,
@@ -208,17 +187,16 @@ export function createArrayAnimationSteps(
         variables: { 
             i: i, 
             index: idx,
-            [`data[${i-1}]`]: currentList[i-1].value ?? null,  // Source
-            [`data[${i}]`]: currentList[i].value ?? null,     // Destination (before)
+            [`data[${i-1}]`]: currentList[i-1].value ?? null,  
+            [`data[${i}]`]: currentList[i].value ?? null,   
         }
       });
 
-      // Step B: 搬移
       currentList[i].value = currentList[i - 1].value;
 
       const mapSwap: Record<number, Status> = {};
-      mapSwap[i] = "target"; // 變成新值
-      mapSwap[i - 1] = "prepare"; // 來源位
+      mapSwap[i] = "target"; 
+      mapSwap[i - 1] = "prepare"; 
 
       steps.push({
         stepNumber: steps.length + 1,
@@ -228,14 +206,11 @@ export function createArrayAnimationSteps(
         variables: { 
             i: i, 
             index: idx,
-            [`data[${i}]`]: currentList[i].value ?? null // Destination (after)
+            [`data[${i}]`]: currentList[i].value ?? null
         }
       });
     }
 
-    // Step Final: 填入新數值
-    // 此時 currentList 在 idx 的位置是舊值 (例如 [10, 20, 20, 30])
-    // 我們要將 idx 更新為 new value
     currentList[idx].value = value;
 
     steps.push({
@@ -246,7 +221,6 @@ export function createArrayAnimationSteps(
       variables: { index: idx, value: value, [`data[${idx}]`]: value }
     });
 
-    // Step Done: 完成 (全亮)
     steps.push({
       stepNumber: steps.length + 1,
       description: "插入完成",
@@ -256,28 +230,21 @@ export function createArrayAnimationSteps(
     });
   }
 
-  // Delete (Shift Left)
   else if (type === "delete") {
     const idx = index !== undefined ? index : -1;
     if (idx >= 0) {
       const poppedNode = {
         id: (action as any).targetId || "temp-pop",
-        value: 0, // 數值稍後會被還原邏輯覆蓋
+        value: 0,
       };
 
-      // 複製一份 dataList 並把 pop 的加回去
-      // currentList 初始狀態: [20, 30, 0] (ID: box-0, box-1, box-2)
       let currentList = [...dataList, poppedNode].map((item) => ({ ...item }));
 
-      // 還原數值：從尾端開始，把 i-1 的值給 i
-      // 也就是把 [20, 30, ?] 還原成 [10, 20, 30]
       for (let i = currentList.length - 1; i > idx; i--) {
         currentList[i].value = currentList[i - 1].value;
       }
-      // 最後把被刪除的值 (10) 放回 idx
       currentList[idx].value = value;
 
-      // Step 1: 標記要刪除的目標
       steps.push({
         stepNumber: 1,
         description: `標記 Index ${idx} (值: ${value}) 準備刪除`,
@@ -287,7 +254,6 @@ export function createArrayAnimationSteps(
       });
 
       for (let i = idx; i < currentList.length - 1; i++) {
-        // Step A: 標記 prepare (兩個都要變色)
         const mapPrepare: Record<number, Status> = {};
         mapPrepare[i] = "prepare";
         mapPrepare[i + 1] = "prepare";
@@ -308,17 +274,16 @@ export function createArrayAnimationSteps(
           variables: { 
             i: i, 
             index: idx,
-            [`data[${i}]`]: currentList[i].value ?? null,     // Destination (before)
-            [`data[${i+1}]`]: currentList[i+1].value ?? null  // Source
+            [`data[${i}]`]: currentList[i].value ?? null,   
+            [`data[${i+1}]`]: currentList[i+1].value ?? null 
           }
         });
 
-        // Step B: 執行搬移 (數值覆蓋)
         currentList[i].value = currentList[i + 1].value;
 
         const mapSwap: Record<number, Status> = {};
-        mapSwap[i] = "target"; // 變成新值了
-        mapSwap[i + 1] = "prepare"; // 來源
+        mapSwap[i] = "target"; 
+        mapSwap[i + 1] = "prepare"; 
         
         steps.push({
           stepNumber: steps.length + 1,
@@ -328,12 +293,11 @@ export function createArrayAnimationSteps(
           variables: { 
             i: i, 
             index: idx,
-            [`data[${i}]`]: currentList[i].value ?? null // Destination (after)
+            [`data[${i}]`]: currentList[i].value ?? null 
           }
         });
       }
 
-      // Step Final: 標記最後一個多餘的空間 (準備 Pop)
       steps.push({
         stepNumber: steps.length + 1,
         description: "刪除最後一個多餘的空間",
@@ -342,7 +306,6 @@ export function createArrayAnimationSteps(
         variables: { length: currentList.length }
       });
 
-      // Step Done: 顯示最終結果
       steps.push({
         stepNumber: steps.length + 1,
         description: "刪除完成",
@@ -457,8 +420,8 @@ export const ArrayConfig: LevelImplementationConfig = {
   description: "連續記憶體空間",
   codeConfig: arrayCodeConfig,
   complexity: {
-    timeBest: "O(1)", // Access
-    timeAverage: "O(n)", // Insert/Delete/Search
+    timeBest: "O(1)", 
+    timeAverage: "O(n)", 
     timeWorst: "O(n)",
     space: "O(n)",
   },

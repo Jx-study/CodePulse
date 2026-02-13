@@ -4,7 +4,7 @@ export type PointerDirection = "up" | "down";
 
 export class Pointer extends BaseElement {
   label: string;
-  targetId?: string; // Optional: ID of the element being pointed to
+  targetId?: string;
   direction: PointerDirection;
 
   constructor(label: string = "Top", direction: PointerDirection = "up") {

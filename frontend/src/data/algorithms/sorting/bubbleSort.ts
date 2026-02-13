@@ -41,7 +41,6 @@ export function createBubbleSortAnimationSteps(
   const n = arr.length;
   const sortedIndices = new Set<number>(); // 記錄已就定位的索引
 
-  // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
     description: "開始泡沫排序",
@@ -67,7 +66,6 @@ export function createBubbleSortAnimationSteps(
       const val1 = arr[j].value ?? 0;
       const val2 = arr[j + 1].value ?? 0;
 
-      // Step A: 比較 (Compare)
       const compareStatus: Record<number, Status> = {};
       compareStatus[j] = "prepare";
       compareStatus[j + 1] = "prepare";
@@ -86,9 +84,7 @@ export function createBubbleSortAnimationSteps(
         elements: generateFrame(arr, compareStatus, sortedIndices),
       });
 
-      // 判斷交換
       if (val1 > val2) {
-        // Step B: 交換前 (Decision Frame)
         steps.push({
           stepNumber: steps.length + 1,
           description: `判斷：${val1} > ${val2} 為真，準備交換`,
@@ -104,7 +100,6 @@ export function createBubbleSortAnimationSteps(
           elements: generateFrame(arr, compareStatus, sortedIndices),
         });
 
-        // 交換整個物件，讓 ID 跟著跑，D3 才會產生位移動畫
         const temp = arr[j];
         arr[j] = arr[j + 1];
         arr[j + 1] = temp;
@@ -112,7 +107,6 @@ export function createBubbleSortAnimationSteps(
         compareStatus[j] = "target";
         compareStatus[j + 1] = "target";
 
-        // Step C: 交換後
         steps.push({
           stepNumber: steps.length + 1,
           description: `交換完成：${val1} 和 ${val2} 位置對調`,
@@ -127,7 +121,6 @@ export function createBubbleSortAnimationSteps(
           elements: generateFrame(arr, compareStatus, sortedIndices),
         });
       } else {
-        // Decision Frame for no swap
         steps.push({
           stepNumber: steps.length + 1,
           description: `判斷：${val1} > ${val2} 為假，不需交換`,
@@ -143,7 +136,6 @@ export function createBubbleSortAnimationSteps(
       }
     }
 
-    // 本輪結束，最後一個元素 (n-1-i) 歸位
     sortedIndices.add(n - 1 - i);
 
     steps.push({
@@ -154,9 +146,7 @@ export function createBubbleSortAnimationSteps(
       elements: generateFrame(arr, {}, sortedIndices),
     });
 
-    // 如果這輪都沒交換，代表已經排序完成
     if (!swapped) {
-      // 把剩下的所有未排序元素都標記為 sorted
       for (let k = 0; k < n - 1 - i; k++) {
         sortedIndices.add(k);
       }
@@ -164,10 +154,8 @@ export function createBubbleSortAnimationSteps(
     }
   }
 
-  // 確保剩下最後一個元素也被標記
   sortedIndices.add(0);
 
-  // Final Step: 完成
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",

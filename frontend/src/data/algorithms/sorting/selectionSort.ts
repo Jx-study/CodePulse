@@ -13,7 +13,6 @@ const TAGS = {
   DONE: "DONE",
 };
 
-// 復用 Frame 生成邏輯
 const generateFrame = (
   list: LinearData[],
   overrideStatusMap: Record<number, Status> = {},
@@ -47,7 +46,6 @@ export function createSelectionSortAnimationSteps(
   const n = arr.length;
   const sortedIndices = new Set<number>();
 
-  // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
     description: "開始選擇排序",
@@ -59,7 +57,6 @@ export function createSelectionSortAnimationSteps(
   for (let i = 0; i < n - 1; i++) {
     let minIdx = i;
 
-    // Step A: 回合開始 (Round Start)
     steps.push({
       stepNumber: steps.length + 1,
       description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
@@ -72,13 +69,12 @@ export function createSelectionSortAnimationSteps(
       const scanVal = arr[j].value ?? 0;
       const minVal = arr[minIdx].value ?? 0;
 
-      // Step B: 比較 (Compare)
       steps.push({
         stepNumber: steps.length + 1,
         description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
         actionTag: TAGS.COMPARE,
         variables: {
-          currentPos: i, // 保持上下文
+          currentPos: i, 
           scanPos: j,
           minPos: minIdx,
           scanVal: scanVal,
@@ -93,18 +89,16 @@ export function createSelectionSortAnimationSteps(
         ),
       });
 
-      // 檢查是否需要更新最小值
       if (scanVal < minVal) {
         minIdx = j;
 
-        // Step C: 更新最小值 (Update Min)
         steps.push({
           stepNumber: steps.length + 1,
           description: `發現更小值！更新最小值索引為 ${minIdx}`,
           actionTag: TAGS.UPDATE_MIN,
           variables: {
             minPos: minIdx,
-            scanVal: scanVal, // 這裡 scanVal 變成了新的 minVal
+            scanVal: scanVal, 
           },
           elements: generateFrame(
             arr,
@@ -115,8 +109,6 @@ export function createSelectionSortAnimationSteps(
       }
     }
 
-    // 內層迴圈結束，準備交換
-    // Step D: 交換 (Swap) or No Swap Decision
     if (minIdx !== i) {
       const temp = arr[i];
       arr[i] = arr[minIdx];
@@ -153,7 +145,6 @@ export function createSelectionSortAnimationSteps(
       });
     }
 
-    // Step E: 回合結束，鎖定元素 (Round End)
     sortedIndices.add(i);
     steps.push({
       stepNumber: steps.length + 1,
@@ -164,10 +155,8 @@ export function createSelectionSortAnimationSteps(
     });
   }
 
-  // 確保最後一個元素也被標記
   sortedIndices.add(n - 1);
   
-  // Final Step: 完成
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
