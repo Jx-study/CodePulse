@@ -89,6 +89,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
 
   const handleRun = () => {
+    const normalizeId = (val: string) => {
+      const num = parseInt(val, 10);
+      return isNaN(num) ? val : String(num);
+    };
     if (viewMode === "grid" && isGraphAlgo) {
       let startId = undefined;
       let endId = undefined;
@@ -162,9 +166,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
         // 驗證起點
         if (graphStartElement !== "") {
-          const targetId = `node-${graphStartElement}`;
+          const normalizedVal = normalizeId(graphStartElement);
+          const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`起點 node-${graphStartElement} 不存在`);
+            alert(`起點 node-${normalizedVal} 不存在`);
             return;
           }
           startId = targetId;
@@ -172,9 +177,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
         // 驗證終點
         if (graphEndElement !== "") {
-          const targetId = `node-${graphEndElement}`;
+          const normalizedVal = normalizeId(graphEndElement);
+          const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`終點 node-${graphEndElement} 不存在`);
+            alert(`終點 node-${normalizedVal} 不存在`);
             return;
           }
           endId = targetId;
@@ -556,6 +562,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             <label style={{ color: "#ccc", fontSize: "12px" }}>R:</label>
             <input
               type="number"
+              min="1"
               value={gridRows}
               onChange={(e) => setGridRows(e.target.value)}
               className={styles.input}
@@ -564,6 +571,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             <label style={{ color: "#ccc", fontSize: "12px" }}>C:</label>
             <input
               type="number"
+              min="1"
               value={gridCols}
               onChange={(e) => setGridCols(e.target.value)}
               className={styles.input}
@@ -626,7 +634,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             }}
           >
             <input
-              type="text"
+              type="number"
               placeholder="起點(0)"
               value={
                 viewMode === "graph" ? graphStartElement : gridStartElement
@@ -642,7 +650,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             />
             <span style={{ color: "#888" }}>-</span>
             <input
-              type="text"
+              type="number"
               placeholder="終點(N)"
               value={viewMode === "graph" ? graphEndElement : gridEndElement}
               onChange={(e) =>

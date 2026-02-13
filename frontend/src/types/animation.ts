@@ -1,4 +1,5 @@
-import { BaseElement } from '../modules/core/DataLogic/BaseElement';
+import { BaseElement } from "../modules/core/DataLogic/BaseElement";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 /**
  * 動畫步驟資料結構
@@ -7,8 +8,13 @@ export interface AnimationStep {
   stepNumber: number;
   description: string;
   elements: BaseElement[];
-  actionTag?: string; // 新增：用於對應代碼高亮的標籤
-  variables?: Record<string, string | number | boolean | null>; // 新增：變數狀態追蹤
+  actionTag?: string; // 用於對應代碼高亮的標籤
+  variables?: Record<string, string | number | boolean | null>; // 變數狀態追蹤
+  links?: {
+    sourceId: string;
+    targetId: string;
+    status?: linkStatus;
+  }[];
 }
 
 /**

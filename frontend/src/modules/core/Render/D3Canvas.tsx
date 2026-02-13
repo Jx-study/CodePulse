@@ -15,6 +15,7 @@ export const D3Canvas = forwardRef<
     width?: number;
     height?: number;
     structureType?: string;
+    isDirected?: boolean;
   }
 >(
   (
@@ -24,8 +25,9 @@ export const D3Canvas = forwardRef<
       width = 800,
       height = 600,
       structureType = "linkedlist", // default value
+      isDirected = true,
     },
-    forwardedRef
+    forwardedRef,
   ) => {
     const ref = useRef<SVGSVGElement | null>(null);
 
@@ -35,8 +37,8 @@ export const D3Canvas = forwardRef<
 
     useEffect(() => {
       if (!ref.current) return;
-      renderAll(ref.current, elements, links, structureType);
-    }, [elements, links, structureType]);
+      renderAll(ref.current, elements, links, structureType, isDirected);
+    }, [elements, links, structureType, isDirected]);
 
     return (
       <svg
@@ -46,5 +48,5 @@ export const D3Canvas = forwardRef<
         style={{ background: "#111", display: "block" }}
       />
     );
-  }
+  },
 );

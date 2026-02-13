@@ -61,6 +61,7 @@ function Tutorial() {
   const [hasTailMode, setHasTailMode] = useState(false);
   const [showLimitToast, setShowLimitToast] = useState(false);
   const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
+  const [isDirected, setIsDirected] = useState(false);
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -71,7 +72,7 @@ function Tutorial() {
     if (topicTypeConfig.getCodeConfig) {
       return topicTypeConfig.getCodeConfig({ hasTailMode });
     }
-    return topicTypeConfig.codeConfig;
+    return topicTypeConfig.codeConfig ?? null;
   }, [topicTypeConfig, hasTailMode]);
 
   // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
@@ -80,7 +81,8 @@ function Tutorial() {
     if (codeMode !== "pseudo") return []; // python 不需要高亮
 
     const pseudoConfig = currentCodeConfig.pseudo;
-    return pseudoConfig.mappings[currentStepData.actionTag] || [];
+    const mappings = pseudoConfig?.mappings;
+    return (mappings && mappings[currentStepData.actionTag]) || [];
   }, [currentCodeConfig, currentStepData, codeMode]);
 
   // 切換模式時重置動畫
@@ -99,10 +101,10 @@ function Tutorial() {
 
   useEffect(() => {
     if (!isAlgorithm && topicTypeConfig && !isProcessing) {
-      executeAction("refresh", { hasTailMode });
+      executeAction("refresh", { hasTailMode, isDirected });
       setCurrentStep(0);
     }
-  }, [hasTailMode, isAlgorithm]);
+  }, [hasTailMode, isAlgorithm, isDirected]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -121,6 +123,10 @@ function Tutorial() {
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
+    if (currentStepData?.links) {
+      return currentStepData.links;
+    }
+
     const links: Link[] = [];
     if (currentStepData?.elements) {
       const nodes = currentStepData.elements.filter(
@@ -182,16 +188,22 @@ function Tutorial() {
     }
   };
 
-  // 隨機資料：筆數不超過 randomCount
-  const handleRandomData = () => {
-    executeAction("random", { randomCount, hasTailMode });
+  // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
+  const handleRandomData = (params?: any) => {
+    executeAction("random", {
+      randomCount,
+      hasTailMode,
+      mode: viewMode,
+      isDirected,
+      ...params,
+    });
     setCurrentStep(0);
     setIsPlaying(false); // 不需要自動播放
   };
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -203,6 +215,7 @@ function Tutorial() {
         data: raw,
         randomCount,
         hasTailMode,
+        isDirected,
       });
       if (steps && steps.length > 0) {
         setCurrentStep(0);
@@ -260,13 +273,24 @@ function Tutorial() {
     setIsPlaying(false);
   };
 
+  const handleGraphAction = (action: string, payload: any) => {
+    if (isProcessing) return;
+
+    const steps = dsLogic.executeAction(action, payload);
+
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -298,9 +322,15 @@ function Tutorial() {
       );
     } else {
       if (
-        ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id,
-        )
+        [
+          "linkedlist",
+          "stack",
+          "queue",
+          "array",
+          "binarytree",
+          "bst",
+          "graph",
+        ].includes(topicTypeConfig.id)
       ) {
         return (
           <DataActionBar
@@ -308,6 +338,7 @@ function Tutorial() {
             onDeleteNode={handleDeleteNode}
             onSearchNode={handleSearchNode}
             onPeek={handlePeek}
+            onGraphAction={handleGraphAction}
             onLoadData={handleLoadData}
             onResetData={handleResetData}
             onRandomData={handleRandomData}
@@ -316,6 +347,8 @@ function Tutorial() {
             onLimitExceeded={() => setShowLimitToast(true)}
             structureType={topicTypeConfig.id as any}
             disabled={isProcessing}
+            isDirected={isDirected}
+            onIsDirectedChange={setIsDirected}
           />
         );
       }
@@ -403,6 +436,7 @@ function Tutorial() {
                 width={1000}
                 height={400}
                 structureType={topicTypeConfig?.id}
+                isDirected={isDirected}
               />
             </div>
             <div className={styles.stepDescription}>
