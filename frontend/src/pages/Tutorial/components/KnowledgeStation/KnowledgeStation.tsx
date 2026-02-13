@@ -44,12 +44,10 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
       showCloseButton={true}
       closeOnEscape={true}
       closeOnOverlayClick={false}
+      title="知識補充站"
       className={styles.knowledgeStationDialog}
     >
       <div className={styles.knowledgeStation}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>知識補充站</h2>
-        </div>
         <div className={styles.content}>
           <Tabs tabs={tabs} variant="default" size="md" />
         </div>

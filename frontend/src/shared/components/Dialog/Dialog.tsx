@@ -117,8 +117,9 @@ const Dialog: React.FC<DialogProps> = ({
                 onClick={onClose}
                 aria-label="Close dialog"
                 className={styles.closeButton}
+                iconOnly
+                icon="times"
               >
-                {closeButtonIcon || <Icon name="times" size="lg" />}
               </Button>
             )}
           </div>

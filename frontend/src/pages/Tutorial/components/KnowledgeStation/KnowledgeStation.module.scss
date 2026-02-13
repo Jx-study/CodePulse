@@ -14,19 +14,6 @@
   width: 100%;
 }
 
-.header {
-  padding: $spacing-lg $spacing-xl;
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-
-  .title {
-    font-size: $font-xl;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-  }
-}
-
 .content {
   flex: 1;
   overflow: hidden;
