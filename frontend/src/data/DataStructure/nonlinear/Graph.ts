@@ -751,7 +751,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
       ),
     );
     if (parentId !== null) {
-      updateLinkStatus(linkStatusMap, currId, parentId, "path", isDirected);
+      updateLinkStatus(linkStatusMap, parentId, currId, "path", isDirected);
     }
     statusMap[currId] = "prepare";
 
@@ -772,7 +772,13 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
           if (dfs(neighborId, currId)) return true;
 
           statusMap[currId] = "target";
-
+          updateLinkStatus(
+            linkStatusMap,
+            currId,
+            neighborId,
+            "visited",
+            isDirected,
+          );
           steps.push(
             generateGraphFrame(
               baseElements,
