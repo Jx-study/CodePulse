@@ -53,6 +53,7 @@ function Tutorial() {
   const [maxNodes, setMaxNodes] = useState(10);
   const [hasTailMode, setHasTailMode] = useState(false);
   const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
+  const [isDirected, setIsDirected] = useState(false);
 
   // 3. 計算目前的動畫步驟
   useEffect(() => {
@@ -65,10 +66,10 @@ function Tutorial() {
 
   useEffect(() => {
     if (!isAlgorithm && topicTypeConfig && !isProcessing) {
-      executeAction("refresh", { hasTailMode });
+      executeAction("refresh", { hasTailMode, isDirected });
       setCurrentStep(0);
     }
-  }, [hasTailMode, isAlgorithm]);
+  }, [hasTailMode, isAlgorithm, isDirected]);
 
   const currentStepData = activeSteps[currentStep];
 
@@ -89,6 +90,10 @@ function Tutorial() {
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
+    if (currentStepData?.links) {
+      return currentStepData.links;
+    }
+
     const links: Link[] = [];
     if (currentStepData?.elements) {
       const nodes = currentStepData.elements.filter(
@@ -151,6 +156,7 @@ function Tutorial() {
       maxNodes,
       hasTailMode,
       mode: viewMode,
+      isDirected,
       ...params,
     });
     setCurrentStep(0);
@@ -159,7 +165,7 @@ function Tutorial() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -171,6 +177,7 @@ function Tutorial() {
         data: raw,
         maxNodes,
         hasTailMode,
+        isDirected,
       });
       if (steps && steps.length > 0) {
         setCurrentStep(0);
@@ -224,6 +231,17 @@ function Tutorial() {
     setIsPlaying(false);
   };
 
+  const handleGraphAction = (action: string, payload: any) => {
+    if (isProcessing) return;
+
+    const steps = dsLogic.executeAction(action, payload);
+
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
@@ -260,9 +278,15 @@ function Tutorial() {
       );
     } else {
       if (
-        ["linkedlist", "stack", "queue", "array", "binarytree", "bst"].includes(
-          topicTypeConfig.id,
-        )
+        [
+          "linkedlist",
+          "stack",
+          "queue",
+          "array",
+          "binarytree",
+          "bst",
+          "graph",
+        ].includes(topicTypeConfig.id)
       ) {
         return (
           <DataActionBar
@@ -270,6 +294,7 @@ function Tutorial() {
             onDeleteNode={handleDeleteNode}
             onSearchNode={handleSearchNode}
             onPeek={handlePeek}
+            onGraphAction={handleGraphAction}
             onLoadData={handleLoadData}
             onResetData={handleResetData}
             onRandomData={handleRandomData}
@@ -277,6 +302,8 @@ function Tutorial() {
             onTailModeChange={setHasTailMode}
             structureType={topicTypeConfig.id as any}
             disabled={isProcessing}
+            isDirected={isDirected}
+            onIsDirectedChange={setIsDirected}
           />
         );
       }
@@ -343,6 +370,7 @@ function Tutorial() {
                 width={1000}
                 height={400}
                 structureType={topicTypeConfig?.id}
+                isDirected={isDirected}
               />
             </div>
             <div className={styles.stepDescription}>

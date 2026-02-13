@@ -6,7 +6,9 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import {
   generateGridFrame,
   generateGraphFrame,
+  updateLinkStatus,
 } from "@/data/DataStructure/nonlinear/utils";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 function runGraphBFS(
   graphData: any,
@@ -15,7 +17,6 @@ function runGraphBFS(
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
-  // 1. 建立基礎圖形結構
   let baseElements: Node[] = [];
   if (graphData.nodes && graphData.edges) {
     baseElements = createGraphElements(graphData);
@@ -36,24 +37,25 @@ function runGraphBFS(
     endId && nodeMap.has(endId) ? endId : sortedIds[sortedIds.length - 1];
 
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
   const distanceMap: Record<string, number> = {}; // 記錄每個節點的層數 (距離)
   const visited = new Set<string>();
   const parentMap = new Map<string, string>(); // child -> parent (用於回溯)
 
   baseElements.forEach((n) => (distanceMap[n.id] = 99));
 
-  // Step 0: 初始畫面 (顯示 ID)
+  // 初始畫面 (顯示 ID)
   steps.push(
     generateGraphFrame(
       baseElements,
       {},
       distanceMap,
-      `Graph 初始化完成 (顯示 ID)，起點: ${realStartId}, 終點: ${realEndId}`,
+      `Graph 顯示 ID 完成，起點: ${realStartId}, 終點: ${realEndId}`,
       true, // showIdAsValue = true
     ),
   );
 
-  // Step 1: 準備開始，數值轉為距離 (∞)
+  // 數值轉為距離 (∞)
   steps.push(
     generateGraphFrame(
       baseElements,
@@ -63,7 +65,7 @@ function runGraphBFS(
     ),
   );
 
-  // 2. BFS 初始化
+  // BFS 初始化
   const queue: string[] = [realStartId];
   visited.add(realStartId);
   statusMap[realStartId] = "prepare";
@@ -80,11 +82,14 @@ function runGraphBFS(
 
   let found = false;
 
-  // 3. BFS 主迴圈
+  // BFS 主迴圈
   while (queue.length > 0) {
-    // A. Dequeue
     const currId = queue.shift()!;
     const currNode = nodeMap.get(currId);
+    const parentId = parentMap.get(currId);
+    if (parentId) {
+      updateLinkStatus(linkStatusMap, parentId, currId, "visited", false);
+    }
 
     statusMap[currId] = "target";
 
@@ -94,6 +99,8 @@ function runGraphBFS(
         statusMap,
         distanceMap,
         `取出 ${currId} (層數: ${distanceMap[currId]})，檢查鄰居`,
+        false,
+        { ...linkStatusMap },
       ),
     );
 
@@ -103,7 +110,6 @@ function runGraphBFS(
       break;
     }
 
-    // B. 訪問鄰居
     if (currNode) {
       const neighbors = currNode.pointers;
       const newNeighbors: string[] = [];
@@ -121,6 +127,7 @@ function runGraphBFS(
 
           statusMap[neighbor.id] = "prepare";
           distanceMap[neighbor.id] = currentDist + 1; // 鄰居距離 = 當前距離 + 1
+          updateLinkStatus(linkStatusMap, currId, neighbor.id, "path", false);
         }
       }
 
@@ -131,16 +138,18 @@ function runGraphBFS(
             statusMap,
             distanceMap,
             `發現鄰居 ${newNeighbors.join(", ")}，距離更新為 ${currentDist + 1}，加入佇列`,
+            false,
+            { ...linkStatusMap },
           ),
         );
       }
     }
 
-    // C. 處理完畢 -> Unfinished
+    // 處理完畢 -> Unfinished
     statusMap[currId] = "unfinished";
   }
 
-  // 4. 路徑回溯與結束
+  // 路徑回溯與結束
   if (found) {
     // 回溯路徑
     let curr = realEndId;
@@ -152,6 +161,9 @@ function runGraphBFS(
     while (curr !== realStartId) {
       const parent = parentMap.get(curr);
       if (!parent) break;
+
+      updateLinkStatus(linkStatusMap, parent, curr, "complete", false);
+
       path.push(parent);
       curr = parent;
     }
@@ -165,6 +177,8 @@ function runGraphBFS(
         statusMap,
         distanceMap,
         `找到終點！最短路徑長度: ${distanceMap[realEndId]} (綠色)`,
+        false,
+        { ...linkStatusMap },
       ),
     );
   } else {
@@ -174,6 +188,8 @@ function runGraphBFS(
         statusMap,
         distanceMap,
         "佇列已空，無法到達終點",
+        false,
+        { ...linkStatusMap },
       ),
     );
   }

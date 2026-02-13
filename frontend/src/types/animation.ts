@@ -1,4 +1,5 @@
-import { BaseElement } from '../modules/core/DataLogic/BaseElement';
+import { BaseElement } from "../modules/core/DataLogic/BaseElement";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 /**
  * 動畫步驟資料結構
@@ -7,6 +8,11 @@ export interface AnimationStep {
   stepNumber: number;
   description: string;
   elements: BaseElement[];
+  links?: {
+    sourceId: string;
+    targetId: string;
+    status?: linkStatus;
+  }[];
 }
 
 /**
