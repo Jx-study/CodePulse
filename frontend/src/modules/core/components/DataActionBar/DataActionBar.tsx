@@ -126,21 +126,26 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
       isDirected,
     };
 
+    const normalizeId = (val: string) => {
+      const num = parseInt(val, 10);
+      return isNaN(num) ? val : String(num);
+    };
+
     if (action === "addVertex") {
-      payload.value = inputValue; // 節點名稱/值
+      payload.value = normalizeId(inputValue); // 節點名稱/值
     } else if (action === "removeVertex") {
-      payload.id = inputValue; // 節點 ID
+      payload.id = normalizeId(inputValue); // 節點 ID
     } else if (action === "addEdge") {
-      payload.source = sourceNode;
-      payload.target = targetNode;
+      payload.source = normalizeId(sourceNode);
+      payload.target = normalizeId(targetNode);
     } else if (action === "removeEdge") {
-      payload.source = sourceNode;
-      payload.target = targetNode;
+      payload.source = normalizeId(sourceNode);
+      payload.target = normalizeId(targetNode);
     } else if (action === "getNeighbors" || action === "getDegree") {
-      payload.id = inputValue;
+      payload.id = normalizeId(inputValue);
     } else if (action === "checkAdjacent") {
-      payload.source = sourceNode;
-      payload.target = targetNode;
+      payload.source = normalizeId(sourceNode);
+      payload.target = normalizeId(targetNode);
     }
 
     onGraphAction(action, payload);
@@ -432,6 +437,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               <span style={{ color: "#aaa", fontSize: "12px" }}>節點:</span>
               <input
                 placeholder="ID"
+                type="number"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 className={styles.input}
@@ -473,6 +479,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               <span style={{ color: "#aaa", fontSize: "12px" }}>邊:</span>
               <input
                 placeholder="Src"
+                type="number"
                 value={sourceNode}
                 onChange={(e) => setSourceNode(e.target.value)}
                 className={styles.input}
@@ -482,6 +489,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               <span style={{ color: "#ccc" }}>→</span>
               <input
                 placeholder="Dst"
+                type="number"
                 value={targetNode}
                 onChange={(e) => setTargetNode(e.target.value)}
                 className={styles.input}
