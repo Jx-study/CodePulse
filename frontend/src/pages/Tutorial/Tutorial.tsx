@@ -5,27 +5,23 @@ import { DragEndEvent } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
-import Button from "@/shared/components/Button/Button";
+import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
-import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
+import ControlBar from "@/modules/core/components/ControlBar";
 import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
-<<<<<<< HEAD
 import PanelHeader from "./components/PanelHeader";
 import { PANEL_REGISTRY } from "./components/PanelRegistry";
 import type { TabConfig } from "@/shared/components/Tabs";
 import TopSection from "./components/TopSection";
-=======
 import { DATA_LIMITS } from "@/constants/dataLimits";
->>>>>>> main
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
-<<<<<<< HEAD
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import { buildStatusColorMap, DEFAULT_STATUS_CONFIG } from "@/types/statusConfig";
@@ -189,10 +185,6 @@ function TutorialContent() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-=======
-import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableWatch";
-
->>>>>>> main
 
   const { category, levelId } = useParams<{
     category: string;
@@ -559,7 +551,6 @@ import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableW
     return null;
   }
 
-<<<<<<< HEAD
   // ==================== Inspector Panel Component ====================
   const InspectorPanelInternal = () => {
     const { activePanels } = usePanelContext();
@@ -623,6 +614,10 @@ import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableW
                 onPeek={handlePeek}
                 onMaxNodesChange={setRandomCount}
                 onTailModeChange={setHasTailMode}
+                onGraphAction={handleGraphAction}
+                isDirected={isDirected}
+                onIsDirectedChange={setIsDirected}
+                onLimitExceeded={() => setShowLimitToast(true)}
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
                 currentData={logic.data}
@@ -732,7 +727,6 @@ import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableW
         )}
       </div>
 
-<<<<<<< HEAD
       <TopSection
         activeDragId={activeDragId}
         mainPanelOrder={mainPanelOrder}
@@ -751,6 +745,10 @@ import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableW
         isLeftPanelCollapsed={isLeftPanelCollapsed}
         handleToggleLeftPanel={handleToggleLeftPanel}
         topicTypeConfig={topicTypeConfig}
+        codeMode={codeMode}
+        handleModeToggle={handleModeToggle}
+        currentCodeConfig={currentCodeConfig}
+        highlightLines={highlightLines}
       />
 
       {/* Knowledge Station Dialog */}
@@ -761,129 +759,6 @@ import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableW
           topicTypeConfig={topicTypeConfig}
         />
       )}
-=======
-      <div className={styles.topSection}>
-        <div className={styles.pseudoCodeSection}>
-          <div className={styles.codeHeader}>
-            <h3 className={styles.sectionTitle}>代碼實作</h3>
-            <div className={styles.codeToggle}>
-              <button
-                className={`${styles.toggleBtn} ${
-                  codeMode === "pseudo" ? styles.active : ""
-                }`}
-                onClick={() => handleModeToggle("pseudo")}
-              >
-                Pseudo
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${
-                  codeMode === "python" ? styles.active : ""
-                }`}
-                onClick={() => handleModeToggle("python")}
-              >
-                Python
-              </button>
-            </div>
-          </div>
-          <div className={styles.pseudoCodeEditor}>
-            <CodeEditor
-              mode="single"
-              value={currentCodeConfig?.[codeMode]?.content || ""}
-              language="python"
-              highlightedLine={highlightLines}
-              readOnly={codeMode === "pseudo"}
-              theme="dark"
-            />
-          </div>
-        </div>
-
-        <div className={styles.rightPanel}>
-          <div className={styles.visualizationSection}>
-            <h3 className={styles.sectionTitle}>視覺化動畫</h3>
-            <div className={styles.visualizationArea}>
-              <D3Canvas
-                elements={currentStepData?.elements || []}
-                links={currentLinks}
-                width={1000}
-                height={400}
-                structureType={topicTypeConfig?.id}
-                isDirected={isDirected}
-              />
-            </div>
-            <div className={styles.stepDescription}>
-              {currentStepData?.description}
-            </div>
-            
-            <VariableWatch variables={currentStepData?.variables} />
-          </div>
-
-          {/* 資料操作列 */}
-          {renderActionBar()}
-
-          {/* 播放控制列 */}
-          <ControlBar
-            isPlaying={isPlaying}
-            currentStep={currentStep}
-            totalSteps={activeSteps.length}
-            playbackSpeed={playbackSpeed}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            onReset={handleReset}
-            onSpeedChange={setPlaybackSpeed}
-          />
-        </div>
-      </div>
-
-      {/* Algorithm Info Section - Bottom */}
-      <div className={styles.algorithmInfoSection}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>演算法說明</h3>
-        </div>
-        <div className={styles.infoContent}>
-          <div className={styles.infoBlock}>
-            <h4>演算法簡介</h4>
-            <p>{topicTypeConfig.introduction}</p>
-          </div>
-
-          <div className={styles.infoBlock}>
-            <h4>複雜度分析</h4>
-            <div className={styles.complexityTable}>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最佳）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeBest}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（平均）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeAverage}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最差）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeWorst}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.space}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 資料數量限制警告 Toast */}
       <LimitWarningToast
@@ -891,7 +766,6 @@ import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableW
         onClose={() => setShowLimitToast(false)}
         maxLimit={DATA_LIMITS.MAX_NODES}
       />
->>>>>>> main
     </div>
   );
 }

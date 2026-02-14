@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -15,6 +15,7 @@ import { SmartPointerSensor } from '@/shared/utils/SmartPointerSensor';
 import { Panel, Group, PanelImperativeHandle } from 'react-resizable-panels';
 import ResizeHandle from '../ResizeHandle';
 import PanelHeader from '../PanelHeader';
+import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
 import { usePanelContext } from '../../context/PanelContext';
 import styles from './TopSection.module.scss';
@@ -73,6 +74,12 @@ interface TopSectionProps {
 
   // Topic 配置
   topicTypeConfig: any;
+
+  // CodeEditor 新功能 (from main branch)
+  codeMode: "pseudo" | "python";
+  handleModeToggle: (mode: "pseudo" | "python") => void;
+  currentCodeConfig: any;
+  highlightLines: number[];
 }
 
 export function TopSection(props: TopSectionProps) {
@@ -93,6 +100,10 @@ export function TopSection(props: TopSectionProps) {
     isLeftPanelCollapsed,
     handleToggleLeftPanel,
     topicTypeConfig,
+    codeMode,
+    handleModeToggle,
+    currentCodeConfig,
+    highlightLines,
   } = props;
 
   const { panelSizes, setCollapsed } = usePanelContext();
@@ -102,6 +113,12 @@ export function TopSection(props: TopSectionProps) {
       activationConstraint: { distance: 8 },
     }),
   );
+
+  // CodeEditor Tabs 配置
+  const codeEditorTabs: TabConfig[] = useMemo(() => [
+    { key: 'pseudo', label: 'Pseudo' },
+    { key: 'python', label: 'Python' },
+  ], []);
 
   return (
     <div className={styles.topSection}>
@@ -140,14 +157,20 @@ export function TopSection(props: TopSectionProps) {
                   }}
                 >
                   <div className={styles.pseudoCodeSection}>
-                    <PanelHeader title="Pseudo Code" />
+                    <PanelHeader
+                      title="代碼實作"
+                      tabs={codeEditorTabs}
+                      activeTab={codeMode}
+                      onTabChange={(key) => handleModeToggle(key as "pseudo" | "python")}
+                    />
                     <div className={styles.pseudoCodeEditor}>
                       <CodeEditor
                         key={`editor-${mainPanelOrder.join("-")}`}
                         mode="single"
                         language="python"
-                        value={topicTypeConfig?.pseudoCode || ""}
-                        readOnly={true}
+                        value={currentCodeConfig?.[codeMode]?.content || ""}
+                        highlightedLine={highlightLines}
+                        readOnly={codeMode === "pseudo"}
                         theme="auto"
                       />
                     </div>
@@ -297,14 +320,20 @@ export function TopSection(props: TopSectionProps) {
                   }}
                 >
                   <div className={styles.pseudoCodeSection}>
-                    <PanelHeader title="Pseudo Code" />
+                    <PanelHeader
+                      title="代碼實作"
+                      tabs={codeEditorTabs}
+                      activeTab={codeMode}
+                      onTabChange={(key) => handleModeToggle(key as "pseudo" | "python")}
+                    />
                     <div className={styles.pseudoCodeEditor}>
                       <CodeEditor
                         key={`editor-${mainPanelOrder.join("-")}`}
                         mode="single"
                         language="python"
-                        value={topicTypeConfig?.pseudoCode || ""}
-                        readOnly={true}
+                        value={currentCodeConfig?.[codeMode]?.content || ""}
+                        highlightedLine={highlightLines}
+                        readOnly={codeMode === "pseudo"}
                         theme="auto"
                       />
                     </div>

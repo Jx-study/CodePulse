@@ -16,6 +16,9 @@ interface SmartActionBarProps {
 
   // 演算法特定
   onRun?: (params?: { searchValue?: number; range?: [number, number] }) => void;
+  viewMode?: "graph" | "grid";
+  onViewModeChange?: (mode: "graph" | "grid") => void;
+  currentData?: any;
 
   // 資料結構特定
   onAddNode?: (value: number, mode: string, index?: number) => void;
@@ -24,6 +27,12 @@ interface SmartActionBarProps {
   onPeek?: () => void;
   onMaxNodesChange?: (max: number) => void;
   onTailModeChange?: (hasTail: boolean) => void;
+
+  // Graph 特定
+  onGraphAction?: (action: string, payload: any) => void;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
+  onLimitExceeded?: () => void;
 }
 
 export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
@@ -41,10 +50,14 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
         onRandomData={restProps.onRandomData}
         onResetData={restProps.onResetData}
         onRun={restProps.onRun!}
+        onRandomCountChange={restProps.onMaxNodesChange}
+        onLimitExceeded={restProps.onLimitExceeded}
         disabled={restProps.disabled}
         category={category}
         algorithmId={topicTypeConfig.id}
-        viewMode={topicTypeConfig.viewMode || "graph"}
+        viewMode={restProps.viewMode || "graph"}
+        onViewModeChange={restProps.onViewModeChange!}
+        currentData={restProps.currentData}
       />
     );
   }
@@ -52,7 +65,7 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
   // 資料結構類型
   if (topicTypeConfig.type === "dataStructure") {
     const validStructureTypes = [
-      "linkedlist", "stack", "queue", "array", "binarytree", "bst"
+      "linkedlist", "stack", "queue", "array", "binarytree", "bst", "graph"
     ];
 
     if (validStructureTypes.includes(topicTypeConfig.id)) {
@@ -62,13 +75,17 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
           onDeleteNode={restProps.onDeleteNode!}
           onSearchNode={restProps.onSearchNode!}
           onPeek={restProps.onPeek}
+          onGraphAction={restProps.onGraphAction}
           onLoadData={restProps.onLoadData}
           onResetData={restProps.onResetData}
           onRandomData={restProps.onRandomData}
-          onMaxNodesChange={restProps.onMaxNodesChange!}
+          onRandomCountChange={restProps.onMaxNodesChange!}
           onTailModeChange={restProps.onTailModeChange!}
           structureType={topicTypeConfig.id as StructureType}
           disabled={restProps.disabled}
+          isDirected={restProps.isDirected}
+          onIsDirectedChange={restProps.onIsDirectedChange}
+          onLimitExceeded={restProps.onLimitExceeded}
         />
       );
     }

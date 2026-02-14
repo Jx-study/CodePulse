@@ -161,7 +161,7 @@
     font-size: $font-sm;
 
     &.active {
-      background: rgba(var(--primary-rgb), 0.1);
+      background: rgba($primary-color, 0.1);
       color: $primary-color;
     }
 

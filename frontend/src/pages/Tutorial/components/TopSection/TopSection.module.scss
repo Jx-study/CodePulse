@@ -43,6 +43,37 @@
   }
 }
 
+// Code Toggle Buttons
+.codeToggle {
+  display: flex;
+  gap: $spacing-xs;
+  background: var(--bg-tertiary);
+  padding: $spacing-xs;
+  border-radius: $radius-md;
+
+  .toggleBtn {
+    padding: $spacing-xs $spacing-md;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: $radius-sm;
+    font-size: $font-sm;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    &.active {
+      background: $primary-color;
+      color: white;
+    }
+  }
+}
+
 // Drag Overlay
 .dragOverlay {
   background: rgba(255, 255, 255, 0.15);

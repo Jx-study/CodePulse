@@ -455,7 +455,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
                 (e.target as HTMLInputElement).blur();
               }
             }}
-            className={`${styles.input} ${styles.dataSizeInput}`}
+            className={styles.input}
             disabled={disabled}
           />
         </div>
