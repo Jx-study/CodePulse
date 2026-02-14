@@ -1,4 +1,4 @@
-import type { AnimationStep, ComplexityInfo } from '@/types';
+import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
 import type { StatusConfig } from './statusConfig';
 
 /**
@@ -23,7 +23,7 @@ export interface LevelImplementationConfig {
   name: string;
   categoryName: string;
   description: string;
-  pseudoCode: string;
+  codeConfig: CodeConfig; // 結構化代碼配置（必填）
   complexity: ComplexityInfo;
   introduction: string;
   defaultData: any;
@@ -35,6 +35,7 @@ export interface LevelImplementationConfig {
   relatedProblems?: ProblemReference[];
   /** Optional custom status configuration - 可選的自訂狀態配置 */
   statusConfig?: StatusConfig;
+  getCodeConfig?: (payload?: any) => CodeConfig;
 }
 
 /**

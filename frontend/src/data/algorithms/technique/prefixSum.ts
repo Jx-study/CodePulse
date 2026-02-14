@@ -1,36 +1,49 @@
-import { AnimationStep } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
-// 輔助函式：同時產生「原始陣列」與「前綴和陣列」的畫面
+const TAGS = {
+  BUILD_INIT: "BUILD_INIT",
+  BUILD_BASE: "BUILD_BASE",
+  BUILD_CALC: "BUILD_CALC",
+  BUILD_DONE: "BUILD_DONE",
+  
+  QUERY_START: "QUERY_START",
+  QUERY_GET_R: "QUERY_GET_R",
+  QUERY_GET_L: "QUERY_GET_L",         
+  QUERY_RETURN_SUB: "QUERY_RETURN_SUB", 
+  QUERY_ELSE: "QUERY_ELSE",           
+  QUERY_RETURN_DIRECT: "QUERY_RETURN_DIRECT", 
+};
+
 const generateFrame = (
   sourceList: LinearData[],
   prefixList: (number | null)[],
-  prefixStatusMap: Record<number, Status> = {}, // 控制下方 Prefix 的狀態
-  sourceStatusMap: Record<number, Status> = {} // 控制上方 Source 的狀態
+  prefixStatusMap: Record<number, Status> = {},
+  sourceStatusMap: Record<number, Status> = {}
 ) => {
   // 1. 建立上排：原始陣列 (Source)
   const sourceBoxes = createBoxes(sourceList, {
     startX: 50,
     startY: 130,
     gap: 70,
-    overrideStatusMap: sourceStatusMap, // 直接傳入 map 給 createBoxes 處理
+    overrideStatusMap: sourceStatusMap,
     getDescription: (_item, index) => `A[${index}]`,
   });
 
   // 2. 建立下排：前綴和陣列 (Prefix)
   const prefixData: LinearData[] = sourceList.map((_, i) => ({
     id: `prefix-${i}`,
-    value: prefixList[i] ?? 0, // 如果是 null 顯示 0
+    value: prefixList[i] ?? 0,
   }));
 
   const prefixBoxes = createBoxes(prefixData, {
     startX: 50,
     startY: 300,
     gap: 70,
-    overrideStatusMap: prefixStatusMap, // 直接傳入 map 給 createBoxes 處理
+    overrideStatusMap: prefixStatusMap,
     getDescription: (_item, index) => `P[${index}]`,
   });
 
@@ -54,7 +67,7 @@ const generateFrame = (
     if (prefixList[i] === null) {
       box.value = 0;
       box.setStatus("inactive");
-    }
+    } 
     // 2. 如果數值已計算，且不在 map 中 (createBoxes 沒設定到狀態)
     //    預設為 "unfinished" (藍色)，代表已存檔
     else if (!prefixStatusMap[i]) {
@@ -69,7 +82,7 @@ const generateFrame = (
 
 export function createPrefixSumAnimationSteps(
   inputData: any[],
-  action?: any // { range?: [L, R] }
+  action?: any
 ): AnimationStep[] {
   const sourceData = inputData as LinearData[];
   const steps: AnimationStep[] = [];
@@ -83,171 +96,229 @@ export function createPrefixSumAnimationSteps(
     prefixArrForQuery[i] = currentSum;
   }
 
-  // 查詢模式
   if (action && action.range && Array.isArray(action.range)) {
     const [L, R] = action.range;
 
-    // 防呆
     if (L < 0 || R >= n || L > R) {
-      const allCompleteMap: Record<number, Status> = {};
-      for (let k = 0; k < n; k++) allCompleteMap[k] = "complete";
-
-      steps.push({
-        stepNumber: 0,
-        description: `無效的區間 [${L}, ${R}]`,
-        elements: generateFrame(sourceData, prefixArrForQuery, allCompleteMap),
-      });
       return steps;
     }
 
-    // 準備全綠 Map (背景用)
     const allCompleteMap: Record<number, Status> = {};
     for (let k = 0; k < n; k++) allCompleteMap[k] = "complete";
 
-    // Step 0: 顯示初始狀態 (背景全綠)
     steps.push({
       stepNumber: 0,
-      description: `準備查詢區間 [${L}, ${R}] 的總和`,
+      description: `開始查詢：計算區間 [${L}, ${R}] 的總和`,
+      actionTag: TAGS.QUERY_START,
+      variables: { L, R },
       elements: generateFrame(sourceData, prefixArrForQuery, allCompleteMap),
     });
 
-    // Step 1: 標記 P[R] (覆蓋原本的 complete)
     steps.push({
       stepNumber: 1,
-      description: `取得 P[${R}] = ${prefixArrForQuery[R]}`,
+      description: `步驟 1：取得右邊界的前綴和 P[${R}] = ${prefixArrForQuery[R]}`,
+      actionTag: TAGS.QUERY_GET_R,
+      variables: { 
+        R, 
+        valR: prefixArrForQuery[R] 
+      },
       elements: generateFrame(sourceData, prefixArrForQuery, {
         ...allCompleteMap,
-        [R]: "target", // 高亮目標
+        [R]: "target",
       }),
     });
 
-    // Step 2: 標記 P[L-1]
     const valR = prefixArrForQuery[R]!;
-    let valL_1 = 0;
-
+    
     if (L > 0) {
-      valL_1 = prefixArrForQuery[L - 1]!;
+      const valL_1 = prefixArrForQuery[L - 1]!;
+      
       steps.push({
         stepNumber: 2,
-        description: `取得 P[${L}-1] = P[${L - 1}] = ${valL_1}`,
+        description: `步驟 2：因為 L > 0，取得左邊界前一個位置的前綴和 P[${L}-1] = ${valL_1}`,
+        actionTag: TAGS.QUERY_GET_L,
+        variables: { 
+          L, 
+          prevL: L - 1, 
+          valL: valL_1 
+        },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
           [R]: "target",
-          [L - 1]: "prepare", // 第二目標
+          [L - 1]: "prepare",
         }),
       });
+
+      const result = valR - valL_1;
+      const resultMap: Record<number, Status> = { ...allCompleteMap, [R]: "target", [L - 1]: "prepare" };
+      
+      steps.push({
+        stepNumber: 3,
+        description: `計算結果：${valR} - ${valL_1} = ${result}`,
+        actionTag: TAGS.QUERY_RETURN_SUB,
+        variables: { 
+          valR, 
+          valL: valL_1, 
+          result 
+        },
+        elements: generateFrame(sourceData, prefixArrForQuery, resultMap),
+      });
+
     } else {
       steps.push({
         stepNumber: 2,
-        description: `L=0，因此不需要減去前綴`,
+        description: `步驟 2：因為 L = 0，不需要減去任何前綴`,
+        actionTag: TAGS.QUERY_ELSE,
+        variables: { L },
+        elements: generateFrame(sourceData, prefixArrForQuery, {
+          ...allCompleteMap,
+          [R]: "target",
+        }),
+      });
+
+      steps.push({
+        stepNumber: 3,
+        description: `直接回傳：P[${R}] = ${valR}`,
+        actionTag: TAGS.QUERY_RETURN_DIRECT,
+        variables: { result: valR },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
           [R]: "target",
         }),
       });
     }
-
-    // Step 3: 結果
-    const result = valR - valL_1;
-
-    // [修正重點] 這裡不再使用 undefined，而是手動建構 Map
-    const resultMap: Record<number, Status> = { ...allCompleteMap };
-    resultMap[R] = "target";
-    if (L > 0) {
-      resultMap[L - 1] = "prepare";
-    }
-
-    steps.push({
-      stepNumber: 3,
-      description: `區間和 = ${valR} - ${valL_1} = ${result}`,
-      elements: generateFrame(sourceData, prefixArrForQuery, resultMap),
-    });
 
     return steps;
   }
 
-  // 建構模式
   let prefixArr: (number | null)[] = new Array(n).fill(null);
 
-  // Step 0: 初始狀態 (空 Map)
   steps.push({
     stepNumber: 0,
-    description: "初始狀態：上方為原始陣列 A，下方為前綴和陣列 P (尚未計算)",
+    description: "開始建構前綴和陣列 P",
+    actionTag: TAGS.BUILD_INIT,
+    variables: { n },
     elements: generateFrame(sourceData, prefixArr, {}, {}),
   });
 
-  // P[0] = A[0]
   if (n > 0) {
     const val0 = sourceData[0].value ?? 0;
-
-    // Step 1: 初始化
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `初始化：P[0] = A[0] = ${val0}`,
-      elements: generateFrame(sourceData, prefixArr, {}, { 0: "target" }), // A[0] target
-    });
-
     prefixArr[0] = val0;
 
     steps.push({
       stepNumber: steps.length + 1,
-      description: `P[0] 計算完成`,
-      elements: generateFrame(sourceData, prefixArr, { 0: "complete" }, {}), // P[0] complete
+      description: `初始化：P[0] = A[0] = ${val0}`,
+      actionTag: TAGS.BUILD_BASE,
+      variables: { val0 },
+      elements: generateFrame(sourceData, prefixArr, { 0: "complete" }, { 0: "target" }),
     });
   }
 
-  // P[i] = P[i-1] + A[i]
   for (let i = 1; i < n; i++) {
     const currentVal = sourceData[i].value ?? 0;
     const prevSum = prefixArr[i - 1] ?? 0;
     const newSum = prevSum + currentVal;
 
-    // Step A: 準備相加
-    // A[i] -> target (橘)
-    // P[i-1] -> prepare (黃)
     steps.push({
       stepNumber: steps.length + 1,
-      description: `計算 P[${i}]：取前一個總和 P[${
-        i - 1
-      }] (${prevSum}) 加上當前元素 A[${i}] (${currentVal})`,
+      description: `計算 P[${i}]：前一個總和 P[${i - 1}] (${prevSum}) + 當前元素 A[${i}] (${currentVal})`,
+      actionTag: TAGS.BUILD_CALC,
+      variables: { i, prevSum, currentVal, newSum },
       elements: generateFrame(
         sourceData,
         prefixArr,
-        { [i - 1]: "prepare" }, // Prefix map
-        { [i]: "target" } // Source map
+        { [i - 1]: "prepare" }, 
+        { [i]: "target" }
       ),
     });
 
-    // Step B: 更新陣列
     prefixArr[i] = newSum;
-
-    // P[i] -> complete (綠)
     steps.push({
       stepNumber: steps.length + 1,
-      description: `P[${i}] = ${prevSum} + ${currentVal} = ${newSum}`,
+      description: `更新 P[${i}] = ${newSum}`,
+      actionTag: TAGS.BUILD_CALC,
+      variables: { i, newSum },
       elements: generateFrame(
         sourceData,
         prefixArr,
-        { [i]: "complete" }, // Prefix map
+        { [i]: "complete" }, 
         {}
       ),
     });
   }
 
-  // 結束：全部設為 Complete
   const finalCompleteMap: Record<number, Status> = {};
-  for (let k = 0; k < n; k++) {
-    finalCompleteMap[k] = "complete";
-  }
+  for (let k = 0; k < n; k++) finalCompleteMap[k] = "complete";
 
   steps.push({
     stepNumber: steps.length + 1,
-    description: "前綴和陣列建構完成。現在可以進行 O(1) 的區間和查詢！",
+    description: "建構完成",
+    actionTag: TAGS.BUILD_DONE,
     elements: generateFrame(sourceData, prefixArr, finalCompleteMap, {}),
   });
 
   return steps;
 }
+
+const prefixSumCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Procedure BuildPrefixSum(arr):
+  n ← length of arr
+  prefix[0] ← arr[0]
+
+  For i ← 1 To n - 1 Do
+    prefix[i] ← prefix[i - 1] + arr[i]
+  End For
+End Procedure
+
+Procedure RangeSum(L, R):
+  valR ← prefix[R]
+
+  If L > 0 Then
+    valL ← prefix[L - 1]
+    Return valR - valL
+  Else
+    Return valR
+  End If
+End Procedure`,
+    mappings: {
+      [TAGS.BUILD_INIT]: [2],
+      [TAGS.BUILD_BASE]: [3],
+      [TAGS.BUILD_CALC]: [6],
+      [TAGS.BUILD_DONE]: [8],
+      
+      [TAGS.QUERY_START]: [10],
+      [TAGS.QUERY_GET_R]: [11],
+      
+      [TAGS.QUERY_GET_L]: [13, 14],      
+      [TAGS.QUERY_RETURN_SUB]: [15],     
+      
+      [TAGS.QUERY_ELSE]: [13, 16],       
+      [TAGS.QUERY_RETURN_DIRECT]: [17],  
+    },
+  },
+  python: {
+    content: `def build_prefix_sum(arr):
+    n = len(arr)
+    prefix = [0] * n
+    prefix[0] = arr[0]
+
+    for i in range(1, n):
+        prefix[i] = prefix[i - 1] + arr[i]
+
+    return prefix
+
+def range_sum(prefix, L, R):
+    # Get the value at the right boundary
+    val_r = prefix[R]
+
+    if L > 0:
+        val_l = prefix[L - 1]
+        return val_r - val_l
+    else:
+        return val_r`,
+  },
+};
 
 export const prefixSumConfig: LevelImplementationConfig = {
   id: "prefixsum",
@@ -255,13 +326,7 @@ export const prefixSumConfig: LevelImplementationConfig = {
   name: "前綴和 (Prefix Sum)",
   categoryName: "演算法技巧",
   description: "透過預處理陣列，在 O(1) 時間內計算任意區間的總和。",
-  pseudoCode: `// 建構前綴和 P
-P[0] = A[0]
-for i from 1 to n-1:
-  P[i] = P[i-1] + A[i]
-
-// 查詢區間 [L, R] 的和
-RangeSum(L, R) = P[R] - P[L-1]`,
+  codeConfig: prefixSumCodeConfig,
   complexity: {
     timeBest: "O(n)",
     timeAverage: "O(n)",

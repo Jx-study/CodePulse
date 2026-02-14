@@ -15,6 +15,12 @@ const SmartActionBar = React.lazy(() =>
   }))
 );
 
+const VariableWatch = React.lazy(() =>
+  import("@/modules/core/components/VariableWatch/VariableWatch").then((module) => ({
+    default: module.VariableWatch,
+  }))
+);
+
 
 /**
  * 面板註冊表
@@ -46,22 +52,7 @@ export const PANEL_REGISTRY: PanelRegistry = {
     id: "variableStatus",
     title: "變數狀態",
     icon: <Icon name="table" />,
-    // component: import("@/modules/core/components/VariableStatus/VariableStatus")
-    component: React.lazy(() =>
-      Promise.resolve({
-        default: () => (
-          <div
-            style={{
-              padding: "1rem",
-              textAlign: "center",
-              color: "var(--text-secondary)",
-            }}
-          >
-            變數狀態面板 - ComingSoon
-          </div>
-        ),
-      }),
-    ),
+    component: VariableWatch,
     defaultSize: 35,
     category: "info",
     required: false,

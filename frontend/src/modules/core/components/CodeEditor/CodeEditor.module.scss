@@ -33,7 +33,7 @@
   border-radius: 4px;
 
   // 確保 Monaco Editor 容器填滿父元素
-  > div {
+  >div {
     height: 100% !important;
   }
 }
@@ -80,6 +80,50 @@
     background-color: #ffffff;
     width: 80px;
     height: 5px;
+  }
+}
+
+// ==================== 行高亮樣式 ====================
+
+.highlightedLine {
+  // background-color: rgba(99, 91, 255, 0.15) 
+  // !important;
+  // border-left: 3px solid $primary-color 
+  // !important;
+  // animation: highlightPulse 1s ease-in-out;
+  background-color: rgba(255, 215, 0, 0.1) !important; // 黃色半透明
+  border-left: 3px solid #ffd700 !important; // 金色左邊框
+  animation: highlightPulse 1s ease-in-out infinite;
+
+  @media (prefers-color-scheme: dark) {
+    // background-color: rgba(99, 91, 255, 0.
+    // 25) !important;
+    background-color: rgba(255, 215, 0, 0.2) !important;
+  }
+}
+
+.highlightedLineGlyph {
+  // background-color: $primary-color 
+  // !important;
+  background-color: #ffd700 !important;
+  width: 4px !important;
+  margin-left: 3px;
+  border-radius: 2px;
+}
+
+@keyframes highlightPulse {
+
+  0%,
+  100% {
+    // background-color: rgba(99, 91, 255, 0.
+    // 15);
+    background-color: rgba(255, 215, 0, 0.1);
+  }
+
+  50% {
+    // background-color: rgba(99, 91, 255, 0.
+    // 3);
+    background-color: rgba(255, 215, 0, 0.25);
   }
 }
 
@@ -142,6 +186,7 @@
   }
 
   .resizer {
+
     &:hover,
     &.active {
       background-color: #7c6fff; // $primary-color 淡化版本

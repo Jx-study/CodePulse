@@ -131,6 +131,34 @@
       }
     },
     {
+      "id": "graph",
+      "name": "圖形結構",
+      "nameEn": "Graph Structure",
+      "category": "data-structures",
+      "difficulty": 2,
+      "description": "由節點 (Vertex) 與邊 (Edge) 組成的非線性資料結構",
+      "learningObjectives": [
+        "理解圖的基本組成與術語",
+        "比較鄰接矩陣與鄰接表",
+        "區分有向圖與無向圖"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["linked-list"]
+      },
+      "graphPosition": {
+        "layer": 2,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "dataStructure",
+      "implementationKey": "graph"
+    },
+    {
       "id": "binarytree",
       "name": "二元樹",
       "nameEn": "Binary Tree",
@@ -544,34 +572,6 @@
         "targetCategory": "graph"
       },
       "implementationKey": "bfs"
-    },
-    {
-      "id": "graph-structure",
-      "name": "圖形結構",
-      "nameEn": "Graph Structure",
-      "category": "x",
-      "difficulty": 2,
-      "description": "由節點 (Vertex) 與邊 (Edge) 組成的非線性資料結構",
-      "learningObjectives": [
-        "理解圖的基本組成與術語",
-        "比較鄰接矩陣與鄰接表",
-        "區分有向圖與無向圖"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
-      },
-      "graphPosition": {
-        "layer": 0,
-        "branch": "main"
-      },
-      "pathMetadata": {
-        "pathType": "main"
-      },
-      "implementationType": "dataStructure",
-      "implementationKey": "graph"
     },
     {
       "id": "bfs",

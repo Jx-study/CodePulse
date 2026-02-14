@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
 export type AlgorithmViewMode = "graph" | "grid";
@@ -20,6 +21,8 @@ interface AlgorithmActionBarProps {
   onRandomData: () => void;
   onResetData: () => void;
   onRun: (params?: RunParams) => void;
+  onRandomCountChange?: (count: number) => void;
+  onLimitExceeded?: () => void;
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
@@ -33,6 +36,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onRandomData,
   onResetData,
   onRun,
+  onRandomCountChange,
+  onLimitExceeded,
   disabled = false,
   category = "sorting",
   algorithmId,
@@ -41,7 +46,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
-  const [dataSize, setDataSize] = useState<number>(10);
+  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT));
   const [searchValue, setSearchValue] = useState<string>("");
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
@@ -73,16 +79,21 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
   // 根據演算法類型設定預設資料筆數
   useEffect(() => {
+    // TODO: check
     if (isSorting) {
-      setDataSize(10);
+      setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isSearching && !isPrefixSum) {
-      setDataSize(15);
+      setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isPrefixSum) {
-      setDataSize(8);
+      setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
 
   const handleRun = () => {
+    const normalizeId = (val: string) => {
+      const num = parseInt(val, 10);
+      return isNaN(num) ? val : String(num);
+    };
     if (viewMode === "grid" && isGraphAlgo) {
       let startId = undefined;
       let endId = undefined;
@@ -156,9 +167,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
         // 驗證起點
         if (graphStartElement !== "") {
-          const targetId = `node-${graphStartElement}`;
+          const normalizedVal = normalizeId(graphStartElement);
+          const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`起點 node-${graphStartElement} 不存在`);
+            alert(`起點 node-${normalizedVal} 不存在`);
             return;
           }
           startId = targetId;
@@ -166,9 +178,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
         // 驗證終點
         if (graphEndElement !== "") {
-          const targetId = `node-${graphEndElement}`;
+          const normalizedVal = normalizeId(graphEndElement);
+          const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`終點 node-${graphEndElement} 不存在`);
+            alert(`終點 node-${normalizedVal} 不存在`);
             return;
           }
           endId = targetId;
@@ -189,7 +202,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       if (isNaN(start) && isNaN(end)) {
         onRun({});
-      } else if (!isNaN(start) && !isNaN(end)) {
+      } else if (!isNaN(start) && !isNaN(end) && start <= end && start >= 0 && end >= 0) {
         onRun({ range: [start, end] });
       } else {
         alert("請輸入完整的區間 (Start, End)");
@@ -415,18 +428,37 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         <Button size="sm" onClick={onResetData} disabled={disabled}>
           重設
         </Button>
-        {!(viewMode === "grid" && isGraphAlgo) && (
-          <div className={styles.settingItem}>
-            <label className={styles.smallLabel}>筆數:</label>
-            <input
-              type="number"
-              value={dataSize}
-              onChange={(e) => setDataSize(Number(e.target.value))}
-              className={`${styles.input} ${styles.dataSizeInput}`}
-              disabled={disabled}
-            />
-          </div>
-        )}
+        <div className={styles.settingItem}>
+          <label className={styles.smallLabel}>隨機筆數:</label>
+          <input
+            type="number"
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={DATA_LIMITS.MAX_NODES}
+            onChange={(e) => setRandomCountInput(e.target.value)}
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                setRandomCountInput(String(randomCount));
+              } else {
+                if (num > DATA_LIMITS.MAX_NODES) {
+                  onLimitExceeded?.();
+                }
+                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onRandomCountChange?.(v);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            className={`${styles.input} ${styles.dataSizeInput}`}
+            disabled={disabled}
+          />
+        </div>
         <Button
           size="sm"
           onClick={() => {
@@ -445,6 +477,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             <label className={styles.smallLabel}>R:</label>
             <input
               type="number"
+              min="1"
               value={gridRows}
               onChange={(e) => setGridRows(e.target.value)}
               className={`${styles.input} ${styles.gridRowColInput}`}
@@ -452,6 +485,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             <label className={styles.smallLabel}>C:</label>
             <input
               type="number"
+              min="1"
               value={gridCols}
               onChange={(e) => setGridCols(e.target.value)}
               className={`${styles.input} ${styles.gridRowColInput}`}
@@ -488,7 +522,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         {isGraphAlgo && (
           <div className={styles.startEndContainer}>
             <input
-              type="text"
+              type="number"
               placeholder="起點(0)"
               value={
                 viewMode === "graph" ? graphStartElement : gridStartElement
@@ -503,7 +537,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             />
             <span className={styles.startEndSeparator}>-</span>
             <input
-              type="text"
+              type="number"
               placeholder="終點(N)"
               value={viewMode === "graph" ? graphEndElement : gridEndElement}
               onChange={(e) =>

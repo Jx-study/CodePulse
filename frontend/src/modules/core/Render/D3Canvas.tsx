@@ -30,6 +30,7 @@ export const D3Canvas = forwardRef<
     statusColorMap?: StatusColorMap;
     /** Optional custom status configuration - 可選的自訂狀態配置 */
     statusConfig?: StatusConfig;
+    isDirected?: boolean;
   }
 >(
   (
@@ -43,6 +44,7 @@ export const D3Canvas = forwardRef<
       enablePan = true,
       statusColorMap,
       statusConfig,
+      isDirected = true,
     },
     forwardedRef,
   ) => {
@@ -86,7 +88,7 @@ export const D3Canvas = forwardRef<
       const svgElement = svgRef.current;
       if (!svgElement) return;
 
-      renderAll(svgElement, elements, links, structureType, statusColorMap);
+      renderAll(svgElement, elements, links, structureType, isDirected, statusColorMap);
 
       // 動態計算 viewBox 以適應內容
       try {
@@ -112,7 +114,7 @@ export const D3Canvas = forwardRef<
           svg.selectAll("*").interrupt();
         }
       };
-    }, [elements, links, structureType, width, height, statusColorMap]);
+    }, [elements, links, structureType, width, height, isDirected, statusColorMap]);
 
     return (
       <div
@@ -164,5 +166,5 @@ export const D3Canvas = forwardRef<
         )}
       </div>
     );
-  }
+  },
 );

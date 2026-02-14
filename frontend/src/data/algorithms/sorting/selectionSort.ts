@@ -1,10 +1,18 @@
-import { AnimationStep } from "@/types";
+import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
-// 復用 BubbleSort 的 Frame 生成邏輯
+const TAGS = {
+  INIT: "INIT",
+  ROUND_START: "ROUND_START",
+  COMPARE: "COMPARE",
+  UPDATE_MIN: "UPDATE_MIN",
+  SWAP: "SWAP",
+  DONE: "DONE",
+};
+
 const generateFrame = (
   list: LinearData[],
   overrideStatusMap: Record<number, Status> = {},
@@ -12,7 +20,7 @@ const generateFrame = (
 ) => {
   const boxes = createBoxes(list, {
     startX: 50,
-    startY: 300, // Bar Chart 基準線
+    startY: 250,
     gap: 70,
     overrideStatusMap,
     getDescription: (_item, index) => `${index}`,
@@ -20,7 +28,7 @@ const generateFrame = (
 
   boxes.forEach((element, i) => {
     const box = element as Box;
-    box.autoScale = true; // 開啟長條圖模式
+    box.autoScale = true;
 
     if (sortedIndices.has(i)) {
       box.setStatus("complete");
@@ -31,42 +39,49 @@ const generateFrame = (
 };
 
 export function createSelectionSortAnimationSteps(
-  inputData: any[]
+  inputData: LinearData[]
 ): AnimationStep[] {
-  // 強制轉型
-  const dataList = inputData as LinearData[];
   const steps: AnimationStep[] = [];
-
-  let arr = dataList.map((d) => ({ ...d }));
+  let arr = inputData.map((d) => ({ ...d }));
   const n = arr.length;
   const sortedIndices = new Set<number>();
 
-  // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
-    description: "開始選擇排序：尋找未排序區間的最小值，放到最前面",
+    description: "開始選擇排序",
+    actionTag: TAGS.INIT,
+    variables: { totalItems: n },
     elements: generateFrame(arr, {}, sortedIndices),
   });
 
   for (let i = 0; i < n - 1; i++) {
     let minIdx = i;
 
-    // Step A: 每一輪開始，先假設 i 是最小值
-    // 標記 minIdx 為 target (橘色)
     steps.push({
       stepNumber: steps.length + 1,
-      description: `第 ${i + 1} 輪：暫定 Index ${i} (${
-        arr[i].value
-      }) 為最小值，並標記為交換最小值的位置`,
+      description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
+      actionTag: TAGS.ROUND_START,
+      variables: { currentPos: i, minPos: i },
       elements: generateFrame(arr, { [minIdx]: "target" }, sortedIndices),
     });
 
     for (let j = i + 1; j < n; j++) {
-      // Step B: 掃描過程
-      // minIdx 維持 target (橘色)，當前掃描的 j 標記為 prepare (黃色)
+      const scanVal = arr[j].value ?? 0;
+      const minVal = arr[minIdx].value ?? 0;
+
       steps.push({
         stepNumber: steps.length + 1,
-        description: `檢查 Index ${j} (${arr[j].value}) 是否小於目前最小值 (${arr[minIdx].value})`,
+        description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
+        actionTag: TAGS.COMPARE,
+        variables: {
+          currentPos: i, 
+          scanPos: j,
+          minPos: minIdx,
+          scanVal: scanVal,
+          minVal: minVal,
+          condition: `${scanVal} < ${minVal}`,
+          result: scanVal < minVal,
+        },
         elements: generateFrame(
           arr,
           { [i]: "target", [minIdx]: "target", [j]: "prepare" },
@@ -74,15 +89,17 @@ export function createSelectionSortAnimationSteps(
         ),
       });
 
-      // 檢查是否需要更新最小值
-      if ((arr[j].value ?? 0) < (arr[minIdx].value ?? 0)) {
+      if (scanVal < minVal) {
         minIdx = j;
 
-        // Step C: 發現新最小值，更新標記
-        // 新的 minIdx 變成 target，舊的會自動變回 unfinished (因為不在 map 裡了)
         steps.push({
           stepNumber: steps.length + 1,
-          description: `發現更小值！更新最小值索引為 ${minIdx} (${arr[minIdx].value})`,
+          description: `發現更小值！更新最小值索引為 ${minIdx}`,
+          actionTag: TAGS.UPDATE_MIN,
+          variables: {
+            minPos: minIdx,
+            scanVal: scanVal, 
+          },
           elements: generateFrame(
             arr,
             { [i]: "target", [minIdx]: "target" },
@@ -92,9 +109,7 @@ export function createSelectionSortAnimationSteps(
       }
     }
 
-    // 內層迴圈結束，準備交換
     if (minIdx !== i) {
-      // Step D: 交換
       const temp = arr[i];
       arr[i] = arr[minIdx];
       arr[minIdx] = temp;
@@ -102,40 +117,108 @@ export function createSelectionSortAnimationSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: `本輪最小值 ${arr[i].value} (Index ${minIdx}) 與 Index ${i} 交換`,
+        actionTag: TAGS.SWAP,
+        variables: {
+          currentPos: i,
+          minPos: minIdx,
+          [`collection[${i}]`]: arr[i].value ?? null,
+          [`collection[${minIdx}]`]: arr[minIdx].value ?? null,
+          hasSwapped: true,
+        },
         elements: generateFrame(
           arr,
-          { [i]: "target", [minIdx]: "target" }, // 交換的兩者都亮起
+          { [i]: "target", [minIdx]: "target" },
           sortedIndices
         ),
       });
     } else {
-      // 如果不用交換，也顯示一下確認
       steps.push({
         stepNumber: steps.length + 1,
         description: `Index ${i} 已經是最小值，無需交換`,
+        actionTag: TAGS.SWAP,
+        variables: {
+          currentPos: i,
+          minPos: minIdx,
+          hasSwapped: false,
+        },
         elements: generateFrame(arr, { [i]: "target" }, sortedIndices),
       });
     }
 
-    // Step E: 鎖定 Index i
     sortedIndices.add(i);
     steps.push({
       stepNumber: steps.length + 1,
       description: `Index ${i} 已排序完成`,
+      actionTag: TAGS.ROUND_START,
+      variables: { currentPos: i },
       elements: generateFrame(arr, {}, sortedIndices),
     });
   }
 
-  // 迴圈結束後，剩下最後一個元素一定是最大的，也算排序完成
   sortedIndices.add(n - 1);
+  
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
+    actionTag: TAGS.DONE,
+    variables: { isSorted: true },
     elements: generateFrame(arr, {}, sortedIndices),
   });
 
   return steps;
 }
+
+const selectionSortCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Procedure SelectionSort(collection):
+  totalItems ← length of collection
+  
+  For currentPos ← 0 To totalItems - 2 Do
+    minPos ← currentPos
+    
+    For scanPos ← currentPos + 1 To totalItems - 1 Do
+      scanVal ← collection[scanPos]
+      minVal ← collection[minPos]
+      
+      If scanVal < minVal Then
+        minPos ← scanPos
+      End If
+    End For
+    
+    If minPos ≠ currentPos Then
+      swap(collection[currentPos], collection[minPos])
+    End If
+  End For
+End Procedure`,
+    mappings: {
+      [TAGS.INIT]: [2],
+      [TAGS.ROUND_START]: [4, 5],
+      [TAGS.COMPARE]: [7, 8, 9, 11],
+      [TAGS.UPDATE_MIN]: [12],
+      [TAGS.SWAP]: [16, 17],
+      [TAGS.DONE]: [20],
+    },
+  },
+  python: {
+    content: `def selection_sort(collection):
+    total_items = len(collection)
+    
+    for current_pos in range(total_items - 1):
+        min_pos = current_pos
+        
+        for scan_pos in range(current_pos + 1, total_items):
+            scan_val = collection[scan_pos]
+            min_val = collection[min_pos]
+            
+            if scan_val < min_val:
+                min_pos = scan_pos
+                
+        if min_pos != current_pos:
+            collection[current_pos], collection[min_pos] = collection[min_pos], collection[current_pos]
+            
+    return collection`,
+  },
+};
 
 export const selectionSortConfig: LevelImplementationConfig = {
   id: "selectionsort",
@@ -143,12 +226,7 @@ export const selectionSortConfig: LevelImplementationConfig = {
   name: "選擇排序 (Selection Sort)",
   categoryName: "排序演算法",
   description: "每次從未排序區間中選出最小值，放到已排序區間的末尾。",
-  pseudoCode: `for i from 0 to n-1:
-  minIdx = i
-  for j from i+1 to n:
-    if arr[j] < arr[minIdx]:
-      minIdx = j
-  swap(arr[i], arr[minIdx])`,
+  codeConfig: selectionSortCodeConfig,
   complexity: {
     timeBest: "O(n²)",
     timeAverage: "O(n²)",
