@@ -135,7 +135,7 @@ function createInsertTailHasTailSteps(
       oldLen,
       startX + i * gap,
       baseY,
-      "unfinished",
+      Status.Unfinished,
     ),
   );
   const actualS1OldNodes = s1OldElements.filter(
@@ -149,7 +149,7 @@ function createInsertTailHasTailSteps(
     totalLen,
     startX + oldLen * gap,
     baseY,
-    "target",
+    Status.Target,
     "",
     "new",
   );
@@ -169,7 +169,7 @@ function createInsertTailHasTailSteps(
       oldLen,
       startX + i * gap,
       baseY,
-      "unfinished",
+      Status.Unfinished,
     ),
   );
   const s2NewElement = createNodeAndPointers(
@@ -178,7 +178,7 @@ function createInsertTailHasTailSteps(
     totalLen,
     startX + oldLen * gap,
     baseY,
-    "target",
+    Status.Target,
     "",
     "new",
   );
@@ -201,7 +201,7 @@ function createInsertTailHasTailSteps(
       totalLen,
       startX + i * gap,
       baseY,
-      "unfinished",
+      Status.Unfinished,
     ),
   );
   const s3NewElement = createNodeAndPointers(
@@ -210,7 +210,7 @@ function createInsertTailHasTailSteps(
     totalLen,
     startX + oldLen * gap,
     baseY,
-    "target",
+    Status.Target,
     "tail",
     "new",
   );
@@ -233,7 +233,7 @@ function createInsertTailHasTailSteps(
       totalLen,
       startX + i * gap,
       baseY,
-      "complete",
+      Status.Complete,
     ),
   );
   const actualS4Nodes = s4Elements.filter((n: any) => !(n instanceof Pointer));
@@ -280,7 +280,7 @@ function createInsertHeadSteps(
         totalLen,
         startX + i * gap,
         baseY,
-        "unfinished",
+        Status.Unfinished,
         label,
       );
     });
@@ -297,7 +297,7 @@ function createInsertHeadSteps(
     totalLen,
     startX - gap,
     baseY,
-    "target",
+    Status.Target,
     "",
     "new",
   );
@@ -320,7 +320,7 @@ function createInsertHeadSteps(
     if (hasTailMode && i === oldNodesData.length - 1) {
       label = (label ? label + "/" : "") + "tail";
     }
-    const status = i === 0 ? "prepare" : "unfinished";
+    const status = i === 0 ? Status.Prepare : Status.Unfinished;
 
     return createNodeAndPointers(
       item,
@@ -339,7 +339,7 @@ function createInsertHeadSteps(
     totalLen,
     startX - gap,
     baseY,
-    "target",
+    Status.Target,
     "",
     "new",
   );
@@ -368,7 +368,7 @@ function createInsertHeadSteps(
       totalLen,
       startX + i * gap,
       baseY,
-      "unfinished",
+      Status.Unfinished,
       label,
     );
   });
@@ -379,7 +379,7 @@ function createInsertHeadSteps(
     totalLen,
     startX - gap,
     baseY,
-    "target",
+    Status.Target,
     "head",
     "new",
   );
@@ -405,7 +405,7 @@ function createInsertHeadSteps(
       totalLen,
       startX + i * gap,
       baseY,
-      "complete",
+      Status.Complete,
       undefined,
       undefined,
     ),
@@ -443,7 +443,7 @@ export function createLinkedListAnimationSteps(
     total: number,
     x: number,
     y: number,
-    status: Status = "unfinished",
+    status: Status = Status.Unfinished,
     overrideLabel?: string,
     extraLabel?: string,
   ) => {
@@ -486,7 +486,7 @@ export function createLinkedListAnimationSteps(
         dataList.length,
         startX + i * gap,
         baseY,
-        "unfinished",
+        Status.Unfinished,
       ),
     );
     const actualNodes = elements.filter((n) => !(n instanceof Pointer));
@@ -517,11 +517,11 @@ export function createLinkedListAnimationSteps(
 
     for (let i = 0; i < totalLen; i++) {
       const compareElements = dataList.flatMap((item, idx) => {
-        let status: Status = "unfinished";
+        let status: Status = Status.Unfinished;
         let extra = undefined;
 
         if (idx === i) {
-          status = "prepare";
+          status = Status.Prepare;
           extra = "current";
         }
 
@@ -558,11 +558,11 @@ export function createLinkedListAnimationSteps(
         isFound = true;
 
         const foundElements = dataList.flatMap((item, idx) => {
-          let status: Status = "unfinished";
+          let status: Status = Status.Unfinished;
           let extra = undefined;
 
           if (idx === i) {
-            status = "complete";
+            status = Status.Complete;
             extra = "current";
           }
 
@@ -607,7 +607,7 @@ export function createLinkedListAnimationSteps(
           totalLen,
           startX + idx * gap,
           baseY,
-          "unfinished",
+          Status.Unfinished,
         ),
       );
       const actualNotFoundNodes = notFoundElements.filter(
@@ -652,7 +652,7 @@ export function createLinkedListAnimationSteps(
         1,
         startX,
         baseY,
-        "target",
+        Status.Target,
         "",
         "new",
       );
@@ -670,7 +670,7 @@ export function createLinkedListAnimationSteps(
         1,
         startX,
         baseY,
-        "complete",
+        Status.Complete,
         hasTailMode ? "head/tail" : "head",
       );
       steps.push({
@@ -710,7 +710,7 @@ export function createLinkedListAnimationSteps(
             oldLen,
             startX + idx * gap,
             baseY,
-            idx === i ? "prepare" : "unfinished",
+            idx === i ? Status.Prepare : Status.Unfinished,
             undefined,
             extra,
           );
@@ -739,7 +739,7 @@ export function createLinkedListAnimationSteps(
           oldLen,
           startX + i * gap,
           baseY,
-          i === oldLen - 1 ? "prepare" : "unfinished",
+          i === oldLen - 1 ? Status.Prepare : Status.Unfinished,
           undefined,
           i === oldLen - 1 ? "current" : undefined,
         ),
@@ -755,7 +755,7 @@ export function createLinkedListAnimationSteps(
         totalLen,
         startX + oldLen * gap,
         baseY,
-        "target",
+        Status.Target,
         undefined,
         "new",
       );
@@ -778,7 +778,7 @@ export function createLinkedListAnimationSteps(
           oldLen,
           startX + i * gap,
           baseY,
-          i === oldLen - 1 ? "prepare" : "unfinished",
+          i === oldLen - 1 ? Status.Prepare : Status.Unfinished,
           undefined,
           i === oldLen - 1 ? "current" : undefined,
         ),
@@ -789,7 +789,7 @@ export function createLinkedListAnimationSteps(
         totalLen,
         startX + oldLen * gap,
         baseY,
-        "target",
+        Status.Target,
         undefined,
         "new",
       );
@@ -817,7 +817,7 @@ export function createLinkedListAnimationSteps(
           totalLen,
           startX + i * gap,
           baseY,
-          "complete",
+          Status.Complete,
         ),
       );
       const actualDoneNodes = doneElements.filter(
@@ -856,7 +856,7 @@ export function createLinkedListAnimationSteps(
             currentLen,
             startX + i * gap,
             baseY,
-            "unfinished",
+            Status.Unfinished,
           ),
         );
       const actualCheckNodes = checkElements.filter(
@@ -904,7 +904,7 @@ export function createLinkedListAnimationSteps(
             currentLen,
             startX + i * gap,
             baseY,
-            "unfinished",
+            Status.Unfinished,
           ),
         );
       const actualCheckNodes = checkElements.filter(
@@ -950,9 +950,9 @@ export function createLinkedListAnimationSteps(
 
     for (let i = 0; i < N; i++) {
       const traverseElements = oldNodesData.flatMap((item, idx) => {
-        let status: Status = "unfinished";
-        if (idx <= i) status = "prepare";
-        if (idx === i) status = "target";
+        let status: Status = Status.Unfinished;
+        if (idx <= i) status = Status.Prepare;
+        if (idx === i) status = Status.Target;
 
         let extra = undefined;
         if (idx === i) extra = "current";
@@ -989,8 +989,8 @@ export function createLinkedListAnimationSteps(
     const s2Elements = oldNodesData.flatMap((item, i) => {
       let x = startX + i * gap;
       if (i >= N) x += gap;
-      let status: Status = "unfinished";
-      if (i < N) status = "prepare";
+      let status: Status = Status.Unfinished;
+      if (i < N) status = Status.Prepare;
       return createNodeAndPointers(
         item,
         i,
@@ -1019,8 +1019,8 @@ export function createLinkedListAnimationSteps(
     const s3OldElements = oldNodesData.flatMap((item, i) => {
       let x = startX + i * gap;
       if (i >= N) x += gap;
-      let status: Status = "unfinished";
-      if (i < N) status = "prepare";
+      let status: Status = Status.Unfinished;
+      if (i < N) status = Status.Prepare;
       return createNodeAndPointers(
         item,
         i,
@@ -1043,7 +1043,7 @@ export function createLinkedListAnimationSteps(
       totalLen,
       startX + N * gap,
       baseY - 60,
-      "target",
+      Status.Target,
       undefined,
       "new",
     );
@@ -1068,7 +1068,7 @@ export function createLinkedListAnimationSteps(
         oldLen,
         x,
         baseY,
-        i < N ? "prepare" : "unfinished",
+        i < N ? Status.Prepare : Status.Unfinished,
         undefined,
         i === N - 1 ? "current" : undefined,
       );
@@ -1084,7 +1084,7 @@ export function createLinkedListAnimationSteps(
       totalLen,
       startX + N * gap,
       baseY - 60,
-      "target",
+      Status.Target,
       undefined,
       "new",
     );
@@ -1119,7 +1119,7 @@ export function createLinkedListAnimationSteps(
         oldLen,
         x,
         baseY,
-        i < N ? "prepare" : "unfinished",
+        i < N ? Status.Prepare : Status.Unfinished,
         undefined,
         i === N - 1 ? "current" : undefined,
       );
@@ -1135,7 +1135,7 @@ export function createLinkedListAnimationSteps(
       totalLen,
       startX + N * gap,
       baseY - 60,
-      "target",
+      Status.Target,
       undefined,
       "new",
     );
@@ -1174,7 +1174,7 @@ export function createLinkedListAnimationSteps(
         totalLen,
         startX + i * gap,
         baseY,
-        "complete",
+        Status.Complete,
       ),
     );
     const actualS6Nodes = s6Elements.filter((n) => !(n instanceof Pointer));
@@ -1210,7 +1210,7 @@ export function createLinkedListAnimationSteps(
         1,
         startX,
         baseY,
-        "target",
+        Status.Target,
         "head/tail",
       );
       steps.push({
@@ -1244,7 +1244,7 @@ export function createLinkedListAnimationSteps(
             originalLen,
             startX + i * gap,
             baseY,
-            "unfinished",
+            Status.Unfinished,
           ),
         );
         const actualCheckNodes = checkElements.filter(
@@ -1272,7 +1272,7 @@ export function createLinkedListAnimationSteps(
         currentLen + 1,
         startX,
         baseY,
-        "target",
+        Status.Target,
         "head",
       );
       const s1RestElements = dataList.flatMap((item, i) =>
@@ -1282,7 +1282,7 @@ export function createLinkedListAnimationSteps(
           currentLen + 1,
           startX + (i + 1) * gap,
           baseY,
-          "unfinished",
+          Status.Unfinished,
         ),
       );
       const allS1 = [...s1DelElement, ...s1RestElements];
@@ -1303,7 +1303,7 @@ export function createLinkedListAnimationSteps(
         currentLen + 1,
         startX,
         baseY,
-        "target",
+        Status.Target,
         "",
       );
       const s2RestElements = dataList.flatMap((item, i) => {
@@ -1317,7 +1317,7 @@ export function createLinkedListAnimationSteps(
           currentLen + 1,
           startX + (i + 1) * gap,
           baseY,
-          i === 0 ? "prepare" : "unfinished",
+          i === 0 ? Status.Prepare : Status.Unfinished,
           label,
         );
       });
@@ -1339,7 +1339,7 @@ export function createLinkedListAnimationSteps(
         currentLen + 1,
         startX,
         baseY,
-        "inactive",
+        Status.Inactive,
         "",
       );
       const delNodeObj = s3DelElement.find(
@@ -1358,7 +1358,7 @@ export function createLinkedListAnimationSteps(
           currentLen + 1,
           startX + (i + 1) * gap,
           baseY,
-          i === 0 ? "prepare" : "unfinished",
+          i === 0 ? Status.Prepare : Status.Unfinished,
           label,
         );
       });
@@ -1382,7 +1382,7 @@ export function createLinkedListAnimationSteps(
           currentLen,
           startX + (i + 1) * gap,
           baseY,
-          "prepare",
+          Status.Prepare,
         ),
       );
       const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
@@ -1402,7 +1402,7 @@ export function createLinkedListAnimationSteps(
           currentLen,
           startX + i * gap,
           baseY,
-          "complete",
+          Status.Complete,
         ),
       );
       const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));
@@ -1424,7 +1424,7 @@ export function createLinkedListAnimationSteps(
             originalLen,
             startX + i * gap,
             baseY,
-            "unfinished",
+            Status.Unfinished,
           ),
         );
         const actualCheckNodes = checkElements.filter(
@@ -1449,10 +1449,10 @@ export function createLinkedListAnimationSteps(
       for (let i = 0; i < currentLen; i++) {
         const traverseElements = [
           ...dataList.flatMap((item, idx) => {
-            let status: Status = "unfinished";
+            let status: Status = Status.Unfinished;
             let extra = undefined;
             if (idx === i) {
-              status = "prepare";
+              status = Status.Prepare;
               extra = "current";
             }
             if (i > 0 && idx === i - 1) {
@@ -1475,7 +1475,7 @@ export function createLinkedListAnimationSteps(
             currentLen + 1,
             startX + currentLen * gap,
             baseY,
-            i === currentLen ? "target" : "unfinished",
+            i === currentLen ? Status.Target : Status.Unfinished,
             hasTailMode ? "tail" : "",
           ),
         ];
@@ -1509,7 +1509,7 @@ export function createLinkedListAnimationSteps(
             currentLen,
             startX + idx * gap,
             baseY,
-            idx === currentLen - 1 ? "prepare" : "unfinished",
+            idx === currentLen - 1 ? Status.Prepare : Status.Unfinished,
             label,
             extra,
           );
@@ -1520,7 +1520,7 @@ export function createLinkedListAnimationSteps(
           currentLen + 1,
           startX + currentLen * gap,
           baseY,
-          "target",
+          Status.Target,
           "tail",
           "current",
         ),
@@ -1550,7 +1550,7 @@ export function createLinkedListAnimationSteps(
             currentLen,
             startX + idx * gap,
             baseY,
-            idx === currentLen - 1 ? "target" : "unfinished",
+            idx === currentLen - 1 ? Status.Target : Status.Unfinished,
             label,
             extra,
           );
@@ -1561,7 +1561,7 @@ export function createLinkedListAnimationSteps(
           currentLen + 1,
           startX + currentLen * gap,
           baseY,
-          "inactive",
+          Status.Inactive,
           hasTailMode ? "tail" : "",
           "current",
         ),
@@ -1600,7 +1600,7 @@ export function createLinkedListAnimationSteps(
               currentLen,
               startX + idx * gap,
               baseY,
-              idx === currentLen - 1 ? "target" : "unfinished",
+              idx === currentLen - 1 ? Status.Target : Status.Unfinished,
               label,
               extra,
             );
@@ -1611,7 +1611,7 @@ export function createLinkedListAnimationSteps(
             currentLen + 1,
             startX + currentLen * gap,
             baseY,
-            "inactive",
+            Status.Inactive,
             "",
             "current",
           ),
@@ -1644,7 +1644,7 @@ export function createLinkedListAnimationSteps(
           currentLen,
           startX + i * gap,
           baseY,
-          "complete",
+          Status.Complete,
         ),
       );
       const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
@@ -1665,9 +1665,9 @@ export function createLinkedListAnimationSteps(
 
       for (let i = 0; i <= N; i++) {
         const traverseElements = oldList.flatMap((item, idx) => {
-          let status: Status = "unfinished";
-          if (idx === i - 1) status = "prepare";
-          if (idx === i) status = "target";
+          let status: Status = Status.Unfinished;
+          if (idx === i - 1) status = Status.Prepare;
+          if (idx === i) status = Status.Target;
           let extra = idx === i ? "current" : undefined;
 
           let override = undefined;
@@ -1710,8 +1710,8 @@ export function createLinkedListAnimationSteps(
         if (idx === N - 1)
           label = getLabel(idx, originalLen, hasTailMode) + "pre";
         let extra = idx === N ? "current" : undefined;
-        let status: Status = idx === N - 1 ? "prepare" : "unfinished";
-        if (idx === N) status = "target";
+        let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
+        if (idx === N) status = Status.Target;
         return createNodeAndPointers(
           item,
           idx,
@@ -1747,8 +1747,8 @@ export function createLinkedListAnimationSteps(
           label = (label ? label + "/" : "") + "tail";
         }
         let extra = idx === N ? "current" : undefined;
-        let status: Status = idx === N - 1 ? "prepare" : "unfinished";
-        if (idx === N) status = "target";
+        let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
+        if (idx === N) status = Status.Target;
         return createNodeAndPointers(
           item,
           idx,
@@ -1797,8 +1797,8 @@ export function createLinkedListAnimationSteps(
               ? getLabel(idx, originalLen, hasTailMode) + "pre/tail"
               : undefined;
           let extra = idx === N ? "current" : undefined;
-          let status: Status = idx === N - 1 ? "prepare" : "unfinished";
-          if (idx === N) status = "target";
+          let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
+          if (idx === N) status = Status.Target;
           return createNodeAndPointers(
             item,
             idx,
@@ -1843,8 +1843,8 @@ export function createLinkedListAnimationSteps(
             ? getLabel(idx, originalLen, hasTailMode) + "pre"
             : undefined;
         let extra = idx === N ? "current" : undefined;
-        let status: Status = idx === N - 1 ? "prepare" : "unfinished";
-        if (idx === N) status = "target";
+        let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
+        if (idx === N) status = Status.Target;
         return createNodeAndPointers(
           item,
           idx,
@@ -1889,7 +1889,7 @@ export function createLinkedListAnimationSteps(
           currentLen,
           startX + idx * gap,
           baseY,
-          "complete",
+          Status.Complete,
         ),
       );
       const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));

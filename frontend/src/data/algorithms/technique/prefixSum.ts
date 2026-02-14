@@ -66,12 +66,12 @@ const generateFrame = (
     // 1. 如果數值是 null (尚未計算)，強制覆蓋為 inactive (灰色)
     if (prefixList[i] === null) {
       box.value = 0;
-      box.setStatus("inactive");
+      box.setStatus(Status.Inactive);
     } 
     // 2. 如果數值已計算，且不在 map 中 (createBoxes 沒設定到狀態)
-    //    預設為 "unfinished" (藍色)，代表已存檔
+    //    預設為 Status.Unfinished (藍色)，代表已存檔
     else if (!prefixStatusMap[i]) {
-      box.setStatus("unfinished");
+      box.setStatus(Status.Unfinished);
     }
     // 3. 如果在 map 中 (例如 target/complete/prepare)，已經設置完畢不用動
   });
@@ -104,7 +104,7 @@ export function createPrefixSumAnimationSteps(
     }
 
     const allCompleteMap: Record<number, Status> = {};
-    for (let k = 0; k < n; k++) allCompleteMap[k] = "complete";
+    for (let k = 0; k < n; k++) allCompleteMap[k] = Status.Complete;
 
     steps.push({
       stepNumber: 0,
@@ -124,7 +124,7 @@ export function createPrefixSumAnimationSteps(
       },
       elements: generateFrame(sourceData, prefixArrForQuery, {
         ...allCompleteMap,
-        [R]: "target",
+        [R]: Status.Target,
       }),
     });
 
@@ -144,13 +144,13 @@ export function createPrefixSumAnimationSteps(
         },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
-          [R]: "target",
-          [L - 1]: "prepare",
+          [R]: Status.Target,
+          [L - 1]: Status.Prepare,
         }),
       });
 
       const result = valR - valL_1;
-      const resultMap: Record<number, Status> = { ...allCompleteMap, [R]: "target", [L - 1]: "prepare" };
+      const resultMap: Record<number, Status> = { ...allCompleteMap, [R]: Status.Target, [L - 1]: Status.Prepare };
       
       steps.push({
         stepNumber: 3,
@@ -172,7 +172,7 @@ export function createPrefixSumAnimationSteps(
         variables: { L },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
-          [R]: "target",
+          [R]: Status.Target,
         }),
       });
 
@@ -183,7 +183,7 @@ export function createPrefixSumAnimationSteps(
         variables: { result: valR },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
-          [R]: "target",
+          [R]: Status.Target,
         }),
       });
     }
@@ -210,7 +210,7 @@ export function createPrefixSumAnimationSteps(
       description: `初始化：P[0] = A[0] = ${val0}`,
       actionTag: TAGS.BUILD_BASE,
       variables: { val0 },
-      elements: generateFrame(sourceData, prefixArr, { 0: "complete" }, { 0: "target" }),
+      elements: generateFrame(sourceData, prefixArr, { 0: Status.Complete }, { 0: Status.Target }),
     });
   }
 
@@ -227,8 +227,8 @@ export function createPrefixSumAnimationSteps(
       elements: generateFrame(
         sourceData,
         prefixArr,
-        { [i - 1]: "prepare" }, 
-        { [i]: "target" }
+        { [i - 1]: Status.Prepare }, 
+        { [i]: Status.Target }
       ),
     });
 
@@ -241,14 +241,14 @@ export function createPrefixSumAnimationSteps(
       elements: generateFrame(
         sourceData,
         prefixArr,
-        { [i]: "complete" }, 
+        { [i]: Status.Complete }, 
         {}
       ),
     });
   }
 
   const finalCompleteMap: Record<number, Status> = {};
-  for (let k = 0; k < n; k++) finalCompleteMap[k] = "complete";
+  for (let k = 0; k < n; k++) finalCompleteMap[k] = Status.Complete;
 
   steps.push({
     stepNumber: steps.length + 1,

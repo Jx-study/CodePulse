@@ -1,18 +1,19 @@
 import type { StatusColorMap } from "@/types/statusConfig";
 
-export type Status =
-  | "unfinished"
-  | "prepare"
-  | "target"
-  | "complete"
-  | "inactive";
+export enum Status {
+  Unfinished = "unfinished",
+  Prepare = "prepare",
+  Target = "target",
+  Complete = "complete",
+  Inactive = "inactive",
+}
 
 export const statusColorMap: Record<Status, string> = {
-  unfinished: "#1d79cfff", // $status-unfinished
-  prepare: "#f59e0b", // $status-prepare
-  target: "#ff6b35", // $status-target
-  complete: "#46f336ff", // $status-complete
-  inactive: "#555555", // $status-inactive
+  [Status.Unfinished]: "#1d79cfff", // $status-unfinished
+  [Status.Prepare]: "#f59e0b", // $status-prepare
+  [Status.Target]: "#ff6b35", // $status-target
+  [Status.Complete]: "#46f336ff", // $status-complete
+  [Status.Inactive]: "#555555", // $status-inactive
 };
 
 export abstract class BaseElement {
@@ -21,9 +22,9 @@ export abstract class BaseElement {
   // if value undefined will not be rendered
   value: number | undefined = 0;
   position = { x: 0, y: 0 };
-  // Changed to string to support custom status names
-  status: string = "unfinished";
+  status: Status = Status.Unfinished;
   description = "";
+  customColorMap?: StatusColorMap;
 
   protected constructor(kind: "node" | "box" | "pointer") {
     this.kind = kind;
@@ -31,23 +32,21 @@ export abstract class BaseElement {
   moveTo(x: number, y: number) {
     this.position = { x, y };
   }
-  // Updated to accept string instead of Status
-  setStatus(s: string) {
+  setStatus(s: Status) {
     this.status = s;
   }
   // Inject custom color map
   setCustomColorMap(colorMap: StatusColorMap) {
     this.customColorMap = colorMap;
   }
-  // Updated to use custom map if available, fallback to default
   getColor(): string {
     if (this.customColorMap) {
       return (
         this.customColorMap[this.status] ??
-        statusColorMap[this.status as Status] ??
+        statusColorMap[this.status] ??
         "#888888"
       );
     }
-    return statusColorMap[this.status as Status] ?? "#888888";
+    return statusColorMap[this.status] ?? "#888888";
   }
 }

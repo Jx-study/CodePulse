@@ -32,7 +32,7 @@ const TAGS = {
   PEEK_COMPLETE: "PEEK_COMPLETE",
 };
 
-const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
+const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
   return baseCreateBoxes(list, {
     startX: 100,
     startY: 200,
@@ -92,7 +92,7 @@ export function createStackAnimationSteps(
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
-    s1NewBox.setStatus("prepare");
+    s1NewBox.setStatus(Status.Prepare);
     s1NewBox.description = "New";
 
     steps.push({
@@ -116,7 +116,7 @@ export function createStackAnimationSteps(
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentTop * gap, startY);
-    emptyBox.setStatus("inactive");
+    emptyBox.setStatus(Status.Inactive);
     emptyBox.borderStyle = "dashed";
     emptyBox.description = String(currentTop);
 
@@ -140,7 +140,7 @@ export function createStackAnimationSteps(
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentTop * gap, startY);
-    s3NewBox.setStatus("target");
+    s3NewBox.setStatus(Status.Target);
     s3NewBox.description = String(currentTop);
 
     const s3Pointer = createTopPointer(currentTop, startX, startY, gap);
@@ -157,7 +157,7 @@ export function createStackAnimationSteps(
       stepNumber: 4,
       description: "Push 完成",
       elements: [
-        ...createBoxes(dataList, "complete"),
+        ...createBoxes(dataList, Status.Complete),
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PUSH_COMPLETE,
@@ -213,7 +213,7 @@ export function createStackAnimationSteps(
         movingBox.height = 60;
         movingBox.description = "removed_value";
         movingBox.moveTo(950, startY);
-        movingBox.setStatus("prepare");
+        movingBox.setStatus(Status.Prepare);
 
         ghostBox = new Box();
         ghostBox.id = `${item.id}-ghost`;
@@ -222,7 +222,7 @@ export function createStackAnimationSteps(
         ghostBox.height = 60;
         ghostBox.description = String(i);
         ghostBox.moveTo(startX + i * gap, startY);
-        ghostBox.setStatus("unfinished");
+        ghostBox.setStatus(Status.Unfinished);
         ghostBox.appearAnim = "instant";
       } else {
         const b = new Box();
@@ -232,7 +232,7 @@ export function createStackAnimationSteps(
         b.height = 60;
         b.description = String(i);
         b.moveTo(startX + i * gap, startY);
-        b.setStatus("unfinished");
+        b.setStatus(Status.Unfinished);
         s2Boxes.push(b);
       }
     });
@@ -262,7 +262,7 @@ export function createStackAnimationSteps(
       b.height = 60;
       b.description = String(i);
       b.moveTo(startX + i * gap, startY);
-      b.setStatus("unfinished");
+      b.setStatus(Status.Unfinished);
       s3Boxes.push(b);
     });
 
@@ -273,7 +273,7 @@ export function createStackAnimationSteps(
     s3GhostBox.height = 60;
     s3GhostBox.description = String(fullList.length - 1);
     s3GhostBox.moveTo(startX + (fullList.length - 1) * gap, startY);
-    s3GhostBox.setStatus("inactive");
+    s3GhostBox.setStatus(Status.Inactive);
     s3GhostBox.borderStyle = "dashed";
     s3GhostBox.appearAnim = "instant";
 
@@ -284,7 +284,7 @@ export function createStackAnimationSteps(
     s3MovingBox.height = 60;
     s3MovingBox.description = "removed_value";
     s3MovingBox.moveTo(950, startY);
-    s3MovingBox.setStatus("unfinished");
+    s3MovingBox.setStatus(Status.Unfinished);
 
     steps.push({
       stepNumber: 3,
@@ -306,7 +306,7 @@ export function createStackAnimationSteps(
     s4GhostBox.height = 60;
     s4GhostBox.description = String(fullList.length - 1);
     s4GhostBox.moveTo(startX + (fullList.length - 1) * gap, startY);
-    s4GhostBox.setStatus("inactive");
+    s4GhostBox.setStatus(Status.Inactive);
     s4GhostBox.borderStyle = "dashed";
 
     const s4ReturnBox = new Box();
@@ -316,13 +316,13 @@ export function createStackAnimationSteps(
     s4ReturnBox.height = 60;
     s4ReturnBox.description = "removed_value";
     s4ReturnBox.moveTo(950, startY);
-    s4ReturnBox.setStatus("target");
+    s4ReturnBox.setStatus(Status.Target);
 
     steps.push({
       stepNumber: 4,
       description: `回傳 ${value}`,
       elements: [
-        ...createBoxes(dataList, "unfinished"),
+        ...createBoxes(dataList, Status.Unfinished),
         createTopPointer(currentTop, startX, startY, gap),
         s4ReturnBox,
         s4GhostBox,
@@ -335,7 +335,7 @@ export function createStackAnimationSteps(
       stepNumber: 5,
       description: "Pop 完成",
       elements: [
-        ...createBoxes(dataList, "complete"),
+        ...createBoxes(dataList, Status.Complete),
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.POP_COMPLETE,
@@ -374,7 +374,7 @@ export function createStackAnimationSteps(
     });
 
     const s2Boxes = createBoxes(dataList);
-    s2Boxes[currentTop].setStatus("target");
+    s2Boxes[currentTop].setStatus(Status.Target);
 
     steps.push({
       stepNumber: 2,
@@ -388,7 +388,7 @@ export function createStackAnimationSteps(
       stepNumber: 3,
       description: "Peek 完成",
       elements: [
-        ...createBoxes(dataList, "complete"),
+        ...createBoxes(dataList, Status.Complete),
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,

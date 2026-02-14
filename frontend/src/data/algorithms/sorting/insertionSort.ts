@@ -31,7 +31,7 @@ const generateFrame = (
     box.autoScale = true;
 
     if (sortedIndices.has(i) && !overrideStatusMap[i]) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -77,7 +77,7 @@ export function createInsertionSortAnimationSteps(
         insertVal: keyVal,
         scanPos: i - 1,
       },
-      elements: generateFrame(arr, { [i]: "target" }, sortedIndices),
+      elements: generateFrame(arr, { [i]: Status.Target }, sortedIndices),
     });
 
     let j = i - 1;
@@ -100,7 +100,7 @@ export function createInsertionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [currentKeyIndex]: "target", [j]: "prepare" },
+          { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
           sortedIndices
         ),
       });
@@ -121,7 +121,7 @@ export function createInsertionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [j]: "target", [currentKeyIndex]: "target" },
+            { [j]: Status.Target, [currentKeyIndex]: Status.Target },
             sortedIndices
           ),
         });
@@ -141,7 +141,7 @@ export function createInsertionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [currentKeyIndex]: "target", [j]: "prepare" },
+            { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
             sortedIndices
           ),
         });
@@ -157,7 +157,7 @@ export function createInsertionSortAnimationSteps(
         insertPos: currentKeyIndex,
         insertVal: keyVal,
       },
-      elements: generateFrame(arr, { [currentKeyIndex]: "complete" }, sortedIndices),
+      elements: generateFrame(arr, { [currentKeyIndex]: Status.Complete }, sortedIndices),
     });
     
     steps.push({

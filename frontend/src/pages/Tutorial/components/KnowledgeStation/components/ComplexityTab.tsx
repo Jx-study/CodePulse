@@ -1,9 +1,9 @@
 import React from 'react';
-import type { Complexity } from '@/types';
+import type { ComplexityInfo } from '@/types';
 import styles from './ComplexityTab.module.scss';
 
 interface ComplexityTabProps {
-  complexity: Complexity;
+  complexity: ComplexityInfo;
 }
 
 const ComplexityTab: React.FC<ComplexityTabProps> = ({ complexity }) => {

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { DialogProps } from "@/types";
-import Icon from "../Icon";
 import Button from "../Button";
 import styles from "./Dialog.module.scss";
 

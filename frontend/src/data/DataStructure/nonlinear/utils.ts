@@ -56,7 +56,7 @@ export function createGridElements(
     box.width = cellSize;
     box.height = cellSize;
 
-    box.setStatus("inactive");
+    box.setStatus(Status.Inactive);
 
     elements.push(box);
   });
@@ -143,7 +143,7 @@ export const generateGraphFrame = (
     if (status) {
       newNode.setStatus(status);
     } else {
-      newNode.setStatus("inactive");
+      newNode.setStatus(Status.Inactive);
     }
 
     return newNode;
@@ -434,7 +434,7 @@ export function createTreeNodes(
       d.data.value,
       d.x + offsetX,
       d.y + offsetY,
-      "inactive",
+      Status.Inactive,
       descText,
     );
 

@@ -248,7 +248,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
       targetElement.removeEventListener('touchend', handleTouchEnd);
       targetElement.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [enablePinchZoom, enableMouseCenteredZoom, setZoomLevel, targetRef]); // 🔴 移除 zoomLevel 依賴
+  }, [enablePinchZoom, enableMouseCenteredZoom, setZoomLevel, targetRef]);
 
   return {
     zoomLevel,

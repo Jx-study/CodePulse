@@ -3,6 +3,8 @@
  * 狀態配置型別系統：支援每個演算法/資料結構自訂狀態顏色
  */
 
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+
 /**
  * Individual status definition
  * 單一狀態定義
@@ -37,11 +39,11 @@ export type StatusColorMap = Record<string, string>;
  */
 export const DEFAULT_STATUS_CONFIG: StatusConfig = {
   statuses: [
-    { key: "unfinished", label: "未完成", color: "#1d79cfff" },
-    { key: "prepare", label: "準備中", color: "#f59e0b" },
-    { key: "target", label: "目標", color: "#ff6b35" },
-    { key: "complete", label: "完成", color: "#46f336ff" },
-    { key: "inactive", label: "未啟用", color: "#555555" },
+    { key: Status.Unfinished, label: "未完成", color: "#1d79cfff" },
+    { key: Status.Prepare, label: "準備中", color: "#f59e0b" },
+    { key: Status.Target, label: "目標", color: "#ff6b35" },
+    { key: Status.Complete, label: "完成", color: "#46f336ff" },
+    { key: Status.Inactive, label: "未啟用", color: "#555555" },
   ],
 };
 

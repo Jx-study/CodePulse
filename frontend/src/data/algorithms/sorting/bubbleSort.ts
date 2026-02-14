@@ -24,7 +24,7 @@ const generateFrame = (
 
     // 如果該索引已經在已排序集合中，強制設為 complete
     if (sortedIndices.has(i)) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -67,8 +67,8 @@ export function createBubbleSortAnimationSteps(
       const val2 = arr[j + 1].value ?? 0;
 
       const compareStatus: Record<number, Status> = {};
-      compareStatus[j] = "prepare";
-      compareStatus[j + 1] = "prepare";
+      compareStatus[j] = Status.Prepare;
+      compareStatus[j + 1] = Status.Prepare;
 
       steps.push({
         stepNumber: steps.length + 1,
@@ -104,8 +104,8 @@ export function createBubbleSortAnimationSteps(
         arr[j] = arr[j + 1];
         arr[j + 1] = temp;
         swapped = true;
-        compareStatus[j] = "target";
-        compareStatus[j + 1] = "target";
+        compareStatus[j] = Status.Target;
+        compareStatus[j + 1] = Status.Target;
 
         steps.push({
           stepNumber: steps.length + 1,
