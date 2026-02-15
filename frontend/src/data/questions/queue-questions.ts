@@ -11,6 +11,39 @@ export const queueQuiz: PracticeQuiz = {
   passingScore: 60,
   questions: [
     {
+      id: "queue-tf-1",
+      type: "true-false",
+      category: "basic",
+      difficulty: 1,
+      difficultyRating: 800,
+      title: "Queue 是一種 LIFO (Last-In, First-Out) 的資料結構。",
+      options: [
+        { id: "true", text: "正確" },
+        { id: "false", text: "錯誤" },
+      ],
+      correctAnswer: "false", // 答案對應 option.id
+      explanation: "Queue 是 FIFO (First-In, First-Out)，Stack 才是 LIFO。",
+      points: 1,
+    },
+    {
+      id: "queue-multi-1",
+      type: "multiple-choice",
+      category: "application",
+      difficulty: 2,
+      difficultyRating: 1100,
+      title: "以下哪些場景適合使用 Queue (佇列)？(多選)",
+      options: [
+        { id: "opt1", text: "印表機的列印任務排程" },
+        { id: "opt2", text: "瀏覽器的上一頁功能" }, // 這是 Stack
+        { id: "opt3", text: "廣度優先搜尋 (BFS)" },
+        { id: "opt4", text: "遞迴函數的呼叫管理" }, // 這是 Stack
+      ],
+      correctAnswer: ["opt1", "opt3"], // 陣列形式
+      explanation:
+        "印表機排程和 BFS 都需要「先來先服務」的特性，因此使用 Queue。瀏覽器上一頁和遞迴呼叫則使用 Stack。",
+      points: 2,
+    },
+    {
       id: "queue-q1",
       type: "single-choice",
       category: "basic",

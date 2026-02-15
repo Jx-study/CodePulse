@@ -1,12 +1,17 @@
-import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import type { PracticeResult, PracticeSession } from '@/types/practice';
-import { getQuizByLevelId } from '@/data/questions';
-import { PracticeService } from '@/services/PracticeService';
-import Breadcrumb from '@/shared/components/Breadcrumb';
-import { ResultModal } from './components/ResultModal';
-import type { BreadcrumbItem } from '@/types';
-import styles from './Practice.module.scss';
+import { useState, useMemo, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import type {
+  PracticeResult,
+  PracticeSession,
+  Question,
+} from "@/types/practice";
+import { getQuizByLevelId } from "@/data/questions";
+import { PracticeService } from "@/services/PracticeService";
+import Breadcrumb from "@/shared/components/Breadcrumb";
+import { ResultModal } from "./components/ResultModal";
+import type { BreadcrumbItem } from "@/types";
+import styles from "./Practice.module.scss";
+import { shuffleArray, getOptionLabel } from "@/utils/random";
 
 function Practice() {
   const { category, levelId } = useParams<{
@@ -15,23 +20,51 @@ function Practice() {
   }>();
   const navigate = useNavigate();
 
-  const quiz = useMemo(() => {
+  const originalQuiz = useMemo(() => {
     if (!levelId) return null;
     return getQuizByLevelId(levelId);
   }, [levelId]);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<string, string | string[]>>({});
+  const [randomizedQuestions, setRandomizedQuestions] = useState<Question[]>(
+    [],
+  );
+  const [retryCount, setRetryCount] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<
+    Record<string, string | string[]>
+  >({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<PracticeResult | null>(null);
   const [startTime, setStartTime] = useState(Date.now());
+
+  useEffect(() => {
+    if (!originalQuiz) return;
+
+    const shuffledQuestions = shuffleArray(originalQuiz.questions).map((q) => {
+      const newQ = { ...q };
+
+      // 如果不是是非題，則隨機打亂選項順序
+      // (是非題通常固定 True 在前或 False 在前比較符合習慣，也可隨機)
+      if (q.type !== "true-false") {
+        newQ.options = shuffleArray(q.options);
+      }
+      return newQ;
+    });
+
+    setRandomizedQuestions(shuffledQuestions);
+    setUserAnswers({});
+    setCurrentQuestionIndex(0);
+    setStartTime(Date.now());
+    setShowResult(false);
+    setResult(null);
+  }, [originalQuiz, retryCount]);
 
   const handleSelectQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
   };
 
   const handleNext = () => {
-    if (quiz && currentQuestionIndex < quiz.questions.length - 1) {
+    if (originalQuiz && currentQuestionIndex < randomizedQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
@@ -42,24 +75,45 @@ function Practice() {
     }
   };
 
-  const handleAnswerChange = (questionId: string, answer: string | string[]) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionId]: answer,
-    }));
+  const handleAnswerChange = (
+    questionId: string,
+    optionId: string,
+    isMultiple: boolean,
+  ) => {
+    setUserAnswers((prev) => {
+      const currentAnswer = prev[questionId];
+
+      if (isMultiple) {
+        const currentList = Array.isArray(currentAnswer) ? currentAnswer : [];
+        if (currentList.includes(optionId)) {
+          // 取消勾選
+          return {
+            ...prev,
+            [questionId]: currentList.filter((id) => id !== optionId),
+          };
+        } else {
+          // 勾選
+          return { ...prev, [questionId]: [...currentList, optionId] };
+        }
+      } else {
+        // 單選/是非邏輯
+        return { ...prev, [questionId]: optionId };
+      }
+    });
   };
 
   const handleSubmit = () => {
-    if (!quiz) return;
+    if (!originalQuiz) return;
 
     const session: PracticeSession = {
       sessionId: `session-${Date.now()}`,
-      levelId: quiz.levelId,
-      questions: quiz.questions,
+      levelId: originalQuiz.levelId,
+      questions: originalQuiz.questions,
       userAnswers,
       startTime,
       endTime: Date.now(),
-      status: 'completed',
+      status: "completed",
+      userStartRating: 1000, // TODO: 目前先寫死為 1000 (預設值)，未來可從 UserContext 獲取
     };
 
     const calculatedResult = PracticeService.calculateResult(session);
@@ -68,26 +122,28 @@ function Practice() {
   };
 
   const handleRetry = () => {
-    setUserAnswers({});
-    setCurrentQuestionIndex(0);
-    setShowResult(false);
-    setResult(null);
-    setStartTime(Date.now());
+    setRetryCount((prev) => prev + 1);
   };
 
   const handleBackToDashboard = () => {
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
-  if (!quiz) {
+  if (randomizedQuestions.length === 0) return <div>Loading...</div>;
+
+  if (!originalQuiz) {
     return (
       <div className={styles.practicePage}>
         <div className={styles.errorContainer}>
           <h2 className={styles.errorTitle}>找不到題庫</h2>
           <p className={styles.errorMessage}>
-            抱歉，無法找到「{levelId}」的練習題庫。請返回 Dashboard 選擇其他關卡。
+            抱歉，無法找到「{levelId}」的練習題庫。請返回 Dashboard
+            選擇其他關卡。
           </p>
-          <button className={styles.errorButton} onClick={handleBackToDashboard}>
+          <button
+            className={styles.errorButton}
+            onClick={handleBackToDashboard}
+          >
             返回 Dashboard
           </button>
         </div>
@@ -95,15 +151,17 @@ function Practice() {
     );
   }
 
-  const currentQuestion = quiz.questions[currentQuestionIndex];
+  const currentQuestion = randomizedQuestions[currentQuestionIndex];
+  const isMultipleChoice = currentQuestion.type === "multiple-choice";
   const answeredCount = Object.keys(userAnswers).length;
 
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: category === 'data-structures' ? '數據結構' : category || '未知分類',
+      label:
+        category === "data-structures" ? "資料結構" : category || "未知分類",
       path: `/dashboard?category=${category}`,
     },
-    { label: quiz.levelName, path: null },
+    { label: originalQuiz.levelName, path: null },
   ];
 
   return (
@@ -117,12 +175,12 @@ function Practice() {
           <div className={styles.sidebarSection}>
             <h3 className={styles.sidebarTitle}>題目列表</h3>
             <div className={styles.questionList}>
-              {quiz.questions.map((q, index) => (
+              {randomizedQuestions.map((q, index) => (
                 <button
                   key={q.id}
                   className={`${styles.questionItem} ${
-                    index === currentQuestionIndex ? styles.active : ''
-                  } ${userAnswers[q.id] ? styles.answered : ''}`}
+                    index === currentQuestionIndex ? styles.active : ""
+                  } ${userAnswers[q.id] ? styles.answered : ""}`}
                   onClick={() => handleSelectQuestion(index)}
                 >
                   題目 {index + 1}
@@ -134,14 +192,14 @@ function Practice() {
           <div className={styles.sidebarSection}>
             <h3 className={styles.sidebarTitle}>進度</h3>
             <p>
-              已答題: {answeredCount} / {quiz.questions.length}
+              已答題: {answeredCount} / {randomizedQuestions.length}
             </p>
           </div>
 
           <div className={styles.sidebarSection}>
             <h3 className={styles.sidebarTitle}>通關條件</h3>
             <ul className={styles.requirementList}>
-              <li>正確率 {quiz.passingScore}% 以上</li>
+              <li>正確率 {originalQuiz.passingScore}% 以上</li>
               <li>完成所有題目</li>
             </ul>
           </div>
@@ -149,7 +207,7 @@ function Practice() {
           <button
             className={styles.submitAllButton}
             onClick={handleSubmit}
-            disabled={answeredCount < quiz.questions.length}
+            disabled={answeredCount < randomizedQuestions.length}
           >
             提交全部
           </button>
@@ -158,7 +216,14 @@ function Practice() {
         <div className={styles.workspace}>
           <div className={styles.questionHeader}>
             <h2 className={styles.questionTitle}>
-              題目 {currentQuestionIndex + 1} of {quiz.questions.length}
+              題目 {currentQuestionIndex + 1} of {randomizedQuestions.length}
+              <span className={styles.typeBadge}>
+                {isMultipleChoice
+                  ? " (多選)"
+                  : currentQuestion.type === "true-false"
+                    ? " (是非)"
+                    : " (單選)"}
+              </span>
             </h2>
           </div>
 
@@ -166,26 +231,40 @@ function Practice() {
             <p className={styles.questionText}>{currentQuestion.title}</p>
 
             <div className={styles.optionList}>
-              {currentQuestion.options.map((option) => (
-                <label
-                  key={option.id}
-                  className={`${styles.optionItem} ${
-                    userAnswers[currentQuestion.id] === option.id ? styles.selected : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={currentQuestion.id}
-                    value={option.id}
-                    checked={userAnswers[currentQuestion.id] === option.id}
-                    onChange={() => handleAnswerChange(currentQuestion.id, option.id)}
-                    className={styles.optionInput}
-                  />
-                  <span className={styles.optionLabel}>
-                    ({option.id}) {option.text}
-                  </span>
-                </label>
-              ))}
+              {currentQuestion.options.map((option, index) => {
+                const currentAns = userAnswers[currentQuestion.id];
+                const isChecked = isMultipleChoice
+                  ? Array.isArray(currentAns) && currentAns.includes(option.id)
+                  : currentAns === option.id;
+                return (
+                  <label
+                    key={option.id}
+                    className={`${styles.optionItem} ${
+                      userAnswers[currentQuestion.id] === option.id
+                        ? styles.selected
+                        : ""
+                    }`}
+                  >
+                    <input
+                      type={isMultipleChoice ? "checkbox" : "radio"}
+                      name={currentQuestion.id}
+                      value={option.id}
+                      checked={isChecked}
+                      onChange={() =>
+                        handleAnswerChange(
+                          currentQuestion.id,
+                          option.id,
+                          isMultipleChoice,
+                        )
+                      }
+                      className={styles.optionInput}
+                    />
+                    <span className={styles.optionLabel}>
+                      ({getOptionLabel(index)}) {option.text}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
@@ -200,7 +279,7 @@ function Practice() {
             <button
               className={styles.navButton}
               onClick={handleNext}
-              disabled={currentQuestionIndex === quiz.questions.length - 1}
+              disabled={currentQuestionIndex === randomizedQuestions.length - 1}
             >
               下一題
             </button>
@@ -212,7 +291,7 @@ function Practice() {
         <ResultModal
           isOpen={showResult}
           result={result}
-          questions={quiz.questions}
+          questions={randomizedQuestions}
           onRetry={handleRetry}
           onBackToDashboard={handleBackToDashboard}
         />

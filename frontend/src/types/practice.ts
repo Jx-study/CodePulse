@@ -8,7 +8,7 @@
 // ==========================================
 
 export interface Option {
-  id: "A" | "B" | "C" | "D" | "E";
+  id: string;
   text: string;
 }
 
