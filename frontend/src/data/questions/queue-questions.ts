@@ -65,11 +65,96 @@ const circularQueueFillCode = `class CircularQueue:
             return None
         return self.queue[self.front]`;
 
+const printBufferCode = `class PrintBuffer:
+    def __init__(self, size):
+        self.capacity = size
+        self.queue = []
+
+    def add_job(self, document):
+        if len(self.queue) >= self.capacity:
+            return "Buffer Full"
+        self.queue.append(document)
+        return "Added"
+
+    def process_job(self):
+        if not self.queue:
+            return "No Jobs"
+        return self.queue.pop(0)  # List pop(0) acts as dequeue`;
+
 export const queueQuiz: PracticeQuiz = {
   levelId: "queue",
   levelName: "佇列 (Queue)",
   passingScore: 60,
+  groups: [
+    {
+      id: "group-print-buffer",
+      title: "題組：印表機緩衝區管理",
+      description:
+        "某辦公室使用一個容量為 3 的印表機緩衝區 (Print Buffer) 來管理列印工作。該緩衝區使用 Queue 資料結構實作，採 FIFO 原則。請參考下方實作程式碼回答下列問題。",
+      code: printBufferCode,
+      language: "python",
+      questionIds: ["q-group-1", "q-group-2", "q-group-3"],
+    },
+  ],
   questions: [
+    {
+      id: "q-group-1",
+      groupId: "group-print-buffer",
+      type: "single-choice",
+      category: "application",
+      difficulty: 2,
+      difficultyRating: 1000,
+      title:
+        "若依序執行：add_job('DocA'), add_job('DocB'), add_job('DocC'), add_job('DocD')。請問最後一個操作的回傳值是什麼？",
+      options: [
+        { id: "A", text: "Added" },
+        { id: "B", text: "Buffer Full" }, // 容量為 3，第四個會滿
+        { id: "C", text: "Error" },
+        { id: "D", text: "DocD" },
+      ],
+      correctAnswer: "B",
+      explanation:
+        "緩衝區容量為 3。加入 A, B, C 後佇列已滿 ([A, B, C])。第四個 DocD 加入時會觸發 'Buffer Full'。",
+      points: 2,
+    },
+    {
+      id: "q-group-2",
+      groupId: "group-print-buffer",
+      type: "single-choice",
+      category: "application",
+      difficulty: 2,
+      difficultyRating: 1100,
+      title:
+        "承上題狀態 (Queue內容為 [DocA, DocB, DocC])，若現在執行一次 process_job()，哪一份文件會被印出？",
+      options: [
+        { id: "A", text: "DocA" },
+        { id: "B", text: "DocB" },
+        { id: "C", text: "DocC" },
+        { id: "D", text: "No Jobs" },
+      ],
+      correctAnswer: "A",
+      explanation:
+        "Queue 是 FIFO 結構，process_job 使用 pop(0) 移除最前端元素。DocA 是最早進入的，因此最先被移除。",
+      points: 2,
+    },
+    {
+      id: "q-group-3",
+      groupId: "group-print-buffer",
+      type: "fill-code",
+      category: "complexity",
+      difficulty: 3,
+      difficultyRating: 1300,
+      title:
+        "Python 的 list `pop(0)` 操作雖然能模擬 dequeue，但在時間複雜度上並不高效。請問 `pop(0)` 的時間複雜度是 O(___)？若要達到 O(1)，應該改用 Python `collections` 模組中的哪個資料結構？(請填入兩個答案)",
+      options: [
+        { id: "1", text: "複雜度" },
+        { id: "2", text: "資料結構" },
+      ],
+      correctAnswer: ["n", "deque"],
+      explanation:
+        "1. Python list 底層是陣列，移除第一個元素需要移動剩餘所有元素，故為 O(n)。\n2. `collections.deque` (雙端佇列) 支援 O(1) 的兩端操作。",
+      points: 3,
+    },
     {
       id: "queue-code-fill-1",
       type: "fill-code",

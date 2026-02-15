@@ -1,5 +1,48 @@
-@import '@/shared/styles/_variables';
-@import '@/shared/styles/_mixins';
+@import "@/shared/styles/_variables";
+@import "@/shared/styles/_mixins";
+
+.groupContextContainer {
+  background-color: rgba(74, 144, 226, 0.05);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.groupBadge {
+  background-color: #4a90e2;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: 18px;
+  color: #4a90e2;
+}
+
+.groupDesc {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.groupCodeBlock {
+  border: 1px solid #444;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 50vh;
+}
 
 .practicePage {
   min-height: 100vh;
@@ -61,6 +104,7 @@
   text-align: left;
   font-size: $font-sm;
   color: var(--text-secondary);
+  position: relative;
 
   &:hover {
     border-color: $primary-color;
@@ -79,7 +123,7 @@
     color: $success-color;
 
     &::after {
-      content: ' ✓';
+      content: " ✓";
     }
   }
 }
@@ -103,7 +147,9 @@
   border-radius: $radius-lg;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   margin-top: auto;
 
   &:hover:not(:disabled) {
@@ -254,7 +300,9 @@
   border-radius: $radius-lg;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 
   &:hover {
     transform: translateY(-2px);

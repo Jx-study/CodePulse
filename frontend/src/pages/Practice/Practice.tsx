@@ -11,9 +11,15 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
 import styles from "./Practice.module.scss";
-import { shuffleArray, getOptionLabel } from "@/utils/random";
+import {
+  shuffleQuestionsWithGroups,
+  shuffleArray,
+  getOptionLabel,
+} from "@/utils/random";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Input from "@/shared/components/Input";
+
+const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
 
 function Practice() {
   const { category, levelId } = useParams<{
@@ -39,26 +45,43 @@ function Practice() {
   const [result, setResult] = useState<PracticeResult | null>(null);
   const [startTime, setStartTime] = useState(Date.now());
 
+  const getCurrentGroup = (question: Question) => {
+    if (!question.groupId || !originalQuiz?.groups) return null;
+    return originalQuiz.groups.find((g) => g.id === question.groupId);
+  };
+
+  const activeGroupIds = useMemo(() => {
+    const ids: string[] = [];
+    randomizedQuestions.forEach((q) => {
+      if (q.groupId && !ids.includes(q.groupId)) {
+        ids.push(q.groupId);
+      }
+    });
+    return ids;
+  }, [randomizedQuestions]);
+
   useEffect(() => {
     if (!originalQuiz) return;
 
-    const shuffledQuestions = shuffleArray(originalQuiz.questions).map((q) => {
+    const shuffledQuestionsList = shuffleQuestionsWithGroups(
+      originalQuiz.questions,
+    );
+
+    // 選項隨機化
+    const finalQuestions = shuffledQuestionsList.map((q) => {
       const newQ = { ...q };
 
-      // 如果不是是非題，則隨機打亂選項順序
-      // (是非題通常固定 True 在前或 False 在前比較符合習慣，也可隨機)
       if (
         q.type !== "true-false" &&
         q.type !== "predict-line" &&
-        q.type !== "fill-code" &&
-        newQ.options
+        q.type !== "fill-code"
       ) {
-        newQ.options = shuffleArray(newQ.options);
+        if (newQ.options) newQ.options = shuffleArray(newQ.options);
       }
       return newQ;
     });
 
-    setRandomizedQuestions(shuffledQuestions);
+    setRandomizedQuestions(finalQuestions);
     setUserAnswers({});
     setCurrentQuestionIndex(0);
     setStartTime(Date.now());
@@ -174,11 +197,15 @@ function Practice() {
   }
 
   const currentQuestion = randomizedQuestions[currentQuestionIndex];
+  const currentGroup = getCurrentGroup(currentQuestion);
   const isMultipleChoice = currentQuestion.type === "multiple-choice";
   const isPredictLineQuestion = currentQuestion.type === "predict-line";
   const isFillCodeQuestion = currentQuestion.type === "fill-code";
   const showCodeEditor = isPredictLineQuestion || isFillCodeQuestion;
   const answeredCount = Object.keys(userAnswers).length;
+  const isLastQuestion =
+    currentQuestionIndex === randomizedQuestions.length - 1;
+  const canSubmit = answeredCount === randomizedQuestions.length;
 
   const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -200,17 +227,67 @@ function Practice() {
           <div className={styles.sidebarSection}>
             <h3 className={styles.sidebarTitle}>題目列表</h3>
             <div className={styles.questionList}>
-              {randomizedQuestions.map((q, index) => (
-                <button
-                  key={q.id}
-                  className={`${styles.questionItem} ${
-                    index === currentQuestionIndex ? styles.active : ""
-                  } ${userAnswers[q.id] ? styles.answered : ""}`}
-                  onClick={() => handleSelectQuestion(index)}
-                >
-                  題目 {index + 1}
-                </button>
-              ))}
+              {/* 判斷是否為題組，給予特殊樣式 */}
+              {randomizedQuestions.map((q, index) => {
+                const group = getCurrentGroup(q);
+
+                let groupIndex = -1;
+                let groupColor = "transparent";
+
+                if (group && q.groupId) {
+                  groupIndex = activeGroupIds.indexOf(q.groupId);
+                  groupColor = GROUP_COLORS[groupIndex % GROUP_COLORS.length];
+                }
+
+                const prevQ = randomizedQuestions[index - 1];
+                const isNewSection = index > 0 && q.groupId !== prevQ?.groupId;
+
+                let itemClass = styles.questionItem;
+                if (index === currentQuestionIndex)
+                  itemClass += ` ${styles.active}`;
+                if (userAnswers[q.id]) itemClass += ` ${styles.answered}`;
+
+                const itemStyle: React.CSSProperties = {};
+
+                // 設定題組標示線顏色
+                if (group) {
+                  itemStyle.borderLeft = `4px solid ${groupColor}`;
+                }
+
+                // 設定物理間距
+                if (isNewSection) {
+                  itemStyle.marginTop = "12px";
+                }
+
+                const groupStyle = group
+                  ? {
+                      borderLeft: "4px solid #4a90e2",
+                    }
+                  : {};
+
+                return (
+                  <button
+                    key={q.id}
+                    className={itemClass}
+                    style={groupStyle}
+                    onClick={() => handleSelectQuestion(index)}
+                  >
+                    {group && (
+                      <span
+                        style={{
+                          color: groupColor,
+                          fontWeight: "bold",
+                          marginRight: "4px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        G{groupIndex + 1}.
+                      </span>
+                    )}
+                    題目 {index + 1}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -239,6 +316,31 @@ function Practice() {
         </div>
 
         <div className={styles.workspace}>
+          {currentGroup && (
+            <div className={styles.groupContextContainer}>
+              <div className={styles.groupHeader}>
+                <span className={styles.groupBadge}>題組</span>
+                <h3 className={styles.groupTitle}>{currentGroup.title}</h3>
+              </div>
+
+              <div className={styles.groupContent}>
+                <p className={styles.groupDesc}>{currentGroup.description}</p>
+                {currentGroup.code && (
+                  <div className={styles.groupCodeBlock}>
+                    <CodeEditor
+                      mode="single"
+                      language={currentGroup.language || "python"}
+                      value={currentGroup.code}
+                      readOnly={true}
+                      theme="auto"
+                      showLineNumbers={true}
+                      className={styles.groupEditor}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <div className={styles.questionHeader}>
             <h2 className={styles.questionTitle}>
               題目 {currentQuestionIndex + 1} of {randomizedQuestions.length}
@@ -407,10 +509,10 @@ function Practice() {
             </button>
             <button
               className={styles.navButton}
-              onClick={handleNext}
-              disabled={currentQuestionIndex === randomizedQuestions.length - 1}
+              onClick={isLastQuestion ? handleSubmit : handleNext}
+              disabled={isLastQuestion ? !canSubmit : false}
             >
-              下一題
+              {isLastQuestion ? "提交" : "下一題"}
             </button>
           </div>
         </div>

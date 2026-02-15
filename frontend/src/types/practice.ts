@@ -32,12 +32,23 @@ export interface Question {
   correctAnswer: string | string[];
   explanation: string;
   points: number;
+  groupId?: string;
+}
+
+export interface QuestionGroup {
+  id: string;
+  title: string; // 題組標題
+  description: string; // 題組共用的前提/情境描述
+  code?: string; // 題組共用的程式碼 (如果有)
+  language?: string;
+  questionIds: string[]; // 包含的子題目 ID 列表
 }
 
 export interface PracticeQuiz {
   levelId: string; // 'stack'
   levelName: string; // '堆疊 (Stack)'
   questions: Question[];
+  groups?: QuestionGroup[];
   passingScore: number;
   timeLimit?: number; // 時間限制（秒，可選）
 }
