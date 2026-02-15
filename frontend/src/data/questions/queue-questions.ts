@@ -5,11 +5,59 @@
 
 import type { PracticeQuiz } from "@/types/practice";
 
+const circularQueueCode = `class CircularQueue:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.queue = [None] * capacity
+        self.front = 0
+        self.rear = 0
+        self.size = 0
+
+    def enqueue(self, value):
+        if self.size == self.capacity:
+            raise Exception("Queue Overflow")
+
+        self.queue[self.rear] = value
+        self.rear = (self.rear + 1) % self.capacity
+        self.size += 1
+
+    def dequeue(self):
+        if self.size == 0:
+            raise Exception("Queue Underflow")
+
+        value = self.queue[self.front]
+        self.front = (self.front + 1) % self.capacity
+        self.size -= 1
+        return value
+
+    def peek(self):
+        if self.size == 0:
+            return None
+        return self.queue[self.front]`;
+
 export const queueQuiz: PracticeQuiz = {
   levelId: "queue",
   levelName: "佇列 (Queue)",
   passingScore: 60,
   questions: [
+    {
+      id: "queue-code-1",
+      type: "predict-line",
+      category: "application",
+      difficulty: 3,
+      difficultyRating: 1500,
+      title:
+        "請閱讀右側 (或下方) 的 Circular Queue 實作程式碼。假設目前 Queue 內資料為 [1, 2, 3] (Capacity=5)，且 front=0, rear=3, size=3。\n\n若執行一次 `dequeue()` 操作，請依序填寫程式執行的行號序列 (以空格分隔)。",
+      code: circularQueueCode,
+      language: "python",
+      // 選項可以是空的，因為這是填充題
+      options: [],
+      // 正確答案 (字串形式)
+      correctAnswer: "17 18 21 22 23 24",
+      explanation:
+        "執行流程如下：\n1. 呼叫 dequeue (L17)\n2. 檢查 size 是否為 0 (L18)，目前 size=3，條件為 False\n3. 取出 value (L21)\n4. 更新 front 指標 (L22)\n5. 更新 size (L23)\n6. 回傳 value (L24)",
+      points: 5,
+    },
     {
       id: "queue-tf-1",
       type: "true-false",

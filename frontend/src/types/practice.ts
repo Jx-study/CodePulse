@@ -14,12 +14,16 @@ export interface Option {
 
 export interface Question {
   id: string;
-  type: "single-choice" | "multiple-choice" | "true-false";
+  type: "single-choice" | "multiple-choice" | "true-false" | "predict-line";
   category: "basic" | "application" | "complexity";
   difficulty: 1 | 2 | 3;
   difficultyRating?: number;
   title: string;
-  options: Option[];
+  options?: Option[];
+
+  code?: string; // 程式碼內容
+  language?: string; // 程式語言 (python, java, etc.)
+
   correctAnswer: string | string[];
   explanation: string;
   points: number;

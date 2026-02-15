@@ -30,16 +30,20 @@ const Validators: Record<string, ValidatorFn> = {
 
   "true-false": (q, ans) => ans === q.correctAnswer,
 
-  // TODO: 預測行數
-  "predict-output": (q, ans) => {
-    // 這裡可以做去空白、大小寫忽略等處理
-    return String(ans).trim() === String(q.correctAnswer).trim();
-  },
+  // 預測行數 / 填充題驗證
+  "predict-line": (q, ans) => {
+    if (!ans || typeof ans !== "string") return false;
 
-  // TODO: 程式碼填空
-  "code-fill": (q, ans) => {
-    // 可能需要更複雜的 Regex 驗證
-    return ans === q.correctAnswer;
+    // 正規化函式：將逗號替換為空格，去除多餘空格，轉為單一字串比較
+    // 例如: "17, 18, 21" -> "17 18 21"
+    const normalize = (str: string) =>
+      str.replace(/,/g, " ").replace(/\s+/g, " ").trim();
+
+    const correctStr = Array.isArray(q.correctAnswer)
+      ? q.correctAnswer.join(" ")
+      : q.correctAnswer;
+
+    return normalize(ans) === normalize(correctStr);
   },
 };
 

@@ -10,6 +10,8 @@
 
 import React, { useState } from "react";
 import type { WrongQuestion, Question } from "@/types/practice";
+import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import { getOptionLabel } from "@/utils/random";
 import styles from "./ResultModal.module.scss";
 
 interface WrongAnswerListProps {
@@ -28,7 +30,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
   };
 
   const getOptionText = (question: Question, optionId: string): string => {
-    const option = question.options.find((o) => o.id === optionId);
+    const option = question.options?.find((o) => o.id === optionId);
     return option ? `(${option.id}) ${option.text}` : optionId;
   };
 
@@ -36,6 +38,12 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
     question: Question,
     answer: string | string[],
   ): string => {
+    // 如果是填充題/預測行數，直接回傳答案
+    if (question.type === "predict-line") {
+      return Array.isArray(answer) ? answer.join(" ") : answer;
+    }
+
+    // 選擇題則嘗試轉換為選項文字
     if (Array.isArray(answer)) {
       return answer.map((a) => getOptionText(question, a)).join(", ");
     }
@@ -86,6 +94,60 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
               {isExpanded && (
                 <div className={styles.wrongAnswerDetail}>
                   <p className={styles.fullQuestion}>{question.title}</p>
+
+                  {/* 1. 如果有程式碼，顯示 CodeEditor */}
+                  <div className={styles.contextSection}>
+                    {question.code && (
+                      <div className={styles.reviewCodeBlock}>
+                        <CodeEditor
+                          mode="single"
+                          language={question.language || "python"}
+                          value={question.code}
+                          readOnly={true}
+                          theme="auto"
+                          showLineNumbers={true}
+                          className={styles.reviewEditor}
+                        />
+                      </div>
+                    )}
+                    {question.options && question.options.length > 0 && (
+                      <div className={styles.reviewOptionList}>
+                        {question.options.map((opt, i) => {
+                          // 判斷是否為正確答案
+                          const isCorrect = Array.isArray(wrongQ.correctAnswer)
+                            ? wrongQ.correctAnswer.includes(opt.id)
+                            : wrongQ.correctAnswer === opt.id;
+
+                          // 判斷用戶是否選擇了這個 (包含選錯的)
+                          const isUserSelected = Array.isArray(
+                            wrongQ.userAnswer,
+                          )
+                            ? wrongQ.userAnswer.includes(opt.id)
+                            : wrongQ.userAnswer === opt.id;
+
+                          let optionClass = styles.reviewOptionItem;
+                          if (isCorrect) optionClass += ` ${styles.optCorrect}`;
+                          if (isUserSelected && !isCorrect)
+                            optionClass += ` ${styles.optWrong}`;
+
+                          return (
+                            <div key={opt.id} className={optionClass}>
+                              <span className={styles.optLabel}>
+                                ({getOptionLabel(i)})
+                              </span>
+                              <span className={styles.optText}>{opt.text}</span>
+                              {isCorrect && (
+                                <span className={styles.iconCheck}>✅</span>
+                              )}
+                              {isUserSelected && !isCorrect && (
+                                <span className={styles.iconCross}>❌</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
 
                   <div className={styles.answerComparison}>
                     <div className={styles.userAnswer}>

@@ -12,6 +12,8 @@ import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
 import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
+import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import Input from "@/shared/components/Input";
 
 function Practice() {
   const { category, levelId } = useParams<{
@@ -45,8 +47,12 @@ function Practice() {
 
       // 如果不是是非題，則隨機打亂選項順序
       // (是非題通常固定 True 在前或 False 在前比較符合習慣，也可隨機)
-      if (q.type !== "true-false") {
-        newQ.options = shuffleArray(q.options);
+      if (
+        q.type !== "true-false" &&
+        q.type !== "predict-line" &&
+        newQ.options
+      ) {
+        newQ.options = shuffleArray(newQ.options);
       }
       return newQ;
     });
@@ -153,6 +159,7 @@ function Practice() {
 
   const currentQuestion = randomizedQuestions[currentQuestionIndex];
   const isMultipleChoice = currentQuestion.type === "multiple-choice";
+  const isCodeQuestion = currentQuestion.type === "predict-line";
   const answeredCount = Object.keys(userAnswers).length;
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -220,9 +227,11 @@ function Practice() {
               <span className={styles.typeBadge}>
                 {isMultipleChoice
                   ? " (多選)"
-                  : currentQuestion.type === "true-false"
-                    ? " (是非)"
-                    : " (單選)"}
+                  : isCodeQuestion
+                    ? " (填空)"
+                    : currentQuestion.type === "true-false"
+                      ? " (是非)"
+                      : " (單選)"}
               </span>
             </h2>
           </div>
@@ -230,42 +239,92 @@ function Practice() {
           <div className={styles.questionContent}>
             <p className={styles.questionText}>{currentQuestion.title}</p>
 
-            <div className={styles.optionList}>
-              {currentQuestion.options.map((option, index) => {
-                const currentAns = userAnswers[currentQuestion.id];
-                const isChecked = isMultipleChoice
-                  ? Array.isArray(currentAns) && currentAns.includes(option.id)
-                  : currentAns === option.id;
-                return (
-                  <label
-                    key={option.id}
-                    className={`${styles.optionItem} ${
-                      userAnswers[currentQuestion.id] === option.id
-                        ? styles.selected
-                        : ""
-                    }`}
-                  >
-                    <input
-                      type={isMultipleChoice ? "checkbox" : "radio"}
-                      name={currentQuestion.id}
-                      value={option.id}
-                      checked={isChecked}
-                      onChange={() =>
-                        handleAnswerChange(
-                          currentQuestion.id,
-                          option.id,
-                          isMultipleChoice,
-                        )
-                      }
-                      className={styles.optionInput}
-                    />
-                    <span className={styles.optionLabel}>
-                      ({getOptionLabel(index)}) {option.text}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
+            {isCodeQuestion && currentQuestion.code && (
+              <div
+                style={{
+                  marginTop: "16px",
+                  marginBottom: "16px",
+                  border: "1px solid #444",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                  height: "400px",
+                }}
+              >
+                <CodeEditor
+                  key={`editor-${currentQuestion.id}`} // 切換題目時重置
+                  mode="single"
+                  language={currentQuestion.language || "python"}
+                  value={currentQuestion.code}
+                  readOnly={true}
+                  theme="auto"
+                  showLineNumbers={true}
+                />
+              </div>
+            )}
+
+            {isCodeQuestion ? (
+              <div style={{ marginTop: "12px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontSize: "14px",
+                  }}
+                >
+                  請輸入行號 (例如: 12 13 15)：
+                </label>
+                <Input
+                  type="text"
+                  value={(userAnswers[currentQuestion.id] as string) || ""}
+                  onChange={(e) =>
+                    handleAnswerChange(
+                      currentQuestion.id,
+                      e.target.value,
+                      false,
+                    )
+                  }
+                  placeholder="輸入答案..."
+                />
+              </div>
+            ) : (
+              <div className={styles.optionList}>
+                {currentQuestion.options?.map((option, index) => {
+                  const currentAns = userAnswers[currentQuestion.id];
+                  const isChecked = isMultipleChoice
+                    ? Array.isArray(currentAns) &&
+                      currentAns.includes(option.id)
+                    : currentAns === option.id;
+                  return (
+                    <label
+                      key={option.id}
+                      className={`${styles.optionItem} ${
+                        userAnswers[currentQuestion.id] === option.id
+                          ? styles.selected
+                          : ""
+                      }`}
+                    >
+                      <input
+                        type={isMultipleChoice ? "checkbox" : "radio"}
+                        name={currentQuestion.id}
+                        value={option.id}
+                        checked={isChecked}
+                        onChange={() =>
+                          handleAnswerChange(
+                            currentQuestion.id,
+                            option.id,
+                            isMultipleChoice,
+                          )
+                        }
+                        className={styles.optionInput}
+                      />
+                      <span className={styles.optionLabel}>
+                        ({getOptionLabel(index)}) {option.text}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className={styles.actionButtons}>
