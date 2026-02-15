@@ -11,12 +11,12 @@ import {
 
 const TAGS = {
   INIT: "INIT",
-  // Enqueue
+
   ENQUEUE_START: "ENQUEUE_START",
   ENQUEUE_INC_REAR: "ENQUEUE_INC_REAR",
   ENQUEUE_ASSIGN: "ENQUEUE_ASSIGN",
   ENQUEUE_COMPLETE: "ENQUEUE_COMPLETE",
-  // Dequeue
+
   DEQUEUE_START: "DEQUEUE_START",
   DEQUEUE_CHECK_EMPTY: "DEQUEUE_CHECK_EMPTY",
   DEQUEUE_ERROR: "DEQUEUE_ERROR",
@@ -25,7 +25,7 @@ const TAGS = {
   DEQUEUE_DEC_REAR: "DEQUEUE_DEC_REAR",
   DEQUEUE_RETURN: "DEQUEUE_RETURN",
   DEQUEUE_COMPLETE: "DEQUEUE_COMPLETE",
-  // Peek
+
   PEEK_START: "PEEK_START",
   PEEK_CHECK_EMPTY: "PEEK_CHECK_EMPTY",
   PEEK_ERROR: "PEEK_ERROR",
@@ -33,7 +33,7 @@ const TAGS = {
   PEEK_COMPLETE: "PEEK_COMPLETE",
 };
 
-const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
+const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
   return baseCreateBoxes(list, {
     startX: 100,
     startY: 200,
@@ -43,22 +43,27 @@ const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
   });
 };
 
-const createQueuePointers = (frontIndex: number, rearIndex: number, startX: number, startY: number, gap: number) => {
+const createQueuePointers = (
+  frontIndex: number,
+  rearIndex: number,
+  startX: number,
+  startY: number,
+  gap: number,
+) => {
   const pointers: Pointer[] = [];
-  
+
   if (frontIndex >= 0) {
     const frontPtr = new Pointer("Front");
     frontPtr.id = `front-pointer`;
-    // If indices are same, stack them vertically
-    const xOffset = (frontIndex === rearIndex) ? -20 : 0;
+
+    const xOffset = frontIndex === rearIndex ? -20 : 0;
     frontPtr.moveTo(startX + frontIndex * gap + xOffset, startY + 50);
     pointers.push(frontPtr);
   }
 
-  // Always show Rear pointer, even if index is -1
   const rearPtr = new Pointer("Rear");
-  rearPtr.id = `rear-pointer`;    
-  const rearXOffset = (frontIndex === rearIndex) ? 20 : 0;
+  rearPtr.id = `rear-pointer`;
+  const rearXOffset = frontIndex === rearIndex ? 20 : 0;
   rearPtr.moveTo(startX + rearIndex * gap + rearXOffset, startY + 50);
   pointers.push(rearPtr);
 
@@ -67,7 +72,7 @@ const createQueuePointers = (frontIndex: number, rearIndex: number, startX: numb
 
 export function createQueueAnimationSteps(
   dataList: BoxData[],
-  action?: ActionType
+  action?: ActionType,
 ): AnimationStep[] {
   if (dataList == undefined) {
     dataList = [];
@@ -77,29 +82,29 @@ export function createQueueAnimationSteps(
   const startY = 200;
   const gap = 70;
 
-  // Initial State
   if (!action) {
     const size = dataList.length;
     const rear = size - 1;
     steps.push({
       stepNumber: 1,
       description: "Queue 初始化",
-      elements: [...createBoxes(dataList), ...createQueuePointers(0, rear, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList),
+        ...createQueuePointers(0, rear, startX, startY, gap),
+      ],
       actionTag: TAGS.INIT,
-      variables: { front: 0, rear: rear }
+      variables: { front: 0, rear: rear },
     });
     return steps;
   }
 
   const { type, value } = action;
 
-  // Enqueue Operation
   if (type === "add") {
     const oldList = dataList.slice(0, -1);
     const newNode = dataList[dataList.length - 1];
     let currentRear = oldList.length - 1;
 
-    // Step 1: Start - Show new value
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
@@ -107,18 +112,21 @@ export function createQueueAnimationSteps(
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
-    s1NewBox.setStatus("prepare");
+    s1NewBox.setStatus(Status.Prepare);
     s1NewBox.description = "New";
 
     steps.push({
       stepNumber: 1,
       description: `Enqueue(${value}): 準備入列`,
-      elements: [...s1Boxes, s1NewBox, ...createQueuePointers(0, currentRear, startX, startY, gap)],
+      elements: [
+        ...s1Boxes,
+        s1NewBox,
+        ...createQueuePointers(0, currentRear, startX, startY, gap),
+      ],
       actionTag: TAGS.ENQUEUE_START,
-      variables: { front: 0, rear: currentRear, value }
+      variables: { front: 0, rear: currentRear, value },
     });
 
-    // Step 2: Increment Rear (Show ghost slot)
     currentRear++;
     const s2Boxes = createBoxes(oldList);
     const emptyBox = new Box();
@@ -127,7 +135,7 @@ export function createQueueAnimationSteps(
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentRear * gap, startY);
-    emptyBox.setStatus("inactive");
+    emptyBox.setStatus(Status.Inactive);
     emptyBox.borderStyle = "dashed";
     emptyBox.description = String(currentRear);
 
@@ -137,12 +145,16 @@ export function createQueueAnimationSteps(
     steps.push({
       stepNumber: 2,
       description: `rear = rear + 1 (現在 rear 指向 ${currentRear})`,
-      elements: [...s2Boxes, emptyBox, s2NewBox, ...createQueuePointers(0, currentRear, startX, startY, gap)],
+      elements: [
+        ...s2Boxes,
+        emptyBox,
+        s2NewBox,
+        ...createQueuePointers(0, currentRear, startX, startY, gap),
+      ],
       actionTag: TAGS.ENQUEUE_INC_REAR,
-      variables: { front: 0, rear: currentRear, value }
+      variables: { front: 0, rear: currentRear, value },
     });
 
-    // Step 3: Assign Value
     const s3Boxes = createBoxes(oldList);
     const s3NewBox = new Box();
     s3NewBox.id = newNode.id;
@@ -150,43 +162,46 @@ export function createQueueAnimationSteps(
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentRear * gap, startY);
-    s3NewBox.setStatus("target");
+    s3NewBox.setStatus(Status.Target);
     s3NewBox.description = String(currentRear);
 
     steps.push({
       stepNumber: 3,
       description: `queue[rear] = ${value}`,
-      elements: [...s3Boxes, s3NewBox, ...createQueuePointers(0, currentRear, startX, startY, gap)],
+      elements: [
+        ...s3Boxes,
+        s3NewBox,
+        ...createQueuePointers(0, currentRear, startX, startY, gap),
+      ],
       actionTag: TAGS.ENQUEUE_ASSIGN,
-      variables: { front: 0, rear: currentRear, value }
+      variables: { front: 0, rear: currentRear, value },
     });
 
-    // Step 4: Complete
     steps.push({
       stepNumber: 4,
       description: "Enqueue 完成",
-      elements: [...createBoxes(dataList, "complete"), ...createQueuePointers(0, currentRear, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList, Status.Complete),
+        ...createQueuePointers(0, currentRear, startX, startY, gap),
+      ],
       actionTag: TAGS.ENQUEUE_COMPLETE,
-      variables: { front: 0, rear: currentRear, value }
+      variables: { front: 0, rear: currentRear, value },
     });
-  }
-  // Dequeue Operation
-  else if (type === "delete") {
-    // Step 1: Check Empty
+  } else if (type === "delete") {
     if (value === undefined) {
       steps.push({
         stepNumber: 1,
         description: "Dequeue: 佇列為空",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.DEQUEUE_CHECK_EMPTY,
-        variables: { front: 0, rear: -1 }
+        variables: { front: 0, rear: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "錯誤: 佇列下溢 (Queue Underflow)",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.DEQUEUE_ERROR,
-        variables: { front: 0, rear: -1 }
+        variables: { front: 0, rear: -1 },
       });
       return steps;
     }
@@ -195,59 +210,61 @@ export function createQueueAnimationSteps(
       id: (action as any).targetId || "del-temp",
       value: value,
     };
-    // fullList is state BEFORE delete: [deleted, ...dataList]
+
     const fullList = [deletedNode, ...dataList];
     const oldRear = fullList.length - 1;
 
     steps.push({
       stepNumber: 1,
       description: "Dequeue(): 檢查是否為空",
-      elements: [...createBoxes(fullList), ...createQueuePointers(0, oldRear, startX, startY, gap)],
+      elements: [
+        ...createBoxes(fullList),
+        ...createQueuePointers(0, oldRear, startX, startY, gap),
+      ],
       actionTag: TAGS.DEQUEUE_CHECK_EMPTY,
-      variables: { front: 0, rear: oldRear }
+      variables: { front: 0, rear: oldRear },
     });
 
-    // Step 2: Get Value (Front) -> Move to Left
     const s2Boxes = createBoxes(fullList);
-    s2Boxes[0].setStatus("unfinished"); // Highlight front
-    s2Boxes[0].appearAnim = "instant"
-    s2Boxes[0].id = `${deletedNode.id}-remove`; // Highlight front
-    
-    // Create moving box for extracted value
+    s2Boxes[0].setStatus(Status.Unfinished);
+    s2Boxes[0].appearAnim = "instant";
+    s2Boxes[0].id = `${deletedNode.id}-remove`;
+
     const movingBox = new Box();
     movingBox.id = `${deletedNode.id}`;
     movingBox.value = deletedNode.value;
     movingBox.width = 60;
     movingBox.height = 60;
     movingBox.description = "removed_value";
-    movingBox.moveTo(startX - gap, startY); // Move to Left
-    movingBox.setStatus("prepare");
-    
+    movingBox.moveTo(startX - gap, startY);
+    movingBox.setStatus(Status.Prepare);
+
     steps.push({
       stepNumber: 2,
       description: `removed_value = queue[front] (${value})`,
-      elements: [...s2Boxes, movingBox, ...createQueuePointers(0, oldRear, startX, startY, gap)],
+      elements: [
+        ...s2Boxes,
+        movingBox,
+        ...createQueuePointers(0, oldRear, startX, startY, gap),
+      ],
       actionTag: TAGS.DEQUEUE_GET_VALUE,
-      variables: { front: 0, rear: oldRear, removed_value: value }
+      variables: { front: 0, rear: oldRear, removed_value: value },
     });
 
-    // Step 3: Shift Left
     const s3Boxes: Box[] = [];
-    
-    // The shifting boxes (from dataList, moving to new indices)
+
     dataList.forEach((item, i) => {
-        const b = new Box();
-        b.id = item.id;
-        b.value = item.value;
-        b.width = 60;
-        b.height = 60;
-        b.description = String(i); // New index
-        b.moveTo(startX + i * gap, startY); // Move to new position (i)
-        b.setStatus("unfinished");
-        s3Boxes.push(b);
+      const b = new Box();
+      b.id = item.id;
+      b.value = item.value;
+      b.width = 60;
+      b.height = 60;
+      b.description = String(i);
+      b.moveTo(startX + i * gap, startY);
+      b.setStatus(Status.Unfinished);
+      s3Boxes.push(b);
     });
 
-    // The "Last Box" ghost (remains at oldRear)
     const lastNode = fullList[fullList.length - 1];
     const lastBoxGhost = new Box();
     lastBoxGhost.id = `${lastNode.id}-ghost`;
@@ -256,73 +273,85 @@ export function createQueueAnimationSteps(
     lastBoxGhost.height = 60;
     lastBoxGhost.description = String(oldRear);
     lastBoxGhost.moveTo(startX + oldRear * gap, startY);
-    lastBoxGhost.setStatus("unfinished");
+    lastBoxGhost.setStatus(Status.Unfinished);
     lastBoxGhost.appearAnim = "instant";
 
     steps.push({
       stepNumber: 3,
       description: "Shift Left: 所有元素往左移動",
-      elements: [...s3Boxes, lastBoxGhost, movingBox, ...createQueuePointers(0, oldRear, startX, startY, gap)],
+      elements: [
+        ...s3Boxes,
+        lastBoxGhost,
+        movingBox,
+        ...createQueuePointers(0, oldRear, startX, startY, gap),
+      ],
       actionTag: TAGS.DEQUEUE_SHIFT,
-      variables: { front: 0, rear: oldRear, removed_value: value }
+      variables: { front: 0, rear: oldRear, removed_value: value },
     });
 
-    // Step 4: Decrement Rear
     const newRear = oldRear - 1;
-    // lastBoxGhost becomes inactive/dashed
-    lastBoxGhost.setStatus("inactive");
+
+    lastBoxGhost.setStatus(Status.Inactive);
     lastBoxGhost.borderStyle = "dashed";
-    
+
     steps.push({
       stepNumber: 4,
       description: `rear = rear - 1 (現在 rear 指向 ${newRear})`,
-      elements: [...s3Boxes, lastBoxGhost, movingBox, ...createQueuePointers(0, newRear, startX, startY, gap)],
+      elements: [
+        ...s3Boxes,
+        lastBoxGhost,
+        movingBox,
+        ...createQueuePointers(0, newRear, startX, startY, gap),
+      ],
       actionTag: TAGS.DEQUEUE_DEC_REAR,
-      variables: { front: 0, rear: newRear, removed_value: value }
+      variables: { front: 0, rear: newRear, removed_value: value },
     });
 
-    // Step 5: Return (Target)
     const s5MovingBox = new Box();
     Object.assign(s5MovingBox, movingBox);
-    s5MovingBox.setStatus("target");
+    s5MovingBox.setStatus(Status.Target);
 
     steps.push({
       stepNumber: 5,
       description: `標記回傳值 ${value}`,
-      elements: [...s3Boxes, lastBoxGhost, s5MovingBox, ...createQueuePointers(0, newRear, startX, startY, gap)],
+      elements: [
+        ...s3Boxes,
+        lastBoxGhost,
+        s5MovingBox,
+        ...createQueuePointers(0, newRear, startX, startY, gap),
+      ],
       actionTag: TAGS.DEQUEUE_RETURN,
-      variables: { front: 0, rear: newRear, removed_value: value }
+      variables: { front: 0, rear: newRear, removed_value: value },
     });
 
-    // Step 6: Complete
     steps.push({
       stepNumber: 6,
       description: "Dequeue 完成",
-      elements: [...createBoxes(dataList, "complete"), ...createQueuePointers(0, newRear, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList, Status.Complete),
+        ...createQueuePointers(0, newRear, startX, startY, gap),
+      ],
       actionTag: TAGS.DEQUEUE_COMPLETE,
-      variables: { front: 0, rear: newRear, removed_value: value }
+      variables: { front: 0, rear: newRear, removed_value: value },
     });
-  }
-  // Peek Operation
-  else if (type === "peek") {
+  } else if (type === "peek") {
     const size = dataList.length;
     const rear = size - 1;
 
-    // Step 1: Check Empty
     if (size === 0) {
       steps.push({
         stepNumber: 1,
         description: "Peek: 佇列為空",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.PEEK_CHECK_EMPTY,
-        variables: { front: 0, rear: -1 }
+        variables: { front: 0, rear: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "回傳 Null",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.PEEK_ERROR,
-        variables: { front: 0, rear: -1 }
+        variables: { front: 0, rear: -1 },
       });
       return steps;
     }
@@ -330,30 +359,37 @@ export function createQueueAnimationSteps(
     steps.push({
       stepNumber: 1,
       description: "Peek(): 檢查是否為空",
-      elements: [...createBoxes(dataList), ...createQueuePointers(0, rear, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList),
+        ...createQueuePointers(0, rear, startX, startY, gap),
+      ],
       actionTag: TAGS.PEEK_CHECK_EMPTY,
-      variables: { front: 0, rear: rear }
+      variables: { front: 0, rear: rear },
     });
 
-    // Step 2: Return Front
     const s2Boxes = createBoxes(dataList);
-    s2Boxes[0].setStatus("target");
+    s2Boxes[0].setStatus(Status.Target);
 
     steps.push({
       stepNumber: 2,
       description: `回傳 queue[front] (${value})`,
-      elements: [...s2Boxes, ...createQueuePointers(0, rear, startX, startY, gap)],
+      elements: [
+        ...s2Boxes,
+        ...createQueuePointers(0, rear, startX, startY, gap),
+      ],
       actionTag: TAGS.PEEK_RETURN,
-      variables: { front: 0, rear: rear, value }
+      variables: { front: 0, rear: rear, value },
     });
 
-    // Step 3: Complete
     steps.push({
       stepNumber: 3,
       description: "Peek 完成",
-      elements: [...createBoxes(dataList, "complete"), ...createQueuePointers(0, rear, startX, startY, gap)],
+      elements: [
+        ...createBoxes(dataList, Status.Complete),
+        ...createQueuePointers(0, rear, startX, startY, gap),
+      ],
       actionTag: TAGS.PEEK_COMPLETE,
-      variables: { front: 0, rear: rear, value }
+      variables: { front: 0, rear: rear, value },
     });
   }
 
@@ -456,4 +492,27 @@ export const QueueConfig: LevelImplementationConfig = {
     { id: "box-2", value: 3 },
   ],
   createAnimationSteps: createQueueAnimationSteps,
+  relatedProblems: [
+    {
+      id: 225,
+      title: "Implement Stack using Queues",
+      concept: "佇列應用：用佇列實作堆疊的功能",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/implement-stack-using-queues/",
+    },
+    {
+      id: 622,
+      title: "Design Circular Queue",
+      concept: "佇列設計：實作環形佇列 (Circular Queue)",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/design-circular-queue/",
+    },
+    {
+      id: 933,
+      title: "Number of Recent Calls",
+      concept: "佇列的實際應用：計算最近請求數量 (滑動窗口)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/number-of-recent-calls/",
+    },
+  ],
 };

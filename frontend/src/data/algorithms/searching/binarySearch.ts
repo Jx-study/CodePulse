@@ -1,7 +1,7 @@
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
-import type { Status } from "@/modules/core/DataLogic/BaseElement";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 const TAGS = {
@@ -21,7 +21,6 @@ interface Pointers {
   mid: number;
 }
 
-// 產生每一個步驟的畫面 Frame
 const generateFrame = (
   list: LinearData[],
   pointers: Pointers,
@@ -35,14 +34,12 @@ const generateFrame = (
     startY: 200,
     gap: 70,
     overrideStatusMap,
-    // 動態生成描述文字：顯示 Index 以及 L/M/R 指標
     getDescription: (_item, index) => {
-      const labels: string[] = [`${index}`]; // 預設顯示 index
+      const labels: string[] = [`${index}`]; 
       if (index === left) labels.push("L");
       if (index === mid) labels.push("M");
       if (index === right) labels.push("R");
 
-      // 如果重疊，顯示如 "2 (L,M)"
       if (labels.length > 1) {
         return `${labels[0]} (${labels.slice(1).join(",")})`;
       }
@@ -53,13 +50,12 @@ const generateFrame = (
   boxes.forEach((element, i) => {
     const box = element as Box;
 
-    // 視覺化重點：將不在搜尋範圍內的元素變灰 (Inactive)
     if (i < left || i > right) {
-      box.setStatus("inactive");
+      box.setStatus(Status.Inactive);
     }
 
     if (foundIndex !== -1 && i === foundIndex) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -68,20 +64,17 @@ const generateFrame = (
 
 export function createBinarySearchAnimationSteps(
   inputData: any[],
-  action?: any, // 允許接收外部傳入的參數 (例如 target)
+  action?: any, 
 ): AnimationStep[] {
   const dataList = inputData as LinearData[];
   const steps: AnimationStep[] = [];
 
-  // 深拷貝資料
   let arr = dataList.map((d) => ({ ...d }));
 
-  // 1. 決定搜尋目標 (Target)
   let target = 42;
   if (action && typeof action.searchValue === "number") {
     target = action.searchValue;
   } else if (arr.length > 0) {
-    // 預設選擇中間偏右的值，展示較完整的搜尋路徑
     const targetIndex = Math.min(6, arr.length - 1);
     target = arr[targetIndex].value || 0;
   }
@@ -90,7 +83,6 @@ export function createBinarySearchAnimationSteps(
   let right = arr.length - 1;
   let mid = -1;
 
-  // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
     description: `開始二分搜尋：目標值為 ${target}`,
@@ -104,9 +96,7 @@ export function createBinarySearchAnimationSteps(
     elements: generateFrame(arr, { left, right, mid: -1 }),
   });
 
-  // Main Loop
   while (left <= right) {
-    // Step: 檢查迴圈條件
     steps.push({
       stepNumber: steps.length + 1,
       description: `檢查：Left (${left}) <= Right (${right})，繼續搜尋`,
@@ -115,21 +105,18 @@ export function createBinarySearchAnimationSteps(
       elements: generateFrame(arr, { left, right, mid: -1 }),
     });
 
-    // 1. 計算 Mid
     mid = Math.floor((left + right) / 2);
 
-    // Step A: 計算與標記 Mid
     steps.push({
       stepNumber: steps.length + 1,
       description: `計算中間點：Mid = floor((${left} + ${right}) / 2) = ${mid}`,
       actionTag: TAGS.CALC_MID,
       variables: { left, right, mid },
-      elements: generateFrame(arr, { left, right, mid }, { [mid]: "prepare" }),
+      elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Prepare }),
     });
 
     const midVal = arr[mid].value ?? 0;
 
-    // Step B: 比對 (Compare)
     steps.push({
       stepNumber: steps.length + 1,
       description: `比對：Index ${mid} (${midVal}) vs 目標 (${target})`,
@@ -140,11 +127,10 @@ export function createBinarySearchAnimationSteps(
         target,
         compareCondition: `${midVal} == ${target}` 
       },
-      elements: generateFrame(arr, { left, right, mid }, { [mid]: "target" }),
+      elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Target }),
     });
 
     if (midVal === target) {
-      // 找到目標
       steps.push({
         stepNumber: steps.length + 1,
         description: `找到目標！${midVal} 等於 ${target}，位於 Index ${mid}`,
@@ -153,16 +139,14 @@ export function createBinarySearchAnimationSteps(
         elements: generateFrame(
           arr,
           { left, right, mid },
-          { [mid]: "complete" },
+          { [mid]: Status.Complete },
           mid,
         ),
       });
-      return steps; // 結束
+      return steps; 
     } else if (midVal < target) {
-      // 中間值太小，往右找
       const newLeft = mid + 1;
 
-      // Step C: 更新範圍 (Update Left)
       steps.push({
         stepNumber: steps.length + 1,
         description: `${midVal} < ${target} (太小)，目標在右半部，更新 Left = ${mid} + 1`,
@@ -175,17 +159,15 @@ export function createBinarySearchAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { left: newLeft, right, mid: -1 }, // Mid 消失，Left 更新
-          {}, // 移除所有顏色標記，準備下一輪
+          { left: newLeft, right, mid: -1 }, 
+          {}, 
         ),
       });
 
       left = newLeft;
     } else {
-      // 中間值太大，往左找
       const newRight = mid - 1;
 
-      // Step C: 更新範圍 (Update Right)
       steps.push({
         stepNumber: steps.length + 1,
         description: `${midVal} > ${target} (太大)，目標在左半部，更新 Right = ${mid} - 1`,
@@ -198,7 +180,7 @@ export function createBinarySearchAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { left, right: newRight, mid: -1 }, // Mid 消失，Right 更新
+          { left, right: newRight, mid: -1 }, 
           {},
         ),
       });
@@ -207,7 +189,6 @@ export function createBinarySearchAnimationSteps(
     }
   }
 
-  // 沒找到
   steps.push({
     stepNumber: steps.length + 1,
     description: `搜尋結束：範圍已空 (Left > Right)，未找到目標 ${target}`,
@@ -296,4 +277,27 @@ export const binarySearchConfig: LevelImplementationConfig = {
     { id: "box-8", value: 95 },
   ],
   createAnimationSteps: createBinarySearchAnimationSteps,
+  relatedProblems: [
+    {
+      id: 704,
+      title: "Binary Search",
+      concept: "經典演算法：在已排序陣列中查找目標值 (Basic Binary Search)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/binary-search/",
+    },
+    {
+      id: 35,
+      title: "Search Insert Position",
+      concept: "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/search-insert-position/",
+    },
+    {
+      id: 34,
+      title: "Find First and Last Position of Element in Sorted Array",
+      concept: "進階應用：在有重複元素的排序陣列中，尋找目標值的起始與結束位置",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+    },
+  ],
 };

@@ -25,7 +25,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "src/**/*.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]

@@ -1,0 +1,30 @@
+.draggablePanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 0.2s ease;
+
+  &.dragging {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    cursor: grabbing;
+  }
+
+  &.dragOver {
+    border: 2px solid var(--primary-color, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.panelWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.panelContent {
+  flex: 1;
+  overflow: auto;
+  height: 100%;
+}

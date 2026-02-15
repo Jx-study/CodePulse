@@ -1,16 +1,19 @@
-export type Status =
-  | "unfinished"
-  | "prepare"
-  | "target"
-  | "complete"
-  | "inactive";
+import type { StatusColorMap } from "@/types/statusConfig";
+
+export enum Status {
+  Unfinished = "unfinished",
+  Prepare = "prepare",
+  Target = "target",
+  Complete = "complete",
+  Inactive = "inactive",
+}
 
 export const statusColorMap: Record<Status, string> = {
-  unfinished: "#1d79cfff",
-  prepare: "yellow",
-  target: "orange",
-  complete: "#46f336ff",
-  inactive: "#555555",
+  [Status.Unfinished]: "#1d79cfff", // $status-unfinished
+  [Status.Prepare]: "#f59e0b", // $status-prepare
+  [Status.Target]: "#ff6b35", // $status-target
+  [Status.Complete]: "#46f336ff", // $status-complete
+  [Status.Inactive]: "#555555", // $status-inactive
 };
 
 export abstract class BaseElement {
@@ -19,8 +22,9 @@ export abstract class BaseElement {
   // if value undefined will not be rendered
   value: number | undefined = 0;
   position = { x: 0, y: 0 };
-  status: Status = "unfinished";
+  status: Status = Status.Unfinished;
   description = "";
+  customColorMap?: StatusColorMap;
 
   protected constructor(kind: "node" | "box" | "pointer") {
     this.kind = kind;
@@ -31,7 +35,18 @@ export abstract class BaseElement {
   setStatus(s: Status) {
     this.status = s;
   }
-  getColor() {
-    return statusColorMap[this.status];
+  // Inject custom color map
+  setCustomColorMap(colorMap: StatusColorMap) {
+    this.customColorMap = colorMap;
+  }
+  getColor(): string {
+    if (this.customColorMap) {
+      return (
+        this.customColorMap[this.status] ??
+        statusColorMap[this.status] ??
+        "#888888"
+      );
+    }
+    return statusColorMap[this.status] ?? "#888888";
   }
 }

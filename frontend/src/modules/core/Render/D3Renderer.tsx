@@ -3,13 +3,25 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
+import type { StatusColorMap } from "@/types/statusConfig";
 import { Pointer } from "../DataLogic/Pointer";
 import "./D3Renderer.module.scss";
+
+export type linkStatus = "default" | "visited" | "path" | "target" | "complete";
+
+export const linkStatusColorMap: Record<linkStatus, string> = {
+  default: "#888",
+  visited: "#1d79cfff",
+  path: "yellow",
+  target: "orange",
+  complete: "#46f336ff",
+};
 
 export interface Link {
   key: string;
   sourceId: string;
   targetId: string;
+  status?: linkStatus;
 }
 
 // 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
@@ -29,6 +41,79 @@ function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
   const uy = dy / len;
   const r = fromNode.radius ?? 0;
   return { x: cx + ux * r, y: cy + uy * r };
+}
+
+function getLinkPath(source: Node, target: Node): string {
+  if (
+    isNaN(source.position.x) ||
+    isNaN(source.position.y) ||
+    isNaN(target.position.x) ||
+    isNaN(target.position.y)
+  ) {
+    return "";
+  }
+
+  const r = source.radius || 20;
+
+  // Case 1: 自環 (Self-loop)
+  if (source.id === target.id) {
+    const x = source.position.x;
+    const y = source.position.y;
+
+    const startX = x - r * 0.7;
+    const startY = y - r * 0.7;
+    const endX = x + r * 0.7;
+    const endY = y - r * 0.7;
+
+    const cp1X = x - r * 2.5;
+    const cp1Y = y - r * 2.5;
+    const cp2X = x + r * 2.5;
+    const cp2Y = y - r * 2.5;
+
+    // 格式：M 起點 C 控制點1 控制點2 終點
+    return `M ${startX},${startY} C ${cp1X},${cp1Y} ${cp2X},${cp2Y} ${endX},${endY}`;
+  }
+
+  // Case 2: 一般連線 (Straight Line -> 偽裝成 Curve)
+  const p1 = getCircleBoundaryPoint(source, target);
+  const p2 = getCircleBoundaryPoint(target, source);
+
+  if (isNaN(p1.x) || isNaN(p1.y) || isNaN(p2.x) || isNaN(p2.y)) {
+    return "";
+  }
+
+  // 用 C (Bezier) 來畫直線。
+  // 設為：控制點1 = 起點, 控制點2 = 終點
+
+  return `M ${p1.x},${p1.y} C ${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x},${p2.y}`;
+}
+
+function getZeroLengthPath(source: Node, target: Node): string {
+  if (
+    isNaN(source.position.x) ||
+    isNaN(source.position.y) ||
+    isNaN(target.position.x) ||
+    isNaN(target.position.y)
+  ) {
+    return "";
+  }
+
+  // Case 1: 自環 (Self-loop)
+  // 讓初始點停留在自環的「起點」 (x - r*0.7)，而不是圓心
+  if (source.id === target.id) {
+    const r = source.radius || 20;
+    const x = source.position.x;
+    const y = source.position.y;
+    const startX = x - r * 0.7;
+    const startY = y - r * 0.7;
+    // 縮成一個點
+    return `M ${startX},${startY} C ${startX},${startY} ${startX},${startY} ${startX},${startY}`;
+  }
+
+  // Case 2: 一般連線
+  // 取得圓邊界上的一個點
+  const { x, y } = getCircleBoundaryPoint(source, target);
+  return `M ${x},${y} C ${x},${y} ${x},${y} ${x},${y}`;
 }
 
 /**
@@ -222,10 +307,25 @@ export function renderAll(
   elements: BaseElement[],
   links: Link[] = [],
   structureType: string = "linkedlist",
+  isDirected: boolean = true,
+  statusColorMap?: StatusColorMap,
 ) {
+  // Inject custom color map into all elements if provided
+  if (statusColorMap) {
+    elements.forEach((element) => {
+      element.setCustomColorMap(statusColorMap);
+    });
+  }
+
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;
+
+  const getColor = (status?: string) => {
+    return (
+      linkStatusColorMap[status as linkStatus] || linkStatusColorMap.default
+    );
+  };
 
   // Pre-calculation for AutoScale(Grouping Support)
   const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
@@ -293,22 +393,48 @@ export function renderAll(
   });
 
   // defs：箭頭標記（只建一次）
-  const hideArrow = ["bfs", "dfs", "binarytree", "bst"].includes(structureType);
-  const markerUrl = hideArrow ? null : "url(#arrowhead)";
+  const forceHideArrow = ["bfs", "dfs", "binarytree", "bst"].includes(
+    structureType,
+  );
+  // 如果是 graph，則根據 isDirected 決定
+  const shouldHideArrow =
+    structureType === "graph" ? !isDirected : forceHideArrow;
+  const markerUrl = shouldHideArrow ? null : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
-  defsEnter
-    .append("marker")
-    .attr("id", "arrowhead")
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 10) // 箭頭參考點，讓箭頭頂到線終點
-    .attr("refY", 0)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", "M0,-5L10,0L0,5")
-    .attr("fill", "#888");
+  if (svg.select("#arrowhead").empty()) {
+    defsEnter
+      .append("marker")
+      .attr("id", "arrowhead")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 10) // 箭頭參考點，讓箭頭頂到線終點
+      .attr("refY", 0)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .attr("fill", "#888");
+  }
+
+  Object.entries(linkStatusColorMap).forEach(([status, color]) => {
+    // 檢查是否已存在，避免重複 append (雖然 data([null]) 會擋，但保險起見)
+    if (svg.select(`#arrowhead-${status}`).empty()) {
+      svg
+        .select("defs")
+        .append("marker")
+        .attr("id", `arrowhead-${status}`)
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", color);
+    }
+  });
 
   // 根 <g>
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
@@ -316,6 +442,9 @@ export function renderAll(
   const scene = svg.select<SVGGElement>("g.scene");
 
   drawContainer(scene, structureType);
+  // 清除舊的連線 (避免重繪疊加)
+  // 不知道有沒有用
+  scene.selectAll("line.link").remove();
 
   // === 先畫 LINKS（在底層）===
   // 依 id 找 element
@@ -326,14 +455,17 @@ export function renderAll(
       const s = byId.get(String(lk.sourceId));
       const t = byId.get(String(lk.targetId));
       if (s instanceof Node && t instanceof Node) {
-        return { s, t };
+        return { s, t, status: lk.status };
       }
       return null;
     })
-    .filter(Boolean) as { s: Node; t: Node }[];
+    .filter(Boolean) as { s: Node; t: Node; status?: string }[];
 
   const linkSel = scene
-    .selectAll<SVGLineElement, { s: Node; t: Node }>("line.link")
+    .selectAll<
+      SVGPathElement,
+      { s: Node; t: Node; status?: string }
+    >("path.link")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
   // 終點縮向起點
@@ -341,34 +473,40 @@ export function renderAll(
     .exit()
     .transition()
     .duration(transitionDuration)
-    .attr("x2", (d: any) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y2", (d: any) => getCircleBoundaryPoint(d.s, d.t).y)
+    .attr("d", (d: any) => getZeroLengthPath(d.s, d.t))
     .remove();
 
   const linkEnter = linkSel
     .enter()
-    .append("line")
+    .append("path")
     .attr("class", "link")
     .attr("stroke", "#888")
     .attr("stroke-width", 2)
+    .attr("fill", "none") // 設為 none，不然自環中間會被填滿黑色
     .attr("marker-end", markerUrl)
-    // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
-    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
-    .attr("x2", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y2", (d) => getCircleBoundaryPoint(d.s, d.t).y);
+    // 初始狀態：從起點長出來
+    .attr("d", (d) => getZeroLengthPath(d.s, d.t));
+  // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
 
   linkEnter
     .merge(linkSel as any)
+    .attr("marker-end", (d) => {
+      if (shouldHideArrow) return null;
+      const status = d.status || "default";
+      return `url(#arrowhead-${status})`;
+    })
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("x1", (d) => getCircleBoundaryPoint(d.s, d.t).x)
-    .attr("y1", (d) => getCircleBoundaryPoint(d.s, d.t).y)
-    .attr("x2", (d) => getCircleBoundaryPoint(d.t, d.s).x)
-    .attr("y2", (d) => getCircleBoundaryPoint(d.t, d.s).y);
+    .attr("d", (d) => getLinkPath(d.s, d.t))
 
-  // === 再畫 NODES / BOXES / POINTERS（在上層）===
+    .attr("stroke", (d) => getColor(d.status))
+    .attr("stroke-width", 2)
+    .on("end", function (d) {
+      if (d.status) d3.select(this).raise();
+    });
+
+  // NODES / BOXES（在上層）
   const items = scene
     .selectAll<SVGGElement, BaseElement>("g.el")
     .data(elements, (d: any) => String(d.id));
@@ -419,8 +557,6 @@ export function renderAll(
     g.append("text").attr("class", "desc"); // 顯示 description
     g.append("text").attr("class", "val"); // 顯示 value
   });
-
-  // ... (link transitions)
 
   // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
@@ -543,16 +679,16 @@ export function renderAll(
           .attr("stroke", box.getColor())
           .attr("stroke-width", 2);
 
+        textVal
+          .attr("y", 5) // 置中
+          .attr("fill", "#ccc");
+
         // 支援虛線樣式
         if (box.borderStyle === "dashed") {
           rect.attr("stroke-dasharray", "5,5");
         } else {
           rect.attr("stroke-dasharray", null);
         }
-
-        textVal
-          .attr("y", 5) // 置中
-          .attr("fill", "#ccc");
 
         textDesc
           .attr("y", box.height / 2 + 16) // 底部下方

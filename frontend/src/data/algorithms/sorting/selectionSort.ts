@@ -13,7 +13,6 @@ const TAGS = {
   DONE: "DONE",
 };
 
-// 復用 Frame 生成邏輯
 const generateFrame = (
   list: LinearData[],
   overrideStatusMap: Record<number, Status> = {},
@@ -32,7 +31,7 @@ const generateFrame = (
     box.autoScale = true;
 
     if (sortedIndices.has(i)) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -47,7 +46,6 @@ export function createSelectionSortAnimationSteps(
   const n = arr.length;
   const sortedIndices = new Set<number>();
 
-  // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
     description: "開始選擇排序",
@@ -59,26 +57,24 @@ export function createSelectionSortAnimationSteps(
   for (let i = 0; i < n - 1; i++) {
     let minIdx = i;
 
-    // Step A: 回合開始 (Round Start)
     steps.push({
       stepNumber: steps.length + 1,
       description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
       actionTag: TAGS.ROUND_START,
       variables: { currentPos: i, minPos: i },
-      elements: generateFrame(arr, { [minIdx]: "target" }, sortedIndices),
+      elements: generateFrame(arr, { [minIdx]: Status.Target }, sortedIndices),
     });
 
     for (let j = i + 1; j < n; j++) {
       const scanVal = arr[j].value ?? 0;
       const minVal = arr[minIdx].value ?? 0;
 
-      // Step B: 比較 (Compare)
       steps.push({
         stepNumber: steps.length + 1,
         description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
         actionTag: TAGS.COMPARE,
         variables: {
-          currentPos: i, // 保持上下文
+          currentPos: i, 
           scanPos: j,
           minPos: minIdx,
           scanVal: scanVal,
@@ -88,35 +84,31 @@ export function createSelectionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [i]: "target", [minIdx]: "target", [j]: "prepare" },
+          { [i]: Status.Target, [minIdx]: Status.Target, [j]: Status.Prepare },
           sortedIndices
         ),
       });
 
-      // 檢查是否需要更新最小值
       if (scanVal < minVal) {
         minIdx = j;
 
-        // Step C: 更新最小值 (Update Min)
         steps.push({
           stepNumber: steps.length + 1,
           description: `發現更小值！更新最小值索引為 ${minIdx}`,
           actionTag: TAGS.UPDATE_MIN,
           variables: {
             minPos: minIdx,
-            scanVal: scanVal, // 這裡 scanVal 變成了新的 minVal
+            scanVal: scanVal, 
           },
           elements: generateFrame(
             arr,
-            { [i]: "target", [minIdx]: "target" },
+            { [i]: Status.Target, [minIdx]: Status.Target },
             sortedIndices
           ),
         });
       }
     }
 
-    // 內層迴圈結束，準備交換
-    // Step D: 交換 (Swap) or No Swap Decision
     if (minIdx !== i) {
       const temp = arr[i];
       arr[i] = arr[minIdx];
@@ -135,7 +127,7 @@ export function createSelectionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [i]: "target", [minIdx]: "target" },
+          { [i]: Status.Target, [minIdx]: Status.Target },
           sortedIndices
         ),
       });
@@ -149,11 +141,10 @@ export function createSelectionSortAnimationSteps(
           minPos: minIdx,
           hasSwapped: false,
         },
-        elements: generateFrame(arr, { [i]: "target" }, sortedIndices),
+        elements: generateFrame(arr, { [i]: Status.Target }, sortedIndices),
       });
     }
 
-    // Step E: 回合結束，鎖定元素 (Round End)
     sortedIndices.add(i);
     steps.push({
       stepNumber: steps.length + 1,
@@ -164,10 +155,8 @@ export function createSelectionSortAnimationSteps(
     });
   }
 
-  // 確保最後一個元素也被標記
   sortedIndices.add(n - 1);
   
-  // Final Step: 完成
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
@@ -253,4 +242,27 @@ export const selectionSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 11 },
   ],
   createAnimationSteps: createSelectionSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 215,
+      title: "Kth Largest Element in an Array",
+      concept: "選擇排序思想應用：尋找第 K 大元素，可用部分排序優化",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+    },
+    {
+      id: 414,
+      title: "Third Maximum Number",
+      concept: "選擇最大/最小值概念：找出陣列中第三大的數字",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/third-maximum-number/",
+    },
+    {
+      id: 164,
+      title: "Maximum Gap",
+      concept: "進階排序問題：找出排序後相鄰元素的最大差值",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/maximum-gap/",
+    },
+  ],
 };

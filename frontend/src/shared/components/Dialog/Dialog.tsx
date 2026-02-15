@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { DialogProps } from "@/types";
-import Icon from "../Icon";
 import Button from "../Button";
 import styles from "./Dialog.module.scss";
 
@@ -117,8 +116,9 @@ const Dialog: React.FC<DialogProps> = ({
                 onClick={onClose}
                 aria-label="Close dialog"
                 className={styles.closeButton}
+                iconOnly
+                icon="times"
               >
-                {closeButtonIcon || <Icon name="times" size="lg" />}
               </Button>
             )}
           </div>

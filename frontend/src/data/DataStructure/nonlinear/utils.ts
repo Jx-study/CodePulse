@@ -4,6 +4,27 @@ import { Box } from "../../../modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
+
+export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
+
+export const updateLinkStatus = (
+  map: Record<string, linkStatus>,
+  u: string,
+  v: string,
+  status: linkStatus | undefined,
+  isDirected: boolean,
+) => {
+  const k1 = getLinkKey(u, v);
+  const k2 = getLinkKey(v, u);
+  if (status) {
+    map[k1] = status;
+    if (!isDirected) map[k2] = status;
+  } else {
+    delete map[k1];
+    if (!isDirected) delete map[k2];
+  }
+};
 
 export interface GridCellData {
   id: string;
@@ -35,7 +56,7 @@ export function createGridElements(
     box.width = cellSize;
     box.height = cellSize;
 
-    box.setStatus("inactive");
+    box.setStatus(Status.Inactive);
 
     elements.push(box);
   });
@@ -98,6 +119,7 @@ export const generateGraphFrame = (
   distanceMap: Record<string, number>,
   description: string,
   showIdAsValue: boolean = false,
+  linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const frameElements = baseElements.map((node) => {
     const newNode = new Node();
@@ -121,23 +143,41 @@ export const generateGraphFrame = (
     if (status) {
       newNode.setStatus(status);
     } else {
-      newNode.setStatus("inactive");
+      newNode.setStatus(Status.Inactive);
     }
 
     return newNode;
+  });
+
+  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
+    [];
+
+  baseElements.forEach((source) => {
+    source.pointers.forEach((target) => {
+      const key = getLinkKey(source.id, target.id);
+      links.push({
+        sourceId: source.id,
+        targetId: target.id,
+        status: linkStatusMap[key],
+      });
+    });
   });
 
   return {
     stepNumber: 0,
     description,
     elements: frameElements,
+    links: links,
   };
 };
 
-export function createGraphElements(rawGraph: {
-  nodes: any[];
-  edges: string[][];
-}): Node[] {
+export function createGraphElements(
+  rawGraph: {
+    nodes: any[];
+    edges: string[][];
+  },
+  isDirected: boolean = false,
+): Node[] {
   const { nodes: rawNodes, edges } = rawGraph;
   const elements: Node[] = [];
   const nodeMap = new Map<string, Node>();
@@ -222,13 +262,15 @@ export function createGraphElements(rawGraph: {
     });
   }
 
-  // 建立連線 (雙向)
+  // 建立連線 (單/雙向)
   edges.forEach(([sourceId, targetId]) => {
     const source = nodeMap.get(sourceId);
     const target = nodeMap.get(targetId);
     if (source && target) {
       source.pointers.push(target);
-      target.pointers.push(source);
+      if (!isDirected) {
+        target.pointers.push(source);
+      }
     }
   });
 
@@ -392,7 +434,7 @@ export function createTreeNodes(
       d.data.value,
       d.x + offsetX,
       d.y + offsetY,
-      "inactive",
+      Status.Inactive,
       descText,
     );
 

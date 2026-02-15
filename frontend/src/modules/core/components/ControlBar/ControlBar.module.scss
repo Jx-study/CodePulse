@@ -1,61 +1,71 @@
 .controlBar {
   @include flex($align: center, $justify: space-between);
-  gap: $spacing-md;
-  padding: $spacing-md;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-
-  @media (max-width: $mobile) {
-    flex-direction: column;
-    gap: $spacing-sm;
-  }
+  gap: clamp(0.25rem, 1cqh, 0.75rem); // 基於容器高度: 4px~12px
+  padding: clamp(0.5rem, 1.5cqh, 1rem); // 基於容器高度: 8px~16px
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .controls {
-  @include flex($align: center);
-  gap: $spacing-xs;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.25rem, 0.8cqh, 0.5rem); // 按鈕間距: 4px~8px
+  justify-content: center;
 }
 
 .stepIndicator {
-  @include flex-center;
-  min-width: 120px;
+  @include flex($justify: center, $direction: column, $align: center);
+  gap: clamp(0.5rem, 1cqh, 0.75rem);
+  flex: 1;          
+  width: 100%;      
+  min-width: 0;
+  margin: 0 $spacing-sm;
 
   .stepText {
-    font-size: $font-sm;
+    font-size: clamp(0.75rem, 1.2cqh, 0.875rem); // 12px~14px
+    white-space: nowrap;
     font-weight: 600;
     color: var(--text-primary);
+  }
+
+  .stepSlider {
+    flex: 1;
+    width: 100%;
   }
 }
 
 .speedSelector {
   @include flex($direction: column);
-  gap: $spacing-xs;
+  gap: clamp(0.25rem, 0.8cqh, 0.5rem);
 
   .speedRow {
-    @include flex($align: center);
-    gap: $spacing-sm;
-  }
+    @include flex($align: center, $justify: center);
+    gap: clamp(0.25rem, 0.8cqh, 0.5rem);
+    flex-wrap: wrap;
 
-  .speedLabel {
-    font-size: $font-sm;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
+    .speedLabel {
+      font-size: clamp(0.75rem, 1.2cqh, 0.875rem);
+      white-space: nowrap;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
 
-  .speedButtons {
-    @include flex;
-    gap: $spacing-xs;
+    .speedButtons {
+      display: flex;
+      gap: clamp(0.125rem, 0.5cqh, 0.25rem);
+    }
   }
 
   .speedButton {
-    padding: 4px 12px;
+    padding: $spacing-2xs $spacing-sm;
     font-size: $font-xs;
     font-weight: 600;
     border: 1px solid var(--border-color);
     background: var(--bg-tertiary);
     color: var(--text-secondary);
-    border-radius: 4px;
+    border-radius: $radius-sm;
     cursor: pointer;
     transition: $transition-base;
 
@@ -79,7 +89,6 @@
 
   .sliderRow {
     @include flex($align: center);
-    width: 100%;
   }
 
   @media (max-width: $mobile) {

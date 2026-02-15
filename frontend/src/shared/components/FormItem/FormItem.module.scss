@@ -1,0 +1,283 @@
+// ==================== Container ====================
+.formItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: $spacing-md;
+  position: relative;
+
+  &.hasError {
+    // 錯誤狀態可擴展樣式
+  }
+
+  &.hasSuccess {
+    // 成功狀態可擴展樣式
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+
+    .label {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ==================== Label Wrapper ====================
+.labelWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-xs;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-sm;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.labelText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.labelIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.required {
+  color: var(--danger-color);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+}
+
+// ==================== Tooltip ====================
+.tooltipContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  outline: none;
+
+  &:focus-visible {
+    .tooltipIcon {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.tooltipIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--primary-color);
+  }
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: $font-xs;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: normal;
+  word-wrap: break-word;
+  animation: tooltipFadeIn 0.15s ease-out;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: 12px;
+    width: 10px;
+    height: 10px;
+    background: var(--bg-tertiary);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==================== Input Wrapper ====================
+.inputWrapper {
+  position: relative;
+}
+
+// ==================== Feedback Wrapper ====================
+.feedbackWrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  min-height: 20px;
+}
+
+.messageContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+// ==================== Messages ====================
+.errorMessage,
+.successMessage,
+.helperText {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: $font-xs;
+  line-height: 1.4;
+  animation: slideDown 0.2s ease-out;
+}
+
+.errorMessage {
+  color: var(--danger-color);
+
+  .messageIcon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--danger-color);
+  }
+}
+
+.successMessage {
+  color: var(--success-color);
+
+  .messageIcon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--success-color);
+  }
+}
+
+.helperText {
+  color: var(--text-secondary);
+}
+
+.messageIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+// ==================== Character Counter ====================
+.charCount {
+  flex-shrink: 0;
+  font-size: $font-xs;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+  margin-top: 2px;
+  user-select: none;
+  transition: color 0.2s ease;
+
+  &.overLimit {
+    color: var(--danger-color);
+    font-weight: 600;
+  }
+}
+
+// ==================== Animations ====================
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==================== Responsive Design ====================
+@media (max-width: $mobile) {
+  .formItem {
+    margin-bottom: $spacing-sm;
+    gap: 4px;
+  }
+
+  .label {
+    font-size: $font-xs;
+  }
+
+  .labelIcon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .tooltip {
+    min-width: 160px;
+    max-width: 220px;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .errorMessage,
+  .successMessage,
+  .helperText {
+    font-size: 11px;
+  }
+
+  .messageIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .charCount {
+    font-size: 11px;
+  }
+
+  .feedbackWrapper {
+    gap: $spacing-2xs;
+  }
+}

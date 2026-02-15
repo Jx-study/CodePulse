@@ -13,7 +13,6 @@ const TAGS = {
   DONE: "DONE",
 };
 
-// 復用 Frame 生成邏輯
 const generateFrame = (
   list: LinearData[],
   overrideStatusMap: Record<number, Status> = {},
@@ -31,9 +30,8 @@ const generateFrame = (
     const box = element as Box;
     box.autoScale = true;
 
-    // 只有在 sortedIndices 內，且沒有被 override (例如正在比較或移動中) 時才設為 complete
     if (sortedIndices.has(i) && !overrideStatusMap[i]) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -48,7 +46,6 @@ export function createInsertionSortAnimationSteps(
   const n = arr.length;
   const sortedIndices = new Set<number>();
 
-  // Step 0: 初始狀態
   steps.push({
     stepNumber: 0,
     description: "開始插入排序",
@@ -57,7 +54,6 @@ export function createInsertionSortAnimationSteps(
     elements: generateFrame(arr, {}, sortedIndices),
   });
 
-  // 預設第 0 個元素視為已排序
   sortedIndices.add(0);
   steps.push({
     stepNumber: 1,
@@ -67,14 +63,11 @@ export function createInsertionSortAnimationSteps(
     elements: generateFrame(arr, {}, sortedIndices),
   });
 
-  // 從第 1 個元素開始遍歷
   for (let i = 1; i < n; i++) {
     const keyVal = arr[i].value ?? 0;
     
-    // 視覺上暫時將 i 標記為處理中，但尚未真正「排序完成」
     sortedIndices.add(i);
 
-    // Step A: Round Start (取出 Key)
     steps.push({
       stepNumber: steps.length + 1,
       description: `第 ${i} 輪：暫存 Index ${i} (${keyVal}) 為 insertVal，準備插入已排序區間`,
@@ -84,17 +77,15 @@ export function createInsertionSortAnimationSteps(
         insertVal: keyVal,
         scanPos: i - 1,
       },
-      elements: generateFrame(arr, { [i]: "target" }, sortedIndices),
+      elements: generateFrame(arr, { [i]: Status.Target }, sortedIndices),
     });
 
     let j = i - 1;
-    let currentKeyIndex = i; // 視覺追蹤：Key 目前在哪個格子
+    let currentKeyIndex = i; 
 
-    // 向前掃描
     while (j >= 0) {
       const scanVal = arr[j].value ?? 0;
 
-      // Step B: Compare
       steps.push({
         stepNumber: steps.length + 1,
         description: `比較：檢查 Index ${j} (${scanVal}) 是否大於 insertVal (${keyVal})`,
@@ -109,13 +100,12 @@ export function createInsertionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [currentKeyIndex]: "target", [j]: "prepare" },
+          { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
           sortedIndices
         ),
       });
 
       if (scanVal > keyVal) {
-        // Step C: Shift (視覺上表現為交換)
         const temp = arr[j];
         arr[j] = arr[currentKeyIndex];
         arr[currentKeyIndex] = temp;
@@ -131,17 +121,14 @@ export function createInsertionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [j]: "target", [currentKeyIndex]: "target" },
+            { [j]: Status.Target, [currentKeyIndex]: Status.Target },
             sortedIndices
           ),
         });
 
-        // 更新 Key 的位置索引 (視覺位置往左跑)
         currentKeyIndex = j;
         j--;
       } else {
-        // Step D: Stop Shift (比較失敗，找到位置)
-        // 這裡依然屬於 Compare 的一部分，只是結果為 False
         steps.push({
           stepNumber: steps.length + 1,
           description: `停止：${scanVal} <= ${keyVal}，找到插入點`,
@@ -154,7 +141,7 @@ export function createInsertionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [currentKeyIndex]: "target", [j]: "prepare" },
+            { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
             sortedIndices
           ),
         });
@@ -162,8 +149,6 @@ export function createInsertionSortAnimationSteps(
       }
     }
 
-    // Step E: Insert
-    // 雖然視覺上 Key 已經交換到了 currentKeyIndex，但在邏輯上這是「賦值」的一步
     steps.push({
       stepNumber: steps.length + 1,
       description: `插入：將 insertVal (${keyVal}) 放置於 Index ${currentKeyIndex}`,
@@ -172,11 +157,9 @@ export function createInsertionSortAnimationSteps(
         insertPos: currentKeyIndex,
         insertVal: keyVal,
       },
-      elements: generateFrame(arr, { [currentKeyIndex]: "complete" }, sortedIndices),
+      elements: generateFrame(arr, { [currentKeyIndex]: Status.Complete }, sortedIndices),
     });
     
-    // Step F: Round End
-    // 這一輪結束，確認 sortedIndices 更新
     steps.push({
       stepNumber: steps.length + 1,
       description: `Index 0~${i} 區間排序完成`,
@@ -186,7 +169,6 @@ export function createInsertionSortAnimationSteps(
     });
   }
 
-  // Final Step
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
@@ -221,19 +203,10 @@ const insertionSortCodeConfig: CodeConfig = {
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [2],
-      
-      // Round Start: 包含 For 迴圈與變數初始化 (4, 5, 6)
       [TAGS.ROUND_START]: [4, 5, 6],
-      
-      // Compare: While 迴圈條件檢查 (9)
       [TAGS.COMPARE]: [9],
-      
-      // Shift: 迴圈內的賦值與指針移動 (10, 11)
       [TAGS.SHIFT]: [10, 11],
-      
-      // Insert: 迴圈結束後的插入動作 (15)
       [TAGS.INSERT]: [15],
-      
       [TAGS.DONE]: [19],
     },
   },
@@ -279,4 +252,27 @@ export const insertionSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 6 },
   ],
   createAnimationSteps: createInsertionSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 147,
+      title: "Insertion Sort List",
+      concept: "直接應用：在鏈結串列上實作插入排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/insertion-sort-list/",
+    },
+    {
+      id: 148,
+      title: "Sort List",
+      concept: "進階排序：鏈結串列排序問題，可用插入排序或合併排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-list/",
+    },
+    {
+      id: 88,
+      title: "Merge Sorted Array",
+      concept: "插入排序概念延伸：合併兩個已排序陣列",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/merge-sorted-array/",
+    },
+  ],
 };

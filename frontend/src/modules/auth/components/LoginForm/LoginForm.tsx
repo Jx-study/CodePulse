@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/AuthForm.module.scss";
 import Button from "@/shared/components/Button";
+import FormItem from "@/shared/components/FormItem";
+import Input from "@/shared/components/Input";
+import Checkbox from "@/shared/components/Checkbox";
 
 interface LoginFormData {
   usernameOrEmail: string;
@@ -71,58 +74,53 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
     <div className={styles.formContent}>
       <h2>{t("login")}</h2>
       <form onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label htmlFor="usernameOrEmail">用戶名或信箱</label>
-          <input
+        <FormItem
+          label="用戶名或信箱"
+          error={errors.usernameOrEmail}
+          tooltip="您可以使用用戶名或註冊的電子郵件地址登入"
+          required
+          htmlFor="usernameOrEmail"
+        >
+          <Input
             type="text"
-            id="usernameOrEmail"
             name="usernameOrEmail"
             value={formData.usernameOrEmail}
             onChange={handleChange}
             placeholder="請輸入用戶名或信箱"
-            className={errors.usernameOrEmail ? styles.error : ""}
+            hasError={!!errors.usernameOrEmail}
             disabled={disabled}
             autoComplete="username"
             required
           />
-          {errors.usernameOrEmail && (
-            <span className={styles.errorMessage}>
-              {errors.usernameOrEmail}
-            </span>
-          )}
-        </div>
+        </FormItem>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="password">密碼</label>
-          <input
+        <FormItem
+          label="密碼"
+          error={errors.password}
+          helperText={!errors.password ? "密碼至少需要6個字符" : undefined}
+          required
+          htmlFor="password"
+        >
+          <Input
             type="password"
-            id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="請輸入密碼"
-            className={errors.password ? styles.error : ""}
+            hasError={!!errors.password}
             disabled={disabled}
             autoComplete="current-password"
             required
           />
-          {errors.password && (
-            <span className={styles.errorMessage}>{errors.password}</span>
-          )}
-        </div>
+        </FormItem>
 
-        <div className={styles.formGroup}>
-          <label className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              name="rememberMe"
-              checked={formData.rememberMe}
-              onChange={handleChange}
-              disabled={disabled}
-            />
-            記住我
-          </label>
-        </div>
+        <Checkbox
+          name="rememberMe"
+          label="記住我"
+          checked={formData.rememberMe}
+          onChange={handleChange}
+          disabled={disabled}
+        />
 
         <Button type="submit" variant="primary" fullWidth disabled={disabled}>
           {t("login")}
