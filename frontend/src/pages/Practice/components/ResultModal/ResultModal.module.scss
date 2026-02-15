@@ -1,5 +1,90 @@
-@import '@/shared/styles/_variables';
-@import '@/shared/styles/_mixins';
+@import "@/shared/styles/_variables";
+@import "@/shared/styles/_mixins";
+
+.analysisCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid #ab47bc;
+}
+
+.analysisTitle {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.overallComment {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.tagWeakness {
+  background: rgba(239, 83, 80, 0.15);
+  color: #ef5350;
+  border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.tagBehavior {
+  background: rgba(255, 167, 38, 0.15);
+  color: #ffa726;
+  border: 1px solid rgba(255, 167, 38, 0.3);
+}
+
+.suggestionsList {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+
+  li {
+    margin-bottom: 4px;
+  }
+}
+
+.timeBadge {
+  margin-left: 8px;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: normal;
+}
+
+.timeFast {
+  background-color: rgba(255, 152, 0, 0.15);
+  color: #f57c00;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.timeSlow {
+  background-color: rgba(96, 125, 139, 0.15);
+  color: #607d8b;
+  border: 1px solid rgba(96, 125, 139, 0.3);
+}
+
+.timeNormal {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #aaa;
+}
 
 .resultDialog {
   overflow: visible;
@@ -16,7 +101,11 @@
   align-items: center;
   gap: $spacing-xl;
   padding: $spacing-xl;
-  background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba(124, 58, 237, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba($primary-color, 0.05),
+    rgba(124, 58, 237, 0.05)
+  );
   border-radius: $radius-lg;
 }
 
@@ -33,8 +122,12 @@
   box-shadow: $shadow-lg;
   animation: scaleIn 0.5s ease;
 
-  &[data-passed='false'] {
-    background: linear-gradient(135deg, $error-color, darken($error-color, 10%));
+  &[data-passed="false"] {
+    background: linear-gradient(
+      135deg,
+      $error-color,
+      darken($error-color, 10%)
+    );
   }
 }
 
@@ -141,7 +234,6 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
-  max-height: 300px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {

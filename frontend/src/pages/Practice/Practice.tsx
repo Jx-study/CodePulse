@@ -45,6 +45,11 @@ function Practice() {
   const [result, setResult] = useState<PracticeResult | null>(null);
   const [startTime, setStartTime] = useState(Date.now());
 
+  // 記錄每一題的累積時間
+  const [timeRecords, setTimeRecords] = useState<Record<string, number>>({});
+  // 記錄當前題目「開始看題」的時間點
+  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+
   const getCurrentGroup = (question: Question) => {
     if (!question.groupId || !originalQuiz?.groups) return null;
     return originalQuiz.groups.find((g) => g.id === question.groupId);
@@ -59,6 +64,20 @@ function Practice() {
     });
     return ids;
   }, [randomizedQuestions]);
+
+  const updateTimeRecord = () => {
+    const now = Date.now();
+    const duration = now - questionStartTime;
+    const currentQId = randomizedQuestions[currentQuestionIndex].id;
+
+    setTimeRecords((prev) => ({
+      ...prev,
+      [currentQId]: (prev[currentQId] || 0) + duration, // 累加 (因為可能來回切換)
+    }));
+
+    // 重置開始時間
+    setQuestionStartTime(now);
+  };
 
   useEffect(() => {
     if (!originalQuiz) return;
@@ -90,17 +109,20 @@ function Practice() {
   }, [originalQuiz, retryCount]);
 
   const handleSelectQuestion = (index: number) => {
+    updateTimeRecord();
     setCurrentQuestionIndex(index);
   };
 
   const handleNext = () => {
     if (originalQuiz && currentQuestionIndex < randomizedQuestions.length - 1) {
+      updateTimeRecord();
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
+      updateTimeRecord();
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
@@ -150,6 +172,15 @@ function Practice() {
   const handleSubmit = () => {
     if (!originalQuiz) return;
 
+    const now = Date.now();
+    const lastDuration = now - questionStartTime;
+    const lastQId = randomizedQuestions[currentQuestionIndex].id;
+
+    const finalTimeRecords = {
+      ...timeRecords,
+      [lastQId]: (timeRecords[lastQId] || 0) + lastDuration,
+    };
+
     const session: PracticeSession = {
       sessionId: `session-${Date.now()}`,
       levelId: originalQuiz.levelId,
@@ -159,6 +190,7 @@ function Practice() {
       endTime: Date.now(),
       status: "completed",
       userStartRating: 1000, // TODO: 目前先寫死為 1000 (預設值)，未來可從 UserContext 獲取
+      timeRecords: finalTimeRecords,
     };
 
     const calculatedResult = PracticeService.calculateResult(session);
@@ -167,6 +199,7 @@ function Practice() {
   };
 
   const handleRetry = () => {
+    setTimeRecords({});
     setRetryCount((prev) => prev + 1);
   };
 

@@ -64,6 +64,24 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
     setExpandedIndex((prev) => (prev === index ? null : index));
   };
 
+  const renderTimeAnalysis = (seconds: number) => {
+    let label = "";
+    let colorClass = "";
+
+    if (seconds < 5) {
+      label = "秒殺 (粗心？)";
+      colorClass = styles.timeFast;
+    } else if (seconds > 60) {
+      label = "思考久 (卡關？)";
+      colorClass = styles.timeSlow;
+    } else {
+      label = `${seconds}s`;
+      colorClass = styles.timeNormal;
+    }
+
+    return <span className={`${styles.timeBadge} ${colorClass}`}>{label}</span>;
+  };
+
   return (
     <div className={styles.wrongAnswerSection}>
       <h4 className={styles.wrongAnswerTitle}>
@@ -90,6 +108,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                   <span className={styles.difficultyBadge}>
                     (Rating: {question.difficultyRating || "N/A"})
                   </span>
+                  {renderTimeAnalysis(wrongQ.timeSpent)}
                 </span>
                 <span className={styles.questionPreview}>
                   {question.title.length > 50

@@ -16,6 +16,7 @@ import Button from "@/shared/components/Button";
 import StarRating from "@/shared/components/StarRating";
 import WrongAnswerList from "./WrongAnswerList";
 import styles from "./ResultModal.module.scss";
+import AnalysisCard from "./AnalysisCard";
 
 interface ResultModalProps {
   isOpen: boolean;
@@ -90,6 +91,8 @@ const ResultModal: React.FC<ResultModalProps> = ({
             </div>
           </div>
         </div>
+
+        {result.analysis && <AnalysisCard analysis={result.analysis} />}
 
         <div className={styles.statsGrid}>
           <div className={styles.statItem}>
