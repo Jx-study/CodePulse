@@ -8,14 +8,14 @@
  * - 操作按鈕
  */
 
-import React from 'react';
-import type { PracticeResult, Question } from '@/types/practice';
-import { PracticeService } from '@/services/PracticeService';
-import Dialog from '@/shared/components/Dialog';
-import Button from '@/shared/components/Button';
-import StarRating from '@/shared/components/StarRating';
-import WrongAnswerList from './WrongAnswerList';
-import styles from './ResultModal.module.scss';
+import React from "react";
+import type { PracticeResult, Question } from "@/types/practice";
+import { PracticeService } from "@/services/PracticeService";
+import Dialog from "@/shared/components/Dialog";
+import Button from "@/shared/components/Button";
+import StarRating from "@/shared/components/StarRating";
+import WrongAnswerList from "./WrongAnswerList";
+import styles from "./ResultModal.module.scss";
 
 interface ResultModalProps {
   isOpen: boolean;
@@ -41,6 +41,27 @@ const ResultModal: React.FC<ResultModalProps> = ({
     return mins > 0 ? `${mins} 分 ${secs} 秒` : `${secs} 秒`;
   };
 
+  const renderRatingChange = () => {
+    // 只有當 result 有包含 Elo 資料時才顯示 (相容舊版)
+    if (result.newRating === undefined) return null;
+
+    const delta = result.ratingDelta;
+    const sign = delta >= 0 ? "+" : "";
+    const colorClass =
+      delta >= 0 ? styles.ratingPositive : styles.ratingNegative;
+
+    return (
+      <div className={styles.ratingContainer}>
+        <span className={styles.ratingLabel}>能力值：</span>
+        <span className={styles.ratingValue}>{result.newRating}</span>
+        <span className={`${styles.ratingDelta} ${colorClass}`}>
+          ({sign}
+          {delta})
+        </span>
+      </div>
+    );
+  };
+
   return (
     <Dialog
       isOpen={isOpen}
@@ -62,6 +83,8 @@ const ResultModal: React.FC<ResultModalProps> = ({
             <h3 className={styles.gradeText}>{gradeText}</h3>
             <p className={styles.encouragementText}>{encouragementText}</p>
 
+            {renderRatingChange()}
+
             <div className={styles.starContainer}>
               <StarRating value={result.stars} max={3} size="lg" readonly />
             </div>
@@ -82,20 +105,33 @@ const ResultModal: React.FC<ResultModalProps> = ({
             <span className={styles.statLabel}>總題數</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{formatTime(result.timeSpent)}</span>
+            <span className={styles.statValue}>
+              {formatTime(result.timeSpent)}
+            </span>
             <span className={styles.statLabel}>用時</span>
           </div>
         </div>
 
         {result.wrongQuestions.length > 0 && (
-          <WrongAnswerList wrongQuestions={result.wrongQuestions} questions={questions} />
+          <WrongAnswerList
+            wrongQuestions={result.wrongQuestions}
+            questions={questions}
+          />
         )}
 
         <div className={styles.actions}>
-          <Button variant="primaryOutline" onClick={onRetry} className={styles.retryButton}>
+          <Button
+            variant="primaryOutline"
+            onClick={onRetry}
+            className={styles.retryButton}
+          >
             再試一次
           </Button>
-          <Button variant="primary" onClick={onBackToDashboard} className={styles.dashboardButton}>
+          <Button
+            variant="primary"
+            onClick={onBackToDashboard}
+            className={styles.dashboardButton}
+          >
             返回 Dashboard
           </Button>
         </div>

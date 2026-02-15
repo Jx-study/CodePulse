@@ -8,16 +8,19 @@
  * - 答案解析
  */
 
-import React, { useState } from 'react';
-import type { WrongQuestion, Question } from '@/types/practice';
-import styles from './ResultModal.module.scss';
+import React, { useState } from "react";
+import type { WrongQuestion, Question } from "@/types/practice";
+import styles from "./ResultModal.module.scss";
 
 interface WrongAnswerListProps {
   wrongQuestions: WrongQuestion[];
   questions: Question[];
 }
 
-const WrongAnswerList: React.FC<WrongAnswerListProps> = ({ wrongQuestions, questions }) => {
+const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
+  wrongQuestions,
+  questions,
+}) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const getQuestionById = (questionId: string): Question | undefined => {
@@ -29,9 +32,12 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({ wrongQuestions, quest
     return option ? `(${option.id}) ${option.text}` : optionId;
   };
 
-  const formatAnswer = (question: Question, answer: string | string[]): string => {
+  const formatAnswer = (
+    question: Question,
+    answer: string | string[],
+  ): string => {
     if (Array.isArray(answer)) {
-      return answer.map((a) => getOptionText(question, a)).join(', ');
+      return answer.map((a) => getOptionText(question, a)).join(", ");
     }
     return getOptionText(question, answer);
   };
@@ -61,13 +67,20 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({ wrongQuestions, quest
                 onClick={() => toggleExpand(index)}
                 aria-expanded={isExpanded}
               >
-                <span className={styles.questionNumber}>第 {index + 1} 題</span>
+                <span className={styles.questionNumber}>
+                  第 {index + 1} 題
+                  <span className={styles.difficultyBadge}>
+                    (Rating: {question.difficultyRating || "N/A"})
+                  </span>
+                </span>
                 <span className={styles.questionPreview}>
                   {question.title.length > 50
                     ? `${question.title.substring(0, 50)}...`
                     : question.title}
                 </span>
-                <span className={styles.expandIcon}>{isExpanded ? '−' : '+'}</span>
+                <span className={styles.expandIcon}>
+                  {isExpanded ? "−" : "+"}
+                </span>
               </button>
 
               {isExpanded && (
@@ -80,7 +93,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({ wrongQuestions, quest
                       <span className={styles.answerValue}>
                         {wrongQ.userAnswer
                           ? formatAnswer(question, wrongQ.userAnswer)
-                          : '未作答'}
+                          : "未作答"}
                       </span>
                     </div>
                     <div className={styles.correctAnswer}>
@@ -93,7 +106,9 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({ wrongQuestions, quest
 
                   <div className={styles.explanation}>
                     <span className={styles.explanationLabel}>解析：</span>
-                    <p className={styles.explanationText}>{wrongQ.explanation}</p>
+                    <p className={styles.explanationText}>
+                      {wrongQ.explanation}
+                    </p>
                   </div>
                 </div>
               )}

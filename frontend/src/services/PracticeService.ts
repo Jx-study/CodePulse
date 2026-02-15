@@ -7,7 +7,41 @@
  * - 生成測驗結果報告
  */
 
-import type { Question, PracticeSession, PracticeResult } from '@/types/practice';
+import { EloService } from "./EloService";
+import type {
+  Question,
+  PracticeSession,
+  PracticeResult,
+} from "@/types/practice";
+
+type ValidatorFn = (question: Question, userAnswer: any) => boolean;
+
+const Validators: Record<string, ValidatorFn> = {
+  "single-choice": (q, ans) => ans === q.correctAnswer,
+
+  "multiple-choice": (q, ans) => {
+    const correct = Array.isArray(q.correctAnswer)
+      ? q.correctAnswer
+      : [q.correctAnswer];
+    const user = Array.isArray(ans) ? ans : [ans];
+    if (correct.length !== user.length) return false;
+    return correct.every((a) => user.includes(a));
+  },
+
+  "true-false": (q, ans) => ans === q.correctAnswer,
+
+  // TODO: 預測行數
+  "predict-output": (q, ans) => {
+    // 這裡可以做去空白、大小寫忽略等處理
+    return String(ans).trim() === String(q.correctAnswer).trim();
+  },
+
+  // TODO: 程式碼填空
+  "code-fill": (q, ans) => {
+    // 可能需要更複雜的 Regex 驗證
+    return ans === q.correctAnswer;
+  },
+};
 
 export class PracticeService {
   /**
@@ -18,27 +52,20 @@ export class PracticeService {
    */
   static validateAnswer(
     question: Question,
-    userAnswer: string | string[] | undefined
+    userAnswer: string | string[] | undefined,
   ): boolean {
-    if (userAnswer === undefined || userAnswer === null || userAnswer === '') {
+    if (userAnswer === undefined || userAnswer === null || userAnswer === "") {
       return false;
     }
 
-    if (question.type === 'single-choice') {
-      return userAnswer === question.correctAnswer;
-    } else if (question.type === 'multiple-choice') {
-      const correct = Array.isArray(question.correctAnswer)
-        ? question.correctAnswer
-        : [question.correctAnswer];
-      const user = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+    // 根據題目類型找對應的驗證器
+    const validator = Validators[question.type];
 
-      if (correct.length !== user.length) return false;
-
-      return correct.every((ans) => user.includes(ans));
-    } else if (question.type === 'true-false') {
-      return userAnswer === question.correctAnswer;
+    if (validator) {
+      return validator(question, userAnswer);
     }
 
+    console.warn(`No validator found for type: ${question.type}`);
     return false;
   }
 
@@ -48,20 +75,37 @@ export class PracticeService {
    * @returns 測驗結果
    */
   static calculateResult(session: PracticeSession): PracticeResult {
-    const { questions, userAnswers } = session;
+    const { questions, userAnswers, userStartRating } = session;
+
     let correctCount = 0;
-    const wrongQuestions: PracticeResult['wrongQuestions'] = [];
+    let currentRating = userStartRating || 1000; // 預設值
+    const wrongQuestions: PracticeResult["wrongQuestions"] = [];
 
     questions.forEach((question) => {
       const userAnswer = userAnswers[question.id];
       const isCorrect = this.validateAnswer(question, userAnswer);
+
+      // 1. 取得題目難度 (優先用 rating，沒有則用 difficulty 換算)
+      const questionRating =
+        question.difficultyRating ||
+        EloService.difficultyToElo(question.difficulty);
+
+      // 2. 計算這一題造成的 Elo 變化
+      // 採用「逐題結算」的模擬方式，實際上也可以先算出總分再算 Elo
+      // 但逐題算能讓每一題的難度都發揮作用
+      const actualScore = isCorrect ? 1 : 0;
+      currentRating = EloService.calculateNewRating(
+        currentRating,
+        questionRating,
+        actualScore,
+      );
 
       if (isCorrect) {
         correctCount++;
       } else {
         wrongQuestions.push({
           questionId: question.id,
-          userAnswer: userAnswer || '',
+          userAnswer: userAnswer || "",
           correctAnswer: question.correctAnswer,
           explanation: question.explanation,
         });
@@ -71,6 +115,7 @@ export class PracticeService {
     const totalQuestions = questions.length;
     const wrongCount = totalQuestions - correctCount;
     const score = Math.round((correctCount / totalQuestions) * 100);
+    const ratingDelta = currentRating - (userStartRating || 1000);
     const stars = this.calculateStars(score);
     const timeSpent = session.endTime
       ? (session.endTime - session.startTime) / 1000
@@ -87,6 +132,9 @@ export class PracticeService {
       timeSpent,
       isPassed: score >= 60,
       wrongQuestions,
+      oldRating: userStartRating || 1000,
+      newRating: currentRating,
+      ratingDelta,
     };
   }
 
@@ -110,11 +158,11 @@ export class PracticeService {
    */
   static isAllAnswered(
     questions: Question[],
-    userAnswers: Record<string, string | string[]>
+    userAnswers: Record<string, string | string[]>,
   ): boolean {
     return questions.every((q) => {
       const answer = userAnswers[q.id];
-      return answer !== undefined && answer !== null && answer !== '';
+      return answer !== undefined && answer !== null && answer !== "";
     });
   }
 
@@ -126,11 +174,11 @@ export class PracticeService {
    */
   static getAnsweredCount(
     questions: Question[],
-    userAnswers: Record<string, string | string[]>
+    userAnswers: Record<string, string | string[]>,
   ): number {
     return questions.filter((q) => {
       const answer = userAnswers[q.id];
-      return answer !== undefined && answer !== null && answer !== '';
+      return answer !== undefined && answer !== null && answer !== "";
     }).length;
   }
 
@@ -142,13 +190,13 @@ export class PracticeService {
   static getGradeText(stars: 0 | 1 | 2 | 3): string {
     switch (stars) {
       case 3:
-        return '完美！';
+        return "完美！";
       case 2:
-        return '優秀！';
+        return "優秀！";
       case 1:
-        return '及格！';
+        return "及格！";
       default:
-        return '需要加強';
+        return "需要加強";
     }
   }
 
@@ -159,13 +207,13 @@ export class PracticeService {
    */
   static getEncouragementText(result: PracticeResult): string {
     if (result.stars === 3) {
-      return '太棒了！你完全掌握了這個主題！🎉';
+      return "太棒了！你完全掌握了這個主題！";
     } else if (result.stars === 2) {
-      return '做得很好！再接再厲！💪';
+      return "做得很好！再接再厲！";
     } else if (result.stars === 1) {
-      return '不錯的開始！繼續努力！📚';
+      return "不錯的開始！繼續努力！";
     } else {
-      return '別氣餒！再試一次，你一定可以的！💡';
+      return "別氣餒！再試一次，你一定可以的！";
     }
   }
 }

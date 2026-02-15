@@ -8,15 +8,16 @@
 // ==========================================
 
 export interface Option {
-  id: 'A' | 'B' | 'C' | 'D' | 'E';
+  id: "A" | "B" | "C" | "D" | "E";
   text: string;
 }
 
 export interface Question {
   id: string;
-  type: 'single-choice' | 'multiple-choice' | 'true-false';
-  category: 'basic' | 'application' | 'complexity';
+  type: "single-choice" | "multiple-choice" | "true-false";
+  category: "basic" | "application" | "complexity";
   difficulty: 1 | 2 | 3;
+  difficultyRating?: number;
   title: string;
   options: Option[];
   correctAnswer: string | string[];
@@ -39,7 +40,8 @@ export interface PracticeSession {
   userAnswers: Record<string, string | string[]>;
   startTime: number;
   endTime?: number;
-  status: 'in-progress' | 'completed' | 'abandoned';
+  status: "in-progress" | "completed" | "abandoned";
+  userStartRating: number;
 }
 
 export interface PracticeResult {
@@ -53,6 +55,9 @@ export interface PracticeResult {
   timeSpent: number;
   isPassed: boolean;
   wrongQuestions: WrongQuestion[];
+  oldRating: number; // 測驗前分數
+  newRating: number; // 測驗後分數
+  ratingDelta: number; // 分數變化 (+15, -20)
 }
 
 export interface WrongQuestion {
