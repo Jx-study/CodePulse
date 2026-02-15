@@ -35,11 +35,63 @@ const circularQueueCode = `class CircularQueue:
             return None
         return self.queue[self.front]`;
 
+const circularQueueFillCode = `class CircularQueue:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.queue = [None] * capacity
+        self.front = (a)
+        self.rear = 0
+        self.size = 0
+
+    def enqueue(self, value):
+        if self.size == self.capacity:
+            raise Exception("Queue Overflow")
+
+        self.queue[self.rear] = value
+        self.rear = (self.rear + 1) % self.capacity
+        self.size += 1
+
+    def dequeue(self):
+        if self.size == 0:
+            raise Exception("Queue Underflow")
+
+        value = self.queue[self.front]
+        self.front = (self.front + 1) % (b)
+        self.size -= 1
+        return value
+
+    def peek(self):
+        if self.size == (c):
+            return None
+        return self.queue[self.front]`;
+
 export const queueQuiz: PracticeQuiz = {
   levelId: "queue",
   levelName: "佇列 (Queue)",
   passingScore: 60,
   questions: [
+    {
+      id: "queue-code-fill-1",
+      type: "fill-code",
+      category: "application",
+      difficulty: 3,
+      difficultyRating: 1450,
+      title:
+        "請閱讀下方的 Circular Queue 實作程式碼，並填入 (a), (b), (c) 處缺失的變數或數值，使其邏輯正確。",
+      code: circularQueueFillCode,
+      language: "python",
+      // 定義填空欄位
+      options: [
+        { id: "a", text: "" },
+        { id: "b", text: "" },
+        { id: "c", text: "" },
+      ],
+      // 正確答案 (順序對應 options)
+      correctAnswer: ["0", "self.capacity", "0"],
+      explanation:
+        "1. (a) 初始化 front 指標為 0。\n2. (b) 環狀佇列移動指標需取餘數 capacity (self.capacity)。\n3. (c) 判斷佇列是否為空，檢查 size 是否為 0。",
+      points: 5,
+    },
     {
       id: "queue-code-1",
       type: "predict-line",
@@ -47,7 +99,7 @@ export const queueQuiz: PracticeQuiz = {
       difficulty: 3,
       difficultyRating: 1500,
       title:
-        "請閱讀右側 (或下方) 的 Circular Queue 實作程式碼。假設目前 Queue 內資料為 [1, 2, 3] (Capacity=5)，且 front=0, rear=3, size=3。\n\n若執行一次 `dequeue()` 操作，請依序填寫程式執行的行號序列 (以空格分隔)。",
+        "請閱讀下方的 Circular Queue 實作程式碼。假設目前 Queue 內資料為 [1, 2, 3] (Capacity=5)，且 front=0, rear=3, size=3。\n\n若執行一次 `dequeue()` 操作，請依序填寫程式執行的行號序列 (以空格分隔)。",
       code: circularQueueCode,
       language: "python",
       // 選項可以是空的，因為這是填充題

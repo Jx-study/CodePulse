@@ -50,6 +50,7 @@ function Practice() {
       if (
         q.type !== "true-false" &&
         q.type !== "predict-line" &&
+        q.type !== "fill-code" &&
         newQ.options
       ) {
         newQ.options = shuffleArray(newQ.options);
@@ -108,6 +109,21 @@ function Practice() {
     });
   };
 
+  const handleFillCodeChange = (
+    questionId: string,
+    index: number,
+    value: string,
+  ) => {
+    setUserAnswers((prev) => {
+      const currentArr = Array.isArray(prev[questionId])
+        ? [...(prev[questionId] as string[])]
+        : [];
+
+      currentArr[index] = value;
+      return { ...prev, [questionId]: currentArr };
+    });
+  };
+
   const handleSubmit = () => {
     if (!originalQuiz) return;
 
@@ -159,7 +175,9 @@ function Practice() {
 
   const currentQuestion = randomizedQuestions[currentQuestionIndex];
   const isMultipleChoice = currentQuestion.type === "multiple-choice";
-  const isCodeQuestion = currentQuestion.type === "predict-line";
+  const isPredictLineQuestion = currentQuestion.type === "predict-line";
+  const isFillCodeQuestion = currentQuestion.type === "fill-code";
+  const showCodeEditor = isPredictLineQuestion || isFillCodeQuestion;
   const answeredCount = Object.keys(userAnswers).length;
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -227,11 +245,13 @@ function Practice() {
               <span className={styles.typeBadge}>
                 {isMultipleChoice
                   ? " (多選)"
-                  : isCodeQuestion
-                    ? " (填空)"
+                  : isPredictLineQuestion
+                    ? " (行數填空)"
                     : currentQuestion.type === "true-false"
                       ? " (是非)"
-                      : " (單選)"}
+                      : currentQuestion.type === "fill-code"
+                        ? "程式填空"
+                        : " (單選)"}
               </span>
             </h2>
           </div>
@@ -239,7 +259,7 @@ function Practice() {
           <div className={styles.questionContent}>
             <p className={styles.questionText}>{currentQuestion.title}</p>
 
-            {isCodeQuestion && currentQuestion.code && (
+            {showCodeEditor && currentQuestion.code && (
               <div
                 style={{
                   marginTop: "16px",
@@ -262,7 +282,7 @@ function Practice() {
               </div>
             )}
 
-            {isCodeQuestion ? (
+            {isPredictLineQuestion ? (
               <div style={{ marginTop: "12px" }}>
                 <label
                   style={{
@@ -285,6 +305,56 @@ function Practice() {
                   }
                   placeholder="輸入答案..."
                 />
+              </div>
+            ) : isFillCodeQuestion ? (
+              <div className={styles.fillCodeInputs}>
+                <p
+                  style={{
+                    color: "#aaa",
+                    fontSize: "14px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  請在下方填入對應代號的值：
+                </p>
+                {currentQuestion.options?.map((opt, index) => {
+                  const currentAnsArray =
+                    (userAnswers[currentQuestion.id] as string[]) || [];
+                  return (
+                    <div
+                      key={opt.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <label
+                        style={{
+                          width: "40px",
+                          color: "#4a90e2",
+                          fontWeight: "bold",
+                          fontFamily: "monospace",
+                          fontSize: "16px",
+                        }}
+                      >
+                        ({opt.id})
+                      </label>
+                      <Input
+                        type="text"
+                        value={currentAnsArray[index] || ""}
+                        onChange={(e) =>
+                          handleFillCodeChange(
+                            currentQuestion.id,
+                            index,
+                            e.target.value,
+                          )
+                        }
+                        placeholder={`填入 (${opt.id}) 的答案...`}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className={styles.optionList}>

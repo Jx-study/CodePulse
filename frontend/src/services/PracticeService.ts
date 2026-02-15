@@ -45,6 +45,21 @@ const Validators: Record<string, ValidatorFn> = {
 
     return normalize(ans) === normalize(correctStr);
   },
+
+  "fill-code": (q, ans) => {
+    // ans 應該是字串陣列 (使用者輸入的多個值)
+    if (!Array.isArray(ans) || !Array.isArray(q.correctAnswer)) return false;
+
+    if (ans.length !== q.correctAnswer.length) return false;
+
+    // 正規化：去頭尾空白
+    const normalize = (str: string) => (str || "").trim();
+
+    // 每一格都要對才算對
+    return q.correctAnswer.every((correctStr, index) => {
+      return normalize(ans[index]) === normalize(correctStr);
+    });
+  },
 };
 
 export class PracticeService {

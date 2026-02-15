@@ -43,6 +43,16 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
       return Array.isArray(answer) ? answer.join(" ") : answer;
     }
 
+    if (question.type === "fill-code" && Array.isArray(answer)) {
+      // 顯示格式如：(a) 0, (b) self.capacity, (c) 0
+      return answer
+        .map((val, idx) => {
+          const label = question.options?.[idx]?.id || `?`;
+          return `(${label}) ${val || "(空)"}`;
+        })
+        .join(",  ");
+    }
+
     // 選擇題則嘗試轉換為選項文字
     if (Array.isArray(answer)) {
       return answer.map((a) => getOptionText(question, a)).join(", ");

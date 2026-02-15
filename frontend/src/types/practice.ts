@@ -14,7 +14,12 @@ export interface Option {
 
 export interface Question {
   id: string;
-  type: "single-choice" | "multiple-choice" | "true-false" | "predict-line";
+  type:
+    | "single-choice"
+    | "multiple-choice"
+    | "true-false"
+    | "predict-line"
+    | "fill-code";
   category: "basic" | "application" | "complexity";
   difficulty: 1 | 2 | 3;
   difficultyRating?: number;
