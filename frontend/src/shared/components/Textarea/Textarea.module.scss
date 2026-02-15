@@ -1,0 +1,67 @@
+// ==================== Base Textarea ====================
+.textarea {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-sm;
+  font-family: inherit; // 繼承系統字體
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  transition: all $transition-base;
+  outline: none;
+  resize: vertical; // 只允許垂直調整大小
+
+  &::placeholder {
+    color: var(--text-tertiary);
+    opacity: 0.7;
+  }
+
+  // ========== Focus State ==========
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  // ========== Hover State ==========
+  &:hover:not(:disabled):not(:read-only) {
+    border-color: var(--input-border-hover);
+  }
+
+  // ========== Error State ==========
+  &.textareaError {
+    border-color: var(--danger-color);
+
+    &:focus {
+      border-color: var(--danger-color);
+      box-shadow: 0 0 0 3px rgba(var(--danger-color-rgb), 0.1);
+    }
+  }
+
+  // ========== Disabled State ==========
+  &.textareaDisabled,
+  &:disabled {
+    background-color: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    opacity: 0.6;
+    resize: none; // 禁用時不允許調整大小
+  }
+
+  // ========== ReadOnly State ==========
+  &.textareaReadOnly,
+  &:read-only {
+    background-color: var(--bg-secondary);
+    cursor: default;
+    resize: none; // 唯讀時不允許調整大小
+  }
+}
+
+// ==================== Responsive Design ====================
+@media (max-width: $mobile) {
+  .textarea {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-xs;
+  }
+}

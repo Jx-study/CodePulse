@@ -1,4 +1,17 @@
 import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
+import type { StatusConfig } from './statusConfig';
+
+/**
+ * 補充問題參考資料結構
+ * 用於展示演算法在不同情境下的應用範例
+ */
+export interface ProblemReference {
+  id: string | number;
+  title: string;
+  concept: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  url: string;
+}
 
 /**
  * 統一的實作配置介面
@@ -19,6 +32,9 @@ export interface LevelImplementationConfig {
     action?: any,
     config?: any
   ) => AnimationStep[];
+  relatedProblems?: ProblemReference[];
+  /** Optional custom status configuration - 可選的自訂狀態配置 */
+  statusConfig?: StatusConfig;
   getCodeConfig?: (payload?: any) => CodeConfig;
 }
 

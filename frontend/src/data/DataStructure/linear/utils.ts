@@ -37,7 +37,7 @@ export const createBoxes = (
     startY = 200,
     gap = 70,
     highlightIndex = -1,
-    status = "unfinished",
+    status = Status.Unfinished,
     forceXShiftIndex = -1,
     shiftDirection = 0,
     overrideStatusMap = {},
@@ -73,14 +73,14 @@ export const createBoxes = (
     } else if (highlightIndex === -1) {
       box.setStatus(status);
     } else if (i === highlightIndex) {
-      box.setStatus(status === "unfinished" ? "target" : status);
+      box.setStatus(status === Status.Unfinished ? Status.Target : status);
     } else {
-      box.setStatus("unfinished");
+      box.setStatus(Status.Unfinished);
     }
 
     // 處理 Array 位移時的特殊狀態
     if (forceXShiftIndex !== -1 && i >= forceXShiftIndex) {
-      if (i !== highlightIndex) box.setStatus("prepare");
+      if (i !== highlightIndex) box.setStatus(Status.Prepare);
     }
 
     return box;
@@ -92,7 +92,7 @@ export function createNodeInstance(
   val: number | undefined,
   x: number,
   y: number,
-  status: Status = "unfinished",
+  status: Status = Status.Unfinished,
   desc: string = ""
 ) {
   const n = new Node();

@@ -83,7 +83,7 @@ const generateFrame = (
 
   treeElements.forEach((el) => {
     if (el instanceof Node) {
-      const status = statusMap[el.id] ? statusMap[el.id] : "inactive";
+      const status = statusMap[el.id] ? statusMap[el.id] : Status.Inactive;
       el.setStatus(status);
     }
   });
@@ -107,21 +107,21 @@ const generateFrame = (
     if (isActiveItem) {
       if (animationState === "pushing") {
         box.moveTo(baseX, 50);
-        box.setStatus("prepare");
+        box.setStatus(Status.Prepare);
       } else if (animationState === "popping") {
         if (containerType === "stack") {
           box.moveTo(baseX, -50);
         } else {
           box.moveTo(baseX, 420);
         }
-        box.setStatus("complete");
+        box.setStatus(Status.Complete);
       } else {
         box.moveTo(baseX, baseY);
-        box.setStatus("target");
+        box.setStatus(Status.Target);
       }
     } else {
       box.moveTo(baseX, baseY);
-      box.setStatus("unfinished");
+      box.setStatus(Status.Unfinished);
     }
 
     box.width = 120;
@@ -191,7 +191,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
     }
 
     callStack.push(node);
-    statusMap[node.id] = "target";
+    statusMap[node.id] = Status.Target;
     visited.push(Number(node.value));
     steps.push(
       generateFrame(
@@ -205,10 +205,10 @@ function runPreorder(inputData: any[]): AnimationStep[] {
         getVars(node),
       ),
     );
-    statusMap[node.id] = "complete";
+    statusMap[node.id] = Status.Complete;
 
     if (node.left) {
-      statusMap[node.left.id] = "prepare";
+      statusMap[node.left.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -225,7 +225,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       traverse(node.left);
 
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -241,7 +241,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       statusMap[node.id] = originalStatus;
     } else {
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -282,7 +282,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
     }
 
     if (node.right) {
-      statusMap[node.right.id] = "prepare";
+      statusMap[node.right.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -299,7 +299,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       traverse(node.right);
 
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -315,7 +315,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       statusMap[node.id] = originalStatus;
     } else {
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -423,7 +423,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
     if (!node) return;
 
     callStack.push(node);
-    statusMap[node.id] = "target";
+    statusMap[node.id] = Status.Target;
     steps.push(
       generateFrame(
         inputData,
@@ -436,10 +436,10 @@ function runInorder(inputData: any[]): AnimationStep[] {
         getVars(node),
       ),
     );
-    statusMap[node.id] = "unfinished";
+    statusMap[node.id] = Status.Unfinished;
 
     if (node.left) {
-      statusMap[node.left.id] = "prepare";
+      statusMap[node.left.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -456,7 +456,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
       traverse(node.left);
 
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -472,7 +472,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
       statusMap[node.id] = originalStatus;
     } else {
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -512,7 +512,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
       statusMap[node.id] = originalStatus;
     }
 
-    statusMap[node.id] = "complete";
+    statusMap[node.id] = Status.Complete;
     visited.push(node.value);
     steps.push(
       generateFrame(
@@ -528,7 +528,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
     );
 
     if (node.right) {
-      statusMap[node.right.id] = "prepare";
+      statusMap[node.right.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -545,7 +545,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
       traverse(node.right);
 
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -561,7 +561,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
       statusMap[node.id] = originalStatus;
     } else {
       const originalStatus = statusMap[node.id];
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -669,7 +669,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
     if (!node) return;
 
     callStack.push(node);
-    statusMap[node.id] = "target";
+    statusMap[node.id] = Status.Target;
     steps.push(
       generateFrame(
         inputData,
@@ -682,10 +682,10 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         getVars(node),
       ),
     );
-    statusMap[node.id] = "unfinished";
+    statusMap[node.id] = Status.Unfinished;
 
     if (node.left) {
-      statusMap[node.left.id] = "prepare";
+      statusMap[node.left.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -701,7 +701,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
       delete statusMap[node.left.id];
       traverse(node.left);
 
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -714,9 +714,9 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           getVars(node),
         ),
       );
-      statusMap[node.id] = "unfinished";
+      statusMap[node.id] = Status.Unfinished;
     } else {
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -756,7 +756,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
     }
 
     if (node.right) {
-      statusMap[node.right.id] = "prepare";
+      statusMap[node.right.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -772,7 +772,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
       delete statusMap[node.right.id];
       traverse(node.right);
 
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -786,7 +786,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         ),
       );
     } else {
-      statusMap[node.id] = "target";
+      statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
           inputData,
@@ -825,7 +825,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
       );
     }
 
-    statusMap[node.id] = "complete";
+    statusMap[node.id] = Status.Complete;
     visited.push(node.value);
     steps.push(
       generateFrame(
@@ -898,7 +898,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
       ),
     );
     queue.push(root);
-    statusMap[root.id] = "unfinished";
+    statusMap[root.id] = Status.Unfinished;
   } else return steps;
 
   while (queue.length > 0) {
@@ -916,7 +916,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
     );
 
     const curr = queue[0];
-    statusMap[curr.id] = "target";
+    statusMap[curr.id] = Status.Target;
     steps.push(
       generateFrame(
         inputData,
@@ -931,7 +931,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
     );
 
     queue.shift();
-    statusMap[curr.id] = "complete";
+    statusMap[curr.id] = Status.Complete;
     visited.push(curr.value);
     steps.push(
       generateFrame(
@@ -947,7 +947,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
     );
 
     if (curr.left) {
-      statusMap[curr.left.id] = "prepare";
+      statusMap[curr.left.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -960,7 +960,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
           getVars(curr),
         ),
       );
-      statusMap[curr.left.id] = "unfinished";
+      statusMap[curr.left.id] = Status.Unfinished;
       queue.push(curr.left);
     } else {
       steps.push(
@@ -978,7 +978,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
     }
 
     if (curr.right) {
-      statusMap[curr.right.id] = "prepare";
+      statusMap[curr.right.id] = Status.Prepare;
       steps.push(
         generateFrame(
           inputData,
@@ -991,7 +991,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
           getVars(curr),
         ),
       );
-      statusMap[curr.right.id] = "unfinished";
+      statusMap[curr.right.id] = Status.Unfinished;
       queue.push(curr.right);
     } else {
       steps.push(
@@ -1149,4 +1149,27 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
     { id: "node-7", value: 7 },
   ],
   createAnimationSteps: createBinaryTreeAnimationSteps,
+  relatedProblems: [
+    {
+      id: 144,
+      title: "Binary Tree Preorder Traversal",
+      concept: "前序遍歷：Root -> Left -> Right (迭代與遞迴實作)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/binary-tree-preorder-traversal/",
+    },
+    {
+      id: 94,
+      title: "Binary Tree Inorder Traversal",
+      concept: "中序遍歷：Left -> Root -> Right (BST 會得到排序結果)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+    },
+    {
+      id: 102,
+      title: "Binary Tree Level Order Traversal",
+      concept: "層序遍歷 (BFS)：逐層訪問節點",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+    },
+  ],
 };

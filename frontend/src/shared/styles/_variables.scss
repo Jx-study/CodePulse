@@ -39,6 +39,13 @@ $success-color: #4caf50;
 $warning-color: #f59e0b;
 $info-color: #3b82f6;
 
+// 資料結構狀態顏色（對應 BaseElement Status）
+$status-unfinished: #1d79cfff;
+$status-prepare: #f59e0b;
+$status-target: #ff6b35;
+$status-complete: #46f336ff;
+$status-inactive: #555555;
+
 // 元件使用的通用變數
 $primary-color: #635bff;
 $execution-color: #10b981;
@@ -99,10 +106,12 @@ $section-title-desktop: 2.5rem; // 40px
 // 主要字體棧
 $font-family:
   "Inter",
+  "Noto Sans TC",
+  "PingFang TC",
+  "Microsoft JhengHei",
+  "Source Han Sans TW",
   "Source Han Sans SC",
   "Noto Sans CJK SC",
-  "Microsoft YaHei",
-  "PingFang SC",
   -apple-system,
   BlinkMacSystemFont,
   "Segoe UI",
@@ -110,16 +119,25 @@ $font-family:
 
 // 針對語言的專用字體
 $font-family-zh:
-  "Inter", "Source Han Sans SC", "Source Han Sans TW", "Source Han Sans CN",
-  "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑", "PingFang SC", sans-serif;
-
+  "Inter", 
+  "Noto Sans TC", 
+  "Source Han Sans TW", 
+  "PingFang TC", 
+  "Microsoft JhengHei", 
+  "Source Han Sans SC",
+  "Source Han Sans CN", 
+  "Noto Sans CJK SC", 
+  "Microsoft YaHei", 
+  sans-serif;
+  
 // 程式碼專用字體
 $font-family-code:
   "SF Mono", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
 
 // ========== 其他 ==========
 // 佈局尺寸
-$header-height: 64px;
+$header-height: 5rem; // 80px - 桌面/平板版
+$header-height-mobile: 4.5rem; // 72px - 手機版
 
 // 斷點
 $mobile: 768px;

@@ -68,7 +68,7 @@ function runGraphBFS(
   // BFS 初始化
   const queue: string[] = [realStartId];
   visited.add(realStartId);
-  statusMap[realStartId] = "prepare";
+  statusMap[realStartId] = Status.Prepare;
   distanceMap[realStartId] = 0; // 起點距離為 0
 
   steps.push(
@@ -91,7 +91,7 @@ function runGraphBFS(
       updateLinkStatus(linkStatusMap, parentId, currId, "visited", false);
     }
 
-    statusMap[currId] = "target";
+    statusMap[currId] = Status.Target;
 
     steps.push(
       generateGraphFrame(
@@ -125,7 +125,7 @@ function runGraphBFS(
           queue.push(neighbor.id);
           newNeighbors.push(neighbor.id);
 
-          statusMap[neighbor.id] = "prepare";
+          statusMap[neighbor.id] = Status.Prepare;
           distanceMap[neighbor.id] = currentDist + 1; // 鄰居距離 = 當前距離 + 1
           updateLinkStatus(linkStatusMap, currId, neighbor.id, "path", false);
         }
@@ -146,7 +146,7 @@ function runGraphBFS(
     }
 
     // 處理完畢 -> Unfinished
-    statusMap[currId] = "unfinished";
+    statusMap[currId] = Status.Unfinished;
   }
 
   // 路徑回溯與結束
@@ -156,7 +156,7 @@ function runGraphBFS(
     const path: string[] = [realEndId];
 
     // 先標終點
-    statusMap[realEndId] = "complete";
+    statusMap[realEndId] = Status.Complete;
 
     while (curr !== realStartId) {
       const parent = parentMap.get(curr);
@@ -169,7 +169,7 @@ function runGraphBFS(
     }
 
     // 將路徑上所有節點標示為 complete
-    path.forEach((id) => (statusMap[id] = "complete"));
+    path.forEach((id) => (statusMap[id] = Status.Complete));
 
     steps.push(
       generateGraphFrame(
@@ -260,7 +260,7 @@ function runGridBFS(
   // BFS 初始化
   let queue: number[] = [startIndex];
   visited.add(startIndex);
-  statusMap[startIndex] = "target";
+  statusMap[startIndex] = Status.Target;
   distanceMap[startIndex] = 0;
 
   let found = false;
@@ -279,7 +279,7 @@ function runGridBFS(
 
     // Step A: 標記當前層級為 Target (正在處理)
     for (const idx of queue) {
-      statusMap[idx] = "target";
+      statusMap[idx] = Status.Target;
       currentLevelIndices.push(idx);
     }
 
@@ -320,7 +320,7 @@ function runGridBFS(
             parentMap.set(nIndex, currIndex); // 記錄路徑來源
             nextQueue.push(nIndex);
             prepareIndices.push(nIndex);
-            statusMap[nIndex] = "prepare"; // 標記為下階段 (Prepare)
+            statusMap[nIndex] = Status.Prepare; // 標記為下階段 (Prepare)
             distanceMap[nIndex] = currentDist + 1;
           }
         }
@@ -342,7 +342,7 @@ function runGridBFS(
 
     // Step C: 這一層處理結束，將 Target 轉為 Unfinished (已訪問歷史)，準備進入下一層
     for (const idx of queue) {
-      statusMap[idx] = "unfinished"; // Visited
+      statusMap[idx] = Status.Unfinished; // Visited
     }
 
     // 更新 Queue
@@ -351,7 +351,7 @@ function runGridBFS(
 
   if (found) {
     // A. 標記終點
-    statusMap[endIndex] = "complete";
+    statusMap[endIndex] = Status.Complete;
     steps.push(
       generateGridFrame(
         gridData,
@@ -374,7 +374,7 @@ function runGridBFS(
 
     // C. 顯示最短路徑
     path.forEach((idx) => {
-      statusMap[idx] = "complete";
+      statusMap[idx] = Status.Complete;
     });
 
     steps.push(

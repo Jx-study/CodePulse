@@ -1,0 +1,17 @@
+.problemsTab {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+
+  p {
+    font-size: $font-lg;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}

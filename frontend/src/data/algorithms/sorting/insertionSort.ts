@@ -31,7 +31,7 @@ const generateFrame = (
     box.autoScale = true;
 
     if (sortedIndices.has(i) && !overrideStatusMap[i]) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -77,7 +77,7 @@ export function createInsertionSortAnimationSteps(
         insertVal: keyVal,
         scanPos: i - 1,
       },
-      elements: generateFrame(arr, { [i]: "target" }, sortedIndices),
+      elements: generateFrame(arr, { [i]: Status.Target }, sortedIndices),
     });
 
     let j = i - 1;
@@ -100,7 +100,7 @@ export function createInsertionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [currentKeyIndex]: "target", [j]: "prepare" },
+          { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
           sortedIndices
         ),
       });
@@ -121,7 +121,7 @@ export function createInsertionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [j]: "target", [currentKeyIndex]: "target" },
+            { [j]: Status.Target, [currentKeyIndex]: Status.Target },
             sortedIndices
           ),
         });
@@ -141,7 +141,7 @@ export function createInsertionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [currentKeyIndex]: "target", [j]: "prepare" },
+            { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
             sortedIndices
           ),
         });
@@ -157,7 +157,7 @@ export function createInsertionSortAnimationSteps(
         insertPos: currentKeyIndex,
         insertVal: keyVal,
       },
-      elements: generateFrame(arr, { [currentKeyIndex]: "complete" }, sortedIndices),
+      elements: generateFrame(arr, { [currentKeyIndex]: Status.Complete }, sortedIndices),
     });
     
     steps.push({
@@ -252,4 +252,27 @@ export const insertionSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 6 },
   ],
   createAnimationSteps: createInsertionSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 147,
+      title: "Insertion Sort List",
+      concept: "直接應用：在鏈結串列上實作插入排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/insertion-sort-list/",
+    },
+    {
+      id: 148,
+      title: "Sort List",
+      concept: "進階排序：鏈結串列排序問題，可用插入排序或合併排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-list/",
+    },
+    {
+      id: 88,
+      title: "Merge Sorted Array",
+      concept: "插入排序概念延伸：合併兩個已排序陣列",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/merge-sorted-array/",
+    },
+  ],
 };

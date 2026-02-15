@@ -24,7 +24,7 @@ const generateFrame = (
 
     // 如果該索引已經在已排序集合中，強制設為 complete
     if (sortedIndices.has(i)) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -67,8 +67,8 @@ export function createBubbleSortAnimationSteps(
       const val2 = arr[j + 1].value ?? 0;
 
       const compareStatus: Record<number, Status> = {};
-      compareStatus[j] = "prepare";
-      compareStatus[j + 1] = "prepare";
+      compareStatus[j] = Status.Prepare;
+      compareStatus[j + 1] = Status.Prepare;
 
       steps.push({
         stepNumber: steps.length + 1,
@@ -104,8 +104,8 @@ export function createBubbleSortAnimationSteps(
         arr[j] = arr[j + 1];
         arr[j + 1] = temp;
         swapped = true;
-        compareStatus[j] = "target";
-        compareStatus[j + 1] = "target";
+        compareStatus[j] = Status.Target;
+        compareStatus[j + 1] = Status.Target;
 
         steps.push({
           stepNumber: steps.length + 1,
@@ -252,4 +252,27 @@ export const bubbleSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 10 },
   ],
   createAnimationSteps: createBubbleSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 912,
+      title: "Sort an Array",
+      concept: "基礎排序應用：使用任意排序演算法對陣列進行排序",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-an-array/",
+    },
+    {
+      id: 75,
+      title: "Sort Colors",
+      concept: "變體應用：三向分割問題，可用排序思想優化至 O(n)",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/sort-colors/",
+    },
+    {
+      id: 242,
+      title: "Valid Anagram",
+      concept: "排序的實際應用：判斷兩字串是否為變位詞",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/valid-anagram/",
+    },
+  ],
 };

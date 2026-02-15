@@ -4,6 +4,7 @@ import styles from "./Explorer.module.scss";
 import { D3Canvas, D3CanvasRef } from "@/modules/core/Render/D3Canvas";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
 import type { Link } from "@/modules/core/Render/D3Renderer";
 import { animateConnect } from "@/modules/core/Render/D3Renderer";
@@ -86,14 +87,14 @@ function Explorer() {
     n.id = "n1";
     n.moveTo(150, 120);
     n.radius = 32;
-    n.setStatus("target");
+    n.setStatus(Status.Target);
     n.description = "我是圓形1";
 
     const n2 = new Node();
     n2.id = "n2";
     n2.moveTo(350, 120);
     n2.radius = 32;
-    n2.setStatus("target");
+    n2.setStatus(Status.Target);
     n2.description = "我是圓形2";
 
     const b = new Box();
@@ -101,7 +102,7 @@ function Explorer() {
     b.moveTo(250, 250);
     b.width = 60;
     b.height = 60;
-    b.setStatus("prepare");
+    b.setStatus(Status.Prepare);
     b.description = "我是矩形";
 
     const els = [n, n2, b];
@@ -138,7 +139,6 @@ function Explorer() {
               value={code}
               onChange={setCode}
               theme="auto"
-              highlightedLine={4}
             />
           </div>
 

@@ -83,7 +83,7 @@ function runGraphDFS(
 
     // 更新距離：如果是第一次訪問或找到更短路徑 (DFS 不保證最短，但記錄當下路徑長)
     distanceMap[currId] = currDist;
-    statusMap[currId] = "target";
+    statusMap[currId] = Status.Target;
 
     steps.push(
       generateGraphFrame(
@@ -111,7 +111,7 @@ function runGraphDFS(
       break;
     }
 
-    statusMap[currId] = "unfinished"; // 歷史軌跡
+    statusMap[currId] = Status.Unfinished; // 歷史軌跡
 
     const currNode = nodeMap.get(currId);
     if (currNode) {
@@ -130,7 +130,7 @@ function runGraphDFS(
           stack.push({ id: neighbor.id, dist: currDist + 1 });
           pushedNeighbors.push(neighbor.id);
 
-          statusMap[neighbor.id] = "prepare";
+          statusMap[neighbor.id] = Status.Prepare;
           // 不更新 distanceMap，等到 pop 出來才更新，才符合 DFS 順序
         }
       }
@@ -154,7 +154,7 @@ function runGraphDFS(
   if (visited.has(realEndId)) {
     let curr = realEndId;
     const path: string[] = [realEndId];
-    statusMap[realEndId] = "complete";
+    statusMap[realEndId] = Status.Complete;
 
     while (curr !== realStartId) {
       const parent = parentMap.get(curr);
@@ -166,7 +166,7 @@ function runGraphDFS(
       curr = parent;
     }
 
-    path.forEach((id) => (statusMap[id] = "complete"));
+    path.forEach((id) => (statusMap[id] = Status.Complete));
 
     steps.push(
       generateGraphFrame(
@@ -249,7 +249,7 @@ function runGridDFS(
   const stack: number[] = [startIndex];
   visited.add(startIndex);
   distanceMap[startIndex] = 0;
-  statusMap[startIndex] = "prepare"; // 在 stack 中先顯示黃色
+  statusMap[startIndex] = Status.Prepare; // 在 stack 中先顯示黃色
 
   let found = false;
 
@@ -264,7 +264,7 @@ function runGridDFS(
   while (stack.length > 0) {
     // A. Pop (取出最新加入的)
     const currIndex = stack.pop()!;
-    statusMap[currIndex] = "target";
+    statusMap[currIndex] = Status.Target;
 
     steps.push(
       generateGridFrame(
@@ -279,7 +279,7 @@ function runGridDFS(
     // B. 檢查終點
     if (currIndex === endIndex) {
       found = true;
-      statusMap[currIndex] = "complete";
+      statusMap[currIndex] = Status.Complete;
       steps.push(
         generateGridFrame(gridData, cols, statusMap, distanceMap, "找到終點！"),
       );
@@ -287,7 +287,7 @@ function runGridDFS(
     }
 
     // C. 標記為已訪問
-    statusMap[currIndex] = "unfinished";
+    statusMap[currIndex] = Status.Unfinished;
 
     // D. 尋找鄰居
     const r = Math.floor(currIndex / cols);
@@ -309,7 +309,7 @@ function runGridDFS(
             distanceMap[currIndex] !== undefined
               ? distanceMap[currIndex] + 1
               : 1;
-          statusMap[nIndex] = "prepare"; // 加入 Stack 變黃色
+          statusMap[nIndex] = Status.Prepare; // 加入 Stack 變黃色
           addedNeighbors++;
         }
       }
@@ -352,7 +352,7 @@ function runGridDFS(
 
     // 顯示最終路徑
     path.forEach((idx) => {
-      statusMap[idx] = "complete";
+      statusMap[idx] = Status.Complete;
     });
 
     steps.push(

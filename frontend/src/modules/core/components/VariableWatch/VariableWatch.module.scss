@@ -1,53 +1,101 @@
 .variableWatchContainer {
-  background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 12px;
-  border: 1px solid #333;
+  background-color: var(--card-bg);
+  border-radius: $radius-lg;
+  padding: $spacing-sm;
+  margin-top: $spacing-sm;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: $spacing-xs;
+  transition: $transition-base;
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    padding: $spacing-md;
+    gap: $spacing-sm;
+  }
 }
 
 .title {
-  color: #888;
-  font-size: 12px;
+  color: var(--text-tertiary);
+  font-size: $font-xs;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
+  font-weight: 600;
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    font-size: $font-sm;
+  }
 }
 
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: $spacing-xs;
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    gap: $spacing-sm;
+  }
 }
 
 .variableItem {
   display: flex;
   align-items: center;
-  background-color: #2a2a2a;
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: 1px solid #444;
-  min-width: 80px;
+  background-color: var(--bg-secondary);
+  padding: $spacing-2xs $spacing-xs;
+  border-radius: $radius-sm;
+  border: 1px solid var(--border-color);
+  min-width: 5rem;
+  transition: $transition-base;
+
+  &:hover {
+    background-color: var(--bg-primary);
+    border-color: $primary-color;
+    box-shadow: $shadow-sm;
+  }
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    padding: $spacing-xs $spacing-sm;
+  }
 }
 
 .varName {
-  color: #aaa;
-  font-family: monospace;
-  font-size: 14px;
-  margin-right: 8px;
+  color: var(--text-secondary);
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  margin-right: $spacing-xs;
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    font-size: $font-sm;
+  }
 }
 
 .varValue {
-  color: #4ec9b0;
-  font-family: monospace;
-  font-weight: bold;
-  font-size: 14px;
+  color: $success-color;
+  font-family: $font-family-code;
+  font-weight: 600;
+  font-size: $font-xs;
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    font-size: $font-sm;
+  }
 }
 
 .nullValue {
-  color: #569cd6;
+  color: $info-color;
+  font-family: $font-family-code;
   font-style: italic;
+  font-size: $font-xs;
+
+  // Tablet
+  @media (min-width: $tablet-min) {
+    font-size: $font-sm;
+  }
 }

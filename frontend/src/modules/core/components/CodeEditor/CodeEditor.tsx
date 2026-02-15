@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, useMemo } from 'react';
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
@@ -139,6 +139,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const currentDecorationsRef = useRef<string[]>([]);
   const topDecorationsRef = useRef<string[]>([]);
   const bottomDecorationsRef = useRef<string[]>([]);
+  const monacoInstanceRef = useRef<typeof monaco | null>(null);
+  // 穩定的 key，用於防止 StrictMode 雙重掛載問題
+  const editorKeyRef = useRef<string>(`editor-${Math.random().toString(36).substring(7)}`);
 
   // ========== 主題檢測 ==========
   useEffect(() => {
@@ -166,8 +169,45 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     setCurrentLanguage(language);
   }, [language]);
 
+  useEffect(() => {
+    // 組件卸載時，立即清理所有編輯器實例和 monaco 實例
+    return () => {
+      if (editorRef.current) {
+        try {
+          editorRef.current.dispose();
+        } catch (e) {
+          // 忽略已經被 dispose 的錯誤
+        }
+        editorRef.current = null;
+      }
+
+      if (topEditorRef.current) {
+        try {
+          topEditorRef.current.dispose();
+        } catch (e) {
+          // 忽略已經被 dispose 的錯誤
+        }
+        topEditorRef.current = null;
+      }
+
+      if (bottomEditorRef.current) {
+        try {
+          bottomEditorRef.current.dispose();
+        } catch (e) {
+        }
+        bottomEditorRef.current = null;
+      }
+      monacoInstanceRef.current = null;
+
+      // 清理所有裝飾
+      currentDecorationsRef.current = [];
+      topDecorationsRef.current = [];
+      bottomDecorationsRef.current = [];
+    };
+  }, []); // 空依賴陣列，只在 mount/unmount 時執行
+
   // ========== Monaco Editor 配置 ==========
-  const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+  const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(() => ({
     readOnly,
     lineNumbers: showLineNumbers ? 'on' : 'off',
     automaticLayout: true,
@@ -182,36 +222,33 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     theme: currentTheme === 'dark' ? 'vs-dark' : 'vs',
     padding: { top: 12, bottom: 12 },
     glyphMargin: true, // 启用左侧装饰标记区域
-  };
+  }), [readOnly, showLineNumbers, enableAutoComplete, enableFormatting, currentTheme]);
 
   // ========== 單一編輯器 Mount ==========
-  const handleEditorMount: OnMount = (editor, monaco) => {
+  const handleEditorMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
+    monacoInstanceRef.current = monacoInstance;
 
     // 編輯器加載完成後，如果有初始高亮行，立即應用
     if (highlightedLine !== null && highlightedLine !== undefined) {
-      // 使用 setTimeout 確保編輯器完全初始化
-      setTimeout(() => {
-        highlightLineInternal(highlightedLine);
-      }, 100);
+      highlightLineInternal(highlightedLine);
     }
   };
 
   // ========== 上方編輯器 Mount (分屏模式) ==========
-  const handleTopEditorMount: OnMount = (editor, monaco) => {
+  const handleTopEditorMount: OnMount = (editor, monacoInstance) => {
     topEditorRef.current = editor;
+    monacoInstanceRef.current = monacoInstance;
   };
 
   // ========== 下方編輯器 Mount (分屏模式) ==========
-  const handleBottomEditorMount: OnMount = (editor, monaco) => {
+  const handleBottomEditorMount: OnMount = (editor, monacoInstance) => {
     bottomEditorRef.current = editor;
+    monacoInstanceRef.current = monacoInstance;
 
     // 編輯器加載完成後，如果有初始高亮行，立即應用到底部編輯器
     if (highlightedLine !== null && highlightedLine !== undefined) {
-      // 使用 setTimeout 確保編輯器完全初始化
-      setTimeout(() => {
-        highlightLineInternal(highlightedLine, 'bottom');
-      }, 100);
+      highlightLineInternal(highlightedLine, 'bottom');
     }
   };
 
@@ -268,7 +305,17 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
       decorationsRef = currentDecorationsRef;
     }
 
-    if (!editor || !decorationsRef) return;
+    // 加入 Detailed Guard Clause
+    // 1. 檢查 editor 是否存在
+    // 2. 檢查 editor 的 Model 是否存在 (如果編輯器正在銷毀中，Model 可能已經是 null)
+    // 3. 檢查 Model 是否已經被 disposed
+    const model = editor?.getModel();
+    if (!editor || !decorationsRef || !model || model.isDisposed()) {
+      return; // 編輯器已死，直接退出，不要執行後面的 deltaDecorations
+    }
+
+    // 確保 monaco 實例也存在
+    if (!monacoInstanceRef.current) return;
 
     // 清除舊的高亮
     decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
@@ -277,8 +324,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     if (lineArray.length === 0) return;
 
     // 添加新的高亮
+    const monacoInstance = monacoInstanceRef.current;
     const newDecorations = lineArray.map(line => ({
-      range: new monaco.Range(line, 1, line, 1),
+      range: new monacoInstance.Range(line, 1, line, 1),
       options: {
         isWholeLine: true,
         className: styles.highlightedLine,
@@ -385,6 +433,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
           {/* 上方編輯器（Pseudo Code，唯讀） */}
           <div className={styles.topEditor} style={{ height: `${splitRatio * 100}%` }}>
             <Editor
+              key={`${editorKeyRef.current}-top`}
               height="100%"
               language="pseudocode"
               value={topContent}
@@ -409,6 +458,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
           {/* 下方編輯器（實作程式碼，可編輯） */}
           <div className={styles.bottomEditor} style={{ height: `${(1 - splitRatio) * 100}%` }}>
             <Editor
+              key={`${editorKeyRef.current}-bottom`}
               height="100%"
               language={currentLanguage}
               value={bottomContent}
@@ -422,6 +472,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
       ) : (
         /* 單一編輯器模式 */
         <Editor
+          key={`${editorKeyRef.current}-single`}
           height="100%"
           language={currentLanguage}
           value={value}

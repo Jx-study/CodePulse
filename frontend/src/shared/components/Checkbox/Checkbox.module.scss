@@ -1,0 +1,146 @@
+// ==================== Checkbox Container ====================
+.checkboxContainer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xs;
+  margin-bottom: $spacing-md;
+
+  &.hasError {
+    // 容器層級的錯誤狀態
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ==================== Checkbox Label ====================
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  user-select: none;
+
+  &.labelLeft {
+    flex-direction: row-reverse;
+  }
+}
+
+// ==================== Checkbox Input ====================
+.checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px; // 防止被壓縮
+  border: 2px solid var(--input-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  cursor: pointer;
+  transition: all $transition-base;
+  position: relative;
+
+  // ========== Checked State ==========
+  &:checked {
+    background-color: $primary-color;
+    border-color: $primary-color;
+
+    // Checkmark
+    &::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+
+  // ========== Focus State ==========
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  // ========== Hover State ==========
+  &:hover:not(:disabled) {
+    border-color: $primary-color;
+  }
+
+  // ========== Disabled State ==========
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // ========== Error State (可透過 container 的 hasError 控制) ==========
+  .hasError & {
+    border-color: var(--danger-color);
+
+    &:checked {
+      background-color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+  }
+}
+
+// ==================== Checkbox Text ====================
+.checkboxText {
+  font-size: $font-sm;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.required {
+  color: var(--danger-color);
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+// ==================== Error & Helper Text ====================
+.errorMessage {
+  display: block;
+  font-size: $font-xs;
+  color: var(--danger-color);
+  margin-left: calc(18px + $spacing-sm); // 與 checkbox 對齊
+  animation: slideDown 0.2s ease-out;
+}
+
+.helperText {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  margin-left: calc(18px + $spacing-sm); // 與 checkbox 對齊
+}
+
+// ==================== Animations ====================
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==================== Responsive Design ====================
+@media (max-width: $mobile) {
+  .checkboxContainer {
+    margin-bottom: $spacing-sm;
+  }
+
+  .checkboxText {
+    font-size: $font-xs;
+  }
+
+  .errorMessage,
+  .helperText {
+    font-size: 11px;
+  }
+}

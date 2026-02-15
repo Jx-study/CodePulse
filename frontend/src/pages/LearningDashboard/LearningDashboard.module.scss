@@ -6,7 +6,6 @@
   bottom: 0;
   overflow: hidden;
   background: var(--bg-primary);
-  padding-top: $header-height;
   z-index: 0;
 }
 
@@ -53,7 +52,7 @@
 // 浮动控制面板（右上角）
 .floatingControls {
   position: fixed;
-  top: 80px; // Header 高度 64px + 間距 16px
+  top: calc(var(--header-height) + $spacing-lg);
   right: $spacing-lg;
   z-index: 10;
   display: flex;
@@ -174,7 +173,6 @@
 // 響應式設計
 @media (max-width: 768px) {
   .floatingControls {
-    top: $spacing-md;
     right: $spacing-md;
     gap: $spacing-xs;
 
@@ -186,23 +184,5 @@
 
   .categorySidebar {
     width: 280px;
-  }
-}
-
-// 跳轉後的高亮閃爍動畫
-:global(.highlight-flash) {
-  animation: highlightPulse 2s ease-in-out;
-}
-
-@keyframes highlightPulse {
-  0%,
-  100% {
-    box-shadow: inherit;
-  }
-  50% {
-    box-shadow:
-      0 0 2rem rgba($primary-color, 0.8),
-      0 0 3rem rgba($primary-color, 0.6),
-      0 0.5rem 1rem rgba($primary-color, 0.4);
   }
 }

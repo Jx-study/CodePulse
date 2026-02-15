@@ -3,6 +3,7 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
+import type { StatusColorMap } from "@/types/statusConfig";
 import { Pointer } from "../DataLogic/Pointer";
 import "./D3Renderer.module.scss";
 
@@ -307,7 +308,15 @@ export function renderAll(
   links: Link[] = [],
   structureType: string = "linkedlist",
   isDirected: boolean = true,
+  statusColorMap?: StatusColorMap,
 ) {
+  // Inject custom color map into all elements if provided
+  if (statusColorMap) {
+    elements.forEach((element) => {
+      element.setCustomColorMap(statusColorMap);
+    });
+  }
+
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;

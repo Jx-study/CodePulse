@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { TabsProps } from '@/types';
+import Button from '@/shared/components/Button';
 import styles from './Tabs.module.scss';
 
 const Tabs: React.FC<TabsProps> = ({
@@ -105,20 +106,25 @@ const Tabs: React.FC<TabsProps> = ({
           ].filter(Boolean).join(' ');
 
           return (
-            <button
+            <div
               key={tab.key}
-              className={tabClasses}
               role="tab"
               aria-selected={isActive}
               aria-controls={`tabpanel-${tab.key}`}
               aria-disabled={tab.disabled}
               tabIndex={isActive ? 0 : -1}
-              onClick={() => handleTabClick(tab.key, tab.disabled)}
-              disabled={tab.disabled}
             >
-              {tab.icon && <span className={styles.tabIcon}>{tab.icon}</span>}
-              <span className={styles.tabLabel}>{tab.label}</span>
-            </button>
+              <Button
+                variant="ghost"
+                className={tabClasses}
+                onClick={() => handleTabClick(tab.key, tab.disabled)}
+                disabled={tab.disabled}
+                aria-label={typeof tab.label === 'string' ? tab.label : undefined}
+              >
+                {tab.icon && <span className={styles.tabIcon}>{tab.icon}</span>}
+                <span className={styles.tabLabel}>{tab.label}</span>
+              </Button>
+            </div>
           );
         })}
       </div>

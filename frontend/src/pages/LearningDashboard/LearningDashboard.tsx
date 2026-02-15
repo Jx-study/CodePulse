@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
-// 組件導入
 import ProgressStatsDialog from "./components/ProgressStatsDialog/ProgressStatsDialog";
 import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
 import GraphContainer from "./components/GraphContainer/GraphContainer";
@@ -47,6 +46,7 @@ import {
 } from "./utils/graphUtils";
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
+import { t } from "i18next";
 
 function LearningDashboard() {
   const navigate = useNavigate();
@@ -122,7 +122,7 @@ function LearningDashboard() {
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = getCategoryName(newlyUnlockedCategories[0]);
-        setToastMessage(`🎉 恭喜！解鎖新領域：${categoryName}`);
+        setToastMessage(`恭喜！解鎖新領域：${categoryName}`);
 
         // 3 秒後自動消失
         setTimeout(() => setToastMessage(null), 3000);
@@ -130,52 +130,68 @@ function LearningDashboard() {
     }
   }, [userProgress]); // 監聽整個 userProgress
 
+  // 統一的關卡導航函數
+  const navigateToLevel = (
+    levelId: string,
+    targetCategory?: CategoryType,
+    shouldOpenDialog: boolean = true
+  ) => {
+    const targetLevel = levelsWithUnlockStatus.find(
+      (level) => level.id === levelId
+    );
+
+    if (!targetLevel) {
+      console.warn(`Level "${levelId}" not found.`);
+      return;
+    }
+
+    if (!targetLevel.isDeveloped) {
+      console.warn(`Level "${levelId}" is not developed yet.`);
+      return;
+    }
+
+    // 1. 切換到目標分類（如果提供）
+    if (targetCategory) {
+      setActiveCategory(targetCategory);
+    }
+
+    // 2. 延遲滾動並打開 dialog
+    setTimeout(() => {
+      const levelElement = document.querySelector(
+        `[data-level-id="${levelId}"]`
+      );
+      if (levelElement) {
+        levelElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+
+      if (shouldOpenDialog) {
+        setSelectedLevel(targetLevel);
+      }
+    }, 300);
+  };
+
   // 自動打開指定的 Level Dialog（從 URL 參數讀取 levelId）
   useEffect(() => {
     const levelId = searchParams.get("levelId");
 
     // 只在第一次載入時自動打開，避免重複觸發
     if (levelId && !hasAutoOpened) {
-      const targetLevel = levelsWithUnlockStatus.find(
-        (level) => level.id === levelId
-      );
+      navigateToLevel(levelId);
+      setHasAutoOpened(true);
 
-      if (targetLevel) {
-        // 只有已開發的關卡才能打開
-        if (targetLevel.isDeveloped) {
-          setSelectedLevel(targetLevel);
-          setHasAutoOpened(true);
-
-          // 滾動到對應的關卡節點（延遲執行以確保 DOM 已渲染）
-          setTimeout(() => {
-            const levelElement = document.querySelector(
-              `[data-level-id="${levelId}"]`
-            );
-            if (levelElement) {
-              levelElement.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-          }, 300);
-
-          // 清除 URL 參數，避免刷新頁面時重複打開
-          const newParams = new URLSearchParams(searchParams);
-          newParams.delete("levelId");
-          setSearchParams(newParams);
-        } else {
-          console.warn(`Level "${levelId}" is not developed yet.`);
-        }
-      } else {
-        console.warn(`Level "${levelId}" not found in MOCK_LEVELS.`);
-      }
+      // 清除 URL 參數，避免刷新頁面時重複打開
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("levelId");
+      setSearchParams(newParams);
     }
   }, [searchParams, levelsWithUnlockStatus, hasAutoOpened, setSearchParams]);
 
   // 處理關卡點擊（只有已開發的功能才能點擊）
   const handleLevelClick = (level: Level) => {
     if (!level.isDeveloped) {
-      // 可選：顯示「功能開發中」提示
       return;
     }
     setSelectedLevel(level);
@@ -212,7 +228,7 @@ function LearningDashboard() {
       saveUserProgress(updatedProgress);
 
       // 顯示完成提示
-      setToastMessage(`🎉 完成關卡：${selectedLevel.name}`);
+      setToastMessage(`完成關卡：${selectedLevel.name}`);
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
@@ -245,27 +261,7 @@ function LearningDashboard() {
 
           // Ghost Node 點擊處理：跳轉到目標分類並滾動到目標關卡
           const handleGhostClick = (targetLevelId: string, targetCategory: CategoryType) => {
-            // 1. 切換到目標 category
-            setActiveCategory(targetCategory);
-
-            // 2. 延遲滾動到目標節點（等待 category 切換完成）
-            setTimeout(() => {
-              const levelElement = document.querySelector(
-                `[data-level-id="${targetLevelId}"]`
-              );
-              if (levelElement) {
-                levelElement.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                });
-
-                // 可選：高亮目標節點 2 秒
-                levelElement.classList.add('highlight-flash');
-                setTimeout(() => {
-                  levelElement.classList.remove('highlight-flash');
-                }, 2000);
-              }
-            }, 300);
+            navigateToLevel(targetLevelId, targetCategory);
           };
 
           return (

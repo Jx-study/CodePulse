@@ -1,10 +1,13 @@
 .header {
     width: 100%;
+    height: var(--header-height);
     background: #1e293b;
     padding: $spacing-sm 0;
     box-shadow: $shadow-md;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
 }
 

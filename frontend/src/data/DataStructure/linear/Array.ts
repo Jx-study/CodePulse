@@ -32,7 +32,7 @@ const TAGS = {
 const createBoxes = (
   list: BoxData[],
   highlightIndex: number = -1,
-  status: Status = "unfinished",
+  status: Status = Status.Unfinished,
   forceXShiftIndex: number = -1,
   shiftDirection: number = 0,
   overrideStatusMap: Record<number, Status> = {}
@@ -83,7 +83,7 @@ export function createArrayAnimationSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: `檢查 Index ${i}: ${dataList[i].value} 是否等於 ${value}?`,
-        elements: createBoxes(dataList, i, "target"),
+        elements: createBoxes(dataList, i, Status.Target),
         actionTag: TAGS.SEARCH_COMPARE,
         variables: { target: value, i: i, current_val: dataList[i].value || 0 }
       });
@@ -93,7 +93,7 @@ export function createArrayAnimationSteps(
         steps.push({
           stepNumber: steps.length + 1,
           description: `找到了！數值 ${value} 位於 Index ${i}`,
-          elements: createBoxes(dataList, i, "complete"),
+          elements: createBoxes(dataList, i, Status.Complete),
           actionTag: TAGS.SEARCH_FOUND,
           variables: { target: value, i: i, found_index: i }
         });
@@ -117,7 +117,7 @@ export function createArrayAnimationSteps(
       (action as any).oldValue !== undefined ? (action as any).oldValue : value;
 
     if (idx >= 0 && idx < dataList.length) {
-      const s1Boxes = createBoxes(dataList, idx, "target");
+      const s1Boxes = createBoxes(dataList, idx, Status.Target);
       s1Boxes[idx].value = oldValue;
 
       steps.push({
@@ -131,7 +131,7 @@ export function createArrayAnimationSteps(
       steps.push({
         stepNumber: 2,
         description: `將 Index ${idx} 更新為 ${value}`,
-        elements: createBoxes(dataList, idx, "target"),
+        elements: createBoxes(dataList, idx, Status.Target),
         actionTag: TAGS.UPDATE_ASSIGN,
         variables: { index: idx, value: value, [`data[${idx}]`]: value }
       });
@@ -139,7 +139,7 @@ export function createArrayAnimationSteps(
       steps.push({
         stepNumber: 3,
         description: "更新完成",
-        elements: createBoxes(dataList, idx, "complete"),
+        elements: createBoxes(dataList, idx, Status.Complete),
         actionTag: TAGS.UPDATE_COMPLETE,
         variables: { index: idx, value: value, [`data[${idx}]`]: value }
       });
@@ -168,21 +168,21 @@ export function createArrayAnimationSteps(
     steps.push({
       stepNumber: 1,
       description: "在陣列尾端擴充一個空間",
-      elements: createBoxes(currentList, currentList.length - 1, "target"),
+      elements: createBoxes(currentList, currentList.length - 1, Status.Target),
       actionTag: TAGS.INSERT_START,
       variables: { index: idx, value: value, length: currentList.length }
     });
 
     for (let i = currentList.length - 1; i > idx; i--) {
       const mapPrepare: Record<number, Status> = {};
-      mapPrepare[i] = "prepare"; 
-      mapPrepare[i - 1] = "prepare"; 
+      mapPrepare[i] = Status.Prepare; 
+      mapPrepare[i - 1] = Status.Prepare; 
 
       steps.push({
         stepNumber: steps.length + 1,
         description: `準備將 Index ${i - 1} (${currentList[i - 1].value
           }) 右移至 Index ${i}`,
-        elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapPrepare),
+        elements: createBoxes(currentList, -1, Status.Unfinished, -1, 0, mapPrepare),
         actionTag: TAGS.INSERT_SHIFT,
         variables: { 
             i: i, 
@@ -195,13 +195,13 @@ export function createArrayAnimationSteps(
       currentList[i].value = currentList[i - 1].value;
 
       const mapSwap: Record<number, Status> = {};
-      mapSwap[i] = "target"; 
-      mapSwap[i - 1] = "prepare"; 
+      mapSwap[i] = Status.Target; 
+      mapSwap[i - 1] = Status.Prepare; 
 
       steps.push({
         stepNumber: steps.length + 1,
         description: `搬移完成：Index ${i} 現在是 ${currentList[i].value}`,
-        elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapSwap),
+        elements: createBoxes(currentList, -1, Status.Unfinished, -1, 0, mapSwap),
         actionTag: TAGS.INSERT_SHIFT,
         variables: { 
             i: i, 
@@ -216,7 +216,7 @@ export function createArrayAnimationSteps(
     steps.push({
       stepNumber: steps.length + 1,
       description: `在 Index ${idx} 填入新數值 ${value}`,
-      elements: createBoxes(currentList, idx, "target"),
+      elements: createBoxes(currentList, idx, Status.Target),
       actionTag: TAGS.INSERT_ASSIGN,
       variables: { index: idx, value: value, [`data[${idx}]`]: value }
     });
@@ -224,7 +224,7 @@ export function createArrayAnimationSteps(
     steps.push({
       stepNumber: steps.length + 1,
       description: "插入完成",
-      elements: createBoxes(dataList, -1, "complete"),
+      elements: createBoxes(dataList, -1, Status.Complete),
       actionTag: TAGS.INSERT_COMPLETE,
       variables: { index: idx, value: value, [`data[${idx}]`]: value }
     });
@@ -248,15 +248,15 @@ export function createArrayAnimationSteps(
       steps.push({
         stepNumber: 1,
         description: `標記 Index ${idx} (值: ${value}) 準備刪除`,
-        elements: createBoxes(currentList, idx, "target"),
+        elements: createBoxes(currentList, idx, Status.Target),
         actionTag: TAGS.DELETE_START,
         variables: { index: idx, value: value }
       });
 
       for (let i = idx; i < currentList.length - 1; i++) {
         const mapPrepare: Record<number, Status> = {};
-        mapPrepare[i] = "prepare";
-        mapPrepare[i + 1] = "prepare";
+        mapPrepare[i] = Status.Prepare;
+        mapPrepare[i + 1] = Status.Prepare;
 
         steps.push({
           stepNumber: steps.length + 1,
@@ -265,7 +265,7 @@ export function createArrayAnimationSteps(
           elements: createBoxes(
             currentList,
             -1,
-            "unfinished",
+            Status.Unfinished,
             -1,
             0,
             mapPrepare
@@ -282,13 +282,13 @@ export function createArrayAnimationSteps(
         currentList[i].value = currentList[i + 1].value;
 
         const mapSwap: Record<number, Status> = {};
-        mapSwap[i] = "target"; 
-        mapSwap[i + 1] = "prepare"; 
+        mapSwap[i] = Status.Target; 
+        mapSwap[i + 1] = Status.Prepare; 
         
         steps.push({
           stepNumber: steps.length + 1,
           description: `搬移完成：Index ${i} 現在是 ${currentList[i].value}`,
-          elements: createBoxes(currentList, -1, "unfinished", -1, 0, mapSwap),
+          elements: createBoxes(currentList, -1, Status.Unfinished, -1, 0, mapSwap),
           actionTag: TAGS.DELETE_SHIFT,
           variables: { 
             i: i, 
@@ -301,7 +301,7 @@ export function createArrayAnimationSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: "刪除最後一個多餘的空間",
-        elements: createBoxes(currentList, currentList.length - 1, "target"),
+        elements: createBoxes(currentList, currentList.length - 1, Status.Target),
         actionTag: TAGS.DELETE_REMOVE,
         variables: { length: currentList.length }
       });
@@ -309,7 +309,7 @@ export function createArrayAnimationSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: "刪除完成",
-        elements: createBoxes(dataList, -1, "complete"),
+        elements: createBoxes(dataList, -1, Status.Complete),
         actionTag: TAGS.DELETE_COMPLETE,
         variables: { length: dataList.length }
       });
@@ -435,4 +435,27 @@ export const ArrayConfig: LevelImplementationConfig = {
     { id: "box-4", value: 50 },
   ],
   createAnimationSteps: createArrayAnimationSteps,
+  relatedProblems: [
+    {
+      id: 1,
+      title: "Two Sum",
+      concept: "陣列基礎應用：在陣列中尋找兩數之和",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/two-sum/",
+    },
+    {
+      id: 27,
+      title: "Remove Element",
+      concept: "陣列刪除操作：移除指定元素 (In-place)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/remove-element/",
+    },
+    {
+      id: 189,
+      title: "Rotate Array",
+      concept: "陣列操作進階：旋轉陣列元素",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/rotate-array/",
+    },
+  ],
 };
