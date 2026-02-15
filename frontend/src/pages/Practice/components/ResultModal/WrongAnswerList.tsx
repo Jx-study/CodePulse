@@ -50,12 +50,12 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
           const label = question.options?.[idx]?.id || `?`;
           return `(${label}) ${val || "(空)"}`;
         })
-        .join(",  ");
+        .join(" ");
     }
 
     // 選擇題則嘗試轉換為選項文字
     if (Array.isArray(answer)) {
-      return answer.map((a) => getOptionText(question, a)).join(", ");
+      return answer.map((a) => getOptionText(question, a)).join(" ");
     }
     return getOptionText(question, answer);
   };

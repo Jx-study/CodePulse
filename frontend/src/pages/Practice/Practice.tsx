@@ -11,15 +11,12 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
 import styles from "./Practice.module.scss";
-import {
-  shuffleQuestionsWithGroups,
-  shuffleArray,
-  getOptionLabel,
-} from "@/utils/random";
+import { shuffleArray, getOptionLabel } from "@/utils/random";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Input from "@/shared/components/Input";
 
 const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
+const currentUserRating = 1200; // 模擬傳入的分數
 
 function Practice() {
   const { category, levelId } = useParams<{
@@ -82,14 +79,109 @@ function Practice() {
   useEffect(() => {
     if (!originalQuiz) return;
 
-    const shuffledQuestionsList = shuffleQuestionsWithGroups(
-      originalQuiz.questions,
-    );
+    const QUESTION_LIMIT = 10;
 
-    // 選項隨機化
-    const finalQuestions = shuffledQuestionsList.map((q) => {
+    // 步驟 1: 將題目「打包」成 Unit (單題 or 題組)
+    type QuestionUnit = {
+      type: "single" | "group";
+      id: string; // groupId or questionId
+      questions: Question[];
+      avgRating: number; // 該 Unit 的平均難度
+    };
+
+    const units: QuestionUnit[] = [];
+    const processedGroups = new Set<string>();
+
+    originalQuiz.questions.forEach((q) => {
+      // 如果是題組的一部分
+      if (q.groupId) {
+        if (processedGroups.has(q.groupId)) return; // 已處理過，跳過
+
+        // 找出該題組所有題目
+        const groupQuestions = originalQuiz.questions.filter(
+          (g) => g.groupId === q.groupId,
+        );
+
+        // 計算平均難度 (如果題目沒設 rating，預設 1000)
+        const totalRating = groupQuestions.reduce(
+          (sum, item) => sum + (item.difficultyRating || 1000),
+          0,
+        );
+
+        units.push({
+          type: "group",
+          id: q.groupId,
+          questions: groupQuestions,
+          avgRating: totalRating / groupQuestions.length,
+        });
+        processedGroups.add(q.groupId);
+      } else {
+        // 單題
+        units.push({
+          type: "single",
+          id: q.id,
+          questions: [q],
+          avgRating: q.difficultyRating || 1000,
+        });
+      }
+    });
+
+    // 步驟 2: 分層篩選與隨機化 (Smart Fallback)
+
+    // 定義優先級區段 (距離使用者分數的差距)
+    const TIER_1_RANGE = 200; // 最適區
+    const TIER_2_RANGE = 500; // 次適區
+    // 其他為後補區
+
+    const tier1: QuestionUnit[] = [];
+    const tier2: QuestionUnit[] = [];
+    const tier3: QuestionUnit[] = [];
+
+    units.forEach((unit) => {
+      const distance = Math.abs(unit.avgRating - currentUserRating);
+      if (distance <= TIER_1_RANGE) {
+        tier1.push(unit);
+      } else if (distance <= TIER_2_RANGE) {
+        tier2.push(unit);
+      } else {
+        tier3.push(unit);
+      }
+    });
+
+    // 分別洗牌，然後串接
+    // 這樣保證了：優先選 Tier1，Tier1 選完選 Tier2... 但同一層級內是隨機的
+    const candidateUnits = [
+      ...shuffleArray(tier1),
+      ...shuffleArray(tier2),
+      ...shuffleArray(tier3),
+    ];
+
+    // 步驟 3: 貪婪填充 (填滿 10 題，不破壞題組)
+
+    const finalQuestions: Question[] = [];
+    let currentCount = 0;
+
+    for (const unit of candidateUnits) {
+      const unitSize = unit.questions.length;
+
+      // 檢查加入後是否會超過上限
+      if (currentCount + unitSize <= QUESTION_LIMIT) {
+        finalQuestions.push(...unit.questions);
+        currentCount += unitSize;
+      } else {
+        // 如果這個 Unit 是題組且塞不下，我們就跳過它
+        // 繼續迴圈看下一個 Unit (說不定下一個是單題，剛好塞得下)
+        continue;
+      }
+
+      // 如果剛好滿了，提早結束
+      if (currentCount === QUESTION_LIMIT) break;
+    }
+
+    // 步驟 4: 選項隨機化 (最後處理)
+
+    const randomizedWithOpts = finalQuestions.map((q) => {
       const newQ = { ...q };
-
       if (
         q.type !== "true-false" &&
         q.type !== "predict-line" &&
@@ -100,12 +192,13 @@ function Practice() {
       return newQ;
     });
 
-    setRandomizedQuestions(finalQuestions);
+    setRandomizedQuestions(randomizedWithOpts);
     setUserAnswers({});
     setCurrentQuestionIndex(0);
     setStartTime(Date.now());
     setShowResult(false);
     setResult(null);
+    setTimeRecords({});
   }, [originalQuiz, retryCount]);
 
   const handleSelectQuestion = (index: number) => {
@@ -184,7 +277,7 @@ function Practice() {
     const session: PracticeSession = {
       sessionId: `session-${Date.now()}`,
       levelId: originalQuiz.levelId,
-      questions: originalQuiz.questions,
+      questions: randomizedQuestions,
       userAnswers,
       startTime,
       endTime: Date.now(),
@@ -385,7 +478,7 @@ function Practice() {
                     : currentQuestion.type === "true-false"
                       ? " (是非)"
                       : currentQuestion.type === "fill-code"
-                        ? "程式填空"
+                        ? " (程式填空)"
                         : " (單選)"}
               </span>
             </h2>
