@@ -174,6 +174,9 @@ function TutorialContent() {
   // Knowledge Station state
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
 
+  // Inspector Tab state
+  const [activeInspectorTab, setActiveInspectorTab] = useState<string>("actionBar");
+
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
@@ -554,8 +557,6 @@ function TutorialContent() {
   // ==================== Inspector Panel Component ====================
   const InspectorPanelInternal = () => {
     const { activePanels } = usePanelContext();
-    const [activeInspectorTab, setActiveInspectorTab] =
-      useState<string>("actionBar");
 
     // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
     const inspectorTabs: TabConfig[] = useMemo(() => {
