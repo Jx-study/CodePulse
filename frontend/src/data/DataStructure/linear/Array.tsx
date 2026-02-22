@@ -1,3 +1,4 @@
+import React from "react";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
@@ -6,6 +7,7 @@ import {
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
 } from "./utils";
+import { ArrayActionBar } from "./ArrayActionBar";
 
 const TAGS = {
   SEARCH_START: "SEARCH_START",
@@ -435,6 +437,7 @@ export const ArrayConfig: LevelImplementationConfig = {
     { id: "box-4", value: 50 },
   ],
   createAnimationSteps: createArrayAnimationSteps,
+  renderActionBar: (props) => <ArrayActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 1,

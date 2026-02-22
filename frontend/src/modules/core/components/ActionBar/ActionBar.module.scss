@@ -1,79 +1,9 @@
-.controlBar {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
+// ========== ActionBar 共用樣式 ==========
+// 從 DataActionBar.module.scss 提取，供所有 per-structure/per-algorithm ActionBar 使用
 
-  @media (max-width: $mobile) {
-    gap: $spacing-sm;
-  }
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.stepIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 120px;
-
-  .stepText {
-    font-size: $font-sm;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-}
-
-.speedSelector {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+.dataActionBarContainer {
+  @include flex($direction: column);
   gap: $spacing-sm;
-
-  .speedLabel {
-    font-size: $font-sm;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-
-  .speedButtons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-xs;
-  }
-
-  .speedButton {
-    padding: $spacing-2xs $spacing-sm;
-    font-size: $font-xs;
-    font-weight: 600;
-    border: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border-radius: $radius-sm;
-    cursor: pointer;
-    transition: $transition-base;
-
-    &:hover {
-      background: var(--bg-primary);
-      border-color: $primary-color;
-      color: var(--text-primary);
-    }
-
-    &.active {
-      background: $primary-color;
-      color: white;
-      border-color: $primary-color;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
 }
 
 .actionGroup {
@@ -93,12 +23,6 @@
   padding: $spacing-2xs;
   border-radius: $radius-sm;
   border: 1px solid var(--border-color);
-}
-
-// AlgorithmActionBar 专用样式
-.dataActionBarContainer {
-  @include flex($direction: column);
-  gap: $spacing-sm;
 }
 
 .settingItem {
@@ -138,17 +62,17 @@
   gap: $spacing-2xs;
 }
 
-.formFieldWrapper {
-  margin: 0;
+.smallLabel {
+  color: $dark-text-secondary;
+  font-size: $font-xs;
+}
 
-  label {
-    display: none;
-  }
+.bulkDataInput {
+  width: 9.375rem; // 150px
 }
 
 // ========== 按鈕顏色覆蓋（基於 secondary variant）==========
 
-// Insert 按鈕 - 青藍色（創造）
 .btnInsert {
   border-color: rgba($info-color, 0.4) !important;
   color: $info-color !important;
@@ -159,7 +83,6 @@
   }
 }
 
-// Update 按鈕 - 琥珀色（修改）
 .btnUpdate {
   border-color: rgba($warning-color, 0.4) !important;
   color: $warning-color !important;
@@ -170,7 +93,6 @@
   }
 }
 
-// Delete 按鈕 - 紅色（破壞）
 .btnDelete {
   border-color: rgba($error-color, 0.3) !important;
   color: $error-color !important;
@@ -182,7 +104,6 @@
   }
 }
 
-// Peek/Query 按鈕 - 翠綠色（查看/查詢）
 .btnQuery {
   border-color: rgba($success-color, 0.4) !important;
   color: $success-color !important;
@@ -193,7 +114,6 @@
   }
 }
 
-// Search/Traversal 按鈕 - 淡紫色（搜尋/遍歷）
 .btnSearch {
   border-color: rgba($primary-color, 0.4) !important;
   color: rgba($primary-color, 0.9) !important;
@@ -345,16 +265,6 @@
 
 .startEndSeparator {
   color: $dark-text-tertiary;
-}
-
-// ========== 筆數輸入樣式 ==========
-.bulkDataInput {
-  width: 9.375rem; // 150px
-}
-
-.smallLabel {
-  color: $dark-text-secondary;
-  font-size: $font-xs;
 }
 
 // ========== 執行按鈕樣式 ==========

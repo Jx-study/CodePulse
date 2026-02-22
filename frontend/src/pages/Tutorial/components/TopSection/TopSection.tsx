@@ -75,7 +75,7 @@ interface TopSectionProps {
   // Topic 配置
   topicTypeConfig: any;
 
-  // CodeEditor 新功能 (from main branch)
+  // CodeEditor
   codeMode: "pseudo" | "python";
   handleModeToggle: (mode: "pseudo" | "python") => void;
   currentCodeConfig: any;

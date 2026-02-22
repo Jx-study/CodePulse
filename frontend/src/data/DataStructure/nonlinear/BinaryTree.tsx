@@ -1,9 +1,11 @@
+import React from "react";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
 import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { BinaryTreeActionBar } from "./BinaryTreeActionBar";
 
 interface LogicTreeNode {
   id: string;
@@ -1149,6 +1151,7 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
     { id: "node-7", value: 7 },
   ],
   createAnimationSteps: createBinaryTreeAnimationSteps,
+  renderActionBar: (props) => <BinaryTreeActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 144,

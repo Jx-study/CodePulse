@@ -1,5 +1,7 @@
+import React from "react";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
+import { PrefixSumActionBar } from "./PrefixSumActionBar";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -344,6 +346,7 @@ export const prefixSumConfig: LevelImplementationConfig = {
     { id: "box-4", value: 4 },
   ],
   createAnimationSteps: createPrefixSumAnimationSteps,
+  renderActionBar: (props) => <PrefixSumActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 303,

@@ -1,3 +1,4 @@
+import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
@@ -8,6 +9,7 @@ import {
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
 } from "./utils";
+import { StackActionBar } from "./StackActionBar";
 
 const TAGS = {
   INIT: "INIT",
@@ -493,6 +495,7 @@ export const StackConfig: LevelImplementationConfig = {
     { id: "box-3", value: 3 },
   ],
   createAnimationSteps: createStackAnimationSteps,
+  renderActionBar: (props) => <StackActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 20,

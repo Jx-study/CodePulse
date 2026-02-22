@@ -1,7 +1,9 @@
+import React from "react";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
+import { LinkedListActionBar } from "./LinkedListActionBar";
 import {
   LinearData as ListNodeData,
   LinearAction as ActionType,
@@ -2360,6 +2362,7 @@ export const linkedListConfig: LevelImplementationConfig = {
     { id: "node-4", value: 20 },
   ],
   createAnimationSteps: createLinkedListAnimationSteps,
+  renderActionBar: (props) => <LinkedListActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 206,

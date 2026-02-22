@@ -1,5 +1,7 @@
+import React from "react";
 import type { AnimationStep } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import { GraphActionBar } from "./GraphActionBar";
 import {
   createGraphElements,
   generateGraphFrame,
@@ -1032,4 +1034,5 @@ export const GraphConfig: LevelImplementationConfig = {
     ],
   },
   createAnimationSteps: createGraphAnimationSteps,
+  renderActionBar: (props) => <GraphActionBar {...(props as any)} />,
 };

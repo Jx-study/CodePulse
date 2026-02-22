@@ -1,6 +1,8 @@
+import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import { SearchingActionBar } from "./SearchingActionBar";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
@@ -277,6 +279,7 @@ export const binarySearchConfig: LevelImplementationConfig = {
     { id: "box-8", value: 95 },
   ],
   createAnimationSteps: createBinarySearchAnimationSteps,
+  renderActionBar: (props) => <SearchingActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 704,

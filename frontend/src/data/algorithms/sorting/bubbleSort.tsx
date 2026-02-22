@@ -1,8 +1,10 @@
+import React from "react";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { SortingActionBar } from "./SortingActionBar";
 
 const generateFrame = (
   list: LinearData[],
@@ -252,6 +254,7 @@ export const bubbleSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 10 },
   ],
   createAnimationSteps: createBubbleSortAnimationSteps,
+  renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 912,

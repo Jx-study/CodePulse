@@ -1,3 +1,4 @@
+import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
@@ -8,6 +9,7 @@ import {
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
 } from "./utils";
+import { QueueActionBar } from "./QueueActionBar";
 
 const TAGS = {
   INIT: "INIT",
@@ -492,6 +494,7 @@ export const QueueConfig: LevelImplementationConfig = {
     { id: "box-2", value: 3 },
   ],
   createAnimationSteps: createQueueAnimationSteps,
+  renderActionBar: (props) => <QueueActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 225,

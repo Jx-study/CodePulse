@@ -1,8 +1,10 @@
+import React from "react";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
 import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
+import { BSTActionBar } from "./BSTActionBar";
 
 const BST_LAYOUT = {
   degree: 2,
@@ -1499,6 +1501,7 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
     { id: "node-7", value: 80 },
   ],
   createAnimationSteps: createBinarySearchTreeAnimationSteps,
+  renderActionBar: (props) => <BSTActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 700,

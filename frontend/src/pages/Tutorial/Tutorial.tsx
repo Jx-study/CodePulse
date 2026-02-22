@@ -266,10 +266,8 @@ function TutorialContent() {
     return (mappings && mappings[currentStepData.actionTag]) || [];
   }, [currentCodeConfig, currentStepData, codeMode]);
 
-  // 切換模式時重置動畫
   const handleModeToggle = (mode: "pseudo" | "python") => {
     setCodeMode(mode);
-    handleReset();
   };
 
   // 3. 初始重置
@@ -603,7 +601,6 @@ function TutorialContent() {
             <Suspense fallback={<div>載入中...</div>}>
               <PanelComponent
                 topicTypeConfig={topicTypeConfig}
-                category={category}
                 onLoadData={handleLoadData}
                 onRandomData={handleRandomData}
                 onResetData={handleResetData}

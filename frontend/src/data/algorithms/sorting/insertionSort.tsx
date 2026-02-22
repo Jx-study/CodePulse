@@ -1,8 +1,10 @@
+import React from "react";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { SortingActionBar } from "./SortingActionBar";
 
 const TAGS = {
   INIT: "INIT",
@@ -252,6 +254,7 @@ export const insertionSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 6 },
   ],
   createAnimationSteps: createInsertionSortAnimationSteps,
+  renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
   relatedProblems: [
     {
       id: 147,

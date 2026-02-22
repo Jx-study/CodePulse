@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
 import type { StatusConfig } from './statusConfig';
 
@@ -12,6 +13,55 @@ export interface ProblemReference {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   url: string;
 }
+
+// ─── ActionBar Props 分層型別 ────────────────────────────────
+
+export type AlgorithmViewMode = "graph" | "grid";
+
+export interface RunParams {
+  searchValue?: number;
+  range?: [number, number];
+  mode?: AlgorithmViewMode;
+  rows?: number;
+  cols?: number;
+  startNode?: string;
+  endNode?: string;
+}
+
+/** 基礎共用（所有 ActionBar 都需要） */
+export interface BaseActionBarProps {
+  onLoadData: (data: string) => void;
+  onResetData: () => void;
+  onRandomData: (params?: any) => void;
+  onMaxNodesChange?: (count: number) => void;
+  onLimitExceeded?: () => void;
+  disabled?: boolean;
+}
+
+/** 資料結構專用 */
+export interface DSActionBarProps extends BaseActionBarProps {
+  onAddNode: (value: number, mode: string, index?: number) => void;
+  onDeleteNode: (mode: string, index?: number) => void;
+  onSearchNode: (value: number, mode?: string) => void;
+  onPeek?: () => void;
+  onTailModeChange?: (hasTail: boolean) => void;
+  onGraphAction?: (action: string, payload: any) => void;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
+}
+
+/** 演算法專用 */
+export interface AlgoActionBarProps extends BaseActionBarProps {
+  onRun: (params?: RunParams) => void;
+  viewMode?: AlgorithmViewMode;
+  onViewModeChange?: (mode: AlgorithmViewMode) => void;
+  currentData?: any;
+}
+
+/** renderActionBar 的參數型別（聯合型別） */
+export type ActionBarProps = DSActionBarProps | AlgoActionBarProps;
+
+// ─── LevelImplementationConfig ───────────────────────────────
 
 /**
  * 統一的實作配置介面
@@ -36,6 +86,8 @@ export interface LevelImplementationConfig {
   /** Optional custom status configuration - 可選的自訂狀態配置 */
   statusConfig?: StatusConfig;
   getCodeConfig?: (payload?: any) => CodeConfig;
+  /** 各資料結構/演算法自行定義的 ActionBar 元件 */
+  renderActionBar?: (props: ActionBarProps) => ReactNode;
 }
 
 /**
