@@ -4,16 +4,17 @@ import Input from "@/shared/components/Input";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
-export type AlgorithmViewMode = "graph" | "grid";
+export type AlgorithmViewMode = string;
 
 export interface RunParams {
   searchValue?: number;
   range?: [number, number];
-  mode?: "graph" | "grid";
+  mode?: string;
   rows?: number;
   cols?: number;
   startNode?: string;
   endNode?: string;
+  targetSum?: number;
 }
 
 interface AlgorithmActionBarProps {
@@ -46,8 +47,12 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
-  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT));
+  const [randomCount, setRandomCount] = useState<number>(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
+  const [randomCountInput, setRandomCountInput] = useState<string>(
+    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
+  );
   const [searchValue, setSearchValue] = useState<string>("");
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
@@ -68,11 +73,15 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const [gridStartElement, setGridStartElement] = useState<string>("");
   const [gridEndElement, setGridEndElement] = useState<string>("");
 
+  const [windowMode, setWindowMode] = useState<string>("longest_lte");
+  const [targetSum, setTargetSum] = useState<string>("20");
+
   // 判斷演算法類型
   const isSearching = category === "searching";
   const isSorting = category === "sorting";
   const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
+  const isSlidingWindow = algorithmId === "slidingwindow";
   const isGraphAlgo =
     category === "graph" ||
     (algorithmId && ["bfs", "dfs"].includes(algorithmId));
@@ -84,7 +93,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isSearching && !isPrefixSum) {
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-    } else if (isPrefixSum) {
+    } else if (isPrefixSum || isSlidingWindow) {
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
@@ -189,6 +198,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       }
 
       onRun({ mode: "graph", startNode: startId, endNode: endId });
+    } else if (isSlidingWindow) {
+      const val = parseInt(targetSum, 10);
+      if (!isNaN(val)) {
+        onRun({ mode: windowMode, targetSum: val });
+      } else {
+        alert("請輸入有效的目標和數值");
+      }
     } else if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
@@ -202,7 +218,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       if (isNaN(start) && isNaN(end)) {
         onRun({});
-      } else if (!isNaN(start) && !isNaN(end) && start <= end && start >= 0 && end >= 0) {
+      } else if (
+        !isNaN(start) &&
+        !isNaN(end) &&
+        start <= end &&
+        start >= 0 &&
+        end >= 0
+      ) {
         onRun({ range: [start, end] });
       } else {
         alert("請輸入完整的區間 (Start, End)");
@@ -297,9 +319,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
     <div className={styles.dataActionBarContainer}>
       {showGridLoader && (
         <div className={styles.modalContainer}>
-          <h4 className={styles.modalTitle}>
-            輸入迷宮資料 (0=路, 1=牆)
-          </h4>
+          <h4 className={styles.modalTitle}>輸入迷宮資料 (0=路, 1=牆)</h4>
           <textarea
             value={gridInputText}
             onChange={(e) => setGridInputText(e.target.value)}
@@ -328,14 +348,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {showGraphLoader && (
         <div className={styles.modalContainer}>
-          <h4 className={styles.modalTitle}>
-            自定義 Graph 資料
-          </h4>
+          <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
 
           <div className={styles.modalFieldRow}>
-            <label className={styles.modalLabel}>
-              節點數量 (0 ~ N-1):
-            </label>
+            <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
             <input
               type="number"
               value={graphNodeCount}
@@ -345,9 +361,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
 
           <div className={styles.modalFieldColumn}>
-            <label className={styles.modalLabel}>
-              邊 (格式: 來源 目標)
-            </label>
+            <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
             <textarea
               value={graphEdgeInput}
               onChange={(e) => setGraphEdgeInput(e.target.value)}
@@ -444,7 +458,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
                 if (num > DATA_LIMITS.MAX_NODES) {
                   onLimitExceeded?.();
                 }
-                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  DATA_LIMITS.MAX_NODES,
+                );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
                 onRandomCountChange?.(v);
@@ -496,15 +513,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {/* 第二行：執行控制 */}
       <div className={styles.actionGroup}>
-        <div className={styles.staticLabel}>
-          {getControlLabel()}
-        </div>
+        <div className={styles.staticLabel}>{getControlLabel()}</div>
 
         {isGraphAlgo && (
           <div className={styles.viewModeContainer}>
-            <span className={styles.viewModeLabel}>
-              視圖:
-            </span>
+            <span className={styles.viewModeLabel}>視圖:</span>
             <select
               value={viewMode}
               onChange={(e) =>
@@ -551,13 +564,54 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
         )}
 
+        {isSlidingWindow && (
+          <>
+            <div className={styles.viewModeContainer}>
+              <span className={styles.viewModeLabel}>模式:</span>
+              <select
+                value={windowMode}
+                onChange={(e) => {
+                  const newMode = e.target.value;
+                  setWindowMode(newMode);
+
+                  // 立即觸發 onRun (這樣會直接呼叫 executeAction("run"))
+                  // 強迫畫面馬上變成 "最短" 的初始狀態 (Step 0)
+                  // onRun({
+                  //   mode: newMode,
+                  //   targetSum: parseInt(targetSum, 10) || 20,
+                  // });
+                }}
+                disabled={disabled}
+                className={styles.viewModeSelect}
+              >
+                <option value="longest_lte">最長區間 (Sum &le; Target)</option>
+                <option value="shortest_gte">最短區間 (Sum &ge; Target)</option>
+              </select>
+            </div>
+            <Input
+              type="number"
+              placeholder="目標和"
+              value={targetSum}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setTargetSum(e.target.value)
+              }
+              className={styles.input}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Target sum"
+            />
+          </>
+        )}
+
         {/* 搜尋演算法的搜尋值輸入 */}
         {showSearchInput && (
           <Input
             type="number"
             placeholder="搜尋值"
             value={searchValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchValue(e.target.value)
+            }
             className={styles.input}
             disabled={disabled}
             fullWidth={false}
@@ -572,7 +626,9 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               type="number"
               placeholder="L"
               value={rangeStart}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRangeStart(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRangeStart(e.target.value)
+              }
               className={styles.input}
               disabled={disabled}
               fullWidth={false}
@@ -583,7 +639,9 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               type="number"
               placeholder="R"
               value={rangeEnd}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRangeEnd(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRangeEnd(e.target.value)
+              }
               className={styles.input}
               disabled={disabled}
               fullWidth={false}
