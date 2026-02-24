@@ -66,7 +66,6 @@ export function createSlidingWindowAnimationSteps(
   if (arr.length === 0) return steps;
 
   const mode = action?.mode || "longest_lte";
-  // console.log(mode); mode 預設是 graph 屎坑，用 else 處理
   const targetSum = action?.targetSum || 20;
 
   if (mode === "shortest_gte") {
@@ -173,7 +172,7 @@ export function createSlidingWindowAnimationSteps(
         ),
       );
     }
-  } else {
+  } else if (mode === "longest_lte") {
     // 找總和 <= targetSum 的最長連續子陣列
     let left = 0,
       currentSum = 0,

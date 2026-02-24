@@ -18,11 +18,12 @@ interface SmartActionBarProps {
   disabled?: boolean;
 
   // 演算法特定
-  onRun?: (
-    params?: { searchValue?: number; range?: [number, number] },
-    mode?: string,
-    targetSum?: number,
-  ) => void;
+  onRun?: (params?: {
+    searchValue?: number;
+    range?: [number, number];
+    mode?: string;
+    targetSum?: number;
+  }) => void;
   viewMode?: string;
   onViewModeChange?: (mode: string) => void;
   currentData?: any;
