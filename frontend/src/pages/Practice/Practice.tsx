@@ -16,7 +16,7 @@ import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Input from "@/shared/components/Input";
 
 const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
-const currentUserRating = 1200; // 模擬傳入的分數
+const currentUserRating = 1500; // 模擬傳入的分數
 
 function Practice() {
   const { category, levelId } = useParams<{
@@ -524,7 +524,7 @@ function Practice() {
                 <Input
                   type="text"
                   value={(userAnswers[currentQuestion.id] as string) || ""}
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     handleAnswerChange(
                       currentQuestion.id,
                       e.target.value,
@@ -571,7 +571,7 @@ function Practice() {
                       <Input
                         type="text"
                         value={currentAnsArray[index] || ""}
-                        onChange={(e) =>
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleFillCodeChange(
                             currentQuestion.id,
                             index,
