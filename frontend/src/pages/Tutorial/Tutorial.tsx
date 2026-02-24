@@ -24,7 +24,10 @@ import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogi
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
-import { buildStatusColorMap, DEFAULT_STATUS_CONFIG } from "@/types/statusConfig";
+import {
+  buildStatusColorMap,
+  DEFAULT_STATUS_CONFIG,
+} from "@/types/statusConfig";
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -169,7 +172,7 @@ function TutorialContent() {
   const inspectorPanelRef = useRef<PanelImperativeHandle>(null);
 
   // Collapse states (使用 context 的 collapsed state)
-  const isLeftPanelCollapsed = collapsedPanels.has('codeEditor');
+  const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
 
   // Knowledge Station state
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
@@ -235,10 +238,12 @@ function TutorialContent() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
-  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCount, setRandomCount] = useState(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
   const [hasTailMode, setHasTailMode] = useState(false);
   const [showLimitToast, setShowLimitToast] = useState(false);
-  const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
+  const [viewMode, setViewMode] = useState<string>("");
   const [isDirected, setIsDirected] = useState(false);
 
   // 計算目前的動畫步驟數據
@@ -484,10 +489,10 @@ function TutorialContent() {
 
     if (panel.isCollapsed()) {
       panel.expand();
-      setCollapsed('codeEditor', false);
+      setCollapsed("codeEditor", false);
     } else {
       panel.collapse();
-      setCollapsed('codeEditor', true);
+      setCollapsed("codeEditor", true);
     }
   };
 

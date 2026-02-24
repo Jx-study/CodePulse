@@ -46,11 +46,11 @@ export const useAlgorithmLogic = (config: any) => {
   useEffect(() => {
     if (config?.defaultData) {
       let initialData;
-      let initialMode = "graph";
+      let initParams: any = {};
 
       // 判斷資料類型
       if (Array.isArray(config.defaultData)) {
-        // A. 排序/搜尋：純數字陣列 -> 轉物件
+        // A. 排序/搜尋/滑動窗口：純數字陣列 -> 轉物件
         // 如果 defaultData 裡已經是物件 (像 BFS grid 定義)，直接 clone
         const isObjectArray = typeof config.defaultData[0] === "object";
         if (isObjectArray) {
@@ -61,21 +61,26 @@ export const useAlgorithmLogic = (config: any) => {
             id: d.id || `box-${nextIdRef.current++}`,
           }));
         }
+
+        if (config.id === "slidingwindow") {
+          initParams = { mode: "longest_lte", targetSum: 20 };
+        }
       } else {
         // B. Graph/BFS：複合物件 ({ graph: ..., grid: ... })
         // 預設先載入 graph
         if (config.defaultData.graph) {
           initialData = cloneData(config.defaultData.graph);
-          initialMode = "graph";
+          initParams = { mode: "graph" };
         } else {
           initialData = cloneData(config.defaultData);
+          initParams = { mode: "graph" };
         }
       }
 
-      const steps = generateSteps(initialData, { mode: initialMode });
+      const steps = generateSteps(initialData, initParams);
 
       // 初始化時也要同步座標 (如果是 Graph)
-      if (initialMode === "graph" && steps.length > 0) {
+      if (initParams.mode === "graph" && steps.length > 0) {
         syncCoordinates(initialData, steps[0].elements);
       }
 
@@ -186,13 +191,22 @@ export const useAlgorithmLogic = (config: any) => {
     let newData = cloneData(data);
 
     if (actionType === "random") {
-      const count = Math.min(payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
+      const count = Math.min(
+        payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+        DATA_LIMITS.MAX_NODES,
+      );
       if (config.id === "binarysearch") {
         // 做個排序
         const sortedValues = Array.from({ length: count }, () =>
-          Math.floor(Math.random() * 100)
+          Math.floor(Math.random() * 100),
         ).sort((a, b) => a - b);
         newData = initLinearData(sortedValues);
+      } else if (config.id === "slidingwindow") {
+        const randomValues = Array.from(
+          { length: count },
+          () => Math.floor(Math.random() * 15) + 1,
+        );
+        newData = initLinearData(randomValues);
       } else if (config.id === "bfs" || config.id === "dfs") {
         const mode = payload?.mode || "graph";
         if (mode === "grid") {

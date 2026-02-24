@@ -17,6 +17,7 @@ import { binarySearchConfig } from "../algorithms/searching/binarySearch";
 import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
+import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
 
 /**
  * 統一的實作註冊表
@@ -41,6 +42,7 @@ export const implementationsMap: ImplementationMap = {
   bfs: BFSConfig,
   dfs: DFSConfig,
   prefixSum: prefixSumConfig,
+  slidingWindow: slidingWindowConfig,
 };
 
 /**
