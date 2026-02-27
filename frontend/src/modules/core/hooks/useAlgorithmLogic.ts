@@ -209,7 +209,11 @@ export const useAlgorithmLogic = (config: any) => {
           () => Math.floor(Math.random() * 15) + 1,
         );
         newData = initLinearData(randomValues);
-      } else if (config.id === "bfs" || config.id === "dfs") {
+      } else if (
+        config.id === "bfs" ||
+        config.id === "dfs" ||
+        config.id === "dijkstra"
+      ) {
         const mode = payload?.mode || "graph";
         if (mode === "grid") {
           const rows = payload?.rows || 3;
