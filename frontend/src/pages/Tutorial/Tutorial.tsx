@@ -146,6 +146,171 @@ const CanvasPanel = ({
     </Panel>
   );
 };
+
+// ==================== Inspector Panel Component ====================
+export interface InspectorPanelInternalProps {
+  isMobile: boolean;
+  activeInspectorTab: string;
+  setActiveInspectorTab: (tab: string) => void;
+  topicTypeConfig: any;
+  handleLoadData: (raw: string) => void;
+  handleRandomData: (params?: any) => void;
+  handleResetData: () => void;
+  isProcessing: boolean;
+  handleRunAlgorithm: (params?: any) => void;
+  handleAddNode: (value: number, mode: string, index?: number) => void;
+  handleDeleteNode: (mode: string, index?: number) => void;
+  handleSearchNode: (value: number, mode?: string) => void;
+  handlePeek: () => void;
+  setRandomCount: (count: number) => void;
+  setHasTailMode: (hasTail: boolean) => void;
+  handleGraphAction: (action: string, payload: any) => void;
+  isDirected: boolean;
+  setIsDirected: (isDirected: boolean) => void;
+  onLimitExceeded: () => void;
+  viewMode: "graph" | "grid";
+  handleViewModeChange: (mode: "graph" | "grid") => void;
+  currentData: any;
+  currentStepData: any;
+}
+
+export const InspectorPanelInternal = ({
+  isMobile,
+  activeInspectorTab,
+  setActiveInspectorTab,
+  topicTypeConfig,
+  handleLoadData,
+  handleRandomData,
+  handleResetData,
+  isProcessing,
+  handleRunAlgorithm,
+  handleAddNode,
+  handleDeleteNode,
+  handleSearchNode,
+  handlePeek,
+  setRandomCount,
+  setHasTailMode,
+  handleGraphAction,
+  isDirected,
+  setIsDirected,
+  onLimitExceeded,
+  viewMode,
+  handleViewModeChange,
+  currentData,
+  currentStepData,
+}: InspectorPanelInternalProps) => {
+  const { activePanels } = usePanelContext();
+
+  // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
+  const inspectorTabs: TabConfig[] = useMemo(() => {
+    return Object.values(PANEL_REGISTRY)
+      .filter((config) => config.isTab && config.tabGroup === "inspector")
+      .filter((config) => activePanels.includes(config.id))
+      .map((config) => ({
+        key: config.id,
+        label: config.title,
+        icon: config.icon,
+      }));
+  }, [activePanels]);
+
+  // 拖拽邏輯
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: "inspector", disabled: isMobile });
+
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  // 渲染當前 Tab 的內容
+  const renderTabContent = () => {
+    const panelConfig = PANEL_REGISTRY[activeInspectorTab];
+
+    if (!panelConfig) {
+      return null;
+    }
+
+    const PanelComponent = panelConfig.component;
+
+    // 為 actionBar 準備特殊的 props
+    if (activeInspectorTab === "actionBar") {
+      return (
+        <div className={styles.tabContent}>
+          <Suspense fallback={<div>載入中...</div>}>
+            <PanelComponent
+              topicTypeConfig={topicTypeConfig}
+              onLoadData={handleLoadData}
+              onRandomData={handleRandomData}
+              onResetData={handleResetData}
+              disabled={isProcessing}
+              onRun={handleRunAlgorithm}
+              onAddNode={handleAddNode}
+              onDeleteNode={handleDeleteNode}
+              onSearchNode={handleSearchNode}
+              onPeek={handlePeek}
+              onMaxNodesChange={setRandomCount}
+              onTailModeChange={setHasTailMode}
+              onGraphAction={handleGraphAction}
+              isDirected={isDirected}
+              onIsDirectedChange={setIsDirected}
+              onLimitExceeded={onLimitExceeded}
+              viewMode={viewMode}
+              onViewModeChange={handleViewModeChange}
+              currentData={currentData}
+            />
+          </Suspense>
+        </div>
+      );
+    }
+
+    // 為 variableStatus 準備 variables props
+    if (activeInspectorTab === "variableStatus") {
+      return (
+        <div className={styles.tabContent}>
+          <Suspense fallback={<div>載入中...</div>}>
+            <PanelComponent variables={currentStepData?.variables} />
+          </Suspense>
+        </div>
+      );
+    }
+
+    // 其他 Tab (callStack) 不需要 props
+    return (
+      <div className={styles.tabContent}>
+        <Suspense fallback={<div>載入中...</div>}>
+          <PanelComponent />
+        </Suspense>
+      </div>
+    );
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={sortableStyle}
+      {...attributes}
+      className={styles.inspectorPanel}
+    >
+      <PanelHeader
+        title="資訊面板"
+        draggable={!isMobile}
+        dragHandleProps={listeners}
+        tabs={inspectorTabs}
+        activeTab={activeInspectorTab}
+        onTabChange={setActiveInspectorTab}
+      />
+      <div className={styles.tabContentArea}>{renderTabContent()}</div>
+    </div>
+  );
+};
+
 function TutorialContent() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
@@ -552,118 +717,31 @@ function TutorialContent() {
     return null;
   }
 
-  // ==================== Inspector Panel Component ====================
-  const InspectorPanelInternal = () => {
-    const { activePanels } = usePanelContext();
-
-    // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
-    const inspectorTabs: TabConfig[] = useMemo(() => {
-      return Object.values(PANEL_REGISTRY)
-        .filter((config) => config.isTab && config.tabGroup === "inspector")
-        .filter((config) => activePanels.includes(config.id))
-        .map((config) => ({
-          key: config.id,
-          label: config.title,
-          icon: config.icon,
-        }));
-    }, [activePanels]);
-
-    // 拖拽邏輯
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: "inspector", disabled: isMobile });
-
-    const sortableStyle = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-    };
-
-    // 渲染當前 Tab 的內容
-    const renderTabContent = () => {
-      const panelConfig = PANEL_REGISTRY[activeInspectorTab];
-
-      if (!panelConfig) {
-        return null;
-      }
-
-      const PanelComponent = panelConfig.component;
-
-      // 為 actionBar 準備特殊的 props
-      if (activeInspectorTab === "actionBar") {
-        return (
-          <div className={styles.tabContent}>
-            <Suspense fallback={<div>載入中...</div>}>
-              <PanelComponent
-                topicTypeConfig={topicTypeConfig}
-                onLoadData={handleLoadData}
-                onRandomData={handleRandomData}
-                onResetData={handleResetData}
-                disabled={isProcessing}
-                onRun={handleRunAlgorithm}
-                onAddNode={handleAddNode}
-                onDeleteNode={handleDeleteNode}
-                onSearchNode={handleSearchNode}
-                onPeek={handlePeek}
-                onMaxNodesChange={setRandomCount}
-                onTailModeChange={setHasTailMode}
-                onGraphAction={handleGraphAction}
-                isDirected={isDirected}
-                onIsDirectedChange={setIsDirected}
-                onLimitExceeded={() => setShowLimitToast(true)}
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
-                currentData={logic.data}
-              />
-            </Suspense>
-          </div>
-        );
-      }
-
-      // 為 variableStatus 準備 variables props
-      if (activeInspectorTab === "variableStatus") {
-        return (
-          <div className={styles.tabContent}>
-            <Suspense fallback={<div>載入中...</div>}>
-              <PanelComponent variables={currentStepData?.variables} />
-            </Suspense>
-          </div>
-        );
-      }
-
-      // 其他 Tab (callStack) 不需要 props
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent />
-          </Suspense>
-        </div>
-      );
-    };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={sortableStyle}
-        {...attributes}
-        className={styles.inspectorPanel}
-      >
-        <PanelHeader
-          title="資訊面板"
-          draggable={!isMobile}
-          dragHandleProps={listeners}
-          tabs={inspectorTabs}
-          activeTab={activeInspectorTab}
-          onTabChange={setActiveInspectorTab}
-        />
-        <div className={styles.tabContentArea}>{renderTabContent()}</div>
-      </div>
-    );
+  // ==================== Inspector Panel Props ====================
+  const inspectorPanelProps: InspectorPanelInternalProps = {
+    isMobile,
+    activeInspectorTab,
+    setActiveInspectorTab,
+    topicTypeConfig,
+    handleLoadData,
+    handleRandomData,
+    handleResetData,
+    isProcessing,
+    handleRunAlgorithm,
+    handleAddNode,
+    handleDeleteNode,
+    handleSearchNode,
+    handlePeek,
+    setRandomCount,
+    setHasTailMode,
+    handleGraphAction,
+    isDirected,
+    setIsDirected,
+    onLimitExceeded: () => setShowLimitToast(true),
+    viewMode,
+    handleViewModeChange,
+    currentData: logic.data,
+    currentStepData,
   };
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -706,6 +784,7 @@ function TutorialContent() {
           <div className={styles.buttonGroup}>
             <Button
               variant="secondary"
+              size="sm"
               onClick={() => setIsKnowledgeStationOpen(true)}
               title="開啟知識補充站"
               icon="lightbulb"
@@ -714,7 +793,7 @@ function TutorialContent() {
             </Button>
             <Button
               variant="secondary"
-              className={styles.swapButton}
+              size="sm"
               onClick={handleSwapMainPanels}
               title="交換左右面板"
               icon="right-left"
@@ -739,7 +818,7 @@ function TutorialContent() {
         inspectorPanelRef={inspectorPanelRef}
         CanvasPanel={CanvasPanel}
         canvasPanelProps={canvasPanelProps}
-        InspectorPanelInternal={InspectorPanelInternal}
+        inspectorPanelProps={inspectorPanelProps}
         isLeftPanelCollapsed={isLeftPanelCollapsed}
         handleToggleLeftPanel={handleToggleLeftPanel}
         topicTypeConfig={topicTypeConfig}

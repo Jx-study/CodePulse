@@ -18,6 +18,7 @@ import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
 import { usePanelContext } from '../../context/PanelContext';
+import { InspectorPanelInternal, type InspectorPanelInternalProps } from '../../Tutorial';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -65,8 +66,8 @@ interface TopSectionProps {
   CanvasPanel: React.ComponentType<CanvasPanelProps>;
   canvasPanelProps: CanvasPanelProps;
 
-  // InspectorPanel Component
-  InspectorPanelInternal: React.ComponentType;
+  // InspectorPanel Props
+  inspectorPanelProps: InspectorPanelInternalProps;
 
   // Collapse 控制
   isLeftPanelCollapsed: boolean;
@@ -96,7 +97,7 @@ export function TopSection(props: TopSectionProps) {
     inspectorPanelRef,
     CanvasPanel,
     canvasPanelProps,
-    InspectorPanelInternal,
+    inspectorPanelProps,
     isLeftPanelCollapsed,
     handleToggleLeftPanel,
     topicTypeConfig,
@@ -223,7 +224,7 @@ export function TopSection(props: TopSectionProps) {
                                   defaultSize={30}
                                   minSize="20%"
                                 >
-                                  <InspectorPanelInternal />
+                                  <InspectorPanelInternal {...inspectorPanelProps} />
                                 </Panel>
                                 {index < rightPanelOrder.length - 1 && (
                                   <ResizeHandle direction="vertical" />
@@ -276,7 +277,7 @@ export function TopSection(props: TopSectionProps) {
                                   defaultSize={25}
                                   minSize="20%"
                                 >
-                                  <InspectorPanelInternal />
+                                  <InspectorPanelInternal {...inspectorPanelProps} />
                                 </Panel>
                                 {index < rightPanelOrder.length - 1 && (
                                   <ResizeHandle direction="vertical" />
