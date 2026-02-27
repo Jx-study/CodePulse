@@ -131,7 +131,9 @@ export const generateGraphFrame = (
       newNode.value = isNaN(numId) ? -1 : numId;
     } else {
       const dist = distanceMap[node.id];
-      newNode.value = (dist === undefined || dist === 99 ? "∞" : dist) as any;
+      newNode.value = (
+        dist === undefined || dist === Infinity ? "∞" : dist
+      ) as any;
     }
 
     let x = node.position.x;

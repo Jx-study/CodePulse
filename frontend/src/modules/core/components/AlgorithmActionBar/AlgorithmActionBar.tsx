@@ -301,6 +301,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       return;
     }
 
+    let hasNegativeWeight = false;
     // 將邊的字串 (換行分隔) 壓縮成單行或特定格式傳遞
 
     // 1. 將輸入字串依換行分割
@@ -313,9 +314,23 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       .filter((line) => line !== "")
       .map((line) => {
         // 把多個空格縮減為單一空格，例如 "0    1   5" -> "0 1 5"
+        if (isDijkstra) {
+          const parts = line.split(/\s+/);
+          if (parts.length >= 3) {
+            const weight = parseInt(parts[2], 10);
+            if (weight < 0) {
+              hasNegativeWeight = true;
+            }
+          }
+        }
         return line.replace(/\s+/g, " ");
       })
       .join(",");
+
+    if (hasNegativeWeight) {
+      alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+      return;
+    }
 
     // 格式協定: "GRAPH:nodeCount:edgeString"
     const payload = `GRAPH:${nodeCount}:${edges}`;
