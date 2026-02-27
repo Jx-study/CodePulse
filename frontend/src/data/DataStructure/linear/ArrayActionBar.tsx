@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
@@ -95,38 +96,44 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Index"
         />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleInsert}
-          disabled={disabled}
-          className={styles.btnInsert}
-          icon="plus"
-        >
-          Insert
-        </Button>
+        <Tooltip content="在指定索引位置插入元素">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleInsert}
+            disabled={disabled}
+            className={styles.btnInsert}
+            icon="plus"
+          >
+            Insert
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleUpdate}
-          disabled={disabled}
-          className={styles.btnUpdate}
-          icon="pencil"
-        >
-          Update
-        </Button>
+        <Tooltip content="更新指定索引位置的元素值">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleUpdate}
+            disabled={disabled}
+            className={styles.btnUpdate}
+            icon="pencil"
+          >
+            Update
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleDelete}
-          disabled={disabled}
-          className={styles.btnDelete}
-          icon="trash"
-        >
-          Delete
-        </Button>
+        <Tooltip content="刪除指定索引位置的元素">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleDelete}
+            disabled={disabled}
+            className={styles.btnDelete}
+            icon="trash"
+          >
+            Delete
+          </Button>
+        </Tooltip>
 
         <Input
           type="number"
@@ -140,19 +147,21 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            const val = Number(searchValue);
-            onSearchNode(val, "search");
-          }}
-          disabled={disabled}
-          className={styles.btnSearch}
-          icon="search"
-        >
-          Search
-        </Button>
+        <Tooltip content="搜尋陣列中的指定數值">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const val = Number(searchValue);
+              onSearchNode(val, "search");
+            }}
+            disabled={disabled}
+            className={styles.btnSearch}
+            icon="search"
+          >
+            Search
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

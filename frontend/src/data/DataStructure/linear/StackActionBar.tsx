@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
@@ -68,38 +69,44 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Node value"
         />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handlePush}
-          disabled={disabled}
-          className={styles.btnInsert}
-          icon="plus"
-        >
-          Push
-        </Button>
-
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handlePop}
-          disabled={disabled}
-          className={styles.btnDelete}
-          icon="trash"
-        >
-          Pop
-        </Button>
-
-        {onPeek && (
+        <Tooltip content="將元素推入堆疊頂部">
           <Button
             size="sm"
-            onClick={onPeek}
+            variant="secondary"
+            onClick={handlePush}
             disabled={disabled}
-            className={styles.btnQuery}
-            icon="eye"
+            className={styles.btnInsert}
+            icon="plus"
           >
-            Peek
+            Push
           </Button>
+        </Tooltip>
+
+        <Tooltip content="移除堆疊頂部的元素">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handlePop}
+            disabled={disabled}
+            className={styles.btnDelete}
+            icon="trash"
+          >
+            Pop
+          </Button>
+        </Tooltip>
+
+        {onPeek && (
+          <Tooltip content="查看堆疊頂部的元素（不移除）">
+            <Button
+              size="sm"
+              onClick={onPeek}
+              disabled={disabled}
+              className={styles.btnQuery}
+              icon="eye"
+            >
+              Peek
+            </Button>
+          </Tooltip>
         )}
       </ActionBarGroup>
     </ActionBarContainer>

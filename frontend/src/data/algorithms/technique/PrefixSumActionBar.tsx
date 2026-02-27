@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
@@ -83,14 +84,16 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             aria-label="Range end"
           />
         </div>
-        <Button
-          size="sm"
-          onClick={handleRun}
-          disabled={disabled}
-          className={`${styles.runButton} ${styles.runButtonTechnique}`}
-        >
-          開始演示
-        </Button>
+        <Tooltip content="執行前綴和演算法演示">
+          <Button
+            size="sm"
+            onClick={handleRun}
+            disabled={disabled}
+            className={`${styles.runButton} ${styles.runButtonTechnique}`}
+          >
+            開始演示
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

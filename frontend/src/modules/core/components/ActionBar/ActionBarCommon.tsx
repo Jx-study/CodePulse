@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./ActionBar.module.scss";
@@ -59,32 +60,38 @@ export const DataRow: React.FC<DataRowProps> = ({
         fullWidth={false}
         aria-label="Bulk data input"
       />
-      <Button
-        size="sm"
-        onClick={() => onLoadData(bulkInput)}
-        disabled={disabled}
-        icon="download"
-      >
-        載入資料
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={onResetData}
-        disabled={disabled}
-        icon="rotate-right"
-      >
-        重設
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => onRandomData()}
-        disabled={disabled}
-        icon="shuffle"
-      >
-        隨機
-      </Button>
+      <Tooltip content="輸入逗號分隔的數字，點擊載入">
+        <Button
+          size="sm"
+          onClick={() => onLoadData(bulkInput)}
+          disabled={disabled}
+          icon="download"
+        >
+          載入資料
+        </Button>
+      </Tooltip>
+      <Tooltip content="清除所有資料，恢復初始狀態">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onResetData}
+          disabled={disabled}
+          icon="rotate-right"
+        >
+          重設
+        </Button>
+      </Tooltip>
+      <Tooltip content="隨機生成一組資料">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => onRandomData()}
+          disabled={disabled}
+          icon="shuffle"
+        >
+          隨機
+        </Button>
+      </Tooltip>
 
       <div className={styles.settingItem}>
         <label className={styles.smallLabel}>隨機筆數:</label>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { AlgoActionBarProps, AlgorithmViewMode } from "@/types/implementation";
 import { DATA_LIMITS } from "@/constants/dataLimits";
@@ -142,26 +143,32 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
       {/* 第一行：資料生成 */}
       <ActionBarGroup>
         {viewMode === "grid" && (
-          <Button
-            size="sm"
-            onClick={() => setShowGridLoader(!showGridLoader)}
-            disabled={disabled}
-          >
-            載入迷宮資料
-          </Button>
+          <Tooltip content="開啟自定義迷宮資料載入介面">
+            <Button
+              size="sm"
+              onClick={() => setShowGridLoader(!showGridLoader)}
+              disabled={disabled}
+            >
+              載入迷宮資料
+            </Button>
+          </Tooltip>
         )}
         {viewMode === "graph" && (
-          <Button
-            size="sm"
-            onClick={() => setShowGraphLoader(true)}
-            disabled={disabled}
-          >
-            載入圖形資料
-          </Button>
+          <Tooltip content="開啟自定義圖形資料載入介面">
+            <Button
+              size="sm"
+              onClick={() => setShowGraphLoader(true)}
+              disabled={disabled}
+            >
+              載入圖形資料
+            </Button>
+          </Tooltip>
         )}
-        <Button size="sm" onClick={onResetData} disabled={disabled}>
-          重設
-        </Button>
+        <Tooltip content="清除所有資料，恢復初始狀態">
+          <Button size="sm" onClick={onResetData} disabled={disabled}>
+            重設
+          </Button>
+        </Tooltip>
         <div className={styles.settingItem}>
           <label className={styles.smallLabel}>隨機筆數:</label>
           <input
@@ -196,19 +203,21 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             disabled={disabled}
           />
         </div>
-        <Button
-          size="sm"
-          onClick={() => {
-            if (viewMode === "grid") {
-              handleRandomGrid();
-            } else {
-              onRandomData();
-            }
-          }}
-          disabled={disabled}
-        >
-          隨機
-        </Button>
+        <Tooltip content="隨機生成一組資料">
+          <Button
+            size="sm"
+            onClick={() => {
+              if (viewMode === "grid") {
+                handleRandomGrid();
+              } else {
+                onRandomData();
+              }
+            }}
+            disabled={disabled}
+          >
+            隨機
+          </Button>
+        </Tooltip>
         {viewMode === "grid" && (
           <div className={styles.gridRowsColsContainer}>
             <label className={styles.smallLabel}>R:</label>
@@ -278,14 +287,16 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
           />
         </div>
 
-        <Button
-          size="sm"
-          onClick={handleRun}
-          disabled={disabled}
-          className={`${styles.runButton} ${styles.runButtonTechnique}`}
-        >
-          開始執行
-        </Button>
+        <Tooltip content="執行 BFS/DFS 演算法">
+          <Button
+            size="sm"
+            onClick={handleRun}
+            disabled={disabled}
+            className={`${styles.runButton} ${styles.runButtonTechnique}`}
+          >
+            開始執行
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

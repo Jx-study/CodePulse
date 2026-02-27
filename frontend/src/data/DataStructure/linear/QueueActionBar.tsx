@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
@@ -66,38 +67,44 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Node value"
         />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleEnqueue}
-          disabled={disabled}
-          className={styles.btnInsert}
-          icon="plus"
-        >
-          Enqueue
-        </Button>
-
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleDequeue}
-          disabled={disabled}
-          className={styles.btnDelete}
-          icon="trash"
-        >
-          Dequeue
-        </Button>
-
-        {onPeek && (
+        <Tooltip content="將元素加入佇列尾部">
           <Button
             size="sm"
-            onClick={onPeek}
+            variant="secondary"
+            onClick={handleEnqueue}
             disabled={disabled}
-            className={styles.btnQuery}
-            icon="eye"
+            className={styles.btnInsert}
+            icon="plus"
           >
-            Peek
+            Enqueue
           </Button>
+        </Tooltip>
+
+        <Tooltip content="移除佇列前端的元素">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleDequeue}
+            disabled={disabled}
+            className={styles.btnDelete}
+            icon="trash"
+          >
+            Dequeue
+          </Button>
+        </Tooltip>
+
+        {onPeek && (
+          <Tooltip content="查看佇列前端的元素（不移除）">
+            <Button
+              size="sm"
+              onClick={onPeek}
+              disabled={disabled}
+              className={styles.btnQuery}
+              icon="eye"
+            >
+              Peek
+            </Button>
+          </Tooltip>
         )}
       </ActionBarGroup>
     </ActionBarContainer>

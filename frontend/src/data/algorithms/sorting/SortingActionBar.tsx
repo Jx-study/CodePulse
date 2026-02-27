@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -33,14 +34,16 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
 
       <ActionBarGroup>
         <StaticLabel>Sorting Control</StaticLabel>
-        <Button
-          size="sm"
-          onClick={() => onRun()}
-          disabled={disabled}
-          className={`${styles.runButton} ${styles.runButtonSorting}`}
-        >
-          開始排序
-        </Button>
+        <Tooltip content="執行排序演算法">
+          <Button
+            size="sm"
+            onClick={() => onRun()}
+            disabled={disabled}
+            className={`${styles.runButton} ${styles.runButtonSorting}`}
+          >
+            開始排序
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

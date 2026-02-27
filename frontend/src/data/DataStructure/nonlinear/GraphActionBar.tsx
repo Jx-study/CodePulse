@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Checkbox from "@/shared/components/Checkbox";
 import type { DSActionBarProps } from "@/types/implementation";
@@ -69,31 +70,37 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
 
       {/* 第一行：資料控制 */}
       <ActionBarGroup>
-        <Button
-          size="sm"
-          onClick={() => setShowGraphLoader(true)}
-          disabled={disabled}
-        >
-          載入 Graph 資料
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onResetData}
-          disabled={disabled}
-          icon="rotate-right"
-        >
-          重設
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => onRandomData()}
-          disabled={disabled}
-          icon="shuffle"
-        >
-          隨機
-        </Button>
+        <Tooltip content="開啟自定義 Graph 資料載入介面">
+          <Button
+            size="sm"
+            onClick={() => setShowGraphLoader(true)}
+            disabled={disabled}
+          >
+            載入 Graph 資料
+          </Button>
+        </Tooltip>
+        <Tooltip content="清除所有資料，恢復初始狀態">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onResetData}
+            disabled={disabled}
+            icon="rotate-right"
+          >
+            重設
+          </Button>
+        </Tooltip>
+        <Tooltip content="隨機生成一組圖形資料">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onRandomData()}
+            disabled={disabled}
+            icon="shuffle"
+          >
+            隨機
+          </Button>
+        </Tooltip>
 
         <div className={styles.settingItem}>
           <label className={styles.smallLabel}>隨機筆數:</label>
@@ -152,42 +159,50 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           fullWidth={false}
           aria-label="Node ID"
         />
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("addVertex")}
-          disabled={disabled}
-          className={styles.btnInsert}
-        >
-          新增
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("removeVertex")}
-          disabled={disabled}
-          className={styles.btnDelete}
-        >
-          刪除
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("getNeighbors")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          找鄰居
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("getDegree")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          度數
-        </Button>
+        <Tooltip content="新增一個節點到圖中">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("addVertex")}
+            disabled={disabled}
+            className={styles.btnInsert}
+          >
+            新增
+          </Button>
+        </Tooltip>
+        <Tooltip content="從圖中刪除指定節點">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("removeVertex")}
+            disabled={disabled}
+            className={styles.btnDelete}
+          >
+            刪除
+          </Button>
+        </Tooltip>
+        <Tooltip content="查詢指定節點的所有鄰居">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("getNeighbors")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            找鄰居
+          </Button>
+        </Tooltip>
+        <Tooltip content="查詢指定節點的度數">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("getDegree")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            度數
+          </Button>
+        </Tooltip>
 
         <span className={styles.smallLabel}>邊:</span>
         <Input
@@ -216,33 +231,39 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Target node"
         />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("addEdge")}
-          disabled={disabled}
-          className={styles.btnInsert}
-        >
-          連線
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("removeEdge")}
-          disabled={disabled}
-          className={styles.btnDelete}
-        >
-          斷線
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("checkAdjacent")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          檢查
-        </Button>
+        <Tooltip content="在兩個節點之間新增一條邊">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("addEdge")}
+            disabled={disabled}
+            className={styles.btnInsert}
+          >
+            連線
+          </Button>
+        </Tooltip>
+        <Tooltip content="移除兩個節點之間的邊">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("removeEdge")}
+            disabled={disabled}
+            className={styles.btnDelete}
+          >
+            斷線
+          </Button>
+        </Tooltip>
+        <Tooltip content="檢查兩個節點是否相鄰">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("checkAdjacent")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            檢查
+          </Button>
+        </Tooltip>
 
         <Checkbox
           label="有向"
@@ -255,24 +276,28 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Directed graph"
         />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("checkConnected")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          連通性
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleGraphAction("checkCycle")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          是否有環
-        </Button>
+        <Tooltip content="檢查圖是否連通">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("checkConnected")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            連通性
+          </Button>
+        </Tooltip>
+        <Tooltip content="檢查圖中是否存在環">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleGraphAction("checkCycle")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            是否有環
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

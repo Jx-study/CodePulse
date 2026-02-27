@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
@@ -57,14 +58,16 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Button
-          size="sm"
-          onClick={handleRun}
-          disabled={disabled}
-          className={`${styles.runButton} ${styles.runButtonSearching}`}
-        >
-          開始搜尋
-        </Button>
+        <Tooltip content="執行搜尋演算法">
+          <Button
+            size="sm"
+            onClick={handleRun}
+            disabled={disabled}
+            className={`${styles.runButton} ${styles.runButtonSearching}`}
+          >
+            開始搜尋
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

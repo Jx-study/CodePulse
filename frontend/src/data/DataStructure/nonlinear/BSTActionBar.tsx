@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
@@ -73,27 +74,31 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Node value"
         />
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleInsert}
-          disabled={disabled}
-          className={styles.btnInsert}
-          icon="plus"
-        >
-          Insert
-        </Button>
+        <Tooltip content="將數值插入 BST">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleInsert}
+            disabled={disabled}
+            className={styles.btnInsert}
+            icon="plus"
+          >
+            Insert
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleDelete}
-          disabled={disabled}
-          className={styles.btnDelete}
-          icon="trash"
-        >
-          Delete
-        </Button>
+        <Tooltip content="從 BST 中刪除指定數值">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleDelete}
+            disabled={disabled}
+            className={styles.btnDelete}
+            icon="trash"
+          >
+            Delete
+          </Button>
+        </Tooltip>
 
         <Input
           type="number"
@@ -107,63 +112,73 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            const val = Number(searchValue);
-            onSearchNode(val, "search");
-          }}
-          disabled={disabled}
-          className={styles.btnSearch}
-          icon="search"
-        >
-          Search
-        </Button>
+        <Tooltip content="在 BST 中搜尋指定數值">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const val = Number(searchValue);
+              onSearchNode(val, "search");
+            }}
+            disabled={disabled}
+            className={styles.btnSearch}
+            icon="search"
+          >
+            Search
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => onSearchNode(0, "min")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          Min
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => onSearchNode(0, "max")}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          Max
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => {
-            const val = Number(searchValue);
-            if (!isNaN(val)) onSearchNode(val, "floor");
-            else alert("Floor 需要輸入參考數值");
-          }}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          Floor
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            const val = Number(searchValue);
-            if (!isNaN(val)) onSearchNode(val, "ceil");
-            else alert("Ceil 需要輸入參考數值");
-          }}
-          disabled={disabled}
-          className={styles.btnQuery}
-        >
-          Ceil
-        </Button>
+        <Tooltip content="找到 BST 中的最小值">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onSearchNode(0, "min")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            Min
+          </Button>
+        </Tooltip>
+        <Tooltip content="找到 BST 中的最大值">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onSearchNode(0, "max")}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            Max
+          </Button>
+        </Tooltip>
+        <Tooltip content="找到不大於指定值的最大數">
+          <Button
+            size="sm"
+            onClick={() => {
+              const val = Number(searchValue);
+              if (!isNaN(val)) onSearchNode(val, "floor");
+              else alert("Floor 需要輸入參考數值");
+            }}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            Floor
+          </Button>
+        </Tooltip>
+        <Tooltip content="找到不小於指定值的最小數">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const val = Number(searchValue);
+              if (!isNaN(val)) onSearchNode(val, "ceil");
+              else alert("Ceil 需要輸入參考數值");
+            }}
+            disabled={disabled}
+            className={styles.btnQuery}
+          >
+            Ceil
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );

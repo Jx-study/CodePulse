@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import type { DSActionBarProps } from "@/types/implementation";
@@ -119,27 +120,31 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           />
         )}
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleAdd}
-          disabled={disabled}
-          className={styles.btnInsert}
-          icon="plus"
-        >
-          Insert
-        </Button>
+        <Tooltip content="在指定位置新增一個節點">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleAdd}
+            disabled={disabled}
+            className={styles.btnInsert}
+            icon="plus"
+          >
+            Insert
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={handleDelete}
-          disabled={disabled}
-          className={styles.btnDelete}
-          icon="trash"
-        >
-          Delete
-        </Button>
+        <Tooltip content="刪除指定位置的節點">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleDelete}
+            disabled={disabled}
+            className={styles.btnDelete}
+            icon="trash"
+          >
+            Delete
+          </Button>
+        </Tooltip>
 
         <Input
           type="number"
@@ -153,19 +158,21 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            const val = Number(searchValue);
-            onSearchNode(val, "search");
-          }}
-          disabled={disabled}
-          className={styles.btnSearch}
-          icon="search"
-        >
-          Search
-        </Button>
+        <Tooltip content="搜尋指定數值的節點">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const val = Number(searchValue);
+              onSearchNode(val, "search");
+            }}
+            disabled={disabled}
+            className={styles.btnSearch}
+            icon="search"
+          >
+            Search
+          </Button>
+        </Tooltip>
       </ActionBarGroup>
     </ActionBarContainer>
   );
