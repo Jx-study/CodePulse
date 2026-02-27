@@ -326,7 +326,10 @@ export const useAlgorithmLogic = (config: any) => {
 
       if (isGraphLoad && graphPayload) {
         newData = cloneData(graphPayload);
-        const steps = generateSteps(newData, { mode: "graph" });
+        const steps = generateSteps(newData, {
+          mode: "graph",
+          isDirected: payload.Directed,
+        });
 
         // 新載入的 Graph 沒有座標，必須同步 (觸發 D3 計算)
         if (steps.length > 0) {

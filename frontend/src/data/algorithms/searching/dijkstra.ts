@@ -26,7 +26,7 @@ export function createDijkstraAnimationSteps(
   const steps: AnimationStep[] = [];
   if (!inputData || !inputData.nodes) return steps;
 
-  const isDirected = false;
+  const isDirected = action?.isDirected || false;
 
   const baseElements = createGraphElements(inputData, isDirected);
 

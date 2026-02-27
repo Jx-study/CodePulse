@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
+import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
@@ -15,6 +16,7 @@ export interface RunParams {
   startNode?: string;
   endNode?: string;
   targetSum?: number;
+  isDirected?: boolean;
 }
 
 interface AlgorithmActionBarProps {
@@ -29,6 +31,8 @@ interface AlgorithmActionBarProps {
   algorithmId?: string;
   viewMode: AlgorithmViewMode;
   onViewModeChange: (mode: AlgorithmViewMode) => void;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
   currentData?: any;
 }
 
@@ -44,6 +48,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   algorithmId,
   viewMode,
   onViewModeChange,
+  isDirected = false,
+  onIsDirectedChange,
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
@@ -206,7 +212,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         }
       }
 
-      onRun({ mode: "graph", startNode: startId, endNode: endId });
+      onRun({ mode: "graph", startNode: startId, endNode: endId, isDirected });
     } else if (isSlidingWindow) {
       const val = parseInt(targetSum, 10);
       if (!isNaN(val)) {
@@ -598,6 +604,19 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               disabled={disabled}
             />
           </div>
+        )}
+
+        {isDijkstra && (
+          <Checkbox
+            label="有向"
+            checked={isDirected}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onIsDirectedChange && onIsDirectedChange(e.target.checked)
+            }
+            disabled={disabled}
+            className={styles.smallLabel}
+            aria-label="Directed graph"
+          />
         )}
 
         {isSlidingWindow && (
