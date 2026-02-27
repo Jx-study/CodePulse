@@ -257,22 +257,30 @@
     },
     {
       "id": "sliding-window",
-      "name": "滑動視窗",
+      "name": "滑動窗口",
       "nameEn": "Sliding Window",
       "category": "technique",
       "difficulty": 2,
-      "description": "以固定或可變大小的視窗在陣列上滑動，避免重複計算",
+      "description": "用雙指標維護一個連續區間，高效解決子陣列問題",
       "learningObjectives": [
-        "理解滑動視窗的核心概念",
-        "掌握定長與變長視窗的實作",
-        "應用於子陣列最大和問題"
+        "理解雙指標的滑動邏輯",
+        "掌握窗口擴展與縮小的時機",
+        "分析如何將 O(n²) 降至 O(n)"
       ],
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["prefix-sum"] },
+      "prerequisites": {
+        "type": "OR",
+        "levelIds": ["array", "prefix-sum"]
+      },
       "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
-      "implementationKey": "slidingWindow"
+      "implementationKey": "slidingWindow",
+      "homePageMetadata": {
+        "image": "sliding-window.png",
+        "translationKey": "sliding_window",
+        "showOnHomePage": true
+      }
     },
     {
       "id": "two-pointers",
