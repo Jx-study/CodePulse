@@ -64,9 +64,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   );
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
-  const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
-    "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
-  );
+  const [graphEdgeInput, setGraphEdgeInput] = useState<string>("");
   const [graphStartElement, setgraphStartElement] = useState<string>("");
   const [graphEndElement, setgraphEndElement] = useState<string>("");
 
@@ -82,6 +80,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
   const isSlidingWindow = algorithmId === "slidingwindow";
+  const isDijkstra = algorithmId === "dijkstra";
   const isGraphAlgo =
     category === "graph" ||
     (algorithmId && ["bfs", "dfs"].includes(algorithmId));
@@ -97,6 +96,16 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
+
+  useEffect(() => {
+    if (isDijkstra) {
+      // 預設帶有權重的邊
+      setGraphEdgeInput("0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6");
+    } else {
+      // 預設沒有權重的邊
+      setGraphEdgeInput("0 1\n0 2\n1 3\n2 4\n3 5\n4 5");
+    }
+  }, [isDijkstra]);
 
   const handleRun = () => {
     const normalizeId = (val: string) => {
@@ -302,6 +311,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "")
+      .map((line) => {
+        // 把多個空格縮減為單一空格，例如 "0    1   5" -> "0 1 5"
+        return line.replace(/\s+/g, " ");
+      })
       .join(",");
 
     // 格式協定: "GRAPH:nodeCount:edgeString"
@@ -361,13 +374,21 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
 
           <div className={styles.modalFieldColumn}>
-            <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+            {!isDijkstra ? (
+              <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+            ) : (
+              <label className={styles.modalLabel}>
+                邊 (格式: 來源 目標 權重)
+              </label>
+            )}
             <textarea
               value={graphEdgeInput}
               onChange={(e) => setGraphEdgeInput(e.target.value)}
               rows={6}
               className={styles.modalGraphTextarea}
-              placeholder="0 1&#10;1 2&#10;2 0"
+              placeholder={
+                isDijkstra ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"
+              }
             />
           </div>
 
@@ -515,7 +536,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       <div className={styles.actionGroup}>
         <div className={styles.staticLabel}>{getControlLabel()}</div>
 
-        {isGraphAlgo && (
+        {isGraphAlgo && !isDijkstra && (
           <div className={styles.viewModeContainer}>
             <span className={styles.viewModeLabel}>視圖:</span>
             <select

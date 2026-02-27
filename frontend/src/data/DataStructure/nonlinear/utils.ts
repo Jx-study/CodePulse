@@ -120,6 +120,7 @@ export const generateGraphFrame = (
   description: string,
   showIdAsValue: boolean = false,
   linkStatusMap: Record<string, linkStatus> = {},
+  weightMap: Record<string, number | string> = {},
 ): AnimationStep => {
   const frameElements = baseElements.map((node) => {
     const newNode = new Node();
@@ -149,16 +150,23 @@ export const generateGraphFrame = (
     return newNode;
   });
 
-  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
-    [];
+  const links: {
+    sourceId: string;
+    targetId: string;
+    status?: linkStatus;
+    weight?: number | string;
+  }[] = [];
 
   baseElements.forEach((source) => {
     source.pointers.forEach((target) => {
       const key = getLinkKey(source.id, target.id);
+      const reverseKey = getLinkKey(target.id, source.id);
+
       links.push({
         sourceId: source.id,
         targetId: target.id,
         status: linkStatusMap[key],
+        weight: weightMap[key] ?? weightMap[reverseKey],
       });
     });
   });

@@ -22,6 +22,7 @@ export interface Link {
   sourceId: string;
   targetId: string;
   status?: linkStatus;
+  weight?: number | string;
 }
 
 // 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
@@ -455,29 +456,38 @@ export function renderAll(
       const s = byId.get(String(lk.sourceId));
       const t = byId.get(String(lk.targetId));
       if (s instanceof Node && t instanceof Node) {
-        return { s, t, status: lk.status };
+        return { s, t, status: lk.status, weight: lk.weight };
       }
       return null;
     })
-    .filter(Boolean) as { s: Node; t: Node; status?: string }[];
+    .filter(Boolean) as {
+    s: Node;
+    t: Node;
+    status?: string;
+    weight?: number | string;
+  }[];
 
-  const linkSel = scene
-    .selectAll<
-      SVGPathElement,
-      { s: Node; t: Node; status?: string }
-    >("path.link")
+  // 把每一條線與它的權重文字包在一個 <g class="link-group"> 裡面
+  const linkGroups = scene
+    .selectAll<SVGGElement, any>("g.link-group")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
-  // 終點縮向起點
-  linkSel
+  // 1. Exit：移除非當前的線，終點縮向起點
+  linkGroups
     .exit()
     .transition()
     .duration(transitionDuration)
-    .attr("d", (d: any) => getZeroLengthPath(d.s, d.t))
+    .style("opacity", 0)
     .remove();
 
-  const linkEnter = linkSel
+  // 2. Enter：建立新的群組
+  const linkGroupEnter = linkGroups
     .enter()
+    .append("g")
+    .attr("class", "link-group");
+
+  // 加入線條 <path>
+  linkGroupEnter
     .append("path")
     .attr("class", "link")
     .attr("stroke", "#888")
@@ -486,10 +496,32 @@ export function renderAll(
     .attr("marker-end", markerUrl)
     // 初始狀態：從起點長出來
     .attr("d", (d) => getZeroLengthPath(d.s, d.t));
-  // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
 
-  linkEnter
-    .merge(linkSel as any)
+  // 加入權重文字的背景框 (讓文字不要被線蓋住)
+  linkGroupEnter
+    .append("rect")
+    .attr("class", "weight-bg")
+    .attr("fill", "#222") // todo: 暫定背景色，可調整
+    .attr("rx", 3)
+    .style("opacity", 0);
+
+  // 加入權重文字 <text>
+  linkGroupEnter
+    .append("text")
+    .attr("class", "weight-text")
+    .attr("fill", "#fff")
+    .attr("font-size", 12)
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .style("opacity", 0); // 初始隱藏，伸長後顯示
+
+  // 3. Merge & Update：更新所有群組的位置與狀態
+  const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
+
+  // 更新線條動畫
+  mergedLinkGroups
+    .select("path.link")
     .attr("marker-end", (d) => {
       if (shouldHideArrow) return null;
       const status = d.status || "default";
@@ -499,12 +531,58 @@ export function renderAll(
     .duration(transitionDuration)
     .ease(transitionEase)
     .attr("d", (d) => getLinkPath(d.s, d.t))
-
     .attr("stroke", (d) => getColor(d.status))
-    .attr("stroke-width", 2)
-    .on("end", function (d) {
-      if (d.status) d3.select(this).raise();
-    });
+    .attr("stroke-width", 2);
+
+  // 更新權重標籤的位置 (放在線的中心點)
+  mergedLinkGroups.each(function (d) {
+    const group = d3.select(this);
+
+    // 計算線的中點
+    const p1 = getCircleBoundaryPoint(d.s, d.t);
+    const p2 = getCircleBoundaryPoint(d.t, d.s);
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+
+    // 如果是雙向圖 (兩個節點互指)，文字為了不要重疊，可以依據斜率做點偏移 (Offset)
+    // 這裡先實作簡單置中，如果後續遇到互指邊重疊，可以加點數學算出法向量並平移
+
+    const textNode = group.select("text.weight-text");
+    const bgNode = group.select("rect.weight-bg");
+
+    if (d.weight !== undefined && d.weight !== null) {
+      // 有權重才顯示
+      textNode
+        .text(String(d.weight))
+        .transition()
+        .duration(transitionDuration)
+        .attr("x", midX)
+        .attr("y", midY)
+        .style("opacity", 1) // 顯示文字
+        .attr("fill", d.status === "target" ? "#ffb74d" : "#fff"); // 若線是 target 狀態，文字也變色
+
+      // 取得文字的寬高來設定背景框大小
+      const bbox = (textNode.node() as SVGTextElement).getBBox();
+      const paddingX = 4;
+      const paddingY = 2;
+
+      bgNode
+        .transition()
+        .duration(transitionDuration)
+        .attr("x", midX - bbox.width / 2 - paddingX / 2)
+        .attr("y", midY - bbox.height / 2 - paddingY / 2)
+        .attr("width", bbox.width + paddingX)
+        .attr("height", bbox.height + paddingY)
+        .style("opacity", 0.8); // 顯示背景
+    } else {
+      // 沒權重就隱藏
+      textNode.style("opacity", 0);
+      bgNode.style("opacity", 0);
+    }
+  });
+
+  // 如果線條有狀態，把整個群組提上來，避免被其他線蓋住
+  mergedLinkGroups.filter((d: any) => !!d.status).raise();
 
   // NODES / BOXES（在上層）
   const items = scene

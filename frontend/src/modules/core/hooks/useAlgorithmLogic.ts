@@ -119,7 +119,8 @@ export const useAlgorithmLogic = (config: any) => {
     // 這保證了圖是連通的，且每個節點至少有一條邊
     for (let i = 1; i < nodeCount; i++) {
       const targetIndex = Math.floor(Math.random() * i);
-      edges.push([`node-${i}`, `node-${targetIndex}`]);
+      const weight = Math.floor(Math.random() * 20) + 1;
+      edges.push([`node-${i}`, `node-${targetIndex}`, weight.toString()]);
     }
 
     // 3. 增加額外的隨機邊 (讓圖看起來更像網狀，而不只是樹)
@@ -138,7 +139,8 @@ export const useAlgorithmLogic = (config: any) => {
         );
 
         if (!exists) {
-          edges.push([`node-${u}`, `node-${v}`]);
+          const weight = Math.floor(Math.random() * 20) + 1;
+          edges.push([`node-${u}`, `node-${v}`, weight.toString()]);
         }
       }
     }
@@ -285,7 +287,7 @@ export const useAlgorithmLogic = (config: any) => {
               const edgePairs = edgeStr.split(","); // 分割每組邊
               edgePairs.forEach((pair: string) => {
                 // pair 可能是 "0 1" (空白分隔)
-                const [u, v] = pair.trim().split(/\s+/);
+                const [u, v, w] = pair.trim().split(/\s+/);
                 if (u !== undefined && v !== undefined) {
                   // 將使用者的數字輸入 "0" 轉為內部 ID "node-0"
                   const uIdx = parseInt(u);
@@ -296,7 +298,11 @@ export const useAlgorithmLogic = (config: any) => {
                     vIdx >= 0 &&
                     vIdx < nodeCount
                   ) {
-                    edges.push([`node-${uIdx}`, `node-${vIdx}`]);
+                    if (w !== undefined) {
+                      edges.push([`node-${uIdx}`, `node-${vIdx}`, w]);
+                    } else {
+                      edges.push([`node-${uIdx}`, `node-${vIdx}`]);
+                    }
                   }
                 }
               });
