@@ -8,6 +8,7 @@ import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
   faArrowRight,
+  faArrowsSpin,
   faBars,
   faChartLine,
   faCheck,
@@ -61,6 +62,7 @@ import {
   faSun,
   faSync,
   faTable,
+  faTableCells,
   faTimes,
   faTrash,
   faUpload,
@@ -81,6 +83,7 @@ import {
 export const iconMap = {
   "arrow-left": faArrowLeft,
   "arrow-right": faArrowRight,
+  "arrows-spin": faArrowsSpin,
   "bars": faBars,
   "chart-line": faChartLine,
   "check": faCheck,
@@ -137,6 +140,7 @@ export const iconMap = {
   "sun": faSun,
   "sync": faSync,
   "table": faTable,
+  "table-cells": faTableCells,
   "times": faTimes,
   "trash": faTrash,
   "upload": faUpload,
