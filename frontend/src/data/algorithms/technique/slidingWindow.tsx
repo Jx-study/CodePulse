@@ -1,8 +1,10 @@
+import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 import { CodeConfig, LevelImplementationConfig } from "@/types";
+import { SlidingWindowActionBar } from "./SlidingWindowActionBar";
 
 const TAGS = {
   INIT: "INIT",
@@ -335,4 +337,5 @@ export const slidingWindowConfig: LevelImplementationConfig = {
     { id: "box-8", value: 5 },
   ],
   createAnimationSteps: createSlidingWindowAnimationSteps,
+  renderActionBar: (props) => <SlidingWindowActionBar {...(props as any)} />,
 };

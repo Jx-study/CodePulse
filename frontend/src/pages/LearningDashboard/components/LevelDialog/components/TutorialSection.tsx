@@ -45,7 +45,9 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: Tuto
 
       <div className={styles.description}>
         <h4>演算法說明</h4>
-        <p>{level.description}</p>
+        {level.description && (
+          <p dangerouslySetInnerHTML={{ __html: level.description }} />
+        )}
       </div>
 
       {level.learningObjectives && level.learningObjectives.length > 0 && (
@@ -66,14 +68,10 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: Tuto
         className={styles.startTutorialButton}
         fullWidth
       >
-        {isCompleted ? '重新學習' : '開始教學'}
+        {isCompleted ? "重新學習" : "開始教學"}
       </Button>
 
-      {isLocked && (
-        <p className={styles.lockedHint}>
-          此教學尚未解鎖
-        </p>
-      )}
+      {isLocked && <p className={styles.lockedHint}>此教學尚未解鎖</p>}
 
       {isCompleted && (
         <Badge

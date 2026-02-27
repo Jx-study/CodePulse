@@ -16,7 +16,7 @@ export interface ProblemReference {
 
 // ─── ActionBar Props 分層型別 ────────────────────────────────
 
-export type AlgorithmViewMode = "graph" | "grid";
+export type AlgorithmViewMode = "graph" | "grid" | "longest_lte" | "shortest_gte";
 
 export interface RunParams {
   searchValue?: number;
@@ -26,6 +26,7 @@ export interface RunParams {
   cols?: number;
   startNode?: string;
   endNode?: string;
+  targetSum?: number;
 }
 
 /** 基礎共用（所有 ActionBar 都需要） */

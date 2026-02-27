@@ -257,30 +257,22 @@
     },
     {
       "id": "sliding-window",
-      "name": "滑動窗口",
+      "name": "滑動視窗",
       "nameEn": "Sliding Window",
       "category": "technique",
       "difficulty": 2,
-      "description": "用雙指標維護一個連續區間，高效解決子陣列問題",
+      "description": "透過雙指標在陣列或字串上維護一個滑動區間，避免重複計算，將時間複雜度優化至 <i>O(N)</i>。",
       "learningObjectives": [
-        "理解雙指標的滑動邏輯",
-        "掌握窗口擴展與縮小的時機",
-        "分析如何將 O(n²) 降至 O(n)"
+        "掌握雙指標維護區間的滑動邏輯",
+        "精準判斷視窗擴展與縮小的時機",
+        "應用於求解特定條件的連續區間（如：固定長度最大和、滿足目標的最短子陣列）"
       ],
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": {
-        "type": "OR",
-        "levelIds": ["array", "prefix-sum"]
-      },
+      "prerequisites": { "type": "AND", "levelIds": ["prefix-sum"] },
       "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
-      "implementationKey": "slidingWindow",
-      "homePageMetadata": {
-        "image": "sliding-window.png",
-        "translationKey": "sliding_window",
-        "showOnHomePage": true
-      }
+      "implementationKey": "slidingWindow"
     },
     {
       "id": "two-pointers",
