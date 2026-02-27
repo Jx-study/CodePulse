@@ -44,7 +44,7 @@ export const D3Canvas = forwardRef<
       enablePan = true,
       statusColorMap,
       statusConfig,
-      isDirected = true,
+      isDirected = false,
     },
     forwardedRef,
   ) => {

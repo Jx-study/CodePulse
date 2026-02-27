@@ -10,6 +10,7 @@ import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar";
 import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
+import type { AlgorithmViewMode } from "@/types/implementation";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
 import { PANEL_REGISTRY } from "./components/PanelRegistry";
@@ -40,6 +41,7 @@ interface CanvasPanelProps {
   topicTypeConfig: any;
   currentStatusColorMap: any;
   currentStatusConfig: any;
+  isDirected: boolean;
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
@@ -65,6 +67,7 @@ const CanvasPanel = ({
   topicTypeConfig,
   currentStatusColorMap,
   currentStatusConfig,
+  isDirected,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -125,6 +128,7 @@ const CanvasPanel = ({
             structureType={topicTypeConfig?.id}
             statusColorMap={currentStatusColorMap}
             statusConfig={currentStatusConfig}
+            isDirected={isDirected}
           />
         </div>
         <div className={styles.stepDescription}>
@@ -171,8 +175,8 @@ export interface InspectorPanelInternalProps {
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
   onLimitExceeded: () => void;
-  viewMode: "graph" | "grid";
-  handleViewModeChange: (mode: "graph" | "grid") => void;
+  viewMode: AlgorithmViewMode | "";
+  handleViewModeChange: (mode: AlgorithmViewMode) => void;
   currentData: any;
   currentStepData: any;
 }
@@ -411,7 +415,7 @@ function TutorialContent() {
   );
   const [hasTailMode, setHasTailMode] = useState(false);
   const [showLimitToast, setShowLimitToast] = useState(false);
-  const [viewMode, setViewMode] = useState<string>("");
+  const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
 
   // 計算目前的動畫步驟數據
@@ -613,7 +617,7 @@ function TutorialContent() {
     }
   };
 
-  const handleViewModeChange = (mode: "graph" | "grid") => {
+  const handleViewModeChange = (mode: AlgorithmViewMode) => {
     if (isProcessing) return;
     setViewMode(mode);
 
@@ -768,6 +772,7 @@ function TutorialContent() {
     topicTypeConfig,
     currentStatusColorMap,
     currentStatusConfig,
+    isDirected,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,

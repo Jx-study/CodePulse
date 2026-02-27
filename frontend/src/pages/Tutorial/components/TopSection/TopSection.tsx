@@ -31,6 +31,7 @@ interface CanvasPanelProps {
   topicTypeConfig: any;
   currentStatusColorMap: any;
   currentStatusConfig: any;
+  isDirected: boolean;
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;
