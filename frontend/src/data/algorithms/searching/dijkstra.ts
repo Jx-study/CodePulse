@@ -33,6 +33,7 @@ export function createDijkstraAnimationSteps(
   const rawNodes = inputData.nodes;
   const rawEdges = inputData.edges || [];
   const startNodeId = action?.startNode || rawNodes[0]?.id || "node-0";
+  const endNodeId = action?.endNode || "";
 
   // 建立鄰接表與權重表
   const adjList: Record<string, { to: string; weight: number }[]> = {};
@@ -110,6 +111,16 @@ export function createDijkstraAnimationSteps(
 
     if (dist[u] === Infinity) break;
 
+    // 提早結束邏輯(有輸入終點時)
+    if (endNodeId && u === endNodeId) {
+      statusMap[u] = Status.Complete;
+      recordStep(
+        `節點 ${u} 是目標終點，且已確定最短路徑 (${dist[u]})，提早結束搜尋！`,
+        TAGS.DONE,
+      );
+      break;
+    }
+
     statusMap[u] = Status.Target;
     recordStep(
       `從未完成的節點中，取出距離最小的節點 ${u} (距離=${dist[u]})`,
@@ -159,7 +170,9 @@ export function createDijkstraAnimationSteps(
     );
   }
 
-  recordStep("演算法執行完畢！所有可達節點的最短路徑皆已找出。", TAGS.DONE);
+  if (!endNodeId || dist[endNodeId] === Infinity) {
+    recordStep("演算法執行完畢！所有可達節點的最短路徑皆已找出。", TAGS.DONE);
+  }
 
   return steps;
 }
