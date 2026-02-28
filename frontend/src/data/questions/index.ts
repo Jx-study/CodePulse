@@ -8,14 +8,17 @@ import { stackQuiz } from './stack-questions';
 import { queueQuiz } from './queue-questions';
 import { arrayQuiz } from './array-questions';
 import { linkedListQuiz } from './linkedlist-questions';
+import { binaryTreeQuiz } from './binarytree-questions';
+import { binarySearchTreeQuiz } from './bst-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
   queue: queueQuiz,
   array: arrayQuiz,
   'linked-list': linkedListQuiz,
-  // TODO: 後續擴展其他數據結
-  // bst: bstQuiz,
+  binarytree: binaryTreeQuiz,
+  bst: binarySearchTreeQuiz,
+  // TODO: 後續擴展其他題庫
 };
 
 /**
