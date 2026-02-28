@@ -38,6 +38,8 @@ interface UseZoomOptions {
   enableMouseCenteredZoom?: boolean;
   /** 目標元素 Ref (用於監聽事件) */
   targetRef?: React.RefObject<HTMLElement | null>;
+  /** 是否停用所有縮放事件（用於 Dialog 開啟時暫停縮放，預設: false） */
+  isDisabled?: boolean;
 }
 
 interface UseZoomReturn {
@@ -65,6 +67,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     enablePinchZoom = true,
     enableMouseCenteredZoom = false,
     targetRef,
+    isDisabled = false,
   } = options;
 
   const [zoomLevel, setZoomLevelState] = useState(initialZoom);
@@ -72,6 +75,11 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
   const wheelListenerRef = useRef<((e: WheelEvent) => void) | null>(null);
   const touchStartDistanceRef = useRef<number | null>(null);
   const lastZoomRef = useRef<number>(initialZoom);
+  const isDisabledRef = useRef(isDisabled);
+
+  useEffect(() => {
+    isDisabledRef.current = isDisabled;
+  }, [isDisabled]);
 
   /**
    * 限制縮放範圍並設定縮放等級
@@ -127,6 +135,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     const targetElement = targetRef?.current || document.body;
 
     const handleWheel = (e: WheelEvent) => {
+      if (isDisabledRef.current) return;
       // 阻止預設的頁面縮放行為
       e.preventDefault();
 
@@ -186,6 +195,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     };
 
     const handleTouchStart = (e: TouchEvent) => {
+      if (isDisabledRef.current) return;
       if (e.touches.length === 2) {
         // 阻止預設的雙指縮放行為
         e.preventDefault();
@@ -214,6 +224,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (isDisabledRef.current) return;
       if (e.touches.length === 2 && touchStartDistanceRef.current !== null) {
         // 阻止預設的雙指縮放行為
         e.preventDefault();
