@@ -29,7 +29,7 @@ export function createDijkstraAnimationSteps(
 
   const isDirected = action?.isDirected || false;
 
-  const baseElements = createGraphElements(inputData, isDirected);
+  const baseElements = createGraphElements(inputData, isDirected, true);
 
   const rawNodes = inputData.nodes;
   const rawEdges = inputData.edges || [];
@@ -71,32 +71,31 @@ export function createDijkstraAnimationSteps(
 
   const createDistanceTable = (): Box[] => {
     const tableElements: Box[] = [];
-    const startX = 820;
-    const startY = 85;
+    const startX = 0;
+    const startY = 0;
     const boxWidth = 50;
     const boxHeight = 50;
-    const xgap = 20;
-    const ygap = 10;
+    const xgap = 5;
+    const ygap = 5;
 
-    // 產生每一列的資料
     rawNodes.forEach((n: any, index: number) => {
-      // 左邊行：Node ID
+      // X 座標：起始位置 + (當前 index + 1) 個格子的寬度 (加 1 是為了避開左邊的標題格)
+      const currentX = startX + (index + 1) * (boxWidth + xgap);
+
+      // 上排：Node ID
       const headerBox = new Box();
       headerBox.id = `table-header-${n.id}`;
       headerBox.value = n.id.replace("node-", "") as any;
-      headerBox.moveTo(startX, startY + index * boxHeight + index * ygap);
+      headerBox.moveTo(currentX, startY); // Y 座標固定在上排
       headerBox.width = boxWidth;
       headerBox.height = boxHeight;
       headerBox.setStatus(Status.Inactive);
 
-      // 右邊行：Distance Value
+      // 下排：Distance Value
       const valBox = new Box();
       valBox.id = `table-val-${n.id}`;
       valBox.value = (dist[n.id] === Infinity ? "∞" : dist[n.id]) as any;
-      valBox.moveTo(
-        startX + boxWidth + xgap,
-        startY + index * boxHeight + index * ygap,
-      );
+      valBox.moveTo(currentX, startY + boxHeight + ygap); // Y 座標固定在下排
       valBox.width = boxWidth;
       valBox.height = boxHeight;
       valBox.setStatus(statusMap[n.id] || Status.Unfinished);
@@ -106,6 +105,34 @@ export function createDijkstraAnimationSteps(
 
     return tableElements;
   };
+
+  const initialFrame = generateGraphFrame(
+    baseElements,
+    statusMap,
+    dist,
+    "載入圖形與權重資訊",
+    true,
+    linkStatusMap,
+    weightMap,
+  );
+  initialFrame.actionTag = TAGS.INIT;
+  initialFrame.stepNumber = 0;
+
+  // 幫 Step 0 也加上右側的 Table (此時 Table 裡的 dist 應該都是 ∞)
+  const initialTableBoxes = createDistanceTable();
+  initialFrame.elements = [...initialFrame.elements, ...initialTableBoxes];
+
+  // 產生初始的 dist 字串供 Inspector 顯示
+  const initialDistString = Object.entries(dist)
+    .map(([nodeId, val]) => {
+      const id = nodeId.replace("node-", "");
+      const valueStr = val === Infinity ? "∞" : val;
+      return `${id}: ${valueStr}`;
+    })
+    .join(", ");
+  initialFrame.variables = { 目前距離表: initialDistString };
+
+  steps.push(initialFrame);
 
   // 輔助函式：呼叫共用的 generateGraphFrame
   const recordStep = (desc: string, tag: string) => {

@@ -187,6 +187,7 @@ export function createGraphElements(
     edges: string[][];
   },
   isDirected: boolean = false,
+  isDijkstra: boolean = false,
 ): Node[] {
   const { nodes: rawNodes, edges } = rawGraph;
   const elements: Node[] = [];
@@ -215,11 +216,13 @@ export function createGraphElements(
     });
   } else {
     // 準備 D3 Simulation 資料
+    const randomWidthRatio = isDijkstra ? 0.5 : 0.8;
+
     const simNodes: SimNode[] = rawNodes.map((n, i) => ({
       id: n.id,
       val: n.value ?? i,
       // 初始位置：X 軸隨機分布在整個寬度 (10% ~ 90%)，Y 軸集中在中間
-      x: CANVAS_W * 0.1 + Math.random() * (CANVAS_W * 0.8),
+      x: CANVAS_W * 0.1 + Math.random() * (CANVAS_W * randomWidthRatio),
       y: CANVAS_H / 2 + (Math.random() - 0.5) * 50,
     }));
 
@@ -227,6 +230,9 @@ export function createGraphElements(
       source,
       target,
     }));
+
+    const centerX = CANVAS_W / 2;
+    const centerY = isDijkstra ? 250 : CANVAS_H / 2;
 
     // 執行 Force Simulation
     const simulation = d3
@@ -236,15 +242,15 @@ export function createGraphElements(
         d3
           .forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance(200), // 連線距離
+          .distance(150), // 連線距離
       )
-      .force("charge", d3.forceManyBody().strength(-450)) // 斥力：增加強度避免重疊
-      .force("center", d3.forceCenter(CANVAS_W / 2, CANVAS_H / 2)) // 畫布中心
+      .force("charge", d3.forceManyBody().strength(-600)) // 斥力：增加強度避免重疊
+      .force("center", d3.forceCenter(centerX, centerY)) // 畫布中心
       .force("collide", d3.forceCollide(45)) // 碰撞半徑略大於節點半徑
       // Y 軸引力較強 (0.1)，把節點壓扁在水平帶狀區域
       .force("y", d3.forceY(CANVAS_H / 2).strength(0.1))
-      // X 軸引力極弱 (0.01)，允許它們左右飄移擴散
-      .force("x", d3.forceX(CANVAS_W / 2).strength(0.01));
+      // X 軸引力極弱 (0.02)，允許它們左右飄移擴散
+      .force("x", d3.forceX(CANVAS_W / 2).strength(0.02));
 
     // 跑模擬 (靜態計算)
     simulation.tick(500);
@@ -256,14 +262,16 @@ export function createGraphElements(
       node.id = simNode.id;
       node.value = simNode.val;
 
+      const maxX = isDijkstra ? 700 : CANVAS_W - PADDING;
+
       // 取出計算後的座標 (若無則預設中心)
-      let x = simNode.x ?? CANVAS_W / 2;
+      let x = simNode.x ?? centerX;
       let y = simNode.y ?? CANVAS_H / 2;
 
       // 強制限制在畫布範圍內 (Math.max, Math.min)
       // 確保 x 在 [padding, 1000 - padding]
       // 確保 y 在 [padding, 400 - padding]
-      x = Math.max(PADDING, Math.min(CANVAS_W - PADDING, x));
+      x = Math.max(PADDING, Math.min(maxX, x));
       y = Math.max(PADDING, Math.min(CANVAS_H - PADDING, y));
 
       node.moveTo(x, y);

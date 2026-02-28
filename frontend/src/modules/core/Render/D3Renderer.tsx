@@ -301,41 +301,39 @@ function drawContainer(
       .attr("fill", "#888")
       .attr("font-size", 12);
   } else if (type === "dijkstra") {
-    const tableX = 800;
-    const tableY = 40;
-
-    // Node 標題
+    const tableX = 0;
+    const tableY = 0;
+    const rowGap = 55;
+    // Node 標題 (上排)
     scene
       .append("text")
       .attr("class", "container-line")
       .attr("x", tableX)
-      .attr("y", tableY)
+      .attr("y", tableY + 5)
       .attr("fill", "#888")
-      .attr("font-size", 18)
+      .attr("font-size", 16)
       .attr("font-weight", "bold")
-      .attr("text-align", "center")
+      .attr("text-anchor", "end")
       .text("Node");
-
-    // Dist 標題
+    // Dist 標題 (下排)
     scene
       .append("text")
       .attr("class", "container-line")
-      .attr("x", tableX + 70)
-      .attr("y", tableY)
+      .attr("x", tableX)
+      .attr("y", tableY + rowGap + 5)
       .attr("fill", "#888")
-      .attr("font-size", 18)
+      .attr("font-size", 16)
       .attr("font-weight", "bold")
-      .attr("text-align", "center")
+      .attr("text-anchor", "end")
       .text("Dist");
-
-    // 畫一條分隔線
+    // 垂直分隔線
     scene
       .append("line")
       .attr("class", "container-line")
-      .attr("x1", tableX - 10)
-      .attr("y1", tableY + 10)
-      .attr("x2", tableX + 120)
-      .attr("y2", tableY + 10)
+      .attr("x1", tableX + 15)
+      .attr("y1", tableY - 20)
+      .attr("x2", tableX + 15)
+      .attr("y2", tableY + rowGap + 20)
       .attr("stroke", "#555")
       .attr("stroke-width", 2);
   }
