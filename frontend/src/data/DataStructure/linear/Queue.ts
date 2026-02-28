@@ -381,11 +381,14 @@ export function createQueueAnimationSteps(
       variables: { front: 0, rear: rear, value },
     });
 
+    const peekCompleteBoxes = createBoxes(dataList, Status.Unfinished);
+    peekCompleteBoxes[0].setStatus(Status.Complete);
+
     steps.push({
       stepNumber: 3,
       description: "Peek 完成",
       elements: [
-        ...createBoxes(dataList, Status.Complete),
+        ...peekCompleteBoxes,
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,

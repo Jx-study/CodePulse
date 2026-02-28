@@ -384,11 +384,14 @@ export function createStackAnimationSteps(
       variables: { top: currentTop, value: value },
     });
 
+    const peekCompleteBoxes = createBoxes(dataList, Status.Unfinished);
+    peekCompleteBoxes[currentTop].setStatus(Status.Complete);
+
     steps.push({
       stepNumber: 3,
       description: "Peek 完成",
       elements: [
-        ...createBoxes(dataList, Status.Complete),
+        ...peekCompleteBoxes,
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,
