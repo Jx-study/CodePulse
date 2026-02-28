@@ -395,18 +395,16 @@ function LearningDashboard() {
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
         <Button
-          variant="secondary"
-          size="sm"
-          className={`${styles.controlButton} ${styles.categoryButton}`}
+          variant="glass"
+          size="md"
           onClick={() => setIsSidebarOpen(true)}
           icon="filter"
         >
           分類篩選
         </Button>
         <Button
-          variant="primaryOutline"
-          size="sm"
-          className={styles.controlButton}
+          variant="glass"
+          size="md"
           onClick={() => setIsProgressDialogOpen(true)}
           icon="chalkboard-user"
         >

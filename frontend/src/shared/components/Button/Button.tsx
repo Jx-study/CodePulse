@@ -35,6 +35,8 @@ function Button({
         return styles.icon;
       case 'dot':
         return styles.dot;
+      case 'glass':
+        return styles.glass;
       default:
         return styles.primary;
     }
