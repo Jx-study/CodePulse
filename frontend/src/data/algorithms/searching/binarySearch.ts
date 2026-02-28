@@ -1,7 +1,7 @@
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
-import type { Status } from "@/modules/core/DataLogic/BaseElement";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 
 const TAGS = {
@@ -51,11 +51,11 @@ const generateFrame = (
     const box = element as Box;
 
     if (i < left || i > right) {
-      box.setStatus("inactive");
+      box.setStatus(Status.Inactive);
     }
 
     if (foundIndex !== -1 && i === foundIndex) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -112,7 +112,7 @@ export function createBinarySearchAnimationSteps(
       description: `計算中間點：Mid = floor((${left} + ${right}) / 2) = ${mid}`,
       actionTag: TAGS.CALC_MID,
       variables: { left, right, mid },
-      elements: generateFrame(arr, { left, right, mid }, { [mid]: "prepare" }),
+      elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Prepare }),
     });
 
     const midVal = arr[mid].value ?? 0;
@@ -127,7 +127,7 @@ export function createBinarySearchAnimationSteps(
         target,
         compareCondition: `${midVal} == ${target}` 
       },
-      elements: generateFrame(arr, { left, right, mid }, { [mid]: "target" }),
+      elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Target }),
     });
 
     if (midVal === target) {
@@ -139,7 +139,7 @@ export function createBinarySearchAnimationSteps(
         elements: generateFrame(
           arr,
           { left, right, mid },
-          { [mid]: "complete" },
+          { [mid]: Status.Complete },
           mid,
         ),
       });
@@ -277,4 +277,27 @@ export const binarySearchConfig: LevelImplementationConfig = {
     { id: "box-8", value: 95 },
   ],
   createAnimationSteps: createBinarySearchAnimationSteps,
+  relatedProblems: [
+    {
+      id: 704,
+      title: "Binary Search",
+      concept: "經典演算法：在已排序陣列中查找目標值 (Basic Binary Search)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/binary-search/",
+    },
+    {
+      id: 35,
+      title: "Search Insert Position",
+      concept: "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/search-insert-position/",
+    },
+    {
+      id: 34,
+      title: "Find First and Last Position of Element in Sorted Array",
+      concept: "進階應用：在有重複元素的排序陣列中，尋找目標值的起始與結束位置",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+    },
+  ],
 };

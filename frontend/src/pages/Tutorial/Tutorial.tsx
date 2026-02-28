@@ -1,27 +1,194 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Panel, PanelImperativeHandle } from "react-resizable-panels";
+import { DragEndEvent } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
-import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
+import ControlBar from "@/modules/core/components/ControlBar";
 import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
+import PanelHeader from "./components/PanelHeader";
+import { PANEL_REGISTRY } from "./components/PanelRegistry";
+import type { TabConfig } from "@/shared/components/Tabs";
+import TopSection from "./components/TopSection";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
-import { DataActionBar } from "@/modules/core/components/DataActionBar/DataActionBar";
-import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar/AlgorithmActionBar";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
-import { VariableWatch } from "@/modules/core/components/VariableWatch/VariableWatch";
+import { PanelProvider, usePanelContext } from "./context/PanelContext";
+import KnowledgeStation from "./components/KnowledgeStation";
+import {
+  buildStatusColorMap,
+  DEFAULT_STATUS_CONFIG,
+} from "@/types/statusConfig";
 
+// ==================== Canvas Panel Component ====================
+interface CanvasPanelProps {
+  canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
+  isMobile: boolean;
+  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
+  currentStepData: any;
+  currentLinks: Link[];
+  canvasSize: { width: number; height: number };
+  topicTypeConfig: any;
+  currentStatusColorMap: any;
+  currentStatusConfig: any;
 
-function Tutorial() {
-  const { t } = useTranslation();
+  // 保留 ControlBar props (內嵌在 Canvas 中)
+  isPlaying: boolean;
+  currentStep: number;
+  activeStepsLength: number;
+  playbackSpeed: number;
+  handlePlay: () => void;
+  handlePause: () => void;
+  handleNext: () => void;
+  handlePrev: () => void;
+  handleReset: () => void;
+  setPlaybackSpeed: (speed: number) => void;
+  handleStepChange: (step: number) => void;
+}
+
+const CanvasPanel = ({
+  canvasPanelRef,
+  isMobile,
+  canvasContainerRef,
+  currentStepData,
+  currentLinks,
+  canvasSize,
+  topicTypeConfig,
+  currentStatusColorMap,
+  currentStatusConfig,
+  isPlaying,
+  currentStep,
+  activeStepsLength,
+  playbackSpeed,
+  handlePlay,
+  handlePause,
+  handleNext,
+  handlePrev,
+  handleReset,
+  setPlaybackSpeed,
+  handleStepChange,
+}: CanvasPanelProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: "canvas" });
+
+  const dragHandleProps = {
+    ref: setActivatorNodeRef,
+    ...attributes,
+    ...listeners,
+  };
+
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || "transform 200ms ease",
+    opacity: isDragging ? 0 : 1,
+  };
+
+  return (
+    <Panel
+      id="canvas-panel"
+      defaultSize={75}
+      minSize="50%"
+      panelRef={canvasPanelRef}
+    >
+      <div
+        ref={setNodeRef}
+        style={sortableStyle}
+        className={styles.visualizationSection}
+      >
+        <PanelHeader
+          title="視覺化動畫"
+          draggable={!isMobile}
+          dragHandleProps={dragHandleProps}
+        />
+        <div ref={canvasContainerRef} className={styles.visualizationArea}>
+          <D3Canvas
+            elements={currentStepData?.elements || []}
+            links={currentLinks}
+            width={canvasSize.width}
+            height={canvasSize.height}
+            structureType={topicTypeConfig?.id}
+            statusColorMap={currentStatusColorMap}
+            statusConfig={currentStatusConfig}
+          />
+        </div>
+        <div className={styles.stepDescription}>
+          {currentStepData?.description}
+        </div>
+
+        {/* ControlBar 直接渲染,無 PanelHeader */}
+        <ControlBar
+          isPlaying={isPlaying}
+          currentStep={currentStep}
+          totalSteps={activeStepsLength}
+          playbackSpeed={playbackSpeed}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onReset={handleReset}
+          onSpeedChange={setPlaybackSpeed}
+          onStepChange={handleStepChange}
+        />
+      </div>
+    </Panel>
+  );
+};
+function TutorialContent() {
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
+
+  // Use panel context for drag and drop
+  const {
+    mainPanelOrder,
+    rightPanelOrder,
+    swapMainPanels,
+    reorderRightPanels,
+    panelSizes,
+    collapsedPanels,
+    setCollapsed,
+  } = usePanelContext();
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+
+  // Panel refs for programmatic control
+  const leftPanelRef = useRef<PanelImperativeHandle>(null);
+  const rightPanelRef = useRef<PanelImperativeHandle>(null);
+  const canvasPanelRef = useRef<PanelImperativeHandle>(null);
+  const inspectorPanelRef = useRef<PanelImperativeHandle>(null);
+
+  // Collapse states (使用 context 的 collapsed state)
+  const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
+
+  // Knowledge Station state
+  const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
+
+  // RWD: 检测屏幕宽度
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const { category, levelId } = useParams<{
     category: string;
     levelId: string;
@@ -39,7 +206,21 @@ function Tutorial() {
     return implementation;
   }, [levelId]);
 
-  const isAlgorithm = category !== "data-structures";
+  // 計算當前演算法的狀態顏色映射表（memoized）
+  const currentStatusColorMap = useMemo(() => {
+    if (topicTypeConfig?.statusConfig) {
+      return buildStatusColorMap(topicTypeConfig.statusConfig);
+    }
+    return buildStatusColorMap(DEFAULT_STATUS_CONFIG);
+  }, [topicTypeConfig]);
+
+  // 計算當前演算法的狀態配置（memoized）
+  const currentStatusConfig = useMemo(() => {
+    return topicTypeConfig?.statusConfig ?? DEFAULT_STATUS_CONFIG;
+  }, [topicTypeConfig]);
+
+  // 改用 topicTypeConfig.type 判斷類型（不再依賴 URL 參數）
+  const isAlgorithm = topicTypeConfig?.type === "algorithm";
 
   // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
   const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
@@ -57,10 +238,12 @@ function Tutorial() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
-  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCount, setRandomCount] = useState(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
   const [hasTailMode, setHasTailMode] = useState(false);
   const [showLimitToast, setShowLimitToast] = useState(false);
-  const [viewMode, setViewMode] = useState<"graph" | "grid">("graph");
+  const [viewMode, setViewMode] = useState<string>("");
   const [isDirected, setIsDirected] = useState(false);
 
   // 計算目前的動畫步驟數據
@@ -294,66 +477,200 @@ function Tutorial() {
     setCurrentStep(0);
     setIsPlaying(false);
   };
-  const handleSpeedChange = (speed: number) => {
-    setPlaybackSpeed(speed);
+  const handleStepChange = (step: number) => {
+    setCurrentStep(step);
+    setIsPlaying(false); // 手動跳轉時暫停播放
+  };
+
+  // Panel collapse/expand handlers
+  const handleToggleLeftPanel = () => {
+    const panel = leftPanelRef.current;
+    if (!panel) return;
+
+    if (panel.isCollapsed()) {
+      panel.expand();
+      setCollapsed("codeEditor", false);
+    } else {
+      panel.collapse();
+      setCollapsed("codeEditor", true);
+    }
+  };
+
+  // 交換主面板並記錄當前尺寸
+  const handleSwapMainPanels = () => {
+    // 獲取當前面板尺寸
+    const codeEditorPanel = leftPanelRef.current;
+    const rightPanel = rightPanelRef.current;
+    if (!codeEditorPanel || !rightPanel) {
+      swapMainPanels();
+      return;
+    }
+
+    // 從 react-resizable-panels 獲取當前尺寸
+    let codeEditorSize = codeEditorPanel.getSize().asPercentage;
+    let rightPanelSize = rightPanel.getSize().asPercentage;
+
+    // 如果 codeEditor 是 collapsed (size = 0)，使用之前保存的尺寸
+    if (isLeftPanelCollapsed && codeEditorSize === 0) {
+      codeEditorSize = panelSizes.codeEditor || 35; // 使用保存的值或預設值
+      rightPanelSize = 100 - codeEditorSize;
+    }
+
+    // 交換順序
+    swapMainPanels(codeEditorSize, rightPanelSize);
+
+    // collapsedPanels 狀態會保留，TopSection 會根據這個狀態設置正確的 defaultSize
+  };
+
+  // Drag and Drop handlers
+  const handleDragStart = (event: any) => {
+    setActiveDragId(event.active.id);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveDragId(null);
+
+    if (!over || active.id === over.id) return;
+
+    if (
+      mainPanelOrder.includes(active.id as string) &&
+      mainPanelOrder.includes(over.id as string)
+    ) {
+      handleSwapMainPanels();
+    } else if (
+      rightPanelOrder.includes(active.id as string) &&
+      rightPanelOrder.includes(over.id as string)
+    ) {
+      const oldIndex = rightPanelOrder.indexOf(active.id as string);
+      const newIndex = rightPanelOrder.indexOf(over.id as string);
+      reorderRightPanels(oldIndex, newIndex);
+    }
+  };
+
+  const handleDragCancel = () => {
+    setActiveDragId(null);
   };
 
   if (!topicTypeConfig) {
     return null;
   }
 
-  const renderActionBar = () => {
-    if (isAlgorithm) {
-      return (
-        <AlgorithmActionBar
-          onLoadData={handleLoadData}
-          onRandomData={handleRandomData}
-          onResetData={handleResetData}
-          onRun={handleRunAlgorithm}
-          onRandomCountChange={setRandomCount}
-          onLimitExceeded={() => setShowLimitToast(true)}
-          disabled={isProcessing}
-          category={category as any}
-          algorithmId={topicTypeConfig?.id}
-          viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
-          currentData={logic.data}
-        />
-      );
-    } else {
-      if (
-        [
-          "linkedlist",
-          "stack",
-          "queue",
-          "array",
-          "binarytree",
-          "bst",
-          "graph",
-        ].includes(topicTypeConfig.id)
-      ) {
+  // ==================== Inspector Panel Component ====================
+  const InspectorPanelInternal = () => {
+    const { activePanels } = usePanelContext();
+    const [activeInspectorTab, setActiveInspectorTab] =
+      useState<string>("actionBar");
+
+    // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
+    const inspectorTabs: TabConfig[] = useMemo(() => {
+      return Object.values(PANEL_REGISTRY)
+        .filter((config) => config.isTab && config.tabGroup === "inspector")
+        .filter((config) => activePanels.includes(config.id))
+        .map((config) => ({
+          key: config.id,
+          label: config.title,
+          icon: config.icon,
+        }));
+    }, [activePanels]);
+
+    // 拖拽邏輯
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: "inspector", disabled: isMobile });
+
+    const sortableStyle = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    // 渲染當前 Tab 的內容
+    const renderTabContent = () => {
+      const panelConfig = PANEL_REGISTRY[activeInspectorTab];
+
+      if (!panelConfig) {
+        return null;
+      }
+
+      const PanelComponent = panelConfig.component;
+
+      // 為 actionBar 準備特殊的 props
+      if (activeInspectorTab === "actionBar") {
         return (
-          <DataActionBar
-            onAddNode={handleAddNode}
-            onDeleteNode={handleDeleteNode}
-            onSearchNode={handleSearchNode}
-            onPeek={handlePeek}
-            onGraphAction={handleGraphAction}
-            onLoadData={handleLoadData}
-            onResetData={handleResetData}
-            onRandomData={handleRandomData}
-            onRandomCountChange={setRandomCount}
-            onTailModeChange={setHasTailMode}
-            onLimitExceeded={() => setShowLimitToast(true)}
-            structureType={topicTypeConfig.id as any}
-            disabled={isProcessing}
-            isDirected={isDirected}
-            onIsDirectedChange={setIsDirected}
-          />
+          <div className={styles.tabContent}>
+            <Suspense fallback={<div>載入中...</div>}>
+              <PanelComponent
+                topicTypeConfig={topicTypeConfig}
+                category={category}
+                onLoadData={handleLoadData}
+                onRandomData={handleRandomData}
+                onResetData={handleResetData}
+                disabled={isProcessing}
+                onRun={handleRunAlgorithm}
+                onAddNode={handleAddNode}
+                onDeleteNode={handleDeleteNode}
+                onSearchNode={handleSearchNode}
+                onPeek={handlePeek}
+                onMaxNodesChange={setRandomCount}
+                onTailModeChange={setHasTailMode}
+                onGraphAction={handleGraphAction}
+                isDirected={isDirected}
+                onIsDirectedChange={setIsDirected}
+                onLimitExceeded={() => setShowLimitToast(true)}
+                viewMode={viewMode}
+                onViewModeChange={handleViewModeChange}
+                currentData={logic.data}
+              />
+            </Suspense>
+          </div>
         );
       }
-    }
-    return <div>此主題暫無操作介面</div>;
+
+      // 為 variableStatus 準備 variables props
+      if (activeInspectorTab === "variableStatus") {
+        return (
+          <div className={styles.tabContent}>
+            <Suspense fallback={<div>載入中...</div>}>
+              <PanelComponent variables={currentStepData?.variables} />
+            </Suspense>
+          </div>
+        );
+      }
+
+      // 其他 Tab (callStack) 不需要 props
+      return (
+        <div className={styles.tabContent}>
+          <Suspense fallback={<div>載入中...</div>}>
+            <PanelComponent />
+          </Suspense>
+        </div>
+      );
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={sortableStyle}
+        {...attributes}
+        className={styles.inspectorPanel}
+      >
+        <PanelHeader
+          title="資訊面板"
+          draggable={!isMobile}
+          dragHandleProps={listeners}
+          tabs={inspectorTabs}
+          activeTab={activeInspectorTab}
+          onTabChange={setActiveInspectorTab}
+        />
+        <div className={styles.tabContentArea}>{renderTabContent()}</div>
+      </div>
+    );
   };
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -364,155 +681,89 @@ function Tutorial() {
     { label: topicTypeConfig.name, path: null },
   ];
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Tutorial Debug:", {
-      currentStep,
-      totalSteps: activeSteps.length,
-      isPlaying,
-      playbackSpeed,
-      currentStepData: {
-        stepNumber: currentStepData?.stepNumber,
-        description: currentStepData?.description,
-        elementsCount: currentStepData?.elements?.length,
-      },
-    });
-  }, [
-    currentStep,
+  // Props for CanvasPanel
+  const canvasPanelProps: CanvasPanelProps = {
+    canvasPanelRef,
+    isMobile,
+    canvasContainerRef,
     currentStepData,
+    currentLinks,
+    canvasSize,
+    topicTypeConfig,
+    currentStatusColorMap,
+    currentStatusConfig,
     isPlaying,
+    currentStep,
+    activeStepsLength: activeSteps.length,
     playbackSpeed,
-    activeSteps.length,
-  ]);
+    handlePlay,
+    handlePause,
+    handleNext,
+    handlePrev,
+    handleReset,
+    setPlaybackSpeed,
+    handleStepChange,
+  };
 
   return (
     <div className={styles.tutorialPage}>
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
+        {!isMobile && (
+          <div className={styles.buttonGroup}>
+            <Button
+              variant="secondary"
+              onClick={() => setIsKnowledgeStationOpen(true)}
+              title="開啟知識補充站"
+              icon="lightbulb"
+            >
+              知識補充站
+            </Button>
+            <Button
+              variant="secondary"
+              className={styles.swapButton}
+              onClick={handleSwapMainPanels}
+              title="交換左右面板"
+              icon="right-left"
+            >
+              交換佈局
+            </Button>
+          </div>
+        )}
       </div>
 
-      <div className={styles.topSection}>
-        <div className={styles.pseudoCodeSection}>
-          <div className={styles.codeHeader}>
-            <h3 className={styles.sectionTitle}>代碼實作</h3>
-            <div className={styles.codeToggle}>
-              <button
-                className={`${styles.toggleBtn} ${
-                  codeMode === "pseudo" ? styles.active : ""
-                }`}
-                onClick={() => handleModeToggle("pseudo")}
-              >
-                Pseudo
-              </button>
-              <button
-                className={`${styles.toggleBtn} ${
-                  codeMode === "python" ? styles.active : ""
-                }`}
-                onClick={() => handleModeToggle("python")}
-              >
-                Python
-              </button>
-            </div>
-          </div>
-          <div className={styles.pseudoCodeEditor}>
-            <CodeEditor
-              mode="single"
-              value={currentCodeConfig?.[codeMode]?.content || ""}
-              language="python"
-              highlightedLine={highlightLines}
-              readOnly={codeMode === "pseudo"}
-              theme="dark"
-            />
-          </div>
-        </div>
+      <TopSection
+        activeDragId={activeDragId}
+        mainPanelOrder={mainPanelOrder}
+        rightPanelOrder={rightPanelOrder}
+        handleDragStart={handleDragStart}
+        handleDragEnd={handleDragEnd}
+        handleDragCancel={handleDragCancel}
+        isMobile={isMobile}
+        leftPanelRef={leftPanelRef}
+        rightPanelRef={rightPanelRef}
+        canvasPanelRef={canvasPanelRef}
+        inspectorPanelRef={inspectorPanelRef}
+        CanvasPanel={CanvasPanel}
+        canvasPanelProps={canvasPanelProps}
+        InspectorPanelInternal={InspectorPanelInternal}
+        isLeftPanelCollapsed={isLeftPanelCollapsed}
+        handleToggleLeftPanel={handleToggleLeftPanel}
+        topicTypeConfig={topicTypeConfig}
+        codeMode={codeMode}
+        handleModeToggle={handleModeToggle}
+        currentCodeConfig={currentCodeConfig}
+        highlightLines={highlightLines}
+      />
 
-        <div className={styles.rightPanel}>
-          <div className={styles.visualizationSection}>
-            <h3 className={styles.sectionTitle}>視覺化動畫</h3>
-            <div className={styles.visualizationArea}>
-              <D3Canvas
-                elements={currentStepData?.elements || []}
-                links={currentLinks}
-                width={1000}
-                height={400}
-                structureType={topicTypeConfig?.id}
-                isDirected={isDirected}
-              />
-            </div>
-            <div className={styles.stepDescription}>
-              {currentStepData?.description}
-            </div>
-            
-            <VariableWatch variables={currentStepData?.variables} />
-          </div>
-
-          {/* 資料操作列 */}
-          {renderActionBar()}
-
-          {/* 播放控制列 */}
-          <ControlBar
-            isPlaying={isPlaying}
-            currentStep={currentStep}
-            totalSteps={activeSteps.length}
-            playbackSpeed={playbackSpeed}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            onReset={handleReset}
-            onSpeedChange={setPlaybackSpeed}
-          />
-        </div>
-      </div>
-
-      {/* Algorithm Info Section - Bottom */}
-      <div className={styles.algorithmInfoSection}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>演算法說明</h3>
-        </div>
-        <div className={styles.infoContent}>
-          <div className={styles.infoBlock}>
-            <h4>演算法簡介</h4>
-            <p>{topicTypeConfig.introduction}</p>
-          </div>
-
-          <div className={styles.infoBlock}>
-            <h4>複雜度分析</h4>
-            <div className={styles.complexityTable}>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最佳）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeBest}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（平均）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeAverage}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>
-                  時間複雜度（最差）：
-                </span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.timeWorst}
-                </span>
-              </div>
-              <div className={styles.complexityRow}>
-                <span className={styles.complexityLabel}>空間複雜度：</span>
-                <span className={styles.complexityValue}>
-                  {topicTypeConfig.complexity.space}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Knowledge Station Dialog */}
+      {topicTypeConfig && (
+        <KnowledgeStation
+          isOpen={isKnowledgeStationOpen}
+          onClose={() => setIsKnowledgeStationOpen(false)}
+          topicTypeConfig={topicTypeConfig}
+        />
+      )}
 
       {/* 資料數量限制警告 Toast */}
       <LimitWarningToast
@@ -524,4 +775,10 @@ function Tutorial() {
   );
 }
 
-export default Tutorial;
+export default function Tutorial() {
+  return (
+    <PanelProvider>
+      <TutorialContent />
+    </PanelProvider>
+  );
+}

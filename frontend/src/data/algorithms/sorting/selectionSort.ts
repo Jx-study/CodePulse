@@ -31,7 +31,7 @@ const generateFrame = (
     box.autoScale = true;
 
     if (sortedIndices.has(i)) {
-      box.setStatus("complete");
+      box.setStatus(Status.Complete);
     }
   });
 
@@ -62,7 +62,7 @@ export function createSelectionSortAnimationSteps(
       description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
       actionTag: TAGS.ROUND_START,
       variables: { currentPos: i, minPos: i },
-      elements: generateFrame(arr, { [minIdx]: "target" }, sortedIndices),
+      elements: generateFrame(arr, { [minIdx]: Status.Target }, sortedIndices),
     });
 
     for (let j = i + 1; j < n; j++) {
@@ -84,7 +84,7 @@ export function createSelectionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [i]: "target", [minIdx]: "target", [j]: "prepare" },
+          { [i]: Status.Target, [minIdx]: Status.Target, [j]: Status.Prepare },
           sortedIndices
         ),
       });
@@ -102,7 +102,7 @@ export function createSelectionSortAnimationSteps(
           },
           elements: generateFrame(
             arr,
-            { [i]: "target", [minIdx]: "target" },
+            { [i]: Status.Target, [minIdx]: Status.Target },
             sortedIndices
           ),
         });
@@ -127,7 +127,7 @@ export function createSelectionSortAnimationSteps(
         },
         elements: generateFrame(
           arr,
-          { [i]: "target", [minIdx]: "target" },
+          { [i]: Status.Target, [minIdx]: Status.Target },
           sortedIndices
         ),
       });
@@ -141,7 +141,7 @@ export function createSelectionSortAnimationSteps(
           minPos: minIdx,
           hasSwapped: false,
         },
-        elements: generateFrame(arr, { [i]: "target" }, sortedIndices),
+        elements: generateFrame(arr, { [i]: Status.Target }, sortedIndices),
       });
     }
 
@@ -242,4 +242,27 @@ export const selectionSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 11 },
   ],
   createAnimationSteps: createSelectionSortAnimationSteps,
+  relatedProblems: [
+    {
+      id: 215,
+      title: "Kth Largest Element in an Array",
+      concept: "選擇排序思想應用：尋找第 K 大元素，可用部分排序優化",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+    },
+    {
+      id: 414,
+      title: "Third Maximum Number",
+      concept: "選擇最大/最小值概念：找出陣列中第三大的數字",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/third-maximum-number/",
+    },
+    {
+      id: 164,
+      title: "Maximum Gap",
+      concept: "進階排序問題：找出排序後相鄰元素的最大差值",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/maximum-gap/",
+    },
+  ],
 };

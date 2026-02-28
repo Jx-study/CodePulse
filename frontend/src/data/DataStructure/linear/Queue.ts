@@ -33,7 +33,7 @@ const TAGS = {
   PEEK_COMPLETE: "PEEK_COMPLETE",
 };
 
-const createBoxes = (list: BoxData[], status: Status = "unfinished") => {
+const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
   return baseCreateBoxes(list, {
     startX: 100,
     startY: 200,
@@ -112,7 +112,7 @@ export function createQueueAnimationSteps(
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
-    s1NewBox.setStatus("prepare");
+    s1NewBox.setStatus(Status.Prepare);
     s1NewBox.description = "New";
 
     steps.push({
@@ -135,7 +135,7 @@ export function createQueueAnimationSteps(
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentRear * gap, startY);
-    emptyBox.setStatus("inactive");
+    emptyBox.setStatus(Status.Inactive);
     emptyBox.borderStyle = "dashed";
     emptyBox.description = String(currentRear);
 
@@ -162,7 +162,7 @@ export function createQueueAnimationSteps(
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentRear * gap, startY);
-    s3NewBox.setStatus("target");
+    s3NewBox.setStatus(Status.Target);
     s3NewBox.description = String(currentRear);
 
     steps.push({
@@ -181,7 +181,7 @@ export function createQueueAnimationSteps(
       stepNumber: 4,
       description: "Enqueue 完成",
       elements: [
-        ...createBoxes(dataList, "complete"),
+        ...createBoxes(dataList, Status.Complete),
         ...createQueuePointers(0, currentRear, startX, startY, gap),
       ],
       actionTag: TAGS.ENQUEUE_COMPLETE,
@@ -226,7 +226,7 @@ export function createQueueAnimationSteps(
     });
 
     const s2Boxes = createBoxes(fullList);
-    s2Boxes[0].setStatus("unfinished");
+    s2Boxes[0].setStatus(Status.Unfinished);
     s2Boxes[0].appearAnim = "instant";
     s2Boxes[0].id = `${deletedNode.id}-remove`;
 
@@ -237,7 +237,7 @@ export function createQueueAnimationSteps(
     movingBox.height = 60;
     movingBox.description = "removed_value";
     movingBox.moveTo(startX - gap, startY);
-    movingBox.setStatus("prepare");
+    movingBox.setStatus(Status.Prepare);
 
     steps.push({
       stepNumber: 2,
@@ -261,7 +261,7 @@ export function createQueueAnimationSteps(
       b.height = 60;
       b.description = String(i);
       b.moveTo(startX + i * gap, startY);
-      b.setStatus("unfinished");
+      b.setStatus(Status.Unfinished);
       s3Boxes.push(b);
     });
 
@@ -273,7 +273,7 @@ export function createQueueAnimationSteps(
     lastBoxGhost.height = 60;
     lastBoxGhost.description = String(oldRear);
     lastBoxGhost.moveTo(startX + oldRear * gap, startY);
-    lastBoxGhost.setStatus("unfinished");
+    lastBoxGhost.setStatus(Status.Unfinished);
     lastBoxGhost.appearAnim = "instant";
 
     steps.push({
@@ -291,7 +291,7 @@ export function createQueueAnimationSteps(
 
     const newRear = oldRear - 1;
 
-    lastBoxGhost.setStatus("inactive");
+    lastBoxGhost.setStatus(Status.Inactive);
     lastBoxGhost.borderStyle = "dashed";
 
     steps.push({
@@ -309,7 +309,7 @@ export function createQueueAnimationSteps(
 
     const s5MovingBox = new Box();
     Object.assign(s5MovingBox, movingBox);
-    s5MovingBox.setStatus("target");
+    s5MovingBox.setStatus(Status.Target);
 
     steps.push({
       stepNumber: 5,
@@ -328,7 +328,7 @@ export function createQueueAnimationSteps(
       stepNumber: 6,
       description: "Dequeue 完成",
       elements: [
-        ...createBoxes(dataList, "complete"),
+        ...createBoxes(dataList, Status.Complete),
         ...createQueuePointers(0, newRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_COMPLETE,
@@ -368,7 +368,7 @@ export function createQueueAnimationSteps(
     });
 
     const s2Boxes = createBoxes(dataList);
-    s2Boxes[0].setStatus("target");
+    s2Boxes[0].setStatus(Status.Target);
 
     steps.push({
       stepNumber: 2,
@@ -385,7 +385,7 @@ export function createQueueAnimationSteps(
       stepNumber: 3,
       description: "Peek 完成",
       elements: [
-        ...createBoxes(dataList, "complete"),
+        ...createBoxes(dataList, Status.Complete),
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,
@@ -492,4 +492,27 @@ export const QueueConfig: LevelImplementationConfig = {
     { id: "box-2", value: 3 },
   ],
   createAnimationSteps: createQueueAnimationSteps,
+  relatedProblems: [
+    {
+      id: 225,
+      title: "Implement Stack using Queues",
+      concept: "佇列應用：用佇列實作堆疊的功能",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/implement-stack-using-queues/",
+    },
+    {
+      id: 622,
+      title: "Design Circular Queue",
+      concept: "佇列設計：實作環形佇列 (Circular Queue)",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/design-circular-queue/",
+    },
+    {
+      id: 933,
+      title: "Number of Recent Calls",
+      concept: "佇列的實際應用：計算最近請求數量 (滑動窗口)",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/number-of-recent-calls/",
+    },
+  ],
 };

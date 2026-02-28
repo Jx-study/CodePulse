@@ -1,7 +1,6 @@
 .breadcrumb {
   @include flex($align: center);
   gap: $spacing-md;
-  padding: $spacing-sm 0;
   font-size: $font-sm;
   color: var(--text-secondary);
 }

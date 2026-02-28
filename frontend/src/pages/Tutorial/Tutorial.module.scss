@@ -1,44 +1,106 @@
 .tutorialPage {
-  min-height: calc(100vh - 64px);
   background: var(--bg-primary);
+  overflow-y: hidden;
+  height: 100vh;
 }
 
 .breadcrumbContainer {
   width: 100%;
   margin: 0 auto;
-  padding: $spacing-md $spacing-lg;
+  padding: $spacing-xs $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
 }
 
-// Top Section - Pseudo Code + Canvas
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.swapButton {
+  padding: $spacing-xs $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  color: var(--text-primary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.dragOverlay {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: $font-lg;
+  min-width: 200px;
+  text-align: center;
+  cursor: grabbing;
+}
+
+// Top Section - Resizable Panels Layout
 .topSection {
   width: 100%;
   margin: 0 auto;
-  padding: 0 $spacing-lg;
-  @include flex;
-  gap: $spacing-xl;
+  padding: 0;
   margin-bottom: $spacing-xl;
-  min-height: 600px;
+  height: calc(100vh - var(--header-height) - $spacing-xl);
+  min-height: 37.5rem; // 600px
+
+  > div {
+    height: 100%;
+  }
 
   @media (max-width: $tablet) {
-    flex-direction: column;
-    gap: $spacing-md;
     padding: 0 $spacing-md;
-    min-height: auto;
+    min-height: 50rem; // 800px - 垂直布局需要更高
+  }
+
+  @media (max-width: $mobile) {
+    height: auto; // 移動端使用自動高度
   }
 }
 
 .rightPanel {
-  flex: 1;
   @include flex($direction: column);
-  gap: $spacing-md;
+  height: 100%;
+
+  // 確保內部垂直 Group 撐滿容器
+  > div {
+    height: 100%;
+  }
 }
+
+// 移除 .actionPanel, .controlBarSection, .controlBarContainer (不再使用)
 
 // Section Header 通用樣式
 .sectionHeader {
   padding: $spacing-sm $spacing-md;
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid var(--border-color);
-  border-radius: 8px 8px 0 0;
+  border-radius: $radius-lg $radius-lg 0 0;
+  min-height: 3rem;
+  flex-shrink: 0;
 
   .sectionTitle {
     font-size: $font-lg;
@@ -48,14 +110,13 @@
   }
 }
 
-// Pseudo Code Section - 左側欄
+// Pseudo Code Section - 左側面板
 .pseudoCodeSection {
-  flex: 0 0 35%;
   @include flex($direction: column);
-  background: #1e1e1e;
-  // background: lightgreen;
+  height: 100%;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: $radius-lg;
   overflow: hidden;
 
   @media (max-width: $tablet) {
@@ -111,115 +172,48 @@
 
   .pseudoCodeEditor {
     flex: 1;
-    overflow: hidden;
-    min-height: 500px;
-  }
-}
-
-// Algorithm Info Section - 底部全寬
-.algorithmInfoSection {
-  max-width: 1400px;
-  margin: 0 auto $spacing-xl;
-  padding: 0 $spacing-lg;
-  @include flex($direction: column);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
-
-  @media (max-width: $tablet) {
-    padding: 0 $spacing-md;
-  }
-
-  .infoContent {
-    padding: $spacing-lg;
-    @include flex;
-    gap: $spacing-xl;
-
-    @media (max-width: $tablet) {
-      flex-direction: column;
-      padding: $spacing-md;
-      gap: $spacing-md;
-    }
-
-    .infoBlock {
-      flex: 1;
-      min-width: 400px;
-
-      @media (max-width: $tablet) {
-        min-width: auto;
-      }
-
-      h4 {
-        font-size: $font-lg;
-        font-weight: 600;
-        color: $primary-color;
-        margin-bottom: $spacing-md;
-      }
-
-      p {
-        font-size: $font-sm;
-        color: var(--text-secondary);
-        line-height: 1.6;
-        margin: 0;
-      }
-    }
-  }
-}
-
-// 複雜度表格
-.complexityTable {
-  @include flex($direction: column);
-  gap: $spacing-xs;
-
-  .complexityRow {
-    @include flex($justify: space-between, $align: center);
-    padding: $spacing-xs $spacing-sm;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
-    font-size: $font-sm;
-
-    .complexityLabel {
-      color: var(--text-secondary);
-    }
-
-    .complexityValue {
-      font-family: $font-family-code;
-      color: $primary-color;
-      font-weight: 600;
-    }
+    overflow: auto;
+    min-height: 12.5rem; // 200px
   }
 }
 
 // Visualization Section
 .visualizationSection {
+  @include flex($direction: column);
+  height: 100%;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: $radius-lg;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  // 啟用容器查詢支持 (為 ControlBar 的 @container 查詢)
+  container-type: size;
+  container-name: canvas-panel;
 }
 
 .visualizationArea {
-  background: #111;
-  border-radius: 4px;
+  flex: 1;
+  background: $dark-bg-primary;
+  border-radius: $radius-sm;
   padding: $spacing-sm;
   @include flex-center;
-  min-height: 400px;
-
-  @media (max-width: $mobile) {
-    min-height: 300px;
-  }
+  min-height: 12.5rem;
+  max-height: 100%;
+  overflow: hidden; 
+  position: relative; 
 }
 
 .stepDescription {
-  margin-top: $spacing-md;
   padding: $spacing-sm $spacing-md;
   background: var(--bg-tertiary);
-  border-radius: 4px;
-  border-left: 3px solid $primary-color;
+  border-top: 1px solid var(--border-color);
   font-size: $font-sm;
   color: var(--text-secondary);
   font-weight: 500;
+  min-height: 2.5rem; // 減少高度 (原 3rem)
+  flex-shrink: 0;
+  @include flex($align: center);
 }
 
 .actionButtons {
@@ -235,4 +229,33 @@
     flex-direction: column;
     padding: 0 $spacing-md;
   }
+}
+
+// ==================== Inspector Panel ====================
+.inspectorPanel {
+  @include flex($direction: column);
+  height: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 0;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.tabContentArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabContent {
+  height: 100%;
+  overflow-y: auto;
 }

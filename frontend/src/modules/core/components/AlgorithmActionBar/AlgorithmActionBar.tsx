@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
-import Button from "@/shared/components/Button/Button";
+import Button from "@/shared/components/Button";
+import Input from "@/shared/components/Input";
+import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
-export type AlgorithmViewMode = "graph" | "grid";
+export type AlgorithmViewMode = string;
 
 export interface RunParams {
   searchValue?: number;
   range?: [number, number];
-  mode?: "graph" | "grid";
+  mode?: string;
   rows?: number;
   cols?: number;
   startNode?: string;
   endNode?: string;
+  targetSum?: number;
+  isDirected?: boolean;
 }
 
 interface AlgorithmActionBarProps {
@@ -27,6 +31,8 @@ interface AlgorithmActionBarProps {
   algorithmId?: string;
   viewMode: AlgorithmViewMode;
   onViewModeChange: (mode: AlgorithmViewMode) => void;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
   currentData?: any;
 }
 
@@ -42,11 +48,17 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   algorithmId,
   viewMode,
   onViewModeChange,
+  isDirected = false,
+  onIsDirectedChange,
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
-  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT));
+  const [randomCount, setRandomCount] = useState<number>(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
+  const [randomCountInput, setRandomCountInput] = useState<string>(
+    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
+  );
   const [searchValue, setSearchValue] = useState<string>("");
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
@@ -58,20 +70,23 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   );
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
-  const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
-    "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
-  );
+  const [graphEdgeInput, setGraphEdgeInput] = useState<string>("");
   const [graphStartElement, setgraphStartElement] = useState<string>("");
   const [graphEndElement, setgraphEndElement] = useState<string>("");
 
   const [gridStartElement, setGridStartElement] = useState<string>("");
   const [gridEndElement, setGridEndElement] = useState<string>("");
 
+  const [windowMode, setWindowMode] = useState<string>("longest_lte");
+  const [targetSum, setTargetSum] = useState<string>("20");
+
   // 判斷演算法類型
   const isSearching = category === "searching";
   const isSorting = category === "sorting";
   const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
+  const isSlidingWindow = algorithmId === "slidingwindow";
+  const isDijkstra = algorithmId === "dijkstra";
   const isGraphAlgo =
     category === "graph" ||
     (algorithmId && ["bfs", "dfs"].includes(algorithmId));
@@ -83,10 +98,20 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isSearching && !isPrefixSum) {
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-    } else if (isPrefixSum) {
+    } else if (isPrefixSum || isSlidingWindow) {
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
+
+  useEffect(() => {
+    if (isDijkstra) {
+      // 預設帶有權重的邊
+      setGraphEdgeInput("0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6");
+    } else {
+      // 預設沒有權重的邊
+      setGraphEdgeInput("0 1\n0 2\n1 3\n2 4\n3 5\n4 5");
+    }
+  }, [isDijkstra]);
 
   const handleRun = () => {
     const normalizeId = (val: string) => {
@@ -187,7 +212,14 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         }
       }
 
-      onRun({ mode: "graph", startNode: startId, endNode: endId });
+      onRun({ mode: "graph", startNode: startId, endNode: endId, isDirected });
+    } else if (isSlidingWindow) {
+      const val = parseInt(targetSum, 10);
+      if (!isNaN(val)) {
+        onRun({ mode: windowMode, targetSum: val });
+      } else {
+        alert("請輸入有效的目標和數值");
+      }
     } else if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
@@ -201,7 +233,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       if (isNaN(start) && isNaN(end)) {
         onRun({});
-      } else if (!isNaN(start) && !isNaN(end) && start <= end && start >= 0 && end >= 0) {
+      } else if (
+        !isNaN(start) &&
+        !isNaN(end) &&
+        start <= end &&
+        start >= 0 &&
+        end >= 0
+      ) {
         onRun({ range: [start, end] });
       } else {
         alert("請輸入完整的區間 (Start, End)");
@@ -269,6 +307,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       return;
     }
 
+    let hasNegativeWeight = false;
     // 將邊的字串 (換行分隔) 壓縮成單行或特定格式傳遞
 
     // 1. 將輸入字串依換行分割
@@ -279,7 +318,25 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "")
+      .map((line) => {
+        // 把多個空格縮減為單一空格，例如 "0    1   5" -> "0 1 5"
+        if (isDijkstra) {
+          const parts = line.split(/\s+/);
+          if (parts.length >= 3) {
+            const weight = parseInt(parts[2], 10);
+            if (weight < 0) {
+              hasNegativeWeight = true;
+            }
+          }
+        }
+        return line.replace(/\s+/g, " ");
+      })
       .join(",");
+
+    if (hasNegativeWeight) {
+      alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+      return;
+    }
 
     // 格式協定: "GRAPH:nodeCount:edgeString"
     const payload = `GRAPH:${nodeCount}:${edges}`;
@@ -293,67 +350,29 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const showRangeInput = isPrefixSum;
 
   return (
-    <div
-      className={styles.dataActionBarContainer}
-      style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-    >
+    <div className={styles.dataActionBarContainer}>
       {showGridLoader && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1000,
-            background: "#222",
-            padding: "24px",
-            border: "1px solid #555",
-            borderRadius: "8px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
-        >
-          <h4 style={{ margin: "0", color: "#fff", fontSize: "16px" }}>
-            輸入迷宮資料 (0=路, 1=牆)
-          </h4>
+        <div className={styles.modalContainer}>
+          <h4 className={styles.modalTitle}>輸入迷宮資料 (0=路, 1=牆)</h4>
           <textarea
             value={gridInputText}
             onChange={(e) => setGridInputText(e.target.value)}
             rows={5}
-            style={{
-              width: "350px",
-              fontFamily: "monospace",
-              fontSize: "14px",
-              padding: "12px",
-              background: "#111",
-              color: "#eee",
-              border: "1px solid #444",
-              borderRadius: "4px",
-              resize: "none",
-            }}
+            className={styles.modalTextarea}
             placeholder="0 0 0&#10;0 1 0&#10;0 0 0"
           />
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              marginTop: "8px",
-              justifyContent: "flex-end",
-            }}
-          >
+          <div className={styles.modalButtonGroup}>
             <Button
               size="sm"
               onClick={() => setShowGridLoader(false)}
-              style={{ background: "#555" }}
+              className={styles.modalCancelButton}
             >
               取消
             </Button>
             <Button
               size="sm"
               onClick={handleLoadGridData}
-              style={{ background: "#2e7d32" }}
+              className={styles.modalConfirmButton}
             >
               確認載入
             </Button>
@@ -362,82 +381,50 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       )}
 
       {showGraphLoader && (
-        <div
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1000,
-            background: "#222",
-            padding: "24px",
-            border: "1px solid #555",
-            borderRadius: "8px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
-        >
-          <h4 style={{ margin: "0", color: "#fff", fontSize: "16px" }}>
-            自定義 Graph 資料
-          </h4>
+        <div className={styles.modalContainer}>
+          <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <label style={{ color: "#ccc", fontSize: "14px" }}>
-              節點數量 (0 ~ N-1):
-            </label>
+          <div className={styles.modalFieldRow}>
+            <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
             <input
               type="number"
               value={graphNodeCount}
               onChange={(e) => setGraphNodeCount(e.target.value)}
-              className={styles.input}
-              style={{ width: "60px" }}
+              className={`${styles.input} ${styles.nodeCountInput}`}
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <label style={{ color: "#ccc", fontSize: "14px" }}>
-              邊 (格式: 來源 目標)
-            </label>
+          <div className={styles.modalFieldColumn}>
+            {!isDijkstra ? (
+              <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+            ) : (
+              <label className={styles.modalLabel}>
+                邊 (格式: 來源 目標 權重)
+              </label>
+            )}
             <textarea
               value={graphEdgeInput}
               onChange={(e) => setGraphEdgeInput(e.target.value)}
               rows={6}
-              style={{
-                width: "300px",
-                fontFamily: "monospace",
-                fontSize: "14px",
-                padding: "12px",
-                background: "#111",
-                color: "#eee",
-                border: "1px solid #444",
-                borderRadius: "4px",
-                resize: "none",
-              }}
-              placeholder="0 1&#10;1 2&#10;2 0" // Placeholder: 0 1 (換行) 1 2 ...
+              className={styles.modalGraphTextarea}
+              placeholder={
+                isDijkstra ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"
+              }
             />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              justifyContent: "flex-end",
-              marginTop: "8px",
-            }}
-          >
+          <div className={styles.modalButtonGroup}>
             <Button
               size="sm"
               onClick={() => setShowGraphLoader(false)}
-              style={{ background: "#555" }}
+              className={styles.modalCancelButton}
             >
               取消
             </Button>
             <Button
               size="sm"
               onClick={handleLoadGraphData}
-              style={{ background: "#2e7d32" }}
+              className={styles.modalConfirmButton}
             >
               確認載入
             </Button>
@@ -447,16 +434,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {(showGridLoader || showGraphLoader) && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.5)",
-            zIndex: 999,
-            backdropFilter: "blur(2px)",
-          }}
+          className={styles.modalOverlay}
           onClick={() => {
             setShowGridLoader(false);
             setShowGraphLoader(false);
@@ -471,7 +449,6 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             size="sm"
             onClick={() => setShowGridLoader(!showGridLoader)}
             disabled={disabled}
-            style={{ marginRight: "8px" }}
           >
             載入迷宮資料
           </Button>
@@ -481,7 +458,6 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             size="sm"
             onClick={() => setShowGraphLoader(true)}
             disabled={disabled}
-            style={{ marginRight: "8px" }}
           >
             載入圖形資料
           </Button>
@@ -493,8 +469,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               placeholder="3,5,8,10..."
               value={bulkInput}
               onChange={(e) => setBulkInput(e.target.value)}
-              className={styles.input}
-              style={{ width: "150px" }}
+              className={`${styles.input} ${styles.bulkDataInput}`}
               disabled={disabled}
             />
             <Button
@@ -509,9 +484,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         <Button size="sm" onClick={onResetData} disabled={disabled}>
           重設
         </Button>
-
         <div className={styles.settingItem}>
-          <label style={{ color: "#ccc", fontSize: "12px" }}>隨機筆數:</label>
+          <label className={styles.smallLabel}>隨機筆數:</label>
           <input
             type="number"
             value={randomCountInput}
@@ -523,11 +497,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               if (isNaN(num) || randomCountInput.trim() === "") {
                 setRandomCountInput(String(randomCount));
               } else {
-                // 超過上限時顯示提示
                 if (num > DATA_LIMITS.MAX_NODES) {
                   onLimitExceeded?.();
                 }
-                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  DATA_LIMITS.MAX_NODES,
+                );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
                 onRandomCountChange?.(v);
@@ -538,44 +514,40 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
                 (e.target as HTMLInputElement).blur();
               }
             }}
-            style={{
-              width: "50px",
-              background: "#222",
-              color: "#fff",
-              border: "1px solid #555",
-            }}
+            className={styles.input}
             disabled={disabled}
           />
         </div>
-        <Button size="sm" onClick={() => onRandomData()} disabled={disabled}>
+        <Button
+          size="sm"
+          onClick={() => {
+            if (viewMode === "grid" && isGraphAlgo) {
+              handleRandomGrid();
+            } else {
+              onRandomData();
+            }
+          }}
+          disabled={disabled}
+        >
           隨機
         </Button>
         {viewMode === "grid" && isGraphAlgo && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              marginRight: "8px",
-            }}
-          >
-            <label style={{ color: "#ccc", fontSize: "12px" }}>R:</label>
+          <div className={styles.gridRowsColsContainer}>
+            <label className={styles.smallLabel}>R:</label>
             <input
               type="number"
               min="1"
               value={gridRows}
               onChange={(e) => setGridRows(e.target.value)}
-              className={styles.input}
-              style={{ width: "40px" }}
+              className={`${styles.input} ${styles.gridRowColInput}`}
             />
-            <label style={{ color: "#ccc", fontSize: "12px" }}>C:</label>
+            <label className={styles.smallLabel}>C:</label>
             <input
               type="number"
               min="1"
               value={gridCols}
               onChange={(e) => setGridCols(e.target.value)}
-              className={styles.input}
-              style={{ width: "40px" }}
+              className={`${styles.input} ${styles.gridRowColInput}`}
             />
           </div>
         )}
@@ -583,40 +555,18 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {/* 第二行：執行控制 */}
       <div className={styles.actionGroup}>
-        <div
-          className={styles.staticLabel}
-          style={{ color: "#ccc", padding: "0 8px" }}
-        >
-          {getControlLabel()}
-        </div>
+        <div className={styles.staticLabel}>{getControlLabel()}</div>
 
-        {isGraphAlgo && (
-          <div
-            style={{
-              marginRight: "12px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <span
-              style={{ color: "#888", fontSize: "12px", marginRight: "6px" }}
-            >
-              視圖:
-            </span>
+        {isGraphAlgo && !isDijkstra && (
+          <div className={styles.viewModeContainer}>
+            <span className={styles.viewModeLabel}>視圖:</span>
             <select
               value={viewMode}
               onChange={(e) =>
                 onViewModeChange(e.target.value as AlgorithmViewMode)
               }
               disabled={disabled}
-              className={styles.select}
-              style={{
-                padding: "4px 8px",
-                borderRadius: "4px",
-                background: "#333",
-                color: "#fff",
-                border: "1px solid #555",
-              }}
+              className={styles.viewModeSelect}
             >
               <option value="graph">Graph (節點圖)</option>
               <option value="grid">Grid (迷宮圖)</option>
@@ -625,14 +575,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         )}
 
         {isGraphAlgo && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              marginRight: "8px",
-            }}
-          >
+          <div className={styles.startEndContainer}>
             <input
               type="number"
               placeholder="起點(0)"
@@ -644,11 +587,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
                   ? setgraphStartElement(e.target.value)
                   : setGridStartElement(e.target.value)
               }
-              className={styles.input}
-              style={{ width: "60px", fontSize: "12px" }}
+              className={`${styles.input} ${styles.startEndInput}`}
               disabled={disabled}
             />
-            <span style={{ color: "#888" }}>-</span>
+            <span className={styles.startEndSeparator}>-</span>
             <input
               type="number"
               placeholder="終點(N)"
@@ -658,54 +600,107 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
                   ? setgraphEndElement(e.target.value)
                   : setGridEndElement(e.target.value)
               }
-              className={styles.input}
-              style={{ width: "60px", fontSize: "12px" }}
+              className={`${styles.input} ${styles.startEndInput}`}
               disabled={disabled}
             />
           </div>
         )}
 
+        {isDijkstra && (
+          <Checkbox
+            label="有向"
+            checked={isDirected}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onIsDirectedChange && onIsDirectedChange(e.target.checked)
+            }
+            disabled={disabled}
+            className={styles.smallLabel}
+            aria-label="Directed graph"
+          />
+        )}
+
+        {isSlidingWindow && (
+          <>
+            <div className={styles.viewModeContainer}>
+              <span className={styles.viewModeLabel}>模式:</span>
+              <select
+                value={windowMode}
+                onChange={(e) => {
+                  const newMode = e.target.value;
+                  setWindowMode(newMode);
+
+                  // 立即觸發 onRun (這樣會直接呼叫 executeAction("run"))
+                  // 強迫畫面馬上變成 "最短" 的初始狀態 (Step 0)
+                  // onRun({
+                  //   mode: newMode,
+                  //   targetSum: parseInt(targetSum, 10) || 20,
+                  // });
+                }}
+                disabled={disabled}
+                className={styles.viewModeSelect}
+              >
+                <option value="longest_lte">最長區間 (Sum &le; Target)</option>
+                <option value="shortest_gte">最短區間 (Sum &ge; Target)</option>
+              </select>
+            </div>
+            <Input
+              type="number"
+              placeholder="目標和"
+              value={targetSum}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setTargetSum(e.target.value)
+              }
+              className={styles.input}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Target sum"
+            />
+          </>
+        )}
+
         {/* 搜尋演算法的搜尋值輸入 */}
         {showSearchInput && (
-          <input
+          <Input
             type="number"
             placeholder="搜尋值"
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchValue(e.target.value)
+            }
             className={styles.input}
-            style={{ width: "80px", marginRight: "8px" }}
             disabled={disabled}
+            fullWidth={false}
+            aria-label="Search value"
           />
         )}
 
         {/* Prefix Sum 的區間輸入 */}
         {showRangeInput && (
-          <div
-            style={{
-              display: "flex",
-              gap: "4px",
-              alignItems: "center",
-              marginRight: "8px",
-            }}
-          >
-            <input
+          <div className={styles.rangeInput}>
+            <Input
               type="number"
               placeholder="L"
               value={rangeStart}
-              onChange={(e) => setRangeStart(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRangeStart(e.target.value)
+              }
               className={styles.input}
-              style={{ width: "50px" }}
               disabled={disabled}
+              fullWidth={false}
+              aria-label="Range start"
             />
-            <span style={{ color: "#ccc" }}>-</span>
-            <input
+            <span className={styles.staticLabel}>-</span>
+            <Input
               type="number"
               placeholder="R"
               value={rangeEnd}
-              onChange={(e) => setRangeEnd(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRangeEnd(e.target.value)
+              }
               className={styles.input}
-              style={{ width: "50px" }}
               disabled={disabled}
+              fullWidth={false}
+              aria-label="Range end"
             />
           </div>
         )}
@@ -714,14 +709,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           size="sm"
           onClick={handleRun}
           disabled={disabled}
-          style={{
-            width: "100px",
-            background: isSorting
-              ? "#2e7d32"
+          className={`${styles.runButton} ${
+            isSorting
+              ? styles.runButtonSorting
               : isSearching
-                ? "#1976d2"
-                : "#f57c00",
-          }}
+                ? styles.runButtonSearching
+                : styles.runButtonTechnique
+          }`}
         >
           {getRunButtonText()}
         </Button>

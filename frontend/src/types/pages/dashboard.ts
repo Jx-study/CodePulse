@@ -226,13 +226,6 @@ export interface GhostReference {
   label?: string; // 自定義標籤（預設使用 targetLevel.name）
 }
 
-export interface ZoomControlsProps {
-  currentZoom: number; // 0.5 - 2.0
-  onZoomIn: () => void;
-  onZoomOut: () => void;
-  onResetZoom: () => void;
-}
-
 // ==================== Category Filter Component ====================
 export interface CategoryFilterItem extends Category {
   levels: Level[]; // 該 Category 的所有關卡

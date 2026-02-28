@@ -56,7 +56,7 @@ function runAddNode(
   const targetId = newNodeId.startsWith("node-")
     ? newNodeId
     : `node-${newNodeId}`;
-  statusMap[targetId] = "target";
+  statusMap[targetId] = Status.Target;
 
   steps.push(
     generateGraphFrame(
@@ -68,7 +68,7 @@ function runAddNode(
     ),
   );
 
-  statusMap[targetId] = "complete";
+  statusMap[targetId] = Status.Complete;
 
   steps.push(
     generateGraphFrame(
@@ -120,7 +120,7 @@ function runRemoveNode(
       const targetNode = baseElements.find((n) => n.id === target);
       if (targetNode) {
         ghostNode.pointers.push(targetNode);
-        updateLinkStatus(linkStatusMap, targetId, target, "target", isDirected);
+        updateLinkStatus(linkStatusMap, targetId, target, Status.Target, isDirected);
       }
     }
 
@@ -128,13 +128,13 @@ function runRemoveNode(
       const sourceNode = baseElements.find((n) => n.id === source);
       if (sourceNode) {
         sourceNode.pointers.push(ghostNode);
-        updateLinkStatus(linkStatusMap, source, targetId, "target", isDirected);
+        updateLinkStatus(linkStatusMap, source, targetId, Status.Target, isDirected);
       }
     }
   });
   ghostElements.push(ghostNode);
 
-  statusMap[targetId] = "target";
+  statusMap[targetId] = Status.Target;
 
   steps.push(
     generateGraphFrame(
@@ -190,8 +190,8 @@ function runAddEdge(
 
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
-  statusMap[sId] = "target";
-  statusMap[tId] = "target";
+  statusMap[sId] = Status.Target;
+  statusMap[tId] = Status.Target;
 
   steps.push(
     generateGraphFrame(
@@ -208,19 +208,19 @@ function runAddEdge(
     // 檢查是否已經存在 (避免重複添加)
     if (!sNode.pointers.find((n) => n.id === tId)) {
       sNode.pointers = [...sNode.pointers, tNode];
-      updateLinkStatus(linkStatusMap, sId, tId, "complete", isDirected);
+      updateLinkStatus(linkStatusMap, sId, tId, Status.Complete, isDirected);
     }
     // 雙向處理
     if (!isDirected) {
       if (!tNode.pointers.find((n) => n.id === sId)) {
         tNode.pointers = [...tNode.pointers, sNode];
-        updateLinkStatus(linkStatusMap, tId, sId, "complete", isDirected);
+        updateLinkStatus(linkStatusMap, tId, sId, Status.Complete, isDirected);
       }
     }
   }
 
-  statusMap[sId] = "complete";
-  statusMap[tId] = "complete";
+  statusMap[sId] = Status.Complete;
+  statusMap[tId] = Status.Complete;
 
   steps.push(
     generateGraphFrame(
@@ -259,17 +259,17 @@ function runRemoveEdge(
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
 
-  statusMap[sId] = "target";
-  statusMap[tId] = "target";
+  statusMap[sId] = Status.Target;
+  statusMap[tId] = Status.Target;
 
   if (sNode && tNode) {
     sNode.pointers = [...sNode.pointers, tNode];
-    updateLinkStatus(linkStatusMap, sId, tId, "target", isDirected);
+    updateLinkStatus(linkStatusMap, sId, tId, Status.Target, isDirected);
 
     // 如果是無向圖，把反向的加回去
     if (!isDirected) {
       tNode.pointers = [...tNode.pointers, sNode];
-      updateLinkStatus(linkStatusMap, tId, sId, "target", isDirected);
+      updateLinkStatus(linkStatusMap, tId, sId, Status.Target, isDirected);
     }
   }
 
@@ -294,8 +294,8 @@ function runRemoveEdge(
     }
   }
 
-  statusMap[sId] = "complete";
-  statusMap[tId] = "complete";
+  statusMap[sId] = Status.Complete;
+  statusMap[tId] = Status.Complete;
 
   steps.push(
     generateGraphFrame(
@@ -327,7 +327,7 @@ function runGetNeighbors(
 
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
-  statusMap[targetId] = "target";
+  statusMap[targetId] = Status.Target;
 
   steps.push(
     generateGraphFrame(
@@ -354,7 +354,7 @@ function runGetNeighbors(
       );
     } else {
       neighbors.forEach((neighbor, index) => {
-        statusMap[neighbor.id] = "prepare";
+        statusMap[neighbor.id] = Status.Prepare;
         updateLinkStatus(
           linkStatusMap,
           targetId,
@@ -376,10 +376,10 @@ function runGetNeighbors(
           linkStatusMap,
           targetId,
           neighbor.id,
-          "complete",
+          Status.Complete,
           isDirected,
         );
-        statusMap[neighbor.id] = "complete";
+        statusMap[neighbor.id] = Status.Complete;
       });
 
       const neighborNames = neighbors.map((n) => n.id.replace("node-", ""));
@@ -423,8 +423,8 @@ function runCheckAdjacent(
 
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
-  statusMap[sId] = "target";
-  statusMap[tId] = "target";
+  statusMap[sId] = Status.Target;
+  statusMap[tId] = Status.Target;
 
   steps.push(
     generateGraphFrame(
@@ -440,9 +440,9 @@ function runCheckAdjacent(
     const isConnected = sNode.pointers.some((n) => n.id === tId);
 
     if (isConnected) {
-      statusMap[sId] = "complete";
-      statusMap[tId] = "complete";
-      updateLinkStatus(linkStatusMap, sId, tId, "complete", isDirected);
+      statusMap[sId] = Status.Complete;
+      statusMap[tId] = Status.Complete;
+      updateLinkStatus(linkStatusMap, sId, tId, Status.Complete, isDirected);
       steps.push(
         generateGraphFrame(
           baseElements,
@@ -454,8 +454,8 @@ function runCheckAdjacent(
         ),
       );
     } else {
-      statusMap[sId] = "complete";
-      statusMap[tId] = "complete";
+      statusMap[sId] = Status.Complete;
+      statusMap[tId] = Status.Complete;
       steps.push(
         generateGraphFrame(
           baseElements,
@@ -489,7 +489,7 @@ function runGetDegree(
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
 
-  statusMap[targetId] = "target";
+  statusMap[targetId] = Status.Target;
 
   steps.push(
     generateGraphFrame(
@@ -508,10 +508,10 @@ function runGetDegree(
     // 有向圖邏輯
     if (isDirected) {
       // Out-Degree (出度): Target 指向別人
-      // 狀態設為 "unfinished"
+      // 狀態設為 Status.Unfinished
       const outDegree = targetNode.pointers.length;
       targetNode.pointers.forEach((neighbor) => {
-        statusMap[neighbor.id] = "unfinished";
+        statusMap[neighbor.id] = Status.Unfinished;
         updateLinkStatus(
           linkStatusMap,
           targetId,
@@ -522,14 +522,14 @@ function runGetDegree(
       });
 
       // In-Degree (入度): 別人指向 Target
-      // 狀態設為 "prepare"
+      // 狀態設為 Status.Prepare
       let inDegree = 0;
       baseElements.forEach((otherNode) => {
         // 檢查 otherNode 是否指向 targetId
         if (otherNode.pointers.some((n) => n.id === targetId)) {
           // 如果發生雙向 (A<->B) 或 自環 (A->A)，顏色會被覆蓋。
-          // 這裡 "prepare" (In) 會覆蓋掉 "unfinished" (Out)
-          statusMap[otherNode.id] = "prepare";
+          // 這裡 Status.Prepare (In) 會覆蓋掉 Status.Unfinished (Out)
+          statusMap[otherNode.id] = Status.Prepare;
           updateLinkStatus(
             linkStatusMap,
             otherNode.id,
@@ -545,10 +545,10 @@ function runGetDegree(
     } else {
       // 無向圖邏輯
 
-      // Degree: 所有相連的都算，統一設為 "prepare"
+      // Degree: 所有相連的都算，統一設為 Status.Prepare
       const degree = targetNode.pointers.length;
       targetNode.pointers.forEach((neighbor) => {
-        statusMap[neighbor.id] = "prepare";
+        statusMap[neighbor.id] = Status.Prepare;
         updateLinkStatus(
           linkStatusMap,
           targetId,
@@ -561,7 +561,7 @@ function runGetDegree(
       msg = `節點 ${nodeId}：Degree (度數) = ${degree}`;
     }
 
-    statusMap[targetId] = "complete";
+    statusMap[targetId] = Status.Complete;
 
     steps.push(
       generateGraphFrame(baseElements, statusMap, {}, msg, true, {
@@ -621,7 +621,7 @@ function runCheckConnected(
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
 
-  statusMap[startNode.id] = "target";
+  statusMap[startNode.id] = Status.Target;
   steps.push(
     generateGraphFrame(
       baseElements,
@@ -639,7 +639,7 @@ function runCheckConnected(
   while (queue.length > 0) {
     const currId = queue.shift()!;
 
-    statusMap[currId] = "target";
+    statusMap[currId] = Status.Target;
 
     const neighbors = undirectedAdj.get(currId) || [];
 
@@ -648,20 +648,20 @@ function runCheckConnected(
       if (!visited.has(neighborId)) {
         visited.add(neighborId);
         queue.push(neighborId);
-        statusMap[neighborId] = "prepare";
+        statusMap[neighborId] = Status.Prepare;
         newFound = true;
         updateLinkStatus(
           linkStatusMap,
           currId,
           neighborId,
-          "complete",
+          Status.Complete,
           isDirected,
         );
         updateLinkStatus(
           linkStatusMap,
           neighborId,
           currId,
-          "complete",
+          Status.Complete,
           isDirected,
         );
       }
@@ -680,7 +680,7 @@ function runCheckConnected(
         ),
       );
     }
-    statusMap[currId] = "complete";
+    statusMap[currId] = Status.Complete;
   }
 
   // Frame Final: 結果判定
@@ -693,7 +693,7 @@ function runCheckConnected(
     resultMsg = "結果：圖不連通 (Disconnected)。紅色節點為孤島。";
     baseElements.forEach((n) => {
       if (!visited.has(n.id)) {
-        statusMap[n.id] = "target";
+        statusMap[n.id] = Status.Target;
       }
     });
   }
@@ -739,7 +739,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
     // 有向圖：加入遞迴堆疊
     if (isDirected) recStack.add(currId);
 
-    statusMap[currId] = "target";
+    statusMap[currId] = Status.Target;
     steps.push(
       generateGraphFrame(
         baseElements,
@@ -753,7 +753,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
     if (parentId !== null) {
       updateLinkStatus(linkStatusMap, parentId, currId, "path", isDirected);
     }
-    statusMap[currId] = "prepare";
+    statusMap[currId] = Status.Prepare;
 
     const currNode = baseElements.find((n) => n.id === currId);
     if (currNode) {
@@ -764,14 +764,14 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
           linkStatusMap,
           currId,
           neighborId,
-          "target",
+          Status.Target,
           isDirected,
         );
 
         if (!visited.has(neighborId)) {
           if (dfs(neighborId, currId)) return true;
 
-          statusMap[currId] = "target";
+          statusMap[currId] = Status.Target;
           updateLinkStatus(
             linkStatusMap,
             currId,
@@ -789,7 +789,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
               { ...linkStatusMap },
             ),
           );
-          statusMap[currId] = "prepare";
+          statusMap[currId] = Status.Prepare;
         } else {
           // 發現已訪問過的節點，檢查是否為環
           let isCycle = false;
@@ -808,10 +808,10 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
             for (let i = 0; i < cyclePath.length - 1; i++) {
               const u = cyclePath[i];
               const v = cyclePath[i + 1];
-              updateLinkStatus(linkStatusMap, u, v, "target", isDirected);
+              updateLinkStatus(linkStatusMap, u, v, Status.Target, isDirected);
             }
 
-            cyclePath.forEach((id) => (statusMap[id] = "target"));
+            cyclePath.forEach((id) => (statusMap[id] = Status.Target));
 
             steps.push(
               generateGraphFrame(
@@ -850,7 +850,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
     if (isDirected) recStack.delete(currId);
     pathStack.pop();
 
-    statusMap[currId] = "complete";
+    statusMap[currId] = Status.Complete;
     steps.push(
       generateGraphFrame(
         baseElements,
@@ -895,11 +895,11 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
     const finalStatusMap: Record<string, Status> = {};
 
     visited.forEach((id) => {
-      finalStatusMap[id] = "complete";
+      finalStatusMap[id] = Status.Complete;
     });
 
     cyclePath.forEach((id) => {
-      finalStatusMap[id] = "target"; // 環設 target
+      finalStatusMap[id] = Status.Target; // 環設 target
     });
 
     // 格式化路徑字串 (例如: A -> B -> C -> A)

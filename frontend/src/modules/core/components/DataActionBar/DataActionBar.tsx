@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Button from "@/shared/components/Button/Button";
+import Button from "@/shared/components/Button";
+import Input from "@/shared/components/Input";
+import Select from "@/shared/components/Select";
+import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./DataActionBar.module.scss";
 
@@ -191,7 +194,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
       return [
         <option key="push" value="Head">
           Push
-        </option>, // value 傳 Head 是因為 Hook 裡的邏輯，或者也可以在 Hook 裡改成接 Push
+        </option>,
       ];
     }
     if (structureType === "queue") {
@@ -231,88 +234,43 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   else if (structureType === "bst") delBtnText = "Delete";
 
   return (
-    <div
-      className={styles.dataActionBarContainer}
-      style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-    >
+    <div className={styles.dataActionBarContainer}>
       {/* 第一行：資料控制 (DataManager) */}
       <div className={styles.actionGroup}>
         {showGraphLoader && (
-          <div
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              zIndex: 1000,
-              background: "#222",
-              padding: "24px",
-              border: "1px solid #555",
-              borderRadius: "8px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-            }}
-          >
-            <h4 style={{ margin: "0", color: "#fff", fontSize: "16px" }}>
-              自定義 Graph 資料
-            </h4>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <label style={{ color: "#ccc", fontSize: "14px" }}>
-                節點數量 (0 ~ N-1):
-              </label>
+          <div className={styles.modalContainer}>
+            <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
+            <div className={styles.modalFieldRow}>
+              <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
               <input
                 type="number"
                 value={graphNodeCount}
                 onChange={(e) => setGraphNodeCount(e.target.value)}
-                className={styles.input}
-                style={{ width: "60px" }}
+                className={`${styles.input} ${styles.nodeCountInput}`}
               />
             </div>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-            >
-              <label style={{ color: "#ccc", fontSize: "14px" }}>
-                邊 (格式: 來源 目標)
-              </label>
+            <div className={styles.modalFieldColumn}>
+              <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
               <textarea
                 value={graphEdgeInput}
                 onChange={(e) => setGraphEdgeInput(e.target.value)}
                 rows={6}
-                style={{
-                  width: "300px",
-                  fontFamily: "monospace",
-                  fontSize: "14px",
-                  padding: "12px",
-                  background: "#111",
-                  color: "#eee",
-                  border: "1px solid #444",
-                  borderRadius: "4px",
-                  resize: "none",
-                }}
+                className={styles.modalGraphTextarea}
                 placeholder="0 1&#10;1 2&#10;2 0"
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                justifyContent: "flex-end",
-                marginTop: "8px",
-              }}
-            >
+            <div className={styles.modalButtonGroup}>
               <Button
                 size="sm"
                 onClick={() => setShowGraphLoader(false)}
-                style={{ background: "#555" }}
+                className={styles.modalCancelButton}
               >
                 取消
               </Button>
               <Button
                 size="sm"
                 onClick={handleLoadGraphData}
-                style={{ background: "#2e7d32" }}
+                className={styles.modalConfirmButton}
               >
                 確認載入
               </Button>
@@ -321,16 +279,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         )}
         {showGraphLoader && (
           <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0,0,0,0.5)",
-              zIndex: 999,
-              backdropFilter: "blur(2px)",
-            }}
+            className={styles.modalOverlay}
             onClick={() => setShowGraphLoader(false)}
           />
         )}
@@ -339,96 +288,111 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             size="sm"
             onClick={() => setShowGraphLoader(true)}
             disabled={disabled}
-            style={{ marginRight: "8px" }}
           >
             載入 Graph 資料
           </Button>
         ) : (
           <>
-            <input
+            <Input
               type="text"
               placeholder="10,40,30..."
               value={bulkInput}
-              onChange={(e) => setBulkInput(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setBulkInput(e.target.value)
+              }
               className={styles.input}
-              style={{ width: "150px" }}
               disabled={disabled}
+              fullWidth={false}
+              aria-label="Bulk data input"
             />
             <Button
               size="sm"
               onClick={() => onLoadData(bulkInput)}
               disabled={disabled}
+              icon="download"
             >
               載入資料
             </Button>
           </>
         )}
-        <Button size="sm" onClick={onResetData} disabled={disabled}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onResetData}
+          disabled={disabled}
+          icon="rotate-right"
+        >
           重設
         </Button>
-        <Button size="sm" onClick={onRandomData} disabled={disabled}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onRandomData}
+          disabled={disabled}
+          icon="shuffle"
+        >
           隨機
         </Button>
 
         <div className={styles.settingItem}>
-          <label style={{ color: "#ccc", fontSize: "12px" }}>隨機筆數: </label>
-          <input
+          <label className={styles.smallLabel}>隨機筆數:</label>
+          <Input
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
             max={DATA_LIMITS.MAX_NODES}
-            onChange={(e) => setRandomCountInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setRandomCountInput(e.target.value)
+            }
             onBlur={() => {
               const num = Number(randomCountInput);
               if (isNaN(num) || randomCountInput.trim() === "") {
-                // 無效輸入，回退到之前的值
                 setRandomCountInput(String(randomCount));
               } else {
-                // 超過上限時顯示提示
                 if (num > DATA_LIMITS.MAX_NODES) {
                   onLimitExceeded?.();
                 }
-                // 限制範圍並更新
-                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  DATA_LIMITS.MAX_NODES,
+                );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
                 onRandomCountChange(v);
               }
             }}
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter") {
                 (e.target as HTMLInputElement).blur();
               }
             }}
-            style={{
-              width: "50px",
-              background: "#222",
-              color: "#fff",
-              border: "1px solid #555",
-            }}
+            className={styles.input}
             disabled={disabled}
+            fullWidth={false}
+            aria-label="Random count"
           />
         </div>
 
         {showTailMode && (
-          <select
-            onChange={(e) => onTailModeChange(e.target.value === "hasTail")}
+          <Select
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onTailModeChange(e.target.value === "hasTail")
+            }
             className={styles.select}
             disabled={disabled}
-          >
-            <option value="noTail">無 tail 模式</option>
-            <option value="hasTail">有 tail 模式</option>
-          </select>
+            options={[
+              { value: "noTail", label: "無 tail 模式" },
+              { value: "hasTail", label: "有 tail 模式" },
+            ]}
+            aria-label="Tail mode selection"
+          />
         )}
       </div>
 
       {/* 第二行：操作控制 (OperationManager) */}
       <div className={styles.actionGroup}>
         {/* 標籤顯示 */}
-        <div
-          className={styles.staticLabel}
-          style={{ color: "#ccc", padding: "0 8px" }}
-        >
+        <div className={styles.staticLabel}>
           {structureType === "array"
             ? "Array Operations"
             : structureType === "linkedlist"
@@ -447,263 +411,319 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         </div>
         {isGraph ? (
           <>
-            {/* 節點操作區 */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                marginRight: "12px",
-                paddingRight: "12px",
-                borderRight: "1px solid #555",
-              }}
+            <span className={styles.smallLabel}>節點:</span>
+            <Input
+              placeholder="ID"
+              type="number"
+              value={inputValue}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputValue(e.target.value)
+              }
+              className={`${styles.input} ${styles.nodeCountInput}`}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Node ID"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("addVertex")}
+              disabled={disabled}
+              className={styles.btnInsert}
             >
-              <span style={{ color: "#aaa", fontSize: "12px" }}>節點:</span>
-              <input
-                placeholder="ID"
-                type="number"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                className={styles.input}
-                style={{ width: "60px" }}
-                disabled={disabled}
-              />
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("addVertex")}
-                disabled={disabled}
-              >
-                新增
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("removeVertex")}
-                disabled={disabled}
-              >
-                刪除
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("getNeighbors")}
-                disabled={disabled}
-              >
-                找鄰居
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("getDegree")}
-                disabled={disabled}
-              >
-                度數
-              </Button>
-            </div>
-
-            {/* 邊操作區 */}
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <span style={{ color: "#aaa", fontSize: "12px" }}>邊:</span>
-              <input
-                placeholder="Src"
-                type="number"
-                value={sourceNode}
-                onChange={(e) => setSourceNode(e.target.value)}
-                className={styles.input}
-                style={{ width: "40px" }}
-                disabled={disabled}
-              />
-              <span style={{ color: "#ccc" }}>→</span>
-              <input
-                placeholder="Dst"
-                type="number"
-                value={targetNode}
-                onChange={(e) => setTargetNode(e.target.value)}
-                className={styles.input}
-                style={{ width: "40px" }}
-                disabled={disabled}
-              />
-
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("addEdge")}
-                disabled={disabled}
-              >
-                連線
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("removeEdge")}
-                disabled={disabled}
-              >
-                斷線
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("checkAdjacent")}
-                disabled={disabled}
-              >
-                檢查
-              </Button>
-
-              <label
-                style={{
-                  color: "#ccc",
-                  fontSize: "12px",
-                  marginLeft: "4px",
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={isDirected}
-                  onChange={(e) =>
-                    onIsDirectedChange && onIsDirectedChange(e.target.checked)
-                  }
-                  disabled={disabled}
-                  style={{ marginRight: "2px" }}
-                />
-                有向
-              </label>
-            </div>
-            {/* 分析操作區 */}
-            <div
-              style={{
-                marginLeft: "12px",
-                paddingLeft: "12px",
-                borderLeft: "1px solid #555",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
+              新增
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("removeVertex")}
+              disabled={disabled}
+              className={styles.btnDelete}
             >
-              <span style={{ color: "#aaa", fontSize: "12px" }}>分析:</span>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("checkConnected")}
-                disabled={disabled}
-              >
-                連通性
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleGraphAction("checkCycle")}
-                disabled={disabled}
-              >
-                是否有環
-              </Button>
-            </div>
+              刪除
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("getNeighbors")}
+              disabled={disabled}
+              className={styles.btnQuery}
+            >
+              找鄰居
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("getDegree")}
+              disabled={disabled}
+              className={styles.btnQuery}
+            >
+              度數
+            </Button>
+
+            <span className={styles.smallLabel}>邊:</span>
+            <Input
+              placeholder="Src"
+              type="number"
+              value={sourceNode}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSourceNode(e.target.value)
+              }
+              className={`${styles.input} ${styles.gridRowColInput}`}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Source node"
+            />
+            <span className={styles.staticLabel}>→</span>
+            <Input
+              placeholder="Dst"
+              type="number"
+              value={targetNode}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setTargetNode(e.target.value)
+              }
+              className={`${styles.input} ${styles.gridRowColInput}`}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Target node"
+            />
+
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("addEdge")}
+              disabled={disabled}
+              className={styles.btnInsert}
+            >
+              連線
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("removeEdge")}
+              disabled={disabled}
+              className={styles.btnDelete}
+            >
+              斷線
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("checkAdjacent")}
+              disabled={disabled}
+              className={styles.btnQuery}
+            >
+              檢查
+            </Button>
+
+            <Checkbox
+              label="有向"
+              checked={isDirected}
+              onChange={(e) =>
+                onIsDirectedChange && onIsDirectedChange(e.target.checked)
+              }
+              disabled={disabled}
+              className={styles.smallLabel}
+              aria-label="Directed graph"
+            />
+
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("checkConnected")}
+              disabled={disabled}
+              className={styles.btnQuery}
+            >
+              連通性
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleGraphAction("checkCycle")}
+              disabled={disabled}
+              className={styles.btnQuery}
+            >
+              是否有環
+            </Button>
+          </>
+        ) : isBinaryTree ? (
+          <>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onSearchNode(0, "preorder")}
+              disabled={disabled}
+              className={styles.btnSearch}
+            >
+              Preorder
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onSearchNode(0, "inorder")}
+              disabled={disabled}
+              className={styles.btnSearch}
+            >
+              Inorder
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onSearchNode(0, "postorder")}
+              disabled={disabled}
+              className={styles.btnSearch}
+            >
+              Postorder
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onSearchNode(0, "bfs")}
+              disabled={disabled}
+              className={styles.btnSearch}
+            >
+              BFS (Level-order)
+            </Button>
           </>
         ) : (
           <>
-            {isBinaryTree ? (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => onSearchNode(0, "preorder")}
-                  disabled={disabled}
-                >
-                  Preorder
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => onSearchNode(0, "inorder")}
-                  disabled={disabled}
-                >
-                  Inorder
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => onSearchNode(0, "postorder")}
-                  disabled={disabled}
-                >
-                  Postorder
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => onSearchNode(0, "bfs")}
-                  disabled={disabled}
-                >
-                  BFS (Level-order)
-                </Button>
-              </>
-            ) : (
-              <>
-                {structureType === "linkedlist" && (
-                  <select
-                    value={insertMode}
-                    onChange={(e) => setInsertMode(e.target.value)}
-                    className={styles.select}
-                    disabled={disabled}
-                  >
-                    {getModeOptions()}
-                  </select>
-                )}
+            {structureType === "linkedlist" && (
+              <Select
+                value={insertMode}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setInsertMode(e.target.value)
+                }
+                className={styles.select}
+                disabled={disabled}
+                options={[]}
+                aria-label="Insert mode"
+              >
+                {getModeOptions()}
+              </Select>
+            )}
 
-                <input
+            <Input
+              type="number"
+              placeholder="數值"
+              value={inputValue}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputValue(e.target.value)
+              }
+              className={styles.input}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Node value"
+            />
+
+            {showIndexInput && (
+              <Input
+                type="number"
+                placeholder="Index"
+                value={indexValue}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setIndexValue(e.target.value)
+                }
+                className={styles.input}
+                disabled={disabled}
+                fullWidth={false}
+                aria-label="Index"
+              />
+            )}
+
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleAdd}
+              disabled={disabled}
+              className={styles.btnInsert}
+              icon="plus"
+            >
+              {addBtnText}
+            </Button>
+
+            {showUpdateButton && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleUpdate}
+                disabled={disabled}
+                className={styles.btnUpdate}
+                icon="pencil"
+              >
+                Update
+              </Button>
+            )}
+
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleDelete}
+              disabled={disabled}
+              className={styles.btnDelete}
+              icon="trash"
+            >
+              {delBtnText}
+            </Button>
+
+            {showPeek && onPeek && (
+              <Button
+                size="sm"
+                onClick={onPeek}
+                disabled={disabled}
+                className={styles.btnQuery}
+                icon="eye"
+              >
+                Peek
+              </Button>
+            )}
+
+            {showSearchMode && (
+              <>
+                <Input
                   type="number"
-                  placeholder="數值"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="搜尋值"
+                  id="searchVal"
                   className={styles.input}
-                  style={{ width: "80px" }}
                   disabled={disabled}
+                  fullWidth={false}
+                  aria-label="Search value"
                 />
-
-                {showIndexInput && (
-                  <input
-                    type="number"
-                    placeholder="Index"
-                    value={indexValue}
-                    onChange={(e) => setIndexValue(e.target.value)}
-                    className={styles.input}
-                    style={{ width: "60px" }}
-                    disabled={disabled}
-                  />
-                )}
-
-                <Button size="sm" onClick={handleAdd} disabled={disabled}>
-                  {addBtnText}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    const val = Number(
+                      (document.getElementById("searchVal") as HTMLInputElement)
+                        .value,
+                    );
+                    onSearchNode(val, "search");
+                  }}
+                  disabled={disabled}
+                  className={styles.btnSearch}
+                  icon="search"
+                >
+                  Search
                 </Button>
-
-                {showUpdateButton && (
-                  <Button
-                    size="sm"
-                    onClick={handleUpdate}
-                    disabled={disabled}
-                    style={{ marginLeft: "4px" }}
-                  >
-                    Update
-                  </Button>
-                )}
-
-                <Button size="sm" onClick={handleDelete} disabled={disabled}>
-                  {delBtnText}
-                </Button>
-
-                {showPeek && onPeek && (
-                  <Button size="sm" onClick={onPeek} disabled={disabled}>
-                    Peek
-                  </Button>
-                )}
-
-                {showSearchMode && (
-                  <div
-                    style={{
-                      marginLeft: "12px",
-                      borderLeft: "1px solid #555",
-                      paddingLeft: "12px",
-                      display: "flex",
-                      gap: "8px",
-                    }}
-                  >
-                    <input
-                      type="number"
-                      placeholder="搜尋值"
-                      id="searchVal"
-                      className={styles.input}
-                      style={{ width: "80px" }}
+                {isBST && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => onSearchNode(0, "min")}
                       disabled={disabled}
-                    />
+                      className={styles.btnQuery}
+                    >
+                      Min
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => onSearchNode(0, "max")}
+                      disabled={disabled}
+                      className={styles.btnQuery}
+                    >
+                      Max
+                    </Button>
                     <Button
                       size="sm"
                       onClick={() => {
@@ -714,66 +734,34 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                             ) as HTMLInputElement
                           ).value,
                         );
-                        onSearchNode(val, "search");
+                        if (!isNaN(val)) onSearchNode(val, "floor");
+                        else alert("Floor 需要輸入參考數值");
                       }}
                       disabled={disabled}
+                      className={styles.btnQuery}
                     >
-                      Search
+                      Floor
                     </Button>
-                    {isBST && (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => onSearchNode(0, "min")}
-                          disabled={disabled}
-                        >
-                          Min
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => onSearchNode(0, "max")}
-                          disabled={disabled}
-                        >
-                          Max
-                        </Button>
-                        {/* Floor/Ceil 需要參考輸入框的值 */}
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            const val = Number(
-                              (
-                                document.getElementById(
-                                  "searchVal",
-                                ) as HTMLInputElement
-                              ).value,
-                            );
-                            if (!isNaN(val)) onSearchNode(val, "floor");
-                            else alert("Floor 需要輸入參考數值");
-                          }}
-                          disabled={disabled}
-                        >
-                          Floor
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            const val = Number(
-                              (
-                                document.getElementById(
-                                  "searchVal",
-                                ) as HTMLInputElement
-                              ).value,
-                            );
-                            if (!isNaN(val)) onSearchNode(val, "ceil");
-                            else alert("Ceil 需要輸入參考數值");
-                          }}
-                          disabled={disabled}
-                        >
-                          Ceil
-                        </Button>{" "}
-                      </>
-                    )}
-                  </div>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        const val = Number(
+                          (
+                            document.getElementById(
+                              "searchVal",
+                            ) as HTMLInputElement
+                          ).value,
+                        );
+                        if (!isNaN(val)) onSearchNode(val, "ceil");
+                        else alert("Ceil 需要輸入參考數值");
+                      }}
+                      disabled={disabled}
+                      className={styles.btnQuery}
+                    >
+                      Ceil
+                    </Button>
+                  </>
                 )}
               </>
             )}

@@ -2,12 +2,6 @@ import Button from '@/shared/components/Button';
 import Icon from '@/shared/components/Icon';
 import Slider from '@/shared/components/Slider';
 import styles from './ControlBar.module.scss';
-import { useTranslation } from 'react-i18next';
-import { useCallback, useRef, useState } from 'react';
-import { D3CanvasRef } from '../../Render/D3Canvas';
-import { LinkManager } from '../../DataLogic/LinkManager';
-import { BaseElement } from '../../DataLogic/BaseElement';
-import { animateConnect } from '../../Render/D3Renderer';
 
 export interface ControlBarProps {
   isPlaying: boolean;
@@ -20,7 +14,7 @@ export interface ControlBarProps {
   onPrev: () => void;
   onReset: () => void;
   onSpeedChange: (speed: number) => void;
-  showSpeedSlider?: boolean;
+  onStepChange: (step: number) => void;
 }
 
 function ControlBar({
@@ -34,31 +28,14 @@ function ControlBar({
   onPrev,
   onReset,
   onSpeedChange,
-  showSpeedSlider = true,
+  onStepChange,
 }: ControlBarProps) {
-  const { t } = useTranslation();
-  const canvasRef = useRef<D3CanvasRef>(null);
-  const speeds = [0.5, 1, 1.5, 2];
-  // const triggerLink = useCallback(async () => {
-  //   const svgEl = canvasRef.current?.getSVGElement();
-  //   if (!svgEl) return;
-    
-  //   await animateConnect(svgEl, elements, manager, "n1", "n2", 800);
-  //   setLinks(manager.links);
-  // }, [elements, manager]);
-
-  const clearLink = useCallback(() => {
-    // setLinks([]);
-  }, []);
+  const speeds = [0.5, 1, 1.5, 2, 3];
 
   return (
     <div className={styles.controlBar}>
       {/* Control Buttons */}
       <div className={styles.controls}>
-      <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
-          {/* <button onClick={triggerLink}>{t('connect') || 'Connect n1->n2'}</button> */}
-          <button onClick={clearLink}>{t('clear') || 'Clear'}</button>
-        </div>
         <Button
           variant="ghost"
           size="sm"
@@ -110,6 +87,17 @@ function ControlBar({
         <span className={styles.stepText}>
           Step {currentStep + 1} / {totalSteps}
         </span>
+        <div className={styles.stepSlider}>
+          <Slider
+            min={0}
+            max={totalSteps - 1}
+            step={1}
+            value={currentStep}
+            onChange={onStepChange}
+            showValue={false}
+            ariaLabel="Step progress"
+          />
+        </div>
       </div>
 
       {/* Speed Selector */}
@@ -133,20 +121,18 @@ function ControlBar({
             ))}
           </div>
         </div>
-        {showSpeedSlider && (
-          <div className={styles.sliderRow}>
-            <Slider
-              min={0.1}
-              max={3.0}
-              step={0.1}
-              value={playbackSpeed}
-              onChange={onSpeedChange}
-              showValue={true}
-              formatValue={(v) => `${v.toFixed(1)}x`}
-              ariaLabel="Playback speed"
-            />
-          </div>
-        )}
+        <div className={styles.sliderRow}>
+          <Slider
+            min={0.1}
+            max={3.0}
+            step={0.1}
+            value={playbackSpeed}
+            onChange={onSpeedChange}
+            showValue={true}
+            formatValue={(v) => `${v.toFixed(1)}x`}
+            ariaLabel="Playback speed"
+          />
+        </div>
       </div>
     </div>
   );

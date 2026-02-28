@@ -86,7 +86,7 @@ function DataStructureAlgorithm() {
           <div className={`${styles.algorithmGrid} common-grid`}>
             {getCurrentSlideAlgorithms().map((algorithm) => (
               <Card
-                key={algorithm.id}
+                key={algorithm.levelId}
                 variant="algorithm"
                 image={algorithm.image}
                 title={algorithm.name}

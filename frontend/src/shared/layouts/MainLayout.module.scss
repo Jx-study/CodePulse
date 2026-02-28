@@ -1,0 +1,13 @@
+@use "@/shared/styles/_variables" as *;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  padding-top: var(--header-height);
+  min-height: 100vh;
+}
