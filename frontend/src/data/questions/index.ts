@@ -6,12 +6,13 @@
 import type { PracticeQuiz } from '@/types/practice';
 import { stackQuiz } from './stack-questions';
 import { queueQuiz } from './queue-questions';
+import { arrayQuiz } from './array-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
   queue: queueQuiz,
-  // TODO: 後續擴展其他數據結構
-  // array: arrayQuiz,
+  array: arrayQuiz,
+  // TODO: 後續擴展其他數據結
   // linkedlist: linkedListQuiz,
   // bst: bstQuiz,
 };
