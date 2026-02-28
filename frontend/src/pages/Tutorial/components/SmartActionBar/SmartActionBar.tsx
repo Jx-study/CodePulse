@@ -65,6 +65,8 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
         algorithmId={topicTypeConfig.id}
         viewMode={restProps.viewMode || "graph"}
         onViewModeChange={restProps.onViewModeChange!}
+        isDirected={restProps.isDirected}
+        onIsDirectedChange={restProps.onIsDirectedChange}
         currentData={restProps.currentData}
       />
     );

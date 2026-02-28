@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
+import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
@@ -15,6 +16,7 @@ export interface RunParams {
   startNode?: string;
   endNode?: string;
   targetSum?: number;
+  isDirected?: boolean;
 }
 
 interface AlgorithmActionBarProps {
@@ -29,6 +31,8 @@ interface AlgorithmActionBarProps {
   algorithmId?: string;
   viewMode: AlgorithmViewMode;
   onViewModeChange: (mode: AlgorithmViewMode) => void;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
   currentData?: any;
 }
 
@@ -44,6 +48,8 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   algorithmId,
   viewMode,
   onViewModeChange,
+  isDirected = false,
+  onIsDirectedChange,
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
@@ -64,9 +70,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   );
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
-  const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
-    "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
-  );
+  const [graphEdgeInput, setGraphEdgeInput] = useState<string>("");
   const [graphStartElement, setgraphStartElement] = useState<string>("");
   const [graphEndElement, setgraphEndElement] = useState<string>("");
 
@@ -82,6 +86,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
   const isSlidingWindow = algorithmId === "slidingwindow";
+  const isDijkstra = algorithmId === "dijkstra";
   const isGraphAlgo =
     category === "graph" ||
     (algorithmId && ["bfs", "dfs"].includes(algorithmId));
@@ -97,6 +102,16 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
+
+  useEffect(() => {
+    if (isDijkstra) {
+      // 預設帶有權重的邊
+      setGraphEdgeInput("0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6");
+    } else {
+      // 預設沒有權重的邊
+      setGraphEdgeInput("0 1\n0 2\n1 3\n2 4\n3 5\n4 5");
+    }
+  }, [isDijkstra]);
 
   const handleRun = () => {
     const normalizeId = (val: string) => {
@@ -197,7 +212,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         }
       }
 
-      onRun({ mode: "graph", startNode: startId, endNode: endId });
+      onRun({ mode: "graph", startNode: startId, endNode: endId, isDirected });
     } else if (isSlidingWindow) {
       const val = parseInt(targetSum, 10);
       if (!isNaN(val)) {
@@ -292,6 +307,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       return;
     }
 
+    let hasNegativeWeight = false;
     // 將邊的字串 (換行分隔) 壓縮成單行或特定格式傳遞
 
     // 1. 將輸入字串依換行分割
@@ -302,7 +318,25 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "")
+      .map((line) => {
+        // 把多個空格縮減為單一空格，例如 "0    1   5" -> "0 1 5"
+        if (isDijkstra) {
+          const parts = line.split(/\s+/);
+          if (parts.length >= 3) {
+            const weight = parseInt(parts[2], 10);
+            if (weight < 0) {
+              hasNegativeWeight = true;
+            }
+          }
+        }
+        return line.replace(/\s+/g, " ");
+      })
       .join(",");
+
+    if (hasNegativeWeight) {
+      alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+      return;
+    }
 
     // 格式協定: "GRAPH:nodeCount:edgeString"
     const payload = `GRAPH:${nodeCount}:${edges}`;
@@ -361,13 +395,21 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
 
           <div className={styles.modalFieldColumn}>
-            <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+            {!isDijkstra ? (
+              <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+            ) : (
+              <label className={styles.modalLabel}>
+                邊 (格式: 來源 目標 權重)
+              </label>
+            )}
             <textarea
               value={graphEdgeInput}
               onChange={(e) => setGraphEdgeInput(e.target.value)}
               rows={6}
               className={styles.modalGraphTextarea}
-              placeholder="0 1&#10;1 2&#10;2 0"
+              placeholder={
+                isDijkstra ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"
+              }
             />
           </div>
 
@@ -515,7 +557,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       <div className={styles.actionGroup}>
         <div className={styles.staticLabel}>{getControlLabel()}</div>
 
-        {isGraphAlgo && (
+        {isGraphAlgo && !isDijkstra && (
           <div className={styles.viewModeContainer}>
             <span className={styles.viewModeLabel}>視圖:</span>
             <select
@@ -562,6 +604,19 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               disabled={disabled}
             />
           </div>
+        )}
+
+        {isDijkstra && (
+          <Checkbox
+            label="有向"
+            checked={isDirected}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onIsDirectedChange && onIsDirectedChange(e.target.checked)
+            }
+            disabled={disabled}
+            className={styles.smallLabel}
+            aria-label="Directed graph"
+          />
         )}
 
         {isSlidingWindow && (

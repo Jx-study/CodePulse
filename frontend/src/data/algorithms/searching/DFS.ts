@@ -40,7 +40,7 @@ function runGraphDFS(
   const distanceMap: Record<string, number> = {}; // DFS 深度
   const parentMap = new Map<string, string>();
 
-  baseElements.forEach((n) => (distanceMap[n.id] = 99));
+  baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
   // 初始畫面
   steps.push(
@@ -58,7 +58,7 @@ function runGraphDFS(
       baseElements,
       {},
       distanceMap,
-      `初始化距離為 ∞ (99)，準備開始 DFS`,
+      `初始化距離為 ∞，準備開始 DFS`,
     ),
   );
 
