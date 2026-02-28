@@ -11,7 +11,7 @@ import ZoomControls from '@/shared/components/ZoomControls';
 import type { GraphContainerProps } from '@/types';
 
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見
-function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
+function GraphContainer({ levels, userProgress, children, isDialogOpen = false }: GraphContainerProps) {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -32,6 +32,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     step: 0.1,
     enableWheelZoom: true,
     enablePinchZoom: true,
+    isDisabled: isDialogOpen,
   });
 
   // 動態計算滾動限制的輔助函數

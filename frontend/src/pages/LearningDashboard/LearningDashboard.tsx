@@ -249,7 +249,11 @@ function LearningDashboard() {
   return (
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
-      <GraphContainer levels={filteredLevels} userProgress={userProgress}>
+      <GraphContainer
+        levels={filteredLevels}
+        userProgress={userProgress}
+        isDialogOpen={isProgressDialogOpen}
+      >
         {(level, index, position) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
