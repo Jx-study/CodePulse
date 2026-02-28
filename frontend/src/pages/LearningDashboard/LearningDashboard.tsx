@@ -68,7 +68,12 @@ function LearningDashboard() {
   const allLevels = getAllLevels();
 
   // 取得 Categories（包含解鎖狀態）
-  const categories = getCategories(userProgress);
+  const categories = getCategories();
+
+  // 計算每個 Category 的 Level 數量
+  const levelCounts = Object.fromEntries(
+    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length])
+  ) as Partial<Record<CategoryType, number>>;
 
   // 建立分類顏色對照表
   const categoryColors = Object.fromEntries(
@@ -252,7 +257,8 @@ function LearningDashboard() {
           const isPortal = level.pathMetadata?.pathType === "portal";
 
           // 使用 LevelService 檢查 Portal 解鎖狀態
-          const portalUnlocked = isPortal && isPortalUnlocked(level.id, userProgress);
+          const portalUnlocked =
+            isPortal && isPortalUnlocked(level.id, userProgress);
 
           // Portal Node 點擊處理：直接跳轉到目標分類
           const handlePortalClick = () => {
@@ -265,7 +271,10 @@ function LearningDashboard() {
           };
 
           // Ghost Node 點擊處理：跳轉到目標分類並滾動到目標關卡
-          const handleGhostClick = (targetLevelId: string, targetCategory: CategoryType) => {
+          const handleGhostClick = (
+            targetLevelId: string,
+            targetCategory: CategoryType,
+          ) => {
             navigateToLevel(targetLevelId, targetCategory);
           };
 
@@ -274,7 +283,7 @@ function LearningDashboard() {
               {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
               {prereqIds.map((prereqId) => {
                 const prereqLevel = filteredLevels.find(
-                  (l) => l.id === prereqId
+                  (l) => l.id === prereqId,
                 );
                 if (!prereqLevel) return null;
 
@@ -282,7 +291,7 @@ function LearningDashboard() {
                   ? calculateGraphNodePosition(prereqLevel, filteredLevels)
                   : calculateNodePosition(
                       filteredLevels.indexOf(prereqLevel),
-                      filteredLevels.length
+                      filteredLevels.length,
                     );
 
                 // 決定連線狀態：目標關卡（toNode）的狀態決定連線顏色
@@ -338,7 +347,7 @@ function LearningDashboard() {
                 // 計算幽靈節點位置
                 const ghostPosition = calculateGraphNodePosition(
                   { ...level, graphPosition: ghostRef.position },
-                  filteredLevels
+                  filteredLevels,
                 );
 
                 // 繪製虛線連接（從當前 level 到 ghost node）
@@ -361,7 +370,9 @@ function LearningDashboard() {
                     position={ghostPosition}
                     onClick={() => {
                       // 在點擊時才查詢目標 Level
-                      const targetLevel = allLevels.find((l: Level) => l.id === ghostRef.targetLevelId);
+                      const targetLevel = allLevels.find(
+                        (l: Level) => l.id === ghostRef.targetLevelId,
+                      );
                       if (targetLevel) {
                         handleGhostClick(targetLevel.id, targetLevel.category);
                       }
@@ -384,18 +395,20 @@ function LearningDashboard() {
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
         <Button
-          variant="primary"
+          variant="primaryOutline"
           size="sm"
           className={`${styles.controlButton} ${styles.categoryButton}`}
           onClick={() => setIsSidebarOpen(true)}
+          icon="filter"
         >
           分類篩選
         </Button>
         <Button
-          variant="primary"
+          variant="primaryOutline"
           size="sm"
           className={styles.controlButton}
           onClick={() => setIsProgressDialogOpen(true)}
+          icon="chalkboard-user"
         >
           學習進度
         </Button>
@@ -422,6 +435,7 @@ function LearningDashboard() {
           <CategoryFilter
             categories={categories}
             activeCategory={activeCategory}
+            levelCounts={levelCounts}
             onCategoryChange={(category) => {
               setActiveCategory(category);
               setIsSidebarOpen(false); // 選擇後關閉側邊欄

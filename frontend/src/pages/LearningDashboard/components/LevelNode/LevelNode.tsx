@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./LevelNode.module.scss";
 import Icon from "@/shared/components/Icon";
+import BranchLabel from "../BranchLabel/BranchLabel";
 import type { LevelNodeProps } from "@/types";
 
 function LevelNode({
@@ -147,6 +148,15 @@ function LevelNode({
         <div className={styles.lockOverlay}>
           <Icon name="lock" className={styles.lockIcon} />
         </div>
+      )}
+
+      {/* 分支路徑標籤 */}
+      {pathMetadata?.branchLabel && (
+        <BranchLabel
+          label={pathMetadata.branchLabel}
+          position={{ x: 30, y: 160 }}
+          color={categoryColor}
+        />
       )}
 
       {/* 關卡名稱標籤 */}
