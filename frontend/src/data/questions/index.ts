@@ -7,13 +7,14 @@ import type { PracticeQuiz } from '@/types/practice';
 import { stackQuiz } from './stack-questions';
 import { queueQuiz } from './queue-questions';
 import { arrayQuiz } from './array-questions';
+import { linkedListQuiz } from './linkedlist-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
   queue: queueQuiz,
   array: arrayQuiz,
+  'linked-list': linkedListQuiz,
   // TODO: 後續擴展其他數據結
-  // linkedlist: linkedListQuiz,
   // bst: bstQuiz,
 };
 
