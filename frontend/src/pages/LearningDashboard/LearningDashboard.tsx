@@ -11,7 +11,7 @@ import GhostNode from "./components/GhostNode/GhostNode";
 import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
-import Icon from "@/shared/components/Icon";
+import Sidebar from "@/shared/components/Sidebar";
 
 // 資料導入
 import {
@@ -395,7 +395,7 @@ function LearningDashboard() {
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
         <Button
-          variant="primaryOutline"
+          variant="secondary"
           size="sm"
           className={`${styles.controlButton} ${styles.categoryButton}`}
           onClick={() => setIsSidebarOpen(true)}
@@ -414,43 +414,22 @@ function LearningDashboard() {
         </Button>
       </div>
 
-      {/* 分類側邊欄 */}
-      <div
-        className={`${styles.categorySidebar} ${
-          isSidebarOpen ? styles.open : ""
-        }`}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        title="演算法分類"
+        aria-label="演算法分類側邊欄"
       >
-        <div className={styles.sidebarHeader}>
-          <h2>演算法分類</h2>
-          <Button
-            variant="icon"
-            className={styles.closeButton}
-            onClick={() => setIsSidebarOpen(false)}
-            aria-label="關閉側邊欄"
-          >
-            <Icon name="times" size="lg" />
-          </Button>
-        </div>
-        <div className={styles.sidebarContent}>
-          <CategoryFilter
-            categories={categories}
-            activeCategory={activeCategory}
-            levelCounts={levelCounts}
-            onCategoryChange={(category) => {
-              setActiveCategory(category);
-              setIsSidebarOpen(false); // 選擇後關閉側邊欄
-            }}
-          />
-        </div>
-      </div>
-
-      {/* 側邊欄遮罩層 */}
-      <div
-        className={`${styles.sidebarOverlay} ${
-          isSidebarOpen ? styles.visible : ""
-        }`}
-        onClick={() => setIsSidebarOpen(false)}
-      />
+        <CategoryFilter
+          categories={categories}
+          activeCategory={activeCategory}
+          levelCounts={levelCounts}
+          onCategoryChange={(category) => {
+            setActiveCategory(category);
+            setIsSidebarOpen(false);
+          }}
+        />
+      </Sidebar>
 
       {/* 進度統計彈窗 */}
       <ProgressStatsDialog

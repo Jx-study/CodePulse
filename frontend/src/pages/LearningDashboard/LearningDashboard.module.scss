@@ -95,81 +95,6 @@
   }
 }
 
-// 分类侧边栏
-.categorySidebar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 320px;
-  height: 100%;
-  background: rgba(26, 31, 46, 0.95);
-  backdrop-filter: blur(16px);
-  border-right: 1px solid $dark-border;
-  z-index: 15;
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
-
-  &.open {
-    transform: translateX(0);
-  }
-
-  .sidebarHeader {
-    @include flex-between;
-    padding: $spacing-lg;
-    border-bottom: 1px solid $dark-border;
-
-    h2 {
-      margin: 0;
-      color: $dark-text-primary;
-      font-size: $font-xl;
-    }
-
-    .closeButton {
-      background: none;
-      border: none;
-      color: $dark-text-secondary;
-      font-size: $font-2xl;
-      cursor: pointer;
-      padding: $spacing-xs;
-      transition: $transition-base;
-      width: 32px;
-      height: 32px;
-      @include flex-center;
-      border-radius: 4px;
-
-      &:hover {
-        color: $dark-text-primary;
-        background: rgba(255, 255, 255, 0.1);
-      }
-    }
-  }
-
-  .sidebarContent {
-    padding: $spacing-lg;
-  }
-}
-
-// 侧边栏遮罩层
-.sidebarOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 14;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-
-  &.visible {
-    opacity: 1;
-    pointer-events: all;
-  }
-}
-
 // 響應式設計
 @media (max-width: 768px) {
   .floatingControls {
@@ -180,9 +105,5 @@
       padding: $spacing-xs $spacing-md;
       font-size: $font-sm;
     }
-  }
-
-  .categorySidebar {
-    width: 280px;
   }
 }

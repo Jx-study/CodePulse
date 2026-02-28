@@ -30,6 +30,22 @@ export interface DialogProps {
   [key: string]: any;
 }
 
+// ==================== Sidebar Component ====================
+export interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: React.ReactNode;
+  children: React.ReactNode;
+  placement?: 'left' | 'right';      // default: 'left'
+  width?: 'sm' | 'md' | 'lg';        // default: 'md'
+  closeOnOverlayClick?: boolean;      // default: true
+  closeOnEscape?: boolean;            // default: true
+  showCloseButton?: boolean;          // default: true
+  className?: string;
+  contentClassName?: string;
+  'aria-label'?: string;
+}
+
 // ==================== Tooltip Component ====================
 export interface TooltipProps {
   content: React.ReactNode;
