@@ -1032,4 +1032,20 @@ export const GraphConfig: LevelImplementationConfig = {
     ],
   },
   createAnimationSteps: createGraphAnimationSteps,
+  realWorldStories: [
+    {
+      id: "graph-netflix-recommendation",
+      title: "Netflix 推薦系統：一場價值百億美元的「圖論相親」",
+      content: `你正在瀏覽的這份程式碼，正是 Netflix 推薦引擎的縮影。
+
+【二分圖的資料結構】
+Netflix 把世界看作一個巨大的圖結構。在你的 defaultData 中，節點 (Vertex) 被分為兩群：使用者與影視內容。你的每一次觀看，都會觸發 runAddEdge 函式，在使用者與電影之間畫下一條「邊 (Edge)」。
+
+【鄰居搜尋與推薦】
+當系統要推薦新片時，它會對「你的節點」執行 runGetNeighbors。透過讀取 Adjacency List，演算法就像一個機器人，先找到你喜歡的電影，再透過這些電影找到「也喜歡它們的其他使用者」。這種「順藤摸瓜」的走訪過程，本質上就是你程式碼中的 BFS 或連通性檢查邏輯。
+
+【商業價值的體現】
+根據 Netflix 官方論文，如果使用者在 60 到 90 秒內找不到想看的片，就會離開。透過圖論優化的極致搜尋速度，大幅降低了退訂率 (Churn Rate)。這份看似抽象的節點與邊的運算，每年為 Netflix 節省了超過 10 億美元。`,
+    },
+  ],
 };

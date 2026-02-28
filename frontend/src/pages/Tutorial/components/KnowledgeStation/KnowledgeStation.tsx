@@ -5,6 +5,7 @@ import type { LevelImplementationConfig } from '@/types';
 import IntroductionTab from './components/IntroductionTab';
 import ComplexityTab from './components/ComplexityTab';
 import ProblemsTab from './components/ProblemsTab';
+import StoryTab from './components/StoryTab';
 import styles from './KnowledgeStation.module.scss';
 
 interface KnowledgeStationProps {
@@ -33,6 +34,11 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
       key: 'problems',
       label: '相關題目',
       content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} />,
+    },
+    {
+      key: 'story',
+      label: '真實世界應用',
+      content: <StoryTab stories={topicTypeConfig.realWorldStories} />,
     },
   ];
 

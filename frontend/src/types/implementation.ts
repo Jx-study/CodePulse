@@ -2,6 +2,15 @@ import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
 import type { StatusConfig } from './statusConfig';
 
 /**
+ * 真實世界應用故事結構
+ */
+export interface RealWorldStory {
+  id: string | number;
+  title: string;
+  content: string;
+}
+
+/**
  * 補充問題參考資料結構
  * 用於展示演算法在不同情境下的應用範例
  */
@@ -33,6 +42,7 @@ export interface LevelImplementationConfig {
     config?: any
   ) => AnimationStep[];
   relatedProblems?: ProblemReference[];
+  realWorldStories?: RealWorldStory[];
   /** Optional custom status configuration - 可選的自訂狀態配置 */
   statusConfig?: StatusConfig;
   getCodeConfig?: (payload?: any) => CodeConfig;

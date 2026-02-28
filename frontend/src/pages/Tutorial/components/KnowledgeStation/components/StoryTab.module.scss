@@ -1,0 +1,42 @@
+.storyTab {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+
+  p {
+    font-size: $font-lg;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.card {
+  background: rgba($primary-color, 0.05);
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+
+  .cardTitle {
+    font-size: $font-lg;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 $spacing-md 0;
+  }
+
+  .cardContent {
+    font-size: $font-base;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+    white-space: pre-wrap;
+  }
+}
