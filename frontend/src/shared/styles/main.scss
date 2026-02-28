@@ -9,6 +9,7 @@
 
 // 主題
 :root {
+  --primary-color: $primary-color;
   /* Light Mode */
   --bg-primary: #{$light-bg-primary};
   --bg-secondary: #{$light-bg-secondary};
