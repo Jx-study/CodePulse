@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 // Auth Context
 import { AuthProvider } from "./shared/contexts/AuthContext";
+import { ToastContainer } from "@/shared/components/Toast";
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
@@ -32,6 +33,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <ToastContainer />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* 主布局 */}

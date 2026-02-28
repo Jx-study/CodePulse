@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getBSTArrayAfterDelete } from "@/data/DataStructure/nonlinear/BinarySearchTree";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import { toast } from "@/shared/components/Toast";
 
 interface GraphNode {
   id: string;
@@ -124,11 +125,11 @@ export const useDataStructureLogic = (config: any) => {
         } else if (mode === "Node N") {
           const idx = index !== undefined ? index : -1;
           if (idx < 0) {
-            alert("Invalid index: Index cannot be negative.");
+            toast.warning("Invalid index: Index cannot be negative.");
             return [];
           }
           if (idx > data.length) {
-            alert(`Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`);
+            toast.warning(`Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`);
             return [];
           }
           
@@ -138,7 +139,7 @@ export const useDataStructureLogic = (config: any) => {
         }
       } else if (actionType === "delete") {
         if (newData.length === 0) {
-          alert("Singly Linked List is empty");
+          toast.warning("Singly Linked List is empty");
           return [];
         }
         let deletedNode = null;
@@ -337,12 +338,12 @@ export const useDataStructureLogic = (config: any) => {
         let idx = index;
 
         if (newData.length === 0) {
-          alert("Array is empty");
+          toast.warning("Array is empty");
           return [];
         }
 
         if (idx === undefined || idx >= newData.length || idx < 0) {
-          alert("Invalid index");
+          toast.warning("Invalid index");
           return [];
         }
 
@@ -409,7 +410,7 @@ export const useDataStructureLogic = (config: any) => {
             finalData = temp;
           }
         } else {
-          alert(`數值 ${delValue} 不存在`);
+          toast.warning(`數值 ${delValue} 不存在`);
           return [];
         }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
@@ -449,7 +450,7 @@ export const useDataStructureLogic = (config: any) => {
 
       if (actionType === "addVertex") {
         if (!payload.value || String(payload.value).trim() === "") {
-          alert("請輸入節點 ID");
+          toast.warning("請輸入節點 ID");
           return [];
         }
 
@@ -463,12 +464,12 @@ export const useDataStructureLogic = (config: any) => {
         if (!nodes.find((n: any) => n.id === id)) {
           nodes.push({ id: id, value: val }); // 新增節點
         } else {
-          alert(`節點 ${val} 已存在`);
+          toast.warning(`節點 ${val} 已存在`);
           return [];
         }
       } else if (actionType === "removeVertex") {
         if (!payload.id || String(payload.id).trim() === "") {
-          alert("請輸入節點 ID");
+          toast.warning("請輸入節點 ID");
           return [];
         }
 
@@ -494,7 +495,7 @@ export const useDataStructureLogic = (config: any) => {
             (e: any[]) => e[0] !== targetId && e[1] !== targetId,
           );
         } else {
-          alert(`節點 ${targetVal} 不存在`);
+          toast.warning(`節點 ${targetVal} 不存在`);
           return [];
         }
       } else if (actionType === "addEdge") {
@@ -514,13 +515,13 @@ export const useDataStructureLogic = (config: any) => {
           );
 
           if (exists) {
-            alert("該連線已存在");
+            toast.warning("該連線已存在");
             return [];
           }
 
           edges.push([sourceId, targetId]);
         } else {
-          alert("來源或目標節點不存在");
+          toast.warning("來源或目標節點不存在");
           return [];
         }
       } else if (actionType === "removeEdge") {
@@ -541,29 +542,29 @@ export const useDataStructureLogic = (config: any) => {
         });
 
         if (newData.edges.length === initialLength) {
-          alert("找不到該連線，無法刪除");
+          toast.warning("找不到該連線，無法刪除");
           return [];
         }
       } else if (actionType === "getNeighbors") {
         if (!payload.id || String(payload.id).trim() === "") {
-          alert("請輸入節點 ID");
+          toast.warning("請輸入節點 ID");
           return [];
         }
 
         const targetId = `node-${payload.id}`;
         if (!nodes.find((n: any) => n.id === targetId)) {
-          alert(`節點 ${payload.id} 不存在`);
+          toast.warning(`節點 ${payload.id} 不存在`);
           return [];
         }
       } else if (actionType === "getDegree") {
         if (!payload.id || String(payload.id).trim() === "") {
-          alert("請輸入節點 ID");
+          toast.warning("請輸入節點 ID");
           return [];
         }
 
         const targetId = `node-${payload.id}`;
         if (!nodes.find((n: any) => n.id === targetId)) {
-          alert(`節點 ${payload.id} 不存在`);
+          toast.warning(`節點 ${payload.id} 不存在`);
           return [];
         }
       } else if (actionType === "checkAdjacent") {
@@ -572,8 +573,8 @@ export const useDataStructureLogic = (config: any) => {
           String(payload.source).trim() === "" ||
           !payload.target ||
           String(payload.target).trim() === ""
-        ) {
-          alert("請輸入來源與目標節點 ID");
+) {
+        toast.warning("請輸入來源與目標節點 ID");
           return [];
         }
 
@@ -583,7 +584,7 @@ export const useDataStructureLogic = (config: any) => {
           !nodes.find((n: any) => n.id === sId) ||
           !nodes.find((n: any) => n.id === tId)
         ) {
-          alert("來源或目標節點不存在");
+          toast.warning("來源或目標節點不存在");
           return [];
         }
       } else if (
@@ -592,7 +593,7 @@ export const useDataStructureLogic = (config: any) => {
       ) {
         // 如果圖是空的擋下來或執行顯示空圖
         if (nodes.length === 0) {
-          alert("圖形為空");
+          toast.warning("圖形為空");
           return [];
         }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {

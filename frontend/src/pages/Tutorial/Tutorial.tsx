@@ -8,7 +8,7 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar";
-import LimitWarningToast from "@/shared/components/LimitWarningToast";
+import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
@@ -242,7 +242,6 @@ function TutorialContent() {
     DATA_LIMITS.DEFAULT_RANDOM_COUNT,
   );
   const [hasTailMode, setHasTailMode] = useState(false);
-  const [showLimitToast, setShowLimitToast] = useState(false);
   const [viewMode, setViewMode] = useState<string>("");
   const [isDirected, setIsDirected] = useState(false);
 
@@ -336,7 +335,7 @@ function TutorialContent() {
     // 檢查是否超過最大筆數限制
     const currentCount = dsLogic.data?.length || 0;
     if (currentCount >= DATA_LIMITS.MAX_NODES) {
-      setShowLimitToast(true);
+      toast.warning(`資料數量超過限制，最多只能有 ${DATA_LIMITS.MAX_NODES} 筆資料。`);
       return;
     }
     const steps = executeAction("add", {
@@ -412,10 +411,13 @@ function TutorialContent() {
       .map((v) => parseInt(v.trim()))
       .filter((v) => !isNaN(v));
 
-    if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
+    if (parsed.length === 0) {
+      toast.warning("請輸入有效的數字格式 (例如: 1,2,3)");
+      return;
+    }
     // 檢查是否超過最大筆數限制
     if (parsed.length > DATA_LIMITS.MAX_NODES) {
-      setShowLimitToast(true);
+      toast.warning(`資料數量超過限制，最多只能有 ${DATA_LIMITS.MAX_NODES} 筆資料。`);
       return;
     }
     const steps = executeAction("load", {
@@ -622,7 +624,7 @@ function TutorialContent() {
                 onGraphAction={handleGraphAction}
                 isDirected={isDirected}
                 onIsDirectedChange={setIsDirected}
-                onLimitExceeded={() => setShowLimitToast(true)}
+                onLimitExceeded={() => toast.warning(`資料數量超過限制，最多只能有 ${DATA_LIMITS.MAX_NODES} 筆資料。`)}
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
                 currentData={logic.data}
@@ -765,12 +767,6 @@ function TutorialContent() {
         />
       )}
 
-      {/* 資料數量限制警告 Toast */}
-      <LimitWarningToast
-        isOpen={showLimitToast}
-        onClose={() => setShowLimitToast(false)}
-        maxLimit={DATA_LIMITS.MAX_NODES}
-      />
     </div>
   );
 }
