@@ -13,6 +13,7 @@ import { binarySearchTreeQuiz } from './bst-questions';
 import { graphQuiz } from './graph-questions';
 import { binarySearchQuiz } from './binarysearch-questions';
 import { bubbleSortQuiz } from './bubblesort-questions';
+import { selectionSortQuiz } from './selectionsort-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
@@ -24,6 +25,7 @@ export const quizMap: Record<string, PracticeQuiz> = {
   graph: graphQuiz,
   'binary-search': binarySearchQuiz,
   'bubble-sort': bubbleSortQuiz,
+  'selection-sort': selectionSortQuiz,
   // TODO: 後續擴展其他題庫
 };
 
