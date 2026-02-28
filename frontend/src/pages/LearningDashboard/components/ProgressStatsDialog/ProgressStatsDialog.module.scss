@@ -1,80 +1,250 @@
-// Dialog structure now handled by Dialog component
+// ========== Dialog Title ==========
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: var(--text-primary);
+}
 
+// ========== Main Content Wrapper ==========
 .content {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: $spacing-md;
 }
 
-.statCard {
-  background: rgba(255, 255, 255, 0.05);
+// ========== Hero Card ==========
+.heroCard {
+  background: $gradient-primary !important;
   border-radius: $radius-xl;
-  padding: $spacing-lg;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    width: 6rem;
+    height: 6rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    filter: blur(1.5rem);
+    pointer-events: none;
+  }
+}
+
+.heroInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xs;
+}
+
+.heroLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: $font-sm;
+  font-weight: 500;
+  margin: 0;
+}
+
+.heroPercent {
+  color: #ffffff;
+  font-size: $font-4xl;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.heroBadge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: $font-xs;
+  padding: $spacing-2xs $spacing-xs;
+  border-radius: $radius-full;
+}
+
+.heroCircle {
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+  flex-shrink: 0;
+}
+
+.heroSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.svgTrack {
+  stroke: rgba(255, 255, 255, 0.2);
+}
+
+.svgProgress {
+  stroke: #ffffff;
+  transition: stroke-dasharray 0.6s ease;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+}
+
+.heroStarIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fbbf24;
+  font-size: $font-lg;
+}
+
+// ========== Stats Grid ==========
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.statItem {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: $spacing-2xs;
   transition: $transition-base;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-tertiary);
     transform: $hover-transform;
-  }
-
-  h3 {
-    color: $primary-color;
-    font-size: $font-lg;
-    margin: 0 0 $spacing-md 0;
-  }
-
-  .progressBarContainer {
-    // Progress bar now handled by ProgressBar component
-    margin-bottom: $spacing-sm;
-  }
-
-  .percentage {
-    color: var(--text-primary);
-    font-size: $font-3xl;
-    font-weight: 700;
-    margin: 0;
-    text-align: center;
-  }
-
-  .statValue {
-    @include flex-center;
-    gap: $spacing-sm;
-    margin: 0;
-    font-size: $font-3xl;
-    font-weight: 700;
-
-    .current {
-      color: $success-color;
-    }
-
-    .separator {
-      color: var(--text-secondary);
-    }
-
-    .total {
-      color: var(--text-secondary);
-    }
-  }
-
-  .label {
-    color: var(--text-secondary);
-    font-size: $font-base;
-    margin: $spacing-sm 0 0;
-    text-align: center;
   }
 }
 
-// 響應式設計
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: rgba($primary-color, 0.1);
+  border-radius: $radius-full;
+  color: $primary-color;
+  font-size: $font-sm;
+}
+
+.statValue {
+  color: var(--text-primary);
+  font-size: $font-xl;
+  font-weight: 700;
+  margin: 0;
+}
+
+.statLabel {
+  color: var(--text-secondary);
+  font-size: $font-xs;
+  margin: 0;
+}
+
+// ========== Category Section ==========
+.categorySection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.categorySectionTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: var(--text-primary);
+  font-size: $font-sm;
+  font-weight: 700;
+  margin: 0;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.categoryItem {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xs;
+  transition: $transition-base;
+
+  &:hover {
+    border-color: rgba($primary-color, 0.3);
+    background: var(--bg-tertiary);
+  }
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.categoryIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: $font-sm;
+}
+
+.categoryName {
+  color: var(--text-primary);
+  font-size: $font-sm;
+  font-weight: 600;
+  flex: 1;
+}
+
+.categoryCount {
+  color: var(--text-secondary);
+  font-size: $font-xs;
+}
+
+.bossCompleted {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2xs;
+  color: #f59e0b;
+  font-size: $font-xs;
+  font-weight: 600;
+  margin: 0;
+}
+
+// ========== Responsive ==========
 @media (max-width: $mobile-max) {
-  .statCard {
-    padding: $spacing-md;
+  .heroPercent {
+    font-size: $font-3xl;
+  }
 
-    .statValue {
-      font-size: $font-2xl;
-    }
+  .heroCircle {
+    width: 4rem;
+    height: 4rem;
+  }
 
-    .percentage {
-      font-size: $font-2xl;
-    }
+  .statValue {
+    font-size: $font-lg;
   }
 }
