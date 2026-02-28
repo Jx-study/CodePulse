@@ -44,7 +44,11 @@ function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
   return { x: cx + ux * r, y: cy + uy * r };
 }
 
-function getLinkPath(source: Node, target: Node): string {
+function getLinkPath(
+  source: Node,
+  target: Node,
+  hasWeight: boolean = false,
+): string {
   if (
     isNaN(source.position.x) ||
     isNaN(source.position.y) ||
@@ -75,7 +79,7 @@ function getLinkPath(source: Node, target: Node): string {
     return `M ${startX},${startY} C ${cp1X},${cp1Y} ${cp2X},${cp2Y} ${endX},${endY}`;
   }
 
-  // Case 2: 一般連線 (Straight Line -> 偽裝成 Curve)
+  // Case 2: 平行直線 (Parallel Straight Lines)
   const p1 = getCircleBoundaryPoint(source, target);
   const p2 = getCircleBoundaryPoint(target, source);
 
@@ -83,13 +87,33 @@ function getLinkPath(source: Node, target: Node): string {
     return "";
   }
 
-  // 用 C (Bezier) 來畫直線。
-  // 設為：控制點1 = 起點, 控制點2 = 終點
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const dist = Math.hypot(dx, dy);
 
-  return `M ${p1.x},${p1.y} C ${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x},${p2.y}`;
+  if (dist === 0) return "";
+
+  // 計算單位法向量 (往旁邊推開的方向)
+  const nx = -dy / dist;
+  const ny = dx / dist;
+
+  // 設定平行線的間距
+  const offset = hasWeight ? 8 : 0;
+
+  const startX = p1.x + nx * offset;
+  const startY = p1.y + ny * offset;
+  const endX = p2.x + nx * offset;
+  const endY = p2.y + ny * offset;
+
+  // 使用 L (LineTo) 畫出完美的直線
+  return `M ${startX},${startY} L ${endX},${endY}`;
 }
 
-function getZeroLengthPath(source: Node, target: Node): string {
+function getZeroLengthPath(
+  source: Node,
+  target: Node,
+  hasWeight: boolean = false,
+): string {
   if (
     isNaN(source.position.x) ||
     isNaN(source.position.y) ||
@@ -111,10 +135,25 @@ function getZeroLengthPath(source: Node, target: Node): string {
     return `M ${startX},${startY} C ${startX},${startY} ${startX},${startY} ${startX},${startY}`;
   }
 
-  // Case 2: 一般連線
-  // 取得圓邊界上的一個點
-  const { x, y } = getCircleBoundaryPoint(source, target);
-  return `M ${x},${y} C ${x},${y} ${x},${y} ${x},${y}`;
+  // Case 2: 一般連線的起點平移
+  const p1 = getCircleBoundaryPoint(source, target);
+  const p2 = getCircleBoundaryPoint(target, source);
+
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const dist = Math.hypot(dx, dy);
+
+  if (dist === 0) return "";
+
+  const nx = -dy / dist;
+  const ny = dx / dist;
+  const offset = hasWeight ? 8 : 0; // 必須跟 getLinkPath 保持一致
+
+  const startX = p1.x + nx * offset;
+  const startY = p1.y + ny * offset;
+
+  // 縮成一個平移後的點
+  return `M ${startX},${startY} L ${startX},${startY}`;
 }
 
 /**
@@ -531,7 +570,9 @@ export function renderAll(
     .attr("fill", "none") // 設為 none，不然自環中間會被填滿黑色
     .attr("marker-end", markerUrl)
     // 初始狀態：從起點長出來
-    .attr("d", (d) => getZeroLengthPath(d.s, d.t));
+    .attr("d", (d) =>
+      getZeroLengthPath(d.s, d.t, d.weight !== undefined && d.weight !== null),
+    );
 
   // 加入權重文字的背景框 (讓文字不要被線蓋住)
   linkGroupEnter
@@ -566,7 +607,9 @@ export function renderAll(
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("d", (d) => getLinkPath(d.s, d.t))
+    .attr("d", (d) =>
+      getLinkPath(d.s, d.t, d.weight !== undefined && d.weight !== null),
+    )
     .attr("stroke", (d) => getColor(d.status))
     .attr("stroke-width", 2);
 
@@ -574,28 +617,41 @@ export function renderAll(
   mergedLinkGroups.each(function (d) {
     const group = d3.select(this);
 
-    // 計算線的中點
     const p1 = getCircleBoundaryPoint(d.s, d.t);
     const p2 = getCircleBoundaryPoint(d.t, d.s);
-    const midX = (p1.x + p2.x) / 2;
-    const midY = (p1.y + p2.y) / 2;
 
-    // 如果是雙向圖 (兩個節點互指)，文字為了不要重疊，可以依據斜率做點偏移 (Offset)
-    // 這裡先實作簡單置中，如果後續遇到互指邊重疊，可以加點數學算出法向量並平移
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const dist = Math.hypot(dx, dy);
+
+    let textX = (p1.x + p2.x) / 2;
+    let textY = (p1.y + p2.y) / 2;
+
+    const hasWeight = d.weight !== undefined && d.weight !== null;
+
+    // 將文字位置沿著法向量平移，跟隨線的偏移量
+    if (d.s.id !== d.t.id && dist > 0 && hasWeight) {
+      const nx = -dy / dist;
+      const ny = dx / dist;
+      const offset = 8; // 必須跟上面保持一致
+
+      textX += nx * offset;
+      textY += ny * offset;
+    }
 
     const textNode = group.select("text.weight-text");
     const bgNode = group.select("rect.weight-bg");
 
-    if (d.weight !== undefined && d.weight !== null) {
+    if (hasWeight) {
       // 有權重才顯示
       textNode
         .text(String(d.weight))
         .transition()
         .duration(transitionDuration)
-        .attr("x", midX)
-        .attr("y", midY)
-        .style("opacity", 1) // 顯示文字
-        .attr("fill", d.status === "target" ? "#ffb74d" : "#fff"); // 若線是 target 狀態，文字也變色
+        .attr("x", textX)
+        .attr("y", textY)
+        .style("opacity", 1)
+        .attr("fill", d.status === "target" ? "#ffb74d" : "#fff");
 
       // 取得文字的寬高來設定背景框大小
       const bbox = (textNode.node() as SVGTextElement).getBBox();
@@ -605,8 +661,8 @@ export function renderAll(
       bgNode
         .transition()
         .duration(transitionDuration)
-        .attr("x", midX - bbox.width / 2 - paddingX / 2)
-        .attr("y", midY - bbox.height / 2 - paddingY / 2)
+        .attr("x", textX - bbox.width / 2 - paddingX / 2)
+        .attr("y", textY - bbox.height / 2 - paddingY / 2)
         .attr("width", bbox.width + paddingX)
         .attr("height", bbox.height + paddingY)
         .style("opacity", 0.8); // 顯示背景
