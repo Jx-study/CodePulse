@@ -120,12 +120,12 @@
   &.boss {
     width: 6rem; // 96px
     height: 6rem; // 96px
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ffd93d 100%);
+    background: var(--category-color, #ff6b6b);
     border-color: rgba($white-color, 0.9);
     box-shadow:
-      0 0 1.875rem rgba(255, 107, 107, 0.6),
-      0 0 3.125rem rgba(255, 140, 66, 0.4),
-      0 0.5rem 1.25rem rgba(255, 107, 107, 0.3),
+      0 0 1.875rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+      0 0 3.125rem color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
+      0 0.5rem 1.25rem color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
       inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
     animation: bossPulse 2.5s ease-in-out infinite;
 
@@ -148,9 +148,9 @@
     &:hover:not(.undeveloped) {
       transform: translateX(-50%) translateY(-50%) scale(1.1);
       box-shadow:
-        0 0 2.5rem rgba(255, 107, 107, 0.8),
-        0 0 4rem rgba(255, 140, 66, 0.6),
-        0 0.75rem 1.5rem rgba(255, 107, 107, 0.5),
+        0 0 2.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
+        0 0 4rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+        0 0.75rem 1.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
         inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
     }
 
@@ -236,16 +236,16 @@
   0%,
   100% {
     box-shadow:
-      0 0 1.875rem rgba(255, 107, 107, 0.6),
-      0 0 3.125rem rgba(255, 140, 66, 0.4),
-      0 0.5rem 1.25rem rgba(255, 107, 107, 0.3),
+      0 0 1.875rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+      0 0 3.125rem color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
+      0 0.5rem 1.25rem color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
       inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
   }
   50% {
     box-shadow:
-      0 0 2.5rem rgba(255, 107, 107, 0.8),
-      0 0 4rem rgba(255, 140, 66, 0.6),
-      0 0.75rem 1.5rem rgba(255, 107, 107, 0.5),
+      0 0 2.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
+      0 0 4rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+      0 0.75rem 1.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
       inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
   }
 }

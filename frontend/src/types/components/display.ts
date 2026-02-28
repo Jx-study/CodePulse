@@ -25,6 +25,7 @@ export interface ProgressBarProps {
   value: number;
   max?: number;
   variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  color?: string;
   size?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   labelPosition?: 'top' | 'bottom' | 'inside' | 'none';

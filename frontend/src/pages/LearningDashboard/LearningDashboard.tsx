@@ -70,6 +70,11 @@ function LearningDashboard() {
   // 取得 Categories（包含解鎖狀態）
   const categories = getCategories(userProgress);
 
+  // 建立分類顏色對照表
+  const categoryColors = Object.fromEntries(
+    categories.map((c) => [c.id, c.colorTheme])
+  ) as Record<string, string>;
+
   // 計算解鎖狀態
   const levelsWithUnlockStatus = computeAllUnlockStatus(
     allLevels,
@@ -324,6 +329,7 @@ function LearningDashboard() {
                   onClick={() => handleLevelClick(level)}
                   isBossLevel={level.pathMetadata?.pathType === "boss"}
                   pathMetadata={level.pathMetadata}
+                  categoryColor={categoryColors[level.category]}
                 />
               )}
 
@@ -442,6 +448,7 @@ function LearningDashboard() {
         earnedStars={earnedStars}
         completionRate={completionRate}
         categoryProgress={categoryProgress}
+        categoryColors={categoryColors}
       />
 
       {/* 關卡詳細資訊彈窗 */}

@@ -12,6 +12,7 @@ function LevelNode({
   onClick,
   isBossLevel = false,
   pathMetadata,
+  categoryColor,
 }: LevelNodeProps) {
   const isDeveloped = level.isDeveloped;
 
@@ -114,6 +115,9 @@ function LevelNode({
   const nodeStyle: React.CSSProperties = {
     left: position.x,
     top: `${position.y}px`,
+    ...(isBossLevel && categoryColor
+      ? ({ "--category-color": categoryColor } as React.CSSProperties)
+      : {}),
   };
 
   return (

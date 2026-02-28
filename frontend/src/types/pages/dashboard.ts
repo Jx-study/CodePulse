@@ -164,6 +164,7 @@ export interface LevelNodeProps extends BaseNodeProps {
 
   isBossLevel?: boolean; // 是否為 Boss Level
   pathMetadata?: PathMetadata; // 路徑元數據
+  categoryColor?: string; // 分類主題色（Boss Level 光暈用）
 }
 
 export interface PortalNodeProps extends BaseNodeProps {
@@ -258,4 +259,5 @@ export interface ProgressStatsDialogProps extends Pick<
   categoryProgress: {
     [K in CategoryType]?: CategoryProgressInfo;
   };
+  categoryColors?: Partial<Record<CategoryType, string>>; // 各分類主題色
 }

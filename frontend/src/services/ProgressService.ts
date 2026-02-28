@@ -152,7 +152,7 @@ export function calculateCategoryProgress(
 
       if (!acc[category]) {
         acc[category] = {
-          name: level.category,
+          name: level.name,
           completedLevels: 0,
           totalLevels: 0,
           completionRate: 0,

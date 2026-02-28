@@ -12,6 +12,7 @@ function ProgressStatsDialog({
   earnedStars,
   completionRate,
   categoryProgress,
+  categoryColors,
 }: ProgressStatsDialogProps) {
   return (
     <Dialog
@@ -68,6 +69,7 @@ function ProgressStatsDialog({
               variant="primary"
               size="sm"
               showLabel
+              color={categoryColors?.[category as keyof typeof categoryColors]}
             />
             <p className={styles.statValue}>
               <span className={styles.current}>{info.completedLevels}</span>

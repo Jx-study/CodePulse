@@ -1,3 +1,4 @@
+import type React from "react";
 import styles from "./CategoryFilter.module.scss";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
@@ -28,6 +29,7 @@ function CategoryFilter({
               }`}
               onClick={() => onCategoryChange(category.id)}
               aria-label={category.name}
+              style={isActive ? ({ "--category-color": category.colorTheme } as unknown as React.CSSProperties) : undefined}
             >
               {/* 圖示 */}
               {category.icon && (
