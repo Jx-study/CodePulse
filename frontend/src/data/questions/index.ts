@@ -11,6 +11,7 @@ import { linkedListQuiz } from './linkedlist-questions';
 import { binaryTreeQuiz } from './binarytree-questions';
 import { binarySearchTreeQuiz } from './bst-questions';
 import { graphQuiz } from './graph-questions';
+import { binarySearchQuiz } from './binarysearch-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
@@ -20,6 +21,7 @@ export const quizMap: Record<string, PracticeQuiz> = {
   binarytree: binaryTreeQuiz,
   bst: binarySearchTreeQuiz,
   graph: graphQuiz,
+  'binary-search': binarySearchQuiz,
   // TODO: 後續擴展其他題庫
 };
 
