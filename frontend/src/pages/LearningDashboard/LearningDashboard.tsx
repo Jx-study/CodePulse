@@ -253,6 +253,7 @@ function LearningDashboard() {
         levels={filteredLevels}
         userProgress={userProgress}
         isDialogOpen={isProgressDialogOpen}
+        isSidebarOpen={isSidebarOpen}
       >
         {(level, index, position) => {
           // 根據 prerequisites 繪製連線

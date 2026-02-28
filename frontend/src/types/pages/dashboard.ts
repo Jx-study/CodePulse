@@ -201,7 +201,8 @@ export interface GraphContainerProps {
     index: number,
     position: NodePosition,
   ) => React.ReactNode;
-  isDialogOpen?: boolean; // Dialog 開啟時停用縮放事件
+  isDialogOpen?: boolean; // Dialog 或 Sidebar 開啟時停用縮放事件
+  isSidebarOpen?: boolean; // Sidebar 開啟時停用縮放事件
 }
 
 export interface GraphPosition {
