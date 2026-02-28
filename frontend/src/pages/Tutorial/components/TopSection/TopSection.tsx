@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react';
+import { Fragment, useMemo, useRef, useCallback } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -110,6 +110,24 @@ export function TopSection(props: TopSectionProps) {
 
   const { panelSizes, setCollapsed } = usePanelContext();
 
+  const codeEditorDefaultSizeRef = useRef(
+    isLeftPanelCollapsed ? 0 : (isMobile ? 30 : panelSizes.codeEditor)
+  );
+  const prevMainPanelOrderRef = useRef(mainPanelOrder);
+  if (prevMainPanelOrderRef.current !== mainPanelOrder) {
+    prevMainPanelOrderRef.current = mainPanelOrder;
+    codeEditorDefaultSizeRef.current = isLeftPanelCollapsed ? 0 : (isMobile ? 30 : panelSizes.codeEditor);
+  }
+
+  const collapsingRef = useRef(false);
+
+  const handleToggleLeftPanelWithLock = useCallback(() => {
+    if (!isLeftPanelCollapsed) {
+      collapsingRef.current = true;
+    }
+    handleToggleLeftPanel();
+  }, [handleToggleLeftPanel, isLeftPanelCollapsed]);
+
   const sensors = useSensors(
     useSensor(SmartPointerSensor, {
       activationConstraint: { distance: 8 },
@@ -143,15 +161,18 @@ export function TopSection(props: TopSectionProps) {
                 <Panel
                   id="code-editor-panel"
                   key="codeEditor"
-                  defaultSize={
-                    isLeftPanelCollapsed
-                      ? 0
-                      : (isMobile ? 30 : panelSizes.codeEditor)
-                  }
+                  defaultSize={codeEditorDefaultSizeRef.current}
                   minSize="20%"
                   collapsible
                   panelRef={leftPanelRef}
                   onResize={(size) => {
+                    if (collapsingRef.current) {
+                      if (size.asPercentage === 0) {
+                        collapsingRef.current = false;
+                        setCollapsed('codeEditor', true);
+                      }
+                      return;
+                    }
                     const collapsed = size.asPercentage === 0;
                     if (collapsed !== isLeftPanelCollapsed) {
                       setCollapsed('codeEditor', collapsed);
@@ -181,10 +202,10 @@ export function TopSection(props: TopSectionProps) {
 
                 <ResizeHandle
                   direction={isMobile ? "vertical" : "horizontal"}
-                  onDoubleClick={handleToggleLeftPanel}
+                  onDoubleClick={handleToggleLeftPanelWithLock}
                   showCollapseButton={!isMobile}
                   isCollapsed={isLeftPanelCollapsed}
-                  onToggleCollapse={handleToggleLeftPanel}
+                  onToggleCollapse={handleToggleLeftPanelWithLock}
                   collapseButtonPosition="end"
                   collapseDirection="left"
                 />
@@ -295,10 +316,10 @@ export function TopSection(props: TopSectionProps) {
 
                 <ResizeHandle
                   direction={isMobile ? "vertical" : "horizontal"}
-                  onDoubleClick={handleToggleLeftPanel}
+                  onDoubleClick={handleToggleLeftPanelWithLock}
                   showCollapseButton={!isMobile}
                   isCollapsed={isLeftPanelCollapsed}
-                  onToggleCollapse={handleToggleLeftPanel}
+                  onToggleCollapse={handleToggleLeftPanelWithLock}
                   collapseButtonPosition="start"
                   collapseDirection="right"
                 />
@@ -306,15 +327,18 @@ export function TopSection(props: TopSectionProps) {
                 <Panel
                   id="code-editor-panel"
                   key="codeEditor"
-                  defaultSize={
-                    isLeftPanelCollapsed
-                      ? 0
-                      : (isMobile ? 30 : panelSizes.codeEditor)
-                  }
+                  defaultSize={codeEditorDefaultSizeRef.current}
                   minSize="20%"
                   collapsible
                   panelRef={leftPanelRef}
                   onResize={(size) => {
+                    if (collapsingRef.current) {
+                      if (size.asPercentage === 0) {
+                        collapsingRef.current = false;
+                        setCollapsed('codeEditor', true);
+                      }
+                      return;
+                    }
                     const collapsed = size.asPercentage === 0;
                     if (collapsed !== isLeftPanelCollapsed) {
                       setCollapsed('codeEditor', collapsed);

@@ -330,7 +330,6 @@ function TutorialContent() {
     reorderRightPanels,
     panelSizes,
     collapsedPanels,
-    setCollapsed,
   } = usePanelContext();
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
@@ -659,10 +658,8 @@ function TutorialContent() {
 
     if (panel.isCollapsed()) {
       panel.expand();
-      setCollapsed("codeEditor", false);
     } else {
       panel.collapse();
-      setCollapsed("codeEditor", true);
     }
   };
 
