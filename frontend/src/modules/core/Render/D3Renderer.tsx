@@ -687,7 +687,8 @@ export function renderAll(
     .enter()
     .append("g")
     .attr("class", "el")
-    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`)
+    .style("opacity", (d) => d.opacity ?? 1);
 
   // 依型別建立一次對應圖形元素
   enter.each(function (d: any) {
@@ -731,11 +732,30 @@ export function renderAll(
   // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
 
+  // 位移 transition（命名為 "move"，不含 opacity）
   merged
-    .transition()
+    .transition("move")
     .duration(transitionDuration)
     .ease(transitionEase)
     .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+
+  // Opacity transition（命名為 "fade"，獨立控制速度）
+  merged.each(function (d) {
+    const g = d3.select(this);
+    const targetOpacity = d.opacity ?? 1;
+    const currentOpacity = parseFloat(g.style("opacity") || "1");
+
+    if (targetOpacity < currentOpacity) {
+      // 消失：立刻（interrupt 任何進行中的 fade，直接設值）
+      g.interrupt("fade").style("opacity", 0);
+    } else if (targetOpacity > currentOpacity) {
+      // 浮現：緩慢 fade in
+      g.transition("fade")
+        .duration(transitionDuration)
+        .ease(transitionEase)
+        .style("opacity", targetOpacity);
+    }
+  });
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {

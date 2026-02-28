@@ -25,6 +25,8 @@ export abstract class BaseElement {
   status: Status = Status.Unfinished;
   description = "";
   customColorMap?: StatusColorMap;
+  /** 1 = 完全可見，0 = 隱形（仍佔 bbox，getBBox 計入） */
+  opacity: number = 1;
 
   protected constructor(kind: "node" | "box" | "pointer") {
     this.kind = kind;
