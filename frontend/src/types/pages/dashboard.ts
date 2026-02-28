@@ -58,12 +58,6 @@ export interface Category {
   order: number; // 順序（決定解鎖順序）
 }
 
-export interface CategoryFilterProps {
-  categories: Category[];
-  activeCategory: CategoryType; // 當前選中的 Category ID
-  onCategoryChange: (categoryId: CategoryType) => void;
-}
-
 // ==================== Level Types ====================
 // 前置條件配置
 export interface PrerequisiteConfig {
@@ -207,6 +201,7 @@ export interface GraphContainerProps {
     index: number,
     position: NodePosition,
   ) => React.ReactNode;
+  isDialogOpen?: boolean; // Dialog 開啟時停用縮放事件
 }
 
 export interface GraphPosition {
@@ -234,6 +229,8 @@ export interface CategoryFilterItem extends Category {
 // Category 進度資訊
 export interface CategoryProgressInfo {
   name: string;
+  icon?: string;
+  colorTheme: string;
   completedLevels: number;
   totalLevels: number;
   completionRate: number;
@@ -255,5 +252,4 @@ export interface ProgressStatsDialogProps extends Pick<
   categoryProgress: {
     [K in CategoryType]?: CategoryProgressInfo;
   };
-  categoryColors?: Partial<Record<CategoryType, string>>; // 各分類主題色
 }

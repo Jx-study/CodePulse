@@ -443,7 +443,6 @@ function LearningDashboard() {
         earnedStars={earnedStars}
         completionRate={completionRate}
         categoryProgress={categoryProgress}
-        categoryColors={categoryColors}
       />
 
       {/* 關卡詳細資訊彈窗 */}

@@ -15,6 +15,7 @@ import type {
   CategoryType,
   CategoryProgressInfo,
 } from "@/types";
+import { getCategoryById } from "./CategoryService";
 
 // ==================== 關卡進度查詢 ====================
 
@@ -151,8 +152,11 @@ export function calculateCategoryProgress(
       const category = level.category;
 
       if (!acc[category]) {
+        const categoryConfig = getCategoryById(category);
         acc[category] = {
-          name: level.name,
+          name: categoryConfig?.name ?? level.name,
+          icon: categoryConfig?.icon,
+          colorTheme: categoryConfig?.colorTheme ?? "var(--primary-color)",
           completedLevels: 0,
           totalLevels: 0,
           completionRate: 0,
