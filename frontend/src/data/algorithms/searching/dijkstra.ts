@@ -2,6 +2,7 @@ import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { Box } from "@/modules/core/DataLogic/Box";
 import {
   createGraphElements,
   generateGraphFrame,
@@ -63,10 +64,48 @@ export function createDijkstraAnimationSteps(
   const visited: Set<string> = new Set();
 
   rawNodes.forEach((n: any) => {
-    dist[n.id] = Infinity; // Infinity 在 UI 會被轉成 "∞"
+    dist[n.id] = Infinity;
     statusMap[n.id] = Status.Unfinished;
   });
   dist[startNodeId] = 0;
+
+  const createDistanceTable = (): Box[] => {
+    const tableElements: Box[] = [];
+    const startX = 820;
+    const startY = 85;
+    const boxWidth = 50;
+    const boxHeight = 50;
+    const xgap = 20;
+    const ygap = 10;
+
+    // 產生每一列的資料
+    rawNodes.forEach((n: any, index: number) => {
+      // 左邊行：Node ID
+      const headerBox = new Box();
+      headerBox.id = `table-header-${n.id}`;
+      headerBox.value = n.id.replace("node-", "") as any;
+      headerBox.moveTo(startX, startY + index * boxHeight + index * ygap);
+      headerBox.width = boxWidth;
+      headerBox.height = boxHeight;
+      headerBox.setStatus(Status.Inactive);
+
+      // 右邊行：Distance Value
+      const valBox = new Box();
+      valBox.id = `table-val-${n.id}`;
+      valBox.value = (dist[n.id] === Infinity ? "∞" : dist[n.id]) as any;
+      valBox.moveTo(
+        startX + boxWidth + xgap,
+        startY + index * boxHeight + index * ygap,
+      );
+      valBox.width = boxWidth;
+      valBox.height = boxHeight;
+      valBox.setStatus(statusMap[n.id] || Status.Unfinished);
+
+      tableElements.push(headerBox, valBox);
+    });
+
+    return tableElements;
+  };
 
   // 輔助函式：呼叫共用的 generateGraphFrame
   const recordStep = (desc: string, tag: string) => {
@@ -81,6 +120,10 @@ export function createDijkstraAnimationSteps(
     );
     step.actionTag = tag;
     step.stepNumber = steps.length;
+
+    const tableBoxes = createDistanceTable();
+    step.elements = [...step.elements, ...tableBoxes];
+
     // 效果例如："0: 0, 1: 4, 2: ∞, 3: ∞"
     const distString = Object.entries(dist)
       .map(([nodeId, val]) => {

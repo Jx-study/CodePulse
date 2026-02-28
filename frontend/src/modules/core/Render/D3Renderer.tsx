@@ -300,6 +300,44 @@ function drawContainer(
       .text("Call Stack/Queue")
       .attr("fill", "#888")
       .attr("font-size", 12);
+  } else if (type === "dijkstra") {
+    const tableX = 800;
+    const tableY = 40;
+
+    // Node 標題
+    scene
+      .append("text")
+      .attr("class", "container-line")
+      .attr("x", tableX)
+      .attr("y", tableY)
+      .attr("fill", "#888")
+      .attr("font-size", 18)
+      .attr("font-weight", "bold")
+      .attr("text-align", "center")
+      .text("Node");
+
+    // Dist 標題
+    scene
+      .append("text")
+      .attr("class", "container-line")
+      .attr("x", tableX + 70)
+      .attr("y", tableY)
+      .attr("fill", "#888")
+      .attr("font-size", 18)
+      .attr("font-weight", "bold")
+      .attr("text-align", "center")
+      .text("Dist");
+
+    // 畫一條分隔線
+    scene
+      .append("line")
+      .attr("class", "container-line")
+      .attr("x1", tableX - 10)
+      .attr("y1", tableY + 10)
+      .attr("x2", tableX + 120)
+      .attr("y2", tableY + 10)
+      .attr("stroke", "#555")
+      .attr("stroke-width", 2);
   }
 }
 
