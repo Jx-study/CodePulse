@@ -55,6 +55,7 @@ interface RawCategoryData {
   description: string;
   icon?: string;
   colorTheme: string;
+  isDeveloped: boolean;
   order: number;
   layerOffset: number;
 }

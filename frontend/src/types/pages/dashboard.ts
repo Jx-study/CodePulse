@@ -54,7 +54,7 @@ export interface Category {
   description: string; // 簡介
   icon?: string; // FontAwesome icon name
   colorTheme: string; // 主題色（例：'#635bff', '#ff6b6b'）
-  isUnlocked: boolean; // 是否解鎖（完成前一個 Boss Level）
+  isDeveloped: boolean; // 是否已開發（false 表示尚未開發，按鈕 disabled）
   order: number; // 順序（決定解鎖順序）
 }
 

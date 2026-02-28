@@ -841,6 +841,7 @@
       "description": "學習各種資料結構的運作原理與應用",
       "icon": "sitemap",
       "colorTheme": "#635bff",
+      "isDeveloped": true,
       "order": 1,
       "layerOffset": 0
     },
@@ -851,6 +852,7 @@
       "description": "學習通用的解題模式與優化技巧",
       "icon": "lightbulb",
       "colorTheme": "#e67e22",
+      "isDeveloped": true,
       "order": 2,
       "layerOffset": 0
     },
@@ -861,6 +863,7 @@
       "description": "掌握各種排序演算法的實作與效能分析",
       "icon": "signal",
       "colorTheme": "#ff6b6b",
+      "isDeveloped": true,
       "order": 3,
       "layerOffset": 100
     },
@@ -871,6 +874,7 @@
       "description": "探索高效的搜尋策略與技巧",
       "icon": "magnifying-glass",
       "colorTheme": "#51cf66",
+      "isDeveloped": true,
       "order": 4,
       "layerOffset": 200
     },
@@ -881,6 +885,7 @@
       "description": "掌握遞迴思維與分治策略，為 DP 打好基礎",
       "icon": "arrows-spin",
       "colorTheme": "#7c3aed",
+      "isDeveloped": true,
       "order": 5,
       "layerOffset": 0
     },
@@ -891,6 +896,7 @@
       "description": "深入理解圖論的核心演算法",
       "icon": "diagram-project",
       "colorTheme": "#ffd43b",
+      "isDeveloped": true,
       "order": 6,
       "layerOffset": 300
     },
@@ -901,6 +907,7 @@
       "description": "透過狀態轉移解決重複子問題，掌握最佳化思維",
       "icon": "table-cells",
       "colorTheme": "#06b6d4",
+      "isDeveloped": true,
       "order": 7,
       "layerOffset": 400
     }
