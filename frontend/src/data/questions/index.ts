@@ -14,6 +14,7 @@ import { graphQuiz } from './graph-questions';
 import { binarySearchQuiz } from './binarysearch-questions';
 import { bubbleSortQuiz } from './bubblesort-questions';
 import { selectionSortQuiz } from './selectionsort-questions';
+import { insertionSortQuiz } from './insertionsort-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
@@ -26,6 +27,7 @@ export const quizMap: Record<string, PracticeQuiz> = {
   'binary-search': binarySearchQuiz,
   'bubble-sort': bubbleSortQuiz,
   'selection-sort': selectionSortQuiz,
+  'insertion-sort': insertionSortQuiz,
   // TODO: 後續擴展其他題庫
 };
 
