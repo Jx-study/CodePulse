@@ -16,9 +16,11 @@ import type {
   GhostReference,
   Category,
   DifficultyLevel,
-  CategoryType,
 } from "@/types";
 import levelsData from "@/data/levels/levels.json";
+
+// 從 JSON 的 categories key 自動推導，新增 category 只需改 JSON
+export type CategoryType = keyof typeof levelsData.categories;
 
 // ==================== JSON 原始資料結構 ====================
 

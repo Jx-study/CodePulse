@@ -4,6 +4,9 @@
  */
 
 import type { DialogProps } from "../components/feedback";
+// 關卡分類：從 levels.json 的 categories key 自動推導，新增 category 只需改 JSON
+import type { CategoryType } from "@/services/adapters/levelAdapter";
+export type { CategoryType };
 
 // 先決條件類型
 export type PrerequisiteType = "AND" | "OR" | "NONE";
@@ -43,13 +46,6 @@ export interface PathMetadata {
 }
 
 // ==================== Category Types ====================
-// 關卡分類
-export type CategoryType =
-  | "data-structures"
-  | "technique"
-  | "sorting"
-  | "searching"
-  | "graph";
 
 export interface Category {
   id: CategoryType;
