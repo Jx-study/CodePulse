@@ -15,7 +15,6 @@ import PanelHeader from "./components/PanelHeader";
 import { PANEL_REGISTRY } from "./components/PanelRegistry";
 import type { TabConfig } from "@/shared/components/Tabs";
 import TopSection from "./components/TopSection";
-import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
@@ -238,9 +237,12 @@ function TutorialContent() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
-  const [randomCount, setRandomCount] = useState(
-    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
-  );
+  const maxNodes = topicTypeConfig?.maxNodes;
+  const randomCountRef = useRef(5);
+
+  const handleRandomCountChange = (count: number) => {
+    randomCountRef.current = count;
+  };
   const [hasTailMode, setHasTailMode] = useState(false);
   const [showLimitToast, setShowLimitToast] = useState(false);
   const [viewMode, setViewMode] = useState<string>("");
@@ -333,11 +335,12 @@ function TutorialContent() {
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
-    // 檢查是否超過最大筆數限制
-    const currentCount = dsLogic.data?.length || 0;
-    if (currentCount >= DATA_LIMITS.MAX_NODES) {
-      setShowLimitToast(true);
-      return;
+    if (maxNodes !== undefined) {
+      const currentCount = dsLogic.data?.length ?? (dsLogic.data?.nodes?.length ?? 0);
+      if (currentCount >= maxNodes) {
+        setShowLimitToast(true);
+        return;
+      }
     }
     const steps = executeAction("add", {
       value,
@@ -374,7 +377,7 @@ function TutorialContent() {
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
   const handleRandomData = (params?: any) => {
     executeAction("random", {
-      randomCount,
+      randomCount: randomCountRef.current,
       hasTailMode,
       mode: viewMode,
       isDirected,
@@ -396,7 +399,7 @@ function TutorialContent() {
     if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
       const steps = executeAction("load", {
         data: raw,
-        randomCount,
+        randomCount: randomCountRef.current,
         hasTailMode,
         isDirected,
       });
@@ -413,8 +416,7 @@ function TutorialContent() {
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
-    // 檢查是否超過最大筆數限制
-    if (parsed.length > DATA_LIMITS.MAX_NODES) {
+    if (maxNodes !== undefined && parsed.length > maxNodes) {
       setShowLimitToast(true);
       return;
     }
@@ -617,12 +619,14 @@ function TutorialContent() {
                 onDeleteNode={handleDeleteNode}
                 onSearchNode={handleSearchNode}
                 onPeek={handlePeek}
-                onMaxNodesChange={setRandomCount}
+                onMaxNodesChange={handleRandomCountChange}
                 onTailModeChange={setHasTailMode}
                 onGraphAction={handleGraphAction}
                 isDirected={isDirected}
                 onIsDirectedChange={setIsDirected}
-                onLimitExceeded={() => setShowLimitToast(true)}
+                onLimitExceeded={() =>
+                  maxNodes !== undefined && setShowLimitToast(true)
+                }
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
                 currentData={logic.data}
@@ -769,7 +773,7 @@ function TutorialContent() {
       <LimitWarningToast
         isOpen={showLimitToast}
         onClose={() => setShowLimitToast(false)}
-        maxLimit={DATA_LIMITS.MAX_NODES}
+        maxLimit={maxNodes ?? 10}
       />
     </div>
   );

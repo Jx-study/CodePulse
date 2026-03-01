@@ -275,4 +275,5 @@ export const bubbleSortConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/valid-anagram/",
     },
   ],
+  maxNodes: 10,
 };

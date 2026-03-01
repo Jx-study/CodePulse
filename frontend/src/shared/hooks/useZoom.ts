@@ -38,6 +38,12 @@ interface UseZoomOptions {
   enableMouseCenteredZoom?: boolean;
   /** 目標元素 Ref (用於監聽事件) */
   targetRef?: React.RefObject<HTMLElement | null>;
+  /**
+   * 是否使用乘法式 Wheel 縮放 (預設: false)
+   * 啟用後每次滾輪以 step 比例縮放（prev * (1 + step)），
+   * 適合 maxZoom 範圍很大的場景（如數百個元素時 maxZoom 可達 50x+）。
+   */
+  useExponentialWheel?: boolean;
 }
 
 interface UseZoomReturn {
@@ -65,6 +71,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     enablePinchZoom = true,
     enableMouseCenteredZoom = false,
     targetRef,
+    useExponentialWheel = false,
   } = options;
 
   const [zoomLevel, setZoomLevelState] = useState(initialZoom);
@@ -144,8 +151,13 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
       }
 
       // 計算縮放方向和增量
-      const delta = e.deltaY > 0 ? -step : step;
-      setZoomLevel((prev) => prev + delta);
+      if (useExponentialWheel) {
+        const factor = e.deltaY > 0 ? 1 / (1 + step) : 1 + step;
+        setZoomLevel((prev) => prev * factor);
+      } else {
+        const delta = e.deltaY > 0 ? -step : step;
+        setZoomLevel((prev) => prev + delta);
+      }
     };
 
     wheelListenerRef.current = handleWheel;
@@ -156,7 +168,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
         targetElement.removeEventListener('wheel', wheelListenerRef.current);
       }
     };
-  }, [enableWheelZoom, enableMouseCenteredZoom, step, setZoomLevel, targetRef]);
+  }, [enableWheelZoom, enableMouseCenteredZoom, step, setZoomLevel, targetRef, useExponentialWheel]);
 
   /**
    * 雙指捏合縮放（Touch Pinch Gesture）
