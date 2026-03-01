@@ -23,6 +23,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   onDeleteNode,
   onSearchNode,
   onTailModeChange,
+  maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [indexValue, setIndexValue] = useState("");
@@ -57,6 +58,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
         {onTailModeChange && (
           <Select

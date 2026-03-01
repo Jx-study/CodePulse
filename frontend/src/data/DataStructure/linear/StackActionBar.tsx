@@ -21,6 +21,7 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
   onAddNode,
   onDeleteNode,
   onPeek,
+  maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
 
@@ -49,6 +50,7 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

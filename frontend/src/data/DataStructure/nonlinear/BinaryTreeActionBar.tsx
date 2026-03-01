@@ -18,6 +18,7 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
   onLimitExceeded,
   disabled = false,
   onSearchNode,
+  maxNodes,
 }) => {
   return (
     <ActionBarContainer>
@@ -29,6 +30,7 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

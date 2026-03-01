@@ -23,6 +23,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
   onGraphAction,
   isDirected = false,
   onIsDirectedChange,
+  maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [sourceNode, setSourceNode] = useState("");
@@ -108,7 +109,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={DATA_LIMITS.MAX_NODES}
+            max={maxNodes}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setRandomCountInput(e.target.value)
             }
@@ -117,12 +118,12 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
               if (isNaN(num) || randomCountInput.trim() === "") {
                 setRandomCountInput(String(randomCount));
               } else {
-                if (num > DATA_LIMITS.MAX_NODES) {
+                if (maxNodes !== undefined && num > maxNodes) {
                   onLimitExceeded?.();
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  DATA_LIMITS.MAX_NODES
+                  maxNodes ?? num
                 );
                 setRandomCount(v);
                 setRandomCountInput(String(v));

@@ -21,6 +21,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
   onAddNode,
   onDeleteNode,
   onSearchNode,
+  maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [indexValue, setIndexValue] = useState("");
@@ -64,6 +65,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

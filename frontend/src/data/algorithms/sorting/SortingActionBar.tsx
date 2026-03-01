@@ -18,6 +18,7 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
   onLimitExceeded,
   disabled = false,
   onRun,
+  maxNodes,
 }) => {
   return (
     <ActionBarContainer>
@@ -29,6 +30,7 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

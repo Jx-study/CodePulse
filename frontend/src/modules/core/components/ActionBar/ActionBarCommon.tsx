@@ -28,6 +28,7 @@ export interface DataRowProps {
   onMaxNodesChange?: (count: number) => void;
   onLimitExceeded?: () => void;
   disabled?: boolean;
+  maxNodes?: number;
 }
 
 export const DataRow: React.FC<DataRowProps> = ({
@@ -37,6 +38,7 @@ export const DataRow: React.FC<DataRowProps> = ({
   onMaxNodesChange,
   onLimitExceeded,
   disabled = false,
+  maxNodes,
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [randomCount, setRandomCount] = useState(
@@ -99,7 +101,7 @@ export const DataRow: React.FC<DataRowProps> = ({
           type="number"
           value={randomCountInput}
           min={DATA_LIMITS.MIN_RANDOM_COUNT}
-          max={DATA_LIMITS.MAX_NODES}
+          max={maxNodes}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setRandomCountInput(e.target.value)
           }
@@ -107,13 +109,15 @@ export const DataRow: React.FC<DataRowProps> = ({
             const num = Number(randomCountInput);
             if (isNaN(num) || randomCountInput.trim() === "") {
               setRandomCountInput(String(randomCount));
+            } else if (num < 0) {
+              setRandomCountInput(String(randomCount));
             } else {
-              if (num > DATA_LIMITS.MAX_NODES) {
+              if (maxNodes !== undefined && num > maxNodes) {
                 onLimitExceeded?.();
               }
               const v = Math.min(
                 Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                DATA_LIMITS.MAX_NODES
+                maxNodes ?? num
               );
               setRandomCount(v);
               setRandomCountInput(String(v));
@@ -141,15 +145,21 @@ export interface GraphLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
+  isWeighted?: boolean;
 }
 
 export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   show,
   onClose,
   onLoad,
+  isWeighted = false,
 }) => {
   const [nodeCount, setNodeCount] = useState("6");
-  const [edgeInput, setEdgeInput] = useState("0 1\n0 2\n1 3\n2 4\n3 5\n4 5");
+  const [edgeInput, setEdgeInput] = useState(
+    isWeighted
+      ? "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6"
+      : "0 1\n0 2\n1 3\n2 4\n3 5\n4 5"
+  );
 
   if (!show) return null;
 
@@ -159,11 +169,23 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       alert("請輸入有效的節點數量");
       return;
     }
-    const edges = edgeInput
+
+    const lines = edgeInput
       .split("\n")
       .map((line) => line.trim())
-      .filter((line) => line !== "")
-      .join(",");
+      .filter((line) => line !== "");
+
+    if (isWeighted) {
+      for (const line of lines) {
+        const parts = line.split(/\s+/);
+        if (parts.length >= 3 && parseInt(parts[2], 10) < 0) {
+          alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+          return;
+        }
+      }
+    }
+
+    const edges = lines.map((line) => line.replace(/\s+/g, " ")).join(",");
     onLoad(`GRAPH:${count}:${edges}`);
     onClose();
   };
@@ -182,13 +204,15 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
           />
         </div>
         <div className={styles.modalFieldColumn}>
-          <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+          <label className={styles.modalLabel}>
+            {isWeighted ? "邊 (格式: 來源 目標 權重)" : "邊 (格式: 來源 目標)"}
+          </label>
           <textarea
             value={edgeInput}
             onChange={(e) => setEdgeInput(e.target.value)}
             rows={6}
             className={styles.modalGraphTextarea}
-            placeholder={"0 1\n1 2\n2 0"}
+            placeholder={isWeighted ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"}
           />
         </div>
         <div className={styles.modalButtonGroup}>

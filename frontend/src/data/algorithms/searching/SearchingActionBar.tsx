@@ -19,6 +19,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
   onLimitExceeded,
   disabled = false,
   onRun,
+  maxNodes,
 }) => {
   const [searchValue, setSearchValue] = useState("");
 
@@ -41,6 +42,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

@@ -21,6 +21,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
   onAddNode,
   onDeleteNode,
   onSearchNode,
+  maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -55,6 +56,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

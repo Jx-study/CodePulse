@@ -27,6 +27,7 @@ export interface RunParams {
   startNode?: string;
   endNode?: string;
   targetSum?: number;
+  isDirected?: boolean;
 }
 
 /** 基礎共用（所有 ActionBar 都需要） */
@@ -37,6 +38,7 @@ export interface BaseActionBarProps {
   onMaxNodesChange?: (count: number) => void;
   onLimitExceeded?: () => void;
   disabled?: boolean;
+  maxNodes?: number;
 }
 
 /** 資料結構專用 */
@@ -57,6 +59,8 @@ export interface AlgoActionBarProps extends BaseActionBarProps {
   viewMode?: AlgorithmViewMode;
   onViewModeChange?: (mode: AlgorithmViewMode) => void;
   currentData?: any;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
 }
 
 /** renderActionBar 的參數型別（聯合型別） */

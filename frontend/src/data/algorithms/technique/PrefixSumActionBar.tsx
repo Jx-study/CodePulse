@@ -19,6 +19,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
   onLimitExceeded,
   disabled = false,
   onRun,
+  maxNodes,
 }) => {
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
@@ -52,6 +53,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

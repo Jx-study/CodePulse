@@ -1,5 +1,7 @@
+import React from "react";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import { DijkstraActionBar } from "./DijkstraActionBar";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { Box } from "@/modules/core/DataLogic/Box";
@@ -340,4 +342,5 @@ export const dijkstraConfig: LevelImplementationConfig = {
     },
   },
   createAnimationSteps: createDijkstraAnimationSteps,
+  renderActionBar: (props) => React.createElement(DijkstraActionBar, props),
 };

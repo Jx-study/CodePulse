@@ -21,6 +21,7 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
   onAddNode,
   onDeleteNode,
   onPeek,
+  maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
 
@@ -48,6 +49,7 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 

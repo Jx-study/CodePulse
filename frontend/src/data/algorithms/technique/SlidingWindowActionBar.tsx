@@ -19,6 +19,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
   onLimitExceeded,
   disabled = false,
   onRun,
+  maxNodes,
 }) => {
   const [windowMode, setWindowMode] = useState<string>("longest_lte");
   const [targetSum, setTargetSum] = useState<string>("20");
@@ -42,6 +43,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           onLimitExceeded={onLimitExceeded}
           disabled={disabled}
+          maxNodes={maxNodes}
         />
       </ActionBarGroup>
 
