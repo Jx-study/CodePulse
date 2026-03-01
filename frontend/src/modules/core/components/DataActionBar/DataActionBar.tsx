@@ -4,6 +4,7 @@ import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import { toast } from "@/shared/components/Toast";
 import styles from "./DataActionBar.module.scss";
 
 // 定義支援的結構類型
@@ -34,6 +35,7 @@ export interface DataActionBarProps {
   onRandomCountChange: (count: number) => void;
   onTailModeChange: (hasTail: boolean) => void;
   onLimitExceeded?: () => void;
+  maxNodes?: number;
 
   disabled?: boolean;
   structureType: StructureType;
@@ -54,6 +56,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onRandomCountChange,
   onTailModeChange,
   onLimitExceeded,
+  maxNodes,
   disabled = false,
   structureType,
   isDirected = false,
@@ -104,7 +107,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
       onAddNode(val, "Update", idx);
       setInputValue("");
     } else {
-      alert("Update 需要輸入數值與索引");
+      toast.warning("Update 需要輸入數值與索引");
     }
   };
 
@@ -117,7 +120,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
         onDeleteNode("DeleteValue", val);
         setInputValue("");
       } else {
-        alert("請輸入要刪除的數值");
+        toast.warning("請輸入要刪除的數值");
       }
     } else {
       const idx = indexValue !== "" ? Number(indexValue) : undefined;
@@ -161,7 +164,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   const handleLoadGraphData = () => {
     const nodeCount = parseInt(graphNodeCount);
     if (isNaN(nodeCount) || nodeCount <= 0) {
-      alert("請輸入有效的節點數量");
+      toast.warning("請輸入有效的節點數量");
       return;
     }
     const edges = graphEdgeInput
@@ -340,7 +343,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={DATA_LIMITS.MAX_NODES}
+            max={maxNodes}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setRandomCountInput(e.target.value)
             }
@@ -349,12 +352,12 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               if (isNaN(num) || randomCountInput.trim() === "") {
                 setRandomCountInput(String(randomCount));
               } else {
-                if (num > DATA_LIMITS.MAX_NODES) {
+                if (maxNodes !== undefined && num > maxNodes) {
                   onLimitExceeded?.();
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  DATA_LIMITS.MAX_NODES,
+                  maxNodes ?? num,
                 );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
@@ -735,7 +738,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                           ).value,
                         );
                         if (!isNaN(val)) onSearchNode(val, "floor");
-                        else alert("Floor 需要輸入參考數值");
+                        else toast.warning("Floor 需要輸入參考數值");
                       }}
                       disabled={disabled}
                       className={styles.btnQuery}
@@ -754,7 +757,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
                           ).value,
                         );
                         if (!isNaN(val)) onSearchNode(val, "ceil");
-                        else alert("Ceil 需要輸入參考數值");
+                        else toast.warning("Ceil 需要輸入參考數值");
                       }}
                       disabled={disabled}
                       className={styles.btnQuery}

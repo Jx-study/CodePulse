@@ -60,6 +60,7 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
         onRun={restProps.onRun!}
         onRandomCountChange={restProps.onMaxNodesChange}
         onLimitExceeded={restProps.onLimitExceeded}
+        maxNodes={topicTypeConfig.maxNodes}
         disabled={restProps.disabled}
         category={category}
         algorithmId={topicTypeConfig.id}
@@ -102,6 +103,7 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
           isDirected={restProps.isDirected}
           onIsDirectedChange={restProps.onIsDirectedChange}
           onLimitExceeded={restProps.onLimitExceeded}
+          maxNodes={topicTypeConfig.maxNodes}
         />
       );
     }
