@@ -9,6 +9,7 @@ import {
   updateLinkStatus,
 } from "@/data/DataStructure/nonlinear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { TRUE } from "sass";
 
 const TAGS = {
   INIT: "INIT",
@@ -149,7 +150,7 @@ function runGraphBFS(
     checkEndFrame.variables = {
       curr: currId,
       end: realEndId,
-      "curr === end": currId === realEndId ? "✓ 是終點" : "✗ 非終點",
+      "curr === end": currId === realEndId ? "True" : "False",
       [`distance[${currId}]`]: distanceMap[currId],
     };
     steps.push(checkEndFrame);
@@ -409,7 +410,7 @@ function runGridBFS(
     checkEndGridFrame.actionTag = TAGS.CHECK_END;
     checkEndGridFrame.variables = {
       end: endIndex,
-      "end ∈ Queue": currentLevelIndices.includes(endIndex) ? "✓ 是" : "✗ 否",
+      "end ∈ Queue": currentLevelIndices.includes(endIndex) ? "True" : "False",
       "current level": `[${currentLevelIndices.join(", ")}]`,
     };
     steps.push(checkEndGridFrame);
@@ -518,7 +519,7 @@ function runGridBFS(
     notFoundGridFrame.variables = {
       queue: "[]  (空)",
       end: endIndex,
-      reachable: "false — 終點不可達",
+      reachable: "False — 終點不可達",
     };
     steps.push(notFoundGridFrame);
   }
