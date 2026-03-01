@@ -9,7 +9,8 @@
 .labelContent {
   @include flex(center, center, row);
   padding: $spacing-2xs $spacing-xs;
-  background: rgba($dark-bg-secondary, 0.85);
+  // background: rgba($dark-bg-secondary, 0.85);
+  background: var(--bg-tertiary);
   backdrop-filter: blur(12px);
   border: 2px solid;
   border-radius: $radius-lg;
