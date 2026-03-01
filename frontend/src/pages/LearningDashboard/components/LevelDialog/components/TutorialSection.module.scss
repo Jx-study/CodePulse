@@ -1,30 +1,58 @@
+// 藍色主題色
+$blue-theme: #3b82f6;
+$blue-bg-light: rgba(59, 130, 246, 0.06);
+$blue-bg-dark: rgba(59, 130, 246, 0.1);
+$blue-border-light: rgba(59, 130, 246, 0.2);
+$blue-border-dark: rgba(59, 130, 246, 0.15);
+$blue-card-bg-light: #ffffff;
+$blue-card-bg-dark: rgba(59, 130, 246, 0.05);
+
 .tutorialSection {
   padding: $spacing-lg;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid $blue-border-light;
   overflow-y: auto;
   @include flex($direction: column);
-  gap: $spacing-xs;
+  gap: $spacing-sm;
+  background: $blue-bg-light;
+
+  @media (prefers-color-scheme: dark) {
+    background: $blue-bg-dark;
+    border-right-color: $blue-border-dark;
+  }
 
   h3 {
-    color: $primary-color;
+    color: $blue-theme;
     font-size: $font-xl;
+    font-weight: 700;
     margin: 0;
   }
 
   h4 {
     color: var(--text-primary);
-    font-size: $font-lg;
-    margin: 0 0 $spacing-sm 0;
+    font-size: $font-sm;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+    @include flex($direction: row, $align: center);
+    gap: $spacing-xs;
   }
 }
 
 .levelInfo {
   @include flex($direction: column);
-  gap: $spacing-sm;
+  gap: $spacing-xs;
+  padding: $spacing-sm;
+  background: $blue-card-bg-light;
+  border: 1px solid $blue-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $blue-card-bg-dark;
+    border-color: $blue-border-dark;
+  }
 
   .infoRow {
     @include flex($direction: row);
-    gap: $spacing-sm;
+    gap: $spacing-xs;
 
     .label {
       color: var(--text-secondary);
@@ -40,19 +68,41 @@
 }
 
 .description {
+  padding: $spacing-sm;
+  background: $blue-card-bg-light;
+  border: 1px solid $blue-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $blue-card-bg-dark;
+    border-color: $blue-border-dark;
+  }
+
   p {
     color: var(--text-secondary);
     line-height: 1.6;
     margin: 0;
+    font-size: $font-sm;
   }
 }
 
 .objectives {
+  padding: $spacing-sm;
+  background: $blue-card-bg-light;
+  border: 1px solid $blue-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $blue-card-bg-dark;
+    border-color: $blue-border-dark;
+  }
+
   ul {
     margin: 0;
-    padding-left: $spacing-lg;
+    padding-left: $spacing-md;
     color: var(--text-secondary);
     line-height: 1.8;
+    font-size: $font-sm;
   }
 }
 
@@ -60,10 +110,16 @@
   width: 100%;
   margin-top: auto;
   background: $gradient-primary;
+  border-top: 1px solid $blue-border-light;
+  padding-top: $spacing-sm;
 
   &:hover {
     transform: $hover-transform;
-    box-shadow: 0 4px 12px rgba($primary-color, 0.4);
+    box-shadow: 0 4px 12px rgba($blue-theme, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: $blue-border-dark;
   }
 }
 
@@ -74,8 +130,12 @@
 // 響應式設計
 @media (max-width: $mobile-max) {
   .tutorialSection {
-    padding: $spacing-lg;
+    padding: $spacing-md;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid $blue-border-light;
+
+    @media (prefers-color-scheme: dark) {
+      border-bottom-color: $blue-border-dark;
+    }
   }
 }

@@ -1,37 +1,96 @@
+// 綠色主題色
+$green-theme: $success-color; // #4caf50
+$green-bg-light: rgba(76, 175, 80, 0.06);
+$green-bg-dark: rgba(76, 175, 80, 0.1);
+$green-border-light: rgba(76, 175, 80, 0.2);
+$green-border-dark: rgba(76, 175, 80, 0.15);
+$green-card-bg-light: #ffffff;
+$green-card-bg-dark: rgba(76, 175, 80, 0.05);
+
 .practiceSection {
-  padding: $spacing-lg  ;
+  padding: $spacing-lg;
   overflow-y: auto;
   @include flex($direction: column);
-  gap: $spacing-xs;
+  gap: $spacing-sm;
+  background: $green-bg-light;
+
+  @media (prefers-color-scheme: dark) {
+    background: $green-bg-dark;
+  }
 
   h3 {
-    color: $success-color;
+    color: $green-theme;
     font-size: $font-xl;
+    font-weight: 700;
     margin: 0;
   }
 
   h4 {
     color: var(--text-primary);
-    font-size: $font-lg;
-    margin: 0 0 $spacing-sm 0;
+    font-size: $font-sm;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs 0;
+    @include flex($direction: row, $align: center);
+    gap: $spacing-xs;
+  }
+}
+
+.practiceProgress {
+  padding: $spacing-sm;
+  background: $green-card-bg-light;
+  border: 1px solid $green-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $green-card-bg-dark;
+    border-color: $green-border-dark;
+  }
+}
+
+.bestScore {
+  padding: $spacing-sm;
+  background: $green-card-bg-light;
+  border: 1px solid $green-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $green-card-bg-dark;
+    border-color: $green-border-dark;
   }
 }
 
 .requirements {
+  padding: $spacing-sm;
+  background: $green-card-bg-light;
+  border: 1px solid $green-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $green-card-bg-dark;
+    border-color: $green-border-dark;
+  }
+
   ul {
     margin: 0;
-    padding-left: $spacing-lg;
+    padding-left: $spacing-md;
     color: var(--text-secondary);
     line-height: 1.8;
+    font-size: $font-sm;
   }
 }
 
 .stats {
   @include flex($direction: row);
   gap: $spacing-sm;
-  padding: $spacing-md;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: $radius-lg;
+  padding: $spacing-sm;
+  background: $green-card-bg-light;
+  border: 1px solid $green-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $green-card-bg-dark;
+    border-color: $green-border-dark;
+  }
 
   .label {
     color: var(--text-secondary);
@@ -49,10 +108,16 @@
   width: 100%;
   margin-top: auto;
   background: $gradient-primary;
+  border-top: 1px solid $green-border-light;
+  padding-top: $spacing-sm;
 
   &:hover {
     transform: $hover-transform;
-    box-shadow: 0 4px 12px rgba($success-color, 0.4);
+    box-shadow: 0 4px 12px rgba($green-theme, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: $green-border-dark;
   }
 }
 
@@ -63,6 +128,6 @@
 // 響應式設計
 @media (max-width: $mobile-max) {
   .practiceSection {
-    padding: $spacing-lg;
+    padding: $spacing-md;
   }
 }
