@@ -278,4 +278,5 @@ export const insertionSortConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/merge-sorted-array/",
     },
   ],
+  maxNodes: 10,
 };

@@ -119,7 +119,8 @@ export const useAlgorithmLogic = (config: any) => {
     // 這保證了圖是連通的，且每個節點至少有一條邊
     for (let i = 1; i < nodeCount; i++) {
       const targetIndex = Math.floor(Math.random() * i);
-      edges.push([`node-${i}`, `node-${targetIndex}`]);
+      const weight = Math.floor(Math.random() * 20) + 1;
+      edges.push([`node-${i}`, `node-${targetIndex}`, weight.toString()]);
     }
 
     // 3. 增加額外的隨機邊 (讓圖看起來更像網狀，而不只是樹)
@@ -138,7 +139,8 @@ export const useAlgorithmLogic = (config: any) => {
         );
 
         if (!exists) {
-          edges.push([`node-${u}`, `node-${v}`]);
+          const weight = Math.floor(Math.random() * 20) + 1;
+          edges.push([`node-${u}`, `node-${v}`, weight.toString()]);
         }
       }
     }
@@ -191,10 +193,7 @@ export const useAlgorithmLogic = (config: any) => {
     let newData = cloneData(data);
 
     if (actionType === "random") {
-      const count = Math.min(
-        payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT,
-        DATA_LIMITS.MAX_NODES,
-      );
+      const count = payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
       if (config.id === "binarysearch") {
         // 做個排序
         const sortedValues = Array.from({ length: count }, () =>
@@ -207,7 +206,11 @@ export const useAlgorithmLogic = (config: any) => {
           () => Math.floor(Math.random() * 15) + 1,
         );
         newData = initLinearData(randomValues);
-      } else if (config.id === "bfs" || config.id === "dfs") {
+      } else if (
+        config.id === "bfs" ||
+        config.id === "dfs" ||
+        config.id === "dijkstra"
+      ) {
         const mode = payload?.mode || "graph";
         if (mode === "grid") {
           const rows = payload?.rows || 3;
@@ -285,7 +288,7 @@ export const useAlgorithmLogic = (config: any) => {
               const edgePairs = edgeStr.split(","); // 分割每組邊
               edgePairs.forEach((pair: string) => {
                 // pair 可能是 "0 1" (空白分隔)
-                const [u, v] = pair.trim().split(/\s+/);
+                const [u, v, w] = pair.trim().split(/\s+/);
                 if (u !== undefined && v !== undefined) {
                   // 將使用者的數字輸入 "0" 轉為內部 ID "node-0"
                   const uIdx = parseInt(u);
@@ -296,7 +299,11 @@ export const useAlgorithmLogic = (config: any) => {
                     vIdx >= 0 &&
                     vIdx < nodeCount
                   ) {
-                    edges.push([`node-${uIdx}`, `node-${vIdx}`]);
+                    if (w !== undefined) {
+                      edges.push([`node-${uIdx}`, `node-${vIdx}`, w]);
+                    } else {
+                      edges.push([`node-${uIdx}`, `node-${vIdx}`]);
+                    }
                   }
                 }
               });
@@ -316,7 +323,10 @@ export const useAlgorithmLogic = (config: any) => {
 
       if (isGraphLoad && graphPayload) {
         newData = cloneData(graphPayload);
-        const steps = generateSteps(newData, { mode: "graph" });
+        const steps = generateSteps(newData, {
+          mode: "graph",
+          isDirected: payload.Directed,
+        });
 
         // 新載入的 Graph 沒有座標，必須同步 (觸發 D3 計算)
         if (steps.length > 0) {

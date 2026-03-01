@@ -731,11 +731,11 @@
       "nameEn": "Dijkstra's Algorithm",
       "category": "graph",
       "difficulty": 4,
-      "description": "計算加權圖中單源最短路徑的貪婪演算法",
+      "description": "在帶權重圖形中尋找單源最短路徑的經典演算法",
       "learningObjectives": [
-        "理解 Dijkstra 的貪婪選擇策略",
-        "掌握優先佇列（Min Heap）的應用",
-        "分析時間複雜度 O((V+E) log V)"
+        "理解貪婪策略與優先佇列的應用",
+        "掌握權重邊的鬆弛 (Relaxation) 操作",
+        "分析無法處理負權重邊的原因"
       ],
       "isDeveloped": false,
       "isUnlocked": false,

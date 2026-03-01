@@ -1034,5 +1034,6 @@ export const GraphConfig: LevelImplementationConfig = {
     ],
   },
   createAnimationSteps: createGraphAnimationSteps,
+  maxNodes: 10,
   renderActionBar: (props) => <GraphActionBar {...(props as any)} />,
 };

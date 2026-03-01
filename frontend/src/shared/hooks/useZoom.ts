@@ -40,6 +40,12 @@ interface UseZoomOptions {
   targetRef?: React.RefObject<HTMLElement | null>;
   /** 是否停用所有縮放事件（用於 Dialog 開啟時暫停縮放，預設: false） */
   isDisabled?: boolean;
+  /**
+   * 是否使用乘法式 Wheel 縮放 (預設: false)
+   * 啟用後每次滾輪以 step 比例縮放（prev * (1 + step)），
+   * 適合 maxZoom 範圍很大的場景（如數百個元素時 maxZoom 可達 50x+）。
+   */
+  useExponentialWheel?: boolean;
 }
 
 interface UseZoomReturn {
@@ -68,6 +74,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     enableMouseCenteredZoom = false,
     targetRef,
     isDisabled = false,
+    useExponentialWheel = false,
   } = options;
 
   const [zoomLevel, setZoomLevelState] = useState(initialZoom);
@@ -94,9 +101,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     [minZoom, maxZoom]
   );
 
-  /**
-   * 放大
-   */
+  /* 放大 */
   const zoomIn = useCallback(() => {
     setZoomLevel((prev) => prev + step);
     // 按鈕縮放使用固定中心點
@@ -105,9 +110,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     }
   }, [setZoomLevel, step, enableMouseCenteredZoom]);
 
-  /**
-   * 縮小
-   */
+  /* 縮小 */
   const zoomOut = useCallback(() => {
     setZoomLevel((prev) => prev - step);
     // 按鈕縮放使用固定中心點
@@ -116,9 +119,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     }
   }, [setZoomLevel, step, enableMouseCenteredZoom]);
 
-  /**
-   * 重置縮放
-   */
+  /* 重置縮放 */
   const resetZoom = useCallback(() => {
     setZoomLevel(initialZoom);
     if (enableMouseCenteredZoom) {
@@ -126,9 +127,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     }
   }, [setZoomLevel, initialZoom, enableMouseCenteredZoom]);
 
-  /**
-   * Wheel 縮放（支援以滑鼠位置為中心）
-   */
+  /* Wheel 縮放（支援以滑鼠位置為中心） */
   useEffect(() => {
     if (!enableWheelZoom) return;
 
@@ -153,8 +152,13 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
       }
 
       // 計算縮放方向和增量
-      const delta = e.deltaY > 0 ? -step : step;
-      setZoomLevel((prev) => prev + delta);
+      if (useExponentialWheel) {
+        const factor = e.deltaY > 0 ? 1 / (1 + step) : 1 + step;
+        setZoomLevel((prev) => prev * factor);
+      } else {
+        const delta = e.deltaY > 0 ? -step : step;
+        setZoomLevel((prev) => prev + delta);
+      }
     };
 
     wheelListenerRef.current = handleWheel;
@@ -165,7 +169,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
         targetElement.removeEventListener('wheel', wheelListenerRef.current);
       }
     };
-  }, [enableWheelZoom, enableMouseCenteredZoom, step, setZoomLevel, targetRef]);
+  }, [enableWheelZoom, enableMouseCenteredZoom, step, setZoomLevel, targetRef, useExponentialWheel]);
 
   /**
    * 雙指捏合縮放（Touch Pinch Gesture）

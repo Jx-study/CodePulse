@@ -87,6 +87,8 @@ export interface LevelImplementationConfig {
   /** Optional custom status configuration - 可選的自訂狀態配置 */
   statusConfig?: StatusConfig;
   getCodeConfig?: (payload?: any) => CodeConfig;
+  /** 最大資料筆數。undefined = 真的不限制（由 viewBox 自動縮放）。 */
+  maxNodes?: number;
   /** 各資料結構/演算法自行定義的 ActionBar 元件 */
   renderActionBar?: (props: ActionBarProps) => ReactNode;
 }

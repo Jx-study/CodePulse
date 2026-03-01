@@ -44,7 +44,7 @@ function runGraphBFS(
   const visited = new Set<string>();
   const parentMap = new Map<string, string>(); // child -> parent (用於回溯)
 
-  baseElements.forEach((n) => (distanceMap[n.id] = 99));
+  baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
   // 初始畫面 (顯示 ID)
   steps.push(
