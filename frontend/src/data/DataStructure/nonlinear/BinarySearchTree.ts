@@ -1724,4 +1724,5 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/validate-binary-search-tree/",
     },
   ],
+  maxNodes: 10,
 };

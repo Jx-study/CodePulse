@@ -193,10 +193,7 @@ export const useAlgorithmLogic = (config: any) => {
     let newData = cloneData(data);
 
     if (actionType === "random") {
-      const count = Math.min(
-        payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT,
-        DATA_LIMITS.MAX_NODES,
-      );
+      const count = payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
       if (config.id === "binarysearch") {
         // 做個排序
         const sortedValues = Array.from({ length: count }, () =>

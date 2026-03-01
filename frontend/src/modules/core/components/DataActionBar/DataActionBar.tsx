@@ -35,6 +35,7 @@ export interface DataActionBarProps {
   onRandomCountChange: (count: number) => void;
   onTailModeChange: (hasTail: boolean) => void;
   onLimitExceeded?: () => void;
+  maxNodes?: number;
 
   disabled?: boolean;
   structureType: StructureType;
@@ -55,6 +56,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
   onRandomCountChange,
   onTailModeChange,
   onLimitExceeded,
+  maxNodes,
   disabled = false,
   structureType,
   isDirected = false,
@@ -341,7 +343,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={DATA_LIMITS.MAX_NODES}
+            max={maxNodes}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setRandomCountInput(e.target.value)
             }
@@ -349,13 +351,18 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               const num = Number(randomCountInput);
               if (isNaN(num) || randomCountInput.trim() === "") {
                 setRandomCountInput(String(randomCount));
-              } else {
-                if (num > DATA_LIMITS.MAX_NODES) {
+              } 
+              else if (num < 0) {
+                setRandomCountInput(String(randomCount));
+                alert("隨機筆數不能小於 0"); //TODO: 等待toast元件完成後再使用
+              }
+              else {
+                if (maxNodes !== undefined && num > maxNodes) {
                   onLimitExceeded?.();
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  DATA_LIMITS.MAX_NODES,
+                  maxNodes ?? num,
                 );
                 setRandomCount(v);
                 setRandomCountInput(String(v));

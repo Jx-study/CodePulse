@@ -36,6 +36,8 @@ export interface LevelImplementationConfig {
   /** Optional custom status configuration - 可選的自訂狀態配置 */
   statusConfig?: StatusConfig;
   getCodeConfig?: (payload?: any) => CodeConfig;
+  /** 最大資料筆數。undefined = 真的不限制（由 viewBox 自動縮放）。 */
+  maxNodes?: number;
 }
 
 /**

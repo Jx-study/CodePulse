@@ -27,6 +27,7 @@ interface AlgorithmActionBarProps {
   onRun: (params?: RunParams) => void;
   onRandomCountChange?: (count: number) => void;
   onLimitExceeded?: () => void;
+  maxNodes?: number;
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
@@ -44,6 +45,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onRun,
   onRandomCountChange,
   onLimitExceeded,
+  maxNodes,
   disabled = false,
   category = "sorting",
   algorithmId,
@@ -491,19 +493,19 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={DATA_LIMITS.MAX_NODES}
+            max={maxNodes}
             onChange={(e) => setRandomCountInput(e.target.value)}
             onBlur={() => {
               const num = Number(randomCountInput);
               if (isNaN(num) || randomCountInput.trim() === "") {
                 setRandomCountInput(String(randomCount));
               } else {
-                if (num > DATA_LIMITS.MAX_NODES) {
+                if (maxNodes !== undefined && num > maxNodes) {
                   onLimitExceeded?.();
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  DATA_LIMITS.MAX_NODES,
+                  maxNodes ?? num,
                 );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
