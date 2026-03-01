@@ -354,7 +354,7 @@ export const DataActionBar: React.FC<DataActionBarProps> = ({
               } 
               else if (num < 0) {
                 setRandomCountInput(String(randomCount));
-                alert("隨機筆數不能小於 0"); //TODO: 等待toast元件完成後再使用
+                toast.warning("隨機筆數不能小於 0");
               }
               else {
                 if (maxNodes !== undefined && num > maxNodes) {
