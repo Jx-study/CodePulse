@@ -250,14 +250,17 @@ function TutorialContent() {
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
-  // 新增：根據 hasTailMode 動態計算當前的 codeConfig
+  // 新增：根據 hasTailMode、viewMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
     if (!topicTypeConfig) return null;
     if (topicTypeConfig.getCodeConfig) {
-      return topicTypeConfig.getCodeConfig({ hasTailMode });
+      return topicTypeConfig.getCodeConfig({
+        hasTailMode,
+        mode: viewMode || "graph",
+      });
     }
     return topicTypeConfig.codeConfig ?? null;
-  }, [topicTypeConfig, hasTailMode]);
+  }, [topicTypeConfig, hasTailMode, viewMode]);
 
   // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
   const highlightLines = useMemo(() => {
