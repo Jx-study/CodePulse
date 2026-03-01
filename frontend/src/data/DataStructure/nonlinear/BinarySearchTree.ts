@@ -1,8 +1,7 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
-import { createTreeNodes, getLinkKey, updateLinkStatus } from "./utils";
+import { createTreeNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { Node } from "@/modules/core/DataLogic/Node";
 
 const BST_LAYOUT = {
@@ -140,7 +139,6 @@ const generateFrame = (
   description: string,
   actionTag?: string,
   variables?: Record<string, string | number | boolean | null>,
-  linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const root = buildBST(inputData);
   const uniqueData: any[] = [];
@@ -172,27 +170,10 @@ const generateFrame = (
     return a.id.localeCompare(b.id);
   });
 
-  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
-    [];
-
-  treeElements.forEach((source) => {
-    if (source instanceof Node) {
-      source.pointers.forEach((target) => {
-        const key = getLinkKey(source.id, target.id);
-        links.push({
-          sourceId: source.id,
-          targetId: target.id,
-          status: linkStatusMap[key],
-        });
-      });
-    }
-  });
-
   return {
     stepNumber: 0,
     description,
     elements: [...treeElements],
-    links,
     actionTag,
     variables,
   };
@@ -205,9 +186,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
   const newValue = Math.round(rawNewNode.value);
   const newNodeData = { ...rawNewNode, value: newValue };
   const oldData = inputData.slice(0, inputData.length - 1);
-
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const pathLinks: { u: string; v: string }[] = [];
 
   const getVars = (curr?: LogicTreeNode | null) => ({
     newValue,
@@ -222,7 +200,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
         `樹為空，插入根節點 ${newValue}`,
         TAGS.INS_INIT,
         { ...getVars(), curr: null },
-        { ...linkStatusMap },
       ),
     );
     return steps;
@@ -236,13 +213,10 @@ function runInsert(inputData: any[]): AnimationStep[] {
       `準備插入新節點：${newValue}`,
       TAGS.INS_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
-
   let curr = root;
   let insertedAsLeftChild = false;
-
   while (curr) {
     statusMap[curr.id] = Status.Target;
     steps.push(
@@ -252,14 +226,10 @@ function runInsert(inputData: any[]): AnimationStep[] {
         `比較：${newValue} vs ${curr.value}`,
         TAGS.INS_COMPARE,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
     if (newValue === curr.value) {
       statusMap[curr.id] = Status.Complete;
-      pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
-      );
       steps.push(
         generateFrame(
           inputData,
@@ -267,7 +237,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
           `數值 ${newValue} 已存在，計數器加 1`,
           TAGS.INS_EQUAL,
           { ...getVars(curr), count: curr.count },
-          { ...linkStatusMap },
         ),
       );
       return steps;
@@ -275,8 +244,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
     if (newValue < curr.value) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
             oldData,
@@ -284,7 +251,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
             `${newValue} < ${curr.value}，往左子樹尋找`,
             TAGS.INS_LEFT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.left.id];
@@ -299,7 +265,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
             `${newValue} < ${curr.value}，且無左子節點，找到插入位置`,
             TAGS.INS_PLACE_LEFT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         break;
@@ -307,8 +272,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
     } else {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
             oldData,
@@ -316,7 +279,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
             `${newValue} >= ${curr.value}，往右子樹尋找`,
             TAGS.INS_RIGHT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.right.id];
@@ -331,7 +293,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
             `${newValue} >= ${curr.value}，且無右子節點，找到插入位置`,
             TAGS.INS_PLACE_RIGHT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         break;
@@ -339,13 +300,7 @@ function runInsert(inputData: any[]): AnimationStep[] {
     }
   }
   statusMap[newNodeData.id] = Status.Complete;
-  if (curr) {
-    statusMap[curr.id] = Status.Unfinished;
-    pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
-    );
-    updateLinkStatus(linkStatusMap, curr.id, newNodeData.id, "complete", true);
-  }
+  if (curr) statusMap[curr.id] = Status.Unfinished;
   steps.push(
     generateFrame(
       inputData,
@@ -353,7 +308,6 @@ function runInsert(inputData: any[]): AnimationStep[] {
       `插入節點 ${newValue} 完成`,
       insertedAsLeftChild ? TAGS.INS_DONE_LEFT : TAGS.INS_DONE_RIGHT,
       getVars(curr ?? null),
-      { ...linkStatusMap },
     ),
   );
   return steps;
@@ -363,8 +317,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const searchPathLinks: { u: string; v: string }[] = [];
 
   const getVars = (curr?: LogicTreeNode | null, found?: boolean) => ({
     target: targetValue,
@@ -380,7 +332,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
         "樹為空",
         TAGS.SRCH_EMPTY,
         getVars(null, false),
-        { ...linkStatusMap },
       ),
     );
     return steps;
@@ -392,13 +343,10 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
       `開始搜尋：${targetValue}`,
       TAGS.SRCH_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
-
   let curr: LogicTreeNode | undefined = root;
   let found = false;
-
   while (curr) {
     statusMap[curr.id] = Status.Target;
     steps.push(
@@ -408,15 +356,10 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
         `比較：${targetValue} vs ${curr.value}`,
         TAGS.SRCH_COMPARE,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
-
     if (targetValue === curr.value) {
       statusMap[curr.id] = Status.Complete;
-      searchPathLinks.forEach(({ u, v }) => {
-        updateLinkStatus(linkStatusMap, u, v, "complete", true);
-      });
       steps.push(
         generateFrame(
           inputData,
@@ -424,7 +367,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
           `找到目標 ${targetValue} (Count: ${curr.count})`,
           TAGS.SRCH_FOUND,
           getVars(curr, true),
-          { ...linkStatusMap },
         ),
       );
       found = true;
@@ -432,8 +374,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
     } else if (targetValue < curr.value) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
-        searchPathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
             inputData,
@@ -441,7 +381,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
             `${targetValue} < ${curr.value} 往左`,
             TAGS.SRCH_LEFT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.left.id];
@@ -455,7 +394,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
             "無左子節點",
             TAGS.SRCH_LEFT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         statusMap[curr.id] = Status.Unfinished;
@@ -464,8 +402,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
     } else {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
-        searchPathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
             inputData,
@@ -473,7 +409,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
             `${targetValue} > ${curr.value} 往右`,
             TAGS.SRCH_RIGHT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.right.id];
@@ -487,7 +422,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
             "無右子節點",
             TAGS.SRCH_RIGHT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         statusMap[curr.id] = Status.Unfinished;
@@ -503,7 +437,6 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
         "未找到",
         TAGS.SRCH_NOT_FOUND,
         getVars(null, false),
-        { ...linkStatusMap },
       ),
     );
   return steps;
@@ -514,9 +447,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const pathLinks: { u: string; v: string }[] = [];
-  const successorPathLinks: { u: string; v: string }[] = [];
 
   const getVars = (
     curr?: LogicTreeNode | null,
@@ -537,7 +467,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         "樹為空，無法刪除",
         TAGS.DEL_EMPTY,
         getVars(null),
-        { ...linkStatusMap },
       ),
     );
     return steps;
@@ -550,7 +479,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       `準備刪除節點：${targetValue}`,
       TAGS.DEL_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
 
@@ -566,16 +494,12 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `尋找刪除目標：${targetValue} vs ${curr.value}`,
         TAGS.DEL_SEARCH,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
 
     if (targetValue === curr.value) {
       foundNode = curr;
       statusMap[curr.id] = Status.Complete;
-      pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
-      );
       steps.push(
         generateFrame(
           inputData,
@@ -583,7 +507,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
           `找到目標節點 ${targetValue} (Count: ${curr.count})`,
           TAGS.DEL_FOUND,
           getVars(curr, curr),
-          { ...linkStatusMap },
         ),
       );
       break;
@@ -592,8 +515,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     if (targetValue < curr.value) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
             inputData,
@@ -601,7 +522,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
             `${targetValue} < ${curr.value}，往左`,
             TAGS.DEL_LEFT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.left.id];
@@ -615,7 +535,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
             `${targetValue} < ${curr.value}，但無左子節點`,
             TAGS.DEL_LEFT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         statusMap[curr.id] = Status.Unfinished;
@@ -624,8 +543,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     } else {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
             inputData,
@@ -633,7 +550,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
             `${targetValue} > ${curr.value}，往右`,
             TAGS.DEL_RIGHT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.right.id];
@@ -647,7 +563,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
             `${targetValue} > ${curr.value}，但無右子節點`,
             TAGS.DEL_RIGHT,
             getVars(curr),
-            { ...linkStatusMap },
           ),
         );
         statusMap[curr.id] = Status.Unfinished;
@@ -657,10 +572,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
   }
 
   if (!foundNode) {
-    pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "path", true),
-    );
-
     steps.push(
       generateFrame(
         inputData,
@@ -668,7 +579,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `未找到數值 ${targetValue}，刪除失敗`,
         TAGS.DEL_NOT_FOUND,
         getVars(null),
-        { ...linkStatusMap },
       ),
     );
     return steps;
@@ -692,7 +602,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         })`,
         TAGS.DEL_COUNT_DEC,
         { ...getVars(null, foundNode), count: foundNode.count - 1 },
-        { ...linkStatusMap },
       ),
     );
     return steps;
@@ -709,20 +618,12 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `檢查子節點：無 (葉子節點)，直接移除`,
         TAGS.DEL_LEAF,
         getVars(null, foundNode),
-        { ...linkStatusMap },
       ),
     );
 
     const finalData = getBSTArrayAfterDelete(inputData, targetValue);
     steps.push(
-      generateFrame(
-        finalData,
-        {},
-        `刪除完成`,
-        TAGS.DEL_LEAF_REMOVE,
-        getVars(),
-        { ...linkStatusMap },
-      ),
+      generateFrame(finalData, {}, `刪除完成`, TAGS.DEL_LEAF_REMOVE, getVars()),
     );
   } else if (!foundNode.left || !foundNode.right) {
     const child = foundNode.left ? foundNode.left : foundNode.right;
@@ -740,8 +641,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       return d;
     });
 
-    updateLinkStatus(linkStatusMap, targetId, child!.id, "visited", true);
-
     steps.push(
       generateFrame(
         intermediateData,
@@ -749,7 +648,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `將目標節點數值更新為 ${child!.value}`,
         TAGS.DEL_ONE_CHILD_REPLACE,
         getVars(null, foundNode, child!),
-        { ...linkStatusMap },
       ),
     );
 
@@ -761,7 +659,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `移除原本的子節點 ${child!.value}，刪除完成`,
         TAGS.DEL_ONE_CHILD_DONE,
         getVars(),
-        { ...linkStatusMap },
       ),
     );
   } else {
@@ -773,15 +670,12 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `檢查子節點：左右皆有。需尋找後繼者 (右子樹的最小值)`,
         TAGS.DEL_TWO_CHILD,
         getVars(null, foundNode),
-        { ...linkStatusMap },
       ),
     );
 
     let successor = foundNode.right;
 
     statusMap[successor!.id] = Status.Prepare;
-    updateLinkStatus(linkStatusMap, foundNode.id, successor!.id, "path", true);
-    successorPathLinks.push({ u: foundNode.id, v: successor!.id });
     steps.push(
       generateFrame(
         inputData,
@@ -789,21 +683,12 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `進入右子樹 ${successor!.value}`,
         TAGS.DEL_SUCCESSOR_FIND,
         getVars(null, foundNode, successor),
-        { ...linkStatusMap },
       ),
     );
     delete statusMap[successor!.id];
 
     while (successor!.left) {
       statusMap[successor!.left.id] = Status.Prepare;
-      updateLinkStatus(
-        linkStatusMap,
-        successor!.id,
-        successor!.left.id,
-        "path",
-        true,
-      );
-      successorPathLinks.push({ u: successor!.id, v: successor!.left.id });
       steps.push(
         generateFrame(
           inputData,
@@ -811,7 +696,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
           `往左找更小值 ${successor!.left.value}`,
           TAGS.DEL_SUCCESSOR_FIND,
           getVars(null, foundNode, successor),
-          { ...linkStatusMap },
         ),
       );
       delete statusMap[successor!.left.id];
@@ -819,9 +703,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     }
 
     statusMap[successor!.id] = Status.Complete;
-    successorPathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
-    );
     steps.push(
       generateFrame(
         inputData,
@@ -829,7 +710,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `鎖定後繼者: ${successor!.value}`,
         TAGS.DEL_SUCCESSOR_FIND,
         getVars(null, foundNode, successor),
-        { ...linkStatusMap },
       ),
     );
 
@@ -850,7 +730,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `將目標節點 ${targetValue} 的值替換為 ${successor!.value}`,
         TAGS.DEL_SUCCESSOR_REPLACE,
         getVars(null, foundNode, successor),
-        { ...linkStatusMap },
       ),
     );
 
@@ -862,7 +741,6 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         `移除原本的後繼者節點 ${successor!.value}，重組結構，刪除完成`,
         TAGS.DEL_SUCCESSOR_REMOVE,
         getVars(),
-        {},
       ),
     );
   }
@@ -874,9 +752,6 @@ function runMin(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const pathLinks: { u: string; v: string }[] = [];
-
   if (!root) return steps;
 
   const getVars = (curr?: LogicTreeNode | null) => ({
@@ -890,7 +765,6 @@ function runMin(inputData: any[]): AnimationStep[] {
       "尋找最小值 (Min)：一路向左",
       TAGS.MIN_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
   let curr: LogicTreeNode = root;
@@ -903,12 +777,9 @@ function runMin(inputData: any[]): AnimationStep[] {
         `當前節點 ${curr.value}，還有左子節點`,
         TAGS.MIN_TRAVERSE,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
     statusMap[curr.left.id] = Status.Prepare;
-    updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
-    pathLinks.push({ u: curr.id, v: curr.left.id });
     steps.push(
       generateFrame(
         inputData,
@@ -916,7 +787,6 @@ function runMin(inputData: any[]): AnimationStep[] {
         "往左移動",
         TAGS.MIN_TRAVERSE,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
     delete statusMap[curr.left.id];
@@ -924,9 +794,6 @@ function runMin(inputData: any[]): AnimationStep[] {
     curr = curr.left;
   }
   statusMap[curr.id] = Status.Complete;
-  pathLinks.forEach(({ u, v }) => {
-    updateLinkStatus(linkStatusMap, u, v, "complete", true);
-  });
   steps.push(
     generateFrame(
       inputData,
@@ -934,19 +801,14 @@ function runMin(inputData: any[]): AnimationStep[] {
       `抵達最左節點 ${curr.value}，即為最小值`,
       TAGS.MIN_FOUND,
       getVars(curr),
-      { ...linkStatusMap },
     ),
   );
   return steps;
 }
-
 function runMax(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const pathLinks: { u: string; v: string }[] = [];
-
   if (!root) return steps;
 
   const getVars = (curr?: LogicTreeNode | null) => ({
@@ -960,7 +822,6 @@ function runMax(inputData: any[]): AnimationStep[] {
       "尋找最大值 (Max)：一路向右",
       TAGS.MAX_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
   let curr: LogicTreeNode = root;
@@ -973,12 +834,9 @@ function runMax(inputData: any[]): AnimationStep[] {
         `當前節點 ${curr.value}，還有右子節點`,
         TAGS.MAX_TRAVERSE,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
     statusMap[curr.right.id] = Status.Prepare;
-    updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
-    pathLinks.push({ u: curr.id, v: curr.right.id });
     steps.push(
       generateFrame(
         inputData,
@@ -986,7 +844,6 @@ function runMax(inputData: any[]): AnimationStep[] {
         "往右移動",
         TAGS.MAX_TRAVERSE,
         getVars(curr),
-        { ...linkStatusMap },
       ),
     );
     delete statusMap[curr.right.id];
@@ -994,9 +851,6 @@ function runMax(inputData: any[]): AnimationStep[] {
     curr = curr.right;
   }
   statusMap[curr.id] = Status.Complete;
-  pathLinks.forEach(({ u, v }) => {
-    updateLinkStatus(linkStatusMap, u, v, "complete", true);
-  });
   steps.push(
     generateFrame(
       inputData,
@@ -1004,19 +858,14 @@ function runMax(inputData: any[]): AnimationStep[] {
       `抵達最右節點 ${curr.value}，即為最大值`,
       TAGS.MAX_FOUND,
       getVars(curr),
-      { ...linkStatusMap },
     ),
   );
   return steps;
 }
-
 function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const pathLinks: { u: string; v: string }[] = [];
-
   if (!root) return steps;
 
   const getVars = (curr?: LogicTreeNode | null, floorVal?: number | null) => ({
@@ -1032,13 +881,10 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
       `尋找 Floor(${targetValue})`,
       TAGS.FLOOR_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
-
   let curr: LogicTreeNode | undefined = root;
   let floorNode: LogicTreeNode | null = null;
-
   while (curr) {
     statusMap[curr.id] = Status.Target;
     steps.push(
@@ -1048,15 +894,11 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
         `比較：${targetValue} vs ${curr.value}`,
         TAGS.FLOOR_COMPARE,
         getVars(curr, floorNode?.value ?? null),
-        { ...linkStatusMap },
       ),
     );
     if (curr.value === targetValue) {
       if (floorNode) statusMap[floorNode.id] = Status.Unfinished;
       statusMap[curr.id] = Status.Complete;
-      pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
-      );
       steps.push(
         generateFrame(
           inputData,
@@ -1064,17 +906,13 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
           `找到相等值，Floor 為 ${curr.value}`,
           TAGS.FLOOR_EQUAL,
           getVars(curr, curr.value),
-          { ...linkStatusMap },
         ),
       );
       return steps;
     }
-
     if (curr.value > targetValue) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
             inputData,
@@ -1082,7 +920,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} > ${targetValue}，往左尋找`,
             TAGS.FLOOR_LEFT,
             getVars(curr, floorNode?.value ?? null),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.left.id];
@@ -1094,7 +931,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} > ${targetValue}，無左子樹`,
             TAGS.FLOOR_LEFT,
             getVars(curr, floorNode?.value ?? null),
-            { ...linkStatusMap },
           ),
         );
       }
@@ -1106,8 +942,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
       statusMap[curr.id] = Status.Complete;
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
             inputData,
@@ -1115,7 +949,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} < ${targetValue}，暫定 Floor 為 ${curr.value}，往右尋找更大的`,
             TAGS.FLOOR_RIGHT,
             getVars(curr, curr.value),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.right.id];
@@ -1128,7 +961,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} < ${targetValue}，無右子樹`,
             TAGS.FLOOR_RIGHT,
             getVars(curr, curr.value),
-            { ...linkStatusMap },
           ),
         );
         break;
@@ -1136,9 +968,6 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
     }
   }
   if (floorNode) {
-    pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
-    );
     steps.push(
       generateFrame(
         inputData,
@@ -1146,13 +975,9 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
         `搜尋結束，Floor 為 ${floorNode.value}`,
         TAGS.FLOOR_FOUND,
         getVars(null, floorNode.value),
-        { ...linkStatusMap },
       ),
     );
   } else {
-    pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "visited", true),
-    );
     steps.push(
       generateFrame(
         inputData,
@@ -1160,20 +985,15 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
         `搜尋結束，未找到小於等於 ${targetValue} 的值`,
         TAGS.FLOOR_NOT_FOUND,
         getVars(null),
-        { ...linkStatusMap },
       ),
     );
   }
   return steps;
 }
-
 function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const root = buildBST(inputData);
   const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const pathLinks: { u: string; v: string }[] = [];
-
   if (!root) return steps;
 
   const getVars = (curr?: LogicTreeNode | null, ceilVal?: number | null) => ({
@@ -1189,7 +1009,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
       `尋找 Ceil(${targetValue})`,
       TAGS.CEIL_INIT,
       getVars(root),
-      { ...linkStatusMap },
     ),
   );
   let curr: LogicTreeNode | undefined = root;
@@ -1203,15 +1022,11 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
         `比較：${targetValue} vs ${curr.value}`,
         TAGS.CEIL_COMPARE,
         getVars(curr, ceilNode?.value ?? null),
-        { ...linkStatusMap },
       ),
     );
     if (curr.value === targetValue) {
       if (ceilNode) statusMap[ceilNode.id] = Status.Unfinished;
       statusMap[curr.id] = Status.Complete;
-      pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
-      );
       steps.push(
         generateFrame(
           inputData,
@@ -1219,7 +1034,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
           `找到相等值，Ceil 為 ${curr.value}`,
           TAGS.CEIL_EQUAL,
           getVars(curr, curr.value),
-          { ...linkStatusMap },
         ),
       );
       return steps;
@@ -1227,8 +1041,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
     if (curr.value < targetValue) {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
             inputData,
@@ -1236,7 +1048,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} < ${targetValue}，往右尋找`,
             TAGS.CEIL_RIGHT,
             getVars(curr, ceilNode?.value ?? null),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.right.id];
@@ -1248,7 +1059,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} < ${targetValue}，無右子樹`,
             TAGS.CEIL_RIGHT,
             getVars(curr, ceilNode?.value ?? null),
-            { ...linkStatusMap },
           ),
         );
       }
@@ -1260,8 +1070,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
       statusMap[curr.id] = Status.Complete;
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
-        pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
             inputData,
@@ -1269,7 +1077,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} > ${targetValue}，暫定 Ceil 為 ${curr.value}，往左尋找更小的`,
             TAGS.CEIL_LEFT,
             getVars(curr, curr.value),
-            { ...linkStatusMap },
           ),
         );
         delete statusMap[curr.left.id];
@@ -1282,7 +1089,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
             `${curr.value} > ${targetValue}，無左子樹`,
             TAGS.CEIL_LEFT,
             getVars(curr, curr.value),
-            { ...linkStatusMap },
           ),
         );
         break;
@@ -1290,9 +1096,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
     }
   }
   if (ceilNode) {
-    pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
-    );
     steps.push(
       generateFrame(
         inputData,
@@ -1300,13 +1103,9 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
         `搜尋結束，Ceil 為 ${ceilNode.value}`,
         TAGS.CEIL_FOUND,
         getVars(null, ceilNode.value),
-        { ...linkStatusMap },
       ),
     );
   } else {
-    pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "visited", true),
-    );
     steps.push(
       generateFrame(
         inputData,
@@ -1314,7 +1113,6 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
         `搜尋結束，未找到大於等於 ${targetValue} 的值`,
         TAGS.CEIL_NOT_FOUND,
         getVars(null),
-        { ...linkStatusMap },
       ),
     );
   }
