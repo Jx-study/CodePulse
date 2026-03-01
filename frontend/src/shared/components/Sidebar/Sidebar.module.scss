@@ -92,14 +92,6 @@
   overflow-y: auto;
   padding: $spacing-lg;
 
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: $radius-full;
-
-    &:hover { background: var(--text-tertiary); }
-  }
 }
 
 // ========== Responsive ==========
