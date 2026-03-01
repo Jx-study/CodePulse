@@ -8,7 +8,7 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar";
-import { toast } from "@/shared/components/Toast";
+import LimitWarningToast from "@/shared/components/LimitWarningToast";
 import type { BreadcrumbItem } from "@/types";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
@@ -221,7 +221,6 @@ function TutorialContent() {
 
   // 改用 topicTypeConfig.type 判斷類型（不再依賴 URL 參數）
   const isAlgorithm = topicTypeConfig?.type === "algorithm";
-  const maxNodes = topicTypeConfig?.maxNodes;
 
   // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
   const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
@@ -243,6 +242,7 @@ function TutorialContent() {
     DATA_LIMITS.DEFAULT_RANDOM_COUNT,
   );
   const [hasTailMode, setHasTailMode] = useState(false);
+  const [showLimitToast, setShowLimitToast] = useState(false);
   const [viewMode, setViewMode] = useState<string>("");
   const [isDirected, setIsDirected] = useState(false);
 
@@ -333,12 +333,11 @@ function TutorialContent() {
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
-    if (maxNodes !== undefined) {
-      const currentCount = dsLogic.data?.length || 0;
-      if (currentCount >= maxNodes) {
-        toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
-        return;
-      }
+    // 檢查是否超過最大筆數限制
+    const currentCount = dsLogic.data?.length || 0;
+    if (currentCount >= DATA_LIMITS.MAX_NODES) {
+      setShowLimitToast(true);
+      return;
     }
     const steps = executeAction("add", {
       value,
@@ -395,14 +394,6 @@ function TutorialContent() {
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
     if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
-      if (raw.startsWith("GRAPH:") && maxNodes !== undefined) {
-        const parts = raw.split(":");
-        const nodeCount = parseInt(parts[1], 10);
-        if (!isNaN(nodeCount) && nodeCount > maxNodes) {
-          toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
-          return;
-        }
-      }
       const steps = executeAction("load", {
         data: raw,
         randomCount,
@@ -421,12 +412,10 @@ function TutorialContent() {
       .map((v) => parseInt(v.trim()))
       .filter((v) => !isNaN(v));
 
-    if (parsed.length === 0) {
-      toast.warning("請輸入有效的數字格式 (例如: 1,2,3)");
-      return;
-    }
-    if (maxNodes !== undefined && parsed.length > maxNodes) {
-      toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
+    if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
+    // 檢查是否超過最大筆數限制
+    if (parsed.length > DATA_LIMITS.MAX_NODES) {
+      setShowLimitToast(true);
       return;
     }
     const steps = executeAction("load", {
@@ -469,14 +458,7 @@ function TutorialContent() {
 
   const handleGraphAction = (action: string, payload: any) => {
     if (isProcessing) return;
-    if (
-      action === "addVertex" &&
-      maxNodes !== undefined &&
-      (dsLogic.data?.nodes?.length ?? 0) >= maxNodes
-    ) {
-      toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
-      return;
-    }
+
     const steps = dsLogic.executeAction(action, payload);
 
     if (steps && steps.length > 0) {
@@ -640,11 +622,7 @@ function TutorialContent() {
                 onGraphAction={handleGraphAction}
                 isDirected={isDirected}
                 onIsDirectedChange={setIsDirected}
-                maxNodes={maxNodes}
-                onLimitExceeded={() =>
-                  maxNodes !== undefined &&
-                  toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`)
-                }
+                onLimitExceeded={() => setShowLimitToast(true)}
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
                 currentData={logic.data}
@@ -787,6 +765,12 @@ function TutorialContent() {
         />
       )}
 
+      {/* 資料數量限制警告 Toast */}
+      <LimitWarningToast
+        isOpen={showLimitToast}
+        onClose={() => setShowLimitToast(false)}
+        maxLimit={DATA_LIMITS.MAX_NODES}
+      />
     </div>
   );
 }
