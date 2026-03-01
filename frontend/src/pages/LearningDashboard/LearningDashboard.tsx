@@ -12,6 +12,8 @@ import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
 import Sidebar from "@/shared/components/Sidebar";
+import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContext";
+
 
 // 資料導入
 import {
@@ -48,7 +50,8 @@ import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { t } from "i18next";
 
-function LearningDashboard() {
+function LearningDashboardInner() {
+  const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -246,14 +249,21 @@ function LearningDashboard() {
   // 側邊栏狀態
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // 任何 overlay 開啟時停用 zoom
+  useEffect(() => {
+    if (isProgressDialogOpen || isSidebarOpen || !!selectedLevel) {
+      disableZoom();
+    } else {
+      enableZoom();
+    }
+  }, [isProgressDialogOpen, isSidebarOpen, selectedLevel, disableZoom, enableZoom]);
+
   return (
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
       <GraphContainer
         levels={filteredLevels}
         userProgress={userProgress}
-        isDialogOpen={isProgressDialogOpen}
-        isSidebarOpen={isSidebarOpen}
       >
         {(level, index, position) => {
           // 根據 prerequisites 繪製連線
@@ -465,6 +475,14 @@ function LearningDashboard() {
       {/* Toast 提示 */}
       {toastMessage && <div className={styles.toast}>{toastMessage}</div>}
     </div>
+  );
+}
+
+function LearningDashboard() {
+  return (
+    <ZoomDisableProvider>
+      <LearningDashboardInner />
+    </ZoomDisableProvider>
   );
 }
 
