@@ -108,6 +108,18 @@
   }
 }
 
+.dialogTitleGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.dialogSubtitle {
+  display: flex;
+  align-items: center;
+}
+
 .closeButton {
   background: none;
   border: none;

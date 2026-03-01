@@ -10,6 +10,7 @@ export interface DialogProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   variant?: 'default' | 'sidebar';
   title?: React.ReactNode;
+  subtitle?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   closeOnOverlayClick?: boolean;

@@ -10,6 +10,7 @@ const Dialog: React.FC<DialogProps> = ({
   size = "md",
   variant = "default",
   title,
+  subtitle,
   children,
   footer,
   closeOnOverlayClick = true,
@@ -109,7 +110,10 @@ const Dialog: React.FC<DialogProps> = ({
         {/* Header */}
         {(title || showCloseButton) && (
           <div className={`${styles.dialogHeader} ${headerClassName}`}>
-            {title && (typeof title === "string" ? <h2>{title}</h2> : title)}
+            <div className={styles.dialogTitleGroup}>
+              {title && (typeof title === "string" ? <h2>{title}</h2> : title)}
+              {subtitle && <div className={styles.dialogSubtitle}>{subtitle}</div>}
+            </div>
             {showCloseButton && (
               <Button
                 variant="icon"

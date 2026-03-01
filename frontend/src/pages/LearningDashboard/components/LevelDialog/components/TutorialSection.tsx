@@ -11,37 +11,9 @@ interface TutorialSectionProps {
 }
 
 function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: TutorialSectionProps) {
-  const difficultyColors = {
-    1: '#4caf50',
-    2: '#4caf50',
-    3: '#ff9800',
-    4: '#f44336',
-    5: '#f44336'
-  };
-
-  const difficultyLabels = {
-    1: '非常簡單',
-    2: '簡單',
-    3: '中等',
-    4: '困難',
-    5: '非常困難'
-  };
-
   return (
     <div className={styles.tutorialSection}>
       <h3>教學模式</h3>
-
-      <div className={styles.levelInfo}>
-        <div className={styles.infoRow}>
-          <span className={styles.label}>難度：</span>
-          <span
-            className={styles.value}
-            style={{ color: difficultyColors[level.difficulty] }}
-          >
-            {difficultyLabels[level.difficulty]}
-          </span>
-        </div>
-      </div>
 
       <div className={styles.description}>
         <h4>演算法說明</h4>
