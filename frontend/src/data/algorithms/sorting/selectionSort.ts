@@ -66,8 +66,8 @@ export function createSelectionSortAnimationSteps(
     });
 
     for (let j = i + 1; j < n; j++) {
-      const scanVal = arr[j].value ?? 0;
-      const minVal = arr[minIdx].value ?? 0;
+      const scanVal = Number(arr[j].value);
+      const minVal = Number(arr[minIdx].value);
 
       steps.push({
         stepNumber: steps.length + 1,

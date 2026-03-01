@@ -19,8 +19,8 @@ export const statusColorMap: Record<Status, string> = {
 export abstract class BaseElement {
   readonly kind: "node" | "box" | "pointer";
   id: string = "";
-  // if value undefined will not be rendered
-  value: number | undefined = 0;
+  // if value is '' (empty string) will not be rendered
+  value: string = '0';
   position = { x: 0, y: 0 };
   status: Status = Status.Unfinished;
   description = "";

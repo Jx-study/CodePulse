@@ -65,7 +65,7 @@ const generateFrame = (
 
     // 1. 如果數值是 null (尚未計算)，強制覆蓋為 inactive (灰色)
     if (prefixList[i] === null) {
-      box.value = 0;
+      box.value = '0';
       box.setStatus(Status.Inactive);
     } 
     // 2. 如果數值已計算，且不在 map 中 (createBoxes 沒設定到狀態)
@@ -92,7 +92,7 @@ export function createPrefixSumAnimationSteps(
   let prefixArrForQuery: (number | null)[] = new Array(n).fill(0);
   let currentSum = 0;
   for (let i = 0; i < n; i++) {
-    currentSum += sourceData[i].value ?? 0;
+    currentSum += Number(sourceData[i].value) || 0;
     prefixArrForQuery[i] = currentSum;
   }
 
@@ -202,7 +202,7 @@ export function createPrefixSumAnimationSteps(
   });
 
   if (n > 0) {
-    const val0 = sourceData[0].value ?? 0;
+    const val0 = Number(sourceData[0].value) || 0;
     prefixArr[0] = val0;
 
     steps.push({
@@ -215,7 +215,7 @@ export function createPrefixSumAnimationSteps(
   }
 
   for (let i = 1; i < n; i++) {
-    const currentVal = sourceData[i].value ?? 0;
+    const currentVal = Number(sourceData[i].value) || 0;
     const prevSum = prefixArr[i - 1] ?? 0;
     const newSum = prevSum + currentVal;
 

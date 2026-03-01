@@ -49,11 +49,11 @@ function buildBST(data: any[]): LogicTreeNode | null {
 }
 
 function insertNodeLogic(root: LogicTreeNode, newNode: LogicTreeNode) {
-  if (newNode.value === root.value) {
+  if (Number(newNode.value) === Number(root.value)) {
     root.count += 1;
     return;
   }
-  if (newNode.value < root.value) {
+  if (Number(newNode.value) < Number(root.value)) {
     if (root.left) insertNodeLogic(root.left, newNode);
     else root.left = newNode;
   } else {
@@ -153,8 +153,8 @@ const generateFrame = (
       const status = statusMap[el.id] ? statusMap[el.id] : Status.Inactive;
       el.setStatus(status);
 
-      if (typeof (el as any).value === "number") {
-        (el as any).value = Math.round((el as any).value);
+      if (el.value !== '') {
+        el.value = String(Math.round(Number(el.value)));
       }
 
       const logicNode = uniqueData.find((d) => d.id === el.id);

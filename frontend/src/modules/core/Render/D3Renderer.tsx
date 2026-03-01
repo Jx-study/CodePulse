@@ -420,8 +420,8 @@ export function renderAll(
 
     const entry = groupData.get(group)!;
 
-    if (box.value !== undefined) {
-      entry.values.push(box.value);
+    if (box.value !== '') {
+      entry.values.push(Number(box.value));
     }
 
     // 這裡的邏輯是：只要該組有任一 Box 指定了高度，就採用該高度 (取最小值)
@@ -781,7 +781,7 @@ export function renderAll(
         .attr("y", d.radius / 2 - 5)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value !== undefined ? d.value : "");
+        .text(d.value);
     } else if (d.kind === "box" || d instanceof Box) {
       const box = d as Box;
       const rect = g.select<SVGRectElement>("rect");
@@ -794,7 +794,7 @@ export function renderAll(
         const scaleY = scaleYMap.get(group);
 
         if (scaleY) {
-          const val = box.value || 0;
+          const val = Number(box.value) || 0;
           const absVal = Math.abs(val);
           const barHeight = scaleY(absVal);
           const barWidth = box.width;
@@ -893,7 +893,7 @@ export function renderAll(
       textVal
         .attr("text-anchor", "middle")
         .attr("font-size", 14)
-        .text(box.value !== undefined ? box.value : "");
+        .text(box.value);
     } else if (d.kind === "pointer" || d instanceof Pointer) {
       const ptr = d as Pointer;
       const textLabel = g.select<SVGTextElement>("text.ptr-label");

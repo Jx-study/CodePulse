@@ -44,7 +44,7 @@ export function createGridElements(
   rawGrid.forEach((item, index) => {
     const box = new Box();
     box.id = item.id;
-    box.value = item.val; // 0:路, 1:牆
+    box.value = String(item.val); // 0:路, 1:牆
 
     const col = index % cols;
     const row = Math.floor(index / cols);
@@ -85,19 +85,19 @@ export const generateGridFrame = (
   const elements = createGridElements(gridData, cols);
 
   elements.forEach((box, index) => {
-    if (box.value === 1) {
-      box.value = "wall" as any;
+    if (box.value === '1') {
+      box.value = "wall";
       return;
     }
 
     if (showIdAsValue) {
-      box.value = index;
+      box.value = String(index);
     } else {
       // 顯示距離
       if (distanceMap[index] !== undefined) {
-        box.value = distanceMap[index];
+        box.value = String(distanceMap[index]);
       } else {
-        box.value = "∞" as any; // 未訪問
+        box.value = "∞"; // 未訪問
       }
     }
 
@@ -128,12 +128,10 @@ export const generateGraphFrame = (
 
     if (showIdAsValue) {
       const numId = parseInt(node.id.replace("node-", ""), 10);
-      newNode.value = isNaN(numId) ? -1 : numId;
+      newNode.value = isNaN(numId) ? '-1' : String(numId);
     } else {
       const dist = distanceMap[node.id];
-      newNode.value = (
-        dist === undefined || dist === Infinity ? "∞" : dist
-      ) as any;
+      newNode.value = dist === undefined || dist === Infinity ? "∞" : String(dist);
     }
 
     let x = node.position.x;
@@ -208,7 +206,7 @@ export function createGraphElements(
     rawNodes.forEach((n, i) => {
       const node = new Node();
       node.id = n.id;
-      node.value = n.value ?? i;
+      node.value = String(n.value ?? i);
       node.moveTo(n.x, n.y); // 直接使用儲存的座標
 
       elements.push(node);
@@ -260,7 +258,7 @@ export function createGraphElements(
     simNodes.forEach((simNode) => {
       const node = new Node();
       node.id = simNode.id;
-      node.value = simNode.val;
+      node.value = String(simNode.val);
 
       const maxX = isDijkstra ? 700 : CANVAS_W - PADDING;
 
@@ -354,7 +352,7 @@ export function buildBSTHierarchyData(
     const newNode = nodes[i];
 
     while (true) {
-      if (newNode.value < curr.value) {
+      if (Number(newNode.value) < Number(curr.value)) {
         if (curr.left) {
           curr = curr.left;
         } else {

@@ -97,7 +97,7 @@ export function createBinarySearchAnimationSteps(
     target = action.searchValue;
   } else if (arr.length > 0) {
     const targetIndex = Math.min(6, arr.length - 1);
-    target = arr[targetIndex].value || 0;
+    target = Number(arr[targetIndex].value) || 0;
   }
 
   let left = 0;
@@ -136,7 +136,7 @@ export function createBinarySearchAnimationSteps(
       elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Prepare }),
     });
 
-    const midVal = arr[mid].value ?? 0;
+    const midVal = Number(arr[mid].value);
 
     steps.push({
       stepNumber: steps.length + 1,

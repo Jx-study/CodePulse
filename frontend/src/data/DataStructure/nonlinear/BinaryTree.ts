@@ -8,7 +8,7 @@ import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 interface LogicTreeNode {
   id: string;
-  value: number;
+  value: number | string;
   left?: LogicTreeNode;
   right?: LogicTreeNode;
 }
@@ -108,7 +108,7 @@ const generateFrame = (
   const listElements = linearList.map((node, index) => {
     const box = new Box();
     box.id = `${containerType}-${node.id}`;
-    box.value = node.value;
+    box.value = String(node.value);
     const baseX = 850;
     const baseY = 355 - index * 35;
 
@@ -164,7 +164,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
   const root = buildLogicalTree(inputData);
   const callStack: LogicTreeNode[] = [];
   const visited: number[] = [];
-  const nullNode: LogicTreeNode = { id: "Null", value: "Null" as any };
+  const nullNode: LogicTreeNode = { id: "Null", value: "Null" };
 
   const getVars = (node?: LogicTreeNode) => {
     const stack = [...callStack.map((n) => n.value)];
@@ -434,7 +434,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
   const root = buildLogicalTree(inputData);
   const callStack: LogicTreeNode[] = [];
   const visited: number[] = [];
-  const nullNode: LogicTreeNode = { id: "Null", value: "Null" as any };
+  const nullNode: LogicTreeNode = { id: "Null", value: "Null" };
 
   const getVars = (node?: LogicTreeNode) => {
     const stack = [...callStack.map((n) => n.value)];
@@ -566,7 +566,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
     }
 
     statusMap[node.id] = Status.Complete;
-    visited.push(node.value);
+    visited.push(Number(node.value));
     steps.push(
       generateFrame(
         inputData,
@@ -705,7 +705,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
   const root = buildLogicalTree(inputData);
   const callStack: LogicTreeNode[] = [];
   const visited: number[] = [];
-  const nullNode: LogicTreeNode = { id: "Null", value: "Null" as any };
+  const nullNode: LogicTreeNode = { id: "Null", value: "Null" };
 
   const getVars = (node?: LogicTreeNode) => {
     const stack = [...callStack.map((n) => n.value)];
@@ -911,7 +911,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
     }
 
     statusMap[node.id] = Status.Complete;
-    visited.push(node.value);
+    visited.push(Number(node.value));
     steps.push(
       generateFrame(
         inputData,
@@ -970,7 +970,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
 
   const getVars = (curr?: LogicTreeNode) => ({
     currentNode: curr?.value ?? "None",
-    queue: queue.map((item) => item.node.value),
+    queue: queue.map((item) => Number(item.node.value)),
     visitedOrder: [...visited],
   });
 
@@ -1030,7 +1030,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
 
     queue.shift();
     statusMap[curr.id] = Status.Complete;
-    visited.push(curr.value);
+    visited.push(Number(curr.value));
     steps.push(
       generateFrame(
         inputData,

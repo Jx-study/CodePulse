@@ -88,7 +88,7 @@ export function createStackAnimationSteps(
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
-    s1NewBox.value = newNode.value;
+    s1NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
@@ -112,7 +112,7 @@ export function createStackAnimationSteps(
 
     const emptyBox = new Box();
     emptyBox.id = "empty-slot";
-    emptyBox.value = undefined;
+    emptyBox.value = '';
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentTop * gap, startY);
@@ -136,7 +136,7 @@ export function createStackAnimationSteps(
     const s3Boxes = createBoxes(oldList);
     const s3NewBox = new Box();
     s3NewBox.id = newNode.id;
-    s3NewBox.value = newNode.value;
+    s3NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentTop * gap, startY);
@@ -208,7 +208,7 @@ export function createStackAnimationSteps(
       if (i === currentTop) {
         movingBox = new Box();
         movingBox.id = item.id;
-        movingBox.value = item.value;
+        movingBox.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
         movingBox.width = 60;
         movingBox.height = 60;
         movingBox.description = "removed_value";
@@ -217,7 +217,7 @@ export function createStackAnimationSteps(
 
         ghostBox = new Box();
         ghostBox.id = `${item.id}-ghost`;
-        ghostBox.value = item.value;
+        ghostBox.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
         ghostBox.width = 60;
         ghostBox.height = 60;
         ghostBox.description = String(i);
@@ -227,7 +227,7 @@ export function createStackAnimationSteps(
       } else {
         const b = new Box();
         b.id = item.id;
-        b.value = item.value;
+        b.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
         b.width = 60;
         b.height = 60;
         b.description = String(i);
@@ -257,7 +257,7 @@ export function createStackAnimationSteps(
     fullList.slice(0, -1).forEach((item, i) => {
       const b = new Box();
       b.id = item.id;
-      b.value = item.value;
+      b.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
       b.width = 60;
       b.height = 60;
       b.description = String(i);
@@ -268,7 +268,7 @@ export function createStackAnimationSteps(
 
     const s3GhostBox = new Box();
     s3GhostBox.id = `${deletedNode.id}-ghost`;
-    s3GhostBox.value = deletedNode.value;
+    s3GhostBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
     s3GhostBox.width = 60;
     s3GhostBox.height = 60;
     s3GhostBox.description = String(fullList.length - 1);
@@ -279,7 +279,7 @@ export function createStackAnimationSteps(
 
     const s3MovingBox = new Box();
     s3MovingBox.id = deletedNode.id;
-    s3MovingBox.value = deletedNode.value;
+    s3MovingBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
     s3MovingBox.width = 60;
     s3MovingBox.height = 60;
     s3MovingBox.description = "removed_value";
@@ -301,7 +301,7 @@ export function createStackAnimationSteps(
 
     const s4GhostBox = new Box();
     s4GhostBox.id = `${deletedNode.id}-ghost`;
-    s4GhostBox.value = deletedNode.value;
+    s4GhostBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
     s4GhostBox.width = 60;
     s4GhostBox.height = 60;
     s4GhostBox.description = String(fullList.length - 1);
@@ -311,7 +311,7 @@ export function createStackAnimationSteps(
 
     const s4ReturnBox = new Box();
     s4ReturnBox.id = deletedNode.id;
-    s4ReturnBox.value = deletedNode.value;
+    s4ReturnBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
     s4ReturnBox.width = 60;
     s4ReturnBox.height = 60;
     s4ReturnBox.description = "removed_value";
