@@ -170,7 +170,7 @@ export const useDataStructureLogic = (config: any) => {
         }));
         isResetAction = true;
       } else if (actionType === "random") {
-        const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
+        const count = payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
         newData = [];
         for (let i = 0; i < count; i++) {
           newData.push({
@@ -224,7 +224,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
+          const count = payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -278,7 +278,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
+          const count = payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -365,7 +365,7 @@ export const useDataStructureLogic = (config: any) => {
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
         isResetAction = true;
         if (actionType === "random") {
-          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
+          const count = payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
           newData = [];
           for (let i = 0; i < count; i++)
             newData.push({
@@ -416,7 +416,7 @@ export const useDataStructureLogic = (config: any) => {
         isResetAction = true;
 
         if (actionType === "random") {
-          const count = Math.min(payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT, DATA_LIMITS.MAX_NODES);
+          const count = payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
           newData = [];
           for (let i = 0; i < count; i++) {
             newData.push({
