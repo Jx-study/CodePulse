@@ -246,6 +246,8 @@ function TutorialContent() {
   const [hasTailMode, setHasTailMode] = useState(false);
   const [viewMode, setViewMode] = useState<string>("");
   const [isDirected, setIsDirected] = useState(false);
+  const [activeInspectorTab, setActiveInspectorTab] =
+    useState<string>("actionBar");
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -567,8 +569,6 @@ function TutorialContent() {
   // ==================== Inspector Panel Component ====================
   const InspectorPanelInternal = () => {
     const { activePanels } = usePanelContext();
-    const [activeInspectorTab, setActiveInspectorTab] =
-      useState<string>("actionBar");
 
     // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
     const inspectorTabs: TabConfig[] = useMemo(() => {
