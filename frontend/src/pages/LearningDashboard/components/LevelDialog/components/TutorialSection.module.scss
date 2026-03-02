@@ -1,3 +1,4 @@
+@use 'sass:color';
 // 藍色主題色
 $blue-theme: #3b82f6;
 $blue-bg-light: rgba(59, 130, 246, 0.06);
@@ -109,22 +110,22 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
 .startTutorialButton {
   width: 100%;
   margin-top: auto;
-  background: $gradient-primary;
+  background: $blue-theme;
   border-top: 1px solid $blue-border-light;
   padding-top: $spacing-sm;
+  color: $white-color;
+  font-weight: 700;
+  flex-shrink: 0;
 
   &:hover {
     transform: $hover-transform;
-    box-shadow: 0 4px 12px rgba($blue-theme, 0.35);
+    background: color.adjust($color: $blue-theme, $lightness: -5%) !important;
+    border-color: unset !important;
   }
 
   @media (prefers-color-scheme: dark) {
     border-top-color: $blue-border-dark;
   }
-}
-
-.completedBadge {
-  // Badge now handled by Badge component
 }
 
 // 響應式設計

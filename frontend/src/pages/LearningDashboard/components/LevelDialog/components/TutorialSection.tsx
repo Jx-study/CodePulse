@@ -2,6 +2,7 @@ import styles from './TutorialSection.module.scss';
 import Button from '@/shared/components/Button';
 import Badge from '@/shared/components/Badge';
 import type { Level } from '@/types';
+import Icon from '@/shared/components/Icon/Icon';
 
 interface TutorialSectionProps {
   level: Level;
@@ -34,11 +35,12 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: Tuto
       )}
 
       <Button
-        variant="ghost"
+        variant="secondary"
         onClick={onStartTutorial}
         disabled={isLocked}
         className={styles.startTutorialButton}
         fullWidth
+        iconLeft={<Icon name="play" />}
       >
         {isCompleted ? "重新學習" : "開始教學"}
       </Button>
@@ -49,7 +51,7 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: Tuto
         <Badge
           variant="success"
           size="sm"
-          icon={<span>✓</span>}
+          icon={<Icon name="check" />}
           className={styles.completedBadge}
         >
           已完成教學
