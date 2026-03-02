@@ -21,7 +21,6 @@ const TAGS = {
   DEQUEUE_CHECK_EMPTY: "DEQUEUE_CHECK_EMPTY",
   DEQUEUE_ERROR: "DEQUEUE_ERROR",
   DEQUEUE_GET_VALUE: "DEQUEUE_GET_VALUE",
-  DEQUEUE_SHIFT: "DEQUEUE_SHIFT",
   DEQUEUE_DEC_REAR: "DEQUEUE_DEC_REAR",
   DEQUEUE_RETURN: "DEQUEUE_RETURN",
   DEQUEUE_COMPLETE: "DEQUEUE_COMPLETE",
@@ -285,7 +284,7 @@ export function createQueueAnimationSteps(
         movingBox,
         ...createQueuePointers(0, oldRear, startX, startY, gap),
       ],
-      actionTag: TAGS.DEQUEUE_SHIFT,
+      actionTag: TAGS.DEQUEUE_DEC_REAR,
       variables: { front: 0, rear: oldRear, removed_value: value },
     });
 
@@ -405,73 +404,82 @@ const queueCodeConfig: CodeConfig = {
   Data:
     front ← 0
     rear ← -1
+    size ← 0
     queue ← Array of Size
 
   Procedure enqueue(value):
+    If size = Size Then
+        Return Error
+    End If
+    size ← size + 1
     rear ← rear + 1
     queue[rear] ← value
   End Procedure
 
   Procedure dequeue():
-    If is_empty() Then
-      Return Error
+    If size = 0 Then
+        Return Error
     End If
     removed_value ← queue[front]
-    shift_left()
-    rear ← rear - 1
+    front ← front + 1
+    size ← size - 1
     Return removed_value
   End Procedure
 
   Procedure peek():
-    If is_empty() Then
-      Return null
+    If size = 0 Then
+        Return null
     End If
     Return queue[front]
   End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3, 4, 5],
-      [TAGS.ENQUEUE_START]: [7],
-      [TAGS.ENQUEUE_INC_REAR]: [8],
-      [TAGS.ENQUEUE_ASSIGN]: [9],
-      [TAGS.ENQUEUE_COMPLETE]: [10],
-      [TAGS.DEQUEUE_START]: [12],
-      [TAGS.DEQUEUE_CHECK_EMPTY]: [13],
-      [TAGS.DEQUEUE_ERROR]: [14],
-      [TAGS.DEQUEUE_GET_VALUE]: [16],
-      [TAGS.DEQUEUE_SHIFT]: [17],
-      [TAGS.DEQUEUE_DEC_REAR]: [18],
-      [TAGS.DEQUEUE_RETURN]: [19],
-      [TAGS.DEQUEUE_COMPLETE]: [20],
-      [TAGS.PEEK_START]: [22],
-      [TAGS.PEEK_CHECK_EMPTY]: [23],
-      [TAGS.PEEK_ERROR]: [24],
-      [TAGS.PEEK_RETURN]: [26],
-      [TAGS.PEEK_COMPLETE]: [27],
+      [TAGS.INIT]: [2, 3, 4, 5,6],
+      [TAGS.ENQUEUE_START]: [8],
+      [TAGS.ENQUEUE_INC_REAR]: [12, 13],
+      [TAGS.ENQUEUE_ASSIGN]: [14],
+      [TAGS.ENQUEUE_COMPLETE]: [15],
+      [TAGS.DEQUEUE_START]: [17],
+      [TAGS.DEQUEUE_CHECK_EMPTY]: [18],
+      [TAGS.DEQUEUE_ERROR]: [19],
+      [TAGS.DEQUEUE_GET_VALUE]: [21],
+      [TAGS.DEQUEUE_DEC_REAR]: [22, 23],
+      [TAGS.DEQUEUE_RETURN]: [24],
+      [TAGS.DEQUEUE_COMPLETE]: [25],
+      [TAGS.PEEK_START]: [27],
+      [TAGS.PEEK_CHECK_EMPTY]: [28],
+      [TAGS.PEEK_ERROR]: [29],
+      [TAGS.PEEK_RETURN]: [31],
+      [TAGS.PEEK_COMPLETE]: [32],
     },
   },
   python: {
-    content: `class Queue:
-    def __init__(self, capacity: int):
-        self.queue = []
-        self.front = 0
-        self.rear = -1
+    content: `from collections import deque
 
-    def enqueue(self, value: int) -> None:
-        self.rear += 1
+class Queue:
+    def __init__(self):
+        # 使用 deque 作為底層儲存
+        self.queue = deque()
+
+    def enqueue(self, value):
+        # 從右邊（尾部）加入
         self.queue.append(value)
 
-    def dequeue(self) -> int:
-        if len(self.queue) == 0:
+    def dequeue(self):
+        # 從左邊（頭部）取出
+        if self.is_empty():
             raise Exception("Queue Underflow")
-        value = self.queue[0]
-        self.queue.pop(0)
-        self.rear -= 1
-        return value
+        return self.queue.popleft()
 
-    def peek(self) -> int:
-        if len(self.queue) == 0:
+    def peek(self):
+        if self.is_empty():
             return None
-        return self.queue[0]`,
+        return self.queue[0]
+
+    def is_empty(self):
+        return len(self.queue) == 0
+
+    def size(self):
+        return len(self.queue)`,
   },
 };
 
