@@ -1,5 +1,4 @@
-@import "@/shared/styles/_variables";
-@import "@/shared/styles/_mixins";
+@use 'sass:color';
 
 .analysisCard {
   background: var(--bg-secondary);
@@ -126,7 +125,7 @@
     background: linear-gradient(
       135deg,
       $error-color,
-      darken($error-color, 10%)
+      color.adjust($error-color, $lightness: -10%)
     );
   }
 }
