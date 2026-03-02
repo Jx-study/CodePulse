@@ -1,62 +1,42 @@
 import styles from './PracticeSection.module.scss';
 import Button from '@/shared/components/Button';
 import StarRating from '@/shared/components/StarRating';
-import ProgressBar from '@/shared/components/ProgressBar';
 import Badge from '@/shared/components/Badge';
 import type { Level, PrerequisiteConfig } from '@/types';
+import Icon from '@/shared/components/Icon/Icon';
 
 interface PracticeSectionProps {
   level: Level;
   onStartPractice: () => void;
   onCompleteLevel?: () => void; // 測試用：完成關卡
-  completionPercentage: number;
   bestStars: number;
   attempts: number;
+  bestTime: number; // seconds, 0 = not recorded
   isLocked: boolean;
   prerequisiteInfo?: PrerequisiteConfig;
 }
 
+function formatTime(seconds: number): string {
+  if (seconds <= 0) return '--:--';
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
 function PracticeSection({
-  level,
   onStartPractice,
   onCompleteLevel,
-  completionPercentage,
   bestStars,
   attempts,
+  bestTime,
   isLocked,
   prerequisiteInfo
 }: PracticeSectionProps) {
+  const isCompleted = bestStars > 0;
+
   return (
     <div className={styles.practiceSection}>
       <h3>練習模式</h3>
-
-      {completionPercentage > 0 && (
-        <div className={styles.practiceProgress}>
-          <h4>練習進度</h4>
-          <ProgressBar
-            value={completionPercentage}
-            max={100}
-            variant="success"
-            size="md"
-            showLabel
-            animated
-          />
-        </div>
-      )}
-
-      {bestStars > 0 && (
-        <div className={styles.bestScore}>
-          <h4>最佳成績</h4>
-          <StarRating
-            value={bestStars}
-            max={3}
-            size="xl"
-            icon="emoji"
-            readonly
-            className={styles.stars}
-          />
-        </div>
-      )}
 
       <div className={styles.requirements}>
         <h4>通關條件</h4>
@@ -67,54 +47,73 @@ function PracticeSection({
         </ul>
       </div>
 
-      {attempts > 0 && (
-        <div className={styles.stats}>
-          <span className={styles.label}>嘗試次數：</span>
-          <span className={styles.value}>{attempts}</span>
+      {isCompleted && (
+        <div className={styles.bestRecord}>
+          <StarRating
+            value={bestStars}
+            max={3}
+            size="md"
+            icon="emoji"
+            readonly
+            className={styles.stars}
+          />
+          <div className={styles.score}>100%</div>
+          <div className={styles.divider} />
+          <div className={styles.statsRow}>
+            <div className={styles.stat}>
+              <Icon name="stopwatch" />
+              <span className={styles.statLabel}>最佳時間</span>
+              <span className={styles.statValue}>{formatTime(bestTime)}</span>
+            </div>
+            <div className={styles.stat}>
+              <Icon name="rotate" />
+              <span className={styles.statLabel}>嘗試次數</span>
+              <span className={styles.statValue}>{attempts} 次</span>
+            </div>
+          </div>
         </div>
       )}
 
       <Button
-        variant="ghost"
+        variant="secondary"
         onClick={onStartPractice}
         disabled={isLocked}
         className={styles.startPracticeButton}
         fullWidth
+        iconLeft={<Icon name="code" />}
       >
-        {completionPercentage > 0 ? '重新挑戰' : '開始練習'}
+        {isCompleted ? "重新挑戰" : "開始練習"}
       </Button>
 
-      {onCompleteLevel && (
+      {onCompleteLevel && !isCompleted && (
         <Button
           variant="primary"
           onClick={onCompleteLevel}
-          disabled={isLocked || completionPercentage === 100}
+          disabled={isLocked}
           className={styles.startPracticeButton}
           fullWidth
         >
-          {completionPercentage === 100 ? '已完成' : '測試：完成關卡'}
+          測試：完成關卡
         </Button>
       )}
 
       {isLocked && prerequisiteInfo && (
         <p className={styles.lockedHint}>
-          {prerequisiteInfo.type === 'AND'
+          {prerequisiteInfo.type === "AND"
             ? `需要完成所有前置關卡才能解鎖練習模式`
             : `完成任一前置關卡即可解鎖練習模式`}
         </p>
       )}
 
       {isLocked && !prerequisiteInfo && (
-        <p className={styles.lockedHint}>
-          完成前置關卡以解鎖練習模式
-        </p>
+        <p className={styles.lockedHint}>完成前置關卡以解鎖練習模式</p>
       )}
 
-      {completionPercentage === 100 && (
+      {isCompleted && (
         <Badge
           variant="success"
           size="sm"
-          icon={<span>✓</span>}
+          icon={<Icon name="check" />}
           className={styles.completedBadge}
         >
           已完成練習

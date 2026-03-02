@@ -34,7 +34,6 @@ function LevelDialog({
   practiceLocked,
   prerequisiteInfo
 }: LevelDialogProps) {
-  const completionPercentage = userProgress.status === 'completed' ? 100 : 0;
 
   const difficultyBadge = (
     <Badge variant={difficultyVariant[level.difficulty] ?? 'secondary'} size="sm" shape="pill">
@@ -65,9 +64,9 @@ function LevelDialog({
         level={level}
         onStartPractice={onStartPractice}
         onCompleteLevel={onCompleteLevel}
-        completionPercentage={completionPercentage}
         bestStars={userProgress.stars}
         attempts={userProgress.attempts}
+        bestTime={userProgress.bestTime}
         isLocked={practiceLocked}
         prerequisiteInfo={prerequisiteInfo}
       />
