@@ -15,7 +15,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    navigate("/dashboard");
+    const backPath = items[0]?.path ?? "/dashboard";
+    navigate(backPath);
   };
 
   const handleItemClick = (path: string | null) => {
