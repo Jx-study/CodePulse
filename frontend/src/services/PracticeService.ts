@@ -53,12 +53,19 @@ const Validators: Record<string, ValidatorFn> = {
 
     if (ans.length !== q.correctAnswer.length) return false;
 
-    // 正規化：去頭尾空白
-    const normalize = (str: string) => (str || "").trim();
+    // 正規化：去頭尾空白 + 移除運算子前後空格
+    const normalize = (str: string) =>
+      (str || "")
+        .trim()
+        .replace(/\s*([+\-*/%=<>!&|^()[\]])\s*/g, "$1");
 
-    // 每一格都要對才算對
-    return q.correctAnswer.every((correctStr, index) => {
-      return normalize(ans[index]) === normalize(correctStr);
+    return q.correctAnswer.every((correctVal, index) => {
+      const userNorm = normalize(ans[index]);
+      // 支援單一答案或多接受答案陣列
+      if (Array.isArray(correctVal)) {
+        return correctVal.some((v) => normalize(v) === userNorm);
+      }
+      return normalize(correctVal) === userNorm;
     });
   },
 };

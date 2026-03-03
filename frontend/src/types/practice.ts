@@ -29,7 +29,7 @@ export interface Question {
   code?: string; // 程式碼內容
   language?: string; // 程式語言 (python, java, etc.)
 
-  correctAnswer: string | string[];
+  correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
   points: number;
   groupId?: string;
@@ -85,7 +85,7 @@ export interface PracticeResult {
 export interface WrongQuestion {
   questionId: string;
   userAnswer: string | string[];
-  correctAnswer: string | string[];
+  correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
   timeSpent: number;
 }
