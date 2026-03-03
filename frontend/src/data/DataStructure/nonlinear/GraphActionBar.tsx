@@ -7,11 +7,11 @@ import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
   ActionBarGroup,
+  DataRow,
   GraphLoaderModal,
   StaticLabel,
   styles,
 } from "@/modules/core/components/ActionBar/ActionBarCommon";
-import { DATA_LIMITS } from "@/constants/dataLimits";
 
 export const GraphActionBar: React.FC<DSActionBarProps> = ({
   onLoadData,
@@ -29,10 +29,6 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
   const [sourceNode, setSourceNode] = useState("");
   const [targetNode, setTargetNode] = useState("");
   const [showGraphLoader, setShowGraphLoader] = useState(false);
-  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-  const [randomCountInput, setRandomCountInput] = useState(
-    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT)
-  );
 
   const handleGraphAction = (action: string) => {
     if (disabled || !onGraphAction) return;
@@ -80,67 +76,16 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             載入 Graph 資料
           </Button>
         </Tooltip>
-        <Tooltip content="清除所有資料，恢復初始狀態">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onResetData}
-            disabled={disabled}
-            icon="rotate-right"
-          >
-            重設
-          </Button>
-        </Tooltip>
-        <Tooltip content="隨機生成一組圖形資料">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onRandomData()}
-            disabled={disabled}
-            icon="shuffle"
-          >
-            隨機
-          </Button>
-        </Tooltip>
-
-        <div className={styles.settingItem}>
-          <label className={styles.smallLabel}>隨機筆數:</label>
-          <Input
-            type="number"
-            value={randomCountInput}
-            min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={maxNodes}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setRandomCountInput(e.target.value)
-            }
-            onBlur={() => {
-              const num = Number(randomCountInput);
-              if (isNaN(num) || randomCountInput.trim() === "") {
-                setRandomCountInput(String(randomCount));
-              } else {
-                if (maxNodes !== undefined && num > maxNodes) {
-                  onLimitExceeded?.();
-                }
-                const v = Math.min(
-                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  maxNodes ?? num
-                );
-                setRandomCount(v);
-                setRandomCountInput(String(v));
-                onMaxNodesChange?.(v);
-              }
-            }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter") {
-                (e.target as HTMLInputElement).blur();
-              }
-            }}
-            className={styles.input}
-            disabled={disabled}
-            fullWidth={false}
-            aria-label="Random count"
-          />
-        </div>
+        <DataRow
+          onLoadData={onLoadData}
+          onResetData={onResetData}
+          onRandomData={onRandomData}
+          onMaxNodesChange={onMaxNodesChange}
+          onLimitExceeded={onLimitExceeded}
+          disabled={disabled}
+          maxNodes={maxNodes}
+          hideLoadButton
+        />
       </ActionBarGroup>
 
       {/* 第二行：操作控制 */}
@@ -167,6 +112,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("addVertex")}
             disabled={disabled}
             className={styles.btnInsert}
+            icon="plus"
           >
             新增
           </Button>
@@ -178,6 +124,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("removeVertex")}
             disabled={disabled}
             className={styles.btnDelete}
+            icon="trash"
           >
             刪除
           </Button>
@@ -189,6 +136,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("getNeighbors")}
             disabled={disabled}
             className={styles.btnQuery}
+            icon="search"
           >
             找鄰居
           </Button>
@@ -200,6 +148,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("getDegree")}
             disabled={disabled}
             className={styles.btnQuery}
+            icon="search"
           >
             度數
           </Button>
@@ -239,6 +188,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("addEdge")}
             disabled={disabled}
             className={styles.btnInsert}
+            icon="plus"
           >
             連線
           </Button>
@@ -250,6 +200,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("removeEdge")}
             disabled={disabled}
             className={styles.btnDelete}
+            icon="trash"
           >
             斷線
           </Button>
@@ -261,6 +212,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("checkAdjacent")}
             disabled={disabled}
             className={styles.btnQuery}
+            icon="search"
           >
             檢查
           </Button>
@@ -273,8 +225,8 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onIsDirectedChange && onIsDirectedChange(e.target.checked)
           }
           disabled={disabled}
-          className={styles.smallLabel}
           aria-label="Directed graph"
+          className={styles.directedCheckbox}
         />
 
         <Tooltip content="檢查圖是否連通">
@@ -284,6 +236,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("checkConnected")}
             disabled={disabled}
             className={styles.btnQuery}
+            icon="diagram-project"
           >
             連通性
           </Button>
@@ -295,6 +248,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => handleGraphAction("checkCycle")}
             disabled={disabled}
             className={styles.btnQuery}
+            icon="arrows-spin"
           >
             是否有環
           </Button>

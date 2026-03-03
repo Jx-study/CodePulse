@@ -737,7 +737,7 @@
         "掌握權重邊的鬆弛 (Relaxation) 操作",
         "分析無法處理負權重邊的原因"
       ],
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",

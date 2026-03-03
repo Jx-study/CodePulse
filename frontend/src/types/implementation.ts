@@ -93,6 +93,8 @@ export interface LevelImplementationConfig {
   getCodeConfig?: (payload?: any) => CodeConfig;
   /** 最大資料筆數。undefined = 真的不限制（由 viewBox 自動縮放）。 */
   maxNodes?: number;
+  /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
+  defaultViewMode?: AlgorithmViewMode;
   /** 各資料結構/演算法自行定義的 ActionBar 元件 */
   renderActionBar?: (props: ActionBarProps) => ReactNode;
 }

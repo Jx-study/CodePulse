@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Checkbox from "@/shared/components/Checkbox";
+import Input from "@/shared/components/Input";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import {
@@ -23,6 +24,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
   isDirected = false,
   onIsDirectedChange,
   currentData,
+  maxNodes,
 }) => {
   const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
   const [randomCountInput, setRandomCountInput] = useState(
@@ -99,11 +101,12 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         </Tooltip>
         <div className={styles.settingItem}>
           <label className={styles.smallLabel}>隨機筆數:</label>
-          <input
+          <Input
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
             max={maxNodes}
+            fullWidth={false}
             onChange={(e) => setRandomCountInput(e.target.value)}
             onBlur={() => {
               const num = Number(randomCountInput);
@@ -143,19 +146,21 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         <StaticLabel>Dijkstra Control</StaticLabel>
 
         <div className={styles.startEndContainer}>
-          <input
+          <Input
             type="number"
             placeholder="起點(0)"
             value={graphStartElement}
+            fullWidth={false}
             onChange={(e) => setGraphStartElement(e.target.value)}
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
           />
           <span className={styles.startEndSeparator}>-</span>
-          <input
+          <Input
             type="number"
             placeholder="終點(N)"
             value={graphEndElement}
+            fullWidth={false}
             onChange={(e) => setGraphEndElement(e.target.value)}
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
@@ -169,16 +174,17 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
             onIsDirectedChange && onIsDirectedChange(e.target.checked)
           }
           disabled={disabled}
-          className={styles.smallLabel}
           aria-label="Directed graph"
         />
 
         <Tooltip content="執行 Dijkstra 最短路徑演算法">
           <Button
             size="sm"
+            variant="secondary"
             onClick={handleRun}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonTechnique}`}
+            className={styles.btnRun}
+            icon="play"
           >
             開始執行
           </Button>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import Select from "@/shared/components/Select";
 import type { AlgoActionBarProps, AlgorithmViewMode } from "@/types/implementation";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import {
@@ -166,17 +167,24 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
           </Tooltip>
         )}
         <Tooltip content="清除所有資料，恢復初始狀態">
-          <Button size="sm" onClick={onResetData} disabled={disabled}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onResetData}
+            disabled={disabled}
+            icon="rotate-right"
+          >
             重設
           </Button>
         </Tooltip>
         <div className={styles.settingItem}>
           <label className={styles.smallLabel}>隨機筆數:</label>
-          <input
+          <Input
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
             max={maxNodes}
+            fullWidth={false}
             onChange={(e) => setRandomCountInput(e.target.value)}
             onBlur={() => {
               const num = Number(randomCountInput);
@@ -188,7 +196,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  maxNodes ?? num
+                  maxNodes ?? num,
                 );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
@@ -202,10 +210,12 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             }}
             className={styles.input}
             disabled={disabled}
+            aria-label="Random count"
           />
         </div>
         <Tooltip content="隨機生成一組資料">
           <Button
+            variant="secondary"
             size="sm"
             onClick={() => {
               if (viewMode === "grid") {
@@ -215,6 +225,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
               }
             }}
             disabled={disabled}
+            icon="shuffle"
           >
             隨機
           </Button>
@@ -222,20 +233,24 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         {viewMode === "grid" && (
           <div className={styles.gridRowsColsContainer}>
             <label className={styles.smallLabel}>R:</label>
-            <input
+            <Input
               type="number"
-              min="1"
+              min={1}
               value={gridRows}
+              fullWidth={false}
               onChange={(e) => setGridRows(e.target.value)}
               className={`${styles.input} ${styles.gridRowColInput}`}
+              aria-label="Grid rows"
             />
             <label className={styles.smallLabel}>C:</label>
-            <input
+            <Input
               type="number"
-              min="1"
+              min={1}
               value={gridCols}
+              fullWidth={false}
               onChange={(e) => setGridCols(e.target.value)}
               className={`${styles.input} ${styles.gridRowColInput}`}
+              aria-label="Grid cols"
             />
           </div>
         )}
@@ -247,24 +262,29 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
 
         <div className={styles.viewModeContainer}>
           <span className={styles.viewModeLabel}>視圖:</span>
-          <select
+          <Select
             value={viewMode}
             onChange={(e) =>
               onViewModeChange?.(e.target.value as AlgorithmViewMode)
             }
             disabled={disabled}
+            size="sm"
+            fullWidth={false}
             className={styles.viewModeSelect}
-          >
-            <option value="graph">Graph (節點圖)</option>
-            <option value="grid">Grid (迷宮圖)</option>
-          </select>
+            options={[
+              { value: "graph", label: "Graph (節點圖)" },
+              { value: "grid", label: "Grid (迷宮圖)" },
+            ]}
+            aria-label="View mode"
+          />
         </div>
 
         <div className={styles.startEndContainer}>
-          <input
+          <Input
             type="number"
             placeholder="起點(0)"
             value={viewMode === "graph" ? graphStartElement : gridStartElement}
+            fullWidth={false}
             onChange={(e) =>
               viewMode === "graph"
                 ? setGraphStartElement(e.target.value)
@@ -272,12 +292,14 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             }
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
+            aria-label="Start node"
           />
           <span className={styles.startEndSeparator}>-</span>
-          <input
+          <Input
             type="number"
             placeholder="終點(N)"
             value={viewMode === "graph" ? graphEndElement : gridEndElement}
+            fullWidth={false}
             onChange={(e) =>
               viewMode === "graph"
                 ? setGraphEndElement(e.target.value)
@@ -285,15 +307,17 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             }
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
+            aria-label="End node"
           />
         </div>
 
         <Tooltip content="執行 BFS/DFS 演算法">
           <Button
             size="sm"
+            variant="secondary"
             onClick={handleRun}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonTechnique}`}
+            className={styles.btnRun}
           >
             開始執行
           </Button>

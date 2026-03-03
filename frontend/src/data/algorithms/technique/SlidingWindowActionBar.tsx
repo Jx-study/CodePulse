@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import Select from "@/shared/components/Select";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -51,15 +52,19 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
         <StaticLabel>Sliding Window Control</StaticLabel>
         <div className={styles.viewModeContainer}>
           <span className={styles.viewModeLabel}>模式:</span>
-          <select
+          <Select
             value={windowMode}
             onChange={(e) => setWindowMode(e.target.value)}
             disabled={disabled}
+            size="sm"
+            fullWidth={false}
             className={styles.viewModeSelect}
-          >
-            <option value="longest_lte">最長區間 (Sum &le; Target)</option>
-            <option value="shortest_gte">最短區間 (Sum &ge; Target)</option>
-          </select>
+            options={[
+              { value: "longest_lte", label: "最長區間 (Sum ≤ Target)" },
+              { value: "shortest_gte", label: "最短區間 (Sum ≥ Target)" },
+            ]}
+            aria-label="Window mode"
+          />
         </div>
         <Input
           type="number"
@@ -76,9 +81,11 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
         <Tooltip content="執行滑動視窗演算法演示">
           <Button
             size="sm"
+            variant="secondary"
             onClick={handleRun}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonTechnique}`}
+            className={styles.btnRun}
+            icon="play"
           >
             開始演示
           </Button>

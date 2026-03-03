@@ -89,9 +89,11 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
         <Tooltip content="執行前綴和演算法演示">
           <Button
             size="sm"
+            variant="secondary"
             onClick={handleRun}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonTechnique}`}
+            className={styles.btnRun}
+            icon="play"
           >
             開始演示
           </Button>

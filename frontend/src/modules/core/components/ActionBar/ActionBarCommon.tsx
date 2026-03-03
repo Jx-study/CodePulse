@@ -29,6 +29,7 @@ export interface DataRowProps {
   onLimitExceeded?: () => void;
   disabled?: boolean;
   maxNodes?: number;
+  hideLoadButton?: boolean;
 }
 
 export const DataRow: React.FC<DataRowProps> = ({
@@ -39,6 +40,7 @@ export const DataRow: React.FC<DataRowProps> = ({
   onLimitExceeded,
   disabled = false,
   maxNodes,
+  hideLoadButton = false,
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [randomCount, setRandomCount] = useState(
@@ -50,28 +52,32 @@ export const DataRow: React.FC<DataRowProps> = ({
 
   return (
     <>
-      <Input
-        type="text"
-        placeholder="10,40,30..."
-        value={bulkInput}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setBulkInput(e.target.value)
-        }
-        className={styles.input}
-        disabled={disabled}
-        fullWidth={false}
-        aria-label="Bulk data input"
-      />
-      <Tooltip content="輸入逗號分隔的數字，點擊載入">
-        <Button
-          size="sm"
-          onClick={() => onLoadData(bulkInput)}
-          disabled={disabled}
-          icon="download"
-        >
-          載入資料
-        </Button>
-      </Tooltip>
+      {!hideLoadButton && (
+        <>
+          <Input
+            type="text"
+            placeholder="10,40,30..."
+            value={bulkInput}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setBulkInput(e.target.value)
+            }
+            className={styles.input}
+            disabled={disabled}
+            fullWidth={false}
+            aria-label="Bulk data input"
+          />
+          <Tooltip content="輸入逗號分隔的數字，點擊載入">
+            <Button
+              size="sm"
+              onClick={() => onLoadData(bulkInput)}
+              disabled={disabled}
+              icon="download"
+            >
+              載入資料
+            </Button>
+          </Tooltip>
+        </>
+      )}
       <Tooltip content="清除所有資料，恢復初始狀態">
         <Button
           variant="secondary"
@@ -196,11 +202,13 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
         <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
         <div className={styles.modalFieldRow}>
           <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
-          <input
+          <Input
             type="number"
             value={nodeCount}
+            fullWidth={false}
             onChange={(e) => setNodeCount(e.target.value)}
             className={`${styles.input} ${styles.nodeCountInput}`}
+            aria-label="Node count"
           />
         </div>
         <div className={styles.modalFieldColumn}>

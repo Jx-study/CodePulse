@@ -39,9 +39,11 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
         <Tooltip content="執行排序演算法">
           <Button
             size="sm"
+            variant="secondary"
             onClick={() => onRun()}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonSorting}`}
+            className={styles.btnRun}
+            icon="play"
           >
             開始排序
           </Button>

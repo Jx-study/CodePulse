@@ -62,6 +62,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
         />
         {onTailModeChange && (
           <Select
+            size="sm"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               onTailModeChange(e.target.value === "hasTail")
             }
@@ -80,19 +81,20 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
         <StaticLabel>Linked List Operations</StaticLabel>
 
         <Select
+          size="sm"
           value={insertMode}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
             setInsertMode(e.target.value)
           }
           className={styles.select}
           disabled={disabled}
-          options={[]}
+          options={[
+            { value: "head", label: "Head" },
+            { value: "tail", label: "Tail" },
+            { value: "n", label: "Node N" },
+          ]}
           aria-label="Insert mode"
-        >
-          <option key="head" value="Head">Head</option>
-          <option key="tail" value="Tail">Tail</option>
-          <option key="n" value="Node N">Node N</option>
-        </Select>
+        />
 
         <Input
           type="number"
