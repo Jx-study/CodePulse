@@ -478,7 +478,7 @@ export const QueueConfig: LevelImplementationConfig = {
   id: "queue",
   type: "dataStructure",
   name: "佇列 (Queue)",
-  categoryName: "線性表",
+  categoryName: "資料結構",
   description: "FIFO (First In First Out)",
   codeConfig: queueCodeConfig,
   complexity: {

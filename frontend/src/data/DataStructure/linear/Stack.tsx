@@ -479,7 +479,7 @@ export const StackConfig: LevelImplementationConfig = {
   id: "stack",
   type: "dataStructure",
   name: "堆疊 (Stack)",
-  categoryName: "線性表",
+  categoryName: "資料結構",
   description: "LIFO (Last In First Out)",
   codeConfig: stackCodeConfig,
   complexity: {

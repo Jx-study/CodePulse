@@ -1476,7 +1476,7 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
   id: "bst",
   type: "dataStructure",
   name: "二元搜尋樹 (BST)",
-  categoryName: "非線性表",
+  categoryName: "資料結構",
   description:
     "具有排序性質的二元樹，左子樹小於根，右子樹大於根，重複值以計數顯示",
   codeConfig: binarySearchTreeCodeConfig,

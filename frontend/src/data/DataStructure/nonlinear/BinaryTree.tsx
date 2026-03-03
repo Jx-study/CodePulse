@@ -1128,7 +1128,7 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
   id: "binarytree",
   type: "dataStructure",
   name: "二元樹 (Binary Tree)",
-  categoryName: "非線性表",
+  categoryName: "資料結構",
   description: "每個節點最多有兩個子節點的樹狀結構",
   codeConfig: binaryTreeCodeConfig,
   complexity: {

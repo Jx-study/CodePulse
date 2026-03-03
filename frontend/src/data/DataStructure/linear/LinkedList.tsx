@@ -2342,7 +2342,7 @@ export const linkedListConfig: LevelImplementationConfig = {
   id: "linkedlist",
   type: "dataStructure",
   name: "鏈結串列 (Linked List)",
-  categoryName: "線性表",
+  categoryName: "資料結構",
   description: "動態的線性數據結構",
   codeConfig: linkedListNoTailCodeConfig,
   complexity: {
