@@ -5,8 +5,8 @@
   padding-right: 40px; // 留空間給自訂箭頭
   font-size: $font-sm;
   color: var(--text-primary);
-  background-color: var(--input-bg);
-  border: 1px solid var(--input-border);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   transition: all $transition-base;
   outline: none;
@@ -28,6 +28,25 @@
     width: auto;
   }
 
+  // ========== Size Variants ==========
+  &.selectSm {
+    padding: $spacing-xs $spacing-sm;
+    padding-right: 32px;
+    font-size: $font-xs;
+  }
+
+  &.selectMd {
+    padding: $spacing-sm $spacing-md;
+    padding-right: 40px;
+    font-size: $font-sm;
+  }
+
+  &.selectLg {
+    padding: $spacing-md $spacing-lg;
+    padding-right: 48px;
+    font-size: $font-base;
+  }
+
   // ========== Focus State ==========
   &:focus {
     border-color: $primary-color;
@@ -42,10 +61,10 @@
 
   // ========== Error State ==========
   &.selectError {
-    border-color: var(--danger-color);
+    border-color: $error-color;
 
     &:focus {
-      border-color: var(--danger-color);
+      border-color: $error-color;
       box-shadow: 0 0 0 3px rgba(var(--danger-color-rgb), 0.1);
     }
   }

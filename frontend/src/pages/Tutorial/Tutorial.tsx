@@ -450,6 +450,7 @@ function TutorialContent() {
     if (topicTypeConfig) {
       setCurrentStep(0);
       setIsPlaying(false);
+      setViewMode(topicTypeConfig.defaultViewMode ?? "");
     }
   }, [topicTypeConfig]);
 

@@ -3,7 +3,6 @@
 
 .dataActionBarContainer {
   @include flex($direction: column);
-  gap: $spacing-sm;
 }
 
 .actionGroup {
@@ -13,7 +12,6 @@
   align-items: center;
   background-color: rgba(255, 255, 255, 0.03);
   padding: $spacing-sm $spacing-md;
-  border-radius: $radius-lg;
   border: 1px solid var(--border-color);
 }
 
@@ -73,6 +71,16 @@
 
 // ========== 按鈕顏色覆蓋（基於 secondary variant）==========
 
+.btnRun {
+  border-color: rgba($success-color, 0.4) !important;
+  color: $success-color !important;
+
+  &:hover:not(:disabled) {
+    background: rgba($success-color, 0.12) !important;
+    border-color: $success-color !important;
+  }
+}
+
 .btnInsert {
   border-color: rgba($info-color, 0.4) !important;
   color: $info-color !important;
@@ -123,6 +131,10 @@
     border-color: $primary-color !important;
     color: $primary-color !important;
   }
+}
+
+.directedCheckbox {
+  color: var(--text-primary);
 }
 
 // ========== Modal/Loader 樣式 ==========
@@ -265,22 +277,4 @@
 
 .startEndSeparator {
   color: $dark-text-tertiary;
-}
-
-// ========== 執行按鈕樣式 ==========
-
-.runButton {
-  min-width: 6.25rem; // 100px
-}
-
-.runButtonSorting {
-  background: $success-color;
-}
-
-.runButtonSearching {
-  background: $info-color;
-}
-
-.runButtonTechnique {
-  background: $warning-color;
 }

@@ -4,8 +4,8 @@
   padding: $spacing-sm $spacing-md;
   font-size: $font-sm;
   color: var(--text-primary);
-  background-color: var(--input-bg);
-  border: 1px solid var(--input-border);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   transition: all $transition-base;
   outline: none;
@@ -30,15 +30,15 @@
 
   // ========== Hover State ==========
   &:hover:not(:disabled):not(:read-only) {
-    border-color: var(--input-border-hover);
+    border-color: var(--border-color-hover);
   }
 
   // ========== Error State ==========
   &.inputError {
-    border-color: var(--danger-color);
+    border-color: $error-color;
 
     &:focus {
-      border-color: var(--danger-color);
+      border-color: $error-color;
       box-shadow: 0 0 0 3px rgba(var(--danger-color-rgb), 0.1);
     }
   }
@@ -62,7 +62,7 @@
 
 // ==================== Input Types ====================
 // Number input - hide spinner
-input[type='number'].input {
+input[type="number"].input {
   -moz-appearance: textfield;
 
   &::-webkit-outer-spin-button,
@@ -73,7 +73,7 @@ input[type='number'].input {
 }
 
 // Password input
-input[type='password'].input {
+input[type="password"].input {
   letter-spacing: 0.5px;
 }
 
