@@ -174,6 +174,8 @@ export interface PathConnectionProps {
   status: "locked" | "unlocked" | "completed";
   containerWidth?: number;
   connectionType?: PrerequisiteType | "GHOST"; // 新增 GHOST 類型
+  branchLabel?: string;
+  labelColor?: string;
 }
 
 // 顯示分支路徑的標籤
@@ -200,6 +202,7 @@ export interface GraphContainerProps {
     level: Level,
     index: number,
     position: NodePosition,
+    containerWidth: number,
   ) => React.ReactNode;
   isDialogOpen?: boolean; // Dialog 或 Sidebar 開啟時停用縮放事件
   isSidebarOpen?: boolean; // Sidebar 開啟時停用縮放事件

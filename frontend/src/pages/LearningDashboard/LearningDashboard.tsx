@@ -265,7 +265,7 @@ function LearningDashboardInner() {
         levels={filteredLevels}
         userProgress={userProgress}
       >
-        {(level, index, position) => {
+        {(level, index, position, containerWidth) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
           const prereqType = level.prerequisites?.type || "AND";
@@ -296,7 +296,7 @@ function LearningDashboardInner() {
           return (
             <>
               {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
-              {prereqIds.map((prereqId) => {
+              {prereqIds.map((prereqId, prereqIndex) => {
                 const prereqLevel = filteredLevels.find(
                   (l) => l.id === prereqId,
                 );
@@ -325,7 +325,10 @@ function LearningDashboardInner() {
                     fromNode={fromPosition}
                     toNode={position}
                     status={pathStatus}
+                    containerWidth={containerWidth}
                     connectionType={prereqType}
+                    branchLabel={prereqIndex === 0 ? level.pathMetadata?.branchLabel : undefined}
+                    labelColor={prereqIndex === 0 ? categoryColors[level.category] : undefined}
                   />
                 );
               })}
@@ -372,6 +375,7 @@ function LearningDashboardInner() {
                     fromNode={position}
                     toNode={ghostPosition}
                     status="unlocked"
+                    containerWidth={containerWidth}
                     connectionType="GHOST"
                   />
                 );
