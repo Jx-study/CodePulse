@@ -35,6 +35,9 @@ export interface CodeEditorProps {
 
   // 樣式
   className?: string;
+  height?: string; // 直接控制編輯器高度，例如 "400px" / "50vh" / "100%"
+  autoHeight?: boolean; // 根據內容自動調整高度（優先於 height）
+  maxAutoHeight?: number; // autoHeight 的最大高度 (px)，預設不限制
 
   // 時間複雜度顯示
   showTimeComplexity?: boolean;
@@ -127,6 +130,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     onLanguageChange,
     onFormatComplete,
     className = '',
+    height,
+    autoHeight = false,
+    maxAutoHeight,
     showTimeComplexity = false,
   } = props;
 
@@ -137,6 +143,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const [isDragging, setIsDragging] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
   const [internalBottomValue, setInternalBottomValue] = useState(bottomContent);
+  const [contentHeight, setContentHeight] = useState<number>(200);
 
   // ========== Refs ==========
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -238,6 +245,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const handleEditorMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
     monacoInstanceRef.current = monacoInstance;
+
+    if (autoHeight) {
+      const updateHeight = () => {
+        const raw = editor.getContentHeight();
+        const clamped = maxAutoHeight ? Math.min(maxAutoHeight, raw) : raw;
+        setContentHeight(Math.max(100, clamped));
+      };
+      updateHeight();
+      editor.onDidContentSizeChange(updateHeight);
+    }
 
     // 編輯器加載完成後，如果有初始高亮行，立即應用
     if (highlightedLine !== null && highlightedLine !== undefined) {
@@ -444,7 +461,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   return (
     <div
       ref={containerRef}
-      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''} ${showTimeComplexity ? styles.withComplexity : ''}`}
+      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''} ${showTimeComplexity ? styles.withComplexity : ''} ${autoHeight ? styles.autoHeight : ''}`}
+      style={autoHeight ? { height: contentHeight } : height ? { height } : undefined}
     >
       {mode === 'split' ? (
         <>
@@ -491,7 +509,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
         /* 單一編輯器模式 */
         <Editor
           key={`${editorKeyRef.current}-single`}
-          height="100%"
+          height={autoHeight ? `${contentHeight}px` : '100%'}
           language={currentLanguage}
           value={value}
           theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}

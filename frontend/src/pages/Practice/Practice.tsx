@@ -460,7 +460,7 @@ function Practice() {
                       readOnly={true}
                       theme="auto"
                       showLineNumbers={true}
-                      className={styles.groupEditor}
+                      height="50vh"
                     />
                   </div>
                 )}
@@ -488,26 +488,16 @@ function Practice() {
             <p className={styles.questionText}>{currentQuestion.title}</p>
 
             {showCodeEditor && currentQuestion.code && (
-              <div
-                style={{
-                  marginTop: "16px",
-                  marginBottom: "16px",
-                  border: "1px solid #444",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  height: "400px",
-                }}
-              >
-                <CodeEditor
-                  key={`editor-${currentQuestion.id}`} // 切換題目時重置
-                  mode="single"
-                  language={currentQuestion.language || "python"}
-                  value={currentQuestion.code}
-                  readOnly={true}
-                  theme="auto"
-                  showLineNumbers={true}
-                />
-              </div>
+              <CodeEditor
+                key={`editor-${currentQuestion.id}`}
+                mode="single"
+                language={currentQuestion.language || "python"}
+                value={currentQuestion.code}
+                readOnly={true}
+                theme="auto"
+                showLineNumbers={true}
+                autoHeight={true}
+              />
             )}
 
             {isPredictLineQuestion ? (

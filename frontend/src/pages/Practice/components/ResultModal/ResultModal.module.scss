@@ -409,14 +409,7 @@
   min-width: 150px;
 }
 
-.reviewCodeBlock{
-  margin-top: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #444;
-  border-radius: 4px;
-  overflow: hidden;
-  height: 400px;
-}
+// .reviewCodeBlock 已刪除：高度改由 CodeEditor height prop 控制，圓角/邊框由外層容器或 .codeEditor 自帶
 
 @media (max-width: $mobile-max) {
   .scoreSummary {

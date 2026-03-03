@@ -127,17 +127,15 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                   {/* 1. 如果有程式碼，顯示 CodeEditor */}
                   <div className={styles.contextSection}>
                     {question.code && (
-                      <div className={styles.reviewCodeBlock}>
-                        <CodeEditor
-                          mode="single"
-                          language={question.language || "python"}
-                          value={question.code}
-                          readOnly={true}
-                          theme="auto"
-                          showLineNumbers={true}
-                          className={styles.reviewEditor}
-                        />
-                      </div>
+                      <CodeEditor
+                        mode="single"
+                        language={question.language || "python"}
+                        value={question.code}
+                        readOnly={true}
+                        theme="auto"
+                        showLineNumbers={true}
+                        height="400px"
+                      />
                     )}
                     {question.options && question.options.length > 0 && (
                       <div className={styles.reviewOptionList}>
