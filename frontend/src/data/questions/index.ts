@@ -16,6 +16,7 @@ import { bubbleSortQuiz } from './bubblesort-questions';
 import { selectionSortQuiz } from './selectionsort-questions';
 import { insertionSortQuiz } from './insertionsort-questions';
 import { prefixSumQuiz } from './prefixsum-questions';
+import { bfsQuiz } from './bfs-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
@@ -30,6 +31,7 @@ export const quizMap: Record<string, PracticeQuiz> = {
   'selection-sort': selectionSortQuiz,
   'insertion-sort': insertionSortQuiz,
   'prefix-sum': prefixSumQuiz,
+  bfs: bfsQuiz,
   // TODO: 後續擴展其他題庫
 };
 
