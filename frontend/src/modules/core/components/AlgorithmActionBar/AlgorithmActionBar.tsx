@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
+import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
-export type AlgorithmViewMode = "graph" | "grid";
+export type AlgorithmViewMode = string;
 
 export interface RunParams {
   searchValue?: number;
   range?: [number, number];
-  mode?: "graph" | "grid";
+  mode?: string;
   rows?: number;
   cols?: number;
   startNode?: string;
   endNode?: string;
+  targetSum?: number;
+  isDirected?: boolean;
 }
 
 interface AlgorithmActionBarProps {
@@ -23,11 +26,14 @@ interface AlgorithmActionBarProps {
   onRun: (params?: RunParams) => void;
   onRandomCountChange?: (count: number) => void;
   onLimitExceeded?: () => void;
+  maxNodes?: number;
   disabled?: boolean;
   category?: string;
   algorithmId?: string;
   viewMode: AlgorithmViewMode;
   onViewModeChange: (mode: AlgorithmViewMode) => void;
+  isDirected?: boolean;
+  onIsDirectedChange?: (val: boolean) => void;
   currentData?: any;
 }
 
@@ -38,16 +44,23 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   onRun,
   onRandomCountChange,
   onLimitExceeded,
+  maxNodes,
   disabled = false,
   category = "sorting",
   algorithmId,
   viewMode,
   onViewModeChange,
+  isDirected = false,
+  onIsDirectedChange,
   currentData,
 }) => {
   const [bulkInput, setBulkInput] = useState<string>("");
-  const [randomCount, setRandomCount] = useState<number>(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-  const [randomCountInput, setRandomCountInput] = useState<string>(String(DATA_LIMITS.DEFAULT_RANDOM_COUNT));
+  const [randomCount, setRandomCount] = useState<number>(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
+  const [randomCountInput, setRandomCountInput] = useState<string>(
+    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
+  );
   const [searchValue, setSearchValue] = useState<string>("");
   const [rangeStart, setRangeStart] = useState<string>("");
   const [rangeEnd, setRangeEnd] = useState<string>("");
@@ -59,20 +72,23 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   );
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphNodeCount, setGraphNodeCount] = useState<string>("6");
-  const [graphEdgeInput, setGraphEdgeInput] = useState<string>(
-    "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
-  );
+  const [graphEdgeInput, setGraphEdgeInput] = useState<string>("");
   const [graphStartElement, setgraphStartElement] = useState<string>("");
   const [graphEndElement, setgraphEndElement] = useState<string>("");
 
   const [gridStartElement, setGridStartElement] = useState<string>("");
   const [gridEndElement, setGridEndElement] = useState<string>("");
 
+  const [windowMode, setWindowMode] = useState<string>("longest_lte");
+  const [targetSum, setTargetSum] = useState<string>("20");
+
   // 判斷演算法類型
   const isSearching = category === "searching";
   const isSorting = category === "sorting";
   const isTechnique = category === "technique";
   const isPrefixSum = algorithmId === "prefixsum";
+  const isSlidingWindow = algorithmId === "slidingwindow";
+  const isDijkstra = algorithmId === "dijkstra";
   const isGraphAlgo =
     category === "graph" ||
     (algorithmId && ["bfs", "dfs"].includes(algorithmId));
@@ -84,10 +100,20 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     } else if (isSearching && !isPrefixSum) {
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
-    } else if (isPrefixSum) {
+    } else if (isPrefixSum || isSlidingWindow) {
       setRandomCount(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
     }
   }, [category, algorithmId, isSorting, isSearching, isPrefixSum]);
+
+  useEffect(() => {
+    if (isDijkstra) {
+      // 預設帶有權重的邊
+      setGraphEdgeInput("0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6");
+    } else {
+      // 預設沒有權重的邊
+      setGraphEdgeInput("0 1\n0 2\n1 3\n2 4\n3 5\n4 5");
+    }
+  }, [isDijkstra]);
 
   const handleRun = () => {
     const normalizeId = (val: string) => {
@@ -188,7 +214,14 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
         }
       }
 
-      onRun({ mode: "graph", startNode: startId, endNode: endId });
+      onRun({ mode: "graph", startNode: startId, endNode: endId, isDirected });
+    } else if (isSlidingWindow) {
+      const val = parseInt(targetSum, 10);
+      if (!isNaN(val)) {
+        onRun({ mode: windowMode, targetSum: val });
+      } else {
+        alert("請輸入有效的目標和數值");
+      }
     } else if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
@@ -202,7 +235,13 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       if (isNaN(start) && isNaN(end)) {
         onRun({});
-      } else if (!isNaN(start) && !isNaN(end) && start <= end && start >= 0 && end >= 0) {
+      } else if (
+        !isNaN(start) &&
+        !isNaN(end) &&
+        start <= end &&
+        start >= 0 &&
+        end >= 0
+      ) {
         onRun({ range: [start, end] });
       } else {
         alert("請輸入完整的區間 (Start, End)");
@@ -270,6 +309,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       return;
     }
 
+    let hasNegativeWeight = false;
     // 將邊的字串 (換行分隔) 壓縮成單行或特定格式傳遞
 
     // 1. 將輸入字串依換行分割
@@ -280,7 +320,25 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "")
+      .map((line) => {
+        // 把多個空格縮減為單一空格，例如 "0    1   5" -> "0 1 5"
+        if (isDijkstra) {
+          const parts = line.split(/\s+/);
+          if (parts.length >= 3) {
+            const weight = parseInt(parts[2], 10);
+            if (weight < 0) {
+              hasNegativeWeight = true;
+            }
+          }
+        }
+        return line.replace(/\s+/g, " ");
+      })
       .join(",");
+
+    if (hasNegativeWeight) {
+      alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+      return;
+    }
 
     // 格式協定: "GRAPH:nodeCount:edgeString"
     const payload = `GRAPH:${nodeCount}:${edges}`;
@@ -297,9 +355,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
     <div className={styles.dataActionBarContainer}>
       {showGridLoader && (
         <div className={styles.modalContainer}>
-          <h4 className={styles.modalTitle}>
-            輸入迷宮資料 (0=路, 1=牆)
-          </h4>
+          <h4 className={styles.modalTitle}>輸入迷宮資料 (0=路, 1=牆)</h4>
           <textarea
             value={gridInputText}
             onChange={(e) => setGridInputText(e.target.value)}
@@ -328,14 +384,10 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {showGraphLoader && (
         <div className={styles.modalContainer}>
-          <h4 className={styles.modalTitle}>
-            自定義 Graph 資料
-          </h4>
+          <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
 
           <div className={styles.modalFieldRow}>
-            <label className={styles.modalLabel}>
-              節點數量 (0 ~ N-1):
-            </label>
+            <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
             <input
               type="number"
               value={graphNodeCount}
@@ -345,15 +397,21 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
 
           <div className={styles.modalFieldColumn}>
-            <label className={styles.modalLabel}>
-              邊 (格式: 來源 目標)
-            </label>
+            {!isDijkstra ? (
+              <label className={styles.modalLabel}>邊 (格式: 來源 目標)</label>
+            ) : (
+              <label className={styles.modalLabel}>
+                邊 (格式: 來源 目標 權重)
+              </label>
+            )}
             <textarea
               value={graphEdgeInput}
               onChange={(e) => setGraphEdgeInput(e.target.value)}
               rows={6}
               className={styles.modalGraphTextarea}
-              placeholder="0 1&#10;1 2&#10;2 0"
+              placeholder={
+                isDijkstra ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"
+              }
             />
           </div>
 
@@ -434,17 +492,20 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
             type="number"
             value={randomCountInput}
             min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={DATA_LIMITS.MAX_NODES}
+            max={maxNodes}
             onChange={(e) => setRandomCountInput(e.target.value)}
             onBlur={() => {
               const num = Number(randomCountInput);
               if (isNaN(num) || randomCountInput.trim() === "") {
                 setRandomCountInput(String(randomCount));
               } else {
-                if (num > DATA_LIMITS.MAX_NODES) {
+                if (maxNodes !== undefined && num > maxNodes) {
                   onLimitExceeded?.();
                 }
-                const v = Math.min(Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT), DATA_LIMITS.MAX_NODES);
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  maxNodes ?? num,
+                );
                 setRandomCount(v);
                 setRandomCountInput(String(v));
                 onRandomCountChange?.(v);
@@ -496,15 +557,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
       {/* 第二行：執行控制 */}
       <div className={styles.actionGroup}>
-        <div className={styles.staticLabel}>
-          {getControlLabel()}
-        </div>
+        <div className={styles.staticLabel}>{getControlLabel()}</div>
 
-        {isGraphAlgo && (
+        {isGraphAlgo && !isDijkstra && (
           <div className={styles.viewModeContainer}>
-            <span className={styles.viewModeLabel}>
-              視圖:
-            </span>
+            <span className={styles.viewModeLabel}>視圖:</span>
             <select
               value={viewMode}
               onChange={(e) =>
@@ -551,13 +608,67 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           </div>
         )}
 
+        {isDijkstra && (
+          <Checkbox
+            label="有向"
+            checked={isDirected}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onIsDirectedChange && onIsDirectedChange(e.target.checked)
+            }
+            disabled={disabled}
+            className={styles.smallLabel}
+            aria-label="Directed graph"
+          />
+        )}
+
+        {isSlidingWindow && (
+          <>
+            <div className={styles.viewModeContainer}>
+              <span className={styles.viewModeLabel}>模式:</span>
+              <select
+                value={windowMode}
+                onChange={(e) => {
+                  const newMode = e.target.value;
+                  setWindowMode(newMode);
+
+                  // 立即觸發 onRun (這樣會直接呼叫 executeAction("run"))
+                  // 強迫畫面馬上變成 "最短" 的初始狀態 (Step 0)
+                  // onRun({
+                  //   mode: newMode,
+                  //   targetSum: parseInt(targetSum, 10) || 20,
+                  // });
+                }}
+                disabled={disabled}
+                className={styles.viewModeSelect}
+              >
+                <option value="longest_lte">最長區間 (Sum &le; Target)</option>
+                <option value="shortest_gte">最短區間 (Sum &ge; Target)</option>
+              </select>
+            </div>
+            <Input
+              type="number"
+              placeholder="目標和"
+              value={targetSum}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setTargetSum(e.target.value)
+              }
+              className={styles.input}
+              disabled={disabled}
+              fullWidth={false}
+              aria-label="Target sum"
+            />
+          </>
+        )}
+
         {/* 搜尋演算法的搜尋值輸入 */}
         {showSearchInput && (
           <Input
             type="number"
             placeholder="搜尋值"
             value={searchValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchValue(e.target.value)
+            }
             className={styles.input}
             disabled={disabled}
             fullWidth={false}
@@ -572,7 +683,9 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               type="number"
               placeholder="L"
               value={rangeStart}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRangeStart(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRangeStart(e.target.value)
+              }
               className={styles.input}
               disabled={disabled}
               fullWidth={false}
@@ -583,7 +696,9 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
               type="number"
               placeholder="R"
               value={rangeEnd}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRangeEnd(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRangeEnd(e.target.value)
+              }
               className={styles.input}
               disabled={disabled}
               fullWidth={false}

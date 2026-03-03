@@ -1,6 +1,9 @@
 import React from "react";
 import { AlgorithmActionBar } from "@/modules/core/components/AlgorithmActionBar/AlgorithmActionBar";
-import { DataActionBar, StructureType } from "@/modules/core/components/DataActionBar/DataActionBar";
+import {
+  DataActionBar,
+  StructureType,
+} from "@/modules/core/components/DataActionBar/DataActionBar";
 import type { LevelImplementationConfig } from "@/types/implementation";
 
 interface SmartActionBarProps {
@@ -15,9 +18,14 @@ interface SmartActionBarProps {
   disabled?: boolean;
 
   // 演算法特定
-  onRun?: (params?: { searchValue?: number; range?: [number, number] }) => void;
-  viewMode?: "graph" | "grid";
-  onViewModeChange?: (mode: "graph" | "grid") => void;
+  onRun?: (params?: {
+    searchValue?: number;
+    range?: [number, number];
+    mode?: string;
+    targetSum?: number;
+  }) => void;
+  viewMode?: string;
+  onViewModeChange?: (mode: string) => void;
   currentData?: any;
 
   // 資料結構特定
@@ -52,11 +60,14 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
         onRun={restProps.onRun!}
         onRandomCountChange={restProps.onMaxNodesChange}
         onLimitExceeded={restProps.onLimitExceeded}
+        maxNodes={topicTypeConfig.maxNodes}
         disabled={restProps.disabled}
         category={category}
         algorithmId={topicTypeConfig.id}
         viewMode={restProps.viewMode || "graph"}
         onViewModeChange={restProps.onViewModeChange!}
+        isDirected={restProps.isDirected}
+        onIsDirectedChange={restProps.onIsDirectedChange}
         currentData={restProps.currentData}
       />
     );
@@ -65,7 +76,13 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
   // 資料結構類型
   if (topicTypeConfig.type === "dataStructure") {
     const validStructureTypes = [
-      "linkedlist", "stack", "queue", "array", "binarytree", "bst", "graph"
+      "linkedlist",
+      "stack",
+      "queue",
+      "array",
+      "binarytree",
+      "bst",
+      "graph",
     ];
 
     if (validStructureTypes.includes(topicTypeConfig.id)) {
@@ -86,6 +103,7 @@ export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
           isDirected={restProps.isDirected}
           onIsDirectedChange={restProps.onIsDirectedChange}
           onLimitExceeded={restProps.onLimitExceeded}
+          maxNodes={topicTypeConfig.maxNodes}
         />
       );
     }

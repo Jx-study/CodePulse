@@ -310,6 +310,39 @@
       "implementationKey": "prefixSum"
     },
     {
+      "id": "sliding-window",
+      "name": "滑動窗口",
+      "nameEn": "Sliding Window",
+      "category": "technique",
+      "difficulty": 2,
+      "description": "用雙指標維護一個連續區間，高效解決子陣列問題",
+      "learningObjectives": [
+        "理解雙指標的滑動邏輯",
+        "掌握窗口擴展與縮小的時機",
+        "分析如何將 O(n²) 降至 O(n)"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "OR",
+        "levelIds": ["array", "prefix-sum"]
+      },
+      "graphPosition": {
+        "layer": 1,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "algorithm",
+      "implementationKey": "slidingWindow",
+      "homePageMetadata": {
+        "image": "sliding-window.png",
+        "translationKey": "sliding_window",
+        "showOnHomePage": true
+      }
+    },
+    {
       "id": "bubble-sort",
       "name": "氣泡排序",
       "nameEn": "Bubble Sort",
@@ -626,6 +659,39 @@
         "pathType": "boss"
       },
       "implementationKey": "dfs"
+    },
+    {
+      "id": "dijkstra",
+      "name": "Dijkstra 最短路徑",
+      "nameEn": "Dijkstra's Algorithm",
+      "category": "graph",
+      "difficulty": 3,
+      "description": "在帶權重圖形中尋找單源最短路徑的經典演算法",
+      "learningObjectives": [
+        "理解貪婪策略與優先佇列的應用",
+        "掌握權重邊的鬆弛 (Relaxation) 操作",
+        "分析無法處理負權重邊的原因"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["bfs"]
+      },
+      "graphPosition": {
+        "layer": 2,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationType": "algorithm",
+      "implementationKey": "dijkstra",
+      "homePageMetadata": {
+        "image": "dijkstra.png",
+        "translationKey": "dijkstra",
+        "showOnHomePage": true
+      }
     }
   ],
   "categories": {

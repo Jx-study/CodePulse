@@ -1032,4 +1032,5 @@ export const GraphConfig: LevelImplementationConfig = {
     ],
   },
   createAnimationSteps: createGraphAnimationSteps,
+  maxNodes: 10,
 };
