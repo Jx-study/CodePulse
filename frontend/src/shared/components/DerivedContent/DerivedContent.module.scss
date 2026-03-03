@@ -1,39 +1,51 @@
 .derivedContentWrapper {
-  padding: $spacing-lg;
-  border-top: 1px solid var(--border-color);
-
-  @media (max-width: $tablet) {
-    padding: $spacing-md;
-  }
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .derivedContentTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
   font-size: $font-lg;
   font-weight: 600;
   color: $primary-color;
-  margin-bottom: $spacing-md;
+  margin: 0 0 $spacing-md 0;
+
+  .titleIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: rgba($primary-color, 0.12);
+    border-radius: $radius-md;
+    font-size: $font-sm;
+    flex-shrink: 0;
+  }
 }
 
 .derivedContentList {
-  @include flex($direction: column);
-  gap: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
 }
 
 .derivedCard {
   display: block;
   padding: $spacing-md;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-color);
-  border-radius: $radius-md;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
   text-decoration: none;
-  transition: all 0.2s $ease-smooth;
+  transition: $transition-base;
   cursor: pointer;
+  box-shadow: $shadow-sm;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
     border-color: $primary-color;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 91, 255, 0.15);
+    box-shadow: 0 4px 12px rgba($primary-color, 0.15);
   }
 
   &:active {
@@ -42,12 +54,15 @@
 }
 
 .cardContent {
-  @include flex($direction: column);
+  display: flex;
+  flex-direction: column;
   gap: $spacing-xs;
 }
 
 .cardHeader {
-  @include flex($justify: space-between, $align: center);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: $spacing-2xs;
 }
 
@@ -61,31 +76,31 @@
   letter-spacing: 0.5px;
 
   &.easy {
-    background: rgba(76, 175, 80, 0.15);
+    background: rgba(76, 175, 80, 0.12);
     color: #4caf50;
-    border: 1px solid rgba(76, 175, 80, 0.3);
+    border: 1px solid rgba(76, 175, 80, 0.25);
   }
 
   &.medium {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: rgba($warning-color, 0.12);
+    color: $warning-color;
+    border: 1px solid rgba($warning-color, 0.25);
   }
 
   &.hard {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba($error-color, 0.12);
+    color: $error-color;
+    border: 1px solid rgba($error-color, 0.25);
   }
 }
 
 .externalIcon {
   flex-shrink: 0;
-  opacity: 0.5;
-  transition: opacity 0.2s $ease-smooth;
+  color: var(--text-tertiary);
+  transition: color 0.2s $ease-smooth;
 
   .derivedCard:hover & {
-    opacity: 1;
+    color: $primary-color;
   }
 }
 

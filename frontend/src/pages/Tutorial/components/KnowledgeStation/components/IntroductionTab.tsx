@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '@/shared/components/Icon';
 import styles from './IntroductionTab.module.scss';
 
 interface IntroductionTabProps {
@@ -9,7 +10,10 @@ const IntroductionTab: React.FC<IntroductionTabProps> = ({ introduction }) => {
   return (
     <div className={styles.introductionTab}>
       <div className={styles.card}>
-        <h3 className={styles.cardTitle}>演算法簡介</h3>
+        <h3 className={styles.cardTitle}>
+          <span className={styles.cardTitleIcon}><Icon name="compass" decorative /></span>
+          演算法簡介
+        </h3>
         <p className={styles.cardContent}>{introduction}</p>
       </div>
     </div>
