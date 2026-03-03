@@ -21,7 +21,7 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
   const tabs = [
     {
       key: 'introduction',
-      label: '演算法簡介',
+      label: '演算法説明',
       content: <IntroductionTab introduction={topicTypeConfig.introduction} />,
     },
     {
@@ -31,7 +31,7 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
     },
     {
       key: 'problems',
-      label: '相關題目',
+      label: '經典題型',
       content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} />,
     },
   ];

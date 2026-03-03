@@ -108,10 +108,15 @@
   }
 }
 
-// Pills variant
+// Pills variant (Segmented Control style)
+// Used in Tabs component (.pills wraps .tabList as parent)
 .pills {
   .tabList {
+    background: var(--bg-secondary);
+    border-radius: $radius-lg;
+    padding: $spacing-2xs;
     border-bottom: none;
+    gap: $spacing-2xs;
   }
 
   &.vertical .tabList {
@@ -119,11 +124,43 @@
   }
 
   .tab {
-    border-radius: 8px;
+    border-radius: $radius-md;
+    color: var(--text-secondary);
 
     &.active {
-      background: $primary-color;
-      color: #ffffff;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      box-shadow: $shadow-sm;
+    }
+
+    &:hover:not(.disabled):not(.active) {
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text-primary);
+    }
+  }
+}
+
+// Used in TabList component (.pills is on the same element as .tabList)
+.tabList.pills {
+  background: var(--bg-secondary);
+  border-radius: $radius-lg;
+  padding: $spacing-2xs;
+  border-bottom: none;
+  gap: $spacing-2xs;
+
+  .tab {
+    border-radius: $radius-md;
+    color: var(--text-secondary);
+
+    &.active {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      box-shadow: $shadow-sm;
+    }
+
+    &:hover:not(.disabled):not(.active) {
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text-primary);
     }
   }
 }
@@ -145,6 +182,7 @@
 }
 
 // Minimal variant (for embedding in PanelHeader)
+// Used in Tabs component (.minimal wraps .tabList as parent)
 .minimal {
   .tabList {
     border-bottom: none;
@@ -154,6 +192,28 @@
   &.vertical .tabList {
     border-right: none;
   }
+
+  .tab {
+    padding: $spacing-xs $spacing-sm;
+    border-radius: 4px;
+    font-size: $font-sm;
+
+    &.active {
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+    }
+
+    &:hover:not(.disabled):not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+// Used in TabList component (.minimal is on the same element as .tabList)
+.tabList.minimal {
+  border-bottom: none;
+  border-right: none;
+  gap: 0rem;
 
   .tab {
     padding: $spacing-xs $spacing-sm;
