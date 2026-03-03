@@ -6,19 +6,17 @@
   min-height: 400px;
   @include flex($direction: column);
   background-color: var(--bg-primary);
-  // border-radius 已移除：由外層容器提供視覺圓角，避免 overflow:hidden 裁切 Monaco 捲軸
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   position: relative;
 
-  // 自動高度模式：根據內容伸縮，移除 min-height 約束
   &.autoHeight {
     height: auto !important;
     min-height: unset !important;
   }
 
-  // 拖曳中的樣式
   &.dragging {
     user-select: none;
     cursor: ns-resize;
