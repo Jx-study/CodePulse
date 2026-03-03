@@ -17,23 +17,23 @@ export const BREAKPOINTS = {
 
 // Desktop 配置 (≥1024px)
 export const DESKTOP_CONFIG: LayoutConfig = {
-  layerSpacing: 180,
+  layerSpacing: 250,
   branchSpacing: 200,
   nodeSpacing: 300,
 };
 
 // Tablet 配置 (768-1023px)
 export const TABLET_CONFIG: LayoutConfig = {
-  layerSpacing: 150,
+  layerSpacing: 200,
   branchSpacing: 150,
   nodeSpacing: 200,
 };
 
 // Mobile 配置 (<768px)
 export const MOBILE_CONFIG: LayoutConfig = {
-  layerSpacing: 150 ,
-  branchSpacing: 120,
-  nodeSpacing: 150,
+  layerSpacing: 200 ,
+  branchSpacing: 150,
+  nodeSpacing: 180,
 };
 
 /**

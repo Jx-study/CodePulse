@@ -1,6 +1,7 @@
 import styles from "./PathConnection.module.scss";
 import type { PathConnectionProps } from "@/types";
 import { getCurrentNodeRadius } from "../LevelNode/constants";
+import BranchLabel from "../BranchLabel/BranchLabel";
 
 function PathConnection({
   fromNode,
@@ -8,6 +9,8 @@ function PathConnection({
   status,
   containerWidth,
   connectionType = "AND",
+  branchLabel,
+  labelColor,
 }: PathConnectionProps) {
   // 獲取實際容器寬度（使用 window.innerWidth 如果未提供）
   const actualWidth = containerWidth || window.innerWidth;
@@ -78,25 +81,38 @@ function PathConnection({
   // 貝塞爾曲線路徑
   const pathD = `M ${localFromX} ${localStartY} C ${localCp1x} ${localCp1y}, ${localCp2x} ${localCp2y}, ${localToX} ${localEndY}`;
 
+  // Cubic bezier midpoint at t=0.5 (absolute canvas coordinates)
+  const midAbsX = 0.125 * (fromX + 3 * cp1x + 3 * cp2x + toX);
+  const midAbsY = 0.125 * (startY + 3 * cp1y + 3 * cp2y + endY);
+
   return (
-    <svg
-      className={styles.pathConnection}
-      style={{
-        position: "absolute",
-        left: minX,
-        top: minY,
-        width,
-        height,
-        pointerEvents: "none",
-      }}
-      viewBox={`0 0 ${width} ${height}`}
-    >
-      <path
-        d={pathD}
-        className={`${styles.path} ${getConnectionClass()} ${styles[status]}`}
-        fill="none"
-      />
-    </svg>
+    <>
+      <svg
+        className={styles.pathConnection}
+        style={{
+          position: "absolute",
+          left: minX,
+          top: minY,
+          width,
+          height,
+          pointerEvents: "none",
+        }}
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        <path
+          d={pathD}
+          className={`${styles.path} ${getConnectionClass()} ${styles[status]}`}
+          fill="none"
+        />
+      </svg>
+      {branchLabel && (
+        <BranchLabel
+          label={branchLabel}
+          position={{ x: midAbsX, y: midAbsY }}
+          color={labelColor}
+        />
+      )}
+    </>
   );
 }
 
