@@ -74,8 +74,17 @@ export const calculateGraphNodePosition = (
   );
 
   // y 座標：由下而上，layer 0 在最底部（y=0）
-  // 注意：這裡不使用 categoryOffset，因為我們希望所有類別都從底部開始
-  const y = (maxLayer - graphPos.layer) * layoutConfig.layerSpacing;
+  const baseY = (maxLayer - graphPos.layer) * layoutConfig.layerSpacing;
+
+  // 若直接子節點的 layer 與自己相差 > 1（跳層），往上偏移拉近視覺距離
+  const directChildren = sameCategoryLevels.filter(
+    (l) => l.prerequisites?.levelIds.includes(level.id)
+  );
+  const hasSkippedChild = directChildren.some(
+    (l) => (l.graphPosition?.layer ?? 0) - graphPos.layer > 1
+  );
+  const yOffset = hasSkippedChild ? -(2 * layoutConfig.layerSpacing * 0.3) : 0;
+  const y = baseY + yOffset;
 
   // x 座標：基於前置節點的位置繼承
   const { x, alignment } = calculateBranchX(level, sameCategoryLevels, layoutConfig);
@@ -146,9 +155,15 @@ function calculateBranchX(
     return { x: '50%', alignment: 'center' };
   }
 
-  // ========== 0. branch="center" 或 "main" 強制置中 ==========
+  // ========== 0. branch 直接對應固定位置 ==========
   if (graphPos.branch === 'center' || graphPos.branch === 'main') {
     return { x: '50%', alignment: 'center' };
+  }
+  if (graphPos.branch === 'left') {
+    return { x: `calc(50% - ${getHorizontalOffset(config)}px)`, alignment: 'left' };
+  }
+  if (graphPos.branch === 'right') {
+    return { x: `calc(50% + ${getHorizontalOffset(config)}px)`, alignment: 'right' };
   }
 
   const { layer, horizontalIndex } = graphPos;

@@ -159,7 +159,7 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
-      "graphPosition": { "layer": 5, "branch": "left" },
+      "graphPosition": { "layer": 5, "branch": "center" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "排序樹結構" },
       "implementationKey": "bst"
     },
@@ -178,7 +178,7 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
-      "graphPosition": { "layer": 5.5, "branch": "center" },
+      "graphPosition": { "layer": 5, "branch": "left" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "優先權結構" },
       "implementationKey": "heap"
     },
@@ -197,7 +197,7 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
-      "graphPosition": { "layer": 5.5, "branch": "right" },
+      "graphPosition": { "layer": 5, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "網狀結構" },
       "implementationKey": "graph"
     },
@@ -216,7 +216,7 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["bst"] },
-      "graphPosition": { "layer": 6, "branch": "left" },
+      "graphPosition": { "layer": 6, "branch": "center" },
       "pathMetadata": { "pathType": "boss" },
       "implementationKey": "trie"
     },

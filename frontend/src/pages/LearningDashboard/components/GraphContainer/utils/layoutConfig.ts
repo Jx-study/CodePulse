@@ -18,7 +18,7 @@ export const BREAKPOINTS = {
 // Desktop 配置 (≥1024px)
 export const DESKTOP_CONFIG: LayoutConfig = {
   layerSpacing: 250,
-  branchSpacing: 200,
+  branchSpacing: 350,
   nodeSpacing: 300,
 };
 
