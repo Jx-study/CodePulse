@@ -5,6 +5,7 @@ import Dialog from '@/shared/components/Dialog/Dialog';
 import Badge from '@/shared/components/Badge';
 import type { LevelDialogProps } from '@/types';
 import type { BadgeProps } from '@/types';
+import { getLevelById } from '@/services/LevelService';
 
 const difficultyVariant: Record<number, BadgeProps['variant']> = {
   1: 'success',
@@ -35,6 +36,10 @@ function LevelDialog({
   prerequisiteInfo
 }: LevelDialogProps) {
 
+  const suggestedLevelNames = level.suggestedPrerequisites
+    ?.map(id => getLevelById(id)?.name ?? id)
+    ?? [];
+
   const difficultyBadge = (
     <Badge variant={difficultyVariant[level.difficulty] ?? 'secondary'} size="sm" shape="pill">
       {difficultyLabel[level.difficulty] ?? '未知'}
@@ -59,6 +64,7 @@ function LevelDialog({
         onStartTutorial={onStartTutorial}
         isCompleted={userProgress.status === "completed"}
         isLocked={tutorialLocked}
+        suggestedLevelNames={suggestedLevelNames}
       />
       <PracticeSection
         level={level}

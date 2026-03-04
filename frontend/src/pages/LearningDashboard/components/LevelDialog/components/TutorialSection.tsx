@@ -9,9 +9,10 @@ interface TutorialSectionProps {
   onStartTutorial: () => void;
   isCompleted: boolean;
   isLocked: boolean;
+  suggestedLevelNames?: string[];
 }
 
-function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: TutorialSectionProps) {
+function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, suggestedLevelNames }: TutorialSectionProps) {
   return (
     <div className={styles.tutorialSection}>
       <h3>教學模式</h3>
@@ -31,6 +32,19 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: Tuto
               <li key={index}>{objective}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {suggestedLevelNames && suggestedLevelNames.length > 0 && (
+        <div className={styles.suggested}>
+          <h4>建議先學習</h4>
+          <div className={styles.suggestedBadges}>
+            {suggestedLevelNames.map((name, i) => (
+              <Badge key={i} variant="danger" size="sm" shape="pill">
+                {name}
+              </Badge>
+            ))}
+          </div>
         </div>
       )}
 

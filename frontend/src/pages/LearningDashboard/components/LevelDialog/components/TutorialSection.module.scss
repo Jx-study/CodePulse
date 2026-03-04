@@ -107,6 +107,24 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
   }
 }
 
+.suggested {
+  padding: $spacing-sm;
+  background: $blue-card-bg-light;
+  border: 1px solid $blue-border-light;
+  border-radius: $radius-xl;
+
+  @media (prefers-color-scheme: dark) {
+    background: $blue-card-bg-dark;
+    border-color: $blue-border-dark;
+  }
+}
+
+.suggestedBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
 .startTutorialButton {
   width: 100%;
   margin-top: auto;

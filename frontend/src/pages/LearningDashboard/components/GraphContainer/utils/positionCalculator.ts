@@ -146,6 +146,11 @@ function calculateBranchX(
     return { x: '50%', alignment: 'center' };
   }
 
+  // ========== 0. branch="center" 或 "main" 強制置中 ==========
+  if (graphPos.branch === 'center' || graphPos.branch === 'main') {
+    return { x: '50%', alignment: 'center' };
+  }
+
   const { layer, horizontalIndex } = graphPos;
   const nodeSpacing = config.nodeSpacing;
   const horizontalOffset = getHorizontalOffset(config);

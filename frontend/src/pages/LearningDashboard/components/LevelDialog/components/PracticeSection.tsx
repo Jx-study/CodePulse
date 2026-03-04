@@ -4,6 +4,7 @@ import StarRating from '@/shared/components/StarRating';
 import Badge from '@/shared/components/Badge';
 import type { Level, PrerequisiteConfig } from '@/types';
 import Icon from '@/shared/components/Icon/Icon';
+import { getLevelById } from '@/services/LevelService';
 
 interface PracticeSectionProps {
   level: Level;
@@ -33,6 +34,9 @@ function PracticeSection({
   prerequisiteInfo
 }: PracticeSectionProps) {
   const isCompleted = bestStars > 0;
+  const prerequisiteLevelNames = prerequisiteInfo?.levelIds
+    .map(id => getLevelById(id)?.name ?? id)
+    ?? [];
 
   return (
     <div className={styles.practiceSection}>
@@ -97,15 +101,15 @@ function PracticeSection({
         </Button>
       )}
 
-      {isLocked && prerequisiteInfo && (
+      {isLocked && prerequisiteInfo && prerequisiteLevelNames.length > 0 && (
         <p className={styles.lockedHint}>
           {prerequisiteInfo.type === "AND"
-            ? `需要完成所有前置關卡才能解鎖練習模式`
-            : `完成任一前置關卡即可解鎖練習模式`}
+            ? `需要先完成：${prerequisiteLevelNames.join('、')}`
+            : `完成以下任一關卡即可解鎖：${prerequisiteLevelNames.join('、')}`}
         </p>
       )}
 
-      {isLocked && !prerequisiteInfo && (
+      {isLocked && (!prerequisiteInfo || prerequisiteLevelNames.length === 0) && (
         <p className={styles.lockedHint}>完成前置關卡以解鎖練習模式</p>
       )}
 

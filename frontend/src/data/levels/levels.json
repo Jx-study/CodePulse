@@ -49,11 +49,35 @@
       }
     },
     {
+      "id": "doubly-linked-list",
+      "name": "雙向鏈結串列",
+      "nameEn": "Doubly Linked List",
+      "category": "data-structures",
+      "difficulty": 2,
+      "description": "進階鏈結結構，支援雙向遍歷",
+      "learningObjectives": [
+        "理解雙向鏈結的優勢",
+        "掌握前後指標管理",
+        "應用於 LRU Cache"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["linked-list"] },
+      "graphPosition": { "layer": 2, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "doublyLinkedList",
+      "homePageMetadata": {
+        "image": "doubly-linked-list.png",
+        "translationKey": "doubly_linked_list",
+        "showOnHomePage": true
+      }
+    },
+    {
       "id": "stack",
       "name": "堆疊",
       "nameEn": "Stack",
       "category": "data-structures",
-      "difficulty": 1,
+      "difficulty": 2,
       "description": "後進先出 (LIFO) 資料結構",
       "learningObjectives": [
         "理解 LIFO 原則",
@@ -62,8 +86,8 @@
       ],
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["linked-list"] },
-      "graphPosition": { "layer": 2, "branch": "left" },
+      "prerequisites": { "type": "AND", "levelIds": ["doubly-linked-list"] },
+      "graphPosition": { "layer": 3, "branch": "left" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "LIFO 結構" },
       "implementationKey": "stack",
       "homePageMetadata": {
@@ -77,7 +101,7 @@
       "name": "佇列",
       "nameEn": "Queue",
       "category": "data-structures",
-      "difficulty": 1,
+      "difficulty": 2,
       "description": "先進先出 (FIFO) 資料結構",
       "learningObjectives": [
         "理解 FIFO 原則",
@@ -86,8 +110,8 @@
       ],
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["linked-list"] },
-      "graphPosition": { "layer": 2, "branch": "right" },
+      "prerequisites": { "type": "AND", "levelIds": ["doubly-linked-list"] },
+      "graphPosition": { "layer": 3, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "FIFO 結構" },
       "implementationKey": "queue",
       "homePageMetadata": {
@@ -110,9 +134,9 @@
       ],
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["linked-list"] },
-      "graphPosition": { "layer": 2, "branch": "far-right" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "樹狀結構" },
+      "prerequisites": { "type": "AND", "levelIds": ["stack", "queue"] },
+      "graphPosition": { "layer": 4, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
       "implementationKey": "binaryTree",
       "homePageMetadata": {
         "image": "binary-tree.png",
@@ -135,8 +159,8 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
-      "graphPosition": { "layer": 3, "branch": "far-right" },
-      "pathMetadata": { "pathType": "branch" },
+      "graphPosition": { "layer": 5, "branch": "left" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "排序樹結構" },
       "implementationKey": "bst"
     },
     {
@@ -154,28 +178,9 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
-      "graphPosition": { "layer": 4, "branch": "far-right" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "進階樹結構" },
+      "graphPosition": { "layer": 5.5, "branch": "center" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "優先權結構" },
       "implementationKey": "heap"
-    },
-    {
-      "id": "trie",
-      "name": "字典樹",
-      "nameEn": "Trie",
-      "category": "data-structures",
-      "difficulty": 3,
-      "description": "N-ary 樹結構，專為字串前綴查詢設計",
-      "learningObjectives": [
-        "理解 Trie 的節點結構",
-        "掌握插入與查詢操作",
-        "應用於自動補全與拼字檢查"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
-      "graphPosition": { "layer": 5, "branch": "far-right" },
-      "pathMetadata": { "pathType": "branch" },
-      "implementationKey": "trie"
     },
     {
       "id": "graph",
@@ -191,29 +196,29 @@
       ],
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["linked-list"] },
-      "graphPosition": { "layer": 2, "branch": "center" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "圖形結構" },
+      "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
+      "graphPosition": { "layer": 5.5, "branch": "right" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "網狀結構" },
       "implementationKey": "graph"
     },
     {
-      "id": "doubly-linked-list",
-      "name": "雙向鏈結串列",
-      "nameEn": "Doubly Linked List",
+      "id": "trie",
+      "name": "字典樹",
+      "nameEn": "Trie",
       "category": "data-structures",
-      "difficulty": 2,
-      "description": "進階鏈結結構，支援雙向遍歷",
+      "difficulty": 3,
+      "description": "N-ary 樹結構，專為字串前綴查詢設計",
       "learningObjectives": [
-        "理解雙向鏈結的優勢",
-        "掌握前後指標管理",
-        "應用於 LRU Cache"
+        "理解 Trie 的節點結構",
+        "掌握插入與查詢操作",
+        "應用於自動補全與拼字檢查"
       ],
       "isDeveloped": false,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["stack", "queue"] },
-      "graphPosition": { "layer": 3, "branch": "main" },
-      "pathMetadata": { "pathType": "convergence" },
-      "implementationKey": "doublyLinkedList"
+      "prerequisites": { "type": "AND", "levelIds": ["bst"] },
+      "graphPosition": { "layer": 6, "branch": "left" },
+      "pathMetadata": { "pathType": "boss" },
+      "implementationKey": "trie"
     },
     {
       "id": "portal-to-sorting",
@@ -222,11 +227,332 @@
       "category": "data-structures",
       "difficulty": 1,
       "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["doubly-linked-list"] },
-      "graphPosition": { "layer": 4, "branch": "main" },
+      "isUnlocked": true,
+      "prerequisites": { "type": "OR", "levelIds": ["trie", "heap", "graph"] },
+      "graphPosition": { "layer": 7, "branch": "main" },
       "pathMetadata": { "pathType": "portal", "targetCategory": "sorting" },
       "implementationKey": "bubbleSort"
+    },
+
+    {
+      "id": "bubble-sort",
+      "name": "氣泡排序",
+      "nameEn": "Bubble Sort",
+      "category": "sorting",
+      "difficulty": 1,
+      "description": "最基礎的排序演算法，透過不斷交換相鄰元素來排序",
+      "learningObjectives": [
+        "理解排序演算法的基本概念",
+        "掌握雙層迴圈的邏輯",
+        "分析時間複雜度 O(n²)"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["portal-to-sorting"] },
+      "graphPosition": { "layer": 0, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "bubbleSort",
+      "homePageMetadata": {
+        "image": "bubble-sort.png",
+        "translationKey": "bubble_sort",
+        "showOnHomePage": true
+      }
+    },
+    {
+      "id": "selection-sort",
+      "name": "選擇排序",
+      "nameEn": "Selection Sort",
+      "category": "sorting",
+      "difficulty": 1,
+      "description": "每次從未排序部分選擇最小值放到已排序部分末尾",
+      "learningObjectives": [
+        "理解選擇排序的核心邏輯",
+        "比較氣泡排序與選擇排序的差異",
+        "分析時間複雜度 O(n²)"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["bubble-sort"] },
+      "graphPosition": { "layer": 1, "branch": "left" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "選擇策略" },
+      "implementationKey": "selectionSort"
+    },
+    {
+      "id": "insertion-sort",
+      "name": "插入排序",
+      "nameEn": "Insertion Sort",
+      "category": "sorting",
+      "difficulty": 1,
+      "description": "將元素插入到已排序部分的正確位置",
+      "learningObjectives": [
+        "理解插入排序的實作方式",
+        "掌握適用場景（小規模資料）",
+        "分析最佳與最壞情況"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["bubble-sort"] },
+      "graphPosition": { "layer": 1, "branch": "right" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "插入策略" },
+      "implementationKey": "insertionSort"
+    },
+    {
+      "id": "merge-sort",
+      "name": "合併排序",
+      "nameEn": "Merge Sort",
+      "category": "sorting",
+      "difficulty": 3,
+      "description": "使用分治法的穩定排序演算法",
+      "learningObjectives": [
+        "理解分治法的核心思想",
+        "掌握遞迴實作技巧",
+        "分析時間複雜度 O(n log n)"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "OR",
+        "levelIds": ["selection-sort", "insertion-sort"]
+      },
+      "graphPosition": { "layer": 2, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "mergeSort"
+    },
+    {
+      "id": "quick-sort",
+      "name": "快速排序",
+      "nameEn": "Quick Sort",
+      "category": "sorting",
+      "difficulty": 3,
+      "description": "使用分治法的高效排序演算法",
+      "learningObjectives": [
+        "理解快速排序的分區邏輯",
+        "掌握 pivot 選擇策略",
+        "分析平均時間複雜度 O(n log n)"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["merge-sort"] },
+      "graphPosition": { "layer": 3, "branch": "main" },
+      "pathMetadata": { "pathType": "boss" },
+      "implementationKey": "quickSort"
+    },
+    {
+      "id": "portal-to-searching",
+      "name": "傳送門：搜尋演算法",
+      "nameEn": "Portal: Searching Algorithms",
+      "category": "sorting",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": true,
+      "prerequisites": { "type": "AND", "levelIds": ["quick-sort"] },
+      "graphPosition": { "layer": 4, "branch": "main" },
+      "pathMetadata": { "pathType": "portal", "targetCategory": "searching" },
+      "implementationKey": "binarySearch"
+    },
+
+    {
+      "id": "linear-search",
+      "name": "線性搜尋",
+      "nameEn": "Linear Search",
+      "category": "searching",
+      "difficulty": 1,
+      "description": "依序檢查每個元素直到找到目標值",
+      "learningObjectives": [
+        "理解線性搜尋的基本概念",
+        "比較與二分搜尋的差異",
+        "分析時間複雜度 O(n)"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["portal-to-searching"] },
+      "graphPosition": { "layer": 0, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "linearSearch"
+    },
+    {
+      "id": "binary-search",
+      "name": "二分搜尋",
+      "nameEn": "Binary Search",
+      "category": "searching",
+      "difficulty": 2,
+      "description": "在已排序陣列中快速找到目標值",
+      "learningObjectives": [
+        "理解二分搜尋的原理",
+        "掌握邊界條件處理",
+        "分析時間複雜度 O(log n)"
+      ],
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["linear-search"] },
+      "graphPosition": { "layer": 1, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "binarySearch"
+    },
+    {
+      "id": "portal-to-recursive",
+      "name": "傳送門：遞迴演算法",
+      "nameEn": "Portal: Recursive Algorithms",
+      "category": "searching",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["binary-search"] },
+      "graphPosition": { "layer": 2, "branch": "main" },
+      "pathMetadata": { "pathType": "portal", "targetCategory": "recursive" },
+      "implementationKey": "factorial"
+    },
+
+    {
+      "id": "factorial",
+      "name": "遞迴基礎：階乘",
+      "nameEn": "Recursion Basics: Factorial",
+      "category": "recursive",
+      "difficulty": 1,
+      "description": "從階乘理解遞迴的呼叫與回傳流程",
+      "learningObjectives": [
+        "理解遞迴的基本結構（base case / recursive case）",
+        "掌握函式呼叫堆疊的運作",
+        "視覺化遞迴展開與回傳過程"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["portal-to-recursive"] },
+      "graphPosition": { "layer": 0, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "factorial"
+    },
+    {
+      "id": "fibonacci-recursive",
+      "name": "遞迴樹：費氏數列",
+      "nameEn": "Recursion Tree: Fibonacci",
+      "category": "recursive",
+      "difficulty": 2,
+      "description": "透過費氏數列理解遞迴樹與重複子問題",
+      "learningObjectives": [
+        "理解遞迴樹的展開方式",
+        "識別重複子問題（overlapping subproblems）",
+        "比較遞迴與迭代的效能差異"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["factorial"] },
+      "graphPosition": { "layer": 1, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
+      "implementationKey": "fibonacciRecursive"
+    },
+    {
+      "id": "merge-sort-recursive",
+      "name": "分治法：合併排序",
+      "nameEn": "Divide & Conquer: Merge Sort",
+      "category": "recursive",
+      "difficulty": 3,
+      "description": "以遞迴角度重新理解合併排序的分治結構",
+      "learningObjectives": [
+        "理解分治法的三步驟（分割、解決、合併）",
+        "視覺化遞迴樹與合併過程",
+        "分析分治法的時間複雜度"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["fibonacci-recursive"] },
+      "graphPosition": { "layer": 2, "branch": "left" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "分治策略" },
+      "suggestedPrerequisites": ["merge-sort"],
+      "implementationKey": "mergeSortRecursive"
+    },
+    {
+      "id": "hanoi",
+      "name": "河內塔",
+      "nameEn": "Tower of Hanoi",
+      "category": "recursive",
+      "difficulty": 3,
+      "description": "經典遞迴問題：將所有圓盤從柱 A 移到柱 C",
+      "learningObjectives": [
+        "理解多層遞迴的展開邏輯",
+        "掌握遞迴公式推導",
+        "視覺化每一步移動"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["fibonacci-recursive"] },
+      "graphPosition": { "layer": 2, "branch": "center" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "經典應用" },
+      "implementationKey": "hanoi"
+    },
+    {
+      "id": "backtracking-intro",
+      "name": "回溯法入門",
+      "nameEn": "Backtracking",
+      "category": "recursive",
+      "difficulty": 3,
+      "description": "系統性地嘗試所有可能解，並在不可行時回退",
+      "learningObjectives": [
+        "理解回溯法的決策樹模型",
+        "掌握剪枝策略",
+        "應用於排列組合問題"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["fibonacci-recursive"] },
+      "graphPosition": { "layer": 2, "branch": "right" },
+      "pathMetadata": { "pathType": "branch", "branchLabel": "狀態窮舉" },
+      "implementationKey": "backtracking"
+    },
+    {
+      "id": "quick-sort-recursive",
+      "name": "分治法：快速排序",
+      "nameEn": "Divide & Conquer: Quick Sort",
+      "category": "recursive",
+      "difficulty": 3,
+      "description": "以遞迴角度理解快速排序的 pivot 分割策略",
+      "learningObjectives": [
+        "理解 pivot 選擇對遞迴樹深度的影響",
+        "掌握最佳、平均、最壞情況分析",
+        "視覺化 partition 過程"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["merge-sort-recursive"] },
+      "graphPosition": { "layer": 3, "branch": "left" },
+      "pathMetadata": { "pathType": "branch" },
+      "suggestedPrerequisites": ["quick-sort"],
+      "implementationKey": "quickSortRecursive"
+    },
+    {
+      "id": "n-queens",
+      "name": "N 皇后問題",
+      "nameEn": "N-Queens",
+      "category": "recursive",
+      "difficulty": 4,
+      "description": "經典回溯法應用：在 N×N 棋盤上放置 N 個不互相攻擊的皇后",
+      "learningObjectives": [
+        "應用回溯法解決約束滿足問題",
+        "掌握棋盤狀態的剪枝邏輯",
+        "視覺化搜尋與回退過程"
+      ],
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["backtracking-intro"] },
+      "graphPosition": { "layer": 4, "branch": "center", "horizontalIndex": 0 },
+      "pathMetadata": { "pathType": "boss" },
+      "implementationKey": "nQueens"
+    },
+    {
+      "id": "portal-to-technique",
+      "name": "傳送門：技巧總覽",
+      "nameEn": "Portal: Technique Overview",
+      "category": "recursive",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["quick-sort-recursive", "n-queens"]
+      },
+      "graphPosition": { "layer": 5, "branch": "main" },
+      "pathMetadata": { "pathType": "portal", "targetCategory": "technique" },
+      "implementationKey": "prefixSum"
     },
 
     {
@@ -243,16 +569,9 @@
       ],
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["array"] },
+      "prerequisites": { "type": "AND", "levelIds": ["portal-to-technique"] },
       "graphPosition": { "layer": 0, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
-      "ghostReferences": [
-        {
-          "targetLevelId": "array",
-          "position": { "layer": -1, "branch": "main" },
-          "label": "陣列"
-        }
-      ],
       "implementationKey": "prefixSum"
     },
     {
@@ -312,334 +631,18 @@
       "pathMetadata": { "pathType": "boss" },
       "implementationKey": "bitMask"
     },
-
-    {
-      "id": "bubble-sort",
-      "name": "氣泡排序",
-      "nameEn": "Bubble Sort",
-      "category": "sorting",
-      "difficulty": 1,
-      "description": "最基礎的排序演算法，透過不斷交換相鄰元素來排序",
-      "learningObjectives": [
-        "理解排序演算法的基本概念",
-        "掌握雙層迴圈的邏輯",
-        "分析時間複雜度 O(n²)"
-      ],
-      "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["portal-to-sorting"] },
-      "graphPosition": { "layer": 100, "branch": "main" },
-      "pathMetadata": { "pathType": "main" },
-      "implementationKey": "bubbleSort",
-      "homePageMetadata": {
-        "image": "bubble-sort.png",
-        "translationKey": "bubble_sort",
-        "showOnHomePage": true
-      }
-    },
-    {
-      "id": "selection-sort",
-      "name": "選擇排序",
-      "nameEn": "Selection Sort",
-      "category": "sorting",
-      "difficulty": 1,
-      "description": "每次從未排序部分選擇最小值放到已排序部分末尾",
-      "learningObjectives": [
-        "理解選擇排序的核心邏輯",
-        "比較氣泡排序與選擇排序的差異",
-        "分析時間複雜度 O(n²)"
-      ],
-      "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["bubble-sort"] },
-      "graphPosition": { "layer": 101, "branch": "left" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "比較排序" },
-      "implementationKey": "selectionSort"
-    },
-    {
-      "id": "insertion-sort",
-      "name": "插入排序",
-      "nameEn": "Insertion Sort",
-      "category": "sorting",
-      "difficulty": 1,
-      "description": "將元素插入到已排序部分的正確位置",
-      "learningObjectives": [
-        "理解插入排序的實作方式",
-        "掌握適用場景（小規模資料）",
-        "分析最佳與最壞情況"
-      ],
-      "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["bubble-sort"] },
-      "graphPosition": { "layer": 101, "branch": "right" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "插入排序" },
-      "implementationKey": "insertionSort"
-    },
-    {
-      "id": "merge-sort",
-      "name": "合併排序",
-      "nameEn": "Merge Sort",
-      "category": "sorting",
-      "difficulty": 3,
-      "description": "使用分治法的穩定排序演算法",
-      "learningObjectives": [
-        "理解分治法的核心思想",
-        "掌握遞迴實作技巧",
-        "分析時間複雜度 O(n log n)"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "OR",
-        "levelIds": ["selection-sort", "insertion-sort"]
-      },
-      "graphPosition": { "layer": 102, "branch": "main" },
-      "pathMetadata": { "pathType": "convergence" },
-      "implementationKey": "mergeSort"
-    },
-    {
-      "id": "quick-sort",
-      "name": "快速排序",
-      "nameEn": "Quick Sort",
-      "category": "sorting",
-      "difficulty": 3,
-      "description": "使用分治法的高效排序演算法",
-      "learningObjectives": [
-        "理解快速排序的分區邏輯",
-        "掌握 pivot 選擇策略",
-        "分析平均時間複雜度 O(n log n)"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["merge-sort"] },
-      "graphPosition": { "layer": 103, "branch": "main" },
-      "pathMetadata": { "pathType": "boss" },
-      "implementationKey": "quickSort"
-    },
-    {
-      "id": "portal-to-searching",
-      "name": "傳送門：搜尋演算法",
-      "nameEn": "Portal: Searching Algorithms",
-      "category": "sorting",
-      "difficulty": 1,
-      "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["quick-sort"] },
-      "graphPosition": { "layer": 104, "branch": "main" },
-      "pathMetadata": { "pathType": "portal", "targetCategory": "searching" },
-      "implementationKey": "binarySearch"
-    },
-
-    {
-      "id": "binary-search",
-      "name": "二分搜尋",
-      "nameEn": "Binary Search",
-      "category": "searching",
-      "difficulty": 2,
-      "description": "在已排序陣列中快速找到目標值",
-      "learningObjectives": [
-        "理解二分搜尋的原理",
-        "掌握邊界條件處理",
-        "分析時間複雜度 O(log n)"
-      ],
-      "isDeveloped": true,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["portal-to-searching"] },
-      "graphPosition": { "layer": 200, "branch": "main" },
-      "pathMetadata": { "pathType": "main" },
-      "implementationKey": "binarySearch"
-    },
-    {
-      "id": "linear-search",
-      "name": "線性搜尋",
-      "nameEn": "Linear Search",
-      "category": "searching",
-      "difficulty": 1,
-      "description": "依序檢查每個元素直到找到目標值",
-      "learningObjectives": [
-        "理解線性搜尋的基本概念",
-        "比較與二分搜尋的差異",
-        "分析時間複雜度 O(n)"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["binary-search"] },
-      "graphPosition": { "layer": 201, "branch": "left" },
-      "pathMetadata": { "pathType": "branch" },
-      "implementationKey": "linearSearch"
-    },
     {
       "id": "portal-to-graph",
       "name": "傳送門：圖論演算法",
       "nameEn": "Portal: Graph Algorithms",
-      "category": "searching",
+      "category": "technique",
       "difficulty": 1,
       "isDeveloped": true,
       "isUnlocked": false,
-      "prerequisites": {
-        "type": "OR",
-        "levelIds": ["linear-search", "bit-mask"]
-      },
-      "graphPosition": { "layer": 202, "branch": "main" },
+      "prerequisites": { "type": "AND", "levelIds": ["bit-mask"] },
+      "graphPosition": { "layer": 4, "branch": "main" },
       "pathMetadata": { "pathType": "portal", "targetCategory": "graph" },
       "implementationKey": "bfs"
-    },
-
-    {
-      "id": "factorial",
-      "name": "遞迴基礎：階乘",
-      "nameEn": "Recursion Basics: Factorial",
-      "category": "recursive",
-      "difficulty": 1,
-      "description": "從階乘理解遞迴的呼叫與回傳流程",
-      "learningObjectives": [
-        "理解遞迴的基本結構（base case / recursive case）",
-        "掌握函式呼叫堆疊的運作",
-        "視覺化遞迴展開與回傳過程"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["stack"] },
-      "graphPosition": { "layer": 0, "branch": "main" },
-      "pathMetadata": { "pathType": "main" },
-      "ghostReferences": [
-        {
-          "targetLevelId": "stack",
-          "position": { "layer": -1, "branch": "main" },
-          "label": "堆疊"
-        }
-      ],
-      "implementationKey": "factorial"
-    },
-    {
-      "id": "fibonacci-recursive",
-      "name": "遞迴樹：費氏數列",
-      "nameEn": "Recursion Tree: Fibonacci",
-      "category": "recursive",
-      "difficulty": 2,
-      "description": "透過費氏數列理解遞迴樹與重複子問題",
-      "learningObjectives": [
-        "理解遞迴樹的展開方式",
-        "識別重複子問題（overlapping subproblems）",
-        "比較遞迴與迭代的效能差異"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["factorial"] },
-      "graphPosition": { "layer": 1, "branch": "main" },
-      "pathMetadata": { "pathType": "main" },
-      "implementationKey": "fibonacciRecursive"
-    },
-    {
-      "id": "merge-sort-recursive",
-      "name": "分治法：合併排序",
-      "nameEn": "Divide & Conquer: Merge Sort",
-      "category": "recursive",
-      "difficulty": 3,
-      "description": "以遞迴角度重新理解合併排序的分治結構",
-      "learningObjectives": [
-        "理解分治法的三步驟（分割、解決、合併）",
-        "視覺化遞迴樹與合併過程",
-        "分析分治法的時間複雜度"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["fibonacci-recursive"] },
-      "graphPosition": { "layer": 2, "branch": "left" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "分治法" },
-      "implementationKey": "mergeSortRecursive"
-    },
-    {
-      "id": "quick-sort-recursive",
-      "name": "分治法：快速排序",
-      "nameEn": "Divide & Conquer: Quick Sort",
-      "category": "recursive",
-      "difficulty": 3,
-      "description": "以遞迴角度理解快速排序的 pivot 分割策略",
-      "learningObjectives": [
-        "理解 pivot 選擇對遞迴樹深度的影響",
-        "掌握最佳、平均、最壞情況分析",
-        "視覺化 partition 過程"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["merge-sort-recursive"] },
-      "graphPosition": { "layer": 3, "branch": "left" },
-      "pathMetadata": { "pathType": "branch" },
-      "implementationKey": "quickSortRecursive"
-    },
-    {
-      "id": "backtracking-intro",
-      "name": "回溯法",
-      "nameEn": "Backtracking",
-      "category": "recursive",
-      "difficulty": 3,
-      "description": "系統性地嘗試所有可能解，並在不可行時回退",
-      "learningObjectives": [
-        "理解回溯法的決策樹模型",
-        "掌握剪枝策略",
-        "應用於排列組合問題"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["fibonacci-recursive"] },
-      "graphPosition": { "layer": 2, "branch": "right" },
-      "pathMetadata": { "pathType": "branch", "branchLabel": "回溯法" },
-      "implementationKey": "backtracking"
-    },
-    {
-      "id": "n-queens",
-      "name": "N 皇后問題",
-      "nameEn": "N-Queens",
-      "category": "recursive",
-      "difficulty": 4,
-      "description": "經典回溯法應用：在 N×N 棋盤上放置 N 個不互相攻擊的皇后",
-      "learningObjectives": [
-        "應用回溯法解決約束滿足問題",
-        "掌握棋盤狀態的剪枝邏輯",
-        "視覺化搜尋與回退過程"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["backtracking-intro"] },
-      "graphPosition": { "layer": 3, "branch": "far-right" },
-      "pathMetadata": { "pathType": "boss" },
-      "implementationKey": "nQueens"
-    },
-    {
-      "id": "hanoi",
-      "name": "河內塔",
-      "nameEn": "Tower of Hanoi",
-      "category": "recursive",
-      "difficulty": 3,
-      "description": "經典遞迴問題：將所有圓盤從柱 A 移到柱 C",
-      "learningObjectives": [
-        "理解多層遞迴的展開邏輯",
-        "掌握遞迴公式推導",
-        "視覺化每一步移動"
-      ],
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": { "type": "AND", "levelIds": ["backtracking-intro"] },
-      "graphPosition": { "layer": 3, "branch": "right" },
-      "pathMetadata": { "pathType": "branch" },
-      "implementationKey": "hanoi"
-    },
-    {
-      "id": "portal-to-dp",
-      "name": "傳送門：動態規劃",
-      "nameEn": "Portal: Dynamic Programming",
-      "category": "recursive",
-      "difficulty": 1,
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "AND",
-        "levelIds": ["quick-sort-recursive", "n-queens"]
-      },
-      "graphPosition": { "layer": 4, "branch": "main" },
-      "pathMetadata": { "pathType": "portal", "targetCategory": "dp" },
-      "implementationKey": "dpFibonacci"
     },
 
     {
@@ -657,15 +660,9 @@
       "isDeveloped": true,
       "isUnlocked": true,
       "prerequisites": { "type": "NONE", "levelIds": [] },
-      "graphPosition": { "layer": 300, "branch": "main" },
+      "graphPosition": { "layer": 0, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
-      "ghostReferences": [
-        {
-          "targetLevelId": "graph",
-          "position": { "layer": 299, "branch": "main" },
-          "label": "圖形結構"
-        }
-      ],
+      "suggestedPrerequisites": ["queue"],
       "implementationKey": "bfs"
     },
     {
@@ -683,8 +680,9 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["bfs"] },
-      "graphPosition": { "layer": 301, "branch": "main" },
+      "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
+      "suggestedPrerequisites": ["stack"],
       "implementationKey": "dfs"
     },
     {
@@ -702,7 +700,7 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["dfs"] },
-      "graphPosition": { "layer": 302, "branch": "left" },
+      "graphPosition": { "layer": 2, "branch": "left" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "DAG 應用" },
       "implementationKey": "topologicalSort"
     },
@@ -721,7 +719,7 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["dfs"] },
-      "graphPosition": { "layer": 302, "branch": "right" },
+      "graphPosition": { "layer": 2, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "集合管理" },
       "implementationKey": "unionFind"
     },
@@ -743,8 +741,8 @@
         "type": "OR",
         "levelIds": ["topological-sort", "union-find"]
       },
-      "graphPosition": { "layer": 303, "branch": "main" },
-      "pathMetadata": { "pathType": "convergence" },
+      "graphPosition": { "layer": 3, "branch": "main" },
+      "pathMetadata": { "pathType": "main" },
       "implementationKey": "dijkstra"
     },
     {
@@ -762,9 +760,22 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["dijkstra"] },
-      "graphPosition": { "layer": 304, "branch": "main" },
+      "graphPosition": { "layer": 4, "branch": "main" },
       "pathMetadata": { "pathType": "boss" },
       "implementationKey": "astar"
+    },
+    {
+      "id": "portal-to-dp",
+      "name": "傳送門：動態規劃",
+      "nameEn": "Portal: Dynamic Programming",
+      "category": "graph",
+      "difficulty": 1,
+      "isDeveloped": false,
+      "isUnlocked": false,
+      "prerequisites": { "type": "AND", "levelIds": ["astar"] },
+      "graphPosition": { "layer": 5, "branch": "main" },
+      "pathMetadata": { "pathType": "portal", "targetCategory": "dp" },
+      "implementationKey": "dpFibonacci"
     },
 
     {
@@ -782,15 +793,9 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["portal-to-dp"] },
-      "graphPosition": { "layer": 400, "branch": "main" },
+      "graphPosition": { "layer": 0, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
-      "ghostReferences": [
-        {
-          "targetLevelId": "fibonacci-recursive",
-          "position": { "layer": 399, "branch": "main" },
-          "label": "遞迴費氏"
-        }
-      ],
+      "suggestedPrerequisites": ["fibonacci-recursive"],
       "implementationKey": "dpFibonacci"
     },
     {
@@ -808,8 +813,9 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["dp-fibonacci"] },
-      "graphPosition": { "layer": 401, "branch": "left" },
+      "graphPosition": { "layer": 1, "branch": "left" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "組合最佳化" },
+      "suggestedPrerequisites": ["backtracking-intro"],
       "implementationKey": "knapsack"
     },
     {
@@ -827,7 +833,7 @@
       "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["dp-fibonacci"] },
-      "graphPosition": { "layer": 401, "branch": "right" },
+      "graphPosition": { "layer": 1, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "字串 DP" },
       "implementationKey": "lcs"
     }
@@ -840,21 +846,9 @@
       "nameEn": "Data Structures",
       "description": "學習各種資料結構的運作原理與應用",
       "icon": "sitemap",
-      "colorTheme": "#635bff",
+      "colorTheme": "#4F46E5",
       "isDeveloped": true,
-      "order": 1,
-      "layerOffset": 0
-    },
-    "technique": {
-      "id": "technique",
-      "name": "演算法技巧",
-      "nameEn": "Algorithmic Techniques",
-      "description": "學習通用的解題模式與優化技巧",
-      "icon": "lightbulb",
-      "colorTheme": "#e67e22",
-      "isDeveloped": true,
-      "order": 2,
-      "layerOffset": 0
+      "order": 1
     },
     "sorting": {
       "id": "sorting",
@@ -862,10 +856,9 @@
       "nameEn": "Sorting Algorithms",
       "description": "掌握各種排序演算法的實作與效能分析",
       "icon": "signal",
-      "colorTheme": "#ff6b6b",
+      "colorTheme": "#EF4444",
       "isDeveloped": true,
-      "order": 3,
-      "layerOffset": 100
+      "order": 2
     },
     "searching": {
       "id": "searching",
@@ -873,10 +866,9 @@
       "nameEn": "Searching Algorithms",
       "description": "探索高效的搜尋策略與技巧",
       "icon": "magnifying-glass",
-      "colorTheme": "#51cf66",
+      "colorTheme": "#10B981",
       "isDeveloped": true,
-      "order": 4,
-      "layerOffset": 200
+      "order": 3
     },
     "recursive": {
       "id": "recursive",
@@ -884,10 +876,19 @@
       "nameEn": "Recursion & Divide Conquer",
       "description": "掌握遞迴思維與分治策略，為 DP 打好基礎",
       "icon": "arrows-spin",
-      "colorTheme": "#7c3aed",
+      "colorTheme": "#8B5CF6",
       "isDeveloped": true,
-      "order": 5,
-      "layerOffset": 0
+      "order": 4
+    },
+    "technique": {
+      "id": "technique",
+      "name": "演算法技巧",
+      "nameEn": "Algorithmic Techniques",
+      "description": "學習通用的解題模式與優化技巧",
+      "icon": "lightbulb",
+      "colorTheme": "#F59E0B",
+      "isDeveloped": true,
+      "order": 5
     },
     "graph": {
       "id": "graph",
@@ -895,10 +896,9 @@
       "nameEn": "Graph Algorithms",
       "description": "深入理解圖論的核心演算法",
       "icon": "diagram-project",
-      "colorTheme": "#ffd43b",
+      "colorTheme": "#EC4899",
       "isDeveloped": true,
-      "order": 6,
-      "layerOffset": 300
+      "order": 6
     },
     "dp": {
       "id": "dp",
@@ -906,10 +906,9 @@
       "nameEn": "Dynamic Programming",
       "description": "透過狀態轉移解決重複子問題，掌握最佳化思維",
       "icon": "table-cells",
-      "colorTheme": "#06b6d4",
+      "colorTheme": "#06B6D4",
       "isDeveloped": true,
-      "order": 7,
-      "layerOffset": 400
+      "order": 7
     }
   }
 }
