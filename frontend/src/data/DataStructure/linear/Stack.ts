@@ -516,4 +516,48 @@ export const StackConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/implement-queue-using-stacks/",
     },
   ],
+  realWorldStories: [
+    {
+      id: "basic-stack-intro",
+      title: "堆疊的隱形力量 — 從復原鍵到瀏覽器的幕後英雄",
+      category: "軟體開發 / 日常應用",
+      tags: ["LIFO", "後進先出", "資料結構", "Undo/Redo"],
+      content: `【生活中的直覺法則】
+每天我們都在不知不覺中遵守著「堆疊」的秩序。想像自助餐檯上的一疊盤子，或是只能單向進出的單線道停車場，我們永遠只能從「最上面」拿取盤子，最後開進去的車子也必須最先開出來。這種「後進先出」（LIFO, Last In, First Out）的簡單規則，不僅是空間有限下最有效率的管理方式，更是數位世界運作的核心骨架。
+
+【軟體的時光機：復原與重做】
+當你打錯字按下「復原」（Undo）時，彷彿時光倒流。這背後其實是系統將你的每個動作「推入」（Push）堆疊中。當需要復原時，就把最上面的動作「彈出」（Pop）。更聰明的是，系統會同時維護兩個堆疊來實現「重做」（Redo）功能，將復原的動作悄悄移到隔壁的重做堆疊裡，讓你隨時可以再次套用。
+
+【網頁導覽的幕後推手】
+瀏覽器的「上一頁」與「下一頁」同樣是雙堆疊概念的完美應用。每一個點開的新網頁都會被存入「上一頁堆疊」，當你點擊上一頁時，目前的網頁就會被彈出並存入「下一頁堆疊」，讓你在複雜的網頁歷史紀錄中穿梭自如。
+
+【支撐程式運作的隱形守護者】
+在程式碼的最底層，堆疊更是無所不在。「呼叫堆疊」（Call Stack）就像是程式在迷宮中沿路留下的麵包屑，確保主程式在呼叫無數個子功能後，永遠能準確找到回來的路。此外，編譯器也依賴堆疊這個超級嚴格的檢查員來驗證括號是否正確配對，甚至開發者會利用堆疊「後進先出」的特性來快速完成字串反轉。`,
+      video: {
+        url: "https://youtu.be/4C2iPT6N_GI",
+        title: "堆疊的隱形力量",
+        duration: "7:32",
+      },
+      resources: [
+        {
+          type: "article",
+          url: "https://www.enjoyalgorithms.com/blog/application-of-stack-data-structure-in-programming",
+          title: "Real-life Applications of Stack Data Structure",
+          source: "EnjoyAlgorithms",
+        },
+        {
+          type: "article",
+          url: "https://www.geeksforgeeks.org/projects/implement-undo-and-redo-features-of-a-text-editor/",
+          title: "Implement Undo and Redo",
+          source: "GeeksforGeeks",
+        },
+        {
+          type: "article",
+          url: "https://www.upgrad.com/blog/stack-example-in-real-life/",
+          title: "Top 12 Stack Examples in Real Life",
+          source: "upGrad",
+        },
+      ],
+    },
+  ],
 };
