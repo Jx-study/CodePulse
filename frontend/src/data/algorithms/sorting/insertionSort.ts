@@ -64,7 +64,7 @@ export function createInsertionSortAnimationSteps(
   });
 
   for (let i = 1; i < n; i++) {
-    const keyVal = arr[i].value ?? 0;
+    const keyVal = Number(arr[i].value);
     
     sortedIndices.add(i);
 
@@ -84,7 +84,7 @@ export function createInsertionSortAnimationSteps(
     let currentKeyIndex = i; 
 
     while (j >= 0) {
-      const scanVal = arr[j].value ?? 0;
+      const scanVal = Number(arr[j].value);
 
       steps.push({
         stepNumber: steps.length + 1,

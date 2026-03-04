@@ -1,4 +1,4 @@
-import type { AnimationStep } from "@/types";
+import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
 import { Node } from "../../../modules/core/DataLogic/Node";
@@ -9,6 +9,17 @@ import {
   updateLinkStatus,
 } from "@/data/DataStructure/nonlinear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+
+const TAGS = {
+  INIT: "INIT",
+  START: "START",
+  DEQUEUE: "DEQUEUE",
+  CHECK_END: "CHECK_END",
+  EXPLORE: "EXPLORE",
+  VISIT_NEIGHBOR: "VISIT_NEIGHBOR",
+  PATH_FOUND: "PATH_FOUND",
+  NOT_FOUND: "NOT_FOUND",
+};
 
 function runGraphBFS(
   graphData: any,
@@ -44,26 +55,33 @@ function runGraphBFS(
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
-  // 初始畫面 (顯示 ID)
-  steps.push(
-    generateGraphFrame(
-      baseElements,
-      {},
-      distanceMap,
-      `Graph 顯示 ID 完成，起點: ${realStartId}, 終點: ${realEndId}`,
-      true, // showIdAsValue = true
-    ),
+  const showIdFrame = generateGraphFrame(
+    baseElements,
+    {},
+    distanceMap,
+    `Graph 顯示 ID 完成，起點: ${realStartId}, 終點: ${realEndId}`,
+    true, // showIdAsValue = true
   );
+  showIdFrame.actionTag = TAGS.INIT;
+  showIdFrame.variables = {
+    start: realStartId,
+    end: realEndId,
+  };
+  steps.push(showIdFrame);
 
-  // 數值轉為距離 (∞)
-  steps.push(
-    generateGraphFrame(
-      baseElements,
-      {},
-      distanceMap,
-      `準備開始 BFS，初始化距離為 ∞`,
-    ),
+  const initDistFrame = generateGraphFrame(
+    baseElements,
+    {},
+    distanceMap,
+    `準備開始 BFS，初始化距離為 ∞`,
   );
+  initDistFrame.actionTag = TAGS.INIT;
+  initDistFrame.variables = {
+    start: realStartId,
+    end: realEndId,
+    "distance[all]": "∞",
+  };
+  steps.push(initDistFrame);
 
   // BFS 初始化
   const queue: string[] = [realStartId];
@@ -71,14 +89,19 @@ function runGraphBFS(
   statusMap[realStartId] = Status.Prepare;
   distanceMap[realStartId] = 0; // 起點距離為 0
 
-  steps.push(
-    generateGraphFrame(
-      baseElements,
-      statusMap,
-      distanceMap,
-      `將起點 ${realStartId} 加入佇列 (距離: 0)`,
-    ),
+  const enqueueStartFrame = generateGraphFrame(
+    baseElements,
+    statusMap,
+    distanceMap,
+    `將起點 ${realStartId} 加入佇列 (距離: 0)`,
   );
+  enqueueStartFrame.actionTag = TAGS.START;
+  enqueueStartFrame.variables = {
+    queue: `[${realStartId}]`,
+    visited: `{${realStartId}}`,
+    [`distance[${realStartId}]`]: 0,
+  };
+  steps.push(enqueueStartFrame);
 
   let found = false;
 
@@ -93,18 +116,41 @@ function runGraphBFS(
 
     statusMap[currId] = Status.Target;
 
-    steps.push(
-      generateGraphFrame(
-        baseElements,
-        statusMap,
-        distanceMap,
-        `取出 ${currId} (層數: ${distanceMap[currId]})，檢查鄰居`,
-        false,
-        { ...linkStatusMap },
-      ),
+    const dequeueFrame = generateGraphFrame(
+      baseElements,
+      statusMap,
+      distanceMap,
+      `While 佇列不為空，取出 ${currId}（距離: ${distanceMap[currId]}）`,
+      false,
+      { ...linkStatusMap },
     );
+    dequeueFrame.actionTag = TAGS.DEQUEUE;
+    dequeueFrame.variables = {
+      curr: currId,
+      [`distance[${currId}]`]: distanceMap[currId],
+      queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]  (空)",
+      "visited count": visited.size,
+    };
+    steps.push(dequeueFrame);
 
-    // 檢查是否到達終點
+    const checkEndFrame = generateGraphFrame(
+      baseElements,
+      { ...statusMap },
+      distanceMap,
+      `判斷：${currId} ${currId === realEndId ? "=== end，找到終點！" : "!== end，繼續搜尋"}`,
+      false,
+      { ...linkStatusMap },
+    );
+    checkEndFrame.actionTag = TAGS.CHECK_END;
+    checkEndFrame.variables = {
+      curr: currId,
+      end: realEndId,
+      "curr === end": currId === realEndId ? "True" : "False",
+      [`distance[${currId}]`]: distanceMap[currId],
+    };
+    steps.push(checkEndFrame);
+
+    // 終點判斷
     if (currId === realEndId) {
       found = true;
       break;
@@ -112,11 +158,35 @@ function runGraphBFS(
 
     if (currNode) {
       const neighbors = currNode.pointers;
-      const newNeighbors: string[] = [];
-      const currentDist = distanceMap[currId];
-
       // 排序以保持動畫順序穩定
       neighbors.sort((a, b) => a.id.localeCompare(b.id));
+
+      const allNeighborIds = neighbors.map((n) => n.id);
+      const unvisitedIds = allNeighborIds.filter((id) => !visited.has(id));
+
+      const exploreFrame = generateGraphFrame(
+        baseElements,
+        { ...statusMap },
+        distanceMap,
+        unvisitedIds.length > 0
+          ? `遍歷 ${currId} 的鄰居，發現 ${unvisitedIds.length} 個未訪問節點`
+          : `遍歷 ${currId} 的鄰居，所有鄰居皆已訪問`,
+        false,
+        { ...linkStatusMap },
+      );
+      exploreFrame.actionTag = TAGS.EXPLORE;
+      exploreFrame.variables = {
+        curr: currId,
+        "all neighbors": `[${allNeighborIds.join(", ")}]`,
+        unvisited:
+          unvisitedIds.length > 0
+            ? `[${unvisitedIds.join(", ")}]`
+            : "[]  (全已訪問)",
+      };
+      steps.push(exploreFrame);
+
+      const newNeighbors: string[] = [];
+      const currentDist = distanceMap[currId];
 
       for (const neighbor of neighbors) {
         if (!visited.has(neighbor.id)) {
@@ -132,16 +202,23 @@ function runGraphBFS(
       }
 
       if (newNeighbors.length > 0) {
-        steps.push(
-          generateGraphFrame(
-            baseElements,
-            statusMap,
-            distanceMap,
-            `發現鄰居 ${newNeighbors.join(", ")}，距離更新為 ${currentDist + 1}，加入佇列`,
-            false,
-            { ...linkStatusMap },
-          ),
+        // ── VISIT_NEIGHBOR frame（高亮 [13, 14, 15, 16]）──
+        const visitFrame = generateGraphFrame(
+          baseElements,
+          statusMap,
+          distanceMap,
+          `發現鄰居 ${newNeighbors.join(", ")}，距離更新為 ${currentDist + 1}，加入佇列`,
+          false,
+          { ...linkStatusMap },
         );
+        visitFrame.actionTag = TAGS.VISIT_NEIGHBOR;
+        visitFrame.variables = {
+          curr: currId,
+          "new neighbors": `[${newNeighbors.join(", ")}]`,
+          "distance[new]": currentDist + 1,
+          "queue (after)": `[${queue.join(", ")}]`,
+        };
+        steps.push(visitFrame);
       }
     }
 
@@ -154,9 +231,6 @@ function runGraphBFS(
     // 回溯路徑
     let curr = realEndId;
     const path: string[] = [realEndId];
-
-    // 先標終點
-    statusMap[realEndId] = Status.Complete;
 
     while (curr !== realStartId) {
       const parent = parentMap.get(curr);
@@ -171,27 +245,36 @@ function runGraphBFS(
     // 將路徑上所有節點標示為 complete
     path.forEach((id) => (statusMap[id] = Status.Complete));
 
-    steps.push(
-      generateGraphFrame(
-        baseElements,
-        statusMap,
-        distanceMap,
-        `找到終點！最短路徑長度: ${distanceMap[realEndId]} (綠色)`,
-        false,
-        { ...linkStatusMap },
-      ),
+    const pathFoundFrame = generateGraphFrame(
+      baseElements,
+      statusMap,
+      distanceMap,
+      `找到終點！最短路徑長度: ${distanceMap[realEndId]}`,
+      false,
+      { ...linkStatusMap },
     );
+    pathFoundFrame.actionTag = TAGS.PATH_FOUND;
+    pathFoundFrame.variables = {
+      end: realEndId,
+      "shortest distance": distanceMap[realEndId],
+    };
+    steps.push(pathFoundFrame);
   } else {
-    steps.push(
-      generateGraphFrame(
-        baseElements,
-        statusMap,
-        distanceMap,
-        "佇列已空，無法到達終點",
-        false,
-        { ...linkStatusMap },
-      ),
+    const notFoundFrame = generateGraphFrame(
+      baseElements,
+      statusMap,
+      distanceMap,
+      "佇列已空，無法到達終點",
+      false,
+      { ...linkStatusMap },
     );
+    notFoundFrame.actionTag = TAGS.NOT_FOUND;
+    notFoundFrame.variables = {
+      queue: "[]  (空)",
+      end: realEndId,
+      reachable: "false — 終點不可達",
+    };
+    steps.push(notFoundFrame);
   }
 
   return steps;
@@ -233,29 +316,36 @@ function runGridBFS(
     return steps;
   }
 
-  // 初始畫面
-  steps.push(
-    generateGridFrame(
-      gridData,
-      cols,
-      {},
-      {},
-      `BFS 準備開始：顯示格子索引 (ID)。起點: ${startIndex}, 終點: ${endIndex}`,
-      true, // showIdAsValue = true
-    ),
+  const gridShowIdFrame = generateGridFrame(
+    gridData,
+    cols,
+    {},
+    {},
+    `BFS 準備開始：顯示格子索引 (ID)。起點: ${startIndex}, 終點: ${endIndex}`,
+    true, // showIdAsValue = true
   );
+  gridShowIdFrame.actionTag = TAGS.INIT;
+  gridShowIdFrame.variables = {
+    start: startIndex,
+    end: endIndex,
+  };
+  steps.push(gridShowIdFrame);
 
-  // Step 1: 準備開始，數值轉為距離 (∞)
-  steps.push(
-    generateGridFrame(
-      gridData,
-      cols,
-      {},
-      {},
-      `初始化距離為 ∞`,
-      false, // 轉回顯示距離模式
-    ),
+  const gridInitDistFrame = generateGridFrame(
+    gridData,
+    cols,
+    {},
+    {},
+    `初始化距離為 ∞`,
+    false, // 轉回顯示距離模式
   );
+  gridInitDistFrame.actionTag = TAGS.INIT;
+  gridInitDistFrame.variables = {
+    start: startIndex,
+    end: endIndex,
+    "distance[all]": "∞",
+  };
+  steps.push(gridInitDistFrame);
 
   // BFS 初始化
   let queue: number[] = [startIndex];
@@ -283,20 +373,42 @@ function runGridBFS(
       currentLevelIndices.push(idx);
     }
 
-    steps.push(
-      generateGridFrame(
-        gridData,
-        cols,
-        statusMap,
-        distanceMap,
-        `當前層級遍歷：處理 ${currentLevelIndices.length} 個節點`,
-      ),
+    const dequeueGridFrame = generateGridFrame(
+      gridData,
+      cols,
+      statusMap,
+      distanceMap,
+      `當前層級遍歷：處理 ${currentLevelIndices.length} 個節點`,
     );
+    dequeueGridFrame.actionTag = TAGS.DEQUEUE;
+    dequeueGridFrame.variables = {
+      "level size": currentLevelIndices.length,
+      queue: `[${currentLevelIndices.join(", ")}]`,
+      "visited count": visited.size,
+    };
+    steps.push(dequeueGridFrame);
+
+    const checkEndGridFrame = generateGridFrame(
+      gridData,
+      cols,
+      { ...statusMap },
+      distanceMap,
+      currentLevelIndices.includes(endIndex)
+        ? "終點在此層，找到！"
+        : "終點不在本層，繼續搜尋下一層",
+    );
+    checkEndGridFrame.actionTag = TAGS.CHECK_END;
+    checkEndGridFrame.variables = {
+      end: endIndex,
+      "end ∈ Queue": currentLevelIndices.includes(endIndex) ? "True" : "False",
+      "current level": `[${currentLevelIndices.join(", ")}]`,
+    };
+    steps.push(checkEndGridFrame);
 
     // 檢查是否包含終點
     if (currentLevelIndices.includes(endIndex)) {
       found = true;
-      break; // 找到終點，跳出迴圈去畫路徑
+      break;
     }
 
     // Step B: 尋找下一層鄰居
@@ -329,15 +441,22 @@ function runGridBFS(
 
     // 如果有找到鄰居，顯示 Prepare 動畫
     if (prepareIndices.length > 0) {
-      steps.push(
-        generateGridFrame(
-          gridData,
-          cols,
-          statusMap,
-          distanceMap,
-          `發現 ${prepareIndices.length} 個鄰居，加入佇列 (黃色)`,
-        ),
+      const currentDistForVisit =
+        queue.length > 0 ? distanceMap[queue[0]] : 0;
+      const visitGridFrame = generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        `發現 ${prepareIndices.length} 個鄰居，加入佇列`,
       );
+      visitGridFrame.actionTag = TAGS.VISIT_NEIGHBOR;
+      visitGridFrame.variables = {
+        "new count": prepareIndices.length,
+        "distance[new]": currentDistForVisit + 1,
+        "queue size (after)": nextQueue.length,
+      };
+      steps.push(visitGridFrame);
     }
 
     // Step C: 這一層處理結束，將 Target 轉為 Unfinished (已訪問歷史)，準備進入下一層
@@ -350,19 +469,7 @@ function runGridBFS(
   }
 
   if (found) {
-    // A. 標記終點
-    statusMap[endIndex] = Status.Complete;
-    steps.push(
-      generateGridFrame(
-        gridData,
-        cols,
-        statusMap,
-        distanceMap,
-        `找到終點！開始回溯最短路徑`,
-      ),
-    );
-
-    // B. 回溯路徑 (Backtracking)
+    // 回溯路徑 (Backtracking)
     let curr = endIndex;
     const path: number[] = [endIndex];
     while (curr !== startIndex) {
@@ -377,25 +484,34 @@ function runGridBFS(
       statusMap[idx] = Status.Complete;
     });
 
-    steps.push(
-      generateGridFrame(
-        gridData,
-        cols,
-        statusMap,
-        distanceMap,
-        `最短路徑長度：${path.length} (綠色路徑)`,
-      ),
+    const pathCompleteFrame = generateGridFrame(
+      gridData,
+      cols,
+      statusMap,
+      distanceMap,
+      `最短路徑長度：${path.length}`,
     );
+    pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
+    pathCompleteFrame.variables = {
+      end: endIndex,
+      "shortest distance": distanceMap[endIndex],
+    };
+    steps.push(pathCompleteFrame);
   } else {
-    steps.push(
-      generateGridFrame(
-        gridData,
-        cols,
-        statusMap,
-        distanceMap,
-        "佇列已空，無法到達終點",
-      ),
+    const notFoundGridFrame = generateGridFrame(
+      gridData,
+      cols,
+      statusMap,
+      distanceMap,
+      "佇列已空，無法到達終點",
     );
+    notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
+    notFoundGridFrame.variables = {
+      queue: "[]  (空)",
+      end: endIndex,
+      reachable: "False — 終點不可達",
+    };
+    steps.push(notFoundGridFrame);
   }
 
   return steps;
@@ -416,10 +532,110 @@ export function createBFSAnimationSteps(
   return runGraphBFS(inputData, startNodeId, endNodeId);
 }
 
-// TODO: 補完 BFS 的 pseudo code 與 mappings
-const bfsCodeConfig = {
-  pseudo: { content: "", mappings: {} as Record<string, number[]> },
-  python: { content: "" },
+const bfsGraphCodeConfig = {
+  pseudo: {
+    content: `Procedure BFS_Graph(graph, start, end):
+  Initialize distance[all] ← ∞
+  distance[start] ← 0
+  Queue ← [start], visited ← {start}
+
+  While Queue is not empty Do
+    curr ← Dequeue from Queue
+
+    If curr = end Then
+      Return distance[end]
+    End If
+
+    For each neighbor of curr Do
+      If neighbor is not visited Then
+        visited ← visited ∪ {neighbor}
+        distance[neighbor] ← distance[curr] + 1
+        Enqueue neighbor to Queue
+      End If
+    End For
+  End While
+
+  Return -1
+End Procedure`,
+    mappings: {
+      [TAGS.INIT]: [1, 2, 3],
+      [TAGS.START]: [4],
+      [TAGS.DEQUEUE]: [6, 7],
+      [TAGS.CHECK_END]: [9],
+      [TAGS.EXPLORE]: [13, 14],
+      [TAGS.VISIT_NEIGHBOR]: [15, 16, 17],
+      [TAGS.PATH_FOUND]: [10],
+      [TAGS.NOT_FOUND]: [22],
+    } as Record<string, number[]>,
+  },
+  python: {
+    content: `from collections import deque
+
+def bfs(graph, start, end):
+    # 初始化距離與訪問狀態
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    queue = deque([start])
+    visited = {start}
+
+    while queue:
+        curr = queue.popleft()
+        
+        # 檢查是否到達終點
+        if curr == end:
+            return distances[curr]
+            
+        # 遍歷鄰居
+        for neighbor in graph[curr]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                distances[neighbor] = distances[curr] + 1
+                queue.append(neighbor)
+                
+    return -1`,
+  },
+};
+
+const bfsGridCodeConfig = {
+  pseudo: {
+    content: `Procedure BFS_Grid(grid, cols, start, end):
+  Initialize distance[all] ← ∞
+  distance[start] ← 0
+  Queue ← [start], visited ← {start}
+
+  While Queue is not empty Do
+    nextQueue ← []
+
+    If end ∈ Queue Then
+      Return distance[end]
+    End If
+
+    For each curr in Queue Do
+      For each neighbor in Adjacent(curr, grid, cols) Do
+        If neighbor not visited And not wall Then
+          visited ← visited ∪ {neighbor}
+          distance[neighbor] ← distance[curr] + 1
+          Append neighbor to nextQueue
+        End If
+      End For
+    End For
+
+    Queue ← nextQueue
+  End While
+
+  Return -1
+End Procedure`,
+    mappings: {
+      [TAGS.INIT]: [1, 2, 3],
+      [TAGS.START]: [4],
+      [TAGS.DEQUEUE]: [6, 7],
+      [TAGS.CHECK_END]: [9],
+      [TAGS.VISIT_NEIGHBOR]: [15, 16, 17, 18],
+      [TAGS.PATH_FOUND]: [10],
+      [TAGS.NOT_FOUND]: [26],
+    } as Record<string, number[]>,
+  },
+  python: bfsGraphCodeConfig.python,
 };
 
 export const BFSConfig: LevelImplementationConfig = {
@@ -428,7 +644,11 @@ export const BFSConfig: LevelImplementationConfig = {
   name: "廣度優先搜尋 (Breadth-First Search)",
   categoryName: "搜尋演算法",
   description: "廣度優先搜尋演算法，用於圖或樹的遍歷",
-  codeConfig: bfsCodeConfig,
+  codeConfig: bfsGraphCodeConfig,
+  getCodeConfig: (payload?: any): CodeConfig => {
+    if (payload?.mode === "grid") return bfsGridCodeConfig;
+    return bfsGraphCodeConfig;
+  },
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(V + E)",

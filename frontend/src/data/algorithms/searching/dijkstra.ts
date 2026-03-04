@@ -85,7 +85,7 @@ export function createDijkstraAnimationSteps(
       // 上排：Node ID
       const headerBox = new Box();
       headerBox.id = `table-header-${n.id}`;
-      headerBox.value = n.id.replace("node-", "") as any;
+      headerBox.value = n.id.replace("node-", "");
       headerBox.moveTo(currentX, startY); // Y 座標固定在上排
       headerBox.width = boxWidth;
       headerBox.height = boxHeight;
@@ -94,7 +94,7 @@ export function createDijkstraAnimationSteps(
       // 下排：Distance Value
       const valBox = new Box();
       valBox.id = `table-val-${n.id}`;
-      valBox.value = (dist[n.id] === Infinity ? "∞" : dist[n.id]) as any;
+      valBox.value = dist[n.id] === Infinity ? "∞" : String(dist[n.id]);
       valBox.moveTo(currentX, startY + boxHeight + ygap); // Y 座標固定在下排
       valBox.width = boxWidth;
       valBox.height = boxHeight;

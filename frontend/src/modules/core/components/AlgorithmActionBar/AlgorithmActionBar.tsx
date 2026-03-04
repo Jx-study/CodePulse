@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import Checkbox from "@/shared/components/Checkbox";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import { toast } from "@/shared/components/Toast";
 import styles from "../DataActionBar/DataActionBar.module.scss";
 
 export type AlgorithmViewMode = string;
@@ -128,7 +129,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       if (gridStartElement !== "" || gridEndElement !== "") {
         // 確保 currentData 存在且是 Graph 格式
         if (!currentData || !Array.isArray(currentData)) {
-          alert("目前沒有圖形資料，無法指定起點/終點");
+          toast.warning("目前沒有圖形資料，無法指定起點/終點");
           return;
         }
 
@@ -140,12 +141,12 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
 
           // 檢查範圍
           if (isNaN(s) || s < 0 || s > maxIndex) {
-            alert(`起點索引 ${s} 超出範圍 (0 ~ ${maxIndex})`);
+            toast.warning(`起點索引 ${s} 超出範圍 (0 ~ ${maxIndex})`);
             return;
           }
           // 檢查是否為牆壁
           if (currentData[s].val === "wall") {
-            alert(`起點索引 ${s} 是牆壁，無法通行`);
+            toast.warning(`起點索引 ${s} 是牆壁，無法通行`);
             return;
           }
           startId = s.toString();
@@ -156,11 +157,11 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           const e = parseInt(gridEndElement, 10);
 
           if (isNaN(e) || e < 0 || e > maxIndex) {
-            alert(`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
+            toast.warning(`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
             return;
           }
           if (currentData[e].val === 1) {
-            alert(`終點索引 ${e} 是牆壁，無法通行`);
+            toast.warning(`終點索引 ${e} 是牆壁，無法通行`);
             return;
           }
           endId = e.toString();
@@ -185,7 +186,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       if (graphStartElement !== "" || graphEndElement !== "") {
         // 確保 currentData 存在且是 Graph 格式
         if (!currentData || !currentData.nodes) {
-          alert("目前沒有圖形資料，無法指定起點/終點");
+          toast.warning("目前沒有圖形資料，無法指定起點/終點");
           return;
         }
 
@@ -196,7 +197,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           const normalizedVal = normalizeId(graphStartElement);
           const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`起點 node-${normalizedVal} 不存在`);
+            toast.warning(`起點 node-${normalizedVal} 不存在`);
             return;
           }
           startId = targetId;
@@ -207,7 +208,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
           const normalizedVal = normalizeId(graphEndElement);
           const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            alert(`終點 node-${normalizedVal} 不存在`);
+            toast.warning(`終點 node-${normalizedVal} 不存在`);
             return;
           }
           endId = targetId;
@@ -220,14 +221,14 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       if (!isNaN(val)) {
         onRun({ mode: windowMode, targetSum: val });
       } else {
-        alert("請輸入有效的目標和數值");
+        toast.warning("請輸入有效的目標和數值");
       }
     } else if (isSearching && !isPrefixSum) {
       const val = parseInt(searchValue);
       if (!isNaN(val)) {
         onRun({ searchValue: val });
       } else {
-        alert("請輸入有效的搜尋數值");
+        toast.warning("請輸入有效的搜尋數值");
       }
     } else if (isPrefixSum) {
       const start = parseInt(rangeStart);
@@ -244,7 +245,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       ) {
         onRun({ range: [start, end] });
       } else {
-        alert("請輸入完整的區間 (Start, End)");
+        toast.warning("請輸入完整的區間 (Start, End)");
       }
     } else {
       onRun();
@@ -305,7 +306,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
   const handleLoadGraphData = () => {
     const nodeCount = parseInt(graphNodeCount);
     if (isNaN(nodeCount) || nodeCount <= 0) {
-      alert("請輸入有效的節點數量");
+      toast.warning("請輸入有效的節點數量");
       return;
     }
 
@@ -336,7 +337,7 @@ export const AlgorithmActionBar: React.FC<AlgorithmActionBarProps> = ({
       .join(",");
 
     if (hasNegativeWeight) {
-      alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+      toast.warning("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
       return;
     }
 
