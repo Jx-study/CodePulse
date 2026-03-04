@@ -4,6 +4,7 @@ import type { RealWorldStory } from '@/types';
 import Icon from '@/shared/components/Icon';
 import StoryVideoPlayer from './StoryVideoPlayer';
 import StoryResources from './StoryResources';
+import PythonInteractiveDemo from './PythonInteractiveDemo';
 import styles from './StoryAccordionItem.module.scss';
 
 interface Props {
@@ -55,6 +56,9 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
             <p className={styles.content}>{story.content}</p>
           )}
 
+          {story.pythonDemo && (
+            <PythonInteractiveDemo demo={story.pythonDemo} />
+          )}
           {story.resources && story.resources.length > 0 && (
             <StoryResources resources={story.resources} />
           )}

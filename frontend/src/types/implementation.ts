@@ -11,6 +11,29 @@ export interface StoryVideo {
 }
 
 /**
+ * Python 互動控制項
+ */
+export interface PythonInput {
+  label: string;
+  variable: string;
+  type: 'slider' | 'text' | 'select';
+  default: number | string;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: string[];
+}
+
+/**
+ * Python 互動小程序
+ */
+export interface PythonDemo {
+  title: string;
+  code: string;
+  inputs?: PythonInput[];
+}
+
+/**
  * 延伸資源類型
  */
 export type StoryResourceType = 'article' | 'paper' | 'link';
@@ -36,6 +59,7 @@ export interface RealWorldStory {
   tags?: string[];
   video?: StoryVideo;
   resources?: StoryResource[];
+  pythonDemo?: PythonDemo;
 }
 
 /**
