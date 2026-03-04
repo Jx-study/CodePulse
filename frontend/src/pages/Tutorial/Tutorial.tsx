@@ -24,6 +24,7 @@ import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogi
 import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
+import FeatureTour from "./components/FeatureTour";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
@@ -112,6 +113,7 @@ const CanvasPanel = ({
         ref={setNodeRef}
         style={sortableStyle}
         className={styles.visualizationSection}
+        data-tour="canvas-panel"
       >
         <PanelHeader
           title="視覺化動畫"
@@ -343,6 +345,14 @@ function TutorialContent() {
 
   // Knowledge Station state
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
+
+  // Feature Tour state
+  const [showFeatureTour, setShowFeatureTour] = useState(true);
+  const handleSkipFeatureTour = () => setShowFeatureTour(false);
+  const handleCompleteFeatureTour = () => {
+    setShowFeatureTour(false);
+    setIsKnowledgeStationOpen(true);
+  };
 
   // Inspector Tab state
   const [activeInspectorTab, setActiveInspectorTab] = useState<string>("actionBar");
@@ -795,21 +805,31 @@ function TutorialContent() {
             <Button
               variant="secondary"
               size="sm"
+              onClick={() => setShowFeatureTour(true)}
+              title="開啟功能導覽"
+              icon="question-circle"
+              iconOnly
+            />
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setIsKnowledgeStationOpen(true)}
               title="開啟知識補充站"
               icon="lightbulb"
             >
               知識補充站
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleSwapMainPanels}
-              title="交換左右面板"
-              icon="right-left"
-            >
-              交換佈局
-            </Button>
+            <span data-tour="swap-button">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSwapMainPanels}
+                title="交換左右面板"
+                icon="right-left"
+              >
+                交換佈局
+              </Button>
+            </span>
           </div>
         )}
       </div>
@@ -846,6 +866,14 @@ function TutorialContent() {
           topicTypeConfig={topicTypeConfig}
         />
       )}
+
+      {/* Feature Tour */}
+      <FeatureTour
+        isOpen={showFeatureTour}
+        onComplete={handleCompleteFeatureTour}
+        onSkip={handleSkipFeatureTour}
+        isMobile={isMobile}
+      />
 
       {/* 資料數量限制警告 Toast */}
       <LimitWarningToast

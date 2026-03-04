@@ -179,7 +179,7 @@ export function TopSection(props: TopSectionProps) {
                     }
                   }}
                 >
-                  <div className={styles.pseudoCodeSection}>
+                  <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
                       title="代碼實作"
                       tabs={codeEditorTabs}
@@ -208,6 +208,7 @@ export function TopSection(props: TopSectionProps) {
                   onToggleCollapse={handleToggleLeftPanelWithLock}
                   collapseButtonPosition="end"
                   collapseDirection="left"
+                  data-tour="resize-handle"
                 />
 
                 <Panel
@@ -233,7 +234,9 @@ export function TopSection(props: TopSectionProps) {
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle 
+                                    direction="vertical" 
+                                    data-tour="resize-handle-v" />
                                 )}
                               </Fragment>
                             );
@@ -246,10 +249,15 @@ export function TopSection(props: TopSectionProps) {
                                   defaultSize={30}
                                   minSize="20%"
                                 >
-                                  <InspectorPanelInternal {...inspectorPanelProps} />
+                                  <InspectorPanelInternal
+                                    {...inspectorPanelProps}
+                                  />
                                 </Panel>
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle
+                                    direction="vertical"
+                                    data-tour="resize-handle-v"
+                                  />
                                 )}
                               </Fragment>
                             );
@@ -286,7 +294,7 @@ export function TopSection(props: TopSectionProps) {
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle direction="vertical" data-tour="resize-handle-v" />
                                 )}
                               </Fragment>
                             );
@@ -302,7 +310,7 @@ export function TopSection(props: TopSectionProps) {
                                   <InspectorPanelInternal {...inspectorPanelProps} />
                                 </Panel>
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle direction="vertical" data-tour="resize-handle-v" />
                                 )}
                               </Fragment>
                             );
@@ -322,6 +330,7 @@ export function TopSection(props: TopSectionProps) {
                   onToggleCollapse={handleToggleLeftPanelWithLock}
                   collapseButtonPosition="start"
                   collapseDirection="right"
+                  data-tour="resize-handle"
                 />
 
                 <Panel
@@ -345,7 +354,7 @@ export function TopSection(props: TopSectionProps) {
                     }
                   }}
                 >
-                  <div className={styles.pseudoCodeSection}>
+                  <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
                       title="代碼實作"
                       tabs={codeEditorTabs}
