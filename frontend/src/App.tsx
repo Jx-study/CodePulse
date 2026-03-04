@@ -17,6 +17,7 @@ import { PageSkeleton } from "./shared/components/Skeleton";
 const Home = React.lazy(() => import("./pages/Home/Home"));
 const AuthPage = React.lazy(() => import("./pages/Authentication/Auth"));
 const Tutorial = React.lazy(() => import("./pages/Tutorial/Tutorial"));
+const Practice = React.lazy(() => import("./pages/Practice/Practice"));
 const Explorer = React.lazy(() => import("./pages/Explorer/Explorer"));
 const About = React.lazy(() => import("./pages/About/About"));
 const LearningDashboard = React.lazy(
@@ -44,6 +45,10 @@ function App() {
             <Route
               path="/tutorial/:category/:levelId"
               element={<Tutorial />}
+            />
+            <Route
+              path="/practice/:category/:levelId"
+              element={<Practice />}
             />
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/about" element={<About />} />
