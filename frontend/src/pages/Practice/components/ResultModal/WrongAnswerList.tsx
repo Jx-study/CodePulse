@@ -36,7 +36,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
 
   const formatAnswer = (
     question: Question,
-    answer: string | string[],
+    answer: string | string[] | (string | string[])[],
   ): string => {
     // 如果是填充題/預測行數，直接回傳答案
     if (question.type === "predict-line") {
@@ -55,7 +55,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
 
     // 選擇題則嘗試轉換為選項文字
     if (Array.isArray(answer)) {
-      return answer.map((a) => getOptionText(question, a)).join(" ");
+      return answer.map((a) => getOptionText(question, Array.isArray(a) ? a.join(" ") : a)).join(" ");
     }
     return getOptionText(question, answer);
   };
