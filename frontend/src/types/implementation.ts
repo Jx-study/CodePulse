@@ -2,12 +2,40 @@ import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
 import type { StatusConfig } from './statusConfig';
 
 /**
+ * 故事影片結構（YouTube）
+ */
+export interface StoryVideo {
+  url: string;
+  title: string;
+  duration?: string;
+}
+
+/**
+ * 延伸資源類型
+ */
+export type StoryResourceType = 'article' | 'paper' | 'link';
+
+/**
+ * 延伸資源結構
+ */
+export interface StoryResource {
+  type: StoryResourceType;
+  url: string;
+  title: string;
+  source?: string;
+}
+
+/**
  * 真實世界應用故事結構
  */
 export interface RealWorldStory {
   id: string | number;
   title: string;
   content: string;
+  category?: string;
+  tags?: string[];
+  video?: StoryVideo;
+  resources?: StoryResource[];
 }
 
 /**

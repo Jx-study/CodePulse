@@ -1,0 +1,99 @@
+@use "@/shared/styles/variables" as *;
+
+.accordionItem {
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba($primary-color, 0.05);
+  }
+}
+
+.headerLeft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  min-width: 0;
+}
+
+.badge {
+  padding: $spacing-2xs $spacing-sm;
+  background: rgba($primary-color, 0.1);
+  color: var(--text-primary);
+  font-size: $font-sm;
+  font-weight: 500;
+  border-radius: $radius-full;
+  white-space: nowrap;
+}
+
+.title {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tag {
+  padding: $spacing-2xs $spacing-xs;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  border-radius: $radius-sm;
+}
+
+.chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.body {
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.contentToggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: $font-base;
+  color: $primary-color;
+  text-align: left;
+  align-self: flex-start;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.content {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin: 0;
+}

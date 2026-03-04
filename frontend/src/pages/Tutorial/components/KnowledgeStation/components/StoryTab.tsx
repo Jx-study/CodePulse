@@ -1,5 +1,6 @@
 import React from 'react';
 import type { RealWorldStory } from '@/types';
+import StoryAccordionItem from './StoryAccordionItem';
 import styles from './StoryTab.module.scss';
 
 interface StoryTabProps {
@@ -20,10 +21,7 @@ const StoryTab: React.FC<StoryTabProps> = ({ stories }) => {
   return (
     <div className={styles.storyTab}>
       {stories.map((story) => (
-        <div key={story.id} className={styles.card}>
-          <h3 className={styles.cardTitle}>{story.title}</h3>
-          <p className={styles.cardContent}>{story.content}</p>
-        </div>
+        <StoryAccordionItem key={story.id} story={story} />
       ))}
     </div>
   );
