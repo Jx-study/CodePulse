@@ -27,9 +27,11 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
   currentData,
   maxNodes,
 }) => {
-  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCount, setRandomCount] = useState(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
   const [randomCountInput, setRandomCountInput] = useState(
-    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT)
+    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
   );
   const [showGraphLoader, setShowGraphLoader] = useState(false);
   const [graphStartElement, setGraphStartElement] = useState("");
@@ -55,7 +57,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         const normalizedVal = normalizeId(graphStartElement);
         const targetId = `node-${normalizedVal}`;
         if (!nodes.find((n) => n.id === targetId)) {
-          toast.warning`起點 node-${normalizedVal} 不存在`);
+          toast.warning(`起點 node-${normalizedVal} 不存在`);
           return;
         }
         startId = targetId;
@@ -65,7 +67,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         const normalizedVal = normalizeId(graphEndElement);
         const targetId = `node-${normalizedVal}`;
         if (!nodes.find((n) => n.id === targetId)) {
-          toast.warning`終點 node-${normalizedVal} 不存在`);
+          toast.warning(`終點 node-${normalizedVal} 不存在`);
           return;
         }
         endId = targetId;
@@ -119,7 +121,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  maxNodes ?? num
+                  maxNodes ?? num,
                 );
                 setRandomCount(v);
                 setRandomCountInput(String(v));

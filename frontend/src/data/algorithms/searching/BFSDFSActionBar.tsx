@@ -4,7 +4,10 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import { toast } from "@/shared/components/Toast";
-import type { AlgoActionBarProps, AlgorithmViewMode } from "@/types/implementation";
+import type {
+  AlgoActionBarProps,
+  AlgorithmViewMode,
+} from "@/types/implementation";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import {
   ActionBarContainer,
@@ -28,9 +31,11 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
   currentData,
   maxNodes,
 }) => {
-  const [randomCount, setRandomCount] = useState(DATA_LIMITS.DEFAULT_RANDOM_COUNT);
+  const [randomCount, setRandomCount] = useState(
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
+  );
   const [randomCountInput, setRandomCountInput] = useState(
-    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT)
+    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
   );
   const [gridRows, setGridRows] = useState("3");
   const [gridCols, setGridCols] = useState("5");
@@ -67,11 +72,11 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         if (gridStartElement !== "") {
           const s = parseInt(gridStartElement, 10);
           if (isNaN(s) || s < 0 || s > maxIndex) {
-            toast.warning`起點索引 ${s} 超出範圍 (0 ~ ${maxIndex})`);
+            toast.warning(`起點索引 ${s} 超出範圍 (0 ~ ${maxIndex})`);
             return;
           }
           if (currentData[s].val === "wall") {
-            toast.warning`起點索引 ${s} 是牆壁，無法通行`);
+            toast.warning(`起點索引 ${s} 是牆壁，無法通行`);
             return;
           }
           startId = s.toString();
@@ -80,11 +85,11 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         if (gridEndElement !== "") {
           const e = parseInt(gridEndElement, 10);
           if (isNaN(e) || e < 0 || e > maxIndex) {
-            toast.warning`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
+            toast.warning(`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
             return;
           }
           if (currentData[e].val === 1) {
-            toast.warning`終點索引 ${e} 是牆壁，無法通行`);
+            toast.warning(`終點索引 ${e} 是牆壁，無法通行`);
             return;
           }
           endId = e.toString();
@@ -93,7 +98,13 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
 
       const r = parseInt(gridRows) || 3;
       const c = parseInt(gridCols) || 5;
-      onRun({ mode: "grid", rows: r, cols: c, startNode: startId, endNode: endId });
+      onRun({
+        mode: "grid",
+        rows: r,
+        cols: c,
+        startNode: startId,
+        endNode: endId,
+      });
     } else {
       let startId = undefined;
       let endId = undefined;
@@ -109,7 +120,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
           const normalizedVal = normalizeId(graphStartElement);
           const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            toast.warning`起點 node-${normalizedVal} 不存在`);
+            toast.warning(`起點 node-${normalizedVal} 不存在`);
             return;
           }
           startId = targetId;
@@ -119,7 +130,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
           const normalizedVal = normalizeId(graphEndElement);
           const targetId = `node-${normalizedVal}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            toast.warning`終點 node-${normalizedVal} 不存在`);
+            toast.warning(`終點 node-${normalizedVal} 不存在`);
             return;
           }
           endId = targetId;
