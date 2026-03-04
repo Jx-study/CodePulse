@@ -7,7 +7,6 @@ import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
 import GraphContainer from "./components/GraphContainer/GraphContainer";
 import LevelNode from "./components/LevelNode/LevelNode";
 import PortalNode from "./components/PortalNode/PortalNode";
-import GhostNode from "./components/GhostNode/GhostNode";
 import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
@@ -285,14 +284,6 @@ function LearningDashboardInner() {
             }
           };
 
-          // Ghost Node 點擊處理：跳轉到目標分類並滾動到目標關卡
-          const handleGhostClick = (
-            targetLevelId: string,
-            targetCategory: CategoryType,
-          ) => {
-            navigateToLevel(targetLevelId, targetCategory);
-          };
-
           return (
             <>
               {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
@@ -360,52 +351,6 @@ function LearningDashboardInner() {
                 />
               )}
 
-              {/* 幽靈參考節點 */}
-              {level.ghostReferences?.map((ghostRef, ghostIndex) => {
-                // 計算幽靈節點位置
-                const ghostPosition = calculateGraphNodePosition(
-                  { ...level, graphPosition: ghostRef.position },
-                  filteredLevels,
-                );
-
-                // 繪製虛線連接（從當前 level 到 ghost node）
-                const ghostConnection = (
-                  <PathConnection
-                    key={`ghost-${level.id}-${ghostIndex}`}
-                    fromNode={position}
-                    toNode={ghostPosition}
-                    status="unlocked"
-                    containerWidth={containerWidth}
-                    connectionType="GHOST"
-                  />
-                );
-
-                // 渲染幽靈節點（點擊時動態查詢 targetLevel）
-                const ghostNode = (
-                  <GhostNode
-                    key={`ghost-node-${ghostRef.targetLevelId}-${ghostIndex}`}
-                    targetLevelId={ghostRef.targetLevelId}
-                    label={ghostRef.label || ghostRef.targetLevelId}
-                    position={ghostPosition}
-                    onClick={() => {
-                      // 在點擊時才查詢目標 Level
-                      const targetLevel = allLevels.find(
-                        (l: Level) => l.id === ghostRef.targetLevelId,
-                      );
-                      if (targetLevel) {
-                        handleGhostClick(targetLevel.id, targetLevel.category);
-                      }
-                    }}
-                  />
-                );
-
-                return (
-                  <React.Fragment key={`ghost-fragment-${ghostIndex}`}>
-                    {ghostConnection}
-                    {ghostNode}
-                  </React.Fragment>
-                );
-              })}
             </>
           );
         }}

@@ -32,7 +32,6 @@ function PathConnection({
 
   // 決定連線樣式類別
   const getConnectionClass = (): string => {
-    if (connectionType === "GHOST") return styles.ghostConnection;
     if (connectionType === "OR") return styles.orConnection;
     return styles.andConnection;
   };

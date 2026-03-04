@@ -24,16 +24,12 @@ export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
  * pathType 說明：
  * `main`：主線路徑
  * `branch`：分支路徑
- * `convergence`：匯流點（多條路徑匯入）
- * `choice-point`：選擇點（一條路徑分出多條）
  * `boss`：Boss Level
  * `portal`：Portal Node
  */
 export type PathType =
   | "main"
   | "branch"
-  | "convergence"
-  | "choice-point"
   | "boss"
   | "portal";
 
@@ -79,7 +75,7 @@ export interface Level {
   prerequisites?: PrerequisiteConfig;
   graphPosition?: GraphPosition;
   pathMetadata?: PathMetadata;
-  ghostReferences?: GhostReference[]; // 幽靈參考節點列表
+  suggestedPrerequisites?: string[]; // 建議先學習的關卡 ID（跨 category，純資訊）
 }
 
 export interface LevelConfig extends Level {
@@ -163,17 +159,12 @@ export interface PortalNodeProps extends BaseNodeProps {
   isUnlocked: boolean; // 是否解鎖（完成 Boss Level）
 }
 
-export interface GhostNodeProps extends BaseNodeProps {
-  targetLevelId: string; // 目標 Level ID（用於跳轉和查詢）
-  label: string; // 顯示標籤（如 "陣列"）
-}
-
 export interface PathConnectionProps {
   fromNode: NodePosition;
   toNode: NodePosition;
   status: "locked" | "unlocked" | "completed";
   containerWidth?: number;
-  connectionType?: PrerequisiteType | "GHOST"; // 新增 GHOST 類型
+  connectionType?: PrerequisiteType;
   branchLabel?: string;
   labelColor?: string;
 }
@@ -212,14 +203,6 @@ export interface GraphPosition {
   layer: number; // 層級（0 = 底部入口）
   branch: string; // 分支名稱（'sorting-basic', 'search-path'）
   horizontalIndex: number; // 同一層內的水平位置（0, 1, 2...）
-}
-
-// ==================== Ghost Reference Nodes ====================
-// 幽靈參考節點配置
-export interface GhostReference {
-  targetLevelId: string; // 目標 Level ID (如 'array')
-  position: GraphPosition; // 幽靈節點在當前 category 的位置
-  label?: string; // 自定義標籤（預設使用 targetLevel.name）
 }
 
 // ==================== Category Filter Component ====================

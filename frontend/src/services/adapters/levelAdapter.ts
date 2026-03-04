@@ -13,8 +13,6 @@ import type {
   PrerequisiteConfig,
   GraphPosition,
   PathMetadata,
-  GhostReference,
-  Category,
   DifficultyLevel,
 } from "@/types";
 import levelsData from "@/data/levels/levels.json";
@@ -43,7 +41,7 @@ interface RawLevelData {
   prerequisites: PrerequisiteConfig;
   graphPosition: GraphPosition;
   pathMetadata: PathMetadata;
-  ghostReferences?: GhostReference[];
+  suggestedPrerequisites?: string[];
   implementationKey: string;
   homePageMetadata?: HomePageMetadata;
 }
@@ -57,7 +55,6 @@ interface RawCategoryData {
   colorTheme: string;
   isDeveloped: boolean;
   order: number;
-  layerOffset: number;
 }
 
 // ==================== 資料轉換函式 ====================
@@ -79,7 +76,7 @@ export function rawToLevelConfig(raw: RawLevelData): LevelConfig {
     prerequisites: raw.prerequisites,
     graphPosition: raw.graphPosition,
     pathMetadata: raw.pathMetadata,
-    ghostReferences: raw.ghostReferences,
+    suggestedPrerequisites: raw.suggestedPrerequisites,
     implementationKey: raw.implementationKey,
   };
 }
