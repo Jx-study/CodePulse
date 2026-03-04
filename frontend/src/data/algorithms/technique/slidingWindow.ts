@@ -87,7 +87,7 @@ export function createSlidingWindowAnimationSteps(
     );
 
     for (let right = 0; right < arr.length; right++) {
-      const val = arr[right].value || 0;
+      const val = Number(arr[right].value) || 0;
       steps.push(
         generateFrame(
           arr,
@@ -136,7 +136,7 @@ export function createSlidingWindowAnimationSteps(
             ),
           );
         }
-        const leftVal = arr[left].value || 0;
+        const leftVal = Number(arr[left].value) || 0;
         steps.push(
           generateFrame(
             arr,
@@ -191,7 +191,7 @@ export function createSlidingWindowAnimationSteps(
     );
 
     for (let right = 0; right < arr.length; right++) {
-      const val = arr[right].value || 0;
+      const val = Number(arr[right].value) || 0;
       steps.push(
         generateFrame(
           arr,
@@ -213,7 +213,7 @@ export function createSlidingWindowAnimationSteps(
       );
 
       while (currentSum > targetSum && left <= right) {
-        const leftVal = arr[left].value || 0;
+        const leftVal = Number(arr[left].value) || 0;
         steps.push(
           generateFrame(
             arr,

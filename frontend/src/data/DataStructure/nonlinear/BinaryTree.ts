@@ -1,13 +1,14 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
-import { createTreeNodes } from "./utils";
+import { createTreeNodes, updateLinkStatus, buildLinksFromNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 interface LogicTreeNode {
   id: string;
-  value: number;
+  value: number | string;
   left?: LogicTreeNode;
   right?: LogicTreeNode;
 }
@@ -72,6 +73,7 @@ const generateFrame = (
   containerType: "stack" | "queue" = "stack",
   actionTag?: string,
   variables?: Record<string, any>,
+  linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const treeElements = createTreeNodes(inputData, {
     degree: 2,
@@ -88,10 +90,12 @@ const generateFrame = (
     }
   });
 
+  const links = buildLinksFromNodes(treeElements, linkStatusMap);
+
   const listElements = linearList.map((node, index) => {
     const box = new Box();
     box.id = `${containerType}-${node.id}`;
-    box.value = node.value;
+    box.value = String(node.value);
     const baseX = 850;
     const baseY = 355 - index * 35;
 
@@ -133,6 +137,7 @@ const generateFrame = (
     stepNumber: 0,
     description,
     elements: [...treeElements, ...listElements],
+    links,
     actionTag,
     variables,
   };
@@ -141,10 +146,12 @@ const generateFrame = (
 function runPreorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
+
   const root = buildLogicalTree(inputData);
   const callStack: LogicTreeNode[] = [];
   const visited: number[] = [];
-  const nullNode: LogicTreeNode = { id: "Null", value: "Null" as any };
+  const nullNode: LogicTreeNode = { id: "Null", value: "Null" };
 
   const getVars = (node?: LogicTreeNode) => {
     const stack = [...callStack.map((n) => n.value)];
@@ -167,6 +174,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.PRE_INIT,
         getVars(root),
+        { ...linkStatusMap },
       ),
     );
   }
@@ -185,6 +193,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_NULL,
           getVars(),
+          { ...linkStatusMap },
         ),
       );
       return;
@@ -203,12 +212,14 @@ function runPreorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.PRE_VISIT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
     statusMap[node.id] = Status.Complete;
 
     if (node.left) {
       statusMap[node.left.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
@@ -219,10 +230,12 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       delete statusMap[node.left.id];
       traverse(node.left);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "visited", true);
 
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
@@ -236,6 +249,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -252,6 +266,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -264,6 +279,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_NULL,
           getVars(undefined),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -276,6 +292,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -283,6 +300,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
 
     if (node.right) {
       statusMap[node.right.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
@@ -293,11 +311,14 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       delete statusMap[node.right.id];
+
       traverse(node.right);
 
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "visited", true);
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
       steps.push(
@@ -310,6 +331,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -326,6 +348,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -338,6 +361,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_NULL,
           getVars(undefined),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -350,6 +374,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.PRE_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -365,6 +390,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.PRE_RIGHT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
     callStack.pop();
@@ -381,6 +407,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       "stack",
       undefined,
       getVars(),
+      { ...linkStatusMap },
     ),
   );
   return steps;
@@ -389,10 +416,12 @@ function runPreorder(inputData: any[]): AnimationStep[] {
 function runInorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
+
   const root = buildLogicalTree(inputData);
   const callStack: LogicTreeNode[] = [];
   const visited: number[] = [];
-  const nullNode: LogicTreeNode = { id: "Null", value: "Null" as any };
+  const nullNode: LogicTreeNode = { id: "Null", value: "Null" };
 
   const getVars = (node?: LogicTreeNode) => {
     const stack = [...callStack.map((n) => n.value)];
@@ -415,6 +444,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.IN_INIT,
         getVars(root),
+        { ...linkStatusMap },
       ),
     );
   } else return steps;
@@ -434,12 +464,14 @@ function runInorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.IN_LEFT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
     statusMap[node.id] = Status.Unfinished;
 
     if (node.left) {
       statusMap[node.left.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
@@ -450,10 +482,14 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       delete statusMap[node.left.id];
+
       traverse(node.left);
+
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "visited", true);
 
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
@@ -467,6 +503,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -483,6 +520,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -495,6 +533,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_NULL,
           getVars(undefined),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -507,13 +546,14 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
     }
 
     statusMap[node.id] = Status.Complete;
-    visited.push(node.value);
+    visited.push(Number(node.value));
     steps.push(
       generateFrame(
         inputData,
@@ -524,11 +564,13 @@ function runInorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.IN_VISIT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
 
     if (node.right) {
       statusMap[node.right.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
@@ -539,10 +581,14 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       delete statusMap[node.right.id];
+
       traverse(node.right);
+
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "visited", true);
 
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
@@ -556,6 +602,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -572,6 +619,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -584,6 +632,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_NULL,
           getVars(undefined),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -596,6 +645,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.IN_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = originalStatus;
@@ -611,6 +661,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.IN_RIGHT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
     callStack.pop();
@@ -627,6 +678,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
       "stack",
       undefined,
       getVars(),
+      { ...linkStatusMap },
     ),
   );
   return steps;
@@ -635,10 +687,12 @@ function runInorder(inputData: any[]): AnimationStep[] {
 function runPostorder(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
+
   const root = buildLogicalTree(inputData);
   const callStack: LogicTreeNode[] = [];
   const visited: number[] = [];
-  const nullNode: LogicTreeNode = { id: "Null", value: "Null" as any };
+  const nullNode: LogicTreeNode = { id: "Null", value: "Null" };
 
   const getVars = (node?: LogicTreeNode) => {
     const stack = [...callStack.map((n) => n.value)];
@@ -661,6 +715,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.POST_INIT,
         getVars(root),
+        { ...linkStatusMap },
       ),
     );
   } else return steps;
@@ -680,12 +735,14 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.POST_LEFT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
     statusMap[node.id] = Status.Unfinished;
 
     if (node.left) {
       statusMap[node.left.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
@@ -696,11 +753,14 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       delete statusMap[node.left.id];
+
       traverse(node.left);
 
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "visited", true);
       statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
@@ -712,6 +772,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       statusMap[node.id] = Status.Unfinished;
@@ -727,6 +788,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -739,6 +801,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_NULL,
           getVars(undefined),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -751,12 +814,14 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_LEFT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
     }
 
     if (node.right) {
       statusMap[node.right.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
@@ -767,11 +832,14 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       delete statusMap[node.right.id];
+
       traverse(node.right);
 
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "visited", true);
       statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
@@ -783,6 +851,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
     } else {
@@ -797,6 +866,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -809,6 +879,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_NULL,
           getVars(undefined),
+          { ...linkStatusMap },
         ),
       );
       steps.push(
@@ -821,12 +892,13 @@ function runPostorder(inputData: any[]): AnimationStep[] {
           "stack",
           TAGS.POST_RIGHT,
           getVars(node),
+          { ...linkStatusMap },
         ),
       );
     }
 
     statusMap[node.id] = Status.Complete;
-    visited.push(node.value);
+    visited.push(Number(node.value));
     steps.push(
       generateFrame(
         inputData,
@@ -837,6 +909,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.POST_VISIT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
 
@@ -850,6 +923,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
         "stack",
         TAGS.POST_VISIT,
         getVars(node),
+        { ...linkStatusMap },
       ),
     );
     callStack.pop();
@@ -866,6 +940,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
       "stack",
       undefined,
       getVars(),
+      { ...linkStatusMap },
     ),
   );
   return steps;
@@ -874,13 +949,15 @@ function runPostorder(inputData: any[]): AnimationStep[] {
 function runBFS(inputData: any[]): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const statusMap: Record<string, Status> = {};
+  const linkStatusMap: Record<string, linkStatus> = {};
+
   const root = buildLogicalTree(inputData);
-  const queue: LogicTreeNode[] = [];
+  const queue: { node: LogicTreeNode; parent: LogicTreeNode | null }[] = [];
   const visited: number[] = [];
 
   const getVars = (curr?: LogicTreeNode) => ({
     currentNode: curr?.value ?? "None",
-    queue: queue.map((n) => n.value),
+    queue: queue.map((item) => Number(item.node.value)),
     visitedOrder: [...visited],
   });
 
@@ -895,9 +972,10 @@ function runBFS(inputData: any[]): AnimationStep[] {
         "queue",
         TAGS.BFS_INIT,
         getVars(root),
+        { ...linkStatusMap },
       ),
     );
-    queue.push(root);
+    queue.push({ node: root, parent: null });
     statusMap[root.id] = Status.Unfinished;
   } else return steps;
 
@@ -907,103 +985,117 @@ function runBFS(inputData: any[]): AnimationStep[] {
         inputData,
         statusMap,
         "檢查佇列是否爲空",
-        [...queue],
+        queue.map((i) => i.node), // 轉回 generateFrame 接受的格式
         "idle",
         "queue",
         TAGS.BFS_WHILE,
         getVars(),
+        { ...linkStatusMap },
       ),
     );
 
-    const curr = queue[0];
+    const { node: curr, parent } = queue[0];
+
+    if (parent) {
+      updateLinkStatus(linkStatusMap, parent.id, curr.id, "visited", true);
+    }
+
     statusMap[curr.id] = Status.Target;
     steps.push(
       generateFrame(
         inputData,
         statusMap,
         `取出佇列首位節點，Dequeue 節點 ${curr.value}`,
-        [...queue],
+        queue.map((i) => i.node),
         "popping",
         "queue",
         TAGS.BFS_DEQUEUE,
         getVars(curr),
+        { ...linkStatusMap },
       ),
     );
 
     queue.shift();
     statusMap[curr.id] = Status.Complete;
-    visited.push(curr.value);
+    visited.push(Number(curr.value));
     steps.push(
       generateFrame(
         inputData,
         statusMap,
         `[訪問] 紀錄節點 ${curr.value}`,
-        [...queue],
+        queue.map((i) => i.node),
         "idle",
         "queue",
         TAGS.BFS_VISIT,
         getVars(curr),
+        { ...linkStatusMap },
       ),
     );
 
     if (curr.left) {
       statusMap[curr.left.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
           statusMap,
           `發現左子節點 ${curr.left.value}，Enqueue 左子節點`,
-          [...queue, curr.left],
+          [...queue.map((i) => i.node), curr.left],
           "pushing",
           "queue",
           TAGS.BFS_ENQUEUE,
           getVars(curr),
+          { ...linkStatusMap },
         ),
       );
       statusMap[curr.left.id] = Status.Unfinished;
-      queue.push(curr.left);
+      queue.push({ node: curr.left, parent: curr });
     } else {
       steps.push(
         generateFrame(
           inputData,
           statusMap,
           `左子節點為空，跳過`,
-          [...queue],
+          queue.map((i) => i.node),
           "idle",
           "queue",
           TAGS.BFS_ENQUEUE,
           getVars(curr),
+          { ...linkStatusMap },
         ),
       );
     }
 
     if (curr.right) {
       statusMap[curr.right.id] = Status.Prepare;
+      updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
       steps.push(
         generateFrame(
           inputData,
           statusMap,
           `發現右子節點 ${curr.right.value}，Enqueue 右子節點`,
-          [...queue, curr.right],
+          [...queue.map((i) => i.node), curr.right],
           "pushing",
           "queue",
           TAGS.BFS_ENQUEUE,
           getVars(curr),
+          { ...linkStatusMap },
         ),
       );
       statusMap[curr.right.id] = Status.Unfinished;
-      queue.push(curr.right);
+      queue.push({ node: curr.right, parent: curr });
     } else {
       steps.push(
         generateFrame(
           inputData,
           statusMap,
           `右子節點為空，跳過`,
-          [...queue],
+          queue.map((i) => i.node),
           "idle",
           "queue",
           TAGS.BFS_ENQUEUE,
           getVars(curr),
+          { ...linkStatusMap },
         ),
       );
     }
@@ -1019,6 +1111,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
       "queue",
       undefined,
       getVars(),
+      { ...linkStatusMap },
     ),
   );
   return steps;

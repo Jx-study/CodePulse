@@ -420,8 +420,8 @@ export function renderAll(
 
     const entry = groupData.get(group)!;
 
-    if (box.value !== undefined) {
-      entry.values.push(box.value);
+    if (box.value !== '') {
+      entry.values.push(Number(box.value));
     }
 
     // 這裡的邏輯是：只要該組有任一 Box 指定了高度，就採用該高度 (取最小值)
@@ -687,7 +687,8 @@ export function renderAll(
     .enter()
     .append("g")
     .attr("class", "el")
-    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`)
+    .style("opacity", (d) => d.opacity ?? 1);
 
   // 依型別建立一次對應圖形元素
   enter.each(function (d: any) {
@@ -731,11 +732,30 @@ export function renderAll(
   // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
 
+  // 位移 transition（命名為 "move"，不含 opacity）
   merged
-    .transition()
+    .transition("move")
     .duration(transitionDuration)
     .ease(transitionEase)
     .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+
+  // Opacity transition（命名為 "fade"，獨立控制速度）
+  merged.each(function (d) {
+    const g = d3.select(this);
+    const targetOpacity = d.opacity ?? 1;
+    const currentOpacity = parseFloat(g.style("opacity") || "1");
+
+    if (targetOpacity < currentOpacity) {
+      // 消失：立刻（interrupt 任何進行中的 fade，直接設值）
+      g.interrupt("fade").style("opacity", 0);
+    } else if (targetOpacity > currentOpacity) {
+      // 浮現：緩慢 fade in
+      g.transition("fade")
+        .duration(transitionDuration)
+        .ease(transitionEase)
+        .style("opacity", targetOpacity);
+    }
+  });
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {
@@ -761,7 +781,7 @@ export function renderAll(
         .attr("y", d.radius / 2 - 5)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value !== undefined ? d.value : "");
+        .text(d.value);
     } else if (d.kind === "box" || d instanceof Box) {
       const box = d as Box;
       const rect = g.select<SVGRectElement>("rect");
@@ -774,7 +794,7 @@ export function renderAll(
         const scaleY = scaleYMap.get(group);
 
         if (scaleY) {
-          const val = box.value || 0;
+          const val = Number(box.value) || 0;
           const absVal = Math.abs(val);
           const barHeight = scaleY(absVal);
           const barWidth = box.width;
@@ -873,7 +893,7 @@ export function renderAll(
       textVal
         .attr("text-anchor", "middle")
         .attr("font-size", 14)
-        .text(box.value !== undefined ? box.value : "");
+        .text(box.value);
     } else if (d.kind === "pointer" || d instanceof Pointer) {
       const ptr = d as Pointer;
       const textLabel = g.select<SVGTextElement>("text.ptr-label");

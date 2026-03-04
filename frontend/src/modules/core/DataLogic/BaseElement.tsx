@@ -19,12 +19,14 @@ export const statusColorMap: Record<Status, string> = {
 export abstract class BaseElement {
   readonly kind: "node" | "box" | "pointer";
   id: string = "";
-  // if value undefined will not be rendered
-  value: number | undefined = 0;
+  // if value is '' (empty string) will not be rendered
+  value: string = '0';
   position = { x: 0, y: 0 };
   status: Status = Status.Unfinished;
   description = "";
   customColorMap?: StatusColorMap;
+  /** 1 = 完全可見，0 = 隱形（仍佔 bbox，getBBox 計入） */
+  opacity: number = 1;
 
   protected constructor(kind: "node" | "box" | "pointer") {
     this.kind = kind;

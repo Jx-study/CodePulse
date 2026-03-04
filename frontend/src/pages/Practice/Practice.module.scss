@@ -36,8 +36,6 @@
 .groupCodeBlock {
   border: 1px solid #444;
   border-radius: 4px;
-  // overflow: hidden 移除：CodeEditor 本身的 overflow:hidden 已足夠
-  // height 移除：改由呼叫方透過 CodeEditor height prop 傳入
 }
 
 .practicePage {

@@ -63,8 +63,8 @@ export function createBubbleSortAnimationSteps(
 
     for (let j = 0; j < n - i - 1; j++) {
       // 防呆：確保數值存在
-      const val1 = arr[j].value ?? 0;
-      const val2 = arr[j + 1].value ?? 0;
+      const val1 = Number(arr[j].value);
+      const val2 = Number(arr[j + 1].value);
 
       const compareStatus: Record<number, Status> = {};
       compareStatus[j] = Status.Prepare;

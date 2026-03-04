@@ -460,7 +460,7 @@ function Practice() {
                       readOnly={true}
                       theme="auto"
                       showLineNumbers={true}
-                      height="50vh"
+                      autoHeight={true}
                     />
                   </div>
                 )}
