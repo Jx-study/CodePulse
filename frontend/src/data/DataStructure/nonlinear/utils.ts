@@ -113,6 +113,21 @@ export const generateGridFrame = (
   };
 };
 
+export function buildLinksFromNodes(
+  elements: Node[],
+  linkStatusMap: Record<string, linkStatus> = {},
+): { sourceId: string; targetId: string; status?: linkStatus }[] {
+  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
+    [];
+  elements.forEach((source) => {
+    source.pointers.forEach((target) => {
+      const key = getLinkKey(source.id, target.id);
+      links.push({ sourceId: source.id, targetId: target.id, status: linkStatusMap[key] });
+    });
+  });
+  return links;
+}
+
 export const generateGraphFrame = (
   baseElements: Node[],
   statusMap: Record<string, Status>,

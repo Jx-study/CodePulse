@@ -9,7 +9,6 @@ import {
   updateLinkStatus,
 } from "@/data/DataStructure/nonlinear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
-import { TRUE } from "sass";
 
 const TAGS = {
   INIT: "INIT",
@@ -56,35 +55,33 @@ function runGraphBFS(
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
-  // 初始畫面 (顯示 ID)
-  const initFrame1 = generateGraphFrame(
+  const showIdFrame = generateGraphFrame(
     baseElements,
     {},
     distanceMap,
     `Graph 顯示 ID 完成，起點: ${realStartId}, 終點: ${realEndId}`,
     true, // showIdAsValue = true
   );
-  initFrame1.actionTag = TAGS.INIT;
-  initFrame1.variables = {
+  showIdFrame.actionTag = TAGS.INIT;
+  showIdFrame.variables = {
     start: realStartId,
     end: realEndId,
   };
-  steps.push(initFrame1);
+  steps.push(showIdFrame);
 
-  // 數值轉為距離 (∞)
-  const initFrame2 = generateGraphFrame(
+  const initDistFrame = generateGraphFrame(
     baseElements,
     {},
     distanceMap,
     `準備開始 BFS，初始化距離為 ∞`,
   );
-  initFrame2.actionTag = TAGS.INIT;
-  initFrame2.variables = {
+  initDistFrame.actionTag = TAGS.INIT;
+  initDistFrame.variables = {
     start: realStartId,
     end: realEndId,
     "distance[all]": "∞",
   };
-  steps.push(initFrame2);
+  steps.push(initDistFrame);
 
   // BFS 初始化
   const queue: string[] = [realStartId];
@@ -92,19 +89,19 @@ function runGraphBFS(
   statusMap[realStartId] = Status.Prepare;
   distanceMap[realStartId] = 0; // 起點距離為 0
 
-  const initFrame3 = generateGraphFrame(
+  const enqueueStartFrame = generateGraphFrame(
     baseElements,
     statusMap,
     distanceMap,
     `將起點 ${realStartId} 加入佇列 (距離: 0)`,
   );
-  initFrame3.actionTag = TAGS.START;
-  initFrame3.variables = {
+  enqueueStartFrame.actionTag = TAGS.START;
+  enqueueStartFrame.variables = {
     queue: `[${realStartId}]`,
     visited: `{${realStartId}}`,
     [`distance[${realStartId}]`]: 0,
   };
-  steps.push(initFrame3);
+  steps.push(enqueueStartFrame);
 
   let found = false;
 
@@ -119,7 +116,6 @@ function runGraphBFS(
 
     statusMap[currId] = Status.Target;
 
-    // ── DEQUEUE frame（高亮 [5, 6]）──
     const dequeueFrame = generateGraphFrame(
       baseElements,
       statusMap,
@@ -137,7 +133,6 @@ function runGraphBFS(
     };
     steps.push(dequeueFrame);
 
-    // ── CHECK_END snapshot（高亮 [8]）──
     const checkEndFrame = generateGraphFrame(
       baseElements,
       { ...statusMap },
@@ -169,7 +164,6 @@ function runGraphBFS(
       const allNeighborIds = neighbors.map((n) => n.id);
       const unvisitedIds = allNeighborIds.filter((id) => !visited.has(id));
 
-      // ── EXPLORE snapshot（高亮 [12]）──
       const exploreFrame = generateGraphFrame(
         baseElements,
         { ...statusMap },
@@ -234,7 +228,7 @@ function runGraphBFS(
 
   // 路徑回溯與結束
   if (found) {
-    // 回溯路徑（視覺層：畫出綠色路徑，parentMap 供動畫用）
+    // 回溯路徑
     let curr = realEndId;
     const path: string[] = [realEndId];
 
@@ -251,12 +245,11 @@ function runGraphBFS(
     // 將路徑上所有節點標示為 complete
     path.forEach((id) => (statusMap[id] = Status.Complete));
 
-    // ── PATH_FOUND frame（單一 frame，視覺上顯示綠色路徑）
     const pathFoundFrame = generateGraphFrame(
       baseElements,
       statusMap,
       distanceMap,
-      `找到終點！最短路徑長度: ${distanceMap[realEndId]} (綠色)`,
+      `找到終點！最短路徑長度: ${distanceMap[realEndId]}`,
       false,
       { ...linkStatusMap },
     );
@@ -323,8 +316,7 @@ function runGridBFS(
     return steps;
   }
 
-  // 初始畫面
-  const gridInitFrame1 = generateGridFrame(
+  const gridShowIdFrame = generateGridFrame(
     gridData,
     cols,
     {},
@@ -332,15 +324,14 @@ function runGridBFS(
     `BFS 準備開始：顯示格子索引 (ID)。起點: ${startIndex}, 終點: ${endIndex}`,
     true, // showIdAsValue = true
   );
-  gridInitFrame1.actionTag = TAGS.INIT;
-  gridInitFrame1.variables = {
+  gridShowIdFrame.actionTag = TAGS.INIT;
+  gridShowIdFrame.variables = {
     start: startIndex,
     end: endIndex,
   };
-  steps.push(gridInitFrame1);
+  steps.push(gridShowIdFrame);
 
-  // Step 1: 準備開始，數值轉為距離 (∞)
-  const gridInitFrame2 = generateGridFrame(
+  const gridInitDistFrame = generateGridFrame(
     gridData,
     cols,
     {},
@@ -348,13 +339,13 @@ function runGridBFS(
     `初始化距離為 ∞`,
     false, // 轉回顯示距離模式
   );
-  gridInitFrame2.actionTag = TAGS.INIT;
-  gridInitFrame2.variables = {
+  gridInitDistFrame.actionTag = TAGS.INIT;
+  gridInitDistFrame.variables = {
     start: startIndex,
     end: endIndex,
     "distance[all]": "∞",
   };
-  steps.push(gridInitFrame2);
+  steps.push(gridInitDistFrame);
 
   // BFS 初始化
   let queue: number[] = [startIndex];
@@ -397,7 +388,6 @@ function runGridBFS(
     };
     steps.push(dequeueGridFrame);
 
-    // ── CHECK_END snapshot（高亮 [8]）──
     const checkEndGridFrame = generateGridFrame(
       gridData,
       cols,
@@ -458,7 +448,7 @@ function runGridBFS(
         cols,
         statusMap,
         distanceMap,
-        `發現 ${prepareIndices.length} 個鄰居，加入佇列 (黃色)`,
+        `發現 ${prepareIndices.length} 個鄰居，加入佇列`,
       );
       visitGridFrame.actionTag = TAGS.VISIT_NEIGHBOR;
       visitGridFrame.variables = {
@@ -499,7 +489,7 @@ function runGridBFS(
       cols,
       statusMap,
       distanceMap,
-      `最短路徑長度：${path.length} (綠色路徑)`,
+      `最短路徑長度：${path.length}`,
     );
     pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
     pathCompleteFrame.variables = {

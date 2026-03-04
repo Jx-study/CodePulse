@@ -1,6 +1,6 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
-import { createTreeNodes, getLinkKey, updateLinkStatus } from "./utils";
+import { createTreeNodes, buildLinksFromNodes, updateLinkStatus } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { Node } from "@/modules/core/DataLogic/Node";
@@ -172,21 +172,7 @@ const generateFrame = (
     return a.id.localeCompare(b.id);
   });
 
-  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
-    [];
-
-  treeElements.forEach((source) => {
-    if (source instanceof Node) {
-      source.pointers.forEach((target) => {
-        const key = getLinkKey(source.id, target.id);
-        links.push({
-          sourceId: source.id,
-          targetId: target.id,
-          status: linkStatusMap[key],
-        });
-      });
-    }
-  });
+  const links = buildLinksFromNodes(treeElements, linkStatusMap);
 
   return {
     stepNumber: 0,

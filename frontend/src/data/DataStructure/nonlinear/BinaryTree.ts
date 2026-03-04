@@ -1,6 +1,6 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
-import { createTreeNodes, updateLinkStatus, getLinkKey } from "./utils";
+import { createTreeNodes, updateLinkStatus, buildLinksFromNodes } from "./utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
@@ -90,20 +90,7 @@ const generateFrame = (
     }
   });
 
-  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
-    [];
-  treeElements.forEach((source) => {
-    if (source instanceof Node) {
-      source.pointers.forEach((target) => {
-        const key = getLinkKey(source.id, target.id);
-        links.push({
-          sourceId: source.id,
-          targetId: target.id,
-          status: linkStatusMap[key],
-        });
-      });
-    }
-  });
+  const links = buildLinksFromNodes(treeElements, linkStatusMap);
 
   const listElements = linearList.map((node, index) => {
     const box = new Box();
