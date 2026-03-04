@@ -90,7 +90,7 @@ export function createArrayAnimationSteps(
         variables: { target: value, i: i, current_val: dataList[i].value || 0 }
       });
 
-      if (dataList[i].value === value) {
+      if (Number(dataList[i].value) === value) {
         found = true;
         steps.push({
           stepNumber: steps.length + 1,
@@ -120,7 +120,7 @@ export function createArrayAnimationSteps(
 
     if (idx >= 0 && idx < dataList.length) {
       const s1Boxes = createBoxes(dataList, idx, Status.Target);
-      s1Boxes[idx].value = oldValue;
+      s1Boxes[idx].value = String(oldValue);
 
       steps.push({
         stepNumber: 1,
@@ -165,7 +165,7 @@ export function createArrayAnimationSteps(
       currentList[i].value = dataList[i + 1].value;
     }
 
-    currentList[currentList.length - 1].value = undefined;
+    currentList[currentList.length - 1].value = '';
 
     steps.push({
       stepNumber: 1,
@@ -213,7 +213,7 @@ export function createArrayAnimationSteps(
       });
     }
 
-    currentList[idx].value = value;
+    currentList[idx].value = String(value);
 
     steps.push({
       stepNumber: steps.length + 1,
@@ -245,7 +245,7 @@ export function createArrayAnimationSteps(
       for (let i = currentList.length - 1; i > idx; i--) {
         currentList[i].value = currentList[i - 1].value;
       }
-      currentList[idx].value = value;
+      currentList[idx].value = String(value);
 
       steps.push({
         stepNumber: 1,

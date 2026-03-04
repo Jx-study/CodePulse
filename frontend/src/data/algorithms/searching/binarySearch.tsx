@@ -1,5 +1,6 @@
 import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { SearchingActionBar } from "./SearchingActionBar";
@@ -23,12 +24,45 @@ interface Pointers {
   mid: number;
 }
 
+const createBinaryPointers = (
+  left: number,
+  right: number,
+  mid: number,
+  startX: number,
+  startY: number,
+  gap: number,
+): Pointer[] => {
+  const pointers: Pointer[] = [];
+
+  const leftXOffset = left === right ? -20 : 0;
+  const rightXOffset = left === right ? 20 : 0;
+
+  const leftPtr = new Pointer("L", "up");
+  leftPtr.id = "binary-L";
+  leftPtr.moveTo(startX + left * gap + leftXOffset, startY + 50);
+  pointers.push(leftPtr);
+
+  const rightPtr = new Pointer("R", "up");
+  rightPtr.id = "binary-R";
+  rightPtr.moveTo(startX + right * gap + rightXOffset, startY + 50);
+  pointers.push(rightPtr);
+
+  const effectiveMid = mid !== -1 ? mid : Math.floor((left + right) / 2);
+  const midPtr = new Pointer("M", "down");
+  midPtr.id = "binary-M";
+  midPtr.moveTo(startX + effectiveMid * gap, startY - 40);
+  midPtr.opacity = mid !== -1 ? 1 : 0;
+  pointers.push(midPtr);
+
+  return pointers;
+};
+
 const generateFrame = (
   list: LinearData[],
   pointers: Pointers,
   overrideStatusMap: Record<number, Status> = {},
   foundIndex: number = -1,
-) => {
+): (Box | Pointer)[] => {
   const { left, right, mid } = pointers;
 
   const boxes = createBoxes(list, {
@@ -36,32 +70,19 @@ const generateFrame = (
     startY: 200,
     gap: 70,
     overrideStatusMap,
-    getDescription: (_item, index) => {
-      const labels: string[] = [`${index}`]; 
-      if (index === left) labels.push("L");
-      if (index === mid) labels.push("M");
-      if (index === right) labels.push("R");
-
-      if (labels.length > 1) {
-        return `${labels[0]} (${labels.slice(1).join(",")})`;
-      }
-      return labels[0];
-    },
+    getDescription: (_item, index) => String(index),
   });
 
   boxes.forEach((element, i) => {
     const box = element as Box;
-
-    if (i < left || i > right) {
-      box.setStatus(Status.Inactive);
-    }
-
-    if (foundIndex !== -1 && i === foundIndex) {
-      box.setStatus(Status.Complete);
-    }
+    if (i < left || i > right) box.setStatus(Status.Inactive);
+    if (foundIndex !== -1 && i === foundIndex) box.setStatus(Status.Complete);
   });
 
-  return boxes;
+  return [
+    ...boxes,
+    ...createBinaryPointers(left, right, mid, 50, 200, 70),
+  ];
 };
 
 export function createBinarySearchAnimationSteps(
@@ -78,7 +99,7 @@ export function createBinarySearchAnimationSteps(
     target = action.searchValue;
   } else if (arr.length > 0) {
     const targetIndex = Math.min(6, arr.length - 1);
-    target = arr[targetIndex].value || 0;
+    target = Number(arr[targetIndex].value) || 0;
   }
 
   let left = 0;
@@ -117,7 +138,7 @@ export function createBinarySearchAnimationSteps(
       elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Prepare }),
     });
 
-    const midVal = arr[mid].value ?? 0;
+    const midVal = Number(arr[mid].value);
 
     steps.push({
       stepNumber: steps.length + 1,

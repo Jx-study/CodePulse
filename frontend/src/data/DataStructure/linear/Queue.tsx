@@ -23,7 +23,6 @@ const TAGS = {
   DEQUEUE_CHECK_EMPTY: "DEQUEUE_CHECK_EMPTY",
   DEQUEUE_ERROR: "DEQUEUE_ERROR",
   DEQUEUE_GET_VALUE: "DEQUEUE_GET_VALUE",
-  DEQUEUE_SHIFT: "DEQUEUE_SHIFT",
   DEQUEUE_DEC_REAR: "DEQUEUE_DEC_REAR",
   DEQUEUE_RETURN: "DEQUEUE_RETURN",
   DEQUEUE_COMPLETE: "DEQUEUE_COMPLETE",
@@ -110,7 +109,7 @@ export function createQueueAnimationSteps(
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
-    s1NewBox.value = newNode.value;
+    s1NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
@@ -133,7 +132,7 @@ export function createQueueAnimationSteps(
     const s2Boxes = createBoxes(oldList);
     const emptyBox = new Box();
     emptyBox.id = "empty-slot";
-    emptyBox.value = undefined;
+    emptyBox.value = '';
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentRear * gap, startY);
@@ -160,7 +159,7 @@ export function createQueueAnimationSteps(
     const s3Boxes = createBoxes(oldList);
     const s3NewBox = new Box();
     s3NewBox.id = newNode.id;
-    s3NewBox.value = newNode.value;
+    s3NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentRear * gap, startY);
@@ -234,7 +233,7 @@ export function createQueueAnimationSteps(
 
     const movingBox = new Box();
     movingBox.id = `${deletedNode.id}`;
-    movingBox.value = deletedNode.value;
+    movingBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
     movingBox.width = 60;
     movingBox.height = 60;
     movingBox.description = "removed_value";
@@ -258,7 +257,7 @@ export function createQueueAnimationSteps(
     dataList.forEach((item, i) => {
       const b = new Box();
       b.id = item.id;
-      b.value = item.value;
+      b.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
       b.width = 60;
       b.height = 60;
       b.description = String(i);
@@ -270,7 +269,7 @@ export function createQueueAnimationSteps(
     const lastNode = fullList[fullList.length - 1];
     const lastBoxGhost = new Box();
     lastBoxGhost.id = `${lastNode.id}-ghost`;
-    lastBoxGhost.value = lastNode.value;
+    lastBoxGhost.value = lastNode.value !== undefined && lastNode.value !== null ? String(lastNode.value) : '';
     lastBoxGhost.width = 60;
     lastBoxGhost.height = 60;
     lastBoxGhost.description = String(oldRear);
@@ -287,7 +286,7 @@ export function createQueueAnimationSteps(
         movingBox,
         ...createQueuePointers(0, oldRear, startX, startY, gap),
       ],
-      actionTag: TAGS.DEQUEUE_SHIFT,
+      actionTag: TAGS.DEQUEUE_DEC_REAR,
       variables: { front: 0, rear: oldRear, removed_value: value },
     });
 
@@ -383,11 +382,14 @@ export function createQueueAnimationSteps(
       variables: { front: 0, rear: rear, value },
     });
 
+    const peekCompleteBoxes = createBoxes(dataList, Status.Unfinished);
+    peekCompleteBoxes[0].setStatus(Status.Complete);
+
     steps.push({
       stepNumber: 3,
       description: "Peek 完成",
       elements: [
-        ...createBoxes(dataList, Status.Complete),
+        ...peekCompleteBoxes,
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,
@@ -404,73 +406,82 @@ const queueCodeConfig: CodeConfig = {
   Data:
     front ← 0
     rear ← -1
+    size ← 0
     queue ← Array of Size
 
   Procedure enqueue(value):
+    If size = Size Then
+        Return Error
+    End If
+    size ← size + 1
     rear ← rear + 1
     queue[rear] ← value
   End Procedure
 
   Procedure dequeue():
-    If is_empty() Then
-      Return Error
+    If size = 0 Then
+        Return Error
     End If
     removed_value ← queue[front]
-    shift_left()
-    rear ← rear - 1
+    front ← front + 1
+    size ← size - 1
     Return removed_value
   End Procedure
 
   Procedure peek():
-    If is_empty() Then
-      Return null
+    If size = 0 Then
+        Return null
     End If
     Return queue[front]
   End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3, 4, 5],
-      [TAGS.ENQUEUE_START]: [7],
-      [TAGS.ENQUEUE_INC_REAR]: [8],
-      [TAGS.ENQUEUE_ASSIGN]: [9],
-      [TAGS.ENQUEUE_COMPLETE]: [10],
-      [TAGS.DEQUEUE_START]: [12],
-      [TAGS.DEQUEUE_CHECK_EMPTY]: [13],
-      [TAGS.DEQUEUE_ERROR]: [14],
-      [TAGS.DEQUEUE_GET_VALUE]: [16],
-      [TAGS.DEQUEUE_SHIFT]: [17],
-      [TAGS.DEQUEUE_DEC_REAR]: [18],
-      [TAGS.DEQUEUE_RETURN]: [19],
-      [TAGS.DEQUEUE_COMPLETE]: [20],
-      [TAGS.PEEK_START]: [22],
-      [TAGS.PEEK_CHECK_EMPTY]: [23],
-      [TAGS.PEEK_ERROR]: [24],
-      [TAGS.PEEK_RETURN]: [26],
-      [TAGS.PEEK_COMPLETE]: [27],
+      [TAGS.INIT]: [2, 3, 4, 5,6],
+      [TAGS.ENQUEUE_START]: [8],
+      [TAGS.ENQUEUE_INC_REAR]: [12, 13],
+      [TAGS.ENQUEUE_ASSIGN]: [14],
+      [TAGS.ENQUEUE_COMPLETE]: [15],
+      [TAGS.DEQUEUE_START]: [17],
+      [TAGS.DEQUEUE_CHECK_EMPTY]: [18],
+      [TAGS.DEQUEUE_ERROR]: [19],
+      [TAGS.DEQUEUE_GET_VALUE]: [21],
+      [TAGS.DEQUEUE_DEC_REAR]: [22, 23],
+      [TAGS.DEQUEUE_RETURN]: [24],
+      [TAGS.DEQUEUE_COMPLETE]: [25],
+      [TAGS.PEEK_START]: [27],
+      [TAGS.PEEK_CHECK_EMPTY]: [28],
+      [TAGS.PEEK_ERROR]: [29],
+      [TAGS.PEEK_RETURN]: [31],
+      [TAGS.PEEK_COMPLETE]: [32],
     },
   },
   python: {
-    content: `class Queue:
-    def __init__(self, capacity: int):
-        self.queue = []
-        self.front = 0
-        self.rear = -1
+    content: `from collections import deque
 
-    def enqueue(self, value: int) -> None:
-        self.rear += 1
+class Queue:
+    def __init__(self):
+        # 使用 deque 作為底層儲存
+        self.queue = deque()
+
+    def enqueue(self, value):
+        # 從右邊（尾部）加入
         self.queue.append(value)
 
-    def dequeue(self) -> int:
-        if len(self.queue) == 0:
+    def dequeue(self):
+        # 從左邊（頭部）取出
+        if self.is_empty():
             raise Exception("Queue Underflow")
-        value = self.queue[0]
-        self.queue.pop(0)
-        self.rear -= 1
-        return value
+        return self.queue.popleft()
 
-    def peek(self) -> int:
-        if len(self.queue) == 0:
+    def peek(self):
+        if self.is_empty():
             return None
-        return self.queue[0]`,
+        return self.queue[0]
+
+    def is_empty(self):
+        return len(self.queue) == 0
+
+    def size(self):
+        return len(self.queue)`,
   },
 };
 

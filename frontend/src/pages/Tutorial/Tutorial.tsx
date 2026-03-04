@@ -8,7 +8,7 @@ import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import ControlBar from "@/modules/core/components/ControlBar";
-import LimitWarningToast from "@/shared/components/LimitWarningToast";
+import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
 import type { AlgorithmViewMode } from "@/types/implementation";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
@@ -425,7 +425,6 @@ function TutorialContent() {
     randomCountRef.current = count;
   };
   const [hasTailMode, setHasTailMode] = useState(false);
-  const [showLimitToast, setShowLimitToast] = useState(false);
   const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
 
@@ -436,10 +435,13 @@ function TutorialContent() {
   const currentCodeConfig = useMemo(() => {
     if (!topicTypeConfig) return null;
     if (topicTypeConfig.getCodeConfig) {
-      return topicTypeConfig.getCodeConfig({ hasTailMode });
+      return topicTypeConfig.getCodeConfig({
+        hasTailMode,
+        mode: viewMode || "graph",
+      });
     }
     return topicTypeConfig.codeConfig ?? null;
-  }, [topicTypeConfig, hasTailMode]);
+  }, [topicTypeConfig, hasTailMode, viewMode]);
 
   // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
   const highlightLines = useMemo(() => {
@@ -516,9 +518,10 @@ function TutorialContent() {
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
     if (maxNodes !== undefined) {
-      const currentCount = dsLogic.data?.length ?? (dsLogic.data?.nodes?.length ?? 0);
+      const currentCount =
+        dsLogic.data?.length ?? (dsLogic.data?.nodes?.length ?? 0);
       if (currentCount >= maxNodes) {
-        setShowLimitToast(true);
+        toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
         return;
       }
     }
@@ -595,9 +598,12 @@ function TutorialContent() {
       .map((v) => parseInt(v.trim()))
       .filter((v) => !isNaN(v));
 
-    if (parsed.length === 0) return alert("請輸入有效的數字格式 (例如: 1,2,3)");
+    if (parsed.length === 0) {
+      toast.warning("請輸入有效的數字格式 (例如: 1,2,3)");
+      return;
+    }
     if (maxNodes !== undefined && parsed.length > maxNodes) {
-      setShowLimitToast(true);
+      toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
       return;
     }
     const steps = executeAction("load", {
@@ -756,7 +762,11 @@ function TutorialContent() {
     handleGraphAction,
     isDirected,
     setIsDirected,
-    onLimitExceeded: () => setShowLimitToast(true),
+    onLimitExceeded: () => {
+      if (maxNodes !== undefined) {
+        toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
+      }
+    },
     viewMode,
     handleViewModeChange,
     currentData: logic.data,
@@ -873,13 +883,6 @@ function TutorialContent() {
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
         isMobile={isMobile}
-      />
-
-      {/* 資料數量限制警告 Toast */}
-      <LimitWarningToast
-        isOpen={showLimitToast}
-        onClose={() => setShowLimitToast(false)}
-        maxLimit={maxNodes ?? 10}
       />
     </div>
   );

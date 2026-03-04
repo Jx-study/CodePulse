@@ -1,36 +1,63 @@
-// Toast 容器 - 固定在頂部中央
-.toastContainer {
+// 容器：固定 top-center，z-index: 9999
+.container {
   position: fixed;
   top: $spacing-md;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  animation: slideDown 0.3s $ease-smooth;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  align-items: center;
 }
 
-// Toast 主體
+// 單一 toast（base）
 .toast {
   display: flex;
   align-items: center;
   gap: $spacing-xs;
   padding: $spacing-xs $spacing-sm;
   background: $dark-bg-tertiary;
-  border: 1px solid $warning-color;
+  border: 1px solid;
   border-radius: $radius-lg;
   box-shadow: $shadow-lg;
   min-width: 280px;
   max-width: 400px;
+  animation: slideDown 0.3s $ease-smooth;
 }
 
-// 警告圖示
+// Variant border + icon color
+.warning {
+  border-color: $warning-color;
+  .iconWrapper {
+    color: $warning-color;
+  }
+}
+.error {
+  border-color: $error-color;
+  .iconWrapper {
+    color: $error-color;
+  }
+}
+.success {
+  border-color: $success-color;
+  .iconWrapper {
+    color: $success-color;
+  }
+}
+.info {
+  border-color: $info-color;
+  .iconWrapper {
+    color: $info-color;
+  }
+}
+
 .iconWrapper {
-  color: $warning-color;
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-// 訊息文字
 .message {
   color: $dark-text-primary;
   font-size: $font-sm;
@@ -39,7 +66,6 @@
   flex: 1;
 }
 
-// 關閉按鈕
 .closeBtn {
   background: transparent;
   border: none;
@@ -63,10 +89,10 @@
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-100%);
+    transform: translateY(-100%);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 }
