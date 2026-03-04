@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Checkbox from "@/shared/components/Checkbox";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import {
@@ -45,7 +46,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
 
     if (graphStartElement !== "" || graphEndElement !== "") {
       if (!currentData || !currentData.nodes) {
-        alert("目前沒有圖形資料，無法指定起點/終點");
+        toast.warning("目前沒有圖形資料，無法指定起點/終點");
         return;
       }
       const nodes = currentData.nodes as { id: string }[];
@@ -54,7 +55,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         const normalizedVal = normalizeId(graphStartElement);
         const targetId = `node-${normalizedVal}`;
         if (!nodes.find((n) => n.id === targetId)) {
-          alert(`起點 node-${normalizedVal} 不存在`);
+          toast.warning`起點 node-${normalizedVal} 不存在`);
           return;
         }
         startId = targetId;
@@ -64,7 +65,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         const normalizedVal = normalizeId(graphEndElement);
         const targetId = `node-${normalizedVal}`;
         if (!nodes.find((n) => n.id === targetId)) {
-          alert(`終點 node-${normalizedVal} 不存在`);
+          toast.warning`終點 node-${normalizedVal} 不存在`);
           return;
         }
         endId = targetId;

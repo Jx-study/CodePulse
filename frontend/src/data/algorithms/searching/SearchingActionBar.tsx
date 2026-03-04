@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -28,7 +29,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
     if (!isNaN(val)) {
       onRun({ searchValue: val });
     } else {
-      alert("請輸入有效的搜尋數值");
+      toast.warning("請輸入有效的搜尋數值");
     }
   };
 

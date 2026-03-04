@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -45,7 +46,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
       onAddNode(val, "Update", idx);
       setInputValue("");
     } else {
-      alert("Update 需要輸入數值與索引");
+      toast.warning("Update 需要輸入數值與索引");
     }
   };
 

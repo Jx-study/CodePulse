@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -39,7 +40,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
     ) {
       onRun({ range: [start, end] });
     } else {
-      alert("請輸入完整的區間 (Start, End)");
+      toast.warning("請輸入完整的區間 (Start, End)");
     }
   };
 

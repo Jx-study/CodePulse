@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./ActionBar.module.scss";
 
@@ -44,10 +45,10 @@ export const DataRow: React.FC<DataRowProps> = ({
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [randomCount, setRandomCount] = useState(
-    DATA_LIMITS.DEFAULT_RANDOM_COUNT
+    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
   );
   const [randomCountInput, setRandomCountInput] = useState(
-    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT)
+    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
   );
 
   return (
@@ -123,7 +124,7 @@ export const DataRow: React.FC<DataRowProps> = ({
               }
               const v = Math.min(
                 Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                maxNodes ?? num
+                maxNodes ?? num,
               );
               setRandomCount(v);
               setRandomCountInput(String(v));
@@ -164,7 +165,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   const [edgeInput, setEdgeInput] = useState(
     isWeighted
       ? "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6"
-      : "0 1\n0 2\n1 3\n2 4\n3 5\n4 5"
+      : "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
   );
 
   if (!show) return null;
@@ -172,7 +173,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   const handleLoad = () => {
     const count = parseInt(nodeCount);
     if (isNaN(count) || count <= 0) {
-      alert("請輸入有效的節點數量");
+      toast.warning("請輸入有效的節點數量");
       return;
     }
 
@@ -185,7 +186,9 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       for (const line of lines) {
         const parts = line.split(/\s+/);
         if (parts.length >= 3 && parseInt(parts[2], 10) < 0) {
-          alert("Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！");
+          toast.warning(
+            "Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！",
+          );
           return;
         }
       }
@@ -259,7 +262,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   onLoad,
 }) => {
   const [gridInputText, setGridInputText] = useState(
-    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0"
+    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0",
   );
 
   if (!show) return null;

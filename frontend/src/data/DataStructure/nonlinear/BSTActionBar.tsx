@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -42,7 +43,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
       onDeleteNode("DeleteValue", val);
       setInputValue("");
     } else {
-      alert("請輸入要刪除的數值");
+      toast.warning("請輸入要刪除的數值");
     }
   };
 
@@ -158,7 +159,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => {
               const val = Number(searchValue);
               if (!isNaN(val)) onSearchNode(val, "floor");
-              else alert("Floor 需要輸入參考數值");
+              else toast.warning("Floor 需要輸入參考數值");
             }}
             disabled={disabled}
             className={styles.btnQuery}
@@ -173,7 +174,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             onClick={() => {
               const val = Number(searchValue);
               if (!isNaN(val)) onSearchNode(val, "ceil");
-              else alert("Ceil 需要輸入參考數值");
+              else toast.warning("Ceil 需要輸入參考數值");
             }}
             disabled={disabled}
             className={styles.btnQuery}

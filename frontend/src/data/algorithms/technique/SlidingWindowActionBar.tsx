@@ -30,7 +30,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
     if (!isNaN(val)) {
       onRun({ mode: windowMode as any, targetSum: val });
     } else {
-      alert("請輸入有效的目標和數值");
+      toast.warning("請輸入有效的目標和數值");
     }
   };
 
