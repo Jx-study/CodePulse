@@ -1,6 +1,22 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=codepulse
+      - POSTGRES_USER=codepulse
+      - POSTGRES_PASSWORD=codepulse_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codepulse -d codepulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
-    build: 
+    build:
       context: ./backend
       args:
         REGISTRY_PREFIX: ${REGISTRY_PREFIX:-}
@@ -8,8 +24,13 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/app
-    env_file:
-      - .env
+    environment:
+      - DATABASE_URL=postgresql://codepulse:codepulse_dev@postgres:5432/codepulse
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - FLASK_ENV=${FLASK_ENV:-development}
+    depends_on:
+      postgres:
+        condition: service_healthy
     command: python app.py
 
   # Vite dev server
@@ -25,15 +46,9 @@ services:
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
-      # 使用 localhost:5000 因為瀏覽器是從主機訪問，不是從容器內
       - VITE_API_URL=http://localhost:5000
     depends_on:
       - backend
 
-  # Nginx server
-  # frontend:
-    # build: ./frontend
-    # ports:
-    #   - "80:80"  # 映射主機 80 port 到容器的 80 port（Nginx）
-    # depends_on:
-    #   - backend
+volumes:
+  postgres_data:
