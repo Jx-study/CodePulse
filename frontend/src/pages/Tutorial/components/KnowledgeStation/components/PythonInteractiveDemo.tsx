@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
-import type { PythonDemo, PythonInput } from '@/types/implementation';
+import type { PythonDemo, PythonInput, GraphOutputData } from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
+import GraphOutputRenderer from './GraphOutputRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
 const PYODIDE_CDN = 'https://unpkg.com/pyodide@0.27.0/pyodide.js';
 const PYODIDE_INDEX_URL = 'https://unpkg.com/pyodide@0.27.0/';
 
-// ── 型別 ─────────────────────────────────────────────────────────
 type ViewMode = 'demo' | 'code';
 type RunStatus = 'idle' | 'loading-pyodide' | 'running' | 'done' | 'error';
 
@@ -42,12 +42,12 @@ async function getPyodide(): Promise<any> {
   return pyodideLoadPromise;
 }
 
-// ── 元件 ─────────────────────────────────────────────────────────
 const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('demo');
   const [status, setStatus] = useState<RunStatus>('idle');
   const [output, setOutput] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [graphData, setGraphData] = useState<GraphOutputData | null>(null);
 
   // 控制項值，key = PythonInput.variable
   const [inputValues, setInputValues] = useState<Record<string, string | number>>(
@@ -71,28 +71,40 @@ const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
 
       setStatus('running');
 
-      // 注入 UI 控制項的值為 Python 變數
       for (const [key, val] of Object.entries(inputValues)) {
         pyodide.globals.set(key, val);
       }
 
-      // 重定向 stdout
       pyodide.runPython(`
 import sys, io
 sys.stdout = io.StringIO()
       `);
 
-      await pyodide.runPythonAsync(demo.code);
-
+      // 捕捉回傳值（最後一個 Python 表達式）
+      const pyReturnValue = await pyodide.runPythonAsync(demo.code);
       const stdout: string = pyodide.runPython('sys.stdout.getvalue()');
+
       setOutput(stdout || '（程式執行完畢，無輸出）');
+
+      // outputType:'graph' 時解析回傳的 JSON
+      if (demo.outputType === 'graph' && pyReturnValue) {
+        try {
+          setGraphData(JSON.parse(pyReturnValue));
+        } catch {
+          // JSON 解析失敗不影響 stdout 輸出
+        }
+      } else {
+        setGraphData(null);
+      }
+
       setStatus('done');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setOutput(`執行錯誤：\n${message}`);
       setStatus('error');
+      setGraphData(null);
     }
-  }, [demo.code, inputValues]);
+  }, [demo.code, demo.outputType, inputValues]);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(demo.code);
@@ -110,13 +122,11 @@ sys.stdout = io.StringIO()
 
   return (
     <div className={styles.container}>
-      {/* 標題列 */}
       <div className={styles.titleBar}>
         <span className={styles.pythonBadge}>🐍 Python 互動</span>
         <span className={styles.demoTitle}>{demo.title}</span>
       </div>
 
-      {/* Tab 列 */}
       <div className={styles.toolbar}>
         <div className={styles.tabs}>
           <button
@@ -142,10 +152,8 @@ sys.stdout = io.StringIO()
         </button>
       </div>
 
-      {/* Demo 模式 */}
       {viewMode === 'demo' && (
         <div className={styles.demoArea}>
-          {/* 輸入控制項 */}
           {demo.inputs && demo.inputs.length > 0 && (
             <div className={styles.inputsPanel}>
               {demo.inputs.map((inp) => (
@@ -159,7 +167,6 @@ sys.stdout = io.StringIO()
             </div>
           )}
 
-          {/* 執行按鈕 */}
           <button
             className={styles.runBtn}
             onClick={handleRun}
@@ -168,19 +175,25 @@ sys.stdout = io.StringIO()
             {runLabel}
           </button>
 
-          {/* 輸出 console */}
-          <pre
-            className={classNames(styles.console, {
-              [styles.error]: status === 'error',
-              [styles.empty]: !output,
-            })}
-          >
-            {output || '點擊「執行小程序」查看結果...'}
-          </pre>
+          {/* 圖形輸出（outputType:'graph' 時顯示，取代或補充 console） */}
+          {demo.outputType === 'graph' && graphData && (
+            <GraphOutputRenderer data={graphData} />
+          )}
+
+          {/* 輸出 console（graph 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
+          {(demo.outputType !== 'graph' || !graphData || output.includes('錯誤')) && (
+            <pre
+              className={classNames(styles.console, {
+                [styles.error]: status === 'error',
+                [styles.empty]: !output,
+              })}
+            >
+              {output || '點擊「執行小程序」查看結果...'}
+            </pre>
+          )}
         </div>
       )}
 
-      {/* Code 模式 */}
       {viewMode === 'code' && (
         <div className={styles.codeArea}>
           <pre className={styles.codeBlock}>
@@ -195,7 +208,6 @@ sys.stdout = io.StringIO()
   );
 };
 
-// ── 子元件：InputControl ─────────────────────────────────────────
 interface InputControlProps {
   input: PythonInput;
   value: string | number;
