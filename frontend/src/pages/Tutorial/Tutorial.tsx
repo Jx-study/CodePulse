@@ -471,7 +471,7 @@ function TutorialContent() {
       executeAction("refresh", { hasTailMode, isDirected });
       setCurrentStep(0);
     }
-  }, [hasTailMode, isAlgorithm, isDirected]);
+  }, [hasTailMode, isAlgorithm]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -655,6 +655,13 @@ function TutorialContent() {
     }
   };
 
+  const handleIsDirectedChange = (newValue: boolean) => {
+    setIsDirected(newValue);
+    dsLogic.executeAction("refresh", { hasTailMode, isDirected: newValue });
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
@@ -761,7 +768,7 @@ function TutorialContent() {
     setHasTailMode,
     handleGraphAction,
     isDirected,
-    setIsDirected,
+    setIsDirected: handleIsDirectedChange,
     onLimitExceeded: () => {
       if (maxNodes !== undefined) {
         toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
