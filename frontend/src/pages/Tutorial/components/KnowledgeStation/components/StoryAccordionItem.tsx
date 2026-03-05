@@ -5,6 +5,7 @@ import Icon from '@/shared/components/Icon';
 import StoryVideoPlayer from './StoryVideoPlayer';
 import StoryResources from './StoryResources';
 import PythonInteractiveDemo from './PythonInteractiveDemo';
+import StackGameRenderer from './StackGameRenderer';
 import styles from './StoryAccordionItem.module.scss';
 
 interface Props {
@@ -13,7 +14,11 @@ interface Props {
 
 const StoryAccordionItem: React.FC<Props> = ({ story }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // 若有互動遊戲且無視頻，內容預設收合（遊戲本身就是主體）
   const [isContentOpen, setIsContentOpen] = useState(false);
+
+  const hasVideo = !!story.video;
+  const hasGame = story.interactiveGame?.type === 'stack-popup-game';
 
   return (
     <div className={styles.accordionItem}>
@@ -43,21 +48,41 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
 
       {isOpen && (
         <div className={styles.body}>
-          <StoryVideoPlayer video={story.video} />
-
-          <button
-            type="button"
-            className={styles.contentToggle}
-            onClick={() => setIsContentOpen((v) => !v)}
-          >
-            {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
-          </button>
-          {isContentOpen && (
-            <p className={styles.content}>{story.content}</p>
-          )}
-
-          {story.pythonDemo && (
-            <PythonInteractiveDemo demo={story.pythonDemo} />
+          {hasVideo ? (
+            <>
+              <StoryVideoPlayer video={story.video} />
+              <button
+                type="button"
+                className={styles.contentToggle}
+                onClick={() => setIsContentOpen((v) => !v)}
+              >
+                {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
+              </button>
+              {isContentOpen && (
+                <p className={styles.content}>{story.content}</p>
+              )}
+              {story.pythonDemo && (
+                <PythonInteractiveDemo demo={story.pythonDemo} />
+              )}
+              {hasGame && <StackGameRenderer />}
+            </>
+          ) : (
+            <>
+              {story.pythonDemo && (
+                <PythonInteractiveDemo demo={story.pythonDemo} />
+              )}
+              {hasGame && <StackGameRenderer />}
+              <button
+                type="button"
+                className={styles.contentToggle}
+                onClick={() => setIsContentOpen((v) => !v)}
+              >
+                {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
+              </button>
+              {isContentOpen && (
+                <p className={styles.content}>{story.content}</p>
+              )}
+            </>
           )}
           {story.resources && story.resources.length > 0 && (
             <StoryResources resources={story.resources} />

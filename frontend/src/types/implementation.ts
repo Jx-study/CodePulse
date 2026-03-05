@@ -77,6 +77,12 @@ export interface StoryResource {
   source?: string;
 }
 
+export type InteractiveGameType = 'stack-popup-game';
+
+export interface InteractiveGame {
+  type: InteractiveGameType;
+}
+
 /**
  * 真實世界應用故事結構
  */
@@ -89,6 +95,7 @@ export interface RealWorldStory {
   video?: StoryVideo;
   resources?: StoryResource[];
   pythonDemo?: PythonDemo;
+  interactiveGame?: InteractiveGame;
 }
 
 /**
