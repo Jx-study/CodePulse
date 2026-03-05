@@ -475,7 +475,7 @@ export function renderAll(
   // 如果是 graph，則根據 isDirected 決定
   const shouldHideArrow =
     structureType === "graph" ? !isDirected : forceHideArrow;
-  const markerUrl = shouldHideArrow ? null : "url(#arrowhead)";
+  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
   if (svg.select("#arrowhead").empty()) {
@@ -600,7 +600,7 @@ export function renderAll(
   mergedLinkGroups
     .select("path.link")
     .attr("marker-end", (d) => {
-      if (shouldHideArrow) return null;
+      if (shouldHideArrow) return "none";
       const status = d.status || "default";
       return `url(#arrowhead-${status})`;
     })
