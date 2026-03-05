@@ -1,0 +1,38 @@
+# CodePulse Backend Scripts
+# Usage: just <recipe>
+# Install just: winget install Casey.Just
+
+# ── Dev ────────────────────────────────────────────────────────────────────
+dev:
+    docker-compose up postgres backend --build
+
+# ── Migration ──────────────────────────────────────────────────────────────
+migrate msg="update":   
+    docker-compose exec backend flask db migrate -m "{{msg}}"
+
+upgrade:
+    docker-compose exec backend flask db upgrade
+
+downgrade:
+    docker-compose exec backend flask db downgrade
+
+# ── DB Utils ───────────────────────────────────────────────────────────────
+db-shell:
+    docker-compose exec postgres psql -U codepulse -d codepulse
+
+db-tables:
+    docker-compose exec postgres psql -U codepulse -d codepulse -c "\dt"
+
+db-reset:
+    docker-compose down -v
+    docker-compose up postgres -d
+    docker-compose up backend -d
+    just upgrade
+
+# ── Logs ───────────────────────────────────────────────────────────────────
+logs:
+    docker-compose logs -f backend
+
+# ── Health ─────────────────────────────────────────────────────────────────
+health:
+    curl -s http://localhost:5000/api/health
