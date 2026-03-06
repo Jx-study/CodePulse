@@ -12,9 +12,14 @@ import {
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 const TAGS = {
-  INIT: "INIT",
-  START: "START",
+  GRAPH_INIT: "GRAPH_INIT",
+  GRAPH_START: "GRAPH_START",
+
+  GRID_INIT: "GRID_INIT",
+  GRID_INIT_DIST: "GRID_INIT_DIST",
+  GRID_START: "GRID_START",
   DEQUEUE: "DEQUEUE",
+  
   CHECK_END: "CHECK_END",
   EXPLORE: "EXPLORE",
   VISIT_NEIGHBOR: "VISIT_NEIGHBOR",
@@ -56,27 +61,13 @@ function runGraphBFS(
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
-  const showIdFrame = generateGraphFrame(
-    baseElements,
-    {},
-    distanceMap,
-    `Graph 顯示 ID 完成，起點: ${realStartId}, 終點: ${realEndId}`,
-    true, // showIdAsValue = true
-  );
-  showIdFrame.actionTag = TAGS.INIT;
-  showIdFrame.variables = {
-    start: realStartId,
-    end: realEndId,
-  };
-  steps.push(showIdFrame);
-
   const initDistFrame = generateGraphFrame(
     baseElements,
     {},
     distanceMap,
     `準備開始 BFS，初始化距離為 ∞`,
   );
-  initDistFrame.actionTag = TAGS.INIT;
+  initDistFrame.actionTag = TAGS.GRAPH_INIT;
   initDistFrame.variables = {
     start: realStartId,
     end: realEndId,
@@ -96,7 +87,7 @@ function runGraphBFS(
     distanceMap,
     `將起點 ${realStartId} 加入佇列 (距離: 0)`,
   );
-  enqueueStartFrame.actionTag = TAGS.START;
+  enqueueStartFrame.actionTag = TAGS.GRAPH_START;
   enqueueStartFrame.variables = {
     queue: `[${realStartId}]`,
     visited: `{${realStartId}}`,
@@ -325,7 +316,7 @@ function runGridBFS(
     `BFS 準備開始：顯示格子索引 (ID)。起點: ${startIndex}, 終點: ${endIndex}`,
     true, // showIdAsValue = true
   );
-  gridShowIdFrame.actionTag = TAGS.INIT;
+  gridShowIdFrame.actionTag = TAGS.GRID_INIT;
   gridShowIdFrame.variables = {
     start: startIndex,
     end: endIndex,
@@ -340,7 +331,7 @@ function runGridBFS(
     `初始化距離為 ∞`,
     false, // 轉回顯示距離模式
   );
-  gridInitDistFrame.actionTag = TAGS.INIT;
+  gridInitDistFrame.actionTag = TAGS.GRID_INIT_DIST;
   gridInitDistFrame.variables = {
     start: startIndex,
     end: endIndex,
@@ -363,6 +354,22 @@ function runGridBFS(
     [1, 0], // Down
     [0, -1], // Left
   ];
+
+  const gridStartFrame = generateGridFrame(
+    gridData,
+    cols,
+    statusMap,
+    distanceMap,
+    `起始節點 ${startIndex} 初始化並加入佇列`,
+  );
+  gridStartFrame.actionTag = TAGS.GRID_START;
+  gridStartFrame.variables = {
+    start: startIndex,
+    queue: `[${startIndex}]`,
+    visited: `{${startIndex}}`,
+    "distance[start]": 0,
+  };
+  steps.push(gridStartFrame);
 
   while (queue.length > 0) {
     const nextQueue: number[] = [];
@@ -559,8 +566,8 @@ const bfsGraphCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [1, 2, 3],
-      [TAGS.START]: [4],
+      [TAGS.GRAPH_INIT]: [1, 2],
+      [TAGS.GRAPH_START]: [3, 4],
       [TAGS.DEQUEUE]: [6, 7],
       [TAGS.CHECK_END]: [9],
       [TAGS.EXPLORE]: [13, 14],
@@ -627,8 +634,9 @@ const bfsGridCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [1, 2, 3],
-      [TAGS.START]: [4],
+      [TAGS.GRID_INIT]: [1],
+      [TAGS.GRID_INIT_DIST]: [2],
+      [TAGS.GRID_START]: [3,4],
       [TAGS.DEQUEUE]: [6, 7],
       [TAGS.CHECK_END]: [9],
       [TAGS.VISIT_NEIGHBOR]: [15, 16, 17, 18],
