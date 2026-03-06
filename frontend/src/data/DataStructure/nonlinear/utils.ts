@@ -141,13 +141,10 @@ export const generateGraphFrame = (
     const newNode = new Node();
     newNode.id = node.id;
 
-    if (showIdAsValue) {
-      const numId = parseInt(node.id.replace("node-", ""), 10);
-      newNode.value = isNaN(numId) ? '-1' : String(numId);
-    } else {
-      const dist = distanceMap[node.id];
-      newNode.value = dist === undefined || dist === Infinity ? "∞" : String(dist);
-    }
+    const dist = distanceMap[node.id];
+    newNode.value = dist === undefined || dist === Infinity ? "∞" : String(dist);
+
+    newNode.description = node.id.replace("node-", "");
 
     let x = node.position.x;
     let y = node.position.y;
