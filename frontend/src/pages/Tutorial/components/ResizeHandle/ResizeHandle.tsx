@@ -10,7 +10,8 @@ interface ResizeHandleProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   collapseButtonPosition?: 'start' | 'end';
-  collapseDirection?: 'left' | 'right'; 
+  collapseDirection?: 'left' | 'right';
+  'data-tour'?: string;
 }
 
 export function ResizeHandle({
@@ -21,7 +22,8 @@ export function ResizeHandle({
   isCollapsed = false,
   onToggleCollapse,
   collapseButtonPosition = 'end',
-  collapseDirection
+  collapseDirection,
+  'data-tour': dataTour,
 }: ResizeHandleProps) {
 
   const getCollapseIcon = () => {
@@ -56,6 +58,7 @@ export function ResizeHandle({
     <Separator
       className={`${styles.resizeHandle} ${styles[direction]} ${isCollapsed ? styles.collapsed : ''} ${className}`}
       onDoubleClick={onDoubleClick}
+      data-tour={dataTour}
     >
       <div className={styles.handleIndicator} />
 

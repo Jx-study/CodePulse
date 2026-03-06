@@ -48,6 +48,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
       disabled = false,
       required = false,
       fullWidth = false,
+      size = 'md',
       className = '',
       onChange,
       onBlur,
@@ -59,8 +60,15 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     },
     ref
   ) => {
+    const sizeClassMap = {
+      sm: styles.selectSm,
+      md: styles.selectMd,
+      lg: styles.selectLg,
+    };
+
     const selectClasses = [
       styles.select,
+      sizeClassMap[size],
       !fullWidth && styles.selectAuto,
       hasError && styles.selectError,
       disabled && styles.selectDisabled,

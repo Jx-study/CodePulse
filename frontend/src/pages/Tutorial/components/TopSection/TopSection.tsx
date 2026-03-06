@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react';
+import { Fragment, useMemo, useRef, useCallback } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -18,6 +18,7 @@ import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
 import { usePanelContext } from '../../context/PanelContext';
+import { InspectorPanelInternal, type InspectorPanelInternalProps } from '../../Tutorial';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -30,6 +31,7 @@ interface CanvasPanelProps {
   topicTypeConfig: any;
   currentStatusColorMap: any;
   currentStatusConfig: any;
+  isDirected: boolean;
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;
@@ -65,8 +67,8 @@ interface TopSectionProps {
   CanvasPanel: React.ComponentType<CanvasPanelProps>;
   canvasPanelProps: CanvasPanelProps;
 
-  // InspectorPanel Component
-  InspectorPanelInternal: React.ComponentType;
+  // InspectorPanel Props
+  inspectorPanelProps: InspectorPanelInternalProps;
 
   // Collapse 控制
   isLeftPanelCollapsed: boolean;
@@ -75,7 +77,7 @@ interface TopSectionProps {
   // Topic 配置
   topicTypeConfig: any;
 
-  // CodeEditor 新功能 (from main branch)
+  // CodeEditor
   codeMode: "pseudo" | "python";
   handleModeToggle: (mode: "pseudo" | "python") => void;
   currentCodeConfig: any;
@@ -96,7 +98,7 @@ export function TopSection(props: TopSectionProps) {
     inspectorPanelRef,
     CanvasPanel,
     canvasPanelProps,
-    InspectorPanelInternal,
+    inspectorPanelProps,
     isLeftPanelCollapsed,
     handleToggleLeftPanel,
     topicTypeConfig,
@@ -107,6 +109,24 @@ export function TopSection(props: TopSectionProps) {
   } = props;
 
   const { panelSizes, setCollapsed } = usePanelContext();
+
+  const codeEditorDefaultSizeRef = useRef(
+    isLeftPanelCollapsed ? 0 : (isMobile ? 30 : panelSizes.codeEditor)
+  );
+  const prevMainPanelOrderRef = useRef(mainPanelOrder);
+  if (prevMainPanelOrderRef.current !== mainPanelOrder) {
+    prevMainPanelOrderRef.current = mainPanelOrder;
+    codeEditorDefaultSizeRef.current = isLeftPanelCollapsed ? 0 : (isMobile ? 30 : panelSizes.codeEditor);
+  }
+
+  const collapsingRef = useRef(false);
+
+  const handleToggleLeftPanelWithLock = useCallback(() => {
+    if (!isLeftPanelCollapsed) {
+      collapsingRef.current = true;
+    }
+    handleToggleLeftPanel();
+  }, [handleToggleLeftPanel, isLeftPanelCollapsed]);
 
   const sensors = useSensors(
     useSensor(SmartPointerSensor, {
@@ -141,22 +161,25 @@ export function TopSection(props: TopSectionProps) {
                 <Panel
                   id="code-editor-panel"
                   key="codeEditor"
-                  defaultSize={
-                    isLeftPanelCollapsed
-                      ? 0
-                      : (isMobile ? 30 : panelSizes.codeEditor)
-                  }
+                  defaultSize={codeEditorDefaultSizeRef.current}
                   minSize="20%"
                   collapsible
                   panelRef={leftPanelRef}
                   onResize={(size) => {
+                    if (collapsingRef.current) {
+                      if (size.asPercentage === 0) {
+                        collapsingRef.current = false;
+                        setCollapsed('codeEditor', true);
+                      }
+                      return;
+                    }
                     const collapsed = size.asPercentage === 0;
                     if (collapsed !== isLeftPanelCollapsed) {
                       setCollapsed('codeEditor', collapsed);
                     }
                   }}
                 >
-                  <div className={styles.pseudoCodeSection}>
+                  <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
                       title="代碼實作"
                       tabs={codeEditorTabs}
@@ -179,12 +202,13 @@ export function TopSection(props: TopSectionProps) {
 
                 <ResizeHandle
                   direction={isMobile ? "vertical" : "horizontal"}
-                  onDoubleClick={handleToggleLeftPanel}
+                  onDoubleClick={handleToggleLeftPanelWithLock}
                   showCollapseButton={!isMobile}
                   isCollapsed={isLeftPanelCollapsed}
-                  onToggleCollapse={handleToggleLeftPanel}
+                  onToggleCollapse={handleToggleLeftPanelWithLock}
                   collapseButtonPosition="end"
                   collapseDirection="left"
+                  data-tour="resize-handle"
                 />
 
                 <Panel
@@ -210,7 +234,9 @@ export function TopSection(props: TopSectionProps) {
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle 
+                                    direction="vertical" 
+                                    data-tour="resize-handle-v" />
                                 )}
                               </Fragment>
                             );
@@ -223,10 +249,15 @@ export function TopSection(props: TopSectionProps) {
                                   defaultSize={30}
                                   minSize="20%"
                                 >
-                                  <InspectorPanelInternal />
+                                  <InspectorPanelInternal
+                                    {...inspectorPanelProps}
+                                  />
                                 </Panel>
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle
+                                    direction="vertical"
+                                    data-tour="resize-handle-v"
+                                  />
                                 )}
                               </Fragment>
                             );
@@ -263,7 +294,7 @@ export function TopSection(props: TopSectionProps) {
                               <Fragment key={panelId}>
                                 <CanvasPanel {...canvasPanelProps} />
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle direction="vertical" data-tour="resize-handle-v" />
                                 )}
                               </Fragment>
                             );
@@ -276,10 +307,10 @@ export function TopSection(props: TopSectionProps) {
                                   defaultSize={25}
                                   minSize="20%"
                                 >
-                                  <InspectorPanelInternal />
+                                  <InspectorPanelInternal {...inspectorPanelProps} />
                                 </Panel>
                                 {index < rightPanelOrder.length - 1 && (
-                                  <ResizeHandle direction="vertical" />
+                                  <ResizeHandle direction="vertical" data-tour="resize-handle-v" />
                                 )}
                               </Fragment>
                             );
@@ -293,33 +324,37 @@ export function TopSection(props: TopSectionProps) {
 
                 <ResizeHandle
                   direction={isMobile ? "vertical" : "horizontal"}
-                  onDoubleClick={handleToggleLeftPanel}
+                  onDoubleClick={handleToggleLeftPanelWithLock}
                   showCollapseButton={!isMobile}
                   isCollapsed={isLeftPanelCollapsed}
-                  onToggleCollapse={handleToggleLeftPanel}
+                  onToggleCollapse={handleToggleLeftPanelWithLock}
                   collapseButtonPosition="start"
                   collapseDirection="right"
+                  data-tour="resize-handle"
                 />
 
                 <Panel
                   id="code-editor-panel"
                   key="codeEditor"
-                  defaultSize={
-                    isLeftPanelCollapsed
-                      ? 0
-                      : (isMobile ? 30 : panelSizes.codeEditor)
-                  }
+                  defaultSize={codeEditorDefaultSizeRef.current}
                   minSize="20%"
                   collapsible
                   panelRef={leftPanelRef}
                   onResize={(size) => {
+                    if (collapsingRef.current) {
+                      if (size.asPercentage === 0) {
+                        collapsingRef.current = false;
+                        setCollapsed('codeEditor', true);
+                      }
+                      return;
+                    }
                     const collapsed = size.asPercentage === 0;
                     if (collapsed !== isLeftPanelCollapsed) {
                       setCollapsed('codeEditor', collapsed);
                     }
                   }}
                 >
-                  <div className={styles.pseudoCodeSection}>
+                  <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
                       title="代碼實作"
                       tabs={codeEditorTabs}

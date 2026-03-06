@@ -178,8 +178,6 @@ export function validateLevelsData(): ValidationResult {
       const validPathTypes = [
         "main",
         "branch",
-        "convergence",
-        "choice-point",
         "boss",
         "portal",
       ];

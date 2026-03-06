@@ -4,16 +4,32 @@
 }
 
 .card {
-  background: rgba($primary-color, 0.05);
+  background: var(--bg-tertiary);
   padding: $spacing-lg;
   border-radius: $radius-lg;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
+  box-shadow: $shadow-sm;
 
   .cardTitle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
     font-size: $font-lg;
     font-weight: 600;
-    color: var(--text-primary);
+    color: $primary-color;
     margin: 0 0 $spacing-md 0;
+
+    .cardTitleIcon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background: rgba($primary-color, 0.12);
+      border-radius: $radius-md;
+      font-size: $font-sm;
+      flex-shrink: 0;
+    }
   }
 
   .cardContent {

@@ -33,7 +33,7 @@ function ControlBar({
   const speeds = [0.5, 1, 1.5, 2, 3];
 
   return (
-    <div className={styles.controlBar}>
+    <div className={styles.controlBar} data-tour="control-bar">
       {/* Control Buttons */}
       <div className={styles.controls}>
         <Button

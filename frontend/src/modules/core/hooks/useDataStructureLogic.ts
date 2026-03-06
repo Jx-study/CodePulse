@@ -129,10 +129,12 @@ export const useDataStructureLogic = (config: any) => {
             return [];
           }
           if (idx > data.length) {
-            toast.warning(`Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`);
+            toast.warning(
+              `Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`,
+            );
             return [];
           }
-          
+
           if (idx === 0) newData.unshift(newNode);
           else if (idx === data.length) newData.push(newNode);
           else newData.splice(idx, 0, newNode);
@@ -208,7 +210,7 @@ export const useDataStructureLogic = (config: any) => {
             payload.mode = "Pop";
           }
         } else {
-          value = undefined; 
+          value = undefined;
           payload.mode = "Pop";
         }
       } else if (actionType === "peek") {
@@ -217,9 +219,8 @@ export const useDataStructureLogic = (config: any) => {
           targetId = topNode.id;
           value = topNode.value;
           payload.mode = "Peek";
-        }
-        else {
-          value = undefined; 
+        } else {
+          value = undefined;
           payload.mode = "Peek";
         }
       } else if (["random", "reset", "load", "refresh"].includes(actionType)) {
@@ -256,9 +257,9 @@ export const useDataStructureLogic = (config: any) => {
         payload.mode = "Enqueue";
       } else if (actionType === "delete") {
         if (newData.length === 0) {
-          // alert("Queue is empty");
+          // toast.warning("Queue is empty");
           // return [];
-          value = undefined; 
+          value = undefined;
           payload.mode = "Dequeue";
         }
         // 刪除第一個
@@ -573,8 +574,8 @@ export const useDataStructureLogic = (config: any) => {
           String(payload.source).trim() === "" ||
           !payload.target ||
           String(payload.target).trim() === ""
-) {
-        toast.warning("請輸入來源與目標節點 ID");
+        ) {
+          toast.warning("請輸入來源與目標節點 ID");
           return [];
         }
 

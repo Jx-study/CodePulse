@@ -42,28 +42,28 @@
 
 // ========== 尺寸系統 ==========
 .xs {
-  padding: 4px 8px;
+  padding: $spacing-2xs $spacing-xs;
   font-size: $font-xs;
   border-radius: $radius-sm;
   line-height: 1.2;
 }
 
 .sm {
-  padding: 8px 16px;
+  padding: $spacing-xs $spacing-sm;
   font-size: $font-sm;
   border-radius: $radius-md;
   line-height: 1.4;
 }
 
 .md {
-  padding: 12px 24px;
+  padding: $spacing-sm $spacing-md;
   font-size: $font-base;
   border-radius: $radius-lg;
   line-height: 1.5;
 }
 
 .lg {
-  padding: 16px 32px;
+  padding: $spacing-sm $spacing-lg;
   font-size: $font-lg;
   border-radius: $radius-lg;
   line-height: 1.6;
@@ -82,10 +82,10 @@
     transform: $hover-transform;
 
     box-shadow:
-      0 0 20px rgba($primary-color, 0.7),
-      0 0 40px rgba(124, 58, 237, 0.5),
-      0 0 60px rgba($primary-color, 0.3),
-      0 6px 20px 0 rgba($primary-color, 0.4);
+      0 0 10px rgba($primary-color, 0.7),
+      0 0 20px rgba(124, 58, 237, 0.5),
+      0 0 30px rgba($primary-color, 0.3),
+      0 4px 12px 0 rgba($primary-color, 0.4);
 
     filter: brightness(0.9);
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
@@ -153,6 +153,63 @@
   }
 }
 
+// Glass（毛玻璃按鈕）- 適合覆蓋在地圖/畫布上的控制項
+.glass {
+  // 白天：白色磨砂玻璃
+  background: rgba($light-bg-tertiary, 0.6);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  // 冰晶邊緣：捕捉環境光的高光邊框
+  border: 1px solid rgba($primary-color, 0.2);
+  box-shadow:
+    0 4px 16px rgba($light-text-primary, 0.08), // 懸浮投影
+    inset 0 1px 0 rgba($white-color, 0.7);       // 頂部高光線
+  color: $light-text-secondary;
+  font-weight: 500;
+
+  &:hover:not(:disabled):not(.disabled) {
+    background: rgba($light-bg-tertiary, 0.85);
+    border-color: rgba($primary-color, 0.5);     // 品牌色邊框點亮
+    color: $light-text-primary;
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 24px rgba($light-text-primary, 0.12), // 浮起投影加深
+      inset 0 1px 0 rgba($white-color, 0.8);
+  }
+
+  &:active:not(:disabled):not(.disabled) {
+    transform: translateY(0);
+    box-shadow:
+      0 2px 8px rgba($light-text-primary, 0.06),
+      inset 0 1px 0 rgba($white-color, 0.6);
+  }
+
+  // 黑夜：深藍灰磨砂玻璃
+  @media (prefers-color-scheme: dark) {
+    background: rgba($dark-bg-secondary, 0.7);
+    border: 1px solid rgba($white-color, 0.08);  // 暗模式下更低調的高光邊框
+    box-shadow:
+      0 4px 16px rgba($black-color, 0.4),         // 懸浮投影
+      inset 0 1px 0 rgba($white-color, 0.06);     // 頂部高光線
+    color: $dark-text-secondary;
+
+    &:hover:not(:disabled):not(.disabled) {
+      background: rgba($dark-bg-secondary, 0.9);
+      border-color: rgba($primary-color, 0.5);
+      color: $dark-text-primary;
+      box-shadow:
+        0 8px 24px rgba($black-color, 0.5),
+        inset 0 1px 0 rgba($white-color, 0.08);
+    }
+
+    &:active:not(:disabled):not(.disabled) {
+      box-shadow:
+        0 2px 8px rgba($black-color, 0.3),
+        inset 0 1px 0 rgba($white-color, 0.04);
+    }
+  }
+}
+
 // Danger（危險操作按鈕）
 .danger {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
@@ -208,8 +265,8 @@
   border-radius: $radius-full;
   border: none;
   background: rgba($primary-color, 0.3);
-  padding: 0; // 移除 padding
-  min-width: unset; // 確保不會被其他樣式影響
+  padding: 0;
+  min-width: unset;
 
   &:hover:not(:disabled):not(.disabled) {
     background: rgba($primary-color, 0.6);
@@ -218,15 +275,16 @@
 
   &.active {
     background: $primary-color;
-    transform: scale(1.3);
-    box-shadow: 0 0 15px rgba($primary-color, 0.4);
+    transform: none;
+    box-shadow: 0 0 8px rgba($primary-color, 0.4);
+    width: calc(var(--dot-height) * 2);
   }
 
   // Dot 特殊尺寸
-  &.xs { width: 8px; height: 8px; }
-  &.sm { width: 10px; height: 10px; }
-  &.md { width: 12px; height: 12px; }
-  &.lg { width: 16px; height: 16px; }
+  &.xs { width: 8px; height: 8px; --dot-height: 8px; }
+  &.sm { width: 10px; height: 10px; --dot-height: 10px; }
+  &.md { width: 12px; height: 12px; --dot-height: 12px; }
+  &.lg { width: 16px; height: 16px; --dot-height: 16px; }
 }
 
 // ========== Loading Spinner 動畫 ==========

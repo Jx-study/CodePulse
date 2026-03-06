@@ -1,3 +1,4 @@
+import Icon from '@/shared/components/Icon';
 import type { ProblemReference } from '@/types/implementation';
 import styles from './DerivedContent.module.scss';
 
@@ -12,7 +13,10 @@ const DerivedContent = ({ problems }: DerivedContentProps) => {
 
   return (
     <div className={styles.derivedContentWrapper}>
-      <h4 className={styles.derivedContentTitle}>衍生內容</h4>
+      <h4 className={styles.derivedContentTitle}>
+        <span className={styles.titleIcon}><Icon name="code" decorative /></span>
+        衍生內容
+      </h4>
       <div className={styles.derivedContentList}>
         {problems.map((problem) => (
           <a

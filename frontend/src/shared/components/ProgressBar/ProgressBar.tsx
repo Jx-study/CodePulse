@@ -6,6 +6,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   value,
   max = 100,
   variant = 'primary',
+  color,
   size = 'md',
   showLabel = true,
   labelPosition = 'bottom',
@@ -35,7 +36,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
   const barClasses = [
     styles.progressBar,
-    styles[variant],
+    color ? styles.custom : styles[variant],
     animated && styles.animated,
     striped && styles.striped
   ].filter(Boolean).join(' ');
@@ -73,7 +74,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       >
         <div
           className={barClasses}
-          style={{ width: `${percentage}%` }}
+          style={{
+            width: `${percentage}%`,
+            ...(color ? { "--progress-color": color } as React.CSSProperties : {}),
+          }}
         >
           {labelPosition === 'inside' && renderLabel()}
         </div>

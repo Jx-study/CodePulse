@@ -7,7 +7,7 @@
  * - 未來可擴展為從後端 API 獲取資料
  */
 
-import type { Category, CategoryType, UserProgress } from "@/types";
+import type { Category, CategoryType, UserProgress } from "@/types"; // UserProgress used by updateCategoryUnlocks
 import { getRawCategories } from "./adapters/levelAdapter";
 import { getCategoryBossLevel } from "./LevelService";
 
@@ -28,7 +28,7 @@ export function getAllCategories(): Category[] {
       description: cat.description,
       icon: cat.icon,
       colorTheme: cat.colorTheme,
-      isUnlocked: false, // 預設為 false，需要透過 getCategories 取得實際狀態
+      isDeveloped: cat.isDeveloped,
       order: cat.order,
     }))
     .sort((a, b) => a.order - b.order);
@@ -50,7 +50,7 @@ export function getCategoryById(categoryId: CategoryType): Category | null {
     description: rawCat.description,
     icon: rawCat.icon,
     colorTheme: rawCat.colorTheme,
-    isUnlocked: false,
+    isDeveloped: rawCat.isDeveloped,
     order: rawCat.order,
   };
 }
@@ -83,27 +83,10 @@ export function getNextCategory(
 // ==================== 解鎖邏輯 ====================
 
 /**
- * 取得分類配置（包含解鎖狀態）
- * 結合 userProgress.categoryUnlocks 判斷 isUnlocked
+ * 取得分類配置
  */
-export function getCategories(userProgress: UserProgress): Category[] {
-  const rawCategories = getRawCategories();
-
-  return Object.values(rawCategories)
-    .map((cat) => {
-      const categoryId = cat.id as CategoryType;
-      return {
-        id: cat.id,
-        name: cat.name,
-        nameEn: cat.nameEn,
-        description: cat.description,
-        icon: cat.icon,
-        colorTheme: cat.colorTheme,
-        isUnlocked: userProgress.categoryUnlocks?.[categoryId] ?? false,
-        order: cat.order,
-      };
-    })
-    .sort((a, b) => a.order - b.order);
+export function getCategories(): Category[] {
+  return getAllCategories();
 }
 
 /**

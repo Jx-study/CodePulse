@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-2xs;
-  margin-bottom: $spacing-md;
 
   &.hasError {
     // 容器層級的錯誤狀態
@@ -34,9 +33,9 @@
   width: 18px;
   height: 18px;
   min-width: 18px; // 防止被壓縮
-  border: 2px solid var(--input-border);
+  border: 2px solid var(--border-color);
   border-radius: 4px;
-  background-color: var(--input-bg);
+  background-color: var(--bg-tertiary);
   cursor: pointer;
   transition: all $transition-base;
   position: relative;
@@ -79,11 +78,11 @@
 
   // ========== Error State (可透過 container 的 hasError 控制) ==========
   .hasError & {
-    border-color: var(--danger-color);
+    border-color: $error-color;
 
     &:checked {
-      background-color: var(--danger-color);
-      border-color: var(--danger-color);
+      background-color: $error-color;
+      border-color: $error-color;
     }
   }
 }
@@ -96,7 +95,7 @@
 }
 
 .required {
-  color: var(--danger-color);
+  color: $error-color;
   margin-left: 4px;
   font-weight: 600;
 }
@@ -105,7 +104,7 @@
 .errorMessage {
   display: block;
   font-size: $font-xs;
-  color: var(--danger-color);
+  color: $error-color;
   margin-left: calc(18px + $spacing-sm); // 與 checkbox 對齊
   animation: slideDown 0.2s ease-out;
 }
@@ -131,10 +130,6 @@
 
 // ==================== Responsive Design ====================
 @media (max-width: $mobile) {
-  .checkboxContainer {
-    margin-bottom: $spacing-sm;
-  }
-
   .checkboxText {
     font-size: $font-xs;
   }

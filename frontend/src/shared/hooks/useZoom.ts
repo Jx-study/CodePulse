@@ -38,6 +38,8 @@ interface UseZoomOptions {
   enableMouseCenteredZoom?: boolean;
   /** 目標元素 Ref (用於監聽事件) */
   targetRef?: React.RefObject<HTMLElement | null>;
+  /** 是否停用所有縮放事件（用於 Dialog 開啟時暫停縮放，預設: false） */
+  isDisabled?: boolean;
   /**
    * 是否使用乘法式 Wheel 縮放 (預設: false)
    * 啟用後每次滾輪以 step 比例縮放（prev * (1 + step)），
@@ -71,6 +73,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     enablePinchZoom = true,
     enableMouseCenteredZoom = false,
     targetRef,
+    isDisabled = false,
     useExponentialWheel = false,
   } = options;
 
@@ -79,6 +82,11 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
   const wheelListenerRef = useRef<((e: WheelEvent) => void) | null>(null);
   const touchStartDistanceRef = useRef<number | null>(null);
   const lastZoomRef = useRef<number>(initialZoom);
+  const isDisabledRef = useRef(isDisabled);
+
+  useEffect(() => {
+    isDisabledRef.current = isDisabled;
+  }, [isDisabled]);
 
   /**
    * 限制縮放範圍並設定縮放等級
@@ -93,9 +101,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     [minZoom, maxZoom]
   );
 
-  /**
-   * 放大
-   */
+  /* 放大 */
   const zoomIn = useCallback(() => {
     setZoomLevel((prev) => prev + step);
     // 按鈕縮放使用固定中心點
@@ -104,9 +110,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     }
   }, [setZoomLevel, step, enableMouseCenteredZoom]);
 
-  /**
-   * 縮小
-   */
+  /* 縮小 */
   const zoomOut = useCallback(() => {
     setZoomLevel((prev) => prev - step);
     // 按鈕縮放使用固定中心點
@@ -115,9 +119,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     }
   }, [setZoomLevel, step, enableMouseCenteredZoom]);
 
-  /**
-   * 重置縮放
-   */
+  /* 重置縮放 */
   const resetZoom = useCallback(() => {
     setZoomLevel(initialZoom);
     if (enableMouseCenteredZoom) {
@@ -125,15 +127,14 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     }
   }, [setZoomLevel, initialZoom, enableMouseCenteredZoom]);
 
-  /**
-   * Wheel 縮放（支援以滑鼠位置為中心）
-   */
+  /* Wheel 縮放（支援以滑鼠位置為中心） */
   useEffect(() => {
     if (!enableWheelZoom) return;
 
     const targetElement = targetRef?.current || document.body;
 
     const handleWheel = (e: WheelEvent) => {
+      if (isDisabledRef.current) return;
       // 阻止預設的頁面縮放行為
       e.preventDefault();
 
@@ -198,6 +199,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     };
 
     const handleTouchStart = (e: TouchEvent) => {
+      if (isDisabledRef.current) return;
       if (e.touches.length === 2) {
         // 阻止預設的雙指縮放行為
         e.preventDefault();
@@ -226,6 +228,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (isDisabledRef.current) return;
       if (e.touches.length === 2 && touchStartDistanceRef.current !== null) {
         // 阻止預設的雙指縮放行為
         e.preventDefault();

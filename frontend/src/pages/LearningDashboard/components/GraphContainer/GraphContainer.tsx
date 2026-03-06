@@ -5,24 +5,30 @@ import {
   calculateGraphNodePosition,
   calculateContentBounds,
 } from './utils/positionCalculator';
+import { getLayoutConfig } from './utils/layoutConfig';
 import { useZoom } from '@/shared/hooks/useZoom';
 import { useDrag } from '@/shared/hooks/useDrag';
 import ZoomControls from '@/shared/components/ZoomControls';
+import { useZoomDisable } from '../../context/ZoomDisableContext';
 import type { GraphContainerProps } from '@/types';
 
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見
 function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
+  const { isZoomDisabled } = useZoomDisable();
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
 
   // 計算內容邊界（考慮所有節點的實際位置）
+  // 依賴 windowWidth，確保視窗縮放時使用正確的響應式佈局配置重算
   const contentBounds = useMemo(() => {
-    const bounds = calculateContentBounds(levels);
+    const layoutConfig = getLayoutConfig(windowWidth);
+    const bounds = calculateContentBounds(levels, layoutConfig);
     return {
       minY: bounds.minY - CONTENT_PADDING, // 最上面的節點 - padding
       maxY: bounds.maxY + CONTENT_PADDING,  // 最下面的節點 + padding
     };
-  }, [levels]);
+  }, [levels, windowWidth]);
 
   // 縮放功能
   const { zoomLevel, zoomIn, zoomOut, resetZoom } = useZoom({
@@ -32,6 +38,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     step: 0.1,
     enableWheelZoom: true,
     enablePinchZoom: true,
+    isDisabled: isZoomDisabled,
   });
 
   // 動態計算滾動限制的輔助函數
@@ -41,16 +48,16 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     }
 
     const containerHeight = container.clientHeight;
+    // transform-origin: center center，scale 以容器中心為基準點
+    // 節點的視覺 Y = offsetY + centerY + (nodeY - centerY) * zoomLevel
+    // 要讓最頂部節點對齊容器頂部 (visualY = 0)：
+    //   offsetY = -centerY - (minY - centerY) * zoomLevel = centerY * (zoomLevel - 1) - minY * zoomLevel
+    // 要讓最底部節點對齊容器底部 (visualY = containerHeight)：
+    //   offsetY = containerHeight - centerY - (maxY - centerY) * zoomLevel
+    const centerY = containerHeight / 2;
 
-    // 內容最上面 & 最下面的實際位置
-    const contentTop = contentBounds.minY * zoomLevel;
-    const contentBottom = contentBounds.maxY * zoomLevel;
-
-    // Y 軸滾動限制：
-    // maxScrollY: 內容底部對齊容器底部時的 scroll 值（通常是 0 或正值）
-    // minScrollY: 內容頂部對齊容器頂部時的 scroll 值（負值，向下拖動內容）
-    const maxScrollY = Math.max(0, -contentTop);
-    const minScrollY = Math.min(0, containerHeight - contentBottom);
+    const maxScrollY = centerY * (zoomLevel - 1) - contentBounds.minY * zoomLevel;
+    const minScrollY = containerHeight - centerY - (contentBounds.maxY - centerY) * zoomLevel;
 
     // X 軸：考慮縮放後的水平偏移
     const maxScrollX = 200 * zoomLevel;
@@ -85,21 +92,38 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     return index !== -1 ? index : levels.length - 1; // 如果都完成了，定位到最後一關
   }, [levels, userProgress]);
 
-  // 動態計算 header 高度
+  // 監聽視窗大小變化：更新 windowWidth（觸發 re-render）、header 高度、並 clamp offset
   useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+
+      const header = document.querySelector('header');
+      if (header) {
+        setHeaderHeight(header.offsetHeight);
+      }
+    };
+
+    // 初始化 header 高度
     const header = document.querySelector('header');
     if (header) {
-      const updateHeaderHeight = () => {
-        setHeaderHeight(header.offsetHeight);
-      };
-
-      updateHeaderHeight();
-
-      // 監聽視窗大小變化
-      window.addEventListener('resize', updateHeaderHeight);
-      return () => window.removeEventListener('resize', updateHeaderHeight);
+      setHeaderHeight(header.offsetHeight);
     }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // 視窗大小改變時，將現有 offset clamp 到新邊界，防止節點跑出可視範圍
+  useEffect(() => {
+    if (!drag.containerRef.current) return;
+    const bounds = calculateScrollBounds(drag.containerRef.current);
+    const clampedX = Math.max(-bounds.maxScrollX, Math.min(bounds.maxScrollX, drag.offset.x));
+    const clampedY = Math.max(bounds.minScrollY, Math.min(bounds.maxScrollY, drag.offset.y));
+    if (clampedX !== drag.offset.x || clampedY !== drag.offset.y) {
+      drag.setOffset({ x: clampedX, y: clampedY });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [windowWidth, calculateScrollBounds]);
 
   // 初始化：自動定位到當前進度關卡
   useEffect(() => {
@@ -116,9 +140,12 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
 
       // 目標：將當前關卡定位到容器中央偏下的位置（距離底部 30%）
       const targetPositionInContainer = containerHeight * 0.7; // 距離頂部 70%
+      const centerY = containerHeight / 2;
 
-      // 計算需要的 scroll 值
-      const idealScrollY = targetPositionInContainer - position.y * zoomLevel;
+      // transform-origin: center center，節點視覺 Y = offsetY + centerY + (nodeY - centerY) * zoomLevel
+      // 要讓節點出現在 targetPositionInContainer：
+      //   offsetY = targetPositionInContainer - centerY - (nodeY - centerY) * zoomLevel
+      const idealScrollY = targetPositionInContainer - centerY - (position.y - centerY) * zoomLevel;
 
       // 獲取當前的邊界限制
       const bounds = calculateScrollBounds(drag.containerRef.current);
@@ -161,17 +188,21 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
       >
 
         {/* 渲染關卡節點 */}
-        {levels.map((level, index) => {
-          // 使用 graphPosition 計算位置，否則退回到舊邏輯
-          const position = level.graphPosition
-            ? calculateGraphNodePosition(level, levels)
-            : calculateNodePosition(index, levels.length);
-          return (
-            <div key={level.id}>
-              {children(level, index, position)}
-            </div>
-          );
-        })}
+        {(() => {
+          // 統一計算本次 render 的 layoutConfig 和 containerWidth
+          const layoutConfig = getLayoutConfig(windowWidth);
+          const containerWidth = drag.containerRef.current?.clientWidth ?? windowWidth;
+          return levels.map((level, index) => {
+            const position = level.graphPosition
+              ? calculateGraphNodePosition(level, levels, layoutConfig)
+              : calculateNodePosition(index, levels.length, layoutConfig);
+            return (
+              <div key={level.id}>
+                {children(level, index, position, containerWidth)}
+              </div>
+            );
+          });
+        })()}
       </div>
 
       {/* 縮放控制按鈕 */}

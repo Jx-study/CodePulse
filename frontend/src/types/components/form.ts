@@ -63,6 +63,7 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
   disabled?: boolean;
   required?: boolean;
   fullWidth?: boolean;
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLSelectElement>) => void;

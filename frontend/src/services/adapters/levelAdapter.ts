@@ -13,12 +13,12 @@ import type {
   PrerequisiteConfig,
   GraphPosition,
   PathMetadata,
-  GhostReference,
-  Category,
   DifficultyLevel,
-  CategoryType,
 } from "@/types";
 import levelsData from "@/data/levels/levels.json";
+
+// 從 JSON 的 categories key 自動推導，新增 category 只需改 JSON
+export type CategoryType = keyof typeof levelsData.categories;
 
 // ==================== JSON 原始資料結構 ====================
 
@@ -41,7 +41,7 @@ interface RawLevelData {
   prerequisites: PrerequisiteConfig;
   graphPosition: GraphPosition;
   pathMetadata: PathMetadata;
-  ghostReferences?: GhostReference[];
+  suggestedPrerequisites?: string[];
   implementationKey: string;
   homePageMetadata?: HomePageMetadata;
 }
@@ -53,8 +53,8 @@ interface RawCategoryData {
   description: string;
   icon?: string;
   colorTheme: string;
+  isDeveloped: boolean;
   order: number;
-  layerOffset: number;
 }
 
 // ==================== 資料轉換函式 ====================
@@ -76,7 +76,7 @@ export function rawToLevelConfig(raw: RawLevelData): LevelConfig {
     prerequisites: raw.prerequisites,
     graphPosition: raw.graphPosition,
     pathMetadata: raw.pathMetadata,
-    ghostReferences: raw.ghostReferences,
+    suggestedPrerequisites: raw.suggestedPrerequisites,
     implementationKey: raw.implementationKey,
   };
 }
