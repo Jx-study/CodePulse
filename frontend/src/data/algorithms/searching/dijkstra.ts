@@ -1,10 +1,12 @@
 import React from "react";
 import type { AnimationStep, CodeConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type {
+  AlgoActionBarProps,
+  LevelImplementationConfig,
+} from "@/types/implementation";
 import { DijkstraActionBar } from "./DijkstraActionBar";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
-import { Box } from "@/modules/core/DataLogic/Box";
 import {
   createGraphElements,
   generateGraphFrame,
@@ -31,7 +33,7 @@ export function createDijkstraAnimationSteps(
 
   const isDirected = action?.isDirected || false;
 
-  const baseElements = createGraphElements(inputData, isDirected, true);
+  const baseElements = createGraphElements(inputData, isDirected);
 
   const rawNodes = inputData.nodes;
   const rawEdges = inputData.edges || [];
@@ -71,43 +73,6 @@ export function createDijkstraAnimationSteps(
   });
   dist[startNodeId] = 0;
 
-  const createDistanceTable = (): Box[] => {
-    const tableElements: Box[] = [];
-    const startX = 0;
-    const startY = 0;
-    const boxWidth = 50;
-    const boxHeight = 50;
-    const xgap = 5;
-    const ygap = 5;
-
-    rawNodes.forEach((n: any, index: number) => {
-      // X 座標：起始位置 + (當前 index + 1) 個格子的寬度 (加 1 是為了避開左邊的標題格)
-      const currentX = startX + (index + 1) * (boxWidth + xgap);
-
-      // 上排：Node ID
-      const headerBox = new Box();
-      headerBox.id = `table-header-${n.id}`;
-      headerBox.value = n.id.replace("node-", "");
-      headerBox.moveTo(currentX, startY); // Y 座標固定在上排
-      headerBox.width = boxWidth;
-      headerBox.height = boxHeight;
-      headerBox.setStatus(Status.Inactive);
-
-      // 下排：Distance Value
-      const valBox = new Box();
-      valBox.id = `table-val-${n.id}`;
-      valBox.value = dist[n.id] === Infinity ? "∞" : String(dist[n.id]);
-      valBox.moveTo(currentX, startY + boxHeight + ygap); // Y 座標固定在下排
-      valBox.width = boxWidth;
-      valBox.height = boxHeight;
-      valBox.setStatus(statusMap[n.id] || Status.Unfinished);
-
-      tableElements.push(headerBox, valBox);
-    });
-
-    return tableElements;
-  };
-
   const initialFrame = generateGraphFrame(
     baseElements,
     statusMap,
@@ -121,8 +86,7 @@ export function createDijkstraAnimationSteps(
   initialFrame.stepNumber = 0;
 
   // 幫 Step 0 也加上右側的 Table (此時 Table 裡的 dist 應該都是 ∞)
-  const initialTableBoxes = createDistanceTable();
-  initialFrame.elements = [...initialFrame.elements, ...initialTableBoxes];
+  initialFrame.elements = [...initialFrame.elements];
 
   // 產生初始的 dist 字串供 Inspector 顯示
   const initialDistString = Object.entries(dist)
@@ -150,8 +114,7 @@ export function createDijkstraAnimationSteps(
     step.actionTag = tag;
     step.stepNumber = steps.length;
 
-    const tableBoxes = createDistanceTable();
-    step.elements = [...step.elements, ...tableBoxes];
+    step.elements = [...step.elements];
 
     // 效果例如："0: 0, 1: 4, 2: ∞, 3: ∞"
     const distString = Object.entries(dist)
@@ -342,5 +305,6 @@ export const dijkstraConfig: LevelImplementationConfig = {
     },
   },
   createAnimationSteps: createDijkstraAnimationSteps,
-  renderActionBar: (props) => React.createElement(DijkstraActionBar, props),
+  renderActionBar: (props) =>
+    React.createElement(DijkstraActionBar, props as AlgoActionBarProps),
 };

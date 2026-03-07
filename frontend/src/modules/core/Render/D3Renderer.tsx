@@ -48,6 +48,7 @@ function getLinkPath(
   source: Node,
   target: Node,
   hasWeight: boolean = false,
+  isDirected: boolean = false,
 ): string {
   if (
     isNaN(source.position.x) ||
@@ -98,7 +99,7 @@ function getLinkPath(
   const ny = dx / dist;
 
   // 設定平行線的間距
-  const offset = hasWeight ? 8 : 0;
+  const offset = hasWeight && isDirected ? 8 : 0;
 
   const startX = p1.x + nx * offset;
   const startY = p1.y + ny * offset;
@@ -113,6 +114,7 @@ function getZeroLengthPath(
   source: Node,
   target: Node,
   hasWeight: boolean = false,
+  isDirected: boolean = false,
 ): string {
   if (
     isNaN(source.position.x) ||
@@ -147,7 +149,7 @@ function getZeroLengthPath(
 
   const nx = -dy / dist;
   const ny = dx / dist;
-  const offset = hasWeight ? 8 : 0; // 必須跟 getLinkPath 保持一致
+  const offset = hasWeight && isDirected ? 8 : 0; // 必須跟 getLinkPath 保持一致
 
   const startX = p1.x + nx * offset;
   const startY = p1.y + ny * offset;
@@ -339,42 +341,6 @@ function drawContainer(
       .text("Call Stack/Queue")
       .attr("fill", "#888")
       .attr("font-size", 12);
-  } else if (type === "dijkstra") {
-    const tableX = 0;
-    const tableY = 0;
-    const rowGap = 55;
-    // Node 標題 (上排)
-    scene
-      .append("text")
-      .attr("class", "container-line")
-      .attr("x", tableX)
-      .attr("y", tableY + 5)
-      .attr("fill", "#888")
-      .attr("font-size", 16)
-      .attr("font-weight", "bold")
-      .attr("text-anchor", "end")
-      .text("Node");
-    // Dist 標題 (下排)
-    scene
-      .append("text")
-      .attr("class", "container-line")
-      .attr("x", tableX)
-      .attr("y", tableY + rowGap + 5)
-      .attr("fill", "#888")
-      .attr("font-size", 16)
-      .attr("font-weight", "bold")
-      .attr("text-anchor", "end")
-      .text("Dist");
-    // 垂直分隔線
-    scene
-      .append("line")
-      .attr("class", "container-line")
-      .attr("x1", tableX + 15)
-      .attr("y1", tableY - 20)
-      .attr("x2", tableX + 15)
-      .attr("y2", tableY + rowGap + 20)
-      .attr("stroke", "#555")
-      .attr("stroke-width", 2);
   }
 }
 
@@ -420,7 +386,7 @@ export function renderAll(
 
     const entry = groupData.get(group)!;
 
-    if (box.value !== '') {
+    if (box.value !== "") {
       entry.values.push(Number(box.value));
     }
 
@@ -474,7 +440,9 @@ export function renderAll(
   );
   // 如果是 graph，則根據 isDirected 決定
   const shouldHideArrow =
-    structureType === "graph" ? !isDirected : forceHideArrow;
+    structureType === "graph" || structureType === "dijkstra"
+      ? !isDirected
+      : forceHideArrow;
   const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
@@ -571,7 +539,12 @@ export function renderAll(
     .attr("marker-end", markerUrl)
     // 初始狀態：從起點長出來
     .attr("d", (d) =>
-      getZeroLengthPath(d.s, d.t, d.weight !== undefined && d.weight !== null),
+      getZeroLengthPath(
+        d.s,
+        d.t,
+        d.weight !== undefined && d.weight !== null,
+        isDirected,
+      ),
     );
 
   // 加入權重文字的背景框 (讓文字不要被線蓋住)
@@ -608,7 +581,12 @@ export function renderAll(
     .duration(transitionDuration)
     .ease(transitionEase)
     .attr("d", (d) =>
-      getLinkPath(d.s, d.t, d.weight !== undefined && d.weight !== null),
+      getLinkPath(
+        d.s,
+        d.t,
+        d.weight !== undefined && d.weight !== null,
+        isDirected,
+      ),
     )
     .attr("stroke", (d) => getColor(d.status))
     .attr("stroke-width", 2);
@@ -630,7 +608,7 @@ export function renderAll(
     const hasWeight = d.weight !== undefined && d.weight !== null;
 
     // 將文字位置沿著法向量平移，跟隨線的偏移量
-    if (d.s.id !== d.t.id && dist > 0 && hasWeight) {
+    if (d.s.id !== d.t.id && dist > 0 && hasWeight && isDirected) {
       const nx = -dy / dist;
       const ny = dx / dist;
       const offset = 8; // 必須跟上面保持一致
