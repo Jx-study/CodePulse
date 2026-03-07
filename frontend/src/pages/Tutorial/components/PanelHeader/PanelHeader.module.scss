@@ -9,6 +9,8 @@
   min-height: 3rem;
   flex-shrink: 0;
   transition: background 0.2s ease;
+  min-width: 0;     // 允許 panelHeader 縮到小於内容寬度
+  overflow: hidden; // 確保 Tabs 不會溢出到 panelHeader 本身
 
   &.draggable {
     cursor: move;
@@ -27,7 +29,8 @@
     display: flex;
     align-items: center;
     gap: $spacing-sm;
-  }
+    flex-shrink: 0; // 固定標題區不縮，由 rightContent 承擔收縮
+    }
 
   .dragHandle {
     display: flex;
@@ -72,6 +75,7 @@
     justify-content: flex-end; // Tabs 靠右對齊
     overflow: hidden; // 防止 Tabs 溢出
     padding-right: $spacing-xs;
+    min-width: 0; // 允許 flex: 1 可以縮到 0
   }
 
   .actions {
