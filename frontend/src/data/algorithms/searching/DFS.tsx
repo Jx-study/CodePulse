@@ -16,6 +16,7 @@ const TAGS = {
   START: "START",
   POP: "POP",
   SKIP: "SKIP",
+  DIST_UPDATE: "DIST_UPDATE",
   CHECK_END: "CHECK_END",
   EXPLORE: "EXPLORE",
   PUSH_NEIGHBOR: "PUSH_NEIGHBOR",
@@ -56,18 +57,6 @@ function runGraphDFS(
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
-  // 初始畫面
-  const initFrame1 = generateGraphFrame(
-    baseElements,
-    {},
-    distanceMap,
-    `Graph 初始化：顯示節點 ID。準備從 ${realStartId} 走到 ${realEndId}`,
-    true,
-  );
-  initFrame1.actionTag = TAGS.INIT;
-  initFrame1.variables = { start: realStartId, end: realEndId };
-  steps.push(initFrame1);
-
   const initFrame2 = generateGraphFrame(
     baseElements,
     {},
@@ -85,8 +74,8 @@ function runGraphDFS(
   const stack: { id: string; dist: number }[] = [{ id: realStartId, dist: 0 }];
   const visited = new Set<string>();
 
-  // ── START frame ──
   statusMap[realStartId] = Status.Prepare;
+  distanceMap[realStartId] = 0;
   const startFrame = generateGraphFrame(
     baseElements,
     statusMap,
@@ -113,7 +102,6 @@ function runGraphDFS(
 
     statusMap[currId] = Status.Target;
 
-    // ── POP frame ──
     const popFrame = generateGraphFrame(
       baseElements,
       statusMap,
@@ -134,13 +122,12 @@ function runGraphDFS(
     };
     steps.push(popFrame);
 
-    // ── SKIP：已訪問節點跳過 ──
-    if (visited.has(currId) && distanceMap[currId] <= currDist) {
+    if (visited.has(currId)) {
       const skipFrame = generateGraphFrame(
         baseElements,
         statusMap,
         distanceMap,
-        `${currId} 已訪問且距離不更短，跳過`,
+        `${currId} 已訪問，跳過`,
         false,
         { ...linkStatusMap },
       );
@@ -157,7 +144,23 @@ function runGraphDFS(
     visited.add(currId);
     distanceMap[currId] = currDist;
 
-    // ── CHECK_END frame ──
+    const distUpdateFrame = generateGraphFrame(
+      baseElements,
+      { ...statusMap },
+      distanceMap,
+      `節點 ${currId} 更新距離為 ${currDist}`,
+      false,
+      { ...linkStatusMap },
+    );
+    distUpdateFrame.actionTag = TAGS.DIST_UPDATE;
+    distUpdateFrame.variables = {
+      curr: currId,
+      end: realEndId,
+      "curr === end": currId === realEndId ? "True" : "False",
+      [`distance[${currId}]`]: distanceMap[currId],
+    };
+    steps.push(distUpdateFrame);
+
     const checkEndFrame = generateGraphFrame(
       baseElements,
       { ...statusMap },
@@ -275,7 +278,7 @@ function runGraphDFS(
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
     pathFoundFrame.variables = {
       end: realEndId,
-      "shortest distance": distanceMap[realEndId],
+      "path depth": distanceMap[realEndId],
     };
     steps.push(pathFoundFrame);
   } else {
@@ -561,8 +564,8 @@ const dfsGraphCodeConfig = {
   pseudo: {
     content: `Procedure DFS_Graph(graph, start, end):
   Initialize distance[all] ← ∞
-  distance[start] ← 0
   Stack ← [(start, 0)], visited ← {}
+  distance[start] ← 0
 
   While Stack is not empty Do
     (curr, depth) ← Pop from Stack
@@ -587,10 +590,11 @@ const dfsGraphCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [1, 2, 3],
-      [TAGS.START]: [4],
+      [TAGS.INIT]: [2],
+      [TAGS.START]: [3, 4],
       [TAGS.POP]: [6, 7],
       [TAGS.SKIP]: [9, 10],
+      [TAGS.DIST_UPDATE]: [12, 13],
       [TAGS.CHECK_END]: [15],
       [TAGS.PATH_FOUND]: [16],
       [TAGS.EXPLORE]: [19, 20],
@@ -644,7 +648,6 @@ const dfsGridCodeConfig = {
       Return distance[end]
     End If
 
-    newNeighbors ← []
     For each neighbor in Adjacent(curr, grid, cols) Do
       If neighbor ∉ visited And not wall Then
         visited ← visited ∪ {neighbor}
@@ -653,7 +656,7 @@ const dfsGridCodeConfig = {
       End If
     End For
 
-    If newNeighbors is empty Then
+    If no new neighbors pushed Then
       (Dead end — Backtrack)
     End If
   End While
@@ -661,14 +664,14 @@ const dfsGridCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [1, 2, 3],
+      [TAGS.INIT]: [2, 3],
       [TAGS.START]: [4],
       [TAGS.POP]: [6, 7],
       [TAGS.CHECK_END]: [9],
       [TAGS.PATH_FOUND]: [10],
-      [TAGS.PUSH_NEIGHBOR]: [15, 16, 17],
-      [TAGS.BACKTRACK]: [22, 23],
-      [TAGS.NOT_FOUND]: [27],
+      [TAGS.PUSH_NEIGHBOR]: [14, 15, 16, 17],
+      [TAGS.BACKTRACK]: [21, 22],
+      [TAGS.NOT_FOUND]: [26],
     } as Record<string, number[]>,
   },
   python: dfsGraphCodeConfig.python,
