@@ -1,4 +1,3 @@
-import React from "react";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type {
   AlgoActionBarProps,
@@ -305,6 +304,5 @@ export const dijkstraConfig: LevelImplementationConfig = {
     },
   },
   createAnimationSteps: createDijkstraAnimationSteps,
-  renderActionBar: (props) =>
-    React.createElement(DijkstraActionBar, props as AlgoActionBarProps),
+  renderActionBar: (props) => <DijkstraActionBar {...(props as AlgoActionBarProps)} />,
 };
