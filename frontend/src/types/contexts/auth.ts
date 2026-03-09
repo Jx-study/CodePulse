@@ -5,13 +5,20 @@
 
 // ==================== User Types ====================
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  username?: string;
-  avatar?: string;
-  email_confirmed?: boolean;
+  display_name: string;
+  avatar_url?: string;                        // 暫留，等串接雲端儲存服務再使用
+  role: 'user' | 'admin';
+  theme?: 'light' | 'dark' | 'system';
+  language?: 'en' | 'zh-TW' | 'zh-CN';
+  total_xp?: number;
+  current_streak?: number;
+  longest_streak?: number;
+  last_login_date?: string;
+  skill_rating?: number;                      // Elo 能力分數（對應 EloService.userStartRating）
+  skill_tier?: 1 | 2 | 3 | 4 | 5;           // 由 skill_rating 派生
   created_at?: string;
-  last_sign_in?: string;
 }
 
 // ==================== Auth Context Types ====================
@@ -19,19 +26,10 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean;
-  login: (usernameOrEmail: string, password: string) => Promise<void>;
-  register: (email: string, password: string, username?: string) => Promise<void>;
+  login: (emailOrDisplayName: string, password: string) => Promise<void>;
+  register: (email: string, password: string, display_name: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
-}
-
-// ==================== Token Manager Types ====================
-export interface TokenManager {
-  getAccessToken: () => string | null;
-  getRefreshToken: () => string | null;
-  setTokens: (accessToken: string, refreshToken: string) => void;
-  clearTokens: () => void;
-  hasToken: () => boolean;
 }
 
 // ==================== Auth Response Types ====================

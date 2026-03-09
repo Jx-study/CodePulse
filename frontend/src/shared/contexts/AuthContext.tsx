@@ -1,28 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { User, AuthContextType } from '@/types';
+import authService from '@/services/authService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    credentials: 'include',   // send/receive HTTP-only cookies
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string>),
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || '請求失敗');
-  }
-
-  return data;
-};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,7 +12,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuthStatus = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await apiRequest('/api/auth/status');
+      const data = await authService.getStatus();
       if (data.isAuthenticated && data.user) {
         setIsAuthenticated(true);
         setUser(data.user);
@@ -40,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         setUser(null);
       }
-    } catch (error) {
+    } catch {
       setIsAuthenticated(false);
       setUser(null);
     } finally {
@@ -49,28 +29,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(async (usernameOrEmail: string, password: string) => {
-    const data = await apiRequest('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ usernameOrEmail, password }),
-    });
-
+    const data = await authService.login(usernameOrEmail, password);
     if (data.success) {
       setIsAuthenticated(true);
-      setUser(data.user);
+      setUser(data.user ?? null);
     } else {
       throw new Error(data.message || '登入失敗');
     }
   }, []);
 
   const register = useCallback(async (email: string, password: string, username?: string) => {
-    const data = await apiRequest('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, username }),
-    });
-
+    const data = await authService.register(email, password, username ?? '');
     if (data.success) {
       setIsAuthenticated(true);
-      setUser(data.user);
+      setUser(data.user ?? null);
     } else {
       throw new Error(data.message || '註冊失敗');
     }
@@ -78,8 +50,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(async () => {
     try {
-      await apiRequest('/api/auth/logout', { method: 'POST' });
-    } catch (error) {
+      await authService.logout();
+    } catch {
       // ignore API error, clear local state anyway
     } finally {
       setIsAuthenticated(false);
