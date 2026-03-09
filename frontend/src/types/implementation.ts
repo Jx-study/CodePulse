@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
-import type { StatusConfig } from './statusConfig';
+import type { ReactNode } from "react";
+import type { AnimationStep, ComplexityInfo, CodeConfig } from "@/types";
+import type { StatusConfig } from "./statusConfig";
 
 /**
  * 補充問題參考資料結構
@@ -10,13 +10,17 @@ export interface ProblemReference {
   id: string | number;
   title: string;
   concept: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   url: string;
 }
 
 // ─── ActionBar Props 分層型別 ────────────────────────────────
 
-export type AlgorithmViewMode = "graph" | "grid" | "longest_lte" | "shortest_gte";
+export type AlgorithmViewMode =
+  | "graph"
+  | "grid"
+  | "longest_lte"
+  | "shortest_gte";
 
 export interface RunParams {
   searchValue?: number;
@@ -28,6 +32,7 @@ export interface RunParams {
   endNode?: string;
   targetSum?: number;
   isDirected?: boolean;
+  capacity?: number;
 }
 
 /** 基礎共用（所有 ActionBar 都需要） */
@@ -85,7 +90,7 @@ export interface LevelImplementationConfig {
   createAnimationSteps: (
     data: any,
     action?: any,
-    config?: any
+    config?: any,
   ) => AnimationStep[];
   relatedProblems?: ProblemReference[];
   /** Optional custom status configuration - 可選的自訂狀態配置 */
