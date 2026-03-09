@@ -11,12 +11,17 @@ class ProviderType(enum.Enum):
     google = 'google'
     github = 'github'
 
+class VerificationPurpose(enum.Enum):
+    registration = 'registration'
+    password_reset = 'password_reset'
+
 class User(db.Model):
     __tablename__ = 'users'
 
     user_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     display_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
+    avatar_url = db.Column(db.String(500), nullable=True)
     role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.user)
     theme = db.Column(db.String(20), default='system')
     language = db.Column(db.String(10), default='en')
@@ -26,22 +31,31 @@ class User(db.Model):
     longest_streak = db.Column(db.Integer, nullable=False, default=0)
     last_login_date = db.Column(db.Date, nullable=True)
 
+    skill_rating = db.Column(db.Float, nullable=False, default=1000.0)
+    skill_tier = db.Column(db.Integer, nullable=False, default=2)
+
     deleted_at = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     identities = db.relationship('UserIdentity', backref='user', cascade='all, delete-orphan')
-    progress = db.relationship('UserTutorialProgress', backref='user', cascade='all, delete-orphan')
     tokens = db.relationship('UserToken', backref='user', cascade='all, delete-orphan')
+    login_streaks = db.relationship('UserLoginStreak', backref='user', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {
             'user_id': self.user_id,
             'display_name': self.display_name,
             'email': self.email,
+            'avatar_url': self.avatar_url,
             'role': self.role.value,
+            'theme': self.theme,
+            'language': self.language,
             'total_xp': self.total_xp,
             'current_streak': self.current_streak,
+            'longest_streak': self.longest_streak,
+            'skill_rating': self.skill_rating,
+            'skill_tier': self.skill_tier,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -88,3 +102,42 @@ class UserToken(db.Model):
 
     def __repr__(self):
         return f'<UserToken user={self.user_id}>'
+
+class EmailVerification(db.Model):
+    __tablename__ = 'email_verifications'
+
+    verification_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(100), nullable=False)
+    code_hash = db.Column(db.String(255), nullable=False)
+    purpose = db.Column(db.Enum(VerificationPurpose), nullable=False, default=VerificationPurpose.registration)
+    extra_data = db.Column('metadata', db.JSON, nullable=True)
+    expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    is_used = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        db.Index('ix_email_verifications_email', 'email'),
+        db.Index('ix_email_verifications_expires_at', 'expires_at'),
+        db.Index('ix_email_verifications_email_created', 'email', 'created_at'),
+    )
+
+    def __repr__(self):
+        return f'<EmailVerification {self.email} {self.purpose.value}>'
+
+
+class UserLoginStreak(db.Model):
+    __tablename__ = 'user_login_streaks'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
+    login_date = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'login_date', name='uq_user_login_date'),
+        db.Index('ix_user_login_streaks_user_id', 'user_id'),
+        db.Index('ix_user_login_streaks_date', 'login_date'),
+    )
+
+    def __repr__(self):
+        return f'<UserLoginStreak user={self.user_id} date={self.login_date}>'
