@@ -1,114 +1,110 @@
 # CodePulse
-## 程式與演算法視覺化教學平台網站
+---
+<div align="center">
+
+### 程式與演算法視覺化教學平台
+
+**Visualize code. Understand algorithms. Learn by seeing.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Flask](https://img.shields.io/badge/Flask-3.0.3-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![CI](https://img.shields.io/badge/CI-coming_soon-lightgrey)](https://github.com/Jx-study/CodePulse)
+
+[Report Bug](https://github.com/Jx-study/CodePulse/issues) · [Request Feature](https://github.com/Jx-study/CodePulse/issues)
+
+</div>
 
 ---
 
-### 一、摘要 (Executive Summary)
+---
 
-本專題「**CodePulse**」旨在開發一個創新的**程式與演算法視覺化教學平台網站**，目標是透過提供高度互動、直觀易懂的視覺化工具，徹底解決程式學習者在理解抽象資料結構、複雜演算法邏輯以及程式執行流程上的困難。平台將整合**程式碼逐行執行動畫**、**變數快照**、**記憶體引用圖**、**呼叫堆疊**與**函式呼叫圖**等核心視覺化功能。此外，我們將納入**LeetCode 題庫整合**、**複雜度分析**、**知識圖譜**和**學習進度追蹤**等教育輔助功能，並透過**AI/規則生成演算法摘要**與**錯誤檢測**提升學習效率。CodePulse 旨在成為一個全方位的學習夥伴，幫助學生和工程師建構扎實的程式運作心智模型，最終提升解決問題和設計高效能程式的能力。
+## Features
+
+- **Algorithm Animation** — Step-by-step visualization of sorting, searching, graph algorithms and more
+- **Code Explorer** — Paste any Python code and watch it execute line by line
+- **Variable Snapshot** — Real-time display of variable states and memory references
+- **Knowledge Map** — Interactive graph connecting algorithm concepts and prerequisites
+- **AI Algorithm Detection** — Automatically identifies the algorithm in your code (powered by Gemini API)
+- **Progress Tracking** — XP system, achievements, and leaderboard to keep you motivated
 
 ---
 
-### 二、緣由與目的
+## Tech Stack
 
-### 2.1 緣由
+<div align="center">
 
-當前程式教育在教授資料結構與演算法時，普遍面臨視覺化工具不足、互動性欠佳的挑戰。許多初學者僅能透過文字或靜態圖表理解抽象概念，難以將程式碼的邏輯、資料在記憶體中的變化以及演算法的動態過程具體化。傳統的除錯器雖然功能強大，但其陡峭的學習曲線讓初學者望而卻步；而現有的簡易視覺化工具又缺乏深度分析能力，無法滿足學生對複雜概念的探究需求。這種學習上的「盲點」嚴重阻礙了學習者建構完整的「程式運作心智模型」，進而影響了他們掌握程式設計核心的能力。
+### Frontend
+[![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)](https://sass-lang.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![D3.js](https://img.shields.io/badge/D3.js-F9A03C?style=for-the-badge&logo=d3dotjs&logoColor=white)](https://d3js.org/)
 
-### 2.2 目的
+### Backend
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org/)
+[![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-為解決上述痛點，本專題「CodePulse」的開發目的在於：
-
-1. **打造互動式學習核心**：建構一個高度視覺化、互動性強的平台，讓使用者能透過動畫、圖表直觀理解程式碼的逐行執行、變數變化、記憶體引用關係、函式呼叫流程及資料結構的動態演變。
-2. **整合教育資源與工具**：無縫整合 LeetCode 題庫，提供使用者自訂測資、多案例比較、難度調整與提示模式，並輔以複雜度分析與 AI 生成摘要，使學習過程更系統化、高效化。
-3. **提供全面學習輔助**：透過知識圖譜連接相關概念，並提供學習進度追蹤與成績紀錄功能，幫助使用者監控學習成效，實現個性化學習路徑。
-4. **提升除錯與分析能力**：引入斷點設置、錯誤檢測與提示，並提供跨檔案支援，協助使用者培養獨立除錯與程式分析的技能。
-5. **支援多語言與通用性**：具備多語言支援的潛力，並設計演算法動畫模板，以適應不同程式語言的視覺化需求，提升平台的通用性。
-
----
-
-### 三、研究範圍與功能規劃
-
-本專題將聚焦於以下核心功能模組，旨在提供一個全面且深度兼具的程式與演算法教學體驗：
-
-1. **核心視覺化功能**：
-    - **動畫控制**：播放、暫停、快進、後退、逐行步進。
-    - **使用者自訂測資**：允許使用者輸入自訂數據進行演算法或程式碼的視覺化測試。
-    - **資料結構動畫**：對陣列、鏈表、堆疊、佇列、樹、圖等資料結構的操作進行動態視覺化。
-    - **演算法動畫模板**：提供常見排序、查找、遞迴等演算法的通用視覺化模板。
-    - **逐行程式碼執行**：同步高亮顯示正在執行的程式碼行。
-    - **變數快照**：實時顯示當前作用域內變數的值與類型。
-    - **記憶體引用圖**：清晰呈現物件在記憶體中的位置以及不同變數間的引用關係（特別是 `list`、`dict` 等傳址類型）。
-    - **呼叫堆疊 (Call Stack)**：動態展示函式呼叫的堆疊變化。
-    - **函式呼叫圖 (Function Call Graph)**：視覺化展示函式間的呼叫關係與流程。
-    - **類別/物件互動圖 (UML 風格)**：初步探索以 UML 簡化風格展示物件的創建、屬性與方法調用（若時間允許）。
-2. **教學與練習輔助**：
-    - **LeetCode 題庫整合**：提供精選 LeetCode 題目，並連結至視覺化平台進行分析。
-    - **複雜度分析**：對演算法的時間與空間複雜度進行視覺化或簡要說明。
-    - **知識圖譜 (Knowledge Graph)**：連結相關概念、預設演算法範例與解釋。
-    - **學習進度追蹤 (Learning Progress Tracking)**：記錄使用者學習歷程與練習情況。
-    - **成績紀錄 (Grade Records)**：記錄使用者在題庫練習中的表現。
-    - **多案例比較**：允許使用者同時載入多組測資或不同演算法進行橫向比較。
-    - **難度調整 / 提示模式**：根據使用者程度調整提示的詳細程度。
-    - **步驟解說 (Step Annotation)**：對每個關鍵執行步驟提供文字解釋。
-3. **智慧化與開發者工具**：
-    - **AI/規則生成演算法摘要**：自動或半自動生成程式碼片段或演算法的簡要說明。
-    - **程式摘要產生**：提供程式碼塊的精簡概括。
-    - **斷點設置**：允許使用者在程式碼中設置斷點，跳轉至特定執行階段。
-    - **錯誤檢測與提示**：基於動態追蹤或靜態分析，提供潛在錯誤的提示。
-    - **跨檔案支援**：支援多個程式碼檔案之間的執行追蹤與視覺化。
-    - **多語言支援**：初期聚焦 Python，未來可擴展至其他語言的基礎視覺化支持。
+</div>
 
 ---
 
-### 四、使用技術方法 (Technologies and Methodologies)
+## Getting Started
 
-本專題將採用現代化的前後端分離架構，並綜合運用以下關鍵技術：
+### Prerequisites
 
-### 4.1 UI 設計 / 原型製作 (UI/UX Design & Prototyping)
+**Docker (recommended)**
+- [Docker](https://www.docker.com/get-started) & Docker Compose
 
-- **Figma**：用於預先規劃使用者介面 (UI) 的畫面設計、互動流程，並製作高擬真原型，確保使用者體驗 (UX) 的流暢性與直觀性。
+**Local Development**
+- [Node.js](https://nodejs.org/) 18+
+- [Python](https://python.org/) 3.11+
 
-### 4.2 前端 (Frontend)
+### Installation (Docker)
 
-負責使用者介面、互動邏輯及資料視覺化呈現。
+```bash
+# 1. Clone the repo
+git clone https://github.com/Jx-study/CodePulse.git
+cd CodePulse
 
-- **React.js**：強大的 JavaScript 函式庫，用於建構高互動性、組件化的使用者介面，提升開發效率與維護性
-- **p5.js**：一個以創意編程為主的 JavaScript 函式庫，可用於簡單且快速地建立動態圖形和動畫，尤其適合用於某些特定的演算法步驟動畫
-- **Cytoscape.js**：一個功能豐富的圖論視覺化函式庫，特別適用於渲染複雜的函式呼叫圖、知識圖譜以及圖形資料結構（如深度優先搜尋、廣度優先搜尋的動畫）
-- **D3.js**：資料驅動文件操作 (Data-Driven Documents) 函式庫，用於實現複雜、高度客製化的資料視覺化，如函式呼叫圖、記憶體引用圖、樹狀資料結構等
-- **SCSS (Sass)**：CSS 預處理器，提供更強大的樣式編寫能力，如變數、巢狀規則、混入等，提升樣式管理效率
-- **HTML5**：網頁內容的標準標記語言
+# 2. Set up environment variables
+cp .env.example .env
+# Edit .env: set DATABASE_URL and SECRET_KEY
 
-### 4.3 後端 (Backend)
+# 3. Start with Docker
+docker compose up
 
-負責處理核心業務邏輯、程式碼分析、資料計算和提供 API 服務。
+# Frontend → http://localhost:5173
+# Backend  → http://localhost:5000
+```
 
-- **Flask**：輕量級 Python Web 框架，適合快速開發 RESTful API 服務，處理前端發送的程式碼並執行分析。
-- **`python-ast` (Python's Abstract Syntax Trees)**：Python 內建模組，用於靜態分析使用者提交的程式碼，解析其語法結構、識別函式、變數、控制流等，為函式呼叫圖和程式摘要提供基礎數據。
-- **`python-sys.settrace`**：Python 核心模組，用於實現程式碼的動態執行追蹤。這是實現逐行執行、變數快照、記憶體引用圖、呼叫堆疊等動態視覺化功能的關鍵。它能捕捉程式執行過程中的每一個事件（如行執行、函式呼叫/返回），並獲取當前執行狀態的詳細資訊。
+> **Windows users:** Run `docker-start.bat` for an interactive startup script with smart build detection.
 
-### 4.4 API 接口 (API Endpoints)
+### Local Development (without Docker)
 
-- **RESTful API**：採用 RESTful 風格設計前後端之間的通訊接口，確保資料交換的清晰、標準化與高效，例如：程式碼提交、執行結果獲取、數據查詢等。
+```bash
+# Frontend
+cd frontend
+npm install
+npm run dev
 
-### 4.5 資料庫 (Database)
+# Backend (separate terminal)
+cd backend
+pip install -r requirements.txt
+python app.py
+```
+---
 
-- **PostgreSQL**：一個功能強大、穩定且開源的關聯式資料庫系統，用於儲存用戶資料（如學習進度、成績紀錄）、預設題目、自訂測資、知識圖譜相關數據等。
+## Star History
 
-### 4.6 版本控制 (Version Control)
+[![Star History Chart](https://api.star-history.com/svg?repos=Jx-study/CodePulse&type=Date)](https://star-history.com/#Jx-study/CodePulse&Date)
 
-- **Git / GitHub**：採用 **Feature Branch Workflow** 進行版本控制，便於多人協作、功能開發與程式碼審查，確保專案進度與程式碼品質。
+---
 
-### 4.7 **程式碼執行沙盒(Code Execution Sandbox)**
+## License
 
-- **Docker：**最主流的容器技術，文件多、工具鏈完整，廣泛支援
-
-### 4.8 佈署與 DevOps (Deployment & DevOps - If Applicable)
-
-- **Render**：支援前後端服務、資料庫部署的雲平台，提供彈性的部署選項。
-
-### **4.9 機器學習模型 (後端智慧輔助)**
-
-- **程式碼摘要：** 探索使用 or 預訓練的 **Code-LLM**（例如：**Hugging Face** 生態系中較輕量級的 Transformer 模型，有microsoft的[**CodeBert**](https://huggingface.co/microsoft/codebert-base)）進行微調，或基於特徵提取的自然語言處理方法(RNN/LSTM)
-- **演算法判斷：**接入大模型API/其他方法 判斷
+Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.

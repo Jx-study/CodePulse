@@ -169,12 +169,12 @@ export interface InspectorPanelInternalProps {
   handleDeleteNode: (mode: string, index?: number) => void;
   handleSearchNode: (value: number, mode?: string) => void;
   handlePeek: () => void;
+  maxNodes: number | undefined;
   setRandomCount: (count: number) => void;
   setHasTailMode: (hasTail: boolean) => void;
   handleGraphAction: (action: string, payload: any) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
-  onLimitExceeded: () => void;
   viewMode: AlgorithmViewMode | "";
   handleViewModeChange: (mode: AlgorithmViewMode) => void;
   currentData: any;
@@ -195,12 +195,12 @@ export const InspectorPanelInternal = ({
   handleDeleteNode,
   handleSearchNode,
   handlePeek,
+  maxNodes,
   setRandomCount,
   setHasTailMode,
   handleGraphAction,
   isDirected,
   setIsDirected,
-  onLimitExceeded,
   viewMode,
   handleViewModeChange,
   currentData,
@@ -262,12 +262,12 @@ export const InspectorPanelInternal = ({
               onDeleteNode={handleDeleteNode}
               onSearchNode={handleSearchNode}
               onPeek={handlePeek}
+              maxNodes={maxNodes}
               onMaxNodesChange={setRandomCount}
               onTailModeChange={setHasTailMode}
               onGraphAction={handleGraphAction}
               isDirected={isDirected}
               onIsDirectedChange={setIsDirected}
-              onLimitExceeded={onLimitExceeded}
               viewMode={viewMode}
               onViewModeChange={handleViewModeChange}
               currentData={currentData}
@@ -354,7 +354,8 @@ function TutorialContent() {
   };
 
   // Inspector Tab state
-  const [activeInspectorTab, setActiveInspectorTab] = useState<string>("actionBar");
+  const [activeInspectorTab, setActiveInspectorTab] =
+    useState<string>("actionBar");
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -463,11 +464,15 @@ function TutorialContent() {
   }, [topicTypeConfig]);
 
   useEffect(() => {
-    if (!isAlgorithm && topicTypeConfig && !isProcessing) {
-      executeAction("refresh", { hasTailMode, isDirected });
+    const hasData = Array.isArray(logic.data)
+      ? logic.data.length > 0
+      : logic.data?.nodes?.length > 0;
+
+    if (topicTypeConfig && !isProcessing && hasData) {
+      logic.executeAction("refresh", { hasTailMode, isDirected });
       setCurrentStep(0);
     }
-  }, [hasTailMode, isAlgorithm]);
+  }, [hasTailMode, isDirected, isAlgorithm]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -653,7 +658,6 @@ function TutorialContent() {
 
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
-    logic.executeAction("refresh", { hasTailMode, isDirected: newValue });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -760,16 +764,12 @@ function TutorialContent() {
     handleDeleteNode,
     handleSearchNode,
     handlePeek,
+    maxNodes,
     setRandomCount: handleRandomCountChange,
     setHasTailMode,
     handleGraphAction,
     isDirected,
     setIsDirected: handleIsDirectedChange,
-    onLimitExceeded: () => {
-      if (maxNodes !== undefined) {
-        toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
-      }
-    },
     viewMode,
     handleViewModeChange,
     currentData: logic.data,

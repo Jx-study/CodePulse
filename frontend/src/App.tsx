@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -13,16 +13,14 @@ import AuthLayout from "./shared/layouts/AuthLayout";
 // Skeleton Loading
 import { PageSkeleton } from "./shared/components/Skeleton";
 
-// Pages - 使用動態導入進行代碼分割
-const Home = React.lazy(() => import("./pages/Home/Home"));
-const AuthPage = React.lazy(() => import("./pages/Authentication/Auth"));
-const Tutorial = React.lazy(() => import("./pages/Tutorial/Tutorial"));
-const Practice = React.lazy(() => import("./pages/Practice/Practice"));
-const Explorer = React.lazy(() => import("./pages/Explorer/Explorer"));
-const About = React.lazy(() => import("./pages/About/About"));
-const LearningDashboard = React.lazy(
-  () => import("./pages/LearningDashboard/LearningDashboard")
-);
+// Pages
+import Home from "./pages/Home/Home";
+import AuthPage from "./pages/Authentication/Auth";
+import Tutorial from "./pages/Tutorial/Tutorial";
+import Practice from "./pages/Practice/Practice";
+import Explorer from "./pages/Explorer/Explorer";
+import About from "./pages/About/About";
+import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
 
 function App() {
   const { i18n } = useTranslation();

@@ -16,7 +16,6 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onAddNode,
   onDeleteNode,
@@ -48,7 +47,6 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />
@@ -101,6 +99,7 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
           <Tooltip content="查看堆疊頂部的元素（不移除）">
             <Button
               size="sm"
+              variant="secondary"
               onClick={onPeek}
               disabled={disabled}
               className={styles.btnQuery}

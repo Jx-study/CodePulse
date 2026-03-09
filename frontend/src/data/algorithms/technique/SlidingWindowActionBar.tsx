@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
+import { toast } from "@/shared/components/Toast"
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -17,7 +18,6 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onRun,
   maxNodes,
@@ -42,7 +42,6 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />

@@ -27,7 +27,6 @@ export interface DataRowProps {
   onResetData: () => void;
   onRandomData: (params?: any) => void;
   onMaxNodesChange?: (count: number) => void;
-  onLimitExceeded?: () => void;
   disabled?: boolean;
   maxNodes?: number;
   hideLoadButton?: boolean;
@@ -38,7 +37,6 @@ export const DataRow: React.FC<DataRowProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   maxNodes,
   hideLoadButton = false,
@@ -104,6 +102,7 @@ export const DataRow: React.FC<DataRowProps> = ({
 
       <div className={styles.settingItem}>
         <label className={styles.smallLabel}>隨機筆數:</label>
+        <Tooltip content={maxNodes !== undefined ? `設定隨機生成的資料筆數，上限為 ${maxNodes}` : "設定隨機生成的資料筆數"}>
         <Input
           type="number"
           value={randomCountInput}
@@ -120,7 +119,7 @@ export const DataRow: React.FC<DataRowProps> = ({
               setRandomCountInput(String(randomCount));
             } else {
               if (maxNodes !== undefined && num > maxNodes) {
-                onLimitExceeded?.();
+                toast.warning(`隨機筆數上限為 ${maxNodes}`);
               }
               const v = Math.min(
                 Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
@@ -141,6 +140,7 @@ export const DataRow: React.FC<DataRowProps> = ({
           fullWidth={false}
           aria-label="Random count"
         />
+        </Tooltip>
       </div>
     </>
   );

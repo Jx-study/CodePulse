@@ -868,4 +868,5 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
   actionHandler: bfsActionHandler,
   defaultViewMode: "graph",
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
+  maxNodes: 15,
 };

@@ -2509,4 +2509,5 @@ export const linkedListConfig: LevelImplementationConfig = {
       ? linkedListHasTailCodeConfig
       : linkedListNoTailCodeConfig;
   },
+  maxNodes: 20,
 };

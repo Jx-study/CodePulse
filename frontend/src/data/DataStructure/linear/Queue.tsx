@@ -608,4 +608,5 @@ export const QueueConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/number-of-recent-calls/",
     },
   ],
+  maxNodes: 12,
 };

@@ -601,4 +601,5 @@ export const StackConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/implement-queue-using-stacks/",
     },
   ],
+  maxNodes: 12,
 };
