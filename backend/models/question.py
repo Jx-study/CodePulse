@@ -1,0 +1,116 @@
+from database import db
+from datetime import datetime
+
+
+class QuestionGroup(db.Model):
+    __tablename__ = 'question_groups'
+
+    group_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
+    code = db.Column(db.Text, nullable=True)
+    language = db.Column(db.String(50), nullable=True)
+    display_order = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    translations = db.relationship('QuestionGroupTranslation', backref='group', cascade='all, delete-orphan')
+    questions = db.relationship('Question', backref='group', cascade='all, delete-orphan')
+
+    __table_args__ = (
+        db.Index('ix_question_groups_tutorial_id', 'tutorial_id'),
+        db.Index('ix_question_groups_tutorial_order', 'tutorial_id', 'display_order'),
+    )
+
+    def __repr__(self):
+        return f'<QuestionGroup {self.group_id} tutorial={self.tutorial_id}>'
+
+
+class QuestionGroupTranslation(db.Model):
+    __tablename__ = 'question_group_translations'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    group_id = db.Column(db.BigInteger, db.ForeignKey('question_groups.group_id', ondelete='CASCADE'), nullable=False)
+    language_code = db.Column(db.String(10), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
+    __table_args__ = (
+        db.UniqueConstraint('group_id', 'language_code', name='uq_question_group_translation'),
+        db.Index('ix_qgt_group_id', 'group_id'),
+    )
+
+    def __repr__(self):
+        return f'<QuestionGroupTranslation {self.group_id}:{self.language_code}>'
+
+
+class Question(db.Model):
+    __tablename__ = 'questions'
+
+    question_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
+    group_id = db.Column(db.BigInteger, db.ForeignKey('question_groups.group_id', ondelete='SET NULL'), nullable=True)
+    question_type = db.Column(db.String(20), nullable=False)
+    # 'single-choice' | 'multiple-choice' | 'true-false' | 'predict-line' | 'fill-code'
+    category = db.Column(db.String(20), nullable=False, default='basic')
+    # 'basic' | 'application' | 'complexity'
+
+    code = db.Column(db.Text, nullable=True)
+    language = db.Column(db.String(50), nullable=True)
+
+    difficulty_rating = db.Column(db.Float, nullable=False, default=1200.0)
+    times_answered = db.Column(db.Integer, nullable=False, default=0)
+    times_correct = db.Column(db.Integer, nullable=False, default=0)
+
+    display_order = db.Column(db.Integer, nullable=False, default=0)
+    correct_answer = db.Column(db.String(500), nullable=False)
+    points = db.Column(db.Integer, default=1)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    translations = db.relationship('QuestionTranslation', backref='question', cascade='all, delete-orphan')
+
+    __table_args__ = (
+        db.Index('ix_questions_tutorial_id', 'tutorial_id'),
+        db.Index('ix_questions_group_id', 'group_id'),
+        db.Index('ix_questions_tutorial_order', 'tutorial_id', 'display_order'),
+        db.Index('ix_questions_type', 'question_type'),
+        db.Index('ix_questions_difficulty', 'difficulty_rating'),
+    )
+
+    def to_dict(self, include_answer=False):
+        data = {
+            'question_id': self.question_id,
+            'question_type': self.question_type,
+            'category': self.category,
+            'code': self.code,
+            'language': self.language,
+            'points': self.points,
+            'group_id': self.group_id,
+        }
+        if include_answer:
+            data['correct_answer'] = self.correct_answer
+        return data
+
+    def __repr__(self):
+        return f'<Question {self.question_id} type={self.question_type}>'
+
+
+class QuestionTranslation(db.Model):
+    __tablename__ = 'question_translations'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    question_id = db.Column(db.BigInteger, db.ForeignKey('questions.question_id', ondelete='CASCADE'), nullable=False)
+    language_code = db.Column(db.String(10), nullable=False)
+    stem = db.Column(db.Text, nullable=False)
+    explanation = db.Column(db.Text, nullable=True)
+    options = db.Column(db.JSON, nullable=True)
+    # format: [{"key": "A", "text": "..."}, ...]
+
+    __table_args__ = (
+        db.UniqueConstraint('question_id', 'language_code', name='uq_question_translation'),
+        db.Index('ix_question_translations_question_id', 'question_id'),
+    )
+
+    def __repr__(self):
+        return f'<QuestionTranslation {self.question_id}:{self.language_code}>'
