@@ -225,7 +225,7 @@ export const useAlgorithmLogic = (config: any) => {
           const randomCount = Math.floor(Math.random() * 6) + 5;
           newData = generateRandomGraph(randomCount);
 
-          const steps = generateSteps(newData, { mode: "graph" });
+          const steps = generateSteps(newData, { mode: "graph", ...payload });
 
           // 記得同步座標，因為是新生成的圖，需要 D3 計算排版
           if (steps.length > 0) {
@@ -325,7 +325,7 @@ export const useAlgorithmLogic = (config: any) => {
         newData = cloneData(graphPayload);
         const steps = generateSteps(newData, {
           mode: "graph",
-          isDirected: payload.Directed,
+          isDirected: payload.isDirected,
         });
 
         // 新載入的 Graph 沒有座標，必須同步 (觸發 D3 計算)
@@ -462,6 +462,17 @@ export const useAlgorithmLogic = (config: any) => {
       setData(newData);
       setActiveSteps(steps);
 
+      return steps;
+    } else if (actionType === "refresh") {
+      const steps = generateSteps(newData, payload);
+
+      // 同步座標，確保切換有向/無向時，圖形不會亂跑
+      if (steps.length > 0 && !Array.isArray(newData)) {
+        syncCoordinates(newData, steps[0].elements);
+      }
+
+      setData(newData);
+      setActiveSteps(steps);
       return steps;
     }
     return [];

@@ -85,7 +85,7 @@ export const generateGridFrame = (
   const elements = createGridElements(gridData, cols);
 
   elements.forEach((box, index) => {
-    if (box.value === '1') {
+    if (box.value === "1") {
       box.value = "wall";
       return;
     }
@@ -122,7 +122,11 @@ export function buildLinksFromNodes(
   elements.forEach((source) => {
     source.pointers.forEach((target) => {
       const key = getLinkKey(source.id, target.id);
-      links.push({ sourceId: source.id, targetId: target.id, status: linkStatusMap[key] });
+      links.push({
+        sourceId: source.id,
+        targetId: target.id,
+        status: linkStatusMap[key],
+      });
     });
   });
   return links;
@@ -143,10 +147,11 @@ export const generateGraphFrame = (
 
     if (showIdAsValue) {
       const numId = parseInt(node.id.replace("node-", ""), 10);
-      newNode.value = isNaN(numId) ? '-1' : String(numId);
+      newNode.value = isNaN(numId) ? "-1" : String(numId);
     } else {
       const dist = distanceMap[node.id];
-      newNode.value = dist === undefined || dist === Infinity ? "∞" : String(dist);
+      newNode.value =
+        dist === undefined || dist === Infinity ? "∞" : String(dist);
     }
 
     let x = node.position.x;
@@ -200,7 +205,6 @@ export function createGraphElements(
     edges: string[][];
   },
   isDirected: boolean = false,
-  isDijkstra: boolean = false,
 ): Node[] {
   const { nodes: rawNodes, edges } = rawGraph;
   const elements: Node[] = [];
@@ -216,6 +220,11 @@ export function createGraphElements(
     (n) => typeof n.x === "number" && typeof n.y === "number",
   );
 
+  // 如果 edges 裡面的陣列長度大於 2，代表有傳入權重
+  const isWeighted = edges.some(
+    (e) => e.length > 2 && e[2] !== undefined && e[2] !== null,
+  );
+
   if (hasCachedPositions) {
     // 直接使用現有座標 (跳過 D3 Simulation)
     rawNodes.forEach((n, i) => {
@@ -229,7 +238,7 @@ export function createGraphElements(
     });
   } else {
     // 準備 D3 Simulation 資料
-    const randomWidthRatio = isDijkstra ? 0.5 : 0.8;
+    const randomWidthRatio = isWeighted ? 0.4 : 0.8;
 
     const simNodes: SimNode[] = rawNodes.map((n, i) => ({
       id: n.id,
@@ -244,8 +253,9 @@ export function createGraphElements(
       target,
     }));
 
+    const chargeStrength = isWeighted ? -1200 : -600;
     const centerX = CANVAS_W / 2;
-    const centerY = isDijkstra ? 250 : CANVAS_H / 2;
+    const centerY = CANVAS_H / 2;
 
     // 執行 Force Simulation
     const simulation = d3
@@ -257,13 +267,13 @@ export function createGraphElements(
           .id((d: any) => d.id)
           .distance(150), // 連線距離
       )
-      .force("charge", d3.forceManyBody().strength(-600)) // 斥力：增加強度避免重疊
+      .force("charge", d3.forceManyBody().strength(chargeStrength)) // 斥力：增加強度避免重疊
       .force("center", d3.forceCenter(centerX, centerY)) // 畫布中心
-      .force("collide", d3.forceCollide(45)) // 碰撞半徑略大於節點半徑
+      .force("collide", d3.forceCollide(isWeighted ? 60 : 45)) // 碰撞半徑略大於節點半徑
       // Y 軸引力較強 (0.1)，把節點壓扁在水平帶狀區域
       .force("y", d3.forceY(CANVAS_H / 2).strength(0.1))
-      // X 軸引力極弱 (0.02)，允許它們左右飄移擴散
-      .force("x", d3.forceX(CANVAS_W / 2).strength(0.02));
+      // X 軸引力極弱 (0.01)，允許它們左右飄移擴散
+      .force("x", d3.forceX(CANVAS_W / 2).strength(0.01));
 
     // 跑模擬 (靜態計算)
     simulation.tick(500);
@@ -275,7 +285,7 @@ export function createGraphElements(
       node.id = simNode.id;
       node.value = String(simNode.val);
 
-      const maxX = isDijkstra ? 700 : CANVAS_W - PADDING;
+      const maxX = CANVAS_W - PADDING;
 
       // 取出計算後的座標 (若無則預設中心)
       let x = simNode.x ?? centerX;

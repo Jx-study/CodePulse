@@ -44,11 +44,7 @@ function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
   return { x: cx + ux * r, y: cy + uy * r };
 }
 
-function getLinkPath(
-  source: Node,
-  target: Node,
-  hasWeight: boolean = false,
-): string {
+function getLinkPath(source: Node, target: Node, offset: number = 0): string {
   if (
     isNaN(source.position.x) ||
     isNaN(source.position.y) ||
@@ -98,7 +94,6 @@ function getLinkPath(
   const ny = dx / dist;
 
   // 設定平行線的間距
-  const offset = hasWeight ? 8 : 0;
 
   const startX = p1.x + nx * offset;
   const startY = p1.y + ny * offset;
@@ -112,7 +107,7 @@ function getLinkPath(
 function getZeroLengthPath(
   source: Node,
   target: Node,
-  hasWeight: boolean = false,
+  offset: number = 0,
 ): string {
   if (
     isNaN(source.position.x) ||
@@ -147,7 +142,7 @@ function getZeroLengthPath(
 
   const nx = -dy / dist;
   const ny = dx / dist;
-  const offset = hasWeight ? 8 : 0; // 必須跟 getLinkPath 保持一致
+  // const offset = hasWeight && isDirected ? 8 : 0; // 必須跟 getLinkPath 保持一致
 
   const startX = p1.x + nx * offset;
   const startY = p1.y + ny * offset;
@@ -339,42 +334,6 @@ function drawContainer(
       .text("Call Stack/Queue")
       .attr("fill", "#888")
       .attr("font-size", 12);
-  } else if (type === "dijkstra") {
-    const tableX = 0;
-    const tableY = 0;
-    const rowGap = 55;
-    // Node 標題 (上排)
-    scene
-      .append("text")
-      .attr("class", "container-line")
-      .attr("x", tableX)
-      .attr("y", tableY + 5)
-      .attr("fill", "#888")
-      .attr("font-size", 16)
-      .attr("font-weight", "bold")
-      .attr("text-anchor", "end")
-      .text("Node");
-    // Dist 標題 (下排)
-    scene
-      .append("text")
-      .attr("class", "container-line")
-      .attr("x", tableX)
-      .attr("y", tableY + rowGap + 5)
-      .attr("fill", "#888")
-      .attr("font-size", 16)
-      .attr("font-weight", "bold")
-      .attr("text-anchor", "end")
-      .text("Dist");
-    // 垂直分隔線
-    scene
-      .append("line")
-      .attr("class", "container-line")
-      .attr("x1", tableX + 15)
-      .attr("y1", tableY - 20)
-      .attr("x2", tableX + 15)
-      .attr("y2", tableY + rowGap + 20)
-      .attr("stroke", "#555")
-      .attr("stroke-width", 2);
   }
 }
 
@@ -420,7 +379,7 @@ export function renderAll(
 
     const entry = groupData.get(group)!;
 
-    if (box.value !== '') {
+    if (box.value !== "") {
       entry.values.push(Number(box.value));
     }
 
@@ -474,7 +433,9 @@ export function renderAll(
   );
   // 如果是 graph，則根據 isDirected 決定
   const shouldHideArrow =
-    structureType === "graph" ? !isDirected : forceHideArrow;
+    structureType === "graph" || structureType === "dijkstra"
+      ? !isDirected
+      : forceHideArrow;
   const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
@@ -535,12 +496,26 @@ export function renderAll(
       }
       return null;
     })
-    .filter(Boolean) as {
+    .filter((d) => {
+      if (!d) return false;
+
+      // 如果是「無向圖」，強制只畫一條線 (利用字串比較 ID 大小來去重)
+      // 例如 node-0 和 node-1 之間，只保留 node-0 -> node-1 這條
+      if (!isDirected) {
+        return d.s.id <= d.t.id;
+      }
+
+      // 如果是有向圖，全部保留
+      return true;
+    }) as {
     s: Node;
     t: Node;
     status?: string;
     weight?: number | string;
   }[];
+
+  // 快速查詢某條邊是否有「反向邊」存在
+  const linkSet = new Set(linkData.map((d) => `${d.s.id}->${d.t.id}`));
 
   // 把每一條線與它的權重文字包在一個 <g class="link-group"> 裡面
   const linkGroups = scene
@@ -570,9 +545,14 @@ export function renderAll(
     .attr("fill", "none") // 設為 none，不然自環中間會被填滿黑色
     .attr("marker-end", markerUrl)
     // 初始狀態：從起點長出來
-    .attr("d", (d) =>
-      getZeroLengthPath(d.s, d.t, d.weight !== undefined && d.weight !== null),
-    );
+    .attr("d", (d) => {
+      const hasWeight = d.weight !== undefined && d.weight !== null;
+      // 檢查是否有反向邊
+      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+      // 只有在「有權重」、「有向圖」且「真的有反向邊」時，才平移 8px
+      const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
+      return getZeroLengthPath(d.s, d.t, offset);
+    });
 
   // 加入權重文字的背景框 (讓文字不要被線蓋住)
   linkGroupEnter
@@ -607,9 +587,12 @@ export function renderAll(
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("d", (d) =>
-      getLinkPath(d.s, d.t, d.weight !== undefined && d.weight !== null),
-    )
+    .attr("d", (d) => {
+      const hasWeight = d.weight !== undefined && d.weight !== null;
+      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+      const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
+      return getLinkPath(d.s, d.t, offset);
+    })
     .attr("stroke", (d) => getColor(d.status))
     .attr("stroke-width", 2);
 
@@ -628,12 +611,13 @@ export function renderAll(
     let textY = (p1.y + p2.y) / 2;
 
     const hasWeight = d.weight !== undefined && d.weight !== null;
+    const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+    const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
 
     // 將文字位置沿著法向量平移，跟隨線的偏移量
-    if (d.s.id !== d.t.id && dist > 0 && hasWeight) {
+    if (d.s.id !== d.t.id && dist > 0 && hasWeight && isDirected) {
       const nx = -dy / dist;
       const ny = dx / dist;
-      const offset = 8; // 必須跟上面保持一致
 
       textX += nx * offset;
       textY += ny * offset;

@@ -355,7 +355,8 @@ function TutorialContent() {
   };
 
   // Inspector Tab state
-  const [activeInspectorTab, setActiveInspectorTab] = useState<string>("actionBar");
+  const [activeInspectorTab, setActiveInspectorTab] =
+    useState<string>("actionBar");
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -467,11 +468,21 @@ function TutorialContent() {
   }, [topicTypeConfig]);
 
   useEffect(() => {
-    if (!isAlgorithm && topicTypeConfig && !isProcessing) {
-      executeAction("refresh", { hasTailMode, isDirected });
+    const hasData = Array.isArray(logic.data)
+      ? logic.data.length > 0
+      : logic.data?.nodes?.length > 0;
+
+    if (topicTypeConfig && !isProcessing && hasData) {
+      if (!isAlgorithm) {
+        dsLogic.executeAction("refresh", { hasTailMode, isDirected });
+      } else {
+        algoLogic.executeAction("refresh", {
+          isDirected,
+        });
+      }
       setCurrentStep(0);
     }
-  }, [hasTailMode, isAlgorithm]);
+  }, [hasTailMode, isDirected, isAlgorithm]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -519,7 +530,7 @@ function TutorialContent() {
     if (isAlgorithm) return;
     if (maxNodes !== undefined) {
       const currentCount =
-        dsLogic.data?.length ?? (dsLogic.data?.nodes?.length ?? 0);
+        dsLogic.data?.length ?? dsLogic.data?.nodes?.length ?? 0;
       if (currentCount >= maxNodes) {
         toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
         return;
@@ -657,8 +668,6 @@ function TutorialContent() {
 
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
-    dsLogic.executeAction("refresh", { hasTailMode, isDirected: newValue });
-    setCurrentStep(0);
     setIsPlaying(false);
   };
 
