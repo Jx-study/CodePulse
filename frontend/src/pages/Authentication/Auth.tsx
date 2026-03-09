@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import LoginForm from "@/modules/auth/components/LoginForm/LoginForm";
 import SignupForm from "@/modules/auth/components/SignupForm/SignupForm";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -32,13 +32,17 @@ function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, register } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>("login");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<TabType>(
+    searchParams.get("tab") === "signup" ? "signup" : "login"
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<MessageState>({ type: "", text: "" });
 
   const showTab = (tab: TabType) => {
     setActiveTab(tab);
-    setMessage({ type: "", text: "" }); // 清除訊息
+    setSearchParams(tab === "signup" ? { tab: "signup" } : {});
+    setMessage({ type: "", text: "" });
   };
 
   const handleLoginSubmit = async (formData: LoginFormData) => {
