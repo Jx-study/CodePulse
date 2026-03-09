@@ -35,8 +35,8 @@ export function createKnapsackAnimationSteps(
 
   const startX = 0;
   const startY = 0;
-  const boxW = 45;
-  const boxH = 45;
+  const boxW = 50;
+  const boxH = 50;
 
   const recordStep = (desc: string, tag: string) => {
     const elements: Box[] = [];
@@ -78,7 +78,7 @@ export function createKnapsackAnimationSteps(
       colHeader.moveTo(startX + w * boxW, startY - boxH);
       colHeader.width = boxW;
       colHeader.height = boxH;
-      colHeader.setStatus(Status.Inactive);
+      colHeader.setStatus(statusMap[`header-col-${w}`] || Status.Inactive);
       elements.push(colHeader);
     }
 
@@ -91,7 +91,7 @@ export function createKnapsackAnimationSteps(
       valueBox.moveTo(startX - boxW * 3.5, startY + i * boxH);
       valueBox.width = boxW;
       valueBox.height = boxH;
-      valueBox.setStatus(Status.Inactive);
+      valueBox.setStatus(statusMap[`info-val-${i}`] || Status.Inactive);
       elements.push(valueBox);
 
       // 重量
@@ -101,7 +101,7 @@ export function createKnapsackAnimationSteps(
       weightBox.moveTo(startX - boxW * 2.5, startY + i * boxH);
       weightBox.width = boxW;
       weightBox.height = boxH;
-      weightBox.setStatus(Status.Inactive);
+      weightBox.setStatus(statusMap[`info-wt-${i}`] || Status.Inactive);
       elements.push(weightBox);
 
       // 物品 index (i) -> 對齊剛剛加寬的 headerItem
@@ -125,7 +125,7 @@ export function createKnapsackAnimationSteps(
         // 第 0 列與第 0 行初始化為 0
         if (i === 0 || w === 0) {
           cell.value = "0";
-          cell.setStatus(Status.Inactive);
+          cell.setStatus(statusMap[key] || Status.Inactive);
         } else {
           // 還沒算到的格子顯示空白，算到的顯示 dp 值
           cell.value =
@@ -184,16 +184,23 @@ export function createKnapsackAnimationSteps(
         物品價值: value,
       };
 
+      // 第一步：檢查重量 (標亮左側的 Weight 格子)
+      statusMap[`info-wt-${i}`] = Status.Prepare;
+      statusMap[`header-col-${w}`] = Status.Prepare;
       recordStep(
-        `開始計算 dp[${i}][${w}]：考慮是否放入第 ${i} 個物品 (重量 ${weight}, 價值 ${value})。`,
-        TAGS.INNER_LOOP,
+        `判斷 dp[${i}][${w}]：目前物品重量 (${weight}) 是否放得進目前背包容量 (${w})？`,
+        TAGS.CHECK_WEIGHT,
       );
       steps[steps.length - 1].variables = stepVars;
+      // 判斷完就取消高亮重量
+      delete statusMap[`info-wt-${i}`];
+      delete statusMap[`header-col-${w}`];
 
+      // 第二步：處理結果 (標亮左側 Value 以及依賴的格子)
       if (weight > w) {
         // 放不下
         dp[i][w] = dp[i - 1][w];
-        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 標示參考來源
+        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 標示參考來源(上方格子)
 
         recordStep(
           `物品重量 (${weight}) > 目前容量 (${w})，放不下！繼承上一列的值：dp[${i}][${w}] = dp[${i - 1}][${w}] = ${dp[i][w]}`,
@@ -204,11 +211,12 @@ export function createKnapsackAnimationSteps(
         delete statusMap[`${i - 1}-${w}`]; // 算完取消參考標示
       } else {
         // 放得下，取 max(不放, 放)
+        statusMap[`info-val-${i}`] = Status.Prepare; // 標示左側的物品價值
+        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 參考不放(上方格子)
+        statusMap[`${i - 1}-${w - weight}`] = Status.Prepare; // 參考放(左上方格子)
+
         const skipValue = dp[i - 1][w];
         const takeValue = dp[i - 1][w - weight] + value;
-
-        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 參考不放
-        statusMap[`${i - 1}-${w - weight}`] = Status.Prepare; // 參考放
 
         recordStep(
           `放得下！比較「不放」(價值 ${skipValue}) 與「放」(價值 ${dp[i - 1][w - weight]} + ${value} = ${takeValue})，取最大值。`,
@@ -218,11 +226,16 @@ export function createKnapsackAnimationSteps(
 
         dp[i][w] = Math.max(skipValue, takeValue);
 
+        delete statusMap[`info-val-${i}`];
         delete statusMap[`${i - 1}-${w}`];
         delete statusMap[`${i - 1}-${w - weight}`];
       }
 
-      statusMap[`${i}-${w}`] = Status.Complete; // 填表完成
+      if (i === n && w === capacity) {
+        statusMap[`${i}-${w}`] = Status.Complete; // 填表完成
+      } else {
+        delete statusMap[`${i}-${w}`]; // 算完取消目標標示
+      }
     }
   }
 
