@@ -486,6 +486,10 @@ export function renderAll(
   // === 先畫 LINKS（在底層）===
   // 依 id 找 element
   const byId = new Map(elements.map((e) => [String(e.id), e]));
+
+  // 預先建立所有 link 的 key set，用於無向圖反向邊檢查
+  const allLinkKeys = new Set(links.map((lk) => `${lk.sourceId}->${lk.targetId}`));
+
   // 僅保留 Node -> Node 的連線
   const linkData = links
     .map((lk) => {
@@ -499,10 +503,14 @@ export function renderAll(
     .filter((d) => {
       if (!d) return false;
 
-      // 如果是「無向圖」，強制只畫一條線 (利用字串比較 ID 大小來去重)
-      // 例如 node-0 和 node-1 之間，只保留 node-0 -> node-1 這條
+      // 如果是「無向圖」，僅在反向邊也存在時才去重（避免誤刪樹的單向邊）
+      // 例如 node-0 和 node-1 之間，若雙向都存在，只保留 id 較小的那條
       if (!isDirected) {
-        return d.s.id <= d.t.id;
+        const hasReverse = allLinkKeys.has(`${d.t.id}->${d.s.id}`);
+        if (hasReverse) {
+          return d.s.id <= d.t.id;
+        }
+        return true;
       }
 
       // 如果是有向圖，全部保留

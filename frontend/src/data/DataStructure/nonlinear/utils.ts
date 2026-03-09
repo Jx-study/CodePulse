@@ -152,6 +152,7 @@ export const generateGraphFrame = (
       const dist = distanceMap[node.id];
       newNode.value =
         dist === undefined || dist === Infinity ? "∞" : String(dist);
+      newNode.description = node.id.replace("node-", "");
     }
 
     let x = node.position.x;

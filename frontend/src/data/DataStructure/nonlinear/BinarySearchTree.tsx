@@ -1336,7 +1336,16 @@ function bstActionHandler(
     return {
       animationData: newData,
       stateData: getBSTArrayAfterDelete(newData, delValue!),
-      animationParams: { value: delValue, index: delIndex },
+      animationParams: { value: delValue },
+    };
+  }
+
+  if (actionType === "search") {
+    const { mode, value: searchValue } = payload as { mode?: string; value?: number };
+    return {
+      animationData: data,
+      useRawAnimationParams: true,
+      animationParams: { mode, value: searchValue },
     };
   }
 
