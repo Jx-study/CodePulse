@@ -48,6 +48,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
+          api: "modern-compiler",
           additionalData: `
           @use "@/shared/styles/_variables" as *;
           @use "@/shared/styles/_mixins" as *;

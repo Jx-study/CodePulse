@@ -86,6 +86,12 @@
   }
 }
 
+// blink 動畫（由 _mixins.scss 的 @include blink() 使用）
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 // 執行行脈衝動畫
 @keyframes executionPulse {
   0%,
