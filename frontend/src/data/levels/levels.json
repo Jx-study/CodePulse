@@ -161,6 +161,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
       "graphPosition": { "layer": 5, "branch": "center" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "排序樹結構" },
+      "suggestedPrerequisites": ["binary-search"],
       "implementationKey": "bst"
     },
     {
@@ -180,6 +181,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
       "graphPosition": { "layer": 5, "branch": "left" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "優先權結構" },
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "heap"
     },
     {
@@ -199,6 +201,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["binarytree"] },
       "graphPosition": { "layer": 5, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "網狀結構" },
+      "suggestedPrerequisites": ["array", "linked-list"],
       "implementationKey": "graph"
     },
     {
@@ -218,6 +221,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["bst"] },
       "graphPosition": { "layer": 6, "branch": "center" },
       "pathMetadata": { "pathType": "boss" },
+      "suggestedPrerequisites": ["binarytree"],
       "implementationKey": "trie"
     },
     {
@@ -387,6 +391,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["linear-search"] },
       "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
+      "suggestedPrerequisites": ["bubble-sort"],
       "implementationKey": "binarySearch"
     },
     {
@@ -591,6 +596,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["prefix-sum"] },
       "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "slidingWindow"
     },
     {
@@ -610,6 +616,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["sliding-window"] },
       "graphPosition": { "layer": 2, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "twoPointers"
     },
     {
@@ -721,6 +728,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["dfs"] },
       "graphPosition": { "layer": 2, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "集合管理" },
+      "suggestedPrerequisites": ["array", "binarytree"],
       "implementationKey": "unionFind"
     },
     {
@@ -743,6 +751,7 @@
       },
       "graphPosition": { "layer": 3, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
+      "suggestedPrerequisites": ["heap"],
       "implementationKey": "dijkstra"
     },
     {
@@ -835,6 +844,7 @@
       "prerequisites": { "type": "AND", "levelIds": ["dp-fibonacci"] },
       "graphPosition": { "layer": 1, "branch": "right" },
       "pathMetadata": { "pathType": "branch", "branchLabel": "字串 DP" },
+      "suggestedPrerequisites": ["two-pointers"],
       "implementationKey": "lcs"
     }
   ],
