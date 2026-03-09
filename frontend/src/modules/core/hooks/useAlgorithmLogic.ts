@@ -222,7 +222,7 @@ export const useAlgorithmLogic = (config: any) => {
           setActiveSteps(steps);
           return steps;
         } else {
-          const randomCount = Math.floor(Math.random() * 6) + 5;
+          const randomCount = payload?.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
           newData = generateRandomGraph(randomCount);
 
           const steps = generateSteps(newData, { mode: "graph", ...payload });

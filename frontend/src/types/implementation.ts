@@ -36,7 +36,6 @@ export interface BaseActionBarProps {
   onResetData: () => void;
   onRandomData: (params?: any) => void;
   onMaxNodesChange?: (count: number) => void;
-  onLimitExceeded?: () => void;
   disabled?: boolean;
   maxNodes?: number;
 }
