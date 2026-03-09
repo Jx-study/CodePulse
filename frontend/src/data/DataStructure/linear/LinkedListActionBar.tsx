@@ -89,9 +89,9 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           className={styles.select}
           disabled={disabled}
           options={[
-            { value: "head", label: "Head" },
-            { value: "tail", label: "Tail" },
-            { value: "n", label: "Node N" },
+            { value: "Head", label: "Head" },
+            { value: "Tail", label: "Tail" },
+            { value: "Node N", label: "Node N" },
           ]}
           aria-label="Insert mode"
         />
