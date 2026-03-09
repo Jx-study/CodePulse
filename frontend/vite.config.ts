@@ -7,80 +7,79 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-  plugins: [
-    // Gzip 壓縮
-    viteCompression({
-      algorithm: "gzip",
-      ext: ".gz",
-      threshold: 10240,
-      deleteOriginFile: false,
-    }),
-  ],
-  server: {
-    host: true, // 等同於 --host，讓外部可以連接
-    port: 5173, // 預設端口
-    watch: {
-      usePolling: true,  // Docker 環境下使用輪詢模式
-      interval: 100,     // 檢查間隔（毫秒）
-    },
-  },
-  // 依賴預構建優化
-  optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      'i18next',
-      'react-i18next',
-      'i18next-browser-languagedetector',
-      '@fortawesome/fontawesome-svg-core',
-      '@fortawesome/react-fontawesome',
-      '@fortawesome/free-solid-svg-icons',
-      '@fortawesome/free-regular-svg-icons',
+    plugins: [
+      {
+        // Gzip 壓縮
+      ...viteCompression({
+        algorithm: "gzip",
+        ext: ".gz",
+        threshold: 10240,
+        deleteOriginFile: false,
+      }),
+      apply: "build",
+      },
     ],
-    force: false, // 不強制重新預構建，使用快取
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    server: {
+      host: true, // 等同於 --host，讓外部可以連接
+      port: 5173, // 預設端口
     },
-  },
-  // 全局注入css的變數 & mixins
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `
+    // 依賴預構建優化
+    optimizeDeps: {
+      include: [
+        "react",
+        "react-dom",
+        "react-router-dom",
+        "i18next",
+        "react-i18next",
+        "i18next-browser-languagedetector",
+        "@fortawesome/fontawesome-svg-core",
+        "@fortawesome/react-fontawesome",
+        "@fortawesome/free-solid-svg-icons",
+        "@fortawesome/free-regular-svg-icons",
+      ],
+      force: false, // 不強制重新預構建，使用快取
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
+    // 全局注入css的變數 & mixins
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
           @use "@/shared/styles/_variables" as *;
           @use "@/shared/styles/_mixins" as *;
         `,
-      },
-    },
-  },
-  // 代碼分割優化
-  build: {
-    cssCodeSplit: true,           // 啟用 CSS 代碼分割  
-    chunkSizeWarningLimit: 1000,  // 設置 chunk 大小警告限制
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          router: ["react-router-dom"],
-          i18n: [
-            "i18next",
-            "react-i18next",
-            "i18next-browser-languagedetector",
-          ],
-          monaco: ["@monaco-editor/react"],
-          d3: ["d3"],
-          icons: [
-            "@fortawesome/fontawesome-svg-core",
-            "@fortawesome/free-solid-svg-icons",
-            "@fortawesome/free-regular-svg-icons",
-            "@fortawesome/react-fontawesome",
-          ],
         },
       },
     },
-  },
+    // 代碼分割優化
+    build: {
+      cssCodeSplit: true, // 啟用 CSS 代碼分割
+      chunkSizeWarningLimit: 1000, // 設置 chunk 大小警告限制
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            "react-vendor": ["react", "react-dom"],
+            router: ["react-router-dom"],
+            i18n: [
+              "i18next",
+              "react-i18next",
+              "i18next-browser-languagedetector",
+            ],
+            monaco: ["@monaco-editor/react"],
+            d3: ["d3"],
+            icons: [
+              "@fortawesome/fontawesome-svg-core",
+              "@fortawesome/free-solid-svg-icons",
+              "@fortawesome/free-regular-svg-icons",
+              "@fortawesome/react-fontawesome",
+            ],
+          },
+        },
+      },
+    },
   };
 });
