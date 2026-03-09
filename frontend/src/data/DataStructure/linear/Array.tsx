@@ -8,6 +8,8 @@ import {
   createBoxes as baseCreateBoxes,
 } from "./utils";
 import { ArrayActionBar } from "./ArrayActionBar";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
   SEARCH_START: "SEARCH_START",
@@ -414,6 +416,107 @@ const arrayCodeConfig: CodeConfig = {
   },
 };
 
+/** Array actionHandler */
+function arrayActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: BoxData[],
+  context: ActionContext,
+): ActionResult<BoxData[]> | null {
+  const { value, mode, index } = payload as {
+    value?: number;
+    mode?: string;
+    index?: number;
+  };
+  const newData = data.map((d) => ({ ...d }));
+
+  if (actionType === "add" && mode === "Insert") {
+    const idx = index ?? newData.length;
+    const safeIdx = Math.max(0, Math.min(idx, newData.length));
+    const newId = context.nextId();
+    const tailBox = { id: newId, value: 0 };
+    newData.push(tailBox);
+    for (let i = newData.length - 1; i > safeIdx; i--)
+      newData[i].value = newData[i - 1].value;
+    newData[safeIdx].value = value!;
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value, index: safeIdx },
+    };
+  }
+
+  if (actionType === "add" && mode === "Update") {
+    const idx = index ?? -1;
+    if (idx >= 0 && idx < newData.length) {
+      const oldValue = newData[idx].value;
+      newData[idx] = { ...newData[idx], value: value! };
+      return {
+        animationData: newData,
+        animationParams: {
+          targetId: newData[idx].id,
+          value,
+          index: idx,
+          oldValue: Number(oldValue),
+        },
+      };
+    }
+    return null;
+  }
+
+  if (actionType === "delete") {
+    const idx = index;
+    if (newData.length === 0) {
+      context.toast.warning("Array is empty");
+      return null;
+    }
+    if (idx === undefined || idx >= newData.length || idx < 0) {
+      context.toast.warning("Invalid index");
+      return null;
+    }
+    const deletedValue = newData[idx].value;
+    const lastBox = newData[newData.length - 1];
+    for (let i = idx; i < newData.length - 1; i++)
+      newData[i].value = newData[i + 1].value;
+    newData.pop();
+    return {
+      animationData: newData,
+      animationParams: { targetId: lastBox.id, value: deletedValue, index: idx },
+    };
+  }
+
+  if (actionType === "search") {
+    return { animationData: data };
+  }
+
+  if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    if (actionType === "random") {
+      const count =
+        (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+      const randData = Array.from({ length: count }, () => ({
+        id: context.nextId(),
+        value: Math.floor(Math.random() * 100),
+      }));
+      return { animationData: randData, isResetAction: true };
+    }
+    if (actionType === "reset") {
+      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
+        ...d,
+        id: context.nextId(),
+      }));
+      return { animationData: resetData, isResetAction: true };
+    }
+    if (actionType === "load") {
+      const loadArr = (payload.data as number[]) ?? [];
+      const loadData = loadArr.map((v) => ({ id: context.nextId(), value: v }));
+      return { animationData: loadData, isResetAction: true };
+    }
+    return { animationData: data, isResetAction: true };
+  }
+
+  return null;
+}
+
 export const ArrayConfig: LevelImplementationConfig = {
   id: "array",
   type: "dataStructure",
@@ -437,6 +540,7 @@ export const ArrayConfig: LevelImplementationConfig = {
     { id: "box-4", value: 50 },
   ],
   createAnimationSteps: createArrayAnimationSteps,
+  actionHandler: arrayActionHandler,
   renderActionBar: (props) => <ArrayActionBar {...(props as any)} />,
   relatedProblems: [
     {

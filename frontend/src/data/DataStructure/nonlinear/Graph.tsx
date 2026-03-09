@@ -1,12 +1,16 @@
 import React from "react";
 import type { AnimationStep } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import type { ActionContext } from "@/modules/core/visualization/types";
 import { GraphActionBar } from "./GraphActionBar";
 import {
   createGraphElements,
   generateGraphFrame,
   updateLinkStatus,
 } from "@/data/DataStructure/nonlinear/utils";
+import { generateRandomGraphDS } from "@/modules/core/visualization/visualizationUtils";
+import type { ActionResult } from "@/modules/core/visualization/types";
+import type { GraphData } from "@/modules/core/visualization/types";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
@@ -979,7 +983,255 @@ export function createGraphAnimationSteps(
   if (action?.type === "checkCycle") {
     return runCheckCycle(inputData, action.isDirected);
   }
-  return runRefresh(inputData, action.isDirected);
+  return runRefresh(inputData, action?.isDirected);
+}
+
+function isGraphData(d: any): d is GraphData {
+  return d && !Array.isArray(d) && Array.isArray(d.nodes);
+}
+
+/** Graph actionHandler（useRawAnimationParams + needsSyncCoordinates） */
+function graphActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: GraphData,
+  context: ActionContext,
+): ActionResult<GraphData> | null {
+  if (!isGraphData(data)) return null;
+  const newData = JSON.parse(JSON.stringify(data));
+  const { nodes, edges } = newData;
+  const isDirected = payload.isDirected as boolean;
+
+  if (actionType === "addVertex") {
+    const val = payload.value ? String(payload.value) : `node-${nodes.length}`;
+    const id = `node-${val}`;
+    if (!val || val.trim() === "") {
+      context.toast.warning("請輸入節點 ID");
+      return null;
+    }
+    if (nodes.find((n: any) => n.id === id)) {
+      context.toast.warning(`節點 ${val} 已存在`);
+      return null;
+    }
+    nodes.push({ id, value: val });
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      needsSyncCoordinates: true,
+      animationParams: { type: "addVertex", value: val, isDirected },
+    };
+  }
+
+  if (actionType === "removeVertex") {
+    const targetVal = String(payload.id ?? "");
+    const targetIdVal = `node-${targetVal}`;
+    if (!targetVal || targetVal.trim() === "") {
+      context.toast.warning("請輸入節點 ID");
+      return null;
+    }
+    const idx = nodes.findIndex((n: any) => n.id === targetIdVal);
+    if (idx === -1) {
+      context.toast.warning(`節點 ${targetVal} 不存在`);
+      return null;
+    }
+    const relatedEdges = edges.filter(
+      (e: any[]) => e[0] === targetIdVal || e[1] === targetIdVal,
+    );
+    const deletedNodeCoords = { x: nodes[idx].x, y: nodes[idx].y };
+    nodes.splice(idx, 1);
+    newData.edges = edges.filter(
+      (e: any[]) => e[0] !== targetIdVal && e[1] !== targetIdVal,
+    );
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      needsSyncCoordinates: true,
+      animationParams: {
+        type: "removeVertex",
+        id: targetVal,
+        isDirected,
+        deletedEdges: relatedEdges,
+        deletedNodeCoords,
+        ...payload,
+      },
+    };
+  }
+
+  if (actionType === "addEdge") {
+    const sourceId = `node-${payload.source}`;
+    const targetIdVal = `node-${payload.target}`;
+    const sExists = nodes.find((n: any) => n.id === sourceId);
+    const tExists = nodes.find((n: any) => n.id === targetIdVal);
+    if (!sExists || !tExists) {
+      context.toast.warning("來源或目標節點不存在");
+      return null;
+    }
+    const exists = edges.some(
+      (e: any[]) =>
+        (e[0] === sourceId && e[1] === targetIdVal) ||
+        (!isDirected && e[0] === targetIdVal && e[1] === sourceId),
+    );
+    if (exists) {
+      context.toast.warning("該連線已存在");
+      return null;
+    }
+    edges.push([sourceId, targetIdVal]);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      needsSyncCoordinates: true,
+      animationParams: {
+        type: "addEdge",
+        source: payload.source,
+        target: payload.target,
+        isDirected,
+        ...payload,
+      },
+    };
+  }
+
+  if (actionType === "removeEdge") {
+    const sourceId = `node-${payload.source}`;
+    const targetIdVal = `node-${payload.target}`;
+    const initialLength = edges.length;
+    newData.edges = edges.filter((e: any[]) => {
+      const isForward = e[0] === sourceId && e[1] === targetIdVal;
+      const isBackward = e[0] === targetIdVal && e[1] === sourceId;
+      return isDirected ? !isForward : !(isForward || isBackward);
+    });
+    if (newData.edges.length === initialLength) {
+      context.toast.warning("找不到該連線，無法刪除");
+      return null;
+    }
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      needsSyncCoordinates: true,
+      animationParams: {
+        type: "removeEdge",
+        source: payload.source,
+        target: payload.target,
+        isDirected,
+        ...payload,
+      },
+    };
+  }
+
+  if (
+    ["getNeighbors", "getDegree", "checkAdjacent", "checkConnected", "checkCycle"].includes(
+      actionType,
+    )
+  ) {
+    if (
+      (actionType === "getNeighbors" || actionType === "getDegree") &&
+      (!payload.id || String(payload.id).trim() === "")
+    ) {
+      context.toast.warning("請輸入節點 ID");
+      return null;
+    }
+    if (
+      actionType === "checkAdjacent" &&
+      (!payload.source ||
+        String(payload.source).trim() === "" ||
+        !payload.target ||
+        String(payload.target).trim() === "")
+    ) {
+      context.toast.warning("請輸入來源與目標節點 ID");
+      return null;
+    }
+    if (
+      (actionType === "checkConnected" || actionType === "checkCycle") &&
+      nodes.length === 0
+    ) {
+      context.toast.warning("圖形為空");
+      return null;
+    }
+    return {
+      animationData: data,
+      useRawAnimationParams: true,
+      needsSyncCoordinates: true,
+      animationParams: { type: actionType, ...payload, isDirected },
+    };
+  }
+
+  if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    if (actionType === "random") {
+      const randomCount = Math.floor(Math.random() * 6) + 5;
+      const randData = generateRandomGraphDS(randomCount);
+      return {
+        animationData: randData,
+        isResetAction: true,
+        needsSyncCoordinates: true,
+        useRawAnimationParams: true,
+        animationParams: { type: "random", mode: "graph" },
+      };
+    }
+    if (actionType === "reset") {
+      const defaultData = (context.defaultData ?? data) as GraphData;
+      const resetData = JSON.parse(JSON.stringify(defaultData));
+      if (isGraphData(data)) {
+        const coordMap = new Map(
+          data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+        );
+        resetData.nodes.forEach((n: any) => {
+          const saved = coordMap.get(n.id);
+          if (saved?.x !== undefined && saved?.y !== undefined) {
+            n.x = saved.x;
+            n.y = saved.y;
+            if (!n.position) n.position = { x: saved.x, y: saved.y };
+            else {
+              n.position.x = saved.x;
+              n.position.y = saved.y;
+            }
+          }
+        });
+      }
+      return {
+        animationData: resetData,
+        isResetAction: true,
+        needsSyncCoordinates: true,
+        useRawAnimationParams: true,
+        animationParams: { type: "reset", mode: "graph" },
+      };
+    }
+    if (actionType === "load") {
+      const loadStr = payload.data as string;
+      if (typeof loadStr === "string" && loadStr.startsWith("GRAPH:")) {
+        const parts = loadStr.split(":");
+        if (parts.length >= 3) {
+          const nodeCount = parseInt(parts[1]);
+          const edgeStr = parts.slice(2).join(":");
+          const nodesArr: any[] = [];
+          for (let i = 0; i < nodeCount; i++)
+            nodesArr.push({ id: `node-${i}`, value: String(i) });
+          const edgesArr: string[][] = [];
+          if (edgeStr.trim() !== "") {
+            edgeStr.split(",").forEach((pair) => {
+              const [u, v] = pair.trim().split(/\s+/);
+              if (u && v) edgesArr.push([`node-${u}`, `node-${v}`]);
+            });
+          }
+          const loadData = { nodes: nodesArr, edges: edgesArr };
+          return {
+            animationData: loadData,
+            isResetAction: true,
+            needsSyncCoordinates: true,
+            useRawAnimationParams: true,
+            animationParams: { type: "load", mode: "graph", isDirected: payload.Directed },
+          };
+        }
+      }
+    }
+    return {
+      animationData: data,
+      isResetAction: true,
+      needsSyncCoordinates: true,
+      useRawAnimationParams: true,
+      animationParams: { type: "refresh", mode: "graph" },
+    };
+  }
+
+  return null;
 }
 
 export const GraphConfig: LevelImplementationConfig = {
@@ -1034,6 +1286,7 @@ export const GraphConfig: LevelImplementationConfig = {
     ],
   },
   createAnimationSteps: createGraphAnimationSteps,
+  actionHandler: graphActionHandler,
   maxNodes: 10,
   renderActionBar: (props) => <GraphActionBar {...(props as any)} />,
 };

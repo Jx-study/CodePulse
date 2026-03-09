@@ -2,6 +2,86 @@ import React from "react";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { DijkstraActionBar } from "./DijkstraActionBar";
+import {
+  cloneData,
+  generateRandomGraph,
+} from "@/modules/core/visualization/visualizationUtils";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+
+function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+  const parts = dataStr.split(":");
+  if (parts.length < 3) return null;
+  const nodeCount = parseInt(parts[1], 10);
+  if (isNaN(nodeCount)) return null;
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const edges: string[][] = [];
+  const edgeStr = parts.slice(2).join(":").trim();
+  if (edgeStr !== "") {
+    edgeStr.split(",").forEach((pair: string) => {
+      const [u, v, w] = pair.trim().split(/\s+/);
+      if (u !== undefined && v !== undefined) {
+        const uIdx = parseInt(u, 10);
+        const vIdx = parseInt(v, 10);
+        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
+          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        }
+      }
+    });
+  }
+  return { nodes, edges };
+}
+
+function dijkstraActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: any,
+  context: ActionContext,
+): ActionResult<unknown> | null {
+  const defaultData = context.defaultData as { graph: any };
+
+  if (actionType === "random") {
+    const count = Math.floor(Math.random() * 6) + 5;
+    const newData = generateRandomGraph(count, true);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph" },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "load") {
+    const dataStr = payload.data as string;
+    if (typeof dataStr !== "string" || !dataStr.startsWith("GRAPH:")) return null;
+    const graphPayload = parseGraphLoadPayload(dataStr);
+    if (!graphPayload) return null;
+    return {
+      animationData: cloneData(graphPayload),
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph", isDirected: payload.Directed },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "reset") {
+    const newData = cloneData(defaultData.graph);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph", ...payload },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "run") {
+    return { animationData: cloneData(data) };
+  }
+
+  return null;
+}
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { Box } from "@/modules/core/DataLogic/Box";
@@ -342,5 +422,6 @@ export const dijkstraConfig: LevelImplementationConfig = {
     },
   },
   createAnimationSteps: createDijkstraAnimationSteps,
+  actionHandler: dijkstraActionHandler,
   renderActionBar: (props) => React.createElement(DijkstraActionBar, props),
 };

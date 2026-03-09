@@ -20,8 +20,7 @@ import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
-import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
-import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
+import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
@@ -402,11 +401,8 @@ function TutorialContent() {
   // 改用 topicTypeConfig.type 判斷類型（不再依賴 URL 參數）
   const isAlgorithm = topicTypeConfig?.type === "algorithm";
 
-  // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
-  const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
-  const algoLogic = useAlgorithmLogic(isAlgorithm ? topicTypeConfig : null);
-
-  const logic = isAlgorithm ? algoLogic : dsLogic;
+  // 2. 狀態管理（統一使用 useVisualizationLogic）
+  const logic = useVisualizationLogic(topicTypeConfig);
   const { activeSteps, executeAction } = logic;
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -519,7 +515,7 @@ function TutorialContent() {
     if (isAlgorithm) return;
     if (maxNodes !== undefined) {
       const currentCount =
-        dsLogic.data?.length ?? (dsLogic.data?.nodes?.length ?? 0);
+        logic.data?.length ?? (logic.data?.nodes?.length ?? 0);
       if (currentCount >= maxNodes) {
         toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
         return;
@@ -647,7 +643,7 @@ function TutorialContent() {
   const handleGraphAction = (action: string, payload: any) => {
     if (isProcessing) return;
 
-    const steps = dsLogic.executeAction(action, payload);
+    const steps = logic.executeAction(action, payload);
 
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -657,7 +653,7 @@ function TutorialContent() {
 
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
-    dsLogic.executeAction("refresh", { hasTailMode, isDirected: newValue });
+    logic.executeAction("refresh", { hasTailMode, isDirected: newValue });
     setCurrentStep(0);
     setIsPlaying(false);
   };

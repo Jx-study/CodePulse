@@ -3,6 +3,8 @@ import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import { LinkedListActionBar } from "./LinkedListActionBar";
 import {
   LinearData as ListNodeData,
@@ -1670,7 +1672,8 @@ export function createLinkedListAnimationSteps(
           let status: Status = Status.Unfinished;
           if (idx === i - 1) status = Status.Prepare;
           if (idx === i) status = Status.Target;
-          let extra = idx === i ? "current" : undefined;
+          let extra: string | undefined =
+            idx === i ? "current" : i > 0 && idx === i - 1 ? "pre" : undefined;
 
           let override = undefined;
           if (i > 0 && idx === i - 1)
@@ -1711,7 +1714,7 @@ export function createLinkedListAnimationSteps(
         let label = undefined;
         if (idx === N - 1)
           label = getLabel(idx, originalLen, hasTailMode) + "pre";
-        let extra = idx === N ? "current" : undefined;
+        let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
         let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
         if (idx === N) status = Status.Target;
         return createNodeAndPointers(
@@ -1748,7 +1751,7 @@ export function createLinkedListAnimationSteps(
         if (hasTailMode && N === originalLen - 1 && idx === N) {
           label = (label ? label + "/" : "") + "tail";
         }
-        let extra = idx === N ? "current" : undefined;
+        let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
         let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
         if (idx === N) status = Status.Target;
         return createNodeAndPointers(
@@ -1844,7 +1847,7 @@ export function createLinkedListAnimationSteps(
           idx === N - 1
             ? getLabel(idx, originalLen, hasTailMode) + "pre"
             : undefined;
-        let extra = idx === N ? "current" : undefined;
+        let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
         let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
         if (idx === N) status = Status.Target;
         return createNodeAndPointers(
@@ -1880,6 +1883,7 @@ export function createLinkedListAnimationSteps(
         actionTag: TAGS.DELETE_INDEX_UNLINK,
         variables: {
           "current.next": null,
+          pre: oldList[N - 1].value ?? null,
           nodeToDelete: oldList[N].value ?? null,
         },
       });
@@ -2338,6 +2342,119 @@ class LinkedList:
   },
 };
 
+/** LinkedList actionHandler：純資料變換，不碰 React state */
+function linkedListActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: ListNodeData[],
+  context: ActionContext,
+): ActionResult<ListNodeData[]> | null {
+  const { value, mode, index } = payload as {
+    value?: number;
+    mode?: string;
+    index?: number;
+  };
+  const newData = [...data];
+
+  if (actionType === "add") {
+    const newId = context.nextId();
+    const newNode = { id: newId, value: value! };
+    const idx = index ?? -1;
+    if (mode === "Head") {
+      newData.unshift(newNode);
+    } else if (mode === "Tail") {
+      newData.push(newNode);
+    } else if (mode === "Node N") {
+      if (idx < 0) {
+        context.toast.warning("Invalid index: Index cannot be negative.");
+        return null;
+      }
+      if (idx > data.length) {
+        context.toast.warning(
+          `Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`,
+        );
+        return null;
+      }
+      if (idx === 0) newData.unshift(newNode);
+      else if (idx === data.length) newData.push(newNode);
+      else newData.splice(idx, 0, newNode);
+    }
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value, mode, index },
+    };
+  }
+
+  if (actionType === "delete") {
+    if (newData.length === 0) {
+      context.toast.warning("Singly Linked List is empty");
+      return null;
+    }
+    let deletedNode: ListNodeData | null = null;
+    if (mode === "Head") {
+      deletedNode = newData[0];
+      if (deletedNode) newData.shift();
+    } else if (mode === "Tail") {
+      deletedNode = newData[newData.length - 1];
+      if (deletedNode) newData.pop();
+    } else if (mode === "Node N") {
+      const idx = index ?? -1;
+      if (idx >= 0 && idx < newData.length) {
+        deletedNode = newData[idx];
+        newData.splice(idx, 1);
+      }
+    }
+    if (!deletedNode) return null;
+    return {
+      animationData: newData,
+      animationParams: {
+        targetId: deletedNode.id,
+        value: deletedNode.value,
+        mode,
+        index,
+      },
+    };
+  }
+
+  if (actionType === "search") {
+    return { animationData: data };
+  }
+
+  if (actionType === "load") {
+    const loadArr = (payload.data as number[]) ?? [];
+    const newDataLoad = loadArr.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newDataLoad, isResetAction: true };
+  }
+
+  if (actionType === "random") {
+    const count =
+      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+    const newDataRand = Array.from({ length: count }, () => ({
+      id: context.nextId(),
+      value: Math.floor(Math.random() * 100),
+    }));
+    return { animationData: newDataRand, isResetAction: true };
+  }
+
+  if (actionType === "reset") {
+    const defaultData = (context.defaultData as ListNodeData[]) ?? data;
+    const newDataReset = defaultData.map((d) => ({
+      ...d,
+      id: context.nextId(),
+    }));
+    return { animationData: newDataReset, isResetAction: true };
+  }
+
+  if (actionType === "refresh") {
+    return { animationData: data, isResetAction: true };
+  }
+
+  return null;
+}
+
 export const linkedListConfig: LevelImplementationConfig = {
   id: "linkedlist",
   type: "dataStructure",
@@ -2362,6 +2479,7 @@ export const linkedListConfig: LevelImplementationConfig = {
     { id: "node-4", value: 20 },
   ],
   createAnimationSteps: createLinkedListAnimationSteps,
+  actionHandler: linkedListActionHandler,
   renderActionBar: (props) => <LinkedListActionBar {...(props as any)} />,
   relatedProblems: [
     {

@@ -7,6 +7,8 @@ import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { BinaryTreeActionBar } from "./BinaryTreeActionBar";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 interface LogicTreeNode {
   id: string;
@@ -1217,6 +1219,65 @@ def bfs(root):
   },
 };
 
+/** BinaryTree actionHandler */
+function binaryTreeActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: any[],
+  context: ActionContext,
+): ActionResult<any[]> | null {
+  const { value, index } = payload as { value?: number; index?: number };
+  const newData = [...data];
+
+  if (actionType === "add") {
+    const newId = context.nextId();
+    newData.push({ id: newId, value: value! });
+    return { animationData: newData, animationParams: { targetId: newId, value } };
+  }
+
+  if (actionType === "delete") {
+    const delValue = index ?? value;
+    const delIndex = newData.findIndex((n: any) => n.value === delValue);
+    if (delIndex === -1) {
+      context.toast.warning(`數值 ${delValue} 不存在`);
+      return null;
+    }
+    newData.splice(delIndex, 1);
+    return { animationData: newData, animationParams: { value: delValue } };
+  }
+
+  if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    if (actionType === "random") {
+      const count =
+        (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+      const randData = Array.from({ length: count }, () => ({
+        id: context.nextId(),
+        value: Math.floor(Math.random() * 100),
+      }));
+      return { animationData: randData, isResetAction: true };
+    }
+    if (actionType === "reset") {
+      const defaultData = (context.defaultData as any[] | undefined) ?? data;
+      const resetData = defaultData.map((d: any) => ({
+        ...d,
+        id: context.nextId(),
+      }));
+      return { animationData: resetData, isResetAction: true };
+    }
+    if (actionType === "load") {
+      const loadArr = (payload.data as number[]) ?? [];
+      const loadData = loadArr.map((v) => ({
+        id: context.nextId(),
+        value: v,
+      }));
+      return { animationData: loadData, isResetAction: true };
+    }
+    return { animationData: data, isResetAction: true };
+  }
+
+  return null;
+}
+
 export const BinaryTreeConfig: LevelImplementationConfig = {
   id: "binarytree",
   type: "dataStructure",
@@ -1244,6 +1305,7 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
     { id: "node-7", value: 7 },
   ],
   createAnimationSteps: createBinaryTreeAnimationSteps,
+  actionHandler: binaryTreeActionHandler,
   renderActionBar: (props) => <BinaryTreeActionBar {...(props as any)} />,
   relatedProblems: [
     {
