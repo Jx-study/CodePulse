@@ -17,7 +17,6 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onAddNode,
   onDeleteNode,
@@ -64,7 +63,6 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />

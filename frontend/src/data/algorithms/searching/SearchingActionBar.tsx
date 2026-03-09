@@ -17,7 +17,6 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onRun,
   maxNodes,
@@ -41,7 +40,6 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />

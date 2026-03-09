@@ -601,7 +601,7 @@ export const useDataStructureLogic = (config: any) => {
         isResetAction = true;
 
         if (actionType === "random") {
-          const randomCount = Math.floor(Math.random() * 6) + 5; // 5~10 個節點
+          const randomCount = payload.randomCount || DATA_LIMITS.DEFAULT_RANDOM_COUNT;
           newData = generateRandomGraph(randomCount);
         } else if (actionType === "reset") {
           newData = cloneData(config.defaultData) as GraphData;

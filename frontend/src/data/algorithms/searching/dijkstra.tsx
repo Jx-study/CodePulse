@@ -305,4 +305,5 @@ export const dijkstraConfig: LevelImplementationConfig = {
   },
   createAnimationSteps: createDijkstraAnimationSteps,
   renderActionBar: (props) => <DijkstraActionBar {...(props as AlgoActionBarProps)} />,
+  maxNodes: 15,
 };

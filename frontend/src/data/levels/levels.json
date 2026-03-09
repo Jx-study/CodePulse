@@ -367,7 +367,7 @@
         "比較與二分搜尋的差異",
         "分析時間複雜度 O(n)"
       ],
-      "isDeveloped": true,
+      "isDeveloped": false,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["portal-to-searching"] },
       "graphPosition": { "layer": 0, "branch": "main" },
@@ -665,7 +665,7 @@
         "應用於最短路徑問題"
       ],
       "isDeveloped": true,
-      "isUnlocked": true,
+      "isUnlocked": false,
       "prerequisites": { "type": "NONE", "levelIds": [] },
       "graphPosition": { "layer": 0, "branch": "main" },
       "pathMetadata": { "pathType": "main" },

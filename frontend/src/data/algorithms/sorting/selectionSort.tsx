@@ -268,5 +268,5 @@ export const selectionSortConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/maximum-gap/",
     },
   ],
-  maxNodes: 10,
+  maxNodes: 30,
 };

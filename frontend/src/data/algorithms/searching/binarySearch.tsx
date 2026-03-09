@@ -324,4 +324,5 @@ export const binarySearchConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
     },
   ],
+  maxNodes: 30,
 };
