@@ -258,7 +258,9 @@ export const useAlgorithmLogic = (config: any) => {
       let gridCols = 5; // 預設
       let isGridLoad = false;
       let isGraphLoad = false;
+      let isKnapsackLoad = false;
       let graphPayload: { nodes: any[]; edges: string[][] } | null = null;
+      let knapsackPayload: { items: any[]; capacity: number } | null = null;
 
       // 檢查是否為 Grid 特殊格式 (如果是字串)
       if (typeof payload.data === "string") {
@@ -312,6 +314,25 @@ export const useAlgorithmLogic = (config: any) => {
             graphPayload = { nodes, edges };
             isGraphLoad = true;
           }
+        } else if (payload.data.startsWith("KNAPSACK:")) {
+          // KNAPSACK 格式：KNAPSACK:capacity:w1 v1,w2 v2...
+          const parts = payload.data.split(":");
+          if (parts.length >= 3) {
+            const cap = parseInt(parts[1], 10);
+            const itemStr = parts.slice(2).join(":"); // 將剩餘部分接起來
+
+            const items: any[] = [];
+            if (itemStr.trim() !== "") {
+              itemStr.split(",").forEach((pair: string) => {
+                const [w, v] = pair.trim().split(/\s+/).map(Number);
+                if (!isNaN(w) && !isNaN(v)) {
+                  items.push({ weight: w, value: v });
+                }
+              });
+            }
+            knapsackPayload = { items, capacity: cap };
+            isKnapsackLoad = true;
+          }
         }
       } else if (Array.isArray(payload.data)) {
         loadValues = payload.data;
@@ -333,6 +354,15 @@ export const useAlgorithmLogic = (config: any) => {
           syncCoordinates(newData, steps[0].elements);
           console.log("Synced Coordinates:", newData.nodes[0]);
         }
+
+        setData(newData);
+        setActiveSteps(steps);
+        return steps;
+      } else if (isKnapsackLoad && knapsackPayload) {
+        newData = cloneData(knapsackPayload.items) as any;
+        const steps = generateSteps(newData, {
+          capacity: knapsackPayload.capacity,
+        });
 
         setData(newData);
         setActiveSteps(steps);

@@ -46,7 +46,7 @@ export function createKnapsackAnimationSteps(
     const headerVal = new Box();
     headerVal.id = "header-title-val";
     headerVal.value = "V";
-    headerVal.moveTo(startX - boxW * 3.5, startY - boxH);
+    headerVal.moveTo(startX - boxW * 2.5, startY - boxH);
     headerVal.width = boxW;
     headerVal.height = boxH;
     headerVal.setStatus(Status.Inactive);
@@ -55,7 +55,7 @@ export function createKnapsackAnimationSteps(
     const headerWt = new Box();
     headerWt.id = "header-title-wt";
     headerWt.value = "W";
-    headerWt.moveTo(startX - boxW * 2.5, startY - boxH);
+    headerWt.moveTo(startX - boxW * 3.5, startY - boxH);
     headerWt.width = boxW;
     headerWt.height = boxH;
     headerWt.setStatus(Status.Inactive);
@@ -88,7 +88,7 @@ export function createKnapsackAnimationSteps(
       const valueBox = new Box();
       valueBox.id = `info-val-${i}`;
       valueBox.value = i === 0 ? "0" : String(items[i - 1].value);
-      valueBox.moveTo(startX - boxW * 3.5, startY + i * boxH);
+      valueBox.moveTo(startX - boxW * 2.5, startY + i * boxH);
       valueBox.width = boxW;
       valueBox.height = boxH;
       valueBox.setStatus(statusMap[`info-val-${i}`] || Status.Inactive);
@@ -98,7 +98,7 @@ export function createKnapsackAnimationSteps(
       const weightBox = new Box();
       weightBox.id = `info-wt-${i}`;
       weightBox.value = i === 0 ? "0" : String(items[i - 1].weight);
-      weightBox.moveTo(startX - boxW * 2.5, startY + i * boxH);
+      weightBox.moveTo(startX - boxW * 3.5, startY + i * boxH);
       weightBox.width = boxW;
       weightBox.height = boxH;
       weightBox.setStatus(statusMap[`info-wt-${i}`] || Status.Inactive);

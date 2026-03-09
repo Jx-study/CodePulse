@@ -590,7 +590,11 @@ function TutorialContent() {
 
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
-    if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
+    if (
+      raw.startsWith("GRID:") ||
+      raw.startsWith("GRAPH:") ||
+      raw.startsWith("KNAPSACK:")
+    ) {
       const steps = executeAction("load", {
         data: raw,
         randomCount: randomCountRef.current,

@@ -8,6 +8,7 @@ import {
   ActionBarContainer,
   ActionBarGroup,
   StaticLabel,
+  KnapsackLoaderModal,
   styles,
 } from "@/modules/core/components/ActionBar/ActionBarCommon";
 
@@ -18,17 +19,20 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
   onRun,
 }) => {
   const [capacity, setCapacity] = useState("5");
+  const [showLoader, setShowLoader] = useState(false);
 
-  // 客製化的隨機物品產生器 (因為背包問題需要 weight 和 value 兩個屬性)
+  const handleModalLoad = (itemsStr: string) => {
+    onLoadData(`KNAPSACK:${capacity}:${itemsStr}`);
+  };
+
+  // 產生隨機物品，並封裝成標準字串格式
   const handleGenerateRandom = () => {
-    const itemCount = Math.floor(Math.random() * 4) + 3; // 隨機 3~6 個物品
-    const newItems = Array.from({ length: itemCount }, () => ({
-      weight: Math.floor(Math.random() * 4) + 1, // 重量 1~4
-      value: Math.floor(Math.random() * 40) + 10, // 價值 10~49
-    }));
+    const itemCount = Math.floor(Math.random() * 4) + 3;
+    const newItems = Array.from({ length: itemCount }, () => {
+      return `${Math.floor(Math.random() * 4) + 1} ${Math.floor(Math.random() * 40) + 10}`;
+    }).join(",");
 
-    // 利用 onLoadData 將物件陣列強行載入給 useAlgorithmLogic
-    onLoadData(newItems as any);
+    onLoadData(`KNAPSACK:${capacity}:${newItems}`);
   };
 
   const handleRun = () => {
@@ -48,7 +52,21 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
   return (
     <ActionBarContainer>
       {/* 第一區塊：資料生成 */}
+      <KnapsackLoaderModal
+        show={showLoader}
+        onClose={() => setShowLoader(false)}
+        onLoad={handleModalLoad}
+      />
       <ActionBarGroup>
+        <Tooltip content="自定義載入物品清單">
+          <Button
+            size="sm"
+            onClick={() => setShowLoader(true)}
+            disabled={disabled}
+          >
+            載入資料
+          </Button>
+        </Tooltip>
         <Tooltip content="清除所有資料，恢復預設物品">
           <Button size="sm" onClick={onResetData} disabled={disabled}>
             重設物品
