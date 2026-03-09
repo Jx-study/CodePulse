@@ -33,50 +33,96 @@ export function createKnapsackAnimationSteps(
     .map(() => Array(capacity + 1).fill(0));
   const statusMap: Record<string, Status> = {};
 
-  const startX = 120;
-  const startY = 120;
-  const boxW = 55;
+  const startX = 0;
+  const startY = 0;
+  const boxW = 45;
   const boxH = 45;
 
   const recordStep = (desc: string, tag: string) => {
     const elements: Box[] = [];
 
-    // 1. 畫出 Col Header (背包容量 0~W)
+    // 畫出表格最上方的 Header (Row -1)
+    // 左側三個固定標題
+    const headerVal = new Box();
+    headerVal.id = "header-title-val";
+    headerVal.value = "V";
+    headerVal.moveTo(startX - boxW * 3.5, startY - boxH);
+    headerVal.width = boxW;
+    headerVal.height = boxH;
+    headerVal.setStatus(Status.Inactive);
+    elements.push(headerVal);
+
+    const headerWt = new Box();
+    headerWt.id = "header-title-wt";
+    headerWt.value = "W";
+    headerWt.moveTo(startX - boxW * 2.5, startY - boxH);
+    headerWt.width = boxW;
+    headerWt.height = boxH;
+    headerWt.setStatus(Status.Inactive);
+    elements.push(headerWt);
+
+    const headerItem = new Box();
+    headerItem.id = "header-title-item";
+    headerItem.value = "I\\C";
+    headerItem.moveTo(startX - boxW * 1.25, startY - boxH);
+    headerItem.width = boxW * 1.5; // 加寬處理文字長度
+    headerItem.height = boxH;
+    headerItem.setStatus(Status.Inactive);
+    elements.push(headerItem);
+
+    // 右側的背包容量標題 (w = 0 ~ W)
     for (let w = 0; w <= capacity; w++) {
       const colHeader = new Box();
       colHeader.id = `header-col-${w}`;
       colHeader.value = String(w);
-      colHeader.description = w === 0 ? "容量 W" : "";
       colHeader.moveTo(startX + w * boxW, startY - boxH);
       colHeader.width = boxW;
       colHeader.height = boxH;
       colHeader.setStatus(Status.Inactive);
-      colHeader.borderStyle = "dashed";
       elements.push(colHeader);
     }
 
-    // 2. 畫出 Row Header (物品 1~N)
-    for (let i = 1; i <= n; i++) {
-      const rowHeader = new Box();
-      rowHeader.id = `header-row-${i}`;
-      rowHeader.value = `w:${items[i - 1].weight}, v:${items[i - 1].value}`;
-      rowHeader.description = `Item ${i}`;
-      rowHeader.moveTo(startX - boxW * 1.5, startY + i * boxH);
-      rowHeader.width = boxW * 1.2;
-      rowHeader.height = boxH;
-      rowHeader.setStatus(Status.Inactive);
-      rowHeader.borderStyle = "dashed";
-      elements.push(rowHeader);
+    // 畫出左側的物品資訊列 (Row 0 ~ N)
+    for (let i = 0; i <= n; i++) {
+      // 價值
+      const valueBox = new Box();
+      valueBox.id = `info-val-${i}`;
+      valueBox.value = i === 0 ? "0" : String(items[i - 1].value);
+      valueBox.moveTo(startX - boxW * 3.5, startY + i * boxH);
+      valueBox.width = boxW;
+      valueBox.height = boxH;
+      valueBox.setStatus(Status.Inactive);
+      elements.push(valueBox);
+
+      // 重量
+      const weightBox = new Box();
+      weightBox.id = `info-wt-${i}`;
+      weightBox.value = i === 0 ? "0" : String(items[i - 1].weight);
+      weightBox.moveTo(startX - boxW * 2.5, startY + i * boxH);
+      weightBox.width = boxW;
+      weightBox.height = boxH;
+      weightBox.setStatus(Status.Inactive);
+      elements.push(weightBox);
+
+      // 物品 index (i) -> 對齊剛剛加寬的 headerItem
+      const itemBox = new Box();
+      itemBox.id = `info-item-${i}`;
+      itemBox.value = i === 0 ? "0 items" : "item " + String(i);
+      itemBox.moveTo(startX - boxW * 1.25, startY + i * boxH);
+      itemBox.width = boxW * 1.5; // 跟著加寬，保持欄位對齊
+      itemBox.height = boxH;
+      itemBox.setStatus(Status.Inactive);
+      elements.push(itemBox);
     }
 
-    // 3. 畫出 DP 二維表格
+    // 畫出 DP 二維表格
     for (let i = 0; i <= n; i++) {
       for (let w = 0; w <= capacity; w++) {
         const cell = new Box();
         const key = `${i}-${w}`;
         cell.id = `dp-${key}`;
 
-        // 如果是 0 行或 0 列，預設顯示 0
+        // 第 0 列與第 0 行初始化為 0
         if (i === 0 || w === 0) {
           cell.value = "0";
           cell.setStatus(Status.Inactive);
@@ -110,7 +156,6 @@ export function createKnapsackAnimationSteps(
   };
 
   // 演算法開始
-
   // 初始化表格狀態
   for (let i = 1; i <= n; i++) {
     for (let w = 1; w <= capacity; w++) {
@@ -119,7 +164,7 @@ export function createKnapsackAnimationSteps(
   }
 
   recordStep(
-    `初始化 DP 表格，dp[0][w] 和 dp[i][0] 皆為 0 (沒有物品或沒有容量時價值為 0)。`,
+    `初始化 DP 表格，當沒有物品 (i=0) 或背包容量為 0 (w=0) 時，最大價值皆為 0。`,
     TAGS.INIT,
   );
 
@@ -139,7 +184,6 @@ export function createKnapsackAnimationSteps(
         物品價值: value,
       };
 
-      // 稍微改寫 recordStep 讓它可以吃 stepVars，這裡為了簡單先直接複寫上一步的 variables
       recordStep(
         `開始計算 dp[${i}][${w}]：考慮是否放入第 ${i} 個物品 (重量 ${weight}, 價值 ${value})。`,
         TAGS.INNER_LOOP,
@@ -149,7 +193,7 @@ export function createKnapsackAnimationSteps(
       if (weight > w) {
         // 放不下
         dp[i][w] = dp[i - 1][w];
-        statusMap[`${i - 1}-${w}`] = Status.Inactive; // 標示參考來源
+        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 標示參考來源
 
         recordStep(
           `物品重量 (${weight}) > 目前容量 (${w})，放不下！繼承上一列的值：dp[${i}][${w}] = dp[${i - 1}][${w}] = ${dp[i][w]}`,
@@ -163,7 +207,7 @@ export function createKnapsackAnimationSteps(
         const skipValue = dp[i - 1][w];
         const takeValue = dp[i - 1][w - weight] + value;
 
-        statusMap[`${i - 1}-${w}`] = Status.Inactive; // 參考不放
+        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 參考不放
         statusMap[`${i - 1}-${w - weight}`] = Status.Prepare; // 參考放
 
         recordStep(
