@@ -1246,6 +1246,10 @@ function binaryTreeActionHandler(
     return { animationData: newData, animationParams: { value: delValue } };
   }
 
+  if (actionType === "search") {
+    return { animationData: data };
+  }
+
   if (["random", "reset", "load", "refresh"].includes(actionType)) {
     if (actionType === "random") {
       const count =
