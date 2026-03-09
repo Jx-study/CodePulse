@@ -130,14 +130,6 @@
   }
 }
 
-// 定義 blink 動畫關鍵幀
-:global {
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-}
-
 @mixin blink($duration: 1s, $opacity: 0.5, $timing: ease-in-out) {
   --blink-opacity: #{$opacity};
   animation: blink $duration $timing infinite;
