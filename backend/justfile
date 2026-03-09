@@ -2,9 +2,11 @@
 # Usage: just <recipe>
 # Install just: winget install Casey.Just
 
+set windows-shell := ["cmd", "/c"]
+
 # ── Dev ────────────────────────────────────────────────────────────────────
 dev:
-    docker-compose up postgres backend --build
+    docker-compose up postgres backend --build -d
 
 # ── Migration ──────────────────────────────────────────────────────────────
 migrate msg="update":   
