@@ -178,6 +178,7 @@ export function TopSection(props: TopSectionProps) {
                       setCollapsed('codeEditor', collapsed);
                     }
                   }}
+                  style={{ minWidth: 0 }} // ← 套用在中間 wrapper，打破 min-width: auto 約束
                 >
                   <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
@@ -353,6 +354,7 @@ export function TopSection(props: TopSectionProps) {
                       setCollapsed('codeEditor', collapsed);
                     }
                   }}
+                  style={{ minWidth: 0 }} // ← 套用在中間 wrapper，打破 min-width: auto 約束
                 >
                   <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader

@@ -10,6 +10,8 @@ import {
   createBoxes as baseCreateBoxes,
 } from "./utils";
 import { QueueActionBar } from "./QueueActionBar";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
   INIT: "INIT",
@@ -485,6 +487,82 @@ class Queue:
   },
 };
 
+/** Queue actionHandler */
+function queueActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: BoxData[],
+  context: ActionContext,
+): ActionResult<BoxData[]> | null {
+  const { value } = payload as { value?: number };
+  const newData = [...data];
+
+  if (actionType === "add") {
+    const newId = context.nextId();
+    newData.push({ id: newId, value: value! });
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value, mode: "Enqueue" },
+    };
+  }
+
+  if (actionType === "delete") {
+    let targetId: string | undefined;
+    let delValue: number | undefined;
+    const delBox = newData.shift();
+    if (delBox) {
+      targetId = delBox.id;
+      delValue = Number(delBox.value);
+    }
+    return {
+      animationData: newData,
+      animationParams: { targetId, value: delValue, mode: "Dequeue" },
+    };
+  }
+
+  if (actionType === "peek") {
+    let targetId: string | undefined;
+    let peekValue: number | undefined;
+    if (newData.length > 0) {
+      const frontNode = newData[0];
+      targetId = frontNode.id;
+      peekValue = Number(frontNode.value);
+    }
+    return {
+      animationData: data,
+      animationParams: { targetId, value: peekValue, mode: "Peek" },
+    };
+  }
+
+  if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    if (actionType === "random") {
+      const count =
+        (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+      const randData = Array.from({ length: count }, () => ({
+        id: context.nextId(),
+        value: Math.floor(Math.random() * 100),
+      }));
+      return { animationData: randData, isResetAction: true };
+    }
+    if (actionType === "reset") {
+      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
+        ...d,
+        id: context.nextId(),
+      }));
+      return { animationData: resetData, isResetAction: true };
+    }
+    if (actionType === "load") {
+      const loadArr = (payload.data as number[]) ?? [];
+      const loadData = loadArr.map((v) => ({ id: context.nextId(), value: v }));
+      return { animationData: loadData, isResetAction: true };
+    }
+    return { animationData: data, isResetAction: true };
+  }
+
+  return null;
+}
+
 export const QueueConfig: LevelImplementationConfig = {
   id: "queue",
   type: "dataStructure",
@@ -505,6 +583,7 @@ export const QueueConfig: LevelImplementationConfig = {
     { id: "box-2", value: 3 },
   ],
   createAnimationSteps: createQueueAnimationSteps,
+  actionHandler: queueActionHandler,
   renderActionBar: (props) => <QueueActionBar {...(props as any)} />,
   relatedProblems: [
     {

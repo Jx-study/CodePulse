@@ -214,6 +214,8 @@
   border-bottom: none;
   border-right: none;
   gap: 0rem;
+  min-width: 0; // 允許 tabList 縮到小於内容寬度
+  overflow: hidden; // 確保 Tabs 不會溢出到 tabList 本身
 
   .tab {
     padding: $spacing-xs $spacing-sm;

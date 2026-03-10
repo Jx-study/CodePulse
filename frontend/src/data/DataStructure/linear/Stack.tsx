@@ -10,6 +10,8 @@ import {
   createBoxes as baseCreateBoxes,
 } from "./utils";
 import { StackActionBar } from "./StackActionBar";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
   INIT: "INIT",
@@ -478,6 +480,82 @@ const stackCodeConfig: CodeConfig = {
   },
 };
 
+/** Stack actionHandler */
+function stackActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: BoxData[],
+  context: ActionContext,
+): ActionResult<BoxData[]> | null {
+  const { value } = payload as { value?: number };
+  const newData = [...data];
+
+  if (actionType === "add") {
+    const newId = context.nextId();
+    newData.push({ id: newId, value: value! });
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value, mode: "Push" },
+    };
+  }
+
+  if (actionType === "delete") {
+    let targetId: string | undefined;
+    let delValue: number | undefined;
+    if (newData.length > 0) {
+      const delBox = newData.pop()!;
+      targetId = delBox.id;
+      delValue = Number(delBox.value);
+    }
+    return {
+      animationData: newData,
+      animationParams: { targetId, value: delValue, mode: "Pop" },
+    };
+  }
+
+  if (actionType === "peek") {
+    let targetId: string | undefined;
+    let peekValue: number | undefined;
+    if (newData.length > 0) {
+      const topNode = newData[newData.length - 1];
+      targetId = topNode.id;
+      peekValue = Number(topNode.value);
+    }
+    return {
+      animationData: data,
+      animationParams: { targetId, value: peekValue, mode: "Peek" },
+    };
+  }
+
+  if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    if (actionType === "random") {
+      const count =
+        (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+      const randData = Array.from({ length: count }, () => ({
+        id: context.nextId(),
+        value: Math.floor(Math.random() * 100),
+      }));
+      return { animationData: randData, isResetAction: true };
+    }
+    if (actionType === "reset") {
+      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
+        ...d,
+        id: context.nextId(),
+      }));
+      return { animationData: resetData, isResetAction: true };
+    }
+    if (actionType === "load") {
+      const loadArr = (payload.data as number[]) ?? [];
+      const loadData = loadArr.map((v) => ({ id: context.nextId(), value: v }));
+      return { animationData: loadData, isResetAction: true };
+    }
+    return { animationData: data, isResetAction: true };
+  }
+
+  return null;
+}
+
 export const StackConfig: LevelImplementationConfig = {
   id: "stack",
   type: "dataStructure",
@@ -498,6 +576,7 @@ export const StackConfig: LevelImplementationConfig = {
     { id: "box-3", value: 3 },
   ],
   createAnimationSteps: createStackAnimationSteps,
+  actionHandler: stackActionHandler,
   renderActionBar: (props) => <StackActionBar {...(props as any)} />,
   relatedProblems: [
     {

@@ -4,6 +4,86 @@ import type {
   LevelImplementationConfig,
 } from "@/types/implementation";
 import { DijkstraActionBar } from "./DijkstraActionBar";
+import {
+  cloneData,
+  generateRandomGraph,
+} from "@/modules/core/visualization/visualizationUtils";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+
+function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+  const parts = dataStr.split(":");
+  if (parts.length < 3) return null;
+  const nodeCount = parseInt(parts[1], 10);
+  if (isNaN(nodeCount)) return null;
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const edges: string[][] = [];
+  const edgeStr = parts.slice(2).join(":").trim();
+  if (edgeStr !== "") {
+    edgeStr.split(",").forEach((pair: string) => {
+      const [u, v, w] = pair.trim().split(/\s+/);
+      if (u !== undefined && v !== undefined) {
+        const uIdx = parseInt(u, 10);
+        const vIdx = parseInt(v, 10);
+        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
+          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        }
+      }
+    });
+  }
+  return { nodes, edges };
+}
+
+function dijkstraActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: any,
+  context: ActionContext,
+): ActionResult<unknown> | null {
+  const defaultData = context.defaultData as { graph: any };
+
+  if (actionType === "random") {
+    const count = Math.floor(Math.random() * 6) + 5;
+    const newData = generateRandomGraph(count, true);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph" },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "load") {
+    const dataStr = payload.data as string;
+    if (typeof dataStr !== "string" || !dataStr.startsWith("GRAPH:")) return null;
+    const graphPayload = parseGraphLoadPayload(dataStr);
+    if (!graphPayload) return null;
+    return {
+      animationData: cloneData(graphPayload),
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph", isDirected: payload.Directed },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "reset") {
+    const newData = cloneData(defaultData.graph);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph", ...payload },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "run") {
+    return { animationData: cloneData(data) };
+  }
+
+  return null;
+}
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import {
@@ -18,8 +98,8 @@ const TAGS = {
   WHILE_QUEUE_NOT_EMPTY: "WHILE_QUEUE_NOT_EMPTY",
   EXTRACT_MIN: "EXTRACT_MIN",
   CHECK_NEIGHBORS: "CHECK_NEIGHBORS",
-  RELAX_EDGE: "RELAX_EDGE",
-  UPDATE_DIST: "UPDATE_DIST",
+  RELAX_EDGE_TRUE: "RELAX_EDGE_TRUE",
+  RELAX_EDGE_FALSE: "RELAX_EDGE_FALSE",
   DONE: "DONE",
 };
 
@@ -182,13 +262,13 @@ export function createDijkstraAnimationSteps(
         updateLinkStatus(linkStatusMap, u, v, "path", isDirected);
         recordStep(
           `發現更短路徑，從 ${u} 到 ${v} 的新距離是 ${alt}，更新距離表`,
-          TAGS.RELAX_EDGE,
+          TAGS.RELAX_EDGE_TRUE,
         );
         statusMap[v] = Status.Unfinished;
       } else {
         recordStep(
           `不需更新：新距離 ${alt} 並未小於目前的距離`,
-          TAGS.RELAX_EDGE,
+          TAGS.RELAX_EDGE_FALSE,
         );
       }
 
@@ -232,15 +312,17 @@ const dijkstraCodeConfig: CodeConfig = {
       End If
     End For
   End While
+
+  Return dist
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [2, 3, 4, 5, 6],
       [TAGS.WHILE_QUEUE_NOT_EMPTY]: [8],
       [TAGS.EXTRACT_MIN]: [9],
-      [TAGS.CHECK_NEIGHBORS]: [11],
-      [TAGS.RELAX_EDGE]: [12, 14],
-      [TAGS.UPDATE_DIST]: [15, 16],
-      [TAGS.DONE]: [20],
+      [TAGS.CHECK_NEIGHBORS]: [11, 12],
+      [TAGS.RELAX_EDGE_TRUE]: [14, 15, 16],
+      [TAGS.RELAX_EDGE_FALSE]: [14],
+      [TAGS.DONE]: [21, 22],
     },
   },
   python: {
@@ -304,6 +386,7 @@ export const dijkstraConfig: LevelImplementationConfig = {
     },
   },
   createAnimationSteps: createDijkstraAnimationSteps,
+  actionHandler: dijkstraActionHandler,
   renderActionBar: (props) => <DijkstraActionBar {...(props as AlgoActionBarProps)} />,
   maxNodes: 15,
 };

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
-import type { AnimationStep, ComplexityInfo, CodeConfig } from '@/types';
-import type { StatusConfig } from './statusConfig';
+import type { ReactNode } from "react";
+import type { AnimationStep, ComplexityInfo, CodeConfig } from "@/types";
+import type { StatusConfig } from "./statusConfig";
+import type { VisualizationActionHandler } from "@/modules/core/visualization/types";
 
 /**
  * 補充問題參考資料結構
@@ -10,13 +11,17 @@ export interface ProblemReference {
   id: string | number;
   title: string;
   concept: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   url: string;
 }
 
 // ─── ActionBar Props 分層型別 ────────────────────────────────
 
-export type AlgorithmViewMode = "graph" | "grid" | "longest_lte" | "shortest_gte";
+export type AlgorithmViewMode =
+  | "graph"
+  | "grid"
+  | "longest_lte"
+  | "shortest_gte";
 
 export interface RunParams {
   searchValue?: number;
@@ -84,7 +89,7 @@ export interface LevelImplementationConfig {
   createAnimationSteps: (
     data: any,
     action?: any,
-    config?: any
+    config?: any,
   ) => AnimationStep[];
   relatedProblems?: ProblemReference[];
   /** Optional custom status configuration - 可選的自訂狀態配置 */
@@ -96,6 +101,8 @@ export interface LevelImplementationConfig {
   defaultViewMode?: AlgorithmViewMode;
   /** 各資料結構/演算法自行定義的 ActionBar 元件 */
   renderActionBar?: (props: ActionBarProps) => ReactNode;
+  /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
+  actionHandler?: VisualizationActionHandler<any>;
 }
 
 /**
