@@ -6,29 +6,29 @@ set windows-shell := ["cmd", "/c"]
 
 # ── Dev ────────────────────────────────────────────────────────────────────
 dev:
-    docker-compose up postgres backend --build -d
+    docker compose up postgres backend --build -d
 
 # ── Migration ──────────────────────────────────────────────────────────────
-migrate msg="update":   
-    docker-compose exec backend flask db migrate -m "{{msg}}"
+migrate msg:
+    docker compose exec backend flask db migrate -m "{{msg}}"
 
 upgrade:
-    docker-compose exec backend flask db upgrade
+    docker compose exec backend flask db upgrade
 
 downgrade:
-    docker-compose exec backend flask db downgrade
+    docker compose exec backend flask db downgrade
 
 # ── DB Utils ───────────────────────────────────────────────────────────────
 db-shell:
-    docker-compose exec postgres psql -U codepulse -d codepulse
+    docker compose exec postgres psql -U codepulse -d codepulse
 
 db-tables:
-    docker-compose exec postgres psql -U codepulse -d codepulse -c "\dt"
+    docker compose exec postgres psql -U codepulse -d codepulse -c "\dt"
 
 db-reset:
-    docker-compose down -v
-    docker-compose up postgres -d
-    docker-compose up backend -d
+    docker compose down -v
+    docker compose up postgres -d
+    docker compose up backend -d
     just upgrade
 
 # ── Logs ───────────────────────────────────────────────────────────────────

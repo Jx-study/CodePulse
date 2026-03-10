@@ -29,6 +29,11 @@ services:
       - DATABASE_URL=postgresql://codepulse:codepulse_dev@postgres:5432/codepulse
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
       - FLASK_ENV=${FLASK_ENV:-development}
+      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-465}
+      - MAIL_USE_SSL=${MAIL_USE_SSL:-True}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy

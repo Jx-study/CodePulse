@@ -40,11 +40,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = useCallback(async (email: string, password: string, username?: string) => {
     const data = await authService.register(email, password, username ?? '');
+    if (!data.success) {
+      throw new Error(data.message || '註冊失敗');
+    }
+    // Registration now sends a verification code — no auto-login here
+  }, []);
+
+  const verifyEmail = useCallback(async (email: string, code: string) => {
+    const data = await authService.verifyEmail(email, code);
     if (data.success) {
       setIsAuthenticated(true);
       setUser(data.user ?? null);
     } else {
-      throw new Error(data.message || '註冊失敗');
+      throw new Error(data.message || '驗證失敗');
     }
   }, []);
 
@@ -69,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLoading,
     login,
     register,
+    verifyEmail,
     logout,
     checkAuthStatus,
   };

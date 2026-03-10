@@ -28,6 +28,7 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (emailOrDisplayName: string, password: string) => Promise<void>;
   register: (email: string, password: string, display_name: string) => Promise<void>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
 }

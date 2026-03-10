@@ -11,6 +11,26 @@ export default {
   "login": "Login",
   "register": "Register",
 
+  "verifyEmail": {
+    "title": "Verify Your Email",
+    "subtitle": "Verification code sent to",
+    "codePlaceholder": "Enter 6-character code",
+    "submit": "Verify & Complete Registration",
+    "resend": "Resend Code",
+    "backToRegister": "Back to Register",
+    "timeLeft": "Code expires in {{minutes}}:{{seconds}}",
+    "expired": "Verification code has expired",
+    "submitting": "Verifying...",
+    "resending": "Sending...",
+    "errors": {
+      "INVALID_OR_EXPIRED_CODE": "Invalid or expired verification code",
+      "EMAIL_ALREADY_EXISTS": "This email is already registered",
+      "MISSING_FIELDS": "Please fill in all required fields",
+      "MAIL_ERROR": "Failed to send verification code, please try again",
+      "DEFAULT": "Verification failed, please try again"
+    }
+  },
+
   "breadcrumb": {
     "dashboard": "Dashboard",
     "backToDashboard": "Back to Dashboard"

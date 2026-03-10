@@ -1,6 +1,17 @@
 import apiService from '@/api/api';
 import type { AuthResponse, AuthStatusResponse } from '@/types';
 
+export interface RegisterPendingResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface VerifyEmailResponse {
+  success: boolean;
+  message?: string;
+  user?: AuthResponse['user'];
+}
+
 const authService = {
   async login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
     const res = await apiService.post<AuthResponse>('/api/auth/login', {
@@ -10,11 +21,19 @@ const authService = {
     return res.data;
   },
 
-  async register(email: string, password: string, username: string): Promise<AuthResponse> {
-    const res = await apiService.post<AuthResponse>('/api/auth/register', {
+  async register(email: string, password: string, username: string): Promise<RegisterPendingResponse> {
+    const res = await apiService.post<RegisterPendingResponse>('/api/auth/register', {
       email,
       password,
       username,
+    });
+    return res.data;
+  },
+
+  async verifyEmail(email: string, code: string): Promise<AuthResponse> {
+    const res = await apiService.post<AuthResponse>('/api/auth/verify-email', {
+      email,
+      code,
     });
     return res.data;
   },
