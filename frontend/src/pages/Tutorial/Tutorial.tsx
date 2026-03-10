@@ -424,6 +424,7 @@ function TutorialContent() {
   const [hasTailMode, setHasTailMode] = useState(false);
   const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
+  const [renderedIsDirected, setRenderedIsDirected] = useState(false);
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -470,6 +471,7 @@ function TutorialContent() {
 
     if (topicTypeConfig && !isProcessing && hasData) {
       logic.executeAction("refresh", { hasTailMode, isDirected });
+      setRenderedIsDirected(isDirected);
       setCurrentStep(0);
     }
   }, [hasTailMode, isDirected, isAlgorithm]);
@@ -795,7 +797,7 @@ function TutorialContent() {
     topicTypeConfig,
     currentStatusColorMap,
     currentStatusConfig,
-    isDirected,
+    isDirected: renderedIsDirected,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,

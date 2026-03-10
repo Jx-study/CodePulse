@@ -104,10 +104,10 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
         const stateData = result.stateData ?? result.animationData;
 
         let animationParams: any;
-        if (result.isResetAction) {
-          animationParams = undefined;
-        } else if (result.useRawAnimationParams) {
+        if (result.useRawAnimationParams) {
           animationParams = result.animationParams;
+        } else if (result.isResetAction) {
+          animationParams = undefined;
         } else {
           animationParams = {
             type: actionType,

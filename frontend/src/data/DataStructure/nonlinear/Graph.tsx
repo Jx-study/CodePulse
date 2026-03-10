@@ -1250,7 +1250,7 @@ function graphActionHandler(
         isResetAction: true,
         needsSyncCoordinates: true,
         useRawAnimationParams: true,
-        animationParams: { type: "random", mode: "graph" },
+        animationParams: { type: "random", mode: "graph", isDirected },
       };
     }
     if (actionType === "reset") {
@@ -1278,7 +1278,7 @@ function graphActionHandler(
         isResetAction: true,
         needsSyncCoordinates: true,
         useRawAnimationParams: true,
-        animationParams: { type: "reset", mode: "graph" },
+        animationParams: { type: "reset", mode: "graph", isDirected },
       };
     }
     if (actionType === "load") {
@@ -1314,7 +1314,7 @@ function graphActionHandler(
       isResetAction: true,
       needsSyncCoordinates: true,
       useRawAnimationParams: true,
-      animationParams: { type: "refresh", mode: "graph" },
+      animationParams: { type: "refresh", mode: "graph", isDirected },
     };
   }
 
