@@ -270,7 +270,7 @@ function runGraphDFS(
       stack:
         stack.length > 0
           ? `[${stack.map((s) => `(${s.id}, ${s.dist})`).join(", ")}]`
-          : "[]  (空)",
+          : "[]",
       "visited count": visited.size,
     };
     steps.push(popFrame);
@@ -445,7 +445,7 @@ function runGraphDFS(
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
     notFoundFrame.variables = {
-      stack: "[]  (空)",
+      stack: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
     };
@@ -688,7 +688,7 @@ function runGridDFS(
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
     notFoundGridFrame.variables = {
-      stack: "[]  (空)",
+      stack: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",
     };

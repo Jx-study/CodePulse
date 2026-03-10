@@ -176,6 +176,7 @@ const TAGS = {
   CHECK_END: "CHECK_END",
   EXPLORE: "EXPLORE",
   VISIT_NEIGHBOR: "VISIT_NEIGHBOR",
+  CHANGE_VISITED_VALUE: "CHANGE_VISITED_VALUE",
   PATH_FOUND: "PATH_FOUND",
   NOT_FOUND: "NOT_FOUND",
 };
@@ -273,7 +274,7 @@ function runGraphBFS(
     dequeueFrame.variables = {
       curr: currId,
       [`distance[${currId}]`]: distanceMap[currId],
-      queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]  (空)",
+      queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
       "visited count": visited.size,
     };
     steps.push(dequeueFrame);
@@ -341,18 +342,18 @@ function runGraphBFS(
           newNeighbors.push(neighbor.id);
 
           statusMap[neighbor.id] = Status.Prepare;
-          distanceMap[neighbor.id] = currentDist + 1; // 鄰居距離 = 當前距離 + 1
+          // distanceMap 在 VISIT_NEIGHBOR frame 之後才更新
           updateLinkStatus(linkStatusMap, currId, neighbor.id, "path", false);
         }
       }
 
       if (newNeighbors.length > 0) {
-        // ── VISIT_NEIGHBOR frame（高亮 [13, 14, 15, 16]）──
+        // VISIT_NEIGHBOR：鄰居已標為 Prepare，距離仍為 ∞
         const visitFrame = generateGraphFrame(
           baseElements,
           statusMap,
           distanceMap,
-          `發現鄰居 ${newNeighbors.join(", ")}，距離更新為 ${currentDist + 1}，加入佇列`,
+          `發現鄰居 ${newNeighbors.join(", ")}，標記為已訪問`,
           false,
           { ...linkStatusMap },
         );
@@ -360,10 +361,32 @@ function runGraphBFS(
         visitFrame.variables = {
           curr: currId,
           "new neighbors": `[${newNeighbors.join(", ")}]`,
-          "distance[new]": currentDist + 1,
           "queue (after)": `[${queue.join(", ")}]`,
         };
         steps.push(visitFrame);
+
+        // 更新距離
+        for (const id of newNeighbors) {
+          distanceMap[id] = currentDist + 1;
+        }
+
+        // CHANGE_VISITED_VALUE：距離已更新為 currentDist + 1
+        const changeVisitedValueFrame = generateGraphFrame(
+          baseElements,
+          statusMap,
+          distanceMap,
+          `距離更新為 ${currentDist + 1}，加入佇列`,
+          false,
+          { ...linkStatusMap },
+        );
+        changeVisitedValueFrame.actionTag = TAGS.CHANGE_VISITED_VALUE;
+        changeVisitedValueFrame.variables = {
+          curr: currId,
+          "new neighbors": `[${newNeighbors.join(", ")}]`,
+          "distance[new]": currentDist + 1,
+          "queue (after)": `[${queue.join(", ")}]`,
+        };
+        steps.push(changeVisitedValueFrame);
       }
     }
 
@@ -415,7 +438,7 @@ function runGraphBFS(
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
     notFoundFrame.variables = {
-      queue: "[]  (空)",
+      queue: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
     };
@@ -668,7 +691,7 @@ function runGridBFS(
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
     notFoundGridFrame.variables = {
-      queue: "[]  (空)",
+      queue: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",
     };
@@ -724,7 +747,8 @@ End Procedure`,
       [TAGS.DEQUEUE]: [6, 7],
       [TAGS.CHECK_END]: [9],
       [TAGS.EXPLORE]: [13, 14],
-      [TAGS.VISIT_NEIGHBOR]: [15, 16, 17],
+      [TAGS.VISIT_NEIGHBOR]: [15],
+      [TAGS.CHANGE_VISITED_VALUE]: [ 16, 17],
       [TAGS.PATH_FOUND]: [10],
       [TAGS.NOT_FOUND]: [22],
     } as Record<string, number[]>,
