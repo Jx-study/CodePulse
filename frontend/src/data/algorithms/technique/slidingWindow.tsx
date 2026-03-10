@@ -305,9 +305,9 @@ export function createSlidingWindowAnimationSteps(
   return steps.map((s, idx) => ({ ...s, stepNumber: idx }));
 }
 
-const slidingWindowCodeConfig: CodeConfig = {
+const longestLteCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Procedure SlidingWindow(arr, targetSum):
+    content: `Procedure SlidingWindowLongest(arr, targetSum):
   left ← 0
   currentSum ← 0
   maxLen ← 0
@@ -337,7 +337,7 @@ End Procedure`,
     },
   },
   python: {
-    content: `def sliding_window(arr, target_sum):
+    content: `def sliding_window_longest(arr, target_sum):
     left = 0
     current_sum = 0
     max_len = 0
@@ -356,13 +356,73 @@ End Procedure`,
   },
 };
 
+const shortestGteCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Procedure SlidingWindowShortest(arr, targetSum):
+  left ← 0
+  currentSum ← 0
+  minLen ← ∞
+
+  For right ← 0 to length(arr) - 1 Do
+    currentSum ← currentSum + arr[right]
+
+    While currentSum ≥ targetSum And left ≤ right Do
+      If (right - left + 1) < minLen Then
+        minLen ← right - left + 1
+      End If
+      currentSum ← currentSum - arr[left]
+      left ← left + 1
+    End While
+  End For
+
+  If minLen = ∞ Then
+    Return Error
+  Else
+    Return minLen
+  End If
+End Procedure`,
+    mappings: {
+      [TAGS.INIT]: [2, 3, 4],
+      [TAGS.EXPAND_RIGHT]: [6],
+      [TAGS.CHECK_WHILE]: [7],
+      [TAGS.UPDATE_RESULT]: [9, 10, 11],
+      [TAGS.SHRINK_LEFT]: [13, 14],
+      [TAGS.DONE]: [18, 19, 20, 21],
+    },
+  },
+  python: {
+    content: `def sliding_window_shortest(arr, target_sum):
+    left = 0
+    current_sum = 0
+    min_len = float('inf')
+
+    for right in range(len(arr)):
+        current_sum += arr[right]
+
+        while current_sum >= target_sum and left <= right:
+            if right - left + 1 < min_len:
+                min_len = right - left + 1
+            current_sum -= arr[left]
+            left += 1
+
+    return min_len if min_len != float('inf') else -1`,
+  },
+};
+
 export const slidingWindowConfig: LevelImplementationConfig = {
   id: "slidingwindow",
   type: "algorithm",
+  defaultViewMode: "longest_lte",
   name: "滑動窗口 (Sliding Window)",
   categoryName: "演算法技巧",
   description: "用雙指標維護一個區間，解決連續子陣列問題",
-  codeConfig: slidingWindowCodeConfig,
+  codeConfig: longestLteCodeConfig,
+  getCodeConfig: (payload?: any) => {
+    if (payload?.mode === "shortest_gte") {
+      return shortestGteCodeConfig;
+    }
+    return longestLteCodeConfig;
+  },
   complexity: {
     timeBest: "O(n)",
     timeAverage: "O(n)",
