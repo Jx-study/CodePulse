@@ -370,4 +370,5 @@ export const prefixSumConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/range-sum-query-2d-immutable/",
     },
   ],
+  maxNodes: 15,
 };

@@ -15,7 +15,6 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onRun,
   maxNodes,
@@ -28,7 +27,6 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />

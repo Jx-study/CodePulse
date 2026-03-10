@@ -24,6 +24,7 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/app
+      - /app/__pycache_
     environment:
       - DATABASE_URL=postgresql://codepulse:codepulse_dev@postgres:5432/codepulse
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
@@ -45,7 +46,7 @@ services:
       - ./frontend:/app:delegated
       - /app/node_modules
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      # 使用 localhost:5000 因為瀏覽器是從主機訪問，不是從容器內
       - VITE_API_URL=http://localhost:5000
     depends_on:
       - backend

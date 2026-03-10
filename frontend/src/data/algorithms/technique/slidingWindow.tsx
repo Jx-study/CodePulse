@@ -338,4 +338,5 @@ export const slidingWindowConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createSlidingWindowAnimationSteps,
   renderActionBar: (props) => <SlidingWindowActionBar {...(props as any)} />,
+  maxNodes: 30,
 };
