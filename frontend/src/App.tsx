@@ -16,6 +16,7 @@ import { PageSkeleton } from "./shared/components/Skeleton";
 // Pages
 import Home from "./pages/Home/Home";
 import AuthPage from "./pages/Authentication/Auth";
+import VerifyEmailPage from "./pages/Authentication/VerifyEmail";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Practice from "./pages/Practice/Practice";
 import Explorer from "./pages/Explorer/Explorer";
@@ -55,6 +56,7 @@ function App() {
           {/* 登入页面布局 */}
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<AuthPage />} />
+            <Route path="verify-email" element={<VerifyEmailPage />} />
           </Route>
         </Routes>
       </Suspense>

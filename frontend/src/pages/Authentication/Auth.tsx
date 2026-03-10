@@ -79,16 +79,8 @@ function AuthPage() {
     try {
       await register(formData.email, formData.password, formData.username);
 
-      // 註冊成功（AuthContext 會自動登入並跳轉）
-      setMessage({
-        type: "success",
-        text: t("auth.success.REGISTRATION_SUCCESS"),
-      });
-
-      // 延遲跳轉到首頁
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      // 驗證碼已寄出，跳轉到驗證頁面
+      navigate("/auth/verify-email", { state: { email: formData.email } });
     } catch (error) {
       const errorMessage =
         error instanceof Error

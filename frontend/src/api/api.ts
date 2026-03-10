@@ -35,13 +35,14 @@ class ApiService {
     const url = `${this.config.baseURL}${endpoint}`;
     
     try {
+      const { headers: optHeaders, ...restOptions } = options;
       const response = await fetch(url, {
         credentials: 'include',
+        ...restOptions,
         headers: {
           'Content-Type': 'application/json',
-          ...options.headers,
+          ...optHeaders,
         },
-        ...options,
       });
 
       const data = await response.json();

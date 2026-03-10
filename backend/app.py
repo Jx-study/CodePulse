@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_mailman import Mail
 import logging
 import os
 
@@ -32,6 +33,9 @@ def create_app(config_name=None):
     # Import models so Flask-Migrate can detect them
     import models  # noqa: F401
     init_db(app)
+
+    mail = Mail(app)
+    app.extensions['mail'] = mail
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(analyze_bp)

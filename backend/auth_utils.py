@@ -105,6 +105,17 @@ def clear_auth_cookies(response):
     response.delete_cookie('refresh_token', path='/api/auth')
 
 
+# ── Verification code ─────────────────────────────────────────────────────────
+
+import string
+
+_CODE_ALPHABET = string.ascii_uppercase + string.digits
+
+def generate_verification_code(length: int = 6) -> str:
+    """Generate a cryptographically secure uppercase alphanumeric code."""
+    return ''.join(secrets.choice(_CODE_ALPHABET) for _ in range(length))
+
+
 # ── Auth decorator ────────────────────────────────────────────────────────────
 
 def login_required(f):

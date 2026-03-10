@@ -92,6 +92,7 @@ class UserToken(db.Model):
     token_hash = db.Column(db.String(255), unique=True, nullable=False)
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
     is_revoked = db.Column(db.Boolean, default=False, nullable=False)
+    family_id = db.Column(db.String(36), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
 
     __table_args__ = (

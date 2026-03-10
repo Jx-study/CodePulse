@@ -1,15 +1,18 @@
 from flask import Blueprint, jsonify, request, make_response, g
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+import uuid
 
 from database import db
-from models.user import User, UserIdentity, UserToken, ProviderType, UserRole
+from models.user import User, UserIdentity, UserToken, EmailVerification, ProviderType, UserRole, VerificationPurpose
 from auth_utils import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
     decode_token, hash_token,
     set_auth_cookies, clear_auth_cookies,
     login_required, REFRESH_TOKEN_EXPIRES,
+    generate_verification_code,
 )
+from services.mail import send_verification_email
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -54,6 +57,9 @@ def _update_streak(user):
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    import logging
+    raw_body = request.get_data(as_text=True)
+    content_type = request.content_type
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
     password = data.get('password') or ''
@@ -67,56 +73,34 @@ def register():
     if not username or len(username) < 3:
         return jsonify({'success': False, 'message': '用戶名至少需要3個字符', 'error_code': 'INVALID_USERNAME'}), 400
 
-    # Check uniqueness
+    # Check email uniqueness
     if User.query.filter_by(email=email).first():
         return jsonify({'success': False, 'message': '此 Email 已被註冊', 'error_code': 'EMAIL_EXISTS'}), 409
 
-    # Create user + identity in one transaction
+    # Generate verification code and store pending registration
+    code = generate_verification_code()
+    password_hash = hash_password(password)
+
+    verification = EmailVerification(
+        email=email,
+        code_hash=hash_token(code),
+        purpose=VerificationPurpose.registration,
+        extra_data={'username': username, 'password_hash': password_hash},
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=5),
+    )
     try:
-        user = User(
-            display_name=username,
-            email=email,
-            role=UserRole.user,
-        )
-        db.session.add(user)
-        db.session.flush()  # get user_id before commit
-
-        identity = UserIdentity(
-            user_id=user.user_id,
-            provider=ProviderType.local,
-            provider_id=email,
-            password_hash=hash_password(password),
-            is_verified=False,
-        )
-        db.session.add(identity)
-
-        # Issue tokens
-        access_token = create_access_token(user.user_id)
-        refresh_token = create_refresh_token(user.user_id)
-
-        # Persist refresh token hash
-        token_record = UserToken(
-            user_id=user.user_id,
-            token_hash=hash_token(refresh_token),
-            expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
-        )
-        db.session.add(token_record)
+        db.session.add(verification)
         db.session.commit()
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({'success': False, 'message': '註冊失敗，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+        return jsonify({'success': False, 'message': '伺服器錯誤，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
 
-    resp = make_response(jsonify({
-        'success': True,
-        'message': '註冊成功',
-        'user': _user_to_dict(user),
-        'session': {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-        },
-    }), 201)
-    set_auth_cookies(resp, access_token, refresh_token)
-    return resp
+    try:
+        send_verification_email(email, code)
+    except Exception:
+        return jsonify({'success': False, 'message': '驗證碼寄送失敗，請稍後再試', 'error_code': 'MAIL_ERROR'}), 500
+
+    return jsonify({'success': True, 'message': '驗證碼已寄出，請檢查您的信箱'}), 200
 
 
 # ── Login ────────────────────────────────────────────────────────────────────
@@ -166,6 +150,7 @@ def login():
             user_id=user.user_id,
             token_hash=hash_token(refresh_token),
             expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
+            family_id=str(uuid.uuid4()),
         )
         db.session.add(token_record)
         db.session.commit()
@@ -218,11 +203,148 @@ def get_current_user():
     return jsonify({'success': True, 'user': _user_to_dict(user)}), 200
 
 
+# ── Verify Email ─────────────────────────────────────────────────────────────
+
+@auth_bp.route('/verify-email', methods=['POST'])
+def verify_email():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    code = (data.get('code') or '').strip().upper()
+
+    if not email or not code:
+        return jsonify({'success': False, 'message': '缺少必要欄位', 'error_code': 'MISSING_FIELDS'}), 400
+
+    now = datetime.now(timezone.utc)
+
+    # Find latest valid verification record
+    verification = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.registration,
+        EmailVerification.is_used == False,
+        EmailVerification.expires_at > now,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if not verification:
+        return jsonify({'success': False, 'message': '驗證碼無效或已過期', 'error_code': 'INVALID_OR_EXPIRED_CODE'}), 400
+
+    if verification.code_hash != hash_token(code):
+        return jsonify({'success': False, 'message': '驗證碼無效或已過期', 'error_code': 'INVALID_OR_EXPIRED_CODE'}), 400
+
+    # Check email not taken since code was sent
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'message': '此 Email 已被註冊', 'error_code': 'EMAIL_ALREADY_EXISTS'}), 409
+
+    username = verification.extra_data.get('username')
+    password_hash = verification.extra_data.get('password_hash')
+
+    try:
+        user = User(
+            display_name=username,
+            email=email,
+            role=UserRole.user,
+        )
+        db.session.add(user)
+        db.session.flush()
+
+        identity = UserIdentity(
+            user_id=user.user_id,
+            provider=ProviderType.local,
+            provider_id=email,
+            password_hash=password_hash,
+            is_verified=True,
+        )
+        db.session.add(identity)
+
+        access_token = create_access_token(user.user_id)
+        refresh_token = create_refresh_token(user.user_id)
+
+        token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(refresh_token),
+            expires_at=now + REFRESH_TOKEN_EXPIRES,
+            family_id=str(uuid.uuid4()),
+        )
+        db.session.add(token_record)
+
+        verification.is_used = True
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': '註冊失敗，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    resp = make_response(jsonify({
+        'success': True,
+        'user': _user_to_dict(user),
+    }), 200)
+    set_auth_cookies(resp, access_token, refresh_token)
+    return resp
+
+
 # ── Refresh ──────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/refresh', methods=['POST'])
 def refresh_token():
-    return jsonify({'success': False, 'error_code': 'NOT_IMPLEMENTED', 'message': 'Coming soon'}), 501
+    import jwt as pyjwt
+
+    token_cookie = request.cookies.get('refresh_token')
+    if not token_cookie:
+        return jsonify({'success': False, 'error_code': 'MISSING_TOKEN', 'message': '缺少 refresh token'}), 401
+
+    # Validate JWT signature and type
+    try:
+        payload = decode_token(token_cookie, 'refresh')
+        user_id = int(payload['sub'])
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'success': False, 'error_code': 'TOKEN_EXPIRED', 'message': 'Token 已過期'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
+
+    # Look up token record in DB
+    now = datetime.now(timezone.utc)
+    token_hash = hash_token(token_cookie)
+    token_record = UserToken.query.filter_by(token_hash=token_hash).first()
+
+    if not token_record:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
+
+    if token_record.expires_at.replace(tzinfo=timezone.utc) <= now:
+        return jsonify({'success': False, 'error_code': 'TOKEN_EXPIRED', 'message': 'Token 已過期'}), 401
+
+    # Token Replay Detection
+    if token_record.is_revoked:
+        UserToken.query.filter_by(
+            family_id=token_record.family_id,
+            is_revoked=False,
+        ).update({'is_revoked': True})
+        db.session.commit()
+        return jsonify({'success': False, 'error_code': 'TOKEN_REUSE_DETECTED', 'message': '偵測到異常，請重新登入'}), 401
+
+    user = User.query.get(user_id)
+    if not user or user.deleted_at is not None:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
+
+    # Rotate tokens inside a transaction
+    try:
+        token_record.is_revoked = True
+
+        new_access = create_access_token(user.user_id)
+        new_refresh = create_refresh_token(user.user_id)
+
+        new_token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(new_refresh),
+            expires_at=now + REFRESH_TOKEN_EXPIRES,
+            family_id=token_record.family_id,
+        )
+        db.session.add(new_token_record)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'error_code': 'SERVER_ERROR', 'message': '伺服器錯誤，請稍後再試'}), 500
+
+    resp = make_response(jsonify({'success': True}), 200)
+    set_auth_cookies(resp, new_access, new_refresh)
+    return resp
 
 
 # ── Status ───────────────────────────────────────────────────────────────────
