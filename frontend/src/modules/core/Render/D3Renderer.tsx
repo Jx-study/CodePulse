@@ -489,6 +489,7 @@ export function renderAll(
 
   // 預先建立所有 link 的 key set，用於無向圖反向邊檢查
   const allLinkKeys = new Set(links.map((lk) => `${lk.sourceId}->${lk.targetId}`));
+  const seenSelfLoops = new Set<string>();
 
   // 僅保留 Node -> Node 的連線
   const linkData = links
@@ -506,6 +507,12 @@ export function renderAll(
       // 如果是「無向圖」，僅在反向邊也存在時才去重（避免誤刪樹的單向邊）
       // 例如 node-0 和 node-1 之間，若雙向都存在，只保留 id 較小的那條
       if (!isDirected) {
+        // 自環：sourceId === targetId，有向無向行為相同，直接保留（只取一次）
+        if (d.s.id === d.t.id) {
+          if (seenSelfLoops.has(d.s.id)) return false;
+          seenSelfLoops.add(d.s.id);
+          return true;
+        }
         const hasReverse = allLinkKeys.has(`${d.t.id}->${d.s.id}`);
         if (hasReverse) {
           return d.s.id <= d.t.id;

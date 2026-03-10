@@ -682,8 +682,10 @@ function runCheckConnected(
     source.pointers.forEach((target) => {
       // 正向
       undirectedAdj.get(source.id)?.push(target.id);
-      // 反向 (確保回頭路也能走，這樣才算檢查結構連通)
-      undirectedAdj.get(target.id)?.push(source.id);
+      // 反向：自環不需要反向（自己就是自己的鄰居），避免重複累積
+      if (source.id !== target.id) {
+        undirectedAdj.get(target.id)?.push(source.id);
+      }
     });
   });
 
