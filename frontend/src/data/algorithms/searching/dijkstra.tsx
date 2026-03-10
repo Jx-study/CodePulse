@@ -98,8 +98,8 @@ const TAGS = {
   WHILE_QUEUE_NOT_EMPTY: "WHILE_QUEUE_NOT_EMPTY",
   EXTRACT_MIN: "EXTRACT_MIN",
   CHECK_NEIGHBORS: "CHECK_NEIGHBORS",
-  RELAX_EDGE: "RELAX_EDGE",
-  UPDATE_DIST: "UPDATE_DIST",
+  RELAX_EDGE_TRUE: "RELAX_EDGE_TRUE",
+  RELAX_EDGE_FALSE: "RELAX_EDGE_FALSE",
   DONE: "DONE",
 };
 
@@ -262,13 +262,13 @@ export function createDijkstraAnimationSteps(
         updateLinkStatus(linkStatusMap, u, v, "path", isDirected);
         recordStep(
           `發現更短路徑，從 ${u} 到 ${v} 的新距離是 ${alt}，更新距離表`,
-          TAGS.RELAX_EDGE,
+          TAGS.RELAX_EDGE_TRUE,
         );
         statusMap[v] = Status.Unfinished;
       } else {
         recordStep(
           `不需更新：新距離 ${alt} 並未小於目前的距離`,
-          TAGS.RELAX_EDGE,
+          TAGS.RELAX_EDGE_FALSE,
         );
       }
 
@@ -312,15 +312,17 @@ const dijkstraCodeConfig: CodeConfig = {
       End If
     End For
   End While
+
+  Return dist
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [2, 3, 4, 5, 6],
       [TAGS.WHILE_QUEUE_NOT_EMPTY]: [8],
       [TAGS.EXTRACT_MIN]: [9],
-      [TAGS.CHECK_NEIGHBORS]: [11],
-      [TAGS.RELAX_EDGE]: [12, 14],
-      [TAGS.UPDATE_DIST]: [15, 16],
-      [TAGS.DONE]: [20],
+      [TAGS.CHECK_NEIGHBORS]: [11, 12],
+      [TAGS.RELAX_EDGE_TRUE]: [14, 15, 16],
+      [TAGS.RELAX_EDGE_FALSE]: [14],
+      [TAGS.DONE]: [21, 22],
     },
   },
   python: {
