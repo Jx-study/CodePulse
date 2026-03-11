@@ -3,6 +3,8 @@ import type { LevelImplementationConfig } from "@/types/implementation";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { KnapsackActionBar } from "@/data/algorithms/dp/KnapsackActionBar";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { cloneData } from "@/modules/core/visualization/visualizationUtils";
 
 const TAGS = {
   INIT: "INIT",
@@ -13,6 +15,58 @@ const TAGS = {
   SKIP_ITEM: "SKIP_ITEM",
   DONE: "DONE",
 };
+
+type KnapsackItem = { weight: number; value: number };
+
+function knapsackActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: KnapsackItem[],
+  context: ActionContext,
+): ActionResult<KnapsackItem[]> | null {
+  if (actionType === "load") {
+    const raw = payload.data as string;
+    if (!raw?.startsWith("KNAPSACK:")) return null;
+
+    const parts = raw.split(":");
+    if (parts.length < 3) return null;
+
+    const capacity = parseInt(parts[1], 10);
+    const itemStr = parts.slice(2).join(":");
+    const items: KnapsackItem[] = itemStr
+      .split(",")
+      .map((pair) => {
+        const [w, v] = pair.trim().split(/\s+/).map(Number);
+        return { weight: w, value: v };
+      })
+      .filter((item) => !isNaN(item.weight) && !isNaN(item.value));
+
+    if (items.length === 0) return null;
+
+    return {
+      animationData: items,
+      animationParams: { capacity },
+      isResetAction: true,
+      useRawAnimationParams: true, // 確保 capacity 參數不被 isResetAction 重置
+    };
+  }
+
+  if (actionType === "reset") {
+    return {
+      animationData: cloneData(context.defaultData as KnapsackItem[]),
+      isResetAction: true,
+    };
+  }
+
+  if (actionType === "run") {
+    return {
+      animationData: cloneData(data),
+      animationParams: payload,
+    };
+  }
+
+  return null;
+}
 
 export function createKnapsackAnimationSteps(
   inputData: any,
@@ -304,6 +358,7 @@ export const knapsackConfig: LevelImplementationConfig = {
     { weight: 3, value: 20 },
     { weight: 4, value: 30 },
   ],
+  actionHandler: knapsackActionHandler,
   createAnimationSteps: createKnapsackAnimationSteps,
   renderActionBar: (props) => <KnapsackActionBar {...(props as any)} />,
 };
