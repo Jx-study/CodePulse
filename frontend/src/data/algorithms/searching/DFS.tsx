@@ -1,6 +1,159 @@
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { BFSDFSActionBar } from "./BFSDFSActionBar";
+import {
+  cloneData,
+  generateRandomGraph,
+  generateRandomGrid,
+} from "@/modules/core/visualization/visualizationUtils";
+import type { ActionContext, GraphData } from "@/modules/core/visualization/types";
+import type { ActionResult } from "@/modules/core/visualization/types";
+
+function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+  const parts = dataStr.split(":");
+  if (parts.length < 3) return null;
+  const nodeCount = parseInt(parts[1], 10);
+  if (isNaN(nodeCount)) return null;
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const edges: string[][] = [];
+  const edgeStr = parts.slice(2).join(":").trim();
+  if (edgeStr !== "") {
+    edgeStr.split(",").forEach((pair: string) => {
+      const [u, v, w] = pair.trim().split(/\s+/);
+      if (u !== undefined && v !== undefined) {
+        const uIdx = parseInt(u, 10);
+        const vIdx = parseInt(v, 10);
+        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
+          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        }
+      }
+    });
+  }
+  return { nodes, edges };
+}
+
+function parseGridLoadPayload(dataStr: string): { cols: number; values: number[] } | null {
+  const parts = dataStr.split(":");
+  if (parts.length !== 3) return null;
+  const cols = parseInt(parts[1], 10);
+  const values = parts[2].split(",").map(Number);
+  if (isNaN(cols) || values.some((v) => isNaN(v))) return null;
+  return { cols, values };
+}
+
+function dfsActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: any,
+  context: ActionContext,
+): ActionResult<unknown> | null {
+  const defaultData = context.defaultData as { graph: GraphData; grid: any[] };
+
+  if (actionType === "random") {
+    const mode = (payload.mode as string) || "graph";
+    if (mode === "grid") {
+      const rows = (payload.rows as number) || 3;
+      const cols = (payload.cols as number) || 5;
+      const newData = generateRandomGrid(rows, cols);
+      return {
+        animationData: newData,
+        useRawAnimationParams: true,
+        animationParams: { mode: "grid", cols },
+        isResetAction: false,
+      };
+    }
+    const count = Math.floor(Math.random() * 6) + 5;
+    const newData = generateRandomGraph(count, true);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph" },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "load") {
+    const dataStr = payload.data as string;
+    if (typeof dataStr !== "string") return null;
+    if (dataStr.startsWith("GRAPH:")) {
+      const graphPayload = parseGraphLoadPayload(dataStr);
+      if (!graphPayload) return null;
+      return {
+        animationData: cloneData(graphPayload),
+        useRawAnimationParams: true,
+        animationParams: { mode: "graph", isDirected: payload.Directed },
+        needsSyncCoordinates: true,
+        isResetAction: false,
+      };
+    }
+    if (dataStr.startsWith("GRID:")) {
+      const gridPayload = parseGridLoadPayload(dataStr);
+      if (!gridPayload) return null;
+      const newData = gridPayload.values.map((val, i) => ({ id: `box-${i}`, val }));
+      return {
+        animationData: newData,
+        useRawAnimationParams: true,
+        animationParams: { mode: "grid", cols: gridPayload.cols },
+        isResetAction: false,
+      };
+    }
+    return null;
+  }
+
+  if (actionType === "reset") {
+    const modeVal = (payload.mode as string) || "graph";
+    if (modeVal === "grid") {
+      const newData = cloneData(defaultData.grid);
+      return {
+        animationData: newData,
+        useRawAnimationParams: true,
+        animationParams: { mode: "grid", cols: 5, ...payload },
+        isResetAction: false,
+      };
+    }
+    const newData = cloneData(defaultData.graph) as GraphData;
+    const isGraphData = (d: any): d is GraphData =>
+      d && !Array.isArray(d) && Array.isArray(d.nodes);
+    if (isGraphData(data)) {
+      const coordMap = new Map(data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]));
+      newData.nodes.forEach((n: any) => {
+        const saved = coordMap.get(n.id);
+        if (saved?.x != null && saved?.y != null) {
+          n.x = saved.x;
+          n.y = saved.y;
+        }
+      });
+    }
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { mode: "graph", ...payload },
+      needsSyncCoordinates: true,
+      isResetAction: false,
+    };
+  }
+
+  if (actionType === "run") {
+    return { animationData: cloneData(data) };
+  }
+
+  if (actionType === "switchMode") {
+    const newData =
+      payload.mode === "graph"
+        ? cloneData(defaultData.graph)
+        : cloneData(defaultData.grid);
+    return {
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { ...payload, action: "switchMode" },
+      needsSyncCoordinates: payload.mode === "graph",
+      isResetAction: false,
+    };
+  }
+
+  return null;
+}
 import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
 import { Node } from "../../../modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
@@ -16,6 +169,7 @@ const TAGS = {
   START: "START",
   POP: "POP",
   SKIP: "SKIP",
+  DIST_UPDATE: "DIST_UPDATE",
   CHECK_END: "CHECK_END",
   EXPLORE: "EXPLORE",
   PUSH_NEIGHBOR: "PUSH_NEIGHBOR",
@@ -56,18 +210,6 @@ function runGraphDFS(
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
-  // 初始畫面
-  const initFrame1 = generateGraphFrame(
-    baseElements,
-    {},
-    distanceMap,
-    `Graph 初始化：顯示節點 ID。準備從 ${realStartId} 走到 ${realEndId}`,
-    true,
-  );
-  initFrame1.actionTag = TAGS.INIT;
-  initFrame1.variables = { start: realStartId, end: realEndId };
-  steps.push(initFrame1);
-
   const initFrame2 = generateGraphFrame(
     baseElements,
     {},
@@ -85,8 +227,8 @@ function runGraphDFS(
   const stack: { id: string; dist: number }[] = [{ id: realStartId, dist: 0 }];
   const visited = new Set<string>();
 
-  // ── START frame ──
   statusMap[realStartId] = Status.Prepare;
+  distanceMap[realStartId] = 0;
   const startFrame = generateGraphFrame(
     baseElements,
     statusMap,
@@ -113,7 +255,6 @@ function runGraphDFS(
 
     statusMap[currId] = Status.Target;
 
-    // ── POP frame ──
     const popFrame = generateGraphFrame(
       baseElements,
       statusMap,
@@ -129,18 +270,17 @@ function runGraphDFS(
       stack:
         stack.length > 0
           ? `[${stack.map((s) => `(${s.id}, ${s.dist})`).join(", ")}]`
-          : "[]  (空)",
+          : "[]",
       "visited count": visited.size,
     };
     steps.push(popFrame);
 
-    // ── SKIP：已訪問節點跳過 ──
-    if (visited.has(currId) && distanceMap[currId] <= currDist) {
+    if (visited.has(currId)) {
       const skipFrame = generateGraphFrame(
         baseElements,
         statusMap,
         distanceMap,
-        `${currId} 已訪問且距離不更短，跳過`,
+        `${currId} 已訪問，跳過`,
         false,
         { ...linkStatusMap },
       );
@@ -157,7 +297,23 @@ function runGraphDFS(
     visited.add(currId);
     distanceMap[currId] = currDist;
 
-    // ── CHECK_END frame ──
+    const distUpdateFrame = generateGraphFrame(
+      baseElements,
+      { ...statusMap },
+      distanceMap,
+      `節點 ${currId} 更新距離為 ${currDist}`,
+      false,
+      { ...linkStatusMap },
+    );
+    distUpdateFrame.actionTag = TAGS.DIST_UPDATE;
+    distUpdateFrame.variables = {
+      curr: currId,
+      end: realEndId,
+      "curr === end": currId === realEndId ? "True" : "False",
+      [`distance[${currId}]`]: distanceMap[currId],
+    };
+    steps.push(distUpdateFrame);
+
     const checkEndFrame = generateGraphFrame(
       baseElements,
       { ...statusMap },
@@ -275,7 +431,7 @@ function runGraphDFS(
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
     pathFoundFrame.variables = {
       end: realEndId,
-      "shortest distance": distanceMap[realEndId],
+      "path depth": distanceMap[realEndId],
     };
     steps.push(pathFoundFrame);
   } else {
@@ -289,7 +445,7 @@ function runGraphDFS(
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
     notFoundFrame.variables = {
-      stack: "[]  (空)",
+      stack: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
     };
@@ -532,7 +688,7 @@ function runGridDFS(
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
     notFoundGridFrame.variables = {
-      stack: "[]  (空)",
+      stack: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",
     };
@@ -561,8 +717,8 @@ const dfsGraphCodeConfig = {
   pseudo: {
     content: `Procedure DFS_Graph(graph, start, end):
   Initialize distance[all] ← ∞
-  distance[start] ← 0
   Stack ← [(start, 0)], visited ← {}
+  distance[start] ← 0
 
   While Stack is not empty Do
     (curr, depth) ← Pop from Stack
@@ -587,10 +743,11 @@ const dfsGraphCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [1, 2, 3],
-      [TAGS.START]: [4],
+      [TAGS.INIT]: [2],
+      [TAGS.START]: [3, 4],
       [TAGS.POP]: [6, 7],
       [TAGS.SKIP]: [9, 10],
+      [TAGS.DIST_UPDATE]: [12, 13],
       [TAGS.CHECK_END]: [15],
       [TAGS.PATH_FOUND]: [16],
       [TAGS.EXPLORE]: [19, 20],
@@ -644,7 +801,6 @@ const dfsGridCodeConfig = {
       Return distance[end]
     End If
 
-    newNeighbors ← []
     For each neighbor in Adjacent(curr, grid, cols) Do
       If neighbor ∉ visited And not wall Then
         visited ← visited ∪ {neighbor}
@@ -653,7 +809,7 @@ const dfsGridCodeConfig = {
       End If
     End For
 
-    If newNeighbors is empty Then
+    If no new neighbors pushed Then
       (Dead end — Backtrack)
     End If
   End While
@@ -661,14 +817,14 @@ const dfsGridCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [1, 2, 3],
+      [TAGS.INIT]: [2, 3],
       [TAGS.START]: [4],
       [TAGS.POP]: [6, 7],
       [TAGS.CHECK_END]: [9],
       [TAGS.PATH_FOUND]: [10],
-      [TAGS.PUSH_NEIGHBOR]: [15, 16, 17],
-      [TAGS.BACKTRACK]: [22, 23],
-      [TAGS.NOT_FOUND]: [27],
+      [TAGS.PUSH_NEIGHBOR]: [14, 15, 16, 17],
+      [TAGS.BACKTRACK]: [21, 22],
+      [TAGS.NOT_FOUND]: [26],
     } as Record<string, number[]>,
   },
   python: dfsGraphCodeConfig.python,
@@ -739,6 +895,8 @@ DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
     ],
   },
   createAnimationSteps: createDFSAnimationSteps,
+  actionHandler: dfsActionHandler,
   defaultViewMode: "graph",
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
+  maxNodes: 15,
 };

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { AnimationStep, ComplexityInfo, CodeConfig } from "@/types";
 import type { StatusConfig } from "./statusConfig";
+import type { VisualizationActionHandler } from "@/modules/core/visualization/types";
 
 /**
  * 補充問題參考資料結構
@@ -41,7 +42,6 @@ export interface BaseActionBarProps {
   onResetData: () => void;
   onRandomData: (params?: any) => void;
   onMaxNodesChange?: (count: number) => void;
-  onLimitExceeded?: () => void;
   disabled?: boolean;
   maxNodes?: number;
 }
@@ -102,6 +102,8 @@ export interface LevelImplementationConfig {
   defaultViewMode?: AlgorithmViewMode;
   /** 各資料結構/演算法自行定義的 ActionBar 元件 */
   renderActionBar?: (props: ActionBarProps) => ReactNode;
+  /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
+  actionHandler?: VisualizationActionHandler<any>;
 }
 
 /**

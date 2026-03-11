@@ -34,7 +34,6 @@ interface SmartActionBarProps {
   onGraphAction?: (action: string, payload: any) => void;
   isDirected?: boolean;
   onIsDirectedChange?: (val: boolean) => void;
-  onLimitExceeded?: () => void;
 }
 
 export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {

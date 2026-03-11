@@ -8,6 +8,8 @@ import {
   createBoxes as baseCreateBoxes,
 } from "./utils";
 import { ArrayActionBar } from "./ArrayActionBar";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
   SEARCH_START: "SEARCH_START",
@@ -37,7 +39,7 @@ const createBoxes = (
   status: Status = Status.Unfinished,
   forceXShiftIndex: number = -1,
   shiftDirection: number = 0,
-  overrideStatusMap: Record<number, Status> = {}
+  overrideStatusMap: Record<number, Status> = {},
 ) => {
   return baseCreateBoxes(list, {
     startX: 50,
@@ -54,7 +56,7 @@ const createBoxes = (
 
 export function createArrayAnimationSteps(
   dataList: BoxData[],
-  action?: ActionType
+  action?: ActionType,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
@@ -72,13 +74,13 @@ export function createArrayAnimationSteps(
 
   if (type === "search") {
     let found = false;
-    
+
     steps.push({
-        stepNumber: steps.length + 1,
-        description: `開始搜尋數值 ${value}`,
-        elements: createBoxes(dataList),
-        actionTag: TAGS.SEARCH_START,
-        variables: { target: value, i: -1 }
+      stepNumber: steps.length + 1,
+      description: `開始搜尋數值 ${value}`,
+      elements: createBoxes(dataList),
+      actionTag: TAGS.SEARCH_START,
+      variables: { target: value, i: -1 },
     });
 
     for (let i = 0; i < dataList.length; i++) {
@@ -87,7 +89,7 @@ export function createArrayAnimationSteps(
         description: `檢查 Index ${i}: ${dataList[i].value} 是否等於 ${value}?`,
         elements: createBoxes(dataList, i, Status.Target),
         actionTag: TAGS.SEARCH_COMPARE,
-        variables: { target: value, i: i, current_val: dataList[i].value || 0 }
+        variables: { target: value, i: i, current_val: dataList[i].value || 0 },
       });
 
       if (Number(dataList[i].value) === value) {
@@ -97,7 +99,7 @@ export function createArrayAnimationSteps(
           description: `找到了！數值 ${value} 位於 Index ${i}`,
           elements: createBoxes(dataList, i, Status.Complete),
           actionTag: TAGS.SEARCH_FOUND,
-          variables: { target: value, i: i, found_index: i }
+          variables: { target: value, i: i, found_index: i },
         });
         break;
       }
@@ -108,12 +110,10 @@ export function createArrayAnimationSteps(
         description: `搜尋結束：未找到數值 ${value}`,
         elements: createBoxes(dataList),
         actionTag: TAGS.SEARCH_NOT_FOUND,
-        variables: { target: value, i: dataList.length, found_index: -1 }
+        variables: { target: value, i: dataList.length, found_index: -1 },
       });
     }
-  }
-
-  else if (type === "add" && action.mode === "Update") {
+  } else if (type === "add" && action.mode === "Update") {
     const idx = index !== undefined ? index : -1;
     const oldValue =
       (action as any).oldValue !== undefined ? (action as any).oldValue : value;
@@ -127,7 +127,7 @@ export function createArrayAnimationSteps(
         description: `存取 Index ${idx}`,
         elements: s1Boxes,
         actionTag: TAGS.UPDATE_START,
-        variables: { index: idx, value: value, [`data[${idx}]`]: oldValue }
+        variables: { index: idx, value: value, [`data[${idx}]`]: oldValue },
       });
 
       steps.push({
@@ -135,7 +135,7 @@ export function createArrayAnimationSteps(
         description: `將 Index ${idx} 更新為 ${value}`,
         elements: createBoxes(dataList, idx, Status.Target),
         actionTag: TAGS.UPDATE_ASSIGN,
-        variables: { index: idx, value: value, [`data[${idx}]`]: value }
+        variables: { index: idx, value: value, [`data[${idx}]`]: value },
       });
 
       steps.push({
@@ -143,7 +143,7 @@ export function createArrayAnimationSteps(
         description: "更新完成",
         elements: createBoxes(dataList, idx, Status.Complete),
         actionTag: TAGS.UPDATE_COMPLETE,
-        variables: { index: idx, value: value, [`data[${idx}]`]: value }
+        variables: { index: idx, value: value, [`data[${idx}]`]: value },
       });
     } else {
       steps.push({
@@ -151,12 +151,10 @@ export function createArrayAnimationSteps(
         description: `錯誤：Index ${idx} 超出範圍`,
         elements: createBoxes(dataList),
         actionTag: TAGS.UPDATE_ERROR,
-        variables: { index: idx, length: dataList.length }
+        variables: { index: idx, length: dataList.length },
       });
     }
-  }
-
-  else if (type === "add") {
+  } else if (type === "add") {
     const idx = index !== undefined ? index : dataList.length - 1;
 
     let currentList = dataList.map((item) => ({ ...item }));
@@ -165,51 +163,66 @@ export function createArrayAnimationSteps(
       currentList[i].value = dataList[i + 1].value;
     }
 
-    currentList[currentList.length - 1].value = '';
+    currentList[currentList.length - 1].value = "";
 
     steps.push({
       stepNumber: 1,
       description: "在陣列尾端擴充一個空間",
       elements: createBoxes(currentList, currentList.length - 1, Status.Target),
       actionTag: TAGS.INSERT_START,
-      variables: { index: idx, value: value, length: currentList.length }
+      variables: { index: idx, value: value, length: currentList.length },
     });
 
     for (let i = currentList.length - 1; i > idx; i--) {
       const mapPrepare: Record<number, Status> = {};
-      mapPrepare[i] = Status.Prepare; 
-      mapPrepare[i - 1] = Status.Prepare; 
+      mapPrepare[i] = Status.Prepare;
+      mapPrepare[i - 1] = Status.Prepare;
 
       steps.push({
         stepNumber: steps.length + 1,
-        description: `準備將 Index ${i - 1} (${currentList[i - 1].value
-          }) 右移至 Index ${i}`,
-        elements: createBoxes(currentList, -1, Status.Unfinished, -1, 0, mapPrepare),
+        description: `準備將 Index ${i - 1} (${
+          currentList[i - 1].value
+        }) 右移至 Index ${i}`,
+        elements: createBoxes(
+          currentList,
+          -1,
+          Status.Unfinished,
+          -1,
+          0,
+          mapPrepare,
+        ),
         actionTag: TAGS.INSERT_SHIFT,
-        variables: { 
-            i: i, 
-            index: idx,
-            [`data[${i-1}]`]: currentList[i-1].value ?? null,  
-            [`data[${i}]`]: currentList[i].value ?? null,   
-        }
+        variables: {
+          i: i,
+          index: idx,
+          [`data[${i - 1}]`]: currentList[i - 1].value ?? null,
+          [`data[${i}]`]: currentList[i].value ?? null,
+        },
       });
 
       currentList[i].value = currentList[i - 1].value;
 
       const mapSwap: Record<number, Status> = {};
-      mapSwap[i] = Status.Target; 
-      mapSwap[i - 1] = Status.Prepare; 
+      mapSwap[i] = Status.Target;
+      mapSwap[i - 1] = Status.Prepare;
 
       steps.push({
         stepNumber: steps.length + 1,
         description: `搬移完成：Index ${i} 現在是 ${currentList[i].value}`,
-        elements: createBoxes(currentList, -1, Status.Unfinished, -1, 0, mapSwap),
+        elements: createBoxes(
+          currentList,
+          -1,
+          Status.Unfinished,
+          -1,
+          0,
+          mapSwap,
+        ),
         actionTag: TAGS.INSERT_SHIFT,
-        variables: { 
-            i: i, 
-            index: idx,
-            [`data[${i}]`]: currentList[i].value ?? null
-        }
+        variables: {
+          i: i,
+          index: idx,
+          [`data[${i}]`]: currentList[i].value ?? null,
+        },
       });
     }
 
@@ -220,7 +233,7 @@ export function createArrayAnimationSteps(
       description: `在 Index ${idx} 填入新數值 ${value}`,
       elements: createBoxes(currentList, idx, Status.Target),
       actionTag: TAGS.INSERT_ASSIGN,
-      variables: { index: idx, value: value, [`data[${idx}]`]: value }
+      variables: { index: idx, value: value, [`data[${idx}]`]: value },
     });
 
     steps.push({
@@ -228,11 +241,9 @@ export function createArrayAnimationSteps(
       description: "插入完成",
       elements: createBoxes(dataList, -1, Status.Complete),
       actionTag: TAGS.INSERT_COMPLETE,
-      variables: { index: idx, value: value, [`data[${idx}]`]: value }
+      variables: { index: idx, value: value, [`data[${idx}]`]: value },
     });
-  }
-
-  else if (type === "delete") {
+  } else if (type === "delete") {
     const idx = index !== undefined ? index : -1;
     if (idx >= 0) {
       const poppedNode = {
@@ -252,7 +263,7 @@ export function createArrayAnimationSteps(
         description: `標記 Index ${idx} (值: ${value}) 準備刪除`,
         elements: createBoxes(currentList, idx, Status.Target),
         actionTag: TAGS.DELETE_START,
-        variables: { index: idx, value: value }
+        variables: { index: idx, value: value },
       });
 
       for (let i = idx; i < currentList.length - 1; i++) {
@@ -262,50 +273,62 @@ export function createArrayAnimationSteps(
 
         steps.push({
           stepNumber: steps.length + 1,
-          description: `準備將 Index ${i + 1} (${currentList[i + 1].value
-            }) 移至 Index ${i}`,
+          description: `準備將 Index ${i + 1} (${
+            currentList[i + 1].value
+          }) 移至 Index ${i}`,
           elements: createBoxes(
             currentList,
             -1,
             Status.Unfinished,
             -1,
             0,
-            mapPrepare
+            mapPrepare,
           ),
           actionTag: TAGS.DELETE_SHIFT,
-          variables: { 
-            i: i, 
+          variables: {
+            i: i,
             index: idx,
-            [`data[${i}]`]: currentList[i].value ?? null,   
-            [`data[${i+1}]`]: currentList[i+1].value ?? null 
-          }
+            [`data[${i}]`]: currentList[i].value ?? null,
+            [`data[${i + 1}]`]: currentList[i + 1].value ?? null,
+          },
         });
 
         currentList[i].value = currentList[i + 1].value;
 
         const mapSwap: Record<number, Status> = {};
-        mapSwap[i] = Status.Target; 
-        mapSwap[i + 1] = Status.Prepare; 
-        
+        mapSwap[i] = Status.Target;
+        mapSwap[i + 1] = Status.Prepare;
+
         steps.push({
           stepNumber: steps.length + 1,
           description: `搬移完成：Index ${i} 現在是 ${currentList[i].value}`,
-          elements: createBoxes(currentList, -1, Status.Unfinished, -1, 0, mapSwap),
+          elements: createBoxes(
+            currentList,
+            -1,
+            Status.Unfinished,
+            -1,
+            0,
+            mapSwap,
+          ),
           actionTag: TAGS.DELETE_SHIFT,
-          variables: { 
-            i: i, 
+          variables: {
+            i: i,
             index: idx,
-            [`data[${i}]`]: currentList[i].value ?? null 
-          }
+            [`data[${i}]`]: currentList[i].value ?? null,
+          },
         });
       }
 
       steps.push({
         stepNumber: steps.length + 1,
         description: "刪除最後一個多餘的空間",
-        elements: createBoxes(currentList, currentList.length - 1, Status.Target),
+        elements: createBoxes(
+          currentList,
+          currentList.length - 1,
+          Status.Target,
+        ),
         actionTag: TAGS.DELETE_REMOVE,
-        variables: { length: currentList.length }
+        variables: { length: currentList.length },
       });
 
       steps.push({
@@ -313,7 +336,7 @@ export function createArrayAnimationSteps(
         description: "刪除完成",
         elements: createBoxes(dataList, -1, Status.Complete),
         actionTag: TAGS.DELETE_COMPLETE,
-        variables: { length: dataList.length }
+        variables: { length: dataList.length },
       });
     }
   }
@@ -414,6 +437,107 @@ const arrayCodeConfig: CodeConfig = {
   },
 };
 
+/** Array actionHandler */
+function arrayActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: BoxData[],
+  context: ActionContext,
+): ActionResult<BoxData[]> | null {
+  const { value, mode, index } = payload as {
+    value?: number;
+    mode?: string;
+    index?: number;
+  };
+  const newData = data.map((d) => ({ ...d }));
+
+  if (actionType === "add" && mode === "Insert") {
+    const idx = index ?? newData.length;
+    const safeIdx = Math.max(0, Math.min(idx, newData.length));
+    const newId = context.nextId();
+    const tailBox = { id: newId, value: 0 };
+    newData.push(tailBox);
+    for (let i = newData.length - 1; i > safeIdx; i--)
+      newData[i].value = newData[i - 1].value;
+    newData[safeIdx].value = value!;
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value, index: safeIdx },
+    };
+  }
+
+  if (actionType === "add" && mode === "Update") {
+    const idx = index ?? -1;
+    if (idx >= 0 && idx < newData.length) {
+      const oldValue = newData[idx].value;
+      newData[idx] = { ...newData[idx], value: value! };
+      return {
+        animationData: newData,
+        animationParams: {
+          targetId: newData[idx].id,
+          value,
+          index: idx,
+          oldValue: Number(oldValue),
+        },
+      };
+    }
+    return null;
+  }
+
+  if (actionType === "delete") {
+    const idx = index;
+    if (newData.length === 0) {
+      context.toast.warning("Array is empty");
+      return null;
+    }
+    if (idx === undefined || idx >= newData.length || idx < 0) {
+      context.toast.warning("Invalid index");
+      return null;
+    }
+    const deletedValue = newData[idx].value;
+    const lastBox = newData[newData.length - 1];
+    for (let i = idx; i < newData.length - 1; i++)
+      newData[i].value = newData[i + 1].value;
+    newData.pop();
+    return {
+      animationData: newData,
+      animationParams: { targetId: lastBox.id, value: deletedValue, index: idx },
+    };
+  }
+
+  if (actionType === "search") {
+    return { animationData: data };
+  }
+
+  if (["random", "reset", "load", "refresh"].includes(actionType)) {
+    if (actionType === "random") {
+      const count =
+        (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+      const randData = Array.from({ length: count }, () => ({
+        id: context.nextId(),
+        value: Math.floor(Math.random() * 100),
+      }));
+      return { animationData: randData, isResetAction: true };
+    }
+    if (actionType === "reset") {
+      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
+        ...d,
+        id: context.nextId(),
+      }));
+      return { animationData: resetData, isResetAction: true };
+    }
+    if (actionType === "load") {
+      const loadArr = (payload.data as number[]) ?? [];
+      const loadData = loadArr.map((v) => ({ id: context.nextId(), value: v }));
+      return { animationData: loadData, isResetAction: true };
+    }
+    return { animationData: data, isResetAction: true };
+  }
+
+  return null;
+}
+
 export const ArrayConfig: LevelImplementationConfig = {
   id: "array",
   type: "dataStructure",
@@ -437,6 +561,7 @@ export const ArrayConfig: LevelImplementationConfig = {
     { id: "box-4", value: 50 },
   ],
   createAnimationSteps: createArrayAnimationSteps,
+  actionHandler: arrayActionHandler,
   renderActionBar: (props) => <ArrayActionBar {...(props as any)} />,
   relatedProblems: [
     {
@@ -461,4 +586,5 @@ export const ArrayConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/rotate-array/",
     },
   ],
+  maxNodes: 20,
 };

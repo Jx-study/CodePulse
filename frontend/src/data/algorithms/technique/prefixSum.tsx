@@ -5,6 +5,50 @@ import { PrefixSumActionBar } from "./PrefixSumActionBar";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { cloneData } from "@/modules/core/visualization/visualizationUtils";
+import { DATA_LIMITS } from "@/constants/dataLimits";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+
+function prefixSumActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: LinearData[],
+  context: ActionContext,
+): ActionResult<LinearData[]> | null {
+  if (actionType === "random") {
+    const count =
+      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+    const values = Array.from({ length: count }, () =>
+      Math.floor(Math.random() * 100)
+    );
+    const newData = values.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newData, isResetAction: true };
+  }
+
+  if (actionType === "load") {
+    const values = payload.data as number[];
+    if (!values?.length) return null;
+    const newData = values.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newData, isResetAction: true };
+  }
+
+  if (actionType === "reset") {
+    const defaultData = (context.defaultData as LinearData[]) ?? data;
+    return { animationData: cloneData(defaultData), isResetAction: true };
+  }
+
+  if (actionType === "run") {
+    return { animationData: cloneData(data) };
+  }
+
+  return null;
+}
 
 const TAGS = {
   BUILD_INIT: "BUILD_INIT",
@@ -346,6 +390,7 @@ export const prefixSumConfig: LevelImplementationConfig = {
     { id: "box-4", value: 4 },
   ],
   createAnimationSteps: createPrefixSumAnimationSteps,
+  actionHandler: prefixSumActionHandler,
   renderActionBar: (props) => <PrefixSumActionBar {...(props as any)} />,
   relatedProblems: [
     {
@@ -370,4 +415,5 @@ export const prefixSumConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/range-sum-query-2d-immutable/",
     },
   ],
+  maxNodes: 15,
 };

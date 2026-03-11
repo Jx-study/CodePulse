@@ -18,7 +18,6 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onGraphAction,
   isDirected = false,
@@ -81,7 +80,6 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
           hideLoadButton

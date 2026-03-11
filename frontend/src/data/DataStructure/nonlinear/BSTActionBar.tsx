@@ -17,7 +17,6 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onAddNode,
   onDeleteNode,
@@ -55,7 +54,6 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />
@@ -156,6 +154,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
         <Tooltip content="找到不大於指定值的最大數">
           <Button
             size="sm"
+            variant="secondary"
             onClick={() => {
               const val = Number(searchValue);
               if (!isNaN(val)) onSearchNode(val, "floor");

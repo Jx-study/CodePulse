@@ -6,6 +6,51 @@ import type { LevelImplementationConfig } from "@/types/implementation";
 import { SearchingActionBar } from "./SearchingActionBar";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { cloneData } from "@/modules/core/visualization/visualizationUtils";
+import { DATA_LIMITS } from "@/constants/dataLimits";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+
+function binarySearchActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: LinearData[],
+  context: ActionContext,
+): ActionResult<LinearData[]> | null {
+  if (actionType === "random") {
+    const count =
+      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+    const values = Array.from({ length: count }, () =>
+      Math.floor(Math.random() * 100)
+    ).sort((a, b) => a - b);
+    const newData = values.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newData, isResetAction: true };
+  }
+
+  if (actionType === "load") {
+    const values = payload.data as number[];
+    if (!values?.length) return null;
+    const sortedValues = [...values].sort((a, b) => a - b);
+    const newData = sortedValues.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newData, isResetAction: true };
+  }
+
+  if (actionType === "reset") {
+    const defaultData = (context.defaultData as LinearData[]) ?? data;
+    return { animationData: cloneData(defaultData), isResetAction: true };
+  }
+
+  if (actionType === "run") {
+    return { animationData: cloneData(data) };
+  }
+
+  return null;
+}
 
 const TAGS = {
   INIT: "INIT",
@@ -300,6 +345,7 @@ export const binarySearchConfig: LevelImplementationConfig = {
     { id: "box-8", value: 95 },
   ],
   createAnimationSteps: createBinarySearchAnimationSteps,
+  actionHandler: binarySearchActionHandler,
   renderActionBar: (props) => <SearchingActionBar {...(props as any)} />,
   relatedProblems: [
     {
@@ -324,4 +370,5 @@ export const binarySearchConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
     },
   ],
+  maxNodes: 30,
 };

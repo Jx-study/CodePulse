@@ -19,7 +19,6 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onRun,
   isDirected = false,
@@ -104,38 +103,40 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
         </Tooltip>
         <div className={styles.settingItem}>
           <label className={styles.smallLabel}>隨機筆數:</label>
-          <Input
-            type="number"
-            value={randomCountInput}
-            min={DATA_LIMITS.MIN_RANDOM_COUNT}
-            max={maxNodes}
-            fullWidth={false}
-            onChange={(e) => setRandomCountInput(e.target.value)}
-            onBlur={() => {
-              const num = Number(randomCountInput);
-              if (isNaN(num) || randomCountInput.trim() === "") {
-                setRandomCountInput(String(randomCount));
-              } else {
-                if (maxNodes !== undefined && num > maxNodes) {
-                  onLimitExceeded?.();
+          <Tooltip content={maxNodes !== undefined ? `設定隨機生成的資料筆數，上限為 ${maxNodes}` : "設定隨機生成的資料筆數"}>
+            <Input
+              type="number"
+              value={randomCountInput}
+              min={DATA_LIMITS.MIN_RANDOM_COUNT}
+              max={maxNodes}
+              fullWidth={false}
+              onChange={(e) => setRandomCountInput(e.target.value)}
+              onBlur={() => {
+                const num = Number(randomCountInput);
+                if (isNaN(num) || randomCountInput.trim() === "") {
+                  setRandomCountInput(String(randomCount));
+                } else {
+                  if (maxNodes !== undefined && num > maxNodes) {
+                    toast.warning(`隨機筆數上限為 ${maxNodes}`);
+                  }
+                  const v = Math.min(
+                    Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                    maxNodes ?? num,
+                  );
+                  setRandomCount(v);
+                  setRandomCountInput(String(v));
+                  onMaxNodesChange?.(v);
                 }
-                const v = Math.min(
-                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                  maxNodes ?? num,
-                );
-                setRandomCount(v);
-                setRandomCountInput(String(v));
-                onMaxNodesChange?.(v);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                (e.target as HTMLInputElement).blur();
-              }
-            }}
-            className={styles.input}
-            disabled={disabled}
-          />
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              className={styles.input}
+              disabled={disabled}
+            />
+          </Tooltip>
         </div>
         <Tooltip content="隨機生成一組帶權重的圖形資料">
           <Button size="sm" onClick={() => onRandomData()} disabled={disabled}>

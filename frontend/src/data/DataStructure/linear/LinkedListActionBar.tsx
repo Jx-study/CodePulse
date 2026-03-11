@@ -17,7 +17,6 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  onLimitExceeded,
   disabled = false,
   onAddNode,
   onDeleteNode,
@@ -56,7 +55,6 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           onResetData={onResetData}
           onRandomData={onRandomData}
           onMaxNodesChange={onMaxNodesChange}
-          onLimitExceeded={onLimitExceeded}
           disabled={disabled}
           maxNodes={maxNodes}
         />
@@ -89,9 +87,9 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           className={styles.select}
           disabled={disabled}
           options={[
-            { value: "head", label: "Head" },
-            { value: "tail", label: "Tail" },
-            { value: "n", label: "Node N" },
+            { value: "Head", label: "Head" },
+            { value: "Tail", label: "Tail" },
+            { value: "Node N", label: "Node N" },
           ]}
           aria-label="Insert mode"
         />
