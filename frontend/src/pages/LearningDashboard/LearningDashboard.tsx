@@ -7,11 +7,12 @@ import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
 import GraphContainer from "./components/GraphContainer/GraphContainer";
 import LevelNode from "./components/LevelNode/LevelNode";
 import PortalNode from "./components/PortalNode/PortalNode";
-import GhostNode from "./components/GhostNode/GhostNode";
 import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
-import Icon from "@/shared/components/Icon";
+import Sidebar from "@/shared/components/Sidebar";
+import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContext";
+
 
 // 資料導入
 import {
@@ -48,7 +49,8 @@ import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { t } from "i18next";
 
-function LearningDashboard() {
+function LearningDashboardInner() {
+  const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -68,7 +70,17 @@ function LearningDashboard() {
   const allLevels = getAllLevels();
 
   // 取得 Categories（包含解鎖狀態）
-  const categories = getCategories(userProgress);
+  const categories = getCategories();
+
+  // 計算每個 Category 的 Level 數量
+  const levelCounts = Object.fromEntries(
+    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length])
+  ) as Partial<Record<CategoryType, number>>;
+
+  // 建立分類顏色對照表
+  const categoryColors = Object.fromEntries(
+    categories.map((c) => [c.id, c.colorTheme])
+  ) as Record<string, string>;
 
   // 計算解鎖狀態
   const levelsWithUnlockStatus = computeAllUnlockStatus(
@@ -236,18 +248,31 @@ function LearningDashboard() {
   // 側邊栏狀態
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // 任何 overlay 開啟時停用 zoom
+  useEffect(() => {
+    if (isProgressDialogOpen || isSidebarOpen || !!selectedLevel) {
+      disableZoom();
+    } else {
+      enableZoom();
+    }
+  }, [isProgressDialogOpen, isSidebarOpen, selectedLevel, disableZoom, enableZoom]);
+
   return (
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
-      <GraphContainer levels={filteredLevels} userProgress={userProgress}>
-        {(level, index, position) => {
+      <GraphContainer
+        levels={filteredLevels}
+        userProgress={userProgress}
+      >
+        {(level, index, position, containerWidth) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
           const prereqType = level.prerequisites?.type || "AND";
           const isPortal = level.pathMetadata?.pathType === "portal";
 
           // 使用 LevelService 檢查 Portal 解鎖狀態
-          const portalUnlocked = isPortal && isPortalUnlocked(level.id, userProgress);
+          const portalUnlocked =
+            isPortal && isPortalUnlocked(level.id, userProgress);
 
           // Portal Node 點擊處理：直接跳轉到目標分類
           const handlePortalClick = () => {
@@ -259,17 +284,12 @@ function LearningDashboard() {
             }
           };
 
-          // Ghost Node 點擊處理：跳轉到目標分類並滾動到目標關卡
-          const handleGhostClick = (targetLevelId: string, targetCategory: CategoryType) => {
-            navigateToLevel(targetLevelId, targetCategory);
-          };
-
           return (
             <>
               {/* 路徑連接線 - 從每個前置關卡到當前關卡 */}
-              {prereqIds.map((prereqId) => {
+              {prereqIds.map((prereqId, prereqIndex) => {
                 const prereqLevel = filteredLevels.find(
-                  (l) => l.id === prereqId
+                  (l) => l.id === prereqId,
                 );
                 if (!prereqLevel) return null;
 
@@ -277,7 +297,7 @@ function LearningDashboard() {
                   ? calculateGraphNodePosition(prereqLevel, filteredLevels)
                   : calculateNodePosition(
                       filteredLevels.indexOf(prereqLevel),
-                      filteredLevels.length
+                      filteredLevels.length,
                     );
 
                 // 決定連線狀態：目標關卡（toNode）的狀態決定連線顏色
@@ -296,7 +316,10 @@ function LearningDashboard() {
                     fromNode={fromPosition}
                     toNode={position}
                     status={pathStatus}
+                    containerWidth={containerWidth}
                     connectionType={prereqType}
+                    branchLabel={prereqIndex === 0 ? level.pathMetadata?.branchLabel : undefined}
+                    labelColor={prereqIndex === 0 ? categoryColors[level.category] : undefined}
                   />
                 );
               })}
@@ -324,52 +347,10 @@ function LearningDashboard() {
                   onClick={() => handleLevelClick(level)}
                   isBossLevel={level.pathMetadata?.pathType === "boss"}
                   pathMetadata={level.pathMetadata}
+                  categoryColor={categoryColors[level.category]}
                 />
               )}
 
-              {/* 幽靈參考節點 */}
-              {level.ghostReferences?.map((ghostRef, ghostIndex) => {
-                // 計算幽靈節點位置
-                const ghostPosition = calculateGraphNodePosition(
-                  { ...level, graphPosition: ghostRef.position },
-                  filteredLevels
-                );
-
-                // 繪製虛線連接（從當前 level 到 ghost node）
-                const ghostConnection = (
-                  <PathConnection
-                    key={`ghost-${level.id}-${ghostIndex}`}
-                    fromNode={position}
-                    toNode={ghostPosition}
-                    status="unlocked"
-                    connectionType="GHOST"
-                  />
-                );
-
-                // 渲染幽靈節點（點擊時動態查詢 targetLevel）
-                const ghostNode = (
-                  <GhostNode
-                    key={`ghost-node-${ghostRef.targetLevelId}-${ghostIndex}`}
-                    targetLevelId={ghostRef.targetLevelId}
-                    label={ghostRef.label || ghostRef.targetLevelId}
-                    position={ghostPosition}
-                    onClick={() => {
-                      // 在點擊時才查詢目標 Level
-                      const targetLevel = allLevels.find((l: Level) => l.id === ghostRef.targetLevelId);
-                      if (targetLevel) {
-                        handleGhostClick(targetLevel.id, targetLevel.category);
-                      }
-                    }}
-                  />
-                );
-
-                return (
-                  <React.Fragment key={`ghost-fragment-${ghostIndex}`}>
-                    {ghostConnection}
-                    {ghostNode}
-                  </React.Fragment>
-                );
-              })}
             </>
           );
         }}
@@ -378,59 +359,39 @@ function LearningDashboard() {
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
         <Button
-          variant="primary"
-          size="sm"
-          className={`${styles.controlButton} ${styles.categoryButton}`}
+          variant="glass"
+          size="md"
           onClick={() => setIsSidebarOpen(true)}
+          icon="filter"
         >
           分類篩選
         </Button>
         <Button
-          variant="primary"
-          size="sm"
-          className={styles.controlButton}
+          variant="glass"
+          size="md"
           onClick={() => setIsProgressDialogOpen(true)}
+          icon="chalkboard-user"
         >
           學習進度
         </Button>
       </div>
 
-      {/* 分類側邊欄 */}
-      <div
-        className={`${styles.categorySidebar} ${
-          isSidebarOpen ? styles.open : ""
-        }`}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        title="演算法分類"
+        aria-label="演算法分類側邊欄"
       >
-        <div className={styles.sidebarHeader}>
-          <h2>演算法分類</h2>
-          <Button
-            variant="icon"
-            className={styles.closeButton}
-            onClick={() => setIsSidebarOpen(false)}
-            aria-label="關閉側邊欄"
-          >
-            <Icon name="times" size="lg" />
-          </Button>
-        </div>
-        <div className={styles.sidebarContent}>
-          <CategoryFilter
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={(category) => {
-              setActiveCategory(category);
-              setIsSidebarOpen(false); // 選擇後關閉側邊欄
-            }}
-          />
-        </div>
-      </div>
-
-      {/* 側邊欄遮罩層 */}
-      <div
-        className={`${styles.sidebarOverlay} ${
-          isSidebarOpen ? styles.visible : ""
-        }`}
-        onClick={() => setIsSidebarOpen(false)}
-      />
+        <CategoryFilter
+          categories={categories}
+          activeCategory={activeCategory}
+          levelCounts={levelCounts}
+          onCategoryChange={(category) => {
+            setActiveCategory(category);
+            setIsSidebarOpen(false);
+          }}
+        />
+      </Sidebar>
 
       {/* 進度統計彈窗 */}
       <ProgressStatsDialog
@@ -463,6 +424,14 @@ function LearningDashboard() {
       {/* Toast 提示 */}
       {toastMessage && <div className={styles.toast}>{toastMessage}</div>}
     </div>
+  );
+}
+
+function LearningDashboard() {
+  return (
+    <ZoomDisableProvider>
+      <LearningDashboardInner />
+    </ZoomDisableProvider>
   );
 }
 

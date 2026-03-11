@@ -18,6 +18,8 @@ import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
+import { dijkstraConfig } from "../algorithms/searching/dijkstra";
+import { knapsackConfig } from "../algorithms/dp/knapsack";
 
 /**
  * 統一的實作註冊表
@@ -43,6 +45,8 @@ export const implementationsMap: ImplementationMap = {
   dfs: DFSConfig,
   prefixSum: prefixSumConfig,
   slidingWindow: slidingWindowConfig,
+  dijkstra: dijkstraConfig,
+  knapsack: knapsackConfig,
 };
 
 /**

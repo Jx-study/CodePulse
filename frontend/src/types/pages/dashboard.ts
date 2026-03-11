@@ -4,6 +4,9 @@
  */
 
 import type { DialogProps } from "../components/feedback";
+// 關卡分類：從 levels.json 的 categories key 自動推導，新增 category 只需改 JSON
+import type { CategoryType } from "@/services/adapters/levelAdapter";
+export type { CategoryType };
 
 // 先決條件類型
 export type PrerequisiteType = "AND" | "OR" | "NONE";
@@ -21,16 +24,12 @@ export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
  * pathType 說明：
  * `main`：主線路徑
  * `branch`：分支路徑
- * `convergence`：匯流點（多條路徑匯入）
- * `choice-point`：選擇點（一條路徑分出多條）
  * `boss`：Boss Level
  * `portal`：Portal Node
  */
 export type PathType =
   | "main"
   | "branch"
-  | "convergence"
-  | "choice-point"
   | "boss"
   | "portal";
 
@@ -43,13 +42,6 @@ export interface PathMetadata {
 }
 
 // ==================== Category Types ====================
-// 關卡分類
-export type CategoryType =
-  | "data-structures"
-  | "technique"
-  | "sorting"
-  | "searching"
-  | "graph";
 
 export interface Category {
   id: CategoryType;
@@ -58,14 +50,8 @@ export interface Category {
   description: string; // 簡介
   icon?: string; // FontAwesome icon name
   colorTheme: string; // 主題色（例：'#635bff', '#ff6b6b'）
-  isUnlocked: boolean; // 是否解鎖（完成前一個 Boss Level）
+  isDeveloped: boolean; // 是否已開發（false 表示尚未開發，按鈕 disabled）
   order: number; // 順序（決定解鎖順序）
-}
-
-export interface CategoryFilterProps {
-  categories: Category[];
-  activeCategory: CategoryType; // 當前選中的 Category ID
-  onCategoryChange: (categoryId: CategoryType) => void;
 }
 
 // ==================== Level Types ====================
@@ -89,7 +75,7 @@ export interface Level {
   prerequisites?: PrerequisiteConfig;
   graphPosition?: GraphPosition;
   pathMetadata?: PathMetadata;
-  ghostReferences?: GhostReference[]; // 幽靈參考節點列表
+  suggestedPrerequisites?: string[]; // 建議先學習的關卡 ID（跨 category，純資訊）
 }
 
 export interface LevelConfig extends Level {
@@ -164,6 +150,7 @@ export interface LevelNodeProps extends BaseNodeProps {
 
   isBossLevel?: boolean; // 是否為 Boss Level
   pathMetadata?: PathMetadata; // 路徑元數據
+  categoryColor?: string; // 分類主題色（Boss Level 光暈用）
 }
 
 export interface PortalNodeProps extends BaseNodeProps {
@@ -172,17 +159,14 @@ export interface PortalNodeProps extends BaseNodeProps {
   isUnlocked: boolean; // 是否解鎖（完成 Boss Level）
 }
 
-export interface GhostNodeProps extends BaseNodeProps {
-  targetLevelId: string; // 目標 Level ID（用於跳轉和查詢）
-  label: string; // 顯示標籤（如 "陣列"）
-}
-
 export interface PathConnectionProps {
   fromNode: NodePosition;
   toNode: NodePosition;
   status: "locked" | "unlocked" | "completed";
   containerWidth?: number;
-  connectionType?: PrerequisiteType | "GHOST"; // 新增 GHOST 類型
+  connectionType?: PrerequisiteType;
+  branchLabel?: string;
+  labelColor?: string;
 }
 
 // 顯示分支路徑的標籤
@@ -209,21 +193,16 @@ export interface GraphContainerProps {
     level: Level,
     index: number,
     position: NodePosition,
+    containerWidth: number,
   ) => React.ReactNode;
+  isDialogOpen?: boolean; // Dialog 或 Sidebar 開啟時停用縮放事件
+  isSidebarOpen?: boolean; // Sidebar 開啟時停用縮放事件
 }
 
 export interface GraphPosition {
   layer: number; // 層級（0 = 底部入口）
   branch: string; // 分支名稱（'sorting-basic', 'search-path'）
   horizontalIndex: number; // 同一層內的水平位置（0, 1, 2...）
-}
-
-// ==================== Ghost Reference Nodes ====================
-// 幽靈參考節點配置
-export interface GhostReference {
-  targetLevelId: string; // 目標 Level ID (如 'array')
-  position: GraphPosition; // 幽靈節點在當前 category 的位置
-  label?: string; // 自定義標籤（預設使用 targetLevel.name）
 }
 
 // ==================== Category Filter Component ====================
@@ -237,6 +216,8 @@ export interface CategoryFilterItem extends Category {
 // Category 進度資訊
 export interface CategoryProgressInfo {
   name: string;
+  icon?: string;
+  colorTheme: string;
   completedLevels: number;
   totalLevels: number;
   completionRate: number;

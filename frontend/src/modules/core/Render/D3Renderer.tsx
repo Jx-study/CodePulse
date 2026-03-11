@@ -22,6 +22,7 @@ export interface Link {
   sourceId: string;
   targetId: string;
   status?: linkStatus;
+  weight?: number | string;
 }
 
 // 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
@@ -43,7 +44,7 @@ function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
   return { x: cx + ux * r, y: cy + uy * r };
 }
 
-function getLinkPath(source: Node, target: Node): string {
+function getLinkPath(source: Node, target: Node, offset: number = 0): string {
   if (
     isNaN(source.position.x) ||
     isNaN(source.position.y) ||
@@ -74,7 +75,7 @@ function getLinkPath(source: Node, target: Node): string {
     return `M ${startX},${startY} C ${cp1X},${cp1Y} ${cp2X},${cp2Y} ${endX},${endY}`;
   }
 
-  // Case 2: 一般連線 (Straight Line -> 偽裝成 Curve)
+  // Case 2: 平行直線 (Parallel Straight Lines)
   const p1 = getCircleBoundaryPoint(source, target);
   const p2 = getCircleBoundaryPoint(target, source);
 
@@ -82,13 +83,32 @@ function getLinkPath(source: Node, target: Node): string {
     return "";
   }
 
-  // 用 C (Bezier) 來畫直線。
-  // 設為：控制點1 = 起點, 控制點2 = 終點
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const dist = Math.hypot(dx, dy);
 
-  return `M ${p1.x},${p1.y} C ${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x},${p2.y}`;
+  if (dist === 0) return "";
+
+  // 計算單位法向量 (往旁邊推開的方向)
+  const nx = -dy / dist;
+  const ny = dx / dist;
+
+  // 設定平行線的間距
+
+  const startX = p1.x + nx * offset;
+  const startY = p1.y + ny * offset;
+  const endX = p2.x + nx * offset;
+  const endY = p2.y + ny * offset;
+
+  // 使用 L (LineTo) 畫出完美的直線
+  return `M ${startX},${startY} L ${endX},${endY}`;
 }
 
-function getZeroLengthPath(source: Node, target: Node): string {
+function getZeroLengthPath(
+  source: Node,
+  target: Node,
+  offset: number = 0,
+): string {
   if (
     isNaN(source.position.x) ||
     isNaN(source.position.y) ||
@@ -110,10 +130,25 @@ function getZeroLengthPath(source: Node, target: Node): string {
     return `M ${startX},${startY} C ${startX},${startY} ${startX},${startY} ${startX},${startY}`;
   }
 
-  // Case 2: 一般連線
-  // 取得圓邊界上的一個點
-  const { x, y } = getCircleBoundaryPoint(source, target);
-  return `M ${x},${y} C ${x},${y} ${x},${y} ${x},${y}`;
+  // Case 2: 一般連線的起點平移
+  const p1 = getCircleBoundaryPoint(source, target);
+  const p2 = getCircleBoundaryPoint(target, source);
+
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const dist = Math.hypot(dx, dy);
+
+  if (dist === 0) return "";
+
+  const nx = -dy / dist;
+  const ny = dx / dist;
+  // const offset = hasWeight && isDirected ? 8 : 0; // 必須跟 getLinkPath 保持一致
+
+  const startX = p1.x + nx * offset;
+  const startY = p1.y + ny * offset;
+
+  // 縮成一個平移後的點
+  return `M ${startX},${startY} L ${startX},${startY}`;
 }
 
 /**
@@ -344,8 +379,8 @@ export function renderAll(
 
     const entry = groupData.get(group)!;
 
-    if (box.value !== undefined) {
-      entry.values.push(box.value);
+    if (box.value !== "") {
+      entry.values.push(Number(box.value));
     }
 
     // 這裡的邏輯是：只要該組有任一 Box 指定了高度，就採用該高度 (取最小值)
@@ -398,8 +433,10 @@ export function renderAll(
   );
   // 如果是 graph，則根據 isDirected 決定
   const shouldHideArrow =
-    structureType === "graph" ? !isDirected : forceHideArrow;
-  const markerUrl = shouldHideArrow ? null : "url(#arrowhead)";
+    structureType === "graph" || structureType === "dijkstra"
+      ? !isDirected
+      : forceHideArrow;
+  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
   if (svg.select("#arrowhead").empty()) {
@@ -449,35 +486,73 @@ export function renderAll(
   // === 先畫 LINKS（在底層）===
   // 依 id 找 element
   const byId = new Map(elements.map((e) => [String(e.id), e]));
+
+  // 預先建立所有 link 的 key set，用於無向圖反向邊檢查
+  const allLinkKeys = new Set(links.map((lk) => `${lk.sourceId}->${lk.targetId}`));
+  const seenSelfLoops = new Set<string>();
+
   // 僅保留 Node -> Node 的連線
   const linkData = links
     .map((lk) => {
       const s = byId.get(String(lk.sourceId));
       const t = byId.get(String(lk.targetId));
       if (s instanceof Node && t instanceof Node) {
-        return { s, t, status: lk.status };
+        return { s, t, status: lk.status, weight: lk.weight };
       }
       return null;
     })
-    .filter(Boolean) as { s: Node; t: Node; status?: string }[];
+    .filter((d) => {
+      if (!d) return false;
 
-  const linkSel = scene
-    .selectAll<
-      SVGPathElement,
-      { s: Node; t: Node; status?: string }
-    >("path.link")
+      // 如果是「無向圖」，僅在反向邊也存在時才去重（避免誤刪樹的單向邊）
+      // 例如 node-0 和 node-1 之間，若雙向都存在，只保留 id 較小的那條
+      if (!isDirected) {
+        // 自環：sourceId === targetId，有向無向行為相同，直接保留（只取一次）
+        if (d.s.id === d.t.id) {
+          if (seenSelfLoops.has(d.s.id)) return false;
+          seenSelfLoops.add(d.s.id);
+          return true;
+        }
+        const hasReverse = allLinkKeys.has(`${d.t.id}->${d.s.id}`);
+        if (hasReverse) {
+          return d.s.id <= d.t.id;
+        }
+        return true;
+      }
+
+      // 如果是有向圖，全部保留
+      return true;
+    }) as {
+    s: Node;
+    t: Node;
+    status?: string;
+    weight?: number | string;
+  }[];
+
+  // 快速查詢某條邊是否有「反向邊」存在
+  const linkSet = new Set(linkData.map((d) => `${d.s.id}->${d.t.id}`));
+
+  // 把每一條線與它的權重文字包在一個 <g class="link-group"> 裡面
+  const linkGroups = scene
+    .selectAll<SVGGElement, any>("g.link-group")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
-  // 終點縮向起點
-  linkSel
+  // 1. Exit：移除非當前的線，終點縮向起點
+  linkGroups
     .exit()
     .transition()
     .duration(transitionDuration)
-    .attr("d", (d: any) => getZeroLengthPath(d.s, d.t))
+    .style("opacity", 0)
     .remove();
 
-  const linkEnter = linkSel
+  // 2. Enter：建立新的群組
+  const linkGroupEnter = linkGroups
     .enter()
+    .append("g")
+    .attr("class", "link-group");
+
+  // 加入線條 <path>
+  linkGroupEnter
     .append("path")
     .attr("class", "link")
     .attr("stroke", "#888")
@@ -485,26 +560,120 @@ export function renderAll(
     .attr("fill", "none") // 設為 none，不然自環中間會被填滿黑色
     .attr("marker-end", markerUrl)
     // 初始狀態：從起點長出來
-    .attr("d", (d) => getZeroLengthPath(d.s, d.t));
-  // 設定初始位置在來源節點邊界，避免從 (0,0) 開始動畫
+    .attr("d", (d) => {
+      const hasWeight = d.weight !== undefined && d.weight !== null;
+      // 檢查是否有反向邊
+      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+      // 只有在「有權重」、「有向圖」且「真的有反向邊」時，才平移 8px
+      const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
+      return getZeroLengthPath(d.s, d.t, offset);
+    });
 
-  linkEnter
-    .merge(linkSel as any)
+  // 加入權重文字的背景框 (讓文字不要被線蓋住)
+  linkGroupEnter
+    .append("rect")
+    .attr("class", "weight-bg")
+    .attr("fill", "#222") // todo: 暫定背景色，可調整
+    .attr("rx", 3)
+    .style("opacity", 0);
+
+  // 加入權重文字 <text>
+  linkGroupEnter
+    .append("text")
+    .attr("class", "weight-text")
+    .attr("fill", "#fff")
+    .attr("font-size", 12)
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .style("opacity", 0); // 初始隱藏，伸長後顯示
+
+  // 3. Merge & Update：更新所有群組的位置與狀態
+  const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
+
+  // 更新線條動畫
+  mergedLinkGroups
+    .select("path.link")
     .attr("marker-end", (d) => {
-      if (shouldHideArrow) return null;
+      if (shouldHideArrow) return "none";
       const status = d.status || "default";
       return `url(#arrowhead-${status})`;
     })
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("d", (d) => getLinkPath(d.s, d.t))
-
+    .attr("d", (d) => {
+      const hasWeight = d.weight !== undefined && d.weight !== null;
+      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+      const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
+      return getLinkPath(d.s, d.t, offset);
+    })
     .attr("stroke", (d) => getColor(d.status))
-    .attr("stroke-width", 2)
-    .on("end", function (d) {
-      if (d.status) d3.select(this).raise();
-    });
+    .attr("stroke-width", 2);
+
+  // 更新權重標籤的位置 (放在線的中心點)
+  mergedLinkGroups.each(function (d) {
+    const group = d3.select(this);
+
+    const p1 = getCircleBoundaryPoint(d.s, d.t);
+    const p2 = getCircleBoundaryPoint(d.t, d.s);
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const dist = Math.hypot(dx, dy);
+
+    let textX = (p1.x + p2.x) / 2;
+    let textY = (p1.y + p2.y) / 2;
+
+    const hasWeight = d.weight !== undefined && d.weight !== null;
+    const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+    const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
+
+    // 將文字位置沿著法向量平移，跟隨線的偏移量
+    if (d.s.id !== d.t.id && dist > 0 && hasWeight && isDirected) {
+      const nx = -dy / dist;
+      const ny = dx / dist;
+
+      textX += nx * offset;
+      textY += ny * offset;
+    }
+
+    const textNode = group.select("text.weight-text");
+    const bgNode = group.select("rect.weight-bg");
+
+    if (hasWeight) {
+      // 有權重才顯示
+      textNode
+        .text(String(d.weight))
+        .transition()
+        .duration(transitionDuration)
+        .attr("x", textX)
+        .attr("y", textY)
+        .style("opacity", 1)
+        .attr("fill", d.status === "target" ? "#ffb74d" : "#fff");
+
+      // 取得文字的寬高來設定背景框大小
+      const bbox = (textNode.node() as SVGTextElement).getBBox();
+      const paddingX = 4;
+      const paddingY = 2;
+
+      bgNode
+        .transition()
+        .duration(transitionDuration)
+        .attr("x", textX - bbox.width / 2 - paddingX / 2)
+        .attr("y", textY - bbox.height / 2 - paddingY / 2)
+        .attr("width", bbox.width + paddingX)
+        .attr("height", bbox.height + paddingY)
+        .style("opacity", 0.8); // 顯示背景
+    } else {
+      // 沒權重就隱藏
+      textNode.style("opacity", 0);
+      bgNode.style("opacity", 0);
+    }
+  });
+
+  // 如果線條有狀態，把整個群組提上來，避免被其他線蓋住
+  mergedLinkGroups.filter((d: any) => !!d.status).raise();
 
   // NODES / BOXES（在上層）
   const items = scene
@@ -517,7 +686,8 @@ export function renderAll(
     .enter()
     .append("g")
     .attr("class", "el")
-    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+    .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`)
+    .style("opacity", (d) => d.opacity ?? 1);
 
   // 依型別建立一次對應圖形元素
   enter.each(function (d: any) {
@@ -561,11 +731,30 @@ export function renderAll(
   // === NODES 渲染同步修正 ===
   const merged = enter.merge(items as any);
 
+  // 位移 transition（命名為 "move"，不含 opacity）
   merged
-    .transition()
+    .transition("move")
     .duration(transitionDuration)
     .ease(transitionEase)
     .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+
+  // Opacity transition（命名為 "fade"，獨立控制速度）
+  merged.each(function (d) {
+    const g = d3.select(this);
+    const targetOpacity = d.opacity ?? 1;
+    const currentOpacity = parseFloat(g.style("opacity") || "1");
+
+    if (targetOpacity < currentOpacity) {
+      // 消失：立刻（interrupt 任何進行中的 fade，直接設值）
+      g.interrupt("fade").style("opacity", 0);
+    } else if (targetOpacity > currentOpacity) {
+      // 浮現：緩慢 fade in
+      g.transition("fade")
+        .duration(transitionDuration)
+        .ease(transitionEase)
+        .style("opacity", targetOpacity);
+    }
+  });
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {
@@ -591,7 +780,7 @@ export function renderAll(
         .attr("y", d.radius / 2 - 5)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value !== undefined ? d.value : "");
+        .text(d.value);
     } else if (d.kind === "box" || d instanceof Box) {
       const box = d as Box;
       const rect = g.select<SVGRectElement>("rect");
@@ -604,7 +793,7 @@ export function renderAll(
         const scaleY = scaleYMap.get(group);
 
         if (scaleY) {
-          const val = box.value || 0;
+          const val = Number(box.value) || 0;
           const absVal = Math.abs(val);
           const barHeight = scaleY(absVal);
           const barWidth = box.width;
@@ -703,7 +892,7 @@ export function renderAll(
       textVal
         .attr("text-anchor", "middle")
         .attr("font-size", 14)
-        .text(box.value !== undefined ? box.value : "");
+        .text(box.value);
     } else if (d.kind === "pointer" || d instanceof Pointer) {
       const ptr = d as Pointer;
       const textLabel = g.select<SVGTextElement>("text.ptr-label");

@@ -96,7 +96,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: $spacing-lg $spacing-xl;
+  padding: $spacing-sm $spacing-xl;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 
@@ -106,6 +106,18 @@
     margin: 0;
     font-weight: 600;
   }
+}
+
+.dialogTitleGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.dialogSubtitle {
+  display: flex;
+  align-items: center;
 }
 
 .closeButton {

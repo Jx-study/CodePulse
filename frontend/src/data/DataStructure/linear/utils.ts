@@ -4,7 +4,7 @@ import { Node } from "@/modules/core/DataLogic/Node";
 
 export interface LinearData {
   id: string;
-  value: number | undefined;
+  value: number | string | undefined;
 }
 
 export interface LinearAction {
@@ -62,7 +62,7 @@ export const createBoxes = (
     box.moveTo(x, startY);
     box.width = 60;
     box.height = 60;
-    box.value = item.value;
+    box.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
 
     if (getDescription) {
       box.description = getDescription(item, i, list.length);
@@ -89,7 +89,7 @@ export const createBoxes = (
 
 export function createNodeInstance(
   id: string,
-  val: number | undefined,
+  val: number | string | undefined,
   x: number,
   y: number,
   status: Status = Status.Unfinished,
@@ -97,7 +97,7 @@ export function createNodeInstance(
 ) {
   const n = new Node();
   n.id = id;
-  n.value = val;
+  n.value = val !== undefined && val !== null ? String(val) : '';
   n.moveTo(x, y);
   n.setStatus(status);
   n.description = desc;

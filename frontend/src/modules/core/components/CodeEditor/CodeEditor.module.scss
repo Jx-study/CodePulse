@@ -12,7 +12,11 @@
   box-shadow: var(--card-shadow);
   position: relative;
 
-  // 拖曳中的樣式
+  &.autoHeight {
+    height: auto !important;
+    min-height: unset !important;
+  }
+
   &.dragging {
     user-select: none;
     cursor: ns-resize;
@@ -134,7 +138,6 @@
 @media (min-width: $tablet) {
   .codeEditor {
     min-height: 500px;
-    border-radius: 12px;
   }
 }
 
@@ -142,7 +145,6 @@
 @media (min-width: $mobile) and (max-width: $tablet-max) {
   .codeEditor {
     min-height: 450px;
-    border-radius: 10px;
   }
 
   .resizer {
@@ -159,7 +161,6 @@
 @media (max-width: $mobile-max) {
   .codeEditor {
     min-height: 300px;
-    border-radius: 8px;
     box-shadow: $shadow-sm;
   }
 
@@ -191,6 +192,32 @@
     &.active {
       background-color: #7c6fff; // $primary-color 淡化版本
     }
+  }
+}
+
+// ==================== 時間複雜度樣式 ====================
+
+:global(.complexity-line-decoration) {
+  position: relative;
+}
+
+:global(.complexity-line-decoration)::after {
+  position: absolute;
+  right: 10px;
+  font-style: italic;
+  font-size: 12px;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.withComplexity {
+  :global(.monaco-editor .scroll-view) {
+    padding-right: 140px;
   }
 }
 

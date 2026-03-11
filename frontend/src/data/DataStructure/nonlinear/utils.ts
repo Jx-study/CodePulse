@@ -44,7 +44,7 @@ export function createGridElements(
   rawGrid.forEach((item, index) => {
     const box = new Box();
     box.id = item.id;
-    box.value = item.val; // 0:路, 1:牆
+    box.value = String(item.val); // 0:路, 1:牆
 
     const col = index % cols;
     const row = Math.floor(index / cols);
@@ -85,19 +85,19 @@ export const generateGridFrame = (
   const elements = createGridElements(gridData, cols);
 
   elements.forEach((box, index) => {
-    if (box.value === 1) {
-      box.value = "wall" as any;
+    if (box.value === "1") {
+      box.value = "wall";
       return;
     }
 
     if (showIdAsValue) {
-      box.value = index;
+      box.value = String(index);
     } else {
       // 顯示距離
       if (distanceMap[index] !== undefined) {
-        box.value = distanceMap[index];
+        box.value = String(distanceMap[index]);
       } else {
-        box.value = "∞" as any; // 未訪問
+        box.value = "∞"; // 未訪問
       }
     }
 
@@ -113,6 +113,25 @@ export const generateGridFrame = (
   };
 };
 
+export function buildLinksFromNodes(
+  elements: Node[],
+  linkStatusMap: Record<string, linkStatus> = {},
+): { sourceId: string; targetId: string; status?: linkStatus }[] {
+  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
+    [];
+  elements.forEach((source) => {
+    source.pointers.forEach((target) => {
+      const key = getLinkKey(source.id, target.id);
+      links.push({
+        sourceId: source.id,
+        targetId: target.id,
+        status: linkStatusMap[key],
+      });
+    });
+  });
+  return links;
+}
+
 export const generateGraphFrame = (
   baseElements: Node[],
   statusMap: Record<string, Status>,
@@ -120,6 +139,7 @@ export const generateGraphFrame = (
   description: string,
   showIdAsValue: boolean = false,
   linkStatusMap: Record<string, linkStatus> = {},
+  weightMap: Record<string, number | string> = {},
 ): AnimationStep => {
   const frameElements = baseElements.map((node) => {
     const newNode = new Node();
@@ -127,10 +147,12 @@ export const generateGraphFrame = (
 
     if (showIdAsValue) {
       const numId = parseInt(node.id.replace("node-", ""), 10);
-      newNode.value = isNaN(numId) ? -1 : numId;
+      newNode.value = isNaN(numId) ? "-1" : String(numId);
     } else {
       const dist = distanceMap[node.id];
-      newNode.value = (dist === undefined || dist === 99 ? "∞" : dist) as any;
+      newNode.value =
+        dist === undefined || dist === Infinity ? "∞" : String(dist);
+      newNode.description = node.id.replace("node-", "");
     }
 
     let x = node.position.x;
@@ -149,16 +171,23 @@ export const generateGraphFrame = (
     return newNode;
   });
 
-  const links: { sourceId: string; targetId: string; status?: linkStatus }[] =
-    [];
+  const links: {
+    sourceId: string;
+    targetId: string;
+    status?: linkStatus;
+    weight?: number | string;
+  }[] = [];
 
   baseElements.forEach((source) => {
     source.pointers.forEach((target) => {
       const key = getLinkKey(source.id, target.id);
+      const reverseKey = getLinkKey(target.id, source.id);
+
       links.push({
         sourceId: source.id,
         targetId: target.id,
         status: linkStatusMap[key],
+        weight: weightMap[key] ?? weightMap[reverseKey],
       });
     });
   });
@@ -192,12 +221,17 @@ export function createGraphElements(
     (n) => typeof n.x === "number" && typeof n.y === "number",
   );
 
+  // 如果 edges 裡面的陣列長度大於 2，代表有傳入權重
+  const isWeighted = edges.some(
+    (e) => e.length > 2 && e[2] !== undefined && e[2] !== null,
+  );
+
   if (hasCachedPositions) {
     // 直接使用現有座標 (跳過 D3 Simulation)
     rawNodes.forEach((n, i) => {
       const node = new Node();
       node.id = n.id;
-      node.value = n.value ?? i;
+      node.value = String(n.value ?? i);
       node.moveTo(n.x, n.y); // 直接使用儲存的座標
 
       elements.push(node);
@@ -205,11 +239,13 @@ export function createGraphElements(
     });
   } else {
     // 準備 D3 Simulation 資料
+    const randomWidthRatio = isWeighted ? 0.4 : 0.8;
+
     const simNodes: SimNode[] = rawNodes.map((n, i) => ({
       id: n.id,
       val: n.value ?? i,
       // 初始位置：X 軸隨機分布在整個寬度 (10% ~ 90%)，Y 軸集中在中間
-      x: CANVAS_W * 0.1 + Math.random() * (CANVAS_W * 0.8),
+      x: CANVAS_W * 0.1 + Math.random() * (CANVAS_W * randomWidthRatio),
       y: CANVAS_H / 2 + (Math.random() - 0.5) * 50,
     }));
 
@@ -217,6 +253,10 @@ export function createGraphElements(
       source,
       target,
     }));
+
+    const chargeStrength = isWeighted ? -1200 : -600;
+    const centerX = CANVAS_W / 2;
+    const centerY = CANVAS_H / 2;
 
     // 執行 Force Simulation
     const simulation = d3
@@ -226,11 +266,11 @@ export function createGraphElements(
         d3
           .forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance(200), // 連線距離
+          .distance(150), // 連線距離
       )
-      .force("charge", d3.forceManyBody().strength(-450)) // 斥力：增加強度避免重疊
-      .force("center", d3.forceCenter(CANVAS_W / 2, CANVAS_H / 2)) // 畫布中心
-      .force("collide", d3.forceCollide(45)) // 碰撞半徑略大於節點半徑
+      .force("charge", d3.forceManyBody().strength(chargeStrength)) // 斥力：增加強度避免重疊
+      .force("center", d3.forceCenter(centerX, centerY)) // 畫布中心
+      .force("collide", d3.forceCollide(isWeighted ? 60 : 45)) // 碰撞半徑略大於節點半徑
       // Y 軸引力較強 (0.1)，把節點壓扁在水平帶狀區域
       .force("y", d3.forceY(CANVAS_H / 2).strength(0.1))
       // X 軸引力極弱 (0.01)，允許它們左右飄移擴散
@@ -244,16 +284,18 @@ export function createGraphElements(
     simNodes.forEach((simNode) => {
       const node = new Node();
       node.id = simNode.id;
-      node.value = simNode.val;
+      node.value = String(simNode.val);
+
+      const maxX = CANVAS_W - PADDING;
 
       // 取出計算後的座標 (若無則預設中心)
-      let x = simNode.x ?? CANVAS_W / 2;
+      let x = simNode.x ?? centerX;
       let y = simNode.y ?? CANVAS_H / 2;
 
       // 強制限制在畫布範圍內 (Math.max, Math.min)
       // 確保 x 在 [padding, 1000 - padding]
       // 確保 y 在 [padding, 400 - padding]
-      x = Math.max(PADDING, Math.min(CANVAS_W - PADDING, x));
+      x = Math.max(PADDING, Math.min(maxX, x));
       y = Math.max(PADDING, Math.min(CANVAS_H - PADDING, y));
 
       node.moveTo(x, y);
@@ -268,7 +310,9 @@ export function createGraphElements(
     const target = nodeMap.get(targetId);
     if (source && target) {
       source.pointers.push(target);
-      if (!isDirected) {
+      // 自環（source === target）在無向圖中不需要 reverse push，
+      // 否則會造成 pointers 重複，導致動畫每步重繪。
+      if (!isDirected && source !== target) {
         target.pointers.push(source);
       }
     }
@@ -336,7 +380,7 @@ export function buildBSTHierarchyData(
     const newNode = nodes[i];
 
     while (true) {
-      if (newNode.value < curr.value) {
+      if (Number(newNode.value) < Number(curr.value)) {
         if (curr.left) {
           curr = curr.left;
         } else {

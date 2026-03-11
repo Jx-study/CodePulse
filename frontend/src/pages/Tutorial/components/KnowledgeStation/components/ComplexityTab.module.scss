@@ -4,32 +4,49 @@
 }
 
 .card {
-  background: rgba($primary-color, 0.05);
+  background: var(--bg-tertiary);
   padding: $spacing-lg;
   border-radius: $radius-lg;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
+  box-shadow: $shadow-sm;
 
   .cardTitle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
     font-size: $font-lg;
     font-weight: 600;
-    color: var(--text-primary);
+    color: $primary-color;
     margin: 0 0 $spacing-md 0;
+
+    .cardTitleIcon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background: rgba($primary-color, 0.12);
+      border-radius: $radius-md;
+      font-size: $font-sm;
+      flex-shrink: 0;
+    }
   }
 }
 
 .complexityTable {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
 }
 
+// ===== Base Row =====
 .complexityRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: $spacing-sm $spacing-md;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: $radius-sm;
+  border-radius: $radius-md;
+  cursor: default;
 
   .complexityLabel {
     font-size: $font-base;
@@ -38,9 +55,52 @@
   }
 
   .complexityValue {
-    font-size: $font-base;
-    color: var(--text-primary);
+    font-size: $font-sm;
     font-weight: 600;
-    font-family: "Courier New", monospace;
+    font-family: $font-family-code;
+    padding: $spacing-2xs $spacing-xs;
+    border-radius: $radius-full;
+    border: 1px solid transparent;
+  }
+}
+
+// ===== Per-row Color Modifiers =====
+.rowBest {
+  background: rgba($success-color, 0.06);
+
+  .complexityValue {
+    background: rgba($success-color, 0.12);
+    color: $success-color;
+    border-color: rgba($success-color, 0.25);
+  }
+}
+
+.rowAverage {
+  background: rgba($warning-color, 0.06);
+
+  .complexityValue {
+    background: rgba($warning-color, 0.12);
+    color: $warning-color;
+    border-color: rgba($warning-color, 0.25);
+  }
+}
+
+.rowWorst {
+  background: rgba($error-color, 0.06);
+
+  .complexityValue {
+    background: rgba($error-color, 0.12);
+    color: $error-color;
+    border-color: rgba($error-color, 0.25);
+  }
+}
+
+.rowSpace {
+  background: rgba($info-color, 0.06);
+
+  .complexityValue {
+    background: rgba($info-color, 0.12);
+    color: $info-color;
+    border-color: rgba($info-color, 0.25);
   }
 }

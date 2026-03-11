@@ -139,3 +139,13 @@ a {
   align-items: center;
   gap: 2px;
 }
+
+// Global Scrollbar
+::-webkit-scrollbar { width: 6px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: $radius-full;
+
+  &:hover { background: var(--text-tertiary); }
+}

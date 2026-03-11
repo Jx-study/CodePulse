@@ -27,11 +27,11 @@
   }
 
   &.active {
-    background: $gradient-primary;
-    border-color: $primary-color;
+    background: var(--category-color, #{$primary-color});
+    border-color: var(--category-color, #{$primary-color});
     color: $white-color;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--category-color, #{$primary-color}) 30%, transparent);
   }
 
   // 鎖定樣式

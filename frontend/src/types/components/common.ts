@@ -5,7 +5,7 @@
 
 // ==================== Button Component ====================
 export interface ButtonProps {
-  variant?: 'primary' | 'primaryOutline' | 'secondary' | 'ghost' | 'danger' | 'icon' | 'dot';
+  variant?: 'primary' | 'primaryOutline' | 'secondary' | 'ghost' | 'danger' | 'icon' | 'dot' | 'glass';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;

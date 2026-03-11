@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { MainHeader } from '../components/Header';
 import Footer from '../components/Footer';
-import styles from './MainLayout.module.scss';
+import styles from './Layout.module.scss';
 
 // 集中管理不显示 Footer 的路径配置
 const NO_FOOTER_PATHS = [

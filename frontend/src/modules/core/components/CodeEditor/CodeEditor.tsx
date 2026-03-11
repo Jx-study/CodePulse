@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, us
 import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
+import { useTimeComplexityDecorations } from './features/TimeComplexity';
 
 // ==================== 類型定義 ====================
 
@@ -34,6 +35,12 @@ export interface CodeEditorProps {
 
   // 樣式
   className?: string;
+  height?: string; // 直接控制編輯器高度，例如 "400px" / "50vh" / "100%"
+  autoHeight?: boolean; // 根據內容自動調整高度（優先於 height）
+  maxAutoHeight?: number; // autoHeight 的最大高度 (px)，預設不限制
+
+  // 時間複雜度顯示
+  showTimeComplexity?: boolean;
 }
 
 export interface CodeEditorHandle {
@@ -123,6 +130,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     onLanguageChange,
     onFormatComplete,
     className = '',
+    height,
+    autoHeight = false,
+    maxAutoHeight,
+    showTimeComplexity = false,
   } = props;
 
   // ========== State ==========
@@ -130,6 +141,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [splitRatio, setSplitRatio] = useState(propSplitRatio);
   const [isDragging, setIsDragging] = useState(false);
+  const [internalValue, setInternalValue] = useState(value);
+  const [internalBottomValue, setInternalBottomValue] = useState(bottomContent);
+  const [contentHeight, setContentHeight] = useState<number>(200);
 
   // ========== Refs ==========
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -140,6 +154,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const topDecorationsRef = useRef<string[]>([]);
   const bottomDecorationsRef = useRef<string[]>([]);
   const monacoInstanceRef = useRef<typeof monaco | null>(null);
+  // 永遠持有最新的 highlightedLine，避免 onMount stale closure 問題
+  const highlightedLineRef = useRef(highlightedLine);
   // 穩定的 key，用於防止 StrictMode 雙重掛載問題
   const editorKeyRef = useRef<string>(`editor-${Math.random().toString(36).substring(7)}`);
 
@@ -168,6 +184,11 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   useEffect(() => {
     setCurrentLanguage(language);
   }, [language]);
+
+  // ========== 同步 highlightedLine ref（解決 onMount stale closure）==========
+  useEffect(() => {
+    highlightedLineRef.current = highlightedLine;
+  });
 
   useEffect(() => {
     // 組件卸載時，立即清理所有編輯器實例和 monaco 實例
@@ -211,7 +232,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     readOnly,
     lineNumbers: showLineNumbers ? 'on' : 'off',
     automaticLayout: true,
-    minimap: { enabled: true },
+    minimap: { enabled: false },
     scrollBeyondLastLine: false,
     fontSize: 14,
     tabSize: 4,
@@ -220,7 +241,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     formatOnPaste: enableFormatting,
     formatOnType: enableFormatting,
     theme: currentTheme === 'dark' ? 'vs-dark' : 'vs',
-    padding: { top: 12, bottom: 12 },
+    padding: { 
+      top: 12, 
+      bottom: 12,
+    },
     glyphMargin: true, // 启用左侧装饰标记区域
   }), [readOnly, showLineNumbers, enableAutoComplete, enableFormatting, currentTheme]);
 
@@ -229,9 +253,20 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     editorRef.current = editor;
     monacoInstanceRef.current = monacoInstance;
 
-    // 編輯器加載完成後，如果有初始高亮行，立即應用
-    if (highlightedLine !== null && highlightedLine !== undefined) {
-      highlightLineInternal(highlightedLine);
+    if (autoHeight) {
+      const updateHeight = () => {
+        const raw = editor.getContentHeight();
+        const clamped = maxAutoHeight ? Math.min(maxAutoHeight, raw) : raw;
+        setContentHeight(Math.max(100, clamped));
+      };
+      updateHeight();
+      editor.onDidContentSizeChange(updateHeight);
+    }
+
+    // 使用 ref 取得最新值，避免 Monaco 非同步呼叫時 closure 已過時
+    const latestLine = highlightedLineRef.current;
+    if (latestLine !== null && latestLine !== undefined) {
+      highlightLineInternal(latestLine);
     }
   };
 
@@ -239,29 +274,39 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const handleTopEditorMount: OnMount = (editor, monacoInstance) => {
     topEditorRef.current = editor;
     monacoInstanceRef.current = monacoInstance;
+
+    // 使用 ref 取得最新值，避免 Monaco 非同步呼叫時 closure 已過時
+    const latestLine = highlightedLineRef.current;
+    if (latestLine !== null && latestLine !== undefined) {
+      highlightLineInternal(latestLine, 'top');
+    }
   };
 
   // ========== 下方編輯器 Mount (分屏模式) ==========
   const handleBottomEditorMount: OnMount = (editor, monacoInstance) => {
     bottomEditorRef.current = editor;
     monacoInstanceRef.current = monacoInstance;
-
-    // 編輯器加載完成後，如果有初始高亮行，立即應用到底部編輯器
-    if (highlightedLine !== null && highlightedLine !== undefined) {
-      highlightLineInternal(highlightedLine, 'bottom');
-    }
+    // 分屏模式下虛擬碼高亮僅套用於 topEditor，bottomEditor（Python 實作區）不需高亮
   };
 
-  // ========== 內容變更處理 ==========
   const handleChange: OnChange = (newValue) => {
-    onChange?.(newValue || '');
+    const val = newValue || '';
+    setInternalValue(val);
+    onChange?.(val);
   };
 
   const handleBottomContentChange: OnChange = (newValue) => {
-    onBottomChange?.(newValue || '');
+    const val = newValue || '';
+    setInternalBottomValue(val);
+    onBottomChange?.(val);
   };
+  
+  useTimeComplexityDecorations(
+    mode === 'split' ? bottomEditorRef.current : editorRef.current,
+    mode === 'split' ? internalBottomValue : internalValue,
+    { enabled: showTimeComplexity && currentLanguage === 'python' }
+  );
 
-  // ========== 分屏拖曳處理 ==========
   const handleResizerMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -343,14 +388,13 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   // ========== 監聽 highlightLine prop 變化 ==========
   useEffect(() => {
     if (highlightedLine !== null && highlightedLine !== undefined) {
-      // 檢查編輯器是否已經準備好
-      const targetEditor = mode === 'split' ? bottomEditorRef.current : editorRef.current;
+      // split 模式下虛擬碼在 topEditor，高亮目標改為 topEditorRef
+      const targetEditor = mode === 'split' ? topEditorRef.current : editorRef.current;
 
       if (targetEditor) {
-        // 編輯器已準備好，立即執行高亮
-        highlightLineInternal(highlightedLine, mode === 'split' ? 'bottom' : undefined);
+        highlightLineInternal(highlightedLine, mode === 'split' ? 'top' : undefined);
       }
-      // 如果編輯器還沒準備好，onMount 回調會處理初始高亮
+      // 若 editor 尚未 ready，onMount 回調會補上初始高亮
     }
   }, [highlightedLine, mode]);
 
@@ -426,7 +470,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   return (
     <div
       ref={containerRef}
-      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''}`}
+      className={`${styles.codeEditor} ${className} ${isDragging ? styles.dragging : ''} ${showTimeComplexity ? styles.withComplexity : ''} ${autoHeight ? styles.autoHeight : ''}`}
+      style={autoHeight ? { height: contentHeight } : height ? { height } : undefined}
     >
       {mode === 'split' ? (
         <>
@@ -473,7 +518,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
         /* 單一編輯器模式 */
         <Editor
           key={`${editorKeyRef.current}-single`}
-          height="100%"
+          height={autoHeight ? `${contentHeight}px` : '100%'}
           language={currentLanguage}
           value={value}
           theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Dialog from '@/shared/components/Dialog';
 import Tabs from '@/shared/components/Tabs';
+import Icon from '@/shared/components/Icon';
 import type { LevelImplementationConfig } from '@/types';
 import IntroductionTab from './components/IntroductionTab';
 import ComplexityTab from './components/ComplexityTab';
@@ -14,6 +15,15 @@ interface KnowledgeStationProps {
   topicTypeConfig: LevelImplementationConfig;
 }
 
+const dialogTitle = (
+  <div className={styles.titleWithIcon}>
+    <span className={styles.titleIcon}>
+      <Icon name="book-open" decorative />
+    </span>
+    <h2>知識補充站</h2>
+  </div>
+);
+
 const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
   isOpen,
   onClose,
@@ -22,7 +32,7 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
   const tabs = [
     {
       key: 'introduction',
-      label: '演算法簡介',
+      label: '演算法説明',
       content: <IntroductionTab introduction={topicTypeConfig.introduction} />,
     },
     {
@@ -32,7 +42,7 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
     },
     {
       key: 'problems',
-      label: '相關題目',
+      label: '經典題型',
       content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} />,
     },
     {
@@ -50,12 +60,18 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
       showCloseButton={true}
       closeOnEscape={true}
       closeOnOverlayClick={false}
-      title="知識補充站"
+      title={dialogTitle}
       className={styles.knowledgeStationDialog}
+      contentClassName={styles.dialogContent}
     >
       <div className={styles.knowledgeStation}>
         <div className={styles.content}>
-          <Tabs tabs={tabs} variant="default" size="md" />
+          <Tabs
+            tabs={tabs}
+            variant="default"
+            size="md"
+            contentClassName={styles.tabContent}
+          />
         </div>
       </div>
     </Dialog>

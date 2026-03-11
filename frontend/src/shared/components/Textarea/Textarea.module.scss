@@ -6,8 +6,8 @@
   font-family: inherit; // 繼承系統字體
   line-height: 1.6;
   color: var(--text-primary);
-  background-color: var(--input-bg);
-  border: 1px solid var(--input-border);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   transition: all $transition-base;
   outline: none;
@@ -26,15 +26,15 @@
 
   // ========== Hover State ==========
   &:hover:not(:disabled):not(:read-only) {
-    border-color: var(--input-border-hover);
+    border-color: var(--border-color-hover);
   }
 
   // ========== Error State ==========
   &.textareaError {
-    border-color: var(--danger-color);
+    border-color: $error-color;
 
     &:focus {
-      border-color: var(--danger-color);
+      border-color: $error-color;
       box-shadow: 0 0 0 3px rgba(var(--danger-color-rgb), 0.1);
     }
   }

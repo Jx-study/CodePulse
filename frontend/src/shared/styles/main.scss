@@ -9,6 +9,7 @@
 
 // 主題
 :root {
+  --primary-color: $primary-color;
   /* Light Mode */
   --bg-primary: #{$light-bg-primary};
   --bg-secondary: #{$light-bg-secondary};
@@ -83,6 +84,12 @@
     border-left: 10px solid #{$execution-color} !important; // 箭頭指向右側
     z-index: 10 !important;
   }
+}
+
+// blink 動畫（由 _mixins.scss 的 @include blink() 使用）
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 // 執行行脈衝動畫

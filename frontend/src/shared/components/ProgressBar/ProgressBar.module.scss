@@ -87,6 +87,14 @@
   background: linear-gradient(90deg, $execution-color, #34d399);
 }
 
+.custom {
+  background: linear-gradient(
+    90deg,
+    var(--progress-color),
+    color-mix(in srgb, var(--progress-color) 70%, white)
+  );
+}
+
 // ========== Labels ==========
 .label {
   font-size: $font-sm;

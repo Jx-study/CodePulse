@@ -2,50 +2,26 @@ import styles from './TutorialSection.module.scss';
 import Button from '@/shared/components/Button';
 import Badge from '@/shared/components/Badge';
 import type { Level } from '@/types';
+import Icon from '@/shared/components/Icon/Icon';
 
 interface TutorialSectionProps {
   level: Level;
   onStartTutorial: () => void;
   isCompleted: boolean;
   isLocked: boolean;
+  suggestedLevelNames?: string[];
 }
 
-function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: TutorialSectionProps) {
-  const difficultyColors = {
-    1: '#4caf50',
-    2: '#4caf50',
-    3: '#ff9800',
-    4: '#f44336',
-    5: '#f44336'
-  };
-
-  const difficultyLabels = {
-    1: '非常簡單',
-    2: '簡單',
-    3: '中等',
-    4: '困難',
-    5: '非常困難'
-  };
-
+function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, suggestedLevelNames }: TutorialSectionProps) {
   return (
     <div className={styles.tutorialSection}>
       <h3>教學模式</h3>
 
-      <div className={styles.levelInfo}>
-        <div className={styles.infoRow}>
-          <span className={styles.label}>難度：</span>
-          <span
-            className={styles.value}
-            style={{ color: difficultyColors[level.difficulty] }}
-          >
-            {difficultyLabels[level.difficulty]}
-          </span>
-        </div>
-      </div>
-
       <div className={styles.description}>
         <h4>演算法說明</h4>
-        <p>{level.description}</p>
+        {level.description && (
+          <p dangerouslySetInnerHTML={{ __html: level.description }} />
+        )}
       </div>
 
       {level.learningObjectives && level.learningObjectives.length > 0 && (
@@ -59,27 +35,37 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked }: Tuto
         </div>
       )}
 
+      {suggestedLevelNames && suggestedLevelNames.length > 0 && (
+        <div className={styles.suggested}>
+          <h4>建議先學習</h4>
+          <div className={styles.suggestedBadges}>
+            {suggestedLevelNames.map((name, i) => (
+              <Badge key={i} variant="danger" size="sm" shape="pill">
+                {name}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
       <Button
-        variant="ghost"
+        variant="secondary"
         onClick={onStartTutorial}
         disabled={isLocked}
         className={styles.startTutorialButton}
         fullWidth
+        iconLeft={<Icon name="play" />}
       >
-        {isCompleted ? '重新學習' : '開始教學'}
+        {isCompleted ? "重新學習" : "開始教學"}
       </Button>
 
-      {isLocked && (
-        <p className={styles.lockedHint}>
-          此教學尚未解鎖
-        </p>
-      )}
+      {isLocked && <p className={styles.lockedHint}>此教學尚未解鎖</p>}
 
       {isCompleted && (
         <Badge
           variant="success"
           size="sm"
-          icon={<span>✓</span>}
+          icon={<Icon name="check" />}
           className={styles.completedBadge}
         >
           已完成教學
