@@ -819,7 +819,7 @@
         "掌握二維 DP 表的填表過程",
         "最佳化為一維滾動陣列"
       ],
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["dp-fibonacci"] },
       "graphPosition": { "layer": 1, "branch": "left" },

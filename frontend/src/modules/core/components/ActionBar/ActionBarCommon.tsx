@@ -320,5 +320,89 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   );
 };
 
+// ─── KnapsackLoaderModal：背包問題資料載入的 modal ──────────────
+
+export interface KnapsackLoaderModalProps {
+  show: boolean;
+  onClose: () => void;
+  onLoad: (itemsStr: string) => void;
+}
+
+export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
+  show,
+  onClose,
+  onLoad,
+}) => {
+  const [itemInput, setItemInput] = useState("1 15\n3 20\n4 30");
+
+  if (!show) return null;
+
+  const handleLoad = () => {
+    const lines = itemInput
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
+
+    // 格式驗證
+    for (const line of lines) {
+      const parts = line.split(/\s+/);
+      if (
+        parts.length < 2 ||
+        isNaN(Number(parts[0])) ||
+        isNaN(Number(parts[1]))
+      ) {
+        toast.warning("格式錯誤！請確保每行都有重量與價值 (例如: 3 20)");
+        return;
+      }
+      if (Number(parts[0]) <= 0 || Number(parts[1]) <= 0) {
+        toast.warning("重量與價值必須大於 0");
+        return;
+      }
+    }
+
+    // 轉成逗號分隔格式 "w1 v1,w2 v2,..."
+    const items = lines.map((line) => line.replace(/\s+/g, " ")).join(",");
+    onLoad(items);
+    onClose();
+  };
+
+  return (
+    <>
+      <div className={styles.modalContainer}>
+        <h4 className={styles.modalTitle}>自定義背包物品</h4>
+        <div className={styles.modalFieldColumn}>
+          <label className={styles.modalLabel}>
+            物品清單 (格式: 重量 價值，一行一個物品)
+          </label>
+          <textarea
+            value={itemInput}
+            onChange={(e) => setItemInput(e.target.value)}
+            rows={6}
+            className={styles.modalGraphTextarea}
+            placeholder={"1 15\n3 20\n4 30"}
+          />
+        </div>
+        <div className={styles.modalButtonGroup}>
+          <Button
+            size="sm"
+            onClick={onClose}
+            className={styles.modalCancelButton}
+          >
+            取消
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            確認載入
+          </Button>
+        </div>
+      </div>
+      <div className={styles.modalOverlay} onClick={onClose} />
+    </>
+  );
+};
+
 // Re-export styles 供各 ActionBar 使用
 export { styles };

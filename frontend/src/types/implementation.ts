@@ -33,6 +33,7 @@ export interface RunParams {
   endNode?: string;
   targetSum?: number;
   isDirected?: boolean;
+  capacity?: number;
 }
 
 /** 基礎共用（所有 ActionBar 都需要） */
