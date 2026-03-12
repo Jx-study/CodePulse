@@ -12,6 +12,12 @@ export interface VerifyEmailResponse {
   user?: AuthResponse['user'];
 }
 
+export interface ResendVerificationResponse {
+  success: boolean;
+  message?: string;
+  remaining_attempts?: number;
+}
+
 const authService = {
   async login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
     const res = await apiService.post<AuthResponse>('/api/auth/login', {
@@ -35,6 +41,11 @@ const authService = {
       email,
       code,
     });
+    return res.data;
+  },
+
+  async resendVerification(email: string): Promise<ResendVerificationResponse> {
+    const res = await apiService.post<ResendVerificationResponse>('/api/auth/resend-verification', { email });
     return res.data;
   },
 

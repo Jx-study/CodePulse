@@ -9,6 +9,7 @@ import Input from "@/shared/components/Input";
 import styles from "./VerifyEmail.module.scss";
 
 const EXPIRY_SECONDS = 5 * 60; // 5 minutes
+const RESEND_COOLDOWN = 60; // seconds
 
 interface LocationState {
   email?: string;
@@ -27,8 +28,11 @@ function VerifyEmailPage() {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(EXPIRY_SECONDS);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Redirect if no email in state
   useEffect(() => {
@@ -37,7 +41,7 @@ function VerifyEmailPage() {
     }
   }, [email, navigate]);
 
-  // Countdown timer
+  // Code expiry countdown
   useEffect(() => {
     if (!email) return;
 
@@ -57,8 +61,27 @@ function VerifyEmailPage() {
     };
   }, [email]);
 
-  const isExpired = secondsLeft === 0;
+  // Cleanup cooldown timer on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
+  }, []);
 
+  const startCooldown = (seconds: number) => {
+    setResendCooldown(seconds);
+    cooldownRef.current = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const isExpired = secondsLeft === 0;
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const seconds = String(secondsLeft % 60).padStart(2, "0");
 
@@ -83,12 +106,55 @@ function VerifyEmailPage() {
     }
   };
 
-  // Resend is not yet supported by the backend — navigate back to signup form
-  const handleResend = useCallback(() => {
-    navigate("/auth?tab=signup");
-  }, [navigate]);
+  const handleResend = useCallback(async () => {
+    setResending(true);
+    setMessage({ type: "", text: "" });
+
+    try {
+      const result = await authService.resendVerification(email);
+
+      // Reset code expiry countdown
+      if (timerRef.current) clearInterval(timerRef.current);
+      setSecondsLeft(EXPIRY_SECONDS);
+      timerRef.current = setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      setCode("");
+      setCodeError("");
+      if (result.remaining_attempts !== undefined) {
+        setRemainingAttempts(result.remaining_attempts);
+      }
+      setMessage({ type: "success", text: t("verifyEmail.resendSuccess") });
+      startCooldown(RESEND_COOLDOWN);
+    } catch (error: unknown) {
+      const err = error as Error & { retryAfter?: number };
+      if (err.retryAfter) {
+        startCooldown(err.retryAfter);
+      }
+      setMessage({ type: "error", text: err.message || t("verifyEmail.errors.DEFAULT") });
+    } finally {
+      setResending(false);
+    }
+  }, [email, t]);
 
   if (!email) return null;
+
+  const resendDisabled = resending || resendCooldown > 0 || remainingAttempts === 0;
+
+  const resendLabel = resending
+    ? t("verifyEmail.resending")
+    : resendCooldown > 0
+      ? t("verifyEmail.resendCooldown", { seconds: resendCooldown })
+      : remainingAttempts === 0
+        ? t("verifyEmail.resendLimitReached")
+        : t("verifyEmail.resend");
 
   return (
     <div className={styles.container}>
@@ -99,12 +165,19 @@ function VerifyEmailPage() {
           <span className={styles.email}>{email}</span>
         </p>
 
-        {/* Countdown */}
+        {/* Code expiry countdown */}
         <div className={`${styles.countdown} ${isExpired ? styles.expired : ""}`}>
           {isExpired
             ? t("verifyEmail.expired")
             : t("verifyEmail.timeLeft", { minutes, seconds })}
         </div>
+
+        {/* Remaining attempts hint */}
+        {remainingAttempts !== null && remainingAttempts > 0 && (
+          <p className={styles.attemptsHint}>
+            {t("verifyEmail.remainingAttempts", { count: remainingAttempts })}
+          </p>
+        )}
 
         {/* Message */}
         {message.text && (
@@ -146,14 +219,14 @@ function VerifyEmailPage() {
         </form>
 
         <div className={styles.actions}>
-          {isExpired && (
+          {(isExpired || resendCooldown > 0 || remainingAttempts !== null) && (
             <Button
               variant="secondary"
               fullWidth
-              disabled={resending}
+              disabled={resendDisabled}
               onClick={handleResend}
             >
-              {resending ? t("verifyEmail.resending") : t("verifyEmail.resend")}
+              {resendLabel}
             </Button>
           )}
 
