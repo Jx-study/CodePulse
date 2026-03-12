@@ -1,0 +1,48 @@
+@use "@/shared/styles/variables" as *;
+
+.resources {
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.resourcesTitle {
+  font-size: $font-base;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 $spacing-sm 0;
+}
+
+.resourcesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.resourceLink {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  color: $primary-color;
+  text-decoration: none;
+  font-size: $font-base;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.resourceIcon {
+  flex-shrink: 0;
+}
+
+.resourceText {
+  flex: 1;
+}
+
+.resourceSource {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}

@@ -30,8 +30,6 @@ const KnapsackStatusConfig : StatusConfig = {
 
 const TAGS = {
   INIT: "INIT",
-  OUTER_LOOP: "OUTER_LOOP",
-  INNER_LOOP: "INNER_LOOP",
   CHECK_WEIGHT: "CHECK_WEIGHT",
   TAKE_ITEM: "TAKE_ITEM",
   SKIP_ITEM: "SKIP_ITEM",
@@ -115,7 +113,7 @@ export function createKnapsackAnimationSteps(
   const boxW = 50;
   const boxH = 50;
 
-  const recordStep = (desc: string, tag: string) => {
+  const recordStep = (desc: string, tag: string, stepVars?: Record<string, any>) => {
     const elements: Box[] = [];
 
     // 畫出表格最上方的 Header (Row -1)
@@ -220,15 +218,11 @@ export function createKnapsackAnimationSteps(
     }
 
     steps.push({
-      stepNumber: steps.length,
+      stepNumber: steps.length + 1,
       description: desc,
       actionTag: tag,
       elements,
-      variables: {
-        "背包總容量 (W)": capacity,
-        "目前物品 (i)": "N/A",
-        "目前容量 (w)": "N/A",
-      },
+      variables: stepVars || { W: capacity, i: 0, w: 0 },
     });
   };
 
@@ -241,8 +235,9 @@ export function createKnapsackAnimationSteps(
   }
 
   recordStep(
-    `初始化 DP 表格，當沒有物品 (i=0) 或背包容量為 0 (w=0) 時，最大價值皆為 0。`,
+    `初始化：建立 DP 表格，當 itemIdx=0 或 currCapacity=0 時，價值皆為 0`,
     TAGS.INIT,
+    { capacity, itemIdx: 0, currCapacity: 0 }
   );
 
   for (let i = 1; i <= n; i++) {
@@ -254,11 +249,12 @@ export function createKnapsackAnimationSteps(
       statusMap[`${i}-${w}`] = KnapsackStatus.Target; // 當前計算格子
 
       const stepVars = {
-        "背包總容量 (W)": capacity,
-        "目前物品 (i)": i,
-        "目前容量 (w)": w,
-        物品重量: weight,
-        物品價值: value,
+        capacity,
+        itemIdx: i,
+        currCapacity: w,
+        currentWeight: weight,
+        currentValue: value,
+        condition: `${weight} <= ${w}`,
       };
 
       // 第一步：檢查重量 (標亮左側的 Weight 格子)
@@ -267,8 +263,8 @@ export function createKnapsackAnimationSteps(
       recordStep(
         `判斷 dp[${i}][${w}]：目前物品重量 (${weight}) 是否放得進目前背包容量 (${w})？`,
         TAGS.CHECK_WEIGHT,
+        stepVars
       );
-      steps[steps.length - 1].variables = stepVars;
       // 判斷完就取消高亮重量
       delete statusMap[`info-wt-${i}`];
       delete statusMap[`header-col-${w}`];
@@ -282,8 +278,8 @@ export function createKnapsackAnimationSteps(
         recordStep(
           `物品重量 (${weight}) > 目前容量 (${w})，放不下！繼承上一列的值：dp[${i}][${w}] = dp[${i - 1}][${w}] = ${dp[i][w]}`,
           TAGS.SKIP_ITEM,
+          stepVars
         );
-        steps[steps.length - 1].variables = stepVars;
 
         delete statusMap[`${i - 1}-${w}`]; // 算完取消參考標示
       } else {
@@ -294,14 +290,14 @@ export function createKnapsackAnimationSteps(
 
         const skipValue = dp[i - 1][w];
         const takeValue = dp[i - 1][w - weight] + value;
+        // 先設定值，讓這一幀的 UI 直接顯示結果
+        dp[i][w] = Math.max(skipValue, takeValue);
 
         recordStep(
-          `放得下！比較「不放」(價值 ${skipValue}) 與「放」(價值 ${dp[i - 1][w - weight]} + ${value} = ${takeValue})，取最大值。`,
+          `更新：放得下！dp[${i}][${w}] ← max(skipValue: ${skipValue}, takeValue: ${takeValue}) = ${dp[i][w]}`,
           TAGS.TAKE_ITEM,
+          { ...stepVars, skipValue, takeValue }
         );
-        steps[steps.length - 1].variables = stepVars;
-
-        dp[i][w] = Math.max(skipValue, takeValue);
 
         delete statusMap[`info-val-${i}`];
         delete statusMap[`${i - 1}-${w}`];
@@ -317,8 +313,9 @@ export function createKnapsackAnimationSteps(
   }
 
   recordStep(
-    `填表完成！最大總價值為 dp[${n}][${capacity}] = ${dp[n][capacity]}。`,
+    `計算完成！最大總價值為 dp[${n}][${capacity}] = ${dp[n][capacity]}`,
     TAGS.DONE,
+    { capacity, itemIdx: n, currCapacity: capacity }
   );
 
   return steps;
@@ -326,39 +323,52 @@ export function createKnapsackAnimationSteps(
 
 const knapsackCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Procedure Knapsack(W, weights, values, n):
-  For i from 0 to n:
-    For w from 0 to W:
-      If i == 0 or w == 0 Then
-        dp[i][w] ← 0
-      Else If weights[i-1] <= w Then
-        dp[i][w] ← max(dp[i-1][w], dp[i-1][w-weights[i-1]] + values[i-1])
+    content: `Procedure Knapsack(capacity, weights, values, numItems):
+  For itemIdx from 0 to numItems:
+    For currCapacity from 0 to capacity:
+      If itemIdx = 0 or currCapacity = 0 Then
+        dp[itemIdx][currCapacity] ← 0
       Else
-        dp[i][w] ← dp[i-1][w]
-  Return dp[n][W]`,
+        currentWeight ← weights[itemIdx-1]
+        currentValue ← values[itemIdx-1]
+        
+        If currentWeight ≤ currCapacity Then
+          skipValue ← dp[itemIdx-1][currCapacity]
+          takeValue ← dp[itemIdx-1][currCapacity-currentWeight] + currentValue
+          dp[itemIdx][currCapacity] ← max(skipValue, takeValue)
+        Else
+          dp[itemIdx][currCapacity] ← dp[itemIdx-1][currCapacity]
+        End If
+      End If
+    End For
+  End For
+  Return dp[numItems][capacity]
+End Procedure`,
     mappings: {
-      [TAGS.INIT]: [3, 4],
-      [TAGS.OUTER_LOOP]: [2],
-      [TAGS.INNER_LOOP]: [3],
-      [TAGS.CHECK_WEIGHT]: [5],
-      [TAGS.TAKE_ITEM]: [6],
-      [TAGS.SKIP_ITEM]: [8],
-      [TAGS.DONE]: [9],
+      [TAGS.INIT]: [3, 4, 5],
+      [TAGS.CHECK_WEIGHT]: [7, 8, 10],
+      [TAGS.TAKE_ITEM]: [11, 12, 13],
+      [TAGS.SKIP_ITEM]: [14, 15],
+      [TAGS.DONE]: [20],
     },
   },
   python: {
-    content: `def knapsack(W, weights, values, n):
-    dp = [[0 for x in range(W + 1)] for x in range(n + 1)]
+    content: `def knapsack(capacity, weights, values, num_items):
+    dp = [[0 for _ in range(capacity + 1)] for _ in range(num_items + 1)]
     
-    for i in range(1, n + 1):
-        for w in range(1, W + 1):
-            if weights[i-1] <= w:
-                dp[i][w] = max(dp[i-1][w], 
-                             dp[i-1][w-weights[i-1]] + values[i-1])
+    for item_idx in range(1, num_items + 1):
+        for curr_capacity in range(1, capacity + 1):
+            current_weight = weights[item_idx-1]
+            current_value = values[item_idx-1]
+            
+            if current_weight <= curr_capacity:
+                skip_val = dp[item_idx-1][curr_capacity]
+                take_val = dp[item_idx-1][curr_capacity-current_weight] + current_value
+                dp[item_idx][curr_capacity] = max(skip_val, take_val)
             else:
-                dp[i][w] = dp[i-1][w]
+                dp[item_idx][curr_capacity] = dp[item_idx-1][curr_capacity]
                 
-    return dp[n][W]`,
+    return dp[num_items][capacity]`,
   },
 };
 
@@ -370,12 +380,12 @@ export const knapsackConfig: LevelImplementationConfig = {
   description: "給定物品的重量與價值，在背包容量限制下找出最大總價值。",
   codeConfig: knapsackCodeConfig,
   complexity: {
-    timeBest: "O(N*W)",
-    timeAverage: "O(N*W)",
-    timeWorst: "O(N*W)",
-    space: "O(N*W)", // 可優化為 O(W) 但此處展示二維
+    timeBest: "O(numItems * capacity)",
+    timeAverage: "O(numItems * capacity)",
+    timeWorst: "O(numItems * capacity)",
+    space: "O(numItems * capacity)", // 可優化為 O(capacity) 但此處展示二維
   },
-  introduction: `0/1 背包問題是動態規劃的經典問題。每個物品只有「拿（1）」或「不拿（0）」兩種選擇。我們定義 dp[i][w] 為：在只考慮前 i 個物品，且背包容量為 w 的情況下，能裝入的最大價值。透過逐列填表，我們可以找到最佳解。`,
+  introduction: `0/1 背包問題是動態規劃的經典問題。每個物品只有「拿（1）」或「不拿（0）」兩種選擇。我們定義 dp[itemIdx][currCapacity] 為：在只考慮前 itemIdx 個物品，且背包容量為 currCapacity 的情況下，能裝入的最大價值。透過逐列填表，我們可以找到最佳解。`,
   defaultData: [
     { weight: 1, value: 15 },
     { weight: 3, value: 20 },
@@ -386,4 +396,34 @@ export const knapsackConfig: LevelImplementationConfig = {
   renderActionBar: (props) => <KnapsackActionBar {...(props as any)} />,
   statusConfig: KnapsackStatusConfig,
   maxNodes: 6,
+  relatedProblems:[
+    {
+      id: 416,
+      title: "Partition Equal Subset Sum",
+      concept: "基礎 0/1 背包：判斷是否能將陣列分割成總和相等的兩個子集",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/partition-equal-subset-sum/",
+    },
+    {
+      id: 494,
+      title: "Target Sum",
+      concept: "0/1 背包變體：透過給予正負號來達成目標和，可轉換為子集求和問題",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/target-sum/",
+    },
+    {
+      id: 1049,
+      title: "Last Stone Weight II",
+      concept: "0/1 背包應用：將石頭分成兩堆並使其重量差最小化",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/last-stone-weight-ii/",
+    },
+    {
+      id: 474,
+      title: "Ones and Zeroes",
+      concept: "多維 0/1 背包：在同時限制 0 與 1 的數量下尋找最大子集數量",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/ones-and-zeroes/",
+    },
+  ],
 };

@@ -1,0 +1,277 @@
+@use "@/shared/styles/variables" as *;
+
+// ── 根容器 ────────────────────────────────────────────────────
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+// ── 目的說明卡 ────────────────────────────────────────────────
+.purpose {
+  padding: $spacing-sm $spacing-md;
+  background: rgba(79, 70, 229, 0.06);
+  border-bottom: 1px solid var(--border-color);
+}
+.purposeTitle {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $primary-color;
+  margin-bottom: $spacing-xs;
+}
+.purposeBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+
+  p { margin: 0; }
+  strong { color: var(--text-primary); }
+}
+.badge {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 3px;
+}
+
+// ── 遊戲 Header ──────────────────────────────────────────────
+.gameHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-xs $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  flex-wrap: wrap;
+}
+.gameTarget {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 120px;
+}
+.targetName {
+  font-weight: 700;
+  color: #FBBF24;
+  margin-left: $spacing-xs;
+}
+.gameStats {
+  display: flex;
+  gap: $spacing-md;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+
+  strong { color: var(--text-primary); }
+}
+.newGameBtn {
+  padding: $spacing-xs $spacing-md;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) { border-color: $primary-color; color: $primary-color; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// ── SVG 容器 ──────────────────────────────────────────────────
+.svgContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 580 / 420;
+  background: #0f1117;
+}
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+
+  &:active { cursor: grabbing; }
+}
+
+// ── 重置視圖按鈕（SVG 容器右下角）────────────────────────
+.resetViewBtn {
+  position: absolute;
+  bottom: $spacing-sm;
+  right: $spacing-sm;
+  padding: $spacing-xs $spacing-sm;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  background: rgba(15, 17, 23, 0.82);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: $font-sm;
+  line-height: 1;
+  transition: border-color 0.15s, color 0.15s;
+  backdrop-filter: blur(4px);
+  z-index: 5;
+
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+// ── Pulse Ring 動畫 ────────────────────────────────────────────
+.pulseRing {
+  fill: none;
+  stroke-width: 2;
+  pointer-events: none;
+  animation: pulseAnim 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes pulseAnim {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 0.1; transform: scale(1.25); }
+}
+
+// ── Hover Tooltip ─────────────────────────────────────────────
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(15, 17, 23, 0.92);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  padding: $spacing-xs $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: $font-sm;
+  color: #E5E7EB;
+  white-space: nowrap;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+.tooltipName { font-weight: 700; color: #fff; margin-bottom: 2px; }
+.tooltipHint { color: #FBBF24; font-weight: 600; margin-top: 2px; }
+
+// ── 勝利結果卡 ────────────────────────────────────────────────
+.winCard {
+  padding: $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(16, 185, 129, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+.winTitle {
+  font-size: $font-base;
+  font-weight: 700;
+  color: #10B981;
+}
+.winPath {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+.winStats {
+  display: flex;
+  gap: $spacing-md;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+
+  strong { color: var(--text-primary); }
+}
+
+// ── 圖例 ──────────────────────────────────────────────────────
+.legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding: $spacing-xs $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+.legendDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legendLine {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: #6B7280;
+  flex-shrink: 0;
+}
+.legendDashed {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right, #F97316 0, #F97316 5px, transparent 5px, transparent 8px
+  );
+  flex-shrink: 0;
+}
+.legendDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-color);
+  margin: 0 $spacing-xs;
+}
+
+// ── 排行榜 ────────────────────────────────────────────────────
+.leaderboard {
+  padding: $spacing-md;
+}
+.leaderboardTitle {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: $spacing-sm;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-sm;
+
+  th, td {
+    padding: $spacing-xs $spacing-sm;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  th {
+    color: var(--text-primary);
+    font-weight: 600;
+    background: var(--bg-secondary);
+  }
+  .pathCell {
+    white-space: normal;
+    word-break: break-all;
+    max-width: 200px;
+  }
+}
+.rowBest {
+  td { color: #10B981; font-weight: 600; }
+}

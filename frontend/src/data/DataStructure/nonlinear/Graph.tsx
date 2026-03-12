@@ -1,6 +1,20 @@
 import React from "react";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import { graphRealWorldStories } from './graph.stories';
+import type { ActionContext } from "@/modules/core/visualization/types";
+import { GraphActionBar } from "./GraphActionBar";
+import {
+  createGraphElements,
+  generateGraphFrame,
+  updateLinkStatus,
+} from "@/data/DataStructure/nonlinear/utils";
+import { generateRandomGraphDS } from "@/modules/core/visualization/visualizationUtils";
+import type { ActionResult } from "@/modules/core/visualization/types";
+import type { GraphData } from "@/modules/core/visualization/types";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 const TAGS = {
   INIT: "INIT",
@@ -30,19 +44,6 @@ const TAGS = {
   CHECK_CYCLE_END_TRUE: "CHECK_CYCLE_END_TRUE",
   CHECK_CYCLE_END_FALSE: "CHECK_CYCLE_END_FALSE",
 };
-import type { ActionContext } from "@/modules/core/visualization/types";
-import { GraphActionBar } from "./GraphActionBar";
-import {
-  createGraphElements,
-  generateGraphFrame,
-  updateLinkStatus,
-} from "@/data/DataStructure/nonlinear/utils";
-import { generateRandomGraphDS } from "@/modules/core/visualization/visualizationUtils";
-import type { ActionResult } from "@/modules/core/visualization/types";
-import type { GraphData } from "@/modules/core/visualization/types";
-import { Node } from "@/modules/core/DataLogic/Node";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -1621,6 +1622,7 @@ export const GraphConfig: LevelImplementationConfig = {
     ],
   },
   createAnimationSteps: createGraphAnimationSteps,
+  realWorldStories: graphRealWorldStories,
   actionHandler: graphActionHandler,
   maxNodes: 20,
   renderActionBar: (props) => <GraphActionBar {...(props as any)} />,

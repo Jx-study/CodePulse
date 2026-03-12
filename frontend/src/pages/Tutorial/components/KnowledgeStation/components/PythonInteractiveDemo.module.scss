@@ -1,0 +1,206 @@
+@use "@/shared/styles/variables" as *;
+
+.container {
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($primary-color, 0.08);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pythonBadge {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $primary-color;
+}
+
+.demoTitle {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xs $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.tab {
+  padding: $spacing-xs $spacing-md;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  border-radius: $radius-sm;
+  transition: background 0.15s, color 0.15s;
+
+  &.active {
+    background: var(--bg-primary);
+    color: $primary-color;
+    font-weight: 600;
+  }
+  &:hover:not(.active) {
+    background: rgba($primary-color, 0.06);
+  }
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover { color: $primary-color; border-color: $primary-color; }
+}
+
+// ── Demo 區 ──
+.demoArea {
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.inputsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-primary);
+  border-radius: $radius-md;
+  border: 1px solid var(--border-color);
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.inputLabel {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  min-width: 80px;
+}
+
+.slider {
+  flex: 1;
+  accent-color: $primary-color;
+}
+
+.inputValue {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $primary-color;
+  min-width: 28px;
+  text-align: right;
+}
+
+.select,
+.textInput {
+  flex: 1;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: $font-sm;
+}
+
+.runBtn {
+  align-self: flex-start;
+  padding: $spacing-sm $spacing-lg;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  font: inherit;
+  font-size: $font-base;
+  font-weight: 600;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) { opacity: 0.85; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.console {
+  min-height: 80px;
+  padding: $spacing-md;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: $font-sm;
+  line-height: 1.6;
+  border-radius: $radius-md;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  margin: 0;
+
+  &.error { color: #f38ba8; }
+  &.empty { color: #585b70; }
+}
+
+// ── Code 區 ──
+.codeArea {
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.codeBlock {
+  margin: 0;
+  padding: $spacing-md;
+  background: #1e1e2e;
+  border-radius: $radius-md;
+  overflow-x: auto;
+
+  code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: $font-sm;
+    color: #cdd6f4;
+    line-height: 1.6;
+    white-space: pre;
+  }
+}
+
+.localHint {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+
+  code {
+    background: var(--bg-primary);
+    padding: 1px $spacing-xs;
+    border-radius: $radius-sm;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    color: $primary-color;
+  }
+}
