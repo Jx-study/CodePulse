@@ -385,4 +385,5 @@ export const knapsackConfig: LevelImplementationConfig = {
   createAnimationSteps: createKnapsackAnimationSteps,
   renderActionBar: (props) => <KnapsackActionBar {...(props as any)} />,
   statusConfig: KnapsackStatusConfig,
+  maxNodes: 6,
 };

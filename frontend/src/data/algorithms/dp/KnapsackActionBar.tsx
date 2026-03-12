@@ -7,6 +7,7 @@ import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
   ActionBarGroup,
+  DataRow,
   StaticLabel,
   KnapsackLoaderModal,
   styles,
@@ -15,23 +16,30 @@ import {
 export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
   onLoadData,
   onResetData,
+  onMaxNodesChange,
+  maxNodes,
   disabled = false,
   onRun,
 }) => {
   const [capacity, setCapacity] = useState("5");
   const [showLoader, setShowLoader] = useState(false);
+  const [itemCount, setItemCount] = useState(5);
 
   const handleModalLoad = (itemsStr: string) => {
     onLoadData(`KNAPSACK:${capacity}:${itemsStr}`);
   };
 
-  // 產生隨機物品，並封裝成標準字串格式
+  const handleMaxNodesChange = (v: number) => {
+    setItemCount(v);
+    onMaxNodesChange?.(v);
+  };
+
+  // 產生隨機物品，數量由「隨機筆數」控制，內容隨機
   const handleGenerateRandom = () => {
-    const itemCount = Math.floor(Math.random() * 4) + 3;
-    const newItems = Array.from({ length: itemCount }, () => {
+    const count = itemCount;
+    const newItems = Array.from({ length: count }, () => {
       return `${Math.floor(Math.random() * 4) + 1} ${Math.floor(Math.random() * 40) + 10}`;
     }).join(",");
-
     onLoadData(`KNAPSACK:${capacity}:${newItems}`);
   };
 
@@ -67,16 +75,15 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
             載入資料
           </Button>
         </Tooltip>
-        <Tooltip content="清除所有資料，恢復預設物品">
-          <Button size="sm" onClick={onResetData} disabled={disabled} variant="secondary">
-            重設物品
-          </Button>
-        </Tooltip>
-        <Tooltip content="隨機生成 3~6 個物品 (包含重量與價值)">
-          <Button size="sm" onClick={handleGenerateRandom} disabled={disabled} variant="secondary">
-            隨機物品
-          </Button>
-        </Tooltip>
+        <DataRow
+          hideLoadButton
+          onLoadData={onLoadData}
+          onResetData={onResetData}
+          onRandomData={handleGenerateRandom}
+          onMaxNodesChange={handleMaxNodesChange}
+          maxNodes={maxNodes}
+          disabled={disabled}
+        />
       </ActionBarGroup>
 
       {/* 第二區塊：演算法控制 */}
