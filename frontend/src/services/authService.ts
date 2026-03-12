@@ -20,9 +20,11 @@ export interface ResendVerificationResponse {
 
 const authService = {
   async login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const res = await apiService.post<AuthResponse>('/api/auth/login', {
       usernameOrEmail,
       password,
+      timezone,
     });
     return res.data;
   },
