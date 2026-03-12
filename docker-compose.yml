@@ -34,6 +34,9 @@ services:
       - MAIL_USE_SSL=${MAIL_USE_SSL:-True}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - OAUTHLIB_INSECURE_TRANSPORT=1
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,8 +54,8 @@ services:
       - ./frontend:/app:delegated
       - /app/node_modules
     environment:
-      # 使用 localhost:5000 因為瀏覽器是從主機訪問，不是從容器內
-      - VITE_API_URL=http://localhost:5000
+      # Vite proxy target: 用 Docker service name，因為 proxy 是在 container 內執行
+      - VITE_API_URL=http://backend:5000
     depends_on:
       - backend
 
