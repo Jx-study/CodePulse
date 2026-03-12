@@ -1,10 +1,32 @@
-import type { AnimationStep, CodeConfig } from "@/types";
+import type { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { KnapsackActionBar } from "@/data/algorithms/dp/KnapsackActionBar";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
+
+const KnapsackStatus = {
+  Unfinished: Status.Unfinished,
+  Prepare: Status.Prepare,
+  Target: Status.Target,
+  Complete: Status.Complete,
+  Inactive: Status.Inactive,
+  Take: "take",
+  Skip: "skip",
+} as const;
+
+const KnapsackStatusConfig : StatusConfig = {
+  statuses: [
+    { key: KnapsackStatus.Inactive, label: "背包外", color: "#555555" },
+    { key: KnapsackStatus.Unfinished, label: "背包内", color: "#1d79cfff" },
+    { key: KnapsackStatus.Prepare, label: "檢查重量", color: "#f59e0b" },
+    { key: KnapsackStatus.Target, label: "當前目標", color: "#ff6b35" },
+    { key: KnapsackStatus.Complete, label: "最終答案", color: "#46f336ff" },
+    { key: KnapsackStatus.Take, label: "放數值", color: "#10b981" },
+    { key: KnapsackStatus.Skip, label: "不放數值", color: "#ef4444" },
+  ],
+};
 
 const TAGS = {
   INIT: "INIT",
@@ -15,6 +37,7 @@ const TAGS = {
   SKIP_ITEM: "SKIP_ITEM",
   DONE: "DONE",
 };
+
 
 type KnapsackItem = { weight: number; value: number };
 
@@ -85,7 +108,7 @@ export function createKnapsackAnimationSteps(
   const dp: number[][] = Array(n + 1)
     .fill(0)
     .map(() => Array(capacity + 1).fill(0));
-  const statusMap: Record<string, Status> = {};
+  const statusMap: Record<string, string> = {};
 
   const startX = 0;
   const startY = 0;
@@ -103,7 +126,7 @@ export function createKnapsackAnimationSteps(
     headerVal.moveTo(startX - boxW * 2.5, startY - boxH);
     headerVal.width = boxW;
     headerVal.height = boxH;
-    headerVal.setStatus(Status.Inactive);
+    headerVal.setStatus(KnapsackStatus.Inactive);
     elements.push(headerVal);
 
     const headerWt = new Box();
@@ -112,7 +135,7 @@ export function createKnapsackAnimationSteps(
     headerWt.moveTo(startX - boxW * 3.5, startY - boxH);
     headerWt.width = boxW;
     headerWt.height = boxH;
-    headerWt.setStatus(Status.Inactive);
+    headerWt.setStatus(KnapsackStatus.Inactive);
     elements.push(headerWt);
 
     const headerItem = new Box();
@@ -121,7 +144,7 @@ export function createKnapsackAnimationSteps(
     headerItem.moveTo(startX - boxW * 1.25, startY - boxH);
     headerItem.width = boxW * 1.5; // 加寬處理文字長度
     headerItem.height = boxH;
-    headerItem.setStatus(Status.Inactive);
+    headerItem.setStatus(KnapsackStatus.Inactive);
     elements.push(headerItem);
 
     // 右側的背包容量標題 (w = 0 ~ W)
@@ -132,7 +155,7 @@ export function createKnapsackAnimationSteps(
       colHeader.moveTo(startX + w * boxW, startY - boxH);
       colHeader.width = boxW;
       colHeader.height = boxH;
-      colHeader.setStatus(statusMap[`header-col-${w}`] || Status.Inactive);
+      colHeader.setStatus(statusMap[`header-col-${w}`] || KnapsackStatus.Inactive);
       elements.push(colHeader);
     }
 
@@ -145,7 +168,7 @@ export function createKnapsackAnimationSteps(
       valueBox.moveTo(startX - boxW * 2.5, startY + i * boxH);
       valueBox.width = boxW;
       valueBox.height = boxH;
-      valueBox.setStatus(statusMap[`info-val-${i}`] || Status.Inactive);
+      valueBox.setStatus(statusMap[`info-val-${i}`] || KnapsackStatus.Inactive);
       elements.push(valueBox);
 
       // 重量
@@ -155,7 +178,7 @@ export function createKnapsackAnimationSteps(
       weightBox.moveTo(startX - boxW * 3.5, startY + i * boxH);
       weightBox.width = boxW;
       weightBox.height = boxH;
-      weightBox.setStatus(statusMap[`info-wt-${i}`] || Status.Inactive);
+      weightBox.setStatus(statusMap[`info-wt-${i}`] || KnapsackStatus.Inactive);
       elements.push(weightBox);
 
       // 物品 index (i) -> 對齊剛剛加寬的 headerItem
@@ -165,7 +188,7 @@ export function createKnapsackAnimationSteps(
       itemBox.moveTo(startX - boxW * 1.25, startY + i * boxH);
       itemBox.width = boxW * 1.5; // 跟著加寬，保持欄位對齊
       itemBox.height = boxH;
-      itemBox.setStatus(Status.Inactive);
+      itemBox.setStatus(KnapsackStatus.Inactive);
       elements.push(itemBox);
     }
 
@@ -179,14 +202,14 @@ export function createKnapsackAnimationSteps(
         // 第 0 列與第 0 行初始化為 0
         if (i === 0 || w === 0) {
           cell.value = "0";
-          cell.setStatus(statusMap[key] || Status.Inactive);
+          cell.setStatus(statusMap[key] || KnapsackStatus.Inactive);
         } else {
           // 還沒算到的格子顯示空白，算到的顯示 dp 值
           cell.value =
-            dp[i][w] !== undefined && statusMap[key] !== Status.Unfinished
+            dp[i][w] !== undefined && statusMap[key] !== KnapsackStatus.Unfinished
               ? String(dp[i][w])
               : "";
-          cell.setStatus(statusMap[key] || Status.Unfinished);
+          cell.setStatus(statusMap[key] || KnapsackStatus.Unfinished);
         }
 
         cell.moveTo(startX + w * boxW, startY + i * boxH);
@@ -213,7 +236,7 @@ export function createKnapsackAnimationSteps(
   // 初始化表格狀態
   for (let i = 1; i <= n; i++) {
     for (let w = 1; w <= capacity; w++) {
-      statusMap[`${i}-${w}`] = Status.Unfinished;
+      statusMap[`${i}-${w}`] = KnapsackStatus.Unfinished;
     }
   }
 
@@ -228,7 +251,7 @@ export function createKnapsackAnimationSteps(
     const value = currentItem.value;
 
     for (let w = 1; w <= capacity; w++) {
-      statusMap[`${i}-${w}`] = Status.Target; // 當前計算格子
+      statusMap[`${i}-${w}`] = KnapsackStatus.Target; // 當前計算格子
 
       const stepVars = {
         "背包總容量 (W)": capacity,
@@ -239,8 +262,8 @@ export function createKnapsackAnimationSteps(
       };
 
       // 第一步：檢查重量 (標亮左側的 Weight 格子)
-      statusMap[`info-wt-${i}`] = Status.Prepare;
-      statusMap[`header-col-${w}`] = Status.Prepare;
+      statusMap[`info-wt-${i}`] = KnapsackStatus.Prepare;
+      statusMap[`header-col-${w}`] = KnapsackStatus.Prepare;
       recordStep(
         `判斷 dp[${i}][${w}]：目前物品重量 (${weight}) 是否放得進目前背包容量 (${w})？`,
         TAGS.CHECK_WEIGHT,
@@ -254,7 +277,7 @@ export function createKnapsackAnimationSteps(
       if (weight > w) {
         // 放不下
         dp[i][w] = dp[i - 1][w];
-        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 標示參考來源(上方格子)
+        statusMap[`${i - 1}-${w}`] = KnapsackStatus.Skip; // 標示參考來源(上方格子)
 
         recordStep(
           `物品重量 (${weight}) > 目前容量 (${w})，放不下！繼承上一列的值：dp[${i}][${w}] = dp[${i - 1}][${w}] = ${dp[i][w]}`,
@@ -265,9 +288,9 @@ export function createKnapsackAnimationSteps(
         delete statusMap[`${i - 1}-${w}`]; // 算完取消參考標示
       } else {
         // 放得下，取 max(不放, 放)
-        statusMap[`info-val-${i}`] = Status.Prepare; // 標示左側的物品價值
-        statusMap[`${i - 1}-${w}`] = Status.Prepare; // 參考不放(上方格子)
-        statusMap[`${i - 1}-${w - weight}`] = Status.Prepare; // 參考放(左上方格子)
+        statusMap[`info-val-${i}`] = KnapsackStatus.Take; // 標示左側的物品價值
+        statusMap[`${i - 1}-${w}`] = KnapsackStatus.Skip; // 參考不放(上方格子)
+        statusMap[`${i - 1}-${w - weight}`] = KnapsackStatus.Take; // 參考放(左上方格子)
 
         const skipValue = dp[i - 1][w];
         const takeValue = dp[i - 1][w - weight] + value;
@@ -286,7 +309,7 @@ export function createKnapsackAnimationSteps(
       }
 
       if (i === n && w === capacity) {
-        statusMap[`${i}-${w}`] = Status.Complete; // 填表完成
+        statusMap[`${i}-${w}`] = KnapsackStatus.Complete; // 填表完成
       } else {
         delete statusMap[`${i}-${w}`]; // 算完取消目標標示
       }
@@ -361,4 +384,5 @@ export const knapsackConfig: LevelImplementationConfig = {
   actionHandler: knapsackActionHandler,
   createAnimationSteps: createKnapsackAnimationSteps,
   renderActionBar: (props) => <KnapsackActionBar {...(props as any)} />,
+  statusConfig: KnapsackStatusConfig,
 };
