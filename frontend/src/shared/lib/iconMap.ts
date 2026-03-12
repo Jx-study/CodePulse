@@ -15,6 +15,7 @@ import {
   faChartLine,
   faCheck,
   faChevronDown,
+  faCopy,
   faChevronLeft,
   faChevronRight,
   faChevronUp,
