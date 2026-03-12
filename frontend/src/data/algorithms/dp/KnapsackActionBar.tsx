@@ -68,12 +68,12 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
           </Button>
         </Tooltip>
         <Tooltip content="清除所有資料，恢復預設物品">
-          <Button size="sm" onClick={onResetData} disabled={disabled}>
+          <Button size="sm" onClick={onResetData} disabled={disabled} variant="secondary">
             重設物品
           </Button>
         </Tooltip>
         <Tooltip content="隨機生成 3~6 個物品 (包含重量與價值)">
-          <Button size="sm" onClick={handleGenerateRandom} disabled={disabled}>
+          <Button size="sm" onClick={handleGenerateRandom} disabled={disabled} variant="secondary">
             隨機物品
           </Button>
         </Tooltip>
@@ -101,8 +101,9 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
             size="sm"
             onClick={handleRun}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonSearching}`}
+            className={styles.btnRun}
             icon="play"
+            variant="secondary"
           >
             開始填表
           </Button>
