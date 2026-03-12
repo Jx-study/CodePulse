@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, make_response, g
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import uuid
 
 from database import db
@@ -29,7 +30,12 @@ def _user_to_dict(user):
 
 def _update_streak(user):
     """Update login streak for user. Call inside an open DB session."""
-    today = datetime.now(timezone.utc).date()
+    try:
+        tz = ZoneInfo(user.timezone or 'UTC')
+    except Exception:
+        tz = ZoneInfo('UTC')
+
+    today = datetime.now(timezone.utc).astimezone(tz).date()
 
     try:
         db.session.execute(
@@ -46,7 +52,7 @@ def _update_streak(user):
     if last is None or last < today:
         if last is not None and (today - last).days == 1:
             user.current_streak += 1
-        elif last != today:
+        else:
             user.current_streak = 1
         if user.current_streak > user.longest_streak:
             user.longest_streak = user.current_streak
@@ -138,7 +144,16 @@ def login():
         return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
 
     try:
-        # Update streak
+        # Sync timezone from client (silent update)
+        client_tz = (data.get('timezone') or '').strip()
+        if client_tz and len(client_tz) <= 50 and client_tz != user.timezone:
+            try:
+                ZoneInfo(client_tz)
+                user.timezone = client_tz
+            except Exception:
+                pass
+
+        # Update streak (uses updated user.timezone)
         _update_streak(user)
 
         # Issue tokens

@@ -25,6 +25,7 @@ class User(db.Model):
     role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.user)
     theme = db.Column(db.String(20), default='system')
     language = db.Column(db.String(10), default='en')
+    timezone = db.Column(db.String(50), nullable=False, default='UTC')
 
     total_xp = db.Column(db.Integer, nullable=False, default=0)
     current_streak = db.Column(db.Integer, nullable=False, default=0)
