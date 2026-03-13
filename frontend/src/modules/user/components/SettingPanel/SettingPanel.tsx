@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./SettingPanel.module.scss";
 import Icon from "@/shared/components/Icon";
 import Button from "@/shared/components/Button";
 import Switch from "@/shared/components/Switch/Switch";
 import Dialog from "@/shared/components/Dialog/Dialog";
+import Avatar from "@/shared/components/Avatar";
+import { useAuth } from "@/shared/contexts/AuthContext";
+import { userService } from "@/services/userService";
 
 function SettingPanel({
   isOpen,
@@ -14,7 +17,40 @@ function SettingPanel({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      alert(t("avatarFormatError", "請上傳 JPG、PNG、WebP 或 GIF 格式"));
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      alert(t("avatarSizeError", "檔案大小不可超過 5MB"));
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const url = await userService.uploadAvatar(file);
+      await userService.updateProfile({ avatar_url: url });
+      updateUser({ avatar_url: url });
+    } catch (err) {
+      console.error('Avatar upload failed:', err);
+      alert(t("avatarUploadError", "頭像上傳失敗，請稍後再試"));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const footer = (
     <>
@@ -76,22 +112,35 @@ function SettingPanel({
                 <h3>{t("profile")}</h3>
                 <div className={styles.field}>
                   <label>{t("username")}</label>
-                  <input type="text" placeholder="User Name" />
-                  {/* TODO: 從後端獲取用戶名稱 - GET /api/user/profile */}
+                  <input type="text" value={user?.display_name ?? ''} readOnly />
                 </div>
                 <div className={styles.field}>
                   <label>{t("email")}</label>
-                  <input type="email" placeholder="user@example.com" />
-                  {/* TODO: 從後端獲取郵箱 - GET /api/user/profile */}
+                  <input type="email" value={user?.email ?? ''} readOnly />
                 </div>
                 <div className={styles.field}>
                   <label>{t("avatar")}</label>
                   <div className={styles.avatarUpload}>
-                    <img src="/images/default-avatar.png" alt="Avatar" />
-                    <Button variant="primary" size="sm">
-                      {t("changeAvatar")}
+                    <Avatar
+                      src={user?.avatar_url}
+                      username={user?.display_name ?? ''}
+                      size="lg"
+                    />
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? t("uploading", "上傳中...") : t("changeAvatar")}
                     </Button>
-                    {/* TODO: 實作頭像上傳 - POST /api/user/avatar */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      hidden
+                      onChange={handleAvatarChange}
+                    />
                   </div>
                 </div>
               </div>

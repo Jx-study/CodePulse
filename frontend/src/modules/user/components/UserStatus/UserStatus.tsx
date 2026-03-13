@@ -61,7 +61,8 @@ function UserStatus() {
         <Dropdown
           trigger={
             <Avatar
-              username={user?.username || ''}
+              src={user?.avatar_url}
+              username={user?.display_name || ''}
               size="md"
               colorScheme="auto"
               className={styles.userAvatar}
