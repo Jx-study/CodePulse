@@ -1,5 +1,5 @@
-// 根據環境決定 API URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// API base URL: 開發時用空字串（走 Vite proxy），production 時可設 VITE_API_URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // API 基本配置類型
 interface ApiConfig {
