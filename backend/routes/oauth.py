@@ -119,6 +119,7 @@ def register_oauth_routes(app):
             google_sub = info.get('id') or info.get('sub')
             email = (info.get('email') or '').strip().lower()
             name = info.get('name') or email.split('@')[0]
+            picture = info.get('picture')  # Google avatar URL
 
             if not email or not google_sub:
                 return redirect(f'{frontend_cb}?error=oauth_failed')
@@ -153,6 +154,7 @@ def register_oauth_routes(app):
                         'user_id': user.user_id,
                         'google_sub': google_sub,
                         'email': email,
+                        'picture': picture,
                     })
                     response = make_response(redirect(
                         f'{frontend_cb}?link_prompt=true&email={email}'
@@ -174,6 +176,7 @@ def register_oauth_routes(app):
                         display_name=name,
                         email=email,
                         role=UserRole.user,
+                        avatar_url=picture,
                     )
                     db.session.add(user)
                     db.session.flush()
@@ -248,6 +251,9 @@ def register_oauth_routes(app):
                 is_verified=True,
             )
             db.session.add(new_identity)
+
+            if not user.avatar_url and data.get('picture'):
+                user.avatar_url = data['picture']
 
             _update_streak(user)
 

@@ -22,7 +22,14 @@ def _user_to_dict(user):
     return {
         'id': str(user.user_id),
         'email': user.email,
-        'username': user.display_name,
+        'display_name': user.display_name,
+        'role': user.role.value,
+        'avatar_url': user.avatar_url,
+        'total_xp': user.total_xp,
+        'current_streak': user.current_streak,
+        'longest_streak': user.longest_streak,
+        'last_login_date': user.last_login_date.isoformat() if user.last_login_date else None,
+        'created_at': user.created_at.isoformat() if user.created_at else None,
     }
 
 
