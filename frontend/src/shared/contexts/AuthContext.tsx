@@ -56,6 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const updateUser = useCallback((patch: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...patch } : prev);
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -80,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     verifyEmail,
     logout,
     checkAuthStatus,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

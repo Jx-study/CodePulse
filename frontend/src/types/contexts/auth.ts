@@ -31,6 +31,7 @@ export interface AuthContextType {
   verifyEmail: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  updateUser: (patch: Partial<User>) => void;
 }
 
 // ==================== Auth Response Types ====================
