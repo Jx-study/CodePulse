@@ -39,6 +39,9 @@ services:
       - BACKEND_URL=${BACKEND_URL:-http://localhost:5000}
       - OAUTHLIB_INSECURE_TRANSPORT=1
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     depends_on:
       postgres:
         condition: service_healthy
