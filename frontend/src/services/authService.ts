@@ -51,6 +51,20 @@ const authService = {
     return res.data;
   },
 
+  loginWithGoogle() {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    window.location.href = `${backendUrl}/api/auth/google`;
+  },
+
+  async confirmGoogleLink(): Promise<{ success: boolean; message?: string }> {
+    const res = await apiService.post<{ success: boolean; message?: string }>('/api/auth/google/confirm-link');
+    return res.data;
+  },
+
+  async cancelGoogleLink(): Promise<void> {
+    await apiService.post('/api/auth/google/cancel-link');
+  },
+
   async logout(): Promise<void> {
     await apiService.post('/api/auth/logout');
   },

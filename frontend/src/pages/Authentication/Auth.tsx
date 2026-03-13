@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import LoginForm from "@/modules/auth/components/LoginForm/LoginForm";
 import SignupForm from "@/modules/auth/components/SignupForm/SignupForm";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import Button from "@/shared/components/Button";
+import authService from "@/services/authService";
 import styles from "./Auth.module.scss";
 
 // 型別定義
@@ -31,13 +32,25 @@ interface MessageState {
 function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login, register } = useAuth();
+  const location = useLocation();
+  const { login, register, checkAuthStatus } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>(
     searchParams.get("tab") === "signup" ? "signup" : "login"
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<MessageState>({ type: "", text: "" });
+  const [linkPromptEmail, setLinkPromptEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const state = location.state as { oauthError?: string; linkPromptEmail?: string } | null;
+    if (state?.oauthError) {
+      setMessage({ type: "error", text: state.oauthError });
+    }
+    if (state?.linkPromptEmail) {
+      setLinkPromptEmail(state.linkPromptEmail);
+    }
+  }, [location.state]);
 
   const showTab = (tab: TabType) => {
     setActiveTab(tab);
@@ -95,6 +108,57 @@ function AuthPage() {
     }
   };
 
+  const handleConfirmLink = async () => {
+    setLoading(true);
+    try {
+      await authService.confirmGoogleLink();
+      await checkAuthStatus();
+      navigate("/dashboard", { state: { oauthLinked: true }, replace: true });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "綁定失敗，請稍後再試";
+      setMessage({ type: "error", text: errorMessage });
+      setLinkPromptEmail(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelLink = async () => {
+    await authService.cancelGoogleLink();
+    setLinkPromptEmail(null);
+  };
+
+  if (linkPromptEmail) {
+    return (
+      <div className={styles.authContainer}>
+        <div className={styles.formContainer}>
+          <div className={styles.message + " " + styles.info}>
+            帳號 <strong>{linkPromptEmail}</strong> 已存在。是否要將 Google 登入綁定到此帳號？
+          </div>
+          <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
+            <Button
+              variant="primary"
+              onClick={handleConfirmLink}
+              disabled={loading}
+              fullWidth
+            >
+              確認綁定
+            </Button>
+            <Button
+              variant="primaryOutline"
+              onClick={handleCancelLink}
+              disabled={loading}
+              fullWidth
+            >
+              取消
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.authContainer}>
       <div className={styles.tabs}>
@@ -137,6 +201,21 @@ function AuthPage() {
           <SignupForm onSubmit={handleSignupSubmit} disabled={loading} />
         )}
       </div>
+
+      {activeTab === "login" && (
+        <div className={styles.oauthSection}>
+          <div className={styles.oauthDivider}>
+            <span>或</span>
+          </div>
+          <Button
+            variant="primaryOutline"
+            onClick={() => authService.loginWithGoogle()}
+            fullWidth
+          >
+            Sign in with Google
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

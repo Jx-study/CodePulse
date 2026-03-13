@@ -17,6 +17,7 @@ import { PageSkeleton } from "./shared/components/Skeleton";
 import Home from "./pages/Home/Home";
 import AuthPage from "./pages/Authentication/Auth";
 import VerifyEmailPage from "./pages/Authentication/VerifyEmail";
+import OAuthCallback from "./pages/Authentication/OAuthCallback";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Practice from "./pages/Practice/Practice";
 import Explorer from "./pages/Explorer/Explorer";
@@ -57,6 +58,7 @@ function App() {
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<AuthPage />} />
             <Route path="verify-email" element={<VerifyEmailPage />} />
+            <Route path="callback" element={<OAuthCallback />} />
           </Route>
         </Routes>
       </Suspense>

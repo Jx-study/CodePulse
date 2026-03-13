@@ -84,6 +84,31 @@
   margin-bottom: $spacing-sm;
 }
 
+// OAuth section
+.oauthSection {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.oauthDivider {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
 // 禁用狀態的 tab 按鈕
 .tabButton:disabled {
   opacity: 0.6;
