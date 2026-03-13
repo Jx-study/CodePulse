@@ -1,4 +1,5 @@
 bcrypt==4.0.1
+cloudinary==1.44.1
 docker==7.1.0
 flask==3.0.3
 flask-cors==6.0.1
