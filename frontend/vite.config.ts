@@ -19,6 +19,9 @@ export default defineConfig((_env) => {
     server: {
       host: true, // 等同於 --host，讓外部可以連接
       port: 5173, // 預設端口
+      watch: {
+        usePolling: true, // Docker volume mount 需要 polling 才能偵測檔案變化
+      },
       proxy: {
         '/api': {
           target: process.env.PROXY_TARGET || 'http://localhost:5000',
