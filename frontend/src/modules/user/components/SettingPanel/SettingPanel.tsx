@@ -7,6 +7,7 @@ import Switch from "@/shared/components/Switch/Switch";
 import Dialog from "@/shared/components/Dialog/Dialog";
 import Avatar from "@/shared/components/Avatar";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import { useTheme } from "@/shared/contexts/ThemeContext";
 import { userService } from "@/services/userService";
 
 function SettingPanel({
@@ -18,14 +19,30 @@ function SettingPanel({
 }) {
   const { t } = useTranslation();
   const { user, updateUser } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("profile");
-  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Profile editable state
+  const [displayName, setDisplayName] = useState(user?.display_name ?? '');
+
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+    setTheme(newTheme);
+    updateUser({ theme: newTheme });
+    userService.updateProfile({ theme: newTheme }).catch(err => {
+      console.error('Theme sync failed:', err);
+    });
+  };
+
+  // Avatar preview state
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -38,17 +55,36 @@ function SettingPanel({
       return;
     }
 
-    setUploading(true);
+    setPendingAvatarFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      const url = await userService.uploadAvatar(file);
-      await userService.updateProfile({ avatar_url: url });
-      updateUser({ avatar_url: url });
+      const patch: Parameters<typeof userService.updateProfile>[0] = {};
+
+      if (displayName !== user?.display_name) patch.display_name = displayName;
+
+      if (pendingAvatarFile) {
+        const url = await userService.uploadAvatar(pendingAvatarFile);
+        patch.avatar_url = url;
+      }
+
+      if (Object.keys(patch).length > 0) {
+        await userService.updateProfile(patch);
+        updateUser(patch);
+      }
+
+      setPendingAvatarFile(null);
+      setPreviewUrl(null);
+      onClose();
     } catch (err) {
-      console.error('Avatar upload failed:', err);
-      alert(t("avatarUploadError", "頭像上傳失敗，請稍後再試"));
+      console.error('Save failed:', err);
+      alert(t("saveError", "儲存失敗，請稍後再試"));
     } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setSaving(false);
     }
   };
 
@@ -57,9 +93,8 @@ function SettingPanel({
       <Button variant="secondary" onClick={onClose}>
         {t("cancel")}
       </Button>
-      <Button variant="primary">
-        {t("saveChanges")}
-        {/* TODO: 保存設定到後端 - PUT /api/user/settings */}
+      <Button variant="primary" onClick={handleSave} disabled={saving}>
+        {saving ? t("saving", "儲存中...") : t("saveChanges")}
       </Button>
     </>
   );
@@ -112,7 +147,11 @@ function SettingPanel({
                 <h3>{t("profile")}</h3>
                 <div className={styles.field}>
                   <label>{t("username")}</label>
-                  <input type="text" value={user?.display_name ?? ''} readOnly />
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                  />
                 </div>
                 <div className={styles.field}>
                   <label>{t("email")}</label>
@@ -122,7 +161,7 @@ function SettingPanel({
                   <label>{t("avatar")}</label>
                   <div className={styles.avatarUpload}>
                     <Avatar
-                      src={user?.avatar_url}
+                      src={previewUrl ?? user?.avatar_url}
                       username={user?.display_name ?? ''}
                       size="lg"
                     />
@@ -130,9 +169,8 @@ function SettingPanel({
                       variant="primary"
                       size="sm"
                       onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
                     >
-                      {uploading ? t("uploading", "上傳中...") : t("changeAvatar")}
+                      {t("changeAvatar")}
                     </Button>
                     <input
                       ref={fileInputRef}
@@ -178,39 +216,37 @@ function SettingPanel({
                 <div className={styles.field}>
                   <label>{t("theme")}</label>
                   <div className={styles.themeSelector}>
-                    <Button variant="ghost" className={styles.themeOption}>
-                      <span
-                        className={styles.themePreview}
-                        style={{ background: "#ffffff" }}
-                      ></span>
+                    <Button
+                      variant="ghost"
+                      className={`${styles.themeOption} ${theme === 'light' ? styles.active : ''}`}
+                      onClick={() => handleThemeChange('light')}
+                    >
+                      <span className={styles.themePreview} style={{ background: "#ffffff" }}></span>
                       {t("lightMode")}
                     </Button>
-                    <Button variant="ghost" className={styles.themeOption}>
-                      <span
-                        className={styles.themePreview}
-                        style={{ background: "#1a1a1a" }}
-                      ></span>
+                    <Button
+                      variant="ghost"
+                      className={`${styles.themeOption} ${theme === 'dark' ? styles.active : ''}`}
+                      onClick={() => handleThemeChange('dark')}
+                    >
+                      <span className={styles.themePreview} style={{ background: "#1a1a1a" }}></span>
                       {t("darkMode")}
                     </Button>
-                    <Button variant="ghost" className={styles.themeOption}>
-                      <span
-                        className={styles.themePreview}
-                        style={{
-                          background:
-                            "linear-gradient(45deg, #ffffff, #1a1a1a)",
-                        }}
-                      ></span>
+                    <Button
+                      variant="ghost"
+                      className={`${styles.themeOption} ${theme === 'system' ? styles.active : ''}`}
+                      onClick={() => handleThemeChange('system')}
+                    >
+                      <span className={styles.themePreview} style={{ background: "linear-gradient(45deg, #ffffff, #1a1a1a)" }}></span>
                       {t("systemDefault")}
                     </Button>
                   </div>
                 </div>
                 <div className={styles.field}>
                   <label>{t("fontSize")}</label>
-                  <select>
+                  <select defaultValue="medium">
                     <option value="small">{t("small")}</option>
-                    <option value="medium" selected>
-                      {t("medium")}
-                    </option>
+                    <option value="medium">{t("medium")}</option>
                     <option value="large">{t("large")}</option>
                   </select>
                 </div>
