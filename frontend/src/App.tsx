@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Auth Context
-import { AuthProvider } from "./shared/contexts/AuthContext";
+import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
 
 // Layouts
@@ -24,6 +24,22 @@ import Explorer from "./pages/Explorer/Explorer";
 import About from "./pages/About/About";
 import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
 
+function ThemeApplier() {
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+    const theme = user?.theme ?? 'system';
+    if (theme === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }, [user?.theme, isLoading]);
+
+  return null;
+}
+
 function App() {
   const { i18n } = useTranslation();
 
@@ -34,6 +50,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <ThemeApplier />
       <ToastContainer />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>

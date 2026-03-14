@@ -25,6 +25,8 @@ def _user_to_dict(user):
         'display_name': user.display_name,
         'role': user.role.value,
         'avatar_url': user.avatar_url,
+        'theme': user.theme,
+        'language': user.language,
         'total_xp': user.total_xp,
         'current_streak': user.current_streak,
         'longest_streak': user.longest_streak,

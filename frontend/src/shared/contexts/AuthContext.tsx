@@ -1,10 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { User, AuthContextType } from '@/types';
 import authService from '@/services/authService';
+import { useTheme } from '@/shared/contexts/ThemeContext';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { reconcileTheme } = useTheme();
+  const { i18n } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +20,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.isAuthenticated && data.user) {
         setIsAuthenticated(true);
         setUser(data.user);
+        reconcileTheme(data.user.theme);
+        if (data.user.language) i18n.changeLanguage(data.user.language);
       } else {
         setIsAuthenticated(false);
         setUser(null);
@@ -33,6 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data.success) {
       setIsAuthenticated(true);
       setUser(data.user ?? null);
+      reconcileTheme(data.user?.theme);
+      if (data.user?.language) i18n.changeLanguage(data.user.language);
     } else {
       throw new Error(data.message || '登入失敗');
     }
@@ -51,6 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data.success) {
       setIsAuthenticated(true);
       setUser(data.user ?? null);
+      reconcileTheme(data.user?.theme);
+      if (data.user?.language) i18n.changeLanguage(data.user.language);
     } else {
       throw new Error(data.message || '驗證失敗');
     }
