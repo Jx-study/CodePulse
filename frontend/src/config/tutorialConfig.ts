@@ -30,6 +30,11 @@ export const CATEGORIES = {
     name: "演算法技巧 (Techniques)",
     path: "/dashboard?category=technique",
   },
+  recursive: {
+    id: "recursive",
+    name: "遞迴 (Recursion)",
+    path: "/dashboard?category=recursive",
+  },
   datastructure: {
     id: "datastructure",
     name: "資料結構",
@@ -133,6 +138,16 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
       categoryName: "動態規劃",
     },
   },
+  recursive: {
+    "n-queens": {
+      id: "n-queens",
+      name: "N 皇后問題",
+      description: "在 NxN 的棋盤上放置 N 個皇后，使得她們互不攻擊。",
+      difficulty: 5,
+      category: "recursive",
+      categoryName: "遞迴",
+    },
+  },
   datastructure: {
     linkedlist: {
       id: "linkedlist",
@@ -164,7 +179,7 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
 // 獲取教學內容
 export function getTutorialData(
   category: string,
-  algorithm: string
+  algorithm: string,
 ): TutorialItem | null {
   return TUTORIALS[category]?.[algorithm] || null;
 }

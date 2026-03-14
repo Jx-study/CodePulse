@@ -34,6 +34,7 @@ export interface RunParams {
   targetSum?: number;
   isDirected?: boolean;
   capacity?: number;
+  nQueensCount?: number;
 }
 
 /** 基礎共用（所有 ActionBar 都需要） */
@@ -127,7 +128,8 @@ export type ImplementationId =
   | "slidingwindow"
   | "twopointers"
   | "fibonacci"
-  | "knapsack";
+  | "knapsack"
+  | "n-queens";
 
 /**
  * 實作配置映射表

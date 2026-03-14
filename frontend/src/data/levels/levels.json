@@ -536,7 +536,7 @@
         "掌握棋盤狀態的剪枝邏輯",
         "視覺化搜尋與回退過程"
       ],
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": { "type": "AND", "levelIds": ["backtracking-intro"] },
       "graphPosition": { "layer": 4, "branch": "center", "horizontalIndex": 0 },
