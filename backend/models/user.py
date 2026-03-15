@@ -5,6 +5,15 @@ import enum
 class UserRole(enum.Enum):
     user = 'user'
     admin = 'admin'
+    
+class Theme(enum.Enum):
+    light = 'light'
+    dark = 'dark'
+    system = 'system'
+    
+class Language(enum.Enum):
+    en = 'en'
+    zh_TW = 'zh-TW'
 
 class ProviderType(enum.Enum):
     local = 'local'
@@ -19,12 +28,13 @@ class User(db.Model):
     __tablename__ = 'users'
 
     user_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(15), unique=True, nullable=False)
     display_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     avatar_url = db.Column(db.String(500), nullable=True)
     role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.user)
-    theme = db.Column(db.String(20), default='system')
-    language = db.Column(db.String(10), default='en')
+    theme = db.Column(db.Enum(Theme), default=Theme.system)
+    language = db.Column(db.Enum(Language), default=Language.en)
     timezone = db.Column(db.String(50), nullable=False, default='UTC')
 
     total_xp = db.Column(db.Integer, nullable=False, default=0)
@@ -46,12 +56,13 @@ class User(db.Model):
     def to_dict(self):
         return {
             'user_id': self.user_id,
+            'username': self.username,
             'display_name': self.display_name,
             'email': self.email,
             'avatar_url': self.avatar_url,
             'role': self.role.value,
-            'theme': self.theme,
-            'language': self.language,
+            'theme': self.theme.value if self.theme else None,
+            'language': self.language.value if self.language else None,
             'total_xp': self.total_xp,
             'current_streak': self.current_streak,
             'longest_streak': self.longest_streak,

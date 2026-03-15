@@ -8,6 +8,7 @@ from models.user import User, UserIdentity, UserToken, EmailVerification, Provid
 from auth_utils import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
+    decode_onboarding_token,
     decode_token, hash_token,
     set_auth_cookies, clear_auth_cookies,
     login_required, REFRESH_TOKEN_EXPIRES,
@@ -21,12 +22,13 @@ auth_bp = Blueprint('auth', __name__)
 def _user_to_dict(user):
     return {
         'id': str(user.user_id),
+        'username': user.username,
         'email': user.email,
         'display_name': user.display_name,
         'role': user.role.value,
         'avatar_url': user.avatar_url,
-        'theme': user.theme,
-        'language': user.language,
+        'theme': user.theme.value if user.theme else None,
+        'language': user.language.value if user.language else None,
         'total_xp': user.total_xp,
         'current_streak': user.current_streak,
         'longest_streak': user.longest_streak,
@@ -135,7 +137,9 @@ def login():
     if '@' in username_or_email:
         user = User.query.filter_by(email=username_or_email.lower()).first()
     else:
-        user = User.query.filter_by(display_name=username_or_email).first()
+        user = User.query.filter(
+            db.func.lower(User.username) == username_or_email.lower()
+        ).first()
 
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
@@ -263,6 +267,7 @@ def verify_email():
 
     try:
         user = User(
+            username=username,
             display_name=username,
             email=email,
             role=UserRole.user,
@@ -302,6 +307,124 @@ def verify_email():
     }), 200)
     set_auth_cookies(resp, access_token, refresh_token)
     return resp
+
+
+# ── Complete Setup (Google Onboarding) ───────────────────────────────────────
+
+RESERVED_USERNAMES = {'admin', 'root', 'system', 'codepulse', 'support', 'moderator', 'staff'}
+USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,15}$')
+
+
+@auth_bp.route('/complete-setup', methods=['POST'])
+def complete_setup():
+    import jwt as pyjwt
+
+    onboarding_token = request.cookies.get('onboarding_token')
+    if not onboarding_token:
+        return jsonify({'success': False, 'message': 'Onboarding token 不存在或已過期', 'error_code': 'MISSING_TOKEN'}), 401
+
+    try:
+        token_data = decode_onboarding_token(onboarding_token)
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'success': False, 'message': '註冊連結已過期，請重新使用 Google 登入', 'error_code': 'TOKEN_EXPIRED'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'success': False, 'message': '無效的 Token', 'error_code': 'INVALID_TOKEN'}), 401
+
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    display_name = (data.get('display_name') or '').strip() or token_data['display_name']
+
+    if not USERNAME_RE.match(username):
+        return jsonify({'success': False, 'message': '用戶名只能包含英文、數字、底線，長度 3-15', 'error_code': 'INVALID_USERNAME'}), 400
+    if username.lower() in RESERVED_USERNAMES:
+        return jsonify({'success': False, 'message': '此用戶名不可使用', 'error_code': 'RESERVED_USERNAME'}), 400
+
+    existing = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    if existing:
+        return jsonify({'success': False, 'message': '此用戶名已被使用', 'error_code': 'USERNAME_TAKEN'}), 409
+
+    google_sub = token_data['google_sub']
+    email = token_data['email']
+    avatar_url = token_data.get('avatar_url')
+
+    try:
+        user = User(
+            username=username,
+            display_name=display_name,
+            email=email,
+            role=UserRole.user,
+            avatar_url=avatar_url,
+        )
+        db.session.add(user)
+        db.session.flush()
+
+        identity = UserIdentity(
+            user_id=user.user_id,
+            provider=ProviderType.google,
+            provider_id=google_sub,
+            is_verified=True,
+        )
+        db.session.add(identity)
+
+        _update_streak(user)
+
+        access_token = create_access_token(user.user_id)
+        refresh_token = create_refresh_token(user.user_id)
+
+        token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(refresh_token),
+            expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
+            family_id=str(uuid.uuid4()),
+        )
+        db.session.add(token_record)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'complete-setup failed: {e}')
+        return jsonify({'success': False, 'message': '伺服器錯誤，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    resp = make_response(jsonify({'success': True, 'user': _user_to_dict(user)}), 200)
+    set_auth_cookies(resp, access_token, refresh_token)
+    resp.set_cookie('onboarding_token', '', expires=0, path='/api/auth')
+    return resp
+
+
+# ── Check Username Availability ───────────────────────────────────────────────
+
+@auth_bp.route('/check-username', methods=['GET'])
+def check_username():
+    username = (request.args.get('username') or '').strip()
+    if not USERNAME_RE.match(username):
+        return jsonify({'available': False, 'error_code': 'INVALID_FORMAT'}), 200
+    if username.lower() in RESERVED_USERNAMES:
+        return jsonify({'available': False, 'error_code': 'RESERVED'}), 200
+    taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    return jsonify({'available': taken is None}), 200
+
+
+# ── Onboarding Info ──────────────────────────────────────────────────────────
+
+@auth_bp.route('/onboarding-info', methods=['GET'])
+def onboarding_info():
+    import jwt as pyjwt
+
+    onboarding_token = request.cookies.get('onboarding_token')
+    if not onboarding_token:
+        return jsonify({'success': False, 'error_code': 'MISSING_TOKEN'}), 401
+
+    try:
+        token_data = decode_onboarding_token(onboarding_token)
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'success': False, 'error_code': 'TOKEN_EXPIRED'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN'}), 401
+
+    return jsonify({
+        'success': True,
+        'display_name': token_data['display_name'],
+        'email': token_data['email'],
+    }), 200
 
 
 # ── Resend Verification ───────────────────────────────────────────────────────
