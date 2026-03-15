@@ -15,7 +15,7 @@ export default {
     "title": "驗證您的信箱",
     "subtitle": "驗證碼已寄送至",
     "codePlaceholder": "請輸入 6 位驗證碼",
-    "submit": "驗證並完成註冊",
+    "submit": "驗證",
     "resend": "重新發送驗證碼",
     "backToRegister": "返回重新註冊",
     "timeLeft": "驗證碼將在 {{minutes}}:{{seconds}} 後過期",

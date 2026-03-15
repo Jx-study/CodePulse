@@ -1,124 +1,39 @@
-.authContainer {
+// Split-panel layout
+.authLayout {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: $spacing-lg;
-  gap: $spacing-md;
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
-.tabs {
-  display: flex;
-  border-radius: 8px;
+.leftPanel {
+  flex: 1;
   overflow: hidden;
-  box-shadow: $shadow-sm;
 }
 
-.tabButton {
-  padding: $spacing-xs $spacing-sm;
-  border: none;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: $transition-base;
-  font-size: $font-base;
-  font-weight: 500;
-
-  &:hover {
-    background: var(--bg-secondary);
-  }
-
-  &.active {
-    background: $gradient-primary;
-    color: white;
-  }
-
-  &:first-child {
-    border-right: 1px solid var(--border);
-  }
+.rightPanel {
+  flex: 1;
+  overflow-y: auto;
 }
 
-.formContainer {
-  width: 100%;
-  max-width: 400px;
-}
-
-// 訊息樣式
-.message {
-  width: 100%;
-  max-width: 400px;
-  padding: $spacing-xs $spacing-sm;
-  border-radius: 6px;
-  text-align: center;
-  font-size: $font-sm;
-  font-weight: 500;
-  margin-bottom: $spacing-sm;
-
-  &.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+// Mobile: single column, GameOfLife becomes 180px banner at top
+@media (max-width: $mobile-max) {
+  .authLayout {
+    flex-direction: column;
+    position: static;
+    min-height: calc(100vh - var(--header-height));
   }
 
-  &.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+  .leftPanel {
+    flex: none;
+    height: 180px;
+    overflow: hidden;
   }
 
-  &.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-  }
-}
-
-// Loading 樣式
-.loading {
-  width: 100%;
-  max-width: 400px;
-  padding: $spacing-xs;
-  text-align: center;
-  font-size: $font-sm;
-  color: var(--text-secondary);
-  font-style: italic;
-  margin-bottom: $spacing-sm;
-}
-
-// OAuth section
-.oauthSection {
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.oauthDivider {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  color: var(--text-secondary);
-  font-size: $font-sm;
-
-  &::before,
-  &::after {
-    content: '';
+  .rightPanel {
     flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-}
-
-// 禁用狀態的 tab 按鈕
-.tabButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-
-  &:hover {
-    background: var(--bg-tertiary);
-  }
-
-  &.active:hover {
-    background: $gradient-primary;
+    overflow-y: auto;
   }
 }

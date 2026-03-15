@@ -15,7 +15,7 @@ export default {
     "title": "Verify Your Email",
     "subtitle": "Verification code sent to",
     "codePlaceholder": "Enter 6-character code",
-    "submit": "Verify & Complete Registration",
+    "submit": "Verify",
     "resend": "Resend Code",
     "backToRegister": "Back to Register",
     "timeLeft": "Code expires in {{minutes}}:{{seconds}}",
