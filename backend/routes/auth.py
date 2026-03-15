@@ -312,7 +312,7 @@ def verify_email():
 # ── Complete Setup (Google Onboarding) ───────────────────────────────────────
 
 RESERVED_USERNAMES = {'admin', 'root', 'system', 'codepulse', 'support', 'moderator', 'staff'}
-USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,15}$')
+USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,20}$')
 
 
 @auth_bp.route('/complete-setup', methods=['POST'])
@@ -396,9 +396,9 @@ def complete_setup():
 def check_username():
     username = (request.args.get('username') or '').strip()
     if not USERNAME_RE.match(username):
-        return jsonify({'available': False, 'error_code': 'INVALID_FORMAT'}), 200
+        return jsonify({'error': 'Invalid username format'}), 400
     if username.lower() in RESERVED_USERNAMES:
-        return jsonify({'available': False, 'error_code': 'RESERVED'}), 200
+        return jsonify({'available': False}), 200
     taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
     return jsonify({'available': taken is None}), 200
 
