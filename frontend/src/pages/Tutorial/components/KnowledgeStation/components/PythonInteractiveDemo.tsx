@@ -123,7 +123,7 @@ sys.stdout = io.StringIO()
   return (
     <div className={styles.container}>
       <div className={styles.titleBar}>
-        <span className={styles.pythonBadge}>🐍 Python 互動</span>
+        <span className={styles.pythonBadge}>Python 互動</span>
         <span className={styles.demoTitle}>{demo.title}</span>
       </div>
 
@@ -200,7 +200,7 @@ sys.stdout = io.StringIO()
             <code>{demo.code}</code>
           </pre>
           <p className={styles.localHint}>
-            💡 複製後在本地執行：<code>python script.py</code>（需 Python 3.10+）
+            複製後在本地執行：<code>python script.py</code>（需 Python 3.10+）
           </p>
         </div>
       )}
