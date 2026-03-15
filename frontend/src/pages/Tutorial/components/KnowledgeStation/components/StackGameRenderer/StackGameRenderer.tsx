@@ -1,7 +1,11 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import classNames from 'classnames';
-import type { GameState, PopupInstance, PopupTypeState } from './gameTypes';
-import type { PopupDefinition, SpawnChildItem } from './gameConfig';
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import classNames from "classnames";
+import type {
+  GameState,
+  PopupInstance,
+  PopupTypeState,
+} from "@/types/games/stackGameTypes";
+import type { PopupDefinition, SpawnChildItem } from "./gameConfig";
 import {
   POPUP_SEQUENCE,
   RULES_POPUP,
@@ -9,15 +13,15 @@ import {
   GAME_DURATION_SECONDS,
   POPUP_PUSH_INTERVAL_MS,
   TIMER_BAR_H,
-} from './gameConfig';
-import PopupWindow from './PopupWindow';
-import StackVisualizer from './StackVisualizer';
-import styles from './StackGameRenderer.module.scss';
+} from "./gameConfig";
+import PopupWindow from "./PopupWindow";
+import StackVisualizer from "./StackVisualizer";
+import styles from "./StackGameRenderer.module.scss";
 
 function computeSpiralPositions(
   defs: PopupDefinition[],
   canvasW: number,
-  canvasH: number
+  canvasH: number,
 ): Array<{ x: number; y: number }> {
   const MARGIN = 8;
   const GOLDEN_ANGLE = 2.399; // 約 137.5° 的黃金角弧度，自然均勻分布
@@ -32,31 +36,43 @@ function computeSpiralPositions(
 
     return {
       x: Math.max(MARGIN, Math.min(canvasW - def.size.w - MARGIN, cx)),
-      y: Math.max(TIMER_BAR_H + MARGIN, Math.min(canvasH - def.size.h - MARGIN, cy)),
+      y: Math.max(
+        TIMER_BAR_H + MARGIN,
+        Math.min(canvasH - def.size.h - MARGIN, cy),
+      ),
     };
   });
 }
 
-function getInitialTypeState(type: PopupInstance['type']): PopupTypeState {
+function getInitialTypeState(type: PopupInstance["type"]): PopupTypeState {
   switch (type) {
-    case 'corner-teleport':
-      return { kind: 'corner-teleport', clicksRemaining: 4, cornerIndex: 0 };
-    case 'boss':
-      return { kind: 'boss', minionsSpawned: false, minionsRemaining: 3 };
-    case 'sine-wave':
-      return { kind: 'sine-wave', childrenSpawned: false, childrenRemaining: 6 };
-    case 'quiz':
-      return { kind: 'quiz', selectedAnswer: null, isCorrect: false };
-    case 'speed-test':
-      return { kind: 'speed-test', activatedAt: null, spawnedCount: 0, isLocked: false };
-    case 'bouncing-h':
-      return { kind: 'bouncing', vx: 2, vy: 0 };
-    case 'tv-bouncing':
-      return { kind: 'bouncing', vx: 2, vy: 2 };
-    case 'random-walk':
-      return { kind: 'random-walk', targetX: 0, targetY: 0 };
+    case "corner-teleport":
+      return { kind: "corner-teleport", clicksRemaining: 4, cornerIndex: 0 };
+    case "boss":
+      return { kind: "boss", minionsSpawned: false, minionsRemaining: 3 };
+    case "sine-wave":
+      return {
+        kind: "sine-wave",
+        childrenSpawned: false,
+        childrenRemaining: 6,
+      };
+    case "quiz":
+      return { kind: "quiz", selectedAnswer: null, isCorrect: false };
+    case "speed-test":
+      return {
+        kind: "speed-test",
+        activatedAt: null,
+        spawnedCount: 0,
+        isLocked: false,
+      };
+    case "bouncing-h":
+      return { kind: "bouncing", vx: 2, vy: 0 };
+    case "tv-bouncing":
+      return { kind: "bouncing", vx: 2, vy: 2 };
+    case "random-walk":
+      return { kind: "random-walk", targetX: 0, targetY: 0 };
     default:
-      return { kind: 'default' };
+      return { kind: "default" };
   }
 }
 
@@ -64,9 +80,10 @@ function createPopupInstance(
   def: PopupDefinition,
   canvasSize: { w: number; h: number },
   id?: string,
-  positionOverride?: { x: number; y: number }
+  positionOverride?: { x: number; y: number },
 ): PopupInstance {
-  const popupId = id ?? `popup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const popupId =
+    id ?? `popup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const canvasW = canvasSize.w;
   const canvasH = canvasSize.h;
 
@@ -75,10 +92,10 @@ function createPopupInstance(
   if (positionOverride) {
     x = positionOverride.x;
     y = positionOverride.y;
-  } else if (def.type === 'corner-teleport') {
+  } else if (def.type === "corner-teleport") {
     x = 8;
     y = 8;
-  } else if (def.type === 'rules') {
+  } else if (def.type === "rules") {
     x = Math.max(8, (canvasW - def.size.w) / 2);
     y = Math.max(8, (canvasH - def.size.h) / 2);
   } else {
@@ -88,7 +105,9 @@ function createPopupInstance(
     y = 8 + Math.random() * (maxY - 8);
   }
 
-  const isCloseable = !['boss', 'sine-wave', 'speed-test', 'quiz'].includes(def.type);
+  const isCloseable = !["boss", "sine-wave", "speed-test", "quiz"].includes(
+    def.type,
+  );
 
   return {
     id: popupId,
@@ -102,7 +121,8 @@ function createPopupInstance(
 }
 
 function popTopPopup(state: GameState, now: number): GameState {
-  const topId = state.stack.length > 0 ? state.stack[state.stack.length - 1] : undefined;
+  const topId =
+    state.stack.length > 0 ? state.stack[state.stack.length - 1] : undefined;
   if (!topId) return state;
 
   const popup = state.popups.get(topId);
@@ -110,7 +130,9 @@ function popTopPopup(state: GameState, now: number): GameState {
 
   const closeDuration = state.lastCloseTime ? now - state.lastCloseTime : 0;
   const newCloseHistory =
-    closeDuration > 0 ? [...state.closeHistory, closeDuration] : state.closeHistory;
+    closeDuration > 0
+      ? [...state.closeHistory, closeDuration]
+      : state.closeHistory;
 
   const newStack = state.stack.slice(0, -1);
   const newPopups = new Map(state.popups);
@@ -137,7 +159,7 @@ function pushPopup(state: GameState, popup: PopupInstance): GameState {
 
 function buildInitialState(): GameState {
   return {
-    status: 'idle',
+    status: "idle",
     stack: [],
     popups: new Map(),
     timeLeft: GAME_DURATION_SECONDS,
@@ -177,10 +199,10 @@ const StackGameRenderer: React.FC = () => {
     const spiralPositions = computeSpiralPositions(
       queue,
       gameCanvasW,
-      gameCanvasH
+      gameCanvasH,
     );
 
-    setGameState((s) => ({ ...s, status: 'intro' }));
+    setGameState((s) => ({ ...s, status: "intro" }));
 
     let i = 0;
     const interval = setInterval(() => {
@@ -192,7 +214,7 @@ const StackGameRenderer: React.FC = () => {
         queue[i],
         { w: gameCanvasW, h: gameCanvasH },
         undefined,
-        spiralPositions[i]
+        spiralPositions[i],
       );
       setGameState((s) => pushPopup(s, instance));
       i++;
@@ -200,12 +222,12 @@ const StackGameRenderer: React.FC = () => {
   }, [gameCanvasW, gameCanvasH]);
 
   useEffect(() => {
-    if (gameState.status === 'playing') {
+    if (gameState.status === "playing") {
       timerRef.current = setInterval(() => {
         setGameState((s) => {
           const newTime = s.timeLeft - 1;
           if (newTime <= 0 && s.stack.length > 0) {
-            return { ...s, timeLeft: 0, status: 'failed' };
+            return { ...s, timeLeft: 0, status: "failed" };
           }
           return { ...s, timeLeft: newTime };
         });
@@ -222,26 +244,32 @@ const StackGameRenderer: React.FC = () => {
   const pushWarningPopup = useCallback(
     (blockedPopupId: string) => {
       const blocked = gameState.popups.get(blockedPopupId);
-      const title = blocked?.title ?? '未知彈窗';
+      const title = blocked?.title ?? "未知彈窗";
       const def = {
-        type: 'warning' as const,
+        type: "warning" as const,
         title: `⚠️ 請先關閉「${title}」`,
         size: { w: 320, h: 120 },
       };
-      const instance = createPopupInstance(def, { w: gameCanvasW, h: gameCanvasH });
+      const instance = createPopupInstance(def, {
+        w: gameCanvasW,
+        h: gameCanvasH,
+      });
       (instance as PopupInstance).typeState = {
-        kind: 'warning',
+        kind: "warning",
         blockedPopupTitle: title,
       };
       setGameState((s) => pushPopup(s, instance));
     },
-    [gameState.popups, gameCanvasW, gameCanvasH]
+    [gameState.popups, gameCanvasW, gameCanvasH],
   );
 
   const handleCanvasMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (gameState.status !== 'playing') return;
-      const topId = gameState.stack.length > 0 ? gameState.stack[gameState.stack.length - 1] : undefined;
+      if (gameState.status !== "playing") return;
+      const topId =
+        gameState.stack.length > 0
+          ? gameState.stack[gameState.stack.length - 1]
+          : undefined;
       if (!topId) return;
       const topRef = popupRefs.current.get(topId);
       if (topRef && !topRef.contains(e.target as Node)) {
@@ -250,28 +278,26 @@ const StackGameRenderer: React.FC = () => {
         setTimeout(() => setShakingId(null), 400);
       }
     },
-    [gameState.status, gameState.stack, pushWarningPopup]
+    [gameState.status, gameState.stack, pushWarningPopup],
   );
 
   const handleClosePopup = useCallback(
     (id: string) => {
       setGameState((s) => {
-        if (s.stack.length === 0 || s.stack[s.stack.length - 1] !== id) return s;
+        if (s.stack.length === 0 || s.stack[s.stack.length - 1] !== id)
+          return s;
         const popup = s.popups.get(id);
         const now = Date.now();
         let newState = popTopPopup(s, now);
 
-        if (popup?.type === 'rules') {
-          newState = { ...newState, status: 'playing', startTime: now };
+        if (popup?.type === "rules") {
+          newState = { ...newState, status: "playing", startTime: now };
         }
 
-        if (
-          popup?.type === 'minion' &&
-          popup.typeState.kind === 'minion'
-        ) {
+        if (popup?.type === "minion" && popup.typeState.kind === "minion") {
           const parentId = popup.typeState.parentId;
           const parent = newState.popups.get(parentId);
-          if (parent?.type === 'boss' && parent.typeState.kind === 'boss') {
+          if (parent?.type === "boss" && parent.typeState.kind === "boss") {
             const rem = parent.typeState.minionsRemaining - 1;
             const newPopups = new Map(newState.popups);
             newPopups.set(parentId, {
@@ -283,12 +309,15 @@ const StackGameRenderer: React.FC = () => {
           }
         }
         if (
-          popup?.type === 'sine-child' &&
-          popup.typeState.kind === 'sine-child'
+          popup?.type === "sine-child" &&
+          popup.typeState.kind === "sine-child"
         ) {
           const parentId = popup.typeState.parentId;
           const parent = newState.popups.get(parentId);
-          if (parent?.type === 'sine-wave' && parent.typeState.kind === 'sine-wave') {
+          if (
+            parent?.type === "sine-wave" &&
+            parent.typeState.kind === "sine-wave"
+          ) {
             const rem = parent.typeState.childrenRemaining - 1;
             const newPopups = new Map(newState.popups);
             newPopups.set(parentId, {
@@ -300,16 +329,19 @@ const StackGameRenderer: React.FC = () => {
           }
         }
         if (
-          popup?.type === 'speed-test-child' &&
-          popup.typeState.kind === 'speed-test-child'
+          popup?.type === "speed-test-child" &&
+          popup.typeState.kind === "speed-test-child"
         ) {
           const parentId = popup.typeState.parentId;
           const parent = newState.popups.get(parentId);
-          if (parent?.type === 'speed-test' && parent.typeState.kind === 'speed-test') {
+          if (
+            parent?.type === "speed-test" &&
+            parent.typeState.kind === "speed-test"
+          ) {
             const remainingKids = [...newState.popups.values()].filter(
               (p) =>
-                p.typeState.kind === 'speed-test-child' &&
-                p.typeState.parentId === parentId
+                p.typeState.kind === "speed-test-child" &&
+                p.typeState.parentId === parentId,
             ).length;
             if (remainingKids === 0) {
               const newPopups = new Map(newState.popups);
@@ -323,44 +355,50 @@ const StackGameRenderer: React.FC = () => {
           }
         }
 
-        if (newState.stack.length === 0 && newState.status === 'playing') {
+        if (newState.stack.length === 0 && newState.status === "playing") {
           const congrats = createPopupInstance(CONGRATS_POPUP, {
             w: gameCanvasW,
             h: gameCanvasH,
           });
           newState = pushPopup(newState, congrats);
-          newState = { ...newState, status: 'congrats' };
+          newState = { ...newState, status: "congrats" };
         }
 
-        if (popup?.type === 'congrats') {
-          newState = { ...newState, status: 'won', wonAt: now };
+        if (popup?.type === "congrats") {
+          newState = { ...newState, status: "won", wonAt: now };
         }
 
         return newState;
       });
     },
-    [gameCanvasW, gameCanvasH]
+    [gameCanvasW, gameCanvasH],
   );
 
-  const handleUpdateTypeState = useCallback((id: string, typeState: PopupTypeState) => {
-    setGameState((s) => {
-      const popup = s.popups.get(id);
-      if (!popup) return s;
-      const newPopups = new Map(s.popups);
-      newPopups.set(id, { ...popup, typeState });
-      return { ...s, popups: newPopups };
-    });
-  }, []);
+  const handleUpdateTypeState = useCallback(
+    (id: string, typeState: PopupTypeState) => {
+      setGameState((s) => {
+        const popup = s.popups.get(id);
+        if (!popup) return s;
+        const newPopups = new Map(s.popups);
+        newPopups.set(id, { ...popup, typeState });
+        return { ...s, popups: newPopups };
+      });
+    },
+    [],
+  );
 
-  const handleUpdatePosition = useCallback((id: string, position: { x: number; y: number }) => {
-    setGameState((s) => {
-      const popup = s.popups.get(id);
-      if (!popup) return s;
-      const newPopups = new Map(s.popups);
-      newPopups.set(id, { ...popup, position });
-      return { ...s, popups: newPopups };
-    });
-  }, []);
+  const handleUpdatePosition = useCallback(
+    (id: string, position: { x: number; y: number }) => {
+      setGameState((s) => {
+        const popup = s.popups.get(id);
+        if (!popup) return s;
+        const newPopups = new Map(s.popups);
+        newPopups.set(id, { ...popup, position });
+        return { ...s, popups: newPopups };
+      });
+    },
+    [],
+  );
 
   const handleSpawnChild = useCallback(
     (parentId: string, items: SpawnChildItem[]) => {
@@ -370,36 +408,43 @@ const StackGameRenderer: React.FC = () => {
       setGameState((s) => {
         let next = s;
         items.forEach((item) => {
-          const pos = item.position ?? (() => {
-            const w = item.def.size.w;
-            const h = item.def.size.h;
-            const maxX = Math.max(8, gameCanvasW - w - 8);
-            const maxY = Math.max(8, gameCanvasH - h - 8);
-            return {
-              x: 8 + Math.random() * (maxX - 8),
-              y: 8 + Math.random() * (maxY - 8),
-            };
-          })();
-          const instance = createPopupInstance(item.def, {
-            w: gameCanvasW,
-            h: gameCanvasH,
-          }, undefined, pos);
-          if (item.def.type === 'minion') {
+          const pos =
+            item.position ??
+            (() => {
+              const w = item.def.size.w;
+              const h = item.def.size.h;
+              const maxX = Math.max(8, gameCanvasW - w - 8);
+              const maxY = Math.max(8, gameCanvasH - h - 8);
+              return {
+                x: 8 + Math.random() * (maxX - 8),
+                y: 8 + Math.random() * (maxY - 8),
+              };
+            })();
+          const instance = createPopupInstance(
+            item.def,
+            {
+              w: gameCanvasW,
+              h: gameCanvasH,
+            },
+            undefined,
+            pos,
+          );
+          if (item.def.type === "minion") {
             (instance as PopupInstance).title = item.def.title;
             (instance as PopupInstance).typeState = {
-              kind: 'minion',
+              kind: "minion",
               parentId,
             };
           }
-          if (item.def.type === 'sine-child') {
+          if (item.def.type === "sine-child") {
             (instance as PopupInstance).typeState = {
-              kind: 'sine-child',
+              kind: "sine-child",
               parentId,
             };
           }
-          if (item.def.type === 'speed-test-child') {
+          if (item.def.type === "speed-test-child") {
             (instance as PopupInstance).typeState = {
-              kind: 'speed-test-child',
+              kind: "speed-test-child",
               parentId,
             };
           }
@@ -409,27 +454,28 @@ const StackGameRenderer: React.FC = () => {
         const p = next.popups.get(parentId);
         if (!p) return next;
 
-        if (p.type === 'boss' && p.typeState.kind === 'boss') {
+        if (p.type === "boss" && p.typeState.kind === "boss") {
           const newPopups = new Map(next.popups);
           newPopups.set(parentId, {
             ...p,
             typeState: {
-              kind: 'boss',
+              kind: "boss",
               minionsSpawned: true,
-              minionsRemaining: (p.typeState.kind === 'boss' && p.typeState.minionsSpawned)
-              ? p.typeState.minionsRemaining
-              : 3,
+              minionsRemaining:
+                p.typeState.kind === "boss" && p.typeState.minionsSpawned
+                  ? p.typeState.minionsRemaining
+                  : 3,
             },
             isCloseable: false,
           });
           next = { ...next, popups: newPopups };
         }
-        if (p.type === 'sine-wave' && p.typeState.kind === 'sine-wave') {
+        if (p.type === "sine-wave" && p.typeState.kind === "sine-wave") {
           const newPopups = new Map(next.popups);
           newPopups.set(parentId, {
             ...p,
             typeState: {
-              kind: 'sine-wave',
+              kind: "sine-wave",
               childrenSpawned: true,
               childrenRemaining: items.length,
             },
@@ -437,7 +483,7 @@ const StackGameRenderer: React.FC = () => {
           });
           next = { ...next, popups: newPopups };
         }
-        if (p.type === 'speed-test' && p.typeState.kind === 'speed-test') {
+        if (p.type === "speed-test" && p.typeState.kind === "speed-test") {
           const newPopups = new Map(next.popups);
           const ts = p.typeState;
           newPopups.set(parentId, {
@@ -454,21 +500,15 @@ const StackGameRenderer: React.FC = () => {
         return next;
       });
     },
-    [gameState.popups, gameCanvasW, gameCanvasH]
+    [gameState.popups, gameCanvasW, gameCanvasH],
   );
 
-  const getZIndex = useCallback(
-    (id: string, stack: string[]) => {
-      const idx = stack.indexOf(id);
-      return idx >= 0 ? 100 + idx : 0;
-    },
-    []
-  );
+  const getZIndex = useCallback((id: string, stack: string[]) => {
+    const idx = stack.indexOf(id);
+    return idx >= 0 ? 100 + idx : 0;
+  }, []);
 
-  const isShaking = useCallback(
-    (id: string) => shakingId === id,
-    [shakingId]
-  );
+  const isShaking = useCallback((id: string) => shakingId === id, [shakingId]);
 
   return (
     <div className={styles.gameContainer}>
@@ -478,9 +518,7 @@ const StackGameRenderer: React.FC = () => {
         onMouseDown={handleCanvasMouseDown}
       >
         <div className={styles.timerBar}>
-          <span className={styles.timerLabel}>
-            ⏱️ {gameState.timeLeft}s
-          </span>
+          <span className={styles.timerLabel}>⏱️ {gameState.timeLeft}s</span>
           <div
             className={styles.timerFill}
             style={{
@@ -489,13 +527,14 @@ const StackGameRenderer: React.FC = () => {
           />
         </div>
 
-        {gameState.status === 'idle' && (
+        {gameState.status === "idle" && (
           <div className={styles.startOverlay}>
             <h3 className={styles.startTitle}>📚 PopupStack 彈窗大戰</h3>
             <p className={styles.startDesc}>
-              教授發動彈窗攻擊！<br />
-              記住：<strong>最後出現的彈窗必須最先關閉</strong>（LIFO）<br />
-              在 120 秒內關閉所有彈窗！
+              教授發動彈窗攻擊！
+              <br />
+              記住：<strong>最後出現的彈窗必須最先關閉</strong>（LIFO）
+              <br />在 120 秒內關閉所有彈窗！
             </p>
             <button
               type="button"
@@ -511,7 +550,10 @@ const StackGameRenderer: React.FC = () => {
           <PopupWindow
             key={popup.id}
             popup={popup}
-            isTop={gameState.stack.length > 0 && gameState.stack[gameState.stack.length - 1] === popup.id}
+            isTop={
+              gameState.stack.length > 0 &&
+              gameState.stack[gameState.stack.length - 1] === popup.id
+            }
             zIndex={getZIndex(popup.id, gameState.stack)}
             onClose={handleClosePopup}
             onRegisterRef={(el) => {
@@ -528,31 +570,30 @@ const StackGameRenderer: React.FC = () => {
           />
         ))}
 
-        {(gameState.status === 'failed' || gameState.status === 'won') && (
+        {(gameState.status === "failed" || gameState.status === "won") && (
           <div
             className={classNames(styles.resultOverlay, {
-              [styles.failed]: gameState.status === 'failed',
-              [styles.won]: gameState.status === 'won',
+              [styles.failed]: gameState.status === "failed",
+              [styles.won]: gameState.status === "won",
             })}
           >
             <h3>
-              {gameState.status === 'won' ? '🎉 恭喜過關！' : '⏰ 時間到！'}
+              {gameState.status === "won" ? "🎉 恭喜過關！" : "⏰ 時間到！"}
             </h3>
             <p>
-              {gameState.status === 'won' && gameState.wonAt && gameState.startTime
+              {gameState.status === "won" &&
+              gameState.wonAt &&
+              gameState.startTime
                 ? `用時：${Math.round((gameState.wonAt - gameState.startTime) / 1000)} 秒`
-                : gameState.status === 'failed'
-                  ? '請再試一次，記得先關閉頂層彈窗！'
-                  : ''}
+                : gameState.status === "failed"
+                  ? "請再試一次，記得先關閉頂層彈窗！"
+                  : ""}
             </p>
           </div>
         )}
       </div>
 
-      <StackVisualizer
-        stack={gameState.stack}
-        popups={gameState.popups}
-      />
+      <StackVisualizer stack={gameState.stack} popups={gameState.popups} />
     </div>
   );
 };

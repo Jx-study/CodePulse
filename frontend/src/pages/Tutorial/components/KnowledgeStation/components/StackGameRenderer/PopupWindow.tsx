@@ -1,13 +1,16 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
-import classNames from 'classnames';
-import type { PopupInstance, PopupTypeState } from './gameTypes';
-import type { SpawnChildItem } from './gameConfig';
+import React, { useEffect, useRef, useCallback, useState } from "react";
+import classNames from "classnames";
+import type {
+  PopupInstance,
+  PopupTypeState,
+} from "@/types/games/stackGameTypes";
+import type { SpawnChildItem } from "./gameConfig";
 import {
   MINION_POPUP_SIZE,
   NORMAL_POPUP_SIZE,
   SINE_CHILD_POPUP_SIZE,
-} from './gameConfig';
-import styles from './PopupWindow.module.scss';
+} from "./gameConfig";
+import styles from "./PopupWindow.module.scss";
 
 interface PopupWindowProps {
   popup: PopupInstance;
@@ -28,7 +31,7 @@ function useBouncingH(
   active: boolean,
   popup: PopupInstance,
   canvasSize: { w: number; h: number },
-  onUpdatePosition: (id: string, pos: { x: number; y: number }) => void
+  onUpdatePosition: (id: string, pos: { x: number; y: number }) => void,
 ) {
   const posRef = useRef({ x: popup.position.x, vx: 1 });
 
@@ -54,16 +57,28 @@ function useBouncingH(
     };
     raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
-  }, [active, popup.id, popup.position.y, popup.size.w, canvasSize.w, onUpdatePosition]);
+  }, [
+    active,
+    popup.id,
+    popup.position.y,
+    popup.size.w,
+    canvasSize.w,
+    onUpdatePosition,
+  ]);
 }
 
 function useTVBouncing(
   active: boolean,
   popup: PopupInstance,
   canvasSize: { w: number; h: number },
-  onUpdatePosition: (id: string, pos: { x: number; y: number }) => void
+  onUpdatePosition: (id: string, pos: { x: number; y: number }) => void,
 ) {
-  const posRef = useRef({ x: popup.position.x, y: popup.position.y, vx: 1.2, vy: 1.2 });
+  const posRef = useRef({
+    x: popup.position.x,
+    y: popup.position.y,
+    vx: 1.2,
+    vy: 1.2,
+  });
 
   useEffect(() => {
     if (!active) return;
@@ -104,10 +119,10 @@ function useRandomWalk(
   active: boolean,
   popup: PopupInstance,
   canvasSize: { w: number; h: number },
-  onUpdateTypeState: (id: string, state: PopupTypeState) => void
+  onUpdateTypeState: (id: string, state: PopupTypeState) => void,
 ) {
   useEffect(() => {
-    if (!active || popup.typeState.kind !== 'random-walk') return;
+    if (!active || popup.typeState.kind !== "random-walk") return;
     const w = popup.size.w;
     const h = popup.size.h;
     const maxX = Math.max(0, canvasSize.w - w - 16);
@@ -115,7 +130,7 @@ function useRandomWalk(
     const targetX = 8 + Math.random() * maxX;
     const targetY = 8 + Math.random() * maxY;
     onUpdateTypeState(popup.id, {
-      kind: 'random-walk',
+      kind: "random-walk",
       targetX,
       targetY,
     });
@@ -125,7 +140,11 @@ function useRandomWalk(
       const maxY = Math.max(0, canvasSize.h - h - 16);
       const tx = 8 + Math.random() * maxX;
       const ty = 8 + Math.random() * maxY;
-      onUpdateTypeState(popup.id, { kind: 'random-walk', targetX: tx, targetY: ty });
+      onUpdateTypeState(popup.id, {
+        kind: "random-walk",
+        targetX: tx,
+        targetY: ty,
+      });
     }, 400);
     return () => clearInterval(id);
   }, [active, popup.id, popup.size, canvasSize, onUpdateTypeState]);
@@ -135,20 +154,42 @@ function useBossSpawn(
   active: boolean,
   popup: PopupInstance,
   onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void,
-  onUpdateTypeState: (id: string, state: PopupTypeState) => void
+  onUpdateTypeState: (id: string, state: PopupTypeState) => void,
 ) {
   useEffect(() => {
-    if (!active || popup.typeState.kind !== 'boss' || popup.typeState.minionsSpawned)
+    if (
+      !active ||
+      popup.typeState.kind !== "boss" ||
+      popup.typeState.minionsSpawned
+    )
       return;
     onUpdateTypeState(popup.id, {
-      kind: 'boss',
+      kind: "boss",
       minionsSpawned: true,
       minionsRemaining: 3,
     });
     [
-      { def: { type: 'minion' as const, title: '🔧 小弟 #1', size: MINION_POPUP_SIZE } },
-      { def: { type: 'minion' as const, title: '🔧 小弟 #2', size: MINION_POPUP_SIZE } },
-      { def: { type: 'minion' as const, title: '🔧 小弟 #3', size: MINION_POPUP_SIZE } },
+      {
+        def: {
+          type: "minion" as const,
+          title: "🔧 小弟 #1",
+          size: MINION_POPUP_SIZE,
+        },
+      },
+      {
+        def: {
+          type: "minion" as const,
+          title: "🔧 小弟 #2",
+          size: MINION_POPUP_SIZE,
+        },
+      },
+      {
+        def: {
+          type: "minion" as const,
+          title: "🔧 小弟 #3",
+          size: MINION_POPUP_SIZE,
+        },
+      },
     ].forEach((item, i) => {
       setTimeout(() => onSpawnChild(popup.id, [item]), i * 150);
     });
@@ -160,17 +201,17 @@ function useSineWaveSpawn(
   popup: PopupInstance,
   canvasSize: { w: number; h: number },
   onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void,
-  onUpdateTypeState: (id: string, state: PopupTypeState) => void
+  onUpdateTypeState: (id: string, state: PopupTypeState) => void,
 ) {
   useEffect(() => {
     if (
       !active ||
-      popup.typeState.kind !== 'sine-wave' ||
+      popup.typeState.kind !== "sine-wave" ||
       popup.typeState.childrenSpawned
     )
       return;
     onUpdateTypeState(popup.id, {
-      kind: 'sine-wave',
+      kind: "sine-wave",
       childrenSpawned: true,
       childrenRemaining: 6,
     });
@@ -178,7 +219,7 @@ function useSineWaveSpawn(
     const ch = canvasSize.h;
     Array.from({ length: 6 }, (_, i) => ({
       def: {
-        type: 'sine-child' as const,
+        type: "sine-child" as const,
         title: `〰️ 子彈窗 ${i + 1}`,
         size: SINE_CHILD_POPUP_SIZE,
       },
@@ -189,7 +230,14 @@ function useSineWaveSpawn(
     })).forEach((item, i) => {
       setTimeout(() => onSpawnChild(popup.id, [item]), i * 50);
     });
-  }, [active, popup.id, popup.typeState.kind, canvasSize, onSpawnChild, onUpdateTypeState]);
+  }, [
+    active,
+    popup.id,
+    popup.typeState.kind,
+    canvasSize,
+    onSpawnChild,
+    onUpdateTypeState,
+  ]);
 }
 
 function useSpeedTestWatch(
@@ -197,7 +245,7 @@ function useSpeedTestWatch(
   popupId: string,
   isLocked: boolean,
   closeHistory: number[],
-  onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void
+  onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void,
 ) {
   const timerSetRef = useRef(false);
   const onSpawnChildRef = useRef(onSpawnChild);
@@ -219,8 +267,8 @@ function useSpeedTestWatch(
       timerSetRef.current = false;
       Array.from({ length: 5 }, () => ({
         def: {
-          type: 'speed-test-child' as const,
-          title: '⏱️ 額外彈窗',
+          type: "speed-test-child" as const,
+          title: "⏱️ 額外彈窗",
           size: NORMAL_POPUP_SIZE,
         },
       })).forEach((item, i) => {
@@ -246,11 +294,12 @@ function PopupContent({
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
 
   switch (popup.type) {
-    case 'rules':
+    case "rules":
       return (
         <div className={styles.contentRules}>
           <p>
-            彈窗遵循 <strong>LIFO（後進先出）</strong>：最後出現的彈窗必須最先關閉！
+            彈窗遵循 <strong>LIFO（後進先出）</strong>
+            ：最後出現的彈窗必須最先關閉！
           </p>
           <p>關閉此視窗即可開始倒計時。</p>
           <button
@@ -262,7 +311,7 @@ function PopupContent({
           </button>
         </div>
       );
-    case 'hidden-close':
+    case "hidden-close":
       return (
         <div className={styles.contentHidden}>
           <p>這段文字裡藏著關閉按鈕……</p>
@@ -278,63 +327,73 @@ function PopupContent({
           </p>
         </div>
       );
-    case 'corner-teleport':
+    case "corner-teleport":
       return (
         <div className={styles.contentCorner}>
           <p>
-            還需點擊 {popup.typeState.kind === 'corner-teleport' ? popup.typeState.clicksRemaining : 4} 次
+            還需點擊{" "}
+            {popup.typeState.kind === "corner-teleport"
+              ? popup.typeState.clicksRemaining
+              : 4}{" "}
+            次
           </p>
         </div>
       );
-    case 'boss':
+    case "boss":
       return (
         <div className={styles.contentBoss}>
           <p>等我的小弟們都走了再說…</p>
           <p>
             剩餘：
-            {popup.typeState.kind === 'boss' ? popup.typeState.minionsRemaining : 3} 個
+            {popup.typeState.kind === "boss"
+              ? popup.typeState.minionsRemaining
+              : 3}{" "}
+            個
           </p>
         </div>
       );
-    case 'sine-wave':
+    case "sine-wave":
       return (
         <div className={styles.contentSine}>
           <p>你以為關掉我就結束了？</p>
         </div>
       );
-    case 'quiz':
+    case "quiz":
       return (
         <div className={styles.contentQuiz}>
           <p>關於 Stack，以下哪個描述正確？</p>
           <div className={styles.radioGroup}>
-            {['A. 先進先出（FIFO）', 'B. 先進後出（LIFO）', 'C. 隨機存取', 'D. 雙向存取'].map(
-              (opt) => (
-                <label key={opt}>
-                  <input
-                    type="radio"
-                    name={`quiz-${popup.id}`}
-                    value={opt}
-                    checked={quizAnswer === opt}
-                    onChange={() => setQuizAnswer(opt)}
-                  />
-                  {opt}
-                </label>
-              )
-            )}
+            {[
+              "A. 先進先出（FIFO）",
+              "B. 先進後出（LIFO）",
+              "C. 隨機存取",
+              "D. 雙向存取",
+            ].map((opt) => (
+              <label key={opt}>
+                <input
+                  type="radio"
+                  name={`quiz-${popup.id}`}
+                  value={opt}
+                  checked={quizAnswer === opt}
+                  onChange={() => setQuizAnswer(opt)}
+                />
+                {opt}
+              </label>
+            ))}
           </div>
           <button
             type="button"
             className={styles.primaryBtn}
             onClick={() => {
-              if (quizAnswer === 'B. 先進後出（LIFO）') {
+              if (quizAnswer === "B. 先進後出（LIFO）") {
                 onUpdateTypeState(popup.id, {
-                  kind: 'quiz',
+                  kind: "quiz",
                   selectedAnswer: quizAnswer,
                   isCorrect: true,
                 });
               } else if (quizAnswer) {
                 onUpdateTypeState(popup.id, {
-                  kind: 'quiz',
+                  kind: "quiz",
                   selectedAnswer: quizAnswer,
                   isCorrect: false,
                 });
@@ -345,7 +404,7 @@ function PopupContent({
           </button>
         </div>
       );
-    case 'speed-test':
+    case "speed-test":
       return (
         <div className={styles.contentSpeed}>
           <button
@@ -357,13 +416,13 @@ function PopupContent({
           </button>
         </div>
       );
-    case 'warning':
+    case "warning":
       return (
         <div className={styles.contentWarning}>
           <p>⚠️ {popup.title}</p>
         </div>
       );
-    case 'congrats':
+    case "congrats":
       return (
         <div className={styles.contentCongrats}>
           <p>🎉 恭喜！所有彈窗已關閉！</p>
@@ -393,54 +452,59 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
   closeHistory,
   isShaking,
 }) => {
-  const active = isTop && gameStatus === 'playing';
+  const active = isTop && gameStatus === "playing";
 
   useBouncingH(
-    active && popup.type === 'bouncing-h',
+    active && popup.type === "bouncing-h",
     popup,
     canvasSize,
-    onUpdatePosition ?? (() => {})
+    onUpdatePosition ?? (() => {}),
   );
   useTVBouncing(
-    active && popup.type === 'tv-bouncing',
+    active && popup.type === "tv-bouncing",
     popup,
     canvasSize,
-    onUpdatePosition ?? (() => {})
+    onUpdatePosition ?? (() => {}),
   );
   useRandomWalk(
-    active && popup.type === 'random-walk',
+    active && popup.type === "random-walk",
     popup,
     canvasSize,
-    onUpdateTypeState
+    onUpdateTypeState,
   );
   useBossSpawn(
-    active && popup.type === 'boss',
+    active && popup.type === "boss",
     popup,
     onSpawnChild,
-    onUpdateTypeState
+    onUpdateTypeState,
   );
   useSineWaveSpawn(
-    active && popup.type === 'sine-wave',
+    active && popup.type === "sine-wave",
     popup,
     canvasSize,
     onSpawnChild,
-    onUpdateTypeState
+    onUpdateTypeState,
   );
   useSpeedTestWatch(
-    active && popup.type === 'speed-test',
+    active && popup.type === "speed-test",
     popup.id,
-    popup.type === 'speed-test' && popup.typeState.kind === 'speed-test' ? popup.typeState.isLocked : false,
+    popup.type === "speed-test" && popup.typeState.kind === "speed-test"
+      ? popup.typeState.isLocked
+      : false,
     closeHistory,
-    onSpawnChild
+    onSpawnChild,
   );
 
   const handleCloseClick = useCallback(() => {
-    if (popup.type === 'corner-teleport' && popup.typeState.kind === 'corner-teleport') {
+    if (
+      popup.type === "corner-teleport" &&
+      popup.typeState.kind === "corner-teleport"
+    ) {
       const { clicksRemaining, cornerIndex } = popup.typeState;
       if (clicksRemaining > 1) {
         const nextIndex = ((cornerIndex + 1) % 4) as 0 | 1 | 2 | 3;
         onUpdateTypeState(popup.id, {
-          kind: 'corner-teleport',
+          kind: "corner-teleport",
           clicksRemaining: clicksRemaining - 1,
           cornerIndex: nextIndex,
         });
@@ -452,26 +516,31 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
     }
   }, [popup, onClose, onUpdateTypeState]);
 
-  const position = popup.type === 'corner-teleport' && popup.typeState.kind === 'corner-teleport'
-    ? (() => {
-        const cw = canvasSize.w;
-        const ch = canvasSize.h;
-        const w = popup.size.w;
-        const h = popup.size.h;
-        const corners = [
-          { x: 8, y: 8 },
-          { x: cw - w - 8, y: 8 },
-          { x: cw - w - 8, y: ch - h - 8 },
-          { x: 8, y: ch - h - 8 },
-        ];
-        return corners[popup.typeState.cornerIndex];
-      })()
-    : popup.typeState.kind === 'random-walk'
-      ? { x: popup.typeState.targetX, y: popup.typeState.targetY }
-      : popup.position;
+  const position =
+    popup.type === "corner-teleport" &&
+    popup.typeState.kind === "corner-teleport"
+      ? (() => {
+          const cw = canvasSize.w;
+          const ch = canvasSize.h;
+          const w = popup.size.w;
+          const h = popup.size.h;
+          const corners = [
+            { x: 8, y: 8 },
+            { x: cw - w - 8, y: 8 },
+            { x: cw - w - 8, y: ch - h - 8 },
+            { x: 8, y: ch - h - 8 },
+          ];
+          return corners[popup.typeState.cornerIndex];
+        })()
+      : popup.typeState.kind === "random-walk"
+        ? { x: popup.typeState.targetX, y: popup.typeState.targetY }
+        : popup.position;
 
-  const showCloseBtn = popup.type !== 'hidden-close' && popup.type !== 'rules';
-  const quizUnlock = popup.type === 'quiz' && popup.typeState.kind === 'quiz' && popup.typeState.isCorrect;
+  const showCloseBtn = popup.type !== "hidden-close" && popup.type !== "rules";
+  const quizUnlock =
+    popup.type === "quiz" &&
+    popup.typeState.kind === "quiz" &&
+    popup.typeState.isCorrect;
   const canClose = popup.isCloseable || quizUnlock;
 
   return (
@@ -480,7 +549,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
       className={classNames(styles.popup, styles[popup.type], {
         [styles.active]: isTop,
         [styles.shaking]: isShaking,
-        [styles.warning]: popup.type === 'warning',
+        [styles.warning]: popup.type === "warning",
       })}
       style={{
         left: position.x,
@@ -489,8 +558,8 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
         height: popup.size.h,
         zIndex,
         transition:
-          popup.type === 'random-walk'
-            ? 'left 0.35s ease, top 0.35s ease'
+          popup.type === "random-walk"
+            ? "left 0.35s ease, top 0.35s ease"
             : undefined,
       }}
     >

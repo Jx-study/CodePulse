@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import classNames from 'classnames';
-import type { PopupInstance } from './gameTypes';
-import styles from './StackVisualizer.module.scss';
+import React, { useState, useEffect, useRef } from "react";
+import classNames from "classnames";
+import type { PopupInstance } from "@/types/games/stackGameTypes";
+import styles from "./StackVisualizer.module.scss";
 
 const SLIDE_OUT_MS = 150;
 
@@ -11,7 +11,9 @@ interface Props {
 }
 
 const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
-  const [visibleIds, setVisibleIds] = useState<string[]>(() => [...stack].reverse());
+  const [visibleIds, setVisibleIds] = useState<string[]>(() =>
+    [...stack].reverse(),
+  );
   const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
   const prevStackRef = useRef<string[]>(stack);
   const titleCacheRef = useRef<Map<string, string>>(new Map());
@@ -67,7 +69,9 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
               })}
             >
               <span className={styles.stackIndex}>{totalCount - idx}</span>
-              <span className={styles.stackTitle}>{titleCacheRef.current.get(id) ?? id}</span>
+              <span className={styles.stackTitle}>
+                {titleCacheRef.current.get(id) ?? id}
+              </span>
             </div>
           ))}
         </div>
