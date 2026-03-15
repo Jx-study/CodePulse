@@ -7,5 +7,5 @@
 .main {
   flex: 1;
   padding-top: var(--header-height);
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height));
 }
