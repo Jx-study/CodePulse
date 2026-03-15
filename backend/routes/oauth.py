@@ -11,6 +11,7 @@ from database import db
 from models.user import User, UserIdentity, UserToken, ProviderType, UserRole
 from auth_utils import (
     create_access_token, create_refresh_token,
+    create_onboarding_token,
     hash_token, set_auth_cookies, REFRESH_TOKEN_EXPIRES,
 )
 from routes.auth import _update_streak
@@ -172,24 +173,26 @@ def register_oauth_routes(app):
                     return response
 
                 else:
-                    user = User(
-                        display_name=name,
+                    # 新用戶注冊：先不建立用戶資料，核發 Onboarding Token ，用於延後建立帳號
+                    onboarding_token = create_onboarding_token(
+                        google_sub=google_sub,
                         email=email,
-                        role=UserRole.user,
+                        display_name=name,
                         avatar_url=picture,
                     )
-                    db.session.add(user)
-                    db.session.flush()
-
-                    new_identity = UserIdentity(
-                        user_id=user.user_id,
-                        provider=ProviderType.google,
-                        provider_id=google_sub,
-                        is_verified=True,
+                    frontend_onboarding = current_app.config.get('FRONTEND_URL', 'http://localhost:5173') + '/onboarding'
+                    response = make_response(redirect(frontend_onboarding))
+                    response.set_cookie(
+                        'onboarding_token',
+                        onboarding_token,
+                        max_age=600,
+                        httponly=True,
+                        samesite='Lax',
+                        secure=_cookie_secure(),
+                        path='/api/auth',
                     )
-                    db.session.add(new_identity)
-                    db.session.commit()
-                    query_param = '?new=true'
+                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+                    return response
 
             _update_streak(user)
 
@@ -209,7 +212,7 @@ def register_oauth_routes(app):
             current_app.logger.error(f'OAuth account linking failed: {e}')
             return redirect(f'{frontend_cb}?error=server_error')
 
-        response = make_response(redirect(f'{frontend_cb}{query_param}'))
+        response = make_response(redirect(f'{frontend_cb}'))
         set_auth_cookies(response, jwt_access, jwt_refresh)
         response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
         return response

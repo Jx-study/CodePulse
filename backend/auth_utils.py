@@ -12,10 +12,37 @@ ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
 REFRESH_TOKEN_EXPIRES = timedelta(days=7)
 
 ALGORITHM = 'HS256'
+ONBOARDING_TOKEN_EXPIRES = timedelta(minutes=10)
 
 
 def _secret():
     return current_app.config['SECRET_KEY']
+
+
+def create_onboarding_token(google_sub: str, email: str, display_name: str, avatar_url: str | None = None) -> str:
+    """Sign a short-lived JWT for new Google users who haven't chosen a username yet."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        'type': 'onboarding',
+        'google_sub': google_sub,
+        'email': email,
+        'display_name': display_name,
+        'avatar_url': avatar_url,
+        'iat': now,
+        'exp': now + ONBOARDING_TOKEN_EXPIRES,
+    }
+    return jwt.encode(payload, _secret(), algorithm=ALGORITHM)
+
+
+def decode_onboarding_token(token: str) -> dict:
+    """
+    Decode and validate an onboarding JWT.
+    Raises jwt.ExpiredSignatureError, jwt.InvalidTokenError on failure.
+    """
+    payload = jwt.decode(token, _secret(), algorithms=[ALGORITHM])
+    if payload.get('type') != 'onboarding':
+        raise jwt.InvalidTokenError('Wrong token type')
+    return payload
 
 
 def create_access_token(user_id: int) -> str:
