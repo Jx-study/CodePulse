@@ -12,12 +12,22 @@ import {
 } from "@/modules/core/components/ActionBar/ActionBarCommon";
 
 export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
+  onLoadData,
   onResetData,
   disabled = false,
   onRun,
 }) => {
-  // 預設為 4 皇后 (動畫長度適中)
   const [nSize, setNSize] = useState("4");
+
+  const handleNChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setNSize(val); // 更新輸入框的顯示值
+
+    const n = parseInt(val, 10);
+    if (!isNaN(n) && n >= 1 && n <= 8) {
+      onLoadData(`NQUEENS:${n}`);
+    }
+  };
 
   const handleRun = () => {
     const n = parseInt(nSize);
@@ -26,7 +36,6 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
         toast.warning("N 大於 8 時運算與動畫時間過長，請輸入 1~8 之間的數字。");
         return;
       }
-      // 將 N 參數傳給底層演算法
       onRun({ nQueensCount: n });
     } else {
       toast.warning("請輸入有效的棋盤大小 N (大於 0 的整數)");
@@ -35,16 +44,13 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
 
   return (
     <ActionBarContainer>
-      {/* 執行控制 */}
       <ActionBarGroup>
         <StaticLabel>N-Queens Control</StaticLabel>
         <Input
           type="number"
           placeholder="棋盤大小 N"
           value={nSize}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setNSize(e.target.value)
-          }
+          onChange={handleNChange}
           className={styles.input}
           disabled={disabled}
           fullWidth={false}
@@ -52,6 +58,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
           max={8}
           aria-label="Board size N"
         />
+
         <Tooltip content="執行 N 皇后回溯演算法">
           <Button
             size="sm"

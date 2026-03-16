@@ -3,6 +3,11 @@ import type { LevelImplementationConfig } from "@/types/implementation";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { NQueensActionBar } from "@/data/algorithms/recursive/NQueensActionBar";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
+import { cloneData } from "@/modules/core/visualization/visualizationUtils";
 
 const TAGS = {
   INIT: "INIT",
@@ -25,13 +30,57 @@ export const NQueensStatus = {
 
 export const NQueensStatusConfig: StatusConfig = {
   statuses: [
-    { key: NQueensStatus.Inactive, label: "安全空格", color: "#475569" }, // 預設深灰
-    { key: NQueensStatus.Target, label: "嘗試中", color: "#f59e0b" }, // 黃/橘色
-    { key: NQueensStatus.Complete, label: "已放置皇后", color: "#10b981" }, // 綠色
-    { key: NQueensStatus.Attacked, label: "被攻擊範圍", color: "#ef4444" }, // 紅色
-    { key: NQueensStatus.Backtrack, label: "回溯拔除", color: "#a855f7" }, // 紫色
+    { key: NQueensStatus.Inactive, label: "安全空格", color: "#475569" },
+    { key: NQueensStatus.Target, label: "嘗試中", color: "#f59e0b" },
+    { key: NQueensStatus.Complete, label: "已放置皇后", color: "#10b981" },
+    { key: NQueensStatus.Attacked, label: "被攻擊範圍", color: "#ef4444" },
+    { key: NQueensStatus.Backtrack, label: "回溯拔除", color: "#a855f7" },
   ],
 };
+
+type NQueensData = { n: number };
+
+function nQueensActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: NQueensData[],
+  context: ActionContext,
+): ActionResult<NQueensData[]> | null {
+  if (actionType === "load") {
+    const raw = payload.data as string;
+    if (!raw?.startsWith("NQUEENS:")) return null;
+
+    const parts = raw.split(":");
+    if (parts.length < 2) return null;
+
+    const n = parseInt(parts[1], 10);
+    if (isNaN(n) || n < 1) return null;
+
+    return {
+      // 將解析出的 N 存入全域資料，確保不會被重置
+      animationData: [{ n }],
+      animationParams: { nQueensCount: n },
+      isResetAction: true,
+      useRawAnimationParams: true, // 確保 nQueensCount 參數不被重置清掉
+    };
+  }
+
+  if (actionType === "reset") {
+    return {
+      animationData: cloneData(context.defaultData as NQueensData[]),
+      isResetAction: true,
+    };
+  }
+
+  if (actionType === "run") {
+    return {
+      animationData: cloneData(data),
+      animationParams: payload,
+    };
+  }
+
+  return null;
+}
 
 export function createNQueensAnimationSteps(
   inputData: any,
@@ -40,12 +89,15 @@ export function createNQueensAnimationSteps(
   const steps: AnimationStep[] = [];
 
   // 預設為 4 皇后，最大建議 8 (超過 8 動畫會非常長)
-  const N = action?.n ?? 4;
+  const inputN =
+    Array.isArray(inputData) && inputData.length > 0
+      ? inputData[0].n
+      : undefined;
+  const N = action?.nQueensCount ?? inputN ?? 4;
 
   // queens[r] = c 代表第 r 行的皇后放在第 c 列。-1 代表未放置。
   const queens: number[] = Array(N).fill(-1);
 
-  // UI 排版設定
   const boxW = 50;
   const boxH = 50;
   const startX = 250 - (N * boxW) / 2; // 讓棋盤置中
@@ -99,13 +151,13 @@ export function createNQueensAnimationSteps(
 
         if (isPlacedQueen) {
           // 已放置的皇后
-          box.value = "♕"; // 皇后符號
+          box.value = "♕";
           box.setStatus(Status.Complete);
         } else if (isCurrentTarget) {
           // 目前正在操作的格子
           if (state === "try") {
             box.value = "?";
-            box.setStatus(Status.Target); // 嘗試中 (橘/黃)
+            box.setStatus(Status.Target);
           } else if (state === "attacked") {
             box.value = "×";
             // 使用強制轉型套用自定義的 status (會在 config 裡定義)
@@ -123,7 +175,7 @@ export function createNQueensAnimationSteps(
         } else if (attackedGrid[r][c]) {
           // 被攻擊的空格
           box.value = "";
-          box.setStatus("attacked" as unknown as Status); // 紅色
+          box.setStatus("attacked" as unknown as Status);
         } else {
           // 安全的空格
           box.value = "";
@@ -147,7 +199,7 @@ export function createNQueensAnimationSteps(
     });
   };
 
-  // --- 回溯演算法核心 ---
+  // 回溯演算法核心
   const solve = (row: number): boolean => {
     if (row === N) {
       recordStep(
@@ -161,7 +213,6 @@ export function createNQueensAnimationSteps(
     }
 
     for (let col = 0; col < N; col++) {
-      // 1. 嘗試在這個位置放皇后
       recordStep(
         `嘗試在第 ${row} 列，第 ${col} 行放置皇后`,
         TAGS.CHECK_SAFE,
@@ -172,7 +223,6 @@ export function createNQueensAnimationSteps(
 
       const attacked = getAttackedGrid(queens);
       if (attacked[row][col]) {
-        // 2. 被攻擊，失敗
         recordStep(
           `位置 (${row}, ${col}) 位於其他皇后的攻擊範圍內，無法放置！`,
           TAGS.ATTACKED,
@@ -183,7 +233,6 @@ export function createNQueensAnimationSteps(
         continue;
       }
 
-      // 3. 安全，放置皇后
       queens[row] = col;
       recordStep(
         `位置 (${row}, ${col}) 安全，放置皇后！`,
@@ -193,12 +242,10 @@ export function createNQueensAnimationSteps(
         "place",
       );
 
-      // 4. 遞迴進入下一列
       if (solve(row + 1)) {
         return true;
       }
 
-      // 5. 回溯 (Backtrack)：下一列找不到解，拔除當前皇后
       queens[row] = -1;
       recordStep(
         `從第 ${row + 1} 列回溯，移除 (${row}, ${col}) 的皇后，尋找下一個位置`,
@@ -277,7 +324,8 @@ export const nQueensConfig: LevelImplementationConfig = {
     space: "O(N)",
   },
   introduction: `N 皇后問題是回溯法的經典題。我們逐列 (Row) 嘗試放置皇后，如果該位置不在任何已放置皇后的攻擊範圍（同行、同列、對角線）內，就暫時放上去，並繼續遞迴尋找下一列。如果下一列找不到解，我們就「回溯（拔起皇后）」，換下一個位置繼續試。`,
-  defaultData: [], // 這裡不需要給資料陣列，因為是由 N 決定
+  defaultData: [{ n: 4 }],
+  actionHandler: nQueensActionHandler,
   createAnimationSteps: createNQueensAnimationSteps,
   renderActionBar: (props) => <NQueensActionBar {...(props as any)} />,
 };
