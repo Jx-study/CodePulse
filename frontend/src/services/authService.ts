@@ -18,6 +18,12 @@ export interface ResendVerificationResponse {
   remaining_attempts?: number;
 }
 
+export interface OnboardingInfoResponse {
+  success: boolean;
+  display_name: string;
+  email: string;
+}
+
 const authService = {
   async login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -71,6 +77,19 @@ const authService = {
 
   async getStatus(): Promise<AuthStatusResponse> {
     const res = await apiService.get<AuthStatusResponse>('/api/auth/status');
+    return res.data;
+  },
+
+  async getOnboardingInfo(): Promise<OnboardingInfoResponse> {
+    const res = await apiService.get<OnboardingInfoResponse>('/api/auth/onboarding-info');
+    return res.data;
+  },
+
+  async completeSetup(username: string, display_name: string): Promise<AuthResponse> {
+    const res = await apiService.post<AuthResponse>('/api/auth/complete-setup', {
+      username,
+      display_name,
+    });
     return res.data;
   },
 };

@@ -18,6 +18,15 @@
   overflow-y: auto;
 }
 
+.loadingPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: $spacing-xl;
+}
+
 // Mobile: single column, GameOfLife becomes 180px banner at top
 @media (max-width: $mobile-max) {
   .authLayout {

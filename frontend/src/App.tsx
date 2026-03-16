@@ -1,5 +1,5 @@
 import { useEffect, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Auth Context
@@ -76,6 +76,8 @@ function App() {
             <Route index element={<AuthPage />} />
             <Route path="verify-email" element={<VerifyEmailPage />} />
             <Route path="callback" element={<OAuthCallback />} />
+            <Route path="onboarding" element={<AuthPage />} />
+            <Route path="survey" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       </Suspense>

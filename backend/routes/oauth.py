@@ -180,7 +180,7 @@ def register_oauth_routes(app):
                         display_name=name,
                         avatar_url=picture,
                     )
-                    frontend_onboarding = current_app.config.get('FRONTEND_URL', 'http://localhost:5173') + '/onboarding'
+                    frontend_onboarding = current_app.config.get('FRONTEND_URL', 'http://localhost:5173') + '/auth/onboarding'
                     response = make_response(redirect(frontend_onboarding))
                     response.set_cookie(
                         'onboarding_token',
