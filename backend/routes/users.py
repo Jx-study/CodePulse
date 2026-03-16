@@ -2,11 +2,12 @@ import time
 import cloudinary
 import cloudinary.uploader
 import cloudinary.utils
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, current_app, g, request
 
-from auth_utils import login_required
+from auth_utils import login_required, hash_password, verify_password
 from database import db
-from models.user import User
+from models.user import User, UserIdentity, UserToken, ProviderType
 
 users_bp = Blueprint('users', __name__)
 
@@ -101,3 +102,78 @@ def update_me():
         return jsonify({'success': False, 'message': '伺服器錯誤'}), 500
 
     return jsonify({'success': True, 'user': user.to_dict()}), 200
+
+
+@users_bp.route('/me/password', methods=['PUT'])
+@login_required
+def change_password():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+
+    if not current_password or not new_password:
+        return jsonify({
+            'success': False,
+            'error_code': 'MISSING_FIELDS',
+            'message': '請填寫所有欄位',
+        }), 400
+
+    user = User.query.get(g.current_user_id)
+    if not user or user.deleted_at is not None:
+        return jsonify({
+            'success': False,
+            'error_code': 'USER_NOT_FOUND',
+            'message': '用戶不存在',
+        }), 404
+
+    identity = UserIdentity.query.filter_by(
+        user_id=user.user_id,
+        provider=ProviderType.local,
+    ).first()
+
+    if not identity:
+        return jsonify({
+            'success': False,
+            'error_code': 'NO_LOCAL_ACCOUNT',
+            'message': '此帳號使用 Google 登入，無法修改密碼',
+        }), 400
+
+    if not verify_password(current_password, identity.password_hash):
+        return jsonify({
+            'success': False,
+            'error_code': 'WRONG_PASSWORD',
+            'message': '目前密碼錯誤',
+        }), 400
+
+    if len(new_password) < 6:
+        return jsonify({
+            'success': False,
+            'error_code': 'WEAK_PASSWORD',
+            'message': '密碼至少需要 6 個字元',
+        }), 400
+
+    if verify_password(new_password, identity.password_hash):
+        return jsonify({
+            'success': False,
+            'error_code': 'SAME_PASSWORD',
+            'message': '新密碼不可與目前密碼相同',
+        }), 400
+
+    try:
+        identity.password_hash = hash_password(new_password)
+        now = datetime.now(timezone.utc)
+        UserToken.query.filter(
+            UserToken.user_id == user.user_id,
+            UserToken.is_revoked == False,
+            UserToken.expires_at > now,
+        ).update({'is_revoked': True})
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error_code': 'SERVER_ERROR',
+            'message': '伺服器錯誤，請稍後再試',
+        }), 500
+
+    return jsonify({'success': True, 'message': '密碼已更新，請重新登入'}), 200

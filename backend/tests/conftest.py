@@ -30,6 +30,7 @@ def auth_headers(app):
     with app.app_context():
         user = User(
             user_id=1,
+            username='testuser',
             display_name='Test User',
             email='test@example.com',
             role=UserRole.user,
