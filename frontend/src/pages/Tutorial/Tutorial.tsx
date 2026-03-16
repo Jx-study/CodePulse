@@ -7,6 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import { GraphCanvas } from "@/modules/core/Render/GraphCanvas";
 import ControlBar from "@/modules/core/components/ControlBar";
 import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
@@ -120,16 +121,28 @@ const CanvasPanel = ({
           dragHandleProps={dragHandleProps}
         />
         <div ref={canvasContainerRef} className={styles.visualizationArea}>
-          <D3Canvas
-            elements={currentStepData?.elements || []}
-            links={currentLinks}
-            width={canvasSize.width}
-            height={canvasSize.height}
-            structureType={topicTypeConfig?.id}
-            statusColorMap={currentStatusColorMap}
-            statusConfig={currentStatusConfig}
-            isDirected={isDirected}
-          />
+          {topicTypeConfig?.id === "graph" ? (
+            <GraphCanvas
+              elements={currentStepData?.elements || []}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+            />
+          ) : (
+            <D3Canvas
+              elements={currentStepData?.elements || []}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              structureType={topicTypeConfig?.id}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+            />
+          )}
         </div>
         <div className={styles.stepDescription}>
           {currentStepData?.description}

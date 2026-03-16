@@ -1,0 +1,447 @@
+import { useRef, useEffect, useMemo, useCallback } from "react";
+import {
+  forceSimulation,
+  forceLink,
+  forceManyBody,
+  forceCenter,
+  forceCollide,
+  drag as d3Drag,
+  select as d3Select,
+  zoom as d3Zoom,
+  zoomIdentity,
+} from "d3";
+import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
+import { BaseElement } from "../DataLogic/BaseElement";
+import { Node } from "../DataLogic/Node";
+import type { Link } from "./D3Renderer";
+import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
+import Button from "@/shared/components/Button";
+import StatusLegend from "../components/StatusLegend";
+import styles from "./GraphCanvas.module.scss";
+
+// 與 D3Canvas 相容的子集 props
+export interface GraphCanvasProps {
+  elements: BaseElement[];
+  links?: Link[];
+  width?: number;
+  height?: number;
+  statusColorMap?: StatusColorMap;
+  statusConfig?: StatusConfig;
+  isDirected?: boolean;
+  enableZoom?: boolean;
+  enablePan?: boolean;
+}
+
+interface GSimNode extends SimulationNodeDatum {
+  id: string;
+  radius: number;
+}
+
+interface GSimLink extends SimulationLinkDatum<GSimNode> {
+  source: string | GSimNode;
+  target: string | GSimNode;
+  sourceId: string;
+  targetId: string;
+  status?: string;
+  weight?: number | string;
+}
+
+export function GraphCanvas({
+  elements,
+  links = [],
+  width = 800,
+  height = 500,
+  isDirected = false,
+  statusColorMap,
+  statusConfig,
+  enableZoom = true,
+  enablePan = true,
+}: GraphCanvasProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const simulationRef = useRef<ReturnType<typeof forceSimulation<GSimNode>> | null>(null);
+  const zoomBehaviorRef = useRef<ReturnType<typeof d3Zoom<SVGSVGElement, unknown>> | null>(null);
+  const posCacheRef = useRef<Map<string, { x: number; y: number }>>(new Map());
+  const prevLinkKeyRef = useRef<string>("");
+
+  // 注入 statusColorMap 到 elements（與 D3Renderer 一致）
+  useEffect(() => {
+    if (statusColorMap) {
+      elements.forEach((el) => {
+        el.setCustomColorMap(statusColorMap);
+      });
+    }
+  }, [elements, statusColorMap]);
+
+  const nodeElements = useMemo(
+    () => elements.filter((e): e is Node => e instanceof Node),
+    [elements],
+  );
+
+  // 結構識別 key — 只有節點 ID 集合改變才重建 simulation
+  const nodeIds = useMemo(
+    () => nodeElements.map((e) => e.id).sort().join(","),
+    [nodeElements],
+  );
+
+  const handleResetZoom = useCallback(() => {
+    if (!svgRef.current || !zoomBehaviorRef.current) return;
+    d3Select(svgRef.current)
+      .transition()
+      .duration(300)
+      .call(zoomBehaviorRef.current.transform, zoomIdentity);
+  }, []);
+
+  // Effect 1：重建 simulation（節點集合異動時）
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3Select(svgRef.current);
+    svg.selectAll("*").remove();
+
+    if (nodeElements.length === 0) return;
+
+    // 箭頭標記（有向圖）
+    if (isDirected) {
+      const defs = svg.append("defs");
+      defs
+        .append("marker")
+        .attr("id", "gc-arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#888");
+    }
+
+    // Zoom + Pan（D3 zoom 套用在 SVG，transform 作用於 mainGroup）
+    const zoomBehavior = d3Zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.3, 3.0])
+      .filter((event: Event) => {
+        const target = event.target as Element;
+        return event.type === "wheel" || !target.closest("circle");
+      });
+
+    const mainGroup = svg.append("g").attr("class", "main-group");
+    zoomBehavior.on("zoom", (event) => {
+      mainGroup.attr("transform", event.transform.toString());
+    });
+    svg.call(zoomBehavior);
+    zoomBehaviorRef.current = zoomBehavior;
+
+    // 以現有快取節點的重心 + 外緣偏移為新節點的初始位置
+    // 不能從 centroid 出發：那是斥力最強點，alpha=1.0 時會被彈飛
+    const cachedPositions = Array.from(posCacheRef.current.values());
+    const centroidX =
+      cachedPositions.length > 0
+        ? cachedPositions.reduce((s, p) => s + p.x, 0) / cachedPositions.length
+        : width / 2;
+    const centroidY =
+      cachedPositions.length > 0
+        ? cachedPositions.reduce((s, p) => s + p.y, 0) / cachedPositions.length
+        : height / 2;
+    // cluster 平均半徑：從 centroid 到各快取節點的平均距離
+    const avgClusterRadius =
+      cachedPositions.length > 0
+        ? cachedPositions.reduce(
+            (s, p) =>
+              s + Math.sqrt((p.x - centroidX) ** 2 + (p.y - centroidY) ** 2),
+            0,
+          ) / cachedPositions.length
+        : 80;
+
+    const simNodes: GSimNode[] = nodeElements.map((e) => {
+      const cached = posCacheRef.current.get(e.id);
+      if (cached) return { id: e.id, radius: e.radius ?? 20, x: cached.x, y: cached.y };
+      // 新節點從 cluster 外緣出發，forceLink 自然將它拉向鄰居
+      const angle = Math.random() * 2 * Math.PI;
+      const dist = avgClusterRadius + 60 + Math.random() * 40;
+      return {
+        id: e.id,
+        radius: e.radius ?? 20,
+        x: centroidX + Math.cos(angle) * dist,
+        y: centroidY + Math.sin(angle) * dist,
+      };
+    });
+
+    const simLinks: GSimLink[] = links.map((l) => ({
+      source: l.sourceId,
+      target: l.targetId,
+      sourceId: l.sourceId,
+      targetId: l.targetId,
+      status: l.status,
+      weight: l.weight,
+    }));
+
+    // 軟邊界 force：節點靠近邊界時施加推回力，防止飛出視角
+    function boundaryForce(padding: number) {
+      return function (alpha: number) {
+        simNodes.forEach((n) => {
+          const r = (n.radius ?? 20) + padding;
+          const x = n.x ?? 0;
+          const y = n.y ?? 0;
+          if (x < r) n.vx = (n.vx ?? 0) + (r - x) * alpha;
+          if (x > width - r) n.vx = (n.vx ?? 0) + (width - r - x) * alpha;
+          if (y < r) n.vy = (n.vy ?? 0) + (r - y) * alpha;
+          if (y > height - r) n.vy = (n.vy ?? 0) + (height - r - y) * alpha;
+        });
+      };
+    }
+
+    const simulation = forceSimulation<GSimNode>(simNodes)
+      .force(
+        "link",
+        forceLink<GSimNode, GSimLink>(simLinks)
+          .id((d: GSimNode) => d.id)
+          .distance(100)
+          .strength(0.5),
+      )
+      .force("charge", forceManyBody().strength(-250))
+      .force("center", forceCenter(width / 2, height / 2))
+      .force("collide", forceCollide<GSimNode>((d) => d.radius + 8))
+      .force("boundary", boundaryForce(20));
+
+    simulationRef.current = simulation;
+    prevLinkKeyRef.current = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
+
+    // 建立 SVG DOM（links → nodes → vals → desc）
+    const linkG = mainGroup.append("g").attr("class", "gc-links");
+    linkG
+      .selectAll<SVGLineElement, GSimLink>("line")
+      .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
+      .join("line")
+      .attr("class", "gc-link")
+      .attr("stroke", "#888")
+      .attr("stroke-width", 2)
+      .attr("fill", "none")
+      .attr("marker-end", isDirected ? "url(#gc-arrowhead)" : "none");
+
+    const nodeG = mainGroup.append("g").attr("class", "gc-nodes");
+    const nodeSel = nodeG
+      .selectAll<SVGCircleElement, GSimNode>("circle")
+      .data(simNodes, (d) => d.id)
+      .join("circle")
+      .attr("class", "gc-node")
+      .attr("r", (d) => d.radius)
+      .attr("pointer-events", "all") // fill:none 不接收事件，強制整個圓面積可點擊
+      .style("cursor", "grab");
+
+    const valG = mainGroup.append("g").attr("class", "gc-vals");
+    const valSel = valG
+      .selectAll<SVGTextElement, GSimNode>("text")
+      .data(simNodes, (d) => d.id)
+      .join("text")
+      .attr("class", "gc-val")
+      .attr("font-size", 18)
+      .attr("font-family", "inherit")
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
+      .style("pointer-events", "none")
+      .style("user-select", "none");
+
+    const descG = mainGroup.append("g").attr("class", "gc-desc");
+    const descSel = descG
+      .selectAll<SVGTextElement, GSimNode>("text")
+      .data(simNodes, (d) => d.id)
+      .join("text")
+      .attr("class", "gc-desc")
+      .attr("font-size", 12)
+      .attr("font-family", "inherit")
+      .attr("text-anchor", "middle")
+      .style("pointer-events", "none")
+      .style("user-select", "none");
+
+    // Drag
+    const dragBehavior = d3Drag<SVGCircleElement, GSimNode>()
+      .on("start", (event) => {
+        event.sourceEvent.stopPropagation(); // 阻止 mousedown 冒泡到 SVG zoom handler
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+      })
+      .on("drag", (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
+      .on("end", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      });
+    nodeSel.call(dragBehavior);
+
+    // Tick：更新座標 + 寫入快取（動態選取以支援 Effect 2 新增的 link）
+    simulation.on("tick", () => {
+      const svgEl = svgRef.current;
+      if (!svgEl) return;
+
+      const getNodeCenter = (d: GSimLink, end: "source" | "target") => {
+        const node = end === "source" ? d.source : d.target;
+        if (typeof node === "object" && node)
+          return { x: node.x ?? 0, y: node.y ?? 0, r: (node as GSimNode).radius ?? 20 };
+        const id = end === "source" ? d.sourceId : d.targetId;
+        const n = simNodes.find((x) => x.id === id);
+        return { x: n?.x ?? 0, y: n?.y ?? 0, r: n?.radius ?? 20 };
+      };
+
+      d3Select(svgEl)
+        .select(".main-group .gc-links")
+        .selectAll<SVGLineElement, GSimLink>("line.gc-link")
+        .each(function (d) {
+          const src = getNodeCenter(d, "source");
+          const tgt = getNodeCenter(d, "target");
+          const dx = tgt.x - src.x;
+          const dy = tgt.y - src.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const ux = dx / dist;
+          const uy = dy / dist;
+          d3Select(this)
+            .attr("x1", src.x + ux * src.r)
+            .attr("y1", src.y + uy * src.r)
+            .attr("x2", tgt.x - ux * tgt.r)
+            .attr("y2", tgt.y - uy * tgt.r);
+        });
+
+      nodeSel.attr("cx", (d) => d.x ?? 0).attr("cy", (d) => d.y ?? 0);
+      valSel.attr("x", (d) => d.x ?? 0).attr("y", (d) => d.y ?? 0);
+      descSel
+        .attr("x", (d) => d.x ?? 0)
+        .attr("y", (d) => (d.y ?? 0) + d.radius + 14);
+
+      simNodes.forEach((n) => {
+        if (n.x != null && n.y != null) {
+          posCacheRef.current.set(n.id, { x: n.x, y: n.y });
+        }
+      });
+    });
+
+    return () => {
+      simulation.stop();
+    };
+  }, [nodeIds, width, height, isDirected]); // links 不放入，addEdge 不重建
+
+  // Effect 2：更新 links（addEdge 時邊即時出現）
+  useEffect(() => {
+    const simulation = simulationRef.current;
+    if (!simulation || !svgRef.current) return;
+
+    const linkForce = simulation.force("link") as ReturnType<typeof forceLink<GSimNode, GSimLink>>;
+    if (!linkForce) return;
+
+    const simLinks: GSimLink[] = links.map((l) => ({
+      source: l.sourceId,
+      target: l.targetId,
+      sourceId: l.sourceId,
+      targetId: l.targetId,
+      status: l.status,
+      weight: l.weight,
+    }));
+
+    // 只在邊結構真的改變時才重啟 simulation
+    const newLinkKey = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
+    if (prevLinkKeyRef.current !== newLinkKey) {
+      linkForce.links(simLinks);
+      simulation.alpha(0.3).restart();
+      prevLinkKeyRef.current = newLinkKey;
+    }
+
+    // Link DOM join：新增的邊需要對應的 line 元素（不影響 simulation）
+    d3Select(svgRef.current)
+      .select(".main-group .gc-links")
+      .selectAll<SVGLineElement, GSimLink>("line")
+      .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
+      .join("line")
+      .attr("class", "gc-link")
+      .attr("stroke", "#888")
+      .attr("stroke-width", 2)
+      .attr("fill", "none")
+      .attr("marker-end", isDirected ? "url(#gc-arrowhead)" : "none");
+  }, [links, isDirected]);
+
+  // Effect 3：只更新樣式（每個 step 觸發）
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const nodeMap = new Map(nodeElements.map((e) => [e.id, e]));
+
+    d3Select(svgRef.current)
+      .selectAll<SVGCircleElement, GSimNode>(".gc-node")
+      .each(function (d) {
+        if (!d) return;
+        const node = nodeMap.get(d.id);
+        if (!node) return;
+        const color = node.getColor();
+        const opacity = node.opacity ?? 1;
+        d3Select(this)
+          .attr("fill", "none")
+          .attr("stroke", color)
+          .attr("stroke-width", 2)
+          .attr("opacity", opacity);
+      });
+
+    // 更新 .gc-val（圓內 value，參考 D3Renderer L778）
+    d3Select(svgRef.current)
+      .selectAll<SVGTextElement, GSimNode>(".gc-val")
+      .each(function (d) {
+        if (!d) return;
+        const node = nodeMap.get(d.id);
+        if (!node) return;
+        d3Select(this).text(node.value ?? "").attr("fill", "#ccc");
+      });
+
+    // 更新 .gc-desc（圓下方 description，參考 D3Renderer L771）
+    d3Select(svgRef.current)
+      .selectAll<SVGTextElement, GSimNode>(".gc-desc")
+      .each(function (d) {
+        if (!d) return;
+        const node = nodeMap.get(d.id);
+        if (!node) return;
+        d3Select(this).text(node.description ?? "").attr("fill", "#ccc");
+      });
+
+    // 更新 link 樣式
+    d3Select(svgRef.current)
+      .selectAll<SVGLineElement, GSimLink>(".gc-link")
+      .each(function (d) {
+        if (!d) return;
+        const status = d.status || "default";
+        const colorMap: Record<string, string> = {
+          default: "#888",
+          visited: "#1d79cfff",
+          path: "yellow",
+          target: "orange",
+          complete: "#46f336ff",
+        };
+        const color = colorMap[status] ?? "#888";
+        d3Select(this).attr("stroke", color);
+      });
+  }, [elements, nodeElements]);
+
+  return (
+    <div className={styles.canvasContainer}>
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${width} ${height}`}
+        className={styles.canvas}
+        preserveAspectRatio="xMidYMid meet"
+      />
+      <div className={styles.statusLegendContainer}>
+        <StatusLegend statusConfig={statusConfig} />
+      </div>
+      {(enableZoom || enablePan) && (
+        <div className={styles.resetButtonContainer}>
+          <Button
+            variant="icon"
+            size="sm"
+            onClick={handleResetZoom}
+            aria-label="重置視圖"
+            className={styles.resetButton}
+            icon="rotate-right"
+            iconOnly
+          />
+        </div>
+      )}
+    </div>
+  );
+}
