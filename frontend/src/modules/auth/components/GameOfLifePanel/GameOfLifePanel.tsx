@@ -56,11 +56,17 @@ function GameOfLifePanel() {
       />
 
       <div className={styles.overlay}>
-        <img
-          src="/images/codePulse_logo.png"
-          alt="CodePulse"
-          className={styles.logo}
-        />
+        <div className={styles.brand}>
+          <img
+            src="/images/favicon.png"
+            alt="CodePulse icon"
+            className={styles.brandIcon}
+          />
+          <span className={styles.brandName}>
+            <span className={styles.brandCode}>Code</span>
+            <span className={styles.brandPulse}>Pulse</span>
+          </span>
+        </div>
         <span className={styles.slogan}>
           Simulate the logic, visualize the pulse.
         </span>
