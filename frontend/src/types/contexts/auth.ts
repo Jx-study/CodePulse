@@ -7,6 +7,7 @@
 export interface User {
   id: number;
   email: string;
+  username: string;
   display_name: string;
   avatar_url?: string;                        // 暫留，等串接雲端儲存服務再使用
   role: 'user' | 'admin';

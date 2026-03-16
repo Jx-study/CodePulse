@@ -62,7 +62,7 @@ function UserStatus() {
           trigger={
             <Avatar
               src={user?.avatar_url}
-              username={user?.display_name || ''}
+              username={user?.username || ''}
               size="md"
               colorScheme="auto"
               className={styles.userAvatar}
