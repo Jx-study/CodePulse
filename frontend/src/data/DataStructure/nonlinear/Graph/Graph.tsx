@@ -1626,4 +1626,41 @@ export const GraphConfig: LevelImplementationConfig = {
   actionHandler: graphActionHandler,
   maxNodes: 20,
   renderActionBar: (props) => <GraphActionBar {...(props as any)} />,
+  relatedProblems: [
+    {
+      id: 133,
+      title: "Clone Graph",
+      concept: "圖的深拷貝：用雜湊表記錄已訪問節點，遞迴/BFS 複製整張無向圖",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/clone-graph/",
+    },
+    {
+      id: 207,
+      title: "Course Schedule",
+      concept: "有向圖環偵測：若先修課程形成環則無法完成，以拓樸排序判斷 DAG 性質",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/course-schedule/",
+    },
+    {
+      id: 210,
+      title: "Course Schedule II",
+      concept: "拓樸排序：在 DAG 中求線性學習順序，使用 Kahn's 演算法或 DFS 輸出排列",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/course-schedule-ii/",
+    },
+    {
+      id: 684,
+      title: "Redundant Connection",
+      concept: "環偵測 / Union-Find：找出使無向樹出現多餘一條邊（形成環）的那條邊",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/redundant-connection/",
+    },
+    {
+      id: 269,
+      title: "Alien Dictionary",
+      concept: "拓樸排序進階：從字典序推導字母偏序關係，建圖後輸出合法字母順序",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/alien-dictionary/",
+    },
+  ],
 };
