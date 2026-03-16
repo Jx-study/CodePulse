@@ -18,6 +18,7 @@ const TAGS = {
   RECURSE: "RECURSE",
   BACKTRACK: "BACKTRACK",
   SUCCESS: "SUCCESS",
+  FAIL: "FAIL",
 };
 
 export const NQueensStatus = {
@@ -133,7 +134,7 @@ export function createNQueensAnimationSteps(
     tag: string,
     currentRow: number,
     currentCol: number,
-    state: "try" | "attacked" | "place" | "backtrack" | "success",
+    state: "try" | "attacked" | "place" | "backtrack" | "success" | "fail",
   ) => {
     const elements: Box[] = [];
     const attackedGrid = getAttackedGrid(queens);
@@ -266,7 +267,18 @@ export function createNQueensAnimationSteps(
     -1,
     "try",
   );
-  solve(0);
+
+  const hasSolution = solve(0);
+
+  if (!hasSolution) {
+    recordStep(
+      `窮舉所有可能後，發現在 ${N}x${N} 棋盤上無解！`,
+      TAGS.FAIL,
+      -1,
+      -1,
+      "fail",
+    );
+  }
 
   return steps;
 }
@@ -291,6 +303,7 @@ const nQueensCodeConfig: CodeConfig = {
       [TAGS.RECURSE]: [6],
       [TAGS.SUCCESS]: [2, 7],
       [TAGS.BACKTRACK]: [8],
+      [TAGS.FAIL]: [9],
     },
   },
   python: {
