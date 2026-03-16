@@ -3,7 +3,10 @@ import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import { LinkedListActionBar } from "./LinkedListActionBar";
 import {
@@ -11,7 +14,7 @@ import {
   LinearAction as ActionType,
   createNodeInstance,
   linkNodes,
-} from "./utils";
+} from "../utils";
 
 function getLabel(
   index: number,
@@ -1802,7 +1805,8 @@ export function createLinkedListAnimationSteps(
               ? getLabel(idx, originalLen, hasTailMode) + "pre/tail"
               : undefined;
           let extra = idx === N ? "current" : undefined;
-          let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
+          let status: Status =
+            idx === N - 1 ? Status.Prepare : Status.Unfinished;
           if (idx === N) status = Status.Target;
           return createNodeAndPointers(
             item,

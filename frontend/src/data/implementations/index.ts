@@ -1,13 +1,13 @@
 import type { ImplementationMap } from "@/types/implementation";
 
 // Import DataStructure Configs
-import { ArrayConfig } from "../DataStructure/linear/Array";
-import { linkedListConfig } from "../DataStructure/linear/LinkedList";
-import { StackConfig } from "../DataStructure/linear/Stack";
-import { QueueConfig } from "../DataStructure/linear/Queue";
-import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree";
-import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree";
-import { GraphConfig } from "../DataStructure/nonlinear/Graph";
+import { ArrayConfig } from "../DataStructure/linear/Array/Array";
+import { linkedListConfig } from "../DataStructure/linear/LinkedList/LinkedList";
+import { StackConfig } from "../DataStructure/linear/Stack/Stack";
+import { QueueConfig } from "../DataStructure/linear/Queue/Queue";
+import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree/BinaryTree";
+import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree/BinarySearchTree";
+import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
