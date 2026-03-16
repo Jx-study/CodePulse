@@ -1,5 +1,6 @@
 import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import type { AnimationStep } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
@@ -60,7 +61,31 @@ const TAGS = {
   DONE: "DONE",
 };
 
-// 輔助函式：用來產生單一畫面的 Frame
+const createSlidingPointers = (
+  left: number,
+  right: number,
+  startX: number,
+  startY: number,
+  gap: number,
+): Pointer[] => {
+  const isOverlap = right !== -1 && left === right;
+  const lXOffset = isOverlap ? -20 : 0;
+  const rXOffset = isOverlap ? 20 : 0;
+
+  const effectiveRight = right === -1 ? 0 : right;
+
+  const leftPtr = new Pointer("L", "up");
+  leftPtr.id = "sliding-L";
+  leftPtr.moveTo(startX + left * gap + lXOffset, startY + 50);
+
+  const rightPtr = new Pointer("R", "up");
+  rightPtr.id = "sliding-R";
+  rightPtr.moveTo(startX + effectiveRight * gap + rXOffset, startY + 50);
+  rightPtr.opacity = right === -1 ? 0 : 1;
+
+  return [leftPtr, rightPtr];
+};
+
 const generateFrame = (
   list: LinearData[],
   pointers: {
@@ -81,12 +106,7 @@ const generateFrame = (
     startY: 200,
     gap: 70,
     overrideStatusMap,
-    getDescription: (_item, index) => {
-      const labels: string[] = [`${index}`];
-      if (index === left) labels.push("L");
-      if (index === right) labels.push("R");
-      return labels.join("\n");
-    },
+    getDescription: (_item, index) => String(index),
   });
 
   boxes.forEach((element, i) => {
@@ -101,7 +121,13 @@ const generateFrame = (
     else box.setStatus(Status.Inactive);
   });
 
-  return { stepNumber: 0, description, actionTag, variables, elements: boxes };
+  return {
+    stepNumber: 0,
+    description,
+    actionTag,
+    variables,
+    elements: [...boxes, ...createSlidingPointers(left, right, 50, 200, 70)],
+  };
 };
 
 export function createSlidingWindowAnimationSteps(
