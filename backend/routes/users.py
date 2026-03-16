@@ -168,8 +168,9 @@ def change_password():
             UserToken.expires_at > now,
         ).update({'is_revoked': True})
         db.session.commit()
-    except Exception:
+    except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f'change_password failed: {e}')
         return jsonify({
             'success': False,
             'error_code': 'SERVER_ERROR',
