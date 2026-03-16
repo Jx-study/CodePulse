@@ -419,7 +419,7 @@ function PopupContent({
     case "warning":
       return (
         <div className={styles.contentWarning}>
-          <p>⚠️ {popup.title}</p>
+          <p>{popup.title}</p>
         </div>
       );
     case "congrats":

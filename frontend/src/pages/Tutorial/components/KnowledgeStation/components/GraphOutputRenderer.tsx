@@ -710,7 +710,7 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
     <div className={styles.wrapper}>
       <div className={styles.purpose}>
         <div className={styles.purposeTitle}>
-          🌐 六度分隔遊戲 — Facebook 社交圖譜模擬
+          六度分隔遊戲 — Facebook 社交圖譜模擬
         </div>
         <div className={styles.purposeBody}>
           <p>
@@ -745,7 +745,7 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
           <span>
             操作數：<strong>{gameState.operations}</strong>
           </span>
-          <span>⏱ {formatTime(elapsed)}</span>
+          <span>{formatTime(elapsed)}</span>
         </div>
         <button
           className={styles.newGameBtn}
