@@ -13,7 +13,7 @@ function useUsernameCheck(username: string): UseUsernameCheckReturn {
     // Front-end format check
     const isValid =
       username.length >= 3 &&
-      username.length <= 20 &&
+      username.length <= 15 &&
       /^[a-zA-Z0-9_]+$/.test(username);
 
     if (!isValid) {

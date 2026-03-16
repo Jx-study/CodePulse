@@ -312,7 +312,7 @@ def verify_email():
 # ── Complete Setup (Google Onboarding) ───────────────────────────────────────
 
 RESERVED_USERNAMES = {'admin', 'root', 'system', 'codepulse', 'support', 'moderator', 'staff'}
-USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,20}$')
+USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,15}$')
 
 
 @auth_bp.route('/complete-setup', methods=['POST'])

@@ -6,7 +6,7 @@
 export const validateUsername = (value: string): string | null => {
   if (!value.trim()) return "請輸入用戶名";
   if (value.length < 3) return "用戶名至少需要3個字符";
-  if (value.length > 20) return "用戶名最多20個字符";
+  if (value.length > 15) return "用戶名最多15個字符";
   if (!/^[a-zA-Z0-9_]+$/.test(value)) return "用戶名只能包含字母、數字和下劃線";
   return null;
 };
