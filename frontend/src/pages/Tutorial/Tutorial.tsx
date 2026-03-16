@@ -42,6 +42,7 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  viewMode: AlgorithmViewMode | "";
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
@@ -68,6 +69,7 @@ const CanvasPanel = ({
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
+  viewMode,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -102,6 +104,12 @@ const CanvasPanel = ({
     opacity: isDragging ? 0 : 1,
   };
 
+  const useGraphCanvas =
+    topicTypeConfig?.id === "graph" ||
+    topicTypeConfig?.id === "dijkstra" ||
+    ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
+      viewMode !== "grid");
+
   return (
     <Panel
       id="canvas-panel"
@@ -121,7 +129,7 @@ const CanvasPanel = ({
           dragHandleProps={dragHandleProps}
         />
         <div ref={canvasContainerRef} className={styles.visualizationArea}>
-          {topicTypeConfig?.id === "graph" ? (
+          {useGraphCanvas ? (
             <GraphCanvas
               elements={currentStepData?.elements || []}
               links={currentLinks}
@@ -815,6 +823,7 @@ function TutorialContent() {
     currentStatusColorMap,
     currentStatusConfig,
     isDirected: renderedIsDirected,
+    viewMode,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,

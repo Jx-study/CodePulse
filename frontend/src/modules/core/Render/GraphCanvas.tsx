@@ -14,6 +14,7 @@ import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import type { Link } from "./D3Renderer";
+import { linkStatusColorMap } from "./D3Renderer";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
@@ -100,21 +101,23 @@ export function GraphCanvas({
 
     if (nodeElements.length === 0) return;
 
-    // 箭頭標記（有向圖）
+    // 箭頭標記（有向圖）— 每個 status 各一個，顏色跟著邊的狀態走
     if (isDirected) {
       const defs = svg.append("defs");
-      defs
-        .append("marker")
-        .attr("id", "gc-arrowhead")
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 10)
-        .attr("refY", 0)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
-        .attr("orient", "auto")
-        .append("path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "#888");
+      Object.entries(linkStatusColorMap).forEach(([status, color]) => {
+        defs
+          .append("marker")
+          .attr("id", `gc-arrowhead-${status}`)
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 10)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5")
+          .attr("fill", color);
+      });
     }
 
     // Zoom + Pan（D3 zoom 套用在 SVG，transform 作用於 mainGroup）
@@ -196,7 +199,11 @@ export function GraphCanvas({
         "link",
         forceLink<GSimNode, GSimLink>(simLinks)
           .id((d: GSimNode) => d.id)
-          .distance(100)
+          .distance((d: GSimLink) => {
+            const w = Number(d.weight);
+            if (!isFinite(w) || w <= 0) return 100;
+            return Math.max(80, Math.min(240, w * 20));
+          })
           .strength(0.5),
       )
       .force("charge", forceManyBody().strength(-250))
@@ -217,7 +224,24 @@ export function GraphCanvas({
       .attr("stroke", "#888")
       .attr("stroke-width", 2)
       .attr("fill", "none")
-      .attr("marker-end", isDirected ? "url(#gc-arrowhead)" : "none");
+      .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none");
+
+    const weightG = mainGroup.append("g").attr("class", "gc-weights");
+    const weightGroups = weightG
+      .selectAll<SVGGElement, GSimLink>("g.gc-weight-group")
+      .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
+      .join("g")
+      .attr("class", "gc-weight-group")
+      .style("pointer-events", "none")
+      .style("user-select", "none");
+    weightGroups.append("rect").attr("class", "gc-weight-bg")
+      .attr("fill", "#222").attr("rx", 3).style("opacity", 0);
+    weightGroups.append("text").attr("class", "gc-weight-text")
+      .attr("font-size", 12).attr("font-weight", "bold")
+      .attr("font-family", "inherit")
+      .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+      .attr("fill", "#fff")
+      .text((d) => (d.weight != null ? String(d.weight) : ""));
 
     const nodeG = mainGroup.append("g").attr("class", "gc-nodes");
     const nodeSel = nodeG
@@ -271,6 +295,9 @@ export function GraphCanvas({
       });
     nodeSel.call(dragBehavior);
 
+    // 快速查詢反向邊（跟 D3Renderer 的 linkSet 保持一致）
+    const linkSet = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
+
     // Tick：更新座標 + 寫入快取（動態選取以支援 Effect 2 新增的 link）
     simulation.on("tick", () => {
       const svgEl = svgRef.current;
@@ -301,6 +328,37 @@ export function GraphCanvas({
             .attr("y1", src.y + uy * src.r)
             .attr("x2", tgt.x - ux * tgt.r)
             .attr("y2", tgt.y - uy * tgt.r);
+        });
+
+      d3Select(svgEl)
+        .select(".main-group .gc-weights")
+        .selectAll<SVGGElement, GSimLink>("g.gc-weight-group")
+        .each(function (d) {
+          if (d.weight == null) return;
+          const src = getNodeCenter(d, "source");
+          const tgt = getNodeCenter(d, "target");
+          const dx = tgt.x - src.x;
+          const dy = tgt.y - src.y;
+          const len = Math.sqrt(dx * dx + dy * dy) || 1;
+          const hasReverse = linkSet.has(`${d.targetId}->${d.sourceId}`);
+          const offset = isDirected && hasReverse ? 8 : 0;
+          const ox = (-dy / len) * offset;
+          const oy = (dx / len) * offset;
+          const cx = (src.x + tgt.x) / 2 + ox;
+          const cy = (src.y + tgt.y) / 2 + oy;
+          d3Select(this).attr("transform", `translate(${cx},${cy})`);
+          const textEl = d3Select(this).select<SVGTextElement>("text.gc-weight-text");
+          textEl.attr("x", 0).attr("y", 0);
+          try {
+            const bbox = (textEl.node() as SVGTextElement).getBBox();
+            const px = 4, py = 2;
+            d3Select(this).select("rect.gc-weight-bg")
+              .attr("x", -bbox.width / 2 - px / 2)
+              .attr("y", -bbox.height / 2 - py / 2)
+              .attr("width", bbox.width + px)
+              .attr("height", bbox.height + py)
+              .style("opacity", 0.8);
+          } catch (_) { /* getBBox fails if element not in DOM */ }
         });
 
       nodeSel.attr("cx", (d) => d.x ?? 0).attr("cy", (d) => d.y ?? 0);
@@ -356,7 +414,33 @@ export function GraphCanvas({
       .attr("stroke", "#888")
       .attr("stroke-width", 2)
       .attr("fill", "none")
-      .attr("marker-end", isDirected ? "url(#gc-arrowhead)" : "none");
+      .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none");
+
+    // Weight DOM join：新增的邊需要對應的 weight group（rect + text）
+    d3Select(svgRef.current)
+      .select(".main-group .gc-weights")
+      .selectAll<SVGGElement, GSimLink>("g.gc-weight-group")
+      .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
+      .join(
+        (enter) => {
+          const g = enter.append("g")
+            .attr("class", "gc-weight-group")
+            .style("pointer-events", "none")
+            .style("user-select", "none");
+          g.append("rect").attr("class", "gc-weight-bg")
+            .attr("fill", "#222").attr("rx", 3).style("opacity", 0);
+          g.append("text").attr("class", "gc-weight-text")
+            .attr("font-size", 12).attr("font-weight", "bold")
+            .attr("font-family", "inherit")
+            .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+            .attr("fill", "#fff");
+          return g;
+        },
+        (update) => update,
+        (exit) => exit.remove(),
+      )
+      .select("text.gc-weight-text")
+      .text((d) => (d.weight != null ? String(d.weight) : ""));
   }, [links, isDirected]);
 
   // Effect 3：只更新樣式（每個 step 觸發）
@@ -400,23 +484,35 @@ export function GraphCanvas({
         d3Select(this).text(node.description ?? "").attr("fill", "#ccc");
       });
 
-    // 更新 link 樣式
+    // 更新 link 樣式（stroke + marker-end 顏色同步）
     d3Select(svgRef.current)
       .selectAll<SVGLineElement, GSimLink>(".gc-link")
       .each(function (d) {
         if (!d) return;
         const status = d.status || "default";
-        const colorMap: Record<string, string> = {
-          default: "#888",
-          visited: "#1d79cfff",
-          path: "yellow",
-          target: "orange",
-          complete: "#46f336ff",
-        };
-        const color = colorMap[status] ?? "#888";
-        d3Select(this).attr("stroke", color);
+        const markerStatus = status in linkStatusColorMap ? status : "default";
+        const color =
+          linkStatusColorMap[status as keyof typeof linkStatusColorMap] ??
+          linkStatusColorMap.default;
+        d3Select(this)
+          .attr("stroke", color)
+          .attr(
+            "marker-end",
+            isDirected ? `url(#gc-arrowhead-${markerStatus})` : "none",
+          );
       });
-  }, [elements, nodeElements]);
+
+    // 更新 weight 文字顏色（target 狀態→橙色，其他→白色，與 D3Renderer 一致）
+    d3Select(svgRef.current)
+      .select(".main-group .gc-weights")
+      .selectAll<SVGGElement, GSimLink>("g.gc-weight-group")
+      .each(function (d) {
+        if (!d || d.weight == null) return;
+        const status = d.status || "default";
+        d3Select(this).select("text.gc-weight-text")
+          .attr("fill", status === "target" ? "#ffb74d" : "#fff");
+      });
+  }, [elements, nodeElements, isDirected]);
 
   return (
     <div className={styles.canvasContainer}>

@@ -19,6 +19,7 @@ import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
 import { usePanelContext } from '../../context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '../../Tutorial';
+import type { AlgorithmViewMode } from '@/types/implementation';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -32,6 +33,7 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  viewMode: AlgorithmViewMode | "";
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;
