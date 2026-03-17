@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import FormItem from "@/shared/components/FormItem";
+import FormAlert from "@/shared/components/FormAlert";
 import Input from "@/shared/components/Input";
 import Icon from "@/shared/components/Icon";
 import ProgressBar from "@/shared/components/ProgressBar";
+import useForm from "@/shared/hooks/useForm";
 import useUsernameCheck from "../../hooks/useUsernameCheck";
 import { validateUsername } from "@/shared/utils/validation";
 import styles from "./OnboardingForm.module.scss";
@@ -25,33 +28,41 @@ function OnboardingForm({
   formError,
   onSubmit,
 }: OnboardingFormProps) {
-  const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [usernameFieldError, setUsernameFieldError] = useState("");
+  const { t } = useTranslation();
 
-  const { status: usernameStatus } = useUsernameCheck(username);
+  const form = useForm<{ username: string; displayName: string }>({
+    initialValues: { username: "", displayName: "" },
+    validationRules: {
+      username: (v) => validateUsername(v, t),
+    },
+    onSubmit: ({ username, displayName }) => {
+      if (usernameStatus === "taken" || usernameStatus === "error") return;
+      if (usernameStatus === "checking") return;
+      onSubmit(username, displayName);
+    },
+  });
 
+  const { status: usernameStatus } = useUsernameCheck(form.values.username);
+
+  // Propagate server-side username error from parent
   useEffect(() => {
     if (usernameError) {
-      setUsernameFieldError(usernameError);
+      form.setFieldError("username", usernameError);
     }
-  }, [usernameError]);
+  }, [usernameError]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getUsernameFormItemProps = () => {
-    if (usernameFieldError) {
-      return { error: usernameFieldError };
+    if (form.touched.username && form.errors.username) {
+      return { error: form.errors.username };
     }
     if (usernameStatus === "available") {
-      return { success: true, successMessage: "此名稱可以使用" };
+      return { success: true, successMessage: t("usernameAvailable", "此名稱可以使用") };
     }
-    const derivedError =
-      usernameStatus === "taken"
-        ? "此名稱已被使用，試試加上數字？"
-        : usernameStatus === "error"
-        ? "檢查失敗，請稍後再試"
-        : "";
-    if (derivedError) {
-      return { error: derivedError };
+    if (usernameStatus === "taken") {
+      return { error: t("usernameTakenSuggest", "此名稱已被使用，試試加上數字？") };
+    }
+    if (usernameStatus === "error") {
+      return { error: t("usernameCheckError", "檢查失敗，請稍後再試") };
     }
     return {};
   };
@@ -61,19 +72,7 @@ function OnboardingForm({
     usernameStatus === "checking" ||
     usernameStatus === "taken" ||
     usernameStatus === "error" ||
-    validateUsername(username) !== null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationError = validateUsername(username);
-    if (validationError) {
-      setUsernameFieldError(validationError);
-      return;
-    }
-    onSubmit(username, displayName);
-  };
-
-  const usernameFormItemProps = getUsernameFormItemProps();
+    validateUsername(form.values.username, t) !== null;
 
   return (
     <div className={styles.panel}>
@@ -83,8 +82,10 @@ function OnboardingForm({
         </div>
 
         <div className={styles.header}>
-          <h2 className={styles.title}>最後一步！</h2>
-          <p className={styles.subtitle}>你正在以 {email} 完成帳號設定</p>
+          <h2 className={styles.title}>{t("onboarding.title", "最後一步！")}</h2>
+          <p className={styles.subtitle}>
+            {t("onboarding.subtitle", "你正在以 {{email}} 完成帳號設定", { email })}
+          </p>
         </div>
 
         <div className={styles.emailBadge}>
@@ -92,28 +93,26 @@ function OnboardingForm({
           <span>{email}</span>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.handleSubmit}>
           <FormItem
-            label="用戶名"
+            label={t("username", "用戶名")}
             maxLength={15}
-            currentLength={username.length}
-            showCharCount={username.length > 0}
+            currentLength={form.values.username.length}
+            showCharCount={form.values.username.length > 0}
             required
             htmlFor="username"
-            {...usernameFormItemProps}
+            {...getUsernameFormItemProps()}
           >
             <div style={{ position: "relative" }}>
               <Input
                 type="text"
                 name="username"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  if (usernameFieldError) setUsernameFieldError("");
-                }}
-                placeholder="請輸入用戶名"
+                value={form.values.username}
+                onChange={form.handleChange}
+                onBlur={form.handleBlur}
+                placeholder={t("usernamePlaceholder", "請輸入用戶名")}
                 hasError={
-                  !!usernameFieldError ||
+                  !!(form.touched.username && form.errors.username) ||
                   usernameStatus === "taken" ||
                   usernameStatus === "error"
                 }
@@ -138,26 +137,25 @@ function OnboardingForm({
           </FormItem>
 
           <FormItem
-            label="顯示名稱（選填）"
-            tooltip="留空則使用 Google 帳號名稱"
-            maxLength={50}
-            currentLength={displayName.length}
-            showCharCount={displayName.length > 0}
+            label={t("displayNameOptional", "顯示名稱（選填）")}
+            tooltip={t("displayNameTooltip", "留空則使用 Google 帳號名稱")}
+            maxLength={30}
+            currentLength={form.values.displayName.length}
+            showCharCount={form.values.displayName.length > 0}
             htmlFor="displayName"
           >
             <Input
               type="text"
               name="displayName"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              value={form.values.displayName}
+              onChange={form.handleChange}
               placeholder={displayNamePlaceholder}
               disabled={loading}
             />
           </FormItem>
 
-          {formError && (
-            <p className={styles.formError}>{formError}</p>
-          )}
+          {formError && <FormAlert type="error" message={formError} />}
+
           <Button
             type="submit"
             variant="primary"
@@ -165,7 +163,7 @@ function OnboardingForm({
             disabled={isSubmitDisabled}
             loading={loading}
           >
-            完成設定
+            {t("onboarding.submit", "完成設定")}
           </Button>
         </form>
       </div>

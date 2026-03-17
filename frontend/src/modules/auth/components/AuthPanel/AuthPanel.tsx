@@ -1,6 +1,8 @@
-import type { LoginFormData, SignupFormData, AuthMessageType } from '@/types/pages/auth';
+import type { LoginFormData, SignupFormData } from '@/types/pages/auth';
+import type { FormAlertType } from '@/shared/components/FormAlert';
 import LoginForm from '@/modules/auth/components/LoginForm/LoginForm';
 import SignupForm from '@/modules/auth/components/SignupForm/SignupForm';
+import FormAlert from '@/shared/components/FormAlert';
 import Button from '@/shared/components/Button';
 import Icon from '@/shared/components/Icon';
 import styles from './AuthPanel.module.scss';
@@ -8,7 +10,8 @@ import styles from './AuthPanel.module.scss';
 interface AuthPanelProps {
   activeTab: 'login' | 'signup';
   loading: boolean;
-  message: { type: AuthMessageType; text: string };
+  alertMessage: string;
+  alertType: FormAlertType;
   linkPromptEmail: string | null;
   onTabSwitch: (tab: 'login' | 'signup') => void;
   onGoogleLogin: () => void;
@@ -31,7 +34,8 @@ const GoogleSVG = () => (
 function AuthPanel({
   activeTab,
   loading,
-  message,
+  alertMessage,
+  alertType,
   linkPromptEmail,
   onTabSwitch,
   onGoogleLogin,
@@ -64,11 +68,7 @@ function AuthPanel({
             或密碼登入。
           </p>
 
-          {message.text && (
-            <div className={`${styles.message} ${styles[message.type]}`}>
-              {message.text}
-            </div>
-          )}
+          <FormAlert type={alertType} message={alertMessage} />
 
           <div className={styles.linkActions}>
             <Button
@@ -114,17 +114,21 @@ function AuthPanel({
           <span>或</span>
         </div>
 
-        {message.text && (
-          <div className={`${styles.message} ${styles[message.type]}`}>
-            {message.text}
-          </div>
-        )}
-
         <div className={styles.formWrapper}>
           {activeTab === 'login' ? (
-            <LoginForm onSubmit={onLoginSubmit} disabled={loading} />
+            <LoginForm
+              onSubmit={onLoginSubmit}
+              disabled={loading}
+              alertMessage={alertMessage}
+              alertType={alertType}
+            />
           ) : (
-            <SignupForm onSubmit={onSignupSubmit} disabled={loading} />
+            <SignupForm
+              onSubmit={onSignupSubmit}
+              disabled={loading}
+              alertMessage={alertMessage}
+              alertType={alertType}
+            />
           )}
         </div>
 

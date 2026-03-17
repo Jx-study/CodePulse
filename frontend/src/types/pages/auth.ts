@@ -10,4 +10,3 @@ export interface SignupFormData {
   confirmPassword: string;
 }
 
-export type AuthMessageType = 'success' | 'error' | 'info' | '';

@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SignupFormData } from "@/types/pages/auth";
 import Button from "@/shared/components/Button";
 import FormItem from "@/shared/components/FormItem";
+import FormAlert from "@/shared/components/FormAlert";
+import type { FormAlertType } from "@/shared/components/FormAlert";
 import Input from "@/shared/components/Input";
 import Icon from "@/shared/components/Icon";
+import useForm from "@/shared/hooks/useForm";
 import useUsernameCheck from "../../hooks/useUsernameCheck";
 import {
   validateUsername,
@@ -13,133 +16,97 @@ import {
   validateConfirmPassword,
 } from "@/shared/utils/validation";
 
-interface SignupFormErrors {
-  [key: string]: string;
-}
-
 interface SignupFormProps {
   onSubmit: (formData: SignupFormData) => void;
   disabled?: boolean;
+  alertMessage?: string;
+  alertType?: FormAlertType;
 }
 
-function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
+function SignupForm({
+  onSubmit,
+  disabled = false,
+  alertMessage = "",
+  alertType = "error",
+}: SignupFormProps) {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<SignupFormData>({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const form = useForm<SignupFormData>({
+    initialValues: { username: "", email: "", password: "", confirmPassword: "" },
+    validationRules: {
+      username: (v) => validateUsername(v, t),
+      email: (v) => validateEmail(v, t),
+      password: (v) => validatePassword(v, t),
+      confirmPassword: (v, all) => validateConfirmPassword(all.password, v, t),
+    },
+    onSubmit,
   });
-  const [errors, setErrors] = useState<SignupFormErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
-  const { status: usernameStatus } = useUsernameCheck(formData.username);
+  const { status: usernameStatus } = useUsernameCheck(form.values.username);
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched((prev) => ({
-      ...prev,
-      [name]: true,
-    }));
-  };
+  const canSubmit =
+    !disabled &&
+    !form.isSubmitting &&
+    usernameStatus !== "checking" &&
+    usernameStatus !== "taken";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => {
-      const next = { ...prev, [name]: value };
-
-      if (name === "confirmPassword" || name === "password") {
-        const pw = name === "password" ? value : next.password;
-        const cpw = name === "confirmPassword" ? value : next.confirmPassword;
-        if (touched.confirmPassword && cpw) {
-          setErrors((e) => ({
-            ...e,
-            confirmPassword: pw !== cpw ? "密碼不一致" : "",
-          }));
-        }
-      } else if (errors[name]) {
-        setErrors((prev) => ({ ...prev, [name]: "" }));
-      }
-
-      return next;
-    });
-  };
-
-  const validateForm = () => {
-    const newErrors: SignupFormErrors = {};
-
-    const usernameError = validateUsername(formData.username);
-    if (usernameError) {
-      newErrors.username = usernameError;
-    } else if (usernameStatus === "taken") {
-      newErrors.username = "此帳號已被使用";
-    } else if (usernameStatus === "checking") {
-      newErrors.username = "正在檢查用戶名，請稍候";
-    }
-
-    const emailError = validateEmail(formData.email);
-    if (emailError) newErrors.email = emailError;
-
-    const passwordError = validatePassword(formData.password);
-    if (passwordError) newErrors.password = passwordError;
-
-    const confirmError = validateConfirmPassword(formData.password, formData.confirmPassword);
-    if (confirmError) newErrors.confirmPassword = confirmError;
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      onSubmit(formData);
-    }
-  };
-
-  // Username FormItem props based on useUsernameCheck status
+  // Username FormItem feedback
   const getUsernameFormItemProps = () => {
-    if (errors.username) {
-      return { error: errors.username };
+    if (form.touched.username && form.errors.username) {
+      return { error: form.errors.username };
     }
-    if (usernameStatus === 'available') {
-      return { success: true, successMessage: "Username is available" };
+    if (usernameStatus === "available") {
+      return { success: true, successMessage: t("usernameAvailable", "此名稱可以使用") };
     }
-    if (usernameStatus === 'taken') {
-      return { error: "此帳號已被使用" };
+    if (usernameStatus === "taken") {
+      return { error: t("usernameTaken", "此帳號已被使用") };
+    }
+    if (usernameStatus === "error") {
+      return { error: t("usernameCheckError", "檢查失敗，請稍後再試") };
     }
     return {};
   };
 
-  const isEmailValid = touched.email && !errors.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-  const isPasswordValid = touched.password && !errors.password && formData.password.length >= 6;
-  const isConfirmPasswordValid = touched.confirmPassword && !errors.confirmPassword && formData.confirmPassword === formData.password;
-
-  const usernameFormItemProps = getUsernameFormItemProps();
+  const isEmailValid =
+    form.touched.email && !form.errors.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.values.email);
+  const isPasswordValid =
+    form.touched.password && !form.errors.password && form.values.password.length >= 8;
+  const isConfirmPasswordValid =
+    form.touched.confirmPassword &&
+    !form.errors.confirmPassword &&
+    form.values.confirmPassword === form.values.password &&
+    form.values.confirmPassword !== "";
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={form.handleSubmit}>
+      <FormAlert type={alertType} message={alertMessage} />
+
+      {/* Username */}
       <FormItem
-        label="用戶名"
-        tooltip="用戶名只能包含字母、數字和下劃線，至少3個字符"
-        maxLength={20}
-        currentLength={formData.username.length}
-        showCharCount={formData.username.length > 0}
+        label={t("username", "用戶名")}
+        tooltip={t("usernameTooltip", "用戶名只能包含字母、數字和底線，3–15 個字符")}
+        maxLength={15}
+        currentLength={form.values.username.length}
+        showCharCount={form.values.username.length > 0}
         required
         htmlFor="username"
-        {...usernameFormItemProps}
+        {...getUsernameFormItemProps()}
       >
         <div style={{ position: "relative" }}>
           <Input
             type="text"
             name="username"
-            value={formData.username}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="請輸入用戶名"
-            hasError={!!errors.username || usernameStatus === "taken"}
+            value={form.values.username}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+            placeholder={t("usernamePlaceholder", "請輸入用戶名")}
+            hasError={
+              !!(form.touched.username && form.errors.username) ||
+              usernameStatus === "taken" ||
+              usernameStatus === "error"
+            }
             disabled={disabled}
             required
           />
@@ -160,38 +127,36 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
         </div>
       </FormItem>
 
+      {/* Email */}
       <FormItem
-        label="信箱"
-        error={errors.email}
+        label={t("email", "信箱")}
+        error={form.touched.email ? form.errors.email : undefined}
         success={isEmailValid}
-        successMessage={isEmailValid ? "信箱格式正確" : undefined}
-        tooltip="請使用有效的電子郵件地址進行註冊"
+        successMessage={isEmailValid ? t("emailValid", "信箱格式正確") : undefined}
+        tooltip={t("emailTooltip", "請使用有效的電子郵件地址進行註冊")}
         required
         htmlFor="email"
       >
         <Input
           type="email"
           name="email"
-          value={formData.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder="請輸入信箱"
-          hasError={!!errors.email}
+          value={form.values.email}
+          onChange={form.handleChange}
+          onBlur={form.handleBlur}
+          placeholder={t("emailPlaceholder", "請輸入信箱")}
+          hasError={!!(form.touched.email && form.errors.email)}
           disabled={disabled}
           autoComplete="email"
           required
         />
       </FormItem>
 
+      {/* Password */}
       <FormItem
-        label="密碼"
-        error={errors.password}
+        label={t("password", "密碼")}
+        error={form.touched.password ? form.errors.password : undefined}
         success={isPasswordValid}
-        tooltip={
-          !errors.password && !isPasswordValid
-            ? "密碼必須包含大小寫字母和數字，至少6個字符"
-            : undefined
-        }
+        tooltip={t("passwordTooltip", "密碼需 8–20 字符，包含大小寫字母、數字和符號")}
         required
         htmlFor="password"
       >
@@ -199,11 +164,11 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
           <Input
             type={showPassword ? "text" : "password"}
             name="password"
-            value={formData.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="請輸入密碼"
-            hasError={!!errors.password}
+            value={form.values.password}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+            placeholder={t("passwordPlaceholder", "請輸入密碼")}
+            hasError={!!(form.touched.password && form.errors.password)}
             disabled={disabled}
             autoComplete="new-password"
             required
@@ -225,18 +190,19 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
               disabled={disabled}
               icon={showPassword ? "eye" : "eye-off"}
               iconOnly
-              aria-label={showPassword ? "顯示密碼" : "隱藏密碼"}
+              aria-label={showPassword ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
               tabIndex={-1}
             />
           </div>
         </div>
       </FormItem>
 
+      {/* Confirm Password */}
       <FormItem
-        label="確認密碼"
-        error={errors.confirmPassword}
+        label={t("confirmPassword", "確認密碼")}
+        error={form.touched.confirmPassword ? form.errors.confirmPassword : undefined}
         success={isConfirmPasswordValid}
-        successMessage={isConfirmPasswordValid ? "密碼一致" : undefined}
+        successMessage={isConfirmPasswordValid ? t("passwordMatch", "密碼一致") : undefined}
         required
         htmlFor="confirmPassword"
       >
@@ -244,11 +210,11 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
           <Input
             type={showConfirmPassword ? "text" : "password"}
             name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="請再次輸入密碼"
-            hasError={!!errors.confirmPassword}
+            value={form.values.confirmPassword}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+            placeholder={t("confirmPasswordPlaceholder", "請再次輸入密碼")}
+            hasError={!!(form.touched.confirmPassword && form.errors.confirmPassword)}
             disabled={disabled}
             required
             style={{ paddingRight: "40px" }}
@@ -267,9 +233,9 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
               type="button"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
               disabled={disabled}
-              icon={showPassword ? "eye" : "eye-off"}
+              icon={showConfirmPassword ? "eye" : "eye-off"}
               iconOnly
-              aria-label={showPassword ? "顯示密碼" : "隱藏密碼"}
+              aria-label={showConfirmPassword ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
               tabIndex={-1}
             />
           </div>
@@ -280,7 +246,8 @@ function SignupForm({ onSubmit, disabled = false }: SignupFormProps) {
         type="submit"
         variant="primary"
         fullWidth
-        disabled={disabled || usernameStatus === "checking"}
+        disabled={!canSubmit}
+        loading={form.isSubmitting}
       >
         {t("register")}
       </Button>
