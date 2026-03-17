@@ -20,6 +20,7 @@ export interface User {
   skill_rating?: number;                      // Elo 能力分數（對應 EloService.userStartRating）
   skill_tier?: 1 | 2 | 3 | 4 | 5;           // 由 skill_rating 派生
   created_at?: string;
+  has_local_password?: boolean;   // false = OAuth-only account
 }
 
 // ==================== Auth Context Types ====================

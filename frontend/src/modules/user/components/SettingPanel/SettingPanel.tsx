@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import styles from "./SettingPanel.module.scss";
 import Icon from "@/shared/components/Icon";
 import Button from "@/shared/components/Button";
+import Input from "@/shared/components/Input";
+import FormItem from "@/shared/components/FormItem";
 import Dialog from "@/shared/components/Dialog";
 import Tabs from "@/shared/components/Tabs";
 import Avatar from "@/shared/components/Avatar";
@@ -179,48 +181,53 @@ function SettingPanel({
       </div>
 
       {/* Display Name */}
-      <div className={styles.field}>
-        <label className={styles.label}>{t("displayName", "顯示名稱")}</label>
-        <input
-          className={styles.input}
+      <FormItem label={t("displayName", "顯示名稱")} htmlFor="displayName">
+        <Input
+          name="displayName"
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
         />
-      </div>
+      </FormItem>
 
       {/* Username (readonly) */}
-      <div className={styles.field}>
-        <label className={styles.label}>{t("username", "使用者名稱")}</label>
+      <FormItem
+        label={t("username", "使用者名稱")}
+        htmlFor="username"
+        helperText={t("usernameHelper", "唯一識別碼，目前不可修改")}
+      >
         <div className={styles.inputGroup}>
           <span className={styles.inputPrefix}>@</span>
-          <input
-            className={`${styles.input} ${styles.inputWithPrefix} ${styles.readonlyInput}`}
+          <Input
+            name="username"
             type="text"
             value={user?.username ?? ""}
             readOnly
+            className={styles.inputWithPrefix}
           />
-          <button
-            className={styles.inputAction}
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
+            icon={copied ? "check" : "copy"}
             onClick={handleCopyUsername}
             aria-label={t("copyUsername", "複製使用者名稱")}
-          >
-            <Icon name={copied ? "check" : "copy"} size="sm" />
-          </button>
+            className={styles.inputAction}
+          />
         </div>
-        <p className={styles.helperText}>{t("usernameHelper", "唯一識別碼，目前不可修改")}</p>
-      </div>
+      </FormItem>
 
-      {/* Email (readonly) */}
-      <div className={styles.field}>
-        <label className={styles.label}>{t("email", "電子郵件")}</label>
-        <input
-          className={`${styles.input} ${styles.readonlyInput}`}
-          type="email"
-          value={user?.email ?? ""}
-          readOnly
-        />
-      </div>
+      {/* Email — only shown in profileTab for OAuth-only users */}
+      {!user?.has_local_password && (
+        <FormItem label={t("email", "電子郵件")} htmlFor="profileEmail">
+          <Input
+            name="profileEmail"
+            type="email"
+            value={user?.email ?? ""}
+            readOnly
+          />
+        </FormItem>
+      )}
 
       {/* Save actions */}
       <div className={styles.actions}>
@@ -236,11 +243,15 @@ function SettingPanel({
 
   const securityTab = (
     <div className={styles.tabContent}>
-      {/* Email card */}
-      <div className={styles.card}>
-        <div className={styles.cardLabel}>{t("emailAddress", "電子郵件地址")}</div>
-        <div className={styles.cardValue}>{user?.email ?? ""}</div>
-      </div>
+      {/* Email (local users only) */}
+      <FormItem label={t("emailAddress", "電子郵件地址")} htmlFor="securityEmail">
+        <Input
+          name="securityEmail"
+          type="email"
+          value={user?.email ?? ""}
+          readOnly
+        />
+      </FormItem>
 
       {/* Change Password Accordion */}
       <div className={styles.accordion}>
@@ -260,46 +271,50 @@ function SettingPanel({
         <div className={`${styles.accordionBody} ${isPasswordOpen ? styles.accordionBodyOpen : ""}`}>
           <div className={styles.accordionInner}>
             {/* Current password */}
-            <div className={styles.field}>
-              <label className={styles.label}>{t("currentPassword", "目前密碼")}</label>
+            <FormItem label={t("currentPassword", "目前密碼")} htmlFor="currentPassword">
               <div className={styles.inputGroup}>
-                <input
-                  className={`${styles.input} ${styles.inputWithAction}`}
+                <Input
+                  name="currentPassword"
                   type={showCurrentPw ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   autoComplete="current-password"
+                  className={styles.inputWithAction}
                 />
-                <button
-                  className={styles.inputAction}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconOnly
+                  icon={showCurrentPw ? "eye-off" : "eye"}
                   onClick={() => setShowCurrentPw((v) => !v)}
                   aria-label={showCurrentPw ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
                   type="button"
-                >
-                  <Icon name={showCurrentPw ? "eye-off" : "eye"} size="sm" />
-                </button>
+                  className={styles.inputAction}
+                />
               </div>
-            </div>
+            </FormItem>
 
             {/* New password + strength */}
-            <div className={styles.field}>
-              <label className={styles.label}>{t("newPassword", "新密碼")}</label>
+            <FormItem label={t("newPassword", "新密碼")} htmlFor="newPassword">
               <div className={styles.inputGroup}>
-                <input
-                  className={`${styles.input} ${styles.inputWithAction}`}
+                <Input
+                  name="newPassword"
                   type={showNewPw ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   autoComplete="new-password"
+                  className={styles.inputWithAction}
                 />
-                <button
-                  className={styles.inputAction}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconOnly
+                  icon={showNewPw ? "eye-off" : "eye"}
                   onClick={() => setShowNewPw((v) => !v)}
                   aria-label={showNewPw ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
                   type="button"
-                >
-                  <Icon name={showNewPw ? "eye-off" : "eye"} size="sm" />
-                </button>
+                  className={styles.inputAction}
+                />
               </div>
               {newPassword.length > 0 && (
                 <>
@@ -320,32 +335,34 @@ function SettingPanel({
                   </ul>
                 </>
               )}
-            </div>
+            </FormItem>
 
             {/* Confirm password */}
-            <div className={styles.field}>
-              <label className={styles.label}>{t("confirmPassword", "確認新密碼")}</label>
+            <FormItem label={t("confirmPassword", "確認新密碼")} htmlFor="confirmPassword">
               <div className={styles.inputGroup}>
-                <input
-                  className={`${styles.input} ${styles.inputWithAction}`}
+                <Input
+                  name="confirmPassword"
                   type={showConfirmPw ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
+                  className={styles.inputWithAction}
                 />
-                <button
-                  className={styles.inputAction}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconOnly
+                  icon={showConfirmPw ? "eye-off" : "eye"}
                   onClick={() => setShowConfirmPw((v) => !v)}
                   aria-label={showConfirmPw ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
                   type="button"
-                >
-                  <Icon name={showConfirmPw ? "eye-off" : "eye"} size="sm" />
-                </button>
+                  className={styles.inputAction}
+                />
               </div>
-            </div>
+            </FormItem>
 
-            {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
-            {passwordSuccess && <p className={styles.successMessage}>{t("passwordUpdated", "密碼已成功更新！")}</p>}
+            {passwordError && <p className={styles.errorText}>{passwordError}</p>}
+            {passwordSuccess && <p className={styles.successText}>{t("passwordUpdated", "密碼已成功更新！")}</p>}
 
             <Button
               variant="primary"
@@ -364,7 +381,7 @@ function SettingPanel({
   const preferencesTab = (
     <div className={styles.tabContent}>
       <div className={styles.field}>
-        <label className={styles.label}>{t("theme", "外觀主題")}</label>
+        <label className={styles.segmentLabel}>{t("theme", "外觀主題")}</label>
         <div className={styles.segmentedControl}>
           <button
             className={`${styles.segment} ${theme === "light" ? styles.segmentActive : ""}`}
@@ -399,12 +416,15 @@ function SettingPanel({
       icon: <Icon name="user" size="sm" />,
       content: profileTab,
     },
-    {
-      key: "security",
-      label: t("security", "安全性"),
-      icon: <Icon name="lock" size="sm" />,
-      content: securityTab,
-    },
+    // Only local-password users see the security tab
+    ...(user?.has_local_password !== false
+      ? [{
+          key: "security",
+          label: t("security", "安全性"),
+          icon: <Icon name="lock" size="sm" />,
+          content: securityTab,
+        }]
+      : []),
     {
       key: "preferences",
       label: t("preferences", "偏好設定"),

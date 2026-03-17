@@ -91,45 +91,10 @@
   gap: 6px;
 }
 
-.label {
+.segmentLabel {
   font-size: $font-sm;
   font-weight: 500;
   color: var(--text-primary);
-}
-
-.helperText {
-  font-size: $font-xs;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.input {
-  width: 100%;
-  padding: 10px 1rem;
-  border: 1px solid var(--border);
-  border-radius: $radius-xl;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: $font-sm;
-  transition: $transition-base;
-  box-sizing: border-box;
-
-  &:focus {
-    outline: none;
-    border-color: $primary-color;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.18);
-  }
-}
-
-.readonlyInput {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-
-  &:focus {
-    border-color: var(--border);
-    box-shadow: none;
-  }
 }
 
 // Input group (prefix / action button inside)
@@ -182,29 +147,6 @@
   margin-top: auto;
   padding-top: $spacing-sm;
   border-top: 1px solid var(--border);
-}
-
-// ─── Security: Email card ────────────────────────────────────────────────────
-.card {
-  padding: $spacing-sm;
-  border: 1px solid var(--border);
-  border-radius: $radius-xl;
-  background: var(--bg-secondary);
-  @include flex($direction: column);
-  gap: 4px;
-}
-
-.cardLabel {
-  font-size: $font-xs;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.cardValue {
-  font-size: $font-sm;
-  color: var(--text-primary);
-  font-weight: 500;
 }
 
 // ─── Accordion ───────────────────────────────────────────────────────────────
@@ -303,14 +245,14 @@
   color: var(--text-muted);
 }
 
-// ─── Feedback messages ───────────────────────────────────────────────────────
-.errorMessage {
+// ─── Inline feedback (password accordion) ────────────────────────────────────
+.errorText {
   font-size: $font-sm;
   color: $error-color;
   margin: 0;
 }
 
-.successMessage {
+.successText {
   font-size: $font-sm;
   color: $success-color;
   margin: 0;
