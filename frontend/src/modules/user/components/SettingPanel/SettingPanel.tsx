@@ -3,13 +3,23 @@ import { useTranslation } from "react-i18next";
 import styles from "./SettingPanel.module.scss";
 import Icon from "@/shared/components/Icon";
 import Button from "@/shared/components/Button";
-import Switch from "@/shared/components/Switch/Switch";
-import Dialog from "@/shared/components/Dialog/Dialog";
+import Dialog from "@/shared/components/Dialog";
+import Tabs from "@/shared/components/Tabs";
 import Avatar from "@/shared/components/Avatar";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useTheme } from "@/shared/contexts/ThemeContext";
 import { userService } from "@/services/userService";
+import type { TabItem } from "@/types";
 
+// ─── Password strength ─────────────────────────────────────────────────────
+const getPasswordStrength = (pw: string): 0 | 1 | 2 | 3 => {
+  if (!pw) return 0;
+  if (pw.length < 6) return 1;
+  if (/[a-zA-Z]/.test(pw) && /[0-9]/.test(pw)) return 3;
+  return 2;
+};
+
+// ─── Component ────────────────────────────────────────────────────────────
 function SettingPanel({
   isOpen,
   onClose,
@@ -20,32 +30,20 @@ function SettingPanel({
   const { t } = useTranslation();
   const { user, updateUser } = useAuth();
   const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState("profile");
+
+  // ── Profile ────────────────────────────────────────────────────────────
   const [saving, setSaving] = useState(false);
-
-  // Profile editable state
-  const [displayName, setDisplayName] = useState(user?.display_name ?? '');
-
-  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
-    setTheme(newTheme);
-    updateUser({ theme: newTheme });
-    userService.updateProfile({ theme: newTheme }).catch(err => {
-      console.error('Theme sync failed:', err);
-    });
-  };
-
-  // Avatar preview state
+  const [displayName, setDisplayName] = useState(user?.display_name ?? "");
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const MAX_SIZE = 5 * 1024 * 1024;
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!ALLOWED_TYPES.includes(file.type)) {
       alert(t("avatarFormatError", "請上傳 JPG、PNG、WebP 或 GIF 格式"));
       return;
@@ -54,206 +52,391 @@ function SettingPanel({
       alert(t("avatarSizeError", "檔案大小不可超過 5MB"));
       return;
     }
-
     setPendingAvatarFile(file);
     setPreviewUrl(URL.createObjectURL(file));
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const patch: Parameters<typeof userService.updateProfile>[0] = {};
-
       if (displayName !== user?.display_name) patch.display_name = displayName;
-
       if (pendingAvatarFile) {
         const url = await userService.uploadAvatar(pendingAvatarFile);
         patch.avatar_url = url;
       }
-
       if (Object.keys(patch).length > 0) {
         await userService.updateProfile(patch);
         updateUser(patch);
       }
-
       setPendingAvatarFile(null);
       setPreviewUrl(null);
       onClose();
     } catch (err) {
-      console.error('Save failed:', err);
+      console.error("Save failed:", err);
       alert(t("saveError", "儲存失敗，請稍後再試"));
     } finally {
       setSaving(false);
     }
   };
 
-  const footer = (
-    <>
-      <Button variant="secondary" onClick={onClose}>
-        {t("cancel")}
-      </Button>
-      <Button variant="primary" onClick={handleSave} disabled={saving}>
-        {saving ? t("saving", "儲存中...") : t("saveChanges")}
-      </Button>
-    </>
+  // ── Theme ──────────────────────────────────────────────────────────────
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    updateUser({ theme: newTheme });
+    userService.updateProfile({ theme: newTheme }).catch((err) => {
+      console.error("Theme sync failed:", err);
+    });
+  };
+
+  // ── Username copy ──────────────────────────────────────────────────────
+  const [copied, setCopied] = useState(false);
+  const handleCopyUsername = () => {
+    navigator.clipboard.writeText(user?.username ?? "");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // ── Password change ────────────────────────────────────────────────────
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+  const handleChangePassword = async () => {
+    setPasswordError("");
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError(t("fillAllFields", "請填寫所有欄位"));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t("passwordMismatch", "新密碼與確認密碼不符"));
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError(t("passwordTooShort", "密碼至少需要 6 個字元"));
+      return;
+    }
+    setPasswordSaving(true);
+    try {
+      await userService.changePassword(currentPassword, newPassword);
+      setPasswordSuccess(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    } catch (err: unknown) {
+      const e = err as { error_code?: string };
+      if (e.error_code === "WRONG_PASSWORD") {
+        setPasswordError(t("wrongPassword", "目前密碼錯誤"));
+      } else {
+        setPasswordError(t("saveError", "儲存失敗，請稍後再試"));
+      }
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const pwStrength = getPasswordStrength(newPassword);
+
+  // ─── Tab content ──────────────────────────────────────────────────────
+  const profileTab = (
+    <div className={styles.tabContent}>
+      {/* Avatar */}
+      <div className={styles.avatarSection}>
+        <div
+          className={styles.avatarWrapper}
+          onClick={() => fileInputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+          aria-label={t("changeAvatar", "更換頭像")}
+        >
+          <Avatar
+            src={previewUrl ?? user?.avatar_url}
+            username={user?.display_name ?? ""}
+            size="lg"
+            className={styles.avatar}
+          />
+          <div className={styles.avatarOverlay}>
+            <Icon name="camera" size="sm" />
+          </div>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          hidden
+          onChange={handleAvatarChange}
+        />
+      </div>
+
+      {/* Display Name */}
+      <div className={styles.field}>
+        <label className={styles.label}>{t("displayName", "顯示名稱")}</label>
+        <input
+          className={styles.input}
+          type="text"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+        />
+      </div>
+
+      {/* Username (readonly) */}
+      <div className={styles.field}>
+        <label className={styles.label}>{t("username", "使用者名稱")}</label>
+        <div className={styles.inputGroup}>
+          <span className={styles.inputPrefix}>@</span>
+          <input
+            className={`${styles.input} ${styles.inputWithPrefix} ${styles.readonlyInput}`}
+            type="text"
+            value={user?.username ?? ""}
+            readOnly
+          />
+          <button
+            className={styles.inputAction}
+            onClick={handleCopyUsername}
+            aria-label={t("copyUsername", "複製使用者名稱")}
+          >
+            <Icon name={copied ? "check" : "copy"} size="sm" />
+          </button>
+        </div>
+        <p className={styles.helperText}>{t("usernameHelper", "唯一識別碼，目前不可修改")}</p>
+      </div>
+
+      {/* Email (readonly) */}
+      <div className={styles.field}>
+        <label className={styles.label}>{t("email", "電子郵件")}</label>
+        <input
+          className={`${styles.input} ${styles.readonlyInput}`}
+          type="email"
+          value={user?.email ?? ""}
+          readOnly
+        />
+      </div>
+
+      {/* Save actions */}
+      <div className={styles.actions}>
+        <Button variant="secondary" onClick={onClose}>
+          {t("cancel")}
+        </Button>
+        <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
+          {saving ? t("saving", "儲存中...") : t("saveChanges")}
+        </Button>
+      </div>
+    </div>
   );
 
+  const securityTab = (
+    <div className={styles.tabContent}>
+      {/* Email card */}
+      <div className={styles.card}>
+        <div className={styles.cardLabel}>{t("emailAddress", "電子郵件地址")}</div>
+        <div className={styles.cardValue}>{user?.email ?? ""}</div>
+      </div>
+
+      {/* Change Password Accordion */}
+      <div className={styles.accordion}>
+        <button
+          className={styles.accordionHeader}
+          onClick={() => setIsPasswordOpen((v) => !v)}
+          aria-expanded={isPasswordOpen}
+        >
+          <span>{t("changePassword", "變更密碼")}</span>
+          <Icon
+            name="chevron-down"
+            size="sm"
+            className={`${styles.accordionChevron} ${isPasswordOpen ? styles.accordionChevronOpen : ""}`}
+          />
+        </button>
+
+        <div className={`${styles.accordionBody} ${isPasswordOpen ? styles.accordionBodyOpen : ""}`}>
+          <div className={styles.accordionInner}>
+            {/* Current password */}
+            <div className={styles.field}>
+              <label className={styles.label}>{t("currentPassword", "目前密碼")}</label>
+              <div className={styles.inputGroup}>
+                <input
+                  className={`${styles.input} ${styles.inputWithAction}`}
+                  type={showCurrentPw ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+                <button
+                  className={styles.inputAction}
+                  onClick={() => setShowCurrentPw((v) => !v)}
+                  aria-label={showCurrentPw ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
+                  type="button"
+                >
+                  <Icon name={showCurrentPw ? "eye-off" : "eye"} size="sm" />
+                </button>
+              </div>
+            </div>
+
+            {/* New password + strength */}
+            <div className={styles.field}>
+              <label className={styles.label}>{t("newPassword", "新密碼")}</label>
+              <div className={styles.inputGroup}>
+                <input
+                  className={`${styles.input} ${styles.inputWithAction}`}
+                  type={showNewPw ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  className={styles.inputAction}
+                  onClick={() => setShowNewPw((v) => !v)}
+                  aria-label={showNewPw ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
+                  type="button"
+                >
+                  <Icon name={showNewPw ? "eye-off" : "eye"} size="sm" />
+                </button>
+              </div>
+              {newPassword.length > 0 && (
+                <>
+                  <div className={styles.strengthMeter}>
+                    <div className={`${styles.strengthBar} ${pwStrength >= 1 ? styles[`strength${pwStrength}`] : ""}`} />
+                    <div className={`${styles.strengthBar} ${pwStrength >= 2 ? styles[`strength${pwStrength}`] : ""}`} />
+                    <div className={`${styles.strengthBar} ${pwStrength >= 3 ? styles[`strength${pwStrength}`] : ""}`} />
+                  </div>
+                  <ul className={styles.pwChecklist}>
+                    <li className={newPassword.length >= 6 ? styles.pwCheckPass : styles.pwCheckFail}>
+                      <Icon name="check-circle" size="sm" className={styles.pwCheckIcon} />
+                      {t("pwCheck6chars", "至少 6 字元")}
+                    </li>
+                    <li className={(/[a-zA-Z]/.test(newPassword) && /[0-9]/.test(newPassword)) ? styles.pwCheckPass : styles.pwCheckFail}>
+                      <Icon name="check-circle" size="sm" className={styles.pwCheckIcon} />
+                      {t("pwCheckAlphaNum", "包含英文與數字")}
+                    </li>
+                  </ul>
+                </>
+              )}
+            </div>
+
+            {/* Confirm password */}
+            <div className={styles.field}>
+              <label className={styles.label}>{t("confirmPassword", "確認新密碼")}</label>
+              <div className={styles.inputGroup}>
+                <input
+                  className={`${styles.input} ${styles.inputWithAction}`}
+                  type={showConfirmPw ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  className={styles.inputAction}
+                  onClick={() => setShowConfirmPw((v) => !v)}
+                  aria-label={showConfirmPw ? t("hidePassword", "隱藏密碼") : t("showPassword", "顯示密碼")}
+                  type="button"
+                >
+                  <Icon name={showConfirmPw ? "eye-off" : "eye"} size="sm" />
+                </button>
+              </div>
+            </div>
+
+            {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
+            {passwordSuccess && <p className={styles.successMessage}>{t("passwordUpdated", "密碼已成功更新！")}</p>}
+
+            <Button
+              variant="primary"
+              onClick={handleChangePassword}
+              disabled={passwordSaving}
+              loading={passwordSaving}
+            >
+              {t("updatePassword", "更新密碼")}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const preferencesTab = (
+    <div className={styles.tabContent}>
+      <div className={styles.field}>
+        <label className={styles.label}>{t("theme", "外觀主題")}</label>
+        <div className={styles.segmentedControl}>
+          <button
+            className={`${styles.segment} ${theme === "light" ? styles.segmentActive : ""}`}
+            onClick={() => handleThemeChange("light")}
+          >
+            <Icon name="sun" size="sm" />
+            <span>{t("lightMode", "淺色")}</span>
+          </button>
+          <button
+            className={`${styles.segment} ${theme === "dark" ? styles.segmentActive : ""}`}
+            onClick={() => handleThemeChange("dark")}
+          >
+            <Icon name="moon" size="sm" />
+            <span>{t("darkMode", "深色")}</span>
+          </button>
+          <button
+            className={`${styles.segment} ${theme === "system" ? styles.segmentActive : ""}`}
+            onClick={() => handleThemeChange("system")}
+          >
+            <Icon name="globe" size="sm" />
+            <span>{t("systemDefault", "系統")}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const tabs: TabItem[] = [
+    {
+      key: "profile",
+      label: t("profile", "個人資料"),
+      icon: <Icon name="user" size="sm" />,
+      content: profileTab,
+    },
+    {
+      key: "security",
+      label: t("security", "安全性"),
+      icon: <Icon name="lock" size="sm" />,
+      content: securityTab,
+    },
+    {
+      key: "preferences",
+      label: t("preferences", "偏好設定"),
+      icon: <Icon name="palette" size="sm" />,
+      content: preferencesTab,
+    },
+  ];
+
+  // ─────────────────────────────────────────────────────────────────────────
   return (
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={t("settingPanel")}
+      title={t("settingPanel", "設定")}
       size="lg"
-      footer={footer}
       closeOnOverlayClick={true}
       closeOnEscape={true}
       preventScroll={true}
       className={styles.settingDialog}
+      contentClassName={styles.dialogContentReset}
     >
-      <div className={styles.content}>
-          <div className={styles.sidebar}>
-            <nav className={styles.tabs}>
-              <Button
-                variant="ghost"
-                className={`${styles.tab} ${activeTab === "profile" ? styles.active : ""}`}
-                onClick={() => setActiveTab("profile")}
-                iconLeft={<Icon name="user" size="sm" />}
-              >
-                {t("profile")}
-              </Button>
-              <Button
-                variant="ghost"
-                className={`${styles.tab} ${activeTab === "account" ? styles.active : ""}`}
-                onClick={() => setActiveTab("account")}
-                iconLeft={<Icon name="cog" size="sm" />}
-              >
-                {t("accountSetting")}
-              </Button>
-              <Button
-                variant="ghost"
-                className={`${styles.tab} ${activeTab === "appearance" ? styles.active : ""}`}
-                onClick={() => setActiveTab("appearance")}
-                iconLeft={<Icon name="palette" size="sm" />}
-              >
-                {t("appearance")}
-              </Button>
-            </nav>
-          </div>
-
-          <div className={styles.main}>
-            {activeTab === "profile" && (
-              <div className={styles.section}>
-                <h3>{t("profile")}</h3>
-                <div className={styles.field}>
-                  <label>{t("username")}</label>
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={e => setDisplayName(e.target.value)}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label>{t("email")}</label>
-                  <input type="email" value={user?.email ?? ''} readOnly />
-                </div>
-                <div className={styles.field}>
-                  <label>{t("avatar")}</label>
-                  <div className={styles.avatarUpload}>
-                    <Avatar
-                      src={previewUrl ?? user?.avatar_url}
-                      username={user?.display_name ?? ''}
-                      size="lg"
-                    />
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      {t("changeAvatar")}
-                    </Button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      hidden
-                      onChange={handleAvatarChange}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "account" && (
-              <div className={styles.section}>
-                <h3>{t("accountSetting")}</h3>
-                <div className={styles.field}>
-                  <label>{t("changePassword")}</label>
-                  <input type="password" placeholder={t("currentPassword")} />
-                  <input type="password" placeholder={t("newPassword")} />
-                  <input type="password" placeholder={t("confirmPassword")} />
-                  {/* TODO: 實作密碼修改 - PUT /api/user/password */}
-                </div>
-                <div className={styles.field}>
-                  <label>{t("notificationSettings")}</label>
-                  <div className={styles.switchGroup}>
-                    <Switch
-                      label={t("emailNotifications")}
-                      labelPosition="left"
-                    />
-                    <Switch
-                      label={t("pushNotifications")}
-                      labelPosition="left"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "appearance" && (
-              <div className={styles.section}>
-                <h3>{t("appearance")}</h3>
-                <div className={styles.field}>
-                  <label>{t("theme")}</label>
-                  <div className={styles.themeSelector}>
-                    <Button
-                      variant="ghost"
-                      className={`${styles.themeOption} ${theme === 'light' ? styles.active : ''}`}
-                      onClick={() => handleThemeChange('light')}
-                    >
-                      <span className={styles.themePreview} style={{ background: "#ffffff" }}></span>
-                      {t("lightMode")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className={`${styles.themeOption} ${theme === 'dark' ? styles.active : ''}`}
-                      onClick={() => handleThemeChange('dark')}
-                    >
-                      <span className={styles.themePreview} style={{ background: "#1a1a1a" }}></span>
-                      {t("darkMode")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className={`${styles.themeOption} ${theme === 'system' ? styles.active : ''}`}
-                      onClick={() => handleThemeChange('system')}
-                    >
-                      <span className={styles.themePreview} style={{ background: "linear-gradient(45deg, #ffffff, #1a1a1a)" }}></span>
-                      {t("systemDefault")}
-                    </Button>
-                  </div>
-                </div>
-                <div className={styles.field}>
-                  <label>{t("fontSize")}</label>
-                  <select defaultValue="medium">
-                    <option value="small">{t("small")}</option>
-                    <option value="medium">{t("medium")}</option>
-                    <option value="large">{t("large")}</option>
-                  </select>
-                </div>
-              </div>
-            )}
-          </div>
-      </div>
+      <Tabs
+        tabs={tabs}
+        defaultTab="profile"
+        orientation="vertical"
+        variant="pills"
+        size="sm"
+        className={styles.settingTabs}
+        tabListClassName={styles.settingTabList}
+        contentClassName={styles.settingTabContent}
+        aria-label={t("settingPanel", "設定")}
+      />
     </Dialog>
   );
 }

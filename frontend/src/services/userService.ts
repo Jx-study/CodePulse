@@ -40,6 +40,19 @@ export const userService = {
     return resp.json();
   },
 
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const resp = await fetch('/api/users/me/password', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    });
+    if (!resp.ok) {
+      const data = await resp.json().catch(() => ({}));
+      throw { status: resp.status, error_code: data.error_code, message: data.message };
+    }
+  },
+
   async uploadAvatar(file: File): Promise<string> {
     // Step 1: 取得後端簽名
     const sig = await this.getUploadSignature();
