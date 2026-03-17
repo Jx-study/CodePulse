@@ -68,7 +68,6 @@ function bfsActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { mode: "graph" },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -83,8 +82,7 @@ function bfsActionHandler(
         animationData: cloneData(graphPayload),
         useRawAnimationParams: true,
         animationParams: { mode: "graph", isDirected: payload.Directed },
-        needsSyncCoordinates: true,
-        isResetAction: false,
+          isResetAction: false,
       };
     }
     if (dataStr.startsWith("GRID:")) {
@@ -129,7 +127,6 @@ function bfsActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { mode: "graph", ...payload },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -147,7 +144,6 @@ function bfsActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { ...payload, action: "switchMode" },
-      needsSyncCoordinates: payload.mode === "graph",
       isResetAction: false,
     };
   }

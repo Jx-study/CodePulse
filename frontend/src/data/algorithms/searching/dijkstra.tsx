@@ -48,7 +48,6 @@ function dijkstraActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { mode: "graph", isDirected: payload.isDirected },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -62,7 +61,6 @@ function dijkstraActionHandler(
       animationData: cloneData(graphPayload),
       useRawAnimationParams: true,
       animationParams: { mode: "graph", isDirected: payload.isDirected },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -73,7 +71,6 @@ function dijkstraActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { mode: "graph", ...payload },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -83,7 +80,6 @@ function dijkstraActionHandler(
       animationData: cloneData(data),
       useRawAnimationParams: true,
       animationParams: { mode: "graph", isDirected: payload.isDirected },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
