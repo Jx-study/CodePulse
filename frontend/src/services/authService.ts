@@ -24,6 +24,16 @@ export interface OnboardingInfoResponse {
   email: string;
 }
 
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message?: string;
+}
+
 const authService = {
   async login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -89,6 +99,20 @@ const authService = {
     const res = await apiService.post<AuthResponse>('/api/auth/complete-setup', {
       username,
       display_name,
+    });
+    return res.data;
+  },
+
+  async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
+    const res = await apiService.post<ForgotPasswordResponse>('/api/auth/forgot-password', { email });
+    return res.data;
+  },
+
+  async resetPassword(email: string, code: string, new_password: string): Promise<ResetPasswordResponse> {
+    const res = await apiService.post<ResetPasswordResponse>('/api/auth/reset-password', {
+      email,
+      code,
+      new_password,
     });
     return res.data;
   },

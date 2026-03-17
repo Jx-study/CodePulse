@@ -14,7 +14,7 @@ from auth_utils import (
     login_required, REFRESH_TOKEN_EXPIRES,
     generate_verification_code,
 )
-from services.mail import send_verification_email
+from services.mail import send_verification_email, send_password_reset_email
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -661,3 +661,136 @@ def get_user_status():
         'isAuthenticated': True,
         'user': _user_to_dict(user),
     }), 200
+
+
+# ── Forgot Password ───────────────────────────────────────────────────────────
+
+FORGOT_COOLDOWN_SECONDS = 60
+FORGOT_DAILY_LIMIT = 5
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+
+    if not email or '@' not in email:
+        return jsonify({'success': False, 'error_code': 'INVALID_EMAIL', 'message': '請輸入有效的信箱'}), 400
+
+    # Always return 200 regardless of whether email exists (prevent enumeration)
+    user = User.query.filter(
+        User.email == email,
+        User.deleted_at.is_(None),
+    ).first()
+
+    if not user:
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    now = datetime.now(timezone.utc)
+
+    # Rate limit: 60-second cooldown (silent — return 200 to prevent enumeration)
+    cooldown_boundary = now - timedelta(seconds=FORGOT_COOLDOWN_SECONDS)
+    recent = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.password_reset,
+        EmailVerification.created_at > cooldown_boundary,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if recent:
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    # Rate limit: daily limit (silent)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    daily_count = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.password_reset,
+        EmailVerification.created_at >= today_start,
+    ).count()
+
+    if daily_count >= FORGOT_DAILY_LIMIT:
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    code = generate_verification_code()
+    verification = EmailVerification(
+        email=email,
+        code_hash=hash_token(code),
+        purpose=VerificationPurpose.password_reset,
+        expires_at=now + timedelta(minutes=10),
+    )
+    try:
+        db.session.add(verification)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'error_code': 'SERVER_ERROR', 'message': '伺服器錯誤，請稍後再試'}), 500
+
+    try:
+        send_password_reset_email(email, code)
+    except Exception:
+        return jsonify({'success': False, 'error_code': 'MAIL_ERROR', 'message': '驗證碼寄送失敗，請稍後再試'}), 500
+
+    return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+
+# ── Reset Password ────────────────────────────────────────────────────────────
+
+import re as _re
+_CODE_RE = _re.compile(r'^[A-Z0-9]{6}$')
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    code = (data.get('code') or '').strip().upper()
+    new_password = data.get('new_password') or ''
+
+    if not email or '@' not in email or not _CODE_RE.match(code):
+        return jsonify({'success': False, 'error_code': 'INVALID_INPUT', 'message': '請確認所有欄位格式正確'}), 400
+
+    if len(new_password) < 6:
+        return jsonify({'success': False, 'error_code': 'WEAK_PASSWORD', 'message': '密碼至少需要6個字符'}), 400
+
+    now = datetime.now(timezone.utc)
+
+    verification = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.password_reset,
+        EmailVerification.is_used == False,
+        EmailVerification.expires_at > now,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if not verification:
+        return jsonify({'success': False, 'error_code': 'INVALID_CODE', 'message': '驗證碼錯誤或已過期'}), 400
+
+    if hash_token(code) != verification.code_hash:
+        return jsonify({'success': False, 'error_code': 'INVALID_CODE', 'message': '驗證碼錯誤或已過期'}), 400
+
+    user = User.query.filter(
+        User.email == email,
+        User.deleted_at.is_(None),
+    ).first()
+
+    if not user:
+        return jsonify({'success': False, 'error_code': 'INVALID_CODE', 'message': '驗證碼錯誤或已過期'}), 400
+
+    identity = UserIdentity.query.filter_by(
+        user_id=user.user_id,
+        provider=ProviderType.local,
+    ).first()
+
+    if not identity:
+        return jsonify({'success': False, 'error_code': 'NO_LOCAL_ACCOUNT', 'message': '此帳號未設定密碼，請使用 Google 登入'}), 400
+
+    try:
+        identity.password_hash = hash_password(new_password)
+        verification.is_used = True
+        UserToken.query.filter(
+            UserToken.user_id == user.user_id,
+            UserToken.is_revoked == False,
+            UserToken.expires_at > now,
+        ).update({'is_revoked': True})
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'error_code': 'SERVER_ERROR', 'message': '伺服器錯誤，請稍後再試'}), 500
+
+    return jsonify({'success': True, 'message': '密碼已重設，請重新登入'}), 200

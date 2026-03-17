@@ -33,3 +33,33 @@ def send_verification_email(email: str, code: str) -> None:
     # 注入 HTML 版本
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+def send_password_reset_email(email: str, code: str) -> None:
+    """發送重設密碼驗證碼郵件"""
+
+    subject = 'CodePulse — 重設密碼驗證碼'
+
+    text_content = f'您的重設密碼驗證碼為：{code}\n有效時間：10 分鐘'
+
+    html_content = f"""
+    <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #eee; padding: 20px;">
+        <h2 style="color: #333;">CodePulse 重設密碼</h2>
+        <p>您好，您已申請重設密碼，驗證碼為：</p>
+        <div style="background: #f4f4f4; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #2d89ef;">
+            {code}
+        </div>
+        <p style="font-size: 14px; color: #666;">有效時間：<strong>10 分鐘</strong></p>
+        <hr>
+        <p style="font-size: 12px; color: #999;">若非本人操作，請忽略此郵件，您的帳號不會有任何變更。</p>
+    </div>
+    """
+
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        to=[email],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()

@@ -17,6 +17,8 @@ import { PageSkeleton } from "./shared/components/Skeleton";
 import Home from "./pages/Home/Home";
 import AuthPage from "./pages/Authentication/Auth";
 import VerifyEmailPage from "./pages/Authentication/VerifyEmail";
+import ForgotPasswordPage from "./pages/Authentication/ForgotPassword";
+import ResetPasswordPage from "./pages/Authentication/ResetPassword";
 import OAuthCallback from "./pages/Authentication/OAuthCallback";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Practice from "./pages/Practice/Practice";
@@ -75,6 +77,8 @@ function App() {
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<AuthPage />} />
             <Route path="verify-email" element={<VerifyEmailPage />} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
             <Route path="callback" element={<OAuthCallback />} />
             <Route path="onboarding" element={<AuthPage />} />
             <Route path="survey" element={<Navigate to="/" replace />} />

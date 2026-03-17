@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { LoginFormData } from "@/types/pages/auth";
 import styles from "../../styles/AuthForm.module.scss";
@@ -124,7 +125,7 @@ function LoginForm({ onSubmit, disabled = false }: LoginFormProps) {
       </Button>
 
       <div className={styles.forgotPassword}>
-        <a href="#forgot-password">忘記密碼？</a>
+        <Link to="/auth/forgot-password">忘記密碼？</Link>
       </div>
     </form>
   );
