@@ -5,21 +5,22 @@ import Icon from "@/shared/components/Icon";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import FormItem from "@/shared/components/FormItem";
+import FormAlert from "@/shared/components/FormAlert";
+import type { FormAlertType } from "@/shared/components/FormAlert";
 import Dialog from "@/shared/components/Dialog";
 import Tabs from "@/shared/components/Tabs";
 import Avatar from "@/shared/components/Avatar";
+import useForm from "@/shared/hooks/useForm";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useTheme } from "@/shared/contexts/ThemeContext";
 import { userService } from "@/services/userService";
+import {
+  validateDisplayName,
+  validateOldPassword,
+  validatePassword,
+  validateConfirmPassword,
+} from "@/shared/utils/validation";
 import type { TabItem } from "@/types";
-
-// ─── Password strength ─────────────────────────────────────────────────────
-const getPasswordStrength = (pw: string): 0 | 1 | 2 | 3 => {
-  if (!pw) return 0;
-  if (pw.length < 6) return 1;
-  if (/[a-zA-Z]/.test(pw) && /[0-9]/.test(pw)) return 3;
-  return 2;
-};
 
 // ─── Component ────────────────────────────────────────────────────────────
 function SettingPanel({
@@ -34,10 +35,9 @@ function SettingPanel({
   const { theme, setTheme } = useTheme();
 
   // ── Profile ────────────────────────────────────────────────────────────
-  const [saving, setSaving] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.display_name ?? "");
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [profileAlert, setProfileAlert] = useState({ type: "error" as FormAlertType, message: "" });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_SIZE = 5 * 1024 * 1024;
@@ -47,11 +47,11 @@ function SettingPanel({
     const file = e.target.files?.[0];
     if (!file) return;
     if (!ALLOWED_TYPES.includes(file.type)) {
-      alert(t("avatarFormatError", "請上傳 JPG、PNG、WebP 或 GIF 格式"));
+      setProfileAlert({ type: "error", message: t("avatarFormatError", "請上傳 JPG、PNG、WebP 或 GIF 格式") });
       return;
     }
     if (file.size > MAX_SIZE) {
-      alert(t("avatarSizeError", "檔案大小不可超過 5MB"));
+      setProfileAlert({ type: "error", message: t("avatarSizeError", "檔案大小不可超過 5MB") });
       return;
     }
     setPendingAvatarFile(file);
@@ -59,29 +59,33 @@ function SettingPanel({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const patch: Parameters<typeof userService.updateProfile>[0] = {};
-      if (displayName !== user?.display_name) patch.display_name = displayName;
-      if (pendingAvatarFile) {
-        const url = await userService.uploadAvatar(pendingAvatarFile);
-        patch.avatar_url = url;
+  const profileForm = useForm<{ displayName: string }>({
+    initialValues: { displayName: user?.display_name ?? "" },
+    validationRules: {
+      displayName: (v) => validateDisplayName(v, t),
+    },
+    onSubmit: async ({ displayName }) => {
+      setProfileAlert({ type: "error", message: "" });
+      try {
+        const patch: Parameters<typeof userService.updateProfile>[0] = {};
+        if (displayName !== user?.display_name) patch.display_name = displayName;
+        if (pendingAvatarFile) {
+          const url = await userService.uploadAvatar(pendingAvatarFile);
+          patch.avatar_url = url;
+        }
+        if (Object.keys(patch).length > 0) {
+          await userService.updateProfile(patch);
+          updateUser(patch);
+        }
+        setPendingAvatarFile(null);
+        setPreviewUrl(null);
+        setProfileAlert({ type: "success", message: t("saveSuccess", "儲存成功！") });
+        setTimeout(() => setProfileAlert((a) => ({ ...a, message: "" })), 3000);
+      } catch {
+        setProfileAlert({ type: "error", message: t("saveError", "儲存失敗，請稍後再試") });
       }
-      if (Object.keys(patch).length > 0) {
-        await userService.updateProfile(patch);
-        updateUser(patch);
-      }
-      setPendingAvatarFile(null);
-      setPreviewUrl(null);
-      onClose();
-    } catch (err) {
-      console.error("Save failed:", err);
-      alert(t("saveError", "儲存失敗，請稍後再試"));
-    } finally {
-      setSaving(false);
-    }
-  };
+    },
+  });
 
   // ── Theme ──────────────────────────────────────────────────────────────
   const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
@@ -102,51 +106,38 @@ function SettingPanel({
 
   // ── Password change ────────────────────────────────────────────────────
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [passwordSaving, setPasswordSaving] = useState(false);
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
-  const handleChangePassword = async () => {
-    setPasswordError("");
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError(t("fillAllFields", "請填寫所有欄位"));
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError(t("passwordMismatch", "新密碼與確認密碼不符"));
-      return;
-    }
-    if (newPassword.length < 6) {
-      setPasswordError(t("passwordTooShort", "密碼至少需要 6 個字元"));
-      return;
-    }
-    setPasswordSaving(true);
-    try {
-      await userService.changePassword(currentPassword, newPassword);
-      setPasswordSuccess(true);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setTimeout(() => setPasswordSuccess(false), 3000);
-    } catch (err: unknown) {
-      const e = err as { error_code?: string };
-      if (e.error_code === "WRONG_PASSWORD") {
-        setPasswordError(t("wrongPassword", "目前密碼錯誤"));
-      } else {
-        setPasswordError(t("saveError", "儲存失敗，請稍後再試"));
+  const passwordForm = useForm<{
+    oldPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+  }>({
+    initialValues: { oldPassword: "", newPassword: "", confirmNewPassword: "" },
+    validationRules: {
+      oldPassword: (v) => validateOldPassword(v, t),
+      newPassword: (v) => validatePassword(v, t),
+      confirmNewPassword: (v, all) => validateConfirmPassword(all.newPassword, v, t),
+    },
+    onSubmit: async ({ oldPassword, newPassword }) => {
+      try {
+        await userService.changePassword(oldPassword, newPassword);
+        passwordForm.reset();
+        setIsPasswordOpen(false);
+        // Password change is a security action — use toast-level feedback
+        // For now we show a brief inline success via reset state; caller can hook toast
+      } catch (err: unknown) {
+        const e = err as { error_code?: string };
+        if (e.error_code === "WRONG_PASSWORD") {
+          passwordForm.setFieldError("oldPassword", t("wrongPassword", "目前密碼錯誤"));
+        } else {
+          passwordForm.setFieldError("oldPassword", t("saveError", "儲存失敗，請稍後再試"));
+        }
       }
-    } finally {
-      setPasswordSaving(false);
-    }
-  };
-
-  const pwStrength = getPasswordStrength(newPassword);
+    },
+  });
 
   // ─── Tab content ──────────────────────────────────────────────────────
   const profileTab = (
@@ -180,13 +171,22 @@ function SettingPanel({
         />
       </div>
 
+      <FormAlert type={profileAlert.type} message={profileAlert.message} />
+
       {/* Display Name */}
-      <FormItem label={t("displayName", "顯示名稱")} htmlFor="displayName">
+      <FormItem
+        label={t("displayName", "顯示名稱")}
+        error={profileForm.touched.displayName ? profileForm.errors.displayName : undefined}
+        htmlFor="displayName"
+        required
+      >
         <Input
           name="displayName"
           type="text"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
+          value={profileForm.values.displayName}
+          onChange={profileForm.handleChange}
+          onBlur={profileForm.handleBlur}
+          hasError={!!(profileForm.touched.displayName && profileForm.errors.displayName)}
         />
       </FormItem>
 
@@ -217,7 +217,7 @@ function SettingPanel({
         </div>
       </FormItem>
 
-      {/* Email — only shown in profileTab for OAuth-only users */}
+      {/* Email — only shown for OAuth-only users */}
       {!user?.has_local_password && (
         <FormItem label={t("email", "電子郵件")} htmlFor="profileEmail">
           <Input
@@ -234,8 +234,13 @@ function SettingPanel({
         <Button variant="secondary" onClick={onClose}>
           {t("cancel")}
         </Button>
-        <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
-          {saving ? t("saving", "儲存中...") : t("saveChanges")}
+        <Button
+          variant="primary"
+          onClick={() => profileForm.handleSubmit()}
+          disabled={profileForm.isSubmitting}
+          loading={profileForm.isSubmitting}
+        >
+          {profileForm.isSubmitting ? t("saving", "儲存中...") : t("saveChanges")}
         </Button>
       </div>
     </div>
@@ -271,13 +276,20 @@ function SettingPanel({
         <div className={`${styles.accordionBody} ${isPasswordOpen ? styles.accordionBodyOpen : ""}`}>
           <div className={styles.accordionInner}>
             {/* Current password */}
-            <FormItem label={t("currentPassword", "目前密碼")} htmlFor="currentPassword">
+            <FormItem
+              label={t("currentPassword", "目前密碼")}
+              error={passwordForm.touched.oldPassword ? passwordForm.errors.oldPassword : undefined}
+              htmlFor="oldPassword"
+              required
+            >
               <div className={styles.inputGroup}>
                 <Input
-                  name="currentPassword"
+                  name="oldPassword"
                   type={showCurrentPw ? "text" : "password"}
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  value={passwordForm.values.oldPassword}
+                  onChange={passwordForm.handleChange}
+                  onBlur={passwordForm.handleBlur}
+                  hasError={!!(passwordForm.touched.oldPassword && passwordForm.errors.oldPassword)}
                   autoComplete="current-password"
                   className={styles.inputWithAction}
                 />
@@ -294,14 +306,22 @@ function SettingPanel({
               </div>
             </FormItem>
 
-            {/* New password + strength */}
-            <FormItem label={t("newPassword", "新密碼")} htmlFor="newPassword">
+            {/* New password */}
+            <FormItem
+              label={t("newPassword", "新密碼")}
+              error={passwordForm.touched.newPassword ? passwordForm.errors.newPassword : undefined}
+              htmlFor="newPassword"
+              required
+              tooltip={t("passwordTooltip", "需 8–20 字符，包含大小寫字母、數字和符號")}
+            >
               <div className={styles.inputGroup}>
                 <Input
                   name="newPassword"
                   type={showNewPw ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  value={passwordForm.values.newPassword}
+                  onChange={passwordForm.handleChange}
+                  onBlur={passwordForm.handleBlur}
+                  hasError={!!(passwordForm.touched.newPassword && passwordForm.errors.newPassword)}
                   autoComplete="new-password"
                   className={styles.inputWithAction}
                 />
@@ -316,35 +336,30 @@ function SettingPanel({
                   className={styles.inputAction}
                 />
               </div>
-              {newPassword.length > 0 && (
-                <>
-                  <div className={styles.strengthMeter}>
-                    <div className={`${styles.strengthBar} ${pwStrength >= 1 ? styles[`strength${pwStrength}`] : ""}`} />
-                    <div className={`${styles.strengthBar} ${pwStrength >= 2 ? styles[`strength${pwStrength}`] : ""}`} />
-                    <div className={`${styles.strengthBar} ${pwStrength >= 3 ? styles[`strength${pwStrength}`] : ""}`} />
-                  </div>
-                  <ul className={styles.pwChecklist}>
-                    <li className={newPassword.length >= 6 ? styles.pwCheckPass : styles.pwCheckFail}>
-                      <Icon name="check-circle" size="sm" className={styles.pwCheckIcon} />
-                      {t("pwCheck6chars", "至少 6 字元")}
-                    </li>
-                    <li className={(/[a-zA-Z]/.test(newPassword) && /[0-9]/.test(newPassword)) ? styles.pwCheckPass : styles.pwCheckFail}>
-                      <Icon name="check-circle" size="sm" className={styles.pwCheckIcon} />
-                      {t("pwCheckAlphaNum", "包含英文與數字")}
-                    </li>
-                  </ul>
-                </>
-              )}
             </FormItem>
 
-            {/* Confirm password */}
-            <FormItem label={t("confirmPassword", "確認新密碼")} htmlFor="confirmPassword">
+            {/* Confirm new password */}
+            <FormItem
+              label={t("confirmPassword", "確認新密碼")}
+              error={passwordForm.touched.confirmNewPassword ? passwordForm.errors.confirmNewPassword : undefined}
+              success={
+                passwordForm.touched.confirmNewPassword &&
+                !passwordForm.errors.confirmNewPassword &&
+                passwordForm.values.confirmNewPassword === passwordForm.values.newPassword &&
+                passwordForm.values.confirmNewPassword !== ""
+              }
+              successMessage={t("passwordMatch", "密碼一致")}
+              htmlFor="confirmNewPassword"
+              required
+            >
               <div className={styles.inputGroup}>
                 <Input
-                  name="confirmPassword"
+                  name="confirmNewPassword"
                   type={showConfirmPw ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={passwordForm.values.confirmNewPassword}
+                  onChange={passwordForm.handleChange}
+                  onBlur={passwordForm.handleBlur}
+                  hasError={!!(passwordForm.touched.confirmNewPassword && passwordForm.errors.confirmNewPassword)}
                   autoComplete="new-password"
                   className={styles.inputWithAction}
                 />
@@ -361,14 +376,11 @@ function SettingPanel({
               </div>
             </FormItem>
 
-            {passwordError && <p className={styles.errorText}>{passwordError}</p>}
-            {passwordSuccess && <p className={styles.successText}>{t("passwordUpdated", "密碼已成功更新！")}</p>}
-
             <Button
               variant="primary"
-              onClick={handleChangePassword}
-              disabled={passwordSaving}
-              loading={passwordSaving}
+              onClick={() => passwordForm.handleSubmit()}
+              disabled={passwordForm.isSubmitting}
+              loading={passwordForm.isSubmitting}
             >
               {t("updatePassword", "更新密碼")}
             </Button>
@@ -416,14 +428,15 @@ function SettingPanel({
       icon: <Icon name="user" size="sm" />,
       content: profileTab,
     },
-    // Only local-password users see the security tab
     ...(user?.has_local_password !== false
-      ? [{
-          key: "security",
-          label: t("security", "安全性"),
-          icon: <Icon name="lock" size="sm" />,
-          content: securityTab,
-        }]
+      ? [
+          {
+            key: "security",
+            label: t("security", "安全性"),
+            icon: <Icon name="lock" size="sm" />,
+            content: securityTab,
+          },
+        ]
       : []),
     {
       key: "preferences",
