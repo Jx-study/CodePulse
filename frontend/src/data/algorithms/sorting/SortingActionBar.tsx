@@ -38,7 +38,7 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => onRun()}
+            onClick={() => onRun({ type: "sorting" })}
             disabled={disabled}
             className={styles.btnRun}
             icon="play"

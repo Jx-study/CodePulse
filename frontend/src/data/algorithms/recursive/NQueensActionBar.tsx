@@ -36,7 +36,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
         toast.warning("N 大於 8 時運算與動畫時間過長，請輸入 1~8 之間的數字。");
         return;
       }
-      onRun({ nQueensCount: n });
+      onRun({ type: "nQueens", nQueensCount: n });
     } else {
       toast.warning("請輸入有效的棋盤大小 N (大於 0 的整數)");
     }

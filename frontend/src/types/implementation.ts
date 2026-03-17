@@ -23,19 +23,22 @@ export type AlgorithmViewMode =
   | "longest_lte"
   | "shortest_gte";
 
-export interface RunParams {
-  searchValue?: number;
-  range?: [number, number];
-  mode?: AlgorithmViewMode;
-  rows?: number;
-  cols?: number;
-  startNode?: string;
-  endNode?: string;
-  targetSum?: number;
-  isDirected?: boolean;
-  capacity?: number;
-  nQueensCount?: number;
-}
+export type RunParams =
+  | { type: "sorting" }
+  | { type: "searching"; searchValue: number }
+  | { type: "prefixSum"; range?: [number, number] }
+  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | {
+      type: "bfsDfs";
+      mode: "graph" | "grid";
+      startNode?: string;
+      endNode?: string;
+      rows?: number;
+      cols?: number;
+    }
+  | { type: "dijkstra"; mode: "graph"; startNode?: string; endNode?: string; isDirected: boolean }
+  | { type: "knapsack"; capacity: number }
+  | { type: "nQueens"; nQueensCount: number };
 
 /** 基礎共用（所有 ActionBar 都需要） */
 export interface BaseActionBarProps {

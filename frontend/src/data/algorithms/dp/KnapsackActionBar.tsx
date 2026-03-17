@@ -51,7 +51,7 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
         return;
       }
       // 將 capacity 參數傳給底層演算法
-      onRun({ capacity: cap });
+      onRun({ type: "knapsack", capacity: cap });
     } else {
       toast.warning("請輸入有效的背包容量 (大於 0 的整數)");
     }
