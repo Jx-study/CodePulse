@@ -43,6 +43,14 @@ function SettingPanel({
   const MAX_SIZE = 5 * 1024 * 1024;
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
+  const handleClose = () => {
+    setPendingAvatarFile(null);
+    setPreviewUrl(null);
+    setProfileAlert({ type: "error", message: "" });
+    profileForm.reset();
+    onClose();
+  };
+
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -231,7 +239,11 @@ function SettingPanel({
 
       {/* Save actions */}
       <div className={styles.actions}>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={() => {
+          setPendingAvatarFile(null);
+          setPreviewUrl(null);
+          profileForm.reset();
+        }}>
           {t("cancel")}
         </Button>
         <Button
@@ -450,7 +462,7 @@ function SettingPanel({
   return (
     <Dialog
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={t("settingPanel", "設定")}
       size="lg"
       closeOnOverlayClick={true}
