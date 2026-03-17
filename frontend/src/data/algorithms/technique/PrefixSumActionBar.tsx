@@ -66,7 +66,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setRangeStart(e.target.value)
             }
-            className={styles.input}
+            className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
             aria-label="Range start"
@@ -79,7 +79,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setRangeEnd(e.target.value)
             }
-            className={styles.input}
+            className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
             aria-label="Range end"

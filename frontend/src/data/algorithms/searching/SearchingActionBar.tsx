@@ -54,7 +54,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchValue(e.target.value)
           }
-          className={styles.input}
+          className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
           aria-label="Search value"

@@ -133,7 +133,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
                   (e.target as HTMLInputElement).blur();
                 }
               }}
-              className={styles.input}
+              className={`${styles.input} ${styles.valueInput}`}
               disabled={disabled}
             />
           </Tooltip>
