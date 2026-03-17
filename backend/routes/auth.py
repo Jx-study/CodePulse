@@ -20,6 +20,13 @@ auth_bp = Blueprint('auth', __name__)
 
 
 def _user_to_dict(user):
+    local_identity = UserIdentity.query.filter_by(
+        user_id=user.user_id,
+        provider=ProviderType.local,
+    ).first()
+    has_local_password = bool(
+        local_identity and local_identity.password_hash
+    )
     return {
         'id': str(user.user_id),
         'username': user.username,
@@ -34,6 +41,7 @@ def _user_to_dict(user):
         'longest_streak': user.longest_streak,
         'last_login_date': user.last_login_date.isoformat() if user.last_login_date else None,
         'created_at': user.created_at.isoformat() if user.created_at else None,
+        'has_local_password': has_local_password,
     }
 
 
@@ -684,6 +692,18 @@ def forgot_password():
 
     if not user:
         return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    # Check if account is OAuth-only (no local identity)
+    local_identity = UserIdentity.query.filter_by(
+        user_id=user.user_id,
+        provider=ProviderType.local,
+    ).first()
+    if not local_identity or not local_identity.password_hash:
+        return jsonify({
+            'success': False,
+            'error_code': 'OAUTH_ONLY_ACCOUNT',
+            'message': '此信箱使用 Google 帳號登入，請直接使用 Google 登入，無需重設密碼',
+        }), 400
 
     now = datetime.now(timezone.utc)
 
