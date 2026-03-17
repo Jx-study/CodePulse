@@ -1,0 +1,309 @@
+@use "@/shared/styles/variables" as *;
+
+.container {
+  width: 100%;
+  padding: $spacing-md;
+  background: var(--bg-secondary);
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.sliderLabel {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.slider {
+  flex: 1;
+  accent-color: $primary-color;
+}
+
+.budgetValue {
+  font-weight: 600;
+  color: $primary-color;
+  min-width: 4rem;
+}
+
+.panels {
+  display: flex;
+  gap: $spacing-lg;
+  min-height: 320px;
+}
+
+.itemMarket {
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+.portfolio {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.panelTitle {
+  margin: 0 0 $spacing-sm;
+  font-size: $font-base;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.itemGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+}
+
+.itemCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-sm;
+  background: var(--bg-tertiary, rgba(0, 0, 0, 0.2));
+  border: 2px solid var(--border-color);
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    border-color: rgba($primary-color, 0.5);
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    box-shadow: 0 0 12px rgba($primary-color, 0.3);
+    background: rgba($primary-color, 0.08);
+  }
+
+  &.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.optimal {
+    border-color: #f59e0b;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  color: $primary-color;
+  font-weight: bold;
+}
+
+.optimalBadge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 0.9rem;
+}
+
+.lockBadge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 0.8rem;
+}
+
+.itemEmoji {
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+}
+
+.itemName {
+  font-weight: 600;
+  font-size: $font-sm;
+  color: var(--text-primary);
+  margin-bottom: $spacing-xs;
+}
+
+.itemBars {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: $spacing-xs;
+}
+
+.itemBarRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+}
+
+.itemBarLabel {
+  flex: 0 0 2.2em;
+  color: var(--text-secondary);
+}
+
+.itemBarTrack {
+  flex: 1;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.itemBarFill {
+  height: 100%;
+  background: $primary-color;
+  border-radius: 4px;
+  transition: width 0.2s ease;
+
+  &.rewardFill {
+    background: $success-color;
+  }
+}
+
+.itemBarValue {
+  flex: 0 0 2.5em;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.efficiencyBadge {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: $radius-sm;
+}
+
+.fundsBar {
+  position: relative;
+  height: 24px;
+  background: var(--bg-tertiary, rgba(0, 0, 0, 0.3));
+  border-radius: $radius-sm;
+  overflow: hidden;
+
+  &.idle .fundsFill {
+    background: var(--border-color);
+  }
+
+  &.playing .fundsFill {
+    background: $primary-color;
+  }
+
+  &.tight .fundsFill {
+    background: #f59e0b;
+  }
+
+  &.won .fundsFill {
+    background: $success-color;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.fundsLabel {
+  position: absolute;
+  left: $spacing-sm;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 1;
+  color: var(--text-primary);
+}
+
+.fundsFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  transition: width 0.3s ease;
+}
+
+.currentValue {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.greedySection {
+  padding: $spacing-sm;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: $radius-sm;
+}
+
+.greedyTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.greedyContent {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.buttons {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.btn {
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-sm;
+  font-weight: 600;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:first-of-type {
+    background: transparent;
+    border: 2px solid #f59e0b;
+    color: #f59e0b;
+  }
+}
+
+.hint {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.hintTight {
+  font-size: 0.9rem;
+  color: #f59e0b;
+  margin: 0;
+}
+
+.wonMessage {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $success-color;
+  margin: 0;
+}

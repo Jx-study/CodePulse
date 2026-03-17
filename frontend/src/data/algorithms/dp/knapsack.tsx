@@ -439,6 +439,25 @@ export const knapsackConfig: LevelImplementationConfig = {
         },
       ],
     },
+    {
+      id: "knapsack-investment-game",
+      title: "首席投資官：資金保衛戰",
+      category: "互動遊戲",
+      tags: ["0/1背包", "動態規劃", "資源分配", "貪婪陷阱"],
+      content: `【遊戲說明】
+你是一家投資公司的首席投資官（CIO）。
+左側是可投資的標的，右側是你的投資組合。
+
+【規則】
+• 點擊標的將其加入/移出投資組合
+• 資金有限，超出預算的標的無法選取
+• 目標：找到讓總報酬最大化的最佳組合
+
+【挑戰】
+AI 貪婪策略永遠選「單位報酬最高」的項目——但這不保證整體最優。
+你能找到比貪婪更好的組合嗎？`,
+      interactiveGame: { type: "knapsack-investment-game" },
+    },
   ],
   relatedProblems:[
     {

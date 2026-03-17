@@ -79,7 +79,7 @@ export interface StoryResource {
   source?: string;
 }
 
-export type InteractiveGameType = 'stack-popup-game';
+export type InteractiveGameType = 'stack-popup-game' | 'knapsack-investment-game';
 
 export interface InteractiveGame {
   type: InteractiveGameType;

@@ -6,6 +6,7 @@ import StoryVideoPlayer from './StoryVideoPlayer';
 import StoryResources from './StoryResources';
 import PythonInteractiveDemo from './PythonInteractiveDemo';
 import StackGameRenderer from './StackGameRenderer';
+import KnapsackGameRenderer from './KnapsackGameRenderer/KnapsackGameRenderer';
 import styles from './StoryAccordionItem.module.scss';
 
 interface Props {
@@ -18,7 +19,8 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
   const [isContentOpen, setIsContentOpen] = useState(false);
 
   const hasVideo = !!story.video;
-  const hasGame = story.interactiveGame?.type === 'stack-popup-game';
+  const hasStackGame = story.interactiveGame?.type === 'stack-popup-game';
+  const hasKnapsackGame = story.interactiveGame?.type === 'knapsack-investment-game';
 
   return (
     <div className={styles.accordionItem}>
@@ -64,14 +66,16 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
               {story.pythonDemo && (
                 <PythonInteractiveDemo demo={story.pythonDemo} />
               )}
-              {hasGame && <StackGameRenderer />}
+              {hasStackGame && <StackGameRenderer />}
+              {hasKnapsackGame && <KnapsackGameRenderer />}
             </>
           ) : (
             <>
               {story.pythonDemo && (
                 <PythonInteractiveDemo demo={story.pythonDemo} />
               )}
-              {hasGame && <StackGameRenderer />}
+              {hasStackGame && <StackGameRenderer />}
+              {hasKnapsackGame && <KnapsackGameRenderer />}
               <button
                 type="button"
                 className={styles.contentToggle}
