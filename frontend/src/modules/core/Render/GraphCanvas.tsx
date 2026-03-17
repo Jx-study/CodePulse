@@ -9,6 +9,7 @@ import {
   select as d3Select,
   zoom as d3Zoom,
   zoomIdentity,
+  easeQuadOut,
 } from "d3";
 import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
@@ -19,6 +20,17 @@ import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
 import styles from "./GraphCanvas.module.scss";
+
+// SVG arc 自環路徑：在 angle 方向畫一個近圓形的環
+function selfLoopPath(cx: number, cy: number, r: number, angle: number): string {
+  const spread = Math.PI / 3.5;
+  const loopR = r;
+  const sx = cx + r * Math.cos(angle - spread);
+  const sy = cy + r * Math.sin(angle - spread);
+  const ex = cx + r * Math.cos(angle + spread);
+  const ey = cy + r * Math.sin(angle + spread);
+  return `M ${sx},${sy} A ${loopR},${loopR},0,1,1,${ex},${ey}`;
+}
 
 // 與 D3Canvas 相容的子集 props
 export interface GraphCanvasProps {
@@ -63,6 +75,7 @@ export function GraphCanvas({
   const zoomBehaviorRef = useRef<ReturnType<typeof d3Zoom<SVGSVGElement, unknown>> | null>(null);
   const posCacheRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const prevLinkKeyRef = useRef<string>("");
+  const seenSelfLoopsRef = useRef<Set<string>>(new Set());
 
   // 注入 statusColorMap 到 elements（與 D3Renderer 一致）
   useEffect(() => {
@@ -194,6 +207,47 @@ export function GraphCanvas({
       };
     }
 
+    // 找出 nodeId 連線最少的方向作為自環擺放角度
+    const getSelfLoopAngle = (nodeId: string): number => {
+      const node = simNodes.find((n) => n.id === nodeId);
+      if (!node) return -Math.PI / 2;
+
+      const angles: number[] = [];
+      simLinks.forEach((link) => {
+        if (link.sourceId === link.targetId) return;
+        let neighbor: GSimNode | undefined;
+        if (link.sourceId === nodeId) {
+          neighbor = typeof link.target === "object"
+            ? (link.target as GSimNode)
+            : simNodes.find((n) => n.id === link.targetId);
+        } else if (link.targetId === nodeId) {
+          neighbor = typeof link.source === "object"
+            ? (link.source as GSimNode)
+            : simNodes.find((n) => n.id === link.sourceId);
+        }
+        if (neighbor) {
+          angles.push(Math.atan2((neighbor.y ?? 0) - (node.y ?? 0), (neighbor.x ?? 0) - (node.x ?? 0)));
+        }
+      });
+
+      if (angles.length === 0) return -Math.PI / 2;
+
+      angles.sort((a, b) => a - b);
+
+      let maxGap = 0;
+      let bestAngle = -Math.PI / 2;
+      for (let i = 0; i < angles.length; i++) {
+        const next = (i + 1) % angles.length;
+        let gap = angles[next] - angles[i];
+        if (next === 0) gap += 2 * Math.PI;
+        if (gap > maxGap) {
+          maxGap = gap;
+          bestAngle = angles[i] + gap / 2;
+        }
+      }
+      return ((bestAngle + Math.PI) % (2 * Math.PI)) - Math.PI;
+    };
+
     const simulation = forceSimulation<GSimNode>(simNodes)
       .force(
         "link",
@@ -217,14 +271,20 @@ export function GraphCanvas({
     // 建立 SVG DOM（links → nodes → vals → desc）
     const linkG = mainGroup.append("g").attr("class", "gc-links");
     linkG
-      .selectAll<SVGLineElement, GSimLink>("line")
+      .selectAll<SVGPathElement, GSimLink>("path")
       .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
-      .join("line")
+      .join("path")
       .attr("class", "gc-link")
       .attr("stroke", "#888")
       .attr("stroke-width", 2)
       .attr("fill", "none")
-      .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none");
+      .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none")
+      .attr("data-anim", (d) => {
+        if (d.sourceId !== d.targetId) return null;
+        if (seenSelfLoopsRef.current.has(d.sourceId)) return null;
+        seenSelfLoopsRef.current.add(d.sourceId);
+        return "entering";
+      });
 
     const weightG = mainGroup.append("g").attr("class", "gc-weights");
     const weightGroups = weightG
@@ -314,20 +374,41 @@ export function GraphCanvas({
 
       d3Select(svgEl)
         .select(".main-group .gc-links")
-        .selectAll<SVGLineElement, GSimLink>("line.gc-link")
+        .selectAll<SVGPathElement, GSimLink>("path.gc-link")
         .each(function (d) {
           const src = getNodeCenter(d, "source");
           const tgt = getNodeCenter(d, "target");
-          const dx = tgt.x - src.x;
-          const dy = tgt.y - src.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          const ux = dx / dist;
-          const uy = dy / dist;
-          d3Select(this)
-            .attr("x1", src.x + ux * src.r)
-            .attr("y1", src.y + uy * src.r)
-            .attr("x2", tgt.x - ux * tgt.r)
-            .attr("y2", tgt.y - uy * tgt.r);
+          let pathD: string;
+          if (d.sourceId === d.targetId) {
+            pathD = selfLoopPath(src.x, src.y, src.r, getSelfLoopAngle(d.sourceId));
+            d3Select(this).attr("d", pathD); // 每 tick 都更新位置，確保節點移動時弧形跟著走
+            if (d3Select(this).attr("data-anim") === "entering") {
+              d3Select(this).attr("data-anim", "animating");
+              const len = (this as SVGPathElement).getTotalLength();
+              d3Select(this)
+                .attr("stroke-dasharray", len)
+                .attr("stroke-dashoffset", len)
+                .transition()
+                .duration(700)
+                .ease(easeQuadOut)
+                .attr("stroke-dashoffset", 0)
+                .on("end", function () {
+                  d3Select(this as SVGPathElement)
+                    .attr("data-anim", null)
+                    .attr("stroke-dasharray", null)
+                    .attr("stroke-dashoffset", null);
+                });
+            }
+            return;
+          } else {
+            const dx = tgt.x - src.x;
+            const dy = tgt.y - src.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const ux = dx / dist;
+            const uy = dy / dist;
+            pathD = `M ${src.x + ux * src.r},${src.y + uy * src.r} L ${tgt.x - ux * tgt.r},${tgt.y - uy * tgt.r}`;
+          }
+          d3Select(this).attr("d", pathD);
         });
 
       d3Select(svgEl)
@@ -337,15 +418,22 @@ export function GraphCanvas({
           if (d.weight == null) return;
           const src = getNodeCenter(d, "source");
           const tgt = getNodeCenter(d, "target");
-          const dx = tgt.x - src.x;
-          const dy = tgt.y - src.y;
-          const len = Math.sqrt(dx * dx + dy * dy) || 1;
-          const hasReverse = linkSet.has(`${d.targetId}->${d.sourceId}`);
-          const offset = isDirected && hasReverse ? 8 : 0;
-          const ox = (-dy / len) * offset;
-          const oy = (dx / len) * offset;
-          const cx = (src.x + tgt.x) / 2 + ox;
-          const cy = (src.y + tgt.y) / 2 + oy;
+          let cx: number, cy: number;
+          if (d.sourceId === d.targetId) {
+            const loopAngle = getSelfLoopAngle(d.sourceId);
+            cx = src.x + (src.r + src.r) * Math.cos(loopAngle);
+            cy = src.y + (src.r + src.r) * Math.sin(loopAngle);
+          } else {
+            const dx = tgt.x - src.x;
+            const dy = tgt.y - src.y;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const hasReverse = linkSet.has(`${d.targetId}->${d.sourceId}`);
+            const offset = isDirected && hasReverse ? 8 : 0;
+            const ox = (-dy / len) * offset;
+            const oy = (dx / len) * offset;
+            cx = (src.x + tgt.x) / 2 + ox;
+            cy = (src.y + tgt.y) / 2 + oy;
+          }
           d3Select(this).attr("transform", `translate(${cx},${cy})`);
           const textEl = d3Select(this).select<SVGTextElement>("text.gc-weight-text");
           textEl.attr("x", 0).attr("y", 0);
@@ -407,14 +495,24 @@ export function GraphCanvas({
     // Link DOM join：新增的邊需要對應的 line 元素（不影響 simulation）
     d3Select(svgRef.current)
       .select(".main-group .gc-links")
-      .selectAll<SVGLineElement, GSimLink>("line")
+      .selectAll<SVGPathElement, GSimLink>("path")
       .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
-      .join("line")
-      .attr("class", "gc-link")
-      .attr("stroke", "#888")
-      .attr("stroke-width", 2)
-      .attr("fill", "none")
-      .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none");
+      .join(
+        (enter) => enter.append("path")
+          .attr("class", "gc-link")
+          .attr("stroke", "#888")
+          .attr("stroke-width", 2)
+          .attr("fill", "none")
+          .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none")
+          .attr("data-anim", (d) => {
+            if (d.sourceId !== d.targetId) return null;
+            if (seenSelfLoopsRef.current.has(d.sourceId)) return null;
+            seenSelfLoopsRef.current.add(d.sourceId);
+            return "entering";
+          }),
+        (update) => update,
+        (exit) => exit.remove(),
+      );
 
     // Weight DOM join：新增的邊需要對應的 weight group（rect + text）
     d3Select(svgRef.current)
@@ -486,7 +584,7 @@ export function GraphCanvas({
 
     // 更新 link 樣式（stroke + marker-end 顏色同步）
     d3Select(svgRef.current)
-      .selectAll<SVGLineElement, GSimLink>(".gc-link")
+      .selectAll<SVGPathElement, GSimLink>(".gc-link")
       .each(function (d) {
         if (!d) return;
         const status = d.status || "default";
