@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
-import type { PythonDemo, PythonInput, GraphOutputData } from '@/types/implementation';
+import type { PythonDemo, PythonInput, GraphOutputData, QueueCardOutputData } from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
 import GraphOutputRenderer from './GraphOutputRenderer';
+import QueueGameRenderer from './QueueGameRenderer/QueueGameRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
@@ -48,6 +49,7 @@ const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
   const [output, setOutput] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [graphData, setGraphData] = useState<GraphOutputData | null>(null);
+  const [queueCardData, setQueueCardData] = useState<QueueCardOutputData | null>(null);
 
   // 控制項值，key = PythonInput.variable
   const [inputValues, setInputValues] = useState<Record<string, string | number>>(
@@ -86,15 +88,23 @@ sys.stdout = io.StringIO()
 
       setOutput(stdout || '（程式執行完畢，無輸出）');
 
-      // outputType:'graph' 時解析回傳的 JSON
       if (demo.outputType === 'graph' && pyReturnValue) {
         try {
           setGraphData(JSON.parse(pyReturnValue));
         } catch {
           // JSON 解析失敗不影響 stdout 輸出
         }
+        setQueueCardData(null);
+      } else if (demo.outputType === 'queue-card' && pyReturnValue) {
+        try {
+          setQueueCardData(JSON.parse(pyReturnValue));
+        } catch {
+          // JSON 解析失敗不影響 stdout 輸出
+        }
+        setGraphData(null);
       } else {
         setGraphData(null);
+        setQueueCardData(null);
       }
 
       setStatus('done');
@@ -103,6 +113,7 @@ sys.stdout = io.StringIO()
       setOutput(`執行錯誤：\n${message}`);
       setStatus('error');
       setGraphData(null);
+      setQueueCardData(null);
     }
   }, [demo.code, demo.outputType, inputValues]);
 
@@ -180,8 +191,16 @@ sys.stdout = io.StringIO()
             <GraphOutputRenderer data={graphData} />
           )}
 
-          {/* 輸出 console（graph 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
-          {(demo.outputType !== 'graph' || !graphData || output.includes('錯誤')) && (
+          {/* Queue 卡片遊戲（outputType:'queue-card' 時顯示） */}
+          {demo.outputType === 'queue-card' && queueCardData && (
+            <QueueGameRenderer data={queueCardData} />
+          )}
+
+          {/* 輸出 console（graph/queue-card 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
+          {(demo.outputType !== 'graph' && demo.outputType !== 'queue-card') ||
+          (demo.outputType === 'graph' && !graphData) ||
+          (demo.outputType === 'queue-card' && !queueCardData) ||
+          output.includes('錯誤') ? (
             <pre
               className={classNames(styles.console, {
                 [styles.error]: status === 'error',
@@ -190,7 +209,7 @@ sys.stdout = io.StringIO()
             >
               {output || '點擊「執行小程序」查看結果...'}
             </pre>
-          )}
+          ) : null}
         </div>
       )}
 

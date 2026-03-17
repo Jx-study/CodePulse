@@ -33,7 +33,7 @@ export interface PythonDemo {
   title: string;
   code: string;
   inputs?: PythonInput[];
-  outputType?: 'text' | 'graph'; // 預設 'text'，向下兼容
+  outputType?: 'text' | 'graph' | 'queue-card'; // 預設 'text'，向下兼容
 }
 
 /** D3 force simulation 節點（Python 輸出 → JSON parse 後的型別） */
@@ -62,6 +62,16 @@ export interface GraphOutputData {
   edges: GraphSimEdge[];
   you_friends: number[];     // You（id=0）的直接好友 id 列表
   recommendations: number[]; // 推薦節點 id 列表（三元閉包找出）
+}
+
+/** Python demo 回傳的 Queue 卡片資料（outputType:'queue-card' 時） */
+export interface QueueCardOutputData {
+  initial_cards: Array<{ id: number; type: 'cat' | 'dog'; url: string }>;
+  config: {
+    spawn_rate_ms: number;
+    max_queue_size: number;
+    survive_seconds: number;
+  };
 }
 
 /**
