@@ -396,6 +396,50 @@ export const knapsackConfig: LevelImplementationConfig = {
   renderActionBar: (props) => <KnapsackActionBar {...(props as any)} />,
   statusConfig: KnapsackStatusConfig,
   maxNodes: 6,
+  realWorldStories: [
+    {
+      id: "knapsack-business-optimization",
+      title: "從金庫大盜到百萬美金：背包演算法的決策藝術",
+      category: "商業與科技",
+      tags: ["背包問題", "資源分配", "動態規劃", "投資組合優化", "商業思維"],
+      content: `【痛點引發】現實中的選擇困難症
+每一家企業在營運時，核心都圍繞著一個難題——「資源分配」。預算、庫存、時間與人力永遠都是有限的。想像你是一位產品經理，手上有 5 個潛在的高利潤研發項目，但預算只夠投資其中 3 個。或者在物流領域，貨車空間有限，面對重量與利潤不一的貨物，憑直覺亂塞可能會浪費大量的利潤空間。這些看似各自獨立的商業選擇題，在數學家眼中其實都是典型的「背包問題（Knapsack Problem）」。
+
+【邏輯拆解】金庫大盜的生存指南
+要理解這個概念，可以想像你是一個潛入金庫的大盜，背包容量只有 S 磅，只要裝超過這個重量背包就會破掉。面對每一件寶物，你只能做最簡單的二進位決策：「拿（1）」或「不拿（0）」。如果你只用「貪婪演算法」單純先拿單價最貴的，可能會因為它佔用過多空間而錯失整體最佳解。相反地，透過「動態規劃（Dynamic Programming, DP）」建立 dp[itemIdx][currCapacity] 表格，比較把物品放進背包與不放進背包哪一個獲利更大，就能一步步推導出整體的最佳解。
+
+【高階應用】百萬美金的整數難題
+當背包模型套用到真實的金融資產配置時，會遇到更複雜的痛點。傳統連續變數模型可能會告訴你「買 0.588 股」，但現實中投資如 Amazon 或 Google 等高價股時，交易必須是「整數」。升級版的背包演算法不僅能解決這類「整數難題」，還能加入「類別限制」（如限制能源股比例）等進階約束以避免投資過度集中。更重要的是，金融市場充滿波動，引入「魯棒優化（Robust Optimization）」技術後，演算法能考慮最壞情況，幫你找到最穩健的資產配置。
+
+【結論與擴展】演算法是你的決策助手
+背包問題不只是一個理論，它已經成為驅動現代商業的最佳化引擎。不管是行銷部門在固定預算下決定如何投放廣告，還是製造業在材料限制下安排生產線，0/1 背包演算法都是隱藏在幕後的功臣。掌握它，你就掌握了在資源有限的情況下，做出最優決策的藝術。`,
+      video: {
+        url: "https://www.youtube.com/watch?v=3FzCwqHQLK0",
+        title: "選擇的藝術：從商業痛點到背包演算法",
+        duration: "08:43",
+      },
+      resources: [
+        {
+          type: "article",
+          url: "https://crescointl.com/",
+          title: "The Knapsack Problem in Business Optimization",
+          source: "Cresco International",
+        },
+        {
+          type: "article",
+          url: "https://courses.csail.mit.edu/6.006/fall11/rec/rec21_knapsack.pdf",
+          title: "6.006 Introduction to Algorithms: The Knapsack Problem",
+          source: "MIT",
+        },
+        {
+          type: "article",
+          url: "https://www.researchgate.net/publication/341432555_A_Robust_Knapsack_Based_Constrained_Portfolio_Optimization",
+          title: "A Robust Knapsack Based Constrained Portfolio Optimization",
+          source: "IJE",
+        },
+      ],
+    },
+  ],
   relatedProblems:[
     {
       id: 416,
