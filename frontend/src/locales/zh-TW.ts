@@ -173,6 +173,43 @@ export default {
     "copyright": "© 2025 CodePulse。 本項目採用 MIT 許可證。| 專為程式學習而設計。"
   },
 
+  "validation": {
+    "username": {
+      "required": "請輸入用戶名",
+      "min": "用戶名至少需要 3 個字符",
+      "max": "用戶名最多 15 個字符",
+      "invalid": "用戶名只能包含字母、數字和底線"
+    },
+    "email": {
+      "required": "請輸入電子郵件",
+      "invalid": "請輸入有效的電子郵件格式"
+    },
+    "password": {
+      "required": "請輸入密碼",
+      "min": "密碼至少需要 8 個字符",
+      "max": "密碼最多 20 個字符",
+      "uppercase": "密碼必須包含大寫字母",
+      "lowercase": "密碼必須包含小寫字母",
+      "digit": "密碼必須包含數字",
+      "symbol": "密碼必須包含符號 (!@#$%^&*_-+=.,?)",
+      "invalid_chars": "密碼包含不允許的字符"
+    },
+    "confirmPassword": {
+      "required": "請確認密碼",
+      "mismatch": "密碼不一致"
+    },
+    "displayName": {
+      "required": "顯示名稱不可為空",
+      "max": "顯示名稱最多 30 個字符"
+    },
+    "oldPassword": {
+      "required": "請輸入目前的密碼"
+    },
+    "loginIdentifier": {
+      "required": "請輸入用戶名或電子郵件"
+    }
+  },
+
   "tech": {
     "python": "Python",
     "javascript": "JavaScript",

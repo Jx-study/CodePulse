@@ -173,6 +173,43 @@ export default {
     "copyright": "© 2025 CodePulse. Licensed under the MIT License. | Designed for programming learning."
   },
 
+  "validation": {
+    "username": {
+      "required": "Please enter a username",
+      "min": "Username must be at least 3 characters",
+      "max": "Username cannot exceed 15 characters",
+      "invalid": "Username can only contain letters, numbers, and underscores"
+    },
+    "email": {
+      "required": "Please enter an email",
+      "invalid": "Please enter a valid email address"
+    },
+    "password": {
+      "required": "Please enter a password",
+      "min": "Password must be at least 8 characters",
+      "max": "Password cannot exceed 20 characters",
+      "uppercase": "Password must contain an uppercase letter",
+      "lowercase": "Password must contain a lowercase letter",
+      "digit": "Password must contain a number",
+      "symbol": "Password must contain a symbol (!@#$%^&*_-+=.,?)",
+      "invalid_chars": "Password contains disallowed characters"
+    },
+    "confirmPassword": {
+      "required": "Please confirm your password",
+      "mismatch": "Passwords do not match"
+    },
+    "displayName": {
+      "required": "Display name cannot be empty",
+      "max": "Display name cannot exceed 30 characters"
+    },
+    "oldPassword": {
+      "required": "Please enter your current password"
+    },
+    "loginIdentifier": {
+      "required": "Please enter your username or email"
+    }
+  },
+
   "tech": {
     "python": "Python",
     "javascript": "JavaScript",
