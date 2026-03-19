@@ -82,7 +82,7 @@ export type ActionBarProps = DSActionBarProps | AlgoActionBarProps;
  * 合併了 AlgorithmConfig 和 DataStructureConfig
  */
 export interface LevelImplementationConfig {
-  id: string;
+  id: ImplementationId;
   type: "algorithm" | "dataStructure";
   name: string;
   categoryName: string;
@@ -120,6 +120,8 @@ export type ImplementationId =
   | "stack"
   | "queue"
   | "tree"
+  | "binarytree"
+  | "bst"
   | "graph"
   // 演算法
   | "bubblesort"
@@ -127,6 +129,9 @@ export type ImplementationId =
   | "insertionsort"
   | "binarysearch"
   | "linearsearch"
+  | "bfs"
+  | "dfs"
+  | "dijkstra"
   | "prefixsum"
   | "slidingwindow"
   | "twopointers"

@@ -1,6 +1,7 @@
+import { ImplementationId } from "@/types";
 // 教學內容配置
 export interface TutorialItem {
-  id: string;
+  id: ImplementationId;
   name: string;
   description: string;
   difficulty: number;
