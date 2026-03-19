@@ -30,7 +30,6 @@ export function DraggablePanel({
   defaultSize,
   minSize,
   collapsible,
-  onCollapse,
   children,
   header,
   draggable = false,

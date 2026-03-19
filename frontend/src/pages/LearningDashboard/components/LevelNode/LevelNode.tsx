@@ -8,7 +8,6 @@ function LevelNode({
   level,
   status,
   stars,
-  isLocked,
   position,
   onClick,
   isBossLevel = false,

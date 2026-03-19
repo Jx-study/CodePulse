@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import FormItem from "@/shared/components/FormItem";

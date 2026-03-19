@@ -1,4 +1,3 @@
-import React from "react";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
 import { createTreeNodes, updateLinkStatus, buildLinksFromNodes } from "./utils";

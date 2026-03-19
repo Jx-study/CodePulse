@@ -1,4 +1,3 @@
-import React from "react";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 

@@ -101,7 +101,6 @@ export function TopSection(props: TopSectionProps) {
     inspectorPanelProps,
     isLeftPanelCollapsed,
     handleToggleLeftPanel,
-    topicTypeConfig,
     codeMode,
     handleModeToggle,
     currentCodeConfig,

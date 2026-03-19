@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";

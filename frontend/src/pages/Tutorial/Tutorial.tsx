@@ -320,7 +320,7 @@ export const InspectorPanelInternal = ({
 
 function TutorialContent() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
+  const [canvasSize] = useState({ width: 800, height: 400 });
 
   // Use panel context for drag and drop
   const {

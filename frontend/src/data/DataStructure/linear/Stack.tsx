@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
@@ -42,7 +41,7 @@ const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
     startY: 200,
     gap: 70,
     status,
-    getDescription: (_, i, total) => String(i),
+    getDescription: (_, i) => String(i),
   });
 };
 

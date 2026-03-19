@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
@@ -264,7 +264,7 @@ function LearningDashboardInner() {
         levels={filteredLevels}
         userProgress={userProgress}
       >
-        {(level, index, position, containerWidth) => {
+        {(level, _index, position, containerWidth) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
           const prereqType = level.prerequisites?.type || "AND";
