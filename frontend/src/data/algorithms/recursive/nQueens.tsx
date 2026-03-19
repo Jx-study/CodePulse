@@ -1,5 +1,5 @@
 import type { AnimationStep, CodeConfig, StatusConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { AlgoActionBarProps, LevelImplementationConfig } from "@/types/implementation";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { NQueensActionBar } from "@/data/algorithms/recursive/NQueensActionBar";
@@ -84,17 +84,16 @@ function nQueensActionHandler(
 }
 
 export function createNQueensAnimationSteps(
-  inputData: any,
-  action?: any,
+  inputData: unknown,
+  action?: unknown,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
   // 預設為 4 皇后，最大建議 8 (超過 8 動畫會非常長)
-  const inputN =
-    Array.isArray(inputData) && inputData.length > 0
-      ? inputData[0].n
-      : undefined;
-  const N = action?.nQueensCount ?? inputN ?? 4;
+  const typedData = Array.isArray(inputData) ? (inputData as NQueensData[]) : [];
+  const typedAction = action as { nQueensCount?: number } | undefined;
+  const inputN = typedData.length > 0 ? typedData[0].n : undefined;
+  const N = typedAction?.nQueensCount ?? inputN ?? 4;
 
   // queens[r] = c 代表第 r 行的皇后放在第 c 列。-1 代表未放置。
   const queens: number[] = Array(N).fill(-1);
@@ -161,14 +160,13 @@ export function createNQueensAnimationSteps(
             box.setStatus(Status.Target);
           } else if (state === "attacked") {
             box.value = "×";
-            // 使用強制轉型套用自定義的 status (會在 config 裡定義)
-            box.setStatus("attacked" as unknown as Status);
+            box.setStatus(NQueensStatus.Attacked);
           } else if (state === "place") {
             box.value = "♕";
             box.setStatus(Status.Complete);
           } else if (state === "backtrack") {
             box.value = "";
-            box.setStatus("backtrack" as unknown as Status);
+            box.setStatus(NQueensStatus.Backtrack);
           } else {
             box.value = "";
             box.setStatus(Status.Inactive);
@@ -176,7 +174,7 @@ export function createNQueensAnimationSteps(
         } else if (attackedGrid[r][c]) {
           // 被攻擊的空格
           box.value = "";
-          box.setStatus("attacked" as unknown as Status);
+          box.setStatus(NQueensStatus.Attacked);
         } else {
           // 安全的空格
           box.value = "";
@@ -340,5 +338,5 @@ export const nQueensConfig: LevelImplementationConfig = {
   defaultData: [{ n: 4 }],
   actionHandler: nQueensActionHandler,
   createAnimationSteps: createNQueensAnimationSteps,
-  renderActionBar: (props) => <NQueensActionBar {...(props as any)} />,
+  renderActionBar: (props) => <NQueensActionBar {...(props as AlgoActionBarProps)} />,
 };
