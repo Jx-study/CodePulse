@@ -23,18 +23,22 @@ export type AlgorithmViewMode =
   | "longest_lte"
   | "shortest_gte";
 
-export interface RunParams {
-  searchValue?: number;
-  range?: [number, number];
-  mode?: AlgorithmViewMode;
-  rows?: number;
-  cols?: number;
-  startNode?: string;
-  endNode?: string;
-  targetSum?: number;
-  isDirected?: boolean;
-  capacity?: number;
-}
+export type RunParams =
+  | { type: "sorting" }
+  | { type: "searching"; searchValue: number }
+  | { type: "prefixSum"; range?: [number, number] }
+  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | {
+      type: "bfsDfs";
+      mode: "graph" | "grid";
+      startNode?: string;
+      endNode?: string;
+      rows?: number;
+      cols?: number;
+    }
+  | { type: "dijkstra"; mode: "graph"; startNode?: string; endNode?: string; isDirected: boolean }
+  | { type: "knapsack"; capacity: number }
+  | { type: "nQueens"; nQueensCount: number };
 
 /** 基礎共用（所有 ActionBar 都需要） */
 export interface BaseActionBarProps {
@@ -78,7 +82,7 @@ export type ActionBarProps = DSActionBarProps | AlgoActionBarProps;
  * 合併了 AlgorithmConfig 和 DataStructureConfig
  */
 export interface LevelImplementationConfig {
-  id: string;
+  id: ImplementationId;
   type: "algorithm" | "dataStructure";
   name: string;
   categoryName: string;
@@ -116,6 +120,8 @@ export type ImplementationId =
   | "stack"
   | "queue"
   | "tree"
+  | "binarytree"
+  | "bst"
   | "graph"
   // 演算法
   | "bubblesort"
@@ -123,11 +129,15 @@ export type ImplementationId =
   | "insertionsort"
   | "binarysearch"
   | "linearsearch"
+  | "bfs"
+  | "dfs"
+  | "dijkstra"
   | "prefixsum"
   | "slidingwindow"
   | "twopointers"
   | "fibonacci"
-  | "knapsack";
+  | "knapsack"
+  | "n-queens";
 
 /**
  * 實作配置映射表

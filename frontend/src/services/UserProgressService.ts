@@ -150,6 +150,7 @@ const INITIAL_USER_PROGRESS: UserProgress = {
     sorting: false,
     searching: false,
     graph: false,
+    recursive: false,
   },
   activeCategory: "data-structures",
 };

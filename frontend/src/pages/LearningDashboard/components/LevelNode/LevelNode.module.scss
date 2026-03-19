@@ -174,7 +174,6 @@
     &.locked {
       animation: none;
       filter: brightness(0.7);
-      cursor: not-allowed;
 
       &:hover {
         transform: translateX(-50%) translateY(-50%) scale(1.05);
