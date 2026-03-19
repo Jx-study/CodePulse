@@ -5,6 +5,7 @@ import Badge from '@/shared/components/Badge';
 import type { Level, PrerequisiteConfig } from '@/types';
 import Icon from '@/shared/components/Icon/Icon';
 import { getLevelById } from '@/services/LevelService';
+import { useTranslation } from 'react-i18next';
 
 interface PracticeSectionProps {
   level: Level;
@@ -33,9 +34,13 @@ function PracticeSection({
   isLocked,
   prerequisiteInfo
 }: PracticeSectionProps) {
+  const { t } = useTranslation('dashboard');
   const isCompleted = bestStars > 0;
   const prerequisiteLevelNames = prerequisiteInfo?.levelIds
-    .map(id => getLevelById(id)?.name ?? id)
+    .map(id => {
+      const l = getLevelById(id);
+      return l ? t(`levels.${l.id.replace(/-/g, '_')}.name`) : id;
+    })
     ?? [];
 
   return (

@@ -22,7 +22,6 @@ import {
 } from "@/services/LevelService";
 import {
   getCategories,
-  getCategoryName,
   updateCategoryUnlocks,
 } from "@/services/CategoryService";
 import {
@@ -47,9 +46,10 @@ import {
 } from "./utils/graphUtils";
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 function LearningDashboardInner() {
+  const { t } = useTranslation('dashboard');
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -133,7 +133,7 @@ function LearningDashboardInner() {
         .map(([id]) => id as CategoryType);
 
       if (newlyUnlockedCategories.length > 0) {
-        const categoryName = getCategoryName(newlyUnlockedCategories[0]);
+        const categoryName = t(`categories.${newlyUnlockedCategories[0].replace(/-/g, '_')}.name`);
         setToastMessage(`恭喜！解鎖新領域：${categoryName}`);
 
         // 3 秒後自動消失
@@ -240,7 +240,7 @@ function LearningDashboardInner() {
       saveUserProgress(updatedProgress);
 
       // 顯示完成提示
-      setToastMessage(`完成關卡：${selectedLevel.name}`);
+      setToastMessage(`完成關卡：${t(`levels.${selectedLevel.id.replace(/-/g, '_')}.name`)}`);
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
@@ -318,7 +318,7 @@ function LearningDashboardInner() {
                     status={pathStatus}
                     containerWidth={containerWidth}
                     connectionType={prereqType}
-                    branchLabel={prereqIndex === 0 ? level.pathMetadata?.branchLabel : undefined}
+                    branchLabel={prereqIndex === 0 && level.pathMetadata?.branchLabelKey ? t(`branch_labels.${level.pathMetadata.branchLabelKey}`) : undefined}
                     labelColor={prereqIndex === 0 ? categoryColors[level.category] : undefined}
                   />
                 );
@@ -330,9 +330,7 @@ function LearningDashboardInner() {
                   targetCategory={
                     level.pathMetadata?.targetCategory || "data-structures"
                   }
-                  targetCategoryName={getCategoryName(
-                    level.pathMetadata?.targetCategory || "data-structures",
-                  )}
+                  targetCategoryName={t(`categories.${(level.pathMetadata?.targetCategory || 'data-structures').replace(/-/g, '_')}.name`)}
                   isUnlocked={level.isUnlocked}
                   position={position}
                   onClick={handlePortalClick}

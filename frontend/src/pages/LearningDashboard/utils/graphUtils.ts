@@ -45,21 +45,18 @@ export function computeAllUnlockStatus(
 }
 
 /**
- * 取得關卡的未完成前置關卡名稱（用於顯示提示）
+ * 取得關卡的未完成前置關卡 ID（用於顯示提示）
  */
 export function getUncompletedPrerequisites(
   level: Level,
-  levels: Level[],
+  _levels: Level[],
   userProgress: UserProgress
 ): string[] {
   const prereq = level.prerequisites;
   if (!prereq || prereq.type === 'NONE') return [];
 
-  const levelMap = new Map(levels.map((l) => [l.id, l]));
-
   return prereq.levelIds
-    .filter((id) => userProgress.levels[id]?.status !== 'completed')
-    .map((id) => levelMap.get(id)?.name || id);
+    .filter((id) => userProgress.levels[id]?.status !== 'completed');
 }
 
 /**

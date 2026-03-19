@@ -19,7 +19,8 @@ export const algorithmImages: Record<string, string> = Object.keys(imageModules)
 }, {} as Record<string, string>);
 
 function DataStructureAlgorithm() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('home');
+  const { t: tDashboard } = useTranslation('dashboard');
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -28,13 +29,13 @@ function DataStructureAlgorithm() {
     return getHomePageLevels().map(meta => ({
       id: meta.id,
       levelId: meta.levelId,
-      name: t(`algorithms.${meta.translationKey}.name`),
-      description: t(`algorithms.${meta.translationKey}.description`),
+      name: tDashboard(`levels.${meta.translationKey}.name`),
+      description: tDashboard(`levels.${meta.translationKey}.description`),
       difficulty: meta.difficulty,
       category: meta.category,
       image: algorithmImages[meta.image],
     }));
-  }, [t]);
+  }, [t, tDashboard]);
 
   const cardsPerSlide = 4;
   const totalSlides = Math.ceil(algorithms.length / cardsPerSlide);
@@ -93,7 +94,7 @@ function DataStructureAlgorithm() {
                 description={algorithm.description}
                 difficulty={algorithm.difficulty}
                 category={{
-                  label: t(`algorithms.categories.${algorithm.category}`),
+                  label: tDashboard(`categories.${algorithm.category.replace(/-/g, '_')}.name`),
                   variant: getCategoryVariant(algorithm.category)
                 }}
                 footer={

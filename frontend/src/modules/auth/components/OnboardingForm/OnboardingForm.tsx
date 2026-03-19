@@ -28,7 +28,7 @@ function OnboardingForm({
   formError,
   onSubmit,
 }: OnboardingFormProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
 
   const form = useForm<{ username: string; displayName: string }>({
     initialValues: { username: "", displayName: "" },

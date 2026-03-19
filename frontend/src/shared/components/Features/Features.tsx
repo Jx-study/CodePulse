@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Card from '../Card';
 
 function Features() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('home');
 
   // Feature data - 精選核心功能
   const features = [

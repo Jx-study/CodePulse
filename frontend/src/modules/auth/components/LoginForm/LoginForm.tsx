@@ -24,7 +24,7 @@ function LoginForm({
   alertMessage = "",
   alertType = "error",
 }: LoginFormProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginFormData>({

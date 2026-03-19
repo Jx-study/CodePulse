@@ -16,7 +16,7 @@ interface LocationState {
 }
 
 function VerifyEmailPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const location = useLocation();
   const { verifyEmail } = useAuth();

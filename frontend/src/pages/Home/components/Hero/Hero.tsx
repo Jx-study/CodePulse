@@ -7,7 +7,7 @@ import Demo from "../Demo/Demo";
 import Button from "@/shared/components/Button";
 
 function Hero() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('home');
   const pulseBackgroundRef = useRef<any>(null);
   const ctaButtonRef = useRef<HTMLAnchorElement>(null);
   const heroRef = useRef<HTMLElement>(null);

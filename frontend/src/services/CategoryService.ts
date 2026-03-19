@@ -23,9 +23,6 @@ export function getAllCategories(): Category[] {
   return Object.values(rawCategories)
     .map((cat) => ({
       id: cat.id,
-      name: cat.name,
-      nameEn: cat.nameEn,
-      description: cat.description,
       icon: cat.icon,
       colorTheme: cat.colorTheme,
       isDeveloped: cat.isDeveloped,
@@ -45,9 +42,6 @@ export function getCategoryById(categoryId: CategoryType): Category | null {
 
   return {
     id: rawCat.id,
-    name: rawCat.name,
-    nameEn: rawCat.nameEn,
-    description: rawCat.description,
     icon: rawCat.icon,
     colorTheme: rawCat.colorTheme,
     isDeveloped: rawCat.isDeveloped,
@@ -55,13 +49,6 @@ export function getCategoryById(categoryId: CategoryType): Category | null {
   };
 }
 
-/**
- * 取得分類的顯示名稱
- */
-export function getCategoryName(categoryId: CategoryType): string {
-  const rawCategories = getRawCategories();
-  return rawCategories[categoryId]?.name || categoryId;
-}
 
 /**
  * 取得下一個分類

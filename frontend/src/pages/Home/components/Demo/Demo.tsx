@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 function Demo() {
   const [opacity, setOpacity] = useState(1);
-  const { t } = useTranslation();
+  const { t } = useTranslation('home');
 
   useEffect(() => {
     const interval = setInterval(() => {

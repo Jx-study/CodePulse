@@ -185,7 +185,3 @@ export function getTutorialData(
   return TUTORIALS[category]?.[algorithm] || null;
 }
 
-// 獲取分類名稱
-export function getCategoryName(category: string): string {
-  return CATEGORIES[category as keyof typeof CATEGORIES]?.name || category;
-}
