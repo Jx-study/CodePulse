@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import classNames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as faHeartSolid, faCat, faDog, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import type {
   CardItem,
   GameState,
@@ -214,7 +217,7 @@ export default function QueueGameRenderer({ data }: Props) {
                 [styles.heartLost]: i >= gameState.hp,
               })}
             >
-              ❤️
+              <FontAwesomeIcon icon={i < gameState.hp ? faHeartSolid : faHeartRegular} />
             </span>
           ))}
         </div>
@@ -238,8 +241,8 @@ export default function QueueGameRenderer({ data }: Props) {
 
       {(gameState.status === 'idle' || gameState.status === 'playing') && (
         <div className={styles.swipeHints}>
-          <span>← 🐱</span>
-          <span>🐶 →</span>
+          <span>← <FontAwesomeIcon icon={faCat} size="3x" /></span>
+          <span><FontAwesomeIcon icon={faDog} size="3x" /> →</span>
         </div>
       )}
 
@@ -294,7 +297,7 @@ export default function QueueGameRenderer({ data }: Props) {
             exit={{ opacity: 0 }}
           >
             <div className={styles.resultCard}>
-              <h3>Queue Cleared! 🎉</h3>
+              <h3><FontAwesomeIcon icon={faTrophy} /> Queue Cleared!</h3>
               <p>Score: {gameState.score}</p>
               <button
                 type="button"
