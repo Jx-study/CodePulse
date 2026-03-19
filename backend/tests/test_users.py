@@ -3,6 +3,10 @@ import pytest
 
 from database import db as _db
 
+# Fake credentials used only in tests — not real secrets
+_FIXTURE_PW_CURRENT = 'fixture-current-pw'
+_FIXTURE_PW_NEW = 'fixture-new-pw'
+
 
 def _authed(client, auth_headers, method, path, **kwargs):
     """Make an authenticated request using the access_token cookie."""
@@ -36,7 +40,7 @@ def auth_headers_with_local_identity(app):
             user_id=user.user_id,
             provider=ProviderType.local,
             provider_id='local@example.com',
-            password_hash=hash_password('oldpass123'),
+            password_hash=hash_password(_FIXTURE_PW_CURRENT),
             is_verified=True,
         )
         _db.session.add(identity)
@@ -145,7 +149,7 @@ def test_change_password_success(app, client, auth_headers_with_local_identity):
 
     resp = _authed(
         client, auth_headers_with_local_identity, 'put', '/api/users/me/password',
-        json={'current_password': 'oldpass123', 'new_password': 'newpass456'},
+        json={'current_password': _FIXTURE_PW_CURRENT, 'new_password': _FIXTURE_PW_NEW},
     )
     assert resp.status_code == 200
     data = resp.get_json()
@@ -160,7 +164,7 @@ def test_change_password_missing_fields(client, auth_headers_with_local_identity
     """Missing new_password → 400 MISSING_FIELDS."""
     resp = _authed(
         client, auth_headers_with_local_identity, 'put', '/api/users/me/password',
-        json={'current_password': 'oldpass123'},
+        json={'current_password': _FIXTURE_PW_CURRENT},
     )
     assert resp.status_code == 400
     data = resp.get_json()
@@ -171,7 +175,7 @@ def test_change_password_wrong_current(client, auth_headers_with_local_identity)
     """Wrong current_password → 400 WRONG_PASSWORD."""
     resp = _authed(
         client, auth_headers_with_local_identity, 'put', '/api/users/me/password',
-        json={'current_password': 'wrongpass', 'new_password': 'newpass456'},
+        json={'current_password': 'wrong-fixture-pw', 'new_password': _FIXTURE_PW_NEW},
     )
     assert resp.status_code == 400
     data = resp.get_json()
@@ -182,7 +186,7 @@ def test_change_password_weak_new(client, auth_headers_with_local_identity):
     """new_password length < 6 → 400 WEAK_PASSWORD."""
     resp = _authed(
         client, auth_headers_with_local_identity, 'put', '/api/users/me/password',
-        json={'current_password': 'oldpass123', 'new_password': '123'},
+        json={'current_password': _FIXTURE_PW_CURRENT, 'new_password': '123'},
     )
     assert resp.status_code == 400
     data = resp.get_json()
@@ -193,7 +197,7 @@ def test_change_password_same_password(client, auth_headers_with_local_identity)
     """new_password same as current → 400 SAME_PASSWORD."""
     resp = _authed(
         client, auth_headers_with_local_identity, 'put', '/api/users/me/password',
-        json={'current_password': 'oldpass123', 'new_password': 'oldpass123'},
+        json={'current_password': _FIXTURE_PW_CURRENT, 'new_password': _FIXTURE_PW_CURRENT},
     )
     assert resp.status_code == 400
     data = resp.get_json()
@@ -204,7 +208,7 @@ def test_change_password_no_local_account(client, auth_headers_google_only):
     """User has only Google identity → 400 NO_LOCAL_ACCOUNT."""
     resp = _authed(
         client, auth_headers_google_only, 'put', '/api/users/me/password',
-        json={'current_password': 'anypass', 'new_password': 'newpass456'},
+        json={'current_password': 'any-fixture-pw', 'new_password': _FIXTURE_PW_NEW},
     )
     assert resp.status_code == 400
     data = resp.get_json()
@@ -215,6 +219,6 @@ def test_change_password_unauthenticated(client):
     """No cookie → 401."""
     resp = client.put(
         '/api/users/me/password',
-        json={'current_password': 'oldpass123', 'new_password': 'newpass456'},
+        json={'current_password': _FIXTURE_PW_CURRENT, 'new_password': _FIXTURE_PW_NEW},
     )
     assert resp.status_code == 401
