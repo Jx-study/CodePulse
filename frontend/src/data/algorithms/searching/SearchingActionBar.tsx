@@ -26,7 +26,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
   const handleRun = () => {
     const val = parseInt(searchValue);
     if (!isNaN(val)) {
-      onRun({ searchValue: val });
+      onRun({ type: "searching", searchValue: val });
     } else {
       toast.warning("請輸入有效的搜尋數值");
     }

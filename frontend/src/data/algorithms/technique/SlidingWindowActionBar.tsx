@@ -21,14 +21,24 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
   maxNodes,
+  viewMode,
+  onViewModeChange,
 }) => {
-  const [windowMode, setWindowMode] = useState<string>("longest_lte");
   const [targetSum, setTargetSum] = useState<string>("20");
+
+  const currentMode = viewMode || "longest_lte";
+
+  const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMode = e.target.value as any;
+    if (onViewModeChange) {
+      onViewModeChange(newMode);
+    }
+  };
 
   const handleRun = () => {
     const val = parseInt(targetSum, 10);
     if (!isNaN(val)) {
-      onRun({ mode: windowMode as any, targetSum: val });
+      onRun({ type: "slidingWindow", mode: currentMode as any, targetSum: val });
     } else {
       toast.warning("請輸入有效的目標和數值");
     }
@@ -52,8 +62,8 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
         <div className={styles.viewModeContainer}>
           <span className={styles.viewModeLabel}>模式:</span>
           <Select
-            value={windowMode}
-            onChange={(e) => setWindowMode(e.target.value)}
+            value={currentMode}
+            onChange={handleModeChange}
             disabled={disabled}
             size="sm"
             fullWidth={false}

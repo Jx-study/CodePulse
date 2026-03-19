@@ -73,7 +73,7 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
       }
     }
 
-    onRun({ mode: "graph", startNode: startId, endNode: endId, isDirected });
+    onRun({ type: "dijkstra", mode: "graph", startNode: startId, endNode: endId, isDirected });
   };
 
   return (

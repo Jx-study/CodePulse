@@ -20,8 +20,7 @@ import styles from "./Tutorial.module.scss";
 import { Link } from "@/modules/core/Render/D3Renderer";
 import { Node as DataNode } from "@/modules/core/DataLogic/Node";
 import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
-import { useDataStructureLogic } from "@/modules/core/hooks/useDataStructureLogic";
-import { useAlgorithmLogic } from "@/modules/core/hooks/useAlgorithmLogic";
+import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogic";
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
@@ -403,11 +402,8 @@ function TutorialContent() {
   // 改用 topicTypeConfig.type 判斷類型（不再依賴 URL 參數）
   const isAlgorithm = topicTypeConfig?.type === "algorithm";
 
-  // 2. 狀態管理(同時呼叫兩個 Hook，但只用其中一個的結果)
-  const dsLogic = useDataStructureLogic(isAlgorithm ? null : topicTypeConfig);
-  const algoLogic = useAlgorithmLogic(isAlgorithm ? topicTypeConfig : null);
-
-  const logic = isAlgorithm ? algoLogic : dsLogic;
+  // 2. 狀態管理（統一使用 useVisualizationLogic）
+  const logic = useVisualizationLogic(topicTypeConfig);
   const { activeSteps, executeAction } = logic;
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -428,6 +424,7 @@ function TutorialContent() {
   const [hasTailMode, setHasTailMode] = useState(false);
   const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
+  const [renderedIsDirected, setRenderedIsDirected] = useState(false);
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -473,13 +470,8 @@ function TutorialContent() {
       : logic.data?.nodes?.length > 0;
 
     if (topicTypeConfig && !isProcessing && hasData) {
-      if (!isAlgorithm) {
-        dsLogic.executeAction("refresh", { hasTailMode, isDirected });
-      } else {
-        algoLogic.executeAction("refresh", {
-          isDirected,
-        });
-      }
+      logic.executeAction("refresh", { hasTailMode, isDirected });
+      setRenderedIsDirected(isDirected);
       setCurrentStep(0);
     }
   }, [hasTailMode, isDirected, isAlgorithm]);
@@ -529,8 +521,7 @@ function TutorialContent() {
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
     if (maxNodes !== undefined) {
-      const currentCount =
-        dsLogic.data?.length ?? dsLogic.data?.nodes?.length ?? 0;
+      const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
       if (currentCount >= maxNodes) {
         toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
         return;
@@ -590,7 +581,12 @@ function TutorialContent() {
 
   // 載入輸入資料：解析字串並更新
   const handleLoadData = (raw: string) => {
-    if (raw.startsWith("GRID:") || raw.startsWith("GRAPH:")) {
+    if (
+      raw.startsWith("GRID:") ||
+      raw.startsWith("GRAPH:") ||
+      raw.startsWith("KNAPSACK:") ||
+      raw.startsWith("NQUEENS:")
+    ) {
       const steps = executeAction("load", {
         data: raw,
         randomCount: randomCountRef.current,
@@ -658,7 +654,7 @@ function TutorialContent() {
   const handleGraphAction = (action: string, payload: any) => {
     if (isProcessing) return;
 
-    const steps = dsLogic.executeAction(action, payload);
+    const steps = logic.executeAction(action, payload);
 
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -668,6 +664,7 @@ function TutorialContent() {
 
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
+    setCurrentStep(0);
     setIsPlaying(false);
   };
 
@@ -804,7 +801,7 @@ function TutorialContent() {
     topicTypeConfig,
     currentStatusColorMap,
     currentStatusConfig,
-    isDirected,
+    isDirected: renderedIsDirected,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,

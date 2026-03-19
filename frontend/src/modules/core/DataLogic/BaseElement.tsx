@@ -22,7 +22,7 @@ export abstract class BaseElement {
   // if value is '' (empty string) will not be rendered
   value: string = '0';
   position = { x: 0, y: 0 };
-  status: Status = Status.Unfinished;
+  status: string = Status.Unfinished;
   description = "";
   customColorMap?: StatusColorMap;
   /** 1 = 完全可見，0 = 隱形（仍佔 bbox，getBBox 計入） */
@@ -34,7 +34,7 @@ export abstract class BaseElement {
   moveTo(x: number, y: number) {
     this.position = { x, y };
   }
-  setStatus(s: Status) {
+  setStatus(s: string) {
     this.status = s;
   }
   // Inject custom color map
@@ -45,10 +45,10 @@ export abstract class BaseElement {
     if (this.customColorMap) {
       return (
         this.customColorMap[this.status] ??
-        statusColorMap[this.status] ??
+        statusColorMap[this.status as Status] ??
         "#888888"
       );
     }
-    return statusColorMap[this.status] ?? "#888888";
+    return statusColorMap[this.status as Status] ?? "#888888";
   }
 }

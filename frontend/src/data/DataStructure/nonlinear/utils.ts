@@ -152,6 +152,7 @@ export const generateGraphFrame = (
       const dist = distanceMap[node.id];
       newNode.value =
         dist === undefined || dist === Infinity ? "∞" : String(dist);
+      newNode.description = node.id.replace("node-", "");
     }
 
     let x = node.position.x;
@@ -309,7 +310,9 @@ export function createGraphElements(
     const target = nodeMap.get(targetId);
     if (source && target) {
       source.pointers.push(target);
-      if (!isDirected) {
+      // 自環（source === target）在無向圖中不需要 reverse push，
+      // 否則會造成 pointers 重複，導致動畫每步重繪。
+      if (!isDirected && source !== target) {
         target.pointers.push(source);
       }
     }

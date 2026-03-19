@@ -7,6 +7,7 @@
 export * from './animation';
 
 export * from './implementation';
+export * from './statusConfig';
 
 // ==================== Component Types ====================
 export * from './components/common';

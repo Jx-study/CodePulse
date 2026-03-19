@@ -5,6 +5,51 @@ import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
+import { cloneData } from "@/modules/core/visualization/visualizationUtils";
+import { DATA_LIMITS } from "@/constants/dataLimits";
+import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+
+function bubbleSortActionHandler(
+  actionType: string,
+  payload: Record<string, unknown>,
+  data: LinearData[],
+  context: ActionContext,
+): ActionResult<LinearData[]> | null {
+  if (actionType === "random") {
+    const count =
+      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
+    const values = Array.from(
+      { length: count },
+      () => Math.floor(Math.random() * 100) - 20
+    );
+    const newData = values.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newData, isResetAction: true };
+  }
+
+  if (actionType === "load") {
+    const values = payload.data as number[];
+    if (!values?.length) return null;
+    const newData = values.map((v) => ({
+      id: context.nextId(),
+      value: v,
+    }));
+    return { animationData: newData, isResetAction: true };
+  }
+
+  if (actionType === "reset") {
+    const defaultData = (context.defaultData as LinearData[]) ?? data;
+    return { animationData: cloneData(defaultData), isResetAction: true };
+  }
+
+  if (actionType === "run") {
+    return { animationData: cloneData(data) };
+  }
+
+  return null;
+}
 
 const generateFrame = (
   list: LinearData[],
@@ -256,6 +301,7 @@ export const bubbleSortConfig: LevelImplementationConfig = {
     { id: "box-4", value: 10 },
   ],
   createAnimationSteps: createBubbleSortAnimationSteps,
+  actionHandler: bubbleSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
   relatedProblems: [
     {

@@ -29,7 +29,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
     const end = parseInt(rangeEnd);
 
     if (isNaN(start) && isNaN(end)) {
-      onRun({});
+      onRun({ type: "prefixSum" });
     } else if (
       !isNaN(start) &&
       !isNaN(end) &&
@@ -37,7 +37,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
       start >= 0 &&
       end >= 0
     ) {
-      onRun({ range: [start, end] });
+      onRun({ type: "prefixSum", range: [start, end] });
     } else {
       toast.warning("請輸入完整的區間 (Start, End)");
     }
