@@ -414,9 +414,9 @@ export const knapsackConfig: LevelImplementationConfig = {
 【結論與擴展】演算法是你的決策助手
 背包問題不只是一個理論，它已經成為驅動現代商業的最佳化引擎。不管是行銷部門在固定預算下決定如何投放廣告，還是製造業在材料限制下安排生產線，0/1 背包演算法都是隱藏在幕後的功臣。掌握它，你就掌握了在資源有限的情況下，做出最優決策的藝術。`,
       video: {
-        url: "https://www.youtube.com/watch?v=3FzCwqHQLK0",
+        url: "https://youtu.be/cxn3YbMN3IU",
         title: "選擇的藝術：從商業痛點到背包演算法",
-        duration: "08:43",
+        duration: "08:42",
       },
       resources: [
         {
