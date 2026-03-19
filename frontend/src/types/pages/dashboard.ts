@@ -36,7 +36,7 @@ export type PathType =
 //路徑元數據
 export interface PathMetadata {
   pathType: PathType;
-  branchLabel?: string; // 分支標籤（'Sorting Path'）
+  branchLabelKey?: string; // 分支標籤 key（對應 dashboard namespace 的 branch_labels.*）
   colorTheme?: string; // 自定義顏色（覆蓋 Category 主題色）
   targetCategory?: CategoryType; // Portal 目標 Category（僅 Portal Node，當 pathType === 'portal'）
 }
@@ -45,9 +45,6 @@ export interface PathMetadata {
 
 export interface Category {
   id: CategoryType;
-  name: string; // '資料結構'
-  nameEn: string; // 'Data Structures'
-  description: string; // 簡介
   icon?: string; // FontAwesome icon name
   colorTheme: string; // 主題色（例：'#635bff', '#ff6b6b'）
   isDeveloped: boolean; // 是否已開發（false 表示尚未開發，按鈕 disabled）
@@ -63,12 +60,8 @@ export interface PrerequisiteConfig {
 
 export interface Level {
   id: string;
-  name: string;
-  nameEn: string;
   category: CategoryType;
   difficulty: DifficultyLevel;
-  description?: string;
-  learningObjectives?: string[];
   isDeveloped: boolean;
   isUnlocked: boolean;
 
@@ -215,7 +208,6 @@ export interface CategoryFilterItem extends Category {
 // ==================== Progress Stats Dialog Component ====================
 // Category 進度資訊
 export interface CategoryProgressInfo {
-  name: string;
   icon?: string;
   colorTheme: string;
   completedLevels: number;

@@ -24,11 +24,8 @@ import {
 export interface HomePageAlgorithmMetadata {
   id: number; // 展示順序 ID
   levelId: string; // 關卡真實 ID
-  name: string; // 中文名稱
-  nameEn: string; // 英文名稱
   category: CategoryType;
   difficulty: number;
-  description: string;
   image: string; // 圖片檔名
   translationKey: string;
   isDeveloped: boolean;
@@ -98,14 +95,11 @@ export function getHomePageLevels(): HomePageAlgorithmMetadata[] {
 
   return getRawLevels()
     .filter((l) => l.homePageMetadata?.showOnHomePage)
-    .map((l, index) => ({
+    .map((l) => ({
       id: calculateDisplayOrder(l, categories),
       levelId: l.id,
-      name: l.name,
-      nameEn: l.nameEn,
       category: l.category,
       difficulty: l.difficulty,
-      description: l.description,
       image: l.homePageMetadata!.image,
       translationKey: l.homePageMetadata!.translationKey,
       isDeveloped: l.isDeveloped,
