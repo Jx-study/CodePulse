@@ -1,5 +1,11 @@
 from database import db
 from datetime import datetime
+import enum
+
+
+class SessionMode(enum.Enum):
+    teaching = 'teaching'
+    practice = 'practice'
 
 
 class LearningSession(db.Model):
@@ -8,7 +14,7 @@ class LearningSession(db.Model):
     session_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
-    mode = db.Column(db.String(20), nullable=False)  # 'teaching' | 'practice'
+    mode = db.Column(db.Enum(SessionMode), nullable=False)
     started_at = db.Column(db.DateTime(timezone=True), nullable=False)
     ended_at = db.Column(db.DateTime(timezone=True), nullable=True)
     duration_seconds = db.Column(db.Integer, nullable=True)
@@ -38,9 +44,6 @@ class PracticeAttempt(db.Model):
     user_rating_before = db.Column(db.Float, nullable=False)
     user_rating_after = db.Column(db.Float, nullable=False)
     rating_delta = db.Column(db.Float, nullable=False)
-
-    analysis_result = db.Column(db.JSON, nullable=True)
-    # structure: {"overallComment": "...", "weaknessTags": [...], "behaviorTags": [...], "suggestions": [...]}
 
     submitted_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
 
