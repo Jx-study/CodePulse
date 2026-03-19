@@ -51,7 +51,7 @@ function PracticeSection({
         <h4>通關條件</h4>
         <ul>
           <li>完成所有測試用例</li>
-          <li>達到正確率 80% 以上</li>
+          <li>達到正確率 60% 以上</li>
           <li>獲得 1-3 星評價</li>
         </ul>
       </div>
