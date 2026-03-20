@@ -134,7 +134,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                         readOnly={true}
                         theme="auto"
                         showLineNumbers={true}
-                        height="400px"
+                        autoHeight={true}
                       />
                     )}
                     {question.options && question.options.length > 0 && (

@@ -38,6 +38,12 @@
   border-radius: 4px;
 }
 
+.codeBlock {
+  border: 1px solid #444;
+  border-radius: 4px;
+  margin-bottom: $spacing-md;
+}
+
 .practicePage {
   min-height: 100vh;
   background: var(--bg-primary);
@@ -157,7 +163,7 @@
   width: 70%;
   background: var(--card-bg);
   border-radius: $radius-lg;
-  padding: $spacing-xl;
+  padding: $spacing-md;
   display: flex;
   flex-direction: column;
   box-shadow: $shadow-md;
@@ -185,7 +191,7 @@
   font-size: $font-base;
   color: var(--text-primary);
   line-height: 1.6;
-  margin-bottom: $spacing-xl;
+  margin-bottom: $spacing-md;
 }
 
 .optionList {
@@ -264,7 +270,7 @@
   justify-content: center;
   min-height: 60vh;
   text-align: center;
-  padding: $spacing-xl;
+  padding: $spacing-md;
 }
 
 .errorTitle {
@@ -277,13 +283,13 @@
 .errorMessage {
   font-size: $font-base;
   color: var(--text-secondary);
-  margin-bottom: $spacing-xl;
+  margin-bottom: $spacing-md;
   max-width: 400px;
   line-height: 1.6;
 }
 
 .errorButton {
-  padding: $spacing-md $spacing-xl;
+  padding: $spacing-md $spacing-md;
   background: $gradient-primary;
   color: white;
   border: none;
