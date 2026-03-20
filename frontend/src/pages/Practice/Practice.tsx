@@ -492,16 +492,18 @@ function Practice() {
             <p className={styles.questionText}>{currentQuestion.title}</p>
 
             {showCodeEditor && currentQuestion.code && (
-              <CodeEditor
-                key={`editor-${currentQuestion.id}`}
-                mode="single"
-                language={currentQuestion.language || "python"}
-                value={currentQuestion.code}
-                readOnly={true}
-                theme="auto"
-                showLineNumbers={true}
-                autoHeight={true}
-              />
+              <div className={styles.codeBlock}>
+                <CodeEditor
+                  key={`editor-${currentQuestion.id}`}
+                  mode="single"
+                  language={currentQuestion.language || "python"}
+                  value={currentQuestion.code}
+                  readOnly={true}
+                  theme="auto"
+                  showLineNumbers={true}
+                  autoHeight={true}
+                />
+              </div>
             )}
 
             {isPredictLineQuestion ? (

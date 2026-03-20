@@ -420,7 +420,10 @@
   min-width: 150px;
 }
 
-// .reviewCodeBlock 已刪除：高度改由 CodeEditor height prop 控制，圓角/邊框由外層容器或 .codeEditor 自帶
+// .reviewCodeBlock 已刪除：高度改由 CodeEditor autoHeight prop 控制，圓角/邊框由外層容器或 .codeEditor 自帶
+.contextSection {
+  margin-bottom: $spacing-md;
+}
 
 @media (max-width: $mobile-max) {
   .scoreSummary {
