@@ -50,6 +50,9 @@ def test_get_user_progress_with_data(client, auth_headers, app):
     from models.tutorial import UserTutorialProgress, TutorialStatus
     with app.app_context():
         t = _make_tutorial(_db.session)
+        # user_id=1 matches the hardcoded user_id=1 created in conftest fixtures.
+        # progress_id=1 is required explicitly because SQLite BigInteger PKs
+        # do not autoincrement without the INTEGER PRIMARY KEY declaration.
         p = UserTutorialProgress(
             progress_id=1,
             user_id=1, tutorial_id=t.tutorial_id,
@@ -69,3 +72,48 @@ def test_get_user_progress_with_data(client, auth_headers, app):
     assert items[0]['teaching_completed'] is True
     assert items[0]['best_score'] == 85
     assert items[0]['status'] == 'teaching_done'
+    assert items[0]['practice_passed'] is False
+    assert items[0]['attempt_count'] == 2
+
+
+def test_create_session(client, auth_headers, app):
+    with app.app_context():
+        _make_tutorial(_db.session)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'post', '/api/tutorials/bubble-sort/session',
+                   json={'mode': 'teaching'})
+    assert resp.status_code == 201
+    data = resp.get_json()
+    assert data['success'] is True
+    assert 'session_id' in data
+
+
+def test_create_session_unknown_slug(client, auth_headers, app):
+    with app.app_context():
+        _make_tutorial(_db.session)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'post', '/api/tutorials/nonexistent/session',
+                   json={'mode': 'teaching'})
+    assert resp.status_code == 404
+
+
+def test_patch_session(client, auth_headers, app):
+    from models.practice import LearningSession, SessionMode
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        sess = LearningSession(
+            user_id=1, tutorial_id=t.tutorial_id,
+            mode=SessionMode.teaching,
+            started_at=datetime.now(timezone.utc),
+        )
+        _db.session.add(sess)
+        _db.session.commit()
+        session_id = sess.session_id
+
+    resp = _authed(client, auth_headers, 'patch',
+                   f'/api/tutorials/bubble-sort/session/{session_id}',
+                   json={'duration_seconds': 90})
+    assert resp.status_code == 200
+    assert resp.get_json()['success'] is True
