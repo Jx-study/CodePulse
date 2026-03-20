@@ -392,6 +392,11 @@
       "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
       "suggestedPrerequisites": ["bubble-sort"],
+      "homePageMetadata": {
+        "image": "binary-search.png",
+        "translationKey": "binary_search",
+        "showOnHomePage": true
+      },
       "implementationKey": "binarySearch"
     },
     {
@@ -670,6 +675,11 @@
       "graphPosition": { "layer": 0, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
       "suggestedPrerequisites": ["queue"],
+      "homePageMetadata": {
+        "image": "bfs.png",
+        "translationKey": "bfs",
+        "showOnHomePage": true
+      },
       "implementationKey": "bfs"
     },
     {
@@ -690,6 +700,11 @@
       "graphPosition": { "layer": 1, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
       "suggestedPrerequisites": ["stack"],
+      "homePageMetadata": {
+        "image": "dfs.png",
+        "translationKey": "dfs",
+        "showOnHomePage": true
+      },
       "implementationKey": "dfs"
     },
     {
@@ -752,6 +767,11 @@
       "graphPosition": { "layer": 3, "branch": "main" },
       "pathMetadata": { "pathType": "main" },
       "suggestedPrerequisites": ["heap"],
+      "homePageMetadata": {
+        "image": "dijkstra.png",
+        "translationKey": "dijkstra",
+        "showOnHomePage": true
+      },
       "implementationKey": "dijkstra"
     },
     {

@@ -80,6 +80,10 @@
       "name": "Linked List",
       "description": "A linear data structure where elements are stored in nodes, each pointing to the next node in the sequence."
     },
+    "array": {
+      "name": "Array",
+      "description": "A contiguous block of memory storing elements of the same type, providing O(1) random access by index."
+    },
     "stack": {
       "name": "Stack",
       "description": "A Last-In-First-Out (LIFO) data structure supporting push and pop operations at one end."
@@ -127,6 +131,34 @@
     "dijkstra": {
       "name": "Dijkstra's Algorithm",
       "description": "An algorithm for finding the shortest paths between nodes in a graph with non-negative edge weights."
+    },
+    "binary_tree": {
+      "name": "Binary Tree",
+      "description": "A hierarchical data structure where each node has at most two children, referred to as the left and right child."
+    },
+    "bst": {
+      "name": "Binary Search Tree",
+      "description": "A binary tree where each node's left subtree contains only smaller values and right subtree only larger values, enabling O(log n) search."
+    },
+    "graph": {
+      "name": "Graph",
+      "description": "A non-linear data structure consisting of vertices connected by edges, used to model networks and relationships."
+    },
+    "prefix_sum": {
+      "name": "Prefix Sum",
+      "description": "A technique that precomputes cumulative sums to answer range sum queries in O(1) time after O(n) preprocessing."
+    },
+    "sliding_window": {
+      "name": "Sliding Window",
+      "description": "A technique that maintains a dynamic window over a sequence to efficiently solve subarray or substring problems in O(n) time."
+    },
+    "knapsack": {
+      "name": "Knapsack Problem",
+      "description": "A classic dynamic programming problem that selects items with given weights and values to maximize total value within a weight limit."
+    },
+    "n_queens": {
+      "name": "N-Queens",
+      "description": "A backtracking problem that places N queens on an N×N chessboard so that no two queens threaten each other."
     },
     "categories": {
       "data-structures": "Data Structures",

@@ -148,6 +148,38 @@ export default {
       "name": "戴克斯特拉演算法",
       "description": "一種用於尋找圖中具有非負邊權重的節點之間最短路徑的演算法。"
     },
+    "array": {
+      "name": "陣列",
+      "description": "一種連續記憶體區塊的資料結構，儲存相同型別的元素，可透過索引以 O(1) 時間隨機存取。"
+    },
+    "binary_tree": {
+      "name": "二元樹",
+      "description": "一種階層式資料結構，每個節點最多有兩個子節點（左子節點和右子節點）。"
+    },
+    "bst": {
+      "name": "二元搜尋樹",
+      "description": "一種二元樹，左子樹節點均小於根節點，右子樹節點均大於根節點，可在 O(log n) 時間內完成搜尋。"
+    },
+    "graph": {
+      "name": "圖",
+      "description": "由頂點（節點）和邊組成的非線性資料結構，用於表示網路關係與連接。"
+    },
+    "prefix_sum": {
+      "name": "前綴和",
+      "description": "預先計算累計加總的技巧，經 O(n) 預處理後可在 O(1) 時間內回答區間求和查詢。"
+    },
+    "sliding_window": {
+      "name": "滑動視窗",
+      "description": "在序列上維護一個動態範圍的技巧，可在 O(n) 時間內高效解決子陣列或子字串問題。"
+    },
+    "knapsack": {
+      "name": "背包問題",
+      "description": "經典動態規劃問題，在重量限制內從給定物品中選取，使總價值最大化。"
+    },
+    "n_queens": {
+      "name": "N 皇后",
+      "description": "回溯法問題，在 N×N 棋盤上放置 N 個皇后，使任意兩個皇后彼此不互相攻擊。"
+    },
     "categories": {
       "data-structures": "資料結構",
       "sorting": "排序",
