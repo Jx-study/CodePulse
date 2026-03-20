@@ -5,6 +5,7 @@ import Icon from "@/shared/components/Icon";
 import Button from "@/shared/components/Button";
 import Switch from "@/shared/components/Switch/Switch";
 import Dialog from "@/shared/components/Dialog/Dialog";
+import Select from "@/shared/components/Select";
 
 function SettingPanel({
   isOpen,
@@ -15,6 +16,7 @@ function SettingPanel({
 }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("profile");
+  const [fontSize, setFontSize] = useState("medium");
 
   const footer = (
     <>
@@ -157,13 +159,16 @@ function SettingPanel({
                 </div>
                 <div className={styles.field}>
                   <label>{t("fontSize")}</label>
-                  <select>
-                    <option value="small">{t("small")}</option>
-                    <option value="medium" selected>
-                      {t("medium")}
-                    </option>
-                    <option value="large">{t("large")}</option>
-                  </select>
+                  <Select
+                    name="fontSize"
+                    value={fontSize}
+                    options={[
+                      { value: "small", label: t("small") },
+                      { value: "medium", label: t("medium") },
+                      { value: "large", label: t("large") },
+                    ]}
+                    onChange={(e) => setFontSize(e.target.value)}
+                  />
                 </div>
               </div>
             )}

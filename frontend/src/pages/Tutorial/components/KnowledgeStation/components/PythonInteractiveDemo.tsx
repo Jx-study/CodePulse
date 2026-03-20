@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
 import type { PythonDemo, PythonInput, GraphOutputData, QueueCardOutputData } from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
@@ -259,7 +260,7 @@ const InputControl: React.FC<InputControlProps> = ({
     return (
       <div className={styles.inputRow}>
         <label className={styles.inputLabel}>{input.label}</label>
-        <select
+        <Select
           value={value as string}
           onChange={(e) => onChange(input.variable, e.target.value)}
           className={styles.select}
@@ -269,7 +270,7 @@ const InputControl: React.FC<InputControlProps> = ({
               {opt}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
     );
   }
