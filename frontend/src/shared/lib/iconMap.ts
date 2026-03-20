@@ -7,6 +7,10 @@
 import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
+  faPersonRunning,
+  faTrophy,
+  faTv,
+  faWaveSquare,
   faArrowRight,
   faArrowsSpin,
   faBars,
@@ -136,6 +140,10 @@ export const iconMap = {
   "minus": faMinus,
   "moon": faMoon,
   "palette": faPalette,
+  "person-running": faPersonRunning,
+  "trophy": faTrophy,
+  "tv": faTv,
+  "wave-square": faWaveSquare,
   "pause": faPause,
   "pencil": faPencil,
   "play": faPlay,

@@ -11,6 +11,7 @@
 import React, { useState } from "react";
 import type { WrongQuestion, Question } from "@/types/practice";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import Button from "@/shared/components/Button";
 import { getOptionLabel } from "@/utils/random";
 import styles from "./ResultModal.module.scss";
 
@@ -97,8 +98,9 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
 
           return (
             <div key={wrongQ.questionId} className={styles.wrongAnswerItem}>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={styles.wrongAnswerHeader}
                 onClick={() => toggleExpand(index)}
                 aria-expanded={isExpanded}
@@ -118,7 +120,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                 <span className={styles.expandIcon}>
                   {isExpanded ? "−" : "+"}
                 </span>
-              </button>
+              </Button>
 
               {isExpanded && (
                 <div className={styles.wrongAnswerDetail}>
@@ -134,7 +136,7 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                         readOnly={true}
                         theme="auto"
                         showLineNumbers={true}
-                        height="400px"
+                        autoHeight={true}
                       />
                     )}
                     {question.options && question.options.length > 0 && (

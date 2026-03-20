@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { RealWorldStory } from '@/types';
 import Icon from '@/shared/components/Icon';
+import Button from '@/shared/components/Button';
 import StoryVideoPlayer from './StoryVideoPlayer';
 import StoryResources from './StoryResources';
 import PythonInteractiveDemo from './PythonInteractiveDemo';
 import StackGameRenderer from './StackGameRenderer';
+import KnapsackGameRenderer from './KnapsackGameRenderer/KnapsackGameRenderer';
 import styles from './StoryAccordionItem.module.scss';
 
 interface Props {
@@ -18,12 +20,15 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
   const [isContentOpen, setIsContentOpen] = useState(false);
 
   const hasVideo = !!story.video;
-  const hasGame = story.interactiveGame?.type === 'stack-popup-game';
+  const hasStackGame = story.interactiveGame?.type === 'stack-popup-game';
+  const hasKnapsackGame = story.interactiveGame?.type === 'knapsack-investment-game';
 
   return (
     <div className={styles.accordionItem}>
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        fullWidth
         className={styles.header}
         onClick={() => setIsOpen((v) => !v)}
         aria-expanded={isOpen}
@@ -44,41 +49,47 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
           className={classNames(styles.chevron, { [styles.open]: isOpen })}
           ariaLabel={isOpen ? '收合' : '展開'}
         />
-      </button>
+      </Button>
 
       {isOpen && (
         <div className={styles.body}>
           {hasVideo ? (
             <>
               <StoryVideoPlayer video={story.video} />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={styles.contentToggle}
                 onClick={() => setIsContentOpen((v) => !v)}
               >
-                {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
-              </button>
+                <Icon name={isContentOpen ? 'chevron-up' : 'chevron-down'} />
+                {isContentOpen ? '收起故事詳情' : '閱讀故事詳情'}
+              </Button>
               {isContentOpen && (
                 <p className={styles.content}>{story.content}</p>
               )}
               {story.pythonDemo && (
                 <PythonInteractiveDemo demo={story.pythonDemo} />
               )}
-              {hasGame && <StackGameRenderer />}
+              {hasStackGame && <StackGameRenderer />}
+              {hasKnapsackGame && <KnapsackGameRenderer />}
             </>
           ) : (
             <>
               {story.pythonDemo && (
                 <PythonInteractiveDemo demo={story.pythonDemo} />
               )}
-              {hasGame && <StackGameRenderer />}
-              <button
+              {hasStackGame && <StackGameRenderer />}
+              {hasKnapsackGame && <KnapsackGameRenderer />}
+              <Button
                 type="button"
+                variant="ghost"
                 className={styles.contentToggle}
                 onClick={() => setIsContentOpen((v) => !v)}
               >
-                {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
-              </button>
+                <Icon name={isContentOpen ? 'chevron-up' : 'chevron-down'} />
+                {isContentOpen ? '收起故事詳情' : '閱讀故事詳情'}
+              </Button>
               {isContentOpen && (
                 <p className={styles.content}>{story.content}</p>
               )}

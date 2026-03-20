@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import classNames from "classnames";
+import Icon  from '@/shared/components/Icon';
 import type {
   GameState,
   PopupInstance,
@@ -16,6 +17,7 @@ import {
 } from "./gameConfig";
 import PopupWindow from "./PopupWindow";
 import StackVisualizer from "./StackVisualizer";
+import Button from "@/shared/components/Button";
 import styles from "./StackGameRenderer.module.scss";
 
 function computeSpiralPositions(
@@ -113,6 +115,7 @@ function createPopupInstance(
     id: popupId,
     type: def.type,
     title: def.title,
+    iconName: def.iconName,
     position: { x, y },
     size: def.size,
     isCloseable,
@@ -247,7 +250,8 @@ const StackGameRenderer: React.FC = () => {
       const title = blocked?.title ?? "未知彈窗";
       const def = {
         type: "warning" as const,
-        title: `⚠️ 請先關閉「${title}」`,
+        title: `請先關閉「${title}」`,
+        iconName: "exclamation-circle" as const,
         size: { w: 320, h: 120 },
       };
       const instance = createPopupInstance(def, {
@@ -518,7 +522,7 @@ const StackGameRenderer: React.FC = () => {
         onMouseDown={handleCanvasMouseDown}
       >
         <div className={styles.timerBar}>
-          <span className={styles.timerLabel}>⏱️ {gameState.timeLeft}s</span>
+          <span className={styles.timerLabel}><Icon name="stopwatch" /> {gameState.timeLeft}s</span>
           <div
             className={styles.timerFill}
             style={{
@@ -529,20 +533,21 @@ const StackGameRenderer: React.FC = () => {
 
         {gameState.status === "idle" && (
           <div className={styles.startOverlay}>
-            <h3 className={styles.startTitle}>📚 PopupStack 彈窗大戰</h3>
+            <h3 className={styles.startTitle}>PopupStack 彈窗大戰</h3>
             <p className={styles.startDesc}>
               教授發動彈窗攻擊！
               <br />
               記住：<strong>最後出現的彈窗必須最先關閉</strong>（LIFO）
               <br />在 120 秒內關閉所有彈窗！
             </p>
-            <button
+            <Button
               type="button"
+              variant="primary"
               className={styles.startBtn}
               onClick={handleStartGame}
             >
-              ▶ 開始遊戲
-            </button>
+              <Icon name="play" /> 開始遊戲
+            </Button>
           </div>
         )}
 
@@ -578,7 +583,11 @@ const StackGameRenderer: React.FC = () => {
             })}
           >
             <h3>
-              {gameState.status === "won" ? "🎉 恭喜過關！" : "⏰ 時間到！"}
+              {gameState.status === "won" ? (
+                <><Icon name="trophy" /> 恭喜過關！</>
+              ) : (
+                <><Icon name="stopwatch" /> 時間到！</>
+              )}
             </h3>
             <p>
               {gameState.status === "won" &&

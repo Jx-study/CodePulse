@@ -10,6 +10,7 @@ import {
   createBoxes as baseCreateBoxes,
 } from "../utils";
 import { QueueActionBar } from "./QueueActionBar";
+import { queueRealWorldStories } from "./queue.stories";
 import type {
   ActionContext,
   ActionResult,
@@ -603,6 +604,7 @@ export const QueueConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createQueueAnimationSteps,
   actionHandler: queueActionHandler,
+  realWorldStories: queueRealWorldStories,
   renderActionBar: (props) => <QueueActionBar {...(props as any)} />,
   relatedProblems: [
     {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
+import Icon from '@/shared/components/Icon';
+import type { IconName } from '@/shared/lib/iconMap';
 import type { PopupInstance } from "@/types/games/stackGameTypes";
 import styles from "./StackVisualizer.module.scss";
 
@@ -17,10 +19,12 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
   const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
   const prevStackRef = useRef<string[]>(stack);
   const titleCacheRef = useRef<Map<string, string>>(new Map());
+  const iconCacheRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     popups.forEach((popup, id) => {
       titleCacheRef.current.set(id, popup.title);
+      iconCacheRef.current.set(id, popup.iconName);
     });
   }, [popups]);
 
@@ -31,9 +35,8 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
     const popped = prev.filter((id) => !stack.includes(id));
     if (popped.length === 0) {
       setVisibleIds((current) => {
-        const hasExiting = current.some((id) => !stack.includes(id));
-        if (hasExiting) return current;
-        return [...stack].reverse();
+        const stillExiting = current.filter((id) => !stack.includes(id));
+        return [...stillExiting, ...[...stack].reverse()];
       });
       return;
     }
@@ -56,9 +59,9 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
 
   return (
     <div className={styles.visualizer}>
-      <div className={styles.header}>Stack 堆疊</div>
+      <div className={styles.header}><span className={styles.rainbowIcon}><Icon name="layer-group" /></span> Stack 堆疊</div>
       <div className={styles.uContainer}>
-        <div className={styles.topLabel}>← TOP</div>
+        <div className={styles.topLabel}><span className={styles.rainbowIcon}><Icon name="arrow-left" /></span> TOP</div>
         <div className={styles.stackScrollArea}>
           {visibleIds.map((id, idx) => (
             <div
@@ -70,6 +73,14 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
             >
               <span className={styles.stackIndex}>{totalCount - idx}</span>
               <span className={styles.stackTitle}>
+                {(() => {
+                  const iconName = iconCacheRef.current.get(id);
+                  return iconName ? (
+                    <span className={styles.rainbowIcon}>
+                      <Icon name={iconName as IconName} />
+                    </span>
+                  ) : null;
+                })()}
                 {titleCacheRef.current.get(id) ?? id}
               </span>
             </div>

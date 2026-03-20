@@ -1,3 +1,5 @@
+import type { IconName } from '@/shared/lib/iconMap';
+
 export type GameStatus = 'idle' | 'intro' | 'playing' | 'congrats' | 'won' | 'failed';
 
 export type PopupType =
@@ -32,6 +34,7 @@ export interface PopupInstance {
   id: string;
   type: PopupType;
   title: string;
+  iconName: IconName;
   position: PopupPosition;
   size: PopupSize;
   isCloseable: boolean;

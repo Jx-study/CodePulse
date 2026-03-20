@@ -98,6 +98,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
       const r = parseInt(gridRows) || 3;
       const c = parseInt(gridCols) || 5;
       onRun({
+        type: "bfsDfs",
         mode: "grid",
         rows: r,
         cols: c,
@@ -136,7 +137,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         }
       }
 
-      onRun({ mode: "graph", startNode: startId, endNode: endId });
+      onRun({ type: "bfsDfs", mode: "graph", startNode: startId, endNode: endId });
     }
   };
 

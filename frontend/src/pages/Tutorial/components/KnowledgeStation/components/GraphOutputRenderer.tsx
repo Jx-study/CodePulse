@@ -23,6 +23,7 @@ import type {
   GraphSimEdge,
 } from "@/types/implementation";
 import styles from "./GraphOutputRenderer.module.scss";
+import Button from "@/shared/components/Button";
 
 const SVG_WIDTH = 580;
 const SVG_HEIGHT = 420;
@@ -747,7 +748,8 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
           </span>
           <span>{formatTime(elapsed)}</span>
         </div>
-        <button
+        <Button
+          variant="ghost"
           className={styles.newGameBtn}
           onClick={handleNewGame}
           disabled={gameState.status === "playing"}
@@ -758,7 +760,7 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
           }
         >
           重置遊戲
-        </button>
+        </Button>
       </div>
 
       <div className={styles.svgContainer}>
@@ -768,13 +770,14 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           preserveAspectRatio="xMidYMid meet"
         />
-        <button
+        <Button
+          variant="ghost"
           className={styles.resetViewBtn}
           onClick={handleResetZoom}
           title="重置視圖 (滾輪縮放 / 拖曳平移)"
         >
           重置視圖
-        </button>
+        </Button>
         {tooltip && (
           <div
             className={styles.tooltip}

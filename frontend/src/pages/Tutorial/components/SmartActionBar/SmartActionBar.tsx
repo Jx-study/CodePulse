@@ -1,5 +1,5 @@
 import React from "react";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { LevelImplementationConfig, RunParams } from "@/types/implementation";
 
 interface SmartActionBarProps {
   // 關卡配置
@@ -12,12 +12,7 @@ interface SmartActionBarProps {
   disabled?: boolean;
 
   // 演算法特定
-  onRun?: (params?: {
-    searchValue?: number;
-    range?: [number, number];
-    mode?: string;
-    targetSum?: number;
-  }) => void;
+  onRun?: (params?: RunParams) => void;
   viewMode?: string;
   onViewModeChange?: (mode: string) => void;
   currentData?: any;

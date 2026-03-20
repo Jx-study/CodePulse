@@ -1,5 +1,3 @@
-@use "@/shared/styles/variables" as *;
-
 .container {
   border: 1px solid var(--border-color);
   border-radius: $radius-lg;
@@ -56,6 +54,7 @@
     color: $primary-color;
     font-weight: 600;
   }
+
   &:hover:not(.active) {
     background: rgba($primary-color, 0.06);
   }
@@ -75,7 +74,10 @@
   color: var(--text-secondary);
   transition: border-color 0.15s, color 0.15s;
 
-  &:hover { color: $primary-color; border-color: $primary-color; }
+  &:hover {
+    color: $primary-color;
+    border-color: $primary-color;
+  }
 }
 
 // ── Demo 區 ──
@@ -146,8 +148,14 @@
   font-weight: 600;
   transition: opacity 0.15s;
 
-  &:hover:not(:disabled) { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .console {
@@ -163,8 +171,13 @@
   white-space: pre-wrap;
   margin: 0;
 
-  &.error { color: #f38ba8; }
-  &.empty { color: #585b70; }
+  &.error {
+    color: #f38ba8;
+  }
+
+  &.empty {
+    color: #585b70;
+  }
 }
 
 // ── Code 區 ──
