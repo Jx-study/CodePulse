@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import classNames from "classnames";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { iconMap } from "@/shared/lib/iconMap";
 import type {
   PopupInstance,
   PopupTypeState,
@@ -169,27 +171,9 @@ function useBossSpawn(
       minionsRemaining: 3,
     });
     [
-      {
-        def: {
-          type: "minion" as const,
-          title: "🔧 小弟 #1",
-          size: MINION_POPUP_SIZE,
-        },
-      },
-      {
-        def: {
-          type: "minion" as const,
-          title: "🔧 小弟 #2",
-          size: MINION_POPUP_SIZE,
-        },
-      },
-      {
-        def: {
-          type: "minion" as const,
-          title: "🔧 小弟 #3",
-          size: MINION_POPUP_SIZE,
-        },
-      },
+      { def: { type: "minion" as const, title: "小弟 #1", iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE } },
+      { def: { type: "minion" as const, title: "小弟 #2", iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE } },
+      { def: { type: "minion" as const, title: "小弟 #3", iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE } },
     ].forEach((item, i) => {
       setTimeout(() => onSpawnChild(popup.id, [item]), i * 150);
     });
@@ -220,7 +204,8 @@ function useSineWaveSpawn(
     Array.from({ length: 6 }, (_, i) => ({
       def: {
         type: "sine-child" as const,
-        title: `〰️ 子彈窗 ${i + 1}`,
+        title: `子彈窗 ${i + 1}`,
+        iconName: "wave-square" as const,
         size: SINE_CHILD_POPUP_SIZE,
       },
       position: {
@@ -261,22 +246,23 @@ function useSpeedTestWatch(
     const avg =
       history.length > 0
         ? history.reduce((a, b) => a + b, 0) / history.length
-        : 750;
+        : 10;
 
     const timer = setTimeout(() => {
       timerSetRef.current = false;
       Array.from({ length: 5 }, () => ({
         def: {
           type: "speed-test-child" as const,
-          title: "⏱️ 額外彈窗",
+          title: "額外彈窗",
+          iconName: "stopwatch" as const,
           size: NORMAL_POPUP_SIZE,
         },
       })).forEach((item, i) => {
         setTimeout(() => {
           onSpawnChildRef.current(popupId, [item]);
-        }, i * 200);
+        }, i * 80);
       });
-    }, avg);
+    }, Math.max(avg, 80));
 
     return () => clearTimeout(timer);
   }, [active, isLocked, popupId]);
@@ -386,11 +372,7 @@ function PopupContent({
             className={styles.primaryBtn}
             onClick={() => {
               if (quizAnswer === "B. 先進後出（LIFO）") {
-                onUpdateTypeState(popup.id, {
-                  kind: "quiz",
-                  selectedAnswer: quizAnswer,
-                  isCorrect: true,
-                });
+                onClose(popup.id);
               } else if (quizAnswer) {
                 onUpdateTypeState(popup.id, {
                   kind: "quiz",
@@ -425,7 +407,7 @@ function PopupContent({
     case "congrats":
       return (
         <div className={styles.contentCongrats}>
-          <p>🎉 恭喜！所有彈窗已關閉！</p>
+          <p>恭喜！所有彈窗已關閉！</p>
           <p>請點擊 X 完成挑戰</p>
         </div>
       );
@@ -536,12 +518,11 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
         ? { x: popup.typeState.targetX, y: popup.typeState.targetY }
         : popup.position;
 
-  const showCloseBtn = popup.type !== "hidden-close" && popup.type !== "rules";
-  const quizUnlock =
-    popup.type === "quiz" &&
-    popup.typeState.kind === "quiz" &&
-    popup.typeState.isCorrect;
-  const canClose = popup.isCloseable || quizUnlock;
+  const showCloseBtn =
+    popup.type !== "hidden-close" &&
+    popup.type !== "rules" &&
+    popup.type !== "quiz";
+  const canClose = popup.isCloseable;
 
   return (
     <div
@@ -555,7 +536,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
         left: position.x,
         top: position.y,
         width: popup.size.w,
-        height: popup.size.h,
+        height:  "auto",
         zIndex,
         transition:
           popup.type === "random-walk"
@@ -564,7 +545,12 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
       }}
     >
       <div className={styles.titleBar}>
-        <span className={styles.windowTitle}>{popup.title}</span>
+        <span className={styles.windowTitle}>
+          {popup.iconName in iconMap && (
+            <FontAwesomeIcon icon={iconMap[popup.iconName as keyof typeof iconMap]} />
+          )} 
+          {popup.title}
+        </span>
         {showCloseBtn && (
           <button
             type="button"
@@ -572,7 +558,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
             onClick={handleCloseClick}
             disabled={!canClose}
           >
-            ✕
+            <FontAwesomeIcon icon={iconMap["times"]} />
           </button>
         )}
       </div>

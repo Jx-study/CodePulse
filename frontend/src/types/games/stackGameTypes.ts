@@ -32,6 +32,7 @@ export interface PopupInstance {
   id: string;
   type: PopupType;
   title: string;
+  iconName: string;
   position: PopupPosition;
   size: PopupSize;
   isCloseable: boolean;

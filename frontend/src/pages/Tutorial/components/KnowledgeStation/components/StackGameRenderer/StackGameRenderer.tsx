@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import classNames from "classnames";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { iconMap } from "@/shared/lib/iconMap";
 import type {
   GameState,
   PopupInstance,
@@ -113,6 +115,7 @@ function createPopupInstance(
     id: popupId,
     type: def.type,
     title: def.title,
+    iconName: def.iconName,
     position: { x, y },
     size: def.size,
     isCloseable,
@@ -247,7 +250,8 @@ const StackGameRenderer: React.FC = () => {
       const title = blocked?.title ?? "未知彈窗";
       const def = {
         type: "warning" as const,
-        title: `⚠️ 請先關閉「${title}」`,
+        title: `請先關閉「${title}」`,
+        iconName: "exclamation-circle" as const,
         size: { w: 320, h: 120 },
       };
       const instance = createPopupInstance(def, {
@@ -518,7 +522,7 @@ const StackGameRenderer: React.FC = () => {
         onMouseDown={handleCanvasMouseDown}
       >
         <div className={styles.timerBar}>
-          <span className={styles.timerLabel}>⏱️ {gameState.timeLeft}s</span>
+          <span className={styles.timerLabel}><FontAwesomeIcon icon={iconMap["stopwatch"]} /> {gameState.timeLeft}s</span>
           <div
             className={styles.timerFill}
             style={{
@@ -529,7 +533,7 @@ const StackGameRenderer: React.FC = () => {
 
         {gameState.status === "idle" && (
           <div className={styles.startOverlay}>
-            <h3 className={styles.startTitle}>📚 PopupStack 彈窗大戰</h3>
+            <h3 className={styles.startTitle}>PopupStack 彈窗大戰</h3>
             <p className={styles.startDesc}>
               教授發動彈窗攻擊！
               <br />
@@ -541,7 +545,7 @@ const StackGameRenderer: React.FC = () => {
               className={styles.startBtn}
               onClick={handleStartGame}
             >
-              ▶ 開始遊戲
+              <FontAwesomeIcon icon={iconMap["play"]} /> 開始遊戲
             </button>
           </div>
         )}
@@ -578,7 +582,11 @@ const StackGameRenderer: React.FC = () => {
             })}
           >
             <h3>
-              {gameState.status === "won" ? "🎉 恭喜過關！" : "⏰ 時間到！"}
+              {gameState.status === "won" ? (
+                <><FontAwesomeIcon icon={iconMap["trophy"]} /> 恭喜過關！</>
+              ) : (
+                <><FontAwesomeIcon icon={iconMap["stopwatch"]} /> 時間到！</>
+              )}
             </h3>
             <p>
               {gameState.status === "won" &&

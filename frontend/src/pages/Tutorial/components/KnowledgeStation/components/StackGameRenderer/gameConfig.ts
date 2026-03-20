@@ -1,8 +1,10 @@
 import type { PopupType, PopupSize } from "@/types/games/stackGameTypes";
+import type { IconName } from "@/shared/lib/iconMap";
 
 export interface PopupDefinition {
   type: PopupType;
   title: string;
+  iconName: IconName;
   size: PopupSize;
 }
 
@@ -13,26 +15,28 @@ export interface SpawnChildItem {
 
 // Push 順序：index 0 = 最先推入（在 stack 底部，最後關閉）
 export const POPUP_SEQUENCE: PopupDefinition[] = [
-  { type: "speed-test", title: "⏱️ 手速測驗", size: { w: 300, h: 200 } },
-  { type: "random-walk", title: "🏃 抓不到我！", size: { w: 280, h: 180 } },
-  { type: "quiz", title: "📚 資料結構小測驗", size: { w: 340, h: 240 } },
-  { type: "boss", title: "👾 大魔王彈窗", size: { w: 320, h: 220 } },
-  { type: "sine-wave", title: "〰️ 正弦波攻擊！", size: { w: 260, h: 160 } },
-  { type: "corner-teleport", title: "🔀 角落鬼影", size: { w: 280, h: 180 } },
-  { type: "tv-bouncing", title: "📺 老舊電視", size: { w: 300, h: 200 } },
-  { type: "bouncing-h", title: "⬅️ 彈彈彈！", size: { w: 280, h: 160 } },
-  { type: "hidden-close", title: "🔍 找找關閉按鈕", size: { w: 300, h: 220 } },
+  { type: "speed-test",     title: "手速測驗",     iconName: "stopwatch",         size: { w: 300, h: 200 } },
+  { type: "random-walk",    title: "抓不到我！",   iconName: "person-running",    size: { w: 280, h: 180 } },
+  { type: "quiz",           title: "資料結構小測驗", iconName: "book-open",        size: { w: 340, h: 240 } },
+  { type: "boss",           title: "大魔王彈窗",   iconName: "ghost",             size: { w: 320, h: 220 } },
+  { type: "sine-wave",      title: "正弦波攻擊！", iconName: "wave-square",       size: { w: 260, h: 160 } },
+  { type: "corner-teleport",title: "角落鬼影",     iconName: "shuffle",           size: { w: 280, h: 180 } },
+  { type: "tv-bouncing",    title: "老舊電視",     iconName: "tv",                size: { w: 300, h: 200 } },
+  { type: "bouncing-h",     title: "彈彈彈！",     iconName: "right-left",        size: { w: 280, h: 160 } },
+  { type: "hidden-close",   title: "找找關閉按鈕", iconName: "magnifying-glass",  size: { w: 300, h: 220 } },
 ];
 
 export const RULES_POPUP: PopupDefinition = {
   type: "rules",
-  title: "📋 遊戲規則",
+  title: "遊戲規則",
+  iconName: "file-lines",
   size: { w: 380, h: 300 },
 };
 
 export const CONGRATS_POPUP: PopupDefinition = {
   type: "congrats",
-  title: "🎉 恭喜過關！",
+  title: "恭喜過關！",
+  iconName: "trophy",
   size: { w: 340, h: 240 },
 };
 

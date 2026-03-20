@@ -101,6 +101,9 @@
 }
 
 .stackTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
   overflow: hidden;
   text-overflow: ellipsis;
 }
