@@ -14,6 +14,7 @@ export interface Option {
 
 export interface Question {
   id: string;
+  backendId?: number; // 從後端載入時帶入，submit 時使用
   type:
     | "single-choice"
     | "multiple-choice"

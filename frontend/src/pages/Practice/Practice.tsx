@@ -7,6 +7,8 @@ import type {
 } from "@/types/practice";
 import { getQuizByLevelId } from "@/data/questions";
 import { PracticeService } from "@/services/PracticeService";
+import { tutorialService } from "@/services/tutorialService";
+import type { ApiQuestion } from "@/services/tutorialService";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
@@ -18,6 +20,24 @@ import Input from "@/shared/components/Input";
 const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
 const currentUserRating = 1500; // 模擬傳入的分數
 
+function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
+  return apiQuestions.map((q) => ({
+    id: String(q.question_id),
+    backendId: q.question_id,
+    type: q.question_type,
+    category: q.category,
+    difficulty: 1 as const,
+    title: q.stem,
+    options: q.options ?? undefined,
+    code: q.code ?? undefined,
+    language: q.language ?? undefined,
+    points: q.points,
+    groupId: q.group_id ? String(q.group_id) : undefined,
+    correctAnswer: '',
+    explanation: '',
+  }));
+}
+
 function Practice() {
   const { category, levelId } = useParams<{
     category: string;
@@ -28,6 +48,22 @@ function Practice() {
   const originalQuiz = useMemo(() => {
     if (!levelId) return null;
     return getQuizByLevelId(levelId);
+  }, [levelId]);
+
+  // 從後端載入題目
+  const [apiQuestions, setApiQuestions] = useState<Question[] | null>(null);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!levelId) return;
+    setIsLoadingQuestions(true);
+    tutorialService.getQuestions(levelId)
+      .then((apiQs) => {
+        setApiQuestions(mapApiQuestionsToLocal(apiQs));
+      })
+      .catch(() => setLoadError('無法載入題目，請重新整理'))
+      .finally(() => setIsLoadingQuestions(false));
   }, [levelId]);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -77,7 +113,10 @@ function Practice() {
   };
 
   useEffect(() => {
-    if (!originalQuiz) return;
+    if (!originalQuiz && !apiQuestions) return;
+
+    const sourceQuestions = apiQuestions ?? originalQuiz?.questions ?? [];
+    if (sourceQuestions.length === 0) return;
 
     const QUESTION_LIMIT = 10;
 
@@ -92,13 +131,13 @@ function Practice() {
     const units: QuestionUnit[] = [];
     const processedGroups = new Set<string>();
 
-    originalQuiz.questions.forEach((q) => {
+    sourceQuestions.forEach((q) => {
       // 如果是題組的一部分
       if (q.groupId) {
         if (processedGroups.has(q.groupId)) return; // 已處理過，跳過
 
         // 找出該題組所有題目
-        const groupQuestions = originalQuiz.questions.filter(
+        const groupQuestions = sourceQuestions.filter(
           (g) => g.groupId === q.groupId,
         );
 
@@ -199,7 +238,7 @@ function Practice() {
     setShowResult(false);
     setResult(null);
     setTimeRecords({});
-  }, [originalQuiz, retryCount]);
+  }, [originalQuiz, apiQuestions, retryCount]);
 
   const handleSelectQuestion = (index: number) => {
     updateTimeRecord();
@@ -300,9 +339,13 @@ function Practice() {
     navigate("/dashboard");
   };
 
+  if (isLoadingQuestions) return <div className={styles.loading}>載入題目中...</div>;
+  if (loadError) return <div className={styles.error}>{loadError}</div>;
+  if (!apiQuestions && !originalQuiz) return <div className={styles.error}>此關卡尚無題目</div>;
+
   if (randomizedQuestions.length === 0) return <div>Loading...</div>;
 
-  if (!originalQuiz) {
+  if (!originalQuiz && (!apiQuestions || apiQuestions.length === 0)) {
     return (
       <div className={styles.practicePage}>
         <div className={styles.errorContainer}>
@@ -339,7 +382,7 @@ function Practice() {
         category === "data-structures" ? "資料結構" : category || "未知分類",
       path: `/dashboard?category=${category}`,
     },
-    { label: originalQuiz.levelName, path: null },
+    { label: originalQuiz?.levelName ?? levelId ?? '', path: null },
   ];
 
   return (
@@ -427,7 +470,7 @@ function Practice() {
           <div className={styles.sidebarSection}>
             <h3 className={styles.sidebarTitle}>通關條件</h3>
             <ul className={styles.requirementList}>
-              <li>正確率 {originalQuiz.passingScore}% 以上</li>
+              <li>正確率 {originalQuiz?.passingScore ?? 60}% 以上</li>
               <li>完成所有題目</li>
             </ul>
           </div>
