@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import classNames from 'classnames';
+import Icon from '@/shared/components/Icon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart as faHeartSolid, faCat, faDog, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartSolid, faCat, faDog } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import type {
   CardItem,
@@ -298,7 +299,7 @@ export default function QueueGameRenderer({ data }: Props) {
             exit={{ opacity: 0 }}
           >
             <div className={styles.resultCard}>
-              <h3><FontAwesomeIcon icon={faTrophy} /> Queue Cleared!</h3>
+              <h3><Icon name="trophy" /> Queue Cleared!</h3>
               <p>Score: {gameState.score}</p>
               <Button
                 type="button"
