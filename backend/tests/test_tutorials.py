@@ -117,3 +117,191 @@ def test_patch_session(client, auth_headers, app):
                    json={'duration_seconds': 90})
     assert resp.status_code == 200
     assert resp.get_json()['success'] is True
+
+
+def test_teaching_complete_awards_xp(client, auth_headers, app):
+    from models.tutorial import UserTutorialProgress
+    from models.xp import XpEvent
+    with app.app_context():
+        _make_tutorial(_db.session)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'patch',
+                   '/api/tutorials/bubble-sort/teaching-complete')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['success'] is True
+    assert data['xp_earned'] == 10  # xp_teaching = 10（由 fixture 設定）
+
+    with app.app_context():
+        utp = UserTutorialProgress.query.filter_by(user_id=1).first()
+        assert utp.teaching_completed is True
+        events = XpEvent.query.filter_by(user_id=1).all()
+        assert len(events) == 1
+        assert events[0].xp_amount == 10
+
+
+def test_teaching_complete_idempotent(client, auth_headers, app):
+    from models.xp import XpEvent
+    with app.app_context():
+        _make_tutorial(_db.session)
+        _db.session.commit()
+
+    _authed(client, auth_headers, 'patch', '/api/tutorials/bubble-sort/teaching-complete')
+    resp2 = _authed(client, auth_headers, 'patch', '/api/tutorials/bubble-sort/teaching-complete')
+    assert resp2.status_code == 200
+    assert resp2.get_json()['xp_earned'] == 0  # 不重複發放
+
+    with app.app_context():
+        events = XpEvent.query.filter_by(user_id=1).all()
+        assert len(events) == 1  # 仍然只有一筆 XP 事件
+
+
+def _make_question(db_session, tutorial_id, q_id=1, group_id=None):
+    from models.question import Question, QuestionType, QuestionCategory, QuestionTranslation
+    q = Question(
+        question_type=QuestionType.single_choice,
+        tutorial_id=tutorial_id,
+        group_id=group_id,
+        category=QuestionCategory.basic,
+        correct_answer='A',
+        points=1,
+        display_order=0,
+        is_active=True,
+    )
+    db_session.add(q)
+    db_session.flush()
+    qt = QuestionTranslation(
+        question_id=q.question_id,
+        language_code='en',
+        stem='What is bubble sort?',
+        options=[{'key': 'A', 'text': 'A sort'}, {'key': 'B', 'text': 'Not a sort'}],
+        explanation='Bubble sort is a sorting algorithm.',
+    )
+    db_session.add(qt)
+    return q
+
+
+def test_get_questions_excludes_answer(client, auth_headers, app):
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question(_db.session, t.tutorial_id)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'get',
+                   '/api/tutorials/bubble-sort/questions?lang=en')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['success'] is True
+    questions = data['questions']
+    assert len(questions) == 1
+    q = questions[0]
+    assert 'correct_answer' not in q
+    assert 'explanation' not in q
+    assert q['stem'] == 'What is bubble sort?'
+    assert q['question_type'] == 'single-choice'
+
+
+def test_get_questions_with_group(client, auth_headers, app):
+    from models.question import QuestionGroup, QuestionGroupTranslation
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        grp = QuestionGroup(tutorial_id=t.tutorial_id, code='x = 1', language='python')
+        _db.session.add(grp)
+        _db.session.flush()
+        grp_t = QuestionGroupTranslation(
+            group_id=grp.group_id, language_code='en',
+            title='Group 1', description='A group',
+        )
+        _db.session.add(grp_t)
+        _make_question(_db.session, t.tutorial_id, group_id=grp.group_id)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'get',
+                   '/api/tutorials/bubble-sort/questions?lang=en')
+    q = resp.get_json()['questions'][0]
+    assert q['group'] is not None
+    assert q['group']['title'] == 'Group 1'
+    assert q['group']['code'] == 'x = 1'
+
+
+def test_submit_practice_pass(client, auth_headers, app):
+    """得分 >= 60 → practice_passed，發放 XP。"""
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question(_db.session, t.tutorial_id)
+        _db.session.commit()
+
+    payload = [{'question_id': 1, 'user_answer': 'A', 'time_spent_seconds': 10}]
+    resp = _authed(client, auth_headers, 'post',
+                   '/api/tutorials/bubble-sort/submit', json=payload)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['success'] is True
+    assert data['score'] == 100
+    assert data['correct_count'] == 1
+    assert data['xp_earned'] > 0
+    assert len(data['answers']) == 1
+    assert data['answers'][0]['is_correct'] is True
+    assert 'explanation' in data['answers'][0]
+
+
+def test_submit_practice_fail(client, auth_headers, app):
+    """得分 < 60 → practice_passed 維持 False，無 practice_pass XP。"""
+    from models.xp import XpEvent, XpSourceType
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question(_db.session, t.tutorial_id)
+        _db.session.commit()
+
+    payload = [{'question_id': 1, 'user_answer': 'B', 'time_spent_seconds': 5}]
+    resp = _authed(client, auth_headers, 'post',
+                   '/api/tutorials/bubble-sort/submit', json=payload)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['score'] == 0
+    assert data['xp_earned'] == 0
+
+    with app.app_context():
+        events = XpEvent.query.filter_by(
+            user_id=1, source_type=XpSourceType.practice_pass
+        ).all()
+        assert len(events) == 0
+
+
+def test_submit_practice_xp_idempotent(client, auth_headers, app):
+    """第二次通過不再重複發放 practice_pass XP。"""
+    from models.xp import XpEvent, XpSourceType
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question(_db.session, t.tutorial_id)
+        _db.session.commit()
+
+    payload = [{'question_id': 1, 'user_answer': 'A', 'time_spent_seconds': 10}]
+    _authed(client, auth_headers, 'post', '/api/tutorials/bubble-sort/submit', json=payload)
+    _authed(client, auth_headers, 'post', '/api/tutorials/bubble-sort/submit', json=payload)
+
+    with app.app_context():
+        events = XpEvent.query.filter_by(
+            user_id=1, source_type=XpSourceType.practice_pass
+        ).all()
+        assert len(events) == 1
+
+
+def test_submit_practice_perfect_xp_idempotent(client, auth_headers, app):
+    """第二次滿分不再重複發放 practice_perfect XP。"""
+    from models.xp import XpEvent, XpSourceType
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question(_db.session, t.tutorial_id)
+        _db.session.commit()
+
+    payload = [{'question_id': 1, 'user_answer': 'A', 'time_spent_seconds': 10}]
+    _authed(client, auth_headers, 'post', '/api/tutorials/bubble-sort/submit', json=payload)
+    _authed(client, auth_headers, 'post', '/api/tutorials/bubble-sort/submit', json=payload)
+
+    with app.app_context():
+        events = XpEvent.query.filter_by(
+            user_id=1, source_type=XpSourceType.practice_perfect
+        ).all()
+        assert len(events) == 1
