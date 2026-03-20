@@ -1,13 +1,20 @@
 import React from "react";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
-import { createTreeNodes, updateLinkStatus, buildLinksFromNodes } from "./utils";
+import {
+  createTreeNodes,
+  updateLinkStatus,
+  buildLinksFromNodes,
+} from "../utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { BinaryTreeActionBar } from "./BinaryTreeActionBar";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 interface LogicTreeNode {
@@ -1232,7 +1239,10 @@ function binaryTreeActionHandler(
   if (actionType === "add") {
     const newId = context.nextId();
     newData.push({ id: newId, value: value! });
-    return { animationData: newData, animationParams: { targetId: newId, value } };
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value },
+    };
   }
 
   if (actionType === "delete") {

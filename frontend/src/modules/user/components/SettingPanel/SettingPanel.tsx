@@ -5,6 +5,8 @@ import Icon from "@/shared/components/Icon";
 import Button from "@/shared/components/Button";
 import Switch from "@/shared/components/Switch/Switch";
 import Dialog from "@/shared/components/Dialog/Dialog";
+import Select from "@/shared/components/Select";
+import Input from "@/shared/components/Input";
 
 function SettingPanel({
   isOpen,
@@ -15,6 +17,7 @@ function SettingPanel({
 }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("profile");
+  const [fontSize, setFontSize] = useState("medium");
 
   const footer = (
     <>
@@ -76,12 +79,12 @@ function SettingPanel({
                 <h3>{t("profile")}</h3>
                 <div className={styles.field}>
                   <label>{t("username")}</label>
-                  <input type="text" placeholder="User Name" />
+                  <Input type="text" placeholder="User Name" />
                   {/* TODO: 從後端獲取用戶名稱 - GET /api/user/profile */}
                 </div>
                 <div className={styles.field}>
                   <label>{t("email")}</label>
-                  <input type="email" placeholder="user@example.com" />
+                  <Input type="email" placeholder="user@example.com" />
                   {/* TODO: 從後端獲取郵箱 - GET /api/user/profile */}
                 </div>
                 <div className={styles.field}>
@@ -102,9 +105,9 @@ function SettingPanel({
                 <h3>{t("accountSetting")}</h3>
                 <div className={styles.field}>
                   <label>{t("changePassword")}</label>
-                  <input type="password" placeholder={t("currentPassword")} />
-                  <input type="password" placeholder={t("newPassword")} />
-                  <input type="password" placeholder={t("confirmPassword")} />
+                  <Input type="password" placeholder={t("currentPassword")} />
+                  <Input type="password" placeholder={t("newPassword")} />
+                  <Input type="password" placeholder={t("confirmPassword")} />
                   {/* TODO: 實作密碼修改 - PUT /api/user/password */}
                 </div>
                 <div className={styles.field}>
@@ -157,13 +160,16 @@ function SettingPanel({
                 </div>
                 <div className={styles.field}>
                   <label>{t("fontSize")}</label>
-                  <select>
-                    <option value="small">{t("small")}</option>
-                    <option value="medium" selected>
-                      {t("medium")}
-                    </option>
-                    <option value="large">{t("large")}</option>
-                  </select>
+                  <Select
+                    name="fontSize"
+                    value={fontSize}
+                    options={[
+                      { value: "small", label: t("small") },
+                      { value: "medium", label: t("medium") },
+                      { value: "large", label: t("large") },
+                    ]}
+                    onChange={(e) => setFontSize(e.target.value)}
+                  />
                 </div>
               </div>
             )}
