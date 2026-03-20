@@ -233,7 +233,7 @@ def logout():
 @auth_bp.route('/me', methods=['GET'])
 @login_required
 def get_current_user():
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id)
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': '用戶不存在', 'error_code': 'USER_NOT_FOUND'}), 404
     return jsonify({'success': True, 'user': _user_to_dict(user)}), 200
@@ -567,7 +567,7 @@ def refresh_token():
         db.session.commit()
         return jsonify({'success': False, 'error_code': 'TOKEN_REUSE_DETECTED', 'message': '偵測到異常，請重新登入'}), 401
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
 
@@ -614,7 +614,7 @@ def get_user_status():
     if access_token:
         try:
             payload = decode_token(access_token, 'access')
-            user = User.query.get(int(payload['sub']))
+            user = db.session.get(User, int(payload['sub']))
         except pyjwt.ExpiredSignatureError:
             pass  # fall through to refresh
         except pyjwt.InvalidTokenError:
@@ -637,7 +637,7 @@ def get_user_status():
             if not token_record:
                 return jsonify({'isAuthenticated': False}), 200
 
-            user = User.query.get(user_id)
+            user = db.session.get(User, user_id)
             if not user or user.deleted_at is not None:
                 return jsonify({'isAuthenticated': False}), 200
 

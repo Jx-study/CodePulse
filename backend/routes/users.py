@@ -56,7 +56,7 @@ def get_upload_signature():
 @users_bp.route('/me', methods=['PATCH'])
 @login_required
 def update_me():
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id)
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': '用戶不存在'}), 404
 
@@ -118,7 +118,7 @@ def change_password():
             'message': '請填寫所有欄位',
         }), 400
 
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id)
     if not user or user.deleted_at is not None:
         return jsonify({
             'success': False,

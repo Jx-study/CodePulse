@@ -138,7 +138,7 @@ def register_oauth_routes(app):
             ).first()
 
             if existing_identity:
-                user = User.query.get(existing_identity.user_id)
+                user = db.session.get(User, existing_identity.user_id)
                 if not user or user.deleted_at is not None:
                     return redirect(f'{frontend_cb}?error=account_disabled')
 
@@ -234,7 +234,7 @@ def register_oauth_routes(app):
         user_id = data['user_id']
         google_sub = data['google_sub']
 
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user or user.deleted_at is not None:
             return jsonify({'success': False, 'message': '帳號不存在或已停用'}), 400
 

@@ -1,4 +1,4 @@
-from database import db
+from database import db, BigIntPK
 from datetime import datetime
 import enum
 
@@ -20,7 +20,7 @@ class QuestionCategory(enum.Enum):
 class QuestionGroup(db.Model):
     __tablename__ = 'question_groups'
 
-    group_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    group_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
     code = db.Column(db.Text, nullable=True)
     language = db.Column(db.String(50), nullable=True)
@@ -43,7 +43,7 @@ class QuestionGroup(db.Model):
 class QuestionGroupTranslation(db.Model):
     __tablename__ = 'question_group_translations'
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     group_id = db.Column(db.BigInteger, db.ForeignKey('question_groups.group_id', ondelete='CASCADE'), nullable=False)
     language_code = db.Column(db.String(10), nullable=False)
     title = db.Column(db.String(200), nullable=False)
@@ -61,7 +61,7 @@ class QuestionGroupTranslation(db.Model):
 class Question(db.Model):
     __tablename__ = 'questions'
 
-    question_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    question_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
     group_id = db.Column(db.BigInteger, db.ForeignKey('question_groups.group_id', ondelete='SET NULL'), nullable=True)
     question_type = db.Column(db.Enum(QuestionType), nullable=False)
@@ -112,7 +112,7 @@ class Question(db.Model):
 class QuestionTranslation(db.Model):
     __tablename__ = 'question_translations'
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     question_id = db.Column(db.BigInteger, db.ForeignKey('questions.question_id', ondelete='CASCADE'), nullable=False)
     language_code = db.Column(db.String(10), nullable=False)
     stem = db.Column(db.Text, nullable=False)

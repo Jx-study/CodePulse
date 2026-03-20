@@ -1,4 +1,4 @@
-from database import db
+from database import db, BigIntPK
 from datetime import datetime
 import enum
 
@@ -30,7 +30,7 @@ class AchievementConditionType(enum.Enum):
 class XpEvent(db.Model):
     __tablename__ = 'xp_events'
 
-    xp_event_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    xp_event_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     source_type = db.Column(db.Enum(XpSourceType), nullable=False)
     source_id = db.Column(db.BigInteger, nullable=True)
@@ -56,7 +56,7 @@ class XpEvent(db.Model):
 class AchievementDefinition(db.Model):
     __tablename__ = 'achievement_definitions'
 
-    achievement_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    achievement_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     slug = db.Column(db.String(100), unique=True, nullable=False)
     icon = db.Column(db.String(100), nullable=True)
     category = db.Column(db.Enum(AchievementCategory), nullable=False)
@@ -84,7 +84,7 @@ class AchievementDefinition(db.Model):
 class AchievementTranslation(db.Model):
     __tablename__ = 'achievement_translations'
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     achievement_id = db.Column(db.BigInteger, db.ForeignKey('achievement_definitions.achievement_id', ondelete='CASCADE'), nullable=False)
     language_code = db.Column(db.String(10), nullable=False)
     name = db.Column(db.String(200), nullable=False)
@@ -102,7 +102,7 @@ class AchievementTranslation(db.Model):
 class UserAchievement(db.Model):
     __tablename__ = 'user_achievements'
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     achievement_id = db.Column(db.BigInteger, db.ForeignKey('achievement_definitions.achievement_id', ondelete='CASCADE'), nullable=False)
     unlocked_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
