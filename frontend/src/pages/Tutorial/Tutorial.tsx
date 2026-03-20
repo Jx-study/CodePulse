@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import { tutorialService } from '@/services/tutorialService';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -373,6 +375,39 @@ function TutorialContent() {
     category: string;
     levelId: string;
   }>();
+
+  // Session 管理
+  const { isAuthenticated } = useAuth();
+  const sessionIdRef = useRef<number | null>(null);
+  const sessionStartRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    if (!isAuthenticated || !levelId) return;
+
+    sessionStartRef.current = Date.now();
+    tutorialService.startSession(levelId)
+      .then((id) => { sessionIdRef.current = id; })
+      .catch(() => {});
+
+    return () => {
+      if (sessionIdRef.current === null) return;
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+    };
+  }, [isAuthenticated, levelId]);
+
+  // Teaching Complete
+  const [teachingDone, setTeachingDone] = useState(false);
+
+  const handleTeachingComplete = async () => {
+    if (teachingDone || !isAuthenticated || !levelId) return;
+    try {
+      await tutorialService.markTeachingComplete(levelId);
+      setTeachingDone(true);
+    } catch {
+      // 403 = 未滿 30 秒，靜默忽略
+    }
+  };
 
   // 新增：代碼模式狀態
   const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
@@ -881,7 +916,7 @@ function TutorialContent() {
       {topicTypeConfig && (
         <KnowledgeStation
           isOpen={isKnowledgeStationOpen}
-          onClose={() => setIsKnowledgeStationOpen(false)}
+          onClose={() => { setIsKnowledgeStationOpen(false); handleTeachingComplete(); }}
           topicTypeConfig={topicTypeConfig}
         />
       )}
