@@ -119,11 +119,47 @@ def test_patch_session(client, auth_headers, app):
     assert resp.get_json()['success'] is True
 
 
+def _make_teaching_session(db_session, user_id, tutorial_id, seconds_ago=60):
+    from models.practice import LearningSession, SessionMode
+    from datetime import timedelta
+    sess = LearningSession(
+        user_id=user_id,
+        tutorial_id=tutorial_id,
+        mode=SessionMode.teaching,
+        started_at=datetime.now(timezone.utc) - timedelta(seconds=seconds_ago),
+    )
+    db_session.add(sess)
+    db_session.flush()
+    return sess
+
+
+def test_teaching_complete_no_session_returns_403(client, auth_headers, app):
+    with app.app_context():
+        _make_tutorial(_db.session)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'patch',
+                   '/api/tutorials/bubble-sort/teaching-complete')
+    assert resp.status_code == 403
+
+
+def test_teaching_complete_too_fast_returns_403(client, auth_headers, app):
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_teaching_session(_db.session, user_id=1, tutorial_id=t.tutorial_id, seconds_ago=10)
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'patch',
+                   '/api/tutorials/bubble-sort/teaching-complete')
+    assert resp.status_code == 403
+
+
 def test_teaching_complete_awards_xp(client, auth_headers, app):
     from models.tutorial import UserTutorialProgress
     from models.xp import XpEvent
     with app.app_context():
-        _make_tutorial(_db.session)
+        t = _make_tutorial(_db.session)
+        _make_teaching_session(_db.session, user_id=1, tutorial_id=t.tutorial_id, seconds_ago=60)
         _db.session.commit()
 
     resp = _authed(client, auth_headers, 'patch',
@@ -144,7 +180,8 @@ def test_teaching_complete_awards_xp(client, auth_headers, app):
 def test_teaching_complete_idempotent(client, auth_headers, app):
     from models.xp import XpEvent
     with app.app_context():
-        _make_tutorial(_db.session)
+        t = _make_tutorial(_db.session)
+        _make_teaching_session(_db.session, user_id=1, tutorial_id=t.tutorial_id, seconds_ago=60)
         _db.session.commit()
 
     _authed(client, auth_headers, 'patch', '/api/tutorials/bubble-sort/teaching-complete')

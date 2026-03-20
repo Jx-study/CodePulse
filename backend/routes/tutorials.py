@@ -102,6 +102,9 @@ def update_session(slug, session_id):
     return jsonify({'success': True}), 200
 
 
+_MIN_TEACHING_SECONDS = 30
+
+
 @tutorials_bp.route('/<slug>/teaching-complete', methods=['PATCH'])
 @login_required
 def teaching_complete(slug):
@@ -111,6 +114,21 @@ def teaching_complete(slug):
 
     user_id = g.current_user_id
     now = datetime.now(timezone.utc)
+
+    # 時序驗證：必須有 teaching session 且停留 >= 30 秒
+    latest_session = (
+        LearningSession.query
+        .filter_by(user_id=user_id, tutorial_id=t.tutorial_id, mode=SessionMode.teaching)
+        .order_by(LearningSession.started_at.desc())
+        .first()
+    )
+    if not latest_session:
+        return jsonify({'success': False, 'message': '請先開始教學'}), 403
+    started = latest_session.started_at
+    if started.tzinfo is None:
+        started = started.replace(tzinfo=timezone.utc)
+    if (now - started).total_seconds() < _MIN_TEACHING_SECONDS:
+        return jsonify({'success': False, 'message': '閱讀時間不足'}), 403
 
     utp = UserTutorialProgress.query.filter_by(
         user_id=user_id, tutorial_id=t.tutorial_id
