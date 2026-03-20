@@ -198,10 +198,6 @@ def login():
         'success': True,
         'message': '登入成功',
         'user': _user_to_dict(user),
-        'session': {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-        },
     }), 200)
     set_auth_cookies(resp, access_token, refresh_token)
     return resp
