@@ -13,6 +13,7 @@ import {
   SINE_CHILD_POPUP_SIZE,
 } from "./gameConfig";
 import styles from "./PopupWindow.module.scss";
+import Button from "@/shared/components/Button";
 
 interface PopupWindowProps {
   popup: PopupInstance;
@@ -288,13 +289,14 @@ function PopupContent({
             ：最後出現的彈窗必須最先關閉！
           </p>
           <p>關閉此視窗即可開始倒計時。</p>
-          <button
+          <Button
             type="button"
+            variant="primary"
             className={styles.primaryBtn}
             onClick={() => onClose(popup.id)}
           >
             我知道了，開始遊戲！
-          </button>
+          </Button>
         </div>
       );
     case "hidden-close":
@@ -303,13 +305,14 @@ function PopupContent({
           <p>這段文字裡藏著關閉按鈕……</p>
           <p>
             找到了嗎？點擊
-            <button
+            <Button
               type="button"
+              variant="ghost"
               className={styles.inlineClose}
               onClick={() => onClose(popup.id)}
             >
               [關閉此視窗]
-            </button>
+            </Button>
           </p>
         </div>
       );
@@ -367,8 +370,9 @@ function PopupContent({
               </label>
             ))}
           </div>
-          <button
+          <Button
             type="button"
+            variant="primary"
             className={styles.primaryBtn}
             onClick={() => {
               if (quizAnswer === "B. 先進後出（LIFO）") {
@@ -383,19 +387,20 @@ function PopupContent({
             }}
           >
             提交
-          </button>
+          </Button>
         </div>
       );
     case "speed-test":
       return (
         <div className={styles.contentSpeed}>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             className={styles.speedBtn}
             onClick={() => onClose(popup.id)}
           >
             快點擊我！
-          </button>
+          </Button>
         </div>
       );
     case "warning":
@@ -554,14 +559,16 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
           {popup.title}
         </span>
         {showCloseBtn && (
-          <button
+          <Button
             type="button"
+            variant="icon"
             className={styles.closeBtn}
             onClick={handleCloseClick}
             disabled={!canClose}
+            aria-label="關閉"
           >
             <FontAwesomeIcon icon={iconMap["times"]} />
-          </button>
+          </Button>
         )}
       </div>
       <div className={styles.content}>

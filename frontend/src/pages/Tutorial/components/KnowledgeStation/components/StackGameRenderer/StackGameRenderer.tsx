@@ -18,6 +18,7 @@ import {
 } from "./gameConfig";
 import PopupWindow from "./PopupWindow";
 import StackVisualizer from "./StackVisualizer";
+import Button from "@/shared/components/Button";
 import styles from "./StackGameRenderer.module.scss";
 
 function computeSpiralPositions(
@@ -540,13 +541,14 @@ const StackGameRenderer: React.FC = () => {
               記住：<strong>最後出現的彈窗必須最先關閉</strong>（LIFO）
               <br />在 120 秒內關閉所有彈窗！
             </p>
-            <button
+            <Button
               type="button"
+              variant="primary"
               className={styles.startBtn}
               onClick={handleStartGame}
             >
               <FontAwesomeIcon icon={iconMap["play"]} /> 開始遊戲
-            </button>
+            </Button>
           </div>
         )}
 

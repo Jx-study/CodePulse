@@ -6,6 +6,7 @@ import Button from "@/shared/components/Button";
 import Switch from "@/shared/components/Switch/Switch";
 import Dialog from "@/shared/components/Dialog/Dialog";
 import Select from "@/shared/components/Select";
+import Input from "@/shared/components/Input";
 
 function SettingPanel({
   isOpen,
@@ -78,12 +79,12 @@ function SettingPanel({
                 <h3>{t("profile")}</h3>
                 <div className={styles.field}>
                   <label>{t("username")}</label>
-                  <input type="text" placeholder="User Name" />
+                  <Input type="text" placeholder="User Name" />
                   {/* TODO: 從後端獲取用戶名稱 - GET /api/user/profile */}
                 </div>
                 <div className={styles.field}>
                   <label>{t("email")}</label>
-                  <input type="email" placeholder="user@example.com" />
+                  <Input type="email" placeholder="user@example.com" />
                   {/* TODO: 從後端獲取郵箱 - GET /api/user/profile */}
                 </div>
                 <div className={styles.field}>
@@ -104,9 +105,9 @@ function SettingPanel({
                 <h3>{t("accountSetting")}</h3>
                 <div className={styles.field}>
                   <label>{t("changePassword")}</label>
-                  <input type="password" placeholder={t("currentPassword")} />
-                  <input type="password" placeholder={t("newPassword")} />
-                  <input type="password" placeholder={t("confirmPassword")} />
+                  <Input type="password" placeholder={t("currentPassword")} />
+                  <Input type="password" placeholder={t("newPassword")} />
+                  <Input type="password" placeholder={t("confirmPassword")} />
                   {/* TODO: 實作密碼修改 - PUT /api/user/password */}
                 </div>
                 <div className={styles.field}>

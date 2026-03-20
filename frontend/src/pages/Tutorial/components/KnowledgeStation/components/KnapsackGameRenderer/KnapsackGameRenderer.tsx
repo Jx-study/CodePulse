@@ -14,6 +14,8 @@ import {
   MAX_ITEM_VALUE,
 } from "./gameConfig";
 import styles from "./KnapsackGameRenderer.module.scss";
+import Button from "@/shared/components/Button";
+import Slider from "@/shared/components/Slider";
 
 // ─── Pure Functions ────────────────────────────────────────────────────────
 
@@ -167,13 +169,14 @@ export default function KnapsackGameRenderer() {
         <label className={styles.sliderLabel}>
           Budget Slider
         </label>
-        <input
-          type="range"
+        <Slider
           min={BUDGET_MIN}
           max={BUDGET_MAX}
+          step={1}
           value={gameState.budget}
-          onChange={(e) => handleBudgetChange(Number(e.target.value))}
+          onChange={handleBudgetChange}
           className={styles.slider}
+          ariaLabel="Budget"
         />
         <span className={styles.budgetValue}>{gameState.budget} 百萬</span>
       </div>
@@ -191,9 +194,10 @@ export default function KnapsackGameRenderer() {
               const rewardBarWidth = Math.min(100, (item.value / MAX_ITEM_VALUE) * 100);
 
               return (
-                <button
+                <Button
                   key={item.id}
                   type="button"
+                  variant="ghost"
                   className={classNames(styles.itemCard, {
                     [styles.selected]: selected,
                     [styles.locked]: !selectable,
@@ -230,7 +234,7 @@ export default function KnapsackGameRenderer() {
                     </div>
                   </div>
                   <span className={styles.efficiencyBadge}>⚡ 效益 {vwRatio}x</span>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -273,16 +277,22 @@ export default function KnapsackGameRenderer() {
           </div>
 
           <div className={styles.buttons}>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               className={styles.btn}
               onClick={handleToggleShowOptimal}
             >
               大師配置
-            </button>
-            <button type="button" className={styles.btn} onClick={handleReset}>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className={styles.btn}
+              onClick={handleReset}
+            >
               重置
-            </button>
+            </Button>
           </div>
 
           {gameState.status === "idle" && (

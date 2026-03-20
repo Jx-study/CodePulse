@@ -3,6 +3,9 @@ import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
 import type { PythonDemo, PythonInput, GraphOutputData, QueueCardOutputData } from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
+import Button from '@/shared/components/Button';
+import Input from '@/shared/components/Input';
+import Slider from '@/shared/components/Slider';
 import GraphOutputRenderer from './GraphOutputRenderer';
 import QueueGameRenderer from './QueueGameRenderer/QueueGameRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
@@ -141,27 +144,33 @@ sys.stdout = io.StringIO()
 
       <div className={styles.toolbar}>
         <div className={styles.tabs}>
-          <button
+          <Button
+            variant="ghost"
             className={classNames(styles.tab, {
               [styles.active]: viewMode === 'demo',
             })}
             onClick={() => setViewMode('demo')}
           >
             小程序運行
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
             className={classNames(styles.tab, {
               [styles.active]: viewMode === 'code',
             })}
             onClick={() => setViewMode('code')}
           >
             原始碼
-          </button>
+          </Button>
         </div>
-        <button className={styles.copyBtn} onClick={handleCopy}>
-          <Icon name={copied ? 'check' : 'copy'} />
+        <Button
+          variant="ghost"
+          className={styles.copyBtn}
+          onClick={handleCopy}
+          iconLeft={<Icon name={copied ? 'check' : 'copy'} />}
+        >
           {copied ? '已複製' : '複製代碼'}
-        </button>
+        </Button>
       </div>
 
       {viewMode === 'demo' && (
@@ -179,13 +188,14 @@ sys.stdout = io.StringIO()
             </div>
           )}
 
-          <button
+          <Button
+            variant="primary"
             className={styles.runBtn}
             onClick={handleRun}
             disabled={isRunning}
           >
             {runLabel}
-          </button>
+          </Button>
 
           {/* 圖形輸出（outputType:'graph' 時顯示，取代或補充 console） */}
           {demo.outputType === 'graph' && graphData && (
@@ -243,14 +253,14 @@ const InputControl: React.FC<InputControlProps> = ({
     return (
       <div className={styles.inputRow}>
         <label className={styles.inputLabel}>{input.label}</label>
-        <input
-          type="range"
+        <Slider
           min={input.min ?? 1}
           max={input.max ?? 10}
           step={input.step ?? 1}
           value={value as number}
-          onChange={(e) => onChange(input.variable, Number(e.target.value))}
+          onChange={(v) => onChange(input.variable, v)}
           className={styles.slider}
+          ariaLabel={input.label}
         />
         <span className={styles.inputValue}>{value}</span>
       </div>
@@ -277,11 +287,12 @@ const InputControl: React.FC<InputControlProps> = ({
   return (
     <div className={styles.inputRow}>
       <label className={styles.inputLabel}>{input.label}</label>
-      <input
+      <Input
         type="text"
         value={value as string}
         onChange={(e) => onChange(input.variable, e.target.value)}
         className={styles.textInput}
+        fullWidth={false}
       />
     </div>
   );

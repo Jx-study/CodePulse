@@ -92,6 +92,15 @@
     border-color: #f59e0b;
     box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
   }
+
+  & > span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 0;
+    white-space: normal;
+  }
 }
 
 .badge {

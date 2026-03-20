@@ -18,6 +18,16 @@
   font: inherit;
   color: inherit;
   transition: background-color 0.2s ease;
+  white-space: normal;
+
+  & > span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    width: 100%;
+    min-width: 0;
+  }
 
   &:hover {
     background: rgba($primary-color, 0.05);
@@ -83,6 +93,12 @@
   color: $primary-color;
   text-align: left;
   align-self: flex-start;
+  white-space: normal;
+
+  & > span {
+    color: inherit;
+    font: inherit;
+  }
 
   &:hover {
     text-decoration: underline;

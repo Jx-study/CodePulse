@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import Textarea from "@/shared/components/Textarea";
 import { toast } from "@/shared/components/Toast";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import styles from "./ActionBar.module.scss";
@@ -218,7 +219,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
           <label className={styles.modalLabel}>
             {isWeighted ? "邊 (格式: 來源 目標 權重)" : "邊 (格式: 來源 目標)"}
           </label>
-          <textarea
+          <Textarea
             value={edgeInput}
             onChange={(e) => setEdgeInput(e.target.value)}
             rows={6}
@@ -291,7 +292,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
     <>
       <div className={styles.modalContainer}>
         <h4 className={styles.modalTitle}>輸入迷宮資料 (0=路, 1=牆)</h4>
-        <textarea
+        <Textarea
           value={gridInputText}
           onChange={(e) => setGridInputText(e.target.value)}
           rows={5}
@@ -374,7 +375,7 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
           <label className={styles.modalLabel}>
             物品清單 (格式: 重量 價值，一行一個物品)
           </label>
-          <textarea
+          <Textarea
             value={itemInput}
             onChange={(e) => setItemInput(e.target.value)}
             rows={6}

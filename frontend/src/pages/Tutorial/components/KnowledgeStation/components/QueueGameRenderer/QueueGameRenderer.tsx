@@ -18,6 +18,7 @@ import {
   STACK_OFFSETS,
 } from './gameConfig';
 import styles from './QueueGameRenderer.module.scss';
+import Button from '@/shared/components/Button';
 
 // ─── Pure Functions ────────────────────────────────────────────────────────
 
@@ -299,13 +300,14 @@ export default function QueueGameRenderer({ data }: Props) {
             <div className={styles.resultCard}>
               <h3><FontAwesomeIcon icon={faTrophy} /> Queue Cleared!</h3>
               <p>Score: {gameState.score}</p>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={styles.newGameBtn}
                 onClick={handleNewGame}
               >
                 New Game
-              </button>
+              </Button>
             </div>
           </motion.div>
         )}
@@ -319,26 +321,28 @@ export default function QueueGameRenderer({ data }: Props) {
             <div className={classNames(styles.resultCard, styles.gameoverCard)}>
               <h3>Game Over</h3>
               <p>Score: {gameState.score}</p>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={styles.newGameBtn}
                 onClick={handleNewGame}
               >
                 New Game
-              </button>
+              </Button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {gameState.status === 'idle' && (
-        <button
+        <Button
           type="button"
+          variant="primary"
           className={styles.startBtn}
           onClick={handleStart}
         >
           Start
-        </button>
+        </Button>
       )}
     </div>
   );

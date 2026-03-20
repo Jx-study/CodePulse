@@ -79,6 +79,12 @@
   border-radius: $radius-md;
   cursor: pointer;
 
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
   &:hover {
     opacity: 0.9;
   }
