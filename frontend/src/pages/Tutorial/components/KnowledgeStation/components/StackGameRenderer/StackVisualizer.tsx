@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { iconMap } from "@/shared/lib/iconMap";
+import Icon from '@/shared/components/Icon';
+import type { IconName } from '@/shared/lib/iconMap';
 import type { PopupInstance } from "@/types/games/stackGameTypes";
 import styles from "./StackVisualizer.module.scss";
 
@@ -59,9 +59,9 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
 
   return (
     <div className={styles.visualizer}>
-      <div className={styles.header}><span className={styles.rainbowIcon}><FontAwesomeIcon icon={iconMap["layer-group"]} /></span> Stack 堆疊</div>
+      <div className={styles.header}><span className={styles.rainbowIcon}><Icon name="layer-group" /></span> Stack 堆疊</div>
       <div className={styles.uContainer}>
-        <div className={styles.topLabel}><span className={styles.rainbowIcon}><FontAwesomeIcon icon={iconMap["arrow-left"]} /></span> TOP</div>
+        <div className={styles.topLabel}><span className={styles.rainbowIcon}><Icon name="arrow-left" /></span> TOP</div>
         <div className={styles.stackScrollArea}>
           {visibleIds.map((id, idx) => (
             <div
@@ -75,9 +75,9 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
               <span className={styles.stackTitle}>
                 {(() => {
                   const iconName = iconCacheRef.current.get(id);
-                  return iconName && iconName in iconMap ? (
+                  return iconName ? (
                     <span className={styles.rainbowIcon}>
-                      <FontAwesomeIcon icon={iconMap[iconName as keyof typeof iconMap]} />
+                      <Icon name={iconName as IconName} />
                     </span>
                   ) : null;
                 })()}

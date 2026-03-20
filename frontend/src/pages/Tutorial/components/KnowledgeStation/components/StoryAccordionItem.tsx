@@ -62,7 +62,8 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
                 className={styles.contentToggle}
                 onClick={() => setIsContentOpen((v) => !v)}
               >
-                {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
+                <Icon name={isContentOpen ? 'chevron-up' : 'chevron-down'} />
+                {isContentOpen ? '收起故事詳情' : '閱讀故事詳情'}
               </Button>
               {isContentOpen && (
                 <p className={styles.content}>{story.content}</p>
@@ -86,7 +87,8 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
                 className={styles.contentToggle}
                 onClick={() => setIsContentOpen((v) => !v)}
               >
-                {isContentOpen ? '▲ 收起故事詳情' : '▼ 閱讀故事詳情'}
+                <Icon name={isContentOpen ? 'chevron-up' : 'chevron-down'} />
+                {isContentOpen ? '收起故事詳情' : '閱讀故事詳情'}
               </Button>
               {isContentOpen && (
                 <p className={styles.content}>{story.content}</p>

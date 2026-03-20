@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import classNames from "classnames";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { iconMap } from "@/shared/lib/iconMap";
+import Icon  from '@/shared/components/Icon';
 import type {
   GameState,
   PopupInstance,
@@ -523,7 +522,7 @@ const StackGameRenderer: React.FC = () => {
         onMouseDown={handleCanvasMouseDown}
       >
         <div className={styles.timerBar}>
-          <span className={styles.timerLabel}><FontAwesomeIcon icon={iconMap["stopwatch"]} /> {gameState.timeLeft}s</span>
+          <span className={styles.timerLabel}><Icon name="stopwatch" /> {gameState.timeLeft}s</span>
           <div
             className={styles.timerFill}
             style={{
@@ -547,7 +546,7 @@ const StackGameRenderer: React.FC = () => {
               className={styles.startBtn}
               onClick={handleStartGame}
             >
-              <FontAwesomeIcon icon={iconMap["play"]} /> 開始遊戲
+              <Icon name="play" /> 開始遊戲
             </Button>
           </div>
         )}
@@ -585,9 +584,9 @@ const StackGameRenderer: React.FC = () => {
           >
             <h3>
               {gameState.status === "won" ? (
-                <><FontAwesomeIcon icon={iconMap["trophy"]} /> 恭喜過關！</>
+                <><Icon name="trophy" /> 恭喜過關！</>
               ) : (
-                <><FontAwesomeIcon icon={iconMap["stopwatch"]} /> 時間到！</>
+                <><Icon name="stopwatch" /> 時間到！</>
               )}
             </h3>
             <p>

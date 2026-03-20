@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import classNames from "classnames";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { iconMap } from "@/shared/lib/iconMap";
+import Icon from '@/shared/components/Icon';
+import type { IconName } from '@/shared/lib/iconMap';
 import type {
   PopupInstance,
   PopupTypeState,
@@ -551,9 +551,9 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
     >
       <div className={styles.titleBar}>
         <span className={styles.windowTitle}>
-          {popup.iconName in iconMap && (
+          {popup.iconName && (
             <span className={styles.rainbowIcon}>
-              <FontAwesomeIcon icon={iconMap[popup.iconName as keyof typeof iconMap]} />
+              <Icon name={popup.iconName as IconName} />
             </span>
           )}{" "}
           {popup.title}
@@ -567,7 +567,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
             disabled={!canClose}
             aria-label="關閉"
           >
-            <FontAwesomeIcon icon={iconMap["times"]} />
+            <Icon name="times" />
           </Button>
         )}
       </div>
