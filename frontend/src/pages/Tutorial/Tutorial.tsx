@@ -521,8 +521,7 @@ function TutorialContent() {
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
     if (maxNodes !== undefined) {
-      const currentCount =
-        logic.data?.length ?? (logic.data?.nodes?.length ?? 0);
+      const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
       if (currentCount >= maxNodes) {
         toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
         return;
@@ -585,7 +584,8 @@ function TutorialContent() {
     if (
       raw.startsWith("GRID:") ||
       raw.startsWith("GRAPH:") ||
-      raw.startsWith("KNAPSACK:")
+      raw.startsWith("KNAPSACK:") ||
+      raw.startsWith("NQUEENS:")
     ) {
       const steps = executeAction("load", {
         data: raw,

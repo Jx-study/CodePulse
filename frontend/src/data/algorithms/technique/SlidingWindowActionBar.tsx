@@ -38,7 +38,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
   const handleRun = () => {
     const val = parseInt(targetSum, 10);
     if (!isNaN(val)) {
-      onRun({ mode: currentMode as any, targetSum: val });
+      onRun({ type: "slidingWindow", mode: currentMode as any, targetSum: val });
     } else {
       toast.warning("請輸入有效的目標和數值");
     }
