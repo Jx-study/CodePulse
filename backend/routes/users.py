@@ -178,3 +178,32 @@ def change_password():
         }), 500
 
     return jsonify({'success': True, 'message': '密碼已更新，請重新登入'}), 200
+
+
+@users_bp.route('/me/progress', methods=['GET'])
+@login_required
+def get_my_progress():
+    from models.tutorial import UserTutorialProgress, Tutorial
+    user_id = g.current_user_id
+
+    rows = (
+        db.session.query(UserTutorialProgress, Tutorial.slug)
+        .join(Tutorial, Tutorial.tutorial_id == UserTutorialProgress.tutorial_id)
+        .filter(UserTutorialProgress.user_id == user_id)
+        .all()
+    )
+
+    progress = []
+    for utp, slug in rows:
+        progress.append({
+            'tutorial_slug': slug,
+            'teaching_completed': utp.teaching_completed,
+            'best_score': utp.best_score,
+            'best_time_seconds': utp.best_time_seconds,
+            'attempt_count': utp.attempt_count,
+            'practice_passed': utp.practice_passed,
+            'status': utp.status.value,
+            'last_accessed_at': utp.last_accessed_at.isoformat() if utp.last_accessed_at else None,
+        })
+
+    return jsonify({'success': True, 'progress': progress}), 200
