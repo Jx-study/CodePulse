@@ -8,9 +8,12 @@ import {
   LinearData as BoxData,
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
-} from "./utils";
+} from "../utils";
 import { StackActionBar } from "./StackActionBar";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
@@ -92,7 +95,10 @@ export function createStackAnimationSteps(
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
-    s1NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
+    s1NewBox.value =
+      newNode.value !== undefined && newNode.value !== null
+        ? String(newNode.value)
+        : "";
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
@@ -116,7 +122,7 @@ export function createStackAnimationSteps(
 
     const emptyBox = new Box();
     emptyBox.id = "empty-slot";
-    emptyBox.value = '';
+    emptyBox.value = "";
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentTop * gap, startY);
@@ -140,7 +146,10 @@ export function createStackAnimationSteps(
     const s3Boxes = createBoxes(oldList);
     const s3NewBox = new Box();
     s3NewBox.id = newNode.id;
-    s3NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
+    s3NewBox.value =
+      newNode.value !== undefined && newNode.value !== null
+        ? String(newNode.value)
+        : "";
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentTop * gap, startY);
@@ -212,7 +221,10 @@ export function createStackAnimationSteps(
       if (i === currentTop) {
         movingBox = new Box();
         movingBox.id = item.id;
-        movingBox.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
+        movingBox.value =
+          item.value !== undefined && item.value !== null
+            ? String(item.value)
+            : "";
         movingBox.width = 60;
         movingBox.height = 60;
         movingBox.description = "removed_value";
@@ -221,7 +233,10 @@ export function createStackAnimationSteps(
 
         ghostBox = new Box();
         ghostBox.id = `${item.id}-ghost`;
-        ghostBox.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
+        ghostBox.value =
+          item.value !== undefined && item.value !== null
+            ? String(item.value)
+            : "";
         ghostBox.width = 60;
         ghostBox.height = 60;
         ghostBox.description = String(i);
@@ -231,7 +246,10 @@ export function createStackAnimationSteps(
       } else {
         const b = new Box();
         b.id = item.id;
-        b.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
+        b.value =
+          item.value !== undefined && item.value !== null
+            ? String(item.value)
+            : "";
         b.width = 60;
         b.height = 60;
         b.description = String(i);
@@ -261,7 +279,10 @@ export function createStackAnimationSteps(
     fullList.slice(0, -1).forEach((item, i) => {
       const b = new Box();
       b.id = item.id;
-      b.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
+      b.value =
+        item.value !== undefined && item.value !== null
+          ? String(item.value)
+          : "";
       b.width = 60;
       b.height = 60;
       b.description = String(i);
@@ -272,7 +293,10 @@ export function createStackAnimationSteps(
 
     const s3GhostBox = new Box();
     s3GhostBox.id = `${deletedNode.id}-ghost`;
-    s3GhostBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
+    s3GhostBox.value =
+      deletedNode.value !== undefined && deletedNode.value !== null
+        ? String(deletedNode.value)
+        : "";
     s3GhostBox.width = 60;
     s3GhostBox.height = 60;
     s3GhostBox.description = String(fullList.length - 1);
@@ -283,7 +307,10 @@ export function createStackAnimationSteps(
 
     const s3MovingBox = new Box();
     s3MovingBox.id = deletedNode.id;
-    s3MovingBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
+    s3MovingBox.value =
+      deletedNode.value !== undefined && deletedNode.value !== null
+        ? String(deletedNode.value)
+        : "";
     s3MovingBox.width = 60;
     s3MovingBox.height = 60;
     s3MovingBox.description = "removed_value";
@@ -305,7 +332,10 @@ export function createStackAnimationSteps(
 
     const s4GhostBox = new Box();
     s4GhostBox.id = `${deletedNode.id}-ghost`;
-    s4GhostBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
+    s4GhostBox.value =
+      deletedNode.value !== undefined && deletedNode.value !== null
+        ? String(deletedNode.value)
+        : "";
     s4GhostBox.width = 60;
     s4GhostBox.height = 60;
     s4GhostBox.description = String(fullList.length - 1);
@@ -315,7 +345,10 @@ export function createStackAnimationSteps(
 
     const s4ReturnBox = new Box();
     s4ReturnBox.id = deletedNode.id;
-    s4ReturnBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
+    s4ReturnBox.value =
+      deletedNode.value !== undefined && deletedNode.value !== null
+        ? String(deletedNode.value)
+        : "";
     s4ReturnBox.width = 60;
     s4ReturnBox.height = 60;
     s4ReturnBox.description = "removed_value";
@@ -538,7 +571,8 @@ function stackActionHandler(
       return { animationData: randData, isResetAction: true };
     }
     if (actionType === "reset") {
-      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const defaultData =
+        (context.defaultData as BoxData[] | undefined) ?? data;
       const resetData = defaultData.map((d) => ({
         ...d,
         id: context.nextId(),
@@ -599,6 +633,71 @@ export const StackConfig: LevelImplementationConfig = {
       concept: "堆疊應用：用堆疊實作佇列的功能",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/implement-queue-using-stacks/",
+    },
+  ],
+  realWorldStories: [
+    {
+      id: "basic-stack-intro",
+      title: "堆疊的隱形力量 — 從復原鍵到瀏覽器的幕後英雄",
+      category: "軟體開發 / 日常應用",
+      tags: ["LIFO", "後進先出", "資料結構", "Undo/Redo"],
+      content: `【生活中的直覺法則】
+每天我們都在不知不覺中遵守著「堆疊」的秩序。想像自助餐檯上的一疊盤子，或是只能單向進出的單線道停車場，我們永遠只能從「最上面」拿取盤子，最後開進去的車子也必須最先開出來。這種「後進先出」（LIFO, Last In, First Out）的簡單規則，不僅是空間有限下最有效率的管理方式，更是數位世界運作的核心骨架。
+
+【軟體的時光機：復原與重做】
+當你打錯字按下「復原」（Undo）時，彷彿時光倒流。這背後其實是系統將你的每個動作「推入」（Push）堆疊中。當需要復原時，就把最上面的動作「彈出」（Pop）。更聰明的是，系統會同時維護兩個堆疊來實現「重做」（Redo）功能，將復原的動作悄悄移到隔壁的重做堆疊裡，讓你隨時可以再次套用。
+
+【網頁導覽的幕後推手】
+瀏覽器的「上一頁」與「下一頁」同樣是雙堆疊概念的完美應用。每一個點開的新網頁都會被存入「上一頁堆疊」，當你點擊上一頁時，目前的網頁就會被彈出並存入「下一頁堆疊」，讓你在複雜的網頁歷史紀錄中穿梭自如。
+
+【支撐程式運作的隱形守護者】
+在程式碼的最底層，堆疊更是無所不在。「呼叫堆疊」（Call Stack）就像是程式在迷宮中沿路留下的麵包屑，確保主程式在呼叫無數個子功能後，永遠能準確找到回來的路。此外，編譯器也依賴堆疊這個超級嚴格的檢查員來驗證括號是否正確配對，甚至開發者會利用堆疊「後進先出」的特性來快速完成字串反轉。`,
+      video: {
+        url: "https://youtu.be/4C2iPT6N_GI",
+        title: "堆疊的隱形力量",
+        duration: "7:32",
+      },
+      resources: [
+        {
+          type: "article",
+          url: "https://www.enjoyalgorithms.com/blog/application-of-stack-data-structure-in-programming",
+          title: "Real-life Applications of Stack Data Structure",
+          source: "EnjoyAlgorithms",
+        },
+        {
+          type: "article",
+          url: "https://www.geeksforgeeks.org/projects/implement-undo-and-redo-features-of-a-text-editor/",
+          title: "Implement Undo and Redo",
+          source: "GeeksforGeeks",
+        },
+        {
+          type: "article",
+          url: "https://www.upgrad.com/blog/stack-example-in-real-life/",
+          title: "Top 12 Stack Examples in Real Life",
+          source: "upGrad",
+        },
+      ],
+    },
+    {
+      id: 2,
+      title: "PopupStack 彈窗大戰 — 體驗後進先出的真實感",
+      content: `【遊戲背景】
+你的電腦突然遭受神秘教授的彈窗攻擊！
+一個個視窗接連彈出，塞滿了你的螢幕……
+
+【Stack 就藏在這裡】
+當你同時打開多個應用程式視窗時，作業系統用 Stack 來管理「焦點順序」——最後彈出的視窗永遠在最上層，你必須從最上層開始逐一關閉，這正是 LIFO（後進先出）的體現。
+
+【挑戰開始】
+每個彈窗都有自己的個性：有的會四處逃跑，有的需要你答對問題，有的甚至會呼叫小弟增援。但規則只有一條：必須先關閉最後出現的彈窗！
+
+【完成挑戰後，你將理解】
+Stack 的 push（堆入）和 pop（彈出）不只是抽象概念，而是你每天都在無意識中體驗的真實機制。`,
+      category: "資料結構 / 互動遊戲",
+      tags: ["LIFO", "後進先出", "Stack", "互動遊戲"],
+      interactiveGame: {
+        type: "stack-popup-game",
+      },
     },
   ],
   maxNodes: 12,
