@@ -59,9 +59,9 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
 
   return (
     <div className={styles.visualizer}>
-      <div className={styles.header}><FontAwesomeIcon icon={iconMap["layer-group"]} /> Stack 堆疊</div>
+      <div className={styles.header}><span className={styles.rainbowIcon}><FontAwesomeIcon icon={iconMap["layer-group"]} /></span> Stack 堆疊</div>
       <div className={styles.uContainer}>
-        <div className={styles.topLabel}><FontAwesomeIcon icon={iconMap["arrow-left"]} /> TOP</div>
+        <div className={styles.topLabel}><span className={styles.rainbowIcon}><FontAwesomeIcon icon={iconMap["arrow-left"]} /></span> TOP</div>
         <div className={styles.stackScrollArea}>
           {visibleIds.map((id, idx) => (
             <div
@@ -76,7 +76,9 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
                 {(() => {
                   const iconName = iconCacheRef.current.get(id);
                   return iconName && iconName in iconMap ? (
-                    <FontAwesomeIcon icon={iconMap[iconName as keyof typeof iconMap]} />
+                    <span className={styles.rainbowIcon}>
+                      <FontAwesomeIcon icon={iconMap[iconName as keyof typeof iconMap]} />
+                    </span>
                   ) : null;
                 })()}
                 {titleCacheRef.current.get(id) ?? id}

@@ -547,8 +547,10 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
       <div className={styles.titleBar}>
         <span className={styles.windowTitle}>
           {popup.iconName in iconMap && (
-            <FontAwesomeIcon icon={iconMap[popup.iconName as keyof typeof iconMap]} />
-          )} 
+            <span className={styles.rainbowIcon}>
+              <FontAwesomeIcon icon={iconMap[popup.iconName as keyof typeof iconMap]} />
+            </span>
+          )}{" "}
           {popup.title}
         </span>
         {showCloseBtn && (

@@ -1,5 +1,16 @@
 @use "@/shared/styles/variables" as *;
 
+@keyframes rainbowFlow {
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(360deg); }
+}
+
+.rainbowIcon {
+  display: inline-block;
+  color: hsl(0, 90%, 65%);
+  animation: rainbowFlow 2.5s linear infinite;
+}
+
 .popup {
   position: absolute;
   display: flex;
