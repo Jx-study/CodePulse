@@ -8,9 +8,13 @@ import {
   LinearData as BoxData,
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
-} from "./utils";
+} from "../utils";
 import { QueueActionBar } from "./QueueActionBar";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { queueRealWorldStories } from "./queue.stories";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
@@ -111,7 +115,10 @@ export function createQueueAnimationSteps(
     const s1Boxes = createBoxes(oldList);
     const s1NewBox = new Box();
     s1NewBox.id = newNode.id;
-    s1NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
+    s1NewBox.value =
+      newNode.value !== undefined && newNode.value !== null
+        ? String(newNode.value)
+        : "";
     s1NewBox.width = 60;
     s1NewBox.height = 60;
     s1NewBox.moveTo(950, startY);
@@ -134,7 +141,7 @@ export function createQueueAnimationSteps(
     const s2Boxes = createBoxes(oldList);
     const emptyBox = new Box();
     emptyBox.id = "empty-slot";
-    emptyBox.value = '';
+    emptyBox.value = "";
     emptyBox.width = 60;
     emptyBox.height = 60;
     emptyBox.moveTo(startX + currentRear * gap, startY);
@@ -161,7 +168,10 @@ export function createQueueAnimationSteps(
     const s3Boxes = createBoxes(oldList);
     const s3NewBox = new Box();
     s3NewBox.id = newNode.id;
-    s3NewBox.value = newNode.value !== undefined && newNode.value !== null ? String(newNode.value) : '';
+    s3NewBox.value =
+      newNode.value !== undefined && newNode.value !== null
+        ? String(newNode.value)
+        : "";
     s3NewBox.width = 60;
     s3NewBox.height = 60;
     s3NewBox.moveTo(startX + currentRear * gap, startY);
@@ -235,7 +245,10 @@ export function createQueueAnimationSteps(
 
     const movingBox = new Box();
     movingBox.id = `${deletedNode.id}`;
-    movingBox.value = deletedNode.value !== undefined && deletedNode.value !== null ? String(deletedNode.value) : '';
+    movingBox.value =
+      deletedNode.value !== undefined && deletedNode.value !== null
+        ? String(deletedNode.value)
+        : "";
     movingBox.width = 60;
     movingBox.height = 60;
     movingBox.description = "removed_value";
@@ -259,7 +272,10 @@ export function createQueueAnimationSteps(
     dataList.forEach((item, i) => {
       const b = new Box();
       b.id = item.id;
-      b.value = item.value !== undefined && item.value !== null ? String(item.value) : '';
+      b.value =
+        item.value !== undefined && item.value !== null
+          ? String(item.value)
+          : "";
       b.width = 60;
       b.height = 60;
       b.description = String(i);
@@ -271,7 +287,10 @@ export function createQueueAnimationSteps(
     const lastNode = fullList[fullList.length - 1];
     const lastBoxGhost = new Box();
     lastBoxGhost.id = `${lastNode.id}-ghost`;
-    lastBoxGhost.value = lastNode.value !== undefined && lastNode.value !== null ? String(lastNode.value) : '';
+    lastBoxGhost.value =
+      lastNode.value !== undefined && lastNode.value !== null
+        ? String(lastNode.value)
+        : "";
     lastBoxGhost.width = 60;
     lastBoxGhost.height = 60;
     lastBoxGhost.description = String(oldRear);
@@ -437,7 +456,7 @@ const queueCodeConfig: CodeConfig = {
     Return queue[front]
   End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3, 4, 5,6],
+      [TAGS.INIT]: [2, 3, 4, 5, 6],
       [TAGS.ENQUEUE_START]: [8],
       [TAGS.ENQUEUE_INC_REAR]: [12, 13],
       [TAGS.ENQUEUE_ASSIGN]: [14],
@@ -545,7 +564,8 @@ function queueActionHandler(
       return { animationData: randData, isResetAction: true };
     }
     if (actionType === "reset") {
-      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const defaultData =
+        (context.defaultData as BoxData[] | undefined) ?? data;
       const resetData = defaultData.map((d) => ({
         ...d,
         id: context.nextId(),
@@ -584,6 +604,7 @@ export const QueueConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createQueueAnimationSteps,
   actionHandler: queueActionHandler,
+  realWorldStories: queueRealWorldStories,
   renderActionBar: (props) => <QueueActionBar {...(props as any)} />,
   relatedProblems: [
     {

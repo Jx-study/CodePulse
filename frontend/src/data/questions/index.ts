@@ -20,6 +20,7 @@ import { bfsQuiz } from './bfs-questions';
 import { dfsQuiz } from './dfs-questions';
 import { dijkstraQuiz } from './dijkstra-questions';
 import { slidingWindowQuiz } from './slidingwindow-questions';
+import { knapsackQuiz } from './knapsack-questions';
 
 export const quizMap: Record<string, PracticeQuiz> = {
   stack: stackQuiz,
@@ -37,7 +38,8 @@ export const quizMap: Record<string, PracticeQuiz> = {
   bfs: bfsQuiz,
   dfs: dfsQuiz,
   dijkstra: dijkstraQuiz,
-  slidingwindow: slidingWindowQuiz,
+  'sliding-window': slidingWindowQuiz,
+  knapsack: knapsackQuiz,
   // TODO: 後續擴展其他題庫
 };
 
