@@ -5,7 +5,8 @@
  * - 管理用戶進度的載入和儲存
  */
 
-import type { UserProgress } from "@/types";
+import type { UserProgress, ScoreLevel, LevelStatus } from "@/types";
+import type { ApiTutorialProgress } from './tutorialService';
 
 /** 初始使用者進度（有DB後移除） */
 const INITIAL_USER_PROGRESS: UserProgress = {
@@ -204,4 +205,56 @@ export function resetUserProgress(): void {
  */
 export function getInitialUserProgress(): UserProgress {
   return { ...INITIAL_USER_PROGRESS };
+}
+
+/** 將後端 ApiTutorialProgress[] 合併至現有 UserProgress */
+export function mergeApiProgress(
+  base: UserProgress,
+  apiProgress: ApiTutorialProgress[]
+): UserProgress {
+  const updated = { ...base, levels: { ...base.levels } };
+
+  apiProgress.forEach((p) => {
+    const slug = p.tutorial_slug;
+    if (!(slug in updated.levels)) return; // 本地沒這個關卡則忽略
+
+    // 計算星數
+    let stars: ScoreLevel = 0;
+    if (p.best_score !== null) {
+      if (p.best_score >= 90) stars = 3;
+      else if (p.best_score >= 60) stars = 2;
+      else if (p.practice_passed) stars = 1;
+    } else if (p.practice_passed) {
+      stars = 1;
+    }
+
+    // 計算前端 status
+    let status: LevelStatus = updated.levels[slug].status;
+    if (p.status === 'completed') status = 'completed';
+    else if (['teaching_in_progress', 'teaching_done', 'practice_in_progress'].includes(p.status)) {
+      status = 'in-progress';
+    }
+
+    updated.levels[slug] = {
+      ...updated.levels[slug],
+      status,
+      stars,
+      attempts: p.attempt_count,
+      bestTime: p.best_time_seconds ?? 0,
+    };
+
+    // 更新統計
+    if (p.status === 'completed') {
+      updated.totalLevelsCompleted = Object.values(updated.levels).filter(
+        (l) => l.status === 'completed'
+      ).length;
+    }
+  });
+
+  updated.totalStarsEarned = Object.values(updated.levels).reduce(
+    (sum, l) => sum + l.stars,
+    0
+  );
+
+  return updated;
 }

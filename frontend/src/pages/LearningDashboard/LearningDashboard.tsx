@@ -47,17 +47,32 @@ import {
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { useTranslation } from "react-i18next";
+import { tutorialService } from '@/services/tutorialService';
+import { mergeApiProgress } from '@/services/UserProgressService';
+import { useAuth } from '@/shared/contexts/AuthContext';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
 
   // State
   const [userProgress, setUserProgress] = useState<UserProgress>(
     loadUserProgress()
   );
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    tutorialService.getMyProgress()
+      .then((apiProgress) => {
+        setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
+      })
+      .catch(() => {
+        // 靜默失敗，維持本地預設值
+      });
+  }, [isAuthenticated]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
@@ -414,7 +429,18 @@ function LearningDashboardInner() {
           onCompleteLevel={handleCompleteLevel}
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
-          practiceLocked={!selectedLevel.isUnlocked}
+          practiceLocked={
+            selectedLevel.prerequisites?.type === 'AND'
+              ? (selectedLevel.prerequisites?.levelIds ?? []).some(
+                  (id) => userProgress.levels[id]?.status !== 'completed'
+                )
+              : selectedLevel.prerequisites?.type === 'OR'
+              ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
+                (selectedLevel.prerequisites?.levelIds ?? []).every(
+                  (id) => userProgress.levels[id]?.status !== 'completed'
+                )
+              : false // NONE = 永遠解鎖
+          }
           prerequisiteInfo={selectedLevel.prerequisites}
         />
       )}
