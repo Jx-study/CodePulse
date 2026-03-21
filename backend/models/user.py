@@ -47,7 +47,7 @@ class User(db.Model):
 
     deleted_at = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     identities = db.relationship('UserIdentity', backref='user', cascade='all, delete-orphan')
     tokens = db.relationship('UserToken', backref='user', cascade='all, delete-orphan')
@@ -85,7 +85,7 @@ class UserIdentity(db.Model):
     password_hash = db.Column(db.String(255), nullable=True)
     is_verified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('provider', 'provider_id', name='uq_identity_provider'),
