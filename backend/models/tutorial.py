@@ -1,5 +1,5 @@
 from database import db, BigIntPK
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 
 
@@ -15,7 +15,7 @@ class AlgorithmCategory(db.Model):
 
     category_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     slug = db.Column(db.String(50), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     tutorials = db.relationship('Tutorial', foreign_keys='Tutorial.category_id', backref='category')
 
@@ -37,8 +37,8 @@ class Tutorial(db.Model):
     xp_practice_base = db.Column(db.Integer, nullable=False, default=20)
     xp_perfect_bonus = db.Column(db.Integer, nullable=False, default=10)
 
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     progress = db.relationship('UserTutorialProgress', backref='tutorial', cascade='all, delete-orphan')
 
@@ -73,8 +73,8 @@ class UserTutorialProgress(db.Model):
 
     status = db.Column(db.Enum(TutorialStatus), default=TutorialStatus.teaching_in_progress)
     last_accessed_at = db.Column(db.DateTime(timezone=True), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('user_id', 'tutorial_id', name='uq_user_tutorial_progress'),

@@ -1,5 +1,5 @@
 from database import db
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 
 
@@ -20,7 +20,7 @@ class ExploreHistory(db.Model):
     time_complexity = db.Column(db.String(50), nullable=True)
     space_complexity = db.Column(db.String(50), nullable=True)
     analysis_source = db.Column(db.Enum(AnalysisSource), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.Index('ix_explore_histories_user_id', 'user_id'),

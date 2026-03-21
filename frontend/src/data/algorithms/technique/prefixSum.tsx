@@ -3,7 +3,7 @@ import { LevelImplementationConfig } from "@/types/implementation";
 import { PrefixSumActionBar } from "./PrefixSumActionBar";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";

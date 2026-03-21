@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-do-not-use-in-production'
+    DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'postgresql://codepulse:codepulse_dev@localhost:5432/codepulse'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -34,17 +34,17 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    CORS_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+    CORS_ORIGINS = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
+    ENV = 'production'
 
-    @property
-    def SECRET_KEY(self):
-        secret = os.environ.get('SECRET_KEY')
-        if not secret:
-            raise ValueError('SECRET_KEY must be set in production environment')
-        return secret
+    _secret = os.environ.get('SECRET_KEY')
+    if not _secret:
+        raise ValueError('SECRET_KEY environment variable must be set in production')
+    SECRET_KEY = _secret
+    del _secret
 
 class TestingConfig(Config):
     TESTING = True

@@ -9,7 +9,7 @@ import { getLayoutConfig } from './utils/layoutConfig';
 import { useZoom } from '@/shared/hooks/useZoom';
 import { useDrag } from '@/shared/hooks/useDrag';
 import ZoomControls from '@/shared/components/ZoomControls';
-import { useZoomDisable } from '../../context/ZoomDisableContext';
+import { useZoomDisable } from '@/pages/LearningDashboard/context/ZoomDisableContext';
 import type { GraphContainerProps } from '@/types';
 
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見

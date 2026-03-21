@@ -1,5 +1,5 @@
 from database import db, BigIntPK
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 
 
@@ -18,7 +18,7 @@ class LearningSession(db.Model):
     started_at = db.Column(db.DateTime(timezone=True), nullable=False)
     ended_at = db.Column(db.DateTime(timezone=True), nullable=True)
     duration_seconds = db.Column(db.Integer, nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.Index('ix_learning_sessions_user_tutorial', 'user_id', 'tutorial_id'),
@@ -45,7 +45,7 @@ class PracticeAttempt(db.Model):
     user_rating_after = db.Column(db.Float, nullable=False)
     rating_delta = db.Column(db.Float, nullable=False)
 
-    submitted_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    submitted_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     answers = db.relationship('AttemptAnswer', backref='attempt', cascade='all, delete-orphan')
 
@@ -70,7 +70,7 @@ class AttemptAnswer(db.Model):
     time_spent_seconds = db.Column(db.Integer, nullable=True)
     question_difficulty_rating = db.Column(db.Float, nullable=False)
     # snapshot of Question.difficulty_rating at time of answer
-    answered_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    answered_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('attempt_id', 'question_id', name='uq_attempt_question'),

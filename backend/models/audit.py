@@ -1,5 +1,5 @@
 from database import db
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 
@@ -8,7 +8,7 @@ class AuditLog(db.Model):
 
     audit_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     event_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
-    event_timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    event_timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     table_name = db.Column(db.String(100), nullable=False)
     record_id = db.Column(db.BigInteger, nullable=False)
     action = db.Column(db.String(20), nullable=False)  # 'INSERT' | 'UPDATE' | 'DELETE'

@@ -6,6 +6,7 @@ import os
 
 from config import config
 from database import init_db, test_connection
+from extensions import limiter
 
 from routes.auth import auth_bp
 from routes.analyze import analyze_bp
@@ -20,6 +21,8 @@ def create_app(config_name=None):
 
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+
+    limiter.init_app(app)
 
     logging.basicConfig(level=logging.INFO)
 

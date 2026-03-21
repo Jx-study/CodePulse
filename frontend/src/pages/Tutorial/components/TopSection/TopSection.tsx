@@ -17,8 +17,8 @@ import ResizeHandle from '../ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
-import { usePanelContext } from '../../context/PanelContext';
-import { InspectorPanelInternal, type InspectorPanelInternalProps } from '../../Tutorial';
+import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
+import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {

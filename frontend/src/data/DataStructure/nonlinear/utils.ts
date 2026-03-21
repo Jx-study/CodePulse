@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { Node } from "../../../modules/core/DataLogic/Node";
-import { Box } from "../../../modules/core/DataLogic/Box";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";

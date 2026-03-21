@@ -16,6 +16,7 @@ import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Input from "@/shared/components/Input";
+import Button from "@/shared/components/Button";
 
 const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
 const currentUserRating = 1500; // 模擬傳入的分數
@@ -354,12 +355,13 @@ function Practice() {
             抱歉，無法找到「{levelId}」的練習題庫。請返回 Dashboard
             選擇其他關卡。
           </p>
-          <button
+          <Button
+            variant="ghost"
             className={styles.errorButton}
             onClick={handleBackToDashboard}
           >
             返回 Dashboard
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -435,8 +437,9 @@ function Practice() {
                   : {};
 
                 return (
-                  <button
+                  <Button
                     key={q.id}
+                    variant="ghost"
                     className={itemClass}
                     style={groupStyle}
                     onClick={() => handleSelectQuestion(index)}
@@ -454,7 +457,7 @@ function Practice() {
                       </span>
                     )}
                     題目 {index + 1}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -475,13 +478,14 @@ function Practice() {
             </ul>
           </div>
 
-          <button
+          <Button
+            variant="primary"
             className={styles.submitAllButton}
             onClick={handleSubmit}
             disabled={answeredCount < randomizedQuestions.length}
           >
             提交全部
-          </button>
+          </Button>
         </div>
 
         <div className={styles.workspace}>
@@ -531,16 +535,18 @@ function Practice() {
             <p className={styles.questionText}>{currentQuestion.title}</p>
 
             {showCodeEditor && currentQuestion.code && (
-              <CodeEditor
-                key={`editor-${currentQuestion.id}`}
-                mode="single"
-                language={currentQuestion.language || "python"}
-                value={currentQuestion.code}
-                readOnly={true}
-                theme="auto"
-                showLineNumbers={true}
-                autoHeight={true}
-              />
+              <div className={styles.codeBlock}>
+                <CodeEditor
+                  key={`editor-${currentQuestion.id}`}
+                  mode="single"
+                  language={currentQuestion.language || "python"}
+                  value={currentQuestion.code}
+                  readOnly={true}
+                  theme="auto"
+                  showLineNumbers={true}
+                  autoHeight={true}
+                />
+              </div>
             )}
 
             {isPredictLineQuestion ? (
@@ -659,20 +665,22 @@ function Practice() {
           </div>
 
           <div className={styles.actionButtons}>
-            <button
+            <Button
+              variant="secondary"
               className={styles.navButton}
               onClick={handlePrev}
               disabled={currentQuestionIndex === 0}
             >
               上一題
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               className={styles.navButton}
               onClick={isLastQuestion ? handleSubmit : handleNext}
               disabled={isLastQuestion ? !canSubmit : false}
             >
               {isLastQuestion ? "提交" : "下一題"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

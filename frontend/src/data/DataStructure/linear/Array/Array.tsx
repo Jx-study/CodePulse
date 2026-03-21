@@ -5,9 +5,12 @@ import {
   LinearData as BoxData,
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
-} from "./utils";
+} from "../utils";
 import { ArrayActionBar } from "./ArrayActionBar";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const TAGS = {
@@ -500,7 +503,11 @@ function arrayActionHandler(
     newData.pop();
     return {
       animationData: newData,
-      animationParams: { targetId: lastBox.id, value: deletedValue, index: idx },
+      animationParams: {
+        targetId: lastBox.id,
+        value: deletedValue,
+        index: idx,
+      },
     };
   }
 
@@ -519,7 +526,8 @@ function arrayActionHandler(
       return { animationData: randData, isResetAction: true };
     }
     if (actionType === "reset") {
-      const defaultData = (context.defaultData as BoxData[] | undefined) ?? data;
+      const defaultData =
+        (context.defaultData as BoxData[] | undefined) ?? data;
       const resetData = defaultData.map((d) => ({
         ...d,
         id: context.nextId(),
