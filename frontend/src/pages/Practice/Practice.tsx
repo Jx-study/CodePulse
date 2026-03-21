@@ -16,9 +16,10 @@ import { shuffleArray, getOptionLabel } from "@/utils/random";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Input from "@/shared/components/Input";
 import Button from "@/shared/components/Button";
+import { useAuth } from "@/shared/contexts/AuthContext";
 
 const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
-const currentUserRating = 1500; // 模擬傳入的分數
+const DEFAULT_RATING = 1000;
 
 function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
   return apiQuestions.map((q) => ({
@@ -44,6 +45,8 @@ function Practice() {
     levelId: string;
   }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const currentUserRating = user?.skill_rating ?? DEFAULT_RATING;
 
   const originalQuiz = useMemo(() => {
     if (!levelId) return null;
