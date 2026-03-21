@@ -304,16 +304,23 @@ function Practice() {
   const handleSubmit = async () => {
     if (!levelId) return;
 
-    updateTimeRecord();
+    // 計算最後一題時間（不能等 setTimeRecords 更新，直接算）
+    const now = Date.now();
+    const lastQId = randomizedQuestions[currentQuestionIndex].id;
+    const finalTimeRecords = {
+      ...timeRecords,
+      [lastQId]: (timeRecords[lastQId] || 0) + (now - questionStartTime),
+    };
 
     const payload = randomizedQuestions.map((q) => ({
       question_id: q.backendId!,
       user_answer: userAnswers[q.id] ?? '',
-      time_spent_seconds: Math.round((timeRecords[q.id] || 0) / 1000),
+      time_spent_seconds: Math.round((finalTimeRecords[q.id] || 0) / 1000),
     }));
 
     try {
       const resp = await tutorialService.submitPractice(levelId, payload);
+      console.log('[Practice] submit response:', resp);
 
       const wrongQuestions = resp.results
         .filter((r) => !r.is_correct)
@@ -324,7 +331,7 @@ function Practice() {
             userAnswer: userAnswers[q.id] ?? '',
             correctAnswer: '',
             explanation: r.explanation,
-            timeSpent: Math.round((timeRecords[q.id] || 0) / 1000),
+            timeSpent: Math.round((finalTimeRecords[q.id] || 0) / 1000),
           };
         });
 
@@ -348,7 +355,7 @@ function Practice() {
       setResult(calculatedResult);
       setShowResult(true);
     } catch (err) {
-      console.error('Submit failed', err);
+      console.error('[Practice] Submit failed:', err);
     }
   };
 
