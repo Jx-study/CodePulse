@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import authService from '@/services/authService';
 
 const ERROR_MESSAGES: Record<string, string> = {
   account_disabled: 'This account has been disabled. Please contact support.',
@@ -18,7 +19,6 @@ export default function OAuthCallback() {
     const error = searchParams.get('error');
     const linked = searchParams.get('linked');
     const linkPrompt = searchParams.get('link_prompt');
-    const email = searchParams.get('email');
 
     if (error) {
       const msg = ERROR_MESSAGES[error] || 'OAuth sign-in failed.';
@@ -27,7 +27,11 @@ export default function OAuthCallback() {
     }
 
     if (linkPrompt === 'true') {
-      navigate('/auth', { state: { linkPromptEmail: email }, replace: true });
+      authService.getLinkInfo().then((info) => {
+        navigate('/auth', { state: { linkPromptEmail: info.email ?? null }, replace: true });
+      }).catch(() => {
+        navigate('/auth', { state: { linkPromptEmail: null }, replace: true });
+      });
       return;
     }
 

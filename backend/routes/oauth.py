@@ -159,7 +159,7 @@ def register_oauth_routes(app):
                         'picture': picture,
                     })
                     response = make_response(redirect(
-                        f'{frontend_cb}?link_prompt=true&email={email}'
+                        f'{frontend_cb}?link_prompt=true'
                     ))
                     response.set_cookie(
                         'oauth_link_token',
@@ -289,5 +289,18 @@ def register_oauth_routes(app):
         resp = make_response(jsonify({'success': True}))
         resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google')
         return resp
+
+    @oauth_bp.route('/api/auth/google/link-info', methods=['GET'])
+    def link_info():
+        from flask import jsonify
+        link_token = request.cookies.get('oauth_link_token')
+        if not link_token:
+            return jsonify({'success': False, 'message': '連結請求已過期'}), 400
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = serializer.loads(link_token, max_age=LINK_TOKEN_MAX_AGE)
+        except (SignatureExpired, BadSignature):
+            return jsonify({'success': False, 'message': '連結請求已過期'}), 400
+        return jsonify({'success': True, 'email': data['email']})
 
     app.register_blueprint(oauth_bp)

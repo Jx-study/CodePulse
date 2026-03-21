@@ -81,6 +81,13 @@ const authService = {
     await apiService.post('/api/auth/google/cancel-link');
   },
 
+  async getLinkInfo(): Promise<{ success: boolean; email?: string; message?: string }> {
+    const res = await apiService.get<{ success: boolean; email?: string; message?: string }>(
+      '/api/auth/google/link-info'
+    );
+    return res.data;
+  },
+
   async logout(): Promise<void> {
     await apiService.post('/api/auth/logout');
   },
