@@ -1,5 +1,5 @@
 from database import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class QuestionGroup(db.Model):
@@ -10,8 +10,8 @@ class QuestionGroup(db.Model):
     code = db.Column(db.Text, nullable=True)
     language = db.Column(db.String(50), nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     translations = db.relationship('QuestionGroupTranslation', backref='group', cascade='all, delete-orphan')
     questions = db.relationship('Question', backref='group', cascade='all, delete-orphan')
@@ -65,8 +65,8 @@ class Question(db.Model):
     correct_answer = db.Column(db.String(500), nullable=False)
     points = db.Column(db.Integer, default=1)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     translations = db.relationship('QuestionTranslation', backref='question', cascade='all, delete-orphan')
 

@@ -2,6 +2,7 @@ import jwt
 import bcrypt
 import hashlib
 import secrets
+import string
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import request, jsonify, current_app
@@ -139,8 +140,6 @@ def clear_auth_cookies(response):
 
 
 # ── Verification code ─────────────────────────────────────────────────────────
-
-import string
 
 _CODE_ALPHABET = string.ascii_uppercase + string.digits
 
