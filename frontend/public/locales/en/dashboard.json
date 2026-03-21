@@ -1,0 +1,401 @@
+{
+  "levels": {
+    "array": {
+      "name": "Array",
+      "description": "The most fundamental linear data structure",
+      "objectives": [
+        "Understand memory layout of arrays",
+        "Master index-based access",
+        "Analyze time and space complexity"
+      ]
+    },
+    "linked_list": {
+      "name": "Linked List",
+      "description": "Foundation of dynamic data structures",
+      "objectives": [
+        "Understand the basic structure of a linked list",
+        "Master node insertion and deletion",
+        "Analyze time complexity"
+      ]
+    },
+    "doubly_linked_list": {
+      "name": "Doubly Linked List",
+      "description": "Advanced linked structure supporting bidirectional traversal",
+      "objectives": [
+        "Understand the advantages of doubly linked lists",
+        "Master forward and backward pointer management",
+        "Apply to LRU Cache"
+      ]
+    },
+    "stack": {
+      "name": "Stack",
+      "description": "Last-In, First-Out (LIFO) data structure",
+      "objectives": [
+        "Understand the LIFO principle",
+        "Master push/pop operations",
+        "Apply to function call stacks"
+      ]
+    },
+    "queue": {
+      "name": "Queue",
+      "description": "First-In, First-Out (FIFO) data structure",
+      "objectives": [
+        "Understand the FIFO principle",
+        "Master enqueue/dequeue operations",
+        "Apply to breadth-first search"
+      ]
+    },
+    "binarytree": {
+      "name": "Binary Tree",
+      "description": "A fundamental tree structure where each node has at most two children",
+      "objectives": [
+        "Understand tree structure and node relationships",
+        "Master pre-order, in-order, and post-order traversal",
+        "Understand the use of recursion in trees"
+      ]
+    },
+    "bst": {
+      "name": "Binary Search Tree",
+      "description": "A binary tree with sorted properties: left subtree is smaller than root, right subtree is larger",
+      "objectives": [
+        "Understand the sorted properties of BST",
+        "Master search, insertion, and deletion logic",
+        "Analyze the impact of balance on performance"
+      ]
+    },
+    "heap": {
+      "name": "Heap",
+      "description": "A complete binary tree structure supporting fast retrieval of the maximum or minimum value",
+      "objectives": [
+        "Understand the difference between Min Heap and Max Heap",
+        "Master the heapify operation",
+        "Apply to priority queues and sorting"
+      ]
+    },
+    "graph": {
+      "name": "Graph",
+      "description": "A non-linear data structure composed of vertices and edges",
+      "objectives": [
+        "Understand the basic components and terminology of graphs",
+        "Compare adjacency matrix and adjacency list",
+        "Distinguish between directed and undirected graphs"
+      ]
+    },
+    "trie": {
+      "name": "Trie",
+      "description": "An N-ary tree structure designed for string prefix queries",
+      "objectives": [
+        "Understand the node structure of a Trie",
+        "Master insertion and lookup operations",
+        "Apply to autocomplete and spell checking"
+      ]
+    },
+    "portal_to_sorting": {
+      "name": "Portal: Sorting Algorithms"
+    },
+    "bubble_sort": {
+      "name": "Bubble Sort",
+      "description": "The most basic sorting algorithm, sorting by repeatedly swapping adjacent elements",
+      "objectives": [
+        "Understand the basic concepts of sorting algorithms",
+        "Master the logic of nested loops",
+        "Analyze time complexity O(n²)"
+      ]
+    },
+    "selection_sort": {
+      "name": "Selection Sort",
+      "description": "Repeatedly selects the minimum from the unsorted portion and places it at the end of the sorted portion",
+      "objectives": [
+        "Understand the core logic of selection sort",
+        "Compare bubble sort and selection sort",
+        "Analyze time complexity O(n²)"
+      ]
+    },
+    "insertion_sort": {
+      "name": "Insertion Sort",
+      "description": "Inserts each element into its correct position in the sorted portion",
+      "objectives": [
+        "Understand the implementation of insertion sort",
+        "Master applicable scenarios (small-scale data)",
+        "Analyze best and worst cases"
+      ]
+    },
+    "merge_sort": {
+      "name": "Merge Sort",
+      "description": "A stable sorting algorithm using the divide-and-conquer approach",
+      "objectives": [
+        "Understand the core idea of divide and conquer",
+        "Master recursive implementation techniques",
+        "Analyze time complexity O(n log n)"
+      ]
+    },
+    "quick_sort": {
+      "name": "Quick Sort",
+      "description": "A highly efficient sorting algorithm using divide and conquer",
+      "objectives": [
+        "Understand the partitioning logic of quick sort",
+        "Master pivot selection strategies",
+        "Analyze average time complexity O(n log n)"
+      ]
+    },
+    "portal_to_searching": {
+      "name": "Portal: Searching Algorithms"
+    },
+    "linear_search": {
+      "name": "Linear Search",
+      "description": "Sequentially checks each element until the target value is found",
+      "objectives": [
+        "Understand the basic concept of linear search",
+        "Compare with binary search",
+        "Analyze time complexity O(n)"
+      ]
+    },
+    "binary_search": {
+      "name": "Binary Search",
+      "description": "Quickly finds the target value in a sorted array",
+      "objectives": [
+        "Understand the principle of binary search",
+        "Master boundary condition handling",
+        "Analyze time complexity O(log n)"
+      ]
+    },
+    "portal_to_recursive": {
+      "name": "Portal: Recursive Algorithms"
+    },
+    "factorial": {
+      "name": "Recursion Basics: Factorial",
+      "description": "Understand the recursive call and return flow through factorial",
+      "objectives": [
+        "Understand the basic structure of recursion (base case / recursive case)",
+        "Master the operation of the function call stack",
+        "Visualize the recursive expansion and return process"
+      ]
+    },
+    "fibonacci_recursive": {
+      "name": "Recursion Tree: Fibonacci Sequence",
+      "description": "Understand recursion trees and overlapping subproblems through the Fibonacci sequence",
+      "objectives": [
+        "Understand how a recursion tree unfolds",
+        "Identify overlapping subproblems",
+        "Compare the performance of recursion vs. iteration"
+      ]
+    },
+    "merge_sort_recursive": {
+      "name": "Divide & Conquer: Merge Sort",
+      "description": "Revisit merge sort's divide-and-conquer structure from a recursive perspective",
+      "objectives": [
+        "Understand the three steps of divide and conquer (divide, solve, merge)",
+        "Visualize the recursion tree and merge process",
+        "Analyze the time complexity of divide and conquer"
+      ]
+    },
+    "hanoi": {
+      "name": "Tower of Hanoi",
+      "description": "Classic recursion problem: move all disks from peg A to peg C",
+      "objectives": [
+        "Understand the unfolding logic of multi-level recursion",
+        "Master recursive formula derivation",
+        "Visualize each move step"
+      ]
+    },
+    "backtracking_intro": {
+      "name": "Introduction to Backtracking",
+      "description": "Systematically explore all possible solutions and backtrack when a path is infeasible",
+      "objectives": [
+        "Understand the decision tree model of backtracking",
+        "Master pruning strategies",
+        "Apply to permutation and combination problems"
+      ]
+    },
+    "quick_sort_recursive": {
+      "name": "Divide & Conquer: Quick Sort",
+      "description": "Understand quick sort's pivot partitioning strategy from a recursive perspective",
+      "objectives": [
+        "Understand how pivot selection affects recursion tree depth",
+        "Master best, average, and worst case analysis",
+        "Visualize the partition process"
+      ]
+    },
+    "n_queens": {
+      "name": "N-Queens Problem",
+      "description": "Classic backtracking application: place N non-attacking queens on an N×N chessboard",
+      "objectives": [
+        "Apply backtracking to constraint satisfaction problems",
+        "Master pruning logic for chessboard state",
+        "Visualize the search and backtrack process"
+      ]
+    },
+    "portal_to_technique": {
+      "name": "Portal: Techniques Overview"
+    },
+    "prefix_sum": {
+      "name": "Prefix Sum",
+      "description": "A preprocessing technique for fast range sum queries",
+      "objectives": [
+        "Understand how to build a prefix sum array",
+        "Master O(1) range queries",
+        "Apply to frequent query scenarios"
+      ]
+    },
+    "sliding_window": {
+      "name": "Sliding Window",
+      "description": "Maintain a sliding interval over an array or string using two pointers to avoid redundant computation, optimizing time complexity to O(N).",
+      "objectives": [
+        "Master the sliding logic of two-pointer interval maintenance",
+        "Accurately identify when to expand or shrink the window",
+        "Apply to solving problems involving specific conditions on contiguous intervals (e.g., maximum sum of fixed length, shortest subarray meeting a target)"
+      ]
+    },
+    "two_pointers": {
+      "name": "Two Pointers",
+      "description": "Use two pointers to collaboratively traverse an array or string, reducing time complexity",
+      "objectives": [
+        "Understand same-direction and opposite-direction two pointers",
+        "Master the two-sum problem in a sorted array",
+        "Apply to palindrome detection in strings"
+      ]
+    },
+    "bit_mask": {
+      "name": "Bit Manipulation",
+      "description": "Use bitwise operations to achieve efficient state compression and computation",
+      "objectives": [
+        "Understand basic bitwise operators",
+        "Master common bit tricks (parity check, swap, powers of two)",
+        "Apply to bitmask DP"
+      ]
+    },
+    "portal_to_graph": {
+      "name": "Portal: Graph Algorithms"
+    },
+    "bfs": {
+      "name": "Breadth-First Search",
+      "description": "A graph traversal algorithm implemented using a queue",
+      "objectives": [
+        "Understand the traversal order of BFS",
+        "Master the use of queues",
+        "Apply to shortest path problems"
+      ]
+    },
+    "dfs": {
+      "name": "Depth-First Search",
+      "description": "A graph traversal algorithm implemented using a stack or recursion",
+      "objectives": [
+        "Understand the traversal order of DFS",
+        "Master recursive implementation techniques",
+        "Apply to path-finding problems"
+      ]
+    },
+    "topological_sort": {
+      "name": "Topological Sort",
+      "description": "Linearly order the nodes of a directed acyclic graph (DAG)",
+      "objectives": [
+        "Understand the use cases of topological sort",
+        "Master Kahn's Algorithm (BFS-based)",
+        "Apply to course scheduling and dependency resolution"
+      ]
+    },
+    "union_find": {
+      "name": "Union-Find",
+      "description": "A data structure for efficiently managing disjoint sets",
+      "objectives": [
+        "Understand Find and Union operations",
+        "Master path compression optimization",
+        "Apply to connected component detection"
+      ]
+    },
+    "dijkstra": {
+      "name": "Dijkstra's Shortest Path",
+      "description": "A classic algorithm for finding single-source shortest paths in a weighted graph",
+      "objectives": [
+        "Understand the greedy strategy and the use of a priority queue",
+        "Master the edge relaxation operation",
+        "Analyze why it cannot handle negative-weight edges"
+      ]
+    },
+    "astar": {
+      "name": "A* Search",
+      "description": "A shortest path search algorithm incorporating a heuristic function",
+      "objectives": [
+        "Understand the estimation logic of f(x) = g(x) + h(x)",
+        "Master the design principles of heuristic functions",
+        "Compare A* with Dijkstra"
+      ]
+    },
+    "portal_to_dp": {
+      "name": "Portal: Dynamic Programming"
+    },
+    "dp_fibonacci": {
+      "name": "DP Intro: Fibonacci Sequence",
+      "description": "A complete evolution from recursion to memoization to bottom-up DP",
+      "objectives": [
+        "Understand memoized search (Top-Down)",
+        "Master building a Bottom-Up DP table",
+        "Compare the performance of recursion, memo, and DP"
+      ]
+    },
+    "knapsack": {
+      "name": "0/1 Knapsack Problem",
+      "description": "A classic DP problem: select items of maximum value within a weight limit",
+      "objectives": [
+        "Understand DP state definition and transition equations",
+        "Master the process of filling a 2D DP table",
+        "Optimize to a 1D rolling array"
+      ]
+    },
+    "lcs": {
+      "name": "Longest Common Subsequence",
+      "description": "Find the longest common subsequence of two sequences",
+      "objectives": [
+        "Understand the state transition logic of LCS",
+        "Master the table-filling animation and subsequence backtracking",
+        "Apply to diff tools and genomic alignment"
+      ]
+    }
+  },
+  "categories": {
+    "data_structures": {
+      "name": "Data Structures",
+      "description": "Learn the working principles and applications of various data structures"
+    },
+    "sorting": {
+      "name": "Sorting Algorithms",
+      "description": "Master the implementation and performance analysis of various sorting algorithms"
+    },
+    "searching": {
+      "name": "Searching Algorithms",
+      "description": "Explore efficient search strategies and techniques"
+    },
+    "recursive": {
+      "name": "Recursion & Divide and Conquer",
+      "description": "Master recursive thinking and divide-and-conquer strategies to build a foundation for DP"
+    },
+    "technique": {
+      "name": "Algorithm Techniques",
+      "description": "Learn general problem-solving patterns and optimization techniques"
+    },
+    "graph": {
+      "name": "Graph Algorithms",
+      "description": "Deeply understand the core algorithms of graph theory"
+    },
+    "dp": {
+      "name": "Dynamic Programming",
+      "description": "Solve overlapping subproblems through state transitions and master optimization thinking"
+    }
+  },
+  "branch_labels": {
+    "lifo_structure": "LIFO Structure",
+    "fifo_structure": "FIFO Structure",
+    "sorting_tree": "Sorted Tree Structure",
+    "priority_structure": "Priority Structure",
+    "network_structure": "Network Structure",
+    "selection_strategy": "Selection Strategy",
+    "insertion_strategy": "Insertion Strategy",
+    "divide_conquer": "Divide & Conquer",
+    "classic_application": "Classic Application",
+    "state_exhaustion": "State Exhaustion",
+    "dag_application": "DAG Application",
+    "set_management": "Set Management",
+    "combination_optimization": "Combination Optimization",
+    "string_dp": "String DP"
+  }
+}

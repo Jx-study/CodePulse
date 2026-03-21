@@ -6,6 +6,7 @@ import Badge from '@/shared/components/Badge';
 import type { LevelDialogProps } from '@/types';
 import type { BadgeProps } from '@/types';
 import { getLevelById } from '@/services/LevelService';
+import { useTranslation } from 'react-i18next';
 
 const difficultyVariant: Record<number, BadgeProps['variant']> = {
   1: 'success',
@@ -35,9 +36,13 @@ function LevelDialog({
   practiceLocked,
   prerequisiteInfo
 }: LevelDialogProps) {
+  const { t } = useTranslation('dashboard');
 
   const suggestedLevelNames = level.suggestedPrerequisites
-    ?.map(id => getLevelById(id)?.name ?? id)
+    ?.map(id => {
+      const l = getLevelById(id);
+      return l ? t(`levels.${l.id.replace(/-/g, '_')}.name`) : id;
+    })
     ?? [];
 
   const difficultyBadge = (
@@ -50,7 +55,7 @@ function LevelDialog({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={`關卡 : ${level.name}`}
+      title={`關卡 : ${t(`levels.${level.id.replace(/-/g, '_')}.name`)}`}
       subtitle={difficultyBadge}
       size="lg"
       closeOnOverlayClick={true}

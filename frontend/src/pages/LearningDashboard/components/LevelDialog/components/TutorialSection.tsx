@@ -3,6 +3,7 @@ import Button from '@/shared/components/Button';
 import Badge from '@/shared/components/Badge';
 import type { Level } from '@/types';
 import Icon from '@/shared/components/Icon/Icon';
+import { useTranslation } from 'react-i18next';
 
 interface TutorialSectionProps {
   level: Level;
@@ -13,22 +14,27 @@ interface TutorialSectionProps {
 }
 
 function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, suggestedLevelNames }: TutorialSectionProps) {
+  const { t } = useTranslation('dashboard');
+  const levelKey = level.id.replace(/-/g, '_');
+  const description = t(`levels.${levelKey}.description`);
+  const objectives = t(`levels.${levelKey}.objectives`, { returnObjects: true }) as string[];
+
   return (
     <div className={styles.tutorialSection}>
       <h3>教學模式</h3>
 
       <div className={styles.description}>
         <h4>演算法說明</h4>
-        {level.description && (
-          <p dangerouslySetInnerHTML={{ __html: level.description }} />
+        {description && (
+          <p dangerouslySetInnerHTML={{ __html: description }} />
         )}
       </div>
 
-      {level.learningObjectives && level.learningObjectives.length > 0 && (
+      {objectives && objectives.length > 0 && (
         <div className={styles.objectives}>
           <h4>學習目標</h4>
           <ul>
-            {level.learningObjectives.map((objective, index) => (
+            {objectives.map((objective, index) => (
               <li key={index}>{objective}</li>
             ))}
           </ul>

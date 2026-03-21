@@ -1,4 +1,3 @@
-import React from "react";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { PrefixSumActionBar } from "./PrefixSumActionBar";

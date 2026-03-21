@@ -1,4 +1,3 @@
-import React from "react";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";

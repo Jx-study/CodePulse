@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";

@@ -1,4 +1,3 @@
-import React from "react";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
@@ -79,7 +78,6 @@ const TAGS = {
 function createPointers(
   x: number,
   y: number,
-  nodeId: string,
   config: {
     isHead?: boolean;
     isTail?: boolean;
@@ -474,7 +472,7 @@ export function createLinkedListAnimationSteps(
       }
     }
 
-    const pointers = createPointers(x, y, item.id, {
+    const pointers = createPointers(x, y, {
       isHead,
       isTail,
       extraLabel,

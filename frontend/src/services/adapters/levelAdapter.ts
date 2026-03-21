@@ -30,12 +30,8 @@ interface HomePageMetadata {
 
 interface RawLevelData {
   id: string;
-  name: string;
-  nameEn: string;
   category: CategoryType;
   difficulty: DifficultyLevel;
-  description: string;
-  learningObjectives: string[];
   isDeveloped: boolean;
   isUnlocked: boolean;
   prerequisites: PrerequisiteConfig;
@@ -48,9 +44,6 @@ interface RawLevelData {
 
 interface RawCategoryData {
   id: CategoryType;
-  name: string;
-  nameEn: string;
-  description: string;
   icon?: string;
   colorTheme: string;
   isDeveloped: boolean;
@@ -65,12 +58,8 @@ interface RawCategoryData {
 export function rawToLevelConfig(raw: RawLevelData): LevelConfig {
   return {
     id: raw.id,
-    name: raw.name,
-    nameEn: raw.nameEn,
     category: raw.category,
     difficulty: raw.difficulty,
-    description: raw.description,
-    learningObjectives: raw.learningObjectives,
     isDeveloped: raw.isDeveloped,
     isUnlocked: raw.isUnlocked,
     prerequisites: raw.prerequisites,

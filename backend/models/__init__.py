@@ -1,10 +1,5 @@
 from .user import User, UserIdentity, UserToken, EmailVerification, UserLoginStreak
-from .tutorial import (
-    AlgorithmCategory, AlgorithmCategoryTranslation,
-    Tutorial, TutorialTranslation,
-    TutorialPrerequisite, TutorialSuggestion,
-    UserTutorialProgress,
-)
+from .tutorial import AlgorithmCategory, Tutorial, UserTutorialProgress
 from .question import QuestionGroup, QuestionGroupTranslation, Question, QuestionTranslation
 from .practice import LearningSession, PracticeAttempt, AttemptAnswer
 from .xp import XpEvent, AchievementDefinition, AchievementTranslation, UserAchievement
@@ -15,10 +10,7 @@ __all__ = [
     # User
     'User', 'UserIdentity', 'UserToken', 'EmailVerification', 'UserLoginStreak',
     # Tutorial
-    'AlgorithmCategory', 'AlgorithmCategoryTranslation',
-    'Tutorial', 'TutorialTranslation',
-    'TutorialPrerequisite', 'TutorialSuggestion',
-    'UserTutorialProgress',
+    'AlgorithmCategory', 'Tutorial', 'UserTutorialProgress',
     # Question
     'QuestionGroup', 'QuestionGroupTranslation',
     'Question', 'QuestionTranslation',

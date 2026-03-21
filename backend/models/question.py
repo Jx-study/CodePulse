@@ -1,5 +1,20 @@
 from database import db
 from datetime import datetime, timezone
+import enum
+
+
+class QuestionType(enum.Enum):
+    single_choice = 'single-choice'
+    multiple_choice = 'multiple-choice'
+    true_false = 'true-false'
+    predict_line = 'predict-line'
+    fill_code = 'fill-code'
+
+
+class QuestionCategory(enum.Enum):
+    basic = 'basic'
+    application = 'application'
+    complexity = 'complexity'
 
 
 class QuestionGroup(db.Model):
@@ -49,10 +64,8 @@ class Question(db.Model):
     question_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
     group_id = db.Column(db.BigInteger, db.ForeignKey('question_groups.group_id', ondelete='SET NULL'), nullable=True)
-    question_type = db.Column(db.String(20), nullable=False)
-    # 'single-choice' | 'multiple-choice' | 'true-false' | 'predict-line' | 'fill-code'
-    category = db.Column(db.String(20), nullable=False, default='basic')
-    # 'basic' | 'application' | 'complexity'
+    question_type = db.Column(db.Enum(QuestionType), nullable=False)
+    category = db.Column(db.Enum(QuestionCategory), nullable=False, default=QuestionCategory.basic)
 
     code = db.Column(db.Text, nullable=True)
     language = db.Column(db.String(50), nullable=True)
@@ -81,8 +94,8 @@ class Question(db.Model):
     def to_dict(self, include_answer=False):
         data = {
             'question_id': self.question_id,
-            'question_type': self.question_type,
-            'category': self.category,
+            'question_type': self.question_type.value,
+            'category': self.category.value,
             'code': self.code,
             'language': self.language,
             'points': self.points,

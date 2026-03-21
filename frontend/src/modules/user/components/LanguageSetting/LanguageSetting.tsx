@@ -12,7 +12,6 @@ function LanguageSetting() {
   const languageOptions = [
     { key: "en", label: "English", icon: <Icon name="globe" size="sm" /> },
     { key: "zh-TW", label: "繁體中文", icon: <Icon name="globe" size="sm" /> },
-    { key: "zh-CN", label: "简体中文", icon: <Icon name="globe" size="sm" /> },
   ];
 
   // 获取当前语言的显示文本

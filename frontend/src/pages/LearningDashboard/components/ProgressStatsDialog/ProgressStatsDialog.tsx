@@ -5,6 +5,7 @@ import Card from '@/shared/components/Card';
 import ProgressBar from '@/shared/components/ProgressBar';
 import Icon from '@/shared/components/Icon';
 import type { ProgressStatsDialogProps } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 // 固定 placeholder 值（待後端 API 接入時替換）
 const STREAK_DAYS = 3;
@@ -20,6 +21,7 @@ function ProgressStatsDialog({
   completionRate,
   categoryProgress,
 }: ProgressStatsDialogProps) {
+  const { t } = useTranslation('dashboard');
   const overallPercent = Math.round(completionRate);
   const svgDashArray = `${overallPercent}, 100`;
 
@@ -120,7 +122,7 @@ function ProgressStatsDialog({
                   >
                     <Icon name={info.icon ?? "circle"} />
                   </div>
-                  <span className={styles.categoryName}>{info.name}</span>
+                  <span className={styles.categoryName}>{t(`categories.${category.replace(/-/g, '_')}.name`)}</span>
                   <span className={styles.categoryCount}>
                     {info.completedLevels} / {info.totalLevels}
                   </span>

@@ -1,5 +1,30 @@
 from database import db
 from datetime import datetime, timezone
+import enum
+
+
+class XpSourceType(enum.Enum):
+    teaching_complete = 'teaching_complete'
+    practice_pass = 'practice_pass'
+    practice_perfect = 'practice_perfect'
+    achievement_unlock = 'achievement_unlock'
+    login_streak = 'login_streak'
+
+
+class AchievementCategory(enum.Enum):
+    learning = 'learning'
+    practice = 'practice'
+    streak = 'streak'
+    milestone = 'milestone'
+
+
+class AchievementConditionType(enum.Enum):
+    tutorials_completed = 'tutorials_completed'
+    category_completed = 'category_completed'
+    perfect_score = 'perfect_score'
+    login_streak = 'login_streak'
+    xp_milestone = 'xp_milestone'
+    skill_tier_reached = 'skill_tier_reached'
 
 
 class XpEvent(db.Model):
@@ -7,8 +32,7 @@ class XpEvent(db.Model):
 
     xp_event_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
-    source_type = db.Column(db.String(30), nullable=False)
-    # 'teaching_complete' | 'practice_pass' | 'practice_perfect' | 'achievement_unlock' | 'login_streak'
+    source_type = db.Column(db.Enum(XpSourceType), nullable=False)
     source_id = db.Column(db.BigInteger, nullable=True)
     xp_amount = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(200), nullable=True)
@@ -35,9 +59,8 @@ class AchievementDefinition(db.Model):
     achievement_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     slug = db.Column(db.String(100), unique=True, nullable=False)
     icon = db.Column(db.String(100), nullable=True)
-    category = db.Column(db.String(50), nullable=False)
-    # 'learning' | 'practice' | 'streak' | 'milestone'
-    condition_type = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.Enum(AchievementCategory), nullable=False)
+    condition_type = db.Column(db.Enum(AchievementConditionType), nullable=False)
     condition_value = db.Column(db.JSON, nullable=False)
     # e.g. {"count": 1} or {"days": 7} or {"tier": 4}
     points = db.Column(db.Integer, nullable=False, default=0)

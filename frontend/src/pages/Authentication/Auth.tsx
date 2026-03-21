@@ -15,7 +15,7 @@ import styles from "./Auth.module.scss";
 type TabType = "login" | "signup";
 
 function AuthPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const location = useLocation();
   const { login, register, checkAuthStatus } = useAuth();

@@ -29,7 +29,7 @@ function SignupForm({
   alertMessage = "",
   alertType = "error",
 }: SignupFormProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
