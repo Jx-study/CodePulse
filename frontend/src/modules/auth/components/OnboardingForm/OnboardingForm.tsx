@@ -7,7 +7,7 @@ import Input from "@/shared/components/Input";
 import Icon from "@/shared/components/Icon";
 import ProgressBar from "@/shared/components/ProgressBar";
 import useForm from "@/shared/hooks/useForm";
-import useUsernameCheck from "../../hooks/useUsernameCheck";
+import useUsernameCheck from "@/modules/auth/hooks/useUsernameCheck";
 import { validateUsername } from "@/shared/utils/validation";
 import styles from "./OnboardingForm.module.scss";
 

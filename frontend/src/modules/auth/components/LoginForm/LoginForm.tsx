@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { LoginFormData } from "@/types/pages/auth";
-import styles from "../../styles/AuthForm.module.scss";
+import styles from "@/styles/AuthForm.module.scss";
 import Button from "@/shared/components/Button";
 import FormItem from "@/shared/components/FormItem";
 import FormAlert from "@/shared/components/FormAlert";

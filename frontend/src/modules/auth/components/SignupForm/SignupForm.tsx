@@ -8,7 +8,7 @@ import type { FormAlertType } from "@/shared/components/FormAlert";
 import Input from "@/shared/components/Input";
 import Icon from "@/shared/components/Icon";
 import useForm from "@/shared/hooks/useForm";
-import useUsernameCheck from "../../hooks/useUsernameCheck";
+import useUsernameCheck from "@/modules/auth/hooks/useUsernameCheck";
 import {
   validateUsername,
   validateEmail,

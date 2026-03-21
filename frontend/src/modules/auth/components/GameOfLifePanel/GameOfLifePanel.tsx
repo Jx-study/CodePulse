@@ -3,7 +3,7 @@ import { useTheme } from '@/shared/contexts/ThemeContext';
 import Button from '@/shared/components/Button';
 import Dialog from '@/shared/components/Dialog';
 import Icon from '@/shared/components/Icon';
-import useGameOfLife from '../../hooks/useGameOfLife';
+import useGameOfLife from '@/modules/auth/hooks/useGameOfLife';
 import styles from './GameOfLifePanel.module.scss';
 
 function GameOfLifePanel() {
