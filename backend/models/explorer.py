@@ -15,7 +15,7 @@ class ExploreHistory(db.Model):
     space_complexity = db.Column(db.String(50), nullable=True)
     analysis_source = db.Column(db.String(20), nullable=False)
     # 'ast+bigO' | 'gemini'
-    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.Index('ix_explore_histories_user_id', 'user_id'),

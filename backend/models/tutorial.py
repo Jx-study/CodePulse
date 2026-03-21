@@ -18,7 +18,7 @@ class AlgorithmCategory(db.Model):
     icon = db.Column(db.String(50), nullable=True)
     color_theme = db.Column(db.String(20), nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     translations = db.relationship('AlgorithmCategoryTranslation', backref='category', cascade='all, delete-orphan')
     tutorials = db.relationship('Tutorial', foreign_keys='Tutorial.category_id', backref='category')
@@ -79,8 +79,8 @@ class Tutorial(db.Model):
     homepage_translation_key = db.Column(db.String(100), nullable=True)
     show_on_homepage = db.Column(db.Boolean, default=False)
 
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     translations = db.relationship('TutorialTranslation', backref='tutorial', cascade='all, delete-orphan')
     prerequisites = db.relationship('TutorialPrerequisite', foreign_keys='TutorialPrerequisite.tutorial_id', backref='tutorial', cascade='all, delete-orphan')
@@ -172,8 +172,8 @@ class UserTutorialProgress(db.Model):
 
     status = db.Column(db.Enum(TutorialStatus), default=TutorialStatus.teaching_in_progress)
     last_accessed_at = db.Column(db.DateTime(timezone=True), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('user_id', 'tutorial_id', name='uq_user_tutorial_progress'),
