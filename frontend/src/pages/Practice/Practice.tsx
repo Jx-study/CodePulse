@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   PracticeResult,
-  PracticeSession,
   Question,
 } from "@/types/practice";
 import { getQuizByLevelId } from "@/data/questions";
@@ -302,33 +301,55 @@ function Practice() {
     });
   };
 
-  const handleSubmit = () => {
-    if (!originalQuiz) return;
+  const handleSubmit = async () => {
+    if (!levelId) return;
 
-    const now = Date.now();
-    const lastDuration = now - questionStartTime;
-    const lastQId = randomizedQuestions[currentQuestionIndex].id;
+    updateTimeRecord();
 
-    const finalTimeRecords = {
-      ...timeRecords,
-      [lastQId]: (timeRecords[lastQId] || 0) + lastDuration,
-    };
+    const payload = randomizedQuestions.map((q) => ({
+      question_id: q.backendId!,
+      user_answer: userAnswers[q.id] ?? '',
+      time_spent_seconds: Math.round((timeRecords[q.id] || 0) / 1000),
+    }));
 
-    const session: PracticeSession = {
-      sessionId: `session-${Date.now()}`,
-      levelId: originalQuiz.levelId,
-      questions: randomizedQuestions,
-      userAnswers,
-      startTime,
-      endTime: Date.now(),
-      status: "completed",
-      userStartRating: 1000, // TODO: 目前先寫死為 1000 (預設值)，未來可從 UserContext 獲取
-      timeRecords: finalTimeRecords,
-    };
+    try {
+      const resp = await tutorialService.submitPractice(levelId, payload);
 
-    const calculatedResult = PracticeService.calculateResult(session);
-    setResult(calculatedResult);
-    setShowResult(true);
+      const wrongQuestions = resp.results
+        .filter((r) => !r.is_correct)
+        .map((r) => {
+          const q = randomizedQuestions.find((q) => q.backendId === r.question_id)!;
+          return {
+            questionId: q.id,
+            userAnswer: userAnswers[q.id] ?? '',
+            correctAnswer: '',
+            explanation: r.explanation,
+            timeSpent: Math.round((timeRecords[q.id] || 0) / 1000),
+          };
+        });
+
+      const stars = PracticeService.calculateStars(resp.score);
+      const calculatedResult: PracticeResult = {
+        sessionId: `session-${Date.now()}`,
+        levelId,
+        totalQuestions: randomizedQuestions.length,
+        correctCount: resp.correct_count,
+        wrongCount: randomizedQuestions.length - resp.correct_count,
+        score: resp.score,
+        stars,
+        timeSpent: Math.round((Date.now() - startTime) / 1000),
+        isPassed: resp.score >= 60,
+        wrongQuestions,
+        oldRating: currentUserRating,
+        newRating: currentUserRating + resp.rating_delta,
+        ratingDelta: resp.rating_delta,
+      };
+
+      setResult(calculatedResult);
+      setShowResult(true);
+    } catch (err) {
+      console.error('Submit failed', err);
+    }
   };
 
   const handleRetry = () => {

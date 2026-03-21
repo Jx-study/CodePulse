@@ -50,11 +50,13 @@ import { useTranslation } from "react-i18next";
 import { tutorialService } from '@/services/tutorialService';
 import { mergeApiProgress } from '@/services/UserProgressService';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
 
@@ -72,7 +74,7 @@ function LearningDashboardInner() {
       .catch(() => {
         // 靜默失敗，維持本地預設值
       });
-  }, [isAuthenticated]);
+  }, [isAuthenticated, location.key]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
