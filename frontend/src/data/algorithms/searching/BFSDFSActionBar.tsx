@@ -221,7 +221,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
                   (e.target as HTMLInputElement).blur();
                 }
               }}
-              className={styles.input}
+              className={`${styles.input} ${styles.valueInput}`}
               disabled={disabled}
               aria-label="Random count"
             />

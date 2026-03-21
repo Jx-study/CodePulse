@@ -11,6 +11,26 @@ export default {
   "login": "Login",
   "register": "Register",
 
+  "verifyEmail": {
+    "title": "Verify Your Email",
+    "subtitle": "Verification code sent to",
+    "codePlaceholder": "Enter 6-character code",
+    "submit": "Verify",
+    "resend": "Resend Code",
+    "backToRegister": "Back to Register",
+    "timeLeft": "Code expires in {{minutes}}:{{seconds}}",
+    "expired": "Verification code has expired",
+    "submitting": "Verifying...",
+    "resending": "Sending...",
+    "errors": {
+      "INVALID_OR_EXPIRED_CODE": "Invalid or expired verification code",
+      "EMAIL_ALREADY_EXISTS": "This email is already registered",
+      "MISSING_FIELDS": "Please fill in all required fields",
+      "MAIL_ERROR": "Failed to send verification code, please try again",
+      "DEFAULT": "Verification failed, please try again"
+    }
+  },
+
   "breadcrumb": {
     "dashboard": "Dashboard",
     "backToDashboard": "Back to Dashboard"
@@ -151,6 +171,43 @@ export default {
       "feedback": "Feedback"
     },
     "copyright": "© 2025 CodePulse. Licensed under the MIT License. | Designed for programming learning."
+  },
+
+  "validation": {
+    "username": {
+      "required": "Please enter a username",
+      "min": "Username must be at least 3 characters",
+      "max": "Username cannot exceed 15 characters",
+      "invalid": "Username can only contain letters, numbers, and underscores"
+    },
+    "email": {
+      "required": "Please enter an email",
+      "invalid": "Please enter a valid email address"
+    },
+    "password": {
+      "required": "Please enter a password",
+      "min": "Password must be at least 8 characters",
+      "max": "Password cannot exceed 20 characters",
+      "uppercase": "Password must contain an uppercase letter",
+      "lowercase": "Password must contain a lowercase letter",
+      "digit": "Password must contain a number",
+      "symbol": "Password must contain a symbol (!@#$%^&*_-+=.,?)",
+      "invalid_chars": "Password contains disallowed characters"
+    },
+    "confirmPassword": {
+      "required": "Please confirm your password",
+      "mismatch": "Passwords do not match"
+    },
+    "displayName": {
+      "required": "Display name cannot be empty",
+      "max": "Display name cannot exceed 30 characters"
+    },
+    "oldPassword": {
+      "required": "Please enter your current password"
+    },
+    "loginIdentifier": {
+      "required": "Please enter your username or email"
+    }
   },
 
   "tech": {

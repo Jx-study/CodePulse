@@ -11,6 +11,26 @@ export default {
   "login": "登入",
   "register": "註冊",
 
+  "verifyEmail": {
+    "title": "驗證您的信箱",
+    "subtitle": "驗證碼已寄送至",
+    "codePlaceholder": "請輸入 6 位驗證碼",
+    "submit": "驗證",
+    "resend": "重新發送驗證碼",
+    "backToRegister": "返回重新註冊",
+    "timeLeft": "驗證碼將在 {{minutes}}:{{seconds}} 後過期",
+    "expired": "驗證碼已過期",
+    "submitting": "驗證中...",
+    "resending": "發送中...",
+    "errors": {
+      "INVALID_OR_EXPIRED_CODE": "驗證碼無效或已過期",
+      "EMAIL_ALREADY_EXISTS": "此 Email 已被註冊",
+      "MISSING_FIELDS": "請填寫所有必要欄位",
+      "MAIL_ERROR": "驗證碼寄送失敗，請稍後再試",
+      "DEFAULT": "驗證失敗，請稍後再試"
+    }
+  },
+
   "breadcrumb": {
     "dashboard": "學習導覽",
     "backToDashboard": "回到學習導覽"
@@ -151,6 +171,43 @@ export default {
       "feedback": "意見回饋"
     },
     "copyright": "© 2025 CodePulse。 本項目採用 MIT 許可證。| 專為程式學習而設計。"
+  },
+
+  "validation": {
+    "username": {
+      "required": "請輸入用戶名",
+      "min": "用戶名至少需要 3 個字符",
+      "max": "用戶名最多 15 個字符",
+      "invalid": "用戶名只能包含字母、數字和底線"
+    },
+    "email": {
+      "required": "請輸入電子郵件",
+      "invalid": "請輸入有效的電子郵件格式"
+    },
+    "password": {
+      "required": "請輸入密碼",
+      "min": "密碼至少需要 8 個字符",
+      "max": "密碼最多 20 個字符",
+      "uppercase": "密碼必須包含大寫字母",
+      "lowercase": "密碼必須包含小寫字母",
+      "digit": "密碼必須包含數字",
+      "symbol": "密碼必須包含符號 (!@#$%^&*_-+=.,?)",
+      "invalid_chars": "密碼包含不允許的字符"
+    },
+    "confirmPassword": {
+      "required": "請確認密碼",
+      "mismatch": "密碼不一致"
+    },
+    "displayName": {
+      "required": "顯示名稱不可為空",
+      "max": "顯示名稱最多 30 個字符"
+    },
+    "oldPassword": {
+      "required": "請輸入目前的密碼"
+    },
+    "loginIdentifier": {
+      "required": "請輸入用戶名或電子郵件"
+    }
   },
 
   "tech": {

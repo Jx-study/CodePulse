@@ -51,10 +51,12 @@ const Dialog: React.FC<DialogProps> = ({
     if (!isOpen || !preventScroll) return;
 
     document.body.style.overflow = "hidden";
+    document.body.setAttribute("data-dialog-open", "true");
     onAfterOpen?.();
 
     return () => {
       document.body.style.overflow = "unset";
+      document.body.removeAttribute("data-dialog-open");
       onAfterClose?.();
     };
   }, [isOpen, preventScroll, onAfterOpen, onAfterClose]);

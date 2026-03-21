@@ -2,13 +2,12 @@ import { useTranslation } from "react-i18next";
 import styles from "./LanguageSetting.module.scss";
 import Dropdown from "@/shared/components/Dropdown";
 import Icon from "@/shared/components/Icon";
+import { useAuth } from "@/shared/contexts/AuthContext";
+import { userService } from "@/services/userService";
 
 function LanguageSetting() {
   const { i18n } = useTranslation();
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
+  const { isAuthenticated, updateUser } = useAuth();
 
   const languageOptions = [
     { key: "en", label: "English", icon: <Icon name="globe" size="sm" /> },
@@ -25,7 +24,14 @@ function LanguageSetting() {
   };
 
   const handleLanguageChange = (key: string) => {
-    changeLanguage(key);
+    i18n.changeLanguage(key);
+    if (isAuthenticated) {
+      const language = key as 'en' | 'zh-TW' | 'zh-CN';
+      updateUser({ language });
+      userService.updateProfile({ language }).catch(err => {
+        console.error('Language sync failed:', err);
+      });
+    }
   };
 
   return (

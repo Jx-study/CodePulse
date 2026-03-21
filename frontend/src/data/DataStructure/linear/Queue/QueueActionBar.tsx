@@ -61,7 +61,7 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setInputValue(e.target.value)
           }
-          className={styles.input}
+          className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
           aria-label="Node value"

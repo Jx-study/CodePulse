@@ -27,6 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, closeOnEscape, onClose]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.setAttribute('data-dialog-open', 'true');
+    return () => document.body.removeAttribute('data-dialog-open');
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const panelClasses = [

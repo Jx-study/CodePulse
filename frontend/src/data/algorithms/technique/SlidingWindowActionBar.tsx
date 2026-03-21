@@ -82,7 +82,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setTargetSum(e.target.value)
           }
-          className={styles.input}
+          className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
           aria-label="Target sum"

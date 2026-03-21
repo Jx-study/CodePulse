@@ -1,65 +1,66 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_mailman import Mail
 import logging
 import os
 
-# 導入配置和資料庫
 from config import config
-from database import init_supabase, test_connection
+from database import init_db, test_connection
+from extensions import limiter
 
-# 導入路由
 from routes.auth import auth_bp
 from routes.analyze import analyze_bp
 from routes.summary import summary_bp
+from routes.oauth import register_oauth_routes
+from routes.users import users_bp
 
 def create_app(config_name=None):
-    """應用程式工廠"""
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
-    
+
     app = Flask(__name__)
     app.config.from_object(config[config_name])
-    
-    # 設置日誌
+
+    limiter.init_app(app)
+
     logging.basicConfig(level=logging.INFO)
-    
-    # 初始化擴展 - 使用配置的 CORS 來源
+
     CORS(app, resources={
         r"/api/*": {
             "origins": app.config['CORS_ORIGINS'],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True,
         }
     })
-    
-    # 初始化 Supabase
-    try:
-        init_supabase()
-        logging.info("Supabase 初始化成功")
-    except Exception as e:
-        logging.warning(f"Supabase 初始化失敗: {e}")
-    
-    # 註冊藍圖
+
+    # Initialize SQLAlchemy + Flask-Migrate
+    # Import models so Flask-Migrate can detect them
+    import models  # noqa: F401
+    init_db(app)
+
+    mail = Mail(app)
+    app.extensions['mail'] = mail
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(analyze_bp)
     app.register_blueprint(summary_bp)
-    
-    # 健康檢查端點
+    app.register_blueprint(users_bp, url_prefix='/api/users')
+    register_oauth_routes(app)
+
     @app.route('/api/health')
     def health_check():
         return jsonify({
             'status': 'healthy',
             'message': 'CodePulse API is running',
-            'supabase': test_connection()
+            'database': test_connection()
         })
-    
-    # 根路由
+
     @app.route('/')
     def index():
         return jsonify({
             'message': 'Welcome to CodePulse API',
             'version': '1.0.0',
-            'auth_provider': 'Supabase',
             'endpoints': {
                 'auth': '/api/auth',
                 'analyze': '/api/analyze',
@@ -70,7 +71,6 @@ def create_app(config_name=None):
 
     return app
 
-# 創建應用程式實例
 app = create_app()
 
 if __name__ == '__main__':

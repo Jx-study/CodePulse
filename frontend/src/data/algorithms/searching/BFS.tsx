@@ -155,7 +155,7 @@ function bfsActionHandler(
   return null;
 }
 import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
-import { Node } from "../../../modules/core/DataLogic/Node";
+import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import {
   generateGridFrame,

@@ -15,50 +15,8 @@
 
   form {
     @include flex($direction: column);
-    gap: $spacing-md;
+    gap: $spacing-xs;
   }
-}
-
-.formGroup {
-  @include flex($direction: column);
-  gap: $spacing-xs;
-
-  label {
-    font-size: $font-sm;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  input {
-    padding: $spacing-sm $spacing-md;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: $font-base;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    transition: $transition-base;
-
-    &:focus {
-      outline: none;
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    &::placeholder {
-      color: var(--text-tertiary);
-    }
-
-    &.error {
-      border-color: $error-color;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-    }
-  }
-}
-
-.errorMessage {
-  font-size: $font-xs;
-  color: $error-color;
-  margin-top: $spacing-xs;
 }
 
 .checkboxLabel {

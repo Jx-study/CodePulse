@@ -1,5 +1,5 @@
-// 根據環境決定 API URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// API base URL: 開發時用空字串（走 Vite proxy），production 時可設 VITE_API_URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // API 基本配置類型
 interface ApiConfig {
@@ -35,12 +35,14 @@ class ApiService {
     const url = `${this.config.baseURL}${endpoint}`;
     
     try {
+      const { headers: optHeaders, ...restOptions } = options;
       const response = await fetch(url, {
+        credentials: 'include',
+        ...restOptions,
         headers: {
           'Content-Type': 'application/json',
-          ...options.headers,
+          ...optHeaders,
         },
-        ...options,
       });
 
       const data = await response.json();

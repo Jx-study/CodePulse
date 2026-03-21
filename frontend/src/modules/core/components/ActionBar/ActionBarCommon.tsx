@@ -61,7 +61,7 @@ export const DataRow: React.FC<DataRowProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setBulkInput(e.target.value)
             }
-            className={styles.input}
+            className={`${styles.input} ${styles.bulkDataInput}`}
             disabled={disabled}
             fullWidth={false}
             aria-label="Bulk data input"
@@ -136,7 +136,7 @@ export const DataRow: React.FC<DataRowProps> = ({
               (e.target as HTMLInputElement).blur();
             }
           }}
-          className={styles.input}
+          className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
           aria-label="Random count"

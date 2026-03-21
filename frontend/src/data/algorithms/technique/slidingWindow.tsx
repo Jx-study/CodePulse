@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { CodeConfig, LevelImplementationConfig } from "@/types";
 import { SlidingWindowActionBar } from "./SlidingWindowActionBar";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";

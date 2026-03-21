@@ -258,6 +258,29 @@
   &.lg { padding: 12px; }
 }
 
+// GameCtrl（覆蓋在深色畫布上的圓形控制按鈕）
+.gameCtrl {
+  width: 36px;
+  height: 36px;
+  min-width: unset;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  &:hover:not(:disabled):not(.disabled) {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.08);
+  }
+
+  &:active:not(:disabled):not(.disabled) {
+    transform: scale(0.95);
+  }
+}
+
 // Dot（圓形指示器按鈕）- .dot
 .dot {
   width: 12px;

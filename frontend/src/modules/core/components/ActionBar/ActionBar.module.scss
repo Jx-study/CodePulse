@@ -66,7 +66,11 @@
 }
 
 .bulkDataInput {
-  width: 9.375rem; // 150px
+  width: 6.5rem !important;
+}
+
+.valueInput {
+  width: 3rem !important;
 }
 
 // ========== 按鈕顏色覆蓋（基於 secondary variant）==========
