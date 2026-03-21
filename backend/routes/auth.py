@@ -1,374 +1,819 @@
-from flask import Blueprint, request, jsonify
-from database import get_supabase_client, get_supabase_admin_client
-import logging
+from flask import Blueprint, jsonify, request, make_response, g
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+import uuid
+
+from database import db
+from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import IntegrityError
+from models.user import User, UserIdentity, UserToken, UserLoginStreak, EmailVerification, ProviderType, UserRole, VerificationPurpose
+from auth_utils import (
+    hash_password, verify_password,
+    create_access_token, create_refresh_token,
+    decode_onboarding_token,
+    decode_token, hash_token,
+    set_auth_cookies, clear_auth_cookies,
+    login_required, REFRESH_TOKEN_EXPIRES,
+    generate_verification_code, _cookie_secure,
+)
+from services.mail import send_verification_email, send_password_reset_email
+from extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
 
-# TODO: 後續調整為為新的table存取用戶的信息，避免登入時一直使用 admin client 查詢所有用戶
+
+def _user_to_dict(user):
+    has_local_password = any(
+        i.provider == ProviderType.local and bool(i.password_hash)
+        for i in user.identities
+    )
+    return {
+        'id': str(user.user_id),
+        'username': user.username,
+        'email': user.email,
+        'display_name': user.display_name,
+        'role': user.role.value,
+        'avatar_url': user.avatar_url,
+        'theme': user.theme.value if user.theme else None,
+        'language': user.language.value if user.language else None,
+        'total_xp': user.total_xp,
+        'current_streak': user.current_streak,
+        'longest_streak': user.longest_streak,
+        'last_login_date': user.last_login_date.isoformat() if user.last_login_date else None,
+        'created_at': user.created_at.isoformat() if user.created_at else None,
+        'has_local_password': has_local_password,
+    }
+
+
+# ── Streak helper ────────────────────────────────────────────────────────────
+
+def _update_streak(user):
+    """Update login streak for user. Call inside an open DB session."""
+    try:
+        tz = ZoneInfo(user.timezone or 'UTC')
+    except Exception:
+        tz = ZoneInfo('UTC')
+
+    today = datetime.now(timezone.utc).astimezone(tz).date()
+
+    try:
+        with db.session.begin_nested():
+            streak = UserLoginStreak(user_id=user.user_id, login_date=today)
+            db.session.add(streak)
+    except IntegrityError:
+        pass  # duplicate (user_id, login_date) — already logged in today
+
+    last = user.last_login_date
+    if last is None or last < today:
+        if last is not None and (today - last).days == 1:
+            user.current_streak += 1
+        else:
+            user.current_streak = 1
+        if user.current_streak > user.longest_streak:
+            user.longest_streak = user.current_streak
+        user.last_login_date = today
+
+
+# ── Register ─────────────────────────────────────────────────────────────────
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """用戶註冊 - 使用 Supabase Auth"""
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+    username = (data.get('username') or '').strip()
+
+    # Validation
+    if not email or '@' not in email:
+        return jsonify({'success': False, 'message': '請輸入有效的信箱', 'error_code': 'INVALID_EMAIL'}), 400
+    if pw_err := _validate_password(password):
+        return jsonify({'success': False, 'message': pw_err, 'error_code': 'WEAK_PASSWORD'}), 400
+    if not username or len(username) < 3:
+        return jsonify({'success': False, 'message': '用戶名至少需要3個字符', 'error_code': 'INVALID_USERNAME'}), 400
+
+    # Check email uniqueness
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'message': '此 Email 已被註冊', 'error_code': 'EMAIL_EXISTS'}), 409
+
+    # Generate verification code and store pending registration
+    code = generate_verification_code()
+    password_hash = hash_password(password)
+
+    verification = EmailVerification(
+        email=email,
+        code_hash=hash_token(code),
+        purpose=VerificationPurpose.registration,
+        extra_data={'username': username, 'password_hash': password_hash},
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=5),
+    )
     try:
-        data = request.get_json()
-        
-        # 驗證必要欄位
-        required_fields = ['email', 'password']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({
-                    'success': False,
-                    'error_code': 'MISSING_REQUIRED_FIELD',
-                    'field': field,
-                    'message': f'缺少必要欄位: {field}'
-                }), 400
-        
-        email = data['email'].strip().lower()
-        password = data['password']
-        username = data.get('username', '').strip()
-        
-        # 驗證密碼強度
-        if len(password) < 6:
-            return jsonify({
-                'success': False,
-                'error_code': 'PASSWORD_TOO_SHORT',
-                'message': '密碼至少需要6個字符'
-            }), 400
-        
-        # 使用 Supabase Auth 註冊
-        supabase = get_supabase_client()
-        
-        # 準備用戶元數據
-        user_metadata = {}
-        if username:
-            user_metadata['username'] = username
-        
-        auth_response = supabase.auth.sign_up({
-            'email': email,
-            'password': password,
-            'options': {
-                'data': user_metadata
-            }
-        })
-        
-        if auth_response.user:
-            return jsonify({
-                'success': True,
-                'message': '註冊成功！請檢查信箱進行驗證。',
-                'user': {
-                    'id': auth_response.user.id,
-                    'email': auth_response.user.email,
-                    'username': auth_response.user.user_metadata.get('username'),
-                    'email_confirmed': auth_response.user.email_confirmed_at is not None,
-                },
-                'session': {
-                    'access_token': auth_response.session.access_token if auth_response.session else None,
-                    'refresh_token': auth_response.session.refresh_token if auth_response.session else None,
-                }
-            }), 201
-        else:
-            return jsonify({
-                'success': False,
-                'error_code': 'REGISTRATION_FAILED',
-                'message': '註冊失敗，請稍後再試'
-            }), 400
-        
-    except Exception as e:
-        logging.error(f"註冊錯誤: {e}")
-        error_message = str(e)
-        
-        # 處理常見錯誤
-        if 'already registered' in error_message.lower():
-            return jsonify({
-                'success': False,
-                'error_code': 'EMAIL_ALREADY_EXISTS',
-                'message': '此信箱已被註冊'
-            }), 409
-        elif 'password' in error_message.lower():
-            return jsonify({
-                'success': False,
-                'error_code': 'INVALID_PASSWORD_FORMAT',
-                'message': '密碼格式不符要求'
-            }), 400
-        else:
-            return jsonify({
-                'success': False,
-                'error_code': 'REGISTRATION_ERROR',
-                'message': '註冊失敗，請稍後再試'
-            }), 500
+        db.session.add(verification)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': '伺服器錯誤，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    try:
+        send_verification_email(email, code)
+    except Exception:
+        return jsonify({'success': False, 'message': '驗證碼寄送失敗，請稍後再試', 'error_code': 'MAIL_ERROR'}), 500
+
+    return jsonify({'success': True, 'message': '驗證碼已寄出，請檢查您的信箱'}), 200
+
+
+# ── Login ────────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute; 50 per hour")
 def login():
-    """用戶登入 - 使用 Supabase Auth，支援 email 或 username"""
+    data = request.get_json(silent=True) or {}
+    username_or_email = (data.get('usernameOrEmail') or '').strip()
+    password = data.get('password') or ''
+
+    if not username_or_email:
+        return jsonify({'success': False, 'message': '請輸入 Email 或用戶名', 'error_code': 'MISSING_CREDENTIALS'}), 400
+    if not password:
+        return jsonify({'success': False, 'message': '請輸入密碼', 'error_code': 'MISSING_PASSWORD'}), 400
+
+    # Find user by email or username
+    if '@' in username_or_email:
+        user = User.query.options(joinedload(User.identities)).filter_by(email=username_or_email.lower()).first()
+    else:
+        user = User.query.options(joinedload(User.identities)).filter(
+            db.func.lower(User.username) == username_or_email.lower()
+        ).first()
+
+    if not user or user.deleted_at is not None:
+        return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
+
+    # Get local identity
+    identity = next(
+        (i for i in user.identities if i.provider == ProviderType.local),
+        None,
+    )
+
+    if not identity or not identity.password_hash:
+        return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
+
+    if not verify_password(password, identity.password_hash):
+        return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
+
     try:
-        data = request.get_json()
-        username_or_email = data.get('usernameOrEmail')
-        password = data.get('password')
-
-        if not username_or_email or not password:
-            return jsonify({
-                'success': False,
-                'error_code': 'MISSING_CREDENTIALS',
-                'message': '請輸入用戶名/信箱和密碼'
-            }), 400
-
-        username_or_email = username_or_email.strip()
-
-        # 判斷輸入是 email 還是 username
-        email = None
-        if '@' in username_or_email:
-            # 輸入包含 @，視為 email
-            email = username_or_email.lower()
-        else:
-            # 輸入不含 @，視為 username，需要查詢對應的 email
+        # Sync timezone from client (silent update)
+        client_tz = (data.get('timezone') or '').strip()
+        if client_tz and len(client_tz) <= 50 and client_tz != user.timezone:
             try:
-                # 使用 Admin client 查詢用戶
-                supabase_admin = get_supabase_admin_client()
+                ZoneInfo(client_tz)
+                user.timezone = client_tz
+            except Exception:
+                pass
 
-                if not supabase_admin:
-                    logging.error("Admin client 未初始化，無法查詢 username")
-                    return jsonify({
-                        'success': False,
-                        'error_code': 'ADMIN_API_UNAVAILABLE',
-                        'message': 'Username 登入功能暫時無法使用，請使用 email 登入'
-                    }), 503
+        # Update streak (uses updated user.timezone)
+        _update_streak(user)
 
-                # 從 Supabase 查詢所有用戶（明確指定分頁參數）
-                response = supabase_admin.auth.admin.list_users(page=1, per_page=1000)
-                # Supabase Python SDK 直接返回 list，不是物件
-                users = response if isinstance(response, list) else []
+        # Issue tokens
+        access_token = create_access_token(user.user_id)
+        refresh_token = create_refresh_token(user.user_id)
 
-                logging.info(f"查詢 username: {username_or_email}, 找到 {len(users)} 個用戶")
-
-                # 查找匹配的 username
-                for user in users:
-                    user_metadata = getattr(user, 'user_metadata', None)
-
-                    logging.info(f"檢查用戶 {user.email}: metadata = {user_metadata}")
-
-                    username_in_db = user_metadata.get('username', '') if isinstance(user_metadata, dict) else ''
-
-                    if username_in_db and username_in_db.lower() == username_or_email.lower():
-                        # logging.info(f"找到匹配的用戶: {user.email}")
-                        email = user.email
-                        # 檢查 email 是否已驗證
-                        if not getattr(user, 'email_confirmed_at', None):
-                            return jsonify({
-                                'success': False,
-                                'error_code': 'EMAIL_NOT_VERIFIED',
-                                'message': '請先驗證 Email 後再登入'
-                            }), 403
-                        break
-
-                if not email:
-                    return jsonify({
-                        'success': False,
-                        'error_code': 'USER_NOT_FOUND',
-                        'message': '找不到此用戶名'
-                    }), 404
-            except Exception as e:
-                # 如果查詢失敗，嘗試直接當作 email 使用
-                email = username_or_email.lower()
-
-        # 使用一般 client 進行登入
-        supabase = get_supabase_client()
-        auth_response = supabase.auth.sign_in_with_password({
-            'email': email,
-            'password': password
-        })
-        
-        # Supabase 認證成功必定有 user 和 session，這裡可以直接使用
-        return jsonify({
-            'success': True,
-            'message': '登入成功',
-            'user': {
-                'id': auth_response.user.id,
-                'email': auth_response.user.email,
-                'username': auth_response.user.user_metadata.get('username'),
-                'email_confirmed': auth_response.user.email_confirmed_at is not None,
-                'last_sign_in': auth_response.user.last_sign_in_at,
-            },
-            'session': {
-                'access_token': auth_response.session.access_token,
-                'refresh_token': auth_response.session.refresh_token,
-                'expires_at': auth_response.session.expires_at,
-            }
-        }), 200
-        
+        # Persist refresh token hash
+        token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(refresh_token),
+            expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
+            family_id=str(uuid.uuid4()),
+        )
+        db.session.add(token_record)
+        db.session.commit()
     except Exception as e:
-        logging.error(f"登入錯誤: {e}")
-        error_message = str(e).lower()
-        
-        # 處理認證失敗（帳號密碼錯誤）
-        if 'invalid' in error_message or 'credentials' in error_message:
-            return jsonify({
-                'success': False,
-                'error_code': 'INVALID_CREDENTIALS',
-                'message': '信箱或密碼錯誤'
-            }), 401
-        
-        # 其他未預期的錯誤
-        return jsonify({
-            'success': False,
-            'error_code': 'LOGIN_ERROR',
-            'message': '登入失敗，請稍後再試'
-        }), 500
+        db.session.rollback()
+        return jsonify({'success': False, 'message': '登入失敗，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    resp = make_response(jsonify({
+        'success': True,
+        'message': '登入成功',
+        'user': _user_to_dict(user),
+    }), 200)
+    set_auth_cookies(resp, access_token, refresh_token)
+    return resp
+
+
+# ── Logout ───────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    """用戶登出 - 使用 Supabase Auth"""
-    try:
-        # 從請求頭獲取 token
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({
-                'success': False,
-                'message': '缺少認證 token'
-            }), 401
-        
-        access_token = auth_header.split(' ')[1]
-        
-        # 使用 Supabase Auth 登出
-        supabase = get_supabase_client()
-        supabase.auth.sign_out()
-        
-        return jsonify({
-            'success': True,
-            'message': '登出成功'
-        }), 200
-        
-    except Exception as e:
-        logging.error(f"登出錯誤: {e}")
-        return jsonify({
-            'success': False,
-            'message': '登出失敗'
-        }), 500
+    refresh_token_cookie = request.cookies.get('refresh_token')
+
+    if refresh_token_cookie:
+        try:
+            token_hash = hash_token(refresh_token_cookie)
+            token_record = UserToken.query.filter_by(token_hash=token_hash).first()
+            if token_record:
+                token_record.is_revoked = True
+                db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+    resp = make_response(jsonify({'success': True, 'message': '已登出'}), 200)
+    clear_auth_cookies(resp)
+    return resp
+
+
+# ── Me ───────────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/me', methods=['GET'])
+@login_required
 def get_current_user():
-    """獲取當前用戶資訊 - 使用 Supabase Auth"""
+    user = db.session.get(User, g.current_user_id, options=[joinedload(User.identities)])
+    if not user or user.deleted_at is not None:
+        return jsonify({'success': False, 'message': '用戶不存在', 'error_code': 'USER_NOT_FOUND'}), 404
+    return jsonify({'success': True, 'user': _user_to_dict(user)}), 200
+
+
+# ── Verify Email ─────────────────────────────────────────────────────────────
+
+@auth_bp.route('/verify-email', methods=['POST'])
+def verify_email():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    code = (data.get('code') or '').strip().upper()
+
+    if not email or not code:
+        return jsonify({'success': False, 'message': '缺少必要欄位', 'error_code': 'MISSING_FIELDS'}), 400
+
+    now = datetime.now(timezone.utc)
+
+    # Find latest valid verification record
+    verification = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.registration,
+        EmailVerification.is_used == False,
+        EmailVerification.expires_at > now,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if not verification:
+        return jsonify({'success': False, 'message': '驗證碼無效或已過期', 'error_code': 'INVALID_OR_EXPIRED_CODE'}), 400
+
+    if verification.code_hash != hash_token(code):
+        return jsonify({'success': False, 'message': '驗證碼無效或已過期', 'error_code': 'INVALID_OR_EXPIRED_CODE'}), 400
+
+    # Check email not taken since code was sent
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'message': '此 Email 已被註冊', 'error_code': 'EMAIL_ALREADY_EXISTS'}), 409
+
+    username = verification.extra_data.get('username')
+    password_hash = verification.extra_data.get('password_hash')
+
     try:
-        # 從請求頭獲取 token
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({
-                'success': False,
-                'message': '缺少認證 token'
-            }), 401
-        
-        access_token = auth_header.split(' ')[1]
-        
-        # 使用 Supabase Auth 獲取用戶資訊
-        supabase = get_supabase_client()
-        user_response = supabase.auth.get_user(access_token)
-        
-        if user_response.user:
-            return jsonify({
-                'success': True,
-                'user': {
-                    'id': user_response.user.id,
-                    'email': user_response.user.email,
-                    'username': user_response.user.user_metadata.get('username'),
-                    'email_confirmed': user_response.user.email_confirmed_at is not None,
-                    'created_at': user_response.user.created_at,
-                    'last_sign_in': user_response.user.last_sign_in_at,
-                }
-            }), 200
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Token 無效或已過期'
-            }), 401
-        
+        user = User(
+            username=username,
+            display_name=username,
+            email=email,
+            role=UserRole.user,
+        )
+        db.session.add(user)
+        db.session.flush()
+
+        identity = UserIdentity(
+            user_id=user.user_id,
+            provider=ProviderType.local,
+            provider_id=email,
+            password_hash=password_hash,
+            is_verified=True,
+        )
+        db.session.add(identity)
+
+        access_token = create_access_token(user.user_id)
+        refresh_token = create_refresh_token(user.user_id)
+
+        token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(refresh_token),
+            expires_at=now + REFRESH_TOKEN_EXPIRES,
+            family_id=str(uuid.uuid4()),
+        )
+        db.session.add(token_record)
+
+        verification.is_used = True
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': '註冊失敗，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    resp = make_response(jsonify({
+        'success': True,
+        'user': _user_to_dict(user),
+    }), 200)
+    set_auth_cookies(resp, access_token, refresh_token)
+    return resp
+
+
+# ── Complete Setup (Google Onboarding) ───────────────────────────────────────
+
+RESERVED_USERNAMES = {'admin', 'root', 'system', 'codepulse', 'support', 'moderator', 'staff'}
+USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,15}$')
+
+
+@auth_bp.route('/complete-setup', methods=['POST'])
+def complete_setup():
+    import jwt as pyjwt
+
+    onboarding_token = request.cookies.get('onboarding_token')
+    if not onboarding_token:
+        return jsonify({'success': False, 'message': 'Onboarding token 不存在或已過期', 'error_code': 'MISSING_TOKEN'}), 401
+
+    try:
+        token_data = decode_onboarding_token(onboarding_token)
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'success': False, 'message': '註冊連結已過期，請重新使用 Google 登入', 'error_code': 'TOKEN_EXPIRED'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'success': False, 'message': '無效的 Token', 'error_code': 'INVALID_TOKEN'}), 401
+
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    display_name = (data.get('display_name') or '').strip() or token_data['display_name']
+
+    if not USERNAME_RE.match(username):
+        return jsonify({'success': False, 'message': '用戶名只能包含英文、數字、底線，長度 3-15', 'error_code': 'INVALID_USERNAME'}), 400
+    if username.lower() in RESERVED_USERNAMES:
+        return jsonify({'success': False, 'message': '此用戶名不可使用', 'error_code': 'RESERVED_USERNAME'}), 400
+
+    existing = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    if existing:
+        return jsonify({'success': False, 'message': '此用戶名已被使用', 'error_code': 'USERNAME_TAKEN'}), 409
+
+    google_sub = token_data['google_sub']
+    email = token_data['email']
+    avatar_url = token_data.get('avatar_url')
+
+    try:
+        user = User(
+            username=username,
+            display_name=display_name,
+            email=email,
+            role=UserRole.user,
+            avatar_url=avatar_url,
+        )
+        db.session.add(user)
+        db.session.flush()
+
+        identity = UserIdentity(
+            user_id=user.user_id,
+            provider=ProviderType.google,
+            provider_id=google_sub,
+            is_verified=True,
+        )
+        db.session.add(identity)
+
+        _update_streak(user)
+
+        access_token = create_access_token(user.user_id)
+        refresh_token = create_refresh_token(user.user_id)
+
+        token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(refresh_token),
+            expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
+            family_id=str(uuid.uuid4()),
+        )
+        db.session.add(token_record)
+        db.session.commit()
     except Exception as e:
-        logging.error(f"獲取用戶資訊錯誤: {e}")
+        db.session.rollback()
+        current_app.logger.error(f'complete-setup failed: {e}')
+        return jsonify({'success': False, 'message': '伺服器錯誤，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    resp = make_response(jsonify({'success': True, 'user': _user_to_dict(user)}), 200)
+    set_auth_cookies(resp, access_token, refresh_token)
+    resp.set_cookie('onboarding_token', '', expires=0, path='/api/auth')
+    return resp
+
+
+# ── Check Username Availability ───────────────────────────────────────────────
+
+@auth_bp.route('/check-username', methods=['GET'])
+def check_username():
+    username = (request.args.get('username') or '').strip()
+    if not USERNAME_RE.match(username):
+        return jsonify({'error': 'Invalid username format'}), 400
+    if username.lower() in RESERVED_USERNAMES:
+        return jsonify({'available': False}), 200
+    taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    return jsonify({'available': taken is None}), 200
+
+
+# ── Onboarding Info ──────────────────────────────────────────────────────────
+
+@auth_bp.route('/onboarding-info', methods=['GET'])
+def onboarding_info():
+    import jwt as pyjwt
+
+    onboarding_token = request.cookies.get('onboarding_token')
+    if not onboarding_token:
+        return jsonify({'success': False, 'error_code': 'MISSING_TOKEN'}), 401
+
+    try:
+        token_data = decode_onboarding_token(onboarding_token)
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'success': False, 'error_code': 'TOKEN_EXPIRED'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN'}), 401
+
+    return jsonify({
+        'success': True,
+        'display_name': token_data['display_name'],
+        'email': token_data['email'],
+    }), 200
+
+
+# ── Resend Verification ───────────────────────────────────────────────────────
+
+RESEND_COOLDOWN_SECONDS = 60
+RESEND_DAILY_LIMIT = 5
+
+@auth_bp.route('/resend-verification', methods=['POST'])
+def resend_verification():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+
+    if not email or '@' not in email:
+        return jsonify({'success': False, 'message': '請輸入有效的信箱', 'error_code': 'INVALID_EMAIL'}), 400
+
+    # If email already registered, no need to resend
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'message': '此 Email 已完成驗證', 'error_code': 'ALREADY_VERIFIED'}), 409
+
+    now = datetime.now(timezone.utc)
+
+    # Rate limit: 60-second cooldown
+    cooldown_boundary = now - timedelta(seconds=RESEND_COOLDOWN_SECONDS)
+    recent = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.registration,
+        EmailVerification.created_at > cooldown_boundary,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if recent:
+        elapsed = (now - recent.created_at.replace(tzinfo=timezone.utc)).total_seconds()
+        retry_after = int(RESEND_COOLDOWN_SECONDS - elapsed) + 1
         return jsonify({
             'success': False,
-            'message': 'Token 無效或已過期'
-        }), 401
+            'message': f'請等待 {retry_after} 秒後再重新發送',
+            'error_code': 'RATE_LIMITED',
+            'retry_after': retry_after,
+        }), 429
+
+    # Daily limit: max 5 sends per email per day
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    daily_count = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.registration,
+        EmailVerification.created_at >= today_start,
+    ).count()
+
+    if daily_count >= RESEND_DAILY_LIMIT:
+        return jsonify({
+            'success': False,
+            'message': '今日重新發送次數已達上限，請明天再試',
+            'error_code': 'DAILY_LIMIT_EXCEEDED',
+        }), 429
+
+    # Get extra_data (username/password_hash) from latest existing record
+    latest = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.registration,
+        EmailVerification.is_used == False,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if not latest or not latest.extra_data:
+        return jsonify({
+            'success': False,
+            'message': '找不到待驗證的註冊資料，請重新註冊',
+            'error_code': 'NO_PENDING_REGISTRATION',
+        }), 404
+
+    code = generate_verification_code()
+    verification = EmailVerification(
+        email=email,
+        code_hash=hash_token(code),
+        purpose=VerificationPurpose.registration,
+        extra_data=latest.extra_data,
+        expires_at=now + timedelta(minutes=5),
+    )
+    try:
+        db.session.add(verification)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': '伺服器錯誤，請稍後再試', 'error_code': 'SERVER_ERROR'}), 500
+
+    try:
+        send_verification_email(email, code)
+    except Exception:
+        return jsonify({'success': False, 'message': '驗證碼寄送失敗，請稍後再試', 'error_code': 'MAIL_ERROR'}), 500
+
+    return jsonify({
+        'success': True,
+        'message': '驗證碼已重新發送，請檢查您的信箱',
+        'remaining_attempts': RESEND_DAILY_LIMIT - daily_count - 1,
+    }), 200
+
+
+# ── Refresh ──────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/refresh', methods=['POST'])
 def refresh_token():
-    """刷新 token - 使用 Supabase Auth"""
+    import jwt as pyjwt
+
+    token_cookie = request.cookies.get('refresh_token')
+    if not token_cookie:
+        return jsonify({'success': False, 'error_code': 'MISSING_TOKEN', 'message': '缺少 refresh token'}), 401
+
+    # Validate JWT signature and type
     try:
-        data = request.get_json()
-        refresh_token = data.get('refresh_token')
+        payload = decode_token(token_cookie, 'refresh')
+        user_id = int(payload['sub'])
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'success': False, 'error_code': 'TOKEN_EXPIRED', 'message': 'Token 已過期'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
 
-        if not refresh_token:
-            return jsonify({
-                'success': False,
-                'message': '缺少 refresh token'
-            }), 400
+    # Look up token record in DB
+    now = datetime.now(timezone.utc)
+    token_hash = hash_token(token_cookie)
+    token_record = UserToken.query.filter_by(token_hash=token_hash).first()
 
-        # 使用 Supabase Auth 刷新 token
-        supabase = get_supabase_client()
-        auth_response = supabase.auth.refresh_session(refresh_token)
+    if not token_record:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
 
-        if auth_response.session:
-            return jsonify({
-                'success': True,
-                'session': {
-                    'access_token': auth_response.session.access_token,
-                    'refresh_token': auth_response.session.refresh_token,
-                    'expires_at': auth_response.session.expires_at,
-                }
-            }), 200
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Refresh token 無效或已過期'
-            }), 401
+    if token_record.expires_at.replace(tzinfo=timezone.utc) <= now:
+        return jsonify({'success': False, 'error_code': 'TOKEN_EXPIRED', 'message': 'Token 已過期'}), 401
 
-    except Exception as e:
-        logging.error(f"Token 刷新錯誤: {e}")
-        return jsonify({
-            'success': False,
-            'message': 'Token 刷新失敗'
-        }), 500
+    # Token Replay Detection
+    if token_record.is_revoked:
+        UserToken.query.filter_by(
+            family_id=token_record.family_id,
+            is_revoked=False,
+        ).update({'is_revoked': True})
+        db.session.commit()
+        return jsonify({'success': False, 'error_code': 'TOKEN_REUSE_DETECTED', 'message': '偵測到異常，請重新登入'}), 401
+
+    user = User.query.get(user_id)
+    if not user or user.deleted_at is not None:
+        return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
+
+    # Rotate tokens inside a transaction
+    try:
+        token_record.is_revoked = True
+
+        new_access = create_access_token(user.user_id)
+        new_refresh = create_refresh_token(user.user_id)
+
+        new_token_record = UserToken(
+            user_id=user.user_id,
+            token_hash=hash_token(new_refresh),
+            expires_at=now + REFRESH_TOKEN_EXPIRES,
+            family_id=token_record.family_id,
+        )
+        db.session.add(new_token_record)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'error_code': 'SERVER_ERROR', 'message': '伺服器錯誤，請稍後再試'}), 500
+
+    resp = make_response(jsonify({'success': True}), 200)
+    set_auth_cookies(resp, new_access, new_refresh)
+    return resp
+
+
+# ── Status ───────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/status', methods=['GET'])
 def get_user_status():
-    """檢查用戶登入狀態 - 用於前端 UserStatus 組件
-
-    TODO: 考慮加入 CORS 檢查，確保僅信任的 origin 可呼叫
-    TODO: 實作 rate limiting 防止暴力攻擊
     """
-    try:
-        # 從請求頭獲取 token
-        auth_header = request.headers.get('Authorization')
+    Validate access_token cookie. If expired, attempt auto-refresh via refresh_token cookie.
+    Returns { isAuthenticated, user } — frontend AuthContext polls this on app load.
+    """
+    import jwt as pyjwt
 
-        # 未提供 token，返回未登入狀態
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({
-                'isAuthenticated': False
-            }), 200
+    access_token = request.cookies.get('access_token')
+    refresh_token_cookie = request.cookies.get('refresh_token')
 
-        access_token = auth_header.split(' ')[1]
+    user = None
 
-        # 使用 Supabase Auth 驗證 token
-        supabase = get_supabase_client()
-        user_response = supabase.auth.get_user(access_token)
+    # Try access token first
+    if access_token:
+        try:
+            payload = decode_token(access_token, 'access')
+            user = db.session.get(User, int(payload['sub']), options=[joinedload(User.identities)])
+        except pyjwt.ExpiredSignatureError:
+            pass  # fall through to refresh
+        except pyjwt.InvalidTokenError:
+            return jsonify({'isAuthenticated': False}), 200
 
-        if user_response.user:
-            return jsonify({
+    # Auto-refresh if access token missing or expired
+    if user is None and refresh_token_cookie:
+        try:
+            payload = decode_token(refresh_token_cookie, 'refresh')
+            user_id = int(payload['sub'])
+
+            # Verify refresh token is in DB and not revoked
+            token_hash = hash_token(refresh_token_cookie)
+            now = datetime.now(timezone.utc)
+            token_record = UserToken.query.filter_by(
+                token_hash=token_hash,
+                is_revoked=False,
+            ).filter(UserToken.expires_at > now).first()
+
+            if not token_record:
+                return jsonify({'isAuthenticated': False}), 200
+
+            user = db.session.get(User, user_id, options=[joinedload(User.identities)])
+            if not user or user.deleted_at is not None:
+                return jsonify({'isAuthenticated': False}), 200
+
+            # Issue new access token
+            new_access = create_access_token(user.user_id)
+            resp = make_response(jsonify({
                 'isAuthenticated': True,
-                'user': {
-                    'id': user_response.user.id,
-                    'email': user_response.user.email,
-                    'username': user_response.user.user_metadata.get('username'),
-                    'avatar': user_response.user.user_metadata.get('avatar'),
-                    'email_confirmed': user_response.user.email_confirmed_at is not None,
-                    'created_at': user_response.user.created_at,
-                    'last_sign_in': user_response.user.last_sign_in_at,
-                }
-            }), 200
-        else:
-            return jsonify({
-                'isAuthenticated': False
-            }), 200
+                'user': _user_to_dict(user),
+            }), 200)
+            # Only refresh the access token cookie, keep same refresh token
+            resp.set_cookie(
+                'access_token',
+                new_access,
+                httponly=True,
+                secure=_cookie_secure(),
+                samesite='Lax',
+                max_age=15 * 60,
+                path='/',
+            )
+            return resp
 
-    except Exception as e:
-        logging.error(f"檢查用戶狀態錯誤: {e}")
-        # 發生錯誤時，返回未登入狀態（安全降級）
-        return jsonify({
-            'isAuthenticated': False
-        }), 200
+        except (pyjwt.InvalidTokenError, Exception):
+            return jsonify({'isAuthenticated': False}), 200
+
+    if user is None or user.deleted_at is not None:
+        return jsonify({'isAuthenticated': False}), 200
+
+    return jsonify({
+        'isAuthenticated': True,
+        'user': _user_to_dict(user),
+    }), 200
+
+
+# ── Forgot Password ───────────────────────────────────────────────────────────
+
+FORGOT_COOLDOWN_SECONDS = 60
+FORGOT_DAILY_LIMIT = 5
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+
+    if not email or '@' not in email:
+        return jsonify({'success': False, 'error_code': 'INVALID_EMAIL', 'message': '請輸入有效的信箱'}), 400
+
+    # Always return 200 regardless of whether email exists (prevent enumeration)
+    user = User.query.filter(
+        User.email == email,
+        User.deleted_at.is_(None),
+    ).first()
+
+    if not user:
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    # Check if account is OAuth-only (no local identity)
+    local_identity = UserIdentity.query.filter_by(
+        user_id=user.user_id,
+        provider=ProviderType.local,
+    ).first()
+    if not local_identity or not local_identity.password_hash:
+        # Silent return — don't reveal the account uses OAuth (prevents account enumeration)
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    now = datetime.now(timezone.utc)
+
+    # Rate limit: 60-second cooldown (silent — return 200 to prevent enumeration)
+    cooldown_boundary = now - timedelta(seconds=FORGOT_COOLDOWN_SECONDS)
+    recent = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.password_reset,
+        EmailVerification.created_at > cooldown_boundary,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if recent:
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    # Rate limit: daily limit (silent)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    daily_count = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.password_reset,
+        EmailVerification.created_at >= today_start,
+    ).count()
+
+    if daily_count >= FORGOT_DAILY_LIMIT:
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+    code = generate_verification_code()
+    verification = EmailVerification(
+        email=email,
+        code_hash=hash_token(code),
+        purpose=VerificationPurpose.password_reset,
+        expires_at=now + timedelta(minutes=10),
+    )
+    try:
+        db.session.add(verification)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'error_code': 'SERVER_ERROR', 'message': '伺服器錯誤，請稍後再試'}), 500
+
+    try:
+        send_password_reset_email(email, code)
+    except Exception:
+        return jsonify({'success': False, 'error_code': 'MAIL_ERROR', 'message': '驗證碼寄送失敗，請稍後再試'}), 500
+
+    return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
+
+
+# ── Reset Password ────────────────────────────────────────────────────────────
+
+import re as _re
+_CODE_RE = _re.compile(r'^[A-Z0-9]{6}$')
+
+_ALLOWED_SYMBOLS = r'!@#$%^&*_\-+=.,?'
+_PASSWORD_RE = _re.compile(
+    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[' + _ALLOWED_SYMBOLS + r'])'
+    r'[a-zA-Z0-9' + _ALLOWED_SYMBOLS + r']{8,20}$'
+)
+
+def _validate_password(password: str) -> str | None:
+    """Return error message if password fails policy, else None."""
+    if not password or len(password) < 8:
+        return '密碼至少需要8個字符'
+    if len(password) > 20:
+        return '密碼不可超過20個字符'
+    if not _PASSWORD_RE.match(password):
+        return '密碼需包含大寫、小寫、數字及符號（!@#$%^&*_-+=.,?）'
+    return None
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    code = (data.get('code') or '').strip().upper()
+    new_password = data.get('new_password') or ''
+
+    if not email or '@' not in email or not _CODE_RE.match(code):
+        return jsonify({'success': False, 'error_code': 'INVALID_INPUT', 'message': '請確認所有欄位格式正確'}), 400
+
+    if pw_err := _validate_password(new_password):
+        return jsonify({'success': False, 'error_code': 'WEAK_PASSWORD', 'message': pw_err}), 400
+
+    now = datetime.now(timezone.utc)
+
+    verification = EmailVerification.query.filter(
+        EmailVerification.email == email,
+        EmailVerification.purpose == VerificationPurpose.password_reset,
+        EmailVerification.is_used == False,
+        EmailVerification.expires_at > now,
+    ).order_by(EmailVerification.created_at.desc()).first()
+
+    if not verification:
+        return jsonify({'success': False, 'error_code': 'INVALID_CODE', 'message': '驗證碼錯誤或已過期'}), 400
+
+    if hash_token(code) != verification.code_hash:
+        return jsonify({'success': False, 'error_code': 'INVALID_CODE', 'message': '驗證碼錯誤或已過期'}), 400
+
+    user = User.query.filter(
+        User.email == email,
+        User.deleted_at.is_(None),
+    ).first()
+
+    if not user:
+        return jsonify({'success': False, 'error_code': 'INVALID_CODE', 'message': '驗證碼錯誤或已過期'}), 400
+
+    identity = UserIdentity.query.filter_by(
+        user_id=user.user_id,
+        provider=ProviderType.local,
+    ).first()
+
+    if not identity:
+        return jsonify({'success': False, 'error_code': 'NO_LOCAL_ACCOUNT', 'message': '此帳號未設定密碼，請使用 Google 登入'}), 400
+
+    try:
+        identity.password_hash = hash_password(new_password)
+        verification.is_used = True
+        UserToken.query.filter(
+            UserToken.user_id == user.user_id,
+            UserToken.is_revoked == False,
+            UserToken.expires_at > now,
+        ).update({'is_revoked': True})
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'success': False, 'error_code': 'SERVER_ERROR', 'message': '伺服器錯誤，請稍後再試'}), 500
+
+    return jsonify({'success': True, 'message': '密碼已重設，請重新登入'}), 200

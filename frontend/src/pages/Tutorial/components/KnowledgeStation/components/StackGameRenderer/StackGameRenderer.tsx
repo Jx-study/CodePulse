@@ -5,7 +5,7 @@ import type {
   GameState,
   PopupInstance,
   PopupTypeState,
-} from "../../../../../../types/games/stackGameTypes";
+} from "@/types/games/stackGameTypes";
 import type { PopupDefinition, SpawnChildItem } from "./gameConfig";
 import {
   POPUP_SEQUENCE,

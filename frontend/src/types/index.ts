@@ -20,6 +20,7 @@ export * from './components/skeleton';
 // ==================== Page Types ====================
 export * from './pages/dashboard';
 export * from './pages/tutorial';
+export * from './pages/auth';
 
 // ==================== Context Types ====================
 export * from './contexts/auth';

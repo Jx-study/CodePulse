@@ -11,7 +11,6 @@ interface SkeletonButtonProps {
 function SkeletonButton({
   width = '100px',
   height = '36px',
-  variant = 'primary',
   animation = 'shimmer',
   className = '',
 }: SkeletonButtonProps) {

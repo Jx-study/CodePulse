@@ -20,13 +20,11 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
-  const defaultFormatLabel = (val: number, maxVal: number) => {
-    return `${percentage.toFixed(1)}%`;
-  };
+  const defaultFormatLabel = () => `${percentage.toFixed(1)}%`;
 
   const labelText = formatLabel
     ? formatLabel(value, max)
-    : defaultFormatLabel(value, max);
+    : defaultFormatLabel();
 
   const containerClasses = [
     styles.progressBarContainer,

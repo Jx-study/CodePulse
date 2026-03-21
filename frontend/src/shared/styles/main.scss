@@ -22,6 +22,16 @@
   --card-bg: #{$light-bg-tertiary};
   --card-shadow: #{$light-card-shadow};
 
+  /* Status colours */
+  --success-color: #{$success-color};
+  --success-bg: #{rgba($success-color, 0.1)};
+  --danger-color: #{$error-color};
+  --danger-bg: #{rgba($error-color, 0.1)};
+  --info-color: #{$info-color};
+  --info-bg: #{rgba($info-color, 0.1)};
+  --warning-color: #{$warning-color};
+  --warning-bg: #{rgba($warning-color, 0.1)};
+
   /* Header Height */
   --header-height: #{$header-height};
 
@@ -30,8 +40,9 @@
   }
 }
 
+// System default: follow OS preference
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
     --bg-primary: #{$dark-bg-primary};
     --bg-secondary: #{$dark-bg-secondary};
     --bg-tertiary: #{$dark-bg-tertiary};
@@ -43,6 +54,34 @@
     --card-bg: #{$dark-bg-tertiary};
     --card-shadow: #{$dark-card-shadow};
   }
+}
+
+// Explicit dark mode
+[data-theme="dark"] {
+  --bg-primary: #{$dark-bg-primary};
+  --bg-secondary: #{$dark-bg-secondary};
+  --bg-tertiary: #{$dark-bg-tertiary};
+  --text-primary: #{$dark-text-primary};
+  --text-secondary: #{$dark-text-secondary};
+  --text-tertiary: #{$dark-text-tertiary};
+  --border: #{$dark-border};
+  --border-color: #{$dark-border};
+  --card-bg: #{$dark-bg-tertiary};
+  --card-shadow: #{$dark-card-shadow};
+}
+
+// Explicit light mode (overrides OS dark preference)
+[data-theme="light"] {
+  --bg-primary: #{$light-bg-primary};
+  --bg-secondary: #{$light-bg-secondary};
+  --bg-tertiary: #{$light-bg-tertiary};
+  --text-primary: #{$light-text-primary};
+  --text-secondary: #{$light-text-secondary};
+  --text-tertiary: #{$light-text-tertiary};
+  --border: #{$light-border};
+  --border-color: #{$light-border};
+  --card-bg: #{$light-bg-tertiary};
+  --card-shadow: #{$light-card-shadow};
 }
 
 // ==================== Monaco Editor 執行行高亮樣式 ====================

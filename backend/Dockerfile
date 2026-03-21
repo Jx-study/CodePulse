@@ -1,5 +1,5 @@
 ARG REGISTRY_PREFIX=""
-FROM ${REGISTRY_PREFIX}python:3.9-slim
+FROM ${REGISTRY_PREFIX}python:3.11-slim
 
 WORKDIR /app
 

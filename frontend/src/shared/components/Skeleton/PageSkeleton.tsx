@@ -1,5 +1,4 @@
 import styles from './Skeleton.module.scss';
-import SkeletonCard from './SkeletonCard';
 import SkeletonText from './SkeletonText';
 import SkeletonImage from './SkeletonImage';
 import SkeletonButton from './SkeletonButton';

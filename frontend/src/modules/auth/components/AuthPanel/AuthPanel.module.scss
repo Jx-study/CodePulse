@@ -1,0 +1,163 @@
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  padding: $spacing-lg;
+}
+
+.content {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  background: var(--card-bg);
+  padding: $spacing-xl;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+}
+
+.title {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  background: white;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: $font-base;
+  font-weight: 500;
+  color: #3c4043;
+  cursor: pointer;
+  transition: $transition-base;
+
+  &:hover:not(:disabled) {
+    background: #f8f9fa;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+
+.formWrapper {
+  // Card styling moved to .content (unified card)
+}
+
+.linkHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  text-align: center;
+}
+
+.linkIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba($primary-color, 0.1);
+  color: $primary-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-xs;
+}
+
+.linkSubtitle {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.emailBadge {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-primary);
+
+  svg {
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+}
+
+.linkDescription {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.linkActions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+}
+
+.switchLink {
+  text-align: center;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+// Override Button ghost padding to sit inline with text
+.switchBtn {
+  padding: 0 !important;
+  height: auto !important;
+  font-size: $font-sm !important;
+  font-weight: 500 !important;
+  color: $primary-color !important;
+
+  &:hover {
+    text-decoration: underline;
+    background: none !important;
+  }
+}

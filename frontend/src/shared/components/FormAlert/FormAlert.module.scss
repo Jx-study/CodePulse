@@ -1,0 +1,46 @@
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  font-size: $font-sm;
+  font-weight: 500;
+  line-height: 1.5;
+  animation: slideDown 0.2s ease-out;
+
+  &.success {
+    background-color: var(--success-bg);
+    border-color: var(--success-color);
+    color: var(--success-color);
+  }
+
+  &.error {
+    background-color: var(--danger-bg);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+  }
+
+  &.info {
+    background-color: var(--info-bg);
+    border-color: var(--info-color);
+    color: var(--info-color);
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

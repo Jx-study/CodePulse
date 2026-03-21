@@ -1,17 +1,8 @@
-import { useEffect, useState } from 'react';
 import styles from './Demo.module.scss';
 import { useTranslation } from 'react-i18next';
 
 function Demo() {
-  const [opacity, setOpacity] = useState(1);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setOpacity(prev => (prev === 1 ? 0.7 : 1));
-    }, 1500);
-    return () => clearInterval(interval);
-  }, []);
+  const { t } = useTranslation('home');
 
   return (
     <section className={styles.demo} id="demo">

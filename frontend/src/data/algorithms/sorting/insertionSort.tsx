@@ -1,9 +1,8 @@
-import React from "react";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
 import { DATA_LIMITS } from "@/constants/dataLimits";

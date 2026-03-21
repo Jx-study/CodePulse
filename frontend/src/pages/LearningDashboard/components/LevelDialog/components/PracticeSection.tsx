@@ -5,6 +5,7 @@ import Badge from '@/shared/components/Badge';
 import type { Level, PrerequisiteConfig } from '@/types';
 import Icon from '@/shared/components/Icon/Icon';
 import { getLevelById } from '@/services/LevelService';
+import { useTranslation } from 'react-i18next';
 
 interface PracticeSectionProps {
   level: Level;
@@ -33,9 +34,13 @@ function PracticeSection({
   isLocked,
   prerequisiteInfo
 }: PracticeSectionProps) {
+  const { t } = useTranslation('dashboard');
   const isCompleted = bestStars > 0;
   const prerequisiteLevelNames = prerequisiteInfo?.levelIds
-    .map(id => getLevelById(id)?.name ?? id)
+    .map(id => {
+      const l = getLevelById(id);
+      return l ? t(`levels.${l.id.replace(/-/g, '_')}.name`) : id;
+    })
     ?? [];
 
   return (
@@ -46,7 +51,7 @@ function PracticeSection({
         <h4>通關條件</h4>
         <ul>
           <li>完成所有測試用例</li>
-          <li>達到正確率 80% 以上</li>
+          <li>達到正確率 60% 以上</li>
           <li>獲得 1-3 星評價</li>
         </ul>
       </div>

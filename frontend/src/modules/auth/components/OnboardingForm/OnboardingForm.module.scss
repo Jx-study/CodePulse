@@ -1,0 +1,69 @@
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  padding: $spacing-lg;
+}
+
+.content {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  background: var(--card-bg);
+  padding: $spacing-xl;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+}
+
+.progressWrapper {
+  margin-bottom: $spacing-xs;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.emailBadge {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-primary);
+
+  svg {
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+}
+
+.formError {
+  font-size: $font-sm;
+  color: var(--error);
+  text-align: center;
+  margin: 0;
+}

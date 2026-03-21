@@ -1,11 +1,8 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
 
-export default defineConfig(({ mode }) => {
-  // 載入環境變數
-  const env = loadEnv(mode, process.cwd(), '');
-
+export default defineConfig((_env) => {
   return {
     plugins: [
       {
@@ -22,6 +19,15 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true, // 等同於 --host，讓外部可以連接
       port: 5173, // 預設端口
+      watch: {
+        usePolling: true, // Docker volume mount 需要 polling 才能偵測檔案變化
+      },
+      proxy: {
+        '/api': {
+          target: process.env.PROXY_TARGET || 'http://localhost:5000',
+          changeOrigin: true,
+        },
+      },
     },
     // 依賴預構建優化
     optimizeDeps: {

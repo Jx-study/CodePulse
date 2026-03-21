@@ -2,19 +2,21 @@ import React from "react";
 import styles from "./LevelNode.module.scss";
 import Icon from "@/shared/components/Icon";
 import type { LevelNodeProps } from "@/types";
+import { useTranslation } from "react-i18next";
 
 function LevelNode({
   level,
   status,
   stars,
-  isLocked,
   position,
   onClick,
   isBossLevel = false,
   pathMetadata,
   categoryColor,
 }: LevelNodeProps) {
+  const { t } = useTranslation('dashboard');
   const isDeveloped = level.isDeveloped;
+  const levelName = t(`levels.${level.id.replace(/-/g, '_')}.name`);
 
   // 統一狀態判斷：與 LevelDialog 一致
   const isCompleted = status === "completed";
@@ -127,7 +129,7 @@ function LevelNode({
       onClick={handleClick}
       role="button"
       tabIndex={isDeveloped ? 0 : -1}
-      aria-label={`關卡: ${level.name}`}
+      aria-label={`關卡: ${levelName}`}
       aria-disabled={!isDeveloped}
       data-level-id={level.id}
     >
@@ -151,7 +153,7 @@ function LevelNode({
 
       {/* 關卡名稱標籤 */}
       <div className={styles.levelTooltip}>
-        <span>{level.name}</span>
+        <span>{levelName}</span>
       </div>
     </div>
   );

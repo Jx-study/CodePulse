@@ -154,7 +154,6 @@ export function calculateCategoryProgress(
       if (!acc[category]) {
         const categoryConfig = getCategoryById(category);
         acc[category] = {
-          name: categoryConfig?.name ?? level.name,
           icon: categoryConfig?.icon,
           colorTheme: categoryConfig?.colorTheme ?? "var(--primary-color)",
           completedLevels: 0,

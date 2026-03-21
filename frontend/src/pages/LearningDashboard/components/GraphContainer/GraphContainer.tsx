@@ -9,12 +9,16 @@ import { getLayoutConfig } from './utils/layoutConfig';
 import { useZoom } from '@/shared/hooks/useZoom';
 import { useDrag } from '@/shared/hooks/useDrag';
 import ZoomControls from '@/shared/components/ZoomControls';
-import { useZoomDisable } from '../../context/ZoomDisableContext';
+import { useZoomDisable } from '@/pages/LearningDashboard/context/ZoomDisableContext';
 import type { GraphContainerProps } from '@/types';
 
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見
 function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
-  const { isZoomDisabled } = useZoomDisable();
+  const { isZoomDisabled: isContextDisabled } = useZoomDisable();
+  const [isOverlayOpen, setIsOverlayOpen] = useState(
+    () => document.body.hasAttribute('data-dialog-open')
+  );
+  const isZoomDisabled = isContextDisabled || isOverlayOpen;
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
@@ -71,7 +75,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
 
   // 拖拽功能 (使用 useDrag hook，動態計算邊界)
   const drag = useDrag<HTMLDivElement>({
-    enabled: true,
+    enabled: !isZoomDisabled,
     calculateBounds: (container) => {
       const bounds = calculateScrollBounds(container);
       return {
@@ -91,6 +95,15 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     });
     return index !== -1 ? index : levels.length - 1; // 如果都完成了，定位到最後一關
   }, [levels, userProgress]);
+
+  // 偵測外部 overlay（Dialog/Sidebar）開啟，阻止 wheel/drag 事件穿透
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsOverlayOpen(document.body.hasAttribute('data-dialog-open'));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['data-dialog-open'] });
+    return () => observer.disconnect();
+  }, []);
 
   // 監聽視窗大小變化：更新 windowWidth（觸發 re-render）、header 高度、並 clamp offset
   useEffect(() => {

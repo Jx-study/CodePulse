@@ -1,0 +1,57 @@
+{
+  "hero": {
+    "title": "CodePulse",
+    "subtitle": "程式執行視覺化平台",
+    "description": {
+      "main": "結合靜態分析與動態追蹤的程式執行視覺化平台",
+      "sub": "讓程式運作變得一目了然，讓學習除錯更加高效"
+    },
+    "cta": "立即體驗"
+  },
+  "features_section": {
+    "title": "核心功能",
+    "interactive_flowchart": {
+      "title": "互動式流程圖",
+      "description": "將程式執行流程以直觀的流程圖呈現，支援斷點設置與逐步執行，讓複雜的程式邏輯一目了然。"
+    },
+    "memory_visualization": {
+      "title": "記憶體視覺化",
+      "description": "即時顯示變數狀態、記憶體引用關係，幫助理解 list/dict 傳址行為與函式間的資料傳遞。"
+    },
+    "smart_summary": {
+      "title": "智能程式摘要",
+      "description": "自動分析程式結構，生成清晰的執行摘要與說明，讓初學者快速掌握程式運作原理。"
+    },
+    "dynamic_tracking": {
+      "title": "動態追蹤技術",
+      "description": "結合 AST 靜態分析與 sys.settrace 動態追蹤，提供精確的程式執行分析。"
+    },
+    "breakpoint_system": {
+      "title": "斷點播放系統",
+      "description": "支援程式執行的暫停、播放、回溯功能，便於深入分析特定程式段落。"
+    },
+    "teaching_interface": {
+      "title": "教學友好介面",
+      "description": "專為教學場景設計，支援師生互動討論，讓程式教學更加生動有效。"
+    }
+  },
+  "demo_section": {
+    "title": "程式執行示範",
+    "subtitle": "體驗 CodePulse 如何讓程式執行過程變得清晰可見",
+    "current_line": "目前執行行",
+    "analysis": "即時分析",
+    "analysis_text": "目前在第一層迴圈，i = 0，準備開始氣泡排序的第一輪比較",
+    "cta": "開始使用 CodePulse"
+  },
+  "algorithms_section": {
+    "title": "資料結構與演算法",
+    "learn_more": "了解更多",
+    "difficulty_levels": {
+      "1": "初學者",
+      "2": "簡單",
+      "3": "中等",
+      "4": "進階",
+      "5": "專家"
+    }
+  }
+}
