@@ -12,9 +12,10 @@ from auth_utils import (
     decode_token, hash_token,
     set_auth_cookies, clear_auth_cookies,
     login_required, REFRESH_TOKEN_EXPIRES,
-    generate_verification_code,
+    generate_verification_code, _cookie_secure,
 )
 from services.mail import send_verification_email, send_password_reset_email
+from extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -57,15 +58,16 @@ def _update_streak(user):
     today = datetime.now(timezone.utc).astimezone(tz).date()
 
     try:
-        db.session.execute(
-            db.text(
-                "INSERT INTO user_login_streaks (user_id, login_date) "
-                "VALUES (:uid, :d) ON CONFLICT DO NOTHING"
-            ),
-            {'uid': user.user_id, 'd': today}
-        )
+        with db.session.begin_nested():
+            db.session.execute(
+                db.text(
+                    "INSERT INTO user_login_streaks (user_id, login_date) "
+                    "VALUES (:uid, :d) ON CONFLICT DO NOTHING"
+                ),
+                {'uid': user.user_id, 'd': today}
+            )
     except Exception:
-        db.session.rollback()
+        pass  # savepoint rolled back; outer session (token_record etc.) unaffected
 
     last = user.last_login_date
     if last is None or last < today:
@@ -82,9 +84,6 @@ def _update_streak(user):
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    import logging
-    raw_body = request.get_data(as_text=True)
-    content_type = request.content_type
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
     password = data.get('password') or ''
@@ -93,8 +92,8 @@ def register():
     # Validation
     if not email or '@' not in email:
         return jsonify({'success': False, 'message': '請輸入有效的信箱', 'error_code': 'INVALID_EMAIL'}), 400
-    if not password or len(password) < 6:
-        return jsonify({'success': False, 'message': '密碼至少需要6個字符', 'error_code': 'WEAK_PASSWORD'}), 400
+    if pw_err := _validate_password(password):
+        return jsonify({'success': False, 'message': pw_err, 'error_code': 'WEAK_PASSWORD'}), 400
     if not username or len(username) < 3:
         return jsonify({'success': False, 'message': '用戶名至少需要3個字符', 'error_code': 'INVALID_USERNAME'}), 400
 
@@ -131,6 +130,7 @@ def register():
 # ── Login ────────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute; 50 per hour")
 def login():
     data = request.get_json(silent=True) or {}
     username_or_email = (data.get('usernameOrEmail') or '').strip()
@@ -648,7 +648,7 @@ def get_user_status():
                 'access_token',
                 new_access,
                 httponly=True,
-                secure=False,
+                secure=_cookie_secure(),
                 samesite='Lax',
                 max_age=15 * 60,
                 path='/',
@@ -695,11 +695,8 @@ def forgot_password():
         provider=ProviderType.local,
     ).first()
     if not local_identity or not local_identity.password_hash:
-        return jsonify({
-            'success': False,
-            'error_code': 'OAUTH_ONLY_ACCOUNT',
-            'message': '此信箱使用 Google 帳號登入，請直接使用 Google 登入，無需重設密碼',
-        }), 400
+        # Silent return — don't reveal the account uses OAuth (prevents account enumeration)
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
 
     now = datetime.now(timezone.utc)
 
@@ -752,6 +749,22 @@ def forgot_password():
 import re as _re
 _CODE_RE = _re.compile(r'^[A-Z0-9]{6}$')
 
+_ALLOWED_SYMBOLS = r'!@#$%^&*_\-+=.,?'
+_PASSWORD_RE = _re.compile(
+    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[' + _ALLOWED_SYMBOLS + r'])'
+    r'[a-zA-Z0-9' + _ALLOWED_SYMBOLS + r']{8,20}$'
+)
+
+def _validate_password(password: str) -> str | None:
+    """Return error message if password fails policy, else None."""
+    if not password or len(password) < 8:
+        return '密碼至少需要8個字符'
+    if len(password) > 20:
+        return '密碼不可超過20個字符'
+    if not _PASSWORD_RE.match(password):
+        return '密碼需包含大寫、小寫、數字及符號（!@#$%^&*_-+=.,?）'
+    return None
+
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json(silent=True) or {}
@@ -762,8 +775,8 @@ def reset_password():
     if not email or '@' not in email or not _CODE_RE.match(code):
         return jsonify({'success': False, 'error_code': 'INVALID_INPUT', 'message': '請確認所有欄位格式正確'}), 400
 
-    if len(new_password) < 6:
-        return jsonify({'success': False, 'error_code': 'WEAK_PASSWORD', 'message': '密碼至少需要6個字符'}), 400
+    if pw_err := _validate_password(new_password):
+        return jsonify({'success': False, 'error_code': 'WEAK_PASSWORD', 'message': pw_err}), 400
 
     now = datetime.now(timezone.utc)
 
