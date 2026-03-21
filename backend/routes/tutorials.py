@@ -438,5 +438,5 @@ def submit_practice(slug):
         'correct_count': correct_count,
         'xp_earned': xp_earned,
         'rating_delta': rating_delta,
-        'answers': answer_results,
+        'results': answer_results,
     }), 200
