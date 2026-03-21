@@ -4,7 +4,9 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import uuid
 
 from database import db
-from models.user import User, UserIdentity, UserToken, EmailVerification, ProviderType, UserRole, VerificationPurpose
+from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import IntegrityError
+from models.user import User, UserIdentity, UserToken, UserLoginStreak, EmailVerification, ProviderType, UserRole, VerificationPurpose
 from auth_utils import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
@@ -21,12 +23,9 @@ auth_bp = Blueprint('auth', __name__)
 
 
 def _user_to_dict(user):
-    local_identity = UserIdentity.query.filter_by(
-        user_id=user.user_id,
-        provider=ProviderType.local,
-    ).first()
-    has_local_password = bool(
-        local_identity and local_identity.password_hash
+    has_local_password = any(
+        i.provider == ProviderType.local and bool(i.password_hash)
+        for i in user.identities
     )
     return {
         'id': str(user.user_id),
@@ -59,15 +58,10 @@ def _update_streak(user):
 
     try:
         with db.session.begin_nested():
-            db.session.execute(
-                db.text(
-                    "INSERT INTO user_login_streaks (user_id, login_date) "
-                    "VALUES (:uid, :d) ON CONFLICT DO NOTHING"
-                ),
-                {'uid': user.user_id, 'd': today}
-            )
-    except Exception:
-        pass  # savepoint rolled back; outer session (token_record etc.) unaffected
+            streak = UserLoginStreak(user_id=user.user_id, login_date=today)
+            db.session.add(streak)
+    except IntegrityError:
+        pass  # duplicate (user_id, login_date) — already logged in today
 
     last = user.last_login_date
     if last is None or last < today:
@@ -143,9 +137,9 @@ def login():
 
     # Find user by email or username
     if '@' in username_or_email:
-        user = User.query.filter_by(email=username_or_email.lower()).first()
+        user = User.query.options(joinedload(User.identities)).filter_by(email=username_or_email.lower()).first()
     else:
-        user = User.query.filter(
+        user = User.query.options(joinedload(User.identities)).filter(
             db.func.lower(User.username) == username_or_email.lower()
         ).first()
 
@@ -153,10 +147,10 @@ def login():
         return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
 
     # Get local identity
-    identity = UserIdentity.query.filter_by(
-        user_id=user.user_id,
-        provider=ProviderType.local,
-    ).first()
+    identity = next(
+        (i for i in user.identities if i.provider == ProviderType.local),
+        None,
+    )
 
     if not identity or not identity.password_hash:
         return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
@@ -229,7 +223,7 @@ def logout():
 @auth_bp.route('/me', methods=['GET'])
 @login_required
 def get_current_user():
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id, options=[joinedload(User.identities)])
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': '用戶不存在', 'error_code': 'USER_NOT_FOUND'}), 404
     return jsonify({'success': True, 'user': _user_to_dict(user)}), 200
@@ -610,7 +604,7 @@ def get_user_status():
     if access_token:
         try:
             payload = decode_token(access_token, 'access')
-            user = User.query.get(int(payload['sub']))
+            user = db.session.get(User, int(payload['sub']), options=[joinedload(User.identities)])
         except pyjwt.ExpiredSignatureError:
             pass  # fall through to refresh
         except pyjwt.InvalidTokenError:
@@ -633,7 +627,7 @@ def get_user_status():
             if not token_record:
                 return jsonify({'isAuthenticated': False}), 200
 
-            user = User.query.get(user_id)
+            user = db.session.get(User, user_id, options=[joinedload(User.identities)])
             if not user or user.deleted_at is not None:
                 return jsonify({'isAuthenticated': False}), 200
 
