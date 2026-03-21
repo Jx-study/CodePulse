@@ -4,7 +4,9 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import uuid
 
 from database import db
-from models.user import User, UserIdentity, UserToken, EmailVerification, ProviderType, UserRole, VerificationPurpose
+from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import IntegrityError
+from models.user import User, UserIdentity, UserToken, UserLoginStreak, EmailVerification, ProviderType, UserRole, VerificationPurpose
 from auth_utils import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
@@ -12,20 +14,18 @@ from auth_utils import (
     decode_token, hash_token,
     set_auth_cookies, clear_auth_cookies,
     login_required, REFRESH_TOKEN_EXPIRES,
-    generate_verification_code,
+    generate_verification_code, _cookie_secure,
 )
 from services.mail import send_verification_email, send_password_reset_email
+from extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
 
 
 def _user_to_dict(user):
-    local_identity = UserIdentity.query.filter_by(
-        user_id=user.user_id,
-        provider=ProviderType.local,
-    ).first()
-    has_local_password = bool(
-        local_identity and local_identity.password_hash
+    has_local_password = any(
+        i.provider == ProviderType.local and bool(i.password_hash)
+        for i in user.identities
     )
     return {
         'id': str(user.user_id),
@@ -57,15 +57,11 @@ def _update_streak(user):
     today = datetime.now(timezone.utc).astimezone(tz).date()
 
     try:
-        db.session.execute(
-            db.text(
-                "INSERT INTO user_login_streaks (user_id, login_date) "
-                "VALUES (:uid, :d) ON CONFLICT DO NOTHING"
-            ),
-            {'uid': user.user_id, 'd': today}
-        )
-    except Exception:
-        db.session.rollback()
+        with db.session.begin_nested():
+            streak = UserLoginStreak(user_id=user.user_id, login_date=today)
+            db.session.add(streak)
+    except IntegrityError:
+        pass  # duplicate (user_id, login_date) — already logged in today
 
     last = user.last_login_date
     if last is None or last < today:
@@ -82,9 +78,6 @@ def _update_streak(user):
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    import logging
-    raw_body = request.get_data(as_text=True)
-    content_type = request.content_type
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
     password = data.get('password') or ''
@@ -93,8 +86,8 @@ def register():
     # Validation
     if not email or '@' not in email:
         return jsonify({'success': False, 'message': '請輸入有效的信箱', 'error_code': 'INVALID_EMAIL'}), 400
-    if not password or len(password) < 6:
-        return jsonify({'success': False, 'message': '密碼至少需要6個字符', 'error_code': 'WEAK_PASSWORD'}), 400
+    if pw_err := _validate_password(password):
+        return jsonify({'success': False, 'message': pw_err, 'error_code': 'WEAK_PASSWORD'}), 400
     if not username or len(username) < 3:
         return jsonify({'success': False, 'message': '用戶名至少需要3個字符', 'error_code': 'INVALID_USERNAME'}), 400
 
@@ -131,6 +124,7 @@ def register():
 # ── Login ────────────────────────────────────────────────────────────────────
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute; 50 per hour")
 def login():
     data = request.get_json(silent=True) or {}
     username_or_email = (data.get('usernameOrEmail') or '').strip()
@@ -143,9 +137,9 @@ def login():
 
     # Find user by email or username
     if '@' in username_or_email:
-        user = User.query.filter_by(email=username_or_email.lower()).first()
+        user = User.query.options(joinedload(User.identities)).filter_by(email=username_or_email.lower()).first()
     else:
-        user = User.query.filter(
+        user = User.query.options(joinedload(User.identities)).filter(
             db.func.lower(User.username) == username_or_email.lower()
         ).first()
 
@@ -153,10 +147,10 @@ def login():
         return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
 
     # Get local identity
-    identity = UserIdentity.query.filter_by(
-        user_id=user.user_id,
-        provider=ProviderType.local,
-    ).first()
+    identity = next(
+        (i for i in user.identities if i.provider == ProviderType.local),
+        None,
+    )
 
     if not identity or not identity.password_hash:
         return jsonify({'success': False, 'message': 'Email 或密碼錯誤', 'error_code': 'INVALID_CREDENTIALS'}), 401
@@ -198,10 +192,6 @@ def login():
         'success': True,
         'message': '登入成功',
         'user': _user_to_dict(user),
-        'session': {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-        },
     }), 200)
     set_auth_cookies(resp, access_token, refresh_token)
     return resp
@@ -233,7 +223,7 @@ def logout():
 @auth_bp.route('/me', methods=['GET'])
 @login_required
 def get_current_user():
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id, options=[joinedload(User.identities)])
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': '用戶不存在', 'error_code': 'USER_NOT_FOUND'}), 404
     return jsonify({'success': True, 'user': _user_to_dict(user)}), 200
@@ -614,7 +604,7 @@ def get_user_status():
     if access_token:
         try:
             payload = decode_token(access_token, 'access')
-            user = User.query.get(int(payload['sub']))
+            user = db.session.get(User, int(payload['sub']), options=[joinedload(User.identities)])
         except pyjwt.ExpiredSignatureError:
             pass  # fall through to refresh
         except pyjwt.InvalidTokenError:
@@ -637,7 +627,7 @@ def get_user_status():
             if not token_record:
                 return jsonify({'isAuthenticated': False}), 200
 
-            user = User.query.get(user_id)
+            user = db.session.get(User, user_id, options=[joinedload(User.identities)])
             if not user or user.deleted_at is not None:
                 return jsonify({'isAuthenticated': False}), 200
 
@@ -652,7 +642,7 @@ def get_user_status():
                 'access_token',
                 new_access,
                 httponly=True,
-                secure=False,
+                secure=_cookie_secure(),
                 samesite='Lax',
                 max_age=15 * 60,
                 path='/',
@@ -699,11 +689,8 @@ def forgot_password():
         provider=ProviderType.local,
     ).first()
     if not local_identity or not local_identity.password_hash:
-        return jsonify({
-            'success': False,
-            'error_code': 'OAUTH_ONLY_ACCOUNT',
-            'message': '此信箱使用 Google 帳號登入，請直接使用 Google 登入，無需重設密碼',
-        }), 400
+        # Silent return — don't reveal the account uses OAuth (prevents account enumeration)
+        return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
 
     now = datetime.now(timezone.utc)
 
@@ -756,6 +743,22 @@ def forgot_password():
 import re as _re
 _CODE_RE = _re.compile(r'^[A-Z0-9]{6}$')
 
+_ALLOWED_SYMBOLS = r'!@#$%^&*_\-+=.,?'
+_PASSWORD_RE = _re.compile(
+    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[' + _ALLOWED_SYMBOLS + r'])'
+    r'[a-zA-Z0-9' + _ALLOWED_SYMBOLS + r']{8,20}$'
+)
+
+def _validate_password(password: str) -> str | None:
+    """Return error message if password fails policy, else None."""
+    if not password or len(password) < 8:
+        return '密碼至少需要8個字符'
+    if len(password) > 20:
+        return '密碼不可超過20個字符'
+    if not _PASSWORD_RE.match(password):
+        return '密碼需包含大寫、小寫、數字及符號（!@#$%^&*_-+=.,?）'
+    return None
+
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json(silent=True) or {}
@@ -766,8 +769,8 @@ def reset_password():
     if not email or '@' not in email or not _CODE_RE.match(code):
         return jsonify({'success': False, 'error_code': 'INVALID_INPUT', 'message': '請確認所有欄位格式正確'}), 400
 
-    if len(new_password) < 6:
-        return jsonify({'success': False, 'error_code': 'WEAK_PASSWORD', 'message': '密碼至少需要6個字符'}), 400
+    if pw_err := _validate_password(new_password):
+        return jsonify({'success': False, 'error_code': 'WEAK_PASSWORD', 'message': pw_err}), 400
 
     now = datetime.now(timezone.utc)
 

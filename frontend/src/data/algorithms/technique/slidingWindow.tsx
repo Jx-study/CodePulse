@@ -1,7 +1,7 @@
 import { Box } from "@/modules/core/DataLogic/Box";
 import type { AnimationStep } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "../../DataStructure/linear/utils";
+import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { CodeConfig, LevelImplementationConfig } from "@/types";
 import { SlidingWindowActionBar } from "./SlidingWindowActionBar";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
@@ -444,4 +444,48 @@ export const slidingWindowConfig: LevelImplementationConfig = {
   actionHandler: slidingWindowActionHandler,
   renderActionBar: (props) => <SlidingWindowActionBar {...(props as any)} />,
   maxNodes: 30,
+  relatedProblems: [
+    {
+      id: 3,
+      title: "Longest Substring Without Repeating Characters",
+      concept: "可變視窗：右指針擴展加入字元，左指針在遇到重複時縮窄，哈希集合記錄視窗內容",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+    },
+    {
+      id: 76,
+      title: "Minimum Window Substring",
+      concept: "可變視窗 + 字元計數：右擴直到覆蓋目標字元後左縮取最短，雙指針搭配頻率表",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/minimum-window-substring/",
+    },
+    {
+      id: 424,
+      title: "Longest Repeating Character Replacement",
+      concept: "可變視窗：追蹤視窗內最高頻字元，視窗大小 - 最高頻數 > k 時左縮視窗",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/longest-repeating-character-replacement/",
+    },
+    {
+      id: 239,
+      title: "Sliding Window Maximum",
+      concept: "固定視窗 + 單調遞減雙端佇列：隊頭維持當前最大值，右移時淘汰隊尾較小元素",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/sliding-window-maximum/",
+    },
+    {
+      id: 567,
+      title: "Permutation in String",
+      concept: "固定視窗字元匹配：維護長度 |s1| 的視窗，比較視窗字元頻率與目標是否相同",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/permutation-in-string/",
+    },
+    {
+      id: 438,
+      title: "Find All Anagrams in a String",
+      concept: "固定視窗滑動比對：同 567 的頻率比較策略，但需記錄所有滿足條件的視窗起始位置",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
+    },
+  ],
 };

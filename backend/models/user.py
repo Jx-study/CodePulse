@@ -1,5 +1,5 @@
 from database import db
-from datetime import datetime, date
+from datetime import datetime, timezone, date
 import enum
 
 class UserRole(enum.Enum):
@@ -46,8 +46,8 @@ class User(db.Model):
     skill_tier = db.Column(db.Integer, nullable=False, default=2)
 
     deleted_at = db.Column(db.DateTime(timezone=True), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     identities = db.relationship('UserIdentity', backref='user', cascade='all, delete-orphan')
     tokens = db.relationship('UserToken', backref='user', cascade='all, delete-orphan')
@@ -84,8 +84,8 @@ class UserIdentity(db.Model):
     provider_id = db.Column(db.String(255), nullable=False)
     password_hash = db.Column(db.String(255), nullable=True)
     is_verified = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('provider', 'provider_id', name='uq_identity_provider'),
@@ -105,7 +105,7 @@ class UserToken(db.Model):
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
     is_revoked = db.Column(db.Boolean, default=False, nullable=False)
     family_id = db.Column(db.String(36), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.Index('ix_user_tokens_user_id', 'user_id'),
@@ -126,7 +126,7 @@ class EmailVerification(db.Model):
     extra_data = db.Column('metadata', db.JSON, nullable=True)
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
     is_used = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         db.Index('ix_email_verifications_email', 'email'),
@@ -144,7 +144,7 @@ class UserLoginStreak(db.Model):
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     login_date = db.Column(db.Date, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('user_id', 'login_date', name='uq_user_login_date'),

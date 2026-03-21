@@ -2,6 +2,7 @@ import jwt
 import bcrypt
 import hashlib
 import secrets
+import string
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import request, jsonify, current_app
@@ -100,17 +101,23 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 # ── Cookie helpers ───────────────────────────────────────────────────────────
 
-COOKIE_SECURE = False   # set to True in production (HTTPS only)
 COOKIE_SAMESITE = 'Lax'
+
+
+def _cookie_secure() -> bool:
+    """Return True when running in production (HTTPS)."""
+    return current_app.config.get('ENV') == 'production' or \
+           current_app.config.get('SESSION_COOKIE_SECURE', False)
 
 
 def set_auth_cookies(response, access_token: str, refresh_token: str):
     """Set HTTP-only auth cookies on the response."""
+    secure = _cookie_secure()
     response.set_cookie(
         'access_token',
         access_token,
         httponly=True,
-        secure=COOKIE_SECURE,
+        secure=secure,
         samesite=COOKIE_SAMESITE,
         max_age=int(ACCESS_TOKEN_EXPIRES.total_seconds()),
         path='/',
@@ -119,7 +126,7 @@ def set_auth_cookies(response, access_token: str, refresh_token: str):
         'refresh_token',
         refresh_token,
         httponly=True,
-        secure=COOKIE_SECURE,
+        secure=secure,
         samesite=COOKIE_SAMESITE,
         max_age=int(REFRESH_TOKEN_EXPIRES.total_seconds()),
         path='/api/auth',   # restrict refresh cookie to auth routes
@@ -133,8 +140,6 @@ def clear_auth_cookies(response):
 
 
 # ── Verification code ─────────────────────────────────────────────────────────
-
-import string
 
 _CODE_ALPHABET = string.ascii_uppercase + string.digits
 

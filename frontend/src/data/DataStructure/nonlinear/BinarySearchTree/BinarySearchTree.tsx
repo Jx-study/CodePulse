@@ -1,11 +1,18 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig } from "@/types";
-import { createTreeNodes, buildLinksFromNodes, updateLinkStatus } from "./utils";
+import {
+  createTreeNodes,
+  buildLinksFromNodes,
+  updateLinkStatus,
+} from "../utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { BSTActionBar } from "./BSTActionBar";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 const BST_LAYOUT = {
@@ -156,7 +163,7 @@ const generateFrame = (
       const status = statusMap[el.id] ? statusMap[el.id] : Status.Inactive;
       el.setStatus(status);
 
-      if (el.value !== '') {
+      if (el.value !== "") {
         el.value = String(Math.round(Number(el.value)));
       }
 
@@ -1322,7 +1329,10 @@ function bstActionHandler(
   if (actionType === "add") {
     const newId = context.nextId();
     newData.push({ id: newId, value: value! });
-    return { animationData: newData, animationParams: { targetId: newId, value } };
+    return {
+      animationData: newData,
+      animationParams: { targetId: newId, value },
+    };
   }
 
   if (actionType === "delete") {
@@ -1340,7 +1350,10 @@ function bstActionHandler(
   }
 
   if (actionType === "search") {
-    const { mode, value: searchValue } = payload as { mode?: string; value?: number };
+    const { mode, value: searchValue } = payload as {
+      mode?: string;
+      value?: number;
+    };
     return {
       animationData: data,
       useRawAnimationParams: true,

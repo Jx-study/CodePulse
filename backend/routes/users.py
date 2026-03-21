@@ -7,12 +7,12 @@ from flask import Blueprint, jsonify, current_app, g, request
 
 from auth_utils import login_required, hash_password, verify_password
 from database import db
-from models.user import User, UserIdentity, UserToken, ProviderType
+from models.user import User, UserIdentity, UserToken, ProviderType, Language, Theme
 
 users_bp = Blueprint('users', __name__)
 
-ALLOWED_THEMES = {'light', 'dark', 'system'}
-ALLOWED_LANGUAGES = {'en', 'zh-TW', 'zh-CN'}
+ALLOWED_THEMES = {theme.value for theme in Theme}
+ALLOWED_LANGUAGES = {lang.value for lang in Language}
 
 
 def _init_cloudinary():
@@ -74,22 +74,27 @@ def update_me():
 
     if 'avatar_url' in data:
         url = data['avatar_url']
-        if url and len(url) > 500:
-            errors['avatar_url'] = 'URL 過長'
+        if url:
+            if len(url) > 500:
+                errors['avatar_url'] = 'URL 過長'
+            elif not url.startswith(('https://', 'http://')):
+                errors['avatar_url'] = 'URL 格式無效'
+            else:
+                user.avatar_url = url
         else:
-            user.avatar_url = url or None
+            user.avatar_url = None
 
     if 'theme' in data:
         if data['theme'] not in ALLOWED_THEMES:
             errors['theme'] = f"theme 需為 {ALLOWED_THEMES} 之一"
         else:
-            user.theme = data['theme']
+            user.theme = Theme(data['theme'])
 
     if 'language' in data:
         if data['language'] not in ALLOWED_LANGUAGES:
             errors['language'] = f"language 需為 {ALLOWED_LANGUAGES} 之一"
         else:
-            user.language = data['language']
+            user.language = Language(data['language'])
 
     if errors:
         return jsonify({'success': False, 'errors': errors}), 400

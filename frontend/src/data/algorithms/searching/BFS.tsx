@@ -155,7 +155,7 @@ function bfsActionHandler(
   return null;
 }
 import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
-import { Node } from "../../../modules/core/DataLogic/Node";
+import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import {
   generateGridFrame,
@@ -893,4 +893,41 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
   defaultViewMode: "graph",
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
   maxNodes: 15,
+  relatedProblems: [
+    {
+      id: 994,
+      title: "Rotting Oranges",
+      concept: "多源 BFS：所有腐爛橘子同時向外擴散，每輪代表一分鐘，計算最短感染時間",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/rotting-oranges/",
+    },
+    {
+      id: 127,
+      title: "Word Ladder",
+      concept: "無權最短路徑：把每個單詞視為節點、相差一字母為邊，BFS 保證找到最短轉換序列",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/word-ladder/",
+    },
+    {
+      id: 542,
+      title: "01 Matrix",
+      concept: "多源 BFS：從所有 0 格同時向外擴展，逐層記錄每個 1 格距離最近 0 的距離",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/01-matrix/",
+    },
+    {
+      id: 286,
+      title: "Walls and Gates",
+      concept: "多源 BFS：從所有門（0）同時出發，以 BFS 層數填入每個空房間到最近門的距離",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/walls-and-gates/",
+    },
+    {
+      id: 1091,
+      title: "Shortest Path in Binary Matrix",
+      concept: "BFS 最短路徑：在二元矩陣中以 8 方向移動，BFS 逐層擴展保證求得最短路徑長度",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/shortest-path-in-binary-matrix/",
+    },
+  ],
 };

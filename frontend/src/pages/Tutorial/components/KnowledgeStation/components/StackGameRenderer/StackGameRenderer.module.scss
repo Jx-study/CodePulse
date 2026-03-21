@@ -1,0 +1,124 @@
+.gameContainer {
+  display: flex;
+  width: 100%;
+  min-height: 500px;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.canvas {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  background: var(--bg-secondary);
+  overflow: hidden; // 絕對定位的彈窗超出 canvas 會被裁切，不視覺溢出
+}
+
+.timerBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  z-index: 50;
+}
+
+.timerLabel {
+  position: absolute;
+  left: $spacing-sm;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.timerFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: $primary-color;
+  opacity: 0.6;
+  transition: width 1s linear;
+}
+
+.startOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+}
+
+.startTitle {
+  margin: 0;
+  font-size: $font-xl;
+  color: var(--text-primary);
+}
+
+.startDesc {
+  margin: 0;
+  text-align: center;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.startBtn {
+  padding: $spacing-sm $spacing-xl;
+  font-size: $font-lg;
+  font-weight: 600;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.resultOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 200;
+
+  h3 {
+    font-size: $font-2xl;
+    margin: 0 0 $spacing-sm;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  &.won {
+    h3 {
+      color: $success-color;
+    }
+  }
+
+  &.failed {
+    h3 {
+      color: $error-color;
+    }
+  }
+}

@@ -1,0 +1,137 @@
+@keyframes rainbowFlow {
+  from {
+    filter: hue-rotate(0deg);
+  }
+
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.rainbowIcon {
+  display: inline-block;
+  color: hsl(0, 90%, 65%);
+  animation: rainbowFlow 2.5s linear infinite;
+}
+
+.visualizer {
+  width: 30%;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.header {
+  padding: $spacing-sm $spacing-md;
+  font-weight: 600;
+  font-size: $font-base;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.uContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 2px solid var(--border-color);
+  border-right: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  border-bottom-left-radius: $radius-md;
+  border-bottom-right-radius: $radius-md;
+}
+
+.topLabel {
+  flex-shrink: 0;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  padding: $spacing-2xs 0;
+}
+
+.stackScrollArea {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 0;
+  padding: $spacing-xs;
+  gap: $spacing-2xs;
+}
+
+.bottomBar {
+  flex-shrink: 0;
+  text-align: center;
+  padding: $spacing-2xs;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $primary-color;
+  border-top: 2px solid $primary-color;
+  background: rgba($primary-color, 0.08);
+}
+
+.stackItem {
+  padding: $spacing-xs $spacing-sm;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  font-size: $font-sm;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  animation: slideIn 0.2s ease-out;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &.topItem {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.1);
+    box-shadow: 0 0 12px rgba($primary-color, 0.2);
+  }
+
+  &.exiting {
+    animation: slideOut 0.15s ease-in forwards;
+    pointer-events: none;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.stackIndex {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: $font-xs;
+}
+
+.stackTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

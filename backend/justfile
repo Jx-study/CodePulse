@@ -35,6 +35,16 @@ db-reset:
 logs:
     docker-compose logs -f backend
 
+# ── Test ───────────────────────────────────────────────────────────────────
+install:
+    pip install -r requirements.txt pytest
+
+test:
+    pytest tests/ -v
+
+test-file file:
+    pytest {{file}} -v
+
 # ── Health ─────────────────────────────────────────────────────────────────
 health:
     curl -s http://localhost:5000/api/health

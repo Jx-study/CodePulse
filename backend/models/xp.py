@@ -1,5 +1,5 @@
 from database import db
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 
 
@@ -36,7 +36,7 @@ class XpEvent(db.Model):
     source_id = db.Column(db.BigInteger, nullable=True)
     xp_amount = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(200), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.Index('ix_xp_events_user_id', 'user_id'),
@@ -66,7 +66,7 @@ class AchievementDefinition(db.Model):
     points = db.Column(db.Integer, nullable=False, default=0)
     is_active = db.Column(db.Boolean, default=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     translations = db.relationship('AchievementTranslation', backref='achievement', cascade='all, delete-orphan')
     user_achievements = db.relationship('UserAchievement', backref='achievement', cascade='all, delete-orphan')
@@ -105,7 +105,7 @@ class UserAchievement(db.Model):
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     achievement_id = db.Column(db.BigInteger, db.ForeignKey('achievement_definitions.achievement_id', ondelete='CASCADE'), nullable=False)
-    unlocked_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    unlocked_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('user_id', 'achievement_id', name='uq_user_achievement'),
