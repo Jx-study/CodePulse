@@ -43,7 +43,7 @@ class User(db.Model):
     last_login_date = db.Column(db.Date, nullable=True)
 
     skill_rating = db.Column(db.Float, nullable=False, default=1000.0)
-    skill_tier = db.Column(db.Integer, nullable=False, default=2)
+    skill_tier = db.Column(db.Integer, nullable=False, default=1)
 
     deleted_at = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

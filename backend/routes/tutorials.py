@@ -26,6 +26,18 @@ def _apply_elo(user_rating: float, question_rating: float, correct: bool):
     return new_user, new_question
 
 
+def _calc_tier(rating: float) -> int:
+    if rating < 1150:
+        return 1
+    if rating < 1350:
+        return 2
+    if rating < 1550:
+        return 3
+    if rating < 1750:
+        return 4
+    return 5
+
+
 def _find_tutorial_by_slug(slug):
     return Tutorial.query.filter_by(slug=slug).first()
 
@@ -348,6 +360,7 @@ def submit_practice(slug):
         ))
 
     user.skill_rating = user_rating
+    user.skill_tier = _calc_tier(user_rating)
 
     utp = UserTutorialProgress.query.filter_by(
         user_id=user_id, tutorial_id=t.tutorial_id
