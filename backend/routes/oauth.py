@@ -1,5 +1,6 @@
 import os
 import secrets
+import uuid
 import requests as http_requests
 from datetime import datetime, timezone
 from urllib.parse import urlencode
@@ -203,6 +204,7 @@ def register_oauth_routes(app):
                 user_id=user.user_id,
                 token_hash=hash_token(jwt_refresh),
                 expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
+                family_id=str(uuid.uuid4()),
             )
             db.session.add(token_record)
             db.session.commit()
@@ -267,6 +269,7 @@ def register_oauth_routes(app):
                 user_id=user.user_id,
                 token_hash=hash_token(jwt_refresh),
                 expires_at=datetime.now(timezone.utc) + REFRESH_TOKEN_EXPIRES,
+                family_id=str(uuid.uuid4()),
             )
             db.session.add(token_record)
             db.session.commit()
