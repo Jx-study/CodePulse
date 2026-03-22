@@ -17,6 +17,7 @@ import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Input from "@/shared/components/Input";
 import Button from "@/shared/components/Button";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import { toast } from "@/shared/components/Toast";
 
 const GROUP_COLORS = ["#4a90e2", "#66bb6a", "#ab47bc", "#ff7043", "#26c6da"];
 const DEFAULT_RATING = 1000;
@@ -349,7 +350,7 @@ function Practice() {
         isPassed: resp.score >= 60,
         wrongQuestions,
         oldRating: currentUserRating,
-        newRating: currentUserRating + resp.rating_delta,
+        newRating: resp.new_rating,
         ratingDelta: resp.rating_delta,
       };
 
@@ -357,6 +358,7 @@ function Practice() {
       setShowResult(true);
     } catch (err) {
       console.error('[Practice] Submit failed:', err);
+      toast.error('提交失敗，請檢查網路後再試');
     }
   };
 

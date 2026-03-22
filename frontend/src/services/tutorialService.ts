@@ -60,6 +60,7 @@ export interface SubmitResponse {
   correct_count: number;
   xp_earned: number;
   rating_delta: number;
+  new_rating: number;
   results: SubmitResult[];
 }
 
