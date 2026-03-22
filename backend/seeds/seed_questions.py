@@ -21,15 +21,16 @@ from seeds.questions import queue
 from seeds.questions import binary_tree
 from seeds.questions import bst
 from seeds.questions import graph
-# from seeds.questions import binary_search
+from seeds.questions import binary_search
 from seeds.questions import bubble_sort
-# from seeds.questions import insertion_sort
-# from seeds.questions import selection_sort
-# from seeds.questions import prefix_sum
-# from seeds.questions import sliding_window
-# from seeds.questions import bfs
-# from seeds.questions import dfs
-# from seeds.questions import dijkstra
+from seeds.questions import insertion_sort
+from seeds.questions import selection_sort
+from seeds.questions import prefix_sum
+from seeds.questions import sliding_window
+from seeds.questions import bfs
+from seeds.questions import dfs
+from seeds.questions import dijkstra
+from seeds.questions import knapsack
 
 ALL_MODULES = [
     array,
@@ -39,7 +40,16 @@ ALL_MODULES = [
     binary_tree,
     bst,
     graph,
+    binary_search,
     bubble_sort,
+    insertion_sort,
+    selection_sort,
+    prefix_sum,
+    sliding_window,
+    bfs,
+    dfs,
+    dijkstra,
+    knapsack,
 ]
 
 # ── 型別對應 ──────────────────────────────────────────────────────────────────
