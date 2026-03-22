@@ -103,7 +103,10 @@ def update_session(slug, session_id):
     data = request.get_json(silent=True) or {}
     sess.ended_at = datetime.now(timezone.utc)
     if 'duration_seconds' in data:
-        sess.duration_seconds = data['duration_seconds']
+        val = data['duration_seconds']
+        if not isinstance(val, int) or not (0 <= val <= 86400):
+            return jsonify({'success': False, 'message': 'duration_seconds 必須為 0～86400 的整數'}), 400
+        sess.duration_seconds = val
 
     try:
         db.session.commit()
@@ -255,6 +258,8 @@ def get_tutorial_questions(slug):
 
 
 _PASS_THRESHOLD = 60
+_MAX_SUBMIT_QUESTIONS = 50
+_MAX_TIME_PER_QUESTION = 3600  # 秒
 
 
 @tutorials_bp.route('/<slug>/submit', methods=['POST'])
@@ -268,6 +273,24 @@ def submit_practice(slug):
     answers_input = request.get_json(silent=True)
     if not answers_input or not isinstance(answers_input, list):
         return jsonify({'success': False, 'message': '請提供答案列表'}), 400
+
+    # 問題一：限制提交數量，防止 DoS
+    if len(answers_input) > _MAX_SUBMIT_QUESTIONS:
+        return jsonify({'success': False, 'message': f'一次最多提交 {_MAX_SUBMIT_QUESTIONS} 題'}), 400
+
+    # 問題一：驗證每筆答案的結構與型別
+    for i, a in enumerate(answers_input):
+        if not isinstance(a, dict):
+            return jsonify({'success': False, 'message': f'第 {i+1} 筆答案格式錯誤'}), 400
+        if 'question_id' not in a or not isinstance(a['question_id'], int):
+            return jsonify({'success': False, 'message': f'第 {i+1} 筆答案缺少有效的 question_id'}), 400
+        if 'user_answer' not in a:
+            return jsonify({'success': False, 'message': f'第 {i+1} 筆答案缺少 user_answer'}), 400
+        # 問題二：驗證 time_spent_seconds 範圍
+        time_s = a.get('time_spent_seconds')
+        if time_s is not None:
+            if not isinstance(time_s, (int, float)) or not (0 <= time_s <= _MAX_TIME_PER_QUESTION):
+                return jsonify({'success': False, 'message': f'第 {i+1} 筆答案的 time_spent_seconds 無效'}), 400
 
     user = db.session.get(User, user_id)
     q_ids = [a['question_id'] for a in answers_input]
@@ -313,7 +336,7 @@ def submit_practice(slug):
             q.times_correct += 1
 
         time_s = a.get('time_spent_seconds')
-        if time_s:
+        if isinstance(time_s, (int, float)) and time_s > 0:
             total_time += time_s
 
         answer_records.append({

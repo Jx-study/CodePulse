@@ -323,8 +323,6 @@ function Practice() {
 
     try {
       const resp = await tutorialService.submitPractice(levelId, payload);
-      console.log('[Practice] submit response:', resp);
-
       const wrongQuestions = resp.results
         .filter((r) => !r.is_correct)
         .map((r) => {
