@@ -118,6 +118,7 @@ def update_session(slug, session_id):
 
 
 _MIN_TEACHING_SECONDS = 30
+_MAX_TEACHING_SECONDS = 3600  # 教學停留時間上限（1 小時）
 
 
 @tutorials_bp.route('/<slug>/teaching-complete', methods=['PATCH'])
@@ -142,8 +143,15 @@ def teaching_complete(slug):
     started = latest_session.started_at
     if started.tzinfo is None:
         started = started.replace(tzinfo=timezone.utc)
-    if (now - started).total_seconds() < _MIN_TEACHING_SECONDS:
+    elapsed = (now - started).total_seconds()
+    if elapsed < _MIN_TEACHING_SECONDS:
         return jsonify({'success': False, 'message': '閱讀時間不足'}), 403
+
+    # 問題 8：server-side 補足 ended_at 與 duration_seconds（防前端未主動結束）
+    if not latest_session.ended_at:
+        latest_session.ended_at = now
+        capped = min(int(elapsed), _MAX_TEACHING_SECONDS)
+        latest_session.duration_seconds = capped
 
     utp = UserTutorialProgress.query.filter_by(
         user_id=user_id, tutorial_id=t.tutorial_id
@@ -196,6 +204,8 @@ def get_tutorial_questions(slug):
         return jsonify({'success': False, 'message': '教學不存在'}), 404
 
     lang = request.args.get('lang', 'en')
+    if lang not in {'en', 'zh-TW'}:
+        lang = 'en'
 
     questions = (
         Question.query
@@ -461,5 +471,6 @@ def submit_practice(slug):
         'correct_count': correct_count,
         'xp_earned': xp_earned,
         'rating_delta': rating_delta,
+        'new_rating': round(user_rating, 2),
         'results': answer_results,
     }), 200

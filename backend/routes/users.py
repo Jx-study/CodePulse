@@ -77,8 +77,8 @@ def update_me():
         if url:
             if len(url) > 500:
                 errors['avatar_url'] = 'URL 過長'
-            elif not url.startswith(('https://', 'http://')):
-                errors['avatar_url'] = 'URL 格式無效'
+            elif not url.startswith('https://res.cloudinary.com/'):
+                errors['avatar_url'] = 'avatar_url 只允許 Cloudinary 圖片'
             else:
                 user.avatar_url = url
         else:
