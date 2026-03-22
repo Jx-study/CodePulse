@@ -147,7 +147,6 @@ export function createTopologicalSortAnimationSteps(
   const recordStep = (desc: string, tag: string) => {
     const elements: (Node | Box)[] = [];
 
-    // 繪製 Graph Nodes (帶入計算好的 x, y 座標)
     nodes.forEach((n) => {
       const node = new Node();
       node.id = n.id;
@@ -156,38 +155,35 @@ export function createTopologicalSortAnimationSteps(
 
       const pos = layoutMap.get(n.id) || { x: n.x ?? 500, y: n.y ?? 200 };
 
-      // 稍微將圖形往左平移，避免跟右邊的 Queue 軌道打架
-      node.moveTo(pos.x - 50, pos.y);
+      // 稍微將圖形往左平移，避免跟右邊的 Queue 重疊
+      node.moveTo(pos.x - 80, pos.y);
       node.setStatus(nodeStatus[n.id] || TopoStatus.Inactive);
       elements.push(node);
     });
 
-    // 繪製 Queue (配合 D3Renderer 的右側垂直軌道 X:750~950)
-    // 我們放在中心點 X=850，Y 從上往下垂直排列
-    const qX = 850,
-      qStartY = 80,
-      boxSize = 40;
-    queue.forEach((id, i) => {
+    queue.forEach((id, index) => {
       const box = new Box();
-      box.id = `q-${id}-${i}`;
+      box.id = `q-${id}-${index}`;
       box.value = id.replace("node-", "");
-      box.moveTo(qX, qStartY + i * (boxSize + 10)); // 垂直往下長
-      box.width = boxSize;
-      box.height = boxSize;
+      const baseX = 850;
+      const baseY = 355 - index * 35; // 從底部往上長
+
+      box.moveTo(baseX, baseY);
+      box.width = 120;
+      box.height = 30;
       box.setStatus(TopoStatus.InQueue);
       elements.push(box);
     });
 
-    // 繪製 Result
     const resStartX = 50,
       resY = 360;
     result.forEach((id, i) => {
       const box = new Box();
       box.id = `res-${id}-${i}`;
       box.value = id.replace("node-", "");
-      box.moveTo(resStartX + i * (boxSize + 10), resY); // 水平往右長
-      box.width = boxSize;
-      box.height = boxSize;
+      box.moveTo(resStartX + i * 45, resY);
+      box.width = 40;
+      box.height = 40;
       box.setStatus(TopoStatus.Complete);
       elements.push(box);
     });
