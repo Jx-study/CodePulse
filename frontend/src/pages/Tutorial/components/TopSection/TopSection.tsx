@@ -195,6 +195,7 @@ export function TopSection(props: TopSectionProps) {
                         highlightedLine={highlightLines}
                         readOnly={codeMode === "pseudo"}
                         theme="auto"
+                        showTimeComplexity={true}
                       />
                     </div>
                   </div>
@@ -371,6 +372,7 @@ export function TopSection(props: TopSectionProps) {
                         highlightedLine={highlightLines}
                         readOnly={codeMode === "pseudo"}
                         theme="auto"
+                        showTimeComplexity={true}
                       />
                     </div>
                   </div>

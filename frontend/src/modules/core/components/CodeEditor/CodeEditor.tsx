@@ -144,6 +144,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const [internalValue, setInternalValue] = useState(value);
   const [internalBottomValue, setInternalBottomValue] = useState(bottomContent);
   const [contentHeight, setContentHeight] = useState<number>(200);
+  const [editorMounted, setEditorMounted] = useState(false);
 
   // ========== Refs ==========
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -252,6 +253,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const handleEditorMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
     monacoInstanceRef.current = monacoInstance;
+    setEditorMounted(true);
 
     if (autoHeight) {
       const updateHeight = () => {
@@ -286,6 +288,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   const handleBottomEditorMount: OnMount = (editor, monacoInstance) => {
     bottomEditorRef.current = editor;
     monacoInstanceRef.current = monacoInstance;
+    setEditorMounted(true);
     // 分屏模式下虛擬碼高亮僅套用於 topEditor，bottomEditor（Python 實作區）不需高亮
   };
 
