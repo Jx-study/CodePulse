@@ -287,7 +287,7 @@ function drawContainer(
       .attr("y2", bottomY)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
-  } else if (type === "binarytree") {
+  } else if (type === "binarytree" || type === "topological-sort") {
     const startX = 750;
     const endX = 950;
     const topY = 50;
@@ -488,7 +488,9 @@ export function renderAll(
   const byId = new Map(elements.map((e) => [String(e.id), e]));
 
   // 預先建立所有 link 的 key set，用於無向圖反向邊檢查
-  const allLinkKeys = new Set(links.map((lk) => `${lk.sourceId}->${lk.targetId}`));
+  const allLinkKeys = new Set(
+    links.map((lk) => `${lk.sourceId}->${lk.targetId}`),
+  );
   const seenSelfLoops = new Set<string>();
 
   // 僅保留 Node -> Node 的連線
