@@ -54,10 +54,27 @@ function generateRandomDAG(nodeCount: number): GraphData {
     value: String(i),
   }));
   const edges: string[][] = [];
-  // 確保沒有 Cycle：只允許小 ID 指向大 ID
-  for (let i = 0; i < nodeCount; i++) {
-    for (let j = i + 1; j < nodeCount; j++) {
-      if (Math.random() < 0.35) edges.push([`node-${i}`, `node-${j}`]);
+
+  // 建立連通骨架：讓每個新節點都至少被一個「前面的節點」指著
+  // 這樣能確保絕對不會有孤立的節點 (除了起點)，且依然是由小指到大 (DAG)
+  for (let i = 1; i < nodeCount; i++) {
+    const sourceIndex = Math.floor(Math.random() * i);
+    edges.push([`node-${sourceIndex}`, `node-${i}`]);
+  }
+
+  const extraEdgesCount = Math.floor(nodeCount * 0.6); // 增加一些複雜度
+  for (let k = 0; k < extraEdgesCount; k++) {
+    const u = Math.floor(Math.random() * nodeCount);
+    const v = Math.floor(Math.random() * nodeCount);
+
+    // 只允許 ID 小的指向 ID 大的，維持 DAG 性質
+    if (u < v) {
+      const exists = edges.some(
+        (e) => e[0] === `node-${u}` && e[1] === `node-${v}`,
+      );
+      if (!exists) {
+        edges.push([`node-${u}`, `node-${v}`]);
+      }
     }
   }
   return { nodes, edges };
