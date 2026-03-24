@@ -328,11 +328,20 @@ def submit_practice(slug):
     answer_results = []
     total_time = 0
 
+    def _normalize(s: str) -> str:
+        """去除所有空格，保留大小寫（程式碼中 i 與 I 語義不同）"""
+        return str(s).replace(' ', '')
+
+    def _check_answer(user_answer, correct_answer: str) -> bool:
+        """支援 | 分隔的多個可接受答案，比對前 normalize"""
+        user_norm = _normalize(user_answer)
+        return any(user_norm == _normalize(a) for a in correct_answer.split('|'))
+
     for a in answers_input:
         q = questions.get(a['question_id'])
         if not q:
             continue
-        is_correct = (str(a['user_answer']).strip() == str(q.correct_answer).strip())
+        is_correct = _check_answer(a['user_answer'], q.correct_answer)
         if is_correct:
             correct_count += 1
             earned_points += q.points
@@ -361,6 +370,7 @@ def submit_practice(slug):
         answer_results.append({
             'question_id': q.question_id,
             'is_correct': is_correct,
+            'correct_answer': q.correct_answer,
             'explanation': qt.explanation if qt else None,
         })
 

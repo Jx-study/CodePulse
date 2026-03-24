@@ -332,7 +332,7 @@ function Practice() {
           return {
             questionId: q.id,
             userAnswer: userAnswers[q.id] ?? '',
-            correctAnswer: '',
+            correctAnswer: r.correct_answer ?? '',
             explanation: r.explanation,
             timeSpent: Math.round((finalTimeRecords[q.id] || 0) / 1000),
           };

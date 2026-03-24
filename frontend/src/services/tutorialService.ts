@@ -52,6 +52,7 @@ export interface SubmitAnswerPayload {
 export interface SubmitResult {
   question_id: number;
   is_correct: boolean;
+  correct_answer: string;
   explanation: string;
 }
 
