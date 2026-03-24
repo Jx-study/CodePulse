@@ -34,6 +34,7 @@ function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
     code: q.code ?? undefined,
     language: q.language ?? undefined,
     points: q.points,
+    difficultyRating: q.difficulty_rating ?? undefined,
     groupId: q.group_id ? String(q.group_id) : undefined,
     correctAnswer: '',
     explanation: '',
@@ -374,8 +375,11 @@ function Practice() {
   if (isLoadingQuestions) return <div className={styles.loading}>載入題目中...</div>;
   if (loadError) return <div className={styles.error}>{loadError}</div>;
   if (!apiQuestions && !originalQuiz) return <div className={styles.error}>此關卡尚無題目</div>;
-
-  if (randomizedQuestions.length === 0) return <div>Loading...</div>;
+  if (randomizedQuestions.length === 0) {
+    const hasSource = (apiQuestions?.length ?? 0) > 0 || (originalQuiz?.questions?.length ?? 0) > 0;
+    if (hasSource) return <div className={styles.loading}>載入題目中...</div>;
+    return <div className={styles.error}>此關卡尚無題目</div>;
+  }
 
   if (!originalQuiz && (!apiQuestions || apiQuestions.length === 0)) {
     return (

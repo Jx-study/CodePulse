@@ -381,6 +381,21 @@ function TutorialContent() {
   const sessionIdRef = useRef<number | null>(null);
   const sessionStartRef = useRef<number>(Date.now());
 
+  // Teaching Complete
+  const [teachingDone, setTeachingDone] = useState(false);
+  const teachingDoneRef = useRef(false);
+
+  const handleTeachingComplete = async () => {
+    if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
+    try {
+      await tutorialService.markTeachingComplete(levelId);
+      teachingDoneRef.current = true;
+      setTeachingDone(true);
+    } catch {
+      // 403 = 未滿 30 秒，靜默忽略
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated || !levelId) return;
 
@@ -392,22 +407,23 @@ function TutorialContent() {
     return () => {
       if (sessionIdRef.current === null) return;
       const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
-      tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+
+      // 用 sendBeacon 確保頁面關閉時請求仍能送出
+      const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
+      const sessionBlob = new Blob([JSON.stringify({ duration_seconds: elapsed })], { type: 'application/json' });
+      if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
+        tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+      }
+
+      if (!teachingDoneRef.current && elapsed >= 30) {
+        const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
+        const teachingBlob = new Blob([], { type: 'application/json' });
+        if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
+          tutorialService.markTeachingComplete(levelId).catch(() => {});
+        }
+      }
     };
   }, [isAuthenticated, levelId]);
-
-  // Teaching Complete
-  const [teachingDone, setTeachingDone] = useState(false);
-
-  const handleTeachingComplete = async () => {
-    if (teachingDone || !isAuthenticated || !levelId) return;
-    try {
-      await tutorialService.markTeachingComplete(levelId);
-      setTeachingDone(true);
-    } catch {
-      // 403 = 未滿 30 秒，靜默忽略
-    }
-  };
 
   // 新增：代碼模式狀態
   const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");

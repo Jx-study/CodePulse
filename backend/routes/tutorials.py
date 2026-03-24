@@ -87,7 +87,7 @@ def create_session(slug):
     return jsonify({'success': True, 'session_id': sess.session_id}), 201
 
 
-@tutorials_bp.route('/<slug>/session/<int:session_id>', methods=['PATCH'])
+@tutorials_bp.route('/<slug>/session/<int:session_id>', methods=['PATCH', 'POST'])
 @login_required
 def update_session(slug, session_id):
     t = _find_tutorial_by_slug(slug)
@@ -121,7 +121,7 @@ _MIN_TEACHING_SECONDS = 30
 _MAX_TEACHING_SECONDS = 3600  # 教學停留時間上限（1 小時）
 
 
-@tutorials_bp.route('/<slug>/teaching-complete', methods=['PATCH'])
+@tutorials_bp.route('/<slug>/teaching-complete', methods=['PATCH', 'POST'])
 @login_required
 def teaching_complete(slug):
     t = _find_tutorial_by_slug(slug)
@@ -247,6 +247,7 @@ def get_tutorial_questions(slug):
             'code': q.code,
             'language': q.language,
             'points': q.points,
+            'difficulty_rating': q.difficulty_rating,
             'group_id': q.group_id,
             'stem': qt.stem if qt else '',
             'options': qt.options if qt else [],

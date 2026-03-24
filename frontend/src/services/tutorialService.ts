@@ -26,6 +26,7 @@ export interface ApiQuestion {
   question_type: 'single-choice' | 'multiple-choice' | 'true-false' | 'predict-line' | 'fill-code';
   category: 'basic' | 'application' | 'complexity';
   points: number;
+  difficulty_rating: number | null;
   code: string | null;
   language: string | null;
   group_id: number | null;
@@ -67,11 +68,24 @@ export interface SubmitResponse {
 // ── API 函式 ──────────────────────────────────────────────
 
 async function fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const resp = await fetch(url, {
+  const doFetch = () => fetch(url, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options,
   });
+
+  let resp = await doFetch();
+
+  // Access token 過期時，先呼叫 /api/auth/status 讓它自動換新 token，再重試一次
+  if (resp.status === 401) {
+    try {
+      await fetch('/api/auth/status', { credentials: 'include' });
+      resp = await doFetch();
+    } catch {
+      // refresh 失敗，維持原本的 401
+    }
+  }
+
   const data = await resp.json();
   if (!resp.ok) throw new Error(data.message || 'API error');
   return data as T;
