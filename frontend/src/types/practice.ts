@@ -80,7 +80,6 @@ export interface PracticeResult {
   oldRating: number; // 測驗前分數
   newRating: number; // 測驗後分數
   ratingDelta: number; // 分數變化 (+15, -20)
-  analysis?: AnalysisReport;
 }
 
 export interface WrongQuestion {
@@ -91,9 +90,3 @@ export interface WrongQuestion {
   timeSpent: number;
 }
 
-export interface AnalysisReport {
-  overallComment: string; // 整體評語
-  weaknessTags: string[]; // 弱點標籤 (例如: 'complexity', 'application')
-  behaviorTags: string[]; // 行為標籤 (例如: 'rushing', 'overthinking')
-  suggestions: string[]; // 具體建議列表
-}
