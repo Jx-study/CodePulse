@@ -12,6 +12,7 @@ from models.question import (
     QuestionGroup, QuestionGroupTranslation,
     QuestionType, QuestionCategory,
 )
+from models.practice import AttemptAnswer
 
 # ── 註冊所有 tutorial 的題庫模組 ─────────────────────────────────────────────
 from seeds.questions import array
@@ -83,11 +84,14 @@ def seed_tutorial(quiz_data: dict):
 
     tutorial_id = tutorial.tutorial_id
 
-    # 清空舊資料（cascade 會一起刪 translations）
-    for g in QuestionGroup.query.filter_by(tutorial_id=tutorial_id).all():
-        db.session.delete(g)
+    # 清空舊資料：先刪 attempt_answers（RESTRICT FK），再刪 questions，最後刪 groups
+    question_ids = [q.question_id for q in Question.query.filter_by(tutorial_id=tutorial_id).all()]
+    if question_ids:
+        AttemptAnswer.query.filter(AttemptAnswer.question_id.in_(question_ids)).delete(synchronize_session=False)
     for q in Question.query.filter_by(tutorial_id=tutorial_id).all():
         db.session.delete(q)
+    for g in QuestionGroup.query.filter_by(tutorial_id=tutorial_id).all():
+        db.session.delete(g)
     db.session.flush()
 
     # 建立 group id -> DB group 的對應
