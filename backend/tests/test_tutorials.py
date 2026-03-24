@@ -278,9 +278,9 @@ def test_submit_practice_pass(client, auth_headers, app):
     assert data['score'] == 100
     assert data['correct_count'] == 1
     assert data['xp_earned'] > 0
-    assert len(data['answers']) == 1
-    assert data['answers'][0]['is_correct'] is True
-    assert 'explanation' in data['answers'][0]
+    assert len(data['results']) == 1
+    assert data['results'][0]['is_correct'] is True
+    assert 'explanation' in data['results'][0]
 
 
 def test_submit_practice_fail(client, auth_headers, app):
@@ -342,3 +342,82 @@ def test_submit_practice_perfect_xp_idempotent(client, auth_headers, app):
             user_id=1, source_type=XpSourceType.practice_perfect
         ).all()
         assert len(events) == 1
+
+
+# ── i18n 語言解析測試 ─────────────────────────────────────────────────────────
+
+def _make_question_bilingual(db_session, tutorial_id, group_id=None):
+    """建立同時有 en 和 zh-TW 翻譯的題目。"""
+    from models.question import Question, QuestionType, QuestionCategory, QuestionTranslation
+    q = Question(
+        question_type=QuestionType.single_choice,
+        tutorial_id=tutorial_id,
+        group_id=group_id,
+        category=QuestionCategory.basic,
+        correct_answer='A',
+        points=1,
+        display_order=0,
+        is_active=True,
+    )
+    db_session.add(q)
+    db_session.flush()
+    for lang, stem in [('en', 'What is bubble sort?'), ('zh-TW', '什麼是氣泡排序？')]:
+        from models.question import QuestionTranslation
+        qt = QuestionTranslation(
+            question_id=q.question_id,
+            language_code=lang,
+            stem=stem,
+            options=[{'key': 'A', 'text': 'A sort'}, {'key': 'B', 'text': 'Not a sort'}],
+            explanation='Explanation.' if lang == 'en' else '解釋。',
+        )
+        db_session.add(qt)
+    return q
+
+
+def test_questions_uses_user_language_when_no_lang_param(client, auth_headers, app):
+    """無 ?lang= 時，使用用戶 DB 語言（zh-TW）。"""
+    from models.user import User, Language
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question_bilingual(_db.session, t.tutorial_id)
+        user = _db.session.get(User, 1)
+        user.language = Language.zh_TW
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'get', '/api/tutorials/bubble-sort/questions')
+    assert resp.status_code == 200
+    q = resp.get_json()['questions'][0]
+    assert q['stem'] == '什麼是氣泡排序？'
+
+
+def test_questions_lang_param_overrides_user_language(client, auth_headers, app):
+    """?lang=en 應覆蓋用戶 DB 語言（zh-TW）。"""
+    from models.user import User, Language
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question_bilingual(_db.session, t.tutorial_id)
+        user = _db.session.get(User, 1)
+        user.language = Language.zh_TW
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'get',
+                   '/api/tutorials/bubble-sort/questions?lang=en')
+    assert resp.status_code == 200
+    q = resp.get_json()['questions'][0]
+    assert q['stem'] == 'What is bubble sort?'
+
+
+def test_questions_fallback_to_en_when_no_user_language(client, auth_headers, app):
+    """user.language 為 None 時，fallback 到 en。"""
+    from models.user import User
+    with app.app_context():
+        t = _make_tutorial(_db.session)
+        _make_question_bilingual(_db.session, t.tutorial_id)
+        user = _db.session.get(User, 1)
+        user.language = None
+        _db.session.commit()
+
+    resp = _authed(client, auth_headers, 'get', '/api/tutorials/bubble-sort/questions')
+    assert resp.status_code == 200
+    q = resp.get_json()['questions'][0]
+    assert q['stem'] == 'What is bubble sort?'

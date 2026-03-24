@@ -42,6 +42,20 @@ def _find_tutorial_by_slug(slug):
     return Tutorial.query.filter_by(slug=slug).first()
 
 
+_VALID_LANGS = {'en', 'zh-TW'}
+
+
+def _resolve_lang(user_id: int) -> str:
+    """語言優先順序：?lang query string > user.language DB > 'en'"""
+    qs_lang = request.args.get('lang', '').strip()
+    if qs_lang in _VALID_LANGS:
+        return qs_lang
+    user = db.session.get(User, user_id)
+    if user and user.language and user.language.value in _VALID_LANGS:
+        return user.language.value
+    return 'en'
+
+
 @tutorials_bp.route('/<slug>/session', methods=['POST'])
 @login_required
 def create_session(slug):
@@ -203,9 +217,7 @@ def get_tutorial_questions(slug):
     if not t:
         return jsonify({'success': False, 'message': '教學不存在'}), 404
 
-    lang = request.args.get('lang', 'en')
-    if lang not in {'en', 'zh-TW'}:
-        lang = 'en'
+    lang = _resolve_lang(g.current_user_id)
 
     questions = (
         Question.query
@@ -312,10 +324,12 @@ def submit_practice(slug):
             Question.tutorial_id == t.tutorial_id,
         ).all()
     }
+    lang = _resolve_lang(g.current_user_id)
     translations = {
         qt.question_id: qt
         for qt in QuestionTranslation.query.filter(
             QuestionTranslation.question_id.in_(q_ids),
+            QuestionTranslation.language_code == lang,
         ).all()
     }
 
