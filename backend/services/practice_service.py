@@ -75,7 +75,6 @@ def get_questions(tutorial_id: int, lang: str) -> list[dict]:
             'code': q.code,
             'language': q.language,
             'points': q.points,
-            'difficulty_rating': q.difficulty_rating,
             'group_id': q.group_id,
             'stem': qt.stem if qt else '',
             'options': qt.options if qt else [],

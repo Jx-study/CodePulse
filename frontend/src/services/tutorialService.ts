@@ -26,7 +26,6 @@ export interface ApiQuestion {
   question_type: 'single-choice' | 'multiple-choice' | 'true-false' | 'predict-line' | 'fill-code';
   category: 'basic' | 'application' | 'complexity';
   points: number;
-  difficulty_rating: number | null;
   code: string | null;
   language: string | null;
   group_id: number | null;

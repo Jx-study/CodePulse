@@ -107,9 +107,6 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
               >
                 <span className={styles.questionNumber}>
                   第 {index + 1} 題
-                  <span className={styles.difficultyBadge}>
-                    (Rating: {question.difficultyRating || "N/A"})
-                  </span>
                   {renderTimeAnalysis(wrongQ.timeSpent)}
                 </span>
                 <span className={styles.questionPreview}>

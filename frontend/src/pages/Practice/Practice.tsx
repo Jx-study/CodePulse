@@ -34,7 +34,6 @@ function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
     code: q.code ?? undefined,
     language: q.language ?? undefined,
     points: q.points,
-    difficultyRating: q.difficulty_rating ?? undefined,
     groupId: q.group_id ? String(q.group_id) : undefined,
     correctAnswer: '',
     explanation: '',
