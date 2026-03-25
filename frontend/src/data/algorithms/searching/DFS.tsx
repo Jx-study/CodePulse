@@ -8,6 +8,7 @@ import {
 } from "@/modules/core/visualization/visualizationUtils";
 import type { ActionContext, GraphData } from "@/modules/core/visualization/types";
 import type { ActionResult } from "@/modules/core/visualization/types";
+import { dfsRealWorldStories } from "@/data/algorithms/searching/dfs.stories";
 
 function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
@@ -932,4 +933,5 @@ DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
       url: "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/",
     },
   ],
+  realWorldStories: dfsRealWorldStories,
 };

@@ -13,7 +13,20 @@ export interface PythonDemo {
   title: string;
   code: string;
   inputs?: PythonInput[];
-  outputType?: 'text' | 'graph' | 'queue-card'; // 預設 'text'，向下兼容
+  outputType?: 'text' | 'graph' | 'queue-card' | 'maze'; // 預設 'text'，向下兼容
+}
+
+export interface MazeCell {
+  right: boolean;
+  down: boolean;
+}
+
+export interface MazeOutputData {
+  width: number;
+  height: number;
+  grid: MazeCell[][];
+  start: [number, number];
+  finish: [number, number];
 }
 
 export interface GraphSimNode {

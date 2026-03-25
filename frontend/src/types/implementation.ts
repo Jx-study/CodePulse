@@ -11,6 +11,8 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
+  MazeCell,
+  MazeOutputData,
 } from './pythonDemo';
 
 export type {

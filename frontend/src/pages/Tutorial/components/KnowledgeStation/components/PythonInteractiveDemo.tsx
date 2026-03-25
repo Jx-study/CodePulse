@@ -6,6 +6,7 @@ import type {
   PythonInput,
   GraphOutputData,
   QueueCardOutputData,
+  MazeOutputData,
 } from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
 import Button from '@/shared/components/Button';
@@ -13,6 +14,7 @@ import Input from '@/shared/components/Input';
 import Slider from '@/shared/components/Slider';
 import GraphOutputRenderer from './GraphOutputRenderer';
 import QueueGameRenderer from './QueueGameRenderer/QueueGameRenderer';
+import MazeOutputRenderer from './MazeOutputRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
@@ -59,6 +61,7 @@ const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
   const [copied, setCopied] = useState(false);
   const [graphData, setGraphData] = useState<GraphOutputData | null>(null);
   const [queueCardData, setQueueCardData] = useState<QueueCardOutputData | null>(null);
+  const [mazeData, setMazeData] = useState<MazeOutputData | null>(null);
 
   // 控制項值，key = PythonInput.variable
   const [inputValues, setInputValues] = useState<Record<string, string | number>>(
@@ -104,6 +107,7 @@ sys.stdout = io.StringIO()
           // JSON 解析失敗不影響 stdout 輸出
         }
         setQueueCardData(null);
+        setMazeData(null);
       } else if (demo.outputType === 'queue-card' && pyReturnValue) {
         try {
           setQueueCardData(JSON.parse(pyReturnValue));
@@ -111,9 +115,19 @@ sys.stdout = io.StringIO()
           // JSON 解析失敗不影響 stdout 輸出
         }
         setGraphData(null);
+        setMazeData(null);
+      } else if (demo.outputType === 'maze' && pyReturnValue) {
+        try {
+          setMazeData(JSON.parse(pyReturnValue));
+        } catch {
+          // JSON 解析失敗不影響 stdout 輸出
+        }
+        setGraphData(null);
+        setQueueCardData(null);
       } else {
         setGraphData(null);
         setQueueCardData(null);
+        setMazeData(null);
       }
 
       setStatus('done');
@@ -123,6 +137,7 @@ sys.stdout = io.StringIO()
       setStatus('error');
       setGraphData(null);
       setQueueCardData(null);
+      setMazeData(null);
     }
   }, [demo.code, demo.outputType, inputValues]);
 
@@ -212,10 +227,17 @@ sys.stdout = io.StringIO()
             <QueueGameRenderer data={queueCardData} />
           )}
 
-          {/* 輸出 console（graph/queue-card 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
-          {(demo.outputType !== 'graph' && demo.outputType !== 'queue-card') ||
+          {demo.outputType === 'maze' && mazeData && (
+            <MazeOutputRenderer data={mazeData} />
+          )}
+
+          {/* 輸出 console（graph/queue-card/maze 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
+          {(demo.outputType !== 'graph' &&
+            demo.outputType !== 'queue-card' &&
+            demo.outputType !== 'maze') ||
           (demo.outputType === 'graph' && !graphData) ||
           (demo.outputType === 'queue-card' && !queueCardData) ||
+          (demo.outputType === 'maze' && !mazeData) ||
           output.includes('錯誤') ? (
             <pre
               className={classNames(styles.console, {
