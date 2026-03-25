@@ -403,30 +403,26 @@ def test_submit_answers_fill_code_pipe_variants(app):
 
 
 def test_check_answer_multiple_choice_json_serialized():
-    """BUG 記錄：seed_questions._serialize_answer 把 list 轉為 JSON 字串存入 DB。
-    correct_answer = '["A", "C"]'（JSON），但 _check_answer 用 | split，
-    導致 multiple-choice 永遠判錯。
-
-    此測試記錄當前有缺陷的行為：前端需傳入完整 JSON 字串才能匹配，
-    正常人不會這樣用。修正方向見下方 TODO。
-
-    TODO: 修正 _check_answer 對 multiple-choice 的處理，
-    或修正 _serialize_answer 改用 | 格式儲存。
+    """multiple-choice correct_answer 以 JSON 陣列字串存入 DB（'["A", "C"]'）。
+    _check_answer 會解析 JSON 後做 normalize + 排序比對，空格差異不影響結果。
+    前端應傳入逗號分隔字串（'A,C'）或 JSON 陣列字串（'["A","C"]'）。
     """
     from services.practice_service import _check_answer
     import json
 
-    # seed 後 DB 內存的是 '["A", "C"]'
     correct_in_db = json.dumps(["A", "C"], ensure_ascii=False)  # '["A", "C"]'
 
-    # 前端傳 'A' → normalize → 'A'，跟 '["A","C"]' 不匹配 → 永遠算錯
+    # 前端傳單個選項 → 長度不符 → False
     assert _check_answer('A', correct_in_db) is False
     assert _check_answer('C', correct_in_db) is False
 
-    # 只有傳入完整 JSON 字串才能匹配（不合理的使用方式）
-    assert _check_answer('["A","C"]', correct_in_db) is False  # 空格差異
-    normalized = correct_in_db.replace(' ', '')  # '["A","C"]'
-    assert _check_answer('["A","C"]', normalized) is True  # strip 後才匹配
+    # 前端傳逗號分隔 → 正確
+    assert _check_answer('A,C', correct_in_db) is True
+    assert _check_answer('C,A', correct_in_db) is True  # 順序無關
+
+    # 前端傳 JSON 字串 → 正確（空格差異不影響，兩者都能解析）
+    assert _check_answer('["A","C"]', correct_in_db) is True
+    assert _check_answer('["C","A"]', correct_in_db) is True
 
 
 def test_submit_answers_multiple_choice_pipe_workaround(app):

@@ -47,7 +47,7 @@ def test_get_user_progress_empty(client, auth_headers, app):
 
 
 def test_get_user_progress_with_data(client, auth_headers, app):
-    from models.tutorial import UserTutorialProgress, TutorialStatus
+    from models.tutorial import UserTutorialProgress
     with app.app_context():
         t = _make_tutorial(_db.session)
         # user_id=1 matches the hardcoded user_id=1 created in conftest fixtures.
@@ -59,7 +59,6 @@ def test_get_user_progress_with_data(client, auth_headers, app):
             teaching_completed=True, best_score=85,
             best_time_seconds=120, attempt_count=2,
             practice_passed=False,
-            status=TutorialStatus.teaching_done,
         )
         _db.session.add(p)
         _db.session.commit()
@@ -71,7 +70,6 @@ def test_get_user_progress_with_data(client, auth_headers, app):
     assert items[0]['tutorial_slug'] == 'bubble-sort'
     assert items[0]['teaching_completed'] is True
     assert items[0]['best_score'] == 85
-    assert items[0]['status'] == 'teaching_done'
     assert items[0]['practice_passed'] is False
     assert items[0]['attempt_count'] == 2
 
