@@ -1,12 +1,8 @@
 @use 'sass:color';
 // 藍色主題色
 $blue-theme: #3b82f6;
-$blue-bg-light: rgba(59, 130, 246, 0.06);
-$blue-bg-dark: rgba(59, 130, 246, 0.1);
 $blue-border-light: rgba(59, 130, 246, 0.2);
 $blue-border-dark: rgba(59, 130, 246, 0.15);
-$blue-card-bg-light: #ffffff;
-$blue-card-bg-dark: rgba(59, 130, 246, 0.05);
 
 .tutorialSection {
   padding: $spacing-lg;
@@ -14,11 +10,18 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
   overflow-y: auto;
   @include flex($direction: column);
   gap: $spacing-sm;
-  background: $blue-bg-light;
+  background: rgba(59, 130, 246, 0.06);
+
+  :global([data-theme="dark"]) & {
+    background: rgba(59, 130, 246, 0.1);
+    border-right-color: $blue-border-dark;
+  }
 
   @media (prefers-color-scheme: dark) {
-    background: $blue-bg-dark;
-    border-right-color: $blue-border-dark;
+    :global(:root:not([data-theme="light"]):not([data-theme="dark"])) & {
+      background: rgba(59, 130, 246, 0.1);
+      border-right-color: $blue-border-dark;
+    }
   }
 
   h3 {
@@ -42,14 +45,9 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
   @include flex($direction: column);
   gap: $spacing-xs;
   padding: $spacing-sm;
-  background: $blue-card-bg-light;
-  border: 1px solid $blue-border-light;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   border-radius: $radius-xl;
-
-  @media (prefers-color-scheme: dark) {
-    background: $blue-card-bg-dark;
-    border-color: $blue-border-dark;
-  }
 
   .infoRow {
     @include flex($direction: row);
@@ -70,14 +68,9 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
 
 .description {
   padding: $spacing-sm;
-  background: $blue-card-bg-light;
-  border: 1px solid $blue-border-light;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   border-radius: $radius-xl;
-
-  @media (prefers-color-scheme: dark) {
-    background: $blue-card-bg-dark;
-    border-color: $blue-border-dark;
-  }
 
   p {
     color: var(--text-secondary);
@@ -89,14 +82,9 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
 
 .objectives {
   padding: $spacing-sm;
-  background: $blue-card-bg-light;
-  border: 1px solid $blue-border-light;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   border-radius: $radius-xl;
-
-  @media (prefers-color-scheme: dark) {
-    background: $blue-card-bg-dark;
-    border-color: $blue-border-dark;
-  }
 
   ul {
     margin: 0;
@@ -109,14 +97,9 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
 
 .suggested {
   padding: $spacing-sm;
-  background: $blue-card-bg-light;
-  border: 1px solid $blue-border-light;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   border-radius: $radius-xl;
-
-  @media (prefers-color-scheme: dark) {
-    background: $blue-card-bg-dark;
-    border-color: $blue-border-dark;
-  }
 }
 
 .suggestedBadges {
@@ -129,7 +112,7 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
   width: 100%;
   margin-top: auto;
   background: $blue-theme;
-  border-top: 1px solid $blue-border-light;
+  border-top: 1px solid var(--border);
   padding-top: $spacing-sm;
   color: $white-color;
   font-weight: 700;
@@ -140,10 +123,6 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
     background: color.adjust($color: $blue-theme, $lightness: -5%) !important;
     border-color: unset !important;
   }
-
-  @media (prefers-color-scheme: dark) {
-    border-top-color: $blue-border-dark;
-  }
 }
 
 // 響應式設計
@@ -151,10 +130,6 @@ $blue-card-bg-dark: rgba(59, 130, 246, 0.05);
   .tutorialSection {
     padding: $spacing-md;
     border-right: none;
-    border-bottom: 1px solid $blue-border-light;
-
-    @media (prefers-color-scheme: dark) {
-      border-bottom-color: $blue-border-dark;
-    }
+    border-bottom: 1px solid var(--border);
   }
 }
