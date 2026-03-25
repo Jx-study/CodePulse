@@ -111,7 +111,6 @@ DATA = {
         {
             "id": "ll-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "true",
             "translations": {
@@ -130,7 +129,6 @@ DATA = {
         {
             "id": "ll-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "B",
             "translations": {
@@ -159,7 +157,6 @@ DATA = {
         {
             "id": "ll-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "B",
             "translations": {
@@ -188,7 +185,6 @@ DATA = {
         {
             "id": "ll-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "true",
             "translations": {
@@ -207,7 +203,6 @@ DATA = {
         {
             "id": "ll-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
@@ -237,7 +232,6 @@ DATA = {
         {
             "id": "ll-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -267,7 +261,6 @@ DATA = {
             "id": "ll-group-1",
             "groupId": "group-ll-playlist",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "C",
             "translations": {
@@ -296,7 +289,6 @@ DATA = {
         {
             "id": "ll-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "C",
             "translations": {
@@ -325,7 +317,6 @@ DATA = {
         {
             "id": "ll-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
@@ -355,7 +346,6 @@ DATA = {
             "id": "ll-group-2",
             "groupId": "group-ll-playlist",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -384,7 +374,6 @@ DATA = {
         {
             "id": "ll-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "A",
             "translations": {
@@ -413,7 +402,6 @@ DATA = {
         {
             "id": "ll-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
@@ -442,7 +430,6 @@ DATA = {
         {
             "id": "ll-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "C",
             "translations": {
@@ -473,7 +460,6 @@ DATA = {
             "id": "ll-group-3",
             "groupId": "group-ll-playlist",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "code": PLAYLIST_FILL_CODE,
             "language": "python",
@@ -494,7 +480,6 @@ DATA = {
         {
             "id": "ll-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": ["opt1", "opt3", "opt4"],
             "translations": {
@@ -523,7 +508,6 @@ DATA = {
         {
             "id": "ll-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": "A",
             "translations": {
@@ -552,7 +536,6 @@ DATA = {
         {
             "id": "ll-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "code": LL_INSERT_FILL_CODE,
             "language": "python",
@@ -573,7 +556,6 @@ DATA = {
         {
             "id": "ll-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "code": LL_PREDICT_CODE,
             "language": "python",

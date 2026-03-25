@@ -94,7 +94,6 @@ DATA = {
         {
             "id": "dijkstra-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "A",
             "translations": {
@@ -123,7 +122,6 @@ DATA = {
         {
             "id": "dijkstra-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
@@ -142,7 +140,6 @@ DATA = {
         {
             "id": "dijkstra-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -171,7 +168,6 @@ DATA = {
         {
             "id": "dijkstra-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "true",
             "translations": {
@@ -190,7 +186,6 @@ DATA = {
         {
             "id": "dijkstra-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -220,7 +215,6 @@ DATA = {
             "id": "dijkstra-group-1",
             "groupId": "group-dijkstra-path",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -249,7 +243,6 @@ DATA = {
         {
             "id": "dijkstra-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -279,7 +272,6 @@ DATA = {
             "id": "dijkstra-group-2",
             "groupId": "group-dijkstra-path",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -308,7 +300,6 @@ DATA = {
         {
             "id": "dijkstra-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -337,7 +328,6 @@ DATA = {
         {
             "id": "dijkstra-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -366,7 +356,6 @@ DATA = {
         {
             "id": "dijkstra-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -395,7 +384,6 @@ DATA = {
         {
             "id": "dijkstra-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -424,7 +412,6 @@ DATA = {
         {
             "id": "dijkstra-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -454,7 +441,6 @@ DATA = {
             "id": "dijkstra-group-3",
             "groupId": "group-dijkstra-path",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": ["v", "dist[u]", "w"],
             "code": DIJKSTRA_FILL_CODE,
@@ -475,7 +461,6 @@ DATA = {
         {
             "id": "dijkstra-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": "C",
             "translations": {
@@ -504,7 +489,6 @@ DATA = {
         {
             "id": "dijkstra-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -533,7 +517,6 @@ DATA = {
         {
             "id": "dijkstra-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "correctAnswer": ["dist[u]", "weight", "alt"],
             "code": DIJKSTRA_RELAX_FILL_CODE,
@@ -554,7 +537,6 @@ DATA = {
         {
             "id": "dijkstra-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 10 11 12 13 5 6 7 9 10 11 12 13 5 6 7 5 6 7 8 5 14",
             "code": DIJKSTRA_PREDICT_CODE,

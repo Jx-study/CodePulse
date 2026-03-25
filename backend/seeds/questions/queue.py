@@ -101,7 +101,6 @@ DATA = {
         {
             "id": "queue-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "false",
             "translations": {
@@ -120,7 +119,6 @@ DATA = {
         {
             "id": "queue-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "A",
             "translations": {
@@ -149,7 +147,6 @@ DATA = {
         {
             "id": "queue-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "B",
             "translations": {
@@ -178,7 +175,6 @@ DATA = {
         {
             "id": "queue-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "B",
             "translations": {
@@ -207,7 +203,6 @@ DATA = {
         {
             "id": "queue-q4",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -237,7 +232,6 @@ DATA = {
         {
             "id": "queue-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "C",
             "translations": {
@@ -266,7 +260,6 @@ DATA = {
         {
             "id": "queue-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -295,7 +288,6 @@ DATA = {
         {
             "id": "queue-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -324,7 +316,6 @@ DATA = {
         {
             "id": "queue-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -353,7 +344,6 @@ DATA = {
         {
             "id": "queue-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
@@ -383,7 +373,6 @@ DATA = {
         {
             "id": "queue-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": "A",
             "translations": {
@@ -412,7 +401,6 @@ DATA = {
         {
             "id": "queue-q10",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": "C",
             "translations": {
@@ -443,7 +431,6 @@ DATA = {
             "id": "q-group-1",
             "groupId": "group-print-buffer",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -473,7 +460,6 @@ DATA = {
             "id": "q-group-2",
             "groupId": "group-print-buffer",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "A",
             "translations": {
@@ -503,7 +489,6 @@ DATA = {
             "id": "q-group-3",
             "groupId": "group-print-buffer",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": ["n", "deque"],
             "translations": {
@@ -522,7 +507,6 @@ DATA = {
         {
             "id": "queue-code-fill-1",
             "type": "fill-code",
-            "category": "application",
             "baseRating": 1450,
             "code": CIRCULAR_QUEUE_FILL_CODE,
             "language": "python",
@@ -543,7 +527,6 @@ DATA = {
         {
             "id": "queue-code-1",
             "type": "predict-line",
-            "category": "application",
             "baseRating": 1500,
             "code": CIRCULAR_QUEUE_CODE,
             "language": "python",

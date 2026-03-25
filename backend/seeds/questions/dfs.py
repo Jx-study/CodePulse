@@ -92,7 +92,6 @@ DATA = {
         {
             "id": "dfs-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "B",
             "translations": {
@@ -121,7 +120,6 @@ DATA = {
         {
             "id": "dfs-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
@@ -140,7 +138,6 @@ DATA = {
         {
             "id": "dfs-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -169,7 +166,6 @@ DATA = {
         {
             "id": "dfs-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "false",
             "translations": {
@@ -188,7 +184,6 @@ DATA = {
         {
             "id": "dfs-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -218,7 +213,6 @@ DATA = {
             "id": "dfs-group-1",
             "groupId": "group-dfs-traversal",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -247,7 +241,6 @@ DATA = {
         {
             "id": "dfs-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -277,7 +270,6 @@ DATA = {
             "id": "dfs-group-2",
             "groupId": "group-dfs-traversal",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -306,7 +298,6 @@ DATA = {
         {
             "id": "dfs-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -335,7 +326,6 @@ DATA = {
         {
             "id": "dfs-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -364,7 +354,6 @@ DATA = {
         {
             "id": "dfs-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -393,7 +382,6 @@ DATA = {
         {
             "id": "dfs-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": ["opt1", "opt3", "opt4"],
             "translations": {
@@ -422,7 +410,6 @@ DATA = {
         {
             "id": "dfs-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -452,7 +439,6 @@ DATA = {
             "id": "dfs-group-3",
             "groupId": "group-dfs-traversal",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": ["set()", "visited", "nb"],
             "code": DFS_FILL_CODE,
@@ -473,7 +459,6 @@ DATA = {
         {
             "id": "dfs-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": "C",
             "translations": {
@@ -502,7 +487,6 @@ DATA = {
         {
             "id": "dfs-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -531,7 +515,6 @@ DATA = {
         {
             "id": "dfs-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "correctAnswer": ["start", "stack.pop()", "grid[nr][nc]"],
             "code": DFS_GRID_FILL_CODE,
@@ -552,7 +535,6 @@ DATA = {
         {
             "id": "dfs-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 5 6 7 9 10 5 14",
             "code": DFS_PREDICT_CODE,

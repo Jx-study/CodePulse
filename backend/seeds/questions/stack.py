@@ -106,7 +106,6 @@ DATA = {
         {
             "id": "stack-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "true",
             "translations": {
@@ -125,7 +124,6 @@ DATA = {
         {
             "id": "stack-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "A",
             "translations": {
@@ -154,7 +152,6 @@ DATA = {
         {
             "id": "stack-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "C",
             "translations": {
@@ -183,7 +180,6 @@ DATA = {
         {
             "id": "stack-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -212,7 +208,6 @@ DATA = {
         {
             "id": "stack-q4",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -242,7 +237,6 @@ DATA = {
         {
             "id": "stack-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "A",
             "translations": {
@@ -271,7 +265,6 @@ DATA = {
         {
             "id": "stack-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -300,7 +293,6 @@ DATA = {
         {
             "id": "stack-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -329,7 +321,6 @@ DATA = {
         {
             "id": "stack-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -358,7 +349,6 @@ DATA = {
         {
             "id": "stack-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
@@ -388,7 +378,6 @@ DATA = {
         {
             "id": "stack-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1250,
             "correctAnswer": "A",
             "translations": {
@@ -417,7 +406,6 @@ DATA = {
         {
             "id": "stack-q10",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": "A",
             "translations": {
@@ -448,7 +436,6 @@ DATA = {
             "id": "stack-group-1",
             "groupId": "group-stack-impl",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "A",
             "translations": {
@@ -478,7 +465,6 @@ DATA = {
             "id": "stack-group-2",
             "groupId": "group-stack-impl",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -508,7 +494,6 @@ DATA = {
             "id": "stack-group-3",
             "groupId": "group-stack-impl",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1400,
             "code": STACK_FILL_CODE,
             "language": "python",
@@ -529,7 +514,6 @@ DATA = {
         {
             "id": "stack-adv-pred",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "code": STACK_PREDICT_CODE,
             "language": "python",
@@ -550,7 +534,6 @@ DATA = {
         {
             "id": "stack-adv-fill",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "code": MIN_STACK_FILL_CODE,
             "language": "python",

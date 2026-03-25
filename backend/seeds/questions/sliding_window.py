@@ -69,7 +69,6 @@ DATA = {
         {
             "id": "sw-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "B",
             "translations": {
@@ -98,7 +97,6 @@ DATA = {
         {
             "id": "sw-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "false",
             "translations": {
@@ -117,7 +115,6 @@ DATA = {
         {
             "id": "sw-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -146,7 +143,6 @@ DATA = {
         {
             "id": "sw-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "true",
             "translations": {
@@ -165,7 +161,6 @@ DATA = {
         {
             "id": "sw-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
@@ -195,7 +190,6 @@ DATA = {
             "id": "sw-group-1",
             "groupId": "group-sw-variable",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "C",
             "translations": {
@@ -224,7 +218,6 @@ DATA = {
         {
             "id": "sw-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -254,7 +247,6 @@ DATA = {
             "id": "sw-group-2",
             "groupId": "group-sw-variable",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "D",
             "translations": {
@@ -283,7 +275,6 @@ DATA = {
         {
             "id": "sw-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -312,7 +303,6 @@ DATA = {
         {
             "id": "sw-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "C",
             "translations": {
@@ -341,7 +331,6 @@ DATA = {
         {
             "id": "sw-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "C",
             "translations": {
@@ -370,7 +359,6 @@ DATA = {
         {
             "id": "sw-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -399,7 +387,6 @@ DATA = {
         {
             "id": "sw-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -429,7 +416,6 @@ DATA = {
             "id": "sw-group-3",
             "groupId": "group-sw-variable",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": ["arr[right]", "target", "arr[left]", "right - left + 1"],
             "code": SW_FILL_CODE,
@@ -450,7 +436,6 @@ DATA = {
         {
             "id": "sw-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": "A",
             "translations": {
@@ -479,7 +464,6 @@ DATA = {
         {
             "id": "sw-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -508,7 +492,6 @@ DATA = {
         {
             "id": "sw-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "correctAnswer": ["window_sum", "i + k - 1", "window_sum"],
             "code": SW_FIXED_FILL_CODE,
@@ -529,7 +512,6 @@ DATA = {
         {
             "id": "sw-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12",
             "code": SW_PREDICT_CODE,

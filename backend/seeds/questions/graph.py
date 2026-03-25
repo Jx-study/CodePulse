@@ -69,7 +69,6 @@ DATA = {
         {
             "id": "graph-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "true",
             "translations": {
@@ -88,7 +87,6 @@ DATA = {
         {
             "id": "graph-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "B",
             "translations": {
@@ -117,7 +115,6 @@ DATA = {
         {
             "id": "graph-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "D",
             "translations": {
@@ -146,7 +143,6 @@ DATA = {
         {
             "id": "graph-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -175,7 +171,6 @@ DATA = {
         {
             "id": "graph-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "true",
             "translations": {
@@ -194,7 +189,6 @@ DATA = {
         {
             "id": "graph-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -223,7 +217,6 @@ DATA = {
         {
             "id": "graph-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -252,7 +245,6 @@ DATA = {
         {
             "id": "graph-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "C",
             "translations": {
@@ -282,7 +274,6 @@ DATA = {
             "id": "graph-group-1",
             "groupId": "group-graph-bfs",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -312,7 +303,6 @@ DATA = {
             "id": "graph-group-2",
             "groupId": "group-graph-bfs",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -341,7 +331,6 @@ DATA = {
         {
             "id": "graph-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -370,7 +359,6 @@ DATA = {
         {
             "id": "graph-q-topo",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
@@ -399,7 +387,6 @@ DATA = {
         {
             "id": "graph-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "D",
             "translations": {
@@ -429,7 +416,6 @@ DATA = {
             "id": "graph-group-3",
             "groupId": "group-graph-bfs",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": ["start_node", "pop(0)", "visited"],
             "code": BFS_FILL_CODE,
@@ -450,7 +436,6 @@ DATA = {
         {
             "id": "graph-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
@@ -479,7 +464,6 @@ DATA = {
         {
             "id": "graph-q8",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": "D",
             "translations": {
@@ -508,7 +492,6 @@ DATA = {
         {
             "id": "graph-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "correctAnswer": ["rec_stack", "True", "curr"],
             "code": DFS_CYCLE_FILL_CODE,
@@ -529,7 +512,6 @@ DATA = {
         {
             "id": "graph-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 3 4 3 4 5 6",
             "code": IN_DEGREE_PREDICT_CODE,

@@ -89,7 +89,6 @@ DATA = {
         {
             "id": "array-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "true",
             "translations": {
@@ -108,7 +107,6 @@ DATA = {
         {
             "id": "array-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "A",
             "translations": {
@@ -137,7 +135,6 @@ DATA = {
         {
             "id": "array-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "A",
             "translations": {
@@ -166,7 +163,6 @@ DATA = {
         {
             "id": "array-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -195,7 +191,6 @@ DATA = {
         {
             "id": "array-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "true",
             "translations": {
@@ -215,7 +210,6 @@ DATA = {
         {
             "id": "array-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -244,7 +238,6 @@ DATA = {
         {
             "id": "array-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "C",
             "translations": {
@@ -273,7 +266,6 @@ DATA = {
         {
             "id": "array-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -302,7 +294,6 @@ DATA = {
         {
             "id": "array-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -331,7 +322,6 @@ DATA = {
         {
             "id": "array-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": ["opt1", "opt2"],
             "translations": {
@@ -360,7 +350,6 @@ DATA = {
         {
             "id": "array-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": "A",
             "translations": {
@@ -390,7 +379,6 @@ DATA = {
             "id": "array-group-1",
             "groupId": "group-array-inventory",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -420,7 +408,6 @@ DATA = {
             "id": "array-group-2",
             "groupId": "group-array-inventory",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -450,7 +437,6 @@ DATA = {
         {
             "id": "array-q9",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1250,
             "correctAnswer": "A",
             "translations": {
@@ -479,7 +465,6 @@ DATA = {
         {
             "id": "array-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
@@ -509,7 +494,6 @@ DATA = {
             "id": "array-group-3",
             "groupId": "group-array-inventory",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "code": WAREHOUSE_FILL_CODE,
             "language": "python",
@@ -530,7 +514,6 @@ DATA = {
         {
             "id": "array-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1400,
             "code": ARRAY_DELETE_FILL_CODE,
             "language": "python",
@@ -551,7 +534,6 @@ DATA = {
         {
             "id": "array-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "code": ARRAY_PREDICT_CODE,
             "language": "python",

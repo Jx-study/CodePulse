@@ -61,7 +61,6 @@ DATA = {
         {
             "id": "isort-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "B",
             "translations": {
@@ -90,7 +89,6 @@ DATA = {
         {
             "id": "isort-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
@@ -109,7 +107,6 @@ DATA = {
         {
             "id": "isort-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
@@ -138,7 +135,6 @@ DATA = {
         {
             "id": "isort-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "true",
             "translations": {
@@ -157,7 +153,6 @@ DATA = {
         {
             "id": "isort-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -187,7 +182,6 @@ DATA = {
         {
             "id": "isort-group-1",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "A",
             "groupId": "group-isort-logic",
@@ -217,7 +211,6 @@ DATA = {
         {
             "id": "isort-q8",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -246,7 +239,6 @@ DATA = {
         {
             "id": "isort-group-2",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "groupId": "group-isort-logic",
@@ -276,7 +268,6 @@ DATA = {
         {
             "id": "isort-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -305,7 +296,6 @@ DATA = {
         {
             "id": "isort-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -334,7 +324,6 @@ DATA = {
         {
             "id": "isort-q9",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "A",
             "translations": {
@@ -363,7 +352,6 @@ DATA = {
         {
             "id": "isort-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
@@ -392,7 +380,6 @@ DATA = {
         {
             "id": "isort-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -422,7 +409,6 @@ DATA = {
         {
             "id": "isort-group-3",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": ["j >= 0", "collection[j] > key", "j + 1"],
             "groupId": "group-isort-logic",
@@ -444,7 +430,6 @@ DATA = {
         {
             "id": "isort-q7",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": "C",
             "translations": {
@@ -473,7 +458,6 @@ DATA = {
         {
             "id": "isort-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
@@ -502,7 +486,6 @@ DATA = {
         {
             "id": "isort-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "correctAnswer": ["1", "n - 1", "last"],
             "code": RECURSIVE_ISORT_FILL_CODE,
@@ -523,7 +506,6 @@ DATA = {
         {
             "id": "isort-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 5 8 9",
             "code": ISORT_PREDICT_CODE,

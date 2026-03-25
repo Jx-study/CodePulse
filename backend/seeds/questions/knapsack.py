@@ -77,7 +77,6 @@ DATA = {
         {
             "id": "kp-tf-1",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 800,
             "correctAnswer": "true",
             "translations": {
@@ -96,7 +95,6 @@ DATA = {
         {
             "id": "kp-q1",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 850,
             "correctAnswer": "B",
             "translations": {
@@ -125,7 +123,6 @@ DATA = {
         {
             "id": "kp-q2",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -154,7 +151,6 @@ DATA = {
         {
             "id": "kp-tf-2",
             "type": "true-false",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "true",
             "translations": {
@@ -173,7 +169,6 @@ DATA = {
         {
             "id": "kp-q3",
             "type": "single-choice",
-            "category": "basic",
             "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
@@ -202,7 +197,6 @@ DATA = {
         {
             "id": "kp-q4",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
@@ -232,7 +226,6 @@ DATA = {
             "id": "kp-grp-1",
             "groupId": "group-dp-trace",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -261,7 +254,6 @@ DATA = {
         {
             "id": "kp-q5",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
@@ -290,7 +282,6 @@ DATA = {
         {
             "id": "kp-multi-1",
             "type": "multiple-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
@@ -320,7 +311,6 @@ DATA = {
             "id": "kp-grp-2",
             "groupId": "group-dp-trace",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1150,
             "correctAnswer": "D",
             "translations": {
@@ -349,7 +339,6 @@ DATA = {
         {
             "id": "kp-q6",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1200,
             "correctAnswer": "D",
             "translations": {
@@ -378,7 +367,6 @@ DATA = {
         {
             "id": "kp-q7",
             "type": "single-choice",
-            "category": "application",
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -408,7 +396,6 @@ DATA = {
             "id": "kp-grp-3",
             "groupId": "group-dp-trace",
             "type": "single-choice",
-            "category": "complexity",
             "baseRating": 1300,
             "correctAnswer": "B",
             "translations": {
@@ -437,7 +424,6 @@ DATA = {
         {
             "id": "kp-tf-3",
             "type": "true-false",
-            "category": "complexity",
             "baseRating": 1350,
             "correctAnswer": "true",
             "translations": {
@@ -456,7 +442,6 @@ DATA = {
         {
             "id": "kp-fill-1",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1400,
             "correctAnswer": ["item_idx-1", "current_value", "max(skip_val, take_val)", "dp[item_idx-1][curr_capacity]"],
             "code": KNAPSACK_FILL_CODE,
@@ -477,7 +462,6 @@ DATA = {
         {
             "id": "kp-fill-2",
             "type": "fill-code",
-            "category": "complexity",
             "baseRating": 1450,
             "correctAnswer": ["capacity", "dp[curr_capacity - w]", "capacity"],
             "code": KNAPSACK_1D_FILL_CODE,
@@ -498,7 +482,6 @@ DATA = {
         {
             "id": "kp-pred-1",
             "type": "predict-line",
-            "category": "complexity",
             "baseRating": 1500,
             "correctAnswer": "1 2 4 5 6",
             "code": DP_SINGLE_ITEM_CODE,
@@ -519,7 +502,6 @@ DATA = {
         {
             "id": "kp-multi-2",
             "type": "multiple-choice",
-            "category": "complexity",
             "baseRating": 1550,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
