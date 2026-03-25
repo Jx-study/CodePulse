@@ -7,12 +7,7 @@
  * - 生成測驗結果報告
  */
 
-import { EloService } from "./EloService";
-import type {
-  Question,
-  PracticeSession,
-  PracticeResult,
-} from "@/types/practice";
+import type { Question, PracticeResult } from "@/types/practice";
 
 type ValidatorFn = (question: Question, userAnswer: any) => boolean;
 
@@ -93,75 +88,6 @@ export class PracticeService {
 
     console.warn(`No validator found for type: ${question.type}`);
     return false;
-  }
-
-  /**
-   * 計算測驗結果
-   * @param session - 練習會話
-   * @returns 測驗結果
-   */
-  static calculateResult(session: PracticeSession): PracticeResult {
-    const { questions, userAnswers, userStartRating, timeRecords } = session;
-
-    let correctCount = 0;
-    let currentRating = userStartRating || 1000; // 預設值
-    const wrongQuestions: PracticeResult["wrongQuestions"] = [];
-
-    questions.forEach((question) => {
-      const userAnswer = userAnswers[question.id];
-      const isCorrect = this.validateAnswer(question, userAnswer);
-
-      // 1. 取得題目難度 (優先用 rating，沒有則用 difficulty 換算)
-      const questionRating =
-        question.difficultyRating ||
-        EloService.difficultyToElo(question.difficulty);
-
-      // 2. 計算這一題造成的 Elo 變化
-      // 採用「逐題結算」的模擬方式，實際上也可以先算出總分再算 Elo
-      // 但逐題算能讓每一題的難度都發揮作用
-      const actualScore = isCorrect ? 1 : 0;
-      currentRating = EloService.calculateNewRating(
-        currentRating,
-        questionRating,
-        actualScore,
-      );
-
-      if (isCorrect) {
-        correctCount++;
-      } else {
-        wrongQuestions.push({
-          questionId: question.id,
-          userAnswer: userAnswer || "",
-          correctAnswer: question.correctAnswer,
-          explanation: question.explanation,
-          timeSpent: Math.round((timeRecords[question.id] || 0) / 100) / 10,
-        });
-      }
-    });
-
-    const totalQuestions = questions.length;
-    const wrongCount = totalQuestions - correctCount;
-    const score = Math.round((correctCount / totalQuestions) * 100);
-    const ratingDelta = currentRating - (userStartRating || 1000);
-    const stars = this.calculateStars(score);
-    const timeSpent = session.endTime
-      ? (session.endTime - session.startTime) / 1000
-      : 0;
-    return {
-      sessionId: session.sessionId,
-      levelId: session.levelId,
-      totalQuestions,
-      correctCount,
-      wrongCount,
-      score,
-      stars,
-      timeSpent,
-      isPassed: score >= 60,
-      wrongQuestions,
-      oldRating: userStartRating || 1000,
-      newRating: currentRating,
-      ratingDelta,
-    };
   }
 
   /**

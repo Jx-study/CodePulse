@@ -22,8 +22,6 @@ export interface Question {
     | "predict-line"
     | "fill-code";
   category: "basic" | "application" | "complexity";
-  difficulty: 1 | 2 | 3;
-  difficultyRating?: number;
   title: string;
   options?: Option[];
 
@@ -32,8 +30,13 @@ export interface Question {
 
   correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
-  points: number;
   groupId?: string;
+  group?: {
+    title: string;
+    description: string | null;
+    code: string | null;
+    language: string | null;
+  };
 }
 
 export interface QuestionGroup {
@@ -77,6 +80,7 @@ export interface PracticeResult {
   timeSpent: number;
   isPassed: boolean;
   wrongQuestions: WrongQuestion[];
+  answerResults: AnswerResult[];
   oldRating: number; // 測驗前分數
   newRating: number; // 測驗後分數
   ratingDelta: number; // 分數變化 (+15, -20)
@@ -88,5 +92,15 @@ export interface WrongQuestion {
   correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
   timeSpent: number;
+}
+
+export interface AnswerResult {
+  questionId: string;
+  isCorrect: boolean;
+  userAnswer: string | string[];
+  correctAnswer: string | string[] | (string | string[])[];
+  explanation: string;
+  timeSpent: number;
+  points: number;
 }
 

@@ -25,7 +25,6 @@ export interface ApiQuestion {
   options: { id: string; text: string }[] | null;
   question_type: 'single-choice' | 'multiple-choice' | 'true-false' | 'predict-line' | 'fill-code';
   category: 'basic' | 'application' | 'complexity';
-  points: number;
   code: string | null;
   language: string | null;
   group_id: number | null;
