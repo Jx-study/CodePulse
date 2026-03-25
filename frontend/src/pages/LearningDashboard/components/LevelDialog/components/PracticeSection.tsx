@@ -14,6 +14,7 @@ interface PracticeSectionProps {
   bestStars: number;
   attempts: number;
   bestTime: number; // seconds, 0 = not recorded
+  bestScore?: number; // 百分制 0-100，undefined = 尚未練習
   isLocked: boolean;
   prerequisiteInfo?: PrerequisiteConfig;
 }
@@ -31,6 +32,7 @@ function PracticeSection({
   bestStars,
   attempts,
   bestTime,
+  bestScore,
   isLocked,
   prerequisiteInfo
 }: PracticeSectionProps) {
@@ -66,7 +68,7 @@ function PracticeSection({
             readonly
             className={styles.stars}
           />
-          <div className={styles.score}>100%</div>
+          <div className={styles.score}>{bestScore !== undefined ? `${bestScore}%` : '--'}</div>
           <div className={styles.divider} />
           <div className={styles.statsRow}>
             <div className={styles.stat}>

@@ -243,6 +243,7 @@ export function mergeApiProgress(
       stars,
       attempts: p.attempt_count,
       bestTime: p.best_time_seconds ?? 0,
+      bestScore: p.best_score ?? undefined,
       teachingCompleted: p.teaching_completed,
     };
 

@@ -78,6 +78,7 @@ function LevelDialog({
         bestStars={userProgress.stars}
         attempts={userProgress.attempts}
         bestTime={userProgress.bestTime}
+        bestScore={userProgress.bestScore}
         isLocked={practiceLocked}
         prerequisiteInfo={prerequisiteInfo}
       />
