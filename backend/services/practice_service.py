@@ -155,6 +155,53 @@ def _normalize(s: str) -> str:
 
 
 def _check_answer(user_answer, correct_answer: str) -> bool:
+    """判斷 user_answer 是否正確。
+
+    correct_answer 格式有兩種：
+    - 純字串（single-choice / true-false / predict-line）：用 | 分隔多個可接受答案
+    - JSON 陣列字串（multiple-choice / fill-code）：["ans1", "ans2"]，
+      由 seed_questions._serialize_answer 序列化而來，每個位置獨立比對
+    """
+    import json
+
+    # 嘗試解析 JSON 陣列（multiple-choice / fill-code）
+    try:
+        correct_list = json.loads(correct_answer)
+    except (json.JSONDecodeError, TypeError):
+        correct_list = None
+
+    if isinstance(correct_list, list):
+        # 前端 Array.toString() → "A,C"，或前端直接傳 JSON 字串
+        if isinstance(user_answer, list):
+            user_list = user_answer
+        else:
+            user_str = str(user_answer)
+            try:
+                parsed = json.loads(user_str)
+                user_list = parsed if isinstance(parsed, list) else user_str.split(',')
+            except (json.JSONDecodeError, ValueError):
+                user_list = user_str.split(',')
+
+        if len(user_list) != len(correct_list):
+            return False
+
+        # fill-code：按位置比對（順序有意義，每格可含 | 等價答案）
+        # multiple-choice：選項沒有位置語意，改用排序後集合比對
+        # 判斷方式：correct_list 每格是否含 | → 有的話是 fill-code
+        is_fill_code = any('|' in str(c) for c in correct_list)
+        if is_fill_code:
+            for u, c in zip(user_list, correct_list):
+                u_norm = _normalize(u)
+                if not any(u_norm == _normalize(a) for a in str(c).split('|')):
+                    return False
+            return True
+        else:
+            # multiple-choice：排序後比對，忽略勾選順序
+            user_sorted = sorted(_normalize(u) for u in user_list)
+            correct_sorted = sorted(_normalize(str(c)) for c in correct_list)
+            return user_sorted == correct_sorted
+
+    # 一般字串：| 分隔多個可接受答案
     user_norm = _normalize(user_answer)
     return any(user_norm == _normalize(a) for a in correct_answer.split('|'))
 
