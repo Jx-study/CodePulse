@@ -12,6 +12,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCheckinDialog, setShowCheckinDialog] = useState(false);
 
   const checkAuthStatus = useCallback(async () => {
     try {
@@ -95,6 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     checkAuthStatus,
     updateUser,
+    showCheckinDialog,
+    setShowCheckinDialog,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
