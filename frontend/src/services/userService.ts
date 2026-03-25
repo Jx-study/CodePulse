@@ -67,9 +67,12 @@ export const userService = {
   },
 
   async checkin(): Promise<CheckinResponse> {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const resp = await fetch('/api/users/me/checkin', {
       method: 'POST',
       credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timezone }),
     });
     if (!resp.ok) throw new Error('Checkin failed');
     return resp.json();

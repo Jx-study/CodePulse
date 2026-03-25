@@ -622,6 +622,16 @@ def get_user_status():
     if user is None or user.deleted_at is not None:
         return jsonify({'isAuthenticated': False}), 200
 
+    # Sync timezone from client (silent update)
+    client_tz = (request.args.get('timezone') or '').strip()
+    if client_tz and len(client_tz) <= 50 and client_tz != user.timezone:
+        try:
+            ZoneInfo(client_tz)
+            user.timezone = client_tz
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
     return jsonify({
         'isAuthenticated': True,
         'user': _user_to_dict(user),

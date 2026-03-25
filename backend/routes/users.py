@@ -227,6 +227,15 @@ def checkin():
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': '用戶不存在'}), 404
 
+    data = request.get_json(silent=True) or {}
+    client_tz = (data.get('timezone') or '').strip()
+    if client_tz and len(client_tz) <= 50 and client_tz != user.timezone:
+        try:
+            ZoneInfo(client_tz)
+            user.timezone = client_tz
+        except Exception:
+            pass
+
     try:
         tz = ZoneInfo(user.timezone or 'UTC')
     except Exception:

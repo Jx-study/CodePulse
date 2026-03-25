@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (hasEvaluatedCheckin.current) return;
     hasEvaluatedCheckin.current = true;
     const today = new Date().toLocaleDateString('en-CA', {
-      timeZone: userData.timezone || 'UTC',
+      timeZone: userData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
     if (userData.last_login_date !== today) {
       setShowCheckinDialog(true);
