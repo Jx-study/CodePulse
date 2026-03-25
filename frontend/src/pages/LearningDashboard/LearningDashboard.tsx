@@ -245,23 +245,6 @@ function LearningDashboardInner() {
     }
   };
 
-  // TODO:測試用->完成關卡（練習頁面完成後可移除）
-  const handleCompleteLevel = () => {
-    if (selectedLevel) {
-      const currentProgress = getLevelProgress(selectedLevel.id, userProgress);
-      const newStars = Math.max(currentProgress.stars, 3) as 0 | 1 | 2 | 3;
-
-      // 使用 ProgressService 更新進度
-      const updatedProgress = completeLevel(selectedLevel.id, userProgress, newStars);
-      setUserProgress(updatedProgress);
-      saveUserProgress(updatedProgress);
-
-      // 顯示完成提示
-      setToastMessage(`完成關卡：${t(`levels.${selectedLevel.id.replace(/-/g, '_')}.name`)}`);
-      setTimeout(() => setToastMessage(null), 3000);
-    }
-  };
-
   // 側邊栏狀態
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -428,7 +411,6 @@ function LearningDashboardInner() {
           onClose={() => setSelectedLevel(null)}
           onStartTutorial={handleStartTutorial}
           onStartPractice={handleStartPractice}
-          onCompleteLevel={handleCompleteLevel}
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
           practiceLocked={

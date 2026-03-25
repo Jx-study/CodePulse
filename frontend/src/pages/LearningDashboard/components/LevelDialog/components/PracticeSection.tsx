@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 interface PracticeSectionProps {
   level: Level;
   onStartPractice: () => void;
-  onCompleteLevel?: () => void; // 測試用：完成關卡
   bestStars: number;
   attempts: number;
   bestTime: number; // seconds, 0 = not recorded
@@ -28,7 +27,6 @@ function formatTime(seconds: number): string {
 
 function PracticeSection({
   onStartPractice,
-  onCompleteLevel,
   bestStars,
   attempts,
   bestTime,
@@ -95,18 +93,6 @@ function PracticeSection({
       >
         {isCompleted ? "重新挑戰" : "開始練習"}
       </Button>
-
-      {onCompleteLevel && !isCompleted && (
-        <Button
-          variant="primary"
-          onClick={onCompleteLevel}
-          disabled={isLocked}
-          className={styles.startPracticeButton}
-          fullWidth
-        >
-          測試：完成關卡
-        </Button>
-      )}
 
       {isLocked && prerequisiteInfo && prerequisiteLevelNames.length > 0 && (
         <p className={styles.lockedHint}>
