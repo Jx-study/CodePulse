@@ -1,0 +1,297 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+// ── Purpose Header ─────────────────────────────────────────────
+.purpose {
+  padding: $spacing-sm $spacing-md;
+  background: rgba(59, 130, 246, 0.06);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.purposeTitle {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: #3b82f6;
+  margin-bottom: $spacing-xs;
+}
+
+.purposeBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+
+  p {
+    margin: 0;
+  }
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
+.badge {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+  margin-left: 8px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+// ── Game Header ────────────────────────────────────────────────
+.gameHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  flex-wrap: wrap;
+}
+
+.stepTrack {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepLabel {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 20px;
+}
+
+.stepDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+  transition: background 0.2s, transform 0.15s;
+
+  &.stepDotActive {
+    background: #3b82f6;
+    transform: scale(1.1);
+  }
+
+  &.stepDotAi.stepDotActive {
+    background: #f97316;
+  }
+}
+
+.stepCount {
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  margin-left: 4px;
+  min-width: 28px;
+}
+
+.secretDisplay {
+  flex: 1;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.secretRevealed {
+  color: #10b981;
+  font-size: $font-base;
+}
+
+.secretHidden {
+  color: var(--text-tertiary, var(--text-secondary));
+  letter-spacing: 0.08em;
+}
+
+.newGameBtn {
+  margin-left: auto;
+}
+
+// ── SVG Container ──────────────────────────────────────────────
+.svgContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 600 / 180;
+  background: #080b12;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+.svgEnded {
+  cursor: default;
+}
+
+// ── Stats Panel ────────────────────────────────────────────────
+.statsPanel {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.probBar {
+  width: 72%;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.probFill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.statDivider {
+  width: 1px;
+  height: 44px;
+  background: var(--border-color);
+  margin: 0 $spacing-md;
+  flex-shrink: 0;
+}
+
+// ── Result Banner ──────────────────────────────────────────────
+.resultBanner {
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-base;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.resultPlayer {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border-top: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.resultTie {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-top: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.resultAi {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ff3030;
+  border-top: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.resultTimeout {
+  background: rgba(107, 114, 128, 0.12);
+  color: #9ca3af;
+  border-top: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+// ── Actions ────────────────────────────────────────────────────
+.actions {
+  padding: $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+}
+
+// ── Secret Pulse ───────────────────────────────────────────────
+.secretPulse {
+  animation: secretPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes secretPulse {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.7));
+  }
+
+  50% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 14px rgba(16, 185, 129, 1));
+  }
+}
+
+// ── Leaderboard ────────────────────────────────────────────────
+.leaderboard {
+  padding: $spacing-md;
+}
+
+.leaderboardTitle {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-sm;
+
+  th,
+  td {
+    padding: $spacing-xs $spacing-sm;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+  }
+
+  th {
+    color: var(--text-primary);
+    font-weight: 600;
+    background: var(--bg-secondary);
+  }
+}
+
+.leaderboardHeader {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.winRate {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}

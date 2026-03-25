@@ -1,7 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
-import type { PythonDemo, PythonInput, GraphOutputData, QueueCardOutputData } from '@/types/implementation';
+import type {
+  PythonDemo,
+  PythonInput,
+  GraphOutputData,
+  QueueCardOutputData,
+} from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
 import Button from '@/shared/components/Button';
 import Input from '@/shared/components/Input';
