@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   PracticeResult,
@@ -11,7 +11,7 @@ import type { ApiQuestion } from "@/services/tutorialService";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
-import XpFloat from "@/shared/components/XpFloat";
+import { xp } from "@/shared/components/XpFloat";
 import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
@@ -75,8 +75,6 @@ function Practice() {
   >({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<PracticeResult | null>(null);
-  const [showXp, setShowXp] = useState(false);
-  const handleXpDone = useCallback(() => setShowXp(false), []);
   const [startTime, setStartTime] = useState(Date.now());
 
   // 記錄每一題的累積時間
@@ -248,8 +246,7 @@ function Practice() {
       setResult(calculatedResult);
       setShowResult(true);
       if ((resp.xp_earned ?? 0) > 0) {
-        setShowXp(true);
-        setTimeout(() => setShowXp(false), 600);
+        xp.show(resp.xp_earned ?? 0);
       }
     } catch (err) {
       console.error('[Practice] Submit failed:', err);
@@ -592,8 +589,7 @@ function Practice() {
       </div>
 
       {showResult && result && (
-        <div style={{ position: 'relative' }}>
-          <XpFloat amount={result.xpEarned} trigger={showXp} onDone={handleXpDone} />
+        <>
           <ResultModal
             isOpen={showResult}
             result={result}
@@ -601,7 +597,7 @@ function Practice() {
             onRetry={handleRetry}
             onBackToDashboard={handleBackToDashboard}
           />
-        </div>
+        </>
       )}
     </div>
   );

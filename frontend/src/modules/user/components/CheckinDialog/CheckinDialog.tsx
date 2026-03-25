@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Dialog from '@/shared/components/Dialog';
 import Button from '@/shared/components/Button';
 import Icon from '@/shared/components/Icon';
-import XpFloat from '@/shared/components/XpFloat';
+import { xp } from '@/shared/components/XpFloat';
 import { userService } from '@/services/userService';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import styles from './CheckinDialog.module.scss';
@@ -44,7 +44,6 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [showXp, setShowXp] = useState(false);
 
   const now = new Date();
   const year = now.getFullYear();
@@ -74,8 +73,7 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
         const newDates = [...dates, today].sort();
         setDates(newDates);
         setIsCheckedIn(true);
-        setShowXp(true);
-        setTimeout(() => setShowXp(false), 600);
+        xp.show(5);
         updateUser({
           last_login_date: today,
           current_streak: res.current_streak,
@@ -163,7 +161,6 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <XpFloat amount={5} trigger={showXp} />
             <div className={styles.checkinBtnWrapper}>
               <AnimatePresence mode="wait">
                 {isCheckedIn ? (

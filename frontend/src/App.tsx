@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
 import CheckinDialog from '@/modules/user/components/CheckinDialog';
+import XpFloat from '@/shared/components/XpFloat';
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
@@ -67,6 +68,7 @@ function App() {
       <ThemeApplier />
       <CheckinWrapper />
       <ToastContainer />
+      <XpFloat />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* 主布局 */}

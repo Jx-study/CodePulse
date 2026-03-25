@@ -26,7 +26,7 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
-import XpFloat from "@/shared/components/XpFloat";
+import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
@@ -385,9 +385,6 @@ function TutorialContent() {
   // Teaching Complete
   const [teachingDone, setTeachingDone] = useState(false);
   const teachingDoneRef = useRef(false);
-  const [teachingXp, setTeachingXp] = useState(0);
-  const [showTeachingXp, setShowTeachingXp] = useState(false);
-
   const handleTeachingComplete = async () => {
     if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
     try {
@@ -395,9 +392,7 @@ function TutorialContent() {
       teachingDoneRef.current = true;
       setTeachingDone(true);
       if (res.xp_earned > 0) {
-        setTeachingXp(res.xp_earned);
-        setShowTeachingXp(true);
-        setTimeout(() => setShowTeachingXp(false), 600);
+        xp.show(res.xp_earned);
       }
     } catch {
       // 403 = 未滿 30 秒，靜默忽略
@@ -412,7 +407,10 @@ function TutorialContent() {
       .then((id) => { sessionIdRef.current = id; })
       .catch(() => {});
 
+    const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
+
     return () => {
+      clearTimeout(teachingTimer);
       if (sessionIdRef.current === null) return;
       const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
 
@@ -940,14 +938,10 @@ function TutorialContent() {
       {topicTypeConfig && (
         <KnowledgeStation
           isOpen={isKnowledgeStationOpen}
-          onClose={() => { setIsKnowledgeStationOpen(false); handleTeachingComplete(); }}
+          onClose={() => setIsKnowledgeStationOpen(false)}
           topicTypeConfig={topicTypeConfig}
         />
       )}
-      <div style={{ position: 'fixed', bottom: '5rem', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, pointerEvents: 'none' }}>
-        <XpFloat amount={teachingXp} trigger={showTeachingXp} />
-      </div>
-
       {/* Feature Tour */}
       <FeatureTour
         isOpen={showFeatureTour}
