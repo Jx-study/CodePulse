@@ -1,4 +1,5 @@
 """Practice business logic: question fetching, grading, Elo, XP."""
+import random
 from datetime import datetime, timezone
 
 from database import db
@@ -10,6 +11,15 @@ from models.user import User
 
 _ELO_K = 32.0
 _PASS_THRESHOLD = 60
+
+
+def derive_points(difficulty_rating: float) -> int:
+    """由 difficulty_rating 派生題目權重，不存 DB。"""
+    if difficulty_rating < 1200:
+        return 1
+    elif difficulty_rating < 1600:
+        return 3
+    return 5
 
 
 def _elo_expected(user_rating: float, question_rating: float) -> float:
@@ -36,14 +46,17 @@ def calc_tier(rating: float) -> int:
     return 5
 
 
-def get_questions(tutorial_id: int, lang: str) -> list[dict]:
-    """回傳 tutorial 所有 active 題目（含 i18n），不含 correct_answer / explanation。"""
-    questions = (
-        Question.query
-        .filter_by(tutorial_id=tutorial_id, is_active=True)
-        .order_by(Question.display_order)
-        .all()
-    )
+CATEGORY_QUOTA = {
+    1: {'basic': 6, 'application': 3, 'complexity': 1},
+    2: {'basic': 5, 'application': 3, 'complexity': 2},
+    3: {'basic': 3, 'application': 4, 'complexity': 3},
+    4: {'basic': 2, 'application': 4, 'complexity': 4},
+    5: {'basic': 1, 'application': 3, 'complexity': 6},
+}
+
+
+def _serialize_questions(questions: list, lang: str) -> list[dict]:
+    """將 Question ORM objects 序列化為 dict list（含 i18n）。"""
     q_ids = [q.question_id for q in questions]
     translations = {}
     if q_ids:
@@ -74,7 +87,6 @@ def get_questions(tutorial_id: int, lang: str) -> list[dict]:
             'category': q.category.value,
             'code': q.code,
             'language': q.language,
-            'points': q.points,
             'group_id': q.group_id,
             'stem': qt.stem if qt else '',
             'options': qt.options if qt else [],
@@ -92,6 +104,50 @@ def get_questions(tutorial_id: int, lang: str) -> list[dict]:
             item['group'] = None
         result.append(item)
     return result
+
+
+def get_questions(tutorial_id: int, lang: str) -> list[dict]:
+    """回傳 tutorial 所有 active 題目（供管理後台用）。"""
+    questions = (
+        Question.query
+        .filter_by(tutorial_id=tutorial_id, is_active=True)
+        .order_by(Question.display_order)
+        .all()
+    )
+    return _serialize_questions(questions, lang)
+
+
+def get_questions_for_user(tutorial_id: int, user, lang: str) -> list[dict]:
+    """依 user skill_tier 選 10 題（各 category 配額），隨機回傳。"""
+    tier = user.skill_tier or 1
+    quota = CATEGORY_QUOTA[tier]
+
+    all_q = Question.query.filter_by(tutorial_id=tutorial_id, is_active=True).all()
+
+    buckets: dict[str, list] = {'basic': [], 'application': [], 'complexity': []}
+    for q in all_q:
+        buckets[q.category.value].append(q)
+
+    selected = []
+    selected_ids: set[int] = set()
+    leftover = 0
+
+    for cat, q_quota in quota.items():
+        bucket = sorted(buckets[cat], key=lambda q: abs(user.skill_rating - q.difficulty_rating))
+        picked = bucket[:q_quota]
+        leftover += q_quota - len(picked)
+        selected.extend(picked)
+        selected_ids.update(q.question_id for q in picked)
+
+    if leftover > 0:
+        remaining = sorted(
+            [q for q in all_q if q.question_id not in selected_ids],
+            key=lambda q: abs(user.skill_rating - q.difficulty_rating),
+        )
+        selected.extend(remaining[:leftover])
+
+    random.shuffle(selected)
+    return _serialize_questions(selected, lang)
 
 
 def _normalize(s: str) -> str:
@@ -140,13 +196,17 @@ def submit_answers(
         q = questions.get(a['question_id'])
         if not q:
             continue
+
+        # snap_rating must be first line in loop body
+        snap_rating = q.difficulty_rating
+        points = derive_points(snap_rating)
+
         is_correct = _check_answer(a['user_answer'], q.correct_answer)
         if is_correct:
             correct_count += 1
-            earned_points += q.points
-        total_points += q.points
+            earned_points += points
+        total_points += points
 
-        snap_rating = q.difficulty_rating
         new_user_rating, new_q_rating = _apply_elo(user_rating, snap_rating, is_correct)
         user_rating = new_user_rating
         q.difficulty_rating = new_q_rating
@@ -171,6 +231,8 @@ def submit_answers(
             'is_correct': is_correct,
             'correct_answer': q.correct_answer,
             'explanation': qt.explanation if qt else None,
+            'user_answer': str(a['user_answer']),
+            'points': points,
         })
 
     score = int((earned_points / total_points) * 100) if total_points > 0 else 0

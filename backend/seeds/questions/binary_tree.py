@@ -51,9 +51,8 @@ DATA = {
             "id": "bt-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在二元樹 (Binary Tree) 中，每個節點最多只能有兩個子節點（通常稱為左子節點與右子節點）。",
@@ -71,9 +70,8 @@ DATA = {
             "id": "bt-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "二元樹的「前序遍歷 (Preorder Traversal)」是指依照什麼順序訪問節點？",
@@ -101,9 +99,8 @@ DATA = {
             "id": "bt-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "二元樹的「中序遍歷 (Inorder Traversal)」是指依照什麼順序訪問節點？",
@@ -131,9 +128,8 @@ DATA = {
             "id": "bt-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "二元樹的「後序遍歷 (Postorder Traversal)」是指依照什麼順序訪問節點？",
@@ -161,9 +157,8 @@ DATA = {
             "id": "bt-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "廣度優先搜尋 (BFS / 層序遍歷) 會保證靠近根節點的層級被優先訪問，然後才訪問更深層的節點。",
@@ -181,9 +176,8 @@ DATA = {
             "id": "bt-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "實作層序遍歷 (BFS) 時，通常需要搭配哪種資料結構來暫存節點？",
@@ -211,9 +205,8 @@ DATA = {
             "id": "bt-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "遞迴實作深度優先搜尋 (DFS, 包括前/中/後序遍歷) 時，程式底層隱含使用了哪種資料結構？",
@@ -242,9 +235,8 @@ DATA = {
             "groupId": "group-bt-bfs",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在上述 BFS 程式碼中，queue.pop(0) 這行程式碼的作用是模擬 Queue 的哪種基本操作？",
@@ -272,9 +264,8 @@ DATA = {
             "id": "bt-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "有一棵二元樹，根節點為 A，A 的左子節點為 B，A 的右子節點為 C。請問其中序遍歷 (Inorder) 的結果為何？",
@@ -302,9 +293,8 @@ DATA = {
             "id": "bt-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些演算法屬於二元樹的「深度優先搜尋 (DFS)」？（多選）",
@@ -333,9 +323,8 @@ DATA = {
             "groupId": "group-bt-bfs",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "若當前取出的 node 沒有任何子節點 (葉節點)，執行完這次 while 迴圈後，queue 的長度會發生什麼變化？",
@@ -363,9 +352,8 @@ DATA = {
             "id": "bt-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "如果我們想要在記憶體中安全地「刪除整棵二元樹」，應該使用哪種遍歷方式最適合？",
@@ -393,9 +381,8 @@ DATA = {
             "id": "bt-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在一棵完全退化成「只有右子節點」的二元樹（形狀像 Linked List）上執行遞迴 DFS，若有 n 個節點，其空間複雜度（Call Stack 深度）為何？",
@@ -424,9 +411,8 @@ DATA = {
             "groupId": "group-bt-bfs",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["root", "queue", "pop(0)"],
-            "points": 5,
             "code": BFS_FILL_CODE,
             "language": "python",
             "translations": {
@@ -446,9 +432,8 @@ DATA = {
             "id": "bt-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對於包含 n 個節點的二元樹，無論使用哪種遍歷演算法 (Preorder, Inorder, Postorder, BFS)，其時間複雜度都是多少？",
@@ -476,9 +461,8 @@ DATA = {
             "id": "bt-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["node", "node.left", "node"],
-            "points": 5,
             "code": INORDER_FILL_CODE,
             "language": "python",
             "translations": {
@@ -498,9 +482,8 @@ DATA = {
             "id": "bt-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於遞迴走訪二元樹的複雜度分析，以下哪些敘述是正確的？（多選）",
@@ -528,9 +511,8 @@ DATA = {
             "id": "bt-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 1 2 5 1 2",
-            "points": 5,
             "code": PREORDER_PREDICT_CODE,
             "language": "python",
             "translations": {

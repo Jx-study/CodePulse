@@ -93,9 +93,8 @@ DATA = {
             "id": "dfs-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "深度優先搜尋（DFS）使用哪種資料結構來決定節點的訪問順序？",
@@ -123,9 +122,8 @@ DATA = {
             "id": "dfs-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "DFS 可以使用遞迴（Recursion）實作，因為遞迴的呼叫堆疊（Call Stack）本身就扮演了堆疊的角色。",
@@ -143,9 +141,8 @@ DATA = {
             "id": "dfs-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對題組中的有向圖執行 dfs(graph, 'A')（使用反向加入確保字母順序），回傳的 result 串列為何？",
@@ -173,9 +170,8 @@ DATA = {
             "id": "dfs-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "false",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "DFS 和 BFS 對同一張圖的遍歷結果（節點訪問順序）一定相同。",
@@ -193,9 +189,8 @@ DATA = {
             "id": "dfs-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一個有 V 個節點、E 條邊的圖執行 DFS，時間複雜度為何？",
@@ -224,9 +219,8 @@ DATA = {
             "groupId": "group-dfs-traversal",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "參考題組的迭代版 DFS，執行 dfs(graph, 'A') 時，當第一次執行 stack.pop() 後，堆疊中包含哪些元素？",
@@ -254,9 +248,8 @@ DATA = {
             "id": "dfs-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪個問題最適合使用 DFS 解決？",
@@ -285,9 +278,8 @@ DATA = {
             "groupId": "group-dfs-traversal",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上（題組圖，dfs(graph, 'A')），完整執行後 result 的內容為何？請與 BFS 的結果比較。",
@@ -315,9 +307,8 @@ DATA = {
             "id": "dfs-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 DFS 中，「回溯（Backtracking）」是指什麼？",
@@ -345,9 +336,8 @@ DATA = {
             "id": "dfs-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "DFS 在「拓撲排序（Topological Sort）」問題中如何應用？",
@@ -375,9 +365,8 @@ DATA = {
             "id": "dfs-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "使用遞迴版 DFS 在非常深的圖（深度接近 10^5）上執行，可能會發生什麼問題？",
@@ -405,9 +394,8 @@ DATA = {
             "id": "dfs-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt3", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些問題適合使用 DFS 解決？（多選）",
@@ -435,9 +423,8 @@ DATA = {
             "id": "dfs-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 DFS 的迭代版本中（使用顯式堆疊），為何有時需要在「取出時」才標記 visited，而不是「加入時」？",
@@ -466,9 +453,8 @@ DATA = {
             "groupId": "group-dfs-traversal",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["set()", "visited", "nb"],
-            "points": 5,
             "code": DFS_FILL_CODE,
             "language": "python",
             "translations": {
@@ -488,9 +474,8 @@ DATA = {
             "id": "dfs-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "遞迴版 DFS 的空間複雜度取決於什麼？",
@@ -518,9 +503,8 @@ DATA = {
             "id": "dfs-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於 DFS 的特性與限制，以下哪些敘述是正確的？（多選）",
@@ -548,9 +532,8 @@ DATA = {
             "id": "dfs-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["start", "stack.pop()", "grid[nr][nc]"],
-            "points": 5,
             "code": DFS_GRID_FILL_CODE,
             "language": "python",
             "translations": {
@@ -570,9 +553,8 @@ DATA = {
             "id": "dfs-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 5 6 7 9 10 5 14",
-            "points": 5,
             "code": DFS_PREDICT_CODE,
             "language": "python",
             "translations": {

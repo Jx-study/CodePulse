@@ -70,9 +70,8 @@ DATA = {
             "id": "graph-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "圖 (Graph) 是一種非線性的資料結構，由節點 (Vertex/Node) 與邊 (Edge) 所組成，用來表示物件與物件之間的關係。",
@@ -90,9 +89,8 @@ DATA = {
             "id": "graph-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "若圖中的邊「具有方向性」（例如 A 指向 B，但不代表 B 指向 A），這種圖稱為什麼？",
@@ -120,9 +118,8 @@ DATA = {
             "id": "graph-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "D",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在「無向圖」中，與某個節點直接相連的邊的總數，稱為該節點的什麼？",
@@ -150,9 +147,8 @@ DATA = {
             "id": "graph-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在「有向圖」中，指向目標節點的邊的數量，被稱為什麼？",
@@ -180,9 +176,8 @@ DATA = {
             "id": "graph-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "若一個圖中存在一條路徑，其起點與終點為同一個節點，且路徑長度大於 0，這稱為「環 (Cycle)」。",
@@ -200,9 +195,8 @@ DATA = {
             "id": "graph-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "實務上儲存「稀疏圖 (Sparse Graph，節點很多但邊很少)」時，為了節省記憶體空間，最常使用哪種底層結構？",
@@ -230,9 +224,8 @@ DATA = {
             "id": "graph-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "若要實作圖的「深度優先搜尋 (DFS)」，演算法的底層（或手動實作時）通常必須搭配哪一種資料結構？",
@@ -260,9 +253,8 @@ DATA = {
             "id": "graph-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "給定節點數為 V、邊數為 E 的圖（使用鄰接表儲存），進行一次完整的 BFS 或 DFS 遍歷，其時間複雜度為？",
@@ -291,9 +283,8 @@ DATA = {
             "groupId": "group-graph-bfs",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "根據上述程式碼，BFS 採用「逐層向外擴張」的策略。這個特性使得 BFS 在無權圖 (Unweighted Graph) 中，特別適合用來尋找什麼？",
@@ -322,9 +313,8 @@ DATA = {
             "groupId": "group-graph-bfs",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "如果圖中包含一個不與起點相連的「孤島節點」(即圖不連通)，此 check_connected 函數最終會回傳什麼？",
@@ -352,9 +342,8 @@ DATA = {
             "id": "graph-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於「鄰接矩陣 (Adjacency Matrix)」的敘述，以下哪些是正確的？（多選）",
@@ -382,9 +371,8 @@ DATA = {
             "id": "graph-q-topo",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "「拓撲排序 (Topological Sort)」只能在哪種類型的圖上執行？",
@@ -412,9 +400,8 @@ DATA = {
             "id": "graph-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "D",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在有向圖中（假設節點數為 V，邊數為 E），計算一個節點的「出度 (Out-Degree)」，若使用鄰接表 (Adjacency List) 儲存，時間複雜度是多少？",
@@ -443,9 +430,8 @@ DATA = {
             "groupId": "group-graph-bfs",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["start_node", "pop(0)", "visited"],
-            "points": 5,
             "code": BFS_FILL_CODE,
             "language": "python",
             "translations": {
@@ -465,9 +451,8 @@ DATA = {
             "id": "graph-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於在圖中「偵測環 (Cycle Detection)」的演算法，以下哪些觀念是正確的？（多選）",
@@ -495,9 +480,8 @@ DATA = {
             "id": "graph-q8",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": "D",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在一個以「鄰接表 (Adjacency List)」儲存的「有向圖」中（假設節點數為 V，邊數為 E），若要計算特定目標節點的「入度 (In-Degree)」，最壞情況的時間複雜度是多少？",
@@ -525,9 +509,8 @@ DATA = {
             "id": "graph-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["rec_stack", "True", "curr"],
-            "points": 5,
             "code": DFS_CYCLE_FILL_CODE,
             "language": "python",
             "translations": {
@@ -547,9 +530,8 @@ DATA = {
             "id": "graph-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 3 4 3 4 5 6",
-            "points": 5,
             "code": IN_DEGREE_PREDICT_CODE,
             "language": "python",
             "translations": {

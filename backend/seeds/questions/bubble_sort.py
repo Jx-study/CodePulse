@@ -69,7 +69,7 @@ DATA = {
             "id": "bsort-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "options": [
                 {"id": "A", "text": "因為演算法執行時產生的記憶體碎片像泡沫一樣多"},
                 {"id": "B", "text": "因為較大（或較小）的元素會像水中的氣泡一樣，逐漸「浮」到陣列的頂端（末端）"},
@@ -77,7 +77,6 @@ DATA = {
                 {"id": "D", "text": "因為它的時間複雜度膨脹得像泡沫一樣快"},
             ],
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "泡沫排序 (Bubble Sort) 的名稱由來是什麼？",
@@ -105,10 +104,9 @@ DATA = {
             "id": "bsort-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在泡沫排序中，我們主要透過「比較並交換相鄰的兩個元素」來達成排序的目的。",
@@ -126,9 +124,8 @@ DATA = {
             "id": "bsort-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "泡沫排序是一種「穩定排序 (Stable Sort)」嗎？（穩定排序指的是：數值相同的元素，在排序後會保持原本的相對順序）",
@@ -156,9 +153,8 @@ DATA = {
             "id": "bsort-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "即使一個陣列已經是完全排序好的狀態，最原始的泡沫排序（未加入提早終止優化）依然會執行所有回合的比較。",
@@ -176,9 +172,8 @@ DATA = {
             "id": "bsort-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "教學區的 Python 程式碼中，用來交換兩個變數值的簡潔寫法是什麼？",
@@ -207,9 +202,8 @@ DATA = {
             "groupId": "group-bsort-process",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "給定陣列 arr = [5, 1, 4, 2, 8]。執行「第一輪 (i = 0)」的完整泡沫排序後，陣列會變成什麼樣子？",
@@ -238,9 +232,8 @@ DATA = {
             "groupId": "group-bsort-process",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上題，在執行「第二輪 (i = 1)」的內層迴圈時，我們還需要去比較最後一個元素（即數值 8）嗎？",
@@ -268,9 +261,8 @@ DATA = {
             "id": "bsort-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對於長度為 n 的陣列，簡化版泡沫排序的外層迴圈 `for i in range(n - 1)` 最多會執行幾次？",
@@ -298,9 +290,8 @@ DATA = {
             "id": "bsort-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "為什麼教學區的優化版泡沫排序要加入 `has_swapped = False` 這個變數？",
@@ -328,9 +319,8 @@ DATA = {
             "id": "bsort-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "加入「提前終止 (has_swapped)」優化後，泡沫排序的「最佳情況 (Best Case)」時間複雜度會變成多少？",
@@ -358,9 +348,8 @@ DATA = {
             "id": "bsort-q9",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "若將泡沫排序的比較條件由「嚴格大於 (`arr[j] > arr[j+1]`)」改為「大於等於 (`arr[j] >= arr[j+1]`)」，會對演算法產生什麼影響？",
@@ -388,9 +377,8 @@ DATA = {
             "id": "bsort-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於泡沫排序的複雜度，以下哪些敘述是正確的？（多選）",
@@ -418,9 +406,8 @@ DATA = {
             "id": "bsort-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "如果一個長度為 5 的陣列 arr = [5, 4, 3, 2, 1]（完全反向排序），使用泡沫排序將其排為遞增，總共會發生幾次「交換 (Swap)」？",
@@ -449,11 +436,10 @@ DATA = {
             "groupId": "group-bsort-process",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "code": BSORT_OPTIMIZED_FILL_CODE,
             "language": "python",
             "correctAnswer": ["has_swapped", "has_swapped", "has_swapped"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請填入優化版泡沫排序中 (a)(b)(c) 處缺失的「旗標變數」名稱（注意拼字）。",
@@ -471,9 +457,8 @@ DATA = {
             "id": "bsort-q7",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在泡沫排序中，內層迴圈的範圍通常寫為 `for j in range(n - 1 - i)`（i 為當前輪數）。為什麼要減去 `i`？",
@@ -501,9 +486,8 @@ DATA = {
             "id": "bsort-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在實務的軟體開發中，我們通常不會使用泡沫排序法來處理大量資料。主要原因有哪些？（多選）",
@@ -531,11 +515,10 @@ DATA = {
             "id": "bsort-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "code": BSORT_DESC_FILL_CODE,
             "language": "python",
             "correctAnswer": ["<", "arr[j]", "arr"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "這是一個想要實作「遞減」排序（把最小的浮到最後面）的泡沫排序。請填入正確的比較運算子及變數，使其邏輯正確。",
@@ -553,11 +536,10 @@ DATA = {
             "id": "bsort-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "code": BSORT_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "1 2 3 4 5 6 7 6 10 11 12",
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "給定已排序陣列 collection = [1, 2]，呼叫下方優化版 bubble_sort([1, 2])。請依序填寫執行的行號序列（空格分隔）。",

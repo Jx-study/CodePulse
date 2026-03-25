@@ -53,9 +53,8 @@ DATA = {
             "id": "psum-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "前綴和（Prefix Sum）陣列的主要用途是什麼？",
@@ -83,9 +82,8 @@ DATA = {
             "id": "psum-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對於長度為 N 的陣列，其前綴和陣列的長度為 N+1（在索引 0 處存放哨兵值 0）。",
@@ -103,9 +101,8 @@ DATA = {
             "id": "psum-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "給定陣列 arr = [2, 4, 6, 8]，其前綴和陣列 P 為何？",
@@ -133,9 +130,8 @@ DATA = {
             "id": "psum-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "使用前綴和陣列查詢區間 [i, j] 的總和，公式為 P[j+1] - P[i]。",
@@ -153,9 +149,8 @@ DATA = {
             "id": "psum-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "建構一個長度為 N 的陣列的前綴和陣列，時間複雜度與空間複雜度分別為何？",
@@ -184,9 +179,8 @@ DATA = {
             "groupId": "group-psum-query",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "參考題組程式碼，給定 prefix_sum = [0, 3, 7, 12, 18]，呼叫 query_range(prefix_sum, 1, 3) 的回傳值為何？",
@@ -215,9 +209,8 @@ DATA = {
             "groupId": "group-psum-query",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上題，如果要查詢整個陣列（索引 0 到 3）的總和，應該如何呼叫 query_range？",
@@ -245,9 +238,8 @@ DATA = {
             "id": "psum-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "前綴和的概念可以延伸至二維陣列。對 M×N 的二維矩陣建立前綴和後，查詢任意矩形區域的總和時間複雜度為何？",
@@ -275,9 +267,8 @@ DATA = {
             "id": "psum-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "給定陣列 arr = [1, 2, 3, 4, 5]，使用前綴和查詢索引 2 到 4 的區間總和，結果為何？",
@@ -305,9 +296,8 @@ DATA = {
             "id": "psum-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些問題可以利用前綴和技術有效解決？（多選）",
@@ -335,9 +325,8 @@ DATA = {
             "id": "psum-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在「尋找總和為 k 的連續子陣列數量」問題中，使用前綴和配合雜湊表（HashMap）可以將時間複雜度從暴力解的 O(N²) 優化至多少？",
@@ -366,9 +355,8 @@ DATA = {
             "groupId": "group-psum-query",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["P[i]", "P[right + 1]", "P[left]"],
-            "points": 5,
             "code": PSUM_FILL_CODE,
             "language": "python",
             "translations": {
@@ -388,9 +376,8 @@ DATA = {
             "id": "psum-q7",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對一個長度為 N 的陣列，若需要進行 Q 次區間查詢，使用前綴和的總時間複雜度為何？",
@@ -418,9 +405,8 @@ DATA = {
             "id": "psum-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於前綴和的限制，以下哪些敘述是正確的？（多選）",
@@ -448,9 +434,8 @@ DATA = {
             "id": "psum-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["curr_sum - k", "curr_sum - k", "1"],
-            "points": 5,
             "code": COUNT_SUM_K_FILL_CODE,
             "language": "python",
             "translations": {
@@ -470,9 +455,8 @@ DATA = {
             "id": "psum-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 4 5 4 6",
-            "points": 5,
             "code": PSUM_PREDICT_CODE,
             "language": "python",
             "translations": {

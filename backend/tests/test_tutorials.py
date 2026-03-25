@@ -202,7 +202,7 @@ def _make_question(db_session, tutorial_id, q_id=1, group_id=None):
         group_id=group_id,
         category=QuestionCategory.basic,
         correct_answer='A',
-        points=1,
+        base_rating=1200.0,
         display_order=0,
         is_active=True,
     )
@@ -355,7 +355,7 @@ def _make_question_bilingual(db_session, tutorial_id, group_id=None):
         group_id=group_id,
         category=QuestionCategory.basic,
         correct_answer='A',
-        points=1,
+        base_rating=1200.0,
         display_order=0,
         is_active=True,
     )

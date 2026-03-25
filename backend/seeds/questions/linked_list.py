@@ -112,9 +112,8 @@ DATA = {
             "id": "ll-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Linked List（鏈結串列）的節點在記憶體中不必連續存放，每個節點透過指標連接到下一個節點。",
@@ -132,9 +131,8 @@ DATA = {
             "id": "ll-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 Singly Linked List（單向鏈結串列）中，每個 Node（節點）通常包含哪兩個部分？",
@@ -162,9 +160,8 @@ DATA = {
             "id": "ll-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 Singly Linked List 中，最後一個節點（尾節點）的 next 指標通常指向什麼？",
@@ -192,9 +189,8 @@ DATA = {
             "id": "ll-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 Singly Linked List 的頭部插入元素（insert_at_head）不需要遍歷整個串列，時間複雜度為 O(1)。",
@@ -212,9 +208,8 @@ DATA = {
             "id": "ll-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一個空的 LinkedList 依序執行：insert_at_head(10)、insert_at_head(20)、insert_at_head(30)。操作完成後，head.value 的值是多少？",
@@ -243,9 +238,8 @@ DATA = {
             "id": "ll-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在沒有 tail 指標的 Singly Linked List 中，執行 insert_at_tail（在尾部插入元素）需要做什麼？",
@@ -274,9 +268,8 @@ DATA = {
             "groupId": "group-ll-playlist",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "若播放清單目前已有 3 首歌曲，執行 add_to_end('新歌') 的時間複雜度是多少？",
@@ -304,9 +297,8 @@ DATA = {
             "id": "ll-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 Singly Linked List 中搜尋特定值（search）的最壞情況時間複雜度是多少？",
@@ -334,9 +326,8 @@ DATA = {
             "id": "ll-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些是 Linked List 相較於 Array 的優點？（多選）",
@@ -365,9 +356,8 @@ DATA = {
             "groupId": "group-ll-playlist",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對空的 Playlist 依序執行：add_to_end('A')、add_to_end('B')、add_to_end('C')、play_and_remove()、play_and_remove()。第二次 play_and_remove() 的回傳值是什麼？",
@@ -395,9 +385,8 @@ DATA = {
             "id": "ll-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "若已知要刪除的節點的「前一個節點（prev）」，在 Singly Linked List 中執行刪除的時間複雜度是多少？",
@@ -425,9 +414,8 @@ DATA = {
             "id": "ll-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在需要「頻繁在頭部插入與刪除」的應用場景中，Linked List 比 Array 更有效率的原因是什麼？",
@@ -455,9 +443,8 @@ DATA = {
             "id": "ll-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在沒有 tail 指標的 Singly Linked List 中，delete_at_tail（刪除尾節點）的時間複雜度是多少？",
@@ -487,11 +474,10 @@ DATA = {
             "groupId": "group-ll-playlist",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "code": PLAYLIST_FILL_CODE,
             "language": "python",
             "correctAnswer": ["None", "current.next", "new_node"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請填入 add_to_end 方法中 (a)(b)(c) 處缺失的程式碼，使其正確實作「在播放清單尾端加入歌曲」的功能（注意 Python 語法）。",
@@ -509,9 +495,8 @@ DATA = {
             "id": "ll-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": ["opt1", "opt3", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下關於 Singly Linked List 特性的敘述，哪些是正確的？（多選）",
@@ -539,9 +524,8 @@ DATA = {
             "id": "ll-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪項對 Singly Linked List（無 tail 指標）各操作的時間複雜度分析完全正確？",
@@ -569,11 +553,10 @@ DATA = {
             "id": "ll-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "code": LL_INSERT_FILL_CODE,
             "language": "python",
             "correctAnswer": ["None", "None", "new_node"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請填入下方 Node 類別與 insert_at_head 方法中 (a)(b)(c) 處缺失的程式碼，使其正確實作「在 LinkedList 頭部插入節點」的功能。",
@@ -591,11 +574,10 @@ DATA = {
             "id": "ll-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "code": LL_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "10 11 12 13 14 16 17 13 14 15",
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀下方程式碼。假設 LinkedList 已建立節點串列 [5, 10]（head 指向值 5 的節點，5.next = 10，10.next = None），執行 search(10)（搜尋串列尾端的元素）。\n\n請依序填寫 search() 方法執行時，經過的行號序列（以空格分隔）。",

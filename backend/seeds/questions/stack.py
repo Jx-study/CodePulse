@@ -107,9 +107,8 @@ DATA = {
             "id": "stack-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "堆疊 (Stack) 是一種 LIFO (Last-In, First-Out) 的資料結構，意即最後放入的元素，會第一個被取出。",
@@ -127,9 +126,8 @@ DATA = {
             "id": "stack-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Stack 的 push 操作會在哪裡加入新元素？",
@@ -157,9 +155,8 @@ DATA = {
             "id": "stack-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Stack 的 pop 操作會執行什麼動作？",
@@ -187,9 +184,8 @@ DATA = {
             "id": "stack-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪個操作可以查看 Stack 頂端的元素，但不移除它？",
@@ -217,9 +213,8 @@ DATA = {
             "id": "stack-q4",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "程式中常見的 \"Stack Overflow\" 錯誤，最可能的原因是？",
@@ -248,9 +243,8 @@ DATA = {
             "id": "stack-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一個空的 Stack 依序執行：push(1), push(2), pop(), push(3), pop()。最後剩下什麼？",
@@ -278,9 +272,8 @@ DATA = {
             "id": "stack-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Stack 的 LIFO 特性最適合用於解決以下哪個問題？",
@@ -308,9 +301,8 @@ DATA = {
             "id": "stack-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "作業系統使用什麼資料結構來管理函數的呼叫順序？",
@@ -338,9 +330,8 @@ DATA = {
             "id": "stack-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "瀏覽器的「上一頁」功能可用 Stack 實作。請問 push(currentPage) 應在何時觸發？",
@@ -368,9 +359,8 @@ DATA = {
             "id": "stack-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些場景適合使用 Stack？（多選）",
@@ -399,9 +389,8 @@ DATA = {
             "id": "stack-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Stack 的 push 和 pop 操作，時間複雜度分別是多少？",
@@ -429,9 +418,8 @@ DATA = {
             "id": "stack-q10",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以 Python list 實作 Stack 時，append() 和 pop() 的「均攤」時間複雜度是多少？",
@@ -461,9 +449,8 @@ DATA = {
             "groupId": "group-stack-impl",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "根據上方程式碼，執行 s=Stack(3); s.push(10); s.push(20); s.pop(); 後，s.top 的值是多少？",
@@ -492,9 +479,8 @@ DATA = {
             "groupId": "group-stack-impl",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "根據上方程式碼，s = Stack(2) 後依序執行 push(10), push(20), push(30)。請問第三次 push 會發生什麼事？",
@@ -523,11 +509,10 @@ DATA = {
             "groupId": "group-stack-impl",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "code": STACK_FILL_CODE,
             "language": "python",
             "correctAnswer": ["-1", "self.size - 1", "-1", "self.top -= 1"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請填入 (a)(b)(c)(d) 處缺失的 Python 程式碼，使邏輯與教學區完全相同（注意大小寫；(d) 處請使用複合賦值運算子）。",
@@ -545,11 +530,10 @@ DATA = {
             "id": "stack-adv-pred",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "code": STACK_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "13 14 16 17 18",
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "給定 s = Stack(3) 且已執行 s.push(5)（目前 top=0，stack=[5]），接著執行 s.pop()。請依序填寫 pop() 方法執行時，經過的行號序列（以空格分隔）。",
@@ -567,11 +551,10 @@ DATA = {
             "id": "stack-adv-fill",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "code": MIN_STACK_FILL_CODE,
             "language": "python",
             "correctAnswer": ["self.min_stack[-1]", "self.min_stack.pop()", "self.min_stack[-1]"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "Min Stack 支援 O(1) 取得最小值。請填入 (a)(b)(c) 處缺失的程式碼（注意 Python 語法）。",

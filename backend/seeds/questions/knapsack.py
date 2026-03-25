@@ -78,9 +78,8 @@ DATA = {
             "id": "kp-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "0/1 背包問題中，每件物品只能選擇「放入」或「不放入」背包，不能分割或重複選取。",
@@ -98,9 +97,8 @@ DATA = {
             "id": "kp-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "0/1 背包問題的二維 DP 陣列 dp[i][j] 的定義是什麼？",
@@ -128,9 +126,8 @@ DATA = {
             "id": "kp-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "0/1 背包問題的狀態轉移方程（當第 i 件物品重量 w ≤ 當前容量 j 時）為何？",
@@ -158,9 +155,8 @@ DATA = {
             "id": "kp-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 0/1 背包的二維 DP 實作中，dp 陣列的第 0 列（i=0，不考慮任何物品）和第 0 行（j=0，容量為 0）均應初始化為 0。",
@@ -178,9 +174,8 @@ DATA = {
             "id": "kp-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "0/1 背包問題二維 DP 解法的時間複雜度與空間複雜度分別為何（N 件物品，容量為 W）？",
@@ -208,9 +203,8 @@ DATA = {
             "id": "kp-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在題組的 DP 表格中，dp[1][2]（考慮第 1 件物品，容量 2）的值為何？",
@@ -239,9 +233,8 @@ DATA = {
             "groupId": "group-dp-trace",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "參考題組程式碼，dp[2][5]（考慮前 2 件物品，容量 5）的值為何？",
@@ -269,9 +262,8 @@ DATA = {
             "id": "kp-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "執行題組程式碼後，dp[3][5]（考慮全部 3 件物品，容量 5）的最終值為何？這也是背包問題的答案。",
@@ -299,9 +291,8 @@ DATA = {
             "id": "kp-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些是動態規劃（DP）解決問題的必要條件？（多選）",
@@ -330,9 +321,8 @@ DATA = {
             "groupId": "group-dp-trace",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "D",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在題組的 DP 表格中，當 i=2（item2，重量 3），j=2（容量 2）時，dp[2][2] 的值為何？",
@@ -360,9 +350,8 @@ DATA = {
             "id": "kp-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "D",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 0/1 背包的一維滾動陣列優化中，為何內層迴圈（容量）必須「從大到小」（倒序）遍歷？",
@@ -390,9 +379,8 @@ DATA = {
             "id": "kp-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪個問題本質上是 0/1 背包問題的變形？",
@@ -421,9 +409,8 @@ DATA = {
             "groupId": "group-dp-trace",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": "B",
-            "points": 3,
             "translations": {
                 "zh-TW": {
                     "title": "在題組的 DP 表格中，從 dp[1][1] 到 dp[3][5]，哪個格子第一次讓「總價值超過 5」？",
@@ -451,9 +438,8 @@ DATA = {
             "id": "kp-tf-3",
             "type": "true-false",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "true",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "0/1 背包問題使用 DP 的時間複雜度 O(N × W) 被稱為「偽多項式時間（Pseudo-Polynomial Time）」，因為 W（容量）不是輸入數量 N 的函數，而是輸入的值。",
@@ -471,9 +457,8 @@ DATA = {
             "id": "kp-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["item_idx-1", "current_value", "max(skip_val, take_val)", "dp[item_idx-1][curr_capacity]"],
-            "points": 5,
             "code": KNAPSACK_FILL_CODE,
             "language": "python",
             "translations": {
@@ -493,9 +478,8 @@ DATA = {
             "id": "kp-fill-2",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["capacity", "dp[curr_capacity - w]", "capacity"],
-            "points": 5,
             "code": KNAPSACK_1D_FILL_CODE,
             "language": "python",
             "translations": {
@@ -515,9 +499,8 @@ DATA = {
             "id": "kp-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 4 5 6",
-            "points": 5,
             "code": DP_SINGLE_ITEM_CODE,
             "language": "python",
             "translations": {
@@ -537,9 +520,8 @@ DATA = {
             "id": "kp-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1550,
+            "baseRating": 1550,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 3,
             "translations": {
                 "zh-TW": {
                     "title": "關於 0/1 背包與其他背包問題的比較，以下哪些敘述是正確的？（多選）",

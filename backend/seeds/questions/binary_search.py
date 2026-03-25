@@ -76,9 +76,8 @@ DATA = {
             "id": "bs-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "二分搜尋 (Binary Search) 的前提條件是：陣列必須是已排序的 (sorted)。",
@@ -96,9 +95,8 @@ DATA = {
             "id": "bs-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "二分搜尋演算法在最理想的情況下（目標值剛好在中間），其時間複雜度為何？",
@@ -126,9 +124,8 @@ DATA = {
             "id": "bs-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在二分搜尋中，`mid = (left + right) // 2` 這行程式碼的目的是什麼？",
@@ -156,9 +153,8 @@ DATA = {
             "id": "bs-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在二分搜尋中，當 `arr[mid] < target` 時，下一步應該怎麼做？",
@@ -186,9 +182,8 @@ DATA = {
             "id": "bs-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "false",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "二分搜尋的迴圈條件 `while left <= right` 可以替換成 `while left < right`，結果完全相同。",
@@ -206,9 +201,8 @@ DATA = {
             "id": "bs-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對已排序陣列 `[2, 5, 8, 12, 16, 23]` 執行二分搜尋，搜尋目標為 `23`。第一次迭代後，`left` 和 `right` 的值分別為何？",
@@ -236,9 +230,8 @@ DATA = {
             "id": "bs-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對已排序陣列 `[1, 3, 5, 7, 9, 11]` 執行二分搜尋，搜尋目標為 `6`（不存在）。最終函式會回傳什麼？",
@@ -266,9 +259,8 @@ DATA = {
             "id": "bs-group-1",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "groupId": "group-bs-insert",
             "translations": {
                 "zh-TW": {
@@ -297,9 +289,8 @@ DATA = {
             "id": "bs-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "有一個包含 1024 個元素的已排序陣列，使用二分搜尋最多需要幾次比較才能確認某個元素存在或不存在？",
@@ -327,9 +318,8 @@ DATA = {
             "id": "bs-group-2",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "groupId": "group-bs-insert",
             "translations": {
                 "zh-TW": {
@@ -358,9 +348,8 @@ DATA = {
             "id": "bs-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": ["opt1", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些情境適合使用二分搜尋？（選擇所有正確答案）",
@@ -388,9 +377,8 @@ DATA = {
             "id": "bs-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在某些程式語言或極大型陣列中，`mid = (left + right) // 2` 可能會有整數溢位 (integer overflow) 的風險。以下哪種寫法可以避免此問題？",
@@ -418,9 +406,8 @@ DATA = {
             "id": "bs-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "假設有一個已排序陣列 `[1, 2, 4, 4, 4, 7, 9]`，如果要找到值為 `4` 的「最左邊」索引，標準二分搜尋是否能保證找到最左邊的那個？",
@@ -448,9 +435,8 @@ DATA = {
             "id": "bs-group-3",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["left <= right", "mid + 1", "mid - 1"],
-            "points": 5,
             "groupId": "group-bs-insert",
             "code": INSERT_FILL_CODE,
             "language": "python",
@@ -471,9 +457,8 @@ DATA = {
             "id": "bs-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "二分搜尋的平均與最壞情況時間複雜度，以及空間複雜度（迭代版本）分別是什麼？",
@@ -501,9 +486,8 @@ DATA = {
             "id": "bs-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["mid", "left", "right"],
-            "points": 5,
             "code": BS_FILL_CODE,
             "language": "python",
             "translations": {
@@ -523,9 +507,8 @@ DATA = {
             "id": "bs-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於二分搜尋，以下哪些陳述是正確的？（選擇所有正確答案）",
@@ -553,9 +536,8 @@ DATA = {
             "id": "bs-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 8 9 4 5 6 7",
-            "points": 5,
             "code": BS_PREDICT_CODE,
             "language": "python",
             "translations": {

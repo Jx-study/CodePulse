@@ -7,7 +7,7 @@ from models.tutorial import Tutorial, UserTutorialProgress, TutorialStatus
 from models.practice import LearningSession, SessionMode
 from models.xp import XpEvent, XpSourceType
 from models.user import User
-from services.practice_service import get_questions, submit_answers
+from services.practice_service import get_questions_for_user, submit_answers
 
 tutorials_bp = Blueprint('tutorials', __name__)
 
@@ -191,7 +191,8 @@ def get_tutorial_questions(slug):
     if not t:
         return jsonify({'success': False, 'message': '教學不存在'}), 404
     lang = _resolve_lang(g.current_user_id)
-    result = get_questions(t.tutorial_id, lang)
+    user = db.session.get(User, g.current_user_id)
+    result = get_questions_for_user(t.tutorial_id, user, lang)
     return jsonify({'success': True, 'questions': result}), 200
 
 

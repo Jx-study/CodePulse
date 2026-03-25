@@ -90,9 +90,8 @@ DATA = {
             "id": "array-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "陣列 (Array) 將資料儲存在連續的記憶體空間，因此可以透過 Index 直接計算任意元素的記憶體位址，實現 O(1) 的隨機存取。",
@@ -110,9 +109,8 @@ DATA = {
             "id": "array-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Python 陣列（List）的索引是從哪個數字開始的？",
@@ -140,9 +138,8 @@ DATA = {
             "id": "array-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在陣列中，透過 Index 直接存取元素（如 arr[3]）的時間複雜度是多少？",
@@ -170,9 +167,8 @@ DATA = {
             "id": "array-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪個陣列操作在最壞情況下時間複雜度最高？",
@@ -200,9 +196,8 @@ DATA = {
             "id": "array-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在一個有 n 個元素的陣列中，於 Index 0 插入一個新元素，需要移動全部 n 個現有元素。",
@@ -221,9 +216,8 @@ DATA = {
             "id": "array-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "給定 arr = [5, 3, 8, 1, 9]，執行 arr[2] 的回傳值是多少？",
@@ -251,9 +245,8 @@ DATA = {
             "id": "array-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "arr = [10, 20, 30, 40]，在 Index 2 插入數值 25 後，arr[3] 的值是多少？",
@@ -281,9 +274,8 @@ DATA = {
             "id": "array-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "arr = [10, 20, 30, 40, 50]，刪除 Index 1後，陣列內容為何？",
@@ -311,9 +303,8 @@ DATA = {
             "id": "array-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對 arr = [1, 2, 3, 4, 5] 依序執行：del arr[2]、arr.insert(1, 10)、del arr[0]。最終 arr 的長度是多少？",
@@ -341,9 +332,8 @@ DATA = {
             "id": "array-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": ["opt1", "opt2"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些操作在 Python List 中時間複雜度為 O(1)？（多選）",
@@ -371,9 +361,8 @@ DATA = {
             "id": "array-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在需要頻繁於「中間插入或刪除」元素的場景，相較於 Array，哪個資料結構通常效能更好？",
@@ -402,9 +391,8 @@ DATA = {
             "groupId": "group-array-inventory",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "假設 warehouse.inventory = [101, 102, 103, 104]，執行 add_item(2, 105) 後，inventory[3] 的值是多少？",
@@ -433,9 +421,8 @@ DATA = {
             "groupId": "group-array-inventory",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上題，inventory = [101, 102, 105, 103, 104]。執行 remove_item(4) 後，再執行 find_item(105)，回傳值是多少？",
@@ -464,9 +451,8 @@ DATA = {
             "id": "array-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對於大小為 n 的陣列，以下哪項複雜度分析完全正確？",
@@ -494,9 +480,8 @@ DATA = {
             "id": "array-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下關於 Array 特性的敘述，哪些是正確的？（多選）",
@@ -525,11 +510,10 @@ DATA = {
             "groupId": "group-array-inventory",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "code": WAREHOUSE_FILL_CODE,
             "language": "python",
             "correctAnswer": ["None", "index", "i - 1"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請填入 add_item 方法中 (a)(b)(c) 處缺失的程式碼，使其邏輯正確（注意 Python 語法與大小寫）。",
@@ -547,11 +531,10 @@ DATA = {
             "id": "array-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "code": ARRAY_DELETE_FILL_CODE,
             "language": "python",
             "correctAnswer": ["n - 1", "i + 1", "pop"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請填入下方 delete_at 函數中 (a)(b)(c) 處缺失的程式碼，使其正確實作「刪除並左移」。",
@@ -569,11 +552,10 @@ DATA = {
             "id": "array-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "code": ARRAY_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "2 3 4 3 4 6",
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "給定 arr 物件，其 arr.arr = [10, 30]（共 2 個元素），接著執行 arr.search(5)（搜尋不存在的元素）。請依序填寫 search() 方法執行時，經過的行號序列（以空格分隔）。",

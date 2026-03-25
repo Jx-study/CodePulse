@@ -70,9 +70,8 @@ DATA = {
             "id": "sw-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "滑動窗口（Sliding Window）技術的核心思想是什麼？",
@@ -100,9 +99,8 @@ DATA = {
             "id": "sw-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "false",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "固定大小的滑動窗口（Fixed Window）與可變大小的滑動窗口（Variable Window）在解題方式上完全相同，沒有差異。",
@@ -120,9 +118,8 @@ DATA = {
             "id": "sw-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "使用固定大小為 k 的滑動窗口計算陣列中所有連續子陣列的最大總和，時間複雜度為何？",
@@ -150,9 +147,8 @@ DATA = {
             "id": "sw-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在可變窗口的滑動窗口實作中，right 指標只會向右移動，left 指標也只會向右移動（不會回頭），因此每個元素最多被訪問兩次。",
@@ -170,9 +166,8 @@ DATA = {
             "id": "sw-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在滑動窗口演算法中，「窗口的長度」通常如何用左右指標表示？",
@@ -201,9 +196,8 @@ DATA = {
             "groupId": "group-sw-variable",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "參考題組程式碼，追蹤 arr = [3, 1, 2, 7, 4]，target = 7。當 right = 3（arr[3] = 7）時，while 迴圈執行結束後，left 的值為何？",
@@ -231,9 +225,8 @@ DATA = {
             "id": "sw-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "給定陣列 arr = [2, 3, 1, 2, 4, 3]，k = 3，使用固定窗口找出長度為 3 的子陣列中的最大總和，結果為何？",
@@ -262,9 +255,8 @@ DATA = {
             "groupId": "group-sw-variable",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "D",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上題（arr = [3, 1, 2, 7, 4]，target = 7），整個函數執行結束後，max_len 的最終值為何？",
@@ -292,9 +284,8 @@ DATA = {
             "id": "sw-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "「找出字串中不含重複字元的最長子字串」這個問題，最適合用哪種技術解決？",
@@ -322,9 +313,8 @@ DATA = {
             "id": "sw-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在可變窗口的模板中，while 迴圈的終止條件通常代表什麼？",
@@ -352,9 +342,8 @@ DATA = {
             "id": "sw-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "給定陣列 arr = [1, 1, 1, 1, 1]，target = 3，呼叫 sliding_window_longest 的回傳值為何？",
@@ -382,9 +371,8 @@ DATA = {
             "id": "sw-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些問題適合使用滑動窗口技術解決？（多選）",
@@ -412,9 +400,8 @@ DATA = {
             "id": "sw-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "如果陣列中可能包含「負數」，可變窗口的滑動窗口是否仍能保證正確性？為什麼？",
@@ -443,9 +430,8 @@ DATA = {
             "groupId": "group-sw-variable",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["arr[right]", "target", "arr[left]", "right - left + 1"],
-            "points": 5,
             "code": SW_FILL_CODE,
             "language": "python",
             "translations": {
@@ -465,9 +451,8 @@ DATA = {
             "id": "sw-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "可變大小滑動窗口演算法（所有元素均為正整數）的時間複雜度為何？",
@@ -495,9 +480,8 @@ DATA = {
             "id": "sw-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於滑動窗口與其他演算法的比較，以下哪些敘述是正確的？（多選）",
@@ -525,9 +509,8 @@ DATA = {
             "id": "sw-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["window_sum", "i + k - 1", "window_sum"],
-            "points": 5,
             "code": SW_FIXED_FILL_CODE,
             "language": "python",
             "translations": {
@@ -547,9 +530,8 @@ DATA = {
             "id": "sw-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12",
-            "points": 5,
             "code": SW_PREDICT_CODE,
             "language": "python",
             "translations": {

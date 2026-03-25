@@ -68,6 +68,14 @@ CATEGORY_MAP = {
     "complexity": QuestionCategory.complexity,
 }
 
+# 常数 = 0.16
+TUTORIAL_DIFF_MULTIPLIER = {1: 0.92, 2: 0.96, 3: 1.00, 4: 1.04, 5: 1.08}
+
+
+def calc_difficulty_rating(base_rating: float, tutorial_difficulty: int) -> float:
+    m = TUTORIAL_DIFF_MULTIPLIER[tutorial_difficulty]
+    return round(base_rating * m, 2)
+
 
 def _serialize_answer(answer) -> str:
     if isinstance(answer, list):
@@ -124,14 +132,15 @@ def seed_tutorial(quiz_data: dict):
             if g:
                 group_id = g.group_id
 
+        base = float(q_data.get("baseRating", 1200))
         question = Question(
             tutorial_id=tutorial_id,
             group_id=group_id,
             question_type=TYPE_MAP[q_data["type"]],
             category=CATEGORY_MAP[q_data["category"]],
-            difficulty_rating=float(q_data.get("difficultyRating", 1200)),
+            base_rating=base,
+            difficulty_rating=calc_difficulty_rating(base, tutorial.difficulty),
             correct_answer=_serialize_answer(q_data["correctAnswer"]),
-            points=q_data.get("points", 1),
             display_order=order,
             code=q_data.get("code"),
             language=q_data.get("language"),

@@ -69,9 +69,8 @@ DATA = {
             "id": "ssort-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序 (Selection Sort) 的核心概念是什麼？",
@@ -99,9 +98,8 @@ DATA = {
             "id": "ssort-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序無論輸入資料的初始排列如何，其比較次數始終為 O(n²)。",
@@ -119,9 +117,8 @@ DATA = {
             "id": "ssort-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序中，為什麼要記錄 `min_idx` 而不是直接在找到較小元素時立刻交換？",
@@ -149,9 +146,8 @@ DATA = {
             "id": "ssort-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序每輪最多只執行一次實體交換操作。",
@@ -169,9 +165,8 @@ DATA = {
             "id": "ssort-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對長度為 n 的陣列執行選擇排序，總共需要執行幾輪外層迴圈？",
@@ -200,9 +195,8 @@ DATA = {
             "id": "ssort-group-1",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "A",
-            "points": 2,
             "groupId": "group-ssort-logic",
             "translations": {
                 "zh-TW": {
@@ -231,9 +225,8 @@ DATA = {
             "id": "ssort-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[64, 25, 12, 22, 11]` 執行選擇排序，第一輪結束後陣列狀態為何？",
@@ -261,9 +254,8 @@ DATA = {
             "id": "ssort-group-2",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "C",
-            "points": 2,
             "groupId": "group-ssort-logic",
             "translations": {
                 "zh-TW": {
@@ -292,9 +284,8 @@ DATA = {
             "id": "ssort-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序在下列哪種情況下，實際執行的交換次數最少？",
@@ -322,9 +313,8 @@ DATA = {
             "id": "ssort-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[3, 5, 1, 2, 4]` 執行選擇排序，前兩輪結束後，陣列狀態為何？",
@@ -352,9 +342,8 @@ DATA = {
             "id": "ssort-q9",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序通常被認為是不穩定的排序演算法，以下哪個例子最能說明其不穩定性？",
@@ -382,9 +371,8 @@ DATA = {
             "id": "ssort-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些是選擇排序的特性？（選擇所有正確答案）",
@@ -412,9 +400,8 @@ DATA = {
             "id": "ssort-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "比較選擇排序與插入排序的交換（或移動）操作次數，哪個說法最正確？",
@@ -443,9 +430,8 @@ DATA = {
             "id": "ssort-group-3",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["current_pos", "scan_pos", "current_pos"],
-            "points": 5,
             "groupId": "group-ssort-logic",
             "code": SSORT_FILL_CODE,
             "language": "python",
@@ -466,9 +452,8 @@ DATA = {
             "id": "ssort-q7",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "「雙端選擇排序 (Double Selection Sort)」是選擇排序的一個優化版本。它的主要改進是什麼？",
@@ -496,9 +481,8 @@ DATA = {
             "id": "ssort-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下關於選擇排序與其他排序演算法比較的陳述，哪些是正確的？（選擇所有正確答案）",
@@ -526,9 +510,8 @@ DATA = {
             "id": "ssort-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["i", "i", "min_idx"],
-            "points": 5,
             "code": DOUBLE_SSORT_FILL_CODE,
             "language": "python",
             "translations": {
@@ -548,9 +531,8 @@ DATA = {
             "id": "ssort-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 8 9 5 6 7 8 10 11 3 4 5 6 7 8 10 12",
-            "points": 5,
             "code": SSORT_PREDICT_CODE,
             "language": "python",
             "translations": {

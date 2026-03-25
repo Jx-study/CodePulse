@@ -95,9 +95,8 @@ DATA = {
             "id": "dijkstra-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Dijkstra 演算法用來解決哪類問題？",
@@ -125,9 +124,8 @@ DATA = {
             "id": "dijkstra-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Dijkstra 演算法使用優先佇列（Priority Queue / Min-Heap），每次從中取出距離最小的節點進行鬆弛操作。",
@@ -145,9 +143,8 @@ DATA = {
             "id": "dijkstra-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 Dijkstra 演算法中，「鬆弛（Relaxation）」操作的目的是什麼？",
@@ -175,9 +172,8 @@ DATA = {
             "id": "dijkstra-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Dijkstra 演算法無法正確處理含有負權重邊的圖，因為貪心策略的前提是「已確定的最短距離不會再被更短的路徑改善」。",
@@ -195,9 +191,8 @@ DATA = {
             "id": "dijkstra-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在題組的加權有向圖中，從節點 0 出發，到達節點 3 的最短距離為何？",
@@ -226,9 +221,8 @@ DATA = {
             "groupId": "group-dijkstra-path",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "參考題組程式碼，執行 dijkstra(graph, 0) 時，第一個從優先佇列取出的節點（第一次 heappop）是哪個？",
@@ -256,9 +250,8 @@ DATA = {
             "id": "dijkstra-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 Dijkstra 的程式碼中，有一行 `if d > dist[u]: continue`，這行的目的是什麼？",
@@ -287,9 +280,8 @@ DATA = {
             "groupId": "group-dijkstra-path",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "執行 dijkstra(graph, 0) 後，dist[2] 的最終值為何？",
@@ -317,9 +309,8 @@ DATA = {
             "id": "dijkstra-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "Dijkstra 演算法中，初始化時所有節點的距離設為 float('inf')（無限大），起點設為 0。這樣設計的原因是什麼？",
@@ -347,9 +338,8 @@ DATA = {
             "id": "dijkstra-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "Dijkstra 演算法的時間複雜度（使用二元堆 Min-Heap，V 個節點，E 條邊）為何？",
@@ -377,9 +367,8 @@ DATA = {
             "id": "dijkstra-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "Dijkstra 演算法與 BFS 的最主要差異是什麼？",
@@ -407,9 +396,8 @@ DATA = {
             "id": "dijkstra-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些是 Dijkstra 演算法的實際應用場景？（多選）",
@@ -437,9 +425,8 @@ DATA = {
             "id": "dijkstra-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 Dijkstra 演算法執行完畢後，若某個節點的 dist 值仍為 float('inf')，代表什麼？",
@@ -468,9 +455,8 @@ DATA = {
             "groupId": "group-dijkstra-path",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["v", "dist[u]", "w"],
-            "points": 5,
             "code": DIJKSTRA_FILL_CODE,
             "language": "python",
             "translations": {
@@ -490,9 +476,8 @@ DATA = {
             "id": "dijkstra-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "為什麼 Dijkstra 演算法不能處理含有「負權重環（Negative Weight Cycle）」的圖？",
@@ -520,9 +505,8 @@ DATA = {
             "id": "dijkstra-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於 Dijkstra 演算法的特性，以下哪些敘述是正確的？（多選）",
@@ -550,9 +534,8 @@ DATA = {
             "id": "dijkstra-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["dist[u]", "weight", "alt"],
-            "points": 5,
             "code": DIJKSTRA_RELAX_FILL_CODE,
             "language": "python",
             "translations": {
@@ -572,9 +555,8 @@ DATA = {
             "id": "dijkstra-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 10 11 12 13 5 6 7 9 10 11 12 13 5 6 7 5 6 7 8 5 14",
-            "points": 5,
             "code": DIJKSTRA_PREDICT_CODE,
             "language": "python",
             "translations": {

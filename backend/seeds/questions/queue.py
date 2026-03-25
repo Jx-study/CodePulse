@@ -102,9 +102,8 @@ DATA = {
             "id": "queue-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "false",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Queue 是一種 LIFO (Last-In, First-Out) 的資料結構。",
@@ -122,9 +121,8 @@ DATA = {
             "id": "queue-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在佇列 (Queue) 資料結構中，最先進入的元素會如何被處理？",
@@ -152,9 +150,8 @@ DATA = {
             "id": "queue-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Queue 的 enqueue 操作是在哪裡加入新元素？",
@@ -182,9 +179,8 @@ DATA = {
             "id": "queue-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Queue 的 dequeue 操作會執行什麼動作？",
@@ -212,9 +208,8 @@ DATA = {
             "id": "queue-q4",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪個操作可以查看 Queue 前端的元素但不移除它？",
@@ -243,9 +238,8 @@ DATA = {
             "id": "queue-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一個空的 Queue 依序執行以下操作：enqueue(1), enqueue(2), dequeue(), enqueue(3), dequeue()。最後佇列中剩下什麼元素？",
@@ -273,9 +267,8 @@ DATA = {
             "id": "queue-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Queue 最常用於解決以下哪個問題？",
@@ -303,9 +296,8 @@ DATA = {
             "id": "queue-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "作業系統中，CPU 處理多個程序時通常使用什麼數據結構來管理任務排程？",
@@ -333,9 +325,8 @@ DATA = {
             "id": "queue-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "印表機處理列印任務時，為什麼使用 Queue 而不是 Stack？",
@@ -363,9 +354,8 @@ DATA = {
             "id": "queue-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些場景適合使用 Queue (佇列)？(多選)",
@@ -394,9 +384,8 @@ DATA = {
             "id": "queue-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "Queue 的 enqueue 和 dequeue 操作的時間複雜度是多少？",
@@ -424,9 +413,8 @@ DATA = {
             "id": "queue-q10",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": "C",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "如果要在 Queue 中搜尋某個特定元素，最壞情況下的時間複雜度是多少？",
@@ -456,9 +444,8 @@ DATA = {
             "groupId": "group-print-buffer",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "若依序執行：add_job('DocA'), add_job('DocB'), add_job('DocC'), add_job('DocD')。請問最後一個操作的回傳值是什麼？",
@@ -487,9 +474,8 @@ DATA = {
             "groupId": "group-print-buffer",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上題狀態 (Queue內容為 [DocA, DocB, DocC])，若現在執行一次 process_job()，哪一份文件會被印出？",
@@ -518,9 +504,8 @@ DATA = {
             "groupId": "group-print-buffer",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["n", "deque"],
-            "points": 3,
             "translations": {
                 "zh-TW": {
                     "title": "Python 的 list `pop(0)` 操作雖然能模擬 dequeue，但在時間複雜度上並不高效。請問 `pop(0)` 的時間複雜度是 O(___)？若要達到 O(1)，應該改用 Python `collections` 模組中的哪個資料結構？(請填入兩個答案)",
@@ -538,11 +523,10 @@ DATA = {
             "id": "queue-code-fill-1",
             "type": "fill-code",
             "category": "application",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "code": CIRCULAR_QUEUE_FILL_CODE,
             "language": "python",
             "correctAnswer": ["0", "self.capacity", "0"],
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀下方的 Circular Queue 實作程式碼，並填入 (a), (b), (c) 處缺失的變數或數值，使其邏輯正確。",
@@ -560,11 +544,10 @@ DATA = {
             "id": "queue-code-1",
             "type": "predict-line",
             "category": "application",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "code": CIRCULAR_QUEUE_CODE,
             "language": "python",
             "correctAnswer": "17 18 21 22 23 24",
-            "points": 5,
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀下方的 Circular Queue 實作程式碼。假設目前 Queue 內資料為 [1, 2, 3] (Capacity=5)，且 front=0, rear=3, size=3。\n\n若執行一次 `dequeue()` 操作，請依序填寫程式執行的行號序列 (以空格分隔)。",

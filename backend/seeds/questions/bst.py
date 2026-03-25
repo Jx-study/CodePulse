@@ -67,9 +67,8 @@ DATA = {
             "id": "bst-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在二元搜尋樹 (BST) 中，任意節點的左子樹上所有節點的值都小於該節點的值；右子樹上所有節點的值都大於該節點的值。",
@@ -87,9 +86,8 @@ DATA = {
             "id": "bst-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一棵二元搜尋樹 (BST) 進行「中序遍歷 (Inorder Traversal)」，得到的數值序列會有什麼特性？",
@@ -117,9 +115,8 @@ DATA = {
             "id": "bst-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "D",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "教學區實作的 BST 中，當嘗試插入一個「已經存在於樹中的數值」時，系統會如何處理？",
@@ -147,9 +144,8 @@ DATA = {
             "id": "bst-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "若要在一棵 BST 中尋找「最小值 (Minimum)」，應該如何追蹤？",
@@ -177,9 +173,8 @@ DATA = {
             "id": "bst-q4",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "一棵包含 n 個節點且「完美平衡」的二元搜尋樹，其搜尋操作的時間複雜度為何？",
@@ -207,9 +202,8 @@ DATA = {
             "id": "bst-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 BST 中，若要刪除的目標節點是一個「葉子節點 (Leaf Node，無子節點)」，該如何處理？",
@@ -237,9 +231,8 @@ DATA = {
             "id": "bst-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 BST 中，若要刪除的目標節點「同時擁有左、右兩個子節點」，常見的替換策略是找誰來取代它的位置？",
@@ -267,9 +260,8 @@ DATA = {
             "id": "bst-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "依序將 [50, 30, 70, 20, 40] 插入空的 BST 後，請問 40 會成為哪個節點的子節點？",
@@ -298,9 +290,8 @@ DATA = {
             "groupId": "group-bst-floor-ceil",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "給定 BST 包含數值 [20, 30, 40, 50, 70]。執行 floor(45) 的回傳值是多少？",
@@ -329,9 +320,8 @@ DATA = {
             "groupId": "group-bst-floor-ceil",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "承上題，如果執行 ceil(35)，回傳值會是多少？",
@@ -359,9 +349,8 @@ DATA = {
             "id": "bst-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "如果依序將一個「已排序」的陣列 [10, 20, 30, 40, 50] 插入空的 BST 中，這棵樹的形狀會變成什麼樣子？",
@@ -389,9 +378,8 @@ DATA = {
             "id": "bst-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些操作在 BST 中的時間複雜度與「樹的高度 (h)」成正比（即 O(h)）？（多選）",
@@ -419,9 +407,8 @@ DATA = {
             "id": "bst-tf-2",
             "type": "true-false",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在最壞的情況下（例如退化成斜樹），二元搜尋樹的搜尋時間複雜度會退化成 O(n)。",
@@ -440,9 +427,8 @@ DATA = {
             "groupId": "group-bst-floor-ceil",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["curr.left", "curr.value", "curr.right"],
-            "points": 5,
             "code": FLOOR_FILL_CODE,
             "language": "python",
             "translations": {
@@ -462,9 +448,8 @@ DATA = {
             "id": "bst-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": ["opt1", "opt3", "opt4"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於「二元樹 (Binary Tree)」與「二元搜尋樹 (BST)」的比較，以下哪些敘述是正確的？（多選）",
@@ -492,9 +477,8 @@ DATA = {
             "id": "bst-q9",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對一棵擁有 n 個節點的 BST 執行刪除操作 (Delete)，其「空間複雜度 (Space Complexity)」取決於什麼？",
@@ -522,9 +506,8 @@ DATA = {
             "id": "bst-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["curr.left", "curr.right", "curr.right"],
-            "points": 5,
             "code": INSERT_FILL_CODE,
             "language": "python",
             "translations": {
@@ -544,9 +527,8 @@ DATA = {
             "id": "bst-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 3 4",
-            "points": 5,
             "code": SEARCH_PREDICT_CODE,
             "language": "python",
             "translations": {

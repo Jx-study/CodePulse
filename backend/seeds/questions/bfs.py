@@ -96,9 +96,8 @@ DATA = {
             "id": "bfs-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "廣度優先搜尋（BFS）使用哪種資料結構來決定節點的訪問順序？",
@@ -126,9 +125,8 @@ DATA = {
             "id": "bfs-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "BFS 能夠找到在「無權重圖」中，兩點之間經過邊數最少的最短路徑。",
@@ -146,9 +144,8 @@ DATA = {
             "id": "bfs-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對題組中的有向圖執行 bfs(graph, 'A')，回傳的 result 串列為何？",
@@ -176,9 +173,8 @@ DATA = {
             "id": "bfs-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在 BFS 中，節點在被加入佇列時就應該標記為已訪問（visited），而不是等到從佇列取出時才標記，以防止重複加入。",
@@ -196,9 +192,8 @@ DATA = {
             "id": "bfs-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一個有 V 個節點、E 條邊的圖執行 BFS，時間複雜度為何？",
@@ -227,9 +222,8 @@ DATA = {
             "groupId": "group-bfs-traversal",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "參考題組程式碼，若將 bfs 函數修改為同時追蹤每個節點的距離，節點 D 距起點 A 的最短距離（邊數）為何？",
@@ -257,9 +251,8 @@ DATA = {
             "id": "bfs-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在迷宮問題中，使用 BFS 找到從入口到出口的最短路徑，每個格子的移動成本相同。為什麼 BFS 適合這類問題？",
@@ -288,9 +281,8 @@ DATA = {
             "groupId": "group-bfs-traversal",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "若使用 bfs_distance 函數（追蹤距離版本）對題組圖執行，回傳的 dist 字典中，節點 E 對應的值為何？",
@@ -318,9 +310,8 @@ DATA = {
             "id": "bfs-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在進行圖的 BFS 時，如果不使用 visited 集合追蹤已訪問的節點，在含有環的圖中會發生什麼問題？",
@@ -348,9 +339,8 @@ DATA = {
             "id": "bfs-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "BFS 應用於社群網路中，若要找出某人的「二度好友」（朋友的朋友，但非直接好友），應該在 BFS 的哪個層級收集？",
@@ -378,9 +368,8 @@ DATA = {
             "id": "bfs-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些問題適合使用 BFS 解決？（多選）",
@@ -408,9 +397,8 @@ DATA = {
             "id": "bfs-q7",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "在 BFS 中，「層（Level）」的概念對應到現實問題中的什麼？",
@@ -439,9 +427,8 @@ DATA = {
             "groupId": "group-bfs-traversal",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["start", "dist", "dist[node]"],
-            "points": 5,
             "code": BFS_DISTANCE_FILL_CODE,
             "language": "python",
             "translations": {
@@ -461,9 +448,8 @@ DATA = {
             "id": "bfs-q8",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "BFS 在最壞情況下的空間複雜度為何（以節點數 V 和邊數 E 表示）？",
@@ -491,9 +477,8 @@ DATA = {
             "id": "bfs-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "關於 BFS 與 DFS 的比較，以下哪些敘述是正確的？（多選）",
@@ -521,9 +506,8 @@ DATA = {
             "id": "bfs-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["queue.popleft()", "grid[nr][nc]", "steps"],
-            "points": 5,
             "code": BFS_GRID_FILL_CODE,
             "language": "python",
             "translations": {
@@ -543,9 +527,8 @@ DATA = {
             "id": "bfs-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 5 6 7 5 6 7 5 12",
-            "points": 5,
             "code": BFS_PREDICT_CODE,
             "language": "python",
             "translations": {

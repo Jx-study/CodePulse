@@ -70,13 +70,13 @@ class Question(db.Model):
     code = db.Column(db.Text, nullable=True)
     language = db.Column(db.String(50), nullable=True)
 
+    base_rating = db.Column(db.Float, nullable=False, default=1200.0)
     difficulty_rating = db.Column(db.Float, nullable=False, default=1200.0)
     times_answered = db.Column(db.Integer, nullable=False, default=0)
     times_correct = db.Column(db.Integer, nullable=False, default=0)
 
     display_order = db.Column(db.Integer, nullable=False, default=0)
     correct_answer = db.Column(db.String(500), nullable=False)
-    points = db.Column(db.Integer, default=1)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
@@ -98,7 +98,7 @@ class Question(db.Model):
             'category': self.category.value,
             'code': self.code,
             'language': self.language,
-            'points': self.points,
+            'base_rating': self.base_rating,
             'group_id': self.group_id,
         }
         if include_answer:

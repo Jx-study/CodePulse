@@ -62,9 +62,8 @@ DATA = {
             "id": "isort-q1",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 800,
+            "baseRating": 800,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "插入排序 (Insertion Sort) 的核心概念是什麼？",
@@ -92,9 +91,8 @@ DATA = {
             "id": "isort-tf-1",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 850,
+            "baseRating": 850,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "插入排序在資料幾乎已排序的情況下，效能接近 O(n)，遠優於它的最壞情況。",
@@ -112,9 +110,8 @@ DATA = {
             "id": "isort-q2",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 900,
+            "baseRating": 900,
             "correctAnswer": "A",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "在插入排序中，外層迴圈 `for i in range(1, len(arr))` 從索引 1 開始，而不是從 0 開始，原因是什麼？",
@@ -142,9 +139,8 @@ DATA = {
             "id": "isort-tf-2",
             "type": "true-false",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "true",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "插入排序是一種穩定的 (stable) 排序演算法，即相同值的元素在排序後會保持其原始的相對順序。",
@@ -162,9 +158,8 @@ DATA = {
             "id": "isort-q3",
             "type": "single-choice",
             "category": "basic",
-            "difficultyRating": 950,
+            "baseRating": 950,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "插入排序的最壞情況是什麼？此時時間複雜度為何？",
@@ -193,9 +188,8 @@ DATA = {
             "id": "isort-group-1",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1000,
+            "baseRating": 1000,
             "correctAnswer": "A",
-            "points": 2,
             "groupId": "group-isort-logic",
             "translations": {
                 "zh-TW": {
@@ -224,9 +218,8 @@ DATA = {
             "id": "isort-q8",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1050,
+            "baseRating": 1050,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[5, 2, 4, 6, 1, 3]` 執行插入排序，當外層迴圈 `i=2`（即 `key=4`）執行完畢後，陣列的狀態為何？",
@@ -254,9 +247,8 @@ DATA = {
             "id": "isort-group-2",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 2,
             "groupId": "group-isort-logic",
             "translations": {
                 "zh-TW": {
@@ -285,9 +277,8 @@ DATA = {
             "id": "isort-q4",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1100,
+            "baseRating": 1100,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "插入排序與選擇排序 (Selection Sort) 的主要區別是什麼？",
@@ -315,9 +306,8 @@ DATA = {
             "id": "isort-q5",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "B",
-            "points": 1,
             "translations": {
                 "zh-TW": {
                     "title": "對一個長度為 n 的陣列執行插入排序，總共會執行幾輪外層迴圈？",
@@ -345,9 +335,8 @@ DATA = {
             "id": "isort-q9",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1150,
+            "baseRating": 1150,
             "correctAnswer": "A",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "插入排序在實作上使用「平移」而非「交換」，這樣做的主要優點是什麼？",
@@ -375,9 +364,8 @@ DATA = {
             "id": "isort-multi-1",
             "type": "multiple-choice",
             "category": "application",
-            "difficultyRating": 1200,
+            "baseRating": 1200,
             "correctAnswer": ["opt1", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些關於插入排序的陳述是正確的？（選擇所有正確答案）",
@@ -405,9 +393,8 @@ DATA = {
             "id": "isort-q6",
             "type": "single-choice",
             "category": "application",
-            "difficultyRating": 1250,
+            "baseRating": 1250,
             "correctAnswer": "B",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[3, 1, 4, 1, 5]` 執行插入排序，全部完成後結果為何？以下哪個描述最準確地說明了穩定性在此例中的體現？",
@@ -436,9 +423,8 @@ DATA = {
             "id": "isort-group-3",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1300,
+            "baseRating": 1300,
             "correctAnswer": ["j >= 0", "collection[j] > key", "j + 1"],
-            "points": 5,
             "groupId": "group-isort-logic",
             "code": ISORT_FILL_CODE,
             "language": "python",
@@ -459,9 +445,8 @@ DATA = {
             "id": "isort-q7",
             "type": "single-choice",
             "category": "complexity",
-            "difficultyRating": 1350,
+            "baseRating": 1350,
             "correctAnswer": "C",
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "希爾排序 (Shell Sort) 是插入排序的一種改進版本。它如何改善了插入排序的效能？",
@@ -489,9 +474,8 @@ DATA = {
             "id": "isort-multi-2",
             "type": "multiple-choice",
             "category": "complexity",
-            "difficultyRating": 1400,
+            "baseRating": 1400,
             "correctAnswer": ["opt1", "opt2", "opt3"],
-            "points": 2,
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些是插入排序與氣泡排序 (Bubble Sort) 的共同特性？（選擇所有正確答案）",
@@ -519,9 +503,8 @@ DATA = {
             "id": "isort-fill-1",
             "type": "fill-code",
             "category": "complexity",
-            "difficultyRating": 1450,
+            "baseRating": 1450,
             "correctAnswer": ["1", "n - 1", "last"],
-            "points": 5,
             "code": RECURSIVE_ISORT_FILL_CODE,
             "language": "python",
             "translations": {
@@ -541,9 +524,8 @@ DATA = {
             "id": "isort-pred-1",
             "type": "predict-line",
             "category": "complexity",
-            "difficultyRating": 1500,
+            "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 5 8 9",
-            "points": 5,
             "code": ISORT_PREDICT_CODE,
             "language": "python",
             "translations": {
