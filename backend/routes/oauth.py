@@ -15,7 +15,6 @@ from auth_utils import (
     create_onboarding_token,
     hash_token, set_auth_cookies, REFRESH_TOKEN_EXPIRES,
 )
-from routes.auth import _update_streak
 
 GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
@@ -195,8 +194,6 @@ def register_oauth_routes(app):
                     response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
                     return response
 
-            _update_streak(user)
-
             jwt_access = create_access_token(user.user_id)
             jwt_refresh = create_refresh_token(user.user_id)
 
@@ -259,8 +256,6 @@ def register_oauth_routes(app):
 
             if not user.avatar_url and data.get('picture'):
                 user.avatar_url = data['picture']
-
-            _update_streak(user)
 
             jwt_access = create_access_token(user.user_id)
             jwt_refresh = create_refresh_token(user.user_id)
