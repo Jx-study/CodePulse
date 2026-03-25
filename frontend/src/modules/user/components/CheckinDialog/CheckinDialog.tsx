@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Dialog from '@/shared/components/Dialog';
 import Button from '@/shared/components/Button';
 import Icon from '@/shared/components/Icon';
+import XpFloat from '@/shared/components/XpFloat';
 import { userService } from '@/services/userService';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import styles from './CheckinDialog.module.scss';
@@ -43,6 +44,7 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [showXp, setShowXp] = useState(false);
 
   const now = new Date();
   const year = now.getFullYear();
@@ -72,6 +74,8 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
         const newDates = [...dates, today].sort();
         setDates(newDates);
         setIsCheckedIn(true);
+        setShowXp(true);
+        setTimeout(() => setShowXp(false), 600);
         updateUser({
           last_login_date: today,
           current_streak: res.current_streak,
@@ -159,37 +163,40 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <AnimatePresence mode="wait">
-              {isCheckedIn ? (
-                <motion.div
-                  key="done"
-                  className={styles.footerInner}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
-                  <Button variant="secondary" disabled>
-                    <Icon name="check" /> {t('checkin.checkedIn', '已打卡')}
-                  </Button>
-                  <Button variant="primary" onClick={onClose}>
-                    {t('close', '關閉')}
-                  </Button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="checkin"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
-                  <Button variant="primary" onClick={handleCheckin} disabled={isLoading}>
-                    {isLoading
-                      ? <><Icon name="circle-notch" animation="spin" /> {t('checkin.checking', '打卡中...')}</>
-                      : t('checkin.checkIn', '打卡')}
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <XpFloat amount={5} trigger={showXp} />
+            <div className={styles.checkinBtnWrapper}>
+              <AnimatePresence mode="wait">
+                {isCheckedIn ? (
+                  <motion.div
+                    key="done"
+                    className={styles.footerInner}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <Button variant="secondary" disabled>
+                      <Icon name="check" /> {t('checkin.checkedIn', '已打卡')}
+                    </Button>
+                    <Button variant="primary" onClick={onClose}>
+                      {t('close', '關閉')}
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="checkin"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <Button variant="primary" onClick={handleCheckin} disabled={isLoading}>
+                      {isLoading
+                        ? <><Icon name="circle-notch" animation="spin" /> {t('checkin.checking', '打卡中...')}</>
+                        : t('checkin.checkIn', '打卡')}
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
         </>
       )}

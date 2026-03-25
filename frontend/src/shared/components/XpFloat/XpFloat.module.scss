@@ -1,0 +1,13 @@
+.xpFloat {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: $font-sm;
+  font-weight: 800;
+  color: $primary-color;
+  text-shadow: 0 0 8px rgba($primary-color, 0.5);
+  z-index: 10;
+}
