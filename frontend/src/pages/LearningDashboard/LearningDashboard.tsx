@@ -25,15 +25,15 @@ import {
   updateCategoryUnlocks,
 } from "@/services/CategoryService";
 import {
-  loadUserProgress,
-  saveUserProgress,
+  INITIAL_USER_PROGRESS,
+  fetchMyProgress,
+  mergeApiProgress,
 } from "@/services/UserProgressService";
 import {
   getLevelProgress,
   calculateDisplayStatus,
   calculateOverallProgress,
   calculateCategoryProgress,
-  completeLevel,
   startLevel,
 } from "@/services/ProgressService";
 import {
@@ -47,8 +47,6 @@ import {
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { useTranslation } from "react-i18next";
-import { tutorialService } from '@/services/tutorialService';
-import { mergeApiProgress } from '@/services/UserProgressService';
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
 
@@ -62,12 +60,12 @@ function LearningDashboardInner() {
 
   // State
   const [userProgress, setUserProgress] = useState<UserProgress>(
-    loadUserProgress()
+    INITIAL_USER_PROGRESS
   );
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    tutorialService.getMyProgress()
+    fetchMyProgress()
       .then((apiProgress) => {
         setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
       })
@@ -137,7 +135,6 @@ function LearningDashboardInner() {
 
     if (hasChanges) {
       setUserProgress(updatedProgress);
-      saveUserProgress(updatedProgress);
 
       // 找出新解鎖的 Category
       const newlyUnlockedCategories = Object.entries(
@@ -239,7 +236,6 @@ function LearningDashboardInner() {
       // 使用 ProgressService 更新關卡狀態為「進行中」
       const updatedProgress = startLevel(selectedLevel.id, userProgress);
       setUserProgress(updatedProgress);
-      saveUserProgress(updatedProgress);
 
       navigate(`/practice/${selectedLevel.category}/${selectedLevel.id}`);
     }

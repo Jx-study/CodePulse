@@ -1,13 +1,3 @@
-export interface ApiTutorialProgress {
-  tutorial_slug: string;
-  teaching_completed: boolean;
-  best_score: number | null;
-  best_time_seconds: number | null;
-  attempt_count: number;
-  practice_passed: boolean;
-  last_accessed_at: string | null;
-}
-
 export interface SessionResponse {
   success: boolean;
   session_id: number;
@@ -90,14 +80,6 @@ async function fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> 
 }
 
 export const tutorialService = {
-  // 取得當前用戶所有 tutorial 進度
-  async getMyProgress(): Promise<ApiTutorialProgress[]> {
-    const data = await fetchJson<{ success: boolean; progress: ApiTutorialProgress[] }>(
-      '/api/users/me/progress'
-    );
-    return data.progress;
-  },
-
   // 進入教學頁面時建立 session
   async startSession(slug: string): Promise<number> {
     const data = await fetchJson<SessionResponse>(
