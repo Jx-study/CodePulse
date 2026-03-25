@@ -315,18 +315,32 @@ export function createTopologicalSortAnimationSteps(
     }
   }
 
+  recordStep(
+    `Queue 是空的，處理迴圈結束。檢查「已排入 Result 的節點數」是否等於「總節點數」。`,
+    TAGS.CHECK_CYCLE,
+  );
+
   // Check DAG (偵測 Cycle)
   if (result.length < nodes.length) {
+    recordStep(
+      `發現已處理節點數 (${result.length}) < 總節點數 (${nodes.length})！表示圖中存在「循環依賴 (Cycle)」，並非有向無環圖 (DAG)。`,
+      TAGS.CHECK_CYCLE,
+    );
+
     nodes.forEach((n) => {
       if (nodeStatus[n.id] !== TopoStatus.Complete) {
         nodeStatus[n.id] = TopoStatus.Error;
       }
     });
     recordStep(
-      `Queue 已空，但仍有節點未處理！圖中存在循環依賴 (Cycle)，無法完成拓撲排序。`,
+      `剩下的節點因為互相等待前置條件（入度永遠無法歸零），發生死鎖 (Deadlock)，拓撲排序失敗。`,
       TAGS.CHECK_CYCLE,
     );
   } else {
+    recordStep(
+      `已處理節點數 (${result.length}) == 總節點數 (${nodes.length})，代表圖中沒有循環依賴！`,
+      TAGS.DONE,
+    );
     recordStep(`所有節點排序完成！`, TAGS.DONE);
   }
 
