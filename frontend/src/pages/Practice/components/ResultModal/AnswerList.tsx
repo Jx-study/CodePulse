@@ -12,6 +12,7 @@
 import React, { useState } from "react";
 import type { AnswerResult, Question } from "@/types/practice";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 import { getOptionLabel } from "@/utils/random";
@@ -68,21 +69,13 @@ const AnswerList: React.FC<AnswerListProps> = ({
   };
 
   const renderTimeAnalysis = (seconds: number) => {
-    let label = "";
-    let colorClass = "";
-
     if (seconds < 5) {
-      label = "秒殺 (粗心？)";
-      colorClass = styles.timeFast;
-    } else if (seconds > 60) {
-      label = "思考久 (卡關？)";
-      colorClass = styles.timeSlow;
-    } else {
-      label = `${seconds}s`;
-      colorClass = styles.timeNormal;
+      return <Badge variant="warning" size="xs" shape="rounded">{seconds}s（秒殺）</Badge>;
     }
-
-    return <span className={`${styles.timeBadge} ${colorClass}`}>{label}</span>;
+    if (seconds > 60) {
+      return <Badge variant="secondary" size="xs" shape="rounded">{seconds}s（卡關？）</Badge>;
+    }
+    return <Badge variant="info" size="xs" shape="rounded">{seconds}s</Badge>;
   };
 
   return (
@@ -211,7 +204,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
                     </p>
                   </div>
 
-                  <div className={styles.pointsBadge}>{ar.points} 分</div>
+                  <Badge variant="primary" size="sm" shape="rounded">{ar.points} 分</Badge>
                 </div>
               )}
             </div>
