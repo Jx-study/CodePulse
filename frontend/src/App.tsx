@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 // Auth Context
 import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
+import CheckinDialog from '@/modules/user/components/CheckinDialog';
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
@@ -25,6 +26,17 @@ import Practice from "./pages/Practice/Practice";
 import Explorer from "./pages/Explorer/Explorer";
 import About from "./pages/About/About";
 import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
+
+function CheckinWrapper() {
+  const { isLoading, showCheckinDialog, setShowCheckinDialog } = useAuth();
+  if (isLoading) return null;
+  return (
+    <CheckinDialog
+      isOpen={showCheckinDialog}
+      onClose={() => setShowCheckinDialog(false)}
+    />
+  );
+}
 
 function ThemeApplier() {
   const { user, isLoading } = useAuth();
@@ -53,6 +65,7 @@ function App() {
   return (
     <AuthProvider>
       <ThemeApplier />
+      <CheckinWrapper />
       <ToastContainer />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
