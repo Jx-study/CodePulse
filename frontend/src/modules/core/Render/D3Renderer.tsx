@@ -436,7 +436,7 @@ export function renderAll(
     structureType === "graph" || structureType === "dijkstra"
       ? !isDirected
       : forceHideArrow;
-  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
+  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead-default)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
   if (svg.select("#arrowhead").empty()) {
@@ -598,7 +598,8 @@ export function renderAll(
     .select("path.link")
     .attr("marker-end", (d) => {
       if (shouldHideArrow) return "none";
-      const status = d.status || "default";
+      const status =
+        d.status && d.status in linkStatusColorMap ? d.status : "default";
       return `url(#arrowhead-${status})`;
     })
     .transition()
