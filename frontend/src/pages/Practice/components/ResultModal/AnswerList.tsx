@@ -15,7 +15,7 @@ import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 import { getOptionLabel } from "@/utils/random";
-import styles from "./ResultModal.module.scss";
+import styles from "./AnswerList.module.scss";
 
 interface AnswerListProps {
   answerResults: AnswerResult[];
