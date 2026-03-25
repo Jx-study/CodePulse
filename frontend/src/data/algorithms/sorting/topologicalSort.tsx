@@ -165,7 +165,12 @@ export function createTopologicalSortAnimationSteps(
   const graph = inputData as GraphData;
   if (!graph?.nodes || graph.nodes.length === 0) return steps;
 
-  const layoutNodes = createGraphElements(graph as any, true);
+  const layoutNodes = createGraphElements(graph as any, true, {
+    width: 700,
+    height: 300,
+    offsetX: 0,
+    offsetY: 50,
+  });
   const layoutMap = new Map(layoutNodes.map((n) => [n.id, n.position]));
 
   const nodes = graph.nodes;
