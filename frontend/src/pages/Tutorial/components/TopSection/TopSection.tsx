@@ -17,6 +17,7 @@ import ResizeHandle from '../ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
+import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
 import styles from './TopSection.module.scss';
@@ -32,6 +33,7 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  viewMode: AlgorithmViewMode | "";
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;

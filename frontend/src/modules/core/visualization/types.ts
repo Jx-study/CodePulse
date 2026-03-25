@@ -49,11 +49,6 @@ export interface ActionResult<TData = unknown> {
   isResetAction?: boolean;
 
   /**
-   * Graph 類 DS/Algo 需在 createAnimationSteps 後執行 syncCoordinates。
-   */
-  needsSyncCoordinates?: boolean;
-
-  /**
    * 風險點 3 補充：Graph 的 animationParams 格式與其他 DS 不同。
    * 設為 true 時，hook 跳過通用 { targetId, value } 注入，直接使用 animationParams。
    */

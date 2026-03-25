@@ -7,6 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import { GraphCanvas } from "@/modules/core/Render/GraphCanvas";
 import ControlBar from "@/modules/core/components/ControlBar";
 import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
@@ -41,6 +42,7 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  viewMode: AlgorithmViewMode | "";
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
@@ -67,6 +69,7 @@ const CanvasPanel = ({
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
+  viewMode,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -101,6 +104,12 @@ const CanvasPanel = ({
     opacity: isDragging ? 0 : 1,
   };
 
+  const useGraphCanvas =
+    topicTypeConfig?.id === "graph" ||
+    topicTypeConfig?.id === "dijkstra" ||
+    ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
+      viewMode !== "grid");
+
   return (
     <Panel
       id="canvas-panel"
@@ -120,16 +129,28 @@ const CanvasPanel = ({
           dragHandleProps={dragHandleProps}
         />
         <div ref={canvasContainerRef} className={styles.visualizationArea}>
-          <D3Canvas
-            elements={currentStepData?.elements || []}
-            links={currentLinks}
-            width={canvasSize.width}
-            height={canvasSize.height}
-            structureType={topicTypeConfig?.id}
-            statusColorMap={currentStatusColorMap}
-            statusConfig={currentStatusConfig}
-            isDirected={isDirected}
-          />
+          {useGraphCanvas ? (
+            <GraphCanvas
+              elements={currentStepData?.elements || []}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+            />
+          ) : (
+            <D3Canvas
+              elements={currentStepData?.elements || []}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              structureType={topicTypeConfig?.id}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+            />
+          )}
         </div>
         <div className={styles.stepDescription}>
           {currentStepData?.description}
@@ -802,6 +823,7 @@ function TutorialContent() {
     currentStatusColorMap,
     currentStatusConfig,
     isDirected: renderedIsDirected,
+    viewMode,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,
