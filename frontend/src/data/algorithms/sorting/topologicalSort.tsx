@@ -185,8 +185,9 @@ export function createTopologicalSortAnimationSteps(
   const edgeStatus: Record<string, string> = {};
   const queue: string[] = [];
   const result: string[] = [];
+  let poppingNodeId: string | undefined = undefined; // 記錄目前「正在往下掉」的節點
 
-  const recordStep = (desc: string, tag: string) => {
+  const recordStep = (desc: string, tag: string, pushingNodeId?: string) => {
     const elements: (Node | Box)[] = [];
 
     nodes.forEach((n) => {
@@ -204,17 +205,37 @@ export function createTopologicalSortAnimationSteps(
 
     queue.forEach((id, index) => {
       const box = new Box();
-      box.id = `q-${id}-${index}`;
+      box.id = `q-${id}`;
       box.value = id.replace("node-", "");
       const baseX = 850;
-      const baseY = 355 - index * 35; // 從底部往上長
+      const baseY = 355 - index * 35;
 
-      box.moveTo(baseX, baseY);
+      if (id === pushingNodeId) {
+        box.moveTo(baseX, 50);
+        box.setStatus(Status.Prepare);
+      } else {
+        box.moveTo(baseX, baseY);
+        box.setStatus(TopoStatus.InQueue);
+      }
+
       box.width = 120;
       box.height = 30;
-      box.setStatus(TopoStatus.InQueue);
       elements.push(box);
     });
+
+    if (poppingNodeId) {
+      const dropBox = new Box();
+      dropBox.id = `q-${poppingNodeId}`;
+      dropBox.value = poppingNodeId.replace("node-", "");
+
+      const baseX = 850;
+      dropBox.moveTo(baseX, 420);
+
+      dropBox.width = 120;
+      dropBox.height = 30;
+      dropBox.setStatus(Status.Complete);
+      elements.push(dropBox);
+    }
 
     const resStartX = 50,
       resY = 360;
@@ -229,11 +250,17 @@ export function createTopologicalSortAnimationSteps(
       elements.push(box);
     });
 
-    const stepLinks = remainingEdges.map((e) => ({
-      sourceId: e[0],
-      targetId: e[1],
-      status: edgeStatus[`${e[0]}->${e[1]}`] as any,
-    }));
+    const stepLinks = remainingEdges.map((e) => {
+      let linkStatus = edgeStatus[`${e[0]}->${e[1]}`] as any;
+      if (linkStatus === TopoStatus.Reducing) {
+        linkStatus = Status.Target;
+      }
+      return {
+        sourceId: e[0],
+        targetId: e[1],
+        status: linkStatus || Status.Inactive,
+      };
+    });
 
     const degreeVars: Record<string, any> = {};
     nodes.forEach((n) => {
@@ -272,16 +299,21 @@ export function createTopologicalSortAnimationSteps(
   while (queue.length > 0) {
     recordStep(`Queue 不為空，準備取出節點處理。`, TAGS.WHILE_LOOP);
 
+    // 將節點移出 queue，並放入 poppingNodeId 暫存
     const curr = queue.shift()!;
-    result.push(curr);
+    poppingNodeId = curr;
     nodeStatus[curr] = TopoStatus.Target;
 
+    recordStep(`取出節點 [${curr.replace("node-", "")}]。`, TAGS.DEQUEUE);
+
+    result.push(curr);
+    poppingNodeId = undefined;
+    nodeStatus[curr] = TopoStatus.Complete;
+
     recordStep(
-      `取出節點 [${curr.replace("node-", "")}] 並加入 Result。`,
+      `將節點 [${curr.replace("node-", "")}] 加入 Result。`,
       TAGS.DEQUEUE,
     );
-
-    nodeStatus[curr] = TopoStatus.Complete;
 
     const neighbors = remainingEdges
       .filter((e) => e[0] === curr)
@@ -309,6 +341,7 @@ export function createTopologicalSortAnimationSteps(
         recordStep(
           `節點 [${neighbor.replace("node-", "")}] 的入度歸零，加入 Queue！`,
           TAGS.CHECK_ZERO,
+          neighbor, // pushingNodeId = neighbor
         );
       } else {
         nodeStatus[neighbor] = TopoStatus.Inactive;
