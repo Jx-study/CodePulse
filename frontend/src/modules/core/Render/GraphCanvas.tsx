@@ -183,14 +183,15 @@ export function GraphCanvas({
       };
     });
 
-    const simLinks: GSimLink[] = links.map((l) => ({
-      source: l.sourceId,
-      target: l.targetId,
-      sourceId: l.sourceId,
-      targetId: l.targetId,
-      status: l.status,
-      weight: l.weight,
-    }));
+    const seenPairs = new Set<string>();
+    const simLinks: GSimLink[] = links.reduce<GSimLink[]>((acc, l) => {
+      const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+      if (!seenPairs.has(key)) {
+        seenPairs.add(key);
+        acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
+      }
+      return acc;
+    }, []);
 
     // 軟邊界 force：節點靠近邊界時施加推回力，防止飛出視角
     function boundaryForce(padding: number) {
@@ -253,11 +254,7 @@ export function GraphCanvas({
         "link",
         forceLink<GSimNode, GSimLink>(simLinks)
           .id((d: GSimNode) => d.id)
-          .distance((d: GSimLink) => {
-            const w = Number(d.weight);
-            if (!isFinite(w) || w <= 0) return 100;
-            return Math.max(80, Math.min(240, w * 20));
-          })
+          .distance(100)
           .strength(0.5),
       )
       .force("charge", forceManyBody().strength(-250))
@@ -358,6 +355,9 @@ export function GraphCanvas({
     // 快速查詢反向邊（跟 D3Renderer 的 linkSet 保持一致）
     const linkSet = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
 
+    // 雙向邊各自向左手法向量偏移，避免重疊
+    const BIDIR_OFFSET = 6;
+
     // Tick：更新座標 + 寫入快取（動態選取以支援 Effect 2 新增的 link）
     simulation.on("tick", () => {
       const svgEl = svgRef.current;
@@ -406,7 +406,10 @@ export function GraphCanvas({
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
             const ux = dx / dist;
             const uy = dy / dist;
-            pathD = `M ${src.x + ux * src.r},${src.y + uy * src.r} L ${tgt.x - ux * tgt.r},${tgt.y - uy * tgt.r}`;
+            const off = linkSet.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET : 0;
+            const nx = -uy * off;
+            const ny = ux * off;
+            pathD = `M ${src.x + ux * src.r + nx},${src.y + uy * src.r + ny} L ${tgt.x - ux * tgt.r + nx},${tgt.y - uy * tgt.r + ny}`;
           }
           d3Select(this).attr("d", pathD);
         });
@@ -427,12 +430,12 @@ export function GraphCanvas({
             const dx = tgt.x - src.x;
             const dy = tgt.y - src.y;
             const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            const hasReverse = linkSet.has(`${d.targetId}->${d.sourceId}`);
-            const offset = isDirected && hasReverse ? 8 : 0;
-            const ox = (-dy / len) * offset;
-            const oy = (dx / len) * offset;
-            cx = (src.x + tgt.x) / 2 + ox;
-            cy = (src.y + tgt.y) / 2 + oy;
+            const ux = dx / len;
+            const uy = dy / len;
+            // 標籤跟著邊的偏移方向再多推 12px，讓權重顯示在各自那條線旁
+            const labelOff = linkSet.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET + 12 : 0;
+            cx = (src.x + tgt.x) / 2 + (-uy) * labelOff;
+            cy = (src.y + tgt.y) / 2 + ux * labelOff;
           }
           d3Select(this).attr("transform", `translate(${cx},${cy})`);
           const textEl = d3Select(this).select<SVGTextElement>("text.gc-weight-text");
@@ -475,14 +478,15 @@ export function GraphCanvas({
     const linkForce = simulation.force("link") as ReturnType<typeof forceLink<GSimNode, GSimLink>>;
     if (!linkForce) return;
 
-    const simLinks: GSimLink[] = links.map((l) => ({
-      source: l.sourceId,
-      target: l.targetId,
-      sourceId: l.sourceId,
-      targetId: l.targetId,
-      status: l.status,
-      weight: l.weight,
-    }));
+    const seenPairs2 = new Set<string>();
+    const simLinks: GSimLink[] = links.reduce<GSimLink[]>((acc, l) => {
+      const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+      if (!seenPairs2.has(key)) {
+        seenPairs2.add(key);
+        acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
+      }
+      return acc;
+    }, []);
 
     // 只在邊結構真的改變時才重啟 simulation
     const newLinkKey = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
