@@ -16,7 +16,7 @@ import { PracticeService } from "@/services/PracticeService";
 import Dialog from "@/shared/components/Dialog";
 import Button from "@/shared/components/Button";
 import StarRating from "@/shared/components/StarRating";
-import WrongAnswerList from "./WrongAnswerList";
+import AnswerList from "./AnswerList";
 import styles from "./ResultModal.module.scss";
 import ProgressBar from "@/shared/components/ProgressBar";
 
@@ -137,12 +137,10 @@ const ResultModal: React.FC<ResultModalProps> = ({
           </div>
         </div>
 
-        {result.wrongQuestions.length > 0 && (
-          <WrongAnswerList
-            wrongQuestions={result.wrongQuestions}
-            questions={questions}
-          />
-        )}
+        <AnswerList
+          answerResults={result.answerResults}
+          questions={questions}
+        />
 
         <div className={styles.actions}>
           <Button

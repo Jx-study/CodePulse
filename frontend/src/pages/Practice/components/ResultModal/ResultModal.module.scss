@@ -261,19 +261,19 @@
   margin-top: $spacing-xs;
 }
 
-.wrongAnswerSection {
+.answerSection {
   border-top: 1px solid var(--border);
   padding-top: $spacing-lg;
 }
 
-.wrongAnswerTitle {
+.answerTitle {
   font-size: $font-lg;
   font-weight: 600;
-  color: $error-color;
+  color: var(--text-primary);
   margin: 0 0 $spacing-md 0;
 }
 
-.wrongAnswerList {
+.answerList {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
@@ -298,18 +298,17 @@
   }
 }
 
-.wrongAnswerItem {
+.answerItem {
   border: 1px solid var(--border);
   border-radius: $radius-md;
   overflow: hidden;
   transition: border-color 0.2s;
 
-  &:hover {
-    border-color: $error-color;
-  }
+  &.correct { border-color: $success-color; }
+  &.wrong   { border-color: $error-color; }
 }
 
-.wrongAnswerHeader {
+.answerHeader {
   width: 100%;
   display: flex;
   align-items: center;
@@ -335,12 +334,24 @@
   &:hover {
     background: rgba($error-color, 0.1);
   }
+
+  &.correct {
+    background: rgba($success-color, 0.05);
+    &:hover { background: rgba($success-color, 0.1); }
+  }
+  &.wrong {
+    background: rgba($error-color, 0.05);
+    &:hover { background: rgba($error-color, 0.1); }
+  }
 }
 
 .questionNumber {
   font-weight: 600;
   color: $error-color;
   white-space: nowrap;
+
+  &.correct { color: $success-color; }
+  &.wrong   { color: $error-color; }
 }
 
 .questionPreview {
@@ -359,7 +370,7 @@
   transition: transform 0.2s;
 }
 
-.wrongAnswerDetail {
+.answerDetail {
   padding: $spacing-md;
   background: var(--card-bg);
   border-top: 1px solid var(--border);
@@ -391,7 +402,7 @@
   margin-bottom: $spacing-md;
 }
 
-.userAnswer,
+.userAnswerRow,
 .correctAnswer {
   display: flex;
   align-items: flex-start;
@@ -400,12 +411,15 @@
   border-radius: $radius-sm;
 }
 
-.userAnswer {
+.userAnswerRow {
   background: rgba($error-color, 0.1);
 
   .answerValue {
     color: $error-color;
   }
+
+  &.correct { background: rgba($success-color, 0.1); .answerValue { color: $success-color; } }
+  &.wrong   { background: rgba($error-color, 0.1);   .answerValue { color: $error-color; }   }
 }
 
 .correctAnswer {
@@ -464,6 +478,18 @@
   min-width: 150px;
 }
 
+.pointsBadge {
+  display: inline-block;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $primary-color;
+  background: rgba($primary-color, 0.1);
+  border: 1px solid rgba($primary-color, 0.3);
+  border-radius: $radius-sm;
+  padding: 2px 8px;
+  margin-top: $spacing-sm;
+}
+
 // .reviewCodeBlock 已刪除：高度改由 CodeEditor autoHeight prop 控制，圓角/邊框由外層容器或 .codeEditor 自帶
 .contextSection {
   margin-bottom: $spacing-md;
@@ -497,7 +523,7 @@
     width: 100%;
   }
 
-  .wrongAnswerHeader > span {
+  .answerHeader > span {
     flex-wrap: wrap;
   }
 

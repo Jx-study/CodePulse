@@ -235,7 +235,6 @@ function Practice() {
         stars,
         timeSpent: Math.round((Date.now() - startTime) / 1000),
         isPassed: resp.score >= 60,
-        wrongQuestions: [],
         answerResults,
         oldRating: currentUserRating,
         newRating: resp.new_rating,

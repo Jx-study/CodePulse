@@ -79,19 +79,10 @@ export interface PracticeResult {
   stars: 0 | 1 | 2 | 3;
   timeSpent: number;
   isPassed: boolean;
-  wrongQuestions: WrongQuestion[];
   answerResults: AnswerResult[];
   oldRating: number; // 測驗前分數
   newRating: number; // 測驗後分數
   ratingDelta: number; // 分數變化 (+15, -20)
-}
-
-export interface WrongQuestion {
-  questionId: string;
-  userAnswer: string | string[];
-  correctAnswer: string | string[] | (string | string[])[];
-  explanation: string;
-  timeSpent: number;
 }
 
 export interface AnswerResult {

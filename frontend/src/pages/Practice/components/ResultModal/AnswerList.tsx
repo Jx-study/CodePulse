@@ -1,27 +1,29 @@
 /**
- * WrongAnswerList - 錯題列表組件
+ * AnswerList - 答題回顧列表組件
  *
- * 顯示用戶答錯的題目，包括：
+ * 顯示所有題目的答題結果，包括：
  * - 題目內容
  * - 用戶答案
  * - 正確答案
  * - 答案解析
+ * - 得分
  */
 
 import React, { useState } from "react";
-import type { WrongQuestion, Question } from "@/types/practice";
+import type { AnswerResult, Question } from "@/types/practice";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
 import Button from "@/shared/components/Button";
+import Icon from "@/shared/components/Icon";
 import { getOptionLabel } from "@/utils/random";
 import styles from "./ResultModal.module.scss";
 
-interface WrongAnswerListProps {
-  wrongQuestions: WrongQuestion[];
+interface AnswerListProps {
+  answerResults: AnswerResult[];
   questions: Question[];
 }
 
-const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
-  wrongQuestions,
+const AnswerList: React.FC<AnswerListProps> = ({
+  answerResults,
   questions,
 }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -84,30 +86,34 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
   };
 
   return (
-    <div className={styles.wrongAnswerSection}>
-      <h4 className={styles.wrongAnswerTitle}>
-        錯題回顧 ({wrongQuestions.length} 題)
+    <div className={styles.answerSection}>
+      <h4 className={styles.answerTitle}>
+        答題回顧 ({answerResults.length} 題)
       </h4>
 
-      <div className={styles.wrongAnswerList}>
-        {wrongQuestions.map((wrongQ, index) => {
-          const question = getQuestionById(wrongQ.questionId);
+      <div className={styles.answerList}>
+        {answerResults.map((ar, index) => {
+          const question = getQuestionById(ar.questionId);
           if (!question) return null;
 
           const isExpanded = expandedIndex === index;
+          const correctClass = ar.isCorrect ? styles.correct : styles.wrong;
 
           return (
-            <div key={wrongQ.questionId} className={styles.wrongAnswerItem}>
+            <div
+              key={ar.questionId}
+              className={`${styles.answerItem} ${correctClass}`}
+            >
               <Button
                 type="button"
                 variant="ghost"
-                className={styles.wrongAnswerHeader}
+                className={`${styles.answerHeader} ${correctClass}`}
                 onClick={() => toggleExpand(index)}
                 aria-expanded={isExpanded}
               >
-                <span className={styles.questionNumber}>
+                <span className={`${styles.questionNumber} ${correctClass}`}>
                   第 {index + 1} 題
-                  {renderTimeAnalysis(wrongQ.timeSpent)}
+                  {renderTimeAnalysis(ar.timeSpent)}
                 </span>
                 <span className={styles.questionPreview}>
                   {question.title.length > 50
@@ -115,12 +121,16 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                     : question.title}
                 </span>
                 <span className={styles.expandIcon}>
-                  {isExpanded ? "−" : "+"}
+                  {isExpanded ? (
+                    <Icon name="chevron-up" />
+                  ) : (
+                    <Icon name="chevron-down" />
+                  )}
                 </span>
               </Button>
 
               {isExpanded && (
-                <div className={styles.wrongAnswerDetail}>
+                <div className={styles.answerDetail}>
                   <p className={styles.fullQuestion}>{question.title}</p>
 
                   {/* 1. 如果有程式碼，顯示 CodeEditor */}
@@ -140,16 +150,14 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                       <div className={styles.reviewOptionList}>
                         {question.options.map((opt, i) => {
                           // 判斷是否為正確答案
-                          const isCorrect = Array.isArray(wrongQ.correctAnswer)
-                            ? wrongQ.correctAnswer.includes(opt.id)
-                            : wrongQ.correctAnswer === opt.id;
+                          const isCorrect = Array.isArray(ar.correctAnswer)
+                            ? ar.correctAnswer.includes(opt.id)
+                            : ar.correctAnswer === opt.id;
 
                           // 判斷用戶是否選擇了這個 (包含選錯的)
-                          const isUserSelected = Array.isArray(
-                            wrongQ.userAnswer,
-                          )
-                            ? wrongQ.userAnswer.includes(opt.id)
-                            : wrongQ.userAnswer === opt.id;
+                          const isUserSelected = Array.isArray(ar.userAnswer)
+                            ? ar.userAnswer.includes(opt.id)
+                            : ar.userAnswer === opt.id;
 
                           let optionClass = styles.reviewOptionItem;
                           if (isCorrect) optionClass += ` ${styles.optCorrect}`;
@@ -163,10 +171,14 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                               </span>
                               <span className={styles.optText}>{opt.text}</span>
                               {isCorrect && (
-                                <span className={styles.iconCheck}>✅</span>
+                                <span className={styles.iconCheck}>
+                                  <Icon name="check" color="success" />
+                                </span>
                               )}
                               {isUserSelected && !isCorrect && (
-                                <span className={styles.iconCross}>❌</span>
+                                <span className={styles.iconCross}>
+                                  <Icon name="times" color="danger" />
+                                </span>
                               )}
                             </div>
                           );
@@ -176,18 +188,18 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                   </div>
 
                   <div className={styles.answerComparison}>
-                    <div className={styles.userAnswer}>
+                    <div className={`${styles.userAnswerRow} ${ar.isCorrect ? styles.correct : styles.wrong}`}>
                       <span className={styles.answerLabel}>你的答案：</span>
                       <span className={styles.answerValue}>
-                        {wrongQ.userAnswer
-                          ? formatAnswer(question, wrongQ.userAnswer)
+                        {ar.userAnswer
+                          ? formatAnswer(question, ar.userAnswer)
                           : "未作答"}
                       </span>
                     </div>
                     <div className={styles.correctAnswer}>
                       <span className={styles.answerLabel}>正確答案：</span>
                       <span className={styles.answerValue}>
-                        {formatAnswer(question, wrongQ.correctAnswer)}
+                        {formatAnswer(question, ar.correctAnswer)}
                       </span>
                     </div>
                   </div>
@@ -195,9 +207,11 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
                   <div className={styles.explanation}>
                     <span className={styles.explanationLabel}>解析：</span>
                     <p className={styles.explanationText}>
-                      {wrongQ.explanation}
+                      {ar.explanation}
                     </p>
                   </div>
+
+                  <div className={styles.pointsBadge}>{ar.points} 分</div>
                 </div>
               )}
             </div>
@@ -208,4 +222,4 @@ const WrongAnswerList: React.FC<WrongAnswerListProps> = ({
   );
 };
 
-export default React.memo(WrongAnswerList);
+export default React.memo(AnswerList);
