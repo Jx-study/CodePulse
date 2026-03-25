@@ -121,10 +121,30 @@ function topoActionHandler(
   }
 
   if (actionType === "reset") {
+    const newData = cloneData(context.defaultData as GraphData);
+
+    const isGraphData = (d: any): d is GraphData =>
+      d && !Array.isArray(d) && Array.isArray(d.nodes);
+
+    if (isGraphData(data)) {
+      const coordMap = new Map(
+        data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+      );
+      newData.nodes.forEach((n: any) => {
+        const saved = coordMap.get(n.id);
+        if (saved?.x != null && saved?.y != null) {
+          n.x = saved.x;
+          n.y = saved.y;
+        }
+      });
+    }
+
     return {
-      animationData: cloneData(context.defaultData as GraphData),
+      animationData: newData,
+      useRawAnimationParams: true,
+      animationParams: { isDirected: true, ...payload },
+      needsSyncCoordinates: true,
       isResetAction: true,
-      animationParams: { isDirected: true },
     };
   }
 
@@ -172,8 +192,7 @@ export function createTopologicalSortAnimationSteps(
 
       const pos = layoutMap.get(n.id) || { x: n.x ?? 500, y: n.y ?? 200 };
 
-      // 稍微將圖形往左平移，避免跟右邊的 Queue 重疊
-      node.moveTo(pos.x - 80, pos.y);
+      node.moveTo(pos.x, pos.y);
       node.setStatus(nodeStatus[n.id] || TopoStatus.Inactive);
       elements.push(node);
     });
