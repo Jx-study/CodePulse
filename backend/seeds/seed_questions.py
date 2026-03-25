@@ -82,6 +82,12 @@ def _serialize_answer(answer) -> str:
         return json.dumps(answer, ensure_ascii=False)
     return answer
 
+def derive_category(base_rating: float) -> str:
+    if base_rating < 1000:
+        return CATEGORY_MAP['basic']
+    elif base_rating < 1400:
+        return CATEGORY_MAP['application']
+    return CATEGORY_MAP['complexity']
 
 def seed_tutorial(quiz_data: dict):
     slug = quiz_data["slug"]
@@ -137,7 +143,7 @@ def seed_tutorial(quiz_data: dict):
             tutorial_id=tutorial_id,
             group_id=group_id,
             question_type=TYPE_MAP[q_data["type"]],
-            category=CATEGORY_MAP[q_data["category"]],
+            category=derive_category(base),
             base_rating=base,
             difficulty_rating=calc_difficulty_rating(base, tutorial.difficulty),
             correct_answer=_serialize_answer(q_data["correctAnswer"]),

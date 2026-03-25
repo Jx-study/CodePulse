@@ -18,8 +18,8 @@ def derive_points(difficulty_rating: float) -> int:
     if difficulty_rating < 1200:
         return 1
     elif difficulty_rating < 1600:
-        return 3
-    return 5
+        return 2
+    return 3
 
 
 def _elo_expected(user_rating: float, question_rating: float) -> float:
@@ -51,7 +51,7 @@ CATEGORY_QUOTA = {
     2: {'basic': 5, 'application': 3, 'complexity': 2},
     3: {'basic': 3, 'application': 4, 'complexity': 3},
     4: {'basic': 2, 'application': 4, 'complexity': 4},
-    5: {'basic': 1, 'application': 3, 'complexity': 6},
+    5: {'basic': 1, 'application': 4, 'complexity': 5},
 }
 
 
