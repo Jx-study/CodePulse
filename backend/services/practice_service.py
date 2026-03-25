@@ -324,13 +324,20 @@ def submit_answers(
 
     utp.attempt_count = (utp.attempt_count or 0) + 1
     utp.last_accessed_at = now
-    if utp.best_score is None or score > utp.best_score:
+    is_better_score = utp.best_score is None or score > utp.best_score
+    is_same_score_faster = (
+        utp.best_score is not None
+        and score == utp.best_score
+        and total_time
+        and (utp.best_time_seconds is None or total_time < utp.best_time_seconds)
+    )
+    if is_better_score or is_same_score_faster:
         utp.best_score = score
         utp.best_attempt_id = attempt.attempt_id
         utp.best_correct_count = correct_count
         utp.total_questions = len(answer_records)
-    if total_time and (utp.best_time_seconds is None or total_time < utp.best_time_seconds):
-        utp.best_time_seconds = total_time
+        if total_time:
+            utp.best_time_seconds = total_time
 
     xp_earned = 0
     passed = score >= _PASS_THRESHOLD
