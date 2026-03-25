@@ -1,4 +1,4 @@
-from database import db
+from database import db, BigIntPK
 from datetime import datetime, timezone, date
 import enum
 
@@ -141,7 +141,7 @@ class EmailVerification(db.Model):
 class UserLoginStreak(db.Model):
     __tablename__ = 'user_login_streaks'
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     login_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

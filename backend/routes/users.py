@@ -2,12 +2,15 @@ import time
 import cloudinary
 import cloudinary.uploader
 import cloudinary.utils
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date, timedelta
+from zoneinfo import ZoneInfo
 from flask import Blueprint, jsonify, current_app, g, request
+from sqlalchemy.exc import IntegrityError
 
 from auth_utils import login_required, hash_password, verify_password
 from database import db
-from models.user import User, UserIdentity, UserToken, ProviderType, Language, Theme
+from models.user import User, UserIdentity, UserToken, ProviderType, Language, Theme, UserLoginStreak
+from models.xp import XpEvent, XpSourceType
 
 users_bp = Blueprint('users', __name__)
 
@@ -211,3 +214,74 @@ def get_my_progress():
         })
 
     return jsonify({'success': True, 'progress': progress}), 200
+
+
+DAILY_CHECKIN_XP = 5
+
+
+@users_bp.route('/me/checkin', methods=['POST'])
+@login_required
+def checkin():
+    user = db.session.get(User, g.current_user_id)
+    if not user or user.deleted_at is not None:
+        return jsonify({'success': False, 'message': '用戶不存在'}), 404
+
+    try:
+        tz = ZoneInfo(user.timezone or 'UTC')
+    except Exception:
+        tz = ZoneInfo('UTC')
+
+    today = datetime.now(timezone.utc).astimezone(tz).date()
+
+    try:
+        with db.session.begin_nested():
+            streak_row = UserLoginStreak(user_id=user.user_id, login_date=today)
+            db.session.add(streak_row)
+    except IntegrityError:
+        # 今日已打卡
+        return jsonify({
+            'success': True,
+            'already_checked_in': True,
+            'xp_earned': 0,
+            'current_streak': user.current_streak,
+            'longest_streak': user.longest_streak,
+            'total_xp': user.total_xp,
+        }), 200
+
+    # 計算新 streak
+    yesterday = today - timedelta(days=1)
+    had_yesterday = UserLoginStreak.query.filter_by(
+        user_id=user.user_id, login_date=yesterday
+    ).first() is not None
+
+    new_streak = (user.current_streak + 1) if had_yesterday else 1
+    user.current_streak = new_streak
+    if new_streak > user.longest_streak:
+        user.longest_streak = new_streak
+    user.last_login_date = today
+
+    xp_event = XpEvent(
+        user_id=user.user_id,
+        source_type=XpSourceType.login_streak,
+        source_id=None,
+        xp_amount=DAILY_CHECKIN_XP,
+        description='每日打卡',
+    )
+    db.session.add(xp_event)
+    user.total_xp += DAILY_CHECKIN_XP
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'checkin failed: {e}')
+        return jsonify({'success': False, 'message': '伺服器錯誤'}), 500
+
+    return jsonify({
+        'success': True,
+        'already_checked_in': False,
+        'xp_earned': DAILY_CHECKIN_XP,
+        'current_streak': user.current_streak,
+        'longest_streak': user.longest_streak,
+        'total_xp': user.total_xp,
+    }), 200
