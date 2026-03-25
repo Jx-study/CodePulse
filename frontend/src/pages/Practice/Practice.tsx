@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   PracticeResult,
@@ -11,6 +11,7 @@ import type { ApiQuestion } from "@/services/tutorialService";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
+import XpFloat from "@/shared/components/XpFloat";
 import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
@@ -74,6 +75,8 @@ function Practice() {
   >({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<PracticeResult | null>(null);
+  const [showXp, setShowXp] = useState(false);
+  const handleXpDone = useCallback(() => setShowXp(false), []);
   const [startTime, setStartTime] = useState(Date.now());
 
   // 記錄每一題的累積時間
@@ -239,10 +242,15 @@ function Practice() {
         oldRating: currentUserRating,
         newRating: resp.new_rating,
         ratingDelta: resp.rating_delta,
+        xpEarned: resp.xp_earned ?? 0,
       };
 
       setResult(calculatedResult);
       setShowResult(true);
+      if ((resp.xp_earned ?? 0) > 0) {
+        setShowXp(true);
+        setTimeout(() => setShowXp(false), 600);
+      }
     } catch (err) {
       console.error('[Practice] Submit failed:', err);
       toast.error('提交失敗，請檢查網路後再試');
@@ -584,13 +592,16 @@ function Practice() {
       </div>
 
       {showResult && result && (
-        <ResultModal
-          isOpen={showResult}
-          result={result}
-          questions={randomizedQuestions}
-          onRetry={handleRetry}
-          onBackToDashboard={handleBackToDashboard}
-        />
+        <div style={{ position: 'relative' }}>
+          <XpFloat amount={result.xpEarned} trigger={showXp} onDone={handleXpDone} />
+          <ResultModal
+            isOpen={showResult}
+            result={result}
+            questions={randomizedQuestions}
+            onRetry={handleRetry}
+            onBackToDashboard={handleBackToDashboard}
+          />
+        </div>
       )}
     </div>
   );

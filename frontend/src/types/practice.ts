@@ -83,6 +83,7 @@ export interface PracticeResult {
   oldRating: number; // 測驗前分數
   newRating: number; // 測驗後分數
   ratingDelta: number; // 分數變化 (+15, -20)
+  xpEarned: number;
 }
 
 export interface AnswerResult {
