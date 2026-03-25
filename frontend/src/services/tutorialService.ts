@@ -5,7 +5,6 @@ export interface ApiTutorialProgress {
   best_time_seconds: number | null;
   attempt_count: number;
   practice_passed: boolean;
-  status: 'not_started' | 'teaching_in_progress' | 'teaching_done' | 'practice_in_progress' | 'completed';
   last_accessed_at: string | null;
 }
 

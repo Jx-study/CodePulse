@@ -67,7 +67,7 @@ function LevelDialog({
       <TutorialSection
         level={level}
         onStartTutorial={onStartTutorial}
-        isCompleted={userProgress.status === "completed"}
+        isCompleted={userProgress.teachingCompleted === true}
         isLocked={tutorialLocked}
         suggestedLevelNames={suggestedLevelNames}
       />

@@ -207,7 +207,6 @@ def get_my_progress():
             'best_time_seconds': utp.best_time_seconds,
             'attempt_count': utp.attempt_count,
             'practice_passed': utp.practice_passed,
-            'status': utp.status.value,
             'last_accessed_at': utp.last_accessed_at.isoformat() if utp.last_accessed_at else None,
         })
 

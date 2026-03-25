@@ -229,9 +229,11 @@ export function mergeApiProgress(
     }
 
     // 計算前端 status
+    // 教學完成 or 練習通過 → completed；有任何進度 → in-progress
     let status: LevelStatus = updated.levels[slug].status;
-    if (p.status === 'completed') status = 'completed';
-    else if (['teaching_in_progress', 'teaching_done', 'practice_in_progress'].includes(p.status)) {
+    if (p.teaching_completed || p.practice_passed) {
+      status = 'completed';
+    } else if (p.attempt_count > 0) {
       status = 'in-progress';
     }
 
@@ -241,10 +243,11 @@ export function mergeApiProgress(
       stars,
       attempts: p.attempt_count,
       bestTime: p.best_time_seconds ?? 0,
+      teachingCompleted: p.teaching_completed,
     };
 
     // 更新統計
-    if (p.status === 'completed') {
+    if (status === 'completed') {
       updated.totalLevelsCompleted = Object.values(updated.levels).filter(
         (l) => l.status === 'completed'
       ).length;

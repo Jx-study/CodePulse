@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from database import db
 from models.question import Question, QuestionTranslation, QuestionGroup, QuestionGroupTranslation
 from models.practice import PracticeAttempt, AttemptAnswer
-from models.tutorial import Tutorial, UserTutorialProgress, TutorialStatus
+from models.tutorial import Tutorial, UserTutorialProgress
 from models.xp import XpEvent, XpSourceType
 from models.user import User
 
@@ -291,7 +291,6 @@ def submit_answers(
     if passed and not utp.practice_passed:
         utp.practice_passed = True
         utp.practice_passed_at = now
-        utp.status = TutorialStatus.completed
 
         existing_pass = XpEvent.query.filter_by(
             user_id=user_id,

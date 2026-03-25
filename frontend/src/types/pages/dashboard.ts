@@ -82,6 +82,7 @@ export interface LevelProgress {
   attempts: number;
   bestTime: number;
   completedAt?: string;
+  teachingCompleted?: boolean; // 教學模式是否已完成（停留 >= 30 秒）
 }
 
 export interface UserProgress {

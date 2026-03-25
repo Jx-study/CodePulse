@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from auth_utils import login_required
 from database import db
-from models.tutorial import Tutorial, UserTutorialProgress, TutorialStatus
+from models.tutorial import Tutorial, UserTutorialProgress
 from models.practice import LearningSession, SessionMode
 from models.xp import XpEvent, XpSourceType
 from models.user import User
@@ -154,8 +154,6 @@ def teaching_complete(slug):
         utp.teaching_completed = True
         utp.teaching_completed_at = now
         utp.last_accessed_at = now
-        if utp.status in (TutorialStatus.teaching_in_progress, None):
-            utp.status = TutorialStatus.teaching_done
 
         existing = XpEvent.query.filter_by(
             user_id=user_id,

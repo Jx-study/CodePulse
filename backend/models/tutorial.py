@@ -3,12 +3,6 @@ from datetime import datetime, timezone
 import enum
 
 
-class TutorialStatus(enum.Enum):
-    teaching_in_progress = 'teaching_in_progress'
-    teaching_done = 'teaching_done'
-    practicing = 'practicing'
-    completed = 'completed'
-
 
 class AlgorithmCategory(db.Model):
     __tablename__ = 'algorithm_categories'
@@ -71,7 +65,6 @@ class UserTutorialProgress(db.Model):
     practice_passed = db.Column(db.Boolean, default=False)
     practice_passed_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
-    status = db.Column(db.Enum(TutorialStatus), default=TutorialStatus.teaching_in_progress)
     last_accessed_at = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
@@ -79,8 +72,7 @@ class UserTutorialProgress(db.Model):
     __table_args__ = (
         db.UniqueConstraint('user_id', 'tutorial_id', name='uq_user_tutorial_progress'),
         db.Index('ix_utp_user_id', 'user_id'),
-        db.Index('ix_utp_status', 'status'),
-        db.Index('ix_utp_last_accessed', 'last_accessed_at'),
+db.Index('ix_utp_last_accessed', 'last_accessed_at'),
     )
 
     def __repr__(self):
