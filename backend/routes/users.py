@@ -2,6 +2,7 @@ import time
 import cloudinary
 import cloudinary.uploader
 import cloudinary.utils
+from calendar import monthrange
 from datetime import datetime, timezone, date, timedelta
 from zoneinfo import ZoneInfo
 from flask import Blueprint, jsonify, current_app, g, request
@@ -285,3 +286,32 @@ def checkin():
         'longest_streak': user.longest_streak,
         'total_xp': user.total_xp,
     }), 200
+
+
+@users_bp.route('/me/checkin-history', methods=['GET'])
+@login_required
+def checkin_history():
+    try:
+        year = int(request.args['year'])
+        month = int(request.args['month'])
+    except (KeyError, ValueError):
+        return jsonify({'success': False, 'error_code': 'INVALID_PARAMS', 'message': '需要 year 和 month 參數'}), 400
+
+    if not (1 <= month <= 12):
+        return jsonify({'success': False, 'error_code': 'INVALID_PARAMS', 'message': 'month 需在 1-12 之間'}), 400
+
+    try:
+        _, last_day = monthrange(year, month)
+        month_start = date(year, month, 1)
+        month_end = date(year, month, last_day)
+    except ValueError:
+        return jsonify({'success': False, 'error_code': 'INVALID_PARAMS', 'message': '無效的年份或月份'}), 400
+
+    rows = UserLoginStreak.query.filter(
+        UserLoginStreak.user_id == g.current_user_id,
+        UserLoginStreak.login_date >= month_start,
+        UserLoginStreak.login_date <= month_end,
+    ).order_by(UserLoginStreak.login_date).all()
+
+    dates = [row.login_date.isoformat() for row in rows]
+    return jsonify({'success': True, 'dates': dates}), 200

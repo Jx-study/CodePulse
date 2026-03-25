@@ -89,3 +89,36 @@ def test_gap_resets_streak(client, app):
 def test_checkin_requires_auth(client, app):
     resp = client.post('/api/users/me/checkin')
     assert resp.status_code == 401
+
+
+def test_checkin_history_returns_dates(client, app):
+    uid = _make_authed_user(client, app)
+    with app.app_context():
+        db.session.add(UserLoginStreak(user_id=uid, login_date=date(2026, 3, 1)))
+        db.session.add(UserLoginStreak(user_id=uid, login_date=date(2026, 3, 5)))
+        db.session.commit()
+    resp = client.get('/api/users/me/checkin-history?year=2026&month=3')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert '2026-03-01' in data['dates']
+    assert '2026-03-05' in data['dates']
+    assert data['dates'] == sorted(data['dates'])
+
+
+def test_checkin_history_missing_params(client, app):
+    _make_authed_user(client, app)
+    resp = client.get('/api/users/me/checkin-history?year=2026')
+    assert resp.status_code == 400
+    assert resp.get_json()['error_code'] == 'INVALID_PARAMS'
+
+
+def test_checkin_history_invalid_month(client, app):
+    _make_authed_user(client, app)
+    resp = client.get('/api/users/me/checkin-history?year=2026&month=13')
+    assert resp.status_code == 400
+    assert resp.get_json()['error_code'] == 'INVALID_PARAMS'
+
+
+def test_checkin_history_requires_auth(client, app):
+    resp = client.get('/api/users/me/checkin-history?year=2026&month=3')
+    assert resp.status_code == 401
