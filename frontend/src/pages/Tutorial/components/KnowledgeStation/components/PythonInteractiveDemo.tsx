@@ -197,14 +197,20 @@ sys.stdout = io.StringIO()
         <div className={styles.demoArea}>
           {demo.inputs && demo.inputs.length > 0 && (
             <div className={styles.inputsPanel}>
-              {demo.inputs.map((inp) => (
-                <InputControl
-                  key={inp.variable}
-                  input={inp}
-                  value={inputValues[inp.variable]}
-                  onChange={handleInputChange}
-                />
-              ))}
+              {demo.inputs.map((inp) => {
+                if (inp.visibleWhen) {
+                  const { variable, value } = inp.visibleWhen;
+                  if (inputValues[variable] !== value) return null;
+                }
+                return (
+                  <InputControl
+                    key={inp.variable}
+                    input={inp}
+                    value={inputValues[inp.variable]}
+                    onChange={handleInputChange}
+                  />
+                );
+              })}
             </div>
           )}
 
@@ -299,15 +305,10 @@ const InputControl: React.FC<InputControlProps> = ({
         <label className={styles.inputLabel}>{input.label}</label>
         <Select
           value={value as string}
+          options={(input.options ?? []).map((opt) => ({ value: opt, label: opt }))}
           onChange={(e) => onChange(input.variable, e.target.value)}
-          className={styles.select}
-        >
-          {input.options?.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </Select>
+          size="sm"
+        />
       </div>
     );
   }

@@ -7,6 +7,7 @@ export interface PythonInput {
   max?: number;
   step?: number;
   options?: string[];
+  visibleWhen?: { variable: string; value: string | number };
 }
 
 export interface PythonDemo {
@@ -15,6 +16,7 @@ export interface PythonDemo {
   inputs?: PythonInput[];
   outputType?: 'text' | 'graph' | 'queue-card' | 'maze'; // 預設 'text'，向下兼容
 }
+
 
 export interface MazeCell {
   right: boolean;

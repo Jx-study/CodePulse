@@ -13,6 +13,7 @@ export type {
   QueueCardOutputData,
   MazeCell,
   MazeOutputData,
+  WhackAMoleOutputData,
 } from './pythonDemo';
 
 export type {

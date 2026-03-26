@@ -15,7 +15,7 @@ export interface StoryResource {
   source?: string;
 }
 
-export type InteractiveGameType = 'stack-popup-game' | 'knapsack-investment-game' | 'binary-search-game';
+export type InteractiveGameType = 'stack-popup-game' | 'knapsack-investment-game' | 'binary-search-game' | 'whack-a-mole';
 
 export interface InteractiveGame {
   type: InteractiveGameType;

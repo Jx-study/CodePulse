@@ -1,0 +1,185 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.configBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  width: 100%;
+}
+
+.configItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.configLabel {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.statsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.grid1d {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.grid2d {
+  display: grid;
+  gap: 10px;
+  justify-content: center;
+}
+
+.holeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.gridArea {
+  position: relative;
+  cursor: none;
+  user-select: none;
+  padding: 8px;
+}
+
+.hammerCursor {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-10px, -8px) rotate(0deg);
+  transform-origin: 44px 44px;
+}
+
+.hammerHitting {
+  animation: hammerStrike 0.15s ease-out forwards;
+}
+
+@keyframes hammerStrike {
+  0%   { transform: translate(-10px, -8px) rotate(0deg); }
+  30%  { transform: translate(-10px, -8px) rotate(-35deg); }
+  100% { transform: translate(-10px, -8px) rotate(0deg); }
+}
+
+.hole {
+  position: relative;
+  width: var(--cell-size, 80px);
+  height: var(--cell-size, 80px);
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #3d7a1a;
+  cursor: none;
+  transition: transform 0.1s;
+  flex-shrink: 0;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.indexLabelBelow {
+  font-size: 10px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.indexLabel2d {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+.valueLabel {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+.gameoverPanel {
+  text-align: center;
+  padding: 12px;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.7);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes bonkShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.popup img {
+  animation: popIn 0.15s ease-out;
+}
+
+.hit img {
+  animation: bonkShake 0.2s;
+}

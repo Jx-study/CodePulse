@@ -12,6 +12,7 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import { arrayRealWorldStories } from "./array.stories";
 
 const TAGS = {
   SEARCH_START: "SEARCH_START",
@@ -594,4 +595,5 @@ export const ArrayConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 20,
+  realWorldStories: arrayRealWorldStories,
 };
