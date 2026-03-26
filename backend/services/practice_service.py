@@ -11,6 +11,9 @@ from models.user import User
 
 _ELO_K = 32.0
 _PASS_THRESHOLD = 60
+_GROUP_TOLERANCE = 1        # 題組各 category 題數允許超出配額的寬容值
+_MAX_QUESTIONS = 10         # 每次練習題數硬上限
+_GROUP_INCLUDE_PROB = 0.5   # 抽到符合資格題組時，實際帶入的機率
 
 
 def derive_points(difficulty_rating: float) -> int:
@@ -118,36 +121,90 @@ def get_questions(tutorial_id: int, lang: str) -> list[dict]:
 
 
 def get_questions_for_user(tutorial_id: int, user, lang: str) -> list[dict]:
-    """依 user skill_tier 選 10 題（各 category 配額），隨機回傳。"""
+    """依 user skill_tier 選題，最多 1 個題組以連續區塊出現，總題數 ≤ _MAX_QUESTIONS。"""
     tier = user.skill_tier or 1
     quota = CATEGORY_QUOTA[tier]
 
     all_q = Question.query.filter_by(tutorial_id=tutorial_id, is_active=True).all()
 
-    buckets: dict[str, list] = {'basic': [], 'application': [], 'complexity': []}
+    # Step 0：分類題目
+    grouped: dict[int, list] = {}   # group_id → list[Question]
+    standalone: list = []
     for q in all_q:
+        if q.group_id is not None:
+            grouped.setdefault(q.group_id, []).append(q)
+        else:
+            standalone.append(q)
+
+    # Step 1：題組資格過濾
+    eligible_groups: list[tuple[float, int, list]] = []  # (avg_rating, group_id, questions)
+    for gid, qs in grouped.items():
+        cat_counts: dict[str, int] = {}
+        for q in qs:
+            cat = q.category.value
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        eligible = all(
+            cat_counts.get(cat, 0) <= quota.get(cat, 0) + _GROUP_TOLERANCE
+            for cat in cat_counts
+        )
+        if eligible:
+            avg_rating = sum(q.difficulty_rating for q in qs) / len(qs)
+            eligible_groups.append((avg_rating, gid, qs))
+
+    # Step 2：題組抽取（最接近 user skill_rating，50% 機率）
+    selected_group_qs: list = []
+    if eligible_groups:
+        eligible_groups.sort(key=lambda x: abs(user.skill_rating - x[0]))
+        if random.random() < _GROUP_INCLUDE_PROB:
+            _, _, selected_group_qs = eligible_groups[0]
+            selected_group_qs = sorted(selected_group_qs, key=lambda q: q.display_order)
+
+    # Step 3：扣除題組配額
+    remaining_quota = dict(quota)
+    for q in selected_group_qs:
+        cat = q.category.value
+        remaining_quota[cat] = max(0, remaining_quota.get(cat, 0) - 1)
+
+    # Step 4：獨立題填滿
+    buckets: dict[str, list] = {'basic': [], 'application': [], 'complexity': []}
+    for q in standalone:
         buckets[q.category.value].append(q)
 
-    selected = []
-    selected_ids: set[int] = set()
+    standalone_selected: list = []
+    standalone_ids: set[int] = set()
     leftover = 0
 
-    for cat, q_quota in quota.items():
+    for cat, q_quota in remaining_quota.items():
         bucket = sorted(buckets[cat], key=lambda q: abs(user.skill_rating - q.difficulty_rating))
         picked = bucket[:q_quota]
         leftover += q_quota - len(picked)
-        selected.extend(picked)
-        selected_ids.update(q.question_id for q in picked)
+        standalone_selected.extend(picked)
+        standalone_ids.update(q.question_id for q in picked)
 
     if leftover > 0:
         remaining = sorted(
-            [q for q in all_q if q.question_id not in selected_ids],
+            [q for q in standalone if q.question_id not in standalone_ids],
             key=lambda q: abs(user.skill_rating - q.difficulty_rating),
         )
-        selected.extend(remaining[:leftover])
+        standalone_selected.extend(remaining[:leftover])
 
-    random.shuffle(selected)
-    return _serialize_questions(selected, lang)
+    # 獨立題上限：不超過 _MAX_QUESTIONS - 題組題數
+    max_standalone = _MAX_QUESTIONS - len(selected_group_qs)
+    standalone_selected = standalone_selected[:max_standalone]
+
+    # Step 5：Block insert — 題組作為連續區塊插入打散的獨立題中
+    random.shuffle(standalone_selected)
+    if selected_group_qs:
+        insert_pos = random.randint(0, len(standalone_selected))
+        final = (
+            standalone_selected[:insert_pos]
+            + selected_group_qs
+            + standalone_selected[insert_pos:]
+        )
+    else:
+        final = standalone_selected
+
+    return _serialize_questions(final, lang)
 
 
 def _normalize(s: str) -> str:

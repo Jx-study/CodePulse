@@ -238,7 +238,8 @@ def test_get_questions_excludes_answer(client, auth_headers, app):
 
 
 def test_get_questions_with_group(client, auth_headers, app):
-    from models.question import QuestionGroup, QuestionGroupTranslation
+    from models.question import QuestionGroup, QuestionGroupTranslation, Question, QuestionType, QuestionCategory
+    import unittest.mock as mock
     with app.app_context():
         t = _make_tutorial(_db.session)
         grp = QuestionGroup(tutorial_id=t.tutorial_id, code='x = 1', language='python')
@@ -249,13 +250,43 @@ def test_get_questions_with_group(client, auth_headers, app):
             title='Group 1', description='A group',
         )
         _db.session.add(grp_t)
+        # 題組題（1 題 basic）
         _make_question(_db.session, t.tutorial_id, group_id=grp.group_id)
+        # 補足獨立題讓選題邏輯有足夠題目（tier1: basic×6, application×3, complexity×1）
+        for i in range(5):
+            _db.session.add(Question(
+                question_id=100 + i, tutorial_id=t.tutorial_id,
+                question_type=QuestionType.single_choice,
+                category=QuestionCategory.basic,
+                correct_answer='A', base_rating=1200.0, difficulty_rating=1200.0,
+                display_order=10 + i, is_active=True,
+            ))
+        for i in range(3):
+            _db.session.add(Question(
+                question_id=200 + i, tutorial_id=t.tutorial_id,
+                question_type=QuestionType.single_choice,
+                category=QuestionCategory.application,
+                correct_answer='A', base_rating=1200.0, difficulty_rating=1200.0,
+                display_order=20 + i, is_active=True,
+            ))
+        _db.session.add(Question(
+            question_id=300, tutorial_id=t.tutorial_id,
+            question_type=QuestionType.single_choice,
+            category=QuestionCategory.complexity,
+            correct_answer='A', base_rating=1200.0, difficulty_rating=1200.0,
+            display_order=30, is_active=True,
+        ))
         _db.session.commit()
 
-    resp = _authed(client, auth_headers, 'get',
-                   '/api/tutorials/bubble-sort/questions?lang=en')
-    q = resp.get_json()['questions'][0]
-    assert q['group'] is not None
+    # mock random.random() → 0.0 確保題組一定被選入
+    with mock.patch('services.practice_service.random.random', return_value=0.0):
+        resp = _authed(client, auth_headers, 'get',
+                       '/api/tutorials/bubble-sort/questions?lang=en')
+
+    questions = resp.get_json()['questions']
+    grp_questions = [q for q in questions if q['group'] is not None]
+    assert len(grp_questions) >= 1
+    q = grp_questions[0]
     assert q['group']['title'] == 'Group 1'
     assert q['group']['code'] == 'x = 1'
 
