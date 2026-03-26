@@ -425,6 +425,305 @@ def test_check_answer_multiple_choice_json_serialized():
     assert _check_answer('["C","A"]', correct_in_db) is True
 
 
+# ---------------------------------------------------------------------------
+# get_questions_for_user — group-aware tests
+# ---------------------------------------------------------------------------
+
+def _make_group_fixtures(db_session, tutorial_id, cat_id):
+    """建立 tutorial 標準獨立題池：basic×6, application×3, complexity×1。"""
+    from models.question import Question, QuestionType, QuestionCategory
+    base_id = tutorial_id * 1000
+    questions = []
+    for i in range(6):
+        questions.append(Question(
+            question_id=base_id + i, tutorial_id=tutorial_id,
+            question_type=QuestionType.single_choice,
+            category=QuestionCategory.basic,
+            base_rating=1000.0, difficulty_rating=1000.0,
+            correct_answer='A', display_order=i, is_active=True,
+        ))
+    for i in range(3):
+        questions.append(Question(
+            question_id=base_id + 10 + i, tutorial_id=tutorial_id,
+            question_type=QuestionType.single_choice,
+            category=QuestionCategory.application,
+            base_rating=1200.0, difficulty_rating=1200.0,
+            correct_answer='A', display_order=6 + i, is_active=True,
+        ))
+    questions.append(Question(
+        question_id=base_id + 20, tutorial_id=tutorial_id,
+        question_type=QuestionType.single_choice,
+        category=QuestionCategory.complexity,
+        base_rating=1400.0, difficulty_rating=1400.0,
+        correct_answer='A', display_order=9, is_active=True,
+    ))
+    for q in questions:
+        db_session.add(q)
+    db_session.flush()
+    return questions
+
+
+def test_no_groups_returns_10_questions(app):
+    """無題組時，get_questions_for_user 行為與現有邏輯相同，回傳 10 題。"""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.user import User, UserRole
+    from services.practice_service import get_questions_for_user
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=50, slug='no-group-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=50, category_id=50, slug='no-group',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        user = User(
+            user_id=50, username='ng1', display_name='NG1',
+            email='ng1@test.com', role=UserRole.user,
+            skill_rating=1000.0, skill_tier=1,
+        )
+        db.session.add(user)
+        _make_group_fixtures(db.session, tutorial_id=50, cat_id=50)
+        db.session.commit()
+
+        result = get_questions_for_user(t.tutorial_id, user, 'en')
+        assert len(result) == 10
+
+
+def _make_group_with_questions(db_session, tutorial_id, group_id, categories_and_ratings):
+    """
+    建立一個 QuestionGroup 及其題目。
+    categories_and_ratings: list of (QuestionCategory, difficulty_rating)
+    回傳 (group, questions)
+    """
+    from models.question import Question, QuestionType, QuestionCategory, QuestionGroup
+
+    grp = QuestionGroup(
+        group_id=group_id,
+        tutorial_id=tutorial_id,
+        display_order=0,
+    )
+    db_session.add(grp)
+    db_session.flush()
+
+    questions = []
+    for idx, (cat, rating) in enumerate(categories_and_ratings):
+        q = Question(
+            question_id=group_id * 100 + idx,
+            tutorial_id=tutorial_id,
+            group_id=group_id,
+            question_type=QuestionType.single_choice,
+            category=cat,
+            base_rating=rating, difficulty_rating=rating,
+            correct_answer='A', display_order=idx, is_active=True,
+        )
+        db_session.add(q)
+        questions.append(q)
+    db_session.flush()
+    return grp, questions
+
+
+def test_group_included_total_not_exceed_10(app):
+    """題組 3 題帶入後，總題數不超過 10。"""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.question import QuestionCategory
+    from models.user import User, UserRole
+    from services.practice_service import get_questions_for_user
+    import unittest.mock as mock
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=51, slug='grp-cap-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=51, category_id=51, slug='grp-cap',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        user = User(
+            user_id=51, username='gc1', display_name='GC1',
+            email='gc1@test.com', role=UserRole.user,
+            skill_rating=1200.0, skill_tier=1,
+        )
+        db.session.add(user)
+        _make_group_fixtures(db.session, tutorial_id=51, cat_id=51)
+        _make_group_with_questions(
+            db.session, tutorial_id=51, group_id=51,
+            categories_and_ratings=[
+                (QuestionCategory.application, 1200.0),
+                (QuestionCategory.application, 1200.0),
+                (QuestionCategory.complexity, 1400.0),
+            ],
+        )
+        db.session.commit()
+
+        with mock.patch('services.practice_service.random.random', return_value=0.0):
+            result = get_questions_for_user(t.tutorial_id, user, 'en')
+
+        assert len(result) <= 10
+
+
+def test_group_questions_appear_contiguously(app):
+    """題組 3 題在最終結果中必須連續出現（不被獨立題穿插）。"""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.question import QuestionCategory, QuestionGroup
+    from models.user import User, UserRole
+    from services.practice_service import get_questions_for_user
+    import unittest.mock as mock
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=52, slug='grp-cont-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=52, category_id=52, slug='grp-cont',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        user = User(
+            user_id=52, username='gc2', display_name='GC2',
+            email='gc2@test.com', role=UserRole.user,
+            skill_rating=1200.0, skill_tier=1,
+        )
+        db.session.add(user)
+        _make_group_fixtures(db.session, tutorial_id=52, cat_id=52)
+        grp, grp_qs = _make_group_with_questions(
+            db.session, tutorial_id=52, group_id=52,
+            categories_and_ratings=[
+                (QuestionCategory.application, 1200.0),
+                (QuestionCategory.application, 1200.0),
+                (QuestionCategory.complexity, 1400.0),
+            ],
+        )
+        db.session.commit()
+
+        grp_q_ids = {q.question_id for q in grp_qs}
+
+        with mock.patch('services.practice_service.random.random', return_value=0.0):
+            result = get_questions_for_user(t.tutorial_id, user, 'en')
+
+        group_indices = [i for i, q in enumerate(result) if q['question_id'] in grp_q_ids]
+        assert len(group_indices) == 3
+        assert max(group_indices) - min(group_indices) == 2
+
+
+def test_group_not_included_when_probability_misses(app):
+    """random.random() > _GROUP_INCLUDE_PROB 時，不帶入題組，回傳純獨立題。"""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.question import QuestionCategory
+    from models.user import User, UserRole
+    from services.practice_service import get_questions_for_user
+    import unittest.mock as mock
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=53, slug='grp-miss-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=53, category_id=53, slug='grp-miss',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        user = User(
+            user_id=53, username='gm1', display_name='GM1',
+            email='gm1@test.com', role=UserRole.user,
+            skill_rating=1200.0, skill_tier=1,
+        )
+        db.session.add(user)
+        _make_group_fixtures(db.session, tutorial_id=53, cat_id=53)
+        grp, grp_qs = _make_group_with_questions(
+            db.session, tutorial_id=53, group_id=53,
+            categories_and_ratings=[
+                (QuestionCategory.application, 1200.0),
+                (QuestionCategory.application, 1200.0),
+                (QuestionCategory.complexity, 1400.0),
+            ],
+        )
+        db.session.commit()
+
+        grp_q_ids = {q.question_id for q in grp_qs}
+
+        with mock.patch('services.practice_service.random.random', return_value=0.9):
+            result = get_questions_for_user(t.tutorial_id, user, 'en')
+
+        result_ids = {q['question_id'] for q in result}
+        assert not grp_q_ids.intersection(result_ids), "題組題不應出現在結果中"
+        assert len(result) == 10
+
+
+def test_group_filtered_out_when_exceeds_tolerance(app):
+    """題組在某 category 超出配額 + tolerance，應被過濾，不出現在結果中。"""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.question import QuestionCategory
+    from models.user import User, UserRole
+    from services.practice_service import get_questions_for_user, CATEGORY_QUOTA, _GROUP_TOLERANCE
+    import unittest.mock as mock
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=54, slug='grp-filter-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=54, category_id=54, slug='grp-filter',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        user = User(
+            user_id=54, username='gf1', display_name='GF1',
+            email='gf1@test.com', role=UserRole.user,
+            skill_rating=1800.0, skill_tier=5,
+        )
+        db.session.add(user)
+        from models.question import Question, QuestionType
+        for i in range(1):
+            db.session.add(Question(
+                question_id=54000 + i, tutorial_id=54,
+                question_type=QuestionType.single_choice,
+                category=QuestionCategory.basic,
+                base_rating=800.0, difficulty_rating=800.0,
+                correct_answer='A', display_order=i, is_active=True,
+            ))
+        for i in range(4):
+            db.session.add(Question(
+                question_id=54010 + i, tutorial_id=54,
+                question_type=QuestionType.single_choice,
+                category=QuestionCategory.application,
+                base_rating=1200.0, difficulty_rating=1200.0,
+                correct_answer='A', display_order=1 + i, is_active=True,
+            ))
+        for i in range(5):
+            db.session.add(Question(
+                question_id=54020 + i, tutorial_id=54,
+                question_type=QuestionType.single_choice,
+                category=QuestionCategory.complexity,
+                base_rating=1600.0, difficulty_rating=1600.0,
+                correct_answer='A', display_order=5 + i, is_active=True,
+            ))
+        grp, grp_qs = _make_group_with_questions(
+            db.session, tutorial_id=54, group_id=54,
+            categories_and_ratings=[
+                (QuestionCategory.basic, 900.0),
+                (QuestionCategory.basic, 900.0),
+                (QuestionCategory.basic, 900.0),
+            ],
+        )
+        db.session.commit()
+
+        grp_q_ids = {q.question_id for q in grp_qs}
+
+        with mock.patch('services.practice_service.random.random', return_value=0.0):
+            result = get_questions_for_user(t.tutorial_id, user, 'en')
+
+        result_ids = {q['question_id'] for q in result}
+        assert not grp_q_ids.intersection(result_ids), "超出 tolerance 的題組不應出現"
+
+
 def test_submit_answers_multiple_choice_pipe_workaround(app):
     """multiple-choice 的可用 workaround：直接在 DB 用 | 格式儲存（手動繞過 seed）。
     correct_answer='A|C' → _check_answer split → ['A', 'C']，
