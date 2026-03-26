@@ -64,7 +64,10 @@ function LearningDashboardInner() {
   );
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setUserProgress(INITIAL_USER_PROGRESS);
+      return;
+    }
     fetchMyProgress()
       .then((apiProgress) => {
         setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
@@ -360,14 +363,16 @@ function LearningDashboardInner() {
         >
           分類篩選
         </Button>
-        <Button
-          variant="glass"
-          size="md"
-          onClick={() => setIsProgressDialogOpen(true)}
-          icon="chalkboard-user"
-        >
-          學習進度
-        </Button>
+        {isAuthenticated && (
+          <Button
+            variant="glass"
+            size="md"
+            onClick={() => setIsProgressDialogOpen(true)}
+            icon="chalkboard-user"
+          >
+            學習進度
+          </Button>
+        )}
       </div>
 
       <Sidebar
