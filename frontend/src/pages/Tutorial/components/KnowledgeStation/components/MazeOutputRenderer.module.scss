@@ -50,6 +50,7 @@
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
   flex-wrap: wrap;
+  min-height: 44px;
 }
 
 .modeGroup {
@@ -63,9 +64,20 @@
   font-size: $font-sm;
   color: var(--text-secondary);
   margin-left: auto;
+  font-variant-numeric: tabular-nums;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    min-width: 5ch;
+    white-space: nowrap;
+  }
 
   strong {
     color: var(--text-primary);
+    min-width: 2ch;
+    display: inline-block;
+    text-align: right;
   }
 }
 
