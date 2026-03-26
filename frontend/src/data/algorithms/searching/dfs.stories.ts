@@ -58,4 +58,67 @@ json.dumps({
       `,
     },
   },
+  {
+    id: 'algo-dfs-002',
+    title: '不撞南牆不回頭的探索哲學——為什麼每個初學者都該學「深度優先搜尋」(DFS)',
+    category: '計算機科學 / 演算法',
+    tags: ['深度優先搜尋', '回溯法', '拓樸排序', '演算法'],
+    content: `【人類直覺的解題模式】
+想像你站在一個複雜的迷宮前，第一直覺通常是隨便挑一條路走到盡頭，如果發現是死路撞到牆，就會退回到上一個還有其他路的交叉口，再嘗試另一條路。這種「不撞南牆不回頭」、走到死胡同再「回溯 (Backtracking)」的策略，正是深度優先搜尋 (DFS) 的核心邏輯。DFS 將所有可能性都搜尋一遍，在解決複雜問題（如迷宮、數獨等單一解謎題）時非常直觀且有效。
+
+【現代網路世界的運作基礎】
+DFS 不僅能用來解迷宮，它更是現代網路技術的基礎。例如搜尋引擎的網頁爬蟲 (Web Crawler) 就像是一個超大型的 DFS 應用。它會從一個網頁出發，沿著連結不斷往下鑽探（深入探索），藉此發現與收錄全世界的新網頁。
+
+【梳理複雜的依賴關係：拓樸排序】
+當問題變成環環相扣的依賴網路時，DFS 的升級版應用「拓樸排序 (Topological Sorting)」就能派上用場。無論是你使用 npm 或 pip 安裝軟體套件時系統計算的安裝先後順序，還是大學選課系統中要求先修完「微積分一」才能修「微積分二」的規則，背後都是依靠 DFS 演算法來理清這些複雜的先後依賴關係。DFS 透過不斷深入直到沒有相鄰節點，再將節點推入堆疊，最後反轉即可得到正確的拓樸排序。
+
+【社群網路的人際關係分析】
+在 Facebook 或 LinkedIn 等社群平台上，DFS 可以用來找出網路中的「連通元件 (Connected Components)」，也就是你的交友圈。程式會從你這個節點開始，把所有直接或間接認識的朋友全部圈出來，這種圖論技術能進一步驅動「你可能認識的朋友」這類強大的推薦功能。
+
+【為何初學者必學？記憶體優勢與應用場景】
+比起廣度優先搜尋 (BFS) 在岔路多時會把所有相鄰節點存入佇列而消耗大量記憶體，DFS 因為一次只專心走一條路（內部實作通常使用堆疊 Stack 結構或遞迴），在記憶體使用上更具優勢，其空間複雜度僅與最大深度成正比。當你需要偵測圖形中是否有循環 (Cycle)、尋找連通元件、進行拓樸排序，或單純想窮舉所有可能性時，DFS 絕對是最佳選擇。學會了 DFS，就等於拿到了一張挑戰進階演算法的重要門票。`,
+    video: {
+      url: 'https://youtu.be/6JgCciM2kMY',
+      title: '為什麼每個初學者都該學「深度優先搜尋」(DFS).mp4',
+      duration: '9:58',
+    },
+    resources: [
+      {
+        type: 'article',
+        url: 'https://brilliant.org/wiki/depth-first-search-dfs/',
+        title: 'Depth-First Search (DFS)',
+        source: 'Brilliant Math & Science Wiki',
+      },
+      {
+        type: 'article',
+        url: 'https://www.hackerearth.com/practice/algorithms/graphs/depth-first-search/tutorial/',
+        title: 'Depth First Search Tutorials & Notes',
+        source: 'HackerEarth',
+      },
+      {
+        type: 'article',
+        url: 'https://algocademy.com/blog/',
+        title: 'Algorithms for Social Network Analysis: Unraveling the Web of Connections',
+        source: 'AlgoCademy Blog',
+      },
+      {
+        type: 'article',
+        url: 'https://fiveable.me/',
+        title: 'Applications of BFS and DFS',
+        source: 'Fiveable',
+      },
+      {
+        type: 'article',
+        url: 'https://www.geeksforgeeks.org/',
+        title: 'Topological Sorting',
+        source: 'GeeksforGeeks',
+      },
+      {
+        type: 'paper',
+        url: 'https://courses.grainger.illinois.edu/cs374/fa2020/lec_prerec/16/16_4_2_0.pdf',
+        title: '16.4.2 DFS and cycle detection: Topological sorting using DFS',
+        source: 'CS/ECE 374, Fall 2020, University of Illinois',
+      },
+    ],
+  },
 ];
