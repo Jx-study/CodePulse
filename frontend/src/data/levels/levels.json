@@ -290,7 +290,7 @@
       "prerequisites": {
         "type": "AND",
         "levelIds": [
-          "portal-to-sorting"
+          "trie"
         ]
       },
       "graphPosition": {
@@ -425,7 +425,7 @@
       "prerequisites": {
         "type": "AND",
         "levelIds": [
-          "portal-to-searching"
+          "quick-sort"
         ]
       },
       "graphPosition": {
@@ -492,7 +492,7 @@
       "prerequisites": {
         "type": "AND",
         "levelIds": [
-          "portal-to-recursive"
+          "binary-search"
         ]
       },
       "graphPosition": {
@@ -672,7 +672,7 @@
       "prerequisites": {
         "type": "AND",
         "levelIds": [
-          "portal-to-technique"
+          "n-queens"
         ]
       },
       "graphPosition": {
@@ -782,8 +782,8 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "OR",
+        "levelIds": ["bit-mask"]
       },
       "graphPosition": {
         "layer": 0,
@@ -946,7 +946,7 @@
       "prerequisites": {
         "type": "AND",
         "levelIds": [
-          "portal-to-dp"
+          "astar"
         ]
       },
       "graphPosition": {

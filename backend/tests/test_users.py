@@ -156,7 +156,7 @@ def test_change_password_success(app, client, auth_headers_with_local_identity):
     assert data['success'] is True
 
     with app.app_context():
-        revoked = UserToken.query.get(token_id)
+        revoked = _db.session.get(UserToken, token_id)
         assert revoked.is_revoked is True
 
 

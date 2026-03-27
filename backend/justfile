@@ -45,6 +45,20 @@ test:
 test-file file:
     pytest {{file}} -v
 
+# ── Seed ───────────────────────────────────────────────────────────────────
+seed-tutorials:
+    docker compose exec backend python seeds/seed_tutorials.py
+
+seed-questions:
+    docker compose exec backend python seeds/seed_questions.py
+
+seed-questions-slug slug:
+    docker compose exec backend python seeds/seed_questions.py {{slug}}
+
+seed-all:
+    docker compose exec backend python seeds/seed_tutorials.py
+    docker compose exec backend python seeds/seed_questions.py
+
 # ── Health ─────────────────────────────────────────────────────────────────
 health:
     curl -s http://localhost:5000/api/health

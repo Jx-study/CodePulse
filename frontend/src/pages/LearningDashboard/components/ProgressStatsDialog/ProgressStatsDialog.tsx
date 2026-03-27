@@ -7,10 +7,6 @@ import Icon from '@/shared/components/Icon';
 import type { ProgressStatsDialogProps } from '@/types';
 import { useTranslation } from 'react-i18next';
 
-// 固定 placeholder 值（待後端 API 接入時替換）
-const STREAK_DAYS = 3;
-const TOTAL_XP = 850;
-
 function ProgressStatsDialog({
   isOpen,
   onClose,
@@ -89,17 +85,17 @@ function ProgressStatsDialog({
           </div>
           <div className={styles.statItem}>
             <div className={styles.statIcon}>
-              <Icon name="signal" />
+              <Icon name="check-circle" />
             </div>
-            <p className={styles.statValue}>{STREAK_DAYS}</p>
-            <p className={styles.statLabel}>連續天數</p>
+            <p className={styles.statValue}>{completedLevels}</p>
+            <p className={styles.statLabel}>完成關卡</p>
           </div>
           <div className={styles.statItem}>
             <div className={styles.statIcon}>
-              <Icon name="chart-line" />
+              <Icon name="chart-bar" />
             </div>
-            <p className={styles.statValue}>{TOTAL_XP}</p>
-            <p className={styles.statLabel}>獲得 XP</p>
+            <p className={styles.statValue}>{overallPercent}%</p>
+            <p className={styles.statLabel}>整體進度</p>
           </div>
         </motion.div>
 
