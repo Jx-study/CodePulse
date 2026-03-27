@@ -13,7 +13,13 @@ import MainLayout from "./shared/layouts/MainLayout";
 import AuthLayout from "./shared/layouts/AuthLayout";
 
 // Skeleton Loading
-import { PageSkeleton } from "./shared/components/Skeleton";
+import {
+  PageSkeleton,
+  TutorialSkeleton,
+  PracticeSkeleton,
+  DashboardSkeleton,
+  ExplorerSkeleton,
+} from "./shared/components/Skeleton";
 
 // Pages
 import Home from "./pages/Home/Home";
@@ -75,19 +81,19 @@ function App() {
           {/* 主布局 */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Suspense fallback={<PageSkeleton />}><LearningDashboard /></Suspense>} />
-            <Route path="/tutorial" element={<Suspense fallback={<PageSkeleton />}><Tutorial /></Suspense>} />
+            <Route path="/dashboard" element={<Suspense fallback={<DashboardSkeleton />}><LearningDashboard /></Suspense>} />
+            <Route path="/tutorial" element={<Suspense fallback={<TutorialSkeleton />}><Tutorial /></Suspense>} />
             <Route
               path="/tutorial/:category/:levelId"
-              element={<Suspense fallback={<PageSkeleton />}><Tutorial /></Suspense>}
+              element={<Suspense fallback={<TutorialSkeleton />}><Tutorial /></Suspense>}
             />
             <Route element={<ProtectedRoute />}>
               <Route
                 path="/practice/:category/:levelId"
-                element={<Suspense fallback={<PageSkeleton />}><Practice /></Suspense>}
+                element={<Suspense fallback={<PracticeSkeleton />}><Practice /></Suspense>}
               />
             </Route>
-            <Route path="/explorer" element={<Suspense fallback={<PageSkeleton />}><Explorer /></Suspense>} />
+            <Route path="/explorer" element={<Suspense fallback={<ExplorerSkeleton />}><Explorer /></Suspense>} />
             <Route path="/about" element={<About />} />
           </Route>
 
