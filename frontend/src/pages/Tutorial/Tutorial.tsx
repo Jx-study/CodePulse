@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import { tutorialService } from '@/services/tutorialService';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -25,6 +27,7 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
@@ -394,6 +397,64 @@ function TutorialContent() {
     category: string;
     levelId: string;
   }>();
+
+  // Session 管理
+  const { isAuthenticated } = useAuth();
+  const sessionIdRef = useRef<number | null>(null);
+  const sessionStartRef = useRef<number>(Date.now());
+
+  // Teaching Complete
+  const [teachingDone, setTeachingDone] = useState(false);
+  const teachingDoneRef = useRef(false);
+  const handleTeachingComplete = async () => {
+    if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
+    try {
+      const res = await tutorialService.markTeachingComplete(levelId);
+      teachingDoneRef.current = true;
+      setTeachingDone(true);
+      if (res.xp_earned > 0) {
+        xp.show(res.xp_earned);
+      }
+    } catch {
+      // 403 = 未滿 30 秒，靜默忽略
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !levelId) return;
+
+    // Reset teaching state for the new level
+    teachingDoneRef.current = false;
+    setTeachingDone(false);
+
+    sessionStartRef.current = Date.now();
+    tutorialService.startSession(levelId)
+      .then((id) => { sessionIdRef.current = id; })
+      .catch(() => {});
+
+    const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
+
+    return () => {
+      clearTimeout(teachingTimer);
+      if (sessionIdRef.current === null) return;
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+
+      // 用 sendBeacon 確保頁面關閉時請求仍能送出
+      const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
+      const sessionBlob = new Blob([JSON.stringify({ duration_seconds: elapsed })], { type: 'application/json' });
+      if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
+        tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+      }
+
+      if (!teachingDoneRef.current && elapsed >= 30) {
+        const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
+        const teachingBlob = new Blob([], { type: 'application/json' });
+        if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
+          tutorialService.markTeachingComplete(levelId).catch(() => {});
+        }
+      }
+    };
+  }, [isAuthenticated, levelId]);
 
   // 新增：代碼模式狀態
   const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
@@ -907,7 +968,6 @@ function TutorialContent() {
           topicTypeConfig={topicTypeConfig}
         />
       )}
-
       {/* Feature Tour */}
       <FeatureTour
         isOpen={showFeatureTour}

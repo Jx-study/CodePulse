@@ -1,4 +1,4 @@
-from database import db
+from database import db, BigIntPK
 from datetime import datetime, timezone
 import enum
 
@@ -11,7 +11,7 @@ class SessionMode(enum.Enum):
 class LearningSession(db.Model):
     __tablename__ = 'learning_sessions'
 
-    session_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    session_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
     mode = db.Column(db.Enum(SessionMode), nullable=False)
@@ -33,7 +33,7 @@ class LearningSession(db.Model):
 class PracticeAttempt(db.Model):
     __tablename__ = 'practice_attempts'
 
-    attempt_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    attempt_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
     score = db.Column(db.Integer, nullable=False)  # 0-100
@@ -62,7 +62,7 @@ class PracticeAttempt(db.Model):
 class AttemptAnswer(db.Model):
     __tablename__ = 'attempt_answers'
 
-    answer_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    answer_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     attempt_id = db.Column(db.BigInteger, db.ForeignKey('practice_attempts.attempt_id', ondelete='CASCADE'), nullable=False)
     question_id = db.Column(db.BigInteger, db.ForeignKey('questions.question_id', ondelete='RESTRICT'), nullable=False)
     user_answer = db.Column(db.String(500), nullable=False)

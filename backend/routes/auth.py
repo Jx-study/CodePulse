@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request, make_response, g
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from zoneinfo import ZoneInfo
 import uuid
 
 from database import db
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
-from models.user import User, UserIdentity, UserToken, UserLoginStreak, EmailVerification, ProviderType, UserRole, VerificationPurpose
+from models.user import User, UserIdentity, UserToken, EmailVerification, ProviderType, UserRole, VerificationPurpose
 from auth_utils import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
@@ -42,36 +42,8 @@ def _user_to_dict(user):
         'last_login_date': user.last_login_date.isoformat() if user.last_login_date else None,
         'created_at': user.created_at.isoformat() if user.created_at else None,
         'has_local_password': has_local_password,
+        'timezone': user.timezone,
     }
-
-
-# ── Streak helper ────────────────────────────────────────────────────────────
-
-def _update_streak(user):
-    """Update login streak for user. Call inside an open DB session."""
-    try:
-        tz = ZoneInfo(user.timezone or 'UTC')
-    except Exception:
-        tz = ZoneInfo('UTC')
-
-    today = datetime.now(timezone.utc).astimezone(tz).date()
-
-    try:
-        with db.session.begin_nested():
-            streak = UserLoginStreak(user_id=user.user_id, login_date=today)
-            db.session.add(streak)
-    except IntegrityError:
-        pass  # duplicate (user_id, login_date) — already logged in today
-
-    last = user.last_login_date
-    if last is None or last < today:
-        if last is not None and (today - last).days == 1:
-            user.current_streak += 1
-        else:
-            user.current_streak = 1
-        if user.current_streak > user.longest_streak:
-            user.longest_streak = user.current_streak
-        user.last_login_date = today
 
 
 # ── Register ─────────────────────────────────────────────────────────────────
@@ -167,9 +139,6 @@ def login():
                 user.timezone = client_tz
             except Exception:
                 pass
-
-        # Update streak (uses updated user.timezone)
-        _update_streak(user)
 
         # Issue tokens
         access_token = create_access_token(user.user_id)
@@ -364,8 +333,6 @@ def complete_setup():
         )
         db.session.add(identity)
 
-        _update_streak(user)
-
         access_token = create_access_token(user.user_id)
         refresh_token = create_refresh_token(user.user_id)
 
@@ -557,7 +524,7 @@ def refresh_token():
         db.session.commit()
         return jsonify({'success': False, 'error_code': 'TOKEN_REUSE_DETECTED', 'message': '偵測到異常，請重新登入'}), 401
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'error_code': 'INVALID_TOKEN', 'message': '無效的 Token'}), 401
 
@@ -654,6 +621,16 @@ def get_user_status():
 
     if user is None or user.deleted_at is not None:
         return jsonify({'isAuthenticated': False}), 200
+
+    # Sync timezone from client (silent update)
+    client_tz = (request.args.get('timezone') or '').strip()
+    if client_tz and len(client_tz) <= 50 and client_tz != user.timezone:
+        try:
+            ZoneInfo(client_tz)
+            user.timezone = client_tz
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     return jsonify({
         'isAuthenticated': True,
