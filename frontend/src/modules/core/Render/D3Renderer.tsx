@@ -5,6 +5,14 @@ import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
 import type { StatusColorMap } from "@/types/statusConfig";
 import { Pointer } from "../DataLogic/Pointer";
+import {
+  circleBoundaryPoint,
+  selfLoopBezierPath,
+  selfLoopBezierZeroPath,
+  straightLinkPath,
+  weightLabelCenter,
+  zeroLengthPath,
+} from "./linkGeometry";
 import "./D3Renderer.module.scss";
 
 export type linkStatus = "default" | "visited" | "path" | "target" | "complete";
@@ -23,132 +31,6 @@ export interface Link {
   targetId: string;
   status?: linkStatus;
   weight?: number | string;
-}
-
-// 取得從 fromNode 指向 toNode 時，位於 fromNode 圓邊界上的點
-function getCircleBoundaryPoint(fromNode: Node, toNode: Node) {
-  const cx = fromNode.position.x;
-  const cy = fromNode.position.y;
-  const tx = toNode.position.x;
-  const ty = toNode.position.y;
-
-  let dx = tx - cx;
-  let dy = ty - cy;
-  if (dx === 0 && dy === 0) {
-    return { x: cx, y: cy };
-  }
-  const len = Math.hypot(dx, dy);
-  const ux = dx / len;
-  const uy = dy / len;
-  const r = fromNode.radius ?? 0;
-  return { x: cx + ux * r, y: cy + uy * r };
-}
-
-function getLinkPath(source: Node, target: Node, offset: number = 0): string {
-  if (
-    isNaN(source.position.x) ||
-    isNaN(source.position.y) ||
-    isNaN(target.position.x) ||
-    isNaN(target.position.y)
-  ) {
-    return "";
-  }
-
-  const r = source.radius || 20;
-
-  // Case 1: 自環 (Self-loop)
-  if (source.id === target.id) {
-    const x = source.position.x;
-    const y = source.position.y;
-
-    const startX = x - r * 0.7;
-    const startY = y - r * 0.7;
-    const endX = x + r * 0.7;
-    const endY = y - r * 0.7;
-
-    const cp1X = x - r * 2.5;
-    const cp1Y = y - r * 2.5;
-    const cp2X = x + r * 2.5;
-    const cp2Y = y - r * 2.5;
-
-    // 格式：M 起點 C 控制點1 控制點2 終點
-    return `M ${startX},${startY} C ${cp1X},${cp1Y} ${cp2X},${cp2Y} ${endX},${endY}`;
-  }
-
-  // Case 2: 平行直線 (Parallel Straight Lines)
-  const p1 = getCircleBoundaryPoint(source, target);
-  const p2 = getCircleBoundaryPoint(target, source);
-
-  if (isNaN(p1.x) || isNaN(p1.y) || isNaN(p2.x) || isNaN(p2.y)) {
-    return "";
-  }
-
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
-  const dist = Math.hypot(dx, dy);
-
-  if (dist === 0) return "";
-
-  // 計算單位法向量 (往旁邊推開的方向)
-  const nx = -dy / dist;
-  const ny = dx / dist;
-
-  // 設定平行線的間距
-
-  const startX = p1.x + nx * offset;
-  const startY = p1.y + ny * offset;
-  const endX = p2.x + nx * offset;
-  const endY = p2.y + ny * offset;
-
-  // 使用 L (LineTo) 畫出完美的直線
-  return `M ${startX},${startY} L ${endX},${endY}`;
-}
-
-function getZeroLengthPath(
-  source: Node,
-  target: Node,
-  offset: number = 0,
-): string {
-  if (
-    isNaN(source.position.x) ||
-    isNaN(source.position.y) ||
-    isNaN(target.position.x) ||
-    isNaN(target.position.y)
-  ) {
-    return "";
-  }
-
-  // Case 1: 自環 (Self-loop)
-  // 讓初始點停留在自環的「起點」 (x - r*0.7)，而不是圓心
-  if (source.id === target.id) {
-    const r = source.radius || 20;
-    const x = source.position.x;
-    const y = source.position.y;
-    const startX = x - r * 0.7;
-    const startY = y - r * 0.7;
-    // 縮成一個點
-    return `M ${startX},${startY} C ${startX},${startY} ${startX},${startY} ${startX},${startY}`;
-  }
-
-  // Case 2: 一般連線的起點平移
-  const p1 = getCircleBoundaryPoint(source, target);
-  const p2 = getCircleBoundaryPoint(target, source);
-
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
-  const dist = Math.hypot(dx, dy);
-
-  if (dist === 0) return "";
-
-  const nx = -dy / dist;
-  const ny = dx / dist;
-  // const offset = hasWeight && isDirected ? 8 : 0; // 必須跟 getLinkPath 保持一致
-
-  const startX = p1.x + nx * offset;
-  const startY = p1.y + ny * offset;
-
-  // 縮成一個平移後的點
-  return `M ${startX},${startY} L ${startX},${startY}`;
 }
 
 /**
@@ -187,8 +69,22 @@ export function animateConnect(
     }
 
     // 計算起點與終點（圓邊界）
-    const p1 = getCircleBoundaryPoint(sourceNode, targetNode);
-    const p2 = getCircleBoundaryPoint(targetNode, sourceNode);
+    const p1 = circleBoundaryPoint(
+      {
+        x: sourceNode.position.x,
+        y: sourceNode.position.y,
+        r: sourceNode.radius ?? 0,
+      },
+      { x: targetNode.position.x, y: targetNode.position.y },
+    );
+    const p2 = circleBoundaryPoint(
+      {
+        x: targetNode.position.x,
+        y: targetNode.position.y,
+        r: targetNode.radius ?? 0,
+      },
+      { x: sourceNode.position.x, y: sourceNode.position.y },
+    );
 
     // 建立臨時動畫線段
     const animLine = scene
@@ -561,12 +457,24 @@ export function renderAll(
     .attr("marker-end", markerUrl)
     // 初始狀態：從起點長出來
     .attr("d", (d) => {
-      const hasWeight = d.weight !== undefined && d.weight !== null;
-      // 檢查是否有反向邊
+      if (
+        isNaN(d.s.position.x) ||
+        isNaN(d.s.position.y) ||
+        isNaN(d.t.position.x) ||
+        isNaN(d.t.position.y)
+      ) {
+        return "";
+      }
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      // 只有在「有權重」、「有向圖」且「真的有反向邊」時，才平移 8px
-      const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
-      return getZeroLengthPath(d.s, d.t, offset);
+      const pathOffset = isDirected && hasReverse ? 8 : 0;
+      if (d.s.id === d.t.id) {
+        return selfLoopBezierZeroPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
+      }
+      return zeroLengthPath(
+        { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
+        { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
+        pathOffset,
+      );
     });
 
   // 加入權重文字的背景框 (讓文字不要被線蓋住)
@@ -603,10 +511,24 @@ export function renderAll(
     .duration(transitionDuration)
     .ease(transitionEase)
     .attr("d", (d) => {
-      const hasWeight = d.weight !== undefined && d.weight !== null;
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
-      return getLinkPath(d.s, d.t, offset);
+      const pathOffset = isDirected && hasReverse ? 8 : 0;
+      if (
+        isNaN(d.s.position.x) ||
+        isNaN(d.s.position.y) ||
+        isNaN(d.t.position.x) ||
+        isNaN(d.t.position.y)
+      ) {
+        return "";
+      }
+      if (d.s.id === d.t.id) {
+        return selfLoopBezierPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
+      }
+      return straightLinkPath(
+        { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
+        { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
+        pathOffset,
+      );
     })
     .attr("stroke", (d) => getColor(d.status))
     .attr("stroke-width", 2);
@@ -615,8 +537,14 @@ export function renderAll(
   mergedLinkGroups.each(function (d) {
     const group = d3.select(this);
 
-    const p1 = getCircleBoundaryPoint(d.s, d.t);
-    const p2 = getCircleBoundaryPoint(d.t, d.s);
+    const p1 = circleBoundaryPoint(
+      { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
+      { x: d.t.position.x, y: d.t.position.y },
+    );
+    const p2 = circleBoundaryPoint(
+      { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
+      { x: d.s.position.x, y: d.s.position.y },
+    );
 
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
@@ -627,15 +555,12 @@ export function renderAll(
 
     const hasWeight = d.weight !== undefined && d.weight !== null;
     const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-    const offset = hasWeight && isDirected && hasReverse ? 8 : 0;
+    const labelOffset = hasWeight && isDirected && hasReverse ? 8 : 0;
 
-    // 將文字位置沿著法向量平移，跟隨線的偏移量
     if (d.s.id !== d.t.id && dist > 0 && hasWeight && isDirected) {
-      const nx = -dy / dist;
-      const ny = dx / dist;
-
-      textX += nx * offset;
-      textY += ny * offset;
+      const c = weightLabelCenter(p1, p2, labelOffset);
+      textX = c.x;
+      textY = c.y;
     }
 
     const textNode = group.select("text.weight-text");

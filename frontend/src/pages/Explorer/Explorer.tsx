@@ -9,7 +9,7 @@ import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
 import type { Link } from "@/modules/core/Render/D3Renderer";
 import { animateConnect } from "@/modules/core/Render/D3Renderer";
 import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
-import  Button from "@/shared/components/Button";
+import Button from "@/shared/components/Button";
 
 // 預設程式碼範例
 const DEFAULT_CODE: Record<string, string> = {
@@ -75,10 +75,22 @@ console.log("排序後:", result);
 `,
 };
 
+function parseOptionalWeight(raw: string): number | string | undefined {
+  const t = raw.trim();
+  if (t === "") return undefined;
+  const n = Number(t);
+  if (!Number.isNaN(n)) return n;
+  return t;
+}
+
 function Explorer() {
   const { t } = useTranslation();
   const [code, setCode] = useState(DEFAULT_CODE.python);
   const [links, setLinks] = useState<Link[]>([]);
+  const [linkSourceId, setLinkSourceId] = useState("n1");
+  const [linkTargetId, setLinkTargetId] = useState("n2");
+  const [linkWeightInput, setLinkWeightInput] = useState("");
+  const [isDirected, setIsDirected] = useState(true);
   const canvasRef = useRef<D3CanvasRef>(null);
 
   // 建立測試資料
@@ -110,13 +122,70 @@ function Explorer() {
     return { elements: els, manager: mgr };
   }, []);
 
+  const applyWeightToLinks = useCallback(
+    (key: string, weight: number | string) => {
+      const next = [...manager.links];
+      const idx = next.findIndex((l) => l.key === key);
+      if (idx < 0) return;
+      next[idx] = { ...next[idx], weight };
+      setLinks(next);
+    },
+    [manager],
+  );
+
   const triggerLink = useCallback(async () => {
     const svgEl = canvasRef.current?.getSVGElement();
     if (!svgEl) return;
 
-    await animateConnect(svgEl, elements, manager, "n1", "n2", 800);
-    setLinks([...manager.links]); // 使用展開運算子確保 state 更新
-  }, [elements, manager]);
+    const src = linkSourceId.trim();
+    const tgt = linkTargetId.trim();
+    await animateConnect(svgEl, elements, manager, src, tgt, 800);
+    const w = parseOptionalWeight(linkWeightInput);
+    const key = `${src}->${tgt}`;
+    if (w !== undefined) {
+      applyWeightToLinks(key, w);
+    } else {
+      setLinks([...manager.links]);
+    }
+  }, [elements, manager, linkSourceId, linkTargetId, linkWeightInput, applyWeightToLinks]);
+
+  /** 不經動畫，直接加入連線（可附權重，供 D3Renderer 路徑／標籤測試） */
+  const addLinkInstant = useCallback(() => {
+    const src = linkSourceId.trim();
+    const tgt = linkTargetId.trim();
+    const w = parseOptionalWeight(linkWeightInput);
+    const key = `${src}->${tgt}`;
+    manager.connect(src, tgt);
+    if (w !== undefined) {
+      applyWeightToLinks(key, w);
+    } else {
+      setLinks([...manager.links]);
+    }
+  }, [manager, linkSourceId, linkTargetId, linkWeightInput, applyWeightToLinks]);
+
+  /** 有向雙向、無權重：模擬 DLL 的 prev／next，驗證雙箭頭分離 */
+  const addBidirectionalNoWeight = useCallback(() => {
+    manager.clear();
+    manager.connect("n1", "n2");
+    manager.connect("n2", "n1");
+    setLinks([...manager.links]);
+  }, [manager]);
+
+  /** 有向雙向、有權重：驗證分離 + 權重標籤各在兩側 */
+  const addBidirectionalWithWeight = useCallback(() => {
+    manager.clear();
+    manager.connect("n1", "n2");
+    manager.connect("n2", "n1");
+    let next = [...manager.links];
+    const k1 = "n1->n2";
+    const k2 = "n2->n1";
+    next = next.map((l) => {
+      if (l.key === k1) return { ...l, weight: 1 };
+      if (l.key === k2) return { ...l, weight: 2 };
+      return l;
+    });
+    setLinks(next);
+  }, [manager]);
 
   const clearLink = useCallback(() => {
     manager.clear();
@@ -150,10 +219,60 @@ function Explorer() {
                 <Button size="sm" onClick={triggerLink}>
                   連線動畫
                 </Button>
+                <Button size="sm" onClick={addLinkInstant}>
+                  立即連線
+                </Button>
                 <Button size="sm" variant="secondary" onClick={clearLink}>
                   清除連線
                 </Button>
               </div>
+            </div>
+            <div className={styles.linkTestBar}>
+              <span>節點 ID：n1、n2、b1</span>
+              <label>
+                起點
+                <input
+                  type="text"
+                  value={linkSourceId}
+                  onChange={(e) => setLinkSourceId(e.target.value)}
+                  placeholder="n1"
+                  aria-label="連線起點節點 ID"
+                />
+              </label>
+              <label>
+                終點
+                <input
+                  type="text"
+                  value={linkTargetId}
+                  onChange={(e) => setLinkTargetId(e.target.value)}
+                  placeholder="n2"
+                  aria-label="連線終點節點 ID"
+                />
+              </label>
+              <label>
+                權重（選填）
+                <input
+                  type="text"
+                  value={linkWeightInput}
+                  onChange={(e) => setLinkWeightInput(e.target.value)}
+                  placeholder="例：3"
+                  aria-label="連線權重（選填）"
+                />
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isDirected}
+                  onChange={(e) => setIsDirected(e.target.checked)}
+                />
+                有向圖
+              </label>
+              <Button size="sm" variant="secondary" onClick={addBidirectionalNoWeight}>
+                雙向無權重（DLL）
+              </Button>
+              <Button size="sm" variant="secondary" onClick={addBidirectionalWithWeight}>
+                雙向有權重
+              </Button>
             </div>
             <div className={styles.canvasContainer}>
               <D3Canvas
@@ -162,6 +281,7 @@ function Explorer() {
                 links={links}
                 width={600}
                 height={600}
+                isDirected={isDirected}
               />
             </div>
           </div>

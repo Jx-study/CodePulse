@@ -19,6 +19,11 @@ import { linkStatusColorMap } from "./D3Renderer";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
+import {
+  circleBoundaryPoint,
+  straightLinkPath,
+  weightLabelCenter,
+} from "./linkGeometry";
 import styles from "./GraphCanvas.module.scss";
 
 // SVG arc 自環路徑：在 angle 方向畫一個近圓形的環
@@ -402,15 +407,8 @@ export function GraphCanvas({
             }
             return;
           } else {
-            const dx = tgt.x - src.x;
-            const dy = tgt.y - src.y;
-            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            const ux = dx / dist;
-            const uy = dy / dist;
             const off = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET : 0;
-            const nx = -uy * off;
-            const ny = ux * off;
-            pathD = `M ${src.x + ux * src.r + nx},${src.y + uy * src.r + ny} L ${tgt.x - ux * tgt.r + nx},${tgt.y - uy * tgt.r + ny}`;
+            pathD = straightLinkPath(src, tgt, off);
           }
           d3Select(this).attr("d", pathD);
         });
@@ -428,15 +426,12 @@ export function GraphCanvas({
             cx = src.x + (src.r + src.r) * Math.cos(loopAngle);
             cy = src.y + (src.r + src.r) * Math.sin(loopAngle);
           } else {
-            const dx = tgt.x - src.x;
-            const dy = tgt.y - src.y;
-            const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            const ux = dx / len;
-            const uy = dy / len;
-            // 標籤跟著邊的偏移方向再多推 12px，讓權重顯示在各自那條線旁
+            const p1 = circleBoundaryPoint(src, tgt);
+            const p2 = circleBoundaryPoint(tgt, src);
             const labelOff = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET + 12 : 0;
-            cx = (src.x + tgt.x) / 2 + (-uy) * labelOff;
-            cy = (src.y + tgt.y) / 2 + ux * labelOff;
+            const center = weightLabelCenter(p1, p2, labelOff);
+            cx = center.x;
+            cy = center.y;
           }
           d3Select(this).attr("transform", `translate(${cx},${cy})`);
           const textEl = d3Select(this).select<SVGTextElement>("text.gc-weight-text");
