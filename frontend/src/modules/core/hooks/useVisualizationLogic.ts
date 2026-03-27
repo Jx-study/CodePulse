@@ -7,7 +7,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "@/shared/components/Toast";
 import {
   cloneData,
-  syncCoordinates,
 } from "@/modules/core/visualization/visualizationUtils";
 import type { LevelImplementationConfig } from "@/types/implementation";
 
@@ -63,9 +62,6 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
       }
 
       const steps = createSteps(initialData, initParams);
-      if (initParams.mode === "graph" && steps.length > 0) {
-        syncCoordinates(initialData, steps[0].elements);
-      }
       setData(initialData);
       setActiveSteps(steps);
     } else {
@@ -75,10 +71,6 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
       if (config.createAnimationSteps) {
         const initParams = config.id === "graph" ? { mode: "graph" } : undefined;
         const initSteps = config.createAnimationSteps(initData, initParams, false);
-        if (config.id === "graph" && initSteps.length > 0) {
-          syncCoordinates(initData, initSteps[0].elements);
-          setData(cloneData(initData));
-        }
         setActiveSteps(initSteps);
       }
     }
@@ -121,10 +113,6 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
           animationParams,
           payload?.hasTailMode,
         );
-
-        if (result.needsSyncCoordinates && steps.length > 0) {
-          syncCoordinates(animData, steps[0].elements);
-        }
 
         setData(stateData);
         setActiveSteps(steps);

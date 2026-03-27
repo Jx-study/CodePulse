@@ -433,6 +433,37 @@ function SettingPanel({
     </div>
   );
 
+  const statsTab = (
+    <div className={styles.tabContent}>
+      <div className={styles.statsSection}>
+        <p className={styles.statsSectionTitle}>{t('xpAndStreak', 'XP 與連續打卡')}</p>
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statCardIcon} data-color="xp">
+              <Icon name="chart-line" size="sm" />
+            </div>
+            <p className={styles.statCardValue}>{user?.total_xp ?? 0}</p>
+            <p className={styles.statCardLabel}>{t('totalXp', '累計 XP')}</p>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statCardIcon} data-color="streak">
+              <Icon name="signal" size="sm" />
+            </div>
+            <p className={styles.statCardValue}>{user?.current_streak ?? 0}</p>
+            <p className={styles.statCardLabel}>{t('currentStreak', '目前連續天數')}</p>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statCardIcon} data-color="best">
+              <Icon name="trophy" size="sm" />
+            </div>
+            <p className={styles.statCardValue}>{user?.longest_streak ?? 0}</p>
+            <p className={styles.statCardLabel}>{t('longestStreak', '最長連續天數')}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const tabs: TabItem[] = [
     {
       key: "profile",
@@ -456,6 +487,12 @@ function SettingPanel({
       icon: <Icon name="palette" size="sm" />,
       content: preferencesTab,
     },
+    {
+      key: "stats",
+      label: t("stats", "統計"),
+      icon: <Icon name="chart-bar" size="sm" />,
+      content: statsTab,
+    },
   ];
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -476,7 +513,7 @@ function SettingPanel({
         defaultTab="profile"
         orientation="vertical"
         variant="pills"
-        size="sm"
+        size="md"
         className={styles.settingTabs}
         tabListClassName={styles.settingTabList}
         contentClassName={styles.settingTabContent}

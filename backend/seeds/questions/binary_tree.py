@@ -1,0 +1,514 @@
+BFS_CODE = """def bfs(root):
+    queue = [root]
+    while queue:
+        node = queue.pop(0)
+        visit(node)
+        if node.left: queue.append(node.left)
+        if node.right: queue.append(node.right)"""
+
+BFS_FILL_CODE = """def bfs(root):
+    queue = [(a)]
+    while (b):
+        node = queue.(c)
+        visit(node)
+        if node.left: queue.append(node.left)
+        if node.right: queue.append(node.right)"""
+
+INORDER_FILL_CODE = """def inorder(node):
+    if not (a): return
+    inorder((b))
+    visit((c))
+    inorder(node.right)"""
+
+PREORDER_PREDICT_CODE = """class BinaryTree:
+    def preorder(node):                  # L1
+        if not node: return              # L2
+        visit(node)                      # L3
+        preorder(node.left)              # L4
+        preorder(node.right)             # L5"""
+
+DATA = {
+    "slug": "binarytree",
+    "groups": [
+        {
+            "id": "group-bt-bfs",
+            "translations": {
+                "zh-TW": {
+                    "title": "題組：廣度優先搜尋 (BFS / Level Order Traversal)",
+                    "description": "以下是教學區中實作二元樹「層序遍歷 (BFS)」的 Python 程式碼，使用陣列模擬 Queue (佇列)。請閱讀後回答問題。",
+                },
+                "en": {
+                    "title": "Group: Breadth-First Search (BFS / Level Order Traversal)",
+                    "description": "The following Python code implements Binary Tree Level Order Traversal (BFS) using a list to simulate a Queue. Read the code and answer the questions.",
+                },
+            },
+            "code": BFS_CODE,
+            "language": "python",
+        }
+    ],
+    "questions": [
+        {
+            "id": "bt-tf-1",
+            "type": "true-false",
+            "baseRating": 800,
+            "correctAnswer": "true",
+            "translations": {
+                "zh-TW": {
+                    "title": "在二元樹 (Binary Tree) 中，每個節點最多只能有兩個子節點（通常稱為左子節點與右子節點）。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "這是二元樹的最基本定義。一個節點可以有 0 個、1 個或 2 個子節點，但絕對不能超過 2 個。",
+                },
+                "en": {
+                    "title": "In a Binary Tree, each node can have at most two children (typically called the left child and the right child).",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "This is the most fundamental definition of a binary tree. A node can have 0, 1, or 2 children, but never more than 2.",
+                },
+            },
+        },
+        {
+            "id": "bt-q1",
+            "type": "single-choice",
+            "baseRating": 800,
+            "correctAnswer": "A",
+            "translations": {
+                "zh-TW": {
+                    "title": "二元樹的「前序遍歷 (Preorder Traversal)」是指依照什麼順序訪問節點？",
+                    "options": [
+                        {"id": "A", "text": "根節點 -> 左子樹 -> 右子樹"},
+                        {"id": "B", "text": "左子樹 -> 根節點 -> 右子樹"},
+                        {"id": "C", "text": "左子樹 -> 右子樹 -> 根節點"},
+                        {"id": "D", "text": "逐層由上而下訪問"},
+                    ],
+                    "explanation": "前序 (Pre-order) 的 \"Pre\" 代表「根節點」最先被訪問，接著才遞迴訪問左子樹與右子樹。",
+                },
+                "en": {
+                    "title": "What is the node visiting order for 'Preorder Traversal' in a binary tree?",
+                    "options": [
+                        {"id": "A", "text": "Root -> Left subtree -> Right subtree"},
+                        {"id": "B", "text": "Left subtree -> Root -> Right subtree"},
+                        {"id": "C", "text": "Left subtree -> Right subtree -> Root"},
+                        {"id": "D", "text": "Level by level from top to bottom"},
+                    ],
+                    "explanation": "The 'Pre' in Pre-order means the root is visited first, then the left subtree is recursively traversed, followed by the right subtree.",
+                },
+            },
+        },
+        {
+            "id": "bt-q2",
+            "type": "single-choice",
+            "baseRating": 850,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "二元樹的「中序遍歷 (Inorder Traversal)」是指依照什麼順序訪問節點？",
+                    "options": [
+                        {"id": "A", "text": "根節點 -> 左子樹 -> 右子樹"},
+                        {"id": "B", "text": "左子樹 -> 根節點 -> 右子樹"},
+                        {"id": "C", "text": "左子樹 -> 右子樹 -> 根節點"},
+                        {"id": "D", "text": "右子樹 -> 左子樹 -> 根節點"},
+                    ],
+                    "explanation": "中序 (In-order) 的 \"In\" 代表「根節點」在中間被訪問，順序為：左 -> 根 -> 右。在二元搜尋樹 (BST) 中，中序遍歷會由小到大印出所有節點。",
+                },
+                "en": {
+                    "title": "What is the node visiting order for 'Inorder Traversal' in a binary tree?",
+                    "options": [
+                        {"id": "A", "text": "Root -> Left subtree -> Right subtree"},
+                        {"id": "B", "text": "Left subtree -> Root -> Right subtree"},
+                        {"id": "C", "text": "Left subtree -> Right subtree -> Root"},
+                        {"id": "D", "text": "Right subtree -> Left subtree -> Root"},
+                    ],
+                    "explanation": "The 'In' in In-order means the root is visited in the middle: Left -> Root -> Right. In a Binary Search Tree (BST), inorder traversal prints all nodes in ascending order.",
+                },
+            },
+        },
+        {
+            "id": "bt-q3",
+            "type": "single-choice",
+            "baseRating": 900,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "二元樹的「後序遍歷 (Postorder Traversal)」是指依照什麼順序訪問節點？",
+                    "options": [
+                        {"id": "A", "text": "根節點 -> 左子樹 -> 右子樹"},
+                        {"id": "B", "text": "左子樹 -> 根節點 -> 右子樹"},
+                        {"id": "C", "text": "左子樹 -> 右子樹 -> 根節點"},
+                        {"id": "D", "text": "右子樹 -> 根節點 -> 左子樹"},
+                    ],
+                    "explanation": "後序 (Post-order) 的 \"Post\" 代表「根節點」最後被訪問，必須先處理完左右子樹。",
+                },
+                "en": {
+                    "title": "What is the node visiting order for 'Postorder Traversal' in a binary tree?",
+                    "options": [
+                        {"id": "A", "text": "Root -> Left subtree -> Right subtree"},
+                        {"id": "B", "text": "Left subtree -> Root -> Right subtree"},
+                        {"id": "C", "text": "Left subtree -> Right subtree -> Root"},
+                        {"id": "D", "text": "Right subtree -> Root -> Left subtree"},
+                    ],
+                    "explanation": "The 'Post' in Post-order means the root is visited last — both subtrees must be fully processed before the root.",
+                },
+            },
+        },
+        {
+            "id": "bt-tf-2",
+            "type": "true-false",
+            "baseRating": 950,
+            "correctAnswer": "true",
+            "translations": {
+                "zh-TW": {
+                    "title": "廣度優先搜尋 (BFS / 層序遍歷) 會保證靠近根節點的層級被優先訪問，然後才訪問更深層的節點。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "BFS 的特性就是「逐層向外擴張」，因此 Level 1 (根) 會比 Level 2 先訪問，Level 2 會比 Level 3 先訪問，以此類推。",
+                },
+                "en": {
+                    "title": "Breadth-First Search (BFS / Level Order Traversal) guarantees that nodes closer to the root are visited before nodes at deeper levels.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "BFS expands level by level — Level 1 (root) is visited before Level 2, Level 2 before Level 3, and so on.",
+                },
+            },
+        },
+        {
+            "id": "bt-q4",
+            "type": "single-choice",
+            "baseRating": 1000,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "實作層序遍歷 (BFS) 時，通常需要搭配哪種資料結構來暫存節點？",
+                    "options": [
+                        {"id": "A", "text": "Stack (堆疊)"},
+                        {"id": "B", "text": "Queue (佇列)"},
+                        {"id": "C", "text": "Hash Table (雜湊表)"},
+                        {"id": "D", "text": "Linked List (單純的鏈結串列)"},
+                    ],
+                    "explanation": "BFS 需要「先進先出 (FIFO)」的特性來確保先發現的節點（較淺層）能先被處理，因此必須使用 Queue。",
+                },
+                "en": {
+                    "title": "When implementing Level Order Traversal (BFS), which data structure is typically used to temporarily store nodes?",
+                    "options": [
+                        {"id": "A", "text": "Stack"},
+                        {"id": "B", "text": "Queue"},
+                        {"id": "C", "text": "Hash Table"},
+                        {"id": "D", "text": "Linked List"},
+                    ],
+                    "explanation": "BFS requires FIFO (First-In-First-Out) behavior to ensure shallower nodes are processed before deeper ones, so a Queue must be used.",
+                },
+            },
+        },
+        {
+            "id": "bt-q5",
+            "type": "single-choice",
+            "baseRating": 1050,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "遞迴實作深度優先搜尋 (DFS, 包括前/中/後序遍歷) 時，程式底層隱含使用了哪種資料結構？",
+                    "options": [
+                        {"id": "A", "text": "Queue (佇列)"},
+                        {"id": "B", "text": "Call Stack (呼叫堆疊)"},
+                        {"id": "C", "text": "Min Heap (最小堆積)"},
+                        {"id": "D", "text": "Graph (圖)"},
+                    ],
+                    "explanation": "遞迴函數的執行依賴作業系統的 Call Stack 來記錄每次函數呼叫的狀態與返回位址，這本身就是一種 Stack (LIFO) 行為。",
+                },
+                "en": {
+                    "title": "When implementing DFS (Preorder/Inorder/Postorder) recursively, which data structure is implicitly used by the program?",
+                    "options": [
+                        {"id": "A", "text": "Queue"},
+                        {"id": "B", "text": "Call Stack"},
+                        {"id": "C", "text": "Min Heap"},
+                        {"id": "D", "text": "Graph"},
+                    ],
+                    "explanation": "Recursive function execution relies on the OS Call Stack to record each function call's state and return address — this is inherently LIFO (Stack) behavior.",
+                },
+            },
+        },
+        {
+            "id": "bt-group-1",
+            "groupId": "group-bt-bfs",
+            "type": "single-choice",
+            "baseRating": 1050,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "在上述 BFS 程式碼中，queue.pop(0) 這行程式碼的作用是模擬 Queue 的哪種基本操作？",
+                    "options": [
+                        {"id": "A", "text": "Enqueue (入隊)"},
+                        {"id": "B", "text": "Dequeue (出隊)"},
+                        {"id": "C", "text": "Peek (查看頂端)"},
+                        {"id": "D", "text": "Clear (清空)"},
+                    ],
+                    "explanation": "pop(0) 會移除並回傳陣列中的第 0 個（最前面）的元素，這正是 Queue 先進先出的 Dequeue 行為。",
+                },
+                "en": {
+                    "title": "In the BFS code above, what Queue operation does `queue.pop(0)` simulate?",
+                    "options": [
+                        {"id": "A", "text": "Enqueue"},
+                        {"id": "B", "text": "Dequeue"},
+                        {"id": "C", "text": "Peek"},
+                        {"id": "D", "text": "Clear"},
+                    ],
+                    "explanation": "pop(0) removes and returns the element at index 0 (the front), which is exactly the FIFO Dequeue behavior of a Queue.",
+                },
+            },
+        },
+        {
+            "id": "bt-q6",
+            "type": "single-choice",
+            "baseRating": 1100,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "有一棵二元樹，根節點為 A，A 的左子節點為 B，A 的右子節點為 C。請問其中序遍歷 (Inorder) 的結果為何？",
+                    "options": [
+                        {"id": "A", "text": "A, B, C"},
+                        {"id": "B", "text": "B, A, C"},
+                        {"id": "C", "text": "B, C, A"},
+                        {"id": "D", "text": "C, B, A"},
+                    ],
+                    "explanation": "中序遍歷順序為「左 -> 根 -> 右」。因此先訪問左子節點 B，接著訪問根節點 A，最後訪問右子節點 C。",
+                },
+                "en": {
+                    "title": "A binary tree has root A, left child B, and right child C. What is the Inorder traversal result?",
+                    "options": [
+                        {"id": "A", "text": "A, B, C"},
+                        {"id": "B", "text": "B, A, C"},
+                        {"id": "C", "text": "B, C, A"},
+                        {"id": "D", "text": "C, B, A"},
+                    ],
+                    "explanation": "Inorder traversal follows Left -> Root -> Right. So: left child B first, then root A, then right child C.",
+                },
+            },
+        },
+        {
+            "id": "bt-multi-1",
+            "type": "multiple-choice",
+            "baseRating": 1150,
+            "correctAnswer": ["opt1", "opt2", "opt3"],
+            "translations": {
+                "zh-TW": {
+                    "title": "以下哪些演算法屬於二元樹的「深度優先搜尋 (DFS)」？（多選）",
+                    "options": [
+                        {"id": "opt1", "text": "前序遍歷 (Preorder)"},
+                        {"id": "opt2", "text": "中序遍歷 (Inorder)"},
+                        {"id": "opt3", "text": "後序遍歷 (Postorder)"},
+                        {"id": "opt4", "text": "層序遍歷 (Level Order / BFS)"},
+                    ],
+                    "explanation": "前、中、後序遍歷都是優先沿著子節點深入到樹的底部，屬於 DFS。層序遍歷則是逐層水平走訪，屬於 BFS。",
+                },
+                "en": {
+                    "title": "Which of the following algorithms are Depth-First Search (DFS) on a binary tree? (Multiple choice)",
+                    "options": [
+                        {"id": "opt1", "text": "Preorder Traversal"},
+                        {"id": "opt2", "text": "Inorder Traversal"},
+                        {"id": "opt3", "text": "Postorder Traversal"},
+                        {"id": "opt4", "text": "Level Order Traversal (BFS)"},
+                    ],
+                    "explanation": "Preorder, Inorder, and Postorder all traverse deeply along child nodes first — these are DFS. Level Order traversal visits nodes horizontally level by level — that is BFS.",
+                },
+            },
+        },
+        {
+            "id": "bt-group-2",
+            "groupId": "group-bt-bfs",
+            "type": "single-choice",
+            "baseRating": 1150,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "若當前取出的 node 沒有任何子節點 (葉節點)，執行完這次 while 迴圈後，queue 的長度會發生什麼變化？",
+                    "options": [
+                        {"id": "A", "text": "增加 2"},
+                        {"id": "B", "text": "維持不變"},
+                        {"id": "C", "text": "減少 1"},
+                        {"id": "D", "text": "變成 0"},
+                    ],
+                    "explanation": "迴圈開頭 pop(0) 會讓長度減 1。因為 node 沒有左右子節點，兩次 if 條件皆為 False，不會 append 新元素。因此整體長度淨減少 1。",
+                },
+                "en": {
+                    "title": "If the current node popped from the queue is a leaf node (no children), how does the queue length change after this while loop iteration?",
+                    "options": [
+                        {"id": "A", "text": "Increases by 2"},
+                        {"id": "B", "text": "Stays the same"},
+                        {"id": "C", "text": "Decreases by 1"},
+                        {"id": "D", "text": "Becomes 0"},
+                    ],
+                    "explanation": "pop(0) at the start decreases the length by 1. Since the leaf node has no children, both if conditions are False and nothing is appended. Net change: -1.",
+                },
+            },
+        },
+        {
+            "id": "bt-q7",
+            "type": "single-choice",
+            "baseRating": 1200,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "如果我們想要在記憶體中安全地「刪除整棵二元樹」，應該使用哪種遍歷方式最適合？",
+                    "options": [
+                        {"id": "A", "text": "前序遍歷 (Preorder)"},
+                        {"id": "B", "text": "中序遍歷 (Inorder)"},
+                        {"id": "C", "text": "後序遍歷 (Postorder)"},
+                        {"id": "D", "text": "層序遍歷 (BFS)"},
+                    ],
+                    "explanation": "刪除節點時，必須確保其左右子樹都已經被安全刪除後，才能刪除該節點本身。後序遍歷 (左->右->根) 完美符合這個「先處理子、再處理父」的需求。",
+                },
+                "en": {
+                    "title": "Which traversal is most suitable for safely deleting an entire binary tree from memory?",
+                    "options": [
+                        {"id": "A", "text": "Preorder"},
+                        {"id": "B", "text": "Inorder"},
+                        {"id": "C", "text": "Postorder"},
+                        {"id": "D", "text": "Level Order (BFS)"},
+                    ],
+                    "explanation": "When deleting nodes, you must ensure both subtrees are safely deleted before deleting the node itself. Postorder (Left -> Right -> Root) perfectly satisfies this 'children before parent' requirement.",
+                },
+            },
+        },
+        {
+            "id": "bt-q8",
+            "type": "single-choice",
+            "baseRating": 1250,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "在一棵完全退化成「只有右子節點」的二元樹（形狀像 Linked List）上執行遞迴 DFS，若有 n 個節點，其空間複雜度（Call Stack 深度）為何？",
+                    "options": [
+                        {"id": "A", "text": "O(1)"},
+                        {"id": "B", "text": "O(log n)"},
+                        {"id": "C", "text": "O(n)"},
+                        {"id": "D", "text": "O(n²)"},
+                    ],
+                    "explanation": "DFS 的空間複雜度取決於樹的最大高度 (O(h))。在退化樹中，高度 h 等於節點數 n，因此 Call Stack 會累積 n 層，空間複雜度為 O(n)。這可能導致 Stack Overflow。",
+                },
+                "en": {
+                    "title": "For a degenerate binary tree with only right children (shaped like a Linked List) with n nodes, what is the space complexity (Call Stack depth) of recursive DFS?",
+                    "options": [
+                        {"id": "A", "text": "O(1)"},
+                        {"id": "B", "text": "O(log n)"},
+                        {"id": "C", "text": "O(n)"},
+                        {"id": "D", "text": "O(n²)"},
+                    ],
+                    "explanation": "DFS space complexity depends on the maximum tree height O(h). In a degenerate tree, height h equals n, so the Call Stack accumulates n frames — O(n) space. This can cause Stack Overflow.",
+                },
+            },
+        },
+        {
+            "id": "bt-group-3",
+            "groupId": "group-bt-bfs",
+            "type": "fill-code",
+            "baseRating": 1300,
+            "correctAnswer": ["root", "queue", "pop(0)"],
+            "code": BFS_FILL_CODE,
+            "language": "python",
+            "translations": {
+                "zh-TW": {
+                    "title": "請填入 BFS 程式碼中 (a)(b)(c) 處缺失的部分（注意 Python 語法）。",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "(a) 初始化 Queue 時須放入起點 root。(b) 迴圈條件為 queue 不為空。(c) 使用 pop(0) 模擬 Dequeue 操作，取出最前方的元素。",
+                },
+                "en": {
+                    "title": "Fill in the blanks (a)(b)(c) in the BFS code (Python syntax).",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "(a) Initialize the queue with the starting node root. (b) Loop condition: queue is not empty. (c) Use pop(0) to simulate Dequeue — remove the front element.",
+                },
+            },
+        },
+        {
+            "id": "bt-q9",
+            "type": "single-choice",
+            "baseRating": 1350,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "對於包含 n 個節點的二元樹，無論使用哪種遍歷演算法 (Preorder, Inorder, Postorder, BFS)，其時間複雜度都是多少？",
+                    "options": [
+                        {"id": "A", "text": "O(1)"},
+                        {"id": "B", "text": "O(log n)"},
+                        {"id": "C", "text": "O(n)"},
+                        {"id": "D", "text": "O(n log n)"},
+                    ],
+                    "explanation": "遍歷的定義就是「拜訪樹中的每一個節點剛好一次」。因為有 n 個節點，無論順序為何，總共都需要執行 n 次訪問操作，因此時間複雜度恆為 O(n)。",
+                },
+                "en": {
+                    "title": "For a binary tree with n nodes, what is the time complexity of any traversal algorithm (Preorder, Inorder, Postorder, BFS)?",
+                    "options": [
+                        {"id": "A", "text": "O(1)"},
+                        {"id": "B", "text": "O(log n)"},
+                        {"id": "C", "text": "O(n)"},
+                        {"id": "D", "text": "O(n log n)"},
+                    ],
+                    "explanation": "Traversal by definition visits every node exactly once. With n nodes, regardless of order, exactly n visit operations are performed — time complexity is always O(n).",
+                },
+            },
+        },
+        {
+            "id": "bt-fill-1",
+            "type": "fill-code",
+            "baseRating": 1400,
+            "correctAnswer": ["node", "node.left", "node"],
+            "code": INORDER_FILL_CODE,
+            "language": "python",
+            "translations": {
+                "zh-TW": {
+                    "title": "以下是中序遍歷 (Inorder) 的遞迴實作。請填入 (a)(b)(c) 缺失的 Python 變數與邏輯。",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "中序的邏輯：(a) 檢查當前 node 是否為空 (終止條件)。(b) 遞迴進入左子樹 node.left。(c) 訪問當前 node 本身。最後遞迴右子樹。",
+                },
+                "en": {
+                    "title": "The following is a recursive Inorder Traversal implementation. Fill in the missing Python variables/logic at (a)(b)(c).",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "Inorder logic: (a) check if current node is None (base case). (b) recursively enter the left subtree node.left. (c) visit the current node itself. Then recurse into the right subtree.",
+                },
+            },
+        },
+        {
+            "id": "bt-multi-2",
+            "type": "multiple-choice",
+            "baseRating": 1450,
+            "correctAnswer": ["opt1", "opt2", "opt3"],
+            "translations": {
+                "zh-TW": {
+                    "title": "關於遞迴走訪二元樹的複雜度分析，以下哪些敘述是正確的？（多選）",
+                    "options": [
+                        {"id": "opt1", "text": "時間複雜度始終為 O(n)，因為每個節點都會被訪問。"},
+                        {"id": "opt2", "text": "空間複雜度取決於樹的高度 h，表示為 O(h)。"},
+                        {"id": "opt3", "text": "對於完美平衡的二元樹，空間複雜度最佳可達 O(log n)。"},
+                        {"id": "opt4", "text": "遞迴實作不需要消耗任何額外的記憶體空間。"},
+                    ],
+                    "explanation": "遞迴會消耗 Call Stack，空間為 O(h)。最壞情況退化樹 h=n (O(n))，最好情況平衡樹 h=log n (O(log n))。因此 opt4 是錯誤的。",
+                },
+                "en": {
+                    "title": "Which statements about the complexity of recursive binary tree traversal are correct? (Multiple choice)",
+                    "options": [
+                        {"id": "opt1", "text": "Time complexity is always O(n) because every node is visited."},
+                        {"id": "opt2", "text": "Space complexity depends on tree height h, expressed as O(h)."},
+                        {"id": "opt3", "text": "For a perfectly balanced binary tree, space complexity can be as good as O(log n)."},
+                        {"id": "opt4", "text": "Recursive implementation consumes no extra memory space."},
+                    ],
+                    "explanation": "Recursion consumes Call Stack space of O(h). Worst case (degenerate tree): h=n → O(n). Best case (balanced tree): h=log n → O(log n). Therefore opt4 is incorrect.",
+                },
+            },
+        },
+        {
+            "id": "bt-pred-1",
+            "type": "predict-line",
+            "baseRating": 1500,
+            "correctAnswer": "1 2 3 4 1 2 5 1 2",
+            "code": PREORDER_PREDICT_CODE,
+            "language": "python",
+            "translations": {
+                "zh-TW": {
+                    "title": "給定一棵只有根節點 root 的二元樹（root.left = None 且 root.right = None）。呼叫 preorder(root) 時，請依序填寫執行的行號序列（空格分隔）。",
+                    "options": [],
+                    "explanation": "進入 root(L1,L2,L3) -> 呼叫左子樹 node.left(L4) -> 進入 None(L1)，觸發 return(L2) -> 返回 root 呼叫右子樹 node.right(L5) -> 進入 None(L1)，觸發 return(L2)。因此序列為 1 2 3 4 1 2 5 1 2。",
+                },
+                "en": {
+                    "title": "Given a binary tree with only a root node (root.left = None and root.right = None), calling preorder(root) — write the sequence of line numbers executed (space-separated).",
+                    "options": [],
+                    "explanation": "Enter root(L1,L2,L3) -> call left subtree(L4) -> enter None(L1), trigger return(L2) -> back to root, call right subtree(L5) -> enter None(L1), trigger return(L2). Sequence: 1 2 3 4 1 2 5 1 2.",
+                },
+            },
+        },
+    ],
+}

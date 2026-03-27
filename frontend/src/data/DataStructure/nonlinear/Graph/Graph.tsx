@@ -190,9 +190,14 @@ function runRemoveNode(
     variables: { removeVal: deletedNodeId },
   });
 
+  // 還原被 mutate 的 pointers，避免 clean step 的 links 仍含已刪除節點
+  baseElements.forEach((node) => {
+    node.pointers = node.pointers.filter((p) => p.id !== targetId);
+  });
+
   steps.push({
     ...generateGraphFrame(
-      baseElements, // 使用原本 inputData 產生的列表 (已無該節點)
+      baseElements,
       {},
       {},
       "節點已移除，圖形重新排版",
@@ -1079,7 +1084,7 @@ function isGraphData(d: any): d is GraphData {
   return d && !Array.isArray(d) && Array.isArray(d.nodes);
 }
 
-/** Graph actionHandler（useRawAnimationParams + needsSyncCoordinates） */
+/** Graph actionHandler */
 function graphActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
@@ -1106,7 +1111,6 @@ function graphActionHandler(
     return {
       animationData: newData,
       useRawAnimationParams: true,
-      needsSyncCoordinates: true,
       animationParams: { type: "addVertex", value: val, isDirected },
     };
   }
@@ -1134,7 +1138,6 @@ function graphActionHandler(
     return {
       animationData: newData,
       useRawAnimationParams: true,
-      needsSyncCoordinates: true,
       animationParams: {
         type: "removeVertex",
         id: targetVal,
@@ -1168,7 +1171,6 @@ function graphActionHandler(
     return {
       animationData: newData,
       useRawAnimationParams: true,
-      needsSyncCoordinates: true,
       animationParams: {
         type: "addEdge",
         source: payload.source,
@@ -1195,7 +1197,6 @@ function graphActionHandler(
     return {
       animationData: newData,
       useRawAnimationParams: true,
-      needsSyncCoordinates: true,
       animationParams: {
         type: "removeEdge",
         source: payload.source,
@@ -1238,7 +1239,6 @@ function graphActionHandler(
     return {
       animationData: data,
       useRawAnimationParams: true,
-      needsSyncCoordinates: true,
       animationParams: { type: actionType, ...payload, isDirected },
     };
   }
@@ -1250,8 +1250,7 @@ function graphActionHandler(
       return {
         animationData: randData,
         isResetAction: true,
-        needsSyncCoordinates: true,
-        useRawAnimationParams: true,
+          useRawAnimationParams: true,
         animationParams: { type: "random", mode: "graph", isDirected },
       };
     }
@@ -1278,8 +1277,7 @@ function graphActionHandler(
       return {
         animationData: resetData,
         isResetAction: true,
-        needsSyncCoordinates: true,
-        useRawAnimationParams: true,
+          useRawAnimationParams: true,
         animationParams: { type: "reset", mode: "graph", isDirected },
       };
     }
@@ -1304,8 +1302,7 @@ function graphActionHandler(
           return {
             animationData: loadData,
             isResetAction: true,
-            needsSyncCoordinates: true,
-            useRawAnimationParams: true,
+                  useRawAnimationParams: true,
             animationParams: { type: "load", mode: "graph", isDirected: payload.Directed },
           };
         }
@@ -1314,7 +1311,6 @@ function graphActionHandler(
     return {
       animationData: data,
       isResetAction: true,
-      needsSyncCoordinates: true,
       useRawAnimationParams: true,
       animationParams: { type: "refresh", mode: "graph", isDirected },
     };

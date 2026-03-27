@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import { tutorialService } from '@/services/tutorialService';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -7,6 +9,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import { GraphCanvas } from "@/modules/core/Render/GraphCanvas";
 import ControlBar from "@/modules/core/components/ControlBar";
 import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
@@ -24,6 +27,7 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
@@ -35,12 +39,14 @@ interface CanvasPanelProps {
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
+  allStepsElements?: BaseElement[][];
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  viewMode: AlgorithmViewMode | "";
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
@@ -61,12 +67,14 @@ const CanvasPanel = ({
   isMobile,
   canvasContainerRef,
   currentStepData,
+  allStepsElements,
   currentLinks,
   canvasSize,
   topicTypeConfig,
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
+  viewMode,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -101,6 +109,12 @@ const CanvasPanel = ({
     opacity: isDragging ? 0 : 1,
   };
 
+  const useGraphCanvas =
+    topicTypeConfig?.id === "graph" ||
+    topicTypeConfig?.id === "dijkstra" ||
+    ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
+      viewMode !== "grid");
+
   return (
     <Panel
       id="canvas-panel"
@@ -120,16 +134,29 @@ const CanvasPanel = ({
           dragHandleProps={dragHandleProps}
         />
         <div ref={canvasContainerRef} className={styles.visualizationArea}>
-          <D3Canvas
-            elements={currentStepData?.elements || []}
-            links={currentLinks}
-            width={canvasSize.width}
-            height={canvasSize.height}
-            structureType={topicTypeConfig?.id}
-            statusColorMap={currentStatusColorMap}
-            statusConfig={currentStatusConfig}
-            isDirected={isDirected}
-          />
+          {useGraphCanvas ? (
+            <GraphCanvas
+              elements={currentStepData?.elements || []}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+            />
+          ) : (
+            <D3Canvas
+              elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              structureType={topicTypeConfig?.id}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+            />
+          )}
         </div>
         <div className={styles.stepDescription}>
           {currentStepData?.description}
@@ -374,6 +401,64 @@ function TutorialContent() {
     levelId: string;
   }>();
 
+  // Session 管理
+  const { isAuthenticated } = useAuth();
+  const sessionIdRef = useRef<number | null>(null);
+  const sessionStartRef = useRef<number>(Date.now());
+
+  // Teaching Complete
+  const [teachingDone, setTeachingDone] = useState(false);
+  const teachingDoneRef = useRef(false);
+  const handleTeachingComplete = async () => {
+    if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
+    try {
+      const res = await tutorialService.markTeachingComplete(levelId);
+      teachingDoneRef.current = true;
+      setTeachingDone(true);
+      if (res.xp_earned > 0) {
+        xp.show(res.xp_earned);
+      }
+    } catch {
+      // 403 = 未滿 30 秒，靜默忽略
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !levelId) return;
+
+    // Reset teaching state for the new level
+    teachingDoneRef.current = false;
+    setTeachingDone(false);
+
+    sessionStartRef.current = Date.now();
+    tutorialService.startSession(levelId)
+      .then((id) => { sessionIdRef.current = id; })
+      .catch(() => {});
+
+    const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
+
+    return () => {
+      clearTimeout(teachingTimer);
+      if (sessionIdRef.current === null) return;
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+
+      // 用 sendBeacon 確保頁面關閉時請求仍能送出
+      const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
+      const sessionBlob = new Blob([JSON.stringify({ duration_seconds: elapsed })], { type: 'application/json' });
+      if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
+        tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+      }
+
+      if (!teachingDoneRef.current && elapsed >= 30) {
+        const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
+        const teachingBlob = new Blob([], { type: 'application/json' });
+        if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
+          tutorialService.markTeachingComplete(levelId).catch(() => {});
+        }
+      }
+    };
+  }, [isAuthenticated, levelId]);
+
   // 新增：代碼模式狀態
   const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
 
@@ -490,6 +575,10 @@ function TutorialContent() {
     }, 1000 / playbackSpeed);
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed, activeSteps.length]);
+
+  const allStepsElements = useMemo(() => {
+    return activeSteps.map((step) => step?.elements ?? []);
+  }, [activeSteps]);
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
@@ -796,12 +885,14 @@ function TutorialContent() {
     isMobile,
     canvasContainerRef,
     currentStepData,
+    allStepsElements,
     currentLinks,
     canvasSize,
     topicTypeConfig,
     currentStatusColorMap,
     currentStatusConfig,
     isDirected: renderedIsDirected,
+    viewMode,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,
@@ -885,7 +976,6 @@ function TutorialContent() {
           topicTypeConfig={topicTypeConfig}
         />
       )}
-
       {/* Feature Tour */}
       <FeatureTour
         isOpen={showFeatureTour}

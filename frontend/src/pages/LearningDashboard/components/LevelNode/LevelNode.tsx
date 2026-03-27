@@ -61,17 +61,9 @@ function LevelNode({
 
   // 渲染星星（固定3顆，完成度映射顏色）
   const renderStars = () => {
-    // stars 範圍: 1-5 (DifficultyLevel)
-    // 映射到 3 顆星: 1-2 stars = 1顆黃 | 3 stars = 2顆黃 | 4-5 stars = 3顆黃
     let filledStars = 0;
     if (isCompleted) {
-      if (stars >= 4) {
-        filledStars = 3; // 100%
-      } else if (stars === 3) {
-        filledStars = 2; // 66%
-      } else {
-        filledStars = 1; // 33%
-      }
+      filledStars = stars; // stars 是 ScoreLevel (0-3)，直接對應顆數
     }
 
     // 弧形定位計算：左星星、中間星星、右星星

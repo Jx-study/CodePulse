@@ -14,6 +14,7 @@ export interface Option {
 
 export interface Question {
   id: string;
+  backendId?: number; // 從後端載入時帶入，submit 時使用
   type:
     | "single-choice"
     | "multiple-choice"
@@ -21,8 +22,6 @@ export interface Question {
     | "predict-line"
     | "fill-code";
   category: "basic" | "application" | "complexity";
-  difficulty: 1 | 2 | 3;
-  difficultyRating?: number;
   title: string;
   options?: Option[];
 
@@ -31,8 +30,13 @@ export interface Question {
 
   correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
-  points: number;
   groupId?: string;
+  group?: {
+    title: string;
+    description: string | null;
+    code: string | null;
+    language: string | null;
+  };
 }
 
 export interface QuestionGroup {
@@ -75,24 +79,20 @@ export interface PracticeResult {
   stars: 0 | 1 | 2 | 3;
   timeSpent: number;
   isPassed: boolean;
-  wrongQuestions: WrongQuestion[];
+  answerResults: AnswerResult[];
   oldRating: number; // 測驗前分數
   newRating: number; // 測驗後分數
   ratingDelta: number; // 分數變化 (+15, -20)
-  analysis?: AnalysisReport;
+  xpEarned: number;
 }
 
-export interface WrongQuestion {
+export interface AnswerResult {
   questionId: string;
+  isCorrect: boolean;
   userAnswer: string | string[];
   correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
   timeSpent: number;
+  points: number;
 }
 
-export interface AnalysisReport {
-  overallComment: string; // 整體評語
-  weaknessTags: string[]; // 弱點標籤 (例如: 'complexity', 'application')
-  behaviorTags: string[]; // 行為標籤 (例如: 'rushing', 'overthinking')
-  suggestions: string[]; // 具體建議列表
-}

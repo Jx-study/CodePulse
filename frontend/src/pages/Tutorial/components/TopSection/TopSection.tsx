@@ -17,8 +17,10 @@ import ResizeHandle from '../ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
+import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
+import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -26,12 +28,14 @@ interface CanvasPanelProps {
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
+  viewBoxElements?: BaseElement[];
   currentLinks: any[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  viewMode: AlgorithmViewMode | "";
   isPlaying: boolean;
   currentStep: number;
   activeStepsLength: number;

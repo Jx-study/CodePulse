@@ -74,5 +74,8 @@
   "theme": "Appearance Theme",
   "lightMode": "Light",
   "darkMode": "Dark",
-  "systemDefault": "System"
+  "systemDefault": "System",
+  "auth": {
+    "loginRequired": "Please log in to use this feature"
+  }
 }
