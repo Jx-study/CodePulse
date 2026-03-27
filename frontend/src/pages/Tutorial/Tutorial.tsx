@@ -36,6 +36,7 @@ interface CanvasPanelProps {
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
+  allStepsElements?: BaseElement[][];
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
@@ -63,6 +64,7 @@ const CanvasPanel = ({
   isMobile,
   canvasContainerRef,
   currentStepData,
+  allStepsElements,
   currentLinks,
   canvasSize,
   topicTypeConfig,
@@ -142,6 +144,7 @@ const CanvasPanel = ({
           ) : (
             <D3Canvas
               elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
               links={currentLinks}
               width={canvasSize.width}
               height={canvasSize.height}
@@ -512,6 +515,10 @@ function TutorialContent() {
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed, activeSteps.length]);
 
+  const allStepsElements = useMemo(() => {
+    return activeSteps.map((step) => step?.elements ?? []);
+  }, [activeSteps]);
+
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
     if (currentStepData?.links) {
@@ -817,6 +824,7 @@ function TutorialContent() {
     isMobile,
     canvasContainerRef,
     currentStepData,
+    allStepsElements,
     currentLinks,
     canvasSize,
     topicTypeConfig,
