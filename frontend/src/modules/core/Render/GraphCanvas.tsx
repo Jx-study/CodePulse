@@ -76,6 +76,7 @@ export function GraphCanvas({
   const posCacheRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const prevLinkKeyRef = useRef<string>("");
   const seenSelfLoopsRef = useRef<Set<string>>(new Set());
+  const linkSetRef = useRef<Set<string>>(new Set());
 
   // 注入 statusColorMap 到 elements（與 D3Renderer 一致）
   useEffect(() => {
@@ -353,7 +354,7 @@ export function GraphCanvas({
     nodeSel.call(dragBehavior);
 
     // 快速查詢反向邊（跟 D3Renderer 的 linkSet 保持一致）
-    const linkSet = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
+    linkSetRef.current = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
 
     // 雙向邊各自向左手法向量偏移，避免重疊
     const BIDIR_OFFSET = 6;
@@ -406,7 +407,7 @@ export function GraphCanvas({
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
             const ux = dx / dist;
             const uy = dy / dist;
-            const off = linkSet.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET : 0;
+            const off = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET : 0;
             const nx = -uy * off;
             const ny = ux * off;
             pathD = `M ${src.x + ux * src.r + nx},${src.y + uy * src.r + ny} L ${tgt.x - ux * tgt.r + nx},${tgt.y - uy * tgt.r + ny}`;
@@ -433,7 +434,7 @@ export function GraphCanvas({
             const ux = dx / len;
             const uy = dy / len;
             // 標籤跟著邊的偏移方向再多推 12px，讓權重顯示在各自那條線旁
-            const labelOff = linkSet.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET + 12 : 0;
+            const labelOff = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET + 12 : 0;
             cx = (src.x + tgt.x) / 2 + (-uy) * labelOff;
             cy = (src.y + tgt.y) / 2 + ux * labelOff;
           }
@@ -494,6 +495,7 @@ export function GraphCanvas({
       linkForce.links(simLinks);
       simulation.alpha(0.3).restart();
       prevLinkKeyRef.current = newLinkKey;
+      linkSetRef.current = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
     }
 
     // Link DOM join：新增的邊需要對應的 line 元素（不影響 simulation）
