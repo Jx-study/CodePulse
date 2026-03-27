@@ -19,6 +19,11 @@ import { linkStatusColorMap } from "./D3Renderer";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
+import {
+  circleBoundaryPoint,
+  straightLinkPath,
+  weightLabelCenter,
+} from "./linkGeometry";
 import styles from "./GraphCanvas.module.scss";
 
 // SVG arc 自環路徑：在 angle 方向畫一個近圓形的環
@@ -76,6 +81,7 @@ export function GraphCanvas({
   const posCacheRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const prevLinkKeyRef = useRef<string>("");
   const seenSelfLoopsRef = useRef<Set<string>>(new Set());
+  const linkSetRef = useRef<Set<string>>(new Set());
 
   // 注入 statusColorMap 到 elements（與 D3Renderer 一致）
   useEffect(() => {
@@ -183,14 +189,15 @@ export function GraphCanvas({
       };
     });
 
-    const simLinks: GSimLink[] = links.map((l) => ({
-      source: l.sourceId,
-      target: l.targetId,
-      sourceId: l.sourceId,
-      targetId: l.targetId,
-      status: l.status,
-      weight: l.weight,
-    }));
+    const seenPairs = new Set<string>();
+    const simLinks: GSimLink[] = links.reduce<GSimLink[]>((acc, l) => {
+      const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+      if (!seenPairs.has(key)) {
+        seenPairs.add(key);
+        acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
+      }
+      return acc;
+    }, []);
 
     // 軟邊界 force：節點靠近邊界時施加推回力，防止飛出視角
     function boundaryForce(padding: number) {
@@ -253,11 +260,7 @@ export function GraphCanvas({
         "link",
         forceLink<GSimNode, GSimLink>(simLinks)
           .id((d: GSimNode) => d.id)
-          .distance((d: GSimLink) => {
-            const w = Number(d.weight);
-            if (!isFinite(w) || w <= 0) return 100;
-            return Math.max(80, Math.min(240, w * 20));
-          })
+          .distance(100)
           .strength(0.5),
       )
       .force("charge", forceManyBody().strength(-250))
@@ -356,7 +359,10 @@ export function GraphCanvas({
     nodeSel.call(dragBehavior);
 
     // 快速查詢反向邊（跟 D3Renderer 的 linkSet 保持一致）
-    const linkSet = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
+    linkSetRef.current = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
+
+    // 雙向邊各自向左手法向量偏移，避免重疊
+    const BIDIR_OFFSET = 6;
 
     // Tick：更新座標 + 寫入快取（動態選取以支援 Effect 2 新增的 link）
     simulation.on("tick", () => {
@@ -401,12 +407,8 @@ export function GraphCanvas({
             }
             return;
           } else {
-            const dx = tgt.x - src.x;
-            const dy = tgt.y - src.y;
-            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            const ux = dx / dist;
-            const uy = dy / dist;
-            pathD = `M ${src.x + ux * src.r},${src.y + uy * src.r} L ${tgt.x - ux * tgt.r},${tgt.y - uy * tgt.r}`;
+            const off = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET : 0;
+            pathD = straightLinkPath(src, tgt, off);
           }
           d3Select(this).attr("d", pathD);
         });
@@ -424,15 +426,12 @@ export function GraphCanvas({
             cx = src.x + (src.r + src.r) * Math.cos(loopAngle);
             cy = src.y + (src.r + src.r) * Math.sin(loopAngle);
           } else {
-            const dx = tgt.x - src.x;
-            const dy = tgt.y - src.y;
-            const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            const hasReverse = linkSet.has(`${d.targetId}->${d.sourceId}`);
-            const offset = isDirected && hasReverse ? 8 : 0;
-            const ox = (-dy / len) * offset;
-            const oy = (dx / len) * offset;
-            cx = (src.x + tgt.x) / 2 + ox;
-            cy = (src.y + tgt.y) / 2 + oy;
+            const p1 = circleBoundaryPoint(src, tgt);
+            const p2 = circleBoundaryPoint(tgt, src);
+            const labelOff = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET + 12 : 0;
+            const center = weightLabelCenter(p1, p2, labelOff);
+            cx = center.x;
+            cy = center.y;
           }
           d3Select(this).attr("transform", `translate(${cx},${cy})`);
           const textEl = d3Select(this).select<SVGTextElement>("text.gc-weight-text");
@@ -475,14 +474,15 @@ export function GraphCanvas({
     const linkForce = simulation.force("link") as ReturnType<typeof forceLink<GSimNode, GSimLink>>;
     if (!linkForce) return;
 
-    const simLinks: GSimLink[] = links.map((l) => ({
-      source: l.sourceId,
-      target: l.targetId,
-      sourceId: l.sourceId,
-      targetId: l.targetId,
-      status: l.status,
-      weight: l.weight,
-    }));
+    const seenPairs2 = new Set<string>();
+    const simLinks: GSimLink[] = links.reduce<GSimLink[]>((acc, l) => {
+      const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+      if (!seenPairs2.has(key)) {
+        seenPairs2.add(key);
+        acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
+      }
+      return acc;
+    }, []);
 
     // 只在邊結構真的改變時才重啟 simulation
     const newLinkKey = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
@@ -490,6 +490,7 @@ export function GraphCanvas({
       linkForce.links(simLinks);
       simulation.alpha(0.3).restart();
       prevLinkKeyRef.current = newLinkKey;
+      linkSetRef.current = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
     }
 
     // Link DOM join：新增的邊需要對應的 line 元素（不影響 simulation）
