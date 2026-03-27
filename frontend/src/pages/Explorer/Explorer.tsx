@@ -8,7 +8,8 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
 import type { Link } from "@/modules/core/Render/D3Renderer";
 import { animateConnect } from "@/modules/core/Render/D3Renderer";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+import { lazy, Suspense } from "react";
+const CodeEditor = lazy(() => import("@/modules/core/components/CodeEditor/CodeEditor"));
 import Button from "@/shared/components/Button";
 
 // 預設程式碼範例
@@ -202,13 +203,15 @@ function Explorer() {
           {/* 左側：程式碼編輯器 */}
           <div className={styles.editorPanel}>
             <h3 className={styles.panelTitle}>程式碼編輯器</h3>
-            <CodeEditor
-              mode="single"
-              language="python"
-              value={code}
-              onChange={setCode}
-              theme="auto"
-            />
+            <Suspense fallback={null}>
+              <CodeEditor
+                mode="single"
+                language="python"
+                value={code}
+                onChange={setCode}
+                theme="auto"
+              />
+            </Suspense>
           </div>
 
           {/* 右側：視覺化畫布 */}
