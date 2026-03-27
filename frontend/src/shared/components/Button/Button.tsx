@@ -39,6 +39,8 @@ function Button({
         return styles.glass;
       case 'gameCtrl':
         return styles.gameCtrl;
+      case 'unstyled':
+        return styles.unstyled;
       default:
         return styles.primary;
     }

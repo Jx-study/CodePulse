@@ -281,6 +281,16 @@
   }
 }
 
+// Unstyled（無樣式按鈕）- 完全由外部 className 控制外觀
+.unstyled {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  font-weight: inherit;
+  color: inherit;
+}
+
 // Dot（圓形指示器按鈕）- .dot
 .dot {
   width: 12px;
