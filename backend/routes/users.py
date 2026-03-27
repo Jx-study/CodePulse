@@ -278,7 +278,7 @@ def checkin():
         description='每日打卡',
     )
     db.session.add(xp_event)
-    user.total_xp += DAILY_CHECKIN_XP
+    user.total_xp = (user.total_xp or 0) + DAILY_CHECKIN_XP
 
     try:
         db.session.commit()

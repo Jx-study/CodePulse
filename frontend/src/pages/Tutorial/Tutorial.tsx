@@ -402,6 +402,10 @@ function TutorialContent() {
   useEffect(() => {
     if (!isAuthenticated || !levelId) return;
 
+    // Reset teaching state for the new level
+    teachingDoneRef.current = false;
+    setTeachingDone(false);
+
     sessionStartRef.current = Date.now();
     tutorialService.startSession(levelId)
       .then((id) => { sessionIdRef.current = id; })
