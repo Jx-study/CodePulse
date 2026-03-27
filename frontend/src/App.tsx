@@ -27,6 +27,7 @@ import Practice from "./pages/Practice/Practice";
 import Explorer from "./pages/Explorer/Explorer";
 import About from "./pages/About/About";
 import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
+import ProtectedRoute from "./shared/components/ProtectedRoute";
 
 function CheckinWrapper() {
   const { isLoading, showCheckinDialog, setShowCheckinDialog } = useAuth();
@@ -80,10 +81,12 @@ function App() {
               path="/tutorial/:category/:levelId"
               element={<Tutorial />}
             />
-            <Route
-              path="/practice/:category/:levelId"
-              element={<Practice />}
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/practice/:category/:levelId"
+                element={<Practice />}
+              />
+            </Route>
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/about" element={<About />} />
           </Route>

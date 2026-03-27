@@ -48,6 +48,7 @@ import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { useLocation } from 'react-router-dom';
 
 function LearningDashboardInner() {
@@ -57,6 +58,7 @@ function LearningDashboardInner() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
+  const authGuard = useAuthGuard();
 
   // State
   const [userProgress, setUserProgress] = useState<UserProgress>(
@@ -235,6 +237,7 @@ function LearningDashboardInner() {
 
   // 跳轉到 Practice Page
   const handleStartPractice = () => {
+    if (!authGuard()) return;
     if (selectedLevel) {
       // 使用 ProgressService 更新關卡狀態為「進行中」
       const updatedProgress = startLevel(selectedLevel.id, userProgress);
