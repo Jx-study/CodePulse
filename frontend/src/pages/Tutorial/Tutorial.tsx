@@ -753,7 +753,6 @@ function TutorialContent() {
 
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
-    setCurrentStep(0);
     setIsPlaying(false);
   };
 
