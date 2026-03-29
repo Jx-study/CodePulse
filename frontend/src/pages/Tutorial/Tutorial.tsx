@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, Suspense } from "react";
-import { tutorialService } from '@/services/tutorialService';
-import { useAuth } from '@/shared/contexts/AuthContext';
+import { tutorialService } from "@/services/tutorialService";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -199,6 +199,7 @@ export interface InspectorPanelInternalProps {
   maxNodes: number | undefined;
   setRandomCount: (count: number) => void;
   setHasTailMode: (hasTail: boolean) => void;
+  handleListModeChange: (mode: "singly" | "doubly") => void;
   handleGraphAction: (action: string, payload: any) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
@@ -225,6 +226,7 @@ export const InspectorPanelInternal = ({
   maxNodes,
   setRandomCount,
   setHasTailMode,
+  handleListModeChange,
   handleGraphAction,
   isDirected,
   setIsDirected,
@@ -292,6 +294,7 @@ export const InspectorPanelInternal = ({
               maxNodes={maxNodes}
               onMaxNodesChange={setRandomCount}
               onTailModeChange={setHasTailMode}
+              onListModeChange={handleListModeChange}
               onGraphAction={handleGraphAction}
               isDirected={isDirected}
               onIsDirectedChange={setIsDirected}
@@ -431,8 +434,11 @@ function TutorialContent() {
     setTeachingDone(false);
 
     sessionStartRef.current = Date.now();
-    tutorialService.startSession(levelId)
-      .then((id) => { sessionIdRef.current = id; })
+    tutorialService
+      .startSession(levelId)
+      .then((id) => {
+        sessionIdRef.current = id;
+      })
       .catch(() => {});
 
     const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
@@ -444,14 +450,19 @@ function TutorialContent() {
 
       // 用 sendBeacon 確保頁面關閉時請求仍能送出
       const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
-      const sessionBlob = new Blob([JSON.stringify({ duration_seconds: elapsed })], { type: 'application/json' });
+      const sessionBlob = new Blob(
+        [JSON.stringify({ duration_seconds: elapsed })],
+        { type: "application/json" },
+      );
       if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
-        tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+        tutorialService
+          .endSession(levelId, sessionIdRef.current, elapsed)
+          .catch(() => {});
       }
 
       if (!teachingDoneRef.current && elapsed >= 30) {
         const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
-        const teachingBlob = new Blob([], { type: 'application/json' });
+        const teachingBlob = new Blob([], { type: "application/json" });
         if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
           tutorialService.markTeachingComplete(levelId).catch(() => {});
         }
@@ -514,7 +525,7 @@ function TutorialContent() {
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
-  // 新增：根據 hasTailMode 動態計算當前的 codeConfig
+  // 根據 hasTailMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
     if (!topicTypeConfig) return null;
     if (topicTypeConfig.getCodeConfig) {
@@ -756,6 +767,13 @@ function TutorialContent() {
     setIsPlaying(false);
   };
 
+  const handleListModeChange = (mode: "singly" | "doubly") => {
+    const isDoubly = mode === "doubly";
+    executeAction("switch_mode", { isDoubly });
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleNext = () =>
@@ -861,6 +879,7 @@ function TutorialContent() {
     maxNodes,
     setRandomCount: handleRandomCountChange,
     setHasTailMode,
+    handleListModeChange: handleListModeChange,
     handleGraphAction,
     isDirected,
     setIsDirected: handleIsDirectedChange,

@@ -22,12 +22,14 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   onDeleteNode,
   onSearchNode,
   onTailModeChange,
+  onListModeChange,
   maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [indexValue, setIndexValue] = useState("");
   const [insertMode, setInsertMode] = useState("Head");
   const [searchValue, setSearchValue] = useState("");
+  const [isDoubly, setIsDoubly] = useState<"singly" | "doubly">("singly");
 
   const showIndexInput = insertMode === "Node N";
 
@@ -46,7 +48,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
     const idx = indexValue !== "" ? Number(indexValue) : undefined;
     onDeleteNode(insertMode, idx);
   };
-
+  console.log(onListModeChange);
   return (
     <ActionBarContainer>
       <ActionBarGroup>
@@ -58,6 +60,24 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           disabled={disabled}
           maxNodes={maxNodes}
         />
+        {onListModeChange && (
+          <Select
+            size="sm"
+            value={isDoubly}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              const mode = e.target.value as "singly" | "doubly";
+              setIsDoubly(mode);
+              onListModeChange(mode);
+            }}
+            className={styles.select}
+            disabled={disabled}
+            options={[
+              { value: "singly", label: "單向 (Singly)" },
+              { value: "doubly", label: "雙向 (Doubly)" },
+            ]}
+            aria-label="List mode selection"
+          />
+        )}
         {onTailModeChange && (
           <Select
             size="sm"
