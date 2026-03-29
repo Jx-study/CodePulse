@@ -99,3 +99,111 @@
         color: $execution-color;
     }
 }
+
+.macWindow {
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: #1e1e1e;
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  text-align: left;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  @include mobile {
+    font-size: $font-xs;
+    border-radius: 6px;
+  }
+}
+
+.macChrome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: #2d2d2d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.trafficLights {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.tlRed,
+.tlYellow,
+.tlGreen {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+
+  @include mobile {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.tlRed    { background: #ff5f57; }
+.tlYellow { background: #febc2e; }
+.tlGreen  { background: #28c840; }
+
+.windowTitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+  flex: 1;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.codeBody {
+  padding: $spacing-md;
+  overflow-x: auto;
+
+  @include mobile {
+    padding: $spacing-sm;
+  }
+}
+
+.codeLine {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 3px;
+  border-left: 3px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+
+  &.highlighted {
+    background: rgba(255, 215, 0, 0.12);
+    border-left-color: #ffd700;
+  }
+}
+
+.lineNumber {
+  min-width: 1.6rem;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.25);
+  user-select: none;
+  font-size: 0.75em;
+  flex-shrink: 0;
+}
+
+.lineText {
+  color: #d4edda;
+  white-space: pre;
+}
+
+.visualizationArea {
+  height: 14rem;
+  margin-top: $spacing-md;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  @include mobile {
+    height: 10rem;
+    margin-top: $spacing-sm;
+  }
+}
