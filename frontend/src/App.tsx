@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 // Auth Context
 import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
+import CheckinDialog from '@/modules/user/components/CheckinDialog';
+import XpFloat from '@/shared/components/XpFloat';
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
@@ -25,6 +27,18 @@ import Practice from "./pages/Practice/Practice";
 import Explorer from "./pages/Explorer/Explorer";
 import About from "./pages/About/About";
 import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
+import ProtectedRoute from "./shared/components/ProtectedRoute";
+
+function CheckinWrapper() {
+  const { isLoading, showCheckinDialog, setShowCheckinDialog } = useAuth();
+  if (isLoading) return null;
+  return (
+    <CheckinDialog
+      isOpen={showCheckinDialog}
+      onClose={() => setShowCheckinDialog(false)}
+    />
+  );
+}
 
 function ThemeApplier() {
   const { user, isLoading } = useAuth();
@@ -53,7 +67,9 @@ function App() {
   return (
     <AuthProvider>
       <ThemeApplier />
+      <CheckinWrapper />
       <ToastContainer />
+      <XpFloat />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* 主布局 */}
@@ -65,10 +81,12 @@ function App() {
               path="/tutorial/:category/:levelId"
               element={<Tutorial />}
             />
-            <Route
-              path="/practice/:category/:levelId"
-              element={<Practice />}
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/practice/:category/:levelId"
+                element={<Practice />}
+              />
+            </Route>
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/about" element={<About />} />
           </Route>

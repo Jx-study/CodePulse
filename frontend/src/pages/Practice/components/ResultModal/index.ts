@@ -1,2 +1,2 @@
 export { default as ResultModal } from './ResultModal';
-export { default as WrongAnswerList } from './WrongAnswerList';
+export { default as AnswerList } from './AnswerList';

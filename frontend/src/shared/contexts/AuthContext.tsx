@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { User, AuthContextType } from '@/types';
 import authService from '@/services/authService';
@@ -12,6 +12,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCheckinDialog, setShowCheckinDialog] = useState(false);
+  const hasEvaluatedCheckin = useRef(false);
+
+  const evaluateCheckin = useCallback((userData: User) => {
+    if (hasEvaluatedCheckin.current) return;
+    hasEvaluatedCheckin.current = true;
+    const today = new Date().toLocaleDateString('en-CA', {
+      timeZone: userData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
+    if (userData.last_login_date !== today) {
+      setShowCheckinDialog(true);
+    }
+  }, []);
 
   const checkAuthStatus = useCallback(async () => {
     try {
@@ -20,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.isAuthenticated && data.user) {
         setIsAuthenticated(true);
         setUser(data.user);
+        evaluateCheckin(data.user);
         reconcileTheme(data.user.theme);
         if (data.user.language) i18n.changeLanguage(data.user.language);
       } else {
@@ -32,13 +46,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [evaluateCheckin]);
 
   const login = useCallback(async (usernameOrEmail: string, password: string) => {
     const data = await authService.login(usernameOrEmail, password);
     if (data.success) {
       setIsAuthenticated(true);
       setUser(data.user ?? null);
+      if (data.user) evaluateCheckin(data.user);
       reconcileTheme(data.user?.theme);
       if (data.user?.language) i18n.changeLanguage(data.user.language);
     } else {
@@ -59,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data.success) {
       setIsAuthenticated(true);
       setUser(data.user ?? null);
+      if (data.user) evaluateCheckin(data.user);
       reconcileTheme(data.user?.theme);
       if (data.user?.language) i18n.changeLanguage(data.user.language);
     } else {
@@ -78,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsAuthenticated(false);
       setUser(null);
+      hasEvaluatedCheckin.current = false;
     }
   }, []);
 
@@ -95,6 +112,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     checkAuthStatus,
     updateUser,
+    showCheckinDialog,
+    setShowCheckinDialog,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,3 +1,16 @@
+export interface CheckinResponse {
+  success: boolean;
+  already_checked_in: boolean;
+  xp_earned: number;
+  current_streak: number;
+  longest_streak: number;
+  total_xp: number;
+}
+
+export interface CheckinHistoryResponse {
+  dates: string[];
+}
+
 interface UpdateProfilePayload {
   display_name?: string;
   avatar_url?: string;
@@ -51,6 +64,27 @@ export const userService = {
       const data = await resp.json().catch(() => ({}));
       throw { status: resp.status, error_code: data.error_code, message: data.message };
     }
+  },
+
+  async checkin(): Promise<CheckinResponse> {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const resp = await fetch('/api/users/me/checkin', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timezone }),
+    });
+    if (!resp.ok) throw new Error('Checkin failed');
+    return resp.json();
+  },
+
+  async getCheckinHistory(year: number, month: number): Promise<CheckinHistoryResponse> {
+    const resp = await fetch(
+      `/api/users/me/checkin-history?year=${year}&month=${month}`,
+      { credentials: 'include' }
+    );
+    if (!resp.ok) throw new Error('Failed to fetch checkin history');
+    return resp.json();
   },
 
   async uploadAvatar(file: File): Promise<string> {
