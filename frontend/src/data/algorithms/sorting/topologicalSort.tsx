@@ -448,7 +448,7 @@ export const topologicalSortConfig: LevelImplementationConfig = {
     timeBest: "O(V + E)",
     timeAverage: "O(V + E)",
     timeWorst: "O(V + E)",
-    space: "O(V)",
+    space: "O(V + E)",
   },
   introduction: `拓撲排序專門用來處理「有向無環圖 (DAG)」的依賴關係。只有當一個節點的「入度 (In-degree)」為 0 時才能被執行。每執行完一個節點，就把它連出去的邊拔掉，釋放後續節點的依賴。`,
   defaultData: {
@@ -472,5 +472,35 @@ export const topologicalSortConfig: LevelImplementationConfig = {
   actionHandler: topoActionHandler,
   createAnimationSteps: createTopologicalSortAnimationSteps,
   defaultIsDirected: true,
+  relatedProblems: [
+    {
+      id: 207,
+      title: "Course Schedule",
+      concept: "經典拓撲排序：判斷課程能否全部修完（有無 cycle）",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/course-schedule/",
+    },
+    {
+      id: 210,
+      title: "Course Schedule II",
+      concept: "拓撲排序：輸出修課順序（完整的拓撲序列）",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/course-schedule-ii/",
+    },
+    {
+      id: 802,
+      title: "Find Eventual Safe States",
+      concept: "反向拓撲排序：找出所有不會陷入環的安全節點",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/find-eventual-safe-states/",
+    },
+    {
+      id: 1462,
+      title: "Course Schedule IV",
+      concept: "拓撲排序 + 傳遞閉包：判斷課程間的先修關係",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/course-schedule-iv/",
+    },
+  ],
   renderActionBar: (props) => <TopologicalSortActionBar {...(props as any)} />,
 };
