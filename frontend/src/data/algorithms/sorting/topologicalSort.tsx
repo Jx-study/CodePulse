@@ -205,7 +205,7 @@ export function createTopologicalSortAnimationSteps(
 
     queue.forEach((id, index) => {
       const box = new Box();
-      box.id = `q-${id}`;
+      box.id = `box-${id}`;
       box.value = id.replace("node-", "");
       const baseX = 850;
       const baseY = 355 - index * 35;
@@ -225,7 +225,7 @@ export function createTopologicalSortAnimationSteps(
 
     if (poppingNodeId) {
       const dropBox = new Box();
-      dropBox.id = `q-${poppingNodeId}`;
+      dropBox.id = `box-${poppingNodeId}`;
       dropBox.value = poppingNodeId.replace("node-", "");
 
       const baseX = 850;
@@ -238,10 +238,10 @@ export function createTopologicalSortAnimationSteps(
     }
 
     const resStartX = 50,
-      resY = 360;
+      resY = 420;
     result.forEach((id, i) => {
       const box = new Box();
-      box.id = `res-${id}-${i}`;
+      box.id = `box-${id}`;
       box.value = id.replace("node-", "");
       box.moveTo(resStartX + i * 45, resY);
       box.width = 40;
