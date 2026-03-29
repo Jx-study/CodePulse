@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import {
   forceSimulation,
   forceLink,
@@ -14,6 +14,7 @@ import {
 import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
+import { Box } from "../DataLogic/Box";
 import type { Link } from "./D3Renderer";
 import { linkStatusColorMap } from "./D3Renderer";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
@@ -60,6 +61,10 @@ export interface GraphCanvasProps {
   isDirected?: boolean;
   enableZoom?: boolean;
   enablePan?: boolean;
+  /** 所有動畫步驟的元素陣列，用於預計算含 Box 的 viewBox（與 D3Canvas 一致）*/
+  allStepsElements?: BaseElement[][];
+  /** 資料結構/演算法類型，用於繪製 container 裝飾線（如 topological-sort 的 Queue 框）*/
+  structureType?: string;
 }
 
 interface GSimNode extends SimulationNodeDatum {
@@ -86,6 +91,8 @@ export function GraphCanvas({
   statusConfig,
   enableZoom = true,
   enablePan = true,
+  allStepsElements,
+  structureType,
 }: GraphCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<ReturnType<typeof forceSimulation<GSimNode>> | null>(null);
@@ -94,6 +101,10 @@ export function GraphCanvas({
   const prevLinkKeyRef = useRef<string>("");
   const seenSelfLoopsRef = useRef<Set<string>>(new Set());
   const linkSetRef = useRef<Set<string>>(new Set());
+
+  // 動態 viewBox：只向外擴張（用於 Box 元素超出預設範圍時）
+  const [svgViewBox, setSvgViewBox] = useState(`0 0 ${width} ${height}`);
+  const maxExtentRef = useRef({ maxX: width, maxY: height });
 
   // 注入 statusColorMap 到 elements（與 D3Renderer 一致）
   useEffect(() => {
@@ -206,12 +217,15 @@ export function GraphCanvas({
     // 軟邊界 force：節點靠近邊界時施加推回力，防止飛出視角
     function boundaryForce(padding: number) {
       return function (alpha: number) {
+        const rightBoundary =
+          structureType === "topological-sort" ? Math.min(width, 750) : width;
+
         simNodes.forEach((n) => {
           const r = (n.radius ?? 20) + padding;
           const x = n.x ?? 0;
           const y = n.y ?? 0;
           if (x < r) n.vx = (n.vx ?? 0) + (r - x) * alpha;
-          if (x > width - r) n.vx = (n.vx ?? 0) + (width - r - x) * alpha;
+          if (x > rightBoundary - r) n.vx = (n.vx ?? 0) + (rightBoundary - r - x) * alpha;
           if (y < r) n.vy = (n.vy ?? 0) + (r - y) * alpha;
           if (y > height - r) n.vy = (n.vy ?? 0) + (height - r - y) * alpha;
         });
@@ -259,6 +273,8 @@ export function GraphCanvas({
       return ((bestAngle + Math.PI) % (2 * Math.PI)) - Math.PI;
     };
 
+    const centerX = structureType === "topological-sort" ? Math.min(width / 2, 350) : width / 2;
+
     const simulation = forceSimulation<GSimNode>(simNodes)
       .force(
         "link",
@@ -268,7 +284,7 @@ export function GraphCanvas({
           .strength(0.5),
       )
       .force("charge", forceManyBody().strength(-250))
-      .force("center", forceCenter(width / 2, height / 2))
+      .force("center", forceCenter(centerX, height / 2))
       .force("collide", forceCollide<GSimNode>((d) => d.radius + 8))
       .force("boundary", boundaryForce(20));
 
@@ -344,6 +360,41 @@ export function GraphCanvas({
       .attr("text-anchor", "middle")
       .style("pointer-events", "none")
       .style("user-select", "none");
+
+    // Box 群組（固定座標，不參與 force simulation，位於最上層）
+    mainGroup.append("g").attr("class", "gc-boxes");
+
+    // Container 裝飾線（對應 D3Renderer 的 drawContainer）
+    if (structureType === "topological-sort") {
+      const containerG = mainGroup.append("g").attr("class", "gc-container");
+      const lineAttrs = { stroke: "#555", "stroke-width": 2 };
+      const startX = 750, endX = 950, topY = 50, bottomY = 380;
+      (
+        [
+          [startX, topY, startX, bottomY],
+          [endX,   topY, endX,   bottomY],
+        ] as [number, number, number, number][]
+      ).forEach(([x1, y1, x2, y2]) => {
+        containerG
+          .append("line")
+          .attr("class", "container-line")
+          .attr("x1", x1).attr("y1", y1)
+          .attr("x2", x2).attr("y2", y2)
+          .attr("stroke", lineAttrs.stroke)
+          .attr("stroke-width", lineAttrs["stroke-width"]);
+      });
+      containerG
+        .append("text")
+        .attr("x", startX)
+        .attr("y", bottomY + 20)
+        .text("Call Stack/Queue")
+        .attr("fill", "#888")
+        .attr("font-size", 12);
+    }
+
+    // 重置 viewBox 擴張記錄
+    maxExtentRef.current = { maxX: width, maxY: height };
+    setSvgViewBox(`0 0 ${width} ${height}`);
 
     // Drag
     const dragBehavior = d3Drag<SVGCircleElement, GSimNode>()
@@ -468,7 +519,30 @@ export function GraphCanvas({
     return () => {
       simulation.stop();
     };
-  }, [nodeIds, width, height, isDirected]); // links 不放入，addEdge 不重建
+  }, [nodeIds, width, height, isDirected, structureType]); // links 不放入，addEdge 不重建
+
+  // Effect 1b：從 allStepsElements 預計算 Box 的最大 viewBox（與 D3Canvas 的 computeUnionBBox 對應）
+  // 必須在 Effect 1 之後定義，確保 Effect 1 重置 maxExtentRef 後再擴張
+  useEffect(() => {
+    if (!allStepsElements || allStepsElements.length === 0) return;
+    const PAD = 30;
+    let { maxX, maxY } = maxExtentRef.current;
+    let changed = false;
+    allStepsElements.forEach((stepEls) => {
+      stepEls.forEach((el) => {
+        if (!(el instanceof Box)) return;
+        const b = el as Box;
+        const ex = b.position.x + b.width / 2 + PAD;
+        const ey = b.position.y + b.height / 2 + PAD;
+        if (ex > maxX) { maxX = ex; changed = true; }
+        if (ey > maxY) { maxY = ey; changed = true; }
+      });
+    });
+    if (changed) {
+      maxExtentRef.current = { maxX, maxY };
+      setSvgViewBox(`0 0 ${maxX} ${maxY}`);
+    }
+  }, [allStepsElements]);
 
   // Effect 2：更新 links（addEdge 時邊即時出現）
   useEffect(() => {
@@ -542,6 +616,132 @@ export function GraphCanvas({
   useEffect(() => {
     if (!svgRef.current) return;
 
+    const transitionDuration = 500;
+    const transitionEase = easeQuadOut;
+
+    // --- Box 渲染（固定座標，不屬於 force simulation）---
+    // 與 D3Renderer：transition("move") 位移、transition("fade") 透明度、appearAnim grow、borderStyle dashed
+    const boxElements = elements.filter((e): e is Box => e instanceof Box);
+
+    const boxMerged = d3Select(svgRef.current)
+      .select(".main-group .gc-boxes")
+      .selectAll<SVGGElement, Box>("g.gc-box")
+      .data(boxElements, (d) => String(d.id))
+      .join(
+        (enter) => {
+          const g = enter
+            .append("g")
+            .attr("class", "gc-box")
+            .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`)
+            .style("opacity", (d) => d.opacity ?? 1);
+          g.each(function (d) {
+            const gg = d3Select(this);
+            const rect = gg.append("rect").attr("class", "gc-box-rect").attr("rx", 8);
+            if (d.appearAnim === "instant") {
+              const color = d.getColor();
+              rect
+                .attr("x", -d.width / 2)
+                .attr("y", -d.height / 2)
+                .attr("width", d.width)
+                .attr("height", d.height)
+                .attr("fill", color)
+                .attr("fill-opacity", 0.2)
+                .attr("stroke", color)
+                .attr("stroke-width", 2);
+              if (d.borderStyle === "dashed") {
+                rect.attr("stroke-dasharray", "5,5");
+              }
+            }
+            gg.append("text")
+              .attr("class", "gc-box-val")
+              .attr("text-anchor", "middle")
+              .attr("font-size", 14)
+              .attr("font-family", "inherit")
+              .style("pointer-events", "none")
+              .style("user-select", "none");
+            gg.append("text")
+              .attr("class", "gc-box-desc")
+              .attr("text-anchor", "middle")
+              .attr("font-size", 12)
+              .attr("font-family", "inherit")
+              .style("pointer-events", "none")
+              .style("user-select", "none");
+          });
+          return g;
+        },
+        (update) => update,
+        (exit) => exit.remove(),
+      );
+
+    boxMerged
+      .transition("move")
+      .duration(transitionDuration)
+      .ease(transitionEase)
+      .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`);
+
+    boxMerged.each(function (d) {
+      const g = d3Select(this);
+      const targetOpacity = d.opacity ?? 1;
+      const currentOpacity = parseFloat(g.style("opacity") || "1");
+      if (targetOpacity < currentOpacity) {
+        g.interrupt("fade").style("opacity", 0);
+      } else if (targetOpacity > currentOpacity) {
+        g.transition("fade")
+          .duration(transitionDuration)
+          .ease(transitionEase)
+          .style("opacity", targetOpacity);
+      }
+    });
+
+    boxMerged.each(function (d) {
+      const g = d3Select(this);
+      const color = d.getColor();
+      const rect = g.select<SVGRectElement>("rect.gc-box-rect");
+      rect
+        .transition()
+        .duration(transitionDuration)
+        .ease(transitionEase)
+        .attr("x", -d.width / 2)
+        .attr("y", -d.height / 2)
+        .attr("width", d.width)
+        .attr("height", d.height)
+        .attr("rx", 8)
+        .attr("fill", color)
+        .attr("fill-opacity", 0.2)
+        .attr("stroke", color)
+        .attr("stroke-width", 2);
+      if (d.borderStyle === "dashed") {
+        rect.attr("stroke-dasharray", "5,5");
+      } else {
+        rect.attr("stroke-dasharray", null);
+      }
+      g.select("text.gc-box-val")
+        .text(d.value ?? "")
+        .attr("y", 5)
+        .attr("fill", "#ccc");
+      g.select("text.gc-box-desc")
+        .attr("y", d.height / 2 + 14)
+        .text(d.description ?? "")
+        .attr("fill", "#aaa");
+    });
+
+    // 若 Box 座標超出目前 viewBox 範圍，向外擴張（只擴不縮）
+    if (boxElements.length > 0) {
+      const PAD = 30;
+      let { maxX, maxY } = maxExtentRef.current;
+      let changed = false;
+      boxElements.forEach((b) => {
+        const ex = b.position.x + b.width / 2 + PAD;
+        const ey = b.position.y + b.height / 2 + PAD;
+        if (ex > maxX) { maxX = ex; changed = true; }
+        if (ey > maxY) { maxY = ey; changed = true; }
+      });
+      if (changed) {
+        maxExtentRef.current = { maxX, maxY };
+        setSvgViewBox(`0 0 ${maxX} ${maxY}`);
+      }
+    }
+
     const nodeMap = new Map(nodeElements.map((e) => [e.id, e]));
 
     d3Select(svgRef.current)
@@ -613,7 +813,7 @@ export function GraphCanvas({
     <div className={styles.canvasContainer}>
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={svgViewBox}
         className={styles.canvas}
         preserveAspectRatio="xMidYMid meet"
       />
