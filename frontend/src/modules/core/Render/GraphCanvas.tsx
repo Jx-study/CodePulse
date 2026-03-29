@@ -37,6 +37,18 @@ function selfLoopPath(cx: number, cy: number, r: number, angle: number): string 
   return `M ${sx},${sy} A ${loopR},${loopR},0,1,1,${ex},${ey}`;
 }
 
+function deduplicateLinks(links: Link[], isDirected: boolean): GSimLink[] {
+  const seenPairs = new Set<string>();
+  return links.reduce<GSimLink[]>((acc, l) => {
+    const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+    if (!seenPairs.has(key)) {
+      seenPairs.add(key);
+      acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
+    }
+    return acc;
+  }, []);
+}
+
 // 與 D3Canvas 相容的子集 props
 export interface GraphCanvasProps {
   elements: BaseElement[];
@@ -189,15 +201,7 @@ export function GraphCanvas({
       };
     });
 
-    const seenPairs = new Set<string>();
-    const simLinks: GSimLink[] = links.reduce<GSimLink[]>((acc, l) => {
-      const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
-      if (!seenPairs.has(key)) {
-        seenPairs.add(key);
-        acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
-      }
-      return acc;
-    }, []);
+    const simLinks: GSimLink[] = deduplicateLinks(links, isDirected);
 
     // 軟邊界 force：節點靠近邊界時施加推回力，防止飛出視角
     function boundaryForce(padding: number) {
@@ -474,15 +478,7 @@ export function GraphCanvas({
     const linkForce = simulation.force("link") as ReturnType<typeof forceLink<GSimNode, GSimLink>>;
     if (!linkForce) return;
 
-    const seenPairs2 = new Set<string>();
-    const simLinks: GSimLink[] = links.reduce<GSimLink[]>((acc, l) => {
-      const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
-      if (!seenPairs2.has(key)) {
-        seenPairs2.add(key);
-        acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
-      }
-      return acc;
-    }, []);
+    const simLinks: GSimLink[] = deduplicateLinks(links, isDirected);
 
     // 只在邊結構真的改變時才重啟 simulation
     const newLinkKey = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
