@@ -143,7 +143,6 @@ function topoActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { isDirected: true, ...payload },
-      needsSyncCoordinates: true,
       isResetAction: true,
     };
   }
@@ -472,5 +471,6 @@ export const topologicalSortConfig: LevelImplementationConfig = {
   },
   actionHandler: topoActionHandler,
   createAnimationSteps: createTopologicalSortAnimationSteps,
+  defaultIsDirected: true,
   renderActionBar: (props) => <TopologicalSortActionBar {...(props as any)} />,
 };
