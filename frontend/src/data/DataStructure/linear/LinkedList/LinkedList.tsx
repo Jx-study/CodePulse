@@ -1568,17 +1568,68 @@ function createDeleteHeadSteps(
     );
   });
   const allS2 = [...s2DelElement, ...s2RestElements];
-  const actualAllS2 = allS2.filter((n) => !(n instanceof Pointer));
-  linkCurrentNodes(actualAllS2 as any);
+  const actualAllS2 = allS2.filter((n) => !(n instanceof Pointer)) as any[];
 
-  addStep(steps, {
-    stepNumber: 2,
+  // 先讓舊節點與新節點保持完整的連線 (包含雙向)
+  if (currentIsDoubly) {
+    linkNodesDoubly(actualAllS2);
+    syncPointersFromNextPrev(actualAllS2);
+  } else {
+    linkCurrentNodes(actualAllS2);
+  }
+
+  let currentStepIdx = 2;
+  steps.push({
+    stepNumber: currentStepIdx++,
     description: "head = head.next (將 head 指標移至下一個節點)",
     elements: allS2 as any,
     actionTag: TAGS.DELETE_HEAD_UPDATE,
     variables: { head: dataList[0]?.value ?? null },
   });
 
+  // 針對雙向鏈結串列：單獨拆出 head.prev = null 的動畫
+  if (currentIsDoubly && dataList.length > 0) {
+    const s3bDelElement = createNodeAndPointers(
+      deletedNodeData,
+      0,
+      currentLen + 1,
+      startX,
+      baseY,
+      Status.Target,
+      "",
+    );
+    const s3bRestElements = dataList.flatMap((item, i) => {
+      let label = i === 0 ? "head" : undefined;
+      if (hasTailMode && i === currentLen - 1) label = "tail";
+      if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
+      return createNodeAndPointers(
+        item,
+        i + 1,
+        currentLen + 1,
+        startX + (i + 1) * gap,
+        baseY,
+        i === 0 ? Status.Prepare : Status.Unfinished,
+        label,
+      );
+    });
+
+    const allS3b = [...s3bDelElement, ...s3bRestElements];
+    const actualAllS3b = allS3b.filter((n) => !(n instanceof Pointer)) as any[];
+
+    linkNodesDoubly(actualAllS3b);
+    actualAllS3b[1].prev = null; // 手動斷開新 Head 回指舊 Head 的 prev 箭頭
+    syncPointersFromNextPrev(actualAllS3b);
+
+    steps.push({
+      stepNumber: currentStepIdx++,
+      description: "head.prev = null (斷開新頭節點的回指連結)",
+      elements: allS3b as any,
+      actionTag: TAGS.DELETE_HEAD_UPDATE,
+      variables: { head: dataList[0]?.value ?? null },
+    });
+  }
+
+  // 單向與雙向共用：斷開被刪除節點的 next
   const s3DelElement = createNodeAndPointers(
     deletedNodeData,
     0,
@@ -1588,14 +1639,8 @@ function createDeleteHeadSteps(
     Status.Inactive,
     "",
   );
-  const delNodeObj = s3DelElement.find(
-    (n: any) => !(n instanceof Pointer),
-  ) as any;
-  if (delNodeObj) delNodeObj.pointers = [];
-
   const s3RestElements = dataList.flatMap((item, i) => {
-    let label = undefined;
-    if (i === 0) label = "head";
+    let label = i === 0 ? "head" : undefined;
     if (hasTailMode && i === currentLen - 1) label = "tail";
     if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
     return createNodeAndPointers(
@@ -1608,15 +1653,28 @@ function createDeleteHeadSteps(
       label,
     );
   });
-  const actualS3RestNodes = s3RestElements.filter(
-    (n) => !(n instanceof Pointer),
-  );
-  linkCurrentNodes(actualS3RestNodes as any);
 
-  addStep(steps, {
-    stepNumber: 3,
+  const allS3 = [...s3DelElement, ...s3RestElements];
+  const actualAllS3 = allS3.filter((n) => !(n instanceof Pointer)) as any[];
+
+  if (currentIsDoubly) {
+    linkNodesDoubly(actualAllS3);
+    actualAllS3[0].next = null; // 斷開舊 Head 指向新 Head 的 next 箭頭
+    if (actualAllS3.length > 1) {
+      actualAllS3[1].prev = null; // 保持新 Head 的 prev 處於斷開狀態
+    }
+    syncPointersFromNextPrev(actualAllS3);
+  } else {
+    // 單向直接讓後面的節點互連，舊節點把 pointers 清空即可
+    const restNodesOnly = s3RestElements.filter((n) => !(n instanceof Pointer));
+    linkCurrentNodes(restNodesOnly as any);
+    actualAllS3[0].pointers = [];
+  }
+
+  steps.push({
+    stepNumber: currentStepIdx++,
     description: "釋放記憶體：斷開被刪除節點的連結",
-    elements: [...s3DelElement, ...s3RestElements] as any,
+    elements: allS3 as any,
     actionTag: TAGS.DELETE_HEAD_UPDATE,
     variables: { head: dataList[0]?.value ?? null },
   });
@@ -1633,8 +1691,9 @@ function createDeleteHeadSteps(
   );
   const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
   linkCurrentNodes(actualS4Nodes as any);
-  addStep(steps, {
-    stepNumber: 4,
+
+  steps.push({
+    stepNumber: currentStepIdx++,
     description: "移除舊節點實體",
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_HEAD_END,
@@ -1653,13 +1712,15 @@ function createDeleteHeadSteps(
   );
   const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));
   linkCurrentNodes(actualS5Nodes as any);
-  addStep(steps, {
-    stepNumber: 5,
+
+  steps.push({
+    stepNumber: currentStepIdx++,
     description: "DeleteHead 完成",
     elements: s5Elements as any,
     actionTag: TAGS.DELETE_HEAD_END,
     variables: { head: dataList[0]?.value ?? null, length: currentLen },
   });
+
   return steps;
 }
 
@@ -2371,7 +2432,8 @@ export function createLinkedListAnimationSteps(
   if (type === "delete") {
     const deletedNodeData = { id: targetId || "temp-del", value: value };
 
-    if (dataList.length === 1) {
+    // last element is being deleted
+    if (dataList.length === 0) {
       const s1DelElement = createNodeAndPointers(
         deletedNodeData,
         0,
@@ -2379,7 +2441,7 @@ export function createLinkedListAnimationSteps(
         startX,
         baseY,
         Status.Target,
-        "head/tail",
+        hasTailMode ? "head/tail" : "head",
       );
       addStep(steps, {
         stepNumber: 1,
