@@ -23,6 +23,8 @@ function UserStatus() {
       await logout();
     } catch (error) {
       console.error('登出失敗:', error);
+    } finally {
+      window.location.href = '/';
     }
   };
 
