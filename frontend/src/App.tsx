@@ -25,6 +25,8 @@ import OAuthCallback from "./pages/Authentication/OAuthCallback";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Practice from "./pages/Practice/Practice";
 import Explorer from "./pages/Explorer/Explorer";
+import Lab from "./pages/Explorer/Lab";
+import Playground from "./pages/Explorer/Playground";
 import About from "./pages/About/About";
 import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
 import ProtectedRoute from "./shared/components/ProtectedRoute";
@@ -88,6 +90,8 @@ function App() {
               />
             </Route>
             <Route path="/explorer" element={<Explorer />} />
+            <Route path="/explorer/lab" element={<Lab />} />
+            <Route path="/explorer/playground" element={<Playground />} />
             <Route path="/about" element={<About />} />
           </Route>
 
