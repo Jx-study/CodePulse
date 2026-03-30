@@ -609,14 +609,32 @@ function TutorialContent() {
       ) as DataNode[];
 
       nodes.forEach((sourceNode) => {
-        // 遍歷每個節點的 pointers 陣列
-        sourceNode.pointers.forEach((targetNode) => {
-          links.push({
-            key: `${sourceNode.id}->${targetNode.id}`,
-            sourceId: sourceNode.id,
-            targetId: targetNode.id,
+        if (sourceNode.next !== null || sourceNode.prev !== null) {
+          if (sourceNode.next) {
+            links.push({
+              key: `${sourceNode.id}-next->${sourceNode.next.id}`,
+              sourceId: sourceNode.id,
+              targetId: sourceNode.next.id,
+              direction: "next",
+            });
+          }
+          if (sourceNode.prev) {
+            links.push({
+              key: `${sourceNode.id}-prev->${sourceNode.prev.id}`,
+              sourceId: sourceNode.id,
+              targetId: sourceNode.prev.id,
+              direction: "prev",
+            });
+          }
+        } else {
+          sourceNode.pointers.forEach((targetNode) => {
+            links.push({
+              key: `${sourceNode.id}->${targetNode.id}`,
+              sourceId: sourceNode.id,
+              targetId: targetNode.id,
+            });
           });
-        });
+        }
       });
     }
     return links;

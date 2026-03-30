@@ -1,4 +1,5 @@
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
+import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
@@ -13,52 +14,69 @@ import {
   LinearAction as ActionType,
   createNodeInstance,
   linkNodes,
+  linkNodesDoubly,
+  syncPointersFromNextPrev,
 } from "../utils";
 
 let currentIsDoubly = false;
 
 function addStep(steps: AnimationStep[], stepData: AnimationStep) {
-  if (currentIsDoubly) {
-    const nodes = stepData.elements.filter(
-      (e) => !(e instanceof Pointer),
-    ) as any[];
-    const reverseMap = new Map<string, any[]>();
-
-    // 收集所有「指向別人」的連線 (next)
-    nodes.forEach((n) => {
-      if (n.pointers) {
-        n.pointers.forEach((target: any) => {
-          if (!reverseMap.has(target.id)) reverseMap.set(target.id, []);
-          reverseMap.get(target.id)!.push(n);
-        });
-      }
-    });
-
-    // 確保被指到的人，都有回指的指標 (prev)
-    nodes.forEach((n) => {
-      const shouldPointTo = reverseMap.get(n.id) || [];
-      shouldPointTo.forEach((target) => {
-        if (!n.pointers) n.pointers = [];
-        // 避免重複加入
-        if (!n.pointers.some((p: any) => p.id === target.id)) {
-          n.pointers.push(target);
-        }
-      });
-    });
-  }
   steps.push(stepData);
 }
 
-function linkCurrentNodes(nodes: any[]) {
+function linkCurrentNodes(nodes: Node[]) {
   if (currentIsDoubly) {
-    for (let i = 0; i < nodes.length; i++) {
-      nodes[i].pointers = [];
-      if (i < nodes.length - 1) nodes[i].pointers.push(nodes[i + 1]); // next
-      if (i > 0) nodes[i].pointers.push(nodes[i - 1]); // prev
-    }
+    linkNodesDoubly(nodes);
   } else {
-    linkNodes(nodes); // 原始單向連線
+    linkNodes(nodes);
   }
+}
+
+/** InsertAtIndex 雙向：僅 newNode.next = succ */
+function wireIndexDoublyLinkNext(oldChain: Node[], newNode: Node, succ: Node) {
+  linkNodesDoubly(oldChain);
+  newNode.next = succ;
+  newNode.prev = null;
+  syncPointersFromNextPrev([...oldChain, newNode]);
+}
+
+/** succ.prev = newNode */
+function wireIndexDoublySuccPrev(oldChain: Node[], newNode: Node, succ: Node) {
+  linkNodesDoubly(oldChain);
+  newNode.next = succ;
+  newNode.prev = null;
+  succ.prev = newNode;
+  syncPointersFromNextPrev([...oldChain, newNode]);
+}
+
+/** pred.next = newNode，newNode.prev 仍為 null */
+function wireIndexDoublyPredNext(
+  oldChain: Node[],
+  newNode: Node,
+  pred: Node,
+  succ: Node,
+) {
+  linkNodesDoubly(oldChain);
+  newNode.next = succ;
+  newNode.prev = null;
+  succ.prev = newNode;
+  pred.next = newNode;
+  syncPointersFromNextPrev([...oldChain, newNode]);
+}
+
+/** 雙向插入完成：newNode.prev = pred */
+function wireIndexDoublyFull(
+  oldChain: Node[],
+  newNode: Node,
+  pred: Node,
+  succ: Node,
+) {
+  linkNodesDoubly(oldChain);
+  pred.next = newNode;
+  newNode.prev = pred;
+  newNode.next = succ;
+  succ.prev = newNode;
+  syncPointersFromNextPrev([...oldChain, newNode]);
 }
 
 function getLabel(
@@ -79,6 +97,7 @@ const TAGS = {
   INSERT_HEAD_START: "INSERT_HEAD_START",
   INSERT_HEAD_CREATE: "INSERT_HEAD_CREATE",
   INSERT_HEAD_LINK: "INSERT_HEAD_LINK",
+  INSERT_HEAD_LINK_PREV: "INSERT_HEAD_LINK_PREV",
   INSERT_HEAD_UPDATE: "INSERT_HEAD_UPDATE",
   INSERT_HEAD_END: "INSERT_HEAD_END",
 
@@ -86,6 +105,7 @@ const TAGS = {
   INSERT_TAIL_TRAVERSE: "INSERT_TAIL_TRAVERSE",
   INSERT_TAIL_CREATE: "INSERT_TAIL_CREATE",
   INSERT_TAIL_LINK: "INSERT_TAIL_LINK",
+  INSERT_TAIL_LINK_PREV: "INSERT_TAIL_LINK_PREV",
   INSERT_TAIL_END: "INSERT_TAIL_END",
 
   INSERT_INDEX_START: "INSERT_INDEX_START",
@@ -94,6 +114,7 @@ const TAGS = {
   INSERT_INDEX_TRAVERSE: "INSERT_INDEX_TRAVERSE",
   INSERT_INDEX_CREATE: "INSERT_INDEX_CREATE",
   INSERT_INDEX_LINK: "INSERT_INDEX_LINK",
+  INSERT_INDEX_LINK_PREV: "INSERT_INDEX_LINK_PREV",
   INSERT_INDEX_END: "INSERT_INDEX_END",
 
   DELETE_HEAD_START: "DELETE_HEAD_START",
@@ -131,7 +152,7 @@ function createPointers(
   },
 ): Pointer[] {
   const pointers: Pointer[] = [];
-  const gap = currentIsDoubly ? 100 : 80;
+  const gap = 100;
   const yOffset = gap / 2;
 
   const { isHead, isTail, extraLabel } = config;
@@ -234,16 +255,65 @@ function createInsertTailHasTailSteps(
     "new",
   );
   const allS2 = [...s2OldElements, ...s2NewElement];
-  const actualAllS2 = allS2.filter((n: any) => !(n instanceof Pointer));
-  linkCurrentNodes(actualAllS2 as any);
+  const actualAllS2 = allS2.filter(
+    (n: any) => !(n instanceof Pointer),
+  ) as Node[];
 
-  addStep(steps, {
-    stepNumber: 2,
-    description: `tail.next = newNode (舊尾節點指向新節點)`,
-    elements: allS2 as any,
-    actionTag: TAGS.INSERT_TAIL_LINK,
-    variables: { "tail.next": value },
-  });
+  if (currentIsDoubly) {
+    linkNodesDoubly(actualAllS2);
+    actualAllS2[actualAllS2.length - 1].prev = null;
+    syncPointersFromNextPrev(actualAllS2);
+
+    addStep(steps, {
+      stepNumber: 2,
+      description: `tail.next = newNode (舊尾節點指向新節點)`,
+      elements: allS2 as any,
+      actionTag: TAGS.INSERT_TAIL_LINK,
+      variables: { "tail.next": value },
+    });
+
+    const s2bOldElements = oldNodesData.flatMap((item, i) =>
+      createNodeAndPointers(
+        item,
+        i,
+        oldLen,
+        startX + i * gap,
+        baseY,
+        Status.Unfinished,
+      ),
+    );
+    const s2bNewElement = createNodeAndPointers(
+      newNodeData,
+      totalLen - 1,
+      totalLen,
+      startX + oldLen * gap,
+      baseY,
+      Status.Target,
+      "",
+      "new",
+    );
+    const allS2b = [...s2bOldElements, ...s2bNewElement];
+    const actualAllS2b = allS2b.filter(
+      (n: any) => !(n instanceof Pointer),
+    ) as Node[];
+    linkNodesDoubly(actualAllS2b);
+    addStep(steps, {
+      stepNumber: 3,
+      description: `newNode.prev = tail (新節點 prev 回指舊尾節點)`,
+      elements: allS2b as any,
+      actionTag: TAGS.INSERT_TAIL_LINK_PREV,
+      variables: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
+    });
+  } else {
+    linkCurrentNodes(actualAllS2);
+    addStep(steps, {
+      stepNumber: 2,
+      description: `tail.next = newNode (舊尾節點指向新節點)`,
+      elements: allS2 as any,
+      actionTag: TAGS.INSERT_TAIL_LINK,
+      variables: { "tail.next": value },
+    });
+  }
 
   const s3OldElements = oldNodesData.flatMap((item, i) =>
     createNodeAndPointers(
@@ -270,7 +340,7 @@ function createInsertTailHasTailSteps(
   linkCurrentNodes(actualAllS3 as any);
 
   addStep(steps, {
-    stepNumber: 3,
+    stepNumber: currentIsDoubly ? 4 : 3,
     description: `tail = newNode (更新 tail 指標指向新節點)`,
     elements: allS3 as any,
     actionTag: TAGS.INSERT_TAIL_END,
@@ -291,7 +361,7 @@ function createInsertTailHasTailSteps(
   linkCurrentNodes(actualS4Nodes as any);
 
   addStep(steps, {
-    stepNumber: 4,
+    stepNumber: currentIsDoubly ? 5 : 4,
     description: "InsertTail 完成",
     elements: s4Elements as any,
     actionTag: TAGS.INSERT_TAIL_END,
@@ -394,19 +464,80 @@ function createInsertHeadSteps(
   );
 
   const allS2 = [...s2NewElement, ...s2OldElements];
-  const actualAllS2 = allS2.filter((n: any) => !(n instanceof Pointer));
-  linkCurrentNodes(actualAllS2 as any);
+  const actualAllS2 = allS2.filter(
+    (n: any) => !(n instanceof Pointer),
+  ) as Node[];
 
-  addStep(steps, {
-    stepNumber: 2,
-    description: `newNode.next = head (新節點指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
-    elements: allS2 as any,
-    actionTag: TAGS.INSERT_HEAD_LINK,
-    variables: {
-      "newNode.next": oldNodesData[0]?.value ?? null,
-      head: oldNodesData[0]?.value ?? null,
-    },
-  });
+  if (currentIsDoubly && actualAllS2.length >= 2) {
+    linkNodesDoubly(actualAllS2);
+    const newNode = actualAllS2[0];
+    const headNode = actualAllS2[1];
+    newNode.prev = null;
+    headNode.prev = null;
+    syncPointersFromNextPrev(actualAllS2);
+
+    addStep(steps, {
+      stepNumber: 2,
+      description: `newNode.next = head (新節點 next 指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
+      elements: allS2 as any,
+      actionTag: TAGS.INSERT_HEAD_LINK,
+      variables: {
+        "newNode.next": oldNodesData[0]?.value ?? null,
+        head: oldNodesData[0]?.value ?? null,
+      },
+    });
+
+    const s2bOldElements = oldNodesData.flatMap((item, i) => {
+      let label = undefined;
+      if (i === 0) label = "head";
+      if (hasTailMode && i === oldNodesData.length - 1)
+        label = (label ? label + "/" : "") + "tail";
+      const status = i === 0 ? Status.Prepare : Status.Unfinished;
+      return createNodeAndPointers(
+        item,
+        i + 1,
+        totalLen,
+        startX + i * gap,
+        baseY,
+        status,
+        label,
+      );
+    });
+    const s2bNewElement = createNodeAndPointers(
+      newNodeData,
+      0,
+      totalLen,
+      startX - gap,
+      baseY,
+      Status.Target,
+      "",
+      "new",
+    );
+    const allS2b = [...s2bNewElement, ...s2bOldElements];
+    const actualAllS2b = allS2b.filter(
+      (n: any) => !(n instanceof Pointer),
+    ) as Node[];
+    linkNodesDoubly(actualAllS2b);
+    addStep(steps, {
+      stepNumber: 3,
+      description: `head.prev = newNode (原頭節點 prev 回指新節點)`,
+      elements: allS2b as any,
+      actionTag: TAGS.INSERT_HEAD_LINK_PREV,
+      variables: { "head.prev": value },
+    });
+  } else {
+    linkCurrentNodes(actualAllS2);
+    addStep(steps, {
+      stepNumber: 2,
+      description: `newNode.next = head (新節點指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
+      elements: allS2 as any,
+      actionTag: TAGS.INSERT_HEAD_LINK,
+      variables: {
+        "newNode.next": oldNodesData[0]?.value ?? null,
+        head: oldNodesData[0]?.value ?? null,
+      },
+    });
+  }
 
   const s3OldElements = oldNodesData.flatMap((item, i) => {
     let label = undefined;
@@ -438,7 +569,7 @@ function createInsertHeadSteps(
   linkCurrentNodes(actualAllS3 as any);
 
   addStep(steps, {
-    stepNumber: 3,
+    stepNumber: currentIsDoubly ? 4 : 3,
     description: `head = newNode (更新 head 指標指向新節點)`,
     elements: allS3 as any,
     actionTag: TAGS.INSERT_HEAD_UPDATE,
@@ -461,7 +592,7 @@ function createInsertHeadSteps(
   linkCurrentNodes(actualS4Nodes as any);
 
   addStep(steps, {
-    stepNumber: 4,
+    stepNumber: currentIsDoubly ? 5 : 4,
     description: "InsertHead 完成",
     elements: s4Elements as any,
     actionTag: TAGS.INSERT_HEAD_END,
@@ -478,7 +609,7 @@ export function createLinkedListAnimationSteps(
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const startX = 200;
-  const gap = currentIsDoubly ? 100 : 80;
+  const gap = 100;
   const baseY = 200;
 
   const createNodeAndPointers = (
@@ -1080,113 +1211,198 @@ export function createLinkedListAnimationSteps(
       },
     });
 
-    const s4OldElements = oldNodesData.flatMap((item, i) => {
-      let x = startX + i * gap;
-      if (i >= N) x += gap;
-      return createNodeAndPointers(
-        item,
-        i,
-        oldLen,
-        x,
-        baseY,
-        i < N ? Status.Prepare : Status.Unfinished,
+    const buildInsertIndexS4Wire = () => {
+      const s4OldElements = oldNodesData.flatMap((item, i) => {
+        let x = startX + i * gap;
+        if (i >= N) x += gap;
+        return createNodeAndPointers(
+          item,
+          i,
+          oldLen,
+          x,
+          baseY,
+          i < N ? Status.Prepare : Status.Unfinished,
+          undefined,
+          i === N - 1 ? "current" : undefined,
+        );
+      });
+      const actualS4OldNodes = s4OldElements.filter(
+        (n) => !(n instanceof Pointer),
+      ) as Node[];
+      const s4NewElement = createNodeAndPointers(
+        newNodeData,
+        N,
+        totalLen,
+        startX + N * gap,
+        baseY - 60,
+        Status.Target,
         undefined,
-        i === N - 1 ? "current" : undefined,
+        "new",
       );
-    });
-    const actualS4OldNodes = s4OldElements.filter(
-      (n) => !(n instanceof Pointer),
-    );
-    linkCurrentNodes(actualS4OldNodes as any);
+      const newNodeObj = s4NewElement.find((n) => !(n instanceof Pointer)) as
+        | Node
+        | undefined;
+      const succ = actualS4OldNodes.find((n) => n.description === String(N));
+      const pred = actualS4OldNodes.find(
+        (n) => n.description === String(N - 1),
+      );
+      return {
+        s4OldElements,
+        actualS4OldNodes,
+        s4NewElement,
+        newNodeObj,
+        succ,
+        pred,
+      };
+    };
 
-    const s4NewElement = createNodeAndPointers(
-      newNodeData,
-      N,
-      totalLen,
-      startX + N * gap,
-      baseY - 60,
-      Status.Target,
-      undefined,
-      "new",
-    );
+    if (!currentIsDoubly) {
+      const {
+        s4OldElements,
+        actualS4OldNodes,
+        s4NewElement,
+        newNodeObj,
+        succ,
+      } = buildInsertIndexS4Wire();
+      linkCurrentNodes(actualS4OldNodes);
 
-    const newNodeObj4 = s4NewElement.find(
-      (n) => !(n instanceof Pointer),
-    ) as any;
-    const nextNodeObj4 = actualS4OldNodes.find(
-      (n: any) => n.description === String(N),
-    );
-    if (newNodeObj4 && nextNodeObj4) {
-      newNodeObj4.pointers = [nextNodeObj4];
-    }
+      if (newNodeObj && succ) {
+        newNodeObj.next = succ;
+        newNodeObj.pointers = [succ];
+      }
 
-    addStep(steps, {
-      stepNumber: steps.length + 1,
-      description: `3. 將新節點指向原 Node ${N}`,
-      elements: [...s4OldElements, ...s4NewElement] as any,
-      actionTag: TAGS.INSERT_INDEX_LINK,
-      variables: {
-        "newNode.next": oldNodesData[N]?.value ?? null,
-        current: oldNodesData[N - 1]?.value ?? null,
-      },
-    });
+      addStep(steps, {
+        stepNumber: steps.length + 1,
+        description: `3. 將新節點指向原 Node ${N}`,
+        elements: [...s4OldElements, ...s4NewElement] as any,
+        actionTag: TAGS.INSERT_INDEX_LINK,
+        variables: {
+          "newNode.next": oldNodesData[N]?.value ?? null,
+          current: oldNodesData[N - 1]?.value ?? null,
+        },
+      });
 
-    const s5OldElements = oldNodesData.flatMap((item, i) => {
-      let x = startX + i * gap;
-      if (i >= N) x += gap;
-      return createNodeAndPointers(
-        item,
-        i,
-        oldLen,
-        x,
-        baseY,
-        i < N ? Status.Prepare : Status.Unfinished,
+      const s5OldElements = oldNodesData.flatMap((item, i) => {
+        let x = startX + i * gap;
+        if (i >= N) x += gap;
+        return createNodeAndPointers(
+          item,
+          i,
+          oldLen,
+          x,
+          baseY,
+          i < N ? Status.Prepare : Status.Unfinished,
+          undefined,
+          i === N - 1 ? "current" : undefined,
+        );
+      });
+      const actualS5OldNodes = s5OldElements.filter(
+        (n) => !(n instanceof Pointer),
+      ) as Node[];
+      linkCurrentNodes(actualS5OldNodes);
+
+      const s5NewElement = createNodeAndPointers(
+        newNodeData,
+        N,
+        totalLen,
+        startX + N * gap,
+        baseY - 60,
+        Status.Target,
         undefined,
-        i === N - 1 ? "current" : undefined,
+        "new",
       );
-    });
-    const actualS5OldNodes = s5OldElements.filter(
-      (n) => !(n instanceof Pointer),
-    );
-    linkCurrentNodes(actualS5OldNodes as any);
+      const newNodeObj5 = s5NewElement.find((n) => !(n instanceof Pointer)) as
+        | Node
+        | undefined;
+      const nextNodeObj5 = actualS5OldNodes.find(
+        (n) => n.description === String(N),
+      );
+      if (newNodeObj5 && nextNodeObj5) {
+        newNodeObj5.next = nextNodeObj5;
+        newNodeObj5.pointers = [nextNodeObj5];
+      }
 
-    const s5NewElement = createNodeAndPointers(
-      newNodeData,
-      N,
-      totalLen,
-      startX + N * gap,
-      baseY - 60,
-      Status.Target,
-      undefined,
-      "new",
-    );
-    const newNodeObj5 = s5NewElement.find(
-      (n) => !(n instanceof Pointer),
-    ) as any;
-    const nextNodeObj5 = actualS5OldNodes.find(
-      (n: any) => n.description === String(N),
-    );
-    if (newNodeObj5 && nextNodeObj5) {
-      newNodeObj5.pointers = [nextNodeObj5];
+      const prevNodeObj5 = actualS5OldNodes.find(
+        (n) => n.description === String(N - 1),
+      ) as Node | undefined;
+      if (prevNodeObj5 && newNodeObj5) {
+        prevNodeObj5.next = newNodeObj5;
+        prevNodeObj5.pointers = [newNodeObj5];
+      }
+
+      addStep(steps, {
+        stepNumber: steps.length + 1,
+        description: `4. 將 Node ${N - 1} 指向新節點`,
+        elements: [...s5OldElements, ...s5NewElement] as any,
+        actionTag: TAGS.INSERT_INDEX_LINK,
+        variables: {
+          "current.next": value,
+          current: oldNodesData[N - 1]?.value ?? null,
+        },
+      });
+    } else {
+      const p1 = buildInsertIndexS4Wire();
+      if (p1.newNodeObj && p1.succ && p1.pred) {
+        wireIndexDoublyLinkNext(p1.actualS4OldNodes, p1.newNodeObj, p1.succ);
+        addStep(steps, {
+          stepNumber: steps.length + 1,
+          description: `3. 將新節點指向原 Node ${N}（newNode.next）`,
+          elements: [...p1.s4OldElements, ...p1.s4NewElement] as any,
+          actionTag: TAGS.INSERT_INDEX_LINK,
+          variables: {
+            "newNode.next": oldNodesData[N]?.value ?? null,
+            current: oldNodesData[N - 1]?.value ?? null,
+          },
+        });
+
+        const p2 = buildInsertIndexS4Wire();
+        wireIndexDoublySuccPrev(p2.actualS4OldNodes, p2.newNodeObj!, p2.succ!);
+        addStep(steps, {
+          stepNumber: steps.length + 1,
+          description: `3b. 原 Node ${N} 的 prev 回指新節點`,
+          elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
+          actionTag: TAGS.INSERT_INDEX_LINK_PREV,
+          variables: {
+            [`node[${N}].prev`]: value,
+          },
+        });
+
+        const p3 = buildInsertIndexS4Wire();
+        wireIndexDoublyPredNext(
+          p3.actualS4OldNodes,
+          p3.newNodeObj!,
+          p3.pred!,
+          p3.succ!,
+        );
+        addStep(steps, {
+          stepNumber: steps.length + 1,
+          description: `4. Node ${N - 1} 的 next 指向新節點`,
+          elements: [...p3.s4OldElements, ...p3.s4NewElement] as any,
+          actionTag: TAGS.INSERT_INDEX_LINK,
+          variables: {
+            "current.next": value,
+            current: oldNodesData[N - 1]?.value ?? null,
+          },
+        });
+
+        const p4 = buildInsertIndexS4Wire();
+        wireIndexDoublyFull(
+          p4.actualS4OldNodes,
+          p4.newNodeObj!,
+          p4.pred!,
+          p4.succ!,
+        );
+        addStep(steps, {
+          stepNumber: steps.length + 1,
+          description: `4b. 新節點 prev 回指 Node ${N - 1}`,
+          elements: [...p4.s4OldElements, ...p4.s4NewElement] as any,
+          actionTag: TAGS.INSERT_INDEX_LINK_PREV,
+          variables: {
+            "newNode.prev": oldNodesData[N - 1]?.value ?? null,
+          },
+        });
+      }
     }
-
-    const prevNodeObj5 = actualS5OldNodes.find(
-      (n: any) => n.description === String(N - 1),
-    ) as any;
-    if (prevNodeObj5 && newNodeObj5) {
-      prevNodeObj5.pointers = [newNodeObj5];
-    }
-
-    addStep(steps, {
-      stepNumber: steps.length + 1,
-      description: `4. 將 Node ${N - 1} 指向新節點`,
-      elements: [...s5OldElements, ...s5NewElement] as any,
-      actionTag: TAGS.INSERT_INDEX_LINK,
-      variables: {
-        "current.next": value,
-        current: oldNodesData[N - 1]?.value ?? null,
-      },
-    });
 
     const s6Elements = dataList.flatMap((item, i) =>
       createNodeAndPointers(
@@ -1591,8 +1807,15 @@ export function createLinkedListAnimationSteps(
 
       const newTailObj = actualS3Nodes.find(
         (n: any) => n.description === String(currentLen - 1),
-      ) as any;
-      if (newTailObj) newTailObj.pointers = [];
+      ) as Node | undefined;
+      if (newTailObj) {
+        newTailObj.next = null;
+        if (currentIsDoubly) {
+          syncPointersFromNextPrev(actualS3Nodes as Node[]);
+        } else {
+          newTailObj.pointers = [];
+        }
+      }
 
       addStep(steps, {
         stepNumber: steps.length + 1,
@@ -1642,8 +1865,15 @@ export function createLinkedListAnimationSteps(
         linkCurrentNodes(actualSTailNodes as any);
         const tailPreObj = actualSTailNodes.find(
           (n: any) => n.description === String(currentLen - 1),
-        ) as any;
-        if (tailPreObj) tailPreObj.pointers = [];
+        ) as Node | undefined;
+        if (tailPreObj) {
+          tailPreObj.next = null;
+          if (currentIsDoubly) {
+            syncPointersFromNextPrev(actualSTailNodes as Node[]);
+          } else {
+            tailPreObj.pointers = [];
+          }
+        }
 
         addStep(steps, {
           stepNumber: steps.length + 1,
@@ -1799,9 +2029,22 @@ export function createLinkedListAnimationSteps(
       const delNodeObj = actualS3Nodes.find(
         (n: any) => n.description === String(N),
       );
-      if (preNodeObj && nextNodeObj)
-        (preNodeObj as any).pointers = [nextNodeObj];
-      if (delNodeObj) (delNodeObj as any).pointers = [];
+      if (currentIsDoubly) {
+        if (preNodeObj && nextNodeObj) {
+          (preNodeObj as Node).next = nextNodeObj as Node;
+          (nextNodeObj as Node).prev = preNodeObj as Node;
+        }
+        if (delNodeObj) {
+          (delNodeObj as Node).next = null;
+          (delNodeObj as Node).prev = null;
+        }
+        syncPointersFromNextPrev(actualS3Nodes as Node[]);
+      } else {
+        if (preNodeObj && nextNodeObj) {
+          (preNodeObj as Node).next = nextNodeObj as Node;
+          (preNodeObj as any).pointers = [nextNodeObj];
+        }
+      }
 
       addStep(steps, {
         stepNumber: steps.length + 1,
@@ -1846,10 +2089,17 @@ export function createLinkedListAnimationSteps(
         const preObj = actualSTailNodes.find(
           (n: any) => n.description === String(N - 1),
         );
-        const nextObj = actualSTailNodes.find(
-          (n: any) => n.description === String(N + 1),
-        );
-        if (preObj && nextObj) (preObj as any).pointers = [nextObj];
+        if (currentIsDoubly) {
+          if (preObj) {
+            (preObj as Node).next = null;
+            syncPointersFromNextPrev(actualSTailNodes as Node[]);
+          }
+        } else {
+          if (preObj) {
+            (preObj as Node).next = null;
+            (preObj as any).pointers = [];
+          }
+        }
 
         addStep(steps, {
           stepNumber: steps.length + 1,
@@ -1895,9 +2145,26 @@ export function createLinkedListAnimationSteps(
       const delNodeObj4 = actualS4Nodes.find(
         (n: any) => n.description === String(N),
       );
-      if (preNodeObj4 && nextNodeObj4)
-        (preNodeObj4 as any).pointers = [nextNodeObj4];
-      if (delNodeObj4) (delNodeObj4 as any).pointers = [];
+      if (currentIsDoubly) {
+        if (preNodeObj4 && nextNodeObj4) {
+          (preNodeObj4 as Node).next = nextNodeObj4 as Node;
+          (nextNodeObj4 as Node).prev = preNodeObj4 as Node;
+        }
+        if (delNodeObj4) {
+          (delNodeObj4 as Node).next = null;
+          (delNodeObj4 as Node).prev = null;
+        }
+        syncPointersFromNextPrev(actualS4Nodes as Node[]);
+      } else {
+        if (preNodeObj4 && nextNodeObj4) {
+          (preNodeObj4 as Node).next = nextNodeObj4 as Node;
+          (preNodeObj4 as any).pointers = [nextNodeObj4];
+        }
+        if (delNodeObj4) {
+          (delNodeObj4 as Node).next = null;
+          (delNodeObj4 as any).pointers = [];
+        }
+      }
 
       addStep(steps, {
         stepNumber: steps.length + 1,

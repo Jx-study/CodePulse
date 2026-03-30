@@ -104,9 +104,29 @@ export function createNodeInstance(
   return n;
 }
 
+/** 依 next/prev 欄位重算 pointers（雙向鏈結用） */
+export function syncPointersFromNextPrev(nodes: Node[]) {
+  for (const n of nodes) {
+    n.pointers = [n.next, n.prev].filter((x): x is Node => x !== null);
+  }
+}
+
 export function linkNodes(nodes: Node[]) {
-  for (let i = 0; i < nodes.length - 1; i++) {
-    nodes[i].pointers = [nodes[i + 1]];
+  for (let i = 0; i < nodes.length; i++) {
+    nodes[i].next = i < nodes.length - 1 ? nodes[i + 1] : null;
+    nodes[i].prev = null;
+    nodes[i].pointers = nodes[i].next ? [nodes[i].next!] : [];
+  }
+  return nodes;
+}
+
+export function linkNodesDoubly(nodes: Node[]) {
+  for (let i = 0; i < nodes.length; i++) {
+    nodes[i].next = i < nodes.length - 1 ? nodes[i + 1] : null;
+    nodes[i].prev = i > 0 ? nodes[i - 1] : null;
+    nodes[i].pointers = [nodes[i].next, nodes[i].prev].filter(
+      (x): x is Node => x !== null,
+    );
   }
   return nodes;
 }

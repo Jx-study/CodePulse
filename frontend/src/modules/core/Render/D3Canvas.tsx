@@ -237,7 +237,11 @@ export const D3Canvas = forwardRef<
         if (unionBBox) {
           const contentWidth = unionBBox.maxX - unionBBox.minX + padding * 2;
           const contentHeight = unionBBox.maxY - unionBBox.minY + padding * 2;
-          setDynamicViewBox(`${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`);
+          const newViewBox = `${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`;
+          // Sync DOM update before renderAll starts transitions — prevents mid-transition
+          // viewBox jump caused by the async React re-render from setDynamicViewBox.
+          svgElement.setAttribute("viewBox", newViewBox);
+          setDynamicViewBox(newViewBox);
           const containerWidth = svgElement.clientWidth;
           if (containerWidth > 0) {
             setDynamicMaxZoom(Math.max(2.0, contentWidth / containerWidth));

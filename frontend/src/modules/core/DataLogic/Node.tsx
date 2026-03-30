@@ -3,6 +3,8 @@ import { BaseElement } from "./BaseElement";
 export class Node extends BaseElement {
   radius: number = 20;
   pointers: Node[] = [];
+  next: Node | null = null;
+  prev: Node | null = null;
 
   constructor() {
     super("node");

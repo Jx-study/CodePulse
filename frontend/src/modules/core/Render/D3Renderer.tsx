@@ -31,6 +31,7 @@ export interface Link {
   targetId: string;
   status?: linkStatus;
   weight?: number | string;
+  direction?: "next" | "prev";
 }
 
 /**
