@@ -694,15 +694,44 @@ function createInsertHeadSteps(
   const actualAllS3 = allS3.filter((n: any) => !(n instanceof Pointer));
   linkCurrentNodes(actualAllS3 as any);
 
+  // 動態計算目前的步驟號碼 (如果雙向且有舊節點，因為有 head.prev，所以從 4 開始，否則從 3 開始)
+  let currentStepIdx = currentIsDoubly && actualAllS2.length >= 2 ? 4 : 3;
+
   addStep(steps, {
-    stepNumber: currentIsDoubly ? 4 : 3,
+    stepNumber: currentStepIdx++,
     description: `head = newNode (更新 head 指標指向新節點)`,
     elements: allS3 as any,
     actionTag: TAGS.INSERT_HEAD_UPDATE,
     variables: { head: value },
   });
 
-  const s4Elements = dataList.flatMap((item, i) =>
+  // 如果 node 個數從 0 變 1，且有 Tail 模式，插入一步來更新 tail，標籤在這時才變成 head/tail
+  if (hasTailMode && oldNodesData.length === 0) {
+    const sTailNewElement = createNodeAndPointers(
+      newNodeData,
+      0,
+      totalLen,
+      initialX,
+      baseY,
+      Status.Target,
+      "head/tail",
+      "new",
+    );
+    const actualTailNodes = sTailNewElement.filter(
+      (n: any) => !(n instanceof Pointer),
+    );
+    linkCurrentNodes(actualTailNodes as any);
+
+    addStep(steps, {
+      stepNumber: currentStepIdx++,
+      description: `原本鏈結串列為空，更新 tail 指標指向新節點`,
+      elements: sTailNewElement as any,
+      actionTag: TAGS.INSERT_HEAD_UPDATE,
+      variables: { head: value, tail: value },
+    });
+  }
+
+  const sFinalElements = dataList.flatMap((item, i) =>
     createNodeAndPointers(
       item,
       i,
@@ -714,13 +743,15 @@ function createInsertHeadSteps(
       undefined,
     ),
   );
-  const actualS4Nodes = s4Elements.filter((n: any) => !(n instanceof Pointer));
-  linkCurrentNodes(actualS4Nodes as any);
+  const actualFinalNodes = sFinalElements.filter(
+    (n: any) => !(n instanceof Pointer),
+  );
+  linkCurrentNodes(actualFinalNodes as any);
 
   addStep(steps, {
-    stepNumber: currentIsDoubly ? 5 : 4,
+    stepNumber: currentStepIdx++,
     description: "InsertHead 完成",
-    elements: s4Elements as any,
+    elements: sFinalElements as any,
     actionTag: TAGS.INSERT_HEAD_END,
     variables: { head: value, length: totalLen },
   });
