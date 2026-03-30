@@ -2128,17 +2128,10 @@ function createDeleteIndexSteps(
   const nextNodeObj = actualS3Nodes.find(
     (n: any) => n.description === String(N + 1),
   );
-  const delNodeObj = actualS3Nodes.find(
-    (n: any) => n.description === String(N),
-  );
   if (currentIsDoubly) {
     if (preNodeObj && nextNodeObj) {
       (preNodeObj as Node).next = nextNodeObj as Node;
-      (nextNodeObj as Node).prev = preNodeObj as Node;
-    }
-    if (delNodeObj) {
-      (delNodeObj as Node).next = null;
-      (delNodeObj as Node).prev = null;
+      // 不更新 nextNodeObj.prev，留到下一步
     }
     syncPointersFromNextPrev(actualS3Nodes as Node[]);
   } else {
@@ -2159,6 +2152,60 @@ function createDeleteIndexSteps(
       nodeToDelete: oldList[N].value ?? null,
     },
   });
+
+  // 把 current.next.prev = pre 拆開成獨立的下一步 (只在 Doubly 且有下一個節點時執行)
+  if (currentIsDoubly && nextNodeObj) {
+    const s3bElements = oldList.flatMap((item, idx) => {
+      let y = baseY;
+      if (idx === N) y = baseY - 60;
+      let label =
+        idx === N - 1
+          ? getLabel(idx, originalLen, hasTailMode) + "pre"
+          : undefined;
+      if (hasTailMode && N === originalLen - 1 && idx === N) {
+        label = (label ? label + "/" : "") + "tail";
+      }
+      let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
+      let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
+      if (idx === N) status = Status.Target;
+      return createNodeAndPointers(
+        item,
+        idx,
+        originalLen,
+        startX + idx * gap,
+        y,
+        status,
+        label,
+        extra,
+      );
+    });
+    const actualS3bNodes = s3bElements.filter((n) => !(n instanceof Pointer));
+    linkCurrentNodes(actualS3bNodes as any);
+
+    const preNodeObjB = actualS3bNodes.find(
+      (n: any) => n.description === String(N - 1),
+    );
+    const nextNodeObjB = actualS3bNodes.find(
+      (n: any) => n.description === String(N + 1),
+    );
+
+    if (preNodeObjB && nextNodeObjB) {
+      (preNodeObjB as Node).next = nextNodeObjB as Node; // 保持上一步的狀態
+      (nextNodeObjB as Node).prev = preNodeObjB as Node; // 在這步更新 prev 回指箭頭
+    }
+    // delNode 依然不釋放，保留指出去的 next/prev 指標
+    syncPointersFromNextPrev(actualS3bNodes as Node[]);
+
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: `current.next.prev = pre (後繼節點的 prev 回指前驅節點)`,
+      elements: s3bElements as any,
+      actionTag: TAGS.DELETE_INDEX_UNLINK,
+      variables: {
+        "current.next.prev": oldList[N - 1]?.value ?? null,
+      },
+    });
+  }
 
   if (hasTailMode && N === originalLen - 1) {
     const sTailElements = oldList.flatMap((item, idx) => {
@@ -2395,15 +2442,6 @@ export function createLinkedListAnimationSteps(
       );
     }
     if (mode === "Tail") {
-      // return createInsertTailHasTailSteps(
-      //   dataList,
-      //   value,
-      //   startX,
-      //   gap,
-      //   baseY,
-      //   TAGS,
-      //   createNodeAndPointers,
-      // );
       return createInsertTailSteps(
         dataList,
         value,
@@ -2431,6 +2469,10 @@ export function createLinkedListAnimationSteps(
   }
   if (type === "delete") {
     const deletedNodeData = { id: targetId || "temp-del", value: value };
+    const N = actionIndex !== undefined ? actionIndex : -1;
+    const isDeleteHead = mode === "Head" || (mode === "Node N" && N === 0);
+    const isDeleteTail =
+      mode === "Tail" || (mode === "Node N" && N === dataList.length);
 
     // last element is being deleted
     if (dataList.length === 0) {
@@ -2464,7 +2506,7 @@ export function createLinkedListAnimationSteps(
       return steps;
     }
 
-    if (mode === "Head") {
+    if (isDeleteHead) {
       return createDeleteHeadSteps(
         dataList,
         deletedNodeData,
@@ -2478,7 +2520,7 @@ export function createLinkedListAnimationSteps(
         createNodeAndPointers,
       );
     }
-    if (mode === "Tail") {
+    if (isDeleteTail) {
       return createDeleteTailSteps(
         dataList,
         deletedNodeData,
