@@ -511,6 +511,7 @@ function createInsertHeadSteps(
   const newNodeData = dataList[0];
   const oldNodesData = dataList.slice(1);
   const totalLen = dataList.length;
+  const initialX = oldNodesData.length === 0 ? startX : startX - gap;
 
   const createOldNodesWithHeadLabel = () =>
     oldNodesData.flatMap((item, i) => {
@@ -542,7 +543,7 @@ function createInsertHeadSteps(
     newNodeData,
     0,
     totalLen,
-    startX - gap,
+    initialX,
     baseY,
     Status.Target,
     "",
@@ -582,7 +583,7 @@ function createInsertHeadSteps(
     newNodeData,
     0,
     totalLen,
-    startX - gap,
+    initialX,
     baseY,
     Status.Target,
     "",
@@ -614,8 +615,7 @@ function createInsertHeadSteps(
     });
 
     const s2bOldElements = oldNodesData.flatMap((item, i) => {
-      let label = undefined;
-      if (i === 0) label = "head";
+      let label = i === 0 ? "head" : undefined;
       if (hasTailMode && i === oldNodesData.length - 1)
         label = (label ? label + "/" : "") + "tail";
       const status = i === 0 ? Status.Prepare : Status.Unfinished;
@@ -683,7 +683,7 @@ function createInsertHeadSteps(
     newNodeData,
     0,
     totalLen,
-    startX - gap,
+    initialX,
     baseY,
     Status.Target,
     "head",
