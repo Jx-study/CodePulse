@@ -8,17 +8,14 @@
   display: flex;
   align-items: center;
 
-  h1,
-  h3 {
+  h1 {
     font-weight: 800;
     background: $gradient-primary;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     letter-spacing: -0.02em;
-  }
-
-  h1 {
+    text-transform: uppercase;
     font-size: $hero-h1-size-mobile;
 
     @include tablet {
@@ -31,38 +28,40 @@
   }
 
   h3 {
+    font-family: $font-family-code;
+    font-weight: 600;
     font-size: $hero-h3-size-mobile;
-    margin-top: $spacing-sm;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 
     @include tablet {
-      font-size: $hero-h3-size-tablet;
-    }
-
-    @include desktop {
-      font-size: $hero-h3-size-desktop;
+      font-size: $font-base;
     }
   }
 
   p {
-    font-size: $font-base;
+    font-family: $font-family-code;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+    line-height: 1.7;
     margin-bottom: $spacing-lg;
-    opacity: 0.9;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
 
     @include mobile {
-      font-size: $font-sm;
       max-width: 100%;
       padding: 0 $spacing-md;
     }
 
     @include tablet {
-      font-size: $font-lg;
+      font-size: $font-base;
     }
 
     @include desktop {
-      font-size: $font-xl;
+      font-size: $font-base;
     }
   }
 }
