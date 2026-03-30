@@ -89,6 +89,10 @@ export const D3Canvas = forwardRef<
     statusConfig?: StatusConfig;
     isDirected?: boolean;
     /**
+     * 雙向連線時是否畫兩條平行偏移箭頭（與 isDirected 資料語義分離；預設 false）
+     */
+    showBidirectionalArrows?: boolean;
+    /**
      * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
      * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
      * 確保 viewBox 能包含整個動畫期間出現的所有元素，不隨每步更新。
@@ -109,6 +113,7 @@ export const D3Canvas = forwardRef<
       statusColorMap,
       statusConfig,
       isDirected = false,
+      showBidirectionalArrows = false,
       allStepsElements,
     },
     forwardedRef,
@@ -241,14 +246,32 @@ export const D3Canvas = forwardRef<
       }
 
       // Phase 2: 渲染當前步驟的實際元素
-      renderAll(svgElement, elements, links, structureType, isDirected, statusColorMap);
+      renderAll(
+        svgElement,
+        elements,
+        links,
+        structureType,
+        isDirected,
+        statusColorMap,
+        showBidirectionalArrows,
+      );
 
       return () => {
         if (svgElement) {
           d3.select(svgElement).selectAll("*").interrupt();
         }
       };
-    }, [elements, links, allStepsElements, structureType, width, height, isDirected, statusColorMap]);
+    }, [
+      elements,
+      links,
+      allStepsElements,
+      structureType,
+      width,
+      height,
+      isDirected,
+      statusColorMap,
+      showBidirectionalArrows,
+    ]);
 
     return (
       <div

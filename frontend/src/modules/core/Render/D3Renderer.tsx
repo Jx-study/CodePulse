@@ -240,6 +240,7 @@ export function renderAll(
   structureType: string = "linkedlist",
   isDirected: boolean = true,
   statusColorMap?: StatusColorMap,
+  showBidirectionalArrows: boolean = false,
 ) {
   // Inject custom color map into all elements if provided
   if (statusColorMap) {
@@ -402,7 +403,8 @@ export function renderAll(
 
       // 如果是「無向圖」，僅在反向邊也存在時才去重（避免誤刪樹的單向邊）
       // 例如 node-0 和 node-1 之間，若雙向都存在，只保留 id 較小的那條
-      if (!isDirected) {
+      // showBidirectionalArrows 時保留 A→B 與 B→A 兩條，供平行偏移箭頭渲染
+      if (!isDirected && !showBidirectionalArrows) {
         // 自環：sourceId === targetId，有向無向行為相同，直接保留（只取一次）
         if (d.s.id === d.t.id) {
           if (seenSelfLoops.has(d.s.id)) return false;
@@ -466,7 +468,8 @@ export function renderAll(
         return "";
       }
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      const pathOffset = isDirected && hasReverse ? 8 : 0;
+      const pathOffset =
+        (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
       if (d.s.id === d.t.id) {
         return selfLoopBezierZeroPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
       }
@@ -512,7 +515,8 @@ export function renderAll(
     .ease(transitionEase)
     .attr("d", (d) => {
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      const pathOffset = isDirected && hasReverse ? 8 : 0;
+      const pathOffset =
+        (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
       if (
         isNaN(d.s.position.x) ||
         isNaN(d.s.position.y) ||

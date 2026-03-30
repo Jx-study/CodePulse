@@ -46,6 +46,8 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  /** Doubly 鏈結時為 true，驅動 D3 雙向平行箭頭 */
+  showBidirectionalArrows: boolean;
   viewMode: AlgorithmViewMode | "";
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
@@ -74,6 +76,7 @@ const CanvasPanel = ({
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
+  showBidirectionalArrows,
   viewMode,
   isPlaying,
   currentStep,
@@ -155,6 +158,7 @@ const CanvasPanel = ({
               statusColorMap={currentStatusColorMap}
               statusConfig={currentStatusConfig}
               isDirected={isDirected}
+              showBidirectionalArrows={showBidirectionalArrows}
             />
           )}
         </div>
@@ -521,6 +525,7 @@ function TutorialContent() {
   const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
   const [renderedIsDirected, setRenderedIsDirected] = useState(false);
+  const [listMode, setListMode] = useState<"singly" | "doubly">("singly");
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
@@ -770,6 +775,7 @@ function TutorialContent() {
   const handleListModeChange = (mode: "singly" | "doubly") => {
     const isDoubly = mode === "doubly";
     executeAction("switch_mode", { isDoubly });
+    setListMode(mode);
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -910,6 +916,7 @@ function TutorialContent() {
     currentStatusColorMap,
     currentStatusConfig,
     isDirected: renderedIsDirected,
+    showBidirectionalArrows: listMode === "doubly",
     viewMode,
     isPlaying,
     currentStep,
