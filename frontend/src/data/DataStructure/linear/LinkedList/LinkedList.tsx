@@ -226,8 +226,8 @@ function createInsertTailHasTailSteps(
     "new",
   );
 
-  addStep(steps, {
-    stepNumber: 1,
+  steps.push({
+    stepNumber: steps.length + 1,
     description: `InsertTail(${value}): 在尾端建立新節點並分配記憶體`,
     elements: [...s1OldElements, ...s1NewElement] as any,
     actionTag: TAGS.INSERT_TAIL_CREATE,
@@ -257,21 +257,25 @@ function createInsertTailHasTailSteps(
   const allS2 = [...s2OldElements, ...s2NewElement];
   const actualAllS2 = allS2.filter(
     (n: any) => !(n instanceof Pointer),
-  ) as Node[];
+  ) as any[];
 
   if (currentIsDoubly) {
     linkNodesDoubly(actualAllS2);
     actualAllS2[actualAllS2.length - 1].prev = null;
     syncPointersFromNextPrev(actualAllS2);
+  } else {
+    linkCurrentNodes(actualAllS2);
+  }
 
-    addStep(steps, {
-      stepNumber: 2,
-      description: `tail.next = newNode (舊尾節點指向新節點)`,
-      elements: allS2 as any,
-      actionTag: TAGS.INSERT_TAIL_LINK,
-      variables: { "tail.next": value },
-    });
+  steps.push({
+    stepNumber: steps.length + 1,
+    description: `tail.next = newNode (舊尾節點指向新節點)`,
+    elements: allS2 as any,
+    actionTag: TAGS.INSERT_TAIL_LINK,
+    variables: { "tail.next": value },
+  });
 
+  if (currentIsDoubly) {
     const s2bOldElements = oldNodesData.flatMap((item, i) =>
       createNodeAndPointers(
         item,
@@ -296,34 +300,30 @@ function createInsertTailHasTailSteps(
     const actualAllS2b = allS2b.filter(
       (n: any) => !(n instanceof Pointer),
     ) as Node[];
+
     linkNodesDoubly(actualAllS2b);
-    addStep(steps, {
-      stepNumber: 3,
+    syncPointersFromNextPrev(actualAllS2b);
+
+    steps.push({
+      stepNumber: steps.length + 1,
       description: `newNode.prev = tail (新節點 prev 回指舊尾節點)`,
       elements: allS2b as any,
-      actionTag: TAGS.INSERT_TAIL_LINK_PREV,
+      actionTag: TAGS.INSERT_TAIL_LINK_PREV || TAGS.INSERT_TAIL_LINK,
       variables: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
-    });
-  } else {
-    linkCurrentNodes(actualAllS2);
-    addStep(steps, {
-      stepNumber: 2,
-      description: `tail.next = newNode (舊尾節點指向新節點)`,
-      elements: allS2 as any,
-      actionTag: TAGS.INSERT_TAIL_LINK,
-      variables: { "tail.next": value },
     });
   }
 
-  const s3OldElements = oldNodesData.flatMap((item, i) =>
-    createNodeAndPointers(
-      item,
-      i,
-      totalLen,
-      startX + i * gap,
-      baseY,
-      Status.Unfinished,
-    ),
+  const s3OldElements = oldNodesData.flatMap(
+    (item, i) =>
+      createNodeAndPointers(
+        item,
+        i,
+        totalLen,
+        startX + i * gap,
+        baseY,
+        Status.Unfinished,
+        "",
+      ), // 舊尾端拔除標籤
   );
   const s3NewElement = createNodeAndPointers(
     newNodeData,
@@ -339,8 +339,8 @@ function createInsertTailHasTailSteps(
   const actualAllS3 = allS3.filter((n: any) => !(n instanceof Pointer));
   linkCurrentNodes(actualAllS3 as any);
 
-  addStep(steps, {
-    stepNumber: currentIsDoubly ? 4 : 3,
+  steps.push({
+    stepNumber: steps.length + 1,
     description: `tail = newNode (更新 tail 指標指向新節點)`,
     elements: allS3 as any,
     actionTag: TAGS.INSERT_TAIL_END,
@@ -360,8 +360,8 @@ function createInsertTailHasTailSteps(
   const actualS4Nodes = s4Elements.filter((n: any) => !(n instanceof Pointer));
   linkCurrentNodes(actualS4Nodes as any);
 
-  addStep(steps, {
-    stepNumber: currentIsDoubly ? 5 : 4,
+  steps.push({
+    stepNumber: steps.length + 1,
     description: "InsertTail 完成",
     elements: s4Elements as any,
     actionTag: TAGS.INSERT_TAIL_END,
@@ -774,6 +774,7 @@ function createInsertTailSteps(
 
   if (totalLen === 1) {
     const newNodeData = dataList[0];
+    let currentStepIdx = 1;
 
     const s1Elements = createNodeAndPointers(
       newNodeData,
@@ -785,8 +786,8 @@ function createInsertTailSteps(
       "",
       "new",
     );
-    addStep(steps, {
-      stepNumber: 1,
+    steps.push({
+      stepNumber: currentStepIdx++,
       description: `InsertTail(${value}): 鏈結串列為空，建立新節點作為頭節點`,
       elements: s1Elements as any,
       actionTag: TAGS.INSERT_TAIL_CREATE,
@@ -800,19 +801,34 @@ function createInsertTailSteps(
       startX,
       baseY,
       Status.Complete,
-      hasTailMode || currentIsDoubly ? "head/tail" : "head",
+      "head",
     );
-    addStep(steps, {
-      stepNumber: 2,
-      description: `head = newNode (更新 ${hasTailMode || currentIsDoubly ? "head 與 tail" : "head"} 指標指向新節點)`,
+    steps.push({
+      stepNumber: currentStepIdx++,
+      description: `head = newNode (更新 head 指標指向新節點)`,
       elements: s2Elements as any,
       actionTag: TAGS.INSERT_TAIL_END,
-      variables: {
-        head: value,
-        tail: hasTailMode || currentIsDoubly ? value : null,
-        length: 1,
-      },
+      variables: { head: value, length: 1 },
     });
+
+    if (hasTailMode) {
+      const s3Elements = createNodeAndPointers(
+        newNodeData,
+        0,
+        1,
+        startX,
+        baseY,
+        Status.Complete,
+        "head/tail",
+      );
+      steps.push({
+        stepNumber: currentStepIdx++,
+        description: `tail = newNode (因為原本為空，同步更新 tail 指標)`,
+        elements: s3Elements as any,
+        actionTag: TAGS.INSERT_TAIL_END,
+        variables: { head: value, tail: value, length: 1 },
+      });
+    }
 
     return steps;
   }
@@ -821,7 +837,7 @@ function createInsertTailSteps(
   const newNodeData = dataList[dataList.length - 1];
   const oldLen = oldNodesData.length;
 
-  if (hasTailMode || currentIsDoubly) {
+  if (hasTailMode) {
     return createInsertTailHasTailSteps(
       dataList,
       value,
@@ -885,7 +901,7 @@ function createInsertTailSteps(
       startX + oldLen * gap,
       baseY,
       Status.Target,
-      undefined,
+      "",
       "new",
     );
 
@@ -923,10 +939,20 @@ function createInsertTailSteps(
       "new",
     );
     const allConnect = [...sConnectOldElements, ...sConnectNewElement];
-    const actualAllConnect = allConnect.filter((n) => !(n instanceof Pointer));
-    linkCurrentNodes(actualAllConnect as any);
+    const actualAllConnect = allConnect.filter(
+      (n) => !(n instanceof Pointer),
+    ) as any[];
 
-    addStep(steps, {
+    // 先連雙向，再斷 prev
+    if (currentIsDoubly) {
+      linkNodesDoubly(actualAllConnect);
+      actualAllConnect[actualAllConnect.length - 1].prev = null;
+      syncPointersFromNextPrev(actualAllConnect);
+    } else {
+      linkCurrentNodes(actualAllConnect);
+    }
+
+    steps.push({
       stepNumber: steps.length + 1,
       description: `current.next = newNode (最後一個節點指向新節點)`,
       elements: allConnect as any,
@@ -936,6 +962,47 @@ function createInsertTailSteps(
         current: oldNodesData[oldLen - 1].value ?? null,
       },
     });
+
+    if (currentIsDoubly) {
+      const sConnectB_OldElements = oldNodesData.flatMap((item, i) =>
+        createNodeAndPointers(
+          item,
+          i,
+          oldLen,
+          startX + i * gap,
+          baseY,
+          i === oldLen - 1 ? Status.Prepare : Status.Unfinished,
+          undefined,
+          i === oldLen - 1 ? "current" : undefined,
+        ),
+      );
+      const sConnectB_NewElement = createNodeAndPointers(
+        newNodeData,
+        totalLen - 1,
+        totalLen,
+        startX + oldLen * gap,
+        baseY,
+        Status.Target,
+        "",
+        "new",
+      );
+      const allConnectB = [...sConnectB_OldElements, ...sConnectB_NewElement];
+      const actualAllConnectB = allConnectB.filter(
+        (n) => !(n instanceof Pointer),
+      ) as any[];
+
+      // 全連，prev 出現
+      linkNodesDoubly(actualAllConnectB);
+      syncPointersFromNextPrev(actualAllConnectB);
+
+      steps.push({
+        stepNumber: steps.length + 1,
+        description: `newNode.prev = current (新節點的 prev 回指最後一個節點)`,
+        elements: allConnectB as any,
+        actionTag: TAGS.INSERT_TAIL_LINK_PREV || TAGS.INSERT_TAIL_LINK,
+        variables: { "newNode.prev": oldNodesData[oldLen - 1].value ?? null },
+      });
+    }
 
     const doneElements = dataList.flatMap((item, i) =>
       createNodeAndPointers(
