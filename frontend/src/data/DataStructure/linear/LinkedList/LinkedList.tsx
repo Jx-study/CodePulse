@@ -1079,7 +1079,7 @@ function createInsertIndexSteps(
     const headSteps = createInsertHeadSteps(
       dataList,
       value,
-      hasTailMode || currentIsDoubly,
+      hasTailMode,
       startX,
       gap,
       baseY,
@@ -1093,7 +1093,7 @@ function createInsertIndexSteps(
     return steps;
   }
 
-  if ((hasTailMode || currentIsDoubly) && N === currentLen) {
+  if (hasTailMode && N === currentLen) {
     const checkElements = dataList
       .slice(0, -1)
       .flatMap((item, i) =>
@@ -1555,10 +1555,8 @@ function createDeleteHeadSteps(
   const s2RestElements = dataList.flatMap((item, i) => {
     let label = undefined;
     if (i === 0) label = "head";
-    if ((hasTailMode || currentIsDoubly) && i === currentLen - 1)
-      label = "tail";
-    if ((hasTailMode || currentIsDoubly) && currentLen === 1 && i === 0)
-      label = "head/tail";
+    if (hasTailMode && i === currentLen - 1) label = "tail";
+    if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
     return createNodeAndPointers(
       item,
       i + 1,
@@ -1598,10 +1596,8 @@ function createDeleteHeadSteps(
   const s3RestElements = dataList.flatMap((item, i) => {
     let label = undefined;
     if (i === 0) label = "head";
-    if ((hasTailMode || currentIsDoubly) && i === currentLen - 1)
-      label = "tail";
-    if ((hasTailMode || currentIsDoubly) && currentLen === 1 && i === 0)
-      label = "head/tail";
+    if (hasTailMode && i === currentLen - 1) label = "tail";
+    if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
     return createNodeAndPointers(
       item,
       i + 1,
@@ -1748,7 +1744,7 @@ function createDeleteTailSteps(
         startX + currentLen * gap,
         baseY,
         i === currentLen ? Status.Target : Status.Unfinished,
-        hasTailMode || currentIsDoubly ? "tail" : "",
+        hasTailMode ? "tail" : "",
       ),
     ];
     const actualTraverseNodes = traverseElements.filter(
@@ -1834,7 +1830,7 @@ function createDeleteTailSteps(
       startX + currentLen * gap,
       baseY,
       Status.Inactive,
-      hasTailMode || currentIsDoubly ? "tail" : "",
+      hasTailMode ? "tail" : "",
       "current",
     ),
   ];
@@ -1864,7 +1860,7 @@ function createDeleteTailSteps(
     },
   });
 
-  if (hasTailMode || currentIsDoubly) {
+  if (hasTailMode) {
     const sTailElements = [
       ...dataList.flatMap((item, idx) => {
         let label = "";
@@ -1976,8 +1972,7 @@ function createDeleteIndexSteps(
 
       let override = undefined;
       if (i > 0 && idx === i - 1)
-        override =
-          getLabel(idx, originalLen, hasTailMode || currentIsDoubly) + "/pre";
+        override = getLabel(idx, originalLen, hasTailMode) + "/pre";
 
       return createNodeAndPointers(
         item,
@@ -2012,9 +2007,7 @@ function createDeleteIndexSteps(
     let y = baseY;
     if (idx === N) y = baseY - 60;
     let label = undefined;
-    if (idx === N - 1)
-      label =
-        getLabel(idx, originalLen, hasTailMode || currentIsDoubly) + "pre";
+    if (idx === N - 1) label = getLabel(idx, originalLen, hasTailMode) + "pre";
     let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
     let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
     if (idx === N) status = Status.Target;
@@ -2047,13 +2040,9 @@ function createDeleteIndexSteps(
     if (idx === N) y = baseY - 60;
     let label =
       idx === N - 1
-        ? getLabel(idx, originalLen, hasTailMode || currentIsDoubly) + "pre"
+        ? getLabel(idx, originalLen, hasTailMode) + "pre"
         : undefined;
-    if (
-      (hasTailMode || currentIsDoubly) &&
-      N === originalLen - 1 &&
-      idx === N
-    ) {
+    if (hasTailMode && N === originalLen - 1 && idx === N) {
       label = (label ? label + "/" : "") + "tail";
     }
     let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
@@ -2110,7 +2099,7 @@ function createDeleteIndexSteps(
     },
   });
 
-  if ((hasTailMode || currentIsDoubly) && N === originalLen - 1) {
+  if (hasTailMode && N === originalLen - 1) {
     const sTailElements = oldList.flatMap((item, idx) => {
       let y = baseY;
       if (idx === N) y = baseY - 60;
@@ -2169,7 +2158,7 @@ function createDeleteIndexSteps(
     if (idx === N) y = baseY - 60;
     let label =
       idx === N - 1
-        ? getLabel(idx, originalLen, hasTailMode || currentIsDoubly) + "pre"
+        ? getLabel(idx, originalLen, hasTailMode) + "pre"
         : undefined;
     let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
     let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
@@ -2283,7 +2272,7 @@ export function createLinkedListAnimationSteps(
       isHead = true;
     }
 
-    if (hasTailMode || currentIsDoubly) {
+    if (hasTailMode) {
       if (overrideLabel === "tail" || overrideLabel === "head/tail") {
         isTail = true;
       } else if (overrideLabel === undefined && i === total - 1) {

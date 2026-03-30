@@ -792,7 +792,7 @@ function TutorialContent() {
 
   const handleListModeChange = (mode: "singly" | "doubly") => {
     const isDoubly = mode === "doubly";
-    executeAction("switch_mode", { isDoubly });
+    executeAction("switch_mode", { isDoubly, hasTailMode });
     setListMode(mode);
     setCurrentStep(0);
     setIsPlaying(false);
