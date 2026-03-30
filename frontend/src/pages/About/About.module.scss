@@ -1,11 +1,582 @@
 .about {
+  position: relative;
+  width: 100%;
   min-height: 100vh;
   background: var(--bg-primary);
-  padding: $spacing-xl 0;
+  color: var(--text-secondary);
+  overflow-x: hidden;
 }
 
-.content {
+// ========== Background Grid ==========
+.bgGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}
+
+// ========== Central Pointer Line ==========
+.centerTrack {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba($info-color, 0.2);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.centerLine {
+  width: 100%;
+  background: $primary-color;
+  box-shadow: 0 0 0.9rem rgba($primary-color, 0.6);
+  transform-origin: top;
+  position: relative;
+}
+
+.pointerHead {
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--bg-primary);
+  border: 2px solid $info-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 1.25rem rgba($primary-color, 0.8);
+  z-index: 50;
+}
+
+.pointerDot {
+  width: 0.375rem;
+  height: 0.375rem;
+  background: var(--text-primary);
+  box-shadow: 0 0 0.625rem var(--text-primary);
+  transform: rotate(-45deg);
+}
+
+// ========== Container ==========
+.container {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 6rem 1.5rem;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// ========== Node Marker ==========
+.nodeMarker {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid $primary-color;
+  background: var(--bg-primary);
+  z-index: 10;
+  top: -4rem;
+}
+
+// ========== Hero Section ==========
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  margin-bottom: 8rem;
+  position: relative;
+}
+
+.heroAddress {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: $primary-color;
+  margin-bottom: 2rem;
+  letter-spacing: 0.15em;
+}
+
+.heroSubLabel {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  margin-bottom: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: clamp(2.5rem, 6vw, 4.375rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
-  margin-top: $spacing-xl;
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  line-height: 1.1;
+}
+
+.heroTitleAccent {
+  color: $info-color;
+  font-style: italic;
+  font-weight: 800;
+}
+
+.heroDesc {
+  border: 1px solid rgba($primary-color, 0.3);
+  background: var(--bg-secondary);
+  backdrop-filter: blur(0.5rem);
+  padding: 2rem;
+  max-width: 40rem;
+  font-size: $font-lg;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+// ========== Divider (Shared Component Override) ==========
+.divider {
+  width: 100%;
+  max-width: 50rem;
+  margin-bottom: 8rem;
+
+  border-color: rgba($primary-color, 0.3) !important;
+
+  :global(.line) {
+    border-color: rgba($primary-color, 0.3) !important;
+  }
+
+  :global(.label) {
+    font-family: $font-family-code;
+    font-size: $font-xs;
+    color: var(--text-tertiary);
+    letter-spacing: 0.15em;
+    background: var(--bg-primary);
+  }
+}
+
+// ========== Features Grid ==========
+.features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4rem;
+  max-width: 62.5rem;
+  width: 100%;
+  margin-bottom: 12rem;
+  position: relative;
+
+  @media (min-width: $mobile) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Feature Card (Shared Card override)
+.featureCard {
+  border: 1px solid var(--border) !important;
+  background: var(--bg-secondary) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: border-color 0.3s $ease-smooth !important;
+
+  &:hover {
+    border-color: rgba($primary-color, 0.5) !important;
+    transform: none !important;
+  }
+
+  :global(.featureIcon) {
+    color: $info-color;
+    font-size: 2rem;
+  }
+
+  :global(h3) {
+    color: var(--text-primary) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :global(p) {
+    color: var(--text-secondary) !important;
+    font-size: $font-sm;
+    line-height: 1.7;
+  }
+}
+
+// ========== Team Section ==========
+.team {
+  width: 100%;
+  max-width: 62.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8rem;
+  margin-bottom: 12rem;
+}
+
+.memberRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  position: relative;
+
+  @media (min-width: $mobile) {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+}
+
+.memberCenterNode {
+  display: none;
+
+  @media (min-width: $mobile) {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 2px solid $primary-color;
+    background: var(--bg-primary);
+    z-index: 10;
+    transition: background-color 0.3s $ease-smooth, box-shadow 0.3s $ease-smooth;
+  }
+}
+
+.memberCenterNodeActive {
+  background: $primary-color;
+  box-shadow: 0 0 0.625rem rgba($primary-color, 0.8);
+}
+
+.memberConnector {
+  display: none;
+
+  @media (min-width: $mobile) {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 2px;
+    background: rgba($primary-color, 0.2);
+    transform: translateY(-50%);
+    z-index: 0;
+    transition: background-color 0.3s $ease-smooth;
+  }
+}
+
+.memberConnectorLeft {
+  left: 50%;
+  right: 10%;
+}
+
+.memberConnectorRight {
+  right: 50%;
+  left: 10%;
+}
+
+.memberCol {
+  display: flex;
+  align-items: center;
+}
+
+.memberColLeft {
+  justify-content: center;
+
+  @media (min-width: $mobile) {
+    justify-content: flex-end;
+  }
+}
+
+.memberColRight {
+  justify-content: center;
+
+  @media (min-width: $mobile) {
+    justify-content: flex-start;
+  }
+}
+
+// Avatar frame
+.avatarFrame {
+  position: relative;
+  width: 16rem;
+  height: 16rem;
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  background: var(--bg-primary);
+  z-index: 10;
+  transition: border-color 0.3s $ease-smooth;
+
+  &:hover {
+    border-color: rgba($primary-color, 0.5);
+  }
+}
+
+@media (min-width: $mobile) {
+  .avatarFrame {
+    width: 20rem;
+    height: 20rem;
+  }
+}
+
+// Avatar component override
+.avatarImage {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  filter: grayscale(100%);
+  transition: filter 0.5s $ease-smooth;
+
+  &:hover {
+    filter: grayscale(0%);
+  }
+
+  :global(img) {
+    object-fit: cover;
+  }
+}
+
+.avatarCornerTL {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-top: 2px solid $primary-color;
+  border-left: 2px solid $primary-color;
+}
+
+.avatarCornerTR {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-top: 2px solid $primary-color;
+  border-right: 2px solid $primary-color;
+}
+
+.avatarCornerBL {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-bottom: 2px solid $primary-color;
+  border-left: 2px solid $primary-color;
+}
+
+.avatarCornerBR {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-bottom: 2px solid $primary-color;
+  border-right: 2px solid $primary-color;
+}
+
+// Member info block
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 25rem;
+  align-items: center;
+  text-align: center;
+
+  @media (min-width: $mobile) {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+.memberInfoRight {
+  @media (min-width: $mobile) {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+// Badge override
+.memberTag {
+  font-family: $font-family-code !important;
+  margin-bottom: 1rem;
+  border-radius: 0 !important;
+  letter-spacing: 0.05em;
+}
+
+.memberName {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.memberMeta {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: $primary-color;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (min-width: $mobile) {
+    justify-content: flex-start;
+  }
+
+  span {
+    color: var(--text-tertiary);
+  }
+}
+
+.memberMetaRight {
+  @media (min-width: $mobile) {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+  }
+}
+
+.memberCommit {
+  background: var(--bg-tertiary);
+  padding: 1rem;
+  font-size: $font-sm;
+  font-family: $font-family-code;
+  color: var(--text-secondary);
+  width: 100%;
+  border-left: 2px solid $primary-color;
+  text-align: left;
+}
+
+.memberCommitRight {
+  border-left: none;
+  border-right: 2px solid $primary-color;
+
+  @media (min-width: $mobile) {
+    text-align: right;
+  }
+}
+
+.commitPrefix {
+  color: var(--text-tertiary);
+}
+
+// ========== Tech Stack ==========
+.techStack {
+  width: 100%;
+  max-width: 50rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12rem;
+  position: relative;
+}
+
+.techLabel {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+}
+
+.techList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem 6rem;
+}
+
+.techItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-tertiary);
+  transition: color 0.3s $ease-smooth;
+  cursor: default;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+.techIcon {
+  font-size: 2rem;
+}
+
+.techName {
+  font-family: $font-family-code;
+  font-size: 0.625rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+// ========== CTA Section ==========
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 8rem;
+  position: relative;
+}
+
+.ctaTitle {
+  font-size: clamp(1.75rem, 4vw, 3.125rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.ctaDesc {
+  font-size: $font-lg;
+  color: var(--text-secondary);
+  max-width: 40rem;
+  margin-bottom: 3rem;
+  line-height: 1.7;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @media (min-width: $mobile) {
+    flex-direction: row;
+  }
+}
+
+// Link wrapper reset for CTA buttons
+.ctaLink {
+  text-decoration: none;
+  display: inline-flex;
+}
+
+// ========== Null Node ==========
+.nullNode {
+  position: relative;
+  margin-top: 4rem;
+}
+
+.nullLabel {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: $primary-color;
+  letter-spacing: 0.15em;
+  margin-left: 1.5rem;
 }
