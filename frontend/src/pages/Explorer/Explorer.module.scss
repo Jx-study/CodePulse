@@ -1,164 +1,507 @@
+@use "sass:color";
+
 .explorer {
   min-height: 100vh;
   background: var(--bg-primary);
-  padding: $spacing-xl 0;
+  position: relative;
+  overflow-x: hidden;
 }
 
-// ==================== 主要內容區域 ====================
-
-.mainContent {
-  @include flex;
-  gap: $spacing-lg;
-  margin-top: $spacing-lg;
-  height: calc(100vh - 200px); // 扣除 header 和標題的高度
-  min-height: 600px;
-
-  // 桌面端：左右分屏
-  @media (min-width: $tablet) {
-    flex-direction: row;
-  }
-
-  // 手機/平板端：上下堆疊
-  @media (max-width: $tablet-max) {
-    flex-direction: column;
-    height: auto;
-  }
+.bgTexture {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% -10%, rgba($primary-color, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 85% 90%, rgba($accent-color, 0.04) 0%, transparent 70%);
 }
 
-// ==================== 左側：程式碼編輯器面板 ====================
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: $spacing-xxl $spacing-xl $spacing-lg;
+  max-width: 1080px;
+  margin: 0 auto;
+  animation: fadeUp 0.5s $ease-smooth both;
 
-.editorPanel {
-  flex: 1;
-  @include flex($direction: column);
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: $spacing-md;
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-
-  @media (max-width: $tablet-max) {
-    min-height: 500px;
+  @media (max-width: $mobile-max) {
+    padding: $spacing-lg $spacing-sm $spacing-sm;
   }
 }
 
-// ==================== 右側：視覺化畫布面板 ====================
-
-.canvasPanel {
-  flex: 1;
-  @include flex($direction: column);
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: $spacing-md;
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-
-  @media (max-width: $tablet-max) {
-    min-height: 500px;
-  }
-}
-
-// ==================== 面板標題 ====================
-
-.panelHeader {
-  display: flex;
-  justify-content: space-between;
+.heroLabel {
+  display: inline-flex;
   align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-2xs;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $primary-color;
+  background: rgba($primary-color, 0.1);
+  border: 1px solid rgba($primary-color, 0.2);
+  border-radius: $radius-full;
+  padding: 4px $spacing-xs;
   margin-bottom: $spacing-md;
-  padding-bottom: $spacing-sm;
-  border-bottom: 2px solid var(--border);
-
-  .panelTitle {
-    margin-bottom: 0;
-    border-bottom: none;
-    padding-bottom: 0;
-  }
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-  align-items: center;
+.heroLabelDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: $primary-color;
+  animation: blink 2s ease-in-out infinite;
 }
 
-.linkTestBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: $spacing-sm $spacing-md;
-  margin-bottom: $spacing-md;
-  padding: $spacing-sm $spacing-md;
-  background: var(--bg-secondary);
-  border-radius: 8px;
+.heroTitle {
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: $spacing-sm;
+}
+
+.heroTitleAccent {
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSub {
+  font-family: $font-family-code;
   font-size: $font-sm;
   color: var(--text-secondary);
-
-  label {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-xs;
-    white-space: nowrap;
-  }
-
-  input[type="text"] {
-    width: 5.5rem;
-    padding: 4px 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--card-bg);
-    color: var(--text-primary);
-    font-size: $font-sm;
-  }
-
-  input[type="checkbox"] {
-    width: 1rem;
-    height: 1rem;
-  }
+  letter-spacing: 0.03em;
+  line-height: 1.7;
+  max-width: 440px;
 }
 
-.panelTitle {
-  font-size: $font-lg;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 $spacing-md 0;
-  padding-bottom: $spacing-sm;
-  border-bottom: 2px solid var(--border);
-}
-
-// ==================== 畫布容器 ====================
-
-.canvasContainer {
-  flex: 1;
-  @include flex-center;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  overflow: hidden;
+.cards {
   position: relative;
+  z-index: 1;
+  padding: 0 $spacing-xl $spacing-xxl;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+  max-width: 1080px;
+  margin: 0 auto;
 
-  // 確保 D3Canvas 能填滿容器
-  > div {
-    width: 100%;
-    height: 100%;
+  @media (max-width: $tablet-max) {
+    grid-template-columns: 1fr;
+    padding: 0 $spacing-sm $spacing-xl;
   }
 }
 
-// ==================== 響應式調整 ====================
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color 0.3s $ease-smooth,
+    transform 0.3s $ease-smooth,
+    box-shadow 0.3s $ease-smooth;
 
-// 手機端（<768px）
-@media (max-width: $mobile-max) {
-  .mainContent {
-    gap: $spacing-md;
-    margin-top: $spacing-md;
+  &:hover {
+    border-color: rgba($white-color, 0.13);
+    transform: $hover-transform;
+    box-shadow: $shadow-xl;
   }
+}
 
-  .editorPanel,
-  .canvasPanel {
-    padding: $spacing-sm;
-    border-radius: 8px;
-    min-height: 400px;
+.cardGlass {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(12px);
+  border-color: rgba($white-color, 0.08);
+}
+
+.cardIn1 {
+  animation: fadeUp 0.5s 0.12s $ease-smooth both;
+}
+
+.cardIn2 {
+  animation: fadeUp 0.5s 0.22s $ease-smooth both;
+}
+
+.cardHeader {
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.cardEyebrow {
+  font-size: $font-2xs;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
+}
+
+.cardTitle {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+}
+
+.cardDesc {
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.cardVisual {
+  flex: 1;
+  min-height: 260px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.cardFooter {
+  padding: $spacing-sm $spacing-lg;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.btnEnter {
+  font-size: $font-xs;
+  font-weight: 600;
+  padding: $spacing-xs $spacing-md;
+  background: $gradient-primary;
+  color: $white-color;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  transition:
+    transform 0.3s $ease-smooth,
+    filter 0.3s $ease-smooth;
+
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.12);
   }
+}
 
-  .panelTitle {
-    font-size: $font-base;
+.btnEnterGhost {
+  font-size: $font-xs;
+  font-weight: 500;
+  padding: $spacing-xs $spacing-sm;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  margin-left: auto;
+  transition:
+    border-color 0.3s $ease-smooth,
+    color 0.3s $ease-smooth;
+
+  &:hover {
+    border-color: rgba($white-color, 0.18);
+    color: var(--text-primary);
+  }
+}
+
+.statPills {
+  display: flex;
+  gap: $spacing-xs;
+  margin-left: auto;
+}
+
+.raceVisual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  height: 100%;
+}
+
+.raceTrackWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.raceTrack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.raceLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.raceDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.raceComplexity {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  background: rgba($white-color, 0.04);
+  border: 1px solid var(--border);
+  border-radius: $radius-full;
+  padding: 1px 5px;
+}
+
+.raceLane {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: $radius-sm;
+  overflow: hidden;
+  height: 26px;
+  padding: 0 3px;
+  position: relative;
+}
+
+.raceBar {
+  height: 20px;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.12s linear;
+  flex-shrink: 0;
+}
+
+.racePct {
+  font-family: $font-family-code;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+  padding-right: 3px;
+  flex-shrink: 0;
+}
+
+.raceFinish {
+  position: absolute;
+  right: $spacing-lg;
+  top: $spacing-md;
+  bottom: $spacing-md;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba($white-color, 0.13) 0px,
+    rgba($white-color, 0.13) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.pgMockup {
+  display: flex;
+  height: 100%;
+  min-height: 260px;
+}
+
+.pgInputPane {
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-sm;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+}
+
+.ideTitlebar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: $spacing-xs;
+}
+
+.ideDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+// macOS traffic-light colours — intentionally not in _variables (UI chrome, not theme tokens)
+.ideDotR { background: #ff5f57; }
+.ideDotY { background: #febc2e; }
+.ideDotG { background: #28c840; }
+
+.pgFilename {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+  margin-left: $spacing-xs;
+}
+
+.pgCode {
+  font-family: $font-family-code;
+  font-size: 11px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  flex: 1;
+  white-space: pre;
+  overflow: hidden;
+
+  span[data-line] {
+    display: block;
+    padding: 0 4px;
+    margin: 0 -4px;
+    transition: background 0.3s;
+  }
+}
+
+// Syntax highlight tokens — semantic colours matching the code theme, not UI theme
+.kw { color: #c792ea; }
+.fn { color: #82aaff; }
+.nu { color: #f78c6c; }
+
+.pgFlow {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.pgFlowArrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.pgPulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $primary-color;
+  opacity: 0;
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+.pgStackPane {
+  width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: $spacing-sm $spacing-xs;
+  gap: 3px;
+}
+
+.pgStackLabel {
+  font-size: $font-2xs;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: $spacing-xs;
+  align-self: flex-start;
+}
+
+.pgStackBlocks {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  width: 100%;
+  min-height: 140px;
+  justify-content: flex-start;
+}
+
+.pgBlock {
+  height: 28px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba($primary-color, 0.35);
+  background: rgba($primary-color, 0.12);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: color.adjust($primary-color, $lightness: 20%);
+  transform: translateY(-6px);
+  opacity: 0;
+  transition:
+    transform 0.35s $ease-smooth,
+    opacity 0.35s $ease-smooth;
+}
+
+.pgBlockVisible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.pgBlockExit {
+  transform: translateY(-12px);
+  opacity: 0;
+}
+
+.pgStackBase {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.15em;
+  width: 100%;
+  text-align: center;
+  margin-top: 2px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes pulseDot {
+  0%   { opacity: 0; top: -4px; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; top: 20px; }
+  100% { opacity: 0; top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
