@@ -1,15 +1,12 @@
 .hero {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: $spacing-xxl 0;
+  height: calc(100vh - var(--header-height));
   text-align: center;
   position: relative;
   overflow: hidden;
-  gap: $spacing-xs;
-
-  @include mobile {
-    padding: $spacing-xl 0;
-  }
+  display: flex;
+  align-items: center;
 
   h1,
   h3 {
@@ -86,13 +83,59 @@
 }
 
 .heroContent {
+  width: 100%;
   max-width: $desktop;
   margin: 0 auto;
   padding: 0 $spacing-lg;
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-xl;
+
+  @include tablet {
+    gap: $spacing-lg;
+  }
 
   @include mobile {
     padding: 0 $spacing-md;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+}
+
+.heroLeft {
+  flex: 0 0 auto;
+  width: 42%;
+  text-align: left;
+
+  p {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  @include tablet {
+    width: 46%;
+  }
+
+  @include mobile {
+    width: 100%;
+    text-align: center;
+
+    p {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+}
+
+.heroRight {
+  flex: 1 1 0;
+  min-width: 0;
+
+  @include mobile {
+    width: 100%;
   }
 }

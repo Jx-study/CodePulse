@@ -4,38 +4,38 @@ import { createBubbleSortAnimationSteps } from '@/data/algorithms/sorting/bubble
 import type { AnimationStep } from '@/types';
 import { D3Canvas } from '@/modules/core/Render/D3Canvas';
 import type { StatusColorMap } from '@/types/statusConfig';
+import Icon from '@/shared/components/Icon';
 
-const PYTHON_CODE = `def bubble_sort(collection):
-    total_items = len(collection)
-
-    for round in range(total_items - 1):
-        has_swapped = False
-        unsorted_range = total_items - 1 - round
-
-        for index in range(unsorted_range):
-            if collection[index] > collection[index + 1]:
-                collection[index], collection[index + 1] = collection[index + 1], collection[index]
-                has_swapped = True
-
-        if not has_swapped:
+const PYTHON_CODE = `def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        swapped = False
+        limit = n - 1 - i
+        for j in range(limit):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+                swapped = True
+        if not swapped:
             break
-
-    return collection`;
+    return arr`;
 
 const CODE_LINES = PYTHON_CODE.split('\n');
 
 // Maps actionTag → highlighted line numbers (1-based, matches PYTHON_CODE)
 const TAG_TO_LINES: Record<string, number[]> = {
   INIT:        [2],
-  ROUND_START: [4, 5, 6],
-  GET_VALUES:  [8, 9],
-  COMPARE:     [10],
-  SWAP:        [10, 11],
-  ROUND_END:   [13, 14],
-  DONE:        [16],
+  ROUND_START: [3, 4, 5],
+  GET_VALUES:  [6, 7],
+  COMPARE:     [8],
+  SWAP:        [8, 9],
+  ROUND_END:   [10, 11],
+  DONE:        [12],
 };
 
-const INITIAL_ARRAY = [31, 9, 15, 1, 8, 5, 4, 10, 24, 23];
+const INITIAL_ARRAY = [31, 9, 15, -3, 8, 5, 4, -10, 24, 23];
+
+const STEP_INTERVAL_MS = 500;
+const RESET_DELAY_MS = 2000;
 
 // StatusColorMap = Record<string, string> — 狀態鍵值 → 顏色 hex
 // prepare = 比較中（teal），target = 交換中（blue），complete = 已排序（green）
@@ -74,12 +74,12 @@ function Demo() {
     const id = setInterval(() => {
       setCurrentIndex(prev => {
         if (prev >= steps.length - 1) {
-          setTimeout(() => setCurrentIndex(0), 2000);
+          setTimeout(() => setCurrentIndex(0), RESET_DELAY_MS);
           return prev;
         }
         return prev + 1;
       });
-    }, 500);
+    }, STEP_INTERVAL_MS);
     return () => clearInterval(id);
   }, [isPlaying, steps.length]);
 
@@ -94,62 +94,61 @@ function Demo() {
   const allStepsElements = useMemo(() => steps.map(s => s.elements), [steps]);
 
   return (
-    <section className={styles.demo} id="demo" ref={containerRef}>
-      <div className='container'>
-        <div className={styles.demoPreview}>
-
-          {/* Mac-style code window */}
-          <div className={styles.macWindow}>
-            <div className={styles.macChrome}>
-              <div className={styles.trafficLights}>
-                <span className={styles.tlRed} />
-                <span className={styles.tlYellow} />
-                <span className={styles.tlGreen} />
-              </div>
-              <span className={styles.windowTitle}>bubble_sort.py</span>
+    <div className={styles.demo} ref={containerRef}>
+      <div className={styles.demoPreview}>
+        {/* Mac-style code window */}
+        <div className={styles.macWindow}>
+          <div className={styles.macChrome}>
+            <div className={styles.trafficLights} aria-hidden="true">
+              <span className={styles.tlRed} />
+              <span className={styles.tlYellow} />
+              <span className={styles.tlGreen} />
             </div>
-            <div className={styles.codeBody}>
-              {CODE_LINES.map((line, idx) => {
-                const lineNum = idx + 1;
-                const isHighlighted = highlightedLines.includes(lineNum);
-                return (
-                  <div
-                    key={idx}
-                    className={`${styles.codeLine}${isHighlighted ? ` ${styles.highlighted}` : ''}`}
-                  >
-                    <span className={styles.lineNumber}>
-                      {isHighlighted ? '▶' : lineNum}
-                    </span>
-                    <span className={styles.lineText}>{line || ' '}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <span className={styles.windowTitle}>bubble_sort.py</span>
           </div>
-
-          {/* Bar chart visualization */}
-          {steps.length > 0 && currentStep && (
-            <div className={styles.visualizationArea}>
-              <D3Canvas
-                elements={currentStep.elements}
-                links={[]}
-                structureType="sorting"
-                enableZoom={false}
-                enablePan={false}
-                statusColorMap={DEMO_STATUS_COLOR_MAP}
-                allStepsElements={allStepsElements}
-              />
-            </div>
-          )}
-
-          {/* Analysis box */}
-          <div className={styles.analysisBox}>
-            <strong>💡 分析：</strong>{description}
+          <div className={styles.codeBody}>
+            {CODE_LINES.map((line, idx) => {
+              const lineNum = idx + 1;
+              const isHighlighted = highlightedLines.includes(lineNum);
+              return (
+                <div
+                  key={idx}
+                  className={`${styles.codeLine}${isHighlighted ? ` ${styles.highlighted}` : ""}`}
+                >
+                  <span className={styles.lineNumber}>
+                    {isHighlighted ? "▶" : lineNum}
+                  </span>
+                  <span className={styles.lineText}>{line || " "}</span>
+                </div>
+              );
+            })}
           </div>
-
         </div>
+
+        {/* Analysis box */}
+        <div className={styles.analysisBox}>
+          <Icon name="lightbulb" size='lg' className={styles.analysisIcon} />
+          <strong>分析：</strong>
+          {description}
+        </div>
+
+        {/* Bar chart visualization */}
+        {steps.length > 0 && currentStep && (
+          <div className={styles.visualizationArea}>
+            <D3Canvas
+              elements={currentStep.elements}
+              links={[]}
+              structureType="sorting"
+              enableZoom={false}
+              enablePan={false}
+              statusColorMap={DEMO_STATUS_COLOR_MAP}
+              showStatusLegend={false}
+              allStepsElements={allStepsElements}
+            />
+          </div>
+        )}
       </div>
-    </section>
+    </div>
   );
 }
 
