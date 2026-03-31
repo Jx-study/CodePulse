@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   PracticeResult,
@@ -14,7 +14,7 @@ import type { BreadcrumbItem } from "@/types";
 import { xp } from "@/shared/components/XpFloat";
 import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+const CodeEditor = lazy(() => import("@/modules/core/components/CodeEditor/CodeEditor"));
 import Input from "@/shared/components/Input";
 import Button from "@/shared/components/Button";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -403,15 +403,17 @@ function Practice() {
                 <p className={styles.groupDesc}>{currentGroup.description}</p>
                 {currentGroup.code && (
                   <div className={styles.groupCodeBlock}>
-                    <CodeEditor
-                      mode="single"
-                      language={currentGroup.language || "python"}
-                      value={currentGroup.code}
-                      readOnly={true}
-                      theme="auto"
-                      showLineNumbers={true}
-                      autoHeight={true}
-                    />
+                    <Suspense fallback={null}>
+                      <CodeEditor
+                        mode="single"
+                        language={currentGroup.language || "python"}
+                        value={currentGroup.code}
+                        readOnly={true}
+                        theme="auto"
+                        showLineNumbers={true}
+                        autoHeight={true}
+                      />
+                    </Suspense>
                   </div>
                 )}
               </div>
@@ -439,16 +441,18 @@ function Practice() {
 
             {showCodeEditor && currentQuestion.code && (
               <div className={styles.codeBlock}>
-                <CodeEditor
-                  key={`editor-${currentQuestion.id}`}
-                  mode="single"
-                  language={currentQuestion.language || "python"}
-                  value={currentQuestion.code}
-                  readOnly={true}
-                  theme="auto"
-                  showLineNumbers={true}
-                  autoHeight={true}
-                />
+                <Suspense fallback={null}>
+                  <CodeEditor
+                    key={`editor-${currentQuestion.id}`}
+                    mode="single"
+                    language={currentQuestion.language || "python"}
+                    value={currentQuestion.code}
+                    readOnly={true}
+                    theme="auto"
+                    showLineNumbers={true}
+                    autoHeight={true}
+                  />
+                </Suspense>
               </div>
             )}
 
