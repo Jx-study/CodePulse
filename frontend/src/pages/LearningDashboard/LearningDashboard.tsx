@@ -359,7 +359,7 @@ function LearningDashboardInner() {
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
         <Button
-          variant="glass"
+          variant="glow"
           size="md"
           onClick={() => setIsSidebarOpen(true)}
           icon="filter"
@@ -368,7 +368,7 @@ function LearningDashboardInner() {
         </Button>
         {isAuthenticated && (
           <Button
-            variant="glass"
+            variant="glow"
             size="md"
             onClick={() => setIsProgressDialogOpen(true)}
             icon="chalkboard-user"

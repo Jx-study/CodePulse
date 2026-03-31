@@ -291,6 +291,42 @@
   color: inherit;
 }
 
+// Glow（浮動邊緣按鈕）- 右側緊貼視窗邊緣，hover 展開文字
+.glow {
+  background: var(--glow-bg);
+  border: 1px solid var(--glow-border);
+  border-right: none;
+  border-radius: $radius-full 0 0 $radius-full;
+  color: var(--glow-color);
+  box-shadow: var(--glow-shadow), inset 0 1px 0 rgba($white-color, 0.07);
+
+  // 收起文字，僅顯示 icon
+  .content {
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-left: 0;
+    transition:
+      max-width 0.35s $ease-smooth,
+      opacity   0.25s ease,
+      margin    0.35s $ease-smooth;
+  }
+
+  &:hover:not(:disabled):not(.disabled) {
+    border-color: var(--glow-border-hover);
+    color: var(--glow-color-hover);
+    background: var(--glow-bg-hover);
+    box-shadow: var(--glow-shadow-hover), inset 0 1px 0 rgba($white-color, 0.12);
+    padding-right: $spacing-sm;
+
+    .content {
+      max-width: 200px;
+      opacity: 1;
+      margin-left: $spacing-xs;
+    }
+  }
+}
+
 // Dot（圓形指示器按鈕）- .dot
 .dot {
   width: 12px;
