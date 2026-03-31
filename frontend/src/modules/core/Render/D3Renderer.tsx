@@ -110,10 +110,12 @@ export function animateConnect(
   });
 }
 
+type BBox = { minX: number; minY: number; maxX: number; maxY: number };
+
 function drawContainer(
   scene: d3.Selection<SVGGElement, unknown, null, undefined>,
   type: string,
-) {
+): BBox | null {
   // 清除舊的容器線條 (避免重繪疊加)
   scene.selectAll(".container-line").remove();
 
@@ -159,6 +161,8 @@ function drawContainer(
       .attr("y2", bottomY + lineWidth / 2)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
+
+    return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
   } else if (type === "queue") {
     // Queue: 畫「上」、「下」 (兩端開口通道)
 
@@ -183,6 +187,8 @@ function drawContainer(
       .attr("y2", bottomY)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
+
+    return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
   } else if (type === "binarytree") {
     const startX = 750;
     const endX = 950;
@@ -230,7 +236,11 @@ function drawContainer(
       .text("Call Stack/Queue")
       .attr("fill", "#888")
       .attr("font-size", 12);
+
+    return { minX: startX, minY: topY, maxX: endX, maxY: bottomY + 20 };
   }
+
+  return null;
 }
 
 export function renderAll(
@@ -240,7 +250,7 @@ export function renderAll(
   structureType: string = "linkedlist",
   isDirected: boolean = true,
   statusColorMap?: StatusColorMap,
-) {
+): { containerBBox: BBox | null } {
   // Inject custom color map into all elements if provided
   if (statusColorMap) {
     elements.forEach((element) => {
@@ -374,7 +384,7 @@ export function renderAll(
   root.enter().append("g").attr("class", "scene");
   const scene = svg.select<SVGGElement>("g.scene");
 
-  drawContainer(scene, structureType);
+  const containerBBox = drawContainer(scene, structureType);
   // 清除舊的連線 (避免重繪疊加)
   // 不知道有沒有用
   scene.selectAll("line.link").remove();
@@ -832,4 +842,6 @@ export function renderAll(
         .text(ptr.label);
     }
   });
+
+  return { containerBBox };
 }
