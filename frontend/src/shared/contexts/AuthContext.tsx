@@ -13,6 +13,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showCheckinDialog, setShowCheckinDialog] = useState(false);
+  const [pendingWelcome, setPendingWelcome] = useState<{ username: string } | null>(null);
   const hasEvaluatedCheckin = useRef(false);
 
   const evaluateCheckin = useCallback((userData: User) => {
@@ -77,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) evaluateCheckin(data.user);
       reconcileTheme(data.user?.theme);
       if (data.user?.language) i18n.changeLanguage(data.user.language);
+      if (data.user?.username) setPendingWelcome({ username: data.user.username });
     } else {
       throw new Error(data.message || '驗證失敗');
     }
@@ -114,6 +116,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateUser,
     showCheckinDialog,
     setShowCheckinDialog,
+    pendingWelcome,
+    setPendingWelcome,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

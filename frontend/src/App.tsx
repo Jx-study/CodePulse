@@ -1,5 +1,5 @@
 import { useEffect, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Auth Context
@@ -30,6 +30,7 @@ import Playground from "./pages/Explorer/Playground";
 import About from "./pages/About/About";
 import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
 import ProtectedRoute from "./shared/components/ProtectedRoute";
+import WelcomeOverlay from "./modules/auth/components/WelcomeOverlay";
 
 function CheckinWrapper() {
   const { isLoading, showCheckinDialog, setShowCheckinDialog } = useAuth();
@@ -38,6 +39,21 @@ function CheckinWrapper() {
     <CheckinDialog
       isOpen={showCheckinDialog}
       onClose={() => setShowCheckinDialog(false)}
+    />
+  );
+}
+
+function WelcomeWrapper() {
+  const { pendingWelcome, setPendingWelcome } = useAuth();
+  const navigate = useNavigate();
+  if (!pendingWelcome) return null;
+  return (
+    <WelcomeOverlay
+      username={pendingWelcome.username}
+      onComplete={() => {
+        setPendingWelcome(null);
+        navigate("/");
+      }}
     />
   );
 }
@@ -70,6 +86,7 @@ function App() {
     <AuthProvider>
       <ThemeApplier />
       <CheckinWrapper />
+      <WelcomeWrapper />
       <ToastContainer />
       <XpFloat />
       <Suspense fallback={<PageSkeleton />}>
@@ -79,10 +96,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<LearningDashboard />} />
             <Route path="/tutorial" element={<Tutorial />} />
-            <Route
-              path="/tutorial/:category/:levelId"
-              element={<Tutorial />}
-            />
+            <Route path="/tutorial/:category/:levelId" element={<Tutorial />} />
             <Route element={<ProtectedRoute />}>
               <Route
                 path="/practice/:category/:levelId"
@@ -91,7 +105,9 @@ function App() {
             </Route>
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/explorer/lab" element={<Lab />} />
-            <Route path="/explorer/playground" element={<Playground />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/explorer/playground" element={<Playground />} />
+            </Route>
             <Route path="/about" element={<About />} />
           </Route>
 

@@ -37,6 +37,8 @@ export interface AuthContextType {
   updateUser: (patch: Partial<User>) => void;
   showCheckinDialog: boolean;
   setShowCheckinDialog: (v: boolean) => void;
+  pendingWelcome: { username: string } | null;
+  setPendingWelcome: (v: { username: string } | null) => void;
 }
 
 // ==================== Auth Response Types ====================
