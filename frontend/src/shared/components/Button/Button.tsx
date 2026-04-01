@@ -44,7 +44,7 @@ function Button({
       case 'glow':
         return styles.glow;
       default:
-        return styles.primary;
+        return styles.secondary;
     }
   };
 
