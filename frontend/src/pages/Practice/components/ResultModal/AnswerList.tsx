@@ -9,9 +9,9 @@
  * - 得分
  */
 
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import type { AnswerResult, Question } from "@/types/practice";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
+const CodeEditor = lazy(() => import("@/modules/core/components/CodeEditor/CodeEditor"));
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
@@ -129,15 +129,17 @@ const AnswerList: React.FC<AnswerListProps> = ({
                   {/* 1. 如果有程式碼，顯示 CodeEditor */}
                   <div className={styles.contextSection}>
                     {question.code && (
-                      <CodeEditor
-                        mode="single"
-                        language={question.language || "python"}
-                        value={question.code}
-                        readOnly={true}
-                        theme="auto"
-                        showLineNumbers={true}
-                        autoHeight={true}
-                      />
+                      <Suspense fallback={null}>
+                        <CodeEditor
+                          mode="single"
+                          language={question.language || "python"}
+                          value={question.code}
+                          readOnly={true}
+                          theme="auto"
+                          showLineNumbers={true}
+                          autoHeight={true}
+                        />
+                      </Suspense>
                     )}
                     {question.options && question.options.length > 0 && (
                       <div className={styles.reviewOptionList}>

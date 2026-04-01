@@ -218,7 +218,10 @@ export const D3Canvas = forwardRef<
       const svgElement = svgRef.current;
       if (!svgElement) return;
 
-      // Phase 1: ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）
+      // Phase 1: 渲染當前步驟的實際元素（需先執行以取得 containerBBox）
+      const { containerBBox } = renderAll(svgElement, elements, links, structureType, isDirected, statusColorMap);
+
+      // Phase 2: ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）
       if (allStepsElements !== prevAllStepsRef.current) {
         prevAllStepsRef.current = allStepsElements;
 
@@ -230,6 +233,12 @@ export const D3Canvas = forwardRef<
         const unionBBox = computeUnionBBox(stepsToMeasure);
 
         if (unionBBox) {
+          if (containerBBox) {
+            unionBBox.minX = Math.min(unionBBox.minX, containerBBox.minX);
+            unionBBox.minY = Math.min(unionBBox.minY, containerBBox.minY);
+            unionBBox.maxX = Math.max(unionBBox.maxX, containerBBox.maxX);
+            unionBBox.maxY = Math.max(unionBBox.maxY, containerBBox.maxY);
+          }
           const contentWidth = unionBBox.maxX - unionBBox.minX + padding * 2;
           const contentHeight = unionBBox.maxY - unionBBox.minY + padding * 2;
           setDynamicViewBox(`${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`);
@@ -239,9 +248,6 @@ export const D3Canvas = forwardRef<
           }
         }
       }
-
-      // Phase 2: 渲染當前步驟的實際元素
-      renderAll(svgElement, elements, links, structureType, isDirected, statusColorMap);
 
       return () => {
         if (svgElement) {
