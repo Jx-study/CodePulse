@@ -1,4 +1,5 @@
 """Practice business logic: question fetching, grading, Elo, XP."""
+import math
 import random
 from datetime import datetime, timezone
 
@@ -32,6 +33,25 @@ def derive_points(difficulty_rating: float) -> int:
 
 def _elo_expected(user_rating: float, question_rating: float) -> float:
     return 1.0 / (1.0 + 10.0 ** ((question_rating - user_rating) / 400.0))
+
+
+def _elo_weight(user_rating: float, question_rating: float) -> float:
+    """指數衰減權重：差距越小權重越高，差 200 分時權重降至 0.37。"""
+    return math.exp(-abs(user_rating - question_rating) / 200.0)
+
+
+def _weighted_sample(pool: list, k: int, user_rating: float) -> list:
+    """依 Elo 距離權重從 pool 中不重複抽取 k 題。"""
+    if len(pool) <= k:
+        return pool[:]
+    result = []
+    remaining = list(pool)
+    for _ in range(k):
+        weights = [_elo_weight(user_rating, q.difficulty_rating) for q in remaining]
+        chosen = random.choices(remaining, weights=weights, k=1)[0]
+        result.append(chosen)
+        remaining.remove(chosen)
+    return result
 
 
 def _get_user_k(answer_count: int) -> float:
@@ -199,18 +219,14 @@ def get_questions_for_user(tutorial_id: int, user, lang: str) -> list[dict]:
     leftover = 0
 
     for cat, q_quota in remaining_quota.items():
-        bucket = sorted(buckets[cat], key=lambda q: abs(user.skill_rating - q.difficulty_rating))
-        picked = bucket[:q_quota]
+        picked = _weighted_sample(buckets[cat], q_quota, user.skill_rating)
         leftover += q_quota - len(picked)
         standalone_selected.extend(picked)
         standalone_ids.update(q.question_id for q in picked)
 
     if leftover > 0:
-        remaining = sorted(
-            [q for q in standalone if q.question_id not in standalone_ids],
-            key=lambda q: abs(user.skill_rating - q.difficulty_rating),
-        )
-        standalone_selected.extend(remaining[:leftover])
+        remaining = [q for q in standalone if q.question_id not in standalone_ids]
+        standalone_selected.extend(_weighted_sample(remaining, leftover, user.skill_rating))
 
     # 獨立題上限：不超過 _MAX_QUESTIONS - 題組題數
     max_standalone = _MAX_QUESTIONS - len(selected_group_qs)
