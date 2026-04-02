@@ -9,7 +9,8 @@ from models.tutorial import Tutorial, UserTutorialProgress
 from models.xp import XpEvent, XpSourceType
 from models.user import User
 
-_ELO_K = 32.0
+_USER_ELO_K = 32.0
+_QUESTION_ELO_K = 8.0
 _PASS_THRESHOLD = 60
 _GROUP_TOLERANCE = 1        # 題組各 category 題數允許超出配額的寬容值
 _MAX_QUESTIONS = 10         # 每次練習題數硬上限
@@ -32,8 +33,8 @@ def _elo_expected(user_rating: float, question_rating: float) -> float:
 def _apply_elo(user_rating: float, question_rating: float, correct: bool):
     actual = 1.0 if correct else 0.0
     expected = _elo_expected(user_rating, question_rating)
-    new_user = user_rating + _ELO_K * (actual - expected)
-    new_question = question_rating + _ELO_K * (expected - actual)
+    new_user = user_rating + _USER_ELO_K * (actual - expected)
+    new_question = question_rating + _QUESTION_ELO_K * (expected - actual)
     return new_user, new_question
 
 
@@ -50,10 +51,10 @@ def calc_tier(rating: float) -> int:
 
 
 CATEGORY_QUOTA = {
-    1: {'basic': 6, 'application': 3, 'complexity': 1},
-    2: {'basic': 5, 'application': 3, 'complexity': 2},
-    3: {'basic': 3, 'application': 4, 'complexity': 3},
-    4: {'basic': 2, 'application': 4, 'complexity': 4},
+    1: {'basic': 8, 'application': 2, 'complexity': 0},
+    2: {'basic': 6, 'application': 3, 'complexity': 1},
+    3: {'basic': 4, 'application': 4, 'complexity': 2},
+    4: {'basic': 2, 'application': 5, 'complexity': 3},
     5: {'basic': 1, 'application': 4, 'complexity': 5},
 }
 
