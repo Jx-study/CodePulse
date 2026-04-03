@@ -11,7 +11,7 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
-} from './pythonDemo';
+} from "./pythonDemo";
 
 export type {
   StoryVideo,
@@ -20,7 +20,7 @@ export type {
   InteractiveGameType,
   InteractiveGame,
   RealWorldStory,
-} from './realWorldStory';
+} from "./realWorldStory";
 
 export interface ProblemReference {
   id: string | number;
@@ -49,7 +49,13 @@ export type RunParams =
       rows?: number;
       cols?: number;
     }
-  | { type: "dijkstra"; mode: "graph"; startNode?: string; endNode?: string; isDirected: boolean }
+  | {
+      type: "dijkstra";
+      mode: "graph";
+      startNode?: string;
+      endNode?: string;
+      isDirected: boolean;
+    }
   | { type: "knapsack"; capacity: number }
   | { type: "nQueens"; nQueensCount: number };
 
@@ -107,6 +113,8 @@ export interface LevelImplementationConfig {
   maxNodes?: number;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
+  /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */
+  defaultIsDirected?: boolean;
   renderActionBar?: (props: ActionBarProps) => ReactNode;
   /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
   actionHandler?: VisualizationActionHandler<any>;
@@ -134,6 +142,7 @@ export type ImplementationId =
   | "twopointers"
   | "fibonacci"
   | "knapsack"
-  | "n-queens";
+  | "n-queens"
+  | "topological-sort";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;
