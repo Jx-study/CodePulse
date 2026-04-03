@@ -69,18 +69,26 @@ function Demo() {
     return () => observer.disconnect();
   }, []);
 
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (!isPlaying || steps.length === 0) return;
     const id = setInterval(() => {
       setCurrentIndex(prev => {
         if (prev >= steps.length - 1) {
-          setTimeout(() => setCurrentIndex(0), RESET_DELAY_MS);
+          resetTimerRef.current = setTimeout(() => setCurrentIndex(0), RESET_DELAY_MS);
           return prev;
         }
         return prev + 1;
       });
     }, STEP_INTERVAL_MS);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      if (resetTimerRef.current !== null) {
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
+      }
+    };
   }, [isPlaying, steps.length]);
 
   const currentStep: AnimationStep | undefined = steps[currentIndex];
