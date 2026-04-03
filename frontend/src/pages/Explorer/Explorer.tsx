@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Badge from "@/shared/components/Badge";
@@ -16,10 +16,11 @@ function BarRaceVisual() {
 
   useEffect(() => {
     let qPct = 0, bPct = 0, mPct = 0;
-    let running = true;
+    const runningRef = { current: true };
+    let resetId: ReturnType<typeof setTimeout> | null = null;
 
     function step() {
-      if (!running) return;
+      if (!runningRef.current) return;
       qPct = Math.min(100, qPct + (2.8 + Math.random() * 0.8));
       mPct = Math.min(100, mPct + (2.5 + Math.random() * 0.9));
       bPct = Math.min(100, bPct + (0.7 + Math.random() * 0.4));
@@ -32,16 +33,19 @@ function BarRaceVisual() {
       if (bPctRef.current) bPctRef.current.textContent = Math.round(bPct) + "%";
 
       if (qPct >= 100 && mPct >= 100 && bPct >= 100) {
-        running = false;
-        setTimeout(() => {
+        runningRef.current = false;
+        resetId = setTimeout(() => {
           qPct = 0; bPct = 0; mPct = 0;
-          running = true;
+          runningRef.current = true;
         }, 1800);
       }
     }
 
     const id = setInterval(step, 60);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      if (resetId !== null) clearTimeout(resetId);
+    };
   }, []);
 
   return (
@@ -91,71 +95,59 @@ function BarRaceVisual() {
 // ── Card 2: Stack push/pop visual ────────────────────────────────────────────
 const STACK_VALUES = [3, 7, 1, 9, 4, 6, 2, 8];
 
+type StackItem = { id: number; val: number; exiting: boolean };
+
 function StackVisual() {
-  const stackRef = useRef<HTMLDivElement>(null);
-  const codeRef = useRef<HTMLPreElement>(null);
-  const stackItems = useRef<HTMLDivElement[]>([]);
-  const stepRef = useRef(0);
+  const stackRef = useRef<StackItem[]>([
+    { id: 0, val: 3, exiting: false },
+    { id: 1, val: 7, exiting: false },
+  ]);
+  const [stack, setStack] = useState<StackItem[]>(stackRef.current);
+  const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
+  const stepRef = useRef(2); // next STACK_VALUES index
+  const idCounterRef = useRef(2); // next unique item id
   const pushingRef = useRef(true);
+  const pending1Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pending2Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Pre-fill 2 blocks
-    pushBlock(3);
-    pushBlock(7);
+    const intervalId = setInterval(() => {
+      const current = stackRef.current;
+      if (pushingRef.current && current.length < 5) {
+        const val = STACK_VALUES[stepRef.current % STACK_VALUES.length];
+        setHighlightedLine(1);
+        if (current.length >= 4) pushingRef.current = false;
+        pending1Ref.current = setTimeout(() => {
+          const item: StackItem = { id: idCounterRef.current++, val, exiting: false };
+          stackRef.current = [...stackRef.current, item];
+          setStack(stackRef.current);
+          stepRef.current++;
+        }, 300);
+      } else {
+        pushingRef.current = false;
+        setHighlightedLine(4);
+        pending1Ref.current = setTimeout(() => {
+          if (stackRef.current.length === 0) return;
+          const topId = stackRef.current[stackRef.current.length - 1].id;
+          if (stackRef.current.length <= 2) pushingRef.current = true;
+          stackRef.current = stackRef.current.map((item, i) =>
+            i === stackRef.current.length - 1 ? { ...item, exiting: true } : item
+          );
+          setStack(stackRef.current);
+          pending2Ref.current = setTimeout(() => {
+            stackRef.current = stackRef.current.filter(item => item.id !== topId);
+            setStack(stackRef.current);
+          }, 380);
+        }, 300);
+      }
+    }, 1400);
 
-    const id = setInterval(stackCycle, 1400);
-    return () => clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearInterval(intervalId);
+      if (pending1Ref.current !== null) clearTimeout(pending1Ref.current);
+      if (pending2Ref.current !== null) clearTimeout(pending2Ref.current);
+    };
   }, []);
-
-  function pushBlock(val: number) {
-    const container = stackRef.current;
-    if (!container) return;
-    const el = document.createElement("div");
-    el.className = styles.pgBlock;
-    el.textContent = String(val);
-    container.appendChild(el);
-    stackItems.current.push(el);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => el.classList.add(styles.pgBlockVisible));
-    });
-  }
-
-  function popBlock() {
-    const el = stackItems.current.pop();
-    if (!el) return;
-    el.classList.add(styles.pgBlockExit);
-    setTimeout(() => el.remove(), 380);
-  }
-
-  function highlightLine(lineNum: number) {
-    if (!codeRef.current) return;
-    const lines = codeRef.current.querySelectorAll<HTMLElement>("[data-line]");
-    lines.forEach((l, i) => {
-      l.style.background = i === lineNum ? "rgba(99,91,255,.14)" : "";
-      l.style.borderRadius = i === lineNum ? "2px" : "";
-    });
-  }
-
-  function stackCycle() {
-    const items = stackItems.current;
-    if (pushingRef.current && items.length < 5) {
-      const val = STACK_VALUES[stepRef.current % STACK_VALUES.length];
-      highlightLine(1);
-      setTimeout(() => {
-        pushBlock(val);
-        stepRef.current++;
-      }, 300);
-      if (items.length >= 4) pushingRef.current = false;
-    } else {
-      pushingRef.current = false;
-      highlightLine(4);
-      setTimeout(() => {
-        popBlock();
-        if (items.length <= 1) pushingRef.current = true;
-      }, 300);
-    }
-  }
 
   return (
     <div className={styles.pgMockup}>
@@ -167,12 +159,12 @@ function StackVisual() {
           <span className={`${styles.ideDot} ${styles.ideDotG}`} />
           <span className={styles.pgFilename}>stack.py</span>
         </div>
-        <pre ref={codeRef} className={styles.pgCode}>
-          <span data-line="0"><span className={styles.kw}>def</span> <span className={styles.fn}>push</span>(stack, val):</span>{"\n"}
-          <span data-line="1">{"  "}stack.<span className={styles.fn}>append</span>(val)</span>{"\n"}
+        <pre className={styles.pgCode}>
+          <span data-line="0" style={highlightedLine === 0 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}><span className={styles.kw}>def</span> <span className={styles.fn}>push</span>(stack, val):</span>{"\n"}
+          <span data-line="1" style={highlightedLine === 1 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}>{"  "}stack.<span className={styles.fn}>append</span>(val)</span>{"\n"}
           <span data-line="2">{"\n"}</span>
-          <span data-line="3"><span className={styles.kw}>def</span> <span className={styles.fn}>pop</span>(stack):</span>{"\n"}
-          <span data-line="4">{"  "}<span className={styles.kw}>return</span> stack.<span className={styles.fn}>pop</span>()</span>{"\n"}
+          <span data-line="3" style={highlightedLine === 3 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}><span className={styles.kw}>def</span> <span className={styles.fn}>pop</span>(stack):</span>{"\n"}
+          <span data-line="4" style={highlightedLine === 4 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}>{"  "}<span className={styles.kw}>return</span> stack.<span className={styles.fn}>pop</span>()</span>{"\n"}
           <span data-line="5">{"\n"}</span>
           <span data-line="6">s = []</span>{"\n"}
           <span data-line="7">push(s, <span className={styles.nu}>3</span>)</span>
@@ -192,7 +184,16 @@ function StackVisual() {
       {/* Stack pane */}
       <div className={styles.pgStackPane}>
         <span className={styles.pgStackLabel}>Stack</span>
-        <div ref={stackRef} className={styles.pgStackBlocks} />
+        <div className={styles.pgStackBlocks}>
+          {stack.map(item => (
+            <div
+              key={item.id}
+              className={`${styles.pgBlock} ${styles.pgBlockVisible} ${item.exiting ? styles.pgBlockExit : ""}`}
+            >
+              {item.val}
+            </div>
+          ))}
+        </div>
         <span className={styles.pgStackBase}>▔▔▔▔</span>
       </div>
     </div>
