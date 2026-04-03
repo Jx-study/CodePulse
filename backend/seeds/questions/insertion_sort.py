@@ -61,7 +61,7 @@ DATA = {
         {
             "id": "isort-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -89,7 +89,7 @@ DATA = {
         {
             "id": "isort-tf-1",
             "type": "true-false",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -108,6 +108,7 @@ DATA = {
             "id": "isort-q2",
             "type": "single-choice",
             "baseRating": 900,
+
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -182,7 +183,7 @@ DATA = {
         {
             "id": "isort-group-1",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 900,
             "correctAnswer": "A",
             "groupId": "group-isort-logic",
             "translations": {
@@ -211,15 +212,15 @@ DATA = {
         {
             "id": "isort-q8",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[5, 2, 4, 6, 1, 3]` 執行插入排序，當外層迴圈 `i=2`（即 `key=4`）執行完畢後，陣列的狀態為何？",
                     "options": [
-                        {"id": "A", "text": "[2, 4, 5, 6, 1, 3]"},
+                        {"id": "A", "text": "[2, 5, 4, 6, 1, 3]"},
                         {"id": "B", "text": "[2, 4, 5, 6, 1, 3]"},
-                        {"id": "C", "text": "[2, 5, 4, 6, 1, 3]"},
+                        {"id": "C", "text": "[2, 5, 6, 4, 1, 3]"},
                         {"id": "D", "text": "[1, 2, 4, 5, 6, 3]"},
                     ],
                     "explanation": "i=1 後已排序區為 [2,5]。i=2，key=4，j=1。arr[1]=5>4，平移，arr[2]=5，j=0。arr[0]=2<4，停止。arr[1]=4。結果：[2, 4, 5, 6, 1, 3]。",
@@ -227,9 +228,9 @@ DATA = {
                 "en": {
                     "title": "When Insertion Sort is applied to `[5, 2, 4, 6, 1, 3]` and the outer loop `i=2` (key=4) completes, what is the array state?",
                     "options": [
-                        {"id": "A", "text": "[2, 4, 5, 6, 1, 3]"},
+                        {"id": "A", "text": "[2, 5, 4, 6, 1, 3]"},
                         {"id": "B", "text": "[2, 4, 5, 6, 1, 3]"},
-                        {"id": "C", "text": "[2, 5, 4, 6, 1, 3]"},
+                        {"id": "C", "text": "[2, 5, 6, 4, 1, 3]"},
                         {"id": "D", "text": "[1, 2, 4, 5, 6, 3]"},
                     ],
                     "explanation": "After i=1 the sorted region is [2,5]. At i=2, key=4, j=1. arr[1]=5>4, shift: arr[2]=5, j=0. arr[0]=2<4, stop. arr[1]=4. Result: [2, 4, 5, 6, 1, 3].",
@@ -239,7 +240,7 @@ DATA = {
         {
             "id": "isort-group-2",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1000,
             "correctAnswer": "B",
             "groupId": "group-isort-logic",
             "translations": {
@@ -268,7 +269,7 @@ DATA = {
         {
             "id": "isort-q4",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -296,7 +297,7 @@ DATA = {
         {
             "id": "isort-q5",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -324,7 +325,7 @@ DATA = {
         {
             "id": "isort-q9",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 950,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -352,7 +353,7 @@ DATA = {
         {
             "id": "isort-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -380,7 +381,7 @@ DATA = {
         {
             "id": "isort-q6",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -430,7 +431,7 @@ DATA = {
         {
             "id": "isort-q7",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 1450,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -458,7 +459,7 @@ DATA = {
         {
             "id": "isort-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1400,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -486,7 +487,7 @@ DATA = {
         {
             "id": "isort-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1500,
             "correctAnswer": ["1", "n - 1", "last"],
             "code": RECURSIVE_ISORT_FILL_CODE,
             "language": "python",
@@ -506,7 +507,7 @@ DATA = {
         {
             "id": "isort-pred-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1300,
             "correctAnswer": "1 2 3 4 5 6 7 5 8 9",
             "code": ISORT_PREDICT_CODE,
             "language": "python",
