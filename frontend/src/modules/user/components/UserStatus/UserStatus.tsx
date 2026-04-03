@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './UserStatus.module.scss';
 import SettingPanel from '../SettingPanel/SettingPanel';
 import { useAuth } from '@/shared/contexts/AuthContext';
@@ -13,6 +13,7 @@ function UserStatus() {
   const { t } = useTranslation();
   const { isAuthenticated, user, logout } = useAuth();
   const [showSettingPanel, setShowSettingPanel] = useState(false);
+  const navigate = useNavigate();
 
   const handleSettingPanelOpen = () => {
     setShowSettingPanel(true);
@@ -24,7 +25,7 @@ function UserStatus() {
     } catch (error) {
       console.error('登出失敗:', error);
     } finally {
-      window.location.href = '/';
+      navigate('/');
     }
   };
 
