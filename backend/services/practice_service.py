@@ -1,4 +1,4 @@
-"""Practice business logic: question fetching, grading, Elo, XP."""
+import json
 import math
 import random
 from datetime import datetime, timezone
@@ -13,7 +13,10 @@ from models.xp import XpEvent, XpSourceType
 from models.user import User
 
 _USER_ELO_K_BASE = 32.0     # 第 1 次答題全額
-_USER_ELO_K_DECAY = {1: 32.0, 2: 16.0}  # 第 2 次半衰，第 3 次以上用 4.0
+_USER_ELO_K_DECAY = {
+    1: _USER_ELO_K_BASE,
+    2: _USER_ELO_K_BASE/2 # 第 2 次半衰，第 3 次以上用 4.0
+}  
 _USER_ELO_K_MIN = 4.0       # 第 3 次以上幾乎凍結
 _QUESTION_ELO_K = 8.0       # 題目端：首殺絕對制，只更新第 1 次
 _PASS_THRESHOLD = 60
@@ -259,8 +262,6 @@ def _check_answer(user_answer, correct_answer: str) -> bool:
     - JSON 陣列字串（multiple-choice / fill-code）：["ans1", "ans2"]，
       由 seed_questions._serialize_answer 序列化而來，每個位置獨立比對
     """
-    import json
-
     # 嘗試解析 JSON 陣列（multiple-choice / fill-code）
     try:
         correct_list = json.loads(correct_answer)
@@ -310,14 +311,17 @@ def submit_answers(
     lang: str,
 ) -> dict:
     """判題、更新 Elo、發放 XP，回傳結果 dict不做 HTTP 驗證"""
-    user = db.session.get(User, user_id)
+    if not answers_input:
+        raise ValueError("answers_input is empty")
+
+    user = db.session.get(User, user_id, with_for_update=True)
     q_ids = [a['question_id'] for a in answers_input]
     questions = {
         q.question_id: q
         for q in Question.query.filter(
             Question.question_id.in_(q_ids),
             Question.tutorial_id == tutorial.tutorial_id,
-        ).all()
+        ).with_for_update().all()
     }
     translations = {
         qt.question_id: qt
