@@ -37,12 +37,13 @@
   margin-top: $spacing-sm;
 
   a {
-    color: $primary-color;
+    color: $link-color;
     text-decoration: none;
     font-size: $font-sm;
     transition: $transition-base;
 
     &:hover {
+      color: $link-hover-color;
       text-decoration: underline;
     }
   }

@@ -1,27 +1,21 @@
 .hero {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: $spacing-xxl 0;
+  height: calc(100vh - var(--header-height));
   text-align: center;
   position: relative;
   overflow: hidden;
-  gap: $spacing-xs;
+  display: flex;
+  align-items: center;
 
-  @include mobile {
-    padding: $spacing-xl 0;
-  }
-
-  h1,
-  h3 {
+  h1 {
     font-weight: 800;
     background: $gradient-primary;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     letter-spacing: -0.02em;
-  }
-
-  h1 {
+    text-transform: uppercase;
     font-size: $hero-h1-size-mobile;
 
     @include tablet {
@@ -34,38 +28,39 @@
   }
 
   h3 {
+    font-family: $font-family-code;
+    font-weight: 600;
     font-size: $hero-h3-size-mobile;
-    margin-top: $spacing-sm;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 
     @include tablet {
-      font-size: $hero-h3-size-tablet;
-    }
-
-    @include desktop {
-      font-size: $hero-h3-size-desktop;
+      font-size: $font-base;
     }
   }
 
   p {
-    font-size: $font-base;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+    line-height: 1.7;
     margin-bottom: $spacing-lg;
-    opacity: 0.9;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
 
     @include mobile {
-      font-size: $font-sm;
       max-width: 100%;
       padding: 0 $spacing-md;
     }
 
     @include tablet {
-      font-size: $font-lg;
+      font-size: $font-base;
     }
 
     @include desktop {
-      font-size: $font-xl;
+      font-size: $font-base;
     }
   }
 }
@@ -86,13 +81,59 @@
 }
 
 .heroContent {
+  width: 100%;
   max-width: $desktop;
   margin: 0 auto;
   padding: 0 $spacing-lg;
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-xl;
+
+  @include tablet {
+    gap: $spacing-lg;
+  }
 
   @include mobile {
     padding: 0 $spacing-md;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+}
+
+.heroLeft {
+  flex: 0 0 auto;
+  width: 42%;
+  text-align: left;
+
+  p {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  @include tablet {
+    width: 46%;
+  }
+
+  @include mobile {
+    width: 100%;
+    text-align: center;
+
+    p {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+}
+
+.heroRight {
+  flex: 1 1 0;
+  min-width: 0;
+
+  @include mobile {
+    width: 100%;
   }
 }

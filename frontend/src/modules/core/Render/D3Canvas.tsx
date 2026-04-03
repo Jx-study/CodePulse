@@ -88,6 +88,8 @@ export const D3Canvas = forwardRef<
     /** Optional custom status configuration - 可選的自訂狀態配置 */
     statusConfig?: StatusConfig;
     isDirected?: boolean;
+    /** 是否顯示狀態圖例 (預設: true) */
+    showStatusLegend?: boolean;
     /**
      * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
      * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
@@ -109,6 +111,7 @@ export const D3Canvas = forwardRef<
       statusColorMap,
       statusConfig,
       isDirected = false,
+      showStatusLegend = true,
       allStepsElements,
     },
     forwardedRef,
@@ -285,9 +288,11 @@ export const D3Canvas = forwardRef<
         </div>
 
         {/* 狀態圖例 */}
-        <div className={styles.statusLegendContainer}>
-          <StatusLegend statusConfig={statusConfig} />
-        </div>
+        {showStatusLegend && (
+          <div className={styles.statusLegendContainer}>
+            <StatusLegend statusConfig={statusConfig} />
+          </div>
+        )}
 
         {/* Reset 按鈕 */}
         {(enableZoom || enablePan) && (

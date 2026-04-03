@@ -81,7 +81,7 @@
 
   &:hover .resizerHandle,
   &.active .resizerHandle {
-    background-color: #ffffff;
+    background-color: var(--bg-primary);
     width: 80px;
     height: 5px;
   }
@@ -90,18 +90,11 @@
 // ==================== 行高亮樣式 ====================
 
 .highlightedLine {
-  // background-color: rgba(99, 91, 255, 0.15) 
-  // !important;
-  // border-left: 3px solid $primary-color 
-  // !important;
-  // animation: highlightPulse 1s ease-in-out;
   background-color: rgba(255, 215, 0, 0.1) !important; // 黃色半透明
   border-left: 3px solid #ffd700 !important; // 金色左邊框
   animation: highlightPulse 1s ease-in-out infinite;
 
-  @media (prefers-color-scheme: dark) {
-    // background-color: rgba(99, 91, 255, 0.
-    // 25) !important;
+  [data-theme="dark"] & {
     background-color: rgba(255, 215, 0, 0.2) !important;
   }
 }
@@ -119,14 +112,10 @@
 
   0%,
   100% {
-    // background-color: rgba(99, 91, 255, 0.
-    // 15);
     background-color: rgba(255, 215, 0, 0.1);
   }
 
   50% {
-    // background-color: rgba(99, 91, 255, 0.
-    // 3);
     background-color: rgba(255, 215, 0, 0.25);
   }
 }
@@ -180,7 +169,7 @@
 
 // ==================== 深色模式微調 ====================
 
-@media (prefers-color-scheme: dark) {
+[data-theme="dark"] {
   .codeEditor {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5),
       0 2px 4px -1px rgba(0, 0, 0, 0.3);

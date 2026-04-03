@@ -1,0 +1,261 @@
+.playground {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 5rem);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+// ── Toolbar ──────────────────────────────────────────────────────────────────
+
+.toolbar {
+  height: 3.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-sm;
+  flex-shrink: 0;
+  gap: $spacing-sm;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: $font-lg;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: var(--card-bg);
+    color: var(--text-primary);
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 1.5rem;
+  background: var(--border);
+}
+
+.toolbarTitle {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+// ── Language selector ─────────────────────────────────────────────────────────
+
+.langSelector {
+  position: relative;
+}
+
+.langBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-xs;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    color: var(--text-primary);
+  }
+}
+
+.chevron {
+  font-size: $font-2xs;
+  opacity: 0.6;
+}
+
+.langDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 8rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.langOption {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+}
+
+.langOptionActive {
+  color: $primary-color;
+  background: rgba(99, 91, 255, 0.08);
+}
+
+// ── Run button ────────────────────────────────────────────────────────────────
+
+.runBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-xs;
+  font-weight: 700;
+  color: #fff;
+  background: $execution-color;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+
+  &:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+}
+
+// ── Main split ────────────────────────────────────────────────────────────────
+
+.mainContent {
+  @include flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+
+  @media (max-width: $tablet-max) {
+    flex-direction: column;
+    overflow: auto;
+  }
+}
+
+// ── Editor panel (left) ───────────────────────────────────────────────────────
+
+.editorPanel {
+  width: 50%;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  min-height: 0;
+
+  @media (max-width: $tablet-max) {
+    width: 100%;
+    min-height: 400px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xs $spacing-sm;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.filename {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+}
+
+.editorBody {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Viz panel (right) ─────────────────────────────────────────────────────────
+
+.vizPanel {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  min-height: 0;
+
+  @media (max-width: $tablet-max) {
+    width: 100%;
+    min-height: 400px;
+  }
+}
+
+.vizHeader {
+  display: flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.vizLabel {
+  font-size: $font-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.vizBody {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.gridPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

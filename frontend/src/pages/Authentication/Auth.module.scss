@@ -16,6 +16,8 @@
 .rightPanel {
   flex: 1;
   overflow-y: auto;
+  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border);
 }
 
 .loadingPanel {
