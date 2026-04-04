@@ -101,7 +101,7 @@ DATA = {
         {
             "id": "queue-tf-1",
             "type": "true-false",
-            "baseRating": 800,
+            "baseRating": 850,
             "correctAnswer": "false",
             "translations": {
                 "zh-TW": {
@@ -119,7 +119,7 @@ DATA = {
         {
             "id": "queue-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -147,7 +147,7 @@ DATA = {
         {
             "id": "queue-q2",
             "type": "single-choice",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -175,7 +175,7 @@ DATA = {
         {
             "id": "queue-q3",
             "type": "single-choice",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -232,7 +232,7 @@ DATA = {
         {
             "id": "queue-q5",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -260,7 +260,7 @@ DATA = {
         {
             "id": "queue-q6",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -288,7 +288,7 @@ DATA = {
         {
             "id": "queue-q7",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -316,7 +316,7 @@ DATA = {
         {
             "id": "queue-q8",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -373,7 +373,7 @@ DATA = {
         {
             "id": "queue-q9",
             "type": "single-choice",
-            "baseRating": 1300,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -401,7 +401,7 @@ DATA = {
         {
             "id": "queue-q10",
             "type": "single-choice",
-            "baseRating": 1400,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -431,7 +431,7 @@ DATA = {
             "id": "q-group-1",
             "groupId": "group-print-buffer",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -460,7 +460,7 @@ DATA = {
             "id": "q-group-2",
             "groupId": "group-print-buffer",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1000,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -489,16 +489,16 @@ DATA = {
             "id": "q-group-3",
             "groupId": "group-print-buffer",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1000,
             "correctAnswer": ["n", "deque"],
             "translations": {
                 "zh-TW": {
-                    "title": "Python 的 list `pop(0)` 操作雖然能模擬 dequeue，但在時間複雜度上並不高效。請問 `pop(0)` 的時間複雜度是 O(___)？若要達到 O(1)，應該改用 Python `collections` 模組中的哪個資料結構？(請填入兩個答案)",
+                    "title": "Python 的 list `pop(0)` 可以模擬 dequeue。請問 `pop(0)` 的時間複雜度是 O(___)？若要達到 O(1)，應該改用 Python `collections` 模組中的哪個資料結構？(請填入兩個答案)",
                     "options": [{"id": "1", "text": "複雜度"}, {"id": "2", "text": "資料結構"}],
                     "explanation": "1. Python list 底層是陣列，移除第一個元素需要移動剩餘所有元素，故為 O(n)。\n2. `collections.deque` (雙端佇列) 支援 O(1) 的兩端操作。",
                 },
                 "en": {
-                    "title": "Python's list `pop(0)` simulates dequeue but is not efficient. What is the time complexity of `pop(0)`? And what data structure in Python's `collections` module achieves O(1) dequeue? (Fill in two answers)",
+                    "title": "Python's list `pop(0)` can simulate dequeue. What is the time complexity of `pop(0)`? And what data structure in Python's `collections` module achieves O(1) dequeue? (Fill in two answers)",
                     "options": [{"id": "1", "text": "Complexity"}, {"id": "2", "text": "Data structure"}],
                     "explanation": "1. A Python list is backed by an array; removing the first element shifts all remaining elements, so it's O(n).\n2. `collections.deque` (double-ended queue) supports O(1) operations at both ends.",
                 },
@@ -507,7 +507,7 @@ DATA = {
         {
             "id": "queue-code-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1500,
             "code": CIRCULAR_QUEUE_FILL_CODE,
             "language": "python",
             "correctAnswer": ["0", "self.capacity", "0"],
@@ -527,7 +527,7 @@ DATA = {
         {
             "id": "queue-code-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1350,
             "code": CIRCULAR_QUEUE_CODE,
             "language": "python",
             "correctAnswer": "17 18 21 22 23 24",

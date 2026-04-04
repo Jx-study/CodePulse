@@ -50,7 +50,7 @@ DATA = {
         {
             "id": "bt-tf-1",
             "type": "true-false",
-            "baseRating": 800,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -68,7 +68,7 @@ DATA = {
         {
             "id": "bt-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -96,7 +96,7 @@ DATA = {
         {
             "id": "bt-q2",
             "type": "single-choice",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -152,7 +152,7 @@ DATA = {
         {
             "id": "bt-tf-2",
             "type": "true-false",
-            "baseRating": 950,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -170,7 +170,7 @@ DATA = {
         {
             "id": "bt-q4",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -198,7 +198,7 @@ DATA = {
         {
             "id": "bt-q5",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -227,7 +227,7 @@ DATA = {
             "id": "bt-group-1",
             "groupId": "group-bt-bfs",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -283,7 +283,7 @@ DATA = {
         {
             "id": "bt-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1150,
+            "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -312,7 +312,7 @@ DATA = {
             "id": "bt-group-2",
             "groupId": "group-bt-bfs",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -340,7 +340,7 @@ DATA = {
         {
             "id": "bt-q7",
             "type": "single-choice",
-            "baseRating": 1200,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -368,7 +368,7 @@ DATA = {
         {
             "id": "bt-q8",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 1450,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -397,7 +397,7 @@ DATA = {
             "id": "bt-group-3",
             "groupId": "group-bt-bfs",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1050,
             "correctAnswer": ["root", "queue", "pop(0)"],
             "code": BFS_FILL_CODE,
             "language": "python",
@@ -417,7 +417,7 @@ DATA = {
         {
             "id": "bt-q9",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -445,7 +445,7 @@ DATA = {
         {
             "id": "bt-fill-1",
             "type": "fill-code",
-            "baseRating": 1400,
+            "baseRating": 1200,
             "correctAnswer": ["node", "node.left", "node"],
             "code": INORDER_FILL_CODE,
             "language": "python",
@@ -465,7 +465,7 @@ DATA = {
         {
             "id": "bt-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1450,
+            "baseRating": 1500,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
