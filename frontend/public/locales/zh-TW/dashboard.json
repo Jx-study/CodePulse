@@ -1,4 +1,8 @@
 {
+  "floatingControls": {
+    "filter_categories": "Categories",
+    "learning_progress": "學習進度"
+  },
   "levels": {
     "array": {
       "name": "陣列",

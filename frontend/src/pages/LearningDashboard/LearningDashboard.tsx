@@ -262,10 +262,7 @@ function LearningDashboardInner() {
   return (
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
-      <GraphContainer
-        levels={filteredLevels}
-        userProgress={userProgress}
-      >
+      <GraphContainer levels={filteredLevels} userProgress={userProgress}>
         {(level, _index, position, containerWidth) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
@@ -320,8 +317,18 @@ function LearningDashboardInner() {
                     status={pathStatus}
                     containerWidth={containerWidth}
                     connectionType={prereqType}
-                    branchLabel={prereqIndex === 0 && level.pathMetadata?.branchLabelKey ? t(`branch_labels.${level.pathMetadata.branchLabelKey}`) : undefined}
-                    labelColor={prereqIndex === 0 ? categoryColors[level.category] : undefined}
+                    branchLabel={
+                      prereqIndex === 0 && level.pathMetadata?.branchLabelKey
+                        ? t(
+                            `branch_labels.${level.pathMetadata.branchLabelKey}`,
+                          )
+                        : undefined
+                    }
+                    labelColor={
+                      prereqIndex === 0
+                        ? categoryColors[level.category]
+                        : undefined
+                    }
                   />
                 );
               })}
@@ -332,7 +339,9 @@ function LearningDashboardInner() {
                   targetCategory={
                     level.pathMetadata?.targetCategory || "data-structures"
                   }
-                  targetCategoryName={t(`categories.${(level.pathMetadata?.targetCategory || 'data-structures').replace(/-/g, '_')}.name`)}
+                  targetCategoryName={t(
+                    `categories.${(level.pathMetadata?.targetCategory || "data-structures").replace(/-/g, "_")}.name`,
+                  )}
                   isUnlocked={level.isUnlocked}
                   position={position}
                   onClick={handlePortalClick}
@@ -350,7 +359,6 @@ function LearningDashboardInner() {
                   categoryColor={categoryColors[level.category]}
                 />
               )}
-
             </>
           );
         }}
@@ -364,7 +372,7 @@ function LearningDashboardInner() {
           onClick={() => setIsSidebarOpen(true)}
           icon="filter"
         >
-          分類篩選
+          {t("floatingControls.filter_categories")}
         </Button>
         {isAuthenticated && (
           <Button
@@ -373,7 +381,7 @@ function LearningDashboardInner() {
             onClick={() => setIsProgressDialogOpen(true)}
             icon="chalkboard-user"
           >
-            學習進度
+            {t("floatingControls.learning_progress")}
           </Button>
         )}
       </div>
@@ -418,16 +426,16 @@ function LearningDashboardInner() {
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
           practiceLocked={
-            selectedLevel.prerequisites?.type === 'AND'
+            selectedLevel.prerequisites?.type === "AND"
               ? (selectedLevel.prerequisites?.levelIds ?? []).some(
-                  (id) => userProgress.levels[id]?.status !== 'completed'
+                  (id) => userProgress.levels[id]?.status !== "completed",
                 )
-              : selectedLevel.prerequisites?.type === 'OR'
-              ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
-                (selectedLevel.prerequisites?.levelIds ?? []).every(
-                  (id) => userProgress.levels[id]?.status !== 'completed'
-                )
-              : false // NONE = 永遠解鎖
+              : selectedLevel.prerequisites?.type === "OR"
+                ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
+                  (selectedLevel.prerequisites?.levelIds ?? []).every(
+                    (id) => userProgress.levels[id]?.status !== "completed",
+                  )
+                : false // NONE = 永遠解鎖
           }
           prerequisiteInfo={selectedLevel.prerequisites}
         />
