@@ -37,10 +37,19 @@ function computeUnionBBox(
         elMinX = x - r;      elMaxX = x + r;
         elMinY = y - r;      elMaxY = y + r + 20;
       } else if (el.kind === "box") {
-        const hw = ((el as { width?: number }).width ?? 60) / 2;
-        const hh = ((el as { height?: number }).height ?? 80) / 2;
-        elMinX = x - hw;     elMaxX = x + hw;
-        elMinY = y - hh;     elMaxY = y + hh + 20;
+        const boxEl = el as { width?: number; height?: number; autoScale?: boolean; maxHeight?: number; value?: string };
+        const hw = (boxEl.width ?? 60) / 2;
+        elMinX = x - hw; elMaxX = x + hw;
+        if (boxEl.autoScale) {
+          // autoScale bar：正數往上長，負數往下長，最大高度為 maxHeight
+          // 保守起見，兩個方向都用 maxH 預留
+          const maxH = boxEl.maxHeight ?? 150;
+          elMinY = y - maxH;
+          elMaxY = y + maxH;
+        } else {
+          const hh = (boxEl.height ?? 80) / 2;
+          elMinY = y - hh; elMaxY = y + hh + 20;
+        }
       } else if (el.kind === "pointer") {
         const halfLabel = 30;
         const ptr = el as unknown as Pointer;
