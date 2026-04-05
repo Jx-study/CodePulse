@@ -27,7 +27,7 @@ export function createSortingFrame(
   boxes.forEach((element, i) => {
     const box = element as Box;
     box.autoScale = true;
-    if (sortedIndices.has(i)) box.setStatus(Status.Complete);
+    if (sortedIndices.has(i) && !overrideStatusMap[i]) box.setStatus(Status.Complete);
   });
 
   return boxes;
