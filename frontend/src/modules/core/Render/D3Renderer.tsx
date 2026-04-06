@@ -436,9 +436,33 @@ export function renderAll(
     .selectAll<SVGGElement, any>("g.link-group")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
-  // 1. Exit：移除非當前的線，終點縮向起點
-  linkGroups
-    .exit()
+  // 1. Exit：移除非當前的線，終點縮向起點 (與登場動畫對稱)
+  const exitingLinks = linkGroups.exit();
+
+  exitingLinks
+    .select("path.link")
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    .attr("d", (d: any) => {
+      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+      const pathOffset =
+        (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
+      if (d.s.id === d.t.id) {
+        return selfLoopBezierZeroPath(
+          d.s.position.x,
+          d.s.position.y,
+          d.s.radius || 20,
+        );
+      }
+      return zeroLengthPath(
+        { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
+        { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
+        pathOffset,
+      );
+    });
+
+  exitingLinks
     .transition()
     .duration(transitionDuration)
     .style("opacity", 0)

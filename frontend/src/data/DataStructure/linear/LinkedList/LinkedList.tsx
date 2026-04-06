@@ -192,7 +192,7 @@ function createInsertTailHasTailSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
+  hasTailMode: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const oldNodesData = dataList.slice(0, -1);
@@ -201,12 +201,13 @@ function createInsertTailHasTailSteps(
   const oldLen = oldNodesData.length;
 
   const s1OldElements = oldNodesData.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       oldLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Unfinished,
     ),
   );
@@ -215,12 +216,13 @@ function createInsertTailHasTailSteps(
   );
   linkCurrentNodes(actualS1OldNodes as any);
 
-  const s1NewElement = createNodeAndPointers(
+  const s1NewElement = makeNodeAndPointers(
     newNodeData,
     totalLen - 1,
     totalLen,
     startX + oldLen * gap,
     baseY,
+    hasTailMode,
     Status.Target,
     "",
     "new",
@@ -235,21 +237,23 @@ function createInsertTailHasTailSteps(
   });
 
   const s2OldElements = oldNodesData.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       oldLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Unfinished,
     ),
   );
-  const s2NewElement = createNodeAndPointers(
+  const s2NewElement = makeNodeAndPointers(
     newNodeData,
     totalLen - 1,
     totalLen,
     startX + oldLen * gap,
     baseY,
+    hasTailMode,
     Status.Target,
     "",
     "new",
@@ -277,21 +281,23 @@ function createInsertTailHasTailSteps(
 
   if (currentIsDoubly) {
     const s2bOldElements = oldNodesData.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         oldLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
       ),
     );
-    const s2bNewElement = createNodeAndPointers(
+    const s2bNewElement = makeNodeAndPointers(
       newNodeData,
       totalLen - 1,
       totalLen,
       startX + oldLen * gap,
       baseY,
+      hasTailMode,
       Status.Target,
       "",
       "new",
@@ -315,22 +321,24 @@ function createInsertTailHasTailSteps(
 
   const s3OldElements = oldNodesData.flatMap(
     (item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         totalLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
-        "",
-      ), // 舊尾端拔除標籤
+        undefined,
+      ), // 舊尾端拔除標籤（用 undefined 讓 head 自動偵測生效）
   );
-  const s3NewElement = createNodeAndPointers(
+  const s3NewElement = makeNodeAndPointers(
     newNodeData,
     totalLen - 1,
     totalLen,
     startX + oldLen * gap,
     baseY,
+    hasTailMode,
     Status.Target,
     "tail",
     "new",
@@ -348,12 +356,13 @@ function createInsertTailHasTailSteps(
   });
 
   const s4Elements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       totalLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Complete,
     ),
   );
@@ -378,7 +387,7 @@ function createSearchSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
+  hasTailMode: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const totalLen = dataList.length;
@@ -401,12 +410,13 @@ function createSearchSteps(
         status = Status.Prepare;
         extra = "current";
       }
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         totalLen,
         startX + idx * gap,
         baseY,
+        hasTailMode,
         status,
         undefined,
         extra,
@@ -438,12 +448,13 @@ function createSearchSteps(
           status = Status.Complete;
           extra = "current";
         }
-        return createNodeAndPointers(
+        return makeNodeAndPointers(
           item,
           idx,
           totalLen,
           startX + idx * gap,
           baseY,
+          hasTailMode,
           status,
           undefined,
           extra,
@@ -472,12 +483,13 @@ function createSearchSteps(
 
   if (!isFound) {
     const notFoundElements = dataList.flatMap((item, idx) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         idx,
         totalLen,
         startX + idx * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
       ),
     );
@@ -505,7 +517,6 @@ function createInsertHeadSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const newNodeData = dataList[0];
@@ -522,12 +533,13 @@ function createInsertHeadSteps(
       } else if (hasTailMode && i === oldNodesData.length - 1) {
         label = "tail";
       }
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         i,
         totalLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
         label,
       );
@@ -539,12 +551,13 @@ function createInsertHeadSteps(
   );
   linkCurrentNodes(actualS1OldNodes as any);
 
-  const s1NewElement = createNodeAndPointers(
+  const s1NewElement = makeNodeAndPointers(
     newNodeData,
     0,
     totalLen,
     initialX,
     baseY,
+    hasTailMode,
     Status.Target,
     "",
     "new",
@@ -568,23 +581,25 @@ function createInsertHeadSteps(
     if (hasTailMode && i === oldNodesData.length - 1)
       label = (label ? label + "/" : "") + "tail";
     const status = i === 0 ? Status.Prepare : Status.Unfinished;
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       i + 1,
       totalLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       status,
       label,
     );
   });
 
-  const s2NewElement = createNodeAndPointers(
+  const s2NewElement = makeNodeAndPointers(
     newNodeData,
     0,
     totalLen,
     initialX,
     baseY,
+    hasTailMode,
     Status.Target,
     "",
     "new",
@@ -619,22 +634,24 @@ function createInsertHeadSteps(
       if (hasTailMode && i === oldNodesData.length - 1)
         label = (label ? label + "/" : "") + "tail";
       const status = i === 0 ? Status.Prepare : Status.Unfinished;
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         i + 1,
         totalLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         status,
         label,
       );
     });
-    const s2bNewElement = createNodeAndPointers(
+    const s2bNewElement = makeNodeAndPointers(
       newNodeData,
       0,
       totalLen,
       startX - gap,
       baseY,
+      hasTailMode,
       Status.Target,
       "",
       "new",
@@ -668,23 +685,25 @@ function createInsertHeadSteps(
   const s3OldElements = oldNodesData.flatMap((item, i) => {
     let label = undefined;
     if (hasTailMode && i === oldNodesData.length - 1) label = "tail";
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       i + 1,
       totalLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Unfinished,
       label,
     );
   });
 
-  const s3NewElement = createNodeAndPointers(
+  const s3NewElement = makeNodeAndPointers(
     newNodeData,
     0,
     totalLen,
     initialX,
     baseY,
+    hasTailMode,
     Status.Target,
     "head",
     "new",
@@ -707,12 +726,13 @@ function createInsertHeadSteps(
 
   // 如果 node 個數從 0 變 1，且有 Tail 模式，插入一步來更新 tail，標籤在這時才變成 head/tail
   if (hasTailMode && oldNodesData.length === 0) {
-    const sTailNewElement = createNodeAndPointers(
+    const sTailNewElement = makeNodeAndPointers(
       newNodeData,
       0,
       totalLen,
       initialX,
       baseY,
+      hasTailMode,
       Status.Target,
       "head/tail",
       "new",
@@ -732,12 +752,13 @@ function createInsertHeadSteps(
   }
 
   const sFinalElements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       totalLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Complete,
       undefined,
       undefined,
@@ -767,7 +788,6 @@ function createInsertTailSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const totalLen = dataList.length;
@@ -776,12 +796,13 @@ function createInsertTailSteps(
     const newNodeData = dataList[0];
     let currentStepIdx = 1;
 
-    const s1Elements = createNodeAndPointers(
+    const s1Elements = makeNodeAndPointers(
       newNodeData,
       0,
       1,
       startX,
       baseY,
+      hasTailMode,
       Status.Target,
       "",
       "new",
@@ -794,12 +815,13 @@ function createInsertTailSteps(
       variables: { value, "newNode.value": value, head: null },
     });
 
-    const s2Elements = createNodeAndPointers(
+    const s2Elements = makeNodeAndPointers(
       newNodeData,
       0,
       1,
       startX,
       baseY,
+      hasTailMode,
       Status.Complete,
       "head",
     );
@@ -812,12 +834,13 @@ function createInsertTailSteps(
     });
 
     if (hasTailMode) {
-      const s3Elements = createNodeAndPointers(
+      const s3Elements = makeNodeAndPointers(
         newNodeData,
         0,
         1,
         startX,
         baseY,
+        hasTailMode,
         Status.Complete,
         "head/tail",
       );
@@ -845,19 +868,20 @@ function createInsertTailSteps(
       gap,
       baseY,
       TAGS,
-      createNodeAndPointers,
+      hasTailMode,
     );
   } else {
     for (let i = 0; i < oldNodesData.length; i++) {
       const traverseElements = oldNodesData.flatMap((item, idx) => {
         let extra = undefined;
         if (idx === i) extra = "current";
-        return createNodeAndPointers(
+        return makeNodeAndPointers(
           item,
           idx,
           oldLen,
           startX + idx * gap,
           baseY,
+          hasTailMode,
           idx === i ? Status.Prepare : Status.Unfinished,
           undefined,
           extra,
@@ -878,12 +902,13 @@ function createInsertTailSteps(
     }
 
     const sNewCreateElements = oldNodesData.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         oldLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         i === oldLen - 1 ? Status.Prepare : Status.Unfinished,
         undefined,
         i === oldLen - 1 ? "current" : undefined,
@@ -894,12 +919,13 @@ function createInsertTailSteps(
     );
     linkCurrentNodes(actualNewCreateNodes as any);
 
-    const sNewElement = createNodeAndPointers(
+    const sNewElement = makeNodeAndPointers(
       newNodeData,
       totalLen - 1,
       totalLen,
       startX + oldLen * gap,
       baseY,
+      hasTailMode,
       Status.Target,
       "",
       "new",
@@ -917,23 +943,25 @@ function createInsertTailSteps(
     });
 
     const sConnectOldElements = oldNodesData.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         oldLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         i === oldLen - 1 ? Status.Prepare : Status.Unfinished,
         undefined,
         i === oldLen - 1 ? "current" : undefined,
       ),
     );
-    const sConnectNewElement = createNodeAndPointers(
+    const sConnectNewElement = makeNodeAndPointers(
       newNodeData,
       totalLen - 1,
       totalLen,
       startX + oldLen * gap,
       baseY,
+      hasTailMode,
       Status.Target,
       undefined,
       "new",
@@ -965,23 +993,25 @@ function createInsertTailSteps(
 
     if (currentIsDoubly) {
       const sConnectB_OldElements = oldNodesData.flatMap((item, i) =>
-        createNodeAndPointers(
+        makeNodeAndPointers(
           item,
           i,
           oldLen,
           startX + i * gap,
           baseY,
+          hasTailMode,
           i === oldLen - 1 ? Status.Prepare : Status.Unfinished,
           undefined,
           i === oldLen - 1 ? "current" : undefined,
         ),
       );
-      const sConnectB_NewElement = createNodeAndPointers(
+      const sConnectB_NewElement = makeNodeAndPointers(
         newNodeData,
         totalLen - 1,
         totalLen,
         startX + oldLen * gap,
         baseY,
+        hasTailMode,
         Status.Target,
         "",
         "new",
@@ -1005,12 +1035,13 @@ function createInsertTailSteps(
     }
 
     const doneElements = dataList.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         totalLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Complete,
       ),
     );
@@ -1037,7 +1068,6 @@ function createInsertIndexSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const N = actionIndex !== undefined ? actionIndex : -1;
@@ -1049,12 +1079,13 @@ function createInsertIndexSteps(
     const checkElements = dataList
       .slice(1, dataList.length)
       .flatMap((item, i) =>
-        createNodeAndPointers(
+        makeNodeAndPointers(
           item,
           i,
           currentLen,
           startX + i * gap,
           baseY,
+          hasTailMode,
           Status.Unfinished,
         ),
       );
@@ -1084,7 +1115,6 @@ function createInsertIndexSteps(
       gap,
       baseY,
       TAGS,
-      createNodeAndPointers,
     );
     headSteps.forEach((s) => {
       s.stepNumber = steps.length + 1;
@@ -1097,12 +1127,13 @@ function createInsertIndexSteps(
     const checkElements = dataList
       .slice(0, -1)
       .flatMap((item, i) =>
-        createNodeAndPointers(
+        makeNodeAndPointers(
           item,
           i,
           currentLen,
           startX + i * gap,
           baseY,
+          hasTailMode,
           Status.Unfinished,
         ),
       );
@@ -1131,7 +1162,7 @@ function createInsertIndexSteps(
       gap,
       baseY,
       TAGS,
-      createNodeAndPointers,
+      hasTailMode,
     );
     tailSteps.forEach((s) => {
       s.stepNumber = steps.length + 1;
@@ -1156,12 +1187,13 @@ function createInsertIndexSteps(
       let extra = undefined;
       if (idx === i) extra = "current";
 
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         oldLen,
         startX + idx * gap,
         baseY,
+        hasTailMode,
         status,
         undefined,
         extra,
@@ -1190,39 +1222,31 @@ function createInsertIndexSteps(
     if (i >= N) x += gap;
     let status: Status = Status.Unfinished;
     if (i < N) status = Status.Prepare;
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       i,
       oldLen,
       x,
       baseY,
+      hasTailMode,
       status,
       undefined,
       i === N - 1 ? "current" : undefined,
     );
   });
-  const actualS2Nodes = s2Elements.filter((n) => !(n instanceof Pointer));
-  linkCurrentNodes(actualS2Nodes as any);
-
-  addStep(steps, {
-    stepNumber: steps.length + 1,
-    description: `1. 將 Node ${N} 及其後節點右移，騰出空間`,
-    elements: s2Elements as any,
-    actionTag: TAGS.INSERT_INDEX_TRAVERSE,
-    variables: { current: oldNodesData[N - 1]?.value ?? null, index: N - 1 },
-  });
-
+  
   const s3OldElements = oldNodesData.flatMap((item, i) => {
     let x = startX + i * gap;
     if (i >= N) x += gap;
     let status: Status = Status.Unfinished;
     if (i < N) status = Status.Prepare;
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       i,
       oldLen,
       x,
       baseY,
+      hasTailMode,
       status,
       undefined,
       i === N - 1 ? "current" : undefined,
@@ -1231,12 +1255,13 @@ function createInsertIndexSteps(
   const actualS3OldNodes = s3OldElements.filter((n) => !(n instanceof Pointer));
   linkCurrentNodes(actualS3OldNodes as any);
 
-  const s3NewElement = createNodeAndPointers(
+  const s3NewElement = makeNodeAndPointers(
     newNodeData,
     N,
     totalLen,
     startX + N * gap,
     baseY - 60,
+    hasTailMode,
     Status.Target,
     undefined,
     "new",
@@ -1244,7 +1269,7 @@ function createInsertIndexSteps(
 
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: `2. 建立新節點 ${value}`,
+    description: `1. 建立新節點 ${value}`,
     elements: [...s3OldElements, ...s3NewElement] as any,
     actionTag: TAGS.INSERT_INDEX_CREATE,
     variables: {
@@ -1257,12 +1282,13 @@ function createInsertIndexSteps(
     const s4OldElements = oldNodesData.flatMap((item, i) => {
       let x = startX + i * gap;
       if (i >= N) x += gap;
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         i,
         oldLen,
         x,
         baseY,
+        hasTailMode,
         i < N ? Status.Prepare : Status.Unfinished,
         undefined,
         i === N - 1 ? "current" : undefined,
@@ -1271,12 +1297,13 @@ function createInsertIndexSteps(
     const actualS4OldNodes = s4OldElements.filter(
       (n) => !(n instanceof Pointer),
     ) as Node[];
-    const s4NewElement = createNodeAndPointers(
+    const s4NewElement = makeNodeAndPointers(
       newNodeData,
       N,
       totalLen,
       startX + N * gap,
       baseY - 60,
+      hasTailMode,
       Status.Target,
       undefined,
       "new",
@@ -1308,7 +1335,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `3. 將新節點指向原 Node ${N}`,
+      description: `2. 將新節點指向原 Node ${N}`,
       elements: [...s4OldElements, ...s4NewElement] as any,
       actionTag: TAGS.INSERT_INDEX_LINK,
       variables: {
@@ -1320,12 +1347,13 @@ function createInsertIndexSteps(
     const s5OldElements = oldNodesData.flatMap((item, i) => {
       let x = startX + i * gap;
       if (i >= N) x += gap;
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         i,
         oldLen,
         x,
         baseY,
+        hasTailMode,
         i < N ? Status.Prepare : Status.Unfinished,
         undefined,
         i === N - 1 ? "current" : undefined,
@@ -1336,12 +1364,13 @@ function createInsertIndexSteps(
     ) as Node[];
     linkCurrentNodes(actualS5OldNodes);
 
-    const s5NewElement = createNodeAndPointers(
+    const s5NewElement = makeNodeAndPointers(
       newNodeData,
       N,
       totalLen,
       startX + N * gap,
       baseY - 60,
+      hasTailMode,
       Status.Target,
       undefined,
       "new",
@@ -1367,7 +1396,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `4. 將 Node ${N - 1} 指向新節點`,
+      description: `3. 將 Node ${N - 1} 指向新節點`,
       elements: [...s5OldElements, ...s5NewElement] as any,
       actionTag: TAGS.INSERT_INDEX_LINK,
       variables: {
@@ -1381,7 +1410,7 @@ function createInsertIndexSteps(
       wireIndexDoublyLinkNext(p1.actualS4OldNodes, p1.newNodeObj, p1.succ);
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `3. 將新節點指向原 Node ${N}（newNode.next）`,
+        description: `2. 將新節點指向原 Node ${N}（newNode.next）`,
         elements: [...p1.s4OldElements, ...p1.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK,
         variables: {
@@ -1394,7 +1423,7 @@ function createInsertIndexSteps(
       wireIndexDoublySuccPrev(p2.actualS4OldNodes, p2.newNodeObj!, p2.succ!);
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `3b. 原 Node ${N} 的 prev 回指新節點`,
+        description: `2b. 原 Node ${N} 的 prev 回指新節點`,
         elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_PREV,
         variables: {
@@ -1411,7 +1440,7 @@ function createInsertIndexSteps(
       );
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `4. Node ${N - 1} 的 next 指向新節點`,
+        description: `3. Node ${N - 1} 的 next 指向新節點`,
         elements: [...p3.s4OldElements, ...p3.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK,
         variables: {
@@ -1429,7 +1458,7 @@ function createInsertIndexSteps(
       );
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `4b. 新節點 prev 回指 Node ${N - 1}`,
+        description: `3b. 新節點 prev 回指 Node ${N - 1}`,
         elements: [...p4.s4OldElements, ...p4.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_PREV,
         variables: {
@@ -1440,12 +1469,13 @@ function createInsertIndexSteps(
   }
 
   const s6Elements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       totalLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Complete,
     ),
   );
@@ -1472,7 +1502,6 @@ function createDeleteHeadSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
@@ -1484,12 +1513,13 @@ function createDeleteHeadSteps(
   if (mode === "Node N") {
     const fullList = [deletedNodeData, ...dataList];
     const checkElements = fullList.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         originalLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
       ),
     );
@@ -1512,22 +1542,24 @@ function createDeleteHeadSteps(
     });
   }
 
-  const s1DelElement = createNodeAndPointers(
+  const s1DelElement = makeNodeAndPointers(
     deletedNodeData,
     0,
     currentLen + 1,
     startX,
     baseY,
+    hasTailMode,
     Status.Target,
     "head",
   );
   const s1RestElements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i + 1,
       currentLen + 1,
       startX + (i + 1) * gap,
       baseY,
+      hasTailMode,
       Status.Unfinished,
     ),
   );
@@ -1543,12 +1575,13 @@ function createDeleteHeadSteps(
     variables: { head: deletedNodeData.value },
   });
 
-  const s2DelElement = createNodeAndPointers(
+  const s2DelElement = makeNodeAndPointers(
     deletedNodeData,
     0,
     currentLen + 1,
     startX,
     baseY,
+    hasTailMode,
     Status.Target,
     "",
   );
@@ -1557,12 +1590,13 @@ function createDeleteHeadSteps(
     if (i === 0) label = "head";
     if (hasTailMode && i === currentLen - 1) label = "tail";
     if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       i + 1,
       currentLen + 1,
       startX + (i + 1) * gap,
       baseY,
+      hasTailMode,
       i === 0 ? Status.Prepare : Status.Unfinished,
       label,
     );
@@ -1589,12 +1623,13 @@ function createDeleteHeadSteps(
 
   // 針對雙向鏈結串列：單獨拆出 head.prev = null 的動畫
   if (currentIsDoubly && dataList.length > 0) {
-    const s3bDelElement = createNodeAndPointers(
+    const s3bDelElement = makeNodeAndPointers(
       deletedNodeData,
       0,
       currentLen + 1,
       startX,
       baseY,
+      hasTailMode,
       Status.Target,
       "",
     );
@@ -1602,12 +1637,13 @@ function createDeleteHeadSteps(
       let label = i === 0 ? "head" : undefined;
       if (hasTailMode && i === currentLen - 1) label = "tail";
       if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         i + 1,
         currentLen + 1,
         startX + (i + 1) * gap,
         baseY,
+        hasTailMode,
         i === 0 ? Status.Prepare : Status.Unfinished,
         label,
       );
@@ -1630,12 +1666,13 @@ function createDeleteHeadSteps(
   }
 
   // 單向與雙向共用：斷開被刪除節點的 next
-  const s3DelElement = createNodeAndPointers(
+  const s3DelElement = makeNodeAndPointers(
     deletedNodeData,
     0,
     currentLen + 1,
     startX,
     baseY,
+    hasTailMode,
     Status.Inactive,
     "",
   );
@@ -1643,12 +1680,13 @@ function createDeleteHeadSteps(
     let label = i === 0 ? "head" : undefined;
     if (hasTailMode && i === currentLen - 1) label = "tail";
     if (hasTailMode && currentLen === 1 && i === 0) label = "head/tail";
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       i + 1,
       currentLen + 1,
       startX + (i + 1) * gap,
       baseY,
+      hasTailMode,
       i === 0 ? Status.Prepare : Status.Unfinished,
       label,
     );
@@ -1680,12 +1718,13 @@ function createDeleteHeadSteps(
   });
 
   const s4Elements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       currentLen,
       startX + (i + 1) * gap,
       baseY,
+      hasTailMode,
       Status.Prepare,
     ),
   );
@@ -1701,12 +1740,13 @@ function createDeleteHeadSteps(
   });
 
   const s5Elements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       currentLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Complete,
     ),
   );
@@ -1734,7 +1774,6 @@ function createDeleteTailSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
@@ -1747,12 +1786,13 @@ function createDeleteTailSteps(
   if (mode === "Node N") {
     const fullList = [...dataList, deletedNodeData];
     const checkElements = fullList.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         originalLen,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
       ),
     );
@@ -1787,23 +1827,25 @@ function createDeleteTailSteps(
         if (i > 0 && idx === i - 1) {
           extra = "pre";
         }
-        return createNodeAndPointers(
+        return makeNodeAndPointers(
           item,
           idx,
           currentLen + 1,
           startX + idx * gap,
           baseY,
+          hasTailMode,
           status,
           undefined,
           extra,
         );
       }),
-      ...createNodeAndPointers(
+      ...makeNodeAndPointers(
         deletedNodeData,
         currentLen,
         currentLen + 1,
         startX + currentLen * gap,
         baseY,
+        hasTailMode,
         i === currentLen ? Status.Target : Status.Unfinished,
         hasTailMode ? "tail" : "",
       ),
@@ -1832,23 +1874,25 @@ function createDeleteTailSteps(
       let extra = undefined;
       if (idx === currentLen - 1) extra = "pre";
 
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         currentLen,
         startX + idx * gap,
         baseY,
+        hasTailMode,
         idx === currentLen - 1 ? Status.Prepare : Status.Unfinished,
         label,
         extra,
       );
     }),
-    ...createNodeAndPointers(
+    ...makeNodeAndPointers(
       deletedNodeData,
       currentLen,
       currentLen + 1,
       startX + currentLen * gap,
       baseY,
+      hasTailMode,
       Status.Target,
       "tail",
       "current",
@@ -1873,23 +1917,25 @@ function createDeleteTailSteps(
       if (idx === 0) label = "head";
       let extra = undefined;
       if (idx === currentLen - 1) extra = "pre";
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         currentLen,
         startX + idx * gap,
         baseY,
+        hasTailMode,
         idx === currentLen - 1 ? Status.Target : Status.Unfinished,
         label,
         extra,
       );
     }),
-    ...createNodeAndPointers(
+    ...makeNodeAndPointers(
       deletedNodeData,
       currentLen,
       currentLen + 1,
       startX + currentLen * gap,
       baseY,
+      hasTailMode,
       Status.Inactive,
       hasTailMode ? "tail" : "",
       "current",
@@ -1929,23 +1975,25 @@ function createDeleteTailSteps(
         if (idx === currentLen - 1) label = (label ? label + "/" : "") + "tail";
         let extra = undefined;
         if (idx === currentLen - 1) extra = "pre";
-        return createNodeAndPointers(
+        return makeNodeAndPointers(
           item,
           idx,
           currentLen,
           startX + idx * gap,
           baseY,
+          hasTailMode,
           idx === currentLen - 1 ? Status.Target : Status.Unfinished,
           label,
           extra,
         );
       }),
-      ...createNodeAndPointers(
+      ...makeNodeAndPointers(
         deletedNodeData,
         currentLen,
         currentLen + 1,
         startX + currentLen * gap,
         baseY,
+        hasTailMode,
         Status.Inactive,
         "",
         "current",
@@ -1980,12 +2028,13 @@ function createDeleteTailSteps(
   }
 
   const s4Elements = dataList.flatMap((item, i) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       i,
       currentLen,
       startX + i * gap,
       baseY,
+      hasTailMode,
       Status.Complete,
     ),
   );
@@ -2013,7 +2062,6 @@ function createDeleteIndexSteps(
   gap: number,
   baseY: number,
   TAGS: any,
-  createNodeAndPointers: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const currentLen = dataList.length;
@@ -2035,12 +2083,13 @@ function createDeleteIndexSteps(
       if (i > 0 && idx === i - 1)
         override = getLabel(idx, originalLen, hasTailMode) + "/pre";
 
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         originalLen,
         startX + idx * gap,
         baseY,
+        hasTailMode,
         status,
         override,
         extra,
@@ -2072,12 +2121,13 @@ function createDeleteIndexSteps(
     let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
     let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
     if (idx === N) status = Status.Target;
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       idx,
       originalLen,
       startX + idx * gap,
       y,
+      hasTailMode,
       status,
       label,
       extra,
@@ -2109,12 +2159,13 @@ function createDeleteIndexSteps(
     let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
     let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
     if (idx === N) status = Status.Target;
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       idx,
       originalLen,
       startX + idx * gap,
       y,
+      hasTailMode,
       status,
       label,
       extra,
@@ -2168,12 +2219,13 @@ function createDeleteIndexSteps(
       let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
       let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
       if (idx === N) status = Status.Target;
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         originalLen,
         startX + idx * gap,
         y,
+        hasTailMode,
         status,
         label,
         extra,
@@ -2218,12 +2270,13 @@ function createDeleteIndexSteps(
       let extra = idx === N ? "current" : undefined;
       let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
       if (idx === N) status = Status.Target;
-      return createNodeAndPointers(
+      return makeNodeAndPointers(
         item,
         idx,
         originalLen,
         startX + idx * gap,
         y,
+        hasTailMode,
         status,
         label,
         extra,
@@ -2271,12 +2324,13 @@ function createDeleteIndexSteps(
     let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
     let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
     if (idx === N) status = Status.Target;
-    return createNodeAndPointers(
+    return makeNodeAndPointers(
       item,
       idx,
       originalLen,
       startX + idx * gap,
       y,
+      hasTailMode,
       status,
       label,
       extra,
@@ -2327,12 +2381,13 @@ function createDeleteIndexSteps(
   });
 
   const s5Elements = dataList.flatMap((item, idx) =>
-    createNodeAndPointers(
+    makeNodeAndPointers(
       item,
       idx,
       currentLen,
       startX + idx * gap,
       baseY,
+      hasTailMode,
       Status.Complete,
     ),
   );
@@ -2348,6 +2403,43 @@ function createDeleteIndexSteps(
   return steps;
 }
 
+/** 頂層工廠函式：依 hasTailMode 決定是否顯示 tail pointer */
+export function makeNodeAndPointers(
+  item: ListNodeData,
+  i: number,
+  total: number,
+  x: number,
+  y: number,
+  hasTailMode: boolean,
+  status: Status = Status.Unfinished,
+  overrideLabel?: string,
+  extraLabel?: string,
+) {
+  const node = createNodeInstance(item.id, item.value, x, y, status, "");
+  node.description = String(i);
+
+  let isHead = false;
+  let isTail = false;
+
+  if (overrideLabel === "head" || overrideLabel === "head/tail") {
+    isHead = true;
+  } else if (overrideLabel === undefined && i === 0) {
+    isHead = true;
+  }
+
+  if (hasTailMode) {
+    if (overrideLabel === "tail" || overrideLabel === "head/tail") {
+      isTail = true;
+    } else if (overrideLabel === undefined && i === total - 1) {
+      isTail = true;
+    }
+  }
+
+  const pointers = createPointers(x, y, { isHead, isTail, extraLabel });
+  (node as any).pointers = pointers;
+  return [node, ...pointers];
+}
+
 export function createLinkedListAnimationSteps(
   dataList: ListNodeData[],
   action?: ActionType,
@@ -2358,49 +2450,16 @@ export function createLinkedListAnimationSteps(
   const gap = 100;
   const baseY = 200;
 
-  const createNodeAndPointers = (
-    item: ListNodeData,
-    i: number,
-    total: number,
-    x: number,
-    y: number,
-    status: Status = Status.Unfinished,
-    overrideLabel?: string,
-    extraLabel?: string,
-  ) => {
-    const node = createNodeInstance(item.id, item.value, x, y, status, "");
-    node.description = String(i);
-
-    let isHead = false;
-    let isTail = false;
-
-    if (overrideLabel === "head" || overrideLabel === "head/tail") {
-      isHead = true;
-    } else if (overrideLabel === undefined && i === 0) {
-      isHead = true;
-    }
-
-    if (hasTailMode) {
-      if (overrideLabel === "tail" || overrideLabel === "head/tail") {
-        isTail = true;
-      } else if (overrideLabel === undefined && i === total - 1) {
-        isTail = true;
-      }
-    }
-
-    const pointers = createPointers(x, y, { isHead, isTail, extraLabel });
-    (node as any).pointers = pointers;
-    return [node, ...pointers];
-  };
 
   if (!action) {
     const elements = dataList.flatMap((item, i) =>
-      createNodeAndPointers(
+      makeNodeAndPointers(
         item,
         i,
         dataList.length,
         startX + i * gap,
         baseY,
+        hasTailMode,
         Status.Unfinished,
       ),
     );
@@ -2425,7 +2484,7 @@ export function createLinkedListAnimationSteps(
       gap,
       baseY,
       TAGS,
-      createNodeAndPointers,
+      hasTailMode,
     );
   }
   if (type === "add") {
@@ -2438,7 +2497,6 @@ export function createLinkedListAnimationSteps(
         gap,
         baseY,
         TAGS,
-        createNodeAndPointers,
       );
     }
     if (mode === "Tail") {
@@ -2450,7 +2508,6 @@ export function createLinkedListAnimationSteps(
         gap,
         baseY,
         TAGS,
-        createNodeAndPointers,
       );
     }
     if (mode === "Node N") {
@@ -2463,7 +2520,6 @@ export function createLinkedListAnimationSteps(
         gap,
         baseY,
         TAGS,
-        createNodeAndPointers,
       );
     }
   }
@@ -2476,12 +2532,13 @@ export function createLinkedListAnimationSteps(
 
     // last element is being deleted
     if (dataList.length === 0) {
-      const s1DelElement = createNodeAndPointers(
+      const s1DelElement = makeNodeAndPointers(
         deletedNodeData,
         0,
         1,
         startX,
         baseY,
+        hasTailMode,
         Status.Target,
         hasTailMode ? "head/tail" : "head",
       );
@@ -2517,7 +2574,6 @@ export function createLinkedListAnimationSteps(
         gap,
         baseY,
         TAGS,
-        createNodeAndPointers,
       );
     }
     if (isDeleteTail) {
@@ -2531,7 +2587,6 @@ export function createLinkedListAnimationSteps(
         gap,
         baseY,
         TAGS,
-        createNodeAndPointers,
       );
     }
     if (mode === "Node N") {
@@ -2544,7 +2599,6 @@ export function createLinkedListAnimationSteps(
         gap,
         baseY,
         TAGS,
-        createNodeAndPointers,
       );
     }
   }
@@ -2981,7 +3035,188 @@ class LinkedList:
   },
 };
 
-const doublyLinkedListCodeConfig: CodeConfig = {
+const doublyLinkedListNoTailCodeConfig: CodeConfig = {
+  pseudo: {
+    content: `Class Node:
+    Data:
+      value ← null
+      next ← null
+      prev ← null
+
+    Class DoublyLinkedList:
+      Data:
+        head ← null
+
+      Procedure insertAtHead(value):
+        newNode ← new Node(value)
+        If head = null Then
+          head ← newNode
+        Else
+          newNode.next ← head
+          head.prev ← newNode
+          head ← newNode
+        End If
+      End Procedure
+
+      Procedure insertAtTail(value):
+        newNode ← new Node(value)
+        If head = null Then
+          head ← newNode
+          Return
+        End If
+        current ← head
+        While current.next ≠ null Do
+          current ← current.next
+        End While
+        current.next ← newNode
+        newNode.prev ← current
+      End Procedure
+
+      Procedure insertAtIndex(index, value):
+        If index = 0 Then
+          insertAtHead(value)
+          Return
+        End If
+        current ← head
+        For i ← 0 To index - 1 Do
+          current ← current.next
+        End For
+        newNode ← new Node(value)
+        newNode.next ← current.next
+        If current.next ≠ null Then current.next.prev ← newNode
+        newNode.prev ← current
+        current.next ← newNode
+      End Procedure
+
+      Procedure deleteAtHead():
+        If head = null Then Return Error
+        head ← head.next
+        If head ≠ null Then head.prev ← null
+      End Procedure
+
+      Procedure deleteAtTail():
+        If head = null Then Return Error
+        If head.next = null Then
+          head ← null
+          Return
+        End If
+        current ← head
+        While current.next ≠ null Do
+          current ← current.next
+        End While
+        current.prev.next ← null
+      End Procedure
+
+      Procedure deleteAtIndex(index):
+        If index = 0 Then
+          deleteAtHead()
+          Return
+        End If
+        current ← head
+        For i ← 0 To index Do
+          If i = index Then Break
+          current ← current.next
+        End For
+        current.prev.next ← current.next
+        If current.next ≠ null Then current.next.prev ← current.prev
+      End Procedure
+
+      Procedure search(value):
+        current ← head
+        index ← 0
+        While current ≠ null Do
+          If current.value = value Then Return index
+          current ← current.next
+          index ← index + 1
+        End While
+        Return -1
+      End Procedure`,
+    mappings: {},
+  },
+  python: {
+    content: `class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+        self.prev = None
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.head = None
+
+    def insert_at_head(self, value):
+        new_node = Node(value)
+        if not self.head:
+            self.head = new_node
+        else:
+            new_node.next = self.head
+            self.head.prev = new_node
+            self.head = new_node
+
+    def insert_at_tail(self, value):
+        new_node = Node(value)
+        if not self.head:
+            self.head = new_node
+            return
+        current = self.head
+        while current.next:
+            current = current.next
+        current.next = new_node
+        new_node.prev = current
+
+    def insert_at_index(self, index, value):
+        if index == 0:
+            self.insert_at_head(value)
+            return
+        new_node = Node(value)
+        current = self.head
+        for _ in range(index - 1):
+            current = current.next
+        new_node.next = current.next
+        if current.next:
+            current.next.prev = new_node
+        new_node.prev = current
+        current.next = new_node
+
+    def delete_at_head(self):
+        if not self.head: return
+        self.head = self.head.next
+        if self.head:
+            self.head.prev = None
+
+    def delete_at_tail(self):
+        if not self.head: return
+        if not self.head.next:
+            self.head = None
+            return
+        current = self.head
+        while current.next:
+            current = current.next
+        current.prev.next = None
+
+    def delete_at_index(self, index):
+        if index == 0:
+            self.delete_at_head()
+            return
+        current = self.head
+        for i in range(index):
+            current = current.next
+        current.prev.next = current.next
+        if current.next:
+            current.next.prev = current.prev
+
+    def search(self, value):
+        current = self.head
+        index = 0
+        while current:
+            if current.value == value: return index
+            current = current.next
+            index += 1
+        return -1`,
+  },
+};
+
+const doublyLinkedListHasTailCodeConfig: CodeConfig = {
   pseudo: {
     content: `Class Node:
     Data:
@@ -3016,6 +3251,71 @@ const doublyLinkedListCodeConfig: CodeConfig = {
           newNode.prev ← tail
           tail ← newNode
         End If
+      End Procedure
+
+      Procedure insertAtIndex(index, value):
+        If index = 0 Then
+          insertAtHead(value)
+          Return
+        End If
+        If tail ≠ null And index = length Then
+          insertAtTail(value)
+          Return
+        End If
+        current ← head
+        For i ← 0 To index - 1 Do
+          current ← current.next
+        End For
+        newNode ← new Node(value)
+        newNode.next ← current.next
+        If current.next ≠ null Then current.next.prev ← newNode
+        newNode.prev ← current
+        current.next ← newNode
+        If newNode.next = null Then tail ← newNode
+      End Procedure
+
+      Procedure deleteAtHead():
+        If head = null Then Return Error
+        head ← head.next
+        If head ≠ null Then head.prev ← null
+        Else tail ← null
+      End Procedure
+
+      Procedure deleteAtTail():
+        If head = null Then Return Error
+        If head.next = null Then
+          head ← null
+          tail ← null
+          Return
+        End If
+        tail ← tail.prev
+        tail.next ← null
+      End Procedure
+
+      Procedure deleteAtIndex(index):
+        If index = 0 Then
+          deleteAtHead()
+          Return
+        End If
+        current ← head
+        For i ← 0 To index Do
+          If i = index Then Break
+          current ← current.next
+        End For
+        current.prev.next ← current.next
+        If current.next ≠ null Then current.next.prev ← current.prev
+        Else tail ← current.prev
+      End Procedure
+
+      Procedure search(value):
+        current ← head
+        index ← 0
+        While current ≠ null Do
+          If current.value = value Then Return index
+          current ← current.next
+          index ← index + 1
+        End While
+        Return -1
       End Procedure`,
     mappings: {},
   },
@@ -3047,7 +3347,61 @@ class DoublyLinkedList:
         else:
             self.tail.next = new_node
             new_node.prev = self.tail
-            self.tail = new_node`,
+            self.tail = new_node
+
+    def insert_at_index(self, index, value):
+        if index == 0:
+            self.insert_at_head(value)
+            return
+        new_node = Node(value)
+        current = self.head
+        for _ in range(index - 1):
+            current = current.next
+        new_node.next = current.next
+        if current.next:
+            current.next.prev = new_node
+        new_node.prev = current
+        current.next = new_node
+        if new_node.next is None:
+            self.tail = new_node
+
+    def delete_at_head(self):
+        if not self.head: return
+        self.head = self.head.next
+        if self.head:
+            self.head.prev = None
+        else:
+            self.tail = None
+
+    def delete_at_tail(self):
+        if not self.head: return
+        if not self.head.next:
+            self.head = self.tail = None
+            return
+        self.tail = self.tail.prev
+        self.tail.next = None
+
+    def delete_at_index(self, index):
+        if index == 0:
+            self.delete_at_head()
+            return
+        current = self.head
+        for i in range(index):
+            current = current.next
+        current.prev.next = current.next
+        if current.next:
+            current.next.prev = current.prev
+        else:
+            self.tail = current.prev
+
+    def search(self, value):
+        current = self.head
+        index = 0
+        while current:
+            if current.value == value: return index
+            current = current.next
+            index += 1
+        return -1`,
   },
 };
 
@@ -3149,8 +3503,9 @@ function linkedListActionHandler(
 
   if (actionType === "load") {
     const loadArr = (payload.data as number[]) ?? [];
-    const newDataLoad = loadArr.map((v) => ({
-      id: context.nextId(),
+    const useExistingIds = loadArr.length === data.length;
+    const newDataLoad = loadArr.map((v, i) => ({
+      id: useExistingIds ? data[i].id : context.nextId(),
       value: v,
     }));
     return {
@@ -3163,8 +3518,9 @@ function linkedListActionHandler(
   if (actionType === "random") {
     const count =
       (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
-    const newDataRand = Array.from({ length: count }, () => ({
-      id: context.nextId(),
+    const useExistingIds = count === data.length;
+    const newDataRand = Array.from({ length: count }, (_, i) => ({
+      id: useExistingIds ? data[i].id : context.nextId(),
       value: Math.floor(Math.random() * 100),
     }));
     return {
@@ -3178,7 +3534,7 @@ function linkedListActionHandler(
     const defaultData = (context.defaultData as ListNodeData[]) ?? data;
     const newDataReset = defaultData.map((d) => ({
       ...d,
-      id: context.nextId(),
+      id: d.id || context.nextId(),
     }));
     return {
       animationData: newDataReset,
@@ -3206,7 +3562,12 @@ export const linkedListConfig: LevelImplementationConfig = {
   description: "動態的線性數據結構",
   codeConfig: linkedListNoTailCodeConfig,
   getCodeConfig: (payload?: any) => {
-    if (currentIsDoubly) return doublyLinkedListCodeConfig;
+    const isDoubly = payload?.isDoubly ?? currentIsDoubly;
+    if (isDoubly) {
+      return payload?.hasTailMode
+        ? doublyLinkedListHasTailCodeConfig
+        : doublyLinkedListNoTailCodeConfig;
+    }
     return payload?.hasTailMode
       ? linkedListHasTailCodeConfig
       : linkedListNoTailCodeConfig;
