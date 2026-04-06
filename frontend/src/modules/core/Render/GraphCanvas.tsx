@@ -391,7 +391,7 @@ export function GraphCanvas({
           let pathD: string;
           if (d.sourceId === d.targetId) {
             pathD = selfLoopPath(src.x, src.y, src.r, getSelfLoopAngle(d.sourceId));
-            d3Select(this).attr("d", pathD); // 每 tick 都更新位置，確保節點移動時弧形跟著走
+            d3Select(this).attr("d", pathD); // 每 tick 都更新 position，確保節點移動時弧形跟著走
             if (d3Select(this).attr("data-anim") === "entering") {
               d3Select(this).attr("data-anim", "animating");
               const len = (this as SVGPathElement).getTotalLength();
@@ -463,6 +463,35 @@ export function GraphCanvas({
           posCacheRef.current.set(n.id, { x: n.x, y: n.y });
         }
       });
+    });
+
+    simulation.on("end", () => {
+      if (!svgRef.current || !zoomBehaviorRef.current) return;
+
+      // 計算所有節點的 bounding box
+      const xs = simNodes.map((n) => n.x ?? 0);
+      const ys = simNodes.map((n) => n.y ?? 0);
+      const padding = 60;
+      const minX = Math.min(...xs) - padding;
+      const minY = Math.min(...ys) - padding;
+      const maxX = Math.max(...xs) + padding;
+      const maxY = Math.max(...ys) + padding;
+      const contentW = maxX - minX;
+      const contentH = maxY - minY;
+
+      const scaleX = width / contentW;
+      const scaleY = height / contentH;
+      const scale = Math.min(scaleX, scaleY, 1.5); // 不過度放大
+      const tx = (width - contentW * scale) / 2 - minX * scale;
+      const ty = (height - contentH * scale) / 2 - minY * scale;
+
+      d3Select(svgRef.current)
+        .transition()
+        .duration(400)
+        .call(
+          zoomBehaviorRef.current.transform,
+          zoomIdentity.translate(tx, ty).scale(scale),
+        );
     });
 
     return () => {
