@@ -1,5 +1,6 @@
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import { bfsRealWorldStories } from "@/data/algorithms/searching/bfs.stories";
 import { BFSDFSActionBar } from "./BFSDFSActionBar";
 import {
   cloneData,
@@ -889,6 +890,7 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
   defaultViewMode: "graph",
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
   maxNodes: 15,
+  realWorldStories: bfsRealWorldStories,
   relatedProblems: [
     {
       id: 994,

@@ -14,6 +14,7 @@ export type {
   MazeCell,
   MazeOutputData,
   WhackAMoleOutputData,
+  FloodFillOutputData,
 } from './pythonDemo';
 
 export type {

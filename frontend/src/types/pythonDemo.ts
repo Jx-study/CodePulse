@@ -14,7 +14,7 @@ export interface PythonDemo {
   title: string;
   code: string;
   inputs?: PythonInput[];
-  outputType?: 'text' | 'graph' | 'queue-card' | 'maze'; // 預設 'text'，向下兼容
+  outputType?: 'text' | 'graph' | 'queue-card' | 'maze' | 'flood-fill'; // 預設 'text'，向下兼容
 }
 
 
@@ -66,4 +66,12 @@ export interface QueueCardOutputData {
     max_queue_size: number;
     survive_seconds: number;
   };
+}
+
+/** BFS Flood Fill 互動畫布：Python 只輸出尺寸與圖案元資料，邊線 grid 由前端 Canvas 光柵化 */
+export interface FloodFillOutputData {
+  width: number;
+  height: number;
+  pattern: 'ring' | 'star' | 'heart' | 'concentric' | 'grid-rooms' | string;
+  border_width: number;
 }

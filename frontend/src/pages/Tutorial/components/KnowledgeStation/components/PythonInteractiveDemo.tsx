@@ -7,6 +7,7 @@ import type {
   GraphOutputData,
   QueueCardOutputData,
   MazeOutputData,
+  FloodFillOutputData,
 } from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
 import Button from '@/shared/components/Button';
@@ -18,6 +19,7 @@ import MazeOutputRenderer, {
   type MazeOutputRendererHandle,
   type MazeViewPhase,
 } from './MazeOutputRenderer';
+import FloodFillRenderer from './FloodFillRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
@@ -65,6 +67,7 @@ const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
   const [graphData, setGraphData] = useState<GraphOutputData | null>(null);
   const [queueCardData, setQueueCardData] = useState<QueueCardOutputData | null>(null);
   const [mazeData, setMazeData] = useState<MazeOutputData | null>(null);
+  const [floodFillData, setFloodFillData] = useState<FloodFillOutputData | null>(null);
   const mazeRef = useRef<MazeOutputRendererHandle>(null);
   const [mazeViewPhase, setMazeViewPhase] = useState<MazeViewPhase | null>(null);
 
@@ -117,6 +120,7 @@ sys.stdout = io.StringIO()
         }
         setQueueCardData(null);
         setMazeData(null);
+        setFloodFillData(null);
       } else if (demo.outputType === 'queue-card' && pyReturnValue) {
         try {
           setQueueCardData(JSON.parse(pyReturnValue));
@@ -125,6 +129,7 @@ sys.stdout = io.StringIO()
         }
         setGraphData(null);
         setMazeData(null);
+        setFloodFillData(null);
       } else if (demo.outputType === 'maze' && pyReturnValue) {
         try {
           setMazeData(JSON.parse(pyReturnValue));
@@ -133,10 +138,21 @@ sys.stdout = io.StringIO()
         }
         setGraphData(null);
         setQueueCardData(null);
+        setFloodFillData(null);
+      } else if (demo.outputType === 'flood-fill' && pyReturnValue) {
+        try {
+          setFloodFillData(JSON.parse(pyReturnValue));
+        } catch {
+          // JSON 解析失敗不影響 stdout 輸出
+        }
+        setGraphData(null);
+        setQueueCardData(null);
+        setMazeData(null);
       } else {
         setGraphData(null);
         setQueueCardData(null);
         setMazeData(null);
+        setFloodFillData(null);
       }
 
       setStatus('done');
@@ -147,6 +163,7 @@ sys.stdout = io.StringIO()
       setGraphData(null);
       setQueueCardData(null);
       setMazeData(null);
+      setFloodFillData(null);
     }
   }, [demo.code, demo.outputType, inputValues]);
 
@@ -263,13 +280,19 @@ sys.stdout = io.StringIO()
             />
           )}
 
-          {/* 輸出 console（graph/queue-card/maze 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
+          {demo.outputType === 'flood-fill' && floodFillData && (
+            <FloodFillRenderer data={floodFillData} />
+          )}
+
+          {/* 輸出 console（graph/queue-card/maze/flood-fill 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
           {(demo.outputType !== 'graph' &&
             demo.outputType !== 'queue-card' &&
-            demo.outputType !== 'maze') ||
+            demo.outputType !== 'maze' &&
+            demo.outputType !== 'flood-fill') ||
           (demo.outputType === 'graph' && !graphData) ||
           (demo.outputType === 'queue-card' && !queueCardData) ||
           (demo.outputType === 'maze' && !mazeData) ||
+          (demo.outputType === 'flood-fill' && !floodFillData) ||
           output.includes('錯誤') ? (
             <pre
               className={classNames(styles.console, {
