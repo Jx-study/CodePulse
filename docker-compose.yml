@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_DB=codepulse
       - POSTGRES_USER=codepulse
-      - POSTGRES_PASSWORD=codepulse_dev
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U codepulse -d codepulse"]
       interval: 5s
@@ -26,7 +26,7 @@ services:
       - ./backend:/app
       - /app/__pycache_
     environment:
-      - DATABASE_URL=postgresql://codepulse:codepulse_dev@postgres:5432/codepulse
+      - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
       - FLASK_ENV=${FLASK_ENV:-development}
       - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}

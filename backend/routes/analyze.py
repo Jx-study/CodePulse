@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from services.precheck import precheck_and_wrap
+from services.sandbox import run_in_sandbox
 from services.task_queue import (
     task_queue,
     STATUS_COMPLETED,
@@ -17,16 +18,26 @@ analyze_bp = Blueprint('analyze', __name__, url_prefix='/api/analyze')
 def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     """
     分析主流程（在 ThreadPoolExecutor 中執行）。
-    目前為 stub，後續任務 7/8/9 填入真實邏輯。
     """
     task_queue.update_progress(task_id, STAGE_SANDBOX, "正在模擬執行並計算複雜度…")
-    # TODO(任務7): Docker 沙箱 + tracer
+    sandbox_result = run_in_sandbox(wrapped_code)
+
+    if "error" in sandbox_result:
+        execution_trace = []
+        call_graph = None
+        cfg_graph = {}
+        is_truncated = sandbox_result.get("is_truncated", False)
+    else:
+        execution_trace = sandbox_result.get("trace", [])
+        call_graph = sandbox_result.get("call_graph")
+        cfg_graph = sandbox_result.get("cfg_graph", {})
+        is_truncated = sandbox_result.get("is_truncated", False)
 
     task_queue.update_progress(task_id, STAGE_ANALYSIS, "演算法辨識中…")
-    # TODO(任務8/9): Gemini + MiniLM 分析
+    # TODO: Gemini + MiniLM 分析
 
     task_queue.update_progress(task_id, STAGE_GEMINI, "Gemini 專家仲裁中…")
-    # TODO(任務8): Gemini 仲裁結果整合
+    # TODO: Gemini 仲裁結果整合
 
     return {
         "detected_algorithm": None,
@@ -34,9 +45,10 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         "time_complexity": None,
         "analysis_source": "gemini",
         "have_level1": False,
-        "execution_trace": [],
-        "call_graph": None,
-        "is_truncated": False,
+        "execution_trace": execution_trace,
+        "call_graph": call_graph,
+        "cfg_graph": cfg_graph,
+        "is_truncated": is_truncated,
     }
 
 
