@@ -42,7 +42,7 @@ export const arrayRealWorldStories: RealWorldStory[] = [
 
 總結來說，陣列是所有追求高效能運算的基礎。因為其單純且連續排列在記憶體空間的結構，讓電腦能像「跳格子」一樣迅速抓取任何位置的資料，這也是為什麼從遊戲地圖座標、資料庫系統，到現在最熱門的 AI 機器學習模型，背後全都仰賴陣列在支撐運作。`,
     video: {
-      url: 'https://youtu.be/F4UF4JKVHak',
+      url: 'https://youtu.be/KZjNU511xFo',
       title: '陣列的實戰應用：從生活到螢幕.mp4',
       duration: '7:11',
     },
