@@ -29,6 +29,8 @@ export interface MazeOutputData {
   grid: MazeCell[][];
   start: [number, number];
   finish: [number, number];
+  // DFS 生成步驟序列。forward: [fx,fy,tx,ty]；backtrack: [bx,by,-1,-1] 
+  generationSteps?: [number, number, number, number][];
 }
 
 export interface GraphSimNode {

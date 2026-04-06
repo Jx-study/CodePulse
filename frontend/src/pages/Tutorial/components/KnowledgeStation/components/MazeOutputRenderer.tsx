@@ -1,15 +1,34 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
+import ControlBar from '@/modules/core/components/ControlBar/ControlBar';
 import Button from '@/shared/components/Button';
 import Icon from '@/shared/components/Icon';
 import type { MazeCell, MazeOutputData } from '@/types/implementation';
 import styles from './MazeOutputRenderer.module.scss';
 
+export type MazeViewPhase = 'generating' | 'game';
+
+export type MazeOutputRendererHandle = {
+  /** 略過生成動畫並進入遊戲（等同原「跳過生成」） */
+  skipGeneration: () => void;
+};
+
 interface Props {
   data: MazeOutputData;
+  // 供父層（例如與「執行小程序」並排顯示跳過按鈕）追蹤目前是否為生成階段
+  onViewPhaseChange?: (phase: MazeViewPhase) => void;
 }
 
 const MOVE_DELAY = 150;
 const FOG_RADIUS = 2.5;
+const BASE_GEN_SPEED_MS = 15;
+type ViewPhase = MazeViewPhase;
 
 type MazeStatus = 'idle' | 'playing' | 'won';
 type GameMode = 'solo' | 'race' | 'coop';
@@ -272,7 +291,65 @@ function drawMaze(
   }
 }
 
-const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
+function drawMazeGen(
+  canvas: HTMLCanvasElement | null,
+  visited: boolean[][],
+  partialGrid: MazeCell[][],
+  current: { x: number; y: number } | null,
+  data: MazeOutputData,
+): void {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const { width: W, height: H } = data;
+  const CS = calcCellSize(W, H);
+
+  ctx.fillStyle = '#0d0d1a';
+  ctx.fillRect(0, 0, W * CS, H * CS);
+
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) {
+      if (current && x === current.x && y === current.y) {
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(x * CS + 1, y * CS + 1, CS - 2, CS - 2);
+        ctx.shadowBlur = 0;
+      } else if (visited[x]?.[y]) {
+        const hue = (x * 37 + y * 19) % 360;
+        ctx.fillStyle = `hsl(${hue}, 55%, 26%)`;
+        ctx.fillRect(x * CS + 1, y * CS + 1, CS - 2, CS - 2);
+      }
+    }
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+  ctx.lineWidth = 1.5;
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) {
+      if (x < W - 1 && !partialGrid[x][y].right) {
+        ctx.beginPath();
+        ctx.moveTo((x + 1) * CS, y * CS);
+        ctx.lineTo((x + 1) * CS, (y + 1) * CS);
+        ctx.stroke();
+      }
+      if (y < H - 1 && !partialGrid[x][y].down) {
+        ctx.beginPath();
+        ctx.moveTo(x * CS, (y + 1) * CS);
+        ctx.lineTo((x + 1) * CS, (y + 1) * CS);
+        ctx.stroke();
+      }
+    }
+  }
+
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, W * CS, H * CS);
+}
+
+const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
+  function MazeOutputRenderer({ data, onViewPhaseChange }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number | null>(null);
   const keysHeld = useRef(new Set<string>());
@@ -286,6 +363,22 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
   const [fogOn, setFogOn] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [elapsedMs, setElapsedMs] = useState(0);
+
+  const [viewPhase, setViewPhase] = useState<ViewPhase>(() =>
+    data.generationSteps && data.generationSteps.length > 0 ? 'generating' : 'game',
+  );
+  const [genPlaying, setGenPlaying] = useState(true);
+  const [genStepIndex, setGenStepIndex] = useState(0);
+  const [genSpeedMultiplier, setGenSpeedMultiplier] = useState(1.0);
+
+  const genVisitedRef = useRef<boolean[][]>([]);
+  const genPartialGridRef = useRef<MazeCell[][]>([]);
+  const genCurrentRef = useRef<{ x: number; y: number } | null>(null);
+  const genStepRef = useRef(0);
+  const genFinishTimerRef = useRef<number | null>(null);
+  const viewPhaseRef = useRef<ViewPhase>(
+    data.generationSteps && data.generationSteps.length > 0 ? 'generating' : 'game',
+  );
 
   const handleReset = useCallback(() => {
     const s = buildInitialState(data);
@@ -301,9 +394,36 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
   }, [mode]);
 
   useEffect(() => {
+    viewPhaseRef.current = viewPhase;
+  }, [viewPhase]);
+
+  useEffect(() => {
     handleReset();
     setLeaderboard([]);
   }, [data, handleReset]);
+
+  useEffect(() => {
+    const steps = data.generationSteps;
+    genVisitedRef.current = Array.from({ length: data.width }, () =>
+      new Array(data.height).fill(false),
+    );
+    genPartialGridRef.current = Array.from({ length: data.width }, () =>
+      Array.from({ length: data.height }, () => ({ right: false, down: false })),
+    );
+    genStepRef.current = 0;
+
+    if (steps && steps.length > 0) {
+      const [fx, fy] = steps[0];
+      genVisitedRef.current[fx][fy] = true;
+      genCurrentRef.current = { x: fx, y: fy };
+      setViewPhase('generating');
+      setGenPlaying(true);
+      setGenStepIndex(0);
+    } else {
+      genCurrentRef.current = null;
+      setViewPhase('game');
+    }
+  }, [data]);
 
   useEffect(() => {
     if (gameState.status !== 'playing') {
@@ -386,8 +506,138 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
   }, [gameState.status, data]);
 
   useEffect(() => {
+    if (viewPhase !== 'generating' || !genPlaying) return;
+    const steps = data.generationSteps;
+    if (!steps || steps.length === 0) return;
+
+    const id = window.setInterval(() => {
+      const i = genStepRef.current;
+      if (i >= steps.length) {
+        window.clearInterval(id);
+        if (genFinishTimerRef.current) window.clearTimeout(genFinishTimerRef.current);
+        genFinishTimerRef.current = window.setTimeout(() => {
+          genFinishTimerRef.current = null;
+          setViewPhase('game');
+        }, 500);
+        return;
+      }
+      const [fx, fy, tx, ty] = steps[i];
+      if (tx >= 0) {
+        genVisitedRef.current[tx][ty] = true;
+        const dx = tx - fx;
+        const dy = ty - fy;
+        if (dx === 1) genPartialGridRef.current[fx][fy].right = true;
+        else if (dx === -1) genPartialGridRef.current[tx][ty].right = true;
+        else if (dy === 1) genPartialGridRef.current[fx][fy].down = true;
+        else if (dy === -1) genPartialGridRef.current[tx][ty].down = true;
+        genCurrentRef.current = { x: tx, y: ty };
+      } else {
+        genCurrentRef.current = { x: fx, y: fy };
+      }
+      genStepRef.current = i + 1;
+      setGenStepIndex(i + 1);
+    }, Math.max(4, Math.round(BASE_GEN_SPEED_MS / genSpeedMultiplier)));
+
+    return () => {
+      window.clearInterval(id);
+      if (genFinishTimerRef.current) {
+        window.clearTimeout(genFinishTimerRef.current);
+        genFinishTimerRef.current = null;
+      }
+    };
+  }, [viewPhase, genPlaying, genSpeedMultiplier, data]);
+
+  useEffect(() => {
+    if (viewPhase !== 'generating') return;
+    drawMazeGen(
+      canvasRef.current,
+      genVisitedRef.current,
+      genPartialGridRef.current,
+      genCurrentRef.current,
+      data,
+    );
+  }, [viewPhase, genStepIndex, data]);
+
+  useEffect(() => {
+    if (viewPhase !== 'game') return;
     drawMaze(canvasRef.current, gameState, data, mode, fogOn);
-  }, [gameState, fogOn, data, mode]);
+  }, [viewPhase, gameState, fogOn, data, mode]);
+
+  const seekToStep = useCallback(
+    (completedCount: number) => {
+      if (genFinishTimerRef.current) {
+        window.clearTimeout(genFinishTimerRef.current);
+        genFinishTimerRef.current = null;
+      }
+
+      const steps = data.generationSteps ?? [];
+      const clamped = Math.max(0, Math.min(completedCount, steps.length));
+
+      const newVisited = Array.from({ length: data.width }, () =>
+        new Array(data.height).fill(false),
+      );
+      const newGrid = Array.from({ length: data.width }, () =>
+        Array.from({ length: data.height }, () => ({ right: false, down: false })),
+      );
+
+      let current: { x: number; y: number } | null = null;
+      if (steps.length > 0) {
+        const [fx0, fy0] = steps[0];
+        newVisited[fx0][fy0] = true;
+        current = { x: fx0, y: fy0 };
+      }
+
+      for (let i = 0; i < clamped; i++) {
+        const [fx, fy, tx, ty] = steps[i];
+        if (tx >= 0) {
+          newVisited[tx][ty] = true;
+          const dx = tx - fx;
+          const dy = ty - fy;
+          if (dx === 1) newGrid[fx][fy].right = true;
+          else if (dx === -1) newGrid[tx][ty].right = true;
+          else if (dy === 1) newGrid[fx][fy].down = true;
+          else if (dy === -1) newGrid[tx][ty].down = true;
+          current = { x: tx, y: ty };
+        } else {
+          current = { x: fx, y: fy };
+        }
+      }
+
+      genVisitedRef.current = newVisited;
+      genPartialGridRef.current = newGrid;
+      genCurrentRef.current = current;
+      genStepRef.current = clamped;
+      setGenStepIndex(clamped);
+    },
+    [data],
+  );
+
+  const handleSkipGen = useCallback(() => {
+    if (genFinishTimerRef.current) {
+      window.clearTimeout(genFinishTimerRef.current);
+      genFinishTimerRef.current = null;
+    }
+    genPartialGridRef.current = data.grid.map((col) => col.map((cell) => ({ ...cell })));
+    genVisitedRef.current = Array.from({ length: data.width }, () =>
+      new Array(data.height).fill(true),
+    );
+    genCurrentRef.current = null;
+    genStepRef.current = data.generationSteps?.length ?? 0;
+    setGenPlaying(false);
+    setViewPhase('game');
+  }, [data]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      skipGeneration: handleSkipGen,
+    }),
+    [handleSkipGen],
+  );
+
+  useEffect(() => {
+    onViewPhaseChange?.(viewPhase);
+  }, [viewPhase, onViewPhaseChange]);
 
   const prevStatusRef = useRef<MazeStatus>(gameState.status);
   useEffect(() => {
@@ -428,7 +678,7 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
         e.preventDefault();
       }
 
-      if (stateRef.current.status === 'idle') {
+      if (stateRef.current.status === 'idle' && viewPhaseRef.current === 'game') {
         const m = modeRef.current;
         const p1 = getP1Dir(keysHeld.current);
         const p2 = m !== 'solo' ? getP2Dir(keysHeld.current) : null;
@@ -462,6 +712,13 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
     m === 'solo' ? '單人' : m === 'race' ? '雙人競速' : '雙人合作';
 
   const cell = calcCellSize(data.width, data.height);
+  const totalGenSteps = data.generationSteps?.length ?? 0;
+  const genControlCurrentStep =
+    totalGenSteps > 0 ? Math.min(genStepIndex, totalGenSteps - 1) : 0;
+  const sliderStepToCompleted = (sliderStep: number) => {
+    if (totalGenSteps <= 1) return Math.min(sliderStep, totalGenSteps);
+    return sliderStep >= totalGenSteps - 1 ? totalGenSteps : sliderStep;
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -479,42 +736,70 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
       </div>
 
       <div className={styles.controls}>
-        <div className={styles.modeGroup}>
-          {(['solo', 'race', 'coop'] as GameMode[]).map((m) => (
-            <Button
-              key={m}
-              variant={mode === m ? 'primary' : 'ghost'}
-              onClick={() => {
-                modeRef.current = m;
-                setMode(m);
-                handleReset();
+        {viewPhase === 'generating' ? (
+          <div className={styles.genControlBarWrap}>
+            <ControlBar
+              isPlaying={genPlaying}
+              currentStep={genControlCurrentStep}
+              totalSteps={totalGenSteps}
+              playbackSpeed={genSpeedMultiplier}
+              onPlay={() => setGenPlaying(true)}
+              onPause={() => setGenPlaying(false)}
+              onNext={() => {
+                setGenPlaying(false);
+                seekToStep(Math.min(genStepIndex + 1, totalGenSteps));
               }}
-            >
-              {m === 'solo' ? '單人' : m === 'race' ? '雙人競速' : '雙人合作'}
+              onPrev={() => {
+                setGenPlaying(false);
+                seekToStep(Math.max(0, genStepIndex - 1));
+              }}
+              onReset={() => {
+                seekToStep(0);
+                setGenPlaying(true);
+              }}
+              onSpeedChange={setGenSpeedMultiplier}
+              onStepChange={(s) => {
+                setGenPlaying(false);
+                seekToStep(sliderStepToCompleted(s));
+              }}
+            />
+          </div>
+        ) : (
+          <>
+            <div className={styles.modeGroup}>
+              {(['solo', 'race', 'coop'] as GameMode[]).map((m) => (
+                <Button
+                  key={m}
+                  variant={mode === m ? 'primary' : 'ghost'}
+                  onClick={() => {
+                    modeRef.current = m;
+                    setMode(m);
+                    handleReset();
+                  }}
+                >
+                  {m === 'solo' ? '單人' : m === 'race' ? '雙人競速' : '雙人合作'}
+                </Button>
+              ))}
+            </div>
+            <Button variant={fogOn ? 'primary' : 'ghost'} onClick={() => setFogOn((f) => !f)}>
+              {fogOn ? '迷霧 ON' : '迷霧 OFF'}
             </Button>
-          ))}
-        </div>
-        <Button variant={fogOn ? 'primary' : 'ghost'} onClick={() => setFogOn((f) => !f)}>
-          {fogOn ? '迷霧 ON' : '迷霧 OFF'}
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={handleReset}
-          title="重置"
-        >
-          重置
-        </Button>
-        <div className={styles.statsBar}>
-          <span>
-            P1: <strong>{gameState.steps.p1}</strong> 步
-          </span>
-          {mode !== 'solo' && (
-            <span>
-              P2: <strong>{gameState.steps.p2}</strong> 步
-            </span>
-          )}
-          <span>{formatTime(elapsedMs)}</span>
-        </div>
+            <Button variant="ghost" onClick={handleReset} title="重置">
+              重置
+            </Button>
+            <div className={styles.statsBar}>
+              <span>
+                P1: <strong>{gameState.steps.p1}</strong> 步
+              </span>
+              {mode !== 'solo' && (
+                <span>
+                  P2: <strong>{gameState.steps.p2}</strong> 步
+                </span>
+              )}
+              <span>{formatTime(elapsedMs)}</span>
+            </div>
+          </>
+        )}
       </div>
 
       <div className={styles.canvasWrap}>
@@ -524,7 +809,7 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
           height={data.height * cell}
           className={styles.canvas}
         />
-        {gameState.status === 'idle' && (
+        {viewPhase === 'game' && gameState.status === 'idle' && (
           <div className={styles.idleOverlay}>
             <span>按方向鍵開始！</span>
           </div>
@@ -583,6 +868,7 @@ const MazeOutputRenderer: React.FC<Props> = ({ data }) => {
       )}
     </div>
   );
-};
+},
+);
 
 export default MazeOutputRenderer;

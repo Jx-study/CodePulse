@@ -33,6 +33,7 @@ H = int(globals().get('maze_height', 11))
 
 grid    = [[{"right": False, "down": False} for _ in range(H)] for _ in range(W)]
 visited = [[False]*H for _ in range(W)]
+steps   = []
 
 def dfs(x, y):
     visited[x][y] = True
@@ -45,7 +46,9 @@ def dfs(x, y):
             elif dx==-1: grid[nx][ny]["right"] = True
             elif dy== 1: grid[x][y]["down"]   = True
             elif dy==-1: grid[nx][ny]["down"]  = True
+            steps.append([x, y, nx, ny])
             dfs(nx, ny)
+            steps.append([x, y, -1, -1])
 
 dfs(random.randint(0, W-1), random.randint(0, H-1))
 
@@ -53,7 +56,8 @@ json.dumps({
     "width": W, "height": H,
     "grid": grid,
     "start": [0, 0],
-    "finish": [W-1, H-1]
+    "finish": [W-1, H-1],
+    "generationSteps": steps
 })
       `,
     },

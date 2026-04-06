@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
 import type {
@@ -14,7 +14,10 @@ import Input from '@/shared/components/Input';
 import Slider from '@/shared/components/Slider';
 import GraphOutputRenderer from './GraphOutputRenderer';
 import QueueGameRenderer from './QueueGameRenderer/QueueGameRenderer';
-import MazeOutputRenderer from './MazeOutputRenderer';
+import MazeOutputRenderer, {
+  type MazeOutputRendererHandle,
+  type MazeViewPhase,
+} from './MazeOutputRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
@@ -62,6 +65,12 @@ const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
   const [graphData, setGraphData] = useState<GraphOutputData | null>(null);
   const [queueCardData, setQueueCardData] = useState<QueueCardOutputData | null>(null);
   const [mazeData, setMazeData] = useState<MazeOutputData | null>(null);
+  const mazeRef = useRef<MazeOutputRendererHandle>(null);
+  const [mazeViewPhase, setMazeViewPhase] = useState<MazeViewPhase | null>(null);
+
+  useEffect(() => {
+    if (!mazeData) setMazeViewPhase(null);
+  }, [mazeData]);
 
   // 控制項值，key = PythonInput.variable
   const [inputValues, setInputValues] = useState<Record<string, string | number>>(
@@ -214,14 +223,27 @@ sys.stdout = io.StringIO()
             </div>
           )}
 
-          <Button
-            variant="primary"
-            className={styles.runBtn}
-            onClick={handleRun}
-            disabled={isRunning}
-          >
-            {runLabel}
-          </Button>
+          <div className={styles.runRow}>
+            <Button
+              variant="primary"
+              className={styles.runBtn}
+              onClick={handleRun}
+              disabled={isRunning}
+            >
+              {runLabel}
+            </Button>
+            {demo.outputType === 'maze' &&
+              mazeData &&
+              mazeViewPhase === 'generating' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => mazeRef.current?.skipGeneration()}
+                >
+                  跳過生成
+                </Button>
+              )}
+          </div>
 
           {/* 圖形輸出（outputType:'graph' 時顯示，取代或補充 console） */}
           {demo.outputType === 'graph' && graphData && (
@@ -234,7 +256,11 @@ sys.stdout = io.StringIO()
           )}
 
           {demo.outputType === 'maze' && mazeData && (
-            <MazeOutputRenderer data={mazeData} />
+            <MazeOutputRenderer
+              ref={mazeRef}
+              data={mazeData}
+              onViewPhaseChange={setMazeViewPhase}
+            />
           )}
 
           {/* 輸出 console（graph/queue-card/maze 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
