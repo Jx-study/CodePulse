@@ -3,6 +3,7 @@ import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
 import { useTimeComplexityDecorations } from './features/TimeComplexity';
+import { useTheme } from '@/shared/contexts/ThemeContext';
 
 // ==================== 類型定義 ====================
 
@@ -137,7 +138,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   } = props;
 
   // ========== State ==========
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
+  const { resolvedTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(resolvedTheme);
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [splitRatio, setSplitRatio] = useState(propSplitRatio);
   const [isDragging, setIsDragging] = useState(false);
@@ -159,26 +161,14 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   // 穩定的 key，用於防止 StrictMode 雙重掛載問題
   const editorKeyRef = useRef<string>(`editor-${Math.random().toString(36).substring(7)}`);
 
-  // ========== 主題檢測 ==========
+  // ========== 主題同步 ==========
   useEffect(() => {
-    const detectTheme = () => {
-      if (theme === 'auto') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setCurrentTheme(isDark ? 'dark' : 'light');
-      } else {
-        setCurrentTheme(theme);
-      }
-    };
-
-    detectTheme();
-
     if (theme === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = () => detectTheme();
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
+      setCurrentTheme(resolvedTheme);
+    } else {
+      setCurrentTheme(theme);
     }
-  }, [theme]);
+  }, [theme, resolvedTheme]);
 
   // ========== 語言更新 ==========
   useEffect(() => {
