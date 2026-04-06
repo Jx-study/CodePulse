@@ -100,6 +100,9 @@ const WhackAMoleRenderer: React.FC = () => {
   const holesRef = useRef(game.holes);
   holesRef.current = game.holes;
 
+  const [nextMoleIdx, setNextMoleIdx] = useState<number | null>(null);
+  const nextMoleIdxRef = useRef<number | null>(null);
+
   const popupHideTimersRef = useRef<Map<number, number>>(new Map());
   const hitRecoverTimersRef = useRef<Map<number, number>>(new Map());
 
@@ -201,13 +204,15 @@ const WhackAMoleRenderer: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status]);
 
-  // Effect: 離開 playing 時清除地鼠計時器
+  // Effect: 離開 playing 時清除地鼠計時器 + 下一隻提示
   useEffect(() => {
     if (game.status !== 'playing') {
       popupHideTimersRef.current.forEach(clearTimeout);
       popupHideTimersRef.current.clear();
       hitRecoverTimersRef.current.forEach(clearTimeout);
       hitRecoverTimersRef.current.clear();
+      nextMoleIdxRef.current = null;
+      setNextMoleIdx(null);
     }
   }, [game.status]);
 
@@ -223,7 +228,13 @@ const WhackAMoleRenderer: React.FC = () => {
       if (popupCount >= cfg.maxConcurrent) return;
       const hidden = h.map((v, i) => (v === 'hidden' ? i : -1)).filter((i) => i >= 0);
       if (hidden.length === 0) return;
-      const idx = hidden[Math.floor(Math.random() * hidden.length)];
+
+      // Use pre-committed index if still valid, otherwise pick randomly
+      const committed = nextMoleIdxRef.current;
+      const idx =
+        committed !== null && h[committed] === 'hidden'
+          ? committed
+          : hidden[Math.floor(Math.random() * hidden.length)];
 
       setGame((prev) => {
         if (prev.status !== 'playing') return prev;
@@ -232,6 +243,15 @@ const WhackAMoleRenderer: React.FC = () => {
         return { ...prev, holes: nh };
       });
       playPop();
+
+      // Pre-compute next candidate (excluding the hole just spawned)
+      const remaining = hidden.filter((i) => i !== idx);
+      const next =
+        remaining.length > 0
+          ? remaining[Math.floor(Math.random() * remaining.length)]
+          : null;
+      nextMoleIdxRef.current = next;
+      setNextMoleIdx(next);
 
       const hideId = window.setTimeout(() => {
         setGame((prev) => {
@@ -246,7 +266,11 @@ const WhackAMoleRenderer: React.FC = () => {
       popupHideTimersRef.current.set(idx, hideId);
     }, cfg.spawnInterval);
 
-    return () => clearInterval(spawnId);
+    return () => {
+      clearInterval(spawnId);
+      nextMoleIdxRef.current = null;
+      setNextMoleIdx(null);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status, difficulty, effectiveRows, cols]);
 
@@ -324,10 +348,12 @@ const WhackAMoleRenderer: React.FC = () => {
     const mole = holes[idx];
     const val = values[r]?.[c] ?? 0;
 
+    const isNextHint = status === 'playing' && mole === 'hidden' && idx === nextMoleIdx;
+
     const holeInner = (
       <button
         type="button"
-        className={classNames(styles.hole, mole === 'popup' && styles.popup, mole === 'hit' && styles.hit)}
+        className={classNames(styles.hole, mole === 'popup' && styles.popup, mole === 'hit' && styles.hit, isNextHint && styles.nextHint)}
         onClick={() => handleWhack(idx)}
         aria-label={getIndexLabel(mode, r, c)}
       >
@@ -405,11 +431,20 @@ const WhackAMoleRenderer: React.FC = () => {
 
       {/* Stats bar */}
       <div className={styles.statsBar}>
-        <span>分數：{score}</span>
-        <span>Missed：{missed}</span>
-        <span>Combo：{combo}</span>
-        <span>最高連擊：{maxCombo}</span>
-        {status === 'playing' && <span>時間：{timeLeft}s</span>}
+        <div className={styles.statsMain}>
+          <span>分數：{score}</span>
+          <span>Missed：{missed}</span>
+          <span>Combo：{combo}</span>
+          <span>最高連擊：{maxCombo}</span>
+        </div>
+        <div className={styles.statsSecondary}>
+          {status === 'playing' && <span>時間：{timeLeft}s</span>}
+          {status === 'playing' && nextMoleIdx !== null && (
+            <span className={styles.nextHintLabel}>
+              下一隻：{getIndexLabel(mode, Math.floor(nextMoleIdx / cols), nextMoleIdx % cols)}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Controls */}
