@@ -11,7 +11,7 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
-} from './pythonDemo';
+} from "./pythonDemo";
 
 export type {
   StoryVideo,
@@ -20,7 +20,7 @@ export type {
   InteractiveGameType,
   InteractiveGame,
   RealWorldStory,
-} from './realWorldStory';
+} from "./realWorldStory";
 
 export interface ProblemReference {
   id: string | number;
@@ -49,7 +49,13 @@ export type RunParams =
       rows?: number;
       cols?: number;
     }
-  | { type: "dijkstra"; mode: "graph"; startNode?: string; endNode?: string; isDirected: boolean }
+  | {
+      type: "dijkstra";
+      mode: "graph";
+      startNode?: string;
+      endNode?: string;
+      isDirected: boolean;
+    }
   | { type: "knapsack"; capacity: number }
   | { type: "nQueens"; nQueensCount: number };
 
@@ -124,6 +130,7 @@ export type ImplementationId =
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
+  | "mergesort"
   | "binarysearch"
   | "linearsearch"
   | "bfs"

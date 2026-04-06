@@ -13,6 +13,7 @@ import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
 import { selectionSortConfig } from "../algorithms/sorting/selectionSort";
 import { insertionSortConfig } from "../algorithms/sorting/insertionSort";
+import { mergeSortConfig } from "../algorithms/sorting/mergeSort";
 import { binarySearchConfig } from "../algorithms/searching/binarySearch";
 import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
@@ -41,6 +42,7 @@ export const implementationsMap: ImplementationMap = {
   bubbleSort: bubbleSortConfig,
   selectionSort: selectionSortConfig,
   insertionSort: insertionSortConfig,
+  mergeSort: mergeSortConfig,
   binarySearch: binarySearchConfig,
   bfs: BFSConfig,
   dfs: DFSConfig,
