@@ -10,19 +10,24 @@ export default defineConfig((_env) => {
   return {
     plugins: [
       react(),
-      {
         // Gzip 壓縮
-      ...viteCompression({
+      viteCompression({
         algorithm: "gzip",
         ext: ".gz",
         threshold: 10240,
         deleteOriginFile: false,
       }),
-      apply: "build",
-      },
+      ,
       // Bundle 分析（ANALYZE=true npm run build）
       ...(isAnalyze
-        ? [visualizer({ open: true, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })]
+        ? [
+            visualizer({
+              open: true,
+              filename: "dist/stats.html",
+              gzipSize: true,
+              brotliSize: true,
+            }),
+          ]
         : []),
     ],
     server: {
@@ -32,8 +37,8 @@ export default defineConfig((_env) => {
         usePolling: true, // Docker volume mount 需要 polling 才能偵測檔案變化
       },
       proxy: {
-        '/api': {
-          target: process.env.PROXY_TARGET || 'http://localhost:5000',
+        "/api": {
+          target: process.env.PROXY_TARGET || "http://localhost:5000",
           changeOrigin: true,
         },
       },
@@ -84,9 +89,14 @@ export default defineConfig((_env) => {
               "i18next-browser-languagedetector",
             ],
             monaco: ["@monaco-editor/react"],
+            cytoscape: ["cytoscape", "cytoscape-dagre"],
             d3: ["d3"],
             motion: ["motion"],
-            "dnd-kit": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
+            "dnd-kit": [
+              "@dnd-kit/core",
+              "@dnd-kit/sortable",
+              "@dnd-kit/utilities",
+            ],
             "resizable-panels": ["react-resizable-panels"],
             // fa icon 資料包不列入 manualChunks → 讓 rollup treeshake 未使用的 icon
             // 只保留 runtime core

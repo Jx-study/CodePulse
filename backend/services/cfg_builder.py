@@ -1,8 +1,29 @@
 """
 cfg_builder.py — Python AST → CfgGraph
 
-PoC 範圍：支援 if/elif/else、for/while、function def、return、一般語句。
-已知限制：try/except、with、yield、match/case 等複雜語法待後續擴充。
+PoC Scope: Supports if/elif/else, for/while, function def, return, and basic statements.
+Known Limitations: Complex syntax like try/except, with, yield, match/case to be added.
+
+=============================================================================
+Acknowledgments & License Notice
+=============================================================================
+This module's core AST traversal and control flow logic is inspired by and 
+adapted from the following open-source projects:
+
+1. py2cfg (Copyright 2020 ClassroomCode / Various Contributors)
+   Source: https://gitlab.com/classroomcode/py2cfg
+2. StatiCFG (Copyright 2018 Aurélien Coet, 2020 Andrei Nacu)
+   Source: https://github.com/coetaur0/staticfg
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+=============================================================================
+
+State of Changes (Modifications for CodePulse):
+- Re-implemented the builder to output custom CfgGraph dataclasses for JSON serialization.
+- Decoupled from Graphviz/DOT rendering to support Cytoscape.js web integration.
+- Optimized block categorization (kind: branch, loop, etc.) for teaching visualization.
+- Refined by Julian Tee(2026) for the CodePulse project.
 """
 
 import ast
