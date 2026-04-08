@@ -6,197 +6,107 @@
   overflow: hidden;
 }
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
+.mainContent {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
 
-.toolbar {
-  height: 3.5rem;
-  border-bottom: 1px solid var(--border);
+// ── Collapsible editor panel ───────────────────────────────────────────────────
+
+.editorPanel {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  transition: width 0.3s ease, border-width 0.3s ease;
+  z-index: 20;
+}
+
+.editorPanelOpen  { width: 350px; }
+.editorPanelClosed { width: 0; border-right-width: 0; }
+
+.editorInner {
+  width: 350px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorHeader {
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 $spacing-sm;
-  flex-shrink: 0;
-  gap: $spacing-sm;
-}
-
-.toolbarLeft {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-}
-
-.toolbarRight {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.backBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: $radius-md;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: $font-lg;
-  transition: background 0.2s, color 0.2s;
-
-  &:hover {
-    background: var(--card-bg);
-    color: var(--text-primary);
-  }
-}
-
-.divider {
-  width: 1px;
-  height: 1.5rem;
-  background: var(--border);
-}
-
-.toolbarTitle {
-  font-size: $font-sm;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-// ── Language selector ─────────────────────────────────────────────────────────
-
-.langSelector {
-  position: relative;
-}
-
-.langBtn {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-sm;
-  font-size: $font-xs;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-
-  &:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    color: var(--text-primary);
-  }
-}
-
-.chevron {
-  font-size: $font-2xs;
-  opacity: 0.6;
-}
-
-.langDropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 8rem;
   background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  z-index: 50;
-  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
-.langOption {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: $spacing-xs $spacing-sm;
-  font-size: $font-xs;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-
-  &:hover {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-  }
-}
-
-.langOptionActive {
-  color: $primary-color;
-  background: rgba(99, 91, 255, 0.08);
-}
-
-// ── Run button ────────────────────────────────────────────────────────────────
-
-.runBtn {
+.editorFilename {
   display: flex;
   align-items: center;
   gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  font-size: $font-xs;
-  font-weight: 700;
-  color: #fff;
-  background: $execution-color;
-  border: none;
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: filter 0.2s, transform 0.2s;
-
-  &:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-  }
 }
 
-// ── Main split ────────────────────────────────────────────────────────────────
-
-.mainContent {
-  @include flex;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-
-  @media (max-width: $tablet-max) {
-    flex-direction: column;
-    overflow: auto;
-  }
-}
-
-// ── Editor panel (left) ───────────────────────────────────────────────────────
-
-.editorPanel {
-  width: 50%;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-primary);
-  min-height: 0;
-
-  @media (max-width: $tablet-max) {
-    width: 100%;
-    min-height: 400px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-.editorHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: $spacing-xs $spacing-sm;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
+.filenameDot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-sm;
+  background: $success-color;
   flex-shrink: 0;
 }
 
 .filename {
   font-family: $font-family-code;
   font-size: $font-xs;
+  color: var(--text-secondary);
+}
+
+.editorHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.runBtn {
+  background: $execution-color;
+  color: $white-color !important;
+  transition: filter 0.2s, transform 0.2s;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.collapseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: $radius-md;
+  background: transparent;
+  border: none;
   color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
 }
 
 .editorBody {
@@ -207,55 +117,386 @@
   flex-direction: column;
 }
 
-// ── Viz panel (right) ─────────────────────────────────────────────────────────
-
-.vizPanel {
-  width: 50%;
+.errorBanner {
   display: flex;
-  flex-direction: column;
-  background: var(--bg-secondary);
-  min-height: 0;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  background: rgba($error-color, 0.12);
+  border-bottom: 1px solid rgba($error-color, 0.3);
+  font-size: $font-xs;
+  color: $error-color;
+  flex-shrink: 0;
+}
 
-  @media (max-width: $tablet-max) {
-    width: 100%;
-    min-height: 400px;
+// ── Expand button ─────────────────────────────────────────────────────────────
+
+.expandBtn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 3rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 $radius-md $radius-md 0;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  box-shadow: $shadow-md;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
   }
 }
 
-.vizHeader {
+// ── Viz panel ─────────────────────────────────────────────────────────────────
+
+.vizPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.vizTabBar {
   display: flex;
   align-items: center;
+  padding: 0 $spacing-sm;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  gap: $spacing-sm;
+}
+
+.lineIndicator {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  padding: 2px $spacing-xs;
+  margin-left: auto;
+}
+
+.truncatedBadge {
+  font-size: $font-2xs;
+  color: $warning-color;
+  font-family: $font-family-code;
+}
+
+.graphArea {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
+
+.cfgPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cfgHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
   padding: $spacing-xs $spacing-sm;
-  background: var(--card-bg);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.vizLabel {
-  font-size: $font-xs;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-secondary);
-}
-
-.vizBody {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+.cfgBackBtn {
   display: flex;
   align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.cfgLabel {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+}
+
+.animationPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: $spacing-sm;
+  height: 100%;
+  font-size: $font-sm;
+  color: var(--text-tertiary);
+  font-family: $font-family-code;
+}
+
+// ── Execution state panel ─────────────────────────────────────────────────────
+
+.executionState {
+  height: 17rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.executionStateHeader {
+  height: 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-sm;
+  flex-shrink: 0;
+}
+
+.executionStateLabel {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+}
+
+.executionStateStep {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  letter-spacing: 0.08em;
+  color: $execution-color;
+}
+
+.executionStateBody {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
   min-height: 0;
 }
 
-.gridPattern {
-  position: absolute;
-  inset: 0;
-  opacity: 0.15;
-  pointer-events: none;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
+// Frames column
+.framesCol {
+  width: 25%;
+  border-right: 1px solid var(--border);
+  padding: $spacing-sm;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.colTitle {
+  font-size: $font-2xs;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  margin: 0 0 $spacing-xs 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.frame {
+  padding: $spacing-xs;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.frameActive {
+  border-left-color: $primary-color;
+  background: rgba($primary-color, 0.05);
+  border-radius: 0 $radius-md $radius-md 0;
+  padding: $spacing-xs;
+}
+
+.frameName {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+
+  .frameActive & { color: $primary-color; }
+}
+
+.frameVar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-xs;
+}
+
+.frameVarName {
+  font-family: $font-family-code;
+  color: var(--text-secondary);
+}
+
+.frameVarVal {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+}
+
+.frameVarRef {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: $accent-color;
+  background: rgba($accent-color, 0.1);
+  padding: 1px $spacing-xs;
+  border-radius: $radius-sm;
+}
+
+// Objects column
+.objectsCol {
+  flex: 1;
+  padding: $spacing-sm;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.heapObject {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.heapObjectMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.heapRef {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: $accent-color;
+  background: rgba($accent-color, 0.1);
+  padding: 1px $spacing-xs;
+  border-radius: $radius-sm;
+}
+
+.heapType {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+}
+
+.heapFields {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: var(--bg-primary);
+  box-shadow: $shadow-sm;
+}
+
+.heapField {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+
+  &:last-child { border-right: none; }
+}
+
+.heapFieldKey {
+  background: var(--card-bg);
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+  padding: 2px $spacing-xs;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  min-width: 2rem;
+}
+
+.heapFieldVal {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-primary);
+  padding: $spacing-xs;
+  text-align: center;
+}
+
+.heapFieldRef {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: $accent-color;
+  padding: $spacing-xs;
+  text-align: center;
+}
+
+// Console column
+.consoleCol {
+  width: 25%;
+  border-left: 1px solid var(--border);
+  padding: $spacing-sm;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.consoleLines {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  line-height: 1.6;
+}
+
+.consoleLine {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-xs;
+}
+
+.consolePrompt { color: $primary-color; flex-shrink: 0; }
+.consoleText   { color: var(--text-secondary); }
+.consoleOutput { color: var(--text-primary); padding-left: $spacing-sm; }
+
+// ── Control bar ───────────────────────────────────────────────────────────────
+
+.controlRow {
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.emptyControl {
+  padding: $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  text-align: center;
 }
