@@ -94,7 +94,7 @@ function LearningDashboardInner() {
 
   // 計算每個 Category 的 Level 數量
   const levelCounts = Object.fromEntries(
-    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length])
+    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length - 1])
   ) as Partial<Record<CategoryType, number>>;
 
   // 建立分類顏色對照表
