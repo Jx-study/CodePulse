@@ -3,39 +3,12 @@
  * 展示類組件的類型定義 (InfoBlock, ProgressBar, StarRating 等)
  */
 
-import type { CallGraph, CfgGraph } from '@/types/trace';
-
 // ==================== BaseCanvasProps ====================
 export interface BaseCanvasProps {
   enableZoom?: boolean;
   enablePan?: boolean;
   width?: number;
   height?: number;
-}
-
-// ==================== CytoscapeCanvas ====================
-export interface CytoscapeCallGraphCanvasProps extends BaseCanvasProps {
-  mode: "call_graph";
-  callGraph: CallGraph;
-  currentStep: number;
-  onNodeClick: (funcId: string) => void;
-}
-
-export interface CytoscapeCfgCanvasProps extends BaseCanvasProps {
-  mode: "cfg";
-  cfg: CfgGraph;
-  activeLineno?: number;
-}
-
-export type CytoscapeCanvasProps =
-  | CytoscapeCallGraphCanvasProps
-  | CytoscapeCfgCanvasProps;
-
-// ==================== GenericTracePlayer Component ====================
-export interface GenericTracePlayerProps {
-  callGraph: CallGraph | null;
-  currentStep: number;
-  activeLineno?: number;
 }
 
 // ==================== InfoBlock Component ====================
