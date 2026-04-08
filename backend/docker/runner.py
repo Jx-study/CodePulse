@@ -8,16 +8,22 @@ runner.py — Docker sandbox container 入口
 """
 
 import base64
+import io
 import json
 import os
 import sys
 
 
 def main():
+    # Redirect stdout so user print() calls don't corrupt the JSON output.
+    # All JSON is written directly to the original stdout via sys.__stdout__.
+    _real_stdout = sys.__stdout__
+    sys.stdout = io.StringIO()
+
     try:
         encoded = os.environ.get("CODE", "")
         if not encoded:
-            print(json.dumps({"error": "missing CODE environment variable"}))
+            _real_stdout.write(json.dumps({"error": "missing CODE environment variable"}) + "\n")
             sys.exit(1)
 
         code = base64.b64decode(encoded).decode("utf-8")
@@ -72,10 +78,10 @@ def main():
             "step_count": trace_result.step_count,
         }
 
-        print(json.dumps(output))
+        _real_stdout.write(json.dumps(output) + "\n")
 
     except Exception as e:
-        print(json.dumps({"error": f"{type(e).__name__}: {e}"}))
+        _real_stdout.write(json.dumps({"error": f"{type(e).__name__}: {e}"}) + "\n")
         sys.exit(1)
 
 
