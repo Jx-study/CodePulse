@@ -9,7 +9,9 @@ import { useDrag } from "@/shared/hooks/useDrag";
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
+import type { BaseCanvasProps } from '@/types/components/display';
 import styles from './D3Canvas.module.scss';
+import canvasStyles from './canvas.module.scss';
 
 /**
  * 從 data model 直接計算所有動畫步驟的 union bounding box。
@@ -80,33 +82,29 @@ export interface D3CanvasRef {
   getSVGElement: () => SVGSVGElement | null;
 }
 
+interface D3CanvasOwnProps extends BaseCanvasProps {
+  elements: BaseElement[];
+  links?: Link[];
+  structureType?: string;
+  /** Optional custom status color map - 可選的自訂狀態顏色映射表 */
+  statusColorMap?: StatusColorMap;
+  /** Optional custom status configuration - 可選的自訂狀態配置 */
+  statusConfig?: StatusConfig;
+  isDirected?: boolean;
+  /** 是否顯示狀態圖例 (預設: true) */
+  showStatusLegend?: boolean;
+  /**
+   * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
+   * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
+   * 確保 viewBox 能包含整個動畫期間出現的所有元素，不隨每步更新。
+   * 未提供時：沿用原有行為（每次 elements 改變都重算 viewBox）。
+   */
+  allStepsElements?: BaseElement[][];
+}
+
 export const D3Canvas = forwardRef<
   D3CanvasRef,
-  {
-    elements: BaseElement[];
-    links?: Link[];
-    width?: number;
-    height?: number;
-    structureType?: string;
-    /** 是否啟用縮放功能 (預設: true) */
-    enableZoom?: boolean;
-    /** 是否啟用拖拽平移功能 (預設: true) */
-    enablePan?: boolean;
-    /** Optional custom status color map - 可選的自訂狀態顏色映射表 */
-    statusColorMap?: StatusColorMap;
-    /** Optional custom status configuration - 可選的自訂狀態配置 */
-    statusConfig?: StatusConfig;
-    isDirected?: boolean;
-    /** 是否顯示狀態圖例 (預設: true) */
-    showStatusLegend?: boolean;
-    /**
-     * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
-     * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
-     * 確保 viewBox 能包含整個動畫期間出現的所有元素，不隨每步更新。
-     * 未提供時：沿用原有行為（每次 elements 改變都重算 viewBox）。
-     */
-    allStepsElements?: BaseElement[][];
-  }
+  D3CanvasOwnProps
 >(
   (
     {
@@ -305,13 +303,13 @@ export const D3Canvas = forwardRef<
 
         {/* Reset 按鈕 */}
         {(enableZoom || enablePan) && (
-          <div className={styles.resetButtonContainer}>
+          <div className={canvasStyles.resetButtonContainer}>
             <Button
               variant="icon"
               size="sm"
               onClick={handleResetView}
               aria-label="重置視圖"
-              className={styles.resetButton}
+              className={canvasStyles.resetButton}
               icon="rotate-right"
               iconOnly
             >

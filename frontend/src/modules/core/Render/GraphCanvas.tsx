@@ -17,6 +17,7 @@ import { Node } from "../DataLogic/Node";
 import type { Link } from "./D3Renderer";
 import { linkStatusColorMap } from "./D3Renderer";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
+import type { BaseCanvasProps } from '@/types/components/display';
 import Button from "@/shared/components/Button";
 import StatusLegend from "../components/StatusLegend";
 import {
@@ -25,6 +26,7 @@ import {
   weightLabelCenter,
 } from "./linkGeometry";
 import styles from "./GraphCanvas.module.scss";
+import canvasStyles from "./canvas.module.scss";
 
 // SVG arc 自環路徑：在 angle 方向畫一個近圓形的環
 function selfLoopPath(cx: number, cy: number, r: number, angle: number): string {
@@ -50,16 +52,12 @@ function deduplicateLinks(links: Link[], isDirected: boolean): GSimLink[] {
 }
 
 // 與 D3Canvas 相容的子集 props
-export interface GraphCanvasProps {
+export interface GraphCanvasProps extends BaseCanvasProps {
   elements: BaseElement[];
   links?: Link[];
-  width?: number;
-  height?: number;
   statusColorMap?: StatusColorMap;
   statusConfig?: StatusConfig;
   isDirected?: boolean;
-  enableZoom?: boolean;
-  enablePan?: boolean;
 }
 
 interface GSimNode extends SimulationNodeDatum {
@@ -621,13 +619,13 @@ export function GraphCanvas({
         <StatusLegend statusConfig={statusConfig} />
       </div>
       {(enableZoom || enablePan) && (
-        <div className={styles.resetButtonContainer}>
+        <div className={canvasStyles.resetButtonContainer}>
           <Button
             variant="icon"
             size="sm"
             onClick={handleResetZoom}
             aria-label="重置視圖"
-            className={styles.resetButton}
+            className={canvasStyles.resetButton}
             icon="rotate-right"
             iconOnly
           />
