@@ -68,8 +68,9 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
             size="sm"
             onClick={() => onRun()}
             disabled={disabled}
-            className={`${styles.runButton} ${styles.runButtonSearching}`}
+            className={`${styles.runButton} ${styles.runButtonSearching} ${styles.btnRun}`}
             icon="play"
+            variant="secondary"
           >
             開始拓撲排序
           </Button>
