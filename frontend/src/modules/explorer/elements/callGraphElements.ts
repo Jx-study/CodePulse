@@ -68,7 +68,10 @@ export function buildCallGraphElements(
   currentStep: number,
 ): cytoscape.ElementDefinition[] {
   const nodes = callGraph.nodes.map((n) => ({
-    data: { id: n.id, label: n.funcName },
+    data: {
+      id: n.id,
+      label: n.funcName === "<module>" ? "(global)" : n.funcName,
+    },
   }));
   const edges = callGraph.edges.map((e) => ({
     data: {
