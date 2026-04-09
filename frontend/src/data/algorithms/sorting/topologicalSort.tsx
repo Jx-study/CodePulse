@@ -109,7 +109,9 @@ function topoActionHandler(
     const edges: string[][] = [];
     if (edgeStr.trim() !== "") {
       edgeStr.split(",").forEach((pair) => {
-        const [u, v] = pair.trim().split(/\s+/);
+        const trimmed = pair.trim();
+        if (!trimmed) return;
+        const [u, v] = trimmed.split(/\s+/);
         const uIdx = parseInt(u, 10);
         const vIdx = parseInt(v, 10);
         const isValid = (n: number) => !isNaN(n) && n >= 0 && n < nodeCount;

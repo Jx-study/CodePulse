@@ -24,7 +24,6 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
         show={showLoader}
         onClose={() => setShowLoader(false)}
         onLoad={onLoadData}
-        isWeighted={false} // 拓撲排序不需要權重
       />
 
       <ActionBarGroup>
