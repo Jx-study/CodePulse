@@ -25,6 +25,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/__pycache_
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
