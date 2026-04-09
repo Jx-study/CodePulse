@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useCallback, useState } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import {
   forceSimulation,
   forceLink,
@@ -12,14 +12,13 @@ import {
   easeQuadOut,
 } from "d3";
 import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
-import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import type { Link } from "./D3Renderer";
 import { linkStatusColorMap } from "./D3Renderer";
-import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
-import Button from "@/shared/components/Button";
-import StatusLegend from "../components/StatusLegend";
+import CanvasShell from "./CanvasShell";
+import type { BaseCanvasProps } from "@/types/canvasTypes";
+import { useBoxViewBox } from "./useBoxViewBox";
 import {
   circleBoundaryPoint,
   straightLinkPath,
@@ -28,7 +27,12 @@ import {
 import styles from "./GraphCanvas.module.scss";
 
 // SVG arc 自環路徑：在 angle 方向畫一個近圓形的環
-function selfLoopPath(cx: number, cy: number, r: number, angle: number): string {
+function selfLoopPath(
+  cx: number,
+  cy: number,
+  r: number,
+  angle: number,
+): string {
   const spread = Math.PI / 3.5;
   const loopR = r;
   const sx = cx + r * Math.cos(angle - spread);
@@ -41,31 +45,25 @@ function selfLoopPath(cx: number, cy: number, r: number, angle: number): string 
 function deduplicateLinks(links: Link[], isDirected: boolean): GSimLink[] {
   const seenPairs = new Set<string>();
   return links.reduce<GSimLink[]>((acc, l) => {
-    const key = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+    const key = isDirected
+      ? `${l.sourceId}->${l.targetId}`
+      : [l.sourceId, l.targetId].sort().join("--");
     if (!seenPairs.has(key)) {
       seenPairs.add(key);
-      acc.push({ source: l.sourceId, target: l.targetId, sourceId: l.sourceId, targetId: l.targetId, status: l.status, weight: l.weight });
+      acc.push({
+        source: l.sourceId,
+        target: l.targetId,
+        sourceId: l.sourceId,
+        targetId: l.targetId,
+        status: l.status,
+        weight: l.weight,
+      });
     }
     return acc;
   }, []);
 }
 
-// 與 D3Canvas 相容的子集 props
-export interface GraphCanvasProps {
-  elements: BaseElement[];
-  links?: Link[];
-  width?: number;
-  height?: number;
-  statusColorMap?: StatusColorMap;
-  statusConfig?: StatusConfig;
-  isDirected?: boolean;
-  enableZoom?: boolean;
-  enablePan?: boolean;
-  /** 所有動畫步驟的元素陣列，用於預計算含 Box 的 viewBox（與 D3Canvas 一致）*/
-  allStepsElements?: BaseElement[][];
-  /** 資料結構/演算法類型，用於繪製 container 裝飾線（如 topological-sort 的 Queue 框）*/
-  structureType?: string;
-}
+export type GraphCanvasProps = BaseCanvasProps;
 
 interface GSimNode extends SimulationNodeDatum {
   id: string;
@@ -95,16 +93,23 @@ export function GraphCanvas({
   structureType,
 }: GraphCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const simulationRef = useRef<ReturnType<typeof forceSimulation<GSimNode>> | null>(null);
-  const zoomBehaviorRef = useRef<ReturnType<typeof d3Zoom<SVGSVGElement, unknown>> | null>(null);
+  const simulationRef = useRef<ReturnType<
+    typeof forceSimulation<GSimNode>
+  > | null>(null);
+  const zoomBehaviorRef = useRef<ReturnType<
+    typeof d3Zoom<SVGSVGElement, unknown>
+  > | null>(null);
   const posCacheRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const prevLinkKeyRef = useRef<string>("");
   const seenSelfLoopsRef = useRef<Set<string>>(new Set());
   const linkSetRef = useRef<Set<string>>(new Set());
 
   // 動態 viewBox：只向外擴張（用於 Box 元素超出預設範圍時）
-  const [svgViewBox, setSvgViewBox] = useState(`0 0 ${width} ${height}`);
-  const maxExtentRef = useRef({ maxX: width, maxY: height });
+  const {
+    viewBox: svgViewBox,
+    setViewBox: setSvgViewBox,
+    maxExtentRef,
+  } = useBoxViewBox(allStepsElements, width, height);
 
   // 注入 statusColorMap 到 elements（與 D3Renderer 一致）
   useEffect(() => {
@@ -122,7 +127,11 @@ export function GraphCanvas({
 
   // 結構識別 key — 只有節點 ID 集合改變才重建 simulation
   const nodeIds = useMemo(
-    () => nodeElements.map((e) => e.id).sort().join(","),
+    () =>
+      nodeElements
+        .map((e) => e.id)
+        .sort()
+        .join(","),
     [nodeElements],
   );
 
@@ -200,7 +209,8 @@ export function GraphCanvas({
 
     const simNodes: GSimNode[] = nodeElements.map((e) => {
       const cached = posCacheRef.current.get(e.id);
-      if (cached) return { id: e.id, radius: e.radius ?? 20, x: cached.x, y: cached.y };
+      if (cached)
+        return { id: e.id, radius: e.radius ?? 20, x: cached.x, y: cached.y };
       // 新節點從 cluster 外緣出發，forceLink 自然將它拉向鄰居
       const angle = Math.random() * 2 * Math.PI;
       const dist = avgClusterRadius + 60 + Math.random() * 40;
@@ -225,7 +235,8 @@ export function GraphCanvas({
           const x = n.x ?? 0;
           const y = n.y ?? 0;
           if (x < r) n.vx = (n.vx ?? 0) + (r - x) * alpha;
-          if (x > rightBoundary - r) n.vx = (n.vx ?? 0) + (rightBoundary - r - x) * alpha;
+          if (x > rightBoundary - r)
+            n.vx = (n.vx ?? 0) + (rightBoundary - r - x) * alpha;
           if (y < r) n.vy = (n.vy ?? 0) + (r - y) * alpha;
           if (y > height - r) n.vy = (n.vy ?? 0) + (height - r - y) * alpha;
         });
@@ -242,16 +253,23 @@ export function GraphCanvas({
         if (link.sourceId === link.targetId) return;
         let neighbor: GSimNode | undefined;
         if (link.sourceId === nodeId) {
-          neighbor = typeof link.target === "object"
-            ? (link.target as GSimNode)
-            : simNodes.find((n) => n.id === link.targetId);
+          neighbor =
+            typeof link.target === "object"
+              ? (link.target as GSimNode)
+              : simNodes.find((n) => n.id === link.targetId);
         } else if (link.targetId === nodeId) {
-          neighbor = typeof link.source === "object"
-            ? (link.source as GSimNode)
-            : simNodes.find((n) => n.id === link.sourceId);
+          neighbor =
+            typeof link.source === "object"
+              ? (link.source as GSimNode)
+              : simNodes.find((n) => n.id === link.sourceId);
         }
         if (neighbor) {
-          angles.push(Math.atan2((neighbor.y ?? 0) - (node.y ?? 0), (neighbor.x ?? 0) - (node.x ?? 0)));
+          angles.push(
+            Math.atan2(
+              (neighbor.y ?? 0) - (node.y ?? 0),
+              (neighbor.x ?? 0) - (node.x ?? 0),
+            ),
+          );
         }
       });
 
@@ -273,7 +291,10 @@ export function GraphCanvas({
       return ((bestAngle + Math.PI) % (2 * Math.PI)) - Math.PI;
     };
 
-    const centerX = structureType === "topological-sort" ? Math.min(width / 2, 350) : width / 2;
+    const centerX =
+      structureType === "topological-sort"
+        ? Math.min(width / 2, 350)
+        : width / 2;
 
     const simulation = forceSimulation<GSimNode>(simNodes)
       .force(
@@ -285,11 +306,17 @@ export function GraphCanvas({
       )
       .force("charge", forceManyBody().strength(-250))
       .force("center", forceCenter(centerX, height / 2))
-      .force("collide", forceCollide<GSimNode>((d) => d.radius + 8))
+      .force(
+        "collide",
+        forceCollide<GSimNode>((d) => d.radius + 8),
+      )
       .force("boundary", boundaryForce(20));
 
     simulationRef.current = simulation;
-    prevLinkKeyRef.current = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
+    prevLinkKeyRef.current = simLinks
+      .map((l) => `${l.sourceId}->${l.targetId}`)
+      .sort()
+      .join(",");
 
     // 建立 SVG DOM（links → nodes → vals → desc）
     const linkG = mainGroup.append("g").attr("class", "gc-links");
@@ -317,12 +344,20 @@ export function GraphCanvas({
       .attr("class", "gc-weight-group")
       .style("pointer-events", "none")
       .style("user-select", "none");
-    weightGroups.append("rect").attr("class", "gc-weight-bg")
-      .attr("fill", "#222").attr("rx", 3).style("opacity", 0);
-    weightGroups.append("text").attr("class", "gc-weight-text")
-      .attr("font-size", 12).attr("font-weight", "bold")
+    weightGroups
+      .append("rect")
+      .attr("class", "gc-weight-bg")
+      .attr("fill", "#222")
+      .attr("rx", 3)
+      .style("opacity", 0);
+    weightGroups
+      .append("text")
+      .attr("class", "gc-weight-text")
+      .attr("font-size", 12)
+      .attr("font-weight", "bold")
       .attr("font-family", "inherit")
-      .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
       .attr("fill", "#fff")
       .text((d) => (d.weight != null ? String(d.weight) : ""));
 
@@ -368,18 +403,23 @@ export function GraphCanvas({
     if (structureType === "topological-sort") {
       const containerG = mainGroup.append("g").attr("class", "gc-container");
       const lineAttrs = { stroke: "#555", "stroke-width": 2 };
-      const startX = 750, endX = 950, topY = 50, bottomY = 380;
+      const startX = 750,
+        endX = 950,
+        topY = 50,
+        bottomY = 380;
       (
         [
           [startX, topY, startX, bottomY],
-          [endX,   topY, endX,   bottomY],
+          [endX, topY, endX, bottomY],
         ] as [number, number, number, number][]
       ).forEach(([x1, y1, x2, y2]) => {
         containerG
           .append("line")
           .attr("class", "container-line")
-          .attr("x1", x1).attr("y1", y1)
-          .attr("x2", x2).attr("y2", y2)
+          .attr("x1", x1)
+          .attr("y1", y1)
+          .attr("x2", x2)
+          .attr("y2", y2)
           .attr("stroke", lineAttrs.stroke)
           .attr("stroke-width", lineAttrs["stroke-width"]);
       });
@@ -414,7 +454,9 @@ export function GraphCanvas({
     nodeSel.call(dragBehavior);
 
     // 快速查詢反向邊（跟 D3Renderer 的 linkSet 保持一致）
-    linkSetRef.current = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
+    linkSetRef.current = new Set(
+      simLinks.map((l) => `${l.sourceId}->${l.targetId}`),
+    );
 
     // 雙向邊各自向左手法向量偏移，避免重疊
     const BIDIR_OFFSET = 6;
@@ -427,7 +469,11 @@ export function GraphCanvas({
       const getNodeCenter = (d: GSimLink, end: "source" | "target") => {
         const node = end === "source" ? d.source : d.target;
         if (typeof node === "object" && node)
-          return { x: node.x ?? 0, y: node.y ?? 0, r: (node as GSimNode).radius ?? 20 };
+          return {
+            x: node.x ?? 0,
+            y: node.y ?? 0,
+            r: (node as GSimNode).radius ?? 20,
+          };
         const id = end === "source" ? d.sourceId : d.targetId;
         const n = simNodes.find((x) => x.id === id);
         return { x: n?.x ?? 0, y: n?.y ?? 0, r: n?.radius ?? 20 };
@@ -441,8 +487,13 @@ export function GraphCanvas({
           const tgt = getNodeCenter(d, "target");
           let pathD: string;
           if (d.sourceId === d.targetId) {
-            pathD = selfLoopPath(src.x, src.y, src.r, getSelfLoopAngle(d.sourceId));
-            d3Select(this).attr("d", pathD); // 每 tick 都更新位置，確保節點移動時弧形跟著走
+            pathD = selfLoopPath(
+              src.x,
+              src.y,
+              src.r,
+              getSelfLoopAngle(d.sourceId),
+            );
+            d3Select(this).attr("d", pathD); // 每 tick 都更新 position，確保節點移動時弧形跟著走
             if (d3Select(this).attr("data-anim") === "entering") {
               d3Select(this).attr("data-anim", "animating");
               const len = (this as SVGPathElement).getTotalLength();
@@ -462,7 +513,9 @@ export function GraphCanvas({
             }
             return;
           } else {
-            const off = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET : 0;
+            const off = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`)
+              ? BIDIR_OFFSET
+              : 0;
             pathD = straightLinkPath(src, tgt, off);
           }
           d3Select(this).attr("d", pathD);
@@ -483,24 +536,34 @@ export function GraphCanvas({
           } else {
             const p1 = circleBoundaryPoint(src, tgt);
             const p2 = circleBoundaryPoint(tgt, src);
-            const labelOff = linkSetRef.current.has(`${d.targetId}->${d.sourceId}`) ? BIDIR_OFFSET + 12 : 0;
+            const labelOff = linkSetRef.current.has(
+              `${d.targetId}->${d.sourceId}`,
+            )
+              ? BIDIR_OFFSET + 12
+              : 0;
             const center = weightLabelCenter(p1, p2, labelOff);
             cx = center.x;
             cy = center.y;
           }
           d3Select(this).attr("transform", `translate(${cx},${cy})`);
-          const textEl = d3Select(this).select<SVGTextElement>("text.gc-weight-text");
+          const textEl = d3Select(this).select<SVGTextElement>(
+            "text.gc-weight-text",
+          );
           textEl.attr("x", 0).attr("y", 0);
           try {
             const bbox = (textEl.node() as SVGTextElement).getBBox();
-            const px = 4, py = 2;
-            d3Select(this).select("rect.gc-weight-bg")
+            const px = 4,
+              py = 2;
+            d3Select(this)
+              .select("rect.gc-weight-bg")
               .attr("x", -bbox.width / 2 - px / 2)
               .attr("y", -bbox.height / 2 - py / 2)
               .attr("width", bbox.width + px)
               .attr("height", bbox.height + py)
               .style("opacity", 0.8);
-          } catch (_) { /* getBBox fails if element not in DOM */ }
+          } catch (_) {
+            /* getBBox fails if element not in DOM */
+          }
         });
 
       nodeSel.attr("cx", (d) => d.x ?? 0).attr("cy", (d) => d.y ?? 0);
@@ -514,6 +577,34 @@ export function GraphCanvas({
           posCacheRef.current.set(n.id, { x: n.x, y: n.y });
         }
       });
+    });
+
+    simulation.on("end", () => {
+      if (!svgRef.current || !zoomBehaviorRef.current) return;
+
+      const xs = simNodes.map((n) => n.x ?? 0);
+      const ys = simNodes.map((n) => n.y ?? 0);
+      const padding = 60;
+      const minX = Math.min(...xs) - padding;
+      const minY = Math.min(...ys) - padding;
+      const maxX = Math.max(...xs) + padding;
+      const maxY = Math.max(...ys) + padding;
+      const contentW = maxX - minX;
+      const contentH = maxY - minY;
+
+      const scaleX = width / contentW;
+      const scaleY = height / contentH;
+      const scale = Math.min(scaleX, scaleY, 1.5);
+      const tx = (width - contentW * scale) / 2 - minX * scale;
+      const ty = (height - contentH * scale) / 2 - minY * scale;
+
+      d3Select(svgRef.current)
+        .transition()
+        .duration(400)
+        .call(
+          zoomBehaviorRef.current.transform,
+          zoomIdentity.translate(tx, ty).scale(scale),
+        );
     });
 
     return () => {
@@ -534,8 +625,14 @@ export function GraphCanvas({
         const b = el as Box;
         const ex = b.position.x + b.width / 2 + PAD;
         const ey = b.position.y + b.height / 2 + PAD;
-        if (ex > maxX) { maxX = ex; changed = true; }
-        if (ey > maxY) { maxY = ey; changed = true; }
+        if (ex > maxX) {
+          maxX = ex;
+          changed = true;
+        }
+        if (ey > maxY) {
+          maxY = ey;
+          changed = true;
+        }
       });
     });
     if (changed) {
@@ -549,18 +646,25 @@ export function GraphCanvas({
     const simulation = simulationRef.current;
     if (!simulation || !svgRef.current) return;
 
-    const linkForce = simulation.force("link") as ReturnType<typeof forceLink<GSimNode, GSimLink>>;
+    const linkForce = simulation.force("link") as ReturnType<
+      typeof forceLink<GSimNode, GSimLink>
+    >;
     if (!linkForce) return;
 
     const simLinks: GSimLink[] = deduplicateLinks(links, isDirected);
 
     // 只在邊結構真的改變時才重啟 simulation
-    const newLinkKey = simLinks.map((l) => `${l.sourceId}->${l.targetId}`).sort().join(",");
+    const newLinkKey = simLinks
+      .map((l) => `${l.sourceId}->${l.targetId}`)
+      .sort()
+      .join(",");
     if (prevLinkKeyRef.current !== newLinkKey) {
       linkForce.links(simLinks);
       simulation.alpha(0.3).restart();
       prevLinkKeyRef.current = newLinkKey;
-      linkSetRef.current = new Set(simLinks.map((l) => `${l.sourceId}->${l.targetId}`));
+      linkSetRef.current = new Set(
+        simLinks.map((l) => `${l.sourceId}->${l.targetId}`),
+      );
     }
 
     // Link DOM join：新增的邊需要對應的 line 元素（不影響 simulation）
@@ -569,18 +673,23 @@ export function GraphCanvas({
       .selectAll<SVGPathElement, GSimLink>("path")
       .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
       .join(
-        (enter) => enter.append("path")
-          .attr("class", "gc-link")
-          .attr("stroke", "#888")
-          .attr("stroke-width", 2)
-          .attr("fill", "none")
-          .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none")
-          .attr("data-anim", (d) => {
-            if (d.sourceId !== d.targetId) return null;
-            if (seenSelfLoopsRef.current.has(d.sourceId)) return null;
-            seenSelfLoopsRef.current.add(d.sourceId);
-            return "entering";
-          }),
+        (enter) =>
+          enter
+            .append("path")
+            .attr("class", "gc-link")
+            .attr("stroke", "#888")
+            .attr("stroke-width", 2)
+            .attr("fill", "none")
+            .attr(
+              "marker-end",
+              isDirected ? "url(#gc-arrowhead-default)" : "none",
+            )
+            .attr("data-anim", (d) => {
+              if (d.sourceId !== d.targetId) return null;
+              if (seenSelfLoopsRef.current.has(d.sourceId)) return null;
+              seenSelfLoopsRef.current.add(d.sourceId);
+              return "entering";
+            }),
         (update) => update,
         (exit) => exit.remove(),
       );
@@ -592,16 +701,23 @@ export function GraphCanvas({
       .data(simLinks, (d) => `${d.sourceId}->${d.targetId}`)
       .join(
         (enter) => {
-          const g = enter.append("g")
+          const g = enter
+            .append("g")
             .attr("class", "gc-weight-group")
             .style("pointer-events", "none")
             .style("user-select", "none");
-          g.append("rect").attr("class", "gc-weight-bg")
-            .attr("fill", "#222").attr("rx", 3).style("opacity", 0);
-          g.append("text").attr("class", "gc-weight-text")
-            .attr("font-size", 12).attr("font-weight", "bold")
+          g.append("rect")
+            .attr("class", "gc-weight-bg")
+            .attr("fill", "#222")
+            .attr("rx", 3)
+            .style("opacity", 0);
+          g.append("text")
+            .attr("class", "gc-weight-text")
+            .attr("font-size", 12)
+            .attr("font-weight", "bold")
             .attr("font-family", "inherit")
-            .attr("text-anchor", "middle").attr("dominant-baseline", "central")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "central")
             .attr("fill", "#fff");
           return g;
         },
@@ -632,11 +748,17 @@ export function GraphCanvas({
           const g = enter
             .append("g")
             .attr("class", "gc-box")
-            .attr("transform", (d) => `translate(${d.position.x}, ${d.position.y})`)
+            .attr(
+              "transform",
+              (d) => `translate(${d.position.x}, ${d.position.y})`,
+            )
             .style("opacity", (d) => d.opacity ?? 1);
           g.each(function (d) {
             const gg = d3Select(this);
-            const rect = gg.append("rect").attr("class", "gc-box-rect").attr("rx", 8);
+            const rect = gg
+              .append("rect")
+              .attr("class", "gc-box-rect")
+              .attr("rx", 8);
             if (d.appearAnim === "instant") {
               const color = d.getColor();
               rect
@@ -733,8 +855,14 @@ export function GraphCanvas({
       boxElements.forEach((b) => {
         const ex = b.position.x + b.width / 2 + PAD;
         const ey = b.position.y + b.height / 2 + PAD;
-        if (ex > maxX) { maxX = ex; changed = true; }
-        if (ey > maxY) { maxY = ey; changed = true; }
+        if (ex > maxX) {
+          maxX = ex;
+          changed = true;
+        }
+        if (ey > maxY) {
+          maxY = ey;
+          changed = true;
+        }
       });
       if (changed) {
         maxExtentRef.current = { maxX, maxY };
@@ -766,7 +894,9 @@ export function GraphCanvas({
         if (!d) return;
         const node = nodeMap.get(d.id);
         if (!node) return;
-        d3Select(this).text(node.value ?? "").attr("fill", "#ccc");
+        d3Select(this)
+          .text(node.value ?? "")
+          .attr("fill", "#ccc");
       });
 
     // 更新 .gc-desc（圓下方 description，參考 D3Renderer L771）
@@ -776,7 +906,9 @@ export function GraphCanvas({
         if (!d) return;
         const node = nodeMap.get(d.id);
         if (!node) return;
-        d3Select(this).text(node.description ?? "").attr("fill", "#ccc");
+        d3Select(this)
+          .text(node.description ?? "")
+          .attr("fill", "#ccc");
       });
 
     // 更新 link 樣式（stroke + marker-end 顏色同步）
@@ -804,35 +936,25 @@ export function GraphCanvas({
       .each(function (d) {
         if (!d || d.weight == null) return;
         const status = d.status || "default";
-        d3Select(this).select("text.gc-weight-text")
+        d3Select(this)
+          .select("text.gc-weight-text")
           .attr("fill", status === "target" ? "#ffb74d" : "#fff");
       });
   }, [elements, nodeElements, isDirected]);
 
   return (
-    <div className={styles.canvasContainer}>
+    <CanvasShell
+      statusConfig={statusConfig}
+      enableZoom={enableZoom}
+      enablePan={enablePan}
+      onReset={handleResetZoom}
+    >
       <svg
         ref={svgRef}
         viewBox={svgViewBox}
         className={styles.canvas}
         preserveAspectRatio="xMidYMid meet"
       />
-      <div className={styles.statusLegendContainer}>
-        <StatusLegend statusConfig={statusConfig} />
-      </div>
-      {(enableZoom || enablePan) && (
-        <div className={styles.resetButtonContainer}>
-          <Button
-            variant="icon"
-            size="sm"
-            onClick={handleResetZoom}
-            aria-label="重置視圖"
-            className={styles.resetButton}
-            icon="rotate-right"
-            iconOnly
-          />
-        </div>
-      )}
-    </div>
+    </CanvasShell>
   );
 }
