@@ -45,7 +45,6 @@ def main():
                         {"source": e.source, "target": e.target, "label": e.label}
                         for e in g.edges
                     ],
-                    "entry": g.entry,
                 }
                 for name, g in cfg_graphs.items()
             }
@@ -56,7 +55,8 @@ def main():
             "trace": [
                 {
                     "tag": ev.tag,
-                    "variables": ev.variables,
+                    "local_vars": ev.local_vars,
+                    "global_vars": ev.global_vars,
                     "dataSnapshot": ev.dataSnapshot,
                     "meta": ev.meta,
                 }

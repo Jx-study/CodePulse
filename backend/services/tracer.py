@@ -29,10 +29,17 @@ RESTRICTED_BUILTINS = {
 # 資料結構（對應前端 trace.ts）
 # ---------------------------------------------------------------------------
 
+# dunder key 過濾集合（module-level constant）
+_GLOBAL_FILTER = frozenset({
+    "__builtins__", "__name__", "__doc__",
+    "__package__", "__spec__", "__loader__",
+})
+
 @dataclass
 class TraceEvent:
     tag: str           # "LINE" | "CALL" | "RETURN"
-    variables: dict
+    local_vars: dict
+    global_vars: dict
     dataSnapshot: list
     meta: dict         # { lineno, func_name }
 
@@ -109,7 +116,21 @@ def run_trace(user_code: str) -> TraceResult:
 
         func_name = frame.f_code.co_name
         lineno = frame.f_lineno
-        variables = {k: repr(v) for k, v in frame.f_locals.items()}
+
+        # local_vars：當前 frame 的局部變數
+        # 對 <module> frame，f_locals 就是 sandboxed_globals，用過濾集排除內建 key
+        local_vars = {
+            k: repr(v)
+            for k, v in frame.f_locals.items()
+            if k not in _GLOBAL_FILTER
+        }
+
+        # global_vars：sandboxed_globals 中用戶定義的 key（排除內建 key）
+        global_vars = {
+            k: repr(v)
+            for k, v in frame.f_globals.items()
+            if k not in _GLOBAL_FILTER
+        }
 
         if event == "call":
             node = _get_or_create_node(func_name)
@@ -126,7 +147,8 @@ def run_trace(user_code: str) -> TraceResult:
 
             trace_log.append(TraceEvent(
                 tag="CALL",
-                variables=variables,
+                local_vars=local_vars,
+                global_vars=global_vars,
                 dataSnapshot=[],
                 meta={"lineno": lineno, "func_name": func_name},
             ))
@@ -134,7 +156,8 @@ def run_trace(user_code: str) -> TraceResult:
         elif event == "return":
             trace_log.append(TraceEvent(
                 tag="RETURN",
-                variables=variables,
+                local_vars=local_vars,
+                global_vars=global_vars,
                 dataSnapshot=[],
                 meta={"lineno": lineno, "func_name": func_name, "return_value": repr(arg)},
             ))
@@ -144,7 +167,8 @@ def run_trace(user_code: str) -> TraceResult:
         elif event == "line":
             trace_log.append(TraceEvent(
                 tag="LINE",
-                variables=variables,
+                local_vars=local_vars,
+                global_vars=global_vars,
                 dataSnapshot=[],
                 meta={"lineno": lineno, "func_name": func_name},
             ))
