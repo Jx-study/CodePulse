@@ -25,6 +25,19 @@ export interface BBox {
  *    - direction="up"   → 向上指，label + arrow 在 position 下方 (maxY = y+35)
  */
 export function computeUnionBBox(allStepsElements: BaseElement[][]): BBox | null {
+  // Pass 1：收集各 autoScale scaleGroup 的最大絕對值，用於按比例計算 bar 高度
+  const groupMaxAbs = new Map<string, number>();
+  for (const stepEls of allStepsElements) {
+    for (const el of stepEls) {
+      if (el.kind !== "box") continue;
+      const b = el as { autoScale?: boolean; value?: string; scaleGroup?: string };
+      if (!b.autoScale) continue;
+      const group = b.scaleGroup ?? "default";
+      const absVal = Math.abs(Number(b.value) || 0);
+      groupMaxAbs.set(group, Math.max(groupMaxAbs.get(group) ?? 0, absVal));
+    }
+  }
+
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
   for (const stepElements of allStepsElements) {
@@ -37,10 +50,27 @@ export function computeUnionBBox(allStepsElements: BaseElement[][]): BBox | null
         elMinX = x - r;      elMaxX = x + r;
         elMinY = y - r;      elMaxY = y + r + 20;
       } else if (el.kind === "box") {
-        const hw = ((el as { width?: number }).width ?? 60) / 2;
-        const hh = ((el as { height?: number }).height ?? 80) / 2;
-        elMinX = x - hw;     elMaxX = x + hw;
-        elMinY = y - hh;     elMaxY = y + hh + 20;
+        const boxEl = el as { width?: number; height?: number; autoScale?: boolean; maxHeight?: number; value?: string; scaleGroup?: string };
+        const hw = (boxEl.width ?? 60) / 2;
+        elMinX = x - hw; elMaxX = x + hw;
+        if (boxEl.autoScale) {
+          const maxH = boxEl.maxHeight ?? 150;
+          const val = Number(boxEl.value) || 0;
+          const group = boxEl.scaleGroup ?? "default";
+          const maxAbs = groupMaxAbs.get(group) || 1;
+          // 加 10% 對齊 D3Renderer 的 domain 擴張（range * 0.1）
+          const barH = maxH * (Math.abs(val) / (maxAbs * 1.1));
+          if (val >= 0) {
+            elMinY = y - barH;
+            elMaxY = y + 20;  // baseline 下方只有 label
+          } else {
+            elMinY = y - 20;
+            elMaxY = y + barH;
+          }
+        } else {
+          const hh = (boxEl.height ?? 80) / 2;
+          elMinY = y - hh; elMaxY = y + hh + 20;
+        }
       } else if (el.kind === "pointer") {
         const halfLabel = 30;
         const ptr = el as unknown as Pointer;
