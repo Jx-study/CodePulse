@@ -143,67 +143,17 @@
 
 // ========== Modal/Loader 樣式 ==========
 
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba($black-color, 0.5);
-  z-index: 99;
-  backdrop-filter: blur(2px);
-}
-
-.modalContainer {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-  background: $dark-bg-tertiary;
-  padding: $spacing-md;
-  border: 1px solid $dark-border;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-dialog;
-  @include flex($direction: column);
-  gap: $spacing-sm;
-}
-
-.modalTitle {
-  margin: 0;
-  color: $dark-text-primary;
-  font-size: $font-base;
-}
-
-.modalTextarea {
-  width: 21.875rem; // 350px
-  font-family: $font-family-code;
-  font-size: $font-sm;
-  padding: $spacing-sm;
-  background: $dark-bg-primary;
-  color: $dark-text-primary;
-  border: 1px solid $dark-border;
-  border-radius: $radius-sm;
-  resize: none;
-}
-
+.modalTextarea,
 .modalGraphTextarea {
-  width: 18.75rem; // 300px
+  width: 100%;
   font-family: $font-family-code;
   font-size: $font-sm;
   padding: $spacing-sm;
-  background: $dark-bg-primary;
-  color: $dark-text-primary;
-  border: 1px solid $dark-border;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   border-radius: $radius-sm;
   resize: none;
-}
-
-.modalButtonGroup {
-  @include flex();
-  gap: $spacing-xs;
-  margin-top: $spacing-xs;
-  justify-content: flex-end;
 }
 
 .modalFieldRow {
@@ -218,16 +168,24 @@
 
 .modalLabel {
   white-space: pre-line;
-  color: $dark-text-secondary;
+  color: var(--text-secondary);
   font-size: $font-sm;
 }
 
-.modalCancelButton {
-  background: #555;
+.modalConfirmButton {
+  background: $execution-color;
 }
 
-.modalConfirmButton {
-  background: $success-color;
+.loaderDialog {
+  max-width: 380px !important;
+  width: 90vw !important;
+}
+
+.loaderDialogContent {
+  background: var(--bg-tertiary);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
 }
 
 // ========== Grid/Graph 特定控制項 ==========

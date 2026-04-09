@@ -39,8 +39,12 @@ function Button({
         return styles.glass;
       case 'gameCtrl':
         return styles.gameCtrl;
+      case 'unstyled':
+        return styles.unstyled;
+      case 'glow':
+        return styles.glow;
       default:
-        return styles.primary;
+        return styles.secondary;
     }
   };
 

@@ -68,7 +68,7 @@ DATA = {
         {
             "id": "bsort-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "options": [
                 {"id": "A", "text": "因為演算法執行時產生的記憶體碎片像泡沫一樣多"},
                 {"id": "B", "text": "因為較大（或較小）的元素會像水中的氣泡一樣，逐漸「浮」到陣列的頂端（末端）"},
@@ -121,7 +121,7 @@ DATA = {
         {
             "id": "bsort-q2",
             "type": "single-choice",
-            "baseRating": 900,
+            "baseRating": 950,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -149,7 +149,7 @@ DATA = {
         {
             "id": "bsort-tf-2",
             "type": "true-false",
-            "baseRating": 950,
+            "baseRating": 900,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -167,7 +167,7 @@ DATA = {
         {
             "id": "bsort-q3",
             "type": "single-choice",
-            "baseRating": 950,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -196,7 +196,7 @@ DATA = {
             "id": "bsort-group-1",
             "groupId": "group-bsort-process",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1100,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -225,7 +225,7 @@ DATA = {
             "id": "bsort-group-2",
             "groupId": "group-bsort-process",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -253,7 +253,7 @@ DATA = {
         {
             "id": "bsort-q8",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -281,7 +281,7 @@ DATA = {
         {
             "id": "bsort-q4",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -309,7 +309,7 @@ DATA = {
         {
             "id": "bsort-q5",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -337,7 +337,7 @@ DATA = {
         {
             "id": "bsort-q9",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -365,7 +365,7 @@ DATA = {
         {
             "id": "bsort-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -393,7 +393,7 @@ DATA = {
         {
             "id": "bsort-q6",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -422,7 +422,7 @@ DATA = {
             "id": "bsort-group-3",
             "groupId": "group-bsort-process",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1000,
             "code": BSORT_OPTIMIZED_FILL_CODE,
             "language": "python",
             "correctAnswer": ["has_swapped", "has_swapped", "has_swapped"],
@@ -442,7 +442,7 @@ DATA = {
         {
             "id": "bsort-q7",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -470,7 +470,7 @@ DATA = {
         {
             "id": "bsort-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1400,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -498,7 +498,7 @@ DATA = {
         {
             "id": "bsort-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1150,
             "code": BSORT_DESC_FILL_CODE,
             "language": "python",
             "correctAnswer": ["<", "arr[j]", "arr"],

@@ -407,27 +407,30 @@ function SettingPanel({
       <div className={styles.field}>
         <label className={styles.segmentLabel}>{t("theme", "外觀主題")}</label>
         <div className={styles.segmentedControl}>
-          <button
+          <Button
+            variant="unstyled"
             className={`${styles.segment} ${theme === "light" ? styles.segmentActive : ""}`}
             onClick={() => handleThemeChange("light")}
           >
             <Icon name="sun" size="sm" />
             <span>{t("lightMode", "淺色")}</span>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="unstyled"
             className={`${styles.segment} ${theme === "dark" ? styles.segmentActive : ""}`}
             onClick={() => handleThemeChange("dark")}
           >
             <Icon name="moon" size="sm" />
             <span>{t("darkMode", "深色")}</span>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="unstyled"
             className={`${styles.segment} ${theme === "system" ? styles.segmentActive : ""}`}
             onClick={() => handleThemeChange("system")}
           >
             <Icon name="globe" size="sm" />
             <span>{t("systemDefault", "系統")}</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

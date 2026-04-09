@@ -94,7 +94,7 @@ DATA = {
         {
             "id": "dijkstra-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -168,7 +168,7 @@ DATA = {
         {
             "id": "dijkstra-tf-2",
             "type": "true-false",
-            "baseRating": 900,
+            "baseRating": 1000,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -186,15 +186,15 @@ DATA = {
         {
             "id": "dijkstra-q3",
             "type": "single-choice",
-            "baseRating": 950,
+            "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
                     "title": "在題組的加權有向圖中，從節點 0 出發，到達節點 3 的最短距離為何？",
                     "options": [
-                        {"id": "A", "text": "9"},
-                        {"id": "B", "text": "9（路徑：0→2→4→3，成本 2+3+4=9）"},
-                        {"id": "C", "text": "14（路徑：0→1→3，成本 4+10=14）"},
+                        {"id": "A", "text": "16"},
+                        {"id": "B", "text": "9"},
+                        {"id": "C", "text": "14"},
                         {"id": "D", "text": "10"},
                     ],
                     "explanation": "可能路徑：0→1→3（成本 4+10=14）；0→2→4→3（成本 2+3+4=9）；0→1→2→4→3（成本 4+5+3+4=16）。最短路徑為 0→2→4→3，距離為 9。",
@@ -202,9 +202,9 @@ DATA = {
                 "en": {
                     "title": "In the group's weighted directed graph, what is the shortest distance from node 0 to node 3?",
                     "options": [
-                        {"id": "A", "text": "9"},
-                        {"id": "B", "text": "9 (path: 0→2→4→3, cost 2+3+4=9)"},
-                        {"id": "C", "text": "14 (path: 0→1→3, cost 4+10=14)"},
+                        {"id": "A", "text": "16"},
+                        {"id": "B", "text": "9"},
+                        {"id": "C", "text": "14"},
                         {"id": "D", "text": "10"},
                     ],
                     "explanation": "Possible paths: 0→1→3 (cost 4+10=14); 0→2→4→3 (cost 2+3+4=9); 0→1→2→4→3 (cost 4+5+3+4=16). Shortest path is 0→2→4→3 with distance 9.",
@@ -272,15 +272,15 @@ DATA = {
             "id": "dijkstra-group-2",
             "groupId": "group-dijkstra-path",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
                     "title": "執行 dijkstra(graph, 0) 後，dist[2] 的最終值為何？",
                     "options": [
-                        {"id": "A", "text": "5（路徑：0→1→2，成本 4+5=9... 不對）"},
-                        {"id": "B", "text": "2（路徑：0→2，成本 2）"},
-                        {"id": "C", "text": "7（路徑：0→1→2，成本 4+5=9... 不對）"},
+                        {"id": "A", "text": "9"},
+                        {"id": "B", "text": "2"},
+                        {"id": "C", "text": "5"},
                         {"id": "D", "text": "0"},
                     ],
                     "explanation": "到達節點 2 的路徑：直接 0→2（成本 2）；或 0→1→2（成本 4+5=9）；最短為 2。因此 dist[2] = 2。",
@@ -288,9 +288,9 @@ DATA = {
                 "en": {
                     "title": "After executing dijkstra(graph, 0), what is the final value of dist[2]?",
                     "options": [
-                        {"id": "A", "text": "5"},
-                        {"id": "B", "text": "2 (path: 0→2, cost 2)"},
-                        {"id": "C", "text": "7"},
+                        {"id": "A", "text": "9"},
+                        {"id": "B", "text": "2"},
+                        {"id": "C", "text": "5"},
                         {"id": "D", "text": "0"},
                     ],
                     "explanation": "Paths to node 2: direct 0→2 (cost 2); or 0→1→2 (cost 4+5=9). Shortest is 2. Therefore dist[2] = 2.",
@@ -300,7 +300,7 @@ DATA = {
         {
             "id": "dijkstra-q5",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -328,7 +328,7 @@ DATA = {
         {
             "id": "dijkstra-q6",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1500,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -356,7 +356,7 @@ DATA = {
         {
             "id": "dijkstra-q7",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -384,7 +384,7 @@ DATA = {
         {
             "id": "dijkstra-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -412,7 +412,7 @@ DATA = {
         {
             "id": "dijkstra-q8",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -441,7 +441,7 @@ DATA = {
             "id": "dijkstra-group-3",
             "groupId": "group-dijkstra-path",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1250,
             "correctAnswer": ["v", "dist[u]", "w"],
             "code": DIJKSTRA_FILL_CODE,
             "language": "python",
@@ -461,7 +461,7 @@ DATA = {
         {
             "id": "dijkstra-q9",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 1050,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -489,7 +489,7 @@ DATA = {
         {
             "id": "dijkstra-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1400,
+            "baseRating": 1750,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -517,7 +517,7 @@ DATA = {
         {
             "id": "dijkstra-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1150,
             "correctAnswer": ["dist[u]", "weight", "alt"],
             "code": DIJKSTRA_RELAX_FILL_CODE,
             "language": "python",

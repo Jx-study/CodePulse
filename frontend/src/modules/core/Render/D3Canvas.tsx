@@ -33,6 +33,7 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
       statusColorMap,
       statusConfig,
       isDirected = false,
+      showStatusLegend = true,
       allStepsElements,
     },
     forwardedRef,

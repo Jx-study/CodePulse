@@ -1,6 +1,9 @@
-"""Practice business logic: question fetching, grading, Elo, XP."""
+import json
+import math
 import random
 from datetime import datetime, timezone
+
+from sqlalchemy import func
 
 from database import db
 from models.question import Question, QuestionTranslation, QuestionGroup, QuestionGroupTranslation
@@ -9,7 +12,13 @@ from models.tutorial import Tutorial, UserTutorialProgress
 from models.xp import XpEvent, XpSourceType
 from models.user import User
 
-_ELO_K = 32.0
+_USER_ELO_K_BASE = 32.0     # 第 1 次答題全額
+_USER_ELO_K_DECAY = {
+    1: _USER_ELO_K_BASE,
+    2: _USER_ELO_K_BASE/2 # 第 2 次半衰，第 3 次以上用 4.0
+}  
+_USER_ELO_K_MIN = 4.0       # 第 3 次以上幾乎凍結
+_QUESTION_ELO_K = 8.0       # 題目端：首殺絕對制，只更新第 1 次
 _PASS_THRESHOLD = 60
 _GROUP_TOLERANCE = 1        # 題組各 category 題數允許超出配額的寬容值
 _MAX_QUESTIONS = 10         # 每次練習題數硬上限
@@ -17,7 +26,7 @@ _GROUP_INCLUDE_PROB = 0.5   # 抽到符合資格題組時，實際帶入的機�
 
 
 def derive_points(difficulty_rating: float) -> int:
-    """由 difficulty_rating 派生題目權重，不存 DB。"""
+    """由 difficulty_rating 派生題目權重，不存 DB"""
     if difficulty_rating < 1200:
         return 1
     elif difficulty_rating < 1600:
@@ -29,11 +38,49 @@ def _elo_expected(user_rating: float, question_rating: float) -> float:
     return 1.0 / (1.0 + 10.0 ** ((question_rating - user_rating) / 400.0))
 
 
-def _apply_elo(user_rating: float, question_rating: float, correct: bool):
+def _elo_weight(user_rating: float, question_rating: float) -> float:
+    """指數衰減權重：差距越小權重越高，差 200 分時權重降至 0.37。"""
+    return math.exp(-abs(user_rating - question_rating) / 200.0)
+
+
+def _weighted_sample(pool: list, k: int, user_rating: float) -> list:
+    """依 Elo 距離權重從 pool 中不重複抽取 k 題。"""
+    if len(pool) <= k:
+        return pool[:]
+    result = []
+    remaining = list(pool)
+    for _ in range(k):
+        weights = [_elo_weight(user_rating, q.difficulty_rating) for q in remaining]
+        chosen = random.choices(remaining, weights=weights, k=1)[0]
+        result.append(chosen)
+        remaining.remove(chosen)
+    return result
+
+
+def _get_user_k(answer_count: int) -> float:
+    """依該題的歷史作答次數決定用戶端 K 值（衰減制）"""
+    return _USER_ELO_K_DECAY.get(answer_count, _USER_ELO_K_MIN)
+
+
+def _apply_elo(
+    user_rating: float,
+    question_rating: float,
+    correct: bool,
+    user_answer_count: int,
+    is_question_first_blood: bool,
+):
+    """非對稱 Elo 更新
+    - 用戶端：K 值依 user_answer_count 衰減
+    - 題目端：首殺絕對制，只有 is_question_first_blood=True 時才更新
+    """
     actual = 1.0 if correct else 0.0
     expected = _elo_expected(user_rating, question_rating)
-    new_user = user_rating + _ELO_K * (actual - expected)
-    new_question = question_rating + _ELO_K * (expected - actual)
+    k_user = _get_user_k(user_answer_count)
+    new_user = user_rating + k_user * (actual - expected)
+    if is_question_first_blood:
+        new_question = question_rating + _QUESTION_ELO_K * (expected - actual)
+    else:
+        new_question = question_rating
     return new_user, new_question
 
 
@@ -50,16 +97,16 @@ def calc_tier(rating: float) -> int:
 
 
 CATEGORY_QUOTA = {
-    1: {'basic': 6, 'application': 3, 'complexity': 1},
-    2: {'basic': 5, 'application': 3, 'complexity': 2},
-    3: {'basic': 3, 'application': 4, 'complexity': 3},
-    4: {'basic': 2, 'application': 4, 'complexity': 4},
+    1: {'basic': 8, 'application': 2, 'complexity': 0},
+    2: {'basic': 6, 'application': 3, 'complexity': 1},
+    3: {'basic': 4, 'application': 4, 'complexity': 2},
+    4: {'basic': 2, 'application': 5, 'complexity': 3},
     5: {'basic': 1, 'application': 4, 'complexity': 5},
 }
 
 
 def _serialize_questions(questions: list, lang: str) -> list[dict]:
-    """將 Question ORM objects 序列化為 dict list（含 i18n）。"""
+    """將 Question ORM objects 序列化為 dict list（含 i18n）"""
     q_ids = [q.question_id for q in questions]
     translations = {}
     if q_ids:
@@ -110,7 +157,7 @@ def _serialize_questions(questions: list, lang: str) -> list[dict]:
 
 
 def get_questions(tutorial_id: int, lang: str) -> list[dict]:
-    """回傳 tutorial 所有 active 題目（供管理後台用）。"""
+    """回傳 tutorial 所有 active 題目（供管理後台用）"""
     questions = (
         Question.query
         .filter_by(tutorial_id=tutorial_id, is_active=True)
@@ -121,7 +168,7 @@ def get_questions(tutorial_id: int, lang: str) -> list[dict]:
 
 
 def get_questions_for_user(tutorial_id: int, user, lang: str) -> list[dict]:
-    """依 user skill_tier 選題，最多 1 個題組以連續區塊出現，總題數 ≤ _MAX_QUESTIONS。"""
+    """依 user skill_tier 選題，最多 1 個題組以連續區塊出現，總題數 ≤ _MAX_QUESTIONS"""
     tier = user.skill_tier or 1
     quota = CATEGORY_QUOTA[tier]
 
@@ -175,18 +222,14 @@ def get_questions_for_user(tutorial_id: int, user, lang: str) -> list[dict]:
     leftover = 0
 
     for cat, q_quota in remaining_quota.items():
-        bucket = sorted(buckets[cat], key=lambda q: abs(user.skill_rating - q.difficulty_rating))
-        picked = bucket[:q_quota]
+        picked = _weighted_sample(buckets[cat], q_quota, user.skill_rating)
         leftover += q_quota - len(picked)
         standalone_selected.extend(picked)
         standalone_ids.update(q.question_id for q in picked)
 
     if leftover > 0:
-        remaining = sorted(
-            [q for q in standalone if q.question_id not in standalone_ids],
-            key=lambda q: abs(user.skill_rating - q.difficulty_rating),
-        )
-        standalone_selected.extend(remaining[:leftover])
+        remaining = [q for q in standalone if q.question_id not in standalone_ids]
+        standalone_selected.extend(_weighted_sample(remaining, leftover, user.skill_rating))
 
     # 獨立題上限：不超過 _MAX_QUESTIONS - 題組題數
     max_standalone = _MAX_QUESTIONS - len(selected_group_qs)
@@ -212,15 +255,13 @@ def _normalize(s: str) -> str:
 
 
 def _check_answer(user_answer, correct_answer: str) -> bool:
-    """判斷 user_answer 是否正確。
+    """判斷 user_answer 是否正確
 
     correct_answer 格式有兩種：
     - 純字串（single-choice / true-false / predict-line）：用 | 分隔多個可接受答案
     - JSON 陣列字串（multiple-choice / fill-code）：["ans1", "ans2"]，
       由 seed_questions._serialize_answer 序列化而來，每個位置獨立比對
     """
-    import json
-
     # 嘗試解析 JSON 陣列（multiple-choice / fill-code）
     try:
         correct_list = json.loads(correct_answer)
@@ -269,15 +310,18 @@ def submit_answers(
     answers_input: list[dict],
     lang: str,
 ) -> dict:
-    """判題、更新 Elo、發放 XP，回傳結果 dict。不做 HTTP 驗證。"""
-    user = db.session.get(User, user_id)
+    """判題、更新 Elo、發放 XP，回傳結果 dict不做 HTTP 驗證"""
+    if not answers_input:
+        raise ValueError("answers_input is empty")
+
+    user = db.session.get(User, user_id, with_for_update=True)
     q_ids = [a['question_id'] for a in answers_input]
     questions = {
         q.question_id: q
         for q in Question.query.filter(
             Question.question_id.in_(q_ids),
             Question.tutorial_id == tutorial.tutorial_id,
-        ).all()
+        ).with_for_update().all()
     }
     translations = {
         qt.question_id: qt
@@ -287,7 +331,24 @@ def submit_answers(
         ).all()
     }
 
+    # 一次查出 user 對這批題目的歷史作答次數（用於 K 衰減 + 首殺判定）
+    prior_answer_counts: dict[int, int] = {
+        row.question_id: row.cnt
+        for row in db.session.query(
+            AttemptAnswer.question_id,
+            func.count().label('cnt'),
+        )
+        .join(PracticeAttempt, AttemptAnswer.attempt_id == PracticeAttempt.attempt_id)
+        .filter(
+            PracticeAttempt.user_id == user_id,
+            AttemptAnswer.question_id.in_(q_ids),
+        )
+        .group_by(AttemptAnswer.question_id)
+        .all()
+    }
+
     now = datetime.now(timezone.utc)
+    original_user_rating = user.skill_rating
     user_rating = user.skill_rating
     correct_count = 0
     total_points = 0
@@ -311,7 +372,14 @@ def submit_answers(
             earned_points += points
         total_points += points
 
-        new_user_rating, new_q_rating = _apply_elo(user_rating, snap_rating, is_correct)
+        prior_count = prior_answer_counts.get(q.question_id, 0)
+        is_first_blood = prior_count == 0
+        user_answer_count = prior_count + 1  # 包含本次
+
+        new_user_rating, new_q_rating = _apply_elo(
+            user_rating, snap_rating, is_correct,
+            user_answer_count, is_first_blood,
+        )
         user_rating = new_user_rating
         q.difficulty_rating = new_q_rating
         q.times_answered += 1
@@ -340,7 +408,12 @@ def submit_answers(
         })
 
     score = int((earned_points / total_points) * 100) if total_points > 0 else 0
-    rating_delta = round(user_rating - user.skill_rating, 2)
+
+    # 及格保底：通過時 rating 只升不降
+    if score >= _PASS_THRESHOLD:
+        user_rating = max(original_user_rating, user_rating)
+
+    rating_delta = round(user_rating - original_user_rating, 2)
 
     attempt = PracticeAttempt(
         user_id=user_id,
@@ -349,7 +422,7 @@ def submit_answers(
         correct_count=correct_count,
         total_questions=len(answer_records),
         time_spent_seconds=total_time or None,
-        user_rating_before=user.skill_rating,
+        user_rating_before=original_user_rating,
         user_rating_after=user_rating,
         rating_delta=rating_delta,
         submitted_at=now,

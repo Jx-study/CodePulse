@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@/shared/components/Button";
+import Dialog from "@/shared/components/Dialog";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Textarea from "@/shared/components/Textarea";
@@ -208,8 +209,6 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   const [nodeCount, setNodeCount] = useState("6");
   const [edgeInput, setEdgeInput] = useState(defaults.defaultEdgeInput);
 
-  if (!show) return null;
-
   const handleLoad = () => {
     const count = parseInt(nodeCount);
     if (isNaN(count) || count <= 0) {
@@ -255,49 +254,49 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   };
 
   return (
-    <>
-      <div className={styles.modalContainer}>
-        <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
-        <div className={styles.modalFieldRow}>
-          <label className={styles.modalLabel}>節點數量 N:</label>
-          <Input
-            type="number"
-            value={nodeCount}
-            fullWidth={false}
-            onChange={(e) => setNodeCount(e.target.value)}
-            className={`${styles.input} ${styles.nodeCountInput}`}
-            aria-label="Node count"
-          />
-        </div>
-        <div className={styles.modalFieldColumn}>
-          <label className={styles.modalLabel}>{defaults.edgeLabel}</label>
-          <Textarea
-            value={edgeInput}
-            onChange={(e) => setEdgeInput(e.target.value)}
-            rows={6}
-            className={styles.modalGraphTextarea}
-            placeholder={defaults.edgePlaceholder}
-          />
-        </div>
-        <div className={styles.modalButtonGroup}>
-          <Button
-            size="sm"
-            onClick={onClose}
-            className={styles.modalCancelButton}
-          >
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      contentClassName={styles.loaderDialogContent}
+      title="自定義 Graph 資料"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
-          <Button
-            size="sm"
-            onClick={handleLoad}
-            className={styles.modalConfirmButton}
-          >
+          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
             確認載入
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className={styles.modalFieldRow}>
+        <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
+        <Input
+          type="number"
+          value={nodeCount}
+          fullWidth={false}
+          onChange={(e) => setNodeCount(e.target.value)}
+          className={`${styles.input} ${styles.nodeCountInput}`}
+          aria-label="Node count"
+        />
       </div>
-      <div className={styles.modalOverlay} onClick={onClose} />
-    </>
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>
+          {isWeighted ? "邊 (格式: 來源 目標 權重)" : "邊 (格式: 來源 目標)"}
+        </label>
+        <Textarea
+          value={edgeInput}
+          onChange={(e) => setEdgeInput(e.target.value)}
+          rows={6}
+          className={styles.modalGraphTextarea}
+          placeholder={isWeighted ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"}
+        />
+      </div>
+    </Dialog>
   );
 };
 
@@ -317,8 +316,6 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   const [gridInputText, setGridInputText] = useState(
     "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0",
   );
-
-  if (!show) return null;
 
   const handleLoad = () => {
     const rowsArr = gridInputText.trim().split("\n");
@@ -341,35 +338,33 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   };
 
   return (
-    <>
-      <div className={styles.modalContainer}>
-        <h4 className={styles.modalTitle}>輸入迷宮資料 (0=路, 1=牆)</h4>
-        <Textarea
-          value={gridInputText}
-          onChange={(e) => setGridInputText(e.target.value)}
-          rows={5}
-          className={styles.modalTextarea}
-          placeholder={"0 0 0\n0 1 0\n0 0 0"}
-        />
-        <div className={styles.modalButtonGroup}>
-          <Button
-            size="sm"
-            onClick={onClose}
-            className={styles.modalCancelButton}
-          >
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      contentClassName={styles.loaderDialogContent}
+      title="輸入迷宮資料 (0=路, 1=牆)"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
-          <Button
-            size="sm"
-            onClick={handleLoad}
-            className={styles.modalConfirmButton}
-          >
+          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
             確認載入
           </Button>
-        </div>
-      </div>
-      <div className={styles.modalOverlay} onClick={onClose} />
-    </>
+        </>
+      }
+    >
+      <Textarea
+        value={gridInputText}
+        onChange={(e) => setGridInputText(e.target.value)}
+        rows={5}
+        className={styles.modalTextarea}
+        placeholder={"0 0 0\n0 1 0\n0 0 0"}
+      />
+    </Dialog>
   );
 };
 
@@ -387,8 +382,6 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   onLoad,
 }) => {
   const [itemInput, setItemInput] = useState("1 15\n3 20\n4 30");
-
-  if (!show) return null;
 
   const handleLoad = () => {
     const lines = itemInput
@@ -420,40 +413,38 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   };
 
   return (
-    <>
-      <div className={styles.modalContainer}>
-        <h4 className={styles.modalTitle}>自定義背包物品</h4>
-        <div className={styles.modalFieldColumn}>
-          <label className={styles.modalLabel}>
-            物品清單 (格式: 重量 價值，一行一個物品)
-          </label>
-          <Textarea
-            value={itemInput}
-            onChange={(e) => setItemInput(e.target.value)}
-            rows={6}
-            className={styles.modalGraphTextarea}
-            placeholder={"1 15\n3 20\n4 30"}
-          />
-        </div>
-        <div className={styles.modalButtonGroup}>
-          <Button
-            size="sm"
-            onClick={onClose}
-            className={styles.modalCancelButton}
-          >
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      contentClassName={styles.loaderDialogContent}
+      title="自定義背包物品"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
-          <Button
-            size="sm"
-            onClick={handleLoad}
-            className={styles.modalConfirmButton}
-          >
+          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
             確認載入
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>
+          物品清單 (格式: 重量 價值，一行一個物品)
+        </label>
+        <Textarea
+          value={itemInput}
+          onChange={(e) => setItemInput(e.target.value)}
+          rows={6}
+          className={styles.modalGraphTextarea}
+          placeholder={"1 15\n3 20\n4 30"}
+        />
       </div>
-      <div className={styles.modalOverlay} onClick={onClose} />
-    </>
+    </Dialog>
   );
 };
 

@@ -49,30 +49,6 @@
       }
     },
     {
-      "id": "doubly-linked-list",
-      "category": "data-structures",
-      "difficulty": 2,
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "AND",
-        "levelIds": ["linked-list"]
-      },
-      "graphPosition": {
-        "layer": 2,
-        "branch": "main"
-      },
-      "pathMetadata": {
-        "pathType": "main"
-      },
-      "implementationKey": "doublyLinkedList",
-      "homePageMetadata": {
-        "image": "doubly-linked-list.png",
-        "translationKey": "doubly_linked_list",
-        "showOnHomePage": true
-      }
-    },
-    {
       "id": "stack",
       "category": "data-structures",
       "difficulty": 2,
@@ -80,7 +56,9 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["doubly-linked-list"]
+        "levelIds": [
+          "linked-list"
+        ]
       },
       "graphPosition": {
         "layer": 3,
@@ -105,7 +83,9 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["doubly-linked-list"]
+        "levelIds": [
+          "linked-list"
+        ]
       },
       "graphPosition": {
         "layer": 3,
