@@ -146,6 +146,7 @@ const CanvasPanel = ({
               statusConfig={currentStatusConfig}
               isDirected={isDirected}
               structureType={topicTypeConfig?.id}
+              disableAutoFit={topicTypeConfig?.id === "topological-sort"}
             />
           ) : (
             <D3Canvas

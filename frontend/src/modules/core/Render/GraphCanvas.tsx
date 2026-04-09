@@ -91,6 +91,7 @@ export function GraphCanvas({
   enablePan = true,
   allStepsElements,
   structureType,
+  disableAutoFit = false,
 }: GraphCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<ReturnType<
@@ -580,7 +581,7 @@ export function GraphCanvas({
     });
 
     simulation.on("end", () => {
-      if (!svgRef.current || !zoomBehaviorRef.current) return;
+      if (!svgRef.current || !zoomBehaviorRef.current || disableAutoFit) return;
 
       const xs = simNodes.map((n) => n.x ?? 0);
       const ys = simNodes.map((n) => n.y ?? 0);

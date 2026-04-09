@@ -14,4 +14,5 @@ export interface BaseCanvasProps {
   statusConfig?: StatusConfig;
   isDirected?: boolean;
   allStepsElements?: BaseElement[][];
+  disableAutoFit?: boolean;
 }
