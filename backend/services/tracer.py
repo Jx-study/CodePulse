@@ -33,6 +33,7 @@ RESTRICTED_BUILTINS = {
 _GLOBAL_FILTER = frozenset({
     "__builtins__", "__name__", "__doc__",
     "__package__", "__spec__", "__loader__",
+    "__build_class__", "__debug__", "__import__",
 })
 
 @dataclass
