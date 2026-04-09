@@ -12,6 +12,8 @@ import io
 import json
 import os
 import sys
+from tracer import run_trace
+from cfg_builder import build_cfg
 
 
 def main():
@@ -27,9 +29,6 @@ def main():
             sys.exit(1)
 
         code = base64.b64decode(encoded).decode("utf-8")
-
-        from tracer import run_trace
-        from cfg_builder import build_cfg
 
         trace_result = run_trace(code)
 
@@ -48,6 +47,7 @@ def main():
                 }
                 for name, g in cfg_graphs.items()
             }
+            print(cfg_graph_data)
         except Exception:
             cfg_graph_data = {}
 
