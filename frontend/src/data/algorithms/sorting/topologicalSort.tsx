@@ -110,7 +110,12 @@ function topoActionHandler(
     if (edgeStr.trim() !== "") {
       edgeStr.split(",").forEach((pair) => {
         const [u, v] = pair.trim().split(/\s+/);
-        if (u && v) edges.push([`node-${u}`, `node-${v}`]);
+        const uIdx = parseInt(u, 10);
+        const vIdx = parseInt(v, 10);
+        const isValid = (n: number) => !isNaN(n) && n >= 0 && n < nodeCount;
+        if (isValid(uIdx) && isValid(vIdx)) {
+          edges.push([`node-${uIdx}`, `node-${vIdx}`]);
+        }
       });
     }
     return {
