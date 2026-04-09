@@ -8,65 +8,8 @@ import Button from "@/shared/components/Button";
 import EmptyState from "@/shared/components/EmptyState";
 import Icon from "@/shared/components/Icon";
 import TabList from "@/shared/components/Tabs/TabList";
-import type { TraceEvent, CallGraph } from "@/types/trace";
+import type { TraceEvent, CallGraph, CfgGraphMap, CfgGraph } from "@/types/trace";
 import styles from "./Playground.module.scss";
-
-// ── Mock data ─────────────────────────────────────────────────────────────────
-
-interface MockFrame {
-  name: string;
-  isActive: boolean;
-  vars: { name: string; value: string }[];
-}
-
-interface MockObject {
-  ref: string;
-  type: string;
-  fields: { key: string; value: string; isRef?: boolean }[];
-}
-
-const MOCK_FRAMES: MockFrame[] = [
-  {
-    name: "Global frame",
-    isActive: false,
-    vars: [
-      { name: "bubble_sort", value: "function" },
-      { name: "arr", value: "ref_1" },
-    ],
-  },
-  {
-    name: "bubble_sort",
-    isActive: true,
-    vars: [
-      { name: "arr", value: "ref_1" },
-      { name: "n", value: "7" },
-      { name: "i", value: "0" },
-      { name: "j", value: "2" },
-    ],
-  },
-];
-
-const MOCK_OBJECTS: MockObject[] = [
-  {
-    ref: "ref_1",
-    type: "list",
-    fields: [
-      { key: "0", value: "64" },
-      { key: "1", value: "34" },
-      { key: "2", value: "25" },
-      { key: "3", value: "12" },
-      { key: "4", value: "22" },
-      { key: "5", value: "11" },
-      { key: "6", value: "90" },
-    ],
-  },
-];
-
-const MOCK_CONSOLE = [
-  { text: "Program started", type: "prompt" as const },
-  { text: "Entering bubble_sort()", type: "output" as const },
-  { text: "Pass 0: comparing index 2 and 3", type: "output" as const },
-];
 
 // ── Default code ──────────────────────────────────────────────────────────────
 
@@ -84,6 +27,18 @@ print("Sorted array is:", bubble_sort(arr))`;
 type ViewTab = "animation" | "graph";
 type RunStatus = "idle" | "running" | "error";
 type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
+
+// ── Helper ────────────────────────────────────────────────────────────────────
+
+function rebuildCallStack(trace: TraceEvent[], upToStep: number): string[] {
+  const stack: string[] = [];
+  for (let i = 0; i <= upToStep; i++) {
+    const ev = trace[i];
+    if (ev.tag === "CALL") stack.push(ev.meta?.func_name ?? "");
+    else if (ev.tag === "RETURN" && stack.length > 0) stack.pop();
+  }
+  return stack;
+}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -103,6 +58,7 @@ function Playground() {
   // Trace data
   const [trace, setTrace] = useState<TraceEvent[]>([]);
   const [callGraph, setCallGraph] = useState<CallGraph | null>(null);
+  const [cfgGraph, setCfgGraph] = useState<CfgGraphMap>({});
   const [isTruncated, setIsTruncated] = useState(false);
   const [runStatus, setRunStatus] = useState<RunStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -120,6 +76,10 @@ function Playground() {
   const totalSteps = trace.length;
   const currentEvent = trace[currentStep] ?? null;
   const activeLineno = currentEvent?.meta?.lineno as number | undefined;
+  const globalVars = currentEvent?.global_vars ?? {};
+  const localVars = currentEvent?.local_vars ?? {};
+  const callStack = rebuildCallStack(trace, currentStep);
+  const activeFrame = callStack[callStack.length - 1] ?? null;
 
   const handlePlay = useCallback(() => setIsPlaying(true), []);
   const handlePause = useCallback(() => setIsPlaying(false), []);
@@ -166,9 +126,24 @@ function Playground() {
           if (!rRes.ok) throw new Error(`Result fetch failed: ${rRes.status}`);
           const result = await rRes.json();
           setTrace(result.execution_trace ?? []);
-          setCallGraph(result.call_graph ?? null);
           setIsTruncated(result.is_truncated ?? false);
           setRunStatus("idle");
+
+          // cfg_graph 直接存入（key 已是 func name string）
+          setCfgGraph(result.cfg_graph ?? {});
+
+          // call_graph.nodes 做 func_name → funcName mapping（後端 JSON key 是 snake_case）
+          if (result.call_graph) {
+            const mappedCallGraph: CallGraph = {
+              ...result.call_graph,
+              nodes: result.call_graph.nodes.map((n: { id: string; func_name: string; cfg: CfgGraph | null }) => ({
+                id: n.id,
+                funcName: n.func_name,
+                cfg: n.cfg,
+              })),
+            };
+            setCallGraph(mappedCallGraph);
+          }
         } else if (status.status === "failed") {
           stopPolling();
           setRunStatus("error");
@@ -292,7 +267,10 @@ function Playground() {
                     <span className={styles.cfgLabel}>CFG · {node?.funcName ?? (drill as { mode: "cfg"; funcId: string }).funcId}</span>
                   </div>
                   <CytoscapeCanvas
-                    elements={buildCfgElements(node?.cfg ?? { nodes: [], edges: [] }, activeLineno)}
+                    elements={buildCfgElements(
+                      cfgGraph[node?.funcName ?? ""] ?? { nodes: [], edges: [] },
+                      activeLineno,
+                    )}
                     stylesheet={CFG_STYLESHEET}
                     layout={CFG_LAYOUT}
                   />
@@ -320,60 +298,75 @@ function Playground() {
             </div>
             <div className={styles.executionStateBody}>
 
-              {/* Frames */}
+              {/* Global Frame + Call Stack */}
               <div className={styles.framesCol}>
-                <h3 className={styles.colTitle}>Frames</h3>
-                {MOCK_FRAMES.map((frame) => (
-                  <div key={frame.name} className={`${styles.frame} ${frame.isActive ? styles.frameActive : ""}`}>
-                    <div className={styles.frameName}>{frame.name}</div>
-                    {frame.vars.map((v) => (
-                      <div key={v.name} className={styles.frameVar}>
-                        <span className={styles.frameVarName}>{v.name}</span>
-                        <span className={v.value.startsWith("ref_") ? styles.frameVarRef : styles.frameVarVal}>
-                          {v.value}
-                        </span>
+                <h3 className={styles.colTitle}>Global Frame</h3>
+                <div className={styles.frame}>
+                  {Object.keys(globalVars).length === 0 ? (
+                    <div className={styles.frameVar}>
+                      <span className={styles.frameVarName}>—</span>
+                    </div>
+                  ) : (
+                    Object.entries(globalVars).map(([k, v]) => (
+                      <div key={k} className={styles.frameVar}>
+                        <span className={styles.frameVarName}>{k}</span>
+                        <span className={styles.frameVarVal}>{v}</span>
                       </div>
-                    ))}
+                    ))
+                  )}
+                </div>
+
+                <h3 className={`${styles.colTitle} ${styles.colTitleSpaced}`}>Call Stack</h3>
+                {callStack.length === 0 ? (
+                  <div className={styles.frame}>
+                    <span className={styles.frameVarName}>—</span>
                   </div>
-                ))}
+                ) : (
+                  [...callStack].reverse().map((fname, i) => (
+                    <div key={i} className={`${styles.frame} ${i === 0 ? styles.frameActive : ""}`}>
+                      <div className={styles.frameName}>
+                        {i === 0 && <span className={styles.frameActiveIndicator}>➔ </span>}
+                        {fname === "<module>" ? "(global)" : fname}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
 
-              {/* Objects */}
+              {/* Local Variables */}
               <div className={styles.objectsCol}>
-                <h3 className={styles.colTitle}>Objects</h3>
-                {MOCK_OBJECTS.map((obj) => (
-                  <div key={obj.ref} className={styles.heapObject}>
-                    <div className={styles.heapObjectMeta}>
-                      <span className={styles.heapRef}>{obj.ref}</span>
-                      <span className={styles.heapType}>{obj.type}</span>
-                    </div>
-                    <div className={styles.heapFields}>
-                      {obj.fields.map((f) => (
-                        <div key={f.key} className={styles.heapField}>
-                          <div className={styles.heapFieldKey}>{f.key}</div>
-                          <div className={f.isRef ? styles.heapFieldRef : styles.heapFieldVal}>{f.value}</div>
-                        </div>
-                      ))}
-                    </div>
+                <h3 className={styles.colTitle}>
+                  Local Variables
+                  {activeFrame && <span className={styles.frameActiveLabel}> · {activeFrame === "<module>" ? "(global)" : activeFrame}</span>}
+                </h3>
+                {Object.keys(localVars).length === 0 ? (
+                  <div className={styles.heapObject}>
+                    <span className={styles.frameVarName}>—</span>
                   </div>
-                ))}
+                ) : (
+                  Object.entries(localVars).map(([k, v]) => (
+                    <div key={k} className={styles.heapObject}>
+                      <div className={styles.heapFields}>
+                        <div className={styles.heapField}>
+                          <div className={styles.heapFieldKey}>{k}</div>
+                          <div className={styles.heapFieldVal}>{String(v)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
 
-              {/* Console */}
+              {/* Console placeholder */}
               <div className={styles.consoleCol}>
                 <h3 className={styles.colTitle}>
                   <Icon name="terminal" />
                   Console
                 </h3>
                 <div className={styles.consoleLines}>
-                  {MOCK_CONSOLE.map((line, i) => (
-                    <div key={i} className={styles.consoleLine}>
-                      {line.type === "prompt" && <span className={styles.consolePrompt}>&gt;</span>}
-                      <span className={line.type === "prompt" ? styles.consoleText : styles.consoleOutput}>
-                        {line.text}
-                      </span>
-                    </div>
-                  ))}
+                  <div className={styles.consoleLine}>
+                    <span className={styles.consoleOutput}>— stdout capture coming soon —</span>
+                  </div>
                 </div>
               </div>
 
