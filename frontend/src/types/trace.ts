@@ -1,6 +1,7 @@
 export interface TraceEvent {
   tag: string;
-  variables: Record<string, any>;
+  local_vars: Record<string, any>;
+  global_vars?: Record<string, string>;
   dataSnapshot: { id: string; value: number | string | undefined }[];
   meta?: Record<string, any>;
 }
@@ -25,10 +26,14 @@ export interface CfgGraph {
   edges: CfgEdge[];
 }
 
+/** func_name → CfgGraph，對應後端 cfg_graph dict key（Python function name） */
+export type CfgGraphMap = Record<string, CfgGraph>;
+
 export interface CallNode {
   id: string;
+  /** 後端 JSON key 為 func_name（snake_case），存入 state 時需手動 mapping → funcName */
   funcName: string;
-  cfg: CfgGraph;
+  cfg: CfgGraph | null;
 }
 
 export interface CallEdge {
