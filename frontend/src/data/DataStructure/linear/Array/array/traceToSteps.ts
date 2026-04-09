@@ -139,6 +139,7 @@ export function arrayTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       getDescription: (_, i) => `${i}`,
     }),
     actionTag: event.tag,
-    variables: event.local_vars,
+    local_vars: event.local_vars,
+    global_vars: event.global_vars,
   }));
 }

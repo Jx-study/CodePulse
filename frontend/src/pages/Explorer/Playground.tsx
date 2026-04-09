@@ -11,8 +11,6 @@ import TabList from "@/shared/components/Tabs/TabList";
 import type { TraceEvent, CallGraph, CfgGraphMap, CfgGraph } from "@/types/trace";
 import styles from "./Playground.module.scss";
 
-// ── Default code ──────────────────────────────────────────────────────────────
-
 const DEFAULT_CODE = `def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
@@ -28,8 +26,7 @@ type ViewTab = "animation" | "graph";
 type RunStatus = "idle" | "running" | "error";
 type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
-// ── Helper ────────────────────────────────────────────────────────────────────
-
+// Helper Function
 function rebuildCallStack(trace: TraceEvent[], upToStep: number): string[] {
   const stack: string[] = [];
   for (let i = 0; i <= upToStep && i < trace.length; i++) {
@@ -40,7 +37,6 @@ function rebuildCallStack(trace: TraceEvent[], upToStep: number): string[] {
   return stack;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
 
 function Playground() {
   const [code, setCode] = useState(DEFAULT_CODE);
@@ -160,9 +156,10 @@ function Playground() {
   return (
     <div className={styles.playground}>
       <div className={styles.mainContent}>
-
         {/* Left: collapsible editor */}
-        <div className={`${styles.editorPanel} ${isEditorOpen ? styles.editorPanelOpen : styles.editorPanelClosed}`}>
+        <div
+          className={`${styles.editorPanel} ${isEditorOpen ? styles.editorPanelOpen : styles.editorPanelClosed}`}
+        >
           <div className={styles.editorInner}>
             {errorMsg && (
               <div className={styles.errorBanner}>
@@ -200,6 +197,7 @@ function Playground() {
                 mode="single"
                 language="python"
                 value={code}
+                // highlightedLine={highlightLines}
                 onChange={setCode}
                 theme="auto"
               />
@@ -220,7 +218,6 @@ function Playground() {
 
         {/* Right: viz + execution state + control bar */}
         <div className={styles.vizPanel}>
-
           {/* Tab bar */}
           <div className={styles.vizTabBar}>
             <TabList
@@ -230,8 +227,16 @@ function Playground() {
               onChange={(key) => setActiveTab(key as ViewTab)}
               aria-label="Visualization mode"
               tabs={[
-                { key: "animation", label: "Algorithm Animation", icon: <Icon name="diagram-project" /> },
-                { key: "graph", label: "Call Graph / CFG", icon: <Icon name="code-branch" /> },
+                {
+                  key: "animation",
+                  label: "Algorithm Animation",
+                  icon: <Icon name="diagram-project" />,
+                },
+                {
+                  key: "graph",
+                  label: "Call Graph / CFG",
+                  icon: <Icon name="code-branch" />,
+                },
               ]}
             />
             {activeLineno != null && (
@@ -255,28 +260,43 @@ function Playground() {
                 title="No graph data"
                 description="Submit code to generate the call graph"
               />
-            ) : drill.mode === "cfg" ? (() => {
-              const node = callGraph.nodes.find((n) => n.id === (drill as { mode: "cfg"; funcId: string }).funcId);
-              return (
-                <div className={styles.cfgPanel}>
-                  <div className={styles.cfgHeader}>
-                    <button className={styles.cfgBackBtn} onClick={() => setDrill({ mode: "call_graph" })}>
-                      <Icon name="chevron-left" />
-                      Call Graph
-                    </button>
-                    <span className={styles.cfgLabel}>CFG · {node?.funcName ?? (drill as { mode: "cfg"; funcId: string }).funcId}</span>
+            ) : drill.mode === "cfg" ? (
+              (() => {
+                const node = callGraph.nodes.find(
+                  (n) =>
+                    n.id === (drill as { mode: "cfg"; funcId: string }).funcId,
+                );
+                return (
+                  <div className={styles.cfgPanel}>
+                    <div className={styles.cfgHeader}>
+                      <button
+                        className={styles.cfgBackBtn}
+                        onClick={() => setDrill({ mode: "call_graph" })}
+                      >
+                        <Icon name="chevron-left" />
+                        Call Graph
+                      </button>
+                      <span className={styles.cfgLabel}>
+                        CFG ·{" "}
+                        {node?.funcName ??
+                          (drill as { mode: "cfg"; funcId: string }).funcId}
+                      </span>
+                    </div>
+                    <CytoscapeCanvas
+                      elements={buildCfgElements(
+                        cfgGraph[node?.funcName ?? ""] ?? {
+                          nodes: [],
+                          edges: [],
+                        },
+                        activeLineno,
+                      )}
+                      stylesheet={CFG_STYLESHEET}
+                      layout={CFG_LAYOUT}
+                    />
                   </div>
-                  <CytoscapeCanvas
-                    elements={buildCfgElements(
-                      cfgGraph[node?.funcName ?? ""] ?? { nodes: [], edges: [] },
-                      activeLineno,
-                    )}
-                    stylesheet={CFG_STYLESHEET}
-                    layout={CFG_LAYOUT}
-                  />
-                </div>
-              );
-            })() : (
+                );
+              })()
+            ) : (
               <CytoscapeCanvas
                 elements={buildCallGraphElements(callGraph, currentStep)}
                 stylesheet={CALL_GRAPH_STYLESHEET}
@@ -289,7 +309,9 @@ function Playground() {
           {/* Execution state */}
           <div className={styles.executionState}>
             <div className={styles.executionStateHeader}>
-              <span className={styles.executionStateLabel}>EXECUTION_STATE</span>
+              <span className={styles.executionStateLabel}>
+                EXECUTION_STATE
+              </span>
               {totalSteps > 0 && (
                 <span className={styles.executionStateStep}>
                   STEP {currentStep + 1}/{totalSteps}
@@ -297,7 +319,6 @@ function Playground() {
               )}
             </div>
             <div className={styles.executionStateBody}>
-
               {/* Global Frame + Call Stack */}
               <div className={styles.framesCol}>
                 <h3 className={styles.colTitle}>Global Frame</h3>
@@ -316,16 +337,25 @@ function Playground() {
                   )}
                 </div>
 
-                <h3 className={`${styles.colTitle} ${styles.colTitleSpaced}`}>Call Stack</h3>
+                <h3 className={`${styles.colTitle} ${styles.colTitleSpaced}`}>
+                  Call Stack
+                </h3>
                 {callStack.length === 0 ? (
                   <div className={styles.frame}>
                     <span className={styles.frameVarName}>—</span>
                   </div>
                 ) : (
                   [...callStack].reverse().map((fname, i) => (
-                    <div key={i} className={`${styles.frame} ${i === 0 ? styles.frameActive : ""}`}>
+                    <div
+                      key={i}
+                      className={`${styles.frame} ${i === 0 ? styles.frameActive : ""}`}
+                    >
                       <div className={styles.frameName}>
-                        {i === 0 && <span className={styles.frameActiveIndicator}>➔ </span>}
+                        {i === 0 && (
+                          <span className={styles.frameActiveIndicator}>
+                            ➔{" "}
+                          </span>
+                        )}
                         {fname === "<module>" ? "(global)" : fname}
                       </div>
                     </div>
@@ -337,7 +367,12 @@ function Playground() {
               <div className={styles.objectsCol}>
                 <h3 className={styles.colTitle}>
                   Local Variables
-                  {activeFrame && <span className={styles.frameActiveLabel}> · {activeFrame === "<module>" ? "(global)" : activeFrame}</span>}
+                  {activeFrame && (
+                    <span className={styles.frameActiveLabel}>
+                      {" "}
+                      · {activeFrame === "<module>" ? "(global)" : activeFrame}
+                    </span>
+                  )}
                 </h3>
                 {Object.keys(localVars).length === 0 ? (
                   <div className={styles.heapObject}>
@@ -365,11 +400,12 @@ function Playground() {
                 </h3>
                 <div className={styles.consoleLines}>
                   <div className={styles.consoleLine}>
-                    <span className={styles.consoleOutput}>— stdout capture coming soon —</span>
+                    <span className={styles.consoleOutput}>
+                      — stdout capture coming soon —
+                    </span>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
 
@@ -393,7 +429,6 @@ function Playground() {
               <div className={styles.emptyControl}>Run code to start</div>
             )}
           </div>
-
         </div>
       </div>
     </div>
