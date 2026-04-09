@@ -12,6 +12,7 @@ export interface BaseCanvasProps {
   enablePan?: boolean;
   statusColorMap?: StatusColorMap;
   statusConfig?: StatusConfig;
+  showStatusLegend?: boolean;
   isDirected?: boolean;
   allStepsElements?: BaseElement[][];
   disableAutoFit?: boolean;

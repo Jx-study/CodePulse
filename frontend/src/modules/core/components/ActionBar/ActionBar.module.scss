@@ -179,13 +179,32 @@
 .loaderDialog {
   max-width: 380px !important;
   width: 90vw !important;
+  border-radius: $radius-lg !important;
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.loaderDialogHeader {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: $spacing-sm $spacing-md !important;
+
+  h2 {
+    font-size: $font-family-code !important;
+    font-weight: 500 !important;
+  }
 }
 
 .loaderDialogContent {
-  background: var(--bg-tertiary);
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+  padding: 0 $spacing-md $spacing-xs !important;
+}
+
+.loaderDialogFooter {
+  border-top: none !important;
+  padding: $spacing-xs $spacing-md $spacing-md !important;
 }
 
 // ========== Grid/Graph 特定控制項 ==========
