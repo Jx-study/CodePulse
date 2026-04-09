@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import CytoscapeCanvas from "@/modules/core/Render/CytoscapeCanvas";
 import { buildCallGraphElements, CALL_GRAPH_STYLESHEET, CALL_GRAPH_LAYOUT } from "@/modules/explorer/elements/callGraphElements";
 import { buildCfgElements, CFG_STYLESHEET, CFG_LAYOUT } from "@/modules/explorer/elements/cfgElements";
@@ -32,7 +32,7 @@ type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
 function rebuildCallStack(trace: TraceEvent[], upToStep: number): string[] {
   const stack: string[] = [];
-  for (let i = 0; i <= upToStep; i++) {
+  for (let i = 0; i <= upToStep && i < trace.length; i++) {
     const ev = trace[i];
     if (ev.tag === "CALL") stack.push(ev.meta?.func_name ?? "");
     else if (ev.tag === "RETURN" && stack.length > 0) stack.pop();
@@ -76,9 +76,9 @@ function Playground() {
   const totalSteps = trace.length;
   const currentEvent = trace[currentStep] ?? null;
   const activeLineno = currentEvent?.meta?.lineno as number | undefined;
-  const globalVars = currentEvent?.global_vars ?? {};
-  const localVars = currentEvent?.local_vars ?? {};
-  const callStack = rebuildCallStack(trace, currentStep);
+  const globalVars = useMemo(() => currentEvent?.global_vars ?? {}, [currentEvent]);
+  const localVars = useMemo(() => currentEvent?.local_vars ?? {}, [currentEvent]);
+  const callStack = useMemo(() => rebuildCallStack(trace, currentStep), [trace, currentStep]);
   const activeFrame = callStack[callStack.length - 1] ?? null;
 
   const handlePlay = useCallback(() => setIsPlaying(true), []);
