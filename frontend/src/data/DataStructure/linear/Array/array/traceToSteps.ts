@@ -30,42 +30,42 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.SEARCH_START]: (e) =>
     e.meta?.isInitial
       ? { key: "array.initial_state" }
-      : { key: "array.search_start", params: { value: e.variables.target } },
+      : { key: "array.search_start", params: { value: e.local_vars.target } },
 
   [TAGS.SEARCH_COMPARE]: (e) => ({
     key: "array.search_compare",
     params: {
-      index: e.variables.i,
-      current_val: e.variables.current_val,
-      value: e.variables.target,
+      index: e.local_vars.i,
+      current_val: e.local_vars.current_val,
+      value: e.local_vars.target,
     },
   }),
 
   [TAGS.SEARCH_FOUND]: (e) => ({
     key: "array.search_found",
-    params: { value: e.variables.target, index: e.variables.i },
+    params: { value: e.local_vars.target, index: e.local_vars.i },
   }),
 
   [TAGS.SEARCH_NOT_FOUND]: (e) => ({
     key: "array.search_not_found",
-    params: { value: e.variables.target },
+    params: { value: e.local_vars.target },
   }),
 
   [TAGS.UPDATE_START]: (e) => ({
     key: "array.update_start",
-    params: { index: e.variables.index },
+    params: { index: e.local_vars.index },
   }),
 
   [TAGS.UPDATE_ASSIGN]: (e) => ({
     key: "array.update_assign",
-    params: { index: e.variables.index, value: e.variables.value },
+    params: { index: e.local_vars.index, value: e.local_vars.value },
   }),
 
   [TAGS.UPDATE_COMPLETE]: (_e) => ({ key: "array.update_complete" }),
 
   [TAGS.UPDATE_ERROR]: (e) => ({
     key: "array.update_error",
-    params: { index: e.variables.index },
+    params: { index: e.local_vars.index },
   }),
 
   [TAGS.INSERT_START]: (_e) => ({ key: "array.insert_start" }),
@@ -75,29 +75,29 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
       ? {
           key: "array.insert_shift_done",
           params: {
-            index: e.variables.i,
-            value: e.variables[`data[${e.variables.i}]`],
+            index: e.local_vars.i,
+            value: e.local_vars[`data[${e.local_vars.i}]`],
           },
         }
       : {
           key: "array.insert_shift_prepare",
           params: {
-            from: e.variables.from,
-            fromValue: e.variables.fromValue,
-            to: e.variables.to,
+            from: e.local_vars.from,
+            fromValue: e.local_vars.fromValue,
+            to: e.local_vars.to,
           },
         },
 
   [TAGS.INSERT_ASSIGN]: (e) => ({
     key: "array.insert_assign",
-    params: { index: e.variables.index, value: e.variables.value },
+    params: { index: e.local_vars.index, value: e.local_vars.value },
   }),
 
   [TAGS.INSERT_COMPLETE]: (_e) => ({ key: "array.insert_complete" }),
 
   [TAGS.DELETE_START]: (e) => ({
     key: "array.delete_start",
-    params: { index: e.variables.index, value: e.variables.value },
+    params: { index: e.local_vars.index, value: e.local_vars.value },
   }),
 
   [TAGS.DELETE_SHIFT]: (e) =>
@@ -105,16 +105,16 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
       ? {
           key: "array.delete_shift_done",
           params: {
-            index: e.variables.i,
-            value: e.variables[`data[${e.variables.i}]`],
+            index: e.local_vars.i,
+            value: e.local_vars[`data[${e.local_vars.i}]`],
           },
         }
       : {
           key: "array.delete_shift_prepare",
           params: {
-            from: e.variables.from,
-            fromValue: e.variables.fromValue,
-            to: e.variables.to,
+            from: e.local_vars.from,
+            fromValue: e.local_vars.fromValue,
+            to: e.local_vars.to,
           },
         },
 
@@ -139,6 +139,6 @@ export function arrayTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       getDescription: (_, i) => `${i}`,
     }),
     actionTag: event.tag,
-    variables: event.variables,
+    variables: event.local_vars,
   }));
 }
