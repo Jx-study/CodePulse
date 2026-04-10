@@ -36,6 +36,12 @@ _GLOBAL_FILTER = frozenset({
     "__build_class__", "__debug__", "__import__",
 })
 
+
+def _is_internal_symbol(func_name: str) -> bool:
+    """過濾內部 symbol：以 _ 開頭或包含 < 的 frame name（<module> 除外）。"""
+    return func_name.startswith("_") or ("<" in func_name and func_name != "<module>")
+
+
 @dataclass
 class TraceEvent:
     tag: str           # "LINE" | "CALL" | "RETURN"
@@ -120,6 +126,10 @@ def run_trace(user_code: str) -> TraceResult:
         func_name = frame.f_code.co_name
         lineno = frame.f_lineno
 
+        # 過濾內部 symbol（call 和 return 都需要過濾）
+        if event in ("call", "return") and _is_internal_symbol(func_name):
+            return None
+
         # local_vars：當前 frame 的局部變數
         # 對 <module> frame，f_locals 就是 sandboxed_globals，用過濾集排除內建 key
         local_vars = {
@@ -138,8 +148,8 @@ def run_trace(user_code: str) -> TraceResult:
         if event == "call":
             node = _get_or_create_node(func_name)
 
-            if not call_graph.root and func_name != "<module>":
-                call_graph.root = node.id
+            if func_name == "<module>" and not call_graph.root:
+                call_graph.root = node.id  # root 永遠是 <module>
 
             if call_stack:
                 caller_id = f"func_{call_stack[-1]}"
