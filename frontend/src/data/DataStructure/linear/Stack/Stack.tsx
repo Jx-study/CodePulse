@@ -79,7 +79,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.INIT,
-      variables: { top: currentTop, size: dataList.length },
+      local_vars: { top: currentTop, size: dataList.length },
     });
     return steps;
   }
@@ -113,7 +113,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PUSH_START,
-      variables: { top: currentTop, value },
+      local_vars: { top: currentTop, value },
     });
 
     currentTop++;
@@ -139,7 +139,7 @@ export function createStackAnimationSteps(
       description: `top = top + 1 (現在 top 指向 ${currentTop})`,
       elements: [...s2Boxes, emptyBox, s2NewBox, s2Pointer],
       actionTag: TAGS.PUSH_INC_TOP,
-      variables: { top: currentTop, value },
+      local_vars: { top: currentTop, value },
     });
 
     const s3Boxes = createBoxes(oldList);
@@ -162,7 +162,7 @@ export function createStackAnimationSteps(
       description: `stack[${currentTop}] = ${value}`,
       elements: [...s3Boxes, s3NewBox, s3Pointer],
       actionTag: TAGS.PUSH_ASSIGN,
-      variables: { top: currentTop, value },
+      local_vars: { top: currentTop, value },
     });
 
     steps.push({
@@ -173,7 +173,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PUSH_COMPLETE,
-      variables: { top: currentTop, value },
+      local_vars: { top: currentTop, value },
     });
   } else if (type === "delete") {
     if (value === undefined) {
@@ -182,14 +182,14 @@ export function createStackAnimationSteps(
         description: "Pop: 堆疊為空",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.POP_CHECK_EMPTY,
-        variables: { top: -1 },
+        local_vars: { top: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "錯誤: 堆疊下溢 (Stack Underflow)",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.POP_ERROR,
-        variables: { top: -1 },
+        local_vars: { top: -1 },
       });
       return steps;
     }
@@ -209,7 +209,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.POP_CHECK_EMPTY,
-      variables: { top: currentTop },
+      local_vars: { top: currentTop },
     });
 
     const s2Boxes: Box[] = [];
@@ -268,7 +268,7 @@ export function createStackAnimationSteps(
       description: `removed_value = stack[${currentTop}] (${value})`,
       elements: step2Elements,
       actionTag: TAGS.POP_GET_VALUE,
-      variables: { top: currentTop, removed_value: value },
+      local_vars: { top: currentTop, removed_value: value },
     });
 
     currentTop--;
@@ -326,7 +326,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.POP_DEC_TOP,
-      variables: { top: currentTop, removed_value: value },
+      local_vars: { top: currentTop, removed_value: value },
     });
 
     const s4GhostBox = new Box();
@@ -364,7 +364,7 @@ export function createStackAnimationSteps(
         s4GhostBox,
       ],
       actionTag: TAGS.POP_RETURN,
-      variables: { top: currentTop, removed_value: value },
+      local_vars: { top: currentTop, removed_value: value },
     });
 
     steps.push({
@@ -375,7 +375,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.POP_COMPLETE,
-      variables: { top: currentTop, removed_value: value },
+      local_vars: { top: currentTop, removed_value: value },
     });
   } else if (type === "peek") {
     let currentTop = dataList.length - 1;
@@ -386,14 +386,14 @@ export function createStackAnimationSteps(
         description: "Peek: 堆疊為空",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.PEEK_CHECK_EMPTY,
-        variables: { top: -1 },
+        local_vars: { top: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "回傳 Null",
         elements: [createTopPointer(-1, startX, startY, gap)],
         actionTag: TAGS.PEEK_ERROR,
-        variables: { top: -1 },
+        local_vars: { top: -1 },
       });
       return steps;
     }
@@ -406,7 +406,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_CHECK_EMPTY,
-      variables: { top: currentTop },
+      local_vars: { top: currentTop },
     });
 
     const s2Boxes = createBoxes(dataList);
@@ -417,7 +417,7 @@ export function createStackAnimationSteps(
       description: `回傳 stack[${currentTop}] (${value})`,
       elements: [...s2Boxes, createTopPointer(currentTop, startX, startY, gap)],
       actionTag: TAGS.PEEK_RETURN,
-      variables: { top: currentTop, value: value },
+      local_vars: { top: currentTop, value: value },
     });
 
     const peekCompleteBoxes = createBoxes(dataList, Status.Unfinished);
@@ -431,7 +431,7 @@ export function createStackAnimationSteps(
         createTopPointer(currentTop, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,
-      variables: { top: currentTop, value: value },
+      local_vars: { top: currentTop, value: value },
     });
   }
 

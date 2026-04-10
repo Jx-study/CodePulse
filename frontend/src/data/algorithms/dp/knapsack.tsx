@@ -222,7 +222,7 @@ export function createKnapsackAnimationSteps(
       description: desc,
       actionTag: tag,
       elements,
-      variables: stepVars || { W: capacity, i: 0, w: 0 },
+      local_vars: stepVars || { W: capacity, i: 0, w: 0 },
     });
   };
 

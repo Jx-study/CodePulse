@@ -6,15 +6,22 @@ import {
   generateRandomGraph,
   generateRandomGrid,
 } from "@/modules/core/visualization/visualizationUtils";
-import type { ActionContext, GraphData } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  GraphData,
+} from "@/modules/core/visualization/types";
 import type { ActionResult } from "@/modules/core/visualization/types";
 
-function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+function parseGraphLoadPayload(
+  dataStr: string,
+): { nodes: any[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
   if (isNaN(nodeCount)) return null;
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node-${i}`,
+  }));
   const edges: string[][] = [];
   const edgeStr = parts.slice(2).join(":").trim();
   if (edgeStr !== "") {
@@ -23,8 +30,19 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
       if (u !== undefined && v !== undefined) {
         const uIdx = parseInt(u, 10);
         const vIdx = parseInt(v, 10);
-        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
-          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        if (
+          !isNaN(uIdx) &&
+          !isNaN(vIdx) &&
+          uIdx >= 0 &&
+          uIdx < nodeCount &&
+          vIdx >= 0 &&
+          vIdx < nodeCount
+        ) {
+          edges.push(
+            w !== undefined
+              ? [`node-${uIdx}`, `node-${vIdx}`, w]
+              : [`node-${uIdx}`, `node-${vIdx}`],
+          );
         }
       }
     });
@@ -32,7 +50,9 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
   return { nodes, edges };
 }
 
-function parseGridLoadPayload(dataStr: string): { cols: number; values: number[] } | null {
+function parseGridLoadPayload(
+  dataStr: string,
+): { cols: number; values: number[] } | null {
   const parts = dataStr.split(":");
   if (parts.length !== 3) return null;
   const cols = parseInt(parts[1], 10);
@@ -82,13 +102,16 @@ function bfsActionHandler(
         animationData: cloneData(graphPayload),
         useRawAnimationParams: true,
         animationParams: { mode: "graph", isDirected: payload.Directed },
-          isResetAction: false,
+        isResetAction: false,
       };
     }
     if (dataStr.startsWith("GRID:")) {
       const gridPayload = parseGridLoadPayload(dataStr);
       if (!gridPayload) return null;
-      const newData = gridPayload.values.map((val, i) => ({ id: `box-${i}`, val }));
+      const newData = gridPayload.values.map((val, i) => ({
+        id: `box-${i}`,
+        val,
+      }));
       return {
         animationData: newData,
         useRawAnimationParams: true,
@@ -114,7 +137,9 @@ function bfsActionHandler(
     const isGraphData = (d: any): d is GraphData =>
       d && !Array.isArray(d) && Array.isArray(d.nodes);
     if (isGraphData(data)) {
-      const coordMap = new Map(data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]));
+      const coordMap = new Map(
+        data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+      );
       newData.nodes.forEach((n: any) => {
         const saved = coordMap.get(n.id);
         if (saved?.x != null && saved?.y != null) {
@@ -168,7 +193,7 @@ const TAGS = {
   GRID_INIT_DIST: "GRID_INIT_DIST",
   GRID_START: "GRID_START",
   DEQUEUE: "DEQUEUE",
-  
+
   CHECK_END: "CHECK_END",
   EXPLORE: "EXPLORE",
   VISIT_NEIGHBOR: "VISIT_NEIGHBOR",
@@ -218,7 +243,7 @@ function runGraphBFS(
     `準備開始 BFS，初始化距離為 ∞`,
   );
   initDistFrame.actionTag = TAGS.GRAPH_INIT;
-  initDistFrame.variables = {
+  initDistFrame.local_vars = {
     start: realStartId,
     end: realEndId,
     "distance[all]": "∞",
@@ -238,7 +263,7 @@ function runGraphBFS(
     `將起點 ${realStartId} 加入佇列 (距離: 0)`,
   );
   enqueueStartFrame.actionTag = TAGS.GRAPH_START;
-  enqueueStartFrame.variables = {
+  enqueueStartFrame.local_vars = {
     queue: `[${realStartId}]`,
     visited: `{${realStartId}}`,
     [`distance[${realStartId}]`]: 0,
@@ -267,7 +292,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     dequeueFrame.actionTag = TAGS.DEQUEUE;
-    dequeueFrame.variables = {
+    dequeueFrame.local_vars = {
       curr: currId,
       [`distance[${currId}]`]: distanceMap[currId],
       queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
@@ -284,7 +309,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     checkEndFrame.actionTag = TAGS.CHECK_END;
-    checkEndFrame.variables = {
+    checkEndFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
@@ -317,7 +342,7 @@ function runGraphBFS(
         { ...linkStatusMap },
       );
       exploreFrame.actionTag = TAGS.EXPLORE;
-      exploreFrame.variables = {
+      exploreFrame.local_vars = {
         curr: currId,
         "all neighbors": `[${allNeighborIds.join(", ")}]`,
         unvisited:
@@ -354,7 +379,7 @@ function runGraphBFS(
           { ...linkStatusMap },
         );
         visitFrame.actionTag = TAGS.VISIT_NEIGHBOR;
-        visitFrame.variables = {
+        visitFrame.local_vars = {
           curr: currId,
           "new neighbors": `[${newNeighbors.join(", ")}]`,
           "queue (after)": `[${queue.join(", ")}]`,
@@ -376,7 +401,7 @@ function runGraphBFS(
           { ...linkStatusMap },
         );
         changeVisitedValueFrame.actionTag = TAGS.CHANGE_VISITED_VALUE;
-        changeVisitedValueFrame.variables = {
+        changeVisitedValueFrame.local_vars = {
           curr: currId,
           "new neighbors": `[${newNeighbors.join(", ")}]`,
           "distance[new]": currentDist + 1,
@@ -418,7 +443,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
-    pathFoundFrame.variables = {
+    pathFoundFrame.local_vars = {
       end: realEndId,
       "shortest distance": distanceMap[realEndId],
     };
@@ -433,7 +458,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundFrame.variables = {
+    notFoundFrame.local_vars = {
       queue: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
@@ -489,7 +514,7 @@ function runGridBFS(
     true, // showIdAsValue = true
   );
   gridShowIdFrame.actionTag = TAGS.GRID_INIT;
-  gridShowIdFrame.variables = {
+  gridShowIdFrame.local_vars = {
     start: startIndex,
     end: endIndex,
   };
@@ -504,7 +529,7 @@ function runGridBFS(
     false, // 轉回顯示距離模式
   );
   gridInitDistFrame.actionTag = TAGS.GRID_INIT_DIST;
-  gridInitDistFrame.variables = {
+  gridInitDistFrame.local_vars = {
     start: startIndex,
     end: endIndex,
     "distance[all]": "∞",
@@ -535,7 +560,7 @@ function runGridBFS(
     `起始節點 ${startIndex} 初始化並加入佇列`,
   );
   gridStartFrame.actionTag = TAGS.GRID_START;
-  gridStartFrame.variables = {
+  gridStartFrame.local_vars = {
     start: startIndex,
     queue: `[${startIndex}]`,
     visited: `{${startIndex}}`,
@@ -561,7 +586,7 @@ function runGridBFS(
       `當前層級遍歷：處理 ${currentLevelIndices.length} 個節點`,
     );
     dequeueGridFrame.actionTag = TAGS.DEQUEUE;
-    dequeueGridFrame.variables = {
+    dequeueGridFrame.local_vars = {
       "level size": currentLevelIndices.length,
       queue: `[${currentLevelIndices.join(", ")}]`,
       "visited count": visited.size,
@@ -578,7 +603,7 @@ function runGridBFS(
         : "終點不在本層，繼續搜尋下一層",
     );
     checkEndGridFrame.actionTag = TAGS.CHECK_END;
-    checkEndGridFrame.variables = {
+    checkEndGridFrame.local_vars = {
       end: endIndex,
       "end ∈ Queue": currentLevelIndices.includes(endIndex) ? "True" : "False",
       "current level": `[${currentLevelIndices.join(", ")}]`,
@@ -621,8 +646,7 @@ function runGridBFS(
 
     // 如果有找到鄰居，顯示 Prepare 動畫
     if (prepareIndices.length > 0) {
-      const currentDistForVisit =
-        queue.length > 0 ? distanceMap[queue[0]] : 0;
+      const currentDistForVisit = queue.length > 0 ? distanceMap[queue[0]] : 0;
       const visitGridFrame = generateGridFrame(
         gridData,
         cols,
@@ -631,7 +655,7 @@ function runGridBFS(
         `發現 ${prepareIndices.length} 個鄰居，加入佇列`,
       );
       visitGridFrame.actionTag = TAGS.VISIT_NEIGHBOR;
-      visitGridFrame.variables = {
+      visitGridFrame.local_vars = {
         "new count": prepareIndices.length,
         "distance[new]": currentDistForVisit + 1,
         "queue size (after)": nextQueue.length,
@@ -672,7 +696,7 @@ function runGridBFS(
       `最短路徑長度：${path.length}`,
     );
     pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
-    pathCompleteFrame.variables = {
+    pathCompleteFrame.local_vars = {
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
@@ -686,7 +710,7 @@ function runGridBFS(
       "佇列已空，無法到達終點",
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundGridFrame.variables = {
+    notFoundGridFrame.local_vars = {
       queue: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",
@@ -744,7 +768,7 @@ End Procedure`,
       [TAGS.CHECK_END]: [9],
       [TAGS.EXPLORE]: [13, 14],
       [TAGS.VISIT_NEIGHBOR]: [15],
-      [TAGS.CHANGE_VISITED_VALUE]: [ 16, 17],
+      [TAGS.CHANGE_VISITED_VALUE]: [16, 17],
       [TAGS.PATH_FOUND]: [10],
       [TAGS.NOT_FOUND]: [22],
     } as Record<string, number[]>,
@@ -809,7 +833,7 @@ End Procedure`,
     mappings: {
       [TAGS.GRID_INIT]: [1],
       [TAGS.GRID_INIT_DIST]: [2],
-      [TAGS.GRID_START]: [3,4],
+      [TAGS.GRID_START]: [3, 4],
       [TAGS.DEQUEUE]: [6, 7],
       [TAGS.CHECK_END]: [9],
       [TAGS.VISIT_NEIGHBOR]: [15, 16, 17, 18],
@@ -893,35 +917,40 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
     {
       id: 994,
       title: "Rotting Oranges",
-      concept: "多源 BFS：所有腐爛橘子同時向外擴散，每輪代表一分鐘，計算最短感染時間",
+      concept:
+        "多源 BFS：所有腐爛橘子同時向外擴散，每輪代表一分鐘，計算最短感染時間",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/rotting-oranges/",
     },
     {
       id: 127,
       title: "Word Ladder",
-      concept: "無權最短路徑：把每個單詞視為節點、相差一字母為邊，BFS 保證找到最短轉換序列",
+      concept:
+        "無權最短路徑：把每個單詞視為節點、相差一字母為邊，BFS 保證找到最短轉換序列",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/word-ladder/",
     },
     {
       id: 542,
       title: "01 Matrix",
-      concept: "多源 BFS：從所有 0 格同時向外擴展，逐層記錄每個 1 格距離最近 0 的距離",
+      concept:
+        "多源 BFS：從所有 0 格同時向外擴展，逐層記錄每個 1 格距離最近 0 的距離",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/01-matrix/",
     },
     {
       id: 286,
       title: "Walls and Gates",
-      concept: "多源 BFS：從所有門（0）同時出發，以 BFS 層數填入每個空房間到最近門的距離",
+      concept:
+        "多源 BFS：從所有門（0）同時出發，以 BFS 層數填入每個空房間到最近門的距離",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/walls-and-gates/",
     },
     {
       id: 1091,
       title: "Shortest Path in Binary Matrix",
-      concept: "BFS 最短路徑：在二元矩陣中以 8 方向移動，BFS 逐層擴展保證求得最短路徑長度",
+      concept:
+        "BFS 最短路徑：在二元矩陣中以 8 方向移動，BFS 逐層擴展保證求得最短路徑長度",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/shortest-path-in-binary-matrix/",
     },
