@@ -40,6 +40,7 @@ export interface CallEdge {
   source: string;
   target: string;
   steps: number[];
+  returnSteps: number[];
 }
 
 export interface CallGraph {

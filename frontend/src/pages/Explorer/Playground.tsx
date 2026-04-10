@@ -161,6 +161,17 @@ function Playground() {
                 funcName: n.func_name,
                 cfg: n.cfg,
               })),
+              edges: (result.call_graph.edges ?? []).map((e: {
+                source: string;
+                target: string;
+                steps: number[];
+                return_steps: number[];
+              }) => ({
+                source: e.source,
+                target: e.target,
+                steps: e.steps ?? [],
+                returnSteps: e.return_steps ?? [],
+              })),
             };
             setCallGraph(mappedCallGraph);
           }
