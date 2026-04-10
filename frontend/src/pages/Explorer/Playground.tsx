@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import CytoscapeCanvas from "@/modules/core/Render/CytoscapeCanvas";
 import { buildCallGraphElements, CALL_GRAPH_STYLESHEET, CALL_GRAPH_LAYOUT } from "@/modules/explorer/elements/callGraphElements";
 import { buildCfgElements, CFG_STYLESHEET, CFG_LAYOUT } from "@/modules/explorer/elements/cfgElements";
@@ -8,7 +8,8 @@ import Button from "@/shared/components/Button";
 import EmptyState from "@/shared/components/EmptyState";
 import Icon from "@/shared/components/Icon";
 import TabList from "@/shared/components/Tabs/TabList";
-import type { TraceEvent, CallGraph, CfgGraphMap, CfgGraph } from "@/types/trace";
+import type { TraceEvent, CallGraph, CfgGraphMap, CfgGraph, StdoutEvent } from "@/types/trace";
+import { toast } from "@/shared/components/Toast/toast";
 import styles from "./Playground.module.scss";
 
 const DEFAULT_CODE = `def bubble_sort(arr):
@@ -56,8 +57,8 @@ function Playground() {
   const [callGraph, setCallGraph] = useState<CallGraph | null>(null);
   const [cfgGraph, setCfgGraph] = useState<CfgGraphMap>({});
   const [isTruncated, setIsTruncated] = useState(false);
+  const [stdoutEvents, setStdoutEvents] = useState<StdoutEvent[]>([]);
   const [runStatus, setRunStatus] = useState<RunStatus>("idle");
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -85,10 +86,30 @@ function Playground() {
   const handleStepChange = useCallback((step: number) => setCurrentStep(step), []);
   const handleSpeedChange = useCallback((speed: number) => setPlaybackSpeed(speed), []);
 
+  // Auto-advance playback
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      setCurrentStep((s) => {
+        if (s >= totalSteps - 1) {
+          setIsPlaying(false);
+          return s;
+        }
+        return s + 1;
+      });
+    }, 1000 / playbackSpeed);
+    return () => clearInterval(interval);
+  }, [isPlaying, playbackSpeed, totalSteps]);
+
+  useEffect(() => {
+    if (isTruncated) {
+      toast.warning("⚠️ Output may be truncated — trace limit reached");
+    }
+  }, [isTruncated]);
+
   // Run handler
   const handleRun = useCallback(async () => {
     setRunStatus("running");
-    setErrorMsg(null);
     stopPolling();
 
     let taskId: string;
@@ -106,7 +127,7 @@ function Playground() {
       taskId = data.task_id;
     } catch (e) {
       setRunStatus("error");
-      setErrorMsg(e instanceof Error ? e.message : "Submit failed");
+      toast.error(e instanceof Error ? e.message : "Submit failed");
       return;
     }
 
@@ -123,7 +144,10 @@ function Playground() {
           const result = await rRes.json();
           setTrace(result.execution_trace ?? []);
           setIsTruncated(result.is_truncated ?? false);
+          setStdoutEvents(result.stdout_events ?? []);
           setRunStatus("idle");
+          setDrill({ mode: "call_graph" });
+          setCurrentStep(0);
 
           // cfg_graph 直接存入（key 已是 func name string）
           setCfgGraph(result.cfg_graph ?? {});
@@ -143,12 +167,12 @@ function Playground() {
         } else if (status.status === "failed") {
           stopPolling();
           setRunStatus("error");
-          setErrorMsg("Analysis failed on server");
+          toast.error("Analysis failed on server");
         }
       } catch (e) {
         stopPolling();
         setRunStatus("error");
-        setErrorMsg(e instanceof Error ? e.message : "Polling failed");
+        toast.error(e instanceof Error ? e.message : "Polling failed");
       }
     }, 2000);
   }, [code]);
@@ -161,12 +185,6 @@ function Playground() {
           className={`${styles.editorPanel} ${isEditorOpen ? styles.editorPanelOpen : styles.editorPanelClosed}`}
         >
           <div className={styles.editorInner}>
-            {errorMsg && (
-              <div className={styles.errorBanner}>
-                <Icon name="exclamation-triangle" />
-                {errorMsg}
-              </div>
-            )}
             <div className={styles.editorHeader}>
               <div className={styles.editorFilename}>
                 <span className={styles.filenameDot} />
@@ -197,7 +215,7 @@ function Playground() {
                 mode="single"
                 language="python"
                 value={code}
-                // highlightedLine={highlightLines}
+                highlightedLine={activeLineno != null ? [activeLineno] : null}
                 onChange={setCode}
                 theme="auto"
               />
@@ -399,11 +417,19 @@ function Playground() {
                   Console
                 </h3>
                 <div className={styles.consoleLines}>
-                  <div className={styles.consoleLine}>
-                    <span className={styles.consoleOutput}>
-                      — stdout capture coming soon —
-                    </span>
-                  </div>
+                  {stdoutEvents.filter((e) => e.step <= currentStep).length === 0 ? (
+                    <div className={styles.consoleLine}>
+                      <span className={styles.consoleOutput}>—</span>
+                    </div>
+                  ) : (
+                    stdoutEvents
+                      .filter((e) => e.step <= currentStep)
+                      .map((e, i) => (
+                        <div key={i} className={styles.consoleLine}>
+                          <span className={styles.consoleOutput}>{e.text}</span>
+                        </div>
+                      ))
+                  )}
                 </div>
               </div>
             </div>

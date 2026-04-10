@@ -47,3 +47,8 @@ export interface CallGraph {
   edges: CallEdge[];
   root: string;
 }
+
+export interface StdoutEvent {
+  step: number;
+  text: string;
+}
