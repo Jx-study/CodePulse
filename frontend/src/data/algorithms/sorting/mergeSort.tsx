@@ -67,6 +67,7 @@ interface TrackedItem {
   value: number;
   x: number;
   y: number;
+  description: string;
   status: Status;
 }
 
@@ -78,6 +79,7 @@ const generateFrame = (items: TrackedItem[]) => {
     box.moveTo(item.x, item.y);
     box.width = 50;
     box.height = 50;
+    box.description = item.description;
     box.setStatus(item.status);
     box.autoScale = true;
     return box;
@@ -96,6 +98,7 @@ export function createMergeSortAnimationSteps(
   const currentItems: TrackedItem[] = inputData.map((d, i) => ({
     id: d.id,
     value: Number(d.value),
+    description: String(i),
     x: startX + i * gap,
     y: baseY,
     status: Status.Unfinished,
@@ -127,12 +130,14 @@ export function createMergeSortAnimationSteps(
     const leftHalf = items.slice(0, mid);
     const rightHalf = items.slice(mid);
 
-    // 視覺化：分割陣列並將它們往下推一層
-    leftHalf.forEach((item) => {
+    // 視覺化：分割陣列並將它們往下推一層，description 重設為本地 index
+    leftHalf.forEach((item, i) => {
       item.y = baseY + depth * yOffset;
+      item.description = String(i);
     });
-    rightHalf.forEach((item) => {
+    rightHalf.forEach((item, i) => {
       item.y = baseY + depth * yOffset;
+      item.description = String(i);
     });
 
     addStep(`將陣列分割為左右兩半並往下層遞迴 (深度: ${depth})`, TAGS.DIVIDE, {
@@ -190,6 +195,7 @@ export function createMergeSortAnimationSteps(
       // 決定被選中的元素的新座標 (回到上一層 depth - 1，X 依據 merged.length 計算)
       chosen.x = startX + (startIndex + merged.length) * gap;
       chosen.y = baseY + (depth - 1) * yOffset;
+      chosen.description = String(merged.length);
       merged.push(chosen);
 
       addStep(`選擇較小值 ${chosen.value} 並放入合併陣列`, TAGS.COPY, {
@@ -205,6 +211,7 @@ export function createMergeSortAnimationSteps(
       chosen.status = depth === 1 ? Status.Complete : Status.Target;
       chosen.x = startX + (startIndex + merged.length) * gap;
       chosen.y = baseY + (depth - 1) * yOffset;
+      chosen.description = String(merged.length);
       merged.push(chosen);
       addStep(`將左側剩餘的 ${chosen.value} 放入合併陣列`, TAGS.COPY, {
         chosenVal: chosen.value,
@@ -219,6 +226,7 @@ export function createMergeSortAnimationSteps(
       chosen.status = depth === 1 ? Status.Complete : Status.Target;
       chosen.x = startX + (startIndex + merged.length) * gap;
       chosen.y = baseY + (depth - 1) * yOffset;
+      chosen.description = String(merged.length);
       merged.push(chosen);
       addStep(`將右側剩餘的 ${chosen.value} 放入合併陣列`, TAGS.COPY, {
         chosenVal: chosen.value,
