@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@/shared/components/Button";
 import Dialog from "@/shared/components/Dialog";
 import Tooltip from "@/shared/components/Tooltip";
@@ -150,11 +150,50 @@ export const DataRow: React.FC<DataRowProps> = ({
 
 // ─── GraphLoaderModal：Graph 資料載入的 modal ────────────────
 
+export type EdgeValidator = (parts: string[], count: number) => string | null;
+
+const unweightedEdgeValidator: EdgeValidator = (parts, _count) => {
+  if (parts.length !== 2) {
+    return `格式錯誤：每條邊需包含來源、目標兩個數字 (格式: 來源 目標)\n錯誤行：${parts.join(" ")}`;
+  }
+  if (isNaN(parseInt(parts[0], 10)) || isNaN(parseInt(parts[1], 10))) {
+    return `來源與目標必須是整數\n錯誤行：${parts.join(" ")}`;
+  }
+  return null;
+};
+
+const weightedEdgeValidator: EdgeValidator = (parts, _count) => {
+  if (parts.length !== 3) {
+    return `格式錯誤：每條邊需包含來源、目標、權重三個數字 (格式: 來源 目標 權重)\n錯誤行：${parts.join(" ")}`;
+  }
+  const w = parseInt(parts[2], 10);
+  if (isNaN(w)) {
+    return `權重必須是整數，「${parts[2]}」不是有效數字\n錯誤行：${parts.join(" ")}`;
+  }
+  if (w < 0) {
+    return "不支援負權重邊，請輸入大於或等於 0 的權重！";
+  }
+  return null;
+};
+
+const UNWEIGHTED_DEFAULTS = {
+  edgeLabel: "邊 (格式: 來源 目標)\n節點編號 (0 ~ N-1)",
+  defaultEdgeInput: "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
+  edgePlaceholder: "0 1\n1 2\n2 0",
+};
+
+const WEIGHTED_DEFAULTS = {
+  edgeLabel: "邊 (格式: 來源 目標 權重)\n節點編號 (0 ~ N-1)",
+  defaultEdgeInput: "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6",
+  edgePlaceholder: "0 1 4\n1 2 5\n2 0 10",
+};
+
 export interface GraphLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
   isWeighted?: boolean;
+  edgeValidator?: EdgeValidator;
 }
 
 export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
@@ -162,39 +201,65 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   onClose,
   onLoad,
   isWeighted = false,
+  edgeValidator,
 }) => {
-  const [nodeCount, setNodeCount] = useState("6");
-  const [edgeInput, setEdgeInput] = useState(
-    isWeighted
-      ? "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6"
-      : "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
-  );
+  const defaults = isWeighted ? WEIGHTED_DEFAULTS : UNWEIGHTED_DEFAULTS;
+  const resolvedValidator = edgeValidator ?? (isWeighted ? weightedEdgeValidator : unweightedEdgeValidator);
+
+  const [committedNodeCount, setCommittedNodeCount] = useState("6");
+  const [committedEdgeInput, setCommittedEdgeInput] = useState(defaults.defaultEdgeInput);
+  const [draftNodeCount, setDraftNodeCount] = useState("6");
+  const [draftEdgeInput, setDraftEdgeInput] = useState(defaults.defaultEdgeInput);
+
+  useEffect(() => {
+    if (show) {
+      setDraftNodeCount(committedNodeCount);
+      setDraftEdgeInput(committedEdgeInput);
+    }
+  }, [show]);
 
   const handleLoad = () => {
-    const count = parseInt(nodeCount);
+    const count = parseInt(draftNodeCount);
     if (isNaN(count) || count <= 0) {
       toast.warning("請輸入有效的節點數量");
       return;
     }
 
-    const lines = edgeInput
+    const lines = draftEdgeInput
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "");
 
-    if (isWeighted) {
-      for (const line of lines) {
-        const parts = line.split(/\s+/);
-        if (parts.length >= 3 && parseInt(parts[2], 10) < 0) {
-          toast.warning(
-            "Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！",
-          );
+    const invalidLines: string[] = [];
+    for (const line of lines) {
+      const parts = line.split(/\s+/);
+
+      if (resolvedValidator) {
+        const error = resolvedValidator(parts, count);
+        if (error) {
+          toast.warning(error);
           return;
         }
       }
+
+      const u = parseInt(parts[0], 10);
+      const v = parseInt(parts[1], 10);
+      const isValidIdx = (n: number) => !isNaN(n) && n >= 0 && n < count;
+      if (!isValidIdx(u) || !isValidIdx(v)) {
+        invalidLines.push(line);
+      }
+    }
+
+    if (invalidLines.length > 0) {
+      toast.warning(
+        `以下邊的節點編號超出範圍 (合法範圍：0 ~ ${count - 1})，請修正後再載入：\n${invalidLines.join(", ")}`,
+      );
+      return;
     }
 
     const edges = lines.map((line) => line.replace(/\s+/g, " ")).join(",");
+    setCommittedNodeCount(draftNodeCount);
+    setCommittedEdgeInput(draftEdgeInput);
     onLoad(`GRAPH:${count}:${edges}`);
     onClose();
   };
@@ -206,7 +271,9 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       size="sm"
       showCloseButton={false}
       className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
       title="自定義 Graph 資料"
       footer={
         <>
@@ -220,26 +287,26 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       }
     >
       <div className={styles.modalFieldRow}>
-        <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
+        <label className={styles.modalLabel}>節點數量 N:</label>
         <Input
           type="number"
-          value={nodeCount}
+          value={draftNodeCount}
           fullWidth={false}
-          onChange={(e) => setNodeCount(e.target.value)}
+          onChange={(e) => setDraftNodeCount(e.target.value)}
           className={`${styles.input} ${styles.nodeCountInput}`}
           aria-label="Node count"
         />
       </div>
       <div className={styles.modalFieldColumn}>
         <label className={styles.modalLabel}>
-          {isWeighted ? "邊 (格式: 來源 目標 權重)" : "邊 (格式: 來源 目標)"}
+          {defaults.edgeLabel}
         </label>
         <Textarea
-          value={edgeInput}
-          onChange={(e) => setEdgeInput(e.target.value)}
+          value={draftEdgeInput}
+          onChange={(e) => setDraftEdgeInput(e.target.value)}
           rows={6}
           className={styles.modalGraphTextarea}
-          placeholder={isWeighted ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"}
+          placeholder={defaults.edgePlaceholder}
         />
       </div>
     </Dialog>
@@ -259,12 +326,18 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
-  const [gridInputText, setGridInputText] = useState(
-    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0",
-  );
+  const DEFAULT_GRID = "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0";
+  const [committedGridText, setCommittedGridText] = useState(DEFAULT_GRID);
+  const [draftGridText, setDraftGridText] = useState(DEFAULT_GRID);
+
+  useEffect(() => {
+    if (show) {
+      setDraftGridText(committedGridText);
+    }
+  }, [show]);
 
   const handleLoad = () => {
-    const rowsArr = gridInputText.trim().split("\n");
+    const rowsArr = draftGridText.trim().split("\n");
     const gridData: number[] = [];
     let cols = 0;
 
@@ -279,6 +352,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       }
     });
 
+    setCommittedGridText(draftGridText);
     onLoad(`GRID:${cols}:${gridData.join(",")}`);
     onClose();
   };
@@ -290,7 +364,9 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       size="sm"
       showCloseButton={false}
       className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
       title="輸入迷宮資料 (0=路, 1=牆)"
       footer={
         <>
@@ -304,8 +380,8 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       }
     >
       <Textarea
-        value={gridInputText}
-        onChange={(e) => setGridInputText(e.target.value)}
+        value={draftGridText}
+        onChange={(e) => setDraftGridText(e.target.value)}
         rows={5}
         className={styles.modalTextarea}
         placeholder={"0 0 0\n0 1 0\n0 0 0"}
@@ -327,15 +403,22 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
-  const [itemInput, setItemInput] = useState("1 15\n3 20\n4 30");
+  const DEFAULT_ITEMS = "1 15\n3 20\n4 30";
+  const [committedItemInput, setCommittedItemInput] = useState(DEFAULT_ITEMS);
+  const [draftItemInput, setDraftItemInput] = useState(DEFAULT_ITEMS);
+
+  useEffect(() => {
+    if (show) {
+      setDraftItemInput(committedItemInput);
+    }
+  }, [show]);
 
   const handleLoad = () => {
-    const lines = itemInput
+    const lines = draftItemInput
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "");
 
-    // 格式驗證
     for (const line of lines) {
       const parts = line.split(/\s+/);
       if (
@@ -352,8 +435,8 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
       }
     }
 
-    // 轉成逗號分隔格式 "w1 v1,w2 v2,..."
     const items = lines.map((line) => line.replace(/\s+/g, " ")).join(",");
+    setCommittedItemInput(draftItemInput);
     onLoad(items);
     onClose();
   };
@@ -365,7 +448,9 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
       size="sm"
       showCloseButton={false}
       className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
       title="自定義背包物品"
       footer={
         <>
@@ -383,8 +468,8 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
           物品清單 (格式: 重量 價值，一行一個物品)
         </label>
         <Textarea
-          value={itemInput}
-          onChange={(e) => setItemInput(e.target.value)}
+          value={draftItemInput}
+          onChange={(e) => setDraftItemInput(e.target.value)}
           rows={6}
           className={styles.modalGraphTextarea}
           placeholder={"1 15\n3 20\n4 30"}

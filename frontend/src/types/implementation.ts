@@ -113,6 +113,8 @@ export interface LevelImplementationConfig {
   maxNodes?: number;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
+  /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */
+  defaultIsDirected?: boolean;
   renderActionBar?: (props: ActionBarProps) => ReactNode;
   /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
   actionHandler?: VisualizationActionHandler<any>;
@@ -141,6 +143,7 @@ export type ImplementationId =
   | "twopointers"
   | "fibonacci"
   | "knapsack"
-  | "n-queens";
+  | "n-queens"
+  | "topological-sort";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;

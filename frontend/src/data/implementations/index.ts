@@ -22,6 +22,7 @@ import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
+import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
 
 /**
  * 統一的實作註冊表
@@ -51,6 +52,7 @@ export const implementationsMap: ImplementationMap = {
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
   nQueens: nQueensConfig,
+  topologicalSort: topologicalSortConfig,
 };
 
 /**
