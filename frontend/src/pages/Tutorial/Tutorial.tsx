@@ -112,6 +112,7 @@ const CanvasPanel = ({
   const useGraphCanvas =
     topicTypeConfig?.id === "graph" ||
     topicTypeConfig?.id === "dijkstra" ||
+    topicTypeConfig?.id === "topological-sort" ||
     ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
       viewMode !== "grid");
 
@@ -137,12 +138,15 @@ const CanvasPanel = ({
           {useGraphCanvas ? (
             <GraphCanvas
               elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
               links={currentLinks}
               width={canvasSize.width}
               height={canvasSize.height}
               statusColorMap={currentStatusColorMap}
               statusConfig={currentStatusConfig}
               isDirected={isDirected}
+              structureType={topicTypeConfig?.id}
+              disableAutoFit={topicTypeConfig?.id === "topological-sort"}
             />
           ) : (
             <D3Canvas
@@ -546,6 +550,7 @@ function TutorialContent() {
       setCurrentStep(0);
       setIsPlaying(false);
       setViewMode(topicTypeConfig.defaultViewMode ?? "");
+      setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
     }
   }, [topicTypeConfig]);
 
