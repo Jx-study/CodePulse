@@ -72,6 +72,7 @@ class TraceResult:
     call_graph: CallGraph
     is_truncated: bool
     step_count: int
+    stdout_events: list[dict] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -85,6 +86,7 @@ def run_trace(user_code: str) -> TraceResult:
     """
     trace_log: list[TraceEvent] = []
     is_truncated = False
+    stdout_events: list[dict] = []
 
     call_graph = CallGraph()
     call_stack: list[str] = []   # func_name stack
@@ -176,12 +178,19 @@ def run_trace(user_code: str) -> TraceResult:
 
         return tracer
 
+    def _traced_print(*args, sep=" ", end="\n", **_kwargs):
+        text = sep.join(str(a) for a in args)
+        stdout_events.append({"step": len(trace_log), "text": text})
+
     import builtins as _builtins_module
     sandboxed_globals = {
         "__builtins__": {
-            k: getattr(_builtins_module, k)
-            for k in RESTRICTED_BUILTINS
-            if hasattr(_builtins_module, k)
+            **{
+                k: getattr(_builtins_module, k)
+                for k in RESTRICTED_BUILTINS
+                if hasattr(_builtins_module, k)
+            },
+            "print": _traced_print,
         },
         "__name__": "__explore__",
     }
@@ -197,6 +206,7 @@ def run_trace(user_code: str) -> TraceResult:
         call_graph=call_graph,
         is_truncated=is_truncated,
         step_count=len(trace_log),
+        stdout_events=stdout_events,
     )
 
 

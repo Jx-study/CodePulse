@@ -76,6 +76,7 @@ def main():
             "cfg_graph": cfg_graph_data,
             "is_truncated": trace_result.is_truncated,
             "step_count": trace_result.step_count,
+            "stdout_events": trace_result.stdout_events,
         }
 
         _real_stdout.write(json.dumps(output) + "\n")

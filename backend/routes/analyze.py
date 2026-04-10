@@ -27,11 +27,13 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         call_graph = None
         cfg_graph = {}
         is_truncated = sandbox_result.get("is_truncated", False)
+        stdout_events = []
     else:
         execution_trace = sandbox_result.get("trace", [])
         call_graph = sandbox_result.get("call_graph")
         cfg_graph = sandbox_result.get("cfg_graph", {})
         is_truncated = sandbox_result.get("is_truncated", False)
+        stdout_events = sandbox_result.get("stdout_events", [])
 
     task_queue.update_progress(task_id, STAGE_ANALYSIS, "演算法辨識中…")
     # TODO: Gemini + MiniLM 分析
@@ -49,6 +51,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         "call_graph": call_graph,
         "cfg_graph": cfg_graph,
         "is_truncated": is_truncated,
+        "stdout_events": stdout_events,
     }
 
 
