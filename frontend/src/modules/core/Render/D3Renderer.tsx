@@ -187,9 +187,9 @@ function drawContainer(
       .attr("y2", bottomY)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
-
+    
     return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
-  } else if (type === "binarytree") {
+  } else if (type === "binarytree" || type === "topological-sort") {
     const startX = 750;
     const endX = 950;
     const topY = 50;
@@ -342,7 +342,7 @@ export function renderAll(
     structureType === "graph" || structureType === "dijkstra"
       ? !isDirected
       : forceHideArrow;
-  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
+  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead-default)";
   const defs = svg.selectAll("defs").data([null]);
   const defsEnter = defs.enter().append("defs");
   if (svg.select("#arrowhead").empty()) {
@@ -394,7 +394,9 @@ export function renderAll(
   const byId = new Map(elements.map((e) => [String(e.id), e]));
 
   // 預先建立所有 link 的 key set，用於無向圖反向邊檢查
-  const allLinkKeys = new Set(links.map((lk) => `${lk.sourceId}->${lk.targetId}`));
+  const allLinkKeys = new Set(
+    links.map((lk) => `${lk.sourceId}->${lk.targetId}`),
+  );
   const seenSelfLoops = new Set<string>();
 
   // 僅保留 Node -> Node 的連線
@@ -514,7 +516,8 @@ export function renderAll(
     .select("path.link")
     .attr("marker-end", (d) => {
       if (shouldHideArrow) return "none";
-      const status = d.status || "default";
+      const status =
+        d.status && d.status in linkStatusColorMap ? d.status : "default";
       return `url(#arrowhead-${status})`;
     })
     .transition()

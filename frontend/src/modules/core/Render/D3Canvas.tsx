@@ -1,4 +1,11 @@
-import { useEffect, useRef, forwardRef, useImperativeHandle, useState, useCallback } from "react";
+import {
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useCallback,
+} from "react";
 import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import type { Pointer } from "../DataLogic/Pointer";
@@ -126,10 +133,19 @@ export const D3Canvas = forwardRef<
     const svgRef = useRef<SVGSVGElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
 
-    // 動態 viewBox 狀態
-    const [dynamicViewBox, setDynamicViewBox] = useState(
-      `0 0 ${width} ${height}`,
-    );
+    // 動態 viewBox 狀態 — lazy initializer 確保第 1 幀即使用正確 viewBox，避免初始跳動
+    const [dynamicViewBox, setDynamicViewBox] = useState(() => {
+      const stepsToMeasure = allStepsElements?.length
+        ? allStepsElements
+        : elements.length ? [elements] : null;
+      if (!stepsToMeasure) return `0 0 ${width} ${height}`;
+      const padding = 40;
+      const bbox = computeUnionBBox(stepsToMeasure);
+      if (!bbox) return `0 0 ${width} ${height}`;
+      const cw = bbox.maxX - bbox.minX + padding * 2;
+      const ch = bbox.maxY - bbox.minY + padding * 2;
+      return `${bbox.minX - padding} ${bbox.minY - padding} ${cw} ${ch}`;
+    });
     const [dynamicMaxZoom, setDynamicMaxZoom] = useState(2.0);
     const zoomRef = useRef(1.0);
     const offsetRef = useRef({ x: 0, y: 0 });
@@ -229,15 +245,23 @@ export const D3Canvas = forwardRef<
       if (!svgElement) return;
 
       // Phase 1: 渲染當前步驟的實際元素（需先執行以取得 containerBBox）
-      const { containerBBox } = renderAll(svgElement, elements, links, structureType, isDirected, statusColorMap);
+      const { containerBBox } = renderAll(
+        svgElement,
+        elements,
+        links,
+        structureType,
+        isDirected,
+        statusColorMap,
+      );
 
       // Phase 2: ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）
       if (allStepsElements !== prevAllStepsRef.current) {
         prevAllStepsRef.current = allStepsElements;
 
-        const stepsToMeasure = allStepsElements && allStepsElements.length > 0
-          ? allStepsElements
-          : [elements];
+        const stepsToMeasure =
+          allStepsElements && allStepsElements.length > 0
+            ? allStepsElements
+            : [elements];
 
         const padding = 40;
         const unionBBox = computeUnionBBox(stepsToMeasure);
@@ -251,7 +275,9 @@ export const D3Canvas = forwardRef<
           }
           const contentWidth = unionBBox.maxX - unionBBox.minX + padding * 2;
           const contentHeight = unionBBox.maxY - unionBBox.minY + padding * 2;
-          setDynamicViewBox(`${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`);
+          setDynamicViewBox(
+            `${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`,
+          );
           const containerWidth = svgElement.clientWidth;
           if (containerWidth > 0) {
             setDynamicMaxZoom(Math.max(2.0, contentWidth / containerWidth));
@@ -264,7 +290,16 @@ export const D3Canvas = forwardRef<
           d3.select(svgElement).selectAll("*").interrupt();
         }
       };
-    }, [elements, links, allStepsElements, structureType, width, height, isDirected, statusColorMap]);
+    }, [
+      elements,
+      links,
+      allStepsElements,
+      structureType,
+      width,
+      height,
+      isDirected,
+      statusColorMap,
+    ]);
 
     return (
       <div
