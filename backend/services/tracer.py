@@ -63,6 +63,7 @@ class CallEdge:
     source: str        # caller CallNode.id
     target: str        # callee CallNode.id
     steps: list[int] = field(default_factory=list)
+    return_steps: list[int] = field(default_factory=list)  # RETURN event step indices
 
 
 @dataclass
@@ -167,6 +168,14 @@ def run_trace(user_code: str) -> TraceResult:
             ))
 
         elif event == "return":
+            # Record return step to corresponding call edge
+            if (len(call_stack) >= 2
+                    and call_stack[-1] == func_name):  # Defensive: ensure stack top matches current frame
+                callee_id = f"func_{func_name}"
+                caller_id = f"func_{call_stack[-2]}"
+                edge = _get_or_create_edge(caller_id, callee_id)
+                edge.return_steps.append(len(trace_log))  # len() before append = correct index
+
             trace_log.append(TraceEvent(
                 tag="RETURN",
                 local_vars=local_vars,
