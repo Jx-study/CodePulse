@@ -247,3 +247,36 @@ def build_cfg(source: str) -> dict[str, CfgGraph]:
 
     return result
 
+
+def build_module_cfg(source: str) -> CfgGraph:
+    """
+    對 module top-level inline statements 建構 CfgGraph。
+    跳過 FunctionDef / AsyncFunctionDef / ClassDef。
+    回傳空 CfgGraph（nodes=[], edges=[]）若無 inline statements。
+    """
+    tree = ast.parse(source)
+    builder = CfgBuilder()
+    cfg = CfgGraph()
+
+    # 過濾出 inline statements（排除 def/class）
+    inline_stmts = [
+        node for node in ast.iter_child_nodes(tree)
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+    ]
+
+    if not inline_stmts:
+        return cfg  # 空 CfgGraph，Task 4 不會插入此 key
+
+    # entry 先加（與 build() 順序一致，layout engine 從 nodes[0] 開始）
+    entry = CfgNode(id="module_entry", lines=[], label="<module>", kind="entry")
+    cfg.nodes.append(entry)
+
+    exit_node = CfgNode(id="module_exit", lines=[], label="exit", kind="exit")
+    cfg.nodes.append(exit_node)
+
+    exits = builder._build_body(inline_stmts, cfg, entry.id, exit_node)
+    for node_id, edge_label in exits:
+        cfg.edges.append(CfgEdge(source=node_id, target=exit_node.id, label=edge_label))
+
+    return cfg
+

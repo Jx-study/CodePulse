@@ -13,7 +13,7 @@ import json
 import os
 import sys
 from tracer import run_trace
-from cfg_builder import build_cfg
+from cfg_builder import build_cfg, build_module_cfg
 
 
 def main():
@@ -34,6 +34,9 @@ def main():
 
         try:
             cfg_graphs = build_cfg(code)
+            module_cfg = build_module_cfg(code)
+            if module_cfg.nodes:
+                cfg_graphs["<module>"] = module_cfg
             cfg_graph_data = {
                 name: {
                     "nodes": [
@@ -68,7 +71,7 @@ def main():
                     for n in trace_result.call_graph.nodes
                 ],
                 "edges": [
-                    {"source": e.source, "target": e.target, "steps": e.steps}
+                    {"source": e.source, "target": e.target, "steps": e.steps, "return_steps": e.return_steps}
                     for e in trace_result.call_graph.edges
                 ],
                 "root": trace_result.call_graph.root,
