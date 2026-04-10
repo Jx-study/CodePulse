@@ -514,3 +514,47 @@
   color: var(--text-tertiary);
   text-align: center;
 }
+
+// ── Call Graph Legend ─────────────────────────────────────────────────────────
+
+.callGraphLegend {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(30, 30, 46, 0.85);
+  border: 1px solid #45475a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #a6adc8;
+  pointer-events: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendLineSolid {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: #585b70;
+}
+
+.legendLineDashed {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    #585b70 0px,
+    #585b70 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}

@@ -54,6 +54,46 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
       "border-width": 2,
     },
   },
+  // START 節點（綠色）
+  {
+    selector: "node[kind = 'start']",
+    style: {
+      "background-color": "#a6e3a1",
+      "border-color": "#a6e3a1",
+      color: "#1e1e2e",
+      "font-weight": "bold",
+    },
+  },
+  // END 節點（紅色）
+  {
+    selector: "node[kind = 'end']",
+    style: {
+      "background-color": "#f38ba8",
+      "border-color": "#f38ba8",
+      color: "#1e1e2e",
+      "font-weight": "bold",
+    },
+  },
+  // 無 CFG 節點（半透明，不可點擊感）
+  {
+    selector: "node[kind = 'no-cfg']",
+    style: { opacity: 0.5 },
+  },
+  // return 邊（虛線，預設隱藏）
+  {
+    selector: "edge[edgeType = 'return']",
+    style: {
+      "line-style": "dashed",
+      "line-color": "#585b70",
+      "target-arrow-color": "#585b70",
+      opacity: 0,
+    },
+  },
+  // return 邊 active（RETURN event 時顯示）
+  {
+    selector: "edge[edgeType = 'return'].active-return",
+    style: { opacity: 1 },
+  },
 ];
 
 export const CALL_GRAPH_LAYOUT: cytoscape.LayoutOptions = {
@@ -66,22 +106,73 @@ export const CALL_GRAPH_LAYOUT: cytoscape.LayoutOptions = {
 export function buildCallGraphElements(
   callGraph: CallGraph,
   currentStep: number,
+  cfgGraph: Record<string, unknown> = {},
 ): cytoscape.ElementDefinition[] {
-  const nodes = callGraph.nodes.map((n) => ({
-    data: {
-      id: n.id,
-      label: n.funcName === "<module>" ? "(global)" : n.funcName,
-    },
-  }));
-  const edges = callGraph.edges.map((e) => ({
+  // root 永遠是 func_<module>（後端 Task 1 已保證）
+  const rootId = callGraph.root || "func_<module>";
+
+  // START 節點（綠，不可點擊）
+  const startNode: cytoscape.ElementDefinition = {
+    data: { id: "__start__", label: "START", kind: "start" },
+  };
+
+  // END 節點（紅，不可點擊）
+  const endNode: cytoscape.ElementDefinition = {
+    data: { id: "__end__", label: "END", kind: "end" },
+  };
+
+  // START → (global) 實線
+  const startEdge: cytoscape.ElementDefinition = {
+    data: { id: "__start__->root", source: "__start__", target: rootId, edgeType: "call" },
+  };
+
+  // (global) → END 實線
+  const endEdge: cytoscape.ElementDefinition = {
+    data: { id: "root->__end__", source: rootId, target: "__end__", edgeType: "call" },
+  };
+
+  // 用戶節點
+  const nodes = callGraph.nodes.map((n) => {
+    const isModule = n.funcName === "<module>";
+    const hasCfg = isModule
+      ? "<module>" in cfgGraph && (cfgGraph["<module>"] as any)?.nodes?.length > 0
+      : n.funcName in cfgGraph;
+    return {
+      data: {
+        id: n.id,
+        label: isModule ? "(global)" : n.funcName,
+        kind: hasCfg ? "user" : "no-cfg",
+        funcName: n.funcName,
+      },
+    };
+  });
+
+  // call edges（實線，active 時高亮）
+  const callEdges = callGraph.edges.map((e) => ({
     data: {
       id: `${e.source}->${e.target}`,
       source: e.source,
       target: e.target,
       steps: e.steps,
       label: e.steps.length > 1 ? `×${e.steps.length}` : "",
+      edgeType: "call",
     },
     classes: e.steps.includes(currentStep) ? "active" : "",
   }));
-  return [...nodes, ...edges];
+
+  // return edges（虛線，RETURN event 時 active-return class 顯示）
+  const returnEdges = callGraph.edges
+    .filter((e) => e.returnSteps && e.returnSteps.length > 0)
+    .map((e) => ({
+      data: {
+        id: `${e.target}-return->${e.source}`,
+        source: e.target,
+        target: e.source,
+        edgeType: "return",
+        label: "",
+      },
+      classes: e.returnSteps.includes(currentStep) ? "active-return" : "",
+    }));
+
+  return [startNode, endNode, startEdge, endEdge, ...nodes, ...callEdges, ...returnEdges];
 }

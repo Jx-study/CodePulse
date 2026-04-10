@@ -326,12 +326,31 @@ function Playground() {
                 );
               })()
             ) : (
-              <CytoscapeCanvas
-                elements={buildCallGraphElements(callGraph, currentStep)}
-                stylesheet={CALL_GRAPH_STYLESHEET}
-                layout={CALL_GRAPH_LAYOUT}
-                onNodeClick={(funcId) => setDrill({ mode: "cfg", funcId })}
-              />
+              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                <CytoscapeCanvas
+                  elements={buildCallGraphElements(callGraph, currentStep, cfgGraph)}
+                  stylesheet={CALL_GRAPH_STYLESHEET}
+                  layout={CALL_GRAPH_LAYOUT}
+                  onNodeClick={(funcId) => {
+                    const node = callGraph?.nodes.find((n) => n.id === funcId);
+                    if (!node) return;
+                    const hasCfg =
+                      node.funcName === "<module>"
+                        ? "<module>" in cfgGraph && (cfgGraph["<module>"] as any)?.nodes?.length > 0
+                        : node.funcName in cfgGraph;
+                    if (!hasCfg) return;
+                    setDrill({ mode: "cfg", funcId });
+                  }}
+                />
+                <div className={styles.callGraphLegend}>
+                  <span className={styles.legendItem}>
+                    <span className={styles.legendLineSolid} /> call
+                  </span>
+                  <span className={styles.legendItem}>
+                    <span className={styles.legendLineDashed} /> return
+                  </span>
+                </div>
+              </div>
             )}
           </div>
 
