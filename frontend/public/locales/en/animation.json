@@ -1,0 +1,23 @@
+{
+  "array": {
+    "initial_state": "Array State",
+    "search_start": "Start searching for value {{value}}",
+    "search_compare": "Check Index {{index}}: is {{current_val}} equal to {{value}}?",
+    "search_found": "Found! Value {{value}} is at Index {{index}}",
+    "search_not_found": "Search complete: value {{value}} not found",
+    "update_start": "Access Index {{index}}",
+    "update_assign": "Update Index {{index}} to {{value}}",
+    "update_complete": "Update complete",
+    "update_error": "Error: Index {{index}} out of range",
+    "insert_start": "Expand array by one slot at the end",
+    "insert_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) right to Index {{to}}",
+    "insert_shift_done": "Shift complete: Index {{index}} is now {{value}}",
+    "insert_assign": "Insert value {{value}} at Index {{index}}",
+    "insert_complete": "Insert complete",
+    "delete_start": "Mark Index {{index}} (value: {{value}}) for deletion",
+    "delete_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) left to Index {{to}}",
+    "delete_shift_done": "Shift complete: Index {{index}} is now {{value}}",
+    "delete_remove": "Remove the last redundant slot",
+    "delete_complete": "Delete complete"
+  }
+}

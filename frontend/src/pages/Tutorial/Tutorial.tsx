@@ -32,6 +32,17 @@ import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
 } from "@/types/statusConfig";
+import { useTranslation } from "react-i18next";
+import type { StepDescription } from "@/types";
+
+function renderDescription(
+  desc: string | StepDescription | undefined,
+  t: (key: string, params?: Record<string, any>) => string
+): string {
+  if (!desc) return "";
+  if (typeof desc === "string") return desc;
+  return t(desc.key, desc.params);
+}
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -87,6 +98,7 @@ const CanvasPanel = ({
   setPlaybackSpeed,
   handleStepChange,
 }: CanvasPanelProps) => {
+  const { t } = useTranslation("animation");
   const {
     attributes,
     listeners,
@@ -163,7 +175,7 @@ const CanvasPanel = ({
           )}
         </div>
         <div className={styles.stepDescription}>
-          {currentStepData?.description}
+          {renderDescription(currentStepData?.description, t)}
         </div>
 
         {/* ControlBar 直接渲染,無 PanelHeader */}
