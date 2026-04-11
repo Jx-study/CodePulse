@@ -26,6 +26,7 @@ function fibonacciDPActionHandler(
       animationData: data,
       animationParams: { n },
       isResetAction: true,
+      useRawAnimationParams: true,
     };
   }
   return baseActionHandler(actionType, payload, data, context);
@@ -35,7 +36,8 @@ export function createFibonacciDPAnimationSteps(
   dataList: any[],
   action?: any,
 ): AnimationStep[] {
-  const targetN = action?.animationParams?.n ?? 6;
+  const targetN =
+    action?.n ?? action?.animationParams?.n ?? action?.payload?.n ?? 6;
   const trace = simulateFibonacciDPTrace(targetN);
   return fibonacciDPTraceToSteps(trace);
 }
@@ -43,10 +45,6 @@ export function createFibonacciDPAnimationSteps(
 const fibonacciDPCodeConfig: CodeConfig = {
   pseudo: {
     content: `Procedure FibonacciDP(n):
-  If n ≤ 1 Then
-    Return n
-  End If
-  
   dp ← Array of size n + 1
   dp[0] ← 0
   dp[1] ← 1
@@ -58,11 +56,11 @@ const fibonacciDPCodeConfig: CodeConfig = {
   Return dp[n]
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [6],
-      [TAGS.BASE_CASES]: [7, 8],
-      [TAGS.CALC_PREPARE]: [10],
-      [TAGS.CALC_DONE]: [11],
-      [TAGS.DONE]: [14],
+      [TAGS.INIT]: [2],
+      [TAGS.BASE_CASES]: [3, 4],
+      [TAGS.CALC_PREPARE]: [6],
+      [TAGS.CALC_DONE]: [7],
+      [TAGS.DONE]: [10],
     },
   },
   python: {
