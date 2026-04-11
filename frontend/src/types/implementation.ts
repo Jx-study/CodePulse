@@ -132,6 +132,7 @@ export type ImplementationId =
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
+  | "mergesort"
   | "binarysearch"
   | "linearsearch"
   | "bfs"
