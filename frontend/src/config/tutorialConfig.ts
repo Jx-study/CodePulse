@@ -148,6 +148,14 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
       category: "recursive",
       categoryName: "遞迴",
     },
+    fibonacci: {
+      id: "fibonacciRecursive",
+      name: "費氏數列 (Fibonacci)",
+      description: "遞迴的入門磚",
+      difficulty: 1,
+      category: "recursive",
+      categoryName: "遞迴",
+    },
   },
   datastructure: {
     linkedlist: {
