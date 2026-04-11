@@ -66,6 +66,8 @@ def submit():
 
     try:
         wrapped_code, _ = precheck_and_wrap(code)
+    except ValueError as e:
+        return jsonify({"error": "empty_code", "message": str(e)}), 422
     except SyntaxError as e:
         return jsonify({
             "error": "syntax_error",

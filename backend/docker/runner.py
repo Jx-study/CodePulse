@@ -7,6 +7,7 @@ runner.py — Docker sandbox container 入口
 - 例外時印 {"error": "<message>"}，不 raise
 """
 
+import ast
 import base64
 import io
 import json
@@ -29,6 +30,16 @@ def main():
             sys.exit(1)
 
         code = base64.b64decode(encoded).decode("utf-8")
+
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as e:
+            _real_stdout.write(json.dumps({"error": f"SyntaxError: {e}"}) + "\n")
+            sys.exit(1)
+
+        if not tree.body:
+            _real_stdout.write(json.dumps({"error": "empty code: no executable statements found"}) + "\n")
+            sys.exit(1)
 
         trace_result = run_trace(code)
 

@@ -3,7 +3,7 @@ import type { CallGraph } from "@/types/trace";
 
 export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
   {
-    selector: "node",
+    selector: "node[label]",
     style: {
       label: "data(label)",
       "text-valign": "center",
@@ -24,7 +24,7 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
     style: { "overlay-opacity": 0 },
   },
   {
-    selector: "edge",
+    selector: "edge[label]",
     style: {
       label: "data(label)",
       "curve-style": "bezier",
@@ -79,20 +79,24 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
     selector: "node[kind = 'no-cfg']",
     style: { opacity: 0.5 },
   },
-  // return 邊（虛線，預設隱藏）
+  // return 邊（虛線，預設低透明度）
   {
     selector: "edge[edgeType = 'return']",
     style: {
       "line-style": "dashed",
       "line-color": "#585b70",
       "target-arrow-color": "#585b70",
-      opacity: 0,
+      opacity: 0.35,
     },
   },
-  // return 邊 active（RETURN event 時顯示）
+  // return 邊 active（RETURN event 時高亮）
   {
     selector: "edge[edgeType = 'return'].active-return",
-    style: { opacity: 1 },
+    style: {
+      opacity: 1,
+      "line-color": "#cba6f7",
+      "target-arrow-color": "#cba6f7",
+    },
   },
 ];
 

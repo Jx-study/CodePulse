@@ -109,8 +109,23 @@ function Playground() {
 
   // Run handler
   const handleRun = useCallback(async () => {
+    if (!code.trim()) {
+      toast.error("Please enter some code before running.");
+      return;
+    }
+
     setRunStatus("running");
     stopPolling();
+
+    // Reset all previous run state before submitting
+    setTrace([]);
+    setCallGraph(null);
+    setCfgGraph({});
+    setIsTruncated(false);
+    setStdoutEvents([]);
+    setCurrentStep(0);
+    setIsPlaying(false);
+    setDrill({ mode: "call_graph" });
 
     let taskId: string;
     try {

@@ -139,11 +139,11 @@ def run_trace(user_code: str) -> TraceResult:
             if k not in _GLOBAL_FILTER
         }
 
-        # global_vars：sandboxed_globals 中用戶定義的 key（排除內建 key）
+        # global_vars：sandboxed_globals 中用戶定義的 key（排除內建 key 與函式物件）
         global_vars = {
             k: repr(v)
             for k, v in frame.f_globals.items()
-            if k not in _GLOBAL_FILTER
+            if k not in _GLOBAL_FILTER and not callable(v)
         }
 
         if event == "call":

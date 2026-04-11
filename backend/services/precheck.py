@@ -14,11 +14,15 @@ def precheck_and_wrap(code: str) -> tuple[str, bool]:
     """
     回傳 (處理後的 code, is_wrapped)。
     語法錯誤時拋出 SyntaxError（含行號與訊息）。
+    空白/純註解時拋出 ValueError。
     """
     try:
         tree = ast.parse(code)
     except SyntaxError:
         raise
+
+    if not tree.body:
+        raise ValueError("empty code: no executable statements found")
 
     has_def = any(isinstance(n, ast.FunctionDef) for n in ast.iter_child_nodes(tree))
     if has_def:
