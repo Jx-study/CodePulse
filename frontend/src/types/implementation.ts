@@ -57,7 +57,8 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
-  | { type: "nQueens"; nQueensCount: number };
+  | { type: "nQueens"; nQueensCount: number }
+  | { type: "fibonacciDP"; n: number };
 
 export interface BaseActionBarProps {
   onLoadData: (data: string) => void;
@@ -140,7 +141,7 @@ export type ImplementationId =
   | "prefixsum"
   | "slidingwindow"
   | "twopointers"
-  | "fibonacci"
+  | "fibonacciDP"
   | "knapsack"
   | "n-queens"
   | "topological-sort";

@@ -22,6 +22,7 @@ import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
+import { fibonacciDPConfig } from "../algorithms/dp/fibonacci";
 
 /**
  * 統一的實作註冊表
@@ -51,6 +52,7 @@ export const implementationsMap: ImplementationMap = {
   knapsack: knapsackConfig,
   nQueens: nQueensConfig,
   topologicalSort: topologicalSortConfig,
+  fibonacciDP: fibonacciDPConfig,
 };
 
 /**

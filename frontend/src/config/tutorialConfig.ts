@@ -123,7 +123,7 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
   },
   "dynamic-programming": {
     fibonacci: {
-      id: "fibonacci",
+      id: "fibonacciDP",
       name: "費氏數列 (Fibonacci)",
       description: "DP 的入門磚",
       difficulty: 1,
@@ -184,4 +184,3 @@ export function getTutorialData(
 ): TutorialItem | null {
   return TUTORIALS[category]?.[algorithm] || null;
 }
-
