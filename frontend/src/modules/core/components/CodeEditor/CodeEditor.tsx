@@ -506,16 +506,18 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
         </>
       ) : (
         /* 單一編輯器模式 */
-        <Editor
-          key={`${editorKeyRef.current}-single`}
-          height={autoHeight ? `${contentHeight}px` : '100%'}
-          language={currentLanguage}
-          value={value}
-          theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
-          options={editorOptions}
-          onChange={handleChange}
-          onMount={handleEditorMount}
-        />
+        <div className={autoHeight ? undefined : styles.singleEditorWrap}>
+          <Editor
+            key={`${editorKeyRef.current}-single`}
+            height={autoHeight ? `${contentHeight}px` : '100%'}
+            language={currentLanguage}
+            value={value}
+            theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
+            options={editorOptions}
+            onChange={handleChange}
+            onMount={handleEditorMount}
+          />
+        </div>
       )}
     </div>
   );
