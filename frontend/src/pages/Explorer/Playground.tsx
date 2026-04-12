@@ -24,15 +24,17 @@ import Button from "@/shared/components/Button";
 import EmptyState from "@/shared/components/EmptyState";
 import Icon from "@/shared/components/Icon";
 import TabList from "@/shared/components/Tabs/TabList";
-import { toast } from "@/shared/components/Toast/toast";
+import { toast } from "@/shared/components/Toast";
 import { LeftActivityBar, RightActivityBar } from "./components/ActivityBar";
-import { StatusBar } from "./components/StatusBar";
+import StatusBar from "./components/StatusBar";
 import type { RunStage } from "./components/StatusBar";
-import { DockablePanel } from "./components/DockablePanel";
+import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
-import { AiAnalysisDialog } from "./components/AiAnalysisDialog";
+import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import type { AiResult, AlgoCandidate } from "./components/AiAnalysisDialog";
-import type { TraceEvent, CallGraph, CfgGraphMap, CfgGraph, StdoutEvent } from "@/types/trace";
+import { run as analyzeRun } from "@/services/AnalyzeService";
+import { rebuildCallStack } from "@/utils/traceUtils";
+import type { TraceEvent, CallGraph, CfgGraphMap, StdoutEvent } from "@/types/trace";
 import styles from "./Playground.module.scss";
 
 // Constants
@@ -50,17 +52,6 @@ print("Sorted array is:", bubble_sort(arr))`;
 // Types
 type ViewTab   = "animation" | "graph";
 type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
-
-// Helper
-function rebuildCallStack(trace: TraceEvent[], upToStep: number): string[] {
-  const stack: string[] = [];
-  for (let i = 0; i <= upToStep && i < trace.length; i++) {
-    const ev = trace[i];
-    if (ev.tag === "CALL") stack.push(ev.meta?.func_name ?? "");
-    else if (ev.tag === "RETURN" && stack.length > 0) stack.pop();
-  }
-  return stack;
-}
 
 // Component
 function Playground() {
@@ -103,7 +94,7 @@ function Playground() {
   // DnD
   const [isDragActive, setIsDragActive] = useState(false);
 
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
 
   const handleToggleEditor = useCallback(() => {
@@ -112,10 +103,6 @@ function Playground() {
     if (panel.isCollapsed()) panel.expand();
     else panel.collapse();
   }, []);
-
-  const stopPolling = () => {
-    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
-  };
 
   // Derived
   const totalSteps    = trace.length;
@@ -161,85 +148,38 @@ function Playground() {
   // Run handler
   const handleRun = useCallback(async () => {
     if (!code.trim()) { toast.error("Please enter some code before running."); return; }
+
+    // Cancel any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setRunStage("syntax_check");
-    stopPolling();
     setTrace([]); setCallGraph(null); setCfgGraph({});
     setIsTruncated(false); setStdoutEvents([]);
     setCurrentStep(0); setIsPlaying(false); setDrill({ mode: "call_graph" });
 
-    let taskId: string;
     try {
-      const res = await fetch("/api/analyze/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`);
-      }
-      const data = await res.json();
-      taskId = data.task_id;
+      const result = await analyzeRun(
+        code,
+        (stage) => setRunStage(stage),
+        controller.signal,
+      );
+      setTrace(result.trace);
+      setIsTruncated(result.isTruncated);
+      setStdoutEvents(result.stdoutEvents);
+      setCallGraph(result.callGraph);
+      setCfgGraph(result.cfgGraph);
+      setAiResult(result.aiResult);
+      setTop3Candidates(result.top3Candidates);
+      setDrill({ mode: "call_graph" });
+      setCurrentStep(0);
+      setRunStage("done");
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setRunStage("idle");
-      toast.error(e instanceof Error ? e.message : "Submit failed");
-      return;
+      toast.error(e instanceof Error ? e.message : "Analysis failed");
     }
-
-    pollRef.current = setInterval(async () => {
-      try {
-        const res    = await fetch(`/api/analyze/status/${taskId}`);
-        if (!res.ok) throw new Error(`Status check failed: ${res.status}`);
-        const status = await res.json();
-
-        if (status.progress?.stage) {
-          setRunStage(status.progress.stage as RunStage);
-        }
-
-        if (status.status === "completed") {
-          stopPolling();
-          const rRes   = await fetch(`/api/analyze/result/${taskId}`);
-          if (!rRes.ok) throw new Error(`Result fetch failed: ${rRes.status}`);
-          const result = await rRes.json();
-          setTrace(result.execution_trace ?? []);
-          setIsTruncated(result.is_truncated ?? false);
-          setStdoutEvents(result.stdout_events ?? []);
-          setRunStage("done");
-          setAiResult({
-            detected_algorithm: result.detected_algorithm ?? null,
-            confidence_score:   result.confidence_score   ?? null,
-            time_complexity:    result.time_complexity     ?? null,
-            analysis_source:    result.analysis_source     ?? null,
-            summary:            result.summary             ?? null,
-            suggestions:        result.suggestions         ?? [],
-          });
-          setTop3Candidates(result.top3_candidates ?? []);
-          setDrill({ mode: "call_graph" });
-          setCurrentStep(0);
-          setCfgGraph(result.cfg_graph ?? {});
-          if (result.call_graph) {
-            const mappedCallGraph: CallGraph = {
-              ...result.call_graph,
-              nodes: result.call_graph.nodes.map((n: { id: string; func_name: string; cfg: CfgGraph | null }) => ({
-                id: n.id, funcName: n.func_name, cfg: n.cfg,
-              })),
-              edges: (result.call_graph.edges ?? []).map((e: { source: string; target: string; steps: number[]; return_steps: number[] }) => ({
-                source: e.source, target: e.target, steps: e.steps ?? [], returnSteps: e.return_steps ?? [],
-              })),
-            };
-            setCallGraph(mappedCallGraph);
-          }
-        } else if (status.status === "failed") {
-          stopPolling();
-          setRunStage("idle");
-          toast.error("Analysis failed on server");
-        }
-      } catch (e) {
-        stopPolling();
-        setRunStage("idle");
-        toast.error(e instanceof Error ? e.message : "Polling failed");
-      }
-    }, 2000);
   }, [code]);
 
   // Toggle collapse for a panel
