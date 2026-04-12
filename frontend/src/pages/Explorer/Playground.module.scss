@@ -100,62 +100,6 @@
   min-width: 0;
 }
 
-.hResizeHandle {
-  width: 3px !important;
-  background: var(--bg-secondary);
-  cursor: col-resize;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-  border: none;
-  outline: none;
-
-  &::after {
-    content: '';
-    height: 28px;
-    width: 2px;
-    background: var(--border);
-    border-radius: 2px;
-    transition: background 0.15s;
-  }
-
-  &:hover, &[data-resize-status="active"] {
-    background: var(--color-primary);
-
-    &::after { background: color-mix(in srgb, $white-color 25%, transparent); }
-  }
-}
-
-.vResizeHandle {
-  height: 3px !important;
-  background: var(--bg-secondary);
-  cursor: row-resize;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-  border: none;
-  outline: none;
-
-  &::after {
-    content: '';
-    width: 28px;
-    height: 2px;
-    background: var(--border);
-    border-radius: 2px;
-    transition: background 0.15s;
-  }
-
-  &:hover, &[data-resize-status="active"] {
-    background: var(--color-primary);
-
-    &::after { background: color-mix(in srgb, $white-color 25%, transparent); }
-  }
-}
-
 .canvasArea {
   flex: 1;
   display: flex;

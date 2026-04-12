@@ -13,7 +13,7 @@ import {
 import { DragOverlay } from '@dnd-kit/core';
 import { SmartPointerSensor } from '@/shared/utils/SmartPointerSensor';
 import { Panel, Group, PanelImperativeHandle } from 'react-resizable-panels';
-import ResizeHandle from '../ResizeHandle';
+import ResizeHandle from '@/shared/components/ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeEditor'));

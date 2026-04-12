@@ -14,7 +14,8 @@ import {
   verticalListSortingStrategy,
   hasSortableData,
 } from "@dnd-kit/sortable";
-import { Group as PanelGroup, Panel, Separator as PanelSeparator, type PanelImperativeHandle } from "react-resizable-panels";
+import { Group as PanelGroup, Panel, type PanelImperativeHandle } from "react-resizable-panels";
+import ResizeHandle from "@/shared/components/ResizeHandle";
 import CytoscapeCanvas from "@/modules/core/Render/CytoscapeCanvas";
 import { buildCallGraphElements, CALL_GRAPH_STYLESHEET, CALL_GRAPH_LAYOUT } from "@/modules/explorer/elements/callGraphElements";
 import { buildCfgElements, CFG_STYLESHEET, CFG_LAYOUT } from "@/modules/explorer/elements/cfgElements";
@@ -333,7 +334,7 @@ function Playground() {
                 {/* Left docked panel — shown when not collapsed */}
                 {leftDockedId && !collapsedPanels.has(leftDockedId) && (
                   <>
-                    <PanelSeparator className={styles.vResizeHandle} />
+                    <ResizeHandle direction="vertical" />
                     <Panel defaultSize="40%" minSize="20%">
                       <DockablePanel
                         id={leftDockedId}
@@ -359,7 +360,7 @@ function Playground() {
             </Panel>
 
           {/* Horizontal resize between left sidebar and canvas */}
-          <PanelSeparator className={styles.hResizeHandle} />
+          <ResizeHandle direction="horizontal" />
 
           {/* Canvas Panel */}
           <Panel className={styles.canvasPanel} style={{ minWidth: 0 }}>
@@ -445,13 +446,19 @@ function Playground() {
                           </Button>
                           <span className={styles.cfgLabel}>
                             CFG ·{" "}
-                            {node?.funcName ??
-                              (drill as { mode: "cfg"; funcId: string }).funcId}
+                            {node?.funcName === "<module>"
+                              ? "<global>"
+                              : (node?.funcName ??
+                                (drill as { mode: "cfg"; funcId: string }).funcId)}
                           </span>
                         </div>
                         <CytoscapeCanvas
                           elements={buildCfgElements(
-                            cfgGraph[node?.funcName ?? ""] ?? {
+                            cfgGraph[
+                              node?.funcName === "<module>"
+                                ? "<global>"
+                                : (node?.funcName ?? "")
+                            ] ?? {
                               nodes: [],
                               edges: [],
                             },
@@ -486,8 +493,8 @@ function Playground() {
                         if (!node) return;
                         const hasCfg =
                           node.funcName === "<module>"
-                            ? "<module>" in cfgGraph &&
-                              (cfgGraph["<module>"] as any)?.nodes?.length > 0
+                            ? "<global>" in cfgGraph &&
+                              (cfgGraph["<global>"] as any)?.nodes?.length > 0
                             : node.funcName in cfgGraph;
                         if (!hasCfg) return;
                         setDrill({ mode: "cfg", funcId });
@@ -533,7 +540,7 @@ function Playground() {
 
           {/* Horizontal resize between canvas and right sidebar */}
           {visibleRightPanels.length > 0 && (
-            <PanelSeparator className={styles.hResizeHandle} />
+            <ResizeHandle direction="horizontal" />
           )}
 
           {/* Right Sidebar Panel */}
@@ -574,7 +581,7 @@ function Playground() {
                       </DockablePanel>
                     </Panel>
                     {idx < visibleRightPanels.length - 1 && (
-                      <PanelSeparator className={styles.vResizeHandle} />
+                      <ResizeHandle direction="vertical" />
                     )}
                   </Fragment>
                 ))}
