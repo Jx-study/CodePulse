@@ -211,7 +211,7 @@ def run_trace(user_code: str) -> TraceResult:
             },
             "print": _traced_print,
         },
-        "__name__": "__explore__",
+        "__name__": "__main__",
     }
 
     sys.settrace(tracer)

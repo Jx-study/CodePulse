@@ -268,7 +268,7 @@ def build_module_cfg(source: str) -> CfgGraph:
         return cfg  # 空 CfgGraph，Task 4 不會插入此 key
 
     # entry 先加（與 build() 順序一致，layout engine 從 nodes[0] 開始）
-    entry = CfgNode(id="module_entry", lines=[], label="<module>", kind="entry")
+    entry = CfgNode(id="module_entry", lines=[], label="<global>", kind="entry")
     cfg.nodes.append(entry)
 
     exit_node = CfgNode(id="module_exit", lines=[], label="exit", kind="exit")

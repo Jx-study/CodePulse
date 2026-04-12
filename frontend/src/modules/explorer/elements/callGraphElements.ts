@@ -112,8 +112,8 @@ export function buildCallGraphElements(
   currentStep: number,
   cfgGraph: Record<string, unknown> = {},
 ): cytoscape.ElementDefinition[] {
-  // root 永遠是 func_<module>（後端 Task 1 已保證）
-  const rootId = callGraph.root || "func_<module>";
+  // root 永遠是 func_<global>（後端已保證）
+  const rootId = callGraph.root || "func_<global>";
 
   // START 節點（綠，不可點擊）
   const startNode: cytoscape.ElementDefinition = {
@@ -127,24 +127,35 @@ export function buildCallGraphElements(
 
   // START → (global) 實線
   const startEdge: cytoscape.ElementDefinition = {
-    data: { id: "__start__->root", source: "__start__", target: rootId, edgeType: "call" },
+    data: {
+      id: "__start__->root",
+      source: "__start__",
+      target: rootId,
+      edgeType: "call",
+    },
   };
 
   // (global) → END 實線
   const endEdge: cytoscape.ElementDefinition = {
-    data: { id: "root->__end__", source: rootId, target: "__end__", edgeType: "call" },
+    data: {
+      id: "root->__end__",
+      source: rootId,
+      target: "__end__",
+      edgeType: "call",
+    },
   };
 
   // 用戶節點
   const nodes = callGraph.nodes.map((n) => {
     const isModule = n.funcName === "<module>";
     const hasCfg = isModule
-      ? "<module>" in cfgGraph && (cfgGraph["<module>"] as any)?.nodes?.length > 0
+      ? "<global>" in cfgGraph &&
+        (cfgGraph["<global>"] as any)?.nodes?.length > 0
       : n.funcName in cfgGraph;
     return {
       data: {
         id: n.id,
-        label: isModule ? "(global)" : n.funcName,
+        label: isModule ? "<global>" : n.funcName,
         kind: hasCfg ? "user" : "no-cfg",
         funcName: n.funcName,
       },
@@ -178,5 +189,13 @@ export function buildCallGraphElements(
       classes: e.returnSteps.includes(currentStep) ? "active-return" : "",
     }));
 
-  return [startNode, endNode, startEdge, endEdge, ...nodes, ...callEdges, ...returnEdges];
+  return [
+    startNode,
+    endNode,
+    startEdge,
+    endEdge,
+    ...nodes,
+    ...callEdges,
+    ...returnEdges,
+  ];
 }

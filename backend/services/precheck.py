@@ -24,10 +24,4 @@ def precheck_and_wrap(code: str) -> tuple[str, bool]:
     if not tree.body:
         raise ValueError("empty code: no executable statements found")
 
-    has_def = any(isinstance(n, ast.FunctionDef) for n in ast.iter_child_nodes(tree))
-    if has_def:
-        return code, False
-
-    wrapped = "def explore_wrapper(n):\n"
-    wrapped += "\n".join("    " + line for line in code.splitlines())
-    return wrapped, True
+    return code, False

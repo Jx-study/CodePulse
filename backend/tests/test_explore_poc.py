@@ -134,12 +134,12 @@ class TestTracer:
         # 應有從 <module> 到 bubble_sort 的邊
         edges = result.call_graph.edges
         assert any(
-            e.source == "func_<module>" and e.target == "func_bubble_sort"
+            e.source == "func_<global>" and e.target == "func_bubble_sort"
             for e in edges
         )
         edge = next(
             e for e in edges
-            if e.source == "func_<module>" and e.target == "func_bubble_sort"
+            if e.source == "func_<global>" and e.target == "func_bubble_sort"
         )
         assert len(edge.steps) >= 1
 

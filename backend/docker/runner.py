@@ -47,7 +47,7 @@ def main():
             cfg_graphs = build_cfg(code)
             module_cfg = build_module_cfg(code)
             if module_cfg.nodes:
-                cfg_graphs["<module>"] = module_cfg
+                cfg_graphs["<global>"] = module_cfg
             cfg_graph_data = {
                 name: {
                     "nodes": [
