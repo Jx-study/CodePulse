@@ -28,7 +28,7 @@ import {
   INITIAL_USER_PROGRESS,
   fetchMyProgress,
   mergeApiProgress,
-} from "@/services/UserProgressService";
+} from "@/services/ProgressService";
 import {
   getLevelProgress,
   calculateDisplayStatus,
