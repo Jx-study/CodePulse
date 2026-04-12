@@ -1,40 +1,48 @@
 .playground {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: calc(100vh - 5rem);
   background: var(--bg-primary);
   overflow: hidden;
-}
-
-.mainContent {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
   position: relative;
 }
 
-// ── Collapsible editor panel ───────────────────────────────────────────────────
-
-.editorPanel {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border);
-  overflow: hidden;
-  transition: width 0.3s ease, border-width 0.3s ease;
-  z-index: 20;
+.panelGroupH {
+  flex: 1;
+  min-width: 0;
 }
 
-.editorPanelOpen  { width: 350px; }
-.editorPanelClosed { width: 0; border-right-width: 0; }
-
-.editorInner {
-  width: 350px;
-  height: 100%;
+.leftSidebarPanel {
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg-primary);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.canvasPanel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rightSidebarPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+  min-width: 0;
+}
+
+.editorPanelInner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .editorHeader {
@@ -55,10 +63,11 @@
 }
 
 .filenameDot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: $radius-sm;
-  background: $success-color;
+  background: var(--color-teal);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-teal) 40%, transparent);
   flex-shrink: 0;
 }
 
@@ -66,12 +75,6 @@
   font-family: $font-family-code;
   font-size: $font-xs;
   color: var(--text-secondary);
-}
-
-.editorHeaderActions {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
 }
 
 .runBtn {
@@ -90,76 +93,71 @@
   }
 }
 
-.collapseBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: $radius-md;
-  background: transparent;
-  border: none;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-
-  &:hover {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-  }
-}
-
 .editorBody {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
+  min-width: 0;
+  position: relative;
 }
 
-.errorBanner {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-sm;
-  background: rgba($error-color, 0.12);
-  border-bottom: 1px solid rgba($error-color, 0.3);
-  font-size: $font-xs;
-  color: $error-color;
+.hResizeHandle {
+  width: 3px !important;
+  background: var(--bg-secondary);
+  cursor: col-resize;
   flex-shrink: 0;
-}
-
-// ── Expand button ─────────────────────────────────────────────────────────────
-
-.expandBtn {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 3rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-left: none;
-  border-radius: 0 $radius-md $radius-md 0;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  box-shadow: $shadow-md;
-  transition: color 0.15s, background 0.15s;
+  transition: background 0.15s;
+  border: none;
+  outline: none;
 
-  &:hover {
-    color: var(--text-primary);
-    background: var(--bg-secondary);
+  &::after {
+    content: '';
+    height: 28px;
+    width: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+
+  &:hover, &[data-resize-status="active"] {
+    background: var(--color-primary);
+
+    &::after { background: color-mix(in srgb, $white-color 25%, transparent); }
   }
 }
 
-// ── Viz panel ─────────────────────────────────────────────────────────────────
+.vResizeHandle {
+  height: 3px !important;
+  background: var(--bg-secondary);
+  cursor: row-resize;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  border: none;
+  outline: none;
 
-.vizPanel {
+  &::after {
+    content: '';
+    width: 28px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+
+  &:hover, &[data-resize-status="active"] {
+    background: var(--color-primary);
+
+    &::after { background: color-mix(in srgb, $white-color 25%, transparent); }
+  }
+}
+
+.canvasArea {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -168,7 +166,7 @@
   background: var(--bg-primary);
 }
 
-.vizTabBar {
+.canvasTabBar {
   display: flex;
   align-items: center;
   padding: 0 $spacing-sm;
@@ -178,21 +176,11 @@
   gap: $spacing-sm;
 }
 
-.lineIndicator {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  color: var(--text-tertiary);
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  padding: 2px $spacing-xs;
-  margin-left: auto;
-}
-
 .truncatedBadge {
   font-size: $font-2xs;
-  color: $warning-color;
+  color: var(--warning-color);
   font-family: $font-family-code;
+  margin-left: auto;
 }
 
 .graphArea {
@@ -200,6 +188,18 @@
   overflow: hidden;
   min-height: 0;
   position: relative;
+}
+
+.animationPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  height: 100%;
+  font-size: $font-sm;
+  color: var(--text-tertiary);
+  font-family: $font-family-code;
 }
 
 .cfgPanel {
@@ -232,10 +232,7 @@
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 
-  &:hover {
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
+  &:hover { color: var(--text-primary); border-color: color-mix(in srgb, $white-color 20%, transparent); }
 }
 
 .cfgLabel {
@@ -243,264 +240,6 @@
   font-size: $font-2xs;
   color: var(--text-tertiary);
 }
-
-.animationPlaceholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-sm;
-  height: 100%;
-  font-size: $font-sm;
-  color: var(--text-tertiary);
-  font-family: $font-family-code;
-}
-
-// ── Execution state panel ─────────────────────────────────────────────────────
-
-.executionState {
-  height: 17rem;
-  border-top: 1px solid var(--border);
-  background: var(--bg-primary);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.executionStateHeader {
-  height: 2rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 $spacing-sm;
-  flex-shrink: 0;
-}
-
-.executionStateLabel {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  letter-spacing: 0.1em;
-  color: var(--text-tertiary);
-}
-
-.executionStateStep {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  letter-spacing: 0.08em;
-  color: $execution-color;
-}
-
-.executionStateBody {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  min-height: 0;
-}
-
-// Frames column
-.framesCol {
-  width: 25%;
-  border-right: 1px solid var(--border);
-  padding: $spacing-sm;
-  overflow-y: auto;
-  background: var(--bg-primary);
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.colTitle {
-  font-size: $font-2xs;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-tertiary);
-  margin: 0 0 $spacing-xs 0;
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.colTitleSpaced {
-  margin-top: 12px;
-}
-
-.frameActiveIndicator {
-  color: var(--color-accent, #f9e2af);
-  margin-right: 2px;
-}
-
-.frameActiveLabel {
-  font-weight: normal;
-  opacity: 0.7;
-}
-
-.frame {
-  padding: $spacing-xs;
-  border-left: 2px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.frameActive {
-  border-left-color: $primary-color;
-  background: rgba($primary-color, 0.05);
-  border-radius: 0 $radius-md $radius-md 0;
-  padding: $spacing-xs;
-}
-
-.frameName {
-  font-size: $font-xs;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-
-  .frameActive & { color: $primary-color; }
-}
-
-.frameVar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: $font-xs;
-}
-
-.frameVarName {
-  font-family: $font-family-code;
-  color: var(--text-secondary);
-}
-
-.frameVarVal {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  color: var(--text-tertiary);
-}
-
-.frameVarRef {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  color: $accent-color;
-  background: rgba($accent-color, 0.1);
-  padding: 1px $spacing-xs;
-  border-radius: $radius-sm;
-}
-
-// Objects column
-.objectsCol {
-  flex: 1;
-  padding: $spacing-sm;
-  overflow-y: auto;
-  background: var(--bg-secondary);
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.heapObject {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.heapObjectMeta {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.heapRef {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  color: $accent-color;
-  background: rgba($accent-color, 0.1);
-  padding: 1px $spacing-xs;
-  border-radius: $radius-sm;
-}
-
-.heapType {
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  color: var(--text-tertiary);
-}
-
-.heapFields {
-  display: flex;
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  overflow: hidden;
-  background: var(--bg-primary);
-  box-shadow: $shadow-sm;
-}
-
-.heapField {
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border);
-
-  &:last-child { border-right: none; }
-}
-
-.heapFieldKey {
-  background: var(--card-bg);
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  color: var(--text-tertiary);
-  padding: 2px $spacing-xs;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  min-width: 2rem;
-}
-
-.heapFieldVal {
-  font-family: $font-family-code;
-  font-size: $font-xs;
-  color: var(--text-primary);
-  padding: $spacing-xs;
-  text-align: center;
-}
-
-.heapFieldRef {
-  font-family: $font-family-code;
-  font-size: $font-xs;
-  color: $accent-color;
-  padding: $spacing-xs;
-  text-align: center;
-}
-
-// Console column
-.consoleCol {
-  width: 25%;
-  border-left: 1px solid var(--border);
-  padding: $spacing-sm;
-  overflow-y: auto;
-  background: var(--bg-primary);
-  display: flex;
-  flex-direction: column;
-}
-
-.consoleLines {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-family: $font-family-code;
-  font-size: $font-2xs;
-  line-height: 1.6;
-}
-
-.consoleLine {
-  display: flex;
-  align-items: baseline;
-  gap: $spacing-xs;
-}
-
-.consolePrompt { color: $primary-color; flex-shrink: 0; }
-.consoleText   { color: var(--text-secondary); }
-.consoleOutput { color: var(--text-primary); padding-left: $spacing-sm; }
-
-// ── Control bar ───────────────────────────────────────────────────────────────
 
 .controlRow {
   border-top: 1px solid var(--border);
@@ -515,7 +254,59 @@
   text-align: center;
 }
 
-// ── Call Graph Legend ─────────────────────────────────────────────────────────
+.aiBtn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 0 $spacing-sm;
+  height: 1.5rem;
+  border-radius: $radius-md;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  font-size: $font-2xs;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+}
+
+.aiBtnDisabled {
+  color: var(--text-tertiary);
+  border-color: var(--border);
+  background: transparent;
+  opacity: 0.5;
+}
+
+.aiBtnLoading {
+  color: var(--text-tertiary);
+  border-color: var(--border);
+  background: transparent;
+  cursor: default;
+}
+
+.aiBtnActive {
+  // inherits .aiBtn active colours
+}
+
+.aiBtnDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
 
 .callGraphLegend {
   position: absolute;
@@ -524,37 +315,27 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(30, 30, 46, 0.85);
-  border: 1px solid #45475a;
+  background: color-mix(in srgb, var(--bg-tertiary) 85%, transparent);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 10px;
   font-size: 11px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   pointer-events: none;
 }
 
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.legendItem { display: flex; align-items: center; gap: 6px; }
 
 .legendLineSolid {
   display: inline-block;
   width: 24px;
   height: 2px;
-  background: #585b70;
+  background: var(--border);
 }
 
 .legendLineDashed {
   display: inline-block;
   width: 24px;
   height: 2px;
-  background: repeating-linear-gradient(
-    90deg,
-    #585b70 0px,
-    #585b70 4px,
-    transparent 4px,
-    transparent 8px
-  );
+  background: repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 4px, transparent 4px, transparent 8px);
 }
