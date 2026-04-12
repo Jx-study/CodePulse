@@ -8,110 +8,21 @@ import {
 } from "react";
 import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
-import type { Pointer } from "../DataLogic/Pointer";
 import { renderAll } from "./D3Renderer";
-import type { Link } from "./D3Renderer";
 import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
-import Button from "@/shared/components/Button";
-import StatusLegend from "../components/StatusLegend";
-import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
-import type { BaseCanvasProps } from '@/types/components/display';
-import styles from './D3Canvas.module.scss';
-import canvasStyles from './canvas.module.scss';
-
-/**
- * 從 data model 直接計算所有動畫步驟的 union bounding box。
- * 不依賴 DOM getBBox()，因此不受 D3 transition 時序影響。
- *
- * 視覺尺寸依據 D3Renderer 的實際渲染邏輯：
- *  - node:    center = position, radius = node.radius (default 20) + 20px for desc text
- *  - box:     center = position, ±width/2, ±height/2  + 20px for label below
- *  - pointer: tip at position
- *    - direction="down" → 向下指，label + arrow 在 position 上方 (minY = y-35)
- *    - direction="up"   → 向上指，label + arrow 在 position 下方 (maxY = y+35)
- */
-function computeUnionBBox(
-  allStepsElements: BaseElement[][],
-): { minX: number; minY: number; maxX: number; maxY: number } | null {
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
-  for (const stepElements of allStepsElements) {
-    for (const el of stepElements) {
-      const { x, y } = el.position;
-      let elMinX: number, elMinY: number, elMaxX: number, elMaxY: number;
-
-      if (el.kind === "node") {
-        const r: number = (el as { radius?: number }).radius ?? 20;
-        elMinX = x - r;      elMaxX = x + r;
-        elMinY = y - r;      elMaxY = y + r + 20;
-      } else if (el.kind === "box") {
-        const boxEl = el as { width?: number; height?: number; autoScale?: boolean; maxHeight?: number; value?: string };
-        const hw = (boxEl.width ?? 60) / 2;
-        elMinX = x - hw; elMaxX = x + hw;
-        if (boxEl.autoScale) {
-          // autoScale bar：正數往上長，負數往下長，最大高度為 maxHeight
-          // 保守起見，兩個方向都用 maxH 預留
-          const maxH = boxEl.maxHeight ?? 150;
-          elMinY = y - maxH;
-          elMaxY = y + maxH;
-        } else {
-          const hh = (boxEl.height ?? 80) / 2;
-          elMinY = y - hh; elMaxY = y + hh + 20;
-        }
-      } else if (el.kind === "pointer") {
-        const halfLabel = 30;
-        const ptr = el as unknown as Pointer;
-        if (ptr.direction === "down") {
-          elMinX = x - halfLabel; elMaxX = x + halfLabel;
-          elMinY = y - 35;        elMaxY = y;
-        } else {
-          elMinX = x - halfLabel; elMaxX = x + halfLabel;
-          elMinY = y;             elMaxY = y + 35;
-        }
-      } else {
-        elMinX = x - 30; elMaxX = x + 30;
-        elMinY = y - 30; elMaxY = y + 30;
-      }
-
-      if (elMinX < minX) minX = elMinX;
-      if (elMinY < minY) minY = elMinY;
-      if (elMaxX > maxX) maxX = elMaxX;
-      if (elMaxY > maxY) maxY = elMaxY;
-    }
-  }
-
-  if (!isFinite(minX)) return null;
-  return { minX, minY, maxX, maxY };
-}
+import CanvasShell from "./CanvasShell";
+import type { D3CanvasProps } from "@/types/canvasTypes";
+import { computeUnionBBox } from "./useBoxViewBox";
+import styles from "./D3Canvas.module.scss";
 
 export interface D3CanvasRef {
   getSVGElement: () => SVGSVGElement | null;
 }
 
-interface D3CanvasOwnProps extends BaseCanvasProps {
-  elements: BaseElement[];
-  links?: Link[];
-  structureType?: string;
-  /** Optional custom status color map - 可選的自訂狀態顏色映射表 */
-  statusColorMap?: StatusColorMap;
-  /** Optional custom status configuration - 可選的自訂狀態配置 */
-  statusConfig?: StatusConfig;
-  isDirected?: boolean;
-  /** 是否顯示狀態圖例 (預設: true) */
-  showStatusLegend?: boolean;
-  /**
-   * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
-   * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
-   * 確保 viewBox 能包含整個動畫期間出現的所有元素，不隨每步更新。
-   * 未提供時：沿用原有行為（每次 elements 改變都重算 viewBox）。
-   */
-  allStepsElements?: BaseElement[][];
-}
-
 export const D3Canvas = forwardRef<
   D3CanvasRef,
-  D3CanvasOwnProps
+  D3CanvasProps
 >(
   (
     {
@@ -119,14 +30,14 @@ export const D3Canvas = forwardRef<
       links = [],
       width = 800,
       height = 600,
-      structureType = "linkedlist", // default value
+      structureType = "linkedlist",
       enableZoom = true,
       enablePan = true,
       statusColorMap,
       statusConfig,
       isDirected = false,
-      showStatusLegend = true,
       allStepsElements,
+      showStatusLegend = true,
     },
     forwardedRef,
   ) => {
@@ -302,16 +213,23 @@ export const D3Canvas = forwardRef<
     ]);
 
     return (
-      <div
-        ref={drag.containerRef}
-        className={`${styles.canvasContainer} ${drag.isDragging ? styles.dragging : ""} ${enablePan ? styles["pan-enabled"] : ""}`}
-        onMouseDown={drag.handleMouseDown}
-        onMouseMove={drag.handleMouseMove}
-        onMouseUp={drag.handleMouseUp}
-        onMouseLeave={drag.handleMouseUp}
-        onTouchStart={drag.handleTouchStart}
-        onTouchMove={drag.handleTouchMove}
-        onTouchEnd={drag.handleTouchEnd}
+      <CanvasShell
+        containerRef={drag.containerRef}
+        panEnabled={enablePan}
+        isDragging={drag.isDragging}
+        enableZoom={enableZoom}
+        enablePan={enablePan}
+        onReset={handleResetView}
+        statusConfig={showStatusLegend ? statusConfig : undefined}
+        containerEventHandlers={{
+          onMouseDown: drag.handleMouseDown,
+          onMouseMove: drag.handleMouseMove,
+          onMouseUp: drag.handleMouseUp,
+          onMouseLeave: drag.handleMouseUp,
+          onTouchStart: drag.handleTouchStart,
+          onTouchMove: drag.handleTouchMove,
+          onTouchEnd: drag.handleTouchEnd,
+        }}
       >
         <div
           ref={contentRef}
@@ -328,30 +246,7 @@ export const D3Canvas = forwardRef<
             className={styles.canvas}
           />
         </div>
-
-        {/* 狀態圖例 */}
-        {showStatusLegend && (
-          <div className={styles.statusLegendContainer}>
-            <StatusLegend statusConfig={statusConfig} />
-          </div>
-        )}
-
-        {/* Reset 按鈕 */}
-        {(enableZoom || enablePan) && (
-          <div className={canvasStyles.resetButtonContainer}>
-            <Button
-              variant="icon"
-              size="sm"
-              onClick={handleResetView}
-              aria-label="重置視圖"
-              className={canvasStyles.resetButton}
-              icon="rotate-right"
-              iconOnly
-            >
-            </Button>
-          </div>
-        )}
-      </div>
+      </CanvasShell>
     );
   },
 );

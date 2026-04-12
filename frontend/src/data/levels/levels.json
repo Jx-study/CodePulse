@@ -61,7 +61,7 @@
         ]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 2,
         "branch": "left"
       },
       "pathMetadata": {
@@ -88,7 +88,7 @@
         ]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 2,
         "branch": "right"
       },
       "pathMetadata": {
@@ -113,7 +113,7 @@
         "levelIds": ["stack", "queue"]
       },
       "graphPosition": {
-        "layer": 4,
+        "layer": 3,
         "branch": "main"
       },
       "pathMetadata": {
@@ -137,7 +137,7 @@
         "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "center"
       },
       "pathMetadata": {
@@ -158,7 +158,7 @@
         "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "left"
       },
       "pathMetadata": {
@@ -179,7 +179,7 @@
         "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "right"
       },
       "pathMetadata": {
@@ -200,7 +200,7 @@
         "levelIds": ["bst"]
       },
       "graphPosition": {
-        "layer": 6,
+        "layer": 5,
         "branch": "center"
       },
       "pathMetadata": {
@@ -220,7 +220,7 @@
         "levelIds": ["trie", "heap", "graph"]
       },
       "graphPosition": {
-        "layer": 7,
+        "layer": 6,
         "branch": "main"
       },
       "pathMetadata": {

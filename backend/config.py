@@ -6,8 +6,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-do-not-use-in-production'
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://codepulse:codepulse_dev@localhost:5432/codepulse'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CORS_ORIGINS = ['http://localhost:5173']
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
