@@ -19,35 +19,38 @@ function toStatus(s?: string): Status {
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
     key: "qs.init",
-    fallback: `開始快速排序 (Quick Sort)，陣列長度為 ${e.variables.length}`,
+    params: { length: e.variables.length },
   }),
   [TAGS.CALL]: (e) => ({
     key: "qs.call",
-    fallback: `遞迴分割：處理區間 [${e.variables.low}, ${e.variables.high}]，進入深度 ${e.variables.depth}`,
+    params: {
+      low: e.variables.low,
+      high: e.variables.high,
+      depth: e.variables.depth,
+    },
   }),
   [TAGS.PARTITION_START]: (e) => ({
     key: "qs.partition_start",
-    fallback: `選擇區間最後一個元素 ${e.variables.pivotVal} 作為基準點 (Pivot)`,
+    params: { pivotVal: e.variables.pivotVal },
   }),
   [TAGS.COMPARE]: (e) => ({
     key: "qs.compare",
-    fallback: `比較：${e.variables.scanVal} 是否小於等於基準點 ${e.variables.pivotVal}？`,
+    params: { scanVal: e.variables.scanVal, pivotVal: e.variables.pivotVal },
   }),
   [TAGS.SWAP]: (e) => ({
     key: "qs.swap",
-    fallback: `是！將 ${e.variables.valI} 與 ${e.variables.valJ} 互換`,
+    params: { valI: e.variables.valI, valJ: e.variables.valJ },
   }),
   [TAGS.PIVOT_SET]: (e) => ({
     key: "qs.pivot_set",
-    fallback: `分區完成，將基準點 ${e.variables.pivotVal} 放回正確的排序位置 (Index ${e.variables.pivotIdx})`,
+    params: { pivotVal: e.variables.pivotVal, pivotIdx: e.variables.pivotIdx },
   }),
   [TAGS.BASE_CASE]: (e) => ({
     key: "qs.base_case",
-    fallback: `區間只剩一個元素 ${e.variables.value}，直接標記為已排序`,
+    params: { value: e.variables.value },
   }),
   [TAGS.DONE]: () => ({
     key: "qs.done",
-    fallback: "快速排序完成！所有元素皆已在正確位置。",
   }),
 };
 
