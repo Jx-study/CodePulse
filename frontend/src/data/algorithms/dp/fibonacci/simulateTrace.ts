@@ -53,7 +53,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
 
     trace.push({
       tag: TAGS.CALC_DONE,
-      variables: { i, "dp[i]": dp[i] },
+      variables: { i, "dp[i]": dp[i], "dp[i-1]": val1, "dp[i-2]": val2 },
       dataSnapshot: getSnapshot(),
       meta: {
         overrideStatusMap: {

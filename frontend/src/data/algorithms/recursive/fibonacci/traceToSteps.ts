@@ -18,19 +18,19 @@ function toStatus(s?: string): Status {
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.FIB_START]: (e) => ({
-    key: "fib.start",
+    key: "fibRecursive.start",
     params: { targetN: e.variables.targetN },
   }),
   [TAGS.FIB_CALL]: (e) => ({
-    key: "fib.call",
+    key: "fibRecursive.call",
     params: { n: e.variables.n },
   }),
   [TAGS.FIB_BASE]: (e) => ({
-    key: "fib.base",
+    key: "fibRecursive.base",
     params: { n: e.variables.n, result: e.variables.result },
   }),
   [TAGS.FIB_CALC]: (e) => ({
-    key: "fib.calc",
+    key: "fibRecursive.calc",
     params: {
       n: e.variables.n,
       leftVal: e.variables.leftVal,
@@ -39,7 +39,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.FIB_DONE]: (e) => ({
-    key: "fib.done",
+    key: "fibRecursive.done",
     params: { result: e.variables.result },
   }),
 };
