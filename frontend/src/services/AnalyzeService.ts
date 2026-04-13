@@ -12,7 +12,7 @@ import type { TraceEvent, CallGraph, CfgGraph, CfgGraphMap, StdoutEvent } from "
 import type { AiResult, AlgoCandidate } from "@/pages/Explorer/components/AiAnalysisDialog";
 import type { RunStage } from "@/pages/Explorer/components/StatusBar";
 
-const POLL_INTERVAL_MS = 2000;
+const POLL_INTERVAL_MS = 500;
 
 export interface AnalyzeResult {
   trace: TraceEvent[];
