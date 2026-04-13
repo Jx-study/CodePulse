@@ -61,7 +61,6 @@ def main():
                 }
                 for name, g in cfg_graphs.items()
             }
-            print(cfg_graph_data)
         except Exception:
             cfg_graph_data = {}
 
