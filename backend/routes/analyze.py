@@ -77,7 +77,10 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     input_data = _extract_input_data(execution_trace)
     level1_result = build_level1_trace("bubble_sort", raw_trace_objects, input_data)
     raw_trace = execution_trace  # 保留原始 trace 給 Call Stack / local_vars 面板使用
+    raw_index_map: list = []
     if level1_result is not None:
+        level1_events, raw_index_map = level1_result
+
         def _to_linear_data(snapshot: list) -> list:
             """把 [3,1,2] 轉成前端 LinearData 格式 [{id:"0",value:3},...]。"""
             return [{"id": str(i), "value": v} for i, v in enumerate(snapshot)]
@@ -90,7 +93,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
                 "dataSnapshot": _to_linear_data(ev.dataSnapshot),
                 "meta": ev.meta,
             }
-            for ev in level1_result
+            for ev in level1_events
         ]
         have_level1 = True
 
@@ -102,6 +105,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         "have_level1": have_level1,
         "execution_trace": execution_trace,
         "raw_trace": raw_trace,
+        "raw_index_map": raw_index_map,
         "call_graph": call_graph,
         "cfg_graph": cfg_graph,
         "is_truncated": is_truncated,

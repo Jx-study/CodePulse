@@ -74,6 +74,7 @@ function Playground() {
   // Trace data
   const [trace, setTrace]               = useState<TraceEvent[]>([]);
   const [rawTrace, setRawTrace]         = useState<TraceEvent[]>([]);
+  const [rawIndexMap, setRawIndexMap]   = useState<number[]>([]);
   const [callGraph, setCallGraph]       = useState<CallGraph | null>(null);
   const [cfgGraph, setCfgGraph]         = useState<CfgGraphMap>({});
   const [isTruncated, setIsTruncated]   = useState(false);
@@ -122,20 +123,45 @@ function Playground() {
     [animationSteps],
   );
 
-  // Level 1：animStep 按比例把 rawStep 映射到 animationSteps index
-  const animStep = useMemo(() => {
-    if (animationSteps.length === 0 || rawTrace.length <= 1) return 0;
-    return Math.round((currentStep / (rawTrace.length - 1)) * (animationSteps.length - 1));
-  }, [currentStep, animationSteps.length, rawTrace.length]);
+  // animation tab + 有語意 trace → Level 1（語意步數）
+  // graph tab 或無語意 trace → Level 2（rawTrace 完整步數）
+  const isLevel1 = animationSteps.length > 0 && activeTab === "animation";
 
-  // Derived — ControlBar 永遠用 rawTrace 步數（Level 2 行為不變）
-  const effectiveTrace = rawTrace.length > 0 ? rawTrace : trace;
-  const totalSteps    = effectiveTrace.length;
-  const currentEvent  = effectiveTrace[currentStep] ?? null;
-  const activeLineno  = currentEvent?.meta?.lineno as number | undefined;
-  const globalVars    = useMemo(() => currentEvent?.global_vars ?? {}, [currentEvent]);
-  const localVars     = useMemo(() => currentEvent?.local_vars  ?? {}, [currentEvent]);
-  const callStack     = useMemo(() => rebuildCallStack(effectiveTrace, currentStep), [effectiveTrace, currentStep]);
+  const totalSteps = isLevel1 ? animationSteps.length : rawTrace.length;
+
+  // Level 1：lineno / local_vars 透過 rawIndexMap 從 rawTrace 取
+  // Level 2：直接從 rawTrace 取
+  const rawStepForLineno = isLevel1 ? (rawIndexMap[currentStep] ?? 0) : currentStep;
+  const currentEvent     = rawTrace[rawStepForLineno] ?? null;
+  // Level 1：高亮這個語意步驟覆蓋的所有 rawTrace lineno（從上一步到這一步之間）
+  // Level 2：只高亮當前行
+  const activeLineno: number[] | undefined = useMemo(() => {
+    if (!isLevel1 || rawIndexMap.length === 0) {
+      const ln = currentEvent?.meta?.lineno as number | undefined;
+      return ln != null ? [ln] : undefined;
+    }
+    const endIdx   = rawIndexMap[currentStep] ?? 0;
+    const startIdx = currentStep > 0 ? (rawIndexMap[currentStep - 1] ?? 0) : 0;
+    const lines = new Set<number>();
+    for (let i = startIdx; i <= endIdx; i++) {
+      const ln = rawTrace[i]?.meta?.lineno as number | undefined;
+      if (ln != null) lines.add(ln);
+    }
+    return lines.size > 0 ? [...lines] : undefined;
+  }, [isLevel1, rawIndexMap, currentStep, currentEvent, rawTrace]);
+
+  const globalVars    = useMemo(
+    () => currentEvent?.global_vars ?? {},
+    [currentEvent],
+  );
+  const localVars     = useMemo(
+    () => currentEvent?.local_vars ?? {},
+    [currentEvent],
+  );
+  const callStack     = useMemo(
+    () => rebuildCallStack(rawTrace, rawStepForLineno),
+    [rawTrace, rawStepForLineno],
+  );
   const activeFrame   = callStack[callStack.length - 1] ?? null;
 
   // Animation unlocked once sandbox is done (stage = analysis or gemini or done)
@@ -180,7 +206,7 @@ function Playground() {
     abortRef.current = controller;
 
     setRunStage("syntax_check");
-    setTrace([]); setRawTrace([]); setCallGraph(null); setCfgGraph({});
+    setTrace([]); setRawTrace([]); setRawIndexMap([]); setCallGraph(null); setCfgGraph({});
     setIsTruncated(false); setStdoutEvents([]);
     setCurrentStep(0); setIsPlaying(false); setDrill({ mode: "call_graph" });
 
@@ -192,6 +218,7 @@ function Playground() {
       );
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
+      setRawIndexMap(result.rawIndexMap);
       setIsTruncated(result.isTruncated);
       setStdoutEvents(result.stdoutEvents);
       setCallGraph(result.callGraph);
@@ -346,9 +373,7 @@ function Playground() {
                         mode="single"
                         language="python"
                         value={code}
-                        highlightedLine={
-                          activeLineno != null ? [activeLineno] : null
-                        }
+                        highlightedLine={activeLineno ?? null}
                         onChange={setCode}
                         theme="auto"
                       />
@@ -397,7 +422,7 @@ function Playground() {
                   variant="underline"
                   size="sm"
                   activeTab={activeTab}
-                  onChange={(key) => setActiveTab(key as ViewTab)}
+                  onChange={(key) => { setActiveTab(key as ViewTab); setCurrentStep(0); setIsPlaying(false); }}
                   aria-label="Visualization mode"
                   tabs={[
                     {
@@ -443,7 +468,7 @@ function Playground() {
                 {activeTab === "animation" ? (
                   animationSteps.some(s => (s.elements?.length ?? 0) > 0) ? (
                     <D3Canvas
-                      elements={animationSteps[animStep]?.elements ?? []}
+                      elements={animationSteps[currentStep]?.elements ?? []}
                       allStepsElements={allStepsElements}
                       structureType="array"
                       enableZoom
@@ -452,7 +477,7 @@ function Playground() {
                   ) : (
                     <div className={styles.animationPlaceholder}>
                       <Icon name="film" />
-                      <span>{effectiveTrace.length > 0 ? "No animation data" : "Run code to see animation"}</span>
+                      <span>{rawTrace.length > 0 ? "No animation data" : "Run code to see animation"}</span>
                     </div>
                   )
                 ) : !callGraph ? (
@@ -497,7 +522,7 @@ function Playground() {
                               nodes: [],
                               edges: [],
                             },
-                            activeLineno,
+                            activeLineno?.[0],
                           )}
                           stylesheet={CFG_STYLESHEET}
                           layout={CFG_LAYOUT}

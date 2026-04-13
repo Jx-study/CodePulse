@@ -17,6 +17,7 @@ const POLL_INTERVAL_MS = 500;
 export interface AnalyzeResult {
   trace: TraceEvent[];
   rawTrace: TraceEvent[];
+  rawIndexMap: number[];
   isTruncated: boolean;
   stdoutEvents: StdoutEvent[];
   callGraph: CallGraph | null;
@@ -122,6 +123,7 @@ async function fetchResult(taskId: string): Promise<AnalyzeResult> {
   return {
     trace: r.execution_trace ?? [],
     rawTrace: r.raw_trace ?? r.execution_trace ?? [],
+    rawIndexMap: r.raw_index_map ?? [],
     isTruncated: r.is_truncated ?? false,
     stdoutEvents: r.stdout_events ?? [],
     callGraph,

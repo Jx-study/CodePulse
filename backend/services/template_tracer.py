@@ -108,17 +108,18 @@ def _extract_user_snapshots(user_raw_trace) -> list:
     """
     從用戶 raw trace 提取 list 型別變數的快照序列。
     只保留狀態有變化的快照點（去除連續重複）。
+    回傳 list of (snapshot, raw_index)。
     """
     import ast
     snapshots: list = []
     last_snapshot = None
 
-    for event in user_raw_trace:
+    for raw_idx, event in enumerate(user_raw_trace):
         for val_str in event.local_vars.values():
             try:
                 val = ast.literal_eval(val_str)
                 if isinstance(val, list) and val != last_snapshot:
-                    snapshots.append(val)
+                    snapshots.append((val, raw_idx))
                     last_snapshot = val
                     break  # 每個 event 只取第一個 list 變數
             except (ValueError, SyntaxError):
@@ -136,11 +137,17 @@ def align_snapshots(
     1. 索引對齊（策略 A）：長度相同時直接對齊
     2. 狀態比對（策略 B）：找內容相同的快照
     3. 失敗 → None
+
+    回傳 (aligned: list[TagEvent], raw_index_map: list[int]) 或 None。
+    raw_index_map[i] = 語意第 i 步對應的 rawTrace index。
     """
-    user_snapshots = _extract_user_snapshots(user_raw_trace)
+    snapshot_pairs = _extract_user_snapshots(user_raw_trace)
     # 允許只有 1 個快照（搜尋演算法 data 不變的情況）
-    if len(user_snapshots) == 0:
+    if len(snapshot_pairs) == 0:
         return None
+
+    user_snapshots = [snap for snap, _ in snapshot_pairs]
+    raw_indices = [idx for _, idx in snapshot_pairs]
 
     result = [copy.copy(e) for e in ref_trace]  # shallow copy，保留 tag/variables
 
@@ -148,20 +155,22 @@ def align_snapshots(
     if len(user_snapshots) == len(ref_trace):
         for i, event in enumerate(result):
             event.dataSnapshot = user_snapshots[i]
-        return result
+        return result, raw_indices
 
     # 策略 B：狀態比對
+    raw_index_map: list = [0] * len(ref_trace)
     matched = 0
-    for event in result:
-        for snap in user_snapshots:
+    for i, event in enumerate(result):
+        for snap, raw_idx in snapshot_pairs:
             if snap == event.dataSnapshot:
                 event.dataSnapshot = snap
+                raw_index_map[i] = raw_idx
                 matched += 1
                 break
 
     match_rate = matched / len(ref_trace) if ref_trace else 0
     if match_rate >= 0.8:
-        return result
+        return result, raw_index_map
 
     return None
 
@@ -177,7 +186,8 @@ def build_level1_trace(
     target=None,
 ):
     """
-    成功 → 回傳符合前端 trace.ts 契約的 TraceEvent[]
+    成功 → 回傳 (trace_events: TraceEvent[], raw_index_map: list[int])
+           raw_index_map[i] = 語意第 i 步對應的 rawTrace index（用於前端行號高亮）
     失敗 → 回傳 None（caller 負責 fallback Level 2）
     永遠不 raise。
     """
@@ -189,12 +199,14 @@ def build_level1_trace(
         if not ref_trace:
             return None
 
-        aligned = align_snapshots(ref_trace, user_raw_trace)
-        if aligned is None:
+        align_result = align_snapshots(ref_trace, user_raw_trace)
+        if align_result is None:
             return None
 
+        aligned, raw_index_map = align_result
+
         # 轉換 TagEvent[] → TraceEvent[]（符合前端 trace.ts 契約）
-        return [
+        trace_events = [
             TraceEvent(
                 tag=event.tag,
                 local_vars=event.variables,
@@ -204,6 +216,7 @@ def build_level1_trace(
             )
             for event in aligned
         ]
+        return trace_events, raw_index_map
 
     except Exception as exc:
         logger.warning("build_level1_trace failed for %s: %s", algo_name, exc)
