@@ -36,6 +36,8 @@ import type { AiResult, AlgoCandidate } from "./components/AiAnalysisDialog";
 import { run as analyzeRun } from "@/services/AnalyzeService";
 import { rebuildCallStack } from "@/utils/traceUtils";
 import type { TraceEvent, CallGraph, CfgGraphMap, StdoutEvent } from "@/types/trace";
+import { ALGORITHM_TO_CONVERTER_KEY, TRACE_CONVERTERS } from "@/data/implementations/traceConverters";
+import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import styles from "./Playground.module.scss";
 
 // Constants
@@ -71,6 +73,7 @@ function Playground() {
 
   // Trace data
   const [trace, setTrace]               = useState<TraceEvent[]>([]);
+  const [rawTrace, setRawTrace]         = useState<TraceEvent[]>([]);
   const [callGraph, setCallGraph]       = useState<CallGraph | null>(null);
   const [cfgGraph, setCfgGraph]         = useState<CfgGraphMap>({});
   const [isTruncated, setIsTruncated]   = useState(false);
@@ -105,13 +108,34 @@ function Playground() {
     else panel.collapse();
   }, []);
 
-  // Derived
-  const totalSteps    = trace.length;
-  const currentEvent  = trace[currentStep] ?? null;
+  // Level 1 animation steps（從語意 trace 產生）
+  const animationSteps = useMemo(() => {
+    if (trace.length === 0) return [];
+    const detectedAlgo = aiResult?.detected_algorithm ?? null;
+    const converterKey = detectedAlgo ? ALGORITHM_TO_CONVERTER_KEY[detectedAlgo] : undefined;
+    const converter = converterKey ? TRACE_CONVERTERS[converterKey] : undefined;
+    return converter ? converter(trace) : [];
+  }, [trace, aiResult?.detected_algorithm]);
+
+  const allStepsElements = useMemo(
+    () => animationSteps.map((s) => s.elements ?? []),
+    [animationSteps],
+  );
+
+  // Level 1：animStep 按比例把 rawStep 映射到 animationSteps index
+  const animStep = useMemo(() => {
+    if (animationSteps.length === 0 || rawTrace.length <= 1) return 0;
+    return Math.round((currentStep / (rawTrace.length - 1)) * (animationSteps.length - 1));
+  }, [currentStep, animationSteps.length, rawTrace.length]);
+
+  // Derived — ControlBar 永遠用 rawTrace 步數（Level 2 行為不變）
+  const effectiveTrace = rawTrace.length > 0 ? rawTrace : trace;
+  const totalSteps    = effectiveTrace.length;
+  const currentEvent  = effectiveTrace[currentStep] ?? null;
   const activeLineno  = currentEvent?.meta?.lineno as number | undefined;
   const globalVars    = useMemo(() => currentEvent?.global_vars ?? {}, [currentEvent]);
   const localVars     = useMemo(() => currentEvent?.local_vars  ?? {}, [currentEvent]);
-  const callStack     = useMemo(() => rebuildCallStack(trace, currentStep), [trace, currentStep]);
+  const callStack     = useMemo(() => rebuildCallStack(effectiveTrace, currentStep), [effectiveTrace, currentStep]);
   const activeFrame   = callStack[callStack.length - 1] ?? null;
 
   // Animation unlocked once sandbox is done (stage = analysis or gemini or done)
@@ -156,7 +180,7 @@ function Playground() {
     abortRef.current = controller;
 
     setRunStage("syntax_check");
-    setTrace([]); setCallGraph(null); setCfgGraph({});
+    setTrace([]); setRawTrace([]); setCallGraph(null); setCfgGraph({});
     setIsTruncated(false); setStdoutEvents([]);
     setCurrentStep(0); setIsPlaying(false); setDrill({ mode: "call_graph" });
 
@@ -167,6 +191,7 @@ function Playground() {
         controller.signal,
       );
       setTrace(result.trace);
+      setRawTrace(result.rawTrace);
       setIsTruncated(result.isTruncated);
       setStdoutEvents(result.stdoutEvents);
       setCallGraph(result.callGraph);
@@ -416,10 +441,20 @@ function Playground() {
 
               <div className={styles.graphArea}>
                 {activeTab === "animation" ? (
-                  <div className={styles.animationPlaceholder}>
-                    <Icon name="film" />
-                    <span>D3 Animation — coming next</span>
-                  </div>
+                  animationSteps.some(s => (s.elements?.length ?? 0) > 0) ? (
+                    <D3Canvas
+                      elements={animationSteps[animStep]?.elements ?? []}
+                      allStepsElements={allStepsElements}
+                      structureType="array"
+                      enableZoom
+                      enablePan
+                    />
+                  ) : (
+                    <div className={styles.animationPlaceholder}>
+                      <Icon name="film" />
+                      <span>{effectiveTrace.length > 0 ? "No animation data" : "Run code to see animation"}</span>
+                    </div>
+                  )
                 ) : !callGraph ? (
                   <EmptyState
                     icon={<Icon name="circle-xmark" />}
