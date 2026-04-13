@@ -253,7 +253,7 @@ function runGraphBFS(
     const currNode = nodeMap.get(currId);
     const parentId = parentMap.get(currId);
     if (parentId) {
-      updateLinkStatus(linkStatusMap, parentId, currId, "visited", false);
+      updateLinkStatus(linkStatusMap, parentId, currId, "target", false);
     }
 
     statusMap[currId] = Status.Target;
@@ -339,7 +339,7 @@ function runGraphBFS(
 
           statusMap[neighbor.id] = Status.Prepare;
           // distanceMap 在 VISIT_NEIGHBOR frame 之後才更新
-          updateLinkStatus(linkStatusMap, currId, neighbor.id, "path", false);
+          updateLinkStatus(linkStatusMap, currId, neighbor.id, "prepare", false);
         }
       }
 
@@ -386,8 +386,10 @@ function runGraphBFS(
       }
     }
 
-    // 處理完畢 -> Unfinished
     statusMap[currId] = Status.Unfinished;
+    if (parentId) {
+      updateLinkStatus(linkStatusMap, parentId, currId, Status.Unfinished as linkStatus, false);
+    }
   }
 
   // 路徑回溯與結束
@@ -887,6 +889,10 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
   createAnimationSteps: createBFSAnimationSteps,
   actionHandler: bfsActionHandler,
   defaultViewMode: "graph",
+  linkAnimConfig: {
+    animateOn: ["prepare"],
+    directOn: ["target", "complete"],
+  },
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
   maxNodes: 15,
   relatedProblems: [
