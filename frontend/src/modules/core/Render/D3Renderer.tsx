@@ -1,9 +1,14 @@
 import * as d3 from "d3";
+import type { MutableRefObject } from "react";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
-import type { StatusColorMap } from "@/types/statusConfig";
+import {
+  buildStatusColorMap,
+  DEFAULT_STATUS_CONFIG,
+  type StatusColorMap,
+} from "@/types/statusConfig";
 import { Pointer } from "../DataLogic/Pointer";
 import {
   circleBoundaryPoint,
@@ -15,15 +20,29 @@ import {
 } from "./linkGeometry";
 import "./D3Renderer.module.scss";
 
-export type linkStatus = "default" | "visited" | "path" | "target" | "complete";
+export type linkStatus = "default" | "unfinished" | "visited" | "path" | "prepare" | "target" | "complete";
 
 export const linkStatusColorMap: Record<linkStatus, string> = {
   default: "#888",
+  unfinished: "#1d79cfff",
   visited: "#1d79cfff",
   path: "yellow",
+  prepare: "#f59e0b",
   target: "orange",
   complete: "#46f336ff",
 };
+
+/** 未傳入 statusColorMap 時的預設對照（與 buildStatusColorMap(DEFAULT_STATUS_CONFIG) 一致） */
+export const defaultStatusColorMap: StatusColorMap =
+  buildStatusColorMap(DEFAULT_STATUS_CONFIG);
+
+export function getLinkColor(
+  linkStatus: string | undefined,
+  statusColorMap: StatusColorMap,
+): string {
+  if (!linkStatus || linkStatus === "default") return "#888";
+  return statusColorMap[linkStatus] ?? "#888";
+}
 
 export interface Link {
   key: string;
@@ -250,6 +269,10 @@ export function renderAll(
   structureType: string = "linkedlist",
   isDirected: boolean = true,
   statusColorMap?: StatusColorMap,
+  animGuards?: {
+    animStateRef: MutableRefObject<Map<string, number>>;
+    animatingNodesRef: MutableRefObject<Set<string>>;
+  },
 ): { containerBBox: BBox | null } {
   // Inject custom color map into all elements if provided
   if (statusColorMap) {
@@ -261,12 +284,6 @@ export function renderAll(
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;
-
-  const getColor = (status?: string) => {
-    return (
-      linkStatusColorMap[status as linkStatus] || linkStatusColorMap.default
-    );
-  };
 
   // Pre-calculation for AutoScale(Grouping Support)
   const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
@@ -342,11 +359,12 @@ export function renderAll(
     structureType === "graph" || structureType === "dijkstra"
       ? !isDirected
       : forceHideArrow;
-  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead-default)";
-  const defs = svg.selectAll("defs").data([null]);
-  const defsEnter = defs.enter().append("defs");
+  const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
   if (svg.select("#arrowhead").empty()) {
-    defsEnter
+    const defsParent = svg.select("defs").empty()
+      ? svg.append("defs")
+      : svg.select("defs");
+    defsParent
       .append("marker")
       .attr("id", "arrowhead")
       .attr("viewBox", "0 -5 10 10")
@@ -357,27 +375,8 @@ export function renderAll(
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "#888");
+      .attr("fill", "context-stroke");
   }
-
-  Object.entries(linkStatusColorMap).forEach(([status, color]) => {
-    // 檢查是否已存在，避免重複 append (雖然 data([null]) 會擋，但保險起見)
-    if (svg.select(`#arrowhead-${status}`).empty()) {
-      svg
-        .select("defs")
-        .append("marker")
-        .attr("id", `arrowhead-${status}`)
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 10)
-        .attr("refY", 0)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
-        .attr("orient", "auto")
-        .append("path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", color);
-    }
-  });
 
   // 根 <g>
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
@@ -511,21 +510,14 @@ export function renderAll(
   // 3. Merge & Update：更新所有群組的位置與狀態
   const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
 
-  // 更新線條動畫
-  mergedLinkGroups
-    .select("path.link")
-    .attr("marker-end", (d) => {
-      if (shouldHideArrow) return "none";
-      const status =
-        d.status && d.status in linkStatusColorMap ? d.status : "default";
-      return `url(#arrowhead-${status})`;
-    })
-    .transition()
-    .duration(transitionDuration)
-    .ease(transitionEase)
-    .attr("d", (d) => {
-      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      const pathOffset = isDirected && hasReverse ? 8 : 0;
+  // 更新線條動畫（動畫中的 link 由 animateLink 接管，不覆寫）
+  mergedLinkGroups.each(function (d) {
+    const linkKey = `${d.s.id}->${d.t.id}`;
+    if (animGuards?.animStateRef.current.has(linkKey)) return;
+
+    const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+    const pathOffset = isDirected && hasReverse ? 8 : 0;
+    const pathD = (() => {
       if (
         isNaN(d.s.position.x) ||
         isNaN(d.s.position.y) ||
@@ -542,9 +534,22 @@ export function renderAll(
         { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
         pathOffset,
       );
-    })
-    .attr("stroke", (d) => getColor(d.status))
-    .attr("stroke-width", 2);
+    })();
+
+    d3
+      .select(this)
+      .select("path.link")
+      .attr("marker-end", shouldHideArrow ? "none" : "url(#arrowhead)")
+      .transition()
+      .duration(transitionDuration)
+      .ease(transitionEase)
+      .attr("d", pathD)
+      .attr(
+        "stroke",
+        getLinkColor(d.status, statusColorMap ?? defaultStatusColorMap),
+      )
+      .attr("stroke-width", 2);
+  });
 
   // 更新權重標籤的位置 (放在線的中心點)
   mergedLinkGroups.each(function (d) {
@@ -696,6 +701,8 @@ export function renderAll(
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {
+    if (animGuards?.animatingNodesRef.current.has(String(d.id))) return;
+
     const g = d3.select(this);
 
     if (d.kind === "node" || d instanceof Node) {

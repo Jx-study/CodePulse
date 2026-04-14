@@ -8,15 +8,17 @@ import {
 } from "react";
 import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
+import { Node } from "../DataLogic/Node";
 import { renderAll } from "./D3Renderer";
+import { circleBoundaryPoint } from "./linkGeometry";
 import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
 import CanvasShell from "./CanvasShell";
-import type { BaseCanvasProps } from "@/types/canvasTypes";
+import type { AnimatableCanvasRef, BaseCanvasProps } from "@/types/canvasTypes";
 import { computeUnionBBox } from "./useBoxViewBox";
 import styles from "./D3Canvas.module.scss";
 
-export interface D3CanvasRef {
+export interface D3CanvasRef extends AnimatableCanvasRef {
   getSVGElement: () => SVGSVGElement | null;
 }
 
@@ -39,6 +41,22 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
   ) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
+    const elementsRef = useRef<BaseElement[]>(elements);
+    const animDefsRef = useRef<SVGDefsElement | null>(null);
+    const animStateRef = useRef<Map<string, number>>(new Map());
+    const animatingNodesRef = useRef<Set<string>>(new Set());
+    const isDirectedRef = useRef(isDirected);
+    const shouldHideArrowRef = useRef(false);
+
+    elementsRef.current = elements;
+    isDirectedRef.current = isDirected;
+    const forceHideArrow = ["bfs", "dfs", "binarytree", "bst"].includes(
+      structureType,
+    );
+    shouldHideArrowRef.current =
+      structureType === "graph" || structureType === "dijkstra"
+        ? !isDirected
+        : forceHideArrow;
 
     // 動態 viewBox 狀態 — lazy initializer 確保第 1 幀即使用正確 viewBox，避免初始跳動
     const [dynamicViewBox, setDynamicViewBox] = useState(() => {
@@ -98,7 +116,236 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
 
     useImperativeHandle(forwardedRef, () => ({
       getSVGElement: () => svgRef.current,
-    }));
+      animateLink(
+        sourceId: string,
+        targetId: string,
+        toColor: string,
+        duration = 1200,
+        onComplete?: () => void,
+      ) {
+        const BLEND = 0.12;
+        const els = elementsRef.current;
+        const srcEl = els.find((e) => String(e.id) === sourceId) as
+          | Node
+          | undefined;
+        const tgtEl = els.find((e) => String(e.id) === targetId) as
+          | Node
+          | undefined;
+        if (!srcEl || !tgtEl) return;
+        if (srcEl.id === tgtEl.id) return;
+
+        const linkEl = d3
+          .select(svgRef.current)
+          .selectAll<SVGPathElement, unknown>("path.link")
+          .filter(
+            (d: unknown) =>
+              !!d &&
+              typeof d === "object" &&
+              "s" in d &&
+              "t" in d &&
+              String((d as { s: { id: unknown } }).s.id) === sourceId &&
+              String((d as { t: { id: unknown } }).t.id) === targetId,
+          )
+          .node();
+        const rawStroke = linkEl?.getAttribute("stroke") ?? "#888";
+        const fromColor = rawStroke.startsWith("url(")
+          ? tgtEl.getColor()
+          : rawStroke;
+
+        const key = `${sourceId}->${targetId}`;
+        const gradId = `d3c-anim-${sourceId}-${targetId}`.replace(
+          /[^a-zA-Z0-9_-]/g,
+          "_",
+        );
+        const arrowMarkerId = `d3c-anim-arrow-${sourceId}-${targetId}`.replace(
+          /[^a-zA-Z0-9_-]/g,
+          "_",
+        );
+
+        const existing = animStateRef.current.get(key);
+        if (existing !== undefined) {
+          cancelAnimationFrame(existing);
+          if (animDefsRef.current) {
+            const ad = d3.select(animDefsRef.current);
+            ad.select(`#${gradId}`).remove();
+            ad.select(`#${arrowMarkerId}`).remove();
+          }
+        }
+
+        const startTime = performance.now();
+        const tick = () => {
+          const svgEl = svgRef.current;
+          const defs = animDefsRef.current;
+          if (!svgEl || !defs) return;
+
+          const s = Math.min((performance.now() - startTime) / duration, 1);
+          const linkT = Math.min(s / 0.75, 1);
+          const frontPct = `${linkT * 100}%`;
+          const blendEndPct = `${Math.min(linkT + BLEND, 1) * 100}%`;
+
+          const srcN = els.find((e) => String(e.id) === sourceId) as
+            | Node
+            | undefined;
+          const tgtN = els.find((e) => String(e.id) === targetId) as
+            | Node
+            | undefined;
+          if (!srcN || !tgtN) return;
+
+          const p1 = circleBoundaryPoint(
+            {
+              x: srcN.position.x,
+              y: srcN.position.y,
+              r: srcN.radius ?? 20,
+            },
+            { x: tgtN.position.x, y: tgtN.position.y },
+          );
+          const p2 = circleBoundaryPoint(
+            {
+              x: tgtN.position.x,
+              y: tgtN.position.y,
+              r: tgtN.radius ?? 20,
+            },
+            { x: srcN.position.x, y: srcN.position.y },
+          );
+
+          const d3Defs = d3.select(defs);
+
+          if (d3Defs.select(`#${gradId}`).empty()) {
+            const g = d3Defs
+              .append("linearGradient")
+              .attr("id", gradId)
+              .attr("gradientUnits", "userSpaceOnUse");
+            g.append("stop").attr("class", "g-s1");
+            g.append("stop").attr("class", "g-s2");
+            g.append("stop").attr("class", "g-s3");
+            g.append("stop").attr("class", "g-s4");
+          }
+          d3Defs
+            .select(`#${gradId}`)
+            .attr("x1", p1.x)
+            .attr("y1", p1.y)
+            .attr("x2", p2.x)
+            .attr("y2", p2.y);
+          d3Defs
+            .select(`#${gradId} .g-s1`)
+            .attr("offset", "0%")
+            .attr("stop-color", toColor);
+          d3Defs
+            .select(`#${gradId} .g-s2`)
+            .attr("offset", frontPct)
+            .attr("stop-color", toColor);
+          d3Defs
+            .select(`#${gradId} .g-s3`)
+            .attr("offset", blendEndPct)
+            .attr("stop-color", fromColor);
+          d3Defs
+            .select(`#${gradId} .g-s4`)
+            .attr("offset", "100%")
+            .attr("stop-color", fromColor);
+
+          d3.select(svgEl)
+            .selectAll<SVGPathElement, unknown>("path.link")
+            .filter(
+              (d: unknown) =>
+                !!d &&
+                typeof d === "object" &&
+                "s" in d &&
+                "t" in d &&
+                String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                String((d as { t: { id: unknown } }).t.id) === targetId,
+            )
+            .attr("stroke", `url(#${gradId})`);
+
+          if (isDirectedRef.current && !shouldHideArrowRef.current) {
+            if (d3Defs.select(`#${arrowMarkerId}`).empty()) {
+              const m = d3Defs
+                .append("marker")
+                .attr("id", arrowMarkerId)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 10)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto");
+              m.append("path").attr("d", "M0,-5L10,0L0,5");
+              d3.select(svgEl)
+                .selectAll<SVGPathElement, unknown>("path.link")
+                .filter(
+                  (d: unknown) =>
+                    !!d &&
+                    typeof d === "object" &&
+                    "s" in d &&
+                    "t" in d &&
+                    String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                    String((d as { t: { id: unknown } }).t.id) === targetId,
+                )
+                .attr("marker-end", `url(#${arrowMarkerId})`);
+            }
+            const arrowT = Math.max(0, (linkT - (1 - BLEND)) / BLEND);
+            d3Defs
+              .select(`#${arrowMarkerId} path`)
+              .attr(
+                "fill",
+                d3.interpolateRgb(fromColor, toColor)(Math.min(arrowT, 1)),
+              );
+          }
+
+          if (s < 1) {
+            animStateRef.current.set(key, requestAnimationFrame(tick));
+          } else {
+            d3.select(svgEl)
+              .selectAll<SVGPathElement, unknown>("path.link")
+              .filter(
+                (d: unknown) =>
+                  !!d &&
+                  typeof d === "object" &&
+                  "s" in d &&
+                  "t" in d &&
+                  String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                  String((d as { t: { id: unknown } }).t.id) === targetId,
+              )
+              .attr("stroke", toColor);
+            d3Defs.select(`#${gradId}`).remove();
+
+            if (isDirectedRef.current && !shouldHideArrowRef.current) {
+              d3Defs.select(`#${arrowMarkerId}`).remove();
+              d3.select(svgEl)
+                .selectAll<SVGPathElement, unknown>("path.link")
+                .filter(
+                  (d: unknown) =>
+                    !!d &&
+                    typeof d === "object" &&
+                    "s" in d &&
+                    "t" in d &&
+                    String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                    String((d as { t: { id: unknown } }).t.id) === targetId,
+                )
+                .attr("marker-end", "url(#arrowhead)");
+            } else if (shouldHideArrowRef.current) {
+              d3Defs.select(`#${arrowMarkerId}`).remove();
+              d3.select(svgEl)
+                .selectAll<SVGPathElement, unknown>("path.link")
+                .filter(
+                  (d: unknown) =>
+                    !!d &&
+                    typeof d === "object" &&
+                    "s" in d &&
+                    "t" in d &&
+                    String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                    String((d as { t: { id: unknown } }).t.id) === targetId,
+                )
+                .attr("marker-end", "none");
+            }
+
+            animStateRef.current.delete(key);
+            onComplete?.();
+          }
+        };
+
+        animStateRef.current.set(key, requestAnimationFrame(tick));
+      },
+    }),
+    []);
 
     useEffect(() => {
       if (!enableZoom) return;
@@ -151,6 +398,20 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
       const svgElement = svgRef.current;
       if (!svgElement) return;
 
+      const svg = d3.select(svgElement);
+      let animDefs = svg.select<SVGDefsElement>("defs#anim-defs");
+      if (animDefs.empty()) {
+        animDefs = svg
+          .append("defs")
+          .attr("id", "anim-defs") as unknown as d3.Selection<
+          SVGDefsElement,
+          unknown,
+          null,
+          undefined
+        >;
+      }
+      animDefsRef.current = animDefs.node();
+
       // Phase 1: 渲染當前步驟的實際元素（需先執行以取得 containerBBox）
       const { containerBBox } = renderAll(
         svgElement,
@@ -159,6 +420,7 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
         structureType,
         isDirected,
         statusColorMap,
+        { animStateRef, animatingNodesRef },
       );
 
       // Phase 2: ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）
@@ -196,6 +458,10 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
         if (svgElement) {
           d3.select(svgElement).selectAll("*").interrupt();
         }
+        animStateRef.current.forEach((id) => cancelAnimationFrame(id));
+        animStateRef.current.clear();
+        animDefsRef.current = null;
+        animatingNodesRef.current.clear();
       };
     }, [
       elements,
