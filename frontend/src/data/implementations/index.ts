@@ -44,6 +44,8 @@ export const implementationsMap: ImplementationMap = {
   bubbleSort: bubbleSortConfig,
   selectionSort: selectionSortConfig,
   insertionSort: insertionSortConfig,
+  mergeSort: mergeSortConfig,
+  quickSort: quickSortConfig,
   binarySearch: binarySearchConfig,
   bfs: BFSConfig,
   dfs: DFSConfig,
