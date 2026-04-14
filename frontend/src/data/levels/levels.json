@@ -56,9 +56,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "linked-list"
-        ]
+        "levelIds": ["linked-list"]
       },
       "graphPosition": {
         "layer": 2,
@@ -83,9 +81,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "linked-list"
-        ]
+        "levelIds": ["linked-list"]
       },
       "graphPosition": {
         "layer": 2,
@@ -237,9 +233,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "trie"
-        ]
+        "levelIds": ["trie"]
       },
       "graphPosition": {
         "layer": 0,
@@ -299,7 +293,7 @@
       "id": "merge-sort",
       "category": "sorting",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
@@ -361,9 +355,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "quick-sort"
-        ]
+        "levelIds": ["quick-sort"]
       },
       "graphPosition": {
         "layer": 0,
@@ -422,9 +414,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "binary-search"
-        ]
+        "levelIds": ["binary-search"]
       },
       "graphPosition": {
         "layer": 0,
@@ -583,9 +573,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "n-queens"
-        ]
+        "levelIds": ["n-queens"]
       },
       "graphPosition": {
         "layer": 0,
@@ -823,9 +811,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "astar"
-        ]
+        "levelIds": ["astar"]
       },
       "graphPosition": {
         "layer": 0,
