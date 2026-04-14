@@ -56,6 +56,13 @@ def run_in_sandbox(code: str) -> dict:
         return {"error": f"docker not found: {e}", "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
 
     if proc.returncode != 0:
+        # runner.py writes {"error": "..."} to stdout before sys.exit(1)
+        try:
+            payload = json.loads(proc.stdout)
+            if "error" in payload:
+                return {"error": payload["error"], "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
+        except (json.JSONDecodeError, ValueError):
+            pass
         stderr = proc.stderr.strip() if proc.stderr else ""
         return {"error": f"container exited with code {proc.returncode}: {stderr}", "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
 

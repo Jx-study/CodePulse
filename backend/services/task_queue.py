@@ -60,10 +60,13 @@ class TaskQueue:
             task = self._tasks.get(task_id)
         if task is None:
             return None
-        return {
+        result = {
             "status": task["status"],
             "progress": task["progress"] if task["status"] == STATUS_RUNNING else None,
         }
+        if task["status"] == STATUS_FAILED:
+            result["error_detail"] = task.get("error")
+        return result
 
     def get_result(self, task_id: str) -> dict | None:
         with self._lock:

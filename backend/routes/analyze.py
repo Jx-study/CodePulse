@@ -28,12 +28,11 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     sandbox_result = run_in_sandbox(wrapped_code)
 
     if "error" in sandbox_result:
-        logger.error("sandbox error: %s", sandbox_result["error"])
-        execution_trace = []
-        call_graph = None
-        cfg_graph = {}
-        is_truncated = sandbox_result.get("is_truncated", False)
-        stdout_events = []
+        error_msg = sandbox_result["error"]
+        logger.error("sandbox error: %s", error_msg)
+        if error_msg == "timeout":
+            raise RuntimeError("timeout")
+        raise RuntimeError(error_msg)
     else:
         execution_trace = sandbox_result.get("trace", [])
         call_graph = sandbox_result.get("call_graph")
