@@ -1,5 +1,6 @@
 // frontend/src/pages/Explorer/Playground.tsx
 import { Fragment, useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DndContext,
   DragEndEvent,
@@ -33,7 +34,8 @@ import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import type { AiResult, AlgoCandidate } from "./components/AiAnalysisDialog";
-import { run as analyzeRun } from "@/services/AnalyzeService";
+import { run as analyzeRun, AnalyzeError } from "@/services/AnalyzeService";
+import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import { rebuildCallStack } from "@/utils/traceUtils";
 import type { TraceEvent, CallGraph, CfgGraphMap, StdoutEvent } from "@/types/trace";
 import { ALGORITHM_TO_CONVERTER_KEY, TRACE_CONVERTERS } from "@/data/implementations/traceConverters";
@@ -58,6 +60,9 @@ type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
 // Component
 function Playground() {
+  const { t } = useTranslation("playground");
+  const editorRef = useRef<CodeEditorHandle>(null);
+
   // Editor
   const [code, setCode] = useState(DEFAULT_CODE);
   const [isEditorOpen, setIsEditorOpen] = useState(true);
@@ -193,12 +198,12 @@ function Playground() {
   }, [isPlaying, playbackSpeed, totalSteps]);
 
   useEffect(() => {
-    if (isTruncated) toast.warning("Output may be truncated — trace limit reached");
-  }, [isTruncated]);
+    if (isTruncated) toast.warning(t("run.truncated"));
+  }, [isTruncated, t]);
 
   // Run handler
   const handleRun = useCallback(async () => {
-    if (!code.trim()) { toast.error("Please enter some code before running."); return; }
+    if (!code.trim()) { toast.error(t("run.emptyCode")); return; }
 
     // Cancel any in-flight request
     abortRef.current?.abort();
@@ -206,6 +211,7 @@ function Playground() {
     abortRef.current = controller;
 
     setRunStage("syntax_check");
+    editorRef.current?.clearErrorMarker();
     setTrace([]); setRawTrace([]); setRawIndexMap([]); setCallGraph(null); setCfgGraph({});
     setIsTruncated(false); setStdoutEvents([]);
     setCurrentStep(0); setIsPlaying(false); setDrill({ mode: "call_graph" });
@@ -231,7 +237,31 @@ function Playground() {
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
       setRunStage("idle");
-      toast.error(e instanceof Error ? e.message : "Analysis failed");
+      if (e instanceof AnalyzeError) {
+        switch (e.type) {
+          case "empty_code":
+            toast.error(t("run.emptyCode"));
+            break;
+          case "syntax_error":
+            if (e.lineno != null) {
+              toast.error(t("run.syntaxError", { line: e.lineno, msg: e.message }));
+              editorRef.current?.setErrorMarker(e.lineno, e.message);
+            } else {
+              toast.error(t("run.syntaxErrorNoLine", { msg: e.message }));
+            }
+            break;
+          case "timeout":
+            toast.error(t("run.timeout"));
+            break;
+          case "runtime_error":
+            toast.error(formatRuntimeError(e.message, t));
+            break;
+          default:
+            toast.error(t("run.analysisFailed"));
+        }
+      } else {
+        toast.error(t("run.analysisFailed"));
+      }
     }
   }, [code]);
 
@@ -370,6 +400,7 @@ function Playground() {
                     </div>
                     <div className={styles.editorBody}>
                       <CodeEditor
+                        ref={editorRef}
                         mode="single"
                         language="python"
                         value={code}
@@ -719,6 +750,25 @@ function PanelContent({ id, globalVars, localVars, callStack, stdoutEvents, curr
       : <>{lines.map((e, i) => <div key={i} style={{ fontFamily: "monospace", fontSize: 10.5, color: "var(--text-primary)", lineHeight: 1.7 }}>{e.text}</div>)}</>;
   }
   return null;
+}
+
+function formatRuntimeError(msg: string, t: (key: string, params?: Record<string, string>) => string): string {
+  let m: RegExpMatchArray | null;
+  if ((m = msg.match(/NameError: name '(.+?)' is not defined/)))
+    return t("run.runtimeNameError", { name: m[1] });
+  if ((m = msg.match(/KeyError: (.+)/)))
+    return t("run.runtimeKeyError", { key: m[1] });
+  if (msg.includes("ZeroDivisionError"))
+    return t("run.runtimeZeroDivision");
+  if (msg.includes("RecursionError"))
+    return t("run.runtimeRecursionError");
+  if ((m = msg.match(/IndexError: (.+)/)))
+    return t("run.runtimeIndexError", { msg: m[1] });
+  if ((m = msg.match(/AttributeError: (.+)/)))
+    return t("run.runtimeAttributeError", { msg: m[1] });
+  if ((m = msg.match(/TypeError: (.+)/)))
+    return t("run.runtimeTypeError", { msg: m[1] });
+  return t("run.runtimeError", { msg });
 }
 
 function VarRow({ name, val }: { name: string; val: string }) {

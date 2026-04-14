@@ -75,6 +75,11 @@ export interface CodeEditorHandle {
 
   // 調整分屏比例
   setSplitRatio: (ratio: number) => void;
+
+  /** 在 single mode 編輯器標記語法錯誤行（1-based lineno） */
+  setErrorMarker: (lineno: number, message: string) => void;
+  /** 清除語法錯誤標記 */
+  clearErrorMarker: () => void;
 }
 
 // ==================== 語言對應表 ====================
@@ -453,6 +458,29 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     importCode: importCodeInternal,
     setSplitRatio: (ratio: number) => {
       setSplitRatio(Math.max(0.2, Math.min(0.8, ratio)));
+    },
+    setErrorMarker: (lineno: number, message: string) => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const model = editor.getModel();
+      if (!model) return;
+      monaco.editor.setModelMarkers(model, "analyzeError", [
+        {
+          startLineNumber: lineno,
+          endLineNumber: lineno,
+          startColumn: 1,
+          endColumn: model.getLineMaxColumn(lineno),
+          message,
+          severity: monaco.MarkerSeverity.Error,
+        },
+      ]);
+    },
+    clearErrorMarker: () => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const model = editor.getModel();
+      if (!model) return;
+      monaco.editor.setModelMarkers(model, "analyzeError", []);
     },
   }));
 

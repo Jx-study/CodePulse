@@ -48,7 +48,9 @@ class ApiService {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'API request failed');
+        const err: any = new Error(data.message || 'API request failed');
+        err.response = { status: response.status, data };
+        throw err;
       }
 
       return {
@@ -56,7 +58,8 @@ class ApiService {
         status: response.status,
         message: data.message,
       };
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.response) throw error;
       throw {
         message: error instanceof Error ? error.message : 'Unknown error',
         status: 500,

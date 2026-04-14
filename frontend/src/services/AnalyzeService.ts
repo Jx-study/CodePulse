@@ -12,6 +12,25 @@ import type { TraceEvent, CallGraph, CfgGraph, CfgGraphMap, StdoutEvent } from "
 import type { AiResult, AlgoCandidate } from "@/pages/Explorer/components/AiAnalysisDialog";
 import type { RunStage } from "@/pages/Explorer/components/StatusBar";
 
+export type AnalyzeErrorType =
+  | "empty_code"
+  | "syntax_error"
+  | "timeout"
+  | "runtime_error"
+  | "analysis_failed"
+  | "unknown";
+
+export class AnalyzeError extends Error {
+  constructor(
+    public readonly type: AnalyzeErrorType,
+    message: string,
+    public readonly lineno?: number,
+  ) {
+    super(message);
+    this.name = "AnalyzeError";
+  }
+}
+
 const POLL_INTERVAL_MS = 500;
 
 export interface AnalyzeResult {
@@ -38,7 +57,21 @@ export async function run(
   signal?: AbortSignal,
 ): Promise<AnalyzeResult> {
   // 1. Submit
-  const submitRes = await apiService.post<{ task_id: string }>("/api/analyze/submit", { code });
+  let submitRes: { data: { task_id: string } };
+  try {
+    submitRes = await apiService.post<{ task_id: string }>("/api/analyze/submit", { code });
+  } catch (err: any) {
+    const body = err?.response?.data;
+    if (err?.response?.status === 422 && body?.error) {
+      if (body.error === "empty_code") {
+        throw new AnalyzeError("empty_code", body.message ?? "empty code");
+      }
+      if (body.error === "syntax_error") {
+        throw new AnalyzeError("syntax_error", body.message ?? "syntax error", body.lineno ?? undefined);
+      }
+    }
+    throw err;
+  }
   const taskId = submitRes.data.task_id;
 
   // 2. Poll until completed or failed
@@ -55,10 +88,20 @@ async function poll(
   signal?: AbortSignal,
 ): Promise<AnalyzeResult> {
   return new Promise((resolve, reject) => {
+    let done = false;
+
+    const stop = (fn: () => void) => {
+      if (done) return;
+      done = true;
+      clearInterval(id);
+      fn();
+    };
+
     const id = setInterval(async () => {
+      if (done) return;
+
       if (signal?.aborted) {
-        clearInterval(id);
-        reject(new DOMException("Aborted", "AbortError"));
+        stop(() => reject(new DOMException("Aborted", "AbortError")));
         return;
       }
 
@@ -68,6 +111,8 @@ async function poll(
           progress?: { stage: string };
         }>(`/api/analyze/status/${taskId}`);
 
+        if (done) return;
+
         const status = statusRes.data;
 
         if (status.progress?.stage) {
@@ -75,20 +120,24 @@ async function poll(
         }
 
         if (status.status === "completed") {
+          if (done) return;
+          done = true;
           clearInterval(id);
-          try {
-            const result = await fetchResult(taskId);
-            resolve(result);
-          } catch (e) {
-            reject(e);
-          }
+          fetchResult(taskId).then(resolve).catch(reject);
         } else if (status.status === "failed") {
-          clearInterval(id);
-          reject(new Error("Analysis failed on server"));
+          const detail = (status as any).error_detail;
+          stop(() => {
+            if (detail === "timeout") {
+              reject(new AnalyzeError("timeout", "timeout"));
+            } else if (detail) {
+              reject(new AnalyzeError("runtime_error", detail));
+            } else {
+              reject(new AnalyzeError("analysis_failed", "analysis failed"));
+            }
+          });
         }
       } catch (e) {
-        clearInterval(id);
-        reject(e);
+        stop(() => reject(e));
       }
     }, POLL_INTERVAL_MS);
   });
