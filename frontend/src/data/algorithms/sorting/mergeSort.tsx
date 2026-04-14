@@ -264,13 +264,17 @@ End Procedure
 
 Procedure Merge(left, right):
   result ← empty list
+  leftIndex ← 0
+  rightIndex ← 0
   While left is not empty And right is not empty Do
-    If left[0] ≤ right[0] Then
-      append left[0] to result
+    If left[leftIndex] ≤ right[rightIndex] Then
+      append left[leftIndex] to result
       remove first element from left
+      leftIndex ← leftIndex + 1
     Else
-      append right[0] to result
+      append right[rightIndex] to result
       remove first element from right
+      rightIndex ← rightIndex + 1
     End If
   End While
 
