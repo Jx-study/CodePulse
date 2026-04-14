@@ -312,7 +312,7 @@
       "id": "quick-sort",
       "category": "sorting",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",

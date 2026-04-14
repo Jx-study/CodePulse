@@ -19,5 +19,15 @@
     "delete_shift_done": "搬移完成：Index {{index}} 現在是 {{value}}",
     "delete_remove": "刪除最後一個多餘的空間",
     "delete_complete": "刪除完成"
+  },
+  "qs": {
+    "init": "開始快速排序 (Quick Sort)，陣列長度為 {{length}}",
+    "call": "遞迴分割：處理區間 [{{low}}, {{high}}]，進入深度 {{depth}}",
+    "partition_start": "選擇區間最後一個元素 {{pivotVal}} 作為基準點 (Pivot)",
+    "compare": "比較：{{scanVal}} 是否小於等於基準點 {{pivotVal}}？",
+    "swap": "是！將 {{valI}} 與 {{valJ}} 互換",
+    "pivot_set": "分區完成，將基準點 {{pivotVal}} 放回正確的排序位置 (Index {{pivotIdx}})",
+    "base_case": "區間只剩一個元素 {{value}}，直接標記為已排序",
+    "done": "快速排序完成！所有元素皆已在正確位置。"
   }
 }

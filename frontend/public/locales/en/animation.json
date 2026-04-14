@@ -19,5 +19,15 @@
     "delete_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "delete_remove": "Remove the last redundant slot",
     "delete_complete": "Delete complete"
+  },
+  "qs": {
+    "init": "Starting Quick Sort with array length {{length}}",
+    "call": "Recursive partitioning: processing range [{{low}}, {{high}}], entering depth {{depth}}",
+    "partition_start": "Selected the last element {{pivotVal}} as the Pivot",
+    "compare": "Comparing: Is {{scanVal}} less than or equal to pivot {{pivotVal}}?",
+    "swap": "Yes! Swapped {{valI}} and {{valJ}}",
+    "pivot_set": "Partitioning complete, placing pivot {{pivotVal}} at its correct sorted position (Index {{pivotIdx}})",
+    "base_case": "Range has only one element {{value}}, marking it directly as sorted",
+    "done": "Quick Sort complete! All elements are now in their correct positions."
   }
 }

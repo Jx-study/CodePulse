@@ -133,6 +133,7 @@ export type ImplementationId =
   | "selectionsort"
   | "insertionsort"
   | "mergesort"
+  | "quicksort"
   | "binarysearch"
   | "linearsearch"
   | "bfs"
