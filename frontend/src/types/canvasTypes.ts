@@ -16,3 +16,13 @@ export interface D3CanvasProps extends BaseCanvasProps {
   allStepsElements?: BaseElement[][];
   disableAutoFit?: boolean;
 }
+
+export interface AnimatableCanvasRef {
+  animateLink: (
+    sourceId: string,
+    targetId: string,
+    toColor: string,
+    duration?: number,
+    onComplete?: () => void,
+  ) => void;
+}

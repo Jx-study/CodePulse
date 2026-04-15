@@ -257,9 +257,6 @@ export function createTopologicalSortAnimationSteps(
 
     const stepLinks = remainingEdges.map((e) => {
       let linkStatus = edgeStatus[`${e[0]}->${e[1]}`] as any;
-      if (linkStatus === TopoStatus.Reducing) {
-        linkStatus = Status.Target;
-      }
       return {
         sourceId: e[0],
         targetId: e[1],
@@ -375,6 +372,9 @@ export function createTopologicalSortAnimationSteps(
         nodeStatus[n.id] = TopoStatus.Error;
       }
     });
+    remainingEdges.forEach((e) => {
+      edgeStatus[`${e[0]}->${e[1]}`] = TopoStatus.Error;
+    });
     recordStep(
       `剩下的節點因為互相等待前置條件（入度永遠無法歸零），發生死鎖 (Deadlock)，拓撲排序失敗。`,
       TAGS.CHECK_CYCLE,
@@ -474,6 +474,10 @@ export const topologicalSortConfig: LevelImplementationConfig = {
       ["node-2", "node-3"],
       ["node-3", "node-1"],
     ],
+  },
+  linkAnimConfig: {
+    animateOn: ["reducing"],
+    directOn: ["complete", "unfinished", "error"],
   },
   actionHandler: topoActionHandler,
   createAnimationSteps: createTopologicalSortAnimationSteps,

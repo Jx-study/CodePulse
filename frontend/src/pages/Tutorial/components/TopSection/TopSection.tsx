@@ -21,6 +21,8 @@ import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
 import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
+import type { D3CanvasRef } from '@/modules/core/Render/D3Canvas';
+import type { GraphCanvasRef } from '@/modules/core/Render/GraphCanvas';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -47,6 +49,10 @@ interface CanvasPanelProps {
   handleReset: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
+
+  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
+  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
+  useGraphCanvas: boolean;
 }
 
 interface TopSectionProps {

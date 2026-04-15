@@ -229,7 +229,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
 
     if (node.left) {
       statusMap[node.left.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, node.id, node.left.id, "path", true);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -245,7 +245,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
       );
       delete statusMap[node.left.id];
       traverse(node.left);
-      updateLinkStatus(linkStatusMap, node.id, node.left.id, "visited", true);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "complete", true);
 
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
@@ -310,7 +310,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
 
     if (node.right) {
       statusMap[node.right.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, node.id, node.right.id, "path", true);
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -328,7 +328,7 @@ function runPreorder(inputData: any[]): AnimationStep[] {
 
       traverse(node.right);
 
-      updateLinkStatus(linkStatusMap, node.id, node.right.id, "visited", true);
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "complete", true);
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
       steps.push(
@@ -481,7 +481,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
 
     if (node.left) {
       statusMap[node.left.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, node.id, node.left.id, "path", true);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -499,7 +499,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
 
       traverse(node.left);
 
-      updateLinkStatus(linkStatusMap, node.id, node.left.id, "visited", true);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "complete", true);
 
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
@@ -580,7 +580,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
 
     if (node.right) {
       statusMap[node.right.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, node.id, node.right.id, "path", true);
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -598,7 +598,7 @@ function runInorder(inputData: any[]): AnimationStep[] {
 
       traverse(node.right);
 
-      updateLinkStatus(linkStatusMap, node.id, node.right.id, "visited", true);
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "complete", true);
 
       const originalStatus = statusMap[node.id];
       statusMap[node.id] = Status.Target;
@@ -752,7 +752,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
 
     if (node.left) {
       statusMap[node.left.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, node.id, node.left.id, "path", true);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -770,7 +770,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
 
       traverse(node.left);
 
-      updateLinkStatus(linkStatusMap, node.id, node.left.id, "visited", true);
+      updateLinkStatus(linkStatusMap, node.id, node.left.id, "complete", true);
       statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
@@ -831,7 +831,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
 
     if (node.right) {
       statusMap[node.right.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, node.id, node.right.id, "path", true);
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -849,7 +849,7 @@ function runPostorder(inputData: any[]): AnimationStep[] {
 
       traverse(node.right);
 
-      updateLinkStatus(linkStatusMap, node.id, node.right.id, "visited", true);
+      updateLinkStatus(linkStatusMap, node.id, node.right.id, "complete", true);
       statusMap[node.id] = Status.Target;
       steps.push(
         generateFrame(
@@ -1007,7 +1007,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
     const { node: curr, parent } = queue[0];
 
     if (parent) {
-      updateLinkStatus(linkStatusMap, parent.id, curr.id, "visited", true);
+      updateLinkStatus(linkStatusMap, parent.id, curr.id, "complete", true);
     }
 
     statusMap[curr.id] = Status.Target;
@@ -1044,7 +1044,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
 
     if (curr.left) {
       statusMap[curr.left.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+      updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -1078,7 +1078,7 @@ function runBFS(inputData: any[]): AnimationStep[] {
 
     if (curr.right) {
       statusMap[curr.right.id] = Status.Prepare;
-      updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+      updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
       steps.push(
         generateFrame(
           inputData,
@@ -1317,6 +1317,10 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
     { id: "node-6", value: 6 },
     { id: "node-7", value: 7 },
   ],
+  linkAnimConfig: {
+    animateOn: ["prepare"],
+    directOn: ["complete"],
+  },
   createAnimationSteps: createBinaryTreeAnimationSteps,
   actionHandler: binaryTreeActionHandler,
   renderActionBar: (props) => <BinaryTreeActionBar {...(props as any)} />,

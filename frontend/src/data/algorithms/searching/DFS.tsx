@@ -271,7 +271,7 @@ function runGraphDFS(
     const parentId = parentMap.get(currId);
 
     if (parentId) {
-      updateLinkStatus(linkStatusMap, parentId, currId, "visited", false);
+      updateLinkStatus(linkStatusMap, parentId, currId, "target", false);
     }
 
     statusMap[currId] = Status.Target;
@@ -355,6 +355,9 @@ function runGraphDFS(
     if (currId === realEndId) break;
 
     statusMap[currId] = Status.Unfinished; // 歷史軌跡
+    if (parentId) {
+      updateLinkStatus(linkStatusMap, parentId, currId, Status.Unfinished as linkStatus, false);
+    }
 
     const currNode = nodeMap.get(currId);
     if (currNode) {
@@ -391,7 +394,7 @@ function runGraphDFS(
       for (const neighbor of neighbors) {
         // 只有未訪問過的才推入堆疊
         if (!visited.has(neighbor.id)) {
-          updateLinkStatus(linkStatusMap, currId, neighbor.id, "path", false);
+          updateLinkStatus(linkStatusMap, currId, neighbor.id, "prepare", true);
           parentMap.set(neighbor.id, currId);
           // 步數 + 1
           stack.push({ id: neighbor.id, dist: currDist + 1 });
@@ -918,6 +921,10 @@ DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
   createAnimationSteps: createDFSAnimationSteps,
   actionHandler: dfsActionHandler,
   defaultViewMode: "graph",
+  linkAnimConfig: {
+    animateOn: ["prepare"],
+    directOn: ["target", "complete"],
+  },
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
   maxNodes: 15,
   relatedProblems: [

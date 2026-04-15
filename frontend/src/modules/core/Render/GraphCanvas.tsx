@@ -1,4 +1,11 @@
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import {
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import {
   forceSimulation,
   forceLink,
@@ -10,16 +17,18 @@ import {
   zoom as d3Zoom,
   zoomIdentity,
   easeQuadOut,
+  interpolateRgb,
 } from "d3";
 import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
-import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
-import type { Link } from "./D3Renderer";
-import { linkStatusColorMap } from "./D3Renderer";
-import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
-import type { BaseCanvasProps } from '@/types/components/display';
+import {
+  defaultStatusColorMap,
+  getLinkColor,
+  type Link,
+} from "./D3Renderer";
 import CanvasShell from "./CanvasShell";
+import type { AnimatableCanvasRef, D3CanvasProps } from "@/types/canvasTypes";
 import { useBoxViewBox } from "./useBoxViewBox";
 import {
   circleBoundaryPoint,
@@ -65,17 +74,9 @@ function deduplicateLinks(links: Link[], isDirected: boolean): GSimLink[] {
   }, []);
 }
 
-// 與 D3Canvas 相容的子集 props
-export interface GraphCanvasProps extends BaseCanvasProps {
-  elements: BaseElement[];
-  links?: Link[];
-  statusColorMap?: StatusColorMap;
-  statusConfig?: StatusConfig;
-  isDirected?: boolean;
-  allStepsElements?: BaseElement[][];
-  structureType?: string;
-  disableAutoFit?: boolean;
-}
+export type GraphCanvasProps = D3CanvasProps;
+
+export interface GraphCanvasRef extends AnimatableCanvasRef { }
 
 interface GSimNode extends SimulationNodeDatum {
   id: string;
@@ -91,20 +92,24 @@ interface GSimLink extends SimulationLinkDatum<GSimNode> {
   weight?: number | string;
 }
 
-export function GraphCanvas({
-  elements,
-  links = [],
-  width = 800,
-  height = 500,
-  isDirected = false,
-  statusColorMap,
-  statusConfig,
-  enableZoom = true,
-  enablePan = true,
-  allStepsElements,
-  structureType,
-  disableAutoFit = false,
-}: GraphCanvasProps) {
+export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(
+  function GraphCanvas(
+    {
+      elements,
+      links = [],
+      width = 800,
+      height = 500,
+      isDirected = false,
+      statusColorMap,
+      statusConfig,
+      enableZoom = true,
+      enablePan = true,
+      allStepsElements,
+      structureType,
+      disableAutoFit = false,
+    },
+    ref,
+  ) {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<ReturnType<
     typeof forceSimulation<GSimNode>
@@ -116,6 +121,13 @@ export function GraphCanvas({
   const prevLinkKeyRef = useRef<string>("");
   const seenSelfLoopsRef = useRef<Set<string>>(new Set());
   const linkSetRef = useRef<Set<string>>(new Set());
+  const simNodesRef = useRef<GSimNode[]>([]);
+  const isDirectedRef = useRef(isDirected);
+  const animDefsRef = useRef<SVGDefsElement | null>(null);
+  const animStateRef = useRef<Map<string, number>>(new Map());
+  const nodeMapRef = useRef<Map<string, Node>>(new Map());
+
+  isDirectedRef.current = isDirected;
 
   // 動態 viewBox：只向外擴張（用於 Box 元素超出預設範圍時）
   const {
@@ -165,23 +177,21 @@ export function GraphCanvas({
 
     if (nodeElements.length === 0) return;
 
-    // 箭頭標記（有向圖）— 每個 status 各一個，顏色跟著邊的狀態走
+    // 箭頭標記（有向圖）— 單一 marker，fill 繼承 stroke（context-stroke）
     if (isDirected) {
       const defs = svg.append("defs");
-      Object.entries(linkStatusColorMap).forEach(([status, color]) => {
-        defs
-          .append("marker")
-          .attr("id", `gc-arrowhead-${status}`)
-          .attr("viewBox", "0 -5 10 10")
-          .attr("refX", 10)
-          .attr("refY", 0)
-          .attr("markerWidth", 6)
-          .attr("markerHeight", 6)
-          .attr("orient", "auto")
-          .append("path")
-          .attr("d", "M0,-5L10,0L0,5")
-          .attr("fill", color);
-      });
+      defs
+        .append("marker")
+        .attr("id", "gc-arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "context-stroke");
     }
 
     // Zoom + Pan（D3 zoom 套用在 SVG，transform 作用於 mainGroup）
@@ -193,6 +203,9 @@ export function GraphCanvas({
       });
 
     const mainGroup = svg.append("g").attr("class", "main-group");
+    const animDefs = mainGroup.append("defs").attr("id", "gc-anim-defs");
+    animDefsRef.current = animDefs.node();
+
     zoomBehavior.on("zoom", (event) => {
       mainGroup.attr("transform", event.transform.toString());
     });
@@ -341,7 +354,7 @@ export function GraphCanvas({
       .attr("stroke", "#888")
       .attr("stroke-width", 2)
       .attr("fill", "none")
-      .attr("marker-end", isDirected ? "url(#gc-arrowhead-default)" : "none")
+      .attr("marker-end", isDirected ? "url(#gc-arrowhead)" : "none")
       .attr("data-anim", (d) => {
         if (d.sourceId !== d.targetId) return null;
         if (seenSelfLoopsRef.current.has(d.sourceId)) return null;
@@ -476,6 +489,8 @@ export function GraphCanvas({
 
     // Tick：更新座標 + 寫入快取（動態選取以支援 Effect 2 新增的 link）
     simulation.on("tick", () => {
+      simNodesRef.current = simNodes;
+
       const svgEl = svgRef.current;
       if (!svgEl) return;
 
@@ -622,6 +637,9 @@ export function GraphCanvas({
 
     return () => {
       simulation.stop();
+      animStateRef.current.forEach((id) => cancelAnimationFrame(id));
+      animStateRef.current.clear();
+      animDefsRef.current = null;
     };
   }, [nodeIds, width, height, isDirected, structureType]); // links 不放入，addEdge 不重建
 
@@ -695,7 +713,7 @@ export function GraphCanvas({
             .attr("fill", "none")
             .attr(
               "marker-end",
-              isDirected ? "url(#gc-arrowhead-default)" : "none",
+              isDirected ? "url(#gc-arrowhead)" : "none",
             )
             .attr("data-anim", (d) => {
               if (d.sourceId !== d.targetId) return null;
@@ -884,6 +902,16 @@ export function GraphCanvas({
     }
 
     const nodeMap = new Map(nodeElements.map((e) => [e.id, e]));
+    nodeMapRef.current = nodeMap;
+
+    const linksMap = new Map<string, (typeof links)[0]>();
+    links.forEach((l) => {
+      const k = isDirected ? `${l.sourceId}->${l.targetId}` : [l.sourceId, l.targetId].sort().join("--");
+      const existing = linksMap.get(k);
+      if (!existing || l.status !== undefined) {
+        linksMap.set(k, l);
+      }
+    });
 
     d3Select(svgRef.current)
       .selectAll<SVGCircleElement, GSimNode>(".gc-node")
@@ -924,22 +952,24 @@ export function GraphCanvas({
           .attr("fill", "#ccc");
       });
 
-    // 更新 link 樣式（stroke + marker-end 顏色同步）
+    // 更新 link 樣式（link.status → statusColorMap；動畫中由 animateLink 接管）
     d3Select(svgRef.current)
       .selectAll<SVGPathElement, GSimLink>(".gc-link")
       .each(function (d) {
         if (!d) return;
-        const status = d.status || "default";
-        const markerStatus = status in linkStatusColorMap ? status : "default";
-        const color =
-          linkStatusColorMap[status as keyof typeof linkStatusColorMap] ??
-          linkStatusColorMap.default;
+        const animKey = `${d.sourceId}->${d.targetId}`;
+        if (animStateRef.current.has(animKey)) return;
+        const propKey = isDirected
+          ? animKey
+          : [d.sourceId, d.targetId].sort().join("--");
+        const linkData = linksMap.get(propKey);
+        const color = getLinkColor(
+          linkData?.status,
+          statusColorMap ?? defaultStatusColorMap,
+        );
         d3Select(this)
           .attr("stroke", color)
-          .attr(
-            "marker-end",
-            isDirected ? `url(#gc-arrowhead-${markerStatus})` : "none",
-          );
+          .attr("marker-end", isDirected ? "url(#gc-arrowhead)" : "none");
       });
 
     // 更新 weight 文字顏色（target 狀態→橙色，其他→白色，與 D3Renderer 一致）
@@ -948,12 +978,214 @@ export function GraphCanvas({
       .selectAll<SVGGElement, GSimLink>("g.gc-weight-group")
       .each(function (d) {
         if (!d || d.weight == null) return;
-        const status = d.status || "default";
+        const propKey = isDirected
+          ? `${d.sourceId}->${d.targetId}`
+          : [d.sourceId, d.targetId].sort().join("--");
+        const status =
+          linksMap.get(propKey)?.status ?? d.status ?? "default";
         d3Select(this)
           .select("text.gc-weight-text")
           .attr("fill", status === "target" ? "#ffb74d" : "#fff");
       });
-  }, [elements, nodeElements, isDirected]);
+  }, [elements, nodeElements, isDirected, links, statusColorMap]);
+
+  useImperativeHandle(ref, () => ({
+    animateLink(
+      sourceId: string,
+      targetId: string,
+      toColor: string,
+      duration = 1200,
+      onComplete?: () => void,
+    ) {
+      const BLEND = 0.12;
+      if (sourceId === targetId) return;
+
+      // Try caller's direction first; fallback to reverse for undirected graphs.
+      // elemSourceId/elemTargetId = the direction the SVG element is actually stored.
+      // sourceId/targetId (caller) = the intended traversal direction for gradient.
+      let elemSourceId = sourceId;
+      let elemTargetId = targetId;
+      let linkEl = d3Select(svgRef.current)
+        .selectAll<SVGPathElement, GSimLink>(".gc-link")
+        .filter((d) => d.sourceId === sourceId && d.targetId === targetId)
+        .node();
+
+      if (!linkEl) {
+        elemSourceId = targetId;
+        elemTargetId = sourceId;
+        linkEl = d3Select(svgRef.current)
+          .selectAll<SVGPathElement, GSimLink>(".gc-link")
+          .filter((d) => d.sourceId === elemSourceId && d.targetId === elemTargetId)
+          .node();
+      }
+
+      if (!linkEl) {
+        onComplete?.();
+        return;
+      }
+
+      const rawStroke = linkEl.getAttribute("stroke") ?? "#888";
+      const fromColor = rawStroke.startsWith("url(")
+        ? nodeMapRef.current.get(targetId)?.getColor() ?? "#888"
+        : rawStroke;
+
+      if (fromColor === toColor) {
+        onComplete?.();
+        return;
+      }
+
+      // key uses caller's direction for deduplication; elemKey guards the actual element.
+      const key = `${sourceId}->${targetId}`;
+      const elemKey = `${elemSourceId}->${elemTargetId}`;
+      const gradId = `gc-anim-${sourceId}-${targetId}`.replace(
+        /[^a-zA-Z0-9_-]/g,
+        "_",
+      );
+      const arrowMarkerId = `gc-anim-arrow-${sourceId}-${targetId}`.replace(
+        /[^a-zA-Z0-9_-]/g,
+        "_",
+      );
+
+      const existing = animStateRef.current.get(key);
+      if (existing !== undefined) {
+        cancelAnimationFrame(existing);
+        if (animDefsRef.current) {
+          const ad = d3Select(animDefsRef.current);
+          ad.select(`#${gradId}`).remove();
+          ad.select(`#${arrowMarkerId}`).remove();
+        }
+      }
+
+      const setAnimState = (id: number) => {
+        animStateRef.current.set(key, id);
+        if (elemKey !== key) animStateRef.current.set(elemKey, id);
+      };
+      const deleteAnimState = () => {
+        animStateRef.current.delete(key);
+        if (elemKey !== key) animStateRef.current.delete(elemKey);
+      };
+
+      const elemFilter = (d: GSimLink) =>
+        d.sourceId === elemSourceId && d.targetId === elemTargetId;
+
+      const startTime = performance.now();
+      const tick = () => {
+        const svgEl = svgRef.current;
+        const defs = animDefsRef.current;
+        if (!svgEl || !defs) return;
+
+        const s = Math.min((performance.now() - startTime) / duration, 1);
+        const linkT = s;
+        const frontPct = `${linkT * 100}%`;
+        const blendEndPct = `${Math.min(linkT + BLEND, 1) * 100}%`;
+
+        // Positions use caller's sourceId/targetId so gradient flows in traversal direction.
+        const nodes = simNodesRef.current;
+        const src = nodes.find((n) => n.id === sourceId);
+        const tgt = nodes.find((n) => n.id === targetId);
+        if (!src || !tgt) return;
+
+        const p1 = circleBoundaryPoint(
+          { x: src.x ?? 0, y: src.y ?? 0, r: src.radius },
+          { x: tgt.x ?? 0, y: tgt.y ?? 0 },
+        );
+        const p2 = circleBoundaryPoint(
+          { x: tgt.x ?? 0, y: tgt.y ?? 0, r: tgt.radius },
+          { x: src.x ?? 0, y: src.y ?? 0 },
+        );
+
+        const d3Defs = d3Select(defs);
+
+        if (d3Defs.select(`#${gradId}`).empty()) {
+          const g = d3Defs
+            .append("linearGradient")
+            .attr("id", gradId)
+            .attr("gradientUnits", "userSpaceOnUse");
+          g.append("stop").attr("class", "g-s1");
+          g.append("stop").attr("class", "g-s2");
+          g.append("stop").attr("class", "g-s3");
+          g.append("stop").attr("class", "g-s4");
+        }
+        d3Defs
+          .select(`#${gradId}`)
+          .attr("x1", p1.x)
+          .attr("y1", p1.y)
+          .attr("x2", p2.x)
+          .attr("y2", p2.y);
+        d3Defs
+          .select(`#${gradId} .g-s1`)
+          .attr("offset", "0%")
+          .attr("stop-color", toColor);
+        d3Defs
+          .select(`#${gradId} .g-s2`)
+          .attr("offset", frontPct)
+          .attr("stop-color", toColor);
+        d3Defs
+          .select(`#${gradId} .g-s3`)
+          .attr("offset", blendEndPct)
+          .attr("stop-color", fromColor);
+        d3Defs
+          .select(`#${gradId} .g-s4`)
+          .attr("offset", "100%")
+          .attr("stop-color", fromColor);
+
+        // Apply gradient to the actual element (may differ from caller's direction).
+        d3Select(svgEl)
+          .selectAll<SVGPathElement, GSimLink>(".gc-link")
+          .filter(elemFilter)
+          .attr("stroke", `url(#${gradId})`);
+
+        if (isDirectedRef.current) {
+          if (d3Defs.select(`#${arrowMarkerId}`).empty()) {
+            const m = d3Defs
+              .append("marker")
+              .attr("id", arrowMarkerId)
+              .attr("viewBox", "0 -5 10 10")
+              .attr("refX", 10)
+              .attr("refY", 0)
+              .attr("markerWidth", 6)
+              .attr("markerHeight", 6)
+              .attr("orient", "auto");
+            m.append("path").attr("d", "M0,-5L10,0L0,5");
+            d3Select(svgEl)
+              .selectAll<SVGPathElement, GSimLink>(".gc-link")
+              .filter(elemFilter)
+              .attr("marker-end", `url(#${arrowMarkerId})`);
+          }
+          const arrowT = Math.max(0, (linkT - (1 - BLEND)) / BLEND);
+          d3Defs
+            .select(`#${arrowMarkerId} path`)
+            .attr(
+              "fill",
+              interpolateRgb(fromColor, toColor)(Math.min(arrowT, 1)),
+            );
+        }
+
+        if (s < 1) {
+          setAnimState(requestAnimationFrame(tick));
+        } else {
+          d3Select(svgEl)
+            .selectAll<SVGPathElement, GSimLink>(".gc-link")
+            .filter(elemFilter)
+            .attr("stroke", toColor);
+          d3Defs.select(`#${gradId}`).remove();
+
+          if (isDirectedRef.current) {
+            d3Defs.select(`#${arrowMarkerId}`).remove();
+            d3Select(svgEl)
+              .selectAll<SVGPathElement, GSimLink>(".gc-link")
+              .filter(elemFilter)
+              .attr("marker-end", "url(#gc-arrowhead)");
+          }
+
+          deleteAnimState();
+          onComplete?.();
+        }
+      };
+
+      setAnimState(requestAnimationFrame(tick));
+    },
+  }));
 
   return (
     <CanvasShell
@@ -971,3 +1203,4 @@ export function GraphCanvas({
     </CanvasShell>
   );
 }
+);

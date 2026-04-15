@@ -55,8 +55,7 @@ export function PanelProvider({ children }: PanelProviderProps) {
   const [activePanels, setActivePanels] = useState<string[]>([
     "canvas",
     "actionBar", // Inspector 內的 Tab
-    "local_varstatus", // 變數狀態 Tab
-    "callStack", // Call Stack Tab
+    "variableStatus", // 變數狀態 Tab
   ]);
 
   const [collapsedPanels, setCollapsedPanels] = useState<Set<string>>(
@@ -144,7 +143,7 @@ export function PanelProvider({ children }: PanelProviderProps) {
    * 重置面板為默認狀態
    */
   const resetPanels = () => {
-    setActivePanels(["canvas", "actionBar", "variableStatus", "callStack"]);
+    setActivePanels(["canvas", "actionBar", "variableStatus"]);
     setRightPanelOrder(["canvas", "inspector"]);
     setCollapsedPanels(new Set());
   };
