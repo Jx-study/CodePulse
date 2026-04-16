@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import ControlBar from '@/modules/core/components/ControlBar/ControlBar';
+import Button from '@/shared/components/Button/Button';
 import type { FloodFillOutputData } from '@/types/implementation';
 import { rasterizePattern } from './patternRasterizer';
 import styles from './FloodFillRenderer.module.scss';
@@ -291,6 +292,16 @@ const FloodFillRenderer: React.FC<Props> = ({ data }) => {
     setIsPlaying(true);
   };
 
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'flood-fill.png';
+    a.click();
+  };
+
   const handleReset = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -345,39 +356,50 @@ const FloodFillRenderer: React.FC<Props> = ({ data }) => {
         </div>
       </div>
 
-      <div className={styles.palette} role="listbox" aria-label="填色色盤">
-        {PALETTE.map((color, i) => (
-          <button
-            key={i}
-            type="button"
-            role="option"
-            aria-label={`選擇顏色 ${i + 1}`}
-            aria-selected={selectedColor === i + 1}
-            className={classNames(styles.paletteColor, {
-              [styles.paletteColorSelected]: selectedColor === i + 1,
-            })}
-            style={{ background: color }}
-            onClick={() => setSelectedColor(i + 1)}
-          />
-        ))}
-      </div>
-
-      <div className={styles.controlBarSlot}>
-        <ControlBar
-          isPlaying={isPlaying}
-          currentStep={safeStep}
-          totalSteps={totalBar}
-          playbackSpeed={speed}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onNext={() => setStep((s) => Math.min(s + 1, Math.max(totalBar - 1, 0)))}
-          onPrev={() => setStep((s) => Math.max(0, s - 1))}
-          onReset={handleReset}
-          onSpeedChange={setSpeed}
-          onStepChange={(n) => setStep(Math.min(n, Math.max(totalBar - 1, 0)))}
+      <div className={styles.controlRow}>
+        <div className={styles.palette} role="listbox" aria-label="填色色盤">
+          {PALETTE.map((color, i) => (
+            <button
+              key={i}
+              type="button"
+              role="option"
+              aria-label={`選擇顏色 ${i + 1}`}
+              aria-selected={selectedColor === i + 1}
+              className={classNames(styles.paletteColor, {
+                [styles.paletteColorSelected]: selectedColor === i + 1,
+              })}
+              style={{ background: color }}
+              onClick={() => setSelectedColor(i + 1)}
+            />
+          ))}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="download"
+          iconOnly
+          aria-label="下載圖片"
+          onClick={handleDownload}
         />
       </div>
-    </div>
+
+      
+        <div className={styles.controlBarSlot}>
+          <ControlBar
+            isPlaying={isPlaying}
+            currentStep={safeStep}
+            totalSteps={totalBar}
+            playbackSpeed={speed}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onNext={() => setStep((s) => Math.min(s + 1, Math.max(totalBar - 1, 0)))}
+            onPrev={() => setStep((s) => Math.max(0, s - 1))}
+            onReset={handleReset}
+            onSpeedChange={setSpeed}
+            onStepChange={(n) => setStep(Math.min(n, Math.max(totalBar - 1, 0)))}
+          />
+        </div>
+      </div>
   );
 };
 

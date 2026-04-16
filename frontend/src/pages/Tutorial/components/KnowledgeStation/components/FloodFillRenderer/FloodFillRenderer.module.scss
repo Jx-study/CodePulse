@@ -11,7 +11,12 @@
   border: 1px solid var(--color-border);
 }
 
-/** 控制列維持父層全寬（wrapper 其餘子項水平置中） */
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .controlBarSlot {
   align-self: stretch;
   width: 100%;
