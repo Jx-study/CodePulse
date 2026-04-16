@@ -151,6 +151,11 @@ export function createDijkstraAnimationSteps(
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
   const visited: Set<string> = new Set();
+  const prev: Record<string, string | null> = {};
+
+  rawNodes.forEach((n: any) => {
+    prev[n.id] = null;
+  });
 
   rawNodes.forEach((n: any) => {
     dist[n.id] = Infinity;
@@ -233,7 +238,6 @@ export function createDijkstraAnimationSteps(
 
     // 提早結束邏輯(有輸入終點時)
     if (endNodeId && u === endNodeId) {
-      statusMap[u] = Status.Complete;
       recordStep(
         `節點 ${u} 是目標終點，且已確定最短路徑 (${dist[u]})，提早結束搜尋！`,
         TAGS.DONE,
@@ -254,7 +258,7 @@ export function createDijkstraAnimationSteps(
 
       if (visited.has(v)) continue; // 已經定案的節點不再更新
 
-      updateLinkStatus(linkStatusMap, u, v, "target", isDirected);
+      updateLinkStatus(linkStatusMap, u, v, "target", true);
       recordStep(
         `檢查相鄰節點 ${v}，經過此邊的權重為 ${weight}`,
         TAGS.CHECK_NEIGHBORS,
@@ -263,9 +267,9 @@ export function createDijkstraAnimationSteps(
       const alt = dist[u] + weight;
       if (alt < dist[v]) {
         dist[v] = alt;
-        // 標記發現的最短路徑邊
+        prev[v] = u;
         statusMap[v] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, u, v, "path", isDirected);
+        updateLinkStatus(linkStatusMap, u, v, "prepare", true);
         recordStep(
           `發現更短路徑，從 ${u} 到 ${v} 的新距離是 ${alt}，更新距離表`,
           TAGS.RELAX_EDGE_TRUE,
@@ -278,8 +282,7 @@ export function createDijkstraAnimationSteps(
         );
       }
 
-      // 檢查完把線的顏色恢復
-      updateLinkStatus(linkStatusMap, u, v, "default", isDirected);
+      updateLinkStatus(linkStatusMap, u, v, "complete", false);
     }
 
     visited.add(u);
@@ -290,8 +293,36 @@ export function createDijkstraAnimationSteps(
     );
   }
 
-  if (!endNodeId || dist[endNodeId] === Infinity) {
+  if (endNodeId && dist[endNodeId] !== Infinity) {
+    // 回溯最短路徑
+    const path: string[] = [];
+    let curr: string | null = endNodeId;
+    while (curr !== null) {
+      path.unshift(curr);
+      curr = prev[curr];
+    }
+
+    // 重置所有狀態，只標記路徑
+    rawNodes.forEach((n: any) => {
+      statusMap[n.id] = Status.Unfinished;
+    });
+    Object.keys(linkStatusMap).forEach((k) => delete linkStatusMap[k]);
+
+    path.forEach((nodeId) => {
+      statusMap[nodeId] = Status.Complete;
+    });
+    for (let i = 0; i < path.length - 1; i++) {
+      updateLinkStatus(linkStatusMap, path[i], path[i + 1], "complete", false);
+    }
+
+    recordStep(
+      `最短路徑：${path.join(" → ")}，總距離 = ${dist[endNodeId]}`,
+      TAGS.DONE,
+    );
+  } else if (!endNodeId) {
     recordStep("演算法執行完畢！所有可達節點的最短路徑皆已找出。", TAGS.DONE);
+  } else {
+    recordStep(`終點 ${endNodeId} 不可達，演算法結束。`, TAGS.DONE);
   }
 
   return steps;
@@ -390,6 +421,10 @@ export const dijkstraConfig: LevelImplementationConfig = {
         ["node-3", "node-2", "6"],
       ],
     },
+  },
+  linkAnimConfig: {
+    animateOn: ["target"],
+    directOn: ["prepare", "complete", "unfinished"],
   },
   createAnimationSteps: createDijkstraAnimationSteps,
   actionHandler: dijkstraActionHandler,

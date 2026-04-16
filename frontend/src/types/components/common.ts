@@ -5,7 +5,7 @@
 
 // ==================== Button Component ====================
 export interface ButtonProps {
-  variant?: 'primary' | 'primaryOutline' | 'secondary' | 'ghost' | 'danger' | 'icon' | 'dot' | 'glass' | 'gameCtrl';
+  variant?: 'primary' | 'primaryOutline' | 'secondary' | 'ghost' | 'danger' | 'icon' | 'dot' | 'glass' | 'gameCtrl' | 'unstyled' | 'glow';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
@@ -85,7 +85,7 @@ export interface BadgeProps {
 
 // ==================== Icon Component ====================
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-export type IconColor = 'primary' | 'secondary' | 'danger' | 'muted' | 'inherit';
+export type IconColor = 'primary' | 'secondary' | 'success' | 'danger' | 'error' | 'muted' | 'inherit';
 export type IconAnimation = 'spin' | 'pulse';
 
 export interface IconProps {

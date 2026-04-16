@@ -74,5 +74,8 @@
   "theme": "外觀主題",
   "lightMode": "淺色",
   "darkMode": "深色",
-  "systemDefault": "系統"
+  "systemDefault": "系統",
+  "auth": {
+    "loginRequired": "請先登入才能使用此功能"
+  }
 }

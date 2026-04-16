@@ -1,17 +1,25 @@
-import { useEffect, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, Suspense, lazy } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Auth Context
 import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
+import CheckinDialog from "@/modules/user/components/CheckinDialog";
+import XpFloat from "@/shared/components/XpFloat";
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
 import AuthLayout from "./shared/layouts/AuthLayout";
 
 // Skeleton Loading
-import { PageSkeleton } from "./shared/components/Skeleton";
+import {
+  PageSkeleton,
+  TutorialSkeleton,
+  PracticeSkeleton,
+  DashboardSkeleton,
+  ExplorerSkeleton,
+} from "./shared/components/Skeleton";
 
 // Pages
 import Home from "./pages/Home/Home";
@@ -20,22 +28,54 @@ import VerifyEmailPage from "./pages/Authentication/VerifyEmail";
 import ForgotPasswordPage from "./pages/Authentication/ForgotPassword";
 import ResetPasswordPage from "./pages/Authentication/ResetPassword";
 import OAuthCallback from "./pages/Authentication/OAuthCallback";
-import Tutorial from "./pages/Tutorial/Tutorial";
-import Practice from "./pages/Practice/Practice";
-import Explorer from "./pages/Explorer/Explorer";
+import Lab from "./pages/Explorer/Lab";
+import Playground from "./pages/Explorer/Playground";
 import About from "./pages/About/About";
-import LearningDashboard from "./pages/LearningDashboard/LearningDashboard";
+const Tutorial = lazy(() => import("./pages/Tutorial/Tutorial"));
+const Practice = lazy(() => import("./pages/Practice/Practice"));
+const Explorer = lazy(() => import("./pages/Explorer/Explorer"));
+const LearningDashboard = lazy(
+  () => import("./pages/LearningDashboard/LearningDashboard"),
+);
+import ProtectedRoute from "./shared/components/ProtectedRoute";
+import WelcomeOverlay from "./modules/auth/components/WelcomeOverlay";
+
+function CheckinWrapper() {
+  const { isLoading, showCheckinDialog, setShowCheckinDialog } = useAuth();
+  if (isLoading) return null;
+  return (
+    <CheckinDialog
+      isOpen={showCheckinDialog}
+      onClose={() => setShowCheckinDialog(false)}
+    />
+  );
+}
+
+function WelcomeWrapper() {
+  const { pendingWelcome, setPendingWelcome } = useAuth();
+  const navigate = useNavigate();
+  if (!pendingWelcome) return null;
+  return (
+    <WelcomeOverlay
+      username={pendingWelcome.username}
+      onComplete={() => {
+        setPendingWelcome(null);
+        navigate("/");
+      }}
+    />
+  );
+}
 
 function ThemeApplier() {
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
     if (isLoading) return;
-    const theme = user?.theme ?? 'system';
-    if (theme === 'system') {
-      document.documentElement.removeAttribute('data-theme');
+    const theme = user?.theme ?? "system";
+    if (theme === "system") {
+      document.documentElement.removeAttribute("data-theme");
     } else {
-      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute("data-theme", theme);
     }
   }, [user?.theme, isLoading]);
 
@@ -53,23 +93,61 @@ function App() {
   return (
     <AuthProvider>
       <ThemeApplier />
+      <CheckinWrapper />
+      <WelcomeWrapper />
       <ToastContainer />
+      <XpFloat />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* 主布局 */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<LearningDashboard />} />
-            <Route path="/tutorial" element={<Tutorial />} />
+            <Route
+              path="/dashboard"
+              element={
+                <Suspense fallback={<DashboardSkeleton />}>
+                  <LearningDashboard />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/tutorial"
+              element={
+                <Suspense fallback={<TutorialSkeleton />}>
+                  <Tutorial />
+                </Suspense>
+              }
+            />
             <Route
               path="/tutorial/:category/:levelId"
-              element={<Tutorial />}
+              element={
+                <Suspense fallback={<TutorialSkeleton />}>
+                  <Tutorial />
+                </Suspense>
+              }
             />
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/practice/:category/:levelId"
+                element={
+                  <Suspense fallback={<PracticeSkeleton />}>
+                    <Practice />
+                  </Suspense>
+                }
+              />
+            </Route>
             <Route
-              path="/practice/:category/:levelId"
-              element={<Practice />}
+              path="/explorer"
+              element={
+                <Suspense fallback={<ExplorerSkeleton />}>
+                  <Explorer />
+                </Suspense>
+              }
             />
-            <Route path="/explorer" element={<Explorer />} />
+            <Route path="/explorer/lab" element={<Lab />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/explorer/playground" element={<Playground />} />
+            </Route>
             <Route path="/about" element={<About />} />
           </Route>
 

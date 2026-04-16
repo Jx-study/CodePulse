@@ -30,7 +30,6 @@ function LevelDialog({
   onClose,
   onStartTutorial,
   onStartPractice,
-  onCompleteLevel,
   userProgress,
   tutorialLocked,
   practiceLocked,
@@ -67,17 +66,17 @@ function LevelDialog({
       <TutorialSection
         level={level}
         onStartTutorial={onStartTutorial}
-        isCompleted={userProgress.status === "completed"}
+        isCompleted={userProgress.teachingCompleted === true}
         isLocked={tutorialLocked}
         suggestedLevelNames={suggestedLevelNames}
       />
       <PracticeSection
         level={level}
         onStartPractice={onStartPractice}
-        onCompleteLevel={onCompleteLevel}
         bestStars={userProgress.stars}
         attempts={userProgress.attempts}
         bestTime={userProgress.bestTime}
+        bestScore={userProgress.bestScore}
         isLocked={practiceLocked}
         prerequisiteInfo={prerequisiteInfo}
       />

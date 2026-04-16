@@ -1,64 +1,275 @@
-@use "sass:color";
 .overlay {
+  @include flex-center(column);
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, $primary-color 0%, color.adjust($primary-color, $lightness: -20%) 100%);
+  background-color: $dark-bg-primary;
+  z-index: 1000;
+  overflow: hidden;
+  color: $light-bg-tertiary;
+}
+
+.gridBg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right,  rgba(99, 91, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 91, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.pixelBg {
+  @include flex-center;
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.pixelGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1rem);
+  gap: 4px;
+  transform: rotate(12deg);
+  padding: $spacing-xxl;
+}
+
+.pixelCell {
+  height: 1rem;
+  width: 1rem;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cornerTL {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8rem;
+  height: 8rem;
+  border-top: 1px solid rgba(99, 91, 255, 0.2);
+  border-left: 1px solid rgba(99, 91, 255, 0.2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.cornerBR {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8rem;
+  height: 8rem;
+  border-bottom: 1px solid rgba(99, 91, 255, 0.2);
+  border-right: 1px solid rgba(99, 91, 255, 0.2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.shell {
+  @include flex(flex-start, center, column);
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: $spacing-md;
 }
 
 .card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-lg;
-  padding: $spacing-xl * 2;
-  text-align: center;
-  max-width: 480px;
+  @include flex(flex-start, stretch, column);
   width: 100%;
+  max-width: 36rem;
+  background: rgba(32, 30, 44, 0.2);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(70, 69, 85, 0.2);
+  padding: $spacing-lg;
+  box-shadow: 0px 40px 80px rgba(0, 0, 0, 0.4);
+  border-radius: 0;
+
+  @include min-width($tablet-min) {
+    padding: $spacing-xl;
+  }
+}
+
+.titleBlock {
+  margin-bottom: $spacing-lg;
 }
 
 .title {
+  font-family: 'Orbitron', sans-serif;
   font-size: $font-3xl;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #e5e0f3;
   line-height: 1.2;
-}
-
-.username {
-  font-size: $font-xl;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
   margin: 0;
 }
 
-.progressSection {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-sm;
+.cursor {
+  animation: blink 1s step-end infinite;
+
+  @include reduced-motion {
+    animation: none;
+  }
 }
 
-.redirectText {
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.subTitle {
+  font-family: $font-family-code;
   font-size: $font-sm;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
+  color: $info-color;
+  margin-top: $spacing-sm;
+  line-height: 1.6;
+}
+
+.infoBlocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.infoBlock {
+  background: #1c1a27;
+  padding: $spacing-sm;
+  border-left: 2px solid #635bff;
+
+  &.green {
+    border-left-color: $execution-color;
+  }
+}
+
+.blockLabel {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: #918fa1;
+  display: block;
+  margin-bottom: $spacing-2xs;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.blockValue {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: $font-base;
+  color: #c3c0ff;
+
+  .infoBlock.green & {
+    color: $execution-color;
+  }
+}
+
+.progressHeader {
+  @include flex-between;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.progressLabel {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: #c7c4d8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.progressPercent {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: $font-xl;
+  color: #c3c0ff;
+  line-height: 1;
 }
 
 .progressTrack {
-  width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  width: 100%;
+  background: #363342;
   overflow: hidden;
+  position: relative;
 }
 
 .progressBar {
   height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 3px;
+  background: $primary-color;
+  @include transition(width, 0.1s, linear);
+  position: relative;
+}
+
+.progressGlow {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: $spacing-xs;
+  background: transparent;
+  box-shadow: 0 0 10px $primary-color;
+}
+
+.redirectSection {
+  @include flex(flex-start, center);
+  gap: 0.75rem;
+  padding-top: $spacing-sm;
+}
+
+.redirectIcon {
+  color: $primary-color;
+  flex-shrink: 0;
+}
+
+.redirectText {
+  font-family: $font-family-code;
+  font-size: 0.6875rem;
+  color: #918fa1;
+  font-style: italic;
+}
+
+.footer {
+  @include flex-between;
+  margin-top: $spacing-xl;
+  width: 100%;
+  max-width: 36rem;
+  padding: 0 $spacing-xs;
+}
+
+.footerLeft {
+  @include flex(flex-start, center);
+  gap: $spacing-md;
+}
+
+.footerItem {
+  @include flex(flex-start, center);
+  gap: $spacing-xs;
+}
+
+.footerIcon {
+  font-size: $font-xs;
+  color: $light-text-tertiary;
+}
+
+.footerLabel {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: $light-text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.footerVersion {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: $light-text-secondary;
+  text-transform: uppercase;
 }

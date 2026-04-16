@@ -32,9 +32,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "array"
-        ]
+        "levelIds": ["array"]
       },
       "graphPosition": {
         "layer": 1,
@@ -51,32 +49,6 @@
       }
     },
     {
-      "id": "doubly-linked-list",
-      "category": "data-structures",
-      "difficulty": 2,
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "AND",
-        "levelIds": [
-          "linked-list"
-        ]
-      },
-      "graphPosition": {
-        "layer": 2,
-        "branch": "main"
-      },
-      "pathMetadata": {
-        "pathType": "main"
-      },
-      "implementationKey": "doublyLinkedList",
-      "homePageMetadata": {
-        "image": "doubly-linked-list.png",
-        "translationKey": "doubly_linked_list",
-        "showOnHomePage": true
-      }
-    },
-    {
       "id": "stack",
       "category": "data-structures",
       "difficulty": 2,
@@ -84,12 +56,10 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "doubly-linked-list"
-        ]
+        "levelIds": ["linked-list"]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 2,
         "branch": "left"
       },
       "pathMetadata": {
@@ -111,12 +81,10 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "doubly-linked-list"
-        ]
+        "levelIds": ["linked-list"]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 2,
         "branch": "right"
       },
       "pathMetadata": {
@@ -138,13 +106,10 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "stack",
-          "queue"
-        ]
+        "levelIds": ["stack", "queue"]
       },
       "graphPosition": {
-        "layer": 4,
+        "layer": 3,
         "branch": "main"
       },
       "pathMetadata": {
@@ -165,21 +130,17 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "binarytree"
-        ]
+        "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "center"
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabelKey": "sorting_tree"
       },
-      "suggestedPrerequisites": [
-        "binary-search"
-      ],
+      "suggestedPrerequisites": ["binary-search"],
       "implementationKey": "bst"
     },
     {
@@ -190,21 +151,17 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "binarytree"
-        ]
+        "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "left"
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabelKey": "priority_structure"
       },
-      "suggestedPrerequisites": [
-        "array"
-      ],
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "heap"
     },
     {
@@ -215,22 +172,17 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "binarytree"
-        ]
+        "levelIds": ["binarytree"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "right"
       },
       "pathMetadata": {
         "pathType": "branch",
         "branchLabelKey": "network_structure"
       },
-      "suggestedPrerequisites": [
-        "array",
-        "linked-list"
-      ],
+      "suggestedPrerequisites": ["array", "linked-list"],
       "implementationKey": "graph"
     },
     {
@@ -241,20 +193,16 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bst"
-        ]
+        "levelIds": ["bst"]
       },
       "graphPosition": {
-        "layer": 6,
+        "layer": 5,
         "branch": "center"
       },
       "pathMetadata": {
         "pathType": "boss"
       },
-      "suggestedPrerequisites": [
-        "binarytree"
-      ],
+      "suggestedPrerequisites": ["binarytree"],
       "implementationKey": "trie"
     },
     {
@@ -265,14 +213,10 @@
       "isUnlocked": true,
       "prerequisites": {
         "type": "OR",
-        "levelIds": [
-          "trie",
-          "heap",
-          "graph"
-        ]
+        "levelIds": ["trie", "heap", "graph"]
       },
       "graphPosition": {
-        "layer": 7,
+        "layer": 6,
         "branch": "main"
       },
       "pathMetadata": {
@@ -289,9 +233,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-sorting"
-        ]
+        "levelIds": ["trie"]
       },
       "graphPosition": {
         "layer": 0,
@@ -315,9 +257,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bubble-sort"
-        ]
+        "levelIds": ["bubble-sort"]
       },
       "graphPosition": {
         "layer": 1,
@@ -337,9 +277,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bubble-sort"
-        ]
+        "levelIds": ["bubble-sort"]
       },
       "graphPosition": {
         "layer": 1,
@@ -355,14 +293,11 @@
       "id": "merge-sort",
       "category": "sorting",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
-        "levelIds": [
-          "selection-sort",
-          "insertion-sort"
-        ]
+        "levelIds": ["selection-sort", "insertion-sort"]
       },
       "graphPosition": {
         "layer": 2,
@@ -377,13 +312,11 @@
       "id": "quick-sort",
       "category": "sorting",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "merge-sort"
-        ]
+        "levelIds": ["merge-sort"]
       },
       "graphPosition": {
         "layer": 3,
@@ -402,9 +335,7 @@
       "isUnlocked": true,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "quick-sort"
-        ]
+        "levelIds": ["quick-sort"]
       },
       "graphPosition": {
         "layer": 4,
@@ -424,9 +355,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-searching"
-        ]
+        "levelIds": ["quick-sort"]
       },
       "graphPosition": {
         "layer": 0,
@@ -445,9 +374,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "linear-search"
-        ]
+        "levelIds": ["linear-search"]
       },
       "graphPosition": {
         "layer": 1,
@@ -456,9 +383,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "bubble-sort"
-      ],
+      "suggestedPrerequisites": ["bubble-sort"],
       "implementationKey": "binarySearch"
     },
     {
@@ -469,9 +394,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "binary-search"
-        ]
+        "levelIds": ["binary-search"]
       },
       "graphPosition": {
         "layer": 2,
@@ -491,9 +414,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-recursive"
-        ]
+        "levelIds": ["binary-search"]
       },
       "graphPosition": {
         "layer": 0,
@@ -512,9 +433,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "factorial"
-        ]
+        "levelIds": ["factorial"]
       },
       "graphPosition": {
         "layer": 1,
@@ -533,9 +452,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "fibonacci-recursive"
-        ]
+        "levelIds": ["fibonacci-recursive"]
       },
       "graphPosition": {
         "layer": 2,
@@ -545,9 +462,7 @@
         "pathType": "branch",
         "branchLabelKey": "divide_conquer"
       },
-      "suggestedPrerequisites": [
-        "merge-sort"
-      ],
+      "suggestedPrerequisites": ["merge-sort"],
       "implementationKey": "mergeSortRecursive"
     },
     {
@@ -558,9 +473,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "fibonacci-recursive"
-        ]
+        "levelIds": ["fibonacci-recursive"]
       },
       "graphPosition": {
         "layer": 2,
@@ -580,9 +493,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "fibonacci-recursive"
-        ]
+        "levelIds": ["fibonacci-recursive"]
       },
       "graphPosition": {
         "layer": 2,
@@ -602,9 +513,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "merge-sort-recursive"
-        ]
+        "levelIds": ["merge-sort-recursive"]
       },
       "graphPosition": {
         "layer": 3,
@@ -613,9 +522,7 @@
       "pathMetadata": {
         "pathType": "branch"
       },
-      "suggestedPrerequisites": [
-        "quick-sort"
-      ],
+      "suggestedPrerequisites": ["quick-sort"],
       "implementationKey": "quickSortRecursive"
     },
     {
@@ -626,9 +533,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "backtracking-intro"
-        ]
+        "levelIds": ["backtracking-intro"]
       },
       "graphPosition": {
         "layer": 4,
@@ -648,10 +553,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "quick-sort-recursive",
-          "n-queens"
-        ]
+        "levelIds": ["quick-sort-recursive", "n-queens"]
       },
       "graphPosition": {
         "layer": 5,
@@ -671,9 +573,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-technique"
-        ]
+        "levelIds": ["n-queens"]
       },
       "graphPosition": {
         "layer": 0,
@@ -692,9 +592,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "prefix-sum"
-        ]
+        "levelIds": ["prefix-sum"]
       },
       "graphPosition": {
         "layer": 1,
@@ -703,9 +601,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "array"
-      ],
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "slidingWindow"
     },
     {
@@ -716,9 +612,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "sliding-window"
-        ]
+        "levelIds": ["sliding-window"]
       },
       "graphPosition": {
         "layer": 2,
@@ -727,9 +621,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "array"
-      ],
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "twoPointers"
     },
     {
@@ -740,9 +632,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "two-pointers"
-        ]
+        "levelIds": ["two-pointers"]
       },
       "graphPosition": {
         "layer": 3,
@@ -761,9 +651,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bit-mask"
-        ]
+        "levelIds": ["bit-mask"]
       },
       "graphPosition": {
         "layer": 4,
@@ -782,8 +670,8 @@
       "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
-        "type": "NONE",
-        "levelIds": []
+        "type": "OR",
+        "levelIds": ["bit-mask"]
       },
       "graphPosition": {
         "layer": 0,
@@ -792,9 +680,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "queue"
-      ],
+      "suggestedPrerequisites": ["queue"],
       "implementationKey": "bfs"
     },
     {
@@ -805,9 +691,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "bfs"
-        ]
+        "levelIds": ["bfs"]
       },
       "graphPosition": {
         "layer": 1,
@@ -816,22 +700,18 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "stack"
-      ],
+      "suggestedPrerequisites": ["stack"],
       "implementationKey": "dfs"
     },
     {
       "id": "topological-sort",
       "category": "graph",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "dfs"
-        ]
+        "levelIds": ["dfs"]
       },
       "graphPosition": {
         "layer": 2,
@@ -851,9 +731,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "dfs"
-        ]
+        "levelIds": ["dfs"]
       },
       "graphPosition": {
         "layer": 2,
@@ -863,10 +741,7 @@
         "pathType": "branch",
         "branchLabelKey": "set_management"
       },
-      "suggestedPrerequisites": [
-        "array",
-        "binarytree"
-      ],
+      "suggestedPrerequisites": ["array", "binarytree"],
       "implementationKey": "unionFind"
     },
     {
@@ -877,10 +752,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
-        "levelIds": [
-          "topological-sort",
-          "union-find"
-        ]
+        "levelIds": ["topological-sort", "union-find"]
       },
       "graphPosition": {
         "layer": 3,
@@ -889,9 +761,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "heap"
-      ],
+      "suggestedPrerequisites": ["heap"],
       "implementationKey": "dijkstra"
     },
     {
@@ -902,9 +772,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "dijkstra"
-        ]
+        "levelIds": ["dijkstra"]
       },
       "graphPosition": {
         "layer": 4,
@@ -923,9 +791,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "astar"
-        ]
+        "levelIds": ["astar"]
       },
       "graphPosition": {
         "layer": 5,
@@ -945,9 +811,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "portal-to-dp"
-        ]
+        "levelIds": ["astar"]
       },
       "graphPosition": {
         "layer": 0,
@@ -956,9 +820,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": [
-        "fibonacci-recursive"
-      ],
+      "suggestedPrerequisites": ["fibonacci-recursive"],
       "implementationKey": "dpFibonacci"
     },
     {
@@ -969,9 +831,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "dp-fibonacci"
-        ]
+        "levelIds": ["dp-fibonacci"]
       },
       "graphPosition": {
         "layer": 1,
@@ -981,9 +841,7 @@
         "pathType": "branch",
         "branchLabelKey": "combination_optimization"
       },
-      "suggestedPrerequisites": [
-        "backtracking-intro"
-      ],
+      "suggestedPrerequisites": ["backtracking-intro"],
       "implementationKey": "knapsack"
     },
     {
@@ -994,9 +852,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": [
-          "dp-fibonacci"
-        ]
+        "levelIds": ["dp-fibonacci"]
       },
       "graphPosition": {
         "layer": 1,
@@ -1006,9 +862,7 @@
         "pathType": "branch",
         "branchLabelKey": "string_dp"
       },
-      "suggestedPrerequisites": [
-        "two-pointers"
-      ],
+      "suggestedPrerequisites": ["two-pointers"],
       "implementationKey": "lcs"
     }
   ],

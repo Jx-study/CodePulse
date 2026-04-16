@@ -8,7 +8,6 @@ import type { FormAlertType } from "@/shared/components/FormAlert";
 import GameOfLifePanel from "@/modules/auth/components/GameOfLifePanel";
 import AuthPanel from "@/modules/auth/components/AuthPanel";
 import OnboardingForm from "@/modules/auth/components/OnboardingForm";
-import WelcomeOverlay from "@/modules/auth/components/WelcomeOverlay";
 import { SkeletonText } from "@/shared/components/Skeleton";
 import styles from "./Auth.module.scss";
 
@@ -18,7 +17,7 @@ function AuthPage() {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, checkAuthStatus } = useAuth();
+  const { login, register, checkAuthStatus, setPendingWelcome } = useAuth();
   const isOnboarding = useMatch("/auth/onboarding");
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>(
@@ -34,8 +33,6 @@ function AuthPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [usernameError, setUsernameError] = useState("");
   const [formError, setFormError] = useState("");
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [submittedUsername, setSubmittedUsername] = useState("");
 
   const setAlert = (type: FormAlertType, message: string) => {
     setAlertType(type);
@@ -72,8 +69,7 @@ function AuthPage() {
       try {
         await checkAuthStatus();
       } catch {}
-      setSubmittedUsername(username);
-      setShowWelcome(true);
+      setPendingWelcome({ username });
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
       const errorCode = axiosError?.response?.data?.error_code;
@@ -193,12 +189,6 @@ function AuthPage() {
           )}
         </div>
       </div>
-      {showWelcome && (
-        <WelcomeOverlay
-          username={submittedUsername}
-          onComplete={() => navigate("/")}
-        />
-      )}
     </>
   );
 }

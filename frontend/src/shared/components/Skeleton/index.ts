@@ -8,3 +8,7 @@ export { default as SkeletonButton } from './SkeletonButton';
 export { default as FeaturesSkeleton } from './FeaturesSkeleton';
 export { default as DataStructureAlgorithmSkeleton } from './DataStructureAlgorithmSkeleton';
 export { default as PageSkeleton } from './PageSkeleton';
+export { default as TutorialSkeleton } from './TutorialSkeleton';
+export { default as PracticeSkeleton } from './PracticeSkeleton';
+export { default as DashboardSkeleton } from './DashboardSkeleton';
+export { default as ExplorerSkeleton } from './ExplorerSkeleton';

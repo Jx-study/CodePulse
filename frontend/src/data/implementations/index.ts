@@ -13,6 +13,8 @@ import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
 import { selectionSortConfig } from "../algorithms/sorting/selectionSort";
 import { insertionSortConfig } from "../algorithms/sorting/insertionSort";
+import { mergeSortConfig } from "../algorithms/sorting/mergeSort";
+import { quickSortConfig } from "../algorithms/sorting/quickSort";
 import { binarySearchConfig } from "../algorithms/searching/binarySearch";
 import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
@@ -21,6 +23,7 @@ import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
+import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
 
 /**
  * 統一的實作註冊表
@@ -41,6 +44,8 @@ export const implementationsMap: ImplementationMap = {
   bubbleSort: bubbleSortConfig,
   selectionSort: selectionSortConfig,
   insertionSort: insertionSortConfig,
+  mergeSort: mergeSortConfig,
+  quickSort: quickSortConfig,
   binarySearch: binarySearchConfig,
   bfs: BFSConfig,
   dfs: DFSConfig,
@@ -49,6 +54,7 @@ export const implementationsMap: ImplementationMap = {
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
   nQueens: nQueensConfig,
+  topologicalSort: topologicalSortConfig,
 };
 
 /**

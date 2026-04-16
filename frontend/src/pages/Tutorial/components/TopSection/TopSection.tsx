@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useRef, useCallback } from 'react';
+import { Fragment, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -16,10 +16,13 @@ import { Panel, Group, PanelImperativeHandle } from 'react-resizable-panels';
 import ResizeHandle from '../ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
-import CodeEditor from '@/modules/core/components/CodeEditor/CodeEditor';
+const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeEditor'));
 import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
+import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
+import type { D3CanvasRef } from '@/modules/core/Render/D3Canvas';
+import type { GraphCanvasRef } from '@/modules/core/Render/GraphCanvas';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -27,6 +30,7 @@ interface CanvasPanelProps {
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
+  viewBoxElements?: BaseElement[];
   currentLinks: any[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
@@ -45,6 +49,10 @@ interface CanvasPanelProps {
   handleReset: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
+
+  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
+  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
+  useGraphCanvas: boolean;
 }
 
 interface TopSectionProps {
@@ -189,15 +197,17 @@ export function TopSection(props: TopSectionProps) {
                       onTabChange={(key) => handleModeToggle(key as "pseudo" | "python")}
                     />
                     <div className={styles.pseudoCodeEditor}>
-                      <CodeEditor
-                        key={`editor-${mainPanelOrder.join("-")}`}
-                        mode="single"
-                        language="python"
-                        value={currentCodeConfig?.[codeMode]?.content || ""}
-                        highlightedLine={highlightLines}
-                        readOnly={codeMode === "pseudo"}
-                        theme="auto"
-                      />
+                      <Suspense fallback={null}>
+                        <CodeEditor
+                          key={`editor-${mainPanelOrder.join("-")}`}
+                          mode="single"
+                          language="python"
+                          value={currentCodeConfig?.[codeMode]?.content || ""}
+                          highlightedLine={highlightLines}
+                          readOnly={codeMode === "pseudo"}
+                          theme="auto"
+                        />
+                      </Suspense>
                     </div>
                   </div>
                 </Panel>
@@ -365,15 +375,17 @@ export function TopSection(props: TopSectionProps) {
                       onTabChange={(key) => handleModeToggle(key as "pseudo" | "python")}
                     />
                     <div className={styles.pseudoCodeEditor}>
-                      <CodeEditor
-                        key={`editor-${mainPanelOrder.join("-")}`}
-                        mode="single"
-                        language="python"
-                        value={currentCodeConfig?.[codeMode]?.content || ""}
-                        highlightedLine={highlightLines}
-                        readOnly={codeMode === "pseudo"}
-                        theme="auto"
-                      />
+                      <Suspense fallback={null}>
+                        <CodeEditor
+                          key={`editor-${mainPanelOrder.join("-")}`}
+                          mode="single"
+                          language="python"
+                          value={currentCodeConfig?.[codeMode]?.content || ""}
+                          highlightedLine={highlightLines}
+                          readOnly={codeMode === "pseudo"}
+                          theme="auto"
+                        />
+                      </Suspense>
                     </div>
                   </div>
                 </Panel>

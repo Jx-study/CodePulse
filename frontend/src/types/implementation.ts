@@ -4,6 +4,18 @@ import type { StatusConfig } from "./statusConfig";
 import type { VisualizationActionHandler } from "@/modules/core/visualization/types";
 import type { RealWorldStory } from "./realWorldStory";
 
+/** 哪些 link.status 變化時要播放邊動畫（由演算法 config 選填） */
+export interface LinkAnimConfig {
+  /** 這些 status 觸發動畫並阻塞 step 推進 */
+  animateOn: string[];
+  /** 這些 status 直接換色（step 推進後 re-render 自動套用，不阻塞）；僅作為文件語義 */
+  directOn?: string[];
+}
+
+export const DEFAULT_LINK_ANIM_CONFIG: LinkAnimConfig = {
+  animateOn: [],
+};
+
 export type {
   PythonInput,
   PythonDemo,
@@ -23,7 +35,7 @@ export type {
   InteractiveGameType,
   InteractiveGame,
   RealWorldStory,
-} from './realWorldStory';
+} from "./realWorldStory";
 
 export interface ProblemReference {
   id: string | number;
@@ -52,7 +64,13 @@ export type RunParams =
       rows?: number;
       cols?: number;
     }
-  | { type: "dijkstra"; mode: "graph"; startNode?: string; endNode?: string; isDirected: boolean }
+  | {
+      type: "dijkstra";
+      mode: "graph";
+      startNode?: string;
+      endNode?: string;
+      isDirected: boolean;
+    }
   | { type: "knapsack"; capacity: number }
   | { type: "nQueens"; nQueensCount: number };
 
@@ -110,6 +128,10 @@ export interface LevelImplementationConfig {
   maxNodes?: number;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
+  /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */
+  defaultIsDirected?: boolean;
+  /** 圖邊狀態變化時是否觸發 animateLink；未設定則使用 DEFAULT_LINK_ANIM_CONFIG */
+  linkAnimConfig?: LinkAnimConfig;
   renderActionBar?: (props: ActionBarProps) => ReactNode;
   /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
   actionHandler?: VisualizationActionHandler<any>;
@@ -127,6 +149,8 @@ export type ImplementationId =
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
+  | "mergesort"
+  | "quicksort"
   | "binarysearch"
   | "linearsearch"
   | "bfs"
@@ -137,6 +161,7 @@ export type ImplementationId =
   | "twopointers"
   | "fibonacci"
   | "knapsack"
-  | "n-queens";
+  | "n-queens"
+  | "topological-sort";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;

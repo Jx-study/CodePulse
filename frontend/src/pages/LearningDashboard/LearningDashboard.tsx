@@ -25,15 +25,15 @@ import {
   updateCategoryUnlocks,
 } from "@/services/CategoryService";
 import {
-  loadUserProgress,
-  saveUserProgress,
+  INITIAL_USER_PROGRESS,
+  fetchMyProgress,
+  mergeApiProgress,
 } from "@/services/UserProgressService";
 import {
   getLevelProgress,
   calculateDisplayStatus,
   calculateOverallProgress,
   calculateCategoryProgress,
-  completeLevel,
   startLevel,
 } from "@/services/ProgressService";
 import {
@@ -47,17 +47,37 @@ import {
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { useTranslation } from "react-i18next";
+import { useAuth } from '@/shared/contexts/AuthContext';
+import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
+import { useLocation } from 'react-router-dom';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
+  const authGuard = useAuthGuard();
 
   // State
   const [userProgress, setUserProgress] = useState<UserProgress>(
-    loadUserProgress()
+    INITIAL_USER_PROGRESS
   );
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUserProgress(INITIAL_USER_PROGRESS);
+      return;
+    }
+    fetchMyProgress()
+      .then((apiProgress) => {
+        setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
+      })
+      .catch(() => {
+        // 靜默失敗，維持本地預設值
+      });
+  }, [isAuthenticated, location.key]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
@@ -120,7 +140,6 @@ function LearningDashboardInner() {
 
     if (hasChanges) {
       setUserProgress(updatedProgress);
-      saveUserProgress(updatedProgress);
 
       // 找出新解鎖的 Category
       const newlyUnlockedCategories = Object.entries(
@@ -218,30 +237,13 @@ function LearningDashboardInner() {
 
   // 跳轉到 Practice Page
   const handleStartPractice = () => {
+    if (!authGuard()) return;
     if (selectedLevel) {
       // 使用 ProgressService 更新關卡狀態為「進行中」
       const updatedProgress = startLevel(selectedLevel.id, userProgress);
       setUserProgress(updatedProgress);
-      saveUserProgress(updatedProgress);
 
       navigate(`/practice/${selectedLevel.category}/${selectedLevel.id}`);
-    }
-  };
-
-  // TODO:測試用->完成關卡（練習頁面完成後可移除）
-  const handleCompleteLevel = () => {
-    if (selectedLevel) {
-      const currentProgress = getLevelProgress(selectedLevel.id, userProgress);
-      const newStars = Math.max(currentProgress.stars, 3) as 0 | 1 | 2 | 3;
-
-      // 使用 ProgressService 更新進度
-      const updatedProgress = completeLevel(selectedLevel.id, userProgress, newStars);
-      setUserProgress(updatedProgress);
-      saveUserProgress(updatedProgress);
-
-      // 顯示完成提示
-      setToastMessage(`完成關卡：${t(`levels.${selectedLevel.id.replace(/-/g, '_')}.name`)}`);
-      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -260,10 +262,7 @@ function LearningDashboardInner() {
   return (
     <div className={styles.dashboard}>
       {/* 全屏垂直關卡地圖 */}
-      <GraphContainer
-        levels={filteredLevels}
-        userProgress={userProgress}
-      >
+      <GraphContainer levels={filteredLevels} userProgress={userProgress}>
         {(level, _index, position, containerWidth) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];
@@ -318,8 +317,18 @@ function LearningDashboardInner() {
                     status={pathStatus}
                     containerWidth={containerWidth}
                     connectionType={prereqType}
-                    branchLabel={prereqIndex === 0 && level.pathMetadata?.branchLabelKey ? t(`branch_labels.${level.pathMetadata.branchLabelKey}`) : undefined}
-                    labelColor={prereqIndex === 0 ? categoryColors[level.category] : undefined}
+                    branchLabel={
+                      prereqIndex === 0 && level.pathMetadata?.branchLabelKey
+                        ? t(
+                            `branch_labels.${level.pathMetadata.branchLabelKey}`,
+                          )
+                        : undefined
+                    }
+                    labelColor={
+                      prereqIndex === 0
+                        ? categoryColors[level.category]
+                        : undefined
+                    }
                   />
                 );
               })}
@@ -330,7 +339,9 @@ function LearningDashboardInner() {
                   targetCategory={
                     level.pathMetadata?.targetCategory || "data-structures"
                   }
-                  targetCategoryName={t(`categories.${(level.pathMetadata?.targetCategory || 'data-structures').replace(/-/g, '_')}.name`)}
+                  targetCategoryName={t(
+                    `categories.${(level.pathMetadata?.targetCategory || "data-structures").replace(/-/g, "_")}.name`,
+                  )}
                   isUnlocked={level.isUnlocked}
                   position={position}
                   onClick={handlePortalClick}
@@ -348,7 +359,6 @@ function LearningDashboardInner() {
                   categoryColor={categoryColors[level.category]}
                 />
               )}
-
             </>
           );
         }}
@@ -357,21 +367,23 @@ function LearningDashboardInner() {
       {/* 浮動控制面板（右上角） */}
       <div className={styles.floatingControls}>
         <Button
-          variant="glass"
+          variant="glow"
           size="md"
           onClick={() => setIsSidebarOpen(true)}
           icon="filter"
         >
-          分類篩選
+          {t("floatingControls.filter_categories")}
         </Button>
-        <Button
-          variant="glass"
-          size="md"
-          onClick={() => setIsProgressDialogOpen(true)}
-          icon="chalkboard-user"
-        >
-          學習進度
-        </Button>
+        {isAuthenticated && (
+          <Button
+            variant="glow"
+            size="md"
+            onClick={() => setIsProgressDialogOpen(true)}
+            icon="chalkboard-user"
+          >
+            {t("floatingControls.learning_progress")}
+          </Button>
+        )}
       </div>
 
       <Sidebar
@@ -411,10 +423,20 @@ function LearningDashboardInner() {
           onClose={() => setSelectedLevel(null)}
           onStartTutorial={handleStartTutorial}
           onStartPractice={handleStartPractice}
-          onCompleteLevel={handleCompleteLevel}
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
-          practiceLocked={!selectedLevel.isUnlocked}
+          practiceLocked={
+            selectedLevel.prerequisites?.type === "AND"
+              ? (selectedLevel.prerequisites?.levelIds ?? []).some(
+                  (id) => userProgress.levels[id]?.status !== "completed",
+                )
+              : selectedLevel.prerequisites?.type === "OR"
+                ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
+                  (selectedLevel.prerequisites?.levelIds ?? []).every(
+                    (id) => userProgress.levels[id]?.status !== "completed",
+                  )
+                : false // NONE = 永遠解鎖
+          }
           prerequisiteInfo={selectedLevel.prerequisites}
         />
       )}

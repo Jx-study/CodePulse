@@ -1,169 +1,277 @@
-import { useCallback, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import Badge from "@/shared/components/Badge";
+import Button from "@/shared/components/Button";
 import styles from "./Explorer.module.scss";
-import { D3Canvas, D3CanvasRef } from "@/modules/core/Render/D3Canvas";
-import { Node } from "@/modules/core/DataLogic/Node";
-import { Box } from "@/modules/core/DataLogic/Box";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
-import type { Link } from "@/modules/core/Render/D3Renderer";
-import { animateConnect } from "@/modules/core/Render/D3Renderer";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
-import  Button from "@/shared/components/Button";
 
-// 預設程式碼範例
-const DEFAULT_CODE: Record<string, string> = {
-  python: `# CodePulse - 資料結構與演算法視覺化
-# 在此撰寫您的程式碼
+// ── Card 1: Bar Race visual ──────────────────────────────────────────────────
+function BarRaceVisual() {
+  const quickRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const mergeRef = useRef<HTMLDivElement>(null);
+  const qPctRef = useRef<HTMLSpanElement>(null);
+  const bPctRef = useRef<HTMLSpanElement>(null);
+  const mPctRef = useRef<HTMLSpanElement>(null);
 
-def bubble_sort(arr):
-    """氣泡排序演算法"""
-    n = len(arr)
-    for i in range(n):
-        for j in range(n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
-    return arr
+  useEffect(() => {
+    let qPct = 0, bPct = 0, mPct = 0;
+    const runningRef = { current: true };
+    let resetId: ReturnType<typeof setTimeout> | null = null;
 
-# 測試範例
-data = [64, 34, 25, 12, 22, 11, 90]
-print("排序前:", data)
-result = bubble_sort(data.copy())
-print("排序後:", result)
-`,
-  javascript: `// CodePulse - 資料結構與演算法視覺化
-// 在此撰寫您的程式碼
+    function step() {
+      if (!runningRef.current) return;
+      qPct = Math.min(100, qPct + (2.8 + Math.random() * 0.8));
+      mPct = Math.min(100, mPct + (2.5 + Math.random() * 0.9));
+      bPct = Math.min(100, bPct + (0.7 + Math.random() * 0.4));
 
-function bubbleSort(arr) {
-  const n = arr.length;
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+      if (quickRef.current) quickRef.current.style.width = qPct + "%";
+      if (mergeRef.current) mergeRef.current.style.width = mPct + "%";
+      if (bubbleRef.current) bubbleRef.current.style.width = bPct + "%";
+      if (qPctRef.current) qPctRef.current.textContent = Math.round(qPct) + "%";
+      if (mPctRef.current) mPctRef.current.textContent = Math.round(mPct) + "%";
+      if (bPctRef.current) bPctRef.current.textContent = Math.round(bPct) + "%";
+
+      if (qPct >= 100 && mPct >= 100 && bPct >= 100) {
+        runningRef.current = false;
+        resetId = setTimeout(() => {
+          qPct = 0; bPct = 0; mPct = 0;
+          runningRef.current = true;
+        }, 1800);
       }
     }
-  }
-  return arr;
-}
 
-// 測試範例
-const data = [64, 34, 25, 12, 22, 11, 90];
-console.log("排序前:", data);
-const result = bubbleSort([...data]);
-console.log("排序後:", result);
-`,
-  typescript: `// CodePulse - 資料結構與演算法視覺化
-// 在此撰寫您的程式碼
-
-function bubbleSort(arr: number[]): number[] {
-  const n = arr.length;
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-      }
-    }
-  }
-  return arr;
-}
-
-// 測試範例
-const data: number[] = [64, 34, 25, 12, 22, 11, 90];
-console.log("排序前:", data);
-const result = bubbleSort([...data]);
-console.log("排序後:", result);
-`,
-};
-
-function Explorer() {
-  const { t } = useTranslation();
-  const [code, setCode] = useState(DEFAULT_CODE.python);
-  const [links, setLinks] = useState<Link[]>([]);
-  const canvasRef = useRef<D3CanvasRef>(null);
-
-  // 建立測試資料
-  const { elements, manager } = useMemo(() => {
-    const n = new Node();
-    n.id = "n1";
-    n.moveTo(150, 120);
-    n.radius = 32;
-    n.setStatus(Status.Target);
-    n.description = "我是圓形1";
-
-    const n2 = new Node();
-    n2.id = "n2";
-    n2.moveTo(350, 120);
-    n2.radius = 32;
-    n2.setStatus(Status.Target);
-    n2.description = "我是圓形2";
-
-    const b = new Box();
-    b.id = "b1";
-    b.moveTo(250, 250);
-    b.width = 60;
-    b.height = 60;
-    b.setStatus(Status.Prepare);
-    b.description = "我是矩形";
-
-    const els = [n, n2, b];
-    const mgr = new LinkManager(els);
-    return { elements: els, manager: mgr };
+    const id = setInterval(step, 60);
+    return () => {
+      clearInterval(id);
+      if (resetId !== null) clearTimeout(resetId);
+    };
   }, []);
 
-  const triggerLink = useCallback(async () => {
-    const svgEl = canvasRef.current?.getSVGElement();
-    if (!svgEl) return;
+  return (
+    <div className={styles.raceVisual}>
+      <div className={styles.raceTrackWrap}>
+        <div className={styles.raceTrack}>
+          <div className={styles.raceLabel}>
+            <span className={styles.raceDot} style={{ background: "#4f8ef7" }} />
+            <span>Quick Sort</span>
+            <span className={styles.raceComplexity}>O(n log n)</span>
+          </div>
+          <div className={styles.raceLane}>
+            <div ref={quickRef} className={styles.raceBar} style={{ background: "linear-gradient(90deg, #4f8ef7, #7eb3ff)" }} />
+            <span ref={qPctRef} className={styles.racePct}>0%</span>
+          </div>
+        </div>
 
-    await animateConnect(svgEl, elements, manager, "n1", "n2", 800);
-    setLinks([...manager.links]); // 使用展開運算子確保 state 更新
-  }, [elements, manager]);
+        <div className={styles.raceTrack}>
+          <div className={styles.raceLabel}>
+            <span className={styles.raceDot} style={{ background: "#ff6b35" }} />
+            <span>Bubble Sort</span>
+            <span className={styles.raceComplexity}>O(n²)</span>
+          </div>
+          <div className={styles.raceLane}>
+            <div ref={bubbleRef} className={styles.raceBar} style={{ background: "linear-gradient(90deg, #ff6b35, #ff9d6b)" }} />
+            <span ref={bPctRef} className={styles.racePct}>0%</span>
+          </div>
+        </div>
 
-  const clearLink = useCallback(() => {
-    manager.clear();
-    setLinks([]);
-  }, [manager]);
+        <div className={styles.raceTrack}>
+          <div className={styles.raceLabel}>
+            <span className={styles.raceDot} style={{ background: "#10b981" }} />
+            <span>Merge Sort</span>
+            <span className={styles.raceComplexity}>O(n log n)</span>
+          </div>
+          <div className={styles.raceLane}>
+            <div ref={mergeRef} className={styles.raceBar} style={{ background: "linear-gradient(90deg, #10b981, #34d399)" }} />
+            <span ref={mPctRef} className={styles.racePct}>0%</span>
+          </div>
+        </div>
+      </div>
+      <div className={styles.raceFinish} />
+    </div>
+  );
+}
+
+// ── Card 2: Stack push/pop visual ────────────────────────────────────────────
+const STACK_VALUES = [3, 7, 1, 9, 4, 6, 2, 8];
+
+type StackItem = { id: number; val: number; exiting: boolean };
+
+function StackVisual() {
+  const stackRef = useRef<StackItem[]>([
+    { id: 0, val: 3, exiting: false },
+    { id: 1, val: 7, exiting: false },
+  ]);
+  const [stack, setStack] = useState<StackItem[]>(stackRef.current);
+  const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
+  const stepRef = useRef(2); // next STACK_VALUES index
+  const idCounterRef = useRef(2); // next unique item id
+  const pushingRef = useRef(true);
+  const pending1Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pending2Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const current = stackRef.current;
+      if (pushingRef.current && current.length < 5) {
+        const val = STACK_VALUES[stepRef.current % STACK_VALUES.length];
+        setHighlightedLine(1);
+        if (current.length >= 4) pushingRef.current = false;
+        pending1Ref.current = setTimeout(() => {
+          const item: StackItem = { id: idCounterRef.current++, val, exiting: false };
+          stackRef.current = [...stackRef.current, item];
+          setStack(stackRef.current);
+          stepRef.current++;
+        }, 300);
+      } else {
+        pushingRef.current = false;
+        setHighlightedLine(4);
+        pending1Ref.current = setTimeout(() => {
+          if (stackRef.current.length === 0) return;
+          const topId = stackRef.current[stackRef.current.length - 1].id;
+          if (stackRef.current.length <= 2) pushingRef.current = true;
+          stackRef.current = stackRef.current.map((item, i) =>
+            i === stackRef.current.length - 1 ? { ...item, exiting: true } : item
+          );
+          setStack(stackRef.current);
+          pending2Ref.current = setTimeout(() => {
+            stackRef.current = stackRef.current.filter(item => item.id !== topId);
+            setStack(stackRef.current);
+          }, 380);
+        }, 300);
+      }
+    }, 1400);
+
+    return () => {
+      clearInterval(intervalId);
+      if (pending1Ref.current !== null) clearTimeout(pending1Ref.current);
+      if (pending2Ref.current !== null) clearTimeout(pending2Ref.current);
+    };
+  }, []);
+
+  return (
+    <div className={styles.pgMockup}>
+      {/* Code pane */}
+      <div className={styles.pgInputPane}>
+        <div className={styles.ideTitlebar}>
+          <span className={`${styles.ideDot} ${styles.ideDotR}`} />
+          <span className={`${styles.ideDot} ${styles.ideDotY}`} />
+          <span className={`${styles.ideDot} ${styles.ideDotG}`} />
+          <span className={styles.pgFilename}>stack.py</span>
+        </div>
+        <pre className={styles.pgCode}>
+          <span data-line="0" style={highlightedLine === 0 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}><span className={styles.kw}>def</span> <span className={styles.fn}>push</span>(stack, val):</span>{"\n"}
+          <span data-line="1" style={highlightedLine === 1 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}>{"  "}stack.<span className={styles.fn}>append</span>(val)</span>{"\n"}
+          <span data-line="2">{"\n"}</span>
+          <span data-line="3" style={highlightedLine === 3 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}><span className={styles.kw}>def</span> <span className={styles.fn}>pop</span>(stack):</span>{"\n"}
+          <span data-line="4" style={highlightedLine === 4 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}>{"  "}<span className={styles.kw}>return</span> stack.<span className={styles.fn}>pop</span>()</span>{"\n"}
+          <span data-line="5">{"\n"}</span>
+          <span data-line="6">s = []</span>{"\n"}
+          <span data-line="7">push(s, <span className={styles.nu}>3</span>)</span>
+        </pre>
+      </div>
+
+      {/* Flow arrow */}
+      <div className={styles.pgFlow}>
+        <div className={styles.pgFlowArrow}>
+          <div className={styles.pgPulse} />
+          <svg width="32" height="12" viewBox="0 0 32 12" fill="none">
+            <path d="M0 6 H26 M22 1 L30 6 L22 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Stack pane */}
+      <div className={styles.pgStackPane}>
+        <span className={styles.pgStackLabel}>Stack</span>
+        <div className={styles.pgStackBlocks}>
+          {stack.map(item => (
+            <div
+              key={item.id}
+              className={`${styles.pgBlock} ${styles.pgBlockVisible} ${item.exiting ? styles.pgBlockExit : ""}`}
+            >
+              {item.val}
+            </div>
+          ))}
+        </div>
+        <span className={styles.pgStackBase}>▔▔▔▔</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Explorer Hub ─────────────────────────────────────────────────────────────
+function Explorer() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <div className={styles.explorer}>
-      <div className="container">
-        <h1 className="section-title">{t("explorer")}</h1>
+      {/* Bg texture */}
+      <div className={styles.bgTexture} />
 
-        {/* 主要內容區域：左右分屏 */}
-        <div className={styles.mainContent}>
-          {/* 左側：程式碼編輯器 */}
-          <div className={styles.editorPanel}>
-            <h3 className={styles.panelTitle}>程式碼編輯器</h3>
-            <CodeEditor
-              mode="single"
-              language="python"
-              value={code}
-              onChange={setCode}
-              theme="auto"
-            />
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.heroLabel}>
+          <span className={styles.heroLabelDot} />
+          {t("explorer")}
+        </div>
+        <h1 className={styles.heroTitle}>
+          Algorithm<br />
+          <span className={styles.heroTitleAccent}>Exploration</span> Hub
+        </h1>
+        <p className={styles.heroSub}>
+          Central access point for algorithm exploration and visualization. Chart your course through the logic landscape.
+        </p>
+      </section>
+
+      {/* Cards */}
+      <div className={styles.cards}>
+        {/* Card 1 — Algorithm Lab */}
+        <div className={`${styles.card} ${styles.cardIn1}`}>
+          <div className={styles.cardHeader}>
+            <div>
+              <p className={styles.cardEyebrow}>Module 01</p>
+              <p className={styles.cardTitle}>Algorithm Lab</p>
+              <p className={styles.cardDesc}>選擇演算法，直觀觀察執行過程與效率</p>
+            </div>
+            <Badge variant="success" size="sm" shape="pill">Active</Badge>
           </div>
 
-          {/* 右側：視覺化畫布 */}
-          <div className={styles.canvasPanel}>
-            <div className={styles.panelHeader}>
-              <h3 className={styles.panelTitle}>視覺化區域</h3>
-              <div className={styles.controls}>
-                <Button size="sm" onClick={triggerLink}>
-                  連線動畫
-                </Button>
-                <Button size="sm" variant="secondary" onClick={clearLink}>
-                  清除連線
-                </Button>
-              </div>
+          <div className={styles.cardVisual}>
+            <BarRaceVisual />
+          </div>
+
+          <div className={styles.cardFooter}>
+            <Button className={styles.btnEnter} onClick={() => navigate("/explorer/lab")}>
+              Enter Lab →
+            </Button>
+            <div className={styles.statPills}>
+              <Badge variant="secondary" size="xs" shape="pill">Sort</Badge>
+              <Badge variant="secondary" size="xs" shape="pill">Search</Badge>
+              <Badge variant="secondary" size="xs" shape="pill">Graph</Badge>
             </div>
-            <div className={styles.canvasContainer}>
-              <D3Canvas
-                ref={canvasRef}
-                elements={elements}
-                links={links}
-                width={600}
-                height={600}
-              />
+          </div>
+        </div>
+
+        {/* Card 2 — Visualization Playground */}
+        <div className={`${styles.card} ${styles.cardGlass} ${styles.cardIn2}`}>
+          <div className={styles.cardHeader}>
+            <div>
+              <p className={styles.cardEyebrow}>Module 02</p>
+              <p className={styles.cardTitle}>Visualization Playground</p>
+              <p className={styles.cardDesc}>提交 Python 程式碼，自動分析並產生視覺化動畫</p>
             </div>
+          </div>
+
+          <div className={styles.cardVisual}>
+            <StackVisual />
+          </div>
+
+          <div className={styles.cardFooter}>
+            <Button className={styles.btnEnter} onClick={() => navigate("/explorer/playground")}>
+              Enter Playground →
+            </Button>
           </div>
         </div>
       </div>

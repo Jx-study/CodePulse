@@ -1,4 +1,13 @@
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  Suspense,
+} from "react";
+import { tutorialService } from '@/services/tutorialService';
+import { useAuth } from '@/shared/contexts/AuthContext';
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -6,12 +15,19 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
-import { D3Canvas } from "@/modules/core/Render/D3Canvas";
-import { GraphCanvas } from "@/modules/core/Render/GraphCanvas";
+import { D3Canvas, type D3CanvasRef } from "@/modules/core/Render/D3Canvas";
+import {
+  GraphCanvas,
+  type GraphCanvasRef,
+} from "@/modules/core/Render/GraphCanvas";
+import type { AnimatableCanvasRef } from "@/types/canvasTypes";
 import ControlBar from "@/modules/core/components/ControlBar";
 import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
-import type { AlgorithmViewMode } from "@/types/implementation";
+import {
+  DEFAULT_LINK_ANIM_CONFIG,
+  type AlgorithmViewMode,
+} from "@/types/implementation";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
 import { PANEL_REGISTRY } from "./components/PanelRegistry";
@@ -25,10 +41,22 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
 } from "@/types/statusConfig";
+import { useTranslation } from "react-i18next";
+import type { StepDescription } from "@/types";
+
+function renderDescription(
+  desc: string | StepDescription | undefined,
+  t: (key: string, params?: Record<string, any>) => string
+): string {
+  if (!desc) return "";
+  if (typeof desc === "string") return desc;
+  return t(desc.key, desc.params);
+}
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -36,6 +64,7 @@ interface CanvasPanelProps {
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
+  allStepsElements?: BaseElement[][];
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
@@ -56,6 +85,10 @@ interface CanvasPanelProps {
   handleReset: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
+
+  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
+  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
+  useGraphCanvas: boolean;
 }
 
 const CanvasPanel = ({
@@ -63,13 +96,14 @@ const CanvasPanel = ({
   isMobile,
   canvasContainerRef,
   currentStepData,
+  allStepsElements,
   currentLinks,
   canvasSize,
   topicTypeConfig,
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
-  viewMode,
+  viewMode: _viewMode,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -81,7 +115,11 @@ const CanvasPanel = ({
   handleReset,
   setPlaybackSpeed,
   handleStepChange,
+  graphCanvasRef,
+  d3CanvasRef,
+  useGraphCanvas,
 }: CanvasPanelProps) => {
+  const { t } = useTranslation("animation");
   const {
     attributes,
     listeners,
@@ -104,12 +142,6 @@ const CanvasPanel = ({
     opacity: isDragging ? 0 : 1,
   };
 
-  const useGraphCanvas =
-    topicTypeConfig?.id === "graph" ||
-    topicTypeConfig?.id === "dijkstra" ||
-    ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
-      viewMode !== "grid");
-
   return (
     <Panel
       id="canvas-panel"
@@ -131,17 +163,23 @@ const CanvasPanel = ({
         <div ref={canvasContainerRef} className={styles.visualizationArea}>
           {useGraphCanvas ? (
             <GraphCanvas
+              ref={graphCanvasRef}
               elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
               links={currentLinks}
               width={canvasSize.width}
               height={canvasSize.height}
               statusColorMap={currentStatusColorMap}
               statusConfig={currentStatusConfig}
               isDirected={isDirected}
+              structureType={topicTypeConfig?.id}
+              disableAutoFit={topicTypeConfig?.id === "topological-sort"}
             />
           ) : (
             <D3Canvas
+              ref={d3CanvasRef}
               elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
               links={currentLinks}
               width={canvasSize.width}
               height={canvasSize.height}
@@ -153,7 +191,7 @@ const CanvasPanel = ({
           )}
         </div>
         <div className={styles.stepDescription}>
-          {currentStepData?.description}
+          {renderDescription(currentStepData?.description, t)}
         </div>
 
         {/* ControlBar 直接渲染,無 PanelHeader */}
@@ -359,6 +397,11 @@ function TutorialContent() {
   const rightPanelRef = useRef<PanelImperativeHandle>(null);
   const canvasPanelRef = useRef<PanelImperativeHandle>(null);
   const inspectorPanelRef = useRef<PanelImperativeHandle>(null);
+  const graphCanvasRef = useRef<GraphCanvasRef | null>(null);
+  const d3CanvasRef = useRef<D3CanvasRef | null>(null);
+  const isAnimatingRef = useRef(false);
+  const isPlayingRef = useRef(false);
+  const handleNextRef = useRef<() => void>(() => {});
 
   // Collapse states (使用 context 的 collapsed state)
   const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
@@ -394,6 +437,64 @@ function TutorialContent() {
     category: string;
     levelId: string;
   }>();
+
+  // Session 管理
+  const { isAuthenticated } = useAuth();
+  const sessionIdRef = useRef<number | null>(null);
+  const sessionStartRef = useRef<number>(Date.now());
+
+  // Teaching Complete
+  const [teachingDone, setTeachingDone] = useState(false);
+  const teachingDoneRef = useRef(false);
+  const handleTeachingComplete = async () => {
+    if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
+    try {
+      const res = await tutorialService.markTeachingComplete(levelId);
+      teachingDoneRef.current = true;
+      setTeachingDone(true);
+      if (res.xp_earned > 0) {
+        xp.show(res.xp_earned);
+      }
+    } catch {
+      // 403 = 未滿 30 秒，靜默忽略
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !levelId) return;
+
+    // Reset teaching state for the new level
+    teachingDoneRef.current = false;
+    setTeachingDone(false);
+
+    sessionStartRef.current = Date.now();
+    tutorialService.startSession(levelId)
+      .then((id) => { sessionIdRef.current = id; })
+      .catch(() => {});
+
+    const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
+
+    return () => {
+      clearTimeout(teachingTimer);
+      if (sessionIdRef.current === null) return;
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+
+      // 用 sendBeacon 確保頁面關閉時請求仍能送出
+      const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
+      const sessionBlob = new Blob([JSON.stringify({ duration_seconds: elapsed })], { type: 'application/json' });
+      if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
+        tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+      }
+
+      if (!teachingDoneRef.current && elapsed >= 30) {
+        const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
+        const teachingBlob = new Blob([], { type: 'application/json' });
+        if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
+          tutorialService.markTeachingComplete(levelId).catch(() => {});
+        }
+      }
+    };
+  }, [isAuthenticated, levelId]);
 
   // 新增：代碼模式狀態
   const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
@@ -447,6 +548,16 @@ function TutorialContent() {
   const [isDirected, setIsDirected] = useState(false);
   const [renderedIsDirected, setRenderedIsDirected] = useState(false);
 
+  const useGraphCanvas = useMemo(
+    () =>
+      topicTypeConfig?.id === "graph" ||
+      topicTypeConfig?.id === "dijkstra" ||
+      topicTypeConfig?.id === "topological-sort" ||
+      ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
+        viewMode !== "grid"),
+    [topicTypeConfig?.id, viewMode],
+  );
+
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
@@ -482,6 +593,7 @@ function TutorialContent() {
       setCurrentStep(0);
       setIsPlaying(false);
       setViewMode(topicTypeConfig.defaultViewMode ?? "");
+      setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
     }
   }, [topicTypeConfig]);
 
@@ -501,16 +613,14 @@ function TutorialContent() {
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
-      setCurrentStep((prevStep) => {
-        if (prevStep >= activeSteps.length - 1) {
-          setIsPlaying(false);
-          return prevStep;
-        }
-        return prevStep + 1;
-      });
+      handleNextRef.current();
     }, 1000 / playbackSpeed);
     return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, activeSteps.length]);
+  }, [isPlaying, playbackSpeed]);
+
+  const allStepsElements = useMemo(() => {
+    return activeSteps.map((step) => step?.elements ?? []);
+  }, [activeSteps]);
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
@@ -685,14 +795,91 @@ function TutorialContent() {
 
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
-    setCurrentStep(0);
     setIsPlaying(false);
   };
 
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
-  const handleNext = () =>
-    setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
+
+  isPlayingRef.current = isPlaying;
+
+  const handleNext = useCallback(() => {
+    if (currentStep >= activeSteps.length - 1) {
+      setIsPlaying(false);
+      return;
+    }
+    if (isAnimatingRef.current) return;
+
+    const nextStepIndex = currentStep + 1;
+    const nextStep = activeSteps[nextStepIndex];
+
+    const activeCanvas: AnimatableCanvasRef | null = useGraphCanvas
+      ? graphCanvasRef.current
+      : d3CanvasRef.current;
+
+    if (!activeCanvas || !nextStep?.links) {
+      setCurrentStep(nextStepIndex);
+      return;
+    }
+
+    const linkAnimConfig =
+      topicTypeConfig?.linkAnimConfig ?? DEFAULT_LINK_ANIM_CONFIG;
+
+    const currentLinksMap = new Map<string, Link>(
+      currentLinks.map((l: Link) => [l.key, l]),
+    );
+    const seenEdgePairs = new Set<string>();
+    const changedLinks = (nextStep.links as Link[]).filter((l: Link) => {
+      const prev = currentLinksMap.get(l.key);
+      const statusChanged = l.status !== (prev?.status ?? "default");
+      const shouldAnimate = linkAnimConfig.animateOn.includes(l.status ?? "");
+      if (!statusChanged || !shouldAnimate) return false;
+      const edgePair = [l.sourceId, l.targetId].sort().join(":");
+      if (seenEdgePairs.has(edgePair)) return false;
+      seenEdgePairs.add(edgePair);
+      return true;
+    });
+
+    if (changedLinks.length === 0) {
+      setCurrentStep(nextStepIndex);
+      return;
+    }
+
+    const gc = activeCanvas;
+    isAnimatingRef.current = true;
+    let completed = 0;
+    const duration = Math.round((isPlayingRef.current ? 800 : 1200) / playbackSpeed);
+
+    changedLinks.forEach((link) => {
+      const toColor = currentStatusColorMap
+        ? (currentStatusColorMap[link.status ?? ""] ?? "#888")
+        : "#888";
+
+      gc.animateLink(
+        link.sourceId,
+        link.targetId,
+        toColor,
+        duration,
+        () => {
+          completed += 1;
+          if (completed === changedLinks.length) {
+            isAnimatingRef.current = false;
+            setCurrentStep(nextStepIndex);
+          }
+        },
+      );
+    });
+  }, [
+    currentStep,
+    activeSteps,
+    currentLinks,
+    useGraphCanvas,
+    playbackSpeed,
+    topicTypeConfig,
+    currentStatusColorMap,
+  ]);
+  handleNextRef.current = handleNext;
+
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
     executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
@@ -817,6 +1004,7 @@ function TutorialContent() {
     isMobile,
     canvasContainerRef,
     currentStepData,
+    allStepsElements,
     currentLinks,
     canvasSize,
     topicTypeConfig,
@@ -835,6 +1023,9 @@ function TutorialContent() {
     handleReset,
     setPlaybackSpeed,
     handleStepChange,
+    graphCanvasRef,
+    d3CanvasRef,
+    useGraphCanvas,
   };
 
   return (
@@ -907,7 +1098,6 @@ function TutorialContent() {
           topicTypeConfig={topicTypeConfig}
         />
       )}
-
       {/* Feature Tour */}
       <FeatureTour
         isOpen={showFeatureTour}

@@ -206,15 +206,24 @@ export function createGraphElements(
     edges: string[][];
   },
   isDirected: boolean = false,
+  options: {
+    width?: number;
+    height?: number;
+    offsetX?: number;
+    offsetY?: number;
+    padding?: number;
+  } = {},
 ): Node[] {
   const { nodes: rawNodes, edges } = rawGraph;
   const elements: Node[] = [];
   const nodeMap = new Map<string, Node>();
 
   // 定義畫布邊界與內距 (避免節點切到邊邊)
-  const CANVAS_W = 1000;
-  const CANVAS_H = 400;
-  const PADDING = 40; // 節點半徑約 20-30，留 40 比較安全
+  const CANVAS_W = options.width ?? 1000;
+  const CANVAS_H = options.height ?? 400;
+  const OFFSET_X = options.offsetX ?? 0;
+  const OFFSET_Y = options.offsetY ?? 0;
+  const PADDING = options.padding ?? 40; // 節點半徑約 20-30，留 40 比較安全
 
   // 檢查是否所有節點都已經有座標 (快取機制)
   const hasCachedPositions = rawNodes.every(
@@ -298,7 +307,7 @@ export function createGraphElements(
       x = Math.max(PADDING, Math.min(maxX, x));
       y = Math.max(PADDING, Math.min(CANVAS_H - PADDING, y));
 
-      node.moveTo(x, y);
+      node.moveTo(x + OFFSET_X, y + OFFSET_Y);
       elements.push(node);
       nodeMap.set(node.id, node);
     });
