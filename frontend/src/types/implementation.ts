@@ -26,7 +26,7 @@ export type {
   MazeCell,
   MazeOutputData,
   FloodFillOutputData,
-} from './pythonDemo';
+} from "./pythonDemo";
 
 export type {
   StoryVideo,
