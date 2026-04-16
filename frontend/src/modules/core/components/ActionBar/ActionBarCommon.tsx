@@ -348,7 +348,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
     let firstRowCols = -1;
 
     for (let i = 0; i < rowsArr.length; i++) {
-      const cells = rowsArr[i].split(/[\s,]+/);
+      const cells = rowsArr[i].split(/[\s,]+/).filter(Boolean);
       for (const cell of cells) {
         if (cell !== "0" && cell !== "1") {
           toast.warning(`第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`);
