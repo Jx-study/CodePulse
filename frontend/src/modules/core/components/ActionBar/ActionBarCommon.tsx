@@ -337,21 +337,48 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   }, [show]);
 
   const handleLoad = () => {
-    const rowsArr = draftGridText.trim().split("\n");
-    const gridData: number[] = [];
-    let cols = 0;
+    const trimmed = draftGridText.trim();
+    if (trimmed === "") {
+      toast.warning("請輸入迷宮資料");
+      return;
+    }
 
-    rowsArr.forEach((rowStr) => {
-      const cells = rowStr
-        .trim()
-        .split(/[\s,]+/)
-        .map(Number);
-      if (cells.length > 0) {
-        gridData.push(...cells);
-        cols = Math.max(cols, cells.length);
+    const rowsArr = trimmed.split("\n").map((r) => r.trim()).filter((r) => r !== "");
+    const parsedRows: number[][] = [];
+    let firstRowCols = -1;
+
+    for (let i = 0; i < rowsArr.length; i++) {
+      const cells = rowsArr[i].split(/[\s,]+/);
+      for (const cell of cells) {
+        if (cell !== "0" && cell !== "1") {
+          toast.warning(`第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`);
+          return;
+        }
       }
-    });
+      const nums = cells.map(Number);
+      if (firstRowCols === -1) {
+        firstRowCols = nums.length;
+      } else if (nums.length !== firstRowCols) {
+        toast.warning(`第 ${i + 1} 行有 ${nums.length} 格，與第 1 行的 ${firstRowCols} 格不一致，每行欄數必須相同`);
+        return;
+      }
+      parsedRows.push(nums);
+    }
 
+    const rows = parsedRows.length;
+    const cols = firstRowCols;
+
+    if (rows < 1 || cols < 1) {
+      toast.warning("迷宮至少需要 1 行 1 欄");
+      return;
+    }
+
+    if (rows * cols > 400) {
+      toast.warning(`迷宮大小 ${rows}×${cols} = ${rows * cols} 格，超過上限 400 格（建議最大 20×20）`);
+      return;
+    }
+
+    const gridData = parsedRows.flat();
     setCommittedGridText(draftGridText);
     onLoad(`GRID:${cols}:${gridData.join(",")}`);
     onClose();
