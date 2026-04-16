@@ -56,6 +56,20 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
     return isNaN(num) ? val : String(num);
   };
 
+  const handleGridLoad = (data: string) => {
+    if (data.startsWith("GRID:")) {
+      const parts = data.split(":");
+      const cols = parseInt(parts[1], 10);
+      if (!isNaN(cols) && cols > 0) {
+        const cellCount = parts[2].split(",").length;
+        const rows = Math.ceil(cellCount / cols);
+        setGridCols(String(cols));
+        setGridRows(String(rows));
+      }
+    }
+    onLoadData(data);
+  };
+
   const handleRun = () => {
     if (viewMode === "grid") {
       let startId = undefined;
@@ -146,7 +160,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
       <GridLoaderModal
         show={showGridLoader}
         onClose={() => setShowGridLoader(false)}
-        onLoad={onLoadData}
+        onLoad={handleGridLoad}
       />
       <GraphLoaderModal
         show={showGraphLoader}
