@@ -1,0 +1,33 @@
+{
+  "array": {
+    "initial_state": "Array 狀態",
+    "search_start": "開始搜尋數值 {{value}}",
+    "search_compare": "檢查 Index {{index}}: {{current_val}} 是否等於 {{value}}?",
+    "search_found": "找到了！數值 {{value}} 位於 Index {{index}}",
+    "search_not_found": "搜尋結束：未找到數值 {{value}}",
+    "update_start": "存取 Index {{index}}",
+    "update_assign": "將 Index {{index}} 更新為 {{value}}",
+    "update_complete": "更新完成",
+    "update_error": "錯誤：Index {{index}} 超出範圍",
+    "insert_start": "在陣列尾端擴充一個空間",
+    "insert_shift_prepare": "準備將 Index {{from}} ({{fromValue}}) 右移至 Index {{to}}",
+    "insert_shift_done": "搬移完成：Index {{index}} 現在是 {{value}}",
+    "insert_assign": "在 Index {{index}} 填入新數值 {{value}}",
+    "insert_complete": "插入完成",
+    "delete_start": "標記 Index {{index}} (值: {{value}}) 準備刪除",
+    "delete_shift_prepare": "準備將 Index {{from}} ({{fromValue}}) 移至 Index {{to}}",
+    "delete_shift_done": "搬移完成：Index {{index}} 現在是 {{value}}",
+    "delete_remove": "刪除最後一個多餘的空間",
+    "delete_complete": "刪除完成"
+  },
+  "qs": {
+    "init": "開始快速排序 (Quick Sort)，陣列長度為 {{length}}",
+    "call": "遞迴分割：處理區間 [{{low}}, {{high}}]，進入深度 {{depth}}",
+    "partition_start": "選擇區間最後一個元素 {{pivotVal}} 作為基準點 (Pivot)",
+    "compare": "比較：{{scanVal}} 是否小於等於基準點 {{pivotVal}}？",
+    "swap": "是！將 {{valI}} 與 {{valJ}} 互換",
+    "pivot_set": "分區完成，將基準點 {{pivotVal}} 放回正確的排序位置 (Index {{pivotIdx}})",
+    "base_case": "區間只剩一個元素 {{value}}，直接標記為已排序",
+    "done": "快速排序完成！所有元素皆已在正確位置。"
+  }
+}

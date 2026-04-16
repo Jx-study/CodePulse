@@ -95,7 +95,9 @@ function Demo() {
   const highlightedLines = currentStep
     ? (TAG_TO_LINES[currentStep.actionTag ?? ''] ?? [])
     : [];
-  const description = currentStep?.description ?? '準備開始...';
+  const description = typeof currentStep?.description === 'string'
+    ? currentStep.description
+    : '準備開始...';
 
   // useMemo 防止每次 render 都重建陣列，
   // 避免 D3Canvas 在每次步驟推進時重算 viewBox。

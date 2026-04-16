@@ -135,6 +135,18 @@
   font-size: $font-sm;
 }
 
+.runRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+
+  .runBtn {
+    align-self: auto;
+  }
+}
+
 .runBtn {
   align-self: flex-start;
   padding: $spacing-sm $spacing-lg;

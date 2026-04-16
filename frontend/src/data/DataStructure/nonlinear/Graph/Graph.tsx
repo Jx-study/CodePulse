@@ -421,8 +421,8 @@ function runGetNeighbors(
           linkStatusMap,
           targetId,
           neighbor.id,
-          "path",
-          isDirected,
+          "prepare",
+          true,
         );
         steps.push({
           ...generateGraphFrame(
@@ -587,12 +587,12 @@ function runGetDegree(
       // 狀態設為 Status.Unfinished
       const outDegree = targetNode.pointers.length;
       targetNode.pointers.forEach((neighbor) => {
-        statusMap[neighbor.id] = Status.Unfinished;
+        statusMap[neighbor.id] = Status.Complete;
         updateLinkStatus(
           linkStatusMap,
           targetId,
           neighbor.id,
-          "visited",
+          Status.Complete,
           isDirected,
         );
       });
@@ -605,39 +605,39 @@ function runGetDegree(
         if (otherNode.pointers.some((n) => n.id === targetId)) {
           // 如果發生雙向 (A<->B) 或 自環 (A->A)，顏色會被覆蓋。
           // 這裡 Status.Prepare (In) 會覆蓋掉 Status.Unfinished (Out)
-          statusMap[otherNode.id] = Status.Prepare;
+          statusMap[otherNode.id] = Status.Unfinished;
           updateLinkStatus(
             linkStatusMap,
             otherNode.id,
             targetId,
-            "path",
-            isDirected,
+            Status.Unfinished,
+            true,
           );
           inDegree++;
         }
       });
 
-      msg = `節點 ${nodeId}：In-Degree (入度/黃) = ${inDegree}, Out-Degree (出度/藍) = ${outDegree}`;
+      msg = `節點 ${nodeId}：In-Degree (入度/藍) = ${inDegree}, Out-Degree (出度/綠) = ${outDegree}`;
     } else {
       // 無向圖邏輯
 
       // Degree: 所有相連的都算，統一設為 Status.Prepare
       const degree = targetNode.pointers.length;
       targetNode.pointers.forEach((neighbor) => {
-        statusMap[neighbor.id] = Status.Prepare;
+        statusMap[neighbor.id] = Status.Complete;
         updateLinkStatus(
           linkStatusMap,
           targetId,
           neighbor.id,
-          "path",
-          isDirected,
+          Status.Complete,
+          true,
         );
       });
 
       msg = `節點 ${nodeId}：Degree (度數) = ${degree}`;
     }
 
-    statusMap[targetId] = Status.Complete;
+    // statusMap[targetId] = Status.Complete;
 
     steps.push({
       ...generateGraphFrame(baseElements, statusMap, {}, msg, true, {
@@ -724,6 +724,19 @@ function runCheckConnected(
     const currId = queue.shift()!;
 
     statusMap[currId] = Status.Target;
+    // 先推一個 Frame，顯示當前正在處理的節點 (Target)
+    steps.push({
+      ...generateGraphFrame(
+        baseElements,
+        { ...statusMap },
+        {},
+        `正在處理節點 ${currId.replace("node-", "")}，尋找未訪問的鄰居`,
+        true,
+        { ...linkStatusMap },
+      ),
+      actionTag: TAGS.CHECK_CONNECTED_WHILE,
+      variables: { current: currId, queue: queue.join(", ") },
+    });
 
     const neighbors = undirectedAdj.get(currId) || [];
 
@@ -734,21 +747,19 @@ function runCheckConnected(
         queue.push(neighborId);
         statusMap[neighborId] = Status.Prepare;
         newFound = true;
+        // undirectedAdj 不保留原始邊方向，寫兩個 key 確保命中實際存在的方向
         updateLinkStatus(
           linkStatusMap,
           currId,
           neighborId,
-          Status.Complete,
-          isDirected,
+          Status.Prepare,
+          false,
         );
-        updateLinkStatus(
-          linkStatusMap,
-          neighborId,
-          currId,
-          Status.Complete,
-          isDirected,
-        );
-      }
+      } else if (statusMap[neighborId] === Status.Prepare) {
+    // Cross edge：對方已 visited 但還是 Prepare，邊也染 Prepare
+    updateLinkStatus(linkStatusMap, currId, neighborId, Status.Prepare, false);
+    newFound = true;
+  }
     });
 
     // 如果有新發現的節點，推一個 Frame 顯示擴散進度
@@ -767,26 +778,70 @@ function runCheckConnected(
       });
     }
     statusMap[currId] = Status.Complete;
+    // 節點變為 Complete 時，與已訪問鄰居之間的邊也立即變綠
+    neighbors.forEach((neighborId) => {
+      if (visited.has(neighborId)) {
+        updateLinkStatus(
+          linkStatusMap,
+          currId,
+          neighborId,
+          Status.Complete,
+          false,
+        );
+      }
+    });
+
+    // 推一個 Frame 顯示當前節點變綠且連線變綠的狀態
+    steps.push({
+      ...generateGraphFrame(
+        baseElements,
+        { ...statusMap },
+        {},
+        `節點 ${currId.replace("node-", "")} 處理完成，已訪問 ${visited.size} / ${baseElements.length} 個節點`,
+        true,
+        { ...linkStatusMap },
+      ),
+      actionTag: TAGS.CHECK_CONNECTED_WHILE,
+      variables: { current: currId, queue: queue.join(", ") },
+    });
   }
 
   // Frame Final: 結果判定
   const isConnected = visited.size === baseElements.length;
   let resultMsg = "";
 
+  const finalStatusMap: Record<string, Status> = { ...statusMap };
+  const finalLinkStatusMap: Record<string, linkStatus> = { ...linkStatusMap };
+
   if (isConnected) {
     resultMsg = "結果：圖是連通的 (Connected)！所有節點皆可達。";
+    
   } else {
-    resultMsg = "結果：圖不連通 (Disconnected)。紅色節點為孤島。";
+    resultMsg = "結果：圖不連通 (Disconnected)。橙色節點為孤島。";
     baseElements.forEach((n) => {
       if (!visited.has(n.id)) {
-        statusMap[n.id] = Status.Target;
+        finalStatusMap[n.id] = Status.Target; // 孤島設為橙色
+      } else {
+        finalStatusMap[n.id] = Status.Unfinished; // 已訪問設為藍色
+        // 處理已訪問節點之間的邊
+        n.pointers.forEach((neighbor) => {
+          if (visited.has(neighbor.id)) {
+            updateLinkStatus(
+              finalLinkStatusMap,
+              n.id,
+              neighbor.id,
+              Status.Unfinished,
+              isDirected,
+            );
+          }
+        });
       }
     });
   }
 
   steps.push({
-    ...generateGraphFrame(baseElements, statusMap, {}, resultMsg, true, {
-      ...linkStatusMap,
+    ...generateGraphFrame(baseElements, finalStatusMap, {}, resultMsg, true, {
+      ...finalLinkStatusMap,
     }),
     actionTag: TAGS.CHECK_CONNECTED_RESULT,
     variables: { isConnected: isConnected },
@@ -840,10 +895,6 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
       actionTag: TAGS.CHECK_CYCLE_DFS,
       variables: { current: currId },
     });
-    if (parentId !== null) {
-      updateLinkStatus(linkStatusMap, parentId, currId, "path", isDirected);
-    }
-    statusMap[currId] = Status.Prepare;
 
     const currNode = baseElements.find((n) => n.id === currId);
     if (currNode) {
@@ -855,7 +906,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
           currId,
           neighborId,
           Status.Target,
-          isDirected,
+          true,
         );
 
         if (!visited.has(neighborId)) {
@@ -866,8 +917,8 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
             linkStatusMap,
             currId,
             neighborId,
-            "visited",
-            isDirected,
+            Status.Complete,
+            true,
           );
           steps.push({
             ...generateGraphFrame(
@@ -900,7 +951,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
             for (let i = 0; i < cyclePath.length - 1; i++) {
               const u = cyclePath[i];
               const v = cyclePath[i + 1];
-              updateLinkStatus(linkStatusMap, u, v, Status.Target, isDirected);
+              updateLinkStatus(linkStatusMap, u, v, Status.Target, true);
             }
 
             cyclePath.forEach((id) => (statusMap[id] = Status.Target));
@@ -924,18 +975,10 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
               linkStatusMap,
               currId,
               neighborId,
-              "visited",
-              isDirected,
+              Status.Complete,
+              true,
             );
-          } else {
-            updateLinkStatus(
-              linkStatusMap,
-              currId,
-              neighborId,
-              "path",
-              isDirected,
-            );
-          }
+          } 
         }
       }
     }
@@ -977,14 +1020,35 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
 
   // 最終結果
   if (!hasCycle) {
+    const finalStatusMap: Record<string, Status> = {};
+    const finalLinkStatusMap: Record<string, linkStatus> = {};
+
+    visited.forEach((id) => {
+      finalStatusMap[id] = Status.Unfinished;
+      const node = baseElements.find((n) => n.id === id);
+      if (node) {
+        node.pointers.forEach((neighbor) => {
+          if (visited.has(neighbor.id)) {
+            updateLinkStatus(
+              finalLinkStatusMap,
+              id,
+              neighbor.id,
+              Status.Unfinished,
+              isDirected,
+            );
+          }
+        });
+      }
+    });
+
     steps.push({
       ...generateGraphFrame(
         baseElements,
-        statusMap, // 全綠
+        finalStatusMap,
         {},
         "檢查結束：此圖無環 (Acyclic)。",
         true,
-        {},
+        finalLinkStatusMap,
       ),
       actionTag: TAGS.CHECK_CYCLE_END_FALSE,
       variables: { hasCycle: false },
@@ -993,11 +1057,40 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
     const finalStatusMap: Record<string, Status> = {};
 
     visited.forEach((id) => {
-      finalStatusMap[id] = Status.Complete;
+      finalStatusMap[id] = Status.Unfinished;
+      // 將與已訪問節點相連的所有邊也設為 Unfinished (藍色)
+      const node = baseElements.find((n) => n.id === id);
+      if (node) {
+        node.pointers.forEach((neighbor) => {
+          if (visited.has(neighbor.id)) {
+            updateLinkStatus(
+              linkStatusMap,
+              id,
+              neighbor.id,
+              Status.Unfinished,
+              isDirected,
+            );
+          }
+        });
+      }
     });
 
     cyclePath.forEach((id) => {
       finalStatusMap[id] = Status.Target; // 環設 target
+      const node = baseElements.find((n) => n.id === id);
+      if (node) {
+        node.pointers.forEach((neighbor) => {
+          if (visited.has(neighbor.id)) {
+            updateLinkStatus(
+              linkStatusMap,
+              id,
+              neighbor.id,
+              Status.Target,
+              isDirected,
+            );
+          }
+        });
+      }
     });
 
     // 格式化路徑字串 (例如: A -> B -> C -> A)
@@ -1577,6 +1670,10 @@ export const GraphConfig: LevelImplementationConfig = {
     "由節點 (Vertex) 與邊 (Edge) 組成的資料結構，用於描述物件之間的關係。",
   // TODO: 補完 Graph 的 pseudo code 與 mappings
   codeConfig: graphCodeConfig,
+  linkAnimConfig: {
+    animateOn: ["prepare","target"],
+    directOn: ["complete"],
+  },
   complexity: {
     timeBest: "O(1)", // 存取特定節點
     timeAverage: "O(V + E)", // 遍歷
