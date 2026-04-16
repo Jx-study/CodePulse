@@ -345,7 +345,7 @@ export const queueQuiz: PracticeQuiz = {
       difficulty: 2,
       difficultyRating: 1150,
       title:
-        "作業系統中，CPU 處理多個程序時通常使用什麼數據結構來管理任務排程？",
+        "作業系統中，CPU 處理多個程式時通常使用什麼數據結構來管理任務排程？",
       options: [
         { id: "A", text: "Stack (堆疊)" },
         { id: "B", text: "Queue (佇列)" },
@@ -354,7 +354,7 @@ export const queueQuiz: PracticeQuiz = {
       ],
       correctAnswer: "B",
       explanation:
-        "CPU 排程通常使用 Queue 來管理待處理的程序。這確保了公平性：先提交的任務會先被處理，這就是 FIFO 調度的基本原則。",
+        "CPU 排程通常使用 Queue 來管理待處理的程式。這確保了公平性：先提交的任務會先被處理，這就是 FIFO 調度的基本原則。",
       points: 1,
     },
     {
