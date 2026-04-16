@@ -60,7 +60,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
     if (data.startsWith("GRID:")) {
       const parts = data.split(":");
       const cols = parseInt(parts[1], 10);
-      if (!isNaN(cols) && cols > 0) {
+      if (parts.length >= 3 && !isNaN(cols) && cols > 0) {
         const cellCount = parts[2].split(",").length;
         const rows = Math.ceil(cellCount / cols);
         setGridCols(String(cols));
@@ -101,7 +101,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             toast.warning(`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
             return;
           }
-          if (currentData[e].val === 1) {
+          if (currentData[e].val === "wall") {
             toast.warning(`終點索引 ${e} 是牆壁，無法通行`);
             return;
           }
