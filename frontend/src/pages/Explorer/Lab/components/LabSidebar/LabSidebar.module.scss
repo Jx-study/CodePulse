@@ -1,0 +1,108 @@
+.sidebar {
+  flex-shrink: 0;
+  width: 250px;
+  background: var(--card-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transition: width 300ms ease-in-out;
+  overflow: hidden;
+}
+
+.collapsed {
+  width: 48px;
+
+  .header {
+    justify-content: center;
+    padding: $spacing-xs 4px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm;
+  border-bottom: 1px solid var(--border);
+  min-height: 44px;
+}
+
+
+.brand {
+  font-weight: 700;
+  font-size: $font-sm;
+  color: var(--text-primary);
+}
+
+.body {
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.iconRail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-xs 0;
+  gap: $spacing-sm;
+}
+
+
+.dotList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sizeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sizeValue {
+  font-size: $font-xs;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}

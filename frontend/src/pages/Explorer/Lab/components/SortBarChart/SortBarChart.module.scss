@@ -1,0 +1,47 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  background: var(--bg-secondary);
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  padding: $spacing-xs;
+  overflow: hidden;
+}
+
+.title {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: $spacing-xs;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.chart {
+  flex: 1;
+  min-height: 140px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: stretch;
+  gap: 2px;
+  padding: 0 4px 4px;
+}
+
+.barColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  height: 100%;
+}
+
+.bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+  transition: height 120ms ease, background 120ms ease;
+}

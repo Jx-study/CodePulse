@@ -1,0 +1,226 @@
+.wrap {
+
+  display: flex;
+
+  flex-direction: row;
+
+  align-items: stretch;
+
+  gap: $spacing-md;
+
+  flex-shrink: 0;
+
+  min-height: 120px;
+
+  padding: $spacing-xs $spacing-sm;
+
+  background: var(--card-bg);
+
+  border-bottom: 1px solid var(--border);
+
+  flex-wrap: wrap;
+
+}
+
+
+
+.section {
+
+  flex: 1;
+
+  min-width: 140px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: $spacing-xs;
+
+}
+
+
+
+.sectionMetrics {
+
+  padding-left: $spacing-sm;
+
+  border-left: 1px solid var(--border);
+
+}
+
+
+
+.sectionHead {
+
+  flex-shrink: 0;
+
+}
+
+
+
+.sectionTitle {
+
+  font-size: $font-xs;
+
+  font-weight: 600;
+
+  color: var(--text-secondary);
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+
+}
+
+
+
+.hBars {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  justify-content: center;
+
+  flex: 1;
+
+}
+
+
+
+.hRow {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: $spacing-xs;
+
+  font-size: $font-xs;
+
+}
+
+
+
+.rowLabel {
+
+  flex: 0 0 100px;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  color: var(--text-primary);
+
+}
+
+
+
+.hTrack {
+
+  flex: 1;
+
+  height: 10px;
+
+  background: var(--bg-secondary);
+
+  border-radius: 4px;
+
+  overflow: hidden;
+
+  min-width: 40px;
+
+}
+
+
+
+.hFill {
+
+  height: 100%;
+
+  border-radius: 4px;
+
+  transition: width 160ms ease;
+
+}
+
+
+
+.rowValue {
+
+  flex: 0 0 2.5rem;
+
+  text-align: right;
+
+  font-variant-numeric: tabular-nums;
+
+  color: var(--text-secondary);
+
+}
+
+
+
+.sectionMetrics .rowValue {
+
+  flex: 0 0 3.5rem;
+
+  font-size: $font-2xs;
+
+}
+
+
+
+.placeholder {
+
+  margin: 0;
+
+  font-size: $font-xs;
+
+  color: var(--text-tertiary, var(--text-secondary));
+
+  align-self: center;
+
+}
+
+
+
+.actions {
+
+  flex: 0 0 auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: stretch;
+
+  justify-content: center;
+
+  gap: $spacing-xs;
+
+  padding-left: $spacing-xs;
+
+  border-left: 1px solid var(--border);
+
+  min-width: max-content;
+
+}
+
+
+
+.modeToggle {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+}
+

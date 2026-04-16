@@ -1,0 +1,16 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: $spacing-sm;
+  flex: 1;
+  min-height: 0;
+  align-content: stretch;
+  align-items: stretch;
+  overflow: auto;
+  padding: 2px;
+}
+
+.empty {
+  flex: 1;
+  min-height: 200px;
+}

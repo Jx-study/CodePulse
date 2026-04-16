@@ -57,6 +57,7 @@ const TAGS = {
   INIT: "INIT",
   DIVIDE: "DIVIDE",
   MERGE_START: "MERGE_START",
+  MERGE_END: "MERGE_END",
   COMPARE: "COMPARE",
   COPY: "COPY",
   DONE: "DONE",
@@ -168,7 +169,10 @@ export function createMergeSortAnimationSteps(
     addStep(
       `準備將兩個已排序子陣列合併 (準備回到深度: ${depth - 1})`,
       TAGS.MERGE_START,
-      { depth },
+      {
+        depth,
+        auxSize: left.length + right.length,
+      },
     );
 
     while (i < left.length && j < right.length) {
@@ -235,11 +239,19 @@ export function createMergeSortAnimationSteps(
       j++;
     }
 
+    addStep("子陣列合併完畢", TAGS.MERGE_END, { auxSize: 0, depth });
+
     return merged;
   };
 
   // 觸發遞迴 (起始深度設為 1，原本在深度 0)
-  mergeSort(currentItems, 1, 0);
+  const sortedItems = mergeSort(currentItems, 1, 0);
+
+  // 以排序後的順序更新 currentItems（各 item 的 x/y 座標不變，
+  // 確保 D3Canvas 正確定位的同時，SortBarChart 也能依陣列順序正確顯示）
+  sortedItems.forEach((item, i) => {
+    currentItems[i] = item;
+  });
 
   // 最終步驟全轉為 Complete
   currentItems.forEach((item) => (item.status = Status.Complete));

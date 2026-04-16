@@ -1,0 +1,33 @@
+.wrap {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-md;
+  padding: 0 $spacing-sm;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.speed {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+}
+
+.speedLabel {
+  white-space: nowrap;
+}
+
+.flipBtn {
+  margin-left: auto;
+}
