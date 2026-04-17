@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type {
   PracticeResult,
   Question,
@@ -47,6 +48,7 @@ function Practice() {
   }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { i18n } = useTranslation();
   const currentUserRating = user?.skill_rating ?? DEFAULT_RATING;
 
   // 從後端載入題目
@@ -57,13 +59,13 @@ function Practice() {
   useEffect(() => {
     if (!levelId) return;
     setIsLoadingQuestions(true);
-    tutorialService.getQuestions(levelId)
+    tutorialService.getQuestions(levelId, i18n.language)
       .then((apiQs) => {
         setApiQuestions(mapApiQuestionsToLocal(apiQs));
       })
       .catch(() => setLoadError('無法載入題目，請重新整理'))
       .finally(() => setIsLoadingQuestions(false));
-  }, [levelId]);
+  }, [levelId, i18n.language]);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [randomizedQuestions, setRandomizedQuestions] = useState<Question[]>(
