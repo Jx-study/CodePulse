@@ -90,7 +90,16 @@ def run_trace(user_code: str) -> TraceResult:
     """
     執行 user_code，收集 TraceEvent[] 並建構 CallGraph。
     執行緒安全：所有狀態以閉包封裝。
+
+    只能在 sandbox container 內呼叫（SANDBOX_CONTAINER=1）。
+    直接從 Flask 進程呼叫會觸發 RuntimeError，防止意外暴露 exec 到 production 進程。
     """
+    import os
+    if os.environ.get("SANDBOX_CONTAINER") != "1":
+        raise RuntimeError(
+            "run_trace() 只能在 sandbox container 內呼叫。"
+            "請透過 sandbox_sidecar 執行用戶程式碼。"
+        )
     trace_log: list[TraceEvent] = []
     is_truncated = False
     stdout_events: list[dict] = []

@@ -15,6 +15,13 @@ services:
       timeout: 5s
       retries: 5
 
+  sandbox-sidecar:
+    build:
+      context: ./backend/sandbox_sidecar
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -25,7 +32,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/__pycache_
-      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
@@ -43,9 +49,12 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - SANDBOX_SIDECAR_URL=http://sandbox-sidecar:8080
     depends_on:
       postgres:
         condition: service_healthy
+      sandbox-sidecar:
+        condition: service_started
     command: python app.py
 
   # Vite dev server
