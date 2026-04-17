@@ -46,7 +46,7 @@ interface CanvasPanelProps {
   handlePause: () => void;
   handleNext: () => void;
   handlePrev: () => void;
-  handleReset: () => void;
+  handleResetStep: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
 
