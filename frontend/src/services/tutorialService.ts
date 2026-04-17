@@ -117,9 +117,9 @@ export const tutorialService = {
   },
 
   // 提交練習答案
-  async submitPractice(slug: string, answers: SubmitAnswerPayload[]): Promise<SubmitResponse> {
+  async submitPractice(slug: string, answers: SubmitAnswerPayload[], lang = 'zh-TW'): Promise<SubmitResponse> {
     return fetchJson<SubmitResponse>(
-      `/api/tutorials/${slug}/submit`,
+      `/api/tutorials/${slug}/submit?lang=${lang}`,
       {
         method: 'POST',
         body: JSON.stringify(answers),

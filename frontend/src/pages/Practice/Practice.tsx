@@ -213,7 +213,7 @@ function Practice() {
     }));
 
     try {
-      const resp = await tutorialService.submitPractice(levelId, payload);
+      const resp = await tutorialService.submitPractice(levelId, payload, i18n.language);
       const answerResults: AnswerResult[] = resp.results.map((r: any) => {
         const q = randomizedQuestions.find((q) => q.backendId === r.question_id)!;
         return {
