@@ -292,7 +292,7 @@ DATA = {
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
-                    "title": "作業系統中，CPU 處理多個程式時通常使用什麼數據結構來管理任務排程？",
+                    "title": "作業系統中，CPU 處理多個程式時通常使用什麼資料結構來管理任務排程？",
                     "options": [
                         {"id": "A", "text": "Stack (堆疊)"},
                         {"id": "B", "text": "Queue (佇列)"},
