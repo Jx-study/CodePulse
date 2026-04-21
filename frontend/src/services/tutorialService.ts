@@ -30,6 +30,23 @@ export interface QuestionsResponse {
   questions: ApiQuestion[];
 }
 
+export interface QuestionTranslationMap {
+  stem: string;
+  options: { id: string; text: string }[] | null;
+  explanation: string | null;
+}
+
+export interface GroupTranslationMap {
+  title: string;
+  description: string | null;
+}
+
+export interface TranslationsResponse {
+  success: boolean;
+  questions: Record<string, QuestionTranslationMap>;
+  groups: Record<string, GroupTranslationMap>;
+}
+
 export interface SubmitAnswerPayload {
   question_id: number;
   user_answer: string | string[];
@@ -116,10 +133,22 @@ export const tutorialService = {
     return data.questions;
   },
 
+  // 只取翻譯欄位（切語言時使用，不重新抽題）
+  async getQuestionTranslations(
+    slug: string,
+    questionIds: number[],
+    lang: string,
+  ): Promise<TranslationsResponse> {
+    const ids = questionIds.join(',');
+    return fetchJson<TranslationsResponse>(
+      `/api/tutorials/${slug}/questions/translations?lang=${lang}&ids=${ids}`
+    );
+  },
+
   // 提交練習答案
-  async submitPractice(slug: string, answers: SubmitAnswerPayload[]): Promise<SubmitResponse> {
+  async submitPractice(slug: string, answers: SubmitAnswerPayload[], lang = 'zh-TW'): Promise<SubmitResponse> {
     return fetchJson<SubmitResponse>(
-      `/api/tutorials/${slug}/submit`,
+      `/api/tutorials/${slug}/submit?lang=${lang}`,
       {
         method: 'POST',
         body: JSON.stringify(answers),

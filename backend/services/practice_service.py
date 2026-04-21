@@ -522,3 +522,35 @@ def submit_answers(
         'new_rating': round(user_rating, 2),
         'results': answer_results,
     }
+
+
+def get_question_translations(
+    q_ids: list[int],
+    group_ids: list[int],
+    lang: str,
+    include_explanation: bool = False,
+) -> dict:
+    q_translations: dict[str, dict] = {}
+    if q_ids:
+        for qt in QuestionTranslation.query.filter(
+            QuestionTranslation.question_id.in_(q_ids),
+            QuestionTranslation.language_code == lang,
+        ).all():
+            q_translations[str(qt.question_id)] = {
+                'stem': qt.stem,
+                'options': qt.options,
+                'explanation': qt.explanation if include_explanation else None,
+            }
+
+    g_translations: dict[str, dict] = {}
+    if group_ids:
+        for gt in QuestionGroupTranslation.query.filter(
+            QuestionGroupTranslation.group_id.in_(group_ids),
+            QuestionGroupTranslation.language_code == lang,
+        ).all():
+            g_translations[str(gt.group_id)] = {
+                'title': gt.title,
+                'description': gt.description,
+            }
+
+    return {'questions': q_translations, 'groups': g_translations}
