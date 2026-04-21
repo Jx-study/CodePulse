@@ -13,6 +13,8 @@ frontend/dist/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.*.production
 
 # Backend (Python)
 __pycache__/
