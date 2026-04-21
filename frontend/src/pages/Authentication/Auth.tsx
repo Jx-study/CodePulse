@@ -120,9 +120,18 @@ function AuthPage() {
     try {
       await register(formData.email, formData.password, formData.username);
       navigate("/auth/verify-email", { state: { email: formData.email } });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t("auth.errors.REGISTRATION_ERROR");
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
+      const errorCode = axiosError?.response?.data?.error_code;
+      const registerErrorMap: Record<string, string> = {
+        INVALID_EMAIL: t("register.errors.INVALID_EMAIL"),
+        WEAK_PASSWORD: t("register.errors.WEAK_PASSWORD"),
+        INVALID_USERNAME: t("register.errors.INVALID_USERNAME"),
+        EMAIL_EXISTS: t("register.errors.EMAIL_EXISTS"),
+        MAIL_ERROR: t("register.errors.MAIL_ERROR"),
+        SERVER_ERROR: t("register.errors.SERVER_ERROR"),
+      };
+      const errorMessage = (errorCode && registerErrorMap[errorCode]) ?? t("register.errors.DEFAULT");
       setAlert("error", errorMessage);
     } finally {
       setLoading(false);
