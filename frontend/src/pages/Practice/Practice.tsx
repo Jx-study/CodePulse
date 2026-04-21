@@ -65,7 +65,62 @@ function Practice() {
       })
       .catch(() => setLoadError('無法載入題目，請重新整理'))
       .finally(() => setIsLoadingQuestions(false));
-  }, [levelId, i18n.language]);
+  }, [levelId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 切語言時只更新翻譯欄位，不重置答題狀態
+  useEffect(() => {
+    if (!levelId || randomizedQuestions.length === 0) return;
+
+    // 在 fetch 前先快照，避免 async resolve 後讀到 stale closure
+    const questionIds = randomizedQuestions.map((q) => q.backendId!);
+    const qIdMap = new Map(randomizedQuestions.map((q) => [q.id, q.backendId]));
+    const isShowingResult = showResult;
+
+    tutorialService.getQuestionTranslations(levelId, questionIds, i18n.language)
+      .then((data) => {
+        setRandomizedQuestions((prev) =>
+          prev.map((q) => {
+            const qt = data.questions[String(q.backendId)];
+            if (!qt) return q;
+            const updated: Question = {
+              ...q,
+              title: qt.stem,
+              options: qt.options ?? q.options,
+            };
+            if (q.groupId) {
+              const gt = data.groups[q.groupId];
+              if (gt) {
+                updated.group = {
+                  ...q.group!,
+                  title: gt.title,
+                  description: gt.description ?? undefined,
+                };
+              }
+            }
+            return updated;
+          })
+        );
+
+        if (isShowingResult) {
+          setResult((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              answerResults: prev.answerResults.map((ar) => {
+                const backendId = qIdMap.get(ar.questionId);
+                if (!backendId) return ar;
+                const qt = data.questions[String(backendId)];
+                if (!qt) return ar;
+                return { ...ar, explanation: qt.explanation ?? ar.explanation };
+              }),
+            };
+          });
+        }
+      })
+      .catch(() => {
+        // 翻譯更新失敗時靜默忽略，保留舊語言文字
+      });
+  }, [i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [randomizedQuestions, setRandomizedQuestions] = useState<Question[]>(

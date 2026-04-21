@@ -4,10 +4,10 @@ from datetime import datetime, timezone
 from auth_utils import login_required
 from database import db
 from models.tutorial import Tutorial, UserTutorialProgress
-from models.practice import LearningSession, SessionMode
+from models.practice import LearningSession, SessionMode, PracticeAttempt
 from models.xp import XpEvent, XpSourceType
 from models.user import User
-from services.practice_service import get_questions_for_user, submit_answers
+from services.practice_service import get_questions_for_user, submit_answers, get_question_translations
 
 tutorials_bp = Blueprint('tutorials', __name__)
 
@@ -192,6 +192,54 @@ def get_tutorial_questions(slug):
     user = db.session.get(User, g.current_user_id)
     result = get_questions_for_user(t.tutorial_id, user, lang)
     return jsonify({'success': True, 'questions': result}), 200
+
+
+@tutorials_bp.route('/<slug>/questions/translations', methods=['GET'])
+@login_required
+def get_question_translations_route(slug):
+    t = _find_tutorial_by_slug(slug)
+    if not t:
+        return jsonify({'success': False, 'message': '教學不存在'}), 404
+
+    lang = _resolve_lang(g.current_user_id)
+
+    ids_param = request.args.get('ids', '').strip()
+    if not ids_param:
+        return jsonify({'success': False, 'message': '請提供 ids 參數'}), 400
+
+    try:
+        q_ids = [int(x) for x in ids_param.split(',') if x.strip()]
+    except ValueError:
+        return jsonify({'success': False, 'message': 'ids 格式錯誤，請用逗號分隔整數'}), 400
+
+    if not q_ids:
+        return jsonify({'success': False, 'message': '請提供至少一個 id'}), 400
+    if len(q_ids) > 50:
+        return jsonify({'success': False, 'message': '一次最多查詢 50 題'}), 400
+
+    from models.question import Question
+    valid_ids = {
+        q.question_id
+        for q in Question.query.filter(
+            Question.question_id.in_(q_ids),
+            Question.tutorial_id == t.tutorial_id,
+        ).with_entities(Question.question_id).all()
+    }
+    q_ids = [qid for qid in q_ids if qid in valid_ids]
+
+    group_id_rows = Question.query.filter(
+        Question.question_id.in_(q_ids),
+        Question.group_id.isnot(None),
+    ).with_entities(Question.group_id).distinct().all()
+    group_ids = [row.group_id for row in group_id_rows]
+
+    has_submitted = PracticeAttempt.query.filter_by(
+        user_id=g.current_user_id,
+        tutorial_id=t.tutorial_id,
+    ).first() is not None
+
+    result = get_question_translations(q_ids, group_ids, lang, include_explanation=has_submitted)
+    return jsonify({'success': True, **result}), 200
 
 
 _MAX_SUBMIT_QUESTIONS = 50
