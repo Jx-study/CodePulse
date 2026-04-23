@@ -167,9 +167,11 @@ class TestAlignSnapshots:
 
         result = align_snapshots(ref_trace, user_raw)
         assert result is not None
-        assert result[0].dataSnapshot == [3, 1, 2]
-        assert result[1].dataSnapshot == [1, 3, 2]
-        assert result[2].dataSnapshot == [1, 2, 3]
+        aligned, raw_index_map = result
+        assert aligned[0].dataSnapshot == [3, 1, 2]
+        assert aligned[1].dataSnapshot == [1, 3, 2]
+        assert aligned[2].dataSnapshot == [1, 2, 3]
+        assert len(raw_index_map) == 3
 
     def test_strategy_b_state_match(self):
         """用戶快照數量不一致，但狀態能比對 → 策略 B。"""
@@ -184,7 +186,8 @@ class TestAlignSnapshots:
         user_raw = self._make_user_raw(user_snaps)
         result = align_snapshots(ref_trace, user_raw)
         assert result is not None
-        swap_event = next(e for e in result if e.tag == "SORT_SWAP")
+        aligned, raw_index_map = result
+        swap_event = next(e for e in aligned if e.tag == "SORT_SWAP")
         assert swap_event.dataSnapshot == [1, 3, 2]
 
     def test_returns_none_on_insufficient_snapshots(self):
@@ -237,14 +240,17 @@ class TestBuildLevel1Trace:
         raw = run_trace(BUBBLE_SORT_USER_CODE)
         result = build_level1_trace("bubble_sort", raw.trace, [3, 1, 2])
         assert result is not None
-        assert isinstance(result, list)
-        assert len(result) > 0
+        events, raw_index_map = result
+        assert isinstance(events, list)
+        assert len(events) > 0
+        assert isinstance(raw_index_map, list)
 
     def test_trace_events_have_semantic_tags(self):
         raw = run_trace(BUBBLE_SORT_USER_CODE)
         result = build_level1_trace("bubble_sort", raw.trace, [3, 1, 2])
         assert result is not None
-        tags = {e.tag for e in result}
+        events, _ = result
+        tags = {e.tag for e in events}
         assert "SORT_COMPARE" in tags
         assert "SORT_START" in tags
 
@@ -253,7 +259,8 @@ class TestBuildLevel1Trace:
         raw = run_trace(BUBBLE_SORT_USER_CODE)
         result = build_level1_trace("bubble_sort", raw.trace, [3, 1, 2])
         assert result is not None
-        for event in result:
+        events, _ = result
+        for event in events:
             assert hasattr(event, "tag")
             assert hasattr(event, "local_vars")
             assert hasattr(event, "global_vars")
@@ -281,5 +288,6 @@ class TestBuildLevel1Trace:
         raw = run_trace(LINEAR_SEARCH_USER_CODE)
         result = build_level1_trace("linear_search", raw.trace, [1, 2, 3], target=2)
         assert result is not None
-        tags = {e.tag for e in result}
+        events, _ = result
+        tags = {e.tag for e in events}
         assert "SEARCH_COMPARE" in tags

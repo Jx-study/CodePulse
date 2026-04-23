@@ -114,7 +114,8 @@ class TestTracer:
         result = run_trace(BUBBLE_SORT)
         for ev in result.trace:
             assert hasattr(ev, "tag")
-            assert hasattr(ev, "variables")
+            assert hasattr(ev, "local_vars")
+            assert hasattr(ev, "global_vars")
             assert hasattr(ev, "dataSnapshot")
             assert hasattr(ev, "meta")
             assert "lineno" in ev.meta
@@ -122,7 +123,7 @@ class TestTracer:
 
     def test_call_graph_root(self):
         result = run_trace(BUBBLE_SORT)
-        assert result.call_graph.root == "func_bubble_sort"
+        assert result.call_graph.root == "func_<module>"
 
     def test_call_graph_nodes(self):
         result = run_trace(BUBBLE_SORT)
@@ -134,12 +135,12 @@ class TestTracer:
         # 應有從 <module> 到 bubble_sort 的邊
         edges = result.call_graph.edges
         assert any(
-            e.source == "func_<global>" and e.target == "func_bubble_sort"
+            e.source == "func_<module>" and e.target == "func_bubble_sort"
             for e in edges
         )
         edge = next(
             e for e in edges
-            if e.source == "func_<global>" and e.target == "func_bubble_sort"
+            if e.source == "func_<module>" and e.target == "func_bubble_sort"
         )
         assert len(edge.steps) >= 1
 
