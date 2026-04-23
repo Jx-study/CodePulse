@@ -38,7 +38,11 @@ def run():
         return jsonify({"error": "missing field: code"}), 400
 
     code = data["code"]
-    encoded = base64.b64encode(code.encode("utf-8")).decode("ascii")
+    n = data.get("n")
+    per_n_timeout = data.get("per_n_timeout")
+
+    runnable = code if n is None else code + f"\nexplore_wrapper({n})"
+    encoded = base64.b64encode(runnable.encode("utf-8")).decode("ascii")
     cmd = [
         "docker", "run",
         *_DOCKER_FLAGS,
@@ -46,12 +50,14 @@ def run():
         IMAGE_NAME,
     ]
 
+    effective_timeout = per_n_timeout if per_n_timeout is not None else CONTAINER_TIMEOUT
+
     try:
         proc = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=CONTAINER_TIMEOUT,
+            timeout=effective_timeout,
         )
     except subprocess.TimeoutExpired:
         _try_kill_container()
