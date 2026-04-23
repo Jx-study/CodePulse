@@ -8,14 +8,21 @@ import {
   cloneData,
   generateRandomGraph,
 } from "@/modules/core/visualization/visualizationUtils";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 
-function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+function parseGraphLoadPayload(
+  dataStr: string,
+): { nodes: any[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
   if (isNaN(nodeCount)) return null;
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node-${i}`,
+  }));
   const edges: string[][] = [];
   const edgeStr = parts.slice(2).join(":").trim();
   if (edgeStr !== "") {
@@ -24,8 +31,19 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
       if (u !== undefined && v !== undefined) {
         const uIdx = parseInt(u, 10);
         const vIdx = parseInt(v, 10);
-        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
-          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        if (
+          !isNaN(uIdx) &&
+          !isNaN(vIdx) &&
+          uIdx >= 0 &&
+          uIdx < nodeCount &&
+          vIdx >= 0 &&
+          vIdx < nodeCount
+        ) {
+          edges.push(
+            w !== undefined
+              ? [`node-${uIdx}`, `node-${vIdx}`, w]
+              : [`node-${uIdx}`, `node-${vIdx}`],
+          );
         }
       }
     });
@@ -54,7 +72,8 @@ function dijkstraActionHandler(
 
   if (actionType === "load") {
     const dataStr = payload.data as string;
-    if (typeof dataStr !== "string" || !dataStr.startsWith("GRAPH:")) return null;
+    if (typeof dataStr !== "string" || !dataStr.startsWith("GRAPH:"))
+      return null;
     const graphPayload = parseGraphLoadPayload(dataStr);
     if (!graphPayload) return null;
     return {
@@ -186,7 +205,7 @@ export function createDijkstraAnimationSteps(
       return `${id}: ${valueStr}`;
     })
     .join(", ");
-  initialFrame.variables = { 目前距離表: initialDistString };
+  initialFrame.local_vars = { 目前距離表: initialDistString };
 
   steps.push(initialFrame);
 
@@ -216,8 +235,8 @@ export function createDijkstraAnimationSteps(
       })
       .join(", ");
 
-    // 將字串塞入 variables
-    step.variables = { 目前距離表: distString };
+    // 將字串塞入 local_vars
+    step.local_vars = { 目前距離表: distString };
     steps.push(step);
   };
 
@@ -428,41 +447,48 @@ export const dijkstraConfig: LevelImplementationConfig = {
   },
   createAnimationSteps: createDijkstraAnimationSteps,
   actionHandler: dijkstraActionHandler,
-  renderActionBar: (props) => <DijkstraActionBar {...(props as AlgoActionBarProps)} />,
+  renderActionBar: (props) => (
+    <DijkstraActionBar {...(props as AlgoActionBarProps)} />
+  ),
   maxNodes: 15,
   relatedProblems: [
     {
       id: 743,
       title: "Network Delay Time",
-      concept: "單源最短路徑：Dijkstra 從源節點出發，求所有節點都收到訊號的最短等待時間",
+      concept:
+        "單源最短路徑：Dijkstra 從源節點出發，求所有節點都收到訊號的最短等待時間",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/network-delay-time/",
     },
     {
       id: 1631,
       title: "Path With Minimum Effort",
-      concept: "Dijkstra 變形：最小化路徑上相鄰格高度差的最大值，以最小堆追蹤當前最大落差",
+      concept:
+        "Dijkstra 變形：最小化路徑上相鄰格高度差的最大值，以最小堆追蹤當前最大落差",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/path-with-minimum-effort/",
     },
     {
       id: 1514,
       title: "Path with Maximum Probability",
-      concept: "最大概率路徑：將 Dijkstra 的加法改為乘法，最大堆優先擴展當前概率最高的節點",
+      concept:
+        "最大概率路徑：將 Dijkstra 的加法改為乘法，最大堆優先擴展當前概率最高的節點",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/path-with-maximum-probability/",
     },
     {
       id: 787,
       title: "Cheapest Flights Within K Stops",
-      concept: "限轉機次數的最短路徑：對每個節點額外追蹤已用步數，限制最多 k 次中途停靠",
+      concept:
+        "限轉機次數的最短路徑：對每個節點額外追蹤已用步數，限制最多 k 次中途停靠",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
     },
     {
       id: 778,
       title: "Swim in Rising Water",
-      concept: "最小瓶頸路徑：Dijkstra 以最小堆選出當前最小的水位高度格，求到達右下角的最低水位",
+      concept:
+        "最小瓶頸路徑：Dijkstra 以最小堆選出當前最小的水位高度格，求到達右下角的最低水位",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/swim-in-rising-water/",
     },

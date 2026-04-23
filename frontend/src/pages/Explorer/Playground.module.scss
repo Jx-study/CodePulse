@@ -1,261 +1,284 @@
 .playground {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: calc(100vh - 5rem);
   background: var(--bg-primary);
   overflow: hidden;
+  position: relative;
 }
 
-// ── Toolbar ──────────────────────────────────────────────────────────────────
+.panelGroupH {
+  flex: 1;
+  min-width: 0;
+}
 
-.toolbar {
-  height: 3.5rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
+.leftSidebarPanel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg-primary);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.canvasPanel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rightSidebarPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+  min-width: 0;
+}
+
+.editorPanelInner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editorHeader {
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 $spacing-sm;
-  flex-shrink: 0;
-  gap: $spacing-sm;
-}
-
-.toolbarLeft {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-}
-
-.toolbarRight {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.backBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: $radius-md;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: $font-lg;
-  transition: background 0.2s, color 0.2s;
-
-  &:hover {
-    background: var(--card-bg);
-    color: var(--text-primary);
-  }
-}
-
-.divider {
-  width: 1px;
-  height: 1.5rem;
-  background: var(--border);
-}
-
-.toolbarTitle {
-  font-size: $font-sm;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-// ── Language selector ─────────────────────────────────────────────────────────
-
-.langSelector {
-  position: relative;
-}
-
-.langBtn {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-sm;
-  font-size: $font-xs;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-
-  &:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    color: var(--text-primary);
-  }
-}
-
-.chevron {
-  font-size: $font-2xs;
-  opacity: 0.6;
-}
-
-.langDropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 8rem;
   background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  z-index: 50;
-  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
-.langOption {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: $spacing-xs $spacing-sm;
-  font-size: $font-xs;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-
-  &:hover {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-  }
-}
-
-.langOptionActive {
-  color: $primary-color;
-  background: rgba(99, 91, 255, 0.08);
-}
-
-// ── Run button ────────────────────────────────────────────────────────────────
-
-.runBtn {
+.editorFilename {
   display: flex;
   align-items: center;
   gap: $spacing-xs;
-  padding: $spacing-xs $spacing-md;
-  font-size: $font-xs;
-  font-weight: 700;
-  color: #fff;
-  background: $execution-color;
-  border: none;
-  border-radius: $radius-md;
-  cursor: pointer;
-  transition: filter 0.2s, transform 0.2s;
-
-  &:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-  }
 }
 
-// ── Main split ────────────────────────────────────────────────────────────────
-
-.mainContent {
-  @include flex;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-
-  @media (max-width: $tablet-max) {
-    flex-direction: column;
-    overflow: auto;
-  }
-}
-
-// ── Editor panel (left) ───────────────────────────────────────────────────────
-
-.editorPanel {
-  width: 50%;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-primary);
-  min-height: 0;
-
-  @media (max-width: $tablet-max) {
-    width: 100%;
-    min-height: 400px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-.editorHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: $spacing-xs $spacing-sm;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
+.filenameDot {
+  width: 7px;
+  height: 7px;
+  border-radius: $radius-sm;
+  background: var(--color-teal);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-teal) 40%, transparent);
   flex-shrink: 0;
 }
 
 .filename {
   font-family: $font-family-code;
   font-size: $font-xs;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
+}
+
+.runBtn {
+  background: $execution-color;
+  color: $white-color !important;
+  transition: filter 0.2s, transform 0.2s;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .editorBody {
   flex: 1;
+  overflow: auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.canvasArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   overflow: hidden;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+  background: var(--bg-primary);
 }
 
-// ── Viz panel (right) ─────────────────────────────────────────────────────────
-
-.vizPanel {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-secondary);
-  min-height: 0;
-
-  @media (max-width: $tablet-max) {
-    width: 100%;
-    min-height: 400px;
-  }
-}
-
-.vizHeader {
+.canvasTabBar {
   display: flex;
   align-items: center;
+  padding: 0 $spacing-sm;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  gap: $spacing-sm;
+}
+
+.truncatedBadge {
+  font-size: $font-2xs;
+  color: var(--warning-color);
+  font-family: $font-family-code;
+  margin-left: auto;
+}
+
+.graphArea {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
+
+.animationPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  height: 100%;
+  font-size: $font-sm;
+  color: var(--text-tertiary);
+  font-family: $font-family-code;
+}
+
+.cfgPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cfgHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
   padding: $spacing-xs $spacing-sm;
-  background: var(--card-bg);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.vizLabel {
-  font-size: $font-xs;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-secondary);
-}
-
-.vizBody {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+.cfgBackBtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 0;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: var(--text-primary); border-color: color-mix(in srgb, $white-color 20%, transparent); }
 }
 
-.gridPattern {
+.cfgLabel {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+}
+
+.controlRow {
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.emptyControl {
+  padding: $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.aiBtn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 0 $spacing-sm;
+  height: 1.5rem;
+  border-radius: $radius-md;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  font-size: $font-2xs;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+}
+
+.aiBtnDisabled {
+  color: var(--text-tertiary);
+  border-color: var(--border);
+  background: transparent;
+  opacity: 0.5;
+}
+
+.aiBtnLoading {
+  color: var(--text-tertiary);
+  border-color: var(--border);
+  background: transparent;
+  cursor: default;
+}
+
+.aiBtnActive {
+  // inherits .aiBtn active colours
+}
+
+.aiBtnDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+.callGraphLegend {
   position: absolute;
-  inset: 0;
-  opacity: 0.15;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: color-mix(in srgb, var(--bg-tertiary) 85%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
   pointer-events: none;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
+}
+
+.legendItem { display: flex; align-items: center; gap: 6px; }
+
+.legendLineSolid {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: var(--border);
+}
+
+.legendLineDashed {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 4px, transparent 4px, transparent 8px);
 }

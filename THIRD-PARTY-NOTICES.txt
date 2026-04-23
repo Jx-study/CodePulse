@@ -1,0 +1,17 @@
+CodePulse uses the following third-party open-source components:
+
+1. py2cfg
+   Copyright 2020 ClassroomCode / Various Contributors
+   Licensed under the Apache License, Version 2.0
+
+2. StatiCFG
+   Copyright 2018 Aurélien Coet, 2020 Andrei Nacu
+   Licensed under the Apache License, Version 2.0
+
+========================================================================
+
+Portions of the above software are adapted and included in `cfg_builder.py` 
+and are licensed under the Apache License, Version 2.0.
+
+A full copy of the Apache License, Version 2.0 can be found at: 
+http://www.apache.org/licenses/LICENSE-2.0

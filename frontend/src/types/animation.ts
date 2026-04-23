@@ -14,7 +14,8 @@ export interface AnimationStep {
   description: string | StepDescription;
   elements: BaseElement[];
   actionTag?: string; // 用於對應代碼高亮的標籤
-  variables?: Record<string, string | number | boolean | null>; // 變數狀態追蹤
+  local_vars?: Record<string, any>;
+  global_vars?: Record<string, any>;
   links?: {
     sourceId: string;
     targetId: string;

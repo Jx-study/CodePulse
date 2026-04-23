@@ -6,27 +6,29 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 
-const prefixSumActionHandler = createLinearActionHandler({ randomValueRange: [0, 100] });
+const prefixSumActionHandler = createLinearActionHandler({
+  randomValueRange: [0, 100],
+});
 
 const TAGS = {
   BUILD_INIT: "BUILD_INIT",
   BUILD_BASE: "BUILD_BASE",
   BUILD_CALC: "BUILD_CALC",
   BUILD_DONE: "BUILD_DONE",
-  
+
   QUERY_START: "QUERY_START",
   QUERY_GET_R: "QUERY_GET_R",
-  QUERY_GET_L: "QUERY_GET_L",         
-  QUERY_RETURN_SUB: "QUERY_RETURN_SUB", 
-  QUERY_ELSE: "QUERY_ELSE",           
-  QUERY_RETURN_DIRECT: "QUERY_RETURN_DIRECT", 
+  QUERY_GET_L: "QUERY_GET_L",
+  QUERY_RETURN_SUB: "QUERY_RETURN_SUB",
+  QUERY_ELSE: "QUERY_ELSE",
+  QUERY_RETURN_DIRECT: "QUERY_RETURN_DIRECT",
 };
 
 const generateFrame = (
   sourceList: LinearData[],
   prefixList: (number | null)[],
   prefixStatusMap: Record<number, Status> = {},
-  sourceStatusMap: Record<number, Status> = {}
+  sourceStatusMap: Record<number, Status> = {},
 ) => {
   // 1. 建立上排：原始陣列 (Source)
   const sourceBoxes = createBoxes(sourceList, {
@@ -69,9 +71,9 @@ const generateFrame = (
 
     // 1. 如果數值是 null (尚未計算)，強制覆蓋為 inactive (灰色)
     if (prefixList[i] === null) {
-      box.value = '0';
+      box.value = "0";
       box.setStatus(Status.Inactive);
-    } 
+    }
     // 2. 如果數值已計算，且不在 map 中 (createBoxes 沒設定到狀態)
     //    預設為 Status.Unfinished (藍色)，代表已存檔
     else if (!prefixStatusMap[i]) {
@@ -86,7 +88,7 @@ const generateFrame = (
 
 export function createPrefixSumAnimationSteps(
   inputData: any[],
-  action?: any
+  action?: any,
 ): AnimationStep[] {
   const sourceData = inputData as LinearData[];
   const steps: AnimationStep[] = [];
@@ -114,7 +116,7 @@ export function createPrefixSumAnimationSteps(
       stepNumber: 0,
       description: `開始查詢：計算區間 [${L}, ${R}] 的總和`,
       actionTag: TAGS.QUERY_START,
-      variables: { L, R },
+      local_vars: { L, R },
       elements: generateFrame(sourceData, prefixArrForQuery, allCompleteMap),
     });
 
@@ -122,9 +124,9 @@ export function createPrefixSumAnimationSteps(
       stepNumber: 1,
       description: `步驟 1：取得右邊界的前綴和 P[${R}] = ${prefixArrForQuery[R]}`,
       actionTag: TAGS.QUERY_GET_R,
-      variables: { 
-        R, 
-        valR: prefixArrForQuery[R] 
+      local_vars: {
+        R,
+        valR: prefixArrForQuery[R],
       },
       elements: generateFrame(sourceData, prefixArrForQuery, {
         ...allCompleteMap,
@@ -133,18 +135,18 @@ export function createPrefixSumAnimationSteps(
     });
 
     const valR = prefixArrForQuery[R]!;
-    
+
     if (L > 0) {
       const valL_1 = prefixArrForQuery[L - 1]!;
-      
+
       steps.push({
         stepNumber: 2,
         description: `步驟 2：因為 L > 0，取得左邊界前一個位置的前綴和 P[${L}-1] = ${valL_1}`,
         actionTag: TAGS.QUERY_GET_L,
-        variables: { 
-          L, 
-          prevL: L - 1, 
-          valL: valL_1 
+        local_vars: {
+          L,
+          prevL: L - 1,
+          valL: valL_1,
         },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
@@ -154,26 +156,29 @@ export function createPrefixSumAnimationSteps(
       });
 
       const result = valR - valL_1;
-      const resultMap: Record<number, Status> = { ...allCompleteMap, [R]: Status.Target, [L - 1]: Status.Prepare };
-      
+      const resultMap: Record<number, Status> = {
+        ...allCompleteMap,
+        [R]: Status.Target,
+        [L - 1]: Status.Prepare,
+      };
+
       steps.push({
         stepNumber: 3,
         description: `計算結果：${valR} - ${valL_1} = ${result}`,
         actionTag: TAGS.QUERY_RETURN_SUB,
-        variables: { 
-          valR, 
-          valL: valL_1, 
-          result 
+        local_vars: {
+          valR,
+          valL: valL_1,
+          result,
         },
         elements: generateFrame(sourceData, prefixArrForQuery, resultMap),
       });
-
     } else {
       steps.push({
         stepNumber: 2,
         description: `步驟 2：因為 L = 0，不需要減去任何前綴`,
         actionTag: TAGS.QUERY_ELSE,
-        variables: { L },
+        local_vars: { L },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
           [R]: Status.Target,
@@ -184,7 +189,7 @@ export function createPrefixSumAnimationSteps(
         stepNumber: 3,
         description: `直接回傳：P[${R}] = ${valR}`,
         actionTag: TAGS.QUERY_RETURN_DIRECT,
-        variables: { result: valR },
+        local_vars: { result: valR },
         elements: generateFrame(sourceData, prefixArrForQuery, {
           ...allCompleteMap,
           [R]: Status.Target,
@@ -201,7 +206,7 @@ export function createPrefixSumAnimationSteps(
     stepNumber: 0,
     description: "開始建構前綴和陣列 P",
     actionTag: TAGS.BUILD_INIT,
-    variables: { n },
+    local_vars: { n },
     elements: generateFrame(sourceData, prefixArr, {}, {}),
   });
 
@@ -213,8 +218,13 @@ export function createPrefixSumAnimationSteps(
       stepNumber: steps.length + 1,
       description: `初始化：P[0] = A[0] = ${val0}`,
       actionTag: TAGS.BUILD_BASE,
-      variables: { val0 },
-      elements: generateFrame(sourceData, prefixArr, { 0: Status.Complete }, { 0: Status.Target }),
+      local_vars: { val0 },
+      elements: generateFrame(
+        sourceData,
+        prefixArr,
+        { 0: Status.Complete },
+        { 0: Status.Target },
+      ),
     });
   }
 
@@ -227,12 +237,12 @@ export function createPrefixSumAnimationSteps(
       stepNumber: steps.length + 1,
       description: `計算 P[${i}]：前一個總和 P[${i - 1}] (${prevSum}) + 當前元素 A[${i}] (${currentVal})`,
       actionTag: TAGS.BUILD_CALC,
-      variables: { i, prevSum, currentVal, newSum },
+      local_vars: { i, prevSum, currentVal, newSum },
       elements: generateFrame(
         sourceData,
         prefixArr,
-        { [i - 1]: Status.Prepare }, 
-        { [i]: Status.Target }
+        { [i - 1]: Status.Prepare },
+        { [i]: Status.Target },
       ),
     });
 
@@ -241,12 +251,12 @@ export function createPrefixSumAnimationSteps(
       stepNumber: steps.length + 1,
       description: `更新 P[${i}] = ${newSum}`,
       actionTag: TAGS.BUILD_CALC,
-      variables: { i, newSum },
+      local_vars: { i, newSum },
       elements: generateFrame(
         sourceData,
         prefixArr,
-        { [i]: Status.Complete }, 
-        {}
+        { [i]: Status.Complete },
+        {},
       ),
     });
   }
@@ -290,15 +300,15 @@ End Procedure`,
       [TAGS.BUILD_BASE]: [3],
       [TAGS.BUILD_CALC]: [6],
       [TAGS.BUILD_DONE]: [8],
-      
+
       [TAGS.QUERY_START]: [10],
       [TAGS.QUERY_GET_R]: [11],
-      
-      [TAGS.QUERY_GET_L]: [13, 14],      
-      [TAGS.QUERY_RETURN_SUB]: [15],     
-      
-      [TAGS.QUERY_ELSE]: [13, 16],       
-      [TAGS.QUERY_RETURN_DIRECT]: [17],  
+
+      [TAGS.QUERY_GET_L]: [13, 14],
+      [TAGS.QUERY_RETURN_SUB]: [15],
+
+      [TAGS.QUERY_ELSE]: [13, 16],
+      [TAGS.QUERY_RETURN_DIRECT]: [17],
     },
   },
   python: {
