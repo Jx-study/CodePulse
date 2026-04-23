@@ -1,9 +1,12 @@
 import logging
+import concurrent.futures as _cf
 from flask import Blueprint, jsonify, request
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
 from services.sandbox import run_in_sandbox
+from services.ast_complexity import analyze_complexity
+from services.complexity_analyzer import measure_step_counts
 from services.tracer import TraceEvent
 from services.template_tracer import build_level1_trace
 from services.task_queue import (
@@ -40,8 +43,29 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         is_truncated = sandbox_result.get("is_truncated", False)
         stdout_events = sandbox_result.get("stdout_events", [])
 
-    task_queue.update_progress(task_id, STAGE_ANALYSIS, "演算法辨識中…")
-    # TODO: Gemini + MiniLM 分析
+    task_queue.update_progress(task_id, STAGE_ANALYSIS, "正在分析時間複雜度…")
+    ast_complexity = "unknown"
+    bigo_complexity = "unknown"
+    with _cf.ThreadPoolExecutor(max_workers=2) as _pool:
+        _ast_fut = _pool.submit(analyze_complexity, code)
+        _bigo_fut = _pool.submit(measure_step_counts, wrapped_code)
+        try:
+            ast_complexity = _ast_fut.result(timeout=60)
+        except Exception:
+            ast_complexity = "unknown"
+        try:
+            bigo_complexity = _bigo_fut.result(timeout=60)
+        except Exception:
+            bigo_complexity = "unknown"
+
+    if (ast_complexity != "unknown"
+            and bigo_complexity != "unknown"
+            and ast_complexity == bigo_complexity):
+        final_complexity = ast_complexity
+        complexity_source = "ast+bigO"
+    else:
+        final_complexity = "unknown"
+        complexity_source = "gemini"
 
     task_queue.update_progress(task_id, STAGE_GEMINI, "Gemini 專家仲裁中…")
     # TODO: Gemini 仲裁結果整合
@@ -99,8 +123,8 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     return {
         "detected_algorithm": "bubble_sort" if have_level1 else None,  # TODO: 接 Gemini 後移除 hardcode
         "confidence_score": None,
-        "time_complexity": None,
-        "analysis_source": "gemini",
+        "time_complexity": final_complexity if final_complexity != "unknown" else None,
+        "analysis_source": complexity_source,
         "have_level1": have_level1,
         "execution_trace": execution_trace,
         "raw_trace": raw_trace,
