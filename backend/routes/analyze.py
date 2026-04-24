@@ -63,6 +63,12 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
             and ast_complexity == bigo_complexity):
         final_complexity = ast_complexity
         complexity_source = "ast+bigO"
+    elif ast_complexity != "unknown":
+        final_complexity = ast_complexity
+        complexity_source = "ast+bigO"
+    elif bigo_complexity != "unknown":
+        final_complexity = bigo_complexity
+        complexity_source = "ast+bigO"
     else:
         final_complexity = "unknown"
         complexity_source = "gemini"
