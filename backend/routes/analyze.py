@@ -46,29 +46,41 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     task_queue.update_progress(task_id, STAGE_ANALYSIS, "正在分析時間複雜度…")
     ast_complexity = "unknown"
     bigo_complexity = "unknown"
+
+    from services.complexity_analyzer import generate_bigo_wrapper
+
+    bigo_code = generate_bigo_wrapper(code)
+
     with _cf.ThreadPoolExecutor(max_workers=2) as _pool:
         _ast_fut = _pool.submit(analyze_complexity, code)
-        _bigo_fut = _pool.submit(measure_step_counts, wrapped_code)
+        _bigo_fut = (
+            _pool.submit(measure_step_counts, bigo_code)
+            if bigo_code is not None
+            else None
+        )
         try:
             ast_complexity = _ast_fut.result(timeout=60)
         except Exception:
             ast_complexity = "unknown"
-        try:
-            bigo_complexity = _bigo_fut.result(timeout=60)
-        except Exception:
-            bigo_complexity = "unknown"
+        if _bigo_fut is not None:
+            try:
+                bigo_complexity = _bigo_fut.result(timeout=60)
+            except Exception:
+                bigo_complexity = "unknown"
 
-    if (ast_complexity != "unknown"
-            and bigo_complexity != "unknown"
-            and ast_complexity == bigo_complexity):
-        final_complexity = ast_complexity
-        complexity_source = "ast+bigO"
+    if ast_complexity != "unknown" and bigo_complexity != "unknown":
+        if ast_complexity == bigo_complexity:
+            final_complexity = ast_complexity
+            complexity_source = "ast+bigO"
+        else:
+            final_complexity = ast_complexity
+            complexity_source = "ast_conflict"
     elif ast_complexity != "unknown":
         final_complexity = ast_complexity
-        complexity_source = "ast+bigO"
+        complexity_source = "ast"
     elif bigo_complexity != "unknown":
         final_complexity = bigo_complexity
-        complexity_source = "ast+bigO"
+        complexity_source = "bigO"
     else:
         final_complexity = "unknown"
         complexity_source = "gemini"
