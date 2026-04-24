@@ -1,13 +1,6 @@
 // frontend/src/pages/Explorer/components/StatusBar/StatusBar.tsx
+import type { RunStage } from "@/types/runStage";
 import styles from "./StatusBar.module.scss";
-
-export type RunStage =
-  | "idle"
-  | "syntax_check"
-  | "sandbox"
-  | "analysis"
-  | "gemini"
-  | "done";
 
 const STAGE_ORDER: RunStage[] = ["syntax_check", "sandbox", "analysis", "gemini"];
 

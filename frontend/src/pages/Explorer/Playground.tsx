@@ -29,11 +29,12 @@ import TabList from "@/shared/components/Tabs/TabList";
 import { toast } from "@/shared/components/Toast";
 import { LeftActivityBar, RightActivityBar } from "./components/ActivityBar";
 import StatusBar from "./components/StatusBar";
-import type { RunStage } from "./components/StatusBar";
+import type { RunStage } from "@/types/runStage";
 import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
-import type { AiResult, AlgoCandidate } from "./components/AiAnalysisDialog";
+import AlgoDetectionDialog from "./components/AlgoDetectionDialog";
+import type { AiResult, AlgoCandidate } from "@/types/ai";
 import { run as analyzeRun, AnalyzeError } from "@/services/AnalyzeService";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import { rebuildCallStack } from "@/utils/traceUtils";
@@ -99,7 +100,8 @@ function Playground() {
   // AI Analysis
   const [aiResult, setAiResult]             = useState<AiResult | null>(null);
   const [top3Candidates, setTop3Candidates] = useState<AlgoCandidate[]>([]);
-  const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
+  const [isAiDialogOpen, setIsAiDialogOpen]     = useState(false);
+  const [isAlgoDialogOpen, setIsAlgoDialogOpen] = useState(false);
 
   // DnD
   const [isDragActive, setIsDragActive] = useState(false);
@@ -200,6 +202,16 @@ function Playground() {
   useEffect(() => {
     if (isTruncated) toast.warning(t("run.truncated"));
   }, [isTruncated, t]);
+
+  useEffect(() => {
+    if (
+      runStage === "done" &&
+      aiResult?.detected_algorithm &&
+      aiResult.detected_algorithm in ALGORITHM_TO_CONVERTER_KEY
+    ) {
+      setIsAlgoDialogOpen(true);
+    }
+  }, [runStage, aiResult]);
 
   // Run handler
   const handleRun = useCallback(async () => {
@@ -702,9 +714,13 @@ function Playground() {
         onClose={() => setIsAiDialogOpen(false)}
         runStage={runStage}
         aiResult={aiResult}
+      />
+      <AlgoDetectionDialog
+        isOpen={isAlgoDialogOpen}
+        onClose={() => setIsAlgoDialogOpen(false)}
+        aiResult={aiResult}
         top3Candidates={top3Candidates}
-        onApplyAlgorithm={(name) => {
-          // TODO: trigger algorithm animation when animation system is ready
+        onApply={(name) => {
           console.log("Apply algorithm:", name);
         }}
       />
