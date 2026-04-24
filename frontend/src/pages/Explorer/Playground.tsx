@@ -174,6 +174,13 @@ function Playground() {
   // Animation unlocked once sandbox is done (stage = analysis or gemini or done)
   const isAnimationUnlocked = ["analysis", "gemini", "done"].includes(runStage);
 
+  // Show the Animation tab only when a supported algorithm was detected
+  const hasAnimationTemplate = animationSteps.length > 0 || (
+    runStage !== "idle" &&
+    !!aiResult?.detected_algorithm &&
+    aiResult.detected_algorithm in ALGORITHM_TO_CONVERTER_KEY
+  );
+
   // Panels visible in the right sidebar (not docked left, not collapsed)
   const visibleRightPanels = rightOrder.filter(
     (id) => id !== leftDockedId && !collapsedPanels.has(id)
@@ -202,6 +209,13 @@ function Playground() {
   useEffect(() => {
     if (isTruncated) toast.warning(t("run.truncated"));
   }, [isTruncated, t]);
+
+  // Auto-switch away from animation tab if no template is available
+  useEffect(() => {
+    if (!hasAnimationTemplate && activeTab === "animation") {
+      setActiveTab("graph");
+    }
+  }, [hasAnimationTemplate, activeTab]);
 
   useEffect(() => {
     if (
@@ -468,11 +482,11 @@ function Playground() {
                   onChange={(key) => { setActiveTab(key as ViewTab); setCurrentStep(0); setIsPlaying(false); }}
                   aria-label="Visualization mode"
                   tabs={[
-                    {
+                    ...(hasAnimationTemplate ? [{
                       key: "animation",
                       label: "Algorithm Animation",
                       icon: <Icon name="diagram-project" />,
-                    },
+                    }] : []),
                     {
                       key: "graph",
                       label: "Call Graph / CFG",
@@ -518,10 +532,11 @@ function Playground() {
                       enablePan
                     />
                   ) : (
-                    <div className={styles.animationPlaceholder}>
-                      <Icon name="film" />
-                      <span>{rawTrace.length > 0 ? "No animation data" : "Run code to see animation"}</span>
-                    </div>
+                    <EmptyState
+                      icon={<Icon name="film" />}
+                      title="No animation data"
+                      description="Run code to generate the animation"
+                    />
                   )
                 ) : !callGraph ? (
                   <EmptyState
