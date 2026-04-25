@@ -9,6 +9,9 @@ from services.ast_complexity import analyze_complexity
 from services.complexity_analyzer import measure_step_counts
 from services.tracer import TraceEvent
 from services.template_tracer import build_level1_trace
+from services.algo_identification import identify as algo_identify, IdentifyResult
+from services.algo_identification.divergence_log import log_divergence
+from services.ast_complexity import is_recursive as ast_is_recursive
 from services.task_queue import (
     task_queue,
     STATUS_COMPLETED,
@@ -19,6 +22,43 @@ from services.task_queue import (
     STAGE_ANALYSIS,
     STAGE_GEMINI,
 )
+
+EXPECTED_STRUCTURE: dict[str, str] = {
+    "bubble_sort":    "iterative",
+    "selection_sort": "iterative",
+    "insertion_sort": "iterative",
+    "linear_search":  "iterative",
+    "binary_search":  "iterative",
+    "merge_sort":     "recursive",
+    "quick_sort":     "recursive",
+}
+
+
+def route_level1_decision(
+    code: str,
+    identify_result: IdentifyResult,
+) -> tuple[str | None, str | None]:
+    """
+    Returns (algo_for_level1, fallback_reason).
+    algo_for_level1 is None  →  use Level 2 path.
+    fallback_reason is one of: "low_confidence", "structure_mismatch", "no_template", or None.
+    """
+    if identify_result.algo_name is None:
+        return None, "low_confidence"
+
+    is_rec = ast_is_recursive(code)
+    expected = EXPECTED_STRUCTURE.get(identify_result.algo_name)
+    actual = "recursive" if is_rec else "iterative"
+
+    if expected != actual:
+        return None, "structure_mismatch"
+
+    from services.template_tracer import SUPPORTED_ALGORITHMS
+    if identify_result.algo_name not in SUPPORTED_ALGORITHMS:
+        return None, "no_template"
+
+    return identify_result.algo_name, None
+
 
 analyze_bp = Blueprint('analyze', __name__, url_prefix='/api/analyze')
 
