@@ -100,6 +100,37 @@
   min-width: 0;
 }
 
+.editCodeBtn {
+  transition: filter 0.2s, transform 0.2s;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+}
+
+// Locked state applied directly on editorBody
+.editorBodyLocked {
+  position: relative;
+  cursor: not-allowed;
+
+  // Dim the editor underneath
+  > :last-child {
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+}
+
+// Semi-transparent mask — sits above the editor, absorbs clicks
+.editorLockMask {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: transparent;
+  cursor: not-allowed;
+}
+
 .canvasArea {
   flex: 1;
   display: flex;
@@ -188,6 +219,16 @@
   border-top: 1px solid var(--border);
   background: var(--bg-secondary);
   flex-shrink: 0;
+  max-height: 120px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+
+  &.controlRowHidden {
+    max-height: 0;
+    opacity: 0;
+    border-top-color: transparent;
+  }
 }
 
 .emptyControl {

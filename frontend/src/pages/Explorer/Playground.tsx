@@ -88,6 +88,8 @@ function Playground() {
 
   // Run + stage
   const [runStage, setRunStage] = useState<RunStage>("idle");
+  // Editor is locked whenever a run is in progress or results are displayed
+  const isLocked = runStage !== "idle";
 
   // Panel layout state
   // leftDockedId: which panel (if any) is docked below the editor on the left
@@ -190,6 +192,16 @@ function Playground() {
   const handlePlay       = useCallback(() => setIsPlaying(true), []);
   const handlePause      = useCallback(() => setIsPlaying(false), []);
   const handleReset      = useCallback(() => { setIsPlaying(false); setCurrentStep(0); }, []);
+  const handleEditCode   = useCallback(() => {
+    setIsPlaying(false);
+    setCurrentStep(0);
+    setTrace([]); setRawTrace([]); setRawIndexMap([]);
+    setCallGraph(null); setCfgGraph({});
+    setStdoutEvents([]); setIsTruncated(false);
+    setAiResult(null); setTop3Candidates([]);
+    editorRef.current?.clearErrorMarker();
+    setRunStage("idle");
+  }, []);
   const handleNext       = useCallback(() => setCurrentStep(s => Math.min(s + 1, totalSteps - 1)), [totalSteps]);
   const handlePrev       = useCallback(() => setCurrentStep(s => Math.max(s - 1, 0)), []);
   const handleStepChange = useCallback((step: number) => setCurrentStep(step), []);
@@ -281,6 +293,9 @@ function Playground() {
             break;
           case "runtime_error":
             toast.error(formatRuntimeError(e.message, t));
+            if (e.lineno != null) {
+              editorRef.current?.setErrorMarker(e.lineno, e.message);
+            }
             break;
           default:
             toast.error(t("run.analysisFailed"));
@@ -407,24 +422,31 @@ function Playground() {
                         <span className={styles.filenameDot} />
                         <span className={styles.filename}>main.py</span>
                       </div>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className={styles.runBtn}
-                        onClick={handleRun}
-                        disabled={runStage !== "idle" && runStage !== "done"}
-                        icon={
-                          runStage !== "idle" && runStage !== "done"
-                            ? "hourglass-half"
-                            : "play"
-                        }
-                      >
-                        {runStage !== "idle" && runStage !== "done"
-                          ? "Running…"
-                          : "Run"}
-                      </Button>
+                      {isLocked ? (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          className={styles.editCodeBtn}
+                          onClick={handleEditCode}
+                          icon="pen-to-square"
+                        >
+                          Edit Code
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className={styles.runBtn}
+                          onClick={handleRun}
+                          disabled={false}
+                          icon="play"
+                        >
+                          Run
+                        </Button>
+                      )}
                     </div>
-                    <div className={styles.editorBody}>
+                    <div className={`${styles.editorBody} ${isLocked ? styles.editorBodyLocked : ""}`}>
+                      {isLocked && <div className={styles.editorLockMask} />}
                       <CodeEditor
                         ref={editorRef}
                         mode="single"
@@ -433,6 +455,7 @@ function Playground() {
                         highlightedLine={activeLineno ?? null}
                         onChange={setCode}
                         theme="auto"
+                        readOnly={isLocked}
                       />
                     </div>
                   </div>
@@ -630,7 +653,7 @@ function Playground() {
                 )}
               </div>
 
-              <div className={styles.controlRow}>
+              <div className={`${styles.controlRow} ${runStage === "idle" ? styles.controlRowHidden : ""}`}>
                 {totalSteps > 0 && isAnimationUnlocked ? (
                   <ControlBar
                     isPlaying={isPlaying}
