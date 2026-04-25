@@ -126,9 +126,30 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         complexity_source = "gemini"
 
     task_queue.update_progress(task_id, STAGE_GEMINI, "Gemini 專家仲裁中…")
-    # TODO: Gemini 仲裁結果整合
+    # TODO: Gemini 仲裁結果整合： call Gemini service here to arbitrate complexity when complexity_source == "gemini";
+    #   update final_complexity and complexity_source with Gemini's verdict before returning.
 
-    # Level 1 trace：hardcode bubble_sort，嘗試升級語意 trace
+    # --- MiniLM algorithm identification ---
+    try:
+        identify_result = algo_identify(code)
+    except Exception:
+        logger.warning("algo_identify failed, falling back to unknown", exc_info=True)
+        identify_result = IdentifyResult(algo_name=None, score=0.0, top_raw="")
+
+    algo_for_level1, fallback_reason = route_level1_decision(code, identify_result)
+
+    if algo_for_level1 is None and identify_result.top_raw:
+        is_rec_flag = ast_is_recursive(code)
+        expected_struct = EXPECTED_STRUCTURE.get(identify_result.top_raw, "iterative")
+        log_divergence(
+            code=code,
+            identify_result=identify_result,
+            is_recursive=is_rec_flag,
+            expected_struct=expected_struct,
+            divergence_type=fallback_reason or "low_confidence",
+        )
+
+    # Level 1 trace：升級語意 trace
     have_level1 = False
     import ast as _ast
 
@@ -156,7 +177,8 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         for ev in execution_trace
     ]
     input_data = _extract_input_data(execution_trace)
-    level1_result = build_level1_trace("bubble_sort", raw_trace_objects, input_data)
+    level1_result = build_level1_trace(algo_for_level1, raw_trace_objects, input_data) \
+        if algo_for_level1 is not None else None
     raw_trace = execution_trace  # 保留原始 trace 給 Call Stack / local_vars 面板使用
     raw_index_map: list = []
     if level1_result is not None:
@@ -179,8 +201,10 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         have_level1 = True
 
     return {
-        "detected_algorithm": "bubble_sort" if have_level1 else None,  # TODO: 接 Gemini 後移除 hardcode
-        "confidence_score": None,
+        "detected_algorithm": identify_result.algo_name,
+        "confidence_score":   identify_result.score,
+        "level1_eligible":    algo_for_level1 is not None,
+        "fallback_reason":    fallback_reason,
         "time_complexity": final_complexity if final_complexity != "unknown" else None,
         "analysis_source": complexity_source,
         "have_level1": have_level1,
