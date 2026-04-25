@@ -1,6 +1,5 @@
 import hashlib
 import pytest
-from unittest.mock import MagicMock, patch
 
 from services.algo_identification import IdentifyResult
 from services.algo_identification.divergence_log import log_divergence
@@ -40,6 +39,7 @@ def test_first_write_creates_record(db_session):
     assert row.occurrence_count == 1
     assert row.detected_algo == "bubble_sort"
     assert row.divergence_type == "structure_mismatch"
+    assert row.first_seen_at is not None
 
 
 def test_repeat_write_increments_count(db_session):
@@ -62,6 +62,7 @@ def test_repeat_write_increments_count(db_session):
 
     row = db_session.session.query(AlgoDivergenceLog).filter_by(code_hash=CODE_HASH).first()
     assert row.occurrence_count == 2
+    assert row.last_seen_at >= row.first_seen_at
 
 
 def test_db_failure_does_not_raise(monkeypatch):

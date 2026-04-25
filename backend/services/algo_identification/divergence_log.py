@@ -17,6 +17,8 @@ def log_divergence(
 ) -> None:
     try:
         code_hash = hashlib.sha256(code.encode()).hexdigest()
+        # Known: concurrent requests with identical code_hash can both read None
+        # and produce a UNIQUE violation swallowed below. Acceptable for MVP low-traffic logging.
         existing = AlgoDivergenceLog.query.filter_by(code_hash=code_hash).first()
         if existing:
             existing.occurrence_count += 1

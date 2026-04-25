@@ -45,7 +45,7 @@ class AlgoDivergenceLog(db.Model):
     detected_algo    = db.Column(db.String(64), nullable=False)
     confidence       = db.Column(db.Float, nullable=False)
     is_recursive     = db.Column(db.Boolean, nullable=False)
-    expected_struct  = db.Column(db.String(16), nullable=False)
+    expected_struct  = db.Column(db.String(32), nullable=False)
     divergence_type  = db.Column(db.String(32), nullable=False)
     occurrence_count = db.Column(db.Integer, nullable=False, server_default="1")
     first_seen_at    = db.Column(
@@ -56,6 +56,9 @@ class AlgoDivergenceLog(db.Model):
     last_seen_at     = db.Column(
         db.DateTime(timezone=True),
         server_default=db.func.now(),
-        onupdate=db.func.now(),
+        onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+
+    def __repr__(self):
+        return f'<AlgoDivergenceLog {self.id} hash={self.code_hash[:8] if self.code_hash else None}>'
