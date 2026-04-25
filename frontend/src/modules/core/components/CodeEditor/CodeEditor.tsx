@@ -389,6 +389,13 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
         highlightLineInternal(highlightedLine, mode === 'split' ? 'top' : undefined);
       }
       // 若 editor 尚未 ready，onMount 回調會補上初始高亮
+    } else {
+      // highlightedLine 變為 null 時主動清除所有 decoration
+      const editor = mode === 'split' ? topEditorRef.current : editorRef.current;
+      const decorationsRef = mode === 'split' ? topDecorationsRef : currentDecorationsRef;
+      if (editor && !editor.getModel()?.isDisposed()) {
+        decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
+      }
     }
   }, [highlightedLine, mode]);
 
