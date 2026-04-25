@@ -283,6 +283,14 @@ def build() -> None:
             codes.append(code.strip())
             labels.append(algo_name)
 
+    if not codes:
+        raise ValueError("REFERENCE_IMPLEMENTATIONS is empty — nothing to encode")
+    if len(codes) != len(labels):
+        raise ValueError(
+            f"codes/labels mismatch: {len(codes)} codes vs {len(labels)} labels — "
+            "check REFERENCE_IMPLEMENTATIONS"
+        )
+
     print(f"Encoding {len(codes)} reference implementations...")
     embeddings = model.encode(codes, show_progress_bar=True, convert_to_numpy=True)
     embeddings = embeddings.astype(np.float32)
@@ -296,10 +304,10 @@ def build() -> None:
     np.save(npy_path, embeddings)
     with open(json_path, "w") as f:
         json.dump(labels, f)
+        f.write("\n")
 
     print(f"Saved {npy_path}  shape={embeddings.shape}")
     print(f"Saved {json_path}  labels={len(labels)}")
-    assert embeddings.shape[0] == len(labels), "shape mismatch — check REFERENCE_IMPLEMENTATIONS"
     print("Done.")
 
 
