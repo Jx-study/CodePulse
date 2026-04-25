@@ -370,7 +370,6 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
       options: {
         isWholeLine: true,
         className: styles.highlightedLine,
-        glyphMarginClassName: styles.highlightedLineGlyph,
       },
     }));
 
@@ -461,26 +460,28 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     },
     setErrorMarker: (lineno: number, message: string) => {
       const editor = editorRef.current;
-      if (!editor) return;
+      const monacoInstance = monacoInstanceRef.current;
+      if (!editor || !monacoInstance) return;
       const model = editor.getModel();
       if (!model) return;
-      monaco.editor.setModelMarkers(model, "analyzeError", [
+      monacoInstance.editor.setModelMarkers(model, "analyzeError", [
         {
           startLineNumber: lineno,
           endLineNumber: lineno,
           startColumn: 1,
           endColumn: model.getLineMaxColumn(lineno),
           message,
-          severity: monaco.MarkerSeverity.Error,
+          severity: monacoInstance.MarkerSeverity.Error,
         },
       ]);
     },
     clearErrorMarker: () => {
       const editor = editorRef.current;
-      if (!editor) return;
+      const monacoInstance = monacoInstanceRef.current;
+      if (!editor || !monacoInstance) return;
       const model = editor.getModel();
       if (!model) return;
-      monaco.editor.setModelMarkers(model, "analyzeError", []);
+      monacoInstance.editor.setModelMarkers(model, "analyzeError", []);
     },
   }));
 
