@@ -34,6 +34,18 @@ def _has_direct_recursion(func_def: ast.FunctionDef) -> bool:
     return False
 
 
+def is_recursive(code: str) -> bool:
+    """Return True if any top-level function in code calls itself directly."""
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and _has_direct_recursion(node):
+            return True
+    return False
+
+
 def analyze_complexity(code: str) -> str:
     """
     靜態分析 code 的時間複雜度。
