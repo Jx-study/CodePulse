@@ -14,6 +14,7 @@ from routes.summary import summary_bp
 from routes.oauth import register_oauth_routes
 from routes.users import users_bp
 from routes.tutorials import tutorials_bp
+from services.algo_identification import warmup as algo_warmup
 
 def create_app(config_name=None):
     if config_name is None:
@@ -49,6 +50,9 @@ def create_app(config_name=None):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(tutorials_bp, url_prefix='/api/tutorials')
     register_oauth_routes(app)
+
+    if not app.config.get("TESTING") and os.getenv("SKIP_ML_WARMUP") != "1":
+        algo_warmup()
 
     @app.route('/api/health')
     def health_check():
