@@ -23,7 +23,7 @@ export function AlgoDetectionDialog({
 
   const isHighConfidence =
     aiResult !== null &&
-    (aiResult.confidence_score === null || aiResult.confidence_score >= 0.8) &&
+    aiResult.level1_eligible &&
     !top3Candidates.length;
 
   const handleApply = () => {
