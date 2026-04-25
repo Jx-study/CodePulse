@@ -74,7 +74,8 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         logger.error("sandbox error: %s", error_msg)
         if error_msg == "timeout":
             raise RuntimeError("timeout")
-        raise RuntimeError(error_msg)
+        lineno = sandbox_result.get("lineno")
+        raise RuntimeError(f"lineno:{lineno}:{error_msg}" if lineno else error_msg)
     else:
         execution_trace = sandbox_result.get("trace", [])
         call_graph = sandbox_result.get("call_graph")

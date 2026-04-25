@@ -69,7 +69,10 @@ def run():
         try:
             payload = json.loads(proc.stdout)
             if "error" in payload:
-                return jsonify({"error": payload["error"], "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}})
+                resp = {"error": payload["error"], "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
+                if "lineno" in payload:
+                    resp["lineno"] = payload["lineno"]
+                return jsonify(resp)
         except (json.JSONDecodeError, ValueError):
             pass
         stderr = proc.stderr.strip() if proc.stderr else ""

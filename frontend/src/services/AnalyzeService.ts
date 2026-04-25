@@ -131,7 +131,12 @@ async function poll(
             if (detail === "timeout") {
               reject(new AnalyzeError("timeout", "timeout"));
             } else if (detail) {
-              reject(new AnalyzeError("runtime_error", detail));
+              const m = typeof detail === "string" ? detail.match(/^lineno:(\d+):(.+)$/) : null;
+              if (m) {
+                reject(new AnalyzeError("runtime_error", m[2], parseInt(m[1], 10)));
+              } else {
+                reject(new AnalyzeError("runtime_error", detail));
+              }
             } else {
               reject(new AnalyzeError("analysis_failed", "analysis failed"));
             }
