@@ -8,7 +8,7 @@ from services.sandbox import run_in_sandbox
 from services.ast_complexity import analyze_complexity
 from services.complexity_analyzer import measure_step_counts
 from services.tracer import TraceEvent
-from services.template_tracer import build_level1_trace
+from services.template_tracer import build_level1_trace, SUPPORTED_ALGORITHMS
 from services.algo_identification import identify as algo_identify, IdentifyResult
 from services.algo_identification.divergence_log import log_divergence
 from services.ast_complexity import is_recursive as ast_is_recursive
@@ -53,7 +53,6 @@ def route_level1_decision(
     if expected != actual:
         return None, "structure_mismatch"
 
-    from services.template_tracer import SUPPORTED_ALGORITHMS
     if identify_result.algo_name not in SUPPORTED_ALGORITHMS:
         return None, "no_template"
 
@@ -138,7 +137,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
 
     algo_for_level1, fallback_reason = route_level1_decision(code, identify_result)
 
-    if algo_for_level1 is None and identify_result.top_raw:
+    if algo_for_level1 is None and identify_result.top_raw and fallback_reason != "no_template":
         is_rec_flag = ast_is_recursive(code)
         expected_struct = EXPECTED_STRUCTURE.get(identify_result.top_raw, "iterative")
         log_divergence(
