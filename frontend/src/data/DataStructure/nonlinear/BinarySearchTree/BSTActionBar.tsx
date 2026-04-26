@@ -28,22 +28,20 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
 
   const handleInsert = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    if (!isNaN(val)) {
-      onAddNode(val, "Insert");
-      setInputValue("");
+    if (inputValue.trim() === "") {
+      toast.warning("請輸入要插入的數值");
+      return;
     }
+    onAddNode(Number(inputValue), "Insert");
   };
 
   const handleDelete = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    if (!isNaN(val)) {
-      onDeleteNode("DeleteValue", val);
-      setInputValue("");
-    } else {
+    if (inputValue.trim() === "") {
       toast.warning("請輸入要刪除的數值");
+      return;
     }
+    onDeleteNode("DeleteValue", Number(inputValue));
   };
 
   return (
@@ -118,8 +116,11 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => {
-              const val = Number(searchValue);
-              onSearchNode(val, "search");
+              if (searchValue.trim() === "") {
+                toast.warning("請輸入搜尋值");
+                return;
+              }
+              onSearchNode(Number(searchValue), "search");
             }}
             disabled={disabled}
             className={styles.btnSearch}
@@ -156,9 +157,11 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => {
-              const val = Number(searchValue);
-              if (!isNaN(val)) onSearchNode(val, "floor");
-              else toast.warning("Floor 需要輸入參考數值");
+              if (searchValue.trim() === "") {
+                toast.warning("Floor 需要輸入參考數值");
+                return;
+              }
+              onSearchNode(Number(searchValue), "floor");
             }}
             disabled={disabled}
             className={styles.btnQuery}
@@ -171,9 +174,11 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => {
-              const val = Number(searchValue);
-              if (!isNaN(val)) onSearchNode(val, "ceil");
-              else toast.warning("Ceil 需要輸入參考數值");
+              if (searchValue.trim() === "") {
+                toast.warning("Ceil 需要輸入參考數值");
+                return;
+              }
+              onSearchNode(Number(searchValue), "ceil");
             }}
             disabled={disabled}
             className={styles.btnQuery}
