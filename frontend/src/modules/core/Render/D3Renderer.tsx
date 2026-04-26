@@ -20,7 +20,14 @@ import {
 } from "./linkGeometry";
 import "./D3Renderer.module.scss";
 
-export type linkStatus = "default" | "unfinished" | "visited" | "path" | "prepare" | "target" | "complete";
+export type linkStatus =
+  | "default"
+  | "unfinished"
+  | "visited"
+  | "path"
+  | "prepare"
+  | "target"
+  | "complete";
 
 export const linkStatusColorMap: Record<linkStatus, string> = {
   default: "#888",
@@ -33,8 +40,9 @@ export const linkStatusColorMap: Record<linkStatus, string> = {
 };
 
 /** 未傳入 statusColorMap 時的預設對照（與 buildStatusColorMap(DEFAULT_STATUS_CONFIG) 一致） */
-export const defaultStatusColorMap: StatusColorMap =
-  buildStatusColorMap(DEFAULT_STATUS_CONFIG);
+export const defaultStatusColorMap: StatusColorMap = buildStatusColorMap(
+  DEFAULT_STATUS_CONFIG,
+);
 
 export function getLinkColor(
   linkStatus: string | undefined,
@@ -206,7 +214,7 @@ function drawContainer(
       .attr("y2", bottomY)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
-    
+
     return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
   } else if (type === "binarytree" || type === "topological-sort") {
     const startX = 750;
@@ -479,7 +487,11 @@ export function renderAll(
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
       const pathOffset = isDirected && hasReverse ? 8 : 0;
       if (d.s.id === d.t.id) {
-        return selfLoopBezierZeroPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
+        return selfLoopBezierZeroPath(
+          d.s.position.x,
+          d.s.position.y,
+          d.s.radius || 20,
+        );
       }
       return zeroLengthPath(
         { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
@@ -527,7 +539,11 @@ export function renderAll(
         return "";
       }
       if (d.s.id === d.t.id) {
-        return selfLoopBezierPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
+        return selfLoopBezierPath(
+          d.s.position.x,
+          d.s.position.y,
+          d.s.radius || 20,
+        );
       }
       return straightLinkPath(
         { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
@@ -536,8 +552,7 @@ export function renderAll(
       );
     })();
 
-    d3
-      .select(this)
+    d3.select(this)
       .select("path.link")
       .attr("marker-end", shouldHideArrow ? "none" : "url(#arrowhead)")
       .transition()
@@ -740,18 +755,23 @@ export function renderAll(
         if (scaleY) {
           const val = Number(box.value) || 0;
           const absVal = Math.abs(val);
-          const barHeight = scaleY(absVal);
           const barWidth = box.width;
+          const isZero = val === 0;
+
+          // 若數值為 0，給定固定小高度；否則依照 scaleY 計算
+          const barHeight = isZero ? 8 : scaleY(absVal);
 
           // 判斷高度是否足夠容納文字
           const MIN_BAR_HEIGHT_FOR_TEXT = 25;
           const isBarTooShort = barHeight < MIN_BAR_HEIGHT_FOR_TEXT;
 
           let rectY = 0;
-          if (val >= 0) {
-            rectY = -barHeight; // 往上長
+          if (isZero) {
+            rectY = -barHeight / 2; // 0：中心對齊 0 線 (上下平分)
+          } else if (val > 0) {
+            rectY = -barHeight; // 正數：往上長
           } else {
-            rectY = 0; // 往下長
+            rectY = 0; // 負數：往下長
           }
 
           rect
@@ -765,11 +785,18 @@ export function renderAll(
             .attr("fill", box.getColor())
             .attr("fill-opacity", 0.2)
             .attr("stroke", box.getColor())
-            .attr("stroke-width", 2);
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", isZero ? "4,4" : null); // 0 採用虛線，其餘為實線
 
           // 文字位置調整
           textVal.attr("fill", "#ccc");
-          if (val >= 0) {
+          if (isZero) {
+            // value = 0
+            textVal.attr("y", -barHeight / 2 - 10); // 數值浮在虛線框上方
+            textDesc
+              .attr("y", barHeight / 2 + 15) // 標籤顯示在下方
+              .attr("fill", "rgba(255, 241, 228, 1)");
+          } else if (val > 0) {
             // 正數
             if (isBarTooShort) {
               // Bar 太矮 -> 數值顯示在 Bar 上方 (浮在空中)
