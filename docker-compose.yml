@@ -32,6 +32,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/__pycache_
+      - fastembed_cache:/tmp/fastembed_cache
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
@@ -50,6 +51,8 @@ services:
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - SANDBOX_SIDECAR_URL=http://sandbox-sidecar:8080
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash-lite}
     depends_on:
       postgres:
         condition: service_healthy
@@ -78,3 +81,4 @@ services:
 
 volumes:
   postgres_data:
+  fastembed_cache:

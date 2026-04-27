@@ -11,8 +11,7 @@ class IdentifyResult:
 
 
 def identify(code: str) -> IdentifyResult:
-    model = model_loader.get_model()
-    user_emb = model.encode([code])[0]
+    user_emb = model_loader.encode([code])[0]
     ref_matrix = embeddings_store.get_reference_matrix()
     labels = embeddings_store.get_labels()
 

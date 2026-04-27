@@ -1,10 +1,11 @@
 import logging
 import threading
 
-from sentence_transformers import SentenceTransformer
+import numpy as np
+from fastembed import TextEmbedding
 
 _MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-_model: SentenceTransformer | None = None
+_model: TextEmbedding | None = None
 _lock = threading.Lock()
 _warmup_thread: threading.Thread | None = None
 
@@ -16,7 +17,7 @@ def _load() -> None:
     with _lock:
         if _model is None:
             logger.info("Loading MiniLM model...")
-            _model = SentenceTransformer(_MODEL_NAME)
+            _model = TextEmbedding(model_name=_MODEL_NAME)
             logger.info("MiniLM model loaded.")
 
 
@@ -29,8 +30,8 @@ def warmup() -> None:
     _warmup_thread.start()
 
 
-def get_model() -> SentenceTransformer:
-    """Return loaded model, blocking if not yet loaded."""
+def encode(texts: list[str]) -> np.ndarray:
+    """Encode texts and return float32 numpy array, shape (N, D)."""
     if _model is None:
         _load()
-    return _model  # type: ignore[return-value]
+    return np.array(list(_model.embed(texts)), dtype=np.float32)  # type: ignore[union-attr]

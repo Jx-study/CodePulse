@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 
 REFERENCE_IMPLEMENTATIONS: dict[str, list[str]] = {
     "bubble_sort": [
@@ -274,7 +274,7 @@ def partition(arr, low, high):
 
 
 def build() -> None:
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+    model = TextEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
     codes: list[str] = []
     labels: list[str] = []
@@ -292,8 +292,7 @@ def build() -> None:
         )
 
     print(f"Encoding {len(codes)} reference implementations...")
-    embeddings = model.encode(codes, show_progress_bar=True, convert_to_numpy=True)
-    embeddings = embeddings.astype(np.float32)
+    embeddings = np.array(list(model.embed(codes)), dtype=np.float32)
 
     out_dir = Path(__file__).parent.parent / "services" / "algo_identification" / "embeddings"
     out_dir.mkdir(parents=True, exist_ok=True)
