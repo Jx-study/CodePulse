@@ -10,4 +10,4 @@ ENV SANDBOX_CONTAINER=1
 
 USER nobody
 
-ENTRYPOINT ["python", "runner.py"]
+CMD ["tail", "-f", "/dev/null"]
