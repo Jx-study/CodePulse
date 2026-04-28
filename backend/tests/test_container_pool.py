@@ -99,3 +99,63 @@ def test_spawn_retries_on_failure(mock_subprocess):
 
     with pytest.raises(RuntimeError, match="failed to spawn"):
         ContainerPool(min_size=1, max_size=5)
+        
+
+def test_acquire_returns_idle_container(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1", "id2"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=2, max_size=5)
+    c = pool.acquire()
+
+    assert c.in_use is True
+    assert c.id in {"id1", "id2"}
+
+
+def test_acquire_spawns_when_no_idle_and_under_max(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1", "id2", "id3"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=2, max_size=5)
+    pool.acquire()
+    pool.acquire()
+    c3 = pool.acquire()
+
+    assert len(pool.containers) == 3
+    assert c3.id == "id3"
+
+
+def test_release_marks_idle(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=1, max_size=5)
+    c = pool.acquire()
+    pool.release(c)
+
+    assert c.in_use is False
+    assert c.reuse_count == 1
+
+
+def test_release_increments_reuse_count(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=1, max_size=5)
+    c = pool.acquire()
+    pool.release(c)
+    c = pool.acquire()
+    pool.release(c)
+
+    assert c.reuse_count == 2
+
+
+def test_acquire_timeout_raises_pool_exhausted(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1"]
+    from sandbox_sidecar.container_pool import ContainerPool, PoolExhaustedError
+
+    pool = ContainerPool(min_size=1, max_size=1)
+    pool.acquire()  # 唯一容器佔走
+
+    with pytest.raises(PoolExhaustedError):
+        pool.acquire(timeout=0.2)

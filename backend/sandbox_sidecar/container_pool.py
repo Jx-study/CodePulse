@@ -11,6 +11,7 @@ from __future__ import annotations
 import subprocess
 import threading
 import uuid
+import time
 from dataclasses import dataclass
 
 POOL_LABEL = "codepulse-pool=1"
@@ -82,3 +83,36 @@ class ContainerPool:
             except subprocess.CalledProcessError as e:
                 last_err = e
         raise RuntimeError(f"failed to spawn container after {SPAWN_RETRIES} retries: {last_err}")
+
+    def acquire(self, timeout: float = 8.0) -> PooledContainer:
+        """取得一個 idle 容器並標記為 in_use。Pool 滿載且超時 → PoolExhaustedError。"""
+        with self._cond:
+            deadline = None
+            while True:
+                for c in self.containers:
+                    if not c.in_use:
+                        c.in_use = True
+                        return c
+
+                if len(self.containers) < self.max_size:
+                    new_c = self._spawn()
+                    new_c.in_use = True
+                    self.containers.append(new_c)
+                    return new_c
+
+                if deadline is None:
+                    import time
+                    deadline = time.monotonic() + timeout
+
+                remaining = deadline - time.monotonic()
+                if remaining <= 0 or not self._cond.wait(timeout=remaining):
+                    raise PoolExhaustedError(
+                        f"pool exhausted: all {self.max_size} containers busy, waited {timeout}s"
+                    )
+
+    def release(self, container: PooledContainer) -> None:
+        """歸還容器到 pool。reuse_count 達 max_reuse 時改走 mark_destroyed（Task 4）。"""
+        with self._cond:
+            container.reuse_count += 1
+            container.in_use = False
+            self._cond.notify_all()
