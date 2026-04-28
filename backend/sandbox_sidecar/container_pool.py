@@ -8,7 +8,14 @@ container_pool.py — Sandbox 長跑容器池
 
 from __future__ import annotations
 
+import subprocess
+import threading
+import uuid
 from dataclasses import dataclass
+
+POOL_LABEL = "codepulse-pool=1"
+IMAGE_NAME = "codepulse-sandbox"
+SPAWN_RETRIES = 3
 
 
 class PoolExhaustedError(Exception):
@@ -21,8 +28,57 @@ class ContainerDeadError(Exception):
 
 @dataclass
 class PooledContainer:
-    """池中單一容器的狀態。"""
-
     id: str
     in_use: bool = False
     reuse_count: int = 0
+
+class ContainerPool:
+    def __init__(self, min_size: int, max_size: int, max_reuse: int = 50):
+        self.min_size = min_size
+        self.max_size = max_size
+        self.max_reuse = max_reuse
+
+        self._lock = threading.Lock()
+        self._cond = threading.Condition(self._lock)
+        self.containers: list[PooledContainer] = []
+
+        self._cleanup_zombies()
+        for _ in range(min_size):
+            self.containers.append(self._spawn())
+
+    def _cleanup_zombies(self) -> None:
+        """sidecar 重啟時清掉前一代留下的孤兒容器。"""
+        try:
+            out = subprocess.check_output(
+                ["docker", "ps", "-aq", "--filter", f"label={POOL_LABEL}"],
+                text=True, timeout=10,
+            )
+        except subprocess.SubprocessError:
+            return
+        ids = [line for line in out.strip().splitlines() if line]
+        if ids:
+            subprocess.run(["docker", "rm", "-f", *ids], capture_output=True, timeout=15)
+
+    def _spawn(self) -> PooledContainer:
+        """啟動一個新的長跑容器，回傳 PooledContainer。失敗 retry SPAWN_RETRIES 次。"""
+        last_err: Exception | None = None
+        for _ in range(SPAWN_RETRIES):
+            try:
+                cid = subprocess.check_output(
+                    [
+                        "docker", "run", "-d",
+                        "--label", POOL_LABEL,
+                        "--network", "none",
+                        "--read-only", "--tmpfs", "/tmp",
+                        "--user", "nobody",
+                        "--memory", "128m", "--cpus", "0.5",
+                        "--name", f"sandbox-{uuid.uuid4().hex[:8]}",
+                        IMAGE_NAME,
+                        "tail", "-f", "/dev/null",
+                    ],
+                    text=True, timeout=15,
+                ).strip()
+                return PooledContainer(id=cid)
+            except subprocess.CalledProcessError as e:
+                last_err = e
+        raise RuntimeError(f"failed to spawn container after {SPAWN_RETRIES} retries: {last_err}")
