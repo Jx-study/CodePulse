@@ -96,19 +96,12 @@ export function AiAnalysisDialog({
               <div className={styles.summaryBody}>
                 <div>
                   <div className={styles.summaryLabel}>Purpose</div>
-                  <p className={styles.summaryText}>{aiResult.summary}</p>
+                  <p className={styles.summaryText}>{aiResult.summary.purpose}</p>
                 </div>
-                {aiResult.suggestions.length > 0 && (
+                {aiResult.summary.feedback && (
                   <div>
-                    <div className={styles.summaryLabel}>Suggestions</div>
-                    <ul className={styles.suggestions}>
-                      {aiResult.suggestions.map((s, i) => (
-                        <li key={i} className={styles.suggestionItem}>
-                          <span className={styles.suggestionBullet} />
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className={styles.summaryLabel}>Feedback</div>
+                    <p className={styles.summaryText}>{aiResult.summary.feedback}</p>
                   </div>
                 )}
               </div>

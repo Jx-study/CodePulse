@@ -5,7 +5,7 @@ export interface AiResult {
   fallback_reason: string | null;
   time_complexity: string | null;
   analysis_source: "gemini" | "miniLM" | "ast+bigO" | "ast" | "bigO" | "ast_conflict" | null;
-  summary: string | null;
+  summary: { purpose: string; feedback: string } | null;
   suggestions: string[];
 }
 
