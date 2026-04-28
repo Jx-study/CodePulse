@@ -111,8 +111,55 @@ class ContainerPool:
                     )
 
     def release(self, container: PooledContainer) -> None:
-        """歸還容器到 pool。reuse_count 達 max_reuse 時改走 mark_destroyed（Task 4）。"""
+        """歸還容器；reuse 達上限就改走銷毀流程。"""
         with self._cond:
             container.reuse_count += 1
-            container.in_use = False
+            if container.reuse_count >= self.max_reuse:
+                if container in self.containers:
+                    self.containers.remove(container)
+                self._cond.notify_all()
+                should_destroy = True
+            else:
+                container.in_use = False
+                self._cond.notify_all()
+                should_destroy = False
+
+        if should_destroy:
+            threading.Thread(
+                target=self._destroy_and_replenish,
+                args=(container.id,),
+                daemon=True,
+            ).start()
+
+    def mark_destroyed(self, container: PooledContainer) -> None:
+        """容器死亡（timeout / OOM / 外部移除）→ 立刻從 pool 移除，不算 reuse。"""
+        with self._cond:
+            if container in self.containers:
+                self.containers.remove(container)
             self._cond.notify_all()
+        threading.Thread(
+            target=self._destroy_and_replenish,
+            args=(container.id,),
+            daemon=True,
+        ).start()
+
+    def _destroy_and_replenish(self, container_id: str) -> None:
+        """背景 thread：強制移除舊容器，並補新容器到 min_size。"""
+        try:
+            subprocess.run(
+                ["docker", "rm", "-f", container_id],
+                capture_output=True, timeout=15,
+            )
+        except subprocess.SubprocessError:
+            pass
+
+        with self._cond:
+            need = max(0, self.min_size - len(self.containers))
+        for _ in range(need):
+            try:
+                new_c = self._spawn()
+            except RuntimeError:
+                break
+            with self._cond:
+                self.containers.append(new_c)
+                self._cond.notify_all()

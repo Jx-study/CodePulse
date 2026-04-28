@@ -159,3 +159,62 @@ def test_acquire_timeout_raises_pool_exhausted(mock_subprocess):
 
     with pytest.raises(PoolExhaustedError):
         pool.acquire(timeout=0.2)
+
+def test_release_destroys_when_max_reuse_reached(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1", "replacement"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=1, max_size=5, max_reuse=3)
+    c = pool.acquire()
+    # 跑滿 3 次：第 3 次 release 後應該被銷毀
+    for _ in range(2):
+        pool.release(c)
+        c = pool.acquire()
+    pool.release(c)  # 第 3 次 release，reuse_count = 3 → destroy
+
+    # 等背景 replenish thread 完成
+    import time
+    for _ in range(50):
+        if "id1" not in {x.id for x in pool.containers} and len(pool.containers) >= 1:
+            break
+        time.sleep(0.05)
+
+    ids = {x.id for x in pool.containers}
+    assert "id1" not in ids
+    assert "replacement" in ids
+
+
+def test_mark_destroyed_removes_immediately(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1", "replacement"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=1, max_size=5)
+    c = pool.acquire()
+    pool.mark_destroyed(c)
+
+    assert c not in pool.containers
+
+    import time
+    for _ in range(50):
+        if any(x.id == "replacement" for x in pool.containers):
+            break
+        time.sleep(0.05)
+    assert any(x.id == "replacement" for x in pool.containers)
+
+
+def test_destroy_calls_docker_rm_force(mock_subprocess):
+    mock_subprocess.check_output.side_effect = ["", "id1", "replacement"]
+    from sandbox_sidecar.container_pool import ContainerPool
+
+    pool = ContainerPool(min_size=1, max_size=5)
+    c = pool.acquire()
+    pool.mark_destroyed(c)
+
+    import time
+    time.sleep(0.3)  # 等背景 thread
+
+    rm_calls = [
+        call for call in mock_subprocess.run.call_args_list
+        if call.args[0][:3] == ["docker", "rm", "-f"] and "id1" in call.args[0]
+    ]
+    assert len(rm_calls) >= 1
