@@ -12,6 +12,7 @@ from services.template_tracer import build_level1_trace, SUPPORTED_ALGORITHMS
 from services.algo_identification import identify as algo_identify, IdentifyResult
 from services.algo_identification.divergence_log import log_divergence
 from services.ast_complexity import is_recursive as ast_is_recursive
+from services.gemini_analysis import analyze as gemini_analyze
 from services.task_queue import (
     task_queue,
     STATUS_COMPLETED,
@@ -91,13 +92,16 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
 
     bigo_code = generate_bigo_wrapper(code)
 
-    with _cf.ThreadPoolExecutor(max_workers=2) as _pool:
+    with _cf.ThreadPoolExecutor(max_workers=4) as _pool:
         _ast_fut = _pool.submit(analyze_complexity, code)
         _bigo_fut = (
             _pool.submit(measure_step_counts, bigo_code)
             if bigo_code is not None
             else None
         )
+        _minilm_fut = _pool.submit(algo_identify, code)
+        _gemini_fut = _pool.submit(gemini_analyze, code)
+
         try:
             ast_complexity = _ast_fut.result(timeout=60)
         except Exception:
@@ -107,6 +111,23 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
                 bigo_complexity = _bigo_fut.result(timeout=60)
             except Exception:
                 bigo_complexity = "unknown"
+        try:
+            identify_result = _minilm_fut.result(timeout=60)
+        except Exception:
+            logger.warning("algo_identify failed, falling back to unknown", exc_info=True)
+            identify_result = IdentifyResult(algo_name=None, score=0.0, top_raw="")
+        try:
+            gemini_result = _gemini_fut.result(timeout=60)
+        except Exception:
+            logger.warning("gemini_analyze failed", exc_info=True)
+            from services.gemini_analysis.result import GeminiAnalysisResult
+            gemini_result = GeminiAnalysisResult(
+                detected_algorithm=None,
+                time_complexity=None,
+                summary=None,
+                is_fallback=True,
+                fallback_reason="exception",
+            )
 
     if ast_complexity != "unknown" and bigo_complexity != "unknown":
         if ast_complexity == bigo_complexity:
@@ -126,15 +147,41 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         complexity_source = "gemini"
 
     task_queue.update_progress(task_id, STAGE_GEMINI, "Gemini 專家仲裁中…")
-    # TODO: Gemini 仲裁結果整合： call Gemini service here to arbitrate complexity when complexity_source == "gemini";
-    #   update final_complexity and complexity_source with Gemini's verdict before returning.
+    gemini_summary = None
 
-    # --- MiniLM algorithm identification ---
-    try:
-        identify_result = algo_identify(code)
-    except Exception:
-        logger.warning("algo_identify failed, falling back to unknown", exc_info=True)
-        identify_result = IdentifyResult(algo_name=None, score=0.0, top_raw="")
+    if not gemini_result.is_fallback and gemini_result.summary is not None:
+        gemini_summary = {
+            "purpose": gemini_result.summary.purpose,
+            "feedback": gemini_result.summary.feedback,
+        }
+
+        conflict_parts = []
+
+        if gemini_result.detected_algorithm != identify_result.algo_name:
+            conflict_parts.append(
+                f"algo: minilm={identify_result.algo_name} gemini={gemini_result.detected_algorithm}"
+            )
+            identify_result = IdentifyResult(
+                algo_name=gemini_result.detected_algorithm,
+                score=identify_result.score,
+                top_raw=identify_result.top_raw,
+            )
+
+        if gemini_result.time_complexity is not None:
+            if gemini_result.time_complexity != final_complexity:
+                conflict_parts.append(
+                    f"complexity: local={final_complexity} gemini={gemini_result.time_complexity}"
+                )
+                final_complexity = gemini_result.time_complexity
+                complexity_source = "gemini"
+
+        if conflict_parts:
+            logger.info(
+                "[gemini_conflict] %s | score=%.2f | task_id=%s",
+                " | ".join(conflict_parts),
+                identify_result.score,
+                task_id,
+            )
 
     algo_for_level1, fallback_reason = route_level1_decision(code, identify_result)
 
@@ -207,6 +254,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         "fallback_reason":    fallback_reason,
         "time_complexity": final_complexity if final_complexity != "unknown" else None,
         "analysis_source": complexity_source,
+        "gemini_summary": gemini_summary,
         "have_level1": have_level1,
         "execution_trace": execution_trace,
         "raw_trace": raw_trace,
