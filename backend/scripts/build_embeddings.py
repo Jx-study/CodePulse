@@ -7,10 +7,14 @@ Run from the backend/ directory:
 """
 
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 from fastembed import TextEmbedding
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from services.algo_identification.normalizer import normalize_identifiers
 
 REFERENCE_IMPLEMENTATIONS: dict[str, list[str]] = {
     "bubble_sort": [
@@ -280,7 +284,7 @@ def build() -> None:
     labels: list[str] = []
     for algo_name, variants in REFERENCE_IMPLEMENTATIONS.items():
         for code in variants:
-            codes.append(code.strip())
+            codes.append(normalize_identifiers(code.strip()))
             labels.append(algo_name)
 
     if not codes:

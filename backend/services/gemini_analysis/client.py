@@ -18,6 +18,7 @@ def call_gemini(prompt: str, schema: dict) -> dict | str:
       "parse_error" — response was not valid JSON (not retried)
     """
     try:
+        import httpx
         from google import genai
         from google.genai import types
         from google.genai.errors import ClientError, ServerError
@@ -30,7 +31,7 @@ def call_gemini(prompt: str, schema: dict) -> dict | str:
         logger.error("GEMINI_API_KEY environment variable is not set")
         return "api_error"
 
-    model_name = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash-lite")
+    model_name = os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-lite-preview")
     client = genai.Client(api_key=api_key)
     config = types.GenerateContentConfig(
         response_mime_type="application/json",
@@ -57,7 +58,8 @@ def call_gemini(prompt: str, schema: dict) -> dict | str:
                 continue
             logger.warning("Gemini server error after retry: %s", exc)
             return "api_error"
-        except TimeoutError as exc:
+        except httpx.TimeoutException as exc:
+            # httpx does not inherit Python's built-in TimeoutError
             if attempt == 0:
                 logger.warning("Gemini timeout (attempt 1), retrying: %s", exc)
                 time.sleep(RETRY_INTERVAL_SEC)

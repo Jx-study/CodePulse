@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from . import embeddings_store, model_loader, similarity
+from .normalizer import normalize_identifiers
 
 
 @dataclass
@@ -11,7 +12,7 @@ class IdentifyResult:
 
 
 def identify(code: str) -> IdentifyResult:
-    user_emb = model_loader.encode([code])[0]
+    user_emb = model_loader.encode([normalize_identifiers(code)])[0]
     ref_matrix = embeddings_store.get_reference_matrix()
     labels = embeddings_store.get_labels()
 

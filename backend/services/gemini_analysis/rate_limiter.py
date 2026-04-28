@@ -25,7 +25,7 @@ class TokenBucket:
 
     def _can_acquire(self, now: float) -> bool:
         self._evict_expired(now)
-        return len(self._minute_window) < RPM_LIMIT
+        return len(self._minute_window) < RPM_LIMIT and len(self._day_window) < RPD_LIMIT
 
     def acquire(self) -> str | None:
         """
