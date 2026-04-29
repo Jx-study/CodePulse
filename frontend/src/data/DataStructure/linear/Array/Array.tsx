@@ -10,6 +10,7 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import { arrayRealWorldStories } from "./array.stories";
 import { TAGS } from "./array/tags";
 import { simulateArrayTrace } from "./array/simulateTrace";
 import { arrayTraceToSteps } from "./array/traceToSteps";
@@ -272,4 +273,5 @@ export const ArrayConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 20,
+  realWorldStories: arrayRealWorldStories,
 };

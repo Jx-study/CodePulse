@@ -3,6 +3,7 @@ import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { SearchingActionBar } from "./SearchingActionBar";
+import { binarySearchRealWorldStories } from "@/data/algorithms/searching/binarySearch.stories";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
@@ -328,4 +329,5 @@ export const binarySearchConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 30,
+  realWorldStories: binarySearchRealWorldStories,
 };
