@@ -57,11 +57,22 @@ const AnswerList: React.FC<AnswerListProps> = ({
         .join(" ");
     }
 
-    // 選擇題則嘗試轉換為選項文字
-    if (Array.isArray(answer)) {
-      return answer.map((a) => getOptionText(question, Array.isArray(a) ? a.join(" ") : a)).join(" ");
+    // 嘗試解析 JSON 字串（後端多選題 correct_answer 為 JSON array 字串）
+    let resolved: string | string[] | (string | string[])[] = answer;
+    if (typeof answer === "string") {
+      try {
+        const parsed = JSON.parse(answer);
+        if (Array.isArray(parsed)) resolved = parsed;
+      } catch {
+        // not JSON, keep as-is
+      }
     }
-    return getOptionText(question, answer);
+
+    // 選擇題則嘗試轉換為選項文字
+    if (Array.isArray(resolved)) {
+      return resolved.map((a) => getOptionText(question, Array.isArray(a) ? a.join(" ") : a)).join(" ");
+    }
+    return getOptionText(question, resolved);
   };
 
   const toggleExpand = (index: number) => {
@@ -144,10 +155,17 @@ const AnswerList: React.FC<AnswerListProps> = ({
                     {question.options && question.options.length > 0 && (
                       <div className={styles.reviewOptionList}>
                         {question.options.map((opt, i) => {
-                          // 判斷是否為正確答案
-                          const isCorrect = Array.isArray(ar.correctAnswer)
-                            ? ar.correctAnswer.includes(opt.id)
-                            : ar.correctAnswer === opt.id;
+                          // 判斷是否為正確答案（correct_answer 可能是 JSON array 字串）
+                          let parsedCorrect: string | string[] = ar.correctAnswer as string;
+                          if (typeof ar.correctAnswer === "string") {
+                            try {
+                              const p = JSON.parse(ar.correctAnswer);
+                              if (Array.isArray(p)) parsedCorrect = p;
+                            } catch { /* keep as string */ }
+                          }
+                          const isCorrect = Array.isArray(parsedCorrect)
+                            ? parsedCorrect.includes(opt.id)
+                            : parsedCorrect === opt.id;
 
                           // 判斷用戶是否選擇了這個 (包含選錯的)
                           const isUserSelected = Array.isArray(ar.userAnswer)
