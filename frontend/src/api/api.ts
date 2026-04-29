@@ -1,7 +1,10 @@
 // API base URL:
 // - dev：空字串走 Vite proxy
 // - prod：用 VITE_API_URL 或 VITE_BACKEND_URL（指向後端域名）
-const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '';
+
+/** Prefix `/api/...` paths with the backend origin (no-op in dev). */
+export const apiUrl = (path: string) => `${API_BASE_URL}${path}`;
 
 // API 基本配置類型
 interface ApiConfig {

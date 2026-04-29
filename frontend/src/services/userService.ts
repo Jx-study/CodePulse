@@ -1,3 +1,5 @@
+import { apiUrl } from '@/api/api';
+
 export interface CheckinResponse {
   success: boolean;
   already_checked_in: boolean;
@@ -29,13 +31,13 @@ interface UploadSignature {
 
 export const userService = {
   async getProfile() {
-    const resp = await fetch('/api/users/me', { credentials: 'include' });
+    const resp = await fetch(apiUrl('/api/users/me'), { credentials: 'include' });
     if (!resp.ok) throw new Error('Failed to fetch profile');
     return resp.json();
   },
 
   async updateProfile(patch: UpdateProfilePayload) {
-    const resp = await fetch('/api/users/me', {
+    const resp = await fetch(apiUrl('/api/users/me'), {
       method: 'PATCH',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -46,7 +48,7 @@ export const userService = {
   },
 
   async getUploadSignature(): Promise<UploadSignature> {
-    const resp = await fetch('/api/users/me/upload-signature', {
+    const resp = await fetch(apiUrl('/api/users/me/upload-signature'), {
       credentials: 'include',
     });
     if (!resp.ok) throw new Error('Failed to get upload signature');
@@ -54,7 +56,7 @@ export const userService = {
   },
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const resp = await fetch('/api/users/me/password', {
+    const resp = await fetch(apiUrl('/api/users/me/password'), {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -68,7 +70,7 @@ export const userService = {
 
   async checkin(): Promise<CheckinResponse> {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const resp = await fetch('/api/users/me/checkin', {
+    const resp = await fetch(apiUrl('/api/users/me/checkin'), {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -80,7 +82,7 @@ export const userService = {
 
   async getCheckinHistory(year: number, month: number): Promise<CheckinHistoryResponse> {
     const resp = await fetch(
-      `/api/users/me/checkin-history?year=${year}&month=${month}`,
+      apiUrl(`/api/users/me/checkin-history?year=${year}&month=${month}`),
       { credentials: 'include' }
     );
     if (!resp.ok) throw new Error('Failed to fetch checkin history');

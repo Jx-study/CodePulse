@@ -1,3 +1,5 @@
+import { apiUrl } from '@/api/api';
+
 export interface SessionResponse {
   success: boolean;
   session_id: number;
@@ -56,7 +58,7 @@ export interface SubmitResponse {
 // ── API 函式 ──────────────────────────────────────────────
 
 async function fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const doFetch = () => fetch(url, {
+  const doFetch = () => fetch(apiUrl(url), {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options,
@@ -67,7 +69,7 @@ async function fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> 
   // Access token 過期時，先呼叫 /api/auth/status 讓它自動換新 token，再重試一次
   if (resp.status === 401) {
     try {
-      await fetch('/api/auth/status', { credentials: 'include' });
+      await fetch(apiUrl('/api/auth/status'), { credentials: 'include' });
       resp = await doFetch();
     } catch {
       // refresh 失敗，維持原本的 401

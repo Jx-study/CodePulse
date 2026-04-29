@@ -8,6 +8,7 @@
  */
 
 import type { UserProgress, ScoreLevel, LevelStatus } from "@/types";
+import { apiUrl } from "@/api/api";
 
 // ── 後端 API 型別 ─────────────────────────────────────────
 
@@ -66,7 +67,7 @@ export const INITIAL_USER_PROGRESS: UserProgress = {
 
 /** 從後端取得當前用戶所有 tutorial 進度 */
 export async function fetchMyProgress(): Promise<ApiTutorialProgress[]> {
-  const resp = await fetch('/api/users/me/progress', { credentials: 'include' });
+  const resp = await fetch(apiUrl('/api/users/me/progress'), { credentials: 'include' });
   if (!resp.ok) throw new Error('Failed to fetch progress');
   const data = await resp.json();
   return data.progress as ApiTutorialProgress[];
