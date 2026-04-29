@@ -92,7 +92,7 @@ const WhackAMoleRenderer: React.FC = () => {
   const [playBonk] = useSound("/sfx/bonk.mp3", { volume: 0.8 });
   const [playPop] = useSound("/sfx/pop-cartoon.mp3", { volume: 0.7 });
   const [playBgm, { stop: stopBgm }] = useSound(
-    "/bgm/The Pink Panther Theme (Full).mp3",
+    "/bgm/aberrantrealities-sassy-surprises.mp3",
     { volume: 0.35, loop: true },
   );
 
