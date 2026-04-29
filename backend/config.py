@@ -33,10 +33,10 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    CORS_ORIGINS = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN') or '.code-pulse.cc'
     ENV = 'production'
 
     _secret = os.environ.get('SECRET_KEY')
@@ -44,6 +44,12 @@ class ProductionConfig(Config):
         raise ValueError('SECRET_KEY environment variable must be set in production')
     SECRET_KEY = _secret
     del _secret
+
+    _origins = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
+    if not _origins:
+        raise ValueError('ALLOWED_ORIGINS environment variable must be set in production')
+    CORS_ORIGINS = _origins
+    del _origins
 
 class TestingConfig(Config):
     TESTING = True

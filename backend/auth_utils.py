@@ -101,42 +101,63 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 # ── Cookie helpers ───────────────────────────────────────────────────────────
 
-COOKIE_SAMESITE = 'Lax'
-
 
 def _cookie_secure() -> bool:
-    """Return True when running in production (HTTPS)."""
-    return current_app.config.get('ENV') == 'production' or \
-           current_app.config.get('SESSION_COOKIE_SECURE', False)
+    """Return True when cookies should be marked Secure (HTTPS-only).
+
+    Must be called within a Flask request/app context.
+    """
+    return current_app.config.get('SESSION_COOKIE_SECURE', False)
+
+
+def cookie_samesite() -> str:
+    """Read SameSite policy from app config (set per-environment in config.py).
+
+    Must be called within a Flask request/app context.
+    """
+    return current_app.config.get('SESSION_COOKIE_SAMESITE', 'Lax')
+
+
+def cookie_domain():
+    """Read shared cookie domain (None in dev, '.code-pulse.cc' in prod).
+
+    Must be called within a Flask request/app context.
+    """
+    return current_app.config.get('SESSION_COOKIE_DOMAIN')
 
 
 def set_auth_cookies(response, access_token: str, refresh_token: str):
     """Set HTTP-only auth cookies on the response."""
     secure = _cookie_secure()
+    samesite = cookie_samesite()
+    domain = cookie_domain()
     response.set_cookie(
         'access_token',
         access_token,
         httponly=True,
         secure=secure,
-        samesite=COOKIE_SAMESITE,
+        samesite=samesite,
         max_age=int(ACCESS_TOKEN_EXPIRES.total_seconds()),
         path='/',
+        domain=domain,
     )
     response.set_cookie(
         'refresh_token',
         refresh_token,
         httponly=True,
         secure=secure,
-        samesite=COOKIE_SAMESITE,
+        samesite=samesite,
         max_age=int(REFRESH_TOKEN_EXPIRES.total_seconds()),
         path='/api/auth',   # restrict refresh cookie to auth routes
+        domain=domain,
     )
 
 
 def clear_auth_cookies(response):
     """Clear both auth cookies."""
-    response.delete_cookie('access_token', path='/')
-    response.delete_cookie('refresh_token', path='/api/auth')
+    domain = cookie_domain()
+    response.delete_cookie('access_token', path='/', domain=domain)
+    response.delete_cookie('refresh_token', path='/api/auth', domain=domain)
 
 
 # ── Verification code ─────────────────────────────────────────────────────────
