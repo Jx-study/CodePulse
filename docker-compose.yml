@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_DB=codepulse
       - POSTGRES_USER=codepulse
-      - POSTGRES_PASSWORD=codepulse_dev
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U codepulse -d codepulse"]
       interval: 5s
@@ -25,23 +25,12 @@ services:
     volumes:
       - ./backend:/app
       - /app/__pycache_
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgresql://codepulse:codepulse_dev@postgres:5432/codepulse
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - FLASK_ENV=${FLASK_ENV:-development}
-      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
-      - MAIL_PORT=${MAIL_PORT:-465}
-      - MAIL_USE_SSL=${MAIL_USE_SSL:-True}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - BACKEND_URL=${BACKEND_URL:-http://localhost:5000}
-      - OAUTHLIB_INSECURE_TRANSPORT=1
+      # 容器內 DB 連線（覆蓋 .env 內 host=postgres 的設定，dev 用）
+      - DATABASE_URL=postgresql://codepulse:${DB_PASSWORD}@postgres:5432/codepulse
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     depends_on:
       postgres:
         condition: service_healthy
