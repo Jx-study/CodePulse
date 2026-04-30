@@ -9,16 +9,25 @@ import {
   type ReactNode,
 } from "react";
 import {
+  BENCHMARK_NS,
+  CASE_TYPES,
+  benchmarkExecMs,
   buildAlgorithmStates,
-  buildBenchmarkPoints,
+  generateCaseData,
 } from "../hooks/useAlgorithmSteps";
 import type {
   AlgorithmId,
   BenchmarkPoint,
+  CaseType,
+  ComplexityChartMode,
   LabReducerState,
   LabState,
   TopicId,
 } from "../types/lab";
+
+type BenchmarkStore = Partial<
+  Record<AlgorithmId, Partial<Record<CaseType, BenchmarkPoint[]>>>
+>;
 
 function generateRandomData(n: number): number[] {
   return Array.from({ length: n }, () => Math.floor(Math.random() * 990) + 10);
@@ -35,9 +44,18 @@ const initialReducerState: LabReducerState = {
   playState: "idle",
   speed: 1,
   showComplexityChart: false,
-  complexityChartMode: "steps",
+  complexityChartMode: "curve",
+  visibleCaseTypes: ["random", "sorted", "reversed"],
   sidebarCollapsed: false,
   layoutFlipped: false,
+  benchmarkKey: 0,
+  unifiedYAxis: false,
+  manualSortEnabled: false,
+  manualSortData: [],
+  manualDragStarted: false,
+  manualSortMoves: 0,
+  manualSortStartMs: null,
+  manualSortEndMs: null,
 };
 
 export type LabAction =
@@ -46,15 +64,22 @@ export type LabAction =
   | { type: "SET_INPUT_DATA"; data: number[] }
   | { type: "SET_INPUT_SIZE"; size: number }
   | { type: "TOGGLE_COMPLEXITY_CHART" }
-  | { type: "SET_COMPLEXITY_CHART_MODE"; mode: LabState["complexityChartMode"] }
+  | { type: "SET_COMPLEXITY_CHART_MODE"; mode: ComplexityChartMode }
+  | { type: "TOGGLE_CASE_TYPE"; caseType: CaseType }
   | { type: "TOGGLE_SIDEBAR" }
   | { type: "TOGGLE_LAYOUT_FLIP" }
   | { type: "PLAY" }
   | { type: "PAUSE" }
   | { type: "RESET" }
+  | { type: "RESET_BENCHMARK" }
+  | { type: "TOGGLE_UNIFIED_Y_AXIS" }
   | { type: "TICK"; maxSteps: number; stepsToAdvance?: number }
   | { type: "SET_SPEED"; speed: number }
-  | { type: "RESET_ANIMATION" };
+  | { type: "RESET_ANIMATION" }
+  | { type: "TOGGLE_MANUAL_SORT" }
+  | { type: "MANUAL_SORT_SWAP"; fromIdx: number; toIdx: number }
+  | { type: "MANUAL_SORT_RESET" }
+  | { type: "MANUAL_SORT_COMPLETE"; endMs: number };
 
 function labReducer(state: LabReducerState, action: LabAction): LabReducerState {
   switch (action.type) {
@@ -70,6 +95,7 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
     case "SET_INPUT_DATA":
       return { ...state, inputData: action.data };
     case "SET_INPUT_SIZE": {
+      if (state.manualSortEnabled) return state;
       const size = Math.max(20, Math.min(100, action.size));
       return {
         ...state,
@@ -83,6 +109,18 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
       return { ...state, showComplexityChart: !state.showComplexityChart };
     case "SET_COMPLEXITY_CHART_MODE":
       return { ...state, complexityChartMode: action.mode };
+    case "TOGGLE_CASE_TYPE": {
+      const { caseType } = action;
+      const current = state.visibleCaseTypes;
+      if (current.includes(caseType)) {
+        if (current.length <= 1) return state;
+        return {
+          ...state,
+          visibleCaseTypes: current.filter((c) => c !== caseType),
+        };
+      }
+      return { ...state, visibleCaseTypes: [...current, caseType] };
+    }
     case "TOGGLE_SIDEBAR":
       return { ...state, sidebarCollapsed: !state.sidebarCollapsed };
     case "TOGGLE_LAYOUT_FLIP":
@@ -99,8 +137,68 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
       return { ...state, playState: "paused" };
     case "RESET":
       return { ...state, currentStep: 0, playState: "idle" };
+    case "RESET_BENCHMARK":
+      return { ...state, benchmarkKey: state.benchmarkKey + 1 };
+    case "TOGGLE_UNIFIED_Y_AXIS":
+      return { ...state, unifiedYAxis: !state.unifiedYAxis };
     case "RESET_ANIMATION":
       return { ...state, currentStep: 0, playState: "idle" };
+    case "TOGGLE_MANUAL_SORT": {
+      if (state.manualSortEnabled) {
+        return {
+          ...state,
+          manualSortEnabled: false,
+          manualSortData: [],
+          manualDragStarted: false,
+          manualSortMoves: 0,
+          manualSortStartMs: null,
+          manualSortEndMs: null,
+          currentStep: 0,
+          playState: "idle",
+        };
+      }
+      const newData = generateRandomData(20);
+      return {
+        ...state,
+        manualSortEnabled: true,
+        inputSize: 20,
+        inputData: newData,
+        manualSortData: [...newData],
+        manualDragStarted: false,
+        manualSortMoves: 0,
+        manualSortStartMs: null,
+        manualSortEndMs: null,
+        currentStep: 0,
+        playState: "idle",
+      };
+    }
+    case "MANUAL_SORT_SWAP": {
+      const { fromIdx, toIdx } = action;
+      if (fromIdx === toIdx) return state;
+      const next = [...state.manualSortData];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return {
+        ...state,
+        manualSortData: next,
+        manualDragStarted: true,
+        manualSortMoves: state.manualSortMoves + 1,
+        manualSortStartMs: state.manualSortStartMs ?? Date.now(),
+      };
+    }
+    case "MANUAL_SORT_RESET":
+      return {
+        ...state,
+        manualSortData: [...state.inputData],
+        manualDragStarted: false,
+        manualSortMoves: 0,
+        manualSortStartMs: null,
+        manualSortEndMs: null,
+        currentStep: 0,
+        playState: "idle",
+      };
+    case "MANUAL_SORT_COMPLETE":
+      return { ...state, manualSortEndMs: action.endMs };
     case "SET_SPEED":
       return { ...state, speed: action.speed };
     case "TICK": {
@@ -130,11 +228,9 @@ function computeMaxSteps(algorithms: LabState["algorithms"]): number {
 
 export function LabProvider({ children }: { children: ReactNode }) {
   const [reducerState, dispatch] = useReducer(labReducer, initialReducerState);
-  const [benchmarkById, setBenchmarkById] = useState<
-    Partial<Record<AlgorithmId, BenchmarkPoint[]>>
-  >({});
+  const [benchmarkById, setBenchmarkById] = useState<BenchmarkStore>({});
 
-  const { selectedIds, inputData } = reducerState;
+  const { selectedIds, inputData, benchmarkKey } = reducerState;
 
   const baseAlgorithms = useMemo(
     () => buildAlgorithmStates(selectedIds, inputData),
@@ -147,37 +243,48 @@ export function LabProvider({ children }: { children: ReactNode }) {
     const ids = selectedIds;
     if (ids.length === 0) return;
 
-    const run = () => {
-      if (cancelled) return;
-      const next: Partial<Record<AlgorithmId, BenchmarkPoint[]>> = {};
+    const yieldToMain = () =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 0);
+      });
+
+    const runAll = async () => {
       for (const id of ids) {
-        if (cancelled) return;
-        next[id] = buildBenchmarkPoints(id);
+        for (const caseType of CASE_TYPES) {
+          const points: BenchmarkPoint[] = [];
+          for (const n of BENCHMARK_NS) {
+            if (cancelled) return;
+            const data = generateCaseData(n, caseType);
+            const ms = benchmarkExecMs(id, data);
+            points.push({ n, ms });
+            setBenchmarkById((prev) => ({
+              ...prev,
+              [id]: {
+                ...(prev[id] ?? {}),
+                [caseType]: [...points],
+              },
+            }));
+            await yieldToMain();
+          }
+        }
       }
-      if (!cancelled) setBenchmarkById(next);
     };
 
-    const idle =
-      typeof requestIdleCallback !== "undefined"
-        ? requestIdleCallback
-        : (cb: () => void) => window.setTimeout(cb, 0);
-
-    const handle = idle(run);
+    const t = window.setTimeout(() => {
+      void runAll();
+    }, 0);
 
     return () => {
       cancelled = true;
-      if (typeof cancelIdleCallback !== "undefined") {
-        cancelIdleCallback(handle as number);
-      } else {
-        clearTimeout(handle as number);
-      }
+      clearTimeout(t);
     };
-  }, [selectedIds]);
+  }, [selectedIds, benchmarkKey]);
 
   const algorithms = useMemo(() => {
     return baseAlgorithms.map((a) => ({
       ...a,
-      benchmarkPoints: benchmarkById[a.id] ?? [],
+      benchmarkPoints: benchmarkById[a.id]?.random ?? [],
+      benchmarkByCase: benchmarkById[a.id] ?? {},
     }));
   }, [baseAlgorithms, benchmarkById]);
 
