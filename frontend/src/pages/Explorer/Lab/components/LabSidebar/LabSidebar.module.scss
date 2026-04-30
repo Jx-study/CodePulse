@@ -106,3 +106,72 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
+
+.modeTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.modeTab {
+  flex: 1;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid var(--border);
+  border-radius: $radius-sm;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+.modeTabActive {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+.complexityControls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.subTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.subTab {
+  flex: 1;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid var(--border);
+  border-radius: $radius-sm;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: $font-xs;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+.subTabActive {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+.caseFilter {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  .label {
+    margin-bottom: 2px;
+  }
+}

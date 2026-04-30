@@ -7,8 +7,16 @@ import Slider from "@/shared/components/Slider";
 import { LAB_TOPICS, TOPIC_OPTIONS } from "../../data/labTopics";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
 import { useLabContext } from "../../context/LabContext";
-import type { AlgorithmId, TopicId } from "../../types/lab";
+import type { AlgorithmId, CaseType, TopicId } from "../../types/lab";
 import styles from "./LabSidebar.module.scss";
+
+const CT_LABEL: Record<CaseType, string> = {
+  random: "亂序",
+  sorted: "已排序",
+  reversed: "反序",
+};
+
+const CASE_TYPE_ORDER: CaseType[] = ["random", "sorted", "reversed"];
 
 export function LabSidebar() {
   const {
@@ -16,6 +24,11 @@ export function LabSidebar() {
     selectedIds,
     inputSize,
     sidebarCollapsed,
+    showComplexityChart,
+    complexityChartMode,
+    visibleCaseTypes,
+    unifiedYAxis,
+    manualSortEnabled,
     dispatch,
   } = useLabContext();
 
@@ -51,7 +64,13 @@ export function LabSidebar() {
 
       {sidebarCollapsed ? (
         <div className={styles.iconRail}>
-          <Icon name="bars" size="sm" color="secondary" />
+          <Icon
+            name={showComplexityChart ? "chart-line" : "play"}
+            size="sm"
+            color="secondary"
+            decorative
+            title={showComplexityChart ? "複雜度圖模式" : "排序動畫模式"}
+          />
           <div className={styles.dotList}>
             {selectedIds.map((id) => (
               <span
@@ -96,20 +115,130 @@ export function LabSidebar() {
             </ul>
           </div>
 
-          <div className={styles.field}>
-            <div className={styles.sizeRow}>
-              <span className={styles.label}>資料量</span>
-              <span className={styles.sizeValue}>{inputSize} 筆</span>
-            </div>
-            <Slider
-              min={20}
-              max={100}
-              step={10}
-              value={inputSize}
-              onChange={(v) => dispatch({ type: "SET_INPUT_SIZE", size: v })}
-              ariaLabel="資料量"
-            />
+          <div className={styles.modeTabs}>
+            <button
+              type="button"
+              className={`${styles.modeTab} ${!showComplexityChart ? styles.modeTabActive : ""}`}
+              onClick={() =>
+                showComplexityChart && dispatch({ type: "TOGGLE_COMPLEXITY_CHART" })}
+            >
+              排序動畫
+            </button>
+            <button
+              type="button"
+              className={`${styles.modeTab} ${showComplexityChart ? styles.modeTabActive : ""}`}
+              onClick={() =>
+                !showComplexityChart && dispatch({ type: "TOGGLE_COMPLEXITY_CHART" })}
+            >
+              複雜度圖
+            </button>
           </div>
+
+          {!showComplexityChart ? (
+            <div className={styles.field}>
+              <Checkbox
+                name="manual-sort"
+                label="Manual Sort"
+                checked={manualSortEnabled}
+                onChange={() => dispatch({ type: "TOGGLE_MANUAL_SORT" })}
+              />
+              <div className={styles.sizeRow}>
+                <span className={styles.label}>資料量</span>
+                <span className={styles.sizeValue}>
+                  {inputSize} 筆{manualSortEnabled ? "（鎖定）" : ""}
+                </span>
+              </div>
+              <Slider
+                min={20}
+                max={100}
+                step={10}
+                value={inputSize}
+                disabled={manualSortEnabled}
+                onChange={(v) => dispatch({ type: "SET_INPUT_SIZE", size: v })}
+                ariaLabel="資料量"
+              />
+            </div>
+          ) : (
+            <div className={styles.complexityControls}>
+              <div className={styles.subTabs}>
+                <button
+                  type="button"
+                  className={`${styles.subTab} ${complexityChartMode === "curve" ? styles.subTabActive : ""}`}
+                  onClick={() =>
+                    dispatch({ type: "SET_COMPLEXITY_CHART_MODE", mode: "curve" })}
+                >
+                  時間複雜度
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.subTab} ${complexityChartMode === "space" ? styles.subTabActive : ""}`}
+                  onClick={() =>
+                    dispatch({ type: "SET_COMPLEXITY_CHART_MODE", mode: "space" })}
+                >
+                  空間複雜度
+                </button>
+              </div>
+
+              {complexityChartMode === "curve" && (
+                <div className={styles.caseFilter}>
+                  <span className={styles.label}>顯示案例</span>
+                  {CASE_TYPE_ORDER.map((ct) => {
+                    const isOnly =
+                      visibleCaseTypes.length === 1 && visibleCaseTypes[0] === ct;
+                    return (
+                      <Checkbox
+                        key={ct}
+                        name={`case-${ct}`}
+                        label={CT_LABEL[ct]}
+                        checked={visibleCaseTypes.includes(ct)}
+                        disabled={isOnly}
+                        onChange={() =>
+                          dispatch({ type: "TOGGLE_CASE_TYPE", caseType: ct })}
+                      />
+                    );
+                  })}
+                  <Button
+                    variant={unifiedYAxis ? "primary" : "secondary"}
+                    size="sm"
+                    fullWidth
+                    onClick={() => dispatch({ type: "TOGGLE_UNIFIED_Y_AXIS" })}
+                    aria-pressed={unifiedYAxis}
+                  >
+                    <Icon name="lock" decorative />
+                    統一 Y 軸
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    fullWidth
+                    onClick={() => dispatch({ type: "RESET_BENCHMARK" })}
+                  >
+                    <Icon name="rotate" decorative />
+                    重置
+                  </Button>
+                </div>
+              )}
+
+              {complexityChartMode === "space" && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  fullWidth
+                  onClick={() =>
+                    dispatch({
+                      type: "SET_INPUT_DATA",
+                      data: Array.from({ length: inputSize }, () =>
+                        Math.floor(Math.random() * 990) + 10,
+                      ),
+                    })
+                  }
+                >
+                  <Icon name="rotate" decorative />
+                  重置
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </aside>
