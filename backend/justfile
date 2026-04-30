@@ -6,7 +6,12 @@ set windows-shell := ["cmd", "/c"]
 
 # ── Dev ────────────────────────────────────────────────────────────────────
 dev:
+    just sandbox-build
     docker compose up postgres backend --build -d
+
+# ── Sandbox ────────────────────────────────────────────────────────────────
+sandbox-build:
+    docker build -t codepulse-sandbox -f docker/Dockerfile .
 
 # ── Migration ──────────────────────────────────────────────────────────────
 migrate msg:

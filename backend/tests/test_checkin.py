@@ -1,10 +1,21 @@
 """Tests for POST /api/users/me/checkin"""
 import pytest
-from datetime import date, timedelta
-from unittest.mock import patch
+from datetime import date, datetime, timedelta, timezone
+from unittest.mock import patch, MagicMock
 from models.user import User, UserRole, UserLoginStreak
 from models.xp import XpEvent, XpSourceType
 from database import db
+
+# 固定一個 UTC 日期，避免測試結果因機器時區而異
+_FIXED_UTC_DATE = date(2026, 4, 24)
+_FIXED_UTC_DT = datetime(_FIXED_UTC_DATE.year, _FIXED_UTC_DATE.month, _FIXED_UTC_DATE.day, 12, 0, 0, tzinfo=timezone.utc)
+
+
+def _patch_today():
+    """Mock routes.users.datetime，讓 today 固定為 _FIXED_UTC_DATE（UTC）。"""
+    mock_dt = MagicMock(wraps=datetime)
+    mock_dt.now.return_value = _FIXED_UTC_DT
+    return patch('routes.users.datetime', mock_dt)
 
 
 def _make_authed_user(client, app):
@@ -29,8 +40,8 @@ def _make_authed_user(client, app):
 
 def test_first_checkin_creates_streak(client, app):
     uid = _make_authed_user(client, app)
-    today = date.today().isoformat()
-    resp = client.post('/api/users/me/checkin')
+    with _patch_today():
+        resp = client.post('/api/users/me/checkin')
     assert resp.status_code == 200
     data = resp.get_json()
     assert data['success'] is True
@@ -40,13 +51,14 @@ def test_first_checkin_creates_streak(client, app):
     with app.app_context():
         streak = UserLoginStreak.query.filter_by(user_id=uid).first()
         assert streak is not None
-        assert streak.login_date.isoformat() == today
+        assert streak.login_date.isoformat() == _FIXED_UTC_DATE.isoformat()
 
 
 def test_second_checkin_same_day_is_idempotent(client, app):
     uid = _make_authed_user(client, app)
-    client.post('/api/users/me/checkin')
-    resp = client.post('/api/users/me/checkin')
+    with _patch_today():
+        client.post('/api/users/me/checkin')
+        resp = client.post('/api/users/me/checkin')
     assert resp.status_code == 200
     data = resp.get_json()
     assert data['already_checked_in'] is True
@@ -62,26 +74,28 @@ def test_second_checkin_same_day_is_idempotent(client, app):
 
 def test_consecutive_day_increments_streak(client, app):
     uid = _make_authed_user(client, app)
-    yesterday = date.today() - timedelta(days=1)
+    yesterday = _FIXED_UTC_DATE - timedelta(days=1)
     with app.app_context():
         db.session.add(UserLoginStreak(user_id=uid, login_date=yesterday))
         user = db.session.get(User, uid)
         user.current_streak = 3
         db.session.commit()
-    resp = client.post('/api/users/me/checkin')
+    with _patch_today():
+        resp = client.post('/api/users/me/checkin')
     data = resp.get_json()
     assert data['current_streak'] == 4
 
 
 def test_gap_resets_streak(client, app):
     uid = _make_authed_user(client, app)
-    two_days_ago = date.today() - timedelta(days=2)
+    two_days_ago = _FIXED_UTC_DATE - timedelta(days=2)
     with app.app_context():
         db.session.add(UserLoginStreak(user_id=uid, login_date=two_days_ago))
         user = db.session.get(User, uid)
         user.current_streak = 5
         db.session.commit()
-    resp = client.post('/api/users/me/checkin')
+    with _patch_today():
+        resp = client.post('/api/users/me/checkin')
     data = resp.get_json()
     assert data['current_streak'] == 1
 

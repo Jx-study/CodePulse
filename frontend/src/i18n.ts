@@ -10,7 +10,7 @@ i18n
   .init({
     fallbackLng: 'zh-TW',
     supportedLngs: ['en', 'zh-TW'],
-    ns: ['common', 'home', 'auth', 'dashboard', 'tutorial', 'practice', 'about', 'animation'],
+    ns: ['common', 'home', 'auth', 'dashboard', 'tutorial', 'practice', 'about', 'animation', 'playground'],
     defaultNS: 'common',
     returnEmptyString: false,
     backend: {

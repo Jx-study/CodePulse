@@ -3,6 +3,7 @@ import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
 import { useTimeComplexityDecorations } from './features/TimeComplexity';
+import { useTheme } from '@/shared/contexts/ThemeContext';
 
 // ==================== 類型定義 ====================
 
@@ -74,6 +75,11 @@ export interface CodeEditorHandle {
 
   // 調整分屏比例
   setSplitRatio: (ratio: number) => void;
+
+  /** 在 single mode 編輯器標記語法錯誤行（1-based lineno） */
+  setErrorMarker: (lineno: number, message: string) => void;
+  /** 清除語法錯誤標記 */
+  clearErrorMarker: () => void;
 }
 
 // ==================== 語言對應表 ====================
@@ -137,7 +143,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   } = props;
 
   // ========== State ==========
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
+  const { resolvedTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(resolvedTheme);
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [splitRatio, setSplitRatio] = useState(propSplitRatio);
   const [isDragging, setIsDragging] = useState(false);
@@ -159,26 +166,14 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   // 穩定的 key，用於防止 StrictMode 雙重掛載問題
   const editorKeyRef = useRef<string>(`editor-${Math.random().toString(36).substring(7)}`);
 
-  // ========== 主題檢測 ==========
+  // ========== 主題同步 ==========
   useEffect(() => {
-    const detectTheme = () => {
-      if (theme === 'auto') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setCurrentTheme(isDark ? 'dark' : 'light');
-      } else {
-        setCurrentTheme(theme);
-      }
-    };
-
-    detectTheme();
-
     if (theme === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = () => detectTheme();
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
+      setCurrentTheme(resolvedTheme);
+    } else {
+      setCurrentTheme(theme);
     }
-  }, [theme]);
+  }, [theme, resolvedTheme]);
 
   // ========== 語言更新 ==========
   useEffect(() => {
@@ -464,6 +459,29 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     setSplitRatio: (ratio: number) => {
       setSplitRatio(Math.max(0.2, Math.min(0.8, ratio)));
     },
+    setErrorMarker: (lineno: number, message: string) => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const model = editor.getModel();
+      if (!model) return;
+      monaco.editor.setModelMarkers(model, "analyzeError", [
+        {
+          startLineNumber: lineno,
+          endLineNumber: lineno,
+          startColumn: 1,
+          endColumn: model.getLineMaxColumn(lineno),
+          message,
+          severity: monaco.MarkerSeverity.Error,
+        },
+      ]);
+    },
+    clearErrorMarker: () => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const model = editor.getModel();
+      if (!model) return;
+      monaco.editor.setModelMarkers(model, "analyzeError", []);
+    },
   }));
 
   // ========== 渲染 ==========
@@ -516,16 +534,18 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
         </>
       ) : (
         /* 單一編輯器模式 */
-        <Editor
-          key={`${editorKeyRef.current}-single`}
-          height={autoHeight ? `${contentHeight}px` : '100%'}
-          language={currentLanguage}
-          value={value}
-          theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
-          options={editorOptions}
-          onChange={handleChange}
-          onMount={handleEditorMount}
-        />
+        <div className={autoHeight ? undefined : styles.singleEditorWrap}>
+          <Editor
+            key={`${editorKeyRef.current}-single`}
+            height={autoHeight ? `${contentHeight}px` : '100%'}
+            language={currentLanguage}
+            value={value}
+            theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
+            options={editorOptions}
+            onChange={handleChange}
+            onMount={handleEditorMount}
+          />
+        </div>
       )}
     </div>
   );

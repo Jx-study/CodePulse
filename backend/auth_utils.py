@@ -5,7 +5,7 @@ import secrets
 import string
 from datetime import datetime, timedelta, timezone
 from functools import wraps
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, g
 
 # JWT
 
@@ -173,7 +173,6 @@ def generate_verification_code(length: int = 6) -> str:
 
 def login_required(f):
     """Decorator: require valid access_token cookie. Injects g.current_user_id."""
-    from flask import g
     @wraps(f)
     def decorated(*args, **kwargs):
         if request.method == 'OPTIONS':

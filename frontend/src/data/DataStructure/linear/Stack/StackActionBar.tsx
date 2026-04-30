@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -26,11 +27,11 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
 
   const handlePush = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    if (!isNaN(val)) {
-      onAddNode(val, "Head");
-      setInputValue("");
+    if (inputValue.trim() === "") {
+      toast.warning("請輸入要 Push 的數值");
+      return;
     }
+    onAddNode(Number(inputValue), "Head");
   };
 
   const handlePop = () => {

@@ -55,6 +55,7 @@ function mergeSortActionHandler(
 
 const TAGS = {
   INIT: "INIT",
+  IF_RETURN: "IF_RETURN",
   DIVIDE: "DIVIDE",
   MERGE_START: "MERGE_START",
   COMPARE: "COMPARE",
@@ -111,12 +112,19 @@ export function createMergeSortAnimationSteps(
       stepNumber: steps.length,
       description: desc,
       actionTag: tag,
-      variables: vars,
+      local_vars: vars,
       elements: generateFrame(currentItems) as any,
     });
   };
 
   addStep("開始合併排序 (Merge Sort)", TAGS.INIT);
+
+  if (currentItems.length <= 1) {
+    addStep(`剩餘元素數量為 1，直接返回`, TAGS.IF_RETURN, {
+      chosenVal: currentItems[0].value,
+    });
+    return steps;
+  }
 
   // 遞迴主程式
   const mergeSort = (
@@ -125,6 +133,9 @@ export function createMergeSortAnimationSteps(
     startIndex: number,
   ): TrackedItem[] => {
     if (items.length <= 1) {
+      addStep(`剩餘元素數量為 1，直接返回`, TAGS.IF_RETURN, {
+        chosenVal: items[0].value,
+      });
       return items;
     }
 
@@ -290,6 +301,7 @@ Procedure Merge(left, right):
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [1],
+      [TAGS.IF_RETURN]: [2, 3, 4],
       [TAGS.DIVIDE]: [6, 7, 8],
       [TAGS.MERGE_START]: [13, 14, 15, 16],
       [TAGS.COMPARE]: [17, 18, 22],

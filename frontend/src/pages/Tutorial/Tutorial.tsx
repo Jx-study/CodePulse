@@ -82,7 +82,7 @@ interface CanvasPanelProps {
   handlePause: () => void;
   handleNext: () => void;
   handlePrev: () => void;
-  handleReset: () => void;
+  handleResetStep: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
 
@@ -112,7 +112,7 @@ const CanvasPanel = ({
   handlePause,
   handleNext,
   handlePrev,
-  handleReset,
+  handleResetStep,
   setPlaybackSpeed,
   handleStepChange,
   graphCanvasRef,
@@ -204,7 +204,7 @@ const CanvasPanel = ({
           onPause={handlePause}
           onNext={handleNext}
           onPrev={handlePrev}
-          onReset={handleReset}
+          onReset={handleResetStep}
           onSpeedChange={setPlaybackSpeed}
           onStepChange={handleStepChange}
         />
@@ -341,13 +341,13 @@ export const InspectorPanelInternal = ({
       return (
         <div className={styles.tabContent}>
           <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent variables={currentStepData?.variables} />
+            <PanelComponent variables={currentStepData?.local_vars} />
           </Suspense>
         </div>
       );
     }
 
-    // 其他 Tab (callStack) 不需要 props
+    // 其他 Tab 不需要 props
     return (
       <div className={styles.tabContent}>
         <Suspense fallback={<div>載入中...</div>}>
@@ -881,8 +881,7 @@ function TutorialContent() {
   handleNextRef.current = handleNext;
 
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-  const handleReset = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
+  const handleResetStep = () => {
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -1020,7 +1019,7 @@ function TutorialContent() {
     handlePause,
     handleNext,
     handlePrev,
-    handleReset,
+    handleResetStep,
     setPlaybackSpeed,
     handleStepChange,
     graphCanvasRef,
