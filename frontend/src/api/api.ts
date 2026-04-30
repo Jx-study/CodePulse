@@ -99,8 +99,9 @@ class ApiService {
   async get<T>(
     endpoint: string,
     headers?: Record<string, string>,
+    signal?: AbortSignal,
   ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: "GET", headers });
+    return this.request<T>(endpoint, { method: "GET", headers, signal });
   }
 
   async post<T>(
