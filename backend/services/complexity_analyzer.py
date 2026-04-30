@@ -7,6 +7,7 @@ measure_step_counts(wrapped_code) -> str
 """
 from __future__ import annotations
 
+import concurrent.futures
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -18,16 +19,25 @@ PER_N_TIMEOUT = 5  # 秒，每個 n 值的獨立 timeout
 
 def measure_step_counts(wrapped_code: str) -> str:
     """
-    對 N_VALUES 中每個 n 執行 wrapped_code（呼叫 explore_wrapper(n)），
+    對 N_VALUES 中每個 n 平行執行 wrapped_code（呼叫 explore_wrapper(n)），
     收集 step_count，曲線擬合後回傳複雜度標籤。
     """
+    def _run_one(n: int) -> tuple[int, dict]:
+        return n, run_in_sandbox(wrapped_code, n=n, per_n_timeout=PER_N_TIMEOUT)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(N_VALUES)) as pool:
+        futures = {pool.submit(_run_one, n): n for n in N_VALUES}
+        results: dict[int, dict] = {}
+        for fut in concurrent.futures.as_completed(futures):
+            n, result = fut.result()
+            results[n] = result
+
     counts: list[int] = []
     valid_ns: list[int] = []
-
     for n in N_VALUES:
-        result = run_in_sandbox(wrapped_code, n=n, per_n_timeout=PER_N_TIMEOUT)
+        result = results[n]
         if "error" in result:
-            break
+            continue
         counts.append(result.get("step_count", 0))
         valid_ns.append(n)
 

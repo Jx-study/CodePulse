@@ -33,12 +33,13 @@ def run_in_sandbox(code: str, n: int | None = None, per_n_timeout: int | None = 
         body["per_n_timeout"] = per_n_timeout
 
     effective_timeout = per_n_timeout if per_n_timeout is not None else CONTAINER_TIMEOUT
+    http_timeout = effective_timeout + 5  # buffer for container startup + network overhead
 
     try:
         resp = requests.post(
             f"{SIDECAR_URL}/run",
             json=body,
-            timeout=effective_timeout,
+            timeout=http_timeout,
         )
         return resp.json()
     except requests.Timeout:
