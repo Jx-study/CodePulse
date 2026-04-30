@@ -8,8 +8,9 @@
  */
 
 import type { UserProgress, ScoreLevel, LevelStatus } from "@/types";
+import apiService from "@/api/api";
 
-// ── 後端 API 型別 ─────────────────────────────────────────
+// 後端 API 型別
 
 export interface ApiTutorialProgress {
   tutorial_slug: string;
@@ -21,7 +22,7 @@ export interface ApiTutorialProgress {
   last_accessed_at: string | null;
 }
 
-// ── 初始進度（後端尚未回應時的預設值） ────────────────────
+// 初始進度（後端尚未回應時的預設值） 
 
 export const INITIAL_USER_PROGRESS: UserProgress = {
   userId: "guest",
@@ -62,17 +63,17 @@ export const INITIAL_USER_PROGRESS: UserProgress = {
   activeCategory: "data-structures",
 };
 
-// ── API 函式 ──────────────────────────────────────────────
+// API 函式
 
 /** 從後端取得當前用戶所有 tutorial 進度 */
 export async function fetchMyProgress(): Promise<ApiTutorialProgress[]> {
-  const resp = await fetch('/api/users/me/progress', { credentials: 'include' });
-  if (!resp.ok) throw new Error('Failed to fetch progress');
-  const data = await resp.json();
-  return data.progress as ApiTutorialProgress[];
+  const res = await apiService.get<ApiTutorialProgress[]>(
+    "/api/users/me/progress",
+  );
+  return res.data;
 }
 
-// ── 純前端邏輯 ────────────────────────────────────────────
+// 純前端邏輯
 
 /** 將後端 ApiTutorialProgress[] 合併至現有 UserProgress */
 export function mergeApiProgress(
