@@ -10,10 +10,11 @@ function barColor(status: string): string {
 
 export interface SortBarChartProps {
   title: string;
+  titleColor?: string;
   elements: BaseElement[];
 }
 
-export function SortBarChart({ title, elements }: SortBarChartProps) {
+export function SortBarChart({ title, titleColor, elements }: SortBarChartProps) {
   const { barHeights, colors } = useMemo(() => {
     const nums = elements.map((el) => {
       const v = parseFloat(String(el.value));
@@ -29,7 +30,9 @@ export function SortBarChart({ title, elements }: SortBarChartProps) {
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.title}>{title}</div>
+      <div className={styles.title} style={{ color: titleColor }}>
+        {title}
+      </div>
       <div className={styles.chart}>
         {elements.map((el, i) => (
           <div key={el.id || i} className={styles.barColumn}>

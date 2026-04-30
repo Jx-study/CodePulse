@@ -2,6 +2,7 @@ import EmptyState from "@/shared/components/EmptyState";
 import Icon from "@/shared/components/Icon";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
 import type { LabAlgorithmState } from "../../types/lab";
+import { ManualSortChart } from "../ManualSortChart/ManualSortChart";
 import { SortBarChart } from "../SortBarChart/SortBarChart";
 import styles from "./AnimationGrid.module.scss";
 
@@ -13,10 +14,11 @@ function displayStepIndex(currentStep: number, stepCount: number): number {
 export interface AnimationGridProps {
   algorithms: LabAlgorithmState[];
   currentStep: number;
+  manualSortEnabled?: boolean;
 }
 
-export function AnimationGrid({ algorithms, currentStep }: AnimationGridProps) {
-  if (!algorithms.length) {
+export function AnimationGrid({ algorithms, currentStep, manualSortEnabled = false }: AnimationGridProps) {
+  if (!algorithms.length && !manualSortEnabled) {
     return (
       <EmptyState
         icon={<Icon name="chart-bar" size="xl" />}
@@ -38,10 +40,12 @@ export function AnimationGrid({ algorithms, currentStep }: AnimationGridProps) {
           <SortBarChart
             key={algo.id}
             title={meta.label}
+            titleColor={meta.color}
             elements={step?.elements ?? []}
           />
         );
       })}
+      {manualSortEnabled && <ManualSortChart />}
     </div>
   );
 }

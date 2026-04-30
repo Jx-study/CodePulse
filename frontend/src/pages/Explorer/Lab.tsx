@@ -20,7 +20,10 @@ function LabShell() {
     speed,
     showComplexityChart,
     complexityChartMode,
+    visibleCaseTypes,
+    unifiedYAxis,
     layoutFlipped,
+    manualSortEnabled,
     dispatch,
   } = useLabContext();
 
@@ -46,7 +49,7 @@ function LabShell() {
       >
         <LabSidebar />
         <div className={styles.main}>
-          <MetricsDashboard />
+          {!showComplexityChart && <MetricsDashboard />}
           <div className={styles.stage}>
             {showComplexityChart ? (
               <ComplexityChart
@@ -54,15 +57,18 @@ function LabShell() {
                 currentStep={currentStep}
                 maxSteps={maxSteps}
                 mode={complexityChartMode}
+                visibleCaseTypes={visibleCaseTypes}
+                unifiedYAxis={unifiedYAxis}
               />
             ) : (
               <AnimationGrid
                 algorithms={algorithms}
                 currentStep={currentStep}
+                manualSortEnabled={manualSortEnabled}
               />
             )}
           </div>
-          <AnimationToolbar />
+          {!showComplexityChart && <AnimationToolbar />}
         </div>
       </div>
     </div>

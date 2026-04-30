@@ -28,6 +28,16 @@
   white-space: nowrap;
 }
 
-.flipBtn {
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
   margin-left: auto;
+}
+
+.manualLabel {
+  display: flex;
+  align-items: center;
+  padding-left: $spacing-md;
+  border-left: 1px solid var(--border);
 }
