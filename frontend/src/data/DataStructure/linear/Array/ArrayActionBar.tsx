@@ -29,21 +29,25 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
 
   const handleInsert = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
-    if (!isNaN(val)) {
-      onAddNode(val, "Insert", idx);
-      setInputValue("");
+    if (inputValue.trim() === "") {
+      toast.warning("請輸入要插入的數值");
+      return;
     }
+    const val = Number(inputValue);
+    const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
+    onAddNode(val, "Insert", idx);
   };
 
   const handleUpdate = () => {
     if (disabled) return;
+    if (inputValue.trim() === "") {
+      toast.warning("Update 需要輸入數值與索引");
+      return;
+    }
     const val = Number(inputValue);
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
-    if (!isNaN(val) && idx !== undefined) {
+    const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
+    if (idx !== undefined) {
       onAddNode(val, "Update", idx);
-      setInputValue("");
     } else {
       toast.warning("Update 需要輸入數值與索引");
     }
@@ -51,7 +55,11 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
 
   const handleDelete = () => {
     if (disabled) return;
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
+    if (indexValue.trim() === "") {
+      toast.warning("請輸入要刪除的索引");
+      return;
+    }
+    const idx = Number(indexValue);
     onDeleteNode("Insert", idx);
   };
 
@@ -153,6 +161,10 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => {
+              if (searchValue.trim() === "") {
+                toast.warning("請輸入搜尋值");
+                return;
+              }
               const val = Number(searchValue);
               onSearchNode(val, "search");
             }}

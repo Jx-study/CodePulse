@@ -5,6 +5,10 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-do-not-use-in-production'
+
+    @classmethod
+    def init_app(cls, app):
+        pass
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -33,17 +37,22 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    CORS_ORIGINS = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN') or '.code-pulse.cc'
     ENV = 'production'
 
-    _secret = os.environ.get('SECRET_KEY')
-    if not _secret:
-        raise ValueError('SECRET_KEY environment variable must be set in production')
-    SECRET_KEY = _secret
-    del _secret
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    CORS_ORIGINS = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
+
+    @classmethod
+    def init_app(cls, app):
+        super().init_app(app)
+        if not cls.SECRET_KEY:
+            raise ValueError('SECRET_KEY environment variable must be set in production')
+        if not cls.CORS_ORIGINS:
+            raise ValueError('ALLOWED_ORIGINS environment variable must be set in production')
 
 class TestingConfig(Config):
     TESTING = True

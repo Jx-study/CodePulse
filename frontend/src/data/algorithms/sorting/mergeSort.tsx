@@ -55,10 +55,13 @@ function mergeSortActionHandler(
 
 const TAGS = {
   INIT: "INIT",
+  IF_RETURN: "IF_RETURN",
   DIVIDE: "DIVIDE",
   MERGE_START: "MERGE_START",
   COMPARE: "COMPARE",
-  COPY: "COPY",
+  LEFT_COPY: "LEFT_COPY",
+  RIGHT_COPY: "RIGHT_COPY",
+  REMAINING: "REMAINING",
   DONE: "DONE",
 };
 
@@ -116,6 +119,13 @@ export function createMergeSortAnimationSteps(
 
   addStep("開始合併排序 (Merge Sort)", TAGS.INIT);
 
+  if (currentItems.length <= 1) {
+    addStep(`剩餘元素數量為 1，直接返回`, TAGS.IF_RETURN, {
+      chosenVal: currentItems[0].value,
+    });
+    return steps;
+  }
+
   // 遞迴主程式
   const mergeSort = (
     items: TrackedItem[],
@@ -123,6 +133,9 @@ export function createMergeSortAnimationSteps(
     startIndex: number,
   ): TrackedItem[] => {
     if (items.length <= 1) {
+      addStep(`剩餘元素數量為 1，直接返回`, TAGS.IF_RETURN, {
+        chosenVal: items[0].value,
+      });
       return items;
     }
 
@@ -180,16 +193,19 @@ export function createMergeSortAnimationSteps(
       });
 
       let chosen: TrackedItem;
+      let copyTag: string;
       if (left[i].value <= right[j].value) {
         chosen = left[i];
         left[i].status = depth === 1 ? Status.Complete : Status.Target; // 如果是最後一層，標記為完成
         right[j].status = Status.Unfinished;
         i++;
+        copyTag = TAGS.LEFT_COPY;
       } else {
         chosen = right[j];
         right[j].status = depth === 1 ? Status.Complete : Status.Target;
         left[i].status = Status.Unfinished;
         j++;
+        copyTag = TAGS.RIGHT_COPY;
       }
 
       // 決定被選中的元素的新座標 (回到上一層 depth - 1，X 依據 merged.length 計算)
@@ -198,7 +214,7 @@ export function createMergeSortAnimationSteps(
       chosen.description = String(merged.length);
       merged.push(chosen);
 
-      addStep(`選擇較小值 ${chosen.value} 並放入合併陣列`, TAGS.COPY, {
+      addStep(`選擇較小值 ${chosen.value} 並放入合併陣列`, copyTag, {
         chosenVal: chosen.value,
       });
 
@@ -213,7 +229,7 @@ export function createMergeSortAnimationSteps(
       chosen.y = baseY + (depth - 1) * yOffset;
       chosen.description = String(merged.length);
       merged.push(chosen);
-      addStep(`將左側剩餘的 ${chosen.value} 放入合併陣列`, TAGS.COPY, {
+      addStep(`將左側剩餘的 ${chosen.value} 放入合併陣列`, TAGS.REMAINING, {
         chosenVal: chosen.value,
       });
       if (depth !== 1) chosen.status = Status.Unfinished;
@@ -228,7 +244,7 @@ export function createMergeSortAnimationSteps(
       chosen.y = baseY + (depth - 1) * yOffset;
       chosen.description = String(merged.length);
       merged.push(chosen);
-      addStep(`將右側剩餘的 ${chosen.value} 放入合併陣列`, TAGS.COPY, {
+      addStep(`將右側剩餘的 ${chosen.value} 放入合併陣列`, TAGS.REMAINING, {
         chosenVal: chosen.value,
       });
       if (depth !== 1) chosen.status = Status.Unfinished;
@@ -285,11 +301,14 @@ Procedure Merge(left, right):
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [1],
+      [TAGS.IF_RETURN]: [2, 3, 4],
       [TAGS.DIVIDE]: [6, 7, 8],
-      [TAGS.MERGE_START]: [13, 14],
-      [TAGS.COMPARE]: [16],
-      [TAGS.COPY]: [17, 20, 25, 26],
-      [TAGS.DONE]: [28],
+      [TAGS.MERGE_START]: [13, 14, 15, 16],
+      [TAGS.COMPARE]: [17, 18, 22],
+      [TAGS.LEFT_COPY]: [19, 20, 21],
+      [TAGS.RIGHT_COPY]: [23, 24, 25],
+      [TAGS.REMAINING]: [29, 30],
+      [TAGS.DONE]: [32],
     },
   },
   python: {

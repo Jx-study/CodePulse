@@ -558,6 +558,19 @@ function runCheckAdjacent(
         local_vars: { source: sourceId, target: targetId, isAdjacent: false },
       });
     }
+  } else {
+    const missingNode = !sNode ? sourceId : targetId;
+    steps.push({
+      ...generateGraphFrame(
+        baseElements,
+        {},
+        {},
+        `錯誤：節點 ${missingNode} 不存在`,
+        true,
+      ),
+      actionTag: TAGS.CHECK_ADJACENT_RESULT_FALSE,
+      variables: { source: sourceId, target: targetId, error: true },
+    });
   }
 
   return steps;
@@ -1359,6 +1372,21 @@ function graphActionHandler(
     ) {
       context.toast.warning("請輸入來源與目標節點 ID");
       return null;
+    }
+    if (actionType === "getNeighbors" || actionType === "getDegree") {
+      const nodeId = `node-${payload.id}`;
+      if (!nodes.find((n: any) => n.id === nodeId)) {
+        context.toast.warning(`節點 ${payload.id} 不存在`);
+        return null;
+      }
+    }
+    if (actionType === "checkAdjacent") {
+      const sId = `node-${payload.source}`;
+      const tId = `node-${payload.target}`;
+      if (!nodes.find((n: any) => n.id === sId) || !nodes.find((n: any) => n.id === tId)) {
+        context.toast.warning("來源或目標節點不存在");
+        return null;
+      }
     }
     if (
       (actionType === "checkConnected" || actionType === "checkCycle") &&
