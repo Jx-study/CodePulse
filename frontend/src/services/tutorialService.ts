@@ -1,4 +1,4 @@
-import { apiUrl } from '@/api/api';
+import apiService from "@/api/api";
 
 export interface SessionResponse {
   success: boolean;
@@ -55,77 +55,42 @@ export interface SubmitResponse {
   results: SubmitResult[];
 }
 
-// ── API 函式 ──────────────────────────────────────────────
-
-async function fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> {
-  const doFetch = () => fetch(apiUrl(url), {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-
-  let resp = await doFetch();
-
-  // Access token 過期時，先呼叫 /api/auth/status 讓它自動換新 token，再重試一次
-  if (resp.status === 401) {
-    try {
-      await fetch(apiUrl('/api/auth/status'), { credentials: 'include' });
-      resp = await doFetch();
-    } catch {
-      // refresh 失敗，維持原本的 401
-    }
-  }
-
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.message || 'API error');
-  return data as T;
-}
+// API 函式
 
 export const tutorialService = {
-  // 進入教學頁面時建立 session
   async startSession(slug: string): Promise<number> {
-    const data = await fetchJson<SessionResponse>(
+    const res = await apiService.post<SessionResponse>(
       `/api/tutorials/${slug}/session`,
-      { method: 'POST' }
     );
-    return data.session_id;
+    return res.data.session_id;
   },
 
-  // 離開頁面時更新 session 結束時間
   async endSession(slug: string, sessionId: number, durationSeconds: number): Promise<void> {
-    await fetchJson(
+    await apiService.patch(
       `/api/tutorials/${slug}/session/${sessionId}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify({ duration_seconds: durationSeconds }),
-      }
+      { duration_seconds: durationSeconds },
     );
   },
 
-  // 標記教學完成（停留 >= 30 秒後才能呼叫）
   async markTeachingComplete(slug: string): Promise<TeachingCompleteResponse> {
-    return fetchJson<TeachingCompleteResponse>(
+    const res = await apiService.patch<TeachingCompleteResponse>(
       `/api/tutorials/${slug}/teaching-complete`,
-      { method: 'PATCH' }
     );
+    return res.data;
   },
 
-  // 取得題目列表（不含正確答案）
   async getQuestions(slug: string, lang = 'zh-TW'): Promise<ApiQuestion[]> {
-    const data = await fetchJson<QuestionsResponse>(
-      `/api/tutorials/${slug}/questions?lang=${lang}`
+    const res = await apiService.get<QuestionsResponse>(
+      `/api/tutorials/${slug}/questions?lang=${lang}`,
     );
-    return data.questions;
+    return res.data.questions;
   },
 
-  // 提交練習答案
   async submitPractice(slug: string, answers: SubmitAnswerPayload[]): Promise<SubmitResponse> {
-    return fetchJson<SubmitResponse>(
+    const res = await apiService.post<SubmitResponse>(
       `/api/tutorials/${slug}/submit`,
-      {
-        method: 'POST',
-        body: JSON.stringify(answers),
-      }
+      answers,
     );
+    return res.data;
   },
 };

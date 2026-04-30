@@ -1,4 +1,5 @@
-import { apiUrl } from '@/api/api';
+import apiService from '@/api/api';
+import type { ApiError } from '@/api/api';
 
 export interface CheckinResponse {
   success: boolean;
@@ -31,69 +32,43 @@ interface UploadSignature {
 
 export const userService = {
   async getProfile() {
-    const resp = await fetch(apiUrl('/api/users/me'), { credentials: 'include' });
-    if (!resp.ok) throw new Error('Failed to fetch profile');
-    return resp.json();
+    const res = await apiService.get('/api/users/me');
+    return res.data;
   },
 
   async updateProfile(patch: UpdateProfilePayload) {
-    const resp = await fetch(apiUrl('/api/users/me'), {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
-    });
-    if (!resp.ok) throw new Error('Failed to update profile');
-    return resp.json();
+    const res = await apiService.patch('/api/users/me', patch);
+    return res.data;
   },
 
   async getUploadSignature(): Promise<UploadSignature> {
-    const resp = await fetch(apiUrl('/api/users/me/upload-signature'), {
-      credentials: 'include',
-    });
-    if (!resp.ok) throw new Error('Failed to get upload signature');
-    return resp.json();
+    const res = await apiService.get<UploadSignature>('/api/users/me/upload-signature');
+    return res.data;
   },
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const resp = await fetch(apiUrl('/api/users/me/password'), {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    await apiService.put('/api/users/me/password', {
+      current_password: currentPassword,
+      new_password: newPassword,
     });
-    if (!resp.ok) {
-      const data = await resp.json().catch(() => ({}));
-      throw { status: resp.status, error_code: data.error_code, message: data.message };
-    }
   },
 
   async checkin(): Promise<CheckinResponse> {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const resp = await fetch(apiUrl('/api/users/me/checkin'), {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ timezone }),
-    });
-    if (!resp.ok) throw new Error('Checkin failed');
-    return resp.json();
+    const res = await apiService.post<CheckinResponse>('/api/users/me/checkin', { timezone });
+    return res.data;
   },
 
   async getCheckinHistory(year: number, month: number): Promise<CheckinHistoryResponse> {
-    const resp = await fetch(
-      apiUrl(`/api/users/me/checkin-history?year=${year}&month=${month}`),
-      { credentials: 'include' }
+    const res = await apiService.get<CheckinHistoryResponse>(
+      `/api/users/me/checkin-history?year=${year}&month=${month}`,
     );
-    if (!resp.ok) throw new Error('Failed to fetch checkin history');
-    return resp.json();
+    return res.data;
   },
 
   async uploadAvatar(file: File): Promise<string> {
-    // Step 1: 取得後端簽名
     const sig = await this.getUploadSignature();
 
-    // Step 2: 直接上傳至 Cloudinary
     const formData = new FormData();
     formData.append('file', file);
     formData.append('signature', sig.signature);
@@ -102,6 +77,7 @@ export const userService = {
     formData.append('folder', sig.folder);
     formData.append('public_id', sig.public_id);
 
+    // Cloudinary 是第三方服務，不走 apiService
     const uploadResp = await fetch(
       `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`,
       { method: 'POST', body: formData },
@@ -112,3 +88,5 @@ export const userService = {
     return result.secure_url as string;
   },
 };
+
+export type { ApiError };
