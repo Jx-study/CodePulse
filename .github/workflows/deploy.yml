@@ -13,8 +13,8 @@ jobs:
         run: |
           # Setup SSH Directory
           mkdir -p ~/.ssh
-          echo "${{ secrets.GCP_KEY }}" > ~/.ssh/gcp_key
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          printf "%s\n" "${{ secrets.GCP_KEY }}" > ~/.ssh/gcp_key
+          printf "%s\n" "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/gcp_key ~/.ssh/deploy_key
 
           # Configure SSH for ProxyJump
@@ -27,19 +27,22 @@ jobs:
 
           Host lab
             HostName localhost
-            Port 22
+            Port 2222
             User ${{ secrets.LAB_USER }}
             IdentityFile ~/.ssh/deploy_key
             ProxyJump gcp
             StrictHostKeyChecking no
+            PasswordAuthentication no
           EOF
 
           # Execute Deployment Commands on Server
           ssh lab << 'ENDSSH'
+            set -e
+            echo "Successfully connected to Lab Server as $(whoami)"
             cd ~/projects/CodePulse
             git pull origin main
             source backend/venv/bin/activate
             pip install -r backend/requirements.prod.txt
             sudo systemctl restart codepulse-backend
-            echo "Deployment Successful"
+            echo "Deployment Successful at $(date)"
           ENDSSH
