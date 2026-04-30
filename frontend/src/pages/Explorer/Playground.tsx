@@ -1,4 +1,3 @@
-// frontend/src/pages/Explorer/Playground.tsx
 import { Fragment, useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -42,7 +41,6 @@ import { ALGORITHM_TO_CONVERTER_KEY, TRACE_CONVERTERS } from "@/data/implementat
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import styles from "./Playground.module.scss";
 
-// Constants
 const DEFAULT_CODE = `def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
