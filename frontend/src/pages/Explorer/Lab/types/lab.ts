@@ -11,10 +11,13 @@ export type TopicId = "sorting";
 
 export type PlayState = "idle" | "playing" | "paused" | "done";
 
+export type CaseType = "random" | "sorted" | "reversed";
+
 export interface AlgorithmMeta {
   id: AlgorithmId;
   label: string;
   color: string;
+  theoreticalComplexity: Record<CaseType, string>;
 }
 
 export interface BenchmarkPoint {
@@ -22,7 +25,7 @@ export interface BenchmarkPoint {
   ms: number;
 }
 
-export type ComplexityChartMode = "steps" | "curve";
+export type ComplexityChartMode = "curve" | "space";
 
 export interface LabAlgorithmState {
   id: AlgorithmId;
@@ -33,7 +36,9 @@ export interface LabAlgorithmState {
   stackDepthPerStep: number[];
   auxSizePerStep: number[];
   execTimeMs: number;
+  /** backward compat：等同於 random case 的 benchmark */
   benchmarkPoints: BenchmarkPoint[];
+  benchmarkByCase: Partial<Record<CaseType, BenchmarkPoint[]>>;
 }
 
 export interface LabState {
@@ -48,8 +53,17 @@ export interface LabState {
   speed: number;
   showComplexityChart: boolean;
   complexityChartMode: ComplexityChartMode;
+  visibleCaseTypes: CaseType[];
   sidebarCollapsed: boolean;
   layoutFlipped: boolean;
+  benchmarkKey: number;
+  unifiedYAxis: boolean;
+  manualSortEnabled: boolean;
+  manualSortData: number[];
+  manualDragStarted: boolean;
+  manualSortMoves: number;
+  manualSortStartMs: number | null;
+  manualSortEndMs: number | null;
 }
 
 /** Reducer 持有的狀態（algorithms / maxSteps 由 Provider 衍生合併） */
@@ -63,6 +77,15 @@ export interface LabReducerState {
   speed: number;
   showComplexityChart: boolean;
   complexityChartMode: ComplexityChartMode;
+  visibleCaseTypes: CaseType[];
   sidebarCollapsed: boolean;
   layoutFlipped: boolean;
+  benchmarkKey: number;
+  unifiedYAxis: boolean;
+  manualSortEnabled: boolean;
+  manualSortData: number[];
+  manualDragStarted: boolean;
+  manualSortMoves: number;
+  manualSortStartMs: number | null;
+  manualSortEndMs: number | null;
 }
