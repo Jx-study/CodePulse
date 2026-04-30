@@ -77,7 +77,7 @@ export const userService = {
     formData.append('folder', sig.folder);
     formData.append('public_id', sig.public_id);
 
-    // Cloudinary 是第三方服務，不走 apiService
+    // Cloudinary 是第三方服務
     const uploadResp = await fetch(
       `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`,
       { method: 'POST', body: formData },

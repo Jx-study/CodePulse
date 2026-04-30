@@ -365,7 +365,11 @@ def check_username():
         return jsonify({'error': 'Invalid username format'}), 400
     if username.lower() in RESERVED_USERNAMES:
         return jsonify({'available': False}), 200
-    taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    try:
+        taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    except Exception as e:
+        current_app.logger.error(f'check-username DB error: {e}')
+        return jsonify({'error': 'Server error'}), 500
     return jsonify({'available': taken is None}), 200
 
 
