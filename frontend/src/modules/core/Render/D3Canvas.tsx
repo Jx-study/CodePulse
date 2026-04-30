@@ -34,6 +34,7 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
       enablePan = true,
       statusColorMap,
       statusConfig,
+      showStatusLegend = true,
       isDirected = false,
       allStepsElements,
     },
@@ -479,6 +480,7 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
         statusConfig={statusConfig}
         enableZoom={enableZoom}
         enablePan={enablePan}
+        showStatusLegend={showStatusLegend}
         onReset={handleResetView}
         containerRef={drag.containerRef}
         panEnabled={enablePan}
