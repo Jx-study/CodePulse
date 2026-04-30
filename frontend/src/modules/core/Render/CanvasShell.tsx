@@ -9,6 +9,7 @@ export interface CanvasShellProps {
   statusConfig?: StatusConfig;
   enableZoom?: boolean;
   enablePan?: boolean;
+  showStatusLegend?: boolean;
   onReset: () => void;
   containerRef?: Ref<HTMLDivElement>;
   panEnabled?: boolean;
@@ -30,6 +31,7 @@ export default function CanvasShell({
   statusConfig,
   enableZoom,
   enablePan,
+  showStatusLegend = true,
   onReset,
   containerRef,
   panEnabled,
@@ -43,9 +45,11 @@ export default function CanvasShell({
       {...containerEventHandlers}
     >
       {children}
-      <div className={styles.statusLegendContainer}>
-        <StatusLegend statusConfig={statusConfig} />
-      </div>
+      {showStatusLegend && (
+        <div className={styles.statusLegendContainer}>
+          <StatusLegend statusConfig={statusConfig} />
+        </div>
+      )}
       {(enableZoom || enablePan) && (
         <div className={styles.resetButtonContainer}>
           <Button
