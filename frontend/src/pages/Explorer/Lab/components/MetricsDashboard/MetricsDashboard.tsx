@@ -1,12 +1,19 @@
-import { useMemo } from "react";
-import Button from "@/shared/components/Button";
+import { useMemo, useState, useEffect } from "react";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
 import { useLabContext } from "../../context/LabContext";
 import type { AlgorithmId } from "../../types/lab";
 import styles from "./MetricsDashboard.module.scss";
 
+const MANUAL_COLOR = "#ff6b35";
+
+function formatElapsed(ms: number): string {
+  if (ms <= 0) return "--";
+  if (ms < 1000) return `${ms} ms`;
+  return `${(ms / 1000).toFixed(1)} s`;
+}
+
 function formatMs(ms: number): string {
-  if (ms < 0.001) return "< 0.001 ms";
+  if (ms < 0.001) return "0 ms";
   if (ms < 1) return `${ms.toFixed(3)} ms`;
   return `${ms.toFixed(2)} ms`;
 }
@@ -37,10 +44,35 @@ export function MetricsDashboard() {
   const {
     algorithms,
     currentStep,
-    dispatch,
-    showComplexityChart,
-    complexityChartMode,
+    manualSortEnabled,
+    manualSortMoves,
+    manualSortStartMs,
+    manualSortEndMs,
+    inputData,
+    manualSortData,
   } = useLabContext();
+
+  const [liveNow, setLiveNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!manualSortStartMs || manualSortEndMs !== null) return;
+    const id = setInterval(() => setLiveNow(Date.now()), 100);
+    return () => clearInterval(id);
+  }, [manualSortStartMs, manualSortEndMs]);
+
+  const sortedRef = useMemo(
+    () => [...inputData].sort((a, b) => a - b),
+    [inputData],
+  );
+
+  const isManualCompleted =
+    manualSortEnabled &&
+    manualSortData.length > 0 &&
+    manualSortData.every((v, i) => v === sortedRef[i]);
+
+  const elapsedMs = manualSortStartMs
+    ? (manualSortEndMs ?? liveNow) - manualSortStartMs
+    : 0;
 
   const timeRows = useMemo(() => {
     return algorithms.map((a) => {
@@ -257,35 +289,30 @@ export function MetricsDashboard() {
         </div>
       </div>
 
-      <div className={styles.actions}>
-        <Button
-          size="sm"
-          variant={showComplexityChart ? "primary" : "secondary"}
-          onClick={() => dispatch({ type: "TOGGLE_COMPLEXITY_CHART" })}
-        >
-          {showComplexityChart ? "返回動畫" : "時間複雜度曲線"}
-        </Button>
-        {showComplexityChart && (
-          <div className={styles.modeToggle}>
-            <Button
-              size="sm"
-              variant={complexityChartMode === "steps" ? "primary" : "secondary"}
-              onClick={() =>
-                dispatch({ type: "SET_COMPLEXITY_CHART_MODE", mode: "steps" })}
-            >
-              步數 / 累計 ops
-            </Button>
-            <Button
-              size="sm"
-              variant={complexityChartMode === "curve" ? "primary" : "secondary"}
-              onClick={() =>
-                dispatch({ type: "SET_COMPLEXITY_CHART_MODE", mode: "curve" })}
-            >
-              n vs 執行時間
-            </Button>
+      {manualSortEnabled && (
+        <div className={`${styles.section} ${styles.sectionMetrics} ${styles.sectionManual}`}>
+          <div className={styles.sectionHead}>
+            <span className={styles.sectionTitle}>Manual Sort</span>
+            {isManualCompleted && (
+              <div className={styles.statBadge}>排序完成</div>
+            )}
           </div>
-        )}
-      </div>
+          <div className={styles.manualStats}>
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>耗時</span>
+              <span className={styles.statValue} style={{ color: MANUAL_COLOR }}>
+                {formatElapsed(elapsedMs)}
+              </span>
+            </div>
+            <div className={styles.statRow}>
+              <span className={styles.statLabel}>移動次數</span>
+              <span className={styles.statValue} style={{ color: MANUAL_COLOR }}>
+                {manualSortMoves}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -51,16 +51,18 @@
 
 
 .sectionHead {
-
   flex-shrink: 0;
-
+  display: flex;         
+  align-items: center;   
+  gap: 8px;             
+  flex-wrap: wrap;       
 }
 
 
 
 .sectionTitle {
 
-  font-size: $font-xs;
+  font-size: $font-lg;
 
   font-weight: 600;
 
@@ -105,19 +107,13 @@
 
 
 .rowLabel {
-
-  flex: 0 0 100px;
-
+  flex: 0 0 120px;
+  font-size: $font-sm;
   min-width: 0;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
-
   color: var(--text-primary);
-
 }
 
 
@@ -134,7 +130,7 @@
 
   overflow: hidden;
 
-  min-width: 40px;
+  min-width: 60px;
 
 }
 
@@ -153,25 +149,17 @@
 
 
 .rowValue {
-
-  flex: 0 0 2.5rem;
-
+  flex: 0 0 3.5rem;
   text-align: right;
-
   font-variant-numeric: tabular-nums;
-
-  color: var(--text-secondary);
-
+  white-space: nowrap;
 }
 
 
 
 .sectionMetrics .rowValue {
-
   flex: 0 0 3.5rem;
-
-  font-size: $font-2xs;
-
+  font-size: $font-xs;
 }
 
 
@@ -190,37 +178,41 @@
 
 
 
-.actions {
-
-  flex: 0 0 auto;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: stretch;
-
-  justify-content: center;
-
-  gap: $spacing-xs;
-
-  padding-left: $spacing-xs;
-
-  border-left: 1px solid var(--border);
-
-  min-width: max-content;
-
+.sectionManual {
+  min-width: 120px;
 }
 
-
-
-.modeToggle {
-
+.manualStats {
   display: flex;
-
   flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
 
-  gap: 4px;
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
 
+.statLabel {
+  flex: 0 0 72px;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.statValue {
+  font-size: $font-sm;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.statBadge {
+  font-size: $font-xs;
+  color: $success-color;
+  font-weight: 600;
+  margin-top: 0;        
+  white-space: nowrap;  
 }
 
