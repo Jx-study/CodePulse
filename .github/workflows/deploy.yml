@@ -1,0 +1,45 @@
+name: Deploy to Lab Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via GCP Jump Host
+        run: |
+          # Setup SSH Directory
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_KEY }}" > ~/.ssh/gcp_key
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/gcp_key ~/.ssh/deploy_key
+
+          # Configure SSH for ProxyJump
+          cat >> ~/.ssh/config << EOF
+          Host gcp
+            HostName ${{ secrets.GCP_HOST }}
+            User ${{ secrets.GCP_USER }}
+            IdentityFile ~/.ssh/gcp_key
+            StrictHostKeyChecking no
+
+          Host lab
+            HostName localhost
+            Port 22
+            User ${{ secrets.LAB_USER }}
+            IdentityFile ~/.ssh/deploy_key
+            ProxyJump gcp
+            StrictHostKeyChecking no
+          EOF
+
+          # Execute Deployment Commands on Server
+          ssh lab << 'ENDSSH'
+            cd ~/projects/CodePulse
+            git pull origin main
+            source backend/venv/bin/activate
+            pip install -r backend/requirements.prod.txt
+            sudo systemctl restart codepulse-backend
+            echo "Deployment Successful"
+          ENDSSH
