@@ -515,12 +515,7 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(
           const tgt = getNodeCenter(d, "target");
           let pathD: string;
           if (d.sourceId === d.targetId) {
-            pathD = selfLoopPath(
-              src.x,
-              src.y,
-              src.r,
-              getSelfLoopAngle(d.sourceId),
-            );
+            pathD = selfLoopPath(src.x, src.y, src.r, getSelfLoopAngle(d.sourceId));
             d3Select(this).attr("d", pathD); // 每 tick 都更新 position，確保節點移動時弧形跟著走
             if (d3Select(this).attr("data-anim") === "entering") {
               d3Select(this).attr("data-anim", "animating");
@@ -609,7 +604,7 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(
 
     simulation.on("end", () => {
       if (!svgRef.current || !zoomBehaviorRef.current || disableAutoFit) return;
-
+      // 計算所有節點的 bounding box
       const xs = simNodes.map((n) => n.x ?? 0);
       const ys = simNodes.map((n) => n.y ?? 0);
       const padding = 60;

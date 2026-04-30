@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -33,17 +34,25 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
 
   const handleAdd = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
-    if (!isNaN(val)) {
-      onAddNode(val, insertMode, idx);
-      setInputValue("");
+    if (inputValue.trim() === "") {
+      toast.warning("請輸入要插入的數值");
+      return;
     }
+    if (insertMode === "Node N" && indexValue.trim() === "") {
+      toast.warning("Node N 模式需要輸入索引");
+      return;
+    }
+    const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
+    onAddNode(Number(inputValue), insertMode, idx);
   };
 
   const handleDelete = () => {
     if (disabled) return;
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
+    if (insertMode === "Node N" && indexValue.trim() === "") {
+      toast.warning("Node N 模式需要輸入索引");
+      return;
+    }
+    const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
     onDeleteNode(insertMode, idx);
   };
 
@@ -165,8 +174,11 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => {
-              const val = Number(searchValue);
-              onSearchNode(val, "search");
+              if (searchValue.trim() === "") {
+                toast.warning("請輸入搜尋值");
+                return;
+              }
+              onSearchNode(Number(searchValue), "search");
             }}
             disabled={disabled}
             className={styles.btnSearch}

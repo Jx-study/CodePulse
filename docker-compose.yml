@@ -33,26 +33,12 @@ services:
       - ./backend:/app
       - /app/__pycache_
       - fastembed_cache:/tmp/fastembed_cache
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - FLASK_ENV=${FLASK_ENV:-development}
-      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
-      - MAIL_PORT=${MAIL_PORT:-465}
-      - MAIL_USE_SSL=${MAIL_USE_SSL:-True}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - BACKEND_URL=${BACKEND_URL:-http://localhost:5000}
-      - OAUTHLIB_INSECURE_TRANSPORT=1
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - SANDBOX_SIDECAR_URL=http://sandbox-sidecar:8080
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.1-flash-lite-preview}
     depends_on:
       postgres:
         condition: service_healthy

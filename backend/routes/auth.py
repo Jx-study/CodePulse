@@ -15,6 +15,7 @@ from auth_utils import (
     set_auth_cookies, clear_auth_cookies,
     login_required, REFRESH_TOKEN_EXPIRES,
     generate_verification_code, _cookie_secure,
+    cookie_samesite, cookie_domain,
 )
 from services.mail import send_verification_email, send_password_reset_email
 from extensions import limiter
@@ -351,7 +352,7 @@ def complete_setup():
 
     resp = make_response(jsonify({'success': True, 'user': _user_to_dict(user)}), 200)
     set_auth_cookies(resp, access_token, refresh_token)
-    resp.set_cookie('onboarding_token', '', expires=0, path='/api/auth')
+    resp.set_cookie('onboarding_token', '', expires=0, path='/api/auth', domain=cookie_domain())
     return resp
 
 
@@ -364,7 +365,11 @@ def check_username():
         return jsonify({'error': 'Invalid username format'}), 400
     if username.lower() in RESERVED_USERNAMES:
         return jsonify({'available': False}), 200
-    taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    try:
+        taken = User.query.filter(db.func.lower(User.username) == username.lower()).first()
+    except Exception as e:
+        current_app.logger.error(f'check-username DB error: {e}')
+        return jsonify({'error': 'Server error'}), 500
     return jsonify({'available': taken is None}), 200
 
 
@@ -610,9 +615,10 @@ def get_user_status():
                 new_access,
                 httponly=True,
                 secure=_cookie_secure(),
-                samesite='Lax',
+                samesite=cookie_samesite(),
                 max_age=15 * 60,
                 path='/',
+                domain=cookie_domain(),
             )
             return resp
 
