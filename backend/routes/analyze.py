@@ -1,6 +1,8 @@
 import logging
+import ast as _ast
 import concurrent.futures as _cf
 from flask import Blueprint, jsonify, request
+from auth_utils import login_required
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
@@ -21,6 +23,23 @@ from services.task_queue import (
 )
 
 analyze_bp = Blueprint('analyze', __name__, url_prefix='/api/analyze')
+
+
+def _extract_input_data(trace_events: list) -> list | None:
+    for ev in trace_events:
+        if ev.get("tag") == "CALL":
+            for val_str in ev.get("local_vars", {}).values():
+                try:
+                    val = _ast.literal_eval(val_str)
+                    if isinstance(val, list):
+                        return val
+                except (ValueError, SyntaxError):
+                    continue
+    return None
+
+
+def _to_linear_data(snapshot: list) -> list:
+    return [{"id": str(i), "value": v} for i, v in enumerate(snapshot)]
 
 
 def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
@@ -70,23 +89,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     task_queue.update_progress(task_id, STAGE_GEMINI, "Gemini 專家仲裁中…")
     # TODO: Gemini 仲裁結果整合
 
-    # Level 1 trace：hardcode bubble_sort，嘗試升級語意 trace
     have_level1 = False
-    import ast as _ast
-
-    def _extract_input_data(trace_events: list) -> list | None:
-        """從 trace 的 CALL event local_vars 取出第一個 list 型態的參數。"""
-        for ev in trace_events:
-            if ev.get("tag") == "CALL":
-                for val_str in ev.get("local_vars", {}).values():
-                    try:
-                        val = _ast.literal_eval(val_str)
-                        if isinstance(val, list):
-                            return val
-                    except (ValueError, SyntaxError):
-                        continue
-        return None
-
     raw_trace_objects = [
         TraceEvent(
             tag=ev["tag"],
@@ -99,15 +102,10 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
     ]
     input_data = _extract_input_data(execution_trace)
     level1_result = build_level1_trace("bubble_sort", raw_trace_objects, input_data)
-    raw_trace = execution_trace  # 保留原始 trace 給 Call Stack / local_vars 面板使用
+    raw_trace = execution_trace
     raw_index_map: list = []
     if level1_result is not None:
         level1_events, raw_index_map = level1_result
-
-        def _to_linear_data(snapshot: list) -> list:
-            """把 [3,1,2] 轉成前端 LinearData 格式 [{id:"0",value:3},...]。"""
-            return [{"id": str(i), "value": v} for i, v in enumerate(snapshot)]
-
         execution_trace = [
             {
                 "tag": ev.tag,
@@ -137,6 +135,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
 
 
 @analyze_bp.route('/submit', methods=['POST'])
+@login_required
 def submit():
     """提交程式碼，回傳 task_id"""
     data = request.get_json(silent=True)
