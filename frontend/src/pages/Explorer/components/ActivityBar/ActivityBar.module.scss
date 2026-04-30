@@ -1,0 +1,85 @@
+// frontend/src/pages/Explorer/components/ActivityBar/ActivityBar.module.scss
+.bar {
+  width: 42px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.625rem 0 0.5rem;
+  gap: 2px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.barRight {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+
+.icon {
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover:not(.iconDimmed):not(.iconDragging) {
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+  }
+}
+
+// Per-icon accent injected via inline --panel-accent
+.iconActive {
+  background: color-mix(in srgb, var(--panel-accent) 15%, transparent);
+  color: var(--panel-accent);
+}
+
+.iconFixed      { color: var(--color-teal); }
+.iconFixedActive {
+  background: color-mix(in srgb, var(--color-teal) 15%, transparent);
+  color: var(--color-teal);
+}
+
+.iconDimmed {
+  color: var(--border);
+  cursor: default;
+  pointer-events: none;
+}
+
+.iconDragging { opacity: 0.4; }
+
+.divider {
+  width: 1.25rem;
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+  flex-shrink: 0;
+}
+
+.spacer { flex: 1; }
+
+/* Drop zone */
+.dropZone {
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  border: 1.5px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropZoneOver {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}

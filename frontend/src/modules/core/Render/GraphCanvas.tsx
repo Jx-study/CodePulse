@@ -28,7 +28,7 @@ import {
   type Link,
 } from "./D3Renderer";
 import CanvasShell from "./CanvasShell";
-import type { AnimatableCanvasRef, BaseCanvasProps } from "@/types/canvasTypes";
+import type { AnimatableCanvasRef, D3CanvasProps } from "@/types/canvasTypes";
 import { useBoxViewBox } from "./useBoxViewBox";
 import {
   circleBoundaryPoint,
@@ -74,9 +74,9 @@ function deduplicateLinks(links: Link[], isDirected: boolean): GSimLink[] {
   }, []);
 }
 
-export type GraphCanvasProps = BaseCanvasProps;
+export type GraphCanvasProps = D3CanvasProps;
 
-export interface GraphCanvasRef extends AnimatableCanvasRef {}
+export interface GraphCanvasRef extends AnimatableCanvasRef { }
 
 interface GSimNode extends SimulationNodeDatum {
   id: string;

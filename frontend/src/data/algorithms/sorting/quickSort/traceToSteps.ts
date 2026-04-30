@@ -19,35 +19,38 @@ function toStatus(s?: string): Status {
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
     key: "qs.init",
-    params: { length: e.variables.length },
+    params: { length: e.local_vars.length },
   }),
   [TAGS.CALL]: (e) => ({
     key: "qs.call",
     params: {
-      low: e.variables.low,
-      high: e.variables.high,
-      depth: e.variables.depth,
+      low: e.local_vars.low,
+      high: e.local_vars.high,
+      depth: e.local_vars.depth,
     },
   }),
   [TAGS.PARTITION_START]: (e) => ({
     key: "qs.partition_start",
-    params: { pivotVal: e.variables.pivotVal },
+    params: { pivotVal: e.local_vars.pivotVal },
   }),
   [TAGS.COMPARE]: (e) => ({
     key: "qs.compare",
-    params: { scanVal: e.variables.scanVal, pivotVal: e.variables.pivotVal },
+    params: { scanVal: e.local_vars.scanVal, pivotVal: e.local_vars.pivotVal },
   }),
   [TAGS.SWAP]: (e) => ({
     key: "qs.swap",
-    params: { valI: e.variables.valI, valJ: e.variables.valJ },
+    params: { valI: e.local_vars.valI, valJ: e.local_vars.valJ },
   }),
   [TAGS.PIVOT_SET]: (e) => ({
     key: "qs.pivot_set",
-    params: { pivotVal: e.variables.pivotVal, pivotIdx: e.variables.pivotIdx },
+    params: {
+      pivotVal: e.local_vars.pivotVal,
+      pivotIdx: e.local_vars.pivotIdx,
+    },
   }),
   [TAGS.BASE_CASE]: (e) => ({
     key: "qs.base_case",
-    params: { value: e.variables.value },
+    params: { value: e.local_vars.value },
   }),
   [TAGS.DONE]: () => ({
     key: "qs.done",
@@ -86,7 +89,7 @@ export function quickSortTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: descriptionData ?? String(event.tag),
       actionTag: event.tag,
-      variables: event.variables,
+      local_vars: event.local_vars,
       elements: elements as any,
     };
   });

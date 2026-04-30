@@ -112,7 +112,7 @@ export function createMergeSortAnimationSteps(
       stepNumber: steps.length,
       description: desc,
       actionTag: tag,
-      variables: vars,
+      local_vars: vars,
       elements: generateFrame(currentItems) as any,
     });
   };

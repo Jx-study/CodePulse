@@ -36,7 +36,7 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
     }
     trace.push({
       tag,
-      variables: vars,
+      local_vars: vars,
       dataSnapshot: getSnapshot(),
       meta: { layout: currentLayout },
     });

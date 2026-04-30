@@ -9,7 +9,7 @@ import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAc
 const bubbleSortActionHandler = createLinearActionHandler();
 
 export function createBubbleSortAnimationSteps(
-  inputData: LinearData[]
+  inputData: LinearData[],
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
@@ -22,7 +22,7 @@ export function createBubbleSortAnimationSteps(
     stepNumber: 0,
     description: "開始泡沫排序",
     actionTag: TAGS.INIT,
-    variables: { totalItems: n },
+    local_vars: { totalItems: n },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
@@ -34,7 +34,7 @@ export function createBubbleSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `第 ${i + 1} 輪開始`,
       actionTag: TAGS.ROUND_START,
-      variables: { round: i, hasSwapped: false, unsortedRange: n - i - 2 },
+      local_vars: { round: i, hasSwapped: false, unsortedRange: n - i - 2 },
       elements: createSortingFrame(arr, {}, sortedIndices),
     });
 
@@ -51,7 +51,7 @@ export function createBubbleSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `抓取 Index ${j} (${val1}) 和 Index ${j + 1} (${val2})`,
         actionTag: TAGS.GET_VALUES,
-        variables: {
+        local_vars: {
           round: i,
           index: j,
           currentVal: val1,
@@ -66,7 +66,7 @@ export function createBubbleSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `判斷：${val1} > ${val2} 為真，準備交換`,
           actionTag: TAGS.COMPARE,
-          variables: {
+          local_vars: {
             round: i,
             index: j,
             currentVal: val1,
@@ -88,7 +88,7 @@ export function createBubbleSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `交換完成：${val1} 和 ${val2} 位置對調`,
           actionTag: TAGS.SWAP,
-          variables: {
+          local_vars: {
             round: i,
             index: j,
             [`collection[${j}]`]: arr[j].value ?? null,
@@ -102,7 +102,7 @@ export function createBubbleSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `判斷：${val1} > ${val2} 為假，不需交換`,
           actionTag: TAGS.COMPARE,
-          variables: {
+          local_vars: {
             round: i,
             index: j,
             condition: `${val1} > ${val2}`,
@@ -119,7 +119,7 @@ export function createBubbleSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `本輪結束，Index ${n - 1 - i} 已就定位`,
       actionTag: TAGS.ROUND_END,
-      variables: { round: i, hasSwapped: swapped },
+      local_vars: { round: i, hasSwapped: swapped },
       elements: createSortingFrame(arr, {}, sortedIndices),
     });
 
@@ -137,7 +137,7 @@ export function createBubbleSortAnimationSteps(
     stepNumber: steps.length + 1,
     description: "排序完成",
     actionTag: TAGS.DONE,
-    variables: { isSorted: true },
+    local_vars: { isSorted: true },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
@@ -180,7 +180,7 @@ const bubbleSortCodeConfig: CodeConfig = {
   End For
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2], 
+      [TAGS.INIT]: [2],
       [TAGS.ROUND_START]: [4, 5, 6],
       [TAGS.GET_VALUES]: [8, 9, 10],
       [TAGS.COMPARE]: [12],
