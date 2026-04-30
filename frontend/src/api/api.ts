@@ -1,8 +1,10 @@
-// API base URL:
-// - dev：空字串走 Vite proxy
-// - prod：用 VITE_API_URL 或 VITE_BACKEND_URL（指向後端域名）
+// dev：空字串走 Vite proxy；prod：需設 VITE_API_URL 或 VITE_BACKEND_URL（指向後端域名）
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "";
+
+if (import.meta.env.PROD && !API_BASE_URL) {
+  console.error("[api] VITE_API_URL is not set — all API calls will fail");
+}
 
 // API 基本配置類型
 interface ApiConfig {
