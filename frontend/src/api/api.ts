@@ -56,18 +56,20 @@ class ApiService {
     // 1. 執行第一次請求
     let response = await this.executeFetch(url, options);
 
-    // 2. 如果 401 且不是在請求 status 本身時（避免無限循環）
-    if (response.status === 401 && endpoint !== "/api/auth/status") {
+    // 2. 如果 401 且不是在請求 refresh 本身時（避免無限循環）
+    if (response.status === 401 && endpoint !== "/api/auth/refresh") {
       try {
-        // 嘗試呼叫 status 接口讓後端更新 Token
-        await this.executeFetch(`${this.config.baseURL}/api/auth/status`, {
-          credentials: "include",
-        });
+        const refreshResp = await this.executeFetch(
+          `${this.config.baseURL}/api/auth/refresh`,
+          { method: "POST", credentials: "include" },
+        );
 
-        // 3. 重新執行原始請求
-        response = await this.executeFetch(url, options);
+        if (refreshResp.ok) {
+          window.dispatchEvent(new Event("auth:refreshed"));
+          // 3. 重新執行原始請求
+          response = await this.executeFetch(url, options);
+        }
       } catch (e) {
-        // 刷新失敗，維持原本的 401 狀態
         console.warn("Token refresh failed", e);
       }
     }
