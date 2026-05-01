@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import request, jsonify, current_app, g
 
-# ── JWT ─────────────────────────────────────────────────────────────────────
+# JWT
 
 ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
 REFRESH_TOKEN_EXPIRES = timedelta(days=7)
@@ -82,14 +82,14 @@ def decode_token(token: str, expected_type: str) -> dict:
     return payload
 
 
-# ── Token hash (for DB storage) ──────────────────────────────────────────────
+# Token hash (for DB storage)
 
 def hash_token(token: str) -> str:
     """SHA-256 hash of a token string for safe DB storage."""
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-# ── Password hashing ─────────────────────────────────────────────────────────
+# Password hashing
 
 def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
@@ -99,7 +99,7 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
-# ── Cookie helpers ───────────────────────────────────────────────────────────
+# Cookie helpers
 
 
 def _cookie_secure() -> bool:
@@ -160,7 +160,7 @@ def clear_auth_cookies(response):
     response.delete_cookie('refresh_token', path='/api/auth', domain=domain)
 
 
-# ── Verification code ─────────────────────────────────────────────────────────
+# Verification code
 
 _CODE_ALPHABET = string.ascii_uppercase + string.digits
 
@@ -169,12 +169,14 @@ def generate_verification_code(length: int = 6) -> str:
     return ''.join(secrets.choice(_CODE_ALPHABET) for _ in range(length))
 
 
-# ── Auth decorator ────────────────────────────────────────────────────────────
+# Auth decorator 
 
 def login_required(f):
     """Decorator: require valid access_token cookie. Injects g.current_user_id."""
     @wraps(f)
     def decorated(*args, **kwargs):
+        if request.method == 'OPTIONS':
+            return f(*args, **kwargs)
         token = request.cookies.get('access_token')
         if not token:
             return jsonify({'success': False, 'message': '請先登入', 'error_code': 'UNAUTHORIZED'}), 401

@@ -104,6 +104,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuthStatus();
   }, [checkAuthStatus]);
 
+  useEffect(() => {
+    const handler = () => checkAuthStatus();
+    window.addEventListener("auth:refreshed", handler);
+    return () => window.removeEventListener("auth:refreshed", handler);
+  }, [checkAuthStatus]);
+
   const value: AuthContextType = {
     isAuthenticated,
     user,

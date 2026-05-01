@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, make_response, g
+from flask import Blueprint, jsonify, request, make_response, g, current_app
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 import uuid
@@ -47,7 +47,7 @@ def _user_to_dict(user):
     }
 
 
-# ── Register ─────────────────────────────────────────────────────────────────
+# Register
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -94,7 +94,7 @@ def register():
     return jsonify({'success': True, 'message': '驗證碼已寄出，請檢查您的信箱'}), 200
 
 
-# ── Login ────────────────────────────────────────────────────────────────────
+# Login
 
 @auth_bp.route('/login', methods=['POST'])
 @limiter.limit("10 per minute; 50 per hour")
@@ -167,7 +167,7 @@ def login():
     return resp
 
 
-# ── Logout ───────────────────────────────────────────────────────────────────
+# Logout
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
@@ -188,7 +188,7 @@ def logout():
     return resp
 
 
-# ── Me ───────────────────────────────────────────────────────────────────────
+# Me
 
 @auth_bp.route('/me', methods=['GET'])
 @login_required
@@ -199,7 +199,7 @@ def get_current_user():
     return jsonify({'success': True, 'user': _user_to_dict(user)}), 200
 
 
-# ── Verify Email ─────────────────────────────────────────────────────────────
+# Verify Email
 
 @auth_bp.route('/verify-email', methods=['POST'])
 def verify_email():
@@ -277,7 +277,7 @@ def verify_email():
     return resp
 
 
-# ── Complete Setup (Google Onboarding) ───────────────────────────────────────
+# Complete Setup (Google Onboarding)
 
 RESERVED_USERNAMES = {'admin', 'root', 'system', 'codepulse', 'support', 'moderator', 'staff'}
 USERNAME_RE = __import__('re').compile(r'^[a-zA-Z0-9_]{3,15}$')
@@ -356,7 +356,7 @@ def complete_setup():
     return resp
 
 
-# ── Check Username Availability ───────────────────────────────────────────────
+# Check Username Availability
 
 @auth_bp.route('/check-username', methods=['GET'])
 def check_username():
@@ -373,7 +373,7 @@ def check_username():
     return jsonify({'available': taken is None}), 200
 
 
-# ── Onboarding Info ──────────────────────────────────────────────────────────
+# Onboarding Info
 
 @auth_bp.route('/onboarding-info', methods=['GET'])
 def onboarding_info():
@@ -397,7 +397,7 @@ def onboarding_info():
     }), 200
 
 
-# ── Resend Verification ───────────────────────────────────────────────────────
+# Resend Verification
 
 RESEND_COOLDOWN_SECONDS = 60
 RESEND_DAILY_LIMIT = 5
@@ -490,7 +490,7 @@ def resend_verification():
     }), 200
 
 
-# ── Refresh ──────────────────────────────────────────────────────────────────
+# Refresh
 
 @auth_bp.route('/refresh', methods=['POST'])
 def refresh_token():
@@ -557,7 +557,7 @@ def refresh_token():
     return resp
 
 
-# ── Status ───────────────────────────────────────────────────────────────────
+# Status
 
 @auth_bp.route('/status', methods=['GET'])
 def get_user_status():
@@ -644,7 +644,7 @@ def get_user_status():
     }), 200
 
 
-# ── Forgot Password ───────────────────────────────────────────────────────────
+# Forgot Password
 
 FORGOT_COOLDOWN_SECONDS = 60
 FORGOT_DAILY_LIMIT = 5
@@ -721,7 +721,7 @@ def forgot_password():
     return jsonify({'success': True, 'message': '若此 Email 已註冊，驗證碼已寄出'}), 200
 
 
-# ── Reset Password ────────────────────────────────────────────────────────────
+# Reset Password
 
 import re as _re
 _CODE_RE = _re.compile(r'^[A-Z0-9]{6}$')

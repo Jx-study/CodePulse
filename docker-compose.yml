@@ -9,6 +9,7 @@ services:
       - POSTGRES_DB=codepulse
       - POSTGRES_USER=codepulse
       - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U codepulse -d codepulse"]
       interval: 5s

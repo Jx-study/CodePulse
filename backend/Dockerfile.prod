@@ -24,4 +24,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # --timeout: 請求超時時間
 # --access-logfile: 存取日誌
 # --error-logfile: 錯誤日誌
-CMD gunicorn --workers=4 --bind=0.0.0.0:$PORT --timeout=120 --access-logfile=- --error-logfile=- "app:app"
+CMD gunicorn --workers=1 --threads=4 --bind=0.0.0.0:$PORT --timeout=120 --access-logfile=- --error-logfile=- "app:app"

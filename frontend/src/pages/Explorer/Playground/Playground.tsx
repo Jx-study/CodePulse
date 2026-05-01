@@ -1,4 +1,3 @@
-// frontend/src/pages/Explorer/Playground.tsx
 import {
   Fragment,
   useState,
@@ -70,7 +69,6 @@ import {
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import styles from "./Playground.module.scss";
 
-// Constants
 const DEFAULT_CODE = `def bubble_sort(arr):
     n = len(arr)
     for i in range(n):

@@ -1,6 +1,20 @@
 import type cytoscape from "cytoscape";
 import type { CallGraph } from "@/types/trace";
 
+const CG_COLORS = {
+  nodeBg:       "#1e1e2e",
+  nodeBorder:   "#6c6f93",
+  nodeText:     "#cdd6f4",
+  edgeLine:     "#585b70",
+  edgeText:     "#a6adc8",
+  activeEdge:   "#89b4fa",
+  activeNode:   "#fffc5c",
+  startNode:    "#a6e3a1",
+  endNode:      "#f38ba8",
+  startEndText: "#1e1e2e",
+  returnActive: "#cba6f7",
+} as const;
+
 export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
   {
     selector: "node[label]",
@@ -8,14 +22,14 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
       label: "data(label)",
       "text-valign": "center",
       "text-halign": "center",
-      "background-color": "#1e1e2e",
-      "border-color": "#6c6f93",
+      "background-color": CG_COLORS.nodeBg,
+      "border-color": CG_COLORS.nodeBorder,
       "border-width": 1,
-      color: "#cdd6f4",
+      color: CG_COLORS.nodeText,
       "font-size": 12,
       "font-family": "monospace",
-      width: 120,
-      height: 40,
+      width: "data(width)",
+      height: "data(height)",
       shape: "roundrectangle",
     },
   },
@@ -29,20 +43,20 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
       label: "data(label)",
       "curve-style": "bezier",
       "target-arrow-shape": "triangle",
-      "line-color": "#585b70",
-      "target-arrow-color": "#585b70",
-      color: "#a6adc8",
+      "line-color": CG_COLORS.edgeLine,
+      "target-arrow-color": CG_COLORS.edgeLine,
+      color: CG_COLORS.edgeText,
       "font-size": 11,
       "text-background-opacity": 1,
-      "text-background-color": "#1e1e2e",
+      "text-background-color": CG_COLORS.nodeBg,
       "text-background-padding": "2px",
     },
   },
   {
     selector: "edge.active",
     style: {
-      "line-color": "#89b4fa",
-      "target-arrow-color": "#89b4fa",
+      "line-color": CG_COLORS.activeEdge,
+      "target-arrow-color": CG_COLORS.activeEdge,
       "line-style": "solid",
       width: 2,
     },
@@ -50,17 +64,19 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
   {
     selector: "node.active",
     style: {
-      "border-color": "#f9e2af",
+      "background-color": CG_COLORS.activeNode,
+      "border-color": CG_COLORS.activeNode,
       "border-width": 2,
+      color: CG_COLORS.startEndText,
     },
   },
   // START 節點（綠色）
   {
     selector: "node[kind = 'start']",
     style: {
-      "background-color": "#a6e3a1",
-      "border-color": "#a6e3a1",
-      color: "#1e1e2e",
+      "background-color": CG_COLORS.startNode,
+      "border-color": CG_COLORS.startNode,
+      color: CG_COLORS.startEndText,
       "font-weight": "bold",
     },
   },
@@ -68,9 +84,9 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
   {
     selector: "node[kind = 'end']",
     style: {
-      "background-color": "#f38ba8",
-      "border-color": "#f38ba8",
-      color: "#1e1e2e",
+      "background-color": CG_COLORS.endNode,
+      "border-color": CG_COLORS.endNode,
+      color: CG_COLORS.startEndText,
       "font-weight": "bold",
     },
   },
@@ -84,8 +100,8 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
     selector: "edge[edgeType = 'return']",
     style: {
       "line-style": "dashed",
-      "line-color": "#585b70",
-      "target-arrow-color": "#585b70",
+      "line-color": CG_COLORS.edgeLine,
+      "target-arrow-color": CG_COLORS.edgeLine,
       opacity: 0.35,
     },
   },
@@ -94,8 +110,8 @@ export const CALL_GRAPH_STYLESHEET: cytoscape.StylesheetStyle[] = [
     selector: "edge[edgeType = 'return'].active-return",
     style: {
       opacity: 1,
-      "line-color": "#cba6f7",
-      "target-arrow-color": "#cba6f7",
+      "line-color": CG_COLORS.returnActive,
+      "target-arrow-color": CG_COLORS.returnActive,
     },
   },
 ];
@@ -117,12 +133,12 @@ export function buildCallGraphElements(
 
   // START 節點（綠，不可點擊）
   const startNode: cytoscape.ElementDefinition = {
-    data: { id: "__start__", label: "START", kind: "start" },
+    data: { id: "__start__", label: "START", kind: "start", width: 80, height: 36 },
   };
 
   // END 節點（紅，不可點擊）
   const endNode: cytoscape.ElementDefinition = {
-    data: { id: "__end__", label: "END", kind: "end" },
+    data: { id: "__end__", label: "END", kind: "end", width: 80, height: 36 },
   };
 
   // START → (global) 實線
@@ -152,12 +168,17 @@ export function buildCallGraphElements(
       ? "<global>" in cfgGraph &&
         (cfgGraph["<global>"] as any)?.nodes?.length > 0
       : n.funcName in cfgGraph;
+    const label = isModule ? "<global>" : n.funcName;
+    const width = Math.max(80, label.length * 8 + 16);
+    const height = Math.max(36, Math.ceil(label.length / 15) * 20 + 16);
     return {
       data: {
         id: n.id,
-        label: isModule ? "<global>" : n.funcName,
+        label,
         kind: hasCfg ? "user" : "no-cfg",
         funcName: n.funcName,
+        width,
+        height,
       },
     };
   });
