@@ -1,5 +1,8 @@
 import React from "react";
-import type { LevelImplementationConfig, RunParams } from "@/types/implementation";
+import type {
+  LevelImplementationConfig,
+  RunParams,
+} from "@/types/implementation";
 
 interface SmartActionBarProps {
   // 關卡配置
@@ -24,6 +27,7 @@ interface SmartActionBarProps {
   onPeek?: () => void;
   onMaxNodesChange?: (max: number) => void;
   onTailModeChange?: (hasTail: boolean) => void;
+  onCustomAction?: (action: string, payload: any) => void;
 
   // Graph 特定
   onGraphAction?: (action: string, payload: any) => void;
