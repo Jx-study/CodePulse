@@ -93,6 +93,12 @@ try {
         } else {
             Write-Host "[FAIL] docker compose down failed"
         }
+        $poolIds = docker ps -aq --filter "label=codepulse-pool=1"
+        if ($poolIds) {
+            Write-Host ">> Removing sandbox pool containers..."
+            docker rm -f $poolIds
+            Write-Host "[OK] Pool containers removed"
+        }
     } else {
         Write-Host ""
         Write-Host "Containers kept. Run 'docker compose down' manually when done."
