@@ -50,6 +50,13 @@ const CELL_GAP = 10;
 const CELL_MAX = 80;
 const CELL_MIN = 36;
 
+const PRELOAD_IMAGES = [
+  "/images/games/Mole_Hole.png",
+  "/images/games/Mole_PopUp.png",
+  "/images/games/Mole_Hit.png",
+  "/images/games/Hammer.png",
+];
+
 interface GameState {
   status: GameStatus;
   holes: MoleState[];
@@ -85,7 +92,7 @@ const WhackAMoleRenderer: React.FC = () => {
   const [playBonk] = useSound("/sfx/bonk.mp3", { volume: 0.8 });
   const [playPop] = useSound("/sfx/pop-cartoon.mp3", { volume: 0.7 });
   const [playBgm, { stop: stopBgm }] = useSound(
-    "/bgm/The Pink Panther Theme (Full).mp3",
+    "/bgm/aberrantrealities-sassy-surprises.mp3",
     { volume: 0.35, loop: true },
   );
 
@@ -107,6 +114,13 @@ const WhackAMoleRenderer: React.FC = () => {
 
   const popupHideTimersRef = useRef<Map<number, number>>(new Map());
   const hitRecoverTimersRef = useRef<Map<number, number>>(new Map());
+
+  useEffect(() => {
+    PRELOAD_IMAGES.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
   // Dynamic cell sizing via ResizeObserver
   const wrapperRef = useRef<HTMLDivElement>(null);
