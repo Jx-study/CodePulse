@@ -148,7 +148,7 @@ export function createHeapAnimationSteps(
   dataList: any[],
   action?: any,
 ): AnimationStep[] {
-  const params = action?.animationParams;
+  const params = action?.isHeapAction ? action : action?.animationParams;
 
   // 如果是 Insert 或 Extract，取用 oldData 與參數讓 Trace 自己跑
   if (params && params.isHeapAction) {
