@@ -26,6 +26,8 @@ export function heapActionHandler(
     return {
       animationData: newData,
       animationParams: { isHeapAction: true, heapType: "peek", oldData },
+      isResetAction: true,
+      useRawAnimationParams: true,
     };
   }
 
@@ -58,6 +60,8 @@ export function heapActionHandler(
     return {
       animationData: newData,
       animationParams: { isHeapAction: true, heapType: "heapify", oldData },
+      isResetAction: true,
+      useRawAnimationParams: true,
     };
   }
 
@@ -86,6 +90,8 @@ export function heapActionHandler(
         targetId,
         oldData,
       },
+      isResetAction: true,
+      useRawAnimationParams: true,
     };
   }
 
@@ -130,6 +136,8 @@ export function heapActionHandler(
         value: extractedVal,
         oldData,
       },
+      isResetAction: true,
+      useRawAnimationParams: true,
     };
   }
 

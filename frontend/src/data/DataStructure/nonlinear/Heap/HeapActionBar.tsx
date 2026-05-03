@@ -88,12 +88,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         </Tooltip>
 
         <Tooltip content="取出並移除最大值 (Heapify Down)">
-          <Button
-            size="sm"
-            onClick={handleExtract}
-            disabled={disabled}
-            icon="arrow-up-from-bracket"
-          >
+          <Button size="sm" onClick={handleExtract} disabled={disabled}>
             Extract Max
           </Button>
         </Tooltip>
@@ -105,12 +100,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         </Tooltip>
 
         <Tooltip content="將無序陣列轉換為 Heap (Bottom-Up 建堆)">
-          <Button
-            size="sm"
-            onClick={handleHeapify}
-            disabled={disabled}
-            icon="wand-magic-sparkles"
-          >
+          <Button size="sm" onClick={handleHeapify} disabled={disabled}>
             Heapify
           </Button>
         </Tooltip>
