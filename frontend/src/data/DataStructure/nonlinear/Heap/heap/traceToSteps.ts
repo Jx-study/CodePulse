@@ -25,7 +25,10 @@ function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
 }
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
-  [TAGS.INIT]: () => ({ key: "heap.init" }),
+  [TAGS.INIT]: (e) => ({
+    key: "heap.init",
+    params: { heapName: e.local_vars.heapName ?? "Heap" },
+  }),
   [TAGS.INSERT_START]: (e) => ({
     key: "heap.insert_start",
     params: { value: e.local_vars.value, index: e.local_vars.index },
@@ -34,26 +37,42 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "heap.heapify_up_compare",
     params: { curVal: e.local_vars.curVal, parentVal: e.local_vars.parentVal },
   }),
-  [TAGS.HEAPIFY_UP_SWAP]: () => ({ key: "heap.heapify_up_swap" }),
+  [TAGS.HEAPIFY_UP_SWAP]: (e) => ({
+    key: "heap.heapify_up_swap",
+    params: { extremeStr: e.local_vars.extremeStr },
+  }),
   [TAGS.EXTRACT_START]: (e) => ({
     key: "heap.extract_start",
-    params: { maxVal: e.local_vars.maxVal },
+    params: {
+      extVal: e.local_vars.extVal,
+      extremeVal: e.local_vars.extremeVal,
+    },
   }),
   [TAGS.EXTRACT_SWAP_LAST]: () => ({ key: "heap.extract_swap_last" }),
   [TAGS.EXTRACT_REMOVE]: () => ({ key: "heap.extract_remove" }),
-  [TAGS.HEAPIFY_DOWN_COMPARE]: () => ({ key: "heap.heapify_down_compare" }),
-  [TAGS.HEAPIFY_DOWN_SWAP]: () => ({ key: "heap.heapify_down_swap" }),
-
+  [TAGS.HEAPIFY_DOWN_COMPARE]: (e) => ({
+    key: "heap.heapify_down_compare",
+    params: { extremeStr: e.local_vars.extremeStr },
+  }),
+  [TAGS.HEAPIFY_DOWN_SWAP]: (e) => ({
+    key: "heap.heapify_down_swap",
+    params: { heapName: e.local_vars.heapName },
+  }),
   [TAGS.PEEK]: (e) => ({
     key: "heap.peek",
-    params: { maxVal: e.local_vars.maxVal },
+    params: {
+      extVal: e.local_vars.extVal,
+      extremeVal: e.local_vars.extremeVal,
+    },
   }),
   [TAGS.HEAPIFY_START]: (e) => ({
     key: "heap.heapify_start",
-    params: { length: e.local_vars.length },
+    params: { length: e.local_vars.length, heapName: e.local_vars.heapName },
   }),
-
-  [TAGS.DONE]: () => ({ key: "heap.done" }),
+  [TAGS.DONE]: (e) => ({
+    key: "heap.done",
+    params: { heapName: e.local_vars.heapName },
+  }),
 };
 
 export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {

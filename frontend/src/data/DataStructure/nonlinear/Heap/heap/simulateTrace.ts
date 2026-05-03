@@ -15,10 +15,16 @@ export function simulateHeapTrace(
 
   const getSnapshot = () => currentList.map((d) => ({ ...d }));
 
+  const isMinHeap = !!action.isMinHeap;
+  const isPrior = (a: number, b: number) => (isMinHeap ? a < b : a > b);
+  const heapName = isMinHeap ? "Min-Heap" : "Max-Heap";
+  const extremeStr = isMinHeap ? "小" : "大";
+  const extremeVal = isMinHeap ? "最小" : "最大";
+
   if (!action || action.heapType === "init") {
     trace.push({
       tag: TAGS.INIT,
-      local_vars: {},
+      local_vars: { heapName },
       dataSnapshot: getSnapshot(),
       meta: { isInitial: true },
     });
@@ -29,7 +35,7 @@ export function simulateHeapTrace(
     if (currentList.length > 0) {
       trace.push({
         tag: TAGS.PEEK,
-        local_vars: { maxVal: currentList[0].value },
+        local_vars: { extVal: currentList[0].value, extremeVal },
         dataSnapshot: getSnapshot(),
         meta: { highlightIndex: 0, status: "Complete" },
       });
@@ -41,7 +47,7 @@ export function simulateHeapTrace(
   if (action.heapType === "heapify") {
     trace.push({
       tag: TAGS.HEAPIFY_START,
-      local_vars: { length: currentList.length },
+      local_vars: { length: currentList.length, heapName },
       dataSnapshot: getSnapshot(),
       meta: { status: "Unfinished" },
     });
@@ -52,25 +58,25 @@ export function simulateHeapTrace(
       while (true) {
         const leftIdx = 2 * idx + 1;
         const rightIdx = 2 * idx + 2;
-        let largestIdx = idx;
+        let targetIdx = idx;
 
         if (
           leftIdx < currentList.length &&
-          currentList[leftIdx].value > currentList[largestIdx].value
+          isPrior(currentList[leftIdx].value, currentList[targetIdx].value)
         ) {
-          largestIdx = leftIdx;
+          targetIdx = leftIdx;
         }
         if (
           rightIdx < currentList.length &&
-          currentList[rightIdx].value > currentList[largestIdx].value
+          isPrior(currentList[rightIdx].value, currentList[targetIdx].value)
         ) {
-          largestIdx = rightIdx;
+          targetIdx = rightIdx;
         }
 
         if (leftIdx < currentList.length) {
           trace.push({
             tag: TAGS.HEAPIFY_DOWN_COMPARE,
-            local_vars: { idx, leftIdx, rightIdx, largestIdx },
+            local_vars: { idx, leftIdx, rightIdx, targetIdx, extremeStr },
             dataSnapshot: getSnapshot(),
             meta: {
               overrideStatusMap: {
@@ -84,20 +90,20 @@ export function simulateHeapTrace(
           });
         }
 
-        if (largestIdx !== idx) {
+        if (targetIdx !== idx) {
           const temp = currentList[idx].value;
-          currentList[idx].value = currentList[largestIdx].value;
-          currentList[largestIdx].value = temp;
+          currentList[idx].value = currentList[targetIdx].value;
+          currentList[targetIdx].value = temp;
 
           trace.push({
             tag: TAGS.HEAPIFY_DOWN_SWAP,
-            local_vars: { idx, largestIdx },
+            local_vars: { idx, targetIdx, heapName },
             dataSnapshot: getSnapshot(),
             meta: {
-              overrideStatusMap: { [idx]: "Prepare", [largestIdx]: "Target" },
+              overrideStatusMap: { [idx]: "Prepare", [targetIdx]: "Target" },
             },
           });
-          idx = largestIdx;
+          idx = targetIdx;
         } else {
           break;
         }
@@ -106,7 +112,7 @@ export function simulateHeapTrace(
 
     trace.push({
       tag: TAGS.DONE,
-      local_vars: {},
+      local_vars: { heapName },
       dataSnapshot: getSnapshot(),
       meta: { status: "Complete" },
     });
@@ -140,14 +146,14 @@ export function simulateHeapTrace(
         },
       });
 
-      if (curVal > parentVal) {
+      if (isPrior(curVal, parentVal)) {
         const temp = currentList[idx].value;
         currentList[idx].value = currentList[parentIdx].value;
         currentList[parentIdx].value = temp;
 
         trace.push({
           tag: TAGS.HEAPIFY_UP_SWAP,
-          local_vars: { idx, parentIdx },
+          local_vars: { idx, parentIdx, extremeStr },
           dataSnapshot: getSnapshot(),
           meta: {
             overrideStatusMap: { [idx]: "Prepare", [parentIdx]: "Target" },
@@ -162,17 +168,17 @@ export function simulateHeapTrace(
 
     trace.push({
       tag: TAGS.DONE,
-      local_vars: {},
+      local_vars: { heapName },
       dataSnapshot: getSnapshot(),
       meta: { status: "Complete" },
     });
   } else if (action.heapType === "delete") {
     if (currentList.length === 0) return trace;
 
-    const maxVal = currentList[0].value;
+    const extVal = currentList[0].value;
     trace.push({
       tag: TAGS.EXTRACT_START,
-      local_vars: { maxVal },
+      local_vars: { extVal, extremeVal, extremeStr },
       dataSnapshot: getSnapshot(),
       meta: { highlightIndex: 0 },
     });
@@ -181,7 +187,7 @@ export function simulateHeapTrace(
       currentList.pop();
       trace.push({
         tag: TAGS.EXTRACT_REMOVE,
-        local_vars: { maxVal },
+        local_vars: {},
         dataSnapshot: getSnapshot(),
       });
       return trace;
@@ -192,7 +198,7 @@ export function simulateHeapTrace(
 
     trace.push({
       tag: TAGS.EXTRACT_SWAP_LAST,
-      local_vars: { lastIdx },
+      local_vars: {},
       dataSnapshot: getSnapshot(),
       meta: { overrideStatusMap: { 0: "Prepare", [lastIdx]: "Target" } },
     });
@@ -210,25 +216,25 @@ export function simulateHeapTrace(
     while (true) {
       const leftIdx = 2 * idx + 1;
       const rightIdx = 2 * idx + 2;
-      let largestIdx = idx;
+      let targetIdx = idx;
 
       if (
         leftIdx < currentList.length &&
-        currentList[leftIdx].value > currentList[largestIdx].value
+        isPrior(currentList[leftIdx].value, currentList[targetIdx].value)
       ) {
-        largestIdx = leftIdx;
+        targetIdx = leftIdx;
       }
       if (
         rightIdx < currentList.length &&
-        currentList[rightIdx].value > currentList[largestIdx].value
+        isPrior(currentList[rightIdx].value, currentList[targetIdx].value)
       ) {
-        largestIdx = rightIdx;
+        targetIdx = rightIdx;
       }
 
       if (leftIdx < currentList.length) {
         trace.push({
           tag: TAGS.HEAPIFY_DOWN_COMPARE,
-          local_vars: { idx, leftIdx, rightIdx, largestIdx },
+          local_vars: { idx, leftIdx, rightIdx, targetIdx, extremeStr },
           dataSnapshot: getSnapshot(),
           meta: {
             overrideStatusMap: {
@@ -242,20 +248,20 @@ export function simulateHeapTrace(
         });
       }
 
-      if (largestIdx !== idx) {
+      if (targetIdx !== idx) {
         const swapTemp = currentList[idx].value;
-        currentList[idx].value = currentList[largestIdx].value;
-        currentList[largestIdx].value = swapTemp;
+        currentList[idx].value = currentList[targetIdx].value;
+        currentList[targetIdx].value = swapTemp;
 
         trace.push({
           tag: TAGS.HEAPIFY_DOWN_SWAP,
-          local_vars: { idx, largestIdx },
+          local_vars: { idx, targetIdx, heapName },
           dataSnapshot: getSnapshot(),
           meta: {
-            overrideStatusMap: { [idx]: "Prepare", [largestIdx]: "Target" },
+            overrideStatusMap: { [idx]: "Prepare", [targetIdx]: "Target" },
           },
         });
-        idx = largestIdx;
+        idx = targetIdx;
       } else {
         break;
       }
@@ -263,7 +269,7 @@ export function simulateHeapTrace(
 
     trace.push({
       tag: TAGS.DONE,
-      local_vars: {},
+      local_vars: { heapName },
       dataSnapshot: getSnapshot(),
       meta: { status: "Complete" },
     });

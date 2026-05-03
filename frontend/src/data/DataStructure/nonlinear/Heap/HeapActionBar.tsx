@@ -18,35 +18,41 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
   onMaxNodesChange,
   maxNodes,
   disabled = false,
-  onAddNode,
-  onDeleteNode,
-  onPeek,
-  onGraphAction,
+  onCustomAction,
 }) => {
   const [inputValue, setInputValue] = useState("");
+  const [isMinHeap, setIsMinHeap] = useState(false);
+
+  const handleToggleMode = () => {
+    if (disabled || !onCustomAction) return;
+    const newMode = !isMinHeap;
+    setIsMinHeap(newMode);
+    // 切換模式時，自動觸發一次 Heapify 重新建堆！
+    onCustomAction("heapify", { isMinHeap: newMode });
+  };
 
   const handleInsert = () => {
-    if (disabled || !inputValue) return;
+    if (disabled || !inputValue || !onCustomAction) return;
     const val = parseInt(inputValue, 10);
     if (!isNaN(val)) {
-      onAddNode(val, "Insert");
+      onCustomAction("add", { value: val, isMinHeap });
       setInputValue("");
     }
   };
 
   const handleExtract = () => {
-    if (disabled) return;
-    onDeleteNode("Extract");
+    if (disabled || !onCustomAction) return;
+    onCustomAction("delete", { isMinHeap });
   };
 
   const handlePeek = () => {
-    if (disabled || !onPeek) return;
-    onPeek();
+    if (disabled || !onCustomAction) return;
+    onCustomAction("peek", { isMinHeap });
   };
 
   const handleHeapify = () => {
-    if (disabled || !onGraphAction) return;
-    onGraphAction("heapify", {});
+    if (disabled || !onCustomAction) return;
+    onCustomAction("heapify", { isMinHeap });
   };
 
   return (
@@ -63,7 +69,20 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Max-Heap</StaticLabel>
+        <StaticLabel>{isMinHeap ? "Min-Heap" : "Max-Heap"}</StaticLabel>
+
+        <Tooltip content="切換 Heap 模式並自動重新建堆">
+          <Button
+            size="sm"
+            variant={isMinHeap ? "secondary" : "primary"}
+            onClick={handleToggleMode}
+            disabled={disabled}
+            icon="rotate"
+          >
+            切換至 {isMinHeap ? "Max" : "Min"}
+          </Button>
+        </Tooltip>
+
         <Input
           type="number"
           placeholder="輸入數字"
@@ -79,6 +98,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         <Tooltip content="將數值新增至 Heap (Heapify Up)">
           <Button
             size="sm"
+            variant="primary"
             onClick={handleInsert}
             disabled={disabled || !inputValue}
             icon="plus"
@@ -87,20 +107,40 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
           </Button>
         </Tooltip>
 
-        <Tooltip content="取出並移除最大值 (Heapify Down)">
-          <Button size="sm" onClick={handleExtract} disabled={disabled}>
-            Extract Max
+        <Tooltip
+          content={`取出並移除${isMinHeap ? "最小" : "最大"}值 (Heapify Down)`}
+        >
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={handleExtract}
+            disabled={disabled}
+            icon="arrow-up-from-bracket"
+          >
+            Extract {isMinHeap ? "Min" : "Max"}
           </Button>
         </Tooltip>
 
-        <Tooltip content="僅查看最大值 (不移除)">
-          <Button size="sm" onClick={handlePeek} disabled={disabled} icon="eye">
+        <Tooltip content={`僅查看${isMinHeap ? "最小" : "最大"}值 (不移除)`}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handlePeek}
+            disabled={disabled}
+            icon="eye"
+          >
             Peek
           </Button>
         </Tooltip>
 
         <Tooltip content="將無序陣列轉換為 Heap (Bottom-Up 建堆)">
-          <Button size="sm" onClick={handleHeapify} disabled={disabled}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleHeapify}
+            disabled={disabled}
+            icon="wand-magic-sparkles"
+          >
             Heapify
           </Button>
         </Tooltip>
