@@ -85,9 +85,9 @@ export function simulateHeapTrace(
         }
 
         if (largestIdx !== idx) {
-          const temp = currentList[idx];
-          currentList[idx] = currentList[largestIdx];
-          currentList[largestIdx] = temp;
+          const temp = currentList[idx].value;
+          currentList[idx].value = currentList[largestIdx].value;
+          currentList[largestIdx].value = temp;
 
           trace.push({
             tag: TAGS.HEAPIFY_DOWN_SWAP,
@@ -141,9 +141,9 @@ export function simulateHeapTrace(
       });
 
       if (curVal > parentVal) {
-        const temp = currentList[idx];
-        currentList[idx] = currentList[parentIdx];
-        currentList[parentIdx] = temp;
+        const temp = currentList[idx].value;
+        currentList[idx].value = currentList[parentIdx].value;
+        currentList[parentIdx].value = temp;
 
         trace.push({
           tag: TAGS.HEAPIFY_UP_SWAP,
@@ -174,7 +174,7 @@ export function simulateHeapTrace(
       tag: TAGS.EXTRACT_START,
       local_vars: { maxVal },
       dataSnapshot: getSnapshot(),
-      meta: { highlightIndex: 0, status: "Target" },
+      meta: { highlightIndex: 0 },
     });
 
     if (currentList.length === 1) {
@@ -188,9 +188,7 @@ export function simulateHeapTrace(
     }
 
     const lastIdx = currentList.length - 1;
-    const temp = currentList[0];
-    currentList[0] = currentList[lastIdx];
-    currentList[lastIdx] = temp;
+    currentList[0].value = currentList[lastIdx].value;
 
     trace.push({
       tag: TAGS.EXTRACT_SWAP_LAST,
@@ -245,9 +243,9 @@ export function simulateHeapTrace(
       }
 
       if (largestIdx !== idx) {
-        const swapTemp = currentList[idx];
-        currentList[idx] = currentList[largestIdx];
-        currentList[largestIdx] = swapTemp;
+        const swapTemp = currentList[idx].value;
+        currentList[idx].value = currentList[largestIdx].value;
+        currentList[largestIdx].value = swapTemp;
 
         trace.push({
           tag: TAGS.HEAPIFY_DOWN_SWAP,

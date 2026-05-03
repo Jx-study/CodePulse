@@ -20,6 +20,20 @@
     "delete_remove": "刪除最後一個多餘的空間",
     "delete_complete": "刪除完成"
   },
+  "heap": {
+    "init": "Heap 初始狀態",
+    "insert_start": "Insert({{value}})：將新節點放在樹的最底層 (Index {{index}})",
+    "heapify_up_compare": "向上調整 (Heapify-Up)：比較新節點 ({{curVal}}) 與其父節點 ({{parentVal}})",
+    "heapify_up_swap": "新節點比較大！執行 Swap (交換數值)",
+    "extract_start": "ExtractMax()：準備取出根節點 (最大值 {{maxVal}})",
+    "extract_swap_last": "將最後一個節點的數值移到根節點",
+    "extract_remove": "移除最後一個節點",
+    "heapify_down_compare": "向下調整 (Heapify-Down)：尋找左右子節點中的最大者",
+    "heapify_down_swap": "向下交換 (Swap) 數值以維持 Max-Heap 性質",
+    "peek": "Peek()：目前的最大值是根節點的 {{maxVal}}",
+    "heapify_start": "Heapify()：開始由下而上 (Bottom-Up) 重新建堆，陣列長度為 {{length}}",
+    "done": "操作完成，已確保 Max-Heap 結構正確！"
+  },
   "qs": {
     "init": "開始快速排序 (Quick Sort)，陣列長度為 {{length}}",
     "call": "遞迴分割：處理區間 [{{low}}, {{high}}]，進入深度 {{depth}}",

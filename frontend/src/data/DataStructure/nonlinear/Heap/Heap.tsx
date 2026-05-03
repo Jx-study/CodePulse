@@ -19,8 +19,8 @@ export function heapActionHandler(
   data: any[],
   context: ActionContext,
 ): ActionResult<any[]> | null {
-  const newData = [...data];
-  const oldData = [...data]; // 記下沒變動前的狀態交給 Trace 模擬
+  const newData = data.map((d) => ({ ...d }));
+  const oldData = data.map((d) => ({ ...d }));
 
   if (actionType === "peek") {
     return {
@@ -50,9 +50,9 @@ export function heapActionHandler(
         )
           largest = right;
         if (largest !== idx) {
-          const temp = newData[idx];
-          newData[idx] = newData[largest];
-          newData[largest] = temp;
+          const temp = newData[idx].value;
+          newData[idx].value = newData[largest].value;
+          newData[largest].value = temp;
           idx = largest;
         } else break;
       }
@@ -74,9 +74,9 @@ export function heapActionHandler(
     while (idx > 0) {
       const p = Math.floor((idx - 1) / 2);
       if (newData[idx].value > newData[p].value) {
-        const temp = newData[idx];
-        newData[idx] = newData[p];
-        newData[p] = temp;
+        const temp = newData[idx].value;
+        newData[idx].value = newData[p].value;
+        newData[p].value = temp;
         idx = p;
       } else break;
     }
@@ -100,8 +100,9 @@ export function heapActionHandler(
     const extractedVal = newData[0].value;
 
     if (newData.length > 1) {
-      newData[0] = newData[newData.length - 1];
+      newData[0].value = newData[newData.length - 1].value;
       newData.pop();
+
       let idx = 0;
       while (true) {
         let left = 2 * idx + 1,
@@ -118,9 +119,9 @@ export function heapActionHandler(
         )
           largest = right;
         if (largest !== idx) {
-          const temp = newData[idx];
-          newData[idx] = newData[largest];
-          newData[largest] = temp;
+          const temp = newData[idx].value;
+          newData[idx].value = newData[largest].value;
+          newData[largest].value = temp;
           idx = largest;
         } else break;
       }
