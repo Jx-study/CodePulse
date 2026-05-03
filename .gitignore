@@ -6,6 +6,7 @@ node_modules/
 .claudignore
 .cursorrules
 tools/everything-claude-code/
+*.ipynb
 
 # Frontend
 build/
