@@ -146,6 +146,7 @@ export type ImplementationId =
   | "binarytree"
   | "bst"
   | "graph"
+  | "heap"
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
