@@ -95,13 +95,20 @@ class ContainerPool:
                         return c
 
                 if len(self.containers) < self.max_size:
-                    new_c = self._spawn()
-                    new_c.in_use = True
-                    self.containers.append(new_c)
-                    return new_c
+                    # Release lock before slow docker run (up to 15s) so other threads can proceed.
+                    self._cond.release()
+                    try:
+                        new_c = self._spawn()
+                    except RuntimeError:
+                        self._cond.acquire()
+                        # Spawn failed — fall through to wait/timeout path
+                    else:
+                        self._cond.acquire()
+                        new_c.in_use = True
+                        self.containers.append(new_c)
+                        return new_c
 
                 if deadline is None:
-                    import time
                     deadline = time.monotonic() + timeout
 
                 remaining = deadline - time.monotonic()
