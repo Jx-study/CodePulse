@@ -8,14 +8,12 @@ measure_step_counts(wrapped_code) -> str
 from __future__ import annotations
 
 import ast as _ast
-
-import ast as _ast
-
 import concurrent.futures
 import numpy as np
 from scipy.optimize import curve_fit
 
 from services.sandbox import run_in_sandbox
+from services.complexity_labels import normalize_complexity
 
 _INT_PARAMS = {"n", "k", "x", "num", "target", "val", "value", "count"}
 _LIST_PARAMS = {"arr", "nums", "lst", "array", "data", "items", "values"}
@@ -162,4 +160,4 @@ def fit_complexity(ns: list[int], counts: list[int]) -> str:
         except Exception:
             continue
 
-    return best_label
+    return normalize_complexity(best_label) or "unknown"

@@ -2,6 +2,7 @@ from .client import call_gemini
 from .prompt import RESPONSE_SCHEMA, build_prompt
 from .rate_limiter import get_token_bucket
 from .result import GeminiAnalysisResult, GeminiSummary
+from services.complexity_labels import normalize_complexity
 
 
 def analyze(code: str) -> GeminiAnalysisResult:
@@ -46,6 +47,4 @@ def _build_result(raw: dict) -> GeminiAnalysisResult:
 
 
 def _normalize(val: str | None) -> str | None:
-    if val is None or val.strip().lower() in ("unknown", ""):
-        return None
-    return val
+    return normalize_complexity(val)

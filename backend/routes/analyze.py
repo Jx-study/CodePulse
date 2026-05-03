@@ -154,7 +154,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
             complexity_source = "ast+bigO"
         else:
             final_complexity = ast_complexity
-            complexity_source = "ast_conflict"
+            complexity_source = "ast"
     elif ast_complexity != "unknown":
         final_complexity = ast_complexity
         complexity_source = "ast"
