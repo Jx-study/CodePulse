@@ -57,12 +57,12 @@ def register():
     username = (data.get('username') or '').strip()
 
     # Validation
-    if not email or '@' not in email:
+    if not email or '@' not in email or len(email) > 254:
         return jsonify({'success': False, 'message': '請輸入有效的信箱', 'error_code': 'INVALID_EMAIL'}), 400
     if pw_err := _validate_password(password):
         return jsonify({'success': False, 'message': pw_err, 'error_code': 'WEAK_PASSWORD'}), 400
-    if not username or len(username) < 3:
-        return jsonify({'success': False, 'message': '用戶名至少需要3個字符', 'error_code': 'INVALID_USERNAME'}), 400
+    if not username or len(username) < 3 or len(username) > 15:
+        return jsonify({'success': False, 'message': '用戶名至少需要3個字符，最多15個字符', 'error_code': 'INVALID_USERNAME'}), 400
 
     # Check email uniqueness
     if User.query.filter_by(email=email).first():
@@ -304,6 +304,8 @@ def complete_setup():
 
     if not USERNAME_RE.match(username):
         return jsonify({'success': False, 'message': '用戶名只能包含英文、數字、底線，長度 3-15', 'error_code': 'INVALID_USERNAME'}), 400
+    if len(display_name) > 30:
+        return jsonify({'success': False, 'message': '顯示名稱不可超過 30 個字符', 'error_code': 'INVALID_DISPLAY_NAME'}), 400
     if username.lower() in RESERVED_USERNAMES:
         return jsonify({'success': False, 'message': '此用戶名不可使用', 'error_code': 'RESERVED_USERNAME'}), 400
 
@@ -407,7 +409,7 @@ def resend_verification():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
 
-    if not email or '@' not in email:
+    if not email or '@' not in email or len(email) > 254:
         return jsonify({'success': False, 'message': '請輸入有效的信箱', 'error_code': 'INVALID_EMAIL'}), 400
 
     # If email already registered, no need to resend
@@ -654,7 +656,7 @@ def forgot_password():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
 
-    if not email or '@' not in email:
+    if not email or '@' not in email or len(email) > 254:
         return jsonify({'success': False, 'error_code': 'INVALID_EMAIL', 'message': '請輸入有效的信箱'}), 400
 
     # Always return 200 regardless of whether email exists (prevent enumeration)
@@ -749,7 +751,7 @@ def reset_password():
     code = (data.get('code') or '').strip().upper()
     new_password = data.get('new_password') or ''
 
-    if not email or '@' not in email or not _CODE_RE.match(code):
+    if not email or '@' not in email or len(email) > 254 or not _CODE_RE.match(code):
         return jsonify({'success': False, 'error_code': 'INVALID_INPUT', 'message': '請確認所有欄位格式正確'}), 400
 
     if pw_err := _validate_password(new_password):
