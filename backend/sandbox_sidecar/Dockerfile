@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir flask gunicorn
 COPY container_pool.py .
 COPY app.py .
 
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--workers", "1", "--threads", "10", "--bind", "0.0.0.0:8080", "app:app"]
