@@ -42,7 +42,7 @@ jobs:
             cd ~/projects/CodePulse
             git pull origin main
             source backend/venv/bin/activate
-            pip install -r backend/requirements.prod.txt
+            pip install -r backend/requirements.txt
             sudo systemctl restart codepulse-backend
             echo "Deployment Successful at $(date)"
           ENDSSH

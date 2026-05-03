@@ -9,7 +9,6 @@ services:
       - POSTGRES_DB=codepulse
       - POSTGRES_USER=codepulse
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U codepulse -d codepulse"]
       interval: 5s
@@ -19,8 +18,16 @@ services:
   sandbox-sidecar:
     build:
       context: ./backend/sandbox_sidecar
+    ports:
+      - "127.0.0.1:8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - MIN_POOL_SIZE=${MIN_POOL_SIZE:-10}
+      - MAX_POOL_SIZE=${MAX_POOL_SIZE:-30}
+      - MAX_REUSE=${MAX_REUSE:-50}
+      - CONTAINER_TIMEOUT=${CONTAINER_TIMEOUT:-10}
+      - ACQUIRE_TIMEOUT=${ACQUIRE_TIMEOUT:-8}
     restart: unless-stopped
 
   backend:
