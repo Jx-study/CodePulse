@@ -216,7 +216,12 @@ function drawContainer(
       .attr("stroke-width", lineWidth);
 
     return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
-  } else if (type === "binarytree" || type === "topological-sort") {
+  } else if (
+    type === "binarytree" ||
+    type === "bfs" ||
+    type === "dfs" ||
+    type === "topological-sort"
+  ) {
     const startX = 750;
     const endX = 950;
     const topY = 50;
