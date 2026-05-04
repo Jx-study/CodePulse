@@ -1,6 +1,7 @@
 """Shared pytest fixtures for backend tests."""
 import os
 os.environ.setdefault("SKIP_ML_WARMUP", "1")
+os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "1")
 import pytest
 
 # tracer.run_trace() 有 SANDBOX_CONTAINER guard，測試環境需要設此環境變數
