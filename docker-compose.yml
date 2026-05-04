@@ -15,6 +15,17 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   sandbox-sidecar:
     build:
       context: ./backend/sandbox_sidecar
@@ -47,12 +58,45 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
       - SANDBOX_SIDECAR_URL=http://sandbox-sidecar:8080
+      - REDIS_URL=redis://redis:6379/0
+      - USE_CELERY=1
     depends_on:
       postgres:
         condition: service_healthy
       sandbox-sidecar:
         condition: service_started
+      redis:
+        condition: service_healthy
     command: python app.py
+
+  celery-worker:
+    build:
+      context: ./backend
+      args:
+        REGISTRY_PREFIX: ${REGISTRY_PREFIX:-}
+    volumes:
+      - ./backend:/app
+      - /app/__pycache_
+      - fastembed_cache:/tmp/fastembed_cache
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379/0
+      - SANDBOX_SIDECAR_URL=http://sandbox-sidecar:8080
+      - USE_CELERY=1
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      sandbox-sidecar:
+        condition: service_started
+    command: >
+      celery -A celery_worker worker
+      --loglevel=info
+      --concurrency=2
+      --pool=prefork
 
   # Vite dev server
   frontend:
