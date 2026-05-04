@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from services.algo_identification import IdentifyResult
-from routes.analyze import route_level1_decision
+from services.analysis_runner import route_level1_decision
 
 
 def _result(algo_name, score=0.8, top_raw=None):
