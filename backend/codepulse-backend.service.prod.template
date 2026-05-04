@@ -6,7 +6,10 @@ After=postgresql.service
 User=codepulse
 WorkingDirectory=/home/codepulse/projects/CodePulse/backend
 Environment=SANDBOX_SIDECAR_URL=http://127.0.0.1:8080
+Environment=REDIS_URL=redis://127.0.0.1:6379/0
+Environment=USE_CELERY=1
 ExecStartPre=/home/codepulse/projects/CodePulse/backend/deploy-sidecar.sh
+ExecStartPre=/home/codepulse/projects/CodePulse/backend/deploy-celery.sh
 ExecStart=/home/codepulse/projects/CodePulse/backend/venv/bin/gunicorn \
     -w 1 --threads 10 --worker-class gthread --timeout 120 -b 127.0.0.1:5000 app:app
 Restart=always
