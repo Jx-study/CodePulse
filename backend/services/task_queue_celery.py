@@ -3,8 +3,6 @@ import redis as redis_lib
 from celery.result import AsyncResult
 from celery_app import celery_app  # noqa: F401 — ensures celery_app is configured
 
-from services.analysis_runner import run_analysis_task
-
 PROGRESS_TTL = 300  # seconds, aligned with result_expires in celery_app.py
 
 _CELERY_STATE_MAP = {
@@ -24,6 +22,7 @@ class CeleryTaskQueue:
         self._redis = redis_lib.from_url(redis_url, decode_responses=True)
 
     def submit(self, fn, *args, **kwargs) -> str:
+        from services.analysis_runner import run_analysis_task  # lazy — breaks circular import
         async_result = run_analysis_task.delay(*args, **kwargs)
         return async_result.id
 

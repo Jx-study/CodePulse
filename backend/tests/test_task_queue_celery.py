@@ -13,7 +13,7 @@ def make_queue():
 
 def test_submit_returns_task_id():
     q = make_queue()
-    with patch("services.task_queue_celery.run_analysis_task") as mock_task:
+    with patch("services.analysis_runner.run_analysis_task") as mock_task:
         mock_result = MagicMock()
         mock_result.id = "test-task-id-123"
         mock_task.delay.return_value = mock_result
