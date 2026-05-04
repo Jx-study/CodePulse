@@ -33,19 +33,21 @@ function linkCurrentNodes(nodes: Node[]) {
 }
 
 /** InsertAtIndex 雙向：僅 newNode.next = succ */
-function wireIndexDoublyLinkNext(oldChain: Node[], newNode: Node, succ: Node) {
+function wireIndexDoublyLinkNext(oldChain: Node[], newNode: Node, succ?: Node) {
   linkNodesDoubly(oldChain);
-  newNode.next = succ;
+  if (succ) newNode.next = succ;
   newNode.prev = null;
   syncPointersFromNextPrev([...oldChain, newNode]);
 }
 
 /** succ.prev = newNode */
-function wireIndexDoublySuccPrev(oldChain: Node[], newNode: Node, succ: Node) {
+function wireIndexDoublySuccPrev(oldChain: Node[], newNode: Node, succ?: Node) {
   linkNodesDoubly(oldChain);
-  newNode.next = succ;
+  if (succ) {
+    newNode.next = succ;
+    succ.prev = newNode;
+  }
   newNode.prev = null;
-  succ.prev = newNode;
   syncPointersFromNextPrev([...oldChain, newNode]);
 }
 
@@ -54,12 +56,14 @@ function wireIndexDoublyPredNext(
   oldChain: Node[],
   newNode: Node,
   pred: Node,
-  succ: Node,
+  succ?: Node,
 ) {
   linkNodesDoubly(oldChain);
-  newNode.next = succ;
+  if (succ) {
+    newNode.next = succ;
+    succ.prev = newNode;
+  }
   newNode.prev = null;
-  succ.prev = newNode;
   pred.next = newNode;
   syncPointersFromNextPrev([...oldChain, newNode]);
 }
@@ -69,13 +73,15 @@ function wireIndexDoublyFull(
   oldChain: Node[],
   newNode: Node,
   pred: Node,
-  succ: Node,
+  succ?: Node,
 ) {
   linkNodesDoubly(oldChain);
   pred.next = newNode;
   newNode.prev = pred;
-  newNode.next = succ;
-  succ.prev = newNode;
+  if (succ) {
+    newNode.next = succ;
+    succ.prev = newNode;
+  }
   syncPointersFromNextPrev([...oldChain, newNode]);
 }
 
@@ -99,13 +105,21 @@ const TAGS = {
   INSERT_HEAD_LINK: "INSERT_HEAD_LINK",
   INSERT_HEAD_LINK_PREV: "INSERT_HEAD_LINK_PREV",
   INSERT_HEAD_UPDATE: "INSERT_HEAD_UPDATE",
+  INSERT_HEAD_UPDATE_ISNULL: "INSERT_HEAD_UPDATE_ISNULL",
+  INSERT_HEAD_UPDATE_NOTNULL: "INSERT_HEAD_UPDATE_NOTNULL",
+  INSERT_HEAD_UPDATE_TAIL: "INSERT_HEAD_UPDATE_TAIL",
   INSERT_HEAD_END: "INSERT_HEAD_END",
 
   INSERT_TAIL_START: "INSERT_TAIL_START",
   INSERT_TAIL_TRAVERSE: "INSERT_TAIL_TRAVERSE",
   INSERT_TAIL_CREATE: "INSERT_TAIL_CREATE",
+  INSERT_TAIL_UPDATE_ISNULL_TRUE: "INSERT_TAIL_UPDATE_ISNULL_TRUE",
+  INSERT_TAIL_CREATE_NEW_NODE_ISNULL: "INSERT_TAIL_CREATE_NEW_NODE_ISNULL",
+  INSERT_TAIL_UPDATE_HEAD_ISNULL: "INSERT_TAIL_UPDATE_HEAD_ISNULL",
+  INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL: "INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL",
   INSERT_TAIL_LINK: "INSERT_TAIL_LINK",
   INSERT_TAIL_LINK_PREV: "INSERT_TAIL_LINK_PREV",
+  INSERT_TAIL_POINTER_MOVE: "INSERT_TAIL_POINTER_MOVE",
   INSERT_TAIL_END: "INSERT_TAIL_END",
 
   INSERT_INDEX_START: "INSERT_INDEX_START",
@@ -115,14 +129,24 @@ const TAGS = {
   INSERT_INDEX_CREATE: "INSERT_INDEX_CREATE",
   INSERT_INDEX_LINK: "INSERT_INDEX_LINK",
   INSERT_INDEX_LINK_PREV: "INSERT_INDEX_LINK_PREV",
+  INSERT_INDEX_LINK_NEW_NEXT: "INSERT_INDEX_LINK_NEW_NEXT",
+  INSERT_INDEX_LINK_NEXT_PREV: "INSERT_INDEX_LINK_NEXT_PREV",
+  INSERT_INDEX_LINK_CURRENT_NEXT: "INSERT_INDEX_LINK_CURRENT_NEXT",
+  INSERT_INDEX_LINK_NEW_PREV: "INSERT_INDEX_LINK_NEW_PREV",
+  INSERT_INDEX_UPDATE_TAIL: "INSERT_INDEX_UPDATE_TAIL",
   INSERT_INDEX_END: "INSERT_INDEX_END",
 
   DELETE_HEAD_START: "DELETE_HEAD_START",
   DELETE_HEAD_CHECK: "DELETE_HEAD_CHECK",
-  DELETE_HEAD_UPDATE: "DELETE_HEAD_UPDATE",
+  DELETE_HEAD_UPDATE_HEAD: "DELETE_HEAD_UPDATE_HEAD",
+  DELETE_HEAD_UPDATE_PREV: "DELETE_HEAD_UPDATE_PREV",
+  DELETE_HEAD_UPDATE_TAIL: "DELETE_HEAD_UPDATE_TAIL",
+  DELETE_HEAD_FREE: "DELETE_HEAD_FREE",
   DELETE_HEAD_END: "DELETE_HEAD_END",
 
   DELETE_TAIL_START: "DELETE_TAIL_START",
+  DELETE_TAIL_ISNEXTNULL: "DELETE_TAIL_ISNEXTNULL",
+  DELETE_TAIL_ISNEXTNULL_REMOVE: "DELETE_TAIL_ISNEXTNULL_REMOVE",
   DELETE_TAIL_TRAVERSE: "DELETE_TAIL_TRAVERSE",
   DELETE_TAIL_UNLINK: "DELETE_TAIL_UNLINK",
   DELETE_TAIL_SINGLE: "DELETE_TAIL_SINGLE",
@@ -314,7 +338,7 @@ function createInsertTailHasTailSteps(
       stepNumber: steps.length + 1,
       description: `newNode.prev = tail (新節點 prev 回指舊尾節點)`,
       elements: allS2b as any,
-      actionTag: TAGS.INSERT_TAIL_LINK_PREV || TAGS.INSERT_TAIL_LINK,
+      actionTag: TAGS.INSERT_TAIL_LINK_PREV,
       variables: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
     });
   }
@@ -351,7 +375,7 @@ function createInsertTailHasTailSteps(
     stepNumber: steps.length + 1,
     description: `tail = newNode (更新 tail 指標指向新節點)`,
     elements: allS3 as any,
-    actionTag: TAGS.INSERT_TAIL_END,
+    actionTag: TAGS.INSERT_TAIL_POINTER_MOVE,
     variables: { tail: value },
   });
 
@@ -610,6 +634,8 @@ function createInsertHeadSteps(
     (n: any) => !(n instanceof Pointer),
   ) as Node[];
 
+  let currentStepIdx = 2; // Step 1 is CREATE
+
   if (currentIsDoubly && actualAllS2.length >= 2) {
     linkNodesDoubly(actualAllS2);
     const newNode = actualAllS2[0];
@@ -619,7 +645,7 @@ function createInsertHeadSteps(
     syncPointersFromNextPrev(actualAllS2);
 
     addStep(steps, {
-      stepNumber: 2,
+      stepNumber: currentStepIdx++,
       description: `newNode.next = head (新節點 next 指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
       elements: allS2 as any,
       actionTag: TAGS.INSERT_HEAD_LINK,
@@ -662,16 +688,16 @@ function createInsertHeadSteps(
     ) as Node[];
     linkNodesDoubly(actualAllS2b);
     addStep(steps, {
-      stepNumber: 3,
+      stepNumber: currentStepIdx++,
       description: `head.prev = newNode (原頭節點 prev 回指新節點)`,
       elements: allS2b as any,
       actionTag: TAGS.INSERT_HEAD_LINK_PREV,
       variables: { "head.prev": value },
     });
-  } else {
+  } else if (!currentIsDoubly) {
     linkCurrentNodes(actualAllS2);
     addStep(steps, {
-      stepNumber: 2,
+      stepNumber: currentStepIdx++,
       description: `newNode.next = head (新節點指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
       elements: allS2 as any,
       actionTag: TAGS.INSERT_HEAD_LINK,
@@ -680,6 +706,10 @@ function createInsertHeadSteps(
         head: oldNodesData[0]?.value ?? null,
       },
     });
+  } else {
+    // 雙向鏈結串列且 head === null (oldNodesData.length === 0)
+    // 根據虛擬碼，這裡不需要執行 newNode.next = head，直接跳過這一步
+    linkCurrentNodes(actualAllS2);
   }
 
   const s3OldElements = oldNodesData.flatMap((item, i) => {
@@ -713,14 +743,16 @@ function createInsertHeadSteps(
   const actualAllS3 = allS3.filter((n: any) => !(n instanceof Pointer));
   linkCurrentNodes(actualAllS3 as any);
 
-  // 動態計算目前的步驟號碼 (如果雙向且有舊節點，因為有 head.prev，所以從 4 開始，否則從 3 開始)
-  let currentStepIdx = currentIsDoubly && actualAllS2.length >= 2 ? 4 : 3;
+  let updateTag = TAGS.INSERT_HEAD_UPDATE;
+  if (currentIsDoubly) {
+    updateTag = oldNodesData.length === 0 ? TAGS.INSERT_HEAD_UPDATE_ISNULL : TAGS.INSERT_HEAD_UPDATE_NOTNULL;
+  }
 
   addStep(steps, {
     stepNumber: currentStepIdx++,
     description: `head = newNode (更新 head 指標指向新節點)`,
     elements: allS3 as any,
-    actionTag: TAGS.INSERT_HEAD_UPDATE,
+    actionTag: updateTag,
     variables: { head: value },
   });
 
@@ -746,7 +778,7 @@ function createInsertHeadSteps(
       stepNumber: currentStepIdx++,
       description: `原本鏈結串列為空，更新 tail 指標指向新節點`,
       elements: sTailNewElement as any,
-      actionTag: TAGS.INSERT_HEAD_UPDATE,
+      actionTag: TAGS.INSERT_HEAD_UPDATE_TAIL,
       variables: { head: value, tail: value },
     });
   }
@@ -796,6 +828,14 @@ function createInsertTailSteps(
     const newNodeData = dataList[0];
     let currentStepIdx = 1;
 
+    steps.push({
+      stepNumber: currentStepIdx++,
+      description: `檢查是否為空串列: head == null，成立`,
+      elements: [] as any,
+      actionTag: TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE,
+      variables: { head: null },
+    });
+
     const s1Elements = makeNodeAndPointers(
       newNodeData,
       0,
@@ -807,13 +847,16 @@ function createInsertTailSteps(
       "",
       "new",
     );
+
     steps.push({
       stepNumber: currentStepIdx++,
-      description: `InsertTail(${value}): 鏈結串列為空，建立新節點作為頭節點`,
+      description: `建立新節點`,
       elements: s1Elements as any,
-      actionTag: TAGS.INSERT_TAIL_CREATE,
-      variables: { value, "newNode.value": value, head: null },
+      actionTag: TAGS.INSERT_TAIL_CREATE_NEW_NODE_ISNULL,
+      variables: { head: null },
     });
+
+    const updateHeadTag = TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL;
 
     const s2Elements = makeNodeAndPointers(
       newNodeData,
@@ -829,7 +872,7 @@ function createInsertTailSteps(
       stepNumber: currentStepIdx++,
       description: `head = newNode (更新 head 指標指向新節點)`,
       elements: s2Elements as any,
-      actionTag: TAGS.INSERT_TAIL_END,
+      actionTag: updateHeadTag,
       variables: { head: value, length: 1 },
     });
 
@@ -848,10 +891,34 @@ function createInsertTailSteps(
         stepNumber: currentStepIdx++,
         description: `tail = newNode (因為原本為空，同步更新 tail 指標)`,
         elements: s3Elements as any,
-        actionTag: TAGS.INSERT_TAIL_END,
+        actionTag: TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL,
         variables: { head: value, tail: value, length: 1 },
       });
     }
+
+    const sFinalElements = dataList.flatMap((item, i) =>
+      makeNodeAndPointers(
+        item,
+        i,
+        totalLen,
+        startX + i * gap,
+        baseY,
+        hasTailMode,
+        Status.Complete,
+      ),
+    );
+    const actualFinalNodes = sFinalElements.filter(
+      (n: any) => !(n instanceof Pointer),
+    );
+    linkCurrentNodes(actualFinalNodes as any);
+
+    steps.push({
+      stepNumber: currentStepIdx++,
+      description: "InsertTail 完成",
+      elements: sFinalElements as any,
+      actionTag: TAGS.INSERT_TAIL_END,
+      variables: { head: value, tail: hasTailMode ? value : undefined, length: 1 },
+    });
 
     return steps;
   }
@@ -1337,7 +1404,7 @@ function createInsertIndexSteps(
       stepNumber: steps.length + 1,
       description: `2. 將新節點指向原 Node ${N}`,
       elements: [...s4OldElements, ...s4NewElement] as any,
-      actionTag: TAGS.INSERT_INDEX_LINK,
+      actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
       variables: {
         "newNode.next": oldNodesData[N]?.value ?? null,
         current: oldNodesData[N - 1]?.value ?? null,
@@ -1398,7 +1465,7 @@ function createInsertIndexSteps(
       stepNumber: steps.length + 1,
       description: `3. 將 Node ${N - 1} 指向新節點`,
       elements: [...s5OldElements, ...s5NewElement] as any,
-      actionTag: TAGS.INSERT_INDEX_LINK,
+      actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
       variables: {
         "current.next": value,
         current: oldNodesData[N - 1]?.value ?? null,
@@ -1406,43 +1473,45 @@ function createInsertIndexSteps(
     });
   } else {
     const p1 = buildInsertIndexS4Wire();
-    if (p1.newNodeObj && p1.succ && p1.pred) {
+    if (p1.newNodeObj && p1.pred) {
       wireIndexDoublyLinkNext(p1.actualS4OldNodes, p1.newNodeObj, p1.succ);
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: `2. 將新節點指向原 Node ${N}（newNode.next）`,
         elements: [...p1.s4OldElements, ...p1.s4NewElement] as any,
-        actionTag: TAGS.INSERT_INDEX_LINK,
+        actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
         variables: {
           "newNode.next": oldNodesData[N]?.value ?? null,
           current: oldNodesData[N - 1]?.value ?? null,
         },
       });
 
-      const p2 = buildInsertIndexS4Wire();
-      wireIndexDoublySuccPrev(p2.actualS4OldNodes, p2.newNodeObj!, p2.succ!);
-      addStep(steps, {
-        stepNumber: steps.length + 1,
-        description: `2b. 原 Node ${N} 的 prev 回指新節點`,
-        elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
-        actionTag: TAGS.INSERT_INDEX_LINK_PREV,
-        variables: {
-          [`node[${N}].prev`]: value,
-        },
-      });
+      if (p1.succ) {
+        const p2 = buildInsertIndexS4Wire();
+        wireIndexDoublySuccPrev(p2.actualS4OldNodes, p2.newNodeObj!, p2.succ);
+        addStep(steps, {
+          stepNumber: steps.length + 1,
+          description: `2b. 原 Node ${N} 的 prev 回指新節點`,
+          elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
+          actionTag: TAGS.INSERT_INDEX_LINK_NEXT_PREV,
+          variables: {
+            [`node[${N}].prev`]: value,
+          },
+        });
+      }
 
       const p3 = buildInsertIndexS4Wire();
       wireIndexDoublyPredNext(
         p3.actualS4OldNodes,
         p3.newNodeObj!,
         p3.pred!,
-        p3.succ!,
+        p3.succ,
       );
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: `3. Node ${N - 1} 的 next 指向新節點`,
         elements: [...p3.s4OldElements, ...p3.s4NewElement] as any,
-        actionTag: TAGS.INSERT_INDEX_LINK,
+        actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
         variables: {
           "current.next": value,
           current: oldNodesData[N - 1]?.value ?? null,
@@ -1454,13 +1523,13 @@ function createInsertIndexSteps(
         p4.actualS4OldNodes,
         p4.newNodeObj!,
         p4.pred!,
-        p4.succ!,
+        p4.succ,
       );
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: `3b. 新節點 prev 回指 Node ${N - 1}`,
         elements: [...p4.s4OldElements, ...p4.s4NewElement] as any,
-        actionTag: TAGS.INSERT_INDEX_LINK_PREV,
+        actionTag: TAGS.INSERT_INDEX_LINK_NEW_PREV,
         variables: {
           "newNode.prev": oldNodesData[N - 1]?.value ?? null,
         },
@@ -1481,6 +1550,16 @@ function createInsertIndexSteps(
   );
   const actualS6Nodes = s6Elements.filter((n) => !(n instanceof Pointer));
   linkCurrentNodes(actualS6Nodes as any);
+
+  if (hasTailMode && N === totalLen - 1) {
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: `If newNode.next = null, 成立，更新 tail`,
+      elements: s6Elements as any,
+      actionTag: TAGS.INSERT_INDEX_UPDATE_TAIL,
+      variables: { tail: value },
+    });
+  }
 
   addStep(steps, {
     stepNumber: steps.length + 1,
@@ -1550,7 +1629,7 @@ function createDeleteHeadSteps(
     baseY,
     hasTailMode,
     Status.Target,
-    "head",
+    hasTailMode && currentLen === 0 ? "head/tail" : "head",
   );
   const s1RestElements = dataList.flatMap((item, i) =>
     makeNodeAndPointers(
@@ -1583,7 +1662,7 @@ function createDeleteHeadSteps(
     baseY,
     hasTailMode,
     Status.Target,
-    "",
+    hasTailMode && currentLen === 0 ? "tail" : "", // 修改這裡
   );
   const s2RestElements = dataList.flatMap((item, i) => {
     let label = undefined;
@@ -1617,7 +1696,7 @@ function createDeleteHeadSteps(
     stepNumber: currentStepIdx++,
     description: "head = head.next (將 head 指標移至下一個節點)",
     elements: allS2 as any,
-    actionTag: TAGS.DELETE_HEAD_UPDATE,
+    actionTag: TAGS.DELETE_HEAD_UPDATE_HEAD,
     variables: { head: dataList[0]?.value ?? null },
   });
 
@@ -1658,10 +1737,32 @@ function createDeleteHeadSteps(
 
     steps.push({
       stepNumber: currentStepIdx++,
-      description: "head.prev = null (斷開新頭節點的回指連結)",
+      description: "If head ≠ null, head.prev = null (斷開新頭節點的回指連結)",
       elements: allS3b as any,
-      actionTag: TAGS.DELETE_HEAD_UPDATE,
+      actionTag: TAGS.DELETE_HEAD_UPDATE_PREV,
       variables: { head: dataList[0]?.value ?? null },
+    });
+  }
+
+  // 針對有 Tail 模式且串列清空時，增加 tail = null 動畫
+  if (hasTailMode && dataList.length === 0) {
+    // 重新建立一個不帶標籤的舊節點集合，確保 tail 指標消失
+    const s2DelElementNoTail = makeNodeAndPointers(
+      deletedNodeData,
+      0,
+      currentLen + 1,
+      startX,
+      baseY,
+      hasTailMode,
+      Status.Target,
+      "", // 強制標籤為空
+    );
+    steps.push({
+      stepNumber: currentStepIdx++,
+      description: currentIsDoubly ? "Else tail = null (串列已空，清空 tail)" : "If head = null, tail = null (串列已空，清空 tail)",
+      elements: s2DelElementNoTail as any, // 使用不帶標籤的元素
+      actionTag: TAGS.DELETE_HEAD_UPDATE_TAIL,
+      variables: { head: null, tail: null },
     });
   }
 
@@ -1713,7 +1814,7 @@ function createDeleteHeadSteps(
     stepNumber: currentStepIdx++,
     description: "釋放記憶體：斷開被刪除節點的連結",
     elements: allS3 as any,
-    actionTag: TAGS.DELETE_HEAD_UPDATE,
+    actionTag: TAGS.DELETE_HEAD_FREE,
     variables: { head: dataList[0]?.value ?? null },
   });
 
@@ -1805,7 +1906,7 @@ function createDeleteTailSteps(
       stepNumber: steps.length + 1,
       description: `DeleteAtIndex(${value}, ${N}): index 等於長度 ${currentLen}，執行 deleteAtTail`,
       elements: checkElements as any,
-      actionTag: TAGS.DELETE_INDEX_START,
+      actionTag: TAGS.DELETE_INDEX_IFTAIL,
       variables: {
         index: N,
         length: currentLen,
@@ -1815,58 +1916,245 @@ function createDeleteTailSteps(
     });
   }
 
-  for (let i = 0; i < currentLen; i++) {
-    const traverseElements = [
-      ...dataList.flatMap((item, idx) => {
-        let status: Status = Status.Unfinished;
-        let extra = undefined;
-        if (idx === i) {
-          status = Status.Prepare;
-          extra = "current";
-        }
-        if (i > 0 && idx === i - 1) {
-          extra = "pre";
-        }
-        return makeNodeAndPointers(
-          item,
-          idx,
-          currentLen + 1,
-          startX + idx * gap,
-          baseY,
-          hasTailMode,
-          status,
-          undefined,
-          extra,
-        );
-      }),
-      ...makeNodeAndPointers(
-        deletedNodeData,
-        currentLen,
-        currentLen + 1,
-        startX + currentLen * gap,
-        baseY,
-        hasTailMode,
-        i === currentLen ? Status.Target : Status.Unfinished,
-        hasTailMode ? "tail" : "",
+  if (currentIsDoubly && hasTailMode && currentLen > 1) {
+    // 雙向鏈結串列且有 Tail：細分步驟，不再遍歷
+    const preNodeData = dataList[currentLen - 1]; 
+    const value = deletedNodeData.value;
+
+    // 步驟 1：找到目標（這裡直接從 tail 開始）
+    const s1Elements = [
+      ...dataList.flatMap((item, idx) => 
+        makeNodeAndPointers(item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode, Status.Unfinished)
       ),
+      ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Target, "tail")
     ];
-    const actualTraverseNodes = traverseElements.filter(
-      (n) => !(n instanceof Pointer),
-    );
-    linkCurrentNodes(actualTraverseNodes as any);
+    const actualS1 = s1Elements.filter(n => !(n instanceof Pointer));
+    linkCurrentNodes(actualS1 as any);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `遍歷中：current = current.next (尋找尾端節點)`,
-      elements: traverseElements as any,
-      actionTag: TAGS.DELETE_TAIL_TRAVERSE,
+      description: `DeleteTail(): 找到尾端節點 ${value}`,
+      elements: s1Elements as any,
+      actionTag: TAGS.DELETE_TAIL_START,
       variables: {
-        current: (actualTraverseNodes[i] as any)?.value ?? null,
-        index: i,
+        current: value,
+        tail: value,
       },
     });
+
+    // 步驟 2：找到前驅節點
+    const s2Elements = [
+      ...dataList.flatMap((item, idx) => 
+        makeNodeAndPointers(item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode, idx === currentLen - 1 ? Status.Prepare : Status.Unfinished, idx === 0 ? "head" : undefined, idx === currentLen - 1 ? "prev" : undefined)
+      ),
+      ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Target, "tail")
+    ];
+    const actualS2 = s2Elements.filter(n => !(n instanceof Pointer));
+    linkCurrentNodes(actualS2 as any);
+
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: `prev = tail.prev (找到尾端節點的前驅節點)`,
+      elements: s2Elements as any,
+      actionTag: TAGS.DELETE_TAIL_TRAVERSE,
+      variables: {
+        current: value,
+        prev: preNodeData.value ?? null,
+      },
+    });
+
+    // 步驟 3：斷開連結
+    const s3Elements = [
+      ...dataList.flatMap((item, idx) => 
+        makeNodeAndPointers(item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode, idx === currentLen - 1 ? Status.Target : Status.Unfinished, idx === 0 ? "head" : undefined, idx === currentLen - 1 ? "prev" : undefined)
+      ),
+      ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Inactive)
+    ];
+    const actualS3 = s3Elements.filter(n => !(n instanceof Pointer)) as Node[];
+    linkNodesDoubly(actualS3);
+    actualS3[currentLen - 1].next = null;
+    syncPointersFromNextPrev(actualS3);
+
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: `pre.next = null (斷開前一個節點的連結)`,
+      elements: s3Elements as any,
+      actionTag: TAGS.DELETE_TAIL_UNLINK,
+      variables: {
+        "pre.next": null,
+        prev: preNodeData.value ?? null,
+      },
+    });
+
+    // 步驟 4：更新 Tail
+    const s4Elements = [
+      ...dataList.flatMap((item, idx) => {
+        let label = idx === 0 ? "head" : undefined;
+        if (idx === currentLen - 1) label = (label ? label + "/" : "") + "tail";
+        return makeNodeAndPointers(item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode, idx === currentLen - 1 ? Status.Target : Status.Unfinished, label, idx === currentLen - 1 ? "prev" : undefined)
+      }),
+      ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Inactive, "")
+    ];
+    const actualS4 = s4Elements.filter(n => !(n instanceof Pointer)) as Node[];
+    linkNodesDoubly(actualS4);
+    actualS4[currentLen - 1].next = null;
+    syncPointersFromNextPrev(actualS4);
+
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: `tail = pre (更新 tail 指標指向新的尾節點)`,
+      elements: s4Elements as any,
+      actionTag: TAGS.DELETE_TAIL_END,
+      variables: {
+        tail: preNodeData.value ?? null,
+        prev: preNodeData.value ?? null,
+      },
+    });
+
+    // 步驟 5：完成
+    const s5Elements = dataList.flatMap((item, i) =>
+      makeNodeAndPointers(item, i, currentLen, startX + i * gap, baseY, hasTailMode, Status.Complete)
+    );
+    const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));
+    linkCurrentNodes(actualS5Nodes as any);
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: "DeleteTail 完成",
+      elements: s5Elements as any,
+      actionTag: TAGS.DELETE_TAIL_END,
+      variables: {
+        tail: dataList[currentLen - 1].value ?? null,
+        length: currentLen,
+      },
+    });
+
+    return steps; // 關鍵修復：防止掉入下方的舊有遍歷邏輯
+  } else if (currentIsDoubly) {
+    // ===== 雙向無 Tail：只用 current 遍歷，最後透過 current.prev.next 斷開 =====
+    for (let i = 0; i <= currentLen; i++) {
+      const isLastStep = i === currentLen;
+      const traverseElements = [
+        ...dataList.flatMap((item, idx) => {
+          let status: Status = Status.Unfinished;
+          let extra: string | undefined = undefined;
+          if (idx === i) { status = Status.Prepare; extra = "current"; }
+          // 最後一步：在前驅節點上顯示 current.prev 標籤
+          if (isLastStep && idx === currentLen - 1) {
+            status = Status.Prepare;
+            extra = "current.prev";
+          }
+          return makeNodeAndPointers(item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode, status, undefined, extra);
+        }),
+        ...makeNodeAndPointers(
+          deletedNodeData,
+          currentLen,
+          currentLen + 1,
+          startX + currentLen * gap,
+          baseY,
+          hasTailMode,
+          isLastStep ? Status.Target : Status.Unfinished,
+          "",
+          isLastStep ? "current" : undefined,
+        ),
+      ];
+      const actualTraverseNodes = traverseElements.filter((n) => !(n instanceof Pointer));
+      linkCurrentNodes(actualTraverseNodes as any);
+
+      addStep(steps, {
+        stepNumber: steps.length + 1,
+        description: i < currentLen
+          ? `遍歷中：current = current.next (尋找尾端節點)`
+          : `找到尾端節點 ${deletedNodeData.value}`,
+        elements: traverseElements as any,
+        actionTag: TAGS.DELETE_TAIL_TRAVERSE,
+        variables: {
+          current: i < currentLen
+            ? (actualTraverseNodes[i] as any)?.value ?? null
+            : deletedNodeData.value,
+        },
+      });
+    }
+
+    // current.prev.next = null
+    const doublyUnlinkElements = [
+      ...dataList.flatMap((item, idx) => {
+        let extra: string | undefined = undefined;
+        if (idx === currentLen - 1) extra = "current.prev";
+        return makeNodeAndPointers(
+          item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode,
+          idx === currentLen - 1 ? Status.Target : Status.Unfinished,
+          undefined, extra,
+        );
+      }),
+      ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Inactive, "", "current"),
+    ];
+    const actualDoublyUnlinkNodes = doublyUnlinkElements.filter((n) => !(n instanceof Pointer)) as Node[];
+    linkNodesDoubly(actualDoublyUnlinkNodes);
+    actualDoublyUnlinkNodes[currentLen - 1].next = null;
+    syncPointersFromNextPrev(actualDoublyUnlinkNodes);
+
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: "current.prev.next = null (透過前驅的 prev 指標直接斷開連結)",
+      elements: doublyUnlinkElements as any,
+      actionTag: TAGS.DELETE_TAIL_UNLINK,
+      variables: { "current.prev.next": null, current: deletedNodeData.value },
+    });
+
+    const doublyEndElements = dataList.flatMap((item, i) =>
+      makeNodeAndPointers(item, i, currentLen, startX + i * gap, baseY, hasTailMode, Status.Complete),
+    );
+    const actualDoublyEndNodes = doublyEndElements.filter((n) => !(n instanceof Pointer)) as Node[];
+    linkNodesDoubly(actualDoublyEndNodes);
+    syncPointersFromNextPrev(actualDoublyEndNodes);
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: "DeleteTail 完成",
+      elements: doublyEndElements as any,
+      actionTag: TAGS.DELETE_TAIL_END,
+      variables: { length: currentLen },
+    });
+    return steps;
+
+  } else {
+    // ===== 單向鏈結：需要 pre + current 兩個指標 =====
+    for (let i = 0; i < currentLen; i++) {
+      const traverseElements = [
+        ...dataList.flatMap((item, idx) => {
+          let status: Status = Status.Unfinished;
+          let extra = undefined;
+          if (idx === i) { status = Status.Prepare; extra = "current"; }
+          if (i > 0 && idx === i - 1) extra = "pre";
+          return makeNodeAndPointers(item, idx, currentLen + 1, startX + idx * gap, baseY, hasTailMode, status, undefined, extra);
+        }),
+        ...makeNodeAndPointers(
+          deletedNodeData,
+          currentLen,
+          currentLen + 1,
+          startX + currentLen * gap,
+          baseY,
+          hasTailMode,
+          i === currentLen ? Status.Target : Status.Unfinished,
+          hasTailMode ? "tail" : "",
+        ),
+      ];
+      const actualTraverseNodes = traverseElements.filter((n) => !(n instanceof Pointer));
+      linkCurrentNodes(actualTraverseNodes as any);
+
+      addStep(steps, {
+        stepNumber: steps.length + 1,
+        description: `遍歷中：current = current.next (尋找尾端節點)`,
+        elements: traverseElements as any,
+        actionTag: TAGS.DELETE_TAIL_TRAVERSE,
+        variables: {
+          current: (actualTraverseNodes[i] as any)?.value ?? null,
+          index: i,
+        },
+      });
+    }
   }
 
+  // ===== 以下為單向共用的後續步驟 =====
   const s2Elements = [
     ...dataList.flatMap((item, idx) => {
       let label = "";
@@ -1875,27 +2163,15 @@ function createDeleteTailSteps(
       if (idx === currentLen - 1) extra = "pre";
 
       return makeNodeAndPointers(
-        item,
-        idx,
-        currentLen,
-        startX + idx * gap,
-        baseY,
-        hasTailMode,
+        item, idx, currentLen, startX + idx * gap, baseY, hasTailMode,
         idx === currentLen - 1 ? Status.Prepare : Status.Unfinished,
-        label,
-        extra,
+        label, extra,
       );
     }),
     ...makeNodeAndPointers(
-      deletedNodeData,
-      currentLen,
-      currentLen + 1,
-      startX + currentLen * gap,
-      baseY,
-      hasTailMode,
-      Status.Target,
-      "tail",
-      "current",
+      deletedNodeData, currentLen, currentLen + 1,
+      startX + currentLen * gap, baseY, hasTailMode,
+      Status.Target, "tail", "current",
     ),
   ];
   const actualS2Nodes = s2Elements.filter((n) => !(n instanceof Pointer));
@@ -1918,27 +2194,15 @@ function createDeleteTailSteps(
       let extra = undefined;
       if (idx === currentLen - 1) extra = "pre";
       return makeNodeAndPointers(
-        item,
-        idx,
-        currentLen,
-        startX + idx * gap,
-        baseY,
-        hasTailMode,
+        item, idx, currentLen, startX + idx * gap, baseY, hasTailMode,
         idx === currentLen - 1 ? Status.Target : Status.Unfinished,
-        label,
-        extra,
+        label, extra,
       );
     }),
     ...makeNodeAndPointers(
-      deletedNodeData,
-      currentLen,
-      currentLen + 1,
-      startX + currentLen * gap,
-      baseY,
-      hasTailMode,
-      Status.Inactive,
-      hasTailMode ? "tail" : "",
-      "current",
+      deletedNodeData, currentLen, currentLen + 1,
+      startX + currentLen * gap, baseY, hasTailMode,
+      Status.Inactive, hasTailMode ? "tail" : "", "current",
     ),
   ];
   const actualS3Nodes = s3Elements.filter((n) => !(n instanceof Pointer));
@@ -1949,11 +2213,7 @@ function createDeleteTailSteps(
   ) as Node | undefined;
   if (newTailObj) {
     newTailObj.next = null;
-    if (currentIsDoubly) {
-      syncPointersFromNextPrev(actualS3Nodes as Node[]);
-    } else {
-      newTailObj.pointers = [];
-    }
+    (newTailObj as any).pointers = [];
   }
 
   addStep(steps, {
@@ -1976,43 +2236,25 @@ function createDeleteTailSteps(
         let extra = undefined;
         if (idx === currentLen - 1) extra = "pre";
         return makeNodeAndPointers(
-          item,
-          idx,
-          currentLen,
-          startX + idx * gap,
-          baseY,
-          hasTailMode,
+          item, idx, currentLen, startX + idx * gap, baseY, hasTailMode,
           idx === currentLen - 1 ? Status.Target : Status.Unfinished,
-          label,
-          extra,
+          label, extra,
         );
       }),
       ...makeNodeAndPointers(
-        deletedNodeData,
-        currentLen,
-        currentLen + 1,
-        startX + currentLen * gap,
-        baseY,
-        hasTailMode,
-        Status.Inactive,
-        "",
-        "current",
+        deletedNodeData, currentLen, currentLen + 1,
+        startX + currentLen * gap, baseY, hasTailMode,
+        Status.Inactive, "", "current",
       ),
     ];
-    const actualSTailNodes = sTailElements.filter(
-      (n) => !(n instanceof Pointer),
-    );
+    const actualSTailNodes = sTailElements.filter((n) => !(n instanceof Pointer));
     linkCurrentNodes(actualSTailNodes as any);
     const tailPreObj = actualSTailNodes.find(
       (n: any) => n.description === String(currentLen - 1),
     ) as Node | undefined;
     if (tailPreObj) {
       tailPreObj.next = null;
-      if (currentIsDoubly) {
-        syncPointersFromNextPrev(actualSTailNodes as Node[]);
-      } else {
-        tailPreObj.pointers = [];
-      }
+      (tailPreObj as any).pointers = [];
     }
 
     addStep(steps, {
@@ -2028,15 +2270,7 @@ function createDeleteTailSteps(
   }
 
   const s4Elements = dataList.flatMap((item, i) =>
-    makeNodeAndPointers(
-      item,
-      i,
-      currentLen,
-      startX + i * gap,
-      baseY,
-      hasTailMode,
-      Status.Complete,
-    ),
+    makeNodeAndPointers(item, i, currentLen, startX + i * gap, baseY, hasTailMode, Status.Complete),
   );
   const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
   linkCurrentNodes(actualS4Nodes as any);
@@ -2112,39 +2346,6 @@ function createDeleteIndexSteps(
       },
     });
   }
-
-  const s2Elements = oldList.flatMap((item, idx) => {
-    let y = baseY;
-    if (idx === N) y = baseY - 60;
-    let label = undefined;
-    if (idx === N - 1) label = getLabel(idx, originalLen, hasTailMode) + "pre";
-    let extra = idx === N ? "current" : idx === N - 1 ? "pre" : undefined;
-    let status: Status = idx === N - 1 ? Status.Prepare : Status.Unfinished;
-    if (idx === N) status = Status.Target;
-    return makeNodeAndPointers(
-      item,
-      idx,
-      originalLen,
-      startX + idx * gap,
-      y,
-      hasTailMode,
-      status,
-      label,
-      extra,
-    );
-  });
-  const actualS2Nodes = s2Elements.filter((n) => !(n instanceof Pointer));
-  linkCurrentNodes(actualS2Nodes as any);
-  addStep(steps, {
-    stepNumber: steps.length + 1,
-    description: `DeleteAtIndex(${deletedNodeData.value}, ${N}): 找到目標節點並移出`,
-    elements: s2Elements as any,
-    actionTag: TAGS.DELETE_INDEX_TRAVERSE,
-    variables: {
-      nodeToDelete: oldList[N].value ?? null,
-      pre: oldList[N - 1].value ?? null,
-    },
-  });
 
   const s3Elements = oldList.flatMap((item, idx) => {
     let y = baseY;
@@ -2372,7 +2573,7 @@ function createDeleteIndexSteps(
     stepNumber: steps.length + 1,
     description: "釋放記憶體：斷開被刪除節點的連結",
     elements: s4Elements as any,
-    actionTag: TAGS.DELETE_INDEX_UNLINK,
+    actionTag: TAGS.DELETE_INDEX_END,
     variables: {
       "current.next": null,
       pre: oldList[N - 1].value ?? null,
@@ -2421,16 +2622,16 @@ export function makeNodeAndPointers(
   let isHead = false;
   let isTail = false;
 
-  if (overrideLabel === "head" || overrideLabel === "head/tail") {
-    isHead = true;
-  } else if (overrideLabel === undefined && i === 0) {
+  if (overrideLabel !== undefined) {
+    if (overrideLabel.includes("head")) isHead = true;
+  } else if (i === 0) {
     isHead = true;
   }
 
   if (hasTailMode) {
-    if (overrideLabel === "tail" || overrideLabel === "head/tail") {
-      isTail = true;
-    } else if (overrideLabel === undefined && i === total - 1) {
+    if (overrideLabel !== undefined) {
+      if (overrideLabel.includes("tail")) isTail = true;
+    } else if (i === total - 1) {
       isTail = true;
     }
   }
@@ -2530,7 +2731,22 @@ export function createLinkedListAnimationSteps(
     const isDeleteTail =
       mode === "Tail" || (mode === "Node N" && N === dataList.length);
 
-    // last element is being deleted
+    // 優先處理 DeleteHead 或 DeleteAtIndex(0)，即便刪除後剩下 0 個節點也交給專門的 Head 動畫產生器
+    if (isDeleteHead) {
+      return createDeleteHeadSteps(
+        dataList,
+        deletedNodeData,
+        mode,
+        actionIndex,
+        hasTailMode,
+        startX,
+        gap,
+        baseY,
+        TAGS,
+      );
+    }
+
+    // last element is being deleted (僅對 DeleteTail 生效，因為如果是 DeleteHead/Index(0) 已經被上方攔截了)
     if (dataList.length === 0) {
       const s1DelElement = makeNodeAndPointers(
         deletedNodeData,
@@ -2546,13 +2762,15 @@ export function createLinkedListAnimationSteps(
         stepNumber: 1,
         description: "Delete: 鏈結串列只有一個節點，標記準備刪除",
         elements: s1DelElement,
-        actionTag: TAGS.DELETE_TAIL_SINGLE,
+        actionTag: TAGS.DELETE_TAIL_ISNEXTNULL,
       });
       addStep(steps, {
         stepNumber: 2,
-        description: "移除節點，head 設為 null",
+        description: hasTailMode 
+        ? "移除節點，head 與 tail 設為 null" 
+        : "移除節點，head 設為 null",
         elements: [],
-        actionTag: TAGS.DELETE_TAIL_SINGLE,
+        actionTag: TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE,
       });
       addStep(steps, {
         stepNumber: 3,
@@ -2561,20 +2779,6 @@ export function createLinkedListAnimationSteps(
         actionTag: TAGS.DELETE_TAIL_END,
       });
       return steps;
-    }
-
-    if (isDeleteHead) {
-      return createDeleteHeadSteps(
-        dataList,
-        deletedNodeData,
-        mode,
-        actionIndex,
-        hasTailMode,
-        startX,
-        gap,
-        baseY,
-        TAGS,
-      );
     }
     if (isDeleteTail) {
       return createDeleteTailSteps(
@@ -2704,6 +2908,9 @@ const linkedListNoTailCodeConfig: CodeConfig = {
       [TAGS.INSERT_HEAD_END]: [14],
 
       [TAGS.INSERT_TAIL_START]: [16],
+      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [17],
+      [TAGS.INSERT_TAIL_CREATE_NEW_NODE_ISNULL]: [18],
+      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [19],
       [TAGS.INSERT_TAIL_TRAVERSE]: [22, 23, 24, 25],
       [TAGS.INSERT_TAIL_CREATE]: [26],
       [TAGS.INSERT_TAIL_LINK]: [27],
@@ -2713,30 +2920,34 @@ const linkedListNoTailCodeConfig: CodeConfig = {
       [TAGS.INSERT_INDEX_IFZERO]: [30, 31, 32],
       [TAGS.INSERT_INDEX_TRAVERSE]: [35, 36, 37, 38],
       [TAGS.INSERT_INDEX_CREATE]: [39],
-      [TAGS.INSERT_INDEX_LINK]: [40, 41],
+      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [40],
+      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [41],
       [TAGS.INSERT_INDEX_END]: [42],
 
       [TAGS.DELETE_HEAD_START]: [44],
       [TAGS.DELETE_HEAD_CHECK]: [45],
-      [TAGS.DELETE_HEAD_UPDATE]: [46],
+      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [46],
+      [TAGS.DELETE_HEAD_FREE]: [47],
       [TAGS.DELETE_HEAD_END]: [47],
 
       [TAGS.DELETE_TAIL_START]: [48],
+      [TAGS.DELETE_TAIL_ISNEXTNULL]: [51],
+      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [52],
       [TAGS.DELETE_TAIL_TRAVERSE]: [55, 56, 57, 58, 59],
       [TAGS.DELETE_TAIL_UNLINK]: [61],
       [TAGS.DELETE_TAIL_END]: [62],
 
       [TAGS.DELETE_INDEX_START]: [63],
       [TAGS.DELETE_INDEX_IFZERO]: [64, 65, 66],
-      [TAGS.DELETE_INDEX_TRAVERSE]: [68, 69, 70, 71, 72, 73, 74],
-      [TAGS.DELETE_INDEX_UNLINK]: [75],
-      [TAGS.DELETE_INDEX_END]: [76],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [69, 70, 71, 72, 73, 74, 75],
+      [TAGS.DELETE_INDEX_UNLINK]: [76],
+      [TAGS.DELETE_INDEX_END]: [77],
 
       [TAGS.SEARCH_START]: [78],
-      [TAGS.SEARCH_COMPARE]: [81, 82],
-      [TAGS.SEARCH_FOUND]: [82],
+      [TAGS.SEARCH_COMPARE]: [82, 84, 85],
+      [TAGS.SEARCH_FOUND]: [83],
       [TAGS.SEARCH_NEXT]: [83, 84, 85],
-      [TAGS.SEARCH_NOT_FOUND]: [86],
+      [TAGS.SEARCH_NOT_FOUND]: [86, 87],
     },
   },
   python: {
@@ -2891,6 +3102,10 @@ const linkedListHasTailCodeConfig: CodeConfig = {
           deleteAtHead()
           Return
         End If
+        If tail ≠ null And index = length - 1 Then
+          deleteAtTail()
+          Return
+        End If
         prev ← null
         current ← head
         For i ← 0 To index Do
@@ -2899,7 +3114,6 @@ const linkedListHasTailCodeConfig: CodeConfig = {
           current ← current.next
         End For
         prev.next ← current.next
-        If prev.next = null Then tail ← prev
       End Procedure
 
       Procedure search(value):
@@ -2916,12 +3130,17 @@ const linkedListHasTailCodeConfig: CodeConfig = {
       [TAGS.INSERT_HEAD_START]: [11],
       [TAGS.INSERT_HEAD_CREATE]: [12],
       [TAGS.INSERT_HEAD_LINK]: [13],
-      [TAGS.INSERT_HEAD_UPDATE]: [14, 15],
+      [TAGS.INSERT_HEAD_UPDATE]: [14],
+      [TAGS.INSERT_HEAD_UPDATE_TAIL]: [15],
       [TAGS.INSERT_HEAD_END]: [16],
 
       [TAGS.INSERT_TAIL_START]: [18],
       [TAGS.INSERT_TAIL_CREATE]: [19],
-      [TAGS.INSERT_TAIL_LINK]: [25, 26],
+      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [20],
+      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [21],
+      [TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL]: [22],
+      [TAGS.INSERT_TAIL_LINK]: [25],
+      [TAGS.INSERT_TAIL_POINTER_MOVE]: [26],
       [TAGS.INSERT_TAIL_END]: [27],
 
       [TAGS.INSERT_INDEX_START]: [29],
@@ -2929,35 +3148,41 @@ const linkedListHasTailCodeConfig: CodeConfig = {
       [TAGS.INSERT_INDEX_IFTAIL]: [34, 35],
       [TAGS.INSERT_INDEX_TRAVERSE]: [38, 39, 40, 41],
       [TAGS.INSERT_INDEX_CREATE]: [42],
-      [TAGS.INSERT_INDEX_LINK]: [43, 44],
+      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [43],
+      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [44],
+      [TAGS.INSERT_INDEX_UPDATE_TAIL]: [45],
       [TAGS.INSERT_INDEX_END]: [46],
 
       [TAGS.DELETE_HEAD_START]: [48],
       [TAGS.DELETE_HEAD_CHECK]: [49],
-      [TAGS.DELETE_HEAD_UPDATE]: [50, 51],
+      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [50],
+      [TAGS.DELETE_HEAD_UPDATE_TAIL]: [51],
+      [TAGS.DELETE_HEAD_FREE]: [52],
       [TAGS.DELETE_HEAD_END]: [52],
 
       [TAGS.DELETE_TAIL_START]: [54],
-      [TAGS.DELETE_TAIL_SINGLE]: [54, 55, 56, 57],
+      [TAGS.DELETE_TAIL_ISNEXTNULL]: [56],
+      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [57, 58, 59],
       [TAGS.DELETE_TAIL_TRAVERSE]: [61, 62, 63, 64, 65, 66],
       [TAGS.DELETE_TAIL_UNLINK]: [67, 68],
       [TAGS.DELETE_TAIL_END]: [69],
 
       [TAGS.DELETE_INDEX_START]: [71],
       [TAGS.DELETE_INDEX_IFZERO]: [72, 73, 74],
-      [TAGS.DELETE_INDEX_TRAVERSE]: [76, 77, 78, 79, 80, 81, 82],
-      [TAGS.DELETE_INDEX_UNLINK]: [83, 84],
-      [TAGS.DELETE_INDEX_END]: [85],
+      [TAGS.DELETE_INDEX_IFTAIL]: [76, 77, 78],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [82, 83, 84, 85],
+      [TAGS.DELETE_INDEX_UNLINK]: [87],
+      [TAGS.DELETE_INDEX_END]: [88],
 
-      [TAGS.SEARCH_START]: [87],
-      [TAGS.SEARCH_COMPARE]: [90, 91],
-      [TAGS.SEARCH_FOUND]: [91],
-      [TAGS.SEARCH_NEXT]: [92, 93],
-      [TAGS.SEARCH_NOT_FOUND]: [95],
+      [TAGS.SEARCH_START]: [94],
+      [TAGS.SEARCH_COMPARE]: [97, 98],
+      [TAGS.SEARCH_FOUND]: [98],
+      [TAGS.SEARCH_NEXT]: [99, 100],
+      [TAGS.SEARCH_NOT_FOUND]: [102],
     },
   },
   python: {
-    content: `class Node:
+      content: `class Node:
     def __init__(self, value):
         self.value = value
         self.next = None
@@ -3032,8 +3257,8 @@ class LinkedList:
             current = current.next
             index += 1
         return -1`,
-  },
-};
+    },
+  };
 
 const doublyLinkedListNoTailCodeConfig: CodeConfig = {
   pseudo: {
@@ -3059,8 +3284,8 @@ const doublyLinkedListNoTailCodeConfig: CodeConfig = {
       End Procedure
 
       Procedure insertAtTail(value):
-        newNode ← new Node(value)
         If head = null Then
+          newNode ← new Node(value)
           head ← newNode
           Return
         End If
@@ -3068,6 +3293,7 @@ const doublyLinkedListNoTailCodeConfig: CodeConfig = {
         While current.next ≠ null Do
           current ← current.next
         End While
+        newNode ← new Node(value)
         current.next ← newNode
         newNode.prev ← current
       End Procedure
@@ -3084,8 +3310,8 @@ const doublyLinkedListNoTailCodeConfig: CodeConfig = {
         newNode ← new Node(value)
         newNode.next ← current.next
         If current.next ≠ null Then current.next.prev ← newNode
-        newNode.prev ← current
         current.next ← newNode
+        newNode.prev ← current
       End Procedure
 
       Procedure deleteAtHead():
@@ -3131,88 +3357,139 @@ const doublyLinkedListNoTailCodeConfig: CodeConfig = {
         End While
         Return -1
       End Procedure`,
-    mappings: {},
+    mappings: {
+      [TAGS.INSERT_HEAD_START]: [11, 13],
+      [TAGS.INSERT_HEAD_CREATE]: [12],
+      [TAGS.INSERT_HEAD_LINK]: [16],
+      [TAGS.INSERT_HEAD_LINK_PREV]: [17],
+      [TAGS.INSERT_HEAD_UPDATE_ISNULL]: [14],
+      [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [18],
+      [TAGS.INSERT_HEAD_END]: [20],
+
+      [TAGS.INSERT_TAIL_START]: [22],
+      [TAGS.INSERT_TAIL_CREATE]: [24, 32],
+      [TAGS.INSERT_TAIL_TRAVERSE]: [28, 29, 30, 31],
+      [TAGS.INSERT_TAIL_LINK]: [33],
+      [TAGS.INSERT_TAIL_LINK_PREV]: [34],
+      [TAGS.INSERT_TAIL_END]: [25, 35],
+
+      [TAGS.INSERT_INDEX_START]: [37],
+      [TAGS.INSERT_INDEX_IFZERO]: [38, 39, 40],
+      [TAGS.INSERT_INDEX_TRAVERSE]: [42, 43, 44, 45],
+      [TAGS.INSERT_INDEX_CREATE]: [46],
+      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [47],
+      [TAGS.INSERT_INDEX_LINK_NEXT_PREV]: [48],
+      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [49],
+      [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [50],
+      [TAGS.INSERT_INDEX_END]: [51],
+
+      [TAGS.DELETE_HEAD_START]: [53],
+      [TAGS.DELETE_HEAD_CHECK]: [54],
+      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [55],
+      [TAGS.DELETE_HEAD_UPDATE_PREV]: [56],
+      [TAGS.DELETE_HEAD_FREE]: [57],
+      [TAGS.DELETE_HEAD_END]: [57],
+
+      [TAGS.DELETE_TAIL_START]: [59],
+      [TAGS.DELETE_TAIL_ISNEXTNULL]: [61],
+      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [62, 63],
+      [TAGS.DELETE_TAIL_TRAVERSE]: [65, 66, 67, 68],
+      [TAGS.DELETE_TAIL_UNLINK]: [69],
+      [TAGS.DELETE_TAIL_END]: [70],
+
+      [TAGS.DELETE_INDEX_START]: [72],
+      [TAGS.DELETE_INDEX_IFZERO]: [73, 74, 75],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [77, 78, 79, 80, 81],
+      [TAGS.DELETE_INDEX_UNLINK]: [82, 83],
+      [TAGS.DELETE_INDEX_END]: [84],
+
+      [TAGS.SEARCH_START]: [86],
+      [TAGS.SEARCH_COMPARE]: [90],
+      [TAGS.SEARCH_FOUND]: [90],
+      [TAGS.SEARCH_NEXT]: [91, 92],
+      [TAGS.SEARCH_NOT_FOUND]: [94],
+    },
   },
   python: {
     content: `class Node:
     def __init__(self, value):
-        self.value = value
-        self.next = None
-        self.prev = None
+      self.value = value
+      self.next = None
+      self.prev = None
 
 class DoublyLinkedList:
     def __init__(self):
-        self.head = None
+      self.head = None
 
     def insert_at_head(self, value):
-        new_node = Node(value)
-        if not self.head:
-            self.head = new_node
-        else:
-            new_node.next = self.head
-            self.head.prev = new_node
-            self.head = new_node
+      new_node = Node(value)
+      if not self.head:
+        self.head = new_node
+      else:
+        new_node.next = self.head
+        self.head.prev = new_node
+        self.head = new_node
 
     def insert_at_tail(self, value):
-        new_node = Node(value)
-        if not self.head:
-            self.head = new_node
-            return
-        current = self.head
-        while current.next:
-            current = current.next
-        current.next = new_node
-        new_node.prev = current
+      new_node = Node(value)
+      if not self.head:
+        self.head = new_node
+        return
+      current = self.head
+      while current.next:
+        current = current.next
+      current.next = new_node
+      new_node.prev = current
 
     def insert_at_index(self, index, value):
-        if index == 0:
-            self.insert_at_head(value)
-            return
-        new_node = Node(value)
-        current = self.head
-        for _ in range(index - 1):
-            current = current.next
-        new_node.next = current.next
-        if current.next:
-            current.next.prev = new_node
-        new_node.prev = current
-        current.next = new_node
+      if index == 0:
+        self.insert_at_head(value)
+        return
+      new_node = Node(value)
+      current = self.head
+      for _ in range(index - 1):
+        current = current.next
+      new_node.next = current.next
+      if current.next:
+        current.next.prev = new_node
+      new_node.prev = current
+      current.next = new_node
 
     def delete_at_head(self):
-        if not self.head: return
-        self.head = self.head.next
-        if self.head:
-            self.head.prev = None
+      if not self.head: return
+      self.head = self.head.next
+      if self.head:
+        self.head.prev = None
 
     def delete_at_tail(self):
-        if not self.head: return
-        if not self.head.next:
-            self.head = None
-            return
-        current = self.head
-        while current.next:
-            current = current.next
-        current.prev.next = None
+      if not self.head: return
+      if not self.head.next:
+        self.head = None
+        return
+      current = self.head
+      while current.next:
+        current = current.next
+      current.prev.next = None
 
     def delete_at_index(self, index):
-        if index == 0:
-            self.delete_at_head()
-            return
-        current = self.head
-        for i in range(index):
-            current = current.next
-        current.prev.next = current.next
-        if current.next:
-            current.next.prev = current.prev
+      if index == 0:
+        self.delete_at_head()
+        return
+      current = self.head
+      for i in range(index):
+        current = current.next
+      current.prev.next = current.next
+      if current.next:
+        current.next.prev = current.prev
 
     def search(self, value):
-        current = self.head
-        index = 0
-        while current:
-            if current.value == value: return index
-            current = current.next
-            index += 1
-        return -1`,
+      current = self.head
+      index = 0
+      while current:
+        if current.value == value: return index
+        current = current.next
+        index += 1
+      return -1`,
   },
 };
 
@@ -3246,11 +3523,11 @@ const doublyLinkedListHasTailCodeConfig: CodeConfig = {
         If head = null Then
           head ← newNode
           tail ← newNode
-        Else
-          tail.next ← newNode
-          newNode.prev ← tail
-          tail ← newNode
+          Return
         End If
+        tail.next ← newNode
+        newNode.prev ← tail
+        tail ← newNode
       End Procedure
 
       Procedure insertAtIndex(index, value):
@@ -3269,8 +3546,8 @@ const doublyLinkedListHasTailCodeConfig: CodeConfig = {
         newNode ← new Node(value)
         newNode.next ← current.next
         If current.next ≠ null Then current.next.prev ← newNode
-        newNode.prev ← current
         current.next ← newNode
+        newNode.prev ← current
         If newNode.next = null Then tail ← newNode
       End Procedure
 
@@ -3288,8 +3565,9 @@ const doublyLinkedListHasTailCodeConfig: CodeConfig = {
           tail ← null
           Return
         End If
-        tail ← tail.prev
-        tail.next ← null
+        prev ← tail.prev
+        prev.next ← null
+        tail ← prev
       End Procedure
 
       Procedure deleteAtIndex(index):
@@ -3299,7 +3577,6 @@ const doublyLinkedListHasTailCodeConfig: CodeConfig = {
         End If
         current ← head
         For i ← 0 To index Do
-          If i = index Then Break
           current ← current.next
         End For
         current.prev.next ← current.next
@@ -3317,7 +3594,65 @@ const doublyLinkedListHasTailCodeConfig: CodeConfig = {
         End While
         Return -1
       End Procedure`,
-    mappings: {},
+    mappings: {
+      [TAGS.INSERT_HEAD_START]: [11, 12],
+      [TAGS.INSERT_HEAD_CREATE]: [13],
+      [TAGS.INSERT_HEAD_LINK]: [17],
+      [TAGS.INSERT_HEAD_LINK_PREV]: [18],
+      [TAGS.INSERT_HEAD_UPDATE_ISNULL]: [15],
+      [TAGS.INSERT_HEAD_UPDATE_TAIL]: [16],
+      [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [19],
+      [TAGS.INSERT_HEAD_END]: [22],
+
+      [TAGS.INSERT_TAIL_START]: [24],
+      [TAGS.INSERT_TAIL_CREATE]: [25],
+      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [26],
+      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [27],
+      [TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL]: [28],
+      [TAGS.INSERT_TAIL_LINK]: [31],
+      [TAGS.INSERT_TAIL_LINK_PREV]: [32],
+      [TAGS.INSERT_TAIL_POINTER_MOVE]: [33],
+      [TAGS.INSERT_TAIL_END]: [34],
+
+      [TAGS.INSERT_INDEX_START]: [35],
+      [TAGS.INSERT_INDEX_IFZERO]: [36, 37, 38],
+      [TAGS.INSERT_INDEX_IFTAIL]: [41, 42, 43],
+      [TAGS.INSERT_INDEX_TRAVERSE]: [45, 46, 47, 48],
+      [TAGS.INSERT_INDEX_CREATE]: [49],
+      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [50],
+      [TAGS.INSERT_INDEX_LINK_NEXT_PREV]: [51],
+      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [52],
+      [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [53],
+      [TAGS.INSERT_INDEX_UPDATE_TAIL]: [54],
+      [TAGS.INSERT_INDEX_END]: [55],
+
+      [TAGS.DELETE_HEAD_START]: [55],
+      [TAGS.DELETE_HEAD_CHECK]: [56],
+      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [57],
+      [TAGS.DELETE_HEAD_UPDATE_PREV]: [58],
+      [TAGS.DELETE_HEAD_UPDATE_TAIL]: [59],
+      [TAGS.DELETE_HEAD_FREE]: [60],
+      [TAGS.DELETE_HEAD_END]: [60],
+
+      [TAGS.DELETE_TAIL_START]: [64],
+      [TAGS.DELETE_TAIL_ISNEXTNULL]: [66],
+      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [67, 68],
+      [TAGS.DELETE_TAIL_TRAVERSE]: [71],
+      [TAGS.DELETE_TAIL_UNLINK]: [72],
+      [TAGS.DELETE_TAIL_END]: [73],
+
+      [TAGS.DELETE_INDEX_START]: [75],
+      [TAGS.DELETE_INDEX_IFZERO]: [76, 77, 78],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [80, 81, 82, 83, 84],
+      [TAGS.DELETE_INDEX_UNLINK]: [85, 86, 87],
+      [TAGS.DELETE_INDEX_END]: [88],
+
+      [TAGS.SEARCH_START]: [90],
+      [TAGS.SEARCH_COMPARE]: [93, 94],
+      [TAGS.SEARCH_FOUND]: [94],
+      [TAGS.SEARCH_NEXT]: [95, 96],
+      [TAGS.SEARCH_NOT_FOUND]: [98],
+    },
   },
   python: {
     content: `class Node:
