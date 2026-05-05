@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://code-pulse.cc/sitemap.xml
