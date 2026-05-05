@@ -76,15 +76,7 @@ export const calculateGraphNodePosition = (
   // y 座標：由下而上，layer 0 在最底部（y=0）
   const baseY = (maxLayer - graphPos.layer) * layoutConfig.layerSpacing;
 
-  // 若直接子節點的 layer 與自己相差 > 1（跳層），往上偏移拉近視覺距離
-  const directChildren = sameCategoryLevels.filter(
-    (l) => l.prerequisites?.levelIds.includes(level.id)
-  );
-  const hasSkippedChild = directChildren.some(
-    (l) => (l.graphPosition?.layer ?? 0) - graphPos.layer > 1
-  );
-  const yOffset = hasSkippedChild ? -(2 * layoutConfig.layerSpacing * 0.3) : 0;
-  const y = baseY + yOffset;
+  const y = baseY;
 
   // x 座標：基於前置節點的位置繼承
   const { x, alignment } = calculateBranchX(level, sameCategoryLevels, layoutConfig);
