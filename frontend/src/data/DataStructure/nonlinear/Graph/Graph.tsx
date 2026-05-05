@@ -1,6 +1,6 @@
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
-import { graphRealWorldStories } from './graph.stories';
+import { graphRealWorldStories } from "./graph.stories";
 import type { ActionContext } from "@/modules/core/visualization/types";
 import { GraphActionBar } from "./GraphActionBar";
 import {
@@ -68,7 +68,7 @@ function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
       true, // 顯示 ID
     ),
     actionTag: TAGS.INIT,
-    variables: {},
+    local_vars: {},
   });
 
   return steps;
@@ -104,7 +104,7 @@ function runAddNode(
       true, // 顯示 ID
     ),
     actionTag: TAGS.ADD_VERTEX,
-    variables: { insertVal: newNodeId },
+    local_vars: { insertVal: newNodeId },
   });
 
   statusMap[targetId] = Status.Complete;
@@ -118,7 +118,7 @@ function runAddNode(
       true, // 顯示 ID
     ),
     actionTag: TAGS.ADD_VERTEX_RESULT,
-    variables: { insertVal: newNodeId },
+    local_vars: { insertVal: newNodeId },
   });
   return steps;
 }
@@ -161,7 +161,13 @@ function runRemoveNode(
       const targetNode = baseElements.find((n) => n.id === target);
       if (targetNode) {
         ghostNode.pointers.push(targetNode);
-        updateLinkStatus(linkStatusMap, targetId, target, Status.Target, isDirected);
+        updateLinkStatus(
+          linkStatusMap,
+          targetId,
+          target,
+          Status.Target,
+          isDirected,
+        );
       }
     }
 
@@ -169,7 +175,13 @@ function runRemoveNode(
       const sourceNode = baseElements.find((n) => n.id === source);
       if (sourceNode) {
         sourceNode.pointers.push(ghostNode);
-        updateLinkStatus(linkStatusMap, source, targetId, Status.Target, isDirected);
+        updateLinkStatus(
+          linkStatusMap,
+          source,
+          targetId,
+          Status.Target,
+          isDirected,
+        );
       }
     }
   });
@@ -187,7 +199,7 @@ function runRemoveNode(
       { ...linkStatusMap },
     ),
     actionTag: TAGS.REMOVE_VERTEX,
-    variables: { removeVal: deletedNodeId },
+    local_vars: { removeVal: deletedNodeId },
   });
 
   // 還原被 mutate 的 pointers，避免 clean step 的 links 仍含已刪除節點
@@ -204,7 +216,7 @@ function runRemoveNode(
       true,
     ),
     actionTag: TAGS.REMOVE_VERTEX_UPDATE,
-    variables: { removeVal: deletedNodeId },
+    local_vars: { removeVal: deletedNodeId },
   });
 
   return steps;
@@ -252,7 +264,7 @@ function runAddEdge(
       true,
     ),
     actionTag: TAGS.ADD_EDGE,
-    variables: { source: sourceId, target: targetId },
+    local_vars: { source: sourceId, target: targetId },
   });
 
   // 恢復連線
@@ -284,7 +296,7 @@ function runAddEdge(
       { ...linkStatusMap },
     ),
     actionTag: isDirected ? TAGS.ADD_EDGE : TAGS.ADD_EDGE_UNDIRECTED,
-    variables: { source: sourceId, target: targetId },
+    local_vars: { source: sourceId, target: targetId },
   });
 
   return steps;
@@ -337,7 +349,7 @@ function runRemoveEdge(
       { ...linkStatusMap },
     ),
     actionTag: TAGS.REMOVE_EDGE,
-    variables: { source: sourceId, target: targetId },
+    local_vars: { source: sourceId, target: targetId },
   });
 
   // 移除連線
@@ -362,7 +374,7 @@ function runRemoveEdge(
       true,
     ),
     actionTag: isDirected ? TAGS.REMOVE_EDGE : TAGS.REMOVE_EDGE_UNDIRECTED,
-    variables: { source: sourceId, target: targetId },
+    local_vars: { source: sourceId, target: targetId },
   });
 
   return steps;
@@ -396,7 +408,7 @@ function runGetNeighbors(
       true,
     ),
     actionTag: TAGS.GET_NEIGHBORS,
-    variables: { target: nodeId },
+    local_vars: { target: nodeId },
   });
 
   if (targetNode) {
@@ -412,7 +424,7 @@ function runGetNeighbors(
           true,
         ),
         actionTag: TAGS.GET_NEIGHBORS_RESULT_FALSE,
-        variables: { target: nodeId, neighborsCount: 0 },
+        local_vars: { target: nodeId, neighborsCount: 0 },
       });
     } else {
       neighbors.forEach((neighbor, index) => {
@@ -434,7 +446,7 @@ function runGetNeighbors(
             { ...linkStatusMap },
           ),
           actionTag: TAGS.GET_NEIGHBORS,
-          variables: { target: nodeId, currentNeighbor: neighbor.id },
+          local_vars: { target: nodeId, currentNeighbor: neighbor.id },
         });
         updateLinkStatus(
           linkStatusMap,
@@ -457,14 +469,20 @@ function runGetNeighbors(
           { ...linkStatusMap },
         ),
         actionTag: TAGS.GET_NEIGHBORS_RESULT_TRUE,
-        variables: { target: nodeId, neighborsCount: neighbors.length },
+        local_vars: { target: nodeId, neighborsCount: neighbors.length },
       });
     }
   } else {
     steps.push({
-      ...generateGraphFrame(baseElements, {}, {}, `節點 ${nodeId} 不存在`, true),
+      ...generateGraphFrame(
+        baseElements,
+        {},
+        {},
+        `節點 ${nodeId} 不存在`,
+        true,
+      ),
       actionTag: TAGS.GET_NEIGHBORS,
-      variables: { target: nodeId, error: true },
+      local_vars: { target: nodeId, error: true },
     });
   }
 
@@ -503,7 +521,7 @@ function runCheckAdjacent(
       true,
     ),
     actionTag: TAGS.CHECK_ADJACENT,
-    variables: { source: sourceId, target: targetId },
+    local_vars: { source: sourceId, target: targetId },
   });
 
   if (sNode && tNode) {
@@ -523,7 +541,7 @@ function runCheckAdjacent(
           { ...linkStatusMap },
         ),
         actionTag: TAGS.CHECK_ADJACENT_RESULT_TRUE,
-        variables: { source: sourceId, target: targetId, isAdjacent: true },
+        local_vars: { source: sourceId, target: targetId, isAdjacent: true },
       });
     } else {
       statusMap[sId] = Status.Complete;
@@ -537,7 +555,7 @@ function runCheckAdjacent(
           true,
         ),
         actionTag: TAGS.CHECK_ADJACENT_RESULT_FALSE,
-        variables: { source: sourceId, target: targetId, isAdjacent: false },
+        local_vars: { source: sourceId, target: targetId, isAdjacent: false },
       });
     }
   } else {
@@ -586,8 +604,10 @@ function runGetDegree(
       `準備計算節點 ${nodeId} 的度數 (${isDirected ? "有向" : "無向"})...`,
       true,
     ),
-    actionTag: isDirected ? TAGS.GET_DEGREE_DIRECTED : TAGS.GET_DEGREE_UNDIRECTED,
-    variables: { target: nodeId },
+    actionTag: isDirected
+      ? TAGS.GET_DEGREE_DIRECTED
+      : TAGS.GET_DEGREE_UNDIRECTED,
+    local_vars: { target: nodeId },
   });
 
   // In: prepare, Out: unfinished
@@ -656,8 +676,20 @@ function runGetDegree(
       ...generateGraphFrame(baseElements, statusMap, {}, msg, true, {
         ...linkStatusMap,
       }),
-      actionTag: isDirected ? TAGS.GET_DEGREE_DIRECTED : TAGS.GET_DEGREE_UNDIRECTED,
-      variables: { target: nodeId, ...(!isDirected ? { degree: targetNode.pointers.length } : { outDegree: targetNode.pointers.length, inDegree: baseElements.filter(otherNode => otherNode.pointers.some(n => n.id === targetId)).length }) },
+      actionTag: isDirected
+        ? TAGS.GET_DEGREE_DIRECTED
+        : TAGS.GET_DEGREE_UNDIRECTED,
+      local_vars: {
+        target: nodeId,
+        ...(!isDirected
+          ? { degree: targetNode.pointers.length }
+          : {
+              outDegree: targetNode.pointers.length,
+              inDegree: baseElements.filter((otherNode) =>
+                otherNode.pointers.some((n) => n.id === targetId),
+              ).length,
+            }),
+      },
     });
   } else {
     steps.push({
@@ -668,8 +700,10 @@ function runGetDegree(
         `錯誤：節點 ${nodeId} 不存在`,
         true,
       ),
-      actionTag: isDirected ? TAGS.GET_DEGREE_DIRECTED : TAGS.GET_DEGREE_UNDIRECTED,
-      variables: { target: nodeId, error: true },
+      actionTag: isDirected
+        ? TAGS.GET_DEGREE_DIRECTED
+        : TAGS.GET_DEGREE_UNDIRECTED,
+      local_vars: { target: nodeId, error: true },
     });
   }
 
@@ -726,7 +760,7 @@ function runCheckConnected(
       true,
     ),
     actionTag: TAGS.CHECK_CONNECTED_INIT,
-    variables: { start: startNode.id, queue: queue.join(", ") },
+    local_vars: { start: startNode.id, queue: queue.join(", ") },
   });
 
   // BFS 過程
@@ -748,7 +782,7 @@ function runCheckConnected(
         { ...linkStatusMap },
       ),
       actionTag: TAGS.CHECK_CONNECTED_WHILE,
-      variables: { current: currId, queue: queue.join(", ") },
+      local_vars: { current: currId, queue: queue.join(", ") },
     });
 
     const neighbors = undirectedAdj.get(currId) || [];
@@ -787,7 +821,7 @@ function runCheckConnected(
           { ...linkStatusMap },
         ),
         actionTag: TAGS.CHECK_CONNECTED_WHILE,
-        variables: { current: currId, queue: queue.join(", ") },
+        local_vars: { current: currId, queue: queue.join(", ") },
       });
     }
     statusMap[currId] = Status.Complete;
@@ -815,7 +849,7 @@ function runCheckConnected(
         { ...linkStatusMap },
       ),
       actionTag: TAGS.CHECK_CONNECTED_WHILE,
-      variables: { current: currId, queue: queue.join(", ") },
+      local_vars: { current: currId, queue: queue.join(", ") },
     });
   }
 
@@ -857,7 +891,7 @@ function runCheckConnected(
       ...finalLinkStatusMap,
     }),
     actionTag: TAGS.CHECK_CONNECTED_RESULT,
-    variables: { isConnected: isConnected },
+    local_vars: { isConnected: isConnected },
   });
 
   return steps;
@@ -906,7 +940,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         { ...linkStatusMap },
       ),
       actionTag: TAGS.CHECK_CYCLE_DFS,
-      variables: { current: currId },
+      local_vars: { current: currId },
     });
 
     const currNode = baseElements.find((n) => n.id === currId);
@@ -943,7 +977,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
               { ...linkStatusMap },
             ),
             actionTag: TAGS.CHECK_CYCLE_DFS,
-            variables: { current: currId },
+            local_vars: { current: currId },
           });
           statusMap[currId] = Status.Prepare;
         } else {
@@ -979,7 +1013,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
                 { ...linkStatusMap },
               ),
               actionTag: TAGS.CHECK_CYCLE_FOUND_TRUE,
-              variables: { current: currId, cycleNode: neighborId },
+              local_vars: { current: currId, cycleNode: neighborId },
             });
             return true;
           } else if (neighborId !== parentId) {
@@ -1011,7 +1045,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         { ...linkStatusMap },
       ),
       actionTag: TAGS.CHECK_CYCLE_FOUND_FALSE,
-      variables: { current: parentId || currId },
+      local_vars: { current: parentId || currId },
     });
     if (parentId !== null) {
       updateLinkStatus(linkStatusMap, currId, parentId, "visited", isDirected);
@@ -1064,7 +1098,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         finalLinkStatusMap,
       ),
       actionTag: TAGS.CHECK_CYCLE_END_FALSE,
-      variables: { hasCycle: false },
+      local_vars: { hasCycle: false },
     });
   } else {
     const finalStatusMap: Record<string, Status> = {};
@@ -1121,7 +1155,7 @@ function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
         linkStatusMap,
       ),
       actionTag: TAGS.CHECK_CYCLE_END_TRUE,
-      variables: { hasCycle: true, cyclePath: fullPathStr },
+      local_vars: { hasCycle: true, cyclePath: fullPathStr },
     });
   }
 
@@ -1314,9 +1348,13 @@ function graphActionHandler(
   }
 
   if (
-    ["getNeighbors", "getDegree", "checkAdjacent", "checkConnected", "checkCycle"].includes(
-      actionType,
-    )
+    [
+      "getNeighbors",
+      "getDegree",
+      "checkAdjacent",
+      "checkConnected",
+      "checkCycle",
+    ].includes(actionType)
   ) {
     if (
       (actionType === "getNeighbors" || actionType === "getDegree") &&
@@ -1371,7 +1409,7 @@ function graphActionHandler(
       return {
         animationData: randData,
         isResetAction: true,
-          useRawAnimationParams: true,
+        useRawAnimationParams: true,
         animationParams: { type: "random", mode: "graph", isDirected },
       };
     }
@@ -1398,7 +1436,7 @@ function graphActionHandler(
       return {
         animationData: resetData,
         isResetAction: true,
-          useRawAnimationParams: true,
+        useRawAnimationParams: true,
         animationParams: { type: "reset", mode: "graph", isDirected },
       };
     }
@@ -1423,8 +1461,12 @@ function graphActionHandler(
           return {
             animationData: loadData,
             isResetAction: true,
-                  useRawAnimationParams: true,
-            animationParams: { type: "load", mode: "graph", isDirected: payload.Directed },
+            useRawAnimationParams: true,
+            animationParams: {
+              type: "load",
+              mode: "graph",
+              isDirected: payload.Directed,
+            },
           };
         }
       }
@@ -1585,7 +1627,10 @@ End Class`,
       [TAGS.CHECK_CONNECTED_WHILE]: [79, 80, 81, 82, 83, 84, 85, 86],
       [TAGS.CHECK_CONNECTED_RESULT]: [89],
       [TAGS.CHECK_CYCLE_INIT]: [92, 93, 94],
-      [TAGS.CHECK_CYCLE_DFS]: [97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112],
+      [TAGS.CHECK_CYCLE_DFS]: [
+        97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+        112,
+      ],
       [TAGS.CHECK_CYCLE_FOUND_TRUE]: [105, 106],
       [TAGS.CHECK_CYCLE_FOUND_FALSE]: [112],
       [TAGS.CHECK_CYCLE_END_TRUE]: [116, 117, 118],
@@ -1685,7 +1730,7 @@ End Class`,
             if node not in visited:
                 result = dfs(node, None)
                 if result: return result
-        return []`
+        return []`,
   },
 };
 
@@ -1757,21 +1802,24 @@ export const GraphConfig: LevelImplementationConfig = {
     {
       id: 207,
       title: "Course Schedule",
-      concept: "有向圖環偵測：若先修課程形成環則無法完成，以拓樸排序判斷 DAG 性質",
+      concept:
+        "有向圖環偵測：若先修課程形成環則無法完成，以拓樸排序判斷 DAG 性質",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/course-schedule/",
     },
     {
       id: 210,
       title: "Course Schedule II",
-      concept: "拓樸排序：在 DAG 中求線性學習順序，使用 Kahn's 演算法或 DFS 輸出排列",
+      concept:
+        "拓樸排序：在 DAG 中求線性學習順序，使用 Kahn's 演算法或 DFS 輸出排列",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/course-schedule-ii/",
     },
     {
       id: 684,
       title: "Redundant Connection",
-      concept: "環偵測 / Union-Find：找出使無向樹出現多餘一條邊（形成環）的那條邊",
+      concept:
+        "環偵測 / Union-Find：找出使無向樹出現多餘一條邊（形成環）的那條邊",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/redundant-connection/",
     },

@@ -341,13 +341,13 @@ export const InspectorPanelInternal = ({
       return (
         <div className={styles.tabContent}>
           <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent variables={currentStepData?.variables} />
+            <PanelComponent variables={currentStepData?.local_vars} />
           </Suspense>
         </div>
       );
     }
 
-    // 其他 Tab (callStack) 不需要 props
+    // 其他 Tab 不需要 props
     return (
       <div className={styles.tabContent}>
         <Suspense fallback={<div>載入中...</div>}>

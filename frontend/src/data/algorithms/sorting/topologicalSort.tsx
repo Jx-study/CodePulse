@@ -165,7 +165,6 @@ function topoActionHandler(
 
 export function createTopologicalSortAnimationSteps(
   inputData: any,
-  action?: any,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   const graph = inputData as GraphData;
@@ -276,7 +275,7 @@ export function createTopologicalSortAnimationSteps(
       actionTag: tag,
       elements,
       links: stepLinks,
-      variables: {
+      local_vars: {
         "Queue 內容":
           queue.length > 0
             ? queue.map((id) => id.replace("node-", "")).join(", ")

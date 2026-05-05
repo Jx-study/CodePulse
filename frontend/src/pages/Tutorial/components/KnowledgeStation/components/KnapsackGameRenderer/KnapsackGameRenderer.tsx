@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import classNames from "classnames";
 import type {
   InvestmentItem,

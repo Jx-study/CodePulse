@@ -6,16 +6,23 @@ import {
   generateRandomGraph,
   generateRandomGrid,
 } from "@/modules/core/visualization/visualizationUtils";
-import type { ActionContext, GraphData } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  GraphData,
+} from "@/modules/core/visualization/types";
 import type { ActionResult } from "@/modules/core/visualization/types";
 import { dfsRealWorldStories } from "@/data/algorithms/searching/dfs.stories";
 
-function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+function parseGraphLoadPayload(
+  dataStr: string,
+): { nodes: any[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
   if (isNaN(nodeCount)) return null;
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node-${i}`,
+  }));
   const edges: string[][] = [];
   const edgeStr = parts.slice(2).join(":").trim();
   if (edgeStr !== "") {
@@ -24,8 +31,19 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
       if (u !== undefined && v !== undefined) {
         const uIdx = parseInt(u, 10);
         const vIdx = parseInt(v, 10);
-        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
-          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        if (
+          !isNaN(uIdx) &&
+          !isNaN(vIdx) &&
+          uIdx >= 0 &&
+          uIdx < nodeCount &&
+          vIdx >= 0 &&
+          vIdx < nodeCount
+        ) {
+          edges.push(
+            w !== undefined
+              ? [`node-${uIdx}`, `node-${vIdx}`, w]
+              : [`node-${uIdx}`, `node-${vIdx}`],
+          );
         }
       }
     });
@@ -33,7 +51,9 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
   return { nodes, edges };
 }
 
-function parseGridLoadPayload(dataStr: string): { cols: number; values: number[] } | null {
+function parseGridLoadPayload(
+  dataStr: string,
+): { cols: number; values: number[] } | null {
   const parts = dataStr.split(":");
   if (parts.length !== 3) return null;
   const cols = parseInt(parts[1], 10);
@@ -83,13 +103,16 @@ function dfsActionHandler(
         animationData: cloneData(graphPayload),
         useRawAnimationParams: true,
         animationParams: { mode: "graph", isDirected: payload.Directed },
-          isResetAction: false,
+        isResetAction: false,
       };
     }
     if (dataStr.startsWith("GRID:")) {
       const gridPayload = parseGridLoadPayload(dataStr);
       if (!gridPayload) return null;
-      const newData = gridPayload.values.map((val, i) => ({ id: `box-${i}`, val }));
+      const newData = gridPayload.values.map((val, i) => ({
+        id: `box-${i}`,
+        val,
+      }));
       return {
         animationData: newData,
         useRawAnimationParams: true,
@@ -115,7 +138,9 @@ function dfsActionHandler(
     const isGraphData = (d: any): d is GraphData =>
       d && !Array.isArray(d) && Array.isArray(d.nodes);
     if (isGraphData(data)) {
-      const coordMap = new Map(data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]));
+      const coordMap = new Map(
+        data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+      );
       newData.nodes.forEach((n: any) => {
         const saved = coordMap.get(n.id);
         if (saved?.x != null && saved?.y != null) {
@@ -214,7 +239,7 @@ function runGraphDFS(
     `初始化距離為 ∞，準備開始 DFS`,
   );
   initFrame2.actionTag = TAGS.INIT;
-  initFrame2.variables = {
+  initFrame2.local_vars = {
     start: realStartId,
     end: realEndId,
     "distance[all]": "∞",
@@ -233,7 +258,7 @@ function runGraphDFS(
     `將起點 ${realStartId} 推入 Stack（距離: 0）`,
   );
   startFrame.actionTag = TAGS.START;
-  startFrame.variables = {
+  startFrame.local_vars = {
     stack: `[(${realStartId}, 0)]`,
     [`distance[${realStartId}]`]: 0,
   };
@@ -261,7 +286,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     popFrame.actionTag = TAGS.POP;
-    popFrame.variables = {
+    popFrame.local_vars = {
       curr: currId,
       depth: currDist,
       stack:
@@ -282,7 +307,7 @@ function runGraphDFS(
         { ...linkStatusMap },
       );
       skipFrame.actionTag = TAGS.SKIP;
-      skipFrame.variables = {
+      skipFrame.local_vars = {
         curr: currId,
         "already visited": "True",
         [`distance[${currId}]`]: distanceMap[currId],
@@ -303,7 +328,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     distUpdateFrame.actionTag = TAGS.DIST_UPDATE;
-    distUpdateFrame.variables = {
+    distUpdateFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
@@ -320,7 +345,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     checkEndFrame.actionTag = TAGS.CHECK_END;
-    checkEndFrame.variables = {
+    checkEndFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
@@ -355,7 +380,7 @@ function runGraphDFS(
         { ...linkStatusMap },
       );
       exploreFrame.actionTag = TAGS.EXPLORE;
-      exploreFrame.variables = {
+      exploreFrame.local_vars = {
         curr: currId,
         "all neighbors": `[${allNeighborIds.join(", ")}]`,
         unvisited:
@@ -391,7 +416,7 @@ function runGraphDFS(
           { ...linkStatusMap },
         );
         visitFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-        visitFrame.variables = {
+        visitFrame.local_vars = {
           curr: currId,
           "pushed neighbors": `[${pushedNeighbors.join(", ")}]`,
           "depth[new]": currDist + 1,
@@ -429,7 +454,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
-    pathFoundFrame.variables = {
+    pathFoundFrame.local_vars = {
       end: realEndId,
       "path depth": distanceMap[realEndId],
     };
@@ -444,7 +469,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundFrame.variables = {
+    notFoundFrame.local_vars = {
       stack: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
@@ -493,7 +518,7 @@ function runGridDFS(
     true,
   );
   gridInitFrame1.actionTag = TAGS.INIT;
-  gridInitFrame1.variables = { start: startIndex, end: endIndex };
+  gridInitFrame1.local_vars = { start: startIndex, end: endIndex };
   steps.push(gridInitFrame1);
 
   const gridInitFrame2 = generateGridFrame(
@@ -505,7 +530,7 @@ function runGridDFS(
     false,
   );
   gridInitFrame2.actionTag = TAGS.INIT;
-  gridInitFrame2.variables = {
+  gridInitFrame2.local_vars = {
     start: startIndex,
     end: endIndex,
     "distance[all]": "∞",
@@ -526,7 +551,7 @@ function runGridDFS(
     `將起點 ${startIndex} 推入 Stack（距離: 0）`,
   );
   startGridFrame.actionTag = TAGS.START;
-  startGridFrame.variables = {
+  startGridFrame.local_vars = {
     stack: `[${startIndex}]`,
     visited: `{${startIndex}}`,
     "distance[start]": 0,
@@ -557,7 +582,7 @@ function runGridDFS(
       `深入探索：處理節點 ${currIndex}`,
     );
     popGridFrame.actionTag = TAGS.POP;
-    popGridFrame.variables = {
+    popGridFrame.local_vars = {
       curr: currIndex,
       [`distance[${currIndex}]`]: distanceMap[currIndex],
       "stack size": stack.length,
@@ -574,7 +599,7 @@ function runGridDFS(
       currIndex === endIndex ? "找到終點！" : "尚未到達終點，繼續搜尋",
     );
     checkEndGridFrame.actionTag = TAGS.CHECK_END;
-    checkEndGridFrame.variables = {
+    checkEndGridFrame.local_vars = {
       curr: currIndex,
       end: endIndex,
       "curr === end": currIndex === endIndex ? "True" : "False",
@@ -626,7 +651,7 @@ function runGridDFS(
         `發現 ${addedNeighbors} 個未訪問鄰居，推入堆疊 (黃色)`,
       );
       pushNeighborGridFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-      pushNeighborGridFrame.variables = {
+      pushNeighborGridFrame.local_vars = {
         "new count": addedNeighbors,
         "distance[new]": distanceMap[currIndex]! + 1,
         "stack size (after)": stack.length,
@@ -641,7 +666,7 @@ function runGridDFS(
         `無路可走 (死胡同)，回溯 (Backtrack)`,
       );
       backtrackFrame.actionTag = TAGS.BACKTRACK;
-      backtrackFrame.variables = {
+      backtrackFrame.local_vars = {
         curr: currIndex,
         "dead end": "True — 無未訪問鄰居",
       };
@@ -673,7 +698,7 @@ function runGridDFS(
       `DFS 搜尋結束，路徑長度：${path.length} (綠色路徑)`,
     );
     pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
-    pathCompleteFrame.variables = {
+    pathCompleteFrame.local_vars = {
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
@@ -687,7 +712,7 @@ function runGridDFS(
       "堆疊已空，無法到達終點",
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundGridFrame.variables = {
+    notFoundGridFrame.local_vars = {
       stack: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",
@@ -907,35 +932,40 @@ DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
     {
       id: 695,
       title: "Max Area of Island",
-      concept: "DFS 連通分量面積：從每個陸地格遞迴標記並累計面積，回傳所有島嶼中的最大值",
+      concept:
+        "DFS 連通分量面積：從每個陸地格遞迴標記並累計面積，回傳所有島嶼中的最大值",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/max-area-of-island/",
     },
     {
       id: 79,
       title: "Word Search",
-      concept: "回溯 DFS：在二維字元板上沿四方向遞迴拼字，以 visited 標記防止重複使用格子",
+      concept:
+        "回溯 DFS：在二維字元板上沿四方向遞迴拼字，以 visited 標記防止重複使用格子",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/word-search/",
     },
     {
       id: 130,
       title: "Surrounded Regions",
-      concept: "邊界 DFS：從邊界的 O 開始標記可保留區域，剩餘未標記的 O 皆被 X 包圍需翻轉",
+      concept:
+        "邊界 DFS：從邊界的 O 開始標記可保留區域，剩餘未標記的 O 皆被 X 包圍需翻轉",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/surrounded-regions/",
     },
     {
       id: 417,
       title: "Pacific Atlantic Water Flow",
-      concept: "反向 DFS：分別從太平洋與大西洋邊界逆流往高處走，兩次結果取交集即為答案",
+      concept:
+        "反向 DFS：分別從太平洋與大西洋邊界逆流往高處走，兩次結果取交集即為答案",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/pacific-atlantic-water-flow/",
     },
     {
       id: 329,
       title: "Longest Increasing Path in a Matrix",
-      concept: "帶記憶化的 DFS：對矩陣每格做 DFS 求最長遞增路徑，用 dp 快取避免重複計算",
+      concept:
+        "帶記憶化的 DFS：對矩陣每格做 DFS 求最長遞增路徑，用 dp 快取避免重複計算",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/",
     },

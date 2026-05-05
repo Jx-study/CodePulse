@@ -1,0 +1,18 @@
+{
+  "run": {
+    "emptyCode": "Please enter some code before running.",
+    "syntaxError": "Syntax error on line {{line}}: {{msg}}",
+    "syntaxErrorNoLine": "Syntax error: {{msg}}",
+    "timeout": "Execution timed out — try a smaller input.",
+    "runtimeError": "Runtime error: {{msg}}",
+    "runtimeNameError": "'{{name}}' is not defined.",
+    "runtimeTypeError": "Type error: {{msg}}",
+    "runtimeIndexError": "Index out of range: {{msg}}",
+    "runtimeKeyError": "Key not found: {{key}}",
+    "runtimeZeroDivision": "Division by zero.",
+    "runtimeAttributeError": "{{msg}}",
+    "runtimeRecursionError": "Maximum recursion depth exceeded.",
+    "analysisFailed": "Analysis failed. Please try again.",
+    "truncated": "Output may be truncated — trace limit reached."
+  }
+}
