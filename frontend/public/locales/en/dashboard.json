@@ -202,15 +202,6 @@
         "Visualize each move step"
       ]
     },
-    "backtracking_intro": {
-      "name": "Introduction to Backtracking",
-      "description": "Systematically explore all possible solutions and backtrack when a path is infeasible",
-      "objectives": [
-        "Understand the decision tree model of backtracking",
-        "Master pruning strategies",
-        "Apply to permutation and combination problems"
-      ]
-    },
     "quick_sort_recursive": {
       "name": "Divide & Conquer: Quick Sort",
       "description": "Understand quick sort's pivot partitioning strategy from a recursive perspective",
