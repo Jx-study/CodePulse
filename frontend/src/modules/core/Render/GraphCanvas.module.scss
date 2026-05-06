@@ -9,3 +9,20 @@
     cursor: grabbing;
   }
 }
+
+.statusLegendContainer {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+@media (max-width: $mobile-max) {
+  .statusLegendContainer {
+    top: $spacing-sm;
+    right: $spacing-sm;
+  }
+}
+
+// resetButtonContainer 與 resetButton 移至 canvas.module.scss

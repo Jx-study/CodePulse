@@ -1,5 +1,10 @@
-// API base URL: 開發時用空字串（走 Vite proxy），production 時可設 VITE_API_URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+// dev：空字串走 Vite proxy；prod：需設 VITE_API_URL 或 VITE_BACKEND_URL（指向後端域名）
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "";
+
+if (import.meta.env.PROD && !API_BASE_URL) {
+  console.error("[api] VITE_API_URL is not set — all API calls will fail");
+}
 
 // API 基本配置類型
 interface ApiConfig {
@@ -18,7 +23,7 @@ interface ApiResponse<T = any> {
 interface ApiError {
   message: string;
   status: number;
-  code?: string;
+  error_code?: string;
 }
 
 class ApiService {
@@ -28,53 +33,88 @@ class ApiService {
     this.config = config;
   }
 
-  async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    const url = `${this.config.baseURL}${endpoint}`;
-    
-    try {
-      const { headers: optHeaders, ...restOptions } = options;
-      const response = await fetch(url, {
-        credentials: 'include',
-        ...restOptions,
-        headers: {
-          'Content-Type': 'application/json',
-          ...optHeaders,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'API request failed');
-      }
-
-      return {
-        data,
-        status: response.status,
-        message: data.message,
-      };
-    } catch (error) {
-      throw {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        status: 500,
-      } as ApiError;
-    }
+  private async executeFetch(
+    url: string,
+    options: RequestInit,
+  ): Promise<Response> {
+    return fetch(url, {
+      credentials: "include",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
   }
 
-  async get<T>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET', headers });
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.config.baseURL}${endpoint}`;
+
+    // 1. 執行第一次請求
+    let response = await this.executeFetch(url, options);
+
+    // 2. 如果 401 且不是在請求 refresh 本身時（避免無限循環）
+    if (response.status === 401 && endpoint !== "/api/auth/refresh") {
+      try {
+        const refreshResp = await this.executeFetch(
+          `${this.config.baseURL}/api/auth/refresh`,
+          { method: "POST", credentials: "include" },
+        );
+
+        if (refreshResp.ok) {
+          window.dispatchEvent(new Event("auth:refreshed"));
+          // 3. 重新執行原始請求
+          response = await this.executeFetch(url, options);
+        }
+      } catch (e) {
+        console.warn("Token refresh failed", e);
+      }
+    }
+
+    // 處理最終結果
+    let data: any;
+    try {
+      data = await response.json();
+    } catch {
+      throw {
+        message: "Invalid JSON response",
+        status: response.status,
+      } as ApiError;
+    }
+
+    if (!response.ok) {
+      throw {
+        message: data.message || "API request failed",
+        status: response.status,
+        error_code: data.error_code,
+      } as ApiError;
+    }
+
+    return {
+      data,
+      status: response.status,
+      message: data.message,
+    };
+  }
+
+  async get<T>(
+    endpoint: string,
+    headers?: Record<string, string>,
+    signal?: AbortSignal,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: "GET", headers, signal });
   }
 
   async post<T>(
     endpoint: string,
     body?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(body),
       headers,
     });
@@ -83,17 +123,32 @@ class ApiService {
   async put<T>(
     endpoint: string,
     body?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(body),
       headers,
     });
   }
 
-  async delete<T>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE', headers });
+  async patch<T>(
+    endpoint: string,
+    body?: any,
+    headers?: Record<string, string>,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+      headers,
+    });
+  }
+
+  async delete<T>(
+    endpoint: string,
+    headers?: Record<string, string>,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: "DELETE", headers });
   }
 }
 

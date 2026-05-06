@@ -59,32 +59,6 @@ export const PANEL_REGISTRY: PanelRegistry = {
     isTab: true,
     tabGroup: "inspector"
   },
-  callStack: {
-    id: "callStack",
-    title: "Call Stack",
-    icon: <Icon name="layer-group" />,
-    // component: import("@/modules/core/components/CallStack/CallStack")
-    component: React.lazy(() =>
-      Promise.resolve({
-        default: () => (
-          <div
-            style={{
-              padding: "1rem",
-              textAlign: "center",
-              color: "var(--text-secondary)",
-            }}
-          >
-            Call Stack 面板 - ComingSoon
-          </div>
-        ),
-      }),
-    ),
-    defaultSize: 35,
-    category: "info",
-    required: false,
-    isTab: true,
-    tabGroup: "inspector"
-  },
 };
 
 /**

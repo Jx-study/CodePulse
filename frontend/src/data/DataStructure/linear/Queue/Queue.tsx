@@ -99,7 +99,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.INIT,
-      variables: { front: 0, rear: rear },
+      local_vars: { front: 0, rear: rear },
     });
     return steps;
   }
@@ -133,7 +133,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, currentRear, startX, startY, gap),
       ],
       actionTag: TAGS.ENQUEUE_START,
-      variables: { front: 0, rear: currentRear, value },
+      local_vars: { front: 0, rear: currentRear, value },
     });
 
     currentRear++;
@@ -161,7 +161,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, currentRear, startX, startY, gap),
       ],
       actionTag: TAGS.ENQUEUE_INC_REAR,
-      variables: { front: 0, rear: currentRear, value },
+      local_vars: { front: 0, rear: currentRear, value },
     });
 
     const s3Boxes = createBoxes(oldList);
@@ -186,7 +186,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, currentRear, startX, startY, gap),
       ],
       actionTag: TAGS.ENQUEUE_ASSIGN,
-      variables: { front: 0, rear: currentRear, value },
+      local_vars: { front: 0, rear: currentRear, value },
     });
 
     steps.push({
@@ -197,7 +197,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, currentRear, startX, startY, gap),
       ],
       actionTag: TAGS.ENQUEUE_COMPLETE,
-      variables: { front: 0, rear: currentRear, value },
+      local_vars: { front: 0, rear: currentRear, value },
     });
   } else if (type === "delete") {
     if (value === undefined) {
@@ -206,14 +206,14 @@ export function createQueueAnimationSteps(
         description: "Dequeue: 佇列為空",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.DEQUEUE_CHECK_EMPTY,
-        variables: { front: 0, rear: -1 },
+        local_vars: { front: 0, rear: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "錯誤: 佇列下溢 (Queue Underflow)",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.DEQUEUE_ERROR,
-        variables: { front: 0, rear: -1 },
+        local_vars: { front: 0, rear: -1 },
       });
       return steps;
     }
@@ -234,7 +234,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, oldRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_CHECK_EMPTY,
-      variables: { front: 0, rear: oldRear },
+      local_vars: { front: 0, rear: oldRear },
     });
 
     const s2Boxes = createBoxes(fullList);
@@ -263,7 +263,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, oldRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_GET_VALUE,
-      variables: { front: 0, rear: oldRear, removed_value: value },
+      local_vars: { front: 0, rear: oldRear, removed_value: value },
     });
 
     const s3Boxes: Box[] = [];
@@ -307,7 +307,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, oldRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_DEC_REAR,
-      variables: { front: 0, rear: oldRear, removed_value: value },
+      local_vars: { front: 0, rear: oldRear, removed_value: value },
     });
 
     const newRear = oldRear - 1;
@@ -325,7 +325,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, newRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_DEC_REAR,
-      variables: { front: 0, rear: newRear, removed_value: value },
+      local_vars: { front: 0, rear: newRear, removed_value: value },
     });
 
     const s5MovingBox = new Box();
@@ -342,7 +342,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, newRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_RETURN,
-      variables: { front: 0, rear: newRear, removed_value: value },
+      local_vars: { front: 0, rear: newRear, removed_value: value },
     });
 
     steps.push({
@@ -353,7 +353,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, newRear, startX, startY, gap),
       ],
       actionTag: TAGS.DEQUEUE_COMPLETE,
-      variables: { front: 0, rear: newRear, removed_value: value },
+      local_vars: { front: 0, rear: newRear, removed_value: value },
     });
   } else if (type === "peek") {
     const size = dataList.length;
@@ -365,14 +365,14 @@ export function createQueueAnimationSteps(
         description: "Peek: 佇列為空",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.PEEK_CHECK_EMPTY,
-        variables: { front: 0, rear: -1 },
+        local_vars: { front: 0, rear: -1 },
       });
       steps.push({
         stepNumber: 2,
         description: "回傳 Null",
         elements: [...createQueuePointers(0, -1, startX, startY, gap)],
         actionTag: TAGS.PEEK_ERROR,
-        variables: { front: 0, rear: -1 },
+        local_vars: { front: 0, rear: -1 },
       });
       return steps;
     }
@@ -385,7 +385,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_CHECK_EMPTY,
-      variables: { front: 0, rear: rear },
+      local_vars: { front: 0, rear: rear },
     });
 
     const s2Boxes = createBoxes(dataList);
@@ -399,7 +399,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_RETURN,
-      variables: { front: 0, rear: rear, value },
+      local_vars: { front: 0, rear: rear, value },
     });
 
     const peekCompleteBoxes = createBoxes(dataList, Status.Unfinished);
@@ -413,7 +413,7 @@ export function createQueueAnimationSteps(
         ...createQueuePointers(0, rear, startX, startY, gap),
       ],
       actionTag: TAGS.PEEK_COMPLETE,
-      variables: { front: 0, rear: rear, value },
+      local_vars: { front: 0, rear: rear, value },
     });
   }
 

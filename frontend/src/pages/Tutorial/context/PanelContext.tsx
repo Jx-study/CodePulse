@@ -22,7 +22,10 @@ interface PanelContextValue {
   panelSizes: { [key: string]: number };
 
   // Methods
-  swapMainPanels: (currentCodeEditorSize?: number, currentRightPanelSize?: number) => void;
+  swapMainPanels: (
+    currentCodeEditorSize?: number,
+    currentRightPanelSize?: number,
+  ) => void;
   reorderRightPanels: (oldIndex: number, newIndex: number) => void;
   setCollapsed: (panelId: string, collapsed: boolean) => void;
   togglePanel: (panelId: string) => void;
@@ -53,11 +56,10 @@ export function PanelProvider({ children }: PanelProviderProps) {
     "canvas",
     "actionBar", // Inspector 內的 Tab
     "variableStatus", // 變數狀態 Tab
-    "callStack", // Call Stack Tab
   ]);
 
   const [collapsedPanels, setCollapsedPanels] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   // Panel sizes tracking (記錄每個面板的當前尺寸)
@@ -66,11 +68,17 @@ export function PanelProvider({ children }: PanelProviderProps) {
     rightPanel: 65,
   });
 
-  const swapMainPanels = (currentCodeEditorSize?: number, currentRightPanelSize?: number) => {
+  const swapMainPanels = (
+    currentCodeEditorSize?: number,
+    currentRightPanelSize?: number,
+  ) => {
     setMainPanelOrder((prev) => [...prev].reverse());
     // 記錄當前實際尺寸，不交換值
     // codeEditor 無論在左還是右，都保持自己的大小
-    if (currentCodeEditorSize !== undefined && currentRightPanelSize !== undefined) {
+    if (
+      currentCodeEditorSize !== undefined &&
+      currentRightPanelSize !== undefined
+    ) {
       setPanelSizes({
         codeEditor: currentCodeEditorSize,
         rightPanel: currentRightPanelSize,
@@ -135,7 +143,7 @@ export function PanelProvider({ children }: PanelProviderProps) {
    * 重置面板為默認狀態
    */
   const resetPanels = () => {
-    setActivePanels(["canvas", "actionBar", "variableStatus", "callStack"]);
+    setActivePanels(["canvas", "actionBar", "variableStatus"]);
     setRightPanelOrder(["canvas", "inspector"]);
     setCollapsedPanels(new Set());
   };

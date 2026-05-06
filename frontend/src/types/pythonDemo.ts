@@ -7,13 +7,30 @@ export interface PythonInput {
   max?: number;
   step?: number;
   options?: string[];
+  visibleWhen?: { variable: string; value: string | number };
 }
 
 export interface PythonDemo {
   title: string;
   code: string;
   inputs?: PythonInput[];
-  outputType?: 'text' | 'graph' | 'queue-card'; // 預設 'text'，向下兼容
+  outputType?: 'text' | 'graph' | 'queue-card' | 'maze' | 'flood-fill'; // 預設 'text'，向下兼容
+}
+
+
+export interface MazeCell {
+  right: boolean;
+  down: boolean;
+}
+
+export interface MazeOutputData {
+  width: number;
+  height: number;
+  grid: MazeCell[][];
+  start: [number, number];
+  finish: [number, number];
+  // DFS 生成步驟序列。forward: [fx,fy,tx,ty]；backtrack: [bx,by,-1,-1] 
+  generationSteps?: [number, number, number, number][];
 }
 
 export interface GraphSimNode {
@@ -49,4 +66,12 @@ export interface QueueCardOutputData {
     max_queue_size: number;
     survive_seconds: number;
   };
+}
+
+/** BFS Flood Fill 互動畫布：Python 只輸出尺寸與圖案元資料，邊線 grid 由前端 Canvas 光柵化 */
+export interface FloodFillOutputData {
+  width: number;
+  height: number;
+  pattern: 'ring' | 'star' | 'heart' | 'concentric' | 'grid-rooms' | string;
+  border_width: number;
 }
