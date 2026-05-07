@@ -75,6 +75,8 @@ export interface DSActionBarProps extends BaseActionBarProps {
   onPeek?: () => void;
   onTailModeChange?: (hasTail: boolean) => void;
   onListModeChange?: (mode: "singly" | "doubly") => void;
+  hasTailMode?: boolean;
+  listMode?: "singly" | "doubly";
   onGraphAction?: (action: string, payload: any) => void;
   isDirected?: boolean;
   onIsDirectedChange?: (val: boolean) => void;

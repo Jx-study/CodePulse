@@ -203,7 +203,9 @@ export interface InspectorPanelInternalProps {
   maxNodes: number | undefined;
   setRandomCount: (count: number) => void;
   setHasTailMode: (hasTail: boolean) => void;
+  hasTailMode: boolean;
   handleListModeChange: (mode: "singly" | "doubly") => void;
+  listMode: "singly" | "doubly";
   handleGraphAction: (action: string, payload: any) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
@@ -230,7 +232,9 @@ export const InspectorPanelInternal = ({
   maxNodes,
   setRandomCount,
   setHasTailMode,
+  hasTailMode,
   handleListModeChange,
+  listMode,
   handleGraphAction,
   isDirected,
   setIsDirected,
@@ -269,66 +273,59 @@ export const InspectorPanelInternal = ({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // 渲染當前 Tab 的內容
+  const actionBarProps = {
+    topicTypeConfig,
+    onLoadData: handleLoadData,
+    onRandomData: handleRandomData,
+    onResetData: handleResetData,
+    disabled: isProcessing,
+    onRun: handleRunAlgorithm,
+    onAddNode: handleAddNode,
+    onDeleteNode: handleDeleteNode,
+    onSearchNode: handleSearchNode,
+    onPeek: handlePeek,
+    maxNodes,
+    onMaxNodesChange: setRandomCount,
+    onTailModeChange: setHasTailMode,
+    onListModeChange: handleListModeChange,
+    hasTailMode,
+    listMode,
+    onGraphAction: handleGraphAction,
+    isDirected,
+    onIsDirectedChange: setIsDirected,
+    viewMode,
+    onViewModeChange: handleViewModeChange,
+    currentData,
+  };
+
+  // 全部 Tab 同時保持 mounted，以 CSS display:none 隱藏非作用中的，
+  // 確保各 Tab 的 local state（insertMode、inputValue 等）不因切換而重置
   const renderTabContent = () => {
-    const panelConfig = PANEL_REGISTRY[activeInspectorTab];
-
-    if (!panelConfig) {
-      return null;
-    }
-
-    const PanelComponent = panelConfig.component;
-
-    // 為 actionBar 準備特殊的 props
-    if (activeInspectorTab === "actionBar") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent
-              topicTypeConfig={topicTypeConfig}
-              onLoadData={handleLoadData}
-              onRandomData={handleRandomData}
-              onResetData={handleResetData}
-              disabled={isProcessing}
-              onRun={handleRunAlgorithm}
-              onAddNode={handleAddNode}
-              onDeleteNode={handleDeleteNode}
-              onSearchNode={handleSearchNode}
-              onPeek={handlePeek}
-              maxNodes={maxNodes}
-              onMaxNodesChange={setRandomCount}
-              onTailModeChange={setHasTailMode}
-              onListModeChange={handleListModeChange}
-              onGraphAction={handleGraphAction}
-              isDirected={isDirected}
-              onIsDirectedChange={setIsDirected}
-              viewMode={viewMode}
-              onViewModeChange={handleViewModeChange}
-              currentData={currentData}
-            />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 為 variableStatus 準備 variables props
-    if (activeInspectorTab === "variableStatus") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent variables={currentStepData?.variables} />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 其他 Tab (callStack) 不需要 props
     return (
-      <div className={styles.tabContent}>
-        <Suspense fallback={<div>載入中...</div>}>
-          <PanelComponent />
-        </Suspense>
-      </div>
+      <>
+        {inspectorTabs.map((tab) => {
+          const panelConfig = PANEL_REGISTRY[tab.key];
+          if (!panelConfig) return null;
+          const PanelComponent = panelConfig.component;
+          const isActive = activeInspectorTab === tab.key;
+
+          let tabProps: Record<string, unknown> = {};
+          if (tab.key === "actionBar") tabProps = actionBarProps;
+          else if (tab.key === "variableStatus") tabProps = { variables: currentStepData?.variables };
+
+          return (
+            <div
+              key={tab.key}
+              className={styles.tabContent}
+              style={isActive ? undefined : { display: "none" }}
+            >
+              <Suspense fallback={<div>載入中...</div>}>
+                <PanelComponent {...(tabProps as any)} />
+              </Suspense>
+            </div>
+          );
+        })}
+      </>
     );
   };
 
@@ -904,7 +901,9 @@ function TutorialContent() {
     maxNodes,
     setRandomCount: handleRandomCountChange,
     setHasTailMode,
+    hasTailMode,
     handleListModeChange: handleListModeChange,
+    listMode,
     handleGraphAction,
     isDirected,
     setIsDirected: handleIsDirectedChange,
