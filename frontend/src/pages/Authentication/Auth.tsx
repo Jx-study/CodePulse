@@ -78,10 +78,18 @@ function AuthPage() {
         setUsernameError(t("invalidUsername", "用戶名格式不正確"));
       } else if (status === 400 && errorCode === "RESERVED_USERNAME") {
         setUsernameError(t("reservedUsername", "此名稱不可使用，請換一個"));
+      } else if (status === 400 && errorCode === "INVALID_DISPLAY_NAME") {
+        setFormError(t("validation.displayName.max", "顯示名稱格式不正確"));
       } else if (status === 409) {
         setUsernameError(t("usernameTaken", "此名稱已被使用"));
       } else if (status === 401) {
         setFormError(t("onboardingExpired", "連結已過期，請重新使用 Google 登入"));
+      } else if (status === 0 || !status) {
+        setFormError(t("networkError", "連線不穩定，請檢查您的網路狀態"));
+      } else if (status >= 500) {
+        setFormError(t("serverError", "伺服器目前有些問題，我們正在全力搶修中"));
+      } else {
+        setFormError(t("unknownError", "發生了神祕的錯誤，請重新整理頁面再試一次"));
       }
     } finally {
       setLoading(false);
