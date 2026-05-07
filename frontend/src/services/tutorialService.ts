@@ -32,6 +32,23 @@ export interface QuestionsResponse {
   questions: ApiQuestion[];
 }
 
+export interface QuestionTranslationMap {
+  stem: string;
+  options: { id: string; text: string }[] | null;
+  explanation: string | null;
+}
+
+export interface GroupTranslationMap {
+  title: string;
+  description: string | null;
+}
+
+export interface TranslationsResponse {
+  success: boolean;
+  questions: Record<string, QuestionTranslationMap>;
+  groups: Record<string, GroupTranslationMap>;
+}
+
 export interface SubmitAnswerPayload {
   question_id: number;
   user_answer: string | string[];
@@ -56,7 +73,6 @@ export interface SubmitResponse {
 }
 
 // API 函式
-
 export const tutorialService = {
   async startSession(slug: string): Promise<number> {
     const res = await apiService.post<SessionResponse>(
@@ -86,9 +102,26 @@ export const tutorialService = {
     return res.data.questions;
   },
 
-  async submitPractice(slug: string, answers: SubmitAnswerPayload[]): Promise<SubmitResponse> {
+  // 只取翻譯欄位（切語言時使用，不重新抽題）
+  async getQuestionTranslations(
+    slug: string,
+    questionIds: number[],
+    lang: string,
+    signal?: AbortSignal,
+  ): Promise<TranslationsResponse> {
+    const ids = questionIds.join(',');
+    const res = await apiService.get<TranslationsResponse>(
+      `/api/tutorials/${slug}/questions/translations?lang=${lang}&ids=${ids}`,
+      undefined,
+      signal,
+    );
+    return res.data;
+  },
+
+  // 提交練習答案
+  async submitPractice(slug: string, answers: SubmitAnswerPayload[], lang = 'zh-TW'): Promise<SubmitResponse> {
     const res = await apiService.post<SubmitResponse>(
-      `/api/tutorials/${slug}/submit`,
+      `/api/tutorials/${slug}/submit?lang=${lang}`,
       answers,
     );
     return res.data;
