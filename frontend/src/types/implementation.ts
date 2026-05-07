@@ -23,6 +23,9 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
+  MazeCell,
+  MazeOutputData,
+  FloodFillOutputData,
 } from "./pythonDemo";
 
 export type {

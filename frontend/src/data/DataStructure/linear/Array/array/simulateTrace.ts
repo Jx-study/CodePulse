@@ -18,7 +18,7 @@ export function simulateArrayTrace(
   if (!action) {
     trace.push({
       tag: TAGS.SEARCH_START,
-      variables: { length: dataList.length },
+      local_vars: { length: dataList.length },
       dataSnapshot: snapshot(dataList),
       meta: { isInitial: true },
     });
@@ -31,7 +31,7 @@ export function simulateArrayTrace(
   if (type === "search") {
     trace.push({
       tag: TAGS.SEARCH_START,
-      variables: { target: value, i: -1 },
+      local_vars: { target: value, i: -1 },
       dataSnapshot: snapshot(dataList),
     });
 
@@ -39,7 +39,7 @@ export function simulateArrayTrace(
     for (let i = 0; i < dataList.length; i++) {
       trace.push({
         tag: TAGS.SEARCH_COMPARE,
-        variables: { target: value, i, current_val: dataList[i].value ?? 0 },
+        local_vars: { target: value, i, current_val: dataList[i].value ?? 0 },
         dataSnapshot: snapshot(dataList),
         meta: { highlightIndex: i, status: "Target" },
       });
@@ -48,7 +48,7 @@ export function simulateArrayTrace(
         found = true;
         trace.push({
           tag: TAGS.SEARCH_FOUND,
-          variables: { target: value, i, found_index: i },
+          local_vars: { target: value, i, found_index: i },
           dataSnapshot: snapshot(dataList),
           meta: { highlightIndex: i, status: "Complete" },
         });
@@ -59,7 +59,7 @@ export function simulateArrayTrace(
     if (!found) {
       trace.push({
         tag: TAGS.SEARCH_NOT_FOUND,
-        variables: { target: value, i: dataList.length, found_index: -1 },
+        local_vars: { target: value, i: dataList.length, found_index: -1 },
         dataSnapshot: snapshot(dataList),
       });
     }
@@ -76,28 +76,28 @@ export function simulateArrayTrace(
 
       trace.push({
         tag: TAGS.UPDATE_START,
-        variables: { index: idx, value, [`data[${idx}]`]: oldValue },
+        local_vars: { index: idx, value, [`data[${idx}]`]: oldValue },
         dataSnapshot: snapBefore,
         meta: { highlightIndex: idx, status: "Target" },
       });
 
       trace.push({
         tag: TAGS.UPDATE_ASSIGN,
-        variables: { index: idx, value, [`data[${idx}]`]: value },
+        local_vars: { index: idx, value, [`data[${idx}]`]: value },
         dataSnapshot: snapshot(dataList),
         meta: { highlightIndex: idx, status: "Target" },
       });
 
       trace.push({
         tag: TAGS.UPDATE_COMPLETE,
-        variables: { index: idx, value, [`data[${idx}]`]: value },
+        local_vars: { index: idx, value, [`data[${idx}]`]: value },
         dataSnapshot: snapshot(dataList),
         meta: { highlightIndex: idx, status: "Complete" },
       });
     } else {
       trace.push({
         tag: TAGS.UPDATE_ERROR,
-        variables: { index: idx, length: dataList.length },
+        local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapshot(dataList),
       });
     }
@@ -114,7 +114,7 @@ export function simulateArrayTrace(
 
     trace.push({
       tag: TAGS.INSERT_START,
-      variables: { index: idx, value, length: currentList.length },
+      local_vars: { index: idx, value, length: currentList.length },
       dataSnapshot: snapshot(currentList),
       meta: { highlightIndex: currentList.length - 1, status: "Target" },
     });
@@ -122,7 +122,7 @@ export function simulateArrayTrace(
     for (let i = currentList.length - 1; i > idx; i--) {
       trace.push({
         tag: TAGS.INSERT_SHIFT,
-        variables: {
+        local_vars: {
           i,
           index: idx,
           from: i - 1,
@@ -142,7 +142,7 @@ export function simulateArrayTrace(
 
       trace.push({
         tag: TAGS.INSERT_SHIFT,
-        variables: {
+        local_vars: {
           i,
           index: idx,
           [`data[${i}]`]: currentList[i].value ?? null,
@@ -159,14 +159,14 @@ export function simulateArrayTrace(
 
     trace.push({
       tag: TAGS.INSERT_ASSIGN,
-      variables: { index: idx, value, [`data[${idx}]`]: value },
+      local_vars: { index: idx, value, [`data[${idx}]`]: value },
       dataSnapshot: snapshot(currentList),
       meta: { highlightIndex: idx, status: "Target" },
     });
 
     trace.push({
       tag: TAGS.INSERT_COMPLETE,
-      variables: { index: idx, value, [`data[${idx}]`]: value },
+      local_vars: { index: idx, value, [`data[${idx}]`]: value },
       dataSnapshot: snapshot(dataList),
       meta: { status: "Complete" },
     });
@@ -188,7 +188,7 @@ export function simulateArrayTrace(
 
       trace.push({
         tag: TAGS.DELETE_START,
-        variables: { index: idx, value },
+        local_vars: { index: idx, value },
         dataSnapshot: snapshot(currentList),
         meta: { highlightIndex: idx, status: "Target" },
       });
@@ -196,7 +196,7 @@ export function simulateArrayTrace(
       for (let i = idx; i < currentList.length - 1; i++) {
         trace.push({
           tag: TAGS.DELETE_SHIFT,
-          variables: {
+          local_vars: {
             i,
             index: idx,
             from: i + 1,
@@ -216,7 +216,7 @@ export function simulateArrayTrace(
 
         trace.push({
           tag: TAGS.DELETE_SHIFT,
-          variables: {
+          local_vars: {
             i,
             index: idx,
             [`data[${i}]`]: currentList[i].value ?? null,
@@ -231,14 +231,14 @@ export function simulateArrayTrace(
 
       trace.push({
         tag: TAGS.DELETE_REMOVE,
-        variables: { length: currentList.length },
+        local_vars: { length: currentList.length },
         dataSnapshot: snapshot(currentList),
         meta: { highlightIndex: currentList.length - 1, status: "Target" },
       });
 
       trace.push({
         tag: TAGS.DELETE_COMPLETE,
-        variables: { length: dataList.length },
+        local_vars: { length: dataList.length },
         dataSnapshot: snapshot(dataList),
         meta: { status: "Complete" },
       });
