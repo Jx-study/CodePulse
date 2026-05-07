@@ -3775,12 +3775,12 @@ function linkedListActionHandler(
       newData.push(newNode);
     } else if (mode === "Node N") {
       if (idx < 0) {
-        context.toast.warning("Invalid index: Index cannot be negative.");
+        context.toast.warning("索引無效：索引不能為負數");
         return null;
       }
       if (idx > data.length) {
         context.toast.warning(
-          `Index ${idx} is out of bounds. The maximum index for insertion is ${data.length}.`,
+          `索引 ${idx} 超出範圍，插入的最大索引為 ${data.length}`,
         );
         return null;
       }
@@ -3802,7 +3802,7 @@ function linkedListActionHandler(
 
   if (actionType === "delete") {
     if (newData.length === 0) {
-      context.toast.warning("Linked List is empty");
+      context.toast.warning("鏈結串列為空");
       return null;
     }
     let deletedNode: ListNodeData | null = null;
