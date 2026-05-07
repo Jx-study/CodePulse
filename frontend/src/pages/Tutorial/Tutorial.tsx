@@ -569,11 +569,15 @@ function TutorialContent() {
       : logic.data?.nodes?.length > 0;
 
     if (topicTypeConfig && !isProcessing && hasData) {
-      logic.executeAction("refresh", { hasTailMode, isDirected });
+      logic.executeAction("refresh", {
+        hasTailMode,
+        isDirected,
+        isDoubly: listMode === "doubly",
+      });
       setRenderedIsDirected(isDirected);
       setCurrentStep(0);
     }
-  }, [hasTailMode, isDirected, isAlgorithm]);
+  }, [hasTailMode, isDirected, isAlgorithm, listMode]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -653,6 +657,7 @@ function TutorialContent() {
       mode,
       index,
       hasTailMode,
+      isDoubly: listMode === "doubly",
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -662,7 +667,12 @@ function TutorialContent() {
 
   const handleDeleteNode = (mode: string, index?: number) => {
     if (isAlgorithm) return;
-    const steps = executeAction("delete", { mode, index, hasTailMode });
+    const steps = executeAction("delete", {
+      mode,
+      index,
+      hasTailMode,
+      isDoubly: listMode === "doubly",
+    });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -673,7 +683,12 @@ function TutorialContent() {
 
   const handleSearchNode = (value: number, mode?: string) => {
     if (isAlgorithm) return;
-    const steps = executeAction("search", { value, mode, hasTailMode });
+    const steps = executeAction("search", {
+      value,
+      mode,
+      hasTailMode,
+      isDoubly: listMode === "doubly",
+    });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -687,6 +702,7 @@ function TutorialContent() {
       hasTailMode,
       mode: viewMode,
       isDirected,
+      isDoubly: listMode === "doubly",
       ...params,
     });
     setCurrentStep(0);
@@ -695,7 +711,7 @@ function TutorialContent() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected, isDoubly: listMode === "doubly" });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -713,6 +729,7 @@ function TutorialContent() {
         randomCount: randomCountRef.current,
         hasTailMode,
         isDirected,
+        isDoubly: listMode === "doubly",
       });
       if (steps && steps.length > 0) {
         setCurrentStep(0);
@@ -737,6 +754,7 @@ function TutorialContent() {
     const steps = executeAction("load", {
       data: parsed,
       hasTailMode,
+      isDoubly: listMode === "doubly",
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -802,7 +820,7 @@ function TutorialContent() {
     setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleReset = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
+    executeAction("reset", { hasTailMode, mode: viewMode, isDirected, isDoubly: listMode === "doubly" });
     setCurrentStep(0);
     setIsPlaying(false);
   };
