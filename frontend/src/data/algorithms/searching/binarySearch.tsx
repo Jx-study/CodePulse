@@ -8,7 +8,10 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 
-const binarySearchActionHandler = createLinearActionHandler({ randomValueRange: [0, 100], sortOnLoad: true });
+const binarySearchActionHandler = createLinearActionHandler({
+  randomValueRange: [0, 100],
+  sortOnLoad: true,
+});
 
 const TAGS = {
   INIT: "INIT",
@@ -82,15 +85,12 @@ const generateFrame = (
     if (foundIndex !== -1 && i === foundIndex) box.setStatus(Status.Complete);
   });
 
-  return [
-    ...boxes,
-    ...createBinaryPointers(left, right, mid, 50, 200, 70),
-  ];
+  return [...boxes, ...createBinaryPointers(left, right, mid, 50, 200, 70)];
 };
 
 export function createBinarySearchAnimationSteps(
   inputData: any[],
-  action?: any, 
+  action?: any,
 ): AnimationStep[] {
   const dataList = inputData as LinearData[];
   const steps: AnimationStep[] = [];
@@ -113,11 +113,11 @@ export function createBinarySearchAnimationSteps(
     stepNumber: 0,
     description: `開始二分搜尋：目標值為 ${target}`,
     actionTag: TAGS.INIT,
-    variables: { 
-      left, 
-      right, 
+    local_vars: {
+      left,
+      right,
       target,
-      totalItems: arr.length 
+      totalItems: arr.length,
     },
     elements: generateFrame(arr, { left, right, mid: -1 }),
   });
@@ -127,7 +127,12 @@ export function createBinarySearchAnimationSteps(
       stepNumber: steps.length + 1,
       description: `檢查：Left (${left}) <= Right (${right})，繼續搜尋`,
       actionTag: TAGS.CHECK_WHILE,
-      variables: { left, right, condition: `${left} <= ${right}`, result: true },
+      local_vars: {
+        left,
+        right,
+        condition: `${left} <= ${right}`,
+        result: true,
+      },
       elements: generateFrame(arr, { left, right, mid: -1 }),
     });
 
@@ -137,8 +142,12 @@ export function createBinarySearchAnimationSteps(
       stepNumber: steps.length + 1,
       description: `計算中間點：Mid = floor((${left} + ${right}) / 2) = ${mid}`,
       actionTag: TAGS.CALC_MID,
-      variables: { left, right, mid },
-      elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Prepare }),
+      local_vars: { left, right, mid },
+      elements: generateFrame(
+        arr,
+        { left, right, mid },
+        { [mid]: Status.Prepare },
+      ),
     });
 
     const midVal = Number(arr[mid].value);
@@ -147,13 +156,17 @@ export function createBinarySearchAnimationSteps(
       stepNumber: steps.length + 1,
       description: `比對：Index ${mid} (${midVal}) vs 目標 (${target})`,
       actionTag: TAGS.COMPARE,
-      variables: { 
-        mid, 
-        midVal, 
+      local_vars: {
+        mid,
+        midVal,
         target,
-        compareCondition: `${midVal} == ${target}` 
+        compareCondition: `${midVal} == ${target}`,
       },
-      elements: generateFrame(arr, { left, right, mid }, { [mid]: Status.Target }),
+      elements: generateFrame(
+        arr,
+        { left, right, mid },
+        { [mid]: Status.Target },
+      ),
     });
 
     if (midVal === target) {
@@ -161,7 +174,7 @@ export function createBinarySearchAnimationSteps(
         stepNumber: steps.length + 1,
         description: `找到目標！${midVal} 等於 ${target}，位於 Index ${mid}`,
         actionTag: TAGS.FOUND,
-        variables: { foundIndex: mid, midVal },
+        local_vars: { foundIndex: mid, midVal },
         elements: generateFrame(
           arr,
           { left, right, mid },
@@ -169,7 +182,7 @@ export function createBinarySearchAnimationSteps(
           mid,
         ),
       });
-      return steps; 
+      return steps;
     } else if (midVal < target) {
       const newLeft = mid + 1;
 
@@ -177,17 +190,13 @@ export function createBinarySearchAnimationSteps(
         stepNumber: steps.length + 1,
         description: `${midVal} < ${target} (太小)，目標在右半部，更新 Left = ${mid} + 1`,
         actionTag: TAGS.UPDATE_LEFT,
-        variables: { 
-          midVal, 
-          target, 
+        local_vars: {
+          midVal,
+          target,
           oldLeft: left,
-          newLeft: newLeft 
+          newLeft: newLeft,
         },
-        elements: generateFrame(
-          arr,
-          { left: newLeft, right, mid: -1 }, 
-          {}, 
-        ),
+        elements: generateFrame(arr, { left: newLeft, right, mid: -1 }, {}),
       });
 
       left = newLeft;
@@ -198,17 +207,13 @@ export function createBinarySearchAnimationSteps(
         stepNumber: steps.length + 1,
         description: `${midVal} > ${target} (太大)，目標在左半部，更新 Right = ${mid} - 1`,
         actionTag: TAGS.UPDATE_RIGHT,
-        variables: { 
-          midVal, 
-          target, 
+        local_vars: {
+          midVal,
+          target,
           oldRight: right,
-          newRight: newRight
+          newRight: newRight,
         },
-        elements: generateFrame(
-          arr,
-          { left, right: newRight, mid: -1 }, 
-          {},
-        ),
+        elements: generateFrame(arr, { left, right: newRight, mid: -1 }, {}),
       });
 
       right = newRight;
@@ -219,7 +224,7 @@ export function createBinarySearchAnimationSteps(
     stepNumber: steps.length + 1,
     description: `搜尋結束：範圍已空 (Left > Right)，未找到目標 ${target}`,
     actionTag: TAGS.NOT_FOUND,
-    variables: { left, right, found: false },
+    local_vars: { left, right, found: false },
     elements: generateFrame(arr, { left, right, mid: -1 }),
   });
 
@@ -250,7 +255,7 @@ End Procedure`,
       [TAGS.INIT]: [2, 3],
       [TAGS.CHECK_WHILE]: [5],
       [TAGS.CALC_MID]: [6],
-      [TAGS.COMPARE]: [8, 10, 12], 
+      [TAGS.COMPARE]: [8, 10, 12],
       [TAGS.FOUND]: [9],
       [TAGS.UPDATE_LEFT]: [11],
       [TAGS.UPDATE_RIGHT]: [13],
@@ -316,7 +321,8 @@ export const binarySearchConfig: LevelImplementationConfig = {
     {
       id: 35,
       title: "Search Insert Position",
-      concept: "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
+      concept:
+        "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/search-insert-position/",
     },

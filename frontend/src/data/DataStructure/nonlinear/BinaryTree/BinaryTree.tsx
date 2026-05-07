@@ -82,7 +82,7 @@ const generateFrame = (
   animationState: StackAnimationState = "idle",
   containerType: "stack" | "queue" = "stack",
   actionTag?: string,
-  variables?: Record<string, any>,
+  local_vars?: Record<string, any>,
   linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const treeElements = createTreeNodes(inputData, {
@@ -149,7 +149,7 @@ const generateFrame = (
     elements: [...treeElements, ...listElements],
     links,
     actionTag,
-    variables,
+    local_vars,
   };
 };
 

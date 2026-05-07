@@ -14,7 +14,7 @@ import { circleBoundaryPoint } from "./linkGeometry";
 import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
 import CanvasShell from "./CanvasShell";
-import type { AnimatableCanvasRef, BaseCanvasProps } from "@/types/canvasTypes";
+import type { AnimatableCanvasRef, D3CanvasProps } from "@/types/canvasTypes";
 import { computeUnionBBox } from "./useBoxViewBox";
 import styles from "./D3Canvas.module.scss";
 
@@ -22,14 +22,17 @@ export interface D3CanvasRef extends AnimatableCanvasRef {
   getSVGElement: () => SVGSVGElement | null;
 }
 
-export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
+export const D3Canvas = forwardRef<
+  D3CanvasRef,
+  D3CanvasProps
+>(
   (
     {
       elements,
       links = [],
       width = 800,
       height = 600,
-      structureType = "linkedlist", // default value
+      structureType = "linkedlist",
       enableZoom = true,
       enablePan = true,
       statusColorMap,
@@ -477,14 +480,14 @@ export const D3Canvas = forwardRef<D3CanvasRef, BaseCanvasProps>(
 
     return (
       <CanvasShell
-        statusConfig={statusConfig}
+        containerRef={drag.containerRef}
+        panEnabled={enablePan}
+        isDragging={drag.isDragging}
         enableZoom={enableZoom}
         enablePan={enablePan}
         showStatusLegend={showStatusLegend}
         onReset={handleResetView}
-        containerRef={drag.containerRef}
-        panEnabled={enablePan}
-        isDragging={drag.isDragging}
+        statusConfig={showStatusLegend ? statusConfig : undefined}
         containerEventHandlers={{
           onMouseDown: drag.handleMouseDown,
           onMouseMove: drag.handleMouseMove,

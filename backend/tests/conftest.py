@@ -1,5 +1,9 @@
 """Shared pytest fixtures for backend tests."""
+import os
 import pytest
+
+# tracer.run_trace() 有 SANDBOX_CONTAINER guard，測試環境需要設此環境變數
+os.environ.setdefault("SANDBOX_CONTAINER", "1")
 
 from app import create_app
 from database import db as _db
