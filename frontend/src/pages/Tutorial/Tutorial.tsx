@@ -1004,7 +1004,6 @@ function TutorialContent() {
 
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
   const handleResetStep = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected, isDoubly: listMode === "doubly" });
     setCurrentStep(0);
     setIsPlaying(false);
   };
