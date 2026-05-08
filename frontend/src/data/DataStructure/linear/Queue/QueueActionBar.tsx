@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -26,11 +27,11 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
 
   const handleEnqueue = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    if (!isNaN(val)) {
-      onAddNode(val, "Tail");
-      setInputValue("");
+    if (inputValue.trim() === "") {
+      toast.warning("請輸入要 Enqueue 的數值");
+      return;
     }
+    onAddNode(Number(inputValue), "Tail");
   };
 
   const handleDequeue = () => {

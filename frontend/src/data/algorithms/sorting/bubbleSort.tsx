@@ -1,84 +1,15 @@
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
-import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
+import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
-import { cloneData } from "@/modules/core/visualization/visualizationUtils";
-import { DATA_LIMITS } from "@/constants/dataLimits";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { createSortingFrame } from "@/data/shared/animationUtils/linearFrame";
+import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 
-function bubbleSortActionHandler(
-  actionType: string,
-  payload: Record<string, unknown>,
-  data: LinearData[],
-  context: ActionContext,
-): ActionResult<LinearData[]> | null {
-  if (actionType === "random") {
-    const count =
-      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
-    const values = Array.from(
-      { length: count },
-      () => Math.floor(Math.random() * 100) - 20
-    );
-    const newData = values.map((v) => ({
-      id: context.nextId(),
-      value: v,
-    }));
-    return { animationData: newData, isResetAction: true };
-  }
-
-  if (actionType === "load") {
-    const values = payload.data as number[];
-    if (!values?.length) return null;
-    const newData = values.map((v) => ({
-      id: context.nextId(),
-      value: v,
-    }));
-    return { animationData: newData, isResetAction: true };
-  }
-
-  if (actionType === "reset") {
-    const defaultData = (context.defaultData as LinearData[]) ?? data;
-    return { animationData: cloneData(defaultData), isResetAction: true };
-  }
-
-  if (actionType === "run") {
-    return { animationData: cloneData(data) };
-  }
-
-  return null;
-}
-
-const generateFrame = (
-  list: LinearData[],
-  overrideStatusMap: Record<number, Status> = {},
-  sortedIndices: Set<number> = new Set()
-) => {
-  const boxes = createBoxes(list, {
-    startX: 50,
-    startY: 250, // 0 的軸線位置
-    gap: 70,
-    overrideStatusMap,
-    getDescription: (_item, index) => `${index}`,
-  });
-
-  boxes.forEach((element, i) => {
-    // 強制轉型為 Box 以設定 autoScale (因為 createBoxes 回傳的是 BaseElement[] 或 Box[])
-    const box = element as Box;
-    box.autoScale = true; // 開啟長條圖模式
-
-    // 如果該索引已經在已排序集合中，強制設為 complete
-    if (sortedIndices.has(i)) {
-      box.setStatus(Status.Complete);
-    }
-  });
-
-  return boxes;
-};
+const bubbleSortActionHandler = createLinearActionHandler();
 
 export function createBubbleSortAnimationSteps(
-  inputData: LinearData[]
+  inputData: LinearData[],
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
 
@@ -91,8 +22,8 @@ export function createBubbleSortAnimationSteps(
     stepNumber: 0,
     description: "開始泡沫排序",
     actionTag: TAGS.INIT,
-    variables: { totalItems: n },
-    elements: generateFrame(arr, {}, sortedIndices),
+    local_vars: { totalItems: n },
+    elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
   // 演算法主迴圈
@@ -103,8 +34,8 @@ export function createBubbleSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `第 ${i + 1} 輪開始`,
       actionTag: TAGS.ROUND_START,
-      variables: { round: i, hasSwapped: false, unsortedRange: n - i - 2 },
-      elements: generateFrame(arr, {}, sortedIndices),
+      local_vars: { round: i, hasSwapped: false, unsortedRange: n - i - 2 },
+      elements: createSortingFrame(arr, {}, sortedIndices),
     });
 
     for (let j = 0; j < n - i - 1; j++) {
@@ -120,14 +51,14 @@ export function createBubbleSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `抓取 Index ${j} (${val1}) 和 Index ${j + 1} (${val2})`,
         actionTag: TAGS.GET_VALUES,
-        variables: {
+        local_vars: {
           round: i,
           index: j,
           currentVal: val1,
           nextVal: val2,
           hasSwapped: swapped,
         },
-        elements: generateFrame(arr, compareStatus, sortedIndices),
+        elements: createSortingFrame(arr, compareStatus, sortedIndices),
       });
 
       if (val1 > val2) {
@@ -135,7 +66,7 @@ export function createBubbleSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `判斷：${val1} > ${val2} 為真，準備交換`,
           actionTag: TAGS.COMPARE,
-          variables: {
+          local_vars: {
             round: i,
             index: j,
             currentVal: val1,
@@ -143,7 +74,7 @@ export function createBubbleSortAnimationSteps(
             condition: `${val1} > ${val2}`,
             result: true,
           },
-          elements: generateFrame(arr, compareStatus, sortedIndices),
+          elements: createSortingFrame(arr, compareStatus, sortedIndices),
         });
 
         const temp = arr[j];
@@ -157,27 +88,27 @@ export function createBubbleSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `交換完成：${val1} 和 ${val2} 位置對調`,
           actionTag: TAGS.SWAP,
-          variables: {
+          local_vars: {
             round: i,
             index: j,
             [`collection[${j}]`]: arr[j].value ?? null,
             [`collection[${j + 1}]`]: arr[j + 1].value ?? null,
             hasSwapped: true,
           },
-          elements: generateFrame(arr, compareStatus, sortedIndices),
+          elements: createSortingFrame(arr, compareStatus, sortedIndices),
         });
       } else {
         steps.push({
           stepNumber: steps.length + 1,
           description: `判斷：${val1} > ${val2} 為假，不需交換`,
           actionTag: TAGS.COMPARE,
-          variables: {
+          local_vars: {
             round: i,
             index: j,
             condition: `${val1} > ${val2}`,
             result: false,
           },
-          elements: generateFrame(arr, compareStatus, sortedIndices),
+          elements: createSortingFrame(arr, compareStatus, sortedIndices),
         });
       }
     }
@@ -188,8 +119,8 @@ export function createBubbleSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `本輪結束，Index ${n - 1 - i} 已就定位`,
       actionTag: TAGS.ROUND_END,
-      variables: { round: i, hasSwapped: swapped },
-      elements: generateFrame(arr, {}, sortedIndices),
+      local_vars: { round: i, hasSwapped: swapped },
+      elements: createSortingFrame(arr, {}, sortedIndices),
     });
 
     if (!swapped) {
@@ -206,8 +137,8 @@ export function createBubbleSortAnimationSteps(
     stepNumber: steps.length + 1,
     description: "排序完成",
     actionTag: TAGS.DONE,
-    variables: { isSorted: true },
-    elements: generateFrame(arr, {}, sortedIndices),
+    local_vars: { isSorted: true },
+    elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
   return steps;
@@ -249,7 +180,7 @@ const bubbleSortCodeConfig: CodeConfig = {
   End For
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2], 
+      [TAGS.INIT]: [2],
       [TAGS.ROUND_START]: [4, 5, 6],
       [TAGS.GET_VALUES]: [8, 9, 10],
       [TAGS.COMPARE]: [12],

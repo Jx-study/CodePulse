@@ -17,8 +17,8 @@
 }
 
 .settingTabList {
-  width: 180px !important;
-  min-width: 180px !important;
+  width: 11.25rem !important;
+  min-width: 11.25rem !important;
   padding: $spacing-sm $spacing-xs !important;
   border-right: 2px solid var(--border) !important;
   background: var(--bg-primary) !important;
@@ -85,7 +85,7 @@
 
 .field {
   @include flex($direction: column);
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .segmentLabel {
@@ -110,7 +110,7 @@
 }
 
 .inputWithPrefix {
-  padding-left: 1.75rem;
+  padding-left: 2rem !important;
 }
 
 .inputWithAction {
@@ -119,10 +119,10 @@
 
 .inputAction {
   position: absolute;
-  right: 10px;
+  right: 0.625rem;
   @include flex-center;
-  width: 28px;
-  height: 28px;
+  width: 1.75rem;
+  height: 1.75rem;
   border: none;
   border-radius: $radius-md;
   background: transparent;
@@ -184,7 +184,7 @@
 }
 
 .accordionBodyOpen {
-  max-height: 640px;
+  max-height: 40rem;
 }
 
 .accordionInner {
@@ -198,7 +198,7 @@
 .strengthMeter {
   @include flex;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: 0.375rem;
 }
 
 .strengthBar {
@@ -227,14 +227,14 @@
 
 .pwCheckPass {
   @include flex($align: center);
-  gap: 6px;
+  gap: 0.375rem;
   font-size: $font-xs;
   color: $success-color;
 }
 
 .pwCheckFail {
   @include flex($align: center);
-  gap: 6px;
+  gap: 0.375rem;
   font-size: $font-xs;
   color: var(--text-muted);
 }
@@ -262,9 +262,9 @@
 
 .segment {
   @include flex($align: center);
-  gap: 6px;
+  gap: 0.375rem;
   flex: 1;
-  padding: 9px $spacing-sm;
+  padding: 0.5625rem $spacing-sm;
   border: none;
   border-radius: $radius-lg;
   background: transparent;

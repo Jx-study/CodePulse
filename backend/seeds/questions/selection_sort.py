@@ -68,7 +68,7 @@ DATA = {
         {
             "id": "ssort-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -142,7 +142,7 @@ DATA = {
         {
             "id": "ssort-tf-2",
             "type": "true-false",
-            "baseRating": 950,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -160,7 +160,7 @@ DATA = {
         {
             "id": "ssort-q3",
             "type": "single-choice",
-            "baseRating": 950,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -189,7 +189,7 @@ DATA = {
         {
             "id": "ssort-group-1",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 900,
             "correctAnswer": "A",
             "groupId": "group-ssort-logic",
             "translations": {
@@ -218,7 +218,7 @@ DATA = {
         {
             "id": "ssort-q8",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -246,7 +246,7 @@ DATA = {
         {
             "id": "ssort-group-2",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 950,
             "correctAnswer": "C",
             "groupId": "group-ssort-logic",
             "translations": {
@@ -275,7 +275,7 @@ DATA = {
         {
             "id": "ssort-q4",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -311,7 +311,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "[1, 2, 5, 3, 4]"},
                         {"id": "B", "text": "[1, 2, 3, 5, 4]"},
-                        {"id": "C", "text": "[1, 2, 5, 3, 4]"},
+                        {"id": "C", "text": "[1, 3, 5, 2, 4]"},
                         {"id": "D", "text": "[1, 2, 4, 5, 3]"},
                     ],
                     "explanation": "第一輪（i=0）：最小值為 1（索引 2），與索引 0 交換 → [1, 5, 3, 2, 4]。等等，原陣列索引2是1，索引0是3。交換後 → [1, 5, 3, 2, 4]... 再看：[3,5,1,2,4]，第一輪最小=1(idx=2)，arr[0]↔arr[2] → [1,5,3,2,4]。第二輪（i=1）：掃描[5,3,2,4]，最小=2(idx=3)，arr[1]↔arr[3] → [1,2,3,5,4]。",
@@ -321,7 +321,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "[1, 2, 5, 3, 4]"},
                         {"id": "B", "text": "[1, 2, 3, 5, 4]"},
-                        {"id": "C", "text": "[1, 2, 5, 3, 4]"},
+                        {"id": "C", "text": "[1, 3, 5, 2, 4]"},
                         {"id": "D", "text": "[1, 2, 4, 5, 3]"},
                     ],
                     "explanation": "Round 1 (i=0): minimum is 1 (index 2), swap with index 0 → [1, 5, 3, 2, 4]. Round 2 (i=1): scan [5, 3, 2, 4], minimum is 2 (index 3), swap arr[1] and arr[3] → [1, 2, 3, 5, 4].",
@@ -331,7 +331,7 @@ DATA = {
         {
             "id": "ssort-q9",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -359,7 +359,7 @@ DATA = {
         {
             "id": "ssort-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -387,7 +387,7 @@ DATA = {
         {
             "id": "ssort-q6",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 1450,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -416,7 +416,7 @@ DATA = {
         {
             "id": "ssort-group-3",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1100,
             "correctAnswer": ["current_pos", "scan_pos", "current_pos"],
             "groupId": "group-ssort-logic",
             "code": SSORT_FILL_CODE,
@@ -437,7 +437,7 @@ DATA = {
         {
             "id": "ssort-q7",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 1550,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -465,7 +465,7 @@ DATA = {
         {
             "id": "ssort-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1400,
+            "baseRating": 1600,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -493,7 +493,7 @@ DATA = {
         {
             "id": "ssort-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1500,
             "correctAnswer": ["i", "i", "min_idx"],
             "code": DOUBLE_SSORT_FILL_CODE,
             "language": "python",
@@ -513,7 +513,7 @@ DATA = {
         {
             "id": "ssort-pred-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1450,
             "correctAnswer": "1 2 3 4 5 6 7 8 9 5 6 7 8 10 11 3 4 5 6 7 8 10 12",
             "code": SSORT_PREDICT_CODE,
             "language": "python",

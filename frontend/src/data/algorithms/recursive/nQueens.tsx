@@ -1,5 +1,8 @@
 import type { AnimationStep, CodeConfig, StatusConfig } from "@/types";
-import type { AlgoActionBarProps, LevelImplementationConfig } from "@/types/implementation";
+import type {
+  AlgoActionBarProps,
+  LevelImplementationConfig,
+} from "@/types/implementation";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { NQueensActionBar } from "@/data/algorithms/recursive/NQueensActionBar";
@@ -90,7 +93,9 @@ export function createNQueensAnimationSteps(
   const steps: AnimationStep[] = [];
 
   // 預設為 4 皇后，最大建議 8 (超過 8 動畫會非常長)
-  const typedData = Array.isArray(inputData) ? (inputData as NQueensData[]) : [];
+  const typedData = Array.isArray(inputData)
+    ? (inputData as NQueensData[])
+    : [];
   const typedAction = action as { nQueensCount?: number } | undefined;
   const inputN = typedData.length > 0 ? typedData[0].n : undefined;
   const N = typedAction?.nQueensCount ?? inputN ?? 4;
@@ -190,7 +195,7 @@ export function createNQueensAnimationSteps(
       description: desc,
       actionTag: tag,
       elements,
-      variables: {
+      local_vars: {
         "棋盤大小 (N)": N,
         "目前搜尋列 (Row)": currentRow === -1 ? "完成" : currentRow,
         "目前搜尋行 (Col)": currentCol === -1 ? "-" : currentCol,
@@ -338,5 +343,7 @@ export const nQueensConfig: LevelImplementationConfig = {
   defaultData: [{ n: 4 }],
   actionHandler: nQueensActionHandler,
   createAnimationSteps: createNQueensAnimationSteps,
-  renderActionBar: (props) => <NQueensActionBar {...(props as AlgoActionBarProps)} />,
+  renderActionBar: (props) => (
+    <NQueensActionBar {...(props as AlgoActionBarProps)} />
+  ),
 };

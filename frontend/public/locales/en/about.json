@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "title": "Our Story:",
+    "titleAccent": "Visualizing",
+    "titleSuffix": "The Logic.",
+    "desc": "Bridging the gap between abstract syntax and human intuition. CodePulse transforms complex algorithmic sequences into interactive visual architectures."
+  },
+  "features": {
+    "visualLogic": {
+      "title": "Visual Logic",
+      "desc": "We don't just show code; we expose the flow of data through multi-dimensional structures, making the invisible visible through real-time graph rendering."
+    },
+    "interactiveLearning": {
+      "title": "Interactive Learning",
+      "desc": "Animated visualizations for every data structure and algorithm operation. Each lesson includes interactive mini-games and supplementary explainer videos to reinforce understanding."
+    }
+  },
+  "team": {
+    "members": {
+      "julian": {
+        "role": "Full-Stack Engineer",
+        "bio": "What is sleep? Just 24/7 coding and running"
+      },
+      "kai": {
+        "role": "Frontend Engineer",
+        "bio": "Trading three hours of sleep a day for time with the 2D world"
+      },
+      "kenny": {
+        "role": "Backend Engineer",
+        "bio": "Soy milk is my favorite — muscles, muscles, muscles"
+      }
+    }
+  },
+  "techStack": {
+    "label": "HARDWARE_&_RUNTIME_LAYER"
+  }
+}

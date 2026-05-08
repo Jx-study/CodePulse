@@ -52,7 +52,7 @@ DATA = {
         {
             "id": "psum-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -80,25 +80,25 @@ DATA = {
         {
             "id": "psum-tf-1",
             "type": "true-false",
-            "baseRating": 850,
-            "correctAnswer": "true",
+            "baseRating": 950,
+            "correctAnswer": "false",
             "translations": {
                 "zh-TW": {
-                    "title": "對於長度為 N 的陣列，其前綴和陣列的長度為 N+1（在索引 0 處存放哨兵值 0）。",
+                    "title": "對於長度為 N 的陣列，其前綴和陣列的長度與原陣列相同，同樣為 N。",
                     "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
-                    "explanation": "正確。前綴和陣列通常比原陣列長一位，P[0] = 0 作為哨兵值，使得區間查詢公式 P[j+1] - P[i] 能統一處理，不需要特別判斷邊界情況。",
+                    "explanation": "前綴和陣列的長度為 N+1，比原陣列多一位。P[0] = 0 作為哨兵值，使得區間查詢公式 P[j+1] - P[i] 能統一處理，不需要特別判斷邊界情況。",
                 },
                 "en": {
-                    "title": "For an array of length N, its prefix sum array has length N+1, with a sentinel value of 0 stored at index 0.",
+                    "title": "For an array of length N, its prefix sum array has the same length N as the original array.",
                     "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
-                    "explanation": "True. The prefix sum array is one element longer than the original, with P[0] = 0 as a sentinel value. This allows the uniform range query formula P[j+1] - P[i] without special-casing boundary conditions.",
+                    "explanation": "The prefix sum array has length N+1, one element longer than the original. P[0] = 0 serves as a sentinel value, allowing the uniform range query formula P[j+1] - P[i] without special-casing boundary conditions.",
                 },
             },
         },
         {
             "id": "psum-q2",
             "type": "single-choice",
-            "baseRating": 900,
+            "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -126,7 +126,7 @@ DATA = {
         {
             "id": "psum-tf-2",
             "type": "true-false",
-            "baseRating": 950,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -173,7 +173,7 @@ DATA = {
             "id": "psum-group-1",
             "groupId": "group-psum-query",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -202,7 +202,7 @@ DATA = {
             "id": "psum-group-2",
             "groupId": "group-psum-query",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -230,7 +230,7 @@ DATA = {
         {
             "id": "psum-q4",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -286,7 +286,7 @@ DATA = {
         {
             "id": "psum-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -314,7 +314,7 @@ DATA = {
         {
             "id": "psum-q6",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -363,7 +363,7 @@ DATA = {
         {
             "id": "psum-q7",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -391,7 +391,7 @@ DATA = {
         {
             "id": "psum-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1400,
+            "baseRating": 1100,
             "correctAnswer": ["opt1"],
             "translations": {
                 "zh-TW": {
@@ -419,7 +419,7 @@ DATA = {
         {
             "id": "psum-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1600,
             "correctAnswer": ["curr_sum - k", "curr_sum - k", "1"],
             "code": COUNT_SUM_K_FILL_CODE,
             "language": "python",
@@ -439,7 +439,7 @@ DATA = {
         {
             "id": "psum-pred-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1300,
             "correctAnswer": "1 2 3 4 5 4 5 4 6",
             "code": PSUM_PREDICT_CODE,
             "language": "python",

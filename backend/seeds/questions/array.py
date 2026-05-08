@@ -89,13 +89,13 @@ DATA = {
         {
             "id": "array-tf-1",
             "type": "true-false",
-            "baseRating": 800,
-            "correctAnswer": "true",
+            "baseRating": 850,
+            "correctAnswer": "false",
             "translations": {
                 "zh-TW": {
-                    "title": "陣列 (Array) 將資料儲存在連續的記憶體空間，因此可以透過 Index 直接計算任意元素的記憶體位址，實現 O(1) 的隨機存取。",
+                    "title": "陣列 (Array) 透過 Index 存取元素的時間複雜度為 O(n)，因為需要從頭逐一遍歷到指定位置。",
                     "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
-                    "explanation": "陣列的記憶體位址公式為：base_address + index × element_size。因為記憶體連續，可以直接計算位址而不需遍歷。",
+                    "explanation": "陣列的記憶體位址公式為：base_address + index × element_size。因為記憶體連續，可以直接計算位址而不需遍歷，時間複雜度為 O(1)，而非 O(n)。",
                 },
                 "en": {
                     "title": "An Array stores data in contiguous memory, allowing any element's address to be computed directly via index, enabling O(1) random access.",
@@ -107,7 +107,7 @@ DATA = {
         {
             "id": "array-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 850,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -135,7 +135,7 @@ DATA = {
         {
             "id": "array-q2",
             "type": "single-choice",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -163,7 +163,7 @@ DATA = {
         {
             "id": "array-q3",
             "type": "single-choice",
-            "baseRating": 900,
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -191,7 +191,7 @@ DATA = {
         {
             "id": "array-tf-2",
             "type": "true-false",
-            "baseRating": 950,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -210,7 +210,7 @@ DATA = {
         {
             "id": "array-q4",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -221,7 +221,7 @@ DATA = {
                         {"id": "C", "text": "1"},
                         {"id": "D", "text": "2"},
                     ],
-                    "explanation": "索引追蹤：arr[0]=5, arr[1]=3, arr[2]=8。",
+                    "explanation": "陣列採用零索引（Zero-indexed），第一個元素的索引為 0，因此 arr[2] 存取的是第三個元素。",
                 },
                 "en": {
                     "title": "Given arr = [5, 3, 8, 1, 9], what does arr[2] return?",
@@ -231,14 +231,14 @@ DATA = {
                         {"id": "C", "text": "1"},
                         {"id": "D", "text": "2"},
                     ],
-                    "explanation": "Index trace: arr[0]=5, arr[1]=3, arr[2]=8.",
+                    "explanation": "Arrays use zero-based indexing: the first element has index 0, so arr[2] accesses the third element.",
                 },
             },
         },
         {
             "id": "array-q5",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -294,7 +294,7 @@ DATA = {
         {
             "id": "array-q7",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -322,7 +322,7 @@ DATA = {
         {
             "id": "array-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1150,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2"],
             "translations": {
                 "zh-TW": {
@@ -350,7 +350,7 @@ DATA = {
         {
             "id": "array-q8",
             "type": "single-choice",
-            "baseRating": 1200,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -379,7 +379,7 @@ DATA = {
             "id": "array-group-1",
             "groupId": "group-array-inventory",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -408,7 +408,7 @@ DATA = {
             "id": "array-group-2",
             "groupId": "group-array-inventory",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -437,7 +437,7 @@ DATA = {
         {
             "id": "array-q9",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 1700,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -465,7 +465,7 @@ DATA = {
         {
             "id": "array-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1350,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -494,7 +494,7 @@ DATA = {
             "id": "array-group-3",
             "groupId": "group-array-inventory",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1500,
             "code": WAREHOUSE_FILL_CODE,
             "language": "python",
             "correctAnswer": ["None", "index", "i - 1"],
@@ -514,7 +514,7 @@ DATA = {
         {
             "id": "array-fill-1",
             "type": "fill-code",
-            "baseRating": 1400,
+            "baseRating": 1500,
             "code": ARRAY_DELETE_FILL_CODE,
             "language": "python",
             "correctAnswer": ["n - 1", "i + 1", "pop"],
@@ -534,7 +534,7 @@ DATA = {
         {
             "id": "array-pred-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1350,
             "code": ARRAY_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "2 3 4 3 4 6",

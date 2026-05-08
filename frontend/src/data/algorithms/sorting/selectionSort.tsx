@@ -1,54 +1,10 @@
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
-import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
+import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
-import { cloneData } from "@/modules/core/visualization/visualizationUtils";
-import { DATA_LIMITS } from "@/constants/dataLimits";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
-
-function selectionSortActionHandler(
-  actionType: string,
-  payload: Record<string, unknown>,
-  data: LinearData[],
-  context: ActionContext,
-): ActionResult<LinearData[]> | null {
-  if (actionType === "random") {
-    const count =
-      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
-    const values = Array.from(
-      { length: count },
-      () => Math.floor(Math.random() * 100) - 20
-    );
-    const newData = values.map((v) => ({
-      id: context.nextId(),
-      value: v,
-    }));
-    return { animationData: newData, isResetAction: true };
-  }
-
-  if (actionType === "load") {
-    const values = payload.data as number[];
-    if (!values?.length) return null;
-    const newData = values.map((v) => ({
-      id: context.nextId(),
-      value: v,
-    }));
-    return { animationData: newData, isResetAction: true };
-  }
-
-  if (actionType === "reset") {
-    const defaultData = (context.defaultData as LinearData[]) ?? data;
-    return { animationData: cloneData(defaultData), isResetAction: true };
-  }
-
-  if (actionType === "run") {
-    return { animationData: cloneData(data) };
-  }
-
-  return null;
-}
+import { createSortingFrame } from "@/data/shared/animationUtils/linearFrame";
+import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 
 const TAGS = {
   INIT: "INIT",
@@ -59,33 +15,10 @@ const TAGS = {
   DONE: "DONE",
 };
 
-const generateFrame = (
-  list: LinearData[],
-  overrideStatusMap: Record<number, Status> = {},
-  sortedIndices: Set<number> = new Set()
-) => {
-  const boxes = createBoxes(list, {
-    startX: 50,
-    startY: 250,
-    gap: 70,
-    overrideStatusMap,
-    getDescription: (_item, index) => `${index}`,
-  });
-
-  boxes.forEach((element, i) => {
-    const box = element as Box;
-    box.autoScale = true;
-
-    if (sortedIndices.has(i)) {
-      box.setStatus(Status.Complete);
-    }
-  });
-
-  return boxes;
-};
+const selectionSortActionHandler = createLinearActionHandler();
 
 export function createSelectionSortAnimationSteps(
-  inputData: LinearData[]
+  inputData: LinearData[],
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   let arr = inputData.map((d) => ({ ...d }));
@@ -96,8 +29,8 @@ export function createSelectionSortAnimationSteps(
     stepNumber: 0,
     description: "開始選擇排序",
     actionTag: TAGS.INIT,
-    variables: { totalItems: n },
-    elements: generateFrame(arr, {}, sortedIndices),
+    local_vars: { totalItems: n },
+    elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
   for (let i = 0; i < n - 1; i++) {
@@ -107,8 +40,12 @@ export function createSelectionSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
       actionTag: TAGS.ROUND_START,
-      variables: { currentPos: i, minPos: i },
-      elements: generateFrame(arr, { [minIdx]: Status.Target }, sortedIndices),
+      local_vars: { currentPos: i, minPos: i },
+      elements: createSortingFrame(
+        arr,
+        { [minIdx]: Status.Target },
+        sortedIndices,
+      ),
     });
 
     for (let j = i + 1; j < n; j++) {
@@ -119,8 +56,8 @@ export function createSelectionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
         actionTag: TAGS.COMPARE,
-        variables: {
-          currentPos: i, 
+        local_vars: {
+          currentPos: i,
           scanPos: j,
           minPos: minIdx,
           scanVal: scanVal,
@@ -128,10 +65,10 @@ export function createSelectionSortAnimationSteps(
           condition: `${scanVal} < ${minVal}`,
           result: scanVal < minVal,
         },
-        elements: generateFrame(
+        elements: createSortingFrame(
           arr,
           { [i]: Status.Target, [minIdx]: Status.Target, [j]: Status.Prepare },
-          sortedIndices
+          sortedIndices,
         ),
       });
 
@@ -142,14 +79,14 @@ export function createSelectionSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `發現更小值！更新最小值索引為 ${minIdx}`,
           actionTag: TAGS.UPDATE_MIN,
-          variables: {
+          local_vars: {
             minPos: minIdx,
-            scanVal: scanVal, 
+            scanVal: scanVal,
           },
-          elements: generateFrame(
+          elements: createSortingFrame(
             arr,
             { [i]: Status.Target, [minIdx]: Status.Target },
-            sortedIndices
+            sortedIndices,
           ),
         });
       }
@@ -164,17 +101,17 @@ export function createSelectionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `本輪最小值 ${arr[i].value} (Index ${minIdx}) 與 Index ${i} 交換`,
         actionTag: TAGS.SWAP,
-        variables: {
+        local_vars: {
           currentPos: i,
           minPos: minIdx,
           [`collection[${i}]`]: arr[i].value ?? null,
           [`collection[${minIdx}]`]: arr[minIdx].value ?? null,
           hasSwapped: true,
         },
-        elements: generateFrame(
+        elements: createSortingFrame(
           arr,
           { [i]: Status.Target, [minIdx]: Status.Target },
-          sortedIndices
+          sortedIndices,
         ),
       });
     } else {
@@ -182,12 +119,16 @@ export function createSelectionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `Index ${i} 已經是最小值，無需交換`,
         actionTag: TAGS.SWAP,
-        variables: {
+        local_vars: {
           currentPos: i,
           minPos: minIdx,
           hasSwapped: false,
         },
-        elements: generateFrame(arr, { [i]: Status.Target }, sortedIndices),
+        elements: createSortingFrame(
+          arr,
+          { [i]: Status.Target },
+          sortedIndices,
+        ),
       });
     }
 
@@ -196,19 +137,19 @@ export function createSelectionSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `Index ${i} 已排序完成`,
       actionTag: TAGS.ROUND_START,
-      variables: { currentPos: i },
-      elements: generateFrame(arr, {}, sortedIndices),
+      local_vars: { currentPos: i },
+      elements: createSortingFrame(arr, {}, sortedIndices),
     });
   }
 
   sortedIndices.add(n - 1);
-  
+
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
     actionTag: TAGS.DONE,
-    variables: { isSorted: true },
-    elements: generateFrame(arr, {}, sortedIndices),
+    local_vars: { isSorted: true },
+    elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
   return steps;

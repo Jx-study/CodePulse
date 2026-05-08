@@ -1,21 +1,33 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
-import type { PythonDemo, PythonInput, GraphOutputData, QueueCardOutputData } from '@/types/implementation';
+import type {
+  PythonDemo,
+  PythonInput,
+  GraphOutputData,
+  QueueCardOutputData,
+  MazeOutputData,
+  FloodFillOutputData,
+} from '@/types/implementation';
 import Icon from '@/shared/components/Icon';
 import Button from '@/shared/components/Button';
 import Input from '@/shared/components/Input';
 import Slider from '@/shared/components/Slider';
 import GraphOutputRenderer from './GraphOutputRenderer';
 import QueueGameRenderer from './QueueGameRenderer/QueueGameRenderer';
+import MazeOutputRenderer, {
+  type MazeOutputRendererHandle,
+  type MazeViewPhase,
+} from './MazeOutputRenderer';
+import FloodFillRenderer from './FloodFillRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
-const PYODIDE_CDN = 'https://unpkg.com/pyodide@0.27.0/pyodide.js';
-const PYODIDE_INDEX_URL = 'https://unpkg.com/pyodide@0.27.0/';
+const PYODIDE_CDN = "https://unpkg.com/pyodide@0.27.0/pyodide.js";
+const PYODIDE_INDEX_URL = "https://unpkg.com/pyodide@0.27.0/";
 
-type ViewMode = 'demo' | 'code';
-type RunStatus = 'idle' | 'loading-pyodide' | 'running' | 'done' | 'error';
+type ViewMode = "demo" | "code";
+type RunStatus = "idle" | "loading-pyodide" | "running" | "done" | "error";
 
 interface Props {
   demo: PythonDemo;
@@ -29,18 +41,25 @@ async function getPyodide(): Promise<any> {
   if (pyodideInstance) return pyodideInstance;
   if (!pyodideLoadPromise) {
     pyodideLoadPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = PYODIDE_CDN;
       script.onload = async () => {
         try {
-          const py = await (window as any).loadPyodide({ indexURL: PYODIDE_INDEX_URL });
+          const py = await (window as any).loadPyodide({
+            indexURL: PYODIDE_INDEX_URL,
+          });
           pyodideInstance = py;
           resolve(py);
         } catch (err) {
           reject(err);
         }
       };
-      script.onerror = () => reject(new Error('無法載入 Pyodide，請確認網路連線或瀏覽器未封鎖 cdn.pyodide.org'));
+      script.onerror = () =>
+        reject(
+          new Error(
+            "無法載入 Pyodide，請確認網路連線或瀏覽器未封鎖 cdn.pyodide.org",
+          ),
+        );
       document.head.appendChild(script);
     });
   }
@@ -48,34 +67,44 @@ async function getPyodide(): Promise<any> {
 }
 
 const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('demo');
-  const [status, setStatus] = useState<RunStatus>('idle');
-  const [output, setOutput] = useState<string>('');
+  const [viewMode, setViewMode] = useState<ViewMode>("demo");
+  const [status, setStatus] = useState<RunStatus>("idle");
+  const [output, setOutput] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [graphData, setGraphData] = useState<GraphOutputData | null>(null);
-  const [queueCardData, setQueueCardData] = useState<QueueCardOutputData | null>(null);
+  const [queueCardData, setQueueCardData] =
+    useState<QueueCardOutputData | null>(null);
+  const [mazeData, setMazeData] = useState<MazeOutputData | null>(null);
+  const [floodFillData, setFloodFillData] = useState<FloodFillOutputData | null>(null);
+  const mazeRef = useRef<MazeOutputRendererHandle>(null);
+  const [mazeViewPhase, setMazeViewPhase] = useState<MazeViewPhase | null>(null);
+
+  useEffect(() => {
+    if (!mazeData) setMazeViewPhase(null);
+  }, [mazeData]);
 
   // 控制項值，key = PythonInput.variable
-  const [inputValues, setInputValues] = useState<Record<string, string | number>>(
-    () =>
-      Object.fromEntries(
-        (demo.inputs ?? []).map((inp) => [inp.variable, inp.default])
-      )
+  const [inputValues, setInputValues] = useState<
+    Record<string, string | number>
+  >(() =>
+    Object.fromEntries(
+      (demo.inputs ?? []).map((inp) => [inp.variable, inp.default]),
+    ),
   );
 
   const handleInputChange = useCallback(
     (variable: string, value: string | number) => {
       setInputValues((prev) => ({ ...prev, [variable]: value }));
     },
-    []
+    [],
   );
 
   const handleRun = useCallback(async () => {
     try {
-      setStatus('loading-pyodide');
+      setStatus("loading-pyodide");
       const pyodide = await getPyodide();
 
-      setStatus('running');
+      setStatus("running");
 
       for (const [key, val] of Object.entries(inputValues)) {
         pyodide.globals.set(key, val);
@@ -88,17 +117,19 @@ sys.stdout = io.StringIO()
 
       // 捕捉回傳值（最後一個 Python 表達式）
       const pyReturnValue = await pyodide.runPythonAsync(demo.code);
-      const stdout: string = pyodide.runPython('sys.stdout.getvalue()');
+      const stdout: string = pyodide.runPython("sys.stdout.getvalue()");
 
-      setOutput(stdout || '（程式執行完畢，無輸出）');
+      setOutput(stdout || "（程式執行完畢，無輸出）");
 
-      if (demo.outputType === 'graph' && pyReturnValue) {
+      if (demo.outputType === "graph" && pyReturnValue) {
         try {
           setGraphData(JSON.parse(pyReturnValue));
         } catch {
           // JSON 解析失敗不影響 stdout 輸出
         }
         setQueueCardData(null);
+        setMazeData(null);
+        setFloodFillData(null);
       } else if (demo.outputType === 'queue-card' && pyReturnValue) {
         try {
           setQueueCardData(JSON.parse(pyReturnValue));
@@ -106,18 +137,42 @@ sys.stdout = io.StringIO()
           // JSON 解析失敗不影響 stdout 輸出
         }
         setGraphData(null);
+        setMazeData(null);
+        setFloodFillData(null);
+      } else if (demo.outputType === 'maze' && pyReturnValue) {
+        try {
+          setMazeData(JSON.parse(pyReturnValue));
+        } catch {
+          // JSON 解析失敗不影響 stdout 輸出
+        }
+        setGraphData(null);
+        setQueueCardData(null);
+        setFloodFillData(null);
+      } else if (demo.outputType === 'flood-fill' && pyReturnValue) {
+        try {
+          setFloodFillData(JSON.parse(pyReturnValue));
+        } catch {
+          // JSON 解析失敗不影響 stdout 輸出
+        }
+        setGraphData(null);
+        setQueueCardData(null);
+        setMazeData(null);
       } else {
         setGraphData(null);
         setQueueCardData(null);
+        setMazeData(null);
+        setFloodFillData(null);
       }
 
-      setStatus('done');
+      setStatus("done");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setOutput(`執行錯誤：\n${message}`);
-      setStatus('error');
+      setStatus("error");
       setGraphData(null);
       setQueueCardData(null);
+      setMazeData(null);
+      setFloodFillData(null);
     }
   }, [demo.code, demo.outputType, inputValues]);
 
@@ -127,13 +182,13 @@ sys.stdout = io.StringIO()
     setTimeout(() => setCopied(false), 2000);
   }, [demo.code]);
 
-  const isRunning = status === 'loading-pyodide' || status === 'running';
+  const isRunning = status === "loading-pyodide" || status === "running";
   const runLabel =
-    status === 'loading-pyodide'
-      ? '載入 Python 環境...'
-      : status === 'running'
-        ? '執行中...'
-        : '▶ 執行小程序';
+    status === "loading-pyodide"
+      ? "載入 Python 環境..."
+      : status === "running"
+        ? "執行中..."
+        : "▶ 執行小遊戲";
 
   return (
     <div className={styles.container}>
@@ -147,18 +202,18 @@ sys.stdout = io.StringIO()
           <Button
             variant="ghost"
             className={classNames(styles.tab, {
-              [styles.active]: viewMode === 'demo',
+              [styles.active]: viewMode === "demo",
             })}
-            onClick={() => setViewMode('demo')}
+            onClick={() => setViewMode("demo")}
           >
-            小程序運行
+            小程式運行
           </Button>
           <Button
             variant="ghost"
             className={classNames(styles.tab, {
-              [styles.active]: viewMode === 'code',
+              [styles.active]: viewMode === "code",
             })}
-            onClick={() => setViewMode('code')}
+            onClick={() => setViewMode("code")}
           >
             原始碼
           </Button>
@@ -167,64 +222,100 @@ sys.stdout = io.StringIO()
           variant="ghost"
           className={styles.copyBtn}
           onClick={handleCopy}
-          iconLeft={<Icon name={copied ? 'check' : 'copy'} />}
+          iconLeft={<Icon name={copied ? "check" : "copy"} />}
         >
-          {copied ? '已複製' : '複製代碼'}
+          {copied ? "已複製" : "複製代碼"}
         </Button>
       </div>
 
-      {viewMode === 'demo' && (
+      {viewMode === "demo" && (
         <div className={styles.demoArea}>
           {demo.inputs && demo.inputs.length > 0 && (
             <div className={styles.inputsPanel}>
-              {demo.inputs.map((inp) => (
-                <InputControl
-                  key={inp.variable}
-                  input={inp}
-                  value={inputValues[inp.variable]}
-                  onChange={handleInputChange}
-                />
-              ))}
+              {demo.inputs.map((inp) => {
+                if (inp.visibleWhen) {
+                  const { variable, value } = inp.visibleWhen;
+                  if (inputValues[variable] !== value) return null;
+                }
+                return (
+                  <InputControl
+                    key={inp.variable}
+                    input={inp}
+                    value={inputValues[inp.variable]}
+                    onChange={handleInputChange}
+                  />
+                );
+              })}
             </div>
           )}
 
-          <Button
-            variant="primary"
-            className={styles.runBtn}
-            onClick={handleRun}
-            disabled={isRunning}
-          >
-            {runLabel}
-          </Button>
+          <div className={styles.runRow}>
+            <Button
+              variant="primary"
+              className={styles.runBtn}
+              onClick={handleRun}
+              disabled={isRunning}
+            >
+              {runLabel}
+            </Button>
+            {demo.outputType === 'maze' &&
+              mazeData &&
+              mazeViewPhase === 'generating' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => mazeRef.current?.skipGeneration()}
+                >
+                  跳過生成
+                </Button>
+              )}
+          </div>
 
           {/* 圖形輸出（outputType:'graph' 時顯示，取代或補充 console） */}
-          {demo.outputType === 'graph' && graphData && (
+          {demo.outputType === "graph" && graphData && (
             <GraphOutputRenderer data={graphData} />
           )}
 
           {/* Queue 卡片遊戲（outputType:'queue-card' 時顯示） */}
-          {demo.outputType === 'queue-card' && queueCardData && (
+          {demo.outputType === "queue-card" && queueCardData && (
             <QueueGameRenderer data={queueCardData} />
           )}
 
-          {/* 輸出 console（graph/queue-card 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
-          {(demo.outputType !== 'graph' && demo.outputType !== 'queue-card') ||
+          {demo.outputType === 'maze' && mazeData && (
+            <MazeOutputRenderer
+              ref={mazeRef}
+              data={mazeData}
+              onViewPhaseChange={setMazeViewPhase}
+            />
+          )}
+
+          {demo.outputType === 'flood-fill' && floodFillData && (
+            <FloodFillRenderer data={floodFillData} />
+          )}
+
+          {/* 輸出 console（graph/queue-card/maze/flood-fill 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
+          {(demo.outputType !== 'graph' &&
+            demo.outputType !== 'queue-card' &&
+            demo.outputType !== 'maze' &&
+            demo.outputType !== 'flood-fill') ||
           (demo.outputType === 'graph' && !graphData) ||
           (demo.outputType === 'queue-card' && !queueCardData) ||
+          (demo.outputType === 'maze' && !mazeData) ||
+          (demo.outputType === 'flood-fill' && !floodFillData) ||
           output.includes('錯誤') ? (
             <pre
               className={classNames(styles.console, {
-                [styles.error]: status === 'error',
+                [styles.error]: status === "error",
                 [styles.empty]: !output,
               })}
             >
-              {output || '點擊「執行小程序」查看結果...'}
+              {output || "點擊「執行小遊戲」查看結果..."}
             </pre>
           ) : null}
         </div>
       )}
 
-      {viewMode === 'code' && (
+      {viewMode === "code" && (
         <div className={styles.codeArea}>
           <pre className={styles.codeBlock}>
             <code>{demo.code}</code>
@@ -249,7 +340,7 @@ const InputControl: React.FC<InputControlProps> = ({
   value,
   onChange,
 }) => {
-  if (input.type === 'slider') {
+  if (input.type === "slider") {
     return (
       <div className={styles.inputRow}>
         <label className={styles.inputLabel}>{input.label}</label>
@@ -266,21 +357,19 @@ const InputControl: React.FC<InputControlProps> = ({
       </div>
     );
   }
-  if (input.type === 'select') {
+  if (input.type === "select") {
     return (
       <div className={styles.inputRow}>
         <label className={styles.inputLabel}>{input.label}</label>
         <Select
           value={value as string}
+          options={(input.options ?? []).map((opt) => ({
+            value: opt,
+            label: opt,
+          }))}
           onChange={(e) => onChange(input.variable, e.target.value)}
-          className={styles.select}
-        >
-          {input.options?.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </Select>
+          size="sm"
+        />
       </div>
     );
   }

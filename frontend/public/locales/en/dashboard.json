@@ -1,4 +1,8 @@
 {
+  "floatingControls": {
+    "filter_categories": "Filter",
+    "learning_progress": "Learning Progress"
+  },
   "levels": {
     "array": {
       "name": "Array",

@@ -61,7 +61,7 @@
 
 .thumb {
   position: absolute;
-  background: #ffffff;
+  background: var(--bg-primary);
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: $transition-base;

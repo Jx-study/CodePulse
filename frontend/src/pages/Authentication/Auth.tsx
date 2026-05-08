@@ -8,7 +8,6 @@ import type { FormAlertType } from "@/shared/components/FormAlert";
 import GameOfLifePanel from "@/modules/auth/components/GameOfLifePanel";
 import AuthPanel from "@/modules/auth/components/AuthPanel";
 import OnboardingForm from "@/modules/auth/components/OnboardingForm";
-import WelcomeOverlay from "@/modules/auth/components/WelcomeOverlay";
 import { SkeletonText } from "@/shared/components/Skeleton";
 import styles from "./Auth.module.scss";
 
@@ -18,7 +17,7 @@ function AuthPage() {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register, checkAuthStatus } = useAuth();
+  const { login, register, checkAuthStatus, setPendingWelcome } = useAuth();
   const isOnboarding = useMatch("/auth/onboarding");
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>(
@@ -34,8 +33,6 @@ function AuthPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [usernameError, setUsernameError] = useState("");
   const [formError, setFormError] = useState("");
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [submittedUsername, setSubmittedUsername] = useState("");
 
   const setAlert = (type: FormAlertType, message: string) => {
     setAlertType(type);
@@ -72,8 +69,7 @@ function AuthPage() {
       try {
         await checkAuthStatus();
       } catch {}
-      setSubmittedUsername(username);
-      setShowWelcome(true);
+      setPendingWelcome({ username });
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
       const errorCode = axiosError?.response?.data?.error_code;
@@ -82,10 +78,18 @@ function AuthPage() {
         setUsernameError(t("invalidUsername", "用戶名格式不正確"));
       } else if (status === 400 && errorCode === "RESERVED_USERNAME") {
         setUsernameError(t("reservedUsername", "此名稱不可使用，請換一個"));
+      } else if (status === 400 && errorCode === "INVALID_DISPLAY_NAME") {
+        setFormError(t("validation.displayName.max", "顯示名稱格式不正確"));
       } else if (status === 409) {
         setUsernameError(t("usernameTaken", "此名稱已被使用"));
       } else if (status === 401) {
         setFormError(t("onboardingExpired", "連結已過期，請重新使用 Google 登入"));
+      } else if (status === 0 || !status) {
+        setFormError(t("networkError", "連線不穩定，請檢查您的網路狀態"));
+      } else if (status >= 500) {
+        setFormError(t("serverError", "伺服器目前有些問題，我們正在全力搶修中"));
+      } else {
+        setFormError(t("unknownError", "發生了神祕的錯誤，請重新整理頁面再試一次"));
       }
     } finally {
       setLoading(false);
@@ -124,9 +128,18 @@ function AuthPage() {
     try {
       await register(formData.email, formData.password, formData.username);
       navigate("/auth/verify-email", { state: { email: formData.email } });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t("auth.errors.REGISTRATION_ERROR");
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
+      const errorCode = axiosError?.response?.data?.error_code;
+      const registerErrorMap: Record<string, string> = {
+        INVALID_EMAIL: t("register.errors.INVALID_EMAIL"),
+        WEAK_PASSWORD: t("register.errors.WEAK_PASSWORD"),
+        INVALID_USERNAME: t("register.errors.INVALID_USERNAME"),
+        EMAIL_EXISTS: t("register.errors.EMAIL_EXISTS"),
+        MAIL_ERROR: t("register.errors.MAIL_ERROR"),
+        SERVER_ERROR: t("register.errors.SERVER_ERROR"),
+      };
+      const errorMessage = (errorCode && registerErrorMap[errorCode]) ?? t("register.errors.DEFAULT");
       setAlert("error", errorMessage);
     } finally {
       setLoading(false);
@@ -193,12 +206,6 @@ function AuthPage() {
           )}
         </div>
       </div>
-      {showWelcome && (
-        <WelcomeOverlay
-          username={submittedUsername}
-          onComplete={() => navigate("/")}
-        />
-      )}
     </>
   );
 }

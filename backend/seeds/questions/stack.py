@@ -106,7 +106,7 @@ DATA = {
         {
             "id": "stack-tf-1",
             "type": "true-false",
-            "baseRating": 800,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -124,7 +124,7 @@ DATA = {
         {
             "id": "stack-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -152,7 +152,7 @@ DATA = {
         {
             "id": "stack-q2",
             "type": "single-choice",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -208,7 +208,7 @@ DATA = {
         {
             "id": "stack-q4",
             "type": "single-choice",
-            "baseRating": 950,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -237,7 +237,7 @@ DATA = {
         {
             "id": "stack-q5",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1200,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -265,7 +265,7 @@ DATA = {
         {
             "id": "stack-q6",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -293,7 +293,7 @@ DATA = {
         {
             "id": "stack-q7",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -321,7 +321,7 @@ DATA = {
         {
             "id": "stack-q8",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -349,7 +349,7 @@ DATA = {
         {
             "id": "stack-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1000,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
                 "zh-TW": {
@@ -378,7 +378,7 @@ DATA = {
         {
             "id": "stack-q9",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -406,7 +406,7 @@ DATA = {
         {
             "id": "stack-q10",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 1450,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -436,7 +436,7 @@ DATA = {
             "id": "stack-group-1",
             "groupId": "group-stack-impl",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 1250,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -465,7 +465,7 @@ DATA = {
             "id": "stack-group-2",
             "groupId": "group-stack-impl",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -494,7 +494,7 @@ DATA = {
             "id": "stack-group-3",
             "groupId": "group-stack-impl",
             "type": "fill-code",
-            "baseRating": 1400,
+            "baseRating": 1500,
             "code": STACK_FILL_CODE,
             "language": "python",
             "correctAnswer": ["-1", "self.size - 1", "-1", "self.top -= 1"],
@@ -514,7 +514,7 @@ DATA = {
         {
             "id": "stack-adv-pred",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1350,
             "code": STACK_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "13 14 16 17 18",
@@ -534,7 +534,7 @@ DATA = {
         {
             "id": "stack-adv-fill",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1600,
             "code": MIN_STACK_FILL_CODE,
             "language": "python",
             "correctAnswer": ["self.min_stack[-1]", "self.min_stack.pop()", "self.min_stack[-1]"],

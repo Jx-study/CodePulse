@@ -43,7 +43,6 @@ TUTORIALS = [
     # data-structures
     ("array",               "data-structures", 1, True),
     ("linked-list",         "data-structures", 1, True),
-    ("doubly-linked-list",  "data-structures", 2, False),
     ("stack",               "data-structures", 2, True),
     ("queue",               "data-structures", 2, True),
     ("binarytree",          "data-structures", 2, True),

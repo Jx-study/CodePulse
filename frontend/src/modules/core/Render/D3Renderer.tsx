@@ -3,7 +3,11 @@ import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
 import { LinkManager } from "../DataLogic/LinkManager";
-import type { StatusColorMap } from "@/types/statusConfig";
+import {
+  buildStatusColorMap,
+  DEFAULT_STATUS_CONFIG,
+  type StatusColorMap,
+} from "@/types/statusConfig";
 import { Pointer } from "../DataLogic/Pointer";
 import {
   circleBoundaryPoint,
@@ -15,15 +19,37 @@ import {
 } from "./linkGeometry";
 import "./D3Renderer.module.scss";
 
-export type linkStatus = "default" | "visited" | "path" | "target" | "complete";
+export type linkStatus =
+  | "default"
+  | "unfinished"
+  | "visited"
+  | "path"
+  | "prepare"
+  | "target"
+  | "complete";
 
 export const linkStatusColorMap: Record<linkStatus, string> = {
   default: "#888",
+  unfinished: "#1d79cfff",
   visited: "#1d79cfff",
   path: "yellow",
+  prepare: "#f59e0b",
   target: "orange",
   complete: "#46f336ff",
 };
+
+/** 未傳入 statusColorMap 時的預設對照（與 buildStatusColorMap(DEFAULT_STATUS_CONFIG) 一致） */
+export const defaultStatusColorMap: StatusColorMap = buildStatusColorMap(
+  DEFAULT_STATUS_CONFIG,
+);
+
+export function getLinkColor(
+  linkStatus: string | undefined,
+  statusColorMap: StatusColorMap,
+): string {
+  if (!linkStatus || linkStatus === "default") return "#888";
+  return statusColorMap[linkStatus] ?? "#888";
+}
 
 export interface Link {
   key: string;
@@ -111,10 +137,12 @@ export function animateConnect(
   });
 }
 
+type BBox = { minX: number; minY: number; maxX: number; maxY: number };
+
 function drawContainer(
   scene: d3.Selection<SVGGElement, unknown, null, undefined>,
   type: string,
-) {
+): BBox | null {
   // 清除舊的容器線條 (避免重繪疊加)
   scene.selectAll(".container-line").remove();
 
@@ -160,6 +188,8 @@ function drawContainer(
       .attr("y2", bottomY + lineWidth / 2)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
+
+    return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
   } else if (type === "queue") {
     // Queue: 畫「上」、「下」 (兩端開口通道)
 
@@ -184,7 +214,9 @@ function drawContainer(
       .attr("y2", bottomY)
       .attr("stroke", lineColor)
       .attr("stroke-width", lineWidth);
-  } else if (type === "binarytree") {
+
+    return { minX: startX, minY: topY, maxX: endX, maxY: bottomY };
+  } else if (type === "binarytree" || type === "topological-sort") {
     const startX = 750;
     const endX = 950;
     const topY = 50;
@@ -231,7 +263,11 @@ function drawContainer(
       .text("Call Stack/Queue")
       .attr("fill", "#888")
       .attr("font-size", 12);
+
+    return { minX: startX, minY: topY, maxX: endX, maxY: bottomY + 20 };
   }
+
+  return null;
 }
 
 export function renderAll(
@@ -242,7 +278,7 @@ export function renderAll(
   isDirected: boolean = true,
   statusColorMap?: StatusColorMap,
   showBidirectionalArrows: boolean = false,
-) {
+): { containerBBox: BBox | null } {
   // Inject custom color map into all elements if provided
   if (statusColorMap) {
     elements.forEach((element) => {
@@ -253,12 +289,6 @@ export function renderAll(
   const svg = d3.select(svgEl);
   const transitionDuration = 500; // 統一動畫時間
   const transitionEase = d3.easeQuadOut;
-
-  const getColor = (status?: string) => {
-    return (
-      linkStatusColorMap[status as linkStatus] || linkStatusColorMap.default
-    );
-  };
 
   // Pre-calculation for AutoScale(Grouping Support)
   const scaleYMap = new Map<string, d3.ScaleLinear<number, number>>();
@@ -335,10 +365,11 @@ export function renderAll(
       ? !isDirected
       : forceHideArrow;
   const markerUrl = shouldHideArrow ? "none" : "url(#arrowhead)";
-  const defs = svg.selectAll("defs").data([null]);
-  const defsEnter = defs.enter().append("defs");
   if (svg.select("#arrowhead").empty()) {
-    defsEnter
+    const defsParent = svg.select("defs").empty()
+      ? svg.append("defs")
+      : svg.select("defs");
+    defsParent
       .append("marker")
       .attr("id", "arrowhead")
       .attr("viewBox", "0 -5 10 10")
@@ -349,34 +380,15 @@ export function renderAll(
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "#888");
+      .attr("fill", "context-stroke");
   }
-
-  Object.entries(linkStatusColorMap).forEach(([status, color]) => {
-    // 檢查是否已存在，避免重複 append (雖然 data([null]) 會擋，但保險起見)
-    if (svg.select(`#arrowhead-${status}`).empty()) {
-      svg
-        .select("defs")
-        .append("marker")
-        .attr("id", `arrowhead-${status}`)
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 10)
-        .attr("refY", 0)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
-        .attr("orient", "auto")
-        .append("path")
-        .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", color);
-    }
-  });
 
   // 根 <g>
   const root = svg.selectAll<SVGGElement, null>("g.scene").data([null]);
   root.enter().append("g").attr("class", "scene");
   const scene = svg.select<SVGGElement>("g.scene");
 
-  drawContainer(scene, structureType);
+  const containerBBox = drawContainer(scene, structureType);
   // 清除舊的連線 (避免重繪疊加)
   // 不知道有沒有用
   scene.selectAll("line.link").remove();
@@ -386,7 +398,9 @@ export function renderAll(
   const byId = new Map(elements.map((e) => [String(e.id), e]));
 
   // 預先建立所有 link 的 key set，用於無向圖反向邊檢查
-  const allLinkKeys = new Set(links.map((lk) => `${lk.sourceId}->${lk.targetId}`));
+  const allLinkKeys = new Set(
+    links.map((lk) => `${lk.sourceId}->${lk.targetId}`),
+  );
   const seenSelfLoops = new Set<string>();
 
   // 僅保留 Node -> Node 的連線
@@ -496,7 +510,11 @@ export function renderAll(
       const pathOffset =
         (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
       if (d.s.id === d.t.id) {
-        return selfLoopBezierZeroPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
+        return selfLoopBezierZeroPath(
+          d.s.position.x,
+          d.s.position.y,
+          d.s.radius || 20,
+        );
       }
       return zeroLengthPath(
         { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
@@ -528,20 +546,11 @@ export function renderAll(
   const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
 
   // 更新線條動畫
-  mergedLinkGroups
-    .select("path.link")
-    .attr("marker-end", (d) => {
-      if (shouldHideArrow) return "none";
-      const status = d.status || "default";
-      return `url(#arrowhead-${status})`;
-    })
-    .transition()
-    .duration(transitionDuration)
-    .ease(transitionEase)
-    .attr("d", (d) => {
-      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      const pathOffset =
-        (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
+  mergedLinkGroups.each(function (d) {
+    const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+    const pathOffset =
+      (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
+    const pathD = (() => {
       if (
         isNaN(d.s.position.x) ||
         isNaN(d.s.position.y) ||
@@ -551,16 +560,32 @@ export function renderAll(
         return "";
       }
       if (d.s.id === d.t.id) {
-        return selfLoopBezierPath(d.s.position.x, d.s.position.y, d.s.radius || 20);
+        return selfLoopBezierPath(
+          d.s.position.x,
+          d.s.position.y,
+          d.s.radius || 20,
+        );
       }
       return straightLinkPath(
         { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
         { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
         pathOffset,
       );
-    })
-    .attr("stroke", (d) => getColor(d.status))
-    .attr("stroke-width", 2);
+    })();
+
+    d3.select(this)
+      .select("path.link")
+      .attr("marker-end", shouldHideArrow ? "none" : "url(#arrowhead)")
+      .transition()
+      .duration(transitionDuration)
+      .ease(transitionEase)
+      .attr("d", pathD)
+      .attr(
+        "stroke",
+        getLinkColor(d.status, statusColorMap ?? defaultStatusColorMap),
+      )
+      .attr("stroke-width", 2);
+  });
 
   // 更新權重標籤的位置 (放在線的中心點)
   mergedLinkGroups.each(function (d) {
@@ -712,6 +737,7 @@ export function renderAll(
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {
+
     const g = d3.select(this);
 
     if (d.kind === "node" || d instanceof Node) {
@@ -749,18 +775,23 @@ export function renderAll(
         if (scaleY) {
           const val = Number(box.value) || 0;
           const absVal = Math.abs(val);
-          const barHeight = scaleY(absVal);
           const barWidth = box.width;
+          const isZero = val === 0;
+
+          // 若數值為 0，給定固定小高度；否則依照 scaleY 計算
+          const barHeight = isZero ? 8 : scaleY(absVal);
 
           // 判斷高度是否足夠容納文字
           const MIN_BAR_HEIGHT_FOR_TEXT = 25;
           const isBarTooShort = barHeight < MIN_BAR_HEIGHT_FOR_TEXT;
 
           let rectY = 0;
-          if (val >= 0) {
-            rectY = -barHeight; // 往上長
+          if (isZero) {
+            rectY = -barHeight / 2; // 0：中心對齊 0 線 (上下平分)
+          } else if (val > 0) {
+            rectY = -barHeight; // 正數：往上長
           } else {
-            rectY = 0; // 往下長
+            rectY = 0; // 負數：往下長
           }
 
           rect
@@ -774,11 +805,18 @@ export function renderAll(
             .attr("fill", box.getColor())
             .attr("fill-opacity", 0.2)
             .attr("stroke", box.getColor())
-            .attr("stroke-width", 2);
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", isZero ? "4,4" : null); // 0 採用虛線，其餘為實線
 
           // 文字位置調整
           textVal.attr("fill", "#ccc");
-          if (val >= 0) {
+          if (isZero) {
+            // value = 0
+            textVal.attr("y", -barHeight / 2 - 10); // 數值浮在虛線框上方
+            textDesc
+              .attr("y", barHeight / 2 + 15) // 標籤顯示在下方
+              .attr("fill", "rgba(255, 241, 228, 1)");
+          } else if (val > 0) {
             // 正數
             if (isBarTooShort) {
               // Bar 太矮 -> 數值顯示在 Bar 上方 (浮在空中)
@@ -861,4 +899,6 @@ export function renderAll(
         .text(ptr.label);
     }
   });
+
+  return { containerBBox };
 }

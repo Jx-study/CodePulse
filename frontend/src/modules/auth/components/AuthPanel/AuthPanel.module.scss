@@ -154,9 +154,10 @@
   height: auto !important;
   font-size: $font-sm !important;
   font-weight: 500 !important;
-  color: $primary-color !important;
+  color: $link-color !important;
 
   &:hover {
+    color: $link-hover-color !important;
     text-decoration: underline;
     background: none !important;
   }

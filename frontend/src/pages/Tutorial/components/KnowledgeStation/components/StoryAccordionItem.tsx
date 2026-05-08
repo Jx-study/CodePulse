@@ -8,6 +8,8 @@ import StoryResources from './StoryResources';
 import PythonInteractiveDemo from './PythonInteractiveDemo';
 import StackGameRenderer from './StackGameRenderer';
 import KnapsackGameRenderer from './KnapsackGameRenderer/KnapsackGameRenderer';
+import BinarySearchOutputRenderer from './BinarySearchOutputRenderer';
+import WhackAMoleRenderer from './WhackAMoleRenderer';
 import styles from './StoryAccordionItem.module.scss';
 
 interface Props {
@@ -22,6 +24,8 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
   const hasVideo = !!story.video;
   const hasStackGame = story.interactiveGame?.type === 'stack-popup-game';
   const hasKnapsackGame = story.interactiveGame?.type === 'knapsack-investment-game';
+  const hasBinarySearchGame = story.interactiveGame?.type === 'binary-search-game';
+  const hasWhackAMoleGame = story.interactiveGame?.type === 'whack-a-mole';
 
   return (
     <div className={styles.accordionItem}>
@@ -73,6 +77,8 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
               )}
               {hasStackGame && <StackGameRenderer />}
               {hasKnapsackGame && <KnapsackGameRenderer />}
+              {hasBinarySearchGame && <BinarySearchOutputRenderer />}
+              {hasWhackAMoleGame && <WhackAMoleRenderer />}
             </>
           ) : (
             <>
@@ -81,6 +87,8 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
               )}
               {hasStackGame && <StackGameRenderer />}
               {hasKnapsackGame && <KnapsackGameRenderer />}
+              {hasBinarySearchGame && <BinarySearchOutputRenderer />}
+              {hasWhackAMoleGame && <WhackAMoleRenderer />}
               <Button
                 type="button"
                 variant="ghost"

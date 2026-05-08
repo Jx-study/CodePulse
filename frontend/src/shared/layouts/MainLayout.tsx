@@ -7,6 +7,8 @@ import styles from './Layout.module.scss';
 const NO_FOOTER_PATHS = [
   '/dashboard',
   '/tutorial',
+  '/practice',
+  '/explorer',
 ];
 
 function MainLayout() {

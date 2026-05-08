@@ -14,6 +14,7 @@ from auth_utils import (
     create_access_token, create_refresh_token,
     create_onboarding_token,
     hash_token, set_auth_cookies, REFRESH_TOKEN_EXPIRES,
+    cookie_samesite, cookie_domain,
 )
 
 GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -61,9 +62,10 @@ def register_oauth_routes(app):
             nonce,
             max_age=OAUTH_STATE_MAX_AGE,
             httponly=True,
-            samesite='Lax',
+            samesite=cookie_samesite(),
             secure=_cookie_secure(),
             path='/api/auth/google',
+            domain=cookie_domain(),
         )
         return response
 
@@ -165,11 +167,12 @@ def register_oauth_routes(app):
                         link_token,
                         max_age=LINK_TOKEN_MAX_AGE,
                         httponly=True,
-                        samesite='Lax',
+                        samesite=cookie_samesite(),
                         secure=_cookie_secure(),
                         path='/api/auth/google',
+                        domain=cookie_domain(),
                     )
-                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google', domain=cookie_domain())
                     return response
 
                 else:
@@ -187,11 +190,12 @@ def register_oauth_routes(app):
                         onboarding_token,
                         max_age=600,
                         httponly=True,
-                        samesite='Lax',
+                        samesite=cookie_samesite(),
                         secure=_cookie_secure(),
                         path='/api/auth',
+                        domain=cookie_domain(),
                     )
-                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google', domain=cookie_domain())
                     return response
 
             jwt_access = create_access_token(user.user_id)
@@ -213,7 +217,7 @@ def register_oauth_routes(app):
 
         response = make_response(redirect(f'{frontend_cb}'))
         set_auth_cookies(response, jwt_access, jwt_refresh)
-        response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+        response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google', domain=cookie_domain())
         return response
 
     @oauth_bp.route('/api/auth/google/confirm-link', methods=['POST'])
@@ -275,14 +279,14 @@ def register_oauth_routes(app):
 
         resp = make_response(jsonify({'success': True, 'message': 'Google 帳號已成功綁定'}))
         set_auth_cookies(resp, jwt_access, jwt_refresh)
-        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google')
+        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google', domain=cookie_domain())
         return resp
 
     @oauth_bp.route('/api/auth/google/cancel-link', methods=['POST'])
     def cancel_link():
         from flask import jsonify
         resp = make_response(jsonify({'success': True}))
-        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google')
+        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google', domain=cookie_domain())
         return resp
 
     @oauth_bp.route('/api/auth/google/link-info', methods=['GET'])

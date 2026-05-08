@@ -69,7 +69,7 @@ DATA = {
         {
             "id": "sw-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -143,7 +143,7 @@ DATA = {
         {
             "id": "sw-tf-2",
             "type": "true-false",
-            "baseRating": 950,
+            "baseRating": 900,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -190,7 +190,7 @@ DATA = {
             "id": "sw-group-1",
             "groupId": "group-sw-variable",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -218,7 +218,7 @@ DATA = {
         {
             "id": "sw-q4",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 1100,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -247,7 +247,7 @@ DATA = {
             "id": "sw-group-2",
             "groupId": "group-sw-variable",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1300,
             "correctAnswer": "D",
             "translations": {
                 "zh-TW": {
@@ -275,7 +275,7 @@ DATA = {
         {
             "id": "sw-q5",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1000,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -303,7 +303,7 @@ DATA = {
         {
             "id": "sw-q6",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -331,7 +331,7 @@ DATA = {
         {
             "id": "sw-q7",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -359,7 +359,7 @@ DATA = {
         {
             "id": "sw-multi-1",
             "type": "multiple-choice",
-            "baseRating": 1200,
+            "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -387,7 +387,7 @@ DATA = {
         {
             "id": "sw-q8",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -416,7 +416,7 @@ DATA = {
             "id": "sw-group-3",
             "groupId": "group-sw-variable",
             "type": "fill-code",
-            "baseRating": 1300,
+            "baseRating": 1150,
             "correctAnswer": ["arr[right]", "target", "arr[left]", "right - left + 1"],
             "code": SW_FILL_CODE,
             "language": "python",
@@ -436,7 +436,7 @@ DATA = {
         {
             "id": "sw-q9",
             "type": "single-choice",
-            "baseRating": 1350,
+            "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -464,7 +464,7 @@ DATA = {
         {
             "id": "sw-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1400,
+            "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -492,7 +492,7 @@ DATA = {
         {
             "id": "sw-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1150,
             "correctAnswer": ["window_sum", "i + k - 1", "window_sum"],
             "code": SW_FIXED_FILL_CODE,
             "language": "python",
@@ -512,7 +512,7 @@ DATA = {
         {
             "id": "sw-pred-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1300,
             "correctAnswer": "1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12",
             "code": SW_PREDICT_CODE,
             "language": "python",

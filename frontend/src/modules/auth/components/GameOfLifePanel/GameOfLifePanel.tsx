@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/shared/contexts/ThemeContext';
 import Button from '@/shared/components/Button';
 import Dialog from '@/shared/components/Dialog';
@@ -7,6 +8,7 @@ import useGameOfLife from '@/modules/auth/hooks/useGameOfLife';
 import styles from './GameOfLifePanel.module.scss';
 
 function GameOfLifePanel() {
+  const { t } = useTranslation('auth');
   const { resolvedTheme } = useTheme();
   const {
     canvasRef,
@@ -68,21 +70,49 @@ function GameOfLifePanel() {
           </span>
         </div>
         <span className={styles.slogan}>
-          Simulate the logic, visualize the pulse.
+          {t('gameOfLife.slogan')}
         </span>
       </div>
 
       <div className={styles.controls}>
-        <Button variant="gameCtrl" onClick={() => setIsInfoOpen(true)} aria-label="關於 Conway's Game of Life" title="關於此動畫" icon="question-circle" iconOnly />
-        <Button variant="gameCtrl" onClick={randomize} aria-label="Randomize" title="Randomize" icon="shuffle" iconOnly />
-        <Button variant="gameCtrl" onClick={clear} aria-label="Clear" title="Clear" icon="times" iconOnly />
-        <Button variant="gameCtrl" onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'} title={isPlaying ? 'Pause' : 'Play'} icon={isPlaying ? 'pause' : 'play'} iconOnly />
+        <Button
+          variant="gameCtrl"
+          onClick={() => setIsInfoOpen(true)}
+          aria-label={t('gameOfLife.ariaLabel')}
+          title={t('gameOfLife.aboutTitle')}
+          icon="question-circle"
+          iconOnly
+        />
+        <Button
+          variant="gameCtrl"
+          onClick={randomize}
+          aria-label="Randomize"
+          title="Randomize"
+          icon="shuffle"
+          iconOnly
+        />
+        <Button
+          variant="gameCtrl"
+          onClick={clear}
+          aria-label="Clear"
+          title="Clear"
+          icon="times"
+          iconOnly
+        />
+        <Button
+          variant="gameCtrl"
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pause" : "Play"}
+          title={isPlaying ? "Pause" : "Play"}
+          icon={isPlaying ? "pause" : "play"}
+          iconOnly
+        />
       </div>
 
       <Dialog
         isOpen={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
-        title="Conway's Game of Life"
+        title={t('gameOfLife.title')}
         size="sm"
         footer={
           <>
@@ -94,54 +124,46 @@ function GameOfLifePanel() {
             >
               Wikipedia
             </Button>
-            <Button variant="primary" size="sm" onClick={() => setIsInfoOpen(false)}>關閉</Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsInfoOpen(false)}
+            >
+              {t('gameOfLife.close')}
+            </Button>
           </>
         }
       >
         <div className={styles.infoContent}>
-          <p className={styles.infoDesc}>
-            由英國數學家 <strong>John Horton Conway</strong> 於 1970 年發明的細胞自動機。
-            無需玩家操作，僅依靠初始狀態與四條規則無限演化。
-          </p>
+          <p
+            className={styles.infoDesc}
+            dangerouslySetInnerHTML={{ __html: t('gameOfLife.description') }}
+          />
 
           <div className={styles.rulesHeader}>
-            <span className={styles.rulesLabel}>// evolution rules</span>
+            <span className={styles.rulesLabel}>{t('gameOfLife.rulesHeader')}</span>
           </div>
 
           <div className={styles.rulesGrid}>
-            <div className={styles.ruleCard}>
-              <span className={styles.ruleIndex}>01</span>
-              <div className={styles.ruleBody}>
-                <span className={styles.ruleStatus} data-status="die">孤立死亡</span>
-                <p>活細胞鄰居 <strong>&lt; 2</strong> 個時死亡</p>
-              </div>
-            </div>
-            <div className={styles.ruleCard}>
-              <span className={styles.ruleIndex}>02</span>
-              <div className={styles.ruleBody}>
-                <span className={styles.ruleStatus} data-status="live">穩定存活</span>
-                <p>活細胞鄰居 <strong>2 ~ 3</strong> 個時存活</p>
-              </div>
-            </div>
-            <div className={styles.ruleCard}>
-              <span className={styles.ruleIndex}>03</span>
-              <div className={styles.ruleBody}>
-                <span className={styles.ruleStatus} data-status="die">過擁擠死亡</span>
-                <p>活細胞鄰居 <strong>&gt; 3</strong> 個時死亡</p>
-              </div>
-            </div>
-            <div className={styles.ruleCard}>
-              <span className={styles.ruleIndex}>04</span>
-              <div className={styles.ruleBody}>
-                <span className={styles.ruleStatus} data-status="born">復活誕生</span>
-                <p>死細胞鄰居 <strong>= 3</strong> 個時復活</p>
-              </div>
-            </div>
+            {(['01', '02', '03', '04'] as const).map((num, i) => {
+              const statusMap = ['die', 'live', 'die', 'born'] as const;
+              return (
+                <div key={num} className={styles.ruleCard}>
+                  <span className={styles.ruleIndex}>{num}</span>
+                  <div className={styles.ruleBody}>
+                    <span className={styles.ruleStatus} data-status={statusMap[i]}>
+                      {t(`gameOfLife.rules.${num}.label`)}
+                    </span>
+                    <p dangerouslySetInnerHTML={{ __html: t(`gameOfLife.rules.${num}.desc`) }} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <div className={styles.hint}>
             <span className={styles.hintPrompt}>$&gt;</span>
-            點擊或拖曳畫布繪製細胞，按 <kbd>▶</kbd> 開始模擬
+            <span dangerouslySetInnerHTML={{ __html: t('gameOfLife.hint') }} />
           </div>
         </div>
       </Dialog>

@@ -1,0 +1,284 @@
+.playground {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 5rem);
+  background: var(--bg-primary);
+  overflow: hidden;
+  position: relative;
+}
+
+.panelGroupH {
+  flex: 1;
+  min-width: 0;
+}
+
+.leftSidebarPanel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg-primary);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.canvasPanel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rightSidebarPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+  min-width: 0;
+}
+
+.editorPanelInner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editorHeader {
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-sm;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.editorFilename {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.filenameDot {
+  width: 7px;
+  height: 7px;
+  border-radius: $radius-sm;
+  background: var(--color-teal);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-teal) 40%, transparent);
+  flex-shrink: 0;
+}
+
+.filename {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+}
+
+.runBtn {
+  background: $execution-color;
+  color: $white-color !important;
+  transition: filter 0.2s, transform 0.2s;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.editorBody {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.canvasArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.canvasTabBar {
+  display: flex;
+  align-items: center;
+  padding: 0 $spacing-sm;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  gap: $spacing-sm;
+}
+
+.truncatedBadge {
+  font-size: $font-2xs;
+  color: var(--warning-color);
+  font-family: $font-family-code;
+  margin-left: auto;
+}
+
+.graphArea {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
+
+.animationPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  height: 100%;
+  font-size: $font-sm;
+  color: var(--text-tertiary);
+  font-family: $font-family-code;
+}
+
+.cfgPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cfgHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-xs $spacing-sm;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.cfgBackBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: var(--text-primary); border-color: color-mix(in srgb, $white-color 20%, transparent); }
+}
+
+.cfgLabel {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+}
+
+.controlRow {
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.emptyControl {
+  padding: $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.aiBtn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 0 $spacing-sm;
+  height: 1.5rem;
+  border-radius: $radius-md;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  font-size: $font-2xs;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+}
+
+.aiBtnDisabled {
+  color: var(--text-tertiary);
+  border-color: var(--border);
+  background: transparent;
+  opacity: 0.5;
+}
+
+.aiBtnLoading {
+  color: var(--text-tertiary);
+  border-color: var(--border);
+  background: transparent;
+  cursor: default;
+}
+
+.aiBtnActive {
+  // inherits .aiBtn active colours
+}
+
+.aiBtnDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+.callGraphLegend {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: color-mix(in srgb, var(--bg-tertiary) 85%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.legendItem { display: flex; align-items: center; gap: 6px; }
+
+.legendLineSolid {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: var(--border);
+}
+
+.legendLineDashed {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 4px, transparent 4px, transparent 8px);
+}

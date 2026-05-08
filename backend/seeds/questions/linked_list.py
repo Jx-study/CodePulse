@@ -111,7 +111,7 @@ DATA = {
         {
             "id": "ll-tf-1",
             "type": "true-false",
-            "baseRating": 800,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
@@ -129,7 +129,7 @@ DATA = {
         {
             "id": "ll-q1",
             "type": "single-choice",
-            "baseRating": 800,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -157,7 +157,7 @@ DATA = {
         {
             "id": "ll-q2",
             "type": "single-choice",
-            "baseRating": 850,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -185,16 +185,16 @@ DATA = {
         {
             "id": "ll-tf-2",
             "type": "true-false",
-            "baseRating": 900,
+            "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
-                    "title": "在 Singly Linked List 的頭部插入元素（insert_at_head）不需要遍歷整個串列，時間複雜度為 O(1)。",
+                    "title": "在 Singly Linked List 的頭部插入元素（insert_at_head），其時間複雜度為 O(1)。",
                     "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
                     "explanation": "正確！insert_at_head 的步驟：\n1. 建立新節點 (new_node)\n2. 讓 new_node.next 指向原本的 head\n3. 更新 head = new_node\n這三個步驟都是常數時間操作，不需要遍歷，時間複雜度為 O(1)。",
                 },
                 "en": {
-                    "title": "Inserting at the head of a Singly Linked List (insert_at_head) does not require traversal and has O(1) time complexity.",
+                    "title": "In a Singly Linked List, insert_at_head has O(1) time complexity.",
                     "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
                     "explanation": "Correct! insert_at_head steps:\n1. Create new_node\n2. Set new_node.next = current head\n3. Update head = new_node\nAll three are constant-time operations — no traversal needed — so O(1).",
                 },
@@ -203,7 +203,7 @@ DATA = {
         {
             "id": "ll-q3",
             "type": "single-choice",
-            "baseRating": 950,
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -232,7 +232,7 @@ DATA = {
         {
             "id": "ll-q4",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -261,7 +261,7 @@ DATA = {
             "id": "ll-group-1",
             "groupId": "group-ll-playlist",
             "type": "single-choice",
-            "baseRating": 1000,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -289,7 +289,7 @@ DATA = {
         {
             "id": "ll-q5",
             "type": "single-choice",
-            "baseRating": 1050,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -346,7 +346,7 @@ DATA = {
             "id": "ll-group-2",
             "groupId": "group-ll-playlist",
             "type": "single-choice",
-            "baseRating": 1100,
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -374,7 +374,7 @@ DATA = {
         {
             "id": "ll-q6",
             "type": "single-choice",
-            "baseRating": 1150,
+            "baseRating": 1000,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -402,7 +402,7 @@ DATA = {
         {
             "id": "ll-q7",
             "type": "single-choice",
-            "baseRating": 1200,
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -430,7 +430,7 @@ DATA = {
         {
             "id": "ll-q8",
             "type": "single-choice",
-            "baseRating": 1250,
+            "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -480,7 +480,7 @@ DATA = {
         {
             "id": "ll-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1350,
+            "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3", "opt4"],
             "translations": {
                 "zh-TW": {
@@ -508,7 +508,7 @@ DATA = {
         {
             "id": "ll-q9",
             "type": "single-choice",
-            "baseRating": 1400,
+            "baseRating": 1700,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -536,7 +536,7 @@ DATA = {
         {
             "id": "ll-fill-1",
             "type": "fill-code",
-            "baseRating": 1450,
+            "baseRating": 1300,
             "code": LL_INSERT_FILL_CODE,
             "language": "python",
             "correctAnswer": ["None", "None", "new_node"],
@@ -556,7 +556,7 @@ DATA = {
         {
             "id": "ll-pred-1",
             "type": "predict-line",
-            "baseRating": 1500,
+            "baseRating": 1350,
             "code": LL_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "10 11 12 13 14 16 17 13 14 15",
