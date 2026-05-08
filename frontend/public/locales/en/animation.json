@@ -20,6 +20,20 @@
     "delete_remove": "Remove the last redundant slot",
     "delete_complete": "Delete complete"
   },
+  "heap": {
+    "init": "{{heapName}} Initial State",
+    "insert_start": "Insert({{value}}): Place the new node at the bottom of the tree (Index {{index}})",
+    "heapify_up_compare": "Heapify-Up: Compare the new node ({{curVal}}) with its parent node ({{parentVal}})",
+    "heapify_up_swap": "The new node is more {{extremeStr}}! Perform a swap (exchange values)",
+    "extract_start": "Extract{{extremeVal}}(): Prepare to remove the root node ({{extremeVal}} value {{extVal}})",
+    "extract_swap_last": "Move the value of the last node to the root node",
+    "extract_remove": "Remove the last node",
+    "heapify_down_compare": "Heapify-Down: Find the most {{extremeStr}} among the left and right child nodes",
+    "heapify_down_swap": "Swap values downward to maintain the {{heapName}} property",
+    "peek": "Peek(): The current {{extremeVal}} value is the root node value {{extVal}}",
+    "heapify_start": "Heapify(): Start rebuilding the {{heapName}} from bottom to top, array length is {{length}}",
+    "done": "Operation completed, the {{heapName}} structure is now valid!"
+  },
   "qs": {
     "init": "Starting Quick Sort with array length {{length}}",
     "call": "Recursive partitioning: processing range [{{low}}, {{high}}], entering depth {{depth}}",
