@@ -22,9 +22,31 @@ export function heapActionHandler(
   const newData = data.map((d) => ({ ...d }));
   const oldData = data.map((d) => ({ ...d }));
 
-  const isMinHeap = !!payload.isMinHeap;
+  const isMinHeap = payload.isMinHeap === true;
+  const isMaxHeap = payload.isMaxHeap === true;
   // 優先權判斷函數：如果是 Min-Heap，數字越小優先權越高 (a < b)
   const isPrior = (a: number, b: number) => (isMinHeap ? a < b : a > b);
+
+  if (
+    actionType === "random" ||
+    actionType === "load" ||
+    actionType === "reset"
+  ) {
+    const result = baseActionHandler(actionType, payload, data, context);
+    if (!result) return null;
+
+    return {
+      ...result,
+      animationParams: {
+        isHeapAction: true,
+        heapType: "init",
+        isMinHeap: false,
+        isMaxHeap: actionType === "reset",
+      },
+      isResetAction: true,
+      useRawAnimationParams: true,
+    };
+  }
 
   if (actionType === "peek") {
     return {
@@ -34,6 +56,7 @@ export function heapActionHandler(
         heapType: "peek",
         oldData,
         isMinHeap,
+        isMaxHeap,
       },
       isResetAction: true,
       useRawAnimationParams: true,
@@ -72,6 +95,7 @@ export function heapActionHandler(
         heapType: "heapify",
         oldData,
         isMinHeap,
+        isMaxHeap,
       },
       isResetAction: true,
       useRawAnimationParams: true,
@@ -103,6 +127,7 @@ export function heapActionHandler(
         targetId,
         oldData,
         isMinHeap,
+        isMaxHeap,
       },
       isResetAction: true,
       useRawAnimationParams: true,
@@ -151,6 +176,7 @@ export function heapActionHandler(
         value: extractedVal,
         oldData,
         isMinHeap,
+        isMaxHeap,
       },
       isResetAction: true,
       useRawAnimationParams: true,
@@ -167,7 +193,8 @@ export function createHeapAnimationSteps(
   const params = action?.isHeapAction ? action : action?.animationParams;
 
   if (params && params.isHeapAction) {
-    const trace = simulateHeapTrace(params.oldData, params);
+    const traceData = params.heapType === "init" ? dataList : params.oldData;
+    const trace = simulateHeapTrace(traceData, params);
     return heapTraceToSteps(trace);
   }
 

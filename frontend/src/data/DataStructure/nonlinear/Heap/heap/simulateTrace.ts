@@ -15,9 +15,16 @@ export function simulateHeapTrace(
 
   const getSnapshot = () => currentList.map((d) => ({ ...d }));
 
-  const isMinHeap = !!action.isMinHeap;
+  const isMinHeap = action?.isMinHeap === true;
+  const isMaxHeap =
+    action?.isMaxHeap === true ||
+    (action?.isMaxHeap !== false && !isMinHeap);
   const isPrior = (a: number, b: number) => (isMinHeap ? a < b : a > b);
-  const heapName = isMinHeap ? "Min-Heap" : "Max-Heap";
+  const heapName = isMinHeap
+    ? "Min-Heap"
+    : isMaxHeap
+      ? "Max-Heap"
+      : "Not Heap";
   const extremeStr = isMinHeap ? "小" : "大";
   const extremeVal = isMinHeap ? "最小" : "最大";
 
