@@ -25,8 +25,6 @@ export function simulateHeapTrace(
     : isMaxHeap
       ? "Max-Heap"
       : "Not Heap";
-  const extremeStr = isMinHeap ? "小" : "大";
-  const extremeVal = isMinHeap ? "最小" : "最大";
 
   if (!action || action.heapType === "init") {
     trace.push({
@@ -42,7 +40,7 @@ export function simulateHeapTrace(
     if (currentList.length > 0) {
       trace.push({
         tag: TAGS.PEEK,
-        local_vars: { extVal: currentList[0].value, extremeVal },
+        local_vars: { extVal: currentList[0].value, isMinHeap },
         dataSnapshot: getSnapshot(),
         meta: { highlightIndex: 0, status: "Complete" },
       });
@@ -83,7 +81,7 @@ export function simulateHeapTrace(
         if (leftIdx < currentList.length) {
           trace.push({
             tag: TAGS.HEAPIFY_DOWN_COMPARE,
-            local_vars: { idx, leftIdx, rightIdx, targetIdx, extremeStr },
+            local_vars: { idx, leftIdx, rightIdx, targetIdx, isMinHeap },
             dataSnapshot: getSnapshot(),
             meta: {
               overrideStatusMap: {
@@ -160,7 +158,7 @@ export function simulateHeapTrace(
 
         trace.push({
           tag: TAGS.HEAPIFY_UP_SWAP,
-          local_vars: { idx, parentIdx, extremeStr },
+          local_vars: { idx, parentIdx, isMinHeap },
           dataSnapshot: getSnapshot(),
           meta: {
             overrideStatusMap: { [idx]: "Prepare", [parentIdx]: "Target" },
@@ -185,7 +183,7 @@ export function simulateHeapTrace(
     const extVal = currentList[0].value;
     trace.push({
       tag: TAGS.EXTRACT_START,
-      local_vars: { extVal, extremeVal, extremeStr },
+      local_vars: { extVal, isMinHeap },
       dataSnapshot: getSnapshot(),
       meta: { highlightIndex: 0 },
     });
@@ -241,22 +239,22 @@ export function simulateHeapTrace(
       if (leftIdx < currentList.length) {
         trace.push({
           tag: TAGS.HEAPIFY_DOWN_COMPARE,
-          local_vars: { idx, leftIdx, rightIdx, targetIdx, extremeStr },
-          dataSnapshot: getSnapshot(),
-          meta: {
-            overrideStatusMap: {
-              [idx]: "Target",
-              [leftIdx]: "Prepare",
-              ...(rightIdx < currentList.length
-                ? { [rightIdx]: "Prepare" }
-                : {}),
+          local_vars: { idx, leftIdx, rightIdx, targetIdx, isMinHeap },
+            dataSnapshot: getSnapshot(),
+            meta: {
+              overrideStatusMap: {
+                [idx]: "Target",
+                [leftIdx]: "Prepare",
+                ...(rightIdx < currentList.length
+                  ? { [rightIdx]: "Prepare" }
+                  : {}),
+              },
             },
-          },
-        });
-      }
+          });
+        }
 
-      if (targetIdx !== idx) {
-        const swapTemp = currentList[idx].value;
+        if (targetIdx !== idx) {
+          const swapTemp = currentList[idx].value;
         currentList[idx].value = currentList[targetIdx].value;
         currentList[targetIdx].value = swapTemp;
 

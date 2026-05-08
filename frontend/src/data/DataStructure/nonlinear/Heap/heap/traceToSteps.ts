@@ -38,32 +38,30 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { curVal: e.local_vars.curVal, parentVal: e.local_vars.parentVal },
   }),
   [TAGS.HEAPIFY_UP_SWAP]: (e) => ({
-    key: "heap.heapify_up_swap",
-    params: { extremeStr: e.local_vars.extremeStr },
+    key: e.local_vars.isMinHeap
+      ? "heap.heapify_up_swap_min"
+      : "heap.heapify_up_swap_max",
   }),
   [TAGS.EXTRACT_START]: (e) => ({
-    key: "heap.extract_start",
-    params: {
-      extVal: e.local_vars.extVal,
-      extremeVal: e.local_vars.extremeVal,
-    },
+    key: e.local_vars.isMinHeap
+      ? "heap.extract_start_min"
+      : "heap.extract_start_max",
+    params: { extVal: e.local_vars.extVal },
   }),
   [TAGS.EXTRACT_SWAP_LAST]: () => ({ key: "heap.extract_swap_last" }),
   [TAGS.EXTRACT_REMOVE]: () => ({ key: "heap.extract_remove" }),
   [TAGS.HEAPIFY_DOWN_COMPARE]: (e) => ({
-    key: "heap.heapify_down_compare",
-    params: { extremeStr: e.local_vars.extremeStr },
+    key: e.local_vars.isMinHeap
+      ? "heap.heapify_down_compare_min"
+      : "heap.heapify_down_compare_max",
   }),
   [TAGS.HEAPIFY_DOWN_SWAP]: (e) => ({
     key: "heap.heapify_down_swap",
     params: { heapName: e.local_vars.heapName },
   }),
   [TAGS.PEEK]: (e) => ({
-    key: "heap.peek",
-    params: {
-      extVal: e.local_vars.extVal,
-      extremeVal: e.local_vars.extremeVal,
-    },
+    key: e.local_vars.isMinHeap ? "heap.peek_min" : "heap.peek_max",
+    params: { extVal: e.local_vars.extVal },
   }),
   [TAGS.HEAPIFY_START]: (e) => ({
     key: "heap.heapify_start",
