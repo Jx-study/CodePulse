@@ -74,7 +74,8 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         <Tooltip content="切換 Heap 模式並自動重新建堆">
           <Button
             size="sm"
-            variant={isMinHeap ? "secondary" : "primary"}
+            variant="secondary"
+            className={isMinHeap ? styles.btnToggleOn : styles.btnToggleOff}
             onClick={handleToggleMode}
             disabled={disabled}
             icon="rotate"
@@ -98,7 +99,8 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         <Tooltip content="將數值新增至 Heap (Heapify Up)">
           <Button
             size="sm"
-            variant="primary"
+            variant="secondary"
+            className={styles.btnInsert}
             onClick={handleInsert}
             disabled={disabled || !inputValue}
             icon="plus"
@@ -112,7 +114,8 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         >
           <Button
             size="sm"
-            variant="danger"
+            variant="secondary"
+            className={styles.btnDelete}
             onClick={handleExtract}
             disabled={disabled}
             icon="arrow-up-from-bracket"
