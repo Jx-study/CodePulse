@@ -6,8 +6,8 @@ import {
   useCallback,
   Suspense,
 } from "react";
-import { tutorialService } from '@/services/tutorialService';
-import { useAuth } from '@/shared/contexts/AuthContext';
+import { tutorialService } from "@/services/tutorialService";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -51,7 +51,7 @@ import type { StepDescription } from "@/types";
 
 function renderDescription(
   desc: string | StepDescription | undefined,
-  t: (key: string, params?: Record<string, any>) => string
+  t: (key: string, params?: Record<string, any>) => string,
 ): string {
   if (!desc) return "";
   if (typeof desc === "string") return desc;
@@ -232,6 +232,7 @@ export interface InspectorPanelInternalProps {
   setRandomCount: (count: number) => void;
   setHasTailMode: (hasTail: boolean) => void;
   handleGraphAction: (action: string, payload: any) => void;
+  handleCustomAction: (action: string, payload: any) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
   viewMode: AlgorithmViewMode | "";
@@ -258,6 +259,7 @@ export const InspectorPanelInternal = ({
   setRandomCount,
   setHasTailMode,
   handleGraphAction,
+  handleCustomAction,
   isDirected,
   setIsDirected,
   viewMode,
@@ -325,6 +327,7 @@ export const InspectorPanelInternal = ({
               onMaxNodesChange={setRandomCount}
               onTailModeChange={setHasTailMode}
               onGraphAction={handleGraphAction}
+              onCustomAction={handleCustomAction}
               isDirected={isDirected}
               onIsDirectedChange={setIsDirected}
               viewMode={viewMode}
@@ -468,8 +471,11 @@ function TutorialContent() {
     setTeachingDone(false);
 
     sessionStartRef.current = Date.now();
-    tutorialService.startSession(levelId)
-      .then((id) => { sessionIdRef.current = id; })
+    tutorialService
+      .startSession(levelId)
+      .then((id) => {
+        sessionIdRef.current = id;
+      })
       .catch(() => {});
 
     const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
@@ -481,14 +487,19 @@ function TutorialContent() {
 
       // 用 sendBeacon 確保頁面關閉時請求仍能送出
       const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
-      const sessionBlob = new Blob([JSON.stringify({ duration_seconds: elapsed })], { type: 'application/json' });
+      const sessionBlob = new Blob(
+        [JSON.stringify({ duration_seconds: elapsed })],
+        { type: "application/json" },
+      );
       if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
-        tutorialService.endSession(levelId, sessionIdRef.current, elapsed).catch(() => {});
+        tutorialService
+          .endSession(levelId, sessionIdRef.current, elapsed)
+          .catch(() => {});
       }
 
       if (!teachingDoneRef.current && elapsed >= 30) {
         const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
-        const teachingBlob = new Blob([], { type: 'application/json' });
+        const teachingBlob = new Blob([], { type: "application/json" });
         if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
           tutorialService.markTeachingComplete(levelId).catch(() => {});
         }
@@ -793,6 +804,17 @@ function TutorialContent() {
     }
   };
 
+  const handleCustomAction = (action: string, payload: any) => {
+    if (isProcessing) return;
+
+    const steps = logic.executeAction(action, payload);
+
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
+  };
+
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
     setIsPlaying(false);
@@ -848,26 +870,22 @@ function TutorialContent() {
     const gc = activeCanvas;
     isAnimatingRef.current = true;
     let completed = 0;
-    const duration = Math.round((isPlayingRef.current ? 800 : 1200) / playbackSpeed);
+    const duration = Math.round(
+      (isPlayingRef.current ? 800 : 1200) / playbackSpeed,
+    );
 
     changedLinks.forEach((link) => {
       const toColor = currentStatusColorMap
         ? (currentStatusColorMap[link.status ?? ""] ?? "#888")
         : "#888";
 
-      gc.animateLink(
-        link.sourceId,
-        link.targetId,
-        toColor,
-        duration,
-        () => {
-          completed += 1;
-          if (completed === changedLinks.length) {
-            isAnimatingRef.current = false;
-            setCurrentStep(nextStepIndex);
-          }
-        },
-      );
+      gc.animateLink(link.sourceId, link.targetId, toColor, duration, () => {
+        completed += 1;
+        if (completed === changedLinks.length) {
+          isAnimatingRef.current = false;
+          setCurrentStep(nextStepIndex);
+        }
+      });
     });
   }, [
     currentStep,
@@ -981,6 +999,7 @@ function TutorialContent() {
     setRandomCount: handleRandomCountChange,
     setHasTailMode,
     handleGraphAction,
+    handleCustomAction,
     isDirected,
     setIsDirected: handleIsDirectedChange,
     viewMode,
