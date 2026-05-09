@@ -33,7 +33,7 @@ export interface Question {
   groupId?: string;
   group?: {
     title: string;
-    description: string | null;
+    description?: string;
     code: string | null;
     language: string | null;
   };

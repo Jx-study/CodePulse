@@ -309,7 +309,7 @@ function runGraphDFS(
     `初始化距離為 ∞，準備開始 DFS`,
   );
   initFrame2.actionTag = TAGS.INIT;
-  initFrame2.variables = {
+  initFrame2.local_vars = {
     start: realStartId,
     end: realEndId,
     "distance[all]": "∞",
@@ -330,7 +330,7 @@ function runGraphDFS(
     `將起點 ${realStartId} 推入 Stack（距離: 0）`,
   );
   startFrame.actionTag = TAGS.START;
-  startFrame.variables = {
+  startFrame.local_vars = {
     stack: `[(${realStartId}, 0)]`,
     [`distance[${realStartId}]`]: 0,
   };
@@ -384,7 +384,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     popFrame.actionTag = TAGS.POP;
-    popFrame.variables = {
+    popFrame.local_vars = {
       curr: currId,
       depth: currDist,
       stack:
@@ -415,7 +415,7 @@ function runGraphDFS(
         { ...linkStatusMap },
       );
       skipFrame.actionTag = TAGS.SKIP;
-      skipFrame.variables = {
+      skipFrame.local_vars = {
         curr: currId,
         "already visited": "True",
         [`distance[${currId}]`]: distanceMap[currId],
@@ -441,7 +441,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     distUpdateFrame.actionTag = TAGS.DIST_UPDATE;
-    distUpdateFrame.variables = {
+    distUpdateFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
@@ -463,7 +463,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     checkEndFrame.actionTag = TAGS.CHECK_END;
-    checkEndFrame.variables = {
+    checkEndFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
@@ -510,7 +510,7 @@ function runGraphDFS(
         { ...linkStatusMap },
       );
       exploreFrame.actionTag = TAGS.EXPLORE;
-      exploreFrame.variables = {
+      exploreFrame.local_vars = {
         curr: currId,
         "all neighbors": `[${allNeighborIds.join(", ")}]`,
         unvisited:
@@ -550,7 +550,7 @@ function runGraphDFS(
           { ...linkStatusMap },
         );
         visitFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-        visitFrame.variables = {
+        visitFrame.local_vars = {
           curr: currId,
           "pushed neighbors": `[${pushedNeighbors.join(", ")}]`,
           "depth[new]": currDist + 1,
@@ -611,7 +611,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
-    pathFoundFrame.variables = {
+    pathFoundFrame.local_vars = {
       end: realEndId,
       "path depth": distanceMap[realEndId],
     };
@@ -631,7 +631,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundFrame.variables = {
+    notFoundFrame.local_vars = {
       stack: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
@@ -685,7 +685,7 @@ function runGridDFS(
     true,
   );
   gridInitFrame1.actionTag = TAGS.INIT;
-  gridInitFrame1.variables = { start: startIndex, end: endIndex };
+  gridInitFrame1.local_vars = { start: startIndex, end: endIndex };
   steps.push(gridInitFrame1);
 
   const gridInitFrame2 = generateGridFrame(
@@ -697,7 +697,7 @@ function runGridDFS(
     false,
   );
   gridInitFrame2.actionTag = TAGS.INIT;
-  gridInitFrame2.variables = {
+  gridInitFrame2.local_vars = {
     start: startIndex,
     end: endIndex,
     "distance[all]": "∞",
@@ -718,7 +718,7 @@ function runGridDFS(
     `將起點 ${startIndex} 推入 Stack（距離: 0）`,
   );
   startGridFrame.actionTag = TAGS.START;
-  startGridFrame.variables = {
+  startGridFrame.local_vars = {
     stack: `[${startIndex}]`,
     visited: `{${startIndex}}`,
     "distance[start]": 0,
@@ -749,7 +749,7 @@ function runGridDFS(
       `深入探索：處理節點 ${currIndex}`,
     );
     popGridFrame.actionTag = TAGS.POP;
-    popGridFrame.variables = {
+    popGridFrame.local_vars = {
       curr: currIndex,
       [`distance[${currIndex}]`]: distanceMap[currIndex],
       "stack size": stack.length,
@@ -766,7 +766,7 @@ function runGridDFS(
       currIndex === endIndex ? "找到終點！" : "尚未到達終點，繼續搜尋",
     );
     checkEndGridFrame.actionTag = TAGS.CHECK_END;
-    checkEndGridFrame.variables = {
+    checkEndGridFrame.local_vars = {
       curr: currIndex,
       end: endIndex,
       "curr === end": currIndex === endIndex ? "True" : "False",
@@ -818,7 +818,7 @@ function runGridDFS(
         `發現 ${addedNeighbors} 個未訪問鄰居，推入堆疊 (黃色)`,
       );
       pushNeighborGridFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-      pushNeighborGridFrame.variables = {
+      pushNeighborGridFrame.local_vars = {
         "new count": addedNeighbors,
         "distance[new]": distanceMap[currIndex]! + 1,
         "stack size (after)": stack.length,
@@ -833,7 +833,7 @@ function runGridDFS(
         `無路可走 (死胡同)，回溯 (Backtrack)`,
       );
       backtrackFrame.actionTag = TAGS.BACKTRACK;
-      backtrackFrame.variables = {
+      backtrackFrame.local_vars = {
         curr: currIndex,
         "dead end": "True — 無未訪問鄰居",
       };
@@ -865,7 +865,7 @@ function runGridDFS(
       `DFS 搜尋結束，路徑長度：${path.length} (綠色路徑)`,
     );
     pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
-    pathCompleteFrame.variables = {
+    pathCompleteFrame.local_vars = {
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
@@ -879,7 +879,7 @@ function runGridDFS(
       "堆疊已空，無法到達終點",
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundGridFrame.variables = {
+    notFoundGridFrame.local_vars = {
       stack: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",

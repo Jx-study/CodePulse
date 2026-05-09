@@ -1,0 +1,18 @@
+{
+  "run": {
+    "emptyCode": "請先輸入程式碼再執行。",
+    "syntaxError": "第 {{line}} 行語法錯誤：{{msg}}",
+    "syntaxErrorNoLine": "語法錯誤：{{msg}}",
+    "timeout": "執行逾時，請嘗試縮小輸入規模。",
+    "runtimeError": "執行錯誤：{{msg}}",
+    "runtimeNameError": "「{{name}}」未定義。",
+    "runtimeTypeError": "型別錯誤：{{msg}}",
+    "runtimeIndexError": "索引超出範圍：{{msg}}",
+    "runtimeKeyError": "找不到鍵值：{{key}}",
+    "runtimeZeroDivision": "除以零。",
+    "runtimeAttributeError": "{{msg}}",
+    "runtimeRecursionError": "遞迴層數超過上限。",
+    "analysisFailed": "分析失敗，請再試一次。",
+    "truncated": "輸出可能已截斷，已達 trace 上限。"
+  }
+}

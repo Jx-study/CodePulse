@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import apiService from '@/api/api';
 
 type UsernameCheckStatus = 'idle' | 'checking' | 'available' | 'taken' | 'error';
 
@@ -10,7 +11,6 @@ function useUsernameCheck(username: string): UseUsernameCheckReturn {
   const [status, setStatus] = useState<UsernameCheckStatus>('idle');
 
   useEffect(() => {
-    // Front-end format check
     const isValid =
       username.length >= 3 &&
       username.length <= 15 &&
@@ -27,11 +27,11 @@ function useUsernameCheck(username: string): UseUsernameCheckReturn {
     timerId = setTimeout(async () => {
       setStatus('checking');
       try {
-        const res = await fetch(
+        const { data } = await apiService.get<{ available: boolean }>(
           `/api/auth/check-username?username=${encodeURIComponent(username)}`,
-          { signal: controller.signal }
+          undefined,
+          controller.signal,
         );
-        const data = await res.json();
         if (data.available === true) {
           setStatus('available');
         } else if (data.available === false) {

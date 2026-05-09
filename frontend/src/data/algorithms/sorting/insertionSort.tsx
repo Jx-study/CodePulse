@@ -17,9 +17,8 @@ const TAGS = {
   DONE: "DONE",
 };
 
-
 export function createInsertionSortAnimationSteps(
-  inputData: LinearData[]
+  inputData: LinearData[],
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   let arr = inputData.map((d) => ({ ...d }));
@@ -30,7 +29,7 @@ export function createInsertionSortAnimationSteps(
     stepNumber: 0,
     description: "開始插入排序",
     actionTag: TAGS.INIT,
-    variables: { totalItems: n },
+    local_vars: { totalItems: n },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
@@ -39,20 +38,20 @@ export function createInsertionSortAnimationSteps(
     stepNumber: 1,
     description: "初始化：將第 0 個元素視為已排序區間",
     actionTag: TAGS.INIT,
-    variables: { sortedCount: 1 },
+    local_vars: { sortedCount: 1 },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
   for (let i = 1; i < n; i++) {
     const keyVal = Number(arr[i].value);
-    
+
     sortedIndices.add(i);
 
     steps.push({
       stepNumber: steps.length + 1,
       description: `第 ${i} 輪：暫存 Index ${i} (${keyVal}) 為 insertVal，準備插入已排序區間`,
       actionTag: TAGS.ROUND_START,
-      variables: {
+      local_vars: {
         unsortedPos: i,
         insertVal: keyVal,
         scanPos: i - 1,
@@ -61,7 +60,7 @@ export function createInsertionSortAnimationSteps(
     });
 
     let j = i - 1;
-    let currentKeyIndex = i; 
+    let currentKeyIndex = i;
 
     while (j >= 0) {
       const scanVal = Number(arr[j].value);
@@ -70,7 +69,7 @@ export function createInsertionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `比較：檢查 Index ${j} (${scanVal}) 是否大於 insertVal (${keyVal})`,
         actionTag: TAGS.COMPARE,
-        variables: {
+        local_vars: {
           unsortedPos: i,
           scanPos: j,
           insertVal: keyVal,
@@ -81,7 +80,7 @@ export function createInsertionSortAnimationSteps(
         elements: createSortingFrame(
           arr,
           { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
-          sortedIndices
+          sortedIndices,
         ),
       });
 
@@ -94,7 +93,7 @@ export function createInsertionSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `搬移：${scanVal} > ${keyVal}，將 ${scanVal} 向右搬移 (Shift)`,
           actionTag: TAGS.SHIFT,
-          variables: {
+          local_vars: {
             scanPos: j,
             insertVal: keyVal,
             shiftVal: scanVal,
@@ -102,7 +101,7 @@ export function createInsertionSortAnimationSteps(
           elements: createSortingFrame(
             arr,
             { [j]: Status.Target, [currentKeyIndex]: Status.Target },
-            sortedIndices
+            sortedIndices,
           ),
         });
 
@@ -112,8 +111,8 @@ export function createInsertionSortAnimationSteps(
         steps.push({
           stepNumber: steps.length + 1,
           description: `停止：${scanVal} <= ${keyVal}，找到插入點`,
-          actionTag: TAGS.COMPARE, 
-          variables: {
+          actionTag: TAGS.COMPARE,
+          local_vars: {
             scanPos: j,
             insertVal: keyVal,
             condition: `${scanVal} > ${keyVal}`,
@@ -122,7 +121,7 @@ export function createInsertionSortAnimationSteps(
           elements: createSortingFrame(
             arr,
             { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
-            sortedIndices
+            sortedIndices,
           ),
         });
         break;
@@ -133,18 +132,22 @@ export function createInsertionSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `插入：將 insertVal (${keyVal}) 放置於 Index ${currentKeyIndex}`,
       actionTag: TAGS.INSERT,
-      variables: {
+      local_vars: {
         insertPos: currentKeyIndex,
         insertVal: keyVal,
       },
-      elements: createSortingFrame(arr, { [currentKeyIndex]: Status.Complete }, sortedIndices),
+      elements: createSortingFrame(
+        arr,
+        { [currentKeyIndex]: Status.Complete },
+        sortedIndices,
+      ),
     });
-    
+
     steps.push({
       stepNumber: steps.length + 1,
       description: `Index 0~${i} 區間排序完成`,
       actionTag: TAGS.ROUND_START,
-      variables: { sortedBoundary: i },
+      local_vars: { sortedBoundary: i },
       elements: createSortingFrame(arr, {}, sortedIndices),
     });
   }
@@ -153,7 +156,7 @@ export function createInsertionSortAnimationSteps(
     stepNumber: steps.length + 1,
     description: "排序完成",
     actionTag: TAGS.DONE,
-    variables: { isSorted: true },
+    local_vars: { isSorted: true },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
@@ -215,7 +218,8 @@ export const insertionSortConfig: LevelImplementationConfig = {
   type: "algorithm",
   name: "插入排序 (Insertion Sort)",
   categoryName: "排序演算法",
-  description: "類似整理撲克牌，每次將一張新牌插入到已排好序的手牌中的正確位置。",
+  description:
+    "類似整理撲克牌，每次將一張新牌插入到已排好序的手牌中的正確位置。",
   codeConfig: insertionSortCodeConfig,
   complexity: {
     timeBest: "O(n)",

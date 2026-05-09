@@ -1,0 +1,104 @@
+@use "sass:color";
+
+.resizeHandle {
+  position: relative;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+  @include transition(background, 0.15s, ease);
+
+  .handleIndicator {
+    background: var(--border);
+    border-radius: 2px;
+    @include transition(background, 0.15s, ease);
+  }
+
+  .buttonWrapper {
+    position: absolute;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    @include transition(opacity, 0.1s, linear);
+  }
+
+  .resizeButton {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: none !important;
+    transition: none !important;
+
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: $primary-color;
+      color: $primary-color;
+      transform: none !important;
+    }
+  }
+
+  &:hover,
+  &[data-resize-status="active"] {
+    background: var(--color-primary);
+
+    .handleIndicator {
+      background: color.mix(white, transparent, 25%);
+    }
+
+    .buttonWrapper {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  &:active {
+    .buttonWrapper {
+      opacity: 0;
+    }
+  }
+
+  // --- 水平排列：分隔線是垂直的，左右調整 ---
+  &.horizontal {
+    width: 3px;
+    cursor: col-resize;
+
+    .handleIndicator {
+      width: 2px;
+      height: 1.75rem;
+    }
+
+    .buttonTop { top: 1rem; left: 50%; transform: translateX(-50%); }
+    .buttonBottom { bottom: 1rem; left: 50%; transform: translateX(-50%); }
+  }
+
+  // --- 垂直排列：分隔線是水平的，上下調整 ---
+  &.vertical {
+    height: 3px;
+    cursor: row-resize;
+
+    .handleIndicator {
+      width: 1.75rem;
+      height: 2px;
+    }
+
+    .buttonLeft { left: 1rem; top: 50%; transform: translateY(-50%); }
+    .buttonRight { right: 1rem; top: 50%; transform: translateY(-50%); }
+  }
+}
+
+// --- 折疊狀態 ---
+.collapsed {
+  .buttonWrapper {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .handleIndicator {
+    opacity: 0.5;
+  }
+}

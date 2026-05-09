@@ -308,7 +308,7 @@ function runGraphBFS(
     `準備開始 BFS，初始化距離為 ∞`,
   );
   initDistFrame.actionTag = TAGS.GRAPH_INIT;
-  initDistFrame.variables = {
+  initDistFrame.local_vars = {
     start: realStartId,
     end: realEndId,
     "distance[all]": "∞",
@@ -330,7 +330,7 @@ function runGraphBFS(
     `將起點 ${realStartId} 加入佇列 (距離: 0)`,
   );
   enqueueStartFrame.actionTag = TAGS.GRAPH_START;
-  enqueueStartFrame.variables = {
+  enqueueStartFrame.local_vars = {
     queue: `[${realStartId}]`,
     visited: `{${realStartId}}`,
     [`distance[${realStartId}]`]: 0,
@@ -367,7 +367,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     dequeueFrame.actionTag = TAGS.DEQUEUE;
-    dequeueFrame.variables = {
+    dequeueFrame.local_vars = {
       curr: currId,
       [`distance[${currId}]`]: distanceMap[currId],
       queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
@@ -387,7 +387,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     checkEndFrame.actionTag = TAGS.CHECK_END;
-    checkEndFrame.variables = {
+    checkEndFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
@@ -422,7 +422,7 @@ function runGraphBFS(
         { ...linkStatusMap },
       );
       exploreFrame.actionTag = TAGS.EXPLORE;
-      exploreFrame.variables = {
+      exploreFrame.local_vars = {
         curr: currId,
         "all neighbors": `[${allNeighborIds.join(", ")}]`,
         unvisited:
@@ -461,7 +461,7 @@ function runGraphBFS(
             { ...linkStatusMap },
           );
           visitFrame.actionTag = TAGS.VISIT_NEIGHBOR;
-          visitFrame.variables = {
+          visitFrame.local_vars = {
             curr: currId,
             neighbor: neighbor.id,
             "queue (after)": `[${queue.join(", ")}]`,
@@ -493,7 +493,7 @@ function runGraphBFS(
           { ...linkStatusMap },
         );
         changeVisitedValueFrame.actionTag = TAGS.CHANGE_VISITED_VALUE;
-        changeVisitedValueFrame.variables = {
+        changeVisitedValueFrame.local_vars = {
           curr: currId,
           "new neighbors": `[${newNeighbors.join(", ")}]`,
           "distance[new]": currentDist + 1,
@@ -543,7 +543,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
-    pathFoundFrame.variables = {
+    pathFoundFrame.local_vars = {
       end: realEndId,
       "shortest distance": distanceMap[realEndId],
     };
@@ -560,7 +560,7 @@ function runGraphBFS(
       { ...linkStatusMap },
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundFrame.variables = {
+    notFoundFrame.local_vars = {
       queue: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
@@ -620,7 +620,7 @@ function runGridBFS(
     true, // showIdAsValue = true
   );
   gridShowIdFrame.actionTag = TAGS.GRID_INIT;
-  gridShowIdFrame.variables = { start: startIndex, end: endIndex };
+  gridShowIdFrame.local_vars = { start: startIndex, end: endIndex };
   appendQueueAndResultBoxes(
     gridShowIdFrame.elements,
     queue.map(String),
@@ -638,7 +638,7 @@ function runGridBFS(
     false, // 轉回顯示距離模式
   );
   gridInitDistFrame.actionTag = TAGS.GRID_INIT_DIST;
-  gridInitDistFrame.variables = {
+  gridInitDistFrame.local_vars = {
     start: startIndex,
     end: endIndex,
     "distance[all]": "∞",
@@ -671,7 +671,7 @@ function runGridBFS(
     `將起點 ${startIndex} 初始化並加入佇列`,
   );
   gridStartFrame.actionTag = TAGS.GRID_START;
-  gridStartFrame.variables = {
+  gridStartFrame.local_vars = {
     start: startIndex,
     queue: `[${startIndex}]`,
     visited: `{${startIndex}}`,
@@ -701,7 +701,7 @@ function runGridBFS(
       `While 佇列不為空，取出 ${currIndex}（距離: ${distanceMap[currIndex]}）`,
     );
     dequeueGridFrame.actionTag = TAGS.DEQUEUE;
-    dequeueGridFrame.variables = {
+    dequeueGridFrame.local_vars = {
       curr: currIndex,
       queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
       "visited count": visited.size,
@@ -725,7 +725,7 @@ function runGridBFS(
       currIndex === endIndex ? "找到終點！" : "不是終點，繼續搜尋",
     );
     checkEndGridFrame.actionTag = TAGS.CHECK_END;
-    checkEndGridFrame.variables = {
+    checkEndGridFrame.local_vars = {
       end: endIndex,
       "curr === end": currIndex === endIndex ? "True" : "False",
     };
@@ -770,7 +770,7 @@ function runGridBFS(
             `發現鄰居 ${nIndex}，加入佇列`,
           );
           visitGridFrame.actionTag = TAGS.VISIT_NEIGHBOR;
-          visitGridFrame.variables = {
+          visitGridFrame.local_vars = {
             curr: currIndex,
             neighbor: nIndex,
             "queue (after)": `[${queue.join(", ")}]`,
@@ -802,7 +802,7 @@ function runGridBFS(
         `將新鄰居的距離更新為 ${currentDist + 1}`,
       );
       changeVisitedValueFrame.actionTag = TAGS.CHANGE_VISITED_VALUE;
-      changeVisitedValueFrame.variables = {
+      changeVisitedValueFrame.local_vars = {
         curr: currIndex,
         "new neighbors": `[${newNeighbors.join(", ")}]`,
         "distance[new]": currentDist + 1,
@@ -843,7 +843,7 @@ function runGridBFS(
       `最短路徑長度：${path.length}`,
     );
     pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
-    pathCompleteFrame.variables = {
+    pathCompleteFrame.local_vars = {
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
@@ -862,7 +862,7 @@ function runGridBFS(
       "佇列已空，無法到達終點",
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundGridFrame.variables = {
+    notFoundGridFrame.local_vars = {
       queue: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",

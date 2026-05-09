@@ -22,6 +22,10 @@ class Config:
     CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
     CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
 
+    @classmethod
+    def init_app(cls, app):
+        pass
+
 class DevelopmentConfig(Config):
     DEBUG = True
     CORS_ORIGINS = [
@@ -39,17 +43,22 @@ class ProductionConfig(Config):
     SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN') or '.code-pulse.cc'
     ENV = 'production'
 
-    _secret = os.environ.get('SECRET_KEY')
-    if not _secret:
-        raise ValueError('SECRET_KEY environment variable must be set in production')
-    SECRET_KEY = _secret
-    del _secret
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    CORS_ORIGINS = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
 
-    _origins = [o for o in os.environ.get('ALLOWED_ORIGINS', '').split(',') if o.strip()]
-    if not _origins:
-        raise ValueError('ALLOWED_ORIGINS environment variable must be set in production')
-    CORS_ORIGINS = _origins
-    del _origins
+    @classmethod
+    def init_app(cls, app):
+        super().init_app(app)
+        required = {
+            'SECRET_KEY': cls.SECRET_KEY,
+            'ALLOWED_ORIGINS': cls.CORS_ORIGINS,
+            'DATABASE_URL': os.environ.get('DATABASE_URL'),
+            'GOOGLE_CLIENT_ID': cls.GOOGLE_CLIENT_ID,
+            'GOOGLE_CLIENT_SECRET': cls.GOOGLE_CLIENT_SECRET,
+        }
+        missing = [k for k, v in required.items() if not v]
+        if missing:
+            raise ValueError(f'Missing required environment variables: {", ".join(missing)}')
 
 class TestingConfig(Config):
     TESTING = True
