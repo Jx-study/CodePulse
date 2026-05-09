@@ -53,9 +53,6 @@ function sortingOverrideMap(tag: string, e: TraceEvent): Record<number, Status> 
 }
 
 export function sortingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
-  if (trace.length > 0) {
-    console.log("[sortingTraceToSteps] sample meta:", trace[1]?.meta);
-  }
   return trace.map((event, idx) => {
     const sortedIndices = new Set<number>(
       (event.meta?.sorted_indices as number[] | undefined) ?? [],

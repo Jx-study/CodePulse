@@ -9,7 +9,6 @@ STATUS_FAILED = "failed"
 STAGE_SYNTAX_CHECK = "syntax_check"
 STAGE_SANDBOX = "sandbox"
 STAGE_ANALYSIS = "analysis"
-STAGE_GEMINI = "gemini"
 STAGE_DONE = "done"
 
 _USE_CELERY = os.getenv("USE_CELERY", "0") == "1"

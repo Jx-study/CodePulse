@@ -105,10 +105,13 @@ class ContainerPool:
                     finally:
                         self._cond.acquire()
                     if new_c is not None:
-                        new_c.in_use = True
-                        self.containers.append(new_c)
-                        return new_c
-                    # Spawn failed — fall through to wait/timeout path
+                        if len(self.containers) < self.max_size:
+                            new_c.in_use = True
+                            self.containers.append(new_c)
+                            return new_c
+                        else:
+                            subprocess.run(["docker", "rm", "-f", new_c.id], capture_output=True)
+                    # Spawn failed or pool filled while lock was released — fall through to wait/timeout path
 
                 if deadline is None:
                     deadline = time.monotonic() + timeout

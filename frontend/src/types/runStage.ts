@@ -3,5 +3,4 @@ export type RunStage =
   | "syntax_check"
   | "sandbox"
   | "analysis"
-  | "gemini"
   | "done";
