@@ -64,8 +64,10 @@ import type {
 } from "@/types/trace";
 import {
   ALGORITHM_TO_CONVERTER_KEY,
+  ALGORITHM_TO_IMPL_KEY,
   TRACE_CONVERTERS,
 } from "@/data/implementations/traceConverters";
+import { useStatusConfig } from "@/modules/core/hooks/useStatusConfig";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
 import styles from "./Playground.module.scss";
 
@@ -150,6 +152,10 @@ function Playground() {
     if (panel.isCollapsed()) panel.expand();
     else panel.collapse();
   }, []);
+
+  const { statusConfig, statusColorMap } = useStatusConfig(
+    appliedAlgo ? (ALGORITHM_TO_IMPL_KEY[appliedAlgo] ?? null) : null,
+  );
 
   // Level 1 animation steps（從語意 trace 產生）
   const animationSteps = useMemo(() => {
@@ -657,6 +663,8 @@ function Playground() {
                       structureType="array"
                       enableZoom
                       enablePan
+                      statusColorMap={statusColorMap}
+                      statusConfig={statusConfig}
                     />
                   ) : (
                     <EmptyState

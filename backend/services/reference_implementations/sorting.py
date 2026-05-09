@@ -15,42 +15,45 @@ Tag 規格：
 
 
 def bubble_sort(data: list, _tag) -> None:
-    _tag("SORT_START")
     n = len(data)
+    _tag("SORT_START", sorted_indices=[])
     for i in range(n):
+        sorted_so_far = list(range(n - i, n))
         for j in range(n - i - 1):
-            _tag("SORT_COMPARE", i=j, j=j + 1)
+            _tag("SORT_COMPARE", i=j, j=j + 1, sorted_indices=sorted_so_far)
             if data[j] > data[j + 1]:
                 data[j], data[j + 1] = data[j + 1], data[j]
-                _tag("SORT_SWAP", i=j, j=j + 1)
-    _tag("SORT_END")
+                _tag("SORT_SWAP", i=j, j=j + 1, sorted_indices=sorted_so_far)
+    _tag("SORT_END", sorted_indices=list(range(n)))
 
 
 def selection_sort(data: list, _tag) -> None:
-    _tag("SORT_START")
     n = len(data)
+    _tag("SORT_START", sorted_indices=[])
     for i in range(n):
+        sorted_so_far = list(range(i))
         min_idx = i
         for j in range(i + 1, n):
-            _tag("SORT_COMPARE", i=i, j=j)
+            _tag("SORT_COMPARE", i=i, j=j, sorted_indices=sorted_so_far)
             if data[j] < data[min_idx]:
                 min_idx = j
-        _tag("SORT_MIN_FOUND", i=i, min_idx=min_idx)
+        _tag("SORT_MIN_FOUND", i=i, min_idx=min_idx, sorted_indices=sorted_so_far)
         if min_idx != i:
             data[i], data[min_idx] = data[min_idx], data[i]
-            _tag("SORT_SWAP", i=i, j=min_idx)
-    _tag("SORT_END")
+        _tag("SORT_SWAP", i=i, j=min_idx, sorted_indices=list(range(i + 1)))
+    _tag("SORT_END", sorted_indices=list(range(n)))
 
 
 def insertion_sort(data: list, _tag) -> None:
-    _tag("SORT_START")
-    for i in range(1, len(data)):
+    n = len(data)
+    _tag("SORT_START", sorted_indices=[])
+    for i in range(1, n):
         key = data[i]
         j = i - 1
         while j >= 0 and data[j] > key:
-            _tag("SORT_COMPARE", i=j, j=j + 1)
+            _tag("SORT_COMPARE", i=j, j=j + 1, sorted_indices=list(range(i)))
             data[j + 1] = data[j]
             j -= 1
         data[j + 1] = key
-        _tag("SORT_INSERT", i=i, j=j + 1)
-    _tag("SORT_END")
+        _tag("SORT_INSERT", i=i, j=j + 1, sorted_indices=list(range(i + 1)))
+    _tag("SORT_END", sorted_indices=list(range(n)))

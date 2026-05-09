@@ -206,13 +206,15 @@ def build_level1_trace(
         aligned, raw_index_map = align_result
 
         # 轉換 TagEvent[] → TraceEvent[]（符合前端 trace.ts 契約）
+        # sorted_until 從 variables 移入 meta，不暴露到 local_vars panel
+        _META_KEYS = {"sorted_indices"}
         trace_events = [
             TraceEvent(
                 tag=event.tag,
-                local_vars=event.variables,
+                local_vars={k: v for k, v in event.variables.items() if k not in _META_KEYS},
                 global_vars={},
                 dataSnapshot=event.dataSnapshot,
-                meta={},
+                meta={k: v for k, v in event.variables.items() if k in _META_KEYS},
             )
             for event in aligned
         ]
