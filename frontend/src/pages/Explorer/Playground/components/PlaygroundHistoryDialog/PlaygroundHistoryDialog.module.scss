@@ -1,0 +1,305 @@
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.quotaHint {
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin-left: 0.25rem;
+}
+
+// ── History list/preview layout ──────────────────────────────────────────────
+
+.historyBody {
+  display: grid;
+  grid-template-columns: 14rem 1fr;
+  min-height: 26rem;
+}
+
+.historyList {
+  border-right: 1px solid var(--border);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.emptyList {
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.historyItem {
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover {
+    background: var(--bg-primary);
+  }
+}
+
+.historyItemSelected {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+.historyItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.historyItemActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.historyItemCode {
+  font-size: 0.625rem;
+  font-family: monospace;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.historyItemDate {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  margin-top: 3px;
+}
+
+.deleteBtn {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+
+  .historyItem:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-danger) 15%, transparent);
+    color: var(--color-danger);
+  }
+}
+
+// ── Preview pane ─────────────────────────────────────────────────────────────
+
+.previewPane {
+  display: flex;
+  flex-direction: column;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.previewCode {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.codeBlock {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+}
+
+.previewFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.previewDate {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+.previewActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.emptyPreview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+// ── Common badges ────────────────────────────────────────────────────────────
+
+.algoBadge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  color: var(--color-primary);
+  text-transform: capitalize;
+  letter-spacing: 0.025rem;
+}
+
+.algoBadgeNone {
+  background: color-mix(in srgb, var(--text-tertiary) 15%, transparent);
+  color: var(--text-tertiary);
+}
+
+.complexityTag {
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  font-family: monospace;
+}
+
+.sourceTag {
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+}
+
+// ── Quota alert mode ─────────────────────────────────────────────────────────
+
+.quotaTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-warning, #f59e0b);
+}
+
+.quotaBody {
+  padding: 1.25rem;
+}
+
+.quotaDesc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
+.quotaList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quotaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.12s, background 0.12s;
+
+  &:hover {
+    border-color: var(--color-danger);
+  }
+}
+
+.quotaItemSelected {
+  border-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+}
+
+.quotaRadio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .quotaItemSelected & {
+    border-color: var(--color-danger);
+  }
+}
+
+.quotaRadioDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-danger);
+}
+
+.quotaItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.quotaItemTop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2px;
+}
+
+.quotaItemCode {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quotaItemDate {
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.quotaFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
