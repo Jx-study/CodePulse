@@ -5,21 +5,18 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 from typing import Callable
 
+from services.task_queue import (
+    STATUS_PENDING,
+    STATUS_RUNNING, 
+    STATUS_COMPLETED, 
+    STATUS_FAILED,
+    STAGE_SYNTAX_CHECK, 
+    STAGE_DONE
+)
+
 TASK_TTL_MINUTES = 5
 CLEANUP_INTERVAL_SECONDS = 60
 MAX_WORKERS = 4
-
-STATUS_PENDING = "pending"
-STATUS_RUNNING = "running"
-STATUS_COMPLETED = "completed"
-STATUS_FAILED = "failed"
-
-STAGE_SYNTAX_CHECK = "syntax_check"
-STAGE_SANDBOX = "sandbox"
-STAGE_ANALYSIS = "analysis"
-STAGE_GEMINI = "gemini"
-STAGE_DONE = "done"
-
 
 class TaskQueue:
     def __init__(self):
