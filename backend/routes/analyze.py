@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from auth_utils import login_required
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def submit():
             "lineno": e.lineno,
         }), 422
 
-    task_id = task_queue.submit(code, wrapped_code)
+    task_id = task_queue.submit(code, wrapped_code, user_id=g.current_user_id)
     return jsonify({"task_id": task_id}), 202
 
 

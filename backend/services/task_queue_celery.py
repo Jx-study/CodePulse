@@ -21,11 +21,15 @@ class CeleryTaskQueue:
         redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
         self._redis = redis_lib.from_url(redis_url, decode_responses=True)
 
-    def submit(self, *args, **kwargs) -> str:
+    def submit(self, *args, user_id: int | None = None, **kwargs) -> str:
         """Submit an analysis task. Always dispatches run_analysis_task; fn routing is not supported."""
         from services.analysis_runner import run_analysis_task  # lazy — breaks circular import
         async_result = run_analysis_task.delay(*args, **kwargs)
-        return async_result.id
+        task_id = async_result.id
+        key = f"task:{task_id}:meta"
+        self._redis.hset(key, mapping={"user_id": str(user_id) if user_id is not None else ""})
+        self._redis.expire(key, PROGRESS_TTL)
+        return task_id
 
     def update_progress(self, task_id: str, stage: str, message: str) -> None:
         key = f"task:{task_id}:progress"
@@ -63,11 +67,15 @@ class CeleryTaskQueue:
             error = str(ar.result) if ar.result else "unknown error"
         elif status == "completed":
             result = ar.result
+        meta = self._redis.hgetall(f"task:{task_id}:meta")
+        raw_uid = meta.get("user_id", "")
+        user_id = int(raw_uid) if raw_uid else None
         return {
             "status": status,
             "progress": progress,
             "result": result,
             "error": error,
+            "user_id": user_id,
         }
 
 

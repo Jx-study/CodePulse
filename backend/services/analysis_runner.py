@@ -1,6 +1,8 @@
 import logging
 import ast as _ast
 import concurrent.futures as _cf
+from database import db
+from models.explorer import ExploreHistory, AnalysisSource
 
 from celery_app import celery_app
 from services.sandbox import run_in_sandbox
@@ -68,6 +70,44 @@ def route_level1_decision(
         return None, "no_template"
 
     return identify_result.algo_name, None
+
+
+def _save_history(
+    task_id: str,
+    code: str,
+    identify_result,
+    final_complexity: str,
+    complexity_source: str,
+    gemini_summary: dict | None,
+) -> None:
+    from services.task_queue import task_queue
+    task = task_queue.get_task(task_id)
+    if task is None:
+        return
+    user_id = task.get("user_id")
+    if user_id is None:
+        return
+
+    source_map = {
+        "gemini":       AnalysisSource.gemini,
+        "ast+bigO":     AnalysisSource.ast_bigO,
+        "ast":          AnalysisSource.ast_bigO,
+        "bigO":         AnalysisSource.ast_bigO,
+        "ast_conflict": AnalysisSource.ast_bigO,
+    }
+    source = source_map.get(complexity_source, AnalysisSource.ast_bigO)
+
+    record = ExploreHistory(
+        user_id=user_id,
+        user_code=code,
+        detected_algorithm=identify_result.algo_name,
+        confidence_score=identify_result.score,
+        time_complexity=final_complexity if final_complexity != "unknown" else None,
+        analysis_source=source,
+        llm_summary=gemini_summary.get("purpose") if gemini_summary else None,
+    )
+    db.session.add(record)
+    db.session.commit()
 
 
 @celery_app.task(bind=True, name="analysis_runner.run_analysis")
@@ -233,6 +273,12 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
             for ev in level1_events
         ]
         have_level1 = True
+
+    # ── Persist history (best-effort, never raises) ──────────────────────────
+    try:
+        _save_history(task_id, code, identify_result, final_complexity, complexity_source, gemini_summary)
+    except Exception:
+        logger.warning("Failed to save explore history for task %s", task_id, exc_info=True)
 
     return {
         "detected_algorithm": identify_result.algo_name,
