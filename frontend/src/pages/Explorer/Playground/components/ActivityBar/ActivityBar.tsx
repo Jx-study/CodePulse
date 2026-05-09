@@ -1,4 +1,3 @@
-// frontend/src/pages/Explorer/components/ActivityBar/ActivityBar.tsx
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -7,7 +6,7 @@ import type { PanelId } from "../DockablePanel";
 import { PANEL_CONFIGS } from "../DockablePanel";
 import styles from "./ActivityBar.module.scss";
 
-// ─── Sortable icon for the right bar ────────────────────────────────────────
+// Sortable icon for the right bar
 interface SortableIconProps {
   panelId: PanelId;
   isActive: boolean; // not collapsed
@@ -48,7 +47,7 @@ export function SortableIcon({ panelId, isActive, onClick }: SortableIconProps) 
   );
 }
 
-// ─── Draggable icon for the left bar docked slot ─────────────────────────────
+// Draggable icon for the left bar docked slot
 interface DraggableDockedIconProps {
   panelId: PanelId;
   isCollapsed: boolean;
@@ -82,7 +81,7 @@ export function DraggableDockedIcon({
   );
 }
 
-// ─── Left bar drop zone ───────────────────────────────────────────────────────
+// Left bar drop zone
 interface LeftDropZoneProps {
   isVisible: boolean;
 }
@@ -98,7 +97,7 @@ export function LeftDropZone({ isVisible }: LeftDropZoneProps) {
   );
 }
 
-// ─── Left Activity Bar ────────────────────────────────────────────────────────
+// Left Activity Bar
 interface LeftActivityBarProps {
   isEditorOpen: boolean;
   onToggleEditor: () => void;
@@ -106,6 +105,8 @@ interface LeftActivityBarProps {
   collapsedPanels: Set<PanelId>;
   onToggleCollapse: (id: PanelId) => void;
   isDragActive: boolean;
+  isHistoryOpen: boolean;
+  onOpenHistory: () => void;
 }
 
 export function LeftActivityBar({
@@ -115,6 +116,8 @@ export function LeftActivityBar({
   collapsedPanels,
   onToggleCollapse,
   isDragActive,
+  isHistoryOpen,
+  onOpenHistory,
 }: LeftActivityBarProps) {
   return (
     <div className={styles.bar}>
@@ -144,11 +147,22 @@ export function LeftActivityBar({
       <LeftDropZone isVisible={isDragActive && leftDockedId === null} />
 
       <div className={styles.spacer} />
+
+      {/* Execution history — bottom-anchored */}
+      <Button
+        variant="unstyled"
+        iconOnly
+        className={`${styles.icon} ${isHistoryOpen ? styles.iconFixedActive : ""}`}
+        style={{ ["--panel-accent" as string]: "var(--color-teal)" }}
+        onClick={onOpenHistory}
+        title="Execution History"
+        icon="clock-rotate-left"
+      />
     </div>
   );
 }
 
-// ─── Right Activity Bar ───────────────────────────────────────────────────────
+// Right Activity Bar
 interface RightActivityBarProps {
   rightOrder: PanelId[];
   leftDockedId: PanelId | null;
