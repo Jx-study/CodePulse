@@ -4,8 +4,7 @@ from auth_utils import login_required
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
-import services.analysis_runner  # noqa: F401 — registers Celery task
-from services.analysis_runner import _run_analysis
+import services.analysis_runner  # noqa: F401 — side-effect import: executes @celery_app.task decorator to register run_analysis_task; do NOT remove
 from services.task_queue import (
     task_queue,
     STATUS_COMPLETED,
