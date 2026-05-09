@@ -164,6 +164,7 @@ export type ImplementationId =
   | "fibonacci"
   | "knapsack"
   | "n-queens"
-  | "topological-sort";
+  | "topological-sort"
+  | "factorial";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;
