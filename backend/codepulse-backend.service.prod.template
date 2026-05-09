@@ -5,9 +5,11 @@ After=postgresql.service
 [Service]
 User=codepulse
 WorkingDirectory=/home/codepulse/projects/CodePulse/backend
+Environment=FLASK_APP=app
 Environment=SANDBOX_SIDECAR_URL=http://127.0.0.1:8080
 Environment=REDIS_URL=redis://127.0.0.1:6379/0
 Environment=USE_CELERY=1
+ExecStartPre=/home/codepulse/projects/CodePulse/backend/deploy-db.sh
 ExecStartPre=/home/codepulse/projects/CodePulse/backend/deploy-sidecar.sh
 ExecStartPre=/home/codepulse/projects/CodePulse/backend/deploy-celery.sh
 ExecStart=/home/codepulse/projects/CodePulse/backend/venv/bin/gunicorn \
