@@ -29,8 +29,6 @@ services:
   sandbox-sidecar:
     build:
       context: ./backend/sandbox_sidecar
-    ports:
-      - "127.0.0.1:8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:

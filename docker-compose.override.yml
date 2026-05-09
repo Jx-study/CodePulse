@@ -1,0 +1,6 @@
+# Dev-only overrides. Applied automatically by `docker compose up` in local development.
+# Do NOT deploy this file to production.
+services:
+  sandbox-sidecar:
+    ports:
+      - "127.0.0.1:8080:8080"  # exposes sidecar to host for direct debugging (curl localhost:8080)
