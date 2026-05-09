@@ -39,12 +39,29 @@ function Get-NeedsBuild {
     return (-not $b -or -not $f)
 }
 
+# ── Build sandbox image (not in compose, must be built separately) ──
+$sandboxImg = docker images -q codepulse-sandbox 2>$null
+if (-not $sandboxImg) {
+    Write-Host "[INFO] codepulse-sandbox image not found, building..."
+    docker build -t codepulse-sandbox -f backend/docker/Dockerfile backend/
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[FAIL] Failed to build codepulse-sandbox"
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+    Write-Host "[OK] codepulse-sandbox built"
+} else {
+    Write-Host "[OK] codepulse-sandbox image exists"
+}
+
 $buildFlag = switch ($choice) {
     "1" {
         Write-Host ">> docker compose up"
         $false
     }
     "2" {
+        Write-Host ">> Rebuilding codepulse-sandbox..."
+        docker build -t codepulse-sandbox -f backend/docker/Dockerfile backend/
         Write-Host ">> docker compose up --build"
         $true
     }
