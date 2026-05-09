@@ -216,7 +216,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         for ev in execution_trace
     ]
     input_data = _extract_input_data(execution_trace)
-    level1_result = build_level1_trace(algo_for_level1, raw_trace_objects, input_data) \
+    level1_result = build_level1_trace(algo_for_level1, raw_trace_objects, input_data, code=code) \
         if algo_for_level1 is not None else None
     raw_trace = execution_trace
     raw_index_map: list = []
