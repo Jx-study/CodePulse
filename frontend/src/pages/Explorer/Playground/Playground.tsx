@@ -639,7 +639,7 @@ function Playground() {
                   title="查看 AI 分析結果"
                   aria-label="查看 AI 分析結果"
                 >
-                  {runStage === "gemini" ? (
+                  {runStage === "analysis" ? (
                     <>
                       <span className={styles.aiBtnDot} /> AI Analysis…
                     </>
