@@ -648,7 +648,7 @@ function Playground() {
                 </Button>
               </div>
 
-              <div className={styles.graphArea}>
+              <div className={`${styles.graphArea} ${activeTab === "animation" ? styles.graphAreaCanvas : ""}`}>
                 {activeTab === "animation" ? (
                   animationSteps.some((s) => (s.elements?.length ?? 0) > 0) ? (
                     <D3Canvas

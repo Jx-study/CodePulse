@@ -164,6 +164,11 @@
   position: relative;
 }
 
+.graphAreaCanvas {
+  background-color: $dark-bg-primary;
+  transition: background-color 0.3s $ease-smooth;
+}
+
 .animationPlaceholder {
   display: flex;
   flex-direction: column;
