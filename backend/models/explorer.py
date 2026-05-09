@@ -55,8 +55,8 @@ class AlgoDivergenceLog(db.Model):
     )
     last_seen_at     = db.Column(
         db.DateTime(timezone=True),
-        server_default=db.func.now(),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(timezone.utc),      # INSERT 時自動填入
+        onupdate=lambda: datetime.now(timezone.utc),     # UPDATE 時自動填入
         nullable=False,
     )
 
