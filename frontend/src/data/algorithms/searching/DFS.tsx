@@ -350,7 +350,7 @@ function runGraphDFS(
     `${realStartId} 已進入 Stack`,
   );
   startSettleFrame.actionTag = TAGS.START;
-  startSettleFrame.variables = {
+  startSettleFrame.local_vars = {
     stack: `[(${realStartId}, 0)]`,
     [`distance[${realStartId}]`]: 0,
   };
@@ -574,7 +574,7 @@ function runGraphDFS(
           { ...linkStatusMap },
         );
         settleFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-        settleFrame.variables = { ...visitFrame.variables };
+        settleFrame.local_vars = { ...visitFrame.local_vars };
 
         appendStackAndResultBoxes(
           settleFrame.elements,
