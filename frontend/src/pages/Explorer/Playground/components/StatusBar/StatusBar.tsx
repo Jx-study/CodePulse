@@ -2,14 +2,13 @@
 import type { RunStage } from "@/types/runStage";
 import styles from "./StatusBar.module.scss";
 
-const STAGE_ORDER: RunStage[] = ["syntax_check", "sandbox", "analysis", "gemini"];
+const STAGE_ORDER: RunStage[] = ["syntax_check", "sandbox", "analysis"];
 
 const STAGE_MESSAGES: Record<RunStage, string> = {
   idle:         "就緒 — 按下 Run 開始分析",
   syntax_check: "語法預檢與沙箱啟動中…",
   sandbox:      "正在模擬執行並計算複雜度…",
-  analysis:     "演算法辨識中…",
-  gemini:       "Gemini 專家仲裁中… （動畫已可播放）",
+  analysis:     "演算法辨識與 AI 仲裁中…",
   done:         "分析完成",
 };
 

@@ -19,7 +19,6 @@ from services.task_queue import (
     task_queue,
     STAGE_SANDBOX,
     STAGE_ANALYSIS,
-    STAGE_GEMINI,
 )
 
 logger = logging.getLogger(__name__)
@@ -102,7 +101,7 @@ def _save_history(
     db.session.commit()
 
 
-@celery_app.task(bind=True, name="analysis_runner.run_analysis")
+@celery_app.task(bind=True, name="analysis_runner.run_analysis", max_retries=1)
 def run_analysis_task(self, code: str, wrapped_code: str, user_id: int | None = None) -> dict:
     """Celery task: analysis main flow. task_id = self.request.id."""
     task_id = self.request.id
@@ -187,7 +186,6 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str, user_id: int | Non
         final_complexity = "unknown"
         complexity_source = "gemini"
 
-    task_queue.update_progress(task_id, STAGE_GEMINI, "Gemini 專家仲裁中…")
     gemini_summary = None
 
     if not gemini_result.is_fallback and gemini_result.summary is not None:
