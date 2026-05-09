@@ -176,28 +176,23 @@ function Playground() {
 
   const totalSteps = isLevel1 ? animationSteps.length : rawTrace.length;
 
-  // Level 1：lineno / local_vars 透過 rawIndexMap 從 rawTrace 取
+  // Level 1：local_vars / callStack 從 rawTrace 取（保留 user 變數）
   // Level 2：直接從 rawTrace 取
   const rawStepForLineno = isLevel1
     ? (rawIndexMap[currentStep] ?? 0)
     : currentStep;
   const currentEvent = rawTrace[rawStepForLineno] ?? null;
-  // Level 1：高亮這個語意步驟覆蓋的所有 rawTrace lineno（從上一步到這一步之間）
-  // Level 2：只高亮當前行
+
+  // Level 1：lineno 來自 level1 trace event 的 meta（由 lineno_mapper 計算，可能是 number 或 number[]）
+  // Level 2：lineno 來自 raw trace event 的 meta（由 sys.settrace 記錄，永遠是 number）
   const activeLineno: number[] | undefined = useMemo(() => {
-    if (!isLevel1 || rawIndexMap.length === 0) {
-      const ln = currentEvent?.meta?.lineno as number | undefined;
-      return ln != null ? [ln] : undefined;
-    }
-    const endIdx = rawIndexMap[currentStep] ?? 0;
-    const startIdx = currentStep > 0 ? (rawIndexMap[currentStep - 1] ?? 0) : 0;
-    const lines = new Set<number>();
-    for (let i = startIdx; i <= endIdx; i++) {
-      const ln = rawTrace[i]?.meta?.lineno as number | undefined;
-      if (ln != null) lines.add(ln);
-    }
-    return lines.size > 0 ? [...lines] : undefined;
-  }, [isLevel1, rawIndexMap, currentStep, currentEvent, rawTrace]);
+    const raw = isLevel1
+      ? trace[currentStep]?.meta?.lineno
+      : currentEvent?.meta?.lineno;
+    if (raw == null) return undefined;
+    const lines = Array.isArray(raw) ? raw : [raw as number];
+    return lines.length > 0 ? lines : undefined;
+  }, [isLevel1, trace, currentStep, currentEvent]);
 
   const globalVars = useMemo(
     () => currentEvent?.global_vars ?? {},
