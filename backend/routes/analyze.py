@@ -38,7 +38,7 @@ def submit():
             "lineno": e.lineno,
         }), 422
 
-    task_id = task_queue.submit(_run_analysis, code, wrapped_code)
+    task_id = task_queue.submit(code, wrapped_code)
     return jsonify({"task_id": task_id}), 202
 
 

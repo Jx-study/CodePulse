@@ -17,7 +17,7 @@ def test_submit_returns_task_id():
         mock_result = MagicMock()
         mock_result.id = "test-task-id-123"
         mock_task.delay.return_value = mock_result
-        task_id = q.submit(mock_task, "code", "wrapped")
+        task_id = q.submit("code", "wrapped")
     assert task_id == "test-task-id-123"
 
 

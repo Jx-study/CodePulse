@@ -21,7 +21,8 @@ class CeleryTaskQueue:
         redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
         self._redis = redis_lib.from_url(redis_url, decode_responses=True)
 
-    def submit(self, fn, *args, **kwargs) -> str:
+    def submit(self, *args, **kwargs) -> str:
+        """Submit an analysis task. Always dispatches run_analysis_task; fn routing is not supported."""
         from services.analysis_runner import run_analysis_task  # lazy — breaks circular import
         async_result = run_analysis_task.delay(*args, **kwargs)
         return async_result.id
