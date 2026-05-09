@@ -25,7 +25,7 @@ class TaskQueue:
         self._executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self._start_cleanup_thread()
 
-    def submit(self, fn: Callable, *args, user_id: int | None = None, **kwargs) -> str:
+    def submit(self, fn: Callable, *args, **kwargs) -> str:
         task_id = str(uuid.uuid4())
         with self._lock:
             self._tasks[task_id] = {
@@ -33,7 +33,6 @@ class TaskQueue:
                 "progress": {"stage": STAGE_SYNTAX_CHECK, "message": "語法預檢與沙箱啟動中…"},
                 "result": None,
                 "error": None,
-                "user_id": user_id,
                 "created_at": datetime.now(timezone.utc),
             }
         self._executor.submit(self._run, task_id, fn, args, kwargs)
@@ -69,7 +68,6 @@ class TaskQueue:
             "progress": task["progress"] if task["status"] == STATUS_RUNNING else None,
             "result": task["result"],
             "error": task["error"],
-            "user_id": task.get("user_id"),
         }
 
     def update_progress(self, task_id: str, stage: str, message: str) -> None:

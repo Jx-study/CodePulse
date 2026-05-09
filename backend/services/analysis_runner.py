@@ -73,21 +73,13 @@ def route_level1_decision(
 
 
 def _save_history(
-    task_id: str,
+    user_id: int,
     code: str,
     identify_result,
     final_complexity: str,
     complexity_source: str,
     gemini_summary: dict | None,
 ) -> None:
-    from services.task_queue import task_queue
-    task = task_queue.get_task(task_id)
-    if task is None:
-        return
-    user_id = task.get("user_id")
-    if user_id is None:
-        return
-
     source_map = {
         "gemini":       AnalysisSource.gemini,
         "ast+bigO":     AnalysisSource.ast_bigO,
@@ -111,13 +103,14 @@ def _save_history(
 
 
 @celery_app.task(bind=True, name="analysis_runner.run_analysis")
-def run_analysis_task(self, code: str, wrapped_code: str) -> dict:
+def run_analysis_task(self, code: str, wrapped_code: str, user_id: int | None = None) -> dict:
     """Celery task: analysis main flow. task_id = self.request.id."""
     task_id = self.request.id
-    return _run_analysis(task_id, code, wrapped_code)
+    return _run_analysis(task_id, code, wrapped_code, user_id=user_id)
 
 
-def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
+def _run_analysis(task_id: str, code: str, wrapped_code: str, user_id: int | None = None) -> dict:
+    logger.info("_run_analysis called with user_id=%s task_id=%s", user_id, task_id)
     task_queue.update_progress(task_id, STAGE_SANDBOX, "正在模擬執行並計算複雜度…")
     sandbox_result = run_in_sandbox(wrapped_code)
 
@@ -274,11 +267,12 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         ]
         have_level1 = True
 
-    # ── Persist history (best-effort, never raises) ──────────────────────────
-    try:
-        _save_history(task_id, code, identify_result, final_complexity, complexity_source, gemini_summary)
-    except Exception:
-        logger.warning("Failed to save explore history for task %s", task_id, exc_info=True)
+    # Persist history (best-effort, never raises)
+    if user_id is not None:
+        try:
+            _save_history(user_id, code, identify_result, final_complexity, complexity_source, gemini_summary)
+        except Exception:
+            logger.warning("Failed to save explore history for task %s", task_id, exc_info=True)
 
     return {
         "detected_algorithm": identify_result.algo_name,
