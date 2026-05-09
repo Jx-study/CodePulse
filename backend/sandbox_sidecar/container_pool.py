@@ -100,14 +100,15 @@ class ContainerPool:
                     self._cond.release()
                     try:
                         new_c = self._spawn()
-                    except RuntimeError:
+                    except Exception:
+                        new_c = None
+                    finally:
                         self._cond.acquire()
-                        # Spawn failed — fall through to wait/timeout path
-                    else:
-                        self._cond.acquire()
+                    if new_c is not None:
                         new_c.in_use = True
                         self.containers.append(new_c)
                         return new_c
+                    # Spawn failed — fall through to wait/timeout path
 
                 if deadline is None:
                     deadline = time.monotonic() + timeout
@@ -169,5 +170,6 @@ class ContainerPool:
             except RuntimeError:
                 break
             with self._cond:
-                self.containers.append(new_c)
-                self._cond.notify_all()
+                if len(self.containers) < self.min_size:
+                    self.containers.append(new_c)
+                    self._cond.notify_all()
