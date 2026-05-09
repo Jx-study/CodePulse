@@ -47,6 +47,9 @@ import TabList from "@/shared/components/Tabs/TabList";
 import { toast } from "@/shared/components/Toast";
 import { LeftActivityBar, RightActivityBar } from "./components/ActivityBar";
 import StatusBar from "./components";
+import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
+import { PlaygroundHistoryDialog } from "./components/PlaygroundHistoryDialog";
+import { listHistory } from "@/services/playgroundHistoryService";
 import type { RunStage } from "@/types/runStage";
 import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
@@ -142,6 +145,15 @@ function Playground() {
 
   // DnD
   const [isDragActive, setIsDragActive] = useState(false);
+
+  // History dialog
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [quotaRecords, setQuotaRecords] = useState<
+    PlaygroundHistoryRecord[] | null
+  >(null);
+  const quotaResolveRef = useRef<
+    ((decision: "proceed" | "skip") => void) | null
+  >(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
@@ -302,6 +314,20 @@ function Playground() {
     if (!code.trim()) {
       toast.error(t("run.emptyCode"));
       return;
+    }
+
+    // Quota gate
+    try {
+      const records = await listHistory();
+      if (records.length >= 5) {
+        await new Promise<"proceed" | "skip">((resolve) => {
+          setQuotaRecords(records);
+          setIsHistoryOpen(true);
+          quotaResolveRef.current = resolve;
+        });
+      }
+    } catch {
+      // quota check failure is non-blocking
     }
 
     // Cancel any in-flight request
@@ -474,6 +500,11 @@ function Playground() {
           collapsedPanels={collapsedPanels}
           onToggleCollapse={handleTogglePanel}
           isDragActive={isDragActive}
+          isHistoryOpen={isHistoryOpen}
+          onOpenHistory={() => {
+            setQuotaRecords(null);
+            setIsHistoryOpen(true);
+          }}
         />
 
         {/* Resizable horizontal layout: left sidebar | canvas | right sidebar */}
@@ -649,7 +680,9 @@ function Playground() {
                 </Button>
               </div>
 
-              <div className={`${styles.graphArea} ${activeTab === "animation" ? styles.graphAreaCanvas : ""}`}>
+              <div
+                className={`${styles.graphArea} ${activeTab === "animation" ? styles.graphAreaCanvas : ""}`}
+              >
                 {activeTab === "animation" ? (
                   animationSteps.some((s) => (s.elements?.length ?? 0) > 0) ? (
                     <D3Canvas
@@ -870,6 +903,37 @@ function Playground() {
         top3Candidates={top3Candidates}
         onApply={(name) => {
           setAppliedAlgo(name);
+        }}
+      />
+      <PlaygroundHistoryDialog
+        isOpen={isHistoryOpen}
+        onClose={() => {
+          setIsHistoryOpen(false);
+          setQuotaRecords(null);
+          quotaResolveRef.current?.("skip");
+          quotaResolveRef.current = null;
+        }}
+        onLoadCode={(loadedCode) => {
+          setCode(loadedCode);
+          // reset run state when loading from history
+          setTrace([]);
+          setRawTrace([]);
+          setRawIndexMap([]);
+          setCallGraph(null);
+          setCfgGraph({});
+          setStdoutEvents([]);
+          setIsTruncated(false);
+          setAiResult(null);
+          setTop3Candidates([]);
+          editorRef.current?.clearErrorMarker();
+          setRunStage("idle");
+          setCurrentStep(0);
+          setIsPlaying(false);
+        }}
+        quotaRecords={quotaRecords}
+        onQuotaResolved={(decision) => {
+          quotaResolveRef.current?.(decision);
+          quotaResolveRef.current = null;
         }}
       />
     </DndContext>
