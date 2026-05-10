@@ -145,6 +145,55 @@ export function usePlaygroundRun({
     }
   }, [code, editorRef, onResetPlayback, onQuotaFull, t]);
 
+  const loadFromHistory = useCallback((record: PlaygroundHistoryRecord) => {
+    setTrace(record.execution_trace);
+    setRawTrace(record.raw_trace);
+    setRawIndexMap(record.raw_index_map);
+    const mappedCallGraph = record.call_graph
+      ? {
+          ...record.call_graph,
+          nodes: (record.call_graph.nodes as any[]).map((n) => ({
+            id: n.id,
+            funcName: n.func_name ?? n.funcName,
+            cfg: n.cfg ?? null,
+          })),
+          edges: ((record.call_graph.edges ?? []) as any[]).map((e) => ({
+            source: e.source,
+            target: e.target,
+            steps: e.steps ?? [],
+            returnSteps: e.return_steps ?? e.returnSteps ?? [],
+          })),
+          root: record.call_graph.root,
+        }
+      : null;
+    setCallGraph(mappedCallGraph);
+    setCfgGraph(record.cfg_graph);
+    setStdoutEvents(record.stdout_events);
+    setIsTruncated(record.is_truncated);
+    setAiResult({
+      detected_algorithm: record.detected_algorithm,
+      confidence_score: record.confidence_score,
+      level1_eligible: record.have_level1,
+      fallback_reason: null,
+      time_complexity: record.time_complexity,
+      analysis_source: record.analysis_source as AiResult["analysis_source"],
+      summary:
+        record.ai_summary || record.ai_feedback
+          ? { purpose: record.ai_summary ?? "", feedback: record.ai_feedback ?? "" }
+          : null,
+      suggestions: [],
+    });
+    setTop3Candidates(record.top3_candidates);
+    setAppliedAlgo(record.detected_algorithm);
+    setDrill({ mode: "call_graph" });
+    setRunStage("done");
+    onResetPlayback();
+  }, [
+    setTrace, setRawTrace, setRawIndexMap, setCallGraph, setCfgGraph,
+    setStdoutEvents, setIsTruncated, setAiResult, setTop3Candidates,
+    setAppliedAlgo, setDrill, setRunStage, onResetPlayback,
+  ]);
+
   return {
     runStage,
     trace,
@@ -164,6 +213,7 @@ export function usePlaygroundRun({
     setIsAlgoDialogOpen,
     handleRun,
     handleEditCode,
+    loadFromHistory,
   };
 }
 
