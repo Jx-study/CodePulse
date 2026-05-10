@@ -246,7 +246,7 @@ export function buildAlgorithmStates(
       moveCountPerStep: buildMoveCountPerStep(steps),
       stackDepthPerStep: buildStackDepthPerStep(steps),
       auxSizePerStep: buildAuxSizePerStep(steps),
-      execTimeMs: benchmarkExecMs(id),
+      execTimeMs: 0,
       benchmarkPoints: [],
       benchmarkByCase: {},
     };

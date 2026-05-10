@@ -150,7 +150,7 @@ export function ComplexityChart({
     CASE_TYPES.some((ct) => (a.benchmarkByCase[ct]?.length ?? 0) < totalExpected),
   );
 
-  if (!algorithms.length || maxSteps === 0) {
+  if (!algorithms.length) {
     return (
       <div className={styles.empty}>
         <p>請先選擇至少一個演算法</p>

@@ -67,6 +67,7 @@ export function MetricsDashboard() {
 
   const isManualCompleted =
     manualSortEnabled &&
+    manualSortMoves > 0 &&
     manualSortData.length > 0 &&
     manualSortData.every((v, i) => v === sortedRef[i]);
 

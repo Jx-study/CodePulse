@@ -119,7 +119,7 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
         ...state,
         maxChartItems: max,
         inputSize: snappedSize,
-        inputData: generateRandomData(snappedSize),
+        inputData: state.inputData.slice(0, snappedSize),
         currentStep: 0,
         playState: "idle",
       };
@@ -222,7 +222,8 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
       return { ...state, speed: action.speed };
     case "TICK": {
       const { maxSteps: cap, stepsToAdvance = 1 } = action;
-      if (state.playState !== "playing" || cap === 0) return state;
+      if (state.playState !== "playing") return state;
+      if (cap === 0) return { ...state, playState: "idle" };
       const next = state.currentStep + stepsToAdvance;
       if (next >= cap) {
         return { ...state, currentStep: cap, playState: "done" };
@@ -248,6 +249,7 @@ function computeMaxSteps(algorithms: LabState["algorithms"]): number {
 export function LabProvider({ children }: { children: ReactNode }) {
   const [reducerState, dispatch] = useReducer(labReducer, initialReducerState);
   const [benchmarkById, setBenchmarkById] = useState<BenchmarkStore>({});
+  const [execTimeMsById, setExecTimeMsById] = useState<Partial<Record<AlgorithmId, number>>>({});
 
   const { selectedIds, inputData, benchmarkKey } = reducerState;
 
@@ -259,6 +261,7 @@ export function LabProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     setBenchmarkById({});
+    setExecTimeMsById({});
     const ids = selectedIds;
     if (ids.length === 0) return;
 
@@ -268,6 +271,12 @@ export function LabProvider({ children }: { children: ReactNode }) {
       });
 
     const runAll = async () => {
+      for (const id of ids) {
+        if (cancelled) return;
+        const ms = benchmarkExecMs(id);
+        setExecTimeMsById((prev) => ({ ...prev, [id]: ms }));
+        await yieldToMain();
+      }
       for (const id of ids) {
         for (const caseType of CASE_TYPES) {
           const points: BenchmarkPoint[] = [];
@@ -302,10 +311,11 @@ export function LabProvider({ children }: { children: ReactNode }) {
   const algorithms = useMemo(() => {
     return baseAlgorithms.map((a) => ({
       ...a,
+      execTimeMs: execTimeMsById[a.id] ?? 0,
       benchmarkPoints: benchmarkById[a.id]?.random ?? [],
       benchmarkByCase: benchmarkById[a.id] ?? {},
     }));
-  }, [baseAlgorithms, benchmarkById]);
+  }, [baseAlgorithms, benchmarkById, execTimeMsById]);
 
   const maxSteps = useMemo(() => computeMaxSteps(algorithms), [algorithms]);
 
