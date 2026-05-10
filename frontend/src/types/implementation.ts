@@ -50,12 +50,14 @@ export type AlgorithmViewMode =
   | "grid"
   | "longest_lte"
   | "shortest_gte";
+/** Sliding window run payload mode (matches ActionBar options). */
+export type SlidingWindowMode = "longest_lte" | "shortest_gte";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
-  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
