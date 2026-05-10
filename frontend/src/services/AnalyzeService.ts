@@ -61,14 +61,13 @@ export async function run(
   code: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
-  lastCodeHash?: string,
 ): Promise<AnalyzeResult> {
   // 1. Submit
   let submitRes: { data: { task_id?: string; duplicate?: boolean } };
   try {
     submitRes = await apiService.post<{ task_id?: string; duplicate?: boolean }>(
       "/api/analyze/submit",
-      { code, ...(lastCodeHash ? { last_code_hash: lastCodeHash } : {}) },
+      { code },
     );
   } catch (err: any) {
     const body = err?.response?.data;

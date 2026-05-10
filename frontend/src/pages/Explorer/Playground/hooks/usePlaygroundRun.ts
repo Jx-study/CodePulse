@@ -63,14 +63,12 @@ export function usePlaygroundRun({
       return;
     }
 
-    // Quota gate + hash 取得 
-    let lastCodeHash: string | undefined;
+    // Quota gate
     try {
       const records = await listHistory();
       if (records.length >= 5) {
         await onQuotaFull(records);
       }
-      lastCodeHash = records[0]?.code_hash;
     } catch {
       // If quota check fails, continue with run anyway
     }
@@ -98,7 +96,6 @@ export function usePlaygroundRun({
         code,
         (stage) => setRunStage(stage),
         controller.signal,
-        lastCodeHash,
       );
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
