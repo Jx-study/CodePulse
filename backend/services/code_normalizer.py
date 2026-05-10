@@ -1,6 +1,7 @@
 import io
 import tokenize
 import re
+import black
 
 
 def normalize_code(code: str) -> str:
@@ -20,7 +21,13 @@ def normalize_code(code: str) -> str:
     )
     # Collapse 2+ consecutive blank lines into 1
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
-    return cleaned.strip()
+    cleaned = cleaned.strip()
+    try:
+        final_code = black.format_str(cleaned, mode=black.Mode())
+    except black.InvalidInput:
+        final_code = cleaned
+
+    return final_code.strip()
 
 
 def _strip_comments_and_docstrings(code: str) -> str:

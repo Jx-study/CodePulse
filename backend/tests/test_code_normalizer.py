@@ -78,3 +78,8 @@ def test_string_literal_hash_not_removed():
 def test_empty_code_returns_empty():
     assert normalize_code("") == ""
     assert normalize_code("   \n  ") == ""
+
+
+def test_invalid_python_falls_back_to_cleaned_code():
+    result = normalize_code("x =\n")
+    assert result == "x ="

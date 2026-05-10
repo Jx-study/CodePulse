@@ -166,33 +166,82 @@ class TestExploreHistoryHash:
 
 class TestDuplicateDetection:
     def test_submit_with_matching_hash_returns_duplicate(self, client, app, auth_headers):
-        """送出 last_code_hash 與 normalized code 的 hash 相符 → 回傳 duplicate=true"""
+        """送出與既有 history 相同的 normalized code → 回傳 duplicate=true"""
+        from models.explorer import ExploreHistory, AnalysisSource
+        from database import db
+
         code = "def foo():\n    return 1\n"
         code_with_comment = "def foo():\n    # added comment\n    return 1\n"
-        expected_hash = hashlib.sha256(normalize_code(code).encode()).hexdigest()
+        with app.app_context():
+            db.session.add(ExploreHistory(
+                explore_id=11,
+                user_id=1,
+                user_code=code,
+                detected_algorithm="linear_search",
+                confidence_score=0.9,
+                time_complexity="O(n)",
+                analysis_source=AnalysisSource.ast_bigO,
+            ))
+            db.session.commit()
 
         res = _authed(
             client, auth_headers, 'post', '/api/analyze/submit',
-            json={"code": code_with_comment, "last_code_hash": expected_hash},
+            json={"code": code_with_comment},
+        )
+        assert res.status_code == 200
+        data = res.get_json()
+        assert data.get("duplicate") is True
+
+    def test_submit_matches_non_latest_history_returns_duplicate(self, client, app, auth_headers):
+        """Duplicate detection checks all existing history, not only the latest record."""
+        from models.explorer import ExploreHistory, AnalysisSource
+        from database import db
+
+        with app.app_context():
+            db.session.add_all([
+                ExploreHistory(
+                    explore_id=21,
+                    user_id=1,
+                    user_code="x = 1\n",
+                    detected_algorithm="linear_search",
+                    confidence_score=0.9,
+                    time_complexity="O(n)",
+                    analysis_source=AnalysisSource.ast_bigO,
+                ),
+                ExploreHistory(
+                    explore_id=22,
+                    user_id=1,
+                    user_code="def target():\n    return 42\n",
+                    detected_algorithm="linear_search",
+                    confidence_score=0.9,
+                    time_complexity="O(n)",
+                    analysis_source=AnalysisSource.ast_bigO,
+                ),
+            ])
+            db.session.commit()
+
+        res = _authed(
+            client, auth_headers, 'post', '/api/analyze/submit',
+            json={"code": "def target():\n    # old history match\n    return 42\n"},
         )
         assert res.status_code == 200
         data = res.get_json()
         assert data.get("duplicate") is True
 
     def test_submit_with_non_matching_hash_proceeds_normally(self, client, app, auth_headers):
-        """last_code_hash 不符 → 正常建立 task"""
+        """history 沒有相同 code → 正常建立 task"""
         res = _authed(
             client, auth_headers, 'post', '/api/analyze/submit',
-            json={"code": "x = 1\n", "last_code_hash": "deadbeef"},
+            json={"code": "unique_value_for_submit = 987654\n"},
         )
         assert res.status_code == 202
         assert "task_id" in res.get_json()
 
     def test_submit_without_hash_proceeds_normally(self, client, app, auth_headers):
-        """不帶 last_code_hash → 正常建立 task"""
+        """沒有相同 history → 正常建立 task"""
         res = _authed(
             client, auth_headers, 'post', '/api/analyze/submit',
-            json={"code": "x = 1\n"},
+            json={"code": "another_unique_value_for_submit = 123456\n"},
         )
         assert res.status_code == 202
         assert "task_id" in res.get_json()

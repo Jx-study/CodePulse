@@ -3,6 +3,7 @@ import json
 import logging
 from flask import Blueprint, jsonify, request, g, Response, stream_with_context
 from auth_utils import login_required
+from models.explorer import ExploreHistory
 from services.code_normalizer import normalize_code
 
 logger = logging.getLogger(__name__)
@@ -28,13 +29,8 @@ def submit():
         return jsonify({"error": "missing field: code"}), 400
 
     code = data["code"]
-    last_code_hash = data.get("last_code_hash")
-
-    if last_code_hash:
-        normalized = normalize_code(code)
-        current_hash = hashlib.sha256(normalized.encode()).hexdigest() if normalized else None
-        if current_hash and current_hash == last_code_hash:
-            return jsonify({"duplicate": True}), 200
+    if _matches_existing_history(code, g.current_user_id):
+        return jsonify({"duplicate": True}), 200
 
     try:
         wrapped_code, _ = precheck_and_wrap(code)
@@ -49,6 +45,29 @@ def submit():
 
     task_id = task_queue.submit(code, wrapped_code, user_id=g.current_user_id)
     return jsonify({"task_id": task_id}), 202
+
+
+def _matches_existing_history(code: str, user_id: int) -> bool:
+    normalized = normalize_code(code)
+    if not normalized:
+        return False
+
+    current_hash = hashlib.sha256(normalized.encode()).hexdigest()
+    history_codes = (
+        ExploreHistory.query
+        .with_entities(ExploreHistory.user_code)
+        .filter_by(user_id=user_id)
+        .all()
+    )
+    for (history_code,) in history_codes:
+        history_normalized = normalize_code(history_code)
+        if not history_normalized:
+            continue
+        history_hash = hashlib.sha256(history_normalized.encode()).hexdigest()
+        if history_hash == current_hash:
+            return True
+
+    return False
 
 
 @analyze_bp.route('/status/<task_id>', methods=['GET'])
