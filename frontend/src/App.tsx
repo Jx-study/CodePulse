@@ -29,7 +29,7 @@ import ForgotPasswordPage from "./pages/Authentication/ForgotPassword";
 import ResetPasswordPage from "./pages/Authentication/ResetPassword";
 import OAuthCallback from "./pages/Authentication/OAuthCallback";
 import Lab from "./pages/Explorer/Lab";
-import Playground from "./pages/Explorer/Playground";
+import Playground from "./pages/Explorer/Playground/Playground";
 import About from "./pages/About/About";
 const Tutorial = lazy(() => import("./pages/Tutorial/Tutorial"));
 const Practice = lazy(() => import("./pages/Practice/Practice"));

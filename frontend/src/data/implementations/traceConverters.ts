@@ -53,17 +53,24 @@ function sortingOverrideMap(tag: string, e: TraceEvent): Record<number, Status> 
 }
 
 export function sortingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
-  return trace.map((event, idx) => ({
-    stepNumber: idx + 1,
-    description: SORT_DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
-    elements: createSortingFrame(
-      event.dataSnapshot,
-      sortingOverrideMap(event.tag, event),
-    ),
-    actionTag: event.tag,
-    local_vars: event.local_vars,
-    global_vars: event.global_vars,
-  }));
+  return trace.map((event, idx) => {
+    const sortedIndices = new Set<number>(
+      (event.meta?.sorted_indices as number[] | undefined) ?? [],
+    );
+
+    return {
+      stepNumber: idx + 1,
+      description: SORT_DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
+      elements: createSortingFrame(
+        event.dataSnapshot,
+        sortingOverrideMap(event.tag, event),
+        sortedIndices,
+      ),
+      actionTag: event.tag,
+      local_vars: event.local_vars,
+      global_vars: event.global_vars,
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -163,6 +170,14 @@ export const ALGORITHM_TO_CONVERTER_KEY: Record<string, string> = {
   insertion_sort: "sorting",
   linear_search: "searching",
   binary_search: "searching",
+};
+
+export const ALGORITHM_TO_IMPL_KEY: Record<string, string> = {
+  bubble_sort: "bubbleSort",
+  selection_sort: "selectionSort",
+  insertion_sort: "insertionSort",
+  linear_search: "binarySearch",
+  binary_search: "binarySearch",
 };
 
 // ---------------------------------------------------------------------------

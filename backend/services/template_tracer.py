@@ -16,6 +16,7 @@ try:
     from services.reference_implementations.searching import (
         linear_search, binary_search,
     )
+    from services.lineno_mapper import map_tags_to_linenos
 except ImportError:
     from reference_implementations.sorting import (
         bubble_sort, selection_sort, insertion_sort,
@@ -23,6 +24,7 @@ except ImportError:
     from reference_implementations.searching import (
         linear_search, binary_search,
     )
+    from lineno_mapper import map_tags_to_linenos
 
 logger = logging.getLogger(__name__)
 
@@ -184,6 +186,7 @@ def build_level1_trace(
     user_raw_trace: list,
     input_data,
     target=None,
+    code: str = "",
 ):
     """
     成功 → 回傳 (trace_events: TraceEvent[], raw_index_map: list[int])
@@ -205,14 +208,22 @@ def build_level1_trace(
 
         aligned, raw_index_map = align_result
 
+        # 用 AST 把每個 tag 對應到 user code 的行號
+        tag_to_lineno = map_tags_to_linenos(code, algo_name) if code else {}
+
         # 轉換 TagEvent[] → TraceEvent[]（符合前端 trace.ts 契約）
+        # sorted_until 從 variables 移入 meta，不暴露到 local_vars panel
+        _META_KEYS = {"sorted_indices"}
         trace_events = [
             TraceEvent(
                 tag=event.tag,
-                local_vars=event.variables,
+                local_vars={k: v for k, v in event.variables.items() if k not in _META_KEYS},
                 global_vars={},
                 dataSnapshot=event.dataSnapshot,
-                meta={},
+                meta={
+                    **{k: v for k, v in event.variables.items() if k in _META_KEYS},
+                    "lineno": tag_to_lineno.get(event.tag),
+                },
             )
             for event in aligned
         ]

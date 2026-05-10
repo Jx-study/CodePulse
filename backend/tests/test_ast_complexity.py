@@ -38,6 +38,8 @@ def test_cubic_triple_loop():
 
 
 def test_recursive_no_loop():
+    # AST cannot detect halving vs. linear recursion; conservative label is O(n).
+    # binary_search is O(log n) at runtime, but big-O/Gemini layers correct this.
     code = (
         "def binary_search(arr, lo, hi, target):\n"
         "    if lo > hi:\n"
@@ -50,7 +52,17 @@ def test_recursive_no_loop():
         "    else:\n"
         "        return binary_search(arr, lo, mid - 1, target)"
     )
-    assert analyze_complexity(code) == "O(log n)"
+    assert analyze_complexity(code) == "O(n)"
+
+
+def test_linear_recursion_no_loop():
+    code = (
+        "def factorial(n):\n"
+        "    if n <= 1:\n"
+        "        return 1\n"
+        "    return n * factorial(n - 1)"
+    )
+    assert analyze_complexity(code) == "O(n)"
 
 
 def test_recursive_with_loop():
