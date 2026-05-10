@@ -61,13 +61,14 @@ export async function run(
   code: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
+  options: { saveHistory?: boolean } = {},
 ): Promise<AnalyzeResult> {
   // 1. Submit
   let submitRes: { data: { task_id?: string; duplicate?: boolean } };
   try {
     submitRes = await apiService.post<{ task_id?: string; duplicate?: boolean }>(
       "/api/analyze/submit",
-      { code },
+      { code, save_history: options.saveHistory ?? true },
     );
   } catch (err: any) {
     const body = err?.response?.data;

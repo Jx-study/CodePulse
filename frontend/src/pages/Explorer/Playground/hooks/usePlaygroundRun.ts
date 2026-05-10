@@ -63,11 +63,14 @@ export function usePlaygroundRun({
       return;
     }
 
+    let saveHistory = true;
+
     // Quota gate
     try {
       const records = await listHistory();
       if (records.length >= 5) {
-        await onQuotaFull(records);
+        const decision = await onQuotaFull(records);
+        saveHistory = decision === "proceed";
       }
     } catch {
       // If quota check fails, continue with run anyway
@@ -96,6 +99,7 @@ export function usePlaygroundRun({
         code,
         (stage) => setRunStage(stage),
         controller.signal,
+        { saveHistory },
       );
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
