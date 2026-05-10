@@ -3,7 +3,6 @@ import {
   useState,
   useRef,
   useCallback,
-  useMemo,
   useEffect,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -161,8 +160,8 @@ function Playground() {
   const {
     animationSteps,
     allStepsElements,
-    isLevel1,
     totalSteps,
+    activeLineno,
     globalVars,
     localVars,
     callStack,
@@ -175,19 +174,6 @@ function Playground() {
     activeTab,
     currentStep,
   });
-
-  // activeLineno: level1 reads from semantic trace; level2 reads from rawTrace directly
-  const activeLineno: number[] | undefined = useMemo(() => {
-    if (isLevel1) {
-      const raw = trace[currentStep]?.meta?.lineno;
-      if (raw == null) return undefined;
-      const lines = Array.isArray(raw) ? raw : [raw as number];
-      return lines.length > 0 ? lines : undefined;
-    }
-    const rawStep = rawIndexMap.length > 0 ? (rawIndexMap[currentStep] ?? currentStep) : currentStep;
-    const ln = rawTrace[rawStep]?.meta?.lineno as number | undefined;
-    return ln != null ? [ln] : undefined;
-  }, [isLevel1, trace, rawTrace, rawIndexMap, currentStep]);
 
   // Keep playback ref in sync
   useEffect(() => {
