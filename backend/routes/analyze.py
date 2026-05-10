@@ -29,6 +29,7 @@ def submit():
         return jsonify({"error": "missing field: code"}), 400
 
     code = data["code"]
+    save_history = data.get("save_history", True) is not False
     if _matches_existing_history(code, g.current_user_id):
         return jsonify({"duplicate": True}), 200
 
@@ -43,7 +44,12 @@ def submit():
             "lineno": e.lineno,
         }), 422
 
-    task_id = task_queue.submit(code, wrapped_code, user_id=g.current_user_id)
+    task_id = task_queue.submit(
+        code,
+        wrapped_code,
+        user_id=g.current_user_id,
+        save_history=save_history,
+    )
     return jsonify({"task_id": task_id}), 202
 
 

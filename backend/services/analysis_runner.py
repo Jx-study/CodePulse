@@ -123,13 +123,34 @@ def _save_history(
 
 
 @celery_app.task(bind=True, name="analysis_runner.run_analysis", max_retries=1)
-def run_analysis_task(self, code: str, wrapped_code: str, user_id: int | None = None) -> dict:
+def run_analysis_task(
+    self,
+    code: str,
+    wrapped_code: str,
+    user_id: int | None = None,
+    save_history: bool | None = None,
+) -> dict:
     """Celery task: analysis main flow. task_id = self.request.id."""
     task_id = self.request.id
-    return _run_analysis(task_id, code, wrapped_code, user_id=user_id)
+    if save_history is None:
+        headers = getattr(self.request, "headers", None) or {}
+        save_history = headers.get("save_history", True) is not False
+    return _run_analysis(
+        task_id,
+        code,
+        wrapped_code,
+        user_id=user_id,
+        save_history=save_history,
+    )
 
 
-def _run_analysis(task_id: str, code: str, wrapped_code: str, user_id: int | None = None) -> dict:
+def _run_analysis(
+    task_id: str,
+    code: str,
+    wrapped_code: str,
+    user_id: int | None = None,
+    save_history: bool = True,
+) -> dict:
     logger.info("_run_analysis called with user_id=%s task_id=%s", user_id, task_id)
     task_queue.update_progress(task_id, STAGE_SANDBOX, "正在模擬執行並計算複雜度…")
     sandbox_result = run_in_sandbox(wrapped_code)
@@ -288,7 +309,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str, user_id: int | Non
         have_level1 = True
 
     # Persist history (best-effort, never raises)
-    if user_id is not None:
+    if user_id is not None and save_history:
         try:
             _save_history(
                 user_id, code, identify_result, final_complexity, complexity_source, gemini_summary,

@@ -245,3 +245,18 @@ class TestDuplicateDetection:
         )
         assert res.status_code == 202
         assert "task_id" in res.get_json()
+
+    def test_submit_forwards_save_history_false(self, client, auth_headers):
+        """save_history=false should reach the task queue so quota skip does not persist."""
+        with patch("routes.analyze.task_queue.submit", return_value="tid-save-skip") as mock_submit:
+            res = _authed(
+                client, auth_headers, 'post', '/api/analyze/submit',
+                json={
+                    "code": "unique_value_for_save_history_false = 424242\n",
+                    "save_history": False,
+                },
+            )
+
+        assert res.status_code == 202
+        assert res.get_json()["task_id"] == "tid-save-skip"
+        assert mock_submit.call_args.kwargs["save_history"] is False

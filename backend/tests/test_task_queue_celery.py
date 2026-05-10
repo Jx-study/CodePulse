@@ -17,9 +17,27 @@ def test_submit_returns_task_id():
     with patch("services.analysis_runner.run_analysis_task") as mock_task:
         mock_result = MagicMock()
         mock_result.id = "test-task-id-123"
-        mock_task.delay.return_value = mock_result
+        mock_task.apply_async.return_value = mock_result
         task_id = q.submit("code", "wrapped")
     assert task_id == "test-task-id-123"
+    mock_task.apply_async.assert_called_once_with(
+        args=("code", "wrapped"),
+        kwargs={"user_id": None, "save_history": True},
+    )
+
+
+def test_submit_forwards_save_history_false_as_task_kwarg():
+    q = make_queue()
+    with patch("services.analysis_runner.run_analysis_task") as mock_task:
+        mock_result = MagicMock()
+        mock_result.id = "test-task-id-456"
+        mock_task.apply_async.return_value = mock_result
+        task_id = q.submit("code", "wrapped", user_id=7, save_history=False)
+    assert task_id == "test-task-id-456"
+    mock_task.apply_async.assert_called_once_with(
+        args=("code", "wrapped"),
+        kwargs={"user_id": 7, "save_history": False},
+    )
 
 
 def test_update_progress_writes_to_redis():
@@ -36,6 +54,18 @@ def test_update_progress_writes_to_redis():
         channel, payload = mock_publish.call_args.args
         assert channel == "task:tid-1:events"
         assert json.loads(payload) == {"stage": "sandbox", "message": "執行中", "status": "running"}
+
+
+def test_update_progress_done_does_not_publish_terminal_completed():
+    import json
+    q = make_queue()
+    with patch.object(q._redis, "hset"), \
+         patch.object(q._redis, "expire"), \
+         patch.object(q._redis, "publish") as mock_publish:
+        q.update_progress("tid-1", "done", "Done")
+
+    _, payload = mock_publish.call_args.args
+    assert json.loads(payload) == {"stage": "done", "message": "Done", "status": "running"}
 
 
 def test_get_status_pending():
@@ -219,6 +249,17 @@ def test_eager_get_task_completed_returns_result_dict(eager_queue):
     assert isinstance(task["result"], dict)
     assert "detected_algorithm" in task["result"]
     assert "execution_trace" in task["result"]
+
+
+def test_eager_submit_save_history_false_skips_persistence(eager_queue):
+    patches = _io_patches()
+    with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6], \
+         patch("services.analysis_runner._save_history") as mock_save_history:
+        task_id = eager_queue.submit(_SIMPLE_CODE, _SIMPLE_WRAPPED, user_id=1, save_history=False)
+
+    task = eager_queue.get_task(task_id)
+    assert task["status"] == "completed"
+    mock_save_history.assert_not_called()
 
 
 def test_eager_get_task_failed_when_sandbox_errors(eager_queue):
