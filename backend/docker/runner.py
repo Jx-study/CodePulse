@@ -13,6 +13,7 @@ import io
 import json
 import os
 import sys
+import traceback as _traceback
 from tracer import run_trace
 from cfg_builder import build_cfg, build_module_cfg
 
@@ -95,7 +96,11 @@ def main():
         _real_stdout.write(json.dumps(output) + "\n")
 
     except Exception as e:
-        _real_stdout.write(json.dumps({"error": f"{type(e).__name__}: {e}"}) + "\n")
+        tb = _traceback.extract_tb(e.__traceback__)
+        # Find the innermost frame that belongs to user code (exec'd as "<string>")
+        user_frame = next((f for f in reversed(tb) if f.filename == "<string>"), None)
+        error_lineno = user_frame.lineno if user_frame else (tb[-1].lineno if tb else None)
+        _real_stdout.write(json.dumps({"error": f"{type(e).__name__}: {e}", "lineno": error_lineno}) + "\n")
         sys.exit(1)
 
 
