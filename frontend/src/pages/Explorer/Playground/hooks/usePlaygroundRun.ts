@@ -63,17 +63,19 @@ export function usePlaygroundRun({
       return;
     }
 
-    // ── Quota gate ───────────────────────────────────────────────────────────
+    // Quota gate + hash 取得 
+    let lastCodeHash: string | undefined;
     try {
       const records = await listHistory();
       if (records.length >= 5) {
         await onQuotaFull(records);
       }
+      lastCodeHash = records[0]?.code_hash;
     } catch {
       // If quota check fails, continue with run anyway
     }
 
-    // ── Cancel any in-flight request ─────────────────────────────────────────
+    // Cancel any in-flight request
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -96,6 +98,7 @@ export function usePlaygroundRun({
         code,
         (stage) => setRunStage(stage),
         controller.signal,
+        lastCodeHash,
       );
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
@@ -113,6 +116,9 @@ export function usePlaygroundRun({
       setRunStage("idle");
       if (e instanceof AnalyzeError) {
         switch (e.type) {
+          case "duplicate_code":
+            toast.info(t("run.duplicateCode"));
+            break;
           case "empty_code":
             toast.error(t("run.emptyCode"));
             break;

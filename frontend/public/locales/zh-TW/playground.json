@@ -14,6 +14,7 @@
     "runtimeRecursionError": "遞迴層數超過上限。",
     "poolExhausted": "伺服器繁忙，請稍後再試。",
     "analysisFailed": "分析失敗，請再試一次。",
-    "truncated": "輸出可能已截斷，已達 trace 上限。"
+    "truncated": "輸出可能已截斷，已達 trace 上限。",
+    "duplicateCode": "此程式碼與上次提交相同。"
   }
 }

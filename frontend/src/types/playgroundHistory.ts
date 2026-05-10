@@ -22,4 +22,5 @@ export interface PlaygroundHistoryRecord {
   top3_candidates: AlgoCandidate[];
   ai_summary: string | null;
   ai_feedback: string | null;
+  code_hash?: string;
 }

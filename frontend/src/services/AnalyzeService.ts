@@ -25,6 +25,7 @@ export type AnalyzeErrorType =
   | "runtime_error"
   | "pool_exhausted"
   | "analysis_failed"
+  | "duplicate_code"
   | "unknown";
 
 export class AnalyzeError extends Error {
@@ -60,13 +61,14 @@ export async function run(
   code: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
+  lastCodeHash?: string,
 ): Promise<AnalyzeResult> {
   // 1. Submit
-  let submitRes: { data: { task_id: string } };
+  let submitRes: { data: { task_id?: string; duplicate?: boolean } };
   try {
-    submitRes = await apiService.post<{ task_id: string }>(
+    submitRes = await apiService.post<{ task_id?: string; duplicate?: boolean }>(
       "/api/analyze/submit",
-      { code },
+      { code, ...(lastCodeHash ? { last_code_hash: lastCodeHash } : {}) },
     );
   } catch (err: any) {
     const body = err?.response?.data;
@@ -84,7 +86,12 @@ export async function run(
     }
     throw err;
   }
-  const taskId = submitRes.data.task_id;
+
+  if (submitRes.data.duplicate) {
+    throw new AnalyzeError("duplicate_code", "duplicate");
+  }
+
+  const taskId = submitRes.data.task_id!;
 
   // 2. Stream progress via SSE
   return streamProgress(taskId, onProgress, signal);
