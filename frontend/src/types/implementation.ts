@@ -72,6 +72,7 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number };
 
 export interface BaseActionBarProps {

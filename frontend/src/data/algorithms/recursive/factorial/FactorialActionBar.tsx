@@ -20,7 +20,7 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
     const n = parseInt(nValue, 10);
     if (!isNaN(n)) {
       // 利用 onRun 傳遞自訂的 payload (n)
-      onRun({ type: "factorial" as any, n } as any);
+      onRun({ type: "factorial", n });
     }
   };
 
