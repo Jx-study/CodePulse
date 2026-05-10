@@ -104,47 +104,184 @@ export const DataRow: React.FC<DataRowProps> = ({
 
       <div className={styles.settingItem}>
         <label className={styles.smallLabel}>隨機筆數:</label>
-        <Tooltip content={maxNodes !== undefined ? `設定隨機生成的資料筆數，上限為 ${maxNodes}` : "設定隨機生成的資料筆數"}>
-        <Input
-          type="number"
-          value={randomCountInput}
-          min={DATA_LIMITS.MIN_RANDOM_COUNT}
-          max={maxNodes}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setRandomCountInput(e.target.value)
+        <Tooltip
+          content={
+            maxNodes !== undefined
+              ? `設定隨機生成的資料筆數，上限為 ${maxNodes}`
+              : "設定隨機生成的資料筆數"
           }
-          onBlur={() => {
-            const num = Number(randomCountInput);
-            if (isNaN(num) || randomCountInput.trim() === "") {
-              setRandomCountInput(String(randomCount));
-            } else if (num < 0) {
-              setRandomCountInput(String(randomCount));
-            } else {
-              if (maxNodes !== undefined && num > maxNodes) {
-                toast.warning(`隨機筆數上限為 ${maxNodes}`);
+        >
+          <Input
+            type="number"
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={maxNodes}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setRandomCountInput(e.target.value)
+            }
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                setRandomCountInput(String(randomCount));
+              } else if (num < 0) {
+                setRandomCountInput(String(randomCount));
+              } else {
+                if (maxNodes !== undefined && num > maxNodes) {
+                  toast.warning(`隨機筆數上限為 ${maxNodes}`);
+                }
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  maxNodes ?? num,
+                );
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onMaxNodesChange?.(v);
               }
-              const v = Math.min(
-                Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                maxNodes ?? num,
-              );
-              setRandomCount(v);
-              setRandomCountInput(String(v));
-              onMaxNodesChange?.(v);
-            }
-          }}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter") {
-              (e.target as HTMLInputElement).blur();
-            }
-          }}
-          className={`${styles.input} ${styles.valueInput}`}
-          disabled={disabled}
-          fullWidth={false}
-          aria-label="Random count"
-        />
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            className={`${styles.input} ${styles.valueInput}`}
+            disabled={disabled}
+            fullWidth={false}
+            aria-label="Random count"
+          />
         </Tooltip>
       </div>
     </>
+  );
+};
+
+export interface TrieLoaderModalProps {
+  show: boolean;
+  onClose: () => void;
+  onLoad: (data: string) => void;
+  maxWords?: number; // 預設限制載入筆數，避免樹狀圖過度龐大
+}
+
+const TRIE_DEFAULTS = {
+  inputLabel: "單字清單 (支援逗號、換行或空白分隔)",
+  defaultInput: "app\napple\napply\nape\nbat\nball\ncat\ncare",
+  placeholder: "請輸入英文單字，例如:\napple\nbanana\ncat",
+};
+
+export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
+  show,
+  onClose,
+  onLoad,
+  maxWords = 20,
+}) => {
+  // 記錄已確認與草稿狀態，保持表單的取消/重設體驗
+  const [committedInput, setCommittedInput] = useState(
+    TRIE_DEFAULTS.defaultInput,
+  );
+  const [draftInput, setDraftInput] = useState(TRIE_DEFAULTS.defaultInput);
+
+  useEffect(() => {
+    if (show) {
+      setDraftInput(committedInput);
+    }
+  }, [show, committedInput]);
+
+  const handleLoad = () => {
+    if (!draftInput.trim()) {
+      toast.warning("請輸入至少一個單字！");
+      return;
+    }
+
+    // 1. 初步切割字串：支援換行、空白與逗號分隔
+    const rawWords = draftInput.split(/[\s,]+/);
+
+    // 2. 驗證與清洗：檢查是否包含數字或特殊符號
+    const invalidWords: string[] = [];
+    const validWords: string[] = [];
+
+    for (const w of rawWords) {
+      if (!w) continue;
+
+      // 檢查是否只包含英文字母 (a-z, A-Z)
+      if (!/^[a-zA-Z]+$/.test(w)) {
+        invalidWords.push(w);
+      } else {
+        validWords.push(w.toLowerCase());
+      }
+    }
+
+    // 提示非法單字，但防呆不中斷，引導使用者修正
+    if (invalidWords.length > 0) {
+      toast.warning(
+        `字典樹僅支援英文字母，以下單字包含數字或特殊符號已自動忽略：\n${invalidWords.slice(0, 5).join(", ")}${invalidWords.length > 5 ? "..." : ""}`,
+      );
+    }
+
+    // 3. 去除重複單字 (Set)
+    const uniqueWords = Array.from(new Set(validWords));
+
+    if (uniqueWords.length === 0) {
+      toast.warning("沒有找到合法的英文單字，請重新輸入！");
+      return;
+    }
+
+    // 4. 筆數上限防護
+    let finalWords = uniqueWords;
+    if (finalWords.length > maxWords) {
+      toast.warning(
+        `為維持視覺化效果，已自動截取前 ${maxWords} 筆不重複單字。`,
+      );
+      finalWords = finalWords.slice(0, maxWords);
+    }
+
+    // 更新確認狀態並送出字串 (以空白分隔傳給外層 onLoadData)
+    const outputString = finalWords.join(" ");
+    setCommittedInput(draftInput);
+    onLoad(`TRIE:${outputString}`);
+    onClose();
+  };
+
+  return (
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
+      contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
+      title="自定義 Trie 單字清單"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
+            取消
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            確認載入
+          </Button>
+        </>
+      }
+    >
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>{TRIE_DEFAULTS.inputLabel}</label>
+        <Textarea
+          value={draftInput}
+          onChange={(e) => setDraftInput(e.target.value)}
+          rows={8}
+          className={styles.modalGraphTextarea}
+          placeholder={TRIE_DEFAULTS.placeholder}
+        />
+        <span style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+          * 系統將自動轉換為小寫，並過濾重複單字與特殊符號。上限建議 {maxWords}{" "}
+          筆。
+        </span>
+      </div>
+    </Dialog>
   );
 };
 
@@ -204,12 +341,18 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   edgeValidator,
 }) => {
   const defaults = isWeighted ? WEIGHTED_DEFAULTS : UNWEIGHTED_DEFAULTS;
-  const resolvedValidator = edgeValidator ?? (isWeighted ? weightedEdgeValidator : unweightedEdgeValidator);
+  const resolvedValidator =
+    edgeValidator ??
+    (isWeighted ? weightedEdgeValidator : unweightedEdgeValidator);
 
   const [committedNodeCount, setCommittedNodeCount] = useState("6");
-  const [committedEdgeInput, setCommittedEdgeInput] = useState(defaults.defaultEdgeInput);
+  const [committedEdgeInput, setCommittedEdgeInput] = useState(
+    defaults.defaultEdgeInput,
+  );
   const [draftNodeCount, setDraftNodeCount] = useState("6");
-  const [draftEdgeInput, setDraftEdgeInput] = useState(defaults.defaultEdgeInput);
+  const [draftEdgeInput, setDraftEdgeInput] = useState(
+    defaults.defaultEdgeInput,
+  );
 
   useEffect(() => {
     if (show) {
@@ -280,7 +423,12 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
           <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
             確認載入
           </Button>
         </>
@@ -298,9 +446,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
         />
       </div>
       <div className={styles.modalFieldColumn}>
-        <label className={styles.modalLabel}>
-          {defaults.edgeLabel}
-        </label>
+        <label className={styles.modalLabel}>{defaults.edgeLabel}</label>
         <Textarea
           value={draftEdgeInput}
           onChange={(e) => setDraftEdgeInput(e.target.value)}
@@ -343,7 +489,10 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       return;
     }
 
-    const rowsArr = trimmed.split("\n").map((r) => r.trim()).filter((r) => r !== "");
+    const rowsArr = trimmed
+      .split("\n")
+      .map((r) => r.trim())
+      .filter((r) => r !== "");
     const parsedRows: number[][] = [];
     let firstRowCols = -1;
 
@@ -351,7 +500,9 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       const cells = rowsArr[i].split(/[\s,]+/).filter(Boolean);
       for (const cell of cells) {
         if (cell !== "0" && cell !== "1") {
-          toast.warning(`第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`);
+          toast.warning(
+            `第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`,
+          );
           return;
         }
       }
@@ -359,7 +510,9 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       if (firstRowCols === -1) {
         firstRowCols = nums.length;
       } else if (nums.length !== firstRowCols) {
-        toast.warning(`第 ${i + 1} 行有 ${nums.length} 格，與第 1 行的 ${firstRowCols} 格不一致，每行欄數必須相同`);
+        toast.warning(
+          `第 ${i + 1} 行有 ${nums.length} 格，與第 1 行的 ${firstRowCols} 格不一致，每行欄數必須相同`,
+        );
         return;
       }
       parsedRows.push(nums);
@@ -374,7 +527,9 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
     }
 
     if (rows * cols > 400) {
-      toast.warning(`迷宮大小 ${rows}×${cols} = ${rows * cols} 格，超過上限 400 格（建議最大 20×20）`);
+      toast.warning(
+        `迷宮大小 ${rows}×${cols} = ${rows * cols} 格，超過上限 400 格（建議最大 20×20）`,
+      );
       return;
     }
 
@@ -400,7 +555,12 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
           <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
             確認載入
           </Button>
         </>
@@ -484,7 +644,12 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
           <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
             確認載入
           </Button>
         </>

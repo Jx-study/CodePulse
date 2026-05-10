@@ -21,6 +21,97 @@ function trieActionHandler(
 ): ActionResult<any[]> | null {
   const currentWords = [...data];
 
+  if (actionType === "load") {
+    let parsedWords: string[] = [];
+
+    if (Array.isArray(payload.data)) {
+      // 如果外層已經切好陣列了，直接清洗裡面的元素
+      parsedWords = payload.data
+        .map((w) =>
+          String(w)
+            .replace(/[^a-zA-Z]/g, "")
+            .toLowerCase(),
+        )
+        .filter(Boolean);
+    } else if (typeof payload.data === "string") {
+      // 如果外層傳的是原始字串，就先 split 再清洗
+      const rawDataStr = payload.data || "";
+      parsedWords = rawDataStr
+        .replace("TRIE:", "") // 保險起見，拔掉前綴
+        .split(/[\s,]+/)
+        .map((w) => w.replace(/[^a-zA-Z]/g, "").toLowerCase())
+        .filter(Boolean);
+    }
+
+    const uniqueWords = Array.from(new Set(parsedWords)).slice(0, 20); // 防呆限制筆數
+
+    return {
+      animationData: uniqueWords,
+      animationParams: { isTrieAction: true, trieType: "init" }, // 直接重繪初始狀態
+      isResetAction: true,
+      useRawAnimationParams: true,
+    };
+  }
+
+  if (actionType === "random") {
+    const count = (payload.count as number) || 5;
+
+    // 智慧型隨機字串池：精心挑選高機率共用字根的組合，讓樹狀圖具備美感
+    const wordPool = [
+      "app",
+      "apple",
+      "apply",
+      "ape",
+      "bat",
+      "bath",
+      "ball",
+      "bag",
+      "cat",
+      "car",
+      "cart",
+      "care",
+      "dog",
+      "dot",
+      "door",
+      "does",
+      "bee",
+      "beer",
+      "best",
+      "bed",
+      "sun",
+      "sunny",
+      "set",
+      "sad",
+    ];
+
+    // 洗牌演算法 (Fisher-Yates Shuffle)
+    const shuffled = [...wordPool];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // 取出指定數量的單字
+    const randomWords = shuffled.slice(0, count);
+
+    return {
+      animationData: randomWords,
+      animationParams: { isTrieAction: true, trieType: "init" },
+      isResetAction: true,
+      useRawAnimationParams: true,
+    };
+  }
+
+  if (actionType === "reset") {
+    const defaultWords = ["app", "apple", "cat"];
+    return {
+      animationData: defaultWords,
+      animationParams: { isTrieAction: true, trieType: "init" },
+      isResetAction: true,
+      useRawAnimationParams: true,
+    };
+  }
+
   if (actionType === "insert") {
     const word = String(payload.word);
     if (!currentWords.includes(word)) {
