@@ -45,6 +45,25 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "trie.search_not_found",
     params: { error: e.local_vars.error },
   }),
+  [TAGS.DELETE_START]: (e) => ({
+    key: "trie.delete_start",
+    params: { word: e.local_vars.word },
+  }),
+  [TAGS.DELETE_UNMARK]: (e) => ({
+    key: "trie.delete_unmark",
+    params: { word: e.local_vars.word },
+  }),
+  [TAGS.DELETE_PRUNE]: (e) => ({
+    key: "trie.delete_prune",
+    params: {
+      pruned: e.local_vars.pruned,
+      remainingWord: e.local_vars.remainingWord,
+    },
+  }),
+  [TAGS.DELETE_NOT_FOUND]: (e) => ({
+    key: "trie.delete_not_found",
+    params: { error: e.local_vars.error },
+  }),
   [TAGS.DONE]: () => ({ key: "trie.done" }),
 };
 

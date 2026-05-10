@@ -63,6 +63,10 @@
     "search_start": "Search Mode ({{mode}}): Searching for '{{word}}'",
     "search_found": "Search Success! '{{word}}' matches the criteria",
     "search_not_found": "Search Failed: {{error}}",
+    "delete_start": "Delete: Preparing to find and delete word '{{word}}'",
+    "delete_unmark": "Unmark: Removing the end-of-word mark [Word] from '{{word}}'",
+    "delete_prune": "Bottom-up Pruning: Prefix '{{pruned}}' is no longer shared, removing node",
+    "delete_not_found": "Delete aborted: {{error}}",
     "done": "Operation completed successfully!"
   }
 }

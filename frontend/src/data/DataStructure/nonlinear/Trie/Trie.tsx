@@ -135,6 +135,29 @@ function trieActionHandler(
     };
   }
 
+  if (actionType === "delete") {
+    const word = String(payload.word);
+    const index = currentWords.indexOf(word);
+    const existed = index !== -1;
+
+    // 如果確實在底層陣列中，將其徹底移出
+    if (index !== -1) {
+      currentWords.splice(index, 1);
+    }
+
+    return {
+      animationData: currentWords,
+      animationParams: {
+        isTrieAction: true,
+        trieType: "delete",
+        word,
+        existed,
+      },
+      isResetAction: true,
+      useRawAnimationParams: true,
+    };
+  }
+
   return baseActionHandler(actionType, payload, data, context);
 }
 

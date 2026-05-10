@@ -45,6 +45,12 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
     onCustomAction("startsWith", { word: wordInput.trim().toLowerCase() });
   };
 
+  const handleDelete = () => {
+    if (disabled || !wordInput.trim() || !onCustomAction) return;
+    onCustomAction("delete", { word: wordInput.trim().toLowerCase() });
+    setWordInput("");
+  };
+
   // 觸發隨機生成 (Random)
   const handleRandomWords = () => {
     if (disabled) return;
@@ -152,7 +158,8 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
         <Tooltip content="將單字逐字元新增至字典樹中">
           <Button
             size="sm"
-            variant="primary"
+            variant="secondary"
+            className={styles.btnInsert}
             onClick={handleInsert}
             disabled={disabled || !wordInput}
             icon="plus"
@@ -166,6 +173,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={handleSearch}
+            className={styles.btnSearch}
             disabled={disabled || !wordInput}
             icon="search"
           >
@@ -182,6 +190,19 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             icon="spell-check"
           >
             StartsWith
+          </Button>
+        </Tooltip>
+
+        <Tooltip content="取消單字結尾標記，並向上修剪多餘的無用分支">
+          <Button
+            size="sm"
+            variant="secondary"
+            className={styles.btnDelete}
+            onClick={handleDelete}
+            disabled={disabled || !wordInput}
+            icon="trash"
+          >
+            Delete
           </Button>
         </Tooltip>
       </ActionBarGroup>

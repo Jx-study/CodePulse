@@ -63,6 +63,10 @@
     "search_start": "搜尋模式 ({{mode}})：開始尋找單字 '{{word}}'",
     "search_found": "搜尋成功！'{{word}}' 完全符合條件",
     "search_not_found": "搜尋失敗：{{error}}",
+    "delete_start": "Delete：準備尋找並刪除單字 '{{word}}'",
+    "delete_unmark": "拔除標記：取消 '{{word}}' 終點節點的單字結尾標記 [Word]",
+    "delete_prune": "枯枝修剪 (Pruning)：前綴 '{{pruned}}' 已無任何後續分支共用，將其釋放拔除",
+    "delete_not_found": "刪除中止：{{error}}",
     "done": "操作全部執行完畢！"
   }
 }
