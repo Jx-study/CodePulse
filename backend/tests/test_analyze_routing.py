@@ -117,3 +117,82 @@ def merge_sort(arr):
     algo, reason = route_level1_decision(iterative_merge, _result("merge_sort"))
     assert algo is None
     assert reason == "structure_mismatch"
+
+
+# ─── HTTP integration tests (require Flask test client) ──────────────────────
+
+import hashlib
+from services.code_normalizer import normalize_code
+
+
+def _authed(client, auth_headers, method, path, **kwargs):
+    token = auth_headers['access_token']
+    client.set_cookie('access_token', token)
+    fn = getattr(client, method)
+    resp = fn(path, **kwargs)
+    client.delete_cookie('access_token')
+    return resp
+
+
+class TestExploreHistoryHash:
+    def test_history_record_has_code_hash(self, client, app, auth_headers):
+        """GET /api/explore/history 每筆記錄都有 code_hash"""
+        from models.explorer import ExploreHistory, AnalysisSource
+        from database import db
+
+        with app.app_context():
+            record = ExploreHistory(
+                explore_id=1,
+                user_id=1,
+                user_code="def foo():\n    # comment\n    return 1\n",
+                detected_algorithm="linear_search",
+                confidence_score=0.9,
+                time_complexity="O(n)",
+                analysis_source=AnalysisSource.ast_bigO,
+            )
+            db.session.add(record)
+            db.session.commit()
+
+        res = _authed(client, auth_headers, 'get', '/api/explore/history')
+        assert res.status_code == 200
+        data = res.get_json()
+        assert len(data) == 1
+        assert "code_hash" in data[0]
+        expected = hashlib.sha256(
+            normalize_code("def foo():\n    # comment\n    return 1\n").encode()
+        ).hexdigest()
+        assert data[0]["code_hash"] == expected
+
+
+class TestDuplicateDetection:
+    def test_submit_with_matching_hash_returns_duplicate(self, client, app, auth_headers):
+        """送出 last_code_hash 與 normalized code 的 hash 相符 → 回傳 duplicate=true"""
+        code = "def foo():\n    return 1\n"
+        code_with_comment = "def foo():\n    # added comment\n    return 1\n"
+        expected_hash = hashlib.sha256(normalize_code(code).encode()).hexdigest()
+
+        res = _authed(
+            client, auth_headers, 'post', '/api/analyze/submit',
+            json={"code": code_with_comment, "last_code_hash": expected_hash},
+        )
+        assert res.status_code == 200
+        data = res.get_json()
+        assert data.get("duplicate") is True
+
+    def test_submit_with_non_matching_hash_proceeds_normally(self, client, app, auth_headers):
+        """last_code_hash 不符 → 正常建立 task"""
+        res = _authed(
+            client, auth_headers, 'post', '/api/analyze/submit',
+            json={"code": "x = 1\n", "last_code_hash": "deadbeef"},
+        )
+        assert res.status_code == 202
+        assert "task_id" in res.get_json()
+
+    def test_submit_without_hash_proceeds_normally(self, client, app, auth_headers):
+        """不帶 last_code_hash → 正常建立 task"""
+        res = _authed(
+            client, auth_headers, 'post', '/api/analyze/submit',
+            json={"code": "x = 1\n"},
+        )
+        assert res.status_code == 202
+        assert "task_id" in res.get_json()

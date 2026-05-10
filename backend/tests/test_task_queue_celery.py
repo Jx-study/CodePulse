@@ -23,14 +23,19 @@ def test_submit_returns_task_id():
 
 
 def test_update_progress_writes_to_redis():
+    import json
     q = make_queue()
     with patch.object(q._redis, "hset") as mock_hset, \
-         patch.object(q._redis, "expire") as mock_expire:
+         patch.object(q._redis, "expire") as mock_expire, \
+         patch.object(q._redis, "publish") as mock_publish:
         q.update_progress("tid-1", "sandbox", "執行中")
         mock_hset.assert_called_once_with(
             "task:tid-1:progress", mapping={"stage": "sandbox", "message": "執行中"}
         )
         mock_expire.assert_called_once_with("task:tid-1:progress", 300)
+        channel, payload = mock_publish.call_args.args
+        assert channel == "task:tid-1:events"
+        assert json.loads(payload) == {"stage": "sandbox", "message": "執行中", "status": "running"}
 
 
 def test_get_status_pending():

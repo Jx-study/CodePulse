@@ -123,7 +123,7 @@ def test_patch_me_rejects_empty_display_name(client, auth_headers):
     assert resp.status_code == 400
 
 
-# ── PUT /api/users/me/password ─────────────────────────────────────────────────
+# PUT /api/users/me/password 
 
 def test_change_password_success(app, client, auth_headers_with_local_identity):
     """Valid current + new password → 200, tokens revoked."""
