@@ -1,6 +1,8 @@
+import { useCallback } from "react";
 import EmptyState from "@/shared/components/EmptyState";
 import Icon from "@/shared/components/Icon";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
+import { useLabContext } from "../../context/LabContext";
 import type { LabAlgorithmState } from "../../types/lab";
 import { ManualSortChart } from "../ManualSortChart/ManualSortChart";
 import { SortBarChart } from "../SortBarChart/SortBarChart";
@@ -18,6 +20,13 @@ export interface AnimationGridProps {
 }
 
 export function AnimationGrid({ algorithms, currentStep, manualSortEnabled = false }: AnimationGridProps) {
+  const { dispatch } = useLabContext();
+
+  const handleMaxItemsChange = useCallback(
+    (max: number) => dispatch({ type: "SET_MAX_CHART_ITEMS", max }),
+    [dispatch],
+  );
+
   if (!algorithms.length && !manualSortEnabled) {
     return (
       <EmptyState
@@ -42,6 +51,7 @@ export function AnimationGrid({ algorithms, currentStep, manualSortEnabled = fal
             title={meta.label}
             titleColor={meta.color}
             elements={step?.elements ?? []}
+            onMaxItemsChange={handleMaxItemsChange}
           />
         );
       })}

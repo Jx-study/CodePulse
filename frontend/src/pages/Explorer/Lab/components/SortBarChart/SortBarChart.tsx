@@ -1,7 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { BaseElement } from "@/modules/core/DataLogic/BaseElement";
 import { Status, statusColorMap } from "@/modules/core/DataLogic/BaseElement";
 import styles from "./SortBarChart.module.scss";
+
+const MIN_BAR_TOTAL_PX = 5; // 3px bar + 2px gap
+const CHART_PADDING_X = 8;  // 4px left + 4px right padding
 
 function barColor(status: string): string {
   const s = status as Status;
@@ -12,9 +15,27 @@ export interface SortBarChartProps {
   title: string;
   titleColor?: string;
   elements: BaseElement[];
+  onMaxItemsChange?: (max: number) => void;
 }
 
-export function SortBarChart({ title, titleColor, elements }: SortBarChartProps) {
+export function SortBarChart({ title, titleColor, elements, onMaxItemsChange }: SortBarChartProps) {
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!onMaxItemsChange || !chartRef.current) return;
+    const el = chartRef.current;
+    const compute = (width: number) => {
+      const max = Math.max(20, Math.floor((width - CHART_PADDING_X) / MIN_BAR_TOTAL_PX));
+      onMaxItemsChange(max);
+    };
+    compute(el.getBoundingClientRect().width);
+    const ro = new ResizeObserver(([entry]) => {
+      compute(entry.contentRect.width);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [onMaxItemsChange]);
+
   const { barHeights, colors } = useMemo(() => {
     const nums = elements.map((el) => {
       const v = parseFloat(String(el.value));
@@ -33,7 +54,7 @@ export function SortBarChart({ title, titleColor, elements }: SortBarChartProps)
       <div className={styles.title} style={{ color: titleColor }}>
         {title}
       </div>
-      <div className={styles.chart}>
+      <div ref={chartRef} className={styles.chart}>
         {elements.map((el, i) => (
           <div key={el.id || i} className={styles.barColumn}>
             <div

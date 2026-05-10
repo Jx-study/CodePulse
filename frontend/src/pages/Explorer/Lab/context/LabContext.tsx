@@ -34,12 +34,14 @@ function generateRandomData(n: number): number[] {
 }
 
 const DEFAULT_SIZE = 100;
+const MAX_CHART_ITEMS_DEFAULT = 100;
 
 const initialReducerState: LabReducerState = {
   activeTopic: "sorting",
   selectedIds: [],
   inputData: generateRandomData(DEFAULT_SIZE),
   inputSize: DEFAULT_SIZE,
+  maxChartItems: MAX_CHART_ITEMS_DEFAULT,
   currentStep: 0,
   playState: "idle",
   speed: 1,
@@ -79,7 +81,8 @@ export type LabAction =
   | { type: "TOGGLE_MANUAL_SORT" }
   | { type: "MANUAL_SORT_SWAP"; fromIdx: number; toIdx: number }
   | { type: "MANUAL_SORT_RESET" }
-  | { type: "MANUAL_SORT_COMPLETE"; endMs: number };
+  | { type: "MANUAL_SORT_COMPLETE"; endMs: number }
+  | { type: "SET_MAX_CHART_ITEMS"; max: number };
 
 function labReducer(state: LabReducerState, action: LabAction): LabReducerState {
   switch (action.type) {
@@ -96,11 +99,27 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
       return { ...state, inputData: action.data };
     case "SET_INPUT_SIZE": {
       if (state.manualSortEnabled) return state;
-      const size = Math.max(20, Math.min(100, action.size));
+      const size = Math.max(20, Math.min(state.maxChartItems, action.size));
       return {
         ...state,
         inputSize: size,
         inputData: generateRandomData(size),
+        currentStep: 0,
+        playState: "idle",
+      };
+    }
+    case "SET_MAX_CHART_ITEMS": {
+      const max = Math.max(20, action.max);
+      if (max === state.maxChartItems) return state;
+      if (state.inputSize <= max || state.manualSortEnabled) {
+        return { ...state, maxChartItems: max };
+      }
+      const snappedSize = Math.max(20, Math.floor(max / 10) * 10);
+      return {
+        ...state,
+        maxChartItems: max,
+        inputSize: snappedSize,
+        inputData: generateRandomData(snappedSize),
         currentStep: 0,
         playState: "idle",
       };

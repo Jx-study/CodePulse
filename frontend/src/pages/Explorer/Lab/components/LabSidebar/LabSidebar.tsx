@@ -29,6 +29,7 @@ export function LabSidebar() {
     visibleCaseTypes,
     unifiedYAxis,
     manualSortEnabled,
+    maxChartItems,
     dispatch,
   } = useLabContext();
 
@@ -150,7 +151,7 @@ export function LabSidebar() {
               </div>
               <Slider
                 min={20}
-                max={100}
+                max={Math.min(100, maxChartItems)}
                 step={10}
                 value={inputSize}
                 disabled={manualSortEnabled}

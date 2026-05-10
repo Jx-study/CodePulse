@@ -46,6 +46,7 @@ export interface LabState {
   selectedIds: AlgorithmId[];
   inputData: number[];
   inputSize: number;
+  maxChartItems: number;
   algorithms: LabAlgorithmState[];
   currentStep: number;
   maxSteps: number;
@@ -72,6 +73,7 @@ export interface LabReducerState {
   selectedIds: AlgorithmId[];
   inputData: number[];
   inputSize: number;
+  maxChartItems: number;
   currentStep: number;
   playState: PlayState;
   speed: number;
