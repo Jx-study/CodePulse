@@ -51,8 +51,8 @@ export function buildMoveCountPerStep(steps: AnimationStep[]): number[] {
 export function buildStackDepthPerStep(steps: AnimationStep[]): number[] {
   let depth = 0;
   return steps.map((s) => {
-    if (typeof s.variables?.stackDepth === "number") {
-      depth = s.variables.stackDepth as number;
+    if (typeof s.local_vars?.stackDepth === "number") {
+      depth = s.local_vars.stackDepth as number;
     }
     return depth;
   });
@@ -61,8 +61,8 @@ export function buildStackDepthPerStep(steps: AnimationStep[]): number[] {
 export function buildAuxSizePerStep(steps: AnimationStep[]): number[] {
   let auxSize = 0;
   return steps.map((s) => {
-    if (typeof s.variables?.auxSize === "number") {
-      auxSize = s.variables.auxSize as number;
+    if (typeof s.local_vars?.auxSize === "number") {
+      auxSize = s.local_vars.auxSize as number;
     }
     return auxSize;
   });
