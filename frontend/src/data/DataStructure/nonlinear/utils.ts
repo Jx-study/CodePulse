@@ -371,7 +371,10 @@ export function buildD3HierarchyData(
   return root;
 }
 
-export function buildTrieHierarchyData(words: string[]): HierarchyDatum | null {
+export function buildTrieHierarchyData(
+  visiblePaths: string[],
+  realWords: string[],
+): HierarchyDatum | null {
   const root: HierarchyDatum = {
     id: "trie-root",
     value: "Root",
@@ -379,21 +382,21 @@ export function buildTrieHierarchyData(words: string[]): HierarchyDatum | null {
     isEndOfWord: false,
   };
 
-  words.forEach((word) => {
+  // 1. 根據當前「允許被看見」的路徑建立樹狀節點
+  visiblePaths.forEach((path) => {
     let curr = root;
     let prefix = "";
 
-    for (let i = 0; i < word.length; i++) {
-      const char = word[i];
+    for (let i = 0; i < path.length; i++) {
+      const char = path[i];
       prefix += char;
 
-      // 尋找當前節點的孩子中是否已有該字元
       if (!curr.children) curr.children = [];
       let nextNode = curr.children.find((child) => child.value === char);
 
       if (!nextNode) {
         nextNode = {
-          id: `trie-node-${prefix}`, // 使用前綴作為唯一 ID 避免衝突
+          id: `trie-node-${prefix}`,
           value: char,
           children: [],
           isEndOfWord: false,
@@ -402,9 +405,12 @@ export function buildTrieHierarchyData(words: string[]): HierarchyDatum | null {
       }
 
       curr = nextNode;
+
+      // 只有真正確認是完整單字的前綴，才標記結尾
+      if (realWords.includes(prefix)) {
+        curr.isEndOfWord = true;
+      }
     }
-    // 標記最後一個字元為單字結尾
-    curr.isEndOfWord = true;
   });
 
   return root;
@@ -483,7 +489,7 @@ function convertToChildren(node: any) {
  * 通用的樹狀結構生成器
  */
 export function createTreeNodes(
-  inputData: any[],
+  inputData: any,
   options: {
     width?: number;
     height?: number;
@@ -507,8 +513,9 @@ export function createTreeNodes(
   if (type === "bst") {
     hierarchyData = buildBSTHierarchyData(inputData);
   } else if (type === "trie") {
-    // 傳入的 inputData 預期為字串陣列，例如 ["app", "apple", "cat"]
-    hierarchyData = buildTrieHierarchyData(inputData);
+    // 解構傳入的可見路徑與真實單字
+    const { visiblePaths = [], realWords = [] } = inputData;
+    hierarchyData = buildTrieHierarchyData(visiblePaths, realWords);
   } else {
     hierarchyData = buildD3HierarchyData(inputData, degree);
   }

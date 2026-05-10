@@ -50,18 +50,22 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    // 讀取 meta 中存好的完整字串清單
-    const currentWords: string[] = event.meta?.words || [];
+    // 同時讀取可見路徑與真實單字清單
+    const visiblePaths: string[] = event.meta?.visiblePaths || [];
+    const realWords: string[] = event.meta?.realWords || [];
     const highlightId = event.meta?.highlightId;
     const overrideStatusMap = event.meta?.overrideStatusMap || {};
 
-    const elements = createTreeNodes(currentWords, {
-      width: 1000,
-      height: 350,
-      offsetX: 0,
-      offsetY: 50,
-      type: "trie",
-    });
+    const elements = createTreeNodes(
+      { visiblePaths, realWords },
+      {
+        width: 1000,
+        height: 350,
+        offsetX: 0,
+        offsetY: 50,
+        type: "trie",
+      },
+    );
 
     elements.forEach((node) => {
       const isHighlighted = node.id === highlightId;
