@@ -147,7 +147,7 @@
       "id": "heap",
       "category": "data-structures",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -410,7 +410,7 @@
       "id": "factorial",
       "category": "recursive",
       "difficulty": 1,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",

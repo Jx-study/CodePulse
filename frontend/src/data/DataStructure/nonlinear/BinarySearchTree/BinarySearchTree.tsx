@@ -149,7 +149,7 @@ const generateFrame = (
   statusMap: Record<string, Status>,
   description: string,
   actionTag?: string,
-  variables?: Record<string, string | number | boolean | null>,
+  local_vars?: Record<string, string | number | boolean | null>,
   linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const root = buildBST(inputData);
@@ -190,7 +190,7 @@ const generateFrame = (
     elements: [...treeElements],
     links,
     actionTag,
-    variables,
+    local_vars,
   };
 };
 

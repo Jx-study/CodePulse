@@ -20,6 +20,20 @@
     "delete_remove": "刪除最後一個多餘的空間",
     "delete_complete": "刪除完成"
   },
+  "heap": {
+    "init": "{{heapName}} 初始狀態",
+    "insert_start": "Insert({{value}})：將新節點放在樹的最底層 (Index {{index}})",
+    "heapify_up_compare": "向上調整 (Heapify-Up)：比較新節點 ({{curVal}}) 與其父節點 ({{parentVal}})",
+    "heapify_up_swap": "新節點比較{{extremeStr}}！執行 Swap (交換數值)",
+    "extract_start": "Extract{{extremeVal}}()：準備取出根節點 ({{extremeVal}}值 {{extVal}})",
+    "extract_swap_last": "將最後一個節點的數值移到根節點",
+    "extract_remove": "移除最後一個節點",
+    "heapify_down_compare": "向下調整 (Heapify-Down)：尋找左右子節點中的最{{extremeStr}}者",
+    "heapify_down_swap": "向下交換 (Swap) 數值以維持 {{heapName}} 性質",
+    "peek": "Peek()：目前的{{extremeVal}}值是根節點的 {{extVal}}",
+    "heapify_start": "Heapify()：開始由下而上重新建立 {{heapName}}，陣列長度為 {{length}}",
+    "done": "操作完成，已確保 {{heapName}} 結構正確！"
+  },
   "qs": {
     "init": "開始快速排序 (Quick Sort)，陣列長度為 {{length}}",
     "call": "遞迴分割：處理區間 [{{low}}, {{high}}]，進入深度 {{depth}}",
@@ -29,5 +43,15 @@
     "pivot_set": "分區完成，將基準點 {{pivotVal}} 放回正確的排序位置 (Index {{pivotIdx}})",
     "base_case": "區間只剩一個元素 {{value}}，直接標記為已排序",
     "done": "快速排序完成！所有元素皆已在正確位置。"
+  },
+  "factorial": {
+    "init": "Stack 初始化：準備計算 f({{targetN}})",
+    "push_start": "呼叫 f({{n}})：準備自右側進場推入堆疊",
+    "push_assign": "f({{n}}) 正式進入堆疊槽位",
+    "base_case": "達到 Base Case：f({{n}}) = {{val}}，準備開始回溯累乘",
+    "calc_start": "準備將 f({{current_f}}-1) 的回傳值 ({{child_val}}) 與當前數值 ({{current_val}}) 相乘",
+    "calc_multiply": "更新數值：{{current_f}} * {{child_val}} = {{new_val}}",
+    "pop_right": "f({{returned_f}}) 結算完成回傳 {{returned_val}}，移出堆疊往右退場",
+    "done": "遞迴全部完成！最終結果 f({{final_result}}) 結算成功"
   }
 }

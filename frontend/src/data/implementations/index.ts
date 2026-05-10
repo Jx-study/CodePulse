@@ -8,6 +8,7 @@ import { QueueConfig } from "../DataStructure/linear/Queue/Queue";
 import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree/BinaryTree";
 import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree/BinarySearchTree";
 import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
+import { HeapConfig } from "../DataStructure/nonlinear/Heap/Heap";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
@@ -24,6 +25,7 @@ import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
+import { factorialConfig } from "../algorithms/recursive/factorial/factorial";
 
 /**
  * 統一的實作註冊表
@@ -39,6 +41,7 @@ export const implementationsMap: ImplementationMap = {
   binaryTree: BinaryTreeConfig,
   bst: BinarySearchTreeConfig,
   graph: GraphConfig,
+  heap: HeapConfig,
 
   // Algorithms
   bubbleSort: bubbleSortConfig,
@@ -55,6 +58,7 @@ export const implementationsMap: ImplementationMap = {
   knapsack: knapsackConfig,
   nQueens: nQueensConfig,
   topologicalSort: topologicalSortConfig,
+  factorial: factorialConfig,
 };
 
 /**

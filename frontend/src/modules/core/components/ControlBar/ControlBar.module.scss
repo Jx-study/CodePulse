@@ -89,6 +89,7 @@
 
   .sliderRow {
     @include flex($align: center);
+    width: 12rem;
   }
 
   @media (max-width: $mobile) {
@@ -99,3 +100,4 @@
     }
   }
 }
+

@@ -23,6 +23,9 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
+  MazeCell,
+  MazeOutputData,
+  FloodFillOutputData,
 } from "./pythonDemo";
 
 export type {
@@ -47,12 +50,14 @@ export type AlgorithmViewMode =
   | "grid"
   | "longest_lte"
   | "shortest_gte";
+/** Sliding window run payload mode (matches ActionBar options). */
+export type SlidingWindowMode = "longest_lte" | "shortest_gte";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
-  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
@@ -69,6 +74,7 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number };
 
 export interface BaseActionBarProps {
@@ -87,6 +93,7 @@ export interface DSActionBarProps extends BaseActionBarProps {
   onPeek?: () => void;
   onTailModeChange?: (hasTail: boolean) => void;
   onGraphAction?: (action: string, payload: any) => void;
+  onCustomAction?: (action: string, payload: any) => void;
   isDirected?: boolean;
   onIsDirectedChange?: (val: boolean) => void;
 }
@@ -143,6 +150,7 @@ export type ImplementationId =
   | "binarytree"
   | "bst"
   | "graph"
+  | "heap"
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
@@ -159,6 +167,7 @@ export type ImplementationId =
   | "fibonacci"
   | "knapsack"
   | "n-queens"
-  | "topological-sort";
+  | "topological-sort"
+  | "factorial";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;

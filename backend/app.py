@@ -14,13 +14,16 @@ from routes.summary import summary_bp
 from routes.oauth import register_oauth_routes
 from routes.users import users_bp
 from routes.tutorials import tutorials_bp
+from services.algo_identification import warmup as algo_warmup
 
 def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
 
     app = Flask(__name__)
-    app.config.from_object(config[config_name])
+    cfg = config[config_name]
+    app.config.from_object(cfg)
+    cfg.init_app(app)
 
     limiter.init_app(app)
 
@@ -29,7 +32,7 @@ def create_app(config_name=None):
     CORS(app, resources={
         r"/api/*": {
             "origins": app.config['CORS_ORIGINS'],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True,
         }
@@ -49,6 +52,9 @@ def create_app(config_name=None):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(tutorials_bp, url_prefix='/api/tutorials')
     register_oauth_routes(app)
+
+    if not app.config.get("TESTING") and os.getenv("SKIP_ML_WARMUP") != "1":
+        algo_warmup()
 
     @app.route('/api/health')
     def health_check():
