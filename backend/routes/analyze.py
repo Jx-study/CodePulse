@@ -1,7 +1,9 @@
+import hashlib
 import json
 import logging
 from flask import Blueprint, jsonify, request, g, Response, stream_with_context
 from auth_utils import login_required
+from services.code_normalizer import normalize_code
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
@@ -26,6 +28,13 @@ def submit():
         return jsonify({"error": "missing field: code"}), 400
 
     code = data["code"]
+    last_code_hash = data.get("last_code_hash")
+
+    if last_code_hash:
+        normalized = normalize_code(code)
+        current_hash = hashlib.sha256(normalized.encode()).hexdigest() if normalized else None
+        if current_hash and current_hash == last_code_hash:
+            return jsonify({"duplicate": True}), 200
 
     try:
         wrapped_code, _ = precheck_and_wrap(code)

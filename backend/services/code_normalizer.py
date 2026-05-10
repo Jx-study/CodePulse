@@ -14,6 +14,10 @@ def normalize_code(code: str) -> str:
         # Fallback: regex-only strip if tokenizer fails (e.g. incomplete code)
         cleaned = _regex_strip_comments(code)
 
+    # Strip whitespace-only lines (artifact of removed comment columns)
+    cleaned = "\n".join(
+        line if line.strip() else "" for line in cleaned.splitlines()
+    )
     # Collapse 2+ consecutive blank lines into 1
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
     return cleaned.strip()
@@ -33,10 +37,9 @@ def _strip_comments_and_docstrings(code: str) -> str:
             continue
 
         if toktype == tokenize.STRING:
-            # Docstring: STRING token at start of module, class, or function body
+            # Docstring: triple-quoted STRING after module start, class/def body (colon), or indent
             if prev_toktype in (tokenize.INDENT, tokenize.NEWLINE, tokenize.NL,
-                                tokenize.ENCODING, 62):  # 62 = ENCODING workaround
-                # Check if it looks like a docstring (triple-quoted)
+                                tokenize.ENCODING, tokenize.OP, 62):
                 if tokval.startswith(('"""', "'''")):
                     prev_toktype = toktype
                     continue
