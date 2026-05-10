@@ -33,7 +33,12 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
     {
       key: 'introduction',
       label: '演算法説明',
-      content: <IntroductionTab introduction={topicTypeConfig.introduction} />,
+      content: (
+        <IntroductionTab
+          introduction={topicTypeConfig.introduction}
+          i18nNamespace={topicTypeConfig.i18nNamespace}
+        />
+      ),
     },
     {
       key: 'complexity',

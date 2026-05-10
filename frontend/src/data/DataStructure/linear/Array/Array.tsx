@@ -230,6 +230,7 @@ export const ArrayConfig: LevelImplementationConfig = {
   name: "陣列 (Array)",
   categoryName: "資料結構",
   description: "連續記憶體空間",
+  i18nNamespace: "tutorials/array",
   codeConfig: arrayCodeConfig,
   complexity: {
     timeBest: "O(1)",
@@ -237,8 +238,7 @@ export const ArrayConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(n)",
   },
-  introduction:
-    "陣列使用連續的記憶體位置來儲存資料，支援隨機存取(Random Access)。",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 10 },
     { id: "box-1", value: 20 },

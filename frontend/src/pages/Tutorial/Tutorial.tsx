@@ -119,7 +119,7 @@ const CanvasPanel = ({
   d3CanvasRef,
   useGraphCanvas,
 }: CanvasPanelProps) => {
-  const { t } = useTranslation("animation");
+  const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
   const {
     attributes,
     listeners,
