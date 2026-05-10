@@ -325,6 +325,7 @@ export const InspectorPanelInternal = ({
     hasTailMode,
     listMode,
     onGraphAction: handleGraphAction,
+    onCustomAction: handleCustomAction,
     isDirected,
     onIsDirectedChange: setIsDirected,
     viewMode,
@@ -335,61 +336,10 @@ export const InspectorPanelInternal = ({
   // 全部 Tab 同時保持 mounted，以 CSS display:none 隱藏非作用中的，
   // 確保各 Tab 的 local state（insertMode、inputValue 等）不因切換而重置
   const renderTabContent = () => {
-    const panelConfig = PANEL_REGISTRY[activeInspectorTab];
-
-    if (!panelConfig) {
+    if (inspectorTabs.length === 0) {
       return null;
     }
 
-    const PanelComponent = panelConfig.component;
-
-    // 為 actionBar 準備特殊的 props
-    if (activeInspectorTab === "actionBar") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent
-              topicTypeConfig={topicTypeConfig}
-              onLoadData={handleLoadData}
-              onRandomData={handleRandomData}
-              onResetData={handleResetData}
-              disabled={isProcessing}
-              onRun={handleRunAlgorithm}
-              onAddNode={handleAddNode}
-              onDeleteNode={handleDeleteNode}
-              onSearchNode={handleSearchNode}
-              onPeek={handlePeek}
-              maxNodes={maxNodes}
-              onMaxNodesChange={setRandomCount}
-              onTailModeChange={setHasTailMode}
-              onListModeChange={handleListModeChange}
-              hasTailMode={hasTailMode}
-              listMode={listMode}
-              onGraphAction={handleGraphAction}
-              onCustomAction={handleCustomAction}
-              isDirected={isDirected}
-              onIsDirectedChange={setIsDirected}
-              viewMode={viewMode}
-              onViewModeChange={handleViewModeChange}
-              currentData={currentData}
-            />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 為 variableStatus 準備 variables props
-    if (activeInspectorTab === "variableStatus") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent variables={currentStepData?.local_vars} />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 其他 Tab 不需要 props
     return (
       <>
         {inspectorTabs.map((tab) => {
@@ -400,7 +350,8 @@ export const InspectorPanelInternal = ({
 
           let tabProps: Record<string, unknown> = {};
           if (tab.key === "actionBar") tabProps = actionBarProps;
-          else if (tab.key === "variableStatus") tabProps = { variables: currentStepData?.variables };
+          else if (tab.key === "variableStatus")
+            tabProps = { variables: currentStepData?.variables };
 
           return (
             <div

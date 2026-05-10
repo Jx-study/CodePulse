@@ -78,7 +78,6 @@ export const D3Canvas = forwardRef<
     const elementsRef = useRef<BaseElement[]>(elements);
     const animDefsRef = useRef<SVGDefsElement | null>(null);
     const animStateRef = useRef<Map<string, number>>(new Map());
-    const animatingNodesRef = useRef<Set<string>>(new Set());
     const isDirectedRef = useRef(isDirected);
     const shouldHideArrowRef = useRef(false);
 
@@ -446,18 +445,9 @@ export const D3Canvas = forwardRef<
       }
       animDefsRef.current = animDefs.node();
 
-      // Phase 1: 渲染當前步驟的實際元素（需先執行以取得 containerBBox）
-      const { containerBBox } = renderAll(
-        svgElement,
-        elements,
-        links,
-        structureType,
-        isDirected,
-        statusColorMap,
-        showBidirectionalArrows,
-      );
-
-      // Phase 2: ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）
+      // ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）。
+      // 不使用 renderAll 前置呼叫取得 containerBBox（會造成雙重 D3 轉場競爭）；
+      // linked list 節點範圍已由 computeUnionBBox 涵蓋。
       if (allStepsElements !== prevAllStepsRef.current) {
         prevAllStepsRef.current = allStepsElements;
 
@@ -470,12 +460,6 @@ export const D3Canvas = forwardRef<
         const unionBBox = computeUnionBBox(stepsToMeasure);
 
         if (unionBBox) {
-          if (containerBBox) {
-            unionBBox.minX = Math.min(unionBBox.minX, containerBBox.minX);
-            unionBBox.minY = Math.min(unionBBox.minY, containerBBox.minY);
-            unionBBox.maxX = Math.max(unionBBox.maxX, containerBBox.maxX);
-            unionBBox.maxY = Math.max(unionBBox.maxY, containerBBox.maxY);
-          }
           const contentWidth = unionBBox.maxX - unionBBox.minX + padding * 2;
           const contentHeight = unionBBox.maxY - unionBBox.minY + padding * 2;
           const newViewBox = `${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`;
@@ -490,7 +474,6 @@ export const D3Canvas = forwardRef<
         }
       }
 
-      // Phase 2: 渲染當前步驟的實際元素
       renderAll(
         svgElement,
         elements,
@@ -508,7 +491,6 @@ export const D3Canvas = forwardRef<
         animStateRef.current.forEach((id) => cancelAnimationFrame(id));
         animStateRef.current.clear();
         animDefsRef.current = null;
-        animatingNodesRef.current.clear();
       };
     }, [
       elements,
