@@ -23,8 +23,7 @@ export function AlgoDetectionDialog({
 
   const isHighConfidence =
     aiResult !== null &&
-    aiResult.level1_eligible &&
-    !top3Candidates.length;
+    aiResult.level1_eligible;
 
   const handleApply = () => {
     if (isHighConfidence) {
