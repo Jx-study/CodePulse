@@ -127,6 +127,9 @@ export function usePlaygroundRun({
           case "timeout":
             toast.error(t("run.timeout"));
             break;
+          case "pool_exhausted":
+            toast.warning(t("run.poolExhausted"));
+            break;
           case "runtime_error":
             toast.error(formatRuntimeError(e.message, t));
             if (e.lineno != null) {
