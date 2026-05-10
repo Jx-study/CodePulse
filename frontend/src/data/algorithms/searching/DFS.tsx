@@ -663,9 +663,14 @@ function runGridDFS(
   const endIndex = endId ? parseInt(endId) : gridData.length - 1;
 
   const visited = new Set<number>();
+  // 記錄「已經進過 Stack」的節點避免重複推入
+  const discovered = new Set<number>();
   const parentMap = new Map<number, number>();
   const statusMap: Record<number, Status> = {};
   const distanceMap: Record<number, number> = {};
+
+  const stack: number[] = [];
+  const result: number[] = [];
 
   // 檢查起點終點
   if (gridData[startIndex].val === 1 || gridData[endIndex].val === 1) {
@@ -686,6 +691,11 @@ function runGridDFS(
   );
   gridInitFrame1.actionTag = TAGS.INIT;
   gridInitFrame1.local_vars = { start: startIndex, end: endIndex };
+  appendStackAndResultBoxes(
+    gridInitFrame1.elements,
+    stack.map(String),
+    result.map(String),
+  );
   steps.push(gridInitFrame1);
 
   const gridInitFrame2 = generateGridFrame(
@@ -702,14 +712,20 @@ function runGridDFS(
     end: endIndex,
     "distance[all]": "∞",
   };
+  appendStackAndResultBoxes(
+    gridInitFrame2.elements,
+    stack.map(String),
+    result.map(String),
+  );
   steps.push(gridInitFrame2);
 
-  const stack: number[] = [startIndex];
-  visited.add(startIndex);
+  // 初始化起點
+  stack.push(startIndex);
+  discovered.add(startIndex); // 標記為已入棧
   distanceMap[startIndex] = 0;
   statusMap[startIndex] = Status.Prepare;
 
-  // ── START frame ──
+  // 起點自底部飛入
   const startGridFrame = generateGridFrame(
     gridData,
     cols,
@@ -720,10 +736,33 @@ function runGridDFS(
   startGridFrame.actionTag = TAGS.START;
   startGridFrame.local_vars = {
     stack: `[${startIndex}]`,
-    visited: `{${startIndex}}`,
-    "distance[start]": 0,
+    [`distance[${startIndex}]`]: 0,
   };
+  appendStackAndResultBoxes(
+    startGridFrame.elements,
+    stack.map(String),
+    result.map(String),
+    undefined,
+    [String(startIndex)],
+  );
   steps.push(startGridFrame);
+
+  const startSettleFrame = generateGridFrame(
+    gridData,
+    cols,
+    statusMap,
+    distanceMap,
+    `起點 ${startIndex} 已安穩進入 Stack`,
+  );
+  startSettleFrame.actionTag = TAGS.START;
+  startSettleFrame.local_vars = { ...startGridFrame.local_vars };
+  // 不傳送 pushingNodeIds，讓方塊定位到 baseY
+  appendStackAndResultBoxes(
+    startSettleFrame.elements,
+    stack.map(String),
+    result.map(String),
+  );
+  steps.push(startSettleFrame);
 
   let found = false;
 
@@ -740,13 +779,12 @@ function runGridDFS(
     const currIndex = stack.pop()!;
     statusMap[currIndex] = Status.Target;
 
-    // ── POP frame ──
     const popGridFrame = generateGridFrame(
       gridData,
       cols,
       statusMap,
       distanceMap,
-      `深入探索：處理節點 ${currIndex}`,
+      `深入探索：Pop 取出節點 ${currIndex}`,
     );
     popGridFrame.actionTag = TAGS.POP;
     popGridFrame.local_vars = {
@@ -755,9 +793,40 @@ function runGridDFS(
       "stack size": stack.length,
       "visited count": visited.size,
     };
+    appendStackAndResultBoxes(
+      popGridFrame.elements,
+      stack.map(String),
+      result.map(String),
+      String(currIndex),
+    );
     steps.push(popGridFrame);
 
-    // ── CHECK_END frame ──
+    if (!visited.has(currIndex)) {
+      result.push(currIndex);
+    }
+
+    // 防呆：如果該節點已被處理過則跳過
+    if (visited.has(currIndex)) {
+      const skipFrame = generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        `節點 ${currIndex} 已探索過，跳過`,
+      );
+      skipFrame.actionTag = TAGS.POP; // 沿用相關標籤
+      skipFrame.local_vars = { curr: currIndex, "already visited": "True" };
+      appendStackAndResultBoxes(
+        skipFrame.elements,
+        stack.map(String),
+        result.map(String),
+      );
+      steps.push(skipFrame);
+      continue;
+    }
+
+    visited.add(currIndex);
+
     const checkEndGridFrame = generateGridFrame(
       gridData,
       cols,
@@ -772,6 +841,11 @@ function runGridDFS(
       "curr === end": currIndex === endIndex ? "True" : "False",
       [`distance[${currIndex}]`]: distanceMap[currIndex],
     };
+    appendStackAndResultBoxes(
+      checkEndGridFrame.elements,
+      stack.map(String),
+      result.map(String),
+    );
     steps.push(checkEndGridFrame);
 
     if (currIndex === endIndex) {
@@ -786,7 +860,7 @@ function runGridDFS(
     // D. 尋找鄰居
     const r = Math.floor(currIndex / cols);
     const c = currIndex % cols;
-    let addedNeighbors = 0;
+    const pushedNeighbors: string[] = [];
 
     for (const [dr, dc] of directions) {
       const nr = r + dr;
@@ -794,37 +868,65 @@ function runGridDFS(
       const nIndex = nr * cols + nc;
 
       if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-        if (gridData[nIndex].val !== 1 && !visited.has(nIndex)) {
-          visited.add(nIndex);
+        // 利用 !discovered.has(nIndex) 確保不重複進堆疊
+        if (gridData[nIndex].val !== 1 && !discovered.has(nIndex)) {
+          discovered.add(nIndex);
           parentMap.set(nIndex, currIndex);
+
           stack.push(nIndex);
+          pushedNeighbors.push(String(nIndex));
 
           distanceMap[nIndex] =
             distanceMap[currIndex] !== undefined
               ? distanceMap[currIndex] + 1
               : 1;
           statusMap[nIndex] = Status.Prepare;
-          addedNeighbors++;
         }
       }
     }
 
-    if (addedNeighbors > 0) {
+    if (pushedNeighbors.length > 0) {
+      // 多個鄰居自底部向上飛入
       const pushNeighborGridFrame = generateGridFrame(
         gridData,
         cols,
         statusMap,
         distanceMap,
-        `發現 ${addedNeighbors} 個未訪問鄰居，推入堆疊 (黃色)`,
+        `發現 ${pushedNeighbors.length} 個未訪問鄰居，推入堆疊 (升起)`,
       );
       pushNeighborGridFrame.actionTag = TAGS.PUSH_NEIGHBOR;
       pushNeighborGridFrame.local_vars = {
-        "new count": addedNeighbors,
+        "new count": pushedNeighbors.length,
         "distance[new]": distanceMap[currIndex]! + 1,
         "stack size (after)": stack.length,
       };
+      appendStackAndResultBoxes(
+        pushNeighborGridFrame.elements,
+        stack.map(String),
+        result.map(String),
+        undefined,
+        pushedNeighbors,
+      );
       steps.push(pushNeighborGridFrame);
+
+      const settleNeighborFrame = generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        `新鄰居已定位於 Stack 頂端，準備進入下一輪深度探索`,
+      );
+      settleNeighborFrame.actionTag = TAGS.PUSH_NEIGHBOR;
+      settleNeighborFrame.local_vars = { ...pushNeighborGridFrame.local_vars };
+
+      appendStackAndResultBoxes(
+        settleNeighborFrame.elements,
+        stack.map(String),
+        result.map(String),
+      );
+      steps.push(settleNeighborFrame);
     } else {
+      // 死胡同
       const backtrackFrame = generateGridFrame(
         gridData,
         cols,
@@ -837,6 +939,11 @@ function runGridDFS(
         curr: currIndex,
         "dead end": "True — 無未訪問鄰居",
       };
+      appendStackAndResultBoxes(
+        backtrackFrame.elements,
+        stack.map(String),
+        result.map(String),
+      );
       steps.push(backtrackFrame);
     }
   }
@@ -869,6 +976,11 @@ function runGridDFS(
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
+    appendStackAndResultBoxes(
+      pathCompleteFrame.elements,
+      stack.map(String),
+      result.map(String),
+    );
     steps.push(pathCompleteFrame);
   } else {
     const notFoundGridFrame = generateGridFrame(
@@ -884,6 +996,11 @@ function runGridDFS(
       end: endIndex,
       reachable: "False — 終點不可達",
     };
+    appendStackAndResultBoxes(
+      notFoundGridFrame.elements,
+      stack.map(String),
+      result.map(String),
+    );
     steps.push(notFoundGridFrame);
   }
 
