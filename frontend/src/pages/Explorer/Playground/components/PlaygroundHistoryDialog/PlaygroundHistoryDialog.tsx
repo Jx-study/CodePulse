@@ -9,7 +9,7 @@ import styles from "./PlaygroundHistoryDialog.module.scss";
 interface PlaygroundHistoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoadCode: (code: string) => void;
+  onReplay: (record: PlaygroundHistoryRecord) => void;
   quotaRecords?: PlaygroundHistoryRecord[] | null;
   onQuotaResolved?: (decision: "proceed" | "skip") => void;
 }
@@ -17,7 +17,7 @@ interface PlaygroundHistoryDialogProps {
 export function PlaygroundHistoryDialog({
   isOpen,
   onClose,
-  onLoadCode,
+  onReplay,
   quotaRecords,
   onQuotaResolved,
 }: PlaygroundHistoryDialogProps) {
@@ -64,9 +64,9 @@ export function PlaygroundHistoryDialog({
     }
   }
 
-  function handleLoadCode() {
+  function handleReplay() {
     if (!selectedRecord) return;
-    onLoadCode(selectedRecord.user_code);
+    onReplay(selectedRecord);
     onClose();
   }
 
@@ -220,7 +220,9 @@ export function PlaygroundHistoryDialog({
                 <span className={styles.previewDate}>{formatDate(selectedRecord.created_at)}</span>
                 <div className={styles.previewActions}>
                   <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                  <Button variant="primary" onClick={handleLoadCode}>Load into Editor</Button>
+                  <Button variant="primary" onClick={handleReplay}>
+                    {selectedRecord.execution_trace?.length ? "Replay" : "Load into Editor"}
+                  </Button>
                 </div>
               </div>
             </>

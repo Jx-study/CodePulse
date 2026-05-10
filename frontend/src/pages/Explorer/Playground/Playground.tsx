@@ -149,6 +149,7 @@ function Playground() {
     setIsAlgoDialogOpen,
     handleRun,
     handleEditCode,
+    loadFromHistory,
   } = usePlaygroundRun({
     code,
     editorRef,
@@ -631,9 +632,9 @@ function Playground() {
           quotaResolveRef.current?.("skip");
           quotaResolveRef.current = null;
         }}
-        onLoadCode={(loadedCode) => {
-          handleEditCode();
-          setCode(loadedCode);
+        onReplay={(record) => {
+          setCode(record.user_code);
+          loadFromHistory(record);
         }}
         quotaRecords={quotaRecords}
         onQuotaResolved={(decision) => {
