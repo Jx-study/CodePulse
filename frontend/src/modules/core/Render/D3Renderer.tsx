@@ -154,7 +154,7 @@ function drawContainer(
   const startX = 55;
   const endX = 900; // 畫長一點涵蓋整個視窗
 
-  if (type === "stack") {
+  if (type === "stack" || type === "factorial") {
     // Stack: 畫「左」、「上」、「下」 (開口向右)
     // 上線
     scene
