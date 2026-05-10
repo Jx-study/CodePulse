@@ -19,6 +19,7 @@ from services.task_queue import (
     task_queue,
     STAGE_SANDBOX,
     STAGE_ANALYSIS,
+    STAGE_DONE,
 )
 
 logger = logging.getLogger(__name__)
@@ -271,6 +272,8 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str, user_id: int | Non
             _save_history(user_id, code, identify_result, final_complexity, complexity_source, gemini_summary)
         except Exception:
             logger.warning("Failed to save explore history for task %s", task_id, exc_info=True)
+
+    task_queue.update_progress(task_id, STAGE_DONE, "Done")
 
     return {
         "detected_algorithm": identify_result.algo_name,

@@ -1,5 +1,6 @@
+import json
 import logging
-from flask import Blueprint, jsonify, request, g
+from flask import Blueprint, jsonify, request, g, Response, stream_with_context
 from auth_utils import login_required
 
 logger = logging.getLogger(__name__)
@@ -48,6 +49,24 @@ def status(task_id: str):
     if task_status is None:
         return jsonify({"error": "task not found"}), 404
     return jsonify(task_status), 200
+
+
+@analyze_bp.route('/stream/<task_id>', methods=['GET'])
+@login_required
+def stream(task_id: str):
+    """SSE endpoint: streams progress events until task completes or fails."""
+    def generate():
+        for event in task_queue.stream_progress(task_id):
+            yield f"data: {json.dumps(event)}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @analyze_bp.route('/result/<task_id>', methods=['GET'])
