@@ -76,7 +76,7 @@ function createInsertTailHasTailSteps(
     description: `InsertTail(${value}): 在尾端建立新節點並分配記憶體`,
     elements: [...s1OldElements, ...s1NewElement] as any,
     actionTag: TAGS.INSERT_TAIL_CREATE,
-    variables: { value, "newNode.value": value },
+    local_vars: { value, "newNode.value": value },
   });
 
   const s2OldElements = oldNodesData.flatMap((item, i) =>
@@ -119,7 +119,7 @@ function createInsertTailHasTailSteps(
     description: `tail.next = newNode (舊尾節點指向新節點)`,
     elements: allS2 as any,
     actionTag: TAGS.INSERT_TAIL_LINK,
-    variables: { "tail.next": value },
+    local_vars: { "tail.next": value },
   });
 
   if (isDoubly) {
@@ -158,7 +158,7 @@ function createInsertTailHasTailSteps(
       description: `newNode.prev = tail (新節點 prev 回指舊尾節點)`,
       elements: allS2b as any,
       actionTag: TAGS.INSERT_TAIL_LINK_PREV,
-      variables: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
+      local_vars: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
     });
   }
 
@@ -195,7 +195,7 @@ function createInsertTailHasTailSteps(
     description: `tail = newNode (更新 tail 指標指向新節點)`,
     elements: allS3 as any,
     actionTag: TAGS.INSERT_TAIL_POINTER_MOVE,
-    variables: { tail: value },
+    local_vars: { tail: value },
   });
 
   const s4Elements = dataList.flatMap((item, i) =>
@@ -217,7 +217,7 @@ function createInsertTailHasTailSteps(
     description: "InsertTail 完成",
     elements: s4Elements as any,
     actionTag: TAGS.INSERT_TAIL_END_NOTNULL || TAGS.INSERT_TAIL_END,
-    variables: { tail: value, length: totalLen },
+    local_vars: { tail: value, length: totalLen },
   });
 
   return steps;
@@ -275,7 +275,7 @@ function createSearchSteps(
       description: `遍歷 node ${i}：比較 ${dataList[i].value} 是否等於目標值 ${value}`,
       elements: compareElements as any,
       actionTag: TAGS.SEARCH_COMPARE,
-      variables: {
+      local_vars: {
         current: dataList[i].value ?? null,
         target: value,
         index: i,
@@ -315,7 +315,7 @@ function createSearchSteps(
         description: `搜尋成功！在第 ${i} 個節點 (index ${i}) 找到數值 ${value}。`,
         elements: foundElements as any,
         actionTag: TAGS.SEARCH_FOUND,
-        variables: {
+        local_vars: {
           current: dataList[i].value ?? null,
           target: value,
           index: i,
@@ -347,7 +347,7 @@ function createSearchSteps(
       description: `搜尋結束：未在鏈結串列中找到數值 ${value}。`,
       elements: notFoundElements as any,
       actionTag: TAGS.SEARCH_NOT_FOUND,
-      variables: { current: null, target: value, index: -1 },
+      local_vars: { current: null, target: value, index: -1 },
     });
   }
   return steps;
@@ -413,7 +413,7 @@ function createInsertHeadSteps(
     description: `InsertHead(${value}): 建立新節點並分配記憶體`,
     elements: [...s1NewElement, ...s1OldElements] as any,
     actionTag: TAGS.INSERT_HEAD_CREATE,
-    variables: {
+    local_vars: {
       value: value,
       "newNode.value": value,
       head: oldNodesData[0]?.value ?? null,
@@ -470,7 +470,7 @@ function createInsertHeadSteps(
       description: `newNode.next = head (新節點 next 指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
       elements: allS2 as any,
       actionTag: TAGS.INSERT_HEAD_LINK,
-      variables: {
+      local_vars: {
         "newNode.next": oldNodesData[0]?.value ?? null,
         head: oldNodesData[0]?.value ?? null,
       },
@@ -513,7 +513,7 @@ function createInsertHeadSteps(
       description: `head.prev = newNode (原頭節點 prev 回指新節點)`,
       elements: allS2b as any,
       actionTag: TAGS.INSERT_HEAD_LINK_PREV,
-      variables: { "head.prev": value },
+      local_vars: { "head.prev": value },
     });
   } else if (!isDoubly) {
     linkForVariant(actualAllS2, isDoubly);
@@ -522,7 +522,7 @@ function createInsertHeadSteps(
       description: `newNode.next = head (新節點指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
       elements: allS2 as any,
       actionTag: TAGS.INSERT_HEAD_LINK,
-      variables: {
+      local_vars: {
         "newNode.next": oldNodesData[0]?.value ?? null,
         head: oldNodesData[0]?.value ?? null,
       },
@@ -574,7 +574,7 @@ function createInsertHeadSteps(
     description: `head = newNode (更新 head 指標指向新節點)`,
     elements: allS3 as any,
     actionTag: updateTag,
-    variables: { head: value },
+    local_vars: { head: value },
   });
 
   // 如果 node 個數從 0 變 1，且有 Tail 模式，插入一步來更新 tail，標籤在這時才變成 head/tail
@@ -600,7 +600,7 @@ function createInsertHeadSteps(
       description: `原本鏈結串列為空，更新 tail 指標指向新節點`,
       elements: sTailNewElement as any,
       actionTag: TAGS.INSERT_HEAD_UPDATE_TAIL,
-      variables: { head: value, tail: value },
+      local_vars: { head: value, tail: value },
     });
   }
 
@@ -627,7 +627,7 @@ function createInsertHeadSteps(
     description: "InsertHead 完成",
     elements: sFinalElements as any,
     actionTag: TAGS.INSERT_HEAD_END,
-    variables: { head: value, length: totalLen },
+    local_vars: { head: value, length: totalLen },
   });
 
   return steps;
@@ -655,7 +655,7 @@ function createInsertTailSteps(
       description: `檢查是否為空串列: head == null，成立`,
       elements: [] as any,
       actionTag: TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE,
-      variables: { head: null },
+      local_vars: { head: null },
     });
 
     const s1Elements = makeNodeAndPointers(
@@ -675,7 +675,7 @@ function createInsertTailSteps(
       description: `建立新節點`,
       elements: s1Elements as any,
       actionTag: TAGS.INSERT_TAIL_CREATE_NEW_NODE_ISNULL,
-      variables: { head: null },
+      local_vars: { head: null },
     });
 
     const updateHeadTag = TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL;
@@ -695,7 +695,7 @@ function createInsertTailSteps(
       description: `head = newNode (更新 head 指標指向新節點)`,
       elements: s2Elements as any,
       actionTag: updateHeadTag,
-      variables: { head: value, length: 1 },
+      local_vars: { head: value, length: 1 },
     });
 
     if (hasTailMode) {
@@ -714,7 +714,7 @@ function createInsertTailSteps(
         description: `tail = newNode (因為原本為空，同步更新 tail 指標)`,
         elements: s3Elements as any,
         actionTag: TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL,
-        variables: { head: value, tail: value, length: 1 },
+        local_vars: { head: value, tail: value, length: 1 },
       });
     }
 
@@ -739,7 +739,7 @@ function createInsertTailSteps(
       description: "InsertTail 完成",
       elements: sFinalElements as any,
       actionTag: TAGS.INSERT_TAIL_END_ISNULL || TAGS.INSERT_TAIL_END,
-      variables: { head: value, tail: hasTailMode ? value : undefined, length: 1 },
+      local_vars: { head: value, tail: hasTailMode ? value : undefined, length: 1 },
     });
 
     return steps;
@@ -787,7 +787,7 @@ function createInsertTailSteps(
         description: `遍歷中：current = current.next (目前指向節點 ${oldNodesData[i].value})`,
         elements: traverseElements as any,
         actionTag: TAGS.INSERT_TAIL_TRAVERSE,
-        variables: { current: oldNodesData[i].value ?? null, index: i },
+        local_vars: { current: oldNodesData[i].value ?? null, index: i },
       });
     }
 
@@ -826,7 +826,7 @@ function createInsertTailSteps(
       description: `InsertTail(${value}): 找到尾端，建立新節點並分配記憶體`,
       elements: [...sNewCreateElements, ...sNewElement] as any,
       actionTag: TAGS.INSERT_TAIL_CREATE,
-      variables: {
+      local_vars: {
         "newNode.value": value,
         current: oldNodesData[oldLen - 1].value ?? null,
       },
@@ -875,7 +875,7 @@ function createInsertTailSteps(
       description: `current.next = newNode (最後一個節點指向新節點)`,
       elements: allConnect as any,
       actionTag: TAGS.INSERT_TAIL_LINK,
-      variables: {
+      local_vars: {
         "current.next": value,
         current: oldNodesData[oldLen - 1].value ?? null,
       },
@@ -920,7 +920,7 @@ function createInsertTailSteps(
         description: `newNode.prev = current (新節點的 prev 回指最後一個節點)`,
         elements: allConnectB as any,
         actionTag: TAGS.INSERT_TAIL_LINK_PREV || TAGS.INSERT_TAIL_LINK,
-        variables: { "newNode.prev": oldNodesData[oldLen - 1].value ?? null },
+        local_vars: { "newNode.prev": oldNodesData[oldLen - 1].value ?? null },
       });
     }
 
@@ -943,7 +943,7 @@ function createInsertTailSteps(
       description: "InsertTail 完成",
       elements: doneElements as any,
       actionTag: TAGS.INSERT_TAIL_END_NOTNULL || TAGS.INSERT_TAIL_END,
-      variables: { tail: value, length: totalLen },
+      local_vars: { tail: value, length: totalLen },
     });
   }
   return steps;
@@ -990,7 +990,7 @@ function createInsertIndexSteps(
       description: `InsertAtIndex(${value}, ${N}): index 為 0，執行 InsertHead`,
       elements: checkElements as any,
       actionTag: TAGS.INSERT_INDEX_IFZERO,
-      variables: {
+      local_vars: {
         index: N,
         targetIndex: 0,
         condition: "index == 0",
@@ -1039,7 +1039,7 @@ function createInsertIndexSteps(
       description: `InsertAtIndex(${value}, ${N}): index 等於長度 ${currentLen}，執行 InsertTail`,
       elements: checkElements as any,
       actionTag: TAGS.INSERT_INDEX_IFTAIL,
-      variables: {
+      local_vars: {
         index: N,
         length: currentLen,
         condition: "index == length",
@@ -1102,7 +1102,7 @@ function createInsertIndexSteps(
       description: `遍歷：找到位置 ${i} (Node ${i})`,
       elements: traverseElements as any,
       actionTag: TAGS.INSERT_INDEX_TRAVERSE,
-      variables: {
+      local_vars: {
         current: oldNodesData[i].value ?? null,
         index: i,
         targetIndex: N ?? -1,
@@ -1147,7 +1147,7 @@ function createInsertIndexSteps(
     description: `1. 建立新節點 ${value}`,
     elements: [...s3OldElements, ...s3NewElement] as any,
     actionTag: TAGS.INSERT_INDEX_CREATE,
-    variables: {
+    local_vars: {
       "newNode.value": value,
       current: oldNodesData[N - 1]?.value ?? null,
     },
@@ -1213,7 +1213,7 @@ function createInsertIndexSteps(
       description: `2. 將新節點指向原 Node ${N}`,
       elements: [...s4OldElements, ...s4NewElement] as any,
       actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
-      variables: {
+      local_vars: {
         "newNode.next": oldNodesData[N]?.value ?? null,
         current: oldNodesData[N - 1]?.value ?? null,
       },
@@ -1274,7 +1274,7 @@ function createInsertIndexSteps(
       description: `3. 將 Node ${N - 1} 指向新節點`,
       elements: [...s5OldElements, ...s5NewElement] as any,
       actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
-      variables: {
+      local_vars: {
         "current.next": value,
         current: oldNodesData[N - 1]?.value ?? null,
       },
@@ -1288,7 +1288,7 @@ function createInsertIndexSteps(
         description: `2. 將新節點指向原 Node ${N}（newNode.next）`,
         elements: [...p1.s4OldElements, ...p1.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
-        variables: {
+        local_vars: {
           "newNode.next": oldNodesData[N]?.value ?? null,
           current: oldNodesData[N - 1]?.value ?? null,
         },
@@ -1302,7 +1302,7 @@ function createInsertIndexSteps(
           description: `2b. 原 Node ${N} 的 prev 回指新節點`,
           elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
           actionTag: TAGS.INSERT_INDEX_LINK_NEXT_PREV,
-          variables: {
+          local_vars: {
             [`node[${N}].prev`]: value,
           },
         });
@@ -1320,7 +1320,7 @@ function createInsertIndexSteps(
         description: `3. Node ${N - 1} 的 next 指向新節點`,
         elements: [...p3.s4OldElements, ...p3.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
-        variables: {
+        local_vars: {
           "current.next": value,
           current: oldNodesData[N - 1]?.value ?? null,
         },
@@ -1338,7 +1338,7 @@ function createInsertIndexSteps(
         description: `3b. 新節點 prev 回指 Node ${N - 1}`,
         elements: [...p4.s4OldElements, ...p4.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_NEW_PREV,
-        variables: {
+        local_vars: {
           "newNode.prev": oldNodesData[N - 1]?.value ?? null,
         },
       });
@@ -1365,7 +1365,7 @@ function createInsertIndexSteps(
       description: `If newNode.next = null, 成立，更新 tail`,
       elements: s6Elements as any,
       actionTag: TAGS.INSERT_INDEX_UPDATE_TAIL,
-      variables: { tail: value },
+      local_vars: { tail: value },
     });
   }
 
@@ -1374,7 +1374,7 @@ function createInsertIndexSteps(
     description: "InsertAtIndex 完成",
     elements: s6Elements as any,
     actionTag: TAGS.INSERT_INDEX_END,
-    variables: { length: totalLen },
+    local_vars: { length: totalLen },
   });
   return steps;
 }
@@ -1421,7 +1421,7 @@ function createDeleteHeadSteps(
       description: `DeleteAtIndex(${value}, ${N}): index 為 0，執行 deleteAtHead`,
       elements: checkElements as any,
       actionTag: TAGS.DELETE_INDEX_IFZERO,
-      variables: {
+      local_vars: {
         index: N,
         targetIndex: 0,
         condition: "index == 0",
@@ -1460,7 +1460,7 @@ function createDeleteHeadSteps(
     description: `DeleteHead(): 標記頭節點 ${deletedNodeData.value} 準備刪除`,
     elements: allS1 as any,
     actionTag: TAGS.DELETE_HEAD_START,
-    variables: { head: deletedNodeData.value },
+    local_vars: { head: deletedNodeData.value },
   });
 
   const s2DelElement = makeNodeAndPointers(
@@ -1506,7 +1506,7 @@ function createDeleteHeadSteps(
     description: "head = head.next (將 head 指標移至下一個節點)",
     elements: allS2 as any,
     actionTag: TAGS.DELETE_HEAD_UPDATE_HEAD,
-    variables: { head: dataList[0]?.value ?? null },
+    local_vars: { head: dataList[0]?.value ?? null },
   });
 
   // 針對雙向鏈結串列：單獨拆出 head.prev = null 的動畫
@@ -1549,7 +1549,7 @@ function createDeleteHeadSteps(
       description: "If head ≠ null, head.prev = null (斷開新頭節點的回指連結)",
       elements: allS3b as any,
       actionTag: TAGS.DELETE_HEAD_UPDATE_PREV,
-      variables: { head: dataList[0]?.value ?? null },
+      local_vars: { head: dataList[0]?.value ?? null },
     });
   }
 
@@ -1571,7 +1571,7 @@ function createDeleteHeadSteps(
       description: isDoubly ? "Else tail = null (串列已空，清空 tail)" : "If head = null, tail = null (串列已空，清空 tail)",
       elements: s2DelElementNoTail as any, // 使用不帶標籤的元素
       actionTag: TAGS.DELETE_HEAD_UPDATE_TAIL,
-      variables: { head: null, tail: null },
+      local_vars: { head: null, tail: null },
     });
   }
 
@@ -1624,7 +1624,7 @@ function createDeleteHeadSteps(
     description: "釋放記憶體：斷開被刪除節點的連結",
     elements: allS3 as any,
     actionTag: TAGS.DELETE_HEAD_FREE,
-    variables: { head: dataList[0]?.value ?? null },
+    local_vars: { head: dataList[0]?.value ?? null },
   });
 
   const s4Elements = dataList.flatMap((item, i) =>
@@ -1646,7 +1646,7 @@ function createDeleteHeadSteps(
     description: "移除舊節點實體",
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_HEAD_END,
-    variables: { head: dataList[0]?.value ?? null, length: currentLen },
+    local_vars: { head: dataList[0]?.value ?? null, length: currentLen },
   });
 
   const s5Elements = dataList.flatMap((item, i) =>
@@ -1668,7 +1668,7 @@ function createDeleteHeadSteps(
     description: "DeleteHead 完成",
     elements: s5Elements as any,
     actionTag: TAGS.DELETE_HEAD_END,
-    variables: { head: dataList[0]?.value ?? null, length: currentLen },
+    local_vars: { head: dataList[0]?.value ?? null, length: currentLen },
   });
 
   return steps;
@@ -1717,7 +1717,7 @@ function createDeleteTailSteps(
       description: `DeleteAtIndex(${value}, ${N}): index 等於長度 ${currentLen}，執行 deleteAtTail`,
       elements: checkElements as any,
       actionTag: TAGS.DELETE_INDEX_IFTAIL,
-      variables: {
+      local_vars: {
         index: N,
         length: currentLen,
         condition: "index == length",
@@ -1746,7 +1746,7 @@ function createDeleteTailSteps(
       description: `DeleteTail(): 找到尾端節點 ${value}`,
       elements: s1Elements as any,
       actionTag: TAGS.DELETE_TAIL_START,
-      variables: {
+      local_vars: {
         current: value,
         tail: value,
       },
@@ -1767,7 +1767,7 @@ function createDeleteTailSteps(
       description: `prev = tail.prev (找到尾端節點的前驅節點)`,
       elements: s2Elements as any,
       actionTag: TAGS.DELETE_TAIL_TRAVERSE,
-      variables: {
+      local_vars: {
         current: value,
         prev: preNodeData.value ?? null,
       },
@@ -1790,7 +1790,7 @@ function createDeleteTailSteps(
       description: `pre.next = null (斷開前一個節點的連結)`,
       elements: s3Elements as any,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
-      variables: {
+      local_vars: {
         "pre.next": null,
         prev: preNodeData.value ?? null,
       },
@@ -1815,7 +1815,7 @@ function createDeleteTailSteps(
       description: `tail = pre (更新 tail 指標指向新的尾節點)`,
       elements: s4Elements as any,
       actionTag: TAGS.DELETE_TAIL_END,
-      variables: {
+      local_vars: {
         tail: preNodeData.value ?? null,
         prev: preNodeData.value ?? null,
       },
@@ -1832,7 +1832,7 @@ function createDeleteTailSteps(
       description: "DeleteTail 完成",
       elements: s5Elements as any,
       actionTag: TAGS.DELETE_TAIL_END,
-      variables: {
+      local_vars: {
         tail: dataList[currentLen - 1].value ?? null,
         length: currentLen,
       },
@@ -1877,7 +1877,7 @@ function createDeleteTailSteps(
           : `找到尾端節點 ${deletedNodeData.value}`,
         elements: traverseElements as any,
         actionTag: TAGS.DELETE_TAIL_TRAVERSE,
-        variables: {
+        local_vars: {
           current: i < currentLen
             ? (actualTraverseNodes[i] as any)?.value ?? null
             : deletedNodeData.value,
@@ -1908,7 +1908,7 @@ function createDeleteTailSteps(
       description: "current.prev.next = null (透過前驅的 prev 指標直接斷開連結)",
       elements: doublyUnlinkElements as any,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
-      variables: { "current.prev.next": null, current: deletedNodeData.value },
+      local_vars: { "current.prev.next": null, current: deletedNodeData.value },
     });
 
     const doublyEndElements = dataList.flatMap((item, i) =>
@@ -1922,7 +1922,7 @@ function createDeleteTailSteps(
       description: "DeleteTail 完成",
       elements: doublyEndElements as any,
       actionTag: TAGS.DELETE_TAIL_END,
-      variables: { length: currentLen },
+      local_vars: { length: currentLen },
     });
     return steps;
 
@@ -1956,7 +1956,7 @@ function createDeleteTailSteps(
         description: `遍歷中：current = current.next (尋找尾端節點)`,
         elements: traverseElements as any,
         actionTag: TAGS.DELETE_TAIL_TRAVERSE,
-        variables: {
+        local_vars: {
           current: (actualTraverseNodes[i] as any)?.value ?? null,
           index: i,
         },
@@ -1991,7 +1991,7 @@ function createDeleteTailSteps(
     description: `DeleteTail(): 找到尾端節點 ${deletedNodeData.value}`,
     elements: s2Elements as any,
     actionTag: TAGS.DELETE_TAIL_TRAVERSE,
-    variables: {
+    local_vars: {
       current: deletedNodeData.value,
       pre: dataList[currentLen - 1].value ?? null,
     },
@@ -2031,7 +2031,7 @@ function createDeleteTailSteps(
     description: "pre.next = null (斷開前一個節點的連結)",
     elements: s3Elements as any,
     actionTag: TAGS.DELETE_TAIL_UNLINK,
-    variables: {
+    local_vars: {
       "pre.next": null,
       pre: dataList[currentLen - 1].value ?? null,
     },
@@ -2072,7 +2072,7 @@ function createDeleteTailSteps(
       description: "tail = pre (更新 tail 指標指向新的尾節點)",
       elements: sTailElements as any,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
-      variables: {
+      local_vars: {
         tail: dataList[currentLen - 1].value ?? null,
         pre: dataList[currentLen - 1].value ?? null,
       },
@@ -2089,7 +2089,7 @@ function createDeleteTailSteps(
     description: "DeleteTail 完成",
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_TAIL_END,
-    variables: {
+    local_vars: {
       tail: dataList[currentLen - 1].value ?? null,
       length: currentLen,
     },
@@ -2149,7 +2149,7 @@ function createDeleteIndexSteps(
       description: `遍歷中：current = current.next (尋找 index ${N})`,
       elements: traverseElements as any,
       actionTag: TAGS.DELETE_INDEX_TRAVERSE,
-      variables: {
+      local_vars: {
         current: oldList[i].value ?? null,
         pre: i > 0 ? (oldList[i - 1].value ?? null) : null,
         index: i,
@@ -2209,7 +2209,7 @@ function createDeleteIndexSteps(
     description: `pre.next = current.next (前驅節點跳過目標指向下一個節點)`,
     elements: s3Elements as any,
     actionTag: TAGS.DELETE_INDEX_UNLINK,
-    variables: {
+    local_vars: {
       "pre.next": oldList[N + 1]?.value ?? null,
       pre: oldList[N - 1].value ?? null,
       nodeToDelete: oldList[N].value ?? null,
@@ -2265,7 +2265,7 @@ function createDeleteIndexSteps(
       description: `current.next.prev = pre (後繼節點的 prev 回指前驅節點)`,
       elements: s3bElements as any,
       actionTag: TAGS.DELETE_INDEX_UNLINK,
-      variables: {
+      local_vars: {
         "current.next.prev": oldList[N - 1]?.value ?? null,
       },
     });
@@ -2319,7 +2319,7 @@ function createDeleteIndexSteps(
       description: "tail = pre (更新 tail 指標指向新的尾節點)",
       elements: sTailElements as any,
       actionTag: TAGS.DELETE_INDEX_UNLINK,
-      variables: {
+      local_vars: {
         tail: oldList[N - 1].value ?? null,
         pre: oldList[N - 1].value ?? null,
       },
@@ -2385,7 +2385,7 @@ function createDeleteIndexSteps(
     description: "釋放記憶體：斷開被刪除節點的連結",
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_INDEX_END,
-    variables: {
+    local_vars: {
       "current.next": null,
       pre: oldList[N - 1].value ?? null,
       nodeToDelete: oldList[N].value ?? null,
@@ -2410,7 +2410,7 @@ function createDeleteIndexSteps(
     description: "DeleteAtIndex 完成",
     elements: s5Elements as any,
     actionTag: TAGS.DELETE_INDEX_END,
-    variables: { length: currentLen },
+    local_vars: { length: currentLen },
   });
   return steps;
 }

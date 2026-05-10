@@ -15,7 +15,6 @@ export interface AnimationStep {
   elements: BaseElement[];
   actionTag?: string; // 用於對應代碼高亮的標籤
   local_vars?: Record<string, any>;
-  variables?: Record<string, any>;
   global_vars?: Record<string, any>;
   links?: {
     sourceId: string;

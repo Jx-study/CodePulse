@@ -351,7 +351,7 @@ export const InspectorPanelInternal = ({
           let tabProps: Record<string, unknown> = {};
           if (tab.key === "actionBar") tabProps = actionBarProps;
           else if (tab.key === "variableStatus")
-            tabProps = { variables: currentStepData?.variables };
+            tabProps = { variables: currentStepData?.local_vars };
 
           return (
             <div
