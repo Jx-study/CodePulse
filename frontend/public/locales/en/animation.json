@@ -53,5 +53,16 @@
     "calc_multiply": "Value updated: {{current_f}} * {{child_val}} = {{new_val}}",
     "pop_right": "f({{returned_f}}) completed returning {{returned_val}}, popped and exiting to the right",
     "done": "Recursion complete! Final result f({{final_result}}) calculated successfully"
+  },
+  "trie": {
+    "init": "Trie initialized with default words",
+    "insert_start": "Insert: Preparing to insert word '{{word}}'",
+    "char_match": "Match char '{{char}}' (prefix {{prefix}}): Path exists, traversing",
+    "char_create": "Create node '{{char}}' (prefix {{prefix}}): Creating new branch",
+    "set_end": "Mark End: Setting the final node of '{{word}}' as end of word [Word]",
+    "search_start": "Search Mode ({{mode}}): Searching for '{{word}}'",
+    "search_found": "Search Success! '{{word}}' matches the criteria",
+    "search_not_found": "Search Failed: {{error}}",
+    "done": "Operation completed successfully!"
   }
 }

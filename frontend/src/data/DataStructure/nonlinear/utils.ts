@@ -332,10 +332,11 @@ export function createGraphElements(
 
 export interface HierarchyDatum {
   id: string;
-  value: number;
+  value: string | number;
   count?: number;
   children?: HierarchyDatum[];
   isDummy?: boolean;
+  isEndOfWord?: boolean; // Trie 專用
 }
 
 export function buildD3HierarchyData(
@@ -367,6 +368,45 @@ export function buildD3HierarchyData(
       }
     }
   }
+  return root;
+}
+
+export function buildTrieHierarchyData(words: string[]): HierarchyDatum | null {
+  const root: HierarchyDatum = {
+    id: "trie-root",
+    value: "Root",
+    children: [],
+    isEndOfWord: false,
+  };
+
+  words.forEach((word) => {
+    let curr = root;
+    let prefix = "";
+
+    for (let i = 0; i < word.length; i++) {
+      const char = word[i];
+      prefix += char;
+
+      // 尋找當前節點的孩子中是否已有該字元
+      if (!curr.children) curr.children = [];
+      let nextNode = curr.children.find((child) => child.value === char);
+
+      if (!nextNode) {
+        nextNode = {
+          id: `trie-node-${prefix}`, // 使用前綴作為唯一 ID 避免衝突
+          value: char,
+          children: [],
+          isEndOfWord: false,
+        };
+        curr.children.push(nextNode);
+      }
+
+      curr = nextNode;
+    }
+    // 標記最後一個字元為單字結尾
+    curr.isEndOfWord = true;
+  });
+
   return root;
 }
 
@@ -450,7 +490,7 @@ export function createTreeNodes(
     offsetX?: number;
     offsetY?: number;
     degree?: number;
-    type?: "bst" | "binarytree";
+    type?: "bst" | "binarytree" | "trie";
   } = {},
 ): Node[] {
   const {
@@ -462,10 +502,16 @@ export function createTreeNodes(
     type = "binarytree",
   } = options;
 
-  const hierarchyData =
-    type === "bst"
-      ? buildBSTHierarchyData(inputData)
-      : buildD3HierarchyData(inputData, degree);
+  let hierarchyData: HierarchyDatum | null = null;
+
+  if (type === "bst") {
+    hierarchyData = buildBSTHierarchyData(inputData);
+  } else if (type === "trie") {
+    // 傳入的 inputData 預期為字串陣列，例如 ["app", "apple", "cat"]
+    hierarchyData = buildTrieHierarchyData(inputData);
+  } else {
+    hierarchyData = buildD3HierarchyData(inputData, degree);
+  }
 
   if (!hierarchyData) return [];
 
@@ -479,8 +525,8 @@ export function createTreeNodes(
   rootWithPos.descendants().forEach((d) => {
     if (d.data.isDummy) return;
 
-    const count = d.data.count;
-    const descText = count && count > 1 ? `Count: ${count}` : "";
+    // 視覺提示：如果是單字結尾，在下方描述中標記 [Word]
+    const descText = d.data.isEndOfWord ? "[Word]" : "";
 
     const node = createNodeInstance(
       d.data.id,

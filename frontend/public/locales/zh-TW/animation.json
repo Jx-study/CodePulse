@@ -53,5 +53,16 @@
     "calc_multiply": "更新數值：{{current_f}} * {{child_val}} = {{new_val}}",
     "pop_right": "f({{returned_f}}) 結算完成回傳 {{returned_val}}，移出堆疊往右退場",
     "done": "遞迴全部完成！最終結果 f({{final_result}}) 結算成功"
+  },
+  "trie": {
+    "init": "字典樹初始化：當前已載入預設單字",
+    "insert_start": "Insert：準備將單字 '{{word}}' 插入字典樹",
+    "char_match": "比對字元 '{{char}}' (前綴 {{prefix}})：該路徑已存在，平滑走訪",
+    "char_create": "新增字元節點 '{{char}}' (前綴 {{prefix}})：開闢新分支",
+    "set_end": "標記結尾：將路徑 '{{word}}' 的終點節點設為單字結尾 [Word]",
+    "search_start": "搜尋模式 ({{mode}})：開始尋找單字 '{{word}}'",
+    "search_found": "搜尋成功！'{{word}}' 完全符合條件",
+    "search_not_found": "搜尋失敗：{{error}}",
+    "done": "操作全部執行完畢！"
   }
 }

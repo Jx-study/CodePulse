@@ -151,6 +151,7 @@ export type ImplementationId =
   | "bst"
   | "graph"
   | "heap"
+  | "trie"
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
