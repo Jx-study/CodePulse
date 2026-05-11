@@ -926,7 +926,7 @@ function TutorialContent() {
     isAnimatingRef.current = true;
     let completed = 0;
     const duration = Math.round(
-      (isPlayingRef.current ? 800 : 1200) / playbackSpeed,
+      (isPlayingRef.current ? 200 : 300) / playbackSpeed,
     );
 
     changedLinks.forEach((link) => {

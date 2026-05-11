@@ -205,7 +205,7 @@ export function TopSection(props: TopSectionProps) {
                           language="python"
                           value={currentCodeConfig?.[codeMode]?.content || ""}
                           highlightedLine={highlightLines}
-                          readOnly={codeMode === "pseudo"}
+                          readOnly={true}
                           theme="auto"
                         />
                       </Suspense>
@@ -383,7 +383,7 @@ export function TopSection(props: TopSectionProps) {
                           language="python"
                           value={currentCodeConfig?.[codeMode]?.content || ""}
                           highlightedLine={highlightLines}
-                          readOnly={codeMode === "pseudo"}
+                          readOnly={true}
                           theme="auto"
                         />
                       </Suspense>
