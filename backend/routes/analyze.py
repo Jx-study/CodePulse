@@ -1,10 +1,8 @@
-import hashlib
 import json
 import logging
 from flask import Blueprint, jsonify, request, g, Response, stream_with_context
 from auth_utils import login_required
-from models.explorer import ExploreHistory
-from services.code_normalizer import normalize_code
+from services.playground_history import MAX_HISTORY, has_history_capacity, matches_existing_history
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
@@ -30,8 +28,14 @@ def submit():
 
     code = data["code"]
     save_history = data.get("save_history", True) is not False
-    if _matches_existing_history(code, g.current_user_id):
-        return jsonify({"duplicate": True}), 200
+    if save_history:
+        if matches_existing_history(code, g.current_user_id):
+            return jsonify({"duplicate": True}), 200
+        if not has_history_capacity(g.current_user_id):
+            return jsonify({
+                "error": "history_quota_exceeded",
+                "limit": MAX_HISTORY,
+            }), 409
 
     try:
         wrapped_code, _ = precheck_and_wrap(code)
@@ -52,30 +56,6 @@ def submit():
     )
     return jsonify({"task_id": task_id}), 202
 
-
-def _matches_existing_history(code: str, user_id: int) -> bool:
-    normalized = normalize_code(code)
-    if not normalized:
-        return False
-
-    current_hash = hashlib.sha256(normalized.encode()).hexdigest()
-    history_codes = (
-        ExploreHistory.query
-        .with_entities(ExploreHistory.user_code)
-        .filter_by(user_id=user_id)
-        .all()
-    )
-    for (history_code,) in history_codes:
-        history_normalized = normalize_code(history_code)
-        if not history_normalized:
-            continue
-        history_hash = hashlib.sha256(history_normalized.encode()).hexdigest()
-        if history_hash == current_hash:
-            return True
-
-    return False
-
-
 @analyze_bp.route('/status/<task_id>', methods=['GET'])
 def status(task_id: str):
     """輪詢任務狀態（前端每 2 秒呼叫）"""
@@ -89,6 +69,9 @@ def status(task_id: str):
 @login_required
 def stream(task_id: str):
     """SSE endpoint: streams progress events until task completes or fails."""
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+
     def generate():
         for event in task_queue.stream_progress(task_id):
             yield f"data: {json.dumps(event)}\n\n"
@@ -104,8 +87,12 @@ def stream(task_id: str):
 
 
 @analyze_bp.route('/result/<task_id>', methods=['GET'])
+@login_required
 def result(task_id: str):
     """取得分析結果（status = completed 後才有效）"""
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+
     task = task_queue.get_task(task_id)
     if task is None:
         return jsonify({"error": "task not found"}), 404
