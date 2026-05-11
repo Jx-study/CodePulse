@@ -9,8 +9,9 @@
 
 import apiService from "@/api/api";
 import type { TraceEvent, CallGraph, CfgGraph, CfgGraphMap, StdoutEvent } from "@/types/trace";
-import type { AiResult, AlgoCandidate } from "@/pages/Explorer/components/AiAnalysisDialog";
-import type { RunStage } from "@/pages/Explorer/components/StatusBar";
+import type { AiResult, AlgoCandidate } from "@/types/ai";
+import type { RunStage } from "@/types/runStage";
+import { mapAiResult } from "@/services/ComplexityService";
 
 export type AnalyzeErrorType =
   | "empty_code"
@@ -130,7 +131,12 @@ async function poll(
             if (detail === "timeout") {
               reject(new AnalyzeError("timeout", "timeout"));
             } else if (detail) {
-              reject(new AnalyzeError("runtime_error", detail));
+              const m = typeof detail === "string" ? detail.match(/^lineno:(\d+):(.+)$/) : null;
+              if (m) {
+                reject(new AnalyzeError("runtime_error", m[2], parseInt(m[1], 10)));
+              } else {
+                reject(new AnalyzeError("runtime_error", detail));
+              }
             } else {
               reject(new AnalyzeError("analysis_failed", "analysis failed"));
             }
@@ -169,6 +175,8 @@ async function fetchResult(taskId: string): Promise<AnalyzeResult> {
       }
     : null;
 
+  const { aiResult, top3Candidates } = mapAiResult(r);
+
   return {
     trace: r.execution_trace ?? [],
     rawTrace: r.raw_trace ?? r.execution_trace ?? [],
@@ -177,14 +185,7 @@ async function fetchResult(taskId: string): Promise<AnalyzeResult> {
     stdoutEvents: r.stdout_events ?? [],
     callGraph,
     cfgGraph: r.cfg_graph ?? {},
-    aiResult: {
-      detected_algorithm: r.detected_algorithm ?? null,
-      confidence_score: r.confidence_score ?? null,
-      time_complexity: r.time_complexity ?? null,
-      analysis_source: r.analysis_source ?? null,
-      summary: r.summary ?? null,
-      suggestions: r.suggestions ?? [],
-    },
-    top3Candidates: r.top3_candidates ?? [],
+    aiResult,
+    top3Candidates,
   };
 }

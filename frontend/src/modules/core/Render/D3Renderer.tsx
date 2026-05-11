@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import type { MutableRefObject } from "react";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
@@ -58,6 +57,7 @@ export interface Link {
   targetId: string;
   status?: linkStatus;
   weight?: number | string;
+  direction?: "next" | "prev";
 }
 
 /**
@@ -154,7 +154,7 @@ function drawContainer(
   const startX = 55;
   const endX = 900; // 畫長一點涵蓋整個視窗
 
-  if (type === "stack") {
+  if (type === "stack" || type === "factorial") {
     // Stack: 畫「左」、「上」、「下」 (開口向右)
     // 上線
     scene
@@ -282,10 +282,7 @@ export function renderAll(
   structureType: string = "linkedlist",
   isDirected: boolean = true,
   statusColorMap?: StatusColorMap,
-  animGuards?: {
-    animStateRef: MutableRefObject<Map<string, number>>;
-    animatingNodesRef: MutableRefObject<Set<string>>;
-  },
+  showBidirectionalArrows: boolean = false,
 ): { containerBBox: BBox | null } {
   // Inject custom color map into all elements if provided
   if (statusColorMap) {
@@ -426,7 +423,8 @@ export function renderAll(
 
       // 如果是「無向圖」，僅在反向邊也存在時才去重（避免誤刪樹的單向邊）
       // 例如 node-0 和 node-1 之間，若雙向都存在，只保留 id 較小的那條
-      if (!isDirected) {
+      // showBidirectionalArrows 時保留 A→B 與 B→A 兩條，供平行偏移箭頭渲染
+      if (!isDirected && !showBidirectionalArrows) {
         // 自環：sourceId === targetId，有向無向行為相同，直接保留（只取一次）
         if (d.s.id === d.t.id) {
           if (seenSelfLoops.has(d.s.id)) return false;
@@ -457,9 +455,33 @@ export function renderAll(
     .selectAll<SVGGElement, any>("g.link-group")
     .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
 
-  // 1. Exit：移除非當前的線，終點縮向起點
-  linkGroups
-    .exit()
+  // 1. Exit：移除非當前的線，終點縮向起點 (與登場動畫對稱)
+  const exitingLinks = linkGroups.exit();
+
+  exitingLinks
+    .select("path.link")
+    .transition()
+    .duration(transitionDuration)
+    .ease(transitionEase)
+    .attr("d", (d: any) => {
+      const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
+      const pathOffset =
+        (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
+      if (d.s.id === d.t.id) {
+        return selfLoopBezierZeroPath(
+          d.s.position.x,
+          d.s.position.y,
+          d.s.radius || 20,
+        );
+      }
+      return zeroLengthPath(
+        { x: d.s.position.x, y: d.s.position.y, r: d.s.radius ?? 20 },
+        { x: d.t.position.x, y: d.t.position.y, r: d.t.radius ?? 20 },
+        pathOffset,
+      );
+    });
+
+  exitingLinks
     .transition()
     .duration(transitionDuration)
     .style("opacity", 0)
@@ -490,7 +512,8 @@ export function renderAll(
         return "";
       }
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-      const pathOffset = isDirected && hasReverse ? 8 : 0;
+      const pathOffset =
+        (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
       if (d.s.id === d.t.id) {
         return selfLoopBezierZeroPath(
           d.s.position.x,
@@ -527,13 +550,11 @@ export function renderAll(
   // 3. Merge & Update：更新所有群組的位置與狀態
   const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
 
-  // 更新線條動畫（動畫中的 link 由 animateLink 接管，不覆寫）
+  // 更新線條動畫
   mergedLinkGroups.each(function (d) {
-    const linkKey = `${d.s.id}->${d.t.id}`;
-    if (animGuards?.animStateRef.current.has(linkKey)) return;
-
     const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
-    const pathOffset = isDirected && hasReverse ? 8 : 0;
+    const pathOffset =
+      (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
     const pathD = (() => {
       if (
         isNaN(d.s.position.x) ||
@@ -721,7 +742,6 @@ export function renderAll(
 
   // 個別型別屬性 + 描述文字
   merged.each(function (d) {
-    if (animGuards?.animatingNodesRef.current.has(String(d.id))) return;
 
     const g = d3.select(this);
 

@@ -8,6 +8,7 @@ analyze_complexity(code) -> str
 from __future__ import annotations
 
 import ast
+from services.complexity_labels import normalize_complexity
 
 
 def _max_loop_depth(node: ast.AST) -> int:
@@ -31,6 +32,18 @@ def _has_direct_recursion(func_def: ast.FunctionDef) -> bool:
         if isinstance(node, ast.Call):
             if isinstance(node.func, ast.Name) and node.func.id == func_name:
                 return True
+    return False
+
+
+def is_recursive(code: str) -> bool:
+    """Return True if any top-level function in code calls itself directly."""
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and _has_direct_recursion(node):
+            return True
     return False
 
 
@@ -68,7 +81,9 @@ def analyze_complexity(code: str) -> str:
         if is_recursive and loop_depth >= 1:
             label = "O(n log n)"
         elif is_recursive:
-            label = "O(log n)"
+            # AST cannot distinguish halving recursion (O(log n)) from linear
+            # recursion (O(n)); conservative default is O(n).
+            label = "O(n)"
         elif loop_depth == 0:
             label = "O(1)"
         elif loop_depth == 1:
@@ -80,4 +95,4 @@ def analyze_complexity(code: str) -> str:
 
         best = _higher(best, label)
 
-    return best
+    return normalize_complexity(best) or "unknown"

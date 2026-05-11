@@ -50,12 +50,14 @@ export type AlgorithmViewMode =
   | "grid"
   | "longest_lte"
   | "shortest_gte";
+/** Sliding window run payload mode (matches ActionBar options). */
+export type SlidingWindowMode = "longest_lte" | "shortest_gte";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
-  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
@@ -72,6 +74,7 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number };
 
 export interface BaseActionBarProps {
@@ -89,6 +92,9 @@ export interface DSActionBarProps extends BaseActionBarProps {
   onSearchNode: (value: number, mode?: string) => void;
   onPeek?: () => void;
   onTailModeChange?: (hasTail: boolean) => void;
+  onListModeChange?: (mode: "singly" | "doubly") => void;
+  hasTailMode?: boolean;
+  listMode?: "singly" | "doubly";
   onGraphAction?: (action: string, payload: any) => void;
   onCustomAction?: (action: string, payload: any) => void;
   isDirected?: boolean;
@@ -164,6 +170,7 @@ export type ImplementationId =
   | "fibonacci"
   | "knapsack"
   | "n-queens"
-  | "topological-sort";
+  | "topological-sort"
+  | "factorial";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;

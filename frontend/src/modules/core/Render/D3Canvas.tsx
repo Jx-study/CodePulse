@@ -1,4 +1,4 @@
-import {
+﻿import {
   useEffect,
   useRef,
   forwardRef,
@@ -10,11 +10,13 @@ import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { renderAll } from "./D3Renderer";
+import type { Link } from "./D3Renderer";
 import { circleBoundaryPoint } from "./linkGeometry";
 import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
 import CanvasShell from "./CanvasShell";
-import type { AnimatableCanvasRef, D3CanvasProps } from "@/types/canvasTypes";
+import type { AnimatableCanvasRef } from "@/types/canvasTypes";
+import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import { computeUnionBBox } from "./useBoxViewBox";
 import styles from "./D3Canvas.module.scss";
 
@@ -24,7 +26,34 @@ export interface D3CanvasRef extends AnimatableCanvasRef {
 
 export const D3Canvas = forwardRef<
   D3CanvasRef,
-  D3CanvasProps
+  {
+    elements: BaseElement[];
+    links?: Link[];
+    width?: number;
+    height?: number;
+    structureType?: string;
+    /** 是否啟用縮放功能 (預設: true) */
+    enableZoom?: boolean;
+    /** 是否啟用拖拽平移功能 (預設: true) */
+    enablePan?: boolean;
+    /** Optional custom status color map - 可選的自訂狀態顏色映射表 */
+    statusColorMap?: StatusColorMap;
+    /** Optional custom status configuration - 可選的自訂狀態配置 */
+    statusConfig?: StatusConfig;
+    isDirected?: boolean;
+    showStatusLegend?: boolean;
+    /**
+     * 雙向連線時是否畫兩條平行偏移箭頭（與 isDirected 資料語義分離；預設 false）
+     */
+    showBidirectionalArrows?: boolean;
+    /**
+     * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
+     * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
+     * 確保 viewBox 能包含整個動畫期間出現的所有元素，不隨每步更新。
+     * 未提供時：沿用原有行為（每次 elements 改變都重算 viewBox）。
+     */
+    allStepsElements?: BaseElement[][];
+  }
 >(
   (
     {
@@ -39,6 +68,7 @@ export const D3Canvas = forwardRef<
       statusConfig,
       showStatusLegend = true,
       isDirected = false,
+      showBidirectionalArrows = false,
       allStepsElements,
     },
     forwardedRef,
@@ -48,7 +78,6 @@ export const D3Canvas = forwardRef<
     const elementsRef = useRef<BaseElement[]>(elements);
     const animDefsRef = useRef<SVGDefsElement | null>(null);
     const animStateRef = useRef<Map<string, number>>(new Map());
-    const animatingNodesRef = useRef<Set<string>>(new Set());
     const isDirectedRef = useRef(isDirected);
     const shouldHideArrowRef = useRef(false);
 
@@ -416,18 +445,9 @@ export const D3Canvas = forwardRef<
       }
       animDefsRef.current = animDefs.node();
 
-      // Phase 1: 渲染當前步驟的實際元素（需先執行以取得 containerBBox）
-      const { containerBBox } = renderAll(
-        svgElement,
-        elements,
-        links,
-        structureType,
-        isDirected,
-        statusColorMap,
-        { animStateRef, animatingNodesRef },
-      );
-
-      // Phase 2: ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）
+      // ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）。
+      // 不使用 renderAll 前置呼叫取得 containerBBox（會造成雙重 D3 轉場競爭）；
+      // linked list 節點範圍已由 computeUnionBBox 涵蓋。
       if (allStepsElements !== prevAllStepsRef.current) {
         prevAllStepsRef.current = allStepsElements;
 
@@ -440,23 +460,29 @@ export const D3Canvas = forwardRef<
         const unionBBox = computeUnionBBox(stepsToMeasure);
 
         if (unionBBox) {
-          if (containerBBox) {
-            unionBBox.minX = Math.min(unionBBox.minX, containerBBox.minX);
-            unionBBox.minY = Math.min(unionBBox.minY, containerBBox.minY);
-            unionBBox.maxX = Math.max(unionBBox.maxX, containerBBox.maxX);
-            unionBBox.maxY = Math.max(unionBBox.maxY, containerBBox.maxY);
-          }
           const contentWidth = unionBBox.maxX - unionBBox.minX + padding * 2;
           const contentHeight = unionBBox.maxY - unionBBox.minY + padding * 2;
-          setDynamicViewBox(
-            `${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`,
-          );
+          const newViewBox = `${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`;
+          // Sync DOM update before renderAll starts transitions — prevents mid-transition
+          // viewBox jump caused by the async React re-render from setDynamicViewBox.
+          svgElement.setAttribute("viewBox", newViewBox);
+          setDynamicViewBox(newViewBox);
           const containerWidth = svgElement.clientWidth;
           if (containerWidth > 0) {
             setDynamicMaxZoom(Math.max(2.0, contentWidth / containerWidth));
           }
         }
       }
+
+      renderAll(
+        svgElement,
+        elements,
+        links,
+        structureType,
+        isDirected,
+        statusColorMap,
+        showBidirectionalArrows,
+      );
 
       return () => {
         if (svgElement) {
@@ -465,7 +491,6 @@ export const D3Canvas = forwardRef<
         animStateRef.current.forEach((id) => cancelAnimationFrame(id));
         animStateRef.current.clear();
         animDefsRef.current = null;
-        animatingNodesRef.current.clear();
       };
     }, [
       elements,
@@ -476,6 +501,7 @@ export const D3Canvas = forwardRef<
       height,
       isDirected,
       statusColorMap,
+      showBidirectionalArrows,
     ]);
 
     return (

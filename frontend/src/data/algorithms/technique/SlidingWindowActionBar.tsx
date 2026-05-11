@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
-import { toast } from "@/shared/components/Toast"
-import type { AlgoActionBarProps } from "@/types/implementation";
+import { toast } from "@/shared/components/Toast";
+import type {
+  AlgoActionBarProps,
+  AlgorithmViewMode,
+  SlidingWindowMode,
+} from "@/types/implementation";
 import {
   ActionBarContainer,
   ActionBarGroup,
@@ -12,6 +16,17 @@ import {
   StaticLabel,
   styles,
 } from "@/modules/core/components/ActionBar/ActionBarCommon";
+
+const DEFAULT_SLIDING_MODE: SlidingWindowMode = "longest_lte";
+
+function toSlidingWindowMode(
+  viewMode: AlgorithmViewMode | undefined,
+): SlidingWindowMode {
+  if (viewMode === "longest_lte" || viewMode === "shortest_gte") {
+    return viewMode;
+  }
+  return DEFAULT_SLIDING_MODE;
+}
 
 export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
   onLoadData,
@@ -26,19 +41,19 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
 }) => {
   const [targetSum, setTargetSum] = useState<string>("20");
 
-  const currentMode = viewMode || "longest_lte";
+  const currentMode = toSlidingWindowMode(viewMode);
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newMode = e.target.value as any;
-    if (onViewModeChange) {
-      onViewModeChange(newMode);
+    const v = e.target.value;
+    if (v === "longest_lte" || v === "shortest_gte") {
+      onViewModeChange?.(v);
     }
   };
 
   const handleRun = () => {
     const val = parseInt(targetSum, 10);
     if (!isNaN(val)) {
-      onRun({ type: "slidingWindow", mode: currentMode as any, targetSum: val });
+      onRun({ type: "slidingWindow", mode: currentMode, targetSum: val });
     } else {
       toast.warning("請輸入有效的目標和數值");
     }

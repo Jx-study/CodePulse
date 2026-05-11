@@ -47,5 +47,15 @@
     "pivot_set": "分區完成，將基準點 {{pivotVal}} 放回正確的排序位置 (Index {{pivotIdx}})",
     "base_case": "區間只剩一個元素 {{value}}，直接標記為已排序",
     "done": "快速排序完成！所有元素皆已在正確位置。"
+  },
+  "factorial": {
+    "init": "Stack 初始化：準備計算 f({{targetN}})",
+    "push_start": "呼叫 f({{n}})：準備自右側進場推入堆疊",
+    "push_assign": "f({{n}}) 正式進入堆疊槽位",
+    "base_case": "達到 Base Case：f({{n}}) = {{val}}，準備開始回溯累乘",
+    "calc_start": "準備將 f({{current_f}}-1) 的回傳值 ({{child_val}}) 與當前數值 ({{current_val}}) 相乘",
+    "calc_multiply": "更新數值：{{current_f}} * {{child_val}} = {{new_val}}",
+    "pop_right": "f({{returned_f}}) 結算完成回傳 {{returned_val}}，移出堆疊往右退場",
+    "done": "遞迴全部完成！最終結果 f({{final_result}}) 結算成功"
   }
 }

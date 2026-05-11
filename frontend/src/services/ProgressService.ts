@@ -222,6 +222,10 @@ export function calculateDisplayStatus(
 
 // ==================== 進度統計 ====================
 
+export function isProgressTrackableLevel(level: Level): boolean {
+  return level.pathMetadata?.pathType !== "portal";
+}
+
 /**
  * 計算總體進度統計
  */
@@ -235,13 +239,21 @@ export function calculateOverallProgress(
   earnedStars: number;
   completionRate: number;
 } {
-  const totalLevels = allLevels.length;
-  const completedLevels = Object.values(userProgress.levels).filter(
-    (progress) => progress.status === "completed",
+  const progressTrackableLevels = allLevels.filter(isProgressTrackableLevel);
+  const progressTrackableLevelIds = new Set(
+    progressTrackableLevels.map((level) => level.id),
+  );
+
+  const totalLevels = progressTrackableLevels.length;
+  const completedLevels = progressTrackableLevels.filter(
+    (level) => userProgress.levels[level.id]?.status === "completed",
   ).length;
   const totalStars = totalLevels * 3;
   const earnedStars = Object.values(userProgress.levels).reduce(
-    (sum, progress) => sum + progress.stars,
+    (sum, progress) =>
+      progressTrackableLevelIds.has(progress.levelId)
+        ? sum + progress.stars
+        : sum,
     0,
   );
   const completionRate =
@@ -263,7 +275,7 @@ export function calculateCategoryProgress(
   allLevels: Level[],
   userProgress: UserProgress,
 ): Record<CategoryType, CategoryProgressInfo> {
-  return allLevels.reduce(
+  return allLevels.filter(isProgressTrackableLevel).reduce(
     (acc, level) => {
       const category = level.category;
 

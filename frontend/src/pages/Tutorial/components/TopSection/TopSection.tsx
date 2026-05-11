@@ -37,6 +37,7 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  showBidirectionalArrows: boolean;
   viewMode: AlgorithmViewMode | "";
   isPlaying: boolean;
   currentStep: number;

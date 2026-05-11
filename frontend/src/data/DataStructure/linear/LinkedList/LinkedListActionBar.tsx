@@ -23,6 +23,9 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   onDeleteNode,
   onSearchNode,
   onTailModeChange,
+  onListModeChange,
+  hasTailMode = false,
+  listMode = "singly",
   maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
@@ -55,7 +58,6 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
     const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
     onDeleteNode(insertMode, idx);
   };
-
   return (
     <ActionBarContainer>
       <ActionBarGroup>
@@ -67,9 +69,26 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           disabled={disabled}
           maxNodes={maxNodes}
         />
+        {onListModeChange && (
+          <Select
+            size="sm"
+            value={listMode}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onListModeChange(e.target.value as "singly" | "doubly")
+            }
+            className={styles.select}
+            disabled={disabled}
+            options={[
+              { value: "singly", label: "單向 (Singly)" },
+              { value: "doubly", label: "雙向 (Doubly)" },
+            ]}
+            aria-label="List mode selection"
+          />
+        )}
         {onTailModeChange && (
           <Select
             size="sm"
+            value={hasTailMode ? "hasTail" : "noTail"}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               onTailModeChange(e.target.value === "hasTail")
             }

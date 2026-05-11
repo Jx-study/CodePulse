@@ -1,23 +1,22 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import viteCompression from 'vite-plugin-compression';
-import { visualizer } from 'rollup-plugin-visualizer';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import viteCompression from "vite-plugin-compression";
+import { visualizer } from "rollup-plugin-visualizer";
+import path from "path";
 
 export default defineConfig((_env) => {
-  const isAnalyze = process.env.ANALYZE === 'true';
+  const isAnalyze = process.env.ANALYZE === "true";
 
   return {
     plugins: [
       react(),
-        // Gzip 壓縮
+      // Gzip 壓縮
       viteCompression({
         algorithm: "gzip",
         ext: ".gz",
         threshold: 10240,
         deleteOriginFile: false,
       }),
-      ,
       // Bundle 分析（ANALYZE=true npm run build）
       ...(isAnalyze
         ? [
@@ -35,6 +34,7 @@ export default defineConfig((_env) => {
       port: 5173, // 預設端口
       watch: {
         usePolling: true, // Docker volume mount 需要 polling 才能偵測檔案變化
+        ignored: ["**/node_modules/**", "**/.git/**", "**/dist/**"],
       },
       proxy: {
         "/api": {

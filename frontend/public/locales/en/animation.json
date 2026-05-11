@@ -47,5 +47,15 @@
     "pivot_set": "Partitioning complete, placing pivot {{pivotVal}} at its correct sorted position (Index {{pivotIdx}})",
     "base_case": "Range has only one element {{value}}, marking it directly as sorted",
     "done": "Quick Sort complete! All elements are now in their correct positions."
+  },
+  "factorial": {
+    "init": "Stack Initialization: Preparing to calculate f({{targetN}})",
+    "push_start": "Call f({{n}}): Preparing to push onto the stack from the right",
+    "push_assign": "f({{n}}) successfully placed in the stack slot",
+    "base_case": "Base Case reached: f({{n}}) = {{val}}, starting backtracking and multiplication",
+    "calc_start": "Preparing to multiply the returned value of f({{current_f}}-1) ({{child_val}}) by current value ({{current_val}})",
+    "calc_multiply": "Value updated: {{current_f}} * {{child_val}} = {{new_val}}",
+    "pop_right": "f({{returned_f}}) completed returning {{returned_val}}, popped and exiting to the right",
+    "done": "Recursion complete! Final result f({{final_result}}) calculated successfully"
   }
 }
