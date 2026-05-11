@@ -34,6 +34,7 @@ import {
   calculateDisplayStatus,
   calculateOverallProgress,
   calculateCategoryProgress,
+  isProgressTrackableLevel,
   startLevel,
 } from "@/services/ProgressService";
 import {
@@ -94,7 +95,13 @@ function LearningDashboardInner() {
 
   // 計算每個 Category 的 Level 數量
   const levelCounts = Object.fromEntries(
-    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length - 1])
+    categories.map((c) => [
+      c.id,
+      allLevels.filter(
+        (level) =>
+          level.category === c.id && isProgressTrackableLevel(level),
+      ).length,
+    ]),
   ) as Partial<Record<CategoryType, number>>;
 
   // 建立分類顏色對照表
