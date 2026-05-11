@@ -274,6 +274,7 @@ export function LabProvider({ children }: { children: ReactNode }) {
       for (const id of ids) {
         if (cancelled) return;
         const ms = benchmarkExecMs(id);
+        if (cancelled) return;
         setExecTimeMsById((prev) => ({ ...prev, [id]: ms }));
         await yieldToMain();
       }
@@ -284,6 +285,7 @@ export function LabProvider({ children }: { children: ReactNode }) {
             if (cancelled) return;
             const data = generateCaseData(n, caseType);
             const ms = benchmarkExecMs(id, data);
+            if (cancelled) return;
             points.push({ n, ms });
             setBenchmarkById((prev) => ({
               ...prev,
