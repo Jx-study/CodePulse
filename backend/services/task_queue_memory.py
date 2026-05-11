@@ -29,17 +29,24 @@ class TaskQueue:
     def submit(self, *args, **kwargs) -> str:
         from services.analysis_runner import _run_analysis  # lazy — breaks circular import
         task_id = str(uuid.uuid4())
+        user_id = kwargs.get("user_id")
         with self._lock:
             self._tasks[task_id] = {
                 "status": STATUS_PENDING,
                 "progress": {"stage": STAGE_SYNTAX_CHECK, "message": "Checking syntax and starting sandbox…"},
                 "result": None,
                 "error": None,
+                "user_id": user_id,
                 "created_at": datetime.now(timezone.utc),
             }
             self._queues[task_id] = queue_mod.SimpleQueue()
         self._executor.submit(self._run, task_id, _run_analysis, args, kwargs)
         return task_id
+
+    def owns_task(self, task_id: str, user_id: int) -> bool:
+        with self._lock:
+            task = self._tasks.get(task_id)
+        return task is not None and task.get("user_id") == user_id
 
     def get_status(self, task_id: str) -> dict | None:
         with self._lock:

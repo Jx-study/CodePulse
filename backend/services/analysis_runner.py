@@ -15,6 +15,7 @@ from services.algo_identification.divergence_log import log_divergence
 from services.ast_complexity import is_recursive as ast_is_recursive
 from services.gemini_analysis import analyze as gemini_analyze
 from services.gemini_analysis.result import GeminiAnalysisResult
+from services.playground_history import has_history_capacity
 from services.task_queue import (
     task_queue,
     STAGE_SANDBOX,
@@ -88,6 +89,10 @@ def _save_history(
     cfg_graph: dict,
     stdout_events: list,
 ) -> None:
+    if not has_history_capacity(user_id):
+        logger.info("Explore history quota reached for user %s; skipping persistence", user_id)
+        return
+
     source_map = {
         "gemini":       AnalysisSource.gemini,
         "ast+bigO":     AnalysisSource.ast_bigO,

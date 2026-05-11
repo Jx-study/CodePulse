@@ -1,20 +1,24 @@
 import json
 import os
+import time
+
 import redis as redis_lib
 from celery.result import AsyncResult
-from celery_app import celery_app  # noqa: F401 — ensures celery_app is configured
+
+from celery_app import celery_app  # noqa: F401 - ensures celery_app is configured
 from services.task_queue import STAGE_DONE
 
 PROGRESS_TTL = 300  # seconds, aligned with result_expires in celery_app.py
+PROGRESS_STREAM_MAX_SECONDS = PROGRESS_TTL
 
 _CELERY_STATE_MAP = {
-    "PENDING":  "pending",
+    "PENDING": "pending",
     "RECEIVED": "pending",
-    "STARTED":  "running",
-    "RETRY":    "running",
-    "SUCCESS":  "completed",
-    "FAILURE":  "failed",
-    "REVOKED":  "failed",
+    "STARTED": "running",
+    "RETRY": "running",
+    "SUCCESS": "completed",
+    "FAILURE": "failed",
+    "REVOKED": "failed",
 }
 
 
@@ -36,12 +40,25 @@ class CeleryTaskQueue:
         **kwargs,
     ) -> str:
         """Submit an analysis task. Always dispatches run_analysis_task; fn routing is not supported."""
-        from services.analysis_runner import run_analysis_task  # lazy — breaks circular import
+        from services.analysis_runner import run_analysis_task  # lazy - breaks circular import
+
         async_result = run_analysis_task.apply_async(
             args=args,
             kwargs={"user_id": user_id, "save_history": save_history, **kwargs},
         )
+        if user_id is not None:
+            try:
+                self._redis.setex(f"task:{async_result.id}:owner", PROGRESS_TTL, str(user_id))
+            except redis_lib.RedisError:
+                pass
         return async_result.id
+
+    def owns_task(self, task_id: str, user_id: int) -> bool:
+        try:
+            owner_id = self._redis.get(f"task:{task_id}:owner")
+        except redis_lib.RedisError:
+            return False
+        return owner_id == str(user_id)
 
     def update_progress(self, task_id: str, stage: str, message: str) -> None:
         key = f"task:{task_id}:progress"
@@ -54,35 +71,39 @@ class CeleryTaskQueue:
         )
 
     def stream_progress(self, task_id: str):
-        """Generator: yields progress dicts until task completes or fails."""
+        """Generator: yields progress dicts until task completes, fails, or times out."""
         ar = AsyncResult(task_id, app=celery_app)
         current_state = _CELERY_STATE_MAP.get(ar.state, "pending")
-        # Task already done before SSE connects
         if current_state in ("completed", "failed"):
             yield _terminal_event(ar, current_state)
             return
-        # First event: current progress from Redis hash
+
         raw = self._redis.hgetall(f"task:{task_id}:progress")
         if raw:
             yield {**raw, "status": "running"}
-        # Subscribe before re-checking state to close the race window where the
-        # task completes between the initial ar.state check and subscribe().
+
         pubsub = self._redis.pubsub()
         pubsub.subscribe(f"task:{task_id}:events")
         try:
-            # Drain the subscribe-confirmation message
             pubsub.get_message()
-            # Re-check in case task completed in the gap between ar.state and subscribe
+
             ar2 = AsyncResult(task_id, app=celery_app)
             state2 = _CELERY_STATE_MAP.get(ar2.state, "pending")
             if state2 in ("completed", "failed"):
                 yield _terminal_event(ar2, state2)
                 return
-            # Poll with timeout so a missed sentinel doesn't block forever
+
+            started_at = time.monotonic()
             while True:
                 msg = pubsub.get_message(timeout=5)
                 if msg is None:
-                    # No message in 5s — check if task finished without publishing
+                    if time.monotonic() - started_at >= PROGRESS_STREAM_MAX_SECONDS:
+                        yield {
+                            "stage": STAGE_DONE,
+                            "status": "failed",
+                            "error": "task stream timed out",
+                        }
+                        return
                     ar3 = AsyncResult(task_id, app=celery_app)
                     s = _CELERY_STATE_MAP.get(ar3.state, "pending")
                     if s in ("completed", "failed"):
