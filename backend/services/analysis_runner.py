@@ -136,17 +136,19 @@ def run_analysis_task(
     save_history: bool | None = None,
 ) -> dict:
     """Celery task: analysis main flow. task_id = self.request.id."""
+    from app import app as flask_app
     task_id = self.request.id
     if save_history is None:
         headers = getattr(self.request, "headers", None) or {}
         save_history = headers.get("save_history", True) is not False
-    return _run_analysis(
-        task_id,
-        code,
-        wrapped_code,
-        user_id=user_id,
-        save_history=save_history,
-    )
+    with flask_app.app_context():
+        return _run_analysis(
+            task_id,
+            code,
+            wrapped_code,
+            user_id=user_id,
+            save_history=save_history,
+        )
 
 
 def _run_analysis(
