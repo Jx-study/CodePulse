@@ -3,23 +3,18 @@ import {
   useState,
   useRef,
   useCallback,
-  useMemo,
   useEffect,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
   DndContext,
-  DragEndEvent,
-  DragStartEvent,
   useSensor,
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
   verticalListSortingStrategy,
-  hasSortableData,
 } from "@dnd-kit/sortable";
 import {
   Group as PanelGroup,
@@ -47,28 +42,24 @@ import TabList from "@/shared/components/Tabs/TabList";
 import { toast } from "@/shared/components/Toast";
 import { LeftActivityBar, RightActivityBar } from "./components/ActivityBar";
 import StatusBar from "./components";
-import type { RunStage } from "@/types/runStage";
+import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
+import { PlaygroundHistoryDialog } from "./components/PlaygroundHistoryDialog";
 import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import AlgoDetectionDialog from "./components/AlgoDetectionDialog";
-import type { AiResult, AlgoCandidate } from "@/types/ai";
-import { run as analyzeRun, AnalyzeError } from "@/services/AnalyzeService";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
-import { rebuildCallStack } from "@/utils/traceUtils";
-import type {
-  TraceEvent,
-  CallGraph,
-  CfgGraphMap,
-  StdoutEvent,
-} from "@/types/trace";
+import type { StdoutEvent } from "@/types/trace";
 import {
   ALGORITHM_TO_CONVERTER_KEY,
   ALGORITHM_TO_IMPL_KEY,
-  TRACE_CONVERTERS,
 } from "@/data/implementations/traceConverters";
 import { useStatusConfig } from "@/modules/core/hooks/useStatusConfig";
 import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import { usePlaygroundPlayback } from "./hooks/usePlaygroundPlayback";
+import { usePlaygroundAnimationSteps } from "./hooks/usePlaygroundAnimationSteps";
+import { usePlaygroundPanelLayout } from "./hooks/usePlaygroundPanelLayout";
+import { usePlaygroundRun } from "./hooks/usePlaygroundRun";
 import styles from "./Playground.module.scss";
 
 const DEFAULT_CODE = `def bubble_sort(arr):
@@ -82,210 +73,122 @@ const DEFAULT_CODE = `def bubble_sort(arr):
 arr = [64, 34, 25, 12, 22, 11, 90]
 print("Sorted array is:", bubble_sort(arr))`;
 
-// Types
 type ViewTab = "animation" | "graph";
-type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
-// Component
 function Playground() {
   const { t } = useTranslation("playground");
   const editorRef = useRef<CodeEditorHandle>(null);
-
-  // Editor
-  const [code, setCode] = useState(DEFAULT_CODE);
-  const [isEditorOpen, setIsEditorOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState<ViewTab>("animation");
-
-  // Playback
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-
-  // Drill (call graph ↔ cfg)
-  const [drill, setDrill] = useState<DrillState>({ mode: "call_graph" });
-
-  // Trace data
-  const [trace, setTrace] = useState<TraceEvent[]>([]);
-  const [rawTrace, setRawTrace] = useState<TraceEvent[]>([]);
-  const [rawIndexMap, setRawIndexMap] = useState<number[]>([]);
-  const [callGraph, setCallGraph] = useState<CallGraph | null>(null);
-  const [cfgGraph, setCfgGraph] = useState<CfgGraphMap>({});
-  const [isTruncated, setIsTruncated] = useState(false);
-  const [stdoutEvents, setStdoutEvents] = useState<StdoutEvent[]>([]);
-
-  // Run + stage
-  const [runStage, setRunStage] = useState<RunStage>("idle");
-  // Editor is locked whenever a run is in progress or results are displayed
-  const isLocked = runStage !== "idle";
-
-  // Panel layout state
-  // leftDockedId: which panel (if any) is docked below the editor on the left
-  // rightOrder: order of all 4 panel IDs on the right bar
-  // collapsedPanels: panels whose content is hidden (icon still shows)
-  const [leftDockedId, setLeftDockedId] = useState<PanelId | null>(null);
-  const [rightOrder, setRightOrder] = useState<PanelId[]>([
-    "console",
-    "localVars",
-    "callStack",
-    "globalVars",
-  ]);
-  const [collapsedPanels, setCollapsedPanels] = useState<Set<PanelId>>(
-    new Set(),
-  );
-
-  // AI Analysis
-  const [aiResult, setAiResult] = useState<AiResult | null>(null);
-  const [top3Candidates, setTop3Candidates] = useState<AlgoCandidate[]>([]);
-  const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
-  const [isAlgoDialogOpen, setIsAlgoDialogOpen] = useState(false);
-  const [appliedAlgo, setAppliedAlgo] = useState<string | null>(null);
-
-  // DnD
-  const [isDragActive, setIsDragActive] = useState(false);
-
-  const abortRef = useRef<AbortController | null>(null);
   const editorPanelRef = useRef<PanelImperativeHandle>(null);
 
-  const handleToggleEditor = useCallback(() => {
-    const panel = editorPanelRef.current;
-    if (!panel) return;
-    if (panel.isCollapsed()) panel.expand();
-    else panel.collapse();
-  }, []);
+  const [code, setCode] = useState(DEFAULT_CODE);
+  const [activeTab, setActiveTab] = useState<ViewTab>("animation");
+  const [isEditorOpen, setIsEditorOpen] = useState(true);
+  const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
 
-  const { statusConfig, statusColorMap } = useStatusConfig(
-    appliedAlgo ? (ALGORITHM_TO_IMPL_KEY[appliedAlgo] ?? null) : null,
-  );
+  // History dialog
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [quotaRecords, setQuotaRecords] = useState<PlaygroundHistoryRecord[] | null>(null);
+  const quotaResolveRef = useRef<((decision: "proceed" | "skip") => void) | null>(null);
 
-  // Level 1 animation steps（從語意 trace 產生）
-  const animationSteps = useMemo(() => {
-    if (trace.length === 0 || !appliedAlgo) return [];
-    const converterKey = ALGORITHM_TO_CONVERTER_KEY[appliedAlgo];
-    const converter = converterKey ? TRACE_CONVERTERS[converterKey] : undefined;
-    return converter ? converter(trace) : [];
-  }, [trace, appliedAlgo]);
+  // Panel layout
+  const {
+    leftDockedId,
+    rightOrder,
+    collapsedPanels,
+    isDragActive,
+    handleTogglePanel,
+    handleDragStart,
+    handleDragEnd,
+  } = usePlaygroundPanelLayout();
 
-  const allStepsElements = useMemo(
-    () => animationSteps.map((s) => s.elements ?? []),
-    [animationSteps],
-  );
-
-  // animation tab + 有語意 trace → Level 1（語意步數）
-  // graph tab 或無語意 trace → Level 2（rawTrace 完整步數）
-  const isLevel1 = animationSteps.length > 0 && activeTab === "animation";
-
-  const totalSteps = isLevel1 ? animationSteps.length : rawTrace.length;
-
-  // Level 1：local_vars / callStack 從 rawTrace 取（保留 user 變數）
-  // Level 2：直接從 rawTrace 取
-  const rawStepForLineno = isLevel1
-    ? (rawIndexMap[currentStep] ?? 0)
-    : currentStep;
-  const currentEvent = rawTrace[rawStepForLineno] ?? null;
-
-  // Level 1：lineno 來自 level1 trace event 的 meta（由 lineno_mapper 計算，可能是 number 或 number[]）
-  // Level 2：lineno 來自 raw trace event 的 meta（由 sys.settrace 記錄，永遠是 number）
-  const activeLineno: number[] | undefined = useMemo(() => {
-    const raw = isLevel1
-      ? trace[currentStep]?.meta?.lineno
-      : currentEvent?.meta?.lineno;
-    if (raw == null) return undefined;
-    const lines = Array.isArray(raw) ? raw : [raw as number];
-    return lines.length > 0 ? lines : undefined;
-  }, [isLevel1, trace, currentStep, currentEvent]);
-
-  const globalVars = useMemo(
-    () => currentEvent?.global_vars ?? {},
-    [currentEvent],
-  );
-  const localVars = useMemo(
-    () => currentEvent?.local_vars ?? {},
-    [currentEvent],
-  );
-  const callStack = useMemo(
-    () => rebuildCallStack(rawTrace, rawStepForLineno),
-    [rawTrace, rawStepForLineno],
-  );
-  const activeFrame = callStack[callStack.length - 1] ?? null;
-
-  // Animation unlocked once sandbox is done (stage = analysis or gemini or done)
-  const isAnimationUnlocked = ["analysis", "gemini", "done"].includes(runStage);
-
-  // Show the Animation tab only when a supported algorithm was detected
-  const hasAnimationTemplate =
-    animationSteps.length > 0 ||
-    (runStage !== "idle" &&
-      !!appliedAlgo &&
-      appliedAlgo in ALGORITHM_TO_CONVERTER_KEY);
-
-  // Panels visible in the right sidebar (not docked left, not collapsed)
-  const visibleRightPanels = rightOrder.filter(
-    (id) => id !== leftDockedId && !collapsedPanels.has(id),
-  );
-
-  // Playback handlers
-  const handlePlay = useCallback(() => setIsPlaying(true), []);
-  const handlePause = useCallback(() => setIsPlaying(false), []);
-  const handleReset = useCallback(() => {
-    setIsPlaying(false);
-    setCurrentStep(0);
-  }, []);
-  const handleEditCode = useCallback(() => {
-    setIsPlaying(false);
-    setCurrentStep(0);
-    setTrace([]);
-    setRawTrace([]);
-    setRawIndexMap([]);
-    setCallGraph(null);
-    setCfgGraph({});
-    setStdoutEvents([]);
-    setIsTruncated(false);
-    setAiResult(null);
-    setTop3Candidates([]);
-    editorRef.current?.clearErrorMarker();
-    setRunStage("idle");
-  }, []);
-  const handleNext = useCallback(
-    () => setCurrentStep((s) => Math.min(s + 1, totalSteps - 1)),
-    [totalSteps],
-  );
-  const handlePrev = useCallback(
-    () => setCurrentStep((s) => Math.max(s - 1, 0)),
-    [],
-  );
-  const handleStepChange = useCallback(
-    (step: number) => setCurrentStep(step),
-    [],
-  );
-  const handleSpeedChange = useCallback(
-    (speed: number) => setPlaybackSpeed(speed),
+  // Quota gate — opens history dialog and waits for resolution
+  const onQuotaFull = useCallback(
+    (records: PlaygroundHistoryRecord[]): Promise<"proceed" | "skip"> =>
+      new Promise((resolve) => {
+        setQuotaRecords(records);
+        setIsHistoryOpen(true);
+        quotaResolveRef.current = resolve;
+      }),
     [],
   );
 
+  // Playback
+  const {
+    currentStep,
+    isPlaying,
+    playbackSpeed,
+    handlePlay,
+    handlePause,
+    handleReset,
+    handleNext,
+    handlePrev,
+    handleStepChange,
+    handleSpeedChange,
+    resetAll,
+    setTotalSteps,
+  } = usePlaygroundPlayback();
+
+  // Run logic
+  const {
+    runStage,
+    trace,
+    rawTrace,
+    rawIndexMap,
+    callGraph,
+    cfgGraph,
+    stdoutEvents,
+    isTruncated,
+    aiResult,
+    top3Candidates,
+    appliedAlgo,
+    setAppliedAlgo,
+    drill,
+    setDrill,
+    isAlgoDialogOpen,
+    setIsAlgoDialogOpen,
+    handleRun,
+    handleEditCode,
+    loadFromHistory,
+  } = usePlaygroundRun({
+    code,
+    editorRef,
+    onResetPlayback: resetAll,
+    onQuotaFull,
+  });
+
+  // Animation steps + derived vars
+  const {
+    animationSteps,
+    allStepsElements,
+    totalSteps,
+    activeLineno,
+    globalVars,
+    localVars,
+    callStack,
+    activeFrame,
+  } = usePlaygroundAnimationSteps({
+    trace,
+    rawTrace,
+    rawIndexMap,
+    appliedAlgo,
+    activeTab,
+    currentStep,
+  });
+
+  // Keep playback ref in sync
   useEffect(() => {
-    if (!isPlaying) return;
-    const id = setInterval(() => {
-      setCurrentStep((s) => {
-        if (s >= totalSteps - 1) {
-          setIsPlaying(false);
-          return s;
-        }
-        return s + 1;
-      });
-    }, 1000 / playbackSpeed);
-    return () => clearInterval(id);
-  }, [isPlaying, playbackSpeed, totalSteps]);
+    setTotalSteps(totalSteps);
+  }, [totalSteps, setTotalSteps]);
 
   useEffect(() => {
     if (isTruncated) toast.warning(t("run.truncated"));
   }, [isTruncated, t]);
 
-  // Auto-switch away from animation tab if no template is available
   useEffect(() => {
-    if (!hasAnimationTemplate && activeTab === "animation") {
+    if (!animationSteps.length && activeTab === "animation") {
       setActiveTab("graph");
     }
-  }, [hasAnimationTemplate, activeTab]);
+  }, [animationSteps.length, activeTab]);
 
   useEffect(() => {
     if (
@@ -295,170 +198,33 @@ function Playground() {
     ) {
       setIsAlgoDialogOpen(true);
     }
-  }, [runStage, aiResult]);
+  }, [runStage, aiResult, setIsAlgoDialogOpen]);
 
-  // Run handler
-  const handleRun = useCallback(async () => {
-    if (!code.trim()) {
-      toast.error(t("run.emptyCode"));
-      return;
-    }
+  const { statusConfig, statusColorMap } = useStatusConfig(
+    appliedAlgo ? (ALGORITHM_TO_IMPL_KEY[appliedAlgo] ?? null) : null,
+  );
 
-    // Cancel any in-flight request
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+  const isLocked = runStage !== "idle";
+  const isAnimationUnlocked = ["analysis", "gemini", "done"].includes(runStage);
+  const hasAnimationTemplate =
+    animationSteps.length > 0 ||
+    (runStage !== "idle" && !!appliedAlgo && appliedAlgo in ALGORITHM_TO_CONVERTER_KEY);
 
-    setRunStage("syntax_check");
-    editorRef.current?.clearErrorMarker();
-    setTrace([]);
-    setRawTrace([]);
-    setRawIndexMap([]);
-    setCallGraph(null);
-    setCfgGraph({});
-    setIsTruncated(false);
-    setStdoutEvents([]);
-    setCurrentStep(0);
-    setIsPlaying(false);
-    setDrill({ mode: "call_graph" });
-    setAppliedAlgo(null);
+  const visibleRightPanels = rightOrder.filter(
+    (id) => id !== leftDockedId && !collapsedPanels.has(id),
+  );
 
-    try {
-      const result = await analyzeRun(
-        code,
-        (stage) => setRunStage(stage),
-        controller.signal,
-      );
-      setTrace(result.trace);
-      setRawTrace(result.rawTrace);
-      setRawIndexMap(result.rawIndexMap);
-      setIsTruncated(result.isTruncated);
-      setStdoutEvents(result.stdoutEvents);
-      setCallGraph(result.callGraph);
-      setCfgGraph(result.cfgGraph);
-      setAiResult(result.aiResult);
-      setTop3Candidates(result.top3Candidates);
-      setDrill({ mode: "call_graph" });
-      setCurrentStep(0);
-      setRunStage("done");
-    } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") return;
-      setRunStage("idle");
-      if (e instanceof AnalyzeError) {
-        switch (e.type) {
-          case "empty_code":
-            toast.error(t("run.emptyCode"));
-            break;
-          case "syntax_error":
-            if (e.lineno != null) {
-              toast.error(
-                t("run.syntaxError", { line: e.lineno, msg: e.message }),
-              );
-              editorRef.current?.setErrorMarker(e.lineno, e.message);
-            } else {
-              toast.error(t("run.syntaxErrorNoLine", { msg: e.message }));
-            }
-            break;
-          case "timeout":
-            toast.error(t("run.timeout"));
-            break;
-          case "runtime_error":
-            toast.error(formatRuntimeError(e.message, t));
-            if (e.lineno != null) {
-              editorRef.current?.setErrorMarker(e.lineno, e.message);
-            }
-            break;
-          default:
-            toast.error(t("run.analysisFailed"));
-        }
-      } else {
-        toast.error(t("run.analysisFailed"));
-      }
-    }
-  }, [code]);
-
-  // Toggle collapse for a panel
-  const handleTogglePanel = useCallback((id: PanelId) => {
-    setCollapsedPanels((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const handleToggleEditor = useCallback(() => {
+    const panel = editorPanelRef.current;
+    if (!panel) return;
+    if (panel.isCollapsed()) panel.expand();
+    else panel.collapse();
   }, []);
 
-  // DnD
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
 
-  const handleDragStart = useCallback(
-    (_e: DragStartEvent) => setIsDragActive(true),
-    [],
-  );
-
-  const handleDragEnd = useCallback(
-    (e: DragEndEvent) => {
-      setIsDragActive(false);
-      const panelId = e.active.data.current?.panelId as PanelId | undefined;
-      if (!panelId) return;
-
-      // Scenario 1: Right → Left (drop on left drop zone)
-      if (e.over?.id === "left-drop-zone") {
-        const previouslyDocked = leftDockedId;
-        setLeftDockedId(panelId);
-        setRightOrder((prev) => {
-          // Remove dragged panel from rightOrder
-          const without = prev.filter((id) => id !== panelId);
-          // If something was already docked, return it to end of rightOrder
-          if (previouslyDocked && previouslyDocked !== panelId) {
-            return [...without, previouslyDocked];
-          }
-          return without;
-        });
-        // Ensure it's not collapsed when docked
-        setCollapsedPanels((prev) => {
-          const next = new Set(prev);
-          next.delete(panelId);
-          return next;
-        });
-        return;
-      }
-
-      // Scenario 2: Left → Right (undock — the left docked icon was dragged)
-      if (panelId === leftDockedId) {
-        setLeftDockedId(null);
-        setRightOrder((prev) => {
-          // Insert at the dropped position if over a sortable item, otherwise append
-          if (e.over && hasSortableData(e.over)) {
-            const overId = e.over.id as PanelId;
-            const overIndex = prev.indexOf(overId);
-            if (overIndex !== -1) {
-              const result = [...prev];
-              result.splice(overIndex, 0, panelId);
-              return result;
-            }
-          }
-          return [...prev, panelId];
-        });
-        return;
-      }
-
-      // Scenario 3: Right → Right reorder
-      if (hasSortableData(e.active) && e.over && hasSortableData(e.over)) {
-        const overId = e.over.id as PanelId;
-        setRightOrder((prev) => {
-          const oldIndex = prev.indexOf(panelId);
-          const newIndex = prev.indexOf(overId);
-          if (oldIndex === -1 || newIndex === -1) return prev;
-          return arrayMove(prev, oldIndex, newIndex);
-        });
-      }
-    },
-    [leftDockedId],
-  );
-
-  // Render
   return (
     <DndContext
       sensors={sensors}
@@ -466,7 +232,6 @@ function Playground() {
       onDragEnd={handleDragEnd}
     >
       <div className={styles.playground}>
-        {/* Left Activity Bar — fixed 42px, outside PanelGroup */}
         <LeftActivityBar
           isEditorOpen={isEditorOpen}
           onToggleEditor={handleToggleEditor}
@@ -474,15 +239,18 @@ function Playground() {
           collapsedPanels={collapsedPanels}
           onToggleCollapse={handleTogglePanel}
           isDragActive={isDragActive}
+          isHistoryOpen={isHistoryOpen}
+          onOpenHistory={() => {
+            setQuotaRecords(null);
+            setIsHistoryOpen(true);
+          }}
         />
 
-        {/* Resizable horizontal layout: left sidebar | canvas | right sidebar */}
         <PanelGroup
           orientation="horizontal"
           className={styles.panelGroupH}
           key={`h-${visibleRightPanels.length > 0 ? 1 : 0}`}
         >
-          {/* Left Sidebar Panel */}
           <Panel
             defaultSize="30%"
             minSize="20%"
@@ -558,7 +326,6 @@ function Playground() {
                 </div>
               </Panel>
 
-              {/* Left docked panel — shown when not collapsed */}
               {leftDockedId && !collapsedPanels.has(leftDockedId) && (
                 <>
                   <ResizeHandle direction="vertical" />
@@ -586,10 +353,8 @@ function Playground() {
             </PanelGroup>
           </Panel>
 
-          {/* Horizontal resize between left sidebar and canvas */}
           <ResizeHandle direction="horizontal" />
 
-          {/* Canvas Panel */}
           <Panel className={styles.canvasPanel} style={{ minWidth: 0 }}>
             <div className={styles.canvasArea}>
               <StatusBar stage={runStage} />
@@ -601,8 +366,8 @@ function Playground() {
                   activeTab={activeTab}
                   onChange={(key) => {
                     setActiveTab(key as ViewTab);
-                    setCurrentStep(0);
-                    setIsPlaying(false);
+                    handleStepChange(0);
+                    handlePause();
                   }}
                   aria-label="Visualization mode"
                   tabs={[
@@ -649,7 +414,9 @@ function Playground() {
                 </Button>
               </div>
 
-              <div className={`${styles.graphArea} ${activeTab === "animation" ? styles.graphAreaCanvas : ""}`}>
+              <div
+                className={`${styles.graphArea} ${activeTab === "animation" ? styles.graphAreaCanvas : ""}`}
+              >
                 {activeTab === "animation" ? (
                   animationSteps.some((s) => (s.elements?.length ?? 0) > 0) ? (
                     <D3Canvas
@@ -677,9 +444,7 @@ function Playground() {
                 ) : drill.mode === "cfg" ? (
                   (() => {
                     const node = callGraph.nodes.find(
-                      (n) =>
-                        n.id ===
-                        (drill as { mode: "cfg"; funcId: string }).funcId,
+                      (n) => n.id === (drill as { mode: "cfg"; funcId: string }).funcId,
                     );
                     return (
                       <div className={styles.cfgPanel}>
@@ -697,8 +462,7 @@ function Playground() {
                             {node?.funcName === "<module>"
                               ? "<global>"
                               : (node?.funcName ??
-                                (drill as { mode: "cfg"; funcId: string })
-                                  .funcId)}
+                                (drill as { mode: "cfg"; funcId: string }).funcId)}
                           </span>
                         </div>
                         <CytoscapeCanvas
@@ -707,10 +471,7 @@ function Playground() {
                               node?.funcName === "<module>"
                                 ? "<global>"
                                 : (node?.funcName ?? "")
-                            ] ?? {
-                              nodes: [],
-                              edges: [],
-                            },
+                            ] ?? { nodes: [], edges: [] },
                             activeLineno?.[0],
                           )}
                           stylesheet={CFG_STYLESHEET}
@@ -720,25 +481,13 @@ function Playground() {
                     );
                   })()
                 ) : (
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  >
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
                     <CytoscapeCanvas
-                      elements={buildCallGraphElements(
-                        callGraph,
-                        currentStep,
-                        cfgGraph,
-                      )}
+                      elements={buildCallGraphElements(callGraph, currentStep, cfgGraph)}
                       stylesheet={CALL_GRAPH_STYLESHEET}
                       layout={CALL_GRAPH_LAYOUT}
                       onNodeClick={(funcId) => {
-                        const node = callGraph?.nodes.find(
-                          (n) => n.id === funcId,
-                        );
+                        const node = callGraph?.nodes.find((n) => n.id === funcId);
                         if (!node) return;
                         const hasCfg =
                           node.funcName === "<module>"
@@ -780,21 +529,15 @@ function Playground() {
                   />
                 ) : (
                   <div className={styles.emptyControl}>
-                    {runStage === "idle"
-                      ? "Run code to start"
-                      : "Waiting for analysis…"}
+                    {runStage === "idle" ? "Run code to start" : "Waiting for analysis…"}
                   </div>
                 )}
               </div>
             </div>
           </Panel>
 
-          {/* Horizontal resize between canvas and right sidebar */}
-          {visibleRightPanels.length > 0 && (
-            <ResizeHandle direction="horizontal" />
-          )}
+          {visibleRightPanels.length > 0 && <ResizeHandle direction="horizontal" />}
 
-          {/* Right Sidebar Panel */}
           {visibleRightPanels.length > 0 && (
             <Panel
               defaultSize="20%"
@@ -803,10 +546,7 @@ function Playground() {
               className={styles.rightSidebarPanel}
               style={{ minWidth: 0 }}
             >
-              <PanelGroup
-                orientation="vertical"
-                key={visibleRightPanels.join(",")}
-              >
+              <PanelGroup orientation="vertical" key={visibleRightPanels.join(",")}>
                 {visibleRightPanels.map((id, idx) => (
                   <Fragment key={id}>
                     <Panel
@@ -841,8 +581,6 @@ function Playground() {
           )}
         </PanelGroup>
 
-        {/* Right Activity Bar — fixed 42px, outside PanelGroup */}
-        {/* SortableContext wraps the bar so icons can be reordered */}
         <SortableContext
           items={rightOrder.filter((id) => id !== leftDockedId)}
           strategy={verticalListSortingStrategy}
@@ -872,11 +610,29 @@ function Playground() {
           setAppliedAlgo(name);
         }}
       />
+      <PlaygroundHistoryDialog
+        isOpen={isHistoryOpen}
+        onClose={() => {
+          setIsHistoryOpen(false);
+          setQuotaRecords(null);
+          quotaResolveRef.current?.("skip");
+          quotaResolveRef.current = null;
+        }}
+        onReplay={(record) => {
+          setCode(record.user_code);
+          loadFromHistory(record);
+        }}
+        quotaRecords={quotaRecords}
+        onQuotaResolved={(decision) => {
+          quotaResolveRef.current?.(decision);
+          quotaResolveRef.current = null;
+        }}
+      />
     </DndContext>
   );
 }
 
-// PanelContent helper (inline, no separate file)
+// PanelContent — inline helper, no separate file needed
 interface PanelContentProps {
   id: PanelId;
   globalVars: Record<string, string>;
@@ -934,9 +690,7 @@ function PanelContent({
             }}
           >
             {i === 0 && (
-              <span style={{ color: "var(--color-primary)", marginRight: 4 }}>
-                ➔
-              </span>
+              <span style={{ color: "var(--color-primary)", marginRight: 4 }}>➔</span>
             )}
             {fname === "<module>" ? "(global)" : fname}
           </div>
@@ -967,26 +721,6 @@ function PanelContent({
     );
   }
   return null;
-}
-
-function formatRuntimeError(
-  msg: string,
-  t: (key: string, params?: Record<string, string>) => string,
-): string {
-  let m: RegExpMatchArray | null;
-  if ((m = msg.match(/NameError: name '(.+?)' is not defined/)))
-    return t("run.runtimeNameError", { name: m[1] });
-  if ((m = msg.match(/KeyError: (.+)/)))
-    return t("run.runtimeKeyError", { key: m[1] });
-  if (msg.includes("ZeroDivisionError")) return t("run.runtimeZeroDivision");
-  if (msg.includes("RecursionError")) return t("run.runtimeRecursionError");
-  if ((m = msg.match(/IndexError: (.+)/)))
-    return t("run.runtimeIndexError", { msg: m[1] });
-  if ((m = msg.match(/AttributeError: (.+)/)))
-    return t("run.runtimeAttributeError", { msg: m[1] });
-  if ((m = msg.match(/TypeError: (.+)/)))
-    return t("run.runtimeTypeError", { msg: m[1] });
-  return t("run.runtimeError", { msg });
 }
 
 function VarRow({ name, val }: { name: string; val: string }) {

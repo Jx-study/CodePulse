@@ -74,7 +74,7 @@ class TestRunInSandboxSuccess:
     def test_default_timeout_passed(self):
         with patch("services.sandbox.requests.post", return_value=_make_response()) as mock_post:
             run_in_sandbox(SIMPLE_CODE)
-        assert mock_post.call_args.kwargs["timeout"] == CONTAINER_TIMEOUT
+        assert mock_post.call_args.kwargs["timeout"] == CONTAINER_TIMEOUT + 5
 
 
 class TestRunInSandboxNInjection:
@@ -89,7 +89,7 @@ class TestRunInSandboxNInjection:
     def test_per_n_timeout_overrides_default(self):
         with patch("services.sandbox.requests.post", return_value=_make_response()) as mock_post:
             run_in_sandbox(SIMPLE_CODE, n=50, per_n_timeout=7)
-        assert mock_post.call_args.kwargs["timeout"] == 7
+        assert mock_post.call_args.kwargs["timeout"] == 7 + 5
 
     def test_no_n_does_not_include_n_field(self):
         """n=None 時不應污染 body（保持與原本 sidecar 呼叫的相容性）"""

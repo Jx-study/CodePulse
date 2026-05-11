@@ -1,6 +1,8 @@
 import logging
 import ast as _ast
 import concurrent.futures as _cf
+from database import db
+from models.explorer import ExploreHistory, AnalysisSource
 
 from celery_app import celery_app
 from services.sandbox import run_in_sandbox
@@ -13,10 +15,12 @@ from services.algo_identification.divergence_log import log_divergence
 from services.ast_complexity import is_recursive as ast_is_recursive
 from services.gemini_analysis import analyze as gemini_analyze
 from services.gemini_analysis.result import GeminiAnalysisResult
+from services.playground_history import has_history_capacity
 from services.task_queue import (
     task_queue,
     STAGE_SANDBOX,
     STAGE_ANALYSIS,
+    STAGE_DONE,
 )
 
 logger = logging.getLogger(__name__)
@@ -69,14 +73,90 @@ def route_level1_decision(
     return identify_result.algo_name, None
 
 
+def _save_history(
+    user_id: int,
+    code: str,
+    identify_result,
+    final_complexity: str,
+    complexity_source: str,
+    gemini_summary: dict | None,
+    have_level1: bool,
+    execution_trace: list,
+    is_truncated: bool,
+    raw_trace: list,
+    raw_index_map: list,
+    call_graph: dict | None,
+    cfg_graph: dict,
+    stdout_events: list,
+) -> None:
+    if not has_history_capacity(user_id):
+        logger.info("Explore history quota reached for user %s; skipping persistence", user_id)
+        return
+
+    source_map = {
+        "gemini":       AnalysisSource.gemini,
+        "ast+bigO":     AnalysisSource.ast_bigO,
+        "ast":          AnalysisSource.ast_bigO,
+        "bigO":         AnalysisSource.ast_bigO,
+        "ast_conflict": AnalysisSource.ast_bigO,
+    }
+    source = source_map.get(complexity_source, AnalysisSource.ast_bigO)
+
+    top3_candidates = [{"name": name, "score": score} for name, score in identify_result.top3]
+
+    record = ExploreHistory(
+        user_id=user_id,
+        user_code=code,
+        detected_algorithm=identify_result.algo_name,
+        confidence_score=identify_result.score,
+        time_complexity=final_complexity if final_complexity != "unknown" else None,
+        analysis_source=source,
+        ai_summary=gemini_summary.get("purpose") if gemini_summary else None,
+        ai_feedback=gemini_summary.get("feedback") if gemini_summary else None,
+        have_level1=have_level1,
+        execution_trace=execution_trace,
+        is_truncated=is_truncated,
+        raw_trace=raw_trace,
+        raw_index_map=raw_index_map,
+        call_graph=call_graph,
+        cfg_graph=cfg_graph,
+        stdout_events=stdout_events,
+        top3_candidates=top3_candidates,
+    )
+    db.session.add(record)
+    db.session.commit()
+
+
 @celery_app.task(bind=True, name="analysis_runner.run_analysis", max_retries=1)
-def run_analysis_task(self, code: str, wrapped_code: str) -> dict:
+def run_analysis_task(
+    self,
+    code: str,
+    wrapped_code: str,
+    user_id: int | None = None,
+    save_history: bool | None = None,
+) -> dict:
     """Celery task: analysis main flow. task_id = self.request.id."""
     task_id = self.request.id
-    return _run_analysis(task_id, code, wrapped_code)
+    if save_history is None:
+        headers = getattr(self.request, "headers", None) or {}
+        save_history = headers.get("save_history", True) is not False
+    return _run_analysis(
+        task_id,
+        code,
+        wrapped_code,
+        user_id=user_id,
+        save_history=save_history,
+    )
 
 
-def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
+def _run_analysis(
+    task_id: str,
+    code: str,
+    wrapped_code: str,
+    user_id: int | None = None,
+    save_history: bool = True,
+) -> dict:
+    logger.info("_run_analysis called with user_id=%s task_id=%s", user_id, task_id)
     task_queue.update_progress(task_id, STAGE_SANDBOX, "正在模擬執行並計算複雜度…")
     sandbox_result = run_in_sandbox(wrapped_code)
 
@@ -123,7 +203,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
             identify_result = _minilm_fut.result(timeout=60)
         except Exception:
             logger.warning("algo_identify failed, falling back to unknown", exc_info=True)
-            identify_result = IdentifyResult(algo_name=None, score=0.0, top_raw="")
+            identify_result = IdentifyResult(algo_name=None, score=0.0, top_raw="", top3=[])
         try:
             gemini_result = _gemini_fut.result(timeout=60)
         except Exception:
@@ -171,6 +251,7 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
                 algo_name=gemini_result.detected_algorithm,
                 score=identify_result.score,
                 top_raw=identify_result.top_raw,
+                top3=identify_result.top3,
             )
 
         if gemini_result.time_complexity is not None:
@@ -232,10 +313,32 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         ]
         have_level1 = True
 
+    # Persist history (best-effort, never raises)
+    if user_id is not None and save_history:
+        try:
+            _save_history(
+                user_id, code, identify_result, final_complexity, complexity_source, gemini_summary,
+                have_level1=have_level1,
+                execution_trace=execution_trace,
+                is_truncated=is_truncated,
+                raw_trace=raw_trace,
+                raw_index_map=raw_index_map,
+                call_graph=call_graph,
+                cfg_graph=cfg_graph,
+                stdout_events=stdout_events,
+            )
+        except Exception:
+            logger.warning("Failed to save explore history for task %s", task_id, exc_info=True)
+
+    task_queue.update_progress(task_id, STAGE_DONE, "Done")
+
+    level1_eligible = algo_for_level1 is not None and identify_result.score >= 0.45
+    top3_candidates = [{"name": name, "score": score} for name, score in identify_result.top3]
+
     return {
         "detected_algorithm": identify_result.algo_name,
         "confidence_score":   identify_result.score,
-        "level1_eligible":    algo_for_level1 is not None,
+        "level1_eligible":    level1_eligible,
         "fallback_reason":    fallback_reason,
         "time_complexity": final_complexity if final_complexity != "unknown" else None,
         "analysis_source": complexity_source,
@@ -248,4 +351,5 @@ def _run_analysis(task_id: str, code: str, wrapped_code: str) -> dict:
         "cfg_graph": cfg_graph,
         "is_truncated": is_truncated,
         "stdout_events": stdout_events,
+        "top3_candidates": top3_candidates,
     }

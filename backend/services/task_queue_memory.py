@@ -1,16 +1,16 @@
 import uuid
 import time
+import queue as queue_mod
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
-from typing import Callable
 
 from services.task_queue import (
     STATUS_PENDING,
-    STATUS_RUNNING, 
-    STATUS_COMPLETED, 
+    STATUS_RUNNING,
+    STATUS_COMPLETED,
     STATUS_FAILED,
-    STAGE_SYNTAX_CHECK, 
+    STAGE_SYNTAX_CHECK,
     STAGE_DONE
 )
 
@@ -21,22 +21,32 @@ MAX_WORKERS = 4
 class TaskQueue:
     def __init__(self):
         self._tasks: dict[str, dict] = {}
+        self._queues: dict[str, queue_mod.SimpleQueue] = {}
         self._lock = threading.Lock()
         self._executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self._start_cleanup_thread()
 
-    def submit(self, fn: Callable, *args, **kwargs) -> str:
+    def submit(self, *args, **kwargs) -> str:
+        from services.analysis_runner import _run_analysis  # lazy — breaks circular import
         task_id = str(uuid.uuid4())
+        user_id = kwargs.get("user_id")
         with self._lock:
             self._tasks[task_id] = {
                 "status": STATUS_PENDING,
-                "progress": {"stage": STAGE_SYNTAX_CHECK, "message": "語法預檢與沙箱啟動中…"},
+                "progress": {"stage": STAGE_SYNTAX_CHECK, "message": "Checking syntax and starting sandbox…"},
                 "result": None,
                 "error": None,
+                "user_id": user_id,
                 "created_at": datetime.now(timezone.utc),
             }
-        self._executor.submit(self._run, task_id, fn, args, kwargs)
+            self._queues[task_id] = queue_mod.SimpleQueue()
+        self._executor.submit(self._run, task_id, _run_analysis, args, kwargs)
         return task_id
+
+    def owns_task(self, task_id: str, user_id: int) -> bool:
+        with self._lock:
+            task = self._tasks.get(task_id)
+        return task is not None and task.get("user_id") == user_id
 
     def get_status(self, task_id: str) -> dict | None:
         with self._lock:
@@ -74,8 +84,37 @@ class TaskQueue:
         with self._lock:
             if task_id in self._tasks:
                 self._tasks[task_id]["progress"] = {"stage": stage, "message": message}
+            q = self._queues.get(task_id)
+        if q is not None:
+            q.put({"stage": stage, "message": message, "status": "running"})
 
-    def _run(self, task_id: str, fn: Callable, args: tuple, kwargs: dict) -> None:
+    def stream_progress(self, task_id: str):
+        """Generator: yields progress dicts until task completes or fails."""
+        with self._lock:
+            q = self._queues.get(task_id)
+            task = self._tasks.get(task_id)
+        # Task already done before SSE connects
+        if task is not None and task["status"] in (STATUS_COMPLETED, STATUS_FAILED):
+            yield {"stage": STAGE_DONE, "status": task["status"], "error": task.get("error")}
+            return
+        if q is None:
+            return
+        # First event: current stage
+        with self._lock:
+            current = self._tasks.get(task_id, {}).get("progress")
+        if current:
+            yield {**current, "status": "running"}
+        while True:
+            try:
+                event = q.get(timeout=60)
+            except queue_mod.Empty:
+                # Client likely disconnected or task stalled; stop streaming
+                break
+            yield event
+            if event.get("status") in ("completed", "failed"):
+                break
+
+    def _run(self, task_id: str, fn, args: tuple, kwargs: dict) -> None:
         with self._lock:
             if task_id in self._tasks:
                 self._tasks[task_id]["status"] = STATUS_RUNNING
@@ -85,12 +124,18 @@ class TaskQueue:
                 if task_id in self._tasks:
                     self._tasks[task_id]["status"] = STATUS_COMPLETED
                     self._tasks[task_id]["result"] = result
-                    self._tasks[task_id]["progress"] = {"stage": STAGE_DONE, "message": "完成"}
+                    self._tasks[task_id]["progress"] = {"stage": STAGE_DONE, "message": "Done"}
+                q = self._queues.pop(task_id, None)
+            if q is not None:
+                q.put({"stage": STAGE_DONE, "status": "completed"})
         except Exception as e:
             with self._lock:
                 if task_id in self._tasks:
                     self._tasks[task_id]["status"] = STATUS_FAILED
                     self._tasks[task_id]["error"] = str(e)
+                q = self._queues.pop(task_id, None)
+            if q is not None:
+                q.put({"stage": STAGE_DONE, "status": "failed", "error": str(e)})
 
     def _start_cleanup_thread(self) -> None:
         def cleanup():
@@ -104,6 +149,7 @@ class TaskQueue:
                     ]
                     for tid in expired:
                         del self._tasks[tid]
+                        self._queues.pop(tid, None)
 
         t = threading.Thread(target=cleanup, daemon=True)
         t.start()

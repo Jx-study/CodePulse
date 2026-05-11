@@ -1,6 +1,6 @@
 import numpy as np
 
-THRESHOLD: float = 0.45
+THRESHOLD: float = 0.95
 
 
 def find_top_match(
@@ -30,3 +30,24 @@ def apply_threshold(
     if top_score < THRESHOLD:
         return None, top_score
     return top_label, top_score
+
+
+def find_top_n(
+    user_embedding: np.ndarray,
+    reference_matrix: np.ndarray,
+    labels: list[str],
+    n: int = 3,
+) -> list[tuple[str, float]]:
+    """Return top-n unique labels sorted by score descending."""
+    user_norm = user_embedding / (np.linalg.norm(user_embedding) + 1e-10)
+    ref_norms = reference_matrix / (
+        np.linalg.norm(reference_matrix, axis=1, keepdims=True) + 1e-10
+    )
+    scores = ref_norms @ user_norm
+
+    label_scores: dict[str, float] = {}
+    for label, score in zip(labels, scores):
+        label_scores[label] = max(label_scores.get(label, -1.0), float(score))
+
+    sorted_labels = sorted(label_scores.items(), key=lambda x: x[1], reverse=True)
+    return sorted_labels[:n]

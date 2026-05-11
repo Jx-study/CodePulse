@@ -1,6 +1,6 @@
 import threading
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from services.algo_identification import model_loader
 
 
@@ -13,15 +13,18 @@ def test_get_model_loads_once(monkeypatch):
     _reset()
     call_count = 0
     fake_model = MagicMock()
+    fake_model.embed.return_value = iter([])
 
-    def fake_st(name):
+    def fake_text_embedding(model_name):
         nonlocal call_count
         call_count += 1
         return fake_model
 
-    monkeypatch.setattr("services.algo_identification.model_loader.SentenceTransformer", fake_st)
-    m1 = model_loader.get_model()
-    m2 = model_loader.get_model()
+    monkeypatch.setattr("services.algo_identification.model_loader.TextEmbedding", fake_text_embedding)
+    model_loader._load()
+    m1 = model_loader._model
+    model_loader._load()
+    m2 = model_loader._model
     assert m1 is m2
     assert call_count == 1
 
@@ -30,12 +33,12 @@ def test_warmup_is_idempotent(monkeypatch):
     _reset()
     call_count = 0
 
-    def fake_st(name):
+    def fake_text_embedding(model_name):
         nonlocal call_count
         call_count += 1
         return MagicMock()
 
-    monkeypatch.setattr("services.algo_identification.model_loader.SentenceTransformer", fake_st)
+    monkeypatch.setattr("services.algo_identification.model_loader.TextEmbedding", fake_text_embedding)
     model_loader.warmup()
     model_loader.warmup()
     if model_loader._warmup_thread:
@@ -47,17 +50,15 @@ def test_get_model_concurrent_loads_once(monkeypatch):
     _reset()
     call_count = 0
 
-    def fake_st(name):
+    def fake_text_embedding(model_name):
         nonlocal call_count
         call_count += 1
         return MagicMock()
 
-    monkeypatch.setattr("services.algo_identification.model_loader.SentenceTransformer", fake_st)
-
-    results = []
+    monkeypatch.setattr("services.algo_identification.model_loader.TextEmbedding", fake_text_embedding)
 
     def load():
-        results.append(model_loader.get_model())
+        model_loader._load()
 
     threads = [threading.Thread(target=load) for _ in range(5)]
     for t in threads:
@@ -66,4 +67,4 @@ def test_get_model_concurrent_loads_once(monkeypatch):
         t.join()
 
     assert call_count == 1
-    assert len(set(id(r) for r in results)) == 1  # all same object
+    assert model_loader._model is not None

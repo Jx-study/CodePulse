@@ -17,20 +17,75 @@ def test_submit_returns_task_id():
     with patch("services.analysis_runner.run_analysis_task") as mock_task:
         mock_result = MagicMock()
         mock_result.id = "test-task-id-123"
-        mock_task.delay.return_value = mock_result
+        mock_task.apply_async.return_value = mock_result
         task_id = q.submit("code", "wrapped")
     assert task_id == "test-task-id-123"
+    mock_task.apply_async.assert_called_once_with(
+        args=("code", "wrapped"),
+        kwargs={"user_id": None, "save_history": True},
+    )
+
+
+def test_submit_forwards_save_history_false_as_task_kwarg():
+    q = make_queue()
+    with patch("services.analysis_runner.run_analysis_task") as mock_task:
+        mock_result = MagicMock()
+        mock_result.id = "test-task-id-456"
+        mock_task.apply_async.return_value = mock_result
+        task_id = q.submit("code", "wrapped", user_id=7, save_history=False)
+    assert task_id == "test-task-id-456"
+    mock_task.apply_async.assert_called_once_with(
+        args=("code", "wrapped"),
+        kwargs={"user_id": 7, "save_history": False},
+    )
+
+
+def test_submit_records_task_owner_when_user_id_is_present():
+    q = make_queue()
+    with patch("services.analysis_runner.run_analysis_task") as mock_task, \
+         patch.object(q._redis, "setex") as mock_setex:
+        mock_result = MagicMock()
+        mock_result.id = "test-task-id-owner"
+        mock_task.apply_async.return_value = mock_result
+        task_id = q.submit("code", "wrapped", user_id=7)
+
+    assert task_id == "test-task-id-owner"
+    mock_setex.assert_called_once_with("task:test-task-id-owner:owner", 300, "7")
+
+
+def test_owns_task_reads_owner_from_redis():
+    q = make_queue()
+    with patch.object(q._redis, "get", return_value="7"):
+        assert q.owns_task("test-task-id-owner", 7) is True
+        assert q.owns_task("test-task-id-owner", 8) is False
 
 
 def test_update_progress_writes_to_redis():
+    import json
     q = make_queue()
     with patch.object(q._redis, "hset") as mock_hset, \
-         patch.object(q._redis, "expire") as mock_expire:
+         patch.object(q._redis, "expire") as mock_expire, \
+         patch.object(q._redis, "publish") as mock_publish:
         q.update_progress("tid-1", "sandbox", "執行中")
         mock_hset.assert_called_once_with(
             "task:tid-1:progress", mapping={"stage": "sandbox", "message": "執行中"}
         )
         mock_expire.assert_called_once_with("task:tid-1:progress", 300)
+        channel, payload = mock_publish.call_args.args
+        assert channel == "task:tid-1:events"
+        assert json.loads(payload) == {"stage": "sandbox", "message": "執行中", "status": "running"}
+
+
+def test_update_progress_done_does_not_publish_terminal_completed():
+    import json
+    q = make_queue()
+    with patch.object(q._redis, "hset"), \
+         patch.object(q._redis, "expire"), \
+         patch.object(q._redis, "publish") as mock_publish:
+        q.update_progress("tid-1", "done", "Done")
+
+    _, payload = mock_publish.call_args.args
+    assert json.loads(payload) == {"stage": "done", "message": "Done", "status": "running"}
 
 
 def test_get_status_pending():
@@ -79,6 +134,24 @@ def test_get_task_failed():
         task = q.get_task("some-id")
     assert task["status"] == "failed"
     assert "timeout" in task["error"]
+
+
+def test_stream_progress_times_out_when_task_stays_pending(monkeypatch):
+    q = make_queue()
+    monkeypatch.setattr("services.task_queue_celery.PROGRESS_STREAM_MAX_SECONDS", 0)
+
+    fake_pubsub = MagicMock()
+    fake_pubsub.get_message.side_effect = [None, None]
+
+    with patch("services.task_queue_celery.AsyncResult") as mock_ar, \
+         patch.object(q._redis, "hgetall", return_value={}), \
+         patch.object(q._redis, "pubsub", return_value=fake_pubsub):
+        mock_ar.return_value.state = "PENDING"
+        events = list(q.stream_progress("missing-task-id"))
+
+    assert events == [{"stage": "done", "status": "failed", "error": "task stream timed out"}]
+    fake_pubsub.unsubscribe.assert_called_once()
+    fake_pubsub.close.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -214,6 +287,17 @@ def test_eager_get_task_completed_returns_result_dict(eager_queue):
     assert isinstance(task["result"], dict)
     assert "detected_algorithm" in task["result"]
     assert "execution_trace" in task["result"]
+
+
+def test_eager_submit_save_history_false_skips_persistence(eager_queue):
+    patches = _io_patches()
+    with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6], \
+         patch("services.analysis_runner._save_history") as mock_save_history:
+        task_id = eager_queue.submit(_SIMPLE_CODE, _SIMPLE_WRAPPED, user_id=1, save_history=False)
+
+    task = eager_queue.get_task(task_id)
+    assert task["status"] == "completed"
+    mock_save_history.assert_not_called()
 
 
 def test_eager_get_task_failed_when_sandbox_errors(eager_queue):
