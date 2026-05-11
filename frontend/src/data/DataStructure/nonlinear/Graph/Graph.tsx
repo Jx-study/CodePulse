@@ -569,7 +569,7 @@ function runCheckAdjacent(
         true,
       ),
       actionTag: TAGS.CHECK_ADJACENT_RESULT_FALSE,
-      variables: { source: sourceId, target: targetId, error: true },
+      local_vars: { source: sourceId, target: targetId, error: true },
     });
   }
 

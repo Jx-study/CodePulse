@@ -168,11 +168,11 @@ function arrayActionHandler(
   if (actionType === "delete") {
     const idx = index;
     if (newData.length === 0) {
-      context.toast.warning("Array is empty");
+      context.toast.warning("陣列為空");
       return null;
     }
     if (idx === undefined || idx >= newData.length || idx < 0) {
-      context.toast.warning("Invalid index");
+      context.toast.warning("索引無效");
       return null;
     }
     const deletedValue = newData[idx].value;

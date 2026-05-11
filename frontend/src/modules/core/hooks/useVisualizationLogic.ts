@@ -70,7 +70,10 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
       setData(initData);
       if (config.createAnimationSteps) {
         const initParams = config.id === "graph" ? { mode: "graph" } : undefined;
-        const initSteps = config.createAnimationSteps(initData, initParams, false);
+        const initSteps = config.createAnimationSteps(initData, initParams, {
+          hasTailMode: false,
+          isDoubly: false,
+        });
         setActiveSteps(initSteps);
       }
     }
@@ -108,11 +111,11 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
           };
         }
 
-        const steps = config.createAnimationSteps(
-          animData,
-          animationParams,
-          payload?.hasTailMode,
-        );
+        const steps = config.createAnimationSteps(animData, animationParams, {
+          hasTailMode:
+            animationParams?.hasTailMode ?? payload?.hasTailMode ?? false,
+          isDoubly: animationParams?.isDoubly ?? payload?.isDoubly ?? false,
+        });
 
         setData(stateData);
         setActiveSteps(steps);
