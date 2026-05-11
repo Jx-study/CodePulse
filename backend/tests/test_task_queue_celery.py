@@ -40,6 +40,26 @@ def test_submit_forwards_save_history_false_as_task_kwarg():
     )
 
 
+def test_submit_records_task_owner_when_user_id_is_present():
+    q = make_queue()
+    with patch("services.analysis_runner.run_analysis_task") as mock_task, \
+         patch.object(q._redis, "setex") as mock_setex:
+        mock_result = MagicMock()
+        mock_result.id = "test-task-id-owner"
+        mock_task.apply_async.return_value = mock_result
+        task_id = q.submit("code", "wrapped", user_id=7)
+
+    assert task_id == "test-task-id-owner"
+    mock_setex.assert_called_once_with("task:test-task-id-owner:owner", 300, "7")
+
+
+def test_owns_task_reads_owner_from_redis():
+    q = make_queue()
+    with patch.object(q._redis, "get", return_value="7"):
+        assert q.owns_task("test-task-id-owner", 7) is True
+        assert q.owns_task("test-task-id-owner", 8) is False
+
+
 def test_update_progress_writes_to_redis():
     import json
     q = make_queue()
@@ -114,6 +134,24 @@ def test_get_task_failed():
         task = q.get_task("some-id")
     assert task["status"] == "failed"
     assert "timeout" in task["error"]
+
+
+def test_stream_progress_times_out_when_task_stays_pending(monkeypatch):
+    q = make_queue()
+    monkeypatch.setattr("services.task_queue_celery.PROGRESS_STREAM_MAX_SECONDS", 0)
+
+    fake_pubsub = MagicMock()
+    fake_pubsub.get_message.side_effect = [None, None]
+
+    with patch("services.task_queue_celery.AsyncResult") as mock_ar, \
+         patch.object(q._redis, "hgetall", return_value={}), \
+         patch.object(q._redis, "pubsub", return_value=fake_pubsub):
+        mock_ar.return_value.state = "PENDING"
+        events = list(q.stream_progress("missing-task-id"))
+
+    assert events == [{"stage": "done", "status": "failed", "error": "task stream timed out"}]
+    fake_pubsub.unsubscribe.assert_called_once()
+    fake_pubsub.close.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

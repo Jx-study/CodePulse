@@ -260,3 +260,148 @@ class TestDuplicateDetection:
         assert res.status_code == 202
         assert res.get_json()["task_id"] == "tid-save-skip"
         assert mock_submit.call_args.kwargs["save_history"] is False
+
+    def test_submit_save_history_false_bypasses_duplicate_check(self, client, app, auth_headers):
+        """save_history=false is an ad-hoc run and should not be blocked by history duplicates."""
+        from models.explorer import ExploreHistory, AnalysisSource
+        from database import db
+
+        code = "def foo():\n    return 1\n"
+        with app.app_context():
+            db.session.add(ExploreHistory(
+                explore_id=31,
+                user_id=1,
+                user_code=code,
+                detected_algorithm="linear_search",
+                confidence_score=0.9,
+                time_complexity="O(n)",
+                analysis_source=AnalysisSource.ast_bigO,
+            ))
+            db.session.commit()
+
+        with patch("routes.analyze.task_queue.submit", return_value="tid-no-save") as mock_submit:
+            res = _authed(
+                client, auth_headers, 'post', '/api/analyze/submit',
+                json={
+                    "code": "def foo():\n    # duplicate, but no persistence requested\n    return 1\n",
+                    "save_history": False,
+                },
+            )
+
+        assert res.status_code == 202
+        assert res.get_json()["task_id"] == "tid-no-save"
+        assert mock_submit.call_args.kwargs["save_history"] is False
+
+
+class TestHistoryQuota:
+    def _fill_history(self, app, count=5):
+        from models.explorer import ExploreHistory, AnalysisSource
+        from database import db
+
+        with app.app_context():
+            db.session.add_all([
+                ExploreHistory(
+                    explore_id=100 + i,
+                    user_id=1,
+                    user_code=f"value_{i} = {i}\n",
+                    detected_algorithm="linear_search",
+                    confidence_score=0.9,
+                    time_complexity="O(n)",
+                    analysis_source=AnalysisSource.ast_bigO,
+                )
+                for i in range(count)
+            ])
+            db.session.commit()
+
+    def test_submit_save_history_true_is_rejected_when_history_quota_full(self, client, app, auth_headers):
+        self._fill_history(app)
+
+        with patch("routes.analyze.task_queue.submit") as mock_submit:
+            res = _authed(
+                client, auth_headers, 'post', '/api/analyze/submit',
+                json={"code": "new_unique_value = 999\n"},
+            )
+
+        assert res.status_code == 409
+        assert res.get_json()["error"] == "history_quota_exceeded"
+        mock_submit.assert_not_called()
+
+    def test_submit_save_history_false_bypasses_history_quota(self, client, app, auth_headers):
+        self._fill_history(app)
+
+        with patch("routes.analyze.task_queue.submit", return_value="tid-quota-skip") as mock_submit:
+            res = _authed(
+                client, auth_headers, 'post', '/api/analyze/submit',
+                json={"code": "new_unique_value = 1000\n", "save_history": False},
+            )
+
+        assert res.status_code == 202
+        assert res.get_json()["task_id"] == "tid-quota-skip"
+        assert mock_submit.call_args.kwargs["save_history"] is False
+
+    def test_save_history_skips_persistence_when_history_quota_full(self, app):
+        from models.explorer import ExploreHistory
+        from services.algo_identification import IdentifyResult
+        from services.analysis_runner import _save_history
+
+        self._fill_history(app)
+        identify_result = IdentifyResult(
+            algo_name="linear_search",
+            score=0.9,
+            top_raw="linear_search",
+            top3=[],
+        )
+
+        with app.app_context():
+            _save_history(
+                user_id=1,
+                code="new_unique_value = 2000\n",
+                identify_result=identify_result,
+                final_complexity="O(1)",
+                complexity_source="ast",
+                gemini_summary=None,
+                have_level1=False,
+                execution_trace=[],
+                is_truncated=False,
+                raw_trace=[],
+                raw_index_map=[],
+                call_graph=None,
+                cfg_graph={},
+                stdout_events=[],
+            )
+
+            assert ExploreHistory.query.filter_by(user_id=1).count() == 5
+
+
+class TestAnalyzeResultAuth:
+    def test_result_requires_login(self, client):
+        with patch("routes.analyze.task_queue.get_task", return_value={
+            "status": "completed",
+            "result": {"user_code": "secret"},
+            "error": None,
+            "progress": None,
+        }):
+            res = client.get('/api/analyze/result/task-1')
+
+        assert res.status_code == 401
+
+    def test_result_rejects_task_owned_by_another_user(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=False), \
+             patch("routes.analyze.task_queue.get_task") as mock_get_task:
+            res = _authed(client, auth_headers, 'get', '/api/analyze/result/task-2')
+
+        assert res.status_code == 404
+        mock_get_task.assert_not_called()
+
+    def test_result_returns_owned_completed_task(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.get_task", return_value={
+                 "status": "completed",
+                 "result": {"detected_algorithm": "bubble_sort"},
+                 "error": None,
+                 "progress": None,
+             }):
+            res = _authed(client, auth_headers, 'get', '/api/analyze/result/task-3')
+
+        assert res.status_code == 200
+        assert res.get_json() == {"detected_algorithm": "bubble_sort"}
