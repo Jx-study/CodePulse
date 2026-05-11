@@ -1,0 +1,50 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "Linked List 的核心是：**節點 + 指標連接**。",
+        "items": [
+          "每個節點保存 **value**，並用 **next** 指向下一個節點。",
+          "節點在記憶體中不必連續，順序由指標決定。",
+          "單向鏈結串列只能往下一個節點走；雙向鏈結串列多了 **prev**，可以向前回溯。",
+          "若維護 **tail 指標**，尾端新增可以避免從 head 走到最後。"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "判斷 Linked List 操作成本時，先問：**是否已經拿到目標節點？是否需要先遍歷？**",
+        "items": [
+          "**Head insert/delete**：直接改 head 指標，時間複雜度 [[success|O(1)]]。",
+          "**Tail insert**：有 tail 指標時為 [[success|O(1)]]；沒有 tail 時需遍歷，為 [[warning|O(n)]]。",
+          "**Search / access by index**：必須從 head 逐節點前進，最壞 [[warning|O(n)]]。",
+          "**Middle insert/delete**：若已拿到前一個節點可 [[success|O(1)]] 重新接線；若只知道 index，仍需先花 [[warning|O(n)]] 找位置。"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "適合處理的問題",
+        "content": "Linked List 擅長處理：**局部接線、節點重排、串列指標技巧**。",
+        "items": [
+          "適合頻繁在頭部新增或刪除資料。",
+          "適合用 **快慢指標** 找中點、偵測 cycle，或判斷相遇位置。",
+          "適合反轉串列、合併已排序串列、移除指定節點等重接指標問題。",
+          "當資料大小常變動，且不需要隨機存取時，比 Array 更自然。"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "不適合的情境",
+        "content": "看到以下需求時，Linked List 通常不是第一選擇：",
+        "items": [
+          "需要頻繁讀取 **第 k 個元素**，因為每次都要從 head 走起。",
+          "需要大量利用 CPU cache 的連續掃描；節點分散會降低 locality。",
+          "需要用 index 做二分搜尋或快速跳轉，Array 通常更合適。",
+          "資料量小且操作簡單時，指標管理的額外成本可能不值得。"
+        ],
+        "icon": "location-crosshairs"
+      }
+    ]
+  }
+}
