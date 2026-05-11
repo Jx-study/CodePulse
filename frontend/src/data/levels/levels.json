@@ -77,7 +77,7 @@
       "id": "queue",
       "category": "data-structures",
       "difficulty": 2,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
