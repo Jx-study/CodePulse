@@ -115,11 +115,13 @@ class TaskQueue:
                 break
 
     def _run(self, task_id: str, fn, args: tuple, kwargs: dict) -> None:
+        from app import app as flask_app
         with self._lock:
             if task_id in self._tasks:
                 self._tasks[task_id]["status"] = STATUS_RUNNING
         try:
-            result = fn(task_id, *args, **kwargs)
+            with flask_app.app_context():
+                result = fn(task_id, *args, **kwargs)
             with self._lock:
                 if task_id in self._tasks:
                     self._tasks[task_id]["status"] = STATUS_COMPLETED
