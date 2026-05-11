@@ -110,38 +110,14 @@ export function getHomePageLevels(): HomePageAlgorithmMetadata[] {
 // ==================== 解鎖判斷 ====================
 
 /**
- * 解析有效前置關卡：跳過 isDeveloped === false 的關卡，往上追溯其前置，直到找到已實作的祖先
- * 若整條鏈都未實作（最終到 NONE），視為無前置（自動解鎖）
+ * 解析有效前置關卡：跳過 isDeveloped === false 的關卡（不往上追溯其祖先）
+ * 若所有前置均未實作，回傳空陣列，視為無前置（自動解鎖）
  */
 export function resolveEffectivePrerequisites(levelIds: string[]): string[] {
   const rawLevels = getRawLevels();
   const levelMap = new Map(rawLevels.map((l) => [l.id, l]));
 
-  const effective: string[] = [];
-
-  for (const id of levelIds) {
-    const queue: string[] = [id];
-    while (queue.length > 0) {
-      const currentId = queue.shift()!;
-      const current = levelMap.get(currentId);
-
-      if (!current) continue;
-
-      if (current.isDeveloped) {
-        effective.push(currentId);
-      } else {
-        // 未實作：往上追溯其前置關卡
-        const prereq = current.prerequisites;
-        if (!prereq || prereq.type === "NONE" || prereq.levelIds.length === 0) {
-          // 整條鏈到頂端仍未實作，視為無前置（不阻擋解鎖）
-          continue;
-        }
-        queue.push(...prereq.levelIds);
-      }
-    }
-  }
-
-  return [...new Set(effective)];
+  return [...new Set(levelIds.filter((id) => levelMap.get(id)?.isDeveloped === true))];
 }
 
 /**
