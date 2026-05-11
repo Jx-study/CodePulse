@@ -15,6 +15,8 @@
 *.yml   text eol=lf
 *.yaml  text eol=lf
 *.env*  text eol=lf
+*.sh    text eol=lf
+
 
 # Binary files - no line ending conversion
 *.png   binary
