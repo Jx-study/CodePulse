@@ -2,7 +2,7 @@
 test_sandbox_sidecar.py — sandbox_sidecar/app.py 單元測試
 
 測試策略：
-- 用 unittest.mock.patch 模擬 subprocess.run，避免真實 Docker 依賴
+- 用 unittest.mock.patch 模擬 subprocess.run 和 ContainerPool，避免真實 Docker 依賴
 - 聚焦在 /run endpoint 的邏輯：參數解析、n 注入、timeout 覆蓋、錯誤處理
 """
 
@@ -17,7 +17,7 @@ from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "sandbox_sidecar"))
 
-from sandbox_sidecar.app import app, IMAGE_NAME, CONTAINER_TIMEOUT
+from sandbox_sidecar.app import app, CONTAINER_TIMEOUT
 
 
 SIMPLE_CODE = "def add(a, b):\n    return a + b\n"
@@ -39,11 +39,26 @@ def _make_completed_proc(stdout=VALID_STDOUT, returncode=0, stderr=""):
     return proc
 
 
+def _make_container(container_id="test-container-abc"):
+    container = MagicMock()
+    container.id = container_id
+    return container
+
+
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
     with app.test_client() as c:
         yield c
+
+
+@pytest.fixture(autouse=True)
+def mock_pool():
+    """Patch _get_pool for every test so no real ContainerPool is created."""
+    pool = MagicMock()
+    pool.acquire.return_value = _make_container()
+    with patch("sandbox_sidecar.app._get_pool", return_value=pool):
+        yield pool
 
 
 class TestRunEndpointBasics:
@@ -67,16 +82,17 @@ class TestRunEndpointBasics:
         decoded = base64.b64decode(env_val[len("CODE="):]).decode()
         assert decoded == SIMPLE_CODE
 
-    def test_docker_security_flags_present(self, client):
+    def test_docker_exec_command_format(self, client):
+        container_id = "test-container-abc"
         with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
             client.post("/run", json={"code": SIMPLE_CODE})
         cmd = mock_run.call_args.args[0]
-        assert "--rm" in cmd
-        assert "--network" in cmd
-        assert "none" in cmd
-        assert "--read-only" in cmd
-        assert "--user" in cmd
-        assert IMAGE_NAME in cmd
+        assert cmd[0] == "docker"
+        assert cmd[1] == "exec"
+        assert "-e" in cmd
+        assert container_id in cmd
+        assert "python" in cmd
+        assert "/sandbox/runner.py" in cmd
 
 
 class TestRunEndpointNInjection:
@@ -114,13 +130,13 @@ class TestRunEndpointNInjection:
 
 
 class TestRunEndpointErrors:
-    def test_timeout_returns_error_payload(self, client):
+    def test_timeout_returns_error_payload(self, client, mock_pool):
         with patch("sandbox_sidecar.app.subprocess.run", side_effect=subprocess.TimeoutExpired(cmd="docker", timeout=10)):
-            with patch("sandbox_sidecar.app._try_kill_container"):
-                resp = client.post("/run", json={"code": SIMPLE_CODE})
+            resp = client.post("/run", json={"code": SIMPLE_CODE})
         body = resp.get_json()
         assert body["error"] == "timeout"
         assert body["is_truncated"] is True
+        mock_pool.mark_destroyed.assert_called_once()
 
     def test_nonzero_returncode_returns_error(self, client):
         with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc(stdout="", returncode=1, stderr="boom")):

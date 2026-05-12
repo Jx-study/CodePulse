@@ -249,7 +249,7 @@ function SignupForm({
         disabled={!canSubmit}
         loading={form.isSubmitting}
       >
-        {t("register")}
+        {t("createAccount")}
       </Button>
     </form>
   );

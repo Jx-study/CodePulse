@@ -107,6 +107,64 @@ export function getHomePageLevels(): HomePageAlgorithmMetadata[] {
     .sort((a, b) => a.id - b.id);
 }
 
+// ==================== 解鎖判斷 ====================
+
+/**
+ * 解析有效前置關卡：跳過 isDeveloped === false 的關卡（不往上追溯其祖先）
+ * 若所有前置均未實作，回傳空陣列，視為無前置（自動解鎖）
+ */
+export function resolveEffectivePrerequisites(levelIds: string[]): string[] {
+  const rawLevels = getRawLevels();
+  const levelMap = new Map(rawLevels.map((l) => [l.id, l]));
+
+  return [...new Set(levelIds.filter((id) => levelMap.get(id)?.isDeveloped === true))];
+}
+
+/**
+ * 根據 AND/OR 前置邏輯判斷關卡是否解鎖，跳過未實作的前置關卡
+ */
+export function isLevelUnlocked(
+  level: { prerequisites?: { type: string; levelIds: string[] } },
+  userProgress: UserProgress,
+): boolean {
+  const prereq = level.prerequisites;
+
+  if (!prereq || prereq.type === "NONE" || prereq.levelIds.length === 0) {
+    return true;
+  }
+
+  const effectiveIds = resolveEffectivePrerequisites(prereq.levelIds);
+
+  // 所有前置都被跳過（全未實作且鏈到頂端），視為自動解鎖
+  if (effectiveIds.length === 0) return true;
+
+  const isCompleted = (levelId: string) =>
+    userProgress.levels?.[levelId]?.status === "completed";
+
+  if (prereq.type === "AND") {
+    return effectiveIds.every(isCompleted);
+  }
+
+  if (prereq.type === "OR") {
+    return effectiveIds.some(isCompleted);
+  }
+
+  return false;
+}
+
+/**
+ * 計算所有關卡的解鎖狀態（供 graphUtils 使用）
+ */
+export function computeAllUnlockStatus(
+  levels: Level[],
+  userProgress: UserProgress,
+): (Level & { isUnlocked: boolean })[] {
+  return levels.map((level) => ({
+    ...level,
+    isUnlocked: isLevelUnlocked(level, userProgress),
+  }));
+}
+
 // ==================== Boss 與 Portal 邏輯 ====================
 
 /**

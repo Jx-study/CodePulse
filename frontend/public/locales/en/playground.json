@@ -12,7 +12,9 @@
     "runtimeZeroDivision": "Division by zero.",
     "runtimeAttributeError": "{{msg}}",
     "runtimeRecursionError": "Maximum recursion depth exceeded.",
+    "poolExhausted": "Server is busy. Please try again later.",
     "analysisFailed": "Analysis failed. Please try again.",
-    "truncated": "Output may be truncated — trace limit reached."
+    "truncated": "Output may be truncated — trace limit reached.",
+    "duplicateCode": "This code is already in your history."
   }
 }

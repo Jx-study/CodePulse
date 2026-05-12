@@ -169,8 +169,16 @@ export function calculateDisplayStatus(
   filteredLevels: (Level & { isUnlocked: boolean })[],
   userProgress: UserProgress,
 ): LevelStatus {
-  // 如果關卡被鎖定，直接返回 "locked"
   if (!level.isUnlocked) {
+    return "locked";
+  }
+
+  // 未實作的關卡：保留用戶既有進度，避免 in-progress/completed 狀態視覺消失
+  if (!level.isDeveloped) {
+    const progressStatus = userProgress.levels[level.id]?.status;
+    if (progressStatus === "completed" || progressStatus === "in-progress") {
+      return progressStatus;
+    }
     return "locked";
   }
 
@@ -186,6 +194,7 @@ export function calculateDisplayStatus(
   const unlockedNotCompletedLevels = filteredLevels.filter(
     (l) =>
       l.isUnlocked &&
+      l.isDeveloped &&
       userProgress.levels[l.id]?.status !== "completed" &&
       userProgress.levels[l.id]?.status !== "in-progress",
   );

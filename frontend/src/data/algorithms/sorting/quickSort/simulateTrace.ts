@@ -42,7 +42,7 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
     });
   }
 
-  pushTrace(TAGS.INIT, { length: currentList.length });
+  pushTrace(TAGS.INIT, { length: currentList.length, stackDepth: 0 });
 
   function qs(low: number, high: number, depth: number) {
     if (low > high) return;
@@ -50,7 +50,11 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
     if (low === high) {
       layout[low].status = "Complete";
       layout[low].depth = 0; // 排序完成，回到最頂層
-      pushTrace(TAGS.BASE_CASE, { index: low, value: currentList[low].value });
+      pushTrace(TAGS.BASE_CASE, {
+        index: low,
+        value: currentList[low].value,
+        stackDepth: depth,
+      });
       return;
     }
 
@@ -61,14 +65,14 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
         layout[k].status = "Unfinished";
       }
     }
-    pushTrace(TAGS.CALL, { low, high, depth });
+    pushTrace(TAGS.CALL, { low, high, depth, stackDepth: depth });
 
     // 2. 開始 Partition
     const pivotIdx = high;
     const pivotVal = Number(currentList[pivotIdx].value);
     pushTrace(
       TAGS.PARTITION_START,
-      { low, high, pivotVal },
+      { low, high, pivotVal, stackDepth: depth },
       { [pivotIdx]: "Target" },
     );
 
@@ -78,7 +82,7 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
       const scanVal = Number(currentList[j].value);
       pushTrace(
         TAGS.COMPARE,
-        { j, scanVal, pivotVal },
+        { j, scanVal, pivotVal, stackDepth: depth },
         {
           [pivotIdx]: "Target",
           [j]: "Prepare",
@@ -101,7 +105,13 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
         if (i !== j) {
           pushTrace(
             TAGS.SWAP,
-            { i, j, valI: currentList[i].value, valJ: currentList[j].value },
+            {
+              i,
+              j,
+              valI: currentList[i].value,
+              valJ: currentList[j].value,
+              stackDepth: depth,
+            },
             { [pivotIdx]: "Target", [i]: "Prepare", [j]: "Prepare" },
           );
         }
@@ -121,7 +131,11 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
     // Pivot 已經在最終位置了！標記完成並將其送回深度 0 (最頂層)
     layout[i].status = "Complete";
     layout[i].depth = 0;
-    pushTrace(TAGS.PIVOT_SET, { pivotIdx: i, pivotVal }, { [i]: "Complete" });
+    pushTrace(
+      TAGS.PIVOT_SET,
+      { pivotIdx: i, pivotVal, stackDepth: depth },
+      { [i]: "Complete" },
+    );
 
     // 4. 遞迴左右兩半
     qs(low, i - 1, depth + 1);
@@ -135,7 +149,7 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
     l.status = "Complete";
     l.depth = 0;
   });
-  pushTrace(TAGS.DONE, { isSorted: true });
+  pushTrace(TAGS.DONE, { isSorted: true, stackDepth: 0 });
 
   return trace;
 }

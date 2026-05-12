@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from . import embeddings_store, model_loader, similarity
 from .normalizer import normalize_identifiers
@@ -9,6 +9,7 @@ class IdentifyResult:
     algo_name: str | None
     score: float
     top_raw: str
+    top3: list[tuple[str, float]] = field(default_factory=list)
 
 
 def identify(code: str) -> IdentifyResult:
@@ -16,13 +17,15 @@ def identify(code: str) -> IdentifyResult:
     ref_matrix = embeddings_store.get_reference_matrix()
     labels = embeddings_store.get_labels()
 
-    top_label, top_score = similarity.find_top_match(user_emb, ref_matrix, labels)
+    top3 = similarity.find_top_n(user_emb, ref_matrix, labels, n=3)
+    top_label, top_score = top3[0] if top3 else ("", 0.0)
     final_label, final_score = similarity.apply_threshold(top_label, top_score)
 
     return IdentifyResult(
         algo_name=final_label,
-        score=float(final_score),
+        score=float(top_score),
         top_raw=top_label,
+        top3=top3,
     )
 
 

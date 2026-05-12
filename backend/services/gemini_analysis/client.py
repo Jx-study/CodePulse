@@ -58,8 +58,7 @@ def call_gemini(prompt: str, schema: dict) -> dict | str:
                 continue
             logger.warning("Gemini server error after retry: %s", exc)
             return "api_error"
-        except httpx.TimeoutException as exc:
-            # httpx does not inherit Python's built-in TimeoutError
+        except (httpx.TimeoutException, TimeoutError) as exc:
             if attempt == 0:
                 logger.warning("Gemini timeout (attempt 1), retrying: %s", exc)
                 time.sleep(RETRY_INTERVAL_SEC)
