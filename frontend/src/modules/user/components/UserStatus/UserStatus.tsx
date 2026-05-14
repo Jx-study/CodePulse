@@ -29,7 +29,6 @@ function UserStatus() {
     }
   };
 
-  // 定義下拉菜單項目
   const menuItems = [
     {
       key: 'settings',
@@ -40,10 +39,8 @@ function UserStatus() {
     {
       key: 'help',
       label: t('getHelp'),
-      icon: <Icon name="question-circle" size="sm" />,
-      onClick: () => {
-        // TODO: 實作幫助功能
-      },
+      icon: <Icon name="circle-question" size="sm" />,
+      onClick: () => navigate('/faq'),
     },
     {
       key: 'divider-1',

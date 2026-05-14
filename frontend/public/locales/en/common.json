@@ -23,9 +23,8 @@
   "footer": {
     "tagline": "Transform abstract algorithms into visual stories. Make programming and debugging an intuitive, engaging journey.",
     "resources": {
-      "title": "Learning Resources",
-      "tutorial": "Usage Tutorial",
-      "examples": "Sample Programs",
+      "title": "Resources",
+      "guide": "Guide",
       "faq": "FAQ"
     },
     "contact": {
@@ -75,6 +74,9 @@
   "lightMode": "Light",
   "darkMode": "Dark",
   "systemDefault": "System",
+  "getHelp": "Get Help",
+  "logout": "Logout",
+  "userMenu": "User menu",
   "auth": {
     "loginRequired": "Please log in to use this feature"
   }
