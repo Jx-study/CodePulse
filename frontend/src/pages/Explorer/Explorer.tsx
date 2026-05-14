@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
+import PageGridBackground from "@/shared/components/PageGridBackground";
 import styles from "./Explorer.module.scss";
 
 // ── Card 1: Bar Race visual ──────────────────────────────────────────────────
@@ -205,8 +206,8 @@ function Explorer() {
 
   return (
     <div className={styles.explorer}>
-      {/* Bg texture */}
       <div className={styles.bgTexture} />
+      <PageGridBackground />
 
       {/* Hero */}
       <section className={styles.hero}>

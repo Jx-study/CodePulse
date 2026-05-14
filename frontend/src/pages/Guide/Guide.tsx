@@ -4,6 +4,7 @@ import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Icon from "@/shared/components/Icon";
+import PageGridBackground from "@/shared/components/PageGridBackground";
 import styles from "./Guide.module.scss";
 
 interface GuideCard {
@@ -22,7 +23,7 @@ function Guide() {
 
   return (
     <div className={styles.guide}>
-      <div className={styles.bgGrid} />
+      <PageGridBackground />
       <div className={styles.container}>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>

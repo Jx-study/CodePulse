@@ -4,19 +4,9 @@
   min-height: 100vh;
   background: var(--bg-primary);
   color: var(--text-primary);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
-.bgGrid {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 2.5rem 2.5rem;
-}
 
 .container {
   max-width: 72rem;
@@ -134,7 +124,7 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.875rem 1rem;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   border-radius: $radius-md;
   margin-bottom: 1.25rem;
 }
@@ -186,11 +176,7 @@
   gap: 0.75rem;
   padding: $spacing-xl $spacing-lg;
   border-radius: $radius-xl;
-  background: linear-gradient(
-    135deg,
-    rgba($primary-color, 0.07) 0%,
-    rgba($info-color, 0.07) 100%
-  );
+  background: var(--bg-secondary);
   border: 1px solid rgba($primary-color, 0.2);
   text-align: center;
 }

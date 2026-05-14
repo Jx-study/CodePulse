@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
+import PageGridBackground from "@/shared/components/PageGridBackground";
 import FAQItem from "./components/FAQItem";
 import styles from "./FAQ.module.scss";
 
@@ -22,7 +23,7 @@ function FAQ() {
 
   return (
     <div className={styles.faq}>
-      <div className={styles.bgGrid} />
+      <PageGridBackground />
       <div className={styles.container}>
         <div className={styles.hero}>
           <h1 className={styles.heroTitle}>
