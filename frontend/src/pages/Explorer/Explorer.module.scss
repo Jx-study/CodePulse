@@ -30,30 +30,6 @@
   }
 }
 
-.heroLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  font-size: $font-2xs;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: $primary-color;
-  background: rgba($primary-color, 0.1);
-  border: 1px solid rgba($primary-color, 0.2);
-  border-radius: $radius-full;
-  padding: 4px $spacing-xs;
-  margin-bottom: $spacing-md;
-}
-
-.heroLabelDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: $primary-color;
-  animation: blink 2s ease-in-out infinite;
-}
-
 .heroTitle {
   font-size: clamp(2.25rem, 6vw, 3.5rem);
   font-weight: 800;

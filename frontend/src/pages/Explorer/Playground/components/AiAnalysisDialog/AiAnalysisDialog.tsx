@@ -23,7 +23,7 @@ export function AiAnalysisDialog({
 }: AiAnalysisDialogProps) {
   const [activeTab, setActiveTab] = useState<DialogTab>("complexity");
 
-  const isLoading = runStage === "gemini" || (runStage !== "done" && aiResult === null);
+  const isLoading = runStage === "analysis" || (runStage !== "done" && aiResult === null);
 
   return (
     <Dialog
@@ -34,7 +34,7 @@ export function AiAnalysisDialog({
         <div className={styles.dialogTitle}>
           <span className={styles.dialogTitleIcon}>✦</span>
           AI Analysis
-          {runStage === "gemini" && (
+          {runStage === "analysis" && (
             <span className={styles.dialogTitleNote}>Gemini 仲裁中…</span>
           )}
         </div>

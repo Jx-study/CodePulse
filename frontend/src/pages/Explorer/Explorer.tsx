@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
@@ -202,7 +201,6 @@ function StackVisual() {
 
 // ── Explorer Hub ─────────────────────────────────────────────────────────────
 function Explorer() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -212,10 +210,6 @@ function Explorer() {
 
       {/* Hero */}
       <section className={styles.hero}>
-        <div className={styles.heroLabel}>
-          <span className={styles.heroLabelDot} />
-          {t("explorer")}
-        </div>
         <h1 className={styles.heroTitle}>
           Algorithm<br />
           <span className={styles.heroTitleAccent}>Exploration</span> Hub
