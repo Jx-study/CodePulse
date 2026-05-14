@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "badge": "Guide",
+    "titleAccent": "Get started with",
+    "titleSuffix": "CodePulse",
+    "desc": "Everything you need to know about CodePulse features, in five minutes.",
+    "startBtn": "Start Learning",
+    "faqBtn": "View FAQ"
+  },
+  "section": "6 modules · quick tour",
+  "card": { "goLabel": "Go" },
+  "cta": {
+    "title": "Still have questions?",
+    "desc": "Check the FAQ or reach out directly.",
+    "faqBtn": "View FAQ",
+    "contactBtn": "Contact Us"
+  },
+  "cards": [
+    {
+      "id": "start",
+      "badge": "Step 00",
+      "title": "Get Started & Login",
+      "desc": "Authorize with your Google account to start learning. Progress syncs to the cloud automatically.",
+      "steps": ["Click \"Login\" in the top-right corner", "Authorize with your Google account", "Your learning record is created automatically"],
+      "linkLabel": "Go to Login",
+      "linkTo": "/auth"
+    },
+    {
+      "id": "dashboard",
+      "badge": "Step 01",
+      "title": "Learning Dashboard",
+      "desc": "A skill-tree map showing the status of every algorithm topic at a glance.",
+      "steps": ["Check node colors (completion status)", "Click a node to enter its Tutorial", "Track your overall progress"],
+      "linkLabel": "Go to Dashboard",
+      "linkTo": "/dashboard"
+    },
+    {
+      "id": "tutorial",
+      "badge": "Step 02",
+      "title": "Tutorial",
+      "desc": "Step-by-step animated explanations of data structures and algorithms, with interactive mini-games.",
+      "steps": ["Select a topic and enter Tutorial", "Watch the animation and control the visualization", "Unlock Practice when done"],
+      "linkLabel": "Enter Tutorial",
+      "linkTo": "/dashboard"
+    },
+    {
+      "id": "practice",
+      "badge": "Step 03",
+      "title": "Practice",
+      "desc": "Test your understanding with problems. Get instant feedback, explanations, and scores.",
+      "steps": ["Enter Practice from the Dashboard", "Answer and submit", "Review your answer breakdown"],
+      "linkLabel": "Start Practice",
+      "linkTo": "/dashboard"
+    },
+    {
+      "id": "lab",
+      "badge": "Step 04",
+      "title": "Algorithm Lab",
+      "desc": "Run algorithms and compare the real-world performance of different implementations.",
+      "steps": ["Choose algorithm and data size", "Watch the animated execution", "Compare complexity charts"],
+      "linkLabel": "Go to Lab",
+      "linkTo": "/explorer/lab"
+    },
+    {
+      "id": "playground",
+      "badge": "Step 05",
+      "title": "Visualization Playground",
+      "desc": "Paste your code to explore its graph structure and see AI algorithm recognition in action.",
+      "steps": ["Paste or type your code", "Run and observe the visualization", "Check the AI recognition result"],
+      "linkLabel": "Open Playground",
+      "linkTo": "/explorer/playground"
+    }
+  ]
+}

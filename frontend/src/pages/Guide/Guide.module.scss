@@ -1,0 +1,227 @@
+.guide {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+.bgGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}
+
+.container {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: $spacing-xxl 1.5rem 6rem;
+  position: relative;
+  z-index: 10;
+}
+
+.hero {
+  text-align: center;
+  margin: 0 auto 4rem;
+  max-width: 44rem;
+}
+
+.heroTitle {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: $spacing-xs;
+}
+
+.heroAccent {
+  background: linear-gradient(135deg, $primary-color 0%, $info-color 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroDesc {
+  font-size: $font-base;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  a {
+    display: inline-flex;
+    text-decoration: none;
+  }
+}
+
+.heroButton {
+  min-height: 4.25rem;
+  padding: 1rem 1.75rem;
+  border-radius: $radius-lg;
+  font-size: $font-lg;
+  line-height: 1.5;
+}
+
+.sectionLabel {
+  font-size: $font-xs;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1.25rem;
+  margin-bottom: $spacing-xxl;
+}
+
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  padding: 1.75rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color 0.2s $ease-smooth,
+    transform 0.2s $ease-smooth,
+    box-shadow 0.2s $ease-smooth;
+
+  &:hover {
+    border-color: rgba($primary-color, 0.4);
+    transform: translateY(-3px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.cardTop {
+  margin-bottom: $spacing-sm;
+}
+
+.cardTitle {
+  font-size: $font-base;
+  font-weight: 600;
+  margin-bottom: $spacing-xs;
+}
+
+.cardDesc {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-primary);
+  border-radius: $radius-md;
+  margin-bottom: 1.25rem;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.stepNum {
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: rgba($primary-color, 0.1);
+  border: 1px solid rgba($primary-color, 0.2);
+  color: $primary-color;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $primary-color;
+  text-decoration: none;
+  margin-top: auto;
+  transition: gap 0.15s $ease-smooth;
+
+  &:hover {
+    gap: 0.65rem;
+  }
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: $spacing-xl $spacing-lg;
+  border-radius: $radius-xl;
+  background: linear-gradient(
+    135deg,
+    rgba($primary-color, 0.07) 0%,
+    rgba($info-color, 0.07) 100%
+  );
+  border: 1px solid rgba($primary-color, 0.2);
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: $font-xl;
+  font-weight: 700;
+  margin: 0;
+}
+
+.ctaDesc {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 28rem;
+}
+
+.ctaActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: $mobile-max) {
+  .container {
+    padding: 3.5rem 1rem 4rem;
+  }
+
+  .cta {
+    padding: $spacing-lg 1.25rem;
+  }
+}

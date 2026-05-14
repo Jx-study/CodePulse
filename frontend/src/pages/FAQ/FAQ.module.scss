@@ -1,0 +1,131 @@
+.faq {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+.bgGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}
+
+.container {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: $spacing-xxl 1.5rem 6rem;
+  position: relative;
+  z-index: 10;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.heroTitle {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: $spacing-xs;
+}
+
+.heroAccent {
+  background: linear-gradient(135deg, $primary-color 0%, $info-color 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroDesc {
+  font-size: $font-base;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.metaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: $font-xs;
+  font-weight: 600;
+}
+
+.metaLink {
+  color: $primary-color;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-bottom: $spacing-xxl;
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: $spacing-xl $spacing-lg;
+  border-radius: $radius-xl;
+  background: linear-gradient(
+    135deg,
+    rgba($primary-color, 0.08) 0%,
+    rgba($info-color, 0.08) 100%
+  );
+  border: 1px solid rgba($primary-color, 0.2);
+  text-align: center;
+}
+
+.ctaIcon {
+  font-size: 2rem;
+  color: $primary-color;
+  opacity: 0.7;
+}
+
+.ctaTitle {
+  font-size: $font-xl;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ctaDesc {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 30rem;
+}
+
+@media (max-width: $mobile-max) {
+  .container {
+    padding: 3.5rem 1rem 4rem;
+  }
+
+  .cta {
+    padding: $spacing-lg 1.25rem;
+  }
+}
