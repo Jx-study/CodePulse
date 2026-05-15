@@ -38,8 +38,8 @@
       "id": "tutorial",
       "badge": "Step 02",
       "title": "Tutorial",
-      "desc": "Step-by-step animated explanations of data structures and algorithms, with interactive mini-games.",
-      "steps": ["Select a topic and enter Tutorial", "Watch the animation and control the visualization", "Unlock Practice when done"],
+      "desc": "Step-by-step animated explanations of data structures and algorithms. Directly manipulate the visualization, follow along with the code, and dive deeper with the Knowledge Station.",
+      "steps": ["Select a topic and enter Tutorial", "Watch the animation and control the visualization", "Visit the Knowledge Station to understand the principles and use cases"],
       "linkLabel": "Enter Tutorial",
       "linkTo": "/dashboard"
     },
@@ -65,7 +65,7 @@
       "id": "playground",
       "badge": "Step 05",
       "title": "Visualization Playground",
-      "desc": "Paste your code to explore its graph structure and see AI algorithm recognition in action.",
+      "desc": "Paste Python code and run it to observe the call graph and control flow graph, or let AI recognize the algorithm and generate a visualization animation.",
       "steps": ["Paste or type your code", "Run and observe the visualization", "Check the AI recognition result"],
       "linkLabel": "Open Playground",
       "linkTo": "/explorer/playground"

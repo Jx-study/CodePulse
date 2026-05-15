@@ -38,8 +38,8 @@
       "id": "tutorial",
       "badge": "Step 02",
       "title": "教學導覽",
-      "desc": "動畫逐步解說資料結構與演算法的運作原理，搭配互動小遊戲加深記憶。",
-      "steps": ["選擇主題進入 Tutorial", "觀看動畫並操控視覺化", "完成後解鎖 Practice"],
+      "desc": "動畫逐步解說資料結構與演算法的運作原理，可直接操控視覺化資料、對照程式碼，旁附知識補充站深入理解原理。",
+      "steps": ["選擇主題進入 Tutorial", "觀看動畫並操控視覺化", "查看知識補充站，瞭解原理與應用場景"],
       "linkLabel": "進入 Tutorial",
       "linkTo": "/dashboard"
     },
@@ -65,7 +65,7 @@
       "id": "playground",
       "badge": "Step 05",
       "title": "視覺化遊樂場",
-      "desc": "貼上你的程式碼，觀察圖論結構與 AI 演算法辨識結果，自由探索。",
+      "desc": "貼上 Python 程式碼並執行，觀察函式呼叫圖與控制流程圖，或讓 AI 辨識演算法並生成視覺化動畫。",
       "steps": ["貼上或輸入程式碼", "執行並觀察視覺化", "查看 AI 辨識結果"],
       "linkLabel": "開啟 Playground",
       "linkTo": "/explorer/playground"
