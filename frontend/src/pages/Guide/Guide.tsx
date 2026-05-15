@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
@@ -19,6 +19,7 @@ interface GuideCard {
 
 function Guide() {
   const { t } = useTranslation("guide");
+  const navigate = useNavigate();
   const cards = t("cards", { returnObjects: true }) as GuideCard[];
 
   return (
@@ -33,24 +34,22 @@ function Guide() {
           </h1>
           <p className={styles.heroDesc}>{t("hero.desc")}</p>
           <div className={styles.heroActions}>
-            <Link to="/dashboard">
-              <Button
-                variant="primary"
-                iconLeft={<Icon name="rocket" decorative />}
-                className={styles.heroButton}
-              >
-                {t("hero.startBtn")}
-              </Button>
-            </Link>
-            <Link to="/faq">
-              <Button
-                variant="primaryOutline"
-                iconLeft={<Icon name="circle-question" decorative />}
-                className={styles.heroButton}
-              >
-                {t("hero.faqBtn")}
-              </Button>
-            </Link>
+            <Button
+              variant="primary"
+              iconLeft={<Icon name="rocket" decorative />}
+              className={styles.heroButton}
+              onClick={() => navigate("/dashboard")}
+            >
+              {t("hero.startBtn")}
+            </Button>
+            <Button
+              variant="primaryOutline"
+              iconLeft={<Icon name="circle-question" decorative />}
+              className={styles.heroButton}
+              onClick={() => navigate("/faq")}
+            >
+              {t("hero.faqBtn")}
+            </Button>
           </div>
         </div>
 
@@ -86,14 +85,13 @@ function Guide() {
           <h3 className={styles.ctaTitle}>{t("cta.title")}</h3>
           <p className={styles.ctaDesc}>{t("cta.desc")}</p>
           <div className={styles.ctaActions}>
-            <Link to="/faq">
-              <Button
-                variant="primary"
-                iconLeft={<Icon name="circle-question" decorative />}
-              >
-                {t("cta.faqBtn")}
-              </Button>
-            </Link>
+            <Button
+              variant="primary"
+              iconLeft={<Icon name="circle-question" decorative />}
+              onClick={() => navigate("/faq")}
+            >
+              {t("cta.faqBtn")}
+            </Button>
             <Button
               variant="primaryOutline"
               iconLeft={<Icon name="envelope" decorative />}

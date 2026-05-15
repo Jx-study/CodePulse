@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styles from './UserStatus.module.scss';
 import SettingPanel from '../SettingPanel/SettingPanel';
 import { useAuth } from '@/shared/contexts/AuthContext';
@@ -85,16 +85,22 @@ function UserStatus() {
   return (
     <div className={styles.userStatus}>
       <div className={styles.authButtons}>
-        <Link to="/auth?tab=login">
-          <Button variant="secondary" size="sm" className={styles.btnLogin}>
-            {t("login")}
-          </Button>
-        </Link>
-        <Link to="/auth?tab=signup" className={styles.btnRegister}>
-          <Button variant="primary" size="sm">
-            {t("register")}
-          </Button>
-        </Link>
+        <Button
+          variant="secondary"
+          size="sm"
+          className={styles.btnLogin}
+          onClick={() => navigate('/auth?tab=login')}
+        >
+          {t("login")}
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          className={styles.btnRegister}
+          onClick={() => navigate('/auth?tab=signup')}
+        >
+          {t("register")}
+        </Button>
       </div>
     </div>
   );
