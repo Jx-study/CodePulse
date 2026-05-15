@@ -19,7 +19,9 @@ function FAQ() {
   const { t } = useTranslation("faq");
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const data = t("items", { returnObjects: true }) as FaqEntry[];
+  const raw = t("items", { returnObjects: true });
+  // TODO: sentry — log when i18n fails to return array (locale load failure)
+  const data = Array.isArray(raw) ? (raw as FaqEntry[]) : [];
 
   const toggle = (id: string) => setOpenId((prev) => (prev === id ? null : id));
 
@@ -32,7 +34,7 @@ function FAQ() {
           title={
             <>
               {t("hero.title")}
-              <span style={{ color: "var(--color-primary)" }}>{t("hero.accent")}</span>
+              <span className={styles.titleAccent}>{t("hero.accent")}</span>
             </>
           }
           description={t("hero.desc")}

@@ -24,6 +24,8 @@ export function AiAnalysisDialog({
   const [activeTab, setActiveTab] = useState<DialogTab>("complexity");
 
   const isLoading = runStage === "analysis" || (runStage !== "done" && aiResult === null);
+  // TODO: sentry — log when analysis completes with no result (backend returned null)
+  const isError = runStage === "done" && aiResult === null;
 
   return (
     <Dialog
@@ -63,7 +65,9 @@ export function AiAnalysisDialog({
         <div className={styles.tabBody}>
           <div className={styles.block}>
             <div className={styles.blockHeader}>◎ Time Complexity</div>
-            {isLoading || !aiResult ? (
+            {isError ? (
+              <p className={styles.errorState}>Analysis failed — please re-run.</p>
+            ) : isLoading || !aiResult ? (
               <div className={styles.skeletonWrap}>
                 <SkeletonText lines={2} />
               </div>
@@ -88,7 +92,9 @@ export function AiAnalysisDialog({
         <div className={styles.tabBody}>
           <div className={styles.block}>
             <div className={styles.blockHeader}>◈ Code Summary</div>
-            {isLoading || !aiResult?.summary ? (
+            {isError ? (
+              <p className={styles.errorState}>Analysis failed — please re-run.</p>
+            ) : isLoading || !aiResult?.summary ? (
               <div className={styles.skeletonWrap}>
                 <SkeletonText lines={5} />
               </div>

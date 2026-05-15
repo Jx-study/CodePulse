@@ -22,7 +22,9 @@ interface GuideCard {
 function Guide() {
   const { t } = useTranslation("guide");
   const navigate = useNavigate();
-  const cards = t("cards", { returnObjects: true }) as GuideCard[];
+  const raw = t("cards", { returnObjects: true });
+  // TODO: sentry — log when i18n fails to return array (locale load failure)
+  const cards = Array.isArray(raw) ? (raw as GuideCard[]) : [];
 
   return (
     <div className={styles.guide}>
@@ -33,7 +35,7 @@ function Guide() {
           maxWidth="72rem"
           title={
             <>
-              <span style={{ color: "var(--color-primary)" }}>{t("hero.titleAccent")}</span>
+              <span className={styles.titleAccent}>{t("hero.titleAccent")}</span>
               <br />
               {t("hero.titleSuffix")}
             </>

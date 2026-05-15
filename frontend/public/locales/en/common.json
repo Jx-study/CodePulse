@@ -76,6 +76,7 @@
   "systemDefault": "System",
   "getHelp": "Get Help",
   "logout": "Logout",
+  "logoutError": "Logout failed, please try again",
   "userMenu": "User menu",
   "auth": {
     "loginRequired": "Please log in to use this feature"

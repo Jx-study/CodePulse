@@ -76,6 +76,7 @@
   "systemDefault": "系統",
   "getHelp": "取得幫助",
   "logout": "登出",
+  "logoutError": "登出失敗，請稍後再試",
   "userMenu": "使用者選單",
   "auth": {
     "loginRequired": "請先登入才能使用此功能"

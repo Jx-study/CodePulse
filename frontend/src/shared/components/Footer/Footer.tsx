@@ -34,11 +34,7 @@ function Footer() {
               </a>
             </li>
             <li>
-              <a
-                href="mailto:codepulse112@gmail.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="mailto:codepulse112@gmail.com">
                 {t('footer.contact.support')}
               </a>
             </li>

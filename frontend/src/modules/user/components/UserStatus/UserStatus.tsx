@@ -8,6 +8,7 @@ import Button from '@/shared/components/Button';
 import Avatar from '@/shared/components/Avatar';
 import Icon from '@/shared/components/Icon';
 import Dropdown from '@/shared/components/Dropdown';
+import { toast } from '@/shared/components/Toast';
 
 function UserStatus() {
   const { t } = useTranslation();
@@ -22,10 +23,11 @@ function UserStatus() {
   const handleLogout = async () => {
     try {
       await logout();
-    } catch (error) {
-      console.error('登出失敗:', error);
-    } finally {
       navigate('/');
+    } catch (error) {
+      // TODO: sentry
+      console.error('Logout failed:', error);
+      toast.error(t('logoutError'));
     }
   };
 
