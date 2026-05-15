@@ -103,9 +103,7 @@
   border: 2px solid $primary-color;
   color: $primary-color;
   font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: $font-sm;
+  border-radius: $radius-lg;
   cursor: pointer;
   transition: $transition-base;
 
