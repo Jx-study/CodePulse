@@ -11,42 +11,9 @@
 .container {
   max-width: 72rem;
   margin: 0 auto;
-  padding: $spacing-xxl 1.5rem 6rem;
+  padding: 0 1.5rem 6rem;
   position: relative;
   z-index: 10;
-}
-
-.hero {
-  text-align: center;
-  margin: 0 auto 4rem;
-  max-width: 44rem;
-}
-
-.heroTitle {
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: $spacing-xs;
-}
-
-.heroAccent {
-  color: $primary-color;
-}
-
-.heroDesc {
-  font-size: $font-base;
-  color: var(--text-secondary);
-  line-height: 1.75;
-  letter-spacing: 0.01em;
-  margin-bottom: $spacing-md;
-}
-
-.heroActions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
 }
 
 .heroButton {
@@ -163,45 +130,8 @@
   }
 }
 
-.cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-xl $spacing-lg;
-  border-radius: $radius-xl;
-  background: var(--bg-secondary);
-  border: 1px solid rgba($primary-color, 0.2);
-  text-align: center;
-}
-
-.ctaTitle {
-  font-size: $font-xl;
-  font-weight: 700;
-  margin: 0;
-}
-
-.ctaDesc {
-  font-size: $font-sm;
-  color: var(--text-secondary);
-  margin: 0;
-  max-width: 28rem;
-}
-
-.ctaActions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
 @media (max-width: $mobile-max) {
   .container {
-    padding: 3.5rem 1rem 4rem;
-  }
-
-  .cta {
-    padding: $spacing-lg 1.25rem;
+    padding: 0 1rem 4rem;
   }
 }

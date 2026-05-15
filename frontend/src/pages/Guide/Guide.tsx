@@ -5,6 +5,8 @@ import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Icon from "@/shared/components/Icon";
 import PageGridBackground from "@/shared/components/PageGridBackground";
+import PageHero from "@/shared/components/PageHero";
+import CTASection from "@/shared/components/CTASection";
 import styles from "./Guide.module.scss";
 
 interface GuideCard {
@@ -26,32 +28,38 @@ function Guide() {
     <div className={styles.guide}>
       <PageGridBackground />
       <div className={styles.container}>
-        <div className={styles.hero}>
-          <h1 className={styles.heroTitle}>
-            <span className={styles.heroAccent}>{t("hero.titleAccent")}</span>
-            <br />
-            {t("hero.titleSuffix")}
-          </h1>
-          <p className={styles.heroDesc}>{t("hero.desc")}</p>
-          <div className={styles.heroActions}>
-            <Button
-              variant="primary"
-              iconLeft={<Icon name="rocket" decorative />}
-              className={styles.heroButton}
-              onClick={() => navigate("/dashboard")}
-            >
-              {t("hero.startBtn")}
-            </Button>
-            <Button
-              variant="primaryOutline"
-              iconLeft={<Icon name="circle-question" decorative />}
-              className={styles.heroButton}
-              onClick={() => navigate("/faq")}
-            >
-              {t("hero.faqBtn")}
-            </Button>
-          </div>
-        </div>
+        <PageHero
+          variant="content"
+          maxWidth="72rem"
+          title={
+            <>
+              <span style={{ color: "var(--color-primary)" }}>{t("hero.titleAccent")}</span>
+              <br />
+              {t("hero.titleSuffix")}
+            </>
+          }
+          description={t("hero.desc")}
+          actions={
+            <>
+              <Button
+                variant="primary"
+                iconLeft={<Icon name="rocket" decorative />}
+                className={styles.heroButton}
+                onClick={() => navigate("/dashboard")}
+              >
+                {t("hero.startBtn")}
+              </Button>
+              <Button
+                variant="primaryOutline"
+                iconLeft={<Icon name="circle-question" decorative />}
+                className={styles.heroButton}
+                onClick={() => navigate("/faq")}
+              >
+                {t("hero.faqBtn")}
+              </Button>
+            </>
+          }
+        />
 
         <p className={styles.sectionLabel}>{t("section")}</p>
 
@@ -81,28 +89,30 @@ function Guide() {
           ))}
         </div>
 
-        <div className={styles.cta}>
-          <h3 className={styles.ctaTitle}>{t("cta.title")}</h3>
-          <p className={styles.ctaDesc}>{t("cta.desc")}</p>
-          <div className={styles.ctaActions}>
-            <Button
-              variant="primary"
-              iconLeft={<Icon name="circle-question" decorative />}
-              onClick={() => navigate("/faq")}
-            >
-              {t("cta.faqBtn")}
-            </Button>
-            <Button
-              variant="primaryOutline"
-              iconLeft={<Icon name="envelope" decorative />}
-              onClick={() => {
-                window.location.href = "mailto:codepulse112@gmail.com";
-              }}
-            >
-              {t("cta.contactBtn")}
-            </Button>
-          </div>
-        </div>
+        <CTASection
+          title={t("cta.title")}
+          description={t("cta.desc")}
+          actions={
+            <>
+              <Button
+                variant="primary"
+                iconLeft={<Icon name="circle-question" decorative />}
+                onClick={() => navigate("/faq")}
+              >
+                {t("cta.faqBtn")}
+              </Button>
+              <Button
+                variant="primaryOutline"
+                iconLeft={<Icon name="envelope" decorative />}
+                onClick={() => {
+                  window.location.href = "mailto:codepulse112@gmail.com";
+                }}
+              >
+                {t("cta.contactBtn")}
+              </Button>
+            </>
+          }
+        />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import PageGridBackground from "@/shared/components/PageGridBackground";
+import PageHero from "@/shared/components/PageHero";
 import styles from "./Explorer.module.scss";
 
 // ── Card 1: Bar Race visual ──────────────────────────────────────────────────
@@ -206,19 +207,19 @@ function Explorer() {
 
   return (
     <div className={styles.explorer}>
-      <div className={styles.bgTexture} />
       <PageGridBackground />
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>
-          Algorithm<br />
-          <span className={styles.heroTitleAccent}>Exploration</span> Hub
-        </h1>
-        <p className={styles.heroSub}>
-          Central access point for algorithm exploration and visualization. Chart your course through the logic landscape.
-        </p>
-      </section>
+      <PageHero
+        variant="feature"
+        bgTexture
+        title={
+          <>
+            Algorithm<br />
+            <span style={{ color: "var(--color-primary)" }}>Exploration</span> Hub
+          </>
+        }
+        description="Central access point for algorithm exploration and visualization. Chart your course through the logic landscape."
+      />
 
       {/* Cards */}
       <div className={styles.cards}>

@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 import PageGridBackground from "@/shared/components/PageGridBackground";
+import PageHero from "@/shared/components/PageHero";
+import CTASection from "@/shared/components/CTASection";
 import FAQItem from "./components/FAQItem";
 import styles from "./FAQ.module.scss";
 
@@ -25,19 +27,22 @@ function FAQ() {
     <div className={styles.faq}>
       <PageGridBackground />
       <div className={styles.container}>
-        <div className={styles.hero}>
-          <h1 className={styles.heroTitle}>
-            {t("hero.title")}
-            <span className={styles.heroAccent}>{t("hero.accent")}</span>
-          </h1>
-          <p className={styles.heroDesc}>{t("hero.desc")}</p>
-          <div className={styles.heroMeta}>
+        <PageHero
+          variant="content"
+          title={
+            <>
+              {t("hero.title")}
+              <span style={{ color: "var(--color-primary)" }}>{t("hero.accent")}</span>
+            </>
+          }
+          description={t("hero.desc")}
+          actions={
             <Link to="/guide" className={styles.metaLink}>
               <Icon name="book-open" decorative />
               {t("hero.guideLink")}
             </Link>
-          </div>
-        </div>
+          }
+        />
 
         <div className={styles.list}>
           {data.map((item, index) => (
@@ -53,25 +58,27 @@ function FAQ() {
           ))}
         </div>
 
-        <div className={styles.cta}>
-          <Icon name="comments" decorative className={styles.ctaIcon} />
-          <h3 className={styles.ctaTitle}>{t("cta.title")}</h3>
-          <p className={styles.ctaDesc}>{t("cta.desc")}</p>
-          <Button
-            variant="primary"
-            iconLeft={<Icon name="paper-plane" decorative />}
-            onClick={() =>
-              window.open(
-                "https://forms.gle/i4ycZ9QrXQPVvCSBA",
-                "_blank",
-                "noopener,noreferrer",
-              )
-            }
-            size="md"
-          >
-            {t("cta.button")}
-          </Button>
-        </div>
+        <CTASection
+          title={t("cta.title")}
+          description={t("cta.desc")}
+          icon={<Icon name="comments" decorative />}
+          actions={
+            <Button
+              variant="primary"
+              iconLeft={<Icon name="paper-plane" decorative />}
+              onClick={() =>
+                window.open(
+                  "https://forms.gle/i4ycZ9QrXQPVvCSBA",
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+              size="md"
+            >
+              {t("cta.button")}
+            </Button>
+          }
+        />
       </div>
     </div>
   );
