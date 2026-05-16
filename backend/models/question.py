@@ -25,6 +25,8 @@ class QuestionGroup(db.Model):
     code = db.Column(db.Text, nullable=True)
     language = db.Column(db.String(50), nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
+    visual_type = db.Column(db.String(20), nullable=False, default='none')
+    visual_data = db.Column(db.JSON, nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -48,6 +50,7 @@ class QuestionGroupTranslation(db.Model):
     language_code = db.Column(db.String(10), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    visual_alt = db.Column(db.Text, nullable=True)
 
     __table_args__ = (
         db.UniqueConstraint('group_id', 'language_code', name='uq_question_group_translation'),

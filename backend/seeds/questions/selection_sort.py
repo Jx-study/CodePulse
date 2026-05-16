@@ -49,14 +49,20 @@ DATA = {
     "groups": [
         {
             "id": "group-ssort-logic",
+            "visual_type": "image",
+            "visual_data": {
+                "url": "https://res.cloudinary.com/codepulse/image/upload/v1/selection-sort-trace.png"
+            },
             "translations": {
                 "zh-TW": {
                     "title": "題組：選擇排序的最小化邏輯",
                     "description": "選擇排序透過記錄索引來減少實體交換的次數。請觀察其索引更新的時機與判斷條件。",
+                    "visual_alt": "陣列 [29, 10, 14, 37, 14] 選擇排序四個步驟的示意圖",
                 },
                 "en": {
                     "title": "Group: Selection Sort's Minimization Logic",
                     "description": "Selection Sort records an index to minimize the number of physical swaps. Pay attention to when and how the index is updated.",
+                    "visual_alt": "Selection sort steps on array [29, 10, 14, 37, 14]",
                 },
             },
             "code": SSORT_SIMPLIFIED_CODE,

@@ -13,6 +13,7 @@ from models.question import (
     QuestionType, QuestionCategory,
 )
 from models.practice import AttemptAnswer
+from services.visual_validator import validate_visual
 
 # ── 註冊所有 tutorial 的題庫模組 ─────────────────────────────────────────────
 from seeds.questions import array
@@ -111,10 +112,16 @@ def seed_tutorial(quiz_data: dict):
     # 建立 group id -> DB group 的對應
     group_map: dict[str, QuestionGroup] = {}
     for i, g_data in enumerate(quiz_data.get("groups", [])):
+        visual_type = g_data.get("visual_type", "none")
+        visual_data = g_data.get("visual_data")
+        validate_visual(visual_type, visual_data)  # fail loudly on bad seed
+
         group = QuestionGroup(
             tutorial_id=tutorial_id,
             code=g_data.get("code"),
             language=g_data.get("language"),
+            visual_type=visual_type,
+            visual_data=visual_data,
             display_order=i,
         )
         db.session.add(group)
@@ -127,6 +134,7 @@ def seed_tutorial(quiz_data: dict):
                 language_code=lang_code,
                 title=t["title"],
                 description=t.get("description"),
+                visual_alt=t.get("visual_alt"),
             ))
         group_map[g_data["id"]] = group
 
