@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Checkbox from "@/shared/components/Checkbox";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -32,12 +33,30 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
   const handleGraphAction = (action: string) => {
     if (disabled || !onGraphAction) return;
 
-    const payload: any = { isDirected };
-
     const normalizeId = (val: string) => {
       const num = parseInt(val, 10);
       return isNaN(num) ? val : String(num);
     };
+
+    const needsNodeId = ["addVertex", "removeVertex", "getNeighbors", "getDegree"];
+    const needsEdge = ["addEdge", "removeEdge", "checkAdjacent"];
+
+    if (needsNodeId.includes(action) && inputValue.trim() === "") {
+      toast.warning("請輸入節點 ID");
+      return;
+    }
+    if (needsEdge.includes(action)) {
+      if (sourceNode.trim() === "") {
+        toast.warning("請輸入起點 (Src) 節點 ID");
+        return;
+      }
+      if (targetNode.trim() === "") {
+        toast.warning("請輸入終點 (Dst) 節點 ID");
+        return;
+      }
+    }
+
+    const payload: any = { isDirected };
 
     if (action === "addVertex") {
       payload.value = normalizeId(inputValue);

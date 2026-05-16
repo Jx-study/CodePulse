@@ -10,6 +10,7 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import { arrayRealWorldStories } from "./array.stories";
 import { TAGS } from "./array/tags";
 import { simulateArrayTrace } from "./array/simulateTrace";
 import { arrayTraceToSteps } from "./array/traceToSteps";
@@ -167,11 +168,11 @@ function arrayActionHandler(
   if (actionType === "delete") {
     const idx = index;
     if (newData.length === 0) {
-      context.toast.warning("Array is empty");
+      context.toast.warning("陣列為空");
       return null;
     }
     if (idx === undefined || idx >= newData.length || idx < 0) {
-      context.toast.warning("Invalid index");
+      context.toast.warning("索引無效");
       return null;
     }
     const deletedValue = newData[idx].value;
@@ -272,4 +273,5 @@ export const ArrayConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 20,
+  realWorldStories: arrayRealWorldStories,
 };

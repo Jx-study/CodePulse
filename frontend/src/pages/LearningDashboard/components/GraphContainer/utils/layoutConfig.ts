@@ -25,15 +25,15 @@ export const DESKTOP_CONFIG: LayoutConfig = {
 // Tablet 配置 (768-1023px)
 export const TABLET_CONFIG: LayoutConfig = {
   layerSpacing: 200,
-  branchSpacing: 150,
+  branchSpacing: 290,
   nodeSpacing: 200,
 };
 
 // Mobile 配置 (<768px)
 export const MOBILE_CONFIG: LayoutConfig = {
   layerSpacing: 200 ,
-  branchSpacing: 150,
-  nodeSpacing: 180,
+  branchSpacing: 250,
+  nodeSpacing: 200,
 };
 
 /**

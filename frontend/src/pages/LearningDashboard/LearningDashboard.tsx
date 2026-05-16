@@ -28,12 +28,13 @@ import {
   INITIAL_USER_PROGRESS,
   fetchMyProgress,
   mergeApiProgress,
-} from "@/services/UserProgressService";
+} from "@/services/ProgressService";
 import {
   getLevelProgress,
   calculateDisplayStatus,
   calculateOverallProgress,
   calculateCategoryProgress,
+  isProgressTrackableLevel,
   startLevel,
 } from "@/services/ProgressService";
 import {
@@ -44,6 +45,7 @@ import {
   computeAllUnlockStatus,
   filterLevelsByCategory,
 } from "./utils/graphUtils";
+import { useGraphValidation } from "./hooks/useGraphValidation";
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { useTranslation } from "react-i18next";
@@ -89,12 +91,25 @@ function LearningDashboardInner() {
   // 從統一配置獲取所有關卡
   const allLevels = getAllLevels();
 
+  const graphValidation = useGraphValidation(allLevels);
+  useEffect(() => {
+    if (import.meta.env.DEV && !graphValidation.isValid) {
+      console.error(`[LearningDashboard] ${graphValidation.error}`);
+    }
+  }, [graphValidation.isValid, graphValidation.error]);
+
   // 取得 Categories（包含解鎖狀態）
   const categories = getCategories();
 
   // 計算每個 Category 的 Level 數量
   const levelCounts = Object.fromEntries(
-    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length])
+    categories.map((c) => [
+      c.id,
+      allLevels.filter(
+        (level) =>
+          level.category === c.id && isProgressTrackableLevel(level),
+      ).length,
+    ]),
   ) as Partial<Record<CategoryType, number>>;
 
   // 建立分類顏色對照表

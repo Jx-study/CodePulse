@@ -5,9 +5,9 @@ import secrets
 import string
 from datetime import datetime, timedelta, timezone
 from functools import wraps
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, g
 
-# ── JWT ─────────────────────────────────────────────────────────────────────
+# JWT
 
 ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
 REFRESH_TOKEN_EXPIRES = timedelta(days=7)
@@ -82,14 +82,14 @@ def decode_token(token: str, expected_type: str) -> dict:
     return payload
 
 
-# ── Token hash (for DB storage) ──────────────────────────────────────────────
+# Token hash (for DB storage)
 
 def hash_token(token: str) -> str:
     """SHA-256 hash of a token string for safe DB storage."""
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-# ── Password hashing ─────────────────────────────────────────────────────────
+# Password hashing
 
 def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
@@ -99,47 +99,68 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
-# ── Cookie helpers ───────────────────────────────────────────────────────────
-
-COOKIE_SAMESITE = 'Lax'
+# Cookie helpers
 
 
 def _cookie_secure() -> bool:
-    """Return True when running in production (HTTPS)."""
-    return current_app.config.get('ENV') == 'production' or \
-           current_app.config.get('SESSION_COOKIE_SECURE', False)
+    """Return True when cookies should be marked Secure (HTTPS-only).
+
+    Must be called within a Flask request/app context.
+    """
+    return current_app.config.get('SESSION_COOKIE_SECURE', False)
+
+
+def cookie_samesite() -> str:
+    """Read SameSite policy from app config (set per-environment in config.py).
+
+    Must be called within a Flask request/app context.
+    """
+    return current_app.config.get('SESSION_COOKIE_SAMESITE', 'Lax')
+
+
+def cookie_domain():
+    """Read shared cookie domain (None in dev, '.code-pulse.cc' in prod).
+
+    Must be called within a Flask request/app context.
+    """
+    return current_app.config.get('SESSION_COOKIE_DOMAIN')
 
 
 def set_auth_cookies(response, access_token: str, refresh_token: str):
     """Set HTTP-only auth cookies on the response."""
     secure = _cookie_secure()
+    samesite = cookie_samesite()
+    domain = cookie_domain()
     response.set_cookie(
         'access_token',
         access_token,
         httponly=True,
         secure=secure,
-        samesite=COOKIE_SAMESITE,
+        samesite=samesite,
         max_age=int(ACCESS_TOKEN_EXPIRES.total_seconds()),
         path='/',
+        domain=domain,
     )
     response.set_cookie(
         'refresh_token',
         refresh_token,
         httponly=True,
         secure=secure,
-        samesite=COOKIE_SAMESITE,
+        samesite=samesite,
         max_age=int(REFRESH_TOKEN_EXPIRES.total_seconds()),
         path='/api/auth',   # restrict refresh cookie to auth routes
+        domain=domain,
     )
 
 
 def clear_auth_cookies(response):
     """Clear both auth cookies."""
-    response.delete_cookie('access_token', path='/')
-    response.delete_cookie('refresh_token', path='/api/auth')
+    domain = cookie_domain()
+    response.delete_cookie('access_token', path='/', domain=domain)
+    response.delete_cookie('refresh_token', path='/api/auth', domain=domain)
 
 
-# ── Verification code ─────────────────────────────────────────────────────────
+# Verification code
 
 _CODE_ALPHABET = string.ascii_uppercase + string.digits
 
@@ -148,13 +169,14 @@ def generate_verification_code(length: int = 6) -> str:
     return ''.join(secrets.choice(_CODE_ALPHABET) for _ in range(length))
 
 
-# ── Auth decorator ────────────────────────────────────────────────────────────
+# Auth decorator 
 
 def login_required(f):
     """Decorator: require valid access_token cookie. Injects g.current_user_id."""
-    from flask import g
     @wraps(f)
     def decorated(*args, **kwargs):
+        if request.method == 'OPTIONS':
+            return f(*args, **kwargs)
         token = request.cookies.get('access_token')
         if not token:
             return jsonify({'success': False, 'message': '請先登入', 'error_code': 'UNAUTHORIZED'}), 401

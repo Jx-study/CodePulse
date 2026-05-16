@@ -147,7 +147,7 @@
       "id": "heap",
       "category": "data-structures",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -293,7 +293,7 @@
       "id": "merge-sort",
       "category": "sorting",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
@@ -312,7 +312,7 @@
       "id": "quick-sort",
       "category": "sorting",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -410,7 +410,7 @@
       "id": "factorial",
       "category": "recursive",
       "difficulty": 1,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -486,26 +486,6 @@
       "implementationKey": "hanoi"
     },
     {
-      "id": "backtracking-intro",
-      "category": "recursive",
-      "difficulty": 3,
-      "isDeveloped": false,
-      "isUnlocked": false,
-      "prerequisites": {
-        "type": "AND",
-        "levelIds": ["fibonacci-recursive"]
-      },
-      "graphPosition": {
-        "layer": 2,
-        "branch": "right"
-      },
-      "pathMetadata": {
-        "pathType": "branch",
-        "branchLabelKey": "state_exhaustion"
-      },
-      "implementationKey": "backtracking"
-    },
-    {
       "id": "quick-sort-recursive",
       "category": "recursive",
       "difficulty": 3,
@@ -533,7 +513,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["backtracking-intro"]
+        "levelIds": ["fibonacci-recursive"]
       },
       "graphPosition": {
         "layer": 4,
@@ -841,7 +821,7 @@
         "pathType": "branch",
         "branchLabelKey": "combination_optimization"
       },
-      "suggestedPrerequisites": ["backtracking-intro"],
+      "suggestedPrerequisites": ["fibonacci-recursive"],
       "implementationKey": "knapsack"
     },
     {

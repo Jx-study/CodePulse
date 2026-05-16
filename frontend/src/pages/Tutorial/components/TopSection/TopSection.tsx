@@ -13,7 +13,7 @@ import {
 import { DragOverlay } from '@dnd-kit/core';
 import { SmartPointerSensor } from '@/shared/utils/SmartPointerSensor';
 import { Panel, Group, PanelImperativeHandle } from 'react-resizable-panels';
-import ResizeHandle from '../ResizeHandle';
+import ResizeHandle from '@/shared/components/ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeEditor'));
@@ -21,6 +21,8 @@ import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
 import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
+import type { D3CanvasRef } from '@/modules/core/Render/D3Canvas';
+import type { GraphCanvasRef } from '@/modules/core/Render/GraphCanvas';
 import styles from './TopSection.module.scss';
 
 interface CanvasPanelProps {
@@ -35,6 +37,7 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  showBidirectionalArrows: boolean;
   viewMode: AlgorithmViewMode | "";
   isPlaying: boolean;
   currentStep: number;
@@ -44,9 +47,13 @@ interface CanvasPanelProps {
   handlePause: () => void;
   handleNext: () => void;
   handlePrev: () => void;
-  handleReset: () => void;
+  handleResetStep: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
+
+  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
+  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
+  useGraphCanvas: boolean;
 }
 
 interface TopSectionProps {
@@ -198,7 +205,7 @@ export function TopSection(props: TopSectionProps) {
                           language="python"
                           value={currentCodeConfig?.[codeMode]?.content || ""}
                           highlightedLine={highlightLines}
-                          readOnly={codeMode === "pseudo"}
+                          readOnly={true}
                           theme="auto"
                         />
                       </Suspense>
@@ -376,7 +383,7 @@ export function TopSection(props: TopSectionProps) {
                           language="python"
                           value={currentCodeConfig?.[codeMode]?.content || ""}
                           highlightedLine={highlightLines}
-                          readOnly={codeMode === "pseudo"}
+                          readOnly={true}
                           theme="auto"
                         />
                       </Suspense>

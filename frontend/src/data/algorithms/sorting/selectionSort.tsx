@@ -18,7 +18,7 @@ const TAGS = {
 const selectionSortActionHandler = createLinearActionHandler();
 
 export function createSelectionSortAnimationSteps(
-  inputData: LinearData[]
+  inputData: LinearData[],
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
   let arr = inputData.map((d) => ({ ...d }));
@@ -29,7 +29,7 @@ export function createSelectionSortAnimationSteps(
     stepNumber: 0,
     description: "開始選擇排序",
     actionTag: TAGS.INIT,
-    variables: { totalItems: n },
+    local_vars: { totalItems: n },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 
@@ -40,8 +40,12 @@ export function createSelectionSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
       actionTag: TAGS.ROUND_START,
-      variables: { currentPos: i, minPos: i },
-      elements: createSortingFrame(arr, { [minIdx]: Status.Target }, sortedIndices),
+      local_vars: { currentPos: i, minPos: i },
+      elements: createSortingFrame(
+        arr,
+        { [minIdx]: Status.Target },
+        sortedIndices,
+      ),
     });
 
     for (let j = i + 1; j < n; j++) {
@@ -52,8 +56,8 @@ export function createSelectionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
         actionTag: TAGS.COMPARE,
-        variables: {
-          currentPos: i, 
+        local_vars: {
+          currentPos: i,
           scanPos: j,
           minPos: minIdx,
           scanVal: scanVal,
@@ -64,7 +68,7 @@ export function createSelectionSortAnimationSteps(
         elements: createSortingFrame(
           arr,
           { [i]: Status.Target, [minIdx]: Status.Target, [j]: Status.Prepare },
-          sortedIndices
+          sortedIndices,
         ),
       });
 
@@ -75,14 +79,14 @@ export function createSelectionSortAnimationSteps(
           stepNumber: steps.length + 1,
           description: `發現更小值！更新最小值索引為 ${minIdx}`,
           actionTag: TAGS.UPDATE_MIN,
-          variables: {
+          local_vars: {
             minPos: minIdx,
-            scanVal: scanVal, 
+            scanVal: scanVal,
           },
           elements: createSortingFrame(
             arr,
             { [i]: Status.Target, [minIdx]: Status.Target },
-            sortedIndices
+            sortedIndices,
           ),
         });
       }
@@ -97,7 +101,7 @@ export function createSelectionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `本輪最小值 ${arr[i].value} (Index ${minIdx}) 與 Index ${i} 交換`,
         actionTag: TAGS.SWAP,
-        variables: {
+        local_vars: {
           currentPos: i,
           minPos: minIdx,
           [`collection[${i}]`]: arr[i].value ?? null,
@@ -107,7 +111,7 @@ export function createSelectionSortAnimationSteps(
         elements: createSortingFrame(
           arr,
           { [i]: Status.Target, [minIdx]: Status.Target },
-          sortedIndices
+          sortedIndices,
         ),
       });
     } else {
@@ -115,12 +119,16 @@ export function createSelectionSortAnimationSteps(
         stepNumber: steps.length + 1,
         description: `Index ${i} 已經是最小值，無需交換`,
         actionTag: TAGS.SWAP,
-        variables: {
+        local_vars: {
           currentPos: i,
           minPos: minIdx,
           hasSwapped: false,
         },
-        elements: createSortingFrame(arr, { [i]: Status.Target }, sortedIndices),
+        elements: createSortingFrame(
+          arr,
+          { [i]: Status.Target },
+          sortedIndices,
+        ),
       });
     }
 
@@ -129,18 +137,18 @@ export function createSelectionSortAnimationSteps(
       stepNumber: steps.length + 1,
       description: `Index ${i} 已排序完成`,
       actionTag: TAGS.ROUND_START,
-      variables: { currentPos: i },
+      local_vars: { currentPos: i },
       elements: createSortingFrame(arr, {}, sortedIndices),
     });
   }
 
   sortedIndices.add(n - 1);
-  
+
   steps.push({
     stepNumber: steps.length + 1,
     description: "排序完成",
     actionTag: TAGS.DONE,
-    variables: { isSorted: true },
+    local_vars: { isSorted: true },
     elements: createSortingFrame(arr, {}, sortedIndices),
   });
 

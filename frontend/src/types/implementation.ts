@@ -4,6 +4,18 @@ import type { StatusConfig } from "./statusConfig";
 import type { VisualizationActionHandler } from "@/modules/core/visualization/types";
 import type { RealWorldStory } from "./realWorldStory";
 
+/** 哪些 link.status 變化時要播放邊動畫（由演算法 config 選填） */
+export interface LinkAnimConfig {
+  /** 這些 status 觸發動畫並阻塞 step 推進 */
+  animateOn: string[];
+  /** 這些 status 直接換色（step 推進後 re-render 自動套用，不阻塞）；僅作為文件語義 */
+  directOn?: string[];
+}
+
+export const DEFAULT_LINK_ANIM_CONFIG: LinkAnimConfig = {
+  animateOn: [],
+};
+
 export type {
   PythonInput,
   PythonDemo,
@@ -11,6 +23,9 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
+  MazeCell,
+  MazeOutputData,
+  FloodFillOutputData,
 } from "./pythonDemo";
 
 export type {
@@ -35,12 +50,14 @@ export type AlgorithmViewMode =
   | "grid"
   | "longest_lte"
   | "shortest_gte";
+/** Sliding window run payload mode (matches ActionBar options). */
+export type SlidingWindowMode = "longest_lte" | "shortest_gte";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
-  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
@@ -57,6 +74,7 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number }
   | { type: "fibonacciDP"; n: number }
   | { type: "fibonacciRecursive"; n: number };
@@ -76,7 +94,11 @@ export interface DSActionBarProps extends BaseActionBarProps {
   onSearchNode: (value: number, mode?: string) => void;
   onPeek?: () => void;
   onTailModeChange?: (hasTail: boolean) => void;
+  onListModeChange?: (mode: "singly" | "doubly") => void;
+  hasTailMode?: boolean;
+  listMode?: "singly" | "doubly";
   onGraphAction?: (action: string, payload: any) => void;
+  onCustomAction?: (action: string, payload: any) => void;
   isDirected?: boolean;
   onIsDirectedChange?: (val: boolean) => void;
 }
@@ -117,6 +139,8 @@ export interface LevelImplementationConfig {
   defaultViewMode?: AlgorithmViewMode;
   /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */
   defaultIsDirected?: boolean;
+  /** 圖邊狀態變化時是否觸發 animateLink；未設定則使用 DEFAULT_LINK_ANIM_CONFIG */
+  linkAnimConfig?: LinkAnimConfig;
   renderActionBar?: (props: ActionBarProps) => ReactNode;
   /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
   actionHandler?: VisualizationActionHandler<any>;
@@ -131,9 +155,12 @@ export type ImplementationId =
   | "binarytree"
   | "bst"
   | "graph"
+  | "heap"
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
+  | "mergesort"
+  | "quicksort"
   | "binarysearch"
   | "linearsearch"
   | "bfs"
@@ -146,6 +173,7 @@ export type ImplementationId =
   | "fibonacciRecursive"
   | "knapsack"
   | "n-queens"
-  | "topological-sort";
+  | "topological-sort"
+  | "factorial";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;

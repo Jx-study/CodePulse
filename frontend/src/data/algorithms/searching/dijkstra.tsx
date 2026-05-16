@@ -8,14 +8,21 @@ import {
   cloneData,
   generateRandomGraph,
 } from "@/modules/core/visualization/visualizationUtils";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  ActionResult,
+} from "@/modules/core/visualization/types";
 
-function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+function parseGraphLoadPayload(
+  dataStr: string,
+): { nodes: any[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
   if (isNaN(nodeCount)) return null;
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node-${i}`,
+  }));
   const edges: string[][] = [];
   const edgeStr = parts.slice(2).join(":").trim();
   if (edgeStr !== "") {
@@ -24,8 +31,19 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
       if (u !== undefined && v !== undefined) {
         const uIdx = parseInt(u, 10);
         const vIdx = parseInt(v, 10);
-        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
-          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        if (
+          !isNaN(uIdx) &&
+          !isNaN(vIdx) &&
+          uIdx >= 0 &&
+          uIdx < nodeCount &&
+          vIdx >= 0 &&
+          vIdx < nodeCount
+        ) {
+          edges.push(
+            w !== undefined
+              ? [`node-${uIdx}`, `node-${vIdx}`, w]
+              : [`node-${uIdx}`, `node-${vIdx}`],
+          );
         }
       }
     });
@@ -54,7 +72,8 @@ function dijkstraActionHandler(
 
   if (actionType === "load") {
     const dataStr = payload.data as string;
-    if (typeof dataStr !== "string" || !dataStr.startsWith("GRAPH:")) return null;
+    if (typeof dataStr !== "string" || !dataStr.startsWith("GRAPH:"))
+      return null;
     const graphPayload = parseGraphLoadPayload(dataStr);
     if (!graphPayload) return null;
     return {
@@ -151,6 +170,11 @@ export function createDijkstraAnimationSteps(
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
   const visited: Set<string> = new Set();
+  const prev: Record<string, string | null> = {};
+
+  rawNodes.forEach((n: any) => {
+    prev[n.id] = null;
+  });
 
   rawNodes.forEach((n: any) => {
     dist[n.id] = Infinity;
@@ -181,7 +205,7 @@ export function createDijkstraAnimationSteps(
       return `${id}: ${valueStr}`;
     })
     .join(", ");
-  initialFrame.variables = { 目前距離表: initialDistString };
+  initialFrame.local_vars = { 目前距離表: initialDistString };
 
   steps.push(initialFrame);
 
@@ -211,8 +235,8 @@ export function createDijkstraAnimationSteps(
       })
       .join(", ");
 
-    // 將字串塞入 variables
-    step.variables = { 目前距離表: distString };
+    // 將字串塞入 local_vars
+    step.local_vars = { 目前距離表: distString };
     steps.push(step);
   };
 
@@ -233,7 +257,6 @@ export function createDijkstraAnimationSteps(
 
     // 提早結束邏輯(有輸入終點時)
     if (endNodeId && u === endNodeId) {
-      statusMap[u] = Status.Complete;
       recordStep(
         `節點 ${u} 是目標終點，且已確定最短路徑 (${dist[u]})，提早結束搜尋！`,
         TAGS.DONE,
@@ -254,7 +277,7 @@ export function createDijkstraAnimationSteps(
 
       if (visited.has(v)) continue; // 已經定案的節點不再更新
 
-      updateLinkStatus(linkStatusMap, u, v, "target", isDirected);
+      updateLinkStatus(linkStatusMap, u, v, "target", true);
       recordStep(
         `檢查相鄰節點 ${v}，經過此邊的權重為 ${weight}`,
         TAGS.CHECK_NEIGHBORS,
@@ -263,9 +286,9 @@ export function createDijkstraAnimationSteps(
       const alt = dist[u] + weight;
       if (alt < dist[v]) {
         dist[v] = alt;
-        // 標記發現的最短路徑邊
+        prev[v] = u;
         statusMap[v] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, u, v, "path", isDirected);
+        updateLinkStatus(linkStatusMap, u, v, "prepare", true);
         recordStep(
           `發現更短路徑，從 ${u} 到 ${v} 的新距離是 ${alt}，更新距離表`,
           TAGS.RELAX_EDGE_TRUE,
@@ -278,8 +301,7 @@ export function createDijkstraAnimationSteps(
         );
       }
 
-      // 檢查完把線的顏色恢復
-      updateLinkStatus(linkStatusMap, u, v, "default", isDirected);
+      updateLinkStatus(linkStatusMap, u, v, "complete", false);
     }
 
     visited.add(u);
@@ -290,8 +312,36 @@ export function createDijkstraAnimationSteps(
     );
   }
 
-  if (!endNodeId || dist[endNodeId] === Infinity) {
+  if (endNodeId && dist[endNodeId] !== Infinity) {
+    // 回溯最短路徑
+    const path: string[] = [];
+    let curr: string | null = endNodeId;
+    while (curr !== null) {
+      path.unshift(curr);
+      curr = prev[curr];
+    }
+
+    // 重置所有狀態，只標記路徑
+    rawNodes.forEach((n: any) => {
+      statusMap[n.id] = Status.Unfinished;
+    });
+    Object.keys(linkStatusMap).forEach((k) => delete linkStatusMap[k]);
+
+    path.forEach((nodeId) => {
+      statusMap[nodeId] = Status.Complete;
+    });
+    for (let i = 0; i < path.length - 1; i++) {
+      updateLinkStatus(linkStatusMap, path[i], path[i + 1], "complete", false);
+    }
+
+    recordStep(
+      `最短路徑：${path.join(" → ")}，總距離 = ${dist[endNodeId]}`,
+      TAGS.DONE,
+    );
+  } else if (!endNodeId) {
     recordStep("演算法執行完畢！所有可達節點的最短路徑皆已找出。", TAGS.DONE);
+  } else {
+    recordStep(`終點 ${endNodeId} 不可達，演算法結束。`, TAGS.DONE);
   }
 
   return steps;
@@ -391,43 +441,54 @@ export const dijkstraConfig: LevelImplementationConfig = {
       ],
     },
   },
+  linkAnimConfig: {
+    animateOn: ["target"],
+    directOn: ["prepare", "complete", "unfinished"],
+  },
   createAnimationSteps: createDijkstraAnimationSteps,
   actionHandler: dijkstraActionHandler,
-  renderActionBar: (props) => <DijkstraActionBar {...(props as AlgoActionBarProps)} />,
+  renderActionBar: (props) => (
+    <DijkstraActionBar {...(props as AlgoActionBarProps)} />
+  ),
   maxNodes: 15,
   relatedProblems: [
     {
       id: 743,
       title: "Network Delay Time",
-      concept: "單源最短路徑：Dijkstra 從源節點出發，求所有節點都收到訊號的最短等待時間",
+      concept:
+        "單源最短路徑：Dijkstra 從源節點出發，求所有節點都收到訊號的最短等待時間",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/network-delay-time/",
     },
     {
       id: 1631,
       title: "Path With Minimum Effort",
-      concept: "Dijkstra 變形：最小化路徑上相鄰格高度差的最大值，以最小堆追蹤當前最大落差",
+      concept:
+        "Dijkstra 變形：最小化路徑上相鄰格高度差的最大值，以最小堆追蹤當前最大落差",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/path-with-minimum-effort/",
     },
     {
       id: 1514,
       title: "Path with Maximum Probability",
-      concept: "最大概率路徑：將 Dijkstra 的加法改為乘法，最大堆優先擴展當前概率最高的節點",
+      concept:
+        "最大概率路徑：將 Dijkstra 的加法改為乘法，最大堆優先擴展當前概率最高的節點",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/path-with-maximum-probability/",
     },
     {
       id: 787,
       title: "Cheapest Flights Within K Stops",
-      concept: "限轉機次數的最短路徑：對每個節點額外追蹤已用步數，限制最多 k 次中途停靠",
+      concept:
+        "限轉機次數的最短路徑：對每個節點額外追蹤已用步數，限制最多 k 次中途停靠",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
     },
     {
       id: 778,
       title: "Swim in Rising Water",
-      concept: "最小瓶頸路徑：Dijkstra 以最小堆選出當前最小的水位高度格，求到達右下角的最低水位",
+      concept:
+        "最小瓶頸路徑：Dijkstra 以最小堆選出當前最小的水位高度格，求到達右下角的最低水位",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/swim-in-rising-water/",
     },

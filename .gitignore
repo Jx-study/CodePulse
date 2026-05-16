@@ -6,6 +6,7 @@ node_modules/
 .claudignore
 .cursorrules
 tools/everything-claude-code/
+*.ipynb
 
 # Frontend
 build/
@@ -13,6 +14,8 @@ frontend/dist/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.*.production
 
 # Backend (Python)
 __pycache__/

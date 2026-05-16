@@ -15,11 +15,20 @@ class ExploreHistory(db.Model):
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     user_code = db.Column(db.Text, nullable=False)
     detected_algorithm = db.Column(db.String(100), nullable=True)
-    # loose reference to Tutorial.slug, no FK
     confidence_score = db.Column(db.Float, nullable=True)
     time_complexity = db.Column(db.String(50), nullable=True)
-    space_complexity = db.Column(db.String(50), nullable=True)
     analysis_source = db.Column(db.Enum(AnalysisSource), nullable=False)
+    have_level1 = db.Column(db.Boolean, nullable=False, server_default='false')
+    execution_trace = db.Column(db.JSON, nullable=True)
+    is_truncated = db.Column(db.Boolean, nullable=False, server_default='false')
+    ai_summary = db.Column(db.Text, nullable=True)
+    ai_feedback = db.Column(db.Text, nullable=True)
+    raw_trace = db.Column(db.JSON, nullable=True)
+    raw_index_map = db.Column(db.JSON, nullable=True)
+    call_graph = db.Column(db.JSON, nullable=True)
+    cfg_graph = db.Column(db.JSON, nullable=True)
+    stdout_events = db.Column(db.JSON, nullable=True)
+    top3_candidates = db.Column(db.JSON, nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
@@ -30,3 +39,31 @@ class ExploreHistory(db.Model):
 
     def __repr__(self):
         return f'<ExploreHistory {self.explore_id} user={self.user_id} algo={self.detected_algorithm}>'
+
+
+class AlgoDivergenceLog(db.Model):
+    __tablename__ = "algo_divergence_logs"
+
+    id               = db.Column(db.Integer, primary_key=True)
+    code_hash        = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    code             = db.Column(db.Text, nullable=False)
+    detected_algo    = db.Column(db.String(64), nullable=False)
+    confidence       = db.Column(db.Float, nullable=False)
+    is_recursive     = db.Column(db.Boolean, nullable=False)
+    expected_struct  = db.Column(db.String(32), nullable=False)
+    divergence_type  = db.Column(db.String(32), nullable=False)
+    occurrence_count = db.Column(db.Integer, nullable=False, server_default="1")
+    first_seen_at    = db.Column(
+        db.DateTime(timezone=True),
+        server_default=db.func.now(),
+        nullable=False,
+    )
+    last_seen_at     = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),      # INSERT 時自動填入
+        onupdate=lambda: datetime.now(timezone.utc),     # UPDATE 時自動填入
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f'<AlgoDivergenceLog {self.id} hash={self.code_hash[:8] if self.code_hash else None}>'
