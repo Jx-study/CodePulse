@@ -25,6 +25,8 @@ import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
+import { fibonacciDPConfig } from "../algorithms/dp/fibonacci";
+import { fibonacciRecursiveConfig } from "../algorithms/recursive/fibonacci";
 import { factorialConfig } from "../algorithms/recursive/factorial/factorial";
 
 /**
@@ -58,6 +60,8 @@ export const implementationsMap: ImplementationMap = {
   knapsack: knapsackConfig,
   nQueens: nQueensConfig,
   topologicalSort: topologicalSortConfig,
+  fibonacciDP: fibonacciDPConfig,
+  fibonacciRecursive: fibonacciRecursiveConfig,
   factorial: factorialConfig,
 };
 

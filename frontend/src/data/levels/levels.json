@@ -429,7 +429,7 @@
       "id": "fibonacci-recursive",
       "category": "recursive",
       "difficulty": 2,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -781,13 +781,13 @@
         "pathType": "portal",
         "targetCategory": "dp"
       },
-      "implementationKey": "dpFibonacci"
+      "implementationKey": "fibonacciDP"
     },
     {
       "id": "dp-fibonacci",
       "category": "dp",
       "difficulty": 2,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -801,7 +801,7 @@
         "pathType": "main"
       },
       "suggestedPrerequisites": ["fibonacci-recursive"],
-      "implementationKey": "dpFibonacci"
+      "implementationKey": "fibonacciDP"
     },
     {
       "id": "knapsack",

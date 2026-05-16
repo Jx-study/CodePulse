@@ -123,7 +123,7 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
   },
   "dynamic-programming": {
     fibonacci: {
-      id: "fibonacci",
+      id: "fibonacciDP",
       name: "費氏數列 (Fibonacci)",
       description: "DP 的入門磚",
       difficulty: 1,
@@ -145,6 +145,14 @@ export const TUTORIALS: Record<string, Record<string, TutorialItem>> = {
       name: "N 皇后問題",
       description: "在 NxN 的棋盤上放置 N 個皇后，使得她們互不攻擊。",
       difficulty: 5,
+      category: "recursive",
+      categoryName: "遞迴",
+    },
+    fibonacci: {
+      id: "fibonacciRecursive",
+      name: "費氏數列 (Fibonacci)",
+      description: "遞迴的入門磚",
+      difficulty: 1,
       category: "recursive",
       categoryName: "遞迴",
     },
@@ -184,4 +192,3 @@ export function getTutorialData(
 ): TutorialItem | null {
   return TUTORIALS[category]?.[algorithm] || null;
 }
-
