@@ -377,6 +377,16 @@
       "description": "Solve overlapping subproblems through state transitions and master optimization thinking"
     }
   },
+  "errors": {
+    "progressLoadFailed": "Failed to load progress. Please refresh the page."
+  },
+  "toast": {
+    "categoryUnlocked": "Congrats! New category unlocked: {{categoryName}}"
+  },
+  "sidebar": {
+    "title": "Algorithm Categories",
+    "ariaLabel": "Algorithm categories sidebar"
+  },
   "branch_labels": {
     "lifo_structure": "LIFO Structure",
     "fifo_structure": "FIFO Structure",
