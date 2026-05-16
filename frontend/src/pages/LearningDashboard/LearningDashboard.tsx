@@ -81,7 +81,7 @@ function LearningDashboardInner() {
       .catch(() => {
         toast.error(t('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
       });
-  }, [isLoading, isAuthenticated, location.key]);
+  }, [isLoading, isAuthenticated, location.key, t]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
