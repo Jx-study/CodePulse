@@ -1,148 +1,87 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import { TAGS } from "./tags";
 
-export interface FibNodeLayout {
+export interface HierarchyDatum {
   id: string;
-  n: number;
-  val: number | null;
-  x: number;
-  y: number;
-  status: string;
-  leftId: string | null;
-  rightId: string | null;
-}
-
-class TreeNode {
-  id: string;
-  n: number;
-  depth: number;
-  left: TreeNode | null = null;
-  right: TreeNode | null = null;
-  x: number = 0;
-  y: number = 0;
-  constructor(id: string, n: number, depth: number) {
-    this.id = id;
-    this.n = n;
-    this.depth = depth;
-  }
+  value: string | number;
+  children?: HierarchyDatum[];
 }
 
 export function simulateFibonacciTrace(targetN: number): ExecutionTrace {
   const trace: TraceEvent[] = [];
-  let nextId = 0;
 
-  function buildTree(n: number, depth: number): TreeNode {
-    const node = new TreeNode(`fib-${nextId++}`, n, depth);
-    if (n > 1) {
-      node.left = buildTree(n - 1, depth + 1);
-      node.right = buildTree(n - 2, depth + 1);
-    }
-    return node;
-  }
+  // 動態樹的根節點
+  const rootNode: HierarchyDatum = {
+    id: "fib-root",
+    value: `f(${targetN})`,
+    children: [],
+  };
 
-  const root = buildTree(targetN, 0);
+  const statusMap: Record<string, string> = {};
+  const valueMap: Record<string, number> = {};
 
-  let xIndex = 0;
-  const startX = 50;
-  const gapX = 55;
-  const baseY = 80;
-  const offsetY = 70;
-
-  function assignCoords(node: TreeNode) {
-    if (node.left) assignCoords(node.left);
-    node.x = startX + xIndex * gapX;
-    node.y = baseY + node.depth * offsetY;
-    xIndex++;
-    if (node.right) assignCoords(node.right);
-  }
-  assignCoords(root);
-
-  const activeNodes = new Map<string, FibNodeLayout>();
-
-  function getSnapshot() {
-    return Array.from(activeNodes.values()).map((n) => ({
-      id: n.id,
-      value: n.val !== null ? n.val : `f(${n.n})`, // 放入 value 屬性以符合介面
-    }));
-  }
-
-  function getLayoutMeta() {
-    const layoutMap: Record<string, FibNodeLayout> = {};
-    activeNodes.forEach((node, id) => {
-      layoutMap[id] = { ...node };
-    });
-    return layoutMap;
-  }
-
-  trace.push({
-    tag: TAGS.FIB_START,
-    variables: { targetN },
-    dataSnapshot: [],
-    meta: { isInitial: true, treeLayout: {} },
-  });
-
-  function simulate(node: TreeNode): number {
-    const nodeData: FibNodeLayout = {
-      id: node.id,
-      n: node.n,
-      val: null,
-      x: node.x,
-      y: node.y,
-      status: "Target",
-      leftId: node.left?.id ?? null,
-      rightId: node.right?.id ?? null,
-    };
-    activeNodes.set(node.id, nodeData);
-
+  const pushTrace = (tag: string, local_vars: any, highlightId?: string) => {
     trace.push({
-      tag: TAGS.FIB_CALL,
-      variables: { n: node.n },
-      dataSnapshot: getSnapshot(),
-      meta: { highlightId: node.id, treeLayout: getLayoutMeta() },
+      tag,
+      local_vars,
+      dataSnapshot: [], // 不使用 dataSnapshot，交給 meta 的 tree 產生
+      meta: {
+        tree: JSON.parse(JSON.stringify(rootNode)),
+        statusMap: { ...statusMap },
+        valueMap: { ...valueMap },
+        highlightId,
+      },
     });
+  };
 
-    nodeData.status = "Unfinished";
+  pushTrace(TAGS.FIB_START, { targetN }, "fib-root");
+
+  // DFS 模擬呼叫過程
+  function simulate(n: number, currentNode: HierarchyDatum): number {
+    statusMap[currentNode.id] = "Target";
+    pushTrace(TAGS.FIB_CALL, { n }, currentNode.id);
+
+    statusMap[currentNode.id] = "Unfinished";
 
     // Base Case
-    if (node.n <= 1) {
-      nodeData.val = node.n;
-      nodeData.status = "Complete";
-      trace.push({
-        tag: TAGS.FIB_BASE,
-        variables: { n: node.n, result: node.n },
-        dataSnapshot: getSnapshot(),
-        meta: { highlightId: node.id, treeLayout: getLayoutMeta() },
-      });
-      return node.n;
+    if (n <= 1) {
+      valueMap[currentNode.id] = n;
+      statusMap[currentNode.id] = "Complete";
+      pushTrace(TAGS.FIB_BASE, { n, result: n }, currentNode.id);
+      return n;
     }
 
-    // 遞迴左右子樹
-    const leftVal = simulate(node.left!);
-    const rightVal = simulate(node.right!);
+    // 動態生長：呼叫左子樹，並當下將其加入 children 中
+    const leftChild: HierarchyDatum = {
+      id: `${currentNode.id}-L`,
+      value: `f(${n - 1})`,
+      children: [],
+    };
+    currentNode.children = [leftChild];
+    const leftVal = simulate(n - 1, leftChild);
 
-    // 合併結果
+    // 動態生長：呼叫右子樹，並當下將其加入 children 中
+    const rightChild: HierarchyDatum = {
+      id: `${currentNode.id}-R`,
+      value: `f(${n - 2})`,
+      children: [],
+    };
+    currentNode.children.push(rightChild);
+    const rightVal = simulate(n - 2, rightChild);
+
+    // 合併計算結果
     const result = leftVal + rightVal;
-    nodeData.val = result;
-    nodeData.status = "Complete";
+    valueMap[currentNode.id] = result;
+    statusMap[currentNode.id] = "Complete";
 
-    trace.push({
-      tag: TAGS.FIB_CALC,
-      variables: { n: node.n, leftVal, rightVal, result },
-      dataSnapshot: getSnapshot(),
-      meta: { highlightId: node.id, treeLayout: getLayoutMeta() },
-    });
+    pushTrace(TAGS.FIB_CALC, { n, leftVal, rightVal, result }, currentNode.id);
 
     return result;
   }
 
-  const finalResult = simulate(root);
+  const finalResult = simulate(targetN, rootNode);
 
-  trace.push({
-    tag: TAGS.FIB_DONE,
-    variables: { result: finalResult },
-    dataSnapshot: getSnapshot(),
-    meta: { highlightId: root.id, treeLayout: getLayoutMeta() },
-  });
+  pushTrace(TAGS.FIB_DONE, { result: finalResult });
 
   return trace;
 }

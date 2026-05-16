@@ -443,14 +443,14 @@ function convertToChildren(node: any) {
  * 通用的樹狀結構生成器
  */
 export function createTreeNodes(
-  inputData: any[],
+  inputData: any,
   options: {
     width?: number;
     height?: number;
     offsetX?: number;
     offsetY?: number;
     degree?: number;
-    type?: "bst" | "binarytree";
+    type?: "bst" | "binarytree" | "trie" | "custom";
   } = {},
 ): Node[] {
   const {
@@ -461,11 +461,17 @@ export function createTreeNodes(
     degree = 2,
     type = "binarytree",
   } = options;
+  let hierarchyData: HierarchyDatum | null = null;
 
-  const hierarchyData =
-    type === "bst"
-      ? buildBSTHierarchyData(inputData)
-      : buildD3HierarchyData(inputData, degree);
+  if (type === "bst") {
+    hierarchyData = buildBSTHierarchyData(inputData);
+  } else if (type === "trie") {
+  } else if (type === "custom") {
+    // 若為 custom，代表傳進來的 inputData 已經是組裝好的 HierarchyDatum 根節點
+    hierarchyData = inputData as HierarchyDatum;
+  } else {
+    hierarchyData = buildD3HierarchyData(inputData, degree);
+  }
 
   if (!hierarchyData) return [];
 
@@ -478,17 +484,13 @@ export function createTreeNodes(
 
   rootWithPos.descendants().forEach((d) => {
     if (d.data.isDummy) return;
-
-    const count = d.data.count;
-    const descText = count && count > 1 ? `Count: ${count}` : "";
-
     const node = createNodeInstance(
       d.data.id,
       d.data.value,
       d.x + offsetX,
       d.y + offsetY,
       Status.Inactive,
-      descText,
+      "",
     );
 
     elements.push(node);

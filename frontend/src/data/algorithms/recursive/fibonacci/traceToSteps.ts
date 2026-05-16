@@ -1,9 +1,8 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { Box } from "@/modules/core/DataLogic/Box";
+import { createTreeNodes } from "@/data/DataStructure/nonlinear/utils";
 import { TAGS } from "./tags";
-import type { FibNodeLayout } from "./simulateTrace";
 
 const STATUS_MAP: Record<string, Status> = {
   Target: Status.Target,
@@ -19,78 +18,66 @@ function toStatus(s?: string): Status {
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.FIB_START]: (e) => ({
     key: "fibRecursive.start",
-    params: { targetN: e.variables.targetN },
+    params: { targetN: e.local_vars.targetN },
   }),
   [TAGS.FIB_CALL]: (e) => ({
     key: "fibRecursive.call",
-    params: { n: e.variables.n },
+    params: { n: e.local_vars.n },
   }),
   [TAGS.FIB_BASE]: (e) => ({
     key: "fibRecursive.base",
-    params: { n: e.variables.n, result: e.variables.result },
+    params: { n: e.local_vars.n, result: e.local_vars.result },
   }),
   [TAGS.FIB_CALC]: (e) => ({
     key: "fibRecursive.calc",
     params: {
-      n: e.variables.n,
-      leftVal: e.variables.leftVal,
-      rightVal: e.variables.rightVal,
-      result: e.variables.result,
+      n: e.local_vars.n,
+      leftVal: e.local_vars.leftVal,
+      rightVal: e.local_vars.rightVal,
+      result: e.local_vars.result,
     },
   }),
   [TAGS.FIB_DONE]: (e) => ({
     key: "fibRecursive.done",
-    params: { result: e.variables.result },
+    params: { result: e.local_vars.result },
   }),
 };
 
 export function fibonacciTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const boxMap = new Map<string, Box>();
+    const treeRoot = event.meta?.tree;
+    const statusMap = event.meta?.statusMap || {};
+    const valueMap = event.meta?.valueMap || {};
+    const highlightId = event.meta?.highlightId;
 
-    const treeLayout =
-      (event.meta?.treeLayout as Record<string, FibNodeLayout>) ?? {};
-
-    const elements = event.dataSnapshot.map((d) => {
-      const box = new Box();
-      box.id = d.id;
-      box.value = String(d.value);
-      box.width = 50;
-      box.height = 50;
-      box.autoScale = true;
-
-      const layoutData = treeLayout[d.id];
-      if (layoutData) {
-        box.moveTo(layoutData.x, layoutData.y);
-        box.description = `n=${layoutData.n}`;
-        const isHighlighted = event.meta?.highlightId === d.id;
-        box.setStatus(
-          isHighlighted ? Status.Target : toStatus(layoutData.status),
-        );
-      } else {
-        // 安全防護
-        box.moveTo(0, 0);
-        box.setStatus(Status.Unfinished);
-      }
-
-      boxMap.set(d.id, box);
-      return box;
+    // 將深拷貝的動態樹直接餵給 createTreeNodes 產生排版
+    const elements = createTreeNodes(treeRoot, {
+      width: 800,
+      height: 400,
+      offsetX: 0,
+      offsetY: 50,
+      type: "custom",
     });
 
-    // 建立樹狀連線 (Pointers)
-    event.dataSnapshot.forEach((d) => {
-      const layoutData = treeLayout[d.id];
-      const box = boxMap.get(d.id);
+    elements.forEach((node) => {
+      // 處理狀態顏色
+      const customStatus = statusMap[node.id];
+      if (node.id === highlightId) {
+        node.setStatus(Status.Target);
+      } else if (customStatus) {
+        node.setStatus(toStatus(customStatus));
+      }
 
-      if (layoutData && box) {
-        const pointers: Box[] = [];
-        if (layoutData.leftId && boxMap.has(layoutData.leftId)) {
-          pointers.push(boxMap.get(layoutData.leftId)!);
-        }
-        if (layoutData.rightId && boxMap.has(layoutData.rightId)) {
-          pointers.push(boxMap.get(layoutData.rightId)!);
-        }
-        (box as any).pointers = pointers;
+      // 如果這層算完有結果了，就把主數值換成結果，原本的 f(n) 到描述
+      const originalText = node.value; // 這會是 "f(n)"
+      const calculatedResult = valueMap[node.id];
+
+      if (calculatedResult !== undefined) {
+        node.value = String(calculatedResult);
+        node.description = String(originalText);
+      } else {
+        node.value = originalText;
+        node.description = "";
       }
     });
 
@@ -98,7 +85,7 @@ export function fibonacciTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.variables,
+      variables: event.local_vars,
       elements: elements as any,
     };
   });

@@ -20,12 +20,19 @@ function fibonacciActionHandler(
   context: ActionContext,
 ): ActionResult<any[]> | null {
   if (actionType === "fibonacci" || actionType === "run") {
-    let n = (payload.n as number) ?? 4;
+    let rawN = payload.n;
+    let n = typeof rawN === "string" ? parseInt(rawN, 10) : (rawN as number);
+
+    // 如果解析失敗或未輸入，預設為 4
+    if (isNaN(n)) n = 4;
+    // 限制在 1 ~ 6 之間 (6 的費氏樹已經相當龐大了)
     n = Math.min(Math.max(n, 1), 6);
+
     return {
       animationData: data,
-      animationParams: { n },
+      animationParams: { isFibAction: true, n },
       isResetAction: true,
+      useRawAnimationParams: true,
     };
   }
   return baseActionHandler(actionType, payload, data, context);
