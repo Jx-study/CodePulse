@@ -15,6 +15,7 @@ import type { BreadcrumbItem } from "@/types";
 import { xp } from "@/shared/components/XpFloat";
 import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
+import { safeImageUrl } from "@/utils/visualGuard";
 const CodeEditor = lazy(() => import("@/modules/core/components/CodeEditor/CodeEditor"));
 import Input from "@/shared/components/Input";
 import Button from "@/shared/components/Button";
@@ -94,6 +95,7 @@ function Practice() {
                   ...q.group!,
                   title: gt.title,
                   description: gt.description ?? undefined,
+                  visual_alt: gt.visual_alt,
                 };
               }
             }
@@ -458,6 +460,20 @@ function Practice() {
 
               <div className={styles.groupContent}>
                 <p className={styles.groupDesc}>{currentGroup.description}</p>
+                {currentGroup.visual_type === "image" && (() => {
+                  const url = safeImageUrl(currentGroup.visual_data);
+                  if (!url) return null;
+                  return (
+                    <figure className={styles.groupVisual}>
+                      <img
+                        src={url}
+                        alt={currentGroup.visual_alt ?? currentGroup.title}
+                        loading="lazy"
+                        className={styles.groupVisualImage}
+                      />
+                    </figure>
+                  );
+                })()}
                 {currentGroup.code && (
                   <div className={styles.groupCodeBlock}>
                     <Suspense fallback={null}>
