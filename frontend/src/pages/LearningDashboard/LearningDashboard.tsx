@@ -11,13 +11,16 @@ import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
 import Sidebar from "@/shared/components/Sidebar";
+import { toast } from "@/shared/components/Toast";
 import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContext";
 
 
 // 資料導入
 import {
   getAllLevels,
+  getEffectivePrerequisiteInfo,
   getPortalTargetCategory,
+  isLevelUnlocked,
   isPortalUnlocked,
 } from "@/services/LevelService";
 import {
@@ -52,7 +55,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { useLocation } from 'react-router-dom';
-import { toast } from '@/shared/components/Toast';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
@@ -146,6 +148,12 @@ function LearningDashboardInner() {
     calculateOverallProgress(allLevels, userProgress);
 
   const categoryProgress = calculateCategoryProgress(allLevels, userProgress);
+  const selectedLevelPrerequisiteInfo = selectedLevel
+    ? getEffectivePrerequisiteInfo(selectedLevel)
+    : undefined;
+  const isSelectedLevelPracticeLocked = selectedLevel
+    ? !isLevelUnlocked(selectedLevel, userProgress)
+    : false;
 
   // 更新 URL 參數
   useEffect(() => {
@@ -175,7 +183,7 @@ function LearningDashboardInner() {
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = t(`categories.${newlyUnlockedCategories[0].replace(/-/g, '_')}.name`);
-        setToastMessage(t('toast.categoryUnlocked', { categoryName }));
+        setToastMessage(t("toast.categoryUnlocked", { categoryName }));
 
         // 3 秒後自動消失
         setTimeout(() => setToastMessage(null), 3000);
@@ -245,6 +253,7 @@ function LearningDashboardInner() {
   // 處理關卡點擊（只有已開發的功能才能點擊）
   const handleLevelClick = (level: Level) => {
     if (!level.isDeveloped) {
+      toast.warning(t("levelUnavailable.undeveloped"));
       return;
     }
     setSelectedLevel(level);
@@ -411,8 +420,8 @@ function LearningDashboardInner() {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        title={t('sidebar.title')}
-        aria-label={t('sidebar.ariaLabel')}
+        title={t("sidebar.title")}
+        aria-label={t("sidebar.ariaLabel")}
       >
         <CategoryFilter
           categories={categories}
@@ -447,19 +456,8 @@ function LearningDashboardInner() {
           onStartPractice={handleStartPractice}
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
-          practiceLocked={
-            selectedLevel.prerequisites?.type === "AND"
-              ? (selectedLevel.prerequisites?.levelIds ?? []).some(
-                  (id) => userProgress.levels[id]?.status !== "completed",
-                )
-              : selectedLevel.prerequisites?.type === "OR"
-                ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
-                  (selectedLevel.prerequisites?.levelIds ?? []).every(
-                    (id) => userProgress.levels[id]?.status !== "completed",
-                  )
-                : false // NONE = 永遠解鎖
-          }
-          prerequisiteInfo={selectedLevel.prerequisites}
+          practiceLocked={isSelectedLevelPracticeLocked}
+          prerequisiteInfo={selectedLevelPrerequisiteInfo}
         />
       )}
 

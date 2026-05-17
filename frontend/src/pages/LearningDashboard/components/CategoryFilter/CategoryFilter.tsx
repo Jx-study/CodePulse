@@ -21,7 +21,9 @@ function CategoryFilter({
     <div className={styles.categoryFilter}>
       {categories.map((category) => {
         const count = levelCounts[category.id];
-        const subtitle = count !== undefined ? `${count} Modules` : undefined;
+        const subtitle = count !== undefined
+          ? t("categoryFilter.moduleCount", { count })
+          : undefined;
         const catKey = category.id.replace(/-/g, '_');
         const catName = t(`categories.${catKey}.name`);
         const catDesc = t(`categories.${catKey}.description`);

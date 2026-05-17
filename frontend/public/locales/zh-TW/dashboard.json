@@ -3,6 +3,80 @@
     "filter_categories": "Categories",
     "learning_progress": "學習進度"
   },
+  "sidebar": {
+    "title": "演算法分類",
+    "ariaLabel": "演算法分類側邊欄"
+  },
+  "toast": {
+    "categoryUnlocked": "恭喜！解鎖新領域：{{categoryName}}"
+  },
+  "levelUnavailable": {
+    "undeveloped": "此關卡尚未開放，敬請期待",
+    "locked": "完成前置關卡後解鎖"
+  },
+  "categoryFilter": {
+    "moduleCount_one": "{{count}} 個模組",
+    "moduleCount_other": "{{count}} 個模組"
+  },
+  "stats": {
+    "title": "學習進度",
+    "overallCompletion": "總完成度",
+    "completedLevels": "已完成 {{completed}} / {{total}} 關卡",
+    "earnedStars": "獲得星數",
+    "completedLevelCount": "完成關卡",
+    "overallProgress": "整體進度",
+    "courseDetails": "課程詳情",
+    "bossCompleted": "Boss 已完成"
+  },
+  "levelDialog": {
+    "title": "關卡：{{levelName}}",
+    "unknownDifficulty": "未知",
+    "difficulty": {
+      "1": "非常簡單",
+      "2": "簡單",
+      "3": "中等",
+      "4": "困難",
+      "5": "非常困難"
+    }
+  },
+  "tutorialSection": {
+    "title": "教學模式",
+    "descriptionTitle": "演算法說明",
+    "objectivesTitle": "學習目標",
+    "suggestedTitle": "建議先學習",
+    "restartButton": "重新學習",
+    "startButton": "開始教學",
+    "lockedHint": "此教學尚未解鎖",
+    "completedBadge": "已完成教學"
+  },
+  "practiceSection": {
+    "title": "練習模式",
+    "requirementsTitle": "通關條件",
+    "requirements": [
+      "完成所有測試用例",
+      "達到正確率 60% 以上",
+      "獲得 1-3 星評價"
+    ],
+    "bestTime": "最佳時間",
+    "attempts": "嘗試次數",
+    "attemptCount": "{{count}} 次",
+    "restartButton": "重新挑戰",
+    "continueButton": "繼續挑戰",
+    "startButton": "開始練習",
+    "lockedAndHint": "需要先完成：{{levels}}",
+    "lockedOrHint": "完成以下任一關卡即可解鎖：{{levels}}",
+    "lockedFallbackHint": "完成前置關卡以解鎖練習模式",
+    "listSeparator": "、",
+    "completedBadge": "已完成練習"
+  },
+  "portal": {
+    "ariaLabel": "傳送門：前往 {{targetCategoryName}}",
+    "goTo": "前往 {{targetCategoryName}}",
+    "locked": "完成 Boss Level 以解鎖"
+  },
+  "node": {
+    "ariaLabel": "關卡：{{levelName}}"
+  },
   "levels": {
     "array": {
       "name": "陣列",
