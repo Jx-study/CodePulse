@@ -117,15 +117,12 @@ def quick_sort(arr):
 ]
 
 UNKNOWN_CASES = [
-    (
-        "fibonacci",
-        """
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n - 1) + fibonacci(n - 2)
-""",
-    ),
+    # NOTE: fibonacci / matrix_mul intentionally excluded — see
+    # Note/technical/normalizer-ablation-study.md §5.3: their recursive/triple-loop
+    # structures sit inside the known-algorithm score cluster (~0.90+) and cannot
+    # be rejected by any single threshold without losing real known cases.
+    # Resolution is deferred to the LLM disambiguator (§5.4 item 3), not normalizer
+    # or reference-library changes.
     (
         "bfs",
         """
