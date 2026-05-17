@@ -74,14 +74,20 @@ DATA = {
     "groups": [
         {
             "id": "group-dfs-traversal",
+            "visual_type": "image",
+            "visual_data": {
+                "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778999503/BFS_pev7b1.png"
+            },
             "translations": {
                 "zh-TW": {
                     "title": "題組：DFS 遍歷機制與回溯",
                     "description": "DFS 使用堆疊（Stack）的後進先出（LIFO）特性，沿著一條路徑盡可能深入，碰壁後才回溯。以下使用與 BFS 相同的有向圖，觀察兩種演算法的遍歷順序差異。",
+                    "visual_alt": "有向圖：A 指向 B 和 C，B 指向 D，C 指向 E",
                 },
                 "en": {
                     "title": "Group: DFS Traversal Mechanism & Backtracking",
                     "description": "DFS uses a Stack's LIFO property to go as deep as possible along one path before backtracking. Using the same directed graph as BFS, observe the traversal order difference between the two algorithms.",
+                    "visual_alt": "Directed graph: A points to B and C, B points to D, and C points to E",
                 },
             },
             "code": DFS_SIMPLIFIED_CODE,

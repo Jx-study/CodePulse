@@ -326,3 +326,18 @@
     order: 1;
   }
 }
+
+.groupVisual {
+  margin: 0 0 $spacing-md;
+}
+
+.groupVisualImage {
+  display: block;
+  width: 100%;
+  max-width: 45rem;
+  height: auto;
+  margin: 0 auto;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  background-color: var(--card-bg);
+}

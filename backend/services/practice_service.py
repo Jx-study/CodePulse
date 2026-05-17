@@ -149,6 +149,9 @@ def _serialize_questions(questions: list, lang: str) -> list[dict]:
                 'description': gt.description if gt else None,
                 'code': grp.code,
                 'language': grp.language,
+                'visual_type': grp.visual_type,
+                'visual_data': grp.visual_data,
+                'visual_alt': gt.visual_alt if gt else None,
             }
         else:
             item['group'] = None
@@ -551,6 +554,7 @@ def get_question_translations(
             g_translations[str(gt.group_id)] = {
                 'title': gt.title,
                 'description': gt.description,
+                'visual_alt': gt.visual_alt,
             }
 
     return {'questions': q_translations, 'groups': g_translations}
