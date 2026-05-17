@@ -456,7 +456,7 @@
         "levelIds": ["fibonacci-recursive"]
       },
       "graphPosition": {
-        "layer": 4,
+        "layer": 3,
         "branch": "center",
         "horizontalIndex": 0
       },
@@ -476,7 +476,7 @@
         "levelIds": ["n-queens"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 4,
         "branch": "main"
       },
       "pathMetadata": {
@@ -635,11 +635,10 @@
       },
       "graphPosition": {
         "layer": 2,
-        "branch": "left"
+        "branch": "main"
       },
       "pathMetadata": {
-        "pathType": "branch",
-        "branchLabelKey": "dag_application"
+        "pathType": "main"
       },
       "implementationKey": "topologicalSort"
     },

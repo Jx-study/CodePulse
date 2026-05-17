@@ -110,18 +110,45 @@ export function getHomePageLevels(): HomePageAlgorithmMetadata[] {
 // ==================== 解鎖判斷 ====================
 
 /**
- * 解析有效前置關卡：跳過 isDeveloped === false 的關卡（不往上追溯其祖先）
- * 若所有前置均未實作，回傳空陣列，視為無前置（自動解鎖）
+ * 解析有效前置關卡：未開發的關卡不作為 gate，而是往上追溯到最近的已開發前置關卡
  */
 export function resolveEffectivePrerequisites(levelIds: string[]): string[] {
   const rawLevels = getRawLevels();
   const levelMap = new Map(rawLevels.map((l) => [l.id, l]));
+  const resolved: string[] = [];
+  const resolvedSet = new Set<string>();
 
-  return [...new Set(levelIds.filter((id) => levelMap.get(id)?.isDeveloped === true))];
+  const addResolved = (levelId: string) => {
+    if (!resolvedSet.has(levelId)) {
+      resolvedSet.add(levelId);
+      resolved.push(levelId);
+    }
+  };
+
+  const tracePrerequisite = (levelId: string, visited: Set<string>) => {
+    if (visited.has(levelId)) return;
+    visited.add(levelId);
+
+    const level = levelMap.get(levelId);
+    if (!level) return;
+
+    if (level.isDeveloped) {
+      addResolved(levelId);
+      return;
+    }
+
+    const prerequisiteIds = level.prerequisites?.levelIds ?? [];
+    prerequisiteIds.forEach((prerequisiteId) => {
+      tracePrerequisite(prerequisiteId, new Set(visited));
+    });
+  };
+
+  levelIds.forEach((levelId) => tracePrerequisite(levelId, new Set()));
+  return resolved;
 }
 
 /**
- * 根據 AND/OR 前置邏輯判斷關卡是否解鎖，跳過未實作的前置關卡
+ * 根據 AND/OR 前置邏輯判斷關卡是否解鎖，未實作的前置關卡會往上追溯到已實作 gate
  */
 export function isLevelUnlocked(
   level: { prerequisites?: { type: string; levelIds: string[] } },
@@ -135,7 +162,7 @@ export function isLevelUnlocked(
 
   const effectiveIds = resolveEffectivePrerequisites(prereq.levelIds);
 
-  // 所有前置都被跳過（全未實作且鏈到頂端），視為自動解鎖
+  // 沒有可追溯的已開發 gate 時，維持既有行為：視為無前置
   if (effectiveIds.length === 0) return true;
 
   const isCompleted = (levelId: string) =>
@@ -216,7 +243,7 @@ export function getPortalTargetCategory(
 
 /**
  * 檢查 Portal 是否已解鎖
- * 判斷前置關卡（Boss Level）是否完成
+ * 使用與一般關卡相同的有效前置關卡規則，避免顯示狀態與點擊行為不一致
  */
 export function isPortalUnlocked(
   portalLevelId: string,
@@ -225,11 +252,5 @@ export function isPortalUnlocked(
   const portalLevel = getLevelConfigById(portalLevelId);
   if (!portalLevel || !isPortalNode(portalLevelId)) return false;
 
-  // 檢查前置關卡（Boss Level）是否完成
-  const prerequisites = portalLevel.prerequisites?.levelIds || [];
-  if (prerequisites.length === 0) return true;
-
-  const bossLevelId = prerequisites[0]; // Portal 的前置條件應該只有一個 Boss Level
-  const bossProgress = userProgress.levels?.[bossLevelId];
-  return bossProgress?.status === "completed";
+  return isLevelUnlocked(portalLevel, userProgress);
 }
