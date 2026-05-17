@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
