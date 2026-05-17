@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
+import CodeBlock from "@/shared/components/CodeBlock";
+import Icon from "@/shared/components/Icon";
 import PageGridBackground from "@/shared/components/PageGridBackground";
 import PageHero from "@/shared/components/PageHero";
 import styles from "./Explorer.module.scss";
 
 // ── Card 1: Bar Race visual ──────────────────────────────────────────────────
 function BarRaceVisual() {
+  const { t } = useTranslation("explorer");
   const quickRef = useRef<HTMLDivElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const mergeRef = useRef<HTMLDivElement>(null);
@@ -16,7 +21,9 @@ function BarRaceVisual() {
   const mPctRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    let qPct = 0, bPct = 0, mPct = 0;
+    let qPct = 0,
+      bPct = 0,
+      mPct = 0;
     const runningRef = { current: true };
     let resetId: ReturnType<typeof setTimeout> | null = null;
 
@@ -36,7 +43,9 @@ function BarRaceVisual() {
       if (qPct >= 100 && mPct >= 100 && bPct >= 100) {
         runningRef.current = false;
         resetId = setTimeout(() => {
-          qPct = 0; bPct = 0; mPct = 0;
+          qPct = 0;
+          bPct = 0;
+          mPct = 0;
           runningRef.current = true;
         }, 1800);
       }
@@ -54,37 +63,64 @@ function BarRaceVisual() {
       <div className={styles.raceTrackWrap}>
         <div className={styles.raceTrack}>
           <div className={styles.raceLabel}>
-            <span className={styles.raceDot} style={{ background: "#4f8ef7" }} />
-            <span>Quick Sort</span>
+            <span
+              className={styles.raceDot}
+              style={{ background: "#4f8ef7" }}
+            />
+            <span>{t("race.quickSort")}</span>
             <span className={styles.raceComplexity}>O(n log n)</span>
           </div>
           <div className={styles.raceLane}>
-            <div ref={quickRef} className={styles.raceBar} style={{ background: "linear-gradient(90deg, #4f8ef7, #7eb3ff)" }} />
-            <span ref={qPctRef} className={styles.racePct}>0%</span>
+            <div
+              ref={quickRef}
+              className={styles.raceBar}
+              style={{ background: "linear-gradient(90deg, #4f8ef7, #7eb3ff)" }}
+            />
+            <span ref={qPctRef} className={styles.racePct}>
+              0%
+            </span>
           </div>
         </div>
 
         <div className={styles.raceTrack}>
           <div className={styles.raceLabel}>
-            <span className={styles.raceDot} style={{ background: "#ff6b35" }} />
-            <span>Bubble Sort</span>
+            <span
+              className={styles.raceDot}
+              style={{ background: "#ff6b35" }}
+            />
+            <span>{t("race.bubbleSort")}</span>
             <span className={styles.raceComplexity}>O(n²)</span>
           </div>
           <div className={styles.raceLane}>
-            <div ref={bubbleRef} className={styles.raceBar} style={{ background: "linear-gradient(90deg, #ff6b35, #ff9d6b)" }} />
-            <span ref={bPctRef} className={styles.racePct}>0%</span>
+            <div
+              ref={bubbleRef}
+              className={styles.raceBar}
+              style={{ background: "linear-gradient(90deg, #ff6b35, #ff9d6b)" }}
+            />
+            <span ref={bPctRef} className={styles.racePct}>
+              0%
+            </span>
           </div>
         </div>
 
         <div className={styles.raceTrack}>
           <div className={styles.raceLabel}>
-            <span className={styles.raceDot} style={{ background: "#10b981" }} />
-            <span>Merge Sort</span>
+            <span
+              className={styles.raceDot}
+              style={{ background: "#10b981" }}
+            />
+            <span>{t("race.mergeSort")}</span>
             <span className={styles.raceComplexity}>O(n log n)</span>
           </div>
           <div className={styles.raceLane}>
-            <div ref={mergeRef} className={styles.raceBar} style={{ background: "linear-gradient(90deg, #10b981, #34d399)" }} />
-            <span ref={mPctRef} className={styles.racePct}>0%</span>
+            <div
+              ref={mergeRef}
+              className={styles.raceBar}
+              style={{ background: "linear-gradient(90deg, #10b981, #34d399)" }}
+            />
+            <span ref={mPctRef} className={styles.racePct}>
+              0%
+            </span>
           </div>
         </div>
       </div>
@@ -94,19 +130,43 @@ function BarRaceVisual() {
 }
 
 // ── Card 2: Stack push/pop visual ────────────────────────────────────────────
-const STACK_VALUES = [3, 7, 1, 9, 4, 6, 2, 8];
+const STACK_CAPACITY = 5;
+
+// one cycle: push 3 times then pop 3 times — highlight loops back each cycle
+type CallEntry = { type: "push"; val: number } | { type: "pop" };
+const STACK_CALL_SEQUENCE: CallEntry[] = [
+  { type: "push", val: 1 },
+  { type: "push", val: 9 },
+  { type: "push", val: 4 },
+  { type: "pop" },
+  { type: "pop" },
+  { type: "pop" },
+];
+
+const STACK_CODE_LINES = [
+  "def push(stack, val):",
+  "    stack.append(val)",
+  "",
+  "def pop(stack):",
+  "    return stack.pop()",
+  "",
+  "s = [3, 7]",
+  ...STACK_CALL_SEQUENCE.map(c => c.type === "push" ? `push(s, ${c.val})` : "pop(s)"),
+];
 
 type StackItem = { id: number; val: number; exiting: boolean };
 
 function StackVisual() {
+  const { t } = useTranslation("explorer");
   const stackRef = useRef<StackItem[]>([
     { id: 0, val: 3, exiting: false },
     { id: 1, val: 7, exiting: false },
   ]);
   const [stack, setStack] = useState<StackItem[]>(stackRef.current);
-  const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
-  const stepRef = useRef(2); // next STACK_VALUES index
-  const idCounterRef = useRef(2); // next unique item id
+  const [action, setAction] = useState<"push" | "pop" | null>(null);
+  const [callLineIndex, setCallLineIndex] = useState(0);
+  const callSeqRef = useRef(0);
+  const idCounterRef = useRef(2);
   const pushingRef = useRef(true);
   const pending1Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pending2Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -114,30 +174,42 @@ function StackVisual() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       const current = stackRef.current;
-      if (pushingRef.current && current.length < 5) {
-        const val = STACK_VALUES[stepRef.current % STACK_VALUES.length];
-        setHighlightedLine(1);
-        if (current.length >= 4) pushingRef.current = false;
+      if (pushingRef.current && current.length < STACK_CAPACITY) {
+        const seqEntry = STACK_CALL_SEQUENCE[callSeqRef.current];
+        const val = seqEntry.type === "push" ? seqEntry.val : 0;
+        setAction("push");
+        setCallLineIndex(callSeqRef.current);
+        callSeqRef.current = (callSeqRef.current + 1) % STACK_CALL_SEQUENCE.length;
+        if (current.length >= STACK_CAPACITY - 1) pushingRef.current = false;
         pending1Ref.current = setTimeout(() => {
-          const item: StackItem = { id: idCounterRef.current++, val, exiting: false };
+          const item: StackItem = {
+            id: idCounterRef.current++,
+            val,
+            exiting: false,
+          };
           stackRef.current = [...stackRef.current, item];
           setStack(stackRef.current);
-          stepRef.current++;
         }, 300);
       } else {
         pushingRef.current = false;
-        setHighlightedLine(4);
+        setAction("pop");
+        setCallLineIndex(callSeqRef.current);
+        callSeqRef.current = (callSeqRef.current + 1) % STACK_CALL_SEQUENCE.length;
         pending1Ref.current = setTimeout(() => {
           if (stackRef.current.length === 0) return;
           const topId = stackRef.current[stackRef.current.length - 1].id;
-          if (stackRef.current.length <= 2) pushingRef.current = true;
           stackRef.current = stackRef.current.map((item, i) =>
-            i === stackRef.current.length - 1 ? { ...item, exiting: true } : item
+            i === stackRef.current.length - 1
+              ? { ...item, exiting: true }
+              : item,
           );
           setStack(stackRef.current);
           pending2Ref.current = setTimeout(() => {
-            stackRef.current = stackRef.current.filter(item => item.id !== topId);
+            stackRef.current = stackRef.current.filter(
+              (item) => item.id !== topId,
+            );
             setStack(stackRef.current);
+            if (stackRef.current.length <= 2) pushingRef.current = true;
           }, 380);
         }, 300);
       }
@@ -150,52 +222,52 @@ function StackVisual() {
     };
   }, []);
 
+  const topVal = stack.length > 0 ? stack[stack.length - 1].val : "—";
+  const emptySlots = STACK_CAPACITY - stack.length;
+
   return (
     <div className={styles.pgMockup}>
       {/* Code pane */}
       <div className={styles.pgInputPane}>
-        <div className={styles.ideTitlebar}>
-          <span className={`${styles.ideDot} ${styles.ideDotR}`} />
-          <span className={`${styles.ideDot} ${styles.ideDotY}`} />
-          <span className={`${styles.ideDot} ${styles.ideDotG}`} />
-          <span className={styles.pgFilename}>stack.py</span>
-        </div>
-        <pre className={styles.pgCode}>
-          <span data-line="0" style={highlightedLine === 0 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}><span className={styles.kw}>def</span> <span className={styles.fn}>push</span>(stack, val):</span>{"\n"}
-          <span data-line="1" style={highlightedLine === 1 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}>{"  "}stack.<span className={styles.fn}>append</span>(val)</span>{"\n"}
-          <span data-line="2">{"\n"}</span>
-          <span data-line="3" style={highlightedLine === 3 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}><span className={styles.kw}>def</span> <span className={styles.fn}>pop</span>(stack):</span>{"\n"}
-          <span data-line="4" style={highlightedLine === 4 ? { background: "rgba(99,91,255,.14)", borderRadius: "2px" } : undefined}>{"  "}<span className={styles.kw}>return</span> stack.<span className={styles.fn}>pop</span>()</span>{"\n"}
-          <span data-line="5">{"\n"}</span>
-          <span data-line="6">s = []</span>{"\n"}
-          <span data-line="7">push(s, <span className={styles.nu}>3</span>)</span>
-        </pre>
-      </div>
-
-      {/* Flow arrow */}
-      <div className={styles.pgFlow}>
-        <div className={styles.pgFlowArrow}>
-          <div className={styles.pgPulse} />
-          <svg width="32" height="12" viewBox="0 0 32 12" fill="none">
-            <path d="M0 6 H26 M22 1 L30 6 L22 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+        <CodeBlock
+          filename="stack.py"
+          lines={STACK_CODE_LINES}
+          highlightedLines={action !== null ? [
+            ...(action === "push" ? [1, 2] : [4, 5]),
+            8 + callLineIndex,
+          ] : []}
+          className={styles.pgCodeBlock}
+        />
+        <div className={styles.pgTracePanel}>
+          <span className={styles.pgTraceKeyword}>{t("stack.traceKeyword")}</span>
+          <span className={styles.pgTraceText}>
+            {t("stack.traceTop")} = {topVal}, {t("stack.traceSize")} = {stack.length}
+          </span>
         </div>
       </div>
 
       {/* Stack pane */}
       <div className={styles.pgStackPane}>
-        <span className={styles.pgStackLabel}>Stack</span>
+        <span className={styles.pgStackLabel}>STACK ↑</span>
         <div className={styles.pgStackBlocks}>
-          {stack.map(item => (
-            <div
-              key={item.id}
-              className={`${styles.pgBlock} ${styles.pgBlockVisible} ${item.exiting ? styles.pgBlockExit : ""}`}
-            >
-              {item.val}
+          {stack.map((item, idx) => {
+            const isTop = idx === stack.length - 1;
+            return (
+              <div
+                key={item.id}
+                className={`${styles.pgBlock} ${styles.pgBlockVisible} ${item.exiting ? styles.pgBlockExit : ""} ${isTop ? styles.pgBlockTop : ""}`}
+              >
+                {item.val}
+              </div>
+            );
+          })}
+          {Array.from({ length: emptySlots }).map((_, i) => (
+            <div key={`empty-${i}`} className={styles.pgBlockEmpty}>
+              —
             </div>
           ))}
         </div>
-        <span className={styles.pgStackBase}>▔▔▔▔</span>
+        <span className={styles.pgStackBase}>BASE</span>
       </div>
     </div>
   );
@@ -203,6 +275,7 @@ function StackVisual() {
 
 // ── Explorer Hub ─────────────────────────────────────────────────────────────
 function Explorer() {
+  const { t } = useTranslation("explorer");
   const navigate = useNavigate();
 
   return (
@@ -227,11 +300,13 @@ function Explorer() {
         <div className={`${styles.card} ${styles.cardIn1}`}>
           <div className={styles.cardHeader}>
             <div>
-              <p className={styles.cardEyebrow}>Module 01</p>
-              <p className={styles.cardTitle}>Algorithm Lab</p>
-              <p className={styles.cardDesc}>選擇演算法，直觀觀察執行過程與效率</p>
+              <p className={styles.cardEyebrow}>{t("card1.eyebrow")}</p>
+              <p className={styles.cardTitle}>{t("card1.title")}</p>
+              <p className={styles.cardDesc}>{t("card1.desc")}</p>
             </div>
-            <Badge variant="success" size="sm" shape="pill">Active</Badge>
+            <Badge variant="success" size="sm" shape="pill">
+              {t("badge.active")}
+            </Badge>
           </div>
 
           <div className={styles.cardVisual}>
@@ -239,34 +314,56 @@ function Explorer() {
           </div>
 
           <div className={styles.cardFooter}>
-            <Button className={styles.btnEnter} onClick={() => navigate("/explorer/lab")}>
-              Enter Lab →
+            <Button
+              className={styles.btnEnter}
+              onClick={() => navigate("/explorer/lab")}
+              iconRight={<Icon name="arrow-right" />}
+            >
+              {t("card1.enter")}
             </Button>
             <div className={styles.statPills}>
-              <Badge variant="secondary" size="xs" shape="pill">Sort</Badge>
-              <Badge variant="secondary" size="xs" shape="pill">Search</Badge>
-              <Badge variant="secondary" size="xs" shape="pill">Graph</Badge>
+              <Badge variant="secondary" size="xs" shape="pill">
+                {t("card1.badgeSort")}
+              </Badge>
+              <Badge variant="secondary" size="xs" shape="pill">
+                {t("card1.badgeSearch")}
+              </Badge>
+              <Badge variant="secondary" size="xs" shape="pill">
+                {t("card1.badgeGraph")}
+              </Badge>
             </div>
           </div>
         </div>
 
         {/* Card 2 — Visualization Playground */}
-        <div className={`${styles.card} ${styles.cardGlass} ${styles.cardIn2}`}>
+        <div className={`${styles.card} ${styles.cardIn2}`}>
           <div className={styles.cardHeader}>
             <div>
-              <p className={styles.cardEyebrow}>Module 02</p>
-              <p className={styles.cardTitle}>Visualization Playground</p>
-              <p className={styles.cardDesc}>提交 Python 程式碼，自動分析並產生視覺化動畫</p>
+              <p className={styles.cardEyebrow}>{t("card2.eyebrow")}</p>
+              <p className={styles.cardTitle}>{t("card2.title")}</p>
+              <p className={styles.cardDesc}>{t("card2.desc")}</p>
             </div>
+            <Badge variant="success" size="sm" shape="pill">
+              {t("badge.active")}
+            </Badge>
           </div>
 
           <div className={styles.cardVisual}>
-            <StackVisual />
+            <div className={styles.bpDiagramPanel}>
+              <span className={styles.bpDiagramLabel}>
+                {t("card2.schematic")}
+              </span>
+              <StackVisual />
+            </div>
           </div>
 
           <div className={styles.cardFooter}>
-            <Button className={styles.btnEnter} onClick={() => navigate("/explorer/playground")}>
-              Enter Playground →
+            <Button
+              className={styles.btnEnter}
+              onClick={() => navigate("/explorer/playground")}
+              iconRight={<Icon name="arrow-right" />}
+            >
+              {t("card2.enter")}
             </Button>
           </div>
         </div>

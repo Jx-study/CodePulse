@@ -64,6 +64,10 @@ seed-all:
     docker compose exec backend python seeds/seed_tutorials.py
     docker compose exec backend python seeds/seed_questions.py
 
+# ── Algo Identification ────────────────────────────────────────────────────
+build-embeddings:
+    python scripts/build_embeddings.py
+
 # ── Health ─────────────────────────────────────────────────────────────────
 health:
     curl -s http://localhost:5000/api/health

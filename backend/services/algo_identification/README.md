@@ -1,5 +1,7 @@
 # algo_identification
 
+> [English](#usage) | [中文](#使用方式)
+
 MiniLM-based algorithm identification service.
 
 ## Usage
@@ -12,7 +14,7 @@ warmup()
 
 # In request handler:
 result = identify(user_code)
-# result.algo_name  — identified algorithm, or None if confidence < 0.45
+# result.algo_name  — identified algorithm, or None if confidence < 0.87
 # result.score      — cosine similarity score
 # result.top_raw    — raw top-1 label before threshold filtering
 ```
@@ -23,7 +25,9 @@ result = identify(user_code)
 
 ## Threshold
 
-Default: **0.45** — set in `similarity.py::THRESHOLD`. Below this, `algo_name` is `None`.
+Default: **0.87** — set in `similarity.py::THRESHOLD`. Below this, `algo_name` is `None`.
+Chosen via the ablation in `Note/technical/normalizer-ablation-study.md` (known TPR 100%,
+unknown rejection 71.4% on the 32-case eval set).
 
 ## Rebuilding the Embeddings
 
@@ -31,7 +35,7 @@ If you add a new algorithm or variant, update `scripts/build_embeddings.py`, the
 
 ```bash
 cd backend
-python scripts/build_embeddings.py
+just build-embeddings
 git add services/algo_identification/embeddings/
 git commit -m "Chore: rebuild MiniLM reference embeddings"
 ```
@@ -69,7 +73,9 @@ result = identify(user_code)
 
 ## 辨識閾值
 
-預設值：**0.45**，定義於 `similarity.py::THRESHOLD`。低於此值時，`algo_name` 回傳 `None`。
+預設值：**0.87**，定義於 `similarity.py::THRESHOLD`。低於此值時，`algo_name` 回傳 `None`。
+此值由 `Note/technical/normalizer-ablation-study.md` 的消融實驗決定
+（在 32 案例評估集上 known TPR 100%、unknown 阻擋率 71.4%）。
 
 ## 重建嵌入向量
 
@@ -77,7 +83,7 @@ result = identify(user_code)
 
 ```bash
 cd backend
-python scripts/build_embeddings.py
+just build-embeddings
 git add services/algo_identification/embeddings/
 git commit -m "Chore: rebuild MiniLM reference embeddings"
 ```

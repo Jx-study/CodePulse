@@ -50,17 +50,10 @@
 }
 
 .macWindow {
-  border-top-left-radius: $radius-lg;
-  border-top-right-radius: $radius-lg;
-  overflow: hidden;
-  background: #1e1e1e;
-  font-family: $font-family-code;
-  font-size: $font-sm;
   text-align: left;
 
   @include mobile {
     font-size: $font-xs;
-    border-radius: 6px;
   }
 }
 
