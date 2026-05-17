@@ -10,6 +10,10 @@
   "toast": {
     "categoryUnlocked": "恭喜！解鎖新領域：{{categoryName}}"
   },
+  "levelUnavailable": {
+    "undeveloped": "此關卡尚未開放，敬請期待",
+    "locked": "完成前置關卡後解鎖"
+  },
   "categoryFilter": {
     "moduleCount_one": "{{count}} 個模組",
     "moduleCount_other": "{{count}} 個模組"

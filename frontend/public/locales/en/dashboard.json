@@ -10,6 +10,10 @@
   "toast": {
     "categoryUnlocked": "New area unlocked: {{categoryName}}"
   },
+  "levelUnavailable": {
+    "undeveloped": "This level is not available yet. Stay tuned.",
+    "locked": "Complete prerequisite levels to unlock"
+  },
   "categoryFilter": {
     "moduleCount_one": "{{count}} Module",
     "moduleCount_other": "{{count}} Modules"

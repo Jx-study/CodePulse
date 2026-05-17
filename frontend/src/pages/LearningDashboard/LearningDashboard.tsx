@@ -11,6 +11,7 @@ import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
 import Sidebar from "@/shared/components/Sidebar";
+import { toast } from "@/shared/components/Toast";
 import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContext";
 
 
@@ -238,6 +239,7 @@ function LearningDashboardInner() {
   // 處理關卡點擊（只有已開發的功能才能點擊）
   const handleLevelClick = (level: Level) => {
     if (!level.isDeveloped) {
+      toast.warning(t("levelUnavailable.undeveloped"));
       return;
     }
     setSelectedLevel(level);
