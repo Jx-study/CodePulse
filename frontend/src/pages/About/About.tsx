@@ -52,7 +52,9 @@ function About() {
   const { scrollYProgress } = useScroll();
 
   const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-  const milestoneItems = t('milestones.items', { returnObjects: true }) as MilestoneItem[];
+  const raw = t('milestones.items', { returnObjects: true });
+  // TODO: sentry — log when i18n fails to return array (locale load failure)
+  const milestoneItems = Array.isArray(raw) ? (raw as MilestoneItem[]) : [];
 
   return (
     <div className={styles.about}>
