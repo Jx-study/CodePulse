@@ -117,36 +117,3 @@
     }
   }
 }
-
-.tone-primary,
-.tone-success,
-.tone-warning,
-.tone-danger,
-.tone-info,
-.tone-muted {
-  font-weight: 700;
-}
-
-.tone-primary {
-  color: $primary-color;
-}
-
-.tone-success {
-  color: $success-color;
-}
-
-.tone-warning {
-  color: $warning-color;
-}
-
-.tone-danger {
-  color: $error-color;
-}
-
-.tone-info {
-  color: $info-color;
-}
-
-.tone-muted {
-  color: var(--text-tertiary);
-}

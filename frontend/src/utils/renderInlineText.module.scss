@@ -1,0 +1,42 @@
+.tonePrimary,
+.toneSuccess,
+.toneWarning,
+.toneDanger,
+.toneInfo,
+.toneMuted {
+  font-weight: 700;
+}
+
+.tonePrimary {
+  color: $primary-color;
+}
+
+.toneSuccess {
+  color: $success-color;
+}
+
+.toneWarning {
+  color: $warning-color;
+}
+
+.toneDanger {
+  color: $error-color;
+}
+
+.toneInfo {
+  color: $info-color;
+}
+
+.toneMuted {
+  color: var(--text-tertiary);
+}
+
+.inlineCode {
+  font-family: $font-family-code;
+  font-size: 0.92em;
+  padding: 0.1rem 0.35rem;
+  border-radius: $radius-sm;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}

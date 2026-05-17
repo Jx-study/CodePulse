@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon';
 import type { IconName } from '@/shared/lib/iconMap';
 import type { IntroductionContent, IntroductionSection } from '@/types';
+import { renderInlineText } from '@/utils/renderInlineText';
 import styles from './IntroductionTab.module.scss';
 
 interface IntroductionTabProps {
@@ -22,32 +23,6 @@ function isIntroductionSectionArray(value: unknown): value is IntroductionSectio
     if (!section || typeof section !== 'object') return false;
     const maybeSection = section as IntroductionSection;
     return typeof maybeSection.heading === 'string';
-  });
-}
-
-function renderInlineText(text: string): React.ReactNode {
-  const parts = text.split(/(\*\*[^*]+\*\*|\[\[(primary|success|warning|danger|info|muted)\|[^\]]+\]\])/g);
-
-  return parts.map((part, index) => {
-    if (!part || ['primary', 'success', 'warning', 'danger', 'info', 'muted'].includes(part)) {
-      return null;
-    }
-
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={index}>{part.slice(2, -2)}</strong>;
-    }
-
-    const colorMatch = part.match(/^\[\[(primary|success|warning|danger|info|muted)\|(.+)\]\]$/);
-    if (colorMatch) {
-      const [, tone, value] = colorMatch;
-      return (
-        <span className={styles[`tone-${tone}`]} key={index}>
-          {value}
-        </span>
-      );
-    }
-
-    return <React.Fragment key={index}>{part}</React.Fragment>;
   });
 }
 
