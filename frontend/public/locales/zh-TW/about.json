@@ -2,20 +2,26 @@
   "hero": {
     "title": "我們的故事：",
     "titleAccent": "視覺化",
-    "titleSuffix": "邏輯的本質",
-    "desc": "填補抽象語法與人類直覺之間的鴻溝。CodePulse 將複雜的演算法序列轉化為可互動的視覺架構。"
+    "titleSuffix": "邏輯的本質"
   },
   "features": {
     "visualLogic": {
-      "title": "視覺邏輯",
-      "desc": "我們不只是展示程式碼，而是揭示資料在多維結構中的流動，透過即時圖形渲染讓不可見的一切變得清晰可見。"
+      "tag": "VISUAL_LOGIC",
+      "date": "2025.06",
+      "subject": "看見資料在結構中",
+      "subjectAccent": "移動的每一步",
+      "body": "我們不只展示程式碼——每一次指標移動、節點狀態變化、遞歸呼叫的展開，都即時呈現在你面前。Graph 遍歷、Tree 展開、Linked List 重接，沒有黑箱。"
     },
     "interactiveLearning": {
-      "title": "互動學習",
-      "desc": "每種資料結構與演算法操作都有動畫視覺化。每個教學單元包含互動小遊戲與衍生說明影片，強化學習理解。"
+      "tag": "INTERACTIVE",
+      "date": "2025.06",
+      "subject": "看完動畫，",
+      "subjectAccent": "立刻在畫布上走一遍",
+      "body": "看懂不夠——每個資料結構都有互動關卡，讓你親手插入節點、在畫布上跑 BFS。操作幾次之後，演算法就變成反射動作。"
     }
   },
   "team": {
+    "sectionLabel": "CORE_TEAM",
     "members": {
       "julian": {
         "role": "全端工程師",
@@ -32,6 +38,56 @@
     }
   },
   "techStack": {
-    "label": "硬體與執行環境層"
+    "sectionLabel": "執行環境",
+    "title": "支撐整個系統的",
+    "titleAccent": "技術棧",
+    "desc": "從 UI 渲染到資料庫，每一層都有存在的理由。"
+  },
+  "milestones": {
+    "sectionLabel": "BUILD_HISTORY",
+    "title": "從第一行程式碼到",
+    "titleAccent": "完整平台",
+    "items": [
+      {
+        "tag": "階段_01",
+        "date": "2026.01",
+        "title": "視覺化引擎",
+        "titleAccent": "v1",
+        "body": "從零建立動畫核心，Array、Linked List、Stack、Queue、Binary Tree 全套操作動畫上線，並完成 Pseudo code 逐行同步系統。",
+        "pills": ["+11 種動畫", "+1 項功能"]
+      },
+      {
+        "tag": "階段_02",
+        "date": "2026.02",
+        "title": "樹與圖，",
+        "titleAccent": "Inspector Panel",
+        "body": "擴展到 BST、BFS/DFS、Graph、Dijkstra；建立可拖曳三欄佈局與動態 Inspector Panel，奠定整個 Tutorial 頁面的架構。",
+        "pills": ["+6 種動畫", "+4 項功能"]
+      },
+      {
+        "tag": "階段_03",
+        "date": "2026.03",
+        "title": "完整平台，",
+        "titleAccent": "後端自建",
+        "body": "後端從 Supabase 遷移至自建 PostgreSQL，完成 Google OAuth、每日 Check-in、XP 系統以及四款互動小遊戲。",
+        "pills": ["+4 款小遊戲", "+8 項功能"]
+      },
+      {
+        "tag": "階段_04",
+        "date": "2026.04",
+        "title": "AI 分析引擎",
+        "titleAccent": "上線",
+        "body": "建立完整的程式碼分析管線：Docker sandbox 執行、AST 複雜度分析、Big-O 曲線擬合、MiniLM 演算法識別，最終整合 Gemini AI 報告。",
+        "pills": ["+1 個 Playground", "+7 項功能"]
+      },
+      {
+        "tag": "階段_05",
+        "date": "2026.05",
+        "title": "Heap、DLL，",
+        "titleAccent": "系統穩定",
+        "body": "補齊 Heap、Doubly Linked List 等動畫；Playground 加入 SSE 即時串流與歷史記錄；Design System 全面統一。",
+        "pills": ["+5 種動畫", "+4 項功能"]
+      }
+    ]
   }
 }

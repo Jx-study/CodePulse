@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "title": "常見問題",
+    "accent": " Q&A",
+    "desc": "找不到答案？瀏覽下方問題，或直接與我們聯繫。",
+    "guideLink": "查看使用指南"
+  },
+  "cta": {
+    "title": "還有其他問題？",
+    "desc": "透過意見回饋表單聯絡我們，我們會盡快回覆。",
+    "button": "送出意見回饋"
+  },
+  "items": [
+    {
+      "id": "login",
+      "question": "如何建立帳號與登入？",
+      "answer": "點擊右上角「登入」，使用 Google 帳號一鍵授權即可完成註冊。首次登入會自動建立學習紀錄，無需另行設定。"
+    },
+    {
+      "id": "progress",
+      "question": "我的學習進度會被保存嗎？",
+      "answer": "是的。所有 Tutorial 觀看紀錄、Practice 答題狀態都會即時同步到雲端。只要登入同一帳號，在任何裝置都能繼續上次的進度。"
+    },
+    {
+      "id": "tutorial-vs-practice",
+      "question": "Tutorial 和 Practice 有什麼不同？",
+      "answer": "Tutorial 是概念學習區：動畫解說資料結構與演算法的運作原理。Practice 是實作驗證區：透過題目測試你對概念的掌握，並提供即時回饋與解析。"
+    },
+    {
+      "id": "lab-vs-playground",
+      "question": "Algorithm Lab 和 Visualization Playground 的差異？",
+      "answer": "Algorithm Lab 讓你親手跑演算法並比較不同實作的效能。Playground 則是自由探索區：輸入自己的程式碼，觀察它的圖論結構與 AI 分析結果。"
+    },
+    {
+      "id": "ai-limit",
+      "question": "AI 分析和演算法辨識有哪些限制？",
+      "answer": "AI 辨識目前支援常見的排序、搜尋、圖論演算法。遞迴巢狀較深或使用非標準 API 的程式碼辨識準確率較低。分析結果僅供參考，不代表程式碼正確性。"
+    },
+    {
+      "id": "timeout",
+      "question": "執行逾時或結果顯示錯誤怎麼辦？",
+      "answer": "沙箱環境有 5 秒執行上限，遞迴過深或迴圈過長可能觸發。若確認程式邏輯正確但一直逾時，請嘗試優化複雜度或縮小輸入規模。若仍有問題，歡迎透過下方意見回饋通報。"
+    },
+    {
+      "id": "dashboard",
+      "question": "Learning Dashboard 上的地圖怎麼使用？",
+      "answer": "地圖以技能樹形式展示所有演算法主題，節點顏色代表學習狀態（未開始／進行中／完成）。點擊節點可直接進入對應的 Tutorial 或 Practice。"
+    },
+    {
+      "id": "report",
+      "question": "如何回報錯誤或提供建議？",
+      "answer": "可以透過頁腳的「意見回饋」連結填寫 Google 表單，或直接寄信至 codepulse112@gmail.com。描述問題時附上瀏覽器版本與操作步驟能幫助我們更快定位問題。"
+    }
+  ]
+}
