@@ -168,7 +168,7 @@ function LearningDashboardInner() {
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = t(`categories.${newlyUnlockedCategories[0].replace(/-/g, '_')}.name`);
-        setToastMessage(`恭喜！解鎖新領域：${categoryName}`);
+        setToastMessage(t("toast.categoryUnlocked", { categoryName }));
 
         // 3 秒後自動消失
         setTimeout(() => setToastMessage(null), 3000);
@@ -404,8 +404,8 @@ function LearningDashboardInner() {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        title="演算法分類"
-        aria-label="演算法分類側邊欄"
+        title={t("sidebar.title")}
+        aria-label={t("sidebar.ariaLabel")}
       >
         <CategoryFilter
           categories={categories}

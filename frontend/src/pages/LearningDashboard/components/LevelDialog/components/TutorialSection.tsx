@@ -21,10 +21,10 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
 
   return (
     <div className={styles.tutorialSection}>
-      <h3>教學模式</h3>
+      <h3>{t("tutorialSection.title")}</h3>
 
       <div className={styles.description}>
-        <h4>演算法說明</h4>
+        <h4>{t("tutorialSection.descriptionTitle")}</h4>
         {description && (
           <p dangerouslySetInnerHTML={{ __html: description }} />
         )}
@@ -32,7 +32,7 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
 
       {objectives && objectives.length > 0 && (
         <div className={styles.objectives}>
-          <h4>學習目標</h4>
+          <h4>{t("tutorialSection.objectivesTitle")}</h4>
           <ul>
             {objectives.map((objective, index) => (
               <li key={index}>{objective}</li>
@@ -43,7 +43,7 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
 
       {suggestedLevelNames && suggestedLevelNames.length > 0 && (
         <div className={styles.suggested}>
-          <h4>建議先學習</h4>
+          <h4>{t("tutorialSection.suggestedTitle")}</h4>
           <div className={styles.suggestedBadges}>
             {suggestedLevelNames.map((name, i) => (
               <Badge key={i} variant="danger" size="sm" shape="pill">
@@ -62,10 +62,10 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
         fullWidth
         iconLeft={<Icon name="play" />}
       >
-        {isCompleted ? "重新學習" : "開始教學"}
+        {isCompleted ? t("tutorialSection.restartButton") : t("tutorialSection.startButton")}
       </Button>
 
-      {isLocked && <p className={styles.lockedHint}>此教學尚未解鎖</p>}
+      {isLocked && <p className={styles.lockedHint}>{t("tutorialSection.lockedHint")}</p>}
 
       {isCompleted && (
         <Badge
@@ -74,7 +74,7 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
           icon={<Icon name="check" />}
           className={styles.completedBadge}
         >
-          已完成教學
+          {t("tutorialSection.completedBadge")}
         </Badge>
       )}
     </div>

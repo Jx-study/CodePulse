@@ -121,7 +121,7 @@ function LevelNode({
       onClick={handleClick}
       role="button"
       tabIndex={isDeveloped ? 0 : -1}
-      aria-label={`關卡: ${levelName}`}
+      aria-label={t("node.ariaLabel", { levelName })}
       aria-disabled={!isDeveloped}
       data-level-id={level.id}
     >
