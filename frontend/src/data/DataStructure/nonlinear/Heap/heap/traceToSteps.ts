@@ -2,27 +2,8 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createTreeNodes } from "@/data/DataStructure/nonlinear/utils";
+import { toStatus, toOverrideMap } from "@/data/implementations/traceConverters";
 import { TAGS } from "./tags";
-
-const STATUS_MAP: Record<string, Status> = {
-  Target: Status.Target,
-  Complete: Status.Complete,
-  Prepare: Status.Prepare,
-  Unfinished: Status.Unfinished,
-};
-
-function toStatus(s?: string): Status {
-  return s ? (STATUS_MAP[s] ?? Status.Unfinished) : Status.Unfinished;
-}
-
-function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
-  if (!raw) return {};
-  const result: Record<number, Status> = {};
-  for (const [k, v] of Object.entries(raw)) {
-    result[Number(k)] = toStatus(v);
-  }
-  return result;
-}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({

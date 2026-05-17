@@ -190,8 +190,8 @@ export const linkedListConfig: LevelImplementationConfig = {
       payload?.hasTailMode ?? false,
     ).codeConfig,
   complexity: { timeBest: "O(1)", timeAverage: "O(n)", timeWorst: "O(n)", space: "O(1)" },
-  introduction:
-    "鏈表是一種基本的線性數據結構，由一系列節點組成，每個節點包含數據和指向下一個節點的指針。與陣列不同，鏈表的元素在記憶體中不是連續存儲的，這使得插入和刪除操作更加高效。鏈表分為單向鏈表、雙向鏈表和循環鏈表等類型。單向鏈表的每個節點只有一個指向下一個節點的指針，適合需要頻繁插入和刪除的場景，但訪問特定位置的元素需要從頭開始遍歷。",
+  i18nNamespace: "tutorials/linked-list",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "node-1", value: 10 }, { id: "node-2", value: 40 }, { id: "node-3", value: 30 }, { id: "node-4", value: 20 },
   ],

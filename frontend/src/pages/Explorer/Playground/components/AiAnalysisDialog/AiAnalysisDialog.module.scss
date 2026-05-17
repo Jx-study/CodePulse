@@ -109,6 +109,13 @@
   color: var(--color-primary);
 }
 
+// Error state
+.errorState {
+  padding: $spacing-sm;
+  font-size: $font-xs;
+  color: var(--color-error, #e05a5a);
+}
+
 // Summary tab
 .summaryBody {
   padding: $spacing-sm;

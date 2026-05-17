@@ -755,3 +755,109 @@ def test_submit_answers_multiple_choice_pipe_workaround(app):
             {'question_id': 24, 'user_answer': 'A'},
         ], lang='en')
         assert result['correct_count'] == 1
+
+
+# ---------------------------------------------------------------------------
+# visual fields serialization tests
+# ---------------------------------------------------------------------------
+
+def test_serialize_questions_includes_visual_fields(app):
+    """_serialize_questions should include visual_type, visual_data, visual_alt in group dict."""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.question import (
+        Question, QuestionType, QuestionCategory,
+        QuestionGroup, QuestionGroupTranslation,
+    )
+    from services.practice_service import _serialize_questions
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=60, slug='vis-test-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=60, category_id=60, slug='vis-test',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        grp = QuestionGroup(
+            tutorial_id=60,
+            code=None,
+            language=None,
+            display_order=0,
+            visual_type='image',
+            visual_data={'url': 'https://res.cloudinary.com/codepulse/image/upload/v1/test.png'},
+        )
+        db.session.add(grp)
+        db.session.flush()
+        db.session.add(QuestionGroupTranslation(
+            group_id=grp.group_id,
+            language_code='en',
+            title='Test Group',
+            description=None,
+            visual_alt='Test alt text',
+        ))
+        q = Question(
+            tutorial_id=60,
+            group_id=grp.group_id,
+            question_type=QuestionType.single_choice,
+            category=QuestionCategory.basic,
+            base_rating=1200.0,
+            difficulty_rating=1200.0,
+            correct_answer='A',
+            display_order=0,
+            is_active=True,
+        )
+        db.session.add(q)
+        db.session.commit()
+
+        result = _serialize_questions([q], 'en')
+        assert result[0]['group']['visual_type'] == 'image'
+        assert result[0]['group']['visual_data'] == {
+            'url': 'https://res.cloudinary.com/codepulse/image/upload/v1/test.png'
+        }
+        assert result[0]['group']['visual_alt'] == 'Test alt text'
+
+
+def test_get_question_translations_includes_visual_alt(app):
+    """get_question_translations should include visual_alt in group translations."""
+    from database import db
+    from models.tutorial import Tutorial, AlgorithmCategory
+    from models.question import (
+        Question, QuestionType, QuestionCategory,
+        QuestionGroup, QuestionGroupTranslation,
+    )
+    from services.practice_service import get_question_translations
+
+    with app.app_context():
+        cat = AlgorithmCategory(category_id=61, slug='visalt-test-cat')
+        db.session.add(cat)
+        db.session.flush()
+        t = Tutorial(
+            tutorial_id=61, category_id=61, slug='visalt-test',
+            difficulty=1, xp_teaching=10, xp_practice_base=20, xp_perfect_bonus=10,
+        )
+        db.session.add(t)
+        grp = QuestionGroup(
+            tutorial_id=61,
+            code=None,
+            language=None,
+            display_order=0,
+            visual_type='none',
+            visual_data=None,
+        )
+        db.session.add(grp)
+        db.session.flush()
+        db.session.add(QuestionGroupTranslation(
+            group_id=grp.group_id,
+            language_code='zh-TW',
+            title='測試題組',
+            description=None,
+            visual_alt='測試 alt 文字',
+        ))
+        db.session.commit()
+
+        result = get_question_translations([], [grp.group_id], 'zh-TW')
+        group_data = result['groups'][str(grp.group_id)]
+        assert 'visual_alt' in group_data
+        assert group_data['visual_alt'] == '測試 alt 文字'

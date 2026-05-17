@@ -33,7 +33,7 @@ function factorialActionHandler(
 }
 
 export function createFactorialAnimationSteps(
-  dataList: any[],
+  _dataList: any[],
   action?: any,
 ): AnimationStep[] {
   const targetN = action?.n ?? action?.animationParams?.n ?? 5;

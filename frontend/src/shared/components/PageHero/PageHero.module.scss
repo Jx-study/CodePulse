@@ -1,0 +1,133 @@
+.hero {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  animation: fadeUp 0.5s $ease-smooth both;
+}
+
+.bgTexture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% -10%, rgba($primary-color, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 85% 90%, rgba($accent-color, 0.04) 0%, transparent 70%);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+}
+
+// Landing variant (Home) — full width, large display, children slot
+.hero[data-variant="landing"] {
+  padding: $spacing-xxl $spacing-xl $spacing-lg;
+  text-align: left;
+
+  .title {
+    font-size: $hero-h1-size;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  .description {
+    font-size: $font-lg;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 32rem;
+    margin-bottom: $spacing-md;
+  }
+
+  @media (max-width: $mobile-max) {
+    padding: $spacing-lg $spacing-sm;
+
+    .title {
+      font-size: $hero-h1-size-mobile;
+    }
+  }
+}
+
+// Content variant (FAQ, Guide) — centered, single column
+.hero[data-variant="content"] {
+  padding: $spacing-xxl $spacing-md $spacing-lg;
+  text-align: center;
+  max-width: 52rem;
+
+  .title {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    margin-bottom: $spacing-xs;
+  }
+
+  .description {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+    margin-bottom: $spacing-md;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: $mobile-max) {
+    padding: $spacing-xl $spacing-sm $spacing-md;
+  }
+}
+
+// Feature variant (Explorer, About) — left aligned, optional bgTexture
+.hero[data-variant="feature"] {
+  padding: $spacing-xxl $spacing-xl $spacing-lg;
+  max-width: 1080px;
+  text-align: left;
+
+  .title {
+    font-size: clamp(2.25rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  .description {
+    font-family: $font-family-code;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+    line-height: 1.7;
+    max-width: 440px;
+    margin-bottom: $spacing-md;
+  }
+
+  @media (max-width: $mobile-max) {
+    padding: $spacing-lg $spacing-sm $spacing-sm;
+  }
+}
+
+.extra {
+  margin-top: $spacing-lg;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

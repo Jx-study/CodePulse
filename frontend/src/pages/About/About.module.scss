@@ -102,27 +102,28 @@
   font-family: $font-family-code;
   font-size: $font-xs;
   color: $primary-color;
-  margin-bottom: 2rem;
+  margin-bottom: $spacing-lg;
   letter-spacing: 0.15em;
 }
 
-.heroSubLabel {
+// ========== Shared Section Label ==========
+.sectionLabel {
   font-family: $font-family-code;
   font-size: $font-xs;
-  color: var(--text-tertiary);
-  margin-bottom: 1rem;
+  color: $primary-color;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  text-align: center;
+  margin-bottom: $spacing-sm;
 }
 
 .heroTitle {
   font-size: clamp(2.5rem, 6vw, 4.375rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
-  text-transform: uppercase;
-  margin-bottom: 3rem;
-  line-height: 1.1;
+  margin-bottom: $spacing-xl;
+  line-height: 1.15;
 }
 
 .heroTitleAccent {
@@ -131,16 +132,6 @@
   font-weight: 800;
 }
 
-.heroDesc {
-  border: 1px solid rgba($primary-color, 0.3);
-  background: var(--bg-secondary);
-  backdrop-filter: blur(0.5rem);
-  padding: 2rem;
-  max-width: 40rem;
-  font-size: $font-lg;
-  line-height: 1.7;
-  color: var(--text-secondary);
-}
 
 // ========== Divider (Shared Component Override) ==========
 .divider {
@@ -163,50 +154,214 @@
   }
 }
 
-// ========== Features Grid ==========
+// ========== Features / Milestones ==========
 .features {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   max-width: 62.5rem;
   width: 100%;
   margin-bottom: 12rem;
   position: relative;
+}
+
+
+.milestoneSectionTitle {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin-bottom: $spacing-xxl;
+  line-height: 1.2;
+}
+
+.commitEntry {
+  --commit-content-width: 25rem;
+  --commit-slot-gap: 0.75rem;
+  --commit-slot-gap-negative: -0.75rem;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.5rem minmax(0, 1fr);
+  column-gap: 0;
+  row-gap: 0;
+  position: relative;
+  padding: $spacing-xl 0;
 
   @media (min-width: $mobile) {
-    grid-template-columns: 1fr 1fr;
+    --commit-slot-gap: 2rem;
+    --commit-slot-gap-negative: -2rem;
+
+    grid-template-columns: minmax(0, 1fr) 4rem minmax(0, 1fr);
+    align-items: stretch;
   }
 }
 
-// Feature Card (Shared Card override)
-.featureCard {
-  border: 1px solid var(--border) !important;
-  background: var(--bg-secondary) !important;
+.commitSlot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+}
+
+.commitHeaderSlot {
+  grid-row: 1;
+}
+
+.commitBodySlot {
+  grid-row: 2;
+}
+
+.commitSlotLeft {
+  justify-content: flex-end;
+  padding-right: var(--commit-slot-gap);
+}
+
+.commitSlotRight {
+  justify-content: flex-start;
+  padding-left: var(--commit-slot-gap);
+}
+
+.commitSlotActive {
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    height: 2px;
+    background: rgba($primary-color, 0.2);
+    z-index: 0;
+  }
+}
+
+.commitEntryLeft .commitSlotActive {
+  grid-column: 1;
+}
+
+.commitEntryLeft .commitHeaderSlot {
+  grid-column: 1;
+}
+
+.commitEntryLeft .commitSlotActive::before {
+  left: max(0rem, calc(100% - var(--commit-content-width) - var(--commit-slot-gap)));
+  right: var(--commit-slot-gap-negative);
+
+  @media (min-width: $mobile) {
+    left: max(0rem, calc(100% - var(--commit-content-width) - var(--commit-slot-gap)));
+    right: var(--commit-slot-gap-negative);
+  }
+}
+
+.commitEntryRight .commitSlotActive {
+  grid-column: 3;
+}
+
+.commitEntryRight .commitHeaderSlot {
+  grid-column: 3;
+}
+
+.commitEntryRight .commitSlotActive::before {
+  left: var(--commit-slot-gap-negative);
+  right: max(0rem, calc(100% - var(--commit-content-width) - var(--commit-slot-gap)));
+
+  @media (min-width: $mobile) {
+    left: var(--commit-slot-gap-negative);
+    right: max(0rem, calc(100% - var(--commit-content-width) - var(--commit-slot-gap)));
+  }
+}
+
+.commitRailSpacer {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.commitRail {
+  display: flex;
+  grid-column: 2;
+  grid-row: 2;
+  justify-content: center;
+  position: relative;
+  pointer-events: none;
+}
+
+.commitCenterNode {
+  display: block;
+  position: relative;
+  transform: translateY(-50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid $primary-color;
+  background: var(--bg-primary);
+  z-index: 10;
+}
+
+// content is on the left → line goes from content edge to center
+// content is on the right → line goes from center to content edge
+// Content block: odd entries go right col, even go left col
+.commitHeader,
+.commitBodyGroup {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+  max-width: var(--commit-content-width);
+  width: 100%;
+}
+
+.commitMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.commitTag {
+  font-family: $font-family-code !important;
   border-radius: 0 !important;
-  box-shadow: none !important;
-  transition: border-color 0.3s $ease-smooth !important;
+  letter-spacing: 0.05em;
+}
 
-  &:hover {
-    border-color: rgba($primary-color, 0.5) !important;
-    transform: none !important;
-  }
+.commitDate {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  letter-spacing: 0.1em;
+}
 
-  :global(.featureIcon) {
-    color: $info-color;
-    font-size: 2rem;
-  }
+.commitSubject {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin-bottom: $spacing-sm;
+}
 
-  :global(h3) {
-    color: var(--text-primary) !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
+.commitAccent {
+  color: $info-color;
+}
 
-  :global(p) {
-    color: var(--text-secondary) !important;
-    font-size: $font-sm;
-    line-height: 1.7;
-  }
+.commitBody {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  margin-bottom: 1.25rem;
+}
+
+.commitFooter {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.commitStat {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: rgba($primary-color, 0.45);
+  letter-spacing: 0.05em;
 }
 
 // ========== Team Section ==========
@@ -217,55 +372,56 @@
   flex-direction: column;
   gap: 8rem;
   margin-bottom: 12rem;
+  position: relative;
 }
 
 .memberRow {
+  --member-node-top: 5rem;
+
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 3rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: $spacing-sm;
   position: relative;
 
   @media (min-width: $mobile) {
+    --member-node-top: 50%;
+
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
   }
 }
 
 .memberCenterNode {
-  display: none;
+  display: block;
+  position: absolute;
+  top: var(--member-node-top);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid $primary-color;
+  background: var(--bg-primary);
+  z-index: 10;
+  transition: background-color 0.3s $ease-smooth, box-shadow 0.3s $ease-smooth;
 
   @media (min-width: $mobile) {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 0.75rem;
-    height: 0.75rem;
-    border: 2px solid $primary-color;
-    background: var(--bg-primary);
-    z-index: 10;
-    transition: background-color 0.3s $ease-smooth, box-shadow 0.3s $ease-smooth;
   }
 }
 
-.memberCenterNodeActive {
-  background: $primary-color;
-  box-shadow: 0 0 0.625rem rgba($primary-color, 0.8);
-}
 
 .memberConnector {
-  display: none;
+  display: block;
+  position: absolute;
+  top: var(--member-node-top);
+  height: 2px;
+  background: rgba($primary-color, 0.2);
+  transform: translateY(-50%);
+  z-index: 0;
+  transition: background-color 0.3s $ease-smooth;
 
   @media (min-width: $mobile) {
     display: block;
-    position: absolute;
-    top: 50%;
-    height: 2px;
-    background: rgba($primary-color, 0.2);
-    transform: translateY(-50%);
-    z-index: 0;
-    transition: background-color 0.3s $ease-smooth;
+    top: var(--member-node-top);
   }
 }
 
@@ -282,10 +438,11 @@
 .memberCol {
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .memberColLeft {
-  justify-content: center;
+  justify-content: flex-end;
 
   @media (min-width: $mobile) {
     justify-content: flex-end;
@@ -293,7 +450,7 @@
 }
 
 .memberColRight {
-  justify-content: center;
+  justify-content: flex-start;
 
   @media (min-width: $mobile) {
     justify-content: flex-start;
@@ -303,10 +460,10 @@
 // Avatar frame
 .avatarFrame {
   position: relative;
-  width: 16rem;
-  height: 16rem;
+  width: min(10rem, 38vw);
+  height: min(10rem, 38vw);
   border: 1px solid var(--border);
-  padding: 0.5rem;
+  padding: $spacing-xs;
   background: var(--bg-primary);
   z-index: 10;
   transition: border-color 0.3s $ease-smooth;
@@ -388,8 +545,8 @@
   z-index: 10;
   width: 100%;
   max-width: 25rem;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
 
   @media (min-width: $mobile) {
     align-items: flex-start;
@@ -398,6 +555,9 @@
 }
 
 .memberInfoRight {
+  align-items: flex-end;
+  text-align: right;
+
   @media (min-width: $mobile) {
     align-items: flex-end;
     text-align: right;
@@ -407,7 +567,7 @@
 // Badge override
 .memberTag {
   font-family: $font-family-code !important;
-  margin-bottom: 1rem;
+  margin-bottom: $spacing-sm;
   border-radius: 0 !important;
   letter-spacing: 0.05em;
 }
@@ -418,19 +578,19 @@
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: -0.02em;
-  margin-bottom: 0.5rem;
+  margin-bottom: $spacing-xs;
 }
 
 .memberMeta {
   font-family: $font-family-code;
   font-size: $font-xs;
   color: $primary-color;
-  margin-bottom: 1.5rem;
+  margin-bottom: $spacing-md;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: $spacing-xs;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
 
   @media (min-width: $mobile) {
     justify-content: flex-start;
@@ -442,6 +602,9 @@
 }
 
 .memberMetaRight {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+
   @media (min-width: $mobile) {
     justify-content: flex-end;
     flex-direction: row-reverse;
@@ -450,10 +613,11 @@
 
 .memberCommit {
   background: var(--bg-tertiary);
-  padding: 1rem;
+  padding: $spacing-sm;
   font-size: $font-sm;
-  font-family: $font-family-code;
   color: var(--text-secondary);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
   width: 100%;
   border-left: 2px solid $primary-color;
   text-align: left;
@@ -462,6 +626,7 @@
 .memberCommitRight {
   border-left: none;
   border-right: 2px solid $primary-color;
+  text-align: right;
 
   @media (min-width: $mobile) {
     text-align: right;
@@ -473,9 +638,9 @@
 }
 
 // ========== Tech Stack ==========
-.techStack {
+.techSection {
   width: 100%;
-  max-width: 50rem;
+  max-width: 62.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -483,94 +648,109 @@
   position: relative;
 }
 
-.techLabel {
-  font-family: $font-family-code;
-  font-size: $font-xs;
-  color: var(--text-tertiary);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-bottom: 3rem;
-}
-
-.techList {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 3rem 6rem;
-}
-
-.techItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: var(--text-tertiary);
-  transition: color 0.3s $ease-smooth;
-  cursor: default;
-
-  &:hover {
-    color: $primary-color;
-  }
-}
-
-.techIcon {
-  font-size: 2rem;
-}
-
-.techName {
-  font-family: $font-family-code;
-  font-size: 0.625rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-}
-
-// ========== CTA Section ==========
-.cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 8rem;
-  position: relative;
-}
-
-.ctaTitle {
-  font-size: clamp(1.75rem, 4vw, 3.125rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-}
-
-.ctaDesc {
-  font-size: $font-lg;
-  color: var(--text-secondary);
-  max-width: 40rem;
-  margin-bottom: 3rem;
-  line-height: 1.7;
-}
-
-.ctaButtons {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.techStack {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: $spacing-sm;
 
   @media (min-width: $mobile) {
-    flex-direction: row;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
   }
 }
 
-// Link wrapper reset for CTA buttons
-.ctaLink {
-  text-decoration: none;
-  display: inline-flex;
+.techLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+  text-align: right;
+  min-width: 0;
+
+  @media (min-width: $mobile) {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+
+.techTitle {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.techTitleAccent {
+  color: $info-color;
+}
+
+.techDesc {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  max-width: 22rem;
+}
+
+.techGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  min-width: 0;
+
+  @media (min-width: $mobile) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.techCell {
+  background: var(--bg-primary);
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xs;
+  transition: background 0.2s $ease-smooth;
+
+  @media (min-width: $mobile) {
+    padding: 1.25rem 1.5rem;
+  }
+
+  &:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+.techCellName {
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.techCellRole {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: $primary-color;
+  letter-spacing: 0.08em;
 }
 
 // ========== Null Node ==========
 .nullNode {
   position: relative;
-  margin-top: 4rem;
+  width: 100%;
+  padding-top: 2.5rem;
+  text-align: center;
+  margin-top: $spacing-xxl;
+}
+
+.nullMarker {
+  top: 0;
 }
 
 .nullLabel {
@@ -578,5 +758,4 @@
   font-size: $font-xs;
   color: $primary-color;
   letter-spacing: 0.15em;
-  margin-left: 1.5rem;
 }

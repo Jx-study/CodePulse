@@ -135,9 +135,11 @@ const Dropdown: React.FC<DropdownProps> = ({
     .filter(Boolean)
     .join(" ");
 
+  const placementClass = placement.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+
   const menuClasses = [
     styles.menu,
-    styles[placement],
+    styles[placementClass],
     isOpen && styles.open,
     menuClassName,
   ]
