@@ -10,10 +10,7 @@
 
   h1 {
     font-weight: 800;
-    background: $gradient-primary;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-primary);
     letter-spacing: -0.02em;
     text-transform: uppercase;
     font-size: $hero-h1-size-mobile;
@@ -28,12 +25,10 @@
   }
 
   h3 {
-    font-family: $font-family-code;
     font-weight: 600;
     font-size: $hero-h3-size-mobile;
     color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.01em;
 
     @include tablet {
       font-size: $font-base;
@@ -43,8 +38,8 @@
   p {
     font-size: $font-sm;
     color: var(--text-secondary);
-    letter-spacing: 0.03em;
-    line-height: 1.7;
+    letter-spacing: 0.01em;
+    line-height: 1.75;
     margin-bottom: $spacing-lg;
     max-width: 600px;
     margin-left: auto;
@@ -127,6 +122,10 @@
       margin-right: auto;
     }
   }
+}
+
+.ctaButtonAnchor {
+  display: inline-flex;
 }
 
 .heroRight {

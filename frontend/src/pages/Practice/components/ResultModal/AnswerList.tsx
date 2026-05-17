@@ -16,6 +16,7 @@ import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 import { getOptionLabel } from "@/utils/random";
+import { renderInlineText } from "@/utils/renderInlineText";
 import styles from "./AnswerList.module.scss";
 
 interface AnswerListProps {
@@ -135,7 +136,9 @@ const AnswerList: React.FC<AnswerListProps> = ({
 
               {isExpanded && (
                 <div className={styles.answerDetail}>
-                  <p className={styles.fullQuestion}>{question.title}</p>
+                  <p className={styles.fullQuestion}>
+                    {renderInlineText(question.title)}
+                  </p>
 
                   {/* 1. 如果有程式碼，顯示 CodeEditor */}
                   <div className={styles.contextSection}>
@@ -182,7 +185,9 @@ const AnswerList: React.FC<AnswerListProps> = ({
                               <span className={styles.optLabel}>
                                 ({getOptionLabel(i)})
                               </span>
-                              <span className={styles.optText}>{opt.text}</span>
+                              <span className={styles.optText}>
+                                {renderInlineText(opt.text)}
+                              </span>
                               {isCorrect && (
                                 <span className={styles.iconCheck}>
                                   <Icon name="check" color="success" />
@@ -205,14 +210,14 @@ const AnswerList: React.FC<AnswerListProps> = ({
                       <span className={styles.answerLabel}>你的答案：</span>
                       <span className={styles.answerValue}>
                         {ar.userAnswer
-                          ? formatAnswer(question, ar.userAnswer)
+                          ? renderInlineText(formatAnswer(question, ar.userAnswer))
                           : "未作答"}
                       </span>
                     </div>
                     <div className={styles.correctAnswer}>
                       <span className={styles.answerLabel}>正確答案：</span>
                       <span className={styles.answerValue}>
-                        {formatAnswer(question, ar.correctAnswer)}
+                        {renderInlineText(formatAnswer(question, ar.correctAnswer))}
                       </span>
                     </div>
                   </div>
@@ -220,7 +225,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
                   <div className={styles.explanation}>
                     <span className={styles.explanationLabel}>解析：</span>
                     <p className={styles.explanationText}>
-                      {ar.explanation}
+                      {renderInlineText(ar.explanation)}
                     </p>
                   </div>
 

@@ -24,8 +24,7 @@
     "tagline": "將抽象演算法化為視覺故事，讓程式設計與除錯成為直觀且引人入勝的學習旅程。",
     "resources": {
       "title": "學習資源",
-      "tutorial": "使用教學",
-      "examples": "範例程式",
+      "guide": "使用指南",
       "faq": "常見問題"
     },
     "contact": {
@@ -34,7 +33,7 @@
       "support": "技術支援",
       "feedback": "意見回饋"
     },
-    "copyright": "© 2025 CodePulse。 本項目採用 MIT 許可證。| 專為程式學習而設計。"
+    "copyright": "© 2025 CodePulse。本項目採用 MIT 許可證。"
   },
   "tech": {
     "python": "Python",
@@ -62,7 +61,7 @@
   "changePassword": "變更密碼",
   "currentPassword": "目前密碼",
   "newPassword": "新密碼",
-  "passwordTooltip": "需 8–20 字符，包含大小寫字母、數字和符號",
+  "passwordTooltip": "需 8-20 字元，包含大小寫字母、數字和符號",
   "confirmPassword": "確認新密碼",
   "passwordMatch": "密碼一致",
   "hidePassword": "隱藏密碼",
@@ -75,6 +74,10 @@
   "lightMode": "淺色",
   "darkMode": "深色",
   "systemDefault": "系統",
+  "getHelp": "取得幫助",
+  "logout": "登出",
+  "logoutError": "登出失敗，請稍後再試",
+  "userMenu": "使用者選單",
   "auth": {
     "loginRequired": "請先登入才能使用此功能"
   }

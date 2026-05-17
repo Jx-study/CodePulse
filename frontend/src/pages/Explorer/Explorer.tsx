@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
 import CodeBlock from "@/shared/components/CodeBlock";
 import Icon from "@/shared/components/Icon";
+import PageGridBackground from "@/shared/components/PageGridBackground";
+import PageHero from "@/shared/components/PageHero";
 import styles from "./Explorer.module.scss";
 
 // ── Card 1: Bar Race visual ──────────────────────────────────────────────────
@@ -278,21 +279,19 @@ function Explorer() {
 
   return (
     <div className={styles.explorer}>
-      {/* Bg texture */}
-      <div className={styles.bgTexture} />
+      <PageGridBackground />
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>
-          {t("hero.title")}
-          <br />
-          <span className={styles.heroTitleAccent}>
-            {t("hero.titleAccent")}
-          </span>{" "}
-          {t("hero.titleSuffix")}
-        </h1>
-        <p className={styles.heroSub}>{t("hero.sub")}</p>
-      </section>
+      <PageHero
+        variant="feature"
+        bgTexture
+        title={
+          <>
+            Algorithm<br />
+            <span style={{ color: "var(--color-primary)" }}>Exploration</span> Hub
+          </>
+        }
+        description="Central access point for algorithm exploration and visualization. Chart your course through the logic landscape."
+      />
 
       {/* Cards */}
       <div className={styles.cards}>
