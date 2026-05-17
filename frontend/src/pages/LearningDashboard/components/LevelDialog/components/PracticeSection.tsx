@@ -44,7 +44,7 @@ function PracticeSection({
     })
     ?? [];
   const requirements = t("practiceSection.requirements", { returnObjects: true }) as string[];
-  const prerequisiteList = prerequisiteLevelNames.join("、");
+  const prerequisiteList = prerequisiteLevelNames.join(t("practiceSection.listSeparator"));
 
   return (
     <div className={styles.practiceSection}>

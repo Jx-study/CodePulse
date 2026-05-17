@@ -66,6 +66,7 @@
     "lockedAndHint": "需要先完成：{{levels}}",
     "lockedOrHint": "完成以下任一關卡即可解鎖：{{levels}}",
     "lockedFallbackHint": "完成前置關卡以解鎖練習模式",
+    "listSeparator": "、",
     "completedBadge": "已完成練習"
   },
   "portal": {

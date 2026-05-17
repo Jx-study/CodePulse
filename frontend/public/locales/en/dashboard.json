@@ -66,6 +66,7 @@
     "lockedAndHint": "Complete first: {{levels}}",
     "lockedOrHint": "Complete any of these levels to unlock: {{levels}}",
     "lockedFallbackHint": "Complete prerequisite levels to unlock practice mode",
+    "listSeparator": ", ",
     "completedBadge": "Practice Completed"
   },
   "portal": {
