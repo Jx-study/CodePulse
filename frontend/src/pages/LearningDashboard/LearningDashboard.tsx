@@ -18,7 +18,9 @@ import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContex
 // 資料導入
 import {
   getAllLevels,
+  getEffectivePrerequisiteInfo,
   getPortalTargetCategory,
+  isLevelUnlocked,
   isPortalUnlocked,
 } from "@/services/LevelService";
 import {
@@ -140,6 +142,12 @@ function LearningDashboardInner() {
     calculateOverallProgress(allLevels, userProgress);
 
   const categoryProgress = calculateCategoryProgress(allLevels, userProgress);
+  const selectedLevelPrerequisiteInfo = selectedLevel
+    ? getEffectivePrerequisiteInfo(selectedLevel)
+    : undefined;
+  const isSelectedLevelPracticeLocked = selectedLevel
+    ? !isLevelUnlocked(selectedLevel, userProgress)
+    : false;
 
   // 更新 URL 參數
   useEffect(() => {
@@ -442,19 +450,8 @@ function LearningDashboardInner() {
           onStartPractice={handleStartPractice}
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
-          practiceLocked={
-            selectedLevel.prerequisites?.type === "AND"
-              ? (selectedLevel.prerequisites?.levelIds ?? []).some(
-                  (id) => userProgress.levels[id]?.status !== "completed",
-                )
-              : selectedLevel.prerequisites?.type === "OR"
-                ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
-                  (selectedLevel.prerequisites?.levelIds ?? []).every(
-                    (id) => userProgress.levels[id]?.status !== "completed",
-                  )
-                : false // NONE = 永遠解鎖
-          }
-          prerequisiteInfo={selectedLevel.prerequisites}
+          practiceLocked={isSelectedLevelPracticeLocked}
+          prerequisiteInfo={selectedLevelPrerequisiteInfo}
         />
       )}
 

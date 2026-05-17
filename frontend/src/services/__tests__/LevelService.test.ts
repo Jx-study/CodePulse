@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { INITIAL_USER_PROGRESS } from "@/services/ProgressService";
 import {
   getLevelConfigById,
+  getEffectivePrerequisiteInfo,
   isLevelUnlocked,
   isPortalUnlocked,
   resolveEffectivePrerequisites,
@@ -12,6 +13,16 @@ describe("portal unlock state", () => {
     expect(resolveEffectivePrerequisites(["bit-mask"])).toEqual([
       "sliding-window",
     ]);
+  });
+
+  it("returns effective prerequisite info for dialog lock hints", () => {
+    const nQueens = getLevelConfigById("n-queens");
+
+    expect(nQueens).not.toBeNull();
+    expect(getEffectivePrerequisiteInfo(nQueens!)).toEqual({
+      type: "AND",
+      levelIds: ["factorial"],
+    });
   });
 
   it("keeps portal locked until the traced developed prerequisite is completed", () => {

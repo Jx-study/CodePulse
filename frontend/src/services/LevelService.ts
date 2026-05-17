@@ -7,7 +7,13 @@
  * - 未來可擴展為從後端 API 獲取資料
  */
 
-import type { Level, LevelConfig, UserProgress, CategoryType } from "@/types";
+import type {
+  Level,
+  LevelConfig,
+  PrerequisiteConfig,
+  UserProgress,
+  CategoryType,
+} from "@/types";
 import {
   getRawLevels,
   getRawCategories,
@@ -148,10 +154,28 @@ export function resolveEffectivePrerequisites(levelIds: string[]): string[] {
 }
 
 /**
+ * 取得可供 UI 顯示與鎖定判斷共用的有效前置關卡資訊
+ */
+export function getEffectivePrerequisiteInfo(level: {
+  prerequisites?: PrerequisiteConfig;
+}): PrerequisiteConfig | undefined {
+  const prereq = level.prerequisites;
+
+  if (!prereq || prereq.type === "NONE" || prereq.levelIds.length === 0) {
+    return prereq;
+  }
+
+  return {
+    ...prereq,
+    levelIds: resolveEffectivePrerequisites(prereq.levelIds),
+  };
+}
+
+/**
  * 根據 AND/OR 前置邏輯判斷關卡是否解鎖，未實作的前置關卡會往上追溯到已實作 gate
  */
 export function isLevelUnlocked(
-  level: { prerequisites?: { type: string; levelIds: string[] } },
+  level: { prerequisites?: PrerequisiteConfig },
   userProgress: UserProgress,
 ): boolean {
   const prereq = level.prerequisites;
@@ -160,7 +184,7 @@ export function isLevelUnlocked(
     return true;
   }
 
-  const effectiveIds = resolveEffectivePrerequisites(prereq.levelIds);
+  const effectiveIds = getEffectivePrerequisiteInfo(level)?.levelIds ?? [];
 
   // 沒有可追溯的已開發 gate 時，維持既有行為：視為無前置
   if (effectiveIds.length === 0) return true;
