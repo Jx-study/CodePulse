@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Badge from "@/shared/components/Badge";
 import Button from "@/shared/components/Button";
+import CodeBlock from "@/shared/components/CodeBlock";
 import Icon from "@/shared/components/Icon";
 import styles from "./Explorer.module.scss";
 
@@ -18,7 +19,9 @@ function BarRaceVisual() {
   const mPctRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    let qPct = 0, bPct = 0, mPct = 0;
+    let qPct = 0,
+      bPct = 0,
+      mPct = 0;
     const runningRef = { current: true };
     let resetId: ReturnType<typeof setTimeout> | null = null;
 
@@ -125,19 +128,42 @@ function BarRaceVisual() {
 }
 
 // ── Card 2: Stack push/pop visual ────────────────────────────────────────────
-const STACK_VALUES = [3, 7, 1, 9, 4, 6, 2, 8];
 const STACK_CAPACITY = 5;
+
+// one cycle: push 3 times then pop 3 times — highlight loops back each cycle
+type CallEntry = { type: "push"; val: number } | { type: "pop" };
+const STACK_CALL_SEQUENCE: CallEntry[] = [
+  { type: "push", val: 1 },
+  { type: "push", val: 9 },
+  { type: "push", val: 4 },
+  { type: "pop" },
+  { type: "pop" },
+  { type: "pop" },
+];
+
+const STACK_CODE_LINES = [
+  "def push(stack, val):",
+  "    stack.append(val)",
+  "",
+  "def pop(stack):",
+  "    return stack.pop()",
+  "",
+  "s = [3, 7]",
+  ...STACK_CALL_SEQUENCE.map(c => c.type === "push" ? `push(s, ${c.val})` : "pop(s)"),
+];
 
 type StackItem = { id: number; val: number; exiting: boolean };
 
 function StackVisual() {
+  const { t } = useTranslation("explorer");
   const stackRef = useRef<StackItem[]>([
     { id: 0, val: 3, exiting: false },
     { id: 1, val: 7, exiting: false },
   ]);
   const [stack, setStack] = useState<StackItem[]>(stackRef.current);
-  const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
-  const stepRef = useRef(2);
+  const [action, setAction] = useState<"push" | "pop" | null>(null);
+  const [callLineIndex, setCallLineIndex] = useState(0);
+  const callSeqRef = useRef(0);
   const idCounterRef = useRef(2);
   const pushingRef = useRef(true);
   const pending1Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -147,8 +173,11 @@ function StackVisual() {
     const intervalId = setInterval(() => {
       const current = stackRef.current;
       if (pushingRef.current && current.length < STACK_CAPACITY) {
-        const val = STACK_VALUES[stepRef.current % STACK_VALUES.length];
-        setHighlightedLine(1);
+        const seqEntry = STACK_CALL_SEQUENCE[callSeqRef.current];
+        const val = seqEntry.type === "push" ? seqEntry.val : 0;
+        setAction("push");
+        setCallLineIndex(callSeqRef.current);
+        callSeqRef.current = (callSeqRef.current + 1) % STACK_CALL_SEQUENCE.length;
         if (current.length >= STACK_CAPACITY - 1) pushingRef.current = false;
         pending1Ref.current = setTimeout(() => {
           const item: StackItem = {
@@ -158,15 +187,15 @@ function StackVisual() {
           };
           stackRef.current = [...stackRef.current, item];
           setStack(stackRef.current);
-          stepRef.current++;
         }, 300);
       } else {
         pushingRef.current = false;
-        setHighlightedLine(4);
+        setAction("pop");
+        setCallLineIndex(callSeqRef.current);
+        callSeqRef.current = (callSeqRef.current + 1) % STACK_CALL_SEQUENCE.length;
         pending1Ref.current = setTimeout(() => {
           if (stackRef.current.length === 0) return;
           const topId = stackRef.current[stackRef.current.length - 1].id;
-          if (stackRef.current.length <= 2) pushingRef.current = true;
           stackRef.current = stackRef.current.map((item, i) =>
             i === stackRef.current.length - 1
               ? { ...item, exiting: true }
@@ -178,6 +207,7 @@ function StackVisual() {
               (item) => item.id !== topId,
             );
             setStack(stackRef.current);
+            if (stackRef.current.length <= 2) pushingRef.current = true;
           }, 380);
         }, 300);
       }
@@ -197,59 +227,19 @@ function StackVisual() {
     <div className={styles.pgMockup}>
       {/* Code pane */}
       <div className={styles.pgInputPane}>
-        <div className={styles.ideTitlebar}>
-          <span className={`${styles.ideDot} ${styles.ideDotR}`} />
-          <span className={`${styles.ideDot} ${styles.ideDotY}`} />
-          <span className={`${styles.ideDot} ${styles.ideDotG}`} />
-          <span className={styles.pgFilename}>stack.py</span>
-        </div>
-        <pre className={styles.pgCode}>
-          <span
-            data-line="0"
-            className={highlightedLine === 0 ? styles.pgLineHighlight : undefined}
-          >
-            <span className={styles.kw}>def</span>{" "}
-            <span className={styles.fn}>push</span>(stack, val):
-          </span>
-          {"\n"}
-          <span
-            data-line="1"
-            className={highlightedLine === 1 ? styles.pgLineHighlight : undefined}
-          >
-            {"  "}stack.<span className={styles.fn}>append</span>(val)
-          </span>
-          {"\n"}
-          <span data-line="2">{"\n"}</span>
-          <span
-            data-line="3"
-            className={highlightedLine === 3 ? styles.pgLineHighlight : undefined}
-          >
-            <span className={styles.kw}>def</span>{" "}
-            <span className={styles.fn}>pop</span>(stack):
-          </span>
-          {"\n"}
-          <span
-            data-line="4"
-            className={highlightedLine === 4 ? styles.pgLineHighlight : undefined}
-          >
-            {"  "}
-            <span className={styles.kw}>return</span> stack.
-            <span className={styles.fn}>pop</span>()
-          </span>
-          {"\n"}
-          <span data-line="5">{"\n"}</span>
-          <span data-line="6">s = []</span>
-          {"\n"}
-          <span data-line="7">
-            push(s, <span className={styles.nu}>3</span>)
-          </span>
-        </pre>
-        {/* Trace note panel — blueprint style */}
+        <CodeBlock
+          filename="stack.py"
+          lines={STACK_CODE_LINES}
+          highlightedLines={action !== null ? [
+            ...(action === "push" ? [1, 2] : [4, 5]),
+            8 + callLineIndex,
+          ] : []}
+          className={styles.pgCodeBlock}
+        />
         <div className={styles.pgTracePanel}>
-          <span className={styles.pgTraceKeyword}>trace</span>
-          <span className={styles.pgTraceSep}>·</span>
+          <span className={styles.pgTraceKeyword}>{t("stack.traceKeyword")}</span>
           <span className={styles.pgTraceText}>
-            top = {stack.length}, last → {topVal}
+            {t("stack.traceTop")} = {topVal}, {t("stack.traceSize")} = {stack.length}
           </span>
         </div>
       </div>
@@ -296,7 +286,9 @@ function Explorer() {
         <h1 className={styles.heroTitle}>
           {t("hero.title")}
           <br />
-          <span className={styles.heroTitleAccent}>{t("hero.titleAccent")}</span>{" "}
+          <span className={styles.heroTitleAccent}>
+            {t("hero.titleAccent")}
+          </span>{" "}
           {t("hero.titleSuffix")}
         </h1>
         <p className={styles.heroSub}>{t("hero.sub")}</p>

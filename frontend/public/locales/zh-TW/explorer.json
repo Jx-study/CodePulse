@@ -30,7 +30,8 @@
     "mergeSort": "合併排序"
   },
   "stack": {
-    "traceTop": "top",
-    "traceLast": "last"
+    "traceKeyword": "追蹤",
+    "traceTop": "頂端",
+    "traceSize": "大小"
   }
 }

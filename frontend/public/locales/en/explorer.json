@@ -30,7 +30,8 @@
     "mergeSort": "Merge Sort"
   },
   "stack": {
+    "traceKeyword": "trace",
     "traceTop": "top",
-    "traceLast": "last"
+    "traceSize": "size"
   }
 }
