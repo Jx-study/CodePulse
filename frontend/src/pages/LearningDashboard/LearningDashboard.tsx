@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
@@ -56,6 +56,7 @@ import { toast } from '@/shared/components/Toast';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
+  const tRef = useRef(t);
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,6 +70,10 @@ function LearningDashboardInner() {
   );
 
   useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+
+  useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
       setUserProgress(INITIAL_USER_PROGRESS);
@@ -79,9 +84,9 @@ function LearningDashboardInner() {
         setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
       })
       .catch(() => {
-        toast.error(t('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
+        toast.error(tRef.current('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
       });
-  }, [isLoading, isAuthenticated, location.key, t]);
+  }, [isLoading, isAuthenticated, location.key]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
