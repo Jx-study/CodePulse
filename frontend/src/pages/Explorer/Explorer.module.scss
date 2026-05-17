@@ -30,30 +30,6 @@
   }
 }
 
-.heroLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  font-size: $font-2xs;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: $primary-color;
-  background: rgba($primary-color, 0.1);
-  border: 1px solid rgba($primary-color, 0.2);
-  border-radius: $radius-full;
-  padding: 4px $spacing-xs;
-  margin-bottom: $spacing-md;
-}
-
-.heroLabelDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: $primary-color;
-  animation: blink 2s ease-in-out infinite;
-}
-
 .heroTitle {
   font-size: clamp(2.25rem, 6vw, 3.5rem);
   font-weight: 800;
@@ -92,7 +68,7 @@
 
   @media (max-width: $tablet-max) {
     grid-template-columns: 1fr;
-    padding: 0 $spacing-sm $spacing-xl;
+    padding: 0 $spacing-lg $spacing-xl;
   }
 }
 
@@ -115,10 +91,24 @@
   }
 }
 
-.cardGlass {
-  background: var(--bg-secondary);
-  backdrop-filter: blur(12px);
-  border-color: rgba($white-color, 0.08);
+// Blueprint diagram panel (dashed border inner area)
+.bpDiagramPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  border: 1px dashed rgba($primary-color, 0.22);
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.bpDiagramLabel {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-align: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
 }
 
 .cardIn1 {
@@ -324,6 +314,9 @@
   min-height: 260px;
 }
 
+// Code editor dark bg — intentionally not a theme token (code theme, not UI theme)
+$code-bg: #0b0915;
+
 .pgInputPane {
   flex: 1;
   min-width: 0;
@@ -331,7 +324,7 @@
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  background: var(--bg-secondary);
+  background: $code-bg;
 }
 
 .ideTitlebar {
@@ -381,35 +374,13 @@
 .fn { color: #82aaff; }
 .nu { color: #f78c6c; }
 
-.pgFlow {
-  width: 44px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-tertiary);
+// Active line highlight — uses primary-color at low opacity, not a UI token
+.pgLineHighlight {
+  background: rgba($primary-color, 0.14);
+  border-radius: 2px;
 }
 
-.pgFlowArrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-}
 
-.pgPulse {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: $primary-color;
-  opacity: 0;
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: pulseDot 2s ease-in-out infinite;
-}
 
 .pgStackPane {
   width: 110px;
@@ -420,16 +391,18 @@
   justify-content: flex-end;
   padding: $spacing-sm $spacing-xs;
   gap: 3px;
+  background: var(--bg-secondary);
+  border-left: 1px solid rgba($primary-color, 0.15);
 }
 
 .pgStackLabel {
-  font-size: $font-2xs;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   color: var(--text-tertiary);
   margin-bottom: $spacing-xs;
-  align-self: flex-start;
+  align-self: center;
+  font-family: $font-family-code;
 }
 
 .pgStackBlocks {
@@ -480,6 +453,53 @@
   margin-top: 2px;
 }
 
+// Top-of-stack item gets a primary glow
+.pgBlockTop {
+  border-color: rgba($primary-color, 0.9) !important;
+  background: rgba($primary-color, 0.28) !important;
+  box-shadow: 0 0 12px rgba($primary-color, 0.35);
+}
+
+// Empty slot placeholders
+.pgBlockEmpty {
+  height: 26px;
+  border-radius: $radius-sm;
+  border: 1px dashed rgba($white-color, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-code;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+}
+
+// Trace note panel at bottom of code pane
+.pgTracePanel {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+  padding: 6px $spacing-sm;
+  background: rgba($teal-color, 0.1);
+  border-top: 1px solid rgba($teal-color, 0.2);
+  font-family: $font-family-code;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.pgTraceKeyword {
+  font-weight: 700;
+  color: $teal-color;
+}
+
+.pgTraceSep {
+  color: var(--text-secondary);
+}
+
+.pgTraceText {
+  color: var(--text-secondary);
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -490,12 +510,6 @@
   50%       { opacity: 0.3; }
 }
 
-@keyframes pulseDot {
-  0%   { opacity: 0; top: -4px; }
-  20%  { opacity: 1; }
-  80%  { opacity: 1; top: 20px; }
-  100% { opacity: 0; top: 24px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,

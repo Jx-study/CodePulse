@@ -1,0 +1,36 @@
+{
+  "hero": {
+    "title": "演算法",
+    "titleAccent": "探索",
+    "titleSuffix": "區域  ",
+    "sub": "從演算法出發，視覺化每一個執行步驟，探索程式邏輯的核心。"
+  },
+  "card1": {
+    "eyebrow": "Module 01",
+    "title": "演算法實驗室",
+    "desc": "選擇演算法，直觀觀察執行過程與效率",
+    "enter": "進入實驗室",
+    "badgeSort": "排序",
+    "badgeSearch": "搜尋",
+    "badgeGraph": "圖形"
+  },
+  "card2": {
+    "eyebrow": "Module 02",
+    "title": "視覺化沙箱",
+    "desc": "提交 Python 程式碼，自動分析並產生視覺化動畫",
+    "enter": "進入沙箱",
+    "schematic": "— stack.py · RUNTIME SCHEMATIC —"
+  },
+  "badge": {
+    "active": "啟用中"
+  },
+  "race": {
+    "quickSort": "快速排序",
+    "bubbleSort": "氣泡排序",
+    "mergeSort": "合併排序"
+  },
+  "stack": {
+    "traceTop": "top",
+    "traceLast": "last"
+  }
+}
