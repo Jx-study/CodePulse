@@ -233,6 +233,16 @@
       "description": "透過狀態轉移解決重複子問題，掌握最佳化思維"
     }
   },
+  "errors": {
+    "progressLoadFailed": "進度載入失敗，請重新整理頁面"
+  },
+  "toast": {
+    "categoryUnlocked": "恭喜！解鎖新領域：{{categoryName}}"
+  },
+  "sidebar": {
+    "title": "演算法分類",
+    "ariaLabel": "演算法分類側邊欄"
+  },
   "branch_labels": {
     "lifo_structure": "LIFO 結構",
     "fifo_structure": "FIFO 結構",

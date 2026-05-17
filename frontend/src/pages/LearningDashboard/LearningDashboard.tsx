@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
@@ -52,14 +52,16 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '@/shared/contexts/AuthContext';
 import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { useLocation } from 'react-router-dom';
+import { toast } from '@/shared/components/Toast';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
+  const tRef = useRef(t);
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const authGuard = useAuthGuard();
 
   // State
@@ -68,6 +70,11 @@ function LearningDashboardInner() {
   );
 
   useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+
+  useEffect(() => {
+    if (isLoading) return;
     if (!isAuthenticated) {
       setUserProgress(INITIAL_USER_PROGRESS);
       return;
@@ -77,9 +84,9 @@ function LearningDashboardInner() {
         setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
       })
       .catch(() => {
-        // 靜默失敗，維持本地預設值
+        toast.error(tRef.current('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
       });
-  }, [isAuthenticated, location.key]);
+  }, [isLoading, isAuthenticated, location.key]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
@@ -168,7 +175,7 @@ function LearningDashboardInner() {
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = t(`categories.${newlyUnlockedCategories[0].replace(/-/g, '_')}.name`);
-        setToastMessage(`恭喜！解鎖新領域：${categoryName}`);
+        setToastMessage(t('toast.categoryUnlocked', { categoryName }));
 
         // 3 秒後自動消失
         setTimeout(() => setToastMessage(null), 3000);
@@ -404,8 +411,8 @@ function LearningDashboardInner() {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        title="演算法分類"
-        aria-label="演算法分類側邊欄"
+        title={t('sidebar.title')}
+        aria-label={t('sidebar.ariaLabel')}
       >
         <CategoryFilter
           categories={categories}

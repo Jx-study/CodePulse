@@ -56,7 +56,7 @@ function AuthPage() {
     authService
       .getOnboardingInfo()
       .then((data) => setOnboardingInfo({ email: data.email, display_name: data.display_name }))
-      .catch(() => navigate("/auth", { replace: true }))
+      .catch(() => navigate("/", { replace: true }))
       .finally(() => setIsInitialLoading(false));
   }, [isOnboarding]);
 
