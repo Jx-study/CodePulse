@@ -332,10 +332,11 @@ export function createGraphElements(
 
 export interface HierarchyDatum {
   id: string;
-  value: number;
+  value: string | number;
   count?: number;
   children?: HierarchyDatum[];
   isDummy?: boolean;
+  isEndOfWord?: boolean; // Trie 專用
 }
 
 export function buildD3HierarchyData(
@@ -367,6 +368,51 @@ export function buildD3HierarchyData(
       }
     }
   }
+  return root;
+}
+
+export function buildTrieHierarchyData(
+  visiblePaths: string[],
+  realWords: string[],
+): HierarchyDatum | null {
+  const root: HierarchyDatum = {
+    id: "trie-root",
+    value: "Root",
+    children: [],
+    isEndOfWord: false,
+  };
+
+  // 1. 根據當前「允許被看見」的路徑建立樹狀節點
+  visiblePaths.forEach((path) => {
+    let curr = root;
+    let prefix = "";
+
+    for (let i = 0; i < path.length; i++) {
+      const char = path[i];
+      prefix += char;
+
+      if (!curr.children) curr.children = [];
+      let nextNode = curr.children.find((child) => child.value === char);
+
+      if (!nextNode) {
+        nextNode = {
+          id: `trie-node-${prefix}`,
+          value: char,
+          children: [],
+          isEndOfWord: false,
+        };
+        curr.children.push(nextNode);
+      }
+
+      curr = nextNode;
+
+      // 只有真正確認是完整單字的前綴，才標記結尾
+      if (realWords.includes(prefix)) {
+        curr.isEndOfWord = true;
+      }
+    }
+  });
+
   return root;
 }
 
@@ -443,14 +489,14 @@ function convertToChildren(node: any) {
  * 通用的樹狀結構生成器
  */
 export function createTreeNodes(
-  inputData: any[],
+  inputData: any,
   options: {
     width?: number;
     height?: number;
     offsetX?: number;
     offsetY?: number;
     degree?: number;
-    type?: "bst" | "binarytree";
+    type?: "bst" | "binarytree" | "trie";
   } = {},
 ): Node[] {
   const {
@@ -462,10 +508,17 @@ export function createTreeNodes(
     type = "binarytree",
   } = options;
 
-  const hierarchyData =
-    type === "bst"
-      ? buildBSTHierarchyData(inputData)
-      : buildD3HierarchyData(inputData, degree);
+  let hierarchyData: HierarchyDatum | null = null;
+
+  if (type === "bst") {
+    hierarchyData = buildBSTHierarchyData(inputData);
+  } else if (type === "trie") {
+    // 解構傳入的可見路徑與真實單字
+    const { visiblePaths = [], realWords = [] } = inputData;
+    hierarchyData = buildTrieHierarchyData(visiblePaths, realWords);
+  } else {
+    hierarchyData = buildD3HierarchyData(inputData, degree);
+  }
 
   if (!hierarchyData) return [];
 
@@ -479,8 +532,8 @@ export function createTreeNodes(
   rootWithPos.descendants().forEach((d) => {
     if (d.data.isDummy) return;
 
-    const count = d.data.count;
-    const descText = count && count > 1 ? `Count: ${count}` : "";
+    // 視覺提示：如果是單字結尾，在下方描述中標記 [Word]
+    const descText = d.data.isEndOfWord ? "[Word]" : "";
 
     const node = createNodeInstance(
       d.data.id,
