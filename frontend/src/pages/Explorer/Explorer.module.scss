@@ -4,81 +4,9 @@
   min-height: 100vh;
   background: var(--bg-primary);
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
-.bgTexture {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% -10%, rgba($primary-color, 0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 30% at 85% 90%, rgba($accent-color, 0.04) 0%, transparent 70%);
-}
-
-.hero {
-  position: relative;
-  z-index: 1;
-  padding: $spacing-xxl $spacing-xl $spacing-lg;
-  max-width: 1080px;
-  margin: 0 auto;
-  animation: fadeUp 0.5s $ease-smooth both;
-
-  @media (max-width: $mobile-max) {
-    padding: $spacing-lg $spacing-sm $spacing-sm;
-  }
-}
-
-.heroLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  font-size: $font-2xs;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: $primary-color;
-  background: rgba($primary-color, 0.1);
-  border: 1px solid rgba($primary-color, 0.2);
-  border-radius: $radius-full;
-  padding: 4px $spacing-xs;
-  margin-bottom: $spacing-md;
-}
-
-.heroLabelDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: $primary-color;
-  animation: blink 2s ease-in-out infinite;
-}
-
-.heroTitle {
-  font-size: clamp(2.25rem, 6vw, 3.5rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin-bottom: $spacing-sm;
-}
-
-.heroTitleAccent {
-  background: $gradient-primary;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.heroSub {
-  font-family: $font-family-code;
-  font-size: $font-sm;
-  color: var(--text-secondary);
-  letter-spacing: 0.03em;
-  line-height: 1.7;
-  max-width: 440px;
-}
 
 .cards {
   position: relative;

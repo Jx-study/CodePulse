@@ -80,7 +80,7 @@ function GameOfLifePanel() {
           onClick={() => setIsInfoOpen(true)}
           aria-label={t('gameOfLife.ariaLabel')}
           title={t('gameOfLife.aboutTitle')}
-          icon="question-circle"
+          icon="circle-question"
           iconOnly
         />
         <Button

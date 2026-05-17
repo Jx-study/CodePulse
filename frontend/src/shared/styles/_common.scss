@@ -149,3 +149,18 @@ a {
 
   &:hover { background: var(--text-tertiary); }
 }
+
+// The Chinese Breath Rule (DESIGN.md §3)
+// 中文 body 需要更寬的 line-height 與字距
+p,
+li,
+dd {
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+code,
+pre,
+kbd {
+  letter-spacing: 0;
+}

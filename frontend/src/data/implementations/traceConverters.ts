@@ -74,9 +74,7 @@ export function sortingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
 }
 
 // ---------------------------------------------------------------------------
-// Searching (linear / binary)
-// Tags: SEARCH_START, SEARCH_COMPARE, SEARCH_FOUND, SEARCH_NOT_FOUND,
-//       SEARCH_NARROW, SEARCH_END
+// Shared status helpers (used by traceToSteps across data structures)
 // ---------------------------------------------------------------------------
 
 const STATUS_MAP: Record<string, Status> = {
@@ -85,10 +83,12 @@ const STATUS_MAP: Record<string, Status> = {
   Prepare: Status.Prepare,
   Unfinished: Status.Unfinished,
 };
-function toStatus(s?: string): Status {
+
+export function toStatus(s?: string): Status {
   return s ? (STATUS_MAP[s] ?? Status.Unfinished) : Status.Unfinished;
 }
-function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
+
+export function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
   if (!raw) return {};
   const result: Record<number, Status> = {};
   for (const [k, v] of Object.entries(raw)) {
@@ -96,6 +96,12 @@ function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
   }
   return result;
 }
+
+// ---------------------------------------------------------------------------
+// Searching (linear / binary)
+// Tags: SEARCH_START, SEARCH_COMPARE, SEARCH_FOUND, SEARCH_NOT_FOUND,
+//       SEARCH_NARROW, SEARCH_END
+// ---------------------------------------------------------------------------
 
 const SEARCH_DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   SEARCH_START: (e) => ({
