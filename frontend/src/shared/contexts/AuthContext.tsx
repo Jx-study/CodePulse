@@ -91,8 +91,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = useCallback(async () => {
     try {
       await authService.logout();
-    } catch {
-      // ignore API error, clear local state anyway
+    } catch (error) {
+      // Clear local state anyway, but let callers handle the API failure.
+      throw error;
     } finally {
       setIsAuthenticated(false);
       setUser(null);

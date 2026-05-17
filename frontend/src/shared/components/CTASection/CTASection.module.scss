@@ -1,0 +1,50 @@
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xl $spacing-lg;
+  border-radius: $radius-xl;
+  background: var(--bg-secondary);
+  border: 1px solid rgba($primary-color, 0.2);
+  text-align: center;
+}
+
+.icon {
+  font-size: 2rem;
+  color: $primary-color;
+  opacity: 0.7;
+  margin-bottom: $spacing-2xs;
+}
+
+.title {
+  font-size: $font-xl;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.description {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  margin: 0;
+  max-width: 30rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: $spacing-xs;
+}
+
+@media (max-width: $mobile-max) {
+  .cta {
+    padding: $spacing-lg $spacing-md;
+  }
+}

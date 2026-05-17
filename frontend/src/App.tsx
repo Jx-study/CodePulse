@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
 import CheckinDialog from "@/modules/user/components/CheckinDialog";
 import XpFloat from "@/shared/components/XpFloat";
+import ScrollToTop from "@/shared/components/ScrollToTop";
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
@@ -31,6 +32,8 @@ import OAuthCallback from "./pages/Authentication/OAuthCallback";
 import Lab from "./pages/Explorer/Lab";
 import Playground from "./pages/Explorer/Playground/Playground";
 import About from "./pages/About/About";
+const Guide = lazy(() => import("./pages/Guide"));
+const FAQ = lazy(() => import("./pages/FAQ"));
 const Tutorial = lazy(() => import("./pages/Tutorial/Tutorial"));
 const Practice = lazy(() => import("./pages/Practice/Practice"));
 const Explorer = lazy(() => import("./pages/Explorer/Explorer"));
@@ -96,6 +99,7 @@ function App() {
       <ThemeApplier />
       <CheckinWrapper />
       <WelcomeWrapper />
+      <ScrollToTop />
       <ToastContainer />
       <XpFloat />
       <Suspense fallback={<PageSkeleton />}>
@@ -149,6 +153,8 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/explorer/playground" element={<Playground />} />
             </Route>
+            <Route path="/guide" element={<Guide />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/about" element={<About />} />
           </Route>
 

@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "SUPPORT / FAQ",
+    "title": "FAQ",
+    "accent": " Q&A",
+    "desc": "Can't find what you're looking for? Browse the questions below or reach out.",
+    "guideLink": "View the Guide"
+  },
+  "cta": {
+    "title": "Still have questions?",
+    "desc": "Send us your feedback via the form and we'll get back to you.",
+    "button": "Send Feedback"
+  },
+  "items": [
+    {
+      "id": "login",
+      "question": "How do I create an account and log in?",
+      "answer": "Click \"Login\" in the top-right corner and authorize with your Google account. Your learning record is created automatically on first login."
+    },
+    {
+      "id": "progress",
+      "question": "Will my learning progress be saved?",
+      "answer": "Yes. All Tutorial views and Practice results sync to the cloud in real time. You can continue where you left off on any device as long as you're signed in."
+    },
+    {
+      "id": "tutorial-vs-practice",
+      "question": "What's the difference between Tutorial and Practice?",
+      "answer": "Tutorial covers concepts with animated visualizations. Practice tests your understanding through problems with instant feedback and explanations."
+    },
+    {
+      "id": "lab-vs-playground",
+      "question": "What's the difference between Algorithm Lab and Visualization Playground?",
+      "answer": "Algorithm Lab lets you run algorithms and compare performance (time complexity, steps). Playground is a free-form explorer: paste your code to see its graph structure and AI analysis."
+    },
+    {
+      "id": "ai-limit",
+      "question": "What are the limitations of AI analysis?",
+      "answer": "AI recognition supports common sorting, searching, and graph algorithms. Deeply nested recursion or non-standard APIs lower accuracy. Results are for reference only."
+    },
+    {
+      "id": "timeout",
+      "question": "What should I do if execution times out or results look wrong?",
+      "answer": "The sandbox has a 5-second limit. Try optimizing complexity or reducing input size. If the issue persists, please report it via the feedback form below."
+    },
+    {
+      "id": "dashboard",
+      "question": "How do I use the map on the Learning Dashboard?",
+      "answer": "The map shows all algorithm topics as a skill tree. Node color indicates progress (not started / in progress / completed). Click a node to jump to its Tutorial or Practice."
+    },
+    {
+      "id": "report",
+      "question": "How do I report a bug or give feedback?",
+      "answer": "Fill in the Google Form via the \"Feedback\" link in the footer, or email codepulse112@gmail.com. Include your browser version and steps to reproduce for faster resolution."
+    }
+  ]
+}

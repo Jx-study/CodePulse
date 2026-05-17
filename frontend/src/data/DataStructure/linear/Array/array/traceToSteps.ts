@@ -1,29 +1,8 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes } from "@/data/DataStructure/linear/utils";
+import { toStatus, toOverrideMap } from "@/data/implementations/traceConverters";
 import { TAGS } from "./tags";
-
-// status string → Status enum（meta 裡存字串，避免 Layer 1 import BaseElement）
-const STATUS_MAP: Record<string, Status> = {
-  Target: Status.Target,
-  Complete: Status.Complete,
-  Prepare: Status.Prepare,
-  Unfinished: Status.Unfinished,
-};
-
-function toStatus(s?: string): Status {
-  return s ? (STATUS_MAP[s] ?? Status.Unfinished) : Status.Unfinished;
-}
-
-function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
-  if (!raw) return {};
-  const result: Record<number, Status> = {};
-  for (const [k, v] of Object.entries(raw)) {
-    result[Number(k)] = toStatus(v);
-  }
-  return result;
-}
 
 // tag → StepDescription factory
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {

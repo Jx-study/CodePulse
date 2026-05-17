@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "badge": "使用指南 / Guide",
+    "titleAccent": "快速上手",
+    "titleSuffix": "CodePulse",
+    "desc": "從登入到掌握演算法視覺化，五分鐘了解每個功能的用途。",
+    "startBtn": "開始學習",
+    "faqBtn": "查看 FAQ"
+  },
+  "section": "功能導覽 · 6 個模組",
+  "card": { "goLabel": "前往" },
+  "cta": {
+    "title": "還有疑問？",
+    "desc": "查看常見問題，或直接與我們聯繫。",
+    "faqBtn": "查看 FAQ",
+    "contactBtn": "聯絡我們"
+  },
+  "cards": [
+    {
+      "id": "start",
+      "badge": "Step 00",
+      "title": "開始學習與登入",
+      "desc": "用 Google 帳號一鍵授權，立即開啟你的學習旅程，進度自動雲端同步。",
+      "steps": ["點擊右上角「登入」", "選擇 Google 帳號授權", "自動建立學習紀錄"],
+      "linkLabel": "前往登入",
+      "linkTo": "/auth"
+    },
+    {
+      "id": "dashboard",
+      "badge": "Step 01",
+      "title": "學習儀表板",
+      "desc": "技能樹地圖，一眼掌握所有演算法主題的學習狀態。",
+      "steps": ["查看各主題節點顏色（完成度）", "點擊節點進入 Tutorial", "追蹤整體學習進度"],
+      "linkLabel": "前往 Dashboard",
+      "linkTo": "/dashboard"
+    },
+    {
+      "id": "tutorial",
+      "badge": "Step 02",
+      "title": "教學導覽",
+      "desc": "動畫逐步解說資料結構與演算法的運作原理，可直接操控視覺化資料、對照程式碼，旁附知識補充站深入理解原理。",
+      "steps": ["選擇主題進入 Tutorial", "觀看動畫並操控視覺化", "查看知識補充站，瞭解原理與應用場景"],
+      "linkLabel": "進入 Tutorial",
+      "linkTo": "/dashboard"
+    },
+    {
+      "id": "practice",
+      "badge": "Step 03",
+      "title": "互動練習",
+      "desc": "題目測試你對概念的掌握，答完後立即看解析與得分，錯誤可重做。",
+      "steps": ["從 Dashboard 進入練習", "作答並提交", "查看答題回顧"],
+      "linkLabel": "開始 Practice",
+      "linkTo": "/dashboard"
+    },
+    {
+      "id": "lab",
+      "badge": "Step 04",
+      "title": "演算法實驗室",
+      "desc": "親手跑演算法、比較不同實作的效能，看到時間複雜度的實際差異。",
+      "steps": ["選擇演算法與資料大小", "觀察動畫執行過程", "比對複雜度圖表"],
+      "linkLabel": "前往 Lab",
+      "linkTo": "/explorer/lab"
+    },
+    {
+      "id": "playground",
+      "badge": "Step 05",
+      "title": "視覺化遊樂場",
+      "desc": "貼上 Python 程式碼並執行，觀察函式呼叫圖與控制流程圖，或讓 AI 辨識演算法並生成視覺化動畫。",
+      "steps": ["貼上或輸入程式碼", "執行並觀察視覺化", "查看 AI 辨識結果"],
+      "linkLabel": "開啟 Playground",
+      "linkTo": "/explorer/playground"
+    }
+  ]
+}
