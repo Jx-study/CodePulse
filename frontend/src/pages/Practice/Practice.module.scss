@@ -33,6 +33,15 @@
   margin-bottom: 12px;
 }
 
+.groupDesc,
+.questionText,
+.optionLabel {
+  strong {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+}
+
 .groupCodeBlock {
   border: 1px solid #444;
   border-radius: 4px;
@@ -339,5 +348,6 @@
   margin: 0 auto;
   border-radius: $radius-lg;
   border: 1px solid var(--border);
-  background-color: var(--card-bg);
+  background-color: #ffffff;
+  padding: 0.5rem;
 }
