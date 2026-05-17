@@ -1,0 +1,70 @@
+.codeBlock {
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  font-family: $font-family-code;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  background: #2d2d2d;
+  border-bottom: 1px solid rgba($white-color, 0.06);
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dotR { background: #ff5f57; }
+.dotY { background: #febc2e; }
+.dotG { background: #28c840; }
+
+.filename {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+  margin-left: $spacing-xs;
+}
+
+.body {
+  font-family: $font-family-code;
+  font-size: var(--code-font-size, 12px);
+  line-height: 1.75;
+  flex: 1;
+  overflow: hidden;
+  padding: $spacing-xs 0;
+}
+
+.line {
+  display: flex;
+  gap: 10px;
+  padding: 0 $spacing-sm;
+  transition: background 0.25s;
+  white-space: pre;
+}
+
+.lineHighlighted {
+  background: rgba($primary-color, 0.14);
+  border-radius: 2px;
+}
+
+.lineNumber {
+  min-width: 16px;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.35);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.lineText {
+  flex: 1;
+  color: #d4edda;
+}

@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "title": "Algorithm",
+    "titleAccent": "Exploration",
+    "titleSuffix": "Hub",
+    "sub": "Central access point for algorithm exploration and visualization. Chart your course through the logic landscape."
+  },
+  "card1": {
+    "eyebrow": "Module 01",
+    "title": "Algorithm Lab",
+    "desc": "Choose an algorithm and intuitively observe its execution process and efficiency.",
+    "enter": "Enter Lab",
+    "badgeSort": "Sort",
+    "badgeSearch": "Search",
+    "badgeGraph": "Graph"
+  },
+  "card2": {
+    "eyebrow": "Module 02",
+    "title": "Visualization Playground",
+    "desc": "Submit Python code and automatically analyze and generate visualization animations.",
+    "enter": "Enter Playground",
+    "schematic": "— stack.py · RUNTIME SCHEMATIC —"
+  },
+  "badge": {
+    "active": "Active"
+  },
+  "race": {
+    "quickSort": "Quick Sort",
+    "bubbleSort": "Bubble Sort",
+    "mergeSort": "Merge Sort"
+  },
+  "stack": {
+    "traceKeyword": "trace",
+    "traceTop": "top",
+    "traceSize": "size"
+  }
+}
