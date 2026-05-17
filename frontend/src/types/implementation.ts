@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { AnimationStep, ComplexityInfo, CodeConfig } from "@/types";
+import type { IconName } from "@/shared/lib/iconMap";
 import type { StatusConfig } from "./statusConfig";
 import type { VisualizationActionHandler } from "@/modules/core/visualization/types";
 import type { RealWorldStory } from "./realWorldStory";
@@ -44,6 +45,19 @@ export interface ProblemReference {
   difficulty: "Easy" | "Medium" | "Hard";
   url: string;
 }
+
+export interface IntroductionReference {
+  key: string;
+}
+
+export interface IntroductionSection {
+  heading: string;
+  content?: string;
+  items?: string[];
+  icon?: IconName;
+}
+
+export type IntroductionContent = string | IntroductionReference;
 
 export type AlgorithmViewMode =
   | "graph"
@@ -118,9 +132,10 @@ export interface LevelImplementationConfig {
   name: string;
   categoryName: string;
   description: string;
+  i18nNamespace?: string;
   codeConfig: CodeConfig; // 結構化代碼配置（必填）
   complexity: ComplexityInfo;
-  introduction: string;
+  introduction: IntroductionContent;
   defaultData: any;
   createAnimationSteps: (
     data: any,

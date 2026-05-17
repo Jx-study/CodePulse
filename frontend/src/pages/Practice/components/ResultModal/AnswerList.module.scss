@@ -128,6 +128,16 @@
   line-height: 1.6;
 }
 
+.fullQuestion,
+.optText,
+.answerValue,
+.explanationText {
+  strong {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+}
+
 .contextSection {
   margin-bottom: $spacing-md;
 }

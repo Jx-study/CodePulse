@@ -92,14 +92,20 @@ DATA = {
     "groups": [
         {
             "id": "group-ll-playlist",
+            "visual_type": "image",
+            "visual_data": {
+                "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778994992/linked-list01_wi7kbk.png"
+            },
             "translations": {
                 "zh-TW": {
                     "title": "題組：音樂播放清單",
                     "description": "某音樂 App 使用 Singly Linked List 實作播放清單功能，新增歌曲到尾端、播放並移除頭部歌曲、以及依名稱移除指定歌曲。請參考下方程式碼回答問題。",
+                    "visual_alt": "單向鏈結串列結構示意圖：head → Node(A) → Node(B) → Node(C) → None",
                 },
                 "en": {
                     "title": "Group: Music Playlist",
                     "description": "A music app uses a Singly Linked List to implement playlist functionality: adding songs to the end, playing and removing the head song, and removing a specific song by name. Refer to the code below to answer the questions.",
+                    "visual_alt": "Singly linked list: head → Node(A) → Node(B) → Node(C) → None",
                 },
             },
             "code": PLAYLIST_CODE,

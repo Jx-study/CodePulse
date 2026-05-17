@@ -77,14 +77,20 @@ DATA = {
     "groups": [
         {
             "id": "group-bfs-traversal",
+            "visual_type": "image",
+            "visual_data": {
+                "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778999503/BFS_pev7b1.png"
+            },
             "translations": {
                 "zh-TW": {
                     "title": "題組：BFS 遍歷機制與距離追蹤",
                     "description": "BFS 使用佇列（Queue）逐層訪問節點，並可追蹤每個節點距起點的最短距離。請觀察以下有向圖和 BFS 實作，回答問題。",
+                    "visual_alt": "有向圖：A 指向 B 和 C，B 指向 D，C 指向 E",
                 },
                 "en": {
                     "title": "Group: BFS Traversal Mechanism & Distance Tracking",
                     "description": "BFS uses a Queue to visit nodes level by level, and can track each node's shortest distance from the start. Observe the following directed graph and BFS implementation to answer the questions.",
+                    "visual_alt": "Directed graph: A points to B and C, B points to D, and C points to E",
                 },
             },
             "code": BFS_SIMPLIFIED_CODE,
