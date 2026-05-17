@@ -76,14 +76,20 @@ DATA = {
     "groups": [
         {
             "id": "group-dijkstra-path",
+            "visual_type": "image",
+            "visual_data": {
+                "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1779000041/dijkstra-weighted-graph01_p7hmzo.png"
+            },
             "translations": {
                 "zh-TW": {
                     "title": "題組：Dijkstra 在加權圖中的最短路徑",
                     "description": "Dijkstra 使用優先佇列每次選取距離最小的節點進行鬆弛，逐步確定各節點的最短路徑。請觀察以下加權有向圖與實作，回答問題。",
+                    "visual_alt": "加權有向圖：0 到 1 權重 4，0 到 2 權重 2，1 到 2 權重 5，1 到 3 權重 10，2 到 4 權重 3，4 到 3 權重 4，3 到 2 權重 6",
                 },
                 "en": {
                     "title": "Group: Dijkstra's Shortest Path in Weighted Graph",
                     "description": "Dijkstra uses a priority queue to always select the node with the smallest current distance for relaxation, gradually determining shortest paths for all nodes. Study the weighted directed graph and implementation below.",
+                    "visual_alt": "Weighted directed graph: 0 to 1 weight 4, 0 to 2 weight 2, 1 to 2 weight 5, 1 to 3 weight 10, 2 to 4 weight 3, 4 to 3 weight 4, 3 to 2 weight 6",
                 },
             },
             "code": DIJKSTRA_SIMPLIFIED_CODE,

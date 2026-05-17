@@ -94,7 +94,7 @@ DATA = {
             "id": "group-ll-playlist",
             "visual_type": "image",
             "visual_data": {
-                "url": "https://res.cloudinary.com/codepulse/image/upload/v1/linked-list-structure.png"
+                "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778994992/linked-list01_wi7kbk.png"
             },
             "translations": {
                 "zh-TW": {
