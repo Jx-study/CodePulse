@@ -4,7 +4,7 @@ import threading
 import numpy as np
 from fastembed import TextEmbedding
 
-_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+_MODEL_NAME = "jinaai/jina-embeddings-v2-base-code"
 _model: TextEmbedding | None = None
 _lock = threading.Lock()
 _warmup_thread: threading.Thread | None = None
@@ -16,9 +16,9 @@ def _load() -> None:
     global _model
     with _lock:
         if _model is None:
-            logger.info("Loading MiniLM model...")
+            logger.info("Loading Jina-embeddings-v2 model...")
             _model = TextEmbedding(model_name=_MODEL_NAME)
-            logger.info("MiniLM model loaded.")
+            logger.info("Jina-embeddings-v2 model loaded.")
 
 
 def warmup() -> None:

@@ -30,13 +30,6 @@
   overflow-y: auto;
 }
 
-.emptyList {
-  padding: 1rem;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
 .historyItem {
   border-radius: 0.5rem;
   padding: 0.625rem 0.75rem;
@@ -153,17 +146,6 @@
 .previewActions {
   display: flex;
   gap: 0.5rem;
-}
-
-.emptyPreview {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: var(--text-tertiary);
-  font-size: 0.75rem;
 }
 
 // Common badges

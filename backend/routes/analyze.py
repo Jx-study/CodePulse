@@ -2,7 +2,12 @@ import json
 import logging
 from flask import Blueprint, jsonify, request, g, Response, stream_with_context
 from auth_utils import login_required
-from services.playground_history import MAX_HISTORY, has_history_capacity, matches_existing_history
+from services.playground_history import (
+    MAX_HISTORY,
+    find_matching_history,
+    has_history_capacity,
+    serialize_history,
+)
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
@@ -29,8 +34,12 @@ def submit():
     code = data["code"]
     save_history = data.get("save_history", True) is not False
     if save_history:
-        if matches_existing_history(code, g.current_user_id):
-            return jsonify({"duplicate": True}), 200
+        matching_record = find_matching_history(code, g.current_user_id)
+        if matching_record is not None:
+            return jsonify({
+                "duplicate": True,
+                "duplicate_record": serialize_history(matching_record),
+            }), 200
         if not has_history_capacity(g.current_user_id):
             return jsonify({
                 "error": "history_quota_exceeded",

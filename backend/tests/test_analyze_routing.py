@@ -191,6 +191,8 @@ class TestDuplicateDetection:
         assert res.status_code == 200
         data = res.get_json()
         assert data.get("duplicate") is True
+        assert data["duplicate_record"]["id"] == 11
+        assert data["duplicate_record"]["user_code"] == code
 
     def test_submit_matches_non_latest_history_returns_duplicate(self, client, app, auth_headers):
         """Duplicate detection checks all existing history, not only the latest record."""

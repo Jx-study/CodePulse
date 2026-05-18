@@ -293,7 +293,7 @@ function Playground() {
                         onClick={handleEditCode}
                         icon="pen-to-square"
                       >
-                        Edit Code
+                        {t("ui.editCode")}
                       </Button>
                     ) : (
                       <Button
@@ -304,7 +304,7 @@ function Playground() {
                         disabled={false}
                         icon="play"
                       >
-                        Run
+                        {t("ui.run")}
                       </Button>
                     )}
                   </div>
@@ -334,7 +334,7 @@ function Playground() {
                       id={leftDockedId}
                       subLabel={
                         leftDockedId === "localVars" && activeFrame
-                          ? `· ${activeFrame === "<module>" ? "(global)" : activeFrame}`
+                          ? `· ${activeFrame === "<module>" ? t("ui.globalFrame") : activeFrame}`
                           : undefined
                       }
                     >
@@ -375,14 +375,14 @@ function Playground() {
                       ? [
                           {
                             key: "animation",
-                            label: "Algorithm Animation",
+                            label: t("ui.tabAnimation"),
                             icon: <Icon name="diagram-project" />,
                           },
                         ]
                       : []),
                     {
                       key: "graph",
-                      label: "Call Graph / CFG",
+                      label: t("ui.tabGraph"),
                       icon: <Icon name="code-branch" />,
                     },
                   ]}
@@ -401,15 +401,15 @@ function Playground() {
                   }`}
                   disabled={runStage !== "done"}
                   onClick={() => setIsAiDialogOpen(true)}
-                  title="查看 AI 分析結果"
-                  aria-label="查看 AI 分析結果"
+                  title={t("ui.aiAnalysisTitle")}
+                  aria-label={t("ui.aiAnalysisTitle")}
                 >
                   {runStage === "analysis" ? (
                     <>
-                      <span className={styles.aiBtnDot} /> AI Analysis…
+                      <span className={styles.aiBtnDot} /> {t("ui.aiAnalysisLoading")}
                     </>
                   ) : (
-                    <>✦ AI Analysis</>
+                    <>{t("ui.aiAnalysis")}</>
                   )}
                 </Button>
               </div>
@@ -430,16 +430,18 @@ function Playground() {
                     />
                   ) : (
                     <EmptyState
+                      size="md"
                       icon={<Icon name="film" />}
-                      title="No animation data"
-                      description="Run code to generate the animation"
+                      title={t("empty.animationTitle")}
+                      description={t("empty.animationDesc")}
                     />
                   )
                 ) : !callGraph ? (
                   <EmptyState
-                    icon={<Icon name="circle-xmark" />}
-                    title="No graph data"
-                    description="Submit code to generate the call graph"
+                    size="md"
+                    icon={<Icon name="diagram-project" />}
+                    title={t("empty.graphTitle")}
+                    description={t("empty.graphDesc")}
                   />
                 ) : drill.mode === "cfg" ? (
                   (() => {
@@ -455,12 +457,12 @@ function Playground() {
                             onClick={() => setDrill({ mode: "call_graph" })}
                             iconLeft={<Icon name="chevron-left" />}
                           >
-                            Call Graph
+                            {t("ui.callGraph")}
                           </Button>
                           <span className={styles.cfgLabel}>
-                            CFG ·{" "}
+                            {t("ui.cfgPrefix")}{" "}
                             {node?.funcName === "<module>"
-                              ? "<global>"
+                              ? t("ui.globalFrame")
                               : (node?.funcName ??
                                 (drill as { mode: "cfg"; funcId: string }).funcId)}
                           </span>
@@ -529,7 +531,7 @@ function Playground() {
                   />
                 ) : (
                   <div className={styles.emptyControl}>
-                    {runStage === "idle" ? "Run code to start" : "Waiting for analysis…"}
+                    {runStage === "idle" ? t("ui.runToStart") : t("ui.waitingAnalysis")}
                   </div>
                 )}
               </div>
@@ -557,7 +559,7 @@ function Playground() {
                         id={id}
                         subLabel={
                           id === "localVars" && activeFrame
-                            ? `· ${activeFrame === "<module>" ? "(global)" : activeFrame}`
+                            ? `· ${activeFrame === "<module>" ? t("ui.globalFrame") : activeFrame}`
                             : undefined
                         }
                       >
@@ -650,6 +652,7 @@ function PanelContent({
   stdoutEvents,
   currentStep,
 }: PanelContentProps) {
+  const { t } = useTranslation("playground");
   if (id === "globalVars") {
     return Object.entries(globalVars).length === 0 ? (
       <span style={{ color: "var(--text-tertiary)" }}>—</span>
@@ -692,7 +695,7 @@ function PanelContent({
             {i === 0 && (
               <span style={{ color: "var(--color-primary)", marginRight: 4 }}>➔</span>
             )}
-            {fname === "<module>" ? "(global)" : fname}
+            {fname === "<module>" ? t("ui.globalFrame") : fname}
           </div>
         ))}
       </>
