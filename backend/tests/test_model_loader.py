@@ -9,6 +9,20 @@ def _reset():
     model_loader._warmup_thread = None
 
 
+def test_model_name_is_jina(monkeypatch):
+    captured = {}
+    fake_model = MagicMock()
+
+    def fake_text_embedding(model_name):
+        captured["model_name"] = model_name
+        return fake_model
+
+    _reset()
+    monkeypatch.setattr("services.algo_identification.model_loader.TextEmbedding", fake_text_embedding)
+    model_loader._load()
+    assert captured["model_name"] == "jinaai/jina-embeddings-v2-base-code"
+
+
 def test_get_model_loads_once(monkeypatch):
     _reset()
     call_count = 0
