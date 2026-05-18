@@ -1,4 +1,24 @@
 {
+  "ui": {
+    "editCode": "編輯程式碼",
+    "run": "執行",
+    "tabAnimation": "演算法動畫",
+    "tabGraph": "呼叫圖 / CFG",
+    "aiAnalysisTitle": "查看 AI 分析結果",
+    "aiAnalysisLoading": "AI 分析中…",
+    "aiAnalysis": "✦ AI 分析",
+    "callGraph": "呼叫圖",
+    "cfgPrefix": "CFG ·",
+    "globalFrame": "（全域）",
+    "runToStart": "執行程式碼以開始",
+    "waitingAnalysis": "等待分析中…"
+  },
+  "empty": {
+    "animationTitle": "無動畫資料",
+    "animationDesc": "執行程式碼以產生動畫",
+    "graphTitle": "無圖形資料",
+    "graphDesc": "提交程式碼以產生呼叫圖"
+  },
   "run": {
     "emptyCode": "請先輸入程式碼再執行。",
     "syntaxError": "第 {{line}} 行語法錯誤：{{msg}}",
