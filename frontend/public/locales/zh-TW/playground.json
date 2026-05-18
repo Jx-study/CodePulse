@@ -1,4 +1,11 @@
 {
+  "statusBar": {
+    "idle": "就緒 — 按下 Run 開始分析",
+    "syntaxCheck": "語法預檢與沙箱啟動中…",
+    "sandbox": "正在模擬執行並計算複雜度…",
+    "analysis": "演算法辨識與 AI 仲裁中…",
+    "done": "分析完成"
+  },
   "ui": {
     "editCode": "編輯程式碼",
     "run": "執行",
@@ -17,7 +24,10 @@
     "animationTitle": "無動畫資料",
     "animationDesc": "執行程式碼以產生動畫",
     "graphTitle": "無圖形資料",
-    "graphDesc": "提交程式碼以產生呼叫圖"
+    "graphDesc": "執行程式碼以產生呼叫圖",
+    "historyEmpty": "尚無已儲存的紀錄",
+    "historyEmptyDesc": "執行程式碼後，歷史紀錄將顯示於此",
+    "historySelect": "選取一筆紀錄以預覽"
   },
   "run": {
     "emptyCode": "請先輸入程式碼再執行。",

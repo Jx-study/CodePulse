@@ -1,4 +1,11 @@
 {
+  "statusBar": {
+    "idle": "Ready — press Run to start analysis",
+    "syntaxCheck": "Syntax check & sandbox initialising…",
+    "sandbox": "Simulating execution & computing complexity…",
+    "analysis": "Algorithm detection & AI arbitration…",
+    "done": "Analysis complete"
+  },
   "ui": {
     "editCode": "Edit Code",
     "run": "Run",
@@ -17,7 +24,10 @@
     "animationTitle": "No animation data",
     "animationDesc": "Run code to generate the animation",
     "graphTitle": "No graph data",
-    "graphDesc": "Submit code to generate the call graph"
+    "graphDesc": "Run code to generate the call graph",
+    "historyEmpty": "No runs saved yet",
+    "historyEmptyDesc": "Your history will appear here after running code",
+    "historySelect": "Select a record to preview"
   },
   "run": {
     "emptyCode": "Please enter some code before running.",

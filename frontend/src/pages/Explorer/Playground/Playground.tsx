@@ -430,6 +430,7 @@ function Playground() {
                     />
                   ) : (
                     <EmptyState
+                      size="md"
                       icon={<Icon name="film" />}
                       title={t("empty.animationTitle")}
                       description={t("empty.animationDesc")}
@@ -437,7 +438,8 @@ function Playground() {
                   )
                 ) : !callGraph ? (
                   <EmptyState
-                    icon={<Icon name="circle-xmark" />}
+                    size="md"
+                    icon={<Icon name="diagram-project" />}
                     title={t("empty.graphTitle")}
                     description={t("empty.graphDesc")}
                   />
