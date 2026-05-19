@@ -115,7 +115,7 @@ export function simulateTrieTrace(
         pushTrace(
           TAGS.SEARCH_NOT_FOUND,
           { char, prefix, error: "分支不存在，比對中斷" },
-          { highlightId: `trie-node-${prefix.slice(0, -1) || "root"}` },
+          { highlightId: `trie-node-${prefix.slice(0, -1) || "trie-root"}` },
         );
         matchFailed = true;
         break;
@@ -179,7 +179,7 @@ export function simulateTrieTrace(
         pushTrace(
           TAGS.DELETE_NOT_FOUND,
           { word, error: `前綴 '${prefix}' 不存在，無法刪除` },
-          { highlightId: `trie-node-${prefix.slice(0, -1) || "root"}` },
+          { highlightId: `trie-node-${prefix.slice(0, -1) || "trie-root"}` },
         );
         break;
       }
