@@ -1,0 +1,64 @@
+@use '@/shared/styles/_variables.scss' as *;
+
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.svg {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  color: var(--text-secondary);
+  overflow: visible;
+}
+
+.axisLabel {
+  font-size: $font-xs;
+  fill: var(--text-tertiary);
+  font-family: $font-family;
+}
+
+.curveLabel {
+  font-size: $font-xs;
+  font-weight: 600;
+  font-family: $font-family-code;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-xs $spacing-sm;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.legendText {
+  font-size: $font-xs;
+  font-family: $font-family-code;
+  color: var(--text-secondary);
+}
+
+.note {
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  text-align: center;
+  max-width: 480px;
+  line-height: 1.5;
+  margin: 0;
+}

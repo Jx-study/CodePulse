@@ -1,0 +1,182 @@
+@use '@/shared/styles/_variables.scss' as *;
+
+.page {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - $header-height);
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: $mobile-max) {
+    height: calc(100vh - $header-height-mobile);
+  }
+}
+
+// ===== Top bar =====
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: 0 $spacing-lg;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: $radius-md;
+  transition: $transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
+}
+
+.topbarCenter {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.lessonName {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slideCounter {
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.progressPill {
+  width: 120px;
+  height: 6px;
+  background: var(--border);
+  border-radius: $radius-full;
+  overflow: hidden;
+
+  @media (max-width: $mobile-max) {
+    width: 60px;
+  }
+}
+
+.progressFill {
+  height: 100%;
+  background: $gradient-primary;
+  border-radius: $radius-full;
+  transition: width 0.4s $ease-smooth;
+}
+
+// ===== Layout =====
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+// ===== Main =====
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.slideArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-lg;
+
+  @media (max-width: $mobile-max) {
+    padding: $spacing-md;
+  }
+}
+
+// ===== Footer nav =====
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-lg;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  gap: $spacing-md;
+
+  @media (max-width: $mobile-max) {
+    padding: $spacing-sm $spacing-md;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: $mobile-max) {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  background: var(--border);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s $ease-smooth;
+
+  &[data-active='true'] {
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  &[data-done='true'] {
+    background: rgba($primary-color, 0.4);
+  }
+
+  &:hover:not([data-active='true']) {
+    background: var(--text-tertiary);
+  }
+}
+
+.navBtns {
+  display: flex;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}

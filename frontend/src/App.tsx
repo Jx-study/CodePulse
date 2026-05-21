@@ -40,6 +40,7 @@ const Explorer = lazy(() => import("./pages/Explorer/Explorer"));
 const LearningDashboard = lazy(
   () => import("./pages/LearningDashboard/LearningDashboard"),
 );
+const TeachingLevel = lazy(() => import("./pages/TeachingLevel"));
 import ProtectedRoute from "./shared/components/ProtectedRoute";
 import GuestRoute from "./shared/components/GuestRoute";
 import WelcomeOverlay from "./modules/auth/components/WelcomeOverlay";
@@ -153,6 +154,8 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/explorer/playground" element={<Playground />} />
             </Route>
+            <Route path="/lesson" element={<TeachingLevel />} />
+            <Route path="/lesson/:lessonId" element={<TeachingLevel />} />
             <Route path="/guide" element={<Guide />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/about" element={<About />} />

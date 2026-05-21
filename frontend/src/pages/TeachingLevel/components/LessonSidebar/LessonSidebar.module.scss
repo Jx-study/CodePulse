@@ -1,0 +1,165 @@
+@use '@/shared/styles/_variables.scss' as *;
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  @media (max-width: $tablet-max) {
+    width: 220px;
+  }
+
+  @media (max-width: $mobile-max) {
+    display: none;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: $font-sm;
+  color: var(--text-primary);
+}
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-xs;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  padding: $spacing-sm;
+  border-radius: $radius-lg;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: $transition-base;
+  color: var(--text-secondary);
+
+  &:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  &[data-active='true'] {
+    background: rgba(var(--lesson-color, #635bff), 0.08);
+    border-color: var(--lesson-color, #635bff);
+    color: var(--text-primary);
+
+    .itemIndex {
+      background: var(--lesson-color, #635bff);
+      color: $white-color;
+    }
+
+    .itemTitle {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+  }
+
+  &[data-done='true'] {
+    .itemIndex {
+      background: $success-color;
+      color: $white-color;
+    }
+  }
+}
+
+.itemLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  min-width: 0;
+}
+
+.itemIndex {
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-xs;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: $transition-base;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.itemTitle {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+}
+
+.activeArrow {
+  color: var(--lesson-color, #635bff);
+  flex-shrink: 0;
+}
+
+.footer {
+  padding: $spacing-sm $spacing-md;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footerText {
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+}
+
+.footerBar {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.footerFill {
+  height: 100%;
+  background: $gradient-completed;
+  border-radius: $radius-full;
+  transition: width 0.5s $ease-smooth;
+}

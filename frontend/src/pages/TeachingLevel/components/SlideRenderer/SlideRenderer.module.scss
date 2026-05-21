@@ -1,0 +1,352 @@
+@use '@/shared/styles/_variables.scss' as *;
+
+// ===== Shared =====
+.slideTitle {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 $spacing-md;
+  line-height: 1.3;
+
+  @media (max-width: $mobile-max) {
+    font-size: $font-xl;
+  }
+}
+
+// ===== Cover =====
+.cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: $spacing-md;
+  height: 100%;
+  padding: $spacing-xl $spacing-lg;
+}
+
+.coverIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: $radius-2xl;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.coverTitle {
+  font-size: $font-4xl;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+
+  @media (max-width: $mobile-max) {
+    font-size: $font-3xl;
+  }
+}
+
+.coverSubtitle {
+  font-size: $font-lg;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 480px;
+}
+
+.coverMeta {
+  display: flex;
+  gap: $spacing-md;
+  color: var(--text-tertiary);
+  font-size: $font-sm;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+// ===== Concept =====
+.concept {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.conceptBody {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: $spacing-xs;
+
+  p {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  .bullet {
+    padding-left: $spacing-sm;
+    border-left: 3px solid $primary-color;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+  }
+}
+
+// ===== List =====
+.list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.orderedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  flex: 1;
+}
+
+.listItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  transition: $transition-base;
+
+  &:hover {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.04);
+  }
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
+.listNum {
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  background: $primary-color;
+  color: $white-color;
+  font-size: $font-xs;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ===== Comparison =====
+.comparison {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.comparisonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  flex: 1;
+
+  @media (max-width: $tablet-max) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.comparisonCard {
+  background: var(--bg-secondary);
+  border: 2px solid;
+  border-radius: $radius-xl;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  transition: $transition-base;
+
+  &:hover {
+    transform: $hover-transform;
+    box-shadow: $shadow-lg;
+  }
+}
+
+.comparisonIcon {
+  font-size: 1.75rem;
+  margin-bottom: 4px;
+}
+
+.comparisonLabel {
+  font-size: $font-base;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.comparisonDesc {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+// ===== Visual =====
+.visual {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.visualContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  overflow: auto;
+}
+
+// ===== Code =====
+.codeSlide {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.codeBlock {
+  flex: 1;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.codeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px $spacing-md;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.codeLang {
+  font-size: $font-xs;
+  font-family: $font-family-code;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codeDots {
+  display: flex;
+  gap: 6px;
+
+  span {
+    width: 10px;
+    height: 10px;
+    border-radius: $radius-full;
+    background: var(--border);
+
+    &:nth-child(1) { background: #ff5f57; }
+    &:nth-child(2) { background: #ffbd2e; }
+    &:nth-child(3) { background: #28ca41; }
+  }
+}
+
+.codePre {
+  flex: 1;
+  margin: 0;
+  padding: $spacing-md;
+  background: #1a1625;
+  overflow: auto;
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  line-height: 1.7;
+  color: #e2e8f0;
+
+  code {
+    font-family: inherit;
+  }
+}
+
+// ===== Summary =====
+.summary {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+  gap: $spacing-md;
+}
+
+.summaryHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.summaryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
+.summaryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  flex: 1;
+}
+
+.summaryItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.summaryCheck {
+  margin-top: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
