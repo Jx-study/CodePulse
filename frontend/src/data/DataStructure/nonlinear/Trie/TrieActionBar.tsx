@@ -17,7 +17,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
-  maxNodes = 15,
+  maxNodes = 20,
   disabled = false,
   onCustomAction,
 }) => {
@@ -65,7 +65,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
         show={showLoader}
         onClose={() => setShowLoader(false)}
         onLoad={onLoadData} // 直接把最終整理好的字串拋給外層
-        maxWords={20}
+        maxWords={maxNodes}
       />
 
       <ActionBarGroup>

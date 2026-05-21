@@ -78,8 +78,8 @@ export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     const elements = createTreeNodes(
       { visiblePaths, realWords },
       {
-        width: 1000,
-        height: 350,
+        width: 1400,
+        height: 420,
         offsetX: 0,
         offsetY: 50,
         type: "trie",

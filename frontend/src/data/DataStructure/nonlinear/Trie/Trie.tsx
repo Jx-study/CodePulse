@@ -8,6 +8,8 @@ import type {
 
 import { TrieActionBar } from "./TrieActionBar";
 import { TAGS } from "./trie/tags";
+
+const TRIE_MAX_WORDS = 20;
 import { simulateTrieTrace } from "./trie/simulateTrace";
 import { trieTraceToSteps } from "./trie/traceToSteps";
 
@@ -43,7 +45,7 @@ function trieActionHandler(
         .filter(Boolean);
     }
 
-    const uniqueWords = Array.from(new Set(parsedWords)).slice(0, 20); // 防呆限制筆數
+    const uniqueWords = Array.from(new Set(parsedWords)).slice(0, TRIE_MAX_WORDS);
 
     return {
       animationData: uniqueWords,
@@ -256,5 +258,5 @@ export const TrieConfig: LevelImplementationConfig = {
   createAnimationSteps: createTrieAnimationSteps,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
-  maxNodes: 25,
+  maxNodes: TRIE_MAX_WORDS,
 };
