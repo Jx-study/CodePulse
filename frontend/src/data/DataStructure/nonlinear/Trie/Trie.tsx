@@ -258,5 +258,6 @@ export const TrieConfig: LevelImplementationConfig = {
   createAnimationSteps: createTrieAnimationSteps,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/trie",
   maxNodes: TRIE_MAX_WORDS,
 };

@@ -16,55 +16,55 @@ function toStatus(s?: string): Status {
 }
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
-  [TAGS.INIT]: () => ({ key: "trie.init" }),
+  [TAGS.INIT]: () => ({ key: "animation.init" }),
   [TAGS.INSERT_START]: (e) => ({
-    key: "trie.insert_start",
+    key: "animation.insert_start",
     params: { word: e.local_vars.word },
   }),
   [TAGS.CHAR_MATCH]: (e) => ({
-    key: "trie.char_match",
+    key: "animation.char_match",
     params: { char: e.local_vars.char, prefix: e.local_vars.prefix },
   }),
   [TAGS.CHAR_CREATE]: (e) => ({
-    key: "trie.char_create",
+    key: "animation.char_create",
     params: { char: e.local_vars.char, prefix: e.local_vars.prefix },
   }),
   [TAGS.SET_END]: (e) => ({
-    key: "trie.set_end",
+    key: "animation.set_end",
     params: { word: e.local_vars.word },
   }),
   [TAGS.SEARCH_START]: (e) => ({
-    key: "trie.search_start",
+    key: "animation.search_start",
     params: { word: e.local_vars.word, mode: e.local_vars.mode },
   }),
   [TAGS.SEARCH_FOUND]: (e) => ({
-    key: "trie.search_found",
+    key: "animation.search_found",
     params: { word: e.local_vars.word },
   }),
   [TAGS.SEARCH_NOT_FOUND]: (e) => ({
-    key: "trie.search_not_found",
+    key: "animation.search_not_found",
     params: { error: e.local_vars.error },
   }),
   [TAGS.DELETE_START]: (e) => ({
-    key: "trie.delete_start",
+    key: "animation.delete_start",
     params: { word: e.local_vars.word },
   }),
   [TAGS.DELETE_UNMARK]: (e) => ({
-    key: "trie.delete_unmark",
+    key: "animation.delete_unmark",
     params: { word: e.local_vars.word },
   }),
   [TAGS.DELETE_PRUNE]: (e) => ({
-    key: "trie.delete_prune",
+    key: "animation.delete_prune",
     params: {
       pruned: e.local_vars.pruned,
       remainingWord: e.local_vars.remainingWord,
     },
   }),
   [TAGS.DELETE_NOT_FOUND]: (e) => ({
-    key: "trie.delete_not_found",
+    key: "animation.delete_not_found",
     params: { error: e.local_vars.error },
   }),
-  [TAGS.DONE]: () => ({ key: "trie.done" }),
+  [TAGS.DONE]: () => ({ key: "animation.done" }),
 };
 
 export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {

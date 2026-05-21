@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import Tooltip from "@/shared/components/Tooltip";
@@ -21,6 +22,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
   disabled = false,
   onCustomAction,
 }) => {
+  const { t } = useTranslation("tutorials/trie");
   const [wordInput, setWordInput] = useState("");
 
   const [randomCount, setRandomCount] = useState(5);
@@ -69,9 +71,9 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
       />
 
       <ActionBarGroup>
-        <StaticLabel>批次操作</StaticLabel>
+        <StaticLabel>{t("ui.batchOps")}</StaticLabel>
 
-        <Tooltip content="開啟進階單字清單載入介面">
+        <Tooltip content={t("ui.loadListTooltip")}>
           <Button
             size="sm"
             variant="primary"
@@ -79,13 +81,13 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             icon="upload"
           >
-            進階載入清單
+            {t("ui.loadList")}
           </Button>
         </Tooltip>
 
         <div className={styles.settingItem}>
-          <label className={styles.smallLabel}>隨機筆數:</label>
-          <Tooltip content={`設定隨機生成的單字數量，上限為 ${maxNodes}`}>
+          <label className={styles.smallLabel}>{t("ui.randomCount")}</label>
+          <Tooltip content={t("ui.randomCountTooltip", { max: maxNodes })}>
             <Input
               type="number"
               value={randomCountInput}
@@ -99,7 +101,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
                   setRandomCountInput(String(randomCount));
                 } else {
                   if (num > maxNodes)
-                    toast.warning(`隨機筆數上限為 ${maxNodes}`);
+                    toast.warning(t("ui.randomCountExceeded", { max: maxNodes }));
                   const v = Math.min(Math.max(num, 1), maxNodes);
                   setRandomCount(v);
                   setRandomCountInput(String(v));
@@ -115,7 +117,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
           </Tooltip>
         </div>
 
-        <Tooltip content="隨機生成一組具備共用前綴的單字">
+        <Tooltip content={t("ui.randomTooltip")}>
           <Button
             variant="secondary"
             size="sm"
@@ -123,11 +125,11 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             icon="shuffle"
           >
-            隨機生成
+            {t("ui.randomGenerate")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="清除所有單字，恢復初始狀態">
+        <Tooltip content={t("ui.resetTooltip")}>
           <Button
             variant="secondary"
             size="sm"
@@ -135,7 +137,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             icon="rotate-right"
           >
-            重設
+            {t("ui.reset")}
           </Button>
         </Tooltip>
       </ActionBarGroup>
@@ -145,7 +147,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
 
         <Input
           type="text"
-          placeholder="輸入單字 (限英文字母)"
+          placeholder={t("ui.wordInput")}
           value={wordInput}
           onChange={(e) =>
             setWordInput(e.target.value.replace(/[^a-zA-Z]/g, ""))
@@ -155,7 +157,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
           onKeyDown={(e) => e.key === "Enter" && handleInsert()}
         />
 
-        <Tooltip content="將單字逐字元新增至字典樹中">
+        <Tooltip content={t("ui.insertTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -168,7 +170,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
           </Button>
         </Tooltip>
 
-        <Tooltip content="精確搜尋該單字是否完整存在">
+        <Tooltip content={t("ui.searchTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -181,7 +183,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
           </Button>
         </Tooltip>
 
-        <Tooltip content="搜尋是否包含該前綴 (Prefix)">
+        <Tooltip content={t("ui.startsWithTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -193,7 +195,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
           </Button>
         </Tooltip>
 
-        <Tooltip content="取消單字結尾標記，並向上修剪多餘的無用分支">
+        <Tooltip content={t("ui.deleteTooltip")}>
           <Button
             size="sm"
             variant="secondary"

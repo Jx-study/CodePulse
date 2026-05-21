@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Dialog from "@/shared/components/Dialog";
 import Tooltip from "@/shared/components/Tooltip";
@@ -161,11 +162,7 @@ export interface TrieLoaderModalProps {
   maxWords?: number; // 預設限制載入筆數，避免樹狀圖過度龐大
 }
 
-const TRIE_DEFAULTS = {
-  inputLabel: "單字清單 (支援逗號、換行或空白分隔)",
-  defaultInput: "app\napple\napply\nape\nbat\nball\ncat\ncare",
-  placeholder: "請輸入英文單字，例如:\napple\nbanana\ncat",
-};
+const TRIE_DEFAULT_INPUT = "app\napple\napply\nape\nbat\nball\ncat\ncare";
 
 export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
   show,
@@ -173,11 +170,10 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
   onLoad,
   maxWords = 20,
 }) => {
+  const { t } = useTranslation("tutorials/trie");
   // 記錄已確認與草稿狀態，保持表單的取消/重設體驗
-  const [committedInput, setCommittedInput] = useState(
-    TRIE_DEFAULTS.defaultInput,
-  );
-  const [draftInput, setDraftInput] = useState(TRIE_DEFAULTS.defaultInput);
+  const [committedInput, setCommittedInput] = useState(TRIE_DEFAULT_INPUT);
+  const [draftInput, setDraftInput] = useState(TRIE_DEFAULT_INPUT);
 
   useEffect(() => {
     if (show) {
@@ -187,7 +183,7 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
 
   const handleLoad = () => {
     if (!draftInput.trim()) {
-      toast.warning("請輸入至少一個單字！");
+      toast.warning(t("ui.modal.emptyWarning"));
       return;
     }
 
@@ -209,27 +205,23 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
       }
     }
 
-    // 提示非法單字，但防呆不中斷，引導使用者修正
     if (invalidWords.length > 0) {
-      toast.warning(
-        `字典樹僅支援英文字母，以下單字包含數字或特殊符號已自動忽略：\n${invalidWords.slice(0, 5).join(", ")}${invalidWords.length > 5 ? "..." : ""}`,
-      );
+      const sample = invalidWords.slice(0, 5).join(", ") + (invalidWords.length > 5 ? "..." : "");
+      toast.warning(t("ui.modal.invalidWarning", { words: sample }));
     }
 
     // 3. 去除重複單字 (Set)
     const uniqueWords = Array.from(new Set(validWords));
 
     if (uniqueWords.length === 0) {
-      toast.warning("沒有找到合法的英文單字，請重新輸入！");
+      toast.warning(t("ui.modal.noValidWords"));
       return;
     }
 
     // 4. 筆數上限防護
     let finalWords = uniqueWords;
     if (finalWords.length > maxWords) {
-      toast.warning(
-        `為維持視覺化效果，已自動截取前 ${maxWords} 筆不重複單字。`,
-      );
+      toast.warning(t("ui.modal.truncateWarning", { max: maxWords }));
       finalWords = finalWords.slice(0, maxWords);
     }
 
@@ -250,11 +242,11 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="自定義 Trie 單字清單"
+      title={t("ui.modal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("ui.modal.cancel")}
           </Button>
           <Button
             variant="secondary"
@@ -262,23 +254,22 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
-            確認載入
+            {t("ui.modal.loadButton")}
           </Button>
         </>
       }
     >
       <div className={styles.modalFieldColumn}>
-        <label className={styles.modalLabel}>{TRIE_DEFAULTS.inputLabel}</label>
+        <label className={styles.modalLabel}>{t("ui.modal.inputLabel")}</label>
         <Textarea
           value={draftInput}
           onChange={(e) => setDraftInput(e.target.value)}
           rows={8}
           className={styles.modalGraphTextarea}
-          placeholder={TRIE_DEFAULTS.placeholder}
+          placeholder={t("ui.modal.placeholder")}
         />
         <span style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
-          * 系統將自動轉換為小寫，並過濾重複單字與特殊符號。上限建議 {maxWords}{" "}
-          筆。
+          {t("ui.modal.hint", { max: maxWords })}
         </span>
       </div>
     </Dialog>
