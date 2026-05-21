@@ -71,6 +71,8 @@ interface CanvasPanelProps {
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  /** Doubly 鏈結時為 true，驅動 D3 雙向平行箭頭 */
+  showBidirectionalArrows: boolean;
   viewMode: AlgorithmViewMode | "";
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
@@ -103,6 +105,7 @@ const CanvasPanel = ({
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
+  showBidirectionalArrows,
   viewMode: _viewMode,
   isPlaying,
   currentStep,
@@ -119,7 +122,7 @@ const CanvasPanel = ({
   d3CanvasRef,
   useGraphCanvas,
 }: CanvasPanelProps) => {
-  const { t } = useTranslation("animation");
+  const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
   const {
     attributes,
     listeners,
@@ -187,6 +190,7 @@ const CanvasPanel = ({
               statusColorMap={currentStatusColorMap}
               statusConfig={currentStatusConfig}
               isDirected={isDirected}
+              showBidirectionalArrows={showBidirectionalArrows}
             />
           )}
         </div>
@@ -231,6 +235,9 @@ export interface InspectorPanelInternalProps {
   maxNodes: number | undefined;
   setRandomCount: (count: number) => void;
   setHasTailMode: (hasTail: boolean) => void;
+  hasTailMode: boolean;
+  handleListModeChange: (mode: "singly" | "doubly") => void;
+  listMode: "singly" | "doubly";
   handleGraphAction: (action: string, payload: any) => void;
   handleCustomAction: (action: string, payload: any) => void;
   isDirected: boolean;
@@ -258,6 +265,9 @@ export const InspectorPanelInternal = ({
   maxNodes,
   setRandomCount,
   setHasTailMode,
+  hasTailMode,
+  handleListModeChange,
+  listMode,
   handleGraphAction,
   handleCustomAction,
   isDirected,
@@ -297,66 +307,65 @@ export const InspectorPanelInternal = ({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // 渲染當前 Tab 的內容
-  const renderTabContent = () => {
-    const panelConfig = PANEL_REGISTRY[activeInspectorTab];
+  const actionBarProps = {
+    topicTypeConfig,
+    onLoadData: handleLoadData,
+    onRandomData: handleRandomData,
+    onResetData: handleResetData,
+    disabled: isProcessing,
+    onRun: handleRunAlgorithm,
+    onAddNode: handleAddNode,
+    onDeleteNode: handleDeleteNode,
+    onSearchNode: handleSearchNode,
+    onPeek: handlePeek,
+    maxNodes,
+    onMaxNodesChange: setRandomCount,
+    onTailModeChange: setHasTailMode,
+    onListModeChange: handleListModeChange,
+    hasTailMode,
+    listMode,
+    onGraphAction: handleGraphAction,
+    onCustomAction: handleCustomAction,
+    isDirected,
+    onIsDirectedChange: setIsDirected,
+    viewMode,
+    onViewModeChange: handleViewModeChange,
+    currentData,
+  };
 
-    if (!panelConfig) {
+  // 全部 Tab 同時保持 mounted，以 CSS display:none 隱藏非作用中的，
+  // 確保各 Tab 的 local state（insertMode、inputValue 等）不因切換而重置
+  const renderTabContent = () => {
+    if (inspectorTabs.length === 0) {
       return null;
     }
 
-    const PanelComponent = panelConfig.component;
-
-    // 為 actionBar 準備特殊的 props
-    if (activeInspectorTab === "actionBar") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent
-              topicTypeConfig={topicTypeConfig}
-              onLoadData={handleLoadData}
-              onRandomData={handleRandomData}
-              onResetData={handleResetData}
-              disabled={isProcessing}
-              onRun={handleRunAlgorithm}
-              onAddNode={handleAddNode}
-              onDeleteNode={handleDeleteNode}
-              onSearchNode={handleSearchNode}
-              onPeek={handlePeek}
-              maxNodes={maxNodes}
-              onMaxNodesChange={setRandomCount}
-              onTailModeChange={setHasTailMode}
-              onGraphAction={handleGraphAction}
-              onCustomAction={handleCustomAction}
-              isDirected={isDirected}
-              onIsDirectedChange={setIsDirected}
-              viewMode={viewMode}
-              onViewModeChange={handleViewModeChange}
-              currentData={currentData}
-            />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 為 variableStatus 準備 variables props
-    if (activeInspectorTab === "variableStatus") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent variables={currentStepData?.local_vars} />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 其他 Tab 不需要 props
     return (
-      <div className={styles.tabContent}>
-        <Suspense fallback={<div>載入中...</div>}>
-          <PanelComponent />
-        </Suspense>
-      </div>
+      <>
+        {inspectorTabs.map((tab) => {
+          const panelConfig = PANEL_REGISTRY[tab.key];
+          if (!panelConfig) return null;
+          const PanelComponent = panelConfig.component;
+          const isActive = activeInspectorTab === tab.key;
+
+          let tabProps: Record<string, unknown> = {};
+          if (tab.key === "actionBar") tabProps = actionBarProps;
+          else if (tab.key === "variableStatus")
+            tabProps = { variables: currentStepData?.local_vars };
+
+          return (
+            <div
+              key={tab.key}
+              className={styles.tabContent}
+              style={isActive ? undefined : { display: "none" }}
+            >
+              <Suspense fallback={<div>載入中...</div>}>
+                <PanelComponent {...(tabProps as any)} />
+              </Suspense>
+            </div>
+          );
+        })}
+      </>
     );
   };
 
@@ -447,14 +456,12 @@ function TutorialContent() {
   const sessionStartRef = useRef<number>(Date.now());
 
   // Teaching Complete
-  const [teachingDone, setTeachingDone] = useState(false);
   const teachingDoneRef = useRef(false);
   const handleTeachingComplete = async () => {
     if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
     try {
       const res = await tutorialService.markTeachingComplete(levelId);
       teachingDoneRef.current = true;
-      setTeachingDone(true);
       if (res.xp_earned > 0) {
         xp.show(res.xp_earned);
       }
@@ -468,7 +475,6 @@ function TutorialContent() {
 
     // Reset teaching state for the new level
     teachingDoneRef.current = false;
-    setTeachingDone(false);
 
     sessionStartRef.current = Date.now();
     tutorialService
@@ -558,6 +564,7 @@ function TutorialContent() {
   const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
   const [renderedIsDirected, setRenderedIsDirected] = useState(false);
+  const [listMode, setListMode] = useState<"singly" | "doubly">("singly");
 
   const useGraphCanvas = useMemo(
     () =>
@@ -572,17 +579,18 @@ function TutorialContent() {
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
-  // 新增：根據 hasTailMode 動態計算當前的 codeConfig
+  // 根據 hasTailMode / listMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
     if (!topicTypeConfig) return null;
     if (topicTypeConfig.getCodeConfig) {
       return topicTypeConfig.getCodeConfig({
         hasTailMode,
+        isDoubly: listMode === "doubly",
         mode: viewMode || "graph",
       });
     }
     return topicTypeConfig.codeConfig ?? null;
-  }, [topicTypeConfig, hasTailMode, viewMode]);
+  }, [topicTypeConfig, hasTailMode, listMode, viewMode]);
 
   // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
   const highlightLines = useMemo(() => {
@@ -614,11 +622,15 @@ function TutorialContent() {
       : logic.data?.nodes?.length > 0;
 
     if (topicTypeConfig && !isProcessing && hasData) {
-      logic.executeAction("refresh", { hasTailMode, isDirected });
+      logic.executeAction("refresh", {
+        hasTailMode,
+        isDirected,
+        isDoubly: listMode === "doubly",
+      });
       setRenderedIsDirected(isDirected);
       setCurrentStep(0);
     }
-  }, [hasTailMode, isDirected, isAlgorithm]);
+  }, [hasTailMode, isDirected, isAlgorithm, listMode]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
@@ -646,14 +658,32 @@ function TutorialContent() {
       ) as DataNode[];
 
       nodes.forEach((sourceNode) => {
-        // 遍歷每個節點的 pointers 陣列
-        sourceNode.pointers.forEach((targetNode) => {
-          links.push({
-            key: `${sourceNode.id}->${targetNode.id}`,
-            sourceId: sourceNode.id,
-            targetId: targetNode.id,
+        if (sourceNode.next !== null || sourceNode.prev !== null) {
+          if (sourceNode.next) {
+            links.push({
+              key: `${sourceNode.id}-next->${sourceNode.next.id}`,
+              sourceId: sourceNode.id,
+              targetId: sourceNode.next.id,
+              direction: "next",
+            });
+          }
+          if (sourceNode.prev) {
+            links.push({
+              key: `${sourceNode.id}-prev->${sourceNode.prev.id}`,
+              sourceId: sourceNode.id,
+              targetId: sourceNode.prev.id,
+              direction: "prev",
+            });
+          }
+        } else {
+          sourceNode.pointers.forEach((targetNode) => {
+            links.push({
+              key: `${sourceNode.id}->${targetNode.id}`,
+              sourceId: sourceNode.id,
+              targetId: targetNode.id,
+            });
           });
-        });
+        }
       });
     }
     return links;
@@ -674,6 +704,7 @@ function TutorialContent() {
       mode,
       index,
       hasTailMode,
+      isDoubly: listMode === "doubly",
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -683,7 +714,12 @@ function TutorialContent() {
 
   const handleDeleteNode = (mode: string, index?: number) => {
     if (isAlgorithm) return;
-    const steps = executeAction("delete", { mode, index, hasTailMode });
+    const steps = executeAction("delete", {
+      mode,
+      index,
+      hasTailMode,
+      isDoubly: listMode === "doubly",
+    });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -694,7 +730,12 @@ function TutorialContent() {
 
   const handleSearchNode = (value: number, mode?: string) => {
     if (isAlgorithm) return;
-    const steps = executeAction("search", { value, mode, hasTailMode });
+    const steps = executeAction("search", {
+      value,
+      mode,
+      hasTailMode,
+      isDoubly: listMode === "doubly",
+    });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -708,6 +749,7 @@ function TutorialContent() {
       hasTailMode,
       mode: viewMode,
       isDirected,
+      isDoubly: listMode === "doubly",
       ...params,
     });
     setCurrentStep(0);
@@ -716,7 +758,12 @@ function TutorialContent() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
+    executeAction("reset", {
+      hasTailMode,
+      mode: viewMode,
+      isDirected,
+      isDoubly: listMode === "doubly",
+    });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -734,6 +781,7 @@ function TutorialContent() {
         randomCount: randomCountRef.current,
         hasTailMode,
         isDirected,
+        isDoubly: listMode === "doubly",
       });
       if (steps && steps.length > 0) {
         setCurrentStep(0);
@@ -780,6 +828,7 @@ function TutorialContent() {
     const steps = executeAction("load", {
       data: parsed,
       hasTailMode,
+      isDoubly: listMode === "doubly",
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -842,6 +891,14 @@ function TutorialContent() {
     setIsPlaying(false);
   };
 
+  const handleListModeChange = (mode: "singly" | "doubly") => {
+    const isDoubly = mode === "doubly";
+    executeAction("switch_mode", { isDoubly, hasTailMode });
+    setListMode(mode);
+    setCurrentStep(0);
+    setIsPlaying(false);
+  };
+
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
 
@@ -893,7 +950,7 @@ function TutorialContent() {
     isAnimatingRef.current = true;
     let completed = 0;
     const duration = Math.round(
-      (isPlayingRef.current ? 800 : 1200) / playbackSpeed,
+      (isPlayingRef.current ? 200 : 300) / playbackSpeed,
     );
 
     changedLinks.forEach((link) => {
@@ -1020,6 +1077,9 @@ function TutorialContent() {
     maxNodes,
     setRandomCount: handleRandomCountChange,
     setHasTailMode,
+    hasTailMode,
+    handleListModeChange: handleListModeChange,
+    listMode,
     handleGraphAction,
     handleCustomAction,
     isDirected,
@@ -1051,6 +1111,7 @@ function TutorialContent() {
     currentStatusColorMap,
     currentStatusConfig,
     isDirected: renderedIsDirected,
+    showBidirectionalArrows: listMode === "doubly",
     viewMode,
     isPlaying,
     currentStep,
@@ -1079,7 +1140,7 @@ function TutorialContent() {
               size="sm"
               onClick={() => setShowFeatureTour(true)}
               title="開啟功能導覽"
-              icon="question-circle"
+              icon="circle-question"
               iconOnly
             />
             <Button

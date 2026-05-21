@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
@@ -11,13 +11,16 @@ import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
 import Button from "@/shared/components/Button";
 import Sidebar from "@/shared/components/Sidebar";
+import { toast } from "@/shared/components/Toast";
 import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContext";
 
 
 // 資料導入
 import {
   getAllLevels,
+  getEffectivePrerequisiteInfo,
   getPortalTargetCategory,
+  isLevelUnlocked,
   isPortalUnlocked,
 } from "@/services/LevelService";
 import {
@@ -34,6 +37,7 @@ import {
   calculateDisplayStatus,
   calculateOverallProgress,
   calculateCategoryProgress,
+  isProgressTrackableLevel,
   startLevel,
 } from "@/services/ProgressService";
 import {
@@ -44,6 +48,7 @@ import {
   computeAllUnlockStatus,
   filterLevelsByCategory,
 } from "./utils/graphUtils";
+import { useGraphValidation } from "./hooks/useGraphValidation";
 import type { Level, UserProgress } from "@/types";
 import type { CategoryType } from "@/types";
 import { useTranslation } from "react-i18next";
@@ -53,11 +58,12 @@ import { useLocation } from 'react-router-dom';
 
 function LearningDashboardInner() {
   const { t } = useTranslation('dashboard');
+  const tRef = useRef(t);
   const { disableZoom, enableZoom } = useZoomDisable();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const authGuard = useAuthGuard();
 
   // State
@@ -66,6 +72,11 @@ function LearningDashboardInner() {
   );
 
   useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+
+  useEffect(() => {
+    if (isLoading) return;
     if (!isAuthenticated) {
       setUserProgress(INITIAL_USER_PROGRESS);
       return;
@@ -75,9 +86,9 @@ function LearningDashboardInner() {
         setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
       })
       .catch(() => {
-        // 靜默失敗，維持本地預設值
+        toast.error(tRef.current('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
       });
-  }, [isAuthenticated, location.key]);
+  }, [isLoading, isAuthenticated, location.key]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
@@ -89,12 +100,25 @@ function LearningDashboardInner() {
   // 從統一配置獲取所有關卡
   const allLevels = getAllLevels();
 
+  const graphValidation = useGraphValidation(allLevels);
+  useEffect(() => {
+    if (import.meta.env.DEV && !graphValidation.isValid) {
+      console.error(`[LearningDashboard] ${graphValidation.error}`);
+    }
+  }, [graphValidation.isValid, graphValidation.error]);
+
   // 取得 Categories（包含解鎖狀態）
   const categories = getCategories();
 
   // 計算每個 Category 的 Level 數量
   const levelCounts = Object.fromEntries(
-    categories.map((c) => [c.id, allLevels.filter((l) => l.category === c.id).length - 1])
+    categories.map((c) => [
+      c.id,
+      allLevels.filter(
+        (level) =>
+          level.category === c.id && isProgressTrackableLevel(level),
+      ).length,
+    ]),
   ) as Partial<Record<CategoryType, number>>;
 
   // 建立分類顏色對照表
@@ -124,6 +148,12 @@ function LearningDashboardInner() {
     calculateOverallProgress(allLevels, userProgress);
 
   const categoryProgress = calculateCategoryProgress(allLevels, userProgress);
+  const selectedLevelPrerequisiteInfo = selectedLevel
+    ? getEffectivePrerequisiteInfo(selectedLevel)
+    : undefined;
+  const isSelectedLevelPracticeLocked = selectedLevel
+    ? !isLevelUnlocked(selectedLevel, userProgress)
+    : false;
 
   // 更新 URL 參數
   useEffect(() => {
@@ -153,7 +183,7 @@ function LearningDashboardInner() {
 
       if (newlyUnlockedCategories.length > 0) {
         const categoryName = t(`categories.${newlyUnlockedCategories[0].replace(/-/g, '_')}.name`);
-        setToastMessage(`恭喜！解鎖新領域：${categoryName}`);
+        setToastMessage(t("toast.categoryUnlocked", { categoryName }));
 
         // 3 秒後自動消失
         setTimeout(() => setToastMessage(null), 3000);
@@ -223,6 +253,7 @@ function LearningDashboardInner() {
   // 處理關卡點擊（只有已開發的功能才能點擊）
   const handleLevelClick = (level: Level) => {
     if (!level.isDeveloped) {
+      toast.warning(t("levelUnavailable.undeveloped"));
       return;
     }
     setSelectedLevel(level);
@@ -389,8 +420,8 @@ function LearningDashboardInner() {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        title="演算法分類"
-        aria-label="演算法分類側邊欄"
+        title={t("sidebar.title")}
+        aria-label={t("sidebar.ariaLabel")}
       >
         <CategoryFilter
           categories={categories}
@@ -425,19 +456,8 @@ function LearningDashboardInner() {
           onStartPractice={handleStartPractice}
           userProgress={getLevelProgress(selectedLevel.id, userProgress)}
           tutorialLocked={false}
-          practiceLocked={
-            selectedLevel.prerequisites?.type === "AND"
-              ? (selectedLevel.prerequisites?.levelIds ?? []).some(
-                  (id) => userProgress.levels[id]?.status !== "completed",
-                )
-              : selectedLevel.prerequisites?.type === "OR"
-                ? (selectedLevel.prerequisites?.levelIds ?? []).length > 0 &&
-                  (selectedLevel.prerequisites?.levelIds ?? []).every(
-                    (id) => userProgress.levels[id]?.status !== "completed",
-                  )
-                : false // NONE = 永遠解鎖
-          }
-          prerequisiteInfo={selectedLevel.prerequisites}
+          practiceLocked={isSelectedLevelPracticeLocked}
+          prerequisiteInfo={selectedLevelPrerequisiteInfo}
         />
       )}
 

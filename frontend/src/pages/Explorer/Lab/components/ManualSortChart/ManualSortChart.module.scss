@@ -1,0 +1,81 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  background: var(--bg-secondary);
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  padding: $spacing-xs;
+  overflow: hidden;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+  min-height: 40px;
+  margin-bottom: $spacing-xs;
+}
+
+.title {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+  text-align: center;
+}
+
+.buttonClass { 
+  position: absolute;
+  right: 0;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-sm;
+  color: $success-color;
+  font-weight: 600;
+}
+
+.chart {
+  flex: 1;
+  min-height: 140px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: stretch;
+  gap: 2px;
+  padding: 0 4px 4px;
+  position: relative;
+}
+
+.barColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  z-index: 0;
+  position: relative;
+
+  &.dragging {
+    cursor: grabbing;
+    z-index: 10;
+  }
+}
+
+.bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+  transition: background 120ms ease;
+}

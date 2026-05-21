@@ -258,13 +258,13 @@ export const HeapConfig: LevelImplementationConfig = {
   description: "使用一維陣列實作的完全二元樹，支援最大或最小優先權動態切換。",
   codeConfig: heapCodeConfig,
   complexity: {
-    timeBest: "O(log n)",
+    timeBest: "O(1)",
     timeAverage: "O(log n)",
     timeWorst: "O(log n)",
     space: "O(n)",
   },
   introduction:
-    "Heap（堆積）是一種非常有彈性的樹狀結構！你可以點擊 ActionBar 上的切換按鈕，觀察陣列如何瞬間在「Max-Heap」與「Min-Heap」之間重新洗牌 (Heapify)。\n\n💡 數學魔法：節點 `i` 的左子樹在 `2i + 1`，右子樹在 `2i + 2`，父節點在 `(i - 1) / 2`。不需要任何指標就能穿梭自如！",
+    "Heap（堆積）是以「完全二元樹」為概念、用一維陣列實作的樹狀結構。節點 i 的左子在 2i+1、右子在 2i+2、父節點在 (i-1)/2，不需任何指標即可在整棵樹中穿梭。\n\nHeap Property：Max-Heap 每個父節點的值 ≥ 子節點（根節點永遠是最大值）；Min-Heap 則反之（根節點永遠是最小值）。你可以點擊 ActionBar 的切換按鈕，觀察 Heapify 如何在 O(n) 內完成重建——比逐一插入的 O(n log n) 更快，這正是 BuildHeap 最反直覺的地方。\n\n三個核心操作：Peek 直接讀取 index 0，複雜度 O(1)；Insert 新增至末端後 Heapify Up，O(log n)；Extract 將末端元素補到根後 Heapify Down，O(log n)。Heap 是實作 Priority Queue 的標準選擇，廣泛應用於排程系統、Dijkstra 最短路徑與 Top-K 問題。",
   defaultData: [
     { id: "box-0", value: 90 },
     { id: "box-1", value: 80 },
@@ -276,5 +276,42 @@ export const HeapConfig: LevelImplementationConfig = {
   createAnimationSteps: createHeapAnimationSteps,
   actionHandler: heapActionHandler,
   renderActionBar: (props) => <HeapActionBar {...(props as any)} />,
+  relatedProblems: [
+    {
+      id: 703,
+      title: "Kth Largest Element in a Stream",
+      concept: "資料流應用：維護大小為 K 的 Min-Heap，隨時查詢第 K 大元素",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
+    },
+    {
+      id: 215,
+      title: "Kth Largest Element in an Array",
+      concept: "Top-K 問題經典：用 Min-Heap 在 O(n log k) 內找出第 K 大元素",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+    },
+    {
+      id: 347,
+      title: "Top K Frequent Elements",
+      concept: "頻率統計 + Min-Heap：篩選出出現次數最多的前 K 個元素",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/top-k-frequent-elements/",
+    },
+    {
+      id: 295,
+      title: "Find Median from Data Stream",
+      concept: "雙堆技巧：Max-Heap + Min-Heap 動態維護資料流中位數",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/find-median-from-data-stream/",
+    },
+    {
+      id: 23,
+      title: "Merge K Sorted Lists",
+      concept: "多路合併：Min-Heap 同時追蹤 K 個串列的最小值，O(n log k) 完成合併",
+      difficulty: "Hard",
+      url: "https://leetcode.com/problems/merge-k-sorted-lists/",
+    },
+  ],
   maxNodes: 15,
 };

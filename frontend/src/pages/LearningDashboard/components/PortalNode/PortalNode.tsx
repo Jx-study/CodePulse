@@ -1,6 +1,7 @@
 import styles from "./PortalNode.module.scss";
 import Icon from "@/shared/components/Icon";
 import type { PortalNodeProps } from "@/types";
+import { useTranslation } from "react-i18next";
 
 function PortalNode({
   targetCategory,
@@ -9,6 +10,8 @@ function PortalNode({
   position,
   onClick,
 }: PortalNodeProps) {
+  const { t } = useTranslation("dashboard");
+
   const handleClick = () => {
     if (isUnlocked) {
       onClick();
@@ -33,7 +36,7 @@ function PortalNode({
       onClick={handleClick}
       role="button"
       tabIndex={isUnlocked ? 0 : -1}
-      aria-label={`傳送門: 前往 ${targetCategoryName}`}
+      aria-label={t("portal.ariaLabel", { targetCategoryName })}
       aria-disabled={!isUnlocked}
       data-portal-target={targetCategory}
     >
@@ -58,7 +61,9 @@ function PortalNode({
       {/* 懸浮標籤 */}
       <div className={styles.portalTooltip}>
         <span>
-          {isUnlocked ? `前往 ${targetCategoryName}` : `完成 Boss Level 以解鎖`}
+          {isUnlocked
+            ? t("portal.goTo", { targetCategoryName })
+            : t("portal.locked")}
         </span>
       </div>
     </div>

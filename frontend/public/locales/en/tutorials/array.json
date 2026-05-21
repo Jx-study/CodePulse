@@ -1,0 +1,70 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "The core idea of an array is: **contiguous storage + fixed indexes**.",
+        "items": [
+          "**Zero-based indexing**: the first element is at Index 0.",
+          "For length **n**, the last element is at **Index n - 1**.",
+          "If you know the index, you can jump directly to the element. That is **Random Access**."
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "To estimate array operation cost, ask: **Do we know the index? Do elements need to shift?**",
+        "items": [
+          "**Read / update**: known index, time complexity [[success|O(1)]].",
+          "**Search**: unknown position, scan one by one; worst case [[warning|O(n)]].",
+          "**Append**: dynamic arrays are usually amortized [[success|O(1)]]; resizing may copy the whole array.",
+          "**Insert / delete at front or middle**: elements must shift; worst case [[warning|O(n)]]."
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Arrays are strong when a problem is about **known positions, preserved order, and linear scans**.",
+        "items": [
+          "Good for getting the **k-th element** or updating a known position.",
+          "Good for scanning left to right and reasoning about **neighbors** or **ranges**.",
+          "Often used as the base for **prefix sums, two pointers, sliding windows, and sorting**.",
+          "Not ideal for frequent front or middle insert/delete; consider **Linked List** or **Deque**."
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When To Use It",
+        "content": "Start with arrays when you see these clues:",
+        "items": [
+          "The data has order, and the problem mentions **index / position**.",
+          "You need to preserve or rearrange order, such as **Rotate Array**.",
+          "You need to scan a sequence, such as **Remove Element**.",
+          "You need index-based lookup or bookkeeping, such as **Two Sum**."
+        ],
+        "icon": "location-crosshairs"
+      }
+    ]
+  },
+  "animation": {
+    "initial_state": "Array State",
+    "search_start": "Start searching for value {{value}}",
+    "search_compare": "Check Index {{index}}: is {{current_val}} equal to {{value}}?",
+    "search_found": "Found! Value {{value}} is at Index {{index}}",
+    "search_not_found": "Search complete: value {{value}} not found",
+    "update_start": "Access Index {{index}}",
+    "update_assign": "Update Index {{index}} to {{value}}",
+    "update_complete": "Update complete",
+    "update_error": "Error: Index {{index}} out of range",
+    "insert_start": "Expand array by one slot at the end",
+    "insert_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) right to Index {{to}}",
+    "insert_shift_done": "Shift complete: Index {{index}} is now {{value}}",
+    "insert_assign": "Insert value {{value}} at Index {{index}}",
+    "insert_complete": "Insert complete",
+    "delete_start": "Mark Index {{index}} (value: {{value}}) for deletion",
+    "delete_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) left to Index {{to}}",
+    "delete_shift_done": "Shift complete: Index {{index}} is now {{value}}",
+    "delete_remove": "Remove the last redundant slot",
+    "delete_complete": "Delete complete"
+  }
+}

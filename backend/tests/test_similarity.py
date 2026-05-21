@@ -38,5 +38,26 @@ def test_apply_threshold_at_threshold_returns_label():
 
 
 def test_apply_threshold_above_returns_label():
-    label, score = apply_threshold("insertion_sort", 0.8)
+    label, score = apply_threshold("insertion_sort", THRESHOLD + 0.05)
     assert label == "insertion_sort"
+
+
+from services.algo_identification.similarity import find_top_n
+
+def test_find_top_n_returns_sorted_candidates():
+    ref = np.stack([_unit([1, 0, 0]), _unit([0, 1, 0]), _unit([0, 0, 1]), _unit([0.5, 0.5, 0])])
+    labels = ["A", "B", "C", "D"]
+    user = _unit([0.1, 0.9, 0.05])
+    results = find_top_n(user, ref, labels, n=3)
+    assert len(results) == 3
+    assert results[0][0] == "B"
+    assert results[0][1] > results[1][1] > results[2][1]
+
+def test_find_top_n_deduplicates_same_label():
+    ref = np.stack([_unit([1, 0, 0]), _unit([0.9, 0.1, 0]), _unit([0, 1, 0])])
+    labels = ["A", "A", "B"]
+    user = _unit([0.95, 0.05, 0])
+    results = find_top_n(user, ref, labels, n=2)
+    names = [r[0] for r in results]
+    assert names.count("A") == 1
+    assert results[0][0] == "A"

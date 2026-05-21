@@ -67,7 +67,6 @@ TUTORIALS = [
     ("fibonacci-recursive", "recursive",       2, False),
     ("merge-sort-recursive","recursive",       3, False),
     ("hanoi",               "recursive",       3, False),
-    ("backtracking-intro",  "recursive",       3, False),
     ("quick-sort-recursive","recursive",       3, False),
     ("n-queens",            "recursive",       4, True),
     ("portal-to-technique", "recursive",       1, True),

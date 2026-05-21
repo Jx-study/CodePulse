@@ -53,7 +53,6 @@ export const INITIAL_USER_PROGRESS: UserProgress = {
     "portal-to-searching": { levelId: "portal-to-searching", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     // Searching
     "binary-search": { levelId: "binary-search", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "linear-search": { levelId: "linear-search", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     "prefix-sum": { levelId: "prefix-sum", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     "portal-to-graph": { levelId: "portal-to-graph", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     // Graph
@@ -169,8 +168,16 @@ export function calculateDisplayStatus(
   filteredLevels: (Level & { isUnlocked: boolean })[],
   userProgress: UserProgress,
 ): LevelStatus {
-  // 如果關卡被鎖定，直接返回 "locked"
   if (!level.isUnlocked) {
+    return "locked";
+  }
+
+  // 未實作的關卡：保留用戶既有進度，避免 in-progress/completed 狀態視覺消失
+  if (!level.isDeveloped) {
+    const progressStatus = userProgress.levels[level.id]?.status;
+    if (progressStatus === "completed" || progressStatus === "in-progress") {
+      return progressStatus;
+    }
     return "locked";
   }
 
@@ -186,6 +193,7 @@ export function calculateDisplayStatus(
   const unlockedNotCompletedLevels = filteredLevels.filter(
     (l) =>
       l.isUnlocked &&
+      l.isDeveloped &&
       userProgress.levels[l.id]?.status !== "completed" &&
       userProgress.levels[l.id]?.status !== "in-progress",
   );
@@ -222,6 +230,10 @@ export function calculateDisplayStatus(
 
 // ==================== 進度統計 ====================
 
+export function isProgressTrackableLevel(level: Level): boolean {
+  return level.pathMetadata?.pathType !== "portal";
+}
+
 /**
  * 計算總體進度統計
  */
@@ -235,13 +247,21 @@ export function calculateOverallProgress(
   earnedStars: number;
   completionRate: number;
 } {
-  const totalLevels = allLevels.length;
-  const completedLevels = Object.values(userProgress.levels).filter(
-    (progress) => progress.status === "completed",
+  const progressTrackableLevels = allLevels.filter(isProgressTrackableLevel);
+  const progressTrackableLevelIds = new Set(
+    progressTrackableLevels.map((level) => level.id),
+  );
+
+  const totalLevels = progressTrackableLevels.length;
+  const completedLevels = progressTrackableLevels.filter(
+    (level) => userProgress.levels[level.id]?.status === "completed",
   ).length;
   const totalStars = totalLevels * 3;
   const earnedStars = Object.values(userProgress.levels).reduce(
-    (sum, progress) => sum + progress.stars,
+    (sum, progress) =>
+      progressTrackableLevelIds.has(progress.levelId)
+        ? sum + progress.stars
+        : sum,
     0,
   );
   const completionRate =
@@ -263,7 +283,7 @@ export function calculateCategoryProgress(
   allLevels: Level[],
   userProgress: UserProgress,
 ): Record<CategoryType, CategoryProgressInfo> {
-  return allLevels.reduce(
+  return allLevels.filter(isProgressTrackableLevel).reduce(
     (acc, level) => {
       const category = level.category;
 

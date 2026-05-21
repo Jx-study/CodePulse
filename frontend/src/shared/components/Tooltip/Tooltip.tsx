@@ -119,12 +119,14 @@ const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
+  const shouldRespondToFocus = trigger === 'focus' || trigger === 'hover';
+
   const handleFocus = () => {
-    if (trigger === 'focus') showTooltip();
+    if (shouldRespondToFocus) showTooltip();
   };
 
   const handleBlur = () => {
-    if (trigger === 'focus') hideTooltip();
+    if (shouldRespondToFocus) hideTooltip();
   };
 
   const tooltipClasses = [

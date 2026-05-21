@@ -15,6 +15,8 @@ import type { BreadcrumbItem } from "@/types";
 import { xp } from "@/shared/components/XpFloat";
 import styles from "./Practice.module.scss";
 import { shuffleArray, getOptionLabel } from "@/utils/random";
+import { safeImageUrl } from "@/utils/visualGuard";
+import { renderInlineText } from "@/utils/renderInlineText";
 const CodeEditor = lazy(() => import("@/modules/core/components/CodeEditor/CodeEditor"));
 import Input from "@/shared/components/Input";
 import Button from "@/shared/components/Button";
@@ -94,6 +96,7 @@ function Practice() {
                   ...q.group!,
                   title: gt.title,
                   description: gt.description ?? undefined,
+                  visual_alt: gt.visual_alt,
                 };
               }
             }
@@ -457,7 +460,23 @@ function Practice() {
               </div>
 
               <div className={styles.groupContent}>
-                <p className={styles.groupDesc}>{currentGroup.description}</p>
+                <p className={styles.groupDesc}>
+                  {renderInlineText(currentGroup.description ?? "")}
+                </p>
+                {currentGroup.visual_type === "image" && (() => {
+                  const url = safeImageUrl(currentGroup.visual_data);
+                  if (!url) return null;
+                  return (
+                    <figure className={styles.groupVisual}>
+                      <img
+                        src={url}
+                        alt={currentGroup.visual_alt ?? currentGroup.title}
+                        loading="lazy"
+                        className={styles.groupVisualImage}
+                      />
+                    </figure>
+                  );
+                })()}
                 {currentGroup.code && (
                   <div className={styles.groupCodeBlock}>
                     <Suspense fallback={null}>
@@ -494,7 +513,9 @@ function Practice() {
           </div>
 
           <div className={styles.questionContent}>
-            <p className={styles.questionText}>{currentQuestion.title}</p>
+            <p className={styles.questionText}>
+              {renderInlineText(currentQuestion.title)}
+            </p>
 
             {showCodeEditor && currentQuestion.code && (
               <div className={styles.codeBlock}>
@@ -619,7 +640,7 @@ function Practice() {
                         className={styles.optionInput}
                       />
                       <span className={styles.optionLabel}>
-                        ({getOptionLabel(index)}) {option.text}
+                        ({getOptionLabel(index)}) {renderInlineText(option.text)}
                       </span>
                     </label>
                   );

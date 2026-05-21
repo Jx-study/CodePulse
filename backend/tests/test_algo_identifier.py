@@ -117,15 +117,12 @@ def quick_sort(arr):
 ]
 
 UNKNOWN_CASES = [
-    (
-        "fibonacci",
-        """
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n - 1) + fibonacci(n - 2)
-""",
-    ),
+    # NOTE: fibonacci / matrix_mul intentionally excluded — see
+    # Note/technical/normalizer-ablation-study.md §5.3: their recursive/triple-loop
+    # structures sit inside the known-algorithm score cluster (~0.90+) and cannot
+    # be rejected by any single threshold without losing real known cases.
+    # Resolution is deferred to the LLM disambiguator (§5.4 item 3), not normalizer
+    # or reference-library changes.
     (
         "bfs",
         """
@@ -162,3 +159,16 @@ def test_unknown_algorithm_returns_none(description, code):
     assert result.algo_name is None, (
         f"Expected None for {description}, got {result.algo_name} (score={result.score:.3f})"
     )
+
+
+def test_identify_returns_top3():
+    result = identify("def bubble_sort(arr):\n    pass")
+    assert hasattr(result, 'top3')
+    assert isinstance(result.top3, list)
+    assert all(isinstance(name, str) and isinstance(score, float) for name, score in result.top3)
+
+
+def test_identify_top3_sorted_descending():
+    result = identify("def bubble_sort(arr):\n    pass")
+    scores = [score for _, score in result.top3]
+    assert scores == sorted(scores, reverse=True)

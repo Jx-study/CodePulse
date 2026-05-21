@@ -3,6 +3,80 @@
     "filter_categories": "Filter",
     "learning_progress": "Learning Progress"
   },
+  "sidebar": {
+    "title": "Algorithm Categories",
+    "ariaLabel": "Algorithm category sidebar"
+  },
+  "toast": {
+    "categoryUnlocked": "New area unlocked: {{categoryName}}"
+  },
+  "levelUnavailable": {
+    "undeveloped": "This level is not available yet. Stay tuned.",
+    "locked": "Complete prerequisite levels to unlock"
+  },
+  "categoryFilter": {
+    "moduleCount_one": "{{count}} Module",
+    "moduleCount_other": "{{count}} Modules"
+  },
+  "stats": {
+    "title": "Learning Progress",
+    "overallCompletion": "Overall Completion",
+    "completedLevels": "{{completed}} / {{total}} levels completed",
+    "earnedStars": "Stars Earned",
+    "completedLevelCount": "Completed Levels",
+    "overallProgress": "Overall Progress",
+    "courseDetails": "Course Details",
+    "bossCompleted": "Boss Completed"
+  },
+  "levelDialog": {
+    "title": "Level: {{levelName}}",
+    "unknownDifficulty": "Unknown",
+    "difficulty": {
+      "1": "Very Easy",
+      "2": "Easy",
+      "3": "Medium",
+      "4": "Hard",
+      "5": "Very Hard"
+    }
+  },
+  "tutorialSection": {
+    "title": "Tutorial Mode",
+    "descriptionTitle": "Algorithm Overview",
+    "objectivesTitle": "Learning Objectives",
+    "suggestedTitle": "Recommended First",
+    "restartButton": "Restart Tutorial",
+    "startButton": "Start Tutorial",
+    "lockedHint": "This tutorial is not unlocked yet",
+    "completedBadge": "Tutorial Completed"
+  },
+  "practiceSection": {
+    "title": "Practice Mode",
+    "requirementsTitle": "Passing Requirements",
+    "requirements": [
+      "Complete all test cases",
+      "Reach at least 60% accuracy",
+      "Earn a 1-3 star rating"
+    ],
+    "bestTime": "Best Time",
+    "attempts": "Attempts",
+    "attemptCount": "{{count}} attempts",
+    "restartButton": "Retry Challenge",
+    "continueButton": "Continue Challenge",
+    "startButton": "Start Practice",
+    "lockedAndHint": "Complete first: {{levels}}",
+    "lockedOrHint": "Complete any of these levels to unlock: {{levels}}",
+    "lockedFallbackHint": "Complete prerequisite levels to unlock practice mode",
+    "listSeparator": ", ",
+    "completedBadge": "Practice Completed"
+  },
+  "portal": {
+    "ariaLabel": "Portal: go to {{targetCategoryName}}",
+    "goTo": "Go to {{targetCategoryName}}",
+    "locked": "Complete the Boss Level to unlock"
+  },
+  "node": {
+    "ariaLabel": "Level: {{levelName}}"
+  },
   "levels": {
     "array": {
       "name": "Array",
@@ -202,15 +276,6 @@
         "Visualize each move step"
       ]
     },
-    "backtracking_intro": {
-      "name": "Introduction to Backtracking",
-      "description": "Systematically explore all possible solutions and backtrack when a path is infeasible",
-      "objectives": [
-        "Understand the decision tree model of backtracking",
-        "Master pruning strategies",
-        "Apply to permutation and combination problems"
-      ]
-    },
     "quick_sort_recursive": {
       "name": "Divide & Conquer: Quick Sort",
       "description": "Understand quick sort's pivot partitioning strategy from a recursive perspective",
@@ -385,6 +450,16 @@
       "name": "Dynamic Programming",
       "description": "Solve overlapping subproblems through state transitions and master optimization thinking"
     }
+  },
+  "errors": {
+    "progressLoadFailed": "Failed to load progress. Please refresh the page."
+  },
+  "toast": {
+    "categoryUnlocked": "Congrats! New category unlocked: {{categoryName}}"
+  },
+  "sidebar": {
+    "title": "Algorithm Categories",
+    "ariaLabel": "Algorithm categories sidebar"
   },
   "branch_labels": {
     "lifo_structure": "LIFO Structure",

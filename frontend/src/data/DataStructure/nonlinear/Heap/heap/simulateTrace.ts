@@ -25,8 +25,6 @@ export function simulateHeapTrace(
     : isMaxHeap
       ? "Max-Heap"
       : "Not Heap";
-  const extremeStr = isMinHeap ? "小" : "大";
-  const extremeVal = isMinHeap ? "最小" : "最大";
 
   if (!action || action.heapType === "init") {
     trace.push({
@@ -42,7 +40,7 @@ export function simulateHeapTrace(
     if (currentList.length > 0) {
       trace.push({
         tag: TAGS.PEEK,
-        local_vars: { extVal: currentList[0].value, extremeVal },
+        local_vars: { extVal: currentList[0].value, isMinHeap },
         dataSnapshot: getSnapshot(),
         meta: { highlightIndex: 0, status: "Complete" },
       });
@@ -50,7 +48,7 @@ export function simulateHeapTrace(
     return trace;
   }
 
-  // 操作: Heapify (由下而上建堆)
+  // Heapify (Bottom-Up 建堆)
   if (action.heapType === "heapify") {
     trace.push({
       tag: TAGS.HEAPIFY_START,
@@ -59,7 +57,6 @@ export function simulateHeapTrace(
       meta: { status: "Unfinished" },
     });
 
-    // 從最後一個非葉子節點開始往前做 Heapify-Down
     for (let i = Math.floor(currentList.length / 2) - 1; i >= 0; i--) {
       let idx = i;
       while (true) {
@@ -83,7 +80,17 @@ export function simulateHeapTrace(
         if (leftIdx < currentList.length) {
           trace.push({
             tag: TAGS.HEAPIFY_DOWN_COMPARE,
-            local_vars: { idx, leftIdx, rightIdx, targetIdx, extremeStr },
+            local_vars: {
+              idx,
+              leftIdx,
+              rightIdx,
+              targetIdx,
+              [`arr[${idx}]`]: currentList[idx].value,
+              [`arr[${leftIdx}]`]: currentList[leftIdx].value,
+              ...(rightIdx < currentList.length
+                ? { [`arr[${rightIdx}]`]: currentList[rightIdx].value }
+                : {}),
+            },
             dataSnapshot: getSnapshot(),
             meta: {
               overrideStatusMap: {
@@ -98,13 +105,20 @@ export function simulateHeapTrace(
         }
 
         if (targetIdx !== idx) {
-          const temp = currentList[idx].value;
-          currentList[idx].value = currentList[targetIdx].value;
-          currentList[targetIdx].value = temp;
+          const swapFrom = currentList[idx].value;
+          const swapTo = currentList[targetIdx].value;
+          currentList[idx].value = swapTo;
+          currentList[targetIdx].value = swapFrom;
 
           trace.push({
             tag: TAGS.HEAPIFY_DOWN_SWAP,
-            local_vars: { idx, targetIdx, heapName },
+            local_vars: {
+              idx,
+              targetIdx,
+              heapName,
+              [`arr[${idx}]`]: swapFrom,
+              [`arr[${targetIdx}]`]: swapTo,
+            },
             dataSnapshot: getSnapshot(),
             meta: {
               overrideStatusMap: { [idx]: "Prepare", [targetIdx]: "Target" },
@@ -154,13 +168,18 @@ export function simulateHeapTrace(
       });
 
       if (isPrior(curVal, parentVal)) {
-        const temp = currentList[idx].value;
-        currentList[idx].value = currentList[parentIdx].value;
-        currentList[parentIdx].value = temp;
+        currentList[idx].value = parentVal;
+        currentList[parentIdx].value = curVal;
 
         trace.push({
           tag: TAGS.HEAPIFY_UP_SWAP,
-          local_vars: { idx, parentIdx, extremeStr },
+          local_vars: {
+            idx,
+            parentIdx,
+            isMinHeap,
+            [`arr[${idx}]`]: curVal,
+            [`arr[${parentIdx}]`]: parentVal,
+          },
           dataSnapshot: getSnapshot(),
           meta: {
             overrideStatusMap: { [idx]: "Prepare", [parentIdx]: "Target" },
@@ -185,7 +204,7 @@ export function simulateHeapTrace(
     const extVal = currentList[0].value;
     trace.push({
       tag: TAGS.EXTRACT_START,
-      local_vars: { extVal, extremeVal, extremeStr },
+      local_vars: { extVal, isMinHeap },
       dataSnapshot: getSnapshot(),
       meta: { highlightIndex: 0 },
     });
@@ -194,18 +213,19 @@ export function simulateHeapTrace(
       currentList.pop();
       trace.push({
         tag: TAGS.EXTRACT_REMOVE,
-        local_vars: {},
+        local_vars: { extVal, heapSize: currentList.length },
         dataSnapshot: getSnapshot(),
       });
       return trace;
     }
 
     const lastIdx = currentList.length - 1;
-    currentList[0].value = currentList[lastIdx].value;
+    const lastVal = currentList[lastIdx].value;
+    currentList[0].value = lastVal;
 
     trace.push({
       tag: TAGS.EXTRACT_SWAP_LAST,
-      local_vars: {},
+      local_vars: { extVal, lastIdx, lastVal },
       dataSnapshot: getSnapshot(),
       meta: { overrideStatusMap: { 0: "Prepare", [lastIdx]: "Target" } },
     });
@@ -214,7 +234,7 @@ export function simulateHeapTrace(
 
     trace.push({
       tag: TAGS.EXTRACT_REMOVE,
-      local_vars: {},
+      local_vars: { extVal, heapSize: currentList.length },
       dataSnapshot: getSnapshot(),
       meta: { highlightIndex: 0, status: "Prepare" },
     });
@@ -241,7 +261,17 @@ export function simulateHeapTrace(
       if (leftIdx < currentList.length) {
         trace.push({
           tag: TAGS.HEAPIFY_DOWN_COMPARE,
-          local_vars: { idx, leftIdx, rightIdx, targetIdx, extremeStr },
+          local_vars: {
+            idx,
+            leftIdx,
+            rightIdx,
+            targetIdx,
+            [`arr[${idx}]`]: currentList[idx].value,
+            [`arr[${leftIdx}]`]: currentList[leftIdx].value,
+            ...(rightIdx < currentList.length
+              ? { [`arr[${rightIdx}]`]: currentList[rightIdx].value }
+              : {}),
+          },
           dataSnapshot: getSnapshot(),
           meta: {
             overrideStatusMap: {
@@ -256,13 +286,20 @@ export function simulateHeapTrace(
       }
 
       if (targetIdx !== idx) {
-        const swapTemp = currentList[idx].value;
-        currentList[idx].value = currentList[targetIdx].value;
-        currentList[targetIdx].value = swapTemp;
+        const swapFrom = currentList[idx].value;
+        const swapTo = currentList[targetIdx].value;
+        currentList[idx].value = swapTo;
+        currentList[targetIdx].value = swapFrom;
 
         trace.push({
           tag: TAGS.HEAPIFY_DOWN_SWAP,
-          local_vars: { idx, targetIdx, heapName },
+          local_vars: {
+            idx,
+            targetIdx,
+            heapName,
+            [`arr[${idx}]`]: swapFrom,
+            [`arr[${targetIdx}]`]: swapTo,
+          },
           dataSnapshot: getSnapshot(),
           meta: {
             overrideStatusMap: { [idx]: "Prepare", [targetIdx]: "Target" },

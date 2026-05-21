@@ -81,6 +81,18 @@ def selection_sort(data):
         data[start], data[smallest] = data[smallest], data[start]
     return data
 """,
+        # variant 3: student-style single-letter naming (closes gap from ablation §3.3)
+        """
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        m = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[m]:
+                m = j
+        arr[i], arr[m] = arr[m], arr[i]
+    return arr
+""",
     ],
 
     "insertion_sort": [
@@ -182,6 +194,20 @@ def binary_search(arr, target, left=0, right=None):
         return binary_search(arr, target, mid + 1, right)
     else:
         return binary_search(arr, target, left, mid - 1)
+""",
+        # variant 3: start/end/m naming (closes gap from ablation §3.3)
+        """
+def binary_search(arr, target):
+    start, end = 0, len(arr) - 1
+    while start <= end:
+        m = (start + end) // 2
+        if arr[m] == target:
+            return m
+        elif arr[m] < target:
+            start = m + 1
+        else:
+            end = m - 1
+    return -1
 """,
     ],
 

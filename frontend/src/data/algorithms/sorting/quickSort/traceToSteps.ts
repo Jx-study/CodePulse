@@ -1,20 +1,9 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { toStatus } from "@/data/implementations/traceConverters";
 import { TAGS } from "./tags";
 import type { QSLayoutInfo } from "./simulateTrace";
-
-const STATUS_MAP: Record<string, Status> = {
-  Target: Status.Target,
-  Complete: Status.Complete,
-  Prepare: Status.Prepare,
-  Unfinished: Status.Unfinished,
-};
-
-function toStatus(s?: string): Status {
-  return s ? (STATUS_MAP[s] ?? Status.Unfinished) : Status.Unfinished;
-}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
