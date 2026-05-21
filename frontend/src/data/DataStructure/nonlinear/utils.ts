@@ -485,6 +485,25 @@ function convertToChildren(node: any) {
   }
 }
 
+function getTreeNodeDescription(
+  data: HierarchyDatum,
+  type: "bst" | "binarytree" | "trie",
+): string {
+  if (type === "trie") {
+    return data.isEndOfWord ? "[Word]" : "";
+  }
+
+  if (type === "bst") {
+    return data.count !== undefined ? `Count: ${data.count}` : "";
+  }
+
+  if (data.count && data.count > 1) {
+    return `Count: ${data.count}`;
+  }
+
+  return "";
+}
+
 /**
  * 通用的樹狀結構生成器
  */
@@ -532,8 +551,7 @@ export function createTreeNodes(
   rootWithPos.descendants().forEach((d) => {
     if (d.data.isDummy) return;
 
-    // 視覺提示：如果是單字結尾，在下方描述中標記 [Word]
-    const descText = d.data.isEndOfWord ? "[Word]" : "";
+    const descText = getTreeNodeDescription(d.data, type);
 
     const node = createNodeInstance(
       d.data.id,
