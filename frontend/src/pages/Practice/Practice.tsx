@@ -306,7 +306,7 @@ function Practice() {
       setResult(calculatedResult);
       setShowResult(true);
       if ((resp.xp_earned ?? 0) > 0) {
-        xp.show(resp.xp_earned ?? 0);
+        xp.show(resp.xp_earned ?? 0, { reason: 'practice' });
       }
     } catch (err) {
       console.error('[Practice] Submit failed:', err);

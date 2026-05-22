@@ -80,5 +80,13 @@
   "userMenu": "User menu",
   "auth": {
     "loginRequired": "Please log in to use this feature"
+  },
+  "xp": {
+    "earned": "XP Earned",
+    "reason": {
+      "checkin": "Daily Check-in",
+      "tutorial": "Tutorial Complete",
+      "practice": "Practice Complete"
+    }
   }
 }

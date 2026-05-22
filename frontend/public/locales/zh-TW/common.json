@@ -80,5 +80,13 @@
   "userMenu": "使用者選單",
   "auth": {
     "loginRequired": "請先登入才能使用此功能"
+  },
+  "xp": {
+    "earned": "XP 獲得",
+    "reason": {
+      "checkin": "每日簽到",
+      "tutorial": "完成教學",
+      "practice": "完成練習"
+    }
   }
 }
