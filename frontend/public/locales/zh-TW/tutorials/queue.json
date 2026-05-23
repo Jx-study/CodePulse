@@ -1,0 +1,31 @@
+{
+  "animation": {
+    "init": "Queue 狀態",
+    "enqueue_start": "Enqueue({{value}}): 準備入列",
+    "enqueue_inc_rear": "rear = rear + 1 (現在 rear 指向 {{rear}})",
+    "enqueue_assign": "queue[{{rear}}] = {{value}}",
+    "enqueue_complete": "Enqueue 完成",
+    "dequeue_check_empty": "Dequeue(): 檢查是否為空",
+    "dequeue_error": "錯誤: 佇列下溢 (Queue Underflow)",
+    "dequeue_get_value": "removed_value = queue[front] ({{val}})",
+    "dequeue_shift": "Shift Left: 所有元素往左移動",
+    "dequeue_dec_rear": "rear = rear - 1 (現在 rear 指向 {{rear}})",
+    "dequeue_return": "標記回傳值 {{val}}",
+    "dequeue_complete": "Dequeue 完成",
+    "peek_check_empty": "Peek(): 檢查是否為空",
+    "peek_error": "回傳 Null",
+    "peek_return": "回傳 queue[front] ({{val}})",
+    "peek_complete": "Peek 完成"
+  },
+  "ui": {
+    "operations": "佇列操作",
+    "valuePlaceholder": "數值",
+    "enqueue": "Enqueue",
+    "dequeue": "Dequeue",
+    "peek": "Peek",
+    "enqueueTooltip": "將元素加入佇列尾部",
+    "dequeueTooltip": "移除佇列前端的元素",
+    "peekTooltip": "查看佇列前端的元素（不移除）",
+    "enqueueWarning": "請輸入要 Enqueue 的數值"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "animation": {
+    "init": "Queue State",
+    "enqueue_start": "Enqueue({{value}}): Preparing to enqueue",
+    "enqueue_inc_rear": "rear = rear + 1 (rear now points to {{rear}})",
+    "enqueue_assign": "queue[{{rear}}] = {{value}}",
+    "enqueue_complete": "Enqueue Complete",
+    "dequeue_check_empty": "Dequeue(): Checking if empty",
+    "dequeue_error": "Error: Queue Underflow",
+    "dequeue_get_value": "removed_value = queue[front] ({{val}})",
+    "dequeue_shift": "Shift Left: Shifting all elements",
+    "dequeue_dec_rear": "rear = rear - 1 (rear now points to {{rear}})",
+    "dequeue_return": "Marking return value {{val}}",
+    "dequeue_complete": "Dequeue Complete",
+    "peek_check_empty": "Peek(): Checking if empty",
+    "peek_error": "Return Null",
+    "peek_return": "Return queue[front] ({{val}})",
+    "peek_complete": "Peek Complete"
+  },
+  "ui": {
+    "operations": "Queue Operations",
+    "valuePlaceholder": "Value",
+    "enqueue": "Enqueue",
+    "dequeue": "Dequeue",
+    "peek": "Peek",
+    "enqueueTooltip": "Add element to the rear of the queue",
+    "dequeueTooltip": "Remove element from the front of the queue",
+    "peekTooltip": "View the front element without removing it",
+    "enqueueWarning": "Please enter a value to Enqueue"
+  }
+}
