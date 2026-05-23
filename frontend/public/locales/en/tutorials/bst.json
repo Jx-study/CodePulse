@@ -1,0 +1,69 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "A Binary Search Tree is a [[primary|divide-and-conquer]] structure — like flipping through a phone book, each comparison eliminates half the remaining nodes. Every **node** strictly follows the [[primary|left-smaller, right-larger]] rule.",
+        "items": [
+          "Strict ordering: a **node**'s **left subtree** holds only smaller values, the **right subtree** holds only larger values, maintaining the [[primary|left-smaller, right-larger]] invariant throughout",
+          "Recursive property: every **subtree** must itself be a valid BST, and [[primary|duplicate keys]] are generally not permitted",
+          "Efficient operations: like binary search on an array, each step downward eliminates half the search space, achieving [[primary|logarithmic time]] lookup"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Performance depends entirely on tree height. A balanced tree halves the data at each step, but a degenerate tree that collapses into a one-sided linked list sees performance drop sharply.",
+        "items": [
+          "Search: compare keys and walk downward — average `[[success|O(log n)]]`, worst-case degrades to `[[danger|O(n)]]`",
+          "Insert: traverse to the correct empty position — average `[[success|O(log n)]]`, worst-case degrades to `[[danger|O(n)]]`",
+          "Delete: locate a predecessor or successor based on child count — average `[[success|O(log n)]]`, worst-case degrades to `[[danger|O(n)]]`"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "The standard structure handles random data well, but struggles with **sorted input**, which causes it to degenerate into an inefficient **linked list**. Switch to **AVL Trees** or **Red-Black Trees** — **self-balancing BST** variants — to address this.",
+        "items": [
+          "Great for dynamic management: ideal for datasets with frequent **searches**, **inserts**, and **deletes** on random data while maintaining strong performance",
+          "Great for maintaining order: **inorder traversal** instantly produces a sorted sequence, useful for dictionaries and **priority queues**",
+          "Poor with sorted input: inserting ascending or descending data in sequence causes severe skew and degrades to an **O(n)** **linked list**",
+          "Optimized alternatives: to guard against imbalance, switch to **AVL Trees** or other **self-balancing BSTs** to guarantee **logarithmic time** performance"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use a BST",
+        "content": "Reach for a BST when a problem requires maintaining a dynamically changing data stream with frequent inserts and deletes, while also needing fast lookup of extremes, specific ranks, or nearest neighbors.",
+        "items": [
+          "Problems requiring dynamic lookup of a specific rank, such as **K-th Smallest Element (Select K)**",
+          "Scenarios needing fast retrieval and removal of both maximum and minimum values — a **double-ended priority queue**",
+          "Problems counting smaller elements to the right of each element in a dynamic array — **Count Smaller Elements**",
+          "Problems dynamically finding the smallest value greater than the current element — **Smallest Greater Element**"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Node Deletion Mechanics",
+        "content": "Deletion is more complex than insertion — it must be handled differently depending on how many children the target node has. The **two-children** case, which requires finding a replacement, is the most involved and the most common sticking point for beginners.",
+        "items": [
+          "When the target has **no children**, simply remove the **leaf node** — no structural repair needed, `[[success|O(1)]]` extra work",
+          "When the target has **one child**, remove the node and link its single child directly to the parent — `[[success|O(1)]]` extra work",
+          "When the target has **two children**, spend `[[warning|O(h)]]` finding the **right subtree minimum** or **left subtree maximum** to replace it"
+        ],
+        "icon": "scissors"
+      },
+      {
+        "heading": "Self-Balancing Search Trees",
+        "content": "The standard BST degenerates into a **linked list** under extreme input. In practice, variants like **AVL Trees** and **Red-Black Trees** are used to guarantee `[[success|O(log n)]]` performance under any conditions.",
+        "items": [
+          "Inserting already-sorted data causes severe skew, degrading performance to `[[danger|O(n)]]`",
+          "In practice, **AVL Trees** and **Red-Black Trees** — **self-balancing BSTs** — are used to prevent degeneration",
+          "When the tree becomes unbalanced, **tree rotations** and color-flip operations automatically restore balance",
+          "Regardless of how data is inserted or deleted, lookup, insert, and delete all stay at `[[success|O(log n)]]`"
+        ],
+        "icon": "scale-balanced"
+      }
+    ]
+  }
+}

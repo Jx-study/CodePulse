@@ -1771,11 +1771,8 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(h)",
   },
-  introduction: `二元搜尋樹 (BST) 是一種特殊的二元樹。
-  特性：
-  1. 若左子樹不為空，則左子樹上所有節點的值均小於根節點的值。
-  2. 若右子樹不為空，則右子樹上所有節點的值均大於根節點的值。
-  3. **重複值處理**：當數值相同時，不新增節點，而是增加該節點的計數器 (Count)。`,
+  i18nNamespace: "tutorials/bst",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "node-1", value: 50 },
     { id: "node-2", value: 30 },
