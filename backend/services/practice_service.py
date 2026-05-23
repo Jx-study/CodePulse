@@ -140,6 +140,9 @@ def _serialize_questions(questions: list, lang: str) -> list[dict]:
             'group_id': q.group_id,
             'stem': qt.stem if qt else '',
             'options': qt.options if qt else [],
+            'visual_type': q.visual_type,
+            'visual_data': q.visual_data,
+            'visual_alt': qt.visual_alt if qt else None,
         }
         if q.group_id and q.group_id in groups:
             grp = groups[q.group_id]
@@ -543,6 +546,7 @@ def get_question_translations(
                 'stem': qt.stem,
                 'options': qt.options,
                 'explanation': qt.explanation if include_explanation else None,
+                'visual_alt': qt.visual_alt,
             }
 
     g_translations: dict[str, dict] = {}

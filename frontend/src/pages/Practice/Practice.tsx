@@ -38,6 +38,9 @@ function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
     language: q.language ?? undefined,
     groupId: q.group_id ? String(q.group_id) : undefined,
     group: q.group ?? undefined,
+    visual_type: q.visual_type,
+    visual_data: q.visual_data,
+    visual_alt: q.visual_alt,
     correctAnswer: '',
     explanation: '',
   }));
@@ -88,6 +91,7 @@ function Practice() {
               ...q,
               title: qt.stem,
               options: qt.options ?? q.options,
+              visual_alt: qt.visual_alt ?? q.visual_alt,
             };
             if (q.groupId) {
               const gt = data.groups[q.groupId];
@@ -135,6 +139,7 @@ function Practice() {
   >({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<PracticeResult | null>(null);
+  const [activeVisual, setActiveVisual] = useState<'group' | 'question'>('group');
   const [startTime, setStartTime] = useState(Date.now());
 
   // 記錄每一題的累積時間
@@ -195,12 +200,14 @@ function Practice() {
   const handleSelectQuestion = (index: number) => {
     updateTimeRecord();
     setCurrentQuestionIndex(index);
+    setActiveVisual('group');
   };
 
   const handleNext = () => {
     if (currentQuestionIndex < randomizedQuestions.length - 1) {
       updateTimeRecord();
       setCurrentQuestionIndex((prev) => prev + 1);
+      setActiveVisual('group');
     }
   };
 
@@ -208,6 +215,7 @@ function Practice() {
     if (currentQuestionIndex > 0) {
       updateTimeRecord();
       setCurrentQuestionIndex((prev) => prev - 1);
+      setActiveVisual('group');
     }
   };
 
@@ -332,6 +340,22 @@ function Practice() {
 
   const currentQuestion = randomizedQuestions[currentQuestionIndex];
   const currentGroup = getCurrentGroup(currentQuestion);
+
+  const groupVisualUrl = currentGroup?.visual_type === 'image'
+    ? safeImageUrl(currentGroup.visual_data)
+    : null;
+  const questionVisualUrl = currentQuestion.visual_type === 'image'
+    ? safeImageUrl(currentQuestion.visual_data ?? null)
+    : null;
+  const showVisualToggle = Boolean(groupVisualUrl && questionVisualUrl);
+  const visualToShow = showVisualToggle
+    ? activeVisual
+    : questionVisualUrl
+      ? 'question'
+      : groupVisualUrl
+        ? 'group'
+        : null;
+
   const isMultipleChoice = currentQuestion.type === "multiple-choice";
   const isPredictLineQuestion = currentQuestion.type === "predict-line";
   const isFillCodeQuestion = currentQuestion.type === "fill-code";
@@ -463,20 +487,6 @@ function Practice() {
                 <p className={styles.groupDesc}>
                   {renderInlineText(currentGroup.description ?? "")}
                 </p>
-                {currentGroup.visual_type === "image" && (() => {
-                  const url = safeImageUrl(currentGroup.visual_data);
-                  if (!url) return null;
-                  return (
-                    <figure className={styles.groupVisual}>
-                      <img
-                        src={url}
-                        alt={currentGroup.visual_alt ?? currentGroup.title}
-                        loading="lazy"
-                        className={styles.groupVisualImage}
-                      />
-                    </figure>
-                  );
-                })()}
                 {currentGroup.code && (
                   <div className={styles.groupCodeBlock}>
                     <Suspense fallback={null}>
@@ -511,6 +521,53 @@ function Practice() {
               </span>
             </h2>
           </div>
+
+          {visualToShow && (
+            <div className={styles.visualSection}>
+              {showVisualToggle && (
+                <div className={styles.visualToggle}>
+                  <Button
+                    variant={activeVisual === 'group' ? 'primaryOutline' : 'ghost'}
+                    size="sm"
+                    className={activeVisual !== 'group' ? styles.visualToggleBtnInactive : ''}
+                    aria-pressed={activeVisual === 'group'}
+                    onClick={() => setActiveVisual('group')}
+                  >
+                    題組圖
+                  </Button>
+                  <Button
+                    variant={activeVisual === 'question' ? 'primaryOutline' : 'ghost'}
+                    size="sm"
+                    className={activeVisual !== 'question' ? styles.visualToggleBtnInactive : ''}
+                    aria-pressed={activeVisual === 'question'}
+                    onClick={() => setActiveVisual('question')}
+                  >
+                    提示圖
+                  </Button>
+                </div>
+              )}
+              {visualToShow === 'group' && groupVisualUrl && currentGroup && (
+                <figure className={styles.groupVisual}>
+                  <img
+                    src={groupVisualUrl}
+                    alt={currentGroup.visual_alt ?? currentGroup.title}
+                    loading="lazy"
+                    className={styles.groupVisualImage}
+                  />
+                </figure>
+              )}
+              {visualToShow === 'question' && questionVisualUrl && (
+                <figure className={styles.groupVisual}>
+                  <img
+                    src={questionVisualUrl}
+                    alt={currentQuestion.visual_alt ?? currentQuestion.title}
+                    loading="lazy"
+                    className={styles.groupVisualImage}
+                  />
+                </figure>
+              )}
+            </div>
+          )}
 
           <div className={styles.questionContent}>
             <p className={styles.questionText}>

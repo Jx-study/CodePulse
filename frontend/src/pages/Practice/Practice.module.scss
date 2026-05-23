@@ -351,3 +351,17 @@
   background-color: #ffffff;
   padding: 0.5rem;
 }
+
+.visualSection {
+  margin-bottom: 16px;
+}
+
+.visualToggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.visualToggleBtnInactive {
+  border: 1px solid $border-color;
+}
