@@ -34,6 +34,7 @@ from seeds.questions import bfs
 from seeds.questions import dfs
 from seeds.questions import dijkstra
 from seeds.questions import knapsack
+from seeds.questions import trie
 
 ALL_MODULES = [
     array,
@@ -54,6 +55,7 @@ ALL_MODULES = [
     dfs,
     dijkstra,
     knapsack,
+    trie,
 ]
 
 # ── 型別對應 ──────────────────────────────────────────────────────────────────
