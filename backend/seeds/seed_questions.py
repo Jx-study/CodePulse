@@ -22,6 +22,7 @@ from seeds.questions import stack
 from seeds.questions import queue
 from seeds.questions import binary_tree
 from seeds.questions import bst
+from seeds.questions import heap
 from seeds.questions import graph
 from seeds.questions import binary_search
 from seeds.questions import bubble_sort
@@ -41,6 +42,7 @@ ALL_MODULES = [
     queue,
     binary_tree,
     bst,
+    heap,
     graph,
     binary_search,
     bubble_sort,

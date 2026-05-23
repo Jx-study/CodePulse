@@ -1753,12 +1753,8 @@ export const GraphConfig: LevelImplementationConfig = {
     timeWorst: "O(V + E)",
     space: "O(V + E)", // 儲存空間
   },
-  introduction: `圖 (Graph) 是一種非線性的資料結構，由節點 (Vertex) 和邊 (Edge) 組成。
-  
-  - **節點 (Vertex)**: 代表資料元素，例如地圖上的城市、社交網絡中的人。
-  - **邊 (Edge)**: 代表節點之間的關係，例如城市間的道路、朋友關係。
-  
-  圖可以分為「有向圖」與「無向圖」，也可以帶有權重 (Weighted)。在此演示中，我們展示的是無向無權圖。`,
+  i18nNamespace: "tutorials/graph",
+  introduction: { key: "introduction" },
 
   // 這裡使用了包含 graph 和 grid 的雙重結構，以支援切換模式
   defaultData: {
