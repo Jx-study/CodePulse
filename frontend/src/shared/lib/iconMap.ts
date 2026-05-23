@@ -7,13 +7,10 @@
 import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
-  faPersonRunning,
-  faTrophy,
-  faTv,
-  faWaveSquare,
   faArrowRight,
   faArrowsSpin,
   faBars,
+  faBolt,
   faBookOpen,
   faCamera,
   faChalkboardUser,
@@ -69,6 +66,7 @@ import {
   faPause,
   faPencil,
   faPenToSquare,
+  faPersonRunning,
   faPlay,
   faPlus,
   faRedo,
@@ -96,9 +94,13 @@ import {
   faTerminal,
   faTimes,
   faTrash,
+  faTriangleExclamation,
+  faTrophy,
+  faTv,
   faUpload,
   faUser,
   faUserCircle,
+  faWaveSquare,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -116,6 +118,7 @@ export const iconMap = {
   "arrow-right": faArrowRight,
   "arrows-spin": faArrowsSpin,
   "bars": faBars,
+  "bolt": faBolt,
   "book-open": faBookOpen,
   "camera": faCamera,
   "chalkboard-user": faChalkboardUser,
@@ -172,7 +175,6 @@ export const iconMap = {
   "palette": faPalette,
   "paper-plane": faPaperPlane,
   "person-running": faPersonRunning,
-  "wave-square": faWaveSquare,
   "pause": faPause,
   "pencil": faPencil,
   "pen-to-square": faPenToSquare,
@@ -204,11 +206,13 @@ export const iconMap = {
   "terminal": faTerminal,
   "times": faTimes,
   "trash": faTrash,
+  "triangle-exclamation": faTriangleExclamation,
   "trophy": faTrophy,
   "tv": faTv,
   "upload": faUpload,
   "user": faUser,
   "user-circle": faUserCircle,
+  "wave-square": faWaveSquare,
 } as const;
 
 /**

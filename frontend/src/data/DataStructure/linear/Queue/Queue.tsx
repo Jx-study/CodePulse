@@ -595,7 +595,8 @@ export const QueueConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(n)",
   },
-  introduction: `佇列是一種先進先出的資料結構，類似於排隊。最早進入佇列的元素最先被移除。在此實作中，我們展示基於陣列的線性移動 (Shifting) 實作。`,
+  i18nNamespace: "tutorials/queue",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 1 },
     { id: "box-1", value: 2 },
