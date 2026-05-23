@@ -25,7 +25,7 @@ function ProgressStatsDialog({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title="學習進度"
+      title={t("stats.title")}
       size="sm"
       closeOnEscape
       closeOnOverlayClick
@@ -40,10 +40,10 @@ function ProgressStatsDialog({
           <Card hoverable={false} className={styles.heroCard}>
             <div className={styles.heroInner}>
               <div className={styles.heroText}>
-                <p className={styles.heroLabel}>總完成度</p>
+                <p className={styles.heroLabel}>{t("stats.overallCompletion")}</p>
                 <p className={styles.heroPercent}>{overallPercent}%</p>
                 <span className={styles.heroBadge}>
-                  已完成 {completedLevels} / {totalLevels} 關卡
+                  {t("stats.completedLevels", { completed: completedLevels, total: totalLevels })}
                 </span>
               </div>
               <div className={styles.heroCircle}>
@@ -81,27 +81,27 @@ function ProgressStatsDialog({
               <Icon name="star" />
             </div>
             <p className={styles.statValue}>{earnedStars}</p>
-            <p className={styles.statLabel}>獲得星數</p>
+            <p className={styles.statLabel}>{t("stats.earnedStars")}</p>
           </div>
           <div className={styles.statItem}>
             <div className={styles.statIcon}>
               <Icon name="check-circle" />
             </div>
             <p className={styles.statValue}>{completedLevels}</p>
-            <p className={styles.statLabel}>完成關卡</p>
+            <p className={styles.statLabel}>{t("stats.completedLevelCount")}</p>
           </div>
           <div className={styles.statItem}>
             <div className={styles.statIcon}>
               <Icon name="chart-bar" />
             </div>
             <p className={styles.statValue}>{overallPercent}%</p>
-            <p className={styles.statLabel}>整體進度</p>
+            <p className={styles.statLabel}>{t("stats.overallProgress")}</p>
           </div>
         </motion.div>
 
         {/* 分類進度列表 */}
         <div className={styles.categorySection}>
-          <h3 className={styles.categorySectionTitle}>課程詳情</h3>
+          <h3 className={styles.categorySectionTitle}>{t("stats.courseDetails")}</h3>
           <div className={styles.categoryList}>
             {Object.entries(categoryProgress).map(([category, info], index) => (
               <motion.div
@@ -133,7 +133,7 @@ function ProgressStatsDialog({
                 {info.isBossCompleted && (
                   <p className={styles.bossCompleted}>
                     <Icon name="crown" />
-                    Boss 已完成
+                    {t("stats.bossCompleted")}
                   </p>
                 )}
               </motion.div>

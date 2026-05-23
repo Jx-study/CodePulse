@@ -38,7 +38,7 @@ def test_apply_threshold_at_threshold_returns_label():
 
 
 def test_apply_threshold_above_returns_label():
-    label, score = apply_threshold("insertion_sort", 0.8)
+    label, score = apply_threshold("insertion_sort", THRESHOLD + 0.05)
     assert label == "insertion_sort"
 
 

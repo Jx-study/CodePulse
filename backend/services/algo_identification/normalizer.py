@@ -4,9 +4,11 @@ import ast
 def normalize_identifiers(source: str) -> str:
     """Replace user-defined function/variable names with generic placeholders.
 
-    Makes embeddings robust to renaming: `def my_sort(data)` and
-    `def bubble_sort(arr)` produce similar vectors when structurally identical.
-    Falls back to the original source if parsing fails (e.g. syntax errors).
+    Only normalizes function names and their parameters; preserves local variable
+    names because they carry semantic fingerprints (e.g. `pivot`, `mid`, `key`)
+    that improve known/unknown distribution separability. See
+    Note/technical/normalizer-ablation-study.md for the ablation that motivated
+    this choice. Falls back to the original source if parsing fails.
     """
     try:
         tree = ast.parse(source)
@@ -25,10 +27,6 @@ def normalize_identifiers(source: str) -> str:
                 if arg.arg not in seen:
                     seen[arg.arg] = f"var_{counters['var']}"
                     counters["var"] += 1
-        elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
-            if node.id not in seen:
-                seen[node.id] = f"var_{counters['var']}"
-                counters["var"] += 1
 
     class _Renamer(ast.NodeTransformer):
         def visit_FunctionDef(self, node):

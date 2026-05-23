@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import CodeBlock from '@/shared/components/CodeBlock';
 import styles from './Demo.module.scss';
 import { createBubbleSortAnimationSteps } from '@/data/algorithms/sorting/bubbleSort';
 import type { AnimationStep } from '@/types';
@@ -107,33 +108,13 @@ function Demo() {
     <div className={styles.demo} ref={containerRef}>
       <div className={styles.demoPreview}>
         {/* Mac-style code window */}
-        <div className={styles.macWindow}>
-          <div className={styles.macChrome}>
-            <div className={styles.trafficLights} aria-hidden="true">
-              <span className={styles.tlRed} />
-              <span className={styles.tlYellow} />
-              <span className={styles.tlGreen} />
-            </div>
-            <span className={styles.windowTitle}>bubble_sort.py</span>
-          </div>
-          <div className={styles.codeBody}>
-            {CODE_LINES.map((line, idx) => {
-              const lineNum = idx + 1;
-              const isHighlighted = highlightedLines.includes(lineNum);
-              return (
-                <div
-                  key={idx}
-                  className={`${styles.codeLine}${isHighlighted ? ` ${styles.highlighted}` : ""}`}
-                >
-                  <span className={styles.lineNumber}>
-                    {isHighlighted ? "▶" : lineNum}
-                  </span>
-                  <span className={styles.lineText}>{line || " "}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <CodeBlock
+          filename="bubble_sort.py"
+          lines={CODE_LINES}
+          fontSize="md"
+          highlightedLines={highlightedLines}
+          className={styles.macWindow}
+        />
 
         {/* Analysis box */}
         <div className={styles.analysisBox}>

@@ -41,6 +41,7 @@ const LearningDashboard = lazy(
   () => import("./pages/LearningDashboard/LearningDashboard"),
 );
 import ProtectedRoute from "./shared/components/ProtectedRoute";
+import GuestRoute from "./shared/components/GuestRoute";
 import WelcomeOverlay from "./modules/auth/components/WelcomeOverlay";
 
 function CheckinWrapper() {
@@ -159,10 +160,12 @@ function App() {
 
           {/* 登入页面布局 */}
           <Route path="/auth" element={<AuthLayout />}>
-            <Route index element={<AuthPage />} />
-            <Route path="verify-email" element={<VerifyEmailPage />} />
-            <Route path="forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="reset-password" element={<ResetPasswordPage />} />
+            <Route element={<GuestRoute />}>
+              <Route index element={<AuthPage />} />
+              <Route path="verify-email" element={<VerifyEmailPage />} />
+              <Route path="forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="reset-password" element={<ResetPasswordPage />} />
+            </Route>
             <Route path="callback" element={<OAuthCallback />} />
             <Route path="onboarding" element={<AuthPage />} />
             <Route path="survey" element={<Navigate to="/" replace />} />
