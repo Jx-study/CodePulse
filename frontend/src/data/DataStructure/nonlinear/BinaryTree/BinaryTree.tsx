@@ -1304,10 +1304,8 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(h)",
   },
-  introduction: `前序遍歷 (Preorder Traversal) 是一種深度優先搜尋 (DFS)。
-  它的順序是：先訪問根節點，再訪問左子樹，最後訪問右子樹。
-  
-  應用場景：複製二元樹、計算波蘭表示法 (Prefix Notation)。`,
+  i18nNamespace: "tutorials/binary-tree",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "node-1", value: 1 },
     { id: "node-2", value: 2 },
