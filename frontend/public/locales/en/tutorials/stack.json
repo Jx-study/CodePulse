@@ -1,0 +1,30 @@
+{
+  "animation": {
+    "init": "Stack State",
+    "push_start": "Push({{value}}): Preparing to push new element",
+    "push_inc_top": "top = top + 1 (top now points to {{top}})",
+    "push_assign": "stack[{{top}}] = {{value}}",
+    "push_complete": "Push Complete",
+    "pop_check_empty": "Pop(): Checking if empty",
+    "pop_error": "Error: Stack Underflow",
+    "pop_get_value": "removed_value = stack[{{top}}] ({{val}})",
+    "pop_dec_top": "top = top - 1 (top now points to {{top}})",
+    "pop_return": "Return {{val}}",
+    "pop_complete": "Pop Complete",
+    "peek_check_empty": "Peek(): Checking if empty",
+    "peek_error": "Return Null",
+    "peek_return": "Return stack[{{top}}] ({{val}})",
+    "peek_complete": "Peek Complete"
+  },
+  "ui": {
+    "operations": "Stack Operations",
+    "valuePlaceholder": "Value",
+    "push": "Push",
+    "pop": "Pop",
+    "peek": "Peek",
+    "pushTooltip": "Push an element to the top of the stack",
+    "popTooltip": "Remove the element from the top of the stack",
+    "peekTooltip": "View the top element without removing it",
+    "pushWarning": "Please enter a value to Push"
+  }
+}

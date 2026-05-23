@@ -1,0 +1,30 @@
+{
+  "animation": {
+    "init": "Stack 狀態",
+    "push_start": "Push({{value}}): 準備推入新元素",
+    "push_inc_top": "top = top + 1 (現在 top 指向 {{top}})",
+    "push_assign": "stack[{{top}}] = {{value}}",
+    "push_complete": "Push 完成",
+    "pop_check_empty": "Pop(): 檢查是否為空",
+    "pop_error": "錯誤: 堆疊下溢 (Stack Underflow)",
+    "pop_get_value": "removed_value = stack[{{top}}] ({{val}})",
+    "pop_dec_top": "top = top - 1 (現在 top 指向 {{top}})",
+    "pop_return": "回傳 {{val}}",
+    "pop_complete": "Pop 完成",
+    "peek_check_empty": "Peek(): 檢查是否為空",
+    "peek_error": "回傳 Null",
+    "peek_return": "回傳 stack[{{top}}] ({{val}})",
+    "peek_complete": "Peek 完成"
+  },
+  "ui": {
+    "operations": "堆疊操作",
+    "valuePlaceholder": "數值",
+    "push": "Push",
+    "pop": "Pop",
+    "peek": "Peek",
+    "pushTooltip": "將元素推入堆疊頂部",
+    "popTooltip": "移除堆疊頂部的元素",
+    "peekTooltip": "查看堆疊頂部的元素（不移除）",
+    "pushWarning": "請輸入要 Push 的數值"
+  }
+}
