@@ -42,21 +42,8 @@ class Array:
     def search(self, target):
         for i in range(len(self.arr)):
             if self.arr[i] == target:
-                return i 
-        return -1
-                                                 
-    def update(self, index, value): 
-        if index < 0 or index >= len(self.arr): # L9
-            raise IndexError(\"Index out of bounds\")
-        self.arr[index] = value
-                                                 
-    def insert(self, index, value):
-        # Python's list.insert handles shifting
-        self.arr.insert(index, value)
-
-    def delete(self, index):
-        # Python's list.pop handles shifting
-        self.arr.pop(index)"""
+                return i
+        return -1"""
 
 ARRAY_DELETE_FILL_CODE = """\
 def delete_at(arr, index):
@@ -394,7 +381,7 @@ DATA = {
                         {"id": "C", "text": "Queue（佇列）"},
                         {"id": "D", "text": "Hash Table"},
                     ],
-                    "explanation": "Linked List 只需修改指標即可完成中間操作 (O(1))，不需搬移資料，在已知位置時比陣列快。",
+                    "explanation": "Linked List 在已知插入或刪除點位置的前提下，只需修改指標即可完成中間操作，時間複雜度為 O(1)，不需像陣列那樣搬移大量資料，因此在頻繁異動的場景下表現更好。",
                 },
                 "en": {
                     "title": "When frequent insertions or deletions in the middle are required, which data structure generally outperforms Array?",
@@ -404,7 +391,7 @@ DATA = {
                         {"id": "C", "text": "Queue"},
                         {"id": "D", "text": "Hash Table"},
                     ],
-                    "explanation": "A Linked List only needs to update pointers for mid-list operations (O(1) given a reference), avoiding the need to shift elements as in an array.",
+                    "explanation": "A Linked List only needs to update pointers for mid-list operations when the insertion or deletion point is already known (O(1) given a reference), avoiding the need to shift many elements as in an array.",
                 },
             },
         },
