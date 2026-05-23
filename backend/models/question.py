@@ -78,6 +78,8 @@ class Question(db.Model):
     times_answered = db.Column(db.Integer, nullable=False, default=0)
     times_correct = db.Column(db.Integer, nullable=False, default=0)
 
+    visual_type = db.Column(db.String(20), nullable=False, default='none')
+    visual_data = db.Column(db.JSON, nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
     correct_answer = db.Column(db.String(500), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
@@ -103,6 +105,8 @@ class Question(db.Model):
             'language': self.language,
             'base_rating': self.base_rating,
             'group_id': self.group_id,
+            'visual_type': self.visual_type,
+            'visual_data': self.visual_data,
         }
         if include_answer:
             data['correct_answer'] = self.correct_answer
@@ -122,6 +126,7 @@ class QuestionTranslation(db.Model):
     explanation = db.Column(db.Text, nullable=True)
     options = db.Column(db.JSON, nullable=True)
     # format: [{"key": "A", "text": "..."}, ...]
+    visual_alt = db.Column(db.Text, nullable=True)
 
     __table_args__ = (
         db.UniqueConstraint('question_id', 'language_code', name='uq_question_translation'),
