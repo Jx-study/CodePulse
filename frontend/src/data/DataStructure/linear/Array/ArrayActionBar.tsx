@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -23,6 +24,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
   onSearchNode,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/array");
   const [inputValue, setInputValue] = useState("");
   const [indexValue, setIndexValue] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -30,7 +32,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
   const handleInsert = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("請輸入要插入的數值");
+      toast.warning(t("ui.insertWarning"));
       return;
     }
     const val = Number(inputValue);
@@ -41,7 +43,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
   const handleUpdate = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("Update 需要輸入數值與索引");
+      toast.warning(t("ui.updateWarning"));
       return;
     }
     const val = Number(inputValue);
@@ -49,14 +51,14 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
     if (idx !== undefined) {
       onAddNode(val, "Update", idx);
     } else {
-      toast.warning("Update 需要輸入數值與索引");
+      toast.warning(t("ui.updateWarning"));
     }
   };
 
   const handleDelete = () => {
     if (disabled) return;
     if (indexValue.trim() === "") {
-      toast.warning("請輸入要刪除的索引");
+      toast.warning(t("ui.deleteWarning"));
       return;
     }
     const idx = Number(indexValue);
@@ -77,11 +79,11 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Array Operations</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
         <Input
           type="number"
-          placeholder="數值"
+          placeholder={t("ui.valuePlaceholder")}
           value={inputValue}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setInputValue(e.target.value)
@@ -94,7 +96,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
 
         <Input
           type="number"
-          placeholder="Index"
+          placeholder={t("ui.indexPlaceholder")}
           value={indexValue}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setIndexValue(e.target.value)
@@ -105,7 +107,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Index"
         />
 
-        <Tooltip content="在指定索引位置插入元素">
+        <Tooltip content={t("ui.insertTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -114,11 +116,11 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            Insert
+            {t("ui.insert")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="更新指定索引位置的元素值">
+        <Tooltip content={t("ui.updateTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -127,11 +129,11 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnUpdate}
             icon="pencil"
           >
-            Update
+            {t("ui.update")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="刪除指定索引位置的元素">
+        <Tooltip content={t("ui.deleteTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -140,13 +142,13 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            Delete
+            {t("ui.delete")}
           </Button>
         </Tooltip>
 
         <Input
           type="number"
-          placeholder="搜尋值"
+          placeholder={t("ui.searchPlaceholder")}
           value={searchValue}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchValue(e.target.value)
@@ -156,13 +158,13 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Tooltip content="搜尋陣列中的指定數值">
+        <Tooltip content={t("ui.searchTooltip")}>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => {
               if (searchValue.trim() === "") {
-                toast.warning("請輸入搜尋值");
+                toast.warning(t("ui.searchWarning"));
                 return;
               }
               const val = Number(searchValue);
@@ -172,7 +174,7 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnSearch}
             icon="search"
           >
-            Search
+            {t("ui.search")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

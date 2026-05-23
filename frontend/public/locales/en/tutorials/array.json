@@ -61,10 +61,28 @@
     "insert_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "insert_assign": "Insert value {{value}} at Index {{index}}",
     "insert_complete": "Insert complete",
-    "delete_start": "Mark Index {{index}} (value: {{value}}) for deletion",
+    "delete_start": "Mark Index {{index}} ({{value}}) for deletion",
     "delete_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) left to Index {{to}}",
     "delete_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "delete_remove": "Remove the last redundant slot",
     "delete_complete": "Delete complete"
+  },
+  "ui": {
+    "operations": "Array Operations",
+    "valuePlaceholder": "Value",
+    "indexPlaceholder": "Index",
+    "searchPlaceholder": "Search Value",
+    "insert": "Insert",
+    "update": "Update",
+    "delete": "Delete",
+    "search": "Search",
+    "insertTooltip": "Insert an element at the specified index",
+    "updateTooltip": "Update the element's value at the specified index",
+    "deleteTooltip": "Delete the element at the specified index",
+    "searchTooltip": "Search for a specific value in the array",
+    "insertWarning": "Please enter a value to insert",
+    "updateWarning": "Update requires both a value and an index",
+    "deleteWarning": "Please enter an index to delete",
+    "searchWarning": "Please enter a search value"
   }
 }

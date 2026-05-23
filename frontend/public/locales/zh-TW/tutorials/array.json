@@ -61,10 +61,28 @@
     "insert_shift_done": "搬移完成：Index {{index}} 現在是 {{value}}",
     "insert_assign": "在 Index {{index}} 填入新數值 {{value}}",
     "insert_complete": "插入完成",
-    "delete_start": "標記 Index {{index}} (值: {{value}}) 準備刪除",
+    "delete_start": "標記 Index {{index}} ({{value}}) 準備刪除",
     "delete_shift_prepare": "準備將 Index {{from}} ({{fromValue}}) 移至 Index {{to}}",
     "delete_shift_done": "搬移完成：Index {{index}} 現在是 {{value}}",
     "delete_remove": "刪除最後一個多餘的空間",
     "delete_complete": "刪除完成"
+  },
+  "ui": {
+    "operations": "陣列操作",
+    "valuePlaceholder": "數值",
+    "indexPlaceholder": "索引",
+    "searchPlaceholder": "搜尋值",
+    "insert": "插入",
+    "update": "更新",
+    "delete": "刪除",
+    "search": "搜尋",
+    "insertTooltip": "在指定索引位置插入元素",
+    "updateTooltip": "更新指定索引位置的元素值",
+    "deleteTooltip": "刪除指定索引位置的元素",
+    "searchTooltip": "搜尋陣列中的指定數值",
+    "insertWarning": "請輸入要插入的數值",
+    "updateWarning": "更新需要輸入數值與索引",
+    "deleteWarning": "請輸入要刪除的索引",
+    "searchWarning": "請輸入搜尋值"
   }
 }
