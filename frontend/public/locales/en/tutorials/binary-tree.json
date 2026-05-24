@@ -1,0 +1,53 @@
+{
+  "animation": {
+    "init_done": "Binary tree built successfully (Nodes: {{count}})",
+    "pre_init": "Start Preorder Traversal (Root-Left-Right)",
+    "pre_null": "Node is empty (Null), backtracking",
+    "pre_visit": "[Visit] Record root node {{curr}}",
+    "pre_left_enter": "Prepare to enter left child {{child}}",
+    "pre_left_return": "Left subtree finished, return to node {{curr}}",
+    "pre_right_enter": "Prepare to enter right child {{child}}",
+    "pre_right_return": "Right subtree finished, return to node {{curr}}",
+    "pre_done": "Preorder traversal complete",
+
+    "in_init": "Start Inorder Traversal (Left-Root-Right)",
+    "in_null": "Node is empty (Null), backtracking",
+    "in_left_enter": "Prepare to enter left child {{child}}",
+    "in_left_return": "Left subtree finished, return to node {{curr}}",
+    "in_visit": "[Visit] Record node {{curr}}",
+    "in_right_enter": "Prepare to enter right child {{child}}",
+    "in_right_return": "Right subtree finished, return to node {{curr}}",
+    "in_done": "Inorder traversal complete",
+
+    "post_init": "Start Postorder Traversal (Left-Right-Root)",
+    "post_null": "Node is empty (Null), backtracking",
+    "post_left_enter": "Prepare to enter left child {{child}}",
+    "post_left_return": "Left subtree finished, return to node {{curr}}",
+    "post_right_enter": "Prepare to enter right child {{child}}",
+    "post_right_return": "Right subtree finished, return to node {{curr}}",
+    "post_visit": "[Visit] Record node {{curr}}",
+    "post_done": "Postorder traversal complete",
+
+    "bfs_init": "Start Level-order Traversal (BFS): Enqueue Root",
+    "bfs_while": "Check if queue is empty",
+    "bfs_dequeue": "Dequeue first node {{curr}}",
+    "bfs_visit": "[Visit] Record node {{curr}}",
+    "bfs_enqueue_left": "Found left child {{child}}, enqueueing left child",
+    "bfs_skip_left": "Left child is empty, skipping",
+    "bfs_enqueue_right": "Found right child {{child}}, enqueueing right child",
+    "bfs_skip_right": "Right child is empty, skipping",
+    "bfs_done": "BFS traversal complete"
+  },
+  "ui": {
+    "operations": "Binary Tree Traversals",
+    "preorder": "Preorder",
+    "inorder": "Inorder",
+    "postorder": "Postorder",
+    "bfs": "BFS (Level-order)",
+    "preorderTooltip": "Preorder Traversal: Root → Left → Right",
+    "inorderTooltip": "Inorder Traversal: Left → Root → Right",
+    "postorderTooltip": "Postorder Traversal: Left → Right → Root",
+    "bfsTooltip": "Breadth-First Search: Level by level",
+    "deleteNotFound": "Value {{val}} does not exist"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "animation": {
+    "init_done": "二元樹建立完成 (節點數: {{count}})",
+    "pre_init": "開始前序遍歷 (根-左-右)",
+    "pre_null": "節點為空 (Null)，回溯",
+    "pre_visit": "[訪問] 紀錄根節點 {{curr}}",
+    "pre_left_enter": "準備進入左子節點 {{child}}",
+    "pre_left_return": "左子樹完成，回到節點 {{curr}}",
+    "pre_right_enter": "準備進入右子節點 {{child}}",
+    "pre_right_return": "右子樹完成，回到節點 {{curr}}",
+    "pre_done": "前序遍歷完成",
+
+    "in_init": "開始中序遍歷 (左-根-右)",
+    "in_null": "節點為空 (Null)，回溯",
+    "in_left_enter": "準備進入左子節點 {{child}}",
+    "in_left_return": "左子樹完成，回到節點 {{curr}}",
+    "in_visit": "[訪問] 紀錄節點 {{curr}}",
+    "in_right_enter": "準備進入右子節點 {{child}}",
+    "in_right_return": "右子樹完成，回到節點 {{curr}}",
+    "in_done": "中序遍歷完成",
+
+    "post_init": "開始後序遍歷 (左-右-根)",
+    "post_null": "節點為空 (Null)，回溯",
+    "post_left_enter": "準備進入左子節點 {{child}}",
+    "post_left_return": "左子樹完成，回到節點 {{curr}}",
+    "post_right_enter": "準備進入右子節點 {{child}}",
+    "post_right_return": "右子樹完成，回到節點 {{curr}}",
+    "post_visit": "[訪問] 紀錄節點 {{curr}}",
+    "post_done": "後序遍歷完成",
+
+    "bfs_init": "開始層序遍歷 (BFS)：將 Root 入隊",
+    "bfs_while": "檢查佇列是否爲空",
+    "bfs_dequeue": "取出佇列首位節點，Dequeue 節點 {{curr}}",
+    "bfs_visit": "[訪問] 紀錄節點 {{curr}}",
+    "bfs_enqueue_left": "發現左子節點 {{child}}，Enqueue 左子節點",
+    "bfs_skip_left": "左子節點為空，跳過",
+    "bfs_enqueue_right": "發現右子節點 {{child}}，Enqueue 右子節點",
+    "bfs_skip_right": "右子節點為空，跳過",
+    "bfs_done": "BFS 遍歷完成"
+  },
+  "ui": {
+    "operations": "二元樹走訪",
+    "preorder": "前序走訪",
+    "inorder": "中序走訪",
+    "postorder": "後序走訪",
+    "bfs": "BFS (Level-order)",
+    "preorderTooltip": "前序走訪：根 → 左 → 右",
+    "inorderTooltip": "中序走訪：左 → 根 → 右",
+    "postorderTooltip": "後序走訪：左 → 右 → 根",
+    "bfsTooltip": "廣度優先走訪：逐層遍歷節點",
+    "deleteNotFound": "數值 {{val}} 不存在"
+  }
+}
