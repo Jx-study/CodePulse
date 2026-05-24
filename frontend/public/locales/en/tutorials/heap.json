@@ -1,0 +1,41 @@
+{
+  "animation": {
+    "init": "Initialize {{heapName}}",
+    "insert_start": "Add value {{value}} to the end of the array (index: {{index}})",
+    "heapify_up_compare": "Compare with parent: Current {{curVal}} vs Parent {{parentVal}}",
+    "heapify_up_swap_min": "Current node < Parent node, perform Swap",
+    "heapify_up_swap_max": "Current node > Parent node, perform Swap",
+    "extract_start_min": "Prepare to extract minimum value: {{extVal}}",
+    "extract_start_max": "Prepare to extract maximum value: {{extVal}}",
+    "extract_swap_last": "Swap Root with the last node",
+    "extract_remove": "Remove the last node and Heapify Down the new Root",
+    "heapify_down_compare_min": "Find the smaller child for comparison",
+    "heapify_down_compare_max": "Find the larger child for comparison",
+    "heapify_down_swap": "Violates {{heapName}} rules, perform Swap",
+    "peek_min": "Peek minimum value: {{extVal}}",
+    "peek_max": "Peek maximum value: {{extVal}}",
+    "heapify_start": "Start Bottom-Up Heapify ({{length}} nodes total), Target: {{heapName}}",
+    "done": "{{heapName}} operation complete"
+  },
+  "ui": {
+    "notHeap": "Not a Heap",
+    "switchTo": "Switch to {{mode}}",
+    "buildMinHeap": "Build Min-Heap",
+    "valuePlaceholder": "Value",
+    "insert": "Insert",
+    "extract": "Extract",
+    "extractBtn": "Extract {{type}}",
+    "peek": "Peek",
+    "min": "Minimum",
+    "max": "Maximum",
+    "toggleTooltip": "Toggle Heap mode and auto-heapify",
+    "insertReadyTooltip": "Add value to the Heap (Heapify Up)",
+    "needHeapifyTooltip": "Please Heapify first to build a Max-Heap or Min-Heap",
+    "extractReadyTooltip": "Extract and remove the {{type}} value (Heapify Down)",
+    "extractNeedHeapifyTooltip": "Please Heapify first to extract the root node",
+    "peekReadyTooltip": "View the {{type}} value (without removing)",
+    "peekNeedHeapifyTooltip": "Please Heapify first to peek at the root node",
+    "heapifyTooltip": "Convert unordered array to Heap (Bottom-Up Heapify)",
+    "insertWarning": "Please enter a value to Insert"
+  }
+}

@@ -1,4 +1,4 @@
-import { AnimationStep, CodeConfig } from "@/types";
+import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import type {
   ActionContext,
@@ -10,6 +10,17 @@ import { HeapActionBar } from "./HeapActionBar";
 import { TAGS } from "./heap/tags";
 import { simulateHeapTrace } from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+
+export const HeapStatusConfig: StatusConfig = {
+  statuses: [
+    { key: Status.Inactive, label: "未建立", color: "#555555" },
+    { key: Status.Unfinished, label: "一般節點", color: "#1d79cfff" }, // 原本的「未完成」作為「一般節點」
+    { key: Status.Prepare, label: "比較中", color: "#f59e0b" },
+    { key: Status.Target, label: "當前焦點", color: "#ff6b35" },
+    { key: Status.Complete, label: "完成 / 提取", color: "#46f336ff" },
+  ],
+};
 
 const baseActionHandler = createLinearActionHandler();
 
@@ -274,8 +285,10 @@ export const HeapConfig: LevelImplementationConfig = {
     { id: "box-5", value: 40 },
   ],
   createAnimationSteps: createHeapAnimationSteps,
+  statusConfig: HeapStatusConfig,
   actionHandler: heapActionHandler,
   renderActionBar: (props) => <HeapActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/heap",
   relatedProblems: [
     {
       id: 703,
@@ -308,7 +321,8 @@ export const HeapConfig: LevelImplementationConfig = {
     {
       id: 23,
       title: "Merge K Sorted Lists",
-      concept: "多路合併：Min-Heap 同時追蹤 K 個串列的最小值，O(n log k) 完成合併",
+      concept:
+        "多路合併：Min-Heap 同時追蹤 K 個串列的最小值，O(n log k) 完成合併",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/merge-k-sorted-lists/",
     },
