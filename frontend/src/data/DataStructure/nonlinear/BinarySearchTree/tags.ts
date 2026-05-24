@@ -1,3 +1,13 @@
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+
+export const BSTStatus = {
+  Inactive: Status.Inactive,
+  Visited: "visited",
+  Prepare: Status.Prepare,
+  Target: Status.Target,
+  Complete: Status.Complete,
+} as const;
+
 export const TAGS = {
   INS_INIT_EMPTY: "INS_INIT_EMPTY",
   INS_INIT: "INS_INIT",

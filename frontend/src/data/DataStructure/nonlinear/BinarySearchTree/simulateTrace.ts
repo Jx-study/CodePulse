@@ -1,5 +1,5 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
-import { TAGS } from "./tags";
+import { TAGS, BSTStatus } from "./tags";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { updateLinkStatus } from "../utils";
@@ -125,7 +125,7 @@ export function simulateBSTTrace(
 
   const pushTrace = (
     data: any[],
-    statusMap: Record<string, Status>,
+    statusMap: Record<string, string>,
     tag: string,
     local_vars: any,
     linkStatusMap: Record<string, linkStatus> = {},
@@ -166,7 +166,7 @@ export function simulateBSTTrace(
     if (oldData.length === 0) {
       pushTrace(
         inputData,
-        { [newNodeData.id]: Status.Complete },
+        { [newNodeData.id]: BSTStatus.Complete },
         TAGS.INS_INIT_EMPTY,
         { ...getVars(), curr: null },
         { ...linkStatusMap },
@@ -174,18 +174,18 @@ export function simulateBSTTrace(
       return trace;
     }
     const root = buildBST(oldData);
-    const statusMap: Record<string, Status> = {};
+    const statusMap: Record<string, string> = {};
     pushTrace(oldData, {}, TAGS.INS_INIT, getVars(root), { ...linkStatusMap });
 
     let curr = root;
     let insertedAsLeftChild = false;
     while (curr) {
-      statusMap[curr.id] = Status.Target;
+      statusMap[curr.id] = BSTStatus.Target;
       pushTrace(oldData, statusMap, TAGS.INS_COMPARE, getVars(curr), {
         ...linkStatusMap,
       });
       if (newValue === curr.value) {
-        statusMap[curr.id] = Status.Complete;
+        statusMap[curr.id] = BSTStatus.Complete;
         pathLinks.forEach(({ u, v }) =>
           updateLinkStatus(linkStatusMap, u, v, "complete", false),
         );
@@ -200,7 +200,7 @@ export function simulateBSTTrace(
       }
       if (newValue < curr.value) {
         if (curr.left) {
-          statusMap[curr.left.id] = Status.Prepare;
+          statusMap[curr.left.id] = BSTStatus.Prepare;
           updateLinkStatus(
             linkStatusMap,
             curr.id,
@@ -213,7 +213,7 @@ export function simulateBSTTrace(
             ...linkStatusMap,
           });
           delete statusMap[curr.left.id];
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           curr = curr.left;
         } else {
           insertedAsLeftChild = true;
@@ -224,7 +224,7 @@ export function simulateBSTTrace(
         }
       } else {
         if (curr.right) {
-          statusMap[curr.right.id] = Status.Prepare;
+          statusMap[curr.right.id] = BSTStatus.Prepare;
           updateLinkStatus(
             linkStatusMap,
             curr.id,
@@ -237,7 +237,7 @@ export function simulateBSTTrace(
             ...linkStatusMap,
           });
           delete statusMap[curr.right.id];
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           curr = curr.right;
         } else {
           insertedAsLeftChild = false;
@@ -248,9 +248,9 @@ export function simulateBSTTrace(
         }
       }
     }
-    statusMap[newNodeData.id] = Status.Complete;
+    statusMap[newNodeData.id] = BSTStatus.Complete;
     if (curr) {
-      statusMap[curr.id] = Status.Unfinished;
+      statusMap[curr.id] = BSTStatus.Visited;
       pathLinks.forEach(({ u, v }) =>
         updateLinkStatus(linkStatusMap, u, v, "unfinished", false),
       );
@@ -274,7 +274,7 @@ export function simulateBSTTrace(
   // SEARCH
   else if (mode === "search") {
     const root = buildBST(inputData);
-    const statusMap: Record<string, Status> = {};
+    const statusMap: Record<string, string> = {};
     const linkStatusMap: Record<string, linkStatus> = {};
     const searchPathLinks: { u: string; v: string }[] = [];
     const getVars = (curr?: LogicTreeNode | null, found?: boolean) => ({
@@ -295,12 +295,12 @@ export function simulateBSTTrace(
     let curr: LogicTreeNode | undefined = root;
     let found = false;
     while (curr) {
-      statusMap[curr.id] = Status.Target;
+      statusMap[curr.id] = BSTStatus.Target;
       pushTrace(inputData, statusMap, TAGS.SRCH_COMPARE, getVars(curr), {
         ...linkStatusMap,
       });
       if (targetValue === curr.value) {
-        statusMap[curr.id] = Status.Complete;
+        statusMap[curr.id] = BSTStatus.Complete;
         searchPathLinks.forEach(({ u, v }) =>
           updateLinkStatus(linkStatusMap, u, v, "complete", false),
         );
@@ -311,7 +311,7 @@ export function simulateBSTTrace(
         break;
       } else if (targetValue < curr.value) {
         if (curr.left) {
-          statusMap[curr.left.id] = Status.Prepare;
+          statusMap[curr.left.id] = BSTStatus.Prepare;
           updateLinkStatus(
             linkStatusMap,
             curr.id,
@@ -324,18 +324,18 @@ export function simulateBSTTrace(
             ...linkStatusMap,
           });
           delete statusMap[curr.left.id];
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           curr = curr.left;
         } else {
           pushTrace(inputData, statusMap, TAGS.SRCH_LEFT, getVars(curr), {
             ...linkStatusMap,
           });
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           break;
         }
       } else {
         if (curr.right) {
-          statusMap[curr.right.id] = Status.Prepare;
+          statusMap[curr.right.id] = BSTStatus.Prepare;
           updateLinkStatus(
             linkStatusMap,
             curr.id,
@@ -348,13 +348,13 @@ export function simulateBSTTrace(
             ...linkStatusMap,
           });
           delete statusMap[curr.right.id];
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           curr = curr.right;
         } else {
           pushTrace(inputData, statusMap, TAGS.SRCH_RIGHT, getVars(curr), {
             ...linkStatusMap,
           });
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           break;
         }
       }
@@ -377,7 +377,7 @@ export function simulateBSTTrace(
   else if (mode === "DeleteValue") {
     const tVal = Math.round(targetValue);
     const root = buildBST(inputData);
-    const statusMap: Record<string, Status> = {};
+    const statusMap: Record<string, string> = {};
     const linkStatusMap: Record<string, linkStatus> = {};
     const pathLinks: { u: string; v: string }[] = [];
     const successorPathLinks: { u: string; v: string }[] = [];
@@ -406,13 +406,13 @@ export function simulateBSTTrace(
     let foundNode: LogicTreeNode | undefined = undefined;
 
     while (curr) {
-      statusMap[curr.id] = Status.Target;
+      statusMap[curr.id] = BSTStatus.Target;
       pushTrace(inputData, statusMap, TAGS.DEL_SEARCH, getVars(curr), {
         ...linkStatusMap,
       });
       if (tVal === curr.value) {
         foundNode = curr;
-        statusMap[curr.id] = Status.Complete;
+        statusMap[curr.id] = BSTStatus.Complete;
         pathLinks.forEach(({ u, v }) =>
           updateLinkStatus(linkStatusMap, u, v, "complete", false),
         );
@@ -423,7 +423,7 @@ export function simulateBSTTrace(
       }
       if (tVal < curr.value) {
         if (curr.left) {
-          statusMap[curr.left.id] = Status.Prepare;
+          statusMap[curr.left.id] = BSTStatus.Prepare;
           updateLinkStatus(
             linkStatusMap,
             curr.id,
@@ -436,18 +436,18 @@ export function simulateBSTTrace(
             ...linkStatusMap,
           });
           delete statusMap[curr.left.id];
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           curr = curr.left;
         } else {
           pushTrace(inputData, statusMap, TAGS.DEL_LEFT, getVars(curr), {
             ...linkStatusMap,
           });
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           break;
         }
       } else {
         if (curr.right) {
-          statusMap[curr.right.id] = Status.Prepare;
+          statusMap[curr.right.id] = BSTStatus.Prepare;
           updateLinkStatus(
             linkStatusMap,
             curr.id,
@@ -460,13 +460,13 @@ export function simulateBSTTrace(
             ...linkStatusMap,
           });
           delete statusMap[curr.right.id];
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           curr = curr.right;
         } else {
           pushTrace(inputData, statusMap, TAGS.DEL_RIGHT, getVars(curr), {
             ...linkStatusMap,
           });
-          statusMap[curr.id] = Status.Unfinished;
+          statusMap[curr.id] = BSTStatus.Visited;
           break;
         }
       }
@@ -497,7 +497,7 @@ export function simulateBSTTrace(
     const targetId = foundNode.id;
 
     if (!foundNode.left && !foundNode.right) {
-      statusMap[targetId] = Status.Target;
+      statusMap[targetId] = BSTStatus.Target;
       pushTrace(inputData, statusMap, TAGS.DEL_LEAF, getVars(null, foundNode), {
         ...linkStatusMap,
       });
@@ -530,7 +530,7 @@ export function simulateBSTTrace(
         ...linkStatusMap,
       });
     } else {
-      statusMap[targetId] = Status.Target;
+      statusMap[targetId] = BSTStatus.Target;
       pushTrace(
         inputData,
         statusMap,
@@ -539,7 +539,7 @@ export function simulateBSTTrace(
         { ...linkStatusMap },
       );
       let successor = foundNode.right;
-      statusMap[successor!.id] = Status.Prepare;
+      statusMap[successor!.id] = BSTStatus.Prepare;
       updateLinkStatus(
         linkStatusMap,
         foundNode.id,
@@ -558,7 +558,7 @@ export function simulateBSTTrace(
       delete statusMap[successor!.id];
 
       while (successor!.left) {
-        statusMap[successor!.left.id] = Status.Prepare;
+        statusMap[successor!.left.id] = BSTStatus.Prepare;
         updateLinkStatus(
           linkStatusMap,
           successor!.id,
@@ -578,7 +578,7 @@ export function simulateBSTTrace(
         successor = successor!.left;
       }
 
-      statusMap[successor!.id] = Status.Complete;
+      statusMap[successor!.id] = BSTStatus.Complete;
       successorPathLinks.forEach(({ u, v }) =>
         updateLinkStatus(linkStatusMap, u, v, "complete", false),
       );
@@ -607,7 +607,7 @@ export function simulateBSTTrace(
       const finalData = getBSTArrayAfterDelete(inputData, tVal);
       pushTrace(
         finalData,
-        { [targetId]: Status.Complete },
+        { [targetId]: BSTStatus.Complete },
         TAGS.DEL_SUCCESSOR_REMOVE,
         getVars(),
         {},
@@ -619,7 +619,7 @@ export function simulateBSTTrace(
   else if (mode === "min" || mode === "max") {
     const root = buildBST(inputData);
     if (!root) return trace;
-    const statusMap: Record<string, Status> = {};
+    const statusMap: Record<string, string> = {};
     const linkStatusMap: Record<string, linkStatus> = {};
     const pathLinks: { u: string; v: string }[] = [];
     const getVars = (curr?: LogicTreeNode) => ({ curr: curr?.value ?? null });
@@ -635,7 +635,7 @@ export function simulateBSTTrace(
     const nextChild = mode === "min" ? () => curr.left : () => curr.right;
 
     while (nextChild()) {
-      statusMap[curr.id] = Status.Target;
+      statusMap[curr.id] = BSTStatus.Target;
       pushTrace(
         inputData,
         statusMap,
@@ -644,7 +644,7 @@ export function simulateBSTTrace(
         { ...linkStatusMap },
       );
       const child = nextChild()!;
-      statusMap[child.id] = Status.Prepare;
+      statusMap[child.id] = BSTStatus.Prepare;
       updateLinkStatus(linkStatusMap, curr.id, child.id, "prepare", true);
       pathLinks.push({ u: curr.id, v: child.id });
       pushTrace(
@@ -655,11 +655,11 @@ export function simulateBSTTrace(
         { ...linkStatusMap },
       );
       delete statusMap[child.id];
-      statusMap[curr.id] = Status.Unfinished;
+      statusMap[curr.id] = BSTStatus.Visited;
       curr = child;
     }
 
-    statusMap[curr.id] = Status.Complete;
+    statusMap[curr.id] = BSTStatus.Complete;
     pathLinks.forEach(({ u, v }) =>
       updateLinkStatus(linkStatusMap, u, v, "unfinished", false),
     );
@@ -676,7 +676,7 @@ export function simulateBSTTrace(
   else if (mode === "floor" || mode === "ceil") {
     const root = buildBST(inputData);
     if (!root) return trace;
-    const statusMap: Record<string, Status> = {};
+    const statusMap: Record<string, string> = {};
     const linkStatusMap: Record<string, linkStatus> = {};
     const pathLinks: { u: string; v: string }[] = [];
 
@@ -705,7 +705,7 @@ export function simulateBSTTrace(
     let candidateNode: LogicTreeNode | null = null;
 
     while (curr) {
-      statusMap[curr.id] = Status.Target;
+      statusMap[curr.id] = BSTStatus.Target;
       pushTrace(
         inputData,
         statusMap,
@@ -715,8 +715,8 @@ export function simulateBSTTrace(
       );
 
       if (curr.value === targetValue) {
-        if (candidateNode) statusMap[candidateNode.id] = Status.Unfinished;
-        statusMap[curr.id] = Status.Complete;
+        if (candidateNode) statusMap[candidateNode.id] = BSTStatus.Visited;
+        statusMap[curr.id] = BSTStatus.Complete;
         pathLinks.forEach(({ u, v }) =>
           updateLinkStatus(linkStatusMap, u, v, "complete", false),
         );
@@ -752,13 +752,13 @@ export function simulateBSTTrace(
       }
 
       if (shouldRecord) {
-        if (candidateNode) statusMap[candidateNode.id] = Status.Unfinished;
+        if (candidateNode) statusMap[candidateNode.id] = BSTStatus.Visited;
         candidateNode = curr;
-        statusMap[curr.id] = Status.Complete;
+        statusMap[curr.id] = BSTStatus.Complete;
       }
 
       if (nextNode) {
-        statusMap[nextNode.id] = Status.Prepare;
+        statusMap[nextNode.id] = BSTStatus.Prepare;
         updateLinkStatus(linkStatusMap, curr.id, nextNode.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: nextNode.id });
         pushTrace(
@@ -769,7 +769,7 @@ export function simulateBSTTrace(
           { ...linkStatusMap },
         );
         delete statusMap[nextNode.id];
-        if (!shouldRecord) statusMap[curr.id] = Status.Unfinished;
+        if (!shouldRecord) statusMap[curr.id] = BSTStatus.Visited;
         curr = nextNode;
       } else {
         pushTrace(
@@ -779,7 +779,7 @@ export function simulateBSTTrace(
           getVars(curr, candidateNode?.value),
           { ...linkStatusMap },
         );
-        if (!shouldRecord) statusMap[curr.id] = Status.Unfinished;
+        if (!shouldRecord) statusMap[curr.id] = BSTStatus.Visited;
         break;
       }
     }

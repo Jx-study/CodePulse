@@ -1,10 +1,9 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { createTreeNodes, buildLinksFromNodes } from "../utils";
 import { buildBST, flattenUniqueNodes } from "./simulateTrace";
-import { TAGS } from "./tags";
+import { TAGS, BSTStatus } from "./tags";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 const BST_LAYOUT = {
@@ -227,7 +226,7 @@ export function bstTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
     const meta = event.meta || {};
     const inputData: any[] = meta.inputData || [];
-    const statusMap: Record<string, Status> = meta.statusMap || {};
+    const statusMap: Record<string, string> = meta.statusMap || {};
     const linkStatusMap: Record<string, linkStatus> = meta.linkStatusMap || {};
 
     const root = buildBST(inputData);
@@ -238,7 +237,7 @@ export function bstTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
 
     treeElements.forEach((el) => {
       if (el instanceof Node) {
-        el.setStatus(statusMap[el.id] || Status.Inactive);
+        el.setStatus(statusMap[el.id] || BSTStatus.Inactive);
         if (el.value !== "") el.value = String(Math.round(Number(el.value)));
       }
     });

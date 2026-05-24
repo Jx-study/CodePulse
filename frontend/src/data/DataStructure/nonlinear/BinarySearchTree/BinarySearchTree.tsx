@@ -1,5 +1,5 @@
 import { LevelImplementationConfig } from "@/types/implementation";
-import { AnimationStep, CodeConfig } from "@/types";
+import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { BSTActionBar } from "./BSTActionBar";
 import { simulateBSTTrace, getBSTArrayAfterDelete } from "./simulateTrace";
 import { bstTraceToSteps } from "./traceToSteps";
@@ -8,7 +8,17 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
-import { TAGS } from "./tags";
+import { TAGS, BSTStatus } from "./tags";
+
+export const BSTStatusConfig: StatusConfig = {
+  statuses: [
+    { key: BSTStatus.Inactive, label: "未參訪", color: "#555555" },
+    { key: BSTStatus.Visited, label: "已參訪路徑", color: "#1d79cfff" },
+    { key: BSTStatus.Prepare, label: "探索方向", color: "#f59e0b" },
+    { key: BSTStatus.Target, label: "當前節點", color: "#ff6b35" },
+    { key: BSTStatus.Complete, label: "完成 / 目標", color: "#46f336ff" },
+  ],
+};
 
 function bstActionHandler(
   actionType: string,
@@ -352,6 +362,7 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
     { id: "node-7", value: 80 },
   ],
   createAnimationSteps: createBinarySearchTreeAnimationSteps,
+  statusConfig: BSTStatusConfig,
   actionHandler: bstActionHandler,
   renderActionBar: (props) => <BSTActionBar {...(props as any)} />,
   i18nNamespace: "tutorials/bst",
