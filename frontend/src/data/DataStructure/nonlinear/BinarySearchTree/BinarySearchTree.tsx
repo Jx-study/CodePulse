@@ -167,10 +167,6 @@ const generateFrame = (
         el.value = String(Math.round(Number(el.value)));
       }
 
-      const logicNode = uniqueData.find((d) => d.id === el.id);
-      if (logicNode) {
-        el.description = `Count: ${logicNode.count}`;
-      }
     }
   });
 
