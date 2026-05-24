@@ -1,160 +1,20 @@
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
-import { createSortingFrame } from "@/data/shared/animationUtils/linearFrame";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import { simulateBubbleSortTrace } from "./bubbleSort/simulateTrace";
+import { bubbleSortTraceToSteps } from "./bubbleSort/traceToSteps";
+import { TAGS } from "./bubbleSort/tags";
 
 const bubbleSortActionHandler = createLinearActionHandler();
 
 export function createBubbleSortAnimationSteps(
   inputData: LinearData[],
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  // 深拷貝資料以進行模擬排序
-  let arr = inputData.map((d) => ({ ...d }));
-  const n = arr.length;
-  const sortedIndices = new Set<number>(); // 記錄已就定位的索引
-
-  steps.push({
-    stepNumber: 0,
-    description: "開始泡沫排序",
-    actionTag: TAGS.INIT,
-    local_vars: { totalItems: n },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  // 演算法主迴圈
-  for (let i = 0; i < n - 1; i++) {
-    let swapped = false;
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `第 ${i + 1} 輪開始`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: { round: i, hasSwapped: false, unsortedRange: n - i - 2 },
-      elements: createSortingFrame(arr, {}, sortedIndices),
-    });
-
-    for (let j = 0; j < n - i - 1; j++) {
-      // 防呆：確保數值存在
-      const val1 = Number(arr[j].value);
-      const val2 = Number(arr[j + 1].value);
-
-      const compareStatus: Record<number, Status> = {};
-      compareStatus[j] = Status.Prepare;
-      compareStatus[j + 1] = Status.Prepare;
-
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `抓取 Index ${j} (${val1}) 和 Index ${j + 1} (${val2})`,
-        actionTag: TAGS.GET_VALUES,
-        local_vars: {
-          round: i,
-          index: j,
-          currentVal: val1,
-          nextVal: val2,
-          hasSwapped: swapped,
-        },
-        elements: createSortingFrame(arr, compareStatus, sortedIndices),
-      });
-
-      if (val1 > val2) {
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `判斷：${val1} > ${val2} 為真，準備交換`,
-          actionTag: TAGS.COMPARE,
-          local_vars: {
-            round: i,
-            index: j,
-            currentVal: val1,
-            nextVal: val2,
-            condition: `${val1} > ${val2}`,
-            result: true,
-          },
-          elements: createSortingFrame(arr, compareStatus, sortedIndices),
-        });
-
-        const temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-        swapped = true;
-        compareStatus[j] = Status.Target;
-        compareStatus[j + 1] = Status.Target;
-
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `交換完成：${val1} 和 ${val2} 位置對調`,
-          actionTag: TAGS.SWAP,
-          local_vars: {
-            round: i,
-            index: j,
-            [`collection[${j}]`]: arr[j].value ?? null,
-            [`collection[${j + 1}]`]: arr[j + 1].value ?? null,
-            hasSwapped: true,
-          },
-          elements: createSortingFrame(arr, compareStatus, sortedIndices),
-        });
-      } else {
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `判斷：${val1} > ${val2} 為假，不需交換`,
-          actionTag: TAGS.COMPARE,
-          local_vars: {
-            round: i,
-            index: j,
-            condition: `${val1} > ${val2}`,
-            result: false,
-          },
-          elements: createSortingFrame(arr, compareStatus, sortedIndices),
-        });
-      }
-    }
-
-    sortedIndices.add(n - 1 - i);
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `本輪結束，Index ${n - 1 - i} 已就定位`,
-      actionTag: TAGS.ROUND_END,
-      local_vars: { round: i, hasSwapped: swapped },
-      elements: createSortingFrame(arr, {}, sortedIndices),
-    });
-
-    if (!swapped) {
-      for (let k = 0; k < n - 1 - i; k++) {
-        sortedIndices.add(k);
-      }
-      break;
-    }
-  }
-
-  sortedIndices.add(0);
-
-  steps.push({
-    stepNumber: steps.length + 1,
-    description: "排序完成",
-    actionTag: TAGS.DONE,
-    local_vars: { isSorted: true },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  return steps;
+  const trace = simulateBubbleSortTrace(inputData);
+  return bubbleSortTraceToSteps(trace);
 }
-
-const TAGS = {
-  INIT: "INIT",
-  ROUND_START: "ROUND_START",
-  INNER_LOOP_START: "INNER_LOOP_START",
-  GET_VALUES: "GET_VALUES",
-  COMPARE: "COMPARE",
-  DECISION: "DECISION",
-  SWAP: "SWAP",
-  ROUND_END: "ROUND_END",
-  DONE: "DONE",
-};
 
 const bubbleSortCodeConfig: CodeConfig = {
   pseudo: {
@@ -233,6 +93,7 @@ export const bubbleSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createBubbleSortAnimationSteps,
   actionHandler: bubbleSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/bubble-sort",
   relatedProblems: [
     {
       id: 912,

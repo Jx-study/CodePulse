@@ -1,0 +1,7 @@
+{
+  "ui": {
+    "sortingControl": "Sorting Operations",
+    "run": "Run Sort",
+    "runTooltip": "Execute sorting algorithm"
+  }
+}

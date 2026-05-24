@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import type { AlgoActionBarProps } from "@/types/implementation";
@@ -15,10 +16,12 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
   onResetData,
   onRandomData,
   onMaxNodesChange,
+  maxNodes,
   disabled = false,
   onRun,
-  maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/sorting");
+
   return (
     <ActionBarContainer>
       <ActionBarGroup>
@@ -33,8 +36,8 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Sorting Control</StaticLabel>
-        <Tooltip content="執行排序演算法">
+        <StaticLabel>{t("ui.sortingControl")}</StaticLabel>
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -43,7 +46,7 @@ export const SortingActionBar: React.FC<AlgoActionBarProps> = ({
             className={styles.btnRun}
             icon="play"
           >
-            開始排序
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

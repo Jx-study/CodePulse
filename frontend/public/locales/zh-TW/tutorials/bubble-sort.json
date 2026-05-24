@@ -1,0 +1,13 @@
+{
+  "animation": {
+    "init": "開始泡沫排序",
+    "round_start": "第 {{round}} 輪開始",
+    "get_values": "抓取 Index {{idx}} ({{v1}}) 和 Index {{idx2}} ({{v2}})",
+    "compare_true": "判斷：{{v1}} > {{v2}} 為真，準備交換",
+    "compare_false": "判斷：{{v1}} > {{v2}} 為假，不需交換",
+    "swap": "交換完成：位置對調",
+    "round_end": "本輪結束，Index {{idx}} 已就定位",
+    "early_exit": "第 {{round}} 輪未發生任何交換，陣列已完成排序，提早結束！",
+    "done": "排序完成"
+  }
+}
