@@ -152,7 +152,7 @@ export function binaryTreeTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
 
     treeElements.forEach((el) => {
       if (el instanceof Node) {
-        el.setStatus((statusMap[el.id] as Status) || BTStatus.Inactive);
+        el.setStatus(statusMap[el.id] || BTStatus.Inactive);
       }
     });
 

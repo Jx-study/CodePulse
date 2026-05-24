@@ -124,11 +124,11 @@ export function simulateBinaryTreeTrace(
         getVars(node),
         { ...linkStatusMap },
       );
-      statusMap[node.id] = BTStatus.Complete;
+      statusMap[node.id] = BTStatus.Visited;
 
       if (node.left) {
         statusMap[node.left.id] = BTStatus.Prepare;
-        linkStatusMap[`${node.id}-${node.left.id}`] = "prepare";
+        linkStatusMap[`${node.id}->${node.left.id}`] = "prepare";
         pushTrace(
           TAGS.PRE_LEFT_ENTER,
           statusMap,
@@ -139,8 +139,9 @@ export function simulateBinaryTreeTrace(
           { ...linkStatusMap },
         );
         delete statusMap[node.left.id];
+        // linkStatusMap[`${node.id}->${node.left.id}`] = "unfinished";
         traverse(node.left);
-        linkStatusMap[`${node.id}-${node.left.id}`] = "complete";
+        linkStatusMap[`${node.id}->${node.left.id}`] = "complete";
         const orig = statusMap[node.id];
         statusMap[node.id] = BTStatus.Target;
         pushTrace(
@@ -188,7 +189,7 @@ export function simulateBinaryTreeTrace(
 
       if (node.right) {
         statusMap[node.right.id] = BTStatus.Prepare;
-        linkStatusMap[`${node.id}-${node.right.id}`] = "prepare";
+        linkStatusMap[`${node.id}->${node.right.id}`] = "prepare";
         pushTrace(
           TAGS.PRE_RIGHT_ENTER,
           statusMap,
@@ -199,8 +200,9 @@ export function simulateBinaryTreeTrace(
           { ...linkStatusMap },
         );
         delete statusMap[node.right.id];
+        // linkStatusMap[`${node.id}->${node.right.id}`] = "unfinished";
         traverse(node.right);
-        linkStatusMap[`${node.id}-${node.right.id}`] = "complete";
+        linkStatusMap[`${node.id}->${node.right.id}`] = "complete";
         const orig = statusMap[node.id];
         statusMap[node.id] = BTStatus.Target;
         pushTrace(
@@ -245,6 +247,7 @@ export function simulateBinaryTreeTrace(
         );
         statusMap[node.id] = orig;
       }
+      statusMap[node.id] = BTStatus.Complete;
       pushTrace(
         TAGS.PRE_RIGHT_RETURN,
         statusMap,
@@ -270,6 +273,7 @@ export function simulateBinaryTreeTrace(
       "pushing",
       "stack",
       getVars(root),
+      { ...linkStatusMap },
     );
 
     const traverse = (node: LogicTreeNode | undefined) => {
@@ -283,12 +287,13 @@ export function simulateBinaryTreeTrace(
         "idle",
         "stack",
         getVars(node),
+        { ...linkStatusMap },
       );
       statusMap[node.id] = BTStatus.Visited; // 在 Stack 中等待
 
       if (node.left) {
         statusMap[node.left.id] = BTStatus.Prepare;
-        linkStatusMap[`${node.id}-${node.left.id}`] = "prepare";
+        linkStatusMap[`${node.id}->${node.left.id}`] = "prepare";
         pushTrace(
           TAGS.IN_LEFT_ENTER,
           statusMap,
@@ -296,10 +301,12 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node, node.left),
+          { ...linkStatusMap },
         );
         delete statusMap[node.left.id];
+        // linkStatusMap[`${node.id}->${node.left.id}`] = "unfinished";
         traverse(node.left);
-        linkStatusMap[`${node.id}-${node.left.id}`] = "complete";
+        linkStatusMap[`${node.id}->${node.left.id}`] = "complete";
         const orig = statusMap[node.id];
         statusMap[node.id] = BTStatus.Target;
         pushTrace(
@@ -309,6 +316,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       } else {
@@ -321,6 +329,7 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.IN_NULL,
@@ -329,6 +338,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.IN_LEFT_RETURN,
@@ -337,11 +347,12 @@ export function simulateBinaryTreeTrace(
           "popping",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       }
 
-      statusMap[node.id] = BTStatus.Complete;
+      statusMap[node.id] = BTStatus.Target;
       visited.push(Number(node.value));
       pushTrace(
         TAGS.IN_VISIT,
@@ -350,11 +361,13 @@ export function simulateBinaryTreeTrace(
         "idle",
         "stack",
         getVars(node),
+        { ...linkStatusMap },
       );
+      statusMap[node.id] = BTStatus.Visited;
 
       if (node.right) {
         statusMap[node.right.id] = BTStatus.Prepare;
-        linkStatusMap[`${node.id}-${node.right.id}`] = "prepare";
+        linkStatusMap[`${node.id}->${node.right.id}`] = "prepare";
         pushTrace(
           TAGS.IN_RIGHT_ENTER,
           statusMap,
@@ -362,10 +375,12 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node, node.right),
+          { ...linkStatusMap },
         );
         delete statusMap[node.right.id];
+        // linkStatusMap[`${node.id}->${node.right.id}`] = "unfinished";
         traverse(node.right);
-        linkStatusMap[`${node.id}-${node.right.id}`] = "complete";
+        linkStatusMap[`${node.id}->${node.right.id}`] = "complete";
         const orig = statusMap[node.id];
         statusMap[node.id] = BTStatus.Target;
         pushTrace(
@@ -375,6 +390,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       } else {
@@ -387,6 +403,7 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.IN_NULL,
@@ -395,6 +412,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.IN_RIGHT_RETURN,
@@ -403,9 +421,11 @@ export function simulateBinaryTreeTrace(
           "popping",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       }
+      statusMap[node.id] = BTStatus.Complete;
       pushTrace(
         TAGS.IN_RIGHT_RETURN,
         statusMap,
@@ -413,12 +433,15 @@ export function simulateBinaryTreeTrace(
         "popping",
         "stack",
         getVars(node),
+        { ...linkStatusMap },
       );
       callStack.pop();
     };
 
     traverse(root);
-    pushTrace(TAGS.IN_DONE, statusMap, [], "idle", "stack", getVars());
+    pushTrace(TAGS.IN_DONE, statusMap, [], "idle", "stack", getVars(), {
+      ...linkStatusMap,
+    });
   } else if (action.mode === "postorder") {
     if (!root) return trace;
     pushTrace(
@@ -428,6 +451,7 @@ export function simulateBinaryTreeTrace(
       "pushing",
       "stack",
       getVars(root),
+      { ...linkStatusMap },
     );
 
     const traverse = (node: LogicTreeNode | undefined) => {
@@ -441,12 +465,13 @@ export function simulateBinaryTreeTrace(
         "idle",
         "stack",
         getVars(node),
+        { ...linkStatusMap },
       );
       statusMap[node.id] = BTStatus.Visited;
 
       if (node.left) {
         statusMap[node.left.id] = BTStatus.Prepare;
-        linkStatusMap[`${node.id}-${node.left.id}`] = "prepare";
+        linkStatusMap[`${node.id}->${node.left.id}`] = "prepare";
         pushTrace(
           TAGS.POST_LEFT_ENTER,
           statusMap,
@@ -454,10 +479,14 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node, node.left),
+          { ...linkStatusMap },
         );
         delete statusMap[node.left.id];
+
+        // linkStatusMap[`${node.id}->${node.left.id}`] = "unfinished";
         traverse(node.left);
-        linkStatusMap[`${node.id}-${node.left.id}`] = "complete";
+        linkStatusMap[`${node.id}->${node.left.id}`] = "complete";
+
         const orig = statusMap[node.id];
         statusMap[node.id] = BTStatus.Target;
         pushTrace(
@@ -467,6 +496,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       } else {
@@ -479,6 +509,7 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.POST_NULL,
@@ -487,6 +518,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.POST_LEFT_RETURN,
@@ -495,13 +527,14 @@ export function simulateBinaryTreeTrace(
           "popping",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       }
 
       if (node.right) {
         statusMap[node.right.id] = BTStatus.Prepare;
-        linkStatusMap[`${node.id}-${node.right.id}`] = "prepare";
+        linkStatusMap[`${node.id}->${node.right.id}`] = "prepare";
         pushTrace(
           TAGS.POST_RIGHT_ENTER,
           statusMap,
@@ -509,10 +542,14 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node, node.right),
+          { ...linkStatusMap },
         );
         delete statusMap[node.right.id];
+
+        // linkStatusMap[`${node.id}->${node.right.id}`] = "unfinished";
         traverse(node.right);
-        linkStatusMap[`${node.id}-${node.right.id}`] = "complete";
+        linkStatusMap[`${node.id}->${node.right.id}`] = "complete";
+
         const orig = statusMap[node.id];
         statusMap[node.id] = BTStatus.Target;
         pushTrace(
@@ -522,6 +559,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       } else {
@@ -534,6 +572,7 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.POST_NULL,
@@ -542,6 +581,7 @@ export function simulateBinaryTreeTrace(
           "idle",
           "stack",
           getVars(),
+          { ...linkStatusMap },
         );
         pushTrace(
           TAGS.POST_RIGHT_RETURN,
@@ -550,6 +590,7 @@ export function simulateBinaryTreeTrace(
           "popping",
           "stack",
           getVars(node),
+          { ...linkStatusMap },
         );
         statusMap[node.id] = orig;
       }
@@ -563,6 +604,7 @@ export function simulateBinaryTreeTrace(
         "idle",
         "stack",
         getVars(node),
+        { ...linkStatusMap },
       );
       pushTrace(
         TAGS.POST_RIGHT_RETURN,
@@ -571,12 +613,15 @@ export function simulateBinaryTreeTrace(
         "popping",
         "stack",
         getVars(node),
+        { ...linkStatusMap },
       );
       callStack.pop();
     };
 
     traverse(root);
-    pushTrace(TAGS.POST_DONE, statusMap, [], "idle", "stack", getVars());
+    pushTrace(TAGS.POST_DONE, statusMap, [], "idle", "stack", getVars(), {
+      ...linkStatusMap,
+    });
   } else if (action.mode === "bfs") {
     if (!root) return trace;
     const q: { node: LogicTreeNode; parent: LogicTreeNode | null }[] = [];
@@ -588,6 +633,7 @@ export function simulateBinaryTreeTrace(
       "pushing",
       "queue",
       getVars(root),
+      { ...linkStatusMap },
     );
     q.push({ node: root, parent: null });
     statusMap[root.id] = BTStatus.Visited;
@@ -600,9 +646,12 @@ export function simulateBinaryTreeTrace(
         "idle",
         "queue",
         getVars(),
+        { ...linkStatusMap },
       );
       const { node: curr, parent } = q[0];
-      if (parent) linkStatusMap[`${parent.id}-${curr.id}`] = "complete";
+
+      // 取出 Queue，連線完成
+      if (parent) linkStatusMap[`${parent.id}->${curr.id}`] = "complete";
 
       statusMap[curr.id] = BTStatus.Target;
       pushTrace(
@@ -612,9 +661,11 @@ export function simulateBinaryTreeTrace(
         "popping",
         "queue",
         getVars(curr),
+        { ...linkStatusMap },
       );
       q.shift();
 
+      // 離開佇列，標記為 Complete
       statusMap[curr.id] = BTStatus.Complete;
       visited.push(Number(curr.value));
       pushTrace(
@@ -624,11 +675,12 @@ export function simulateBinaryTreeTrace(
         "idle",
         "queue",
         getVars(curr),
+        { ...linkStatusMap },
       );
 
       if (curr.left) {
         statusMap[curr.left.id] = BTStatus.Prepare;
-        linkStatusMap[`${curr.id}-${curr.left.id}`] = "prepare";
+        linkStatusMap[`${curr.id}->${curr.left.id}`] = "prepare";
         pushTrace(
           TAGS.BFS_ENQUEUE_LEFT,
           statusMap,
@@ -636,8 +688,11 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "queue",
           getVars(curr, curr.left),
+          { ...linkStatusMap },
         );
+
         statusMap[curr.left.id] = BTStatus.Visited;
+        // linkStatusMap[`${curr.id}->${curr.left.id}`] = "unfinished";
         q.push({ node: curr.left, parent: curr });
       } else {
         pushTrace(
@@ -647,12 +702,13 @@ export function simulateBinaryTreeTrace(
           "idle",
           "queue",
           getVars(curr),
+          { ...linkStatusMap },
         );
       }
 
       if (curr.right) {
         statusMap[curr.right.id] = BTStatus.Prepare;
-        linkStatusMap[`${curr.id}-${curr.right.id}`] = "prepare";
+        linkStatusMap[`${curr.id}->${curr.right.id}`] = "prepare";
         pushTrace(
           TAGS.BFS_ENQUEUE_RIGHT,
           statusMap,
@@ -660,8 +716,11 @@ export function simulateBinaryTreeTrace(
           "pushing",
           "queue",
           getVars(curr, curr.right),
+          { ...linkStatusMap },
         );
+
         statusMap[curr.right.id] = BTStatus.Visited;
+        // linkStatusMap[`${curr.id}->${curr.right.id}`] = "unfinished";
         q.push({ node: curr.right, parent: curr });
       } else {
         pushTrace(
@@ -671,10 +730,13 @@ export function simulateBinaryTreeTrace(
           "idle",
           "queue",
           getVars(curr),
+          { ...linkStatusMap },
         );
       }
     }
-    pushTrace(TAGS.BFS_DONE, statusMap, [], "idle", "queue", getVars());
+    pushTrace(TAGS.BFS_DONE, statusMap, [], "idle", "queue", getVars(), {
+      ...linkStatusMap,
+    });
   }
 
   return trace;
