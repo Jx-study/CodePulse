@@ -1,0 +1,78 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Bubble Sort is a foundational **sorting algorithm** that repeatedly compares and **swaps** [[primary|adjacent elements]]. Like bubbles in water, each round gradually floats the unsorted extreme value toward the boundary of the sequence.",
+        "items": [
+          "While **traversing** the sequence, only one pair of [[primary|adjacent elements]] is compared at a time; if they are out of order, a **swap** is performed",
+          "After each full **iteration**, the maximum of the unsorted portion bubbles up to its [[primary|correct position]] at the end",
+          "The steps repeat until a round completes without any **swap**, indicating the sequence has reached [[primary|full sorted order]]",
+          "Because swaps occur only on **strict greater-than**, equal elements never trade places — making it a [[success|stable sort]]"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Bubble Sort's runtime depends heavily on the initial state of the data and degrades in the worst case. However, it is an in-place algorithm with minimal memory overhead and excellent space efficiency.",
+        "items": [
+          "**Best-case time complexity**: [[warning|O(n)]] — with early termination, an already sorted array requires only one pass and no swaps",
+          "**Worst-case and average time complexity**: [[danger|O(n²)]] — reversed or random data forces the nested loops through many comparisons and swaps",
+          "**Space complexity**: [[success|O(1)]] — sorting happens in place on the original array, using only a constant amount of extra memory"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Bubble Sort is not suited to large, random datasets — **insertion sort** is usually a better choice. But in memory-constrained environments or when the data is **nearly sorted**, it still shines with early termination.",
+        "items": [
+          "**Early termination**: if a round completes with no swaps, the array is already **fully sorted** and the loop can break, saving time",
+          "**Memory-constrained environments**: with a **space complexity** of [[success|O(1)]], it remains valuable on hardware like microcontrollers with very limited memory",
+          "**Nearly sorted data**: when only a few elements are out of place, it can finish in nearly [[warning|O(n)]], making it ideal for fine-tuning data",
+          "**Bidirectional traversal optimization**: switch to **cocktail sort**, which alternates direction to push extremes toward both boundaries faster"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "Though unsuitable for large datasets, Bubble Sort remains a practical, intuitive choice in memory-constrained environments, with nearly sorted data, or when a quick hand-written implementation is required, thanks to its minimal logic and [[success|O(1)]] space advantage.",
+        "items": [
+          "**Microcontroller environments**: when memory is extremely limited and only tiny arrays need to be processed, the [[success|O(1)]] space complexity is crucial",
+          "**Nearly sorted streams**: for example, occasionally out-of-order IoT timestamps — combined with early termination, performance approaches [[warning|O(n)]]",
+          "**No-library hand-coding**: in exams or extreme environments without built-in tools, it is the simplest algorithm to write from scratch"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Nested Loop Boundaries",
+        "content": "Beginners are most often tripped up by the **nested loop logic** — an outer loop that controls the **number of passes** and an inner loop whose comparison range gradually shrinks. Understanding [[primary|boundary setup]] is the key to writing a correct implementation.",
+        "items": [
+          "The outer loop controls the **number of passes**; since each round fixes one extreme in place, at most `n-1` passes are needed",
+          "The inner loop compares **adjacent elements**, and its boundary (e.g., `n-i-1`) must shrink each pass to avoid re-comparing the sorted tail",
+          "Each comparison accesses indices `j` and `j+1`; if the inner offset is not subtracted correctly, it easily triggers an [[danger|array out-of-bounds]] error"
+        ],
+        "icon": "code-branch"
+      },
+      {
+        "heading": "Common Variants",
+        "content": "Beginners often get confused because online tutorials show code going in different directions. The two main variants are \"**push the maximum to the right**\" and \"**float the minimum to the left**\".",
+        "items": [
+          "**Push max rightward**: the common [[primary|Upward]] variant — traverse from the left and push the unsorted maximum to the right end",
+          "**Float min leftward**: the original [[primary|Backward]] variant — traverse from the right and let smaller elements bubble toward the left",
+          "**Identical performance**: the two share the exact same **time complexity**; only the traversal direction and logic differ, so understanding both prevents implementation confusion"
+        ],
+        "icon": "shuffle"
+      },
+      {
+        "heading": "Fun Facts",
+        "content": "Beyond the algorithm itself, Bubble Sort hides a few delightful trivia: an exact swap-count formula, Python's elegant [[primary|one-line swap]] idiom, and why modern languages have all but retired it.",
+        "items": [
+          "**Worst-case swap count**: for a fully reversed array, the swaps are exactly `n(n-1)/2` — a length-5 reversed array needs [[warning|10]] swaps",
+          "**Pythonic swap**: with `a, b = b, a` multiple assignment, two values trade places in one line — no `temp` variable required",
+          "**Long retired in practice**: Python's built-in [[primary|Timsort]] and Java's **Dual-Pivot Quicksort** both run in [[success|O(n log n)]], so Bubble Sort survives mainly as a teaching tool"
+        ],
+        "icon": "sparkles"
+      }
+    ]
+  }
+}
