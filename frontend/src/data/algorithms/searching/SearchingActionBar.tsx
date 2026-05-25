@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -21,6 +22,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
   onRun,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/searching");
   const [searchValue, setSearchValue] = useState("");
 
   const handleRun = () => {
@@ -28,7 +30,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
     if (!isNaN(val)) {
       onRun({ type: "searching", searchValue: val });
     } else {
-      toast.warning("請輸入有效的搜尋數值");
+      toast.warning(t("ui.invalidInput"));
     }
   };
 
@@ -46,10 +48,10 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Searching Control</StaticLabel>
+        <StaticLabel>{t("ui.searchingControl")}</StaticLabel>
         <Input
           type="number"
-          placeholder="搜尋值"
+          placeholder={t("ui.searchValue")}
           value={searchValue}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchValue(e.target.value)
@@ -59,14 +61,14 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Tooltip content="執行搜尋演算法">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             onClick={handleRun}
             disabled={disabled}
             className={`${styles.runButton} ${styles.runButtonSearching}`}
           >
-            開始搜尋
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

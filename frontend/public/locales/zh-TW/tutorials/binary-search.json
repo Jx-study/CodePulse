@@ -1,0 +1,12 @@
+{
+  "animation": {
+    "init": "開始二分搜尋：目標值為 {{target}}",
+    "check_while": "檢查：Left ({{left}}) <= Right ({{right}})，繼續搜尋",
+    "calc_mid": "計算中間點：Mid = floor(({{left}} + {{right}}) / 2) = {{mid}}",
+    "compare": "比對：Index {{mid}} ({{midVal}}) vs 目標 ({{target}})",
+    "found": "找到目標！{{midVal}} 等於 {{target}}，位於 Index {{mid}}",
+    "update_left": "{{midVal}} < {{target}} (太小)，目標在右半部，更新 Left = {{mid}} + 1",
+    "update_right": "{{midVal}} > {{target}} (太大)，目標在左半部，更新 Right = {{mid}} - 1",
+    "not_found": "搜尋結束：範圍已空 (Left > Right)，未找到目標 {{target}}"
+  }
+}

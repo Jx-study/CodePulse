@@ -1,0 +1,12 @@
+{
+  "animation": {
+    "init": "Start Binary Search: Target is {{target}}",
+    "check_while": "Check: Left ({{left}}) <= Right ({{right}}), continue search",
+    "calc_mid": "Calculate mid point: Mid = floor(({{left}} + {{right}}) / 2) = {{mid}}",
+    "compare": "Compare: Index {{mid}} ({{midVal}}) vs Target ({{target}})",
+    "found": "Target found! {{midVal}} equals {{target}} at Index {{mid}}",
+    "update_left": "{{midVal}} < {{target}} (Too small), target is in the right half. Update Left = {{mid}} + 1",
+    "update_right": "{{midVal}} > {{target}} (Too large), target is in the left half. Update Right = {{mid}} - 1",
+    "not_found": "Search complete: Range is empty (Left > Right), target {{target}} not found"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "ui": {
+    "searchingControl": "搜尋控制",
+    "searchValue": "搜尋值",
+    "run": "開始搜尋",
+    "runTooltip": "執行搜尋演算法",
+    "invalidInput": "請輸入有效的搜尋數值"
+  }
+}
