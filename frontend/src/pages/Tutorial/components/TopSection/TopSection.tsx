@@ -24,6 +24,7 @@ import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
 import type { D3CanvasRef } from '@/modules/core/Render/D3Canvas';
 import type { GraphCanvasRef } from '@/modules/core/Render/GraphCanvas';
 import styles from './TopSection.module.scss';
+import { useTranslation } from 'react-i18next';
 
 interface CanvasPanelProps {
   canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
@@ -119,6 +120,7 @@ export function TopSection(props: TopSectionProps) {
   } = props;
 
   const { panelSizes, setCollapsed } = usePanelContext();
+  const { t: tTutorial } = useTranslation('tutorial');
 
   const codeEditorDefaultSizeRef = useRef(
     isLeftPanelCollapsed ? 0 : (isMobile ? 30 : panelSizes.codeEditor)
@@ -192,7 +194,7 @@ export function TopSection(props: TopSectionProps) {
                 >
                   <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
-                      title="代碼實作"
+                      title={tTutorial('panelHeader.codeEditor')}
                       tabs={codeEditorTabs}
                       activeTab={codeMode}
                       onTabChange={(key) => handleModeToggle(key as "pseudo" | "python")}
@@ -370,7 +372,7 @@ export function TopSection(props: TopSectionProps) {
                 >
                   <div className={styles.pseudoCodeSection} data-tour="code-panel">
                     <PanelHeader
-                      title="代碼實作"
+                      title={tTutorial('panelHeader.codeEditor')}
                       tabs={codeEditorTabs}
                       activeTab={codeMode}
                       onTabChange={(key) => handleModeToggle(key as "pseudo" | "python")}
@@ -399,7 +401,11 @@ export function TopSection(props: TopSectionProps) {
           {activeDragId ? (
             <div className={styles.dragOverlay}>
               <PanelHeader
-                title={activeDragId === "canvas" ? "視覺化動畫" : "資料操作"}
+                title={
+                  activeDragId === 'canvas'
+                    ? tTutorial('panelHeader.canvas')
+                    : tTutorial('panelHeader.inspector')
+                }
                 draggable={true}
                 dragHandleProps={{
                   style: {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import type { RealWorldStory } from '@/types';
 import Icon from '@/shared/components/Icon';
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const StoryAccordionItem: React.FC<Props> = ({ story }) => {
+  const { t } = useTranslation('tutorial');
   const [isOpen, setIsOpen] = useState(false);
   // 若有互動遊戲且無視頻，內容預設收合（遊戲本身就是主體）
   const [isContentOpen, setIsContentOpen] = useState(false);
@@ -51,7 +53,9 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
         <Icon
           name="chevron-down"
           className={classNames(styles.chevron, { [styles.open]: isOpen })}
-          ariaLabel={isOpen ? '收合' : '展開'}
+          ariaLabel={
+            isOpen ? t('storyAccordion.collapseAriaLabel') : t('storyAccordion.expandAriaLabel')
+          }
         />
       </Button>
 
@@ -67,7 +71,7 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
                 onClick={() => setIsContentOpen((v) => !v)}
               >
                 <Icon name={isContentOpen ? 'chevron-up' : 'chevron-down'} />
-                {isContentOpen ? '收起故事詳情' : '閱讀故事詳情'}
+                {isContentOpen ? t('storyAccordion.collapseDetails') : t('storyAccordion.readDetails')}
               </Button>
               {isContentOpen && (
                 <p className={styles.content}>{story.content}</p>
@@ -96,7 +100,7 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
                 onClick={() => setIsContentOpen((v) => !v)}
               >
                 <Icon name={isContentOpen ? 'chevron-up' : 'chevron-down'} />
-                {isContentOpen ? '收起故事詳情' : '閱讀故事詳情'}
+                {isContentOpen ? t('storyAccordion.collapseDetails') : t('storyAccordion.readDetails')}
               </Button>
               {isContentOpen && (
                 <p className={styles.content}>{story.content}</p>

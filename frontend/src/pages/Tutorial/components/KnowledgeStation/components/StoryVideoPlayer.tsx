@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StoryVideo } from '@/types';
 import Icon from '@/shared/components/Icon';
 import styles from './StoryVideoPlayer.module.scss';
@@ -14,6 +15,7 @@ function toEmbedUrl(url: string): string {
 }
 
 const StoryVideoPlayer: React.FC<Props> = ({ video }) => {
+  const { t } = useTranslation('tutorial');
   if (video) {
     const embedUrl = toEmbedUrl(video.url);
     return (
@@ -32,7 +34,7 @@ const StoryVideoPlayer: React.FC<Props> = ({ video }) => {
     <div className={styles.videoWrapper}>
       <div className={styles.placeholder}>
         <Icon name="play" size="2xl" />
-        <span>影片即將上線</span>
+        <span>{t('videoPlayer.comingSoon')}</span>
       </div>
     </div>
   );

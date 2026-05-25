@@ -29,7 +29,7 @@ const VariableWatch = React.lazy(() =>
 export const PANEL_REGISTRY: PanelRegistry = {
   canvas: {
     id: "canvas",
-    title: "視覺化動畫",
+    title: "panelRegistry.canvas",
     icon: <Icon name="chart-line" />,
     component: D3Canvas,
     defaultSize: 65,
@@ -39,7 +39,7 @@ export const PANEL_REGISTRY: PanelRegistry = {
   },
   actionBar: {
     id: "actionBar",
-    title: "操作面板",
+    title: "panelRegistry.actionBar",
     icon: <Icon name="sliders" />,
     component: SmartActionBar,
     defaultSize: 35,
@@ -50,7 +50,7 @@ export const PANEL_REGISTRY: PanelRegistry = {
   },
   variableStatus: {
     id: "variableStatus",
-    title: "變數狀態",
+    title: "panelRegistry.variableStatus",
     icon: <Icon name="table" />,
     component: VariableWatch,
     defaultSize: 35,

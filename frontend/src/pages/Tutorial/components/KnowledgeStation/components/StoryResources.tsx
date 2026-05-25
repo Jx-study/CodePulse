@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StoryResource, StoryResourceType } from '@/types';
 import Icon from '@/shared/components/Icon';
 import type { IconName } from '@/shared/lib/iconMap';
@@ -15,9 +16,11 @@ interface Props {
 }
 
 const StoryResources: React.FC<Props> = ({ resources }) => {
+  const { t } = useTranslation('tutorial');
+
   return (
     <div className={styles.resources}>
-      <h4 className={styles.resourcesTitle}>延伸資源</h4>
+      <h4 className={styles.resourcesTitle}>{t('storyResources.title')}</h4>
       <ul className={styles.resourcesList}>
         {resources.map((r) => (
           <li key={r.url}>

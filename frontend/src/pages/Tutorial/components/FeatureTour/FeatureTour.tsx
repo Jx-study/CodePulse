@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { DESKTOP_STEPS, MOBILE_STEPS, type TourStep } from './featureTourSteps';
+import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon/Icon';
 import Button from '@/shared/components/Button/Button';
 import styles from './FeatureTour.module.scss';
@@ -17,11 +18,14 @@ interface FeatureTourProps {
   onComplete: () => void;
   onSkip: () => void;
   isMobile: boolean;
+  isDataStructure?: boolean;
 }
 
 const PADDING = 8;
 
-export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: FeatureTourProps) {
+export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile, isDataStructure = false }: FeatureTourProps) {
+  const { t } = useTranslation('tutorial');
+  const readyDescKey = isDataStructure ? 'featureTour.dataStructureReadyDesc' : 'featureTour.algorithmReadyDesc';
   const steps = isMobile ? MOBILE_STEPS : DESKTOP_STEPS;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [spotlightRect, setSpotlightRect] = useState<SpotlightRect | null>(null);
@@ -146,23 +150,23 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
 
   if (isFinalStep) {
     return createPortal(
-      <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="功能導覽完成">
+      <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={t('featureTour.ariaLabelComplete')}>
         <div className={styles.dimBackground} />
         <div className={styles.card} style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
           <div className={styles.cardHeader}>
             <div className={styles.headerMeta}>
-              <h3 className={styles.tooltipTitle}>準備好了嗎？</h3>
+              <h3 className={styles.tooltipTitle}>{t('featureTour.readyTitle')}</h3>
             </div>
-            <Button variant="icon" size="sm" iconOnly icon="times" onClick={onSkip} aria-label="關閉導覽" />
+            <Button variant="icon" size="sm" iconOnly icon="times" onClick={onSkip} aria-label={t('featureTour.closeAriaLabel')} />
           </div>
           <p className={styles.tooltipDesc}>
-            在開始練習前，先到知識補充站了解這個演算法的理論基礎吧！
+            {t(readyDescKey)}
           </p>
           <div className={styles.finalActions}>
             <Button variant="primary" size="sm" fullWidth icon="check" onClick={onComplete}>
-              進入知識補充站
+              {t('featureTour.enterKnowledgeStation')}
             </Button>
-            <Button variant="ghost" size="sm" fullWidth onClick={onSkip}>暫時不需要，直接開始</Button>
+            <Button variant="ghost" size="sm" fullWidth onClick={onSkip}>{t('featureTour.skipForNow')}</Button>
           </div>
         </div>
       </div>,
@@ -181,7 +185,7 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
   };
 
   return createPortal(
-    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={`功能導覽步驟 ${currentIndex + 1}`}>
+    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={t('featureTour.ariaLabelStep', { step: currentIndex + 1 })}>
       {spotlightRect && (
         <div
           className={styles.spotlight}
@@ -197,12 +201,17 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
       <div className={styles.card} style={spotlightRect ? tooltipStyle : fallbackTooltipStyle}>
         <div className={styles.cardHeader}>
           <div className={styles.headerMeta}>
-            <span className={styles.stepBadge}>STEP {currentIndex + 1} OF {steps.length}</span>
-            <h3 className={styles.tooltipTitle}>{currentStep.title}</h3>
+            <span className={styles.stepBadge}>
+              {t('featureTour.stepBadge', {
+                current: currentIndex + 1,
+                total: steps.length,
+              })}
+            </span>
+            <h3 className={styles.tooltipTitle}>{t(currentStep.titleKey)}</h3>
           </div>
-          <Button variant="icon" size="sm" iconOnly icon="times" onClick={onSkip} aria-label="跳過導覽" />
+          <Button variant="icon" size="sm" iconOnly icon="times" onClick={onSkip} aria-label={t('featureTour.skipAriaLabel')} />
         </div>
-        <p className={styles.tooltipDesc}>{currentStep.description}</p>
+        <p className={styles.tooltipDesc}>{t(currentStep.descriptionKey)}</p>
         <div className={styles.tooltipNav}>
           <Button
             variant="ghost"
@@ -212,7 +221,7 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
             disabled={currentIndex === 0}
             iconLeft={<Icon name="chevron-left" size="sm" decorative />}
           >
-            Previous
+            {t('featureTour.previous')}
           </Button>
           <div className={styles.dots}>
             {steps.map((_, idx) => (
@@ -222,7 +231,7 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
                 size="sm"
                 className={idx === currentIndex ? styles.dotActive : styles.dotInactive}
                 onClick={() => setCurrentIndex(idx)}
-                aria-label={`跳至步驟 ${idx + 1}`}
+                aria-label={t('featureTour.dotAriaLabel', { step: idx + 1 })}
               />
             ))}
           </div>
@@ -233,7 +242,7 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
             onClick={handleNext}
             iconRight={<Icon name="chevron-right" size="sm" decorative />}
           >
-            Next
+            {t('featureTour.next')}
           </Button>
         </div>
       </div>

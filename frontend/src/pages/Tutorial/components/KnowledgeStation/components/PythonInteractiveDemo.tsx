@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
 import type {
@@ -21,6 +22,7 @@ import MazeOutputRenderer, {
 } from './MazeOutputRenderer';
 import FloodFillRenderer from './FloodFillRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
+import i18next from '@/i18n';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
 const PYODIDE_CDN = "https://unpkg.com/pyodide@0.27.0/pyodide.js";
@@ -57,7 +59,7 @@ async function getPyodide(): Promise<any> {
       script.onerror = () =>
         reject(
           new Error(
-            "無法載入 Pyodide，請確認網路連線或瀏覽器未封鎖 cdn.pyodide.org",
+            i18next.t('pythonDemo.loadError', { ns: 'tutorial' }),
           ),
         );
       document.head.appendChild(script);
@@ -67,6 +69,7 @@ async function getPyodide(): Promise<any> {
 }
 
 const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
+  const { t } = useTranslation('tutorial');
   const [viewMode, setViewMode] = useState<ViewMode>("demo");
   const [status, setStatus] = useState<RunStatus>("idle");
   const [output, setOutput] = useState<string>("");
@@ -119,7 +122,7 @@ sys.stdout = io.StringIO()
       const pyReturnValue = await pyodide.runPythonAsync(demo.code);
       const stdout: string = pyodide.runPython("sys.stdout.getvalue()");
 
-      setOutput(stdout || "（程式執行完畢，無輸出）");
+      setOutput(stdout || t('pythonDemo.noOutput'));
 
       if (demo.outputType === "graph" && pyReturnValue) {
         try {
@@ -167,14 +170,14 @@ sys.stdout = io.StringIO()
       setStatus("done");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setOutput(`執行錯誤：\n${message}`);
+      setOutput(t('pythonDemo.executionError', { message }));
       setStatus("error");
       setGraphData(null);
       setQueueCardData(null);
       setMazeData(null);
       setFloodFillData(null);
     }
-  }, [demo.code, demo.outputType, inputValues]);
+  }, [demo.code, demo.outputType, inputValues, t]);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(demo.code);
@@ -185,15 +188,15 @@ sys.stdout = io.StringIO()
   const isRunning = status === "loading-pyodide" || status === "running";
   const runLabel =
     status === "loading-pyodide"
-      ? "載入 Python 環境..."
+      ? t('pythonDemo.loadingPyodide')
       : status === "running"
-        ? "執行中..."
-        : "▶ 執行小遊戲";
+        ? t('pythonDemo.running')
+        : t('pythonDemo.runButton');
 
   return (
     <div className={styles.container}>
       <div className={styles.titleBar}>
-        <span className={styles.pythonBadge}>Python 互動</span>
+        <span className={styles.pythonBadge}>{t('pythonDemo.badge')}</span>
         <span className={styles.demoTitle}>{demo.title}</span>
       </div>
 
@@ -206,7 +209,7 @@ sys.stdout = io.StringIO()
             })}
             onClick={() => setViewMode("demo")}
           >
-            小程式運行
+            {t('pythonDemo.runTab')}
           </Button>
           <Button
             variant="ghost"
@@ -215,7 +218,7 @@ sys.stdout = io.StringIO()
             })}
             onClick={() => setViewMode("code")}
           >
-            原始碼
+            {t('pythonDemo.codeTab')}
           </Button>
         </div>
         <Button
@@ -224,7 +227,7 @@ sys.stdout = io.StringIO()
           onClick={handleCopy}
           iconLeft={<Icon name={copied ? "check" : "copy"} />}
         >
-          {copied ? "已複製" : "複製代碼"}
+          {copied ? t('pythonDemo.copied') : t('pythonDemo.copyCode')}
         </Button>
       </div>
 
@@ -266,7 +269,7 @@ sys.stdout = io.StringIO()
                   size="sm"
                   onClick={() => mazeRef.current?.skipGeneration()}
                 >
-                  跳過生成
+                  {t('pythonDemo.skipGeneration')}
                 </Button>
               )}
           </div>
@@ -302,14 +305,14 @@ sys.stdout = io.StringIO()
           (demo.outputType === 'queue-card' && !queueCardData) ||
           (demo.outputType === 'maze' && !mazeData) ||
           (demo.outputType === 'flood-fill' && !floodFillData) ||
-          output.includes('錯誤') ? (
+          status === 'error' ? (
             <pre
               className={classNames(styles.console, {
                 [styles.error]: status === "error",
                 [styles.empty]: !output,
               })}
             >
-              {output || "點擊「執行小遊戲」查看結果..."}
+              {output || t('pythonDemo.clickToRun')}
             </pre>
           ) : null}
         </div>
@@ -321,7 +324,7 @@ sys.stdout = io.StringIO()
             <code>{demo.code}</code>
           </pre>
           <p className={styles.localHint}>
-            複製後在本地執行：<code>python script.py</code>（需 Python 3.10+）
+            {t('pythonDemo.localHint')}
           </p>
         </div>
       )}
