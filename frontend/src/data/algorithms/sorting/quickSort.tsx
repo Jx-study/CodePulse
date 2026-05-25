@@ -96,6 +96,7 @@ export const quickSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createQuickSortAnimationSteps,
   actionHandler: baseActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/quick-sort",
   relatedProblems: [
     {
       id: 912,

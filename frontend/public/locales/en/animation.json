@@ -17,16 +17,6 @@
     "heapify_start": "Heapify(): Start rebuilding the {{heapName}} from bottom to top, array length is {{length}}",
     "done": "Operation completed, the {{heapName}} structure is now valid!"
   },
-  "qs": {
-    "init": "Starting Quick Sort with array length {{length}}",
-    "call": "Recursive partitioning: processing range [{{low}}, {{high}}], entering depth {{depth}}",
-    "partition_start": "Selected the last element {{pivotVal}} as the Pivot",
-    "compare": "Comparing: Is {{scanVal}} less than or equal to pivot {{pivotVal}}?",
-    "swap": "Yes! Swapped {{valI}} and {{valJ}}",
-    "pivot_set": "Partitioning complete, placing pivot {{pivotVal}} at its correct sorted position (Index {{pivotIdx}})",
-    "base_case": "Range has only one element {{value}}, marking it directly as sorted",
-    "done": "Quick Sort complete! All elements are now in their correct positions."
-  },
   "factorial": {
     "init": "Stack Initialization: Preparing to calculate f({{targetN}})",
     "push_start": "Call f({{n}}): Preparing to push onto the stack from the right",

@@ -7,11 +7,11 @@ import type { QSLayoutInfo } from "./simulateTrace";
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
-    key: "qs.init",
+    key: "animation.init",
     params: { length: e.local_vars.length },
   }),
   [TAGS.CALL]: (e) => ({
-    key: "qs.call",
+    key: "animation.call",
     params: {
       low: e.local_vars.low,
       high: e.local_vars.high,
@@ -19,30 +19,30 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.PARTITION_START]: (e) => ({
-    key: "qs.partition_start",
+    key: "animation.partition_start",
     params: { pivotVal: e.local_vars.pivotVal },
   }),
   [TAGS.COMPARE]: (e) => ({
-    key: "qs.compare",
+    key: "animation.compare",
     params: { scanVal: e.local_vars.scanVal, pivotVal: e.local_vars.pivotVal },
   }),
   [TAGS.SWAP]: (e) => ({
-    key: "qs.swap",
+    key: "animation.swap",
     params: { valI: e.local_vars.valI, valJ: e.local_vars.valJ },
   }),
   [TAGS.PIVOT_SET]: (e) => ({
-    key: "qs.pivot_set",
+    key: "animation.pivot_set",
     params: {
       pivotVal: e.local_vars.pivotVal,
       pivotIdx: e.local_vars.pivotIdx,
     },
   }),
   [TAGS.BASE_CASE]: (e) => ({
-    key: "qs.base_case",
+    key: "animation.base_case",
     params: { value: e.local_vars.value },
   }),
   [TAGS.DONE]: () => ({
-    key: "qs.done",
+    key: "animation.done",
   }),
 };
 
