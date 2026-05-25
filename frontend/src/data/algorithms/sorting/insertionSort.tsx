@@ -1,166 +1,19 @@
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
-import { createSortingFrame } from "@/data/shared/animationUtils/linearFrame";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import { simulateInsertionSortTrace } from "./insertionSort/simulateTrace";
+import { insertionSortTraceToSteps } from "./insertionSort/traceToSteps";
+import { TAGS } from "./insertionSort/tags";
 
 const insertionSortActionHandler = createLinearActionHandler();
-
-const TAGS = {
-  INIT: "INIT",
-  ROUND_START: "ROUND_START",
-  COMPARE: "COMPARE",
-  SHIFT: "SHIFT",
-  INSERT: "INSERT",
-  DONE: "DONE",
-};
 
 export function createInsertionSortAnimationSteps(
   inputData: LinearData[],
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  let arr = inputData.map((d) => ({ ...d }));
-  const n = arr.length;
-  const sortedIndices = new Set<number>();
-
-  steps.push({
-    stepNumber: 0,
-    description: "開始插入排序",
-    actionTag: TAGS.INIT,
-    local_vars: { totalItems: n },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  sortedIndices.add(0);
-  steps.push({
-    stepNumber: 1,
-    description: "初始化：將第 0 個元素視為已排序區間",
-    actionTag: TAGS.INIT,
-    local_vars: { sortedCount: 1 },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  for (let i = 1; i < n; i++) {
-    const keyVal = Number(arr[i].value);
-
-    sortedIndices.add(i);
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `第 ${i} 輪：暫存 Index ${i} (${keyVal}) 為 insertVal，準備插入已排序區間`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: {
-        unsortedPos: i,
-        insertVal: keyVal,
-        scanPos: i - 1,
-      },
-      elements: createSortingFrame(arr, { [i]: Status.Target }, sortedIndices),
-    });
-
-    let j = i - 1;
-    let currentKeyIndex = i;
-
-    while (j >= 0) {
-      const scanVal = Number(arr[j].value);
-
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `比較：檢查 Index ${j} (${scanVal}) 是否大於 insertVal (${keyVal})`,
-        actionTag: TAGS.COMPARE,
-        local_vars: {
-          unsortedPos: i,
-          scanPos: j,
-          insertVal: keyVal,
-          scanVal: scanVal,
-          condition: `${scanVal} > ${keyVal}`,
-          result: scanVal > keyVal,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
-          sortedIndices,
-        ),
-      });
-
-      if (scanVal > keyVal) {
-        const temp = arr[j];
-        arr[j] = arr[currentKeyIndex];
-        arr[currentKeyIndex] = temp;
-
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `搬移：${scanVal} > ${keyVal}，將 ${scanVal} 向右搬移 (Shift)`,
-          actionTag: TAGS.SHIFT,
-          local_vars: {
-            scanPos: j,
-            insertVal: keyVal,
-            shiftVal: scanVal,
-          },
-          elements: createSortingFrame(
-            arr,
-            { [j]: Status.Target, [currentKeyIndex]: Status.Target },
-            sortedIndices,
-          ),
-        });
-
-        currentKeyIndex = j;
-        j--;
-      } else {
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `停止：${scanVal} <= ${keyVal}，找到插入點`,
-          actionTag: TAGS.COMPARE,
-          local_vars: {
-            scanPos: j,
-            insertVal: keyVal,
-            condition: `${scanVal} > ${keyVal}`,
-            result: false,
-          },
-          elements: createSortingFrame(
-            arr,
-            { [currentKeyIndex]: Status.Target, [j]: Status.Prepare },
-            sortedIndices,
-          ),
-        });
-        break;
-      }
-    }
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `插入：將 insertVal (${keyVal}) 放置於 Index ${currentKeyIndex}`,
-      actionTag: TAGS.INSERT,
-      local_vars: {
-        insertPos: currentKeyIndex,
-        insertVal: keyVal,
-      },
-      elements: createSortingFrame(
-        arr,
-        { [currentKeyIndex]: Status.Complete },
-        sortedIndices,
-      ),
-    });
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `Index 0~${i} 區間排序完成`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: { sortedBoundary: i },
-      elements: createSortingFrame(arr, {}, sortedIndices),
-    });
-  }
-
-  steps.push({
-    stepNumber: steps.length + 1,
-    description: "排序完成",
-    actionTag: TAGS.DONE,
-    local_vars: { isSorted: true },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  return steps;
+  const trace = simulateInsertionSortTrace(inputData);
+  return insertionSortTraceToSteps(trace);
 }
 
 const insertionSortCodeConfig: CodeConfig = {
@@ -238,6 +91,7 @@ export const insertionSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createInsertionSortAnimationSteps,
   actionHandler: insertionSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/insertion-sort",
   relatedProblems: [
     {
       id: 147,

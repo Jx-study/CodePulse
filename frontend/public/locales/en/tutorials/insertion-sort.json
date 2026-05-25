@@ -1,0 +1,13 @@
+{
+  "animation": {
+    "init_start": "Start Insertion Sort",
+    "init_zero": "Initialization: Consider element at Index 0 as the sorted portion",
+    "round_start": "Round {{i}}: Store Index {{i}} ({{val}}) as insertVal, prepare to insert into the sorted portion",
+    "compare_true": "Compare: Is Index {{j}} ({{scanVal}}) greater than insertVal ({{keyVal}}) -> True",
+    "compare_false": "Compare: Stop, {{scanVal}} <= {{keyVal}}, insertion point found",
+    "shift": "Shift: {{scanVal}} > {{keyVal}}, shift {{scanVal}} to the right",
+    "insert": "Insert: Place insertVal ({{val}}) at Index {{idx}}",
+    "round_end": "Sorting complete for range Index 0~{{i}}",
+    "done": "Sorting Complete"
+  }
+}
