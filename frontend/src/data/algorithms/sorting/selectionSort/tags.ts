@@ -1,0 +1,9 @@
+export const TAGS = {
+  INIT: "INIT",
+  ROUND_START: "ROUND_START",
+  COMPARE: "COMPARE",
+  UPDATE_MIN: "UPDATE_MIN",
+  SWAP: "SWAP",
+  ROUND_END: "ROUND_END",
+  DONE: "DONE",
+} as const;
