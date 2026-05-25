@@ -1,0 +1,21 @@
+{
+  "animation": {
+    "init": "初始化 {{N}}x{{N}} 棋盤，開始從第 0 列尋找解。",
+    "check_safe": "嘗試在第 {{row}} 列，第 {{col}} 行放置皇后",
+    "attacked": "位置 ({{row}}, {{col}}) 位於攻擊範圍內，無法放置！",
+    "place_queen": "位置 ({{row}}, {{col}}) 安全，放置皇后！",
+    "backtrack": "從第 {{row}} 列回溯，移除 ({{prevRow}}, {{prevCol}}) 的皇后，尋找下個位置",
+    "success": "成功在所有列放置皇后，找到一組解！",
+    "fail": "窮舉所有可能後，發現在 {{N}}x{{N}} 棋盤上無解！"
+  },
+  "ui": {
+    "controlLabel": "N-Queens 控制",
+    "placeholder": "棋盤大小 N",
+    "run": "開始解題",
+    "reset": "重設",
+    "runTooltip": "執行 N 皇后回溯演算法",
+    "resetTooltip": "重設棋盤狀態",
+    "limitWarning": "N 大於 8 時運算與動畫時間過長，請輸入 1~8 之間的數字。",
+    "invalidInput": "請輸入有效的棋盤大小 N (大於 0 的整數)"
+  }
+}

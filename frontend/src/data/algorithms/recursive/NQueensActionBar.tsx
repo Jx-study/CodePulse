@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -17,11 +18,12 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
 }) => {
+  const { t } = useTranslation("tutorials/n-queens");
   const [nSize, setNSize] = useState("4");
 
   const handleNChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setNSize(val); // 更新輸入框的顯示值
+    setNSize(val);
 
     const n = parseInt(val, 10);
     if (!isNaN(n) && n >= 1 && n <= 8) {
@@ -33,22 +35,22 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
     const n = parseInt(nSize);
     if (!isNaN(n) && n >= 1) {
       if (n > 8) {
-        toast.warning("N 大於 8 時運算與動畫時間過長，請輸入 1~8 之間的數字。");
+        toast.warning(t("ui.limitWarning"));
         return;
       }
       onRun({ type: "nQueens", nQueensCount: n });
     } else {
-      toast.warning("請輸入有效的棋盤大小 N (大於 0 的整數)");
+      toast.warning(t("ui.invalidInput"));
     }
   };
 
   return (
     <ActionBarContainer>
       <ActionBarGroup>
-        <StaticLabel>N-Queens Control</StaticLabel>
+        <StaticLabel>{t("ui.controlLabel")}</StaticLabel>
         <Input
           type="number"
-          placeholder="棋盤大小 N"
+          placeholder={t("ui.placeholder")}
           value={nSize}
           onChange={handleNChange}
           className={styles.input}
@@ -59,7 +61,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
           aria-label="Board size N"
         />
 
-        <Tooltip content="執行 N 皇后回溯演算法">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             onClick={handleRun}
@@ -67,10 +69,10 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
             className={`${styles.runButton} ${styles.runButtonSearching}`}
             icon="play"
           >
-            開始解題
+            {t("ui.run")}
           </Button>
         </Tooltip>
-        <Tooltip content="重設棋盤狀態">
+        <Tooltip content={t("ui.resetTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -78,7 +80,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
             disabled={disabled}
             icon="rotate-right"
           >
-            重設
+            {t("ui.reset")}
           </Button>
         </Tooltip>
       </ActionBarGroup>
