@@ -81,7 +81,9 @@ export interface LevelProgress {
   stars: ScoreLevel;
   attempts: number;
   bestTime: number;
+  bestScore?: number; // 百分制 0-100，undefined = 尚未練習
   completedAt?: string;
+  teachingCompleted?: boolean; // 教學模式是否已完成（停留 >= 30 秒）
 }
 
 export interface UserProgress {

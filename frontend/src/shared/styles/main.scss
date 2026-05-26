@@ -7,6 +7,8 @@
 @use "./_reset";
 @use "./_common";
 
+@use "sass:color";
+
 // 主題
 :root {
   --primary-color: $primary-color;
@@ -32,6 +34,22 @@
   --warning-color: #{$warning-color};
   --warning-bg: #{rgba($warning-color, 0.1)};
 
+  /* Semantic accent colours */
+  --color-primary:   #{$primary-color};
+  --color-accent:    #{$accent-color};
+  --color-pink:      #{$pink-color};
+  --color-teal:      #{$teal-color};
+
+  /* Glow Button — Light Mode */
+  --glow-bg: #{rgba($white-color, 0.85)};
+  --glow-bg-hover: #{rgba($white-color, 0.95)};
+  --glow-border: #{rgba($primary-color, 0.6)};
+  --glow-border-hover: #{$primary-color};
+  --glow-color: #{$primary-color};
+  --glow-color-hover: #{$primary-color};
+  --glow-shadow: 0 2px 12px #{rgba($primary-color, 0.2)};
+  --glow-shadow-hover: 0 4px 20px #{rgba($primary-color, 0.35)};
+
   /* Header Height */
   --header-height: #{$header-height};
 
@@ -53,6 +71,20 @@
     --border-color: #{$dark-border};
     --card-bg: #{$dark-bg-tertiary};
     --card-shadow: #{$dark-card-shadow};
+    /* Semantic accent colours — Dark Mode */
+    --color-primary:   #{color.adjust($primary-color, $lightness: -8%)};
+    --color-accent:    #{color.adjust($accent-color,  $lightness: -8%)};
+    --color-pink:      #{color.adjust($pink-color,    $lightness: -8%)};
+    --color-teal:      #{color.adjust($teal-color,    $lightness: -8%)};
+    /* Glow Button — Dark Mode */
+    --glow-bg: #{rgba($primary-color, 0.16)};
+    --glow-bg-hover: #{rgba($primary-color, 0.28)};
+    --glow-border: #{rgba($primary-color, 0.55)};
+    --glow-border-hover: #{rgba($primary-color, 0.88)};
+    --glow-color: #{rgba($primary-color, 0.85)};
+    --glow-color-hover: #{$white-color};
+    --glow-shadow: 0 0 10px #{rgba($primary-color, 0.3)};
+    --glow-shadow-hover: 0 0 18px #{rgba($primary-color, 0.6)}, 0 0 38px #{rgba($primary-color, 0.22)};
   }
 }
 
@@ -68,6 +100,20 @@
   --border-color: #{$dark-border};
   --card-bg: #{$dark-bg-tertiary};
   --card-shadow: #{$dark-card-shadow};
+  /* Semantic accent colours — Dark Mode */
+  --color-primary:   #{color.adjust($primary-color, $lightness: -8%)};
+  --color-accent:    #{color.adjust($accent-color,  $lightness: -8%)};
+  --color-pink:      #{color.adjust($pink-color,    $lightness: -8%)};
+  --color-teal:      #{color.adjust($teal-color,    $lightness: -8%)};
+  /* Glow Button — Dark Mode */
+  --glow-bg: #{rgba($primary-color, 0.16)};
+  --glow-bg-hover: #{rgba($primary-color, 0.28)};
+  --glow-border: #{rgba($primary-color, 0.55)};
+  --glow-border-hover: #{rgba($primary-color, 0.88)};
+  --glow-color: #{rgba($primary-color, 0.85)};
+  --glow-color-hover: #{$white-color};
+  --glow-shadow: 0 0 10px #{rgba($primary-color, 0.3)};
+  --glow-shadow-hover: 0 0 18px #{rgba($primary-color, 0.6)}, 0 0 38px #{rgba($primary-color, 0.22)};
 }
 
 // Explicit light mode (overrides OS dark preference)

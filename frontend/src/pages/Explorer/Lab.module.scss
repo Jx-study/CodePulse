@@ -1,0 +1,90 @@
+.lab {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 5rem);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.toolbar {
+  height: 3.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 $spacing-sm;
+  flex-shrink: 0;
+  gap: $spacing-sm;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: $font-lg;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: var(--bg-tertiary, var(--card-bg));
+    color: var(--text-primary);
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 1.5rem;
+  background: var(--border);
+}
+
+.toolbarTitle {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  min-height: 0;
+  overflow: hidden;
+
+  &[data-flipped="true"] {
+    flex-direction: row-reverse;
+
+    aside {
+      border-right: none;
+      border-left: 1px solid var(--border);
+    }
+  }
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-primary);
+}
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-sm;
+  overflow: hidden;
+}

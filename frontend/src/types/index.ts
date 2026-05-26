@@ -5,6 +5,7 @@
 
 // ==================== Animation Types (Shared) ====================
 export * from './animation';
+export * from './trace';
 
 export * from './implementation';
 export * from './statusConfig';

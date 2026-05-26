@@ -1,20 +1,39 @@
 import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { BFSDFSActionBar } from "./BFSDFSActionBar";
+import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
+import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Box } from "@/modules/core/DataLogic/Box";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import {
+  generateGridFrame,
+  generateGraphFrame,
+  updateLinkStatus,
+} from "@/data/DataStructure/nonlinear/utils";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import {
   cloneData,
   generateRandomGraph,
   generateRandomGrid,
 } from "@/modules/core/visualization/visualizationUtils";
-import type { ActionContext, GraphData } from "@/modules/core/visualization/types";
+import type {
+  ActionContext,
+  GraphData,
+} from "@/modules/core/visualization/types";
 import type { ActionResult } from "@/modules/core/visualization/types";
+import { dfsRealWorldStories } from "@/data/algorithms/searching/dfs.stories";
 
-function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[][] } | null {
+function parseGraphLoadPayload(
+  dataStr: string,
+): { nodes: any[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
   if (isNaN(nodeCount)) return null;
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({ id: `node-${i}` }));
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node-${i}`,
+  }));
   const edges: string[][] = [];
   const edgeStr = parts.slice(2).join(":").trim();
   if (edgeStr !== "") {
@@ -23,8 +42,19 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
       if (u !== undefined && v !== undefined) {
         const uIdx = parseInt(u, 10);
         const vIdx = parseInt(v, 10);
-        if (!isNaN(uIdx) && !isNaN(vIdx) && uIdx >= 0 && uIdx < nodeCount && vIdx >= 0 && vIdx < nodeCount) {
-          edges.push(w !== undefined ? [`node-${uIdx}`, `node-${vIdx}`, w] : [`node-${uIdx}`, `node-${vIdx}`]);
+        if (
+          !isNaN(uIdx) &&
+          !isNaN(vIdx) &&
+          uIdx >= 0 &&
+          uIdx < nodeCount &&
+          vIdx >= 0 &&
+          vIdx < nodeCount
+        ) {
+          edges.push(
+            w !== undefined
+              ? [`node-${uIdx}`, `node-${vIdx}`, w]
+              : [`node-${uIdx}`, `node-${vIdx}`],
+          );
         }
       }
     });
@@ -32,7 +62,9 @@ function parseGraphLoadPayload(dataStr: string): { nodes: any[]; edges: string[]
   return { nodes, edges };
 }
 
-function parseGridLoadPayload(dataStr: string): { cols: number; values: number[] } | null {
+function parseGridLoadPayload(
+  dataStr: string,
+): { cols: number; values: number[] } | null {
   const parts = dataStr.split(":");
   if (parts.length !== 3) return null;
   const cols = parseInt(parts[1], 10);
@@ -68,7 +100,6 @@ function dfsActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { mode: "graph" },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -83,14 +114,16 @@ function dfsActionHandler(
         animationData: cloneData(graphPayload),
         useRawAnimationParams: true,
         animationParams: { mode: "graph", isDirected: payload.Directed },
-        needsSyncCoordinates: true,
         isResetAction: false,
       };
     }
     if (dataStr.startsWith("GRID:")) {
       const gridPayload = parseGridLoadPayload(dataStr);
       if (!gridPayload) return null;
-      const newData = gridPayload.values.map((val, i) => ({ id: `box-${i}`, val }));
+      const newData = gridPayload.values.map((val, i) => ({
+        id: `box-${i}`,
+        val,
+      }));
       return {
         animationData: newData,
         useRawAnimationParams: true,
@@ -116,7 +149,9 @@ function dfsActionHandler(
     const isGraphData = (d: any): d is GraphData =>
       d && !Array.isArray(d) && Array.isArray(d.nodes);
     if (isGraphData(data)) {
-      const coordMap = new Map(data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]));
+      const coordMap = new Map(
+        data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+      );
       newData.nodes.forEach((n: any) => {
         const saved = coordMap.get(n.id);
         if (saved?.x != null && saved?.y != null) {
@@ -129,7 +164,6 @@ function dfsActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { mode: "graph", ...payload },
-      needsSyncCoordinates: true,
       isResetAction: false,
     };
   }
@@ -147,22 +181,12 @@ function dfsActionHandler(
       animationData: newData,
       useRawAnimationParams: true,
       animationParams: { ...payload, action: "switchMode" },
-      needsSyncCoordinates: payload.mode === "graph",
       isResetAction: false,
     };
   }
 
   return null;
 }
-import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
-import { Node } from "@/modules/core/DataLogic/Node";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import {
-  generateGridFrame,
-  generateGraphFrame,
-  updateLinkStatus,
-} from "@/data/DataStructure/nonlinear/utils";
-import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
 const TAGS = {
   INIT: "INIT",
@@ -177,6 +201,68 @@ const TAGS = {
   PATH_FOUND: "PATH_FOUND",
   NOT_FOUND: "NOT_FOUND",
 };
+
+function appendStackAndResultBoxes(
+  elements: BaseElement[],
+  stack: string[],
+  result: string[],
+  poppingNodeId?: string,
+  pushingNodeIds?: string[],
+) {
+  // 1. 繪製 Stack (由上往下疊)
+  stack.forEach((id, index) => {
+    const box = new Box();
+    box.id = `ui-box-${id}`;
+    box.value = id.replace("node-", "");
+    const baseX = 850;
+    const baseY = 60 + index * 35;
+
+    if (pushingNodeIds?.includes(id)) {
+      // 讓新節點從畫面底部升起，產生「由下往上」堆疊的動畫
+      box.moveTo(baseX, 420);
+      box.setStatus(Status.Prepare);
+    } else {
+      // 靜態堆疊狀態
+      box.moveTo(baseX, baseY);
+      box.setStatus(Status.Target);
+    }
+
+    box.width = 120;
+    box.height = 30;
+    elements.push(box);
+  });
+
+  // 2. 繪製正在 Pop 的節點 (掉落到下方 Result 區)
+  if (poppingNodeId) {
+    const dropBox = new Box();
+    dropBox.id = `ui-box-${poppingNodeId}`;
+    dropBox.value = poppingNodeId.replace("node-", "");
+
+    const baseX = 850;
+    // 產生「從上往下掉」的動畫
+    dropBox.moveTo(baseX, 420);
+
+    dropBox.width = 120;
+    dropBox.height = 30;
+    dropBox.setStatus(Status.Complete);
+    elements.push(dropBox);
+  }
+
+  // 3. 繪製底部的 Result 陣列
+  const resStartX = 50;
+  const resY = 420;
+  result.forEach((id, i) => {
+    const box = new Box();
+    box.id = `ui-box-${id}`;
+    box.value = id.replace("node-", "");
+    // 在掉落到底部後，接著平移到左側的結果陣列
+    box.moveTo(resStartX + i * 45, resY);
+    box.width = 40;
+    box.height = 40;
+    box.setStatus(Status.Complete);
+    elements.push(box);
+  });
+}
 
 function runGraphDFS(
   graphData: any,
@@ -205,8 +291,14 @@ function runGraphDFS(
   // 狀態變數
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
-  const distanceMap: Record<string, number> = {}; // DFS 深度
+  const distanceMap: Record<string, number> = {};
   const parentMap = new Map<string, string>();
+
+  const result: string[] = [];
+  const visited = new Set<string>();
+
+  // 用來防止已經在 Stack 裡面的節點被重複推入
+  const discovered = new Set<string>();
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
@@ -217,15 +309,17 @@ function runGraphDFS(
     `初始化距離為 ∞，準備開始 DFS`,
   );
   initFrame2.actionTag = TAGS.INIT;
-  initFrame2.variables = {
+  initFrame2.local_vars = {
     start: realStartId,
     end: realEndId,
     "distance[all]": "∞",
   };
+  appendStackAndResultBoxes(initFrame2.elements, [], result);
   steps.push(initFrame2);
 
+  // 初始化 Stack
   const stack: { id: string; dist: number }[] = [{ id: realStartId, dist: 0 }];
-  const visited = new Set<string>();
+  discovered.add(realStartId); // 標記為已發現
 
   statusMap[realStartId] = Status.Prepare;
   distanceMap[realStartId] = 0;
@@ -236,11 +330,37 @@ function runGraphDFS(
     `將起點 ${realStartId} 推入 Stack（距離: 0）`,
   );
   startFrame.actionTag = TAGS.START;
-  startFrame.variables = {
+  startFrame.local_vars = {
     stack: `[(${realStartId}, 0)]`,
     [`distance[${realStartId}]`]: 0,
   };
+  appendStackAndResultBoxes(
+    startFrame.elements,
+    stack.map((s) => s.id),
+    result,
+    undefined,
+    [realStartId],
+  );
   steps.push(startFrame);
+
+  const startSettleFrame = generateGraphFrame(
+    baseElements,
+    statusMap,
+    distanceMap,
+    `${realStartId} 已進入 Stack`,
+  );
+  startSettleFrame.actionTag = TAGS.START;
+  startSettleFrame.local_vars = {
+    stack: `[(${realStartId}, 0)]`,
+    [`distance[${realStartId}]`]: 0,
+  };
+
+  appendStackAndResultBoxes(
+    startSettleFrame.elements,
+    stack.map((s) => s.id),
+    result,
+  );
+  steps.push(startSettleFrame);
 
   // DFS 主迴圈
   while (stack.length > 0) {
@@ -250,7 +370,7 @@ function runGraphDFS(
     const parentId = parentMap.get(currId);
 
     if (parentId) {
-      updateLinkStatus(linkStatusMap, parentId, currId, "visited", false);
+      updateLinkStatus(linkStatusMap, parentId, currId, "target", false);
     }
 
     statusMap[currId] = Status.Target;
@@ -264,7 +384,7 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     popFrame.actionTag = TAGS.POP;
-    popFrame.variables = {
+    popFrame.local_vars = {
       curr: currId,
       depth: currDist,
       stack:
@@ -273,7 +393,17 @@ function runGraphDFS(
           : "[]",
       "visited count": visited.size,
     };
+    appendStackAndResultBoxes(
+      popFrame.elements,
+      stack.map((s) => s.id),
+      result,
+      currId,
+    );
     steps.push(popFrame);
+
+    if (!visited.has(currId)) {
+      result.push(currId);
+    }
 
     if (visited.has(currId)) {
       const skipFrame = generateGraphFrame(
@@ -285,11 +415,16 @@ function runGraphDFS(
         { ...linkStatusMap },
       );
       skipFrame.actionTag = TAGS.SKIP;
-      skipFrame.variables = {
+      skipFrame.local_vars = {
         curr: currId,
         "already visited": "True",
         [`distance[${currId}]`]: distanceMap[currId],
       };
+      appendStackAndResultBoxes(
+        skipFrame.elements,
+        stack.map((s) => s.id),
+        result,
+      );
       steps.push(skipFrame);
       continue;
     }
@@ -306,12 +441,17 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     distUpdateFrame.actionTag = TAGS.DIST_UPDATE;
-    distUpdateFrame.variables = {
+    distUpdateFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
       [`distance[${currId}]`]: distanceMap[currId],
     };
+    appendStackAndResultBoxes(
+      distUpdateFrame.elements,
+      stack.map((s) => s.id),
+      result,
+    );
     steps.push(distUpdateFrame);
 
     const checkEndFrame = generateGraphFrame(
@@ -323,17 +463,31 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     checkEndFrame.actionTag = TAGS.CHECK_END;
-    checkEndFrame.variables = {
+    checkEndFrame.local_vars = {
       curr: currId,
       end: realEndId,
       "curr === end": currId === realEndId ? "True" : "False",
       [`distance[${currId}]`]: distanceMap[currId],
     };
+    appendStackAndResultBoxes(
+      checkEndFrame.elements,
+      stack.map((s) => s.id),
+      result,
+    );
     steps.push(checkEndFrame);
 
     if (currId === realEndId) break;
 
-    statusMap[currId] = Status.Unfinished; // 歷史軌跡
+    statusMap[currId] = Status.Unfinished;
+    if (parentId) {
+      updateLinkStatus(
+        linkStatusMap,
+        parentId,
+        currId,
+        Status.Unfinished as linkStatus,
+        false,
+      );
+    }
 
     const currNode = nodeMap.get(currId);
     if (currNode) {
@@ -341,43 +495,48 @@ function runGraphDFS(
       neighbors.sort((a, b) => b.id.localeCompare(a.id));
 
       const allNeighborIds = neighbors.map((n) => n.id);
-      const unvisitedIds = allNeighborIds.filter((id) => !visited.has(id));
 
-      // ── EXPLORE frame ──
+      // 只過濾出「尚未被 discovered」的鄰居
+      const unvisitedIds = allNeighborIds.filter((id) => !discovered.has(id));
+
       const exploreFrame = generateGraphFrame(
         baseElements,
         { ...statusMap },
         distanceMap,
         unvisitedIds.length > 0
-          ? `遍歷 ${currId} 的鄰居，發現 ${unvisitedIds.length} 個未訪問節點`
-          : `遍歷 ${currId} 的鄰居，所有鄰居皆已訪問`,
+          ? `遍歷 ${currId} 的鄰居，發現 ${unvisitedIds.length} 個未推入 Stack 的節點`
+          : `遍歷 ${currId} 的鄰居，所有鄰居皆已在 Stack 中或已訪問`,
         false,
         { ...linkStatusMap },
       );
       exploreFrame.actionTag = TAGS.EXPLORE;
-      exploreFrame.variables = {
+      exploreFrame.local_vars = {
         curr: currId,
         "all neighbors": `[${allNeighborIds.join(", ")}]`,
         unvisited:
           unvisitedIds.length > 0
             ? `[${unvisitedIds.join(", ")}]`
-            : "[]  (全已訪問)",
+            : "[]  (全已處理)",
       };
+      appendStackAndResultBoxes(
+        exploreFrame.elements,
+        stack.map((s) => s.id),
+        result,
+      );
       steps.push(exploreFrame);
 
       const pushedNeighbors: string[] = [];
 
       for (const neighbor of neighbors) {
-        // 只有未訪問過的才推入堆疊
-        if (!visited.has(neighbor.id)) {
-          updateLinkStatus(linkStatusMap, currId, neighbor.id, "path", false);
+        // 檢查 discovered
+        if (!discovered.has(neighbor.id)) {
+          updateLinkStatus(linkStatusMap, currId, neighbor.id, "prepare", true);
           parentMap.set(neighbor.id, currId);
-          // 步數 + 1
-          stack.push({ id: neighbor.id, dist: currDist + 1 });
-          pushedNeighbors.push(neighbor.id);
 
+          stack.push({ id: neighbor.id, dist: currDist + 1 });
+          discovered.add(neighbor.id); // 標記為已發現 (已入棧)
+          pushedNeighbors.push(neighbor.id);
           statusMap[neighbor.id] = Status.Prepare;
-          // 不更新 distanceMap，等到 pop 出來才更新，才符合 DFS 順序
         }
       }
 
@@ -391,13 +550,38 @@ function runGraphDFS(
           { ...linkStatusMap },
         );
         visitFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-        visitFrame.variables = {
+        visitFrame.local_vars = {
           curr: currId,
           "pushed neighbors": `[${pushedNeighbors.join(", ")}]`,
           "depth[new]": currDist + 1,
           "stack (after)": `[${stack.map((s) => `(${s.id}, ${s.dist})`).join(", ")}]`,
         };
+        appendStackAndResultBoxes(
+          visitFrame.elements,
+          stack.map((s) => s.id),
+          result,
+          undefined,
+          pushedNeighbors,
+        );
         steps.push(visitFrame);
+
+        const settleFrame = generateGraphFrame(
+          baseElements,
+          statusMap,
+          distanceMap,
+          `鄰居已進入 Stack`,
+          false,
+          { ...linkStatusMap },
+        );
+        settleFrame.actionTag = TAGS.PUSH_NEIGHBOR;
+        settleFrame.local_vars = { ...visitFrame.local_vars };
+
+        appendStackAndResultBoxes(
+          settleFrame.elements,
+          stack.map((s) => s.id),
+          result,
+        );
+        steps.push(settleFrame);
       }
     }
   }
@@ -411,9 +595,7 @@ function runGraphDFS(
     while (curr !== realStartId) {
       const parent = parentMap.get(curr);
       if (!parent) break;
-
       updateLinkStatus(linkStatusMap, parent, curr, "complete", false);
-
       path.push(parent);
       curr = parent;
     }
@@ -429,10 +611,15 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     pathFoundFrame.actionTag = TAGS.PATH_FOUND;
-    pathFoundFrame.variables = {
+    pathFoundFrame.local_vars = {
       end: realEndId,
       "path depth": distanceMap[realEndId],
     };
+    appendStackAndResultBoxes(
+      pathFoundFrame.elements,
+      stack.map((s) => s.id),
+      result,
+    );
     steps.push(pathFoundFrame);
   } else {
     const notFoundFrame = generateGraphFrame(
@@ -444,11 +631,16 @@ function runGraphDFS(
       { ...linkStatusMap },
     );
     notFoundFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundFrame.variables = {
+    notFoundFrame.local_vars = {
       stack: "[]",
       end: realEndId,
       reachable: "false — 終點不可達",
     };
+    appendStackAndResultBoxes(
+      notFoundFrame.elements,
+      stack.map((s) => s.id),
+      result,
+    );
     steps.push(notFoundFrame);
   }
 
@@ -471,9 +663,14 @@ function runGridDFS(
   const endIndex = endId ? parseInt(endId) : gridData.length - 1;
 
   const visited = new Set<number>();
+  // 記錄「已經進過 Stack」的節點避免重複推入
+  const discovered = new Set<number>();
   const parentMap = new Map<number, number>();
   const statusMap: Record<number, Status> = {};
   const distanceMap: Record<number, number> = {};
+
+  const stack: number[] = [];
+  const result: number[] = [];
 
   // 檢查起點終點
   if (gridData[startIndex].val === 1 || gridData[endIndex].val === 1) {
@@ -493,7 +690,12 @@ function runGridDFS(
     true,
   );
   gridInitFrame1.actionTag = TAGS.INIT;
-  gridInitFrame1.variables = { start: startIndex, end: endIndex };
+  gridInitFrame1.local_vars = { start: startIndex, end: endIndex };
+  appendStackAndResultBoxes(
+    gridInitFrame1.elements,
+    stack.map(String),
+    result.map(String),
+  );
   steps.push(gridInitFrame1);
 
   const gridInitFrame2 = generateGridFrame(
@@ -505,19 +707,25 @@ function runGridDFS(
     false,
   );
   gridInitFrame2.actionTag = TAGS.INIT;
-  gridInitFrame2.variables = {
+  gridInitFrame2.local_vars = {
     start: startIndex,
     end: endIndex,
     "distance[all]": "∞",
   };
+  appendStackAndResultBoxes(
+    gridInitFrame2.elements,
+    stack.map(String),
+    result.map(String),
+  );
   steps.push(gridInitFrame2);
 
-  const stack: number[] = [startIndex];
-  visited.add(startIndex);
+  // 初始化起點
+  stack.push(startIndex);
+  discovered.add(startIndex); // 標記為已入棧
   distanceMap[startIndex] = 0;
   statusMap[startIndex] = Status.Prepare;
 
-  // ── START frame ──
+  // 起點自底部飛入
   const startGridFrame = generateGridFrame(
     gridData,
     cols,
@@ -526,12 +734,35 @@ function runGridDFS(
     `將起點 ${startIndex} 推入 Stack（距離: 0）`,
   );
   startGridFrame.actionTag = TAGS.START;
-  startGridFrame.variables = {
+  startGridFrame.local_vars = {
     stack: `[${startIndex}]`,
-    visited: `{${startIndex}}`,
-    "distance[start]": 0,
+    [`distance[${startIndex}]`]: 0,
   };
+  appendStackAndResultBoxes(
+    startGridFrame.elements,
+    stack.map(String),
+    result.map(String),
+    undefined,
+    [String(startIndex)],
+  );
   steps.push(startGridFrame);
+
+  const startSettleFrame = generateGridFrame(
+    gridData,
+    cols,
+    statusMap,
+    distanceMap,
+    `起點 ${startIndex} 已安穩進入 Stack`,
+  );
+  startSettleFrame.actionTag = TAGS.START;
+  startSettleFrame.local_vars = { ...startGridFrame.local_vars };
+  // 不傳送 pushingNodeIds，讓方塊定位到 baseY
+  appendStackAndResultBoxes(
+    startSettleFrame.elements,
+    stack.map(String),
+    result.map(String),
+  );
+  steps.push(startSettleFrame);
 
   let found = false;
 
@@ -548,24 +779,54 @@ function runGridDFS(
     const currIndex = stack.pop()!;
     statusMap[currIndex] = Status.Target;
 
-    // ── POP frame ──
     const popGridFrame = generateGridFrame(
       gridData,
       cols,
       statusMap,
       distanceMap,
-      `深入探索：處理節點 ${currIndex}`,
+      `深入探索：Pop 取出節點 ${currIndex}`,
     );
     popGridFrame.actionTag = TAGS.POP;
-    popGridFrame.variables = {
+    popGridFrame.local_vars = {
       curr: currIndex,
       [`distance[${currIndex}]`]: distanceMap[currIndex],
       "stack size": stack.length,
       "visited count": visited.size,
     };
+    appendStackAndResultBoxes(
+      popGridFrame.elements,
+      stack.map(String),
+      result.map(String),
+      String(currIndex),
+    );
     steps.push(popGridFrame);
 
-    // ── CHECK_END frame ──
+    if (!visited.has(currIndex)) {
+      result.push(currIndex);
+    }
+
+    // 防呆：如果該節點已被處理過則跳過
+    if (visited.has(currIndex)) {
+      const skipFrame = generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        `節點 ${currIndex} 已探索過，跳過`,
+      );
+      skipFrame.actionTag = TAGS.POP; // 沿用相關標籤
+      skipFrame.local_vars = { curr: currIndex, "already visited": "True" };
+      appendStackAndResultBoxes(
+        skipFrame.elements,
+        stack.map(String),
+        result.map(String),
+      );
+      steps.push(skipFrame);
+      continue;
+    }
+
+    visited.add(currIndex);
+
     const checkEndGridFrame = generateGridFrame(
       gridData,
       cols,
@@ -574,12 +835,17 @@ function runGridDFS(
       currIndex === endIndex ? "找到終點！" : "尚未到達終點，繼續搜尋",
     );
     checkEndGridFrame.actionTag = TAGS.CHECK_END;
-    checkEndGridFrame.variables = {
+    checkEndGridFrame.local_vars = {
       curr: currIndex,
       end: endIndex,
       "curr === end": currIndex === endIndex ? "True" : "False",
       [`distance[${currIndex}]`]: distanceMap[currIndex],
     };
+    appendStackAndResultBoxes(
+      checkEndGridFrame.elements,
+      stack.map(String),
+      result.map(String),
+    );
     steps.push(checkEndGridFrame);
 
     if (currIndex === endIndex) {
@@ -594,7 +860,7 @@ function runGridDFS(
     // D. 尋找鄰居
     const r = Math.floor(currIndex / cols);
     const c = currIndex % cols;
-    let addedNeighbors = 0;
+    const pushedNeighbors: string[] = [];
 
     for (const [dr, dc] of directions) {
       const nr = r + dr;
@@ -602,37 +868,65 @@ function runGridDFS(
       const nIndex = nr * cols + nc;
 
       if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-        if (gridData[nIndex].val !== 1 && !visited.has(nIndex)) {
-          visited.add(nIndex);
+        // 利用 !discovered.has(nIndex) 確保不重複進堆疊
+        if (gridData[nIndex].val !== 1 && !discovered.has(nIndex)) {
+          discovered.add(nIndex);
           parentMap.set(nIndex, currIndex);
+
           stack.push(nIndex);
+          pushedNeighbors.push(String(nIndex));
 
           distanceMap[nIndex] =
             distanceMap[currIndex] !== undefined
               ? distanceMap[currIndex] + 1
               : 1;
           statusMap[nIndex] = Status.Prepare;
-          addedNeighbors++;
         }
       }
     }
 
-    if (addedNeighbors > 0) {
+    if (pushedNeighbors.length > 0) {
+      // 多個鄰居自底部向上飛入
       const pushNeighborGridFrame = generateGridFrame(
         gridData,
         cols,
         statusMap,
         distanceMap,
-        `發現 ${addedNeighbors} 個未訪問鄰居，推入堆疊 (黃色)`,
+        `發現 ${pushedNeighbors.length} 個未訪問鄰居，推入堆疊 (升起)`,
       );
       pushNeighborGridFrame.actionTag = TAGS.PUSH_NEIGHBOR;
-      pushNeighborGridFrame.variables = {
-        "new count": addedNeighbors,
+      pushNeighborGridFrame.local_vars = {
+        "new count": pushedNeighbors.length,
         "distance[new]": distanceMap[currIndex]! + 1,
         "stack size (after)": stack.length,
       };
+      appendStackAndResultBoxes(
+        pushNeighborGridFrame.elements,
+        stack.map(String),
+        result.map(String),
+        undefined,
+        pushedNeighbors,
+      );
       steps.push(pushNeighborGridFrame);
+
+      const settleNeighborFrame = generateGridFrame(
+        gridData,
+        cols,
+        statusMap,
+        distanceMap,
+        `新鄰居已定位於 Stack 頂端，準備進入下一輪深度探索`,
+      );
+      settleNeighborFrame.actionTag = TAGS.PUSH_NEIGHBOR;
+      settleNeighborFrame.local_vars = { ...pushNeighborGridFrame.local_vars };
+
+      appendStackAndResultBoxes(
+        settleNeighborFrame.elements,
+        stack.map(String),
+        result.map(String),
+      );
+      steps.push(settleNeighborFrame);
     } else {
+      // 死胡同
       const backtrackFrame = generateGridFrame(
         gridData,
         cols,
@@ -641,10 +935,15 @@ function runGridDFS(
         `無路可走 (死胡同)，回溯 (Backtrack)`,
       );
       backtrackFrame.actionTag = TAGS.BACKTRACK;
-      backtrackFrame.variables = {
+      backtrackFrame.local_vars = {
         curr: currIndex,
         "dead end": "True — 無未訪問鄰居",
       };
+      appendStackAndResultBoxes(
+        backtrackFrame.elements,
+        stack.map(String),
+        result.map(String),
+      );
       steps.push(backtrackFrame);
     }
   }
@@ -673,10 +972,15 @@ function runGridDFS(
       `DFS 搜尋結束，路徑長度：${path.length} (綠色路徑)`,
     );
     pathCompleteFrame.actionTag = TAGS.PATH_FOUND;
-    pathCompleteFrame.variables = {
+    pathCompleteFrame.local_vars = {
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
+    appendStackAndResultBoxes(
+      pathCompleteFrame.elements,
+      stack.map(String),
+      result.map(String),
+    );
     steps.push(pathCompleteFrame);
   } else {
     const notFoundGridFrame = generateGridFrame(
@@ -687,11 +991,16 @@ function runGridDFS(
       "堆疊已空，無法到達終點",
     );
     notFoundGridFrame.actionTag = TAGS.NOT_FOUND;
-    notFoundGridFrame.variables = {
+    notFoundGridFrame.local_vars = {
       stack: "[]",
       end: endIndex,
       reachable: "False — 終點不可達",
     };
+    appendStackAndResultBoxes(
+      notFoundGridFrame.elements,
+      stack.map(String),
+      result.map(String),
+    );
     steps.push(notFoundGridFrame);
   }
 
@@ -897,43 +1206,53 @@ DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
   createAnimationSteps: createDFSAnimationSteps,
   actionHandler: dfsActionHandler,
   defaultViewMode: "graph",
+  linkAnimConfig: {
+    animateOn: ["prepare"],
+    directOn: ["target", "complete"],
+  },
   renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
   maxNodes: 15,
   relatedProblems: [
     {
       id: 695,
       title: "Max Area of Island",
-      concept: "DFS 連通分量面積：從每個陸地格遞迴標記並累計面積，回傳所有島嶼中的最大值",
+      concept:
+        "DFS 連通分量面積：從每個陸地格遞迴標記並累計面積，回傳所有島嶼中的最大值",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/max-area-of-island/",
     },
     {
       id: 79,
       title: "Word Search",
-      concept: "回溯 DFS：在二維字元板上沿四方向遞迴拼字，以 visited 標記防止重複使用格子",
+      concept:
+        "回溯 DFS：在二維字元板上沿四方向遞迴拼字，以 visited 標記防止重複使用格子",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/word-search/",
     },
     {
       id: 130,
       title: "Surrounded Regions",
-      concept: "邊界 DFS：從邊界的 O 開始標記可保留區域，剩餘未標記的 O 皆被 X 包圍需翻轉",
+      concept:
+        "邊界 DFS：從邊界的 O 開始標記可保留區域，剩餘未標記的 O 皆被 X 包圍需翻轉",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/surrounded-regions/",
     },
     {
       id: 417,
       title: "Pacific Atlantic Water Flow",
-      concept: "反向 DFS：分別從太平洋與大西洋邊界逆流往高處走，兩次結果取交集即為答案",
+      concept:
+        "反向 DFS：分別從太平洋與大西洋邊界逆流往高處走，兩次結果取交集即為答案",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/pacific-atlantic-water-flow/",
     },
     {
       id: 329,
       title: "Longest Increasing Path in a Matrix",
-      concept: "帶記憶化的 DFS：對矩陣每格做 DFS 求最長遞增路徑，用 dp 快取避免重複計算",
+      concept:
+        "帶記憶化的 DFS：對矩陣每格做 DFS 求最長遞增路徑，用 dp 快取避免重複計算",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/",
     },
   ],
+  realWorldStories: dfsRealWorldStories,
 };

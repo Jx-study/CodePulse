@@ -33,6 +33,15 @@
   margin-bottom: 12px;
 }
 
+.groupDesc,
+.questionText,
+.optionLabel {
+  strong {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+}
+
 .groupCodeBlock {
   border: 1px solid #444;
   border-radius: 4px;
@@ -325,4 +334,20 @@
   .workspace {
     order: 1;
   }
+}
+
+.groupVisual {
+  margin: 0 0 $spacing-md;
+}
+
+.groupVisualImage {
+  display: block;
+  width: 100%;
+  max-width: 45rem;
+  height: auto;
+  margin: 0 auto;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border);
+  background-color: #ffffff;
+  padding: 0.5rem;
 }

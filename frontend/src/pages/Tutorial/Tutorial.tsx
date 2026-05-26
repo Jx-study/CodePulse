@@ -1,4 +1,13 @@
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  Suspense,
+} from "react";
+import { tutorialService } from "@/services/tutorialService";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
 import { DragEndEvent } from "@dnd-kit/core";
@@ -6,11 +15,19 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import Button from "@/shared/components/Button";
-import { D3Canvas } from "@/modules/core/Render/D3Canvas";
+import { D3Canvas, type D3CanvasRef } from "@/modules/core/Render/D3Canvas";
+import {
+  GraphCanvas,
+  type GraphCanvasRef,
+} from "@/modules/core/Render/GraphCanvas";
+import type { AnimatableCanvasRef } from "@/types/canvasTypes";
 import ControlBar from "@/modules/core/components/ControlBar";
 import { toast } from "@/shared/components/Toast";
 import type { BreadcrumbItem } from "@/types";
-import type { AlgorithmViewMode } from "@/types/implementation";
+import {
+  DEFAULT_LINK_ANIM_CONFIG,
+  type AlgorithmViewMode,
+} from "@/types/implementation";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
 import { PANEL_REGISTRY } from "./components/PanelRegistry";
@@ -24,10 +41,22 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
 } from "@/types/statusConfig";
+import { useTranslation } from "react-i18next";
+import type { StepDescription } from "@/types";
+
+function renderDescription(
+  desc: string | StepDescription | undefined,
+  t: (key: string, params?: Record<string, any>) => string,
+): string {
+  if (!desc) return "";
+  if (typeof desc === "string") return desc;
+  return t(desc.key, desc.params);
+}
 
 // ==================== Canvas Panel Component ====================
 interface CanvasPanelProps {
@@ -35,12 +64,16 @@ interface CanvasPanelProps {
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   currentStepData: any;
+  allStepsElements?: BaseElement[][];
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
   topicTypeConfig: any;
   currentStatusColorMap: any;
   currentStatusConfig: any;
   isDirected: boolean;
+  /** Doubly 鏈結時為 true，驅動 D3 雙向平行箭頭 */
+  showBidirectionalArrows: boolean;
+  viewMode: AlgorithmViewMode | "";
 
   // 保留 ControlBar props (內嵌在 Canvas 中)
   isPlaying: boolean;
@@ -51,9 +84,13 @@ interface CanvasPanelProps {
   handlePause: () => void;
   handleNext: () => void;
   handlePrev: () => void;
-  handleReset: () => void;
+  handleResetStep: () => void;
   setPlaybackSpeed: (speed: number) => void;
   handleStepChange: (step: number) => void;
+
+  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
+  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
+  useGraphCanvas: boolean;
 }
 
 const CanvasPanel = ({
@@ -61,12 +98,15 @@ const CanvasPanel = ({
   isMobile,
   canvasContainerRef,
   currentStepData,
+  allStepsElements,
   currentLinks,
   canvasSize,
   topicTypeConfig,
   currentStatusColorMap,
   currentStatusConfig,
   isDirected,
+  showBidirectionalArrows,
+  viewMode: _viewMode,
   isPlaying,
   currentStep,
   activeStepsLength,
@@ -75,10 +115,14 @@ const CanvasPanel = ({
   handlePause,
   handleNext,
   handlePrev,
-  handleReset,
+  handleResetStep,
   setPlaybackSpeed,
   handleStepChange,
+  graphCanvasRef,
+  d3CanvasRef,
+  useGraphCanvas,
 }: CanvasPanelProps) => {
+  const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
   const {
     attributes,
     listeners,
@@ -120,19 +164,38 @@ const CanvasPanel = ({
           dragHandleProps={dragHandleProps}
         />
         <div ref={canvasContainerRef} className={styles.visualizationArea}>
-          <D3Canvas
-            elements={currentStepData?.elements || []}
-            links={currentLinks}
-            width={canvasSize.width}
-            height={canvasSize.height}
-            structureType={topicTypeConfig?.id}
-            statusColorMap={currentStatusColorMap}
-            statusConfig={currentStatusConfig}
-            isDirected={isDirected}
-          />
+          {useGraphCanvas ? (
+            <GraphCanvas
+              ref={graphCanvasRef}
+              elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+              structureType={topicTypeConfig?.id}
+              disableAutoFit={topicTypeConfig?.id === "topological-sort"}
+            />
+          ) : (
+            <D3Canvas
+              ref={d3CanvasRef}
+              elements={currentStepData?.elements || []}
+              allStepsElements={allStepsElements}
+              links={currentLinks}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              structureType={topicTypeConfig?.id}
+              statusColorMap={currentStatusColorMap}
+              statusConfig={currentStatusConfig}
+              isDirected={isDirected}
+              showBidirectionalArrows={showBidirectionalArrows}
+            />
+          )}
         </div>
         <div className={styles.stepDescription}>
-          {currentStepData?.description}
+          {renderDescription(currentStepData?.description, t)}
         </div>
 
         {/* ControlBar 直接渲染,無 PanelHeader */}
@@ -145,7 +208,7 @@ const CanvasPanel = ({
           onPause={handlePause}
           onNext={handleNext}
           onPrev={handlePrev}
-          onReset={handleReset}
+          onReset={handleResetStep}
           onSpeedChange={setPlaybackSpeed}
           onStepChange={handleStepChange}
         />
@@ -172,7 +235,11 @@ export interface InspectorPanelInternalProps {
   maxNodes: number | undefined;
   setRandomCount: (count: number) => void;
   setHasTailMode: (hasTail: boolean) => void;
+  hasTailMode: boolean;
+  handleListModeChange: (mode: "singly" | "doubly") => void;
+  listMode: "singly" | "doubly";
   handleGraphAction: (action: string, payload: any) => void;
+  handleCustomAction: (action: string, payload: any) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
   viewMode: AlgorithmViewMode | "";
@@ -198,7 +265,11 @@ export const InspectorPanelInternal = ({
   maxNodes,
   setRandomCount,
   setHasTailMode,
+  hasTailMode,
+  handleListModeChange,
+  listMode,
   handleGraphAction,
+  handleCustomAction,
   isDirected,
   setIsDirected,
   viewMode,
@@ -236,65 +307,65 @@ export const InspectorPanelInternal = ({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // 渲染當前 Tab 的內容
-  const renderTabContent = () => {
-    const panelConfig = PANEL_REGISTRY[activeInspectorTab];
+  const actionBarProps = {
+    topicTypeConfig,
+    onLoadData: handleLoadData,
+    onRandomData: handleRandomData,
+    onResetData: handleResetData,
+    disabled: isProcessing,
+    onRun: handleRunAlgorithm,
+    onAddNode: handleAddNode,
+    onDeleteNode: handleDeleteNode,
+    onSearchNode: handleSearchNode,
+    onPeek: handlePeek,
+    maxNodes,
+    onMaxNodesChange: setRandomCount,
+    onTailModeChange: setHasTailMode,
+    onListModeChange: handleListModeChange,
+    hasTailMode,
+    listMode,
+    onGraphAction: handleGraphAction,
+    onCustomAction: handleCustomAction,
+    isDirected,
+    onIsDirectedChange: setIsDirected,
+    viewMode,
+    onViewModeChange: handleViewModeChange,
+    currentData,
+  };
 
-    if (!panelConfig) {
+  // 全部 Tab 同時保持 mounted，以 CSS display:none 隱藏非作用中的，
+  // 確保各 Tab 的 local state（insertMode、inputValue 等）不因切換而重置
+  const renderTabContent = () => {
+    if (inspectorTabs.length === 0) {
       return null;
     }
 
-    const PanelComponent = panelConfig.component;
-
-    // 為 actionBar 準備特殊的 props
-    if (activeInspectorTab === "actionBar") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent
-              topicTypeConfig={topicTypeConfig}
-              onLoadData={handleLoadData}
-              onRandomData={handleRandomData}
-              onResetData={handleResetData}
-              disabled={isProcessing}
-              onRun={handleRunAlgorithm}
-              onAddNode={handleAddNode}
-              onDeleteNode={handleDeleteNode}
-              onSearchNode={handleSearchNode}
-              onPeek={handlePeek}
-              maxNodes={maxNodes}
-              onMaxNodesChange={setRandomCount}
-              onTailModeChange={setHasTailMode}
-              onGraphAction={handleGraphAction}
-              isDirected={isDirected}
-              onIsDirectedChange={setIsDirected}
-              viewMode={viewMode}
-              onViewModeChange={handleViewModeChange}
-              currentData={currentData}
-            />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 為 variableStatus 準備 variables props
-    if (activeInspectorTab === "variableStatus") {
-      return (
-        <div className={styles.tabContent}>
-          <Suspense fallback={<div>載入中...</div>}>
-            <PanelComponent variables={currentStepData?.variables} />
-          </Suspense>
-        </div>
-      );
-    }
-
-    // 其他 Tab (callStack) 不需要 props
     return (
-      <div className={styles.tabContent}>
-        <Suspense fallback={<div>載入中...</div>}>
-          <PanelComponent />
-        </Suspense>
-      </div>
+      <>
+        {inspectorTabs.map((tab) => {
+          const panelConfig = PANEL_REGISTRY[tab.key];
+          if (!panelConfig) return null;
+          const PanelComponent = panelConfig.component;
+          const isActive = activeInspectorTab === tab.key;
+
+          let tabProps: Record<string, unknown> = {};
+          if (tab.key === "actionBar") tabProps = actionBarProps;
+          else if (tab.key === "variableStatus")
+            tabProps = { variables: currentStepData?.local_vars };
+
+          return (
+            <div
+              key={tab.key}
+              className={styles.tabContent}
+              style={isActive ? undefined : { display: "none" }}
+            >
+              <Suspense fallback={<div>載入中...</div>}>
+                <PanelComponent {...(tabProps as any)} />
+              </Suspense>
+            </div>
+          );
+        })}
+      </>
     );
   };
 
@@ -338,6 +409,11 @@ function TutorialContent() {
   const rightPanelRef = useRef<PanelImperativeHandle>(null);
   const canvasPanelRef = useRef<PanelImperativeHandle>(null);
   const inspectorPanelRef = useRef<PanelImperativeHandle>(null);
+  const graphCanvasRef = useRef<GraphCanvasRef | null>(null);
+  const d3CanvasRef = useRef<D3CanvasRef | null>(null);
+  const isAnimatingRef = useRef(false);
+  const isPlayingRef = useRef(false);
+  const handleNextRef = useRef<() => void>(() => {});
 
   // Collapse states (使用 context 的 collapsed state)
   const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
@@ -373,6 +449,69 @@ function TutorialContent() {
     category: string;
     levelId: string;
   }>();
+
+  // Session 管理
+  const { isAuthenticated } = useAuth();
+  const sessionIdRef = useRef<number | null>(null);
+  const sessionStartRef = useRef<number>(Date.now());
+
+  // Teaching Complete
+  const teachingDoneRef = useRef(false);
+  const handleTeachingComplete = async () => {
+    if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
+    try {
+      const res = await tutorialService.markTeachingComplete(levelId);
+      teachingDoneRef.current = true;
+      if (res.xp_earned > 0) {
+        xp.show(res.xp_earned);
+      }
+    } catch {
+      // 403 = 未滿 30 秒，靜默忽略
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !levelId) return;
+
+    // Reset teaching state for the new level
+    teachingDoneRef.current = false;
+
+    sessionStartRef.current = Date.now();
+    tutorialService
+      .startSession(levelId)
+      .then((id) => {
+        sessionIdRef.current = id;
+      })
+      .catch(() => {});
+
+    const teachingTimer = setTimeout(() => handleTeachingComplete(), 30000);
+
+    return () => {
+      clearTimeout(teachingTimer);
+      if (sessionIdRef.current === null) return;
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+
+      // 用 sendBeacon 確保頁面關閉時請求仍能送出
+      const sessionUrl = `/api/tutorials/${levelId}/session/${sessionIdRef.current}`;
+      const sessionBlob = new Blob(
+        [JSON.stringify({ duration_seconds: elapsed })],
+        { type: "application/json" },
+      );
+      if (!navigator.sendBeacon(sessionUrl, sessionBlob)) {
+        tutorialService
+          .endSession(levelId, sessionIdRef.current, elapsed)
+          .catch(() => {});
+      }
+
+      if (!teachingDoneRef.current && elapsed >= 30) {
+        const teachingUrl = `/api/tutorials/${levelId}/teaching-complete`;
+        const teachingBlob = new Blob([], { type: "application/json" });
+        if (!navigator.sendBeacon(teachingUrl, teachingBlob)) {
+          tutorialService.markTeachingComplete(levelId).catch(() => {});
+        }
+      }
+    };
+  }, [isAuthenticated, levelId]);
 
   // 新增：代碼模式狀態
   const [codeMode, setCodeMode] = useState<"pseudo" | "python">("pseudo");
@@ -425,21 +564,33 @@ function TutorialContent() {
   const [viewMode, setViewMode] = useState<AlgorithmViewMode | "">("");
   const [isDirected, setIsDirected] = useState(false);
   const [renderedIsDirected, setRenderedIsDirected] = useState(false);
+  const [listMode, setListMode] = useState<"singly" | "doubly">("singly");
+
+  const useGraphCanvas = useMemo(
+    () =>
+      topicTypeConfig?.id === "graph" ||
+      topicTypeConfig?.id === "dijkstra" ||
+      topicTypeConfig?.id === "topological-sort" ||
+      ((topicTypeConfig?.id === "bfs" || topicTypeConfig?.id === "dfs") &&
+        viewMode !== "grid"),
+    [topicTypeConfig?.id, viewMode],
+  );
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
 
-  // 新增：根據 hasTailMode 動態計算當前的 codeConfig
+  // 根據 hasTailMode / listMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
     if (!topicTypeConfig) return null;
     if (topicTypeConfig.getCodeConfig) {
       return topicTypeConfig.getCodeConfig({
         hasTailMode,
+        isDoubly: listMode === "doubly",
         mode: viewMode || "graph",
       });
     }
     return topicTypeConfig.codeConfig ?? null;
-  }, [topicTypeConfig, hasTailMode, viewMode]);
+  }, [topicTypeConfig, hasTailMode, listMode, viewMode]);
 
   // 計算需要高亮的行號 (只有 pseudo 模式才有 mappings)
   const highlightLines = useMemo(() => {
@@ -461,6 +612,7 @@ function TutorialContent() {
       setCurrentStep(0);
       setIsPlaying(false);
       setViewMode(topicTypeConfig.defaultViewMode ?? "");
+      setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
     }
   }, [topicTypeConfig]);
 
@@ -470,26 +622,28 @@ function TutorialContent() {
       : logic.data?.nodes?.length > 0;
 
     if (topicTypeConfig && !isProcessing && hasData) {
-      logic.executeAction("refresh", { hasTailMode, isDirected });
+      logic.executeAction("refresh", {
+        hasTailMode,
+        isDirected,
+        isDoubly: listMode === "doubly",
+      });
       setRenderedIsDirected(isDirected);
       setCurrentStep(0);
     }
-  }, [hasTailMode, isDirected, isAlgorithm]);
+  }, [hasTailMode, isDirected, isAlgorithm, listMode]);
 
   // 4. 動畫播放邏輯
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
-      setCurrentStep((prevStep) => {
-        if (prevStep >= activeSteps.length - 1) {
-          setIsPlaying(false);
-          return prevStep;
-        }
-        return prevStep + 1;
-      });
+      handleNextRef.current();
     }, 1000 / playbackSpeed);
     return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, activeSteps.length]);
+  }, [isPlaying, playbackSpeed]);
+
+  const allStepsElements = useMemo(() => {
+    return activeSteps.map((step) => step?.elements ?? []);
+  }, [activeSteps]);
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
   const currentLinks = useMemo(() => {
@@ -504,14 +658,32 @@ function TutorialContent() {
       ) as DataNode[];
 
       nodes.forEach((sourceNode) => {
-        // 遍歷每個節點的 pointers 陣列
-        sourceNode.pointers.forEach((targetNode) => {
-          links.push({
-            key: `${sourceNode.id}->${targetNode.id}`,
-            sourceId: sourceNode.id,
-            targetId: targetNode.id,
+        if (sourceNode.next !== null || sourceNode.prev !== null) {
+          if (sourceNode.next) {
+            links.push({
+              key: `${sourceNode.id}-next->${sourceNode.next.id}`,
+              sourceId: sourceNode.id,
+              targetId: sourceNode.next.id,
+              direction: "next",
+            });
+          }
+          if (sourceNode.prev) {
+            links.push({
+              key: `${sourceNode.id}-prev->${sourceNode.prev.id}`,
+              sourceId: sourceNode.id,
+              targetId: sourceNode.prev.id,
+              direction: "prev",
+            });
+          }
+        } else {
+          sourceNode.pointers.forEach((targetNode) => {
+            links.push({
+              key: `${sourceNode.id}->${targetNode.id}`,
+              sourceId: sourceNode.id,
+              targetId: targetNode.id,
+            });
           });
-        });
+        }
       });
     }
     return links;
@@ -532,6 +704,7 @@ function TutorialContent() {
       mode,
       index,
       hasTailMode,
+      isDoubly: listMode === "doubly",
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -541,7 +714,12 @@ function TutorialContent() {
 
   const handleDeleteNode = (mode: string, index?: number) => {
     if (isAlgorithm) return;
-    const steps = executeAction("delete", { mode, index, hasTailMode });
+    const steps = executeAction("delete", {
+      mode,
+      index,
+      hasTailMode,
+      isDoubly: listMode === "doubly",
+    });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -552,7 +730,12 @@ function TutorialContent() {
 
   const handleSearchNode = (value: number, mode?: string) => {
     if (isAlgorithm) return;
-    const steps = executeAction("search", { value, mode, hasTailMode });
+    const steps = executeAction("search", {
+      value,
+      mode,
+      hasTailMode,
+      isDoubly: listMode === "doubly",
+    });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
       setIsPlaying(true);
@@ -566,6 +749,7 @@ function TutorialContent() {
       hasTailMode,
       mode: viewMode,
       isDirected,
+      isDoubly: listMode === "doubly",
       ...params,
     });
     setCurrentStep(0);
@@ -574,7 +758,12 @@ function TutorialContent() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
+    executeAction("reset", {
+      hasTailMode,
+      mode: viewMode,
+      isDirected,
+      isDoubly: listMode === "doubly",
+    });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -592,7 +781,30 @@ function TutorialContent() {
         randomCount: randomCountRef.current,
         hasTailMode,
         isDirected,
+        isDoubly: listMode === "doubly",
       });
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
+    if (raw.startsWith("TRIE:")) {
+      // 拔掉 "TRIE:" 前綴，然後用空白切成純字串陣列
+      const wordsStr = raw.replace("TRIE:", "").trim();
+      const parsedWords = wordsStr ? wordsStr.split(" ") : [];
+
+      if (parsedWords.length === 0) {
+        toast.warning("請輸入有效的單字清單");
+        return;
+      }
+
+      const steps = executeAction("load", {
+        data: parsedWords,
+        hasTailMode,
+      });
+
       if (steps && steps.length > 0) {
         setCurrentStep(0);
         setIsPlaying(false);
@@ -616,6 +828,7 @@ function TutorialContent() {
     const steps = executeAction("load", {
       data: parsed,
       hasTailMode,
+      isDoubly: listMode === "doubly",
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -662,19 +875,110 @@ function TutorialContent() {
     }
   };
 
+  const handleCustomAction = (action: string, payload: any) => {
+    if (isProcessing) return;
+
+    const steps = logic.executeAction(action, payload);
+
+    if (steps && steps.length > 0) {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    }
+  };
+
   const handleIsDirectedChange = (newValue: boolean) => {
     setIsDirected(newValue);
+    setIsPlaying(false);
+  };
+
+  const handleListModeChange = (mode: "singly" | "doubly") => {
+    const isDoubly = mode === "doubly";
+    executeAction("switch_mode", { isDoubly, hasTailMode });
+    setListMode(mode);
     setCurrentStep(0);
     setIsPlaying(false);
   };
 
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
-  const handleNext = () =>
-    setCurrentStep((prev) => Math.min(prev + 1, activeSteps.length - 1));
+
+  isPlayingRef.current = isPlaying;
+
+  const handleNext = useCallback(() => {
+    if (currentStep >= activeSteps.length - 1) {
+      setIsPlaying(false);
+      return;
+    }
+    if (isAnimatingRef.current) return;
+
+    const nextStepIndex = currentStep + 1;
+    const nextStep = activeSteps[nextStepIndex];
+
+    const activeCanvas: AnimatableCanvasRef | null = useGraphCanvas
+      ? graphCanvasRef.current
+      : d3CanvasRef.current;
+
+    if (!activeCanvas || !nextStep?.links) {
+      setCurrentStep(nextStepIndex);
+      return;
+    }
+
+    const linkAnimConfig =
+      topicTypeConfig?.linkAnimConfig ?? DEFAULT_LINK_ANIM_CONFIG;
+
+    const currentLinksMap = new Map<string, Link>(
+      currentLinks.map((l: Link) => [l.key, l]),
+    );
+    const seenEdgePairs = new Set<string>();
+    const changedLinks = (nextStep.links as Link[]).filter((l: Link) => {
+      const prev = currentLinksMap.get(l.key);
+      const statusChanged = l.status !== (prev?.status ?? "default");
+      const shouldAnimate = linkAnimConfig.animateOn.includes(l.status ?? "");
+      if (!statusChanged || !shouldAnimate) return false;
+      const edgePair = [l.sourceId, l.targetId].sort().join(":");
+      if (seenEdgePairs.has(edgePair)) return false;
+      seenEdgePairs.add(edgePair);
+      return true;
+    });
+
+    if (changedLinks.length === 0) {
+      setCurrentStep(nextStepIndex);
+      return;
+    }
+
+    const gc = activeCanvas;
+    isAnimatingRef.current = true;
+    let completed = 0;
+    const duration = Math.round(
+      (isPlayingRef.current ? 200 : 300) / playbackSpeed,
+    );
+
+    changedLinks.forEach((link) => {
+      const toColor = currentStatusColorMap
+        ? (currentStatusColorMap[link.status ?? ""] ?? "#888")
+        : "#888";
+
+      gc.animateLink(link.sourceId, link.targetId, toColor, duration, () => {
+        completed += 1;
+        if (completed === changedLinks.length) {
+          isAnimatingRef.current = false;
+          setCurrentStep(nextStepIndex);
+        }
+      });
+    });
+  }, [
+    currentStep,
+    activeSteps,
+    currentLinks,
+    useGraphCanvas,
+    playbackSpeed,
+    topicTypeConfig,
+    currentStatusColorMap,
+  ]);
+  handleNextRef.current = handleNext;
+
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
-  const handleReset = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected });
+  const handleResetStep = () => {
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -773,7 +1077,11 @@ function TutorialContent() {
     maxNodes,
     setRandomCount: handleRandomCountChange,
     setHasTailMode,
+    hasTailMode,
+    handleListModeChange: handleListModeChange,
+    listMode,
     handleGraphAction,
+    handleCustomAction,
     isDirected,
     setIsDirected: handleIsDirectedChange,
     viewMode,
@@ -796,12 +1104,15 @@ function TutorialContent() {
     isMobile,
     canvasContainerRef,
     currentStepData,
+    allStepsElements,
     currentLinks,
     canvasSize,
     topicTypeConfig,
     currentStatusColorMap,
     currentStatusConfig,
     isDirected: renderedIsDirected,
+    showBidirectionalArrows: listMode === "doubly",
+    viewMode,
     isPlaying,
     currentStep,
     activeStepsLength: activeSteps.length,
@@ -810,9 +1121,12 @@ function TutorialContent() {
     handlePause,
     handleNext,
     handlePrev,
-    handleReset,
+    handleResetStep,
     setPlaybackSpeed,
     handleStepChange,
+    graphCanvasRef,
+    d3CanvasRef,
+    useGraphCanvas,
   };
 
   return (
@@ -826,7 +1140,7 @@ function TutorialContent() {
               size="sm"
               onClick={() => setShowFeatureTour(true)}
               title="開啟功能導覽"
-              icon="question-circle"
+              icon="circle-question"
               iconOnly
             />
             <Button
@@ -885,7 +1199,6 @@ function TutorialContent() {
           topicTypeConfig={topicTypeConfig}
         />
       )}
-
       {/* Feature Tour */}
       <FeatureTour
         isOpen={showFeatureTour}

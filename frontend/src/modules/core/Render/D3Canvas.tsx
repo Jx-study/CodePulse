@@ -1,16 +1,26 @@
-import { useEffect, useRef, forwardRef, useImperativeHandle, useState, useCallback } from "react";
+﻿import {
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useCallback,
+} from "react";
 import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
+import { Node } from "../DataLogic/Node";
 import { renderAll } from "./D3Renderer";
 import type { Link } from "./D3Renderer";
+import { circleBoundaryPoint } from "./linkGeometry";
 import { useZoom } from "@/shared/hooks/useZoom";
 import { useDrag } from "@/shared/hooks/useDrag";
-import Button from "@/shared/components/Button";
-import StatusLegend from "../components/StatusLegend";
+import CanvasShell from "./CanvasShell";
+import type { AnimatableCanvasRef } from "@/types/canvasTypes";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
-import styles from './D3Canvas.module.scss';
+import { computeUnionBBox } from "./useBoxViewBox";
+import styles from "./D3Canvas.module.scss";
 
-export interface D3CanvasRef {
+export interface D3CanvasRef extends AnimatableCanvasRef {
   getSVGElement: () => SVGSVGElement | null;
 }
 
@@ -31,6 +41,18 @@ export const D3Canvas = forwardRef<
     /** Optional custom status configuration - 可選的自訂狀態配置 */
     statusConfig?: StatusConfig;
     isDirected?: boolean;
+    showStatusLegend?: boolean;
+    /**
+     * 雙向連線時是否畫兩條平行偏移箭頭（與 isDirected 資料語義分離；預設 false）
+     */
+    showBidirectionalArrows?: boolean;
+    /**
+     * 所有動畫步驟的元素陣列集合（每步一個 BaseElement[]）。
+     * 提供時：在此 reference 改變時對所有步驟做 union bbox 計算，
+     * 確保 viewBox 能包含整個動畫期間出現的所有元素，不隨每步更新。
+     * 未提供時：沿用原有行為（每次 elements 改變都重算 viewBox）。
+     */
+    allStepsElements?: BaseElement[][];
   }
 >(
   (
@@ -39,26 +61,54 @@ export const D3Canvas = forwardRef<
       links = [],
       width = 800,
       height = 600,
-      structureType = "linkedlist", // default value
+      structureType = "linkedlist",
       enableZoom = true,
       enablePan = true,
       statusColorMap,
       statusConfig,
+      showStatusLegend = true,
       isDirected = false,
+      showBidirectionalArrows = false,
+      allStepsElements,
     },
     forwardedRef,
   ) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const contentRef = useRef<HTMLDivElement | null>(null);
+    const elementsRef = useRef<BaseElement[]>(elements);
+    const animDefsRef = useRef<SVGDefsElement | null>(null);
+    const animStateRef = useRef<Map<string, number>>(new Map());
+    const isDirectedRef = useRef(isDirected);
+    const shouldHideArrowRef = useRef(false);
 
-    // 動態 viewBox 狀態
-    const [dynamicViewBox, setDynamicViewBox] = useState(
-      `0 0 ${width} ${height}`,
+    elementsRef.current = elements;
+    isDirectedRef.current = isDirected;
+    const forceHideArrow = ["bfs", "dfs", "binarytree", "bst"].includes(
+      structureType,
     );
+    shouldHideArrowRef.current =
+      structureType === "graph" || structureType === "dijkstra"
+        ? !isDirected
+        : forceHideArrow;
+
+    // 動態 viewBox 狀態 — lazy initializer 確保第 1 幀即使用正確 viewBox，避免初始跳動
+    const [dynamicViewBox, setDynamicViewBox] = useState(() => {
+      const stepsToMeasure = allStepsElements?.length
+        ? allStepsElements
+        : elements.length ? [elements] : null;
+      if (!stepsToMeasure) return `0 0 ${width} ${height}`;
+      const padding = 40;
+      const bbox = computeUnionBBox(stepsToMeasure);
+      if (!bbox) return `0 0 ${width} ${height}`;
+      const cw = bbox.maxX - bbox.minX + padding * 2;
+      const ch = bbox.maxY - bbox.minY + padding * 2;
+      return `${bbox.minX - padding} ${bbox.minY - padding} ${cw} ${ch}`;
+    });
     const [dynamicMaxZoom, setDynamicMaxZoom] = useState(2.0);
     const zoomRef = useRef(1.0);
     const offsetRef = useRef({ x: 0, y: 0 });
     const dynamicMaxZoomRef = useRef(2.0);
+    const prevAllStepsRef = useRef<BaseElement[][] | undefined>(undefined);
 
     const calculateBounds = useCallback(
       (container: HTMLElement | null | undefined) => {
@@ -99,7 +149,236 @@ export const D3Canvas = forwardRef<
 
     useImperativeHandle(forwardedRef, () => ({
       getSVGElement: () => svgRef.current,
-    }));
+      animateLink(
+        sourceId: string,
+        targetId: string,
+        toColor: string,
+        duration = 1200,
+        onComplete?: () => void,
+      ) {
+        const BLEND = 0.12;
+        const els = elementsRef.current;
+        const srcEl = els.find((e) => String(e.id) === sourceId) as
+          | Node
+          | undefined;
+        const tgtEl = els.find((e) => String(e.id) === targetId) as
+          | Node
+          | undefined;
+        if (!srcEl || !tgtEl) return;
+        if (srcEl.id === tgtEl.id) return;
+
+        const linkEl = d3
+          .select(svgRef.current)
+          .selectAll<SVGPathElement, unknown>("path.link")
+          .filter(
+            (d: unknown) =>
+              !!d &&
+              typeof d === "object" &&
+              "s" in d &&
+              "t" in d &&
+              String((d as { s: { id: unknown } }).s.id) === sourceId &&
+              String((d as { t: { id: unknown } }).t.id) === targetId,
+          )
+          .node();
+        const rawStroke = linkEl?.getAttribute("stroke") ?? "#888";
+        const fromColor = rawStroke.startsWith("url(")
+          ? tgtEl.getColor()
+          : rawStroke;
+
+        const key = `${sourceId}->${targetId}`;
+        const gradId = `d3c-anim-${sourceId}-${targetId}`.replace(
+          /[^a-zA-Z0-9_-]/g,
+          "_",
+        );
+        const arrowMarkerId = `d3c-anim-arrow-${sourceId}-${targetId}`.replace(
+          /[^a-zA-Z0-9_-]/g,
+          "_",
+        );
+
+        const existing = animStateRef.current.get(key);
+        if (existing !== undefined) {
+          cancelAnimationFrame(existing);
+          if (animDefsRef.current) {
+            const ad = d3.select(animDefsRef.current);
+            ad.select(`#${gradId}`).remove();
+            ad.select(`#${arrowMarkerId}`).remove();
+          }
+        }
+
+        const startTime = performance.now();
+        const tick = () => {
+          const svgEl = svgRef.current;
+          const defs = animDefsRef.current;
+          if (!svgEl || !defs) return;
+
+          const s = Math.min((performance.now() - startTime) / duration, 1);
+          const linkT = Math.min(s / 0.75, 1);
+          const frontPct = `${linkT * 100}%`;
+          const blendEndPct = `${Math.min(linkT + BLEND, 1) * 100}%`;
+
+          const srcN = els.find((e) => String(e.id) === sourceId) as
+            | Node
+            | undefined;
+          const tgtN = els.find((e) => String(e.id) === targetId) as
+            | Node
+            | undefined;
+          if (!srcN || !tgtN) return;
+
+          const p1 = circleBoundaryPoint(
+            {
+              x: srcN.position.x,
+              y: srcN.position.y,
+              r: srcN.radius ?? 20,
+            },
+            { x: tgtN.position.x, y: tgtN.position.y },
+          );
+          const p2 = circleBoundaryPoint(
+            {
+              x: tgtN.position.x,
+              y: tgtN.position.y,
+              r: tgtN.radius ?? 20,
+            },
+            { x: srcN.position.x, y: srcN.position.y },
+          );
+
+          const d3Defs = d3.select(defs);
+
+          if (d3Defs.select(`#${gradId}`).empty()) {
+            const g = d3Defs
+              .append("linearGradient")
+              .attr("id", gradId)
+              .attr("gradientUnits", "userSpaceOnUse");
+            g.append("stop").attr("class", "g-s1");
+            g.append("stop").attr("class", "g-s2");
+            g.append("stop").attr("class", "g-s3");
+            g.append("stop").attr("class", "g-s4");
+          }
+          d3Defs
+            .select(`#${gradId}`)
+            .attr("x1", p1.x)
+            .attr("y1", p1.y)
+            .attr("x2", p2.x)
+            .attr("y2", p2.y);
+          d3Defs
+            .select(`#${gradId} .g-s1`)
+            .attr("offset", "0%")
+            .attr("stop-color", toColor);
+          d3Defs
+            .select(`#${gradId} .g-s2`)
+            .attr("offset", frontPct)
+            .attr("stop-color", toColor);
+          d3Defs
+            .select(`#${gradId} .g-s3`)
+            .attr("offset", blendEndPct)
+            .attr("stop-color", fromColor);
+          d3Defs
+            .select(`#${gradId} .g-s4`)
+            .attr("offset", "100%")
+            .attr("stop-color", fromColor);
+
+          d3.select(svgEl)
+            .selectAll<SVGPathElement, unknown>("path.link")
+            .filter(
+              (d: unknown) =>
+                !!d &&
+                typeof d === "object" &&
+                "s" in d &&
+                "t" in d &&
+                String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                String((d as { t: { id: unknown } }).t.id) === targetId,
+            )
+            .attr("stroke", `url(#${gradId})`);
+
+          if (isDirectedRef.current && !shouldHideArrowRef.current) {
+            if (d3Defs.select(`#${arrowMarkerId}`).empty()) {
+              const m = d3Defs
+                .append("marker")
+                .attr("id", arrowMarkerId)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 10)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto");
+              m.append("path").attr("d", "M0,-5L10,0L0,5");
+              d3.select(svgEl)
+                .selectAll<SVGPathElement, unknown>("path.link")
+                .filter(
+                  (d: unknown) =>
+                    !!d &&
+                    typeof d === "object" &&
+                    "s" in d &&
+                    "t" in d &&
+                    String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                    String((d as { t: { id: unknown } }).t.id) === targetId,
+                )
+                .attr("marker-end", `url(#${arrowMarkerId})`);
+            }
+            const arrowT = Math.max(0, (linkT - (1 - BLEND)) / BLEND);
+            d3Defs
+              .select(`#${arrowMarkerId} path`)
+              .attr(
+                "fill",
+                d3.interpolateRgb(fromColor, toColor)(Math.min(arrowT, 1)),
+              );
+          }
+
+          if (s < 1) {
+            animStateRef.current.set(key, requestAnimationFrame(tick));
+          } else {
+            d3.select(svgEl)
+              .selectAll<SVGPathElement, unknown>("path.link")
+              .filter(
+                (d: unknown) =>
+                  !!d &&
+                  typeof d === "object" &&
+                  "s" in d &&
+                  "t" in d &&
+                  String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                  String((d as { t: { id: unknown } }).t.id) === targetId,
+              )
+              .attr("stroke", toColor);
+            d3Defs.select(`#${gradId}`).remove();
+
+            if (isDirectedRef.current && !shouldHideArrowRef.current) {
+              d3Defs.select(`#${arrowMarkerId}`).remove();
+              d3.select(svgEl)
+                .selectAll<SVGPathElement, unknown>("path.link")
+                .filter(
+                  (d: unknown) =>
+                    !!d &&
+                    typeof d === "object" &&
+                    "s" in d &&
+                    "t" in d &&
+                    String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                    String((d as { t: { id: unknown } }).t.id) === targetId,
+                )
+                .attr("marker-end", "url(#arrowhead)");
+            } else if (shouldHideArrowRef.current) {
+              d3Defs.select(`#${arrowMarkerId}`).remove();
+              d3.select(svgEl)
+                .selectAll<SVGPathElement, unknown>("path.link")
+                .filter(
+                  (d: unknown) =>
+                    !!d &&
+                    typeof d === "object" &&
+                    "s" in d &&
+                    "t" in d &&
+                    String((d as { s: { id: unknown } }).s.id) === sourceId &&
+                    String((d as { t: { id: unknown } }).t.id) === targetId,
+                )
+                .attr("marker-end", "none");
+            }
+
+            animStateRef.current.delete(key);
+            onComplete?.();
+          }
+        };
+
+        animStateRef.current.set(key, requestAnimationFrame(tick));
+      },
+    }),
+    []);
 
     useEffect(() => {
       if (!enableZoom) return;
@@ -152,54 +431,98 @@ export const D3Canvas = forwardRef<
       const svgElement = svgRef.current;
       if (!svgElement) return;
 
-      renderAll(svgElement, elements, links, structureType, isDirected, statusColorMap);
+      const svg = d3.select(svgElement);
+      let animDefs = svg.select<SVGDefsElement>("defs#anim-defs");
+      if (animDefs.empty()) {
+        animDefs = svg
+          .append("defs")
+          .attr("id", "anim-defs") as unknown as d3.Selection<
+          SVGDefsElement,
+          unknown,
+          null,
+          undefined
+        >;
+      }
+      animDefsRef.current = animDefs.node();
 
-      // 動態計算 viewBox 以適應內容
-      try {
-        const bbox = svgElement.getBBox();
+      // ViewBox 計算 — 只在 allStepsElements 改變時執行（新動畫觸發）。
+      // 不使用 renderAll 前置呼叫取得 containerBBox（會造成雙重 D3 轉場競爭）；
+      // linked list 節點範圍已由 computeUnionBBox 涵蓋。
+      if (allStepsElements !== prevAllStepsRef.current) {
+        prevAllStepsRef.current = allStepsElements;
+
+        const stepsToMeasure =
+          allStepsElements && allStepsElements.length > 0
+            ? allStepsElements
+            : [elements];
+
         const padding = 40;
+        const unionBBox = computeUnionBBox(stepsToMeasure);
 
-        // 如果 bbox 有效（非零寬高），則更新 viewBox
-        if (bbox.width > 0 && bbox.height > 0) {
-          const contentWidth = bbox.width + padding * 2;
-          const contentHeight = bbox.height + padding * 2;
-          const newViewBox = `${bbox.x - padding} ${bbox.y - padding} ${contentWidth} ${contentHeight}`;
+        if (unionBBox) {
+          const contentWidth = unionBBox.maxX - unionBBox.minX + padding * 2;
+          const contentHeight = unionBBox.maxY - unionBBox.minY + padding * 2;
+          const newViewBox = `${unionBBox.minX - padding} ${unionBBox.minY - padding} ${contentWidth} ${contentHeight}`;
+          // Sync DOM update before renderAll starts transitions — prevents mid-transition
+          // viewBox jump caused by the async React re-render from setDynamicViewBox.
+          svgElement.setAttribute("viewBox", newViewBox);
           setDynamicViewBox(newViewBox);
-
-          // 動態計算 maxZoom：確保使用者能縮放到 1 SVG px = 1 CSS px（即看到自然大小）
           const containerWidth = svgElement.clientWidth;
           if (containerWidth > 0) {
-            const naturalZoom = contentWidth / containerWidth;
-            setDynamicMaxZoom(Math.max(2.0, naturalZoom));
+            setDynamicMaxZoom(Math.max(2.0, contentWidth / containerWidth));
           }
         }
-      } catch (error) {
-        // getBBox 可能在某些情況下失敗（如 SVG 為空），使用預設值
-        console.warn("Failed to calculate SVG bounding box:", error);
-        setDynamicViewBox(`0 0 ${width} ${height}`);
       }
 
-      // 清理函數：當組件卸載或依賴變更時，中斷所有進行中的 D3 transition
+      renderAll(
+        svgElement,
+        elements,
+        links,
+        structureType,
+        isDirected,
+        statusColorMap,
+        showBidirectionalArrows,
+      );
+
       return () => {
         if (svgElement) {
-          // 選擇所有正在進行的 transition 並中斷它們
-          const svg = d3.select(svgElement);
-          svg.selectAll("*").interrupt();
+          d3.select(svgElement).selectAll("*").interrupt();
         }
+        animStateRef.current.forEach((id) => cancelAnimationFrame(id));
+        animStateRef.current.clear();
+        animDefsRef.current = null;
       };
-    }, [elements, links, structureType, width, height, isDirected, statusColorMap]);
+    }, [
+      elements,
+      links,
+      allStepsElements,
+      structureType,
+      width,
+      height,
+      isDirected,
+      statusColorMap,
+      showBidirectionalArrows,
+    ]);
 
     return (
-      <div
-        ref={drag.containerRef}
-        className={`${styles.canvasContainer} ${drag.isDragging ? styles.dragging : ""} ${enablePan ? styles["pan-enabled"] : ""}`}
-        onMouseDown={drag.handleMouseDown}
-        onMouseMove={drag.handleMouseMove}
-        onMouseUp={drag.handleMouseUp}
-        onMouseLeave={drag.handleMouseUp}
-        onTouchStart={drag.handleTouchStart}
-        onTouchMove={drag.handleTouchMove}
-        onTouchEnd={drag.handleTouchEnd}
+      <CanvasShell
+        containerRef={drag.containerRef}
+        panEnabled={enablePan}
+        isDragging={drag.isDragging}
+        enableZoom={enableZoom}
+        enablePan={enablePan}
+        showStatusLegend={showStatusLegend}
+        onReset={handleResetView}
+        statusConfig={showStatusLegend ? statusConfig : undefined}
+        containerEventHandlers={{
+          onMouseDown: drag.handleMouseDown,
+          onMouseMove: drag.handleMouseMove,
+          onMouseUp: drag.handleMouseUp,
+          onMouseLeave: drag.handleMouseUp,
+          onTouchStart: drag.handleTouchStart,
+          onTouchMove: drag.handleTouchMove,
+          onTouchEnd: drag.handleTouchEnd,
+        }}
       >
         <div
           ref={contentRef}
@@ -216,28 +539,7 @@ export const D3Canvas = forwardRef<
             className={styles.canvas}
           />
         </div>
-
-        {/* 狀態圖例 */}
-        <div className={styles.statusLegendContainer}>
-          <StatusLegend statusConfig={statusConfig} />
-        </div>
-
-        {/* Reset 按鈕 */}
-        {(enableZoom || enablePan) && (
-          <div className={styles.resetButtonContainer}>
-            <Button
-              variant="icon"
-              size="sm"
-              onClick={handleResetView}
-              aria-label="重置視圖"
-              className={styles.resetButton}
-              icon="rotate-right"
-              iconOnly
-            >
-            </Button>
-          </div>
-        )}
-      </div>
+      </CanvasShell>
     );
   },
 );

@@ -1,0 +1,57 @@
+{
+  "result": {
+    "title": "Quiz Result",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "total": "Total",
+    "timeSpent": "Time",
+    "retry": "Try Again",
+    "backToDashboard": "Back to Dashboard",
+    "tier": {
+      "label": "Tier",
+      "promoted": "Tier Up!",
+      "names": {
+        "1": "Beginner",
+        "2": "Novice",
+        "3": "Intermediate",
+        "4": "Proficient",
+        "5": "Expert"
+      }
+    }
+  },
+  "loading": "Loading questions...",
+  "loadError": "Failed to load questions, please refresh",
+  "noQuestions": "No questions available for this level",
+  "notFound": {
+    "title": "Quiz Not Found",
+    "message": "Sorry, could not find the quiz for \"{{levelId}}\". Please go back to Dashboard.",
+    "backButton": "Back to Dashboard"
+  },
+  "sidebar": {
+    "questionList": "Questions",
+    "progress": "Progress",
+    "answered": "Answered",
+    "passingCondition": "Passing Condition",
+    "passingScore": "Accuracy ≥ {{score}}%",
+    "completeAll": "Complete all questions",
+    "submitAll": "Submit All"
+  },
+  "question": {
+    "of": "Question {{current}} / {{total}}",
+    "types": {
+      "multiple-choice": "Multiple Choice",
+      "predict-line": "Predict Line",
+      "true-false": "True / False",
+      "fill-code": "Fill Code",
+      "single-choice": "Single Choice"
+    },
+    "fillCodeHint": "Fill in the value for each blank:",
+    "predictLineHint": "Enter line numbers (e.g. 12 13 15):",
+    "predictLinePlaceholder": "Enter answer...",
+    "fillCodePlaceholder": "Answer for ({{id}})...",
+    "groupBadge": "Group",
+    "prev": "Previous",
+    "next": "Next",
+    "submit": "Submit"
+  }
+}

@@ -1,4 +1,4 @@
-from database import db
+from database import db, BigIntPK
 from datetime import datetime, timezone, date
 import enum
 
@@ -43,7 +43,7 @@ class User(db.Model):
     last_login_date = db.Column(db.Date, nullable=True)
 
     skill_rating = db.Column(db.Float, nullable=False, default=1000.0)
-    skill_tier = db.Column(db.Integer, nullable=False, default=2)
+    skill_tier = db.Column(db.Integer, nullable=False, default=1)
 
     deleted_at = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
@@ -141,7 +141,7 @@ class EmailVerification(db.Model):
 class UserLoginStreak(db.Model):
     __tablename__ = 'user_login_streaks'
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     login_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

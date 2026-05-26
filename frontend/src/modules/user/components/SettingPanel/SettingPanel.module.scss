@@ -17,11 +17,11 @@
 }
 
 .settingTabList {
-  width: 180px !important;
-  min-width: 180px !important;
+  width: 11.25rem !important;
+  min-width: 11.25rem !important;
   padding: $spacing-sm $spacing-xs !important;
-  border-right: 1px solid var(--border) !important;
-  background: var(--bg-secondary) !important;
+  border-right: 2px solid var(--border) !important;
+  background: var(--bg-primary) !important;
   border-radius: 0 !important;
   align-self: stretch;
   overflow-y: auto;
@@ -33,7 +33,6 @@
   padding: 0 !important;
 }
 
-// ─── Tab content wrapper ──────────────────────────────────────────────────────
 .tabContent {
   @include flex($direction: column);
   gap: $spacing-sm;
@@ -42,7 +41,6 @@
   height: 100%;
 }
 
-// ─── Avatar ──────────────────────────────────────────────────────────────────
 .avatarSection {
   @include flex-center;
   margin-bottom: $spacing-xs;
@@ -85,10 +83,9 @@
   pointer-events: none;
 }
 
-// ─── Fields ──────────────────────────────────────────────────────────────────
 .field {
   @include flex($direction: column);
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .segmentLabel {
@@ -113,7 +110,7 @@
 }
 
 .inputWithPrefix {
-  padding-left: 1.75rem;
+  padding-left: 2rem !important;
 }
 
 .inputWithAction {
@@ -122,10 +119,10 @@
 
 .inputAction {
   position: absolute;
-  right: 10px;
+  right: 0.625rem;
   @include flex-center;
-  width: 28px;
-  height: 28px;
+  width: 1.75rem;
+  height: 1.75rem;
   border: none;
   border-radius: $radius-md;
   background: transparent;
@@ -140,7 +137,6 @@
   }
 }
 
-// ─── Actions row (profile tab footer) ────────────────────────────────────────
 .actions {
   @include flex($justify: flex-end);
   gap: $spacing-xs;
@@ -149,7 +145,6 @@
   border-top: 1px solid var(--border);
 }
 
-// ─── Accordion ───────────────────────────────────────────────────────────────
 .accordion {
   border: 1px solid var(--border);
   border-radius: $radius-xl;
@@ -189,7 +184,7 @@
 }
 
 .accordionBodyOpen {
-  max-height: 640px;
+  max-height: 40rem;
 }
 
 .accordionInner {
@@ -200,11 +195,10 @@
   background: var(--bg-secondary);
 }
 
-// ─── Password strength ───────────────────────────────────────────────────────
 .strengthMeter {
   @include flex;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: 0.375rem;
 }
 
 .strengthBar {
@@ -233,19 +227,18 @@
 
 .pwCheckPass {
   @include flex($align: center);
-  gap: 6px;
+  gap: 0.375rem;
   font-size: $font-xs;
   color: $success-color;
 }
 
 .pwCheckFail {
   @include flex($align: center);
-  gap: 6px;
+  gap: 0.375rem;
   font-size: $font-xs;
   color: var(--text-muted);
 }
 
-// ─── Inline feedback (password accordion) ────────────────────────────────────
 .errorText {
   font-size: $font-sm;
   color: $error-color;
@@ -258,7 +251,6 @@
   margin: 0;
 }
 
-// ─── Preferences: segmented control ─────────────────────────────────────────
 .segmentedControl {
   @include flex;
   padding: 4px;
@@ -270,9 +262,9 @@
 
 .segment {
   @include flex($align: center);
-  gap: 6px;
+  gap: 0.375rem;
   flex: 1;
-  padding: 9px $spacing-sm;
+  padding: 0.5625rem $spacing-sm;
   border: none;
   border-radius: $radius-lg;
   background: transparent;
@@ -294,7 +286,79 @@
   }
 }
 
-// ─── Responsive ──────────────────────────────────────────────────────────────
+.statsSection {
+  @include flex($direction: column);
+  gap: $spacing-sm;
+}
+
+.statsSectionTitle {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.statCard {
+  @include flex($direction: column, $align: center);
+  gap: $spacing-2xs;
+  padding: $spacing-md $spacing-sm;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+  text-align: center;
+  transition: $transition-base;
+
+  &:hover {
+    background: var(--bg-tertiary);
+    transform: $hover-transform;
+  }
+}
+
+.statCardIcon {
+  @include flex-center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: $radius-full;
+  margin-bottom: $spacing-2xs;
+
+  &[data-color="xp"] {
+    background: rgba($primary-color, 0.12);
+    color: $primary-color;
+  }
+
+  &[data-color="streak"] {
+    background: rgba($warning-color, 0.12);
+    color: $warning-color;
+  }
+
+  &[data-color="best"] {
+    background: rgba($success-color, 0.12);
+    color: $success-color;
+  }
+}
+
+.statCardValue {
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+}
+
+.statCardLabel {
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 @media (max-width: $mobile-max) {
   .settingTabList {
     width: 100% !important;

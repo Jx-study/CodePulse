@@ -8,11 +8,15 @@ import { QueueConfig } from "../DataStructure/linear/Queue/Queue";
 import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree/BinaryTree";
 import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree/BinarySearchTree";
 import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
+import { HeapConfig } from "../DataStructure/nonlinear/Heap/Heap";
+import { TrieConfig } from "../DataStructure/nonlinear/Trie/Trie";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
 import { selectionSortConfig } from "../algorithms/sorting/selectionSort";
 import { insertionSortConfig } from "../algorithms/sorting/insertionSort";
+import { mergeSortConfig } from "../algorithms/sorting/mergeSort";
+import { quickSortConfig } from "../algorithms/sorting/quickSort";
 import { binarySearchConfig } from "../algorithms/searching/binarySearch";
 import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
@@ -21,6 +25,8 @@ import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
+import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
+import { factorialConfig } from "../algorithms/recursive/factorial/factorial";
 
 /**
  * 統一的實作註冊表
@@ -36,11 +42,15 @@ export const implementationsMap: ImplementationMap = {
   binaryTree: BinaryTreeConfig,
   bst: BinarySearchTreeConfig,
   graph: GraphConfig,
+  heap: HeapConfig,
+  trie: TrieConfig,
 
   // Algorithms
   bubbleSort: bubbleSortConfig,
   selectionSort: selectionSortConfig,
   insertionSort: insertionSortConfig,
+  mergeSort: mergeSortConfig,
+  quickSort: quickSortConfig,
   binarySearch: binarySearchConfig,
   bfs: BFSConfig,
   dfs: DFSConfig,
@@ -49,6 +59,8 @@ export const implementationsMap: ImplementationMap = {
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
   nQueens: nQueensConfig,
+  topologicalSort: topologicalSortConfig,
+  factorial: factorialConfig,
 };
 
 /**

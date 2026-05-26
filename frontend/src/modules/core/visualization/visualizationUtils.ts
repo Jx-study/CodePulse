@@ -17,40 +17,6 @@ export function initLinearData(
   }));
 }
 
-/** 同步 Graph 節點座標（從計算後的 elements 寫回 rawData） */
-export function syncCoordinates(
-  rawData: any,
-  calculatedElements: AlgorithmNode[] | any[]
-): void {
-  if (!rawData || !calculatedElements) return;
-
-  const isGraphData = (d: any): d is GraphData =>
-    d && !Array.isArray(d) && Array.isArray(d.nodes);
-
-  if (isGraphData(rawData) && rawData.nodes) {
-    const nodeMap = new Map(calculatedElements.map((el: any) => [el.id, el]));
-
-    rawData.nodes.forEach((rawNode: any) => {
-      const calculatedNode = nodeMap.get(rawNode.id);
-      if (calculatedNode) {
-        const x = calculatedNode.position?.x ?? calculatedNode.x;
-        const y = calculatedNode.position?.y ?? calculatedNode.y;
-        if (
-          typeof x === "number" &&
-          typeof y === "number" &&
-          !isNaN(x) &&
-          !isNaN(y)
-        ) {
-          rawNode.x = x;
-          rawNode.y = y;
-        } else {
-          rawNode.x = 500;
-          rawNode.y = 200;
-        }
-      }
-    });
-  }
-}
 
 /** 生成隨機 Grid（BFS/DFS 用） */
 export function generateRandomGrid(rows: number, cols: number): any[] {

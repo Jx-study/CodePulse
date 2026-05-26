@@ -2,12 +2,16 @@ import time
 import cloudinary
 import cloudinary.uploader
 import cloudinary.utils
-from datetime import datetime, timezone
+from calendar import monthrange
+from datetime import datetime, timezone, date, timedelta
+from zoneinfo import ZoneInfo
 from flask import Blueprint, jsonify, current_app, g, request
+from sqlalchemy.exc import IntegrityError
 
 from auth_utils import login_required, hash_password, verify_password
 from database import db
-from models.user import User, UserIdentity, UserToken, ProviderType, Language, Theme
+from models.user import User, UserIdentity, UserToken, ProviderType, Language, Theme, UserLoginStreak
+from models.xp import XpEvent, XpSourceType
 
 users_bp = Blueprint('users', __name__)
 
@@ -56,7 +60,7 @@ def get_upload_signature():
 @users_bp.route('/me', methods=['PATCH'])
 @login_required
 def update_me():
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id)
     if not user or user.deleted_at is not None:
         return jsonify({'success': False, 'message': '用戶不存在'}), 404
 
@@ -77,8 +81,8 @@ def update_me():
         if url:
             if len(url) > 500:
                 errors['avatar_url'] = 'URL 過長'
-            elif not url.startswith(('https://', 'http://')):
-                errors['avatar_url'] = 'URL 格式無效'
+            elif not url.startswith('https://res.cloudinary.com/'):
+                errors['avatar_url'] = 'avatar_url 只允許 Cloudinary 圖片'
             else:
                 user.avatar_url = url
         else:
@@ -123,7 +127,7 @@ def change_password():
             'message': '請填寫所有欄位',
         }), 400
 
-    user = User.query.get(g.current_user_id)
+    user = db.session.get(User, g.current_user_id)
     if not user or user.deleted_at is not None:
         return jsonify({
             'success': False,
@@ -183,3 +187,140 @@ def change_password():
         }), 500
 
     return jsonify({'success': True, 'message': '密碼已更新，請重新登入'}), 200
+
+
+@users_bp.route('/me/progress', methods=['GET'])
+@login_required
+def get_my_progress():
+    from models.tutorial import UserTutorialProgress, Tutorial
+    user_id = g.current_user_id
+
+    rows = (
+        db.session.query(UserTutorialProgress, Tutorial.slug)
+        .join(Tutorial, Tutorial.tutorial_id == UserTutorialProgress.tutorial_id)
+        .filter(UserTutorialProgress.user_id == user_id)
+        .all()
+    )
+
+    progress = []
+    for utp, slug in rows:
+        progress.append({
+            'tutorial_slug': slug,
+            'teaching_completed': utp.teaching_completed,
+            'best_score': utp.best_score,
+            'best_time_seconds': utp.best_time_seconds,
+            'attempt_count': utp.attempt_count,
+            'practice_passed': utp.practice_passed,
+            'last_accessed_at': utp.last_accessed_at.isoformat() if utp.last_accessed_at else None,
+        })
+
+    return jsonify({'success': True, 'progress': progress}), 200
+
+
+DAILY_CHECKIN_XP = 5
+
+
+@users_bp.route('/me/checkin', methods=['POST'])
+@login_required
+def checkin():
+    user = db.session.get(User, g.current_user_id)
+    if not user or user.deleted_at is not None:
+        return jsonify({'success': False, 'message': '用戶不存在'}), 404
+
+    data = request.get_json(silent=True) or {}
+    client_tz = (data.get('timezone') or '').strip()
+    if client_tz and len(client_tz) <= 50 and client_tz != user.timezone:
+        try:
+            ZoneInfo(client_tz)
+            user.timezone = client_tz
+        except Exception:
+            pass
+
+    try:
+        tz = ZoneInfo(user.timezone or 'UTC')
+    except Exception:
+        tz = ZoneInfo('UTC')
+
+    today = datetime.now(timezone.utc).astimezone(tz).date()
+
+    try:
+        with db.session.begin_nested():
+            streak_row = UserLoginStreak(user_id=user.user_id, login_date=today)
+            db.session.add(streak_row)
+    except IntegrityError:
+        # 今日已打卡
+        return jsonify({
+            'success': True,
+            'already_checked_in': True,
+            'xp_earned': 0,
+            'current_streak': user.current_streak,
+            'longest_streak': user.longest_streak,
+            'total_xp': user.total_xp,
+        }), 200
+
+    # 計算新 streak
+    yesterday = today - timedelta(days=1)
+    had_yesterday = UserLoginStreak.query.filter_by(
+        user_id=user.user_id, login_date=yesterday
+    ).first() is not None
+
+    new_streak = (user.current_streak + 1) if had_yesterday else 1
+    user.current_streak = new_streak
+    if new_streak > user.longest_streak:
+        user.longest_streak = new_streak
+    user.last_login_date = today
+
+    xp_event = XpEvent(
+        user_id=user.user_id,
+        source_type=XpSourceType.login_streak,
+        source_id=None,
+        xp_amount=DAILY_CHECKIN_XP,
+        description='每日打卡',
+    )
+    db.session.add(xp_event)
+    user.total_xp = (user.total_xp or 0) + DAILY_CHECKIN_XP
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'checkin failed: {e}')
+        return jsonify({'success': False, 'message': '伺服器錯誤'}), 500
+
+    return jsonify({
+        'success': True,
+        'already_checked_in': False,
+        'xp_earned': DAILY_CHECKIN_XP,
+        'current_streak': user.current_streak,
+        'longest_streak': user.longest_streak,
+        'total_xp': user.total_xp,
+    }), 200
+
+
+@users_bp.route('/me/checkin-history', methods=['GET'])
+@login_required
+def checkin_history():
+    try:
+        year = int(request.args['year'])
+        month = int(request.args['month'])
+    except (KeyError, ValueError):
+        return jsonify({'success': False, 'error_code': 'INVALID_PARAMS', 'message': '需要 year 和 month 參數'}), 400
+
+    if not (1 <= month <= 12):
+        return jsonify({'success': False, 'error_code': 'INVALID_PARAMS', 'message': 'month 需在 1-12 之間'}), 400
+
+    try:
+        _, last_day = monthrange(year, month)
+        month_start = date(year, month, 1)
+        month_end = date(year, month, last_day)
+    except ValueError:
+        return jsonify({'success': False, 'error_code': 'INVALID_PARAMS', 'message': '無效的年份或月份'}), 400
+
+    rows = UserLoginStreak.query.filter(
+        UserLoginStreak.user_id == g.current_user_id,
+        UserLoginStreak.login_date >= month_start,
+        UserLoginStreak.login_date <= month_end,
+    ).order_by(UserLoginStreak.login_date).all()
+
+    dates = [row.login_date.isoformat() for row in rows]
+    return jsonify({'success': True, 'dates': dates}), 200

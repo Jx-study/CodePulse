@@ -1,15 +1,21 @@
 import { BaseElement } from "../modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
+export interface StepDescription {
+  key: string;
+  params?: Record<string, any>;
+}
+
 /**
  * 動畫步驟資料結構
  */
 export interface AnimationStep {
   stepNumber: number;
-  description: string;
+  description: string | StepDescription;
   elements: BaseElement[];
   actionTag?: string; // 用於對應代碼高亮的標籤
-  variables?: Record<string, string | number | boolean | null>; // 變數狀態追蹤
+  local_vars?: Record<string, any>;
+  global_vars?: Record<string, any>;
   links?: {
     sourceId: string;
     targetId: string;

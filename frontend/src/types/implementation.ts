@@ -1,8 +1,21 @@
 import type { ReactNode } from "react";
 import type { AnimationStep, ComplexityInfo, CodeConfig } from "@/types";
+import type { IconName } from "@/shared/lib/iconMap";
 import type { StatusConfig } from "./statusConfig";
 import type { VisualizationActionHandler } from "@/modules/core/visualization/types";
 import type { RealWorldStory } from "./realWorldStory";
+
+/** 哪些 link.status 變化時要播放邊動畫（由演算法 config 選填） */
+export interface LinkAnimConfig {
+  /** 這些 status 觸發動畫並阻塞 step 推進 */
+  animateOn: string[];
+  /** 這些 status 直接換色（step 推進後 re-render 自動套用，不阻塞）；僅作為文件語義 */
+  directOn?: string[];
+}
+
+export const DEFAULT_LINK_ANIM_CONFIG: LinkAnimConfig = {
+  animateOn: [],
+};
 
 export type {
   PythonInput,
@@ -11,7 +24,10 @@ export type {
   GraphSimEdge,
   GraphOutputData,
   QueueCardOutputData,
-} from './pythonDemo';
+  MazeCell,
+  MazeOutputData,
+  FloodFillOutputData,
+} from "./pythonDemo";
 
 export type {
   StoryVideo,
@@ -20,7 +36,7 @@ export type {
   InteractiveGameType,
   InteractiveGame,
   RealWorldStory,
-} from './realWorldStory';
+} from "./realWorldStory";
 
 export interface ProblemReference {
   id: string | number;
@@ -30,17 +46,32 @@ export interface ProblemReference {
   url: string;
 }
 
+export interface IntroductionReference {
+  key: string;
+}
+
+export interface IntroductionSection {
+  heading: string;
+  content?: string;
+  items?: string[];
+  icon?: IconName;
+}
+
+export type IntroductionContent = string | IntroductionReference;
+
 export type AlgorithmViewMode =
   | "graph"
   | "grid"
   | "longest_lte"
   | "shortest_gte";
+/** Sliding window run payload mode (matches ActionBar options). */
+export type SlidingWindowMode = "longest_lte" | "shortest_gte";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
-  | { type: "slidingWindow"; mode: AlgorithmViewMode; targetSum: number }
+  | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
@@ -49,8 +80,15 @@ export type RunParams =
       rows?: number;
       cols?: number;
     }
-  | { type: "dijkstra"; mode: "graph"; startNode?: string; endNode?: string; isDirected: boolean }
+  | {
+      type: "dijkstra";
+      mode: "graph";
+      startNode?: string;
+      endNode?: string;
+      isDirected: boolean;
+    }
   | { type: "knapsack"; capacity: number }
+  | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number };
 
 export interface BaseActionBarProps {
@@ -68,7 +106,11 @@ export interface DSActionBarProps extends BaseActionBarProps {
   onSearchNode: (value: number, mode?: string) => void;
   onPeek?: () => void;
   onTailModeChange?: (hasTail: boolean) => void;
+  onListModeChange?: (mode: "singly" | "doubly") => void;
+  hasTailMode?: boolean;
+  listMode?: "singly" | "doubly";
   onGraphAction?: (action: string, payload: any) => void;
+  onCustomAction?: (action: string, payload: any) => void;
   isDirected?: boolean;
   onIsDirectedChange?: (val: boolean) => void;
 }
@@ -90,9 +132,10 @@ export interface LevelImplementationConfig {
   name: string;
   categoryName: string;
   description: string;
+  i18nNamespace?: string;
   codeConfig: CodeConfig; // 結構化代碼配置（必填）
   complexity: ComplexityInfo;
-  introduction: string;
+  introduction: IntroductionContent;
   defaultData: any;
   createAnimationSteps: (
     data: any,
@@ -107,6 +150,10 @@ export interface LevelImplementationConfig {
   maxNodes?: number;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
+  /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */
+  defaultIsDirected?: boolean;
+  /** 圖邊狀態變化時是否觸發 animateLink；未設定則使用 DEFAULT_LINK_ANIM_CONFIG */
+  linkAnimConfig?: LinkAnimConfig;
   renderActionBar?: (props: ActionBarProps) => ReactNode;
   /** 可選的 action 處理器（Strategy 模式），用於 useVisualizationLogic 薄殼委派 */
   actionHandler?: VisualizationActionHandler<any>;
@@ -121,9 +168,13 @@ export type ImplementationId =
   | "binarytree"
   | "bst"
   | "graph"
+  | "heap"
+  | "trie"
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
+  | "mergesort"
+  | "quicksort"
   | "binarysearch"
   | "linearsearch"
   | "bfs"
@@ -134,6 +185,8 @@ export type ImplementationId =
   | "twopointers"
   | "fibonacci"
   | "knapsack"
-  | "n-queens";
+  | "n-queens"
+  | "topological-sort"
+  | "factorial";
 
 export type ImplementationMap = Record<string, LevelImplementationConfig>;

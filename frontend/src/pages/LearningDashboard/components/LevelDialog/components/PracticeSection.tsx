@@ -10,10 +10,10 @@ import { useTranslation } from 'react-i18next';
 interface PracticeSectionProps {
   level: Level;
   onStartPractice: () => void;
-  onCompleteLevel?: () => void; // 測試用：完成關卡
   bestStars: number;
   attempts: number;
   bestTime: number; // seconds, 0 = not recorded
+  bestScore?: number; // 百分制 0-100，undefined = 尚未練習
   isLocked: boolean;
   prerequisiteInfo?: PrerequisiteConfig;
 }
@@ -27,36 +27,39 @@ function formatTime(seconds: number): string {
 
 function PracticeSection({
   onStartPractice,
-  onCompleteLevel,
   bestStars,
   attempts,
   bestTime,
+  bestScore,
   isLocked,
   prerequisiteInfo
 }: PracticeSectionProps) {
   const { t } = useTranslation('dashboard');
   const isCompleted = bestStars > 0;
+  const hasAttempted = attempts > 0;
   const prerequisiteLevelNames = prerequisiteInfo?.levelIds
     .map(id => {
       const l = getLevelById(id);
       return l ? t(`levels.${l.id.replace(/-/g, '_')}.name`) : id;
     })
     ?? [];
+  const requirements = t("practiceSection.requirements", { returnObjects: true }) as string[];
+  const prerequisiteList = prerequisiteLevelNames.join(t("practiceSection.listSeparator"));
 
   return (
     <div className={styles.practiceSection}>
-      <h3>練習模式</h3>
+      <h3>{t("practiceSection.title")}</h3>
 
       <div className={styles.requirements}>
-        <h4>通關條件</h4>
+        <h4>{t("practiceSection.requirementsTitle")}</h4>
         <ul>
-          <li>完成所有測試用例</li>
-          <li>達到正確率 60% 以上</li>
-          <li>獲得 1-3 星評價</li>
+          {requirements.map((requirement, index) => (
+            <li key={index}>{requirement}</li>
+          ))}
         </ul>
       </div>
 
-      {isCompleted && (
+      {hasAttempted && (
         <div className={styles.bestRecord}>
           <StarRating
             value={bestStars}
@@ -66,18 +69,20 @@ function PracticeSection({
             readonly
             className={styles.stars}
           />
-          <div className={styles.score}>100%</div>
+          <div className={styles.score}>
+            {bestScore !== undefined ? `${bestScore}%` : "--"}
+          </div>
           <div className={styles.divider} />
           <div className={styles.statsRow}>
             <div className={styles.stat}>
               <Icon name="stopwatch" />
-              <span className={styles.statLabel}>最佳時間</span>
+              <span className={styles.statLabel}>{t("practiceSection.bestTime")}</span>
               <span className={styles.statValue}>{formatTime(bestTime)}</span>
             </div>
             <div className={styles.stat}>
               <Icon name="rotate" />
-              <span className={styles.statLabel}>嘗試次數</span>
-              <span className={styles.statValue}>{attempts} 次</span>
+              <span className={styles.statLabel}>{t("practiceSection.attempts")}</span>
+              <span className={styles.statValue}>{t("practiceSection.attemptCount", { count: attempts })}</span>
             </div>
           </div>
         </div>
@@ -91,32 +96,25 @@ function PracticeSection({
         fullWidth
         iconLeft={<Icon name="code" />}
       >
-        {isCompleted ? "重新挑戰" : "開始練習"}
+        {isCompleted
+          ? t("practiceSection.restartButton")
+          : hasAttempted
+            ? t("practiceSection.continueButton")
+            : t("practiceSection.startButton")}
       </Button>
-
-      {onCompleteLevel && !isCompleted && (
-        <Button
-          variant="primary"
-          onClick={onCompleteLevel}
-          disabled={isLocked}
-          className={styles.startPracticeButton}
-          fullWidth
-        >
-          測試：完成關卡
-        </Button>
-      )}
 
       {isLocked && prerequisiteInfo && prerequisiteLevelNames.length > 0 && (
         <p className={styles.lockedHint}>
           {prerequisiteInfo.type === "AND"
-            ? `需要先完成：${prerequisiteLevelNames.join('、')}`
-            : `完成以下任一關卡即可解鎖：${prerequisiteLevelNames.join('、')}`}
+            ? t("practiceSection.lockedAndHint", { levels: prerequisiteList })
+            : t("practiceSection.lockedOrHint", { levels: prerequisiteList })}
         </p>
       )}
 
-      {isLocked && (!prerequisiteInfo || prerequisiteLevelNames.length === 0) && (
-        <p className={styles.lockedHint}>完成前置關卡以解鎖練習模式</p>
-      )}
+      {isLocked &&
+        (!prerequisiteInfo || prerequisiteLevelNames.length === 0) && (
+          <p className={styles.lockedHint}>{t("practiceSection.lockedFallbackHint")}</p>
+        )}
 
       {isCompleted && (
         <Badge
@@ -125,7 +123,7 @@ function PracticeSection({
           icon={<Icon name="check" />}
           className={styles.completedBadge}
         >
-          已完成練習
+          {t("practiceSection.completedBadge")}
         </Badge>
       )}
     </div>

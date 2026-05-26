@@ -11,7 +11,7 @@
   @include flex($align: center);
   gap: $spacing-xs;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid $light-border;
   border-radius: 6px;
   padding: 8px 12px;
   color: white;

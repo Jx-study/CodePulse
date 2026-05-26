@@ -1,0 +1,20 @@
+[Unit]
+Description=CodePulse Celery Worker
+After=codepulse-backend.service
+
+[Service]
+User=codepulse
+WorkingDirectory=/home/codepulse/projects/CodePulse/backend
+Environment=REDIS_URL=redis://127.0.0.1:6379/0
+Environment=SANDBOX_SIDECAR_URL=http://127.0.0.1:8080
+Environment=USE_CELERY=1
+ExecStart=/home/codepulse/projects/CodePulse/backend/venv/bin/celery \
+    -A celery_worker worker \
+    --loglevel=info \
+    --concurrency=2 \
+    --pool=prefork
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

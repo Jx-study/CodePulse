@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "./Hero.module.scss";
 import PulseBackground from "./PulseBackground";
 import Demo from "../Demo/Demo";
@@ -8,8 +8,9 @@ import Button from "@/shared/components/Button";
 
 function Hero() {
   const { t } = useTranslation('home');
+  const navigate = useNavigate();
   const pulseBackgroundRef = useRef<any>(null);
-  const ctaButtonRef = useRef<HTMLAnchorElement>(null);
+  const ctaButtonRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
 
   const handleHeroClick = (event: React.MouseEvent) => {
@@ -49,27 +50,33 @@ function Hero() {
     >
       <PulseBackground ref={pulseBackgroundRef} />
       <div className={styles.heroContent}>
-        <h1>{t("hero.title")}</h1>
-        <h3>{t("hero.subtitle")}</h3>
-        <p>
-          {t("hero.description.main")}
-          <br />
-          {t("hero.description.sub")}
-        </p>
+        <div className={styles.heroLeft}>
+          <h1>{t("hero.title")}</h1>
+          <h3>{t("hero.subtitle")}</h3>
+          <p>
+            {t("hero.description.main")}
+            <br />
+            {t("hero.description.sub")}
+          </p>
+          <span
+            className={styles.ctaButtonAnchor}
+            ref={ctaButtonRef}
+            onMouseEnter={handleCtaHover}
+            onMouseLeave={handleCtaLeave}
+          >
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => navigate("/explorer")}
+            >
+              {t("hero.cta")}
+            </Button>
+          </span>
+        </div>
 
-        <div className={styles.demoContainer}>
+        <div className={styles.heroRight}>
           <Demo />
         </div>
-        <Link
-          to="/explorer"
-          ref={ctaButtonRef}
-          onMouseEnter={handleCtaHover}
-          onMouseLeave={handleCtaLeave}
-        >
-          <Button variant="primary" size="lg">
-            {t("hero.cta")}
-          </Button>
-        </Link>
       </div>
     </section>
   );

@@ -1,169 +1,370 @@
-import { useCallback, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+import Badge from "@/shared/components/Badge";
+import Button from "@/shared/components/Button";
+import CodeBlock from "@/shared/components/CodeBlock";
+import Icon from "@/shared/components/Icon";
+import PageGridBackground from "@/shared/components/PageGridBackground";
+import PageHero from "@/shared/components/PageHero";
 import styles from "./Explorer.module.scss";
-import { D3Canvas, D3CanvasRef } from "@/modules/core/Render/D3Canvas";
-import { Node } from "@/modules/core/DataLogic/Node";
-import { Box } from "@/modules/core/DataLogic/Box";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { LinkManager } from "@/modules/core/DataLogic/LinkManager";
-import type { Link } from "@/modules/core/Render/D3Renderer";
-import { animateConnect } from "@/modules/core/Render/D3Renderer";
-import CodeEditor from "@/modules/core/components/CodeEditor/CodeEditor";
-import  Button from "@/shared/components/Button";
 
-// 預設程式碼範例
-const DEFAULT_CODE: Record<string, string> = {
-  python: `# CodePulse - 資料結構與演算法視覺化
-# 在此撰寫您的程式碼
+// ── Card 1: Bar Race visual ──────────────────────────────────────────────────
+function BarRaceVisual() {
+  const { t } = useTranslation("explorer");
+  const quickRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const mergeRef = useRef<HTMLDivElement>(null);
+  const qPctRef = useRef<HTMLSpanElement>(null);
+  const bPctRef = useRef<HTMLSpanElement>(null);
+  const mPctRef = useRef<HTMLSpanElement>(null);
 
-def bubble_sort(arr):
-    """氣泡排序演算法"""
-    n = len(arr)
-    for i in range(n):
-        for j in range(n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
-    return arr
+  useEffect(() => {
+    let qPct = 0,
+      bPct = 0,
+      mPct = 0;
+    const runningRef = { current: true };
+    let resetId: ReturnType<typeof setTimeout> | null = null;
 
-# 測試範例
-data = [64, 34, 25, 12, 22, 11, 90]
-print("排序前:", data)
-result = bubble_sort(data.copy())
-print("排序後:", result)
-`,
-  javascript: `// CodePulse - 資料結構與演算法視覺化
-// 在此撰寫您的程式碼
+    function step() {
+      if (!runningRef.current) return;
+      qPct = Math.min(100, qPct + (2.8 + Math.random() * 0.8));
+      mPct = Math.min(100, mPct + (2.5 + Math.random() * 0.9));
+      bPct = Math.min(100, bPct + (0.7 + Math.random() * 0.4));
 
-function bubbleSort(arr) {
-  const n = arr.length;
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+      if (quickRef.current) quickRef.current.style.width = qPct + "%";
+      if (mergeRef.current) mergeRef.current.style.width = mPct + "%";
+      if (bubbleRef.current) bubbleRef.current.style.width = bPct + "%";
+      if (qPctRef.current) qPctRef.current.textContent = Math.round(qPct) + "%";
+      if (mPctRef.current) mPctRef.current.textContent = Math.round(mPct) + "%";
+      if (bPctRef.current) bPctRef.current.textContent = Math.round(bPct) + "%";
+
+      if (qPct >= 100 && mPct >= 100 && bPct >= 100) {
+        runningRef.current = false;
+        resetId = setTimeout(() => {
+          qPct = 0;
+          bPct = 0;
+          mPct = 0;
+          runningRef.current = true;
+        }, 1800);
       }
     }
-  }
-  return arr;
-}
 
-// 測試範例
-const data = [64, 34, 25, 12, 22, 11, 90];
-console.log("排序前:", data);
-const result = bubbleSort([...data]);
-console.log("排序後:", result);
-`,
-  typescript: `// CodePulse - 資料結構與演算法視覺化
-// 在此撰寫您的程式碼
-
-function bubbleSort(arr: number[]): number[] {
-  const n = arr.length;
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-      }
-    }
-  }
-  return arr;
-}
-
-// 測試範例
-const data: number[] = [64, 34, 25, 12, 22, 11, 90];
-console.log("排序前:", data);
-const result = bubbleSort([...data]);
-console.log("排序後:", result);
-`,
-};
-
-function Explorer() {
-  const { t } = useTranslation();
-  const [code, setCode] = useState(DEFAULT_CODE.python);
-  const [links, setLinks] = useState<Link[]>([]);
-  const canvasRef = useRef<D3CanvasRef>(null);
-
-  // 建立測試資料
-  const { elements, manager } = useMemo(() => {
-    const n = new Node();
-    n.id = "n1";
-    n.moveTo(150, 120);
-    n.radius = 32;
-    n.setStatus(Status.Target);
-    n.description = "我是圓形1";
-
-    const n2 = new Node();
-    n2.id = "n2";
-    n2.moveTo(350, 120);
-    n2.radius = 32;
-    n2.setStatus(Status.Target);
-    n2.description = "我是圓形2";
-
-    const b = new Box();
-    b.id = "b1";
-    b.moveTo(250, 250);
-    b.width = 60;
-    b.height = 60;
-    b.setStatus(Status.Prepare);
-    b.description = "我是矩形";
-
-    const els = [n, n2, b];
-    const mgr = new LinkManager(els);
-    return { elements: els, manager: mgr };
+    const id = setInterval(step, 60);
+    return () => {
+      clearInterval(id);
+      if (resetId !== null) clearTimeout(resetId);
+    };
   }, []);
 
-  const triggerLink = useCallback(async () => {
-    const svgEl = canvasRef.current?.getSVGElement();
-    if (!svgEl) return;
+  return (
+    <div className={styles.raceVisual}>
+      <div className={styles.raceTrackWrap}>
+        <div className={styles.raceTrack}>
+          <div className={styles.raceLabel}>
+            <span
+              className={styles.raceDot}
+              style={{ background: "#4f8ef7" }}
+            />
+            <span>{t("race.quickSort")}</span>
+            <span className={styles.raceComplexity}>O(n log n)</span>
+          </div>
+          <div className={styles.raceLane}>
+            <div
+              ref={quickRef}
+              className={styles.raceBar}
+              style={{ background: "linear-gradient(90deg, #4f8ef7, #7eb3ff)" }}
+            />
+            <span ref={qPctRef} className={styles.racePct}>
+              0%
+            </span>
+          </div>
+        </div>
 
-    await animateConnect(svgEl, elements, manager, "n1", "n2", 800);
-    setLinks([...manager.links]); // 使用展開運算子確保 state 更新
-  }, [elements, manager]);
+        <div className={styles.raceTrack}>
+          <div className={styles.raceLabel}>
+            <span
+              className={styles.raceDot}
+              style={{ background: "#ff6b35" }}
+            />
+            <span>{t("race.bubbleSort")}</span>
+            <span className={styles.raceComplexity}>O(n²)</span>
+          </div>
+          <div className={styles.raceLane}>
+            <div
+              ref={bubbleRef}
+              className={styles.raceBar}
+              style={{ background: "linear-gradient(90deg, #ff6b35, #ff9d6b)" }}
+            />
+            <span ref={bPctRef} className={styles.racePct}>
+              0%
+            </span>
+          </div>
+        </div>
 
-  const clearLink = useCallback(() => {
-    manager.clear();
-    setLinks([]);
-  }, [manager]);
+        <div className={styles.raceTrack}>
+          <div className={styles.raceLabel}>
+            <span
+              className={styles.raceDot}
+              style={{ background: "#10b981" }}
+            />
+            <span>{t("race.mergeSort")}</span>
+            <span className={styles.raceComplexity}>O(n log n)</span>
+          </div>
+          <div className={styles.raceLane}>
+            <div
+              ref={mergeRef}
+              className={styles.raceBar}
+              style={{ background: "linear-gradient(90deg, #10b981, #34d399)" }}
+            />
+            <span ref={mPctRef} className={styles.racePct}>
+              0%
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className={styles.raceFinish} />
+    </div>
+  );
+}
+
+// ── Card 2: Stack push/pop visual ────────────────────────────────────────────
+const STACK_CAPACITY = 5;
+
+// one cycle: push 3 times then pop 3 times — highlight loops back each cycle
+type CallEntry = { type: "push"; val: number } | { type: "pop" };
+const STACK_CALL_SEQUENCE: CallEntry[] = [
+  { type: "push", val: 1 },
+  { type: "push", val: 9 },
+  { type: "push", val: 4 },
+  { type: "pop" },
+  { type: "pop" },
+  { type: "pop" },
+];
+
+const STACK_CODE_LINES = [
+  "def push(stack, val):",
+  "    stack.append(val)",
+  "",
+  "def pop(stack):",
+  "    return stack.pop()",
+  "",
+  "s = [3, 7]",
+  ...STACK_CALL_SEQUENCE.map(c => c.type === "push" ? `push(s, ${c.val})` : "pop(s)"),
+];
+
+type StackItem = { id: number; val: number; exiting: boolean };
+
+function StackVisual() {
+  const { t } = useTranslation("explorer");
+  const stackRef = useRef<StackItem[]>([
+    { id: 0, val: 3, exiting: false },
+    { id: 1, val: 7, exiting: false },
+  ]);
+  const [stack, setStack] = useState<StackItem[]>(stackRef.current);
+  const [action, setAction] = useState<"push" | "pop" | null>(null);
+  const [callLineIndex, setCallLineIndex] = useState(0);
+  const callSeqRef = useRef(0);
+  const idCounterRef = useRef(2);
+  const pushingRef = useRef(true);
+  const pending1Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pending2Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const current = stackRef.current;
+      if (pushingRef.current && current.length < STACK_CAPACITY) {
+        const seqEntry = STACK_CALL_SEQUENCE[callSeqRef.current];
+        const val = seqEntry.type === "push" ? seqEntry.val : 0;
+        setAction("push");
+        setCallLineIndex(callSeqRef.current);
+        callSeqRef.current = (callSeqRef.current + 1) % STACK_CALL_SEQUENCE.length;
+        if (current.length >= STACK_CAPACITY - 1) pushingRef.current = false;
+        pending1Ref.current = setTimeout(() => {
+          const item: StackItem = {
+            id: idCounterRef.current++,
+            val,
+            exiting: false,
+          };
+          stackRef.current = [...stackRef.current, item];
+          setStack(stackRef.current);
+        }, 300);
+      } else {
+        pushingRef.current = false;
+        setAction("pop");
+        setCallLineIndex(callSeqRef.current);
+        callSeqRef.current = (callSeqRef.current + 1) % STACK_CALL_SEQUENCE.length;
+        pending1Ref.current = setTimeout(() => {
+          if (stackRef.current.length === 0) return;
+          const topId = stackRef.current[stackRef.current.length - 1].id;
+          stackRef.current = stackRef.current.map((item, i) =>
+            i === stackRef.current.length - 1
+              ? { ...item, exiting: true }
+              : item,
+          );
+          setStack(stackRef.current);
+          pending2Ref.current = setTimeout(() => {
+            stackRef.current = stackRef.current.filter(
+              (item) => item.id !== topId,
+            );
+            setStack(stackRef.current);
+            if (stackRef.current.length <= 2) pushingRef.current = true;
+          }, 380);
+        }, 300);
+      }
+    }, 1400);
+
+    return () => {
+      clearInterval(intervalId);
+      if (pending1Ref.current !== null) clearTimeout(pending1Ref.current);
+      if (pending2Ref.current !== null) clearTimeout(pending2Ref.current);
+    };
+  }, []);
+
+  const topVal = stack.length > 0 ? stack[stack.length - 1].val : "—";
+  const emptySlots = STACK_CAPACITY - stack.length;
+
+  return (
+    <div className={styles.pgMockup}>
+      {/* Code pane */}
+      <div className={styles.pgInputPane}>
+        <CodeBlock
+          filename="stack.py"
+          lines={STACK_CODE_LINES}
+          highlightedLines={action !== null ? [
+            ...(action === "push" ? [1, 2] : [4, 5]),
+            8 + callLineIndex,
+          ] : []}
+          className={styles.pgCodeBlock}
+        />
+        <div className={styles.pgTracePanel}>
+          <span className={styles.pgTraceKeyword}>{t("stack.traceKeyword")}</span>
+          <span className={styles.pgTraceText}>
+            {t("stack.traceTop")} = {topVal}, {t("stack.traceSize")} = {stack.length}
+          </span>
+        </div>
+      </div>
+
+      {/* Stack pane */}
+      <div className={styles.pgStackPane}>
+        <span className={styles.pgStackLabel}>STACK ↑</span>
+        <div className={styles.pgStackBlocks}>
+          {stack.map((item, idx) => {
+            const isTop = idx === stack.length - 1;
+            return (
+              <div
+                key={item.id}
+                className={`${styles.pgBlock} ${styles.pgBlockVisible} ${item.exiting ? styles.pgBlockExit : ""} ${isTop ? styles.pgBlockTop : ""}`}
+              >
+                {item.val}
+              </div>
+            );
+          })}
+          {Array.from({ length: emptySlots }).map((_, i) => (
+            <div key={`empty-${i}`} className={styles.pgBlockEmpty}>
+              —
+            </div>
+          ))}
+        </div>
+        <span className={styles.pgStackBase}>BASE</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Explorer Hub ─────────────────────────────────────────────────────────────
+function Explorer() {
+  const { t } = useTranslation("explorer");
+  const navigate = useNavigate();
 
   return (
     <div className={styles.explorer}>
-      <div className="container">
-        <h1 className="section-title">{t("explorer")}</h1>
+      <PageGridBackground />
 
-        {/* 主要內容區域：左右分屏 */}
-        <div className={styles.mainContent}>
-          {/* 左側：程式碼編輯器 */}
-          <div className={styles.editorPanel}>
-            <h3 className={styles.panelTitle}>程式碼編輯器</h3>
-            <CodeEditor
-              mode="single"
-              language="python"
-              value={code}
-              onChange={setCode}
-              theme="auto"
-            />
+      <PageHero
+        variant="feature"
+        bgTexture
+        title={
+          <>
+            Algorithm<br />
+            <span style={{ color: "var(--color-primary)" }}>Exploration</span> Hub
+          </>
+        }
+        description="Central access point for algorithm exploration and visualization. Chart your course through the logic landscape."
+      />
+
+      {/* Cards */}
+      <div className={styles.cards}>
+        {/* Card 1 — Algorithm Lab */}
+        <div className={`${styles.card} ${styles.cardIn1}`}>
+          <div className={styles.cardHeader}>
+            <div>
+              <p className={styles.cardEyebrow}>{t("card1.eyebrow")}</p>
+              <p className={styles.cardTitle}>{t("card1.title")}</p>
+              <p className={styles.cardDesc}>{t("card1.desc")}</p>
+            </div>
+            <Badge variant="success" size="sm" shape="pill">
+              {t("badge.active")}
+            </Badge>
           </div>
 
-          {/* 右側：視覺化畫布 */}
-          <div className={styles.canvasPanel}>
-            <div className={styles.panelHeader}>
-              <h3 className={styles.panelTitle}>視覺化區域</h3>
-              <div className={styles.controls}>
-                <Button size="sm" onClick={triggerLink}>
-                  連線動畫
-                </Button>
-                <Button size="sm" variant="secondary" onClick={clearLink}>
-                  清除連線
-                </Button>
-              </div>
+          <div className={styles.cardVisual}>
+            <BarRaceVisual />
+          </div>
+
+          <div className={styles.cardFooter}>
+            <Button
+              className={styles.btnEnter}
+              onClick={() => navigate("/explorer/lab")}
+              iconRight={<Icon name="arrow-right" />}
+            >
+              {t("card1.enter")}
+            </Button>
+            <div className={styles.statPills}>
+              <Badge variant="secondary" size="xs" shape="pill">
+                {t("card1.badgeSort")}
+              </Badge>
+              <Badge variant="secondary" size="xs" shape="pill">
+                {t("card1.badgeSearch")}
+              </Badge>
+              <Badge variant="secondary" size="xs" shape="pill">
+                {t("card1.badgeGraph")}
+              </Badge>
             </div>
-            <div className={styles.canvasContainer}>
-              <D3Canvas
-                ref={canvasRef}
-                elements={elements}
-                links={links}
-                width={600}
-                height={600}
-              />
+          </div>
+        </div>
+
+        {/* Card 2 — Visualization Playground */}
+        <div className={`${styles.card} ${styles.cardIn2}`}>
+          <div className={styles.cardHeader}>
+            <div>
+              <p className={styles.cardEyebrow}>{t("card2.eyebrow")}</p>
+              <p className={styles.cardTitle}>{t("card2.title")}</p>
+              <p className={styles.cardDesc}>{t("card2.desc")}</p>
             </div>
+            <Badge variant="success" size="sm" shape="pill">
+              {t("badge.active")}
+            </Badge>
+          </div>
+
+          <div className={styles.cardVisual}>
+            <div className={styles.bpDiagramPanel}>
+              <span className={styles.bpDiagramLabel}>
+                {t("card2.schematic")}
+              </span>
+              <StackVisual />
+            </div>
+          </div>
+
+          <div className={styles.cardFooter}>
+            <Button
+              className={styles.btnEnter}
+              onClick={() => navigate("/explorer/playground")}
+              iconRight={<Icon name="arrow-right" />}
+            >
+              {t("card2.enter")}
+            </Button>
           </div>
         </div>
       </div>

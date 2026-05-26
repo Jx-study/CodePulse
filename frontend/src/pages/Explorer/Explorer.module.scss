@@ -1,127 +1,445 @@
+@use "sass:color";
+
 .explorer {
   min-height: 100vh;
   background: var(--bg-primary);
-  padding: $spacing-xl 0;
-}
-
-// ==================== 主要內容區域 ====================
-
-.mainContent {
-  @include flex;
-  gap: $spacing-lg;
-  margin-top: $spacing-lg;
-  height: calc(100vh - 200px); // 扣除 header 和標題的高度
-  min-height: 600px;
-
-  // 桌面端：左右分屏
-  @media (min-width: $tablet) {
-    flex-direction: row;
-  }
-
-  // 手機/平板端：上下堆疊
-  @media (max-width: $tablet-max) {
-    flex-direction: column;
-    height: auto;
-  }
-}
-
-// ==================== 左側：程式碼編輯器面板 ====================
-
-.editorPanel {
-  flex: 1;
-  @include flex($direction: column);
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: $spacing-md;
-  box-shadow: var(--card-shadow);
+  position: relative;
   overflow: hidden;
+}
+
+.cards {
+  position: relative;
+  z-index: 1;
+  padding: 0 $spacing-xl $spacing-xxl;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+  max-width: 1080px;
+  margin: 0 auto;
 
   @media (max-width: $tablet-max) {
-    min-height: 500px;
+    grid-template-columns: 1fr;
+    padding: 0 $spacing-lg $spacing-xl;
   }
 }
 
-// ==================== 右側：視覺化畫布面板 ====================
-
-.canvasPanel {
-  flex: 1;
-  @include flex($direction: column);
+.card {
   background: var(--card-bg);
-  border-radius: 12px;
-  padding: $spacing-md;
-  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
   overflow: hidden;
-
-  @media (max-width: $tablet-max) {
-    min-height: 500px;
-  }
-}
-
-// ==================== 面板標題 ====================
-
-.panelHeader {
   display: flex;
+  flex-direction: column;
+  transition:
+    border-color 0.3s $ease-smooth,
+    transform 0.3s $ease-smooth,
+    box-shadow 0.3s $ease-smooth;
+
+  &:hover {
+    border-color: rgba($white-color, 0.13);
+    transform: $hover-transform;
+    box-shadow: $shadow-xl;
+  }
+}
+
+// Blueprint diagram panel (dashed border inner area)
+.bpDiagramPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  border: 1px dashed rgba($primary-color, 0.22);
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.bpDiagramLabel {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-align: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.cardIn1 {
+  animation: fadeUp 0.5s 0.12s $ease-smooth both;
+}
+
+.cardIn2 {
+  animation: fadeUp 0.5s 0.22s $ease-smooth both;
+}
+
+.cardHeader {
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: $spacing-md;
-  padding-bottom: $spacing-sm;
-  border-bottom: 2px solid var(--border);
-
-  .panelTitle {
-    margin-bottom: 0;
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-}
-
-.controls {
-  display: flex;
   gap: $spacing-sm;
 }
 
-.panelTitle {
-  font-size: $font-lg;
+.cardEyebrow {
+  font-size: $font-2xs;
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
+}
+
+.cardTitle {
+  font-size: $font-lg;
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 $spacing-md 0;
-  padding-bottom: $spacing-sm;
-  border-bottom: 2px solid var(--border);
+  letter-spacing: -0.015em;
 }
 
-// ==================== 畫布容器 ====================
+.cardDesc {
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
 
-.canvasContainer {
+.cardVisual {
   flex: 1;
-  @include flex-center;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  overflow: hidden;
+  min-height: 260px;
   position: relative;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
 
-  // 確保 D3Canvas 能填滿容器
-  > div {
-    width: 100%;
-    height: 100%;
+.cardFooter {
+  padding: $spacing-sm $spacing-lg;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.btnEnter {
+  font-size: $font-xs;
+  font-weight: 600;
+  padding: $spacing-xs $spacing-md;
+  background: $gradient-primary;
+  color: $white-color;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  transition:
+    transform 0.3s $ease-smooth,
+    filter 0.3s $ease-smooth;
+
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.12);
   }
 }
 
-// ==================== 響應式調整 ====================
+.btnEnterGhost {
+  font-size: $font-xs;
+  font-weight: 500;
+  padding: $spacing-xs $spacing-sm;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  margin-left: auto;
+  transition:
+    border-color 0.3s $ease-smooth,
+    color 0.3s $ease-smooth;
 
-// 手機端（<768px）
-@media (max-width: $mobile-max) {
-  .mainContent {
-    gap: $spacing-md;
-    margin-top: $spacing-md;
+  &:hover {
+    border-color: rgba($white-color, 0.18);
+    color: var(--text-primary);
   }
+}
 
-  .editorPanel,
-  .canvasPanel {
-    padding: $spacing-sm;
-    border-radius: 8px;
-    min-height: 400px;
-  }
+.statPills {
+  display: flex;
+  gap: $spacing-xs;
+  margin-left: auto;
+}
 
-  .panelTitle {
-    font-size: $font-base;
+.raceVisual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  height: 100%;
+}
+
+.raceTrackWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.raceTrack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.raceLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.raceDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.raceComplexity {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  background: rgba($white-color, 0.04);
+  border: 1px solid var(--border);
+  border-radius: $radius-full;
+  padding: 1px 5px;
+}
+
+.raceLane {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: $radius-sm;
+  overflow: hidden;
+  height: 26px;
+  padding: 0 3px;
+  position: relative;
+}
+
+.raceBar {
+  height: 20px;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.12s linear;
+  flex-shrink: 0;
+}
+
+.racePct {
+  font-family: $font-family-code;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+  padding-right: 3px;
+  flex-shrink: 0;
+}
+
+.raceFinish {
+  position: absolute;
+  right: $spacing-lg;
+  top: $spacing-md;
+  bottom: $spacing-md;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba($white-color, 0.13) 0px,
+    rgba($white-color, 0.13) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.pgMockup {
+  display: flex;
+  height: 100%;
+  min-height: 260px;
+}
+
+// Code editor dark bg — intentionally not a theme token (code theme, not UI theme)
+$code-bg: #0b0915;
+
+.pgInputPane {
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-sm;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: $code-bg;
+}
+
+.ideTitlebar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: $spacing-xs;
+}
+
+.ideDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+// macOS traffic-light colours — intentionally not in _variables (UI chrome, not theme tokens)
+.ideDotR { background: #ff5f57; }
+.ideDotY { background: #febc2e; }
+.ideDotG { background: #28c840; }
+
+.pgFilename {
+  font-family: $font-family-code;
+  font-size: $font-2xs;
+  color: var(--text-tertiary);
+  margin-left: $spacing-xs;
+}
+
+.pgCodeBlock {
+  flex: 1;
+  overflow: hidden;
+}
+
+
+
+.pgStackPane {
+  width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: $spacing-sm $spacing-xs;
+  gap: 3px;
+  background: var(--bg-secondary);
+  border-left: 1px solid rgba($primary-color, 0.15);
+}
+
+.pgStackLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--text-tertiary);
+  margin-bottom: $spacing-xs;
+  align-self: center;
+  font-family: $font-family-code;
+}
+
+.pgStackBlocks {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  width: 100%;
+  min-height: 140px;
+  justify-content: flex-start;
+}
+
+.pgBlock {
+  height: 28px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba($primary-color, 0.35);
+  background: rgba($primary-color, 0.12);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: color.adjust($primary-color, $lightness: 20%);
+  transform: translateY(-6px);
+  opacity: 0;
+  transition:
+    transform 0.35s $ease-smooth,
+    opacity 0.35s $ease-smooth;
+}
+
+.pgBlockVisible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.pgBlockExit {
+  transform: translateY(-12px);
+  opacity: 0;
+}
+
+.pgStackBase {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.15em;
+  width: 100%;
+  text-align: center;
+  margin-top: 2px;
+}
+
+// Top-of-stack item gets a primary glow
+.pgBlockTop {
+  border-color: rgba($primary-color, 0.9) !important;
+  background: rgba($primary-color, 0.28) !important;
+  box-shadow: 0 0 12px rgba($primary-color, 0.35);
+}
+
+// Empty slot placeholders
+.pgBlockEmpty {
+  height: 26px;
+  border-radius: $radius-sm;
+  border: 1px dashed rgba($white-color, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-code;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+}
+
+// Trace note panel at bottom of code pane
+.pgTracePanel {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+  padding: 6px $spacing-sm;
+  background: rgba($teal-color, 0.1);
+  border-top: 1px solid rgba($teal-color, 0.2);
+  font-family: $font-family-code;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.pgTraceKeyword {
+  font-weight: 700;
+  color: $teal-color;
+}
+
+.pgTraceText {
+  color: $dark-text-secondary;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -40,7 +40,7 @@ const Avatar: React.FC<AvatarProps> = ({
     styles.avatar,
     styles[size],
     styles[shape],
-    styles[`color${finalColorScheme.charAt(0).toUpperCase()}${finalColorScheme.slice(1)}`],
+    src ? styles.colorImage : styles[`color${finalColorScheme.charAt(0).toUpperCase()}${finalColorScheme.slice(1)}`],
     showBorder && styles.bordered,
     onClick && styles.clickable,
     className

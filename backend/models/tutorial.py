@@ -1,19 +1,13 @@
-from database import db
+from database import db, BigIntPK
 from datetime import datetime, timezone
 import enum
 
-
-class TutorialStatus(enum.Enum):
-    teaching_in_progress = 'teaching_in_progress'
-    teaching_done = 'teaching_done'
-    practicing = 'practicing'
-    completed = 'completed'
 
 
 class AlgorithmCategory(db.Model):
     __tablename__ = 'algorithm_categories'
 
-    category_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    category_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     slug = db.Column(db.String(50), unique=True, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
@@ -26,7 +20,7 @@ class AlgorithmCategory(db.Model):
 class Tutorial(db.Model):
     __tablename__ = 'tutorials'
 
-    tutorial_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    tutorial_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     category_id = db.Column(db.BigInteger, db.ForeignKey('algorithm_categories.category_id', ondelete='RESTRICT'), nullable=False)
     slug = db.Column(db.String(100), unique=True, nullable=False)
     difficulty = db.Column(db.Integer, nullable=False, default=1)
@@ -55,7 +49,7 @@ class Tutorial(db.Model):
 class UserTutorialProgress(db.Model):
     __tablename__ = 'user_tutorial_progress'
 
-    progress_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    progress_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
 
@@ -71,7 +65,6 @@ class UserTutorialProgress(db.Model):
     practice_passed = db.Column(db.Boolean, default=False)
     practice_passed_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
-    status = db.Column(db.Enum(TutorialStatus), default=TutorialStatus.teaching_in_progress)
     last_accessed_at = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
@@ -79,8 +72,7 @@ class UserTutorialProgress(db.Model):
     __table_args__ = (
         db.UniqueConstraint('user_id', 'tutorial_id', name='uq_user_tutorial_progress'),
         db.Index('ix_utp_user_id', 'user_id'),
-        db.Index('ix_utp_status', 'status'),
-        db.Index('ix_utp_last_accessed', 'last_accessed_at'),
+db.Index('ix_utp_last_accessed', 'last_accessed_at'),
     )
 
     def __repr__(self):

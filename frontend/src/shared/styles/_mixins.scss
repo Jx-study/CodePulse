@@ -8,8 +8,8 @@
   flex-direction: $direction;
 }
 
-@mixin flex-center {
-  @include flex(center, center);
+@mixin flex-center($direction: row) {
+  @include flex(center, center, $direction);
 }
 
 @mixin flex-between {

@@ -1,30 +1,44 @@
-import { defineConfig } from 'vite';
-import viteCompression from 'vite-plugin-compression';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import viteCompression from "vite-plugin-compression";
+import { visualizer } from "rollup-plugin-visualizer";
+import path from "path";
 
 export default defineConfig((_env) => {
+  const isAnalyze = process.env.ANALYZE === "true";
+
   return {
     plugins: [
-      {
-        // Gzip 壓縮
-      ...viteCompression({
+      react(),
+      // Gzip 壓縮
+      viteCompression({
         algorithm: "gzip",
         ext: ".gz",
         threshold: 10240,
         deleteOriginFile: false,
       }),
-      apply: "build",
-      },
+      // Bundle 分析（ANALYZE=true npm run build）
+      ...(isAnalyze
+        ? [
+            visualizer({
+              open: true,
+              filename: "dist/stats.html",
+              gzipSize: true,
+              brotliSize: true,
+            }),
+          ]
+        : []),
     ],
     server: {
       host: true, // 等同於 --host，讓外部可以連接
       port: 5173, // 預設端口
       watch: {
         usePolling: true, // Docker volume mount 需要 polling 才能偵測檔案變化
+        ignored: ["**/node_modules/**", "**/.git/**", "**/dist/**"],
       },
       proxy: {
-        '/api': {
-          target: process.env.PROXY_TARGET || 'http://localhost:5000',
+        "/api": {
+          target: process.env.PROXY_TARGET || "http://localhost:5000",
           changeOrigin: true,
         },
       },
@@ -40,8 +54,6 @@ export default defineConfig((_env) => {
         "i18next-browser-languagedetector",
         "@fortawesome/fontawesome-svg-core",
         "@fortawesome/react-fontawesome",
-        "@fortawesome/free-solid-svg-icons",
-        "@fortawesome/free-regular-svg-icons",
       ],
       force: false, // 不強制重新預構建，使用快取
     },
@@ -77,11 +89,19 @@ export default defineConfig((_env) => {
               "i18next-browser-languagedetector",
             ],
             monaco: ["@monaco-editor/react"],
+            cytoscape: ["cytoscape", "cytoscape-dagre"],
             d3: ["d3"],
-            icons: [
+            motion: ["motion"],
+            "dnd-kit": [
+              "@dnd-kit/core",
+              "@dnd-kit/sortable",
+              "@dnd-kit/utilities",
+            ],
+            "resizable-panels": ["react-resizable-panels"],
+            // fa icon 資料包不列入 manualChunks → 讓 rollup treeshake 未使用的 icon
+            // 只保留 runtime core
+            "fa-core": [
               "@fortawesome/fontawesome-svg-core",
-              "@fortawesome/free-solid-svg-icons",
-              "@fortawesome/free-regular-svg-icons",
               "@fortawesome/react-fontawesome",
             ],
           },

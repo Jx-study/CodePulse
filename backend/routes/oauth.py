@@ -14,8 +14,8 @@ from auth_utils import (
     create_access_token, create_refresh_token,
     create_onboarding_token,
     hash_token, set_auth_cookies, REFRESH_TOKEN_EXPIRES,
+    cookie_samesite, cookie_domain,
 )
-from routes.auth import _update_streak
 
 GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
@@ -62,9 +62,10 @@ def register_oauth_routes(app):
             nonce,
             max_age=OAUTH_STATE_MAX_AGE,
             httponly=True,
-            samesite='Lax',
+            samesite=cookie_samesite(),
             secure=_cookie_secure(),
             path='/api/auth/google',
+            domain=cookie_domain(),
         )
         return response
 
@@ -139,7 +140,7 @@ def register_oauth_routes(app):
             ).first()
 
             if existing_identity:
-                user = User.query.get(existing_identity.user_id)
+                user = db.session.get(User, existing_identity.user_id)
                 if not user or user.deleted_at is not None:
                     return redirect(f'{frontend_cb}?error=account_disabled')
 
@@ -166,11 +167,12 @@ def register_oauth_routes(app):
                         link_token,
                         max_age=LINK_TOKEN_MAX_AGE,
                         httponly=True,
-                        samesite='Lax',
+                        samesite=cookie_samesite(),
                         secure=_cookie_secure(),
                         path='/api/auth/google',
+                        domain=cookie_domain(),
                     )
-                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google', domain=cookie_domain())
                     return response
 
                 else:
@@ -188,14 +190,13 @@ def register_oauth_routes(app):
                         onboarding_token,
                         max_age=600,
                         httponly=True,
-                        samesite='Lax',
+                        samesite=cookie_samesite(),
                         secure=_cookie_secure(),
                         path='/api/auth',
+                        domain=cookie_domain(),
                     )
-                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+                    response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google', domain=cookie_domain())
                     return response
-
-            _update_streak(user)
 
             jwt_access = create_access_token(user.user_id)
             jwt_refresh = create_refresh_token(user.user_id)
@@ -216,7 +217,7 @@ def register_oauth_routes(app):
 
         response = make_response(redirect(f'{frontend_cb}'))
         set_auth_cookies(response, jwt_access, jwt_refresh)
-        response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google')
+        response.set_cookie('oauth_nonce', '', expires=0, path='/api/auth/google', domain=cookie_domain())
         return response
 
     @oauth_bp.route('/api/auth/google/confirm-link', methods=['POST'])
@@ -236,7 +237,7 @@ def register_oauth_routes(app):
         user_id = data['user_id']
         google_sub = data['google_sub']
 
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user or user.deleted_at is not None:
             return jsonify({'success': False, 'message': '帳號不存在或已停用'}), 400
 
@@ -260,8 +261,6 @@ def register_oauth_routes(app):
             if not user.avatar_url and data.get('picture'):
                 user.avatar_url = data['picture']
 
-            _update_streak(user)
-
             jwt_access = create_access_token(user.user_id)
             jwt_refresh = create_refresh_token(user.user_id)
 
@@ -280,14 +279,14 @@ def register_oauth_routes(app):
 
         resp = make_response(jsonify({'success': True, 'message': 'Google 帳號已成功綁定'}))
         set_auth_cookies(resp, jwt_access, jwt_refresh)
-        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google')
+        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google', domain=cookie_domain())
         return resp
 
     @oauth_bp.route('/api/auth/google/cancel-link', methods=['POST'])
     def cancel_link():
         from flask import jsonify
         resp = make_response(jsonify({'success': True}))
-        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google')
+        resp.set_cookie('oauth_link_token', '', expires=0, path='/api/auth/google', domain=cookie_domain())
         return resp
 
     @oauth_bp.route('/api/auth/google/link-info', methods=['GET'])

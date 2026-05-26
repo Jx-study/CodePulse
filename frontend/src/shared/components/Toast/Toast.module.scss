@@ -17,38 +17,44 @@
   align-items: center;
   gap: $spacing-xs;
   padding: $spacing-xs $spacing-sm;
-  background: $dark-bg-tertiary;
+  background: var(--bg-tertiary);
   border: 1px solid;
   border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
+  box-shadow: var(--card-shadow);
   min-width: 280px;
   max-width: 400px;
   animation: slideDown 0.3s $ease-smooth;
+
+  @include mobile {
+    min-width: 0;
+    max-width: calc(100vw - #{$spacing-lg} * 2);
+    width: calc(100vw - #{$spacing-lg} * 2);
+  }
 }
 
 // Variant border + icon color
 .warning {
-  border-color: $warning-color;
+  border-color: var(--warning-color);
   .iconWrapper {
-    color: $warning-color;
+    color: var(--warning-color);
   }
 }
 .error {
-  border-color: $error-color;
+  border-color: var(--danger-color);
   .iconWrapper {
-    color: $error-color;
+    color: var(--danger-color);
   }
 }
 .success {
-  border-color: $success-color;
+  border-color: var(--success-color);
   .iconWrapper {
-    color: $success-color;
+    color: var(--success-color);
   }
 }
 .info {
-  border-color: $info-color;
+  border-color: var(--info-color);
   .iconWrapper {
-    color: $info-color;
+    color: var(--info-color);
   }
 }
 
@@ -59,7 +65,7 @@
 }
 
 .message {
-  color: $dark-text-primary;
+  color: var(--text-primary);
   font-size: $font-sm;
   line-height: 1.4;
   margin: 0;
@@ -69,7 +75,7 @@
 .closeBtn {
   background: transparent;
   border: none;
-  color: $dark-text-tertiary;
+  color: var(--text-tertiary);
   cursor: pointer;
   padding: $spacing-2xs;
   display: flex;
@@ -80,8 +86,8 @@
   flex-shrink: 0;
 
   &:hover {
-    color: $dark-text-primary;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    background: rgba(128, 128, 128, 0.15);
   }
 }
 

@@ -1,4 +1,82 @@
 {
+  "floatingControls": {
+    "filter_categories": "Categories",
+    "learning_progress": "學習進度"
+  },
+  "sidebar": {
+    "title": "演算法分類",
+    "ariaLabel": "演算法分類側邊欄"
+  },
+  "toast": {
+    "categoryUnlocked": "恭喜！解鎖新領域：{{categoryName}}"
+  },
+  "levelUnavailable": {
+    "undeveloped": "此關卡尚未開放，敬請期待",
+    "locked": "完成前置關卡後解鎖"
+  },
+  "categoryFilter": {
+    "moduleCount_one": "{{count}} 個模組",
+    "moduleCount_other": "{{count}} 個模組"
+  },
+  "stats": {
+    "title": "學習進度",
+    "overallCompletion": "總完成度",
+    "completedLevels": "已完成 {{completed}} / {{total}} 關卡",
+    "earnedStars": "獲得星數",
+    "completedLevelCount": "完成關卡",
+    "overallProgress": "整體進度",
+    "courseDetails": "課程詳情",
+    "bossCompleted": "Boss 已完成"
+  },
+  "levelDialog": {
+    "title": "關卡：{{levelName}}",
+    "unknownDifficulty": "未知",
+    "difficulty": {
+      "1": "非常簡單",
+      "2": "簡單",
+      "3": "中等",
+      "4": "困難",
+      "5": "非常困難"
+    }
+  },
+  "tutorialSection": {
+    "title": "教學模式",
+    "descriptionTitle": "演算法說明",
+    "objectivesTitle": "學習目標",
+    "suggestedTitle": "建議先學習",
+    "restartButton": "重新學習",
+    "startButton": "開始教學",
+    "lockedHint": "此教學尚未解鎖",
+    "completedBadge": "已完成教學"
+  },
+  "practiceSection": {
+    "title": "練習模式",
+    "requirementsTitle": "通關條件",
+    "requirements": [
+      "完成所有測試用例",
+      "達到正確率 60% 以上",
+      "獲得 1-3 星評價"
+    ],
+    "bestTime": "最佳時間",
+    "attempts": "嘗試次數",
+    "attemptCount": "{{count}} 次",
+    "restartButton": "重新挑戰",
+    "continueButton": "繼續挑戰",
+    "startButton": "開始練習",
+    "lockedAndHint": "需要先完成：{{levels}}",
+    "lockedOrHint": "完成以下任一關卡即可解鎖：{{levels}}",
+    "lockedFallbackHint": "完成前置關卡以解鎖練習模式",
+    "listSeparator": "、",
+    "completedBadge": "已完成練習"
+  },
+  "portal": {
+    "ariaLabel": "傳送門：前往 {{targetCategoryName}}",
+    "goTo": "前往 {{targetCategoryName}}",
+    "locked": "完成 Boss Level 以解鎖"
+  },
+  "node": {
+    "ariaLabel": "關卡：{{levelName}}"
+  },
   "levels": {
     "array": {
       "name": "陣列",
@@ -41,7 +119,7 @@
       "objectives": ["理解 Min Heap 與 Max Heap 的差異", "掌握 heapify 操作", "應用於優先佇列與排序"]
     },
     "graph": {
-      "name": "圖形結構",
+      "name": "圖",
       "description": "由節點 (Vertex) 與邊 (Edge) 組成的非線性資料結構",
       "objectives": ["理解圖的基本組成與術語", "比較鄰接矩陣與鄰接表", "區分有向圖與無向圖"]
     },
@@ -113,11 +191,6 @@
       "name": "河內塔",
       "description": "經典遞迴問題：將所有圓盤從柱 A 移到柱 C",
       "objectives": ["理解多層遞迴的展開邏輯", "掌握遞迴公式推導", "視覺化每一步移動"]
-    },
-    "backtracking_intro": {
-      "name": "回溯法入門",
-      "description": "系統性地嘗試所有可能解，並在不可行時回退",
-      "objectives": ["理解回溯法的決策樹模型", "掌握剪枝策略", "應用於排列組合問題"]
     },
     "quick_sort_recursive": {
       "name": "分治法：快速排序",
@@ -233,6 +306,16 @@
       "name": "動態規劃",
       "description": "透過狀態轉移解決重複子問題，掌握最佳化思維"
     }
+  },
+  "errors": {
+    "progressLoadFailed": "進度載入失敗，請重新整理頁面"
+  },
+  "toast": {
+    "categoryUnlocked": "恭喜！解鎖新領域：{{categoryName}}"
+  },
+  "sidebar": {
+    "title": "演算法分類",
+    "ariaLabel": "演算法分類側邊欄"
   },
   "branch_labels": {
     "lifo_structure": "LIFO 結構",

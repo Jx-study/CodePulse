@@ -3,6 +3,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
+import { toast } from "@/shared/components/Toast";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -22,6 +23,9 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   onDeleteNode,
   onSearchNode,
   onTailModeChange,
+  onListModeChange,
+  hasTailMode = false,
+  listMode = "singly",
   maxNodes,
 }) => {
   const [inputValue, setInputValue] = useState("");
@@ -33,20 +37,27 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
 
   const handleAdd = () => {
     if (disabled) return;
-    const val = Number(inputValue);
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
-    if (!isNaN(val)) {
-      onAddNode(val, insertMode, idx);
-      setInputValue("");
+    if (inputValue.trim() === "") {
+      toast.warning("請輸入要插入的數值");
+      return;
     }
+    if (insertMode === "Node N" && indexValue.trim() === "") {
+      toast.warning("Node N 模式需要輸入索引");
+      return;
+    }
+    const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
+    onAddNode(Number(inputValue), insertMode, idx);
   };
 
   const handleDelete = () => {
     if (disabled) return;
-    const idx = indexValue !== "" ? Number(indexValue) : undefined;
+    if (insertMode === "Node N" && indexValue.trim() === "") {
+      toast.warning("Node N 模式需要輸入索引");
+      return;
+    }
+    const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
     onDeleteNode(insertMode, idx);
   };
-
   return (
     <ActionBarContainer>
       <ActionBarGroup>
@@ -58,9 +69,26 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           disabled={disabled}
           maxNodes={maxNodes}
         />
+        {onListModeChange && (
+          <Select
+            size="sm"
+            value={listMode}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              onListModeChange(e.target.value as "singly" | "doubly")
+            }
+            className={styles.select}
+            disabled={disabled}
+            options={[
+              { value: "singly", label: "單向 (Singly)" },
+              { value: "doubly", label: "雙向 (Doubly)" },
+            ]}
+            aria-label="List mode selection"
+          />
+        )}
         {onTailModeChange && (
           <Select
             size="sm"
+            value={hasTailMode ? "hasTail" : "noTail"}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               onTailModeChange(e.target.value === "hasTail")
             }
@@ -165,8 +193,11 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => {
-              const val = Number(searchValue);
-              onSearchNode(val, "search");
+              if (searchValue.trim() === "") {
+                toast.warning("請輸入搜尋值");
+                return;
+              }
+              onSearchNode(Number(searchValue), "search");
             }}
             disabled={disabled}
             className={styles.btnSearch}

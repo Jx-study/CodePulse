@@ -1,54 +1,15 @@
 import { Box } from "@/modules/core/DataLogic/Box";
+import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import type { AnimationStep } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
 import { CodeConfig, LevelImplementationConfig } from "@/types";
 import { SlidingWindowActionBar } from "./SlidingWindowActionBar";
-import { cloneData } from "@/modules/core/visualization/visualizationUtils";
-import { DATA_LIMITS } from "@/constants/dataLimits";
-import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
+import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 
-function slidingWindowActionHandler(
-  actionType: string,
-  payload: Record<string, unknown>,
-  data: LinearData[],
-  context: ActionContext,
-): ActionResult<LinearData[]> | null {
-  if (actionType === "random") {
-    const count =
-      (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
-    const values = Array.from(
-      { length: count },
-      () => Math.floor(Math.random() * 15) + 1
-    );
-    const newData = values.map((v) => ({
-      id: context.nextId(),
-      value: v,
-    }));
-    return { animationData: newData, isResetAction: true };
-  }
-
-  if (actionType === "load") {
-    const values = payload.data as number[];
-    if (!values?.length) return null;
-    const newData = values.map((v) => ({
-      id: context.nextId(),
-      value: v,
-    }));
-    return { animationData: newData, isResetAction: true };
-  }
-
-  if (actionType === "reset") {
-    const defaultData = (context.defaultData as LinearData[]) ?? data;
-    return { animationData: cloneData(defaultData), isResetAction: true };
-  }
-
-  if (actionType === "run") {
-    return { animationData: cloneData(data) };
-  }
-
-  return null;
-}
+const slidingWindowActionHandler = createLinearActionHandler({
+  randomValueRange: [1, 15],
+});
 
 const TAGS = {
   INIT: "INIT",
@@ -59,7 +20,31 @@ const TAGS = {
   DONE: "DONE",
 };
 
-// 輔助函式：用來產生單一畫面的 Frame
+const createSlidingPointers = (
+  left: number,
+  right: number,
+  startX: number,
+  startY: number,
+  gap: number,
+): Pointer[] => {
+  const isOverlap = right !== -1 && left === right;
+  const lXOffset = isOverlap ? -20 : 0;
+  const rXOffset = isOverlap ? 20 : 0;
+
+  const effectiveRight = right === -1 ? 0 : right;
+
+  const leftPtr = new Pointer("L", "up");
+  leftPtr.id = "sliding-L";
+  leftPtr.moveTo(startX + left * gap + lXOffset, startY + 50);
+
+  const rightPtr = new Pointer("R", "up");
+  rightPtr.id = "sliding-R";
+  rightPtr.moveTo(startX + effectiveRight * gap + rXOffset, startY + 50);
+  rightPtr.opacity = right === -1 ? 0 : 1;
+
+  return [leftPtr, rightPtr];
+};
+
 const generateFrame = (
   list: LinearData[],
   pointers: {
@@ -70,7 +55,7 @@ const generateFrame = (
   },
   description: string,
   actionTag: string,
-  variables: Record<string, any>,
+  local_vars: Record<string, any>,
   overrideStatusMap: Record<number, Status> = {},
 ): AnimationStep => {
   const { left, right, bestLeft = -1, bestRight = -1 } = pointers;
@@ -80,12 +65,7 @@ const generateFrame = (
     startY: 200,
     gap: 70,
     overrideStatusMap,
-    getDescription: (_item, index) => {
-      const labels: string[] = [`${index}`];
-      if (index === left) labels.push("L");
-      if (index === right) labels.push("R");
-      return labels.join("\n");
-    },
+    getDescription: (_item, index) => String(index),
   });
 
   boxes.forEach((element, i) => {
@@ -100,7 +80,13 @@ const generateFrame = (
     else box.setStatus(Status.Inactive);
   });
 
-  return { stepNumber: 0, description, actionTag, variables, elements: boxes };
+  return {
+    stepNumber: 0,
+    description,
+    actionTag,
+    local_vars,
+    elements: [...boxes, ...createSlidingPointers(left, right, 50, 200, 70)],
+  };
 };
 
 export function createSlidingWindowAnimationSteps(
@@ -448,42 +434,48 @@ export const slidingWindowConfig: LevelImplementationConfig = {
     {
       id: 3,
       title: "Longest Substring Without Repeating Characters",
-      concept: "可變視窗：右指針擴展加入字元，左指針在遇到重複時縮窄，哈希集合記錄視窗內容",
+      concept:
+        "可變視窗：右指針擴展加入字元，左指針在遇到重複時縮窄，哈希集合記錄視窗內容",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
     },
     {
       id: 76,
       title: "Minimum Window Substring",
-      concept: "可變視窗 + 字元計數：右擴直到覆蓋目標字元後左縮取最短，雙指針搭配頻率表",
+      concept:
+        "可變視窗 + 字元計數：右擴直到覆蓋目標字元後左縮取最短，雙指針搭配頻率表",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/minimum-window-substring/",
     },
     {
       id: 424,
       title: "Longest Repeating Character Replacement",
-      concept: "可變視窗：追蹤視窗內最高頻字元，視窗大小 - 最高頻數 > k 時左縮視窗",
+      concept:
+        "可變視窗：追蹤視窗內最高頻字元，視窗大小 - 最高頻數 > k 時左縮視窗",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/longest-repeating-character-replacement/",
     },
     {
       id: 239,
       title: "Sliding Window Maximum",
-      concept: "固定視窗 + 單調遞減雙端佇列：隊頭維持當前最大值，右移時淘汰隊尾較小元素",
+      concept:
+        "固定視窗 + 單調遞減雙端佇列：隊頭維持當前最大值，右移時淘汰隊尾較小元素",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/sliding-window-maximum/",
     },
     {
       id: 567,
       title: "Permutation in String",
-      concept: "固定視窗字元匹配：維護長度 |s1| 的視窗，比較視窗字元頻率與目標是否相同",
+      concept:
+        "固定視窗字元匹配：維護長度 |s1| 的視窗，比較視窗字元頻率與目標是否相同",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/permutation-in-string/",
     },
     {
       id: 438,
       title: "Find All Anagrams in a String",
-      concept: "固定視窗滑動比對：同 567 的頻率比較策略，但需記錄所有滿足條件的視窗起始位置",
+      concept:
+        "固定視窗滑動比對：同 567 的頻率比較策略，但需記錄所有滿足條件的視窗起始位置",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
     },

@@ -17,10 +17,11 @@ export interface User {
   current_streak?: number;
   longest_streak?: number;
   last_login_date?: string;
-  skill_rating?: number;                      // Elo 能力分數（對應 EloService.userStartRating）
+  skill_rating?: number;                      // Elo 能力分數
   skill_tier?: 1 | 2 | 3 | 4 | 5;           // 由 skill_rating 派生
   created_at?: string;
   has_local_password?: boolean;   // false = OAuth-only account
+  timezone?: string;
 }
 
 // ==================== Auth Context Types ====================
@@ -34,6 +35,10 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
   updateUser: (patch: Partial<User>) => void;
+  showCheckinDialog: boolean;
+  setShowCheckinDialog: (v: boolean) => void;
+  pendingWelcome: { username: string } | null;
+  setPendingWelcome: (v: { username: string } | null) => void;
 }
 
 // ==================== Auth Response Types ====================

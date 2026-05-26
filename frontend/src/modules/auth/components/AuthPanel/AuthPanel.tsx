@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { LoginFormData, SignupFormData } from '@/types/pages/auth';
 import type { FormAlertType } from '@/shared/components/FormAlert';
 import LoginForm from '@/modules/auth/components/LoginForm/LoginForm';
@@ -44,6 +45,7 @@ function AuthPanel({
   onConfirmLink,
   onCancelLink,
 }: AuthPanelProps) {
+  const { t } = useTranslation('auth');
   if (linkPromptEmail) {
     return (
       <div className={styles.panel}>
@@ -52,9 +54,9 @@ function AuthPanel({
             <div className={styles.linkIcon}>
               <GoogleSVG />
             </div>
-            <h1 className={styles.title}>連結 Google 帳號</h1>
+            <h1 className={styles.title}>{t('linkGoogle.title')}</h1>
             <p className={styles.linkSubtitle}>
-              我們偵測到你的 Google 帳號與以下 Email 相符
+              {t('linkGoogle.subtitle')}
             </p>
           </div>
 
@@ -64,8 +66,7 @@ function AuthPanel({
           </div>
 
           <p className={styles.linkDescription}>
-            是否要將 Google 登入綁定到這個帳號？綁定後可以使用 Google
-            或密碼登入。
+            {t('linkGoogle.description')}
           </p>
 
           <FormAlert type={alertType} message={alertMessage} />
@@ -77,7 +78,7 @@ function AuthPanel({
               disabled={loading}
               fullWidth
             >
-              確認綁定
+              {t('linkGoogle.confirm')}
             </Button>
             <Button
               variant="ghost"
@@ -85,7 +86,7 @@ function AuthPanel({
               disabled={loading}
               fullWidth
             >
-              取消，返回登入
+              {t('linkGoogle.cancel')}
             </Button>
           </div>
         </div>
@@ -97,7 +98,7 @@ function AuthPanel({
     <div className={styles.panel}>
       <div className={styles.content}>
         <h1 className={styles.title}>
-          {activeTab === 'login' ? 'Welcome back' : 'Create account'}
+          {activeTab === 'login' ? t('welcomeBack') : t('createAccount')}
         </h1>
 
         <button
@@ -107,11 +108,11 @@ function AuthPanel({
           disabled={loading}
         >
           <GoogleSVG />
-          <span>Continue with Google</span>
+          <span>{t('continueWithGoogle')}</span>
         </button>
 
         <div className={styles.divider}>
-          <span>或</span>
+          <span>{t('or')}</span>
         </div>
 
         <div className={styles.formWrapper}>
@@ -135,16 +136,16 @@ function AuthPanel({
         <p className={styles.switchLink}>
           {activeTab === 'login' ? (
             <>
-              還沒有帳號？
+              {t('noAccount', '還沒有帳號？')}
               <Button variant="ghost" size="sm" onClick={() => onTabSwitch('signup')} className={styles.switchBtn}>
-                立即註冊
+                {t('registerNow', '立即註冊')}
               </Button>
             </>
           ) : (
             <>
-              已有帳號？
+              {t('hasAccount', '已有帳號？')}
               <Button variant="ghost" size="sm" onClick={() => onTabSwitch('login')} className={styles.switchBtn}>
-                立即登入
+                {t('loginNow', '立即登入')}
               </Button>
             </>
           )}

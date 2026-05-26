@@ -1,10 +1,10 @@
 {
   "hero": {
     "title": "CodePulse",
-    "subtitle": "Code Execution Visualization Platform",
+    "subtitle": "Algorithm Visualization Platform",
     "description": {
-      "main": "A code execution visualization platform combining static analysis and dynamic tracing",
-      "sub": "Make program execution clear and intuitive, enhancing learning and debugging efficiency"
+      "main": "Transform abstract algorithms into interactive visual architectures.",
+      "sub": "Step through execution, watch data structures evolve, and build real intuition."
     },
     "cta": "Get Started"
   },

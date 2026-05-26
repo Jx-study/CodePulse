@@ -11,8 +11,8 @@
 .btnLogin {
   color: #f8fafc !important;
 
-  :hover {
-    color: black;
+  &:hover {
+    color: black !important;
   }
 }
 

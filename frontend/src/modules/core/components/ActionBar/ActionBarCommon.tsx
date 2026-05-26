@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
+import Dialog from "@/shared/components/Dialog";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Textarea from "@/shared/components/Textarea";
@@ -103,57 +105,223 @@ export const DataRow: React.FC<DataRowProps> = ({
 
       <div className={styles.settingItem}>
         <label className={styles.smallLabel}>隨機筆數:</label>
-        <Tooltip content={maxNodes !== undefined ? `設定隨機生成的資料筆數，上限為 ${maxNodes}` : "設定隨機生成的資料筆數"}>
-        <Input
-          type="number"
-          value={randomCountInput}
-          min={DATA_LIMITS.MIN_RANDOM_COUNT}
-          max={maxNodes}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setRandomCountInput(e.target.value)
+        <Tooltip
+          content={
+            maxNodes !== undefined
+              ? `設定隨機生成的資料筆數，上限為 ${maxNodes}`
+              : "設定隨機生成的資料筆數"
           }
-          onBlur={() => {
-            const num = Number(randomCountInput);
-            if (isNaN(num) || randomCountInput.trim() === "") {
-              setRandomCountInput(String(randomCount));
-            } else if (num < 0) {
-              setRandomCountInput(String(randomCount));
-            } else {
-              if (maxNodes !== undefined && num > maxNodes) {
-                toast.warning(`隨機筆數上限為 ${maxNodes}`);
+        >
+          <Input
+            type="number"
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={maxNodes}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setRandomCountInput(e.target.value)
+            }
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                setRandomCountInput(String(randomCount));
+              } else if (num < 0) {
+                setRandomCountInput(String(randomCount));
+              } else {
+                if (maxNodes !== undefined && num > maxNodes) {
+                  toast.warning(`隨機筆數上限為 ${maxNodes}`);
+                }
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  maxNodes ?? num,
+                );
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onMaxNodesChange?.(v);
               }
-              const v = Math.min(
-                Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                maxNodes ?? num,
-              );
-              setRandomCount(v);
-              setRandomCountInput(String(v));
-              onMaxNodesChange?.(v);
-            }
-          }}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter") {
-              (e.target as HTMLInputElement).blur();
-            }
-          }}
-          className={`${styles.input} ${styles.valueInput}`}
-          disabled={disabled}
-          fullWidth={false}
-          aria-label="Random count"
-        />
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            className={`${styles.input} ${styles.valueInput}`}
+            disabled={disabled}
+            fullWidth={false}
+            aria-label="Random count"
+          />
         </Tooltip>
       </div>
     </>
   );
 };
 
+export interface TrieLoaderModalProps {
+  show: boolean;
+  onClose: () => void;
+  onLoad: (data: string) => void;
+  maxWords?: number; // 預設限制載入筆數，避免樹狀圖過度龐大
+}
+
+const TRIE_DEFAULT_INPUT = "app\napple\napply\nape\nbat\nball\ncat\ncare";
+
+export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
+  show,
+  onClose,
+  onLoad,
+  maxWords = 20,
+}) => {
+  const { t } = useTranslation("tutorials/trie");
+  // 記錄已確認與草稿狀態，保持表單的取消/重設體驗
+  const [committedInput, setCommittedInput] = useState(TRIE_DEFAULT_INPUT);
+  const [draftInput, setDraftInput] = useState(TRIE_DEFAULT_INPUT);
+
+  useEffect(() => {
+    if (show) {
+      setDraftInput(committedInput);
+    }
+  }, [show, committedInput]);
+
+  const handleLoad = () => {
+    if (!draftInput.trim()) {
+      toast.warning(t("ui.modal.emptyWarning"));
+      return;
+    }
+
+    // 1. 初步切割字串：支援換行、空白與逗號分隔
+    const rawWords = draftInput.split(/[\s,]+/);
+
+    // 2. 驗證與清洗：檢查是否包含數字或特殊符號
+    const invalidWords: string[] = [];
+    const validWords: string[] = [];
+
+    for (const w of rawWords) {
+      if (!w) continue;
+
+      // 檢查是否只包含英文字母 (a-z, A-Z)
+      if (!/^[a-zA-Z]+$/.test(w)) {
+        invalidWords.push(w);
+      } else {
+        validWords.push(w.toLowerCase());
+      }
+    }
+
+    if (invalidWords.length > 0) {
+      const sample = invalidWords.slice(0, 5).join(", ") + (invalidWords.length > 5 ? "..." : "");
+      toast.warning(t("ui.modal.invalidWarning", { words: sample }));
+    }
+
+    // 3. 去除重複單字 (Set)
+    const uniqueWords = Array.from(new Set(validWords));
+
+    if (uniqueWords.length === 0) {
+      toast.warning(t("ui.modal.noValidWords"));
+      return;
+    }
+
+    // 4. 筆數上限防護
+    let finalWords = uniqueWords;
+    if (finalWords.length > maxWords) {
+      toast.warning(t("ui.modal.truncateWarning", { max: maxWords }));
+      finalWords = finalWords.slice(0, maxWords);
+    }
+
+    // 更新確認狀態並送出字串 (以空白分隔傳給外層 onLoadData)
+    const outputString = finalWords.join(" ");
+    setCommittedInput(draftInput);
+    onLoad(`TRIE:${outputString}`);
+    onClose();
+  };
+
+  return (
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
+      contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
+      title={t("ui.modal.title")}
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
+            {t("ui.modal.cancel")}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            {t("ui.modal.loadButton")}
+          </Button>
+        </>
+      }
+    >
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>{t("ui.modal.inputLabel")}</label>
+        <Textarea
+          value={draftInput}
+          onChange={(e) => setDraftInput(e.target.value)}
+          rows={8}
+          className={styles.modalGraphTextarea}
+          placeholder={t("ui.modal.placeholder")}
+        />
+        <span style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+          {t("ui.modal.hint", { max: maxWords })}
+        </span>
+      </div>
+    </Dialog>
+  );
+};
+
 // ─── GraphLoaderModal：Graph 資料載入的 modal ────────────────
+
+export type EdgeValidator = (parts: string[], count: number) => string | null;
+
+const unweightedEdgeValidator: EdgeValidator = (parts, _count) => {
+  if (parts.length !== 2) {
+    return `格式錯誤：每條邊需包含來源、目標兩個數字 (格式: 來源 目標)\n錯誤行：${parts.join(" ")}`;
+  }
+  if (isNaN(parseInt(parts[0], 10)) || isNaN(parseInt(parts[1], 10))) {
+    return `來源與目標必須是整數\n錯誤行：${parts.join(" ")}`;
+  }
+  return null;
+};
+
+const weightedEdgeValidator: EdgeValidator = (parts, _count) => {
+  if (parts.length !== 3) {
+    return `格式錯誤：每條邊需包含來源、目標、權重三個數字 (格式: 來源 目標 權重)\n錯誤行：${parts.join(" ")}`;
+  }
+  const w = parseInt(parts[2], 10);
+  if (isNaN(w)) {
+    return `權重必須是整數，「${parts[2]}」不是有效數字\n錯誤行：${parts.join(" ")}`;
+  }
+  if (w < 0) {
+    return "不支援負權重邊，請輸入大於或等於 0 的權重！";
+  }
+  return null;
+};
+
+const UNWEIGHTED_DEFAULTS = {
+  edgeLabel: "邊 (格式: 來源 目標)\n節點編號 (0 ~ N-1)",
+  defaultEdgeInput: "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
+  edgePlaceholder: "0 1\n1 2\n2 0",
+};
+
+const WEIGHTED_DEFAULTS = {
+  edgeLabel: "邊 (格式: 來源 目標 權重)\n節點編號 (0 ~ N-1)",
+  defaultEdgeInput: "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6",
+  edgePlaceholder: "0 1 4\n1 2 5\n2 0 10",
+};
 
 export interface GraphLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
   isWeighted?: boolean;
+  edgeValidator?: EdgeValidator;
 }
 
 export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
@@ -161,91 +329,124 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   onClose,
   onLoad,
   isWeighted = false,
+  edgeValidator,
 }) => {
-  const [nodeCount, setNodeCount] = useState("6");
-  const [edgeInput, setEdgeInput] = useState(
-    isWeighted
-      ? "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6"
-      : "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
+  const defaults = isWeighted ? WEIGHTED_DEFAULTS : UNWEIGHTED_DEFAULTS;
+  const resolvedValidator =
+    edgeValidator ??
+    (isWeighted ? weightedEdgeValidator : unweightedEdgeValidator);
+
+  const [committedNodeCount, setCommittedNodeCount] = useState("6");
+  const [committedEdgeInput, setCommittedEdgeInput] = useState(
+    defaults.defaultEdgeInput,
+  );
+  const [draftNodeCount, setDraftNodeCount] = useState("6");
+  const [draftEdgeInput, setDraftEdgeInput] = useState(
+    defaults.defaultEdgeInput,
   );
 
-  if (!show) return null;
+  useEffect(() => {
+    if (show) {
+      setDraftNodeCount(committedNodeCount);
+      setDraftEdgeInput(committedEdgeInput);
+    }
+  }, [show]);
 
   const handleLoad = () => {
-    const count = parseInt(nodeCount);
+    const count = parseInt(draftNodeCount);
     if (isNaN(count) || count <= 0) {
       toast.warning("請輸入有效的節點數量");
       return;
     }
 
-    const lines = edgeInput
+    const lines = draftEdgeInput
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "");
 
-    if (isWeighted) {
-      for (const line of lines) {
-        const parts = line.split(/\s+/);
-        if (parts.length >= 3 && parseInt(parts[2], 10) < 0) {
-          toast.warning(
-            "Dijkstra 演算法不支援負權重邊，請輸入大於或等於 0 的權重！",
-          );
+    const invalidLines: string[] = [];
+    for (const line of lines) {
+      const parts = line.split(/\s+/);
+
+      if (resolvedValidator) {
+        const error = resolvedValidator(parts, count);
+        if (error) {
+          toast.warning(error);
           return;
         }
       }
+
+      const u = parseInt(parts[0], 10);
+      const v = parseInt(parts[1], 10);
+      const isValidIdx = (n: number) => !isNaN(n) && n >= 0 && n < count;
+      if (!isValidIdx(u) || !isValidIdx(v)) {
+        invalidLines.push(line);
+      }
+    }
+
+    if (invalidLines.length > 0) {
+      toast.warning(
+        `以下邊的節點編號超出範圍 (合法範圍：0 ~ ${count - 1})，請修正後再載入：\n${invalidLines.join(", ")}`,
+      );
+      return;
     }
 
     const edges = lines.map((line) => line.replace(/\s+/g, " ")).join(",");
+    setCommittedNodeCount(draftNodeCount);
+    setCommittedEdgeInput(draftEdgeInput);
     onLoad(`GRAPH:${count}:${edges}`);
     onClose();
   };
 
   return (
-    <>
-      <div className={styles.modalContainer}>
-        <h4 className={styles.modalTitle}>自定義 Graph 資料</h4>
-        <div className={styles.modalFieldRow}>
-          <label className={styles.modalLabel}>節點數量 (0 ~ N-1):</label>
-          <Input
-            type="number"
-            value={nodeCount}
-            fullWidth={false}
-            onChange={(e) => setNodeCount(e.target.value)}
-            className={`${styles.input} ${styles.nodeCountInput}`}
-            aria-label="Node count"
-          />
-        </div>
-        <div className={styles.modalFieldColumn}>
-          <label className={styles.modalLabel}>
-            {isWeighted ? "邊 (格式: 來源 目標 權重)" : "邊 (格式: 來源 目標)"}
-          </label>
-          <Textarea
-            value={edgeInput}
-            onChange={(e) => setEdgeInput(e.target.value)}
-            rows={6}
-            className={styles.modalGraphTextarea}
-            placeholder={isWeighted ? "0 1 4\n1 2 5\n2 0 10" : "0 1\n1 2\n2 0"}
-          />
-        </div>
-        <div className={styles.modalButtonGroup}>
-          <Button
-            size="sm"
-            onClick={onClose}
-            className={styles.modalCancelButton}
-          >
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
+      contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
+      title="自定義 Graph 資料"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
           <Button
+            variant="secondary"
             size="sm"
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
             確認載入
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className={styles.modalFieldRow}>
+        <label className={styles.modalLabel}>節點數量 N:</label>
+        <Input
+          type="number"
+          value={draftNodeCount}
+          fullWidth={false}
+          onChange={(e) => setDraftNodeCount(e.target.value)}
+          className={`${styles.input} ${styles.nodeCountInput}`}
+          aria-label="Node count"
+        />
       </div>
-      <div className={styles.modalOverlay} onClick={onClose} />
-    </>
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>{defaults.edgeLabel}</label>
+        <Textarea
+          value={draftEdgeInput}
+          onChange={(e) => setDraftEdgeInput(e.target.value)}
+          rows={6}
+          className={styles.modalGraphTextarea}
+          placeholder={defaults.edgePlaceholder}
+        />
+      </div>
+    </Dialog>
   );
 };
 
@@ -262,62 +463,108 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
-  const [gridInputText, setGridInputText] = useState(
-    "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0",
-  );
+  const DEFAULT_GRID = "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0";
+  const [committedGridText, setCommittedGridText] = useState(DEFAULT_GRID);
+  const [draftGridText, setDraftGridText] = useState(DEFAULT_GRID);
 
-  if (!show) return null;
+  useEffect(() => {
+    if (show) {
+      setDraftGridText(committedGridText);
+    }
+  }, [show]);
 
   const handleLoad = () => {
-    const rowsArr = gridInputText.trim().split("\n");
-    const gridData: number[] = [];
-    let cols = 0;
+    const trimmed = draftGridText.trim();
+    if (trimmed === "") {
+      toast.warning("請輸入迷宮資料");
+      return;
+    }
 
-    rowsArr.forEach((rowStr) => {
-      const cells = rowStr
-        .trim()
-        .split(/[\s,]+/)
-        .map(Number);
-      if (cells.length > 0) {
-        gridData.push(...cells);
-        cols = Math.max(cols, cells.length);
+    const rowsArr = trimmed
+      .split("\n")
+      .map((r) => r.trim())
+      .filter((r) => r !== "");
+    const parsedRows: number[][] = [];
+    let firstRowCols = -1;
+
+    for (let i = 0; i < rowsArr.length; i++) {
+      const cells = rowsArr[i].split(/[\s,]+/).filter(Boolean);
+      for (const cell of cells) {
+        if (cell !== "0" && cell !== "1") {
+          toast.warning(
+            `第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`,
+          );
+          return;
+        }
       }
-    });
+      const nums = cells.map(Number);
+      if (firstRowCols === -1) {
+        firstRowCols = nums.length;
+      } else if (nums.length !== firstRowCols) {
+        toast.warning(
+          `第 ${i + 1} 行有 ${nums.length} 格，與第 1 行的 ${firstRowCols} 格不一致，每行欄數必須相同`,
+        );
+        return;
+      }
+      parsedRows.push(nums);
+    }
 
+    const rows = parsedRows.length;
+    const cols = firstRowCols;
+
+    if (rows < 1 || cols < 1) {
+      toast.warning("迷宮至少需要 1 行 1 欄");
+      return;
+    }
+
+    if (rows * cols > 400) {
+      toast.warning(
+        `迷宮大小 ${rows}×${cols} = ${rows * cols} 格，超過上限 400 格（建議最大 20×20）`,
+      );
+      return;
+    }
+
+    const gridData = parsedRows.flat();
+    setCommittedGridText(draftGridText);
     onLoad(`GRID:${cols}:${gridData.join(",")}`);
     onClose();
   };
 
   return (
-    <>
-      <div className={styles.modalContainer}>
-        <h4 className={styles.modalTitle}>輸入迷宮資料 (0=路, 1=牆)</h4>
-        <Textarea
-          value={gridInputText}
-          onChange={(e) => setGridInputText(e.target.value)}
-          rows={5}
-          className={styles.modalTextarea}
-          placeholder={"0 0 0\n0 1 0\n0 0 0"}
-        />
-        <div className={styles.modalButtonGroup}>
-          <Button
-            size="sm"
-            onClick={onClose}
-            className={styles.modalCancelButton}
-          >
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
+      contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
+      title="輸入迷宮資料 (0=路, 1=牆)"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
           <Button
+            variant="secondary"
             size="sm"
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
             確認載入
           </Button>
-        </div>
-      </div>
-      <div className={styles.modalOverlay} onClick={onClose} />
-    </>
+        </>
+      }
+    >
+      <Textarea
+        value={draftGridText}
+        onChange={(e) => setDraftGridText(e.target.value)}
+        rows={5}
+        className={styles.modalTextarea}
+        placeholder={"0 0 0\n0 1 0\n0 0 0"}
+      />
+    </Dialog>
   );
 };
 
@@ -334,17 +581,22 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
-  const [itemInput, setItemInput] = useState("1 15\n3 20\n4 30");
+  const DEFAULT_ITEMS = "1 15\n3 20\n4 30";
+  const [committedItemInput, setCommittedItemInput] = useState(DEFAULT_ITEMS);
+  const [draftItemInput, setDraftItemInput] = useState(DEFAULT_ITEMS);
 
-  if (!show) return null;
+  useEffect(() => {
+    if (show) {
+      setDraftItemInput(committedItemInput);
+    }
+  }, [show]);
 
   const handleLoad = () => {
-    const lines = itemInput
+    const lines = draftItemInput
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "");
 
-    // 格式驗證
     for (const line of lines) {
       const parts = line.split(/\s+/);
       if (
@@ -361,47 +613,52 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
       }
     }
 
-    // 轉成逗號分隔格式 "w1 v1,w2 v2,..."
     const items = lines.map((line) => line.replace(/\s+/g, " ")).join(",");
+    setCommittedItemInput(draftItemInput);
     onLoad(items);
     onClose();
   };
 
   return (
-    <>
-      <div className={styles.modalContainer}>
-        <h4 className={styles.modalTitle}>自定義背包物品</h4>
-        <div className={styles.modalFieldColumn}>
-          <label className={styles.modalLabel}>
-            物品清單 (格式: 重量 價值，一行一個物品)
-          </label>
-          <Textarea
-            value={itemInput}
-            onChange={(e) => setItemInput(e.target.value)}
-            rows={6}
-            className={styles.modalGraphTextarea}
-            placeholder={"1 15\n3 20\n4 30"}
-          />
-        </div>
-        <div className={styles.modalButtonGroup}>
-          <Button
-            size="sm"
-            onClick={onClose}
-            className={styles.modalCancelButton}
-          >
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
+      contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
+      title="自定義背包物品"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
             取消
           </Button>
           <Button
+            variant="secondary"
             size="sm"
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
             確認載入
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>
+          物品清單 (格式: 重量 價值，一行一個物品)
+        </label>
+        <Textarea
+          value={draftItemInput}
+          onChange={(e) => setDraftItemInput(e.target.value)}
+          rows={6}
+          className={styles.modalGraphTextarea}
+          placeholder={"1 15\n3 20\n4 30"}
+        />
       </div>
-      <div className={styles.modalOverlay} onClick={onClose} />
-    </>
+    </Dialog>
   );
 };
 

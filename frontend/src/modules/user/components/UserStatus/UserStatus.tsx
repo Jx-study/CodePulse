@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styles from './UserStatus.module.scss';
 import SettingPanel from '../SettingPanel/SettingPanel';
 import { useAuth } from '@/shared/contexts/AuthContext';
@@ -8,11 +8,13 @@ import Button from '@/shared/components/Button';
 import Avatar from '@/shared/components/Avatar';
 import Icon from '@/shared/components/Icon';
 import Dropdown from '@/shared/components/Dropdown';
+import { toast } from '@/shared/components/Toast';
 
 function UserStatus() {
   const { t } = useTranslation();
   const { isAuthenticated, user, logout } = useAuth();
   const [showSettingPanel, setShowSettingPanel] = useState(false);
+  const navigate = useNavigate();
 
   const handleSettingPanelOpen = () => {
     setShowSettingPanel(true);
@@ -21,12 +23,14 @@ function UserStatus() {
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/');
     } catch (error) {
-      console.error('登出失敗:', error);
+      // TODO: sentry
+      console.error('Logout failed:', error);
+      toast.error(t('logoutError'));
     }
   };
 
-  // 定義下拉菜單項目
   const menuItems = [
     {
       key: 'settings',
@@ -37,10 +41,8 @@ function UserStatus() {
     {
       key: 'help',
       label: t('getHelp'),
-      icon: <Icon name="question-circle" size="sm" />,
-      onClick: () => {
-        // TODO: 實作幫助功能
-      },
+      icon: <Icon name="circle-question" size="sm" />,
+      onClick: () => navigate('/faq'),
     },
     {
       key: 'divider-1',
@@ -85,16 +87,22 @@ function UserStatus() {
   return (
     <div className={styles.userStatus}>
       <div className={styles.authButtons}>
-        <Link to="/auth?tab=login">
-          <Button variant="secondary" size="sm" className={styles.btnLogin}>
-            {t("login")}
-          </Button>
-        </Link>
-        <Link to="/auth?tab=signup" className={styles.btnRegister}>
-          <Button variant="primary" size="sm">
-            {t("register")}
-          </Button>
-        </Link>
+        <Button
+          variant="secondary"
+          size="sm"
+          className={styles.btnLogin}
+          onClick={() => navigate('/auth?tab=login')}
+        >
+          {t("login")}
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          className={styles.btnRegister}
+          onClick={() => navigate('/auth?tab=signup')}
+        >
+          {t("register")}
+        </Button>
       </div>
     </div>
   );

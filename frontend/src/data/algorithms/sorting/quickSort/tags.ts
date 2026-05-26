@@ -1,0 +1,10 @@
+export const TAGS = {
+  INIT: "INIT",
+  CALL: "CALL",
+  PARTITION_START: "PARTITION_START",
+  COMPARE: "COMPARE",
+  SWAP: "SWAP",
+  PIVOT_SET: "PIVOT_SET",
+  BASE_CASE: "BASE_CASE",
+  DONE: "DONE",
+} as const;

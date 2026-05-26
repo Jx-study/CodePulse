@@ -93,7 +93,8 @@ const authService = {
   },
 
   async getStatus(): Promise<AuthStatusResponse> {
-    const res = await apiService.get<AuthStatusResponse>('/api/auth/status');
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const res = await apiService.get<AuthStatusResponse>(`/api/auth/status?timezone=${encodeURIComponent(timezone)}`);
     return res.data;
   },
 

@@ -1,0 +1,11 @@
+.bgGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 2px, transparent 1px),
+    linear-gradient(90deg, var(--border) 2px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+  opacity: 0.5;
+  z-index: 0;
+}

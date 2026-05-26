@@ -16,21 +16,12 @@ const difficultyVariant: Record<number, BadgeProps['variant']> = {
   5: 'danger',
 };
 
-const difficultyLabel: Record<number, string> = {
-  1: '非常簡單',
-  2: '簡單',
-  3: '中等',
-  4: '困難',
-  5: '非常困難',
-};
-
 function LevelDialog({
   level,
   isOpen,
   onClose,
   onStartTutorial,
   onStartPractice,
-  onCompleteLevel,
   userProgress,
   tutorialLocked,
   practiceLocked,
@@ -47,7 +38,9 @@ function LevelDialog({
 
   const difficultyBadge = (
     <Badge variant={difficultyVariant[level.difficulty] ?? 'secondary'} size="sm" shape="pill">
-      {difficultyLabel[level.difficulty] ?? '未知'}
+      {t(`levelDialog.difficulty.${level.difficulty}`, {
+        defaultValue: t("levelDialog.unknownDifficulty"),
+      })}
     </Badge>
   );
 
@@ -55,7 +48,9 @@ function LevelDialog({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={`關卡 : ${t(`levels.${level.id.replace(/-/g, '_')}.name`)}`}
+      title={t("levelDialog.title", {
+        levelName: t(`levels.${level.id.replace(/-/g, '_')}.name`),
+      })}
       subtitle={difficultyBadge}
       size="lg"
       closeOnOverlayClick={true}
@@ -67,17 +62,17 @@ function LevelDialog({
       <TutorialSection
         level={level}
         onStartTutorial={onStartTutorial}
-        isCompleted={userProgress.status === "completed"}
+        isCompleted={userProgress.teachingCompleted === true}
         isLocked={tutorialLocked}
         suggestedLevelNames={suggestedLevelNames}
       />
       <PracticeSection
         level={level}
         onStartPractice={onStartPractice}
-        onCompleteLevel={onCompleteLevel}
         bestStars={userProgress.stars}
         attempts={userProgress.attempts}
         bestTime={userProgress.bestTime}
+        bestScore={userProgress.bestScore}
         isLocked={practiceLocked}
         prerequisiteInfo={prerequisiteInfo}
       />

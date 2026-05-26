@@ -149,7 +149,7 @@ const generateFrame = (
   statusMap: Record<string, Status>,
   description: string,
   actionTag?: string,
-  variables?: Record<string, string | number | boolean | null>,
+  local_vars?: Record<string, string | number | boolean | null>,
   linkStatusMap: Record<string, linkStatus> = {},
 ): AnimationStep => {
   const root = buildBST(inputData);
@@ -167,10 +167,6 @@ const generateFrame = (
         el.value = String(Math.round(Number(el.value)));
       }
 
-      const logicNode = uniqueData.find((d) => d.id === el.id);
-      if (logicNode) {
-        el.description = `Count: ${logicNode.count}`;
-      }
     }
   });
 
@@ -190,7 +186,7 @@ const generateFrame = (
     elements: [...treeElements],
     links,
     actionTag,
-    variables,
+    local_vars,
   };
 };
 
@@ -254,7 +250,7 @@ function runInsert(inputData: any[]): AnimationStep[] {
     if (newValue === curr.value) {
       statusMap[curr.id] = Status.Complete;
       pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
+        updateLinkStatus(linkStatusMap, u, v, "complete", false),
       );
       steps.push(
         generateFrame(
@@ -271,7 +267,7 @@ function runInsert(inputData: any[]): AnimationStep[] {
     if (newValue < curr.value) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
@@ -303,7 +299,7 @@ function runInsert(inputData: any[]): AnimationStep[] {
     } else {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
@@ -338,9 +334,9 @@ function runInsert(inputData: any[]): AnimationStep[] {
   if (curr) {
     statusMap[curr.id] = Status.Unfinished;
     pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
+      updateLinkStatus(linkStatusMap, u, v, "unfinished", false),
     );
-    updateLinkStatus(linkStatusMap, curr.id, newNodeData.id, "complete", true);
+    updateLinkStatus(linkStatusMap, curr.id, newNodeData.id, "complete", false);
   }
   steps.push(
     generateFrame(
@@ -411,7 +407,7 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
     if (targetValue === curr.value) {
       statusMap[curr.id] = Status.Complete;
       searchPathLinks.forEach(({ u, v }) => {
-        updateLinkStatus(linkStatusMap, u, v, "complete", true);
+        updateLinkStatus(linkStatusMap, u, v, "complete", false);
       });
       steps.push(
         generateFrame(
@@ -428,7 +424,7 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
     } else if (targetValue < curr.value) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
         searchPathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
@@ -460,7 +456,7 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
     } else {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
         searchPathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
@@ -491,7 +487,10 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
       }
     }
   }
-  if (!found)
+  if (!found) {
+    searchPathLinks.forEach(({ u, v }) => {
+      updateLinkStatus(linkStatusMap, u, v, "unfinished", false);
+    });
     steps.push(
       generateFrame(
         inputData,
@@ -502,6 +501,7 @@ function runSearch(inputData: any[], targetValue: number): AnimationStep[] {
         { ...linkStatusMap },
       ),
     );
+  }
   return steps;
 }
 
@@ -570,7 +570,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       foundNode = curr;
       statusMap[curr.id] = Status.Complete;
       pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
+        updateLinkStatus(linkStatusMap, u, v, "complete", false),
       );
       steps.push(
         generateFrame(
@@ -588,7 +588,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     if (targetValue < curr.value) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
@@ -620,7 +620,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     } else {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
@@ -654,7 +654,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
 
   if (!foundNode) {
     pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "path", true),
+      updateLinkStatus(linkStatusMap, u, v, "unfinished", false),
     );
 
     steps.push(
@@ -736,7 +736,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
       return d;
     });
 
-    updateLinkStatus(linkStatusMap, targetId, child!.id, "visited", true);
+    updateLinkStatus(linkStatusMap, targetId, child!.id, "target", false);
 
     steps.push(
       generateFrame(
@@ -776,7 +776,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     let successor = foundNode.right;
 
     statusMap[successor!.id] = Status.Prepare;
-    updateLinkStatus(linkStatusMap, foundNode.id, successor!.id, "path", true);
+    updateLinkStatus(linkStatusMap, foundNode.id, successor!.id, "prepare", true);
     successorPathLinks.push({ u: foundNode.id, v: successor!.id });
     steps.push(
       generateFrame(
@@ -796,7 +796,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
         linkStatusMap,
         successor!.id,
         successor!.left.id,
-        "path",
+        "prepare",
         true,
       );
       successorPathLinks.push({ u: successor!.id, v: successor!.left.id });
@@ -816,7 +816,7 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
 
     statusMap[successor!.id] = Status.Complete;
     successorPathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
+      updateLinkStatus(linkStatusMap, u, v, "complete", false),
     );
     steps.push(
       generateFrame(
@@ -851,10 +851,14 @@ function runDelete(inputData: any[], targetValue: number): AnimationStep[] {
     );
 
     const finalData = getBSTArrayAfterDelete(inputData, targetValue);
+    const finalStatusMap: Record<string, Status> = {
+      [targetId]: Status.Complete,
+    };
+
     steps.push(
       generateFrame(
         finalData,
-        {},
+        finalStatusMap,
         `移除原本的後繼者節點 ${successor!.value}，重組結構，刪除完成`,
         TAGS.DEL_SUCCESSOR_REMOVE,
         getVars(),
@@ -903,7 +907,7 @@ function runMin(inputData: any[]): AnimationStep[] {
       ),
     );
     statusMap[curr.left.id] = Status.Prepare;
-    updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+    updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
     pathLinks.push({ u: curr.id, v: curr.left.id });
     steps.push(
       generateFrame(
@@ -921,7 +925,7 @@ function runMin(inputData: any[]): AnimationStep[] {
   }
   statusMap[curr.id] = Status.Complete;
   pathLinks.forEach(({ u, v }) => {
-    updateLinkStatus(linkStatusMap, u, v, "complete", true);
+    updateLinkStatus(linkStatusMap, u, v, "unfinished", false);
   });
   steps.push(
     generateFrame(
@@ -973,7 +977,7 @@ function runMax(inputData: any[]): AnimationStep[] {
       ),
     );
     statusMap[curr.right.id] = Status.Prepare;
-    updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+    updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
     pathLinks.push({ u: curr.id, v: curr.right.id });
     steps.push(
       generateFrame(
@@ -991,7 +995,7 @@ function runMax(inputData: any[]): AnimationStep[] {
   }
   statusMap[curr.id] = Status.Complete;
   pathLinks.forEach(({ u, v }) => {
-    updateLinkStatus(linkStatusMap, u, v, "complete", true);
+    updateLinkStatus(linkStatusMap, u, v, "unfinished", false);
   });
   steps.push(
     generateFrame(
@@ -1051,7 +1055,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
       if (floorNode) statusMap[floorNode.id] = Status.Unfinished;
       statusMap[curr.id] = Status.Complete;
       pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
+        updateLinkStatus(linkStatusMap, u, v, "complete", false),
       );
       steps.push(
         generateFrame(
@@ -1069,7 +1073,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
     if (curr.value > targetValue) {
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
@@ -1102,7 +1106,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
       statusMap[curr.id] = Status.Complete;
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
@@ -1133,7 +1137,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
   }
   if (floorNode) {
     pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
+      updateLinkStatus(linkStatusMap, u, v, "unfinished", false),
     );
     steps.push(
       generateFrame(
@@ -1147,7 +1151,7 @@ function runFloor(inputData: any[], targetValue: number): AnimationStep[] {
     );
   } else {
     pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "visited", true),
+      updateLinkStatus(linkStatusMap, u, v, Status.Unfinished as linkStatus, false),
     );
     steps.push(
       generateFrame(
@@ -1206,7 +1210,7 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
       if (ceilNode) statusMap[ceilNode.id] = Status.Unfinished;
       statusMap[curr.id] = Status.Complete;
       pathLinks.forEach(({ u, v }) =>
-        updateLinkStatus(linkStatusMap, u, v, "complete", true),
+        updateLinkStatus(linkStatusMap, u, v, "complete", false),
       );
       steps.push(
         generateFrame(
@@ -1223,7 +1227,7 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
     if (curr.value < targetValue) {
       if (curr.right) {
         statusMap[curr.right.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.right.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.right.id });
         steps.push(
           generateFrame(
@@ -1256,7 +1260,7 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
       statusMap[curr.id] = Status.Complete;
       if (curr.left) {
         statusMap[curr.left.id] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "path", true);
+        updateLinkStatus(linkStatusMap, curr.id, curr.left.id, "prepare", true);
         pathLinks.push({ u: curr.id, v: curr.left.id });
         steps.push(
           generateFrame(
@@ -1287,7 +1291,7 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
   }
   if (ceilNode) {
     pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "complete", true),
+      updateLinkStatus(linkStatusMap, u, v, "unfinished", false),
     );
     steps.push(
       generateFrame(
@@ -1301,7 +1305,7 @@ function runCeil(inputData: any[], targetValue: number): AnimationStep[] {
     );
   } else {
     pathLinks.forEach(({ u, v }) =>
-      updateLinkStatus(linkStatusMap, u, v, "visited", true),
+      updateLinkStatus(linkStatusMap, u, v, Status.Unfinished as linkStatus, false),
     );
     steps.push(
       generateFrame(
@@ -1748,6 +1752,10 @@ def ceil(root, target):
 export const BinarySearchTreeConfig: LevelImplementationConfig = {
   id: "bst",
   type: "dataStructure",
+  linkAnimConfig: {
+    animateOn: ["prepare"],
+    directOn: ["target", "complete"],
+  },
   name: "二元搜尋樹 (BST)",
   categoryName: "資料結構",
   description:

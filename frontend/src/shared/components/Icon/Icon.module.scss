@@ -51,7 +51,13 @@
     color: $white-color;
   }
 
-  &--danger {
+  &--save,
+  &--success {
+    color: $success-color;
+  }
+
+  &--danger,
+  &--error {
     color: $error-color;
   }
 
