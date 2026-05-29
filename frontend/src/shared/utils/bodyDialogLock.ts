@@ -9,8 +9,11 @@ export function lockBodyForDialog() {
   }
 
   openOverlayCount += 1;
+  let called = false;
 
   return () => {
+    if (called) return;
+    called = true;
     openOverlayCount = Math.max(0, openOverlayCount - 1);
 
     if (openOverlayCount === 0) {
