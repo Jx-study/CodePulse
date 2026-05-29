@@ -122,7 +122,7 @@ const CanvasPanel = ({
   d3CanvasRef,
   useGraphCanvas,
 }: CanvasPanelProps) => {
-  const { t } = useTranslation("animation");
+  const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
   const {
     attributes,
     listeners,
@@ -456,14 +456,12 @@ function TutorialContent() {
   const sessionStartRef = useRef<number>(Date.now());
 
   // Teaching Complete
-  const [teachingDone, setTeachingDone] = useState(false);
   const teachingDoneRef = useRef(false);
   const handleTeachingComplete = async () => {
     if (teachingDoneRef.current || !isAuthenticated || !levelId) return;
     try {
       const res = await tutorialService.markTeachingComplete(levelId);
       teachingDoneRef.current = true;
-      setTeachingDone(true);
       if (res.xp_earned > 0) {
         xp.show(res.xp_earned);
       }
@@ -477,7 +475,6 @@ function TutorialContent() {
 
     // Reset teaching state for the new level
     teachingDoneRef.current = false;
-    setTeachingDone(false);
 
     sessionStartRef.current = Date.now();
     tutorialService
@@ -761,7 +758,12 @@ function TutorialContent() {
 
   // 重設：回到預設 10, 40, 30, 20
   const handleResetData = () => {
-    executeAction("reset", { hasTailMode, mode: viewMode, isDirected, isDoubly: listMode === "doubly" });
+    executeAction("reset", {
+      hasTailMode,
+      mode: viewMode,
+      isDirected,
+      isDoubly: listMode === "doubly",
+    });
     setCurrentStep(0);
     setIsPlaying(false);
   };
@@ -781,6 +783,28 @@ function TutorialContent() {
         isDirected,
         isDoubly: listMode === "doubly",
       });
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
+    if (raw.startsWith("TRIE:")) {
+      // 拔掉 "TRIE:" 前綴，然後用空白切成純字串陣列
+      const wordsStr = raw.replace("TRIE:", "").trim();
+      const parsedWords = wordsStr ? wordsStr.split(" ") : [];
+
+      if (parsedWords.length === 0) {
+        toast.warning("請輸入有效的單字清單");
+        return;
+      }
+
+      const steps = executeAction("load", {
+        data: parsedWords,
+        hasTailMode,
+      });
+
       if (steps && steps.length > 0) {
         setCurrentStep(0);
         setIsPlaying(false);
@@ -1116,7 +1140,7 @@ function TutorialContent() {
               size="sm"
               onClick={() => setShowFeatureTour(true)}
               title="開啟功能導覽"
-              icon="question-circle"
+              icon="circle-question"
               iconOnly
             />
             <Button

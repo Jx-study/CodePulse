@@ -4,6 +4,18 @@
  */
 
 // ==========================================
+// 視覺類型
+// ==========================================
+
+export type VisualType = "none" | "image";
+
+export interface ImageVisualData {
+  url: string;
+}
+
+export type VisualData = ImageVisualData | null;
+
+// ==========================================
 // 題目類型
 // ==========================================
 
@@ -36,7 +48,10 @@ export interface Question {
     description?: string;
     code: string | null;
     language: string | null;
-  };
+    visual_type: VisualType;
+    visual_data: VisualData;
+    visual_alt: string | null;
+  } | null;
 }
 
 export interface QuestionGroup {

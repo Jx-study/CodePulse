@@ -26,7 +26,7 @@
   &.undeveloped {
     background: $level-undeveloped-bg;
     border-color: rgba($black-color, 0.2);
-    cursor: not-allowed;
+    cursor: help;
     box-shadow: $shadow-sm;
   }
 

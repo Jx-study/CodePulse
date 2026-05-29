@@ -1,4 +1,5 @@
 import apiService from "@/api/api";
+import type { VisualType, VisualData } from "@/types/practice";
 
 export interface SessionResponse {
   success: boolean;
@@ -24,7 +25,10 @@ export interface ApiQuestion {
     description: string;
     code: string | null;
     language: string | null;
-  };
+    visual_type: VisualType;
+    visual_data: VisualData;
+    visual_alt: string | null;
+  } | null;
 }
 
 export interface QuestionsResponse {
@@ -41,6 +45,7 @@ export interface QuestionTranslationMap {
 export interface GroupTranslationMap {
   title: string;
   description: string | null;
+  visual_alt: string | null;
 }
 
 export interface TranslationsResponse {

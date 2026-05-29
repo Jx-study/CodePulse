@@ -9,6 +9,7 @@ import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree/BinaryTr
 import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree/BinarySearchTree";
 import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
 import { HeapConfig } from "../DataStructure/nonlinear/Heap/Heap";
+import { TrieConfig } from "../DataStructure/nonlinear/Trie/Trie";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
@@ -44,6 +45,7 @@ export const implementationsMap: ImplementationMap = {
   bst: BinarySearchTreeConfig,
   graph: GraphConfig,
   heap: HeapConfig,
+  trie: TrieConfig,
 
   // Algorithms
   bubbleSort: bubbleSortConfig,

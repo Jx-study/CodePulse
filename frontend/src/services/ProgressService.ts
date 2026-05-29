@@ -53,7 +53,6 @@ export const INITIAL_USER_PROGRESS: UserProgress = {
     "portal-to-searching": { levelId: "portal-to-searching", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     // Searching
     "binary-search": { levelId: "binary-search", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "linear-search": { levelId: "linear-search", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     "prefix-sum": { levelId: "prefix-sum", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     "portal-to-graph": { levelId: "portal-to-graph", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
     // Graph

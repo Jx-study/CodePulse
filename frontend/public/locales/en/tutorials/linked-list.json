@@ -1,0 +1,50 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "The core idea of a linked list is: **nodes connected by pointers**.",
+        "items": [
+          "Each node stores a **value** and uses **next** to point to the following node.",
+          "Nodes do not need to be contiguous in memory; pointer links define the order.",
+          "A singly linked list only moves forward; a doubly linked list adds **prev** so you can move backward.",
+          "With a **tail pointer**, appending at the end avoids walking from head to the last node."
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "To estimate linked list operation cost, ask: **Do we already have the target node, or do we need to traverse first?**",
+        "items": [
+          "**Head insert/delete**: update the head pointer directly, time complexity [[success|O(1)]].",
+          "**Tail insert**: [[success|O(1)]] with a tail pointer; [[warning|O(n)]] without one because you must traverse.",
+          "**Search / access by index**: move from head node by node; worst case [[warning|O(n)]].",
+          "**Middle insert/delete**: [[success|O(1)]] if you already have the previous node; if you only know an index, finding the position still costs [[warning|O(n)]]."
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "When To Use It",
+        "content": "Linked lists are strong for **local rewiring, node reordering, and pointer techniques**.",
+        "items": [
+          "Good for frequent insertions or deletions at the head.",
+          "Good for **fast and slow pointer** patterns: finding the middle, detecting cycles, or locating an intersection.",
+          "Good for reversing a list, merging sorted lists, and removing nodes by reconnecting links.",
+          "When data size changes often and random access is not needed, it can feel more natural than an array."
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When To Avoid It",
+        "content": "Linked lists are usually not the first choice when the problem needs:",
+        "items": [
+          "Frequent reads of the **k-th element**, because each access starts from the head.",
+          "Cache-friendly sequential scans; scattered nodes reduce locality.",
+          "Index-based binary search or fast jumps; arrays are usually better for that.",
+          "Small, simple data where pointer bookkeeping costs more than it helps."
+        ],
+        "icon": "location-crosshairs"
+      }
+    ]
+  }
+}

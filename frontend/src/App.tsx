@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./shared/contexts/AuthContext";
 import { ToastContainer } from "@/shared/components/Toast";
 import CheckinDialog from "@/modules/user/components/CheckinDialog";
 import XpFloat from "@/shared/components/XpFloat";
+import ScrollToTop from "@/shared/components/ScrollToTop";
 
 // Layouts
 import MainLayout from "./shared/layouts/MainLayout";
@@ -31,6 +32,8 @@ import OAuthCallback from "./pages/Authentication/OAuthCallback";
 import Lab from "./pages/Explorer/Lab";
 import Playground from "./pages/Explorer/Playground/Playground";
 import About from "./pages/About/About";
+const Guide = lazy(() => import("./pages/Guide"));
+const FAQ = lazy(() => import("./pages/FAQ"));
 const Tutorial = lazy(() => import("./pages/Tutorial/Tutorial"));
 const Practice = lazy(() => import("./pages/Practice/Practice"));
 const Explorer = lazy(() => import("./pages/Explorer/Explorer"));
@@ -38,6 +41,7 @@ const LearningDashboard = lazy(
   () => import("./pages/LearningDashboard/LearningDashboard"),
 );
 import ProtectedRoute from "./shared/components/ProtectedRoute";
+import GuestRoute from "./shared/components/GuestRoute";
 import WelcomeOverlay from "./modules/auth/components/WelcomeOverlay";
 
 function CheckinWrapper() {
@@ -95,6 +99,7 @@ function App() {
       <ThemeApplier />
       <CheckinWrapper />
       <WelcomeWrapper />
+      <ScrollToTop />
       <ToastContainer />
       <XpFloat />
       <Suspense fallback={<PageSkeleton />}>
@@ -148,15 +153,19 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/explorer/playground" element={<Playground />} />
             </Route>
+            <Route path="/guide" element={<Guide />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/about" element={<About />} />
           </Route>
 
           {/* 登入页面布局 */}
           <Route path="/auth" element={<AuthLayout />}>
-            <Route index element={<AuthPage />} />
-            <Route path="verify-email" element={<VerifyEmailPage />} />
-            <Route path="forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="reset-password" element={<ResetPasswordPage />} />
+            <Route element={<GuestRoute />}>
+              <Route index element={<AuthPage />} />
+              <Route path="verify-email" element={<VerifyEmailPage />} />
+              <Route path="forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="reset-password" element={<ResetPasswordPage />} />
+            </Route>
             <Route path="callback" element={<OAuthCallback />} />
             <Route path="onboarding" element={<AuthPage />} />
             <Route path="survey" element={<Navigate to="/" replace />} />
