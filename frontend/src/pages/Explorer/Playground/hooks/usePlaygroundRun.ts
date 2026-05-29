@@ -23,9 +23,9 @@ export function handleDuplicateReplay(
   showDuplicateToast: () => void,
   loadFromHistory: (record: PlaygroundHistoryRecord) => void,
   delayMs = 3000,
-): void {
+): number {
   showDuplicateToast();
-  window.setTimeout(() => {
+  return window.setTimeout(() => {
     loadFromHistory(record);
   }, delayMs);
 }
@@ -53,6 +53,7 @@ export function usePlaygroundRun({
   const [isAlgoDialogOpen, setIsAlgoDialogOpen] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
+  const duplicateTimerRef = useRef<number | null>(null);
 
   const handleEditCode = useCallback(() => {
     onResetPlayback();
@@ -70,6 +71,10 @@ export function usePlaygroundRun({
   }, [editorRef, onResetPlayback]);
 
   const loadFromHistory = useCallback((record: PlaygroundHistoryRecord) => {
+    if (duplicateTimerRef.current !== null) {
+      clearTimeout(duplicateTimerRef.current);
+      duplicateTimerRef.current = null;
+    }
     setTrace(record.execution_trace);
     setRawTrace(record.raw_trace);
     setRawIndexMap(record.raw_index_map);
@@ -137,6 +142,11 @@ export function usePlaygroundRun({
       // If quota check fails, continue with run anyway
     }
 
+    if (duplicateTimerRef.current !== null) {
+      clearTimeout(duplicateTimerRef.current);
+      duplicateTimerRef.current = null;
+    }
+
     // Cancel any in-flight request
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -180,7 +190,7 @@ export function usePlaygroundRun({
         switch (e.type) {
           case "duplicate_code":
             if (e.duplicateRecord) {
-              handleDuplicateReplay(
+              duplicateTimerRef.current = handleDuplicateReplay(
                 e.duplicateRecord,
                 () => toast.info(t("run.duplicateCode")),
                 loadFromHistory,

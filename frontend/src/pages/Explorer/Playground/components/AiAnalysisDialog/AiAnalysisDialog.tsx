@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Dialog from "@/shared/components/Dialog";
 import { SkeletonText } from "@/shared/components/Skeleton";
@@ -26,6 +26,10 @@ export function AiAnalysisDialog({
 }: AiAnalysisDialogProps) {
   const [activeTab, setActiveTab] = useState<DialogTab>("complexity");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isOpen) setActiveTab("complexity");
+  }, [isOpen]);
 
   const isLoading = runStage === "analysis" || (runStage !== "done" && aiResult === null);
   // TODO: sentry — log when analysis completes with no result (backend returned null)
