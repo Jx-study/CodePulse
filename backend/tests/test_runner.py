@@ -418,5 +418,31 @@ class TestRunTraceWithStdinInputs:
         assert exc_info.value.prompt == "first: "
         assert exc_info.value.input_index == 0
 
+    def test_input_value_echoed_inline_with_prompt(self, _mark_sandbox):
+        # 模擬終端機：input("name: ") 輸入 alice → prompt 與輸入值拼在同一行 "name: alice"
+        # print(x) 再印一行 "alice"
+        from tracer import run_trace
+        code = 'x = input("name: ")\nprint(x)'
+        result = run_trace(code, stdin_inputs=["alice"])
+        texts = [ev["text"] for ev in result.stdout_events]
+        assert texts == ["name: alice", "alice"]
+
+    def test_input_value_echoed_when_no_prompt(self, _mark_sandbox):
+        # 無 prompt 的 input()：終端機仍會 echo 使用者按鍵，故單獨成一行 "42"
+        # print(x) 再印一行 "42"
+        from tracer import run_trace
+        code = 'x = input()\nprint(x)'
+        result = run_trace(code, stdin_inputs=["42"])
+        texts = [ev["text"] for ev in result.stdout_events]
+        assert texts == ["42", "42"]
+
+    def test_multi_input_echoed_inline(self, _mark_sandbox):
+        # 多個 input：各自 prompt 與輸入值同行
+        from tracer import run_trace
+        code = 'a = input("a: ")\nb = input("b: ")\nprint(int(a) + int(b))'
+        result = run_trace(code, stdin_inputs=["2", "3"])
+        texts = [ev["text"] for ev in result.stdout_events]
+        assert texts == ["a: 2", "b: 3", "5"]
+
     # NOTE: random seed determinism test 已移除 — 隨 D4/D5 拆出至獨立 plan
     # 該測試需要 sandbox 允許 `import random`，但本 plan 不碰 __import__ allowlist

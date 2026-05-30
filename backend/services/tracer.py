@@ -121,13 +121,16 @@ def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceRes
 
     def _traced_input(prompt=""):
         prompt_str = str(prompt) if prompt else ""
-        if prompt_str:
-            stdout_events.append({"step": len(trace_log), "text": prompt_str})
         if not _stdin_queue:
+            # queue 用罄才彈窗，此時還沒拿到輸入值，先只記 prompt（若有）
+            if prompt_str:
+                stdout_events.append({"step": len(trace_log), "text": prompt_str})
             raise InputNeededError(prompt=prompt_str, input_index=_input_call_count[0])
         value = _stdin_queue.pop(0)
         _input_call_count[0] += 1
-        stdout_events.append({"step": len(trace_log), "text": value})
+        # 模擬終端機：prompt 與使用者輸入值拼在同一行（像 `a: 2`），重現 REPL 體驗
+        # 無 prompt 時輸入值單獨成一行（終端機仍會 echo 按鍵）
+        stdout_events.append({"step": len(trace_log), "text": prompt_str + value})
         return value
 
     call_graph = CallGraph()
