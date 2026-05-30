@@ -8,6 +8,7 @@
   },
   "ui": {
     "editCode": "編輯程式碼",
+    "rerun": "重新執行",
     "run": "執行",
     "tabAnimation": "演算法動畫",
     "tabGraph": "呼叫圖 / CFG",

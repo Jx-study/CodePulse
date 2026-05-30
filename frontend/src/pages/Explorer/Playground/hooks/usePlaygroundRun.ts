@@ -164,7 +164,7 @@ export function usePlaygroundRun({
   // 包裝 analyzeRun 成 retry loop：遇到 InputNeededError 就開彈窗收輸入，
   // append 到 stdinInputsRef 後重送（Python Tutor 重跑模式）；saveHistory 必須一路透傳（D7）
   const runWithInputRetry = useCallback(
-    async (controller: AbortController, options: { saveHistory: boolean }) => {
+    async (controller: AbortController, options: { saveHistory: boolean; forceRun?: boolean }) => {
       while (true) {
         try {
           return await analyzeRun(
@@ -174,7 +174,7 @@ export function usePlaygroundRun({
             {
               saveHistory: options.saveHistory,
               stdinInputs: [...stdinInputsRef.current],
-              isRetry: stdinInputsRef.current.length > 0,
+              isRetry: options.forceRun || stdinInputsRef.current.length > 0,
             },
           );
         } catch (err) {
@@ -200,7 +200,7 @@ export function usePlaygroundRun({
     [code],
   );
 
-  const handleRun = useCallback(async () => {
+  const handleRun = useCallback(async (forceRun = false) => {
     if (!code.trim()) {
       toast.error(t("run.emptyCode"));
       return;
@@ -209,7 +209,7 @@ export function usePlaygroundRun({
     let saveHistory = true;
     stdinInputsRef.current = []; // 新一次 run：清掉上一輪累積的 stdin
 
-    // Quota gate
+    // Quota gate（forceRun 時仍需 quota 檢查，但不做 duplicate 攔截）
     try {
       const records = await listHistory();
       if (records.length >= 5) {
@@ -244,7 +244,7 @@ export function usePlaygroundRun({
     setAppliedAlgo(null);
 
     try {
-      const result = await runWithInputRetry(controller, { saveHistory });
+      const result = await runWithInputRetry(controller, { saveHistory, forceRun });
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
       setRawIndexMap(result.rawIndexMap);
@@ -333,6 +333,7 @@ export function usePlaygroundRun({
     setIsAlgoDialogOpen,
     handleRun,
     handleEditCode,
+    handleForceRun: () => handleRun(true),
     loadFromHistory,
     inputPrompt,
   };

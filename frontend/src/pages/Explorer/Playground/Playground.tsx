@@ -148,6 +148,7 @@ function Playground() {
     isAlgoDialogOpen,
     setIsAlgoDialogOpen,
     handleRun,
+    handleForceRun,
     handleEditCode,
     loadFromHistory,
     inputPrompt,
@@ -288,21 +289,33 @@ function Playground() {
                       <span className={styles.filename}>main.py</span>
                     </div>
                     {isLocked ? (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        className={styles.editCodeBtn}
-                        onClick={handleEditCode}
-                        icon="pen-to-square"
-                      >
-                        {t("ui.editCode")}
-                      </Button>
+                      <div className={styles.editorBtnGroup}>
+                        {runStage === "done" && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleForceRun}
+                            icon="rotate-right"
+                          >
+                            {t("ui.rerun")}
+                          </Button>
+                        )}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          className={styles.editCodeBtn}
+                          onClick={handleEditCode}
+                          icon="pen-to-square"
+                        >
+                          {t("ui.editCode")}
+                        </Button>
+                      </div>
                     ) : (
                       <Button
                         variant="secondary"
                         size="sm"
                         className={styles.runBtn}
-                        onClick={handleRun}
+                        onClick={() => handleRun()}
                         disabled={false}
                         icon="play"
                       >
