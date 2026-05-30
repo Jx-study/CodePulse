@@ -26,6 +26,10 @@ import pytest
 RUNNER_PATH = os.path.join(os.path.dirname(__file__), "..", "docker", "runner.py")
 SERVICES_PATH = os.path.join(os.path.dirname(__file__), "..", "services")
 
+# TestRunTraceWithStdinInputs imports `run_trace` directly (not via subprocess),
+# so services/ must be importable in-process. Subprocess tests use PYTHONPATH instead.
+sys.path.insert(0, SERVICES_PATH)
+
 
 def run_runner(code: str | None, *, extra_env: dict | None = None) -> tuple[dict, int]:
     """
@@ -365,3 +369,54 @@ class TestOutputFormat:
         data, rc = run_runner(SIMPLE_CODE)
         assert rc == 0
         assert data["step_count"] == len(data["trace"])
+
+
+# ---------------------------------------------------------------------------
+# 7. Interactive input() — run_trace 直接單元測試（Task 1）
+# ---------------------------------------------------------------------------
+# 與上方 subprocess 風格不同：這組直接 import run_trace 在 process 內呼叫，
+# 因此需要 monkeypatch SANDBOX_CONTAINER guard
+
+
+@pytest.fixture
+def _mark_sandbox(monkeypatch):
+    """run_trace() 有 SANDBOX_CONTAINER guard（tracer.py），直接單元測試需繞過。"""
+    monkeypatch.setenv("SANDBOX_CONTAINER", "1")
+
+
+class TestRunTraceWithStdinInputs:
+    def test_input_consumed_from_list(self, _mark_sandbox):
+        from tracer import run_trace
+        code = 'x = input("Enter: ")\nprint(x)'
+        result = run_trace(code, stdin_inputs=["hello"])
+        assert result.step_count > 0
+        assert result.is_truncated is False
+
+    def test_input_value_visible_in_locals(self, _mark_sandbox):
+        from tracer import run_trace
+        code = 'x = input()\nprint(x)'
+        result = run_trace(code, stdin_inputs=["42"])
+        assigned = any(
+            ev.tag == "LINE" and ev.local_vars.get("x") == "'42'"
+            for ev in result.trace
+        )
+        assert assigned
+
+    def test_input_needed_when_queue_empty(self, _mark_sandbox):
+        from tracer import run_trace, InputNeededError
+        code = 'a = input("name: ")\nb = input("age: ")'
+        with pytest.raises(InputNeededError) as exc_info:
+            run_trace(code, stdin_inputs=["alice"])
+        assert exc_info.value.prompt == "age: "
+        assert exc_info.value.input_index == 1
+
+    def test_input_needed_first_call(self, _mark_sandbox):
+        from tracer import run_trace, InputNeededError
+        code = 'x = input("first: ")'
+        with pytest.raises(InputNeededError) as exc_info:
+            run_trace(code, stdin_inputs=[])
+        assert exc_info.value.prompt == "first: "
+        assert exc_info.value.input_index == 0
+
+    # NOTE: random seed determinism test 已移除 — 隨 D4/D5 拆出至獨立 plan
+    # 該測試需要 sandbox 允許 `import random`，但本 plan 不碰 __import__ allowlist

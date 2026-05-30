@@ -16,6 +16,19 @@ if TYPE_CHECKING:
     from services.cfg_builder import CfgGraph
 
 
+class InputNeededError(Exception):
+    """Raised when user code calls input() but stdin_inputs queue is exhausted.
+
+    Carries the prompt and the index of the input call (0-based) so the
+    frontend can render a labeled input dialog and resume by appending the
+    user's value to stdin_inputs and resubmitting.
+    """
+    def __init__(self, prompt: str, input_index: int):
+        super().__init__(f"input_needed at index {input_index}: {prompt!r}")
+        self.prompt = prompt
+        self.input_index = input_index
+
+
 MAX_TRACE_STEPS = 2000
 
 RESTRICTED_BUILTINS = {
@@ -86,7 +99,7 @@ class TraceResult:
 # 核心 tracer
 # ---------------------------------------------------------------------------
 
-def run_trace(user_code: str) -> TraceResult:
+def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceResult:
     """
     執行 user_code，收集 TraceEvent[] 並建構 CallGraph。
     執行緒安全：所有狀態以閉包封裝。
@@ -103,6 +116,20 @@ def run_trace(user_code: str) -> TraceResult:
     trace_log: list[TraceEvent] = []
     is_truncated = False
     stdout_events: list[dict] = []
+
+    _stdin_queue = list(stdin_inputs or [])
+    _input_call_count = [0]  # mutable container for closure
+
+    def _traced_input(prompt=""):
+        prompt_str = str(prompt) if prompt else ""
+        if prompt_str:
+            stdout_events.append({"step": len(trace_log), "text": prompt_str})
+        if not _stdin_queue:
+            raise InputNeededError(prompt=prompt_str, input_index=_input_call_count[0])
+        value = _stdin_queue.pop(0)
+        _input_call_count[0] += 1
+        stdout_events.append({"step": len(trace_log), "text": value})
+        return value
 
     call_graph = CallGraph()
     call_stack: list[str] = []   # func_name stack
@@ -219,6 +246,7 @@ def run_trace(user_code: str) -> TraceResult:
                 if hasattr(_builtins_module, k)
             },
             "print": _traced_print,
+            "input": _traced_input,
         },
         "__name__": "__main__",
     }
@@ -226,6 +254,8 @@ def run_trace(user_code: str) -> TraceResult:
     sys.settrace(tracer)
     try:
         exec(user_code, sandboxed_globals)  # noqa: S102
+    except InputNeededError:
+        raise  # 由 runner 層 catch 並轉為結構化 JSON 輸出，不要被泛用 except 吃掉
     finally:
         sys.settrace(None)
 
