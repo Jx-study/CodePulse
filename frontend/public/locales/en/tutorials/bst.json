@@ -15,9 +15,9 @@
         "heading": "Operation Complexity",
         "content": "Performance depends entirely on tree height. A balanced tree halves the data at each step, but a degenerate tree that collapses into a one-sided linked list sees performance drop sharply.",
         "items": [
-          "Search: compare keys and walk downward — average `[[success|O(log n)]]`, worst-case degrades to `[[danger|O(n)]]`",
-          "Insert: traverse to the correct empty position — average `[[success|O(log n)]]`, worst-case degrades to `[[danger|O(n)]]`",
-          "Delete: locate a predecessor or successor based on child count — average `[[success|O(log n)]]`, worst-case degrades to `[[danger|O(n)]]`"
+          "Search: compare keys and walk downward — average [[success|O(log n)]], worst-case degrades to [[danger|O(n)]]",
+          "Insert: traverse to the correct empty position — average [[success|O(log n)]], worst-case degrades to [[danger|O(n)]]",
+          "Delete: locate a predecessor or successor based on child count — average [[success|O(log n)]], worst-case degrades to [[danger|O(n)]]"
         ],
         "icon": "cog"
       },
@@ -47,20 +47,20 @@
         "heading": "Node Deletion Mechanics",
         "content": "Deletion is more complex than insertion — it must be handled differently depending on how many children the target node has. The **two-children** case, which requires finding a replacement, is the most involved and the most common sticking point for beginners.",
         "items": [
-          "When the target has **no children**, simply remove the **leaf node** — no structural repair needed, `[[success|O(1)]]` extra work",
-          "When the target has **one child**, remove the node and link its single child directly to the parent — `[[success|O(1)]]` extra work",
-          "When the target has **two children**, spend `[[warning|O(h)]]` finding the **right subtree minimum** or **left subtree maximum** to replace it"
+          "When the target has **no children**, simply remove the **leaf node** — no structural repair needed, [[success|O(1)]] extra work",
+          "When the target has **one child**, remove the node and link its single child directly to the parent — [[success|O(1)]] extra work",
+          "When the target has **two children**, spend [[warning|O(h)]] finding the **right subtree minimum** or **left subtree maximum** to replace it"
         ],
         "icon": "scissors"
       },
       {
         "heading": "Self-Balancing Search Trees",
-        "content": "The standard BST degenerates into a **linked list** under extreme input. In practice, variants like **AVL Trees** and **Red-Black Trees** are used to guarantee `[[success|O(log n)]]` performance under any conditions.",
+        "content": "The standard BST degenerates into a **linked list** under extreme input. In practice, variants like **AVL Trees** and **Red-Black Trees** are used to guarantee [[success|O(log n)]] performance under any conditions.",
         "items": [
-          "Inserting already-sorted data causes severe skew, degrading performance to `[[danger|O(n)]]`",
+          "Inserting already-sorted data causes severe skew, degrading performance to [[danger|O(n)]]",
           "In practice, **AVL Trees** and **Red-Black Trees** — **self-balancing BSTs** — are used to prevent degeneration",
           "When the tree becomes unbalanced, **tree rotations** and color-flip operations automatically restore balance",
-          "Regardless of how data is inserted or deleted, lookup, insert, and delete all stay at `[[success|O(log n)]]`"
+          "Regardless of how data is inserted or deleted, lookup, insert, and delete all stay at [[success|O(log n)]]"
         ],
         "icon": "scale-balanced"
       }

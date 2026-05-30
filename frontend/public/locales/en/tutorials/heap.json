@@ -3,11 +3,11 @@
     "sections": [
       {
         "heading": "Core Concepts",
-        "content": "A **Heap** is conceptually a `[[primary|complete binary tree]]`, yet often described as \"an **array** in binary tree's clothing.\" Its essence lies in maintaining a strict parent-child ordering to ensure the most efficient retrieval of the `[[primary|extreme value]]`.",
+        "content": "A **Heap** is conceptually a [[primary|complete binary tree]], yet often described as \"an **array** in binary tree's clothing.\" Its essence lies in maintaining a strict parent-child ordering to ensure the most efficient retrieval of the [[primary|extreme value]].",
         "items": [
-          "Stored in a one-dimensional **array**; tree structure is simulated via simple `[[primary|index arithmetic]]` (e.g., left child at 2i+1), eliminating pointer overhead",
-          "Like a `[[primary|tournament bracket]]`, each node is the winner over everything below it, so the **root node** always holds the global extreme value",
-          "Must satisfy the `[[primary|heap property]]`: every **parent node**'s value is always greater than or equal to (or less than or equal to) its **child nodes**"
+          "Stored in a one-dimensional **array**; tree structure is simulated via simple [[primary|index arithmetic]] (e.g., left child at 2i+1), eliminating pointer overhead",
+          "Like a [[primary|tournament bracket]], each node is the winner over everything below it, so the **root node** always holds the global extreme value",
+          "Must satisfy the [[primary|heap property]]: every **parent node**'s value is always greater than or equal to (or less than or equal to) its **child nodes**"
         ],
         "icon": "compass"
       },
@@ -47,9 +47,9 @@
         "content": "Beginners are often confused that a Heap is conceptually a **binary tree** yet implemented as an **array**. This section clarifies the distinction and covers the elegant **index arithmetic** for navigating parent and child nodes.",
         "items": [
           "**Structure mapping**: a Heap is a **complete binary tree** stored contiguously in an **array** — a binary tree in array's clothing",
-          "**Locating the root**: the tree's **root node** is always stored at index `[[primary|0]]`",
-          "**Finding children**: for a node at index i, its left child is at `[[primary|2i+1]]` and its right child at `[[primary|2i+2]]`",
-          "**Finding the parent**: for a node at index i, its parent is found via integer division at `[[primary|(i-1)//2]]`"
+          "**Locating the root**: the tree's **root node** is always stored at index [[primary|0]]",
+          "**Finding children**: for a node at index i, its left child is at [[primary|2i+1]] and its right child at [[primary|2i+2]]",
+          "**Finding the parent**: for a node at index i, its parent is found via integer division at [[primary|(i-1)//2]]"
         ],
         "icon": "list-tree"
       },
