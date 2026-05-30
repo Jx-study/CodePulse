@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import {
@@ -13,6 +14,7 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
 }) => {
+  const { t } = useTranslation("tutorials/factorial");
   const [nValue, setNValue] = useState("5");
 
   const handleRun = () => {
@@ -27,10 +29,10 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
   return (
     <ActionBarContainer>
       <ActionBarGroup>
-        <StaticLabel>階乘 (N!)</StaticLabel>
+        <StaticLabel>{t("ui.title")}</StaticLabel>
         <Input
           type="number"
-          placeholder="輸入 N (1-10)"
+          placeholder={t("ui.placeholder")}
           value={nValue}
           onChange={(e) => setNValue(e.target.value)}
           className={`${styles.input} ${styles.valueInput}`}
@@ -45,7 +47,7 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
           disabled={disabled || !nValue}
           icon="play"
         >
-          執行遞迴
+          {t("ui.run")}
         </Button>
       </ActionBarGroup>
     </ActionBarContainer>
