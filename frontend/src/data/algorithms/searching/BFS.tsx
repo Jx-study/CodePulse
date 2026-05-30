@@ -2,8 +2,7 @@ import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
 import { bfsRealWorldStories } from "@/data/algorithms/searching/bfs.stories";
 import { BFSDFSActionBar } from "./BFSDFSActionBar";
-import { Box } from "@/modules/core/DataLogic/Box";
-import { BaseElement } from "@/modules/core/DataLogic/BaseElement";
+import { appendSideContainerBoxes } from "@/shared/utils/sideContainerUtils";
 import {
   cloneData,
   generateRandomGraph,
@@ -205,63 +204,6 @@ const TAGS = {
   NOT_FOUND: "NOT_FOUND",
 };
 
-function appendQueueAndResultBoxes(
-  elements: BaseElement[],
-  queue: string[],
-  result: string[],
-  poppingNodeId?: string,
-  pushingNodeId?: string,
-) {
-  // 繪製 Queue (右側直列排隊)
-  queue.forEach((id, index) => {
-    const box = new Box();
-    box.id = `ui-box-${id}`;
-    box.value = id.replace("node-", "");
-    const baseX = 850;
-    const baseY = 355 - index * 35; // 陣列越後面的越疊在下面
-
-    if (id === pushingNodeId) {
-      box.moveTo(baseX, 50); // 動畫起點：從上方掉下來
-      box.setStatus(Status.Prepare);
-    } else {
-      box.moveTo(baseX, baseY);
-      box.setStatus(Status.Target);
-    }
-
-    box.width = 120;
-    box.height = 30;
-    elements.push(box);
-  });
-
-  // 繪製正在 Dequeue 的節點 (掉落到 Result 區)
-  if (poppingNodeId) {
-    const dropBox = new Box();
-    dropBox.id = `ui-box-${poppingNodeId}`;
-    dropBox.value = poppingNodeId.replace("node-", "");
-
-    const baseX = 850;
-    dropBox.moveTo(baseX, 420); // 掉落到底部
-
-    dropBox.width = 120;
-    dropBox.height = 30;
-    dropBox.setStatus(Status.Complete);
-    elements.push(dropBox);
-  }
-
-  // 繪製底部的 Result 陣列
-  const resStartX = 50;
-  const resY = 420;
-  result.forEach((id, i) => {
-    const box = new Box();
-    box.id = `ui-box-${id}`;
-    box.value = id.replace("node-", "");
-    box.moveTo(resStartX + i * 45, resY);
-    box.width = 40;
-    box.height = 40;
-    box.setStatus(Status.Complete);
-    elements.push(box);
-  });
-}
 
 function runGraphBFS(
   graphData: any,
@@ -314,7 +256,7 @@ function runGraphBFS(
     "distance[all]": "∞",
   };
   // 將空陣列畫上去
-  appendQueueAndResultBoxes(initDistFrame.elements, queue, result);
+  appendSideContainerBoxes(initDistFrame.elements, "queue", queue, result);
   steps.push(initDistFrame);
 
   // BFS 初始化
@@ -336,12 +278,13 @@ function runGraphBFS(
     [`distance[${realStartId}]`]: 0,
   };
 
-  appendQueueAndResultBoxes(
+  appendSideContainerBoxes(
     enqueueStartFrame.elements,
+    "queue",
     queue,
     result,
     undefined,
-    realStartId,
+    [realStartId],
   );
   steps.push(enqueueStartFrame);
 
@@ -373,7 +316,7 @@ function runGraphBFS(
       queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
       "visited count": visited.size,
     };
-    appendQueueAndResultBoxes(dequeueFrame.elements, queue, result, currId);
+    appendSideContainerBoxes(dequeueFrame.elements, "queue", queue, result, currId);
     steps.push(dequeueFrame);
 
     result.push(currId);
@@ -394,7 +337,7 @@ function runGraphBFS(
       [`distance[${currId}]`]: distanceMap[currId],
     };
 
-    appendQueueAndResultBoxes(checkEndFrame.elements, queue, result);
+    appendSideContainerBoxes(checkEndFrame.elements, "queue", queue, result);
     steps.push(checkEndFrame);
 
     // 終點判斷
@@ -430,7 +373,7 @@ function runGraphBFS(
             ? `[${unvisitedIds.join(", ")}]`
             : "[]  (全已訪問)",
       };
-      appendQueueAndResultBoxes(exploreFrame.elements, queue, result);
+      appendSideContainerBoxes(exploreFrame.elements, "queue", queue, result);
       steps.push(exploreFrame);
 
       const newNeighbors: string[] = [];
@@ -466,12 +409,13 @@ function runGraphBFS(
             neighbor: neighbor.id,
             "queue (after)": `[${queue.join(", ")}]`,
           };
-          appendQueueAndResultBoxes(
+          appendSideContainerBoxes(
             visitFrame.elements,
+            "queue",
             queue,
             result,
             undefined,
-            neighbor.id,
+            [neighbor.id],
           );
           steps.push(visitFrame);
         }
@@ -498,8 +442,9 @@ function runGraphBFS(
           "new neighbors": `[${newNeighbors.join(", ")}]`,
           "distance[new]": currentDist + 1,
         };
-        appendQueueAndResultBoxes(
+        appendSideContainerBoxes(
           changeVisitedValueFrame.elements,
+          "queue",
           queue,
           result,
         );
@@ -548,7 +493,7 @@ function runGraphBFS(
       "shortest distance": distanceMap[realEndId],
     };
 
-    appendQueueAndResultBoxes(pathFoundFrame.elements, queue, result);
+    appendSideContainerBoxes(pathFoundFrame.elements, "queue", queue, result);
     steps.push(pathFoundFrame);
   } else {
     const notFoundFrame = generateGraphFrame(
@@ -566,7 +511,7 @@ function runGraphBFS(
       reachable: "false — 終點不可達",
     };
 
-    appendQueueAndResultBoxes(notFoundFrame.elements, queue, result);
+    appendSideContainerBoxes(notFoundFrame.elements, "queue", queue, result);
     steps.push(notFoundFrame);
   }
 
@@ -621,8 +566,9 @@ function runGridBFS(
   );
   gridShowIdFrame.actionTag = TAGS.GRID_INIT;
   gridShowIdFrame.local_vars = { start: startIndex, end: endIndex };
-  appendQueueAndResultBoxes(
+  appendSideContainerBoxes(
     gridShowIdFrame.elements,
+    "queue",
     queue.map(String),
     result.map(String),
   );
@@ -643,8 +589,9 @@ function runGridBFS(
     end: endIndex,
     "distance[all]": "∞",
   };
-  appendQueueAndResultBoxes(
+  appendSideContainerBoxes(
     gridInitDistFrame.elements,
+    "queue",
     queue.map(String),
     result.map(String),
   );
@@ -677,12 +624,13 @@ function runGridBFS(
     visited: `{${startIndex}}`,
     "distance[start]": 0,
   };
-  appendQueueAndResultBoxes(
+  appendSideContainerBoxes(
     gridStartFrame.elements,
+    "queue",
     queue.map(String),
     result.map(String),
     undefined,
-    String(startIndex),
+    [String(startIndex)],
   );
   steps.push(gridStartFrame);
 
@@ -707,8 +655,9 @@ function runGridBFS(
       "visited count": visited.size,
     };
 
-    appendQueueAndResultBoxes(
+    appendSideContainerBoxes(
       dequeueGridFrame.elements,
+      "queue",
       queue.map(String),
       result.map(String),
       String(currIndex),
@@ -730,8 +679,9 @@ function runGridBFS(
       "curr === end": currIndex === endIndex ? "True" : "False",
     };
 
-    appendQueueAndResultBoxes(
+    appendSideContainerBoxes(
       checkEndGridFrame.elements,
+      "queue",
       queue.map(String),
       result.map(String),
     );
@@ -776,12 +726,13 @@ function runGridBFS(
             "queue (after)": `[${queue.join(", ")}]`,
           };
 
-          appendQueueAndResultBoxes(
+          appendSideContainerBoxes(
             visitGridFrame.elements,
+            "queue",
             queue.map(String),
             result.map(String),
             undefined,
-            String(nIndex),
+            [String(nIndex)],
           );
           steps.push(visitGridFrame);
         }
@@ -808,8 +759,9 @@ function runGridBFS(
         "distance[new]": currentDist + 1,
       };
 
-      appendQueueAndResultBoxes(
+      appendSideContainerBoxes(
         changeVisitedValueFrame.elements,
+        "queue",
         queue.map(String),
         result.map(String),
       );
@@ -847,8 +799,9 @@ function runGridBFS(
       end: endIndex,
       "shortest distance": distanceMap[endIndex],
     };
-    appendQueueAndResultBoxes(
+    appendSideContainerBoxes(
       pathCompleteFrame.elements,
+      "queue",
       queue.map(String),
       result.map(String),
     );
@@ -867,8 +820,9 @@ function runGridBFS(
       end: endIndex,
       reachable: "False — 終點不可達",
     };
-    appendQueueAndResultBoxes(
+    appendSideContainerBoxes(
       notFoundGridFrame.elements,
+      "queue",
       queue.map(String),
       result.map(String),
     );
