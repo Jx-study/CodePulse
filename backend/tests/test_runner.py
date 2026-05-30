@@ -26,8 +26,8 @@ import pytest
 RUNNER_PATH = os.path.join(os.path.dirname(__file__), "..", "docker", "runner.py")
 SERVICES_PATH = os.path.join(os.path.dirname(__file__), "..", "services")
 
-# TestRunTraceWithStdinInputs imports `run_trace` directly (not via subprocess),
-# so services/ must be importable in-process. Subprocess tests use PYTHONPATH instead.
+# TestRunTraceWithStdinInputs 直接 import run_trace（非走 subprocess），
+# 因此 services/ 需可在本 process 內 import。subprocess 測試則靠 PYTHONPATH。
 sys.path.insert(0, SERVICES_PATH)
 
 
@@ -372,7 +372,7 @@ class TestOutputFormat:
 
 
 # ---------------------------------------------------------------------------
-# 7. Interactive input() — run_trace 直接單元測試（Task 1）
+# 7. Interactice input() — run_trace 直接單元測試
 # ---------------------------------------------------------------------------
 # 與上方 subprocess 風格不同：這組直接 import run_trace 在 process 內呼叫，
 # 因此需要 monkeypatch SANDBOX_CONTAINER guard

@@ -17,11 +17,10 @@ if TYPE_CHECKING:
 
 
 class InputNeededError(Exception):
-    """Raised when user code calls input() but stdin_inputs queue is exhausted.
+    """使用者程式碼呼叫 input() 但 stdin_inputs queue 已用罄時拋出。
 
-    Carries the prompt and the index of the input call (0-based) so the
-    frontend can render a labeled input dialog and resume by appending the
-    user's value to stdin_inputs and resubmitting.
+    攜帶 prompt 與該次 input 呼叫的索引（0-based），讓前端能渲染有標籤的
+    輸入彈窗，並透過把使用者輸入值 append 到 stdin_inputs 後重新送出來恢復執行。
     """
     def __init__(self, prompt: str, input_index: int):
         super().__init__(f"input_needed at index {input_index}: {prompt!r}")
