@@ -41,6 +41,20 @@ export class AnalyzeError extends Error {
   }
 }
 
+/**
+ * 程式執行到 input() 但 stdin 已用罄時拋出
+ * 依 D8：只帶 prompt 與 inputIndex，已累積的 stdin 由 caller（usePlaygroundRun）用 ref 自行維護
+ */
+export class InputNeededError extends Error {
+  constructor(
+    public readonly prompt: string,
+    public readonly inputIndex: number,
+  ) {
+    super(`input needed at index ${inputIndex}: ${prompt}`);
+    this.name = "InputNeededError";
+  }
+}
+
 export interface AnalyzeResult {
   trace: TraceEvent[];
   rawTrace: TraceEvent[];
@@ -63,7 +77,7 @@ export async function run(
   code: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
-  options: { saveHistory?: boolean } = {},
+  options: { saveHistory?: boolean; stdinInputs?: string[]; isRetry?: boolean } = {},
 ): Promise<AnalyzeResult> {
   // 1. Submit
   let submitRes: {
@@ -78,7 +92,12 @@ export async function run(
       task_id?: string;
       duplicate?: boolean;
       duplicate_record?: PlaygroundHistoryRecord;
-    }>("/api/analyze/submit", { code, save_history: options.saveHistory ?? true });
+    }>("/api/analyze/submit", {
+      code,
+      save_history: options.saveHistory ?? true,
+      stdin_inputs: options.stdinInputs ?? [],
+      is_retry: options.isRetry ?? false,
+    });
   } catch (err: any) {
     const body = err?.response?.data;
     if (err?.response?.status === 422 && body?.error) {
@@ -139,6 +158,14 @@ function streamProgress(
 
       if (event.status === "running" && event.stage) {
         onProgress(event.stage as RunStage);
+        return;
+      }
+
+      if (event.status === "input_needed") {
+        // input_needed 是 terminal event：清掉 ES 並以 InputNeededError reject，
+        // 由 caller 收集輸入後 append 到 stdin 再重送（D8）
+        cleanup();
+        reject(new InputNeededError(event.prompt ?? "", event.input_index ?? 0));
         return;
       }
 
