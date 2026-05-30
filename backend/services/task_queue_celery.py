@@ -19,12 +19,33 @@ _CELERY_STATE_MAP = {
     "SUCCESS": "completed",
     "FAILURE": "failed",
     "REVOKED": "failed",
+    "INPUT_NEEDED": "input_needed",  # run_analysis_task 在 InputNeededSignal 時設的自訂 state
 }
 
 
 def _terminal_event(ar: AsyncResult, status: str) -> dict:
     error = str(ar.result) if status == "failed" and ar.result else None
     return {"stage": STAGE_DONE, "status": status, "error": error}
+
+
+def _check_terminal(ar: AsyncResult) -> dict | None:
+    """若 task 處於 terminal 狀態回傳對應 event dict，否則 None。
+
+    input_needed 也視為 terminal（程式暫停等待輸入），但帶 prompt / input_index
+    而非 error。注意 custom state 下要用 ar.info（不是 ar.result）取 meta。
+    """
+    state = _CELERY_STATE_MAP.get(ar.state, "pending")
+    if state == "input_needed":
+        meta = ar.info or {}
+        return {
+            "stage": STAGE_DONE,
+            "status": "input_needed",
+            "prompt": meta.get("prompt", ""),
+            "input_index": meta.get("input_index", 0),
+        }
+    if state in ("completed", "failed"):
+        return _terminal_event(ar, state)
+    return None
 
 
 class CeleryTaskQueue:
@@ -73,9 +94,9 @@ class CeleryTaskQueue:
     def stream_progress(self, task_id: str):
         """Generator: yields progress dicts until task completes, fails, or times out."""
         ar = AsyncResult(task_id, app=celery_app)
-        current_state = _CELERY_STATE_MAP.get(ar.state, "pending")
-        if current_state in ("completed", "failed"):
-            yield _terminal_event(ar, current_state)
+        terminal = _check_terminal(ar)
+        if terminal:
+            yield terminal
             return
 
         raw = self._redis.hgetall(f"task:{task_id}:progress")
@@ -88,9 +109,9 @@ class CeleryTaskQueue:
             pubsub.get_message()
 
             ar2 = AsyncResult(task_id, app=celery_app)
-            state2 = _CELERY_STATE_MAP.get(ar2.state, "pending")
-            if state2 in ("completed", "failed"):
-                yield _terminal_event(ar2, state2)
+            terminal = _check_terminal(ar2)
+            if terminal:
+                yield terminal
                 return
 
             started_at = time.monotonic()
@@ -105,9 +126,9 @@ class CeleryTaskQueue:
                         }
                         return
                     ar3 = AsyncResult(task_id, app=celery_app)
-                    s = _CELERY_STATE_MAP.get(ar3.state, "pending")
-                    if s in ("completed", "failed"):
-                        yield _terminal_event(ar3, s)
+                    terminal = _check_terminal(ar3)
+                    if terminal:
+                        yield terminal
                         return
                     continue
                 if msg["type"] != "message":
@@ -115,9 +136,9 @@ class CeleryTaskQueue:
                 event = json.loads(msg["data"])
                 if event.get("stage") == STAGE_DONE:
                     ar4 = AsyncResult(task_id, app=celery_app)
-                    s = _CELERY_STATE_MAP.get(ar4.state, "pending")
-                    if s in ("completed", "failed"):
-                        yield _terminal_event(ar4, s)
+                    terminal = _check_terminal(ar4)
+                    if terminal:
+                        yield terminal
                         return
                     continue
                 yield event

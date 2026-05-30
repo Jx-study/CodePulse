@@ -10,6 +10,7 @@ from services.task_queue import (
     STATUS_RUNNING,
     STATUS_COMPLETED,
     STATUS_FAILED,
+    STATUS_INPUT_NEEDED,
     STAGE_SYNTAX_CHECK,
     STAGE_DONE
 )
@@ -93,9 +94,19 @@ class TaskQueue:
         with self._lock:
             q = self._queues.get(task_id)
             task = self._tasks.get(task_id)
-        # Task already done before SSE connects
-        if task is not None and task["status"] in (STATUS_COMPLETED, STATUS_FAILED):
-            yield {"stage": STAGE_DONE, "status": task["status"], "error": task.get("error")}
+        # Task already done before SSE connects（input_needed 也算 terminal，須一併處理，
+        # 否則晚連的 SSE client 會卡到 60s timeout）
+        if task is not None and task["status"] in (STATUS_COMPLETED, STATUS_FAILED, STATUS_INPUT_NEEDED):
+            if task["status"] == STATUS_INPUT_NEEDED:
+                info = task.get("input_needed", {})
+                yield {
+                    "stage": STAGE_DONE,
+                    "status": "input_needed",
+                    "prompt": info.get("prompt", ""),
+                    "input_index": info.get("input_index", 0),
+                }
+            else:
+                yield {"stage": STAGE_DONE, "status": task["status"], "error": task.get("error")}
             return
         if q is None:
             return
@@ -111,11 +122,12 @@ class TaskQueue:
                 # Client likely disconnected or task stalled; stop streaming
                 break
             yield event
-            if event.get("status") in ("completed", "failed"):
+            if event.get("status") in ("completed", "failed", "input_needed"):
                 break
 
     def _run(self, task_id: str, fn, args: tuple, kwargs: dict) -> None:
         from app import app as flask_app
+        from services.analysis_runner import InputNeededSignal  # lazy — 避免循環 import
         with self._lock:
             if task_id in self._tasks:
                 self._tasks[task_id]["status"] = STATUS_RUNNING
@@ -130,6 +142,23 @@ class TaskQueue:
                 q = self._queues.pop(task_id, None)
             if q is not None:
                 q.put({"stage": STAGE_DONE, "status": "completed"})
+        except InputNeededSignal as sig:
+            # input_needed 是 terminal-but-not-completed 狀態，不能進 FAILED/COMPLETED 分支。
+            with self._lock:
+                if task_id in self._tasks:
+                    self._tasks[task_id]["status"] = STATUS_INPUT_NEEDED
+                    self._tasks[task_id]["input_needed"] = {
+                        "prompt": sig.prompt,
+                        "input_index": sig.input_index,
+                    }
+                q = self._queues.pop(task_id, None)
+            if q is not None:
+                q.put({
+                    "stage": STAGE_DONE,
+                    "status": "input_needed",
+                    "prompt": sig.prompt,
+                    "input_index": sig.input_index,
+                })
         except Exception as e:
             with self._lock:
                 if task_id in self._tasks:

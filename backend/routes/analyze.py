@@ -33,7 +33,17 @@ def submit():
 
     code = data["code"]
     save_history = data.get("save_history", True) is not False
-    if save_history:
+
+    stdin_inputs = data.get("stdin_inputs", [])
+    if not isinstance(stdin_inputs, list) or not all(isinstance(v, str) for v in stdin_inputs):
+        return jsonify({"error": "stdin_inputs must be list[str]"}), 400
+    # is_retry 只在 route 層消化（跳過 quota/duplicate 檢查），不下傳給 task_queue：
+    # _run_analysis / run_analysis_task 簽名沒有此參數，多傳會 TypeError。
+    is_retry = bool(data.get("is_retry", False))
+
+    # is_retry 為 True 時跳過 duplicate / quota 檢查：retry 是同一支 code + 漸增 stdin 的延續，
+    # 第 1 次 submit 已做過完整檢查，不該再被 duplicate 攔（false positive）或被 quota 攔。
+    if save_history and not is_retry:
         matching_record = find_matching_history(code, g.current_user_id)
         if matching_record is not None:
             return jsonify({
@@ -61,7 +71,9 @@ def submit():
         code,
         wrapped_code,
         user_id=g.current_user_id,
-        save_history=save_history,
+        save_history=save_history,  # 不要 `and not is_retry` — 含 input() 的程式只有 retry 那次會真正完成
+        stdin_inputs=stdin_inputs,
+        # 不要傳 is_retry — _run_analysis / run_analysis_task 簽名沒有此參數
     )
     return jsonify({"task_id": task_id}), 202
 

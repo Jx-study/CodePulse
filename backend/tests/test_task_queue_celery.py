@@ -308,3 +308,57 @@ def test_eager_get_task_failed_when_sandbox_errors(eager_queue):
     task = eager_queue.get_task(task_id)
     assert task["status"] == "failed"
     assert task["error"] is not None
+
+
+# ---------------------------------------------------------------------------
+# input_needed — Celery 自訂 state（Task 5：D1 / D12 / D15）
+# ---------------------------------------------------------------------------
+
+_FAKE_SANDBOX_INPUT_NEEDED = {
+    "error": "input_needed",
+    "prompt": "name: ",
+    "input_index": 0,
+}
+
+
+def test_check_terminal_returns_input_needed_event_from_info():
+    """_check_terminal 對 INPUT_NEEDED state 應從 ar.info 取出 prompt / input_index。"""
+    from services.task_queue_celery import _check_terminal
+    ar = MagicMock()
+    ar.state = "INPUT_NEEDED"
+    ar.info = {"prompt": "age: ", "input_index": 1}
+    event = _check_terminal(ar)
+    assert event == {
+        "stage": "done",
+        "status": "input_needed",
+        "prompt": "age: ",
+        "input_index": 1,
+    }
+
+
+def test_eager_input_needed_sets_custom_state(eager_queue):
+    """sandbox 回 input_needed → run_analysis_task 透過 update_state 設 INPUT_NEEDED，
+    不被標記成 SUCCESS/FAILURE（D12 主線：update_state + Ignore）。"""
+    patches = _io_patches(sandbox_result=_FAKE_SANDBOX_INPUT_NEEDED)
+    with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6]:
+        task_id = eager_queue.submit(_SIMPLE_CODE, _SIMPLE_WRAPPED)
+
+    from services.task_queue_celery import _CELERY_STATE_MAP
+    from celery.result import AsyncResult
+    from celery_app import celery_app
+    ar = AsyncResult(task_id, app=celery_app)
+    assert _CELERY_STATE_MAP.get(ar.state) == "input_needed"
+
+
+def test_eager_input_needed_stream_yields_input_needed_event(eager_queue):
+    """stream_progress 早連檢查（_check_terminal）應直接 yield input_needed 終止事件。"""
+    patches = _io_patches(sandbox_result=_FAKE_SANDBOX_INPUT_NEEDED)
+    with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6]:
+        task_id = eager_queue.submit(_SIMPLE_CODE, _SIMPLE_WRAPPED)
+
+    events = list(eager_queue.stream_progress(task_id))
+    assert events
+    last = events[-1]
+    assert last["status"] == "input_needed"
+    assert last["prompt"] == "name: "
+    assert last["input_index"] == 0

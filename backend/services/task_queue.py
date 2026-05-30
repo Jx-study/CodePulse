@@ -5,6 +5,7 @@ STATUS_PENDING = "pending"
 STATUS_RUNNING = "running"
 STATUS_COMPLETED = "completed"
 STATUS_FAILED = "failed"
+STATUS_INPUT_NEEDED = "input_needed"
 
 STAGE_SYNTAX_CHECK = "syntax_check"
 STAGE_SANDBOX = "sandbox"
