@@ -1,293 +1,22 @@
-import { Box } from "@/modules/core/DataLogic/Box";
-import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import type { AnimationStep } from "@/types";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
+import { LinearData } from "@/data/DataStructure/linear/utils";
 import { CodeConfig, LevelImplementationConfig } from "@/types";
 import { SlidingWindowActionBar } from "./SlidingWindowActionBar";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import { simulateSlidingWindowTrace } from "./slidingWindow/simulateTrace";
+import { slidingWindowTraceToSteps } from "./slidingWindow/traceToSteps";
+import { TAGS, SlidingWindowStatusConfig } from "./slidingWindow/tags";
 
 const slidingWindowActionHandler = createLinearActionHandler({
   randomValueRange: [1, 15],
 });
 
-const TAGS = {
-  INIT: "INIT",
-  EXPAND_RIGHT: "EXPAND_RIGHT",
-  CHECK_WHILE: "CHECK_WHILE",
-  SHRINK_LEFT: "SHRINK_LEFT",
-  UPDATE_RESULT: "UPDATE_RESULT",
-  DONE: "DONE",
-};
-
-const createSlidingPointers = (
-  left: number,
-  right: number,
-  startX: number,
-  startY: number,
-  gap: number,
-): Pointer[] => {
-  const isOverlap = right !== -1 && left === right;
-  const lXOffset = isOverlap ? -20 : 0;
-  const rXOffset = isOverlap ? 20 : 0;
-
-  const effectiveRight = right === -1 ? 0 : right;
-
-  const leftPtr = new Pointer("L", "up");
-  leftPtr.id = "sliding-L";
-  leftPtr.moveTo(startX + left * gap + lXOffset, startY + 50);
-
-  const rightPtr = new Pointer("R", "up");
-  rightPtr.id = "sliding-R";
-  rightPtr.moveTo(startX + effectiveRight * gap + rXOffset, startY + 50);
-  rightPtr.opacity = right === -1 ? 0 : 1;
-
-  return [leftPtr, rightPtr];
-};
-
-const generateFrame = (
-  list: LinearData[],
-  pointers: {
-    left: number;
-    right: number;
-    bestLeft?: number;
-    bestRight?: number;
-  },
-  description: string,
-  actionTag: string,
-  local_vars: Record<string, any>,
-  overrideStatusMap: Record<number, Status> = {},
-): AnimationStep => {
-  const { left, right, bestLeft = -1, bestRight = -1 } = pointers;
-
-  const boxes = createBoxes(list, {
-    startX: 50,
-    startY: 200,
-    gap: 70,
-    overrideStatusMap,
-    getDescription: (_item, index) => String(index),
-  });
-
-  boxes.forEach((element, i) => {
-    const box = element as Box;
-    const inCurrentWindow = i >= left && i <= right;
-    const inBestWindow =
-      bestLeft !== -1 && bestRight !== -1 && i >= bestLeft && i <= bestRight;
-
-    if (inBestWindow) box.setStatus(Status.Complete);
-    else if (inCurrentWindow)
-      box.setStatus(overrideStatusMap[i] || Status.Target);
-    else box.setStatus(Status.Inactive);
-  });
-
-  return {
-    stepNumber: 0,
-    description,
-    actionTag,
-    local_vars,
-    elements: [...boxes, ...createSlidingPointers(left, right, 50, 200, 70)],
-  };
-};
-
 export function createSlidingWindowAnimationSteps(
   inputData: any[],
   action?: { mode?: string; targetSum?: number },
 ): AnimationStep[] {
-  const arr = inputData as LinearData[];
-  const steps: AnimationStep[] = [];
-  if (arr.length === 0) return steps;
-
-  const mode = action?.mode || "longest_lte";
-  const targetSum = action?.targetSum || 20;
-
-  if (mode === "shortest_gte") {
-    // 找總和 >= targetSum 的最短連續子陣列
-    let left = 0,
-      currentSum = 0,
-      minLen = Infinity;
-    let bestLeft = 0,
-      bestRight = -1;
-
-    steps.push(
-      generateFrame(
-        arr,
-        { left: 0, right: -1 },
-        `【最短模式】開始尋找總和 大於等於 ${targetSum} 的 最短 子陣列`,
-        TAGS.INIT,
-        { left: 0, right: 0, currentSum: 0, targetSum, minLen: "∞" },
-      ),
-    );
-
-    for (let right = 0; right < arr.length; right++) {
-      const val = Number(arr[right].value) || 0;
-      steps.push(
-        generateFrame(
-          arr,
-          { left, right },
-          `右指標擴展，遇到數值 ${val}`,
-          TAGS.EXPAND_RIGHT,
-          {
-            left,
-            right,
-            val,
-            currentSum,
-            targetSum,
-            minLen: minLen === Infinity ? "∞" : minLen,
-          },
-        ),
-      );
-      currentSum += val;
-      steps.push(
-        generateFrame(
-          arr,
-          { left, right },
-          `將 ${val} 加入，目前總和：${currentSum}`,
-          TAGS.CHECK_WHILE,
-          {
-            left,
-            right,
-            currentSum,
-            targetSum,
-            minLen: minLen === Infinity ? "∞" : minLen,
-          },
-        ),
-      );
-
-      while (currentSum >= targetSum && left <= right) {
-        if (right - left + 1 < minLen) {
-          minLen = right - left + 1;
-          bestLeft = left;
-          bestRight = right;
-          steps.push(
-            generateFrame(
-              arr,
-              { left, right },
-              `總和達標 (${currentSum} >= ${targetSum})！更新最短紀錄：${minLen}`,
-              TAGS.UPDATE_RESULT,
-              { left, right, currentSum, minLen },
-            ),
-          );
-        }
-        const leftVal = Number(arr[left].value) || 0;
-        steps.push(
-          generateFrame(
-            arr,
-            { left, right },
-            `尋找更短可能：準備移除 Left(${left}) 的數值 ${leftVal}`,
-            TAGS.SHRINK_LEFT,
-            { left, right, currentSum, targetSum, minLen },
-            { [left]: Status.Prepare },
-          ),
-        );
-        currentSum -= leftVal;
-        left++;
-      }
-    }
-    if (minLen === Infinity) {
-      steps.push(
-        generateFrame(
-          arr,
-          { left: 0, right: -1 },
-          `掃描結束！找不到總和 >= ${targetSum} 的子陣列`,
-          TAGS.DONE,
-          { minLen: "無解" },
-        ),
-      );
-    } else {
-      steps.push(
-        generateFrame(
-          arr,
-          { left: bestLeft, right: bestRight, bestLeft, bestRight },
-          `掃描結束！最短長度為 ${minLen}，範圍是 Index ${bestLeft} 到 ${bestRight}`,
-          TAGS.DONE,
-          { minLen },
-        ),
-      );
-    }
-  } else if (mode === "longest_lte") {
-    // 找總和 <= targetSum 的最長連續子陣列
-    let left = 0,
-      currentSum = 0,
-      maxLen = 0;
-    let bestLeft = 0,
-      bestRight = -1;
-
-    steps.push(
-      generateFrame(
-        arr,
-        { left: 0, right: -1 },
-        `【最長模式】開始尋找總和 不超過 ${targetSum} 的 最長 子陣列`,
-        TAGS.INIT,
-        { left: 0, right: 0, currentSum: 0, targetSum, maxLen: 0 },
-      ),
-    );
-
-    for (let right = 0; right < arr.length; right++) {
-      const val = Number(arr[right].value) || 0;
-      steps.push(
-        generateFrame(
-          arr,
-          { left, right },
-          `右指標擴展，遇到數值 ${val}`,
-          TAGS.EXPAND_RIGHT,
-          { left, right, val, currentSum, targetSum, maxLen },
-        ),
-      );
-      currentSum += val;
-      steps.push(
-        generateFrame(
-          arr,
-          { left, right },
-          `將 ${val} 加入，目前總和：${currentSum}`,
-          TAGS.CHECK_WHILE,
-          { left, right, currentSum, targetSum, maxLen },
-        ),
-      );
-
-      while (currentSum > targetSum && left <= right) {
-        const leftVal = Number(arr[left].value) || 0;
-        steps.push(
-          generateFrame(
-            arr,
-            { left, right },
-            `總和 ${currentSum} 超過 ${targetSum}！準備移除 Left(${left}) 的數值 ${leftVal}`,
-            TAGS.SHRINK_LEFT,
-            { left, right, currentSum, targetSum, maxLen },
-            { [left]: Status.Prepare },
-          ),
-        );
-        currentSum -= leftVal;
-        left++;
-      }
-
-      if (right - left + 1 > maxLen) {
-        maxLen = right - left + 1;
-        bestLeft = left;
-        bestRight = right;
-        steps.push(
-          generateFrame(
-            arr,
-            { left, right },
-            `更新最長紀錄！新長度為 ${maxLen} (Index ${left} 到 ${right})`,
-            TAGS.UPDATE_RESULT,
-            { left, right, currentSum, maxLen },
-          ),
-        );
-      }
-    }
-    steps.push(
-      generateFrame(
-        arr,
-        { left: bestLeft, right: bestRight, bestLeft, bestRight },
-        `掃描結束！最長長度為 ${maxLen}，範圍是 Index ${bestLeft} 到 ${bestRight}`,
-        TAGS.DONE,
-        { maxLen },
-      ),
-    );
-  }
-
-  // 重編 stepNumber
-  return steps.map((s, idx) => ({ ...s, stepNumber: idx }));
+  const trace = simulateSlidingWindowTrace(inputData as LinearData[], action);
+  return slidingWindowTraceToSteps(trace);
 }
 
 const longestLteCodeConfig: CodeConfig = {
@@ -401,6 +130,7 @@ export const slidingWindowConfig: LevelImplementationConfig = {
   name: "滑動窗口 (Sliding Window)",
   categoryName: "演算法技巧",
   description: "用雙指標維護一個區間，解決連續子陣列問題",
+  i18nNamespace: "tutorials/sliding-window",
   codeConfig: longestLteCodeConfig,
   getCodeConfig: (payload?: any) => {
     if (payload?.mode === "shortest_gte") {
@@ -427,6 +157,7 @@ export const slidingWindowConfig: LevelImplementationConfig = {
     { id: "box-8", value: 5 },
   ],
   createAnimationSteps: createSlidingWindowAnimationSteps,
+  statusConfig: SlidingWindowStatusConfig,
   actionHandler: slidingWindowActionHandler,
   renderActionBar: (props) => <SlidingWindowActionBar {...(props as any)} />,
   maxNodes: 30,

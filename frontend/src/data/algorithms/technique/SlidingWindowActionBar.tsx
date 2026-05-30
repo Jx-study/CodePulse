@@ -1,4 +1,5 @@
 ﻿import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -22,9 +23,8 @@ const DEFAULT_SLIDING_MODE: SlidingWindowMode = "longest_lte";
 function toSlidingWindowMode(
   viewMode: AlgorithmViewMode | undefined,
 ): SlidingWindowMode {
-  if (viewMode === "longest_lte" || viewMode === "shortest_gte") {
+  if (viewMode === "longest_lte" || viewMode === "shortest_gte")
     return viewMode;
-  }
   return DEFAULT_SLIDING_MODE;
 }
 
@@ -39,8 +39,8 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
   viewMode,
   onViewModeChange,
 }) => {
+  const { t } = useTranslation("tutorials/sliding-window");
   const [targetSum, setTargetSum] = useState<string>("20");
-
   const currentMode = toSlidingWindowMode(viewMode);
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -55,7 +55,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
     if (!isNaN(val)) {
       onRun({ type: "slidingWindow", mode: currentMode, targetSum: val });
     } else {
-      toast.warning("請輸入有效的目標和數值");
+      toast.warning(t("ui.invalidInput"));
     }
   };
 
@@ -73,9 +73,9 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Sliding Window Control</StaticLabel>
+        <StaticLabel>{t("ui.controlLabel")}</StaticLabel>
         <div className={styles.viewModeContainer}>
-          <span className={styles.viewModeLabel}>模式:</span>
+          <span className={styles.viewModeLabel}>{t("ui.modeLabel")}:</span>
           <Select
             value={currentMode}
             onChange={handleModeChange}
@@ -84,15 +84,15 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
             fullWidth={false}
             className={styles.viewModeSelect}
             options={[
-              { value: "longest_lte", label: "最長區間 (Sum ≤ Target)" },
-              { value: "shortest_gte", label: "最短區間 (Sum ≥ Target)" },
+              { value: "longest_lte", label: t("ui.modeLongest") },
+              { value: "shortest_gte", label: t("ui.modeShortest") },
             ]}
             aria-label="Window mode"
           />
         </div>
         <Input
           type="number"
-          placeholder="目標和"
+          placeholder={t("ui.placeholder")}
           value={targetSum}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setTargetSum(e.target.value)
@@ -102,7 +102,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
           fullWidth={false}
           aria-label="Target sum"
         />
-        <Tooltip content="執行滑動視窗演算法演示">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -111,7 +111,7 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
             className={styles.btnRun}
             icon="play"
           >
-            開始演示
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

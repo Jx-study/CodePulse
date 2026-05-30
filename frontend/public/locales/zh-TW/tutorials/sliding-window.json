@@ -1,0 +1,24 @@
+{
+  "animation": {
+    "init_shortest": "【最短模式】開始尋找總和大於等於 {{target}} 的最短子陣列",
+    "init_longest": "【最長模式】開始尋找總和不超過 {{target}} 的最長子陣列",
+    "expand_right": "右指標擴展，移入 Index {{r}} 的數值 {{val}}",
+    "check_while": "將 {{val}} 納入窗口，目前窗口加總值為：{{sum}}",
+    "shrink_shortest": "總和仍達標 ({{sum}} >= {{target}})，嘗試將左界 Left({{l}}) 移出視窗以縮短區間",
+    "shrink_longest": "總和 {{sum}} 超過上限 {{target}}！必須將左界 Left({{l}}) 移出視窗以符合條件",
+    "update_shortest": "總和達標！成功更新最短區間紀錄為長度 {{len}} (Index {{l}} 到 {{r}})",
+    "update_longest": "條件符合！成功更新最長區間紀錄為長度 {{len}} (Index {{l}} 到 {{r}})",
+    "done_success": "掃描結束！符合條件之最佳紀錄長度為 {{len}}，完美區間落於 Index {{l}} 到 {{r}}",
+    "done_fail": "掃描結束！在此陣列中，找不到任何總和能符合條件的連續子區間。"
+  },
+  "ui": {
+    "controlLabel": "滑動視窗控制",
+    "modeLabel": "模式",
+    "modeLongest": "最長區間 (Sum ≤ Target)",
+    "modeShortest": "最短區間 (Sum ≥ Target)",
+    "placeholder": "目標和 Target",
+    "run": "開始演示",
+    "runTooltip": "執行滑動視窗演算法演示",
+    "invalidInput": "請輸入有效的目標和數值"
+  }
+}
