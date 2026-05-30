@@ -12,6 +12,7 @@ import {
   faTv,
   faWaveSquare,
   faArrowRight,
+  faArrowUpFromBracket,
   faArrowsSpin,
   faBars,
   faBookOpen,
@@ -96,9 +97,11 @@ import {
   faTerminal,
   faTimes,
   faTrash,
+  faTriangleExclamation,
   faUpload,
   faUser,
   faUserCircle,
+  faWandMagicSparkles,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -114,6 +117,7 @@ import {
 export const iconMap = {
   "arrow-left": faArrowLeft,
   "arrow-right": faArrowRight,
+  "arrow-up-from-bracket": faArrowUpFromBracket,
   "arrows-spin": faArrowsSpin,
   "bars": faBars,
   "book-open": faBookOpen,
@@ -204,11 +208,13 @@ export const iconMap = {
   "terminal": faTerminal,
   "times": faTimes,
   "trash": faTrash,
+  "triangle-exclamation": faTriangleExclamation,
   "trophy": faTrophy,
   "tv": faTv,
   "upload": faUpload,
   "user": faUser,
   "user-circle": faUserCircle,
+  "wand-magic-sparkles": faWandMagicSparkles,
 } as const;
 
 /**
