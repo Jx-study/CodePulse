@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 import Button from "@/shared/components/Button";
 import Dialog from "@/shared/components/Dialog";
 import Tooltip from "@/shared/components/Tooltip";
@@ -44,6 +45,7 @@ export const DataRow: React.FC<DataRowProps> = ({
   maxNodes,
   hideLoadButton = false,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const [bulkInput, setBulkInput] = useState("");
   const [randomCount, setRandomCount] = useState(
     DATA_LIMITS.DEFAULT_RANDOM_COUNT,
@@ -68,19 +70,19 @@ export const DataRow: React.FC<DataRowProps> = ({
             fullWidth={false}
             aria-label="Bulk data input"
           />
-          <Tooltip content="輸入逗號分隔的數字，點擊載入">
+          <Tooltip content={t("dataRow.loadTooltip")}>
             <Button
               size="sm"
               onClick={() => onLoadData(bulkInput)}
               disabled={disabled}
               icon="download"
             >
-              載入資料
+              {t("dataRow.loadBtn")}
             </Button>
           </Tooltip>
         </>
       )}
-      <Tooltip content="清除所有資料，恢復初始狀態">
+      <Tooltip content={t("dataRow.resetTooltip")}>
         <Button
           variant="secondary"
           size="sm"
@@ -88,10 +90,10 @@ export const DataRow: React.FC<DataRowProps> = ({
           disabled={disabled}
           icon="rotate-right"
         >
-          重設
+          {t("dataRow.resetBtn")}
         </Button>
       </Tooltip>
-      <Tooltip content="隨機生成一組資料">
+      <Tooltip content={t("dataRow.randomTooltip")}>
         <Button
           variant="secondary"
           size="sm"
@@ -99,17 +101,19 @@ export const DataRow: React.FC<DataRowProps> = ({
           disabled={disabled}
           icon="shuffle"
         >
-          隨機
+          {t("dataRow.randomBtn")}
         </Button>
       </Tooltip>
 
       <div className={styles.settingItem}>
-        <label className={styles.smallLabel}>隨機筆數:</label>
+        <label className={styles.smallLabel}>
+          {t("dataRow.randomCountLabel")}
+        </label>
         <Tooltip
           content={
             maxNodes !== undefined
-              ? `設定隨機生成的資料筆數，上限為 ${maxNodes}`
-              : "設定隨機生成的資料筆數"
+              ? t("dataRow.randomCountTooltipMax", { max: maxNodes })
+              : t("dataRow.randomCountTooltip")
           }
         >
           <Input
@@ -128,7 +132,9 @@ export const DataRow: React.FC<DataRowProps> = ({
                 setRandomCountInput(String(randomCount));
               } else {
                 if (maxNodes !== undefined && num > maxNodes) {
-                  toast.warning(`隨機筆數上限為 ${maxNodes}`);
+                  toast.warning(
+                    t("dataRow.randomCountLimitWarning", { max: maxNodes }),
+                  );
                 }
                 const v = Math.min(
                   Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
@@ -155,6 +161,8 @@ export const DataRow: React.FC<DataRowProps> = ({
   );
 };
 
+// ─── TrieLoaderModal ─────────────────────────────────────────
+
 export interface TrieLoaderModalProps {
   show: boolean;
   onClose: () => void;
@@ -170,15 +178,12 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
   onLoad,
   maxWords = 20,
 }) => {
-  const { t } = useTranslation("tutorials/trie");
-  // 記錄已確認與草稿狀態，保持表單的取消/重設體驗
+  const { t } = useTranslation("tutorials/trie"); // Trie 保留自己的 namespace
   const [committedInput, setCommittedInput] = useState(TRIE_DEFAULT_INPUT);
   const [draftInput, setDraftInput] = useState(TRIE_DEFAULT_INPUT);
 
   useEffect(() => {
-    if (show) {
-      setDraftInput(committedInput);
-    }
+    if (show) setDraftInput(committedInput);
   }, [show, committedInput]);
 
   const handleLoad = () => {
@@ -187,10 +192,7 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
       return;
     }
 
-    // 1. 初步切割字串：支援換行、空白與逗號分隔
     const rawWords = draftInput.split(/[\s,]+/);
-
-    // 2. 驗證與清洗：檢查是否包含數字或特殊符號
     const invalidWords: string[] = [];
     const validWords: string[] = [];
 
@@ -206,11 +208,12 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
     }
 
     if (invalidWords.length > 0) {
-      const sample = invalidWords.slice(0, 5).join(", ") + (invalidWords.length > 5 ? "..." : "");
+      const sample =
+        invalidWords.slice(0, 5).join(", ") +
+        (invalidWords.length > 5 ? "..." : "");
       toast.warning(t("ui.modal.invalidWarning", { words: sample }));
     }
 
-    // 3. 去除重複單字 (Set)
     const uniqueWords = Array.from(new Set(validWords));
 
     if (uniqueWords.length === 0) {
@@ -218,14 +221,12 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
       return;
     }
 
-    // 4. 筆數上限防護
     let finalWords = uniqueWords;
     if (finalWords.length > maxWords) {
       toast.warning(t("ui.modal.truncateWarning", { max: maxWords }));
       finalWords = finalWords.slice(0, maxWords);
     }
 
-    // 更新確認狀態並送出字串 (以空白分隔傳給外層 onLoadData)
     const outputString = finalWords.join(" ");
     setCommittedInput(draftInput);
     onLoad(`TRIE:${outputString}`);
@@ -276,42 +277,50 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
   );
 };
 
-// ─── GraphLoaderModal：Graph 資料載入的 modal ────────────────
+// ─── GraphLoaderModal ────────────────────────────────────────
 
-export type EdgeValidator = (parts: string[], count: number) => string | null;
+// 注入 TFunction 以支援 i18n
+export type EdgeValidator = (
+  parts: string[],
+  count: number,
+  t: TFunction,
+) => string | null;
 
-const unweightedEdgeValidator: EdgeValidator = (parts, _count) => {
+const unweightedEdgeValidator: EdgeValidator = (parts, _count, t) => {
   if (parts.length !== 2) {
-    return `格式錯誤：每條邊需包含來源、目標兩個數字 (格式: 來源 目標)\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.unweightedFormatError", { line: parts.join(" ") });
   }
   if (isNaN(parseInt(parts[0], 10)) || isNaN(parseInt(parts[1], 10))) {
-    return `來源與目標必須是整數\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.integerError", { line: parts.join(" ") });
   }
   return null;
 };
 
-const weightedEdgeValidator: EdgeValidator = (parts, _count) => {
+const weightedEdgeValidator: EdgeValidator = (parts, _count, t) => {
   if (parts.length !== 3) {
-    return `格式錯誤：每條邊需包含來源、目標、權重三個數字 (格式: 來源 目標 權重)\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.weightedFormatError", { line: parts.join(" ") });
   }
   const w = parseInt(parts[2], 10);
   if (isNaN(w)) {
-    return `權重必須是整數，「${parts[2]}」不是有效數字\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.weightIntegerError", {
+      val: parts[2],
+      line: parts.join(" "),
+    });
   }
   if (w < 0) {
-    return "不支援負權重邊，請輸入大於或等於 0 的權重！";
+    return t("graphModal.negativeWeightError");
   }
   return null;
 };
 
 const UNWEIGHTED_DEFAULTS = {
-  edgeLabel: "邊 (格式: 來源 目標)\n節點編號 (0 ~ N-1)",
+  edgeLabelKey: "graphModal.unweightedLabel",
   defaultEdgeInput: "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
   edgePlaceholder: "0 1\n1 2\n2 0",
 };
 
 const WEIGHTED_DEFAULTS = {
-  edgeLabel: "邊 (格式: 來源 目標 權重)\n節點編號 (0 ~ N-1)",
+  edgeLabelKey: "graphModal.weightedLabel",
   defaultEdgeInput: "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6",
   edgePlaceholder: "0 1 4\n1 2 5\n2 0 10",
 };
@@ -331,6 +340,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   isWeighted = false,
   edgeValidator,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const defaults = isWeighted ? WEIGHTED_DEFAULTS : UNWEIGHTED_DEFAULTS;
   const resolvedValidator =
     edgeValidator ??
@@ -355,7 +365,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   const handleLoad = () => {
     const count = parseInt(draftNodeCount);
     if (isNaN(count) || count <= 0) {
-      toast.warning("請輸入有效的節點數量");
+      toast.warning(t("graphModal.invalidNodeCount"));
       return;
     }
 
@@ -363,13 +373,12 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "");
-
     const invalidLines: string[] = [];
+
     for (const line of lines) {
       const parts = line.split(/\s+/);
-
       if (resolvedValidator) {
-        const error = resolvedValidator(parts, count);
+        const error = resolvedValidator(parts, count, t);
         if (error) {
           toast.warning(error);
           return;
@@ -386,7 +395,10 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
 
     if (invalidLines.length > 0) {
       toast.warning(
-        `以下邊的節點編號超出範圍 (合法範圍：0 ~ ${count - 1})，請修正後再載入：\n${invalidLines.join(", ")}`,
+        t("graphModal.outOfRangeError", {
+          count: count - 1,
+          lines: invalidLines.join(", "),
+        }),
       );
       return;
     }
@@ -408,11 +420,11 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="自定義 Graph 資料"
+      title={t("graphModal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("common.cancel")}
           </Button>
           <Button
             variant="secondary"
@@ -420,13 +432,15 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
-            確認載入
+            {t("common.confirmLoad")}
           </Button>
         </>
       }
     >
       <div className={styles.modalFieldRow}>
-        <label className={styles.modalLabel}>節點數量 N:</label>
+        <label className={styles.modalLabel}>
+          {t("graphModal.nodeCountLabel")}
+        </label>
         <Input
           type="number"
           value={draftNodeCount}
@@ -437,7 +451,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
         />
       </div>
       <div className={styles.modalFieldColumn}>
-        <label className={styles.modalLabel}>{defaults.edgeLabel}</label>
+        <label className={styles.modalLabel}>{t(defaults.edgeLabelKey)}</label>
         <Textarea
           value={draftEdgeInput}
           onChange={(e) => setDraftEdgeInput(e.target.value)}
@@ -450,7 +464,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   );
 };
 
-// ─── GridLoaderModal：Grid 迷宮資料載入的 modal ──────────────
+// ─── GridLoaderModal ────────────────────────────────────────
 
 export interface GridLoaderModalProps {
   show: boolean;
@@ -463,20 +477,19 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const DEFAULT_GRID = "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0";
   const [committedGridText, setCommittedGridText] = useState(DEFAULT_GRID);
   const [draftGridText, setDraftGridText] = useState(DEFAULT_GRID);
 
   useEffect(() => {
-    if (show) {
-      setDraftGridText(committedGridText);
-    }
+    if (show) setDraftGridText(committedGridText);
   }, [show]);
 
   const handleLoad = () => {
     const trimmed = draftGridText.trim();
     if (trimmed === "") {
-      toast.warning("請輸入迷宮資料");
+      toast.warning(t("gridModal.emptyWarning"));
       return;
     }
 
@@ -492,7 +505,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       for (const cell of cells) {
         if (cell !== "0" && cell !== "1") {
           toast.warning(
-            `第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`,
+            t("gridModal.invalidCellWarning", { row: i + 1, cell }),
           );
           return;
         }
@@ -502,7 +515,11 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
         firstRowCols = nums.length;
       } else if (nums.length !== firstRowCols) {
         toast.warning(
-          `第 ${i + 1} 行有 ${nums.length} 格，與第 1 行的 ${firstRowCols} 格不一致，每行欄數必須相同`,
+          t("gridModal.columnMismatchWarning", {
+            row: i + 1,
+            cols: nums.length,
+            firstCols: firstRowCols,
+          }),
         );
         return;
       }
@@ -513,13 +530,13 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
     const cols = firstRowCols;
 
     if (rows < 1 || cols < 1) {
-      toast.warning("迷宮至少需要 1 行 1 欄");
+      toast.warning(t("gridModal.minSizeWarning"));
       return;
     }
 
     if (rows * cols > 400) {
       toast.warning(
-        `迷宮大小 ${rows}×${cols} = ${rows * cols} 格，超過上限 400 格（建議最大 20×20）`,
+        t("gridModal.maxSizeWarning", { rows, cols, total: rows * cols }),
       );
       return;
     }
@@ -540,11 +557,11 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="輸入迷宮資料 (0=路, 1=牆)"
+      title={t("gridModal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("common.cancel")}
           </Button>
           <Button
             variant="secondary"
@@ -552,7 +569,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
-            確認載入
+            {t("common.confirmLoad")}
           </Button>
         </>
       }
@@ -568,7 +585,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   );
 };
 
-// ─── KnapsackLoaderModal：背包問題資料載入的 modal ──────────────
+// ─── KnapsackLoaderModal ──────────────────────────────────────
 
 export interface KnapsackLoaderModalProps {
   show: boolean;
@@ -581,14 +598,13 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const DEFAULT_ITEMS = "1 15\n3 20\n4 30";
   const [committedItemInput, setCommittedItemInput] = useState(DEFAULT_ITEMS);
   const [draftItemInput, setDraftItemInput] = useState(DEFAULT_ITEMS);
 
   useEffect(() => {
-    if (show) {
-      setDraftItemInput(committedItemInput);
-    }
+    if (show) setDraftItemInput(committedItemInput);
   }, [show]);
 
   const handleLoad = () => {
@@ -604,11 +620,11 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
         isNaN(Number(parts[0])) ||
         isNaN(Number(parts[1]))
       ) {
-        toast.warning("格式錯誤！請確保每行都有重量與價值 (例如: 3 20)");
+        toast.warning(t("knapsackModal.formatError"));
         return;
       }
       if (Number(parts[0]) <= 0 || Number(parts[1]) <= 0) {
-        toast.warning("重量與價值必須大於 0");
+        toast.warning(t("knapsackModal.positiveError"));
         return;
       }
     }
@@ -629,11 +645,11 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="自定義背包物品"
+      title={t("knapsackModal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("common.cancel")}
           </Button>
           <Button
             variant="secondary"
@@ -641,14 +657,14 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
             onClick={handleLoad}
             className={styles.modalConfirmButton}
           >
-            確認載入
+            {t("common.confirmLoad")}
           </Button>
         </>
       }
     >
       <div className={styles.modalFieldColumn}>
         <label className={styles.modalLabel}>
-          物品清單 (格式: 重量 價值，一行一個物品)
+          {t("knapsackModal.inputLabel")}
         </label>
         <Textarea
           value={draftItemInput}
@@ -662,5 +678,4 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   );
 };
 
-// Re-export styles 供各 ActionBar 使用
 export { styles };
