@@ -4,6 +4,7 @@ import concurrent.futures as _cf
 from database import db
 from models.explorer import ExploreHistory, AnalysisSource
 
+from celery.exceptions import Ignore
 from celery_app import celery_app
 from services.sandbox import run_in_sandbox
 from services.ast_complexity import analyze_complexity
@@ -24,6 +25,19 @@ from services.task_queue import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class InputNeededSignal(Exception):
+    """哨兵例外：把 input_needed 從 worker function 往上拋給 task queue。
+
+    這不是錯誤，而是「等待使用者輸入」的暫停點。
+    task queue 必須接住它並把狀態設為 STATUS_INPUT_NEEDED（不是 FAILED/COMPLETED）。
+    """
+    def __init__(self, prompt: str, input_index: int):
+        super().__init__(f"input_needed[{input_index}]: {prompt!r}")
+        self.prompt = prompt
+        self.input_index = input_index
+
 
 EXPECTED_STRUCTURE: dict[str, str] = {
     "bubble_sort":    "iterative",
@@ -134,6 +148,7 @@ def run_analysis_task(
     wrapped_code: str,
     user_id: int | None = None,
     save_history: bool | None = None,
+    stdin_inputs: list[str] | None = None,
 ) -> dict:
     """Celery task: analysis main flow. task_id = self.request.id."""
     from app import app as flask_app
@@ -142,13 +157,22 @@ def run_analysis_task(
         headers = getattr(self.request, "headers", None) or {}
         save_history = headers.get("save_history", True) is not False
     with flask_app.app_context():
-        return _run_analysis(
-            task_id,
-            code,
-            wrapped_code,
-            user_id=user_id,
-            save_history=save_history,
-        )
+        try:
+            return _run_analysis(
+                task_id,
+                code,
+                wrapped_code,
+                user_id=user_id,
+                save_history=save_history,
+                stdin_inputs=stdin_inputs,
+            )
+        except InputNeededSignal as sig:
+            # input_needed 用自訂 state，不讓 Celery 標記成 SUCCESS/FAILURE。
+            self.update_state(
+                state="INPUT_NEEDED",
+                meta={"prompt": sig.prompt, "input_index": sig.input_index},
+            )
+            raise Ignore()
 
 
 def _run_analysis(
@@ -157,10 +181,19 @@ def _run_analysis(
     wrapped_code: str,
     user_id: int | None = None,
     save_history: bool = True,
+    stdin_inputs: list[str] | None = None,
 ) -> dict:
     logger.info("_run_analysis called with user_id=%s task_id=%s", user_id, task_id)
     task_queue.update_progress(task_id, STAGE_SANDBOX, "正在模擬執行並計算複雜度…")
-    sandbox_result = run_in_sandbox(wrapped_code)
+    sandbox_result = run_in_sandbox(wrapped_code, stdin_inputs=stdin_inputs or [])
+
+    # input_needed short-circuit (D10): 必須在進入 big-O / Gemini / AST 並行分析之前 raise，
+    # 否則含 input() 的 code 會在 big-O 測量時重跑 5 次 sandbox，浪費資源 + 污染 log。
+    if sandbox_result.get("error") == "input_needed":
+        raise InputNeededSignal(
+            prompt=sandbox_result["prompt"],
+            input_index=sandbox_result["input_index"],
+        )
 
     if "error" in sandbox_result:
         error_msg = sandbox_result["error"]

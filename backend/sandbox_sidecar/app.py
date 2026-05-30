@@ -72,8 +72,14 @@ def run():
     n = data.get("n")
     per_n_timeout = data.get("per_n_timeout")
 
+    stdin_inputs = data.get("stdin_inputs", [])
+    if not isinstance(stdin_inputs, list) or not all(isinstance(v, str) for v in stdin_inputs):
+        return jsonify({"error": "stdin_inputs must be list[str]"}), 400
+
     runnable = code if n is None else code + f"\nexplore_wrapper({n})"
     encoded = base64.b64encode(runnable.encode("utf-8")).decode("ascii")
+    # stdin 比照 CODE 用 base64 編碼，避開 shell/env 跳脫問題；runner.py 會解碼 STDIN_INPUTS。
+    stdin_encoded = base64.b64encode(json.dumps(stdin_inputs).encode("utf-8")).decode("ascii")
     effective_timeout = per_n_timeout if per_n_timeout is not None else CONTAINER_TIMEOUT
 
     pool = _get_pool()
@@ -93,6 +99,7 @@ def run():
                 [
                     "docker", "exec",
                     "-e", f"CODE={encoded}",
+                    "-e", f"STDIN_INPUTS={stdin_encoded}",
                     container.id,
                     "python", "/sandbox/runner.py",
                 ],

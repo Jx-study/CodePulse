@@ -17,13 +17,19 @@ SIDECAR_URL = os.environ.get("SANDBOX_SIDECAR_URL", "http://sandbox-sidecar:8080
 CONTAINER_TIMEOUT = 15  # 秒（比 sidecar 內部 10s 多一點，留網路開銷）
 
 
-def run_in_sandbox(code: str, n: int | None = None, per_n_timeout: int | None = None) -> dict:
+def run_in_sandbox(
+    code: str,
+    n: int | None = None,
+    per_n_timeout: int | None = None,
+    stdin_inputs: list[str] | None = None,
+) -> dict:
     """
     透過 sandbox-sidecar HTTP API 執行 code。
 
     Returns:
         成功：{"trace": [...], "call_graph": {...}, "cfg_graph": {...},
                "is_truncated": bool, "step_count": int}
+        需要輸入：{"error": "input_needed", "prompt": "...", "input_index": int}
         失敗：{"error": "<message>", "is_truncated": bool, "trace": []}
     """
     body: dict = {"code": code}
@@ -31,6 +37,8 @@ def run_in_sandbox(code: str, n: int | None = None, per_n_timeout: int | None = 
         body["n"] = n
     if per_n_timeout is not None:
         body["per_n_timeout"] = per_n_timeout
+    if stdin_inputs is not None:
+        body["stdin_inputs"] = stdin_inputs
 
     effective_timeout = per_n_timeout if per_n_timeout is not None else CONTAINER_TIMEOUT
     http_timeout = effective_timeout + 5  # buffer for container startup + network overhead

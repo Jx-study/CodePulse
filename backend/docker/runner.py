@@ -14,7 +14,7 @@ import json
 import os
 import sys
 import traceback as _traceback
-from tracer import run_trace
+from tracer import run_trace, InputNeededError
 from cfg_builder import build_cfg, build_module_cfg
 
 
@@ -32,6 +32,17 @@ def main():
 
         code = base64.b64decode(encoded).decode("utf-8")
 
+        stdin_raw = os.environ.get("STDIN_INPUTS", "")
+        if stdin_raw:
+            try:
+                stdin_inputs = json.loads(base64.b64decode(stdin_raw).decode("utf-8"))
+                if not isinstance(stdin_inputs, list) or not all(isinstance(v, str) for v in stdin_inputs):
+                    stdin_inputs = []
+            except Exception:
+                stdin_inputs = []
+        else:
+            stdin_inputs = []
+
         try:
             tree = ast.parse(code)
         except SyntaxError as e:
@@ -42,7 +53,17 @@ def main():
             _real_stdout.write(json.dumps({"error": "empty code: no executable statements found"}) + "\n")
             sys.exit(1)
 
-        trace_result = run_trace(code)
+        try:
+            trace_result = run_trace(code, stdin_inputs=stdin_inputs)
+        except InputNeededError as e:
+            # 結構化控制流訊號，不是 error。寫到 _real_stdout 而非 print。
+            # exit 0 因為這不是 failure，是「需要更多輸入」的暫停。
+            _real_stdout.write(json.dumps({
+                "error": "input_needed",
+                "prompt": e.prompt,
+                "input_index": e.input_index,
+            }) + "\n")
+            sys.exit(0)
 
         try:
             cfg_graphs = build_cfg(code)
