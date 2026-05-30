@@ -10,6 +10,7 @@ import type {
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
 import { TopologicalSortActionBar } from "./TopologicalSortActionBar";
 import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
+import { appendSideContainerBoxes } from "@/shared/utils/sideContainerUtils";
 
 const TAGS = {
   INIT: "INIT",
@@ -208,52 +209,15 @@ export function createTopologicalSortAnimationSteps(
       elements.push(node);
     });
 
-    queue.forEach((id, index) => {
-      const box = new Box();
-      box.id = `box-${id}`;
-      box.value = id.replace("node-", "");
-      const baseX = 850;
-      const baseY = 355 - index * 35;
-
-      if (id === pushingNodeId) {
-        box.moveTo(baseX, 50);
-        box.setStatus(Status.Prepare);
-      } else {
-        box.moveTo(baseX, baseY);
-        box.setStatus(TopoStatus.InQueue);
-      }
-
-      box.width = 120;
-      box.height = 30;
-      elements.push(box);
-    });
-
-    if (poppingNodeId) {
-      const dropBox = new Box();
-      dropBox.id = `box-${poppingNodeId}`;
-      dropBox.value = poppingNodeId.replace("node-", "");
-
-      const baseX = 850;
-      dropBox.moveTo(baseX, 420);
-
-      dropBox.width = 120;
-      dropBox.height = 30;
-      dropBox.setStatus(Status.Complete);
-      elements.push(dropBox);
-    }
-
-    const resStartX = 50,
-      resY = 420;
-    result.forEach((id, i) => {
-      const box = new Box();
-      box.id = `box-${id}`;
-      box.value = id.replace("node-", "");
-      box.moveTo(resStartX + i * 45, resY);
-      box.width = 40;
-      box.height = 40;
-      box.setStatus(TopoStatus.Complete);
-      elements.push(box);
-    });
+    appendSideContainerBoxes(
+      elements,
+      "queue",
+      queue,
+      result,
+      poppingNodeId,
+      pushingNodeId ? [pushingNodeId] : undefined,
+      { idPrefix: "box", idleStatus: TopoStatus.InQueue },
+    );
 
     const stepLinks = remainingEdges.map((e) => {
       let linkStatus = edgeStatus[`${e[0]}->${e[1]}`] as any;
