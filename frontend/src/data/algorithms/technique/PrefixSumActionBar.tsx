@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -21,6 +22,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
   onRun,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/prefix-sum");
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
 
@@ -39,7 +41,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
     ) {
       onRun({ type: "prefixSum", range: [start, end] });
     } else {
-      toast.warning("請輸入完整的區間 (Start, End)");
+      toast.warning(t("ui.invalidRange"));
     }
   };
 
@@ -57,35 +59,31 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Prefix Sum Control</StaticLabel>
+        <StaticLabel>{t("ui.controlLabel")}</StaticLabel>
         <div className={styles.rangeInput}>
           <Input
             type="number"
             placeholder="L"
             value={rangeStart}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setRangeStart(e.target.value)
-            }
+            onChange={(e) => setRangeStart(e.target.value)}
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
-            aria-label="Range start"
+            aria-label="Range start L"
           />
           <StaticLabel>-</StaticLabel>
           <Input
             type="number"
             placeholder="R"
             value={rangeEnd}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setRangeEnd(e.target.value)
-            }
+            onChange={(e) => setRangeEnd(e.target.value)}
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
-            aria-label="Range end"
+            aria-label="Range end R"
           />
         </div>
-        <Tooltip content="執行前綴和演算法演示">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -94,7 +92,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             className={styles.btnRun}
             icon="play"
           >
-            開始演示
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>
