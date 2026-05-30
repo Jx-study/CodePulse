@@ -29,10 +29,10 @@ def _terminal_event(ar: AsyncResult, status: str) -> dict:
 
 
 def _check_terminal(ar: AsyncResult) -> dict | None:
-    """若 task 處於 terminal 狀態回傳對應 event dict，否則 None。
+    """若 task 處於 terminal 狀態回傳對應 event dict，否則 None
 
     input_needed 也視為 terminal（程式暫停等待輸入），但帶 prompt / input_index
-    而非 error。注意 custom state 下要用 ar.info（不是 ar.result）取 meta。
+    而非 error；注意 custom state 下要用 ar.info（不是 ar.result）取 meta
     """
     state = _CELERY_STATE_MAP.get(ar.state, "pending")
     if state == "input_needed":

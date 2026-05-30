@@ -48,6 +48,7 @@ import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import AlgoDetectionDialog from "./components/AlgoDetectionDialog";
+import { InputPromptDialog } from "./components/InputPromptDialog";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import type { StdoutEvent } from "@/types/trace";
 import {
@@ -149,6 +150,7 @@ function Playground() {
     handleRun,
     handleEditCode,
     loadFromHistory,
+    inputPrompt,
   } = usePlaygroundRun({
     code,
     editorRef,
@@ -611,6 +613,13 @@ function Playground() {
         onApply={(name) => {
           setAppliedAlgo(name);
         }}
+      />
+      <InputPromptDialog
+        isOpen={inputPrompt !== null}
+        prompt={inputPrompt?.prompt ?? ""}
+        inputIndex={inputPrompt?.inputIndex ?? 0}
+        onSubmit={(value) => inputPrompt?.resolve(value)}
+        onCancel={() => inputPrompt?.resolve(null)}
       />
       <PlaygroundHistoryDialog
         isOpen={isHistoryOpen}

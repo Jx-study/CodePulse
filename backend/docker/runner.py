@@ -56,8 +56,8 @@ def main():
         try:
             trace_result = run_trace(code, stdin_inputs=stdin_inputs)
         except InputNeededError as e:
-            # 結構化控制流訊號，不是 error。寫到 _real_stdout 而非 print。
-            # exit 0 因為這不是 failure，是「需要更多輸入」的暫停。
+            # 結構化控制流訊號，不是 error。寫到 _real_stdout 而非 print
+            # exit 0 因為這不是 failure，是「需要更多輸入」的暫停
             _real_stdout.write(json.dumps({
                 "error": "input_needed",
                 "prompt": e.prompt,

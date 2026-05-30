@@ -2,7 +2,7 @@
 test_task_queue_memory.py — in-memory TaskQueue 的 input_needed 行為（Task 5：D1 / D13）
 
 聚焦 _run() 的 except InputNeededSignal 分支與 stream_progress 的 terminal 處理，
-不依賴 Redis / Docker，純 in-process 邏輯。
+不依賴 Redis / Docker，純 in-process 邏輯
 """
 import os
 os.environ["USE_CELERY"] = "0"
@@ -31,7 +31,7 @@ def queue():
 
 
 def _run_sync(q, task_id, fn):
-    """直接呼叫 _run（繞過 ThreadPoolExecutor），讓斷言能同步觀察結果。"""
+    """直接呼叫 _run（繞過 ThreadPoolExecutor），讓斷言能同步觀察結果"""
     with q._lock:
         q._tasks[task_id] = {
             "status": "pending",
@@ -51,7 +51,7 @@ def _run_sync(q, task_id, fn):
 
 
 def test_input_needed_signal_sets_status_and_meta(queue):
-    """worker 拋 InputNeededSignal → 狀態為 INPUT_NEEDED，且存下 prompt / input_index。"""
+    """worker 拋 InputNeededSignal → 狀態為 INPUT_NEEDED，且存下 prompt / input_index"""
     def fn(task_id):
         raise InputNeededSignal(prompt="age: ", input_index=1)
 
@@ -65,7 +65,7 @@ def test_input_needed_signal_sets_status_and_meta(queue):
 
 
 def test_input_needed_stream_emits_terminal_event_when_late_connect(queue):
-    """task 已處於 input_needed 後才連 SSE：stream_progress 應直接 yield 終止事件。"""
+    """task 已處於 input_needed 後才連 SSE：stream_progress 應直接 yield 終止事件"""
     def fn(task_id):
         raise InputNeededSignal(prompt="name: ", input_index=0)
 
@@ -83,7 +83,7 @@ def test_input_needed_stream_emits_terminal_event_when_late_connect(queue):
 
 
 def test_normal_completion_still_sets_completed(queue):
-    """回歸：正常 return 仍標記 completed，不受 input_needed 分支影響。"""
+    """回歸：正常 return 仍標記 completed，不受 input_needed 分支影響"""
     def fn(task_id):
         return {"ok": True}
 
@@ -93,7 +93,7 @@ def test_normal_completion_still_sets_completed(queue):
 
 
 def test_worker_exception_still_sets_failed(queue):
-    """回歸：一般例外仍標記 failed。"""
+    """回歸：一般例外仍標記 failed"""
     def fn(task_id):
         raise RuntimeError("boom")
 

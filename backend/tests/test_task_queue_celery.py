@@ -322,7 +322,7 @@ _FAKE_SANDBOX_INPUT_NEEDED = {
 
 
 def test_check_terminal_returns_input_needed_event_from_info():
-    """_check_terminal 對 INPUT_NEEDED state 應從 ar.info 取出 prompt / input_index。"""
+    """_check_terminal 對 INPUT_NEEDED state 應從 ar.info 取出 prompt / input_index"""
     from services.task_queue_celery import _check_terminal
     ar = MagicMock()
     ar.state = "INPUT_NEEDED"
@@ -338,7 +338,7 @@ def test_check_terminal_returns_input_needed_event_from_info():
 
 def test_eager_input_needed_sets_custom_state(eager_queue):
     """sandbox 回 input_needed → run_analysis_task 透過 update_state 設 INPUT_NEEDED，
-    不被標記成 SUCCESS/FAILURE（D12 主線：update_state + Ignore）。"""
+    不被標記成 SUCCESS/FAILURE（D12 主線：update_state + Ignore）"""
     patches = _io_patches(sandbox_result=_FAKE_SANDBOX_INPUT_NEEDED)
     with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6]:
         task_id = eager_queue.submit(_SIMPLE_CODE, _SIMPLE_WRAPPED)
@@ -351,7 +351,7 @@ def test_eager_input_needed_sets_custom_state(eager_queue):
 
 
 def test_eager_input_needed_stream_yields_input_needed_event(eager_queue):
-    """stream_progress 早連檢查（_check_terminal）應直接 yield input_needed 終止事件。"""
+    """stream_progress 早連檢查（_check_terminal）應直接 yield input_needed 終止事件"""
     patches = _io_patches(sandbox_result=_FAKE_SANDBOX_INPUT_NEEDED)
     with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6]:
         task_id = eager_queue.submit(_SIMPLE_CODE, _SIMPLE_WRAPPED)
