@@ -1,10 +1,6 @@
-export interface TourStep {
-  id: string;
-  title: string;
-  description: string;
-  targetSelector: string;
-  placement: 'top' | 'bottom' | 'left' | 'right';
-}
+import type { TourStep } from '@/shared/components/TourEngine';
+
+export type { TourStep };
 
 export const DESKTOP_STEPS: TourStep[] = [
   {
