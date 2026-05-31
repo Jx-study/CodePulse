@@ -374,6 +374,54 @@ class TestHistoryQuota:
 
             assert ExploreHistory.query.filter_by(user_id=1).count() == 5
 
+    def test_save_history_skips_persistence_for_existing_normalized_code(self, app):
+        from models.explorer import ExploreHistory, AnalysisSource
+        from services.algo_identification import IdentifyResult
+        from services.analysis_runner import _save_history
+        from database import db
+
+        existing_code = "def foo():\n    return 1\n"
+        duplicate_code = "def foo():\n    # comment should normalize away\n    return 1\n"
+        identify_result = IdentifyResult(
+            algo_name="linear_search",
+            score=0.9,
+            top_raw="linear_search",
+            top3=[],
+        )
+
+        with app.app_context():
+            db.session.add(ExploreHistory(
+                explore_id=160,
+                user_id=1,
+                user_code=existing_code,
+                detected_algorithm="linear_search",
+                confidence_score=0.9,
+                time_complexity="O(n)",
+                analysis_source=AnalysisSource.ast_bigO,
+            ))
+            db.session.commit()
+
+            _save_history(
+                user_id=1,
+                code=duplicate_code,
+                identify_result=identify_result,
+                final_complexity="O(1)",
+                complexity_source="ast",
+                gemini_summary=None,
+                have_level1=False,
+                execution_trace=[],
+                is_truncated=False,
+                raw_trace=[],
+                raw_index_map=[],
+                call_graph=None,
+                cfg_graph={},
+                stdout_events=[],
+            )
+
+            records = ExploreHistory.query.filter_by(user_id=1).all()
+            assert len(records) == 1
+            assert records[0].user_code == existing_code
+
 
 class TestAnalyzeResultAuth:
     def test_result_requires_login(self, client):

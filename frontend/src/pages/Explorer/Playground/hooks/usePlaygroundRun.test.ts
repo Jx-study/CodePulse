@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { handleDuplicateReplay } from "./usePlaygroundRun";
+import { handleDuplicateReplay, waitForInputPrompt } from "./usePlaygroundRun";
 import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 
 const record: PlaygroundHistoryRecord = {
@@ -45,5 +45,33 @@ describe("handleDuplicateReplay", () => {
     vi.advanceTimersByTime(1);
     expect(loadFromHistory).toHaveBeenCalledOnce();
     expect(loadFromHistory).toHaveBeenCalledWith(record);
+  });
+});
+
+describe("waitForInputPrompt", () => {
+  it("rejects and clears the prompt when the run is aborted", async () => {
+    const controller = new AbortController();
+    const setInputPrompt = vi.fn();
+
+    const promise = waitForInputPrompt(
+      "name: ",
+      0,
+      setInputPrompt,
+      controller.signal,
+    );
+
+    expect(setInputPrompt).toHaveBeenCalledWith({
+      prompt: "name: ",
+      inputIndex: 0,
+      resolve: expect.any(Function),
+    });
+
+    controller.abort();
+
+    await expect(promise).rejects.toMatchObject({
+      name: "AbortError",
+      message: "Aborted",
+    });
+    expect(setInputPrompt).toHaveBeenLastCalledWith(null);
   });
 });

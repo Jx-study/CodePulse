@@ -42,6 +42,12 @@ export function AiAnalysisDialog({
     return getLevelByImplKey(implKey);
   }, [aiResult?.detected_algorithm]);
 
+  useEffect(() => {
+    if (isOpen && activeTab === "algorithm" && !tutorialLevel) {
+      setActiveTab("complexity");
+    }
+  }, [activeTab, isOpen, tutorialLevel]);
+
   return (
     <Dialog
       isOpen={isOpen}

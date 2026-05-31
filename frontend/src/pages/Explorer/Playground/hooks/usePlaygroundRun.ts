@@ -20,6 +20,12 @@ import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/Code
 
 type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
+type InputPromptState = {
+  prompt: string;
+  inputIndex: number;
+  resolve: (value: string | null) => void;
+} | null;
+
 interface UsePlaygroundRunOptions {
   code: string;
   editorRef: React.RefObject<CodeEditorHandle | null>;
@@ -39,6 +45,41 @@ export function handleDuplicateReplay(
   return window.setTimeout(() => {
     loadFromHistory(record);
   }, delayMs);
+}
+
+export function waitForInputPrompt(
+  prompt: string,
+  inputIndex: number,
+  setInputPrompt: (value: InputPromptState) => void,
+  signal: AbortSignal,
+): Promise<string | null> {
+  return new Promise<string | null>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+
+    let settled = false;
+    const cleanup = () => {
+      signal.removeEventListener("abort", onAbort);
+      setInputPrompt(null);
+    };
+    const settle = (value: string | null) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(value);
+    };
+    const onAbort = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+
+    signal.addEventListener("abort", onAbort, { once: true });
+    setInputPrompt({ prompt, inputIndex, resolve: settle });
+  });
 }
 
 export function usePlaygroundRun({
@@ -68,11 +109,7 @@ export function usePlaygroundRun({
 
   // 互動式 input()：等待使用者輸入的彈窗狀態（null = 無彈窗）
   // resolve 由 retry loop 注入，使用者送出或取消時呼叫
-  const [inputPrompt, setInputPrompt] = useState<{
-    prompt: string;
-    inputIndex: number;
-    resolve: (value: string | null) => void; // null = 取消
-  } | null>(null);
+  const [inputPrompt, setInputPrompt] = useState<InputPromptState>(null);
   // 跨多次 retry 累積使用者已輸入的 stdin（依 D8 由 caller 用 ref 維護）
   const stdinInputsRef = useRef<string[]>([]);
 
@@ -179,14 +216,12 @@ export function usePlaygroundRun({
           );
         } catch (err) {
           if (err instanceof InputNeededError) {
-            const value = await new Promise<string | null>((resolve) => {
-              setInputPrompt({
-                prompt: err.prompt,
-                inputIndex: err.inputIndex,
-                resolve,
-              });
-            });
-            setInputPrompt(null);
+            const value = await waitForInputPrompt(
+              err.prompt,
+              err.inputIndex,
+              setInputPrompt,
+              controller.signal,
+            );
             if (value === null) {
               throw new AnalyzeError("runtime_error", "input cancelled");
             }
@@ -209,15 +244,17 @@ export function usePlaygroundRun({
     let saveHistory = true;
     stdinInputsRef.current = []; // 新一次 run：清掉上一輪累積的 stdin
 
-    // Quota gate（forceRun 時仍需 quota 檢查，但不做 duplicate 攔截）
-    try {
-      const records = await listHistory();
-      if (records.length >= 5) {
-        const decision = await onQuotaFull(records);
-        saveHistory = decision === "proceed";
+    // Quota gate for fresh runs. Force runs skip it server-side; _save_history still guards capacity.
+    if (!forceRun) {
+      try {
+        const records = await listHistory();
+        if (records.length >= 5) {
+          const decision = await onQuotaFull(records);
+          saveHistory = decision === "proceed";
+        }
+      } catch {
+        // If quota check fails, continue with run anyway
       }
-    } catch {
-      // If quota check fails, continue with run anyway
     }
 
     if (duplicateTimerRef.current !== null) {
