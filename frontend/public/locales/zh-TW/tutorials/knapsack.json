@@ -1,0 +1,19 @@
+{
+  "animation": {
+    "init": "初始化：建立 DP 表格，當 itemIdx=0 或 currCapacity=0 時，價值皆為 0",
+    "check_weight": "判斷 dp[{{i}}][{{w}}]：目前物品重量 ({{weight}}) 是否放得進目前背包容量 ({{w}})？",
+    "skip_item": "物品重量 ({{weight}}) > 目前容量 ({{w}})，放不下！繼承上一列的值：dp[{{i}}][{{w}}] = dp[{{i}} - 1][{{w}}] = {{dpVal}}",
+    "take_item": "更新：放得下！dp[{{i}}][{{w}}] ← max(不放: {{skipValue}}, 放: {{takeValue}}) = {{dpVal}}",
+    "done": "計算完成！最大總價值為 dp[{{n}}][{{capacity}}] = {{dpVal}}"
+  },
+  "ui": {
+    "load": "載入資料",
+    "loadTooltip": "自定義載入物品清單",
+    "controlLabel": "0/1 背包操作",
+    "placeholder": "背包容量 (W)",
+    "run": "開始填表",
+    "runTooltip": "執行 0/1 背包演算法填表",
+    "limitWarning": "為了維持最佳的視覺化排版，建議背包容量設定在 15 以內",
+    "invalidInput": "請輸入有效的背包容量 (大於 0 的整數)"
+  }
+}

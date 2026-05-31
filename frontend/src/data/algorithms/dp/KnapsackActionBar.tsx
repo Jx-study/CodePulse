@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -21,6 +22,7 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
 }) => {
+  const { t } = useTranslation("tutorials/knapsack");
   const [capacity, setCapacity] = useState("5");
   const [showLoader, setShowLoader] = useState(false);
   const [itemCount, setItemCount] = useState(5);
@@ -34,7 +36,6 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
     onMaxNodesChange?.(v);
   };
 
-  // 產生隨機物品，數量由「隨機筆數」控制，內容隨機
   const handleGenerateRandom = () => {
     const count = itemCount;
     const newItems = Array.from({ length: count }, () => {
@@ -47,32 +48,30 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
     const cap = parseInt(capacity);
     if (!isNaN(cap) && cap > 0) {
       if (cap > 15) {
-        toast.warning("為了維持最佳的視覺化排版，建議背包容量設定在 15 以內");
+        toast.warning(t("ui.limitWarning"));
         return;
       }
-      // 將 capacity 參數傳給底層演算法
       onRun({ type: "knapsack", capacity: cap });
     } else {
-      toast.warning("請輸入有效的背包容量 (大於 0 的整數)");
+      toast.warning(t("ui.invalidInput"));
     }
   };
 
   return (
     <ActionBarContainer>
-      {/* 第一區塊：資料生成 */}
       <KnapsackLoaderModal
         show={showLoader}
         onClose={() => setShowLoader(false)}
         onLoad={handleModalLoad}
       />
       <ActionBarGroup>
-        <Tooltip content="自定義載入物品清單">
+        <Tooltip content={t("ui.loadTooltip")}>
           <Button
             size="sm"
             onClick={() => setShowLoader(true)}
             disabled={disabled}
           >
-            載入資料
+            {t("ui.load")}
           </Button>
         </Tooltip>
         <DataRow
@@ -86,12 +85,11 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
         />
       </ActionBarGroup>
 
-      {/* 第二區塊：演算法控制 */}
       <ActionBarGroup>
-        <StaticLabel>Knapsack Control</StaticLabel>
+        <StaticLabel>{t("ui.controlLabel")}</StaticLabel>
         <Input
           type="number"
-          placeholder="背包容量 (W)"
+          placeholder={t("ui.placeholder")}
           value={capacity}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setCapacity(e.target.value)
@@ -103,7 +101,7 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
           max={15}
           aria-label="Knapsack capacity"
         />
-        <Tooltip content="執行 0/1 背包演算法填表">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             onClick={handleRun}
@@ -112,7 +110,7 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
             icon="play"
             variant="secondary"
           >
-            開始填表
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

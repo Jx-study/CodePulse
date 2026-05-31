@@ -1,0 +1,19 @@
+{
+  "animation": {
+    "init": "Initialization: Build the DP table. When itemIdx=0 or currCapacity=0, the value is 0.",
+    "check_weight": "Check dp[{{i}}][{{w}}]: Can current item's weight ({{weight}}) fit into current capacity ({{w}})?",
+    "skip_item": "Item weight ({{weight}}) > current capacity ({{w}}), cannot fit! Inherit value from the previous row: dp[{{i}}][{{w}}] = dp[{{i}} - 1][{{w}}] = {{dpVal}}",
+    "take_item": "Update: It fits! dp[{{i}}][{{w}}] ← max(Skip: {{skipValue}}, Take: {{takeValue}}) = {{dpVal}}",
+    "done": "Calculation complete! Maximum total value is dp[{{n}}][{{capacity}}] = {{dpVal}}"
+  },
+  "ui": {
+    "load": "Load Data",
+    "loadTooltip": "Open custom item list loader",
+    "controlLabel": "Knapsack Operations",
+    "placeholder": "Capacity (W)",
+    "run": "Run Tabulation",
+    "runTooltip": "Execute 0/1 Knapsack tabulation algorithm",
+    "limitWarning": "To maintain optimal visual layout, a capacity under 15 is recommended.",
+    "invalidInput": "Please enter a valid capacity (integer > 0)"
+  }
+}
