@@ -790,6 +790,28 @@ function TutorialContent() {
       return;
     }
 
+    if (raw.startsWith("TRIE:")) {
+      // 拔掉 "TRIE:" 前綴，然後用空白切成純字串陣列
+      const wordsStr = raw.replace("TRIE:", "").trim();
+      const parsedWords = wordsStr ? wordsStr.split(" ") : [];
+
+      if (parsedWords.length === 0) {
+        toast.warning("請輸入有效的單字清單");
+        return;
+      }
+
+      const steps = executeAction("load", {
+        data: parsedWords,
+        hasTailMode,
+      });
+
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
     const parsed = raw
       .split(",")
       .map((v) => parseInt(v.trim()))

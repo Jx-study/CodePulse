@@ -107,5 +107,49 @@
       "noValidWords": "No valid words found. Please try again.",
       "truncateWarning": "Limited to the first {{max}} unique words for readability."
     }
+  },
+  "animation": {
+    "init": "Trie initialized with default words",
+    "insert_start": "Insert: Preparing to insert word '{{word}}'",
+    "char_match": "Match char '{{char}}' (prefix {{prefix}}): Path exists, traversing",
+    "char_create": "Create node '{{char}}' (prefix {{prefix}}): Creating new branch",
+    "set_end": "Mark End: Setting the final node of '{{word}}' as end of word [Word]",
+    "search_start": "Search Mode ({{mode}}): Searching for '{{word}}'",
+    "search_found": "Search Success! '{{word}}' matches the criteria",
+    "search_not_found": "Search Failed: {{error}}",
+    "delete_start": "Delete: Preparing to find and delete word '{{word}}'",
+    "delete_unmark": "Unmark: Removing the end-of-word mark [Word] from '{{word}}'",
+    "delete_prune": "Bottom-up Pruning: Prefix '{{pruned}}' is no longer shared, removing node",
+    "delete_not_found": "Delete aborted: {{error}}",
+    "done": "Operation completed successfully!"
+  },
+  "ui": {
+    "batchOps": "Batch Operations",
+    "loadList": "Load List",
+    "loadListTooltip": "Open the advanced word list loader",
+    "randomCount": "Random count:",
+    "randomCountTooltip": "Set the number of random words (max {{max}})",
+    "randomCountExceeded": "Random count limit is {{max}}",
+    "randomGenerate": "Randomize",
+    "randomTooltip": "Generate a set of words with shared prefixes",
+    "reset": "Reset",
+    "resetTooltip": "Clear all words and restore the initial state",
+    "wordInput": "Enter word (letters only)",
+    "insertTooltip": "Insert the word character by character into the Trie",
+    "searchTooltip": "Search whether the exact word exists",
+    "startsWithTooltip": "Search whether this prefix exists",
+    "deleteTooltip": "Unmark end-of-word and prune unused branches upward",
+    "modal": {
+      "title": "Custom Trie Word List",
+      "inputLabel": "Word list (comma, newline, or space-separated)",
+      "placeholder": "Enter English words, e.g.:\napple\nbanana\ncat",
+      "loadButton": "Load",
+      "cancel": "Cancel",
+      "hint": "* Words are auto-lowercased; duplicates and non-letter characters are removed. Limit: {{max}}.",
+      "emptyWarning": "Please enter at least one word!",
+      "invalidWarning": "Trie only accepts letters. The following were skipped: {{words}}",
+      "noValidWords": "No valid words found. Please try again.",
+      "truncateWarning": "Limited to the first {{max}} unique words for readability."
+    }
   }
 }

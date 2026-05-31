@@ -4,7 +4,7 @@
 - 只有在此處註冊的圖標才能在 Icon Component 中使用
 */
 
-import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { library, IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faArrowLeft,
   faArrowRight,
@@ -82,6 +82,7 @@ import {
   faSignOutAlt,
   faSitemap,
   faSliders,
+  faSpellCheck,
   faSpinner,
   faStar,
   faStepBackward,
@@ -107,7 +108,7 @@ import {
   faCircle as farCircle,
   faCheckCircle as farCheckCircle,
   faStar as farStar,
-} from '@fortawesome/free-regular-svg-icons';
+} from "@fortawesome/free-regular-svg-icons";
 
 /**
  * 1. 集中管理映射表
@@ -175,6 +176,7 @@ export const iconMap = {
   "palette": faPalette,
   "paper-plane": faPaperPlane,
   "person-running": faPersonRunning,
+  "spell-check": faSpellCheck,
   "pause": faPause,
   "pencil": faPencil,
   "pen-to-square": faPenToSquare,

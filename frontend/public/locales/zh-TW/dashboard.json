@@ -42,6 +42,8 @@
   "tutorialSection": {
     "title": "教學模式",
     "descriptionTitle": "演算法說明",
+    "algorithmDescriptionTitle": "演算法說明",
+    "dataStructureDescriptionTitle": "資料結構說明",
     "objectivesTitle": "學習目標",
     "suggestedTitle": "建議先學習",
     "restartButton": "重新學習",

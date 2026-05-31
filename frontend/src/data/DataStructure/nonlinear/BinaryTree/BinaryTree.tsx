@@ -7,8 +7,11 @@ import {
 } from "../utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Node } from "@/modules/core/DataLogic/Node";
-import { Box } from "@/modules/core/DataLogic/Box";
 import { BinaryTreeActionBar } from "./BinaryTreeActionBar";
+import {
+  appendTreeContainerBoxes,
+  type TreeContainerAnimationState,
+} from "@/shared/utils/sideContainerUtils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import type {
   ActionContext,
@@ -72,14 +75,12 @@ function buildLogicalTree(data: any[]): LogicTreeNode | null {
   return root;
 }
 
-type StackAnimationState = "idle" | "pushing" | "popping";
-
 const generateFrame = (
   inputData: any[],
   statusMap: Record<string, Status>,
   description: string,
   linearList: LogicTreeNode[] = [],
-  animationState: StackAnimationState = "idle",
+  animationState: TreeContainerAnimationState = "idle",
   containerType: "stack" | "queue" = "stack",
   actionTag?: string,
   local_vars?: Record<string, any>,
@@ -102,51 +103,12 @@ const generateFrame = (
 
   const links = buildLinksFromNodes(treeElements, linkStatusMap);
 
-  const listElements = linearList.map((node, index) => {
-    const box = new Box();
-    box.id = `${containerType}-${node.id}`;
-    box.value = String(node.value);
-    const baseX = 850;
-    const baseY = 355 - index * 35;
-
-    let isActiveItem = false;
-    if (containerType === "stack") {
-      isActiveItem = index === linearList.length - 1;
-    } else {
-      if (animationState === "pushing")
-        isActiveItem = index === linearList.length - 1;
-      else if (animationState === "popping") isActiveItem = index === 0;
-    }
-
-    if (isActiveItem) {
-      if (animationState === "pushing") {
-        box.moveTo(baseX, 50);
-        box.setStatus(Status.Prepare);
-      } else if (animationState === "popping") {
-        if (containerType === "stack") {
-          box.moveTo(baseX, -50);
-        } else {
-          box.moveTo(baseX, 420);
-        }
-        box.setStatus(Status.Complete);
-      } else {
-        box.moveTo(baseX, baseY);
-        box.setStatus(Status.Target);
-      }
-    } else {
-      box.moveTo(baseX, baseY);
-      box.setStatus(Status.Unfinished);
-    }
-
-    box.width = 120;
-    box.height = 30;
-    return box;
-  });
+  appendTreeContainerBoxes(treeElements, containerType, linearList, animationState);
 
   return {
     stepNumber: 0,
     description,
-    elements: [...treeElements, ...listElements],
+    elements: treeElements,
     links,
     actionTag,
     local_vars,
