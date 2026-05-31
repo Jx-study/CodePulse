@@ -1,0 +1,22 @@
+{
+  "loadGrid": "Load Maze Data",
+  "loadGridTooltip": "Open the custom maze data loading interface",
+  "loadGraph": "Load Graph Data",
+  "loadGraphTooltip": "Open the custom graph data loading interface",
+  "reset": "Reset",
+  "resetTooltip": "Clear all data and restore the initial state",
+  "random": "Random",
+  "randomTooltip": "Generate a random dataset",
+  "viewMode": "View",
+  "startPlaceholder": "Start (0)",
+  "endPlaceholder": "End (N)",
+  "run": "Run",
+  "runTooltip": "Execute the BFS/DFS algorithm",
+  "noGraphData": "No graph data is currently available. Unable to specify a start/end node.",
+  "startOutOfRange": "Start index {{s}} is out of range (0 ~ {{maxIndex}})",
+  "startIsWall": "Start index {{s}} is a wall and cannot be traversed",
+  "endOutOfRange": "End index {{e}} is out of range (0 ~ {{maxIndex}})",
+  "endIsWall": "End index {{e}} is a wall and cannot be traversed",
+  "startNodeNotFound": "Start node-{{val}} does not exist",
+  "endNodeNotFound": "End node-{{val}} does not exist"
+}

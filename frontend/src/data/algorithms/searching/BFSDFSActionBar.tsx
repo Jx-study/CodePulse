@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -8,7 +9,6 @@ import type {
   AlgoActionBarProps,
   AlgorithmViewMode,
 } from "@/types/implementation";
-import { DATA_LIMITS } from "@/constants/dataLimits";
 import {
   ActionBarContainer,
   ActionBarGroup,
@@ -22,20 +22,13 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
   onLoadData,
   onResetData,
   onRandomData,
-  onMaxNodesChange,
   disabled = false,
   onRun,
   viewMode = "graph",
   onViewModeChange,
   currentData,
-  maxNodes,
 }) => {
-  const [randomCount, setRandomCount] = useState(
-    DATA_LIMITS.DEFAULT_RANDOM_COUNT,
-  );
-  const [randomCountInput, setRandomCountInput] = useState(
-    String(DATA_LIMITS.DEFAULT_RANDOM_COUNT),
-  );
+  const { t } = useTranslation("tutorials/bfs-dfs-actionbar");
   const [gridRows, setGridRows] = useState("3");
   const [gridCols, setGridCols] = useState("5");
   const [showGridLoader, setShowGridLoader] = useState(false);
@@ -72,12 +65,10 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
 
   const handleRun = () => {
     if (viewMode === "grid") {
-      let startId = undefined;
-      let endId = undefined;
-
+      let startId, endId;
       if (gridStartElement !== "" || gridEndElement !== "") {
         if (!currentData || !Array.isArray(currentData)) {
-          toast.warning("目前沒有圖形資料，無法指定起點/終點");
+          toast.warning(t("noGraphData"));
           return;
         }
         const maxIndex = currentData.length - 1;
@@ -85,11 +76,11 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         if (gridStartElement !== "") {
           const s = parseInt(gridStartElement, 10);
           if (isNaN(s) || s < 0 || s > maxIndex) {
-            toast.warning(`起點索引 ${s} 超出範圍 (0 ~ ${maxIndex})`);
+            toast.warning(t("startOutOfRange", { s, maxIndex }));
             return;
           }
           if (currentData[s].val === "wall") {
-            toast.warning(`起點索引 ${s} 是牆壁，無法通行`);
+            toast.warning(t("startIsWall", { s }));
             return;
           }
           startId = s.toString();
@@ -98,60 +89,59 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         if (gridEndElement !== "") {
           const e = parseInt(gridEndElement, 10);
           if (isNaN(e) || e < 0 || e > maxIndex) {
-            toast.warning(`終點索引 ${e} 超出範圍 (0 ~ ${maxIndex})`);
+            toast.warning(t("endOutOfRange", { e, maxIndex }));
             return;
           }
           if (currentData[e].val === "wall") {
-            toast.warning(`終點索引 ${e} 是牆壁，無法通行`);
+            toast.warning(t("endIsWall", { e }));
             return;
           }
           endId = e.toString();
         }
       }
-
-      const r = parseInt(gridRows) || 3;
-      const c = parseInt(gridCols) || 5;
       onRun({
         type: "bfsDfs",
         mode: "grid",
-        rows: r,
-        cols: c,
+        rows: parseInt(gridRows) || 3,
+        cols: parseInt(gridCols) || 5,
         startNode: startId,
         endNode: endId,
       });
     } else {
-      let startId = undefined;
-      let endId = undefined;
-
+      let startId, endId;
       if (graphStartElement !== "" || graphEndElement !== "") {
-        if (!currentData || !currentData.nodes) {
-          toast.warning("目前沒有圖形資料，無法指定起點/終點");
+        if (!currentData || !(currentData as any).nodes) {
+          toast.warning(t("noGraphData"));
           return;
         }
-        const nodes = currentData.nodes as { id: string }[];
-
+        const nodes = (currentData as any).nodes as { id: string }[];
         if (graphStartElement !== "") {
-          const normalizedVal = normalizeId(graphStartElement);
-          const targetId = `node-${normalizedVal}`;
+          const targetId = `node-${normalizeId(graphStartElement)}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            toast.warning(`起點 node-${normalizedVal} 不存在`);
+            toast.warning(
+              t("startNodeNotFound", { val: normalizeId(graphStartElement) }),
+            );
             return;
           }
           startId = targetId;
         }
-
         if (graphEndElement !== "") {
-          const normalizedVal = normalizeId(graphEndElement);
-          const targetId = `node-${normalizedVal}`;
+          const targetId = `node-${normalizeId(graphEndElement)}`;
           if (!nodes.find((n) => n.id === targetId)) {
-            toast.warning(`終點 node-${normalizedVal} 不存在`);
+            toast.warning(
+              t("endNodeNotFound", { val: normalizeId(graphEndElement) }),
+            );
             return;
           }
           endId = targetId;
         }
       }
-
-      onRun({ type: "bfsDfs", mode: "graph", startNode: startId, endNode: endId });
+      onRun({
+        type: "bfsDfs",
+        mode: "graph",
+        startNode: startId,
+        endNode: endId,
+      });
     }
   };
 
@@ -168,31 +158,30 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         onLoad={onLoadData}
       />
 
-      {/* 第一行：資料生成 */}
       <ActionBarGroup>
         {viewMode === "grid" && (
-          <Tooltip content="開啟自定義迷宮資料載入介面">
+          <Tooltip content={t("loadGridTooltip")}>
             <Button
               size="sm"
               onClick={() => setShowGridLoader(!showGridLoader)}
               disabled={disabled}
             >
-              載入迷宮資料
+              {t("loadGrid")}
             </Button>
           </Tooltip>
         )}
         {viewMode === "graph" && (
-          <Tooltip content="開啟自定義圖形資料載入介面">
+          <Tooltip content={t("loadGraphTooltip")}>
             <Button
               size="sm"
               onClick={() => setShowGraphLoader(true)}
               disabled={disabled}
             >
-              載入圖形資料
+              {t("loadGraph")}
             </Button>
           </Tooltip>
         )}
-        <Tooltip content="清除所有資料，恢復初始狀態">
+        <Tooltip content={t("resetTooltip")}>
           <Button
             variant="secondary"
             size="sm"
@@ -200,62 +189,20 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             disabled={disabled}
             icon="rotate-right"
           >
-            重設
+            {t("reset")}
           </Button>
         </Tooltip>
-        <div className={styles.settingItem}>
-          <label className={styles.smallLabel}>隨機筆數:</label>
-          <Tooltip content={maxNodes !== undefined ? `設定隨機生成的資料筆數，上限為 ${maxNodes}` : "設定隨機生成的資料筆數"}>
-            <Input
-              type="number"
-              value={randomCountInput}
-              min={DATA_LIMITS.MIN_RANDOM_COUNT}
-              max={maxNodes}
-              fullWidth={false}
-              onChange={(e) => setRandomCountInput(e.target.value)}
-              onBlur={() => {
-                const num = Number(randomCountInput);
-                if (isNaN(num) || randomCountInput.trim() === "") {
-                  setRandomCountInput(String(randomCount));
-                } else {
-                  if (maxNodes !== undefined && num > maxNodes) {
-                    toast.warning(`隨機筆數上限為 ${maxNodes}`);
-                  }
-                  const v = Math.min(
-                    Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                    maxNodes ?? num,
-                  );
-                  setRandomCount(v);
-                  setRandomCountInput(String(v));
-                  onMaxNodesChange?.(v);
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  (e.target as HTMLInputElement).blur();
-                }
-              }}
-              className={`${styles.input} ${styles.valueInput}`}
-              disabled={disabled}
-              aria-label="Random count"
-            />
-          </Tooltip>
-        </div>
-        <Tooltip content="隨機生成一組資料">
+        <Tooltip content={t("randomTooltip")}>
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => {
-              if (viewMode === "grid") {
-                handleRandomGrid();
-              } else {
-                onRandomData();
-              }
-            }}
+            onClick={() =>
+              viewMode === "grid" ? handleRandomGrid() : onRandomData()
+            }
             disabled={disabled}
             icon="shuffle"
           >
-            隨機
+            {t("random")}
           </Button>
         </Tooltip>
         {viewMode === "grid" && (
@@ -284,12 +231,10 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         )}
       </ActionBarGroup>
 
-      {/* 第二行：執行控制 */}
       <ActionBarGroup>
         <StaticLabel>Algorithm Control</StaticLabel>
-
         <div className={styles.viewModeContainer}>
-          <span className={styles.viewModeLabel}>視圖:</span>
+          <span className={styles.viewModeLabel}>{t("viewMode")}:</span>
           <Select
             value={viewMode}
             onChange={(e) =>
@@ -300,8 +245,8 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             fullWidth={false}
             className={styles.viewModeSelect}
             options={[
-              { value: "graph", label: "Graph (節點圖)" },
-              { value: "grid", label: "Grid (迷宮圖)" },
+              { value: "graph", label: "Graph" },
+              { value: "grid", label: "Grid" },
             ]}
             aria-label="View mode"
           />
@@ -310,7 +255,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
         <div className={styles.startEndContainer}>
           <Input
             type="number"
-            placeholder="起點(0)"
+            placeholder={t("startPlaceholder")}
             value={viewMode === "graph" ? graphStartElement : gridStartElement}
             fullWidth={false}
             onChange={(e) =>
@@ -325,7 +270,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
           <span className={styles.startEndSeparator}>-</span>
           <Input
             type="number"
-            placeholder="終點(N)"
+            placeholder={t("endPlaceholder")}
             value={viewMode === "graph" ? graphEndElement : gridEndElement}
             fullWidth={false}
             onChange={(e) =>
@@ -339,7 +284,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
           />
         </div>
 
-        <Tooltip content="執行 BFS/DFS 演算法">
+        <Tooltip content={t("runTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -347,7 +292,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             disabled={disabled}
             className={styles.btnRun}
           >
-            開始執行
+            {t("run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

@@ -1,0 +1,22 @@
+{
+  "loadGrid": "載入迷宮資料",
+  "loadGridTooltip": "開啟自定義迷宮資料載入介面",
+  "loadGraph": "載入圖形資料",
+  "loadGraphTooltip": "開啟自定義圖形資料載入介面",
+  "reset": "重設",
+  "resetTooltip": "清除所有資料，恢復初始狀態",
+  "random": "隨機",
+  "randomTooltip": "隨機生成一組資料",
+  "viewMode": "視圖",
+  "startPlaceholder": "起點(0)",
+  "endPlaceholder": "終點(N)",
+  "run": "開始執行",
+  "runTooltip": "執行 BFS/DFS 演算法",
+  "noGraphData": "目前沒有圖形資料，無法指定起點/終點",
+  "startOutOfRange": "起點索引 {{s}} 超出範圍 (0 ~ {{maxIndex}})",
+  "startIsWall": "起點索引 {{s}} 是牆壁，無法通行",
+  "endOutOfRange": "終點索引 {{e}} 超出範圍 (0 ~ {{maxIndex}})",
+  "endIsWall": "終點索引 {{e}} 是牆壁，無法通行",
+  "startNodeNotFound": "起點 node-{{val}} 不存在",
+  "endNodeNotFound": "終點 node-{{val}} 不存在"
+}

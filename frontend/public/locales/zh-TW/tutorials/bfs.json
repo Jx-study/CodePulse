@@ -1,0 +1,20 @@
+{
+  "animation": {
+    "graph_init": "準備開始 BFS，初始化距離為 ∞",
+    "graph_start": "將起點 {{start}} 加入佇列 (距離: 0)",
+    "dequeue": "While 佇列不為空，取出 {{curr}}（距離: {{dist}}）",
+    "check_end_true": "判斷：{{curr}} === end，找到終點！",
+    "check_end_false": "判斷：{{curr}} !== end，繼續搜尋",
+    "explore_some": "遍歷 {{curr}} 的鄰居，發現 {{count}} 個未訪問節點",
+    "explore_none": "遍歷 {{curr}} 的鄰居，所有鄰居皆已訪問",
+    "visit_neighbor": "發現未訪問鄰居 {{neighbor}}，將其加入 Queue",
+    "change_visited": "將鄰居 {{neighbor}} 的距離更新為 {{dist}}",
+    "path_found": "找到終點！最短路徑長度: {{dist}}",
+    "not_found": "佇列已空，無法到達終點",
+    "grid_blocked": "起點或終點被牆壁阻擋，無法開始",
+    "grid_init": "BFS 準備開始：顯示格子索引 (ID)。起點: {{start}}，終點: {{end}}",
+    "grid_init_dist": "初始化距離為 ∞",
+    "grid_start": "將起點 {{start}} 初始化並加入佇列",
+    "grid_visit_neighbor": "發現鄰居 {{neighbor}}，加入佇列"
+  }
+}

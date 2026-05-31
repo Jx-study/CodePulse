@@ -1,0 +1,20 @@
+{
+  "animation": {
+    "graph_init": "Preparing to start BFS, initializing all distances to ∞",
+    "graph_start": "Add the start node {{start}} to the queue (distance: 0)",
+    "dequeue": "While the queue is not empty, dequeue {{curr}} (distance: {{dist}})",
+    "check_end_true": "Check: {{curr}} === end, destination found!",
+    "check_end_false": "Check: {{curr}} !== end, continue searching",
+    "explore_some": "Exploring neighbors of {{curr}}, found {{count}} unvisited node(s)",
+    "explore_none": "Exploring neighbors of {{curr}}, all neighbors have already been visited",
+    "visit_neighbor": "Found unvisited neighbor {{neighbor}}, adding it to the queue",
+    "change_visited": "Update distance of neighbor {{neighbor}} to {{dist}}",
+    "path_found": "Destination found! Shortest path length: {{dist}}",
+    "not_found": "The queue is empty, destination cannot be reached",
+    "grid_blocked": "The start or destination is blocked by a wall, cannot begin",
+    "grid_init": "Preparing to start BFS: displaying cell indices (IDs). Start: {{start}}, End: {{end}}",
+    "grid_init_dist": "Initializing all distances to ∞",
+    "grid_start": "Initialize the start cell {{start}} and add it to the queue",
+    "grid_visit_neighbor": "Found neighbor {{neighbor}}, adding it to the queue"
+  }
+}
