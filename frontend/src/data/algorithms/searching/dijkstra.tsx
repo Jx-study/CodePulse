@@ -12,6 +12,9 @@ import type {
   ActionContext,
   ActionResult,
 } from "@/modules/core/visualization/types";
+import { simulateDijkstraTrace } from "./dijkstra/simulateTrace";
+import { dijkstraTraceToSteps } from "./dijkstra/traceToSteps";
+import { TAGS, DijkstraStatusConfig } from "./dijkstra/tags";
 
 function parseGraphLoadPayload(
   dataStr: string,
@@ -109,242 +112,13 @@ function dijkstraActionHandler(
 
   return null;
 }
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { linkStatus } from "@/modules/core/Render/D3Renderer";
-import {
-  createGraphElements,
-  generateGraphFrame,
-  getLinkKey,
-  updateLinkStatus,
-} from "@/data/DataStructure/nonlinear/utils";
-
-const TAGS = {
-  INIT: "INIT",
-  WHILE_QUEUE_NOT_EMPTY: "WHILE_QUEUE_NOT_EMPTY",
-  EXTRACT_MIN: "EXTRACT_MIN",
-  CHECK_NEIGHBORS: "CHECK_NEIGHBORS",
-  RELAX_EDGE_TRUE: "RELAX_EDGE_TRUE",
-  RELAX_EDGE_FALSE: "RELAX_EDGE_FALSE",
-  DONE: "DONE",
-};
 
 export function createDijkstraAnimationSteps(
   inputData: any,
   action?: any,
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  if (!inputData || !inputData.nodes) return steps;
-
-  const isDirected = action?.isDirected || false;
-
-  const baseElements = createGraphElements(inputData, isDirected);
-
-  const rawNodes = inputData.nodes;
-  const rawEdges = inputData.edges || [];
-  const startNodeId = action?.startNode || rawNodes[0]?.id || "node-0";
-  const endNodeId = action?.endNode || "";
-
-  // 建立鄰接表與權重表
-  const adjList: Record<string, { to: string; weight: number }[]> = {};
-  const weightMap: Record<string, number> = {};
-
-  rawNodes.forEach((n: any) => (adjList[n.id] = []));
-
-  rawEdges.forEach((edge: any) => {
-    const u = edge[0];
-    const v = edge[1];
-    const weight =
-      edge[2] !== undefined
-        ? parseInt(edge[2], 10)
-        : Math.floor(Math.random() * 9) + 1;
-
-    if (adjList[u]) adjList[u].push({ to: v, weight });
-    if (!isDirected && adjList[v]) adjList[v].push({ to: u, weight });
-
-    // 儲存權重供 UI 顯示
-    weightMap[getLinkKey(u, v)] = weight;
-    if (!isDirected) weightMap[getLinkKey(v, u)] = weight;
-  });
-
-  const dist: Record<string, number> = {};
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const visited: Set<string> = new Set();
-  const prev: Record<string, string | null> = {};
-
-  rawNodes.forEach((n: any) => {
-    prev[n.id] = null;
-  });
-
-  rawNodes.forEach((n: any) => {
-    dist[n.id] = Infinity;
-    statusMap[n.id] = Status.Unfinished;
-  });
-  dist[startNodeId] = 0;
-
-  const initialFrame = generateGraphFrame(
-    baseElements,
-    statusMap,
-    dist,
-    "載入圖形與權重資訊",
-    true,
-    linkStatusMap,
-    weightMap,
-  );
-  initialFrame.actionTag = TAGS.INIT;
-  initialFrame.stepNumber = 0;
-
-  // 幫 Step 0 也加上右側的 Table (此時 Table 裡的 dist 應該都是 ∞)
-  initialFrame.elements = [...initialFrame.elements];
-
-  // 產生初始的 dist 字串供 Inspector 顯示
-  const initialDistString = Object.entries(dist)
-    .map(([nodeId, val]) => {
-      const id = nodeId.replace("node-", "");
-      const valueStr = val === Infinity ? "∞" : val;
-      return `${id}: ${valueStr}`;
-    })
-    .join(", ");
-  initialFrame.local_vars = { 目前距離表: initialDistString };
-
-  steps.push(initialFrame);
-
-  // 輔助函式：呼叫共用的 generateGraphFrame
-  const recordStep = (desc: string, tag: string) => {
-    const step = generateGraphFrame(
-      baseElements,
-      statusMap,
-      dist,
-      desc,
-      false, // 不要顯示 ID，顯示距離
-      linkStatusMap,
-      weightMap,
-    );
-    step.actionTag = tag;
-    step.stepNumber = steps.length;
-
-    step.elements = [...step.elements];
-
-    // 效果例如："0: 0, 1: 4, 2: ∞, 3: ∞"
-    const distString = Object.entries(dist)
-      .map(([nodeId, val]) => {
-        // 把 "node-0" 簡化為 "0"，並把 Infinity 轉為 "∞"
-        const id = nodeId.replace("node-", "");
-        const valueStr = val === Infinity ? "∞" : val;
-        return `${id}: ${valueStr}`;
-      })
-      .join(", ");
-
-    // 將字串塞入 local_vars
-    step.local_vars = { 目前距離表: distString };
-    steps.push(step);
-  };
-
-  recordStep(
-    `初始化：將起點 ${startNodeId} 的距離設為 0，其餘節點設為 ∞`,
-    TAGS.INIT,
-  );
-
-  // 使用簡單陣列模擬 Priority Queue
-  const pq = [...rawNodes.map((n: any) => n.id)];
-
-  while (pq.length > 0) {
-    // 依距離排序，抓出最小的
-    pq.sort((a, b) => dist[a] - dist[b]);
-    const u = pq.shift()!;
-
-    if (dist[u] === Infinity) break;
-
-    // 提早結束邏輯(有輸入終點時)
-    if (endNodeId && u === endNodeId) {
-      recordStep(
-        `節點 ${u} 是目標終點，且已確定最短路徑 (${dist[u]})，提早結束搜尋！`,
-        TAGS.DONE,
-      );
-      break;
-    }
-
-    statusMap[u] = Status.Target;
-    recordStep(
-      `從未完成的節點中，取出距離最小的節點 ${u} (距離=${dist[u]})`,
-      TAGS.EXTRACT_MIN,
-    );
-
-    const neighbors = adjList[u];
-    for (const edge of neighbors) {
-      const v = edge.to;
-      const weight = edge.weight;
-
-      if (visited.has(v)) continue; // 已經定案的節點不再更新
-
-      updateLinkStatus(linkStatusMap, u, v, "target", true);
-      recordStep(
-        `檢查相鄰節點 ${v}，經過此邊的權重為 ${weight}`,
-        TAGS.CHECK_NEIGHBORS,
-      );
-
-      const alt = dist[u] + weight;
-      if (alt < dist[v]) {
-        dist[v] = alt;
-        prev[v] = u;
-        statusMap[v] = Status.Prepare;
-        updateLinkStatus(linkStatusMap, u, v, "prepare", true);
-        recordStep(
-          `發現更短路徑，從 ${u} 到 ${v} 的新距離是 ${alt}，更新距離表`,
-          TAGS.RELAX_EDGE_TRUE,
-        );
-        statusMap[v] = Status.Unfinished;
-      } else {
-        recordStep(
-          `不需更新：新距離 ${alt} 並未小於目前的距離`,
-          TAGS.RELAX_EDGE_FALSE,
-        );
-      }
-
-      updateLinkStatus(linkStatusMap, u, v, "complete", false);
-    }
-
-    visited.add(u);
-    statusMap[u] = Status.Complete;
-    recordStep(
-      `節點 ${u} 的相鄰邊已檢查完畢，確定其最短路徑。`,
-      TAGS.WHILE_QUEUE_NOT_EMPTY,
-    );
-  }
-
-  if (endNodeId && dist[endNodeId] !== Infinity) {
-    // 回溯最短路徑
-    const path: string[] = [];
-    let curr: string | null = endNodeId;
-    while (curr !== null) {
-      path.unshift(curr);
-      curr = prev[curr];
-    }
-
-    // 重置所有狀態，只標記路徑
-    rawNodes.forEach((n: any) => {
-      statusMap[n.id] = Status.Unfinished;
-    });
-    Object.keys(linkStatusMap).forEach((k) => delete linkStatusMap[k]);
-
-    path.forEach((nodeId) => {
-      statusMap[nodeId] = Status.Complete;
-    });
-    for (let i = 0; i < path.length - 1; i++) {
-      updateLinkStatus(linkStatusMap, path[i], path[i + 1], "complete", false);
-    }
-
-    recordStep(
-      `最短路徑：${path.join(" → ")}，總距離 = ${dist[endNodeId]}`,
-      TAGS.DONE,
-    );
-  } else if (!endNodeId) {
-    recordStep("演算法執行完畢！所有可達節點的最短路徑皆已找出。", TAGS.DONE);
-  } else {
-    recordStep(`終點 ${endNodeId} 不可達，演算法結束。`, TAGS.DONE);
-  }
-
-  return steps;
+  const trace = simulateDijkstraTrace(inputData, action);
+  return dijkstraTraceToSteps(trace);
 }
 
 const dijkstraCodeConfig: CodeConfig = {
@@ -412,6 +186,7 @@ export const dijkstraConfig: LevelImplementationConfig = {
   name: "Dijkstra 最短路徑",
   categoryName: "圖論演算法",
   description: "在帶權重圖形中尋找單源最短路徑",
+  i18nNamespace: "tutorials/dijkstra",
   codeConfig: dijkstraCodeConfig,
   complexity: {
     timeBest: "O((V+E) log V)",
@@ -446,6 +221,7 @@ export const dijkstraConfig: LevelImplementationConfig = {
     directOn: ["prepare", "complete", "unfinished"],
   },
   createAnimationSteps: createDijkstraAnimationSteps,
+  statusConfig: DijkstraStatusConfig,
   actionHandler: dijkstraActionHandler,
   renderActionBar: (props) => (
     <DijkstraActionBar {...(props as AlgoActionBarProps)} />
