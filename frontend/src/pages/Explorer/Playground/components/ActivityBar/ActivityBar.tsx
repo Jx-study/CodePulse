@@ -107,6 +107,7 @@ interface LeftActivityBarProps {
   isDragActive: boolean;
   isHistoryOpen: boolean;
   onOpenHistory: () => void;
+  onOpenTour: () => void;
 }
 
 export function LeftActivityBar({
@@ -118,6 +119,7 @@ export function LeftActivityBar({
   isDragActive,
   isHistoryOpen,
   onOpenHistory,
+  onOpenTour,
 }: LeftActivityBarProps) {
   return (
     <div className={styles.bar}>
@@ -149,14 +151,28 @@ export function LeftActivityBar({
       <div className={styles.spacer} />
 
       {/* Execution history — bottom-anchored */}
+      <span data-tour="pg-history">
+        <Button
+          variant="unstyled"
+          iconOnly
+          className={`${styles.icon} ${isHistoryOpen ? styles.iconFixedActive : ""}`}
+          style={{ ["--panel-accent" as string]: "var(--color-teal)" }}
+          onClick={onOpenHistory}
+          title="Execution History"
+          icon="clock-rotate-left"
+        />
+      </span>
+
+      {/* Feature tour — bottom-anchored */}
       <Button
         variant="unstyled"
         iconOnly
-        className={`${styles.icon} ${isHistoryOpen ? styles.iconFixedActive : ""}`}
-        style={{ ["--panel-accent" as string]: "var(--color-teal)" }}
-        onClick={onOpenHistory}
-        title="Execution History"
-        icon="clock-rotate-left"
+        className={styles.icon}
+        style={{ ["--panel-accent" as string]: "var(--primary-color)" }}
+        onClick={onOpenTour}
+        title="操作導覽"
+        aria-label="開啟操作導覽"
+        icon="circle-question"
       />
     </div>
   );
@@ -179,7 +195,7 @@ export function RightActivityBar({
 }: RightActivityBarProps) {
   const displayIds = rightOrder.filter((id) => id !== leftDockedId);
   return (
-    <div className={`${styles.bar} ${styles.barRight}`}>
+    <div className={`${styles.bar} ${styles.barRight}`} data-tour="pg-right-bar">
       {displayIds.map((id) => (
         <SortableIcon
           key={id}

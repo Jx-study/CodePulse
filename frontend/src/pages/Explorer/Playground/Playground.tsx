@@ -60,6 +60,12 @@ import { usePlaygroundPlayback } from "./hooks/usePlaygroundPlayback";
 import { usePlaygroundAnimationSteps } from "./hooks/usePlaygroundAnimationSteps";
 import { usePlaygroundPanelLayout } from "./hooks/usePlaygroundPanelLayout";
 import { usePlaygroundRun } from "./hooks/usePlaygroundRun";
+import TourEngine from "@/shared/components/TourEngine";
+import { buildPlaygroundTourSteps } from "./playgroundTourSteps";
+import {
+  getPlaygroundTourDismissed,
+  setPlaygroundTourDismissed,
+} from "./playgroundTourStorage";
 import styles from "./Playground.module.scss";
 
 const DEFAULT_CODE = `def bubble_sort(arr):
@@ -214,6 +220,20 @@ function Playground() {
     (id) => id !== leftDockedId && !collapsedPanels.has(id),
   );
 
+  // 初始是否自動彈出：使用者按過「不再顯示」則不自動彈，否則每次進頁都彈
+  const [isTourOpen, setIsTourOpen] = useState(() => !getPlaygroundTourDismissed());
+  const handleTourComplete = useCallback(() => setIsTourOpen(false), []);
+  const handleTourSkip = useCallback(() => setIsTourOpen(false), []);
+  // 「不再顯示」：記住偏好後關閉導覽（「?」按鈕仍可手動開）
+  const handleTourDontShowAgain = useCallback(() => {
+    setPlaygroundTourDismissed();
+    setIsTourOpen(false);
+  }, []);
+  // 互動 Run step 按「跳過此步」時直接關閉導覽
+  const handleTourSkipToEnd = useCallback(() => setIsTourOpen(false), []);
+  // 切到動畫 tab（步驟 onEnter 用）
+  const goAnimationTab = useCallback(() => setActiveTab("animation"), []);
+
   const handleToggleEditor = useCallback(() => {
     const panel = editorPanelRef.current;
     if (!panel) return;
@@ -224,6 +244,12 @@ function Playground() {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
+
+  const tourSteps = buildPlaygroundTourSteps({
+    runStage,
+    goAnimationTab,
+    skipToEnd: handleTourSkipToEnd,
+  });
 
   return (
     <DndContext
@@ -244,6 +270,7 @@ function Playground() {
             setQuotaRecords(null);
             setIsHistoryOpen(true);
           }}
+          onOpenTour={() => setIsTourOpen(true)}
         />
 
         <PanelGroup
@@ -279,7 +306,7 @@ function Playground() {
                 }
                 minSize="30%"
               >
-                <div className={styles.editorPanelInner}>
+                <div className={styles.editorPanelInner} data-tour="pg-editor">
                   <div className={styles.editorHeader}>
                     <div className={styles.editorFilename}>
                       <span className={styles.filenameDot} />
@@ -296,16 +323,18 @@ function Playground() {
                         Edit Code
                       </Button>
                     ) : (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className={styles.runBtn}
-                        onClick={handleRun}
-                        disabled={false}
-                        icon="play"
-                      >
-                        Run
-                      </Button>
+                      <span data-tour="pg-run">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className={styles.runBtn}
+                          onClick={handleRun}
+                          disabled={false}
+                          icon="play"
+                        >
+                          Run
+                        </Button>
+                      </span>
                     )}
                   </div>
                   <div
@@ -356,10 +385,10 @@ function Playground() {
           <ResizeHandle direction="horizontal" />
 
           <Panel className={styles.canvasPanel} style={{ minWidth: 0 }}>
-            <div className={styles.canvasArea}>
+            <div className={styles.canvasArea} data-tour="pg-canvas">
               <StatusBar stage={runStage} />
 
-              <div className={styles.canvasTabBar}>
+              <div className={styles.canvasTabBar} data-tour="pg-tabbar">
                 <TabList
                   variant="underline"
                   size="sm"
@@ -390,28 +419,30 @@ function Playground() {
                 {isTruncated && (
                   <span className={styles.truncatedBadge}>⚠ truncated</span>
                 )}
-                <Button
-                  variant="unstyled"
-                  className={`${styles.aiBtn} ${
-                    runStage === "idle"
-                      ? styles.aiBtnDisabled
-                      : runStage === "done"
-                        ? styles.aiBtnActive
-                        : styles.aiBtnLoading
-                  }`}
-                  disabled={runStage !== "done"}
-                  onClick={() => setIsAiDialogOpen(true)}
-                  title="查看 AI 分析結果"
-                  aria-label="查看 AI 分析結果"
-                >
-                  {runStage === "analysis" ? (
-                    <>
-                      <span className={styles.aiBtnDot} /> AI Analysis…
-                    </>
-                  ) : (
-                    <>✦ AI Analysis</>
-                  )}
-                </Button>
+                <span data-tour="pg-ai">
+                  <Button
+                    variant="unstyled"
+                    className={`${styles.aiBtn} ${
+                      runStage === "idle"
+                        ? styles.aiBtnDisabled
+                        : runStage === "done"
+                          ? styles.aiBtnActive
+                          : styles.aiBtnLoading
+                    }`}
+                    disabled={runStage !== "done"}
+                    onClick={() => setIsAiDialogOpen(true)}
+                    title="查看 AI 分析結果"
+                    aria-label="查看 AI 分析結果"
+                  >
+                    {runStage === "analysis" ? (
+                      <>
+                        <span className={styles.aiBtnDot} /> AI Analysis…
+                      </>
+                    ) : (
+                      <>✦ AI Analysis</>
+                    )}
+                  </Button>
+                </span>
               </div>
 
               <div
@@ -512,6 +543,7 @@ function Playground() {
 
               <div
                 className={`${styles.controlRow} ${runStage === "idle" ? styles.controlRowHidden : ""}`}
+                data-tour="pg-controlbar"
               >
                 {totalSteps > 0 && isAnimationUnlocked ? (
                   <ControlBar
@@ -627,6 +659,17 @@ function Playground() {
           quotaResolveRef.current?.(decision);
           quotaResolveRef.current = null;
         }}
+      />
+      <TourEngine
+        isOpen={isTourOpen && !isHistoryOpen}
+        steps={tourSteps}
+        onComplete={handleTourComplete}
+        onSkip={handleTourSkip}
+        onDontShowAgain={handleTourDontShowAgain}
+        finalTitle="開始你的演算法實驗！"
+        finalDescription="你已經了解 Playground 的核心功能，現在動手寫程式、執行並觀察視覺化吧。"
+        finalPrimaryLabel="開始使用"
+        finalSecondaryLabel="關閉"
       />
     </DndContext>
   );
