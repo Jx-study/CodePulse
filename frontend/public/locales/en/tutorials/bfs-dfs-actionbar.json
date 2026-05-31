@@ -3,6 +3,7 @@
   "loadGridTooltip": "Open the custom maze data loading interface",
   "loadGraph": "Load Graph Data",
   "loadGraphTooltip": "Open the custom graph data loading interface",
+  "operations": "Algorithm Operations",
   "reset": "Reset",
   "resetTooltip": "Clear all data and restore the initial state",
   "random": "Random",

@@ -232,7 +232,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Algorithm Control</StaticLabel>
+        <StaticLabel>{t("operations")}</StaticLabel>
         <div className={styles.viewModeContainer}>
           <span className={styles.viewModeLabel}>{t("viewMode")}:</span>
           <Select

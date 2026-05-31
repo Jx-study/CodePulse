@@ -1,0 +1,21 @@
+{
+  "animation": {
+    "init_id": "DFS ready: showing cell IDs. Start: {{start}}, End: {{end}}",
+    "init_dist": "Initialize all distances to ∞, preparing for DFS",
+    "start_push": "Push start node {{start}} to Stack (distance: 0)",
+    "start_settle": "Start node {{start}} is settled in the Stack",
+    "pop": "Deep exploration: Pop node {{curr}} (depth: {{dist}})",
+    "skip": "Node {{curr}} already visited, skipping",
+    "dist_update": "Update distance of node {{curr}} to {{dist}}",
+    "check_end_true": "Check: {{curr}} === end. Destination found!",
+    "check_end_false": "Check: {{curr}} !== end. Continuing search",
+    "explore_some": "Explore neighbors of {{curr}}, found unstacked nodes",
+    "explore_none": "Explore neighbors of {{curr}}, all neighbors already in stack or visited",
+    "push_neighbor": "Found neighbor {{neighbor}}, pushing to stack",
+    "push_settle": "Neighbor {{neighbor}} settled on top of the Stack",
+    "backtrack": "Dead end reached, backtracking...",
+    "path_found": "Destination found! Path length/depth: {{dist}} (Green)",
+    "not_found": "Stack is empty, destination unreachable",
+    "grid_blocked": "Start or End is blocked by a wall, cannot start"
+  }
+}

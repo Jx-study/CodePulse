@@ -1,5 +1,5 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
-import { TAGS, BFSStatus } from "./tags";
+import { TAGS, DFSStatus } from "./tags";
 import {
   createGraphElements,
   updateLinkStatus,
@@ -8,8 +8,8 @@ import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
-// Graph BFS
-export function simulateGraphBFSTrace(
+// Graph DFS
+export function simulateGraphDFSTrace(
   graphData: any,
   startId?: string,
   endId?: string,
@@ -29,9 +29,11 @@ export function simulateGraphBFSTrace(
   const statusMap: Record<string, Status> = {};
   const linkStatusMap: Record<string, linkStatus> = {};
   const distanceMap: Record<string, number> = {};
-  const visited = new Set<string>();
   const parentMap = new Map<string, string>();
-  const queue: string[] = [];
+  const visited = new Set<string>();
+  const discovered = new Set<string>();
+
+  const stack: { id: string; dist: number }[] = [];
   const result: string[] = [];
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
@@ -47,7 +49,7 @@ export function simulateGraphBFSTrace(
         statusMap: { ...statusMap },
         distanceMap: { ...distanceMap },
         linkStatusMap: { ...linkStatusMap },
-        queue: [...queue],
+        stack: stack.map((s) => s.id),
         result: [...result],
         ...meta,
       },
@@ -55,61 +57,84 @@ export function simulateGraphBFSTrace(
   };
 
   pushTrace(
-    TAGS.GRAPH_INIT,
+    TAGS.INIT,
     { start: realStartId, end: realEndId, "distance[all]": "∞" },
     {},
   );
 
-  queue.push(realStartId);
-  visited.add(realStartId);
-  statusMap[realStartId] = BFSStatus.Discovered as Status;
+  stack.push({ id: realStartId, dist: 0 });
+  discovered.add(realStartId);
+  statusMap[realStartId] = DFSStatus.Discovered as Status;
   distanceMap[realStartId] = 0;
+
   pushTrace(
-    TAGS.GRAPH_START,
-    {
-      start: realStartId,
-      queue: `[${realStartId}]`,
-      visited: `{${realStartId}}`,
-      [`distance[${realStartId}]`]: 0,
-    },
-    { pushingNodeId: realStartId },
+    TAGS.START,
+    { start: realStartId, stack: `[(${realStartId}, 0)]`, dist: 0 },
+    { pushingNodeIds: [realStartId] },
+  );
+  pushTrace(
+    TAGS.START,
+    { start: realStartId, stack: `[(${realStartId}, 0)]`, dist: 0 },
+    {},
   );
 
   let found = false;
 
-  while (queue.length > 0) {
-    const currId = queue.shift()!;
-    const currNode = nodeMap.get(currId);
+  while (stack.length > 0) {
+    const item = stack.pop()!;
+    const currId = item.id;
+    const currDist = item.dist;
     const parentId = parentMap.get(currId);
-    if (parentId)
-      updateLinkStatus(
-        linkStatusMap,
-        parentId,
-        currId,
-        BFSStatus.Current as linkStatus,
-        false,
-      );
 
-    statusMap[currId] = BFSStatus.Current as Status;
+    if (parentId)
+      updateLinkStatus(linkStatusMap, parentId, currId, "target", false);
+    statusMap[currId] = DFSStatus.Current as Status;
+
     pushTrace(
-      TAGS.DEQUEUE,
+      TAGS.POP,
       {
         curr: currId,
-        dist: distanceMap[currId],
-        queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
+        dist: currDist,
+        stack:
+          stack.length > 0
+            ? `[${stack.map((s) => `(${s.id}, ${s.dist})`).join(", ")}]`
+            : "[]",
         "visited count": visited.size,
       },
       { poppingNodeId: currId },
     );
 
-    result.push(currId);
+    if (!visited.has(currId)) result.push(currId);
+
+    if (visited.has(currId)) {
+      pushTrace(
+        TAGS.SKIP,
+        { curr: currId, "already visited": "True", dist: distanceMap[currId] },
+        {},
+      );
+      continue;
+    }
+
+    visited.add(currId);
+    distanceMap[currId] = currDist;
+
+    pushTrace(
+      TAGS.DIST_UPDATE,
+      {
+        curr: currId,
+        end: realEndId,
+        "curr === end": currId === realEndId ? "True" : "False",
+        dist: distanceMap[currId],
+      },
+      {},
+    );
     pushTrace(
       TAGS.CHECK_END,
       {
         curr: currId,
         end: realEndId,
         "curr === end": currId === realEndId ? "True" : "False",
-        [`distance[${currId}]`]: distanceMap[currId],
+        dist: distanceMap[currId],
       },
       {},
     );
@@ -119,11 +144,22 @@ export function simulateGraphBFSTrace(
       break;
     }
 
+    statusMap[currId] = DFSStatus.Visited as Status;
+    if (parentId)
+      updateLinkStatus(
+        linkStatusMap,
+        parentId,
+        currId,
+        DFSStatus.Visited as linkStatus,
+        false,
+      );
+
+    const currNode = nodeMap.get(currId);
     if (currNode) {
       const neighbors = currNode.pointers;
-      neighbors.sort((a, b) => a.id.localeCompare(b.id));
+      neighbors.sort((a, b) => b.id.localeCompare(a.id));
       const allNeighborIds = neighbors.map((n) => n.id);
-      const unvisitedIds = allNeighborIds.filter((id) => !visited.has(id));
+      const unvisitedIds = allNeighborIds.filter((id) => !discovered.has(id));
 
       pushTrace(
         TAGS.EXPLORE,
@@ -137,86 +173,62 @@ export function simulateGraphBFSTrace(
         {},
       );
 
-      const currentDist = distanceMap[currId];
-
       for (const neighbor of neighbors) {
-        if (!visited.has(neighbor.id)) {
-          visited.add(neighbor.id);
+        if (!discovered.has(neighbor.id)) {
+          updateLinkStatus(linkStatusMap, currId, neighbor.id, "prepare", true);
           parentMap.set(neighbor.id, currId);
-          queue.push(neighbor.id);
+          stack.push({ id: neighbor.id, dist: currDist + 1 });
+          discovered.add(neighbor.id);
+          statusMap[neighbor.id] = DFSStatus.Discovered as Status;
 
-          statusMap[neighbor.id] = BFSStatus.Discovered as Status;
-          updateLinkStatus(
-            linkStatusMap,
-            currId,
-            neighbor.id,
-            BFSStatus.Discovered as linkStatus,
-            false,
-          );
-
-          // 步驟 1: 發現鄰居並加入佇列
           pushTrace(
-            TAGS.VISIT_NEIGHBOR,
+            TAGS.PUSH_NEIGHBOR,
             {
               curr: currId,
               neighbor: neighbor.id,
-              "queue (after)": `[${queue.join(", ")}]`,
+              "depth[new]": currDist + 1,
+              "stack (after)": `[${stack.map((s) => `(${s.id}, ${s.dist})`).join(", ")}]`,
             },
-            { pushingNodeId: neighbor.id },
+            { pushingNodeIds: [neighbor.id] },
           );
 
-          // 步驟 2: 立即更新該鄰居的距離
-          distanceMap[neighbor.id] = currentDist + 1;
           pushTrace(
-            TAGS.CHANGE_VISITED_VALUE,
+            TAGS.PUSH_NEIGHBOR,
             {
               curr: currId,
               neighbor: neighbor.id,
-              "distance[new]": currentDist + 1,
+              "depth[new]": currDist + 1,
+              "stack (after)": `[${stack.map((s) => `(${s.id}, ${s.dist})`).join(", ")}]`,
             },
             {},
           );
         }
       }
     }
-
-    statusMap[currId] = BFSStatus.Visited as Status;
-    if (parentId)
-      updateLinkStatus(
-        linkStatusMap,
-        parentId,
-        currId,
-        BFSStatus.Visited as linkStatus,
-        false,
-      );
   }
 
   if (found) {
     let curr = realEndId;
     const path: string[] = [realEndId];
+    statusMap[realEndId] = DFSStatus.Path as Status;
+
     while (curr !== realStartId) {
       const parent = parentMap.get(curr);
       if (!parent) break;
-      updateLinkStatus(
-        linkStatusMap,
-        parent,
-        curr,
-        BFSStatus.Path as linkStatus,
-        false,
-      );
+      updateLinkStatus(linkStatusMap, parent, curr, "complete", false);
       path.push(parent);
       curr = parent;
     }
-    path.forEach((id) => (statusMap[id] = BFSStatus.Path as Status));
+    path.forEach((id) => (statusMap[id] = DFSStatus.Path as Status));
     pushTrace(
       TAGS.PATH_FOUND,
-      { end: realEndId, "shortest distance": distanceMap[realEndId] },
-      {},
+      { end: realEndId, "path depth": distanceMap[realEndId] },
+      { pathLength: path.length - 1 },
     );
   } else {
     pushTrace(
       TAGS.NOT_FOUND,
-      { queue: "[]", end: realEndId, reachable: "False" },
+      { stack: "[]", end: realEndId, reachable: "False" },
       {},
     );
   }
@@ -224,8 +236,8 @@ export function simulateGraphBFSTrace(
   return trace;
 }
 
-// Grid BFS
-export function simulateGridBFSTrace(
+// Grid DFS
+export function simulateGridDFSTrace(
   gridData: any[],
   cols: number = 5,
   startId?: string,
@@ -239,10 +251,14 @@ export function simulateGridBFSTrace(
   const endIndex = endId ? parseInt(endId) : gridData.length - 1;
 
   const visited = new Set<number>();
+  const discovered = new Set<number>();
   const parentMap = new Map<number, number>();
   const statusMap: Record<number, Status> = {};
   const distanceMap: Record<number, number> = {};
-  const queue: number[] = [];
+
+  for (let i = 0; i < gridData.length; i++) distanceMap[i] = Infinity;
+
+  const stack: number[] = [];
   const result: number[] = [];
 
   const pushTrace = (tag: string, vars: any, meta: any) => {
@@ -255,7 +271,7 @@ export function simulateGridBFSTrace(
         cols,
         statusMap: { ...statusMap },
         distanceMap: { ...distanceMap },
-        queue: queue.map(String),
+        stack: stack.map(String),
         result: result.map(String),
         ...meta,
       },
@@ -268,123 +284,138 @@ export function simulateGridBFSTrace(
   }
 
   pushTrace(
-    TAGS.GRID_INIT,
+    TAGS.INIT,
     { start: startIndex, end: endIndex },
     { showIdAsValue: true },
   );
   pushTrace(
-    TAGS.GRID_INIT_DIST,
+    TAGS.INIT,
     { start: startIndex, end: endIndex, "distance[all]": "∞" },
     { showIdAsValue: false },
   );
 
-  queue.push(startIndex);
-  visited.add(startIndex);
-  statusMap[startIndex] = BFSStatus.Discovered as Status;
+  stack.push(startIndex);
+  discovered.add(startIndex);
   distanceMap[startIndex] = 0;
+  statusMap[startIndex] = DFSStatus.Discovered as Status;
+
   pushTrace(
-    TAGS.GRID_START,
-    {
-      start: startIndex,
-      queue: `[${startIndex}]`,
-      visited: `{${startIndex}}`,
-      "distance[start]": 0,
-    },
-    { pushingNodeId: String(startIndex) },
+    TAGS.START,
+    { start: startIndex, stack: `[${startIndex}]`, dist: 0 },
+    { pushingNodeIds: [String(startIndex)] },
+  );
+  pushTrace(
+    TAGS.START,
+    { start: startIndex, stack: `[${startIndex}]`, dist: 0 },
+    {},
   );
 
   let found = false;
   const directions = [
-    [-1, 0],
     [0, 1],
     [1, 0],
     [0, -1],
-  ];
+    [-1, 0],
+  ]; // Right, Down, Left, Up
 
-  while (queue.length > 0) {
-    const currIndex = queue.shift()!;
-    statusMap[currIndex] = BFSStatus.Current as Status;
+  while (stack.length > 0) {
+    const currIndex = stack.pop()!;
+    statusMap[currIndex] = DFSStatus.Current as Status;
 
     pushTrace(
-      TAGS.DEQUEUE,
+      TAGS.POP,
       {
         curr: currIndex,
         dist: distanceMap[currIndex],
+        "stack size": stack.length,
         "visited count": visited.size,
-        queue: queue.length > 0 ? `[${queue.join(", ")}]` : "[]",
       },
       { poppingNodeId: String(currIndex) },
     );
-    result.push(currIndex);
+
+    if (!visited.has(currIndex)) result.push(currIndex);
+
+    if (visited.has(currIndex)) {
+      pushTrace(TAGS.POP, { curr: currIndex, "already visited": "True" }, {});
+      continue;
+    }
+
+    visited.add(currIndex);
+
     pushTrace(
       TAGS.CHECK_END,
       {
         curr: currIndex,
         end: endIndex,
         "curr === end": currIndex === endIndex ? "True" : "False",
+        dist: distanceMap[currIndex],
       },
       {},
     );
 
     if (currIndex === endIndex) {
       found = true;
+      statusMap[currIndex] = DFSStatus.Path as Status;
       break;
     }
 
+    statusMap[currIndex] = DFSStatus.Visited as Status;
+
     const r = Math.floor(currIndex / cols);
     const c = currIndex % cols;
-    const currentDist = distanceMap[currIndex];
+    let pushedCount = 0; // 用於判斷死胡同
 
     for (const [dr, dc] of directions) {
       const nr = r + dr;
       const nc = c + dc;
       const nIndex = nr * cols + nc;
 
-      if (
-        nr >= 0 &&
-        nr < rows &&
-        nc >= 0 &&
-        nc < cols &&
-        gridData[nIndex].val !== 1 &&
-        !visited.has(nIndex)
-      ) {
-        visited.add(nIndex);
-        parentMap.set(nIndex, currIndex);
-        queue.push(nIndex);
+      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+        if (gridData[nIndex].val !== 1 && !discovered.has(nIndex)) {
+          discovered.add(nIndex);
+          parentMap.set(nIndex, currIndex);
+          stack.push(nIndex);
+          pushedCount++;
 
-        statusMap[nIndex] = BFSStatus.Discovered as Status;
+          distanceMap[nIndex] =
+            distanceMap[currIndex] !== undefined
+              ? distanceMap[currIndex] + 1
+              : 1;
+          statusMap[nIndex] = DFSStatus.Discovered as Status;
 
-        // 步驟 1: 發現鄰居並加入佇列
-        pushTrace(
-          TAGS.VISIT_NEIGHBOR,
-          {
-            curr: currIndex,
-            neighbor: nIndex,
-            "queue (after)": `[${queue.join(", ")}]`,
-          },
-          { pushingNodeId: String(nIndex) },
-        );
+          pushTrace(
+            TAGS.PUSH_NEIGHBOR,
+            {
+              curr: currIndex,
+              neighbor: nIndex,
+              "depth[new]": distanceMap[nIndex],
+              "stack size (after)": stack.length,
+            },
+            { pushingNodeIds: [String(nIndex)] },
+          );
 
-        // 步驟 2: 立即更新距離
-        distanceMap[nIndex] = currentDist + 1;
-        pushTrace(
-          TAGS.CHANGE_VISITED_VALUE,
-          {
-            curr: currIndex,
-            neighbor: nIndex,
-            "distance[new]": currentDist + 1,
-          },
-          {},
-        );
+          pushTrace(
+            TAGS.PUSH_NEIGHBOR,
+            {
+              curr: currIndex,
+              neighbor: nIndex,
+              "depth[new]": distanceMap[nIndex],
+              "stack size (after)": stack.length,
+            },
+            {},
+          );
+        }
       }
     }
 
-    statusMap[currIndex] = BFSStatus.Visited as Status;
+    if (pushedCount === 0) {
+      pushTrace(TAGS.BACKTRACK, { curr: currIndex, "dead end": "True" }, {});
+    }
   }
 
   if (found) {
     let curr = endIndex;
-    const path: number[] = [endIndex];
+    const path = [endIndex];
     while (curr !== startIndex) {
       const parent = parentMap.get(curr);
       if (parent === undefined) break;
@@ -392,17 +423,17 @@ export function simulateGridBFSTrace(
       curr = parent;
     }
     path.forEach((idx) => {
-      statusMap[idx] = BFSStatus.Path as Status;
+      statusMap[idx] = DFSStatus.Path as Status;
     });
     pushTrace(
       TAGS.PATH_FOUND,
-      { end: endIndex, "shortest distance": distanceMap[endIndex] },
+      { end: endIndex, dist: distanceMap[endIndex] },
       { pathLength: path.length },
     );
   } else {
     pushTrace(
       TAGS.NOT_FOUND,
-      { queue: "[]", end: endIndex, reachable: "False" },
+      { stack: "[]", end: endIndex, reachable: "False" },
       {},
     );
   }

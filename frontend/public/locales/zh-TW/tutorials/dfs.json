@@ -1,0 +1,21 @@
+{
+  "animation": {
+    "init_id": "DFS 準備開始：顯示格子索引 (ID)。起點: {{start}}，終點: {{end}}",
+    "init_dist": "初始化距離為 ∞，準備開始 DFS",
+    "start_push": "將起點 {{start}} 推入 Stack（距離: 0）",
+    "start_settle": "起點 {{start}} 已進入 Stack",
+    "pop": "深入探索：Pop 取出節點 {{curr}}(深度: {{dist}})",
+    "skip": "節點 {{curr}} 已探索過，跳過",
+    "dist_update": "節點 {{curr}} 更新距離為 {{dist}}",
+    "check_end_true": "判斷：{{curr}} === end，找到終點！",
+    "check_end_false": "判斷：{{curr}} !== end，繼續搜尋",
+    "explore_some": "遍歷 {{curr}} 的鄰居，發現未推入 Stack 的節點",
+    "explore_none": "遍歷 {{curr}} 的鄰居，所有鄰居皆已在 Stack 中或已訪問",
+    "push_neighbor": "發現鄰居 {{neighbor}}，推入堆疊",
+    "push_settle": "鄰居 {{neighbor}} 已定位於 Stack 頂端",
+    "backtrack": "無路可走 (死胡同)，回溯 (Backtrack)",
+    "path_found": "找到終點！路徑長度/深度: {{dist}} (綠色)",
+    "not_found": "堆疊已空，無法到達終點",
+    "grid_blocked": "起點或終點被牆壁阻擋，無法開始"
+  }
+}

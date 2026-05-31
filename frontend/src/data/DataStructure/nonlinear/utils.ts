@@ -94,7 +94,7 @@ export const generateGridFrame = (
       box.value = String(index);
     } else {
       // 顯示距離
-      if (distanceMap[index] !== undefined) {
+      if (distanceMap[index] !== undefined && distanceMap[index] !== Infinity) {
         box.value = String(distanceMap[index]);
       } else {
         box.value = "∞"; // 未訪問

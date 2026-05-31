@@ -3,6 +3,7 @@
   "loadGridTooltip": "開啟自定義迷宮資料載入介面",
   "loadGraph": "載入圖形資料",
   "loadGraphTooltip": "開啟自定義圖形資料載入介面",
+  "operations": "演算法操作",
   "reset": "重設",
   "resetTooltip": "清除所有資料，恢復初始狀態",
   "random": "隨機",
