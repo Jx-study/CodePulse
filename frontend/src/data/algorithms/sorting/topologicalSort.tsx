@@ -1,51 +1,17 @@
-import type { AnimationStep, CodeConfig, StatusConfig } from "@/types";
+import type { AnimationStep, CodeConfig } from "@/types";
 import type { LevelImplementationConfig } from "@/types/implementation";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { Node } from "@/modules/core/DataLogic/Node";
-import { Box } from "@/modules/core/DataLogic/Box";
 import type {
   ActionContext,
   ActionResult,
 } from "@/modules/core/visualization/types";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
 import { TopologicalSortActionBar } from "./TopologicalSortActionBar";
-import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
-
-const TAGS = {
-  INIT: "INIT",
-  ENQUEUE_ZERO: "ENQUEUE_ZERO",
-  WHILE_LOOP: "WHILE_LOOP",
-  DEQUEUE: "DEQUEUE",
-  REDUCE_NEIGHBOR: "REDUCE_NEIGHBOR",
-  CHECK_ZERO: "CHECK_ZERO",
-  CHECK_CYCLE: "CHECK_CYCLE",
-  DONE: "DONE",
-};
-
-export const TopoStatus = {
-  Inactive: Status.Inactive,
-  Target: Status.Target,
-  InQueue: Status.Prepare,
-  Reducing: "reducing", // 拔除邊
-  Complete: Status.Complete,
-  Error: "error", // 循環依賴死鎖
-} as const;
-
-export const TopoStatusConfig: StatusConfig = {
-  statuses: [
-    { key: TopoStatus.Inactive, label: "未處理", color: "#475569" },
-    { key: TopoStatus.InQueue, label: "在 Queue 中", color: "#3b82f6" },
-    { key: TopoStatus.Target, label: "當前處理節點", color: "#f59e0b" },
-    { key: TopoStatus.Reducing, label: "拔除邊/減入度", color: "#ef4444" },
-    { key: TopoStatus.Complete, label: "排序完成", color: "#10b981" },
-    { key: TopoStatus.Error, label: "循環死鎖", color: "#991b1b" },
-  ],
-};
-
-type GraphData = {
-  nodes: { id: string; value?: string; x?: number; y?: number }[];
-  edges: string[][];
-};
+import {
+  simulateTopologicalSortTrace,
+  GraphData,
+} from "./topologicalSort/simulateTrace";
+import { topologicalSortTraceToSteps } from "./topologicalSort/traceToSteps";
+import { TAGS, TopoStatusConfig } from "./topologicalSort/tags";
 
 // 隨機產生有向無環圖 (DAG)
 function generateRandomDAG(nodeCount: number): GraphData {
@@ -166,228 +132,8 @@ function topoActionHandler(
 export function createTopologicalSortAnimationSteps(
   inputData: any,
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  const graph = inputData as GraphData;
-  if (!graph?.nodes || graph.nodes.length === 0) return steps;
-
-  const layoutNodes = createGraphElements(graph as any, true, {
-    width: 700,
-    height: 300,
-    offsetX: 0,
-    offsetY: 50,
-  });
-  const layoutMap = new Map(layoutNodes.map((n) => [n.id, n.position]));
-
-  const nodes = graph.nodes;
-  let remainingEdges = [...graph.edges];
-
-  // 計算初始 In-Degree
-  const inDegree: Record<string, number> = {};
-  nodes.forEach((n) => (inDegree[n.id] = 0));
-  remainingEdges.forEach((e) => inDegree[e[1]]++);
-
-  const nodeStatus: Record<string, string> = {};
-  const edgeStatus: Record<string, string> = {};
-  const queue: string[] = [];
-  const result: string[] = [];
-  let poppingNodeId: string | undefined = undefined; // 記錄目前「正在往下掉」的節點
-
-  const recordStep = (desc: string, tag: string, pushingNodeId?: string) => {
-    const elements: (Node | Box)[] = [];
-
-    nodes.forEach((n) => {
-      const node = new Node();
-      node.id = n.id;
-      node.value = n.value || n.id.replace("node-", "");
-      node.description = `In: ${inDegree[n.id]}`;
-
-      const pos = layoutMap.get(n.id) || { x: n.x ?? 500, y: n.y ?? 200 };
-
-      node.moveTo(pos.x, pos.y);
-      node.setStatus(nodeStatus[n.id] || TopoStatus.Inactive);
-      elements.push(node);
-    });
-
-    queue.forEach((id, index) => {
-      const box = new Box();
-      box.id = `box-${id}`;
-      box.value = id.replace("node-", "");
-      const baseX = 850;
-      const baseY = 355 - index * 35;
-
-      if (id === pushingNodeId) {
-        box.moveTo(baseX, 50);
-        box.setStatus(Status.Prepare);
-      } else {
-        box.moveTo(baseX, baseY);
-        box.setStatus(TopoStatus.InQueue);
-      }
-
-      box.width = 120;
-      box.height = 30;
-      elements.push(box);
-    });
-
-    if (poppingNodeId) {
-      const dropBox = new Box();
-      dropBox.id = `box-${poppingNodeId}`;
-      dropBox.value = poppingNodeId.replace("node-", "");
-
-      const baseX = 850;
-      dropBox.moveTo(baseX, 420);
-
-      dropBox.width = 120;
-      dropBox.height = 30;
-      dropBox.setStatus(Status.Complete);
-      elements.push(dropBox);
-    }
-
-    const resStartX = 50,
-      resY = 420;
-    result.forEach((id, i) => {
-      const box = new Box();
-      box.id = `box-${id}`;
-      box.value = id.replace("node-", "");
-      box.moveTo(resStartX + i * 45, resY);
-      box.width = 40;
-      box.height = 40;
-      box.setStatus(TopoStatus.Complete);
-      elements.push(box);
-    });
-
-    const stepLinks = remainingEdges.map((e) => {
-      let linkStatus = edgeStatus[`${e[0]}->${e[1]}`] as any;
-      return {
-        sourceId: e[0],
-        targetId: e[1],
-        status: linkStatus || Status.Inactive,
-      };
-    });
-
-    const degreeVars: Record<string, any> = {};
-    nodes.forEach((n) => {
-      degreeVars[`Node ${n.value}`] = inDegree[n.id];
-    });
-
-    steps.push({
-      stepNumber: steps.length,
-      description: desc,
-      actionTag: tag,
-      elements,
-      links: stepLinks,
-      local_vars: {
-        "Queue 內容":
-          queue.length > 0
-            ? queue.map((id) => id.replace("node-", "")).join(", ")
-            : "空",
-        "Result 數量": result.length,
-        ...degreeVars,
-      },
-    });
-  };
-
-  // Kahn's Algorithm
-  recordStep(`初始化：計算各節點的 In-degree (入度)。`, TAGS.INIT);
-
-  nodes.forEach((n) => {
-    if (inDegree[n.id] === 0) {
-      queue.push(n.id);
-      nodeStatus[n.id] = TopoStatus.InQueue;
-    }
-  });
-
-  recordStep(`將所有入度為 0 的節點加入 Queue 待命。`, TAGS.ENQUEUE_ZERO);
-
-  while (queue.length > 0) {
-    recordStep(`Queue 不為空，準備取出節點處理。`, TAGS.WHILE_LOOP);
-
-    // 將節點移出 queue，並放入 poppingNodeId 暫存
-    const curr = queue.shift()!;
-    poppingNodeId = curr;
-    nodeStatus[curr] = TopoStatus.Target;
-
-    recordStep(`取出節點 [${curr.replace("node-", "")}]。`, TAGS.DEQUEUE);
-
-    result.push(curr);
-    poppingNodeId = undefined;
-    nodeStatus[curr] = TopoStatus.Complete;
-
-    recordStep(
-      `將節點 [${curr.replace("node-", "")}] 加入 Result。`,
-      TAGS.DEQUEUE,
-    );
-
-    const neighbors = remainingEdges
-      .filter((e) => e[0] === curr)
-      .map((e) => e[1]);
-
-    for (const neighbor of neighbors) {
-      const edgeKey = `${curr}->${neighbor}`;
-      edgeStatus[edgeKey] = TopoStatus.Reducing;
-      nodeStatus[neighbor] = TopoStatus.Reducing;
-
-      recordStep(
-        `拔除邊 ${curr.replace("node-", "")} → ${neighbor.replace("node-", "")}，目標入度準備減 1。`,
-        TAGS.REDUCE_NEIGHBOR,
-      );
-
-      inDegree[neighbor]--;
-      remainingEdges = remainingEdges.filter(
-        (e) => !(e[0] === curr && e[1] === neighbor),
-      );
-      delete edgeStatus[edgeKey];
-
-      if (inDegree[neighbor] === 0) {
-        nodeStatus[neighbor] = TopoStatus.InQueue;
-        queue.push(neighbor);
-        recordStep(
-          `節點 [${neighbor.replace("node-", "")}] 的入度歸零，加入 Queue！`,
-          TAGS.CHECK_ZERO,
-          neighbor, // pushingNodeId = neighbor
-        );
-      } else {
-        nodeStatus[neighbor] = TopoStatus.Inactive;
-        recordStep(
-          `節點 [${neighbor.replace("node-", "")}] 的入度變為 ${inDegree[neighbor]}，仍有依賴。`,
-          TAGS.CHECK_ZERO,
-        );
-      }
-    }
-  }
-
-  recordStep(
-    `Queue 是空的，處理迴圈結束。檢查「已排入 Result 的節點數」是否等於「總節點數」。`,
-    TAGS.CHECK_CYCLE,
-  );
-
-  // Check DAG (偵測 Cycle)
-  if (result.length < nodes.length) {
-    recordStep(
-      `發現已處理節點數 (${result.length}) < 總節點數 (${nodes.length})！表示圖中存在「循環依賴 (Cycle)」，並非有向無環圖 (DAG)。`,
-      TAGS.CHECK_CYCLE,
-    );
-
-    nodes.forEach((n) => {
-      if (nodeStatus[n.id] !== TopoStatus.Complete) {
-        nodeStatus[n.id] = TopoStatus.Error;
-      }
-    });
-    remainingEdges.forEach((e) => {
-      edgeStatus[`${e[0]}->${e[1]}`] = TopoStatus.Error;
-    });
-    recordStep(
-      `剩下的節點因為互相等待前置條件（入度永遠無法歸零），發生死鎖 (Deadlock)，拓撲排序失敗。`,
-      TAGS.CHECK_CYCLE,
-    );
-  } else {
-    recordStep(
-      `已處理節點數 (${result.length}) == 總節點數 (${nodes.length})，代表圖中沒有循環依賴！`,
-      TAGS.DONE,
-    );
-    recordStep(`所有節點排序完成！`, TAGS.DONE);
-  }
-
-  return steps;
+  const trace = simulateTopologicalSortTrace(inputData as GraphData);
+  return topologicalSortTraceToSteps(trace, inputData);
 }
 
 const topoCodeConfig: CodeConfig = {
@@ -413,8 +159,15 @@ const topoCodeConfig: CodeConfig = {
       [TAGS.WHILE_LOOP]: [6],
       [TAGS.DEQUEUE]: [7, 8],
       [TAGS.REDUCE_NEIGHBOR]: [9, 10, 11],
-      [TAGS.CHECK_ZERO]: [12],
-      [TAGS.CHECK_CYCLE]: [13, 14],
+
+      [TAGS.CHECK_ZERO_TRUE]: [12],
+      [TAGS.CHECK_ZERO_FALSE]: [12],
+
+      [TAGS.CYCLE_CHECK_START]: [13],
+      [TAGS.CYCLE_DETECTED]: [13, 14],
+      [TAGS.CYCLE_DEADLOCK]: [14],
+      [TAGS.SUCCESS_VERIFY]: [13],
+
       [TAGS.DONE]: [15],
     },
   },
@@ -448,6 +201,7 @@ export const topologicalSortConfig: LevelImplementationConfig = {
   name: "拓撲排序 (Kahn's Algorithm)",
   categoryName: "圖論演算法 (Graph)",
   description: "針對有向無環圖 (DAG) 進行線性排序，常用於任務排程與依賴解析。",
+  i18nNamespace: "tutorials/topological-sort",
   codeConfig: topoCodeConfig,
   statusConfig: TopoStatusConfig,
   complexity: {
