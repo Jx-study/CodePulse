@@ -2,18 +2,7 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createTreeNodes } from "@/data/DataStructure/nonlinear/utils";
-import { TAGS } from "./tags";
-
-const STATUS_MAP: Record<string, Status> = {
-  Target: Status.Target,
-  Complete: Status.Complete,
-  Prepare: Status.Prepare,
-  Unfinished: Status.Unfinished,
-};
-
-function toStatus(s?: string): Status {
-  return s ? (STATUS_MAP[s] ?? Status.Unfinished) : Status.Unfinished;
-}
+import { TAGS, TrieStatus } from "./tags";
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
@@ -69,21 +58,16 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    // 同時讀取可見路徑與真實單字清單
-    const visiblePaths: string[] = event.meta?.visiblePaths || [];
-    const realWords: string[] = event.meta?.realWords || [];
-    const highlightId = event.meta?.highlightId;
-    const overrideStatusMap = event.meta?.overrideStatusMap || {};
+    const meta = event.meta ?? {};
+    const visiblePaths: string[] = meta.visiblePaths || [];
+    const realWords: string[] = meta.realWords || [];
+    const highlightId = meta.highlightId;
+    const overrideStatusMap =
+      (meta.overrideStatusMap as Record<string, Status>) || {};
 
     const elements = createTreeNodes(
       { visiblePaths, realWords },
-      {
-        width: 1400,
-        height: 420,
-        offsetX: 0,
-        offsetY: 50,
-        type: "trie",
-      },
+      { width: 1400, height: 420, offsetX: 0, offsetY: 50, type: "trie" },
     );
 
     elements.forEach((node) => {
@@ -91,11 +75,11 @@ export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       const customStatus = overrideStatusMap[node.id];
 
       if (customStatus) {
-        node.setStatus(toStatus(customStatus));
+        node.setStatus(customStatus);
       } else if (isHighlighted) {
-        node.setStatus(Status.Target);
+        node.setStatus(TrieStatus.Match as Status);
       } else {
-        node.setStatus(Status.Unfinished);
+        node.setStatus(TrieStatus.Default as Status);
       }
     });
 

@@ -7,7 +7,7 @@ import type {
 } from "@/modules/core/visualization/types";
 
 import { TrieActionBar } from "./TrieActionBar";
-import { TAGS } from "./trie/tags";
+import { TAGS, TrieStatusConfig } from "./trie/tags";
 
 const TRIE_MAX_WORDS = 20;
 import { simulateTrieTrace } from "./trie/simulateTrace";
@@ -45,7 +45,10 @@ function trieActionHandler(
         .filter(Boolean);
     }
 
-    const uniqueWords = Array.from(new Set(parsedWords)).slice(0, TRIE_MAX_WORDS);
+    const uniqueWords = Array.from(new Set(parsedWords)).slice(
+      0,
+      TRIE_MAX_WORDS,
+    );
 
     return {
       animationData: uniqueWords,
@@ -256,6 +259,7 @@ export const TrieConfig: LevelImplementationConfig = {
     "字典樹 (Trie) 是一種針對「字串搜尋」極度優化的多叉樹結構！\n\n觀察視覺化，你會發現擁有相同前綴 (Prefix) 的單字會**共用相同的路徑節點**，這大幅節省了儲存空間。\n注意觀察：每個節點內部只儲存單一字元，當到達一個完整單字的結尾時，節點下方會特別標註 `[Word]` 作為結束識別！",
   defaultData: ["app", "apple", "cat"], // 預設資料即為字串陣列
   createAnimationSteps: createTrieAnimationSteps,
+  statusConfig: TrieStatusConfig,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
   i18nNamespace: "tutorials/trie",
