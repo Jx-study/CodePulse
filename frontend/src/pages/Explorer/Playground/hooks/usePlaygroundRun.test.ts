@@ -74,4 +74,33 @@ describe("waitForInputPrompt", () => {
     });
     expect(setInputPrompt).toHaveBeenLastCalledWith(null);
   });
+
+  it("rejects and clears the prompt when Edit Code is clicked while input prompt is open", async () => {
+    // 模擬：code 跑到 input() 暫停，使用者點 Edit Code（abort controller）
+    const controller = new AbortController();
+    const setInputPrompt = vi.fn();
+
+    const promise = waitForInputPrompt(
+      "Enter value: ",
+      1,
+      setInputPrompt,
+      controller.signal,
+    );
+
+    // 彈窗已顯示
+    expect(setInputPrompt).toHaveBeenCalledWith({
+      prompt: "Enter value: ",
+      inputIndex: 1,
+      resolve: expect.any(Function),
+    });
+
+    // handleEditCode 呼叫 abortRef.current.abort()
+    controller.abort();
+
+    await expect(promise).rejects.toMatchObject({
+      name: "AbortError",
+    });
+    // 彈窗必須被清除
+    expect(setInputPrompt).toHaveBeenLastCalledWith(null);
+  });
 });

@@ -114,6 +114,8 @@ export function usePlaygroundRun({
   const stdinInputsRef = useRef<string[]>([]);
 
   const handleEditCode = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     onResetPlayback();
     setTrace([]);
     setRawTrace([]);

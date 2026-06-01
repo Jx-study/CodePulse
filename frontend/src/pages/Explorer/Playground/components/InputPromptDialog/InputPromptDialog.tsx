@@ -48,6 +48,7 @@ export function InputPromptDialog({
       title={`輸入 #${inputIndex + 1}`}
       footer={footer}
       size="sm"
+      closeOnOverlayClick={false}
     >
       <div className={styles.body}>
         {prompt && <div className={styles.prompt}>{prompt}</div>}
