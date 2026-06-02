@@ -41,6 +41,7 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { getTourDismissed, setTourDismissed } from "./featureTourStorage";
 import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
@@ -422,11 +423,17 @@ function TutorialContent() {
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
 
   // Feature Tour state
-  const [showFeatureTour, setShowFeatureTour] = useState(true);
+  // 初始是否自動彈出：使用者按過「不再顯示」則不自動彈，否則每次進頁都彈
+  const [showFeatureTour, setShowFeatureTour] = useState(() => !getTourDismissed());
   const handleSkipFeatureTour = () => setShowFeatureTour(false);
   const handleCompleteFeatureTour = () => {
     setShowFeatureTour(false);
     setIsKnowledgeStationOpen(true);
+  };
+  // 「不再顯示」：記住偏好後關閉導覽，之後不自動彈（「?」按鈕仍可手動開）
+  const handleDontShowAgain = () => {
+    setTourDismissed();
+    setShowFeatureTour(false);
   };
 
   // Inspector Tab state
@@ -1204,6 +1211,7 @@ function TutorialContent() {
         isOpen={showFeatureTour}
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
+        onDontShowAgain={handleDontShowAgain}
         isMobile={isMobile}
       />
     </div>

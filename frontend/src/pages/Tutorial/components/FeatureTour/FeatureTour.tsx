@@ -5,6 +5,7 @@ interface FeatureTourProps {
   isOpen: boolean;
   onComplete: () => void;
   onSkip: () => void;
+  onDontShowAgain: () => void;
   isMobile: boolean;
 }
 
@@ -12,7 +13,7 @@ interface FeatureTourProps {
  * Tutorial 頁的功能導覽。
  * 引擎邏輯已抽至共用 TourEngine，本元件僅提供 Tutorial 專屬步驟與收尾文案。
  */
-export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: FeatureTourProps) {
+export default function FeatureTour({ isOpen, onComplete, onSkip, onDontShowAgain, isMobile }: FeatureTourProps) {
   const steps = isMobile ? MOBILE_STEPS : DESKTOP_STEPS;
   return (
     <TourEngine
@@ -20,6 +21,7 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, isMobile }: Fe
       steps={steps}
       onComplete={onComplete}
       onSkip={onSkip}
+      onDontShowAgain={onDontShowAgain}
       finalTitle="準備好了嗎？"
       finalDescription="在開始練習前，先到知識補充站了解這個演算法的理論基礎吧！"
       finalPrimaryLabel="進入知識補充站"
