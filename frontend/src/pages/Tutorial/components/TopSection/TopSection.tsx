@@ -54,6 +54,7 @@ interface CanvasPanelProps {
   graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
   d3CanvasRef: React.RefObject<D3CanvasRef | null>;
   useGraphCanvas: boolean;
+  showControls: boolean;
 }
 
 interface TopSectionProps {

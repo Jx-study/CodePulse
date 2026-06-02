@@ -91,6 +91,7 @@ interface CanvasPanelProps {
   graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
   d3CanvasRef: React.RefObject<D3CanvasRef | null>;
   useGraphCanvas: boolean;
+  showControls: boolean;
 }
 
 const CanvasPanel = ({
@@ -121,6 +122,7 @@ const CanvasPanel = ({
   graphCanvasRef,
   d3CanvasRef,
   useGraphCanvas,
+  showControls,
 }: CanvasPanelProps) => {
   const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
   const {
@@ -194,24 +196,26 @@ const CanvasPanel = ({
             />
           )}
         </div>
-        <div className={styles.stepDescription}>
-          {renderDescription(currentStepData?.description, t)}
-        </div>
-
-        {/* ControlBar 直接渲染,無 PanelHeader */}
-        <ControlBar
-          isPlaying={isPlaying}
-          currentStep={currentStep}
-          totalSteps={activeStepsLength}
-          playbackSpeed={playbackSpeed}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onReset={handleResetStep}
-          onSpeedChange={setPlaybackSpeed}
-          onStepChange={handleStepChange}
-        />
+        {showControls && (
+          <>
+            <div className={styles.stepDescription}>
+              {renderDescription(currentStepData?.description, t)}
+            </div>
+            <ControlBar
+              isPlaying={isPlaying}
+              currentStep={currentStep}
+              totalSteps={activeStepsLength}
+              playbackSpeed={playbackSpeed}
+              onPlay={handlePlay}
+              onPause={handlePause}
+              onNext={handleNext}
+              onPrev={handlePrev}
+              onReset={handleResetStep}
+              onSpeedChange={setPlaybackSpeed}
+              onStepChange={handleStepChange}
+            />
+          </>
+        )}
       </div>
     </Panel>
   );
@@ -246,6 +250,7 @@ export interface InspectorPanelInternalProps {
   handleViewModeChange: (mode: AlgorithmViewMode) => void;
   currentData: any;
   currentStepData: any;
+  disabledTabs: Set<string>;
 }
 
 export const InspectorPanelInternal = ({
@@ -276,6 +281,7 @@ export const InspectorPanelInternal = ({
   handleViewModeChange,
   currentData,
   currentStepData,
+  disabledTabs,
 }: InspectorPanelInternalProps) => {
   const { activePanels } = usePanelContext();
 
@@ -288,8 +294,9 @@ export const InspectorPanelInternal = ({
         key: config.id,
         label: config.title,
         icon: config.icon,
+        disabled: disabledTabs.has(config.id),
       }));
-  }, [activePanels]);
+  }, [activePanels, disabledTabs]);
 
   // 拖拽邏輯
   const {
@@ -432,6 +439,8 @@ function TutorialContent() {
   // Inspector Tab state
   const [activeInspectorTab, setActiveInspectorTab] =
     useState<string>("actionBar");
+  const [hasStartedAnimation, setHasStartedAnimation] = useState(false);
+  const prevIsAtLastStepRef = useRef(false);
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -554,6 +563,19 @@ function TutorialContent() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
+  const isAtLastStep =
+    hasStartedAnimation &&
+    activeSteps.length > 1 &&
+    currentStep === activeSteps.length - 1;
+
+  const showControls = hasStartedAnimation;
+
+  const disabledTabs = useMemo((): Set<string> => {
+    if (!hasStartedAnimation) return new Set(["variableStatus"]);
+    if (isAtLastStep) return new Set(["variableStatus"]);
+    return new Set(["actionBar"]);
+  }, [hasStartedAnimation, isAtLastStep]);
+
   const maxNodes = topicTypeConfig?.maxNodes;
   const randomCountRef = useRef(5);
 
@@ -613,6 +635,11 @@ function TutorialContent() {
       setIsPlaying(false);
       setViewMode(topicTypeConfig.defaultViewMode ?? "");
       setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
+      setHasStartedAnimation(false);
+      setActiveInspectorTab("actionBar");
+      prevIsAtLastStepRef.current = false;
+      // setTimeout 讓 collapse 在當前 render 完成後執行，避免 react-resizable-panels 尚未完成 remount
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
     }
   }, [topicTypeConfig]);
 
@@ -640,6 +667,36 @@ function TutorialContent() {
     }, 1000 / playbackSpeed);
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed]);
+
+  // 5. Progressive disclosure：偵測首次開始播放
+  useEffect(() => {
+    if (isPlaying && !hasStartedAnimation) {
+      setHasStartedAnimation(true);
+    }
+  }, [isPlaying, hasStartedAnimation]);
+
+  // 6. Progressive disclosure：首次開始後，時序展開 CodeEditor 並切換 tab（只觸發一次）
+  useEffect(() => {
+    if (!hasStartedAnimation) return;
+    const timer = setTimeout(() => {
+      leftPanelRef.current?.expand();
+      setActiveInspectorTab("variableStatus");
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [hasStartedAnimation]);
+
+  // 7. Progressive disclosure：偵測 PLAYING ↔ ENDED 轉換，切換 tab
+  useEffect(() => {
+    if (!hasStartedAnimation) return;
+    const atLast =
+      activeSteps.length > 1 && currentStep === activeSteps.length - 1;
+    if (atLast && !prevIsAtLastStepRef.current) {
+      setActiveInspectorTab("actionBar");
+    } else if (!atLast && prevIsAtLastStepRef.current) {
+      setActiveInspectorTab("variableStatus");
+    }
+    prevIsAtLastStepRef.current = atLast;
+  }, [currentStep, activeSteps.length, hasStartedAnimation]);
 
   const allStepsElements = useMemo(() => {
     return activeSteps.map((step) => step?.elements ?? []);
@@ -1088,6 +1145,7 @@ function TutorialContent() {
     handleViewModeChange,
     currentData: logic.data,
     currentStepData,
+    disabledTabs,
   };
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -1127,6 +1185,7 @@ function TutorialContent() {
     graphCanvasRef,
     d3CanvasRef,
     useGraphCanvas,
+    showControls,
   };
 
   return (
