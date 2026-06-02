@@ -452,7 +452,6 @@ function TutorialContent() {
   const [activeInspectorTab, setActiveInspectorTab] =
     useState<string>("actionBar");
   const [hasStartedAnimation, setHasStartedAnimation] = useState(false);
-  const prevIsAtLastStepRef = useRef(false);
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -649,7 +648,6 @@ function TutorialContent() {
       setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
       setHasStartedAnimation(false);
       setActiveInspectorTab("actionBar");
-      prevIsAtLastStepRef.current = false;
       // setTimeout 讓 collapse 在當前 render 完成後執行，避免 react-resizable-panels 尚未完成 remount
       setTimeout(() => leftPanelRef.current?.collapse(), 0);
     }
@@ -720,18 +718,6 @@ function TutorialContent() {
     return () => clearTimeout(timer);
   }, [hasStartedAnimation]);
 
-  // 7. Progressive disclosure：偵測 PLAYING ↔ ENDED 轉換，切換 tab
-  useEffect(() => {
-    if (!hasStartedAnimation) return;
-    const atLast =
-      activeSteps.length > 1 && currentStep === activeSteps.length - 1;
-    if (atLast && !prevIsAtLastStepRef.current) {
-      setActiveInspectorTab("actionBar");
-    } else if (!atLast && prevIsAtLastStepRef.current) {
-      setActiveInspectorTab("variableStatus");
-    }
-    prevIsAtLastStepRef.current = atLast;
-  }, [currentStep, activeSteps.length, hasStartedAnimation]);
 
   const allStepsElements = useMemo(() => {
     return activeSteps.map((step) => step?.elements ?? []);
