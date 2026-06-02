@@ -3,6 +3,7 @@ import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
 import { useTimeComplexityDecorations } from './features/TimeComplexity';
+import type { LineComplexity } from './features/TimeComplexity/types';
 import { useTheme } from '@/shared/contexts/ThemeContext';
 
 // ==================== 類型定義 ====================
@@ -42,6 +43,7 @@ export interface CodeEditorProps {
 
   // 時間複雜度顯示
   showTimeComplexity?: boolean;
+  complexityData?: LineComplexity[];
 }
 
 export interface CodeEditorHandle {
@@ -140,6 +142,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     autoHeight = false,
     maxAutoHeight,
     showTimeComplexity = false,
+    complexityData,
   } = props;
 
   // ========== State ==========
@@ -302,7 +305,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   useTimeComplexityDecorations(
     mode === 'split' ? bottomEditorRef.current : editorRef.current,
     mode === 'split' ? internalBottomValue : internalValue,
-    { enabled: showTimeComplexity && currentLanguage === 'python' }
+    {
+      enabled: showTimeComplexity && currentLanguage === 'python',
+      externalData: complexityData,
+    }
   );
 
   const handleResizerMouseDown = (e: React.MouseEvent) => {
