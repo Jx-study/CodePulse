@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Dialog from "@/shared/components/Dialog";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
+import EmptyState from "@/shared/components/EmptyState";
 import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 import { listHistory, deleteHistory } from "@/services/playgroundHistoryService";
 import styles from "./PlaygroundHistoryDialog.module.scss";
@@ -21,6 +23,7 @@ export function PlaygroundHistoryDialog({
   quotaRecords,
   onQuotaResolved,
 }: PlaygroundHistoryDialogProps) {
+  const { t } = useTranslation("playground");
   const [records, setRecords] = useState<PlaygroundHistoryRecord[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [removeTargetId, setRemoveTargetId] = useState<number | null>(null);
@@ -157,7 +160,12 @@ export function PlaygroundHistoryDialog({
         {/* Left: list */}
         <div className={styles.historyList}>
           {records.length === 0 && (
-            <div className={styles.emptyList}>No saved runs yet</div>
+            <EmptyState
+              size="sm"
+              icon={<Icon name="clock-rotate-left" />}
+              title={t("empty.historyEmpty")}
+              description={t("empty.historyEmptyDesc")}
+            />
           )}
           {records.map((r) => (
             <div
@@ -227,10 +235,11 @@ export function PlaygroundHistoryDialog({
               </div>
             </>
           ) : (
-            <div className={styles.emptyPreview}>
-              <Icon name="arrow-left" />
-              <p>Select a record to preview</p>
-            </div>
+            <EmptyState
+              size="sm"
+              icon={<Icon name="arrow-left" />}
+              title={t("empty.historySelect")}
+            />
           )}
         </div>
       </div>

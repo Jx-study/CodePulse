@@ -191,6 +191,8 @@ class TestDuplicateDetection:
         assert res.status_code == 200
         data = res.get_json()
         assert data.get("duplicate") is True
+        assert data["duplicate_record"]["id"] == 11
+        assert data["duplicate_record"]["user_code"] == code
 
     def test_submit_matches_non_latest_history_returns_duplicate(self, client, app, auth_headers):
         """Duplicate detection checks all existing history, not only the latest record."""
@@ -374,6 +376,14 @@ class TestHistoryQuota:
 
 
 class TestAnalyzeResultAuth:
+    def test_status_endpoint_is_removed(self, app, client, auth_headers):
+        assert '/api/analyze/status/<task_id>' not in {
+            str(rule) for rule in app.url_map.iter_rules()
+        }
+
+        res = _authed(client, auth_headers, 'get', '/api/analyze/status/task-1')
+        assert res.status_code == 404
+
     def test_result_requires_login(self, client):
         with patch("routes.analyze.task_queue.get_task", return_value={
             "status": "completed",

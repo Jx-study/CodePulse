@@ -2,11 +2,32 @@ import { describe, expect, it } from "vitest";
 import { INITIAL_USER_PROGRESS } from "@/services/ProgressService";
 import {
   getLevelConfigById,
+  getLevelByImplKey,
   getEffectivePrerequisiteInfo,
   isLevelUnlocked,
   isPortalUnlocked,
   resolveEffectivePrerequisites,
 } from "@/services/LevelService";
+
+describe("getLevelByImplKey", () => {
+  it("returns the main-path level matching a known implementationKey", () => {
+    const result = getLevelByImplKey("bubbleSort");
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe("bubble-sort");
+    expect(result!.category).toBe("sorting");
+  });
+
+  it("returns the searching level for binarySearch", () => {
+    const result = getLevelByImplKey("binarySearch");
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe("binary-search");
+    expect(result!.category).toBe("searching");
+  });
+
+  it("returns null for an unknown implementationKey", () => {
+    expect(getLevelByImplKey("nonExistent")).toBeNull();
+  });
+});
 
 describe("portal unlock state", () => {
   it("traces through undeveloped prerequisites to the nearest developed gate", () => {

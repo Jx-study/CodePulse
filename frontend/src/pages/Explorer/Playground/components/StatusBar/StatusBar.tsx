@@ -1,24 +1,26 @@
 // frontend/src/pages/Explorer/components/StatusBar/StatusBar.tsx
+import { useTranslation } from "react-i18next";
 import type { RunStage } from "@/types/runStage";
 import styles from "./StatusBar.module.scss";
 
 const STAGE_ORDER: RunStage[] = ["syntax_check", "sandbox", "analysis"];
-
-const STAGE_MESSAGES: Record<RunStage, string> = {
-  idle:         "就緒 — 按下 Run 開始分析",
-  syntax_check: "語法預檢與沙箱啟動中…",
-  sandbox:      "正在模擬執行並計算複雜度…",
-  analysis:     "演算法辨識與 AI 仲裁中…",
-  done:         "分析完成",
-};
 
 interface StatusBarProps {
   stage: RunStage;
 }
 
 export function StatusBar({ stage }: StatusBarProps) {
+  const { t } = useTranslation("playground");
   const isRunning = stage !== "idle" && stage !== "done";
   const isDone    = stage === "done";
+
+  const stageMessages: Record<RunStage, string> = {
+    idle:         t("statusBar.idle"),
+    syntax_check: t("statusBar.syntaxCheck"),
+    sandbox:      t("statusBar.sandbox"),
+    analysis:     t("statusBar.analysis"),
+    done:         t("statusBar.done"),
+  };
 
   return (
     <div className={styles.bar}>
@@ -26,7 +28,7 @@ export function StatusBar({ stage }: StatusBarProps) {
         className={`${styles.dot} ${isDone ? styles.dotDone : isRunning ? styles.dotRunning : styles.dotIdle}`}
       />
       <span className={`${styles.message} ${isDone ? styles.messageDone : ""}`}>
-        {STAGE_MESSAGES[stage]}
+        {stageMessages[stage]}
       </span>
 
       {isRunning && (

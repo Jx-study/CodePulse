@@ -18,6 +18,18 @@ interface UsePlaygroundRunOptions {
   onQuotaFull: (records: PlaygroundHistoryRecord[]) => Promise<"proceed" | "skip">;
 }
 
+export function handleDuplicateReplay(
+  record: PlaygroundHistoryRecord,
+  showDuplicateToast: () => void,
+  loadFromHistory: (record: PlaygroundHistoryRecord) => void,
+  delayMs = 3000,
+): number {
+  showDuplicateToast();
+  return window.setTimeout(() => {
+    loadFromHistory(record);
+  }, delayMs);
+}
+
 export function usePlaygroundRun({
   code,
   editorRef,
@@ -41,6 +53,7 @@ export function usePlaygroundRun({
   const [isAlgoDialogOpen, setIsAlgoDialogOpen] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
+  const duplicateTimerRef = useRef<number | null>(null);
 
   const handleEditCode = useCallback(() => {
     onResetPlayback();
@@ -57,102 +70,11 @@ export function usePlaygroundRun({
     setRunStage("idle");
   }, [editorRef, onResetPlayback]);
 
-  const handleRun = useCallback(async () => {
-    if (!code.trim()) {
-      toast.error(t("run.emptyCode"));
-      return;
-    }
-
-    let saveHistory = true;
-
-    // Quota gate
-    try {
-      const records = await listHistory();
-      if (records.length >= 5) {
-        const decision = await onQuotaFull(records);
-        saveHistory = decision === "proceed";
-      }
-    } catch {
-      // If quota check fails, continue with run anyway
-    }
-
-    // Cancel any in-flight request
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setRunStage("syntax_check");
-    editorRef.current?.clearErrorMarker();
-    setTrace([]);
-    setRawTrace([]);
-    setRawIndexMap([]);
-    setCallGraph(null);
-    setCfgGraph({});
-    setIsTruncated(false);
-    setStdoutEvents([]);
-    onResetPlayback();
-    setDrill({ mode: "call_graph" });
-    setAppliedAlgo(null);
-
-    try {
-      const result = await analyzeRun(
-        code,
-        (stage) => setRunStage(stage),
-        controller.signal,
-        { saveHistory },
-      );
-      setTrace(result.trace);
-      setRawTrace(result.rawTrace);
-      setRawIndexMap(result.rawIndexMap);
-      setIsTruncated(result.isTruncated);
-      setStdoutEvents(result.stdoutEvents);
-      setCallGraph(result.callGraph);
-      setCfgGraph(result.cfgGraph);
-      setAiResult(result.aiResult);
-      setTop3Candidates(result.top3Candidates);
-      setDrill({ mode: "call_graph" });
-      setRunStage("done");
-    } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") return;
-      setRunStage("idle");
-      if (e instanceof AnalyzeError) {
-        switch (e.type) {
-          case "duplicate_code":
-            toast.info(t("run.duplicateCode"));
-            break;
-          case "empty_code":
-            toast.error(t("run.emptyCode"));
-            break;
-          case "syntax_error":
-            if (e.lineno != null) {
-              toast.error(t("run.syntaxError", { line: e.lineno, msg: e.message }));
-              editorRef.current?.setErrorMarker(e.lineno, e.message);
-            } else {
-              toast.error(t("run.syntaxErrorNoLine", { msg: e.message }));
-            }
-            break;
-          case "timeout":
-            toast.error(t("run.timeout"));
-            break;
-          case "pool_exhausted":
-            toast.warning(t("run.poolExhausted"));
-            break;
-          case "runtime_error":
-            toast.error(formatRuntimeError(e.message, t));
-            if (e.lineno != null) {
-              editorRef.current?.setErrorMarker(e.lineno, e.message);
-            }
-            break;
-          default:
-            toast.error(t("run.analysisFailed"));
-        }
-      } else {
-        toast.error(t("run.analysisFailed"));
-      }
-    }
-  }, [code, editorRef, onResetPlayback, onQuotaFull, t]);
-
   const loadFromHistory = useCallback((record: PlaygroundHistoryRecord) => {
+    if (duplicateTimerRef.current !== null) {
+      clearTimeout(duplicateTimerRef.current);
+      duplicateTimerRef.current = null;
+    }
     setTrace(record.execution_trace);
     setRawTrace(record.raw_trace);
     setRawIndexMap(record.raw_index_map);
@@ -200,6 +122,114 @@ export function usePlaygroundRun({
     setStdoutEvents, setIsTruncated, setAiResult, setTop3Candidates,
     setAppliedAlgo, setDrill, setRunStage, onResetPlayback,
   ]);
+
+  const handleRun = useCallback(async () => {
+    if (!code.trim()) {
+      toast.error(t("run.emptyCode"));
+      return;
+    }
+
+    let saveHistory = true;
+
+    // Quota gate
+    try {
+      const records = await listHistory();
+      if (records.length >= 5) {
+        const decision = await onQuotaFull(records);
+        saveHistory = decision === "proceed";
+      }
+    } catch {
+      // If quota check fails, continue with run anyway
+    }
+
+    if (duplicateTimerRef.current !== null) {
+      clearTimeout(duplicateTimerRef.current);
+      duplicateTimerRef.current = null;
+    }
+
+    // Cancel any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setRunStage("syntax_check");
+    editorRef.current?.clearErrorMarker();
+    setTrace([]);
+    setRawTrace([]);
+    setRawIndexMap([]);
+    setCallGraph(null);
+    setCfgGraph({});
+    setIsTruncated(false);
+    setStdoutEvents([]);
+    onResetPlayback();
+    setDrill({ mode: "call_graph" });
+    setAppliedAlgo(null);
+
+    try {
+      const result = await analyzeRun(
+        code,
+        (stage) => setRunStage(stage),
+        controller.signal,
+        { saveHistory },
+      );
+      setTrace(result.trace);
+      setRawTrace(result.rawTrace);
+      setRawIndexMap(result.rawIndexMap);
+      setIsTruncated(result.isTruncated);
+      setStdoutEvents(result.stdoutEvents);
+      setCallGraph(result.callGraph);
+      setCfgGraph(result.cfgGraph);
+      setAiResult(result.aiResult);
+      setTop3Candidates(result.top3Candidates);
+      setDrill({ mode: "call_graph" });
+      setRunStage("done");
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
+      setRunStage("idle");
+      if (e instanceof AnalyzeError) {
+        switch (e.type) {
+          case "duplicate_code":
+            if (e.duplicateRecord) {
+              duplicateTimerRef.current = handleDuplicateReplay(
+                e.duplicateRecord,
+                () => toast.info(t("run.duplicateCode")),
+                loadFromHistory,
+              );
+            } else {
+              toast.info(t("run.duplicateCode"));
+            }
+            break;
+          case "empty_code":
+            toast.error(t("run.emptyCode"));
+            break;
+          case "syntax_error":
+            if (e.lineno != null) {
+              toast.error(t("run.syntaxError", { line: e.lineno, msg: e.message }));
+              editorRef.current?.setErrorMarker(e.lineno, e.message);
+            } else {
+              toast.error(t("run.syntaxErrorNoLine", { msg: e.message }));
+            }
+            break;
+          case "timeout":
+            toast.error(t("run.timeout"));
+            break;
+          case "pool_exhausted":
+            toast.warning(t("run.poolExhausted"));
+            break;
+          case "runtime_error":
+            toast.error(formatRuntimeError(e.message, t));
+            if (e.lineno != null) {
+              editorRef.current?.setErrorMarker(e.lineno, e.message);
+            }
+            break;
+          default:
+            toast.error(t("run.analysisFailed"));
+        }
+      } else {
+        toast.error(t("run.analysisFailed"));
+      }
+    }
+  }, [code, editorRef, loadFromHistory, onResetPlayback, onQuotaFull, t]);
 
   return {
     runStage,

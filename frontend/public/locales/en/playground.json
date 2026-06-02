@@ -1,4 +1,34 @@
 {
+  "statusBar": {
+    "idle": "Ready — press Run to start analysis",
+    "syntaxCheck": "Syntax check & sandbox initialising…",
+    "sandbox": "Simulating execution & computing complexity…",
+    "analysis": "Algorithm detection & AI arbitration…",
+    "done": "Analysis complete"
+  },
+  "ui": {
+    "editCode": "Edit Code",
+    "run": "Run",
+    "tabAnimation": "Algorithm Animation",
+    "tabGraph": "Call Graph / CFG",
+    "aiAnalysisTitle": "View AI Analysis",
+    "aiAnalysisLoading": "AI Analysis…",
+    "aiAnalysis": "✦ AI Analysis",
+    "callGraph": "Call Graph",
+    "cfgPrefix": "CFG ·",
+    "globalFrame": "(global)",
+    "runToStart": "Run code to start",
+    "waitingAnalysis": "Waiting for analysis…"
+  },
+  "empty": {
+    "animationTitle": "No animation data",
+    "animationDesc": "Run code to generate the animation",
+    "graphTitle": "No graph data",
+    "graphDesc": "Run code to generate the call graph",
+    "historyEmpty": "No runs saved yet",
+    "historyEmptyDesc": "Your history will appear here after running code",
+    "historySelect": "Select a record to preview"
+  },
   "run": {
     "emptyCode": "Please enter some code before running.",
     "syntaxError": "Syntax error on line {{line}}: {{msg}}",
