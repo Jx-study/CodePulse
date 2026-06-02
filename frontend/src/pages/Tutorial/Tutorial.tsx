@@ -1140,25 +1140,28 @@ function TutorialContent() {
     <div className={styles.tutorialPage}>
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
-        {!isMobile && (
-          <div className={styles.buttonGroup}>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowFeatureTour(true)}
-              title="開啟功能導覽"
-              icon="circle-question"
-              iconOnly
-            />
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsKnowledgeStationOpen(true)}
-              title="開啟知識補充站"
-              icon="lightbulb"
-            >
-              知識補充站
-            </Button>
+        <div className={styles.buttonGroup}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowFeatureTour(true)}
+            title="開啟功能導覽"
+            aria-label="開啟功能導覽"
+            icon="circle-question"
+            iconOnly
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsKnowledgeStationOpen(true)}
+            title="開啟知識補充站"
+            aria-label="開啟知識補充站"
+            icon="lightbulb"
+            iconOnly={isMobile}
+          >
+            {!isMobile && "知識補充站"}
+          </Button>
+          {!isMobile && (
             <span data-tour="swap-button">
               <Button
                 variant="secondary"
@@ -1170,8 +1173,8 @@ function TutorialContent() {
                 交換佈局
               </Button>
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <TopSection

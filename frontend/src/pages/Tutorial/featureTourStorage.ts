@@ -1,7 +1,7 @@
 // 操作導覽「不再顯示」偏好的 localStorage 存取工具。
 // 沿用 ThemeContext 的具名常數 + try/catch 慣例，避免隱私模式存取拋錯。
 
-const STORAGE_KEY = 'codepulse:feature-tour-dismissed';
+const STORAGE_KEY = 'codepulse:tutorial-tour-dismissed';
 
 /**
  * 讀取使用者是否已按過「不再顯示」。
