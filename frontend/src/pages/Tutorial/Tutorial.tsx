@@ -48,6 +48,7 @@ import {
 } from "@/types/statusConfig";
 import { useTranslation } from "react-i18next";
 import type { StepDescription } from "@/types";
+import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 
 function renderDescription(
   desc: string | StepDescription | undefined,
@@ -201,19 +202,21 @@ const CanvasPanel = ({
             <div className={styles.stepDescription}>
               {renderDescription(currentStepData?.description, t)}
             </div>
-            <ControlBar
-              isPlaying={isPlaying}
-              currentStep={currentStep}
-              totalSteps={activeStepsLength}
-              playbackSpeed={playbackSpeed}
-              onPlay={handlePlay}
-              onPause={handlePause}
-              onNext={handleNext}
-              onPrev={handlePrev}
-              onReset={handleResetStep}
-              onSpeedChange={setPlaybackSpeed}
-              onStepChange={handleStepChange}
-            />
+            <div data-tour="control-bar">
+              <ControlBar
+                isPlaying={isPlaying}
+                currentStep={currentStep}
+                totalSteps={activeStepsLength}
+                playbackSpeed={playbackSpeed}
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onNext={handleNext}
+                onPrev={handlePrev}
+                onReset={handleResetStep}
+                onSpeedChange={setPlaybackSpeed}
+                onStepChange={handleStepChange}
+              />
+            </div>
           </>
         )}
       </div>
@@ -421,6 +424,7 @@ function TutorialContent() {
   const isAnimatingRef = useRef(false);
   const isPlayingRef = useRef(false);
   const handleNextRef = useRef<() => void>(() => {});
+  const codeEditorRef = useRef<CodeEditorHandle>(null);
 
   // Collapse states (使用 context 的 collapsed state)
   const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
@@ -430,10 +434,18 @@ function TutorialContent() {
 
   // Feature Tour state
   const [showFeatureTour, setShowFeatureTour] = useState(true);
-  const handleSkipFeatureTour = () => setShowFeatureTour(false);
+  const handleSkipFeatureTour = () => {
+    setShowFeatureTour(false);
+    if (!hasStartedAnimation) {
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
+    }
+  };
   const handleCompleteFeatureTour = () => {
     setShowFeatureTour(false);
     setIsKnowledgeStationOpen(true);
+    if (!hasStartedAnimation) {
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
+    }
   };
 
   // Inspector Tab state
@@ -568,11 +580,11 @@ function TutorialContent() {
     activeSteps.length > 1 &&
     currentStep === activeSteps.length - 1;
 
-  const showControls = hasStartedAnimation;
+  const showControls = hasStartedAnimation || showFeatureTour;
 
   const disabledTabs = useMemo((): Set<string> => {
     if (!hasStartedAnimation) return new Set(["variableStatus"]);
-    if (isAtLastStep) return new Set(["variableStatus"]);
+    if (isAtLastStep) return new Set();
     return new Set(["actionBar"]);
   }, [hasStartedAnimation, isAtLastStep]);
 
@@ -668,18 +680,41 @@ function TutorialContent() {
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed]);
 
-  // 5. Progressive disclosure：偵測首次開始播放
+  // 5. FeatureTour：開啟時展開 CodeEditor 讓導覽步驟可見；關閉由 handler 負責收起
+  useEffect(() => {
+    if (showFeatureTour && !hasStartedAnimation) {
+      setTimeout(() => {
+        if (leftPanelRef.current?.isCollapsed()) {
+          leftPanelRef.current.expand();
+        }
+      }, 0);
+    }
+  }, [showFeatureTour]);
+
+  // 6. Progressive disclosure：偵測首次開始播放
   useEffect(() => {
     if (isPlaying && !hasStartedAnimation) {
       setHasStartedAnimation(true);
     }
   }, [isPlaying, hasStartedAnimation]);
 
-  // 6. Progressive disclosure：首次開始後，時序展開 CodeEditor 並切換 tab（只觸發一次）
+  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor（動態寬度）並切換 tab（只觸發一次）
   useEffect(() => {
     if (!hasStartedAnimation) return;
     const timer = setTimeout(() => {
-      leftPanelRef.current?.expand();
+      if (leftPanelRef.current?.isCollapsed()) {
+        const contentPx = codeEditorRef.current?.getContentWidth() ?? 0;
+        const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
+        if (contentPx > 0 && rightPanelPx > 0) {
+          const targetPercent = Math.min(
+            panelSizes.codeEditor,
+            (contentPx / rightPanelPx) * 100,
+          );
+          leftPanelRef.current?.resize(targetPercent);
+        } else {
+          leftPanelRef.current?.expand();
+        }
+      }
       setActiveInspectorTab("variableStatus");
     }, 400);
     return () => clearTimeout(timer);
@@ -1248,6 +1283,7 @@ function TutorialContent() {
         handleModeToggle={handleModeToggle}
         currentCodeConfig={currentCodeConfig}
         highlightLines={highlightLines}
+        codeEditorRef={codeEditorRef}
       />
 
       {/* Knowledge Station Dialog */}

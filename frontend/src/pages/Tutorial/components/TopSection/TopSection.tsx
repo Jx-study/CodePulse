@@ -20,6 +20,7 @@ const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeE
 import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
+import type { CodeEditorHandle } from '@/modules/core/components/CodeEditor/CodeEditor';
 import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
 import type { D3CanvasRef } from '@/modules/core/Render/D3Canvas';
 import type { GraphCanvasRef } from '@/modules/core/Render/GraphCanvas';
@@ -94,6 +95,7 @@ interface TopSectionProps {
   handleModeToggle: (mode: "pseudo" | "python") => void;
   currentCodeConfig: any;
   highlightLines: number[];
+  codeEditorRef?: React.RefObject<CodeEditorHandle | null>;
 }
 
 export function TopSection(props: TopSectionProps) {
@@ -117,6 +119,7 @@ export function TopSection(props: TopSectionProps) {
     handleModeToggle,
     currentCodeConfig,
     highlightLines,
+    codeEditorRef,
   } = props;
 
   const { panelSizes, setCollapsed } = usePanelContext();
@@ -201,6 +204,7 @@ export function TopSection(props: TopSectionProps) {
                     <div className={styles.pseudoCodeEditor}>
                       <Suspense fallback={null}>
                         <CodeEditor
+                          ref={codeEditorRef}
                           key={`editor-${mainPanelOrder.join("-")}`}
                           mode="single"
                           language="python"
@@ -379,6 +383,7 @@ export function TopSection(props: TopSectionProps) {
                     <div className={styles.pseudoCodeEditor}>
                       <Suspense fallback={null}>
                         <CodeEditor
+                          ref={codeEditorRef}
                           key={`editor-${mainPanelOrder.join("-")}`}
                           mode="single"
                           language="python"
