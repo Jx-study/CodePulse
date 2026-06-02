@@ -66,6 +66,22 @@ def partition(arr, low, high):
             
     arr[i + 1], arr[high] = arr[high], arr[i + 1]
     return i + 1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n log n)' },                            // def quick_sort(arr, low, high):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // if low < high:
+      { lineNumber: 3,  complexity: 'O(n)' },                                  // pivot_idx = partition(arr, low, high)
+      { lineNumber: 4,  complexity: 'O(n log n)' },                            // quick_sort(arr, low, pivot_idx - 1)
+      { lineNumber: 5,  complexity: 'O(n log n)' },                            // quick_sort(arr, pivot_idx + 1, high)
+      { lineNumber: 7,  complexity: 'O(n)' },                                  // def partition(arr, low, high):
+      { lineNumber: 8,  complexity: 'O(1)' },                                  // pivot = arr[high]
+      { lineNumber: 9,  complexity: 'O(1)' },                                  // i = low - 1
+      { lineNumber: 10, complexity: 'O(n)' },                                  // for j in range(low, high):
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // if arr[j] <= pivot:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // i += 1
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // arr[i], arr[j] = arr[j], arr[i]
+      { lineNumber: 15, complexity: 'O(1)' },                                  // arr[i+1], arr[high] = arr[high], arr[i+1]
+      { lineNumber: 16, complexity: 'O(1)' },                                  // return i + 1
+    ],
   },
 };
 

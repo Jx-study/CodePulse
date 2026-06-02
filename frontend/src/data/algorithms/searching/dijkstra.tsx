@@ -401,8 +401,25 @@ def dijkstra(graph, start_node):
             if new_dist < dist[neighbor]:
                 dist[neighbor] = new_dist
                 heapq.heappush(pq, (new_dist, neighbor))
-                
+
     return dist`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },                                  // import heapq
+      { lineNumber: 3,  complexity: 'O(n log n)' },                            // def dijkstra(graph, start_node):
+      { lineNumber: 4,  complexity: 'O(n)' },                                  // dist = {v: float('inf') for v in graph}
+      { lineNumber: 5,  complexity: 'O(1)' },                                  // dist[start_node] = 0
+      { lineNumber: 6,  complexity: 'O(1)' },                                  // pq = [(0, start_node)]
+      { lineNumber: 8,  complexity: 'O(n log n)' },                            // while pq:
+      { lineNumber: 9,  complexity: 'O(log n)', context: 'O(n)' },             // current_dist, curr_node = heapq.heappop(pq)
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // if current_dist > dist[curr_node]:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // continue
+      { lineNumber: 14, complexity: 'O(n)', context: 'O(n)' },                 // for neighbor, weight in graph[curr_node]:
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },                 // new_dist = current_dist + weight
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // if new_dist < dist[neighbor]:
+      { lineNumber: 18, complexity: 'O(1)', context: 'O(n)' },                 // dist[neighbor] = new_dist
+      { lineNumber: 19, complexity: 'O(log n)', context: 'O(n)' },             // heapq.heappush(pq, (new_dist, neighbor))
+      { lineNumber: 21, complexity: 'O(1)' },                                  // return dist
+    ],
   },
 };
 

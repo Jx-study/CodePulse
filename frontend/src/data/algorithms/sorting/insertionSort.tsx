@@ -210,6 +210,20 @@ End Procedure`,
         collection[scan_pos + 1] = insert_val
             
     return collection`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                            // def insertion_sort(collection):
+      { lineNumber: 2,  complexity: 'O(1)'   },                            // total_items = len(collection)
+      { lineNumber: 4,  complexity: 'O(n)'   },                            // for unsorted_pos in range(1, total_items):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)'   },           // insert_val = collection[unsorted_pos]
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n)'   },           // scan_pos = unsorted_pos - 1
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n)'   },           // # Shift elements greater than insert_val
+      { lineNumber: 9,  complexity: 'O(n)', context: 'O(n)'   },           // while scan_pos >= 0 and ...:
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n^2)' },           // collection[scan_pos + 1] = collection[scan_pos]
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },           // scan_pos -= 1
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)'   },           // # Insert the key into its correct position
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)'   },           // collection[scan_pos + 1] = insert_val
+      { lineNumber: 16, complexity: 'O(1)' },                              // return collection
+    ],
   },
 };
 

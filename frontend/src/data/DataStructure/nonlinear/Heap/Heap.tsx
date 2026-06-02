@@ -247,6 +247,21 @@ const heapCodeConfig: CodeConfig = {
         self.heap[0] = self.heap.pop()
         self._heapify_down(0)
         return ext_val`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)'                       },  // class Heap:
+      { lineNumber: 2,  complexity: 'O(n)'                       },  // def build_heap(self, arr): — overall O(n)
+      { lineNumber: 3,  complexity: 'O(1)'                       },  // self.heap = arr — simple assign outside loop
+      { lineNumber: 4,  complexity: 'O(n)'                       },  // for i in range(...) — top-level for, O(n) iterations
+      { lineNumber: 5,  complexity: 'O(h)', context: 'O(n)' },  // _heapify_down(i) — O(h) per node (h = node height), called O(n) times
+      { lineNumber: 7,  complexity: 'O(log n)'                   },  // def insert(self, value): — overall O(log n)
+      { lineNumber: 8,  complexity: 'O(1)'                       },  // self.heap.append — list.append is O(1) amortized
+      { lineNumber: 9,  complexity: 'O(log n)'                   },  // self._heapify_up(...) — O(log n) bubble-up
+      { lineNumber: 11, complexity: 'O(log n)'                   },  // def extract_extreme(self): — overall O(log n)
+      { lineNumber: 12, complexity: 'O(1)'                       },  // ext_val = self.heap[0] — O(1) index access
+      { lineNumber: 13, complexity: 'O(1)'                       },  // self.heap[0] = self.heap.pop() — O(1)
+      { lineNumber: 14, complexity: 'O(log n)'                   },  // self._heapify_down(0) — O(log n) sift-down
+      { lineNumber: 15, complexity: 'O(1)'                       },  // return ext_val
+    ],
   },
 };
 

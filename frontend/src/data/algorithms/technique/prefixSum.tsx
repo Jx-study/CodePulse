@@ -331,6 +331,23 @@ def range_sum(prefix, L, R):
         return val_r - val_l
     else:
         return val_r`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n)' },                                  // def build_prefix_sum(arr):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // n = len(arr)
+      { lineNumber: 3,  complexity: 'O(n)' },                                  // prefix = [0] * n
+      { lineNumber: 4,  complexity: 'O(1)' },                                  // prefix[0] = arr[0]
+      { lineNumber: 6,  complexity: 'O(n)' },                                  // for i in range(1, n):
+      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },                 // prefix[i] = prefix[i - 1] + arr[i]
+      { lineNumber: 9,  complexity: 'O(1)' },                                  // return prefix
+      { lineNumber: 11, complexity: 'O(1)' },                                  // def range_sum(prefix, L, R):
+      { lineNumber: 12, complexity: 'O(1)' },                                  // # Get the value at the right boundary
+      { lineNumber: 13, complexity: 'O(1)' },                                  // val_r = prefix[R]
+      { lineNumber: 15, complexity: 'O(1)' },                                  // if L > 0:
+      { lineNumber: 16, complexity: 'O(1)' },                                  // val_l = prefix[L - 1]
+      { lineNumber: 17, complexity: 'O(1)' },                                  // return val_r - val_l
+      { lineNumber: 18, complexity: 'O(1)' },                                  // else:
+      { lineNumber: 19, complexity: 'O(1)' },                                  // return val_r
+    ],
   },
 };
 

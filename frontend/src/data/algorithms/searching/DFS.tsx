@@ -1093,6 +1093,29 @@ End Procedure`,
                 stack.append((neighbor, depth + 1))
 
     return -1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n)' },                                  // def dfs(graph, start, end):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // # 初始化距離
+      { lineNumber: 3,  complexity: 'O(n)' },                                  // distances = {node: float('inf')...}
+      { lineNumber: 4,  complexity: 'O(1)' },                                  // distances[start] = 0
+      { lineNumber: 6,  complexity: 'O(1)' },                                  // stack = [(start, 0)]
+      { lineNumber: 7,  complexity: 'O(1)' },                                  // visited = set()
+      { lineNumber: 9,  complexity: 'O(n)' },                                  // while stack:
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n)' },                 // curr, depth = stack.pop()
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // # 跳過已訪問節點
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // if curr in visited:
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },                 // continue
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(n)' },                 // visited.add(curr)
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // distances[curr] = depth
+      { lineNumber: 19, complexity: 'O(1)', context: 'O(n)' },                 // # 找到終點
+      { lineNumber: 20, complexity: 'O(1)', context: 'O(n)' },                 // if curr == end:
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(n)' },                 // return distances[curr]
+      { lineNumber: 23, complexity: 'O(1)', context: 'O(n)' },                 // # 遍歷鄰居（降序...）
+      { lineNumber: 24, complexity: 'O(n log n)', context: 'O(n)' },           // for neighbor in sorted(graph[curr], ...):
+      { lineNumber: 25, complexity: 'O(1)', context: 'O(n)' },                 // if neighbor not in visited:
+      { lineNumber: 26, complexity: 'O(1)', context: 'O(n)' },                 // stack.append((neighbor, depth + 1))
+      { lineNumber: 28, complexity: 'O(1)' },                                  // return -1
+    ],
   },
 };
 

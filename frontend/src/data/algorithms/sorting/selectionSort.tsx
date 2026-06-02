@@ -204,6 +204,20 @@ End Procedure`,
             collection[current_pos], collection[min_pos] = collection[min_pos], collection[current_pos]
             
     return collection`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                            // def selection_sort(collection):
+      { lineNumber: 2,  complexity: 'O(1)'   },                            // total_items = len(collection)
+      { lineNumber: 4,  complexity: 'O(n)'   },                            // for current_pos in range(total_items - 1):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)'   },           // min_pos = current_pos
+      { lineNumber: 7,  complexity: 'O(n)', context: 'O(n)'   },           // for scan_pos in range(current_pos + 1, ...):
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n^2)' },           // scan_val = collection[scan_pos]
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },           // min_val = collection[min_pos]
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },           // if scan_val < min_val:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n^2)' },           // min_pos = scan_pos
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)'   },           // if min_pos != current_pos:
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)'   },           // collection[current_pos], ... = ...
+      { lineNumber: 17, complexity: 'O(1)' },                              // return collection
+    ],
   },
 };
 
