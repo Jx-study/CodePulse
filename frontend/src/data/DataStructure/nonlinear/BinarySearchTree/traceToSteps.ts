@@ -13,6 +13,8 @@ const BST_LAYOUT = {
   offsetX: 0,
   offsetY: 50,
   type: "bst" as const,
+  // 固定每層垂直間距，讓新增節點時舊節點不會往上移動
+  nodeSize: [120, 100] as [number, number],
 };
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
