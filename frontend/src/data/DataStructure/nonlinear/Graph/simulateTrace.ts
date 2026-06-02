@@ -150,7 +150,7 @@ export function simulateGraphTrace(
       const statusMap: Record<string, Status> = { [targetId]: Status.Target };
       const linkStatusMap: Record<string, string> = {};
 
-      neighbors.forEach((nId: string, idx: number) => {
+      neighbors.forEach((nId: string) => {
         statusMap[nId] = Status.Prepare;
         linkStatusMap[`${targetId}->${nId}`] = Status.Prepare;
         if (!isDirected) linkStatusMap[`${nId}->${targetId}`] = Status.Prepare;
