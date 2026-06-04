@@ -1059,6 +1059,7 @@ function TutorialContent() {
   const handleResetStep = () => {
     setCurrentStep(0);
     setIsPlaying(false);
+    setHasStartedAnimation(false);
   };
   const handleStepChange = (step: number) => {
     setCurrentStep(step);
