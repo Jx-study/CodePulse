@@ -708,7 +708,7 @@ function TutorialContent() {
             panelSizes.codeEditor,
             (contentPx / rightPanelPx) * 100,
           );
-          leftPanelRef.current?.resize(targetPercent);
+          leftPanelRef.current?.resize(`${targetPercent}%`);
         } else {
           leftPanelRef.current?.expand();
         }
