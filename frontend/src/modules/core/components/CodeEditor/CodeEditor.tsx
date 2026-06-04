@@ -184,6 +184,11 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     setCurrentLanguage(language);
   }, [language]);
 
+  // ========== 同步 value prop → internalValue ==========
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
   // ========== 同步 highlightedLine ref（解決 onMount stale closure）==========
   useEffect(() => {
     highlightedLineRef.current = highlightedLine;

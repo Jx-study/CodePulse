@@ -92,7 +92,7 @@ export function useTimeComplexityDecorations(
         editor.updateOptions({ wordWrap: 'off' });
       }
     };
-  }, [editor, code, config.enabled]);
+  }, [editor, code, config.enabled, config.externalData]);
 
   useEffect(() => {
     return () => {
