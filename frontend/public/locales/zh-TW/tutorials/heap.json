@@ -36,6 +36,7 @@
     "peekReadyTooltip": "僅查看{{type}}值 (不移除)",
     "peekNeedHeapifyTooltip": "請先 Heapify，才能查看 Heap 的根節點",
     "heapifyTooltip": "將無序陣列轉換為 Heap (Bottom-Up 建堆)",
-    "insertWarning": "請輸入要 Insert 的數值"
+    "insertWarning": "請輸入要 Insert 的數值",
+    "needHeapifyWarning": "請先點擊 Heapify 建立堆積結構"
   }
 }

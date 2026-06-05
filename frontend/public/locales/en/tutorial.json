@@ -28,7 +28,8 @@
   },
   "toast": {
     "maxNodesExceeded": "Data count exceeds limit. Maximum {{maxNodes}} items allowed.",
-    "invalidFormat": "Please enter a valid number format (e.g. 1,2,3)"
+    "invalidFormat": "Please enter a valid number format (e.g. 1,2,3)",
+    "emptyDataOperation": "No data available. Please load or generate data first."
   },
   "featureTour": {
     "ariaLabelComplete": "Feature Tour Complete",

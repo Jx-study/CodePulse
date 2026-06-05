@@ -881,6 +881,18 @@ function TutorialContent() {
   const handleCustomAction = (action: string, payload: any) => {
     if (isProcessing) return;
 
+    const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
+
+    if (action === "add" && maxNodes !== undefined && currentCount >= maxNodes) {
+      toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
+      return;
+    }
+
+    if ((action === "delete" || action === "peek") && currentCount === 0) {
+      toast.warning(tTutorial("toast.emptyDataOperation"));
+      return;
+    }
+
     const steps = logic.executeAction(action, payload);
 
     if (steps && steps.length > 0) {

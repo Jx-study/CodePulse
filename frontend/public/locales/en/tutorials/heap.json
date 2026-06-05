@@ -36,6 +36,7 @@
     "peekReadyTooltip": "View the {{type}} value (without removing)",
     "peekNeedHeapifyTooltip": "Please Heapify first to peek at the root node",
     "heapifyTooltip": "Convert unordered array to Heap (Bottom-Up Heapify)",
-    "insertWarning": "Please enter a value to Insert"
+    "insertWarning": "Please enter a value to Insert",
+    "needHeapifyWarning": "Please click Heapify to build a heap first"
   }
 }

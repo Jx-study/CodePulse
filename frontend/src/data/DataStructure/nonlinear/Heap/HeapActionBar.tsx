@@ -69,7 +69,11 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
   };
 
   const handleInsert = () => {
-    if (disabled || !onCustomAction || !isHeapReady) return;
+    if (disabled || !onCustomAction) return;
+    if (!isHeapReady) {
+      toast.warning(t("ui.needHeapifyWarning"));
+      return;
+    }
     if (!inputValue.trim()) {
       toast.warning(t("ui.insertWarning"));
       return;
@@ -82,12 +86,20 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
   };
 
   const handleExtract = () => {
-    if (disabled || !onCustomAction || !isHeapReady) return;
+    if (disabled || !onCustomAction) return;
+    if (!isHeapReady) {
+      toast.warning(t("ui.needHeapifyWarning"));
+      return;
+    }
     onCustomAction("delete", { isMinHeap, isMaxHeap });
   };
 
   const handlePeek = () => {
-    if (disabled || !onCustomAction || !isHeapReady) return;
+    if (disabled || !onCustomAction) return;
+    if (!isHeapReady) {
+      toast.warning(t("ui.needHeapifyWarning"));
+      return;
+    }
     onCustomAction("peek", { isMinHeap, isMaxHeap });
   };
 
@@ -156,7 +168,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             className={styles.btnInsert}
             onClick={handleInsert}
-            disabled={disabled || !inputValue || !isHeapReady}
+            disabled={disabled}
             icon="plus"
           >
             {t("ui.insert")}
@@ -177,7 +189,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             className={styles.btnDelete}
             onClick={handleExtract}
-            disabled={disabled || !isHeapReady}
+            disabled={disabled}
             icon="arrow-up-from-bracket"
           >
             {isHeapReady
@@ -199,7 +211,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={handlePeek}
-            disabled={disabled || !isHeapReady}
+            disabled={disabled}
             icon="eye"
           >
             {t("ui.peek")}
