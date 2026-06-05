@@ -27,7 +27,7 @@ function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
     key: "fibdp.init",
-    params: { n: e.variables.n, size: e.variables.n + 1 },
+    params: { n: e.local_vars.n, size: e.local_vars.n + 1 },
   }),
   [TAGS.BASE_CASES]: () => ({
     key: "fibdp.base_cases",
@@ -35,25 +35,25 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.CALC_PREPARE]: (e) => ({
     key: "fibdp.calc_prepare",
     params: {
-      i: e.variables.i,
-      item1: e.variables.i - 1,
-      item2: e.variables.i - 2,
-      val1: e.variables["dp[i-1]"],
-      val2: e.variables["dp[i-2]"],
+      i: e.local_vars.i,
+      item1: e.local_vars.i - 1,
+      item2: e.local_vars.i - 2,
+      val1: e.local_vars["dp[i-1]"],
+      val2: e.local_vars["dp[i-2]"],
     },
   }),
   [TAGS.CALC_DONE]: (e) => ({
     key: "fibdp.calc_done",
     params: {
-      i: e.variables.i,
-      val1: e.variables["dp[i-1]"],
-      val2: e.variables["dp[i-2]"],
-      result: e.variables["dp[i]"],
+      i: e.local_vars.i,
+      val1: e.local_vars["dp[i-1]"],
+      val2: e.local_vars["dp[i-2]"],
+      result: e.local_vars["dp[i]"],
     },
   }),
   [TAGS.DONE]: (e) => ({
     key: "fibdp.done",
-    params: { result: e.variables.result },
+    params: { result: e.local_vars.result },
   }),
 };
 
@@ -68,7 +68,7 @@ export function fibonacciDPTraceToSteps(
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.variables,
+      variables: event.local_vars,
       elements: createBoxes(event.dataSnapshot as any[], {
         startX: 50,
         startY: 250,

@@ -15,7 +15,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
   // 1. 初始化
   trace.push({
     tag: TAGS.INIT,
-    variables: { n: targetN },
+    local_vars: { n: targetN },
     dataSnapshot: getSnapshot(),
     meta: { isInitial: true },
   });
@@ -26,7 +26,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
 
   trace.push({
     tag: TAGS.BASE_CASES,
-    variables: { "dp[0]": 0, "dp[1]": 1 },
+    local_vars: { "dp[0]": 0, "dp[1]": 1 },
     dataSnapshot: getSnapshot(),
     meta: { overrideStatusMap: { 0: "Target", 1: "Target" } },
   });
@@ -38,7 +38,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
 
     trace.push({
       tag: TAGS.CALC_PREPARE,
-      variables: { i, "dp[i-1]": val1, "dp[i-2]": val2 },
+      local_vars: { i, "dp[i-1]": val1, "dp[i-2]": val2 },
       dataSnapshot: getSnapshot(),
       meta: {
         overrideStatusMap: {
@@ -53,7 +53,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
 
     trace.push({
       tag: TAGS.CALC_DONE,
-      variables: { i, "dp[i]": dp[i], "dp[i-1]": val1, "dp[i-2]": val2 },
+      local_vars: { i, "dp[i]": dp[i], "dp[i-1]": val1, "dp[i-2]": val2 },
       dataSnapshot: getSnapshot(),
       meta: {
         overrideStatusMap: {
@@ -68,7 +68,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
   // 4. 結束
   trace.push({
     tag: TAGS.DONE,
-    variables: { result: dp[targetN] },
+    local_vars: { result: dp[targetN] },
     dataSnapshot: getSnapshot(),
     meta: { status: "Complete" }, // 全部轉為 Complete
   });
