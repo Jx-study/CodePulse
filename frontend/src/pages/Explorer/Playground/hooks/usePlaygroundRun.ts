@@ -27,6 +27,9 @@ export function usePlaygroundRun({
   const { t } = useTranslation("playground");
 
   const [runStage, setRunStage] = useState<RunStage>("idle");
+  // 上次執行結果（明確語意，供 tour 等 UI 判斷成功/失敗，不從 runStage 猜）
+  const [lastRunOutcome, setLastRunOutcome] =
+    useState<"none" | "running" | "success" | "error">("none");
   const [trace, setTrace] = useState<TraceEvent[]>([]);
   const [rawTrace, setRawTrace] = useState<TraceEvent[]>([]);
   const [rawIndexMap, setRawIndexMap] = useState<number[]>([]);
@@ -54,6 +57,7 @@ export function usePlaygroundRun({
     setAiResult(null);
     setTop3Candidates([]);
     editorRef.current?.clearErrorMarker();
+    setLastRunOutcome("none");
     setRunStage("idle");
   }, [editorRef, onResetPlayback]);
 
@@ -81,6 +85,7 @@ export function usePlaygroundRun({
     const controller = new AbortController();
     abortRef.current = controller;
 
+    setLastRunOutcome("running");
     setRunStage("syntax_check");
     editorRef.current?.clearErrorMarker();
     setTrace([]);
@@ -111,9 +116,11 @@ export function usePlaygroundRun({
       setAiResult(result.aiResult);
       setTop3Candidates(result.top3Candidates);
       setDrill({ mode: "call_graph" });
+      setLastRunOutcome("success");
       setRunStage("done");
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
+      setLastRunOutcome("error");
       setRunStage("idle");
       if (e instanceof AnalyzeError) {
         switch (e.type) {
@@ -193,6 +200,7 @@ export function usePlaygroundRun({
     setTop3Candidates(record.top3_candidates);
     setAppliedAlgo(record.detected_algorithm);
     setDrill({ mode: "call_graph" });
+    setLastRunOutcome("success");
     setRunStage("done");
     onResetPlayback();
   }, [
@@ -203,6 +211,7 @@ export function usePlaygroundRun({
 
   return {
     runStage,
+    lastRunOutcome,
     trace,
     rawTrace,
     rawIndexMap,
@@ -221,6 +230,7 @@ export function usePlaygroundRun({
     handleRun,
     handleEditCode,
     loadFromHistory,
+    resetLastRunOutcome: () => setLastRunOutcome("none"),
   };
 }
 
