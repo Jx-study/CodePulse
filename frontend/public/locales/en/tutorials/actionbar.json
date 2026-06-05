@@ -13,7 +13,9 @@
     "randomCountLabel": "Random Count:",
     "randomCountTooltip": "Set the number of random items to generate",
     "randomCountTooltipMax": "Set the number of random items to generate (Max: {{max}})",
-    "randomCountLimitWarning": "The maximum random count is {{max}}"
+    "randomCountLimitWarning": "The maximum random count is {{max}}",
+    "loadLimitWarning": "Input exceeds the limit of {{max}} items. Only the first {{max}} items will be loaded.",
+    "loadValueRangeWarning": "Some values are out of range [{{min}}, {{max}}] and will be skipped."
   },
   "graphModal": {
     "title": "Custom Graph Data",

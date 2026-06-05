@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -32,6 +33,8 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 

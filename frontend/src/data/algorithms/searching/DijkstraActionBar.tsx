@@ -5,6 +5,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Checkbox from "@/shared/components/Checkbox";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -125,7 +126,9 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
             placeholder={t("ui.startPlaceholder")}
             value={graphStartElement}
             fullWidth={false}
-            onChange={(e) => setGraphStartElement(e.target.value)}
+            min={0}
+            max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+            onChange={(e) => setGraphStartElement(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
             aria-label="Start node"
@@ -136,7 +139,9 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
             placeholder={t("ui.endPlaceholder")}
             value={graphEndElement}
             fullWidth={false}
-            onChange={(e) => setGraphEndElement(e.target.value)}
+            min={0}
+            max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+            onChange={(e) => setGraphEndElement(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
             aria-label="End node"

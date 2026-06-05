@@ -5,6 +5,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
 import type { AlgoActionBarProps } from "@/types/implementation";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import {
   ActionBarContainer,
   ActionBarGroup,
@@ -22,7 +23,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
   const [nSize, setNSize] = useState("4");
 
   const handleNChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+    const val = clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_N_QUEENS_SIZE);
     setNSize(val);
 
     const n = parseInt(val, 10);
@@ -34,7 +35,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
   const handleRun = () => {
     const n = parseInt(nSize);
     if (!isNaN(n) && n >= 1) {
-      if (n > 8) {
+      if (n > DATA_LIMITS.MAX_N_QUEENS_SIZE) {
         toast.warning(t("ui.limitWarning"));
         return;
       }
@@ -57,7 +58,7 @@ export const NQueensActionBar: React.FC<AlgoActionBarProps> = ({
           disabled={disabled}
           fullWidth={false}
           min={1}
-          max={8}
+          max={DATA_LIMITS.MAX_N_QUEENS_SIZE}
           aria-label="Board size N"
         />
 

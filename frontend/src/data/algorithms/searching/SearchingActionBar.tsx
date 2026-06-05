@@ -4,6 +4,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -44,6 +45,8 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
@@ -53,8 +56,10 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           type="number"
           placeholder={t("ui.searchValue")}
           value={searchValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSearchValue(e.target.value)
+            setSearchValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}

@@ -4,6 +4,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -47,7 +48,7 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
   const handleRun = () => {
     const cap = parseInt(capacity);
     if (!isNaN(cap) && cap > 0) {
-      if (cap > 15) {
+      if (cap > DATA_LIMITS.MAX_KNAPSACK_CAPACITY) {
         toast.warning(t("ui.limitWarning"));
         return;
       }
@@ -92,13 +93,13 @@ export const KnapsackActionBar: React.FC<AlgoActionBarProps> = ({
           placeholder={t("ui.placeholder")}
           value={capacity}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setCapacity(e.target.value)
+            setCapacity(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_KNAPSACK_CAPACITY))
           }
           className={styles.input}
           disabled={disabled}
           fullWidth={false}
           min={1}
-          max={15}
+          max={DATA_LIMITS.MAX_KNAPSACK_CAPACITY}
           aria-label="Knapsack capacity"
         />
         <Tooltip content={t("ui.runTooltip")}>

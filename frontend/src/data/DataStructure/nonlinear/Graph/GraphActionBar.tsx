@@ -5,6 +5,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Checkbox from "@/shared/components/Checkbox";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -121,7 +122,9 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           placeholder="ID"
           type="number"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          min={0}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+          onChange={(e) => setInputValue(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
           className={`${styles.input} ${styles.nodeCountInput}`}
           disabled={disabled}
           fullWidth={false}
@@ -180,7 +183,9 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           placeholder="Src"
           type="number"
           value={sourceNode}
-          onChange={(e) => setSourceNode(e.target.value)}
+          min={0}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+          onChange={(e) => setSourceNode(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
           className={`${styles.input} ${styles.gridRowColInput}`}
           disabled={disabled}
           fullWidth={false}
@@ -190,7 +195,9 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           placeholder="Dst"
           type="number"
           value={targetNode}
-          onChange={(e) => setTargetNode(e.target.value)}
+          min={0}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+          onChange={(e) => setTargetNode(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
           className={`${styles.input} ${styles.gridRowColInput}`}
           disabled={disabled}
           fullWidth={false}

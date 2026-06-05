@@ -5,6 +5,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type {
   AlgoActionBarProps,
   AlgorithmViewMode,
@@ -211,9 +212,10 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             <Input
               type="number"
               min={1}
+              max={DATA_LIMITS.MAX_GRID_SIZE}
               value={gridRows}
               fullWidth={false}
-              onChange={(e) => setGridRows(e.target.value)}
+              onChange={(e) => setGridRows(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_GRID_SIZE))}
               className={`${styles.input} ${styles.gridRowColInput}`}
               aria-label="Grid rows"
             />
@@ -221,9 +223,10 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             <Input
               type="number"
               min={1}
+              max={DATA_LIMITS.MAX_GRID_SIZE}
               value={gridCols}
               fullWidth={false}
-              onChange={(e) => setGridCols(e.target.value)}
+              onChange={(e) => setGridCols(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_GRID_SIZE))}
               className={`${styles.input} ${styles.gridRowColInput}`}
               aria-label="Grid cols"
             />
@@ -258,11 +261,12 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             placeholder={t("startPlaceholder")}
             value={viewMode === "graph" ? graphStartElement : gridStartElement}
             fullWidth={false}
-            onChange={(e) =>
-              viewMode === "graph"
-                ? setGraphStartElement(e.target.value)
-                : setGridStartElement(e.target.value)
-            }
+            min={0}
+            max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+            onChange={(e) => {
+              const v = clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID);
+              viewMode === "graph" ? setGraphStartElement(v) : setGridStartElement(v);
+            }}
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
             aria-label="Start node"
@@ -273,11 +277,12 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
             placeholder={t("endPlaceholder")}
             value={viewMode === "graph" ? graphEndElement : gridEndElement}
             fullWidth={false}
-            onChange={(e) =>
-              viewMode === "graph"
-                ? setGraphEndElement(e.target.value)
-                : setGridEndElement(e.target.value)
-            }
+            min={0}
+            max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+            onChange={(e) => {
+              const v = clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID);
+              viewMode === "graph" ? setGraphEndElement(v) : setGridEndElement(v);
+            }}
             className={`${styles.input} ${styles.startEndInput}`}
             disabled={disabled}
             aria-label="End node"

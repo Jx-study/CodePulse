@@ -4,6 +4,7 @@ import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -55,6 +56,8 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
@@ -65,7 +68,9 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             type="number"
             placeholder="L"
             value={rangeStart}
-            onChange={(e) => setRangeStart(e.target.value)}
+            min={0}
+            max={maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE}
+            onChange={(e) => setRangeStart(clampNumberInput(e.target.value, 0, maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE))}
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
@@ -76,7 +81,9 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             type="number"
             placeholder="R"
             value={rangeEnd}
-            onChange={(e) => setRangeEnd(e.target.value)}
+            min={0}
+            max={maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE}
+            onChange={(e) => setRangeEnd(clampNumberInput(e.target.value, 0, maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE))}
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}

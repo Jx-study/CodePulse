@@ -7,7 +7,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Textarea from "@/shared/components/Textarea";
 import { toast } from "@/shared/components/Toast";
-import { DATA_LIMITS } from "@/constants/dataLimits";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import styles from "./ActionBar.module.scss";
 
 // ─── Layout 元件 ─────────────────────────────────────────────
@@ -34,6 +34,8 @@ export interface DataRowProps {
   disabled?: boolean;
   maxNodes?: number;
   hideLoadButton?: boolean;
+  minValue?: number;
+  maxValue?: number;
 }
 
 export const DataRow: React.FC<DataRowProps> = ({
@@ -44,6 +46,8 @@ export const DataRow: React.FC<DataRowProps> = ({
   disabled = false,
   maxNodes,
   hideLoadButton = false,
+  minValue,
+  maxValue,
 }) => {
   const { t } = useTranslation("tutorials/actionbar");
   const [bulkInput, setBulkInput] = useState("");
@@ -73,7 +77,40 @@ export const DataRow: React.FC<DataRowProps> = ({
           <Tooltip content={t("dataRow.loadTooltip")}>
             <Button
               size="sm"
-              onClick={() => onLoadData(bulkInput)}
+              onClick={() => {
+                let items = bulkInput
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+
+                if (minValue !== undefined || maxValue !== undefined) {
+                  const min = minValue ?? -Infinity;
+                  const max = maxValue ?? Infinity;
+                  const invalid = items.filter((s) => {
+                    const n = Number(s);
+                    return isNaN(n) || n < min || n > max;
+                  });
+                  if (invalid.length > 0) {
+                    toast.warning(
+                      t("dataRow.loadValueRangeWarning", { min, max }),
+                    );
+                    items = items.filter((s) => {
+                      const n = Number(s);
+                      return !isNaN(n) && n >= min && n <= max;
+                    });
+                    if (items.length === 0) return;
+                  }
+                }
+
+                if (maxNodes !== undefined && items.length > maxNodes) {
+                  toast.warning(
+                    t("dataRow.loadLimitWarning", { max: maxNodes }),
+                  );
+                  items = items.slice(0, maxNodes);
+                }
+
+                onLoadData(items.join(","));
+              }}
               disabled={disabled}
               icon="download"
             >
@@ -445,7 +482,9 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
           type="number"
           value={draftNodeCount}
           fullWidth={false}
-          onChange={(e) => setDraftNodeCount(e.target.value)}
+          min={1}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_COUNT}
+          onChange={(e) => setDraftNodeCount(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_GRAPH_NODE_COUNT))}
           className={`${styles.input} ${styles.nodeCountInput}`}
           aria-label="Node count"
         />

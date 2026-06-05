@@ -4,6 +4,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -68,6 +69,8 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
         {onListModeChange && (
           <Select
@@ -126,8 +129,10 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           type="number"
           placeholder="數值"
           value={inputValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
+            setInputValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
@@ -140,8 +145,10 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             type="number"
             placeholder="Index"
             value={indexValue}
+            min={0}
+            max={maxNodes !== undefined ? maxNodes - 1 : 99}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setIndexValue(e.target.value)
+              setIndexValue(clampNumberInput(e.target.value, 0, maxNodes !== undefined ? maxNodes - 1 : 99))
             }
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
@@ -180,8 +187,10 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           type="number"
           placeholder="搜尋值"
           value={searchValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSearchValue(e.target.value)
+            setSearchValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}

@@ -13,7 +13,9 @@
     "randomCountLabel": "隨機筆數:",
     "randomCountTooltip": "設定隨機生成的資料筆數",
     "randomCountTooltipMax": "設定隨機生成的資料筆數，上限為 {{max}}",
-    "randomCountLimitWarning": "隨機筆數上限為 {{max}}"
+    "randomCountLimitWarning": "隨機筆數上限為 {{max}}",
+    "loadLimitWarning": "輸入資料超過上限 {{max}} 筆，已截取前 {{max}} 筆載入",
+    "loadValueRangeWarning": "部分值超出範圍 [{{min}}, {{max}}]，已略過無效值"
   },
   "graphModal": {
     "title": "自定義 Graph 資料",

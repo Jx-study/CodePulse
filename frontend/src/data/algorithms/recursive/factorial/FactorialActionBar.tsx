@@ -8,6 +8,7 @@ import {
   StaticLabel,
   styles,
 } from "@/modules/core/components/ActionBar/ActionBarCommon";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 
 export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
@@ -34,11 +35,11 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
           type="number"
           placeholder={t("ui.placeholder")}
           value={nValue}
-          onChange={(e) => setNValue(e.target.value)}
+          onChange={(e) => setNValue(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_FACTORIAL_N))}
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           min={1}
-          max={10}
+          max={DATA_LIMITS.MAX_FACTORIAL_N}
         />
         <Button
           size="sm"

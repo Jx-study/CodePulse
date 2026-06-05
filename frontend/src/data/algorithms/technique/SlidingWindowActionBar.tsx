@@ -5,6 +5,7 @@ import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Select from "@/shared/components/Select";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type {
   AlgoActionBarProps,
   AlgorithmViewMode,
@@ -69,6 +70,8 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
@@ -94,8 +97,10 @@ export const SlidingWindowActionBar: React.FC<AlgoActionBarProps> = ({
           type="number"
           placeholder={t("ui.placeholder")}
           value={targetSum}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setTargetSum(e.target.value)
+            setTargetSum(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
