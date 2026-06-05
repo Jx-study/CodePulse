@@ -13,14 +13,16 @@ import { fibonacciDPTraceToSteps } from "./fibonacci/traceToSteps";
 
 const baseActionHandler = createLinearActionHandler();
 
+type FibDPPayload = { n?: number };
+
 function fibonacciDPActionHandler(
   actionType: string,
-  payload: any,
+  payload: FibDPPayload,
   data: any[],
-  context: any,
-) {
+  context: ActionContext,
+): ActionResult<any[]> | null {
   if (actionType === "run") {
-    let n = (payload.n as number) ?? 6;
+    let n = payload.n ?? 6;
     n = Math.min(Math.max(n, 1), 12);
     return {
       animationData: data,
@@ -33,7 +35,7 @@ function fibonacciDPActionHandler(
 }
 
 export function createFibonacciDPAnimationSteps(
-  dataList: any[],
+  _dataList: any[],
   action?: any,
 ): AnimationStep[] {
   const targetN =
