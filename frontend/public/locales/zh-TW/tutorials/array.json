@@ -82,6 +82,7 @@
     "searchTooltip": "搜尋陣列中的指定數值",
     "insertWarning": "請輸入要插入的數值",
     "updateWarning": "更新需要輸入數值與索引",
+    "updateIndexOutOfRange": "索引超出範圍，合法範圍：0 – {{max}}",
     "deleteWarning": "請輸入要刪除的索引",
     "searchWarning": "請輸入搜尋值"
   }

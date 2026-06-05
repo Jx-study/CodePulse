@@ -82,6 +82,7 @@
     "searchTooltip": "Search for a specific value in the array",
     "insertWarning": "Please enter a value to insert",
     "updateWarning": "Update requires both a value and an index",
+    "updateIndexOutOfRange": "Index out of range. Valid range: 0 – {{max}}",
     "deleteWarning": "Please enter an index to delete",
     "searchWarning": "Please enter a search value"
   }

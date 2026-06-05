@@ -47,13 +47,16 @@ export const ArrayActionBar: React.FC<DSActionBarProps> = ({
       toast.warning(t("ui.updateWarning"));
       return;
     }
-    const val = Number(inputValue);
     const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
-    if (idx !== undefined) {
-      onAddNode(val, "Update", idx);
-    } else {
+    if (idx === undefined) {
       toast.warning(t("ui.updateWarning"));
+      return;
     }
+    if (maxNodes !== undefined && idx >= maxNodes) {
+      toast.warning(t("ui.updateIndexOutOfRange", { max: maxNodes - 1 }));
+      return;
+    }
+    onAddNode(Number(inputValue), "Update", idx);
   };
 
   const handleDelete = () => {
