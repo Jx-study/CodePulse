@@ -1,18 +1,4 @@
 {
-  "fibdp": {
-    "init": "準備計算 Fibonacci({{n}})，建立長度為 {{size}} 的 DP 陣列",
-    "base_cases": "填入基本條件 (Base Cases)：dp[0] = 0, dp[1] = 1",
-    "calc_prepare": "計算 dp[{{i}}]：取得前兩項 dp[{{item1}}]: {{val1}} 與 dp[{{item2}}]: {{val2}}",
-    "calc_done": "dp[{{i}}] = {{val1}} + {{val2}} = {{result}}",
-    "done": "計算完成！結果為 {{result}}"
-  },
-  "fibRecursive": {
-    "start": "準備計算 Fibonacci({{targetN}})",
-    "call": "深潛遞迴：呼叫 fib({{n}})",
-    "base": "到達終止條件 (Base Case)！fib({{n}}) = {{result}}，準備回傳",
-    "calc": "合併結果：fib({{n}}) = 左子樹({{leftVal}}) + 右子樹({{rightVal}}) = {{result}}",
-    "done": "計算完成！根節點最終結果為 {{result}}"
-  },
   "heap": {
     "init": "{{heapName}} 初始狀態",
     "insert_start": "Insert({{value}})：將新節點放在樹的最底層 (Index {{index}})",

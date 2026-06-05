@@ -117,4 +117,5 @@ export const fibonacciDPConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 12,
+  i18nNamespace: "tutorials/fibonacci-dp",
 };

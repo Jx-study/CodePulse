@@ -39,7 +39,7 @@ function fibonacciActionHandler(
 }
 
 export function createFibonacciAnimationSteps(
-  dataList: any[],
+  _dataList: any[],
   action?: any,
 ): AnimationStep[] {
   const targetN =
@@ -106,5 +106,6 @@ export const fibonacciRecursiveConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/fibonacci-number/",
     },
   ],
-  maxNodes: 35, // fib(6) 會產生 25 個節點
+  maxNodes: 35,
+  i18nNamespace: "tutorials/fibonacci-recursive",
 };

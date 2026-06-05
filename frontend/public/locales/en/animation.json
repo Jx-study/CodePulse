@@ -1,18 +1,4 @@
 {
-  "fibdp": {
-    "init": "Preparing to calculate Fibonacci({{n}}), creating a DP array of length {{size}}",
-    "base_cases": "Filling in the base cases: dp[0] = 0, dp[1] = 1",
-    "calc_prepare": "Calculating dp[{{i}}]: retrieving the previous two values dp[{{item1}}]: {{val1}} and dp[{{item2}}]: {{val2}}",
-    "calc_done": "dp[{{i}}] = {{val1}} + {{val2}} = {{result}}",
-    "done": "Calculation complete! The result is {{result}}"
-  },
-  "fibRecursive": {
-    "start": "Preparing to calculate Fibonacci({{targetN}})",
-    "call": "Diving into recursion: calling fib({{n}})",
-    "base": "Reached the base case! fib({{n}}) = {{result}}, preparing to return",
-    "calc": "Combining results: fib({{n}}) = left subtree ({{leftVal}}) + right subtree ({{rightVal}}) = {{result}}",
-    "done": "Calculation complete! The final result at the root node is {{result}}"
-  },
   "heap": {
     "init": "{{heapName}} Initial State",
     "insert_start": "Insert({{value}}): Place the new node at the bottom of the tree (Index {{index}})",

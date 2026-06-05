@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -13,26 +15,26 @@ export const FibonacciDPActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
 }) => {
+  const { t } = useTranslation("tutorials/fibonacci-dp");
   const [nValue, setNValue] = useState("6");
 
   const handleRun = () => {
     if (disabled || !onRun) return;
     const n = parseInt(nValue, 10);
-    // 限定 N 在 1 到 12 之間
     if (!isNaN(n) && n >= 1 && n <= 12) {
       onRun({ type: "fibonacciDP", n });
     } else {
-      alert("請輸入 1 到 12 之間的數字");
+      toast.warning(t("ui.validation"));
     }
   };
 
   return (
     <ActionBarContainer>
       <ActionBarGroup>
-        <StaticLabel>Fibonacci DP</StaticLabel>
+        <StaticLabel>{t("ui.label")}</StaticLabel>
         <Input
           type="number"
-          placeholder="輸入 N (1-12)"
+          placeholder={t("ui.placeholder")}
           value={nValue}
           min={1}
           max={12}
@@ -42,7 +44,7 @@ export const FibonacciDPActionBar: React.FC<AlgoActionBarProps> = ({
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
-          aria-label="Input N for Fibonacci"
+          aria-label={t("ui.ariaLabel")}
         />
         <Button
           size="sm"
@@ -51,7 +53,7 @@ export const FibonacciDPActionBar: React.FC<AlgoActionBarProps> = ({
           disabled={disabled}
           icon="play"
         >
-          Run DP
+          {t("ui.button")}
         </Button>
       </ActionBarGroup>
     </ActionBarContainer>

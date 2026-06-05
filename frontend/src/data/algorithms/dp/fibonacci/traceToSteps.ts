@@ -27,14 +27,14 @@ function toOverrideMap(raw?: Record<string, string>): Record<number, Status> {
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
-    key: "fibdp.init",
+    key: "animation.init",
     params: { n: e.local_vars.n, size: e.local_vars.n + 1 },
   }),
   [TAGS.BASE_CASES]: () => ({
-    key: "fibdp.base_cases",
+    key: "animation.base_cases",
   }),
   [TAGS.CALC_PREPARE]: (e) => ({
-    key: "fibdp.calc_prepare",
+    key: "animation.calc_prepare",
     params: {
       i: e.local_vars.i,
       item1: e.local_vars.i - 1,
@@ -44,7 +44,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.CALC_DONE]: (e) => ({
-    key: "fibdp.calc_done",
+    key: "animation.calc_done",
     params: {
       i: e.local_vars.i,
       val1: e.local_vars["dp[i-1]"],
@@ -53,7 +53,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.DONE]: (e) => ({
-    key: "fibdp.done",
+    key: "animation.done",
     params: { result: e.local_vars.result },
   }),
 };
