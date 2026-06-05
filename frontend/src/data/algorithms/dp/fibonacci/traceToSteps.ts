@@ -15,10 +15,11 @@ function toStatus(s?: string): Status {
   return s ? (STATUS_MAP[s] ?? Status.Unfinished) : Status.Unfinished;
 }
 
-function toOverrideMap(raw?: Record<number, string>): Record<number, Status> {
+function toOverrideMap(raw?: Record<string, string>): Record<number, Status> {
   if (!raw) return {};
   const result: Record<number, Status> = {};
   for (const [k, v] of Object.entries(raw)) {
+    // Object.entries always yields string keys; convert to number for createBoxes index access
     result[Number(k)] = toStatus(v);
   }
   return result;

@@ -28,7 +28,7 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
     tag: TAGS.BASE_CASES,
     local_vars: { "dp[0]": 0, "dp[1]": 1 },
     dataSnapshot: getSnapshot(),
-    meta: { overrideStatusMap: { 0: "Target", 1: "Target" } },
+    meta: { overrideStatusMap: { "0": "Target", "1": "Target" } as Record<string, string> },
   });
 
   // 3. 迴圈計算
@@ -42,10 +42,10 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
       dataSnapshot: getSnapshot(),
       meta: {
         overrideStatusMap: {
-          [i - 1]: "Prepare",
-          [i - 2]: "Prepare",
-          [i]: "Target",
-        },
+          [String(i - 1)]: "Prepare",
+          [String(i - 2)]: "Prepare",
+          [String(i)]: "Target",
+        } as Record<string, string>,
       },
     });
 
@@ -57,10 +57,10 @@ export function simulateFibonacciDPTrace(targetN: number): ExecutionTrace {
       dataSnapshot: getSnapshot(),
       meta: {
         overrideStatusMap: {
-          [i - 1]: "Prepare",
-          [i - 2]: "Prepare",
-          [i]: "Target",
-        },
+          [String(i - 1)]: "Prepare",
+          [String(i - 2)]: "Prepare",
+          [String(i)]: "Target",
+        } as Record<string, string>,
       },
     });
   }
