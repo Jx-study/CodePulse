@@ -7,6 +7,8 @@ export interface TourStep {
   description: string;
   /** 目標元素的 CSS selector，例：[data-tour="run-button"] */
   targetSelector: string;
+  /** 選用：第二個 spotlight 目標，用於需要同時標記兩個元素的步驟 */
+  secondaryTargetSelector?: string;
   placement: 'top' | 'bottom' | 'left' | 'right';
 
   // ── 互動模式（方向 B）選用欄位 ──
@@ -24,6 +26,12 @@ export interface TourStep {
    * 通常用來跳過後面所有資料相依步驟、直接關閉導覽。
    */
   onSkipStep?: () => void;
+  /**
+   * 互動 step 等待期間的子狀態。引擎用來切換吉祥物 running / error 外觀。
+   * 回傳 'error' 顯示報錯吉祥物與提示；其餘（'running' / 'idle'）顯示陪伴等待。
+   * 由呼叫端傳入閉包（例：() => lastRunOutcome === 'error' ? 'error' : 'running'）。
+   */
+  waitingState?: () => 'running' | 'error' | 'idle';
 }
 
 export interface TourEngineProps {
@@ -43,4 +51,10 @@ export interface TourEngineProps {
   finalDescription?: string;
   /** 選用：底部加「不再顯示」按鈕，按下時呼叫 */
   onDontShowAgain?: () => void;
+  /**
+   * 選用：暫停導覽。為 true 時隱藏 spotlight/tooltip 並停止 rAF 追蹤，
+   * 但**不重設步驟**（與 isOpen 分離）。用於外層彈出對話框等情境暫時讓位，
+   * 對話框關閉後（isPaused 回 false）恢復停在原本的 step。
+   */
+  isPaused?: boolean;
 }

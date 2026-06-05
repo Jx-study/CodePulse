@@ -12,10 +12,17 @@
   pointer-events: all;
 }
 
-.spotlight {
+.svgMask {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.spotlightBorder {
   position: fixed;
   border-radius: $radius-md;
-  box-shadow: 0 0 0 100vmax rgba(17, 24, 39, 0.6);
   border: 2px solid var(--primary-color);
   pointer-events: none;
   transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
@@ -177,6 +184,16 @@
 @keyframes tourPulse {
   0%, 100% { opacity: 0.4; transform: scale(0.85); }
   50% { opacity: 1; transform: scale(1.1); }
+}
+
+// 已完成的互動 step 回訪時顯示的完成標記
+.completedHint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--success-color, #22c55e);
 }
 
 // 「跳過此步」弱化連結
