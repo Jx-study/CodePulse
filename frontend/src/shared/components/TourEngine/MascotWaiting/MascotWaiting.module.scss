@@ -14,6 +14,7 @@
   width: 2.75rem;
   height: 3.4rem; // viewBox 0 0 100 124，略高
   flex-shrink: 0;
+  filter: drop-shadow(0 0 0 2px rgba(99, 91, 255, 0.6));
 }
 
 .text {
@@ -23,7 +24,7 @@
 }
 
 .textError {
-  color: var(--color-error, #ef4444);
+  color: #f87171;
 }
 
 // ── running 動作 ──
@@ -38,14 +39,14 @@
 }
 
 .head {
-  fill: var(--bg-primary);
+  fill: var(--bg-secondary);
   stroke: var(--primary-color);
   stroke-width: 3;
 }
 
-// 眼睛放大（rx 6 ry 8）
+// 眼睛放大（rx 6 ry 8）：用較柔和的紫色，對應 demo 的 #8b85ff（primary-soft）
 .eye {
-  fill: var(--primary-color);
+  fill: #8b85ff;
   animation: codiBlink 3s infinite;
   transform-origin: center;
 }
@@ -89,7 +90,7 @@
 
 // error 時改顯的紅色平直線（flatline），預設隱藏
 .flatline {
-  stroke: var(--color-error, #ef4444);
+  stroke: #f87171;
   stroke-width: 2.5;
   fill: none;
   stroke-linecap: round;
@@ -100,10 +101,10 @@
 .botError {
   animation: none;
 }
-.headError { stroke: var(--color-error, #ef4444); }
-.eyeError  { fill: var(--color-error, #ef4444); animation: none; transform: scaleY(0.25); }
-.antennaError { stroke: var(--color-error, #ef4444); }
-.bulbError { fill: var(--color-error, #ef4444); animation: none; opacity: 0.8; }
+.headError { stroke: #f87171; }
+.eyeError  { fill: #f87171; animation: none; transform: scaleY(0.25); }
+.antennaError { stroke: #f87171; }
+.bulbError { fill: #f87171; animation: none; opacity: 0.8; }
 .mouthWaveError { opacity: 0; }   // 隱藏跑動波形
 .flatlineError { opacity: 1; }    // 顯示紅色平直線
 

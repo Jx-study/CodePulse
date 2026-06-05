@@ -61,7 +61,7 @@ import { usePlaygroundAnimationSteps } from "./hooks/usePlaygroundAnimationSteps
 import { usePlaygroundPanelLayout } from "./hooks/usePlaygroundPanelLayout";
 import { usePlaygroundRun } from "./hooks/usePlaygroundRun";
 import TourEngine from "@/shared/components/TourEngine";
-import { buildPlaygroundTourSteps } from "./playgroundTourSteps";
+import { buildPlaygroundTourSteps, getSupportedAlgoLabels } from "./playgroundTourSteps";
 import {
   getPlaygroundTourDismissed,
   setPlaygroundTourDismissed,
@@ -137,6 +137,7 @@ function Playground() {
   // Run logic
   const {
     runStage,
+    lastRunOutcome,
     trace,
     rawTrace,
     rawIndexMap,
@@ -155,6 +156,7 @@ function Playground() {
     handleRun,
     handleEditCode,
     loadFromHistory,
+    resetLastRunOutcome,
   } = usePlaygroundRun({
     code,
     editorRef,
@@ -224,6 +226,10 @@ function Playground() {
   const [isTourOpen, setIsTourOpen] = useState(() => !getPlaygroundTourDismissed());
   const handleTourComplete = useCallback(() => setIsTourOpen(false), []);
   const handleTourSkip = useCallback(() => setIsTourOpen(false), []);
+  const handleTourOpen = useCallback(() => {
+    resetLastRunOutcome();
+    setIsTourOpen(true);
+  }, [resetLastRunOutcome]);;
   // 「不再顯示」：記住偏好後關閉導覽（「?」按鈕仍可手動開）
   const handleTourDontShowAgain = useCallback(() => {
     setPlaygroundTourDismissed();
@@ -247,8 +253,10 @@ function Playground() {
 
   const tourSteps = buildPlaygroundTourSteps({
     runStage,
+    lastRunOutcome,
     goAnimationTab,
     skipToEnd: handleTourSkipToEnd,
+    leftDockedId,
   });
 
   return (
@@ -270,7 +278,7 @@ function Playground() {
             setQuotaRecords(null);
             setIsHistoryOpen(true);
           }}
-          onOpenTour={() => setIsTourOpen(true)}
+          onOpenTour={handleTourOpen}
         />
 
         <PanelGroup
@@ -662,12 +670,13 @@ function Playground() {
       />
       <TourEngine
         isOpen={isTourOpen && !isHistoryOpen}
+        isPaused={isAlgoDialogOpen}
         steps={tourSteps}
         onComplete={handleTourComplete}
         onSkip={handleTourSkip}
         onDontShowAgain={handleTourDontShowAgain}
         finalTitle="開始你的演算法實驗！"
-        finalDescription="你已經了解 Playground 的核心功能，現在動手寫程式、執行並觀察視覺化吧。"
+        finalDescription={`你已經了解 Playground 的核心功能，現在動手寫程式、執行並觀察視覺化吧。目前支援 ${getSupportedAlgoLabels().join("、")} 等演算法的動畫視覺化。`}
         finalPrimaryLabel="開始使用"
         finalSecondaryLabel="關閉"
       />

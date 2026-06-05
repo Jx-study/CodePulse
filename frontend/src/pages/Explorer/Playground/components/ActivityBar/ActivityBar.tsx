@@ -11,9 +11,11 @@ interface SortableIconProps {
   panelId: PanelId;
   isActive: boolean; // not collapsed
   onClick: () => void;
+  /** 傳入時附加到按鈕 DOM，供 tour spotlight 定位 */
+  tourAttr?: string;
 }
 
-export function SortableIcon({ panelId, isActive, onClick }: SortableIconProps) {
+export function SortableIcon({ panelId, isActive, onClick, tourAttr }: SortableIconProps) {
   const config = PANEL_CONFIGS[panelId];
   const {
     attributes,
@@ -43,6 +45,7 @@ export function SortableIcon({ panelId, isActive, onClick }: SortableIconProps) 
       onClick={onClick}
       title={config.label}
       icon={config.icon}
+      {...(tourAttr ? { "data-tour": tourAttr } : {})}
     />
   );
 }
@@ -122,7 +125,7 @@ export function LeftActivityBar({
   onOpenTour,
 }: LeftActivityBarProps) {
   return (
-    <div className={styles.bar}>
+    <div className={styles.bar} data-tour="pg-left-bar">
       {/* CodeEditor icon — fixed, click = toggle editor open */}
       <Button
         variant="unstyled"
@@ -196,12 +199,13 @@ export function RightActivityBar({
   const displayIds = rightOrder.filter((id) => id !== leftDockedId);
   return (
     <div className={`${styles.bar} ${styles.barRight}`} data-tour="pg-right-bar">
-      {displayIds.map((id) => (
+      {displayIds.map((id, idx) => (
         <SortableIcon
           key={id}
           panelId={id}
           isActive={!collapsedPanels.has(id)}
           onClick={() => onTogglePanel(id)}
+          tourAttr={idx === 0 ? 'pg-drag-icon' : undefined}
         />
       ))}
       <div className={styles.spacer} />
