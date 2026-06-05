@@ -26,7 +26,7 @@ export function simulateFibonacciTrace(targetN: number): ExecutionTrace {
       local_vars,
       dataSnapshot: [], // 不使用 dataSnapshot，交給 meta 的 tree 產生
       meta: {
-        tree: JSON.parse(JSON.stringify(rootNode)),
+        tree: structuredClone(rootNode), // deep clone so each trace frame captures an independent snapshot
         statusMap: { ...statusMap },
         valueMap: { ...valueMap },
         highlightId,
