@@ -36,7 +36,7 @@ export function simulateGraphTrace(
   const ensurePrefix = (id: string) =>
     id.startsWith("node-") ? id : `node-${id}`;
 
-  if (!type || type === "refresh") {
+  if (!type || ["refresh", "random", "reset", "load"].includes(type)) {
     pushTrace(TAGS.INIT, {});
     return trace;
   }

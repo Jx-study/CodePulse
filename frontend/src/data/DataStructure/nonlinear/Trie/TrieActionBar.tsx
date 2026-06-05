@@ -32,23 +32,39 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
   const [showLoader, setShowLoader] = useState(false);
 
   const handleInsert = () => {
-    if (disabled || !wordInput.trim() || !onCustomAction) return;
+    if (disabled || !onCustomAction) return;
+    if (!wordInput.trim()) {
+      toast.warning(t("ui.wordInputWarning"));
+      return;
+    }
     onCustomAction("insert", { word: wordInput.trim().toLowerCase() });
     setWordInput("");
   };
 
   const handleSearch = () => {
-    if (disabled || !wordInput.trim() || !onCustomAction) return;
+    if (disabled || !onCustomAction) return;
+    if (!wordInput.trim()) {
+      toast.warning(t("ui.wordInputWarning"));
+      return;
+    }
     onCustomAction("search", { word: wordInput.trim().toLowerCase() });
   };
 
   const handleStartsWith = () => {
-    if (disabled || !wordInput.trim() || !onCustomAction) return;
+    if (disabled || !onCustomAction) return;
+    if (!wordInput.trim()) {
+      toast.warning(t("ui.wordInputWarning"));
+      return;
+    }
     onCustomAction("startsWith", { word: wordInput.trim().toLowerCase() });
   };
 
   const handleDelete = () => {
-    if (disabled || !wordInput.trim() || !onCustomAction) return;
+    if (disabled || !onCustomAction) return;
+    if (!wordInput.trim()) {
+      toast.warning(t("ui.wordInputWarning"));
+      return;
+    }
     onCustomAction("delete", { word: wordInput.trim().toLowerCase() });
     setWordInput("");
   };
@@ -163,7 +179,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             className={styles.btnInsert}
             onClick={handleInsert}
-            disabled={disabled || !wordInput}
+            disabled={disabled}
             icon="plus"
           >
             Insert
@@ -176,7 +192,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             onClick={handleSearch}
             className={styles.btnSearch}
-            disabled={disabled || !wordInput}
+            disabled={disabled}
             icon="search"
           >
             Search Word
@@ -188,7 +204,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             size="sm"
             variant="secondary"
             onClick={handleStartsWith}
-            disabled={disabled || !wordInput}
+            disabled={disabled}
             icon="spell-check"
           >
             StartsWith
@@ -201,7 +217,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             className={styles.btnDelete}
             onClick={handleDelete}
-            disabled={disabled || !wordInput}
+            disabled={disabled}
             icon="trash"
           >
             Delete

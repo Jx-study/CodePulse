@@ -26,6 +26,7 @@
     "reset": "Reset",
     "resetTooltip": "Clear all words and restore the initial state",
     "wordInput": "Enter word (letters only)",
+    "wordInputWarning": "Please enter a word before performing this action",
     "insertTooltip": "Insert the word character by character into the Trie",
     "searchTooltip": "Search whether the exact word exists",
     "startsWithTooltip": "Search whether this prefix exists",

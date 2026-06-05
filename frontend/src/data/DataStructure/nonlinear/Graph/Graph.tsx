@@ -203,7 +203,10 @@ function graphActionHandler(
 
   if (["random", "reset", "load", "refresh"].includes(actionType)) {
     if (actionType === "random") {
-      const randData = generateRandomGraphDS(Math.floor(Math.random() * 6) + 5);
+      const nodeCount = typeof payload.randomCount === "number" && payload.randomCount > 0
+        ? payload.randomCount
+        : Math.floor(Math.random() * 6) + 5;
+      const randData = generateRandomGraphDS(nodeCount);
       return {
         animationData: randData,
         isResetAction: true,

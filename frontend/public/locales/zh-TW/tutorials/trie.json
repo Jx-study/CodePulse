@@ -26,6 +26,7 @@
     "reset": "重設",
     "resetTooltip": "清除所有單字，恢復初始狀態",
     "wordInput": "輸入單字 (限英文字母)",
+    "wordInputWarning": "請輸入單字後再執行操作",
     "insertTooltip": "將單字逐字元新增至字典樹中",
     "searchTooltip": "精確搜尋該單字是否完整存在",
     "startsWithTooltip": "搜尋是否包含該前綴 (Prefix)",
