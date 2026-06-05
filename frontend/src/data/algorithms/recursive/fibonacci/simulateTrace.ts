@@ -1,11 +1,6 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { HierarchyDatum } from "@/data/DataStructure/nonlinear/utils";
 import { TAGS } from "./tags";
-
-export interface HierarchyDatum {
-  id: string;
-  value: string | number;
-  children?: HierarchyDatum[];
-}
 
 export function simulateFibonacciTrace(targetN: number): ExecutionTrace {
   const trace: TraceEvent[] = [];

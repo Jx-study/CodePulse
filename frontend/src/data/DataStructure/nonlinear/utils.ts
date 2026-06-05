@@ -537,6 +537,9 @@ export function createTreeNodes(
     // 解構傳入的可見路徑與真實單字
     const { visiblePaths = [], realWords = [] } = inputData;
     hierarchyData = buildTrieHierarchyData(visiblePaths, realWords);
+  } else if (type === "custom") {
+    // inputData is already a HierarchyDatum tree (e.g. recursive trace snapshot)
+    hierarchyData = inputData as HierarchyDatum;
   } else {
     hierarchyData = buildD3HierarchyData(inputData, degree);
   }
