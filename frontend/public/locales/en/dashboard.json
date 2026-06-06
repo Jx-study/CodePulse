@@ -42,6 +42,8 @@
   "tutorialSection": {
     "title": "Tutorial Mode",
     "descriptionTitle": "Algorithm Overview",
+    "algorithmDescriptionTitle": "Algorithm Overview",
+    "dataStructureDescriptionTitle": "Data Structure Overview",
     "objectivesTitle": "Learning Objectives",
     "suggestedTitle": "Recommended First",
     "restartButton": "Restart Tutorial",

@@ -424,31 +424,13 @@ class TestHistoryQuota:
 
 
 class TestAnalyzeResultAuth:
-    def test_status_requires_login(self, client):
-        with patch("routes.analyze.task_queue.get_status") as mock_get_status:
-            res = client.get('/api/analyze/status/task-1')
+    def test_status_endpoint_is_removed(self, app, client, auth_headers):
+        assert '/api/analyze/status/<task_id>' not in {
+            str(rule) for rule in app.url_map.iter_rules()
+        }
 
-        assert res.status_code == 401
-        mock_get_status.assert_not_called()
-
-    def test_status_rejects_task_owned_by_another_user(self, client, auth_headers):
-        with patch("routes.analyze.task_queue.owns_task", return_value=False), \
-             patch("routes.analyze.task_queue.get_status") as mock_get_status:
-            res = _authed(client, auth_headers, 'get', '/api/analyze/status/task-2')
-
+        res = _authed(client, auth_headers, 'get', '/api/analyze/status/task-1')
         assert res.status_code == 404
-        mock_get_status.assert_not_called()
-
-    def test_status_returns_owned_task(self, client, auth_headers):
-        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
-             patch("routes.analyze.task_queue.get_status", return_value={
-                 "status": "running",
-                 "progress": {"stage": "sandbox", "message": "running"},
-             }):
-            res = _authed(client, auth_headers, 'get', '/api/analyze/status/task-3')
-
-        assert res.status_code == 200
-        assert res.get_json()["status"] == "running"
 
     def test_result_requires_login(self, client):
         with patch("routes.analyze.task_queue.get_task", return_value={

@@ -77,18 +77,6 @@ def submit():
     )
     return jsonify({"task_id": task_id}), 202
 
-@analyze_bp.route('/status/<task_id>', methods=['GET'])
-@login_required
-def status(task_id: str):
-    """輪詢任務狀態（前端每 2 秒呼叫）"""
-    if not task_queue.owns_task(task_id, g.current_user_id):
-        return jsonify({"error": "task not found"}), 404
-
-    task_status = task_queue.get_status(task_id)
-    if task_status is None:
-        return jsonify({"error": "task not found"}), 404
-    return jsonify(task_status), 200
-
 
 @analyze_bp.route('/stream/<task_id>', methods=['GET'])
 @login_required

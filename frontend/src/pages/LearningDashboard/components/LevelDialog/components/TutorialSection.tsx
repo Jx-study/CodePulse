@@ -18,13 +18,17 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
   const levelKey = level.id.replace(/-/g, '_');
   const description = t(`levels.${levelKey}.description`);
   const objectives = t(`levels.${levelKey}.objectives`, { returnObjects: true }) as string[];
+  const isDataStructure = level.category === 'data-structures';
+  const descriptionTitleKey = isDataStructure
+    ? 'tutorialSection.dataStructureDescriptionTitle'
+    : 'tutorialSection.algorithmDescriptionTitle';
 
   return (
     <div className={styles.tutorialSection}>
       <h3>{t("tutorialSection.title")}</h3>
 
       <div className={styles.description}>
-        <h4>{t("tutorialSection.descriptionTitle")}</h4>
+        <h4>{t(descriptionTitleKey)}</h4>
         {description && (
           <p dangerouslySetInnerHTML={{ __html: description }} />
         )}
