@@ -18,8 +18,7 @@ import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeEditor'));
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
-import type { CanvasPanelProps } from "@/pages/Tutorial/Tutorial";
-import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
+import { InspectorPanelInternal, type InspectorPanelInternalProps, type CanvasPanelProps } from '@/pages/Tutorial/Tutorial';
 import styles from './TopSection.module.scss';
 
 interface TopSectionProps {
