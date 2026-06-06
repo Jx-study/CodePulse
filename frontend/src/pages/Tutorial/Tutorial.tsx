@@ -59,7 +59,7 @@ function renderDescription(
 }
 
 // ==================== Canvas Panel Component ====================
-interface CanvasPanelProps {
+export interface CanvasPanelProps {
   canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
