@@ -153,7 +153,7 @@ export function LeftActivityBar({
         variant="unstyled"
         iconOnly
         className={`${styles.icon} ${isHistoryOpen ? styles.iconFixedActive : ""}`}
-        style={{ ["--panel-accent" as string]: "var(--color-teal)" }}
+        style={{ ["--panel-accent" as string]: "var(--color-blue)" }}
         onClick={onOpenHistory}
         title="Execution History"
         icon="clock-rotate-left"
