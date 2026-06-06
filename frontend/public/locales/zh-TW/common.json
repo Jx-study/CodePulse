@@ -81,6 +81,12 @@
   "auth": {
     "loginRequired": "請先登入才能使用此功能"
   },
+  "practice": {
+    "visual": {
+      "groupImage": "題組圖",
+      "hintImage": "提示圖"
+    }
+  },
   "xp": {
     "earned": "XP 獲得",
     "reason": {

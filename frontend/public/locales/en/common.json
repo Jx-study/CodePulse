@@ -81,6 +81,12 @@
   "auth": {
     "loginRequired": "Please log in to use this feature"
   },
+  "practice": {
+    "visual": {
+      "groupImage": "Group image",
+      "hintImage": "Hint image"
+    }
+  },
   "xp": {
     "earned": "XP Earned",
     "reason": {

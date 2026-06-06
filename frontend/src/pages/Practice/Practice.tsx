@@ -53,7 +53,7 @@ function Practice() {
   }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentUserRating = user?.skill_rating ?? DEFAULT_RATING;
 
   // 從後端載入題目
@@ -195,6 +195,7 @@ function Practice() {
     setShowResult(false);
     setResult(null);
     setTimeRecords({});
+    setActiveVisual('group');
   }, [apiQuestions, retryCount]);
 
   const handleSelectQuestion = (index: number) => {
@@ -533,7 +534,7 @@ function Practice() {
                     aria-pressed={activeVisual === 'group'}
                     onClick={() => setActiveVisual('group')}
                   >
-                    題組圖
+                    {t('practice.visual.groupImage')}
                   </Button>
                   <Button
                     variant={activeVisual === 'question' ? 'primaryOutline' : 'ghost'}
@@ -542,7 +543,7 @@ function Practice() {
                     aria-pressed={activeVisual === 'question'}
                     onClick={() => setActiveVisual('question')}
                   >
-                    提示圖
+                    {t('practice.visual.hintImage')}
                   </Button>
                 </div>
               )}
