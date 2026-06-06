@@ -418,6 +418,16 @@ class TestRunTraceWithStdinInputs:
         assert exc_info.value.prompt == "first: "
         assert exc_info.value.input_index == 0
 
+    def test_input_needed_carries_partial_stdout(self, _mark_sandbox):
+        from tracer import run_trace, InputNeededError
+        code = 'print("ready")\nx = input("name: ")'
+        with pytest.raises(InputNeededError) as exc_info:
+            run_trace(code, stdin_inputs=[])
+        assert [ev["text"] for ev in exc_info.value.stdout_events] == [
+            "ready",
+            "name: ",
+        ]
+
     def test_input_value_echoed_inline_with_prompt(self, _mark_sandbox):
         # 模擬終端機：input("name: ") 輸入 alice → prompt 與輸入值拼在同一行 "name: alice"
         # print(x) 再印一行 "alice"
@@ -443,6 +453,18 @@ class TestRunTraceWithStdinInputs:
         result = run_trace(code, stdin_inputs=["2", "3"])
         texts = [ev["text"] for ev in result.stdout_events]
         assert texts == ["a: 2", "b: 3", "5"]
+
+    def test_runner_input_needed_includes_partial_stdout_events(self):
+        code = 'print("ready")\nx = input("name: ")'
+        data, rc = run_runner(code)
+        assert rc == 0
+        assert data["error"] == "input_needed"
+        assert data["prompt"] == "name: "
+        assert data["input_index"] == 0
+        assert [ev["text"] for ev in data["stdout_events"]] == [
+            "ready",
+            "name: ",
+        ]
 
     # NOTE: random seed determinism test 已移除 — 隨 D4/D5 拆出至獨立 plan
     # 該測試需要 sandbox 允許 `import random`，但本 plan 不碰 __import__ allowlist

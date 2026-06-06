@@ -1,5 +1,9 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { handleDuplicateReplay, waitForInputPrompt } from "./usePlaygroundRun";
+import {
+  handleDuplicateReplay,
+  InputCancelledError,
+  waitForInputPrompt,
+} from "./usePlaygroundRun";
 import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 
 const record: PlaygroundHistoryRecord = {
@@ -102,5 +106,32 @@ describe("waitForInputPrompt", () => {
     });
     // 彈窗必須被清除
     expect(setInputPrompt).toHaveBeenLastCalledWith(null);
+  });
+
+  it("resolves with null when the user cancels the input prompt", async () => {
+    const controller = new AbortController();
+    const setInputPrompt = vi.fn();
+
+    const promise = waitForInputPrompt(
+      "Enter value: ",
+      0,
+      setInputPrompt,
+      controller.signal,
+    );
+
+    const promptState = setInputPrompt.mock.calls[0][0];
+    promptState.resolve(null);
+
+    await expect(promise).resolves.toBeNull();
+    expect(setInputPrompt).toHaveBeenLastCalledWith(null);
+  });
+});
+
+describe("InputCancelledError", () => {
+  it("marks user cancellation separately from runtime errors", () => {
+    const err = new InputCancelledError();
+
+    expect(err.name).toBe("InputCancelledError");
+    expect(err.message).toBe("input cancelled");
   });
 });

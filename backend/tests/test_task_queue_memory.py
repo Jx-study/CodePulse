@@ -53,13 +53,21 @@ def _run_sync(q, task_id, fn):
 def test_input_needed_signal_sets_status_and_meta(queue):
     """worker 拋 InputNeededSignal → 狀態為 INPUT_NEEDED，且存下 prompt / input_index"""
     def fn(task_id):
-        raise InputNeededSignal(prompt="age: ", input_index=1)
+        raise InputNeededSignal(
+            prompt="age: ",
+            input_index=1,
+            stdout_events=[{"step": 1, "text": "ready"}],
+        )
 
     _run_sync(queue, "t-input", fn)
 
     task = queue._tasks["t-input"]
     assert task["status"] == STATUS_INPUT_NEEDED
-    assert task["input_needed"] == {"prompt": "age: ", "input_index": 1}
+    assert task["input_needed"] == {
+        "prompt": "age: ",
+        "input_index": 1,
+        "stdout_events": [{"step": 1, "text": "ready"}],
+    }
     # 不應被誤標成 completed / failed
     assert task["status"] not in (STATUS_COMPLETED, STATUS_FAILED)
 
@@ -67,7 +75,11 @@ def test_input_needed_signal_sets_status_and_meta(queue):
 def test_input_needed_stream_emits_terminal_event_when_late_connect(queue):
     """task 已處於 input_needed 後才連 SSE：stream_progress 應直接 yield 終止事件"""
     def fn(task_id):
-        raise InputNeededSignal(prompt="name: ", input_index=0)
+        raise InputNeededSignal(
+            prompt="name: ",
+            input_index=0,
+            stdout_events=[{"step": 2, "text": "name: "}],
+        )
 
     _run_sync(queue, "t-late", fn)
     # _run 結束後 queue 已被 pop，模擬「晚連」情境（走 line 99 early terminal guard）
@@ -79,6 +91,7 @@ def test_input_needed_stream_emits_terminal_event_when_late_connect(queue):
         "status": "input_needed",
         "prompt": "name: ",
         "input_index": 0,
+        "stdout_events": [{"step": 2, "text": "name: "}],
     }
 
 

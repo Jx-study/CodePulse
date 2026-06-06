@@ -318,6 +318,7 @@ _FAKE_SANDBOX_INPUT_NEEDED = {
     "error": "input_needed",
     "prompt": "name: ",
     "input_index": 0,
+    "stdout_events": [{"step": 1, "text": "ready"}],
 }
 
 
@@ -326,13 +327,18 @@ def test_check_terminal_returns_input_needed_event_from_info():
     from services.task_queue_celery import _check_terminal
     ar = MagicMock()
     ar.state = "INPUT_NEEDED"
-    ar.info = {"prompt": "age: ", "input_index": 1}
+    ar.info = {
+        "prompt": "age: ",
+        "input_index": 1,
+        "stdout_events": [{"step": 1, "text": "ready"}],
+    }
     event = _check_terminal(ar)
     assert event == {
         "stage": "done",
         "status": "input_needed",
         "prompt": "age: ",
         "input_index": 1,
+        "stdout_events": [{"step": 1, "text": "ready"}],
     }
 
 
@@ -362,3 +368,4 @@ def test_eager_input_needed_stream_yields_input_needed_event(eager_queue):
     assert last["status"] == "input_needed"
     assert last["prompt"] == "name: "
     assert last["input_index"] == 0
+    assert last["stdout_events"] == [{"step": 1, "text": "ready"}]
