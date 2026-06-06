@@ -200,6 +200,54 @@ def test_stream_progress_keeps_sse_open_after_input_needed():
     ]
 
 
+def test_stream_progress_resets_timeout_after_input_needed(monkeypatch):
+    q = make_queue()
+    monkeypatch.setattr("services.task_queue_celery.PROGRESS_STREAM_MAX_SECONDS", 10)
+
+    fake_pubsub = MagicMock()
+    fake_pubsub.get_message.side_effect = [
+        {"type": "subscribe"},
+        {
+            "type": "message",
+            "data": json.dumps({
+                "stage": "done",
+                "status": "input_needed",
+                "prompt": "Name: ",
+                "input_index": 0,
+            }),
+        },
+        None,
+        {
+            "type": "message",
+            "data": json.dumps({"stage": "done", "status": "running"}),
+        },
+    ]
+
+    pending = MagicMock()
+    pending.state = "PENDING"
+    pending.info = None
+    success = MagicMock()
+    success.state = "SUCCESS"
+    success.result = {"ok": True}
+    times = iter([0, 12, 13, 13])
+
+    with patch("services.task_queue_celery.AsyncResult", side_effect=[pending, pending, pending, success]), \
+         patch("services.task_queue_celery.time.monotonic", side_effect=lambda: next(times)), \
+         patch.object(q._redis, "hgetall", return_value={}), \
+         patch.object(q._redis, "pubsub", return_value=fake_pubsub):
+        events = list(q.stream_progress("task-1"))
+
+    assert events == [
+        {
+            "stage": "done",
+            "status": "input_needed",
+            "prompt": "Name: ",
+            "input_index": 0,
+        },
+        {"stage": "done", "status": "completed", "error": None},
+    ]
+
+
 # ---------------------------------------------------------------------------
 # Eager-mode integration tests — CELERY_TASK_ALWAYS_EAGER=1
 #

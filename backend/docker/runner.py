@@ -91,7 +91,7 @@ def main():
             trace_result = run_trace(
                 code,
                 stdin_inputs=stdin_inputs,
-                input_provider=_live_input if interactive_enabled and not stdin_inputs else None,
+                input_provider=_live_input if interactive_enabled else None,
             )
         except LegacyInputNeededError as e:
             """

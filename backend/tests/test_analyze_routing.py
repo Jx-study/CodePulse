@@ -466,6 +466,44 @@ class TestAnalyzeResultAuth:
 
 
 class TestAnalyzeInputApi:
+    def test_stream_close_cancels_owned_task(self, client, auth_headers):
+        def stream_events(_task_id):
+            yield {"stage": "sandbox", "status": "running"}
+            yield {"stage": "done", "status": "input_needed"}
+
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.stream_progress", side_effect=stream_events), \
+             patch("routes.analyze.task_queue.cancel_task") as mock_cancel:
+            resp = _authed(
+                client,
+                auth_headers,
+                "get",
+                "/api/analyze/stream/task-stream",
+                buffered=False,
+            )
+            iterator = resp.response
+            next(iterator)
+            iterator.close()
+
+        mock_cancel.assert_called_once_with("task-stream")
+
+    def test_stream_completed_does_not_cancel_task(self, client, auth_headers):
+        def stream_events(_task_id):
+            yield {"stage": "done", "status": "completed"}
+
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.stream_progress", side_effect=stream_events), \
+             patch("routes.analyze.task_queue.cancel_task") as mock_cancel:
+            resp = _authed(
+                client,
+                auth_headers,
+                "get",
+                "/api/analyze/stream/task-complete",
+            )
+            list(resp.response)
+
+        mock_cancel.assert_not_called()
+
     def test_submit_input_pushes_value_for_waiting_task(self, client, auth_headers):
         with patch("routes.analyze.task_queue.owns_task", return_value=True), \
              patch("routes.analyze.task_queue.get_task", return_value={

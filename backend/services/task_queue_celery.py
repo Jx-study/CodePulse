@@ -162,6 +162,7 @@ class CeleryTaskQueue:
                 event = json.loads(msg["data"])
                 if event.get("status") == "input_needed":
                     yield event
+                    started_at = time.monotonic()
                     continue
                 if event.get("stage") == STAGE_DONE:
                     ar4 = AsyncResult(task_id, app=celery_app)

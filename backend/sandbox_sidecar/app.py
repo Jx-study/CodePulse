@@ -52,6 +52,7 @@ class SandboxSession:
     stderr_lines: list[str] = field(default_factory=list)
     started_at: float = field(default_factory=time.monotonic)
     last_active_at: float = field(default_factory=time.monotonic)
+    effective_timeout: float = CONTAINER_TIMEOUT
     input_count: int = 0
     closed: bool = False
     lock: threading.Lock = field(default_factory=threading.Lock)
@@ -261,6 +262,7 @@ def run():
         process=proc,
         container=container,
         pool=pool,
+        effective_timeout=effective_timeout,
     )
     _start_readers(session)
     event = _wait_for_control_event(session, effective_timeout)
@@ -279,13 +281,14 @@ def post_input(session_id: str):
         return jsonify({"status": "failed", "error": "value must be a string"}), 400
 
     try:
-        session.process.stdin.write(value + "\n")
-        session.process.stdin.flush()
+        with session.lock:
+            session.process.stdin.write(value + "\n")
+            session.process.stdin.flush()
+            event = _wait_for_control_event(session, session.effective_timeout)
     except Exception as e:
         _finish_session(session, recycle=True)
         return jsonify({"status": "failed", "error": f"failed to send input: {e}"}), 500
 
-    event = _wait_for_control_event(session, CONTAINER_TIMEOUT)
     return _event_to_response(session, event)
 
 

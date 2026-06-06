@@ -208,6 +208,57 @@ describe("AnalyzeService.run", () => {
     expect(await settled).toBeInstanceOf(InputNeededError);
   });
 
+  it("sends only one cancel request when abort races with input rejection", async () => {
+    const controller = new AbortController();
+    let rejectInput!: (err: Error) => void;
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.endsWith("/api/analyze/submit")) {
+        return new Response(JSON.stringify({ task_id: "task-1" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.endsWith("/api/analyze/cancel/task-1")) {
+        return new Response(JSON.stringify({ status: "accepted" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("EventSource", MockEventSource);
+
+    const onInputNeeded = vi.fn(
+      () => new Promise<string | null>((_resolve, reject) => {
+        rejectInput = reject;
+      }),
+    );
+    const promise = run("name = input('name: ')", vi.fn(), controller.signal, {
+      onInputNeeded,
+    });
+    const settled = promise.catch((e) => e);
+    await vi.waitFor(() => expect(MockEventSource.instances).toHaveLength(1));
+
+    MockEventSource.instances[0].onmessage?.(
+      new MessageEvent("message", {
+        data: JSON.stringify({
+          status: "input_needed",
+          task_id: "task-1",
+          prompt: "name: ",
+          input_index: 0,
+        }),
+      }),
+    );
+
+    controller.abort();
+    rejectInput(new Error("dialog closed"));
+    await settled;
+
+    const cancelCalls = fetchMock.mock.calls.filter(([url]) => url.endsWith("/api/analyze/cancel/task-1"));
+    expect(cancelCalls).toHaveLength(1);
+  });
+
   it("treats backend cancelled terminal events as aborts", async () => {
     vi.stubGlobal(
       "fetch",

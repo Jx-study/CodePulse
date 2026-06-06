@@ -86,8 +86,14 @@ def stream(task_id: str):
         return jsonify({"error": "task not found"}), 404
 
     def generate():
-        for event in task_queue.stream_progress(task_id):
-            yield f"data: {json.dumps(event)}\n\n"
+        terminal = False
+        try:
+            for event in task_queue.stream_progress(task_id):
+                terminal = event.get("status") in (STATUS_COMPLETED, STATUS_FAILED)
+                yield f"data: {json.dumps(event)}\n\n"
+        finally:
+            if not terminal:
+                task_queue.cancel_task(task_id)
 
     return Response(
         stream_with_context(generate()),

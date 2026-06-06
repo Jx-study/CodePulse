@@ -78,6 +78,48 @@ def run_runner_interactive_no_input(code: str) -> tuple[list[dict], int]:
     return events, proc.returncode
 
 
+def run_runner_interactive_with_prefilled_stdin(
+    code: str,
+    prefilled_inputs: list[str],
+    live_inputs: list[str],
+) -> tuple[list[str], int]:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = SERVICES_PATH
+    env["CODE"] = base64.b64encode(code.encode()).decode()
+    env["STDIN_INPUTS"] = base64.b64encode(json.dumps(prefilled_inputs).encode()).decode()
+    env["SANDBOX_CONTAINER"] = "1"
+    env["CODEPULSE_INTERACTIVE"] = "1"
+
+    proc = subprocess.Popen(
+        [sys.executable, RUNNER_PATH],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env,
+    )
+
+    lines: list[str] = []
+    try:
+        for value in live_inputs:
+            assert proc.stdout is not None
+            line = proc.stdout.readline()
+            if line:
+                lines.append(line.rstrip("\n"))
+            assert proc.poll() is None, "runner exited before live input was supplied"
+            assert proc.stdin is not None
+            proc.stdin.write(value + "\n")
+            proc.stdin.flush()
+
+        stdout_tail, _stderr = proc.communicate(timeout=15)
+        lines.extend(line for line in stdout_tail.splitlines() if line)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+
+    return lines, proc.returncode
+
+
 def test_runtime_error_emits_error_event_with_lineno():
     """互動模式下 runtime error 須以 error event 回傳，並帶 lineno（非裸 JSON）。"""
     code = "x = 1\ny = 1 / 0\n"
@@ -133,6 +175,32 @@ def test_runner_interactive_protocol_reuses_process_for_multiple_inputs():
         "Age: 37",
         "City: Taipei",
         "Ada 37 Taipei",
+    ]
+
+
+def test_runner_interactive_prefilled_stdin_falls_through_to_live_input():
+    code = (
+        'first = input("First: ")\n'
+        'second = input("Second: ")\n'
+        'print(first + second)\n'
+    )
+    lines, rc = run_runner_interactive_with_prefilled_stdin(code, ["Ada"], ["Lovelace"])
+
+    assert rc == 0
+    for line in lines:
+        assert line.startswith("__CODEPULSE_EVENT__")
+    events = [
+        json.loads(line.removeprefix("__CODEPULSE_EVENT__"))
+        for line in lines
+    ]
+
+    assert events[0]["type"] == "input_needed"
+    assert events[0]["prompt"] == "Second: "
+    assert events[-1]["type"] == "result"
+    assert [ev["text"] for ev in events[-1]["payload"]["stdout_events"]] == [
+        "First: Ada",
+        "Second: Lovelace",
+        "AdaLovelace",
     ]
 
 

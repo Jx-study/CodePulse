@@ -12,6 +12,7 @@ import sys
 import os
 import subprocess
 import io
+import threading
 
 import pytest
 from unittest.mock import patch, MagicMock
@@ -219,6 +220,48 @@ class TestInteractiveSessions:
         body = input_resp.get_json()
         assert body["status"] == "completed"
         assert body["result"]["stdout_events"] == [{"text": "Name: Ada"}]
+
+    def test_post_input_uses_session_effective_timeout(self, client):
+        fake_proc = FakePopen([
+            {"type": "input_needed", "prompt": "Name: ", "input_index": 0},
+            {"type": "result", "payload": {"trace": [], "stdout_events": []}},
+        ])
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=fake_proc):
+            run_resp = client.post(
+                "/run",
+                json={"code": 'name = input("Name: ")', "per_n_timeout": 25},
+            )
+        session_id = run_resp.get_json()["session_id"]
+
+        with patch(
+            "sandbox_sidecar.app._wait_for_control_event",
+            return_value={"type": "result", "payload": {"trace": [], "stdout_events": []}},
+        ) as mock_wait:
+            client.post(f"/input/{session_id}", json={"value": "Ada"})
+
+        assert mock_wait.call_args.args[1] == 25
+
+    def test_post_input_holds_session_lock_while_writing_and_waiting(self, client):
+        fake_proc = FakePopen([
+            {"type": "input_needed", "prompt": "Name: ", "input_index": 0},
+            {"type": "result", "payload": {"trace": [], "stdout_events": []}},
+        ])
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=fake_proc):
+            run_resp = client.post("/run", json={"code": 'name = input("Name: ")'})
+        session_id = run_resp.get_json()["session_id"]
+
+        entered_wait = threading.Event()
+
+        def wait_for_control_event(session, _timeout):
+            assert session.lock.locked()
+            entered_wait.set()
+            return {"type": "result", "payload": {"trace": [], "stdout_events": []}}
+
+        with patch("sandbox_sidecar.app._wait_for_control_event", side_effect=wait_for_control_event):
+            resp = client.post(f"/input/{session_id}", json={"value": "Ada"})
+
+        assert entered_wait.is_set()
+        assert resp.get_json()["status"] == "completed"
 
     def test_error_event_after_input_propagates_message_and_lineno(self, client):
         """互動 session 中途 error event 須把 message + lineno 帶進 failed 回應，

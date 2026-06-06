@@ -175,7 +175,7 @@ function streamProgress(
       resolve(result);
     };
     const onAbort = () => {
-      cancelRun(taskId).catch(() => undefined);
+      if (!settled) cancelRun(taskId).catch(() => undefined);
       settleReject(new DOMException("Aborted", "AbortError"));
     };
 
@@ -203,7 +203,7 @@ function streamProgress(
         // 使用者取消對話框、callback 拋錯）都必須先打 cancel 端點喚醒後端，
         // 否則 Celery task 會卡到 120s input timeout 才釋放。
         const cancelAndReject = (err: unknown) => {
-          cancelRun(taskId).catch(() => undefined);
+          if (!settled) cancelRun(taskId).catch(() => undefined);
           settleReject(err);
         };
         if (!onInputNeeded) {
