@@ -32,11 +32,11 @@ export function InputPromptDialog({
 
   const footer = (
     <>
-      <Button variant="secondary" onClick={onCancel}>
-        取消
-      </Button>
-      <Button variant="primary" onClick={() => onSubmit(value)}>
+      <Button variant="primary" size="sm" onClick={() => onSubmit(value)}>
         確認
+      </Button>
+      <Button variant="secondary" size="sm" onClick={onCancel}>
+        取消
       </Button>
     </>
   );
