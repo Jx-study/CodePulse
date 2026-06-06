@@ -43,7 +43,7 @@ export class AnalyzeError extends Error {
 
 /**
  * 程式執行到 input() 但 stdin 已用罄時拋出
- * 依 D8：只帶 prompt 與 inputIndex，已累積的 stdin 由 caller（usePlaygroundRun）用 ref 自行維護
+ * 未提供互動式輸入 handler 時，保留舊呼叫端可辨識的暫停訊號。
  */
 export class InputNeededError extends Error {
   constructor(
@@ -68,6 +68,13 @@ export interface AnalyzeResult {
   top3Candidates: AlgoCandidate[];
 }
 
+export type AnalyzeRunOptions = {
+  saveHistory?: boolean;
+  stdinInputs?: string[];
+  isRetry?: boolean;
+  onInputNeeded?: (prompt: string, inputIndex: number) => Promise<string | null>;
+};
+
 /**
  * Submit code, stream progress via SSE, and return fully-mapped result.
  * @param code       Python source code to analyze
@@ -78,7 +85,7 @@ export async function run(
   code: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
-  options: { saveHistory?: boolean; stdinInputs?: string[]; isRetry?: boolean } = {},
+  options: AnalyzeRunOptions = {},
 ): Promise<AnalyzeResult> {
   // 1. Submit
   let submitRes: {
@@ -130,7 +137,7 @@ export async function run(
   const taskId = submitRes.data.task_id!;
 
   // 2. Stream progress via SSE
-  return streamProgress(taskId, onProgress, signal);
+  return streamProgress(taskId, onProgress, signal, options.onInputNeeded);
 }
 
 // Internal helpers
@@ -139,6 +146,7 @@ function streamProgress(
   taskId: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
+  onInputNeeded?: (prompt: string, inputIndex: number) => Promise<string | null>,
 ): Promise<AnalyzeResult> {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {
@@ -167,6 +175,7 @@ function streamProgress(
       resolve(result);
     };
     const onAbort = () => {
+      cancelRun(taskId).catch(() => undefined);
       settleReject(new DOMException("Aborted", "AbortError"));
     };
 
@@ -188,13 +197,33 @@ function streamProgress(
       }
 
       if (event.status === "input_needed") {
-        // input_needed 是 terminal event：清掉 ES 並以 InputNeededError reject，
-        // 由 caller 收集輸入後 append 到 stdin 再重送（D8）
-        settleReject(new InputNeededError(
-          event.prompt ?? "",
-          event.input_index ?? 0,
-          event.stdout_events ?? [],
-        ));
+        const prompt = event.prompt ?? "";
+        const inputIndex = event.input_index ?? 0;
+        // 任務正卡在後端 BLPOP 等輸入；任何「不送值就結束」的路徑（無 callback、
+        // 使用者取消對話框、callback 拋錯）都必須先打 cancel 端點喚醒後端，
+        // 否則 Celery task 會卡到 120s input timeout 才釋放。
+        const cancelAndReject = (err: unknown) => {
+          cancelRun(taskId).catch(() => undefined);
+          settleReject(err);
+        };
+        if (!onInputNeeded) {
+          cancelAndReject(new InputNeededError(
+            prompt,
+            inputIndex,
+            event.stdout_events ?? [],
+          ));
+          return;
+        }
+        onInputNeeded(prompt, inputIndex)
+          .then((value) => {
+            if (signal?.aborted || settled) return;
+            if (value === null) {
+              cancelAndReject(new InputNeededError(prompt, inputIndex));
+              return;
+            }
+            return submitInput(taskId, value, signal);
+          })
+          .catch(cancelAndReject);
         return;
       }
 
@@ -208,6 +237,8 @@ function streamProgress(
         const detail: string | undefined = event.error;
         if (detail === "timeout") {
           settleReject(new AnalyzeError("timeout", "timeout"));
+        } else if (detail === "cancelled") {
+          settleReject(new DOMException("Aborted", "AbortError"));
         } else if (detail?.startsWith("pool_exhausted")) {
           settleReject(new AnalyzeError("pool_exhausted", detail));
         } else if (detail) {
@@ -288,4 +319,22 @@ async function fetchResult(
     aiResult,
     top3Candidates,
   };
+}
+
+async function submitInput(
+  taskId: string,
+  value: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  throwIfAborted(signal);
+  await apiService.post(
+    `/api/analyze/input/${taskId}`,
+    { value },
+    undefined,
+    signal,
+  );
+}
+
+async function cancelRun(taskId: string): Promise<void> {
+  await apiService.post(`/api/analyze/cancel/${taskId}`, {});
 }

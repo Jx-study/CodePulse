@@ -12,7 +12,6 @@ import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 import {
   run as analyzeRun,
   AnalyzeError,
-  InputNeededError,
 } from "@/services/AnalyzeService";
 import { listHistory } from "@/services/playgroundHistoryService";
 import { toast } from "@/shared/components/Toast";
@@ -117,9 +116,6 @@ export function usePlaygroundRun({
   // 互動式 input()：等待使用者輸入的彈窗狀態（null = 無彈窗）
   // resolve 由 retry loop 注入，使用者送出或取消時呼叫
   const [inputPrompt, setInputPrompt] = useState<InputPromptState>(null);
-  // 跨多次 retry 累積使用者已輸入的 stdin（依 D8 由 caller 用 ref 維護）
-  const stdinInputsRef = useRef<string[]>([]);
-
   const handleEditCode = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
@@ -167,7 +163,6 @@ export function usePlaygroundRun({
       setCfgGraph(record.cfg_graph);
       setStdoutEvents(record.stdout_events);
       setIsTruncated(record.is_truncated);
-      stdinInputsRef.current = []; // 從 history 載入是新一次互動，重置已累積的 stdin
       setAiResult({
         detected_algorithm: record.detected_algorithm,
         confidence_score: record.confidence_score,
@@ -207,40 +202,29 @@ export function usePlaygroundRun({
     ],
   );
 
-  // 包裝 analyzeRun 成 retry loop：遇到 InputNeededError 就開彈窗收輸入，
-  // append 到 stdinInputsRef 後重送（Python Tutor 重跑模式）；saveHistory 必須一路透傳（D7）
-  const runWithInputRetry = useCallback(
+  const runWithInteractiveInput = useCallback(
     async (controller: AbortController, options: { saveHistory: boolean; forceRun?: boolean }) => {
-      while (true) {
-        try {
-          return await analyzeRun(
-            code,
-            (stage) => setRunStage(stage),
-            controller.signal,
-            {
-              saveHistory: options.saveHistory,
-              stdinInputs: [...stdinInputsRef.current],
-              isRetry: options.forceRun || stdinInputsRef.current.length > 0,
-            },
-          );
-        } catch (err) {
-          if (err instanceof InputNeededError) {
-            setStdoutEvents(err.stdoutEvents);
+      return analyzeRun(
+        code,
+        (stage) => setRunStage(stage),
+        controller.signal,
+        {
+          saveHistory: options.saveHistory,
+          isRetry: options.forceRun,
+          onInputNeeded: async (prompt, inputIndex) => {
             const value = await waitForInputPrompt(
-              err.prompt,
-              err.inputIndex,
+              prompt,
+              inputIndex,
               setInputPrompt,
               controller.signal,
             );
             if (value === null) {
               throw new InputCancelledError();
             }
-            stdinInputsRef.current.push(value);
-            continue;
-          }
-          throw err;
-        }
-      }
+            return value;
+          },
+        },
+      );
     },
     [code],
   );
@@ -252,7 +236,6 @@ export function usePlaygroundRun({
     }
 
     let saveHistory = true;
-    stdinInputsRef.current = []; // 新一次 run：清掉上一輪累積的 stdin
 
     // Quota gate for fresh runs. Force runs skip it server-side; _save_history still guards capacity.
     if (!forceRun) {
@@ -291,7 +274,7 @@ export function usePlaygroundRun({
     setAppliedAlgo(null);
 
     try {
-      const result = await runWithInputRetry(controller, { saveHistory, forceRun });
+      const result = await runWithInteractiveInput(controller, { saveHistory, forceRun });
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
       setRawIndexMap(result.rawIndexMap);
@@ -362,7 +345,7 @@ export function usePlaygroundRun({
     loadFromHistory,
     onResetPlayback,
     onQuotaFull,
-    runWithInputRetry,
+    runWithInteractiveInput,
     t,
   ]);
 
