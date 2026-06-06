@@ -42,6 +42,7 @@ def _check_terminal(ar: AsyncResult) -> dict | None:
             "status": "input_needed",
             "prompt": meta.get("prompt", ""),
             "input_index": meta.get("input_index", 0),
+            "stdout_events": meta.get("stdout_events", []),
         }
     if state in ("completed", "failed"):
         return _terminal_event(ar, state)

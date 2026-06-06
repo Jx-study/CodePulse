@@ -33,10 +33,16 @@ class InputNeededSignal(Exception):
     這不是錯誤，而是「等待使用者輸入」的暫停點。
     task queue 必須接住它並把狀態設為 STATUS_INPUT_NEEDED（不是 FAILED/COMPLETED）。
     """
-    def __init__(self, prompt: str, input_index: int):
+    def __init__(
+        self,
+        prompt: str,
+        input_index: int,
+        stdout_events: list[dict] | None = None,
+    ):
         super().__init__(f"input_needed[{input_index}]: {prompt!r}")
         self.prompt = prompt
         self.input_index = input_index
+        self.stdout_events = list(stdout_events or [])
 
 
 EXPECTED_STRUCTURE: dict[str, str] = {
@@ -174,7 +180,11 @@ def run_analysis_task(
             # input_needed 用自訂 state，不讓 Celery 標記成 SUCCESS/FAILURE。
             self.update_state(
                 state="INPUT_NEEDED",
-                meta={"prompt": sig.prompt, "input_index": sig.input_index},
+                meta={
+                    "prompt": sig.prompt,
+                    "input_index": sig.input_index,
+                    "stdout_events": sig.stdout_events,
+                },
             )
             raise Ignore()
 
@@ -197,6 +207,7 @@ def _run_analysis(
         raise InputNeededSignal(
             prompt=sandbox_result["prompt"],
             input_index=sandbox_result["input_index"],
+            stdout_events=sandbox_result.get("stdout_events", []),
         )
 
     if "error" in sandbox_result:

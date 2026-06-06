@@ -62,6 +62,7 @@ def main():
                 "error": "input_needed",
                 "prompt": e.prompt,
                 "input_index": e.input_index,
+                "stdout_events": e.stdout_events,
             }) + "\n")
             sys.exit(0)
 

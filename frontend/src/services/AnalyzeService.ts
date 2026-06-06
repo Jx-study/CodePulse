@@ -49,6 +49,7 @@ export class InputNeededError extends Error {
   constructor(
     public readonly prompt: string,
     public readonly inputIndex: number,
+    public readonly stdoutEvents: StdoutEvent[] = [],
   ) {
     super(`input needed at index ${inputIndex}: ${prompt}`);
     this.name = "InputNeededError";
@@ -97,7 +98,7 @@ export async function run(
       save_history: options.saveHistory ?? true,
       stdin_inputs: options.stdinInputs ?? [],
       is_retry: options.isRetry ?? false,
-    });
+    }, undefined, signal);
   } catch (err: any) {
     const body = err?.response?.data;
     if (err?.response?.status === 422 && body?.error) {
@@ -114,6 +115,8 @@ export async function run(
     }
     throw err;
   }
+
+  throwIfAborted(signal);
 
   if (submitRes.data.duplicate) {
     throw new AnalyzeError(
@@ -138,17 +141,40 @@ function streamProgress(
   signal?: AbortSignal,
 ): Promise<AnalyzeResult> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+
     const url = `${API_BASE_URL}/api/analyze/stream/${taskId}`;
     const es = new EventSource(url, { withCredentials: true });
 
-    const cleanup = () => es.close();
-
-    signal?.addEventListener("abort", () => {
+    let settled = false;
+    const cleanup = () => {
+      signal?.removeEventListener("abort", onAbort);
+      es.close();
+    };
+    const settleReject = (err: unknown) => {
+      if (settled) return;
+      settled = true;
       cleanup();
-      reject(new DOMException("Aborted", "AbortError"));
-    });
+      reject(err);
+    };
+    const settleResolve = (result: AnalyzeResult) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+    const onAbort = () => {
+      settleReject(new DOMException("Aborted", "AbortError"));
+    };
+
+    signal?.addEventListener("abort", onAbort, { once: true });
 
     es.onmessage = (e) => {
+      if (signal?.aborted || settled) return;
+
       let event: any;
       try {
         event = JSON.parse(e.data);
@@ -164,47 +190,63 @@ function streamProgress(
       if (event.status === "input_needed") {
         // input_needed 是 terminal event：清掉 ES 並以 InputNeededError reject，
         // 由 caller 收集輸入後 append 到 stdin 再重送（D8）
-        cleanup();
-        reject(new InputNeededError(event.prompt ?? "", event.input_index ?? 0));
+        settleReject(new InputNeededError(
+          event.prompt ?? "",
+          event.input_index ?? 0,
+          event.stdout_events ?? [],
+        ));
         return;
       }
 
       if (event.status === "completed") {
         cleanup();
-        fetchResult(taskId).then(resolve).catch(reject);
+        fetchResult(taskId, signal).then(settleResolve).catch(settleReject);
         return;
       }
 
       if (event.status === "failed") {
-        cleanup();
         const detail: string | undefined = event.error;
         if (detail === "timeout") {
-          reject(new AnalyzeError("timeout", "timeout"));
+          settleReject(new AnalyzeError("timeout", "timeout"));
         } else if (detail?.startsWith("pool_exhausted")) {
-          reject(new AnalyzeError("pool_exhausted", detail));
+          settleReject(new AnalyzeError("pool_exhausted", detail));
         } else if (detail) {
           const m = detail.match(/^lineno:(\d+):(.+)$/);
           if (m) {
-            reject(new AnalyzeError("runtime_error", m[2], parseInt(m[1], 10)));
+            settleReject(new AnalyzeError("runtime_error", m[2], parseInt(m[1], 10)));
           } else {
-            reject(new AnalyzeError("runtime_error", detail));
+            settleReject(new AnalyzeError("runtime_error", detail));
           }
         } else {
-          reject(new AnalyzeError("analysis_failed", "analysis failed"));
+          settleReject(new AnalyzeError("analysis_failed", "analysis failed"));
         }
         return;
       }
     };
 
     es.onerror = () => {
-      cleanup();
-      reject(new AnalyzeError("analysis_failed", "SSE connection error"));
+      settleReject(new AnalyzeError("analysis_failed", "SSE connection error"));
     };
   });
 }
 
-async function fetchResult(taskId: string): Promise<AnalyzeResult> {
-  const res = await apiService.get<any>(`/api/analyze/result/${taskId}`);
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException("Aborted", "AbortError");
+  }
+}
+
+async function fetchResult(
+  taskId: string,
+  signal?: AbortSignal,
+): Promise<AnalyzeResult> {
+  throwIfAborted(signal);
+  const res = await apiService.get<any>(
+    `/api/analyze/result/${taskId}`,
+    undefined,
+    signal,
+  );
+  throwIfAborted(signal);
   const r = res.data;
 
   const callGraph: CallGraph | null = r.call_graph

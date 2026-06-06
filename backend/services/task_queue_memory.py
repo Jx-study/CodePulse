@@ -104,6 +104,7 @@ class TaskQueue:
                     "status": "input_needed",
                     "prompt": info.get("prompt", ""),
                     "input_index": info.get("input_index", 0),
+                    "stdout_events": info.get("stdout_events", []),
                 }
             else:
                 yield {"stage": STAGE_DONE, "status": task["status"], "error": task.get("error")}
@@ -150,6 +151,7 @@ class TaskQueue:
                     self._tasks[task_id]["input_needed"] = {
                         "prompt": sig.prompt,
                         "input_index": sig.input_index,
+                        "stdout_events": sig.stdout_events,
                     }
                 q = self._queues.pop(task_id, None)
             if q is not None:
@@ -158,6 +160,7 @@ class TaskQueue:
                     "status": "input_needed",
                     "prompt": sig.prompt,
                     "input_index": sig.input_index,
+                    "stdout_events": sig.stdout_events,
                 })
         except Exception as e:
             with self._lock:

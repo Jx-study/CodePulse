@@ -22,10 +22,16 @@ class InputNeededError(Exception):
     攜帶 prompt 與該次 input 呼叫的索引（0-based），讓前端能渲染有標籤的
     輸入彈窗，並透過把使用者輸入值 append 到 stdin_inputs 後重新送出來恢復執行。
     """
-    def __init__(self, prompt: str, input_index: int):
+    def __init__(
+        self,
+        prompt: str,
+        input_index: int,
+        stdout_events: list[dict] | None = None,
+    ):
         super().__init__(f"input_needed at index {input_index}: {prompt!r}")
         self.prompt = prompt
         self.input_index = input_index
+        self.stdout_events = list(stdout_events or [])
 
 
 MAX_TRACE_STEPS = 2000
@@ -125,7 +131,11 @@ def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceRes
             # queue 用罄才彈窗，此時還沒拿到輸入值，先只記 prompt（若有）
             if prompt_str:
                 stdout_events.append({"step": len(trace_log), "text": prompt_str})
-            raise InputNeededError(prompt=prompt_str, input_index=_input_call_count[0])
+            raise InputNeededError(
+                prompt=prompt_str,
+                input_index=_input_call_count[0],
+                stdout_events=stdout_events,
+            )
         value = _stdin_queue.pop(0)
         _input_call_count[0] += 1
         # 模擬終端機：prompt 與使用者輸入值拼在同一行（像 `a: 2`），重現 REPL 體驗
@@ -268,5 +278,4 @@ def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceRes
         step_count=len(trace_log),
         stdout_events=stdout_events,
     )
-
 
