@@ -46,6 +46,62 @@ def run_runner_interactive(code: str, inputs: list[str]) -> tuple[list[str], int
     return lines, proc.returncode
 
 
+def run_runner_interactive_no_input(code: str) -> tuple[list[dict], int]:
+    """互動模式下執行無 input() 的 code，回傳 (parsed_events, returncode)。
+
+    重點：直接驗證真實 runner 在互動模式下的輸出協定。所有行都必須帶
+    __CODEPULSE_EVENT__ 前綴（裸 JSON 會被 sidecar 誤判成 stdout，使用者拿不到錯誤）。
+    """
+    env = os.environ.copy()
+    env["PYTHONPATH"] = SERVICES_PATH
+    env["CODE"] = base64.b64encode(code.encode()).decode()
+    env["SANDBOX_CONTAINER"] = "1"
+    env["CODEPULSE_INTERACTIVE"] = "1"
+
+    proc = subprocess.run(
+        [sys.executable, RUNNER_PATH],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env,
+        timeout=15,
+    )
+
+    events: list[dict] = []
+    for line in proc.stdout.splitlines():
+        if not line:
+            continue
+        # 互動模式下每一行都必須是 event；裸 JSON 代表 bug
+        assert line.startswith("__CODEPULSE_EVENT__"), f"non-event line in interactive mode: {line!r}"
+        events.append(json.loads(line.removeprefix("__CODEPULSE_EVENT__")))
+    return events, proc.returncode
+
+
+def test_runtime_error_emits_error_event_with_lineno():
+    """互動模式下 runtime error 須以 error event 回傳，並帶 lineno（非裸 JSON）。"""
+    code = "x = 1\ny = 1 / 0\n"
+    events, rc = run_runner_interactive_no_input(code)
+
+    assert rc == 1
+    error_events = [ev for ev in events if ev["type"] == "error"]
+    assert len(error_events) == 1
+    err = error_events[0]
+    assert "ZeroDivisionError" in err["message"]
+    assert err["lineno"] == 2
+
+
+def test_syntax_error_emits_error_event():
+    """互動模式下 SyntaxError 也須以 error event 回傳。"""
+    code = "def foo(:\n    pass\n"
+    events, rc = run_runner_interactive_no_input(code)
+
+    assert rc == 1
+    error_events = [ev for ev in events if ev["type"] == "error"]
+    assert len(error_events) == 1
+    assert "SyntaxError" in error_events[0]["message"]
+
+
 def test_runner_interactive_protocol_reuses_process_for_multiple_inputs():
     code = (
         'name = input("Name: ")\n'

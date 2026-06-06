@@ -220,6 +220,24 @@ class TestInteractiveSessions:
         assert body["status"] == "completed"
         assert body["result"]["stdout_events"] == [{"text": "Name: Ada"}]
 
+    def test_error_event_after_input_propagates_message_and_lineno(self, client):
+        """互動 session 中途 error event 須把 message + lineno 帶進 failed 回應，
+        否則 analysis_runner 拿不到行號，使用者看不到錯誤位置。"""
+        fake_proc = FakePopen([
+            {"type": "input_needed", "prompt": "Name: ", "input_index": 0},
+            {"type": "error", "message": "ZeroDivisionError: division by zero", "lineno": 3},
+        ])
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=fake_proc):
+            run_resp = client.post("/run", json={"code": 'name = input("Name: ")'})
+        session_id = run_resp.get_json()["session_id"]
+
+        input_resp = client.post(f"/input/{session_id}", json={"value": "Ada"})
+
+        body = input_resp.get_json()
+        assert body["status"] == "failed"
+        assert body["error"] == "ZeroDivisionError: division by zero"
+        assert body["lineno"] == 3
+
     def test_post_input_missing_session_returns_failure(self, client):
         resp = client.post("/input/missing-session", json={"value": "Ada"})
 

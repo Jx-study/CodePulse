@@ -146,7 +146,10 @@ def _resolve_interactive_sandbox(task_id: str, sandbox_result: dict) -> dict:
         if sandbox_result.get("status") == "completed":
             return sandbox_result.get("result", {})
         if sandbox_result.get("status") == "failed":
-            raise RuntimeError(sandbox_result.get("error", "sandbox failed"))
+            error_msg = sandbox_result.get("error", "sandbox failed")
+            # lineno:N:msg 與非互動 error 路徑（下方 _run_analysis）同格式，讓前端能標出錯誤行
+            lineno = sandbox_result.get("lineno")
+            raise RuntimeError(f"lineno:{lineno}:{error_msg}" if lineno else error_msg)
         return sandbox_result
     finally:
         _cleanup_interactive_session(task_id, session_id)

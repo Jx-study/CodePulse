@@ -12,6 +12,7 @@ sandbox_sidecar/app.py — Sandbox Sidecar
 
 import base64
 import json
+import logging
 import os
 import queue
 import subprocess
@@ -28,6 +29,7 @@ from container_pool import (
 )
 
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
 CONTAINER_TIMEOUT = int(os.environ.get("CONTAINER_TIMEOUT", "10"))
 ACQUIRE_TIMEOUT = float(os.environ.get("ACQUIRE_TIMEOUT", "8"))
@@ -99,6 +101,12 @@ def _reader_stdout(session: SandboxSession) -> None:
                 continue
             session.events.put(event)
         else:
+            # 互動模式下 runner 的所有輸出都應帶 EVENT_PREFIX；裸 stdout 代表協定外的東西
+            # （import 期 warning、第三方 lib 直寫 stdout、runner 未來漏改的 error 路徑）。
+            # _wait_for_control_event 只認 control event，這類行不會被消費 → 卡在 queue 裡，
+            # 是隱性 debug 陷阱。至少留下可觀測性。
+            # TODO(observability): 接 Sentry／結構化告警，目前僅 logger.warning。
+            logger.warning("sidecar session %s: unexpected non-event stdout: %s", session.id, line[:200])
             session.events.put({"type": "stdout", "text": line})
 
 
@@ -187,11 +195,15 @@ def _event_to_response(session: SandboxSession, event: dict):
         return jsonify(result)
 
     message = event.get("message", "sandbox error")
+    lineno = event.get("lineno")
     should_recycle = session.input_count > 0 or message == "timeout"
     _finish_session(session, recycle=should_recycle)
     if session.input_count > 0:
-        return jsonify({"status": "failed", "error": message})
-    return _error_response(message)
+        body = {"status": "failed", "error": message}
+        if lineno is not None:
+            body["lineno"] = lineno
+        return jsonify(body)
+    return _error_response(message, lineno=lineno)
 
 
 @app.route("/run", methods=["POST"])

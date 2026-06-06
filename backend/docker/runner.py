@@ -33,10 +33,28 @@ def main():
     _real_stdout = sys.__stdout__
     sys.stdout = io.StringIO()
 
+    interactive_enabled = os.environ.get("CODEPULSE_INTERACTIVE") == "1"
+
+    def _emit_error(message: str, *, lineno: int | None = None):
+        # 互動模式（生產環境一律如此）下，所有輸出都必須帶 EVENT_PREFIX，否則 sidecar 的
+        # reader 會把這行誤判成 stdout，control-event 迴圈等不到 error → 走 timeout fallback
+        # → 使用者看到「runner exited without result」而非真正的錯誤訊息。
+        # 非互動模式（test_runner.py 走 subprocess 不帶旗標）維持裸 JSON。
+        if interactive_enabled:
+            payload = {"message": message}
+            if lineno is not None:
+                payload["lineno"] = lineno
+            emit_event("error", **payload)
+        else:
+            body = {"error": message}
+            if lineno is not None:
+                body["lineno"] = lineno
+            _real_stdout.write(json.dumps(body) + "\n")
+
     try:
         encoded = os.environ.get("CODE", "")
         if not encoded:
-            _real_stdout.write(json.dumps({"error": "missing CODE environment variable"}) + "\n")
+            _emit_error("missing CODE environment variable")
             sys.exit(1)
 
         code = base64.b64decode(encoded).decode("utf-8")
@@ -55,11 +73,11 @@ def main():
         try:
             tree = ast.parse(code)
         except SyntaxError as e:
-            _real_stdout.write(json.dumps({"error": f"SyntaxError: {e}"}) + "\n")
+            _emit_error(f"SyntaxError: {e}", lineno=e.lineno)
             sys.exit(1)
 
         if not tree.body:
-            _real_stdout.write(json.dumps({"error": "empty code: no executable statements found"}) + "\n")
+            _emit_error("empty code: no executable statements found")
             sys.exit(1)
 
         def _live_input(prompt: str, input_index: int, _stdout_events: list[dict]) -> str:
@@ -69,8 +87,6 @@ def main():
                 raise EOFError("stdin closed while waiting for input")
             return line.rstrip("\n")
 
-        interactive_enabled = os.environ.get("CODEPULSE_INTERACTIVE") == "1"
-
         try:
             trace_result = run_trace(
                 code,
@@ -78,10 +94,11 @@ def main():
                 input_provider=_live_input if interactive_enabled and not stdin_inputs else None,
             )
         except LegacyInputNeededError as e:
-            # [LEGACY — re-submit fallback only] 結構化控制流訊號，不是 error。
-            # 寫到 _real_stdout 而非 print。exit 0 因為這不是 failure，是「需要更多輸入」
-            # 的暫停；前端會 append 輸入後重送整段 code。live session 模式走 _live_input，
-            # 不會走到這裡。
+            """
+            [LEGACY — re-submit fallback only] 結構化控制流訊號，不是 error 寫到 _real_stdout 而非 print
+            exit 0 因為這不是 failure，是「需要更多輸入」的暫停
+            前端會 append 輸入後重送整段 code live session 模式走 _live_input，不會走到這裡
+            """
             _real_stdout.write(json.dumps({
                 "error": "input_needed",
                 "prompt": e.prompt,
@@ -149,7 +166,7 @@ def main():
         # Find the innermost frame that belongs to user code (exec'd as "<string>")
         user_frame = next((f for f in reversed(tb) if f.filename == "<string>"), None)
         error_lineno = user_frame.lineno if user_frame else (tb[-1].lineno if tb else None)
-        _real_stdout.write(json.dumps({"error": f"{type(e).__name__}: {e}", "lineno": error_lineno}) + "\n")
+        _emit_error(f"{type(e).__name__}: {e}", lineno=error_lineno)
         sys.exit(1)
 
 
