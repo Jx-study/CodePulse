@@ -19,7 +19,7 @@ _CELERY_STATE_MAP = {
     "SUCCESS": "completed",
     "FAILURE": "failed",
     "REVOKED": "failed",
-    "INPUT_NEEDED": "input_needed",  # run_analysis_task 在 InputNeededSignal 時設的自訂 state
+    "INPUT_NEEDED": "input_needed",  # [LEGACY] run_analysis_task 在 LegacyInputNeededSignal 時設的自訂 state
 }
 
 
@@ -67,6 +67,7 @@ class CeleryTaskQueue:
         async_result = run_analysis_task.apply_async(
             args=args,
             kwargs={"user_id": user_id, "save_history": save_history, **kwargs},
+            queue="interactive",
         )
         if user_id is not None:
             try:
@@ -91,6 +92,27 @@ class CeleryTaskQueue:
             channel,
             json.dumps({"stage": stage, "message": message, "status": "running"}),
         )
+
+    def publish_event(self, task_id: str, event: dict) -> None:
+        channel = f"task:{task_id}:events"
+        self._redis.publish(channel, json.dumps(event))
+
+    def submit_input(self, task_id: str, value: str) -> None:
+        key = f"analyze:input:{task_id}"
+        self._redis.rpush(key, value)
+        self._redis.expire(key, PROGRESS_TTL)
+
+    def cancel_task(self, task_id: str) -> None:
+        key = f"analyze:input:{task_id}"
+        self._redis.rpush(key, "__CODEPULSE_CANCEL__")
+        self._redis.expire(key, PROGRESS_TTL)
+
+    def mark_waiting_for_input(self, task_id: str, session_id: str) -> None:
+        key = f"analyze:session:{task_id}"
+        self._redis.setex(key, PROGRESS_TTL, session_id)
+
+    def is_waiting_for_input(self, task_id: str) -> bool:
+        return bool(self._redis.exists(f"analyze:session:{task_id}"))
 
     def stream_progress(self, task_id: str):
         """Generator: yields progress dicts until task completes, fails, or times out."""
@@ -135,6 +157,9 @@ class CeleryTaskQueue:
                 if msg["type"] != "message":
                     continue
                 event = json.loads(msg["data"])
+                if event.get("status") == "input_needed":
+                    yield event
+                    continue
                 if event.get("stage") == STAGE_DONE:
                     ar4 = AsyncResult(task_id, app=celery_app)
                     terminal = _check_terminal(ar4)

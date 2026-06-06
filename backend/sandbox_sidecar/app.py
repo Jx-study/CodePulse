@@ -13,8 +13,12 @@ sandbox_sidecar/app.py — Sandbox Sidecar
 import base64
 import json
 import os
+import queue
 import subprocess
 import threading
+import time
+import uuid
+from dataclasses import dataclass, field
 from flask import Flask, request, jsonify
 
 from container_pool import (
@@ -33,6 +37,26 @@ MAX_REUSE = int(os.environ.get("MAX_REUSE", "50"))
 
 _pool: ContainerPool | None = None
 _pool_lock = threading.Lock()
+EVENT_PREFIX = "__CODEPULSE_EVENT__"
+
+
+@dataclass
+class SandboxSession:
+    id: str
+    process: subprocess.Popen
+    container: object
+    pool: ContainerPool
+    events: queue.Queue = field(default_factory=queue.Queue)
+    stderr_lines: list[str] = field(default_factory=list)
+    started_at: float = field(default_factory=time.monotonic)
+    last_active_at: float = field(default_factory=time.monotonic)
+    input_count: int = 0
+    closed: bool = False
+    lock: threading.Lock = field(default_factory=threading.Lock)
+
+
+_sessions: dict[str, SandboxSession] = {}
+_sessions_lock = threading.Lock()
 
 
 def _get_pool() -> ContainerPool:
@@ -60,6 +84,114 @@ def _error_response(message: str, *, status: int = 200, lineno: int | None = Non
     if lineno is not None:
         body["lineno"] = lineno
     return jsonify(body), status
+
+
+def _reader_stdout(session: SandboxSession) -> None:
+    for raw_line in iter(session.process.stdout.readline, ""):
+        line = raw_line.rstrip("\n")
+        if not line:
+            continue
+        if line.startswith(EVENT_PREFIX):
+            try:
+                event = json.loads(line[len(EVENT_PREFIX):])
+            except json.JSONDecodeError:
+                session.events.put({"type": "error", "message": f"invalid protocol event: {line[:120]}"})
+                continue
+            session.events.put(event)
+        else:
+            session.events.put({"type": "stdout", "text": line})
+
+
+def _reader_stderr(session: SandboxSession) -> None:
+    for raw_line in iter(session.process.stderr.readline, ""):
+        line = raw_line.rstrip("\n")
+        if line:
+            session.stderr_lines.append(line)
+            if len(session.stderr_lines) > 200:
+                session.stderr_lines = session.stderr_lines[-200:]
+
+
+def _start_readers(session: SandboxSession) -> None:
+    threading.Thread(target=_reader_stdout, args=(session,), daemon=True).start()
+    threading.Thread(target=_reader_stderr, args=(session,), daemon=True).start()
+
+
+def _store_session(session: SandboxSession) -> None:
+    with _sessions_lock:
+        _sessions[session.id] = session
+
+
+def _pop_session(session_id: str) -> SandboxSession | None:
+    with _sessions_lock:
+        return _sessions.pop(session_id, None)
+
+
+def _get_session(session_id: str) -> SandboxSession | None:
+    with _sessions_lock:
+        return _sessions.get(session_id)
+
+
+def _finish_session(session: SandboxSession, *, recycle: bool) -> None:
+    with session.lock:
+        if session.closed:
+            return
+        session.closed = True
+    _pop_session(session.id)
+    if session.process.poll() is None:
+        try:
+            session.process.kill()
+        except Exception:
+            pass
+    if recycle:
+        session.pool.mark_destroyed(session.container)
+    else:
+        session.pool.release(session.container)
+
+
+def _wait_for_control_event(session: SandboxSession, timeout: float):
+    deadline = time.monotonic() + timeout
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return {"type": "error", "message": "timeout"}
+        try:
+            event = session.events.get(timeout=min(remaining, 0.5))
+        except queue.Empty:
+            if session.process.poll() is not None:
+                stderr = "\n".join(session.stderr_lines).strip()
+                return {"type": "error", "message": stderr or "runner exited without result"}
+            continue
+
+        event_type = event.get("type")
+        if event_type in {"input_needed", "result", "error"}:
+            session.last_active_at = time.monotonic()
+            return event
+
+
+def _event_to_response(session: SandboxSession, event: dict):
+    event_type = event.get("type")
+    if event_type == "input_needed":
+        session.input_count += 1
+        _store_session(session)
+        return jsonify({
+            "status": "input_needed",
+            "session_id": session.id,
+            "prompt": event.get("prompt", ""),
+            "input_index": event.get("input_index", session.input_count - 1),
+        })
+    if event_type == "result":
+        result = event.get("payload", {})
+        _finish_session(session, recycle=session.input_count > 0)
+        if session.input_count > 0:
+            return jsonify({"status": "completed", "result": result})
+        return jsonify(result)
+
+    message = event.get("message", "sandbox error")
+    should_recycle = session.input_count > 0 or message == "timeout"
+    _finish_session(session, recycle=should_recycle)
+    if session.input_count > 0:
+        return jsonify({"status": "failed", "error": message})
+    return _error_response(message)
 
 
 @app.route("/run", methods=["POST"])
@@ -92,59 +224,75 @@ def run():
             status=503,
         )
 
-    released = False
     try:
-        try:
-            proc = subprocess.run(
-                [
-                    "docker", "exec",
-                    "-e", f"CODE={encoded}",
-                    "-e", f"STDIN_INPUTS={stdin_encoded}",
-                    container.id,
-                    "python", "/sandbox/runner.py",
-                ],
-                capture_output=True, text=True,
-                timeout=effective_timeout,
-            )
-        except subprocess.TimeoutExpired:
-            pool.mark_destroyed(container)
-            released = True
-            return jsonify({
-                "error": "timeout",
-                "is_truncated": True,
-                "trace": [],
-                "call_graph": None,
-                "cfg_graph": {},
-            })
-        except FileNotFoundError as e:
-            pool.release(container)
-            released = True
-            return _error_response(f"docker not found: {e}")
+        proc = subprocess.Popen(
+            [
+                "docker", "exec", "-i",
+                "-e", f"CODE={encoded}",
+                "-e", f"STDIN_INPUTS={stdin_encoded}",
+                "-e", "CODEPULSE_INTERACTIVE=1",
+                container.id,
+                "python", "/sandbox/runner.py",
+            ],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,
+        )
+    except FileNotFoundError as e:
+        pool.release(container)
+        return _error_response(f"docker not found: {e}")
 
-        if proc.returncode != 0:
-            stderr = (proc.stderr or "").strip()
-            if "no such container" in stderr.lower() or "is not running" in stderr.lower():
-                pool.mark_destroyed(container)
-                released = True
-                return _error_response(f"container died: {stderr}")
+    session = SandboxSession(
+        id=uuid.uuid4().hex,
+        process=proc,
+        container=container,
+        pool=pool,
+    )
+    _start_readers(session)
+    event = _wait_for_control_event(session, effective_timeout)
+    return _event_to_response(session, event)
 
-            try:
-                payload = json.loads(proc.stdout)
-                if "error" in payload:
-                    return _error_response(payload["error"], lineno=payload.get("lineno"))
-            except (json.JSONDecodeError, ValueError):
-                pass
-            return _error_response(f"container exited with code {proc.returncode}: {stderr}")
 
-        try:
-            result = json.loads(proc.stdout)
-        except json.JSONDecodeError:
-            return _error_response(f"invalid JSON from container: {proc.stdout[:200]}")
+@app.route("/input/<session_id>", methods=["POST"])
+def post_input(session_id: str):
+    session = _get_session(session_id)
+    if session is None or session.closed:
+        return jsonify({"status": "failed", "error": "session not found"}), 404
 
-        return jsonify(result)
-    finally:
-        if not released:
-            pool.release(container)
+    data = request.get_json(silent=True) or {}
+    value = data.get("value")
+    if not isinstance(value, str):
+        return jsonify({"status": "failed", "error": "value must be a string"}), 400
+
+    try:
+        session.process.stdin.write(value + "\n")
+        session.process.stdin.flush()
+    except Exception as e:
+        _finish_session(session, recycle=True)
+        return jsonify({"status": "failed", "error": f"failed to send input: {e}"}), 500
+
+    event = _wait_for_control_event(session, CONTAINER_TIMEOUT)
+    return _event_to_response(session, event)
+
+
+@app.route("/session/<session_id>/alive", methods=["GET"])
+def session_alive(session_id: str):
+    session = _get_session(session_id)
+    if session is None or session.closed:
+        return jsonify({"status": "failed", "alive": False, "error": "session not found"}), 404
+    alive = session.process.poll() is None
+    status = "alive" if alive else "failed"
+    return jsonify({"status": status, "alive": alive})
+
+
+@app.route("/session/<session_id>/close", methods=["POST", "DELETE"])
+def close_session(session_id: str):
+    session = _get_session(session_id)
+    if session is not None:
+        _finish_session(session, recycle=True)
+    return jsonify({"status": "closed"})
 
 
 if __name__ == "__main__":

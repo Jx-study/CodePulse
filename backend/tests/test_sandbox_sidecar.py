@@ -11,6 +11,7 @@ import json
 import sys
 import os
 import subprocess
+import io
 
 import pytest
 from unittest.mock import patch, MagicMock
@@ -30,6 +31,8 @@ VALID_STDOUT = json.dumps({
     "step_count": 0,
 })
 
+EVENT_PREFIX = "__CODEPULSE_EVENT__"
+
 
 def _make_completed_proc(stdout=VALID_STDOUT, returncode=0, stderr=""):
     proc = MagicMock()
@@ -39,10 +42,38 @@ def _make_completed_proc(stdout=VALID_STDOUT, returncode=0, stderr=""):
     return proc
 
 
+def _make_result_popen(payload=None):
+    return FakePopen([
+        {"type": "result", "payload": payload if payload is not None else json.loads(VALID_STDOUT)}
+    ])
+
+
 def _make_container(container_id="test-container-abc"):
     container = MagicMock()
     container.id = container_id
     return container
+
+
+class FakePopen:
+    def __init__(self, stdout_lines: list[dict]):
+        self.stdout = io.StringIO(
+            "".join(EVENT_PREFIX + json.dumps(line) + "\n" for line in stdout_lines)
+        )
+        self.stderr = io.StringIO("")
+        self.stdin = io.StringIO()
+        self.returncode = None
+        self.killed = False
+
+    def poll(self):
+        return self.returncode
+
+    def wait(self, timeout=None):
+        self.returncode = 0
+        return 0
+
+    def kill(self):
+        self.killed = True
+        self.returncode = -9
 
 
 @pytest.fixture
@@ -67,15 +98,15 @@ class TestRunEndpointBasics:
         assert resp.status_code == 400
 
     def test_success_returns_sandbox_result(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()):
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()):
             resp = client.post("/run", json={"code": SIMPLE_CODE})
         assert resp.status_code == 200
         assert "trace" in resp.get_json()
 
     def test_passes_code_as_base64_env_var(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()) as mock_popen:
             client.post("/run", json={"code": SIMPLE_CODE})
-        cmd = mock_run.call_args.args[0]
+        cmd = mock_popen.call_args.args[0]
         env_idx = cmd.index("-e")
         env_val = cmd[env_idx + 1]
         assert env_val.startswith("CODE=")
@@ -84,11 +115,12 @@ class TestRunEndpointBasics:
 
     def test_docker_exec_command_format(self, client):
         container_id = "test-container-abc"
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()) as mock_popen:
             client.post("/run", json={"code": SIMPLE_CODE})
-        cmd = mock_run.call_args.args[0]
+        cmd = mock_popen.call_args.args[0]
         assert cmd[0] == "docker"
         assert cmd[1] == "exec"
+        assert "-i" in cmd
         assert "-e" in cmd
         assert container_id in cmd
         assert "python" in cmd
@@ -100,9 +132,9 @@ class TestRunEndpointNInjection:
 
     def test_n_appends_explore_wrapper_call(self, client):
         """n 不為 None 時，code 末尾應追加 explore_wrapper(n)"""
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()) as mock_popen:
             client.post("/run", json={"code": SIMPLE_CODE, "n": 100})
-        cmd = mock_run.call_args.args[0]
+        cmd = mock_popen.call_args.args[0]
         env_idx = cmd.index("-e")
         env_val = cmd[env_idx + 1]
         decoded = base64.b64decode(env_val[len("CODE="):]).decode()
@@ -110,42 +142,86 @@ class TestRunEndpointNInjection:
         assert SIMPLE_CODE in decoded
 
     def test_n_none_does_not_modify_code(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()) as mock_popen:
             client.post("/run", json={"code": SIMPLE_CODE, "n": None})
-        cmd = mock_run.call_args.args[0]
+        cmd = mock_popen.call_args.args[0]
         env_idx = cmd.index("-e")
         env_val = cmd[env_idx + 1]
         decoded = base64.b64decode(env_val[len("CODE="):]).decode()
         assert decoded == SIMPLE_CODE
 
     def test_per_n_timeout_overrides_default(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
-            client.post("/run", json={"code": SIMPLE_CODE, "n": 10, "per_n_timeout": 3})
-        assert mock_run.call_args.kwargs["timeout"] == 3
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()):
+            with patch("sandbox_sidecar.app._wait_for_control_event", return_value={"type": "result", "payload": json.loads(VALID_STDOUT)}) as mock_wait:
+                client.post("/run", json={"code": SIMPLE_CODE, "n": 10, "per_n_timeout": 3})
+        assert mock_wait.call_args.args[1] == 3
 
     def test_default_timeout_when_per_n_timeout_omitted(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc()) as mock_run:
-            client.post("/run", json={"code": SIMPLE_CODE})
-        assert mock_run.call_args.kwargs["timeout"] == CONTAINER_TIMEOUT
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()):
+            with patch("sandbox_sidecar.app._wait_for_control_event", return_value={"type": "result", "payload": json.loads(VALID_STDOUT)}) as mock_wait:
+                client.post("/run", json={"code": SIMPLE_CODE})
+        assert mock_wait.call_args.args[1] == CONTAINER_TIMEOUT
 
 
 class TestRunEndpointErrors:
     def test_timeout_returns_error_payload(self, client, mock_pool):
-        with patch("sandbox_sidecar.app.subprocess.run", side_effect=subprocess.TimeoutExpired(cmd="docker", timeout=10)):
-            resp = client.post("/run", json={"code": SIMPLE_CODE})
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=_make_result_popen()):
+            with patch("sandbox_sidecar.app._wait_for_control_event", return_value={"type": "error", "message": "timeout"}):
+                resp = client.post("/run", json={"code": SIMPLE_CODE})
         body = resp.get_json()
         assert body["error"] == "timeout"
-        assert body["is_truncated"] is True
         mock_pool.mark_destroyed.assert_called_once()
 
     def test_nonzero_returncode_returns_error(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc(stdout="", returncode=1, stderr="boom")):
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=FakePopen([
+            {"type": "error", "message": "boom"},
+        ])):
             resp = client.post("/run", json={"code": SIMPLE_CODE})
         body = resp.get_json()
         assert "error" in body
 
     def test_invalid_json_returns_error(self, client):
-        with patch("sandbox_sidecar.app.subprocess.run", return_value=_make_completed_proc(stdout="not-json")):
+        fake_proc = FakePopen([])
+        fake_proc.stdout = io.StringIO("not-json\n")
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=fake_proc):
             resp = client.post("/run", json={"code": SIMPLE_CODE})
         body = resp.get_json()
         assert "error" in body
+
+
+class TestInteractiveSessions:
+    def test_run_returns_input_needed_session_without_releasing_container(self, client, mock_pool):
+        fake_proc = FakePopen([
+            {"type": "input_needed", "prompt": "Name: ", "input_index": 0},
+        ])
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=fake_proc):
+            resp = client.post("/run", json={"code": 'name = input("Name: ")'})
+
+        body = resp.get_json()
+        assert body["status"] == "input_needed"
+        assert body["prompt"] == "Name: "
+        assert body["input_index"] == 0
+        assert body["session_id"]
+        mock_pool.release.assert_not_called()
+
+    def test_post_input_resumes_existing_session_and_returns_completed(self, client):
+        fake_proc = FakePopen([
+            {"type": "input_needed", "prompt": "Name: ", "input_index": 0},
+            {"type": "result", "payload": {"trace": [], "stdout_events": [{"text": "Name: Ada"}]}},
+        ])
+        with patch("sandbox_sidecar.app.subprocess.Popen", return_value=fake_proc):
+            run_resp = client.post("/run", json={"code": 'name = input("Name: ")'})
+        session_id = run_resp.get_json()["session_id"]
+
+        input_resp = client.post(f"/input/{session_id}", json={"value": "Ada"})
+
+        assert fake_proc.stdin.getvalue() == "Ada\n"
+        body = input_resp.get_json()
+        assert body["status"] == "completed"
+        assert body["result"]["stdout_events"] == [{"text": "Name: Ada"}]
+
+    def test_post_input_missing_session_returns_failure(self, client):
+        resp = client.post("/input/missing-session", json={"value": "Ada"})
+
+        assert resp.status_code == 404
+        assert resp.get_json()["status"] == "failed"

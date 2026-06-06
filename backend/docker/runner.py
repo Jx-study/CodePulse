@@ -14,8 +14,17 @@ import json
 import os
 import sys
 import traceback as _traceback
-from tracer import run_trace, InputNeededError
+from tracer import run_trace, LegacyInputNeededError
 from cfg_builder import build_cfg, build_module_cfg
+
+EVENT_PREFIX = "__CODEPULSE_EVENT__"
+
+
+def emit_event(event_type: str, **payload):
+    sys.__stdout__.write(
+        EVENT_PREFIX + json.dumps({"type": event_type, **payload}) + "\n"
+    )
+    sys.__stdout__.flush()
 
 
 def main():
@@ -53,11 +62,26 @@ def main():
             _real_stdout.write(json.dumps({"error": "empty code: no executable statements found"}) + "\n")
             sys.exit(1)
 
+        def _live_input(prompt: str, input_index: int, _stdout_events: list[dict]) -> str:
+            emit_event("input_needed", prompt=prompt, input_index=input_index)
+            line = sys.__stdin__.readline()
+            if line == "":
+                raise EOFError("stdin closed while waiting for input")
+            return line.rstrip("\n")
+
+        interactive_enabled = os.environ.get("CODEPULSE_INTERACTIVE") == "1"
+
         try:
-            trace_result = run_trace(code, stdin_inputs=stdin_inputs)
-        except InputNeededError as e:
-            # 結構化控制流訊號，不是 error。寫到 _real_stdout 而非 print
-            # exit 0 因為這不是 failure，是「需要更多輸入」的暫停
+            trace_result = run_trace(
+                code,
+                stdin_inputs=stdin_inputs,
+                input_provider=_live_input if interactive_enabled and not stdin_inputs else None,
+            )
+        except LegacyInputNeededError as e:
+            # [LEGACY — re-submit fallback only] 結構化控制流訊號，不是 error。
+            # 寫到 _real_stdout 而非 print。exit 0 因為這不是 failure，是「需要更多輸入」
+            # 的暫停；前端會 append 輸入後重送整段 code。live session 模式走 _live_input，
+            # 不會走到這裡。
             _real_stdout.write(json.dumps({
                 "error": "input_needed",
                 "prompt": e.prompt,
@@ -115,7 +139,10 @@ def main():
             "stdout_events": trace_result.stdout_events,
         }
 
-        _real_stdout.write(json.dumps(output) + "\n")
+        if interactive_enabled:
+            emit_event("result", payload=output)
+        else:
+            _real_stdout.write(json.dumps(output) + "\n")
 
     except Exception as e:
         tb = _traceback.extract_tb(e.__traceback__)

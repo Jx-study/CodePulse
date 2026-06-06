@@ -10,17 +10,23 @@ tracer.py — sys.settrace PoC
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from services.cfg_builder import CfgGraph
 
 
-class InputNeededError(Exception):
-    """使用者程式碼呼叫 input() 但 stdin_inputs queue 已用罄時拋出。
+class LegacyInputNeededError(Exception):
+    """[LEGACY — runner exit / re-submit fallback only]
 
-    攜帶 prompt 與該次 input 呼叫的索引（0-based），讓前端能渲染有標籤的
-    輸入彈窗，並透過把使用者輸入值 append 到 stdin_inputs 後重新送出來恢復執行。
+    使用者程式碼呼叫 input() 但 stdin_inputs queue 已用罄時拋出。
+
+    這是舊的 re-submit 暫停路徑：runner 直接退出，前端把使用者輸入值 append 到
+    stdin_inputs 後重新送出整段 code 來恢復執行。與 live session（input_provider）
+    模式互斥——有 input_provider 時永遠不會走到這裡。
+
+    攜帶 prompt 與該次 input 呼叫的索引（0-based），讓前端能渲染有標籤的輸入彈窗。
     """
     def __init__(
         self,
@@ -104,7 +110,14 @@ class TraceResult:
 # 核心 tracer
 # ---------------------------------------------------------------------------
 
-def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceResult:
+InputProvider = Callable[[str, int, list[dict]], str]
+
+
+def run_trace(
+    user_code: str,
+    stdin_inputs: list[str] | None = None,
+    input_provider: InputProvider | None = None,
+) -> TraceResult:
     """
     執行 user_code，收集 TraceEvent[] 並建構 CallGraph。
     執行緒安全：所有狀態以閉包封裝。
@@ -128,10 +141,16 @@ def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceRes
     def _traced_input(prompt=""):
         prompt_str = str(prompt) if prompt else ""
         if not _stdin_queue:
+            if input_provider is not None:
+                value = input_provider(prompt_str, _input_call_count[0], stdout_events)
+                _input_call_count[0] += 1
+                stdout_events.append({"step": len(trace_log), "text": prompt_str + value})
+                return value
+
             # queue 用罄才彈窗，此時還沒拿到輸入值，先只記 prompt（若有）
             if prompt_str:
                 stdout_events.append({"step": len(trace_log), "text": prompt_str})
-            raise InputNeededError(
+            raise LegacyInputNeededError(
                 prompt=prompt_str,
                 input_index=_input_call_count[0],
                 stdout_events=stdout_events,
@@ -266,7 +285,7 @@ def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceRes
     sys.settrace(tracer)
     try:
         exec(user_code, sandboxed_globals)  # noqa: S102
-    except InputNeededError:
+    except LegacyInputNeededError:
         raise  # 由 runner 層 catch 並轉為結構化 JSON 輸出，不要被泛用 except 吃掉
     finally:
         sys.settrace(None)
@@ -278,4 +297,3 @@ def run_trace(user_code: str, stdin_inputs: list[str] | None = None) -> TraceRes
         step_count=len(trace_log),
         stdout_events=stdout_events,
     )
-

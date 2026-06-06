@@ -1,12 +1,20 @@
 import logging
 import ast as _ast
 import concurrent.futures as _cf
+import os
+import time
+import redis as redis_lib
 from database import db
 from models.explorer import ExploreHistory, AnalysisSource
 
 from celery.exceptions import Ignore
 from celery_app import celery_app
-from services.sandbox import run_in_sandbox
+from services.sandbox import (
+    check_session_alive,
+    close_session,
+    run_in_sandbox,
+    send_input,
+)
 from services.ast_complexity import analyze_complexity
 from services.complexity_analyzer import measure_step_counts, generate_bigo_wrapper
 from services.tracer import TraceEvent
@@ -26,12 +34,21 @@ from services.task_queue import (
 
 logger = logging.getLogger(__name__)
 
+INPUT_WAIT_TIMEOUT_SECONDS = 120
+INPUT_HEARTBEAT_SECONDS = 10
+CANCEL_INPUT_VALUE = "__CODEPULSE_CANCEL__"
 
-class InputNeededSignal(Exception):
-    """哨兵例外：把 input_needed 從 worker function 往上拋給 task queue。
 
-    這不是錯誤，而是「等待使用者輸入」的暫停點。
+class LegacyInputNeededSignal(Exception):
+    """[LEGACY — runner exit / re-submit fallback only]
+
+    哨兵例外：把舊 re-submit 模式的 input_needed 從 worker function 往上拋給 task queue。
+
+    這不是錯誤，而是「runner 已退出、等待前端 append stdin 後重送」的暫停點。
     task queue 必須接住它並把狀態設為 STATUS_INPUT_NEEDED（不是 FAILED/COMPLETED）。
+
+    live session 模式不走這條路：_resolve_interactive_sandbox 同步阻塞在 BLPOP，
+    Celery state 仍是 running，靠 analyze:session:{task_id} marker 表示等待中。
     """
     def __init__(
         self,
@@ -43,6 +60,96 @@ class InputNeededSignal(Exception):
         self.prompt = prompt
         self.input_index = input_index
         self.stdout_events = list(stdout_events or [])
+
+
+class InteractiveInputTimeout(RuntimeError):
+    pass
+
+
+class InteractiveInputCancelled(RuntimeError):
+    pass
+
+
+def _redis_client():
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    return redis_lib.from_url(redis_url, decode_responses=True)
+
+
+def _input_key(task_id: str) -> str:
+    return f"analyze:input:{task_id}"
+
+
+def _wait_for_user_input(task_id: str, session_id: str) -> str:
+    # live interactive input 僅 Celery 模式支援：此函式用 Redis BLPOP 等使用者輸入值
+    # 由 /api/analyze/input 經 CeleryTaskQueue.submit_input() rpush 進 analyze:input:{task_id}
+    # in-memory queue（USE_CELERY=0）沒有對應的 Redis push，不支援 live input（見 task_queue_memory.submit_input 註解）
+    # server 一律 USE_CELERY=1
+    client = _redis_client()
+    key = _input_key(task_id)
+    deadline = time.monotonic() + INPUT_WAIT_TIMEOUT_SECONDS
+    client.expire(key, INPUT_WAIT_TIMEOUT_SECONDS + 30)
+
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise InteractiveInputTimeout("input timeout")
+
+        timeout = min(INPUT_HEARTBEAT_SECONDS, max(1, int(remaining)))
+        item = client.blpop(key, timeout=timeout)
+        if item is not None:
+            _, value = item
+            if value == CANCEL_INPUT_VALUE:
+                raise InteractiveInputCancelled("cancelled")
+            return value
+
+        if not check_session_alive(session_id):
+            raise RuntimeError("sandbox session lost")
+
+
+def _cleanup_interactive_session(task_id: str, session_id: str | None) -> None:
+    if session_id:
+        try:
+            close_session(session_id)
+        except Exception:
+            logger.warning("failed to close sandbox session %s", session_id, exc_info=True)
+    try:
+        client = _redis_client()
+        client.delete(_input_key(task_id), f"analyze:session:{task_id}", f"analyze:status:{task_id}")
+    except Exception:
+        logger.warning("failed to cleanup interactive redis keys for %s", task_id, exc_info=True)
+
+
+def _resolve_interactive_sandbox(task_id: str, sandbox_result: dict) -> dict:
+    session_id = sandbox_result.get("session_id")
+    if not session_id:
+        raise RuntimeError("input_needed response missing session_id")
+
+    try:
+        while sandbox_result.get("status") == "input_needed":
+            task_queue.mark_waiting_for_input(task_id, session_id)
+            task_queue.publish_event(task_id, {
+                "stage": STAGE_DONE,
+                "status": "input_needed",
+                "type": "input_needed",
+                "task_id": task_id,
+                "prompt": sandbox_result.get("prompt", ""),
+                "input_index": sandbox_result.get("input_index", 0),
+            })
+            try:
+                value = _wait_for_user_input(task_id, session_id)
+            except InteractiveInputTimeout:
+                return {"error": "timeout", "is_truncated": True, "trace": [], "call_graph": None, "cfg_graph": {}}
+            except InteractiveInputCancelled:
+                return {"error": "cancelled", "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
+            sandbox_result = send_input(session_id, value)
+
+        if sandbox_result.get("status") == "completed":
+            return sandbox_result.get("result", {})
+        if sandbox_result.get("status") == "failed":
+            raise RuntimeError(sandbox_result.get("error", "sandbox failed"))
+        return sandbox_result
+    finally:
+        _cleanup_interactive_session(task_id, session_id)
 
 
 EXPECTED_STRUCTURE: dict[str, str] = {
@@ -176,8 +283,8 @@ def run_analysis_task(
                 save_history=save_history,
                 stdin_inputs=stdin_inputs,
             )
-        except InputNeededSignal as sig:
-            # input_needed 用自訂 state，不讓 Celery 標記成 SUCCESS/FAILURE。
+        except LegacyInputNeededSignal as sig:
+            # [LEGACY] input_needed 用自訂 state，不讓 Celery 標記成 SUCCESS/FAILURE。
             self.update_state(
                 state="INPUT_NEEDED",
                 meta={
@@ -201,10 +308,15 @@ def _run_analysis(
     task_queue.update_progress(task_id, STAGE_SANDBOX, "正在模擬執行並計算複雜度…")
     sandbox_result = run_in_sandbox(wrapped_code, stdin_inputs=stdin_inputs or [])
 
-    # input_needed short-circuit (D10): 必須在進入 big-O / Gemini / AST 並行分析之前 raise，
-    # 否則含 input() 的 code 會在 big-O 測量時重跑 5 次 sandbox，浪費資源 + 污染 log。
+    if sandbox_result.get("status") == "input_needed":
+        sandbox_result = _resolve_interactive_sandbox(task_id, sandbox_result)
+
+    # [LEGACY — re-submit fallback only] input_needed short-circuit (D10)：
+    # runner JSON 帶 error == "input_needed"（runner 已退出）時必須在進入 big-O / Gemini /
+    # AST 並行分析之前 raise，否則含 input() 的 code 會在 big-O 測量時重跑 5 次 sandbox，
+    # 浪費資源 + 污染 log。live session 模式在上面 _resolve_interactive_sandbox 已處理完。
     if sandbox_result.get("error") == "input_needed":
-        raise InputNeededSignal(
+        raise LegacyInputNeededSignal(
             prompt=sandbox_result["prompt"],
             input_index=sandbox_result["input_index"],
             stdout_events=sandbox_result.get("stdout_events", []),

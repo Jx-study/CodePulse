@@ -89,6 +89,35 @@ class TaskQueue:
         if q is not None:
             q.put({"stage": stage, "message": message, "status": "running"})
 
+    def publish_event(self, task_id: str, event: dict) -> None:
+        with self._lock:
+            q = self._queues.get(task_id)
+        if q is not None:
+            q.put(event)
+
+    def submit_input(self, task_id: str, value: str) -> None:
+        # ⚠️ live interactive input 僅 Celery 模式（USE_CELERY=1）支援。
+        # _wait_for_user_input() 用 Redis BLPOP 等值；in-memory 模式沒有那條 Redis
+        # 通道，這裡只 publish 本地 SSE 事件，分析執行緒收不到，會卡到 input timeout。
+        # 部署上 server 一律 USE_CELERY=1，in-memory 僅供測試 / 本地非互動開發。
+        self.publish_event(task_id, {"status": "input_submitted", "value": value})
+
+    def cancel_task(self, task_id: str) -> None:
+        self.publish_event(task_id, {"status": "cancelled"})
+
+    def mark_waiting_for_input(self, task_id: str, session_id: str) -> None:
+        # ⚠️ 見 submit_input：live session 等待靠 Redis，in-memory 不支援 live input。
+        # 此 marker 僅為與 Celery 介面對齊；in-memory 模式不會真正走完 live 等待迴圈。
+        with self._lock:
+            task = self._tasks.get(task_id)
+            if task is not None:
+                task["input_session_id"] = session_id
+
+    def is_waiting_for_input(self, task_id: str) -> bool:
+        with self._lock:
+            task = self._tasks.get(task_id)
+        return task is not None and bool(task.get("input_session_id"))
+
     def stream_progress(self, task_id: str):
         """Generator: yields progress dicts until task completes or fails."""
         with self._lock:
@@ -128,7 +157,7 @@ class TaskQueue:
 
     def _run(self, task_id: str, fn, args: tuple, kwargs: dict) -> None:
         from app import app as flask_app
-        from services.analysis_runner import InputNeededSignal  # lazy — 避免循環 import
+        from services.analysis_runner import LegacyInputNeededSignal  # lazy — 避免循環 import
         with self._lock:
             if task_id in self._tasks:
                 self._tasks[task_id]["status"] = STATUS_RUNNING
@@ -143,8 +172,8 @@ class TaskQueue:
                 q = self._queues.pop(task_id, None)
             if q is not None:
                 q.put({"stage": STAGE_DONE, "status": "completed"})
-        except InputNeededSignal as sig:
-            # input_needed 是 terminal-but-not-completed 狀態，不能進 FAILED/COMPLETED 分支。
+        except LegacyInputNeededSignal as sig:
+            # [LEGACY] input_needed 是 terminal-but-not-completed 狀態，不能進 FAILED/COMPLETED 分支。
             with self._lock:
                 if task_id in self._tasks:
                     self._tasks[task_id]["status"] = STATUS_INPUT_NEEDED

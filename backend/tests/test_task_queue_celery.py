@@ -1,4 +1,5 @@
 import os
+import json
 os.environ["USE_CELERY"] = "1"
 os.environ["CELERY_TASK_ALWAYS_EAGER"] = "1"
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
@@ -23,6 +24,7 @@ def test_submit_returns_task_id():
     mock_task.apply_async.assert_called_once_with(
         args=("code", "wrapped"),
         kwargs={"user_id": None, "save_history": True},
+        queue="interactive",
     )
 
 
@@ -37,6 +39,7 @@ def test_submit_forwards_save_history_false_as_task_kwarg():
     mock_task.apply_async.assert_called_once_with(
         args=("code", "wrapped"),
         kwargs={"user_id": 7, "save_history": False},
+        queue="interactive",
     )
 
 
@@ -152,6 +155,49 @@ def test_stream_progress_times_out_when_task_stays_pending(monkeypatch):
     assert events == [{"stage": "done", "status": "failed", "error": "task stream timed out"}]
     fake_pubsub.unsubscribe.assert_called_once()
     fake_pubsub.close.assert_called_once()
+
+
+def test_stream_progress_keeps_sse_open_after_input_needed():
+    q = make_queue()
+    fake_pubsub = MagicMock()
+    fake_pubsub.get_message.side_effect = [
+        {"type": "subscribe"},
+        {
+            "type": "message",
+            "data": json.dumps({
+                "stage": "done",
+                "status": "input_needed",
+                "prompt": "Name: ",
+                "input_index": 0,
+            }),
+        },
+        {
+            "type": "message",
+            "data": json.dumps({"stage": "done", "status": "running"}),
+        },
+    ]
+
+    pending = MagicMock()
+    pending.state = "PENDING"
+    pending.info = None
+    success = MagicMock()
+    success.state = "SUCCESS"
+    success.result = {"ok": True}
+
+    with patch("services.task_queue_celery.AsyncResult", side_effect=[pending, pending, success]), \
+         patch.object(q._redis, "hgetall", return_value={}), \
+         patch.object(q._redis, "pubsub", return_value=fake_pubsub):
+        events = list(q.stream_progress("task-1"))
+
+    assert events == [
+        {
+            "stage": "done",
+            "status": "input_needed",
+            "prompt": "Name: ",
+            "input_index": 0,
+        },
+        {"stage": "done", "status": "completed", "error": None},
+    ]
 
 
 # ---------------------------------------------------------------------------

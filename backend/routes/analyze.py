@@ -78,8 +78,12 @@ def submit():
     return jsonify({"task_id": task_id}), 202
 
 @analyze_bp.route('/status/<task_id>', methods=['GET'])
+@login_required
 def status(task_id: str):
     """輪詢任務狀態（前端每 2 秒呼叫）"""
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+
     task_status = task_queue.get_status(task_id)
     if task_status is None:
         return jsonify({"error": "task not found"}), 404
@@ -125,3 +129,37 @@ def result(task_id: str):
         return jsonify({"status": task["status"], "message": "task not completed yet"}), 200
 
     return jsonify(task["result"]), 200
+
+
+@analyze_bp.route('/input/<task_id>', methods=['POST'])
+@login_required
+def submit_input(task_id: str):
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    value = data.get("value")
+    if not isinstance(value, str):
+        return jsonify({"error": "value must be a string"}), 400
+
+    # STATUS_INPUT_NEEDED 是任務狀態層面的「需要輸入」，但不保證背後還有活著的 sidecar
+    # session 在 BLPOP 等值。live-Popen 模式下 _resolve_interactive_sandbox 同步阻塞，
+    # Celery state 仍是 running，唯有 is_waiting_for_input（session marker）能證明「真的有
+    # live session 正在等輸入」。舊 re-submit 暫停狀態沒有 marker，不該被 /input 餵值。
+    task = task_queue.get_task(task_id)
+    if task is None or task["status"] in (STATUS_COMPLETED, STATUS_FAILED):
+        return jsonify({"error": "task is not waiting for input"}), 409
+    if not task_queue.is_waiting_for_input(task_id):
+        return jsonify({"error": "task is not waiting for input"}), 409
+
+    task_queue.submit_input(task_id, value)
+    return jsonify({"status": "accepted"}), 202
+
+
+@analyze_bp.route('/cancel/<task_id>', methods=['POST'])
+@login_required
+def cancel(task_id: str):
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+    task_queue.cancel_task(task_id)
+    return jsonify({"status": "accepted"}), 202

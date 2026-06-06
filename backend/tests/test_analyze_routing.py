@@ -424,6 +424,32 @@ class TestHistoryQuota:
 
 
 class TestAnalyzeResultAuth:
+    def test_status_requires_login(self, client):
+        with patch("routes.analyze.task_queue.get_status") as mock_get_status:
+            res = client.get('/api/analyze/status/task-1')
+
+        assert res.status_code == 401
+        mock_get_status.assert_not_called()
+
+    def test_status_rejects_task_owned_by_another_user(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=False), \
+             patch("routes.analyze.task_queue.get_status") as mock_get_status:
+            res = _authed(client, auth_headers, 'get', '/api/analyze/status/task-2')
+
+        assert res.status_code == 404
+        mock_get_status.assert_not_called()
+
+    def test_status_returns_owned_task(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.get_status", return_value={
+                 "status": "running",
+                 "progress": {"stage": "sandbox", "message": "running"},
+             }):
+            res = _authed(client, auth_headers, 'get', '/api/analyze/status/task-3')
+
+        assert res.status_code == 200
+        assert res.get_json()["status"] == "running"
+
     def test_result_requires_login(self, client):
         with patch("routes.analyze.task_queue.get_task", return_value={
             "status": "completed",
@@ -455,3 +481,95 @@ class TestAnalyzeResultAuth:
 
         assert res.status_code == 200
         assert res.get_json() == {"detected_algorithm": "bubble_sort"}
+
+
+class TestAnalyzeInputApi:
+    def test_submit_input_pushes_value_for_waiting_task(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.get_task", return_value={
+                 "status": "running",
+                 "result": None,
+                 "error": None,
+                 "progress": None,
+             }), \
+             patch("routes.analyze.task_queue.is_waiting_for_input", return_value=True), \
+             patch("routes.analyze.task_queue.submit_input") as mock_submit_input:
+            res = _authed(
+                client,
+                auth_headers,
+                "post",
+                "/api/analyze/input/task-1",
+                json={"value": "Ada"},
+            )
+
+        assert res.status_code == 202
+        assert res.get_json()["status"] == "accepted"
+        mock_submit_input.assert_called_once_with("task-1", "Ada")
+
+    def test_submit_input_rejects_running_task_not_yet_waiting(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.get_task", return_value={
+                 "status": "running",
+                 "result": None,
+                 "error": None,
+                 "progress": None,
+             }), \
+             patch("routes.analyze.task_queue.is_waiting_for_input", return_value=False), \
+             patch("routes.analyze.task_queue.submit_input") as mock_submit_input:
+            res = _authed(
+                client,
+                auth_headers,
+                "post",
+                "/api/analyze/input/task-running",
+                json={"value": "Ada"},
+            )
+
+        assert res.status_code == 409
+        mock_submit_input.assert_not_called()
+
+    def test_submit_input_rejects_non_owned_task(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=False):
+            res = _authed(
+                client,
+                auth_headers,
+                "post",
+                "/api/analyze/input/task-2",
+                json={"value": "Ada"},
+            )
+
+        assert res.status_code == 404
+
+    def test_submit_input_rejects_completed_task(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.get_task", return_value={
+                 "status": "completed",
+                 "result": {},
+                 "error": None,
+                 "progress": None,
+             }), \
+             patch("routes.analyze.task_queue.is_waiting_for_input", return_value=False), \
+             patch("routes.analyze.task_queue.submit_input") as mock_submit_input:
+            res = _authed(
+                client,
+                auth_headers,
+                "post",
+                "/api/analyze/input/task-3",
+                json={"value": "Ada"},
+            )
+
+        assert res.status_code == 409
+        mock_submit_input.assert_not_called()
+
+    def test_cancel_wakes_owned_task(self, client, auth_headers):
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.cancel_task") as mock_cancel:
+            res = _authed(
+                client,
+                auth_headers,
+                "post",
+                "/api/analyze/cancel/task-4",
+                json={},
+            )
+
+        assert res.status_code == 202
+        mock_cancel.assert_called_once_with("task-4")

@@ -63,6 +63,47 @@ def run_runner(code: str | None, *, extra_env: dict | None = None) -> tuple[dict
     return data, result.returncode
 
 
+def run_runner_interactive(
+    code: str,
+    inputs: list[str],
+    *,
+    extra_env: dict | None = None,
+) -> tuple[list[str], int]:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = SERVICES_PATH
+    env["CODE"] = base64.b64encode(code.encode()).decode()
+    if extra_env:
+        env.update(extra_env)
+
+    proc = subprocess.Popen(
+        [sys.executable, RUNNER_PATH],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env,
+    )
+
+    lines: list[str] = []
+    try:
+        for value in inputs:
+            line = proc.stdout.readline()
+            if line:
+                lines.append(line.rstrip("\n"))
+            assert proc.poll() is None, "runner exited while waiting for interactive input"
+            assert proc.stdin is not None
+            proc.stdin.write(value + "\n")
+            proc.stdin.flush()
+
+        stdout_tail, _stderr = proc.communicate(timeout=15)
+        lines.extend(line for line in stdout_tail.splitlines() if line)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+
+    return lines, proc.returncode
+
+
 SIMPLE_CODE = """
 def add(a, b):
     return a + b
@@ -403,25 +444,25 @@ class TestRunTraceWithStdinInputs:
         assert assigned
 
     def test_input_needed_when_queue_empty(self, _mark_sandbox):
-        from tracer import run_trace, InputNeededError
+        from tracer import run_trace, LegacyInputNeededError
         code = 'a = input("name: ")\nb = input("age: ")'
-        with pytest.raises(InputNeededError) as exc_info:
+        with pytest.raises(LegacyInputNeededError) as exc_info:
             run_trace(code, stdin_inputs=["alice"])
         assert exc_info.value.prompt == "age: "
         assert exc_info.value.input_index == 1
 
     def test_input_needed_first_call(self, _mark_sandbox):
-        from tracer import run_trace, InputNeededError
+        from tracer import run_trace, LegacyInputNeededError
         code = 'x = input("first: ")'
-        with pytest.raises(InputNeededError) as exc_info:
+        with pytest.raises(LegacyInputNeededError) as exc_info:
             run_trace(code, stdin_inputs=[])
         assert exc_info.value.prompt == "first: "
         assert exc_info.value.input_index == 0
 
     def test_input_needed_carries_partial_stdout(self, _mark_sandbox):
-        from tracer import run_trace, InputNeededError
+        from tracer import run_trace, LegacyInputNeededError
         code = 'print("ready")\nx = input("name: ")'
-        with pytest.raises(InputNeededError) as exc_info:
+        with pytest.raises(LegacyInputNeededError) as exc_info:
             run_trace(code, stdin_inputs=[])
         assert [ev["text"] for ev in exc_info.value.stdout_events] == [
             "ready",

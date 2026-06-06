@@ -56,3 +56,46 @@ def run_in_sandbox(
         return {"error": f"sandbox sidecar unavailable: {e}", "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
     except Exception as e:
         return {"error": f"sandbox error: {e}", "is_truncated": False, "trace": [], "call_graph": None, "cfg_graph": {}}
+
+
+def send_input(session_id: str, value: str) -> dict:
+    try:
+        resp = requests.post(
+            f"{SIDECAR_URL}/input/{session_id}",
+            json={"value": value},
+            timeout=CONTAINER_TIMEOUT + 5,
+        )
+        return resp.json()
+    except requests.Timeout:
+        return {"status": "failed", "error": "timeout"}
+    except requests.ConnectionError as e:
+        return {"status": "failed", "error": f"sandbox sidecar unavailable: {e}"}
+    except Exception as e:
+        return {"status": "failed", "error": f"sandbox error: {e}"}
+
+
+def check_session_alive(session_id: str) -> bool:
+    try:
+        resp = requests.get(
+            f"{SIDECAR_URL}/session/{session_id}/alive",
+            timeout=5,
+        )
+        if resp.status_code != 200:
+            return False
+        body = resp.json()
+        return bool(body.get("alive"))
+    except Exception:
+        return False
+
+
+def close_session(session_id: str) -> dict:
+    try:
+        resp = requests.post(
+            f"{SIDECAR_URL}/session/{session_id}/close",
+            timeout=5,
+        )
+        return resp.json()
+    except requests.ConnectionError as e:
+        return {"status": "failed", "error": f"sandbox sidecar unavailable: {e}"}
+    except Exception as e:
+        return {"status": "failed", "error": f"sandbox error: {e}"}
