@@ -384,7 +384,7 @@ function Playground() {
                     handleStepChange(0);
                     handlePause();
                   }}
-                  aria-label="Visualization mode"
+                  aria-label={t("ui.vizModeAriaLabel")}
                   tabs={[
                     ...(hasAnimationTemplate
                       ? [
@@ -403,7 +403,7 @@ function Playground() {
                   ]}
                 />
                 {isTruncated && (
-                  <span className={styles.truncatedBadge}>⚠ truncated</span>
+                  <span className={styles.truncatedBadge}>{t("ui.truncatedBadge")}</span>
                 )}
                 <Button
                   variant="unstyled"
@@ -517,10 +517,10 @@ function Playground() {
                     />
                     <div className={styles.callGraphLegend}>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineSolid} /> call
+                        <span className={styles.legendLineSolid} /> {t("ui.callLegend")}
                       </span>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineDashed} /> return
+                        <span className={styles.legendLineDashed} /> {t("ui.returnLegend")}
                       </span>
                     </div>
                   </div>

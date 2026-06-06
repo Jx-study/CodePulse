@@ -1,6 +1,7 @@
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import type { PanelId } from "../DockablePanel";
 import { PANEL_CONFIGS } from "../DockablePanel";
@@ -14,6 +15,7 @@ interface SortableIconProps {
 }
 
 export function SortableIcon({ panelId, isActive, onClick }: SortableIconProps) {
+  const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[panelId];
   const {
     attributes,
@@ -41,7 +43,7 @@ export function SortableIcon({ panelId, isActive, onClick }: SortableIconProps) 
       }}
       className={`${styles.icon} ${isActive ? styles.iconActive : ""} ${isDragging ? styles.iconDragging : ""}`}
       onClick={onClick}
-      title={config.label}
+      title={t(`panel.${panelId}`)}
       icon={config.icon}
     />
   );
@@ -59,6 +61,7 @@ export function DraggableDockedIcon({
   isCollapsed,
   onToggleCollapse,
 }: DraggableDockedIconProps) {
+  const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[panelId];
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: panelId,
@@ -75,7 +78,7 @@ export function DraggableDockedIcon({
       className={`${styles.icon} ${!isCollapsed ? styles.iconActive : ""} ${isDragging ? styles.iconDragging : ""}`}
       style={{ ["--panel-accent" as string]: `var(${config.accentVar})` }}
       onClick={onToggleCollapse}
-      title={`${config.label} (docked — drag to right bar to undock)`}
+      title={`${t(`panel.${panelId}`)} ${t("activityBar.dockedHint")}`}
       icon={config.icon}
     />
   );
@@ -119,6 +122,7 @@ export function LeftActivityBar({
   isHistoryOpen,
   onOpenHistory,
 }: LeftActivityBarProps) {
+  const { t } = useTranslation("playground");
   return (
     <div className={styles.bar}>
       {/* CodeEditor icon — fixed, click = toggle editor open */}
@@ -126,8 +130,8 @@ export function LeftActivityBar({
         variant="unstyled"
         className={`${styles.icon} ${styles.iconFixed} ${isEditorOpen ? styles.iconFixedActive : ""}`}
         onClick={onToggleEditor}
-        title="Code Editor"
-        aria-label="Code Editor"
+        title={t("activityBar.codeEditor")}
+        aria-label={t("activityBar.codeEditor")}
         iconOnly
         icon="code"
       />
@@ -155,7 +159,7 @@ export function LeftActivityBar({
         className={`${styles.icon} ${isHistoryOpen ? styles.iconFixedActive : ""}`}
         style={{ ["--panel-accent" as string]: "var(--color-blue)" }}
         onClick={onOpenHistory}
-        title="Execution History"
+        title={t("activityBar.executionHistory")}
         icon="clock-rotate-left"
       />
     </div>

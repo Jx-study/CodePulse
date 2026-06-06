@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import Dialog from "@/shared/components/Dialog";
 import Button from "@/shared/components/Button";
 import styles from "./InputPromptDialog.module.scss";
@@ -18,6 +19,7 @@ export function InputPromptDialog({
   onSubmit,
   onCancel,
 }: InputPromptDialogProps) {
+  const { t } = useTranslation("playground");
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,10 +35,10 @@ export function InputPromptDialog({
   const footer = (
     <>
       <Button variant="primary" size="sm" onClick={() => onSubmit(value)}>
-        確認
+        {t("inputDialog.confirm")}
       </Button>
       <Button variant="secondary" size="sm" onClick={onCancel}>
-        取消
+        {t("inputDialog.cancel")}
       </Button>
     </>
   );
@@ -45,7 +47,7 @@ export function InputPromptDialog({
     <Dialog
       isOpen={isOpen}
       onClose={onCancel}
-      title={`輸入 #${inputIndex + 1}`}
+      title={t("inputDialog.title", { index: inputIndex + 1 })}
       footer={footer}
       size="sm"
       closeOnOverlayClick={false}
@@ -60,7 +62,7 @@ export function InputPromptDialog({
           onKeyDown={(e) => {
             if (e.key === "Enter") onSubmit(value);
           }}
-          placeholder="輸入值並按 Enter…"
+          placeholder={t("inputDialog.placeholder")}
         />
       </div>
     </Dialog>
