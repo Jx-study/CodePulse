@@ -142,15 +142,20 @@ def submit_input(task_id: str):
     if not isinstance(value, str):
         return jsonify({"error": "value must be a string"}), 400
 
-    # STATUS_INPUT_NEEDED 是任務狀態層面的「需要輸入」，但不保證背後還有活著的 sidecar
-    # session 在 BLPOP 等值。live-Popen 模式下 _resolve_interactive_sandbox 同步阻塞，
-    # Celery state 仍是 running，唯有 is_waiting_for_input（session marker）能證明「真的有
-    # live session 正在等輸入」。舊 re-submit 暫停狀態沒有 marker，不該被 /input 餵值。
+    # STATUS_INPUT_NEEDED 是任務狀態層面的「需要輸入」，但不保證背後還有活著的 sidecar session 在 BLPOP 等值
+    # live-Popen 模式下 _resolve_interactive_sandbox 同步阻塞，
+    # Celery state 仍是 running，唯有 is_waiting_for_input（session marker）能證明「真的有live session 正在等輸入」
+    # 舊 re-submit 暫停狀態沒有 marker，不該被 /input 餵值
     task = task_queue.get_task(task_id)
     if task is None or task["status"] in (STATUS_COMPLETED, STATUS_FAILED):
         return jsonify({"error": "task is not waiting for input"}), 409
     if not task_queue.is_waiting_for_input(task_id):
         return jsonify({"error": "task is not waiting for input"}), 409
+
+    # in-memory queue（USE_CELERY=0，本地非 Celery 開發）沒有 Redis BLPOP 通道，submit_input 是 no-op
+    # 不能回 202 讓前端誤以為值已送達（背後會卡到 input timeout）
+    if not getattr(task_queue, "supports_live_input", True):
+        return jsonify({"error": "live interactive input is not supported in this deployment mode"}), 501
 
     task_queue.submit_input(task_id, value)
     return jsonify({"status": "accepted"}), 202

@@ -6,7 +6,7 @@ import redis as redis_lib
 from celery.result import AsyncResult
 
 from celery_app import celery_app  # noqa: F401 - ensures celery_app is configured
-from services.task_queue import STAGE_DONE
+from services.task_queue import STAGE_DONE, CANCEL_INPUT_VALUE
 
 PROGRESS_TTL = 300  # seconds, aligned with result_expires in celery_app.py
 PROGRESS_STREAM_MAX_SECONDS = PROGRESS_TTL
@@ -50,6 +50,9 @@ def _check_terminal(ar: AsyncResult) -> dict | None:
 
 
 class CeleryTaskQueue:
+    # live interactive input 走 Redis BLPOP，Celery 模式完整支援（見 submit_input）。
+    supports_live_input = True
+
     def __init__(self):
         redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
         self._redis = redis_lib.from_url(redis_url, decode_responses=True)
@@ -104,7 +107,7 @@ class CeleryTaskQueue:
 
     def cancel_task(self, task_id: str) -> None:
         key = f"analyze:input:{task_id}"
-        self._redis.rpush(key, "__CODEPULSE_CANCEL__")
+        self._redis.rpush(key, CANCEL_INPUT_VALUE)
         self._redis.expire(key, PROGRESS_TTL)
 
     def mark_waiting_for_input(self, task_id: str, session_id: str) -> None:

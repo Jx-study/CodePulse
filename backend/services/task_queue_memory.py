@@ -20,6 +20,10 @@ CLEANUP_INTERVAL_SECONDS = 60
 MAX_WORKERS = 4
 
 class TaskQueue:
+    # live interactive input 靠 Redis BLPOP（見 submit_input 註解），in-memory 沒有那條通道
+    # route 用此旗標在 /api/analyze/input 直接回 501
+    supports_live_input = False
+
     def __init__(self):
         self._tasks: dict[str, dict] = {}
         self._queues: dict[str, queue_mod.SimpleQueue] = {}

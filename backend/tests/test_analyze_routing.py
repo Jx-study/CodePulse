@@ -493,6 +493,7 @@ class TestAnalyzeInputApi:
                  "progress": None,
              }), \
              patch("routes.analyze.task_queue.is_waiting_for_input", return_value=True), \
+             patch("routes.analyze.task_queue.supports_live_input", True), \
              patch("routes.analyze.task_queue.submit_input") as mock_submit_input:
             res = _authed(
                 client,
@@ -558,6 +559,29 @@ class TestAnalyzeInputApi:
             )
 
         assert res.status_code == 409
+        mock_submit_input.assert_not_called()
+
+    def test_submit_input_rejects_when_queue_lacks_live_input_support(self, client, auth_headers):
+        """in-memory queue 不支援 live input；不能回誤導性的 202，要明確告知不支援。"""
+        with patch("routes.analyze.task_queue.owns_task", return_value=True), \
+             patch("routes.analyze.task_queue.get_task", return_value={
+                 "status": "running",
+                 "result": None,
+                 "error": None,
+                 "progress": None,
+             }), \
+             patch("routes.analyze.task_queue.is_waiting_for_input", return_value=True), \
+             patch("routes.analyze.task_queue.supports_live_input", False), \
+             patch("routes.analyze.task_queue.submit_input") as mock_submit_input:
+            res = _authed(
+                client,
+                auth_headers,
+                "post",
+                "/api/analyze/input/task-no-live",
+                json={"value": "Ada"},
+            )
+
+        assert res.status_code == 501
         mock_submit_input.assert_not_called()
 
     def test_cancel_wakes_owned_task(self, client, auth_headers):

@@ -30,13 +30,13 @@ from services.task_queue import (
     STAGE_SANDBOX,
     STAGE_ANALYSIS,
     STAGE_DONE,
+    CANCEL_INPUT_VALUE,
 )
 
 logger = logging.getLogger(__name__)
 
 INPUT_WAIT_TIMEOUT_SECONDS = 120
 INPUT_HEARTBEAT_SECONDS = 10
-CANCEL_INPUT_VALUE = "__CODEPULSE_CANCEL__"
 
 
 class LegacyInputNeededSignal(Exception):
