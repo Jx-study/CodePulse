@@ -142,7 +142,15 @@ def run_trace(
         prompt_str = str(prompt) if prompt else ""
         if not _stdin_queue:
             if input_provider is not None:
-                value = input_provider(prompt_str, _input_call_count[0], stdout_events)
+                # 暫停 tracing 再呼叫 input_provider：否則 runner 的 emit_event /
+                # json.dumps / stdin decoder 等內部 frame 會被 sys.settrace 當成使用者
+                # 程式記進 trace，污染結果、撐大 trace，複雜輸入下甚至拖垮 runner。
+                old_trace = sys.gettrace()
+                sys.settrace(None)
+                try:
+                    value = input_provider(prompt_str, _input_call_count[0], stdout_events)
+                finally:
+                    sys.settrace(old_trace)
                 _input_call_count[0] += 1
                 stdout_events.append({"step": len(trace_log), "text": prompt_str + value})
                 return value

@@ -78,3 +78,28 @@ def test_runner_interactive_protocol_reuses_process_for_multiple_inputs():
         "City: Taipei",
         "Ada 37 Taipei",
     ]
+
+
+def test_live_input_provider_is_not_included_in_user_trace():
+    code = 'name = input("Name: ")\nprint(name)\n'
+    lines, rc = run_runner_interactive(code, ["Ada"])
+
+    assert rc == 0
+    events = [
+        json.loads(line.removeprefix("__CODEPULSE_EVENT__"))
+        for line in lines
+    ]
+    result = events[-1]["payload"]
+    func_names = {
+        event["meta"]["func_name"]
+        for event in result["trace"]
+        if "meta" in event
+    }
+
+    assert "emit_event" not in func_names
+    assert "dumps" not in func_names
+    assert "decode" not in func_names
+    assert result["stdout_events"] == [
+        {"step": 2, "text": "Name: Ada"},
+        {"step": 3, "text": "Ada"},
+    ]
