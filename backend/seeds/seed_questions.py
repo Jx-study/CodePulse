@@ -24,17 +24,19 @@ from seeds.questions import binary_tree
 from seeds.questions import bst
 from seeds.questions import heap
 from seeds.questions import graph
-from seeds.questions import binary_search
+from seeds.questions import trie
 from seeds.questions import bubble_sort
-from seeds.questions import insertion_sort
 from seeds.questions import selection_sort
+from seeds.questions import insertion_sort
+from seeds.questions import quick_sort
+from seeds.questions import merge_sort
+from seeds.questions import binary_search
 from seeds.questions import prefix_sum
 from seeds.questions import sliding_window
 from seeds.questions import bfs
 from seeds.questions import dfs
 from seeds.questions import dijkstra
 from seeds.questions import knapsack
-from seeds.questions import trie
 
 ALL_MODULES = [
     array,
@@ -45,17 +47,19 @@ ALL_MODULES = [
     bst,
     heap,
     graph,
-    binary_search,
+    trie,
     bubble_sort,
-    insertion_sort,
     selection_sort,
+    insertion_sort,
+    merge_sort,
+    quick_sort,
+    binary_search,
     prefix_sum,
     sliding_window,
     bfs,
     dfs,
     dijkstra,
     knapsack,
-    trie,
 ]
 
 # ── 型別對應 ──────────────────────────────────────────────────────────────────
