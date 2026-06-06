@@ -26,6 +26,13 @@ type InputPromptState = {
   resolve: (value: string | null) => void;
 } | null;
 
+export class InputCancelledError extends Error {
+  constructor() {
+    super("input cancelled");
+    this.name = "InputCancelledError";
+  }
+}
+
 interface UsePlaygroundRunOptions {
   code: string;
   editorRef: React.RefObject<CodeEditorHandle | null>;
@@ -218,6 +225,7 @@ export function usePlaygroundRun({
           );
         } catch (err) {
           if (err instanceof InputNeededError) {
+            setStdoutEvents(err.stdoutEvents);
             const value = await waitForInputPrompt(
               err.prompt,
               err.inputIndex,
@@ -225,7 +233,7 @@ export function usePlaygroundRun({
               controller.signal,
             );
             if (value === null) {
-              throw new AnalyzeError("runtime_error", "input cancelled");
+              throw new InputCancelledError();
             }
             stdinInputsRef.current.push(value);
             continue;
@@ -297,6 +305,11 @@ export function usePlaygroundRun({
       setRunStage("done");
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
+      if (e instanceof InputCancelledError) {
+        setRunStage("idle");
+        toast.info(t("run.inputCancelled"));
+        return;
+      }
       setRunStage("idle");
       if (e instanceof AnalyzeError) {
         switch (e.type) {
