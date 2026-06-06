@@ -366,8 +366,8 @@ export const mergeSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n log n)",
     space: "O(n)",
   },
-  introduction: `合併排序（Merge Sort）是典型的分治法（Divide and Conquer）應用。
-它將陣列從中間一分為二，持續切割直到每個子陣列只剩一個元素，接著將這些子陣列兩兩合併，在合併的過程中將它們排序好，最後合併成一個完整的已排序陣列。`,
+  i18nNamespace: "tutorials/merge-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 38 },
     { id: "box-1", value: 27 },

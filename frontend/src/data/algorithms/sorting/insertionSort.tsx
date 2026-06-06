@@ -227,7 +227,8 @@ export const insertionSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(1)",
   },
-  introduction: `插入排序（Insertion Sort）是一種簡單直觀的排序演算法。它的工作原理是透過構建有序序列，對於未排序資料，在已排序序列中從後向前掃描，找到相應位置並插入。`,
+  i18nNamespace: "tutorials/insertion-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 12 },
     { id: "box-1", value: 11 },
