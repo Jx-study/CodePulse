@@ -34,6 +34,19 @@ export default function TourEngine({
 }: TourEngineProps) {
   const { t } = useTranslation('common');
   const [currentIndex, setCurrentIndex] = useState(0);
+  // 當任何 Dialog 透過 bodyDialogLock 開啟（設置 data-dialog-open）時自動暫停
+  const [isDialogOpen, setIsDialogOpen] = useState(() =>
+    document.body.hasAttribute('data-dialog-open')
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDialogOpen(document.body.hasAttribute('data-dialog-open'));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['data-dialog-open'] });
+    return () => observer.disconnect();
+  }, []);
+  const effectivePaused = isPaused || isDialogOpen;
+
   const [spotlightRect, setSpotlightRect] = useState<SpotlightRect | null>(null);
   const [secondarySpotlightRect, setSecondarySpotlightRect] = useState<SpotlightRect | null>(null);
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
@@ -82,9 +95,9 @@ export default function TourEngine({
   }, [currentIndex, isFinalStep]);
 
   // Fire onEnter when entering an interactive step (drives UI).
-  // isPaused intentionally excluded from deps: paused→resume must not re-fire onEnter (avoids switching tabs back after dialog closes).
+  // effectivePaused intentionally excluded from deps: paused→resume must not re-fire onEnter (avoids switching tabs back after dialog closes).
   useEffect(() => {
-    if (!isOpen || isFinalStep || isPaused) return;
+    if (!isOpen || isFinalStep || effectivePaused) return;
     currentStep?.onEnter?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isFinalStep, currentIndex]);
@@ -183,7 +196,7 @@ export default function TourEngine({
 
   // rAF loop continuously tracks target position (supports panel drag, resize, layout switch, and interactive advance)
   useEffect(() => {
-    if (!isOpen || isFinalStep || isPaused) return;
+    if (!isOpen || isFinalStep || effectivePaused) return;
 
     let frameId: number;
     const tick = () => {
@@ -195,12 +208,12 @@ export default function TourEngine({
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, [isOpen, isFinalStep, isPaused, calculatePositions]);
+  }, [isOpen, isFinalStep, effectivePaused, calculatePositions]);
 
   // Keyboard navigation: disable Next shortcut on interactive steps (to avoid skipping the wait)
   useEffect(() => {
     // When paused (e.g. an overlaying dialog is shown), disable keyboard entirely — a hidden tour should not respond to Esc/arrow keys
-    if (!isOpen || isPaused) return;
+    if (!isOpen || effectivePaused) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { onSkip(); return; }
       const step = currentStepRef.current;
@@ -213,7 +226,7 @@ export default function TourEngine({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isPaused, handleNext, handlePrev, onSkip, currentIndex, maxReachableIndex]);
+  }, [isOpen, effectivePaused, handleNext, handlePrev, onSkip, currentIndex, maxReachableIndex]);
 
   // Reset when the tour opens
   useEffect(() => {
@@ -226,7 +239,7 @@ export default function TourEngine({
   }, [isOpen]);
 
   if (!isOpen) return null;
-  if (isPaused) return null;
+  if (effectivePaused) return null;
 
   if (isFinalStep) {
     return createPortal(
