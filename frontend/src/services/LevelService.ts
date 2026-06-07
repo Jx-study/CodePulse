@@ -69,6 +69,18 @@ export function getLevelConfigById(levelId: string): LevelConfig | null {
   return raw ? rawToLevelConfig(raw) : null;
 }
 
+/**
+ * 根據 implementationKey 取得主路徑關卡（排除 portal/boss node）
+ */
+export function getLevelByImplKey(implementationKey: string): LevelConfig | null {
+  const raw = getRawLevels().find(
+    (l) =>
+      l.implementationKey === implementationKey &&
+      (l.pathMetadata.pathType === "main" || l.pathMetadata.pathType === "branch"),
+  );
+  return raw ? rawToLevelConfig(raw) : null;
+}
+
 // ==================== 分類查詢 ====================
 
 /**

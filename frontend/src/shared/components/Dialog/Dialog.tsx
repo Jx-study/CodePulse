@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import type { DialogProps } from "@/types";
 import Button from "../Button";
 import styles from "./Dialog.module.scss";
+import { lockBodyForDialog } from "@/shared/utils/bodyDialogLock";
 
 const Dialog: React.FC<DialogProps> = ({
   isOpen,
@@ -50,13 +51,11 @@ const Dialog: React.FC<DialogProps> = ({
   useEffect(() => {
     if (!isOpen || !preventScroll) return;
 
-    document.body.style.overflow = "hidden";
-    document.body.setAttribute("data-dialog-open", "true");
+    const releaseBodyLock = lockBodyForDialog();
     onAfterOpen?.();
 
     return () => {
-      document.body.style.overflow = "unset";
-      document.body.removeAttribute("data-dialog-open");
+      releaseBodyLock();
       onAfterClose?.();
     };
   }, [isOpen, preventScroll, onAfterOpen, onAfterClose]);

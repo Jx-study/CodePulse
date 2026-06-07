@@ -459,7 +459,7 @@ function TutorialContent() {
   }>();
 
   // Session 管理
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, showCheckinDialog } = useAuth();
   const sessionIdRef = useRef<number | null>(null);
   const sessionStartRef = useRef<number>(Date.now());
 
@@ -1212,7 +1212,7 @@ function TutorialContent() {
       )}
       {/* Feature Tour */}
       <FeatureTour
-        isOpen={showFeatureTour}
+        isOpen={showFeatureTour && !showCheckinDialog}
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
         onDontShowAgain={handleDontShowAgain}

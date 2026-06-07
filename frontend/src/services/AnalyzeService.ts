@@ -17,6 +17,7 @@ import type {
 import type { AiResult, AlgoCandidate } from "@/types/ai";
 import type { RunStage } from "@/types/runStage";
 import { mapAiResult } from "@/services/ComplexityService";
+import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 
 export type AnalyzeErrorType =
   | "empty_code"
@@ -33,6 +34,7 @@ export class AnalyzeError extends Error {
     public readonly type: AnalyzeErrorType,
     message: string,
     public readonly lineno?: number,
+    public readonly duplicateRecord?: PlaygroundHistoryRecord,
   ) {
     super(message);
     this.name = "AnalyzeError";
@@ -64,12 +66,19 @@ export async function run(
   options: { saveHistory?: boolean } = {},
 ): Promise<AnalyzeResult> {
   // 1. Submit
-  let submitRes: { data: { task_id?: string; duplicate?: boolean } };
+  let submitRes: {
+    data: {
+      task_id?: string;
+      duplicate?: boolean;
+      duplicate_record?: PlaygroundHistoryRecord;
+    };
+  };
   try {
-    submitRes = await apiService.post<{ task_id?: string; duplicate?: boolean }>(
-      "/api/analyze/submit",
-      { code, save_history: options.saveHistory ?? true },
-    );
+    submitRes = await apiService.post<{
+      task_id?: string;
+      duplicate?: boolean;
+      duplicate_record?: PlaygroundHistoryRecord;
+    }>("/api/analyze/submit", { code, save_history: options.saveHistory ?? true });
   } catch (err: any) {
     const body = err?.response?.data;
     if (err?.response?.status === 422 && body?.error) {
@@ -88,7 +97,12 @@ export async function run(
   }
 
   if (submitRes.data.duplicate) {
-    throw new AnalyzeError("duplicate_code", "duplicate");
+    throw new AnalyzeError(
+      "duplicate_code",
+      "duplicate",
+      undefined,
+      submitRes.data.duplicate_record,
+    );
   }
 
   const taskId = submitRes.data.task_id!;

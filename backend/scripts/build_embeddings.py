@@ -1,6 +1,6 @@
 """
-Offline tool: encode reference algorithm implementations with MiniLM and write
-reference_embeddings.npy + labels.json to services/algo_identification/embeddings/.
+Offline tool: encode reference algorithm implementations with Jina-embeddings-v2-base-code
+and write reference_embeddings.npy + labels.json to services/algo_identification/embeddings/.
 
 Run from the backend/ directory:
     python scripts/build_embeddings.py
@@ -304,7 +304,7 @@ def partition(arr, low, high):
 
 
 def build() -> None:
-    model = TextEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    model = TextEmbedding(model_name="jinaai/jina-embeddings-v2-base-code")
 
     codes: list[str] = []
     labels: list[str] = []
