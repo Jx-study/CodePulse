@@ -5,7 +5,7 @@ import Icon from '@/shared/components/Icon/Icon';
 import Button from '@/shared/components/Button/Button';
 import type { TourStep, TourEngineProps } from './tourTypes';
 import styles from './TourEngine.module.scss';
-import MascotWaiting from './MascotWaiting';
+import Codi from '@/shared/components/Codi';
 
 interface SpotlightRect {
   top: number;
@@ -363,7 +363,7 @@ export default function TourEngine({
               return ws === 'idle' ? (
                 <span><span className={styles.waitingDot} />{t('tour.waitingForAction')}</span>
               ) : (
-                <MascotWaiting state={ws === 'error' ? 'error' : 'running'} />
+                <Codi state={ws === 'error' ? 'error' : 'running'} />
               );
             })()}
             <Button
