@@ -1,6 +1,7 @@
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import type { PanelId } from "../DockablePanel";
 import { PANEL_CONFIGS } from "../DockablePanel";
@@ -11,7 +12,7 @@ interface SortableIconProps {
   panelId: PanelId;
   isActive: boolean; // not collapsed
   onClick: () => void;
-  /** 傳入時附加到按鈕 DOM，供 tour spotlight 定位 */
+  /** When provided, attached to the button DOM element for tour spotlight targeting */
   tourAttr?: string;
 }
 
@@ -62,6 +63,7 @@ export function DraggableDockedIcon({
   isCollapsed,
   onToggleCollapse,
 }: DraggableDockedIconProps) {
+  const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[panelId];
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: panelId,
@@ -78,7 +80,7 @@ export function DraggableDockedIcon({
       className={`${styles.icon} ${!isCollapsed ? styles.iconActive : ""} ${isDragging ? styles.iconDragging : ""}`}
       style={{ ["--panel-accent" as string]: `var(${config.accentVar})` }}
       onClick={onToggleCollapse}
-      title={`${config.label} (docked — drag to right bar to undock)`}
+      title={`${config.label} ${t('activityBar.dockedHint')}`}
       icon={config.icon}
     />
   );
@@ -124,6 +126,7 @@ export function LeftActivityBar({
   onOpenHistory,
   onOpenTour,
 }: LeftActivityBarProps) {
+  const { t } = useTranslation("playground");
   return (
     <div className={styles.bar} data-tour="pg-left-bar">
       {/* CodeEditor icon — fixed, click = toggle editor open */}
@@ -131,8 +134,8 @@ export function LeftActivityBar({
         variant="unstyled"
         className={`${styles.icon} ${styles.iconFixed} ${isEditorOpen ? styles.iconFixedActive : ""}`}
         onClick={onToggleEditor}
-        title="Code Editor"
-        aria-label="Code Editor"
+        title={t('activityBar.codeEditor')}
+        aria-label={t('activityBar.codeEditor')}
         iconOnly
         icon="code"
       />
@@ -161,7 +164,7 @@ export function LeftActivityBar({
           className={`${styles.icon} ${isHistoryOpen ? styles.iconFixedActive : ""}`}
           style={{ ["--panel-accent" as string]: "var(--color-teal)" }}
           onClick={onOpenHistory}
-          title="Execution History"
+          title={t('activityBar.executionHistory')}
           icon="clock-rotate-left"
         />
       </span>
@@ -173,8 +176,8 @@ export function LeftActivityBar({
         className={styles.icon}
         style={{ ["--panel-accent" as string]: "var(--primary-color)" }}
         onClick={onOpenTour}
-        title="操作導覽"
-        aria-label="開啟操作導覽"
+        title={t('activityBar.tourButton')}
+        aria-label={t('activityBar.openTour')}
         icon="circle-question"
       />
     </div>

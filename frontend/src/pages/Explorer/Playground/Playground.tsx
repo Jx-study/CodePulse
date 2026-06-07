@@ -222,7 +222,7 @@ function Playground() {
     (id) => id !== leftDockedId && !collapsedPanels.has(id),
   );
 
-  // 初始是否自動彈出：使用者按過「不再顯示」則不自動彈，否則每次進頁都彈
+  // Auto-open on mount unless the user has previously clicked "Don't show again"
   const [isTourOpen, setIsTourOpen] = useState(() => !getPlaygroundTourDismissed());
   const handleTourComplete = useCallback(() => setIsTourOpen(false), []);
   const handleTourSkip = useCallback(() => setIsTourOpen(false), []);
@@ -230,14 +230,14 @@ function Playground() {
     resetLastRunOutcome();
     setIsTourOpen(true);
   }, [resetLastRunOutcome]);;
-  // 「不再顯示」：記住偏好後關閉導覽（「?」按鈕仍可手動開）
+  // "Don't show again": persist the preference then close the tour (the "?" button still opens it manually)
   const handleTourDontShowAgain = useCallback(() => {
     setPlaygroundTourDismissed();
     setIsTourOpen(false);
   }, []);
-  // 互動 Run step 按「跳過此步」時直接關閉導覽
+  // Close the tour immediately when "Skip this step" is clicked on the interactive Run step
   const handleTourSkipToEnd = useCallback(() => setIsTourOpen(false), []);
-  // 切到動畫 tab（步驟 onEnter 用）
+  // Switch to the animation tab (used by step onEnter)
   const goAnimationTab = useCallback(() => setActiveTab("animation"), []);
 
   const handleToggleEditor = useCallback(() => {
@@ -257,6 +257,7 @@ function Playground() {
     goAnimationTab,
     skipToEnd: handleTourSkipToEnd,
     leftDockedId,
+    t,
   });
 
   return (
@@ -406,7 +407,7 @@ function Playground() {
                     handleStepChange(0);
                     handlePause();
                   }}
-                  aria-label="Visualization mode"
+                  aria-label={t('canvas.ariaVisualizationMode')}
                   tabs={[
                     ...(hasAnimationTemplate
                       ? [
@@ -439,8 +440,8 @@ function Playground() {
                     }`}
                     disabled={runStage !== "done"}
                     onClick={() => setIsAiDialogOpen(true)}
-                    title="查看 AI 分析結果"
-                    aria-label="查看 AI 分析結果"
+                    title={t('ai.viewResults')}
+                    aria-label={t('ai.viewResults')}
                   >
                     {runStage === "analysis" ? (
                       <>
@@ -470,15 +471,15 @@ function Playground() {
                   ) : (
                     <EmptyState
                       icon={<Icon name="film" />}
-                      title="No animation data"
-                      description="Run code to generate the animation"
+                      title={t('canvas.noAnimationTitle')}
+                      description={t('canvas.noAnimationDesc')}
                     />
                   )
                 ) : !callGraph ? (
                   <EmptyState
                     icon={<Icon name="circle-xmark" />}
-                    title="No graph data"
-                    description="Submit code to generate the call graph"
+                    title={t('canvas.noGraphTitle')}
+                    description={t('canvas.noGraphDesc')}
                   />
                 ) : drill.mode === "cfg" ? (
                   (() => {
@@ -569,7 +570,7 @@ function Playground() {
                   />
                 ) : (
                   <div className={styles.emptyControl}>
-                    {runStage === "idle" ? "Run code to start" : "Waiting for analysis…"}
+                    {runStage === "idle" ? t('status.runToStart') : t('status.waitingAnalysis')}
                   </div>
                 )}
               </div>
@@ -675,10 +676,10 @@ function Playground() {
         onComplete={handleTourComplete}
         onSkip={handleTourSkip}
         onDontShowAgain={handleTourDontShowAgain}
-        finalTitle="開始你的演算法實驗！"
-        finalDescription={`你已經了解 Playground 的核心功能，現在動手寫程式、執行並觀察視覺化吧。目前支援 ${getSupportedAlgoLabels().join("、")} 等演算法的動畫視覺化。`}
-        finalPrimaryLabel="開始使用"
-        finalSecondaryLabel="關閉"
+        finalTitle={t('tour.outro.title')}
+        finalDescription={t('tour.outro.description', { algos: getSupportedAlgoLabels().join(', ') })}
+        finalPrimaryLabel={t('tour.outro.primaryLabel')}
+        finalSecondaryLabel={t('tour.outro.secondaryLabel')}
       />
     </DndContext>
   );

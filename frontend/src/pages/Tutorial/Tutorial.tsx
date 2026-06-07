@@ -391,6 +391,7 @@ export const InspectorPanelInternal = ({
 };
 
 function TutorialContent() {
+  const { t: tTour } = useTranslation('tutorial');
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvasSize] = useState({ width: 800, height: 400 });
 
@@ -423,14 +424,14 @@ function TutorialContent() {
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
 
   // Feature Tour state
-  // 初始是否自動彈出：使用者按過「不再顯示」則不自動彈，否則每次進頁都彈
+  // Auto-open on mount unless the user has previously clicked "Don't show again"
   const [showFeatureTour, setShowFeatureTour] = useState(() => !getTourDismissed());
   const handleSkipFeatureTour = () => setShowFeatureTour(false);
   const handleCompleteFeatureTour = () => {
     setShowFeatureTour(false);
     setIsKnowledgeStationOpen(true);
   };
-  // 「不再顯示」：記住偏好後關閉導覽，之後不自動彈（「?」按鈕仍可手動開）
+  // "Don't show again": persist the preference then close the tour (the "?" button still opens it manually)
   const handleDontShowAgain = () => {
     setTourDismissed();
     setShowFeatureTour(false);
@@ -1145,8 +1146,8 @@ function TutorialContent() {
             variant="secondary"
             size="sm"
             onClick={() => setShowFeatureTour(true)}
-            title="開啟功能導覽"
-            aria-label="開啟功能導覽"
+            title={tTour('featureTour.openTour')}
+            aria-label={tTour('featureTour.openTour')}
             icon="circle-question"
             iconOnly
           />
@@ -1154,12 +1155,12 @@ function TutorialContent() {
             variant="secondary"
             size="sm"
             onClick={() => setIsKnowledgeStationOpen(true)}
-            title="開啟知識補充站"
-            aria-label="開啟知識補充站"
+            title={tTour('featureTour.knowledgeStation')}
+            aria-label={tTour('featureTour.knowledgeStation')}
             icon="lightbulb"
             iconOnly={isMobile}
           >
-            {!isMobile && "知識補充站"}
+            {!isMobile && tTour('featureTour.knowledgeStation')}
           </Button>
           {!isMobile && (
             <span data-tour="swap-button">

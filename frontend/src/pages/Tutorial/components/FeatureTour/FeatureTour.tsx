@@ -1,4 +1,5 @@
-import { DESKTOP_STEPS, MOBILE_STEPS } from './featureTourSteps';
+import { useTranslation } from 'react-i18next';
+import { buildFeatureTourSteps } from './featureTourSteps';
 import TourEngine from '@/shared/components/TourEngine';
 
 interface FeatureTourProps {
@@ -10,11 +11,14 @@ interface FeatureTourProps {
 }
 
 /**
- * Tutorial 頁的功能導覽。
- * 引擎邏輯已抽至共用 TourEngine，本元件僅提供 Tutorial 專屬步驟與收尾文案。
+ * Feature tour for the Tutorial page.
+ * Engine logic lives in the shared TourEngine; this component only provides Tutorial-specific steps and outro copy.
  */
 export default function FeatureTour({ isOpen, onComplete, onSkip, onDontShowAgain, isMobile }: FeatureTourProps) {
-  const steps = isMobile ? MOBILE_STEPS : DESKTOP_STEPS;
+  const { t } = useTranslation('tutorial');
+  const allSteps = buildFeatureTourSteps(t);
+  // Mobile 跳過前 3 步（swap-button, resize-handle, resize-handle-v）
+  const steps = isMobile ? allSteps.slice(3) : allSteps;
   return (
     <TourEngine
       isOpen={isOpen}
@@ -22,10 +26,10 @@ export default function FeatureTour({ isOpen, onComplete, onSkip, onDontShowAgai
       onComplete={onComplete}
       onSkip={onSkip}
       onDontShowAgain={onDontShowAgain}
-      finalTitle="準備好了嗎？"
-      finalDescription="在開始練習前，先到知識補充站了解這個演算法的理論基礎吧！"
-      finalPrimaryLabel="進入知識補充站"
-      finalSecondaryLabel="暫時不需要，直接開始"
+      finalTitle={t('featureTour.outro.title')}
+      finalDescription={t('featureTour.outro.description')}
+      finalPrimaryLabel={t('featureTour.outro.primaryLabel')}
+      finalSecondaryLabel={t('featureTour.outro.secondaryLabel')}
     />
   );
 }

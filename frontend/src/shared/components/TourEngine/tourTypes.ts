@@ -1,35 +1,35 @@
-// 共用導覽引擎的型別定義。
-// 互動欄位皆為選用：不傳時 step 為傳統線性步驟（Next/Previous）。
+// Shared tour engine type definitions.
+// Interactive fields are all optional: omitting them makes the step a traditional linear step (Next/Previous).
 
 export interface TourStep {
   id: string;
   title: string;
   description: string;
-  /** 目標元素的 CSS selector，例：[data-tour="run-button"] */
+  /** Target element CSS selector, e.g. [data-tour="run-button"] */
   targetSelector: string;
-  /** 選用：第二個 spotlight 目標，用於需要同時標記兩個元素的步驟 */
+  /** Optional: second spotlight target, for steps that need to highlight two elements simultaneously */
   secondaryTargetSelector?: string;
   placement: 'top' | 'bottom' | 'left' | 'right';
 
-  // ── 互動模式（方向 B）選用欄位 ──
-  /** true 時隱藏 Next 按鈕，改顯示「等待操作…」提示與「跳過此步」連結 */
+  // ── Interactive mode (direction B) optional fields ──
+  /** When true, hides the Next button and shows a "Waiting for action…" hint with a "Skip step" link */
   interactive?: boolean;
   /**
-   * 互動 step 的前進條件。引擎在 rAF loop 內檢查，回傳 true 時自動前進。
-   * 由呼叫端傳入閉包（例：() => runStage !== 'idle'）。
+   * Advance condition for interactive steps. The engine checks this in the rAF loop and auto-advances when it returns true.
+   * Pass a closure from the caller (e.g. () => runStage !== 'idle').
    */
   advanceWhen?: () => boolean;
-  /** 進入此 step 時觸發一次，用來驅動 UI（例：切 tab、展開面板） */
+  /** Called once when entering this step, used to drive UI (e.g. switch tab, expand panel) */
   onEnter?: () => void;
   /**
-   * 互動 step 按「跳過此步」時呼叫。
-   * 通常用來跳過後面所有資料相依步驟、直接關閉導覽。
+   * Called when "Skip step" is clicked on an interactive step.
+   * Typically used to skip all data-dependent steps and close the tour directly.
    */
   onSkipStep?: () => void;
   /**
-   * 互動 step 等待期間的子狀態。引擎用來切換吉祥物 running / error 外觀。
-   * 回傳 'error' 顯示報錯吉祥物與提示；其餘（'running' / 'idle'）顯示陪伴等待。
-   * 由呼叫端傳入閉包（例：() => lastRunOutcome === 'error' ? 'error' : 'running'）。
+   * Sub-state while an interactive step is waiting. The engine uses this to switch the mascot between running / error appearance.
+   * Returns 'error' to show the error mascot; otherwise ('running' / 'idle') shows the companion waiting state.
+   * Pass a closure from the caller (e.g. () => lastRunOutcome === 'error' ? 'error' : 'running').
    */
   waitingState?: () => 'running' | 'error' | 'idle';
 }
@@ -37,24 +37,24 @@ export interface TourStep {
 export interface TourEngineProps {
   isOpen: boolean;
   steps: TourStep[];
-  /** 完成最後一步（按收尾卡主按鈕）時呼叫 */
+  /** Called when the final step is completed (primary button on the outro card) */
   onComplete: () => void;
-  /** 關閉導覽（×／Esc／收尾卡次按鈕）時呼叫 */
+  /** Called when the tour is closed (×, Esc, or secondary button on the outro card) */
   onSkip: () => void;
-  /** 收尾卡主按鈕文字，預設「完成」 */
+  /** Primary button label on the outro card, default "Done" */
   finalPrimaryLabel?: string;
-  /** 收尾卡次按鈕文字，預設「關閉」 */
+  /** Secondary button label on the outro card, default "Close" */
   finalSecondaryLabel?: string;
-  /** 收尾卡標題，預設「準備好了嗎？」 */
+  /** Title on the outro card, default "Ready?" */
   finalTitle?: string;
-  /** 收尾卡說明文字 */
+  /** Description text on the outro card */
   finalDescription?: string;
-  /** 選用：底部加「不再顯示」按鈕，按下時呼叫 */
+  /** Optional: adds a "Don't show again" button at the bottom, calling this when clicked */
   onDontShowAgain?: () => void;
   /**
-   * 選用：暫停導覽。為 true 時隱藏 spotlight/tooltip 並停止 rAF 追蹤，
-   * 但**不重設步驟**（與 isOpen 分離）。用於外層彈出對話框等情境暫時讓位，
-   * 對話框關閉後（isPaused 回 false）恢復停在原本的 step。
+   * Optional: pause the tour. When true, hides the spotlight/tooltip and stops rAF tracking,
+   * but does NOT reset the step (separate from isOpen). Used to yield to overlaying dialogs;
+   * resumes at the same step when the dialog closes (isPaused returns to false).
    */
   isPaused?: boolean;
 }

@@ -27,7 +27,7 @@ export function usePlaygroundRun({
   const { t } = useTranslation("playground");
 
   const [runStage, setRunStage] = useState<RunStage>("idle");
-  // 上次執行結果（明確語意，供 tour 等 UI 判斷成功/失敗，不從 runStage 猜）
+  // Last run outcome (explicit semantics for tour/UI to judge success/failure — not inferred from runStage)
   const [lastRunOutcome, setLastRunOutcome] =
     useState<"none" | "running" | "success" | "error">("none");
   const [trace, setTrace] = useState<TraceEvent[]>([]);

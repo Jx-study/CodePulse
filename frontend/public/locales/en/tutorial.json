@@ -1,0 +1,38 @@
+{
+  "featureTour": {
+    "outro": {
+      "title": "Ready?",
+      "description": "Before you start practicing, visit the Knowledge Station to learn the theoretical foundations of this algorithm!",
+      "primaryLabel": "Go to Knowledge Station",
+      "secondaryLabel": "Skip for now, start directly"
+    },
+    "openTour": "Open feature tour",
+    "knowledgeStation": "Knowledge Station",
+    "steps": {
+      "swapButton": {
+        "title": "Swap Layout",
+        "description": "Click this button to swap the left code panel and the right canvas, so you can find the learning layout that suits you best."
+      },
+      "resizeHandle": {
+        "title": "Resize Panels Horizontally",
+        "description": "Drag the divider between the left and right panels to freely adjust the width ratio between the code panel and the visualization area."
+      },
+      "resizeHandleV": {
+        "title": "Resize Panels Vertically",
+        "description": "Drag the divider between the top and bottom panels to freely adjust the height ratio between the visualization canvas and the data controls panel."
+      },
+      "canvasPanel": {
+        "title": "Visualization Canvas",
+        "description": "This is the main stage for the algorithm animation. You can zoom and pan the canvas to observe the changes at each step."
+      },
+      "controlBar": {
+        "title": "Playback Controls",
+        "description": "Use play, pause, previous, and next to control the animation speed. You can also drag the progress bar to jump to any step."
+      },
+      "codePanel": {
+        "title": "Code Panel",
+        "description": "The left panel shows the corresponding pseudocode or Python implementation. The currently executing line is highlighted automatically."
+      }
+    }
+  }
+}

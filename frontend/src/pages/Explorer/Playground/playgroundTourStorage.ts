@@ -1,11 +1,11 @@
-// Playground 操作導覽「不再顯示」偏好的 localStorage 存取工具。
-// 沿用 codepulse: 具名常數 + try/catch 慣例，避免隱私模式存取拋錯。
+// localStorage helpers for the Playground tour "Don't show again" preference.
+// Follows the codepulse: named-constant + try/catch convention to avoid throws in private-browsing mode.
 
 const STORAGE_KEY = 'codepulse:playground-tour-dismissed';
 
 /**
- * 讀取使用者是否已按過「不再顯示」。
- * 讀取失敗（如隱私模式）一律視為「未關閉」，讓導覽照常自動彈出。
+ * Returns whether the user has ever clicked "Don't show again".
+ * Read failures (e.g. private-browsing mode) are treated as "not dismissed" so the tour auto-opens normally.
  */
 export function getPlaygroundTourDismissed(): boolean {
   try {
@@ -16,13 +16,13 @@ export function getPlaygroundTourDismissed(): boolean {
 }
 
 /**
- * 記下使用者已按「不再顯示」，之後不再自動彈出導覽。
- * 寫入失敗時靜默忽略（不影響當次關閉導覽的行為）。
+ * Records that the user clicked "Don't show again" so the tour will no longer auto-open.
+ * Write failures are silently ignored (the tour still closes for this session).
  */
 export function setPlaygroundTourDismissed(): void {
   try {
     localStorage.setItem(STORAGE_KEY, 'true');
   } catch {
-    // 隱私模式等情境寫入失敗：忽略，當次仍會關閉導覽
+    // Write failed (e.g. private-browsing mode) — ignore; the tour still closes this session
   }
 }

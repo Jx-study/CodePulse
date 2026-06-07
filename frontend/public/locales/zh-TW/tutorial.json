@@ -1,0 +1,38 @@
+{
+  "featureTour": {
+    "outro": {
+      "title": "準備好了嗎？",
+      "description": "開始練習前，前往知識站學習此演算法的理論基礎吧！",
+      "primaryLabel": "前往知識站",
+      "secondaryLabel": "先跳過，直接開始"
+    },
+    "openTour": "開啟功能導覽",
+    "knowledgeStation": "知識站",
+    "steps": {
+      "swapButton": {
+        "title": "交換版面配置",
+        "description": "點擊此按鈕可交換左側程式碼面板與右側畫布，找到最適合你的學習版面。"
+      },
+      "resizeHandle": {
+        "title": "水平調整面板大小",
+        "description": "拖曳左右面板之間的分隔線，自由調整程式碼面板與視覺化區域的寬度比例。"
+      },
+      "resizeHandleV": {
+        "title": "垂直調整面板大小",
+        "description": "拖曳上下面板之間的分隔線，自由調整視覺化畫布與資料控制面板的高度比例。"
+      },
+      "canvasPanel": {
+        "title": "視覺化畫布",
+        "description": "這是演算法動畫的主要舞台，你可以縮放與拖曳畫布以觀察每個步驟的變化。"
+      },
+      "controlBar": {
+        "title": "播放控制列",
+        "description": "使用播放、暫停、上一步、下一步控制動畫速度，也可拖曳進度條跳至任意步驟。"
+      },
+      "codePanel": {
+        "title": "程式碼面板",
+        "description": "左側面板顯示對應的虛擬碼或 Python 實作，目前執行的行會自動高亮顯示。"
+      }
+    }
+  }
+}
