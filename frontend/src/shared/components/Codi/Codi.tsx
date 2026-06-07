@@ -1,47 +1,55 @@
 import { useSyncExternalStore } from 'react';
-import CodiSvg from './CodiSvg';
-import CodiLottie from './CodiLottie';
-import type { CodiSvgProps } from './CodiSvg';
+import { useTranslation } from 'react-i18next';
+import Lottie from 'lottie-react';
+import styles from './Codi.module.scss';
+import runningAnimation from './codi-running.json';
+import errorAnimation from './codi-error.json';
 
-export type { CodiState } from './CodiSvg';
-export type CodiProps = CodiSvgProps;
+export type CodiState = 'running' | 'error';
+
+export interface CodiProps {
+  state: CodiState;
+  runningText?: string;
+  errorText?: string;
+}
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
-function subscribeToReducedMotion(onStoreChange: () => void) {
-  if (typeof window === 'undefined') {
-    return () => {};
-  }
-
-  const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
-  mediaQuery.addEventListener('change', onStoreChange);
-
-  return () => {
-    mediaQuery.removeEventListener('change', onStoreChange);
-  };
-}
-
-function getReducedMotionSnapshot() {
-  return (
-    typeof window !== 'undefined' &&
-    window.matchMedia(REDUCED_MOTION_QUERY).matches
-  );
+function subscribeToReducedMotion(onChange: () => void) {
+  if (typeof window === 'undefined') return () => {};
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
 }
 
 function usePrefersReducedMotion() {
   return useSyncExternalStore(
     subscribeToReducedMotion,
-    getReducedMotionSnapshot,
+    () => typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION_QUERY).matches,
     () => false,
   );
 }
 
-/**
- * Codi 吉祥物對外入口。
- * prefers-reduced-motion 時退回 SVG 靜態版，否則使用 Lottie 動畫版。
- */
-export default function Codi(props: CodiProps) {
+/** Codi 吉祥物。prefers-reduced-motion 時停在第一幀，否則循環播放 */
+export default function Codi({ state, runningText, errorText }: CodiProps) {
+  const { t } = useTranslation('common');
   const prefersReducedMotion = usePrefersReducedMotion();
+  const isError = state === 'error';
 
-  return prefersReducedMotion ? <CodiSvg {...props} /> : <CodiLottie {...props} />;
+  return (
+    <div className={styles.wrap}>
+      <Lottie
+        className={styles.lottie}
+        animationData={isError ? errorAnimation : runningAnimation}
+        loop={!isError && !prefersReducedMotion}
+        initialSegment={prefersReducedMotion ? [0, 1] : undefined}
+        aria-hidden
+      />
+      <span className={`${styles.text} ${isError ? styles.textError : ''}`}>
+        {isError
+          ? (errorText ?? t('mascot.errorText'))
+          : (runningText ?? t('mascot.runningText'))}
+      </span>
+    </div>
+  );
 }
