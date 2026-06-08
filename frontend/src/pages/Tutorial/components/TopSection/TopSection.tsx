@@ -17,47 +17,11 @@ import ResizeHandle from '@/shared/components/ResizeHandle';
 import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeEditor'));
-import type { AlgorithmViewMode } from '@/types/implementation';
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
 import type { CodeEditorHandle } from '@/modules/core/components/CodeEditor/CodeEditor';
-import type { BaseElement } from '@/modules/core/DataLogic/BaseElement';
-import type { D3CanvasRef } from '@/modules/core/Render/D3Canvas';
-import type { GraphCanvasRef } from '@/modules/core/Render/GraphCanvas';
+import type { CanvasPanelProps } from '@/types/canvasTypes';
 import styles from './TopSection.module.scss';
-
-interface CanvasPanelProps {
-  canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
-  isMobile: boolean;
-  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  currentStepData: any;
-  viewBoxElements?: BaseElement[];
-  currentLinks: any[];
-  canvasSize: { width: number; height: number };
-  topicTypeConfig: any;
-  currentStatusColorMap: any;
-  currentStatusConfig: any;
-  isDirected: boolean;
-  showBidirectionalArrows: boolean;
-  viewMode: AlgorithmViewMode | "";
-  isPlaying: boolean;
-  currentStep: number;
-  activeStepsLength: number;
-  playbackSpeed: number;
-  handlePlay: () => void;
-  handlePause: () => void;
-  handleNext: () => void;
-  handlePrev: () => void;
-  handleResetStep: () => void;
-  setPlaybackSpeed: (speed: number) => void;
-  handleStepChange: (step: number) => void;
-
-  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
-  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
-  useGraphCanvas: boolean;
-  showControls: boolean;
-}
-
 interface TopSectionProps {
   // DnD 相關
   activeDragId: string | null;

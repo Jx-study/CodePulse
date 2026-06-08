@@ -49,6 +49,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { StepDescription } from "@/types";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
+import type { CanvasPanelProps } from "@/types/canvasTypes";
 
 function renderDescription(
   desc: string | StepDescription | undefined,
@@ -60,41 +61,6 @@ function renderDescription(
 }
 
 // ==================== Canvas Panel Component ====================
-interface CanvasPanelProps {
-  canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
-  isMobile: boolean;
-  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  currentStepData: any;
-  allStepsElements?: BaseElement[][];
-  currentLinks: Link[];
-  canvasSize: { width: number; height: number };
-  topicTypeConfig: any;
-  currentStatusColorMap: any;
-  currentStatusConfig: any;
-  isDirected: boolean;
-  /** Doubly 鏈結時為 true，驅動 D3 雙向平行箭頭 */
-  showBidirectionalArrows: boolean;
-  viewMode: AlgorithmViewMode | "";
-
-  // 保留 ControlBar props (內嵌在 Canvas 中)
-  isPlaying: boolean;
-  currentStep: number;
-  activeStepsLength: number;
-  playbackSpeed: number;
-  handlePlay: () => void;
-  handlePause: () => void;
-  handleNext: () => void;
-  handlePrev: () => void;
-  handleResetStep: () => void;
-  setPlaybackSpeed: (speed: number) => void;
-  handleStepChange: (step: number) => void;
-
-  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
-  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
-  useGraphCanvas: boolean;
-  showControls: boolean;
-}
-
 const CanvasPanel = ({
   canvasPanelRef,
   isMobile,
