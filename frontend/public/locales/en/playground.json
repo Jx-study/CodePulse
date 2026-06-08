@@ -8,6 +8,7 @@
   },
   "ui": {
     "editCode": "Edit Code",
+    "rerun": "Re-run",
     "run": "Run",
     "tabAnimation": "Algorithm Animation",
     "tabGraph": "Call Graph / CFG",
@@ -18,7 +19,62 @@
     "cfgPrefix": "CFG ·",
     "globalFrame": "(global)",
     "runToStart": "Run code to start",
-    "waitingAnalysis": "Waiting for analysis…"
+    "waitingAnalysis": "Waiting for analysis…",
+    "truncatedBadge": "truncated",
+    "callLegend": "call",
+    "returnLegend": "return",
+    "vizModeAriaLabel": "Visualization mode"
+  },
+  "activityBar": {
+    "codeEditor": "Code Editor",
+    "executionHistory": "Execution History",
+    "dockedHint": "(docked — drag to right bar to undock)"
+  },
+  "panel": {
+    "globalVars": "Global Vars",
+    "localVars": "Local Vars",
+    "callStack": "Call Stack",
+    "console": "Console"
+  },
+  "aiDialog": {
+    "title": "AI Analysis",
+    "arbitrating": "Gemini arbitrating…",
+    "tabComplexity": "Complexity",
+    "tabAlgorithm": "Algorithm",
+    "tabSummary": "AI Summary",
+    "timeComplexity": "Time Complexity",
+    "analysisError": "Analysis failed — please re-run.",
+    "detectedAlgorithm": "Detected Algorithm",
+    "learnHint": "Want to learn how this algorithm works step by step?",
+    "goToTutorial": "Go to Tutorial",
+    "codeSummary": "Code Summary",
+    "purpose": "Purpose",
+    "feedback": "Feedback"
+  },
+  "algoDialog": {
+    "title": "Algorithm Detected",
+    "applyHint": "Apply the matching animation for this algorithm?",
+    "applyAnimation": "Apply Animation",
+    "skip": "Skip",
+    "inconclusiveHint": "Results are inconclusive. Select the best match:"
+  },
+  "historyDialog": {
+    "title": "Execution History",
+    "quotaTitle": "History Full",
+    "quotaDesc": "You've reached the <strong>5-record limit</strong>. Remove one existing record to save this run, or continue without saving.",
+    "dontSave": "Don't Save This Run",
+    "removeAndSave": "Remove Selected & Save",
+    "unknown": "Unknown",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "replay": "Replay",
+    "loadIntoEditor": "Load into Editor"
+  },
+  "inputDialog": {
+    "title": "Input #{{index}}",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "placeholder": "Enter value and press Enter…"
   },
   "empty": {
     "animationTitle": "No animation data",
@@ -44,6 +100,7 @@
     "runtimeRecursionError": "Maximum recursion depth exceeded.",
     "poolExhausted": "Server is busy. Please try again later.",
     "analysisFailed": "Analysis failed. Please try again.",
+    "inputCancelled": "Input cancelled. Run again when you're ready.",
     "truncated": "Output may be truncated — trace limit reached.",
     "duplicateCode": "This code is already in your history."
   }

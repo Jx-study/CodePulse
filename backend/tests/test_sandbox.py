@@ -16,6 +16,7 @@ import requests
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "services"))
 
+import services.sandbox as sandbox_client
 from services.sandbox import run_in_sandbox, CONTAINER_TIMEOUT
 
 
@@ -133,6 +134,45 @@ class TestRunInSandboxErrors:
             result = run_in_sandbox(SIMPLE_CODE)
         assert "error" in result
         assert "ZeroDivisionError" in result["error"]
+
+
+class TestInteractiveSandboxClient:
+    def test_run_in_sandbox_propagates_input_needed_session(self):
+        payload = {
+            "status": "input_needed",
+            "session_id": "session-1",
+            "prompt": "Name: ",
+            "input_index": 0,
+        }
+        with patch("services.sandbox.requests.post", return_value=_make_response(payload=payload)):
+            result = run_in_sandbox('name = input("Name: ")')
+
+        assert result == payload
+
+    def test_send_input_posts_value_to_session_endpoint(self):
+        payload = {"status": "completed", "result": {"trace": []}}
+        with patch("services.sandbox.requests.post", return_value=_make_response(payload=payload)) as mock_post:
+            result = sandbox_client.send_input("session-1", "Ada")
+
+        assert result == payload
+        assert mock_post.call_args.args[0].endswith("/input/session-1")
+        assert mock_post.call_args.kwargs["json"] == {"value": "Ada"}
+
+    def test_check_session_alive_gets_alive_endpoint(self):
+        payload = {"status": "alive", "alive": True}
+        with patch("services.sandbox.requests.get", return_value=_make_response(payload=payload)) as mock_get:
+            result = sandbox_client.check_session_alive("session-1")
+
+        assert result is True
+        assert mock_get.call_args.args[0].endswith("/session/session-1/alive")
+
+    def test_close_session_posts_close_endpoint(self):
+        payload = {"status": "closed"}
+        with patch("services.sandbox.requests.post", return_value=_make_response(payload=payload)) as mock_post:
+            result = sandbox_client.close_session("session-1")
+
+        assert result == payload
+        assert mock_post.call_args.args[0].endswith("/session/session-1/close")
 
 
 @pytest.mark.integration

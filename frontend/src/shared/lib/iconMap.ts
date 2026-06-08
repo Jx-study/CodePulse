@@ -4,10 +4,11 @@
 - 只有在此處註冊的圖標才能在 Icon Component 中使用
 */
 
-import { library, IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
   faArrowRight,
+  faArrowUpFromBracket,
   faArrowsSpin,
   faBars,
   faBolt,
@@ -102,13 +103,14 @@ import {
   faUser,
   faUserCircle,
   faWaveSquare,
+  faWandMagicSparkles,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
   faCircle as farCircle,
   faCheckCircle as farCheckCircle,
   faStar as farStar,
-} from "@fortawesome/free-regular-svg-icons";
+} from '@fortawesome/free-regular-svg-icons';
 
 /**
  * 1. 集中管理映射表
@@ -117,6 +119,7 @@ import {
 export const iconMap = {
   "arrow-left": faArrowLeft,
   "arrow-right": faArrowRight,
+  "arrow-up-from-bracket": faArrowUpFromBracket,
   "arrows-spin": faArrowsSpin,
   "bars": faBars,
   "bolt": faBolt,
@@ -215,6 +218,7 @@ export const iconMap = {
   "user": faUser,
   "user-circle": faUserCircle,
   "wave-square": faWaveSquare,
+  "wand-magic-sparkles": faWandMagicSparkles,
 } as const;
 
 /**

@@ -48,6 +48,7 @@ import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import AlgoDetectionDialog from "./components/AlgoDetectionDialog";
+import { InputPromptDialog } from "./components/InputPromptDialog";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import type { StdoutEvent } from "@/types/trace";
 import {
@@ -147,8 +148,10 @@ function Playground() {
     isAlgoDialogOpen,
     setIsAlgoDialogOpen,
     handleRun,
+    handleForceRun,
     handleEditCode,
     loadFromHistory,
+    inputPrompt,
   } = usePlaygroundRun({
     code,
     editorRef,
@@ -286,21 +289,33 @@ function Playground() {
                       <span className={styles.filename}>main.py</span>
                     </div>
                     {isLocked ? (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        className={styles.editCodeBtn}
-                        onClick={handleEditCode}
-                        icon="pen-to-square"
-                      >
-                        {t("ui.editCode")}
-                      </Button>
+                      <div className={styles.editorBtnGroup}>
+                        {runStage === "done" && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleForceRun}
+                            icon="rotate-right"
+                          >
+                            {t("ui.rerun")}
+                          </Button>
+                        )}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          className={styles.editCodeBtn}
+                          onClick={handleEditCode}
+                          icon="pen-to-square"
+                        >
+                          {t("ui.editCode")}
+                        </Button>
+                      </div>
                     ) : (
                       <Button
                         variant="secondary"
                         size="sm"
                         className={styles.runBtn}
-                        onClick={handleRun}
+                        onClick={() => handleRun()}
                         disabled={false}
                         icon="play"
                       >
@@ -369,7 +384,7 @@ function Playground() {
                     handleStepChange(0);
                     handlePause();
                   }}
-                  aria-label="Visualization mode"
+                  aria-label={t("ui.vizModeAriaLabel")}
                   tabs={[
                     ...(hasAnimationTemplate
                       ? [
@@ -388,7 +403,7 @@ function Playground() {
                   ]}
                 />
                 {isTruncated && (
-                  <span className={styles.truncatedBadge}>⚠ truncated</span>
+                  <span className={styles.truncatedBadge}>{t("ui.truncatedBadge")}</span>
                 )}
                 <Button
                   variant="unstyled"
@@ -502,10 +517,10 @@ function Playground() {
                     />
                     <div className={styles.callGraphLegend}>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineSolid} /> call
+                        <span className={styles.legendLineSolid} /> {t("ui.callLegend")}
                       </span>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineDashed} /> return
+                        <span className={styles.legendLineDashed} /> {t("ui.returnLegend")}
                       </span>
                     </div>
                   </div>
@@ -611,6 +626,13 @@ function Playground() {
         onApply={(name) => {
           setAppliedAlgo(name);
         }}
+      />
+      <InputPromptDialog
+        isOpen={inputPrompt !== null}
+        prompt={inputPrompt?.prompt ?? ""}
+        inputIndex={inputPrompt?.inputIndex ?? 0}
+        onSubmit={(value) => inputPrompt?.resolve(value)}
+        onCancel={() => inputPrompt?.resolve(null)}
       />
       <PlaygroundHistoryDialog
         isOpen={isHistoryOpen}
