@@ -27,5 +27,10 @@
     "dequeueTooltip": "Remove element from the front of the queue",
     "peekTooltip": "View the front element without removing it",
     "enqueueWarning": "Please enter a value to Enqueue"
+  },
+  "relatedProblems": {
+    "225": "Queue application: implement a stack using queues",
+    "622": "Queue design: implement a circular queue",
+    "933": "Queue in practice: count recent requests within a sliding window"
   }
 }

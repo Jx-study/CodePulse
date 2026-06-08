@@ -85,5 +85,10 @@
     "updateIndexOutOfRange": "Index out of range. Valid range: 0 – {{max}}",
     "deleteWarning": "Please enter an index to delete",
     "searchWarning": "Please enter a search value"
+  },
+  "relatedProblems": {
+    "1": "Array basics: find two numbers in an array that add up to the target",
+    "27": "Array deletion: remove specified elements in-place",
+    "189": "Array manipulation: rotate array elements"
   }
 }

@@ -97,6 +97,14 @@
   "problemsTab": {
     "empty": "No related problems available"
   },
+  "derivedContent": {
+    "title": "Related Problems"
+  },
+  "difficulty": {
+    "Easy": "Easy",
+    "Medium": "Medium",
+    "Hard": "Hard"
+  },
   "storyTab": {
     "empty": "No real-world application stories available for this topic yet."
   },

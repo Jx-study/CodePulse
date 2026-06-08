@@ -8,5 +8,10 @@
     "update_left": "{{midVal}} < {{target}} (Too small), target is in the right half. Update Left = {{mid}} + 1",
     "update_right": "{{midVal}} > {{target}} (Too large), target is in the left half. Update Right = {{mid}} - 1",
     "not_found": "Search complete: Range is empty (Left > Right), target {{target}} not found"
+  },
+  "relatedProblems": {
+    "704": "Classic algorithm: search for a target value in a sorted array (basic binary search)",
+    "35": "Variant: find the target or return where it would be inserted (lower bound concept)",
+    "34": "Advanced: find the first and last position of a target in a sorted array with duplicates"
   }
 }

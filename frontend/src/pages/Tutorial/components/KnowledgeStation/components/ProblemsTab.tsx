@@ -6,9 +6,10 @@ import styles from './ProblemsTab.module.scss';
 
 interface ProblemsTabProps {
   relatedProblems?: ProblemReference[];
+  i18nNamespace?: string;
 }
 
-const ProblemsTab: React.FC<ProblemsTabProps> = ({ relatedProblems }) => {
+const ProblemsTab: React.FC<ProblemsTabProps> = ({ relatedProblems, i18nNamespace }) => {
   const { t } = useTranslation('tutorial');
 
   if (!relatedProblems || relatedProblems.length === 0) {
@@ -23,7 +24,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ relatedProblems }) => {
 
   return (
     <div className={styles.problemsTab}>
-      <DerivedContent problems={relatedProblems} />
+      <DerivedContent problems={relatedProblems} i18nNamespace={i18nNamespace} />
     </div>
   );
 };

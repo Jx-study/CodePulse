@@ -97,6 +97,14 @@
   "problemsTab": {
     "empty": "暫無相關題目"
   },
+  "derivedContent": {
+    "title": "衍生內容"
+  },
+  "difficulty": {
+    "Easy": "簡單",
+    "Medium": "中等",
+    "Hard": "困難"
+  },
   "storyTab": {
     "empty": "目前尚未提供此主題的真實世界應用故事。"
   },

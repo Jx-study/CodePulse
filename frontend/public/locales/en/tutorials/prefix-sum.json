@@ -26,5 +26,10 @@
     "currentElement": "Current Element A[i]",
     "queryRight": "Query Right P[R]",
     "queryLeft": "Subtract Prefix P[L-1]"
+  },
+  "relatedProblems": {
+    "303": "Classic prefix sum: efficiently compute range sum queries on an array",
+    "560": "Prefix sum + hash map: count subarrays whose sum equals K",
+    "304": "2D prefix sum: extend range-sum queries to a 2D matrix"
   }
 }

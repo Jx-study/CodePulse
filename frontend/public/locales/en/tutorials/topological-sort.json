@@ -31,5 +31,11 @@
     "reducingEdge": "Removing Edge / Reducing In-degree",
     "sorted": "Sorted",
     "cyclicDeadlock": "Cyclic Deadlock"
+  },
+  "relatedProblems": {
+    "207": "Classic topological sort: determine if all courses can be completed (cycle detection)",
+    "210": "Topological sort: output a valid course completion order (full topological sequence)",
+    "802": "Reverse topological sort: find all nodes that will never be stuck in a cycle (safe nodes)",
+    "1462": "Topological sort + transitive closure: determine prerequisite relationships between courses"
   }
 }

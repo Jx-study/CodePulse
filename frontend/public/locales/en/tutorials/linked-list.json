@@ -141,5 +141,10 @@
     "operationNode": "Operation Node",
     "complete": "Complete",
     "deleted": "Deleted"
+  },
+  "relatedProblems": {
+    "206": "Linked list basics: reverse a singly linked list",
+    "141": "Fast & slow pointer: detect if a linked list has a cycle",
+    "21": "Linked list merge: merge two sorted linked lists"
   }
 }

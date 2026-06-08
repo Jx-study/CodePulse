@@ -125,14 +125,14 @@ export const mergeSortConfig: LevelImplementationConfig = {
     {
       id: 912,
       title: "Sort an Array",
-      concept: "基礎排序：適合用 Merge Sort 實現 O(n log n) 時間複雜度",
+      concept: "relatedProblems.912",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/sort-an-array/",
     },
     {
       id: 23,
       title: "Merge k Sorted Lists",
-      concept: "Merge 過程的延伸應用",
+      concept: "relatedProblems.23",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/merge-k-sorted-lists/",
     },

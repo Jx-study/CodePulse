@@ -9,5 +9,10 @@
     "insert": "Insert: Place insertVal ({{val}}) at Index {{idx}}",
     "round_end": "Sorting complete for range Index 0~{{i}}",
     "done": "Sorting Complete"
+  },
+  "relatedProblems": {
+    "147": "Direct application: implement insertion sort on a linked list",
+    "148": "Advanced sort: sort a linked list, solvable with insertion sort or merge sort",
+    "88": "Insertion sort concept extension: merge two sorted arrays"
   }
 }

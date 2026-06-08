@@ -8,5 +8,9 @@
     "pivot_set": "Partitioning complete, placing pivot {{pivotVal}} at its correct sorted position (Index {{pivotIdx}})",
     "base_case": "Range has only one element {{value}}, marking it directly as sorted",
     "done": "Quick Sort complete! All elements are now in their correct positions."
+  },
+  "relatedProblems": {
+    "912": "Sorting basics: implement O(n log n) sorting with Quick Sort (randomized pivot)",
+    "215": "Quick Select: use Quick Sort's partition idea to find the K-th largest element"
   }
 }

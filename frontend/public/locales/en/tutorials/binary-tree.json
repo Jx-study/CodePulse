@@ -56,5 +56,10 @@
     "preparingExplore": "Preparing to Explore",
     "currentFocus": "Current Focus",
     "completeVisit": "Visit Complete"
+  },
+  "relatedProblems": {
+    "144": "Preorder traversal: Root → Left → Right (iterative and recursive)",
+    "94": "Inorder traversal: Left → Root → Right (produces sorted output for BST)",
+    "102": "Level-order traversal (BFS): visit nodes level by level"
   }
 }

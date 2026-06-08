@@ -45,5 +45,12 @@
     "comparing": "Comparing",
     "currentFocus": "Current Focus",
     "completeExtract": "Complete / Extracted"
+  },
+  "relatedProblems": {
+    "703": "Data stream: maintain a min-heap of size K to query the K-th largest element at any time",
+    "215": "Top-K classic: use a min-heap to find the K-th largest element in O(n log k)",
+    "347": "Frequency count + min-heap: filter the top K most frequent elements",
+    "295": "Two-heap technique: max-heap + min-heap to dynamically maintain the median of a data stream",
+    "23": "K-way merge: min-heap tracks the minimum across K lists, completing the merge in O(n log k)"
   }
 }

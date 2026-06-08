@@ -33,5 +33,12 @@
     "checkingNeighbor": "Checking Neighbor",
     "settled": "Shortest Distance Settled",
     "visitedPath": "Visited Path"
+  },
+  "relatedProblems": {
+    "743": "Single-source shortest path: Dijkstra from the source, find the minimum time for all nodes to receive a signal",
+    "1631": "Dijkstra variant: minimize the maximum height difference along a path, tracking current max drop with a min-heap",
+    "1514": "Maximum probability path: replace addition with multiplication in Dijkstra, max-heap prioritizes the highest current probability",
+    "787": "Shortest path with at most K stops: track steps used per node, limiting to at most k intermediate stops",
+    "778": "Minimum bottleneck path: Dijkstra selects the minimum water-level cell with a min-heap to reach the bottom-right corner"
   }
 }

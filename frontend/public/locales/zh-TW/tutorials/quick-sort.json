@@ -8,5 +8,9 @@
     "pivot_set": "分區完成，將基準點 {{pivotVal}} 放回正確的排序位置 (Index {{pivotIdx}})",
     "base_case": "區間只剩一個元素 {{value}}，直接標記為已排序",
     "done": "快速排序完成！所有元素皆已在正確位置。"
+  },
+  "relatedProblems": {
+    "912": "基礎排序：適合用 Quick Sort (搭配 Randomized Pivot) 實現 O(n log n) 時間複雜度",
+    "215": "Quick Select：利用 Quick Sort 的 Partition 思想快速找到第 K 大元素"
   }
 }

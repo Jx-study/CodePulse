@@ -10,5 +10,9 @@
     "remaining_right": "將右側剩餘的 {{val}} 放入合併陣列",
     "merge_end": "子陣列合併完畢",
     "done": "合併排序完成！"
+  },
+  "relatedProblems": {
+    "912": "基礎排序：適合用 Merge Sort 實現 O(n log n) 時間複雜度",
+    "23": "Merge 過程的延伸應用"
   }
 }

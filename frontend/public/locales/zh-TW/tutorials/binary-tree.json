@@ -56,5 +56,10 @@
     "preparingExplore": "準備探索",
     "currentFocus": "當前焦點",
     "completeVisit": "完成訪問"
+  },
+  "relatedProblems": {
+    "144": "前序遍歷：Root -> Left -> Right (迭代與遞迴實作)",
+    "94": "中序遍歷：Left -> Root -> Right (BST 會得到排序結果)",
+    "102": "層序遍歷 (BFS)：逐層訪問節點"
   }
 }

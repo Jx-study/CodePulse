@@ -85,5 +85,10 @@
     "updateIndexOutOfRange": "索引超出範圍，合法範圍：0 – {{max}}",
     "deleteWarning": "請輸入要刪除的索引",
     "searchWarning": "請輸入搜尋值"
+  },
+  "relatedProblems": {
+    "1": "陣列基礎應用：在陣列中尋找兩數之和",
+    "27": "陣列刪除操作：移除指定元素 (In-place)",
+    "189": "陣列操作進階：旋轉陣列元素"
   }
 }

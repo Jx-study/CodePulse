@@ -89,5 +89,10 @@
     "exploreDirection": "探索方向",
     "currentNode": "當前節點",
     "completeTarget": "完成 / 目標"
+  },
+  "relatedProblems": {
+    "700": "BST 基礎操作：在二元搜尋樹中查找節點",
+    "701": "BST 插入操作：在二元搜尋樹中插入新節點",
+    "98": "BST 驗證：判斷二元樹是否為有效的二元搜尋樹"
   }
 }

@@ -89,5 +89,10 @@
     "exploreDirection": "Explore Direction",
     "currentNode": "Current Node",
     "completeTarget": "Complete / Target"
+  },
+  "relatedProblems": {
+    "700": "BST basics: search for a node in a binary search tree",
+    "701": "BST insertion: insert a new node into a binary search tree",
+    "98": "BST validation: determine if a binary tree is a valid BST"
   }
 }

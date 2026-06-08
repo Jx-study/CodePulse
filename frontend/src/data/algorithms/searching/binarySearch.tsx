@@ -105,22 +105,21 @@ export const binarySearchConfig: LevelImplementationConfig = {
     {
       id: 704,
       title: "Binary Search",
-      concept: "經典演算法：在已排序陣列中查找目標值 (Basic Binary Search)",
+      concept: "relatedProblems.704",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/binary-search/",
     },
     {
       id: 35,
       title: "Search Insert Position",
-      concept:
-        "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
+      concept: "relatedProblems.35",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/search-insert-position/",
     },
     {
       id: 34,
       title: "Find First and Last Position of Element in Sorted Array",
-      concept: "進階應用：在有重複元素的排序陣列中，尋找目標值的起始與結束位置",
+      concept: "relatedProblems.34",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
     },

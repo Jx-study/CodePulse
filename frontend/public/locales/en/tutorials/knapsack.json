@@ -24,5 +24,11 @@
     "takeItem": "Take Item",
     "skipItem": "Skip Item",
     "finalAnswer": "Final Answer"
+  },
+  "relatedProblems": {
+    "416": "Basic 0/1 knapsack: determine if an array can be split into two subsets with equal sums",
+    "494": "0/1 knapsack variant: assign +/- signs to reach a target sum, reducible to a subset-sum problem",
+    "1049": "0/1 knapsack application: split stones into two piles to minimize the weight difference",
+    "474": "Multi-dimensional 0/1 knapsack: find the maximum subset size given constraints on both 0s and 1s"
   }
 }

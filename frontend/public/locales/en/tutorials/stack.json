@@ -26,5 +26,10 @@
     "popTooltip": "Remove the element from the top of the stack",
     "peekTooltip": "View the top element without removing it",
     "pushWarning": "Please enter a value to Push"
+  },
+  "relatedProblems": {
+    "20": "Stack classic: check if parentheses are properly matched",
+    "155": "Stack design: implement a stack that supports O(1) minimum retrieval",
+    "232": "Stack application: implement a queue using stacks"
   }
 }

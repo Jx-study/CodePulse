@@ -45,5 +45,12 @@
     "comparing": "比較中",
     "currentFocus": "當前焦點",
     "completeExtract": "完成 / 提取"
+  },
+  "relatedProblems": {
+    "703": "資料流應用：維護大小為 K 的 Min-Heap，隨時查詢第 K 大元素",
+    "215": "Top-K 問題經典：用 Min-Heap 在 O(n log k) 內找出第 K 大元素",
+    "347": "頻率統計 + Min-Heap：篩選出出現次數最多的前 K 個元素",
+    "295": "雙堆技巧：Max-Heap + Min-Heap 動態維護資料流中位數",
+    "23": "多路合併：Min-Heap 同時追蹤 K 個串列的最小值，O(n log k) 完成合併"
   }
 }

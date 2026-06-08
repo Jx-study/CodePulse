@@ -23,5 +23,12 @@
     "exploring": "Currently Exploring",
     "explored": "Fully Explored",
     "shortestPath": "Shortest Path"
+  },
+  "relatedProblems": {
+    "994": "Multi-source BFS: all rotten oranges spread simultaneously, each round represents one minute",
+    "127": "Unweighted shortest path: treat each word as a node and one-letter-apart as an edge; BFS finds the shortest transformation sequence",
+    "542": "Multi-source BFS: expand from all 0-cells simultaneously, recording each 1-cell's distance to the nearest 0",
+    "286": "Multi-source BFS: start from all gates (0) simultaneously, fill each empty room with its distance to the nearest gate",
+    "1091": "BFS shortest path: move in 8 directions in a binary matrix; BFS layer expansion guarantees the shortest path"
   }
 }

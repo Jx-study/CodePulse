@@ -10,5 +10,9 @@
     "remaining_right": "Move the remaining right element {{val}} to merged array",
     "merge_end": "Sub-array merge complete",
     "done": "Merge Sort Complete!"
+  },
+  "relatedProblems": {
+    "912": "Sorting basics: implement O(n log n) time complexity sorting with Merge Sort",
+    "23": "Extension of the merge step: merge K sorted linked lists"
   }
 }

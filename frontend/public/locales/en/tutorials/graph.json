@@ -68,5 +68,12 @@
     "preparing": "Preparing / Candidate",
     "targetCurrent": "Target / Current",
     "completeConnected": "Complete / Connected"
+  },
+  "relatedProblems": {
+    "133": "Graph deep copy: use a hash map to track visited nodes and recursively/BFS clone the entire undirected graph",
+    "207": "Directed graph cycle detection: if prerequisite courses form a cycle, completion is impossible — use topological sort to check DAG property",
+    "210": "Topological sort: find a linear learning order in a DAG using Kahn's algorithm or DFS",
+    "684": "Cycle detection / Union-Find: find the extra edge that creates a cycle in an undirected tree",
+    "269": "Advanced topological sort: derive letter ordering from dictionary sequence, build graph and output a valid alphabet order"
   }
 }

@@ -214,9 +214,9 @@ export const linkedListConfig: LevelImplementationConfig = {
   actionHandler: linkedListActionHandler,
   renderActionBar: (props) => <LinkedListActionBar {...(props as any)} />,
   relatedProblems: [
-    { id: 206, title: "Reverse Linked List", concept: "鏈結串列基礎操作：反轉單向鏈結串列", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
-    { id: 141, title: "Linked List Cycle", concept: "快慢指標應用：檢測鏈結串列是否有環", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },
-    { id: 21, title: "Merge Two Sorted Lists", concept: "鏈結串列合併：合併兩個已排序的鏈結串列", difficulty: "Easy", url: "https://leetcode.com/problems/merge-two-sorted-lists/" },
+    { id: 206, title: "Reverse Linked List", concept: "relatedProblems.206", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
+    { id: 141, title: "Linked List Cycle", concept: "relatedProblems.141", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },
+    { id: 21, title: "Merge Two Sorted Lists", concept: "relatedProblems.21", difficulty: "Easy", url: "https://leetcode.com/problems/merge-two-sorted-lists/" },
   ],
   maxNodes: 20,
 };

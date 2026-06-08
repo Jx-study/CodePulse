@@ -26,5 +26,13 @@
     "currentWindow": "Current Window",
     "aboutToLeave": "About to Leave",
     "bestInterval": "Best Interval So Far"
+  },
+  "relatedProblems": {
+    "3": "Variable window: expand right to add characters, shrink left on duplicates, hash set tracks window contents",
+    "76": "Variable window + char count: expand right until all target chars covered, then shrink left for minimum length",
+    "424": "Variable window: track the highest-frequency char; shrink left when window size - max freq > k",
+    "239": "Fixed window + monotone deque: deque head holds current maximum, pop tail when smaller elements enter",
+    "567": "Fixed window char matching: maintain a window of length |s1|, compare window char frequencies against target",
+    "438": "Fixed window sliding comparison: same frequency strategy as #567, but record all valid window start positions"
   }
 }

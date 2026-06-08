@@ -8,5 +8,10 @@
     "update_left": "{{midVal}} < {{target}} (太小)，目標在右半部，更新 Left = {{mid}} + 1",
     "update_right": "{{midVal}} > {{target}} (太大)，目標在左半部，更新 Right = {{mid}} - 1",
     "not_found": "搜尋結束：範圍已空 (Left > Right)，未找到目標 {{target}}"
+  },
+  "relatedProblems": {
+    "704": "經典演算法：在已排序陣列中查找目標值 (Basic Binary Search)",
+    "35": "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
+    "34": "進階應用：在有重複元素的排序陣列中，尋找目標值的起始與結束位置"
   }
 }

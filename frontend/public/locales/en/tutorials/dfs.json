@@ -24,5 +24,12 @@
     "exploring": "Currently Exploring",
     "explored": "Fully Explored",
     "finalPath": "Final Path"
+  },
+  "relatedProblems": {
+    "695": "DFS connected component area: recursively mark and accumulate area from each land cell, return the largest island",
+    "79": "Backtracking DFS: recursively spell words along four directions on a 2D board, using visited flags to prevent reuse",
+    "130": "Boundary DFS: mark regions reachable from the border O, then flip all remaining unmarked O to X",
+    "417": "Reverse DFS: flow uphill from both Pacific and Atlantic borders, take the intersection as the answer",
+    "329": "Memoized DFS: compute the longest increasing path from each cell, using a dp cache to avoid recomputation"
   }
 }

@@ -57,7 +57,7 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
     {
       key: 'problems',
       label: t('knowledgeStation.tabs.problems'),
-      content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} />,
+      content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} i18nNamespace={topicTypeConfig.i18nNamespace} />,
     },
     {
       key: 'story',

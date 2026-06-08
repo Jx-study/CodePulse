@@ -27,5 +27,10 @@
     "dequeueTooltip": "移除佇列前端的元素",
     "peekTooltip": "查看佇列前端的元素（不移除）",
     "enqueueWarning": "請輸入要 Enqueue 的數值"
+  },
+  "relatedProblems": {
+    "225": "佇列應用：用佇列實作堆疊的功能",
+    "622": "佇列設計：實作環形佇列 (Circular Queue)",
+    "933": "佇列的實際應用：計算最近請求數量 (滑動窗口)"
   }
 }
