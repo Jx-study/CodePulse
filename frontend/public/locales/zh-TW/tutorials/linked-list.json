@@ -47,6 +47,12 @@
       }
     ]
   },
+  "actionHandler": {
+    "indexNegative": "索引無效：索引不能為負數",
+    "insertIndexOutOfRange": "索引 {{idx}} 超出範圍，插入的最大索引為 {{max}}",
+    "deleteIndexOutOfRange": "索引 {{idx}} 超出範圍，刪除的最大索引為 {{max}}",
+    "listEmpty": "鏈結串列為空"
+  },
   "ui": {
     "operations": "Linked List 操作",
     "valuePlaceholder": "數值",

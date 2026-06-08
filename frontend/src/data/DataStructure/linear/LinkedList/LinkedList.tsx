@@ -1,6 +1,7 @@
 ﻿import { LevelImplementationConfig } from "@/types/implementation";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import i18n from "@/i18n";
 import { LinkedListActionBar } from "./LinkedListActionBar";
 import {
   LinearData as ListNodeData,
@@ -69,12 +70,12 @@ function linkedListActionHandler(
       newData.push(newNode);
     } else if (mode === "Node N") {
       if (idx < 0) {
-        context.toast.warning("索引無效：索引不能為負數");
+        context.toast.warning(i18n.t("actionHandler.indexNegative", { ns: "tutorials/linked-list" }));
         return null;
       }
       if (idx > data.length) {
         context.toast.warning(
-          `索引 ${idx} 超出範圍，插入的最大索引為 ${data.length}`,
+          i18n.t("actionHandler.insertIndexOutOfRange", { ns: "tutorials/linked-list", idx, max: data.length }),
         );
         return null;
       }
@@ -96,7 +97,7 @@ function linkedListActionHandler(
   }
   if (actionType === "delete") {
     if (newData.length === 0) {
-      context.toast.warning("鏈結串列為空");
+      context.toast.warning(i18n.t("actionHandler.listEmpty", { ns: "tutorials/linked-list" }));
       return null;
     }
     let deletedNode: ListNodeData | null = null;
@@ -109,12 +110,12 @@ function linkedListActionHandler(
     } else if (mode === "Node N") {
       const idx = index ?? -1;
       if (idx < 0) {
-        context.toast.warning("索引無效：索引不能為負數");
+        context.toast.warning(i18n.t("actionHandler.indexNegative", { ns: "tutorials/linked-list" }));
         return null;
       }
       if (idx >= newData.length) {
         context.toast.warning(
-          `索引 ${idx} 超出範圍，刪除的最大索引為 ${newData.length - 1}`,
+          i18n.t("actionHandler.deleteIndexOutOfRange", { ns: "tutorials/linked-list", idx, max: newData.length - 1 }),
         );
         return null;
       }

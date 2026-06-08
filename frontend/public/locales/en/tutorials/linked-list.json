@@ -47,6 +47,12 @@
       }
     ]
   },
+  "actionHandler": {
+    "indexNegative": "Invalid index: index cannot be negative",
+    "insertIndexOutOfRange": "Index {{idx}} is out of range; maximum insert index is {{max}}",
+    "deleteIndexOutOfRange": "Index {{idx}} is out of range; maximum delete index is {{max}}",
+    "listEmpty": "Linked list is empty"
+  },
   "ui": {
     "operations": "Linked List Operations",
     "valuePlaceholder": "Value",
