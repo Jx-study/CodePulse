@@ -90,6 +90,76 @@
       }
     }
   },
+  "game": {
+    "stack": {
+      "titles": {
+        "speedTest":      "Speed Challenge",
+        "randomWalk":     "Catch Me If You Can!",
+        "quiz":           "Data Structures Quiz",
+        "boss":           "Boss Popup",
+        "sineWave":       "Sine Wave Attack!",
+        "cornerTeleport": "Corner Ghost",
+        "tvBouncing":     "Old TV",
+        "bouncingH":      "Boing Boing!",
+        "hiddenClose":    "Find the Close Button",
+        "rules":          "Game Rules",
+        "congrats":       "Congratulations!",
+        "minion":         "Minion #{{n}}",
+        "sineChild":      "Sub-window {{n}}",
+        "extraPopup":     "Extra Popup",
+        "unknown":        "Unknown Popup"
+      },
+      "warning": { "title": "Close \"{{title}}\" First!" },
+      "start": {
+        "title":  "PopupStack Battle",
+        "desc1":  "The professor has launched a popup attack!",
+        "desc2":  "Remember: the last popup must be closed first (LIFO)",
+        "desc3":  "Close all popups within 120 seconds!",
+        "button": "Start Game"
+      },
+      "result": {
+        "won":      "You Win!",
+        "failed":   "Time's Up!",
+        "timeUsed": "Time: {{seconds}}s",
+        "tryAgain": "Try again — remember to close the top popup first!"
+      },
+      "visualizer": { "header": "Stack", "bottom": "BOTTOM" },
+      "popup": {
+        "rules": {
+          "desc1":  "Popups follow LIFO (Last-In, First-Out): the last popup that appeared must be closed first!",
+          "desc2":  "Close this window to start the countdown.",
+          "button": "Got it, start!"
+        },
+        "hiddenClose": {
+          "desc1": "The close button is hidden somewhere in this text…",
+          "desc2": "Found it? Click",
+          "link":  "[Close this window]"
+        },
+        "cornerTeleport": { "clicks": "{{n}} more click(s) to go" },
+        "boss": {
+          "desc":      "Not until my minions are gone…",
+          "remaining": "Remaining: {{n}}"
+        },
+        "sineWave":  { "desc": "You thought closing me was the end?" },
+        "quiz": {
+          "question":   "Which statement about Stack is correct?",
+          "optA":       "A. First-In First-Out (FIFO)",
+          "optB":       "B. Last-In First-Out (LIFO)",
+          "optC":       "C. Random Access",
+          "optD":       "D. Bidirectional Access",
+          "correctKey": "B",
+          "submit":     "Submit"
+        },
+        "speedTest": { "button": "Click Me Fast!" },
+        "congrats": {
+          "desc1": "Congrats! All popups closed!",
+          "desc2": "Click X to complete the challenge"
+        },
+        "default":    { "desc": "Click the X to close" },
+        "closeAria":  "Close"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

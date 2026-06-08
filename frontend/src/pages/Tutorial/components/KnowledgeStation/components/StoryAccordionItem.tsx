@@ -91,6 +91,7 @@ const StoryAccordionItem: React.FC<Props> = ({ story, i18nNamespace }) => {
         demo={story.pythonDemo}
         title={pythonDemoTitle}
         inputLabels={inputLabels}
+        ns={ns}
       />
     ) : null;
 
@@ -140,18 +141,18 @@ const StoryAccordionItem: React.FC<Props> = ({ story, i18nNamespace }) => {
                 <div className={styles.content}>{renderSections()}</div>
               )}
               {renderPythonDemo()}
-              {hasStackGame && <StackGameRenderer />}
-              {hasKnapsackGame && <KnapsackGameRenderer />}
-              {hasBinarySearchGame && <BinarySearchOutputRenderer />}
-              {hasWhackAMoleGame && <WhackAMoleRenderer />}
+              {hasStackGame && <StackGameRenderer ns={ns} />}
+              {hasKnapsackGame && <KnapsackGameRenderer ns={ns} />}
+              {hasBinarySearchGame && <BinarySearchOutputRenderer ns={ns} />}
+              {hasWhackAMoleGame && <WhackAMoleRenderer ns={ns} />}
             </>
           ) : (
             <>
               {renderPythonDemo()}
-              {hasStackGame && <StackGameRenderer />}
-              {hasKnapsackGame && <KnapsackGameRenderer />}
-              {hasBinarySearchGame && <BinarySearchOutputRenderer />}
-              {hasWhackAMoleGame && <WhackAMoleRenderer />}
+              {hasStackGame && <StackGameRenderer ns={ns} />}
+              {hasKnapsackGame && <KnapsackGameRenderer ns={ns} />}
+              {hasBinarySearchGame && <BinarySearchOutputRenderer ns={ns} />}
+              {hasWhackAMoleGame && <WhackAMoleRenderer ns={ns} />}
               <Button
                 type="button"
                 variant="ghost"

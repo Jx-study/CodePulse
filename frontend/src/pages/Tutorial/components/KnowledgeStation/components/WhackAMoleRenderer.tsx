@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useSound from "use-sound";
 import classNames from "classnames";
 import Button from "@/shared/components/Button";
@@ -67,18 +68,21 @@ interface GameState {
   timeLeft: number;
 }
 
-const MODE_OPTIONS = [
-  { value: "1d", label: "1D 陣列" },
-  { value: "2d", label: "2D 陣列" },
-];
+const WhackAMoleRenderer: React.FC<{ ns?: string }> = ({ ns }) => {
+  const { t } = useTranslation(ns || "tutorial");
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.whackAMole.${key}`, { ns: ns || "tutorial", ...opts });
 
-const DIFFICULTY_OPTIONS = [
-  { value: "easy", label: "簡單" },
-  { value: "medium", label: "普通" },
-  { value: "hard", label: "困難" },
-];
+  const MODE_OPTIONS = [
+    { value: "1d", label: tg("modes.1d") },
+    { value: "2d", label: tg("modes.2d") },
+  ];
 
-const WhackAMoleRenderer: React.FC = () => {
+  const DIFFICULTY_OPTIONS = [
+    { value: "easy", label: tg("difficulties.easy") },
+    { value: "medium", label: tg("difficulties.medium") },
+    { value: "hard", label: tg("difficulties.hard") },
+  ];
   // Config state
   const [mode, setMode] = useState<Mode>("1d");
   const [cols, setCols] = useState(8);
@@ -441,7 +445,7 @@ const WhackAMoleRenderer: React.FC = () => {
       {/* Config bar */}
       <div className={styles.configBar}>
         <div className={styles.configItem}>
-          <span className={styles.configLabel}>模式</span>
+          <span className={styles.configLabel}>{tg("config.mode")}</span>
           <Select
             value={mode}
             options={MODE_OPTIONS}
@@ -451,7 +455,7 @@ const WhackAMoleRenderer: React.FC = () => {
           />
         </div>
         <div className={styles.configItem}>
-          <span className={styles.configLabel}>格子數</span>
+          <span className={styles.configLabel}>{tg("config.cols")}</span>
           <Slider
             min={4}
             max={12}
@@ -464,7 +468,7 @@ const WhackAMoleRenderer: React.FC = () => {
         </div>
         {mode === "2d" && (
           <div className={styles.configItem}>
-            <span className={styles.configLabel}>列數</span>
+            <span className={styles.configLabel}>{tg("config.rows")}</span>
             <Slider
               min={2}
               max={5}
@@ -477,7 +481,7 @@ const WhackAMoleRenderer: React.FC = () => {
           </div>
         )}
         <div className={styles.configItem}>
-          <span className={styles.configLabel}>難度</span>
+          <span className={styles.configLabel}>{tg("config.difficulty")}</span>
           <Select
             value={difficulty}
             options={DIFFICULTY_OPTIONS}
@@ -491,16 +495,16 @@ const WhackAMoleRenderer: React.FC = () => {
       {/* Stats bar */}
       <div className={styles.statsBar}>
         <div className={styles.statsMain}>
-          <span>分數：{score}</span>
-          <span>Missed：{missed}</span>
-          <span>Combo：{combo}</span>
-          <span>最高連擊：{maxCombo}</span>
+          <span>{tg("stats.score", { n: score })}</span>
+          <span>{tg("stats.missed", { n: missed })}</span>
+          <span>{tg("stats.combo", { n: combo })}</span>
+          <span>{tg("stats.maxCombo", { n: maxCombo })}</span>
         </div>
         <div className={styles.statsSecondary}>
-          {status === 'playing' && <span>時間：{timeLeft}s</span>}
+          {status === 'playing' && <span>{tg("stats.time", { n: timeLeft })}</span>}
           {status === 'playing' && nextMoleIdx !== null && (
             <span className={styles.nextHintLabel}>
-              下一隻：{getIndexLabel(mode, Math.floor(nextMoleIdx / cols), nextMoleIdx % cols)}
+              {tg("stats.nextHint", { label: getIndexLabel(mode, Math.floor(nextMoleIdx / cols), nextMoleIdx % cols) })}
             </span>
           )}
         </div>
@@ -510,19 +514,16 @@ const WhackAMoleRenderer: React.FC = () => {
       <div className={styles.controls}>
         {status === "idle" && (
           <Button variant="primary" onClick={handleStart}>
-            Start
+            {tg("controls.start")}
           </Button>
         )}
         {status === "gameover" && (
           <>
             <div className={styles.gameoverPanel}>
-              <p>
-                遊戲結束 — 最終分數 {score}，最高連擊 {maxCombo}，Missed{" "}
-                {missed}
-              </p>
+              <p>{tg("gameover", { score, maxCombo, missed })}</p>
             </div>
             <Button variant="secondary" onClick={handleRestart}>
-              Restart
+              {tg("controls.restart")}
             </Button>
           </>
         )}

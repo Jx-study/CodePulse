@@ -91,6 +91,38 @@
       ]
     }
   },
+  "game": {
+    "maze": {
+      "title": "DFS 迷宮遊戲",
+      "desc1": "DFS 遞迴生成完美迷宮（無環、唯一路徑）。↑↓←→ 控制 P1，WASD 控制 P2。",
+      "desc2Prefix": "點擊按鈕選擇模式，從",
+      "desc2Start": "左上角出發",
+      "desc2Middle": "，到達",
+      "desc2Finish": "紅色終點",
+      "desc2Suffix": "！",
+      "modes": { "solo": "單人", "race": "雙人競速", "coop": "雙人合作" },
+      "fog": { "on": "迷霧 ON", "off": "迷霧 OFF" },
+      "reset": "重置",
+      "p1Steps": "P1: {{n}} 步",
+      "p2Steps": "P2: {{n}} 步",
+      "pressToStart": "按方向鍵開始！",
+      "result": {
+        "soloWon": "抵達終點！",
+        "draw": "平手！",
+        "winner": "{{name}} 勝利！",
+        "coopWon": "合作完成！",
+        "p1Steps": "P1：{{n}} 步",
+        "p2Steps": "P2：{{n}} 步",
+        "elapsed": "耗時：{{time}}"
+      },
+      "leaderboard": {
+        "title": "本局排行榜",
+        "mode": "模式",
+        "steps": "步數",
+        "elapsed": "耗時"
+      }
+    }
+  },
   "relatedProblems": {
     "695": "DFS 連通分量面積：從每個陸地格遞迴標記並累計面積，回傳所有島嶼中的最大值",
     "79": "回溯 DFS：在二維字元板上沿四方向遞迴拼字，以 visited 標記防止重複使用格子",

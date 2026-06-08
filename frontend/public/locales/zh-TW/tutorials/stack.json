@@ -90,6 +90,76 @@
       }
     }
   },
+  "game": {
+    "stack": {
+      "titles": {
+        "speedTest":      "手速測驗",
+        "randomWalk":     "抓不到我！",
+        "quiz":           "資料結構小測驗",
+        "boss":           "大魔王彈窗",
+        "sineWave":       "正弦波攻擊！",
+        "cornerTeleport": "角落鬼影",
+        "tvBouncing":     "老舊電視",
+        "bouncingH":      "彈彈彈！",
+        "hiddenClose":    "找找關閉按鈕",
+        "rules":          "遊戲規則",
+        "congrats":       "恭喜過關！",
+        "minion":         "小弟 #{{n}}",
+        "sineChild":      "子彈窗 {{n}}",
+        "extraPopup":     "額外彈窗",
+        "unknown":        "未知彈窗"
+      },
+      "warning": { "title": "請先關閉「{{title}}」" },
+      "start": {
+        "title":  "PopupStack 彈窗大戰",
+        "desc1":  "教授發動彈窗攻擊！",
+        "desc2":  "記住：最後出現的彈窗必須最先關閉（LIFO）",
+        "desc3":  "在 120 秒內關閉所有彈窗！",
+        "button": "開始遊戲"
+      },
+      "result": {
+        "won":      "恭喜過關！",
+        "failed":   "時間到！",
+        "timeUsed": "用時：{{seconds}} 秒",
+        "tryAgain": "請再試一次，記得先關閉頂層彈窗！"
+      },
+      "visualizer": { "header": "Stack 堆疊", "bottom": "BOTTOM" },
+      "popup": {
+        "rules": {
+          "desc1":  "彈窗遵循 LIFO（後進先出）：最後出現的彈窗必須最先關閉！",
+          "desc2":  "關閉此視窗即可開始倒計時。",
+          "button": "我知道了，開始遊戲！"
+        },
+        "hiddenClose": {
+          "desc1": "這段文字裡藏著關閉按鈕……",
+          "desc2": "找到了嗎？點擊",
+          "link":  "[關閉此視窗]"
+        },
+        "cornerTeleport": { "clicks": "還需點擊 {{n}} 次" },
+        "boss": {
+          "desc":      "等我的小弟們都走了再說…",
+          "remaining": "剩餘：{{n}} 個"
+        },
+        "sineWave":  { "desc": "你以為關掉我就結束了？" },
+        "quiz": {
+          "question":   "關於 Stack，以下哪個描述正確？",
+          "optA":       "A. 先進先出（FIFO）",
+          "optB":       "B. 先進後出（LIFO）",
+          "optC":       "C. 隨機存取",
+          "optD":       "D. 雙向存取",
+          "correctKey": "B",
+          "submit":     "提交"
+        },
+        "speedTest": { "button": "快點擊我！" },
+        "congrats": {
+          "desc1": "恭喜！所有彈窗已關閉！",
+          "desc2": "請點擊 X 完成挑戰"
+        },
+        "default":   { "desc": "點擊右上角 X 關閉" },
+        "closeAria": "關閉"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

@@ -146,6 +146,45 @@
     "684": "環偵測 / Union-Find：找出使無向樹出現多餘一條邊（形成環）的那條邊",
     "269": "拓樸排序進階：從字典序推導字母偏序關係，建圖後輸出合法字母順序"
   },
+  "game": {
+    "graph": {
+      "title": "六度分隔遊戲 — Facebook 社交圖譜模擬",
+      "descLine1": "節點 = 用戶，邊 = 好友關係。",
+      "descNodeSize": "節點大小代表朋友數（程度中心性），",
+      "descColor": "顏色代表社群分群。",
+      "legendBlue": "藍框 = 你的直接好友（已認識）",
+      "legendGold": "金框閃爍 = 可點擊認識",
+      "legendOrange": "橙虛線 = 三元閉包推薦",
+      "goal": "目標：以最少步數認識 ★ 目標用戶。點擊閃爍節點開始！",
+      "targetLabel": "目標：",
+      "noTarget": "無可用目標（請增加用戶數量）",
+      "operations": "操作數：",
+      "playingTitle": "遊戲進行中，請先完成或放棄",
+      "resetButton": "重置遊戲",
+      "viewResetTitle": "重置視圖 (滾輪縮放 / 拖曳平移)",
+      "tooltip": {
+        "friends": "朋友數：{{n}}",
+        "centrality": "中心性：{{n}}",
+        "clickToMeet": "點擊認識"
+      },
+      "wonMessage": "你可在 {{steps}} 步內認識 {{name}}！",
+      "pathLabel": "路徑：",
+      "pathLength": "路徑長度：{{steps}} 步",
+      "opCount": "操作數：{{n}}",
+      "elapsed": "耗時：{{time}}",
+      "legend": {
+        "community": "社群 {{n}}",
+        "friend": "朋友",
+        "recommend": "推薦好友"
+      },
+      "leaderboard": {
+        "title": "本局排行榜",
+        "operations": "操作數",
+        "elapsed": "耗時",
+        "path": "路徑"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

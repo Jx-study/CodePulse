@@ -79,6 +79,43 @@
       }
     }
   },
+  "game": {
+    "knapsack": {
+      "items": {
+        "1": "Tech Startup",
+        "2": "Commercial Tower",
+        "3": "Logistics Hub",
+        "4": "Biotech R&D",
+        "5": "Green Energy",
+        "6": "Gold Futures"
+      },
+      "budgetLabel": "Budget",
+      "unit": "M",
+      "market": "Item Market",
+      "portfolio": "My Portfolio",
+      "itemBar": {
+        "funds": "Capital",
+        "reward": "Return"
+      },
+      "efficiency": "Efficiency {{ratio}}x",
+      "fundsUsed": "Capital Used {{used}}/{{total}} M",
+      "currentReturn": "Total Return: {{value}} M",
+      "ai": {
+        "title": "AI Greedy Strategy",
+        "arrow": "→ Return"
+      },
+      "buttons": {
+        "masterPlan": "Master Config",
+        "reset": "Reset"
+      },
+      "hints": {
+        "idle": "Select investment targets from the left",
+        "playing": "Current return {{value}} M",
+        "tight": "Capital running low",
+        "won": "Optimal solution found! Return {{value}} M"
+      }
+    }
+  },
   "relatedProblems": {
     "416": "Basic 0/1 knapsack: determine if an array can be split into two subsets with equal sums",
     "494": "0/1 knapsack variant: assign +/- signs to reach a target sum, reducible to a subset-sum problem",

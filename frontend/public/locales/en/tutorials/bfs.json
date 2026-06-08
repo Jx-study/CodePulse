@@ -52,6 +52,11 @@
       }
     }
   },
+  "floodFill": {
+    "paletteAria": "Color Palette",
+    "colorAria": "Select color {{n}}",
+    "downloadAria": "Download image"
+  },
   "relatedProblems": {
     "994": "Multi-source BFS: all rotten oranges spread simultaneously, each round represents one minute",
     "127": "Unweighted shortest path: treat each word as a node and one-letter-apart as an edge; BFS finds the shortest transformation sequence",

@@ -169,5 +169,37 @@
         { "title": "n-D arrays understanding with real life examples", "source": "DEV Community" }
       ]
     }
+  },
+  "game": {
+    "whackAMole": {
+      "config": {
+        "mode": "模式",
+        "cols": "格子數",
+        "rows": "列數",
+        "difficulty": "難度"
+      },
+      "modes": {
+        "1d": "1D 陣列",
+        "2d": "2D 陣列"
+      },
+      "difficulties": {
+        "easy": "簡單",
+        "medium": "普通",
+        "hard": "困難"
+      },
+      "stats": {
+        "score": "分數：{{n}}",
+        "missed": "Missed：{{n}}",
+        "combo": "Combo：{{n}}",
+        "maxCombo": "最高連擊：{{n}}",
+        "time": "時間：{{n}}s",
+        "nextHint": "下一隻：{{label}}"
+      },
+      "controls": {
+        "start": "Start",
+        "restart": "Restart"
+      },
+      "gameover": "遊戲結束 — 最終分數 {{score}}，最高連擊 {{maxCombo}}，Missed {{missed}}"
+    }
   }
 }

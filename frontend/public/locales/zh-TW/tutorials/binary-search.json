@@ -123,5 +123,51 @@
         "icon": "shield-halved"
       }
     ]
+  },
+  "game": {
+    "binarySearch": {
+      "title": "Binary Search 對決：擊敗演算法",
+      "desc1": "在 1～100 中藏有一個密碼。點擊藍色搜尋區間猜測；每次決策縮小一半可能性。",
+      "legend": {
+        "blue": "藍區 = 你的搜尋範圍",
+        "orange": "橙點 = AI 的猜測紀錄（永遠取中點）　目標：步數少於 AI！"
+      },
+      "labels": {
+        "you": "你",
+        "ai": "AI",
+        "secret": "密碼：",
+        "secretHidden": "???"
+      },
+      "buttons": {
+        "newGame": "New Game",
+        "newGameDisabled": "遊戲進行中，請先完成",
+        "newGameTitle": "重新開始（新密碼）"
+      },
+      "results": {
+        "player_wins": "你贏了！你用 {{steps}} 步",
+        "tie": "平手！你和 AI 都用了 {{steps}} 步",
+        "ai_wins": "AI 贏了（{{steps}} 步），密碼是 {{secret}}",
+        "timeout": "超過 {{max}} 步上限，密碼是 {{secret}}"
+      },
+      "stats": {
+        "prob": "現在機率",
+        "remaining": "剩餘候選數字",
+        "maxMore": "理論上界（二分法）",
+        "certain": "必中",
+        "atMost": "≤ {{n}} 步"
+      },
+      "leaderboard": {
+        "title": "對決記錄",
+        "winRate": "勝率 {{rate}}%（{{wins}} / {{total}} 局）",
+        "round": "場次",
+        "playerSteps": "玩家步數",
+        "aiSteps": "AI 步數",
+        "result": "結果",
+        "player_wins": "你贏",
+        "tie": "平手",
+        "ai_wins": "AI 贏",
+        "timeout": "超時"
+      }
+    }
   }
 }

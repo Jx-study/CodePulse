@@ -79,6 +79,43 @@
       }
     }
   },
+  "game": {
+    "knapsack": {
+      "items": {
+        "1": "科技新創",
+        "2": "商辦大樓",
+        "3": "物流倉儲",
+        "4": "生技研發",
+        "5": "綠能電廠",
+        "6": "黃金期貨"
+      },
+      "budgetLabel": "預算調整",
+      "unit": "百萬",
+      "market": "項目市場",
+      "portfolio": "我的投資組合",
+      "itemBar": {
+        "funds": "資金",
+        "reward": "報酬"
+      },
+      "efficiency": "效益 {{ratio}}x",
+      "fundsUsed": "已用資金 {{used}}/{{total}} 百萬",
+      "currentReturn": "當前總收益：{{value}} 百萬",
+      "ai": {
+        "title": "AI 貪婪策略",
+        "arrow": "→ 收益"
+      },
+      "buttons": {
+        "masterPlan": "大師配置",
+        "reset": "重置"
+      },
+      "hints": {
+        "idle": "從左側選擇投資項目",
+        "playing": "當前收益 {{value}} 百萬",
+        "tight": "資金緊張",
+        "won": "已達最優解！收益 {{value}} 百萬"
+      }
+    }
+  },
   "relatedProblems": {
     "416": "基礎 0/1 背包：判斷是否能將陣列分割成總和相等的兩個子集",
     "494": "0/1 背包變體：透過給予正負號來達成目標和，可轉換為子集求和問題",

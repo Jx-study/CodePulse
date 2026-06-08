@@ -123,5 +123,51 @@
         "icon": "shield-halved"
       }
     ]
+  },
+  "game": {
+    "binarySearch": {
+      "title": "Binary Search Duel: Beat the Algorithm",
+      "desc1": "A secret number is hidden from 1 to 100. Click the blue search range to guess; each decision halves the possibilities.",
+      "legend": {
+        "blue": "Blue = Your search range",
+        "orange": "Orange dots = AI guesses (always midpoint)   Goal: fewer steps than AI!"
+      },
+      "labels": {
+        "you": "You",
+        "ai": "AI",
+        "secret": "Secret: ",
+        "secretHidden": "???"
+      },
+      "buttons": {
+        "newGame": "New Game",
+        "newGameDisabled": "Game in progress, finish first",
+        "newGameTitle": "New Game (new secret)"
+      },
+      "results": {
+        "player_wins": "You win! You used {{steps}} step(s)",
+        "tie": "Tie! Both used {{steps}} step(s)",
+        "ai_wins": "AI wins ({{steps}} step(s)), secret was {{secret}}",
+        "timeout": "Exceeded {{max}}-step limit, secret was {{secret}}"
+      },
+      "stats": {
+        "prob": "Current Probability",
+        "remaining": "Candidates Remaining",
+        "maxMore": "Theoretical Max (Binary Search)",
+        "certain": "Certain Hit",
+        "atMost": "≤ {{n}} step(s)"
+      },
+      "leaderboard": {
+        "title": "Duel History",
+        "winRate": "Win Rate {{rate}}% ({{wins}} / {{total}} games)",
+        "round": "Round",
+        "playerSteps": "Your Steps",
+        "aiSteps": "AI Steps",
+        "result": "Result",
+        "player_wins": "You Win",
+        "tie": "Tie",
+        "ai_wins": "AI Wins",
+        "timeout": "Timeout"
+      }
+    }
   }
 }

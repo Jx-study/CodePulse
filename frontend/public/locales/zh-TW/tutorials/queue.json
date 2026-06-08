@@ -152,5 +152,21 @@
         "icon": "bolt"
       }
     ]
+  },
+  "game": {
+    "queue": {
+      "overflow": "Queue 溢出！",
+      "score": "Score: {{n}}",
+      "queueBar": "Queue {{current}}/{{max}}",
+      "survived": {
+        "title": "Queue Cleared!",
+        "newGame": "New Game"
+      },
+      "gameover": {
+        "title": "Game Over",
+        "newGame": "New Game"
+      },
+      "start": "Start"
+    }
   }
 }

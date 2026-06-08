@@ -91,6 +91,38 @@
       ]
     }
   },
+  "game": {
+    "maze": {
+      "title": "DFS Maze Game",
+      "desc1": "DFS recursively generates a perfect maze (no loops, unique path). ↑↓←→ controls P1, WASD controls P2.",
+      "desc2Prefix": "Click a button to choose mode, start from the",
+      "desc2Start": "top-left corner",
+      "desc2Middle": ", reach the",
+      "desc2Finish": "red finish",
+      "desc2Suffix": "!",
+      "modes": { "solo": "Solo", "race": "2P Race", "coop": "2P Co-op" },
+      "fog": { "on": "Fog ON", "off": "Fog OFF" },
+      "reset": "Reset",
+      "p1Steps": "P1: {{n}} step(s)",
+      "p2Steps": "P2: {{n}} step(s)",
+      "pressToStart": "Press arrow keys to start!",
+      "result": {
+        "soloWon": "Reached the finish!",
+        "draw": "It's a tie!",
+        "winner": "{{name}} wins!",
+        "coopWon": "Co-op complete!",
+        "p1Steps": "P1: {{n}} step(s)",
+        "p2Steps": "P2: {{n}} step(s)",
+        "elapsed": "Time: {{time}}"
+      },
+      "leaderboard": {
+        "title": "Session Leaderboard",
+        "mode": "Mode",
+        "steps": "Steps",
+        "elapsed": "Time"
+      }
+    }
+  },
   "relatedProblems": {
     "695": "DFS connected component area: recursively mark and accumulate area from each land cell, return the largest island",
     "79": "Backtracking DFS: recursively spell words along four directions on a 2D board, using visited flags to prevent reuse",

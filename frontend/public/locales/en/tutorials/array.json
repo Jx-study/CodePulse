@@ -169,5 +169,37 @@
         { "title": "n-D arrays understanding with real life examples", "source": "DEV Community" }
       ]
     }
+  },
+  "game": {
+    "whackAMole": {
+      "config": {
+        "mode": "Mode",
+        "cols": "Columns",
+        "rows": "Rows",
+        "difficulty": "Difficulty"
+      },
+      "modes": {
+        "1d": "1D Array",
+        "2d": "2D Array"
+      },
+      "difficulties": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+      "stats": {
+        "score": "Score: {{n}}",
+        "missed": "Missed: {{n}}",
+        "combo": "Combo: {{n}}",
+        "maxCombo": "Max Combo: {{n}}",
+        "time": "Time: {{n}}s",
+        "nextHint": "Next: {{label}}"
+      },
+      "controls": {
+        "start": "Start",
+        "restart": "Restart"
+      },
+      "gameover": "Game Over — Final Score {{score}}, Max Combo {{maxCombo}}, Missed {{missed}}"
+    }
   }
 }

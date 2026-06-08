@@ -146,6 +146,45 @@
     "684": "Cycle detection / Union-Find: find the extra edge that creates a cycle in an undirected tree",
     "269": "Advanced topological sort: derive letter ordering from dictionary sequence, build graph and output a valid alphabet order"
   },
+  "game": {
+    "graph": {
+      "title": "Six Degrees of Separation — Facebook Social Graph Simulation",
+      "descLine1": "Nodes = users, edges = friendships.",
+      "descNodeSize": "Node size represents friend count (degree centrality),",
+      "descColor": "color represents community group.",
+      "legendBlue": "Blue border = your direct friends (already know)",
+      "legendGold": "Gold blinking = click to meet",
+      "legendOrange": "Orange dashed = triadic closure recommendation",
+      "goal": "Goal: meet ★ the target user in as few steps as possible. Click a blinking node to start!",
+      "targetLabel": "Target:",
+      "noTarget": "No target available (add more users)",
+      "operations": "Moves:",
+      "playingTitle": "Game in progress — finish or give up first",
+      "resetButton": "Reset Game",
+      "viewResetTitle": "Reset view (scroll to zoom / drag to pan)",
+      "tooltip": {
+        "friends": "Friends: {{n}}",
+        "centrality": "Centrality: {{n}}",
+        "clickToMeet": "Click to meet"
+      },
+      "wonMessage": "You can meet {{name}} in {{steps}} step(s)!",
+      "pathLabel": "Path:",
+      "pathLength": "Path length: {{steps}} step(s)",
+      "opCount": "Moves: {{n}}",
+      "elapsed": "Time: {{time}}",
+      "legend": {
+        "community": "Community {{n}}",
+        "friend": "Friend",
+        "recommend": "Recommended friend"
+      },
+      "leaderboard": {
+        "title": "Session Leaderboard",
+        "operations": "Moves",
+        "elapsed": "Time",
+        "path": "Path"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

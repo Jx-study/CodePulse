@@ -35,6 +35,7 @@ interface Props {
   demo: PythonDemo;
   title?: string;
   inputLabels?: Record<string, string>;
+  ns?: string;
 }
 
 // ── Pyodide 全域緩存（跨元件共享，只載入一次）───────────────────
@@ -70,7 +71,7 @@ async function getPyodide(): Promise<any> {
   return pyodideLoadPromise;
 }
 
-const PythonInteractiveDemo: React.FC<Props> = ({ demo, title, inputLabels }) => {
+const PythonInteractiveDemo: React.FC<Props> = ({ demo, title, inputLabels, ns }) => {
   const { t } = useTranslation('tutorial');
   const [viewMode, setViewMode] = useState<ViewMode>("demo");
   const [status, setStatus] = useState<RunStatus>("idle");
@@ -279,12 +280,12 @@ sys.stdout = io.StringIO()
 
           {/* 圖形輸出（outputType:'graph' 時顯示，取代或補充 console） */}
           {demo.outputType === "graph" && graphData && (
-            <GraphOutputRenderer data={graphData} />
+            <GraphOutputRenderer data={graphData} ns={ns} />
           )}
 
           {/* Queue 卡片遊戲（outputType:'queue-card' 時顯示） */}
           {demo.outputType === "queue-card" && queueCardData && (
-            <QueueGameRenderer data={queueCardData} />
+            <QueueGameRenderer data={queueCardData} ns={ns} />
           )}
 
           {demo.outputType === 'maze' && mazeData && (
@@ -292,11 +293,12 @@ sys.stdout = io.StringIO()
               ref={mazeRef}
               data={mazeData}
               onViewPhaseChange={setMazeViewPhase}
+              ns={ns}
             />
           )}
 
           {demo.outputType === 'flood-fill' && floodFillData && (
-            <FloodFillRenderer data={floodFillData} />
+            <FloodFillRenderer data={floodFillData} ns={ns} />
           )}
 
           {/* 輸出 console（graph/queue-card/maze/flood-fill 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
