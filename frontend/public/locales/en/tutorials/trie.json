@@ -1,4 +1,113 @@
 {
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "A **Trie** is a **tree structure** that stores and traverses data by leveraging [[primary|common string prefixes]]. Its key essence is that keys are not stored directly inside nodes, but are instead determined by each node's [[primary|path position]].",
+        "items": [
+          "The **root node** represents the empty string; nodes themselves do not store characters, instead using [[primary|edges between nodes]] to represent individual letters",
+          "Strings sharing the same prefix share [[primary|ancestor nodes]], so the path from the root to a node spells out the corresponding string",
+          "Implementations must add an **attribute variable** (such as `is_end`) to precisely mark whether the current node is a valid [[primary|end of a word]]"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "A Trie's performance depends on the length (`n`) of the target string and is independent of the total number of strings stored, because each operation walks down the nodes character by character.",
+        "items": [
+          "**Insertion**: [[warning|O(n)]], walks through the string's characters one by one to find or create corresponding nodes",
+          "**Search**: [[warning|O(n)]], compares characters along the path and stops immediately if a mismatch is found early",
+          "**Deletion**: [[warning|O(n)]], follows characters to the target's end, then removes the word marker and prunes useless branches"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "Tries excel at **prefix search**, but when strings lack common prefixes, they generate many pointers and waste **memory**. For exact-match-only needs, prefer a **hash table** with [[success|O(1)]] average lookup.",
+        "items": [
+          "Ideal for **autocomplete** and **spell check**, using shared prefixes to find all candidate strings almost instantly",
+          "Ideal for **IP routing** (longest-prefix matching) and combining with **Aho-Corasick** for large-scale multi-pattern matching",
+          "If strings lack common prefixes and consume excessive space, optimize into a [[primary|radix tree]] or [[primary|ternary search tree]] to compress nodes"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Problems It Suits",
+        "content": "Whenever a problem involves storing or matching many strings, or has a **common prefix** property, it is a strong signal to use a Trie. Prefixes effectively narrow the search space and avoid unnecessary comparisons.",
+        "items": [
+          "**Autocomplete and spell check** that find candidate words by prefix, quickly producing all strings matching the prefix",
+          "**Longest-prefix matching** as in IP routing tables, where the longest matching prefix must be found among many strings",
+          "**Multi-pattern string matching**, such as antivirus scanning, where a Trie combined with failure links forms the **Aho-Corasick automaton**",
+          "**Word-frequency statistics** over huge dictionaries, or quickly checking whether a string or prefix exists in a set"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Node Structure Design",
+        "content": "Beginners often mistakenly assume nodes must store characters directly, and frequently forget to add an `is_end` **extra variable** to mark word endings, making it impossible to distinguish overlapping words (such as [[primary|app and apple]]).",
+        "items": [
+          "Nodes do not store characters directly; instead a **map structure** uses characters as keys and [[primary|edges]] to represent letters",
+          "Nodes must include an **extra variable** like `is_end` to mark word endings, otherwise [[warning|word boundaries]] cannot be precisely identified",
+          "After walking the full character path during a search, always check the node's **end marker** to confirm the word actually exists"
+        ],
+        "icon": "sitemap"
+      },
+      {
+        "heading": "Comparison with Hash Tables",
+        "content": "Beginners often wonder why not just use a **hash table** with [[success|O(1)]] average lookup. This section clarifies the irreplaceable advantages of the Trie in [[primary|prefix search]] and [[primary|alphabetical ordering]].",
+        "items": [
+          "A Trie efficiently performs **prefix search** like autocomplete, while a hash table can only perform exact full-string matches",
+          "A Trie supports ordered traversal, easily outputting strings in **alphabetical order**, which is hard for a hash table to do",
+          "A Trie never computes a **hash function**, incurring no extra overhead and completely avoiding [[danger|hash collisions]]"
+        ],
+        "icon": "scale-balanced"
+      }
+    ]
+  },
+  "animation": {
+    "init": "Trie initialized with default words",
+    "insert_start": "Insert: Preparing to insert word '{{word}}'",
+    "char_match": "Match char '{{char}}' (prefix {{prefix}}): Path exists, traversing",
+    "char_create": "Create node '{{char}}' (prefix {{prefix}}): Creating new branch",
+    "set_end": "Mark End: Setting the final node of '{{word}}' as end of word [Word]",
+    "search_start": "Search Mode ({{mode}}): Searching for '{{word}}'",
+    "search_found": "Search Success! '{{word}}' matches the criteria",
+    "search_not_found": "Search Failed: {{error}}",
+    "delete_start": "Delete: Preparing to find and delete word '{{word}}'",
+    "delete_unmark": "Unmark: Removing the end-of-word mark [Word] from '{{word}}'",
+    "delete_prune": "Bottom-up Pruning: Prefix '{{pruned}}' is no longer shared, removing node",
+    "delete_not_found": "Delete aborted: {{error}}",
+    "done": "Operation completed successfully!"
+  },
+  "ui": {
+    "batchOps": "Batch Operations",
+    "loadList": "Load List",
+    "loadListTooltip": "Open the advanced word list loader",
+    "randomCount": "Random count:",
+    "randomCountTooltip": "Set the number of random words (max {{max}})",
+    "randomCountExceeded": "Random count limit is {{max}}",
+    "randomGenerate": "Randomize",
+    "randomTooltip": "Generate a set of words with shared prefixes",
+    "reset": "Reset",
+    "resetTooltip": "Clear all words and restore the initial state",
+    "wordInput": "Enter word (letters only)",
+    "insertTooltip": "Insert the word character by character into the Trie",
+    "searchTooltip": "Search whether the exact word exists",
+    "startsWithTooltip": "Search whether this prefix exists",
+    "deleteTooltip": "Unmark end-of-word and prune unused branches upward",
+    "modal": {
+      "title": "Custom Trie Word List",
+      "inputLabel": "Word list (comma, newline, or space-separated)",
+      "placeholder": "Enter English words, e.g.:\napple\nbanana\ncat",
+      "loadButton": "Load",
+      "cancel": "Cancel",
+      "hint": "* Words are auto-lowercased; duplicates and non-letter characters are removed. Limit: {{max}}.",
+      "emptyWarning": "Please enter at least one word!",
+      "invalidWarning": "Trie only accepts letters. The following were skipped: {{words}}",
+      "noValidWords": "No valid words found. Please try again.",
+      "truncateWarning": "Limited to the first {{max}} unique words for readability."
+    }
+  },
   "animation": {
     "init": "Trie initialized with default words",
     "insert_start": "Insert: Preparing to insert word '{{word}}'",

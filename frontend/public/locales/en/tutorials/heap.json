@@ -1,0 +1,68 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "A **Heap** is conceptually a [[primary|complete binary tree]], yet often described as \"an **array** in binary tree's clothing.\" Its essence lies in maintaining a strict parent-child ordering to ensure the most efficient retrieval of the [[primary|extreme value]].",
+        "items": [
+          "Stored in a one-dimensional **array**; tree structure is simulated via simple [[primary|index arithmetic]] (e.g., left child at 2i+1), eliminating pointer overhead",
+          "Like a [[primary|tournament bracket]], each node is the winner over everything below it, so the **root node** always holds the global extreme value",
+          "Must satisfy the [[primary|heap property]]: every **parent node**'s value is always greater than or equal to (or less than or equal to) its **child nodes**"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Heap achieves an efficient balance between reading and updating the extreme value. It maintains the heap property with only a small number of comparisons and swaps along the tree height, without the cost of a full re-sort.",
+        "items": [
+          "**Peek extreme**: [[success|O(1)]] — the max or min is always at the root (index 0) and can be read directly",
+          "**Insert element**: [[success|O(log n)]] — the new element is appended to the end, then bubbled up by comparing and swapping with its parent along the tree height",
+          "**Delete extreme**: [[success|O(log n)]] — the root is removed and replaced by the last element, then sifted down by comparing and swapping along the tree height"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "A **Heap** is optimized for retrieving the extreme value as efficiently as possible, but makes trade-offs for other operations. Understanding its strengths and weaknesses helps you switch to a more suitable advanced structure when you hit a performance bottleneck.",
+        "items": [
+          "**Excels at priority**: ideal for solving **Top-k** problems, implementing a **priority queue**, or powering shortest-path algorithms",
+          "**Poor at arbitrary search**: finding a specific node is inefficient; implementations often need an auxiliary **dictionary** for fast lookups",
+          "**Poor at merging and decreasing keys**: frequent heap merges or key-decrease operations are costly — consider a **Fibonacci heap** or **pairing heap** instead"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "A Heap is the ideal choice whenever you need to repeatedly fetch or update the extreme value in a dynamic dataset, or when handling k-way merges and priority-based scheduling.",
+        "items": [
+          "**Top-k problems**: find the k-th largest element or the top-100 most frequent items without a full sort",
+          "**Priority queue**: when a system must dynamically decide execution order by priority (e.g., schedulers or event simulators)",
+          "**Shortest-path algorithms**: in Dijkstra's algorithm, repeatedly extracting the unvisited vertex closest to the source",
+          "**K-way merge**: efficiently merging multiple sorted streams (e.g., multiple timestamped log files) into a single sorted output"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Array–Tree Mapping",
+        "content": "Beginners are often confused that a Heap is conceptually a **binary tree** yet implemented as an **array**. This section clarifies the distinction and covers the elegant **index arithmetic** for navigating parent and child nodes.",
+        "items": [
+          "**Structure mapping**: a Heap is a **complete binary tree** stored contiguously in an **array** — a binary tree in array's clothing",
+          "**Locating the root**: the tree's **root node** is always stored at index [[primary|0]]",
+          "**Finding children**: for a node at index i, its left child is at [[primary|2i+1]] and its right child at [[primary|2i+2]]",
+          "**Finding the parent**: for a node at index i, its parent is found via integer division at [[primary|(i-1)//2]]"
+        ],
+        "icon": "list-tree"
+      },
+      {
+        "heading": "Priority Queue vs. Heap",
+        "content": "Beginners often confuse a **priority queue** (an abstract data type) with a **Heap** (a concrete data structure). Clarifying the distinction builds a correct mental model of data structures.",
+        "items": [
+          "**Abstract vs. concrete**: a **priority queue** defines the contract for extracting the extreme value; a **Heap** is the structure that fulfills it efficiently",
+          "**Implementation flexibility**: a **priority queue** can also be implemented with an array or linked list — a **Heap** simply provides the best complexity",
+          "**Core focus**: a **priority queue** is about the management contract; a **Heap** pursues [[success|O(log n)]] operational performance"
+        ],
+        "icon": "scale-balanced"
+      }
+    ]
+  }
+}

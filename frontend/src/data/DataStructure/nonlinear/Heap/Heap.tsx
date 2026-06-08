@@ -278,8 +278,8 @@ export const HeapConfig: LevelImplementationConfig = {
     timeWorst: "O(log n)",
     space: "O(n)",
   },
-  introduction:
-    "Heap（堆積）是以「完全二元樹」為概念、用一維陣列實作的樹狀結構。節點 i 的左子在 2i+1、右子在 2i+2、父節點在 (i-1)/2，不需任何指標即可在整棵樹中穿梭。\n\nHeap Property：Max-Heap 每個父節點的值 ≥ 子節點（根節點永遠是最大值）；Min-Heap 則反之（根節點永遠是最小值）。你可以點擊 ActionBar 的切換按鈕，觀察 Heapify 如何在 O(n) 內完成重建——比逐一插入的 O(n log n) 更快，這正是 BuildHeap 最反直覺的地方。\n\n三個核心操作：Peek 直接讀取 index 0，複雜度 O(1)；Insert 新增至末端後 Heapify Up，O(log n)；Extract 將末端元素補到根後 Heapify Down，O(log n)。Heap 是實作 Priority Queue 的標準選擇，廣泛應用於排程系統、Dijkstra 最短路徑與 Top-K 問題。",
+  i18nNamespace: "tutorials/heap",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 90 },
     { id: "box-1", value: 80 },

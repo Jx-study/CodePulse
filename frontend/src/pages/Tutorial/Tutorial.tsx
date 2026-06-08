@@ -463,7 +463,7 @@ function TutorialContent() {
       const res = await tutorialService.markTeachingComplete(levelId);
       teachingDoneRef.current = true;
       if (res.xp_earned > 0) {
-        xp.show(res.xp_earned);
+        xp.show(res.xp_earned, { reason: 'tutorial' });
       }
     } catch {
       // 403 = 未滿 30 秒，靜默忽略

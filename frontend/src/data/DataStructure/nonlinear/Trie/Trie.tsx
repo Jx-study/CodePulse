@@ -275,12 +275,11 @@ export const TrieConfig: LevelImplementationConfig = {
     timeWorst: "O(m)",
     space: "O(N * m)", // 總字元數量
   },
-  introduction:
-    "字典樹 (Trie) 是一種針對「字串搜尋」極度優化的多叉樹結構！\n\n觀察視覺化，你會發現擁有相同前綴 (Prefix) 的單字會**共用相同的路徑節點**，這大幅節省了儲存空間。\n注意觀察：每個節點內部只儲存單一字元，當到達一個完整單字的結尾時，節點下方會特別標註 `[Word]` 作為結束識別！",
+  i18nNamespace: "tutorials/trie",
+  introduction: { key: "introduction" },
   defaultData: ["app", "apple", "cat"], // 預設資料即為字串陣列
   createAnimationSteps: createTrieAnimationSteps,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/trie",
   maxNodes: TRIE_MAX_WORDS,
 };

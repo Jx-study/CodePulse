@@ -236,7 +236,8 @@ export const bubbleSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(1)",
   },
-  introduction: `泡沫排序是一種簡單的排序演算法。它重複地走訪過要排序的數列，一次比較兩個元素，如果他們的順序錯誤就把他們交換過來。`,
+  i18nNamespace: "tutorials/bubble-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 50 },
     { id: "box-1", value: 30 },

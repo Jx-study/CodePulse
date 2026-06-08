@@ -73,7 +73,7 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
         const newDates = [...dates, today].sort();
         setDates(newDates);
         setIsCheckedIn(true);
-        xp.show(5);
+        xp.show(5, { reason: 'checkin' });
         updateUser({
           last_login_date: today,
           current_streak: res.current_streak,

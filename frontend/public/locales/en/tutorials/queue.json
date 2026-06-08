@@ -1,0 +1,70 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "A queue is like a **waiting line** — a data structure with [[primary|First-In, First-Out]] (**FIFO**) behavior. Insertions and removals must happen at **different ends**, ensuring the earliest data is processed first.",
+        "items": [
+          "Like buying tickets in line, the [[primary|Front]] is served first, and new data joins at the [[primary|Rear]]",
+          "Adding is called **Enqueue** (**Add**), occurs only at the [[primary|Rear]] — exceeding capacity causes an **Overflow** (**Full**)",
+          "Removing is called **Dequeue** (**Delete**), occurs only at the [[primary|Front]] — attempting on an empty queue results in an **Empty** state",
+          "**Peek (Front)**: Reads the [[primary|Front]] element without removing it — lets you inspect what will be processed next"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "A correctly implemented queue (e.g., circular array or `deque`) only manipulates front and rear pointers without shifting any internal data, so all primary operations run in constant time.",
+        "items": [
+          "**Enqueue**: Writes data directly to the rear slot with no shifting required. [[success|O(1)]]",
+          "**Dequeue**: Retrieves data from the front; circular or linked implementations only move a pointer. [[success|O(1)]]",
+          "**Array deletion trap**: Using a plain array and removing from the head triggers a full data shift. [[warning|O(n)]]",
+          "**Search**: Random access is not supported — elements must be scanned from the front one by one. [[warning|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Queues are a natural fit for **First-In, First-Out** **scheduling** and **asynchronous communication**, but they show clear limitations when priority-based insertion or frequent access at both ends is required.",
+        "items": [
+          "Great for **fair scheduling** and **async communication** — printer queues, resource sharing, or **Breadth-First Search**",
+          "Poor for priority-based tasks. When urgent items must jump the line, use a **Priority Queue** instead",
+          "Poor for bidirectional access. When insertion and removal are needed at both ends, use a **Deque** instead",
+          "Linear arrays are prone to **phantom overflow** that wastes space — use a **Circular Queue** to maximize memory utilization"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Problems It Solves",
+        "content": "Whenever a scenario has \"first come, first served\" or \"level-by-level expansion\" characteristics without the need for priority ordering, think queue. It is the go-to tool for scheduling and asynchronous data processing.",
+        "items": [
+          "**Breadth-First Search (BFS)**: Finding the shortest path requires nodes to be queued and processed in order",
+          "**System job scheduling**: CPU processes, printer jobs — ensures resource allocation follows First-In, First-Out",
+          "**Async data buffering**: I/O buffers or message queues that reconcile mismatched production and consumption rates",
+          "**Sliding window and round-robin**: Computing moving averages or round-robin scheduling, often paired with circular or double-ended queues"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Phantom Overflow",
+        "content": "When implementing with an array, beginners often encounter [[warning|phantom overflow]] — the queue appears full even though space remains. Rewriting as a **circular queue** then makes it easy to confuse **full** and **empty** detection logic.",
+        "items": [
+          "In a **linear queue**, after repeated operations the **rear pointer** hits the end, blocking new insertions even when front slots are free",
+          "In a **circular queue**, both the **full** and **empty** states can produce `front == rear`, making the logic easy to mix up",
+          "To distinguish full from empty, beginners often forget to [[warning|waste one slot]], or neglect a **Tag** variable to assist detection"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "Underlying Performance Traps",
+        "content": "When beginners instinctively use a plain array (like Python's **List**) to remove data from the front, they often overlook the [[danger|O(n)]] shifting cost this triggers. Always switch to **deque** to avoid a performance disaster.",
+        "items": [
+          "Removing the front element from a plain **array** forces every subsequent element to shift left, incurring an [[danger|O(n)]] cost",
+          "When processing large datasets, repeatedly calling something like `pop(0)` to retrieve the front element creates a serious **performance bottleneck**",
+          "Use **deque** (double-ended queue), optimized for both ends, where front and rear operations both run in [[success|O(1)]]"
+        ],
+        "icon": "bolt"
+      }
+    ]
+  }
+}

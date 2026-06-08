@@ -234,7 +234,8 @@ export const selectionSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(1)",
   },
-  introduction: `選擇排序（Selection Sort）是一種簡單直觀的排序演算法。它的工作原理是每一次從待排序的資料元素中選出最小（或最大）的一個元素，存放在序列的起始位置，直到全部待排序的資料元素排完。`,
+  i18nNamespace: "tutorials/selection-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 64 },
     { id: "box-1", value: 25 },

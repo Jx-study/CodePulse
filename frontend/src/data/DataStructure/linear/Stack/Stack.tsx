@@ -624,7 +624,8 @@ export const StackConfig: LevelImplementationConfig = {
     timeWorst: "O(1)",
     space: "O(n)",
   },
-  introduction: `堆疊是一種後進先出的資料結構...堆起來。`,
+  i18nNamespace: "tutorials/stack",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-1", value: 1 },
     { id: "box-2", value: 2 },

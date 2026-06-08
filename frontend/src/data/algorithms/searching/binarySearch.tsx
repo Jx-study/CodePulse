@@ -308,8 +308,8 @@ export const binarySearchConfig: LevelImplementationConfig = {
     timeWorst: "O(log n)",
     space: "O(1)",
   },
-  introduction: `二分搜尋是一種高效的搜尋演算法，用於在已排序的陣列中尋找特定元素。它的核心思想是每次將搜尋範圍縮小一半，通過比較中間元素與目標值來決定接下來要搜尋左半部還是右半部。
-由於每次都將搜尋範圍減半，因此時間複雜度為 O(log n)。注意：資料必須要是已排序的。`,
+  i18nNamespace: "tutorials/binary-search",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 10 },
     { id: "box-1", value: 25 },
