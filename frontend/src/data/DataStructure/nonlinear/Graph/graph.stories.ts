@@ -2,64 +2,6 @@ import type { RealWorldStory } from '@/types/implementation';
 
 export const graphRealWorldStories: RealWorldStory[] = [
   {
-    id: 'graph-netflix-recommendation',
-    video: {
-      url: 'https://www.youtube.com/watch?v=8RmrQkzvQeI',
-      duration: '8:24',
-    },
-    resources: [
-      { type: 'paper', url: 'https://dl.acm.org/doi/10.1145/2843948' },
-      { type: 'article', url: 'https://netflixtechblog.com/tag/recommendations/' },
-    ],
-    pythonDemo: {
-      inputs: [
-        {
-          variable: 'user_a_count',
-          type: 'slider',
-          default: 3,
-          min: 1,
-          max: 6,
-          step: 1,
-        },
-      ],
-      code: `# Python 3.10+, no external dependencies required
-# Run locally: python graph_recommendation.py
-from collections import defaultdict
-
-# 二分圖：用戶 → 影片
-user_a_count = globals().get('user_a_count', 3)  # 預設 3，由 UI Slider 覆蓋
-
-watched_by_user = {
-    "A": [f"Movie-{i}" for i in range(1, user_a_count + 1)],
-    "B": ["Movie-2", "Movie-3", "Movie-5"],
-    "C": ["Movie-1", "Movie-4", "Movie-6"],
-}
-
-# 協同過濾：找出與 A 觀看相同影片的其他用戶
-def find_recommendations(graph, target_user):
-    watched = set(graph[target_user])
-    similar_users = [
-        u for u, movies in graph.items()
-        if u != target_user and watched & set(movies)
-    ]
-    candidate_movies = set()
-    for u in similar_users:
-        candidate_movies.update(graph[u])
-    recommendations = candidate_movies - watched
-    return sorted(recommendations), similar_users
-
-recs, similar = find_recommendations(watched_by_user, "A")
-print(f"用戶 A 已觀看（{user_a_count} 部）：{sorted(watched_by_user['A'])}")
-print(f"品味相似用戶：{similar}")
-print(f"推薦影片：{recs}")
-print()
-print("── 圖結構（鄰接表）──")
-for user, movies in watched_by_user.items():
-    print(f"  {user} → {movies}")
-`,
-    },
-  },
-  {
     id: 'graph-social-network',
     video: {
       url: 'https://youtu.be/OlXfIFq-gDI',

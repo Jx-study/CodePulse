@@ -70,39 +70,6 @@
     "completeConnected": "Complete / Connected"
   },
   "stories": {
-    "graph-netflix-recommendation": {
-      "title": "Netflix Recommendation System: A Billion-Dollar 'Graph Theory Matchmaking'",
-      "category": "Streaming Platform",
-      "tags": ["Bipartite Graph", "BFS", "Collaborative Filtering"],
-      "content": {
-        "sections": [
-          {
-            "content": "The code you're browsing right now is a miniature of Netflix's recommendation engine."
-          },
-          {
-            "heading": "Bipartite Graph Data Structure",
-            "content": "Netflix views the world as a giant graph structure. In your defaultData, vertices are divided into two groups: users and video content. Every time you watch something, it triggers the runAddEdge function, drawing an \"edge\" between the user and the movie."
-          },
-          {
-            "heading": "Neighbor Search and Recommendations",
-            "content": "When the system wants to recommend new content, it runs runGetNeighbors on \"your node.\" By reading the Adjacency List, the algorithm acts like a robot — first finding the movies you like, then finding \"other users who also like them\" through those movies. This \"tracing vines to find melons\" traversal is essentially the BFS or connectivity check logic in your code."
-          },
-          {
-            "heading": "Business Value Realized",
-            "content": "According to Netflix's official paper, if users can't find something to watch within 60 to 90 seconds, they leave. The extreme search speed optimized by graph theory dramatically reduces the churn rate. This seemingly abstract computation of nodes and edges saves Netflix over $1 billion annually."
-          }
-        ]
-      },
-      "videoTitle": "How Netflix's Recommendation Algorithm Works",
-      "pythonDemoTitle": "Simulate Bipartite Graph Recommendations: Find Recommendations from Watch History",
-      "inputs": {
-        "user_a_count": "User A's watch count"
-      },
-      "resources": [
-        { "title": "The Netflix Recommender System", "source": "ACM" },
-        { "title": "Netflix Tech Blog: Recommendations", "source": "Netflix Tech Blog" }
-      ]
-    },
     "graph-social-network": {
       "title": "【Algorithm Revealed】How Does Facebook Instantly Recommend Friends? — From Six Degrees to Social Graph",
       "category": "Social Media",
