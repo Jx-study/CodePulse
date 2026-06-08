@@ -17,5 +17,12 @@
     "resetTooltip": "Reset board state",
     "limitWarning": "Values of N > 8 take too long to compute and animate. Please enter a number between 1 and 8.",
     "invalidInput": "Please enter a valid board size N (integer > 0)"
+  },
+  "statusLegend": {
+    "safeCell": "Safe Cell",
+    "trying": "Trying",
+    "queenPlaced": "Queen Placed",
+    "attacked": "Under Attack",
+    "backtrack": "Backtracking"
   }
 }

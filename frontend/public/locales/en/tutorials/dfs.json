@@ -17,5 +17,12 @@
     "path_found": "Destination found! Path length/depth: {{dist}} (Green)",
     "not_found": "Stack is empty, destination unreachable",
     "grid_blocked": "Start or End is blocked by a wall, cannot start"
+  },
+  "statusLegend": {
+    "notDiscovered": "Not Discovered",
+    "inStack": "In Stack (Pending)",
+    "exploring": "Currently Exploring",
+    "explored": "Fully Explored",
+    "finalPath": "Final Path"
   }
 }

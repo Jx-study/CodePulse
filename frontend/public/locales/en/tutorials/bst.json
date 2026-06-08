@@ -82,5 +82,12 @@
     "floorWarning": "Floor requires a reference value",
     "ceilWarning": "Ceil requires a reference value",
     "deleteNotFound": "Value {{val}} does not exist"
+  },
+  "statusLegend": {
+    "notVisited": "Not Visited",
+    "visitedPath": "Visited Path",
+    "exploreDirection": "Explore Direction",
+    "currentNode": "Current Node",
+    "completeTarget": "Complete / Target"
   }
 }

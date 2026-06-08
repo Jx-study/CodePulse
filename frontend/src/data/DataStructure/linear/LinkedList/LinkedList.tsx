@@ -14,12 +14,13 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import type { StatusConfig } from "@/types/statusConfig";
 
 const linkedListStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/linked-list",
   statuses: [
-    { key: Status.Unfinished, label: "一般節點", color: "#1d79cfff" },
-    { key: Status.Prepare,    label: "當前節點", color: "#f59e0b" },
-    { key: Status.Target,     label: "操作節點", color: "#ff6b35" },
-    { key: Status.Complete,   label: "完成",     color: "#46f336ff" },
-    { key: Status.Inactive,   label: "已刪除",   color: "#555555" },
+    { key: Status.Unfinished, label: "statusLegend.normalNode",    color: "#1d79cfff" },
+    { key: Status.Prepare,    label: "statusLegend.currentNode",   color: "#f59e0b" },
+    { key: Status.Target,     label: "statusLegend.operationNode", color: "#ff6b35" },
+    { key: Status.Complete,   label: "statusLegend.complete",      color: "#46f336ff" },
+    { key: Status.Inactive,   label: "statusLegend.deleted",       color: "#555555" },
   ],
 };
 export function createLinkedListAnimationSteps(

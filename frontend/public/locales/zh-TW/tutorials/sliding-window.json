@@ -20,5 +20,11 @@
     "run": "開始演示",
     "runTooltip": "執行滑動視窗演算法演示",
     "invalidInput": "請輸入有效的目標和數值"
+  },
+  "statusLegend": {
+    "outsideWindow": "視窗外部",
+    "currentWindow": "當前視窗",
+    "aboutToLeave": "即將移出",
+    "bestInterval": "歷史最佳區間"
   }
 }

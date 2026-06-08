@@ -17,5 +17,12 @@
     "resetTooltip": "重設棋盤狀態",
     "limitWarning": "N 大於 8 時運算與動畫時間過長，請輸入 1~8 之間的數字。",
     "invalidInput": "請輸入有效的棋盤大小 N (大於 0 的整數)"
+  },
+  "statusLegend": {
+    "safeCell": "安全空格",
+    "trying": "嘗試中",
+    "queenPlaced": "已放置皇后",
+    "attacked": "被攻擊範圍",
+    "backtrack": "回溯拔除"
   }
 }

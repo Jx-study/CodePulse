@@ -15,5 +15,14 @@
     "runTooltip": "執行 0/1 背包演算法填表",
     "limitWarning": "為了維持最佳的視覺化排版，建議背包容量設定在 15 以內",
     "invalidInput": "請輸入有效的背包容量 (大於 0 的整數)"
+  },
+  "statusLegend": {
+    "outsideKnapsack": "背包外",
+    "insideKnapsack": "背包内",
+    "checkingWeight": "檢查重量",
+    "currentTarget": "當前目標",
+    "takeItem": "放數值",
+    "skipItem": "不放數值",
+    "finalAnswer": "最終答案"
   }
 }

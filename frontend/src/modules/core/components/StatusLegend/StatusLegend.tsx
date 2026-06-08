@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { StatusConfig, DEFAULT_STATUS_CONFIG } from "@/types/statusConfig";
 import styles from "./StatusLegend.module.scss";
 
@@ -8,8 +9,10 @@ interface StatusLegendProps {
 }
 
 const StatusLegend = ({ className, statusConfig }: StatusLegendProps) => {
-  // Use provided config or fall back to default
   const config = statusConfig ?? DEFAULT_STATUS_CONFIG;
+  const { t } = useTranslation(config.i18nNs);
+
+  const getLabel = (label: string) => (config.i18nNs ? t(label) : label);
 
   return (
     <div className={`${styles.legend} ${className || ""}`}>
@@ -20,7 +23,7 @@ const StatusLegend = ({ className, statusConfig }: StatusLegendProps) => {
               className={styles.colorCircle}
               style={{ backgroundColor: status.color }}
             />
-            <span className={styles.label}>{status.label}</span>
+            <span className={styles.label}>{getLabel(status.label)}</span>
           </div>
         ))}
       </div>

@@ -20,19 +20,12 @@ export const DijkstraStatus = {
 } as const;
 
 export const DijkstraStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/dijkstra",
   statuses: [
-    { key: DijkstraStatus.Inactive, label: "未處理", color: "#555555" },
-    {
-      key: DijkstraStatus.Current,
-      label: "當前最小距離節點",
-      color: "#ff6b35",
-    },
-    { key: DijkstraStatus.Neighbor, label: "正在檢查的鄰居", color: "#f59e0b" },
-    {
-      key: DijkstraStatus.Settled,
-      label: "最短距離已確定",
-      color: "#1d79cfff",
-    },
-    { key: DijkstraStatus.Path, label: "已走訪路徑", color: "#10b981" },
+    { key: DijkstraStatus.Inactive,  label: "statusLegend.notProcessed",     color: "#555555" },
+    { key: DijkstraStatus.Current,   label: "statusLegend.currentMin",        color: "#ff6b35" },
+    { key: DijkstraStatus.Neighbor,  label: "statusLegend.checkingNeighbor", color: "#f59e0b" },
+    { key: DijkstraStatus.Settled,   label: "statusLegend.settled",           color: "#1d79cfff" },
+    { key: DijkstraStatus.Path,      label: "statusLegend.visitedPath",       color: "#10b981" },
   ],
 };

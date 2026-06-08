@@ -29,29 +29,14 @@ export const PrefixSumStatus = {
 } as const;
 
 export const PrefixSumStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/prefix-sum",
   statuses: [
-    { key: PrefixSumStatus.Inactive, label: "未計算", color: "#555555" },
-    { key: PrefixSumStatus.Unfinished, label: "閒置狀態", color: "#1d79cfff" },
-    { key: PrefixSumStatus.Complete, label: "計算完成", color: "#10b981" },
-    {
-      key: PrefixSumStatus.BuildPrev,
-      label: "前項總和 P[i-1]",
-      color: "#f59e0b",
-    },
-    {
-      key: PrefixSumStatus.BuildCurrent,
-      label: "當前元素 A[i]",
-      color: "#ff6b35",
-    },
-    {
-      key: PrefixSumStatus.QueryRight,
-      label: "查詢右界 P[R]",
-      color: "#a855f7",
-    },
-    {
-      key: PrefixSumStatus.QueryLeft,
-      label: "扣除前綴 P[L-1]",
-      color: "#ec4899",
-    },
+    { key: PrefixSumStatus.Inactive,      label: "statusLegend.notCalculated",  color: "#555555" },
+    { key: PrefixSumStatus.Unfinished,    label: "statusLegend.idle",            color: "#1d79cfff" },
+    { key: PrefixSumStatus.Complete,      label: "statusLegend.calculated",      color: "#10b981" },
+    { key: PrefixSumStatus.BuildPrev,     label: "statusLegend.prevSum",         color: "#f59e0b" },
+    { key: PrefixSumStatus.BuildCurrent,  label: "statusLegend.currentElement",  color: "#ff6b35" },
+    { key: PrefixSumStatus.QueryRight,    label: "statusLegend.queryRight",      color: "#a855f7" },
+    { key: PrefixSumStatus.QueryLeft,     label: "statusLegend.queryLeft",       color: "#ec4899" },
   ],
 };

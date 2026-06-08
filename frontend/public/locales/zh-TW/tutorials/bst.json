@@ -82,5 +82,12 @@
     "floorWarning": "下界需要輸入參考數值",
     "ceilWarning": "上界需要輸入參考數值",
     "deleteNotFound": "數值 {{val}} 不存在"
+  },
+  "statusLegend": {
+    "notVisited": "未參訪",
+    "visitedPath": "已參訪路徑",
+    "exploreDirection": "探索方向",
+    "currentNode": "當前節點",
+    "completeTarget": "完成 / 目標"
   }
 }

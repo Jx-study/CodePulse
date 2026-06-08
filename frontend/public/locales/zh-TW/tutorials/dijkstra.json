@@ -26,5 +26,12 @@
     "noGraphData": "目前沒有圖形資料，無法指定起點/終點",
     "startNodeNotFound": "起點 node-{{val}} 不存在",
     "endNodeNotFound": "終點 node-{{val}} 不存在"
+  },
+  "statusLegend": {
+    "notProcessed": "未處理",
+    "currentMin": "當前最小距離節點",
+    "checkingNeighbor": "正在檢查的鄰居",
+    "settled": "最短距離已確定",
+    "visitedPath": "已走訪路徑"
   }
 }

@@ -49,5 +49,12 @@
     "postorderTooltip": "後序走訪：左 → 右 → 根",
     "bfsTooltip": "廣度優先走訪：逐層遍歷節點",
     "deleteNotFound": "數值 {{val}} 不存在"
+  },
+  "statusLegend": {
+    "notVisited": "未訪問",
+    "enqueued": "已入列 / 堆疊",
+    "preparingExplore": "準備探索",
+    "currentFocus": "當前焦點",
+    "completeVisit": "完成訪問"
   }
 }

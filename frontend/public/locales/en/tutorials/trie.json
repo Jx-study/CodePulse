@@ -43,5 +43,11 @@
       "noValidWords": "No valid words found. Please try again.",
       "truncateWarning": "Limited to the first {{max}} unique words for readability."
     }
+  },
+  "statusLegend": {
+    "trieNode": "Trie Node",
+    "traversing": "Traversing / Matching",
+    "addRemove": "Add / Remove Change",
+    "wordEnd": "Word End"
   }
 }

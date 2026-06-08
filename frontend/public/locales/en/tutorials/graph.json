@@ -61,5 +61,12 @@
     "checkConnectedTooltip": "Check whether the graph is connected",
     "cycle": "Has Cycle",
     "checkCycleTooltip": "Check whether the graph contains a cycle"
+  },
+  "statusLegend": {
+    "notProcessed": "Not Processed",
+    "normalState": "Normal State",
+    "preparing": "Preparing / Candidate",
+    "targetCurrent": "Target / Current",
+    "completeConnected": "Complete / Connected"
   }
 }

@@ -80,5 +80,12 @@
   "userMenu": "User menu",
   "auth": {
     "loginRequired": "Please log in to use this feature"
+  },
+  "statusLegend": {
+    "unfinished": "Unfinished",
+    "prepare": "Preparing",
+    "target": "Target",
+    "complete": "Complete",
+    "inactive": "Inactive"
   }
 }

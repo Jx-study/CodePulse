@@ -18,18 +18,11 @@ export const SlidingWindowStatus = {
 } as const;
 
 export const SlidingWindowStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/sliding-window",
   statuses: [
-    { key: SlidingWindowStatus.Inactive, label: "視窗外部", color: "#555555" },
-    {
-      key: SlidingWindowStatus.WindowActive,
-      label: "當前視窗",
-      color: "#ff6b35",
-    },
-    { key: SlidingWindowStatus.Shrinking, label: "即將移出", color: "#f59e0b" },
-    {
-      key: SlidingWindowStatus.Optimal,
-      label: "歷史最佳區間",
-      color: "#10b981",
-    },
+    { key: SlidingWindowStatus.Inactive,      label: "statusLegend.outsideWindow", color: "#555555" },
+    { key: SlidingWindowStatus.WindowActive,  label: "statusLegend.currentWindow", color: "#ff6b35" },
+    { key: SlidingWindowStatus.Shrinking,     label: "statusLegend.aboutToLeave",  color: "#f59e0b" },
+    { key: SlidingWindowStatus.Optimal,       label: "statusLegend.bestInterval",  color: "#10b981" },
   ],
 };

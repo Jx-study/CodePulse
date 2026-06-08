@@ -20,5 +20,11 @@
     "run": "Run Demo",
     "runTooltip": "Execute sliding window algorithm animation",
     "invalidInput": "Please enter a valid target sum"
+  },
+  "statusLegend": {
+    "outsideWindow": "Outside Window",
+    "currentWindow": "Current Window",
+    "aboutToLeave": "About to Leave",
+    "bestInterval": "Best Interval So Far"
   }
 }

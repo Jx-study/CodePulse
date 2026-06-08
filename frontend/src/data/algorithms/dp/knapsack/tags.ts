@@ -20,13 +20,14 @@ export const KnapsackStatus = {
 } as const;
 
 export const KnapsackStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/knapsack",
   statuses: [
-    { key: KnapsackStatus.Inactive, label: "背包外", color: "#555555" },
-    { key: KnapsackStatus.Unfinished, label: "背包内", color: "#1d79cfff" },
-    { key: KnapsackStatus.Prepare, label: "檢查重量", color: "#f59e0b" },
-    { key: KnapsackStatus.Target, label: "當前目標", color: "#ff6b35" },
-    { key: KnapsackStatus.Take, label: "放數值", color: "#10b981" },
-    { key: KnapsackStatus.Skip, label: "不放數值", color: "#ef4444" },
-    { key: KnapsackStatus.Complete, label: "最終答案", color: "#46f336ff" },
+    { key: KnapsackStatus.Inactive,   label: "statusLegend.outsideKnapsack", color: "#555555" },
+    { key: KnapsackStatus.Unfinished, label: "statusLegend.insideKnapsack",  color: "#1d79cfff" },
+    { key: KnapsackStatus.Prepare,    label: "statusLegend.checkingWeight",  color: "#f59e0b" },
+    { key: KnapsackStatus.Target,     label: "statusLegend.currentTarget",   color: "#ff6b35" },
+    { key: KnapsackStatus.Take,       label: "statusLegend.takeItem",        color: "#10b981" },
+    { key: KnapsackStatus.Skip,       label: "statusLegend.skipItem",        color: "#ef4444" },
+    { key: KnapsackStatus.Complete,   label: "statusLegend.finalAnswer",     color: "#46f336ff" },
   ],
 };

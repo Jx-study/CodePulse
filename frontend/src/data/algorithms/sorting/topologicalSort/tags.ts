@@ -27,12 +27,13 @@ export const TopoStatus = {
 } as const;
 
 export const TopoStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/topological-sort",
   statuses: [
-    { key: TopoStatus.Inactive, label: "未處理", color: "#475569" },
-    { key: TopoStatus.InQueue, label: "在 Queue 中", color: "#3b82f6" },
-    { key: TopoStatus.Target, label: "當前處理節點", color: "#f59e0b" },
-    { key: TopoStatus.Reducing, label: "拔除邊/減入度", color: "#ef4444" },
-    { key: TopoStatus.Complete, label: "排序完成", color: "#10b981" },
-    { key: TopoStatus.Error, label: "循環死鎖", color: "#991b1b" },
+    { key: TopoStatus.Inactive,  label: "statusLegend.notProcessed",   color: "#475569" },
+    { key: TopoStatus.InQueue,   label: "statusLegend.inQueue",         color: "#3b82f6" },
+    { key: TopoStatus.Target,    label: "statusLegend.currentNode",     color: "#f59e0b" },
+    { key: TopoStatus.Reducing,  label: "statusLegend.reducingEdge",    color: "#ef4444" },
+    { key: TopoStatus.Complete,  label: "statusLegend.sorted",          color: "#10b981" },
+    { key: TopoStatus.Error,     label: "statusLegend.cyclicDeadlock",  color: "#991b1b" },
   ],
 };

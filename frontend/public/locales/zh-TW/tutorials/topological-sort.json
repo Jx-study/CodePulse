@@ -23,5 +23,13 @@
     "randomTooltip": "隨機生成一組有向無環圖 (DAG)",
     "run": "開始拓撲排序",
     "runTooltip": "執行 Kahn's Algorithm 拓撲排序演示"
+  },
+  "statusLegend": {
+    "notProcessed": "未處理",
+    "inQueue": "在 Queue 中",
+    "currentNode": "當前處理節點",
+    "reducingEdge": "拔除邊/減入度",
+    "sorted": "排序完成",
+    "cyclicDeadlock": "循環死鎖"
   }
 }

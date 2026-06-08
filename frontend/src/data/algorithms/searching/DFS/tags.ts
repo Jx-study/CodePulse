@@ -25,11 +25,12 @@ export const DFSStatus = {
 } as const;
 
 export const DFSStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/dfs",
   statuses: [
-    { key: DFSStatus.Inactive, label: "尚未發現", color: "#555555" },
-    { key: DFSStatus.Discovered, label: "已入棧 (待探索)", color: "#f59e0b" },
-    { key: DFSStatus.Current, label: "當前探索中", color: "#ff6b35" },
-    { key: DFSStatus.Visited, label: "已探索完畢", color: "#1d79cfff" },
-    { key: DFSStatus.Path, label: "最終路徑", color: "#10b981" },
+    { key: DFSStatus.Inactive,    label: "statusLegend.notDiscovered", color: "#555555" },
+    { key: DFSStatus.Discovered,  label: "statusLegend.inStack",       color: "#f59e0b" },
+    { key: DFSStatus.Current,     label: "statusLegend.exploring",     color: "#ff6b35" },
+    { key: DFSStatus.Visited,     label: "statusLegend.explored",      color: "#1d79cfff" },
+    { key: DFSStatus.Path,        label: "statusLegend.finalPath",     color: "#10b981" },
   ],
 };

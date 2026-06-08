@@ -11,12 +11,13 @@ import type {
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
 export const BTStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/binary-tree",
   statuses: [
-    { key: BTStatus.Inactive, label: "未訪問", color: "#555555" },
-    { key: BTStatus.Visited, label: "已入列 / 堆疊", color: "#1d79cfff" },
-    { key: BTStatus.Prepare, label: "準備探索", color: "#f59e0b" },
-    { key: BTStatus.Target, label: "當前焦點", color: "#ff6b35" },
-    { key: BTStatus.Complete, label: "完成訪問", color: "#46f336ff" },
+    { key: BTStatus.Inactive,  label: "statusLegend.notVisited",      color: "#555555" },
+    { key: BTStatus.Visited,   label: "statusLegend.enqueued",        color: "#1d79cfff" },
+    { key: BTStatus.Prepare,   label: "statusLegend.preparingExplore", color: "#f59e0b" },
+    { key: BTStatus.Target,    label: "statusLegend.currentFocus",    color: "#ff6b35" },
+    { key: BTStatus.Complete,  label: "statusLegend.completeVisit",   color: "#46f336ff" },
   ],
 };
 

@@ -134,5 +134,12 @@
     "doubly": "Doubly",
     "noTail": "No Tail Pointer",
     "hasTail": "With Tail Pointer"
+  },
+  "statusLegend": {
+    "normalNode": "Normal Node",
+    "currentNode": "Current Node",
+    "operationNode": "Operation Node",
+    "complete": "Complete",
+    "deleted": "Deleted"
   }
 }

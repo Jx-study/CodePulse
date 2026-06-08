@@ -16,5 +16,12 @@
     "grid_init_dist": "初始化距離為 ∞",
     "grid_start": "將起點 {{start}} 初始化並加入佇列",
     "grid_visit_neighbor": "發現鄰居 {{neighbor}}，加入佇列"
+  },
+  "statusLegend": {
+    "notDiscovered": "尚未發現",
+    "inQueue": "已加入佇列 (待探索)",
+    "exploring": "當前探索中",
+    "explored": "已探索完畢",
+    "shortestPath": "最短路徑"
   }
 }

@@ -15,5 +15,14 @@
     "runTooltip": "Execute 0/1 Knapsack tabulation algorithm",
     "limitWarning": "To maintain optimal visual layout, a capacity under 15 is recommended.",
     "invalidInput": "Please enter a valid capacity (integer > 0)"
+  },
+  "statusLegend": {
+    "outsideKnapsack": "Outside Knapsack",
+    "insideKnapsack": "Inside Knapsack",
+    "checkingWeight": "Checking Weight",
+    "currentTarget": "Current Target",
+    "takeItem": "Take Item",
+    "skipItem": "Skip Item",
+    "finalAnswer": "Final Answer"
   }
 }

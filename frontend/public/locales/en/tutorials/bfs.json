@@ -16,5 +16,12 @@
     "grid_init_dist": "Initializing all distances to ∞",
     "grid_start": "Initialize the start cell {{start}} and add it to the queue",
     "grid_visit_neighbor": "Found neighbor {{neighbor}}, adding it to the queue"
+  },
+  "statusLegend": {
+    "notDiscovered": "Not Discovered",
+    "inQueue": "In Queue (Pending)",
+    "exploring": "Currently Exploring",
+    "explored": "Fully Explored",
+    "shortestPath": "Shortest Path"
   }
 }

@@ -31,11 +31,12 @@ export const TAGS = {
 } as const;
 
 export const GraphStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/graph",
   statuses: [
-    { key: Status.Inactive, label: "未處理", color: "#555555" },
-    { key: Status.Unfinished, label: "一般狀態", color: "#1d79cfff" },
-    { key: Status.Prepare, label: "準備/候選", color: "#f59e0b" },
-    { key: Status.Target, label: "目標/當前操作", color: "#ff6b35" },
-    { key: Status.Complete, label: "完成/連通", color: "#10b981" },
+    { key: Status.Inactive,   label: "statusLegend.notProcessed",      color: "#555555" },
+    { key: Status.Unfinished, label: "statusLegend.normalState",        color: "#1d79cfff" },
+    { key: Status.Prepare,    label: "statusLegend.preparing",          color: "#f59e0b" },
+    { key: Status.Target,     label: "statusLegend.targetCurrent",      color: "#ff6b35" },
+    { key: Status.Complete,   label: "statusLegend.completeConnected",  color: "#10b981" },
   ],
 };

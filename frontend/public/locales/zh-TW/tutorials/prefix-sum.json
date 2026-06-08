@@ -17,5 +17,14 @@
     "run": "開始演示",
     "runTooltip": "執行前綴和演算法演示",
     "invalidRange": "請輸入完整的區間 (Start, End) 且 0 <= L <= R"
+  },
+  "statusLegend": {
+    "notCalculated": "未計算",
+    "idle": "閒置狀態",
+    "calculated": "計算完成",
+    "prevSum": "前項總和 P[i-1]",
+    "currentElement": "當前元素 A[i]",
+    "queryRight": "查詢右界 P[R]",
+    "queryLeft": "扣除前綴 P[L-1]"
   }
 }

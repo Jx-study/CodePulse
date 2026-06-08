@@ -11,12 +11,13 @@ import { DATA_LIMITS } from "@/constants/dataLimits";
 import { TAGS, BSTStatus } from "./tags";
 
 export const BSTStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/bst",
   statuses: [
-    { key: BSTStatus.Inactive, label: "未參訪", color: "#555555" },
-    { key: BSTStatus.Visited, label: "已參訪路徑", color: "#1d79cfff" },
-    { key: BSTStatus.Prepare, label: "探索方向", color: "#f59e0b" },
-    { key: BSTStatus.Target, label: "當前節點", color: "#ff6b35" },
-    { key: BSTStatus.Complete, label: "完成 / 目標", color: "#46f336ff" },
+    { key: BSTStatus.Inactive,  label: "statusLegend.notVisited",       color: "#555555" },
+    { key: BSTStatus.Visited,   label: "statusLegend.visitedPath",      color: "#1d79cfff" },
+    { key: BSTStatus.Prepare,   label: "statusLegend.exploreDirection", color: "#f59e0b" },
+    { key: BSTStatus.Target,    label: "statusLegend.currentNode",      color: "#ff6b35" },
+    { key: BSTStatus.Complete,  label: "statusLegend.completeTarget",   color: "#46f336ff" },
   ],
 };
 

@@ -13,12 +13,13 @@ import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
 export const HeapStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/heap",
   statuses: [
-    { key: Status.Inactive, label: "未建立", color: "#555555" },
-    { key: Status.Unfinished, label: "一般節點", color: "#1d79cfff" }, // 原本的「未完成」作為「一般節點」
-    { key: Status.Prepare, label: "比較中", color: "#f59e0b" },
-    { key: Status.Target, label: "當前焦點", color: "#ff6b35" },
-    { key: Status.Complete, label: "完成 / 提取", color: "#46f336ff" },
+    { key: Status.Inactive,   label: "statusLegend.notBuilt",        color: "#555555" },
+    { key: Status.Unfinished, label: "statusLegend.normalNode",       color: "#1d79cfff" },
+    { key: Status.Prepare,    label: "statusLegend.comparing",        color: "#f59e0b" },
+    { key: Status.Target,     label: "statusLegend.currentFocus",     color: "#ff6b35" },
+    { key: Status.Complete,   label: "statusLegend.completeExtract",  color: "#46f336ff" },
   ],
 };
 

@@ -17,5 +17,14 @@
     "run": "Run Demo",
     "runTooltip": "Execute Prefix Sum algorithm demo",
     "invalidRange": "Please enter a valid range (Start, End) where 0 <= L <= R"
+  },
+  "statusLegend": {
+    "notCalculated": "Not Calculated",
+    "idle": "Idle",
+    "calculated": "Calculated",
+    "prevSum": "Previous Sum P[i-1]",
+    "currentElement": "Current Element A[i]",
+    "queryRight": "Query Right P[R]",
+    "queryLeft": "Subtract Prefix P[L-1]"
   }
 }

@@ -23,5 +23,13 @@
     "randomTooltip": "Generate a random Directed Acyclic Graph (DAG)",
     "run": "Run Topological Sort",
     "runTooltip": "Execute Kahn's Algorithm animation"
+  },
+  "statusLegend": {
+    "notProcessed": "Not Processed",
+    "inQueue": "In Queue",
+    "currentNode": "Current Node",
+    "reducingEdge": "Removing Edge / Reducing In-degree",
+    "sorted": "Sorted",
+    "cyclicDeadlock": "Cyclic Deadlock"
   }
 }

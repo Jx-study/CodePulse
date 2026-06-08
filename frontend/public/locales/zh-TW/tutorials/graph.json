@@ -61,5 +61,12 @@
     "checkConnectedTooltip": "檢查圖是否連通",
     "cycle": "是否有環",
     "checkCycleTooltip": "檢查圖中是否存在環"
+  },
+  "statusLegend": {
+    "notProcessed": "未處理",
+    "normalState": "一般狀態",
+    "preparing": "準備/候選",
+    "targetCurrent": "目標/當前操作",
+    "completeConnected": "完成/連通"
   }
 }

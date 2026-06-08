@@ -26,10 +26,11 @@ export const TrieStatus = {
 } as const;
 
 export const TrieStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/trie",
   statuses: [
-    { key: TrieStatus.Default, label: "Trie 節點", color: "#1d79cfff" },
-    { key: TrieStatus.Match, label: "走訪/比對中", color: "#ff6b35" },
-    { key: TrieStatus.Create, label: "新增/移除變動", color: "#f59e0b" },
-    { key: TrieStatus.WordEnd, label: "單字結尾 (Word End)", color: "#10b981" },
+    { key: TrieStatus.Default,  label: "statusLegend.trieNode",   color: "#1d79cfff" },
+    { key: TrieStatus.Match,    label: "statusLegend.traversing", color: "#ff6b35" },
+    { key: TrieStatus.Create,   label: "statusLegend.addRemove",  color: "#f59e0b" },
+    { key: TrieStatus.WordEnd,  label: "statusLegend.wordEnd",    color: "#10b981" },
   ],
 };

@@ -134,5 +134,12 @@
     "doubly": "雙向 (Doubly)",
     "noTail": "無 tail 模式",
     "hasTail": "有 tail 模式"
+  },
+  "statusLegend": {
+    "normalNode": "一般節點",
+    "currentNode": "當前節點",
+    "operationNode": "操作節點",
+    "complete": "完成",
+    "deleted": "已刪除"
   }
 }

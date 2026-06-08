@@ -17,5 +17,12 @@
     "path_found": "找到終點！路徑長度/深度: {{dist}} (綠色)",
     "not_found": "堆疊已空，無法到達終點",
     "grid_blocked": "起點或終點被牆壁阻擋，無法開始"
+  },
+  "statusLegend": {
+    "notDiscovered": "尚未發現",
+    "inStack": "已入棧 (待探索)",
+    "exploring": "當前探索中",
+    "explored": "已探索完畢",
+    "finalPath": "最終路徑"
   }
 }

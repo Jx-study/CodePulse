@@ -28,15 +28,12 @@ export const BFSStatus = {
 } as const;
 
 export const BFSStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/bfs",
   statuses: [
-    { key: BFSStatus.Inactive, label: "尚未發現", color: "#555555" },
-    {
-      key: BFSStatus.Discovered,
-      label: "已加入佇列 (待探索)",
-      color: "#f59e0b",
-    },
-    { key: BFSStatus.Current, label: "當前探索中", color: "#ff6b35" },
-    { key: BFSStatus.Visited, label: "已探索完畢", color: "#1d79cfff" },
-    { key: BFSStatus.Path, label: "最短路徑", color: "#10b981" },
+    { key: BFSStatus.Inactive,    label: "statusLegend.notDiscovered", color: "#555555" },
+    { key: BFSStatus.Discovered,  label: "statusLegend.inQueue",       color: "#f59e0b" },
+    { key: BFSStatus.Current,     label: "statusLegend.exploring",     color: "#ff6b35" },
+    { key: BFSStatus.Visited,     label: "statusLegend.explored",      color: "#1d79cfff" },
+    { key: BFSStatus.Path,        label: "statusLegend.shortestPath",  color: "#10b981" },
   ],
 };

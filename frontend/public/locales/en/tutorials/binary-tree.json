@@ -49,5 +49,12 @@
     "postorderTooltip": "Postorder Traversal: Left → Right → Root",
     "bfsTooltip": "Breadth-First Search: Level by level",
     "deleteNotFound": "Value {{val}} does not exist"
+  },
+  "statusLegend": {
+    "notVisited": "Not Visited",
+    "enqueued": "Enqueued / In Stack",
+    "preparingExplore": "Preparing to Explore",
+    "currentFocus": "Current Focus",
+    "completeVisit": "Visit Complete"
   }
 }

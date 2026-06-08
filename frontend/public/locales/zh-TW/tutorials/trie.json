@@ -43,5 +43,11 @@
       "noValidWords": "沒有找到合法的英文單字，請重新輸入！",
       "truncateWarning": "為維持視覺化效果，已自動截取前 {{max}} 筆不重複單字。"
     }
+  },
+  "statusLegend": {
+    "trieNode": "Trie 節點",
+    "traversing": "走訪/比對中",
+    "addRemove": "新增/移除變動",
+    "wordEnd": "單字結尾 (Word End)"
   }
 }

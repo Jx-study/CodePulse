@@ -21,11 +21,12 @@ export const NQueensStatus = {
 } as const;
 
 export const NQueensStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/n-queens",
   statuses: [
-    { key: NQueensStatus.Inactive, label: "安全空格", color: "#475569" },
-    { key: NQueensStatus.Target, label: "嘗試中", color: "#f59e0b" },
-    { key: NQueensStatus.Complete, label: "已放置皇后", color: "#10b981" },
-    { key: NQueensStatus.Attacked, label: "被攻擊範圍", color: "#ef4444" },
-    { key: NQueensStatus.Backtrack, label: "回溯拔除", color: "#a855f7" },
+    { key: NQueensStatus.Inactive,   label: "statusLegend.safeCell",    color: "#475569" },
+    { key: NQueensStatus.Target,     label: "statusLegend.trying",      color: "#f59e0b" },
+    { key: NQueensStatus.Complete,   label: "statusLegend.queenPlaced", color: "#10b981" },
+    { key: NQueensStatus.Attacked,   label: "statusLegend.attacked",    color: "#ef4444" },
+    { key: NQueensStatus.Backtrack,  label: "statusLegend.backtrack",   color: "#a855f7" },
   ],
 };

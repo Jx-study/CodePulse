@@ -38,5 +38,12 @@
     "heapifyTooltip": "將無序陣列轉換為 Heap (Bottom-Up 建堆)",
     "insertWarning": "請輸入要 Insert 的數值",
     "needHeapifyWarning": "請先點擊 Heapify 建立堆積結構"
+  },
+  "statusLegend": {
+    "notBuilt": "未建立",
+    "normalNode": "一般節點",
+    "comparing": "比較中",
+    "currentFocus": "當前焦點",
+    "completeExtract": "完成 / 提取"
   }
 }

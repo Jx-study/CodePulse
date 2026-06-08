@@ -26,5 +26,12 @@
     "noGraphData": "No graph data available. Cannot specify a start/end node.",
     "startNodeNotFound": "Start node node-{{val}} does not exist",
     "endNodeNotFound": "End node node-{{val}} does not exist"
+  },
+  "statusLegend": {
+    "notProcessed": "Not Processed",
+    "currentMin": "Current Min-Distance Node",
+    "checkingNeighbor": "Checking Neighbor",
+    "settled": "Shortest Distance Settled",
+    "visitedPath": "Visited Path"
   }
 }
