@@ -29,7 +29,8 @@
   "toast": {
     "maxNodesExceeded": "資料數量超過限制，最多只能有 {{maxNodes}} 筆資料。",
     "invalidFormat": "請輸入有效的數字格式 (例如: 1,2,3)",
-    "emptyDataOperation": "目前沒有資料，請先載入或隨機生成資料。"
+    "emptyDataOperation": "目前沒有資料，請先載入或隨機生成資料。",
+    "invalidWordList": "請輸入有效的單字清單。"
   },
   "featureTour": {
     "ariaLabelComplete": "功能導覽完成",

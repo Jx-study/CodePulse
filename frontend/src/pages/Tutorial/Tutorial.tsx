@@ -839,7 +839,7 @@ function TutorialContent() {
       const parsedWords = wordsStr ? wordsStr.split(" ") : [];
 
       if (parsedWords.length === 0) {
-        toast.warning("請輸入有效的單字清單");
+        toast.warning(tTutorial("toast.invalidWordList"));
         return;
       }
 
