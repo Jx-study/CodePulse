@@ -109,6 +109,12 @@
   min-width: 0;
 }
 
+.editorBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
 .editCodeBtn {
   transition: filter 0.2s, transform 0.2s;
 

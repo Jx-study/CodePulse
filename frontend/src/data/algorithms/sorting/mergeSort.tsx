@@ -348,8 +348,29 @@ def merge(left, right):
             
     result.extend(left[i:])
     result.extend(right[j:])
-    
+
     return result`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n log n)' },                            // def merge_sort(arr):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // if len(arr) <= 1:
+      { lineNumber: 3,  complexity: 'O(1)' },                                  // return arr
+      { lineNumber: 5,  complexity: 'O(1)' },                                  // mid = len(arr) // 2
+      { lineNumber: 6,  complexity: 'O(n log n)' },                            // left = merge_sort(arr[:mid])
+      { lineNumber: 7,  complexity: 'O(n log n)' },                            // right = merge_sort(arr[mid:])
+      { lineNumber: 9,  complexity: 'O(n)' },                                  // return merge(left, right)
+      { lineNumber: 11, complexity: 'O(n)' },                                  // def merge(left, right):
+      { lineNumber: 12, complexity: 'O(1)' },                                  // result = []
+      { lineNumber: 13, complexity: 'O(1)' },                                  // i = j = 0
+      { lineNumber: 15, complexity: 'O(n)' },                                  // while i < len(left) and j < len(right):
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(n)' },                 // if left[i] <= right[j]:
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // result.append(left[i])
+      { lineNumber: 18, complexity: 'O(1)', context: 'O(n)' },                 // i += 1
+      { lineNumber: 20, complexity: 'O(1)', context: 'O(n)' },                 // result.append(right[j])
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(n)' },                 // j += 1
+      { lineNumber: 23, complexity: 'O(n)' },                                  // result.extend(left[i:])
+      { lineNumber: 24, complexity: 'O(n)' },                                  // result.extend(right[j:])
+      { lineNumber: 26, complexity: 'O(1)' },                                  // return result
+    ],
   },
 };
 
@@ -366,8 +387,8 @@ export const mergeSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n log n)",
     space: "O(n)",
   },
-  introduction: `合併排序（Merge Sort）是典型的分治法（Divide and Conquer）應用。
-它將陣列從中間一分為二，持續切割直到每個子陣列只剩一個元素，接著將這些子陣列兩兩合併，在合併的過程中將它們排序好，最後合併成一個完整的已排序陣列。`,
+  i18nNamespace: "tutorials/merge-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 38 },
     { id: "box-1", value: 27 },

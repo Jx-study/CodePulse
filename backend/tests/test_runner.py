@@ -26,6 +26,10 @@ import pytest
 RUNNER_PATH = os.path.join(os.path.dirname(__file__), "..", "docker", "runner.py")
 SERVICES_PATH = os.path.join(os.path.dirname(__file__), "..", "services")
 
+# TestRunTraceWithStdinInputs 直接 import run_trace（非走 subprocess），
+# 因此 services/ 需可在本 process 內 import。subprocess 測試則靠 PYTHONPATH。
+sys.path.insert(0, SERVICES_PATH)
+
 
 def run_runner(code: str | None, *, extra_env: dict | None = None) -> tuple[dict, int]:
     """
@@ -57,6 +61,47 @@ def run_runner(code: str | None, *, extra_env: dict | None = None) -> tuple[dict
         data = {"_raw": result.stdout, "_stderr": result.stderr}
 
     return data, result.returncode
+
+
+def run_runner_interactive(
+    code: str,
+    inputs: list[str],
+    *,
+    extra_env: dict | None = None,
+) -> tuple[list[str], int]:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = SERVICES_PATH
+    env["CODE"] = base64.b64encode(code.encode()).decode()
+    if extra_env:
+        env.update(extra_env)
+
+    proc = subprocess.Popen(
+        [sys.executable, RUNNER_PATH],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env,
+    )
+
+    lines: list[str] = []
+    try:
+        for value in inputs:
+            line = proc.stdout.readline()
+            if line:
+                lines.append(line.rstrip("\n"))
+            assert proc.poll() is None, "runner exited while waiting for interactive input"
+            assert proc.stdin is not None
+            proc.stdin.write(value + "\n")
+            proc.stdin.flush()
+
+        stdout_tail, _stderr = proc.communicate(timeout=15)
+        lines.extend(line for line in stdout_tail.splitlines() if line)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+
+    return lines, proc.returncode
 
 
 SIMPLE_CODE = """
@@ -365,3 +410,102 @@ class TestOutputFormat:
         data, rc = run_runner(SIMPLE_CODE)
         assert rc == 0
         assert data["step_count"] == len(data["trace"])
+
+
+# ---------------------------------------------------------------------------
+# 7. Interactice input() — run_trace 直接單元測試
+# ---------------------------------------------------------------------------
+# 與上方 subprocess 風格不同：這組直接 import run_trace 在 process 內呼叫，
+# 因此需要 monkeypatch SANDBOX_CONTAINER guard
+
+
+@pytest.fixture
+def _mark_sandbox(monkeypatch):
+    """run_trace() 有 SANDBOX_CONTAINER guard（tracer.py），直接單元測試需繞過。"""
+    monkeypatch.setenv("SANDBOX_CONTAINER", "1")
+
+
+class TestRunTraceWithStdinInputs:
+    def test_input_consumed_from_list(self, _mark_sandbox):
+        from tracer import run_trace
+        code = 'x = input("Enter: ")\nprint(x)'
+        result = run_trace(code, stdin_inputs=["hello"])
+        assert result.step_count > 0
+        assert result.is_truncated is False
+
+    def test_input_value_visible_in_locals(self, _mark_sandbox):
+        from tracer import run_trace
+        code = 'x = input()\nprint(x)'
+        result = run_trace(code, stdin_inputs=["42"])
+        assigned = any(
+            ev.tag == "LINE" and ev.local_vars.get("x") == "'42'"
+            for ev in result.trace
+        )
+        assert assigned
+
+    def test_input_needed_when_queue_empty(self, _mark_sandbox):
+        from tracer import run_trace, LegacyInputNeededError
+        code = 'a = input("name: ")\nb = input("age: ")'
+        with pytest.raises(LegacyInputNeededError) as exc_info:
+            run_trace(code, stdin_inputs=["alice"])
+        assert exc_info.value.prompt == "age: "
+        assert exc_info.value.input_index == 1
+
+    def test_input_needed_first_call(self, _mark_sandbox):
+        from tracer import run_trace, LegacyInputNeededError
+        code = 'x = input("first: ")'
+        with pytest.raises(LegacyInputNeededError) as exc_info:
+            run_trace(code, stdin_inputs=[])
+        assert exc_info.value.prompt == "first: "
+        assert exc_info.value.input_index == 0
+
+    def test_input_needed_carries_partial_stdout(self, _mark_sandbox):
+        from tracer import run_trace, LegacyInputNeededError
+        code = 'print("ready")\nx = input("name: ")'
+        with pytest.raises(LegacyInputNeededError) as exc_info:
+            run_trace(code, stdin_inputs=[])
+        assert [ev["text"] for ev in exc_info.value.stdout_events] == [
+            "ready",
+            "name: ",
+        ]
+
+    def test_input_value_echoed_inline_with_prompt(self, _mark_sandbox):
+        # 模擬終端機：input("name: ") 輸入 alice → prompt 與輸入值拼在同一行 "name: alice"
+        # print(x) 再印一行 "alice"
+        from tracer import run_trace
+        code = 'x = input("name: ")\nprint(x)'
+        result = run_trace(code, stdin_inputs=["alice"])
+        texts = [ev["text"] for ev in result.stdout_events]
+        assert texts == ["name: alice", "alice"]
+
+    def test_input_value_echoed_when_no_prompt(self, _mark_sandbox):
+        # 無 prompt 的 input()：終端機仍會 echo 使用者按鍵，故單獨成一行 "42"
+        # print(x) 再印一行 "42"
+        from tracer import run_trace
+        code = 'x = input()\nprint(x)'
+        result = run_trace(code, stdin_inputs=["42"])
+        texts = [ev["text"] for ev in result.stdout_events]
+        assert texts == ["42", "42"]
+
+    def test_multi_input_echoed_inline(self, _mark_sandbox):
+        # 多個 input：各自 prompt 與輸入值同行
+        from tracer import run_trace
+        code = 'a = input("a: ")\nb = input("b: ")\nprint(int(a) + int(b))'
+        result = run_trace(code, stdin_inputs=["2", "3"])
+        texts = [ev["text"] for ev in result.stdout_events]
+        assert texts == ["a: 2", "b: 3", "5"]
+
+    def test_runner_input_needed_includes_partial_stdout_events(self):
+        code = 'print("ready")\nx = input("name: ")'
+        data, rc = run_runner(code)
+        assert rc == 0
+        assert data["error"] == "input_needed"
+        assert data["prompt"] == "name: "
+        assert data["input_index"] == 0
+        assert [ev["text"] for ev in data["stdout_events"]] == [
+            "ready",
+            "name: ",
+        ]
+
+    # NOTE: random seed determinism test 已移除 — 隨 D4/D5 拆出至獨立 plan
+    # 該測試需要 sandbox 允許 `import random`，但本 plan 不碰 __import__ allowlist

@@ -112,11 +112,13 @@ class ApiService {
     endpoint: string,
     body?: any,
     headers?: Record<string, string>,
+    signal?: AbortSignal,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(body),
       headers,
+      signal,
     });
   }
 

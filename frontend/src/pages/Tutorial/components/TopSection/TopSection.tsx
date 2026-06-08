@@ -18,9 +18,10 @@ import PanelHeader from '../PanelHeader';
 import { TabConfig } from '@/shared/components/Tabs';
 const CodeEditor = lazy(() => import('@/modules/core/components/CodeEditor/CodeEditor'));
 import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
-import { InspectorPanelInternal, type InspectorPanelInternalProps, type CanvasPanelProps } from '@/pages/Tutorial/Tutorial';
+import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
+import type { CodeEditorHandle } from '@/modules/core/components/CodeEditor/CodeEditor';
+import type { CanvasPanelProps } from '@/types/canvasTypes';
 import styles from './TopSection.module.scss';
-
 interface TopSectionProps {
   // DnD 相關
   activeDragId: string | null;
@@ -58,6 +59,7 @@ interface TopSectionProps {
   handleModeToggle: (mode: "pseudo" | "python") => void;
   currentCodeConfig: any;
   highlightLines: number[];
+  codeEditorRef?: React.RefObject<CodeEditorHandle | null>;
 }
 
 export function TopSection(props: TopSectionProps) {
@@ -81,6 +83,7 @@ export function TopSection(props: TopSectionProps) {
     handleModeToggle,
     currentCodeConfig,
     highlightLines,
+    codeEditorRef,
   } = props;
 
   const { panelSizes, setCollapsed } = usePanelContext();
@@ -165,6 +168,7 @@ export function TopSection(props: TopSectionProps) {
                     <div className={styles.pseudoCodeEditor}>
                       <Suspense fallback={null}>
                         <CodeEditor
+                          ref={codeEditorRef}
                           key={`editor-${mainPanelOrder.join("-")}`}
                           mode="single"
                           language="python"
@@ -172,6 +176,8 @@ export function TopSection(props: TopSectionProps) {
                           highlightedLine={highlightLines}
                           readOnly={true}
                           theme="auto"
+                          showTimeComplexity={codeMode === "python"}
+                          complexityData={currentCodeConfig?.python?.lineComplexity}
                         />
                       </Suspense>
                     </div>
@@ -343,6 +349,7 @@ export function TopSection(props: TopSectionProps) {
                     <div className={styles.pseudoCodeEditor}>
                       <Suspense fallback={null}>
                         <CodeEditor
+                          ref={codeEditorRef}
                           key={`editor-${mainPanelOrder.join("-")}`}
                           mode="single"
                           language="python"
@@ -350,6 +357,8 @@ export function TopSection(props: TopSectionProps) {
                           highlightedLine={highlightLines}
                           readOnly={true}
                           theme="auto"
+                          showTimeComplexity={codeMode === "python"}
+                          complexityData={currentCodeConfig?.python?.lineComplexity}
                         />
                       </Suspense>
                     </div>

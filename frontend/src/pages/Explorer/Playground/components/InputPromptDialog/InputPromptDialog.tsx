@@ -1,0 +1,72 @@
+import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import Dialog from "@/shared/components/Dialog";
+import Button from "@/shared/components/Button";
+import styles from "./InputPromptDialog.module.scss";
+
+interface InputPromptDialogProps {
+  isOpen: boolean;
+  prompt: string;
+  inputIndex: number;
+  onSubmit: (value: string) => void;
+  onCancel: () => void;
+}
+
+export function InputPromptDialog({
+  isOpen,
+  prompt,
+  inputIndex,
+  onSubmit,
+  onCancel,
+}: InputPromptDialogProps) {
+  const { t } = useTranslation("playground");
+  const [value, setValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 每次開啟或換到下一個 input 時清空並聚焦（連續多個 input 用 inputIndex 區分）
+  useEffect(() => {
+    if (isOpen) {
+      setValue("");
+      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, inputIndex]);
+
+  const footer = (
+    <>
+      <Button variant="primary" size="sm" onClick={() => onSubmit(value)}>
+        {t("inputDialog.confirm")}
+      </Button>
+      <Button variant="secondary" size="sm" onClick={onCancel}>
+        {t("inputDialog.cancel")}
+      </Button>
+    </>
+  );
+
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={t("inputDialog.title", { index: inputIndex + 1 })}
+      footer={footer}
+      size="sm"
+      closeOnOverlayClick={false}
+    >
+      <div className={styles.body}>
+        {prompt && <div className={styles.prompt}>{prompt}</div>}
+        <input
+          ref={inputRef}
+          className={styles.input}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSubmit(value);
+          }}
+          placeholder={t("inputDialog.placeholder")}
+        />
+      </div>
+    </Dialog>
+  );
+}
+
+export default InputPromptDialog;

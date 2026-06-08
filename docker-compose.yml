@@ -96,6 +96,7 @@ services:
       --loglevel=info
       --concurrency=2
       --pool=prefork
+      -Q celery,interactive
 
   # Vite dev server
   frontend:

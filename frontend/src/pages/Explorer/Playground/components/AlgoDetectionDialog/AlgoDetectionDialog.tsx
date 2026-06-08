@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Dialog from "@/shared/components/Dialog";
 import type { AiResult, AlgoCandidate } from "@/types/ai";
@@ -19,6 +20,7 @@ export function AlgoDetectionDialog({
   top3Candidates,
   onApply,
 }: AlgoDetectionDialogProps) {
+  const { t } = useTranslation("playground");
   const [selectedAlgo, setSelectedAlgo] = useState<string | null>(null);
 
   const isHighConfidence =
@@ -43,7 +45,7 @@ export function AlgoDetectionDialog({
       title={
         <div className={styles.title}>
           <span className={styles.titleIcon}>✦</span>
-          Algorithm Detected
+          {t("algoDialog.title")}
         </div>
       }
     >
@@ -68,23 +70,19 @@ export function AlgoDetectionDialog({
                 </div>
               )}
             </div>
-            <p className={styles.hint}>
-              Apply the matching animation for this algorithm?
-            </p>
+            <p className={styles.hint}>{t("algoDialog.applyHint")}</p>
             <div className={styles.actionRow}>
               <Button variant="primary" size="sm" onClick={handleApply}>
-                Apply Animation
+                {t("algoDialog.applyAnimation")}
               </Button>
               <Button variant="ghost" size="sm" onClick={onClose}>
-                Skip
+                {t("algoDialog.skip")}
               </Button>
             </div>
           </>
         ) : (
           <>
-            <p className={styles.hint}>
-              Results are inconclusive. Select the best match:
-            </p>
+            <p className={styles.hint}>{t("algoDialog.inconclusiveHint")}</p>
             <div className={styles.top3List}>
               {top3Candidates.map((c) => {
                 const chosen = selectedAlgo ?? top3Candidates[0]?.name;
@@ -117,10 +115,10 @@ export function AlgoDetectionDialog({
             </div>
             <div className={styles.actionRow}>
               <Button variant="primary" size="sm" onClick={handleApply}>
-                Apply Animation
+                {t("algoDialog.applyAnimation")}
               </Button>
               <Button variant="ghost" size="sm" onClick={onClose}>
-                Skip
+                {t("algoDialog.skip")}
               </Button>
             </div>
           </>

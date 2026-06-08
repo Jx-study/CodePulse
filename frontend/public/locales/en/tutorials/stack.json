@@ -1,0 +1,81 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "A **Stack** is a data structure based on the [[primary|Last-In, First-Out]] (**LIFO**) principle. Like a stack of plates, the last one placed on top is always the first to be removed — operations are only allowed at the [[primary|top]].",
+        "items": [
+          "The **Push** operation places new data onto the [[primary|top]] of the **Stack**",
+          "The **Pop** operation removes and retrieves the data at the [[primary|top]] of the **Stack**",
+          "The **Peek** operation inspects the [[primary|top]] element without removing it",
+          "All these operations have a [[primary|time complexity]] of **O(1)**, and random access to elements in the middle is not permitted"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "A Stack only accesses data at one end (the top), requiring no shifting or traversal of other elements — this is why its core operations maintain exceptional efficiency.",
+        "items": [
+          "**Push**: Adds data to the top with no shifting or traversal required; time complexity is [[success|O(1)]]",
+          "**Pop**: Removes and returns the top element with no shifting or traversal required; time complexity is [[success|O(1)]]",
+          "**Peek**: Views the top element without removing it, accessed directly via pointer; time complexity is [[success|O(1)]]",
+          "**Search**: Random access is not supported — elements must be popped one by one to find a target; time complexity is [[warning|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "A Stack excels at single-ended **Last-In, First-Out** operations. However, it does not support random access, so double-ended operations or retrieving elements from the middle will degrade performance significantly — in those cases, a more suitable structure should be used.",
+        "items": [
+          "Great for **state backtracking**: linear scenarios like browser back navigation, **Undo**, or **Depth-First Search (DFS)**",
+          "Poor for **First-In, First-Out** access: accessing from the bottom degrades complexity — use a **Queue** or **Deque** instead",
+          "Poor for **random access**: cannot directly read or modify middle elements — use an **Array** when frequent positional lookups are needed"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Problems It Solves",
+        "content": "Whenever a problem involves Last-In, First-Out ordering or requires state backtracking, a Stack is the natural solution. If you see a need to store a history and process it in reverse from the most recent state, think Stack.",
+        "items": [
+          "Scenarios requiring a return to a previous state, such as browser back navigation or an editor's **Undo** mechanism",
+          "Scenarios where exploration must reverse after reaching a dead end, such as **Depth-First Search (DFS)** on graphs or trees",
+          "Expressions requiring operator precedence and bracket matching, such as **arithmetic evaluation** or **infix-to-postfix conversion**",
+          "Tracking the pause and resume order of nested tasks, such as the **Call Stack** at the program execution level"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Understanding Stack Overflow",
+        "content": "Beginners implementing **function recursion** frequently encounter [[danger|Stack Overflow]] errors. A dedicated explanation of this concept helps clarify the close relationship between the **Stack** data structure and how system memory works.",
+        "items": [
+          "The system uses the **Call Stack** to record function state — a direct illustration of the link between data structures and memory",
+          "When **function recursion** is too deep or forms an infinite loop, each new call pushed onto the stack eventually exhausts available capacity",
+          "Once stack usage exceeds the system's preset limit, a [[danger|Stack Overflow]] error is triggered",
+          "Once the mechanism is clear, beginners can prevent this by limiting recursion depth or switching to an **iterative approach**"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "Choosing the Right Tool",
+        "content": "Beginners often struggle to decide whether to use **list**, **deque**, or **LifoQueue** when performance or thread safety is a concern. A dedicated explanation helps you make the right call.",
+        "items": [
+          "**list**: Tail access is [[success|O(1)]], but lacks thread safety and may incur memory reallocation costs — suitable for simple, single-threaded tasks",
+          "**deque**: Both ends are [[success|O(1)]] with no reallocation overhead — the best-performing choice for **single-threaded** use",
+          "**LifoQueue**: Built for **multi-threaded** environments with full [[warning|thread safety]], ensuring safe concurrent access"
+        ],
+        "icon": "screwdriver-wrench"
+      },
+      {
+        "heading": "Advanced Variants",
+        "content": "Different problems often call for different Stack variants. A dedicated explanation helps beginners think beyond a single Stack and apply creative variations to tackle more complex challenges.",
+        "items": [
+          "Use a dual-stack design to implement a [[primary|MinStack]] that retrieves the internal minimum in [[success|O(1)]] time",
+          "Implement a **Queue** using two Stacks — two rounds of LIFO produce FIFO behavior",
+          "A **Monotonic Stack** maintains elements in ascending or descending order, ideal for problems involving adjacent extremes or boundaries",
+          "For high-concurrency scenarios, lock-free structures such as a **Treiber Stack** can ensure thread-safe access"
+        ],
+        "icon": "code-branch"
+      }
+    ]
+  }
+}
