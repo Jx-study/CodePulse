@@ -666,22 +666,17 @@ function TutorialContent() {
     }
   }, [isPlaying, hasStartedAnimation]);
 
-  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor（動態寬度）並切換 tab（只觸發一次）
+  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor 並切換 tab（只觸發一次）
   useEffect(() => {
     if (!hasStartedAnimation) return;
     const timer = setTimeout(() => {
-      if (leftPanelRef.current?.isCollapsed()) {
+      const currentPercent = leftPanelRef.current?.getSize().asPercentage ?? 0;
+      if (currentPercent < panelSizes.codeEditor) {
         const contentPx = codeEditorRef.current?.getContentWidth() ?? 0;
         const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
-        if (contentPx > 0 && rightPanelPx > 0) {
-          const targetPercent = Math.min(
-            panelSizes.codeEditor,
-            (contentPx / rightPanelPx) * 100,
-          );
-          leftPanelRef.current?.resize(`${targetPercent}%`);
-        } else {
-          leftPanelRef.current?.expand();
-        }
+        const contentPercent = rightPanelPx > 0 ? (contentPx / rightPanelPx) * 100 : 0;
+        const targetPercent = Math.min(panelSizes.codeEditor, Math.max(20, contentPercent));
+        leftPanelRef.current?.resize(`${targetPercent}%`);
       }
       setActiveInspectorTab("variableStatus");
     }, 400);
