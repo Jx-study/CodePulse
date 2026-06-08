@@ -1731,6 +1731,86 @@ End Class`,
                 result = dfs(node, None)
                 if result: return result
         return []`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)'                  },  // class Graph:
+      { lineNumber: 2,  complexity: 'O(1)'                  },  // def __init__(self, is_directed...):
+      { lineNumber: 3,  complexity: 'O(1)'                  },  // self.adj_list = {}
+      { lineNumber: 4,  complexity: 'O(1)'                  },  // self.is_directed = is_directed
+      { lineNumber: 6,  complexity: 'O(1)'                  },  // def add_vertex(self, vertex_id):
+      { lineNumber: 7,  complexity: 'O(1)'                  },  // if vertex_id not in self.adj_list
+      { lineNumber: 8,  complexity: 'O(1)'                  },  // self.adj_list[vertex_id] = []
+      { lineNumber: 10, complexity: 'O(n)'                  },  // def remove_vertex(self, vertex_id): — overall O(n)
+      { lineNumber: 11, complexity: 'O(1)'                  },  // if vertex_id in self.adj_list — before loop
+      { lineNumber: 12, complexity: 'O(1)'                  },  // del self.adj_list[vertex_id] — before loop
+      { lineNumber: 13, complexity: 'O(n)'                  },  // for u in self.adj_list — top-level for
+      { lineNumber: 14, complexity: 'O(n)', context: 'O(n)' },  // if vertex_id in self.adj_list[u] — list `in` is O(n) × n
+      { lineNumber: 15, complexity: 'O(n)', context: 'O(n)' },  // self.adj_list[u].remove — list remove is O(n) × n
+      { lineNumber: 17, complexity: 'O(1)'                  },  // def add_edge(self, source, target):
+      { lineNumber: 18, complexity: 'O(1)'                  },  // if source in self.adj_list and...
+      { lineNumber: 19, complexity: 'O(1)'                  },  // if target not in self.adj_list[source]
+      { lineNumber: 20, complexity: 'O(1)'                  },  // self.adj_list[source].append(target)
+      { lineNumber: 21, complexity: 'O(1)'                  },  // if not self.is_directed
+      { lineNumber: 22, complexity: 'O(1)'                  },  // if source not in self.adj_list[target]
+      { lineNumber: 23, complexity: 'O(1)'                  },  // self.adj_list[target].append(source)
+      { lineNumber: 25, complexity: 'O(1)'                  },  // def remove_edge(self, source, target):
+      { lineNumber: 26, complexity: 'O(1)'                  },  // if source in self.adj_list and...
+      { lineNumber: 27, complexity: 'O(1)'                  },  // if target in self.adj_list[source]
+      { lineNumber: 28, complexity: 'O(1)'                  },  // self.adj_list[source].remove(target)
+      { lineNumber: 29, complexity: 'O(1)'                  },  // if not self.is_directed and...
+      { lineNumber: 30, complexity: 'O(1)'                  },  // self.adj_list[target].remove(source)
+      { lineNumber: 32, complexity: 'O(1)'                  },  // def get_neighbors(self, vertex_id):
+      { lineNumber: 33, complexity: 'O(1)'                  },  // if vertex_id in self.adj_list
+      { lineNumber: 34, complexity: 'O(1)'                  },  // return self.adj_list[vertex_id]
+      { lineNumber: 35, complexity: 'O(1)'                  },  // return []
+      { lineNumber: 37, complexity: 'O(1)'                  },  // def check_adjacent(self, source, target):
+      { lineNumber: 38, complexity: 'O(1)'                  },  // if source in self.adj_list
+      { lineNumber: 39, complexity: 'O(1)'                  },  // return target in self.adj_list[source]
+      { lineNumber: 40, complexity: 'O(1)'                  },  // return False
+      { lineNumber: 42, complexity: 'O(n)'                  },  // def get_degree(self, vertex_id): — overall O(n)
+      { lineNumber: 43, complexity: 'O(1)'                  },  // if vertex_id not in self.adj_list — before loop
+      { lineNumber: 44, complexity: 'O(1)'                  },  // return -1 — before loop
+      { lineNumber: 45, complexity: 'O(1)'                  },  // if not self.is_directed — before loop
+      { lineNumber: 46, complexity: 'O(1)'                  },  // return len(self.adj_list[vertex_id]) — O(1)
+      { lineNumber: 47, complexity: 'O(1)'                  },  // out_deg = len(...) — O(1)
+      { lineNumber: 48, complexity: 'O(n)'                  },  // in_deg = sum(1 for u in ...) — O(n) generator
+      { lineNumber: 49, complexity: 'O(1)'                  },  // return out_deg, in_deg
+      { lineNumber: 51, complexity: 'O(n)'                  },  // def check_connected(self): — overall O(n)
+      { lineNumber: 52, complexity: 'O(1)'                  },  // if not self.adj_list — before loop
+      { lineNumber: 53, complexity: 'O(1)'                  },  // return True — before loop
+      { lineNumber: 54, complexity: 'O(1)'                  },  // visited = set() — before loop
+      { lineNumber: 55, complexity: 'O(1)'                  },  // start = next(iter(...)) — before loop
+      { lineNumber: 56, complexity: 'O(1)'                  },  // queue = [start] — before loop
+      { lineNumber: 57, complexity: 'O(1)'                  },  // visited.add(start) — before loop
+      { lineNumber: 59, complexity: 'O(n)'                  },  // while queue — top-level while, O(n) iterations
+      { lineNumber: 60, complexity: 'O(n)', context: 'O(n)' },  // curr = queue.pop(0) — list pop(0) is O(n) × n
+      { lineNumber: 61, complexity: 'O(n)', context: 'O(n)' },  // for neighbor in ... — inner for inside while
+      { lineNumber: 62, complexity: 'O(1)', context: 'O(n)' },  // if neighbor not in visited — O(1) × n (simplified)
+      { lineNumber: 63, complexity: 'O(1)', context: 'O(n)' },  // visited.add(neighbor) — O(1) × n
+      { lineNumber: 64, complexity: 'O(1)', context: 'O(n)' },  // queue.append(neighbor) — O(1) × n
+      { lineNumber: 66, complexity: 'O(1)'                  },  // return len(visited) == ... — outside loop
+      { lineNumber: 68, complexity: 'O(n)'                  },  // def check_cycle(self): — overall O(n)
+      { lineNumber: 69, complexity: 'O(1)'                  },  // visited = set() — before outer for
+      { lineNumber: 70, complexity: 'O(1)'                  },  // rec_stack = set() — before outer for
+      { lineNumber: 71, complexity: 'O(1)'                  },  // path_stack = [] — before outer for
+      { lineNumber: 73, complexity: 'O(n)'                  },  // def dfs(curr, parent): — inner fn, O(n) overall
+      { lineNumber: 74, complexity: 'O(1)', context: 'O(n)' },  // visited.add(curr) — O(1) × n (dfs called n times)
+      { lineNumber: 75, complexity: 'O(1)', context: 'O(n)' },  // rec_stack.add(curr) — O(1) × n
+      { lineNumber: 76, complexity: 'O(1)', context: 'O(n)' },  // path_stack.append(curr) — O(1) × n
+      { lineNumber: 78, complexity: 'O(n)', context: 'O(n)' },  // for neighbor in ... — for inside dfs
+      { lineNumber: 79, complexity: 'O(1)', context: 'O(n)' },  // if neighbor not in visited — O(1) × n
+      { lineNumber: 80, complexity: 'O(n)', context: 'O(n)' },  // result = dfs(neighbor) — O(n) recursive
+      { lineNumber: 81, complexity: 'O(1)', context: 'O(n)' },  // if result: return result — O(1) × n
+      { lineNumber: 82, complexity: 'O(n)', context: 'O(n)' },  // elif self.is_directed... path_stack.copy() is O(n) × n
+      { lineNumber: 83, complexity: 'O(n)', context: 'O(n)' },  // elif not self.is_directed... path_stack.copy() is O(n) × n
+      { lineNumber: 85, complexity: 'O(1)', context: 'O(n)' },  // rec_stack.remove(curr) — O(1) × n
+      { lineNumber: 86, complexity: 'O(1)', context: 'O(n)' },  // path_stack.pop() — O(1) × n
+      { lineNumber: 87, complexity: 'O(1)', context: 'O(n)' },  // return [] — O(1) × n (inside dfs)
+      { lineNumber: 89, complexity: 'O(n)'                  },  // for node in self.adj_list — top-level for
+      { lineNumber: 90, complexity: 'O(1)', context: 'O(n)' },  // if node not in visited — O(1) × n
+      { lineNumber: 91, complexity: 'O(n)', context: 'O(n)' },  // result = dfs(node, None) — O(n) dfs × n
+      { lineNumber: 92, complexity: 'O(1)', context: 'O(n)' },  // if result: return result — O(1) × n
+      { lineNumber: 93, complexity: 'O(1)'                  },  // return [] — outside for
+    ],
   },
 };
 

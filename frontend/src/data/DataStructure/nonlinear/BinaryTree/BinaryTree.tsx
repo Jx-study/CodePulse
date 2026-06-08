@@ -1184,6 +1184,30 @@ def bfs(root):
         visit(node)
         if node.left: queue.append(node.left)
         if node.right: queue.append(node.right)`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n)'                  },  // def preorder(node): — overall O(n)
+      { lineNumber: 2,  complexity: 'O(1)', context: 'O(n)' },  // if not node: return — O(1) × n (called n times)
+      { lineNumber: 3,  complexity: 'O(1)', context: 'O(n)' },  // visit(node) — O(1) × n
+      { lineNumber: 4,  complexity: 'O(1)', context: 'O(n)' },  // preorder(node.left) — O(1) call overhead × n
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)' },  // preorder(node.right) — O(1) call overhead × n
+      { lineNumber: 7,  complexity: 'O(n)'                  },  // def inorder(node): — overall O(n)
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n)' },  // if not node: return — O(1) × n
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n)' },  // inorder(node.left) — O(1) × n
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n)' },  // visit(node) — O(1) × n
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },  // inorder(node.right) — O(1) × n
+      { lineNumber: 13, complexity: 'O(n)'                  },  // def postorder(node): — overall O(n)
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },  // if not node: return — O(1) × n
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },  // postorder(node.left) — O(1) × n
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(n)' },  // postorder(node.right) — O(1) × n
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },  // visit(node) — O(1) × n
+      { lineNumber: 19, complexity: 'O(n)'                  },  // def bfs(root): — overall O(n)
+      { lineNumber: 20, complexity: 'O(1)'                  },  // queue = [root] — outside loop
+      { lineNumber: 21, complexity: 'O(n)'                  },  // while queue — top-level while, O(n) iterations
+      { lineNumber: 22, complexity: 'O(n)', context: 'O(n)' },  // node = queue.pop(0) — O(1) × n
+      { lineNumber: 23, complexity: 'O(1)', context: 'O(n)' },  // visit(node) — O(1) × n
+      { lineNumber: 24, complexity: 'O(1)', context: 'O(n)' },  // if node.left: queue.append — O(1) × n
+      { lineNumber: 25, complexity: 'O(1)', context: 'O(n)' },  // if node.right: queue.append — O(1) × n
+    ],
   },
 };
 

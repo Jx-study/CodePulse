@@ -206,6 +206,20 @@ End Procedure`,
             break
             
     return collection`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                            // def bubble_sort(collection):
+      { lineNumber: 2,  complexity: 'O(1)'   },                            // total_items = len(collection)
+      { lineNumber: 4,  complexity: 'O(n)'   },                            // for round in range(total_items - 1):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)'   },           // has_swapped = False
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n)'   },           // unsorted_range = total_items - 1 - round
+      { lineNumber: 8,  complexity: 'O(n)', context: 'O(n)'   },           // for index in range(unsorted_range):
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },           // if collection[index] > collection[index+1]:
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n^2)' },           // collection[index], ... = ...
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },           // has_swapped = True
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)'   },           // if not has_swapped:
+      { lineNumber: 14, complexity: 'O(1)' },           // break
+      { lineNumber: 16, complexity: 'O(1)' },                              // return collection
+    ],
   },
 };
 

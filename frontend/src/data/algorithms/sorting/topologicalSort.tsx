@@ -383,26 +383,47 @@ const topoCodeConfig: CodeConfig = {
     },
   },
   python: {
-    content: `def topological_sort(graph):
+    content: `from collections import deque
+
+def topological_sort(graph):
     in_degree = {u: 0 for u in graph.nodes}
     for u, v in graph.edges:
         in_degree[v] += 1
-        
-    queue = [u for u in graph.nodes if in_degree[u] == 0]
+
+    queue = deque(u for u in graph.nodes if in_degree[u] == 0)
     result = []
-    
+
     while queue:
-        u = queue.pop(0)
+        u = queue.popleft()
         result.append(u)
-        
+
         for v in graph.neighbors(u):
             in_degree[v] -= 1
             if in_degree[v] == 0:
                 queue.append(v)
-                
+
     if len(result) != len(graph.nodes):
         return "Cycle Detected"
     return result`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },                                  // from collections import deque
+      { lineNumber: 3,  complexity: 'O(n)' },                                  // def topological_sort(graph):
+      { lineNumber: 4,  complexity: 'O(n)' },                                  // in_degree = {u: 0 for u in graph.nodes}
+      { lineNumber: 5,  complexity: 'O(n)' },                                  // for u, v in graph.edges:
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n)' },                 // in_degree[v] += 1
+      { lineNumber: 8,  complexity: 'O(n)' },                                  // queue = deque(u for u in graph.nodes if ...)
+      { lineNumber: 9,  complexity: 'O(1)' },                                  // result = []
+      { lineNumber: 11, complexity: 'O(n)' },                                  // while queue:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // u = queue.popleft()
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // result.append(u)
+      { lineNumber: 15, complexity: 'O(n)', context: 'O(n)' },                 // for v in graph.neighbors(u):
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(n)' },                 // in_degree[v] -= 1
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // if in_degree[v] == 0:
+      { lineNumber: 18, complexity: 'O(1)', context: 'O(n)' },                 // queue.append(v)
+      { lineNumber: 20, complexity: 'O(1)' },                                  // if len(result) != len(graph.nodes):
+      { lineNumber: 21, complexity: 'O(1)' },                                  // return "Cycle Detected"
+      { lineNumber: 22, complexity: 'O(1)' },                                  // return result
+    ],
   },
 };
 

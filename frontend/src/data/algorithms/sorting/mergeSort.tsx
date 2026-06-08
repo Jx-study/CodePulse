@@ -348,8 +348,29 @@ def merge(left, right):
             
     result.extend(left[i:])
     result.extend(right[j:])
-    
+
     return result`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n log n)' },                            // def merge_sort(arr):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // if len(arr) <= 1:
+      { lineNumber: 3,  complexity: 'O(1)' },                                  // return arr
+      { lineNumber: 5,  complexity: 'O(1)' },                                  // mid = len(arr) // 2
+      { lineNumber: 6,  complexity: 'O(n log n)' },                            // left = merge_sort(arr[:mid])
+      { lineNumber: 7,  complexity: 'O(n log n)' },                            // right = merge_sort(arr[mid:])
+      { lineNumber: 9,  complexity: 'O(n)' },                                  // return merge(left, right)
+      { lineNumber: 11, complexity: 'O(n)' },                                  // def merge(left, right):
+      { lineNumber: 12, complexity: 'O(1)' },                                  // result = []
+      { lineNumber: 13, complexity: 'O(1)' },                                  // i = j = 0
+      { lineNumber: 15, complexity: 'O(n)' },                                  // while i < len(left) and j < len(right):
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(n)' },                 // if left[i] <= right[j]:
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // result.append(left[i])
+      { lineNumber: 18, complexity: 'O(1)', context: 'O(n)' },                 // i += 1
+      { lineNumber: 20, complexity: 'O(1)', context: 'O(n)' },                 // result.append(right[j])
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(n)' },                 // j += 1
+      { lineNumber: 23, complexity: 'O(n)' },                                  // result.extend(left[i:])
+      { lineNumber: 24, complexity: 'O(n)' },                                  // result.extend(right[j:])
+      { lineNumber: 26, complexity: 'O(1)' },                                  // return result
+    ],
   },
 };
 

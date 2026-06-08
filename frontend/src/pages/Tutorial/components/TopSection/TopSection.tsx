@@ -207,6 +207,8 @@ export function TopSection(props: TopSectionProps) {
                           highlightedLine={highlightLines}
                           readOnly={true}
                           theme="auto"
+                          showTimeComplexity={codeMode === "python"}
+                          complexityData={currentCodeConfig?.python?.lineComplexity}
                         />
                       </Suspense>
                     </div>
@@ -385,6 +387,8 @@ export function TopSection(props: TopSectionProps) {
                           highlightedLine={highlightLines}
                           readOnly={true}
                           theme="auto"
+                          showTimeComplexity={codeMode === "python"}
+                          complexityData={currentCodeConfig?.python?.lineComplexity}
                         />
                       </Suspense>
                     </div>

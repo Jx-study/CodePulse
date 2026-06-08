@@ -278,6 +278,20 @@ End Procedure`,
             right = mid - 1
 
     return -1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(log n)' },                              // def binary_search(arr, target):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // left = 0
+      { lineNumber: 3,  complexity: 'O(1)' },                                  // right = len(arr) - 1
+      { lineNumber: 5,  complexity: 'O(log n)' },                              // while left <= right:
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(log n)' },             // mid = (left + right) // 2
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(log n)' },             // if arr[mid] == target:
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(log n)' },             // return mid
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(log n)' },             // elif arr[mid] < target:
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(log n)' },             // left = mid + 1
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(log n)' },             // else:
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(log n)' },             // right = mid - 1
+      { lineNumber: 15, complexity: 'O(1)' },                                  // return -1
+    ],
   },
 };
 
