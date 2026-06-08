@@ -405,6 +405,7 @@ function TutorialContent() {
     collapsedPanels,
   } = usePanelContext();
   const { t: tTutorial } = useTranslation("tutorial");
+  const { t: tDashboard } = useTranslation("dashboard");
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
   // Panel refs for programmatic control
@@ -1105,12 +1106,21 @@ function TutorialContent() {
     currentStepData,
   };
 
+  const categoryKey = category?.replace(/-/g, "_") ?? "";
+  const levelKey = levelId?.replace(/-/g, "_") ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: topicTypeConfig.categoryName,
+      label: tDashboard(`categories.${categoryKey}.name`, {
+        defaultValue: topicTypeConfig.categoryName,
+      }),
       path: `/dashboard?category=${category}`,
     },
-    { label: topicTypeConfig.name, path: null },
+    {
+      label: tDashboard(`levels.${levelKey}.name`, {
+        defaultValue: topicTypeConfig.name,
+      }),
+      path: null,
+    },
   ];
 
   // Props for CanvasPanel
