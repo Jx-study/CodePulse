@@ -13,8 +13,6 @@ interface BuildPlaygroundTourArgs {
   lastRunOutcome: RunOutcome;
   /** Switch to the animation tab (used by onEnter) */
   goAnimationTab: () => void;
-  /** Close the tour directly when "Skip this step" is clicked on an interactive step */
-  skipToEnd: () => void;
   /** Currently docked panel id; the interactive drag-dock step uses this to detect whether the drag is complete */
   leftDockedId: string | null;
   /** i18n translation function (playground namespace) */
@@ -58,7 +56,6 @@ export function buildPlaygroundTourSteps({
   runStage,
   lastRunOutcome,
   goAnimationTab,
-  skipToEnd,
   leftDockedId,
   t,
 }: BuildPlaygroundTourArgs): TourStep[] {
@@ -82,7 +79,7 @@ export function buildPlaygroundTourSteps({
       // Use the explicit lastRunOutcome rather than inferring from runStage.
       // 'none' = Run not clicked yet (or reset when the tour opened) — show static waiting hint instead of Codi.
       waitingState: () => (lastRunOutcome === 'none' ? 'idle' : lastRunOutcome === 'error' ? 'error' : 'running'),
-      onSkipStep: skipToEnd,
+      skipTargetStepId: 'right-panels',
     },
     {
       id: 'tab-bar',
@@ -129,7 +126,7 @@ export function buildPlaygroundTourSteps({
       placement: 'left',
       interactive: true,
       advanceWhen: () => leftDockedId !== null,
-      onSkipStep: skipToEnd,
+      skipTargetStepId: 'history',
     },
     {
       id: 'history',

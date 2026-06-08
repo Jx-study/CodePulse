@@ -23,9 +23,14 @@ export interface TourStep {
   onEnter?: () => void;
   /**
    * Called when "Skip step" is clicked on an interactive step.
-   * Typically used to skip all data-dependent steps and close the tour directly.
+   * Use for side effects owned by the caller; navigation is handled by skipTargetStepId or the engine fallback.
    */
   onSkipStep?: () => void;
+  /**
+   * Optional dependency-aware target for "Skip step" on interactive steps.
+   * When set, the engine jumps to this step id instead of blindly advancing to the next step.
+   */
+  skipTargetStepId?: string;
   /**
    * Sub-state while an interactive step is waiting. The engine uses this to switch the mascot between running / error appearance.
    * Returns 'error' to show the error mascot; otherwise ('running' / 'idle') shows the companion waiting state.

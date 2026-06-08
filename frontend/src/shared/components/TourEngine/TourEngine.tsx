@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon/Icon';
@@ -33,16 +33,19 @@ export default function TourEngine({
   isPaused = false,
 }: TourEngineProps) {
   const { t } = useTranslation('common');
+  const spotlightMaskId = `tour-spotlight-mask-${useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
   const [currentIndex, setCurrentIndex] = useState(0);
   // 當任何 Dialog 透過 bodyDialogLock 開啟（設置 data-dialog-open）時自動暫停
   const [isDialogOpen, setIsDialogOpen] = useState(() =>
     document.body.hasAttribute('data-dialog-open')
   );
   useEffect(() => {
-    const observer = new MutationObserver(() => {
+    const syncDialogOpen = () => {
       setIsDialogOpen(document.body.hasAttribute('data-dialog-open'));
-    });
+    };
+    const observer = new MutationObserver(syncDialogOpen);
     observer.observe(document.body, { attributes: true, attributeFilter: ['data-dialog-open'] });
+    syncDialogOpen();
     return () => observer.disconnect();
   }, []);
   const effectivePaused = isPaused || isDialogOpen;
@@ -61,7 +64,7 @@ export default function TourEngine({
   const maxReachableIndex = (() => {
     for (let i = 0; i < steps.length; i++) {
       const s = steps[i];
-      if (s.interactive && !(s.advanceWhen?.() ?? true)) {
+      if (s.interactive && !completedInteractiveSteps.has(s.id) && !(s.advanceWhen?.() ?? true)) {
         return i; // blocked at this interactive step — can go no further
       }
     }
@@ -94,6 +97,23 @@ export default function TourEngine({
     }
   }, [currentIndex, isFinalStep]);
 
+  const handleSkipStep = useCallback(() => {
+    if (!currentStep) return;
+
+    currentStep.onSkipStep?.();
+    setCompletedInteractiveSteps(prev => new Set(prev).add(currentStep.id));
+
+    if (currentStep.skipTargetStepId) {
+      const targetIndex = steps.findIndex(step => step.id === currentStep.skipTargetStepId);
+      if (targetIndex >= 0) {
+        setCurrentIndex(targetIndex);
+        return;
+      }
+    }
+
+    handleNext();
+  }, [currentStep, handleNext, steps]);
+
   // Fire onEnter when entering an interactive step (drives UI).
   // effectivePaused intentionally excluded from deps: paused→resume must not re-fire onEnter (avoids switching tabs back after dialog closes).
   useEffect(() => {
@@ -113,8 +133,9 @@ export default function TourEngine({
         advancingRef.current = true;
         setCompletedInteractiveSteps(prev => new Set(prev).add(step.id));
         handleNext();
+        return;
       }
-      return;
+      if (!completedInteractiveStepsRef.current.has(step.id)) return;
     }
     advancingRef.current = false;
 
@@ -220,13 +241,14 @@ export default function TourEngine({
       if (e.key === 'ArrowRight' || e.key === 'Enter') {
         // Interactive steps cannot advance with arrow keys (wait for advanceWhen);
         // regular steps can only advance if the back-lock ceiling has not been reached.
-        if (!step?.interactive && currentIndex < maxReachableIndex) handleNext();
+        const isBlockedByBackLock = currentIndex >= maxReachableIndex && maxReachableIndex < steps.length - 1;
+        if (!step?.interactive && !isBlockedByBackLock) handleNext();
       }
       if (e.key === 'ArrowLeft') { handlePrev(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, effectivePaused, handleNext, handlePrev, onSkip, currentIndex, maxReachableIndex]);
+  }, [isOpen, effectivePaused, handleNext, handlePrev, onSkip, currentIndex, maxReachableIndex, steps.length]);
 
   // Reset when the tour opens
   useEffect(() => {
@@ -234,6 +256,7 @@ export default function TourEngine({
       setCurrentIndex(0);
       setIsFinalStep(false);
       setSpotlightRect(null);
+      setSecondarySpotlightRect(null);
       setCompletedInteractiveSteps(new Set());
     }
   }, [isOpen]);
@@ -285,7 +308,7 @@ export default function TourEngine({
           {/* SVG mask: single dark overlay, each spotlight region punched out with a white rectangle */}
           <svg className={styles.svgMask} aria-hidden="true">
             <defs>
-              <mask id="tour-spotlight-mask">
+              <mask id={spotlightMaskId}>
                 <rect x="0" y="0" width="100%" height="100%" fill="white" />
                 {activeRects.map((r, i) => (
                   <rect
@@ -303,7 +326,7 @@ export default function TourEngine({
             <rect
               x="0" y="0" width="100%" height="100%"
               fill="rgba(17,24,39,0.6)"
-              mask="url(#tour-spotlight-mask)"
+              mask={`url(#${spotlightMaskId})`}
             />
           </svg>
           {/* spotlight border overlay (border only, no box-shadow) */}
@@ -383,13 +406,7 @@ export default function TourEngine({
               variant="ghost"
               size="sm"
               className={styles.skipStep}
-              onClick={() => {
-                if (currentStep.onSkipStep) {
-                  currentStep.onSkipStep();
-                  return;
-                }
-                handleNext();
-              }}
+              onClick={handleSkipStep}
             >
               {t('tour.skipThisStep')}
             </Button>

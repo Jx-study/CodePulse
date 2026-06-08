@@ -235,8 +235,6 @@ function Playground() {
     setPlaygroundTourDismissed();
     setIsTourOpen(false);
   }, []);
-  // Close the tour immediately when "Skip this step" is clicked on the interactive Run step
-  const handleTourSkipToEnd = useCallback(() => setIsTourOpen(false), []);
   // Switch to the animation tab (used by step onEnter)
   const goAnimationTab = useCallback(() => setActiveTab("animation"), []);
 
@@ -255,7 +253,6 @@ function Playground() {
     runStage,
     lastRunOutcome,
     goAnimationTab,
-    skipToEnd: handleTourSkipToEnd,
     leftDockedId,
     t,
   });

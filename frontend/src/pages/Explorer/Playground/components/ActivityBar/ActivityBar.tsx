@@ -208,7 +208,7 @@ export function RightActivityBar({
           panelId={id}
           isActive={!collapsedPanels.has(id)}
           onClick={() => onTogglePanel(id)}
-          tourAttr={idx === 0 ? 'pg-drag-icon' : undefined}
+          tourAttr={idx === 0 && leftDockedId === null ? 'pg-drag-icon' : undefined}
         />
       ))}
       <div className={styles.spacer} />
