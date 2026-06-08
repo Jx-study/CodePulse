@@ -82,6 +82,8 @@ export interface CodeEditorHandle {
   setErrorMarker: (lineno: number, message: string) => void;
   /** 清除語法錯誤標記 */
   clearErrorMarker: () => void;
+  /** 回傳渲染當前 code 所需的像素寬度（最長行 × 字元寬 + gutter）。wordWrap:on 時 getContentWidth() 不可靠，改用 model 行長計算。 */
+  getContentWidth: () => number;
 }
 
 // ==================== 語言對應表 ====================
@@ -500,6 +502,19 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
       const model = editor.getModel();
       if (!model) return;
       monacoInstance.editor.setModelMarkers(model, "analyzeError", []);
+    },
+    getContentWidth: () => {
+      const editor = mode === 'split' ? topEditorRef.current : editorRef.current;
+      if (!editor) return 0;
+      const model = editor.getModel();
+      if (!model) return 0;
+      let maxLen = 0;
+      for (let i = 1; i <= model.getLineCount(); i++) {
+        maxLen = Math.max(maxLen, model.getLineLength(i));
+      }
+      const fontInfo = editor.getOption(monaco.editor.EditorOption.fontInfo);
+      const charWidth = fontInfo.typicalHalfwidthCharacterWidth;
+      return Math.ceil(maxLen * charWidth) + 50;
     },
   }));
 
