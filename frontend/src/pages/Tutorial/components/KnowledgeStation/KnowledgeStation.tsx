@@ -62,7 +62,7 @@ const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
     {
       key: 'story',
       label: t('knowledgeStation.tabs.story'),
-      content: <StoryTab stories={topicTypeConfig.realWorldStories} />,
+      content: <StoryTab stories={topicTypeConfig.realWorldStories} i18nNamespace={topicTypeConfig.i18nNamespace} />,
     },
   ];
 

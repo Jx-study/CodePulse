@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { StoryResource, StoryResourceType } from '@/types';
+import type { StoryResourceType } from '@/types';
 import Icon from '@/shared/components/Icon';
 import type { IconName } from '@/shared/lib/iconMap';
 import styles from './StoryResources.module.scss';
@@ -11,8 +11,15 @@ const ICON_MAP: Record<StoryResourceType, IconName> = {
   link: 'link',
 };
 
+export interface ResolvedStoryResource {
+  type: StoryResourceType;
+  url: string;
+  title?: string;
+  source?: string;
+}
+
 interface Props {
-  resources: StoryResource[];
+  resources: ResolvedStoryResource[];
 }
 
 const StoryResources: React.FC<Props> = ({ resources }) => {
@@ -33,7 +40,7 @@ const StoryResources: React.FC<Props> = ({ resources }) => {
               <span className={styles.resourceIcon}>
                 <Icon name={ICON_MAP[r.type]} decorative />
               </span>
-              <span className={styles.resourceText}>{r.title}</span>
+              <span className={styles.resourceText}>{r.title ?? r.url}</span>
               {r.source && (
                 <span className={styles.resourceSource}>({r.source})</span>
               )}

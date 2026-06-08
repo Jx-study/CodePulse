@@ -6,9 +6,10 @@ import styles from './StoryTab.module.scss';
 
 interface StoryTabProps {
   stories?: RealWorldStory[];
+  i18nNamespace?: string;
 }
 
-const StoryTab: React.FC<StoryTabProps> = ({ stories }) => {
+const StoryTab: React.FC<StoryTabProps> = ({ stories, i18nNamespace }) => {
   const { t } = useTranslation('tutorial');
 
   if (!stories || stories.length === 0) {
@@ -24,7 +25,7 @@ const StoryTab: React.FC<StoryTabProps> = ({ stories }) => {
   return (
     <div className={styles.storyTab}>
       {stories.map((story) => (
-        <StoryAccordionItem key={story.id} story={story} />
+        <StoryAccordionItem key={story.id} story={story} i18nNamespace={i18nNamespace} />
       ))}
     </div>
   );

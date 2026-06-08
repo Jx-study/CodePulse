@@ -69,6 +69,76 @@
     "targetCurrent": "Target / Current",
     "completeConnected": "Complete / Connected"
   },
+  "stories": {
+    "graph-netflix-recommendation": {
+      "title": "Netflix Recommendation System: A Billion-Dollar 'Graph Theory Matchmaking'",
+      "category": "Streaming Platform",
+      "tags": ["Bipartite Graph", "BFS", "Collaborative Filtering"],
+      "content": {
+        "sections": [
+          {
+            "content": "The code you're browsing right now is a miniature of Netflix's recommendation engine."
+          },
+          {
+            "heading": "Bipartite Graph Data Structure",
+            "content": "Netflix views the world as a giant graph structure. In your defaultData, vertices are divided into two groups: users and video content. Every time you watch something, it triggers the runAddEdge function, drawing an \"edge\" between the user and the movie."
+          },
+          {
+            "heading": "Neighbor Search and Recommendations",
+            "content": "When the system wants to recommend new content, it runs runGetNeighbors on \"your node.\" By reading the Adjacency List, the algorithm acts like a robot — first finding the movies you like, then finding \"other users who also like them\" through those movies. This \"tracing vines to find melons\" traversal is essentially the BFS or connectivity check logic in your code."
+          },
+          {
+            "heading": "Business Value Realized",
+            "content": "According to Netflix's official paper, if users can't find something to watch within 60 to 90 seconds, they leave. The extreme search speed optimized by graph theory dramatically reduces the churn rate. This seemingly abstract computation of nodes and edges saves Netflix over $1 billion annually."
+          }
+        ]
+      },
+      "videoTitle": "How Netflix's Recommendation Algorithm Works",
+      "pythonDemoTitle": "Simulate Bipartite Graph Recommendations: Find Recommendations from Watch History",
+      "inputs": {
+        "user_a_count": "User A's watch count"
+      },
+      "resources": [
+        { "title": "The Netflix Recommender System", "source": "ACM" },
+        { "title": "Netflix Tech Blog: Recommendations", "source": "Netflix Tech Blog" }
+      ]
+    },
+    "graph-social-network": {
+      "title": "【Algorithm Revealed】How Does Facebook Instantly Recommend Friends? — From Six Degrees to Social Graph",
+      "category": "Social Media",
+      "tags": ["Social Graph", "Graph Database", "Triadic Closure"],
+      "content": {
+        "sections": [
+          {
+            "content": "\"Six degrees of separation\" suggests that any two strangers in the world are connected by at most six people. However, instantly finding \"who is whose friend's friend\" across Facebook's billions of users is an enormous engineering challenge. With a traditional database, finding relationships is like performing extremely complex cross-references (Joins) across separate giant Excel tables — triggering a \"computational explosion\" that can freeze the system for seconds or even minutes."
+          },
+          {
+            "heading": "Graph Magic: Born for \"Connection\"",
+            "content": "To solve this challenge, Facebook adopted a revolutionary thinking model: \"Graph Database.\" This type of database is like the brain's neural network, born for connections. Its basic building blocks are just two things: \"Nodes\" representing individual objects (such as users, posts, photos), and \"Edges\" representing relationships between objects (such as friendships, likes). Trillions of edges weave all isolated nodes into a living, giant web of relationships."
+          },
+          {
+            "heading": "Cracking \"People You May Know\": Triadic Closure and Millisecond Computing",
+            "content": "How does Facebook's precise \"People You May Know\" recommendation work? The logic is simple: if the system knows you (node A) and Alex (node B) are friends, and Alex and Sam (node C) are also friends, the system doesn't need to search massive tables — it just needs to \"walk two steps\" along the lines to infer that you and Sam likely know each other. This principle is called \"Triadic Closure.\" In a graph database, this entire search process takes only milliseconds — a completely different league compared to the minutes it would take with a traditional database."
+          },
+          {
+            "heading": "Seeing Through Social Influence: Label Properties and Centrality",
+            "content": "The social graph can not only record friendships but also carry attributes on edges through \"property graphs\" (such as recording when a like was given), greatly enriching data depth. By analyzing network structure, we can calculate a user's \"degree centrality\" (more connections = higher popularity index), or \"betweenness centrality\" (playing the bridge role connecting two communities), identifying key individuals who hold strategic positions in information propagation chains. As certified by Meta's official documentation, this Graph concept built upon real-world complex networks is the foundation of the entire platform."
+          }
+        ]
+      },
+      "videoTitle": "How Facebook Instantly Recommends Friends: Social Graph & Graph Database Explained",
+      "pythonDemoTitle": "Simulate Facebook Social Graph: Triadic Closure Friend Recommendations",
+      "inputs": {
+        "num_users": "Number of users",
+        "num_communities": "Communities",
+        "density_slider": "Friendship density"
+      },
+      "resources": [
+        { "title": "Meta Graph API Overview", "source": "Meta Developer Docs" },
+        { "title": "Social Network Graphs: Concepts, Metrics & Tools", "source": "PuppyGraph Blog" }
+      ]
+    }
+  },
   "relatedProblems": {
     "133": "Graph deep copy: use a hash map to track visited nodes and recursively/BFS clone the entire undirected graph",
     "207": "Directed graph cycle detection: if prerequisite courses form a cycle, completion is impossible — use topological sort to check DAG property",

@@ -25,6 +25,60 @@
     "skipItem": "Skip Item",
     "finalAnswer": "Final Answer"
   },
+  "stories": {
+    "knapsack-business-optimization": {
+      "title": "From Bank Robber to Millionaire: The Art of Decision-Making with the Knapsack Algorithm",
+      "category": "Business & Technology",
+      "tags": ["Knapsack Problem", "Resource Allocation", "Dynamic Programming", "Portfolio Optimization", "Business Thinking"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Pain Point Trigger: The Real-World Dilemma",
+            "content": "Every business operation revolves around a core challenge — \"resource allocation.\" Budget, inventory, time, and manpower are always limited. Imagine you're a product manager with 5 potentially high-profit R&D projects, but only enough budget to invest in 3. Or in logistics, truck space is limited; faced with cargo of varying weight and profit, packing by intuition may waste enormous profit potential. These seemingly independent business choices are, in a mathematician's eyes, classic \"Knapsack Problems.\""
+          },
+          {
+            "heading": "Logic Breakdown: The Bank Robber's Survival Guide",
+            "content": "To understand this concept, imagine you're a thief who has snuck into a vault. Your bag can only hold a maximum of S pounds — exceed that weight and the bag breaks. For each treasure, you can only make the simplest binary decision: \"take (1)\" or \"leave (0).\" If you use a \"greedy algorithm\" and simply grab the most valuable item first, you may take up too much space and miss the overall optimal solution. Instead, by using \"Dynamic Programming (DP)\" to build a dp[itemIdx][currCapacity] table comparing whether putting an item in or leaving it out yields greater profit, you can derive the overall optimal solution step by step."
+          },
+          {
+            "heading": "Advanced Application: The Million-Dollar Integer Problem",
+            "content": "When the knapsack model is applied to real financial asset allocation, more complex pain points emerge. A traditional continuous variable model might tell you to \"buy 0.588 shares,\" but in reality when investing in high-priced stocks like Amazon or Google, transactions must be in whole numbers. The advanced knapsack algorithm can not only solve these \"integer problems,\" but also add \"category constraints\" (such as limiting energy stock exposure) to avoid over-concentration. More importantly, financial markets are full of volatility; by introducing \"Robust Optimization\" techniques, the algorithm can consider worst-case scenarios and help you find the most stable asset allocation."
+          },
+          {
+            "heading": "Conclusion & Extension: Algorithm as Your Decision Assistant",
+            "content": "The Knapsack problem isn't just a theory — it has become the optimization engine driving modern business. Whether it's a marketing department deciding how to allocate ad spend within a fixed budget, or a manufacturing company scheduling production lines within material constraints, the 0/1 Knapsack algorithm is the unsung hero working behind the scenes. Master it, and you've mastered the art of making optimal decisions with limited resources."
+          }
+        ]
+      },
+      "videoTitle": "The Art of Choice: From Business Pain Points to the Knapsack Algorithm",
+      "resources": [
+        { "title": "The Knapsack Problem in Business Optimization", "source": "Cresco International" },
+        { "title": "6.006 Introduction to Algorithms: The Knapsack Problem", "source": "MIT" },
+        { "title": "A Robust Knapsack Based Constrained Portfolio Optimization", "source": "IJE" }
+      ]
+    },
+    "knapsack-investment-game": {
+      "title": "Chief Investment Officer: Capital Defense Battle",
+      "category": "Interactive Game",
+      "tags": ["0/1 Knapsack", "Dynamic Programming", "Resource Allocation", "Greedy Trap"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Game Instructions",
+            "content": "You are the Chief Investment Officer (CIO) of an investment company. On the left are investable targets; on the right is your portfolio."
+          },
+          {
+            "heading": "Rules",
+            "content": "Click a target to add/remove it from your portfolio. Capital is limited; targets that exceed your budget cannot be selected. Goal: find the optimal combination that maximizes total returns."
+          },
+          {
+            "heading": "Challenge",
+            "content": "The AI greedy strategy always selects items with the \"highest per-unit return\" — but this doesn't guarantee the overall optimum. Can you find a combination better than the greedy approach?"
+          }
+        ]
+      }
+    }
+  },
   "relatedProblems": {
     "416": "Basic 0/1 knapsack: determine if an array can be split into two subsets with equal sums",
     "494": "0/1 knapsack variant: assign +/- signs to reach a target sum, reducible to a subset-sum problem",

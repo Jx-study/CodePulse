@@ -33,6 +33,8 @@ type RunStatus = "idle" | "loading-pyodide" | "running" | "done" | "error";
 
 interface Props {
   demo: PythonDemo;
+  title?: string;
+  inputLabels?: Record<string, string>;
 }
 
 // ── Pyodide 全域緩存（跨元件共享，只載入一次）───────────────────
@@ -68,7 +70,7 @@ async function getPyodide(): Promise<any> {
   return pyodideLoadPromise;
 }
 
-const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
+const PythonInteractiveDemo: React.FC<Props> = ({ demo, title, inputLabels }) => {
   const { t } = useTranslation('tutorial');
   const [viewMode, setViewMode] = useState<ViewMode>("demo");
   const [status, setStatus] = useState<RunStatus>("idle");
@@ -197,7 +199,7 @@ sys.stdout = io.StringIO()
     <div className={styles.container}>
       <div className={styles.titleBar}>
         <span className={styles.pythonBadge}>{t('pythonDemo.badge')}</span>
-        <span className={styles.demoTitle}>{demo.title}</span>
+        {title && <span className={styles.demoTitle}>{title}</span>}
       </div>
 
       <div className={styles.toolbar}>
@@ -244,6 +246,7 @@ sys.stdout = io.StringIO()
                   <InputControl
                     key={inp.variable}
                     input={inp}
+                    label={inputLabels?.[inp.variable] ?? inp.variable}
                     value={inputValues[inp.variable]}
                     onChange={handleInputChange}
                   />
@@ -334,19 +337,22 @@ sys.stdout = io.StringIO()
 
 interface InputControlProps {
   input: PythonInput;
+  label: string;
   value: string | number;
   onChange: (variable: string, value: string | number) => void;
 }
 
 const InputControl: React.FC<InputControlProps> = ({
   input,
+  label,
   value,
   onChange,
 }) => {
+
   if (input.type === "slider") {
     return (
       <div className={styles.inputRow}>
-        <label className={styles.inputLabel}>{input.label}</label>
+        <label className={styles.inputLabel}>{label}</label>
         <Slider
           min={input.min ?? 1}
           max={input.max ?? 10}
@@ -354,7 +360,7 @@ const InputControl: React.FC<InputControlProps> = ({
           value={value as number}
           onChange={(v) => onChange(input.variable, v)}
           className={styles.slider}
-          ariaLabel={input.label}
+          ariaLabel={label}
         />
         <span className={styles.inputValue}>{value}</span>
       </div>
@@ -363,7 +369,7 @@ const InputControl: React.FC<InputControlProps> = ({
   if (input.type === "select") {
     return (
       <div className={styles.inputRow}>
-        <label className={styles.inputLabel}>{input.label}</label>
+        <label className={styles.inputLabel}>{label}</label>
         <Select
           value={value as string}
           options={(input.options ?? []).map((opt) => ({
@@ -378,7 +384,7 @@ const InputControl: React.FC<InputControlProps> = ({
   }
   return (
     <div className={styles.inputRow}>
-      <label className={styles.inputLabel}>{input.label}</label>
+      <label className={styles.inputLabel}>{label}</label>
       <Input
         type="text"
         value={value as string}

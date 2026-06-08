@@ -25,6 +25,72 @@
     "explored": "Fully Explored",
     "finalPath": "Final Path"
   },
+  "stories": {
+    "dfs-maze-generation": {
+      "title": "DFS Maze Generation: Drawing a Perfect Maze in One Stroke",
+      "category": "Game Development",
+      "tags": ["DFS", "Recursive Backtracking", "Perfect Maze", "Procedural Generation"],
+      "content": {
+        "sections": [
+          {
+            "heading": "DFS and the Birth of a \"Perfect Maze\"",
+            "content": "What is a \"perfect maze\"? In maze theory, it means a maze with no redundant loops — there is exactly one unique path between any two cells. You can't go in circles, and you can't detour around a dead end from another route. Many game level artists and procedural level designers use this structure when they need a \"solvable, single-path\" maze, giving players an adventurous feel that's challenging without the confusion of infinite loops."
+          },
+          {
+            "heading": "Recursive Backtracking: The True Power of DFS",
+            "content": "How does Depth-First Search create such a maze? The algorithm starts from a random cell, acting like a lost explorer — each time it picks an unvisited neighbor and \"breaks through\" the wall between the two cells; if all four directions lead to already-visited cells, it backtracks one step and tries another branch. Because it only breaks through to \"brand new\" cells each time, a tree structure naturally forms without cycles — this is the mathematical essence of a perfect maze."
+          },
+          {
+            "heading": "Your Game Is Also DFS's Footprint",
+            "content": "The mini-program below uses DFS recursion to draw a maze in code; every step you take on screen with the keyboard is actually experiencing this road network unfolded from the search tree. Try the single-player challenge, two-player race, or cooperative goal-reaching, and turn on fog-of-war mode to feel how path uniqueness influences your decision-making when you \"can only see what's at your feet.\""
+          }
+        ]
+      },
+      "pythonDemoTitle": "DFS Maze Generation — Keyboard Navigation Challenge",
+      "inputs": {
+        "maze_width": "Maze width (cells)",
+        "maze_height": "Maze height (cells)"
+      }
+    },
+    "algo-dfs-002": {
+      "title": "Press On Until You Hit a Wall — Why Every Beginner Should Learn Depth-First Search (DFS)",
+      "category": "Computer Science / Algorithms",
+      "tags": ["Depth-First Search", "Backtracking", "Topological Sort", "Algorithms"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Humans' Intuitive Problem-Solving Pattern",
+            "content": "Imagine standing in front of a complex maze — your first instinct is usually to pick a path and walk to the end; if you find a dead end and hit a wall, you backtrack to the last junction with other options and try another path. This \"press on until you hit a wall, then backtrack\" strategy is the core logic of Depth-First Search (DFS). DFS searches through all possibilities, making it very intuitive and effective for solving complex problems (such as mazes, Sudoku, and other single-solution puzzles)."
+          },
+          {
+            "heading": "The Foundation of the Modern Web World",
+            "content": "DFS isn't just for solving mazes — it's also the foundation of modern internet technology. For example, search engine web crawlers are a massive real-world DFS application. Starting from one webpage, they continuously follow links and dive deeper (deep exploration), discovering and indexing new webpages around the world."
+          },
+          {
+            "heading": "Sorting Complex Dependencies: Topological Sort",
+            "content": "When problems become interlocking dependency networks, DFS's advanced application \"Topological Sorting\" comes in handy. Whether it's the installation order your system calculates when you use npm or pip to install packages, or the prerequisite system in university course registration that requires \"Calculus I\" before \"Calculus II\" — all of these rely on DFS algorithms to untangle these complex dependency relationships. DFS continuously dives deeper until there are no more adjacent nodes, then pushes nodes onto a stack, and reversing the stack yields the correct topological order."
+          },
+          {
+            "heading": "Social Network Relationship Analysis",
+            "content": "On social platforms like Facebook or LinkedIn, DFS can be used to find \"Connected Components\" in the network — essentially your social circles. The program starts from your node and traces all directly or indirectly connected friends, a graph theory technique that further drives powerful recommendation features like \"People You May Know.\""
+          },
+          {
+            "heading": "Why Must Beginners Learn It? Memory Advantage and Application Scenarios",
+            "content": "Compared to BFS, which stores all neighboring nodes into a queue when there are many branches, DFS — typically implemented using a Stack structure or recursion — has a memory advantage, with space complexity proportional only to the maximum depth. When you need to detect cycles in a graph, find connected components, perform topological sorting, or simply enumerate all possibilities, DFS is absolutely the best choice. Mastering DFS is like obtaining an important ticket to tackle advanced algorithms."
+          }
+        ]
+      },
+      "videoTitle": "Why Every Beginner Should Learn Depth-First Search (DFS)",
+      "resources": [
+        { "title": "Depth-First Search (DFS)", "source": "Brilliant Math & Science Wiki" },
+        { "title": "Depth First Search Tutorials & Notes", "source": "HackerEarth" },
+        { "title": "Algorithms for Social Network Analysis: Unraveling the Web of Connections", "source": "AlgoCademy Blog" },
+        { "title": "Applications of BFS and DFS", "source": "Fiveable" },
+        { "title": "Topological Sorting", "source": "GeeksforGeeks" },
+        { "title": "16.4.2 DFS and cycle detection: Topological sorting using DFS", "source": "CS/ECE 374, Fall 2020, University of Illinois" }
+      ]
+    }
+  },
   "relatedProblems": {
     "695": "DFS connected component area: recursively mark and accumulate area from each land cell, return the largest island",
     "79": "Backtracking DFS: recursively spell words along four directions on a 2D board, using visited flags to prevent reuse",

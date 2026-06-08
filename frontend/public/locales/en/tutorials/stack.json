@@ -32,6 +32,64 @@
     "155": "Stack design: implement a stack that supports O(1) minimum retrieval",
     "232": "Stack application: implement a queue using stacks"
   },
+  "stories": {
+    "basic-stack-intro": {
+      "title": "The Hidden Power of Stack — From Undo Button to Browser's Behind-the-Scenes Hero",
+      "category": "Software Development / Everyday Applications",
+      "tags": ["LIFO", "Last In First Out", "Data Structures", "Undo/Redo"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Life's Intuitive Rule",
+            "content": "Every day, we unconsciously follow the order of the \"stack.\" Imagine a stack of plates at a buffet, or a one-way-in, one-way-out parking lot — we can only take a plate from \"the top,\" and the last car in must be the first car out. This simple \"Last In, First Out\" (LIFO) rule is not only the most efficient management method in limited space, but also the core framework of the digital world."
+          },
+          {
+            "heading": "Software's Time Machine: Undo and Redo",
+            "content": "When you make a typing mistake and press \"Undo,\" it feels like time is rewinding. Behind this, the system is \"pushing\" (Push) each of your actions onto the stack. When you need to undo, it \"pops\" (Pop) the top action off. Even smarter, the system maintains two stacks simultaneously to implement \"Redo\" — quietly moving undone actions to a neighboring redo stack so you can reapply them at any time."
+          },
+          {
+            "heading": "The Browser's Backstage Driver",
+            "content": "A browser's \"Back\" and \"Forward\" buttons are a perfect application of the dual-stack concept. Every new webpage you open gets stored in the \"back stack,\" and when you click Back, the current page is popped and stored in the \"forward stack,\" letting you navigate through complex browsing history with ease."
+          },
+          {
+            "heading": "The Invisible Guardian Supporting Programs",
+            "content": "At the deepest level of code, stacks are everywhere. The \"Call Stack\" is like breadcrumbs left along a path in a maze, ensuring the main program can always find its way back after calling countless sub-functions. Additionally, compilers rely on the stack as a super-strict checker to verify that brackets are correctly paired, and developers use the stack's LIFO property to efficiently reverse strings."
+          }
+        ]
+      },
+      "videoTitle": "The Hidden Power of Stack",
+      "resources": [
+        { "title": "Real-life Applications of Stack Data Structure", "source": "EnjoyAlgorithms" },
+        { "title": "Implement Undo and Redo", "source": "GeeksforGeeks" },
+        { "title": "Top 12 Stack Examples in Real Life", "source": "upGrad" }
+      ]
+    },
+    "2": {
+      "title": "PopupStack Battle — Experience the Reality of Last In First Out",
+      "category": "Data Structures / Interactive Game",
+      "tags": ["LIFO", "Last In First Out", "Stack", "Interactive Game"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Game Background",
+            "content": "Your computer is suddenly under attack by mysterious professor popups! Windows pop up one after another, filling your screen..."
+          },
+          {
+            "heading": "Stack Is Hidden Here",
+            "content": "When you open multiple application windows simultaneously, the operating system uses a Stack to manage \"focus order\" — the last popped window is always on top, and you must close them one by one starting from the top. This is the embodiment of LIFO (Last In, First Out)."
+          },
+          {
+            "heading": "Challenge Begins",
+            "content": "Each popup has its own personality: some will run around, some require you to answer questions correctly, some will even call in reinforcements. But there's only one rule: you must close the most recently appeared popup first!"
+          },
+          {
+            "heading": "After Completing the Challenge, You Will Understand",
+            "content": "Stack's push and pop are not just abstract concepts — they are real mechanisms you experience unconsciously every day."
+          }
+        ]
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

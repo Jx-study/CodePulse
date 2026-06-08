@@ -6,6 +6,7 @@ import Icon from '@/shared/components/Icon';
 import Button from '@/shared/components/Button';
 import StoryVideoPlayer from './StoryVideoPlayer';
 import StoryResources from './StoryResources';
+import type { ResolvedStoryResource } from './StoryResources';
 import PythonInteractiveDemo from './PythonInteractiveDemo';
 import StackGameRenderer from './StackGameRenderer';
 import KnapsackGameRenderer from './KnapsackGameRenderer/KnapsackGameRenderer';
@@ -15,12 +16,22 @@ import styles from './StoryAccordionItem.module.scss';
 
 interface Props {
   story: RealWorldStory;
+  i18nNamespace?: string;
 }
 
-const StoryAccordionItem: React.FC<Props> = ({ story }) => {
+interface StorySection {
+  heading?: string;
+  content: string;
+}
+
+interface StoryResourceText {
+  title?: string;
+  source?: string;
+}
+
+const StoryAccordionItem: React.FC<Props> = ({ story, i18nNamespace }) => {
   const { t } = useTranslation('tutorial');
   const [isOpen, setIsOpen] = useState(false);
-  // 若有互動遊戲且無視頻，內容預設收合（遊戲本身就是主體）
   const [isContentOpen, setIsContentOpen] = useState(false);
 
   const hasVideo = !!story.video;
@@ -28,6 +39,60 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
   const hasKnapsackGame = story.interactiveGame?.type === 'knapsack-investment-game';
   const hasBinarySearchGame = story.interactiveGame?.type === 'binary-search-game';
   const hasWhackAMoleGame = story.interactiveGame?.type === 'whack-a-mole';
+
+  const ns = i18nNamespace;
+  const prefix = `stories.${story.id}`;
+
+  const title = ns
+    ? t(`${prefix}.title`, { ns, defaultValue: String(story.id) })
+    : String(story.id);
+  const category = ns ? t(`${prefix}.category`, { ns, defaultValue: '' }) : '';
+  const tags = ns
+    ? (t(`${prefix}.tags`, { ns, returnObjects: true }) as string[])
+    : [];
+  const sections = ns
+    ? (t(`${prefix}.content.sections`, { ns, returnObjects: true }) as StorySection[])
+    : [];
+
+  const videoTitle = ns ? t(`${prefix}.videoTitle`, { ns, defaultValue: '' }) : '';
+  const pythonDemoTitle = ns ? t(`${prefix}.pythonDemoTitle`, { ns, defaultValue: '' }) : '';
+  const rawInputLabels = ns
+    ? (t(`${prefix}.inputs`, { ns, returnObjects: true }) as Record<string, string>)
+    : {};
+  const inputLabels =
+    typeof rawInputLabels === 'object' && !Array.isArray(rawInputLabels)
+      ? rawInputLabels
+      : {};
+
+  const rawResourceTexts = ns
+    ? (t(`${prefix}.resources`, { ns, returnObjects: true }) as StoryResourceText[])
+    : [];
+  const resourceTexts = Array.isArray(rawResourceTexts) ? rawResourceTexts : [];
+  const resolvedResources: ResolvedStoryResource[] = (story.resources ?? []).map((r, i) => ({
+    ...r,
+    title: resourceTexts[i]?.title,
+    source: resourceTexts[i]?.source,
+  }));
+
+  const safeTags = Array.isArray(tags) ? tags : [];
+  const safeSections = Array.isArray(sections) ? sections : [];
+
+  const renderSections = () =>
+    safeSections.map((section, i) => (
+      <div key={i} className={styles.section}>
+        {section.heading && <h4 className={styles.sectionHeading}>{section.heading}</h4>}
+        <p>{section.content}</p>
+      </div>
+    ));
+
+  const renderPythonDemo = () =>
+    story.pythonDemo ? (
+      <PythonInteractiveDemo
+        demo={story.pythonDemo}
+        title={pythonDemoTitle}
+        inputLabels={inputLabels}
+      />
+    ) : null;
 
   return (
     <div className={styles.accordionItem}>
@@ -40,14 +105,12 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
         aria-expanded={isOpen}
       >
         <div className={styles.headerLeft}>
-          {story.category && (
-            <span className={styles.badge}>{story.category}</span>
+          {category && (
+            <span className={styles.badge}>{category}</span>
           )}
-          <span className={styles.title}>{story.title}</span>
-          {story.tags?.map((tag) => (
-            <span key={tag} className={styles.tag}>
-              {tag}
-            </span>
+          <span className={styles.title}>{title}</span>
+          {safeTags.map((tag) => (
+            <span key={tag} className={styles.tag}>{tag}</span>
           ))}
         </div>
         <Icon
@@ -63,7 +126,7 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
         <div className={styles.body}>
           {hasVideo ? (
             <>
-              <StoryVideoPlayer video={story.video} />
+              <StoryVideoPlayer video={story.video} title={videoTitle} />
               <Button
                 type="button"
                 variant="ghost"
@@ -74,11 +137,9 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
                 {isContentOpen ? t('storyAccordion.collapseDetails') : t('storyAccordion.readDetails')}
               </Button>
               {isContentOpen && (
-                <p className={styles.content}>{story.content}</p>
+                <div className={styles.content}>{renderSections()}</div>
               )}
-              {story.pythonDemo && (
-                <PythonInteractiveDemo demo={story.pythonDemo} />
-              )}
+              {renderPythonDemo()}
               {hasStackGame && <StackGameRenderer />}
               {hasKnapsackGame && <KnapsackGameRenderer />}
               {hasBinarySearchGame && <BinarySearchOutputRenderer />}
@@ -86,9 +147,7 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
             </>
           ) : (
             <>
-              {story.pythonDemo && (
-                <PythonInteractiveDemo demo={story.pythonDemo} />
-              )}
+              {renderPythonDemo()}
               {hasStackGame && <StackGameRenderer />}
               {hasKnapsackGame && <KnapsackGameRenderer />}
               {hasBinarySearchGame && <BinarySearchOutputRenderer />}
@@ -103,12 +162,12 @@ const StoryAccordionItem: React.FC<Props> = ({ story }) => {
                 {isContentOpen ? t('storyAccordion.collapseDetails') : t('storyAccordion.readDetails')}
               </Button>
               {isContentOpen && (
-                <p className={styles.content}>{story.content}</p>
+                <div className={styles.content}>{renderSections()}</div>
               )}
             </>
           )}
-          {story.resources && story.resources.length > 0 && (
-            <StoryResources resources={story.resources} />
+          {resolvedResources.length > 0 && (
+            <StoryResources resources={resolvedResources} />
           )}
         </div>
       )}

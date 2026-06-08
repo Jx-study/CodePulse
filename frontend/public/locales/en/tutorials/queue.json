@@ -33,6 +33,58 @@
     "622": "Queue design: implement a circular queue",
     "933": "Queue in practice: count recent requests within a sliding window"
   },
+  "stories": {
+    "queue-multidomain-applications": {
+      "title": "Queue Everywhere: The Core of Algorithms and Large-Scale System Architecture",
+      "category": "Computer Science & System Design",
+      "tags": ["Queue", "System Design", "Operating Systems", "Algorithm", "Data Structures"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Algorithm Foundation: Breadth-First Search (BFS)",
+            "content": "In graph or tree structures, Breadth-First Search (BFS) is a layer-by-layer exploration algorithm that is very useful for finding the shortest path in unweighted graphs. The core of BFS relies on a Queue data structure with \"First In, First Out (FIFO)\" properties. When we visit a node, we add its unvisited neighbors to the back of the queue and take the next node to process from the front — ensuring all nodes at the same level are fully explored before moving to the next layer."
+          },
+          {
+            "heading": "System Design's Powerhouse: Message Queues",
+            "content": "In large distributed systems (such as e-commerce platforms), sudden traffic spikes can severely slow down system performance. A Message Queue provides a buffering mechanism that supports \"asynchronous communication.\" It decouples \"producers\" that publish messages from \"consumers (servers)\" that process tasks. This not only improves system scalability, but also ensures high reliability — because queues typically store data on persistent disks, so even if a server or system crashes, pending data won't be lost and can resume processing once the system recovers."
+          },
+          {
+            "heading": "Operating System's Scheduling Hub: Scheduling Queues",
+            "content": "An operating system must manage multiple programs simultaneously competing for CPU resources, accomplished by creating multiple different scheduling queues. When any program starts, it first enters the Job Queue containing all processes. Processes ready to execute and waiting for CPU resources are placed in the Ready Queue; if a process is waiting for external devices (such as disk reads or network data), it is paused and moved to Device Queues. The OS scheduler continuously dispatches processes among these queues to maintain efficient computer operation."
+          },
+          {
+            "heading": "The Invisible Helper in Everyday Devices: Print Spooler",
+            "content": "The concept of queues also exists in our daily hardware operations. Since printers process slowly and have limited memory, Windows has a built-in \"Print Spooler.\" It temporarily stores all print jobs in a buffer (the queue) and automatically schedules sending them to the printer one by one. This mechanism lets users continue working after submitting print jobs, without waiting for the printer to finish."
+          }
+        ]
+      },
+      "videoTitle": "Message Queues in System Design",
+      "resources": [
+        { "title": "What is a Print Spooler?", "source": "GeeksforGeeks" },
+        { "title": "Scheduling Queues and Schedulers Explained (OS Guide)", "source": "Unwired Learning" },
+        { "title": "Breadth-First Search (BFS) - Shortest Paths in Unweighted Graphs", "source": "Interview Cake" }
+      ]
+    },
+    "queue-pet-matcher": {
+      "title": "Pet Matcher: Queue Chaos",
+      "category": "Interactive Game",
+      "tags": ["Producer", "Consumer", "Queue Overflow"],
+      "content": {
+        "sections": [
+          {
+            "content": "Queue's core concept of \"Producer/Consumer rate balance\" is difficult to convey with static diagrams. When the Consumer can't keep up with the Producer, the Queue accumulates and overflows."
+          },
+          {
+            "content": "In this interactive game, you play as the Consumer, processing cat/dog photo cards by swiping left/right. The system automatically generates new cards (Producer). Your goal is to prevent the Queue from overflowing and your HP from reaching zero before the countdown ends."
+          }
+        ]
+      },
+      "pythonDemoTitle": "Pet Matcher: Queue Chaos",
+      "inputs": {
+        "spawn_rate_ms": "Spawn Rate (ms)"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

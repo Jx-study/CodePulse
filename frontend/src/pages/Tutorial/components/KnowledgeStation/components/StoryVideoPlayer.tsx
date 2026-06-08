@@ -6,6 +6,7 @@ import styles from './StoryVideoPlayer.module.scss';
 
 interface Props {
   video?: StoryVideo;
+  title?: string;
 }
 
 function toEmbedUrl(url: string): string {
@@ -14,7 +15,7 @@ function toEmbedUrl(url: string): string {
   return `https://www.youtube.com/embed/${match[1]}`;
 }
 
-const StoryVideoPlayer: React.FC<Props> = ({ video }) => {
+const StoryVideoPlayer: React.FC<Props> = ({ video, title }) => {
   const { t } = useTranslation('tutorial');
   if (video) {
     const embedUrl = toEmbedUrl(video.url);
@@ -22,7 +23,7 @@ const StoryVideoPlayer: React.FC<Props> = ({ video }) => {
       <div className={styles.videoWrapper}>
         <iframe
           src={embedUrl}
-          title={video.title}
+          title={title || t('videoPlayer.defaultTitle')}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />

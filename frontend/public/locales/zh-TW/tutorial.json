@@ -118,7 +118,8 @@
     "title": "延伸資源"
   },
   "videoPlayer": {
-    "comingSoon": "影片即將上線"
+    "comingSoon": "影片即將上線",
+    "defaultTitle": "故事影片"
   },
   "pythonDemo": {
     "badge": "Python 互動",

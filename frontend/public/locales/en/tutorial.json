@@ -118,7 +118,8 @@
     "title": "Further Resources"
   },
   "videoPlayer": {
-    "comingSoon": "Video Coming Soon"
+    "comingSoon": "Video Coming Soon",
+    "defaultTitle": "Story Video"
   },
   "pythonDemo": {
     "badge": "Python Interactive",
