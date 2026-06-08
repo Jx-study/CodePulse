@@ -8,8 +8,8 @@ import {
   LinearAction as ActionType,
 } from "../utils";
 import type { AnimationStep } from "@/types";
-import { selectVariant } from "./variants/selectVariant";
-import { singlyVariant } from "./variants/singly";
+import { selectVariant } from "./linkedlist/selectVariant";
+import { singlyVariant } from "./linkedlist/singly";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import type { StatusConfig } from "@/types/statusConfig";
 
@@ -33,7 +33,7 @@ export function createLinkedListAnimationSteps(
   );
   return variant.createAnimationSteps(dataList, action);
 }
-export { makeNodeAndPointers } from "./variants/shared";
+export { makeNodeAndPointers } from "./linkedlist/shared";
 function modeFlags(payload: Record<string, unknown>) {
   return {
     isDoubly: Boolean(payload.isDoubly),

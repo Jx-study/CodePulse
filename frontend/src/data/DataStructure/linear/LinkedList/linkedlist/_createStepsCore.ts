@@ -19,7 +19,6 @@ import {
   makeNodeAndPointers,
 } from "./shared";
 
-
 export function createLinkedListSteps(
   dataList: ListNodeData[],
   action: ActionType | undefined,
@@ -73,7 +72,7 @@ function createInsertTailHasTailSteps(
 
   steps.push({
     stepNumber: steps.length + 1,
-    description: `InsertTail(${value}): 在尾端建立新節點並分配記憶體`,
+    description: { key: "animation.insert_tail_create", params: { value } },
     elements: [...s1OldElements, ...s1NewElement] as any,
     actionTag: TAGS.INSERT_TAIL_CREATE,
     local_vars: { value, "newNode.value": value },
@@ -116,7 +115,7 @@ function createInsertTailHasTailSteps(
 
   steps.push({
     stepNumber: steps.length + 1,
-    description: `tail.next = newNode (舊尾節點指向新節點)`,
+    description: { key: "animation.insert_tail_link" },
     elements: allS2 as any,
     actionTag: TAGS.INSERT_TAIL_LINK,
     local_vars: { "tail.next": value },
@@ -155,7 +154,7 @@ function createInsertTailHasTailSteps(
 
     steps.push({
       stepNumber: steps.length + 1,
-      description: `newNode.prev = tail (新節點 prev 回指舊尾節點)`,
+      description: { key: "animation.insert_tail_link_prev_has_tail" },
       elements: allS2b as any,
       actionTag: TAGS.INSERT_TAIL_LINK_PREV,
       local_vars: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
@@ -192,7 +191,7 @@ function createInsertTailHasTailSteps(
 
   steps.push({
     stepNumber: steps.length + 1,
-    description: `tail = newNode (更新 tail 指標指向新節點)`,
+    description: { key: "animation.insert_tail_pointer_move", params: { value } },
     elements: allS3 as any,
     actionTag: TAGS.INSERT_TAIL_POINTER_MOVE,
     local_vars: { tail: value },
@@ -214,7 +213,7 @@ function createInsertTailHasTailSteps(
 
   steps.push({
     stepNumber: steps.length + 1,
-    description: "InsertTail 完成",
+    description: { key: "animation.insert_tail_end" },
     elements: s4Elements as any,
     actionTag: TAGS.INSERT_TAIL_END_NOTNULL || TAGS.INSERT_TAIL_END,
     local_vars: { tail: value, length: totalLen },
@@ -240,7 +239,7 @@ function createSearchSteps(
   if (totalLen === 0) {
     addStep(steps, {
       stepNumber: 1,
-      description: "鏈結串列為空，無法搜尋",
+      description: { key: "animation.search_empty" },
       elements: [],
     });
     return steps;
@@ -272,7 +271,7 @@ function createSearchSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `遍歷 node ${i}：比較 ${dataList[i].value} 是否等於目標值 ${value}`,
+      description: { key: "animation.search_compare", params: { index: i, current: dataList[i].value, target: value } },
       elements: compareElements as any,
       actionTag: TAGS.SEARCH_COMPARE,
       local_vars: {
@@ -312,7 +311,7 @@ function createSearchSteps(
 
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `搜尋成功！在第 ${i} 個節點 (index ${i}) 找到數值 ${value}。`,
+        description: { key: "animation.search_found", params: { index: i, value } },
         elements: foundElements as any,
         actionTag: TAGS.SEARCH_FOUND,
         local_vars: {
@@ -344,7 +343,7 @@ function createSearchSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `搜尋結束：未在鏈結串列中找到數值 ${value}。`,
+      description: { key: "animation.search_not_found", params: { value } },
       elements: notFoundElements as any,
       actionTag: TAGS.SEARCH_NOT_FOUND,
       local_vars: { current: null, target: value, index: -1 },
@@ -410,7 +409,7 @@ function createInsertHeadSteps(
 
   addStep(steps, {
     stepNumber: 1,
-    description: `InsertHead(${value}): 建立新節點並分配記憶體`,
+    description: { key: "animation.insert_head_create", params: { value } },
     elements: [...s1NewElement, ...s1OldElements] as any,
     actionTag: TAGS.INSERT_HEAD_CREATE,
     local_vars: {
@@ -467,7 +466,7 @@ function createInsertHeadSteps(
 
     addStep(steps, {
       stepNumber: currentStepIdx++,
-      description: `newNode.next = head (新節點 next 指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
+      description: { key: "animation.insert_head_link", params: { head: oldNodesData[0]?.value ?? "null" } },
       elements: allS2 as any,
       actionTag: TAGS.INSERT_HEAD_LINK,
       local_vars: {
@@ -510,7 +509,7 @@ function createInsertHeadSteps(
     linkNodesDoubly(actualAllS2b);
     addStep(steps, {
       stepNumber: currentStepIdx++,
-      description: `head.prev = newNode (原頭節點 prev 回指新節點)`,
+      description: { key: "animation.insert_head_link_prev" },
       elements: allS2b as any,
       actionTag: TAGS.INSERT_HEAD_LINK_PREV,
       local_vars: { "head.prev": value },
@@ -519,7 +518,7 @@ function createInsertHeadSteps(
     linkForVariant(actualAllS2, isDoubly);
     addStep(steps, {
       stepNumber: currentStepIdx++,
-      description: `newNode.next = head (新節點指向原頭節點 ${oldNodesData[0]?.value ?? "null"})`,
+      description: { key: "animation.insert_head_link", params: { head: oldNodesData[0]?.value ?? "null" } },
       elements: allS2 as any,
       actionTag: TAGS.INSERT_HEAD_LINK,
       local_vars: {
@@ -571,7 +570,7 @@ function createInsertHeadSteps(
 
   addStep(steps, {
     stepNumber: currentStepIdx++,
-    description: `head = newNode (更新 head 指標指向新節點)`,
+    description: { key: "animation.insert_head_update", params: { value } },
     elements: allS3 as any,
     actionTag: updateTag,
     local_vars: { head: value },
@@ -597,7 +596,7 @@ function createInsertHeadSteps(
 
     addStep(steps, {
       stepNumber: currentStepIdx++,
-      description: `原本鏈結串列為空，更新 tail 指標指向新節點`,
+      description: { key: "animation.insert_head_update_tail" },
       elements: sTailNewElement as any,
       actionTag: TAGS.INSERT_HEAD_UPDATE_TAIL,
       local_vars: { head: value, tail: value },
@@ -624,7 +623,7 @@ function createInsertHeadSteps(
 
   addStep(steps, {
     stepNumber: currentStepIdx++,
-    description: "InsertHead 完成",
+    description: { key: "animation.insert_head_end" },
     elements: sFinalElements as any,
     actionTag: TAGS.INSERT_HEAD_END,
     local_vars: { head: value, length: totalLen },
@@ -652,7 +651,7 @@ function createInsertTailSteps(
 
     steps.push({
       stepNumber: currentStepIdx++,
-      description: `檢查是否為空串列: head == null，成立`,
+      description: { key: "animation.insert_tail_check_null" },
       elements: [] as any,
       actionTag: TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE,
       local_vars: { head: null },
@@ -672,7 +671,7 @@ function createInsertTailSteps(
 
     steps.push({
       stepNumber: currentStepIdx++,
-      description: `建立新節點`,
+      description: { key: "animation.insert_tail_create_new" },
       elements: s1Elements as any,
       actionTag: TAGS.INSERT_TAIL_CREATE_NEW_NODE_ISNULL,
       local_vars: { head: null },
@@ -692,7 +691,7 @@ function createInsertTailSteps(
     );
     steps.push({
       stepNumber: currentStepIdx++,
-      description: `head = newNode (更新 head 指標指向新節點)`,
+      description: { key: "animation.insert_tail_update_head", params: { value } },
       elements: s2Elements as any,
       actionTag: updateHeadTag,
       local_vars: { head: value, length: 1 },
@@ -711,7 +710,7 @@ function createInsertTailSteps(
       );
       steps.push({
         stepNumber: currentStepIdx++,
-        description: `tail = newNode (因為原本為空，同步更新 tail 指標)`,
+        description: { key: "animation.insert_tail_update_tail_null", params: { value } },
         elements: s3Elements as any,
         actionTag: TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL,
         local_vars: { head: value, tail: value, length: 1 },
@@ -736,7 +735,7 @@ function createInsertTailSteps(
 
     steps.push({
       stepNumber: currentStepIdx++,
-      description: "InsertTail 完成",
+      description: { key: "animation.insert_tail_end" },
       elements: sFinalElements as any,
       actionTag: TAGS.INSERT_TAIL_END_ISNULL || TAGS.INSERT_TAIL_END,
       local_vars: { head: value, tail: hasTailMode ? value : undefined, length: 1 },
@@ -784,7 +783,7 @@ function createInsertTailSteps(
 
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `遍歷中：current = current.next (目前指向節點 ${oldNodesData[i].value})`,
+        description: { key: "animation.insert_tail_traverse", params: { current: oldNodesData[i].value, index: i } },
         elements: traverseElements as any,
         actionTag: TAGS.INSERT_TAIL_TRAVERSE,
         local_vars: { current: oldNodesData[i].value ?? null, index: i },
@@ -823,7 +822,7 @@ function createInsertTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `InsertTail(${value}): 找到尾端，建立新節點並分配記憶體`,
+      description: { key: "animation.insert_tail_create_notail", params: { value, current: oldNodesData[oldLen - 1].value } },
       elements: [...sNewCreateElements, ...sNewElement] as any,
       actionTag: TAGS.INSERT_TAIL_CREATE,
       local_vars: {
@@ -872,7 +871,7 @@ function createInsertTailSteps(
 
     steps.push({
       stepNumber: steps.length + 1,
-      description: `current.next = newNode (最後一個節點指向新節點)`,
+      description: { key: "animation.insert_tail_link_current", params: { value, current: oldNodesData[oldLen - 1].value } },
       elements: allConnect as any,
       actionTag: TAGS.INSERT_TAIL_LINK,
       local_vars: {
@@ -917,7 +916,7 @@ function createInsertTailSteps(
 
       steps.push({
         stepNumber: steps.length + 1,
-        description: `newNode.prev = current (新節點的 prev 回指最後一個節點)`,
+        description: { key: "animation.insert_tail_link_prev_notail" },
         elements: allConnectB as any,
         actionTag: TAGS.INSERT_TAIL_LINK_PREV || TAGS.INSERT_TAIL_LINK,
         local_vars: { "newNode.prev": oldNodesData[oldLen - 1].value ?? null },
@@ -940,7 +939,7 @@ function createInsertTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: "InsertTail 完成",
+      description: { key: "animation.insert_tail_end" },
       elements: doneElements as any,
       actionTag: TAGS.INSERT_TAIL_END_NOTNULL || TAGS.INSERT_TAIL_END,
       local_vars: { tail: value, length: totalLen },
@@ -987,7 +986,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `InsertAtIndex(${value}, ${N}): index 為 0，執行 InsertHead`,
+      description: { key: "animation.insert_index_if_zero", params: { value, index: N } },
       elements: checkElements as any,
       actionTag: TAGS.INSERT_INDEX_IFZERO,
       local_vars: {
@@ -1036,7 +1035,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `InsertAtIndex(${value}, ${N}): index 等於長度 ${currentLen}，執行 InsertTail`,
+      description: { key: "animation.insert_index_if_tail", params: { value, index: N, length: currentLen } },
       elements: checkElements as any,
       actionTag: TAGS.INSERT_INDEX_IFTAIL,
       local_vars: {
@@ -1099,7 +1098,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `遍歷：找到位置 ${i} (Node ${i})`,
+      description: { key: "animation.insert_index_traverse", params: { index: i, targetIndex: N } },
       elements: traverseElements as any,
       actionTag: TAGS.INSERT_INDEX_TRAVERSE,
       local_vars: {
@@ -1144,7 +1143,7 @@ function createInsertIndexSteps(
 
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: `1. 建立新節點 ${value}`,
+    description: { key: "animation.insert_index_create", params: { value } },
     elements: [...s3OldElements, ...s3NewElement] as any,
     actionTag: TAGS.INSERT_INDEX_CREATE,
     local_vars: {
@@ -1210,7 +1209,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `2. 將新節點指向原 Node ${N}`,
+      description: { key: "animation.insert_index_link_new_next", params: { N } },
       elements: [...s4OldElements, ...s4NewElement] as any,
       actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
       local_vars: {
@@ -1271,7 +1270,7 @@ function createInsertIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `3. 將 Node ${N - 1} 指向新節點`,
+      description: { key: "animation.insert_index_link_current_next", params: { N: N - 1 } },
       elements: [...s5OldElements, ...s5NewElement] as any,
       actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
       local_vars: {
@@ -1285,7 +1284,7 @@ function createInsertIndexSteps(
       wireIndexDoublyLinkNext(p1.actualS4OldNodes, p1.newNodeObj, p1.succ);
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `2. 將新節點指向原 Node ${N}（newNode.next）`,
+        description: { key: "animation.insert_index_link_new_next", params: { N } },
         elements: [...p1.s4OldElements, ...p1.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
         local_vars: {
@@ -1299,7 +1298,7 @@ function createInsertIndexSteps(
         wireIndexDoublySuccPrev(p2.actualS4OldNodes, p2.newNodeObj!, p2.succ);
         addStep(steps, {
           stepNumber: steps.length + 1,
-          description: `2b. 原 Node ${N} 的 prev 回指新節點`,
+          description: { key: "animation.insert_index_link_next_prev", params: { N } },
           elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
           actionTag: TAGS.INSERT_INDEX_LINK_NEXT_PREV,
           local_vars: {
@@ -1317,7 +1316,7 @@ function createInsertIndexSteps(
       );
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `3. Node ${N - 1} 的 next 指向新節點`,
+        description: { key: "animation.insert_index_link_current_next", params: { N: N - 1 } },
         elements: [...p3.s4OldElements, ...p3.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
         local_vars: {
@@ -1335,7 +1334,7 @@ function createInsertIndexSteps(
       );
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `3b. 新節點 prev 回指 Node ${N - 1}`,
+        description: { key: "animation.insert_index_link_new_prev", params: { N: N - 1 } },
         elements: [...p4.s4OldElements, ...p4.s4NewElement] as any,
         actionTag: TAGS.INSERT_INDEX_LINK_NEW_PREV,
         local_vars: {
@@ -1362,7 +1361,7 @@ function createInsertIndexSteps(
   if (hasTailMode && N === totalLen - 1) {
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `If newNode.next = null, 成立，更新 tail`,
+      description: { key: "animation.insert_index_update_tail", params: { value } },
       elements: s6Elements as any,
       actionTag: TAGS.INSERT_INDEX_UPDATE_TAIL,
       local_vars: { tail: value },
@@ -1371,7 +1370,7 @@ function createInsertIndexSteps(
 
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: "InsertAtIndex 完成",
+    description: { key: "animation.insert_index_end" },
     elements: s6Elements as any,
     actionTag: TAGS.INSERT_INDEX_END,
     local_vars: { length: totalLen },
@@ -1418,7 +1417,7 @@ function createDeleteHeadSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `DeleteAtIndex(${value}, ${N}): index 為 0，執行 deleteAtHead`,
+      description: { key: "animation.delete_index_if_zero", params: { value, index: N } },
       elements: checkElements as any,
       actionTag: TAGS.DELETE_INDEX_IFZERO,
       local_vars: {
@@ -1457,7 +1456,7 @@ function createDeleteHeadSteps(
 
   addStep(steps, {
     stepNumber: 1,
-    description: `DeleteHead(): 標記頭節點 ${deletedNodeData.value} 準備刪除`,
+    description: { key: "animation.delete_head_start", params: { value: deletedNodeData.value } },
     elements: allS1 as any,
     actionTag: TAGS.DELETE_HEAD_START,
     local_vars: { head: deletedNodeData.value },
@@ -1503,7 +1502,7 @@ function createDeleteHeadSteps(
   let currentStepIdx = 2;
   steps.push({
     stepNumber: currentStepIdx++,
-    description: "head = head.next (將 head 指標移至下一個節點)",
+    description: { key: "animation.delete_head_update_head" },
     elements: allS2 as any,
     actionTag: TAGS.DELETE_HEAD_UPDATE_HEAD,
     local_vars: { head: dataList[0]?.value ?? null },
@@ -1546,7 +1545,7 @@ function createDeleteHeadSteps(
 
     steps.push({
       stepNumber: currentStepIdx++,
-      description: "If head ≠ null, head.prev = null (斷開新頭節點的回指連結)",
+      description: { key: "animation.delete_head_update_prev" },
       elements: allS3b as any,
       actionTag: TAGS.DELETE_HEAD_UPDATE_PREV,
       local_vars: { head: dataList[0]?.value ?? null },
@@ -1568,7 +1567,7 @@ function createDeleteHeadSteps(
     );
     steps.push({
       stepNumber: currentStepIdx++,
-      description: isDoubly ? "Else tail = null (串列已空，清空 tail)" : "If head = null, tail = null (串列已空，清空 tail)",
+      description: { key: isDoubly ? "animation.delete_head_update_tail_doubly" : "animation.delete_head_update_tail_singly" },
       elements: s2DelElementNoTail as any, // 使用不帶標籤的元素
       actionTag: TAGS.DELETE_HEAD_UPDATE_TAIL,
       local_vars: { head: null, tail: null },
@@ -1621,7 +1620,7 @@ function createDeleteHeadSteps(
 
   steps.push({
     stepNumber: currentStepIdx++,
-    description: "釋放記憶體：斷開被刪除節點的連結",
+    description: { key: "animation.delete_free" },
     elements: allS3 as any,
     actionTag: TAGS.DELETE_HEAD_FREE,
     local_vars: { head: dataList[0]?.value ?? null },
@@ -1643,7 +1642,7 @@ function createDeleteHeadSteps(
 
   steps.push({
     stepNumber: currentStepIdx++,
-    description: "移除舊節點實體",
+    description: { key: "animation.delete_head_remove" },
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_HEAD_END,
     local_vars: { head: dataList[0]?.value ?? null, length: currentLen },
@@ -1665,7 +1664,7 @@ function createDeleteHeadSteps(
 
   steps.push({
     stepNumber: currentStepIdx++,
-    description: "DeleteHead 完成",
+    description: { key: "animation.delete_head_end" },
     elements: s5Elements as any,
     actionTag: TAGS.DELETE_HEAD_END,
     local_vars: { head: dataList[0]?.value ?? null, length: currentLen },
@@ -1714,7 +1713,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `DeleteAtIndex(${value}, ${N}): index 等於長度 ${currentLen}，執行 deleteAtTail`,
+      description: { key: "animation.delete_index_if_tail", params: { value, index: N, length: currentLen } },
       elements: checkElements as any,
       actionTag: TAGS.DELETE_INDEX_IFTAIL,
       local_vars: {
@@ -1743,7 +1742,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `DeleteTail(): 找到尾端節點 ${value}`,
+      description: { key: "animation.delete_tail_start", params: { value } },
       elements: s1Elements as any,
       actionTag: TAGS.DELETE_TAIL_START,
       local_vars: {
@@ -1764,7 +1763,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `prev = tail.prev (找到尾端節點的前驅節點)`,
+      description: { key: "animation.delete_tail_traverse_prev" },
       elements: s2Elements as any,
       actionTag: TAGS.DELETE_TAIL_TRAVERSE,
       local_vars: {
@@ -1787,7 +1786,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `pre.next = null (斷開前一個節點的連結)`,
+      description: { key: "animation.delete_tail_unlink_pre_next" },
       elements: s3Elements as any,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
       local_vars: {
@@ -1812,7 +1811,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `tail = pre (更新 tail 指標指向新的尾節點)`,
+      description: { key: "animation.delete_update_tail" },
       elements: s4Elements as any,
       actionTag: TAGS.DELETE_TAIL_END,
       local_vars: {
@@ -1829,7 +1828,7 @@ function createDeleteTailSteps(
     linkForVariant(actualS5Nodes as any, isDoubly);
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: "DeleteTail 完成",
+      description: { key: "animation.delete_tail_end" },
       elements: s5Elements as any,
       actionTag: TAGS.DELETE_TAIL_END,
       local_vars: {
@@ -1873,8 +1872,8 @@ function createDeleteTailSteps(
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: i < currentLen
-          ? `遍歷中：current = current.next (尋找尾端節點)`
-          : `找到尾端節點 ${deletedNodeData.value}`,
+          ? { key: "animation.delete_tail_traverse" }
+          : { key: "animation.delete_tail_found", params: { value: deletedNodeData.value } },
         elements: traverseElements as any,
         actionTag: TAGS.DELETE_TAIL_TRAVERSE,
         local_vars: {
@@ -1905,7 +1904,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: "current.prev.next = null (透過前驅的 prev 指標直接斷開連結)",
+      description: { key: "animation.delete_tail_unlink_doubly" },
       elements: doublyUnlinkElements as any,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
       local_vars: { "current.prev.next": null, current: deletedNodeData.value },
@@ -1919,7 +1918,7 @@ function createDeleteTailSteps(
     syncPointersFromNextPrev(actualDoublyEndNodes);
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: "DeleteTail 完成",
+      description: { key: "animation.delete_tail_end" },
       elements: doublyEndElements as any,
       actionTag: TAGS.DELETE_TAIL_END,
       local_vars: { length: currentLen },
@@ -1953,7 +1952,7 @@ function createDeleteTailSteps(
 
       addStep(steps, {
         stepNumber: steps.length + 1,
-        description: `遍歷中：current = current.next (尋找尾端節點)`,
+        description: { key: "animation.delete_tail_traverse" },
         elements: traverseElements as any,
         actionTag: TAGS.DELETE_TAIL_TRAVERSE,
         local_vars: {
@@ -1988,7 +1987,7 @@ function createDeleteTailSteps(
   linkForVariant(actualS2Nodes as any, isDoubly);
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: `DeleteTail(): 找到尾端節點 ${deletedNodeData.value}`,
+    description: { key: "animation.delete_tail_start", params: { value: deletedNodeData.value } },
     elements: s2Elements as any,
     actionTag: TAGS.DELETE_TAIL_TRAVERSE,
     local_vars: {
@@ -2028,7 +2027,7 @@ function createDeleteTailSteps(
 
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: "pre.next = null (斷開前一個節點的連結)",
+    description: { key: "animation.delete_tail_unlink_pre_next" },
     elements: s3Elements as any,
     actionTag: TAGS.DELETE_TAIL_UNLINK,
     local_vars: {
@@ -2069,7 +2068,7 @@ function createDeleteTailSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: "tail = pre (更新 tail 指標指向新的尾節點)",
+      description: { key: "animation.delete_update_tail" },
       elements: sTailElements as any,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
       local_vars: {
@@ -2086,7 +2085,7 @@ function createDeleteTailSteps(
   linkForVariant(actualS4Nodes as any, isDoubly);
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: "DeleteTail 完成",
+    description: { key: "animation.delete_tail_end" },
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_TAIL_END,
     local_vars: {
@@ -2146,7 +2145,7 @@ function createDeleteIndexSteps(
     linkForVariant(actualTraverseNodes as any, isDoubly);
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `遍歷中：current = current.next (尋找 index ${N})`,
+      description: { key: "animation.delete_index_traverse", params: { index: i, targetIndex: N } },
       elements: traverseElements as any,
       actionTag: TAGS.DELETE_INDEX_TRAVERSE,
       local_vars: {
@@ -2206,7 +2205,7 @@ function createDeleteIndexSteps(
 
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: `pre.next = current.next (前驅節點跳過目標指向下一個節點)`,
+    description: { key: "animation.delete_index_unlink" },
     elements: s3Elements as any,
     actionTag: TAGS.DELETE_INDEX_UNLINK,
     local_vars: {
@@ -2262,7 +2261,7 @@ function createDeleteIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: `current.next.prev = pre (後繼節點的 prev 回指前驅節點)`,
+      description: { key: "animation.delete_index_unlink_prev" },
       elements: s3bElements as any,
       actionTag: TAGS.DELETE_INDEX_UNLINK,
       local_vars: {
@@ -2316,7 +2315,7 @@ function createDeleteIndexSteps(
 
     addStep(steps, {
       stepNumber: steps.length + 1,
-      description: "tail = pre (更新 tail 指標指向新的尾節點)",
+      description: { key: "animation.delete_update_tail" },
       elements: sTailElements as any,
       actionTag: TAGS.DELETE_INDEX_UNLINK,
       local_vars: {
@@ -2382,7 +2381,7 @@ function createDeleteIndexSteps(
 
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: "釋放記憶體：斷開被刪除節點的連結",
+    description: { key: "animation.delete_free" },
     elements: s4Elements as any,
     actionTag: TAGS.DELETE_INDEX_END,
     local_vars: {
@@ -2407,7 +2406,7 @@ function createDeleteIndexSteps(
   linkForVariant(actualS5Nodes as any, isDoubly);
   addStep(steps, {
     stepNumber: steps.length + 1,
-    description: "DeleteAtIndex 完成",
+    description: { key: "animation.delete_index_end" },
     elements: s5Elements as any,
     actionTag: TAGS.DELETE_INDEX_END,
     local_vars: { length: currentLen },
@@ -2438,7 +2437,7 @@ function createDeleteIndexSteps(
 
     addStep(steps, {
       stepNumber: 1,
-      description: `初始${isDoubly ? "雙向" : "單向"}鏈結串列`,
+      description: { key: isDoubly ? "animation.initial_state_doubly" : "animation.initial_state_singly" },
       elements: elements as any,
     });
     return steps;
@@ -2534,21 +2533,19 @@ function createDeleteIndexSteps(
       );
       addStep(steps, {
         stepNumber: 1,
-        description: "Delete: 鏈結串列只有一個節點，標記準備刪除",
+        description: { key: "animation.delete_single_start" },
         elements: s1DelElement,
         actionTag: TAGS.DELETE_TAIL_ISNEXTNULL,
       });
       addStep(steps, {
         stepNumber: 2,
-        description: hasTailMode 
-        ? "移除節點，head 與 tail 設為 null" 
-        : "移除節點，head 設為 null",
+        description: { key: hasTailMode ? "animation.delete_single_remove_with_tail" : "animation.delete_single_remove" },
         elements: [],
         actionTag: TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE,
       });
       addStep(steps, {
         stepNumber: 3,
-        description: "刪除完成，鏈結串列目前為空",
+        description: { key: "animation.delete_single_complete" },
         elements: [],
         actionTag: TAGS.DELETE_TAIL_END,
       });
