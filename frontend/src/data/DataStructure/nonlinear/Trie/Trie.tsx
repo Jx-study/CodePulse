@@ -236,6 +236,29 @@ class Trie:
                 return False
             curr = curr.children[char]
         return True if is_prefix else curr.is_end_of_word`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)'                  },  // class TrieNode:
+      { lineNumber: 2,  complexity: 'O(1)'                  },  // def __init__(self):
+      { lineNumber: 3,  complexity: 'O(1)'                  },  // self.children = {}
+      { lineNumber: 4,  complexity: 'O(1)'                  },  // self.is_end_of_word = False
+      { lineNumber: 6,  complexity: 'O(1)'                  },  // class Trie:
+      { lineNumber: 7,  complexity: 'O(1)'                  },  // def __init__(self):
+      { lineNumber: 8,  complexity: 'O(1)'                  },  // self.root = TrieNode()
+      { lineNumber: 10, complexity: 'O(n)'                  },  // def insert(self, word: str): — overall O(n)
+      { lineNumber: 11, complexity: 'O(1)'                  },  // curr = self.root — simple assign outside loop
+      { lineNumber: 12, complexity: 'O(n)'                  },  // for char in word — top-level for, O(n) iterations
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },  // if char not in curr.children — O(1) × n
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },  // curr.children[char] = TrieNode() — O(1) × n
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },  // curr = curr.children[char] — O(1) × n
+      { lineNumber: 16, complexity: 'O(1)'                  },  // curr.is_end_of_word = True — outside loop
+      { lineNumber: 18, complexity: 'O(n)'                  },  // def search(self, word: str, ...): — overall O(n)
+      { lineNumber: 19, complexity: 'O(1)'                  },  // curr = self.root — simple assign outside loop
+      { lineNumber: 20, complexity: 'O(n)'                  },  // for char in word — top-level for, O(n) iterations
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(n)' },  // if char not in curr.children — O(1) × n
+      { lineNumber: 22, complexity: 'O(1)' },  // return False — inside loop, O(1) × n
+      { lineNumber: 23, complexity: 'O(1)', context: 'O(n)' },  // curr = curr.children[char] — O(1) × n
+      { lineNumber: 24, complexity: 'O(1)'                  },  // return ... — outside loop
+    ],
   },
 };
 
@@ -252,12 +275,11 @@ export const TrieConfig: LevelImplementationConfig = {
     timeWorst: "O(m)",
     space: "O(N * m)", // 總字元數量
   },
-  introduction:
-    "字典樹 (Trie) 是一種針對「字串搜尋」極度優化的多叉樹結構！\n\n觀察視覺化，你會發現擁有相同前綴 (Prefix) 的單字會**共用相同的路徑節點**，這大幅節省了儲存空間。\n注意觀察：每個節點內部只儲存單一字元，當到達一個完整單字的結尾時，節點下方會特別標註 `[Word]` 作為結束識別！",
+  i18nNamespace: "tutorials/trie",
+  introduction: { key: "introduction" },
   defaultData: ["app", "apple", "cat"], // 預設資料即為字串陣列
   createAnimationSteps: createTrieAnimationSteps,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/trie",
   maxNodes: TRIE_MAX_WORDS,
 };

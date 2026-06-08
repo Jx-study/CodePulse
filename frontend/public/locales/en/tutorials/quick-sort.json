@@ -1,0 +1,67 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "Quick Sort is based on [[primary|divide and conquer]], like sorting people by height. A **pivot** is chosen to perform [[primary|partitioning]], placing smaller values left and larger values right, then **recursion** handles both sides to complete the sort.",
+        "items": [
+          "**Choose a Pivot**: select a **pivot** from the array, like picking one person as the [[primary|height reference]] for the group",
+          "**Partition**: run `Partition` so smaller values go left and larger values go right, placing the **pivot** at its [[primary|final position]]",
+          "**Recurse**: apply `QuickSort` to both sides repeatedly until nothing can be split further, achieving [[primary|full sorting]]"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Complexity",
+        "content": "Quick Sort averages O(n log n), but performance depends heavily on pivot selection and partition balance. Key complexities are as follows:",
+        "items": [
+          "**Pivot selection**: access the array element by index — [[success|O(1)]]",
+          "**Partition**: traverse and compare remaining elements to split by value — [[warning|O(n)]]",
+          "**Overall sort**: if the pivot always lands on an extreme value causing heavily skewed partitions, worst case degrades to [[danger|O(n²)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "Excels on **random arrays** with outstanding **cache locality**. Struggles with **already-sorted data**; if **stable sorting** or **linked list** traversal is needed, switch to **Merge Sort**.",
+        "items": [
+          "On **arrays**, elements can be **swapped in-place** without extra memory, with excellent **cache locality**",
+          "When facing **already-sorted input**, performance degrades — use **random pivot selection** or the **median-of-three** method to optimize",
+          "Cannot provide **stable sorting** and is not well-suited for **linked lists** — use **Merge Sort** in those scenarios"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "When you see clues about efficient in-place array sorting with no extra memory, or finding an element of a specific rank in an array, think of Quick Sort and its core partition logic.",
+        "items": [
+          "**In-place sorting**: when efficient array sorting with no extra memory is required, Quick Sort is the first choice over Merge Sort",
+          "**Kth largest element**: when finding the Kth largest or smallest value in an array, think of the derived Quick Select algorithm",
+          "**Top K frequent elements**: problems asking for the K most frequent elements can also leverage Quick Sort's partition concept",
+          "**Dutch National Flag problem**: problems requiring elements split into three contiguous regions share the same logic as dual-pivot partition"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Array Partition Steps",
+        "content": "**Partition** is the implementation core. Beginners very easily get lost in the **dual-pointer** movement and element-swap logic, so it deserves its own breakdown to clarify every detail.",
+        "items": [
+          "**Dual-pointer movement**: traverse with two pointers comparing against the **pivot** — beginners often cause [[danger|pointer out-of-bounds]] or cross-over confusion here",
+          "**When to swap**: when a pointer finds an out-of-order element, perform the **swap** to satisfy the [[primary|left-smaller-right-larger]] rule",
+          "**Pivot placement**: after traversal, the **pivot** must be swapped to the boundary so it sits at its [[success|final position]] and never moves again"
+        ],
+        "icon": "scissors"
+      },
+      {
+        "heading": "Sort Instability",
+        "content": "Beginners often don't know what **unstable sorting** means. Quick Sort's element swaps during partitioning scramble the [[warning|relative order]] of **equal values** — a key trap in real-world use and interviews.",
+        "items": [
+          "**Definition**: an **unstable sort** cannot guarantee that elements with **equal values** maintain their original [[primary|relative order]] after sorting",
+          "**Swap mechanism**: the **element swaps** performed during partitioning easily disturb the [[danger|relative positions]] of equal-valued elements",
+          "**Practical trap**: in multi-key sorting, instability destroys the result of a prior sort — use [[success|Merge Sort]] in those situations instead"
+        ],
+        "icon": "shuffle"
+      }
+    ]
+  }
+}

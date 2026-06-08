@@ -115,6 +115,27 @@ const arrayCodeConfig: CodeConfig = {
     def delete(self, index):
         # Python's list.pop handles shifting
         self.arr.pop(index)`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },                             // class Array:
+      { lineNumber: 2,  complexity: 'O(n)' },                             // def search(self, target):
+      { lineNumber: 3,  complexity: 'O(n)' },                             // for i in range(...) — loop iterates n times
+      { lineNumber: 4,  complexity: 'O(1)', context: 'O(n)' },           // if self.arr[i] == target: — O(1) stmt × n
+      { lineNumber: 5,  complexity: 'O(1)'},           // return i — O(1)
+      { lineNumber: 6,  complexity: 'O(1)' },                             // return -1 — outside loop
+      // L7: blank line — skipped
+      { lineNumber: 8,  complexity: 'O(1)' },                             // def update(self, index, value):
+      { lineNumber: 9,  complexity: 'O(1)' },                             // if index < 0 or index >= len(...)
+      { lineNumber: 10, complexity: 'O(1)' },                             // raise IndexError(...)
+      { lineNumber: 11, complexity: 'O(1)' },                             // self.arr[index] = value
+      // L12: blank line — skipped
+      { lineNumber: 13, complexity: 'O(n)' },                             // def insert(self, index, value):
+      // # L14: Python's list.insert handles shifting
+      { lineNumber: 15, complexity: 'O(n)' },                             // self.arr.insert(index, value) — O(n) itself
+      // L16: blank line — skipped
+      { lineNumber: 17, complexity: 'O(n)' },                             // def delete(self, index):
+      // L18: # Python's list.pop handles shifting
+      { lineNumber: 19, complexity: 'O(n)' },                             // self.arr.pop(index) — O(n) itself
+    ],
   },
 };
 

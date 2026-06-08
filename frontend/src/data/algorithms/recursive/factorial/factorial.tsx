@@ -70,6 +70,14 @@ End Procedure`,
     result = n * child_result
     
     return result`,
+    lineComplexity: [
+      { lineNumber: 1, complexity: 'O(n)' },   // def factorial(n):
+      { lineNumber: 2, complexity: 'O(1)' },   // if n <= 1:
+      { lineNumber: 3, complexity: 'O(1)' },   // return 1
+      { lineNumber: 5, complexity: 'O(n)' },   // child_result = factorial(n - 1)
+      { lineNumber: 6, complexity: 'O(1)' },   // result = n * child_result
+      { lineNumber: 8, complexity: 'O(1)' },   // return result
+    ],
   },
 };
 

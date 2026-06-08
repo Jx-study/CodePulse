@@ -206,6 +206,20 @@ End Procedure`,
             break
             
     return collection`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                            // def bubble_sort(collection):
+      { lineNumber: 2,  complexity: 'O(1)'   },                            // total_items = len(collection)
+      { lineNumber: 4,  complexity: 'O(n)'   },                            // for round in range(total_items - 1):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)'   },           // has_swapped = False
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n)'   },           // unsorted_range = total_items - 1 - round
+      { lineNumber: 8,  complexity: 'O(n)', context: 'O(n)'   },           // for index in range(unsorted_range):
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },           // if collection[index] > collection[index+1]:
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n^2)' },           // collection[index], ... = ...
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },           // has_swapped = True
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)'   },           // if not has_swapped:
+      { lineNumber: 14, complexity: 'O(1)' },           // break
+      { lineNumber: 16, complexity: 'O(1)' },                              // return collection
+    ],
   },
 };
 
@@ -222,7 +236,8 @@ export const bubbleSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(1)",
   },
-  introduction: `泡沫排序是一種簡單的排序演算法。它重複地走訪過要排序的數列，一次比較兩個元素，如果他們的順序錯誤就把他們交換過來。`,
+  i18nNamespace: "tutorials/bubble-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 50 },
     { id: "box-1", value: 30 },

@@ -3,46 +3,65 @@
     "sections": [
       {
         "heading": "Core Concept",
-        "content": "The core idea of an array is: **contiguous storage + fixed indexes**.",
+        "content": "An array is like a box packed with macarons, dedicated to storing data of the same type. Under the hood it allocates a block of [[primary|contiguous space]] and uses [[primary|fixed indexes]] to compute the exact storage address of every **element**.",
         "items": [
-          "**Zero-based indexing**: the first element is at Index 0.",
-          "For length **n**, the last element is at **Index n - 1**.",
-          "If you know the index, you can jump directly to the element. That is **Random Access**."
+          "[[primary|Single type]]: just as the box only holds macarons, an array's **elements** must share one data type and cannot be mixed",
+          "[[primary|Adjacent storage]]: macarons sit side by side, and an array likewise occupies contiguous **memory** addresses with no gaps in between",
+          "[[primary|Fixed length]]: the box size cannot change, so an array's length must be specified in advance; data is accessed directly through its **index**"
         ],
         "icon": "compass"
       },
       {
         "heading": "Operation Complexity",
-        "content": "To estimate array operation cost, ask: **Do we know the index? Do elements need to shift?**",
+        "content": "Thanks to contiguous memory, arrays read data extremely fast. But changing an element in the middle requires shifting many elements to keep things contiguous, which carries a higher time cost.",
         "items": [
-          "**Read / update**: known index, time complexity [[success|O(1)]].",
-          "**Search**: unknown position, scan one by one; worst case [[warning|O(n)]].",
-          "**Append**: dynamic arrays are usually amortized [[success|O(1)]]; resizing may copy the whole array.",
-          "**Insert / delete at front or middle**: elements must shift; worst case [[warning|O(n)]]."
+          "**Read or update data**: [[success|O(1)]], the index lets you access the corresponding memory address directly.",
+          "**Search data**: [[warning|O(n)]], when the position is unknown you must scan from the start one cell at a time, comparing up to n times in the worst case",
+          "**Append or remove at the tail**: [[success|O(1)]], other elements are unaffected, so you just operate at the array's end",
+          "**Insert or delete in the middle**: [[warning|O(n)]], to preserve contiguity you must shift every element after the target position"
         ],
         "icon": "cog"
       },
       {
         "heading": "What It Optimizes",
-        "content": "Arrays are strong when a problem is about **known positions, preserved order, and linear scans**.",
+        "content": "Arrays suit **frequent reads** and data of fixed length. For heavy **dynamic insertion and deletion**, a traditional array is very costly, so switch to an alternative structure in scenarios it handles poorly.",
         "items": [
-          "Good for getting the **k-th element** or updating a known position.",
-          "Good for scanning left to right and reasoning about **neighbors** or **ranges**.",
-          "Often used as the base for **prefix sums, two pointers, sliding windows, and sorting**.",
-          "Not ideal for frequent front or middle insert/delete; consider **Linked List** or **Deque**."
+          "Good for **random access**: when you frequently look up data at specific positions (such as matrix operations), the index enables extremely fast reads",
+          "Poor for **frequent insert/delete in the middle**: shifting large amounts of data is inefficient, so consider a **linked list** here",
+          "Poor for **data of unknown length**: a traditional array has a fixed length and overflows easily, so use a **dynamic array** when the size cannot be estimated"
         ],
         "icon": "lightbulb"
       },
       {
         "heading": "When To Use It",
-        "content": "Start with arrays when you see these clues:",
+        "content": "When a problem hints at contiguous indexes, multidimensional matrix operations, or frequent random reads of specific data, think of arrays. They are great for storing state and batch numeric processing.",
         "items": [
-          "The data has order, and the problem mentions **index / position**.",
-          "You need to preserve or rearrange order, such as **Rotate Array**.",
-          "You need to scan a sequence, such as **Remove Element**.",
-          "You need index-based lookup or bookkeeping, such as **Two Sum**."
+          "For a **Find the Missing Number** problem about gaps in a run of consecutive numbers, traverse the array and compute a sum to solve it",
+          "A **2D Matrix Transpose** involving row/column swaps or grid structures relies heavily on the fixed-index access of multidimensional arrays",
+          "A **lookup table** scenario that pre-stores state for ultra-fast retrieval maps perfectly onto direct array-index access",
+          "**Vector quantization** involving coordinate-distance comparisons or heavy numeric computation is ideal for the efficiency of array traits"
         ],
         "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Array vs. List",
+        "content": "Beginners often confuse traditional arrays with lists. An array is [[primary|homogeneous]] and **fixed size**, while a list is [[primary|heterogeneous]] and **dynamically resizable**. Clarifying these underlying differences avoids conceptual and structural misuse.",
+        "items": [
+          "**Data type**: a traditional array stores only a [[primary|single type]]; a list is flexible and can mix various **heterogeneous data**",
+          "**Length adjustment**: a traditional array allocates [[primary|fixed space]] and cannot expand; a list grows or shrinks with its contents, automatically **resizing dynamically**",
+          "**Underlying structure**: a traditional array stores actual values contiguously; a list instead stores a collection of [[primary|pointers]] to separate, independent objects"
+        ],
+        "icon": "right-left"
+      },
+      {
+        "heading": "Dynamic Array Resizing",
+        "content": "When a dynamic array runs out of space, it incurs the hidden cost of **reallocating memory** and **moving every element**. Understanding this growth mechanism helps beginners avoid a potential [[danger|performance trap]].",
+        "items": [
+          "**Full-capacity trigger**: when the reserved space is exhausted but more data must be added, the underlying layer must request a larger, brand-new block of **contiguous memory** from the system",
+          "**Cost of moving data**: after obtaining the new space, every old array element must be copied over, incurring a hidden time cost as high as [[danger|O(n)]]",
+          "**Trading space for time**: to avoid frequent moves, the underlying layer usually pre-allocates space larger than actually needed, by a multiple (such as 1.5x or 2x)"
+        ],
+        "icon": "layer-group"
       }
     ]
   },

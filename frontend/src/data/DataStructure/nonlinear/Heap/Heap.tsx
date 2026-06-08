@@ -247,6 +247,21 @@ const heapCodeConfig: CodeConfig = {
         self.heap[0] = self.heap.pop()
         self._heapify_down(0)
         return ext_val`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)'                       },  // class Heap:
+      { lineNumber: 2,  complexity: 'O(n)'                       },  // def build_heap(self, arr): — overall O(n)
+      { lineNumber: 3,  complexity: 'O(1)'                       },  // self.heap = arr — simple assign outside loop
+      { lineNumber: 4,  complexity: 'O(n)'                       },  // for i in range(...) — top-level for, O(n) iterations
+      { lineNumber: 5,  complexity: 'O(h)', context: 'O(n)' },  // _heapify_down(i) — O(h) per node (h = node height), called O(n) times
+      { lineNumber: 7,  complexity: 'O(log n)'                   },  // def insert(self, value): — overall O(log n)
+      { lineNumber: 8,  complexity: 'O(1)'                       },  // self.heap.append — list.append is O(1) amortized
+      { lineNumber: 9,  complexity: 'O(log n)'                   },  // self._heapify_up(...) — O(log n) bubble-up
+      { lineNumber: 11, complexity: 'O(log n)'                   },  // def extract_extreme(self): — overall O(log n)
+      { lineNumber: 12, complexity: 'O(1)'                       },  // ext_val = self.heap[0] — O(1) index access
+      { lineNumber: 13, complexity: 'O(1)'                       },  // self.heap[0] = self.heap.pop() — O(1)
+      { lineNumber: 14, complexity: 'O(log n)'                   },  // self._heapify_down(0) — O(log n) sift-down
+      { lineNumber: 15, complexity: 'O(1)'                       },  // return ext_val
+    ],
   },
 };
 
@@ -263,8 +278,8 @@ export const HeapConfig: LevelImplementationConfig = {
     timeWorst: "O(log n)",
     space: "O(n)",
   },
-  introduction:
-    "Heap（堆積）是以「完全二元樹」為概念、用一維陣列實作的樹狀結構。節點 i 的左子在 2i+1、右子在 2i+2、父節點在 (i-1)/2，不需任何指標即可在整棵樹中穿梭。\n\nHeap Property：Max-Heap 每個父節點的值 ≥ 子節點（根節點永遠是最大值）；Min-Heap 則反之（根節點永遠是最小值）。你可以點擊 ActionBar 的切換按鈕，觀察 Heapify 如何在 O(n) 內完成重建——比逐一插入的 O(n log n) 更快，這正是 BuildHeap 最反直覺的地方。\n\n三個核心操作：Peek 直接讀取 index 0，複雜度 O(1)；Insert 新增至末端後 Heapify Up，O(log n)；Extract 將末端元素補到根後 Heapify Down，O(log n)。Heap 是實作 Priority Queue 的標準選擇，廣泛應用於排程系統、Dijkstra 最短路徑與 Top-K 問題。",
+  i18nNamespace: "tutorials/heap",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 90 },
     { id: "box-1", value: 80 },

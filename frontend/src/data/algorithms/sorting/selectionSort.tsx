@@ -204,6 +204,20 @@ End Procedure`,
             collection[current_pos], collection[min_pos] = collection[min_pos], collection[current_pos]
             
     return collection`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                            // def selection_sort(collection):
+      { lineNumber: 2,  complexity: 'O(1)'   },                            // total_items = len(collection)
+      { lineNumber: 4,  complexity: 'O(n)'   },                            // for current_pos in range(total_items - 1):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)'   },           // min_pos = current_pos
+      { lineNumber: 7,  complexity: 'O(n)', context: 'O(n)'   },           // for scan_pos in range(current_pos + 1, ...):
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n^2)' },           // scan_val = collection[scan_pos]
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },           // min_val = collection[min_pos]
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },           // if scan_val < min_val:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n^2)' },           // min_pos = scan_pos
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)'   },           // if min_pos != current_pos:
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)'   },           // collection[current_pos], ... = ...
+      { lineNumber: 17, complexity: 'O(1)' },                              // return collection
+    ],
   },
 };
 
@@ -220,7 +234,8 @@ export const selectionSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(1)",
   },
-  introduction: `選擇排序（Selection Sort）是一種簡單直觀的排序演算法。它的工作原理是每一次從待排序的資料元素中選出最小（或最大）的一個元素，存放在序列的起始位置，直到全部待排序的資料元素排完。`,
+  i18nNamespace: "tutorials/selection-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 64 },
     { id: "box-1", value: 25 },

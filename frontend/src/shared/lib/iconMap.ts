@@ -7,14 +7,11 @@
 import { library, IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
-  faPersonRunning,
-  faTrophy,
-  faTv,
-  faWaveSquare,
   faArrowRight,
   faArrowUpFromBracket,
   faArrowsSpin,
   faBars,
+  faBolt,
   faBookOpen,
   faCamera,
   faChalkboardUser,
@@ -70,6 +67,7 @@ import {
   faPause,
   faPencil,
   faPenToSquare,
+  faPersonRunning,
   faPlay,
   faPlus,
   faRedo,
@@ -99,9 +97,12 @@ import {
   faTimes,
   faTrash,
   faTriangleExclamation,
+  faTrophy,
+  faTv,
   faUpload,
   faUser,
   faUserCircle,
+  faWaveSquare,
   faWandMagicSparkles,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -121,6 +122,7 @@ export const iconMap = {
   "arrow-up-from-bracket": faArrowUpFromBracket,
   "arrows-spin": faArrowsSpin,
   "bars": faBars,
+  "bolt": faBolt,
   "book-open": faBookOpen,
   "camera": faCamera,
   "chalkboard-user": faChalkboardUser,
@@ -178,7 +180,6 @@ export const iconMap = {
   "paper-plane": faPaperPlane,
   "person-running": faPersonRunning,
   "spell-check": faSpellCheck,
-  "wave-square": faWaveSquare,
   "pause": faPause,
   "pencil": faPencil,
   "pen-to-square": faPenToSquare,
@@ -216,6 +217,7 @@ export const iconMap = {
   "upload": faUpload,
   "user": faUser,
   "user-circle": faUserCircle,
+  "wave-square": faWaveSquare,
   "wand-magic-sparkles": faWandMagicSparkles,
 } as const;
 

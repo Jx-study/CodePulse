@@ -82,6 +82,57 @@ class MinStack:
     def get_min(self) -> int:
         return (c)"""
 
+BRACKET_FILL_CODE = """\
+def is_valid_brackets(text: str) -> bool:
+    stack = []
+    pairs = {")": "(", "]": "[", "}": "{"}
+
+    for ch in text:
+        if ch in "([{":
+            stack.append(ch)
+        elif ch in pairs:
+            if not stack or stack[-1] != (a):
+                return False
+            (b)
+
+    return (c)"""
+
+RECURSION_PREDICT_CODE = """\
+def countdown(n):          # L1
+    if n == 0:             # L2
+        return "done"      # L3
+    return countdown(n-1)  # L4
+                           # L5
+countdown(2)               # L6"""
+
+MONO_STACK_PREDICT_CODE = """\
+nums = [2, 1, 3]                 # L1
+stack = []                       # L2
+answer = [-1] * len(nums)        # L3
+for i, x in enumerate(nums):     # L4
+    while stack and nums[stack[-1]] < x:  # L5
+        j = stack.pop()          # L6
+        answer[j] = x            # L7
+    stack.append(i)              # L8
+print(answer)                    # L9"""
+
+TWO_STACK_QUEUE_FILL_CODE = """\
+class QueueByStacks:
+    def __init__(self):
+        self.in_stack = []
+        self.out_stack = []
+
+    def push(self, x):
+        self.in_stack.append(x)
+
+    def pop(self):
+        if not self.out_stack:
+            while self.in_stack:
+                (a)
+        if not self.out_stack:
+            raise Exception("empty queue")
+        return (b)"""
+
 DATA = {
     "slug": "stack",
     "groups": [
@@ -106,6 +157,7 @@ DATA = {
         {
             "id": "stack-tf-1",
             "type": "true-false",
+            # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
@@ -124,6 +176,7 @@ DATA = {
         {
             "id": "stack-q1",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
@@ -152,6 +205,7 @@ DATA = {
         {
             "id": "stack-q2",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -163,7 +217,7 @@ DATA = {
                         {"id": "C", "text": "移除並回傳頂端元素"},
                         {"id": "D", "text": "清空整個 Stack"},
                     ],
-                    "explanation": "pop 會取得頂端值、將指標減 1 並回傳該值。對空 Stack 執行會觸發 Underflow。",
+                    "explanation": "pop 遵循 LIFO 原則，會移除最近加入的元素；對空 Stack 執行則會觸發 Underflow。",
                 },
                 "en": {
                     "title": "What does the pop operation do on a Stack?",
@@ -173,13 +227,14 @@ DATA = {
                         {"id": "C", "text": "Removes and returns the top element"},
                         {"id": "D", "text": "Clears the entire Stack"},
                     ],
-                    "explanation": "pop retrieves the top value, decrements the pointer, and returns that value. Calling pop on an empty Stack triggers an Underflow error.",
+                    "explanation": "pop follows the LIFO principle and removes the most recently added element. Calling pop on an empty Stack triggers an Underflow error.",
                 },
             },
         },
         {
             "id": "stack-q3",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -189,7 +244,7 @@ DATA = {
                         {"id": "A", "text": "push"},
                         {"id": "B", "text": "pop"},
                         {"id": "C", "text": "peek"},
-                        {"id": "D", "text": "isEmpty"},
+                        {"id": "D", "text": "top"},
                     ],
                     "explanation": "peek 只讀取頂端值而不移動指標，保持 Stack 內容不變。",
                 },
@@ -199,7 +254,7 @@ DATA = {
                         {"id": "A", "text": "push"},
                         {"id": "B", "text": "pop"},
                         {"id": "C", "text": "peek"},
-                        {"id": "D", "text": "isEmpty"},
+                        {"id": "D", "text": "top"},
                     ],
                     "explanation": "peek reads the top value without moving the pointer, leaving the Stack unchanged.",
                 },
@@ -208,6 +263,7 @@ DATA = {
         {
             "id": "stack-q4",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 100(新手誤區) = 1050
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
@@ -237,6 +293,7 @@ DATA = {
         {
             "id": "stack-q5",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
             "correctAnswer": "A",
             "translations": {
@@ -265,6 +322,7 @@ DATA = {
         {
             "id": "stack-q6",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 適用場景辨識) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -293,6 +351,7 @@ DATA = {
         {
             "id": "stack-q7",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -301,8 +360,8 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "Queue（佇列）"},
                         {"id": "B", "text": "Stack（堆疊）"},
-                        {"id": "C", "text": "Hash Table"},
-                        {"id": "D", "text": "Binary Tree"},
+                        {"id": "C", "text": "Linked List"},
+                        {"id": "D", "text": "Priority Queue"},
                     ],
                     "explanation": "Call Stack 管理函數呼叫，確保最後被呼叫的函數能最先執行完畢並回傳。",
                 },
@@ -311,8 +370,8 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "Queue"},
                         {"id": "B", "text": "Stack"},
-                        {"id": "C", "text": "Hash Table"},
-                        {"id": "D", "text": "Binary Tree"},
+                        {"id": "C", "text": "Linked List"},
+                        {"id": "D", "text": "Priority Queue"},
                     ],
                     "explanation": "The Call Stack manages function calls, ensuring the last-called function completes and returns first.",
                 },
@@ -321,6 +380,7 @@ DATA = {
         {
             "id": "stack-q8",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一應用概念) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -349,6 +409,7 @@ DATA = {
         {
             "id": "stack-multi-1",
             "type": "multiple-choice",
+            # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 0(直觀) = 1000
             "baseRating": 1000,
             "correctAnswer": ["opt1", "opt3"],
             "translations": {
@@ -377,36 +438,28 @@ DATA = {
         # 【Complexity】 1250-1500
         {
             "id": "stack-q9",
-            "type": "single-choice",
-            "baseRating": 900,
-            "correctAnswer": "A",
+            "type": "true-false",
+            # baseRating = 800 + 0(TF) + 0(L0 反射常識) + 0(直觀) = 800
+            "baseRating": 800,
+            "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
-                    "title": "Stack 的 push 和 pop 操作，時間複雜度分別是多少？",
-                    "options": [
-                        {"id": "A", "text": "兩者皆為 O(1)"},
-                        {"id": "B", "text": "push O(1), pop O(n)"},
-                        {"id": "C", "text": "兩者皆為 O(n)"},
-                        {"id": "D", "text": "push O(n), pop O(1)"},
-                    ],
-                    "explanation": "Stack 只在頂端操作，不需遍歷，故皆為常數時間 O(1)。",
+                    "title": "Stack 的 push 和 pop 操作通常都屬於 O(1) 的頂端操作。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "Stack 設計上保證高效的頂端操作。",
                 },
                 "en": {
-                    "title": "What are the time complexities of push and pop on a Stack?",
-                    "options": [
-                        {"id": "A", "text": "Both O(1)"},
-                        {"id": "B", "text": "push O(1), pop O(n)"},
-                        {"id": "C", "text": "Both O(n)"},
-                        {"id": "D", "text": "push O(n), pop O(1)"},
-                    ],
-                    "explanation": "Stack operations only touch the top element — no traversal needed — so both are O(1) constant time.",
+                    "title": "Stack push and pop operations are usually O(1) top-end operations.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "A Stack is designed to provide efficient operations at the top end.",
                 },
             },
         },
         {
             "id": "stack-q10",
             "type": "single-choice",
-            "baseRating": 1450,
+            # baseRating = 800 + 50(SC) + 400(L4 均攤與邊界分析) + 150(邊界) = 1400
+            "baseRating": 1400,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -417,7 +470,7 @@ DATA = {
                         {"id": "C", "text": "append O(1), pop O(n)"},
                         {"id": "D", "text": "兩者皆為 O(n)"},
                     ],
-                    "explanation": "雖然 append 偶爾需擴容，但均攤後為 O(1)；末端 pop 始終為 O(1)。",
+                    "explanation": "均攤表示偶爾較耗時的擴容成本，平均到多次操作後仍可視為常數時間；末端 pop 始終為 O(1)。",
                 },
                 "en": {
                     "title": "When implementing a Stack with a Python list, what is the amortized time complexity of append() and pop()?",
@@ -427,7 +480,7 @@ DATA = {
                         {"id": "C", "text": "append O(1), pop O(n)"},
                         {"id": "D", "text": "Both O(n)"},
                     ],
-                    "explanation": "Although append occasionally triggers a resize, its amortized cost is O(1). Popping from the end is always O(1).",
+                    "explanation": "Amortized means occasional costly resizes are averaged across many operations, so the cost is still treated as constant time. Popping from the end is O(1).",
                 },
             },
         },
@@ -436,6 +489,7 @@ DATA = {
             "id": "stack-group-1",
             "groupId": "group-stack-impl",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 150(邊界) = 1250
             "baseRating": 1250,
             "correctAnswer": "A",
             "translations": {
@@ -465,6 +519,7 @@ DATA = {
             "id": "stack-group-2",
             "groupId": "group-stack-impl",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 150(邊界) = 1250
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -494,6 +549,7 @@ DATA = {
             "id": "stack-group-3",
             "groupId": "group-stack-impl",
             "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
             "baseRating": 1500,
             "code": STACK_FILL_CODE,
             "language": "python",
@@ -514,7 +570,8 @@ DATA = {
         {
             "id": "stack-adv-pred",
             "type": "predict-line",
-            "baseRating": 1350,
+            # baseRating = 800 + 150(PL) + 150(L2 單步追蹤) + 50(視覺/相似度干擾) = 1150
+            "baseRating": 1150,
             "code": STACK_PREDICT_CODE,
             "language": "python",
             "correctAnswer": "13 14 16 17 18",
@@ -522,18 +579,19 @@ DATA = {
                 "zh-TW": {
                     "title": "給定 s = Stack(3) 且已執行 s.push(5)（目前 top=0，stack=[5]），接著執行 s.pop()。請依序填寫 pop() 方法執行時，經過的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "進入 pop(L13) -> 檢查 top(L14) -> 取得值(L16) -> 指標減一(L17) -> 回傳(L18)。",
+                    "explanation": "此題只追蹤一次有效的 pop 呼叫，因此會走完 pop 方法的正常回傳路徑。",
                 },
                 "en": {
                     "title": "Given s = Stack(3) with s.push(5) already called (top=0, stack=[5]), then s.pop() is called. Write the sequence of line numbers executed by pop() (space-separated).",
                     "options": [],
-                    "explanation": "Enter pop (L13) → check top (L14) → get value (L16) → decrement pointer (L17) → return (L18).",
+                    "explanation": "This traces one valid pop call, so execution follows the normal return path of the pop method.",
                 },
             },
         },
         {
             "id": "stack-adv-fill",
             "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 250(複合) = 1600
             "baseRating": 1600,
             "code": MIN_STACK_FILL_CODE,
             "language": "python",
@@ -548,6 +606,341 @@ DATA = {
                     "title": "A MinStack supports O(1) retrieval of the minimum value. Fill in the missing code at (a)(b)(c) (mind Python syntax).",
                     "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "An auxiliary stack synchronously stores the current minimum. [-1] reads the top; pop() removes it in sync.",
+                },
+            },
+        },
+        {
+            "id": "stack-q18",
+            "type": "true-false",
+            # baseRating = 800 + 0(TF) + 50(L1 複雜度定義) + 0(直觀) = 850
+            "baseRating": 850,
+            "correctAnswer": "true",
+            "translations": {
+                "zh-TW": {
+                    "title": "若只能透過 Stack 頂端逐一彈出來尋找元素，Search 操作的時間複雜度是 O(n)。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "Stack 的存取限制使搜尋效率遠低於 O(1) 的頂端操作。",
+                },
+                "en": {
+                    "title": "If an element can only be found by popping from the top of a Stack one by one, the Search operation is O(n).",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "A Stack's access restrictions make search much less efficient than O(1) top-end operations.",
+                },
+            },
+        },
+        {
+            "id": "stack-q19",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
+            "baseRating": 900,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "在教學區同款實作中，對空 Stack 執行 peek() 會回傳什麼？",
+                    "options": [
+                        {"id": "A", "text": "Stack Underflow"},
+                        {"id": "B", "text": "-1"},
+                        {"id": "C", "text": "None"},
+                        {"id": "D", "text": "空字串"},
+                    ],
+                    "explanation": "peek() 在 top == -1 時直接回傳 None，和 pop() 對空堆疊拋出例外不同。",
+                },
+                "en": {
+                    "title": "In the tutorial implementation, what does peek() return on an empty Stack?",
+                    "options": [
+                        {"id": "A", "text": "Stack Underflow"},
+                        {"id": "B", "text": "-1"},
+                        {"id": "C", "text": "None"},
+                        {"id": "D", "text": "An empty string"},
+                    ],
+                    "explanation": "peek() returns None when top == -1, unlike pop(), which raises an exception on an empty stack.",
+                },
+            },
+        },
+        {
+            "id": "stack-q20",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 150(邊界) = 1100
+            "baseRating": 1100,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "若在單執行緒中需要穩定的雙端 O(1) 操作，且想避開 list 擴容造成的搬移成本，較適合選哪個工具？",
+                    "options": [
+                        {"id": "A", "text": "list"},
+                        {"id": "B", "text": "deque"},
+                        {"id": "C", "text": "LifoQueue"},
+                        {"id": "D", "text": "dict"},
+                    ],
+                    "explanation": "deque 提供穩定的雙端 O(1) 操作，且不需要像 list 一樣偶爾進行整段記憶體重配置。",
+                },
+                "en": {
+                    "title": "In a single-threaded case, which tool is better for stable O(1) operations at both ends while avoiding list resize-copy costs?",
+                    "options": [
+                        {"id": "A", "text": "list"},
+                        {"id": "B", "text": "deque"},
+                        {"id": "C", "text": "LifoQueue"},
+                        {"id": "D", "text": "dict"},
+                    ],
+                    "explanation": "deque provides stable O(1) operations at both ends and avoids the occasional contiguous-memory resize cost of list.",
+                },
+            },
+        },
+        {
+            "id": "stack-q21",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 150(邊界) = 1100
+            "baseRating": 1100,
+            "correctAnswer": "D",
+            "translations": {
+                "zh-TW": {
+                    "title": "下列哪個需求最不適合用 Stack 作為主要資料結構，應優先考慮 Array 或其他結構？",
+                    "options": [
+                        {"id": "A", "text": "需要記錄 Undo 歷史"},
+                        {"id": "B", "text": "需要迭代實作 DFS"},
+                        {"id": "C", "text": "需要括號配對檢查"},
+                        {"id": "D", "text": "需要頻繁依索引讀取中間元素"},
+                    ],
+                    "explanation": "Stack 擅長頂端操作與狀態回溯；若常要直接讀取中間位置，Array 會更合適。",
+                },
+                "en": {
+                    "title": "Which requirement is least suitable for using a Stack as the primary data structure, and should favor an Array or another structure instead?",
+                    "options": [
+                        {"id": "A", "text": "Recording Undo history"},
+                        {"id": "B", "text": "Implementing DFS iteratively"},
+                        {"id": "C", "text": "Checking bracket matching"},
+                        {"id": "D", "text": "Frequently reading middle elements by index"},
+                    ],
+                    "explanation": "A Stack is good at top-end operations and state backtracking. If middle positions are read often, an Array is a better fit.",
+                },
+            },
+        },
+        {
+            "id": "stack-q22",
+            "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 150(L2 單步追蹤) + 100(新手誤區) = 1200
+            "baseRating": 1200,
+            "code": BRACKET_FILL_CODE,
+            "language": "python",
+            "correctAnswer": ["pairs[ch]", "stack.pop()", "not stack"],
+            "translations": {
+                "zh-TW": {
+                    "title": "請補齊括號匹配函式：遇到右括號時確認頂端是否為對應左括號，最後確認 Stack 已清空。",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "(a) 取出右括號對應的左括號；匹配後 (b) 彈出頂端；最後必須 (c) 確認沒有未閉合左括號。",
+                },
+                "en": {
+                    "title": "Complete the bracket matcher: when seeing a closing bracket, check whether the top is the matching opener, then ensure the Stack is empty.",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "(a) gets the required opener for the closing bracket; after a match, (b) pops the top; finally, (c) ensures no opener remains unclosed.",
+                },
+            },
+        },
+        {
+            "id": "stack-q23",
+            "type": "predict-line",
+            # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 100(新手誤區) = 1300
+            "baseRating": 1300,
+            "code": RECURSION_PREDICT_CODE,
+            "language": "python",
+            "correctAnswer": "6 1 2 4 1 2 4 1 2 3",
+            "translations": {
+                "zh-TW": {
+                    "title": "執行 countdown(2) 時，請寫出實際經過的行號序列（以空格分隔）。",
+                    "options": [],
+                    "explanation": "先從 L6 呼叫；n=2 與 n=1 都走到遞迴呼叫 L4；n=0 時命中基底條件並在 L3 回傳。",
+                },
+                "en": {
+                    "title": "When countdown(2) runs, write the actual sequence of executed line numbers (space-separated).",
+                    "options": [],
+                    "explanation": "The call starts at L6. For n=2 and n=1, execution reaches recursive call L4; when n=0, the base case returns at L3.",
+                },
+            },
+        },
+        {
+            "id": "stack-q24",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "單調堆疊最常用來解決哪類問題？",
+                    "options": [
+                        {"id": "A", "text": "依照先到先服務順序處理任務"},
+                        {"id": "B", "text": "尋找下一個更大值、相鄰極值或邊界"},
+                        {"id": "C", "text": "在 O(1) 時間內隨機讀取任意索引"},
+                        {"id": "D", "text": "保證多執行緒寫入一定安全"},
+                    ],
+                    "explanation": "單調堆疊透過維持遞增或遞減關係，常用於下一個更大值、左右邊界與相鄰極值問題。",
+                },
+                "en": {
+                    "title": "What kind of problem is a monotonic stack most commonly used for?",
+                    "options": [
+                        {"id": "A", "text": "Processing tasks in first-come, first-served order"},
+                        {"id": "B", "text": "Finding next greater values, nearby extrema, or boundaries"},
+                        {"id": "C", "text": "Reading any random index in O(1) time"},
+                        {"id": "D", "text": "Guaranteeing thread-safe writes"},
+                    ],
+                    "explanation": "A monotonic stack maintains an increasing or decreasing relationship, making it useful for next greater value, boundary, and nearby-extreme problems.",
+                },
+            },
+        },
+        {
+            "id": "stack-q25",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "用兩個 Stack 實作 Queue 時，為何需要把 in_stack 的元素倒到 out_stack？",
+                    "options": [
+                        {"id": "A", "text": "為了讓所有操作變成 O(n)"},
+                        {"id": "B", "text": "為了刪除重複元素"},
+                        {"id": "C", "text": "利用兩次 LIFO 反轉，恢復 FIFO 出隊順序"},
+                        {"id": "D", "text": "為了讓 Stack 支援隨機存取"},
+                    ],
+                    "explanation": "第一次推入 in_stack 會反轉一次；倒入 out_stack 再反轉一次，最早進入的元素就會位於 out_stack 頂端。",
+                },
+                "en": {
+                    "title": "When implementing a Queue with two Stacks, why move elements from in_stack to out_stack?",
+                    "options": [
+                        {"id": "A", "text": "To make every operation O(n)"},
+                        {"id": "B", "text": "To remove duplicate elements"},
+                        {"id": "C", "text": "To use two LIFO reversals and restore FIFO dequeue order"},
+                        {"id": "D", "text": "To make a Stack support random access"},
+                    ],
+                    "explanation": "Pushing into in_stack reverses order once. Moving into out_stack reverses it again, placing the earliest element at the top of out_stack.",
+                },
+            },
+        },
+        {
+            "id": "stack-q26",
+            "type": "predict-line",
+            # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 250(複合) = 1450
+            "baseRating": 1450,
+            "code": MONO_STACK_PREDICT_CODE,
+            "language": "python",
+            "correctAnswer": "1 2 3 4 5 8 4 5 8 4 5 6 7 5 6 7 5 8 9",
+            "translations": {
+                "zh-TW": {
+                    "title": "執行這段單調堆疊程式時，請寫出實際經過的行號序列（以空格分隔）。",
+                    "options": [],
+                    "explanation": "這段程式最後會印出 [3, 3, -1]；行號序列需依實際控制流程逐步追蹤。",
+                },
+                "en": {
+                    "title": "When this monotonic stack program runs, write the actual sequence of executed line numbers (space-separated).",
+                    "options": [],
+                    "explanation": "This program finally prints [3, 3, -1]; the line sequence must be traced from the actual control flow.",
+                },
+            },
+        },
+        {
+            "id": "stack-q27",
+            "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
+            "baseRating": 1500,
+            "code": TWO_STACK_QUEUE_FILL_CODE,
+            "language": "python",
+            "correctAnswer": ["self.out_stack.append(self.in_stack.pop())", "self.out_stack.pop()"],
+            "translations": {
+                "zh-TW": {
+                    "title": "請補齊兩個 Stack 實作 Queue 的 pop()：out_stack 空時先搬移，最後彈出最早進入的元素。",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}],
+                    "explanation": "搬移時從 in_stack pop 再 append 到 out_stack，完成兩次反轉；真正出隊時從 out_stack pop。",
+                },
+                "en": {
+                    "title": "Complete pop() for a Queue implemented with two Stacks: refill out_stack when empty, then pop the earliest element.",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}],
+                    "explanation": "Refilling pops from in_stack and appends to out_stack, creating the second reversal. Dequeue then pops from out_stack.",
+                },
+            },
+        },
+        {
+            "id": "stack-q28",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "當 MinStack 需要正確處理「重複最小值」時，push(val) 為何常用 val <= min_stack[-1]，而不是只用 val < min_stack[-1]？",
+                    "options": [
+                        {"id": "A", "text": "因為 Python 不允許比較整數大小"},
+                        {"id": "B", "text": "為了正確處理重複最小值被逐一 pop 的情況"},
+                        {"id": "C", "text": "為了讓 get_min() 變成 O(n)"},
+                        {"id": "D", "text": "因為 Stack 必須由小到大排序"},
+                    ],
+                    "explanation": "題目已指定重複最小值情境。使用 <= 會把每個最小值同步記錄到 min_stack；彈出其中一個時仍能保留下一個最小值。",
+                },
+                "en": {
+                    "title": "When a MinStack must correctly handle duplicate minimum values, why does push(val) often use val <= min_stack[-1] instead of only val < min_stack[-1]?",
+                    "options": [
+                        {"id": "A", "text": "Because Python cannot compare integers"},
+                        {"id": "B", "text": "To correctly handle repeated minimum values being popped one by one"},
+                        {"id": "C", "text": "To make get_min() become O(n)"},
+                        {"id": "D", "text": "Because a Stack must stay sorted in ascending order"},
+                    ],
+                    "explanation": "The question is specifically about duplicate minimum values. <= records each minimum in min_stack, so when one is popped, the next minimum is still preserved.",
+                },
+            },
+        },
+        {
+            "id": "stack-q29",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "A",
+            "translations": {
+                "zh-TW": {
+                    "title": "下列哪個做法最能避免遞迴過深造成的 Stack Overflow？",
+                    "options": [
+                        {"id": "A", "text": "設定明確終止條件，必要時改用迭代法"},
+                        {"id": "B", "text": "只增大系統允許的 Stack 大小限制"},
+                        {"id": "C", "text": "加入 try-except 捕捉所有例外"},
+                        {"id": "D", "text": "把遞迴函式改成名稱較短的函式"},
+                    ],
+                    "explanation": "Stack Overflow 常來自遞迴層數失控。明確的 base case、限制深度或改寫為迭代法，才是有效防範方式。",
+                },
+                "en": {
+                    "title": "Which approach best helps prevent Stack Overflow caused by overly deep recursion?",
+                    "options": [
+                        {"id": "A", "text": "Set a clear base case and use iteration when needed"},
+                        {"id": "B", "text": "Only increase the system's allowed Stack size"},
+                        {"id": "C", "text": "Add try-except to catch every exception"},
+                        {"id": "D", "text": "Rename the recursive function to a shorter name"},
+                    ],
+                    "explanation": "Stack Overflow often comes from uncontrolled recursion depth. A clear base case, depth limits, or an iterative rewrite are effective safeguards.",
+                },
+            },
+        },
+        {
+            "id": "stack-q30",
+            "type": "multiple-choice",
+            # baseRating = 800 + 100(MC) + 400(L4 複雜控制流/邊界分析) + 250(複合) = 1550
+            "baseRating": 1550,
+            "correctAnswer": ["opt1", "opt3", "opt4"],
+            "translations": {
+                "zh-TW": {
+                    "title": "關於 Stack 進階變體與工具選擇，哪些敘述正確？（多選）",
+                    "options": [
+                        {"id": "opt1", "text": "MinStack 可用輔助堆疊在 O(1) 取得最小值"},
+                        {"id": "opt2", "text": "單調堆疊主要用來維持 FIFO 出隊順序"},
+                        {"id": "opt3", "text": "兩個 Stack 可透過兩次反轉實作 Queue"},
+                        {"id": "opt4", "text": "LifoQueue 適合需要執行緒安全的 LIFO 場景"},
+                    ],
+                    "explanation": "MinStack、雙 Stack Queue 與 LifoQueue 的敘述皆正確；單調堆疊用於邊界/極值，不是為了 FIFO 出隊。",
+                },
+                "en": {
+                    "title": "Which statements about advanced Stack variants and tool choices are correct? (Multiple choice)",
+                    "options": [
+                        {"id": "opt1", "text": "MinStack can use an auxiliary stack to get the minimum in O(1)"},
+                        {"id": "opt2", "text": "A monotonic stack mainly maintains FIFO dequeue order"},
+                        {"id": "opt3", "text": "Two Stacks can implement a Queue through two reversals"},
+                        {"id": "opt4", "text": "LifoQueue fits LIFO scenarios that require thread safety"},
+                    ],
+                    "explanation": "The MinStack, two-Stack Queue, and LifoQueue statements are correct. A monotonic stack is for boundaries/extrema, not FIFO dequeue order.",
                 },
             },
         },

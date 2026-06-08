@@ -1,0 +1,16 @@
+{
+  "animation": {
+    "start": "準備計算 Fibonacci({{targetN}})",
+    "call": "深潛遞迴：呼叫 fib({{n}})",
+    "base": "到達終止條件 (Base Case)！fib({{n}}) = {{result}}，準備回傳",
+    "calc": "合併結果：fib({{n}}) = 左子樹({{leftVal}}) + 右子樹({{rightVal}}) = {{result}}",
+    "done": "計算完成！根節點最終結果為 {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci Recursive",
+    "placeholder": "輸入 N (1-6)",
+    "button": "Run Recursion",
+    "validation": "請輸入 1 到 6 之間的數字（遞迴樹膨脹很快）",
+    "ariaLabel": "輸入 Fibonacci 遞迴版的 N 值"
+  }
+}

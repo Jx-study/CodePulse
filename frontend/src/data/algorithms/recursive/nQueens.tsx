@@ -310,18 +310,51 @@ const nQueensCodeConfig: CodeConfig = {
     },
   },
   python: {
-    content: `def solve_n_queens(row, n, board):
+    content: `def is_safe(row, col, cols, diags, anti_diags):
+    return (col not in cols
+            and (row - col) not in diags
+            and (row + col) not in anti_diags)
+
+def solve_n_queens(row, n, board, cols, diags, anti_diags):
     if row == n:
         return True
-        
+
     for col in range(n):
-        if is_safe(row, col, board):
+        if is_safe(row, col, cols, diags, anti_diags):
             board[row] = col
-            if solve_n_queens(row + 1, n, board):
+            cols.add(col)
+            diags.add(row - col)
+            anti_diags.add(row + col)
+            if solve_n_queens(row + 1, n, board, cols, diags, anti_diags):
                 return True
             board[row] = -1 # Backtrack
-            
+            cols.discard(col)
+            diags.discard(row - col)
+            anti_diags.discard(row + col)
+
     return False`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },                                  // def is_safe(row, col, cols, diags, anti_diags):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  //     return (col not in cols
+      { lineNumber: 3,  complexity: 'O(1)' },                                  //             and (row - col) not in diags
+      { lineNumber: 4,  complexity: 'O(1)' },                                  //             and (row + col) not in anti_diags)
+      { lineNumber: 6,  complexity: 'O(n!)' },                                 // def solve_n_queens(row, n, board, cols, diags, anti_diags):
+      { lineNumber: 7,  complexity: 'O(1)' },                                  //     if row == n:
+      { lineNumber: 8,  complexity: 'O(1)' },                                  //         return True
+      { lineNumber: 10, complexity: 'O(n)' },                                  //     for col in range(n):
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 //         if is_safe(row, col, cols, diags, anti_diags):
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 //             board[row] = col
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 //             cols.add(col)
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },                 //             diags.add(row - col)
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },                 //             anti_diags.add(row + col)
+      { lineNumber: 16, complexity: 'O(n!)', context: 'O(n)' },                //             if solve_n_queens(row + 1, n, board, cols, diags, anti_diags):
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 //                 return True
+      { lineNumber: 18, complexity: 'O(1)', context: 'O(n)' },                 //             board[row] = -1 # Backtrack
+      { lineNumber: 19, complexity: 'O(1)', context: 'O(n)' },                 //             cols.discard(col)
+      { lineNumber: 20, complexity: 'O(1)', context: 'O(n)' },                 //             diags.discard(row - col)
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(n)' },                 //             anti_diags.discard(row + col)
+      { lineNumber: 23, complexity: 'O(1)' },                                  //     return False
+    ],
   },
 };
 

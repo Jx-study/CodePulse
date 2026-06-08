@@ -40,6 +40,10 @@ export interface Question {
   code?: string; // 程式碼內容
   language?: string; // 程式語言 (python, java, etc.)
 
+  visual_type?: VisualType;
+  visual_data?: VisualData;
+  visual_alt?: string | null;
+
   correctAnswer: string | string[] | (string | string[])[];
   explanation: string;
   groupId?: string;
