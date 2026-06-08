@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import type { SidebarProps } from '@/types';
 import Button from '../Button';
 import styles from './Sidebar.module.scss';
+import { lockBodyForDialog } from '@/shared/utils/bodyDialogLock';
 
 const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
@@ -29,8 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    document.body.setAttribute('data-dialog-open', 'true');
-    return () => document.body.removeAttribute('data-dialog-open');
+    return lockBodyForDialog();
   }, [isOpen]);
 
   if (!isOpen) return null;

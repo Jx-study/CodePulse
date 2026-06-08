@@ -90,6 +90,28 @@ const stackCodeConfig: CodeConfig = {
         if self.top == -1:
             return None
         return self.stack[self.top]`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },  // class Stack:
+      { lineNumber: 2,  complexity: 'O(1)' },  // def __init__(self, size: int):
+      { lineNumber: 3,  complexity: 'O(1)' },  // self.stack = []
+      { lineNumber: 4,  complexity: 'O(1)' },  // self.size = size
+      { lineNumber: 5,  complexity: 'O(1)' },  // self.top = -1
+      { lineNumber: 7,  complexity: 'O(1)' },  // def push(self, value: int) -> None:
+      { lineNumber: 8,  complexity: 'O(1)' },  // if self.top >= self.size - 1:
+      { lineNumber: 9,  complexity: 'O(1)' },  // raise Exception("Stack Overflow")
+      { lineNumber: 10, complexity: 'O(1)' },  // self.top += 1
+      { lineNumber: 11, complexity: 'O(1)' },  // self.stack.append(value)
+      { lineNumber: 13, complexity: 'O(1)' },  // def pop(self) -> int:
+      { lineNumber: 14, complexity: 'O(1)' },  // if self.top == -1:
+      { lineNumber: 15, complexity: 'O(1)' },  // raise Exception("Stack Underflow")
+      { lineNumber: 16, complexity: 'O(1)' },  // value = self.stack[self.top]
+      { lineNumber: 17, complexity: 'O(1)' },  // self.top -= 1
+      { lineNumber: 18, complexity: 'O(1)' },  // return value
+      { lineNumber: 20, complexity: 'O(1)' },  // def peek(self) -> int:
+      { lineNumber: 21, complexity: 'O(1)' },  // if self.top == -1:
+      { lineNumber: 22, complexity: 'O(1)' },  // return None
+      { lineNumber: 23, complexity: 'O(1)' },  // return self.stack[self.top]
+    ],
   },
 };
 
@@ -183,7 +205,8 @@ export const StackConfig: LevelImplementationConfig = {
     timeWorst: "O(1)",
     space: "O(n)",
   },
-  introduction: `堆疊是一種後進先出的資料結構...堆起來。`,
+  i18nNamespace: "tutorials/stack",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-1", value: 1 },
     { id: "box-2", value: 2 },

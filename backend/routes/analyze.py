@@ -2,7 +2,12 @@ import json
 import logging
 from flask import Blueprint, jsonify, request, g, Response, stream_with_context
 from auth_utils import login_required
-from services.playground_history import MAX_HISTORY, has_history_capacity, matches_existing_history
+from services.playground_history import (
+    MAX_HISTORY,
+    find_matching_history,
+    has_history_capacity,
+    serialize_history,
+)
 
 logger = logging.getLogger(__name__)
 from services.precheck import precheck_and_wrap
@@ -28,9 +33,23 @@ def submit():
 
     code = data["code"]
     save_history = data.get("save_history", True) is not False
-    if save_history:
-        if matches_existing_history(code, g.current_user_id):
-            return jsonify({"duplicate": True}), 200
+
+    stdin_inputs = data.get("stdin_inputs", [])
+    if not isinstance(stdin_inputs, list) or not all(isinstance(v, str) for v in stdin_inputs):
+        return jsonify({"error": "stdin_inputs must be list[str]"}), 400
+    # is_retry 只在 route 層消化（跳過 quota/duplicate 檢查），不下傳給 task_queue：
+    # _run_analysis / run_analysis_task 簽名沒有此參數，多傳會 TypeError
+    is_retry = bool(data.get("is_retry", False))
+
+    # is_retry 為 True 時跳過 duplicate / quota 檢查：retry 是同一支 code + 漸增 stdin 的延續，
+    # 第 1 次 submit 已做過完整檢查，不該再被 duplicate 攔（false positive）或被 quota 攔
+    if save_history and not is_retry:
+        matching_record = find_matching_history(code, g.current_user_id)
+        if matching_record is not None:
+            return jsonify({
+                "duplicate": True,
+                "duplicate_record": serialize_history(matching_record),
+            }), 200
         if not has_history_capacity(g.current_user_id):
             return jsonify({
                 "error": "history_quota_exceeded",
@@ -52,17 +71,11 @@ def submit():
         code,
         wrapped_code,
         user_id=g.current_user_id,
-        save_history=save_history,
+        save_history=save_history,  # 不要 `and not is_retry` — 含 input() 的程式只有 retry 那次會真正完成
+        stdin_inputs=stdin_inputs,
+        # 不要傳 is_retry — _run_analysis / run_analysis_task 簽名沒有此參數
     )
     return jsonify({"task_id": task_id}), 202
-
-@analyze_bp.route('/status/<task_id>', methods=['GET'])
-def status(task_id: str):
-    """輪詢任務狀態（前端每 2 秒呼叫）"""
-    task_status = task_queue.get_status(task_id)
-    if task_status is None:
-        return jsonify({"error": "task not found"}), 404
-    return jsonify(task_status), 200
 
 
 @analyze_bp.route('/stream/<task_id>', methods=['GET'])
@@ -73,8 +86,14 @@ def stream(task_id: str):
         return jsonify({"error": "task not found"}), 404
 
     def generate():
-        for event in task_queue.stream_progress(task_id):
-            yield f"data: {json.dumps(event)}\n\n"
+        terminal = False
+        try:
+            for event in task_queue.stream_progress(task_id):
+                terminal = event.get("status") in (STATUS_COMPLETED, STATUS_FAILED)
+                yield f"data: {json.dumps(event)}\n\n"
+        finally:
+            if not terminal:
+                task_queue.cancel_task(task_id)
 
     return Response(
         stream_with_context(generate()),
@@ -104,3 +123,42 @@ def result(task_id: str):
         return jsonify({"status": task["status"], "message": "task not completed yet"}), 200
 
     return jsonify(task["result"]), 200
+
+
+@analyze_bp.route('/input/<task_id>', methods=['POST'])
+@login_required
+def submit_input(task_id: str):
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    value = data.get("value")
+    if not isinstance(value, str):
+        return jsonify({"error": "value must be a string"}), 400
+
+    # STATUS_INPUT_NEEDED 是任務狀態層面的「需要輸入」，但不保證背後還有活著的 sidecar session 在 BLPOP 等值
+    # live-Popen 模式下 _resolve_interactive_sandbox 同步阻塞，
+    # Celery state 仍是 running，唯有 is_waiting_for_input（session marker）能證明「真的有live session 正在等輸入」
+    # 舊 re-submit 暫停狀態沒有 marker，不該被 /input 餵值
+    task = task_queue.get_task(task_id)
+    if task is None or task["status"] in (STATUS_COMPLETED, STATUS_FAILED):
+        return jsonify({"error": "task is not waiting for input"}), 409
+    if not task_queue.is_waiting_for_input(task_id):
+        return jsonify({"error": "task is not waiting for input"}), 409
+
+    # in-memory queue（USE_CELERY=0，本地非 Celery 開發）沒有 Redis BLPOP 通道，submit_input 是 no-op
+    # 不能回 202 讓前端誤以為值已送達（背後會卡到 input timeout）
+    if not getattr(task_queue, "supports_live_input", True):
+        return jsonify({"error": "live interactive input is not supported in this deployment mode"}), 501
+
+    task_queue.submit_input(task_id, value)
+    return jsonify({"status": "accepted"}), 202
+
+
+@analyze_bp.route('/cancel/<task_id>', methods=['POST'])
+@login_required
+def cancel(task_id: str):
+    if not task_queue.owns_task(task_id, g.current_user_id):
+        return jsonify({"error": "task not found"}), 404
+    task_queue.cancel_task(task_id)
+    return jsonify({"status": "accepted"}), 202

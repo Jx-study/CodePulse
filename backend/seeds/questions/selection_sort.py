@@ -31,6 +31,28 @@ SSORT_PREDICT_CODE = """def selection_sort(collection):           # L1
             collection[current_pos], collection[min_pos] = collection[min_pos], collection[current_pos] # L11
     return collection                                  # L12"""
 
+SSORT_DESC_FILL_CODE = """def selection_sort_descending(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        target_idx = i
+        for j in range(i + 1, n):
+            if arr[j] (a) arr[target_idx]:   # 注意：要找最大值
+                target_idx = j
+        if target_idx != i:
+            arr[i], arr[(b)] = arr[target_idx], arr[(c)]
+    return arr"""
+
+SSORT_KEY_FILL_CODE = """def selection_sort_by_key(records, key):
+    n = len(records)
+    for i in range(n - 1):
+        min_idx = i
+        for j in range(i + 1, n):
+            if key(records[j]) < key(records[(a)]):
+                min_idx = (b)
+        if min_idx != i:
+            records[i], records[min_idx] = records[(c)], records[i]
+    return records"""
+
 DOUBLE_SSORT_FILL_CODE = """def double_selection_sort(arr):
     left, right = 0, len(arr) - 1
     while left < right:
@@ -68,6 +90,7 @@ DATA = {
         {
             "id": "ssort-q1",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -96,6 +119,7 @@ DATA = {
         {
             "id": "ssort-tf-1",
             "type": "true-false",
+            # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
@@ -114,34 +138,36 @@ DATA = {
         {
             "id": "ssort-q2",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950 → 落在 900 附近，調整為 800+50+50+0=900（L1 觀念說明）
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序中，為什麼要記錄 `min_idx` 而不是直接在找到較小元素時立刻交換？",
                     "options": [
-                        {"id": "A", "text": "直接交換會導致程式崩潰"},
-                        {"id": "B", "text": "直接交換會破壞陣列結構"},
+                        {"id": "A", "text": "立刻交換可以減少比較次數，掃到一半就能停止"},
+                        {"id": "B", "text": "立刻交換雖然結果相同，但會讓比較次數從 O(n²) 增加到 O(n³)"},
                         {"id": "C", "text": "先記錄索引，確認整個未排序區的真正最小值後再交換一次，比每次找到較小值就交換所需的交換次數更少"},
-                        {"id": "D", "text": "這只是程式碼風格的選擇，兩種方式效率完全相同"},
+                        {"id": "D", "text": "兩種方式的比較次數與交換次數都完全相同，記錄 min_idx 只是慣例"},
                     ],
-                    "explanation": "透過先掃描找到真正的最小值索引，每輪只需最多一次實體交換。若每次找到比當前值小的就立刻交換，則同一輪中可能多次交換，總交換次數更多，雖然比較次數相同但常數因子更大。",
+                    "explanation": "透過先掃描找到真正的最小值索引，每輪只需最多一次實體交換。若每次找到比當前值小的就立刻交換，同一輪可能多次交換，總交換次數更多（比較次數仍相同，但常數因子更大）。立刻交換無法縮短掃描——內層仍需走完整輪才能確認最小值。",
                 },
                 "en": {
                     "title": "In Selection Sort, why record `min_idx` instead of immediately swapping when a smaller element is found?",
                     "options": [
-                        {"id": "A", "text": "Swapping immediately would crash the program"},
-                        {"id": "B", "text": "Swapping immediately would corrupt the array structure"},
+                        {"id": "A", "text": "Swapping immediately reduces comparisons — the scan can stop early once a swap happens"},
+                        {"id": "B", "text": "Swapping immediately still gives the correct result, but raises comparison count from O(n²) to O(n³)"},
                         {"id": "C", "text": "Recording the index first, then swapping once after confirming the true minimum of the unsorted region, requires fewer swaps than swapping every time a smaller value is found"},
-                        {"id": "D", "text": "This is purely a style choice; both approaches are equally efficient"},
+                        {"id": "D", "text": "Both approaches have identical comparison and swap counts; recording min_idx is just convention"},
                     ],
-                    "explanation": "By scanning first to find the true minimum index, only at most one physical swap is needed per round. If swapping immediately whenever a smaller element is found, there may be multiple swaps in the same round, increasing the total swap count (same comparison count but a larger constant factor).",
+                    "explanation": "Scanning first to find the true minimum index means at most one physical swap per round. Swapping immediately whenever a smaller element is found can cause multiple swaps in the same round, increasing the total swap count (comparison count stays the same, but the constant factor grows). Immediate swapping doesn't shorten the scan — the inner loop still has to finish to confirm the minimum.",
                 },
             },
         },
         {
             "id": "ssort-tf-2",
             "type": "true-false",
+            # baseRating = 800 + 0(TF) + 50(L1 觀念) + 0(直觀) = 850
             "baseRating": 850,
             "correctAnswer": "true",
             "translations": {
@@ -160,6 +186,7 @@ DATA = {
         {
             "id": "ssort-q3",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -189,6 +216,7 @@ DATA = {
         {
             "id": "ssort-group-1",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 對應程式碼語意) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "A",
             "groupId": "group-ssort-logic",
@@ -218,6 +246,7 @@ DATA = {
         {
             "id": "ssort-q8",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態追蹤) + 50(視覺相似度) = 1150
             "baseRating": 1150,
             "correctAnswer": "B",
             "translations": {
@@ -246,6 +275,7 @@ DATA = {
         {
             "id": "ssort-group-2",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
             "correctAnswer": "C",
             "groupId": "group-ssort-logic",
@@ -253,28 +283,29 @@ DATA = {
                 "zh-TW": {
                     "title": "在題組的程式碼中，如果省略 `if min_idx != i:` 的判斷，直接執行交換，會有什麼影響？",
                     "options": [
-                        {"id": "A", "text": "排序結果會錯誤"},
-                        {"id": "B", "text": "程式會崩潰"},
+                        {"id": "A", "text": "排序結果仍然正確，且整體效能因省去一次判斷而略有提升"},
+                        {"id": "B", "text": "排序結果仍然正確，但交換次數可能增加，在寫入成本高的場景下造成不必要浪費"},
                         {"id": "C", "text": "排序結果仍然正確，但會多執行一些不必要的自身交換（元素和自己交換），浪費效能"},
-                        {"id": "D", "text": "排序速度會更快，因為少了一個條件判斷"},
+                        {"id": "D", "text": "某些輪次的排序結果會出錯，因為自身交換會打亂元素位置"},
                     ],
-                    "explanation": "當 min_idx == i 時，最小值就是當前位置的元素，不需要交換。省略判斷會執行 arr[i], arr[i] = arr[i], arr[i] 這種無意義的自身交換，結果仍正確但浪費了操作。",
+                    "explanation": "當 min_idx == i 時，最小值已在正確位置，省略判斷會執行 arr[i], arr[i] = arr[i], arr[i] 這種無意義的自身交換，結果仍正確但多了一次無效的寫入。A 說法反過來——條件判斷比自身交換的成本低，省去判斷反而可能增加成本。",
                 },
                 "en": {
                     "title": "In the group code, if the check `if min_idx != i:` is omitted and the swap is always executed, what happens?",
                     "options": [
-                        {"id": "A", "text": "The sort result will be incorrect"},
-                        {"id": "B", "text": "The program will crash"},
+                        {"id": "A", "text": "The sort result is still correct, and overall performance slightly improves by skipping one conditional check"},
+                        {"id": "B", "text": "The sort result is still correct, but swap count may increase, causing unnecessary waste in write-expensive scenarios"},
                         {"id": "C", "text": "The sort result remains correct, but unnecessary self-swaps (element swapped with itself) are performed, wasting effort"},
-                        {"id": "D", "text": "The sort will be faster because one conditional check is eliminated"},
+                        {"id": "D", "text": "Certain rounds will produce incorrect results because self-swaps disrupt element positions"},
                     ],
-                    "explanation": "When min_idx == i, the minimum is already at the current position and no swap is needed. Omitting the check causes arr[i], arr[i] = arr[i], arr[i], a meaningless self-swap. The result is still correct but operations are wasted.",
+                    "explanation": "When min_idx == i, the minimum is already in place. Omitting the check causes arr[i], arr[i] = arr[i], arr[i] — a meaningless self-swap. The result stays correct but adds a pointless write. Option A has it backwards: a conditional check is cheaper than a self-swap, so removing it doesn't help.",
                 },
             },
         },
         {
             "id": "ssort-q4",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 多重比較情境) + 0(直觀) = 950
             "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
@@ -303,7 +334,8 @@ DATA = {
         {
             "id": "ssort-q5",
             "type": "single-choice",
-            "baseRating": 1150,
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態追蹤) + 150(邊界：第二輪起點偏移 + 正確識別 swap 後各位置) = 1250
+            "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -314,7 +346,7 @@ DATA = {
                         {"id": "C", "text": "[1, 3, 5, 2, 4]"},
                         {"id": "D", "text": "[1, 2, 4, 5, 3]"},
                     ],
-                    "explanation": "第一輪（i=0）：最小值為 1（索引 2），與索引 0 交換 → [1, 5, 3, 2, 4]。等等，原陣列索引2是1，索引0是3。交換後 → [1, 5, 3, 2, 4]... 再看：[3,5,1,2,4]，第一輪最小=1(idx=2)，arr[0]↔arr[2] → [1,5,3,2,4]。第二輪（i=1）：掃描[5,3,2,4]，最小=2(idx=3)，arr[1]↔arr[3] → [1,2,3,5,4]。",
+                    "explanation": "關鍵觀念：每輪只做一次 swap，交換的是「未排序區首個元素」與「未排序區最小值」。注意第二輪的未排序區起點是 i=1，找到的最小值並不一定在緊鄰位置，確認好 swap 後哪些元素位置改變、哪些不動，再逐步推算。",
                 },
                 "en": {
                     "title": "After the first two rounds of Selection Sort on `[3, 5, 1, 2, 4]`, what is the array state?",
@@ -324,41 +356,43 @@ DATA = {
                         {"id": "C", "text": "[1, 3, 5, 2, 4]"},
                         {"id": "D", "text": "[1, 2, 4, 5, 3]"},
                     ],
-                    "explanation": "Round 1 (i=0): minimum is 1 (index 2), swap with index 0 → [1, 5, 3, 2, 4]. Round 2 (i=1): scan [5, 3, 2, 4], minimum is 2 (index 3), swap arr[1] and arr[3] → [1, 2, 3, 5, 4].",
+                    "explanation": "Key insight: each round performs exactly one swap, exchanging the first element of the unsorted region with the minimum of that region. Track carefully which positions actually change after each swap vs. which stay put, then trace round-by-round from there.",
                 },
             },
         },
         {
             "id": "ssort-q9",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 100(新手誤區：穩定性概念) = 1050
             "baseRating": 1050,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
                     "title": "選擇排序通常被認為是不穩定的排序演算法，以下哪個例子最能說明其不穩定性？",
                     "options": [
-                        {"id": "A", "text": "[1, 2, 3] 排序後變成 [3, 2, 1]"},
+                        {"id": "A", "text": "對 [5a, 5b, 2] 排序後，因為 5a 和 5b 數值相同，所以排序後兩者相對順序一定不變"},
                         {"id": "B", "text": "對 [5a, 5b, 2] 排序（5a 和 5b 值相同），結果可能是 [2, 5b, 5a]，5a 與 5b 的相對順序改變"},
-                        {"id": "C", "text": "[3, 1, 2] 排序後多執行了一次不必要的交換"},
-                        {"id": "D", "text": "陣列已排序時選擇排序仍然執行 O(n²) 次比較"},
+                        {"id": "C", "text": "對 [3a, 3b, 1] 排序後結果為 [1, 3b, 3a]，但只要 3a == 3b 就視為穩定"},
+                        {"id": "D", "text": "選擇排序是原地排序，所以任何兩個相等元素排序後位置不會對調"},
                     ],
-                    "explanation": "以 [5a, 5b, 2] 為例：第一輪找到最小值 2（索引 2），與索引 0 的 5a 交換，得 [2, 5b, 5a]。原本 5a 在 5b 前面，排序後 5b 在 5a 前面，相對順序改變，這說明了選擇排序的不穩定性。",
+                    "explanation": "長距離 swap 是不穩定的根因：每輪把未排序區「最小值」搬到前端時，原本在前端的元素會被跳到最小值原來的位置，可能越過其他同值元素。A 和 D 是常見誤解——「值相同」或「原地排序」都不保證穩定，穩定性取決於相等元素之間是否有長距離交換。",
                 },
                 "en": {
                     "title": "Selection Sort is generally considered an unstable sort. Which example best illustrates this instability?",
                     "options": [
-                        {"id": "A", "text": "[1, 2, 3] becomes [3, 2, 1] after sorting"},
+                        {"id": "A", "text": "When sorting [5a, 5b, 2], since 5a and 5b have the same value, their relative order is guaranteed not to change"},
                         {"id": "B", "text": "Sorting [5a, 5b, 2] (where 5a and 5b have the same value) may yield [2, 5b, 5a], changing the relative order of 5a and 5b"},
-                        {"id": "C", "text": "[3, 1, 2] causes one extra unnecessary swap during sorting"},
-                        {"id": "D", "text": "Selection Sort still performs O(n²) comparisons even when the array is already sorted"},
+                        {"id": "C", "text": "Sorting [3a, 3b, 1] yields [1, 3b, 3a], but since 3a == 3b this is still considered stable"},
+                        {"id": "D", "text": "Selection Sort is in-place, so two equal elements will never have their positions swapped"},
                     ],
-                    "explanation": "Take [5a, 5b, 2]: in round 1 the minimum is 2 (index 2), swapped with 5a at index 0, giving [2, 5b, 5a]. Originally 5a was before 5b; after sorting 5b is before 5a — the relative order has changed, demonstrating Selection Sort's instability.",
+                    "explanation": "Long-distance swaps are the root cause of instability: each round moves the minimum of the unsorted region to the front, sending the previous front element to where the minimum was — potentially jumping it over other equal-valued elements. Options A and D are common misconceptions — 'same value' and 'in-place' do not guarantee stability; stability depends on whether long-distance swaps occur between equal elements.",
                 },
             },
         },
         {
             "id": "ssort-multi-1",
             "type": "multiple-choice",
+            # baseRating = 800 + 100(MC) + 100(L2 多重比較特性) + 100(新手誤區：穩定性) = 1100
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
@@ -387,28 +421,29 @@ DATA = {
         {
             "id": "ssort-q6",
             "type": "single-choice",
-            "baseRating": 1450,
+            # baseRating = 800 + 50(SC) + 250(L3 跨演算法比較+具體案例分析) + 100(新手誤區：混淆 swap 與 move 的差異) = 1200
+            "baseRating": 1200,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
-                    "title": "比較選擇排序與插入排序的交換（或移動）操作次數，哪個說法最正確？",
+                    "title": "比較選擇排序與插入排序的寫入（swap / 元素搬移）操作次數，下列哪個說法最符合實際情況？",
                     "options": [
-                        {"id": "A", "text": "選擇排序的移動次數永遠多於插入排序"},
-                        {"id": "B", "text": "選擇排序的交換次數最多為 O(n)，而插入排序的移動次數最壞情況為 O(n²)"},
-                        {"id": "C", "text": "兩者的移動次數完全相同"},
-                        {"id": "D", "text": "插入排序的移動次數永遠少於選擇排序"},
+                        {"id": "A", "text": "插入排序平均而言移動次數少於選擇排序，因為它能提早結束每輪搜尋"},
+                        {"id": "B", "text": "選擇排序總交換次數最多 O(n)；插入排序在最壞情況（逆序）下移動次數可達 O(n²)"},
+                        {"id": "C", "text": "兩者的寫入操作次數漸進上相同，都是 O(n²)"},
+                        {"id": "D", "text": "選擇排序的交換次數也是 O(n²)，因為每輪都必須交換一次"},
                     ],
-                    "explanation": "選擇排序每輪至多一次交換，n 輪最多 n 次交換，即 O(n) 次交換。插入排序的移動操作（平移）在最壞情況（逆序陣列）下需要 O(n²) 次。因此在對寫入操作成本敏感的場景（如快閃記憶體），選擇排序可能更有優勢。",
+                    "explanation": "選擇排序每輪至多一次 swap（若 min_idx == i 則跳過），n 輪共最多 n 次 swap，即 O(n)。插入排序靠「逐格平移」就位，每插入一個元素最多需要平移到目前已排序區的起點，最壞情況為逆序輸入，平移次數達 O(n²)。比較次數兩者都是 O(n²)，差異在「寫入次數」。",
                 },
                 "en": {
-                    "title": "Comparing the number of swap (or move) operations between Selection Sort and Insertion Sort, which statement is most accurate?",
+                    "title": "Comparing the number of write (swap / element shift) operations between Selection Sort and Insertion Sort, which statement best reflects reality?",
                     "options": [
-                        {"id": "A", "text": "Selection Sort always has more moves than Insertion Sort"},
-                        {"id": "B", "text": "Selection Sort's swap count is at most O(n), while Insertion Sort's move count is O(n²) in the worst case"},
-                        {"id": "C", "text": "Both have exactly the same number of moves"},
-                        {"id": "D", "text": "Insertion Sort always has fewer moves than Selection Sort"},
+                        {"id": "A", "text": "Insertion Sort has fewer moves on average because it can exit each round early"},
+                        {"id": "B", "text": "Selection Sort's total swap count is at most O(n); Insertion Sort's move count can reach O(n²) in the worst case (reverse-sorted input)"},
+                        {"id": "C", "text": "Both have asymptotically the same write-operation count: O(n²)"},
+                        {"id": "D", "text": "Selection Sort's swap count is also O(n²) because one swap is required every round"},
                     ],
-                    "explanation": "Selection Sort does at most one swap per round, so at most n swaps over n rounds — O(n) swaps. Insertion Sort's shift operations in the worst case (reverse-sorted array) require O(n²) moves. Therefore, in write-sensitive scenarios (e.g. flash memory), Selection Sort may have an advantage.",
+                    "explanation": "Selection Sort does at most one swap per round (skipping when min_idx == i), so at most n swaps total — O(n) writes. Insertion Sort shifts elements one slot at a time to place each new element; in the worst case (reverse-sorted), this reaches O(n²) shifts. Both algorithms have O(n²) comparisons; the difference is in write count.",
                 },
             },
         },
@@ -416,6 +451,7 @@ DATA = {
         {
             "id": "ssort-group-3",
             "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 150(L2 單步追蹤+變數對應) + 0(直觀) = 1100
             "baseRating": 1100,
             "correctAnswer": ["current_pos", "scan_pos", "current_pos"],
             "groupId": "group-ssort-logic",
@@ -425,19 +461,20 @@ DATA = {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成 `selection_sort` 函式。",
                     "options": [],
-                    "explanation": "(a) `current_pos`：初始假設當前位置就是最小值位置。(b) `scan_pos`：找到更小的元素時，更新 min_pos 為當前掃描位置。(c) `current_pos`：若 min_pos 不等於 current_pos，才需要交換，避免不必要的自身交換。",
+                    "explanation": "填空時先對照三個角色：外層目前位置、內層正在掃描的位置、以及目前記錄的最小值位置。初始化要從未排序區首位開始；找到更小值時，要把最小值位置更新成正在掃描的位置；最後只有當最小值位置不同於外層目前位置時才交換。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the `selection_sort` function.",
                     "options": [],
-                    "explanation": "(a) `current_pos`: initially assume the current position is the minimum position. (b) `scan_pos`: when a smaller element is found, update min_pos to the current scan position. (c) `current_pos`: only swap if min_pos differs from current_pos, avoiding unnecessary self-swaps.",
+                    "explanation": "Match each blank to its role: the current outer position, the inner scanning position, and the current minimum position. Initialization starts at the first position of the unsorted region; when a smaller value is found, the minimum position becomes the current scan position; the final check compares the minimum position with the outer position to avoid self-swaps.",
                 },
             },
         },
         {
             "id": "ssort-q7",
             "type": "single-choice",
-            "baseRating": 1550,
+            # baseRating = 800 + 50(SC) + 250(L3 演算法變體理解) + 100(新手誤區：每輪兩次 swap vs 範圍縮兩格) = 1200
+            "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -448,7 +485,7 @@ DATA = {
                         {"id": "C", "text": "它每輪同時找到最小值和最大值，分別放到兩端，使每輪能縮短兩側的未排序範圍"},
                         {"id": "D", "text": "它使用兩個指標從中間向兩端掃描"},
                     ],
-                    "explanation": "雙端選擇排序每輪同時找到最小值和最大值，最小值放到左端，最大值放到右端。雖然比較次數相同（仍是 O(n²)），但每輪未排序範圍縮小兩個位置，使迴圈輪次減少約一半，實際效能有所提升。",
+                    "explanation": "雙端選擇排序每輪同時找到最小值和最大值，最小值放到左端，最大值放到右端。整體比較量級仍是 O(n²)，但每輪未排序範圍縮小兩個位置，使迴圈輪次減少約一半，實際效能有所提升。",
                 },
                 "en": {
                     "title": "'Double Selection Sort' is an optimized version of Selection Sort. What is its main improvement?",
@@ -458,41 +495,43 @@ DATA = {
                         {"id": "C", "text": "Each round simultaneously finds both the minimum and maximum, placing them at both ends, so the unsorted range shrinks from both sides each round"},
                         {"id": "D", "text": "It uses two pointers scanning from the middle outward"},
                     ],
-                    "explanation": "Double Selection Sort finds both the minimum and maximum each round, placing the minimum at the left end and the maximum at the right end. Although the comparison count is the same (still O(n²)), the unsorted range shrinks by two positions each round, reducing the number of iterations by about half and improving practical performance.",
+                    "explanation": "Double Selection Sort finds both the minimum and maximum each round, placing the minimum at the left end and the maximum at the right end. The comparison complexity is still O(n²), but the unsorted range shrinks by two positions each round, reducing the number of iterations by about half and improving practical performance.",
                 },
             },
         },
         {
             "id": "ssort-multi-2",
             "type": "multiple-choice",
-            "baseRating": 1600,
-            "correctAnswer": ["opt1", "opt3"],
+            # baseRating = 800 + 100(MC) + 250(L3 多演算法特性對比) + 250(複合：含部分正確的迷惑選項) = 1400
+            "baseRating": 1400,
+            "correctAnswer": ["opt1", "opt3", "opt4"],
             "translations": {
                 "zh-TW": {
                     "title": "以下關於選擇排序與其他排序演算法比較的陳述，哪些是正確的？（選擇所有正確答案）",
                     "options": [
-                        {"id": "opt1", "text": "在寫入操作代價很高的環境中（如 EEPROM），選擇排序因其 O(n) 的交換次數而優於插入排序"},
-                        {"id": "opt2", "text": "選擇排序的平均時間複雜度優於快速排序 (Quick Sort)"},
-                        {"id": "opt3", "text": "選擇排序和氣泡排序的最壞情況時間複雜度相同，都是 O(n²)"},
-                        {"id": "opt4", "text": "選擇排序在資料幾乎已排序的情況下效能接近 O(n)"},
+                        {"id": "opt1", "text": "在寫入操作代價很高的環境中（如 EEPROM），選擇排序因其至多 O(n) 次交換而優於最壞情況下需 O(n²) 次移動的插入排序"},
+                        {"id": "opt2", "text": "選擇排序的最佳情況時間複雜度為 O(n)，因為當陣列已排序時內層迴圈可提早結束"},
+                        {"id": "opt3", "text": "選擇排序和氣泡排序的最壞情況時間複雜度相同，都是 O(n²)，但選擇排序的實際交換次數通常少於氣泡排序"},
+                        {"id": "opt4", "text": "若改為「穩定版選擇排序」（以插入方式平移歸位），其空間複雜度仍維持 O(1)，但時間複雜度不變"},
                     ],
-                    "explanation": "opt1 正確：選擇排序最多 O(n) 次交換，插入排序最壞 O(n²) 次移動，在寫入成本高的場景選擇排序更優。opt3 正確：兩者最壞時間複雜度都是 O(n²)。opt2 錯誤：快速排序平均 O(n log n)，優於選擇排序的 O(n²)。opt4 錯誤：選擇排序無論輸入如何都是 O(n²) 比較次數，不會因為幾乎已排序而加速。",
+                    "explanation": "opt1 正確：選擇排序至多 n-1 次 swap（O(n)），插入排序最壞 O(n²) 次平移，寫入成本高時選擇排序更優。opt3 正確：兩者都是 O(n²)，但氣泡排序最壞下 swap 次數可達 O(n²)，選擇排序最多 n-1 次。opt4 正確：穩定版選擇排序改用平移歸位，最壞時間仍是 O(n²)，且只需常數額外暫存空間，但寫入次數與常數成本會增加。opt2 錯誤：選擇排序的比較次數固定為 n(n-1)/2，無論輸入如何都不能縮短，最佳情況仍是 O(n²)。",
                 },
                 "en": {
                     "title": "Which of the following statements comparing Selection Sort to other sorting algorithms are correct? (Select all that apply)",
                     "options": [
-                        {"id": "opt1", "text": "In environments where write operations are expensive (e.g. EEPROM), Selection Sort outperforms Insertion Sort due to its O(n) swap count"},
-                        {"id": "opt2", "text": "Selection Sort has better average time complexity than Quick Sort"},
-                        {"id": "opt3", "text": "Selection Sort and Bubble Sort have the same worst-case time complexity: O(n²)"},
-                        {"id": "opt4", "text": "Selection Sort performs close to O(n) when the data is nearly sorted"},
+                        {"id": "opt1", "text": "In write-expensive environments (e.g. EEPROM), Selection Sort outperforms Insertion Sort because it uses at most O(n) swaps vs. Insertion Sort's O(n²) worst-case moves"},
+                        {"id": "opt2", "text": "Selection Sort has O(n) best-case time complexity because the inner loop can exit early when the array is already sorted"},
+                        {"id": "opt3", "text": "Selection Sort and Bubble Sort share the same worst-case time complexity O(n²), but Selection Sort typically has far fewer actual swaps than Bubble Sort"},
+                        {"id": "opt4", "text": "A 'stable Selection Sort' (shifting elements instead of swapping) still maintains O(1) space complexity and O(n²) time complexity"},
                     ],
-                    "explanation": "opt1 is correct: Selection Sort has at most O(n) swaps while Insertion Sort has O(n²) moves in the worst case, making Selection Sort better in write-expensive scenarios. opt3 is correct: both have O(n²) worst-case time complexity. opt2 is wrong: Quick Sort averages O(n log n), better than Selection Sort's O(n²). opt4 is wrong: Selection Sort always performs O(n²) comparisons regardless of input and does not speed up for nearly-sorted data.",
+                    "explanation": "opt1 is correct: Selection Sort has at most n-1 swaps (O(n)), Insertion Sort has O(n²) shifts in the worst case — Selection Sort wins in write-heavy scenarios. opt3 is correct: both are O(n²), but Bubble Sort can reach O(n²) swaps in the worst case while Selection Sort's is bounded by n-1. opt4 is correct: stable Selection Sort shifts elements into place, keeping worst-case time at O(n²) and extra space at O(1), though write count and constants increase. opt2 is wrong: Selection Sort's comparison count is fixed at n(n-1)/2 regardless of input, so best-case is still O(n²).",
                 },
             },
         },
         {
             "id": "ssort-fill-1",
             "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 400(L4 雙指針連動推演) + 150(邊界：max 被搬移後的位置追蹤) = 1500
             "baseRating": 1500,
             "correctAnswer": ["i", "i", "min_idx"],
             "code": DOUBLE_SSORT_FILL_CODE,
@@ -501,18 +540,126 @@ DATA = {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成雙端選擇排序 (Double Selection Sort) 函式。",
                     "options": [],
-                    "explanation": "(a) `i`：找到比當前最小值更小的元素時，更新 min_idx 為當前掃描索引 i。(b) `i`：找到比當前最大值更大的元素時，更新 max_idx 為當前掃描索引 i。(c) `min_idx`：由於 left（原最大值位置）已被換到 min_idx 處，最大值現在在 min_idx，需更新 max_idx 以確保之後正確交換到右端。",
+                    "explanation": "雙端版本同一輪要同時追蹤目前最小值與最大值，所以兩個更新分支都應指向「正在掃描的索引」。特殊情況是最大值原本就在 left：先把最小值換到左端後，原本 left 的最大值會被移到最小值原本的位置，因此右端交換前必須把最大值索引修正到它的新位置。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the Double Selection Sort function.",
                     "options": [],
-                    "explanation": "(a) `i`: when a smaller element is found, update min_idx to the current scan index i. (b) `i`: when a larger element is found, update max_idx to the current scan index i. (c) `min_idx`: since left (the original max position) has been swapped to min_idx, the maximum is now at min_idx; update max_idx accordingly so the subsequent swap to the right end is correct.",
+                    "explanation": "The double-ended version tracks both the current minimum and maximum in the same scan, so both update branches should point to the index currently being scanned. The special case is when the maximum was originally at left: after swapping the minimum to the left end, that maximum moves to the minimum's old position, so the max index must be corrected before swapping with the right end.",
+                },
+            },
+        },
+        # === 補題（q19-q30，補充未涵蓋知識點，達到 30 題目標） ===
+        {
+            "id": "ssort-q19",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 單一定義：空間複雜度) + 0(直觀) = 900
+            "baseRating": 900,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "選擇排序的空間複雜度為何？",
+                    "options": [
+                        {"id": "A", "text": "O(n)，需要額外陣列來記錄每輪的最小值候選"},
+                        {"id": "B", "text": "O(1)，屬於原地 (in-place) 排序，只需常數級別的暫存變數"},
+                        {"id": "C", "text": "O(log n)，每輪遞迴縮小問題規模"},
+                        {"id": "D", "text": "O(n)，需要額外空間記錄已排序區的元素"},
+                    ],
+                    "explanation": "選擇排序屬於原地排序，僅需常數空間（如 min_idx、暫存變數等）來完成元素交換，與輸入規模無關，因此空間複雜度為 O(1)。這也是它在記憶體受限環境（如嵌入式系統）的優勢。",
+                },
+                "en": {
+                    "title": "What is the space complexity of Selection Sort?",
+                    "options": [
+                        {"id": "A", "text": "O(n), needs an extra array to record the minimum candidates each round"},
+                        {"id": "B", "text": "O(1), it is an in-place sort needing only constant extra variables"},
+                        {"id": "C", "text": "O(log n), because each round recursively reduces the problem size"},
+                        {"id": "D", "text": "O(n), needs extra space to store the elements in the sorted region"},
+                    ],
+                    "explanation": "Selection Sort is an in-place algorithm that only requires constant extra space (e.g. min_idx and a temp variable for swapping), independent of input size. Hence the space complexity is O(1) — a key advantage in memory-constrained environments such as embedded systems.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q20",
+            "type": "true-false",
+            # baseRating = 800 + 0(TF) + 50(L1 對稱性觀念) + 0(直觀) = 850
+            "baseRating": 850,
+            "correctAnswer": "true",
+            "translations": {
+                "zh-TW": {
+                    "title": "選擇排序也可以實作為每輪找出未排序區的「最大值」，並將其放到未排序區的末端，仍能完成升序排序。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "正確。選擇排序的核心是「選出極值並放到正確端點」，可以「找最小放到左端（前面）」或「找最大放到右端（後面）」，兩種方式都能完成升序排序，時間與空間複雜度完全相同。雙端選擇排序 (Double Selection Sort) 正是同時利用了這個對稱性。",
+                },
+                "en": {
+                    "title": "Selection Sort can also be implemented by finding the 'maximum' of the unsorted region each round and placing it at the end of the unsorted region, and still produce an ascending-sorted result.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "True. The core of Selection Sort is 'pick the extreme value and place it at the correct end'. Whether you find the min and put it at the left, or find the max and put it at the right, both approaches produce ascending order with identical time and space complexity. Double Selection Sort exploits exactly this symmetry.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q21",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 動態想像：累加比較次數) + 100(新手誤區：忘記是 n-1 起算) = 1050
+            "baseRating": 1050,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "對長度為 6 的陣列執行選擇排序，總共需要進行多少次「比較」操作？",
+                    "options": [
+                        {"id": "A", "text": "6 次"},
+                        {"id": "B", "text": "12 次"},
+                        {"id": "C", "text": "15 次"},
+                        {"id": "D", "text": "36 次"},
+                    ],
+                    "explanation": "選擇排序的比較次數為 (n-1)+(n-2)+...+1 = n(n-1)/2。當 n=6 時，比較次數 = 5+4+3+2+1 = 15 次。注意這與輸入是否已排序無關，恆定為 15 次。常見誤區為直接寫 6×6=36 或 6×5=30，忘記內層每輪起點為 i+1。",
+                },
+                "en": {
+                    "title": "How many 'comparison' operations does Selection Sort perform on an array of length 6?",
+                    "options": [
+                        {"id": "A", "text": "6"},
+                        {"id": "B", "text": "12"},
+                        {"id": "C", "text": "15"},
+                        {"id": "D", "text": "36"},
+                    ],
+                    "explanation": "Selection Sort performs (n-1)+(n-2)+...+1 = n(n-1)/2 comparisons. With n=6, comparisons = 5+4+3+2+1 = 15, regardless of input order. A common mistake is to compute 6×6=36 or 6×5=30, forgetting that the inner loop starts from i+1.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q22",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態：3 輪追蹤) + 100(新手誤區：含一輪不交換的情境) = 1200
+            "baseRating": 1200,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "對陣列 `[4, 2, 5, 1, 3]` 執行選擇排序，第三輪結束後（i 由 0 至 2 各做完一輪），陣列狀態為何？",
+                    "options": [
+                        {"id": "A", "text": "[1, 2, 3, 5, 4]"},
+                        {"id": "B", "text": "[1, 2, 3, 4, 5]"},
+                        {"id": "C", "text": "[1, 2, 5, 3, 4]"},
+                        {"id": "D", "text": "[1, 2, 4, 5, 3]"},
+                    ],
+                    "explanation": "注意：選擇排序某些輪次可能不執行 swap（當 min_idx == i 時）。確認每輪未排序區的起點與最小值位置，再判斷是否真的發生交換，否則容易在第三輪起點算錯。",
+                },
+                "en": {
+                    "title": "After three rounds of Selection Sort on `[4, 2, 5, 1, 3]` (i from 0 to 2), what is the array state?",
+                    "options": [
+                        {"id": "A", "text": "[1, 2, 3, 5, 4]"},
+                        {"id": "B", "text": "[1, 2, 3, 4, 5]"},
+                        {"id": "C", "text": "[1, 2, 5, 3, 4]"},
+                        {"id": "D", "text": "[1, 2, 4, 5, 3]"},
+                    ],
+                    "explanation": "Watch out: Selection Sort may skip a swap in certain rounds (when min_idx == i). For each round, determine the unsorted region's starting point and the position of its minimum, then decide whether a swap actually happens before updating the array state. Getting the round-2 outcome wrong will cascade to round 3.",
                 },
             },
         },
         {
             "id": "ssort-pred-1",
             "type": "predict-line",
+            # baseRating = 800 + 150(PL) + 250(L3 多步狀態+行號追蹤) + 250(複合：迴圈出口+條件判斷+交換) = 1450
             "baseRating": 1450,
             "correctAnswer": "1 2 3 4 5 6 7 8 9 5 6 7 8 10 11 3 4 5 6 7 8 10 12",
             "code": SSORT_PREDICT_CODE,
@@ -521,12 +668,220 @@ DATA = {
                 "zh-TW": {
                     "title": "對陣列 `[3, 1, 2]` 呼叫 `selection_sort([3, 1, 2])`，請依序寫出每次被執行到的行號（以空格分隔）。",
                     "options": [],
-                    "explanation": "L1,L2 → 外層 current_pos=0：L3,L4(min_pos=0) → scan_pos=1：L5,L6,L7,L8(1<3,true),L9(min_pos=1) → scan_pos=2：L5,L6,L7,L8(2>1,false) → L5(結束內層) → L10(min_pos=1≠0,true),L11(交換→[1,3,2]) → 外層 current_pos=1：L3,L4(min_pos=1) → scan_pos=2：L5,L6,L7,L8(2<3,true),L9(min_pos=2)... 等等，重新計算並對應：執行行號 1 2 3 4 5 6 7 8 9 5 6 7 8 10 11 3 4 5 6 7 8 10 12。",
+                    "explanation": "追蹤提示：for 迴圈每次「迭代條件判斷」也算執行一行（含結束時的最後一次判斷）。外層兩輪共需兩次 swap（L11 各執行一次）。內層每輪從 current_pos+1 掃到末尾，注意掃描過程中 L9 只在找到更小值時才執行。依照上述規則逐行追蹤即可。",
                 },
                 "en": {
                     "title": "Calling `selection_sort([3, 1, 2])` on `[3, 1, 2]`, write the line numbers executed in order (space-separated).",
                     "options": [],
-                    "explanation": "L1,L2 → outer current_pos=0: L3,L4(min_pos=0) → scan_pos=1: L5,L6,L7,L8(1<3,true),L9(min_pos=1) → scan_pos=2: L5,L6,L7,L8(2>1,false) → L5(inner loop ends) → L10(min_pos=1≠0,true),L11(swap→[1,3,2]) → outer current_pos=1: L3,L4(min_pos=1) → scan_pos=2: L5,L6,L7,L8(2<3,true),L9(min_pos=2) → L5(inner loop ends) → L10(min_pos=2≠1,true),L11(swap→[1,2,3]) → L3(outer loop ends) → L12(return). Lines: 1 2 3 4 5 6 7 8 9 5 6 7 8 10 11 3 4 5 6 7 8 10 12.",
+                    "explanation": "Tracing tip: each 'loop condition check' for a for-loop counts as executing that line, including the final check when the loop exits. The outer loop runs two rounds, and L11 (swap) executes once per round. The inner loop scans from current_pos+1 to the end each round; L9 only executes when a smaller value is actually found. Follow these rules line-by-line to build the sequence.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q23",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 多重比較情境) + 100(新手誤區：常誤以為已排序就會早結束) = 1050
+            "baseRating": 1050,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "氣泡排序常用「沒發生交換就 break」做早期終止，為什麼選擇排序無法以類似方式提早結束？",
+                    "options": [
+                        {"id": "A", "text": "若某輪 min_idx == i（不交換），代表剩下的元素都已有序，可以直接 break"},
+                        {"id": "B", "text": "只要連續兩輪都沒發生交換，就能確認排序已完成，應立即終止"},
+                        {"id": "C", "text": "選擇排序必須掃完未排序區才能確定最小值的位置，無法在掃描過程中得知陣列「已經有序」，因此沒有可信賴的提早終止訊號"},
+                        {"id": "D", "text": "選擇排序的比較次數固定，因此提早 break 會漏掉必要的比較，導致結果錯誤"},
+                    ],
+                    "explanation": "氣泡排序透過「本輪是否發生交換」推斷剩下是否已有序，這個訊號在掃描中就能取得。選擇排序的內層只負責找最小值索引，必須走完整輪才能知道結果，過程中沒有任何能宣告「整體已有序」的線索；即便整輪 min_idx==i 也只代表「該輪最小值剛好在前端」，不代表後面已有序。",
+                },
+                "en": {
+                    "title": "Bubble Sort uses 'break if no swap happened' to terminate early. Why can Selection Sort not be similarly short-circuited?",
+                    "options": [
+                        {"id": "A", "text": "If a round has min_idx == i (no swap), it means the remaining elements are already sorted and we can break immediately"},
+                        {"id": "B", "text": "If two consecutive rounds have no swap, sorting is complete and the loop can terminate"},
+                        {"id": "C", "text": "Selection Sort must scan the entire unsorted region to determine the minimum position, so it has no reliable signal mid-scan that the array is already sorted"},
+                        {"id": "D", "text": "Selection Sort's comparison count is fixed, so an early break would skip necessary comparisons and produce wrong results"},
+                    ],
+                    "explanation": "Bubble Sort's 'did any swap happen this round' is a reliable signal collected during scanning. Selection Sort's inner loop only tracks the min index — it has to finish a full scan to know anything, and even min_idx==i for one round only means 'the minimum of this round happens to sit at the front', not that the rest is sorted.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q24",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 跨演算法場景辨識) + 150(邊界：時間複雜度以外的取捨因素) = 1250
+            "baseRating": 1250,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "在以下哪個情境中，使用選擇排序最為合適？",
+                    "options": [
+                        {"id": "A", "text": "對 100 萬筆隨機整數排序，需要最快的平均時間"},
+                        {"id": "B", "text": "在嵌入式裝置上排序少量資料 (n ≤ 30)，且儲存媒體寫入成本極高（如 EEPROM 有寫入次數壽命限制）"},
+                        {"id": "C", "text": "資料幾乎已排序，僅有少數元素位置錯誤，希望快速完成排序"},
+                        {"id": "D", "text": "需要穩定排序，保持相同數值元素的原始相對順序"},
+                    ],
+                    "explanation": "選擇排序的兩大優勢：1) O(1) 空間，適合記憶體受限的嵌入式環境；2) 每輪最多一次實體交換（總交換 ≤ n-1），適合寫入成本高的媒體。A 應該用快速排序；C 應該用插入排序（接近 O(n)）；D 應該用合併排序或插入排序（穩定）。B 完全對應其優勢場景。",
+                },
+                "en": {
+                    "title": "In which scenario is Selection Sort most appropriate?",
+                    "options": [
+                        {"id": "A", "text": "Sorting 1 million random integers, where average-case speed is critical"},
+                        {"id": "B", "text": "Sorting a small dataset (n ≤ 30) on an embedded device where storage media writes are expensive (e.g. EEPROM with limited write endurance)"},
+                        {"id": "C", "text": "Data that's almost sorted with only a few elements misplaced, where fast completion is desired"},
+                        {"id": "D", "text": "A scenario requiring a stable sort that preserves the relative order of equal-valued elements"},
+                    ],
+                    "explanation": "Selection Sort's two main advantages: 1) O(1) extra space, ideal for memory-constrained embedded contexts; 2) at most one physical swap per round (≤ n-1 swaps total), ideal for media with expensive writes. A → use Quick Sort; C → use Insertion Sort (near O(n)); D → use Merge Sort or Insertion Sort (stable). B matches Selection Sort's strengths perfectly.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q25",
+            "type": "fill-code",
+            "code": SSORT_DESC_FILL_CODE,
+            "language": "python",
+            # baseRating = 800 + 150(FC) + 150(L2 單步追蹤+語意對應) + 100(新手誤區：>/< 方向+變數命名語意翻轉) = 1200
+            "baseRating": 1200,
+            "correctAnswer": [">", "target_idx", "i"],
+            "translations": {
+                "zh-TW": {
+                    "title": "請填入正確的程式碼，完成「降序」選擇排序 `selection_sort_descending` 函式。",
+                    "options": [],
+                    "explanation": "降序的邏輯與升序對稱：把「每輪找最小值」改為「每輪找最大值」，只需調整內層比較符號；swap 的兩端仍是「未排序區首位」與「已找到的極值位置」，順序一樣。注意變數名稱 target_idx 在這裡記錄的是當前最大值的索引。",
+                },
+                "en": {
+                    "title": "Fill in the correct code to complete the descending Selection Sort function `selection_sort_descending`.",
+                    "options": [],
+                    "explanation": "Descending logic is symmetric to ascending: change 'find minimum each round' to 'find maximum each round' by adjusting the inner comparison operator. The two sides of the swap remain 'first position of the unsorted region' and 'the index of the found extreme', same as before. Note that target_idx here tracks the index of the current maximum.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q26",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 多輪交換次數歸納推演) + 150(邊界：完全逆序但實際交換次數遠少於 n-1) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "對長度為 6 的完全逆序陣列 `[6, 5, 4, 3, 2, 1]` 執行選擇排序，總共會發生幾次「實際交換」？",
+                    "options": [
+                        {"id": "A", "text": "5 次（n-1）"},
+                        {"id": "B", "text": "3 次"},
+                        {"id": "C", "text": "6 次"},
+                        {"id": "D", "text": "15 次"},
+                    ],
+                    "explanation": "關鍵：選擇排序每輪只在 min_idx != i 時才真正交換。逆序陣列的前幾輪確實會發生 swap，但隨著兩端同時歸位，中段會比你預期的早就「剛好有序」，讓後續輪次跳過交換。建議逐輪追蹤並記錄每輪交換後的陣列狀態，直到找到規律為止。",
+                },
+                "en": {
+                    "title": "Performing Selection Sort on the fully reversed array `[6, 5, 4, 3, 2, 1]` of length 6, how many actual swaps occur in total?",
+                    "options": [
+                        {"id": "A", "text": "5 (i.e. n-1)"},
+                        {"id": "B", "text": "3"},
+                        {"id": "C", "text": "6"},
+                        {"id": "D", "text": "15"},
+                    ],
+                    "explanation": "Key: Selection Sort only swaps when min_idx != i. In a reversed array, the first few rounds do swap, but as both ends get placed, the middle portion becomes 'already in order' sooner than you'd expect, causing later rounds to skip their swaps. Trace round-by-round, recording the array state after each swap, until you see the pattern.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q27",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 演算法結構改造+穩定性分析) + 150(邊界：理解為何 swap 必然破壞穩定性) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "若要讓選擇排序變成「穩定排序」，下列哪個修改方向最合理？",
+                    "options": [
+                        {"id": "A", "text": "在找到相等元素時，優先選擇索引較小的那個（即保留「先遇到的就是最小者」的邏輯），不需改動 swap"},
+                        {"id": "B", "text": "讓 if 條件改為 `arr[j] <= arr[min_idx]`（嚴格小於改為小於等於），使相同值的後者也會更新 min_idx"},
+                        {"id": "C", "text": "捨棄直接交換，改為將最小值「插入」到未排序區前端，把中間元素逐一向右平移一格，類似插入排序的搬移方式"},
+                        {"id": "D", "text": "改為找最大值放到末端（從右往左排），方向改變後等值元素的相對順序自然正確"},
+                    ],
+                    "explanation": "選擇排序不穩定的根因：當我們把未排序區最小值與前端 swap 時，前端那個元素被「丟到後面」，可能跨越其他與它同值的元素，破壞了原相對順序。要保持穩定，必須避免長距離 swap，改用「平移歸位」：把 min_idx 處的最小值取出，將 [i, min_idx-1] 區段全部右移一格，再把最小值放回 i。B 只是讓相同值的後者也更新 min_idx，仍然保留長距離 swap，甚至更容易改變相等元素的相對順序。",
+                },
+                "en": {
+                    "title": "To make Selection Sort 'stable', which modification direction is most reasonable?",
+                    "options": [
+                        {"id": "A", "text": "When equal elements are found, prefer the one with the smaller index (i.e. keep 'first encountered = minimum' semantics), without changing the swap logic"},
+                        {"id": "B", "text": "Change the condition to `arr[j] <= arr[min_idx]` (strict less-than becomes less-than-or-equal), so later equal elements also update min_idx"},
+                        {"id": "C", "text": "Abandon the direct swap; instead 'insert' the minimum at the front of the unsorted region by shifting the in-between elements one slot to the right, similar to Insertion Sort's shifting"},
+                        {"id": "D", "text": "Find the maximum and place it at the end (sort right-to-left); the changed direction naturally preserves the relative order of equal elements"},
+                    ],
+                    "explanation": "The root cause of instability: swapping the unsorted-region minimum with the front element flings the front element 'to the back', possibly crossing other equal-valued elements and breaking their original order. To stay stable, avoid long-distance swaps and shift instead: pop the min at min_idx, shift [i, min_idx-1] one slot right, then place the min at i. Option B only lets later equal values update min_idx; it keeps the long-distance swap and can make equal elements even more likely to change relative order.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q28",
+            "type": "fill-code",
+            "code": SSORT_KEY_FILL_CODE,
+            "language": "python",
+            # baseRating = 800 + 150(FC) + 400(L4 抽象化：泛型 key 函式對映原本索引比較) + 150(邊界：key 套用對象一致性) = 1500
+            "baseRating": 1500,
+            "correctAnswer": ["min_idx", "j", "min_idx"],
+            "translations": {
+                "zh-TW": {
+                    "title": "請填入正確的程式碼，完成「依 key 函式排序」的泛型版本 `selection_sort_by_key`，使其能對 dict 或物件依某個鍵值排序。",
+                    "options": [],
+                    "explanation": "核心原則：比較時要讓 key() 套用在「同一個基準」上，才能正確找到最小值；swap 時要交換「整個物件」而非只更新 key。注意 min_idx 在迴圈中可能被更新，(a) 填入的索引必須反映「當前找到的最小值候選」，而非固定的起點。",
+                },
+                "en": {
+                    "title": "Fill in the correct code to complete the generic 'sort by key function' version `selection_sort_by_key` so it can sort dicts or objects by a chosen key.",
+                    "options": [],
+                    "explanation": "Core principle: key() must be applied to a consistent baseline so the minimum is found correctly; the swap must exchange the entire object, not just the key value. Note that min_idx may be updated inside the loop, so the index in slot (a) must reflect the current minimum candidate, not a fixed starting point.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q29",
+            "type": "predict-line",
+            "code": SSORT_PREDICT_CODE,
+            "language": "python",
+            # baseRating = 800 + 150(PL) + 250(L3 多步行號追蹤) + 150(邊界：已排序輸入 → L11 永不執行) = 1350
+            "baseRating": 1350,
+            "correctAnswer": "1 2 3 4 5 6 7 8 5 6 7 8 5 10 3 4 5 6 7 8 5 10 3 12",
+            "translations": {
+                "zh-TW": {
+                    "title": "對已排序的陣列 `[1, 2, 3]` 呼叫 `selection_sort([1, 2, 3])`，請依序寫出每次被執行到的行號（以空格分隔）。",
+                    "options": [],
+                    "explanation": "提示：已排序輸入時 min_pos 永遠等於 current_pos，因此 L11 始終不執行。選擇排序沒有提早終止機制，兩輪外層迴圈都會完整走完。只需釐清 for 迴圈的行號執行順序（含最後一次「跳出」的條件檢查行），就能建立完整序列。",
+                },
+                "en": {
+                    "title": "Calling `selection_sort([1, 2, 3])` on the already-sorted array `[1, 2, 3]`, write the line numbers executed in order (space-separated).",
+                    "options": [],
+                    "explanation": "Hint: on already-sorted input, min_pos always equals current_pos, so L11 never executes. Selection Sort has no early termination — both outer-loop rounds run to completion. You just need to understand the order in which a for-loop executes its lines (including the final condition-check line that exits the loop) to build the full sequence.",
+                },
+            },
+        },
+        {
+            "id": "ssort-q30",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 跨演算法效能對照分析) + 150(邊界：交換成本 vs 比較成本的權衡判斷) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "D",
+            "translations": {
+                "zh-TW": {
+                    "title": "假設我們要在「比較成本極低、但每次交換的成本是比較成本的 1000 倍」的環境中排序，下列哪個說法最合理？",
+                    "options": [
+                        {"id": "A", "text": "氣泡排序最適合，因為它能提早終止（已排序時不再交換），避免無謂浪費"},
+                        {"id": "B", "text": "插入排序最適合，因為它在近乎有序時很快，且元素搬移次數可接近 O(n)"},
+                        {"id": "C", "text": "快速排序最適合，因為平均 O(n log n) 的比較次數最少，總成本由比較主導"},
+                        {"id": "D", "text": "選擇排序最適合：雖然比較次數固定為 O(n²)，但實際交換次數最多 n-1；在資料量不大且寫入成本遠高於讀取成本時，總成本通常優於高搬移量的排序法"},
+                    ],
+                    "explanation": "在寫入成本遠大於比較成本的場景，關鍵指標是「交換/搬移次數」而非比較次數。思考各演算法在最壞情況下的寫入次數，再結合 1000 倍的成本差距，判斷哪個的「交換 × 成本」項最小。注意 A 和 B 的干擾點都有一定道理——試著用具體例子反駁它們。",
+                },
+                "en": {
+                    "title": "Suppose we sort in an environment where comparisons are very cheap but each swap costs 1000× a comparison. Which statement is most reasonable?",
+                    "options": [
+                        {"id": "A", "text": "Bubble Sort is best because it can terminate early (no swaps when sorted), avoiding unnecessary cost"},
+                        {"id": "B", "text": "Insertion Sort is best because it's fast on nearly-sorted input and can achieve close to O(n) element shifts"},
+                        {"id": "C", "text": "Quick Sort is best because its average O(n log n) comparison count is lowest, making comparisons dominate total cost"},
+                        {"id": "D", "text": "Selection Sort is best: although comparisons are fixed at O(n²), the actual swap count is at most n-1; for modest input sizes with very expensive writes, it often beats algorithms with many moves"},
+                    ],
+                    "explanation": "When write cost far exceeds comparison cost, the key metric is swap/move count, not comparison count. Think through each algorithm's worst-case write count, apply the 1000× cost multiplier, and find which one minimizes the 'swaps × cost' term. Note that options A and B each have a grain of truth — try to construct a specific counterexample to rule them out.",
                 },
             },
         },

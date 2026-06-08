@@ -20,6 +20,9 @@ export interface ApiQuestion {
   code: string | null;
   language: string | null;
   group_id: number | null;
+  visual_type: VisualType;
+  visual_data: VisualData;
+  visual_alt: string | null;
   group?: {
     title: string;
     description: string;
@@ -40,6 +43,7 @@ export interface QuestionTranslationMap {
   stem: string;
   options: { id: string; text: string }[] | null;
   explanation: string | null;
+  visual_alt: string | null;
 }
 
 export interface GroupTranslationMap {

@@ -87,5 +87,19 @@
     "target": "目標",
     "complete": "完成",
     "inactive": "未啟用"
+  },
+  "practice": {
+    "visual": {
+      "groupImage": "題組圖",
+      "hintImage": "提示圖"
+    }
+  },
+  "xp": {
+    "earned": "XP 獲得",
+    "reason": {
+      "checkin": "每日簽到",
+      "tutorial": "完成教學",
+      "practice": "完成練習"
+    }
   }
 }

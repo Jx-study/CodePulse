@@ -327,6 +327,86 @@ def ceil(root, target):
             res = curr.value
             curr = curr.left
     return res`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)'                        },  // class Node:
+      { lineNumber: 2,  complexity: 'O(1)'                        },  // def __init__(self, value):
+      { lineNumber: 3,  complexity: 'O(1)'                        },  // self.value = value
+      { lineNumber: 4,  complexity: 'O(1)'                        },  // self.count = 1
+      { lineNumber: 5,  complexity: 'O(1)'                        },  // self.left = None
+      { lineNumber: 6,  complexity: 'O(1)'                        },  // self.right = None
+      { lineNumber: 8,  complexity: 'O(log n)'                    },  // def insert(root, value): — overall O(log n)
+      { lineNumber: 9,  complexity: 'O(1)'                        },  // if not root: return Node(value)
+      { lineNumber: 10, complexity: 'O(1)'                        },  // curr = root — before loop
+      { lineNumber: 11, complexity: 'O(log n)'                    },  // while curr — loop iterates log n times
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(log n)'  },  // if value == curr.value — O(1) × log n
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(log n)'  },  // curr.count += 1 — O(1) × log n
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(log n)'  },  // return root — O(1) × log n
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(log n)'  },  // if value < curr.value — O(1) × log n
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(log n)'  },  // if curr.left: curr = curr.left — O(1) × log n
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(log n)'  },  // else — O(1) × log n
+      { lineNumber: 18, complexity: 'O(1)', context: 'O(log n)'  },  // curr.left = Node(value) — O(1) × log n
+      { lineNumber: 19, complexity: 'O(1)', context: 'O(log n)'  },  // break — O(1) × log n
+      { lineNumber: 20, complexity: 'O(1)', context: 'O(log n)'  },  // else — O(1) × log n
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(log n)'  },  // if curr.right: curr = curr.right — O(1) × log n
+      { lineNumber: 22, complexity: 'O(1)', context: 'O(log n)'  },  // else — O(1) × log n
+      { lineNumber: 23, complexity: 'O(1)', context: 'O(log n)'  },  // curr.right = Node(value) — O(1) × log n
+      { lineNumber: 24, complexity: 'O(1)', context: 'O(log n)'  },  // break — O(1) × log n
+      { lineNumber: 25, complexity: 'O(1)'                        },  // return root — outside loop
+      { lineNumber: 27, complexity: 'O(log n)'                    },  // def search(root, target): — overall O(log n)
+      { lineNumber: 28, complexity: 'O(1)'                        },  // curr = root — before loop
+      { lineNumber: 29, complexity: 'O(log n)'                    },  // while curr — loop iterates log n times
+      { lineNumber: 30, complexity: 'O(1)', context: 'O(log n)'  },  // if target == curr.value: return curr — O(1) × log n
+      { lineNumber: 31, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.left if ... — O(1) × log n
+      { lineNumber: 32, complexity: 'O(1)'                        },  // return None — outside loop
+      { lineNumber: 34, complexity: 'O(log n)'                    },  // def delete(root, target): — overall O(log n)
+      { lineNumber: 35, complexity: 'O(1)'                        },  // if not root: return None
+      { lineNumber: 37, complexity: 'O(1)'                        },  // if target < root.value
+      { lineNumber: 38, complexity: 'O(log n)'                    },  // root.left = delete(...) — recursive call
+      { lineNumber: 39, complexity: 'O(1)'                        },  // elif target > root.value
+      { lineNumber: 40, complexity: 'O(log n)'                    },  // root.right = delete(...) — recursive call
+      { lineNumber: 41, complexity: 'O(1)'                        },  // else
+      { lineNumber: 43, complexity: 'O(1)'                        },  // if root.count > 1
+      { lineNumber: 44, complexity: 'O(1)'                        },  // root.count -= 1
+      { lineNumber: 45, complexity: 'O(1)'                        },  // return root
+      { lineNumber: 47, complexity: 'O(1)'                        },  // if not root.left: return root.right
+      { lineNumber: 48, complexity: 'O(1)'                        },  // if not root.right: return root.left
+      { lineNumber: 50, complexity: 'O(1)'                        },  // successor = root.right
+      { lineNumber: 51, complexity: 'O(log n)'                    },  // while successor.left — log n steps
+      { lineNumber: 52, complexity: 'O(1)', context: 'O(log n)'  },  // successor = successor.left — O(1) × log n
+      { lineNumber: 53, complexity: 'O(1)'                        },  // root.value = successor.value — after inner loop
+      { lineNumber: 55, complexity: 'O(log n)'                    },  // root.right = delete(...) — recursive call
+      { lineNumber: 57, complexity: 'O(1)'                        },  // return root
+      { lineNumber: 59, complexity: 'O(log n)'                    },  // def find_min(root): — overall O(log n)
+      { lineNumber: 60, complexity: 'O(1)'                        },  // curr = root — before loop
+      { lineNumber: 61, complexity: 'O(log n)'                    },  // while curr and curr.left — log n steps
+      { lineNumber: 62, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.left — O(1) × log n
+      { lineNumber: 63, complexity: 'O(1)'                        },  // return curr.value if curr else None
+      { lineNumber: 65, complexity: 'O(log n)'                    },  // def find_max(root): — overall O(log n)
+      { lineNumber: 66, complexity: 'O(1)'                        },  // curr = root — before loop
+      { lineNumber: 67, complexity: 'O(log n)'                    },  // while curr and curr.right — log n steps
+      { lineNumber: 68, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.right — O(1) × log n
+      { lineNumber: 69, complexity: 'O(1)'                        },  // return curr.value if curr else None
+      { lineNumber: 71, complexity: 'O(log n)'                    },  // def floor(root, target): — overall O(log n)
+      { lineNumber: 72, complexity: 'O(1)'                        },  // curr, res = root, None — before loop
+      { lineNumber: 73, complexity: 'O(log n)'                    },  // while curr — log n steps
+      { lineNumber: 74, complexity: 'O(1)', context: 'O(log n)'  },  // if curr.value == target: return... — O(1) × log n
+      { lineNumber: 75, complexity: 'O(1)', context: 'O(log n)'  },  // if curr.value > target — O(1) × log n
+      { lineNumber: 76, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.left — O(1) × log n
+      { lineNumber: 77, complexity: 'O(1)', context: 'O(log n)'  },  // else — O(1) × log n
+      { lineNumber: 78, complexity: 'O(1)', context: 'O(log n)'  },  // res = curr.value — O(1) × log n
+      { lineNumber: 79, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.right — O(1) × log n
+      { lineNumber: 80, complexity: 'O(1)'                        },  // return res — outside loop
+      { lineNumber: 82, complexity: 'O(log n)'                    },  // def ceil(root, target): — overall O(log n)
+      { lineNumber: 83, complexity: 'O(1)'                        },  // curr, res = root, None — before loop
+      { lineNumber: 84, complexity: 'O(log n)'                    },  // while curr — log n steps
+      { lineNumber: 85, complexity: 'O(1)', context: 'O(log n)'  },  // if curr.value == target: return... — O(1) × log n
+      { lineNumber: 86, complexity: 'O(1)', context: 'O(log n)'  },  // if curr.value < target — O(1) × log n
+      { lineNumber: 87, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.right — O(1) × log n
+      { lineNumber: 88, complexity: 'O(1)', context: 'O(log n)'  },  // else — O(1) × log n
+      { lineNumber: 89, complexity: 'O(1)', context: 'O(log n)'  },  // res = curr.value — O(1) × log n
+      { lineNumber: 90, complexity: 'O(1)', context: 'O(log n)'  },  // curr = curr.left — O(1) × log n
+      { lineNumber: 91, complexity: 'O(1)'                        },  // return res — outside loop
+    ],
   },
 };
 
@@ -348,11 +428,8 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(h)",
   },
-  introduction: `二元搜尋樹 (BST) 是一種特殊的二元樹。
-  特性：
-  1. 若左子樹不為空，則左子樹上所有節點的值均小於根節點的值。
-  2. 若右子樹不為空，則右子樹上所有節點的值均大於根節點的值。
-  3. **重複值處理**：當數值相同時，不新增節點，而是增加該節點的計數器 (Count)。`,
+  i18nNamespace: "tutorials/bst",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "node-1", value: 50 },
     { id: "node-2", value: 30 },

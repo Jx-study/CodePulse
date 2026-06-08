@@ -1,6 +1,6 @@
 """
-Smoke tests for identify(). These tests load the real MiniLM model and real
-embeddings — they are slow (~5-10s on first run). Mark with pytest -m smoke.
+Smoke tests for identify(). These tests load the real Jina-embeddings-v2-base-code model
+and real embeddings — they are slow (~5-10s on first run). Mark with pytest -m smoke.
 """
 import pytest
 from services.algo_identification import identify, IdentifyResult

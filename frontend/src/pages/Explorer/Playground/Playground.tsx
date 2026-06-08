@@ -48,6 +48,7 @@ import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import AlgoDetectionDialog from "./components/AlgoDetectionDialog";
+import { InputPromptDialog } from "./components/InputPromptDialog";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import type { StdoutEvent } from "@/types/trace";
 import {
@@ -147,8 +148,10 @@ function Playground() {
     isAlgoDialogOpen,
     setIsAlgoDialogOpen,
     handleRun,
+    handleForceRun,
     handleEditCode,
     loadFromHistory,
+    inputPrompt,
   } = usePlaygroundRun({
     code,
     editorRef,
@@ -286,25 +289,37 @@ function Playground() {
                       <span className={styles.filename}>main.py</span>
                     </div>
                     {isLocked ? (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        className={styles.editCodeBtn}
-                        onClick={handleEditCode}
-                        icon="pen-to-square"
-                      >
-                        Edit Code
-                      </Button>
+                      <div className={styles.editorBtnGroup}>
+                        {runStage === "done" && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleForceRun}
+                            icon="rotate-right"
+                          >
+                            {t("ui.rerun")}
+                          </Button>
+                        )}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          className={styles.editCodeBtn}
+                          onClick={handleEditCode}
+                          icon="pen-to-square"
+                        >
+                          {t("ui.editCode")}
+                        </Button>
+                      </div>
                     ) : (
                       <Button
                         variant="secondary"
                         size="sm"
                         className={styles.runBtn}
-                        onClick={handleRun}
+                        onClick={() => handleRun()}
                         disabled={false}
                         icon="play"
                       >
-                        Run
+                        {t("ui.run")}
                       </Button>
                     )}
                   </div>
@@ -334,7 +349,7 @@ function Playground() {
                       id={leftDockedId}
                       subLabel={
                         leftDockedId === "localVars" && activeFrame
-                          ? `· ${activeFrame === "<module>" ? "(global)" : activeFrame}`
+                          ? `· ${activeFrame === "<module>" ? t("ui.globalFrame") : activeFrame}`
                           : undefined
                       }
                     >
@@ -369,26 +384,26 @@ function Playground() {
                     handleStepChange(0);
                     handlePause();
                   }}
-                  aria-label="Visualization mode"
+                  aria-label={t("ui.vizModeAriaLabel")}
                   tabs={[
                     ...(hasAnimationTemplate
                       ? [
                           {
                             key: "animation",
-                            label: "Algorithm Animation",
+                            label: t("ui.tabAnimation"),
                             icon: <Icon name="diagram-project" />,
                           },
                         ]
                       : []),
                     {
                       key: "graph",
-                      label: "Call Graph / CFG",
+                      label: t("ui.tabGraph"),
                       icon: <Icon name="code-branch" />,
                     },
                   ]}
                 />
                 {isTruncated && (
-                  <span className={styles.truncatedBadge}>⚠ truncated</span>
+                  <span className={styles.truncatedBadge}>{t("ui.truncatedBadge")}</span>
                 )}
                 <Button
                   variant="unstyled"
@@ -401,15 +416,15 @@ function Playground() {
                   }`}
                   disabled={runStage !== "done"}
                   onClick={() => setIsAiDialogOpen(true)}
-                  title="查看 AI 分析結果"
-                  aria-label="查看 AI 分析結果"
+                  title={t("ui.aiAnalysisTitle")}
+                  aria-label={t("ui.aiAnalysisTitle")}
                 >
                   {runStage === "analysis" ? (
                     <>
-                      <span className={styles.aiBtnDot} /> AI Analysis…
+                      <span className={styles.aiBtnDot} /> {t("ui.aiAnalysisLoading")}
                     </>
                   ) : (
-                    <>✦ AI Analysis</>
+                    <>{t("ui.aiAnalysis")}</>
                   )}
                 </Button>
               </div>
@@ -430,16 +445,18 @@ function Playground() {
                     />
                   ) : (
                     <EmptyState
+                      size="md"
                       icon={<Icon name="film" />}
-                      title="No animation data"
-                      description="Run code to generate the animation"
+                      title={t("empty.animationTitle")}
+                      description={t("empty.animationDesc")}
                     />
                   )
                 ) : !callGraph ? (
                   <EmptyState
-                    icon={<Icon name="circle-xmark" />}
-                    title="No graph data"
-                    description="Submit code to generate the call graph"
+                    size="md"
+                    icon={<Icon name="diagram-project" />}
+                    title={t("empty.graphTitle")}
+                    description={t("empty.graphDesc")}
                   />
                 ) : drill.mode === "cfg" ? (
                   (() => {
@@ -455,12 +472,12 @@ function Playground() {
                             onClick={() => setDrill({ mode: "call_graph" })}
                             iconLeft={<Icon name="chevron-left" />}
                           >
-                            Call Graph
+                            {t("ui.callGraph")}
                           </Button>
                           <span className={styles.cfgLabel}>
-                            CFG ·{" "}
+                            {t("ui.cfgPrefix")}{" "}
                             {node?.funcName === "<module>"
-                              ? "<global>"
+                              ? t("ui.globalFrame")
                               : (node?.funcName ??
                                 (drill as { mode: "cfg"; funcId: string }).funcId)}
                           </span>
@@ -500,10 +517,10 @@ function Playground() {
                     />
                     <div className={styles.callGraphLegend}>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineSolid} /> call
+                        <span className={styles.legendLineSolid} /> {t("ui.callLegend")}
                       </span>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineDashed} /> return
+                        <span className={styles.legendLineDashed} /> {t("ui.returnLegend")}
                       </span>
                     </div>
                   </div>
@@ -529,7 +546,7 @@ function Playground() {
                   />
                 ) : (
                   <div className={styles.emptyControl}>
-                    {runStage === "idle" ? "Run code to start" : "Waiting for analysis…"}
+                    {runStage === "idle" ? t("ui.runToStart") : t("ui.waitingAnalysis")}
                   </div>
                 )}
               </div>
@@ -557,7 +574,7 @@ function Playground() {
                         id={id}
                         subLabel={
                           id === "localVars" && activeFrame
-                            ? `· ${activeFrame === "<module>" ? "(global)" : activeFrame}`
+                            ? `· ${activeFrame === "<module>" ? t("ui.globalFrame") : activeFrame}`
                             : undefined
                         }
                       >
@@ -610,6 +627,13 @@ function Playground() {
           setAppliedAlgo(name);
         }}
       />
+      <InputPromptDialog
+        isOpen={inputPrompt !== null}
+        prompt={inputPrompt?.prompt ?? ""}
+        inputIndex={inputPrompt?.inputIndex ?? 0}
+        onSubmit={(value) => inputPrompt?.resolve(value)}
+        onCancel={() => inputPrompt?.resolve(null)}
+      />
       <PlaygroundHistoryDialog
         isOpen={isHistoryOpen}
         onClose={() => {
@@ -650,6 +674,7 @@ function PanelContent({
   stdoutEvents,
   currentStep,
 }: PanelContentProps) {
+  const { t } = useTranslation("playground");
   if (id === "globalVars") {
     return Object.entries(globalVars).length === 0 ? (
       <span style={{ color: "var(--text-tertiary)" }}>—</span>
@@ -692,7 +717,7 @@ function PanelContent({
             {i === 0 && (
               <span style={{ color: "var(--color-primary)", marginRight: 4 }}>➔</span>
             )}
-            {fname === "<module>" ? "(global)" : fname}
+            {fname === "<module>" ? t("ui.globalFrame") : fname}
           </div>
         ))}
       </>

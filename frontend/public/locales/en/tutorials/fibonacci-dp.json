@@ -1,0 +1,16 @@
+{
+  "animation": {
+    "init": "Preparing to calculate Fibonacci({{n}}), creating a DP array of length {{size}}",
+    "base_cases": "Filling in the base cases: dp[0] = 0, dp[1] = 1",
+    "calc_prepare": "Calculating dp[{{i}}]: retrieving the previous two values dp[{{item1}}]: {{val1}} and dp[{{item2}}]: {{val2}}",
+    "calc_done": "dp[{{i}}] = {{val1}} + {{val2}} = {{result}}",
+    "done": "Calculation complete! The result is {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci DP",
+    "placeholder": "Input N (1-12)",
+    "button": "Run DP",
+    "validation": "Please enter a number between 1 and 12",
+    "ariaLabel": "Input N for Fibonacci DP"
+  }
+}

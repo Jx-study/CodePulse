@@ -102,6 +102,29 @@ class Queue:
 
     def size(self):
         return len(self.queue)`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },  // from collections import deque
+      { lineNumber: 3,  complexity: 'O(1)' },  // class Queue:
+      { lineNumber: 4,  complexity: 'O(1)' },  // def __init__(self):
+      { lineNumber: 5,  complexity: 'O(1)' },  // # 使用 deque 作為底層儲存
+      { lineNumber: 6,  complexity: 'O(1)' },  // self.queue = deque()
+      { lineNumber: 8,  complexity: 'O(1)' },  // def enqueue(self, value):
+      { lineNumber: 9,  complexity: 'O(1)' },  // # 從右邊（尾部）加入
+      { lineNumber: 10, complexity: 'O(1)' },  // self.queue.append(value)
+      { lineNumber: 12, complexity: 'O(1)' },  // def dequeue(self):
+      { lineNumber: 13, complexity: 'O(1)' },  // # 從左邊（頭部）取出
+      { lineNumber: 14, complexity: 'O(1)' },  // if self.is_empty():
+      { lineNumber: 15, complexity: 'O(1)' },  // raise Exception("Queue Underflow")
+      { lineNumber: 16, complexity: 'O(1)' },  // return self.queue.popleft()
+      { lineNumber: 18, complexity: 'O(1)' },  // def peek(self):
+      { lineNumber: 19, complexity: 'O(1)' },  // if self.is_empty():
+      { lineNumber: 20, complexity: 'O(1)' },  // return None
+      { lineNumber: 21, complexity: 'O(1)' },  // return self.queue[0]
+      { lineNumber: 23, complexity: 'O(1)' },  // def is_empty(self):
+      { lineNumber: 24, complexity: 'O(1)' },  // return len(self.queue) == 0
+      { lineNumber: 26, complexity: 'O(1)' },  // def size(self):
+      { lineNumber: 27, complexity: 'O(1)' },  // return len(self.queue)
+    ],
   },
 };
 
@@ -195,7 +218,8 @@ export const QueueConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(n)",
   },
-  introduction: `佇列是一種先進先出的資料結構，類似於排隊。最早進入佇列的元素最先被移除。在此實作中，我們展示基於陣列的線性移動 (Shifting) 實作。`,
+  i18nNamespace: "tutorials/queue",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 1 },
     { id: "box-1", value: 2 },

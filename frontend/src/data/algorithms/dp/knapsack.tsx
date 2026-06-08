@@ -116,6 +116,21 @@ End Procedure`,
                 dp[item_idx][curr_capacity] = dp[item_idx-1][curr_capacity]
                 
     return dp[num_items][capacity]`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                                // def knapsack(capacity, weights, values, num_items):
+      { lineNumber: 2,  complexity: 'O(n^2)' },                                // dp = [[0 for _ in range(...)] for _ in range(...)]
+      { lineNumber: 4,  complexity: 'O(n)' },                                  // for item_idx in range(1, num_items + 1):
+      { lineNumber: 5,  complexity: 'O(n)', context: 'O(n)' },                 // for curr_capacity in range(1, capacity + 1):
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n^2)' },               // current_weight = weights[item_idx-1]
+      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n^2)' },               // current_value = values[item_idx-1]
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },               // if current_weight <= curr_capacity:
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n^2)' },               // skip_val = dp[item_idx-1][curr_capacity]
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },               // take_val = dp[item_idx-1][...] + current_value
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n^2)' },               // dp[item_idx][curr_capacity] = max(...)
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n^2)' },               // else:
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n^2)' },               // dp[item_idx][curr_capacity] = dp[item_idx-1][...]
+      { lineNumber: 16, complexity: 'O(1)' },                                  // return dp[num_items][capacity]
+    ],
   },
 };
 

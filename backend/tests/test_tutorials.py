@@ -450,3 +450,130 @@ def test_questions_fallback_to_en_when_no_user_language(client, auth_headers, ap
     assert resp.status_code == 200
     q = resp.get_json()['questions'][0]
     assert q['stem'] == 'What is bubble sort?'
+
+
+def test_seed_question_visual_fields(app):
+    """seed_tutorial 應將單題的 visual_type/visual_data/visual_alt 寫入 DB。"""
+    from seeds.seed_questions import seed_tutorial
+    from models.question import Question, QuestionTranslation
+    from database import db
+
+    data = {
+        "slug": "bubble-sort",
+        "groups": [],
+        "questions": [
+            {
+                "id": "q-visual-test",
+                "type": "true-false",
+                "baseRating": 900,
+                "visual_type": "image",
+                "visual_data": {"url": "https://res.cloudinary.com/dpte4xere/image/upload/v1/test.png"},
+                "correctAnswer": "true",
+                "translations": {
+                    "zh-TW": {
+                        "title": "測試題",
+                        "visual_alt": "測試圖示",
+                        "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    }
+                },
+            }
+        ],
+    }
+
+    with app.app_context():
+        _make_tutorial(db.session, slug='bubble-sort')
+        db.session.commit()
+        seed_tutorial(data)
+
+        q = Question.query.filter_by(tutorial_id=1).first()
+        assert q is not None
+        assert q.visual_type == 'image'
+        assert q.visual_data == {"url": "https://res.cloudinary.com/dpte4xere/image/upload/v1/test.png"}
+
+        qt = QuestionTranslation.query.filter_by(question_id=q.question_id, language_code='zh-TW').first()
+        assert qt is not None
+        assert qt.visual_alt == '測試圖示'
+
+
+def test_get_questions_includes_question_visual(client, auth_headers, app):
+    """GET /questions 回傳的每題應含 visual_type、visual_data、visual_alt。"""
+    from database import db
+    from models.question import Question, QuestionTranslation, QuestionType, QuestionCategory
+
+    with app.app_context():
+        _make_tutorial(db.session, slug='bubble-sort')
+        db.session.flush()
+
+        q = Question(
+            tutorial_id=1,
+            question_type=QuestionType.true_false,
+            category=QuestionCategory.basic,
+            base_rating=900.0,
+            difficulty_rating=900.0,
+            correct_answer='true',
+            display_order=0,
+            visual_type='image',
+            visual_data={"url": "https://res.cloudinary.com/dpte4xere/image/upload/v1/test.png"},
+        )
+        db.session.add(q)
+        db.session.flush()
+
+        db.session.add(QuestionTranslation(
+            question_id=q.question_id,
+            language_code='zh-TW',
+            stem='測試題',
+            options=[{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+            visual_alt='測試圖示',
+        ))
+        db.session.commit()
+
+    resp = _authed(client, auth_headers, 'get', '/api/tutorials/bubble-sort/questions?lang=zh-TW')
+    assert resp.status_code == 200
+    questions = resp.get_json()['questions']
+    assert len(questions) == 1
+    q_item = questions[0]
+    assert q_item['visual_type'] == 'image'
+    assert q_item['visual_data'] == {"url": "https://res.cloudinary.com/dpte4xere/image/upload/v1/test.png"}
+    assert q_item['visual_alt'] == '測試圖示'
+
+
+def test_get_question_translations_includes_visual_alt(client, auth_headers, app):
+    """GET /questions/translations 回傳的每題應含 visual_alt（切語言時用）。"""
+    from database import db
+    from models.question import Question, QuestionTranslation, QuestionType, QuestionCategory
+
+    with app.app_context():
+        _make_tutorial(db.session, slug='bubble-sort')
+        db.session.flush()
+
+        q = Question(
+            tutorial_id=1,
+            question_type=QuestionType.true_false,
+            category=QuestionCategory.basic,
+            base_rating=900.0,
+            difficulty_rating=900.0,
+            correct_answer='true',
+            display_order=0,
+            visual_type='image',
+            visual_data={"url": "https://res.cloudinary.com/dpte4xere/image/upload/v1/test.png"},
+        )
+        db.session.add(q)
+        db.session.flush()
+
+        db.session.add(QuestionTranslation(
+            question_id=q.question_id,
+            language_code='zh-TW',
+            stem='測試題',
+            options=[{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+            visual_alt='測試圖示',
+        ))
+        db.session.commit()
+        q_id = q.question_id
+
+    resp = _authed(
+        client, auth_headers, 'get',
+        f'/api/tutorials/bubble-sort/questions/translations?lang=zh-TW&ids={q_id}',
+    )
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['questions'][str(q_id)]['visual_alt'] == '測試圖示'

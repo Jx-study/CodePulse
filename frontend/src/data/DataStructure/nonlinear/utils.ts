@@ -6,6 +6,8 @@ import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
+export type TreeType = "bst" | "binarytree" | "trie" | "custom";
+
 export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
 
 export const updateLinkStatus = (
@@ -487,7 +489,7 @@ function convertToChildren(node: any) {
 
 function getTreeNodeDescription(
   data: HierarchyDatum,
-  type: "bst" | "binarytree" | "trie",
+  type: TreeType,
 ): string {
   if (type === "trie") {
     return data.isEndOfWord ? "[Word]" : "";
@@ -515,7 +517,7 @@ export function createTreeNodes(
     offsetX?: number;
     offsetY?: number;
     degree?: number;
-    type?: "bst" | "binarytree" | "trie";
+    type?: TreeType;
     /**
      * 當提供時，改用 d3.tree().nodeSize() 取代 .size()。
      * [dx, dy]：dx 為相鄰節點水平間距，dy 為每層垂直間距。
@@ -543,6 +545,9 @@ export function createTreeNodes(
     // 解構傳入的可見路徑與真實單字
     const { visiblePaths = [], realWords = [] } = inputData;
     hierarchyData = buildTrieHierarchyData(visiblePaths, realWords);
+  } else if (type === "custom") {
+    // inputData is already a HierarchyDatum tree (e.g. recursive trace snapshot)
+    hierarchyData = inputData as HierarchyDatum;
   } else {
     hierarchyData = buildD3HierarchyData(inputData, degree);
   }

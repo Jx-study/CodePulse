@@ -75,5 +75,72 @@
     "210": "Topological sort: find a linear learning order in a DAG using Kahn's algorithm or DFS",
     "684": "Cycle detection / Union-Find: find the extra edge that creates a cycle in an undirected tree",
     "269": "Advanced topological sort: derive letter ordering from dictionary sequence, build graph and output a valid alphabet order"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "A graph is built from **vertices** and **edges**, modeling [[primary|binary relationships]] between entities — a [[primary|data structure]] often compared to a road network or a social network.",
+        "items": [
+          "**Directed vs. undirected**: an **edge** may have direction — a directed graph captures relationships with [[primary|ordering]], while an undirected graph is bidirectional",
+          "**Weight**: a numeric value on an **edge**, often representing distance or cost — the foundation for [[primary|shortest-path]] algorithms",
+          "**Degree**: the number of **edges** incident to a vertex; in a directed graph it splits into [[primary|in-degree]] (incoming) and [[primary|out-degree]] (outgoing)",
+          "**Path and cycle**: a closed path whose start and end are the same vertex is a [[warning|cycle]], and a graph with no cycles is **acyclic**; a connected undirected graph with V vertices and ≥ V edges must contain a cycle"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Graph operation costs (let `n` be the number of vertices) depend on the underlying storage: an **adjacency list** is best for frequent insertions and deletions, while an **adjacency matrix** excels at fast connectivity lookups.",
+        "items": [
+          "**Add vertex**: [[success|O(1)]] for an adjacency list; [[danger|O(n²)]] for an adjacency matrix because the matrix must be resized",
+          "**Add edge**: [[success|O(1)]] in both representations — the position is directly addressable",
+          "**Check adjacency**: [[success|O(1)]] index lookup in an adjacency matrix; up to [[warning|O(n)]] worst case in an adjacency list, since neighbors must be scanned"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Graphs excel at expressing **complex relationships** and network paths, but are overkill for purely linear or hierarchical data. If the data has only a single parent-child structure, a **tree** is more efficient and avoids the overhead of handling cycles.",
+        "items": [
+          "**Tune storage to density**: a **sparse graph** saves space with an **adjacency list**; a **dense graph** gets faster adjacency queries from an **adjacency matrix**",
+          "**Optimize connectivity checks**: if you only need to know whether two nodes are in the same group (no full path required), [[primary|Disjoint-set (Union-Find)]] is dramatically faster",
+          "**Tune search to weights**: use **BFS** for unweighted graphs; **Dijkstra** for non-negative weights; switch to **Bellman-Ford** when negative weights are possible"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "Whenever a problem involves \"network connections,\" \"path search,\" or \"dependency order\" between entities, a graph is the right fit. Abstract the problem into vertices and edges, and a standard algorithm usually applies.",
+        "items": [
+          "**Shortest-path problems**: map navigation, network routing, or word-ladder problems that minimize transformation steps",
+          "**Topological sort**: tasks with precedence and dependencies, such as project scheduling or spreadsheet recalculation",
+          "**Minimum spanning tree**: laying network cabling or broadcasting information while connecting all nodes at the lowest total weight",
+          "**Maze and connectivity**: six degrees of separation in social networks, or the classic maze-exit search via graph traversal"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Common Graph Representations",
+        "content": "Beginners often struggle to turn abstract vertices and edges into real code. Calling out the implementation differences between the [[primary|adjacency matrix]] and the [[primary|adjacency list]] helps bridge the gap from theory to practice.",
+        "items": [
+          "**Adjacency matrix**: implemented as a **2D array**, ideal for **dense graphs** — extremely fast adjacency checks, but consumes [[danger|O(V²)]] space; for an **undirected graph** the matrix is always a [[primary|symmetric matrix]]",
+          "**Adjacency list**: stores neighbors in a **list** per vertex, ideal for **sparse graphs** — fast operations with only [[success|O(V+E)]] space",
+          "**From theory to code**: most real-world graphs are **sparse**, so the **adjacency list** is the most common way to map abstract relationships into actual code"
+        ],
+        "icon": "diagram-project"
+      },
+      {
+        "heading": "Classic Graph Algorithms",
+        "content": "A graph's power comes entirely from its dedicated algorithms. Listing the core ones gives beginners a clear [[primary|follow-up learning roadmap]] for applying graph theory to real problems.",
+        "items": [
+          "**Graph traversal**: level-by-level **BFS** and deep-first **DFS** are the foundation of graph theory — both run in [[success|O(V+E)]]",
+          "**Shortest path**: minimize cost between two nodes — **Dijkstra** for non-negative weights, **Bellman-Ford** when negative weights exist",
+          "**Minimum spanning tree**: connect all vertices with minimum total weight — **Kruskal** (paired with Disjoint-set) or **Prim**",
+          "**Topological sort**: handles task dependencies in a **directed acyclic graph (DAG)**, turning a tangled precedence relation into a linear sequence"
+        ],
+        "icon": "route"
+      }
+    ]
   }
 }

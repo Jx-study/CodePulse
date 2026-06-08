@@ -1,0 +1,16 @@
+{
+  "animation": {
+    "start": "Preparing to calculate Fibonacci({{targetN}})",
+    "call": "Diving into recursion: calling fib({{n}})",
+    "base": "Reached the base case! fib({{n}}) = {{result}}, preparing to return",
+    "calc": "Combining results: fib({{n}}) = left subtree ({{leftVal}}) + right subtree ({{rightVal}}) = {{result}}",
+    "done": "Calculation complete! The final result at the root node is {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci Recursive",
+    "placeholder": "Input N (1-6)",
+    "button": "Run Recursion",
+    "validation": "Please enter a number between 1 and 6 (recursive tree grows fast)",
+    "ariaLabel": "Input N for Fibonacci Recursive"
+  }
+}

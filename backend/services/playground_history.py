@@ -25,27 +25,35 @@ def has_history_capacity(user_id: int) -> bool:
     return count_user_history(user_id) < MAX_HISTORY
 
 
-def matches_existing_history(code: str, user_id: int) -> bool:
+def find_matching_history(code: str, user_id: int) -> ExploreHistory | None:
     normalized = normalize_code(code)
     if not normalized:
-        return False
+        return None
 
     current_hash = hashlib.sha256(normalized.encode()).hexdigest()
-    history_codes = (
+    history_records = (
         ExploreHistory.query
-        .with_entities(ExploreHistory.user_code)
+        .with_entities(ExploreHistory.explore_id, ExploreHistory.user_code)
         .filter_by(user_id=user_id)
         .all()
     )
-    for (history_code,) in history_codes:
-        history_normalized = normalize_code(history_code)
+    matching_id = None
+    for explore_id, user_code in history_records:
+        history_normalized = normalize_code(user_code)
         if not history_normalized:
             continue
         history_hash = hashlib.sha256(history_normalized.encode()).hexdigest()
         if history_hash == current_hash:
-            return True
+            matching_id = explore_id
+            break
 
-    return False
+    if matching_id is not None:
+        return ExploreHistory.query.filter_by(
+            explore_id=matching_id,
+            user_id=user_id,
+        ).first()
+
+    return None
 
 
 def delete_user_history(record_id: int, user_id: int) -> bool:

@@ -263,8 +263,29 @@ def bfs(graph, start, end):
                 visited.add(neighbor)
                 distances[neighbor] = distances[curr] + 1
                 queue.append(neighbor)
-                
+
     return -1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },                                  // from collections import deque
+      { lineNumber: 3,  complexity: 'O(n)' },                                  // def bfs(graph, start, end):
+      { lineNumber: 4,  complexity: 'O(1)' },                                  // # 初始化距離與訪問狀態
+      { lineNumber: 5,  complexity: 'O(n)' },                                  // distances = {node: float('inf')...}
+      { lineNumber: 6,  complexity: 'O(1)' },                                  // distances[start] = 0
+      { lineNumber: 7,  complexity: 'O(1)' },                                  // queue = deque([start])
+      { lineNumber: 8,  complexity: 'O(1)' },                                  // visited = {start}
+      { lineNumber: 10, complexity: 'O(n)' },                                  // while queue:
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // curr = queue.popleft()
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // # 檢查是否到達終點
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },                 // if curr == end:
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },                 // return distances[curr]
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // # 遍歷鄰居
+      { lineNumber: 18, complexity: 'O(n)', context: 'O(n)' },                 // for neighbor in graph[curr]:
+      { lineNumber: 19, complexity: 'O(1)', context: 'O(n)' },                 // if neighbor not in visited:
+      { lineNumber: 20, complexity: 'O(1)', context: 'O(n)' },                 // visited.add(neighbor)
+      { lineNumber: 21, complexity: 'O(1)', context: 'O(n)' },                 // distances[neighbor] = ...
+      { lineNumber: 22, complexity: 'O(1)', context: 'O(n)' },                 // queue.append(neighbor)
+      { lineNumber: 24, complexity: 'O(1)' },                                  // return -1
+    ],
   },
 };
 

@@ -48,6 +48,8 @@ import {
 } from "@/types/statusConfig";
 import { useTranslation } from "react-i18next";
 import type { StepDescription } from "@/types";
+import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
+import type { CanvasPanelProps } from "@/types/canvasTypes";
 
 function renderDescription(
   desc: string | StepDescription | undefined,
@@ -59,40 +61,6 @@ function renderDescription(
 }
 
 // ==================== Canvas Panel Component ====================
-interface CanvasPanelProps {
-  canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
-  isMobile: boolean;
-  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  currentStepData: any;
-  allStepsElements?: BaseElement[][];
-  currentLinks: Link[];
-  canvasSize: { width: number; height: number };
-  topicTypeConfig: any;
-  currentStatusColorMap: any;
-  currentStatusConfig: any;
-  isDirected: boolean;
-  /** Doubly 鏈結時為 true，驅動 D3 雙向平行箭頭 */
-  showBidirectionalArrows: boolean;
-  viewMode: AlgorithmViewMode | "";
-
-  // 保留 ControlBar props (內嵌在 Canvas 中)
-  isPlaying: boolean;
-  currentStep: number;
-  activeStepsLength: number;
-  playbackSpeed: number;
-  handlePlay: () => void;
-  handlePause: () => void;
-  handleNext: () => void;
-  handlePrev: () => void;
-  handleResetStep: () => void;
-  setPlaybackSpeed: (speed: number) => void;
-  handleStepChange: (step: number) => void;
-
-  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
-  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
-  useGraphCanvas: boolean;
-}
-
 const CanvasPanel = ({
   canvasPanelRef,
   isMobile,
@@ -121,6 +89,7 @@ const CanvasPanel = ({
   graphCanvasRef,
   d3CanvasRef,
   useGraphCanvas,
+  showControls,
 }: CanvasPanelProps) => {
   const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
   const { t: tTutorial } = useTranslation("tutorial");
@@ -195,24 +164,28 @@ const CanvasPanel = ({
             />
           )}
         </div>
-        <div className={styles.stepDescription}>
-          {renderDescription(currentStepData?.description, t)}
-        </div>
-
-        {/* ControlBar 直接渲染,無 PanelHeader */}
-        <ControlBar
-          isPlaying={isPlaying}
-          currentStep={currentStep}
-          totalSteps={activeStepsLength}
-          playbackSpeed={playbackSpeed}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onReset={handleResetStep}
-          onSpeedChange={setPlaybackSpeed}
-          onStepChange={handleStepChange}
-        />
+        {showControls && (
+          <>
+            <div className={styles.stepDescription}>
+              {renderDescription(currentStepData?.description, t)}
+            </div>
+            <div data-tour="control-bar">
+              <ControlBar
+                isPlaying={isPlaying}
+                currentStep={currentStep}
+                totalSteps={activeStepsLength}
+                playbackSpeed={playbackSpeed}
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onNext={handleNext}
+                onPrev={handlePrev}
+                onReset={handleResetStep}
+                onSpeedChange={setPlaybackSpeed}
+                onStepChange={handleStepChange}
+              />
+            </div>
+          </>
+        )}
       </div>
     </Panel>
   );
@@ -247,6 +220,7 @@ export interface InspectorPanelInternalProps {
   handleViewModeChange: (mode: AlgorithmViewMode) => void;
   currentData: any;
   currentStepData: any;
+  disabledTabs: Set<string>;
 }
 
 export const InspectorPanelInternal = ({
@@ -277,6 +251,7 @@ export const InspectorPanelInternal = ({
   handleViewModeChange,
   currentData,
   currentStepData,
+  disabledTabs,
 }: InspectorPanelInternalProps) => {
   const { activePanels } = usePanelContext();
   const { t: tTutorial } = useTranslation("tutorial");
@@ -290,8 +265,9 @@ export const InspectorPanelInternal = ({
         key: config.id,
         label: tTutorial(config.title),
         icon: config.icon,
+        disabled: disabledTabs.has(config.id),
       }));
-  }, [activePanels, tTutorial]);
+  }, [activePanels, disabledTabs, tTutorial]);
 
   // 拖拽邏輯
   const {
@@ -418,6 +394,7 @@ function TutorialContent() {
   const isAnimatingRef = useRef(false);
   const isPlayingRef = useRef(false);
   const handleNextRef = useRef<() => void>(() => {});
+  const codeEditorRef = useRef<CodeEditorHandle>(null);
 
   // Collapse states (使用 context 的 collapsed state)
   const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
@@ -427,15 +404,24 @@ function TutorialContent() {
 
   // Feature Tour state
   const [showFeatureTour, setShowFeatureTour] = useState(true);
-  const handleSkipFeatureTour = () => setShowFeatureTour(false);
+  const handleSkipFeatureTour = () => {
+    setShowFeatureTour(false);
+    if (!hasStartedAnimation) {
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
+    }
+  };
   const handleCompleteFeatureTour = () => {
     setShowFeatureTour(false);
     setIsKnowledgeStationOpen(true);
+    if (!hasStartedAnimation) {
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
+    }
   };
 
   // Inspector Tab state
   const [activeInspectorTab, setActiveInspectorTab] =
     useState<string>("actionBar");
+  const [hasStartedAnimation, setHasStartedAnimation] = useState(false);
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -455,7 +441,7 @@ function TutorialContent() {
   }>();
 
   // Session 管理
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, showCheckinDialog } = useAuth();
   const sessionIdRef = useRef<number | null>(null);
   const sessionStartRef = useRef<number>(Date.now());
 
@@ -467,7 +453,7 @@ function TutorialContent() {
       const res = await tutorialService.markTeachingComplete(levelId);
       teachingDoneRef.current = true;
       if (res.xp_earned > 0) {
-        xp.show(res.xp_earned);
+        xp.show(res.xp_earned, { reason: 'tutorial' });
       }
     } catch {
       // 403 = 未滿 30 秒，靜默忽略
@@ -558,6 +544,19 @@ function TutorialContent() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
+  const isAtLastStep =
+    hasStartedAnimation &&
+    activeSteps.length > 1 &&
+    currentStep === activeSteps.length - 1;
+
+  const showControls = hasStartedAnimation || showFeatureTour;
+
+  const disabledTabs = useMemo((): Set<string> => {
+    if (!hasStartedAnimation) return new Set(["variableStatus"]);
+    if (isAtLastStep) return new Set();
+    return new Set(["actionBar"]);
+  }, [hasStartedAnimation, isAtLastStep]);
+
   const maxNodes = topicTypeConfig?.maxNodes;
   const randomCountRef = useRef(5);
 
@@ -617,6 +616,10 @@ function TutorialContent() {
       setIsPlaying(false);
       setViewMode(topicTypeConfig.defaultViewMode ?? "");
       setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
+      setHasStartedAnimation(false);
+      setActiveInspectorTab("actionBar");
+      // setTimeout 讓 collapse 在當前 render 完成後執行，避免 react-resizable-panels 尚未完成 remount
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
     }
   }, [topicTypeConfig]);
 
@@ -644,6 +647,47 @@ function TutorialContent() {
     }, 1000 / playbackSpeed);
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed]);
+
+  // 5. FeatureTour：開啟時展開 CodeEditor 讓導覽步驟可見；關閉由 handler 負責收起
+  useEffect(() => {
+    if (showFeatureTour && !hasStartedAnimation) {
+      setTimeout(() => {
+        if (leftPanelRef.current?.isCollapsed()) {
+          leftPanelRef.current.expand();
+        }
+      }, 0);
+    }
+  }, [showFeatureTour]);
+
+  // 6. Progressive disclosure：偵測首次開始播放
+  useEffect(() => {
+    if (isPlaying && !hasStartedAnimation) {
+      setHasStartedAnimation(true);
+    }
+  }, [isPlaying, hasStartedAnimation]);
+
+  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor（動態寬度）並切換 tab（只觸發一次）
+  useEffect(() => {
+    if (!hasStartedAnimation) return;
+    const timer = setTimeout(() => {
+      if (leftPanelRef.current?.isCollapsed()) {
+        const contentPx = codeEditorRef.current?.getContentWidth() ?? 0;
+        const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
+        if (contentPx > 0 && rightPanelPx > 0) {
+          const targetPercent = Math.min(
+            panelSizes.codeEditor,
+            (contentPx / rightPanelPx) * 100,
+          );
+          leftPanelRef.current?.resize(`${targetPercent}%`);
+        } else {
+          leftPanelRef.current?.expand();
+        }
+      }
+      setActiveInspectorTab("variableStatus");
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [hasStartedAnimation]);
+
 
   const allStepsElements = useMemo(() => {
     return activeSteps.map((step) => step?.elements ?? []);
@@ -997,6 +1041,7 @@ function TutorialContent() {
   const handleResetStep = () => {
     setCurrentStep(0);
     setIsPlaying(false);
+    setHasStartedAnimation(false);
   };
   const handleStepChange = (step: number) => {
     setCurrentStep(step);
@@ -1104,6 +1149,7 @@ function TutorialContent() {
     handleViewModeChange,
     currentData: logic.data,
     currentStepData,
+    disabledTabs,
   };
 
   const categoryKey = category?.replace(/-/g, "_") ?? "";
@@ -1152,6 +1198,7 @@ function TutorialContent() {
     graphCanvasRef,
     d3CanvasRef,
     useGraphCanvas,
+    showControls,
   };
 
   return (
@@ -1214,6 +1261,7 @@ function TutorialContent() {
         handleModeToggle={handleModeToggle}
         currentCodeConfig={currentCodeConfig}
         highlightLines={highlightLines}
+        codeEditorRef={codeEditorRef}
       />
 
       {/* Knowledge Station Dialog */}
@@ -1226,7 +1274,7 @@ function TutorialContent() {
       )}
       {/* Feature Tour */}
       <FeatureTour
-        isOpen={showFeatureTour}
+        isOpen={showFeatureTour && !showCheckinDialog}
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
         isMobile={isMobile}

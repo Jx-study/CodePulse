@@ -14,5 +14,87 @@
   "relatedProblems": {
     "912": "Sorting basics: implement O(n log n) time complexity sorting with Merge Sort",
     "23": "Extension of the merge step: merge K sorted linked lists"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "Merge Sort applies a **Divide and Conquer** strategy with an [[primary|easy split, hard merge]] characteristic. It recursively splits the array down to single elements, then focuses all complexity on the merge phase to assemble a fully sorted sequence.",
+        "items": [
+          "The **Divide** phase [[primary|splits the array in half]] recursively until each sub-array holds a single element, which is trivially sorted",
+          "The **Conquer** phase is the algorithmic challenge: two sorted sub-arrays must be compared element by element and [[primary|merged]] into one larger sorted sequence",
+          "It is a **stable sort** (Stable Sorting), preserving the relative order of equal elements, at the cost of requiring extra [[primary|auxiliary space]] to hold intermediate results"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Complexity",
+        "content": "Merge Sort's time complexity is [[success|O(n log n)]] in all three cases — best, average, and worst — regardless of input order. The recursion tree always has log n levels and each level merges a total of n elements, so all three cases are identical and unlike Quick Sort's worst-case degradation.",
+        "items": [
+          "**All three cases are O(n log n)**: whether the input is sorted, reversed, or random, every level must merge all n elements across log n levels",
+          "**Split**: compute midpoint and slice — [[success|O(1)]] per level",
+          "**Merge**: traverse and compare elements — [[warning|O(n)]] per level",
+          "**Space**: non-in-place sort, requires [[warning|O(n)]] auxiliary memory; the recursive version adds an O(log n) call stack on top"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "Merge Sort excels with **large datasets** and **linked lists**, and guarantees **stable sorting**. However, its extra memory requirement makes it unsuitable for memory-constrained environments or very small inputs. Python's `sorted()` uses **Timsort**, which first uses Insertion Sort to carve the array into small sorted segments (runs), then merges them with Merge Sort — getting the best of both.",
+        "items": [
+          "Ideal for **large datasets** or **Linked Lists** — performance remains consistently stable",
+          "Ideal when **stable sorting** is required, preserving the original relative order of equal-valued elements",
+          "Not suitable for **memory-constrained** arrays; the extra space overhead means **Quick Sort** is often preferred",
+          "Not suitable for **very small inputs** (e.g., n < 64) — recursive merge overhead outweighs the benefit; **Insertion Sort** is better, and **Timsort** uses exactly this insight to combine both algorithms"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "Whenever you spot clues like \"linked list\", \"external data\", or \"stable sort\", Merge Sort is the go-to solution. It also shines for advanced problems that involve counting relative-position changes among elements.",
+        "items": [
+          "**Linked list sorting**: lists lack random access — Quick Sort's partition requires index-based positioning and degrades to O(n) on lists; Merge Sort only needs two forward-advancing pointers and can merge by modifying pointers without any temp array, reducing space to O(log n)",
+          "**Counting Inversions**: during merge, when `right[j] < left[i]`, since left is already sorted, every element from left[i] to the end of left forms an inversion pair with right[j] — batch-add `len(left) - i` at once, keeping the overall complexity at O(n log n)",
+          "**External sorting**: disk data cannot all fit in memory; Merge Sort's merge step naturally supports a streaming pattern — read two sorted blocks, write one sorted block — a perfect fit for sequential disk I/O",
+          "**Multi-key stable sorting**: when the problem demands O(n log n) efficiency and the original relative order of equal elements must be preserved exactly"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Recursion Execution Order",
+        "content": "Diagrams often create the illusion that the array is split level by level all at once; in reality, **recursion** [[primary|always dives all the way down the left half first]] before it ever touches the right. For an array of size n=2^k, the recursion tree has **k+1 levels** in total (root through leaves) — e.g., n=8 gives 4 levels, n=4 gives 3 levels. An array of n elements produces exactly **n-1 merge calls** (one per internal node of the recursion tree).",
+        "items": [
+          "Static teaching diagrams show **simultaneous level-by-level** splitting — a visual illusion that does not reflect how the program actually runs",
+          "The code follows the **left half** recursive call all the way down until the sub-array has only one element",
+          "Only after the left side bottoms out and completes its initial **merge** does the call stack unwind and begin processing the corresponding **right half**",
+          "The standard code template has three key parts: `if len(arr) <= 1: return arr` as the base case, `arr[:mid]` for the left half, `arr[mid:]` for the right half, then `merge(left, right)` to combine two sorted sub-arrays",
+          "Odd-length example: sorting `[3,1,2]` with mid=1, the left sub-array `[3]` returns immediately; the first merge call is `merge([1],[2])` inside the right sub-array `[1,2]`, not the outer `merge([3],[1,2])`"
+        ],
+        "icon": "code-branch"
+      },
+      {
+        "heading": "The Critical Merge Step",
+        "content": "Merge Sort's [[primary|easy split, hard merge]] nature means splitting is trivial, but correctly combining two sorted sub-arrays using **dual pointers** and **extra space** is the core implementation challenge where most beginners get stuck. The merge comparison must use `<=` (less than or equal): switching to strict `<` would prefer the right element on ties, breaking stable sort.",
+        "items": [
+          "The actual sorting happens during the **Merge** phase — every element in both sub-arrays must be visited and compared",
+          "**Extra space** (a temporary array) is required to store the merged result; elements cannot be swapped in-place the way in-place sorts do",
+          "Implementation requires careful **dual-pointer** control, tracking progress in each sub-array and picking the smaller value into the temp buffer each step",
+          "Short trace example: in `merge([1,4], [2,3])`, the while loop appends 1, then 2, then 3; once the right half is exhausted, the remaining 4 is appended by `extend(left[i:])` instead of another comparison",
+          "When one sub-array is exhausted first, all remaining elements from the other sub-array must be appended to the end of the merged result; if `merge([1,2,3], [])` is called, the while loop is false immediately and the result becomes `[1,2,3]` from the remaining elements"
+        ],
+        "icon": "merge"
+      },
+      {
+        "heading": "Merge Sort vs Quick Sort",
+        "content": "Both Merge Sort and Quick Sort run in O(n log n) on average, but they differ fundamentally in worst-case behavior, stability, and space requirements.",
+        "items": [
+          "**Time stability**: Merge Sort is O(n log n) in all three cases; Quick Sort can degrade to [[danger|O(n²)]] in the worst case when the pivot is always the extreme value and partitions are completely unbalanced",
+          "**Space**: Merge Sort requires O(n) auxiliary array; Quick Sort is nearly in-place, using only O(log n) recursion stack",
+          "**Stability**: Merge Sort is naturally stable; Quick Sort's partition swaps can change the relative order of equal-key elements, making it an **unstable sort**",
+          "**Practical choice**: prefer Merge Sort when memory is available and stability matters; prefer Quick Sort for better cache performance and in-place sorting"
+        ],
+        "icon": "scale-balanced"
+      }
+    ]
   }
 }

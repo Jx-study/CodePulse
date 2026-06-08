@@ -68,6 +68,20 @@ End Procedure`,
             right = mid - 1
 
     return -1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(log n)' },                              // def binary_search(arr, target):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // left = 0
+      { lineNumber: 3,  complexity: 'O(1)' },                                  // right = len(arr) - 1
+      { lineNumber: 5,  complexity: 'O(log n)' },                              // while left <= right:
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(log n)' },             // mid = (left + right) // 2
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(log n)' },             // if arr[mid] == target:
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(log n)' },             // return mid
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(log n)' },             // elif arr[mid] < target:
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(log n)' },             // left = mid + 1
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(log n)' },             // else:
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(log n)' },             // right = mid - 1
+      { lineNumber: 15, complexity: 'O(1)' },                                  // return -1
+    ],
   },
 };
 
@@ -84,8 +98,8 @@ export const binarySearchConfig: LevelImplementationConfig = {
     timeWorst: "O(log n)",
     space: "O(1)",
   },
-  introduction: `二分搜尋是一種高效的搜尋演算法，用於在已排序的陣列中尋找特定元素。它的核心思想是每次將搜尋範圍縮小一半，通過比較中間元素與目標值來決定接下來要搜尋左半部還是右半部。
-由於每次都將搜尋範圍減半，因此時間複雜度為 O(log n)。注意：資料必須要是已排序的。`,
+  i18nNamespace: "tutorials/binary-search",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 10 },
     { id: "box-1", value: 25 },

@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Dialog from "@/shared/components/Dialog";
 import { SkeletonText } from "@/shared/components/Skeleton";
 import Button from "@/shared/components/Button";
 import type { AiResult } from "@/types/ai";
 import type { RunStage } from "@/types/runStage";
+import { ALGORITHM_TO_IMPL_KEY } from "@/data/implementations/traceConverters";
+import { getLevelByImplKey } from "@/services/LevelService";
 import styles from "./AiAnalysisDialog.module.scss";
 
 interface AiAnalysisDialogProps {
@@ -13,7 +17,7 @@ interface AiAnalysisDialogProps {
   aiResult: AiResult | null;
 }
 
-type DialogTab = "complexity" | "summary";
+type DialogTab = "complexity" | "algorithm" | "summary";
 
 export function AiAnalysisDialog({
   isOpen,
@@ -21,11 +25,30 @@ export function AiAnalysisDialog({
   runStage,
   aiResult,
 }: AiAnalysisDialogProps) {
+  const { t } = useTranslation("playground");
   const [activeTab, setActiveTab] = useState<DialogTab>("complexity");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isOpen) setActiveTab("complexity");
+  }, [isOpen]);
 
   const isLoading = runStage === "analysis" || (runStage !== "done" && aiResult === null);
   // TODO: sentry — log when analysis completes with no result (backend returned null)
   const isError = runStage === "done" && aiResult === null;
+
+  const tutorialLevel = useMemo(() => {
+    if (!aiResult?.detected_algorithm) return null;
+    const implKey = ALGORITHM_TO_IMPL_KEY[aiResult.detected_algorithm];
+    if (!implKey) return null;
+    return getLevelByImplKey(implKey);
+  }, [aiResult?.detected_algorithm]);
+
+  useEffect(() => {
+    if (isOpen && activeTab === "algorithm" && !tutorialLevel) {
+      setActiveTab("complexity");
+    }
+  }, [activeTab, isOpen, tutorialLevel]);
 
   return (
     <Dialog
@@ -35,9 +58,9 @@ export function AiAnalysisDialog({
       title={
         <div className={styles.dialogTitle}>
           <span className={styles.dialogTitleIcon}>✦</span>
-          AI Analysis
+          {t("aiDialog.title")}
           {runStage === "analysis" && (
-            <span className={styles.dialogTitleNote}>Gemini 仲裁中…</span>
+            <span className={styles.dialogTitleNote}>{t("aiDialog.arbitrating")}</span>
           )}
         </div>
       }
@@ -49,14 +72,23 @@ export function AiAnalysisDialog({
           className={`${styles.tab} ${activeTab === "complexity" ? styles.tabActive : ""}`}
           onClick={() => setActiveTab("complexity")}
         >
-          Complexity
+          {t("aiDialog.tabComplexity")}
         </Button>
+        {tutorialLevel && (
+          <Button
+            variant="unstyled"
+            className={`${styles.tab} ${activeTab === "algorithm" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("algorithm")}
+          >
+            {t("aiDialog.tabAlgorithm")}
+          </Button>
+        )}
         <Button
           variant="unstyled"
           className={`${styles.tab} ${activeTab === "summary" ? styles.tabActive : ""}`}
           onClick={() => setActiveTab("summary")}
         >
-          AI Summary
+          {t("aiDialog.tabSummary")}
         </Button>
       </div>
 
@@ -64,9 +96,9 @@ export function AiAnalysisDialog({
       {activeTab === "complexity" && (
         <div className={styles.tabBody}>
           <div className={styles.block}>
-            <div className={styles.blockHeader}>◎ Time Complexity</div>
+            <div className={styles.blockHeader}>{t("aiDialog.timeComplexity")}</div>
             {isError ? (
-              <p className={styles.errorState}>Analysis failed — please re-run.</p>
+              <p className={styles.errorState}>{t("aiDialog.analysisError")}</p>
             ) : isLoading || !aiResult ? (
               <div className={styles.skeletonWrap}>
                 <SkeletonText lines={2} />
@@ -78,7 +110,7 @@ export function AiAnalysisDialog({
                 </span>
                 {aiResult.analysis_source && (
                   <span className={styles.sourceBadge}>
-                    ✦ {aiResult.analysis_source}
+                    {aiResult.analysis_source}
                   </span>
                 )}
               </div>
@@ -87,13 +119,49 @@ export function AiAnalysisDialog({
         </div>
       )}
 
+      {/* Tab: Algorithm */}
+      {activeTab === "algorithm" && tutorialLevel && (
+        <div className={styles.tabBody}>
+          <div className={styles.block}>
+            <div className={styles.blockHeader}>{t("aiDialog.detectedAlgorithm")}</div>
+            <div className={styles.algoBlock}>
+              <span className={styles.algoName}>
+                {aiResult?.detected_algorithm?.replace(/_/g, " ")}
+              </span>
+              {aiResult?.confidence_score != null && (
+                <span className={styles.algoConfidence}>
+                  {Math.round(aiResult.confidence_score * 100)}%
+                </span>
+              )}
+            </div>
+          </div>
+          <div className={styles.tutorialCta}>
+            <p className={styles.tutorialCtaHint}>
+              {t("aiDialog.learnHint")}
+            </p>
+            <div title="前往該演算法的教學頁面，包含動畫演示與練習題">
+              <Button
+                variant="primaryOutline"
+                size="sm"
+                onClick={() => {
+                  navigate(`/tutorial/${tutorialLevel.category}/${tutorialLevel.id}`);
+                  onClose();
+                }}
+              >
+                {t("aiDialog.goToTutorial")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tab: AI Summary */}
       {activeTab === "summary" && (
         <div className={styles.tabBody}>
           <div className={styles.block}>
-            <div className={styles.blockHeader}>◈ Code Summary</div>
+            <div className={styles.blockHeader}>{t("aiDialog.codeSummary")}</div>
             {isError ? (
-              <p className={styles.errorState}>Analysis failed — please re-run.</p>
+              <p className={styles.errorState}>{t("aiDialog.analysisError")}</p>
             ) : isLoading || !aiResult?.summary ? (
               <div className={styles.skeletonWrap}>
                 <SkeletonText lines={5} />
@@ -101,12 +169,12 @@ export function AiAnalysisDialog({
             ) : (
               <div className={styles.summaryBody}>
                 <div>
-                  <div className={styles.summaryLabel}>Purpose</div>
+                  <div className={styles.summaryLabel}>{t("aiDialog.purpose")}</div>
                   <p className={styles.summaryText}>{aiResult.summary.purpose}</p>
                 </div>
                 {aiResult.summary.feedback && (
                   <div>
-                    <div className={styles.summaryLabel}>Feedback</div>
+                    <div className={styles.summaryLabel}>{t("aiDialog.feedback")}</div>
                     <p className={styles.summaryText}>{aiResult.summary.feedback}</p>
                   </div>
                 )}

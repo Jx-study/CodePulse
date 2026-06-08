@@ -14,5 +14,72 @@
     "215": "Selection sort concept: find the K-th largest element using partial sorting",
     "414": "Finding max/min: find the third maximum number in an array",
     "164": "Advanced sorting: find the maximum gap between adjacent elements after sorting"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "Selection Sort is an intuitive **comparison sort**. Its [[primary|core essence]] is to find the **minimum value** from the unsorted region each pass and swap it with the **first element** of that region, repeating until fully sorted.",
+        "items": [
+          "The array is divided into a **sorted** and an **unsorted** region; each iteration gradually expands the [[primary|sorted range]]",
+          "Each pass scans the remaining **unsorted region**, continuously comparing and recording the exact position of the [[primary|minimum value]]",
+          "Once the minimum is found, an **element swap** places it at the [[primary|first position]] of the unsorted region to lock it in"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operational Complexity",
+        "content": "Regardless of the initial data order, Selection Sort must scan the unsorted region to find the minimum, so its time complexity is fixed at [[danger|O(n²)]] for best, average, and worst cases alike.",
+        "items": [
+          "Comparison operations: a nested loop compares elements one by one to find the minimum, fixed at [[danger|O(n²)]]",
+          "Swap operations: at most one element swap is performed per pass after the minimum is found, giving [[warning|O(n)]]",
+          "Memory space: an in-place sort requiring only constant auxiliary variables, with space complexity [[success|O(1)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "Selection Sort's strengths are **in-place sorting** and very few **swap operations**, making it suitable for small-scale or write-expensive environments. It performs poorly on large datasets and should be replaced there.",
+        "items": [
+          "**Memory-constrained environments**: no extra space allocation needed — highly advantageous in resource-tight **embedded systems**",
+          "**High write-cost scenarios**: at most one swap per pass significantly reduces **data exchange count** and lowers hardware burden",
+          "**Not suitable for large datasets**: extremely inefficient on large data — switch to **Merge Sort** or **Quick Sort** instead",
+          "**Not suitable for nearly-sorted data**: lacks an early-exit mechanism — **Insertion Sort** is recommended for such cases"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Problems It Fits Best",
+        "content": "Selection Sort shines when available memory is minimal or when data swaps and writes are extremely costly. Look for these clues to recognize it:",
+        "items": [
+          "**Resource-constrained array sorting**: problem limits extra space, requiring in-place sorting with O(1) space complexity",
+          "**Minimizing data swap count**: context emphasizes high write costs or caps total swaps — each pass swaps at most once",
+          "**Fixed performance and step count**: problem demands that execution time and comparison count are fully predictable regardless of initial order",
+          "**Finding extremes implementation**: a foundational algorithm exercise verifying mastery of nested loops and unsorted-region minimum logic"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Sort Stability",
+        "content": "Selection Sort is an [[warning|unstable sort]]. When performing **element swaps**, it may disrupt the **original relative order** of equal values in the sequence — a conceptual blind spot that beginners easily overlook.",
+        "items": [
+          "[[warning|Unstable sort]] characteristic: when duplicate values exist, their **original relative order** may differ after sorting",
+          "The **element swap** trap: swapping the minimum to the front can move the front element behind other equal-valued elements",
+          "A beginner's **conceptual blind spot**: newcomers focus on numeric value alone, ignoring that many real scenarios require preserving the initial order of equal elements",
+          "**Stability optimization** approach: to achieve stability, replace direct swapping with an insertion-style shift that moves elements one position at a time"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Comparison with Other Sorts",
+        "content": "Beginners often confuse Selection Sort with basic **Bubble Sort** or **Insertion Sort**. A dedicated comparison of their **swap counts** and characteristics helps learners build a clearer algorithmic framework.",
+        "items": [
+          "vs. **Bubble Sort**: Bubble Sort swaps adjacent elements frequently; Selection Sort swaps at most once per pass, making its [[success|write cost]] minimal",
+          "vs. **Insertion Sort**: Insertion Sort can exit early on sorted data; Selection Sort has no such mechanism, always running at [[danger|O(n²)]]",
+          "**Stability** difference: Bubble Sort and Insertion Sort are both stable; Selection Sort disrupts the relative order of equal elements, making it an [[warning|unstable sort]]"
+        ],
+        "icon": "cog"
+      }
+    ]
   }
 }

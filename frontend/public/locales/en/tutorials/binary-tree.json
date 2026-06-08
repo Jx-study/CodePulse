@@ -61,5 +61,73 @@
     "144": "Preorder traversal: Root → Left → Right (iterative and recursive)",
     "94": "Inorder traversal: Left → Root → Right (produces sorted output for BST)",
     "102": "Level-order traversal (BFS): visit nodes level by level"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "A binary tree is a non-linear **data structure** that represents hierarchical relationships, much like a computer's [[primary|file system]]. It is composed of **nodes** and **edges**, where each node can have at most two [[primary|children]].",
+        "items": [
+          "Each **node** branches into at most a **left subtree** and a **right subtree**, with a strict [[primary|left-right order]] that cannot be swapped arbitrarily",
+          "A **Binary Search Tree** requires the **left subtree** to be smaller than the **parent node** and the **right subtree** to be larger, forming a [[primary|size ordering]]",
+          "Nodes are linked by pointers — failing to handle successors when deleting a **node** is like cutting a [[primary|sausage]] link, causing all subsequent data to be lost"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "The time cost of Binary Search Tree operations is proportional to tree height. Performance is good when data is evenly distributed, but degrades significantly when the tree skews into a one-sided chain.",
+        "items": [
+          "**Search**: average [[success|O(log n)]]; worst case on a skewed tree is [[warning|O(n)]]",
+          "**Insert**: traverse to an empty slot and insert, average [[success|O(log n)]]; worst case [[warning|O(n)]]",
+          "**Delete**: locate and reattach subtrees, average [[success|O(log n)]]; worst case [[warning|O(n)]]",
+          "**Traversal**: every node must be visited exactly once, time complexity is always [[warning|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "Best suited for **fast search** and **frequent insertions and deletions** on randomly distributed data. It struggles with sorted data and can degrade into an inefficient **skewed tree** — consider a self-balancing **AVL Tree** or **B-Tree** instead.",
+        "items": [
+          "**Strengths**: ideal for randomly distributed data requiring efficient dynamic **search**, **insert**, and **delete** operations",
+          "**Weaknesses**: avoid inserting already-**sorted** sequential data, as the structure grows one-sided and degrades into a highly inefficient **skewed tree**",
+          "**Alternatives**: to prevent the performance penalty of a **skewed tree**, switch to a self-balancing **AVL Tree** or **B-Tree**"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Suitable Problem Types",
+        "content": "If a problem involves hierarchical relationships, requires fast dynamic search with insertions and deletions, or needs data printed in order, a Binary Search Tree is likely the right tool.",
+        "items": [
+          "**Binary Tree Traversal**: visit all nodes in preorder, inorder, postorder, or level-order — classic tree tracing problems",
+          "**Validate a Binary Search Tree**: determine whether a given tree structure strictly satisfies the left-smaller-right-larger ordering rule",
+          "**Huffman Encoding**: a data compression algorithm that builds an encoding tree using a binary tree structure to shorten data length",
+          "**Find the K-th Smallest Element**: exploit the property that inorder traversal of a BST yields ascending order to efficiently locate a specific rank"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Node Traversal Methods",
+        "content": "Binary trees are **non-linear structures** that cannot be read as intuitively as arrays. Beginners often struggle with the order of **preorder**, **inorder**, **postorder**, and **level-order traversal**, as well as the underlying **recursive logic** each requires.",
+        "items": [
+          "No intuitive index: data cannot be read with a simple loop — you must rely on **pointers** or a [[warning|Stack]] to track the non-linear path",
+          "Abstract **recursive logic**: **depth-first traversal** repeatedly calls into subtrees, making it easy to lose track of the execution flow and how calls unwind",
+          "Traversal order confusion: **preorder**, **inorder**, and **postorder** differ only in when the parent node is processed, yet produce completely different output sequences",
+          "**Level-order traversal** mindset shift: unlike recursion, it requires a [[primary|Queue]] to temporarily store and process nodes at the same level — a fundamentally different implementation"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Underlying Storage Structure",
+        "content": "Beginners often struggle to translate the abstract tree diagram into concrete code, getting stuck on how to use a one-dimensional array's index formulas or object pointers to link parent and child nodes.",
+        "items": [
+          "Array representation: use the index formulas `2i+1` and `2i+2` to locate the **left child** and **right child**, saving the overhead of explicit pointers",
+          "**Pointer** representation: each node stores `left` and `right` references, flexibly supporting dynamic insertions and deletions",
+          "Arrays suit **complete binary trees** — sparse trees waste significant space; pointers suit trees of any shape",
+          "Core difference in traversal code: array-based traversal jumps via arithmetic; pointer-based structures rely on **recursion** or **iteration** to follow nodes"
+        ],
+        "icon": "cog"
+      }
+    ]
   }
 }

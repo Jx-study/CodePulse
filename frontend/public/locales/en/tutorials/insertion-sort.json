@@ -14,5 +14,78 @@
     "147": "Direct application: implement insertion sort on a linked list",
     "148": "Advanced sort: sort a linked list, solvable with insertion sort or merge sort",
     "88": "Insertion sort concept extension: merge two sorted arrays"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Like sorting a hand of playing cards, the essence is dividing the array into a **sorted** and an **unsorted** region. Pick the next unsorted element, scan left for its correct spot, and [[primary|insert]] it — gradually turning the array into order.",
+        "items": [
+          "The first element is treated as **sorted** from the start; the rest remain **unsorted**, separated by a conceptual divider that [[primary|partitions the array]]",
+          "The **target value** being inserted is compared leftward; any larger element is **shifted** right with a [[primary|shift]] to open a gap",
+          "After each insertion the left side maintains [[primary|ascending order]] — this invariant is called the **loop invariant**",
+          "When the while loop exits, `j` rests at the first element **not greater than** key (or `-1`), so `j+1` is exactly the gap where key belongs"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Insertion Sort's performance depends heavily on the initial state of the data. It is an in-place algorithm with no extra space cost, excels on nearly sorted sequences, but slows significantly on reversed input.",
+        "items": [
+          "**Best-case time complexity**: [[warning|O(n)]] — when the array is already sorted, the inner loop terminates immediately and no shifts are needed",
+          "**Worst-case and average time**: [[danger|O(n²)]] — reversed or random data forces each insertion to scan and shift a large portion of the array",
+          "**Space complexity**: [[success|O(1)]] — only a handful of variables are needed, making it a true in-place sort with no extra memory",
+          "**Inversions**: each shift eliminates exactly one 'larger-before-smaller' inversion pair; a fully reversed array has [[danger|n(n-1)/2]] inversions (`1+2+…+(n-1)`), which is the exact worst-case shift count"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Insertion Sort **excels** on tiny or **nearly sorted** sequences and **online sorting**. It is **poor** at large-scale or random data; in those cases switch to a more advanced algorithm.",
+        "items": [
+          "Extremely efficient on small datasets or **nearly sorted** data, achieving close-to-linear performance",
+          "Well-suited for **online sorting** where data arrives incrementally; it is also a **stable sort** that preserves the relative order of equal elements",
+          "**Binary Insertion Sort**: uses **binary search** to find the insertion position, reducing comparisons from [[danger|O(n²)]] to [[warning|O(n log n)]], but shifts are unchanged — overall time complexity remains [[danger|O(n²)]]; the search maintains `lo/hi` pointers: if `arr[mid] > key` set `hi = mid - 1`, otherwise `lo = mid + 1`; when the loop exits, `lo` is the insertion point",
+          "**Shell Sort**: runs insertion sort with a larger **gap** first so far-apart misplaced elements jump toward their targets quickly, then shrinks the gap to 1; the final pass is nearly sorted, drastically reducing total shifts"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "Insertion Sort is an excellent choice when the dataset is small, memory is limited, or the data is nearly ordered. If the problem involves incremental input or requires stable sorting, think of it first.",
+        "items": [
+          "**Online sorting** or **dynamic leaderboard** problems that process data as it arrives are a perfect fit for this algorithm",
+          "When the problem states only a few elements are out of place — a **nearly sorted sequence** — it delivers near-linear performance",
+          "In **strict in-place sorting** problems that require O(1) space, it is the ideal choice with no extra memory needed",
+          "In **hybrid sort implementations**, it is commonly used as the base algorithm for small sub-arrays (typically fewer than 64 elements) — its simple loop structure and low constant overhead outweigh the extra cost of recursion and merging",
+          "**Linked list version**: once the insertion point is found, only pointer adjustments are needed — no [[warning|shifting]] of array elements — eliminating the most time-consuming step of the array version"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Common Implementation Pitfalls",
+        "content": "Beginners often get stuck on the inner loop's **boundary condition** (e.g., going below index zero) and frequently confuse **[[warning|shifting]]** with **[[danger|swapping]]** — these are the most error-prone implementation details to watch out for.",
+        "items": [
+          "Forgetting the **boundary condition** (e.g., `j >= 0`) in the inner loop causes a **[[danger|out-of-bounds error]]** when the index decrements past zero",
+          "The correct approach shifts larger elements **[[warning|right]]** to create a gap and inserts at the end — not repeated **[[danger|swaps]]** back and forth with the target",
+          "Failing to save the **target value** in a variable beforehand causes it to be overwritten when elements are **[[warning|shifted]]** rightward",
+          "**Recursive version** — three essentials: base case is `n <= 1`; first recursively sort the first `n-1` elements; then insert the `n`-th element into the sorted region",
+          "**Forgetting to write back key**: if `arr[j+1] = key` is omitted after the shift loop, a duplicate value or gap is left in the array, breaking the loop invariant"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "Stability and In-Place Properties",
+        "content": "Requiring no extra memory while preserving the relative order of equal elements helps beginners understand why modern advanced sorts (such as **Timsort**) still rely on it under the hood.",
+        "items": [
+          "As an **in-place sort** with [[success|O(1)]] space complexity, it allocates no additional memory during execution",
+          "As a **stable sort**, elements with equal keys retain their exact original relative positions — the root cause is the **strict greater-than** condition (`arr[j] > key`), which ensures equal elements are never shifted",
+          "These two properties combined with its efficiency on small data make it the foundational building block inside modern sorts like **Timsort**",
+          "Contrast with **Selection Sort**: it scans for the minimum each round and performs a long-distance swap, which can cause equal-valued elements to leapfrog each other — making it generally [[warning|unstable]]",
+          "Shared traits with **Bubble Sort**: both are [[success|in-place]] and [[success|stable]], worst-case time is [[danger|O(n²)]] for both, and both reach [[warning|O(n)]] best-case on already-sorted input"
+        ],
+        "icon": "shield-halved"
+      }
+    ]
   }
 }

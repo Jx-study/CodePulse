@@ -87,5 +87,19 @@
     "target": "Target",
     "complete": "Complete",
     "inactive": "Inactive"
+  },
+  "practice": {
+    "visual": {
+      "groupImage": "Group image",
+      "hintImage": "Hint image"
+    }
+  },
+  "xp": {
+    "earned": "XP Earned",
+    "reason": {
+      "checkin": "Daily Check-in",
+      "tutorial": "Tutorial Complete",
+      "practice": "Practice Complete"
+    }
   }
 }

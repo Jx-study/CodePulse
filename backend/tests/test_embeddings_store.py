@@ -10,7 +10,7 @@ def test_load_returns_correct_shapes():
     matrix = embeddings_store.get_reference_matrix()
     labels = embeddings_store.get_labels()
     assert matrix.ndim == 2
-    assert matrix.shape[1] == 384
+    assert matrix.shape[1] == 768
     assert matrix.dtype == np.float32
     assert matrix.shape[0] == len(labels)
     assert len(labels) > 0

@@ -1,5 +1,6 @@
 import { BaseElement } from "../modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { LineComplexity } from "@/modules/core/components/CodeEditor/features/TimeComplexity/types";
 
 export interface StepDescription {
   key: string;
@@ -43,5 +44,6 @@ export interface CodeConfig {
   };
   python: {
     content: string;
+    lineComplexity?: LineComplexity[];
   };
 }

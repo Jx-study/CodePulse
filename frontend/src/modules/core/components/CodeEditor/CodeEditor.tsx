@@ -3,6 +3,7 @@ import Editor, { OnChange, OnMount } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import styles from './CodeEditor.module.scss';
 import { useTimeComplexityDecorations } from './features/TimeComplexity';
+import type { LineComplexity } from './features/TimeComplexity/types';
 import { useTheme } from '@/shared/contexts/ThemeContext';
 
 // ==================== 類型定義 ====================
@@ -42,6 +43,7 @@ export interface CodeEditorProps {
 
   // 時間複雜度顯示
   showTimeComplexity?: boolean;
+  complexityData?: LineComplexity[];
 }
 
 export interface CodeEditorHandle {
@@ -80,6 +82,8 @@ export interface CodeEditorHandle {
   setErrorMarker: (lineno: number, message: string) => void;
   /** 清除語法錯誤標記 */
   clearErrorMarker: () => void;
+  /** 回傳渲染當前 code 所需的像素寬度（最長行 × 字元寬 + gutter）。wordWrap:on 時 getContentWidth() 不可靠，改用 model 行長計算。 */
+  getContentWidth: () => number;
 }
 
 // ==================== 語言對應表 ====================
@@ -140,6 +144,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
     autoHeight = false,
     maxAutoHeight,
     showTimeComplexity = false,
+    complexityData,
   } = props;
 
   // ========== State ==========
@@ -179,6 +184,11 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   useEffect(() => {
     setCurrentLanguage(language);
   }, [language]);
+
+  // ========== 同步 value prop → internalValue ==========
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
 
   // ========== 同步 highlightedLine ref（解決 onMount stale closure）==========
   useEffect(() => {
@@ -299,7 +309,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
   useTimeComplexityDecorations(
     mode === 'split' ? bottomEditorRef.current : editorRef.current,
     mode === 'split' ? internalBottomValue : internalValue,
-    { enabled: showTimeComplexity && currentLanguage === 'python' }
+    {
+      enabled: showTimeComplexity && currentLanguage === 'python',
+      externalData: complexityData,
+    }
   );
 
   const handleResizerMouseDown = (e: React.MouseEvent) => {
@@ -489,6 +502,19 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>((props, ref) =>
       const model = editor.getModel();
       if (!model) return;
       monacoInstance.editor.setModelMarkers(model, "analyzeError", []);
+    },
+    getContentWidth: () => {
+      const editor = mode === 'split' ? topEditorRef.current : editorRef.current;
+      if (!editor) return 0;
+      const model = editor.getModel();
+      if (!model) return 0;
+      let maxLen = 0;
+      for (let i = 1; i <= model.getLineCount(); i++) {
+        maxLen = Math.max(maxLen, model.getLineLength(i));
+      }
+      const fontInfo = editor.getOption(monaco.editor.EditorOption.fontInfo);
+      const charWidth = fontInfo.typicalHalfwidthCharacterWidth;
+      return Math.ceil(maxLen * charWidth) + 50;
     },
   }));
 

@@ -1,0 +1,16 @@
+{
+  "animation": {
+    "init": "準備計算 Fibonacci({{n}})，建立長度為 {{size}} 的 DP 陣列",
+    "base_cases": "填入基本條件 (Base Cases)：dp[0] = 0, dp[1] = 1",
+    "calc_prepare": "計算 dp[{{i}}]：取得前兩項 dp[{{item1}}]: {{val1}} 與 dp[{{item2}}]: {{val2}}",
+    "calc_done": "dp[{{i}}] = {{val1}} + {{val2}} = {{result}}",
+    "done": "計算完成！結果為 {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci DP",
+    "placeholder": "輸入 N (1-12)",
+    "button": "Run DP",
+    "validation": "請輸入 1 到 12 之間的數字",
+    "ariaLabel": "輸入 Fibonacci DP 的 N 值"
+  }
+}

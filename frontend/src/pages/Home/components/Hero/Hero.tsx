@@ -67,7 +67,7 @@ function Hero() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => navigate("/explorer")}
+              onClick={() => navigate("/dashboard")}
             >
               {t("hero.cta")}
             </Button>
