@@ -46,5 +46,24 @@
         "icon": "location-crosshairs"
       }
     ]
+  },
+  "ui": {
+    "operations": "Linked List 操作",
+    "valuePlaceholder": "數值",
+    "indexPlaceholder": "索引",
+    "searchPlaceholder": "搜尋值",
+    "insert": "插入",
+    "delete": "刪除",
+    "search": "搜尋",
+    "insertTooltip": "在指定位置新增一個節點",
+    "deleteTooltip": "刪除指定位置的節點",
+    "searchTooltip": "搜尋指定數值的節點",
+    "insertWarning": "請輸入要插入的數值",
+    "indexWarning": "Node N 模式需要輸入索引",
+    "searchWarning": "請輸入搜尋值",
+    "singly": "單向 (Singly)",
+    "doubly": "雙向 (Doubly)",
+    "noTail": "無 tail 模式",
+    "hasTail": "有 tail 模式"
   }
 }

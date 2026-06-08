@@ -46,5 +46,24 @@
         "icon": "location-crosshairs"
       }
     ]
+  },
+  "ui": {
+    "operations": "Linked List Operations",
+    "valuePlaceholder": "Value",
+    "indexPlaceholder": "Index",
+    "searchPlaceholder": "Search Value",
+    "insert": "Insert",
+    "delete": "Delete",
+    "search": "Search",
+    "insertTooltip": "Insert a new node at the specified position",
+    "deleteTooltip": "Delete the node at the specified position",
+    "searchTooltip": "Search for a node with the specified value",
+    "insertWarning": "Please enter a value to insert",
+    "indexWarning": "Node N mode requires an index",
+    "searchWarning": "Please enter a search value",
+    "singly": "Singly",
+    "doubly": "Doubly",
+    "noTail": "No Tail Pointer",
+    "hasTail": "With Tail Pointer"
   }
 }

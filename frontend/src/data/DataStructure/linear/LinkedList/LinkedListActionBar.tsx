@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
@@ -29,6 +30,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   listMode = "singly",
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/linked-list");
   const [inputValue, setInputValue] = useState("");
   const [indexValue, setIndexValue] = useState("");
   const [insertMode, setInsertMode] = useState("Head");
@@ -39,11 +41,11 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   const handleAdd = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("請輸入要插入的數值");
+      toast.warning(t("ui.insertWarning"));
       return;
     }
     if (insertMode === "Node N" && indexValue.trim() === "") {
-      toast.warning("Node N 模式需要輸入索引");
+      toast.warning(t("ui.indexWarning"));
       return;
     }
     const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
@@ -53,7 +55,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
   const handleDelete = () => {
     if (disabled) return;
     if (insertMode === "Node N" && indexValue.trim() === "") {
-      toast.warning("Node N 模式需要輸入索引");
+      toast.warning(t("ui.indexWarning"));
       return;
     }
     const idx = indexValue.trim() !== "" ? Number(indexValue) : undefined;
@@ -82,8 +84,8 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             className={styles.select}
             disabled={disabled}
             options={[
-              { value: "singly", label: "單向 (Singly)" },
-              { value: "doubly", label: "雙向 (Doubly)" },
+              { value: "singly", label: t("ui.singly") },
+              { value: "doubly", label: t("ui.doubly") },
             ]}
             aria-label="List mode selection"
           />
@@ -98,8 +100,8 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             className={styles.select}
             disabled={disabled}
             options={[
-              { value: "noTail", label: "無 tail 模式" },
-              { value: "hasTail", label: "有 tail 模式" },
+              { value: "noTail", label: t("ui.noTail") },
+              { value: "hasTail", label: t("ui.hasTail") },
             ]}
             aria-label="Tail mode selection"
           />
@@ -107,7 +109,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Linked List Operations</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
         <Select
           size="sm"
@@ -127,7 +129,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
 
         <Input
           type="number"
-          placeholder="數值"
+          placeholder={t("ui.valuePlaceholder")}
           value={inputValue}
           min={DATA_LIMITS.MIN_NODE_VALUE}
           max={DATA_LIMITS.MAX_NODE_VALUE}
@@ -143,7 +145,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
         {showIndexInput && (
           <Input
             type="number"
-            placeholder="Index"
+            placeholder={t("ui.indexPlaceholder")}
             value={indexValue}
             min={0}
             max={maxNodes !== undefined ? maxNodes - 1 : 99}
@@ -157,7 +159,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           />
         )}
 
-        <Tooltip content="在指定位置新增一個節點">
+        <Tooltip content={t("ui.insertTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -166,11 +168,11 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            Insert
+            {t("ui.insert")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="刪除指定位置的節點">
+        <Tooltip content={t("ui.deleteTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -179,13 +181,13 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            Delete
+            {t("ui.delete")}
           </Button>
         </Tooltip>
 
         <Input
           type="number"
-          placeholder="搜尋值"
+          placeholder={t("ui.searchPlaceholder")}
           value={searchValue}
           min={DATA_LIMITS.MIN_NODE_VALUE}
           max={DATA_LIMITS.MAX_NODE_VALUE}
@@ -197,13 +199,13 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
           fullWidth={false}
           aria-label="Search value"
         />
-        <Tooltip content="搜尋指定數值的節點">
+        <Tooltip content={t("ui.searchTooltip")}>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => {
               if (searchValue.trim() === "") {
-                toast.warning("請輸入搜尋值");
+                toast.warning(t("ui.searchWarning"));
                 return;
               }
               onSearchNode(Number(searchValue), "search");
@@ -212,7 +214,7 @@ export const LinkedListActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnSearch}
             icon="search"
           >
-            Search
+            {t("ui.search")}
           </Button>
         </Tooltip>
       </ActionBarGroup>
