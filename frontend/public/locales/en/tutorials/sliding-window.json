@@ -1,0 +1,38 @@
+{
+  "animation": {
+    "init_shortest": "[Shortest Mode] Start finding the SHORTEST subarray with sum ≥ {{target}}",
+    "init_longest": "[Longest Mode] Start finding the LONGEST subarray with sum ≤ {{target}}",
+    "expand_right": "Right pointer expanded, shifted in value {{val}} at Index {{r}}",
+    "check_while": "Include {{val}} into the window, current window sum is: {{sum}}",
+    "shrink_shortest": "Sum satisfies condition ({{sum}} ≥ {{target}}). Try shrinking Left({{l}}) to find a shorter range",
+    "shrink_longest": "Sum {{sum}} exceeds target {{target}}! Shrinking Left({{l}}) to satisfy the condition",
+    "update_shortest": "Condition met! Updated minimum window length record to {{len}} (Index {{l}} to {{r}})",
+    "update_longest": "Condition met! Updated maximum window length record to {{len}} (Index {{l}} to {{r}})",
+    "done_success": "Scan complete! Optimal window length found is {{len}} from Index {{l}} to {{r}}",
+    "done_fail": "Scan complete! No continuous subarray matches the given condition."
+  },
+  "ui": {
+    "controlLabel": "Sliding Window Control",
+    "modeLabel": "Mode",
+    "modeLongest": "Longest Subarray (Sum ≤ Target)",
+    "modeShortest": "Shortest Subarray (Sum ≥ Target)",
+    "placeholder": "Target Sum",
+    "run": "Run Demo",
+    "runTooltip": "Execute sliding window algorithm animation",
+    "invalidInput": "Please enter a valid target sum"
+  },
+  "statusLegend": {
+    "outsideWindow": "Outside Window",
+    "currentWindow": "Current Window",
+    "aboutToLeave": "About to Leave",
+    "bestInterval": "Best Interval So Far"
+  },
+  "relatedProblems": {
+    "3": "Variable window: expand right to add characters, shrink left on duplicates, hash set tracks window contents",
+    "76": "Variable window + char count: expand right until all target chars covered, then shrink left for minimum length",
+    "424": "Variable window: track the highest-frequency char; shrink left when window size - max freq > k",
+    "239": "Fixed window + monotone deque: deque head holds current maximum, pop tail when smaller elements enter",
+    "567": "Fixed window char matching: maintain a window of length |s1|, compare window char frequencies against target",
+    "438": "Fixed window sliding comparison: same frequency strategy as #567, but record all valid window start positions"
+  }
+}

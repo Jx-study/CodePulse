@@ -1,4 +1,20 @@
 {
+  "animation": {
+    "init": "開始選擇排序",
+    "round_start": "第 {{round}} 輪開始：暫定 Index {{i}} 為最小值",
+    "compare_true": "比較：檢查 Index {{j}} ({{scanVal}}) 是否小於目前最小值 ({{minVal}}) -> 為真",
+    "compare_false": "比較：檢查 Index {{j}} ({{scanVal}}) 是否小於目前最小值 ({{minVal}}) -> 為假",
+    "update_min": "發現更小值！更新最小值索引為 {{minIdx}}",
+    "swap_true": "交換：本輪最小值 (Index {{minIdx}}) 與 Index {{i}} 交換",
+    "swap_false": "Index {{i}} 已經是最小值，無需交換",
+    "round_end": "Index {{i}} 已排序完成",
+    "done": "排序完成"
+  },
+  "relatedProblems": {
+    "215": "選擇排序思想應用：尋找第 K 大元素，可用部分排序優化",
+    "414": "選擇最大/最小值概念：找出陣列中第三大的數字",
+    "164": "進階排序問題：找出排序後相鄰元素的最大差值"
+  },
   "introduction": {
     "sections": [
       {

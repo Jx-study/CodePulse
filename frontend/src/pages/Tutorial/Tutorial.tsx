@@ -92,6 +92,7 @@ const CanvasPanel = ({
   showControls,
 }: CanvasPanelProps) => {
   const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
+  const { t: tTutorial } = useTranslation("tutorial");
   const {
     attributes,
     listeners,
@@ -128,7 +129,7 @@ const CanvasPanel = ({
         data-tour="canvas-panel"
       >
         <PanelHeader
-          title="視覺化動畫"
+          title={tTutorial("panelHeader.canvas")}
           draggable={!isMobile}
           dragHandleProps={dragHandleProps}
         />
@@ -253,6 +254,7 @@ export const InspectorPanelInternal = ({
   disabledTabs,
 }: InspectorPanelInternalProps) => {
   const { activePanels } = usePanelContext();
+  const { t: tTutorial } = useTranslation("tutorial");
 
   // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
   const inspectorTabs: TabConfig[] = useMemo(() => {
@@ -261,11 +263,11 @@ export const InspectorPanelInternal = ({
       .filter((config) => activePanels.includes(config.id))
       .map((config) => ({
         key: config.id,
-        label: config.title,
+        label: tTutorial(config.title),
         icon: config.icon,
         disabled: disabledTabs.has(config.id),
       }));
-  }, [activePanels, disabledTabs]);
+  }, [activePanels, disabledTabs, tTutorial]);
 
   // 拖拽邏輯
   const {
@@ -335,7 +337,7 @@ export const InspectorPanelInternal = ({
               className={styles.tabContent}
               style={isActive ? undefined : { display: "none" }}
             >
-              <Suspense fallback={<div>載入中...</div>}>
+              <Suspense fallback={<div>{tTutorial("common.loading")}</div>}>
                 <PanelComponent {...(tabProps as any)} />
               </Suspense>
             </div>
@@ -353,7 +355,7 @@ export const InspectorPanelInternal = ({
       className={styles.inspectorPanel}
     >
       <PanelHeader
-        title="資訊面板"
+        title={tTutorial("panelHeader.inspector")}
         draggable={!isMobile}
         dragHandleProps={listeners}
         tabs={inspectorTabs}
@@ -378,6 +380,8 @@ function TutorialContent() {
     panelSizes,
     collapsedPanels,
   } = usePanelContext();
+  const { t: tTutorial } = useTranslation("tutorial");
+  const { t: tDashboard } = useTranslation("dashboard");
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
   // Panel refs for programmatic control
@@ -662,22 +666,17 @@ function TutorialContent() {
     }
   }, [isPlaying, hasStartedAnimation]);
 
-  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor（動態寬度）並切換 tab（只觸發一次）
+  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor 並切換 tab（只觸發一次）
   useEffect(() => {
     if (!hasStartedAnimation) return;
     const timer = setTimeout(() => {
-      if (leftPanelRef.current?.isCollapsed()) {
+      const currentPercent = leftPanelRef.current?.getSize().asPercentage ?? 0;
+      if (currentPercent < panelSizes.codeEditor) {
         const contentPx = codeEditorRef.current?.getContentWidth() ?? 0;
         const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
-        if (contentPx > 0 && rightPanelPx > 0) {
-          const targetPercent = Math.min(
-            panelSizes.codeEditor,
-            (contentPx / rightPanelPx) * 100,
-          );
-          leftPanelRef.current?.resize(`${targetPercent}%`);
-        } else {
-          leftPanelRef.current?.expand();
-        }
+        const contentPercent = rightPanelPx > 0 ? (contentPx / rightPanelPx) * 100 : 0;
+        const targetPercent = Math.min(panelSizes.codeEditor, Math.max(20, contentPercent));
+        leftPanelRef.current?.resize(`${targetPercent}%`);
       }
       setActiveInspectorTab("variableStatus");
     }, 400);
@@ -739,7 +738,7 @@ function TutorialContent() {
     if (maxNodes !== undefined) {
       const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
       if (currentCount >= maxNodes) {
-        toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
+        toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
         return;
       }
     }
@@ -840,7 +839,7 @@ function TutorialContent() {
       const parsedWords = wordsStr ? wordsStr.split(" ") : [];
 
       if (parsedWords.length === 0) {
-        toast.warning("請輸入有效的單字清單");
+        toast.warning(tTutorial("toast.invalidWordList"));
         return;
       }
 
@@ -862,11 +861,11 @@ function TutorialContent() {
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) {
-      toast.warning("請輸入有效的數字格式 (例如: 1,2,3)");
+      toast.warning(tTutorial("toast.invalidFormat"));
       return;
     }
     if (maxNodes !== undefined && parsed.length > maxNodes) {
-      toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
+      toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
       return;
     }
     const steps = executeAction("load", {
@@ -921,6 +920,18 @@ function TutorialContent() {
 
   const handleCustomAction = (action: string, payload: any) => {
     if (isProcessing) return;
+
+    const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
+
+    if (action === "add" && maxNodes !== undefined && currentCount >= maxNodes) {
+      toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
+      return;
+    }
+
+    if ((action === "delete" || action === "peek") && currentCount === 0) {
+      toast.warning(tTutorial("toast.emptyDataOperation"));
+      return;
+    }
 
     const steps = logic.executeAction(action, payload);
 
@@ -1136,12 +1147,21 @@ function TutorialContent() {
     disabledTabs,
   };
 
+  const categoryKey = category?.replace(/-/g, "_") ?? "";
+  const levelKey = levelId?.replace(/-/g, "_") ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: topicTypeConfig.categoryName,
+      label: tDashboard(`categories.${categoryKey}.name`, {
+        defaultValue: topicTypeConfig.categoryName,
+      }),
       path: `/dashboard?category=${category}`,
     },
-    { label: topicTypeConfig.name, path: null },
+    {
+      label: tDashboard(`levels.${levelKey}.name`, {
+        defaultValue: topicTypeConfig.name,
+      }),
+      path: null,
+    },
   ];
 
   // Props for CanvasPanel
@@ -1186,7 +1206,7 @@ function TutorialContent() {
               variant="secondary"
               size="sm"
               onClick={() => setShowFeatureTour(true)}
-              title="開啟功能導覽"
+              title={tTutorial("page.openTourTitle")}
               icon="circle-question"
               iconOnly
             />
@@ -1194,20 +1214,20 @@ function TutorialContent() {
               variant="secondary"
               size="sm"
               onClick={() => setIsKnowledgeStationOpen(true)}
-              title="開啟知識補充站"
+              title={tTutorial("page.openKnowledgeStationTitle")}
               icon="lightbulb"
             >
-              知識補充站
+              {tTutorial("page.knowledgeStation")}
             </Button>
             <span data-tour="swap-button">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleSwapMainPanels}
-                title="交換左右面板"
+                title={tTutorial("page.swapLayoutTitle")}
                 icon="right-left"
               >
-                交換佈局
+                {tTutorial("page.swapLayout")}
               </Button>
             </span>
           </div>
@@ -1253,6 +1273,7 @@ function TutorialContent() {
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
         isMobile={isMobile}
+        isDataStructure={topicTypeConfig?.type === 'dataStructure'}
       />
     </div>
   );

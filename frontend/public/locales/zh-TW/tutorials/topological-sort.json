@@ -1,0 +1,41 @@
+{
+  "animation": {
+    "init": "初始化：計算各節點的 In-degree (入度)。",
+    "enqueue_zero": "將所有入度為 0 的節點加入 Queue 佇列中待命。",
+    "while_loop": "Queue 不為空，準備取出佇列頂端節點處理。",
+    "dequeue": "從佇列中取出節點 [{{curr}}]。",
+    "add_to_result": "將節點 [{{curr}}] 正式加入拓撲序列 Result 結果端。",
+    "reduce_neighbor": "拔除邊 {{curr}} → {{neighbor}}，目標節點的入度準備減 1。",
+    "check_zero_true": "節點 [{{neighbor}}] 的入度歸零，成功解除依賴，加入 Queue！",
+    "check_zero_false": "節點 [{{neighbor}}] 的入度減為 {{deg}}，目前仍有其他前置依賴。",
+    "cycle_check_start": "Queue 佇列已空，處理迴圈結束。檢查「已排入序列之節點數」是否等於「總節點數」。",
+    "cycle_detected": "偵測到錯誤：已排序節點數 ({{resLen}}) < 總節點數 ({{nodeLen}})！表示圖中必定存在「循環依賴 (Cycle)」。",
+    "cycle_deadlock": "其餘紅色的節點因為互相等待條件解除（入度永遠無法歸零），發生死鎖 (Deadlock)，拓撲排序失敗。",
+    "success_verify": "驗證成功：已排序節點數 ({{resLen}}) == 總節點數 ({{nodeLen}})，圖形完全符合有向無環性質！",
+    "done": "所有節點線性排序演示完成！"
+  },
+  "ui": {
+    "load": "載入資料",
+    "loadTooltip": "自定義有向無環圖 (DAG) 資料載入介面",
+    "reset": "重設",
+    "resetTooltip": "清除所有資料，恢復預設圖形",
+    "random": "隨機圖形",
+    "randomTooltip": "隨機生成一組有向無環圖 (DAG)",
+    "run": "開始拓撲排序",
+    "runTooltip": "執行 Kahn's Algorithm 拓撲排序演示"
+  },
+  "statusLegend": {
+    "notProcessed": "未處理",
+    "inQueue": "在 Queue 中",
+    "currentNode": "當前處理節點",
+    "reducingEdge": "拔除邊/減入度",
+    "sorted": "排序完成",
+    "cyclicDeadlock": "循環死鎖"
+  },
+  "relatedProblems": {
+    "207": "經典拓撲排序：判斷課程能否全部修完（有無 cycle）",
+    "210": "拓撲排序：輸出修課順序（完整的拓撲序列）",
+    "802": "反向拓撲排序：找出所有不會陷入環的安全節點",
+    "1462": "拓撲排序 + 傳遞閉包：判斷課程間的先修關係"
+  }
+}

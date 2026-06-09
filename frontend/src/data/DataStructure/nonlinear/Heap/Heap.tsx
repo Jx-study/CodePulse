@@ -1,4 +1,4 @@
-import { AnimationStep, CodeConfig } from "@/types";
+import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import type {
   ActionContext,
@@ -10,6 +10,18 @@ import { HeapActionBar } from "./HeapActionBar";
 import { TAGS } from "./heap/tags";
 import { simulateHeapTrace } from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+
+export const HeapStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/heap",
+  statuses: [
+    { key: Status.Inactive,   label: "statusLegend.notBuilt",        color: "#555555" },
+    { key: Status.Unfinished, label: "statusLegend.normalNode",       color: "#1d79cfff" },
+    { key: Status.Prepare,    label: "statusLegend.comparing",        color: "#f59e0b" },
+    { key: Status.Target,     label: "statusLegend.currentFocus",     color: "#ff6b35" },
+    { key: Status.Complete,   label: "statusLegend.completeExtract",  color: "#46f336ff" },
+  ],
+};
 
 const baseActionHandler = createLinearActionHandler();
 
@@ -289,41 +301,43 @@ export const HeapConfig: LevelImplementationConfig = {
     { id: "box-5", value: 40 },
   ],
   createAnimationSteps: createHeapAnimationSteps,
+  statusConfig: HeapStatusConfig,
   actionHandler: heapActionHandler,
   renderActionBar: (props) => <HeapActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/heap",
   relatedProblems: [
     {
       id: 703,
       title: "Kth Largest Element in a Stream",
-      concept: "資料流應用：維護大小為 K 的 Min-Heap，隨時查詢第 K 大元素",
+      concept: "relatedProblems.703",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
     },
     {
       id: 215,
       title: "Kth Largest Element in an Array",
-      concept: "Top-K 問題經典：用 Min-Heap 在 O(n log k) 內找出第 K 大元素",
+      concept: "relatedProblems.215",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     },
     {
       id: 347,
       title: "Top K Frequent Elements",
-      concept: "頻率統計 + Min-Heap：篩選出出現次數最多的前 K 個元素",
+      concept: "relatedProblems.347",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/top-k-frequent-elements/",
     },
     {
       id: 295,
       title: "Find Median from Data Stream",
-      concept: "雙堆技巧：Max-Heap + Min-Heap 動態維護資料流中位數",
+      concept: "relatedProblems.295",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/find-median-from-data-stream/",
     },
     {
       id: 23,
       title: "Merge K Sorted Lists",
-      concept: "多路合併：Min-Heap 同時追蹤 K 個串列的最小值，O(n log k) 完成合併",
+      concept: "relatedProblems.23",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/merge-k-sorted-lists/",
     },

@@ -112,20 +112,19 @@ export const quickSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createQuickSortAnimationSteps,
   actionHandler: baseActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/quick-sort",
   relatedProblems: [
     {
       id: 912,
       title: "Sort an Array",
-      concept:
-        "基礎排序：適合用 Quick Sort (搭配 Randomized Pivot) 實現 O(n log n) 時間複雜度",
+      concept: "relatedProblems.912",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/sort-an-array/",
     },
     {
       id: 215,
       title: "Kth Largest Element in an Array",
-      concept:
-        "Quick Select：利用 Quick Sort 的 Partition 思想快速找到第 K 大元素",
+      concept: "relatedProblems.215",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     },

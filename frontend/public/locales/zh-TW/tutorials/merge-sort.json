@@ -1,4 +1,20 @@
 {
+  "animation": {
+    "init": "開始合併排序 (Merge Sort)",
+    "if_return": "剩餘元素數量為 1，直接返回 ({{val}})",
+    "divide": "將陣列分割為左右兩半並往下層遞迴 (深度: {{depth}})",
+    "merge_start": "準備將兩個已排序子陣列合併 (回到深度: {{depth}})",
+    "compare": "比較大小：{{v1}} 與 {{v2}}",
+    "copy_element": "選擇較小值 {{val}} 並放入合併陣列",
+    "remaining_left": "將左側剩餘的 {{val}} 放入合併陣列",
+    "remaining_right": "將右側剩餘的 {{val}} 放入合併陣列",
+    "merge_end": "子陣列合併完畢",
+    "done": "合併排序完成！"
+  },
+  "relatedProblems": {
+    "912": "基礎排序：適合用 Merge Sort 實現 O(n log n) 時間複雜度",
+    "23": "Merge 過程的延伸應用"
+  },
   "introduction": {
     "sections": [
       {

@@ -135,6 +135,7 @@
     "reset": "重設",
     "resetTooltip": "清除所有單字，恢復初始狀態",
     "wordInput": "輸入單字 (限英文字母)",
+    "wordInputWarning": "請輸入單字後再執行操作",
     "insertTooltip": "將單字逐字元新增至字典樹中",
     "searchTooltip": "精確搜尋該單字是否完整存在",
     "startsWithTooltip": "搜尋是否包含該前綴 (Prefix)",
@@ -151,5 +152,11 @@
       "noValidWords": "沒有找到合法的英文單字，請重新輸入！",
       "truncateWarning": "為維持視覺化效果，已自動截取前 {{max}} 筆不重複單字。"
     }
+  },
+  "statusLegend": {
+    "trieNode": "Trie 節點",
+    "traversing": "走訪/比對中",
+    "addRemove": "新增/移除變動",
+    "wordEnd": "單字結尾 (Word End)"
   }
 }

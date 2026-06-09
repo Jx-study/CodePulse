@@ -1,0 +1,141 @@
+{
+  "common": {
+    "loading": "Loading..."
+  },
+  "page": {
+    "openTourTitle": "Open Feature Tour",
+    "openKnowledgeStationTitle": "Open Knowledge Station",
+    "knowledgeStation": "Knowledge Station",
+    "swapLayoutTitle": "Swap Left and Right Panels",
+    "swapLayout": "Swap Layout"
+  },
+  "panelHeader": {
+    "canvas": "Visualization",
+    "inspector": "Inspector",
+    "codeEditor": "Code Implementation",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "expandPanel": "Expand panel",
+    "collapsePanel": "Collapse panel"
+  },
+  "panelRegistry": {
+    "canvas": "Visualization",
+    "actionBar": "Operations",
+    "variableStatus": "Variable Status"
+  },
+  "smartActionBar": {
+    "noInterface": "No operation interface available for this topic"
+  },
+  "toast": {
+    "maxNodesExceeded": "Data count exceeds limit. Maximum {{maxNodes}} items allowed.",
+    "invalidFormat": "Please enter a valid number format (e.g. 1,2,3)",
+    "emptyDataOperation": "No data available. Please load or generate data first.",
+    "invalidWordList": "Please enter a valid word list."
+  },
+  "featureTour": {
+    "ariaLabelComplete": "Feature Tour Complete",
+    "ariaLabelStep": "Feature Tour Step {{step}}",
+    "closeAriaLabel": "Close Tour",
+    "skipAriaLabel": "Skip Tour",
+    "dotAriaLabel": "Go to step {{step}}",
+    "stepBadge": "STEP {{current}} OF {{total}}",
+    "readyTitle": "Ready?",
+    "algorithmReadyDesc": "Before you start practicing, visit the Knowledge Station to learn the theory behind this algorithm!",
+    "dataStructureReadyDesc": "Before you start practicing, visit the Knowledge Station to learn the theory behind this data structure!",
+    "enterKnowledgeStation": "Enter Knowledge Station",
+    "skipForNow": "Not now, start directly",
+    "previous": "Previous",
+    "next": "Next",
+    "steps": {
+      "swapButton": {
+        "title": "Swap Layout",
+        "description": "Click this button to swap the code panel and the canvas positions to find your preferred learning layout."
+      },
+      "resizeHandle": {
+        "title": "Adjust Panel Width",
+        "description": "Drag the divider between the left and right panels to freely adjust the width ratio."
+      },
+      "resizeHandleV": {
+        "title": "Adjust Panel Height",
+        "description": "Drag the divider between the upper and lower panels to adjust the height ratio of the canvas and action bar."
+      },
+      "canvasPanel": {
+        "title": "Visualization Canvas",
+        "description": "This is the main stage for algorithm animations. You can zoom, pan, and observe each step."
+      },
+      "controlBar": {
+        "title": "Playback Controls",
+        "description": "Use play, pause, previous, and next to control animation speed, or drag the progress bar to jump to any step."
+      },
+      "codePanel": {
+        "title": "Code Panel",
+        "description": "Shows the corresponding pseudocode or Python implementation. The currently executing line is highlighted automatically."
+      }
+    }
+  },
+  "knowledgeStation": {
+    "title": "Knowledge Station",
+    "tabs": {
+      "algorithmIntroduction": "Algorithm Introduction",
+      "dataStructureIntroduction": "Data Structure Introduction",
+      "complexity": "Complexity Analysis",
+      "problems": "Classic Problems",
+      "story": "Real World Applications"
+    }
+  },
+  "introductionTab": {
+    "algorithmTitle": "Algorithm Overview",
+    "dataStructureTitle": "Data Structure Overview",
+    "noContent": "No tutorial content provided yet."
+  },
+  "complexityTab": {
+    "title": "Complexity Analysis",
+    "timeBest": "Time Complexity (Best)",
+    "timeAverage": "Time Complexity (Average)",
+    "timeWorst": "Time Complexity (Worst)",
+    "space": "Space Complexity"
+  },
+  "problemsTab": {
+    "empty": "No related problems available"
+  },
+  "derivedContent": {
+    "title": "Related Problems"
+  },
+  "difficulty": {
+    "Easy": "Easy",
+    "Medium": "Medium",
+    "Hard": "Hard"
+  },
+  "storyTab": {
+    "empty": "No real-world application stories available for this topic yet."
+  },
+  "storyAccordion": {
+    "expandAriaLabel": "Expand",
+    "collapseAriaLabel": "Collapse",
+    "readDetails": "Read story details",
+    "collapseDetails": "Collapse story details"
+  },
+  "storyResources": {
+    "title": "Further Resources"
+  },
+  "videoPlayer": {
+    "comingSoon": "Video Coming Soon",
+    "defaultTitle": "Story Video"
+  },
+  "pythonDemo": {
+    "badge": "Python Interactive",
+    "runTab": "Run Program",
+    "codeTab": "Source Code",
+    "copyCode": "Copy Code",
+    "copied": "Copied!",
+    "runButton": "▶ Run Game",
+    "loadingPyodide": "Loading Python Environment...",
+    "running": "Running...",
+    "skipGeneration": "Skip Generation",
+    "noOutput": "(Program completed with no output)",
+    "executionError": "Execution Error:\n{{message}}",
+    "loadError": "Failed to load Pyodide. Please check your network connection.",
+    "clickToRun": "Click \"Run Game\" to see results...",
+    "localHint": "Copy and run locally: python script.py (requires Python 3.10+)"
+  }
+}

@@ -1,4 +1,58 @@
 {
+  "animation": {
+    "init": "初始化 {{heapName}}",
+    "insert_start": "將數值 {{value}} 加入陣列尾端 (index: {{index}})",
+    "heapify_up_compare": "與父節點比較：當前 {{curVal}} vs 父節點 {{parentVal}}",
+    "heapify_up_swap_min": "當前節點 < 父節點，執行交換 (Swap)",
+    "heapify_up_swap_max": "當前節點 > 父節點，執行交換 (Swap)",
+    "extract_start_min": "準備取出最小值：{{extVal}}",
+    "extract_start_max": "準備取出最大值：{{extVal}}",
+    "extract_swap_last": "將 Root 與最後一個節點交換",
+    "extract_remove": "移除最後一個節點，並將新 Root 進行 Heapify Down",
+    "heapify_down_compare_min": "尋找子節點中較小者進行比較",
+    "heapify_down_compare_max": "尋找子節點中較大者進行比較",
+    "heapify_down_swap": "不符合 {{heapName}} 規則，執行交換 (Swap)",
+    "peek_min": "取得最小值：{{extVal}}",
+    "peek_max": "取得最大值：{{extVal}}",
+    "heapify_start": "開始 Bottom-Up 建堆 (共有 {{length}} 個節點)，目標：{{heapName}}",
+    "done": "{{heapName}} 操作完成"
+  },
+  "ui": {
+    "notHeap": "尚未建堆",
+    "switchTo": "切換至 {{mode}}",
+    "buildMinHeap": "建 Min-Heap",
+    "valuePlaceholder": "輸入數字",
+    "insert": "插入",
+    "extract": "取出",
+    "extractBtn": "取出 {{type}}",
+    "peek": "查看",
+    "min": "最小",
+    "max": "最大",
+    "toggleTooltip": "切換 Heap 模式並自動重新建堆",
+    "insertReadyTooltip": "將數值新增至 Heap (Heapify Up)",
+    "needHeapifyTooltip": "請先 Heapify，將資料轉成 Max-Heap 或 Min-Heap",
+    "extractReadyTooltip": "取出並移除{{type}}值 (Heapify Down)",
+    "extractNeedHeapifyTooltip": "請先 Heapify，才能取出 Heap 的根節點",
+    "peekReadyTooltip": "僅查看{{type}}值 (不移除)",
+    "peekNeedHeapifyTooltip": "請先 Heapify，才能查看 Heap 的根節點",
+    "heapifyTooltip": "將無序陣列轉換為 Heap (Bottom-Up 建堆)",
+    "insertWarning": "請輸入要 Insert 的數值",
+    "needHeapifyWarning": "請先點擊 Heapify 建立堆積結構"
+  },
+  "statusLegend": {
+    "notBuilt": "未建立",
+    "normalNode": "一般節點",
+    "comparing": "比較中",
+    "currentFocus": "當前焦點",
+    "completeExtract": "完成 / 提取"
+  },
+  "relatedProblems": {
+    "703": "資料流應用：維護大小為 K 的 Min-Heap，隨時查詢第 K 大元素",
+    "215": "Top-K 問題經典：用 Min-Heap 在 O(n log k) 內找出第 K 大元素",
+    "347": "頻率統計 + Min-Heap：篩選出出現次數最多的前 K 個元素",
+    "295": "雙堆技巧：Max-Heap + Min-Heap 動態維護資料流中位數",
+    "23": "多路合併：Min-Heap 同時追蹤 K 個串列的最小值，O(n log k) 完成合併"
+  },
   "introduction": {
     "sections": [
       {

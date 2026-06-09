@@ -16,22 +16,23 @@ export function simulateHeapTrace(
   const getSnapshot = () => currentList.map((d) => ({ ...d }));
 
   const isMinHeap = action?.isMinHeap === true;
-  const isMaxHeap =
-    action?.isMaxHeap === true ||
-    (action?.isMaxHeap !== false && !isMinHeap);
+  const isMaxHeap = action
+    ? action.isMaxHeap === true || (action.isMaxHeap !== false && !isMinHeap)
+    : false;
+
+  // 如果是 Heap 就亮藍色，如果不是 (剛 load/random) 就亮灰色
+  const isHeapReady = isMinHeap || isMaxHeap;
+
+  const defaultNodeStatus = isHeapReady ? "Unfinished" : "Inactive";
   const isPrior = (a: number, b: number) => (isMinHeap ? a < b : a > b);
-  const heapName = isMinHeap
-    ? "Min-Heap"
-    : isMaxHeap
-      ? "Max-Heap"
-      : "Not Heap";
+  const heapName = isMinHeap ? "Min-Heap" : isMaxHeap ? "Max-Heap" : "Not Heap";
 
   if (!action || action.heapType === "init") {
     trace.push({
       tag: TAGS.INIT,
       local_vars: { heapName },
       dataSnapshot: getSnapshot(),
-      meta: { isInitial: true },
+      meta: { isInitial: true, status: defaultNodeStatus },
     });
     return trace;
   }
@@ -42,7 +43,13 @@ export function simulateHeapTrace(
         tag: TAGS.PEEK,
         local_vars: { extVal: currentList[0].value, isMinHeap },
         dataSnapshot: getSnapshot(),
-        meta: { highlightIndex: 0, status: "Complete" },
+        meta: { highlightIndex: 0 },
+      });
+      trace.push({
+        tag: TAGS.PEEK,
+        local_vars: { extVal: currentList[0].value, isMinHeap },
+        dataSnapshot: getSnapshot(),
+        meta: { highlightIndex: 0, overrideStatusMap: { 0: "Complete" } },
       });
     }
     return trace;
@@ -150,7 +157,7 @@ export function simulateHeapTrace(
       tag: TAGS.INSERT_START,
       local_vars: { value, index: idx },
       dataSnapshot: getSnapshot(),
-      meta: { highlightIndex: idx, status: "Target" },
+      meta: { highlightIndex: idx, status: defaultNodeStatus },
     });
 
     while (idx > 0) {
@@ -215,6 +222,7 @@ export function simulateHeapTrace(
         tag: TAGS.EXTRACT_REMOVE,
         local_vars: { extVal, heapSize: currentList.length },
         dataSnapshot: getSnapshot(),
+        meta: { highlightIndex: -1, overrideStatusMap: { 0: "Prepare" } },
       });
       return trace;
     }

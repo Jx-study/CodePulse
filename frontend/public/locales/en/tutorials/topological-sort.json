@@ -1,0 +1,41 @@
+{
+  "animation": {
+    "init": "Initialization: Calculate the In-degree for all nodes.",
+    "enqueue_zero": "Enqueue all nodes with an In-degree of 0 into the Queue.",
+    "while_loop": "Queue is not empty, preparing to pop the next node.",
+    "dequeue": "Pop node [{{curr}}] from the Queue.",
+    "add_to_result": "Append node [{{curr}}] into the final Result topological sequence.",
+    "reduce_neighbor": "Remove edge {{curr}} → {{neighbor}}. Decrementing the target node's in-degree by 1.",
+    "check_zero_true": "Node [{{neighbor}}]'s in-degree reached 0! Dependencies resolved, enqueuing.",
+    "check_zero_false": "Node [{{neighbor}}]'s in-degree reduced to {{deg}}, other dependencies remain.",
+    "cycle_check_start": "Queue is empty, main loop terminated. Checking if sorted count equals total node count.",
+    "cycle_detected": "Error detected: Sorted nodes ({{resLen}}) < Total nodes ({{nodeLen}})! A 'Cycle' exists in the graph.",
+    "cycle_deadlock": "Remaining red nodes are locked in circular dependencies (In-degree cannot reach 0), causing a Deadlock. Topological sort failed.",
+    "success_verify": "Verification success: Sorted nodes ({{resLen}}) == Total nodes ({{nodeLen}}). Valid Directed Acyclic Graph (DAG).",
+    "done": "Topological sorting animation complete!"
+  },
+  "ui": {
+    "load": "Load Data",
+    "loadTooltip": "Open custom Directed Acyclic Graph (DAG) loader interface",
+    "reset": "Reset",
+    "resetTooltip": "Clear all data and restore to default graph",
+    "random": "Random Graph",
+    "randomTooltip": "Generate a random Directed Acyclic Graph (DAG)",
+    "run": "Run Topological Sort",
+    "runTooltip": "Execute Kahn's Algorithm animation"
+  },
+  "statusLegend": {
+    "notProcessed": "Not Processed",
+    "inQueue": "In Queue",
+    "currentNode": "Current Node",
+    "reducingEdge": "Removing Edge / Reducing In-degree",
+    "sorted": "Sorted",
+    "cyclicDeadlock": "Cyclic Deadlock"
+  },
+  "relatedProblems": {
+    "207": "Classic topological sort: determine if all courses can be completed (cycle detection)",
+    "210": "Topological sort: output a valid course completion order (full topological sequence)",
+    "802": "Reverse topological sort: find all nodes that will never be stuck in a cycle (safe nodes)",
+    "1462": "Topological sort + transitive closure: determine prerequisite relationships between courses"
+  }
+}

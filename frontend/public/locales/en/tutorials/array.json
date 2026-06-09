@@ -80,10 +80,126 @@
     "insert_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "insert_assign": "Insert value {{value}} at Index {{index}}",
     "insert_complete": "Insert complete",
-    "delete_start": "Mark Index {{index}} (value: {{value}}) for deletion",
+    "delete_start": "Mark Index {{index}} ({{value}}) for deletion",
     "delete_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) left to Index {{to}}",
     "delete_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "delete_remove": "Remove the last redundant slot",
     "delete_complete": "Delete complete"
+  },
+  "ui": {
+    "operations": "Array Operations",
+    "valuePlaceholder": "Value",
+    "indexPlaceholder": "Index",
+    "searchPlaceholder": "Search Value",
+    "insert": "Insert",
+    "update": "Update",
+    "delete": "Delete",
+    "search": "Search",
+    "insertTooltip": "Insert an element at the specified index",
+    "updateTooltip": "Update the element's value at the specified index",
+    "deleteTooltip": "Delete the element at the specified index",
+    "searchTooltip": "Search for a specific value in the array",
+    "insertWarning": "Please enter a value to insert",
+    "updateWarning": "Update requires both a value and an index",
+    "updateIndexOutOfRange": "Index out of range. Valid range: 0 – {{max}}",
+    "deleteWarning": "Please enter an index to delete",
+    "searchWarning": "Please enter a search value"
+  },
+  "relatedProblems": {
+    "1": "Array basics: find two numbers in an array that add up to the target",
+    "27": "Array deletion: remove specified elements in-place",
+    "189": "Array manipulation: rotate array elements"
+  },
+  "stories": {
+    "array-whack-a-mole": {
+      "title": "Array Index Whack-a-Mole: Why O(1) Direct Access Is Blazing Fast",
+      "category": "Game Development",
+      "tags": ["Array", "Indexing", "Random Access", "O(1)"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Why Is Array Lookup So Fast?",
+            "content": "Arrays occupy contiguous positions in memory. Each element's address = base address + index × element size. This formula requires only one multiplication and one addition — no matter how long the array, the time is always O(1)."
+          },
+          {
+            "heading": "Whack-a-Mole Is the Essence of Direct Access",
+            "content": "In the whack-a-mole game below, each hole has a clear index label. When a mole pops up at index 5, your eyes directly lock onto slot 5 — no counting from the start, no traversal. This is the essence of array[5]: give me an index, and I'll give you the answer instantly."
+          },
+          {
+            "heading": "1D vs 2D: Same Principle, Different Dimensions",
+            "content": "A 1D array uses a single index; a 2D array uses [row][col] two coordinates. But the principle is identical: address = base + (row × cols + col) × size. No matter how large the grid, knowing the coordinates lets you arrive instantly — just like knowing [2][1] in a 3×3 grid takes you directly to that hole."
+          }
+        ]
+      }
+    },
+    "tech-array-001": {
+      "title": "Arrays in Action: From Daily Life to Screen — The Invisible Backbone of the Digital World",
+      "category": "Digital Technology / Algorithm Science",
+      "tags": ["Array", "Data Structures", "Multidimensional Arrays"],
+      "content": {
+        "sections": [
+          {
+            "content": "Arrays are the skeleton of our entire digital world, hidden everywhere in our phones and computers. You can think of an array as a row of perfectly organized lockers — each locker holds items of the same type, arranged consecutively with no gaps. This structure transforms chaos into order; for example, instead of declaring 60 separate variables for 60 students, using an array with 60 slots is far cleaner and more manageable."
+          },
+          {
+            "heading": "1D Arrays: The Linear Lists of Life",
+            "content": "A one-dimensional array is a linear list. Egg cartons, movie theater seats, your Spotify playlist, contact lists, and a weather station's weekly temperature records are all real-world 1D arrays. The greatest power of arrays lies in their \"Index\" — like a locker number — letting the computer instantly locate any specific piece of data with maximum efficiency. Notably, in computer programming, indices usually start from 0."
+          },
+          {
+            "heading": "2D Arrays: Tables and Digital Images",
+            "content": "Stack a few lines together to form a flat grid, and you get a 2D array. Besides the Excel spreadsheets you use every day and chessboards, every digital photo on your phone is fundamentally a 2D array. Zoom in to maximum and you'll see a grid made of \"pixels\"; in a grayscale photo, each pixel stores a number representing brightness (e.g., 0 for pure black, 255 for pure white). In computer graphics, this matrix is sometimes called a \"channel.\""
+          },
+          {
+            "heading": "3D and 4D Arrays: Color and Motion Video",
+            "content": "Arrays can continue to stack dimensions. Layer three 2D arrays representing red (R), green (G), and blue (B) channels, and you get a full-color 3D array photograph. Medical MRI scans and 3D models in computer graphics are also 3D array applications.\n\nWhen we string a series of 3D arrays (color photos) together along the \"time\" dimension, we get a \"4D array\" — which is essentially the videos we watch every day. The YouTube video you're watching is at its core a massive 4D array playing back rapidly. Video games and VR also rely on 4D arrays to store and render the virtual worlds players interact with."
+          },
+          {
+            "heading": "Higher Dimensions: The Future of Scientific Computing",
+            "content": "5D arrays (formed by stacking multiple 4D arrays) are currently used primarily in physics and chemistry to run molecular dynamics or quantum mechanics simulations, capturing complex changes in particle positions and velocities."
+          },
+          {
+            "content": "In summary, arrays are the foundation of all high-performance computing. Because of their simple, contiguous memory layout, computers can \"hop\" to retrieve data at any position instantly — which is why everything from game map coordinates and database systems to today's hottest AI machine learning models all rely on arrays at their core."
+          }
+        ]
+      },
+      "videoTitle": "Arrays in Action: From Daily Life to Screen.mp4",
+      "resources": [
+        { "title": "Applications of Array Explained", "source": "Masai School" },
+        { "title": "Arrays in C Programming with Practical Examples Guide", "source": "Naresh IT" },
+        { "title": "n-D arrays understanding with real life examples", "source": "DEV Community" }
+      ]
+    }
+  },
+  "game": {
+    "whackAMole": {
+      "config": {
+        "mode": "Mode",
+        "cols": "Columns",
+        "rows": "Rows",
+        "difficulty": "Difficulty"
+      },
+      "modes": {
+        "1d": "1D Array",
+        "2d": "2D Array"
+      },
+      "difficulties": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+      "stats": {
+        "score": "Score: {{n}}",
+        "missed": "Missed: {{n}}",
+        "combo": "Combo: {{n}}",
+        "maxCombo": "Max Combo: {{n}}",
+        "time": "Time: {{n}}s",
+        "nextHint": "Next: {{label}}"
+      },
+      "controls": {
+        "start": "Start",
+        "restart": "Restart"
+      },
+      "gameover": "Game Over — Final Score {{score}}, Max Combo {{maxCombo}}, Missed {{missed}}"
+    }
   }
 }

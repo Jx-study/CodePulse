@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Dialog from '@/shared/components/Dialog';
 import Tabs from '@/shared/components/Tabs';
 import Icon from '@/shared/components/Icon';
@@ -15,45 +16,53 @@ interface KnowledgeStationProps {
   topicTypeConfig: LevelImplementationConfig;
 }
 
-const dialogTitle = (
-  <div className={styles.titleWithIcon}>
-    <span className={styles.titleIcon}>
-      <Icon name="book-open" decorative />
-    </span>
-    <h2>知識補充站</h2>
-  </div>
-);
-
 const KnowledgeStation: React.FC<KnowledgeStationProps> = ({
   isOpen,
   onClose,
   topicTypeConfig,
 }) => {
+  const { t } = useTranslation('tutorial');
+
+  const dialogTitle = (
+    <div className={styles.titleWithIcon}>
+      <span className={styles.titleIcon}>
+        <Icon name="book-open" decorative />
+      </span>
+      <h2>{t('knowledgeStation.title')}</h2>
+    </div>
+  );
+
+  const isDataStructure = topicTypeConfig.type === 'dataStructure';
+  const introTabLabelKey = isDataStructure
+    ? 'knowledgeStation.tabs.dataStructureIntroduction'
+    : 'knowledgeStation.tabs.algorithmIntroduction';
+
   const tabs = [
     {
       key: 'introduction',
-      label: '簡介説明',
+      label: t(introTabLabelKey),
       content: (
         <IntroductionTab
           introduction={topicTypeConfig.introduction}
           i18nNamespace={topicTypeConfig.i18nNamespace}
+          isDataStructure={isDataStructure}
         />
       ),
     },
     {
       key: 'complexity',
-      label: '複雜度分析',
+      label: t('knowledgeStation.tabs.complexity'),
       content: <ComplexityTab complexity={topicTypeConfig.complexity} />,
     },
     {
       key: 'problems',
-      label: '經典題型',
-      content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} />,
+      label: t('knowledgeStation.tabs.problems'),
+      content: <ProblemsTab relatedProblems={topicTypeConfig.relatedProblems} i18nNamespace={topicTypeConfig.i18nNamespace} />,
     },
     {
       key: 'story',
-      label: '真實世界應用',
-      content: <StoryTab stories={topicTypeConfig.realWorldStories} />,
+      label: t('knowledgeStation.tabs.story'),
+      content: <StoryTab stories={topicTypeConfig.realWorldStories} i18nNamespace={topicTypeConfig.i18nNamespace} />,
     },
   ];
 

@@ -1,158 +1,19 @@
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
-import { createSortingFrame } from "@/data/shared/animationUtils/linearFrame";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
-
-const TAGS = {
-  INIT: "INIT",
-  ROUND_START: "ROUND_START",
-  COMPARE: "COMPARE",
-  UPDATE_MIN: "UPDATE_MIN",
-  SWAP: "SWAP",
-  DONE: "DONE",
-};
+import { simulateSelectionSortTrace } from "./selectionSort/simulateTrace";
+import { selectionSortTraceToSteps } from "./selectionSort/traceToSteps";
+import { TAGS } from "./selectionSort/tags";
 
 const selectionSortActionHandler = createLinearActionHandler();
 
 export function createSelectionSortAnimationSteps(
   inputData: LinearData[],
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  let arr = inputData.map((d) => ({ ...d }));
-  const n = arr.length;
-  const sortedIndices = new Set<number>();
-
-  steps.push({
-    stepNumber: 0,
-    description: "開始選擇排序",
-    actionTag: TAGS.INIT,
-    local_vars: { totalItems: n },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  for (let i = 0; i < n - 1; i++) {
-    let minIdx = i;
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: { currentPos: i, minPos: i },
-      elements: createSortingFrame(
-        arr,
-        { [minIdx]: Status.Target },
-        sortedIndices,
-      ),
-    });
-
-    for (let j = i + 1; j < n; j++) {
-      const scanVal = Number(arr[j].value);
-      const minVal = Number(arr[minIdx].value);
-
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
-        actionTag: TAGS.COMPARE,
-        local_vars: {
-          currentPos: i,
-          scanPos: j,
-          minPos: minIdx,
-          scanVal: scanVal,
-          minVal: minVal,
-          condition: `${scanVal} < ${minVal}`,
-          result: scanVal < minVal,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [i]: Status.Target, [minIdx]: Status.Target, [j]: Status.Prepare },
-          sortedIndices,
-        ),
-      });
-
-      if (scanVal < minVal) {
-        minIdx = j;
-
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `發現更小值！更新最小值索引為 ${minIdx}`,
-          actionTag: TAGS.UPDATE_MIN,
-          local_vars: {
-            minPos: minIdx,
-            scanVal: scanVal,
-          },
-          elements: createSortingFrame(
-            arr,
-            { [i]: Status.Target, [minIdx]: Status.Target },
-            sortedIndices,
-          ),
-        });
-      }
-    }
-
-    if (minIdx !== i) {
-      const temp = arr[i];
-      arr[i] = arr[minIdx];
-      arr[minIdx] = temp;
-
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `本輪最小值 ${arr[i].value} (Index ${minIdx}) 與 Index ${i} 交換`,
-        actionTag: TAGS.SWAP,
-        local_vars: {
-          currentPos: i,
-          minPos: minIdx,
-          [`collection[${i}]`]: arr[i].value ?? null,
-          [`collection[${minIdx}]`]: arr[minIdx].value ?? null,
-          hasSwapped: true,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [i]: Status.Target, [minIdx]: Status.Target },
-          sortedIndices,
-        ),
-      });
-    } else {
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `Index ${i} 已經是最小值，無需交換`,
-        actionTag: TAGS.SWAP,
-        local_vars: {
-          currentPos: i,
-          minPos: minIdx,
-          hasSwapped: false,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [i]: Status.Target },
-          sortedIndices,
-        ),
-      });
-    }
-
-    sortedIndices.add(i);
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `Index ${i} 已排序完成`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: { currentPos: i },
-      elements: createSortingFrame(arr, {}, sortedIndices),
-    });
-  }
-
-  sortedIndices.add(n - 1);
-
-  steps.push({
-    stepNumber: steps.length + 1,
-    description: "排序完成",
-    actionTag: TAGS.DONE,
-    local_vars: { isSorted: true },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  return steps;
+  const trace = simulateSelectionSortTrace(inputData);
+  return selectionSortTraceToSteps(trace);
 }
 
 const selectionSortCodeConfig: CodeConfig = {
@@ -246,25 +107,26 @@ export const selectionSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createSelectionSortAnimationSteps,
   actionHandler: selectionSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/selection-sort",
   relatedProblems: [
     {
       id: 215,
       title: "Kth Largest Element in an Array",
-      concept: "選擇排序思想應用：尋找第 K 大元素，可用部分排序優化",
+      concept: "relatedProblems.215",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     },
     {
       id: 414,
       title: "Third Maximum Number",
-      concept: "選擇最大/最小值概念：找出陣列中第三大的數字",
+      concept: "relatedProblems.414",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/third-maximum-number/",
     },
     {
       id: 164,
       title: "Maximum Gap",
-      concept: "進階排序問題：找出排序後相鄰元素的最大差值",
+      concept: "relatedProblems.164",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/maximum-gap/",
     },

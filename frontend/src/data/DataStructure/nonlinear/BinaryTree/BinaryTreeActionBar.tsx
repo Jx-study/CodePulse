@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
+import { DATA_LIMITS } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -19,6 +21,8 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
   onSearchNode,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/binary-tree");
+
   return (
     <ActionBarContainer>
       <ActionBarGroup>
@@ -29,13 +33,15 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Binary Tree Traversals</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
-        <Tooltip content="前序走訪：根 → 左 → 右">
+        <Tooltip content={t("ui.preorderTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -43,10 +49,10 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnSearch}
           >
-            Preorder
+            {t("ui.preorder")}
           </Button>
         </Tooltip>
-        <Tooltip content="中序走訪：左 → 根 → 右">
+        <Tooltip content={t("ui.inorderTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -54,10 +60,10 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnSearch}
           >
-            Inorder
+            {t("ui.inorder")}
           </Button>
         </Tooltip>
-        <Tooltip content="後序走訪：左 → 右 → 根">
+        <Tooltip content={t("ui.postorderTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -65,10 +71,10 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnSearch}
           >
-            Postorder
+            {t("ui.postorder")}
           </Button>
         </Tooltip>
-        <Tooltip content="廣度優先走訪：逐層遍歷節點">
+        <Tooltip content={t("ui.bfsTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -76,7 +82,7 @@ export const BinaryTreeActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnSearch}
           >
-            BFS (Level-order)
+            {t("ui.bfs")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

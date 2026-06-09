@@ -1,4 +1,62 @@
 {
+  "animation": {
+    "init": "開始二分搜尋：目標值為 {{target}}",
+    "check_while": "檢查：Left ({{left}}) <= Right ({{right}})，繼續搜尋",
+    "calc_mid": "計算中間點：Mid = floor(({{left}} + {{right}}) / 2) = {{mid}}",
+    "compare": "比對：Index {{mid}} ({{midVal}}) vs 目標 ({{target}})",
+    "found": "找到目標！{{midVal}} 等於 {{target}}，位於 Index {{mid}}",
+    "update_left": "{{midVal}} < {{target}} (太小)，目標在右半部，更新 Left = {{mid}} + 1",
+    "update_right": "{{midVal}} > {{target}} (太大)，目標在左半部，更新 Right = {{mid}} - 1",
+    "not_found": "搜尋結束：範圍已空 (Left > Right)，未找到目標 {{target}}"
+  },
+  "stories": {
+    "binary-search-beat-the-algorithm": {
+      "title": "擊敗演算法：Binary Search 猜數字對決",
+      "category": "互動遊戲",
+      "tags": ["Binary Search", "O(log n)", "猜數字"],
+      "content": {
+        "sections": [
+          {
+            "content": "二分搜尋的核心是「每次決策消除約一半可能性」。在 1～100 的範圍內，理論上最多約 ⌈log₂(100)⌉ ≈ 7 次就能鎖定答案。"
+          },
+          {
+            "content": "此互動遊戲讓你在數線上點選猜測，並與「永遠取中點」的 AI 影子同步對決。透過搜尋區間的視覺縮減與剩餘機率提示，你可以直觀感受 O(log n) 的收斂速度。"
+          }
+        ]
+      }
+    },
+    "algo-001": {
+      "title": "隱藏在數位世界背後的超能力——二分搜尋",
+      "category": "基礎演算法 / 科技應用",
+      "tags": ["二分搜尋", "GPU 平行運算", "網際網路路由", "分而治之"],
+      "content": {
+        "sections": [
+          {
+            "heading": "化繁為簡的極致魔法",
+            "content": "二分搜尋的核心精神非常簡單：「每一步都砍掉一半不可能的選項」。這就像是在一本高達 100 萬頁的字典中找尋特定的字，如果使用傳統的線性搜尋一頁頁翻，可能耗費極大時間；但若使用二分搜尋，不到 20 次就能精準命中目標。這種 O(log n) 的指數級衰減威力，讓它成為處理巨量數據的首選。從工程師抓出程式錯誤的 Git Bisect 工具，到資料庫底層的索引查詢，這個直覺策略正是現代科技的基石。"
+          },
+          {
+            "heading": "釋放 GPU 極限：3D 遊戲與平行運算",
+            "content": "當你在遊玩畫面逼真的 3A 遊戲大作時，GPU 必須在毫秒間判斷數百萬條光線與幾何模型的碰撞。根據 NVIDIA Research (2012) 的突破，他們利用「莫頓碼（Morton Code）」將複雜的 3D 空間座標壓縮扁平成可排序的一維線段。接著，GPU 的數千個運算核心可以同時開工，利用「二分搜尋」快速定位出各自負責區塊的分割點（Split Point）。這種大規模並行處理的技巧，讓系統能一次性建構出龐大的空間結構（如 BVH），徹底釋放了高階顯示卡的運算潛能，確保畫面極致流暢。"
+          },
+          {
+            "heading": "網際網路的極速導航：IP 路由查找",
+            "content": "二分搜尋也是全球網際網路運作的「神經系統」。每個網路封包在傳遞時，路由器必須在極短時間內從數百萬條規則中決定路徑，這被稱為「最長前綴匹配（LPM）」。UCLA 團隊 (2001) 提出了一個大膽的想法：不對龐大的 IP 地址數量做搜尋，而是對「前綴長度」進行二分搜尋。這項突破將查找次數壓縮到對數等級（IPv4 僅需 5 次），使得全球路由器能以數百 Gb/s 的速度轉發資料，讓我們在任何流量壓力下依然能享有高速的網路體驗。"
+          }
+        ]
+      },
+      "videoTitle": "二分搜尋的秘密超能力",
+      "resources": [
+        { "title": "Maximizing Parallelism in the Construction of BVHs, Octrees, and k-d Trees", "source": "High Performance Graphics (2012) / NVIDIA Research" },
+        { "title": "Scalable High-Speed Prefix Matching", "source": "ACM Transactions on Computer Systems (2001) / UCLA" }
+      ]
+    }
+  },
+  "relatedProblems": {
+    "704": "經典演算法：在已排序陣列中查找目標值 (Basic Binary Search)",
+    "35": "變體應用：尋找目標值，若不存在則返回其應插入的位置 (Lower Bound 概念)",
+    "34": "進階應用：在有重複元素的排序陣列中，尋找目標值的起始與結束位置"
+  },
   "introduction": {
     "sections": [
       {
@@ -65,5 +123,51 @@
         "icon": "shield-halved"
       }
     ]
+  },
+  "game": {
+    "binarySearch": {
+      "title": "Binary Search 對決：擊敗演算法",
+      "desc1": "在 1～100 中藏有一個密碼。點擊藍色搜尋區間猜測；每次決策縮小一半可能性。",
+      "legend": {
+        "blue": "藍區 = 你的搜尋範圍",
+        "orange": "橙點 = AI 的猜測紀錄（永遠取中點）　目標：步數少於 AI！"
+      },
+      "labels": {
+        "you": "你",
+        "ai": "AI",
+        "secret": "密碼：",
+        "secretHidden": "???"
+      },
+      "buttons": {
+        "newGame": "New Game",
+        "newGameDisabled": "遊戲進行中，請先完成",
+        "newGameTitle": "重新開始（新密碼）"
+      },
+      "results": {
+        "player_wins": "你贏了！你用 {{steps}} 步",
+        "tie": "平手！你和 AI 都用了 {{steps}} 步",
+        "ai_wins": "AI 贏了（{{steps}} 步），密碼是 {{secret}}",
+        "timeout": "超過 {{max}} 步上限，密碼是 {{secret}}"
+      },
+      "stats": {
+        "prob": "現在機率",
+        "remaining": "剩餘候選數字",
+        "maxMore": "理論上界（二分法）",
+        "certain": "必中",
+        "atMost": "≤ {{n}} 步"
+      },
+      "leaderboard": {
+        "title": "對決記錄",
+        "winRate": "勝率 {{rate}}%（{{wins}} / {{total}} 局）",
+        "round": "場次",
+        "playerSteps": "玩家步數",
+        "aiSteps": "AI 步數",
+        "result": "結果",
+        "player_wins": "你贏",
+        "tie": "平手",
+        "ai_wins": "AI 贏",
+        "timeout": "超時"
+      }
+    }
   }
 }

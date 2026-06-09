@@ -81,6 +81,13 @@
   "auth": {
     "loginRequired": "請先登入才能使用此功能"
   },
+  "statusLegend": {
+    "unfinished": "未完成",
+    "prepare": "準備中",
+    "target": "目標",
+    "complete": "完成",
+    "inactive": "未啟用"
+  },
   "practice": {
     "visual": {
       "groupImage": "題組圖",

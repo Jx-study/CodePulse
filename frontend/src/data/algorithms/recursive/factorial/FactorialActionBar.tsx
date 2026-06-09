@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import {
@@ -7,12 +8,14 @@ import {
   StaticLabel,
   styles,
 } from "@/modules/core/components/ActionBar/ActionBarCommon";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 
 export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
 }) => {
+  const { t } = useTranslation("tutorials/factorial");
   const [nValue, setNValue] = useState("5");
 
   const handleRun = () => {
@@ -27,16 +30,16 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
   return (
     <ActionBarContainer>
       <ActionBarGroup>
-        <StaticLabel>階乘 (N!)</StaticLabel>
+        <StaticLabel>{t("ui.title")}</StaticLabel>
         <Input
           type="number"
-          placeholder="輸入 N (1-10)"
+          placeholder={t("ui.placeholder")}
           value={nValue}
-          onChange={(e) => setNValue(e.target.value)}
+          onChange={(e) => setNValue(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_FACTORIAL_N))}
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           min={1}
-          max={10}
+          max={DATA_LIMITS.MAX_FACTORIAL_N}
         />
         <Button
           size="sm"
@@ -45,7 +48,7 @@ export const FactorialActionBar: React.FC<AlgoActionBarProps> = ({
           disabled={disabled || !nValue}
           icon="play"
         >
-          執行遞迴
+          {t("ui.run")}
         </Button>
       </ActionBarGroup>
     </ActionBarContainer>

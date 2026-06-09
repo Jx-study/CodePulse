@@ -1,0 +1,35 @@
+{
+  "animation": {
+    "build_init": "開始建構前綴和陣列 P",
+    "build_base": "初始化：P[0] = A[0] = {{val0}}",
+    "build_calc": "計算 P[{{i}}]：前一個總和 P[{{prev}}] ({{prevSum}}) + 當前元素 A[{{i}}] ({{currentVal}})",
+    "build_update": "更新 P[{{i}}] = {{newSum}}",
+    "build_done": "建構完成",
+    "query_start": "開始查詢：計算區間 [{{L}}, {{R}}] 的總和",
+    "query_get_r": "步驟 1：取得右邊界的前綴和 P[{{R}}] = {{valR}}",
+    "query_get_l": "步驟 2：因為 L > 0，取得左邊界前一個位置的前綴和 P[{{prevL}}] = {{valL}}",
+    "query_return_sub": "計算結果：{{valR}} - {{valL}} = {{result}}",
+    "query_else": "步驟 2：因為 L = 0，不需要減去任何前綴",
+    "query_return_direct": "直接回傳：P[{{R}}] = {{valR}}"
+  },
+  "ui": {
+    "controlLabel": "Prefix Sum 控制",
+    "run": "開始演示",
+    "runTooltip": "執行前綴和演算法演示",
+    "invalidRange": "請輸入完整的區間 (Start, End) 且 0 <= L <= R"
+  },
+  "statusLegend": {
+    "notCalculated": "未計算",
+    "idle": "閒置狀態",
+    "calculated": "計算完成",
+    "prevSum": "前項總和 P[i-1]",
+    "currentElement": "當前元素 A[i]",
+    "queryRight": "查詢右界 P[R]",
+    "queryLeft": "扣除前綴 P[L-1]"
+  },
+  "relatedProblems": {
+    "303": "經典前綴和問題：快速計算陣列區間和",
+    "560": "前綴和 + Hash Map：計算和為 K 的連續子陣列數量",
+    "304": "二維前綴和：擴展到二維矩陣的區間和查詢"
+  }
+}

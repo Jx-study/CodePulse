@@ -1,5 +1,4 @@
 export interface PythonInput {
-  label: string;
   variable: string;
   type: 'slider' | 'text' | 'select';
   default: number | string;
@@ -11,10 +10,9 @@ export interface PythonInput {
 }
 
 export interface PythonDemo {
-  title: string;
   code: string;
   inputs?: PythonInput[];
-  outputType?: 'text' | 'graph' | 'queue-card' | 'maze' | 'flood-fill'; // 預設 'text'，向下兼容
+  outputType?: 'text' | 'graph' | 'queue-card' | 'maze' | 'flood-fill';
 }
 
 
@@ -29,7 +27,7 @@ export interface MazeOutputData {
   grid: MazeCell[][];
   start: [number, number];
   finish: [number, number];
-  // DFS 生成步驟序列。forward: [fx,fy,tx,ty]；backtrack: [bx,by,-1,-1] 
+  // DFS 生成步驟序列。forward: [fx,fy,tx,ty]；backtrack: [bx,by,-1,-1]
   generationSteps?: [number, number, number, number][];
 }
 

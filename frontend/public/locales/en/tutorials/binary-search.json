@@ -1,4 +1,62 @@
 {
+  "animation": {
+    "init": "Start Binary Search: Target is {{target}}",
+    "check_while": "Check: Left ({{left}}) <= Right ({{right}}), continue search",
+    "calc_mid": "Calculate mid point: Mid = floor(({{left}} + {{right}}) / 2) = {{mid}}",
+    "compare": "Compare: Index {{mid}} ({{midVal}}) vs Target ({{target}})",
+    "found": "Target found! {{midVal}} equals {{target}} at Index {{mid}}",
+    "update_left": "{{midVal}} < {{target}} (Too small), target is in the right half. Update Left = {{mid}} + 1",
+    "update_right": "{{midVal}} > {{target}} (Too large), target is in the left half. Update Right = {{mid}} - 1",
+    "not_found": "Search complete: Range is empty (Left > Right), target {{target}} not found"
+  },
+  "stories": {
+    "binary-search-beat-the-algorithm": {
+      "title": "Beat the Algorithm: Binary Search Number Guessing Duel",
+      "category": "Interactive Game",
+      "tags": ["Binary Search", "O(log n)", "Number Guessing"],
+      "content": {
+        "sections": [
+          {
+            "content": "The core of binary search is \"each decision eliminates about half the possibilities.\" In a range of 1 to 100, theoretically at most ⌈log₂(100)⌉ ≈ 7 steps are needed to lock in the answer."
+          },
+          {
+            "content": "This interactive game lets you click on a number line to make your guess, simultaneously dueling against an AI shadow that \"always picks the midpoint.\" Through the visual shrinking of the search interval and remaining probability hints, you can intuitively feel the convergence speed of O(log n)."
+          }
+        ]
+      }
+    },
+    "algo-001": {
+      "title": "The Superpower Hidden Behind the Digital World — Binary Search",
+      "category": "Basic Algorithms / Tech Applications",
+      "tags": ["Binary Search", "GPU Parallel Computing", "Internet Routing", "Divide and Conquer"],
+      "content": {
+        "sections": [
+          {
+            "heading": "The Ultimate Magic of Simplification",
+            "content": "The core spirit of binary search is very simple: \"Every step cuts out half the impossible options.\" It's like finding a specific word in a dictionary of 1 million pages — a linear search going page by page would take an enormous amount of time, but binary search can pinpoint the target in fewer than 20 steps. This exponential decay power of O(log n) makes it the top choice for handling massive amounts of data. From the Git Bisect tool engineers use to track down bugs, to the index queries at the bottom of databases, this intuitive strategy is the cornerstone of modern technology."
+          },
+          {
+            "heading": "Unleashing GPU Potential: 3D Games and Parallel Computing",
+            "content": "When playing a visually stunning AAA game, the GPU must determine collisions between millions of rays and geometric models in milliseconds. According to a breakthrough by NVIDIA Research (2012), they used \"Morton Codes\" to compress complex 3D spatial coordinates into sortable one-dimensional segments. Then, the GPU's thousands of compute cores can work simultaneously, using \"binary search\" to quickly locate split points for their respective sections. This large-scale parallel processing technique allows the system to build massive spatial structures (such as BVH) all at once, completely unleashing the computational potential of high-end graphics cards and ensuring buttery-smooth rendering."
+          },
+          {
+            "heading": "The Express Navigation of the Internet: IP Routing Lookup",
+            "content": "Binary search is also the \"nervous system\" of the global internet. Each network packet requires routers to determine the path from millions of rules in an extremely short time — this is called \"Longest Prefix Matching (LPM).\" A team at UCLA (2001) proposed a bold idea: rather than searching through a vast number of IP addresses, perform binary search on \"prefix lengths.\" This breakthrough compressed the number of lookups to logarithmic levels (only 5 steps for IPv4), enabling global routers to forward data at hundreds of Gb/s, ensuring high-speed connectivity under any traffic pressure."
+          }
+        ]
+      },
+      "videoTitle": "The Secret Superpower of Binary Search",
+      "resources": [
+        { "title": "Maximizing Parallelism in the Construction of BVHs, Octrees, and k-d Trees", "source": "High Performance Graphics (2012) / NVIDIA Research" },
+        { "title": "Scalable High-Speed Prefix Matching", "source": "ACM Transactions on Computer Systems (2001) / UCLA" }
+      ]
+    }
+  },
+  "relatedProblems": {
+    "704": "Classic algorithm: search for a target value in a sorted array (basic binary search)",
+    "35": "Variant: find the target or return where it would be inserted (lower bound concept)",
+    "34": "Advanced: find the first and last position of a target in a sorted array with duplicates"
+  },
   "introduction": {
     "sections": [
       {
@@ -65,5 +123,51 @@
         "icon": "shield-halved"
       }
     ]
+  },
+  "game": {
+    "binarySearch": {
+      "title": "Binary Search Duel: Beat the Algorithm",
+      "desc1": "A secret number is hidden from 1 to 100. Click the blue search range to guess; each decision halves the possibilities.",
+      "legend": {
+        "blue": "Blue = Your search range",
+        "orange": "Orange dots = AI guesses (always midpoint)   Goal: fewer steps than AI!"
+      },
+      "labels": {
+        "you": "You",
+        "ai": "AI",
+        "secret": "Secret: ",
+        "secretHidden": "???"
+      },
+      "buttons": {
+        "newGame": "New Game",
+        "newGameDisabled": "Game in progress, finish first",
+        "newGameTitle": "New Game (new secret)"
+      },
+      "results": {
+        "player_wins": "You win! You used {{steps}} step(s)",
+        "tie": "Tie! Both used {{steps}} step(s)",
+        "ai_wins": "AI wins ({{steps}} step(s)), secret was {{secret}}",
+        "timeout": "Exceeded {{max}}-step limit, secret was {{secret}}"
+      },
+      "stats": {
+        "prob": "Current Probability",
+        "remaining": "Candidates Remaining",
+        "maxMore": "Theoretical Max (Binary Search)",
+        "certain": "Certain Hit",
+        "atMost": "≤ {{n}} step(s)"
+      },
+      "leaderboard": {
+        "title": "Duel History",
+        "winRate": "Win Rate {{rate}}% ({{wins}} / {{total}} games)",
+        "round": "Round",
+        "playerSteps": "Your Steps",
+        "aiSteps": "AI Steps",
+        "result": "Result",
+        "player_wins": "You Win",
+        "tie": "Tie",
+        "ai_wins": "AI Wins",
+        "timeout": "Timeout"
+      }
+    }
   }
 }

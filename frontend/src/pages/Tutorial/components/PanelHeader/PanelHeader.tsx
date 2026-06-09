@@ -1,4 +1,5 @@
 import { ReactNode, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './PanelHeader.module.scss';
 import Button from '@/shared/components/Button';
 import { TabList, type TabConfig } from '@/shared/components/Tabs';
@@ -32,6 +33,8 @@ export function PanelHeader({
   activeTab,
   onTabChange,
 }: PanelHeaderProps) {
+  const { t } = useTranslation('tutorial');
+
   // 如果提供了 tabs，自動構建 rightContent
   const finalRightContent = useMemo(() => {
     if (tabs && tabs.length > 0) {
@@ -76,8 +79,10 @@ export function PanelHeader({
               iconOnly
               className={styles.iconButton}
               onClick={onToggleCollapse}
-              aria-label={isCollapsed ? "Expand panel" : "Collapse panel"}
-              title={isCollapsed ? "展開" : "折疊"}
+              aria-label={
+                isCollapsed ? t('panelHeader.expandPanel') : t('panelHeader.collapsePanel')
+              }
+              title={isCollapsed ? t('panelHeader.expand') : t('panelHeader.collapse')}
             />
           )}
         </div>

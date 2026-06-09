@@ -6,23 +6,23 @@ import { TAGS } from "./tags";
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
-    key: "factorial.init",
+    key: "animation.init",
     params: { targetN: e.local_vars.targetN },
   }),
   [TAGS.PUSH_START]: (e) => ({
-    key: "factorial.push_start",
+    key: "animation.push_start",
     params: { n: e.local_vars.n },
   }),
   [TAGS.PUSH_ASSIGN]: (e) => ({
-    key: "factorial.push_assign",
+    key: "animation.push_assign",
     params: { n: e.local_vars.n },
   }),
   [TAGS.BASE_CASE]: (e) => ({
-    key: "factorial.base_case",
+    key: "animation.base_case",
     params: { n: e.local_vars.n, val: e.local_vars.val },
   }),
   [TAGS.CALC_START]: (e) => ({
-    key: "factorial.calc_start",
+    key: "animation.calc_start",
     params: {
       current_f: e.local_vars.current_f,
       child_val: e.local_vars.child_val,
@@ -30,7 +30,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.CALC_MULTIPLY]: (e) => ({
-    key: "factorial.calc_multiply",
+    key: "animation.calc_multiply",
     params: {
       current_f: e.local_vars.current_f,
       child_val: e.local_vars.child_val,
@@ -38,15 +38,18 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.POP_RIGHT]: (e) => ({
-    key: "factorial.pop_right",
+    key: "animation.pop_right",
     params: {
       returned_f: e.local_vars.returned_f,
       returned_val: e.local_vars.returned_val,
     },
   }),
   [TAGS.DONE]: (e) => ({
-    key: "factorial.done",
-    params: { final_result: e.local_vars.final_result },
+    key: "animation.done",
+    params: {
+      targetN: e.local_vars.targetN,
+      final_result: e.local_vars.final_result,
+    },
   }),
 };
 

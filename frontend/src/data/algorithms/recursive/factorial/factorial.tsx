@@ -100,5 +100,6 @@ export const factorialConfig: LevelImplementationConfig = {
   createAnimationSteps: createFactorialAnimationSteps,
   actionHandler: factorialActionHandler,
   renderActionBar: (props) => <FactorialActionBar {...(props as any)} />,
+  i18nNamespace: "tutorials/factorial",
   maxNodes: 10,
 };

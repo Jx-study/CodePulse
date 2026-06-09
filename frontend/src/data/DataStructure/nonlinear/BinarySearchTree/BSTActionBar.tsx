@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -23,13 +25,14 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
   onSearchNode,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/bst");
   const [inputValue, setInputValue] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   const handleInsert = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("請輸入要插入的數值");
+      toast.warning(t("ui.insertWarning"));
       return;
     }
     onAddNode(Number(inputValue), "Insert");
@@ -38,7 +41,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
   const handleDelete = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("請輸入要刪除的數值");
+      toast.warning(t("ui.deleteWarning"));
       return;
     }
     onDeleteNode("DeleteValue", Number(inputValue));
@@ -54,18 +57,22 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Binary Search Tree Operations</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
         <Input
           type="number"
-          placeholder="數值"
+          placeholder={t("ui.valuePlaceholder")}
           value={inputValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
+            setInputValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
@@ -73,7 +80,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Node value"
         />
 
-        <Tooltip content="將數值插入 BST">
+        <Tooltip content={t("ui.insertTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -82,11 +89,11 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            Insert
+            {t("ui.insert")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="從 BST 中刪除指定數值">
+        <Tooltip content={t("ui.deleteTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -95,29 +102,31 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            Delete
+            {t("ui.delete")}
           </Button>
         </Tooltip>
 
         <Input
           type="number"
-          placeholder="搜尋值"
+          placeholder={t("ui.searchPlaceholder")}
           value={searchValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSearchValue(e.target.value)
+            setSearchValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
           aria-label="Search value"
         />
-        <Tooltip content="在 BST 中搜尋指定數值">
+        <Tooltip content={t("ui.searchTooltip")}>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => {
               if (searchValue.trim() === "") {
-                toast.warning("請輸入搜尋值");
+                toast.warning(t("ui.searchWarning"));
                 return;
               }
               onSearchNode(Number(searchValue), "search");
@@ -126,11 +135,11 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnSearch}
             icon="search"
           >
-            Search
+            {t("ui.search")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="找到 BST 中的最小值">
+        <Tooltip content={t("ui.minTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -138,10 +147,10 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnQuery}
           >
-            Min
+            {t("ui.min")}
           </Button>
         </Tooltip>
-        <Tooltip content="找到 BST 中的最大值">
+        <Tooltip content={t("ui.maxTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -149,16 +158,16 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnQuery}
           >
-            Max
+            {t("ui.max")}
           </Button>
         </Tooltip>
-        <Tooltip content="找到不大於指定值的最大數">
+        <Tooltip content={t("ui.floorTooltip")}>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => {
               if (searchValue.trim() === "") {
-                toast.warning("Floor 需要輸入參考數值");
+                toast.warning(t("ui.floorWarning"));
                 return;
               }
               onSearchNode(Number(searchValue), "floor");
@@ -166,16 +175,16 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnQuery}
           >
-            Floor
+            {t("ui.floor")}
           </Button>
         </Tooltip>
-        <Tooltip content="找到不小於指定值的最小數">
+        <Tooltip content={t("ui.ceilTooltip")}>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => {
               if (searchValue.trim() === "") {
-                toast.warning("Ceil 需要輸入參考數值");
+                toast.warning(t("ui.ceilWarning"));
                 return;
               }
               onSearchNode(Number(searchValue), "ceil");
@@ -183,7 +192,7 @@ export const BSTActionBar: React.FC<DSActionBarProps> = ({
             disabled={disabled}
             className={styles.btnQuery}
           >
-            Ceil
+            {t("ui.ceil")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

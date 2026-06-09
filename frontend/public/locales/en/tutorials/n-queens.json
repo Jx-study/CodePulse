@@ -1,0 +1,28 @@
+{
+  "animation": {
+    "init": "Initialize {{N}}x{{N}} board, start finding solutions from Row 0.",
+    "check_safe": "Attempt to place a Queen at Row {{row}}, Col {{col}}",
+    "attacked": "Position ({{row}}, {{col}}) is under attack, cannot be placed!",
+    "place_queen": "Position ({{row}}, {{col}}) is safe, placing the Queen!",
+    "backtrack": "Backtrack from Row {{row}}, removing Queen at ({{prevRow}}, {{prevCol}}) to find the next position",
+    "success": "Successfully placed Queens on all rows, found a solution!",
+    "fail": "Exhausted all possibilities, no solution exists for {{N}}x{{N}} board!"
+  },
+  "ui": {
+    "controlLabel": "N-Queens Control",
+    "placeholder": "Board Size N",
+    "run": "Solve",
+    "reset": "Reset",
+    "runTooltip": "Run N-Queens backtracking algorithm",
+    "resetTooltip": "Reset board state",
+    "limitWarning": "Values of N > 8 take too long to compute and animate. Please enter a number between 1 and 8.",
+    "invalidInput": "Please enter a valid board size N (integer > 0)"
+  },
+  "statusLegend": {
+    "safeCell": "Safe Cell",
+    "trying": "Trying",
+    "queenPlaced": "Queen Placed",
+    "attacked": "Under Attack",
+    "backtrack": "Backtracking"
+  }
+}

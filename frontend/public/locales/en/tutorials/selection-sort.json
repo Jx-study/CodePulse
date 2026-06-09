@@ -1,4 +1,20 @@
 {
+  "animation": {
+    "init": "Start Selection Sort",
+    "round_start": "Round {{round}} starts: Assume Index {{i}} is the minimum",
+    "compare_true": "Compare: Is Index {{j}} ({{scanVal}}) less than current minimum ({{minVal}})? -> True",
+    "compare_false": "Compare: Is Index {{j}} ({{scanVal}}) less than current minimum ({{minVal}})? -> False",
+    "update_min": "Found a smaller value! Update minimum index to {{minIdx}}",
+    "swap_true": "Swap: Exchange minimum of this round (Index {{minIdx}}) with Index {{i}}",
+    "swap_false": "Index {{i}} is already the minimum, no swap needed",
+    "round_end": "Index {{i}} sorting complete",
+    "done": "Sorting Complete"
+  },
+  "relatedProblems": {
+    "215": "Selection sort concept: find the K-th largest element using partial sorting",
+    "414": "Finding max/min: find the third maximum number in an array",
+    "164": "Advanced sorting: find the maximum gap between adjacent elements after sorting"
+  },
   "introduction": {
     "sections": [
       {

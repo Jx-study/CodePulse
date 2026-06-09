@@ -1,4 +1,157 @@
 {
+  "animation": {
+    "init": "Graph structure visualization: Nodes and Edges.",
+    "add_vertex": "Adding node: node-{{val}}",
+    "add_vertex_result": "Node added successfully: node-{{val}}",
+    "remove_vertex": "Removing node: node-{{val}} and its connected edges",
+    "remove_vertex_update": "Node removed, graph layout updated",
+    "add_edge": "Selecting nodes {{src}} and {{dst}}, creating an edge",
+    "remove_edge": "Selecting nodes {{src}} and {{dst}}, removing the edge",
+    "get_neighbors_start": "Finding neighbors of node {{target}}...",
+    "get_neighbors_find": "Neighbor found: {{neighbor}}",
+    "get_neighbors_result_true": "Search complete. Found {{count}} neighbor(s): {{names}}",
+    "get_neighbors_result_false": "Node {{target}} has no neighbors.",
+    "check_adjacent": "Checking whether {{src}} is connected to {{dst}} ({{dir}})",
+    "check_adjacent_true": "Result: True (edge {{src}} -> {{dst}} exists)",
+    "check_adjacent_false": "Result: False (no edge exists from {{src}} to {{dst}})",
+    "get_degree": "Calculating the degree of node {{target}} ({{dir}})...",
+    "get_degree_msg": "{{msg}}",
+    "get_degree_directed_result": "Node {{target}}: In-Degree (Blue) = {{inDeg}}, Out-Degree (Green) = {{outDeg}}",
+    "get_degree_undirected_result": "Node {{target}}: Degree = {{deg}}",
+    "check_connected_init": "Using BFS to check connectivity starting from node {{start}} (ignoring direction)",
+    "check_connected_while": "BFS processing: {{msg}}",
+    "check_connected_process_node": "Processing node {{current}}, searching for unvisited neighbors",
+    "check_connected_diffusion": "Diffusing... Visited {{visited}} / {{total}} nodes (ignoring direction)",
+    "check_connected_node_done": "Node {{current}} processing complete",
+    "check_connected_result_true": "Result: The graph is connected! All nodes are reachable.",
+    "check_connected_result_false": "Result: The graph is disconnected. Orange nodes indicate isolated components.",
+    "check_cycle_dfs": "Visiting node {{current}}...",
+    "check_cycle_dfs_msg": "{{msg}}",
+    "check_cycle_found_true": "Cycle detected! ({{current}} -> {{cycleNode}})",
+    "check_cycle_found_false": "Finished processing node, backtracking from {{current}}",
+    "check_cycle_end_true": "Check complete: Graph contains a cycle. Path: {{path}}",
+    "check_cycle_end_false": "Check complete: The graph is acyclic.",
+    "check_cycle_return": "Backtracked and returned to node {{current}}"
+  },
+  "ui": {
+    "requireNodeId": "Please enter a node ID",
+    "requireSourceId": "Please enter a source (Src) node ID",
+    "requireTargetId": "Please enter a destination (Dst) node ID",
+    "load": "Load Data",
+    "loadTooltip": "Open the custom graph data loading interface",
+    "operations": "Graph Operations",
+    "nodeLabel": "Node",
+    "add": "Add",
+    "addVertexTooltip": "Add a node to the graph",
+    "remove": "Remove",
+    "removeVertexTooltip": "Remove the specified node from the graph",
+    "neighbors": "Neighbors",
+    "getNeighborsTooltip": "Find all neighbors of the specified node",
+    "degree": "Degree",
+    "getDegreeTooltip": "Get the degree of the specified node",
+    "edgeLabel": "Edge",
+    "link": "Link",
+    "addEdgeTooltip": "Add an edge between two nodes",
+    "unlink": "Unlink",
+    "removeEdgeTooltip": "Remove the edge between two nodes",
+    "adjacent": "Check",
+    "checkAdjacentTooltip": "Check whether two nodes are adjacent",
+    "isDirected": "Directed",
+    "connected": "Connectivity",
+    "checkConnectedTooltip": "Check whether the graph is connected",
+    "cycle": "Has Cycle",
+    "checkCycleTooltip": "Check whether the graph contains a cycle"
+  },
+  "statusLegend": {
+    "notProcessed": "Not Processed",
+    "normalState": "Normal State",
+    "preparing": "Preparing / Candidate",
+    "targetCurrent": "Target / Current",
+    "completeConnected": "Complete / Connected"
+  },
+  "stories": {
+    "graph-social-network": {
+      "title": "【Algorithm Revealed】How Does Facebook Instantly Recommend Friends? — From Six Degrees to Social Graph",
+      "category": "Social Media",
+      "tags": ["Social Graph", "Graph Database", "Triadic Closure"],
+      "content": {
+        "sections": [
+          {
+            "content": "\"Six degrees of separation\" suggests that any two strangers in the world are connected by at most six people. However, instantly finding \"who is whose friend's friend\" across Facebook's billions of users is an enormous engineering challenge. With a traditional database, finding relationships is like performing extremely complex cross-references (Joins) across separate giant Excel tables — triggering a \"computational explosion\" that can freeze the system for seconds or even minutes."
+          },
+          {
+            "heading": "Graph Magic: Born for \"Connection\"",
+            "content": "To solve this challenge, Facebook adopted a revolutionary thinking model: \"Graph Database.\" This type of database is like the brain's neural network, born for connections. Its basic building blocks are just two things: \"Nodes\" representing individual objects (such as users, posts, photos), and \"Edges\" representing relationships between objects (such as friendships, likes). Trillions of edges weave all isolated nodes into a living, giant web of relationships."
+          },
+          {
+            "heading": "Cracking \"People You May Know\": Triadic Closure and Millisecond Computing",
+            "content": "How does Facebook's precise \"People You May Know\" recommendation work? The logic is simple: if the system knows you (node A) and Alex (node B) are friends, and Alex and Sam (node C) are also friends, the system doesn't need to search massive tables — it just needs to \"walk two steps\" along the lines to infer that you and Sam likely know each other. This principle is called \"Triadic Closure.\" In a graph database, this entire search process takes only milliseconds — a completely different league compared to the minutes it would take with a traditional database."
+          },
+          {
+            "heading": "Seeing Through Social Influence: Label Properties and Centrality",
+            "content": "The social graph can not only record friendships but also carry attributes on edges through \"property graphs\" (such as recording when a like was given), greatly enriching data depth. By analyzing network structure, we can calculate a user's \"degree centrality\" (more connections = higher popularity index), or \"betweenness centrality\" (playing the bridge role connecting two communities), identifying key individuals who hold strategic positions in information propagation chains. As certified by Meta's official documentation, this Graph concept built upon real-world complex networks is the foundation of the entire platform."
+          }
+        ]
+      },
+      "videoTitle": "How Facebook Instantly Recommends Friends: Social Graph & Graph Database Explained",
+      "pythonDemoTitle": "Simulate Facebook Social Graph: Triadic Closure Friend Recommendations",
+      "inputs": {
+        "num_users": "Number of users",
+        "num_communities": "Communities",
+        "density_slider": "Friendship density"
+      },
+      "resources": [
+        { "title": "Meta Graph API Overview", "source": "Meta Developer Docs" },
+        { "title": "Social Network Graphs: Concepts, Metrics & Tools", "source": "PuppyGraph Blog" }
+      ]
+    }
+  },
+  "relatedProblems": {
+    "133": "Graph deep copy: use a hash map to track visited nodes and recursively/BFS clone the entire undirected graph",
+    "207": "Directed graph cycle detection: if prerequisite courses form a cycle, completion is impossible — use topological sort to check DAG property",
+    "210": "Topological sort: find a linear learning order in a DAG using Kahn's algorithm or DFS",
+    "684": "Cycle detection / Union-Find: find the extra edge that creates a cycle in an undirected tree",
+    "269": "Advanced topological sort: derive letter ordering from dictionary sequence, build graph and output a valid alphabet order"
+  },
+  "game": {
+    "graph": {
+      "title": "Six Degrees of Separation — Facebook Social Graph Simulation",
+      "descLine1": "Nodes = users, edges = friendships.",
+      "descNodeSize": "Node size represents friend count (degree centrality),",
+      "descColor": "color represents community group.",
+      "legendBlue": "Blue border = your direct friends (already know)",
+      "legendGold": "Gold blinking = click to meet",
+      "legendOrange": "Orange dashed = triadic closure recommendation",
+      "goal": "Goal: meet ★ the target user in as few steps as possible. Click a blinking node to start!",
+      "targetLabel": "Target:",
+      "noTarget": "No target available (add more users)",
+      "operations": "Moves:",
+      "playingTitle": "Game in progress — finish or give up first",
+      "resetButton": "Reset Game",
+      "viewResetTitle": "Reset view (scroll to zoom / drag to pan)",
+      "tooltip": {
+        "friends": "Friends: {{n}}",
+        "centrality": "Centrality: {{n}}",
+        "clickToMeet": "Click to meet"
+      },
+      "wonMessage": "You can meet {{name}} in {{steps}} step(s)!",
+      "pathLabel": "Path:",
+      "pathLength": "Path length: {{steps}} step(s)",
+      "opCount": "Moves: {{n}}",
+      "elapsed": "Time: {{time}}",
+      "legend": {
+        "community": "Community {{n}}",
+        "friend": "Friend",
+        "recommend": "Recommended friend"
+      },
+      "leaderboard": {
+        "title": "Session Leaderboard",
+        "operations": "Moves",
+        "elapsed": "Time",
+        "path": "Path"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

@@ -1,0 +1,141 @@
+{
+  "common": {
+    "loading": "載入中..."
+  },
+  "page": {
+    "openTourTitle": "開啟功能導覽",
+    "openKnowledgeStationTitle": "開啟知識補充站",
+    "knowledgeStation": "知識補充站",
+    "swapLayoutTitle": "交換左右面板",
+    "swapLayout": "交換佈局"
+  },
+  "panelHeader": {
+    "canvas": "視覺化動畫",
+    "inspector": "資訊面板",
+    "codeEditor": "代碼實作",
+    "expand": "展開",
+    "collapse": "折疊",
+    "expandPanel": "展開面板",
+    "collapsePanel": "折疊面板"
+  },
+  "panelRegistry": {
+    "canvas": "視覺化動畫",
+    "actionBar": "操作面板",
+    "variableStatus": "變數狀態"
+  },
+  "smartActionBar": {
+    "noInterface": "此主題暫無操作介面"
+  },
+  "toast": {
+    "maxNodesExceeded": "資料數量超過限制，最多只能有 {{maxNodes}} 筆資料。",
+    "invalidFormat": "請輸入有效的數字格式 (例如: 1,2,3)",
+    "emptyDataOperation": "目前沒有資料，請先載入或隨機生成資料。",
+    "invalidWordList": "請輸入有效的單字清單。"
+  },
+  "featureTour": {
+    "ariaLabelComplete": "功能導覽完成",
+    "ariaLabelStep": "功能導覽步驟 {{step}}",
+    "closeAriaLabel": "關閉導覽",
+    "skipAriaLabel": "跳過導覽",
+    "dotAriaLabel": "跳至步驟 {{step}}",
+    "stepBadge": "步驟 {{current}} / {{total}}",
+    "readyTitle": "準備好了嗎？",
+    "algorithmReadyDesc": "在開始練習前，先到知識補充站了解這個演算法的理論基礎吧！",
+    "dataStructureReadyDesc": "在開始練習前，先到知識補充站了解這個資料結構的理論基礎吧！",
+    "enterKnowledgeStation": "進入知識補充站",
+    "skipForNow": "暫時不需要，直接開始",
+    "previous": "上一步",
+    "next": "下一步",
+    "steps": {
+      "swapButton": {
+        "title": "交換佈局",
+        "description": "點擊此按鈕可以交換左側程式碼面板與右側畫布的位置，找到最適合你的學習佈局。"
+      },
+      "resizeHandle": {
+        "title": "水平調整面板寬度",
+        "description": "拖動左右面板之間的分隔線，可以自由調整程式碼面板與視覺化區域的寬度比例。"
+      },
+      "resizeHandleV": {
+        "title": "垂直調整面板高度",
+        "description": "拖動上下面板之間的分隔線，可以自由調整視覺化畫布與資料操作面板的高度比例。"
+      },
+      "canvasPanel": {
+        "title": "視覺化畫布",
+        "description": "這裡是演算法動畫的主要舞台。你可以縮放、平移畫布，觀察每個步驟的變化。"
+      },
+      "controlBar": {
+        "title": "播放控制列",
+        "description": "使用播放、暫停、上一步、下一步來控制動畫速度，也可以拖動進度條跳至任意步驟。"
+      },
+      "codePanel": {
+        "title": "程式碼面板",
+        "description": "左側顯示對應的虛擬碼或 Python 實作，當前執行行會自動高亮顯示。"
+      }
+    }
+  },
+  "knowledgeStation": {
+    "title": "知識補充站",
+    "tabs": {
+      "algorithmIntroduction": "演算法說明",
+      "dataStructureIntroduction": "資料結構說明",
+      "complexity": "複雜度分析",
+      "problems": "經典題型",
+      "story": "真實世界應用"
+    }
+  },
+  "introductionTab": {
+    "algorithmTitle": "演算法簡介",
+    "dataStructureTitle": "資料結構簡介",
+    "noContent": "尚未提供教學內容。"
+  },
+  "complexityTab": {
+    "title": "複雜度分析",
+    "timeBest": "時間複雜度（最佳）",
+    "timeAverage": "時間複雜度（平均）",
+    "timeWorst": "時間複雜度（最差）",
+    "space": "空間複雜度"
+  },
+  "problemsTab": {
+    "empty": "暫無相關題目"
+  },
+  "derivedContent": {
+    "title": "衍生內容"
+  },
+  "difficulty": {
+    "Easy": "簡單",
+    "Medium": "中等",
+    "Hard": "困難"
+  },
+  "storyTab": {
+    "empty": "目前尚未提供此主題的真實世界應用故事。"
+  },
+  "storyAccordion": {
+    "expandAriaLabel": "展開",
+    "collapseAriaLabel": "收合",
+    "readDetails": "閱讀故事詳情",
+    "collapseDetails": "收起故事詳情"
+  },
+  "storyResources": {
+    "title": "延伸資源"
+  },
+  "videoPlayer": {
+    "comingSoon": "影片即將上線",
+    "defaultTitle": "故事影片"
+  },
+  "pythonDemo": {
+    "badge": "Python 互動",
+    "runTab": "小程式運行",
+    "codeTab": "原始碼",
+    "copyCode": "複製代碼",
+    "copied": "已複製",
+    "runButton": "▶ 執行小遊戲",
+    "loadingPyodide": "載入 Python 環境...",
+    "running": "執行中...",
+    "skipGeneration": "跳過生成",
+    "noOutput": "（程式執行完畢，無輸出）",
+    "executionError": "執行錯誤：\n{{message}}",
+    "loadError": "無法載入 Pyodide，請確認網路連線或瀏覽器未封鎖 cdn.pyodide.org",
+    "clickToRun": "點擊「執行小遊戲」查看結果...",
+    "localHint": "複製後在本地執行：python script.py（需 Python 3.10+）"
+  }
+}

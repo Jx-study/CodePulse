@@ -1,4 +1,20 @@
 {
+  "animation": {
+    "init": "Start Bubble Sort",
+    "round_start": "Round {{round}} begins",
+    "get_values": "Fetch Index {{idx}} ({{v1}}) and Index {{idx2}} ({{v2}})",
+    "compare_true": "Condition: {{v1}} > {{v2}} is true, preparing to swap",
+    "compare_false": "Condition: {{v1}} > {{v2}} is false, no swap needed",
+    "swap": "Swap complete: positions exchanged",
+    "round_end": "Round complete, Index {{idx}} is now in the correct position",
+    "early_exit": "No swaps occurred in round {{round}}, array is already sorted, exiting early!",
+    "done": "Sorting complete"
+  },
+  "relatedProblems": {
+    "912": "Sorting basics: sort an array using any sorting algorithm",
+    "75": "Variant: three-way partition problem, optimizable to O(n) with sorting ideas",
+    "242": "Sorting in practice: determine if two strings are anagrams"
+  },
   "introduction": {
     "sections": [
       {

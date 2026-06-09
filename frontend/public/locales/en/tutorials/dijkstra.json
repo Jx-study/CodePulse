@@ -1,0 +1,44 @@
+{
+  "animation": {
+    "init": "Initialization: Set the distance of the start node {{start}} to 0, and all other nodes to ∞",
+    "extract_min": "Select the unsettled node {{u}} with the smallest distance (distance={{distU}})",
+    "check_neighbors": "Checking neighboring node {{v}}, edge weight = {{weight}}",
+    "relax_edge_true": "A shorter path is found! The new distance from {{u}} to {{v}} is {{alt}}. Updating the distance table.",
+    "relax_edge_false": "No update needed: the new distance {{alt}} is not smaller than the current distance",
+    "node_settled": "All adjacent edges of node {{u}} have been examined. Its shortest path is now finalized.",
+    "done_early": "Node {{u}} is the target node, and its shortest path ({{distU}}) has been finalized. Ending the search early!",
+    "done_unreachable": "The destination node {{end}} is unreachable. Algorithm terminated.",
+    "done_all": "Algorithm completed! The shortest paths to all reachable nodes have been found.",
+    "done_path": "Shortest path: {{path}}, total distance = {{dist}}"
+  },
+  "ui": {
+    "loadGraph": "Load Graph Data",
+    "loadGraphTooltip": "Open the interface for loading custom weighted graph data",
+    "reset": "Reset",
+    "resetTooltip": "Clear all data and restore the initial state",
+    "random": "Random",
+    "randomTooltip": "Generate a random weighted graph",
+    "startPlaceholder": "Start Node (0)",
+    "endPlaceholder": "End Node (N)",
+    "isDirected": "Directed",
+    "run": "Run",
+    "runTooltip": "Execute the Dijkstra shortest path algorithm",
+    "noGraphData": "No graph data available. Cannot specify a start/end node.",
+    "startNodeNotFound": "Start node node-{{val}} does not exist",
+    "endNodeNotFound": "End node node-{{val}} does not exist"
+  },
+  "statusLegend": {
+    "notProcessed": "Not Processed",
+    "currentMin": "Current Min-Distance Node",
+    "checkingNeighbor": "Checking Neighbor",
+    "settled": "Shortest Distance Settled",
+    "visitedPath": "Visited Path"
+  },
+  "relatedProblems": {
+    "743": "Single-source shortest path: Dijkstra from the source, find the minimum time for all nodes to receive a signal",
+    "1631": "Dijkstra variant: minimize the maximum height difference along a path, tracking current max drop with a min-heap",
+    "1514": "Maximum probability path: replace addition with multiplication in Dijkstra, max-heap prioritizes the highest current probability",
+    "787": "Shortest path with at most K stops: track steps used per node, limiting to at most k intermediate stops",
+    "778": "Minimum bottleneck path: Dijkstra selects the minimum water-level cell with a min-heap to reach the bottom-right corner"
+  }
+}
