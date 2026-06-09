@@ -15,6 +15,8 @@ interface BuildPlaygroundTourArgs {
   goAnimationTab: () => void;
   /** Currently docked panel id; the interactive drag-dock step uses this to detect whether the drag is complete */
   leftDockedId: string | null;
+  /** Whether AlgoDetectionDialog is currently open; algo-detection step advances once it closes */
+  isAlgoDialogOpen: boolean;
   /** i18n translation function (playground namespace) */
   t: TFunction;
 }
@@ -57,6 +59,7 @@ export function buildPlaygroundTourSteps({
   lastRunOutcome,
   goAnimationTab,
   leftDockedId,
+  isAlgoDialogOpen,
   t,
 }: BuildPlaygroundTourArgs): TourStep[] {
   return [
@@ -79,7 +82,18 @@ export function buildPlaygroundTourSteps({
       // Use the explicit lastRunOutcome rather than inferring from runStage.
       // 'none' = Run not clicked yet (or reset when the tour opened) — show static waiting hint instead of Codi.
       waitingState: () => (lastRunOutcome === 'none' ? 'idle' : lastRunOutcome === 'error' ? 'error' : 'running'),
-      skipTargetStepId: 'right-panels',
+      skipTargetStepId: 'algo-detection',
+    },
+    {
+      id: 'algo-detection',
+      title: t('tour.steps.algoDetection.title'),
+      description: t('tour.steps.algoDetection.description'),
+      targetSelector: '[data-tour="pg-tabbar"]',
+      placement: 'bottom',
+      interactive: true,
+      // 彈窗關閉後條件立即成立，step 出現時就是 completed 狀態
+      advanceWhen: () => !isAlgoDialogOpen,
+      skipTargetStepId: 'tab-bar',
     },
     {
       id: 'tab-bar',

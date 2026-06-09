@@ -253,6 +253,7 @@ function Playground() {
     lastRunOutcome,
     goAnimationTab,
     leftDockedId,
+    isAlgoDialogOpen,
     t,
   });
 

@@ -64,7 +64,11 @@
       },
       "runButton": {
         "title": "Run Code",
-        "description": "Click \"Run\" to execute your code. The system will trace every step and generate a visualization. Give it a try!"
+        "description": "Click \"Run\" to execute your code. After analysis completes, an algorithm detection dialog may appear — pick the best match to load the animation. Give it a try!"
+      },
+      "algoDetection": {
+        "title": "Algorithm Detection",
+        "description": "If a detection dialog appeared, your selection has been applied. If you skipped it or no match was found, you can still explore the call graph — or re-run with a supported algorithm to load the animation."
       },
       "tabBar": {
         "title": "Visualization Mode",
