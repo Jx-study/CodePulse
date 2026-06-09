@@ -224,12 +224,11 @@ function Playground() {
 
   // Auto-open on mount unless the user has previously clicked "Don't show again"
   const [isTourOpen, setIsTourOpen] = useState(() => !getPlaygroundTourDismissed());
-  const handleTourComplete = useCallback(() => setIsTourOpen(false), []);
-  const handleTourSkip = useCallback(() => setIsTourOpen(false), []);
+  const closeTour = useCallback(() => setIsTourOpen(false), []);
   const handleTourOpen = useCallback(() => {
     resetLastRunOutcome();
     setIsTourOpen(true);
-  }, [resetLastRunOutcome]);;
+  }, [resetLastRunOutcome]);
   // "Don't show again": persist the preference then close the tour (the "?" button still opens it manually)
   const handleTourDontShowAgain = useCallback(() => {
     setPlaygroundTourDismissed();
@@ -672,8 +671,8 @@ function Playground() {
         isOpen={isTourOpen && !isHistoryOpen}
         isPaused={isAlgoDialogOpen}
         steps={tourSteps}
-        onComplete={handleTourComplete}
-        onSkip={handleTourSkip}
+        onComplete={closeTour}
+        onSkip={closeTour}
         onDontShowAgain={handleTourDontShowAgain}
         finalTitle={t('tour.outro.title')}
         finalDescription={t('tour.outro.description', { algos: getSupportedAlgoLabels().join(', ') })}

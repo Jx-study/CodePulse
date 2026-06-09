@@ -239,6 +239,8 @@ export function usePlaygroundRun({
     }
   }, [code, editorRef, loadFromHistory, onResetPlayback, onQuotaFull, t]);
 
+  const resetLastRunOutcome = useCallback(() => setLastRunOutcome("none"), []);
+
   return {
     runStage,
     lastRunOutcome,
@@ -260,7 +262,7 @@ export function usePlaygroundRun({
     handleRun,
     handleEditCode,
     loadFromHistory,
-    resetLastRunOutcome: () => setLastRunOutcome("none"),
+    resetLastRunOutcome,
   };
 }
 

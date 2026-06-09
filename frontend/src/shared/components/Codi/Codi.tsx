@@ -41,7 +41,7 @@ export default function Codi({ state, runningText, errorText }: CodiProps) {
       <Lottie
         className={styles.lottie}
         animationData={isError ? errorAnimation : runningAnimation}
-        loop={!isError && !prefersReducedMotion}
+        loop={!prefersReducedMotion}
         initialSegment={prefersReducedMotion ? [0, 1] : undefined}
         aria-hidden
       />
