@@ -114,7 +114,6 @@ export const binarySearchConfig: LevelImplementationConfig = {
   createAnimationSteps: createBinarySearchAnimationSteps,
   actionHandler: binarySearchActionHandler,
   renderActionBar: (props) => <SearchingActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/binary-search",
   relatedProblems: [
     {
       id: 704,

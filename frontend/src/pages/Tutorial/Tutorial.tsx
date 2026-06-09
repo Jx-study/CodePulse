@@ -370,7 +370,6 @@ export const InspectorPanelInternal = ({
 };
 
 function TutorialContent() {
-  const { t: tTour } = useTranslation('tutorial');
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [canvasSize] = useState({ width: 800, height: 400 });
 

@@ -107,7 +107,6 @@ export const selectionSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createSelectionSortAnimationSteps,
   actionHandler: selectionSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/selection-sort",
   relatedProblems: [
     {
       id: 215,

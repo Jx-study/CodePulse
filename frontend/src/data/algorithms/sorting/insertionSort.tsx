@@ -106,7 +106,6 @@ export const insertionSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createInsertionSortAnimationSteps,
   actionHandler: insertionSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/insertion-sort",
   relatedProblems: [
     {
       id: 147,
