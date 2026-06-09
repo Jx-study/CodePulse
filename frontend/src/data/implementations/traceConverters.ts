@@ -82,6 +82,7 @@ const STATUS_MAP: Record<string, Status> = {
   Complete: Status.Complete,
   Prepare: Status.Prepare,
   Unfinished: Status.Unfinished,
+  Inactive: Status.Inactive,
 };
 
 export function toStatus(s?: string): Status {

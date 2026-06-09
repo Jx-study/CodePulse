@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -21,6 +23,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
   onRun,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/prefix-sum");
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
 
@@ -39,7 +42,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
     ) {
       onRun({ type: "prefixSum", range: [start, end] });
     } else {
-      toast.warning("請輸入完整的區間 (Start, End)");
+      toast.warning(t("ui.invalidRange"));
     }
   };
 
@@ -53,39 +56,41 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Prefix Sum Control</StaticLabel>
+        <StaticLabel>{t("ui.controlLabel")}</StaticLabel>
         <div className={styles.rangeInput}>
           <Input
             type="number"
             placeholder="L"
             value={rangeStart}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setRangeStart(e.target.value)
-            }
+            min={0}
+            max={maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE}
+            onChange={(e) => setRangeStart(clampNumberInput(e.target.value, 0, maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE))}
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
-            aria-label="Range start"
+            aria-label="Range start L"
           />
           <StaticLabel>-</StaticLabel>
           <Input
             type="number"
             placeholder="R"
             value={rangeEnd}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setRangeEnd(e.target.value)
-            }
+            min={0}
+            max={maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE}
+            onChange={(e) => setRangeEnd(clampNumberInput(e.target.value, 0, maxNodes !== undefined ? maxNodes - 1 : DATA_LIMITS.MAX_NODE_VALUE))}
             className={`${styles.input} ${styles.valueInput}`}
             disabled={disabled}
             fullWidth={false}
-            aria-label="Range end"
+            aria-label="Range end R"
           />
         </div>
-        <Tooltip content="執行前綴和演算法演示">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -94,7 +99,7 @@ export const PrefixSumActionBar: React.FC<AlgoActionBarProps> = ({
             className={styles.btnRun}
             icon="play"
           >
-            開始演示
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

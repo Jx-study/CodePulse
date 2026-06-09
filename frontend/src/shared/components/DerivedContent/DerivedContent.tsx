@@ -1,12 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon';
 import type { ProblemReference } from '@/types/implementation';
 import styles from './DerivedContent.module.scss';
 
 interface DerivedContentProps {
   problems?: ProblemReference[];
+  i18nNamespace?: string;
 }
 
-const DerivedContent = ({ problems }: DerivedContentProps) => {
+const DerivedContent = ({ problems, i18nNamespace }: DerivedContentProps) => {
+  const { t: tUi } = useTranslation('tutorial');
+  const { t } = useTranslation(i18nNamespace ?? 'common');
+
   if (!problems || problems.length === 0) {
     return null;
   }
@@ -15,7 +20,7 @@ const DerivedContent = ({ problems }: DerivedContentProps) => {
     <div className={styles.derivedContentWrapper}>
       <h4 className={styles.derivedContentTitle}>
         <span className={styles.titleIcon}><Icon name="code" decorative /></span>
-        衍生內容
+        {tUi('derivedContent.title')}
       </h4>
       <div className={styles.derivedContentList}>
         {problems.map((problem) => (
@@ -29,14 +34,14 @@ const DerivedContent = ({ problems }: DerivedContentProps) => {
             <div className={styles.cardContent}>
               <div className={styles.cardHeader}>
                 <span className={`${styles.difficultyBadge} ${styles[problem.difficulty.toLowerCase()]}`}>
-                  {problem.difficulty}
+                  {tUi(`difficulty.${problem.difficulty}`)}
                 </span>
                 <svg className={styles.externalIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
                 </svg>
               </div>
               <p className={styles.cardConcept}>
-                {problem.concept}
+                {t(problem.concept)}
               </p>
               <p className={styles.cardTitle}>
                 #{problem.id} {problem.title}

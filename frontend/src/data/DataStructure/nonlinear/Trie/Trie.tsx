@@ -7,7 +7,7 @@ import type {
 } from "@/modules/core/visualization/types";
 
 import { TrieActionBar } from "./TrieActionBar";
-import { TAGS } from "./trie/tags";
+import { TAGS, TrieStatusConfig } from "./trie/tags";
 
 const TRIE_MAX_WORDS = 20;
 import { simulateTrieTrace } from "./trie/simulateTrace";
@@ -45,7 +45,10 @@ function trieActionHandler(
         .filter(Boolean);
     }
 
-    const uniqueWords = Array.from(new Set(parsedWords)).slice(0, TRIE_MAX_WORDS);
+    const uniqueWords = Array.from(new Set(parsedWords)).slice(
+      0,
+      TRIE_MAX_WORDS,
+    );
 
     return {
       animationData: uniqueWords,
@@ -279,6 +282,7 @@ export const TrieConfig: LevelImplementationConfig = {
   introduction: { key: "introduction" },
   defaultData: ["app", "apple", "cat"], // 預設資料即為字串陣列
   createAnimationSteps: createTrieAnimationSteps,
+  statusConfig: TrieStatusConfig,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
   maxNodes: TRIE_MAX_WORDS,

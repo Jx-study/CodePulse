@@ -1,0 +1,133 @@
+{
+  "animation": {
+    "init_id": "DFS 準備開始：顯示格子索引 (ID)。起點: {{start}}，終點: {{end}}",
+    "init_dist": "初始化距離為 ∞，準備開始 DFS",
+    "start_push": "將起點 {{start}} 推入 Stack（距離: 0）",
+    "start_settle": "起點 {{start}} 已進入 Stack",
+    "pop": "深入探索：Pop 取出節點 {{curr}}(深度: {{dist}})",
+    "skip": "節點 {{curr}} 已探索過，跳過",
+    "dist_update": "節點 {{curr}} 更新距離為 {{dist}}",
+    "check_end_true": "判斷：{{curr}} === end，找到終點！",
+    "check_end_false": "判斷：{{curr}} !== end，繼續搜尋",
+    "explore_some": "遍歷 {{curr}} 的鄰居，發現未推入 Stack 的節點",
+    "explore_none": "遍歷 {{curr}} 的鄰居，所有鄰居皆已在 Stack 中或已訪問",
+    "push_neighbor": "發現鄰居 {{neighbor}}，推入堆疊",
+    "push_settle": "鄰居 {{neighbor}} 已定位於 Stack 頂端",
+    "backtrack": "無路可走 (死胡同)，回溯 (Backtrack)",
+    "path_found": "找到終點！路徑長度/深度: {{dist}} (綠色)",
+    "not_found": "堆疊已空，無法到達終點",
+    "grid_blocked": "起點或終點被牆壁阻擋，無法開始"
+  },
+  "statusLegend": {
+    "notDiscovered": "尚未發現",
+    "inStack": "已入棧 (待探索)",
+    "exploring": "當前探索中",
+    "explored": "已探索完畢",
+    "finalPath": "最終路徑"
+  },
+  "stories": {
+    "dfs-maze-generation": {
+      "title": "DFS 迷宮生成：一筆畫出永不死路的迷宮",
+      "category": "遊戲開發",
+      "tags": ["DFS", "遞迴回溯", "完美迷宮", "程式生成"],
+      "content": {
+        "sections": [
+          {
+            "heading": "DFS 與「完美迷宮」的誕生",
+            "content": "什麼是「完美迷宮」？在迷宮理論裡，它代表迷宮中沒有多餘的環路，任意兩格之間只存在唯一一條路徑——不會繞圈子，也不會走進死巷後還能從另一條路繞回來。許多遊戲關卡美術與程式生成關卡設計師，在需要「可解且路徑唯一」的迷宮時，常會採用這類結構，讓玩家體驗既具挑戰又不會被無限循環搞混的探險感。"
+          },
+          {
+            "heading": "遞迴回溯：DFS 的真正力量",
+            "content": "深度優先搜尋如何造出這樣的迷宮？演算法從某一格隨機出發，像迷途的探險家一樣，每次挑一個尚未造訪的鄰格，並「打通」兩格之間對應的那一堵牆；若四個方向都走不通，就退回上一層（回溯），改試其他分支。因為每次只打通到「全新」的格子，樹狀結構自然形成，不會出現環——這正是完美迷宮的數學本質。"
+          },
+          {
+            "heading": "你的遊戲，也是 DFS 的足跡",
+            "content": "下方的小程式用 DFS 遞迴在程式裡畫出迷宮；你在畫面上用鍵盤走的每一步，其實是在親歷這棵由搜尋樹展開的路網。試試單人闖關、雙人競速或合作抵達終點，並開啟迷霧模式，感受「只看得到腳邊」時，路徑唯一性如何影響你的決策。"
+          }
+        ]
+      },
+      "pythonDemoTitle": "DFS 迷宮生成 — 鍵盤操控闖關",
+      "inputs": {
+        "maze_width": "迷宮寬度（格）",
+        "maze_height": "迷宮高度（格）"
+      }
+    },
+    "algo-dfs-002": {
+      "title": "不撞南牆不回頭的探索哲學——為什麼每個初學者都該學「深度優先搜尋」(DFS)",
+      "category": "計算機科學 / 演算法",
+      "tags": ["深度優先搜尋", "回溯法", "拓樸排序", "演算法"],
+      "content": {
+        "sections": [
+          {
+            "heading": "人類直覺的解題模式",
+            "content": "想像你站在一個複雜的迷宮前，第一直覺通常是隨便挑一條路走到盡頭，如果發現是死路撞到牆，就會退回到上一個還有其他路的交叉口，再嘗試另一條路。這種「不撞南牆不回頭」、走到死胡同再「回溯 (Backtracking)」的策略，正是深度優先搜尋 (DFS) 的核心邏輯。DFS 將所有可能性都搜尋一遍，在解決複雜問題（如迷宮、數獨等單一解謎題）時非常直觀且有效。"
+          },
+          {
+            "heading": "現代網路世界的運作基礎",
+            "content": "DFS 不僅能用來解迷宮，它更是現代網路技術的基礎。例如搜尋引擎的網頁爬蟲 (Web Crawler) 就像是一個超大型的 DFS 應用。它會從一個網頁出發，沿著連結不斷往下鑽探（深入探索），藉此發現與收錄全世界的新網頁。"
+          },
+          {
+            "heading": "梳理複雜的依賴關係：拓樸排序",
+            "content": "當問題變成環環相扣的依賴網路時，DFS 的升級版應用「拓樸排序 (Topological Sorting)」就能派上用場。無論是你使用 npm 或 pip 安裝軟體套件時系統計算的安裝先後順序，還是大學選課系統中要求先修完「微積分一」才能修「微積分二」的規則，背後都是依靠 DFS 演算法來理清這些複雜的先後依賴關係。DFS 透過不斷深入直到沒有相鄰節點，再將節點推入堆疊，最後反轉即可得到正確的拓樸排序。"
+          },
+          {
+            "heading": "社群網路的人際關係分析",
+            "content": "在 Facebook 或 LinkedIn 等社群平台上，DFS 可以用來找出網路中的「連通元件 (Connected Components)」，也就是你的交友圈。程式會從你這個節點開始，把所有直接或間接認識的朋友全部圈出來，這種圖論技術能進一步驅動「你可能認識的朋友」這類強大的推薦功能。"
+          },
+          {
+            "heading": "為何初學者必學？記憶體優勢與應用場景",
+            "content": "比起廣度優先搜尋 (BFS) 在岔路多時會把所有相鄰節點存入佇列而消耗大量記憶體，DFS 因為一次只專心走一條路（內部實作通常使用堆疊 Stack 結構或遞迴），在記憶體使用上更具優勢，其空間複雜度僅與最大深度成正比。當你需要偵測圖形中是否有循環 (Cycle)、尋找連通元件、進行拓樸排序，或單純想窮舉所有可能性時，DFS 絕對是最佳選擇。學會了 DFS，就等於拿到了一張挑戰進階演算法的重要門票。"
+          }
+        ]
+      },
+      "videoTitle": "為什麼每個初學者都該學「深度優先搜尋」(DFS).mp4",
+      "resources": [
+        { "title": "Depth-First Search (DFS)", "source": "Brilliant Math & Science Wiki" },
+        { "title": "Depth First Search Tutorials & Notes", "source": "HackerEarth" },
+        { "title": "Algorithms for Social Network Analysis: Unraveling the Web of Connections", "source": "AlgoCademy Blog" },
+        { "title": "Applications of BFS and DFS", "source": "Fiveable" },
+        { "title": "Topological Sorting", "source": "GeeksforGeeks" },
+        { "title": "16.4.2 DFS and cycle detection: Topological sorting using DFS", "source": "CS/ECE 374, Fall 2020, University of Illinois" }
+      ]
+    }
+  },
+  "game": {
+    "maze": {
+      "title": "DFS 迷宮遊戲",
+      "desc1": "DFS 遞迴生成完美迷宮（無環、唯一路徑）。↑↓←→ 控制 P1，WASD 控制 P2。",
+      "desc2Prefix": "點擊按鈕選擇模式，從",
+      "desc2Start": "左上角出發",
+      "desc2Middle": "，到達",
+      "desc2Finish": "紅色終點",
+      "desc2Suffix": "！",
+      "modes": { "solo": "單人", "race": "雙人競速", "coop": "雙人合作" },
+      "fog": { "on": "迷霧 ON", "off": "迷霧 OFF" },
+      "reset": "重置",
+      "p1Steps": "P1: {{n}} 步",
+      "p2Steps": "P2: {{n}} 步",
+      "pressToStart": "按方向鍵開始！",
+      "result": {
+        "soloWon": "抵達終點！",
+        "draw": "平手！",
+        "winner": "{{name}} 勝利！",
+        "coopWon": "合作完成！",
+        "p1Steps": "P1：{{n}} 步",
+        "p2Steps": "P2：{{n}} 步",
+        "elapsed": "耗時：{{time}}"
+      },
+      "leaderboard": {
+        "title": "本局排行榜",
+        "mode": "模式",
+        "steps": "步數",
+        "elapsed": "耗時"
+      }
+    }
+  },
+  "relatedProblems": {
+    "695": "DFS 連通分量面積：從每個陸地格遞迴標記並累計面積，回傳所有島嶼中的最大值",
+    "79": "回溯 DFS：在二維字元板上沿四方向遞迴拼字，以 visited 標記防止重複使用格子",
+    "130": "邊界 DFS：從邊界的 O 開始標記可保留區域，剩餘未標記的 O 皆被 X 包圍需翻轉",
+    "417": "反向 DFS：分別從太平洋與大西洋邊界逆流往高處走，兩次結果取交集即為答案",
+    "329": "帶記憶化的 DFS：對矩陣每格做 DFS 求最長遞增路徑，用 dp 快取避免重複計算"
+  }
+}

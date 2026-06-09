@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import classNames from "classnames";
 import type {
   InvestmentItem,
@@ -15,6 +16,7 @@ import {
 } from "./gameConfig";
 import styles from "./KnapsackGameRenderer.module.scss";
 import Button from "@/shared/components/Button";
+import Icon from "@/shared/components/Icon";
 import Slider from "@/shared/components/Slider";
 
 // ─── Pure Functions ────────────────────────────────────────────────────────
@@ -129,7 +131,14 @@ function toggleItem(
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-export default function KnapsackGameRenderer() {
+interface Props {
+  ns?: string;
+}
+
+export default function KnapsackGameRenderer({ ns }: Props = {}) {
+  const { t } = useTranslation(ns || "tutorial");
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.knapsack.${key}`, { ns: ns || "tutorial", ...opts });
   const [gameState, setGameState] = useState<GameState>(() =>
     buildInitialState(BUDGET_DEFAULT)
   );
@@ -167,7 +176,7 @@ export default function KnapsackGameRenderer() {
     <div className={styles.container}>
       <div className={styles.sliderRow}>
         <label className={styles.sliderLabel}>
-          Budget Slider
+          {tg("budgetLabel")}
         </label>
         <Slider
           min={BUDGET_MIN}
@@ -176,14 +185,14 @@ export default function KnapsackGameRenderer() {
           value={gameState.budget}
           onChange={handleBudgetChange}
           className={styles.slider}
-          ariaLabel="Budget"
+          ariaLabel={tg("budgetLabel")}
         />
-        <span className={styles.budgetValue}>{gameState.budget} 百萬</span>
+        <span className={styles.budgetValue}>{gameState.budget} {tg("unit")}</span>
       </div>
 
       <div className={styles.panels}>
         <div className={styles.itemMarket}>
-          <h4 className={styles.panelTitle}>項目市場</h4>
+          <h4 className={styles.panelTitle}>{tg("market")}</h4>
           <div className={styles.itemGrid}>
             {ITEMS.map((item) => {
               const selected = gameState.selectedIds.has(item.id);
@@ -206,34 +215,34 @@ export default function KnapsackGameRenderer() {
                   onClick={() => selectable && handleToggleItem(item.id)}
                   disabled={!selectable}
                 >
-                  {selected && <span className={styles.badge}>✓</span>}
-                  {isOptimal && <span className={styles.optimalBadge}>⭐</span>}
-                  {!selectable && <span className={styles.lockBadge}>🔒</span>}
+                  {selected && <span className={styles.badge}><Icon name="check" /></span>}
+                  {isOptimal && <span className={styles.optimalBadge}><Icon name="star" /></span>}
+                  {!selectable && <span className={styles.lockBadge}><Icon name="lock" /></span>}
                   <span className={styles.itemEmoji}>{item.emoji}</span>
-                  <span className={styles.itemName}>{item.name}</span>
+                  <span className={styles.itemName}>{tg(`items.${item.id}`)}</span>
                   <div className={styles.itemBars}>
                     <div className={styles.itemBarRow}>
-                      <span className={styles.itemBarLabel}>💰 資金</span>
+                      <span className={styles.itemBarLabel}>{tg("itemBar.funds")}</span>
                       <div className={styles.itemBarTrack}>
                         <div
                           className={styles.itemBarFill}
                           style={{ width: `${fundsBarWidth}%` }}
                         />
                       </div>
-                      <span className={styles.itemBarValue}>{item.weight} 百萬</span>
+                      <span className={styles.itemBarValue}>{item.weight} {tg("unit")}</span>
                     </div>
                     <div className={styles.itemBarRow}>
-                      <span className={styles.itemBarLabel}>📈 報酬</span>
+                      <span className={styles.itemBarLabel}>{tg("itemBar.reward")}</span>
                       <div className={styles.itemBarTrack}>
                         <div
                           className={classNames(styles.itemBarFill, styles.rewardFill)}
                           style={{ width: `${rewardBarWidth}%` }}
                         />
                       </div>
-                      <span className={styles.itemBarValue}>{item.value} 百萬</span>
+                      <span className={styles.itemBarValue}>{item.value} {tg("unit")}</span>
                     </div>
                   </div>
-                  <span className={styles.efficiencyBadge}>⚡ 效益 {vwRatio}x</span>
+                  <span className={styles.efficiencyBadge}>{tg("efficiency", { ratio: vwRatio })}</span>
                 </Button>
               );
             })}
@@ -241,7 +250,7 @@ export default function KnapsackGameRenderer() {
         </div>
 
         <div className={styles.portfolio}>
-          <h4 className={styles.panelTitle}>我的投資組合</h4>
+          <h4 className={styles.panelTitle}>{tg("portfolio")}</h4>
           <div
             className={classNames(styles.fundsBar, {
               [styles.idle]: gameState.status === "idle",
@@ -251,7 +260,7 @@ export default function KnapsackGameRenderer() {
             })}
           >
             <div className={styles.fundsLabel}>
-              已用資金 {stat.totalWeight}/{gameState.budget} 百萬
+              {tg("fundsUsed", { used: stat.totalWeight, total: gameState.budget })}
             </div>
             <div
               className={styles.fundsFill}
@@ -259,16 +268,16 @@ export default function KnapsackGameRenderer() {
             />
           </div>
           <div className={styles.currentValue}>
-            當前總收益：{stat.totalValue} 百萬
+            {tg("currentReturn", { value: stat.totalValue })}
           </div>
 
           <div className={styles.greedySection}>
-            <div className={styles.greedyTitle}>[AI貪婪策略]</div>
+            <div className={styles.greedyTitle}>[{tg("ai.title")}]</div>
             <div className={styles.greedyContent}>
               {ITEMS.filter((i) => greedyIds.includes(i.id))
-                .map((i) => `${i.name}✓`)
+                .map((i) => `${tg(`items.${i.id}`)}✓`)
                 .join(" ")}{" "}
-              → 收益
+              {tg("ai.arrow")}
               {computeSelection(
                 ITEMS,
                 new Set(greedyIds)
@@ -283,7 +292,7 @@ export default function KnapsackGameRenderer() {
               className={styles.btn}
               onClick={handleToggleShowOptimal}
             >
-              大師配置
+              {tg("buttons.masterPlan")}
             </Button>
             <Button
               type="button"
@@ -291,22 +300,22 @@ export default function KnapsackGameRenderer() {
               className={styles.btn}
               onClick={handleReset}
             >
-              重置
+              {tg("buttons.reset")}
             </Button>
           </div>
 
           {gameState.status === "idle" && (
-            <p className={styles.hint}>從左側選擇投資項目</p>
+            <p className={styles.hint}>{tg("hints.idle")}</p>
           )}
           {gameState.status === "playing" && !isBudgetTight && (
-            <p className={styles.hint}>當前收益 {stat.totalValue} 百萬</p>
+            <p className={styles.hint}>{tg("hints.playing", { value: stat.totalValue })}</p>
           )}
           {gameState.status === "playing" && isBudgetTight && (
-            <p className={styles.hintTight}>資金緊張</p>
+            <p className={styles.hintTight}>{tg("hints.tight")}</p>
           )}
           {gameState.status === "won" && (
             <p className={styles.wonMessage}>
-              ✨ 已達最優解！收益 {dpResult.maxValue} 百萬
+              <Icon name="check-circle" /> {tg("hints.won", { value: dpResult.maxValue })}
             </p>
           )}
         </div>

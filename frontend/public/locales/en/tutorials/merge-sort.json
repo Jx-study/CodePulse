@@ -1,4 +1,20 @@
 {
+  "animation": {
+    "init": "Start Merge Sort",
+    "if_return": "Only 1 element remains, returning directly ({{val}})",
+    "divide": "Split the array into two halves and recurse deeper (Depth: {{depth}})",
+    "merge_start": "Prepare to merge two sorted sub-arrays (Return to depth: {{depth}})",
+    "compare": "Compare: {{v1}} and {{v2}}",
+    "copy_element": "Select the smaller value {{val}} and move to merged array",
+    "remaining_left": "Move the remaining left element {{val}} to merged array",
+    "remaining_right": "Move the remaining right element {{val}} to merged array",
+    "merge_end": "Sub-array merge complete",
+    "done": "Merge Sort Complete!"
+  },
+  "relatedProblems": {
+    "912": "Sorting basics: implement O(n log n) time complexity sorting with Merge Sort",
+    "23": "Extension of the merge step: merge K sorted linked lists"
+  },
   "introduction": {
     "sections": [
       {

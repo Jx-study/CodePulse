@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Select } from '@/shared/components/Select';
 import classNames from 'classnames';
 import type {
@@ -21,6 +22,7 @@ import MazeOutputRenderer, {
 } from './MazeOutputRenderer';
 import FloodFillRenderer from './FloodFillRenderer';
 import styles from './PythonInteractiveDemo.module.scss';
+import i18next from '@/i18n';
 
 // Pyodide CDN（unpkg，固定版本保穩定性）
 const PYODIDE_CDN = "https://unpkg.com/pyodide@0.27.0/pyodide.js";
@@ -31,6 +33,9 @@ type RunStatus = "idle" | "loading-pyodide" | "running" | "done" | "error";
 
 interface Props {
   demo: PythonDemo;
+  title?: string;
+  inputLabels?: Record<string, string>;
+  ns?: string;
 }
 
 // ── Pyodide 全域緩存（跨元件共享，只載入一次）───────────────────
@@ -57,7 +62,7 @@ async function getPyodide(): Promise<any> {
       script.onerror = () =>
         reject(
           new Error(
-            "無法載入 Pyodide，請確認網路連線或瀏覽器未封鎖 cdn.pyodide.org",
+            i18next.t('pythonDemo.loadError', { ns: 'tutorial' }),
           ),
         );
       document.head.appendChild(script);
@@ -66,7 +71,8 @@ async function getPyodide(): Promise<any> {
   return pyodideLoadPromise;
 }
 
-const PythonInteractiveDemo: React.FC<Props> = ({ demo }) => {
+const PythonInteractiveDemo: React.FC<Props> = ({ demo, title, inputLabels, ns }) => {
+  const { t } = useTranslation('tutorial');
   const [viewMode, setViewMode] = useState<ViewMode>("demo");
   const [status, setStatus] = useState<RunStatus>("idle");
   const [output, setOutput] = useState<string>("");
@@ -119,7 +125,7 @@ sys.stdout = io.StringIO()
       const pyReturnValue = await pyodide.runPythonAsync(demo.code);
       const stdout: string = pyodide.runPython("sys.stdout.getvalue()");
 
-      setOutput(stdout || "（程式執行完畢，無輸出）");
+      setOutput(stdout || t('pythonDemo.noOutput'));
 
       if (demo.outputType === "graph" && pyReturnValue) {
         try {
@@ -167,14 +173,14 @@ sys.stdout = io.StringIO()
       setStatus("done");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setOutput(`執行錯誤：\n${message}`);
+      setOutput(t('pythonDemo.executionError', { message }));
       setStatus("error");
       setGraphData(null);
       setQueueCardData(null);
       setMazeData(null);
       setFloodFillData(null);
     }
-  }, [demo.code, demo.outputType, inputValues]);
+  }, [demo.code, demo.outputType, inputValues, t]);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(demo.code);
@@ -185,16 +191,16 @@ sys.stdout = io.StringIO()
   const isRunning = status === "loading-pyodide" || status === "running";
   const runLabel =
     status === "loading-pyodide"
-      ? "載入 Python 環境..."
+      ? t('pythonDemo.loadingPyodide')
       : status === "running"
-        ? "執行中..."
-        : "▶ 執行小遊戲";
+        ? t('pythonDemo.running')
+        : t('pythonDemo.runButton');
 
   return (
     <div className={styles.container}>
       <div className={styles.titleBar}>
-        <span className={styles.pythonBadge}>Python 互動</span>
-        <span className={styles.demoTitle}>{demo.title}</span>
+        <span className={styles.pythonBadge}>{t('pythonDemo.badge')}</span>
+        {title && <span className={styles.demoTitle}>{title}</span>}
       </div>
 
       <div className={styles.toolbar}>
@@ -206,7 +212,7 @@ sys.stdout = io.StringIO()
             })}
             onClick={() => setViewMode("demo")}
           >
-            小程式運行
+            {t('pythonDemo.runTab')}
           </Button>
           <Button
             variant="ghost"
@@ -215,7 +221,7 @@ sys.stdout = io.StringIO()
             })}
             onClick={() => setViewMode("code")}
           >
-            原始碼
+            {t('pythonDemo.codeTab')}
           </Button>
         </div>
         <Button
@@ -224,7 +230,7 @@ sys.stdout = io.StringIO()
           onClick={handleCopy}
           iconLeft={<Icon name={copied ? "check" : "copy"} />}
         >
-          {copied ? "已複製" : "複製代碼"}
+          {copied ? t('pythonDemo.copied') : t('pythonDemo.copyCode')}
         </Button>
       </div>
 
@@ -241,6 +247,7 @@ sys.stdout = io.StringIO()
                   <InputControl
                     key={inp.variable}
                     input={inp}
+                    label={inputLabels?.[inp.variable] ?? inp.variable}
                     value={inputValues[inp.variable]}
                     onChange={handleInputChange}
                   />
@@ -266,19 +273,19 @@ sys.stdout = io.StringIO()
                   size="sm"
                   onClick={() => mazeRef.current?.skipGeneration()}
                 >
-                  跳過生成
+                  {t('pythonDemo.skipGeneration')}
                 </Button>
               )}
           </div>
 
           {/* 圖形輸出（outputType:'graph' 時顯示，取代或補充 console） */}
           {demo.outputType === "graph" && graphData && (
-            <GraphOutputRenderer data={graphData} />
+            <GraphOutputRenderer data={graphData} ns={ns} />
           )}
 
           {/* Queue 卡片遊戲（outputType:'queue-card' 時顯示） */}
           {demo.outputType === "queue-card" && queueCardData && (
-            <QueueGameRenderer data={queueCardData} />
+            <QueueGameRenderer data={queueCardData} ns={ns} />
           )}
 
           {demo.outputType === 'maze' && mazeData && (
@@ -286,11 +293,12 @@ sys.stdout = io.StringIO()
               ref={mazeRef}
               data={mazeData}
               onViewPhaseChange={setMazeViewPhase}
+              ns={ns}
             />
           )}
 
           {demo.outputType === 'flood-fill' && floodFillData && (
-            <FloodFillRenderer data={floodFillData} />
+            <FloodFillRenderer data={floodFillData} ns={ns} />
           )}
 
           {/* 輸出 console（graph/queue-card/maze/flood-fill 模式且已有資料時隱藏，避免顯示「無輸出」佔版面） */}
@@ -302,14 +310,14 @@ sys.stdout = io.StringIO()
           (demo.outputType === 'queue-card' && !queueCardData) ||
           (demo.outputType === 'maze' && !mazeData) ||
           (demo.outputType === 'flood-fill' && !floodFillData) ||
-          output.includes('錯誤') ? (
+          status === 'error' ? (
             <pre
               className={classNames(styles.console, {
                 [styles.error]: status === "error",
                 [styles.empty]: !output,
               })}
             >
-              {output || "點擊「執行小遊戲」查看結果..."}
+              {output || t('pythonDemo.clickToRun')}
             </pre>
           ) : null}
         </div>
@@ -321,7 +329,7 @@ sys.stdout = io.StringIO()
             <code>{demo.code}</code>
           </pre>
           <p className={styles.localHint}>
-            複製後在本地執行：<code>python script.py</code>（需 Python 3.10+）
+            {t('pythonDemo.localHint')}
           </p>
         </div>
       )}
@@ -331,19 +339,22 @@ sys.stdout = io.StringIO()
 
 interface InputControlProps {
   input: PythonInput;
+  label: string;
   value: string | number;
   onChange: (variable: string, value: string | number) => void;
 }
 
 const InputControl: React.FC<InputControlProps> = ({
   input,
+  label,
   value,
   onChange,
 }) => {
+
   if (input.type === "slider") {
     return (
       <div className={styles.inputRow}>
-        <label className={styles.inputLabel}>{input.label}</label>
+        <label className={styles.inputLabel}>{label}</label>
         <Slider
           min={input.min ?? 1}
           max={input.max ?? 10}
@@ -351,7 +362,7 @@ const InputControl: React.FC<InputControlProps> = ({
           value={value as number}
           onChange={(v) => onChange(input.variable, v)}
           className={styles.slider}
-          ariaLabel={input.label}
+          ariaLabel={label}
         />
         <span className={styles.inputValue}>{value}</span>
       </div>
@@ -360,7 +371,7 @@ const InputControl: React.FC<InputControlProps> = ({
   if (input.type === "select") {
     return (
       <div className={styles.inputRow}>
-        <label className={styles.inputLabel}>{input.label}</label>
+        <label className={styles.inputLabel}>{label}</label>
         <Select
           value={value as string}
           options={(input.options ?? []).map((opt) => ({
@@ -375,7 +386,7 @@ const InputControl: React.FC<InputControlProps> = ({
   }
   return (
     <div className={styles.inputRow}>
-      <label className={styles.inputLabel}>{input.label}</label>
+      <label className={styles.inputLabel}>{label}</label>
       <Input
         type="text"
         value={value as string}

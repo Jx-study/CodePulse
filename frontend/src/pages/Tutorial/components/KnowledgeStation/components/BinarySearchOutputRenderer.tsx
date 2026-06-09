@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import Button from '@/shared/components/Button';
 import Icon from '@/shared/components/Icon';
@@ -143,7 +144,10 @@ function processRound(
   };
 }
 
-const BinarySearchOutputRenderer: React.FC = () => {
+const BinarySearchOutputRenderer: React.FC<{ ns?: string }> = ({ ns }) => {
+  const { t } = useTranslation(ns || 'tutorial');
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.binarySearch.${key}`, { ns: ns || 'tutorial', ...opts });
   const [secret, setSecret] = useState(() => Math.floor(Math.random() * 100) + 1);
   const [gameState, setGameState] = useState<GameState>(buildInitialState);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -225,27 +229,28 @@ const BinarySearchOutputRenderer: React.FC = () => {
       case 'player_wins':
         return {
           cls: styles.resultPlayer,
-          node: <><Icon name="trophy" /> 你贏了！你用 {ps} 步</>,
+          node: <><Icon name="trophy" /> {tg('results.player_wins', { steps: ps })}</>,
         };
       case 'tie':
         return {
           cls: styles.resultTie,
-          node: <><Icon name="check-circle" /> 平手！你和 AI 都用了 {ps} 步</>,
+          node: <><Icon name="check-circle" /> {tg('results.tie', { steps: ps })}</>,
         };
       case 'ai_wins':
         return {
           cls: styles.resultAi,
-          node: <><Icon name="cog" /> AI 贏了（{as} 步），密碼是 {secret}</>,
+          node: <><Icon name="cog" /> {tg('results.ai_wins', { steps: as, secret })}</>,
         };
       case 'timeout':
         return {
           cls: styles.resultTimeout,
-          node: <><Icon name="stopwatch" /> 超過 {MAX_STEPS} 步上限，密碼是 {secret}</>,
+          node: <><Icon name="stopwatch" /> {tg('results.timeout', { max: MAX_STEPS, secret })}</>,
         };
       default:
         return null;
     }
-  }, [gameState.result, gameState.playerGuesses.length, gameState.aiGuesses.length, secret]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.result, gameState.playerGuesses.length, gameState.aiGuesses.length, secret, t]);
 
   const isInActiveZone = hoverN !== null && hoverN >= gameState.playerLo && hoverN <= gameState.playerHi;
 
@@ -253,16 +258,14 @@ const BinarySearchOutputRenderer: React.FC = () => {
     <div className={styles.wrapper}>
       {/* Purpose Section */}
       <div className={styles.purpose}>
-        <div className={styles.purposeTitle}>Binary Search 對決：擊敗演算法</div>
+        <div className={styles.purposeTitle}>{tg('title')}</div>
         <div className={styles.purposeBody}>
-          <p>
-            在 1～100 中藏有一個密碼。點擊<strong>藍色搜尋區間</strong>猜測；每次決策縮小一半可能性。
-          </p>
+          <p>{tg('desc1')}</p>
           <p>
             <span className={styles.badge} style={{ background: '#3B82F6' }} />
-            藍區 = 你的搜尋範圍
+            {tg('legend.blue')}
             <span className={styles.badge} style={{ background: '#F97316' }} />
-            橙點 = AI 的猜測紀錄（永遠取中點）　目標：<strong>步數少於 AI</strong>！
+            {tg('legend.orange')}
           </p>
         </div>
       </div>
@@ -270,7 +273,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
       {/* Game Header */}
       <div className={styles.gameHeader}>
         <div className={styles.stepTrack}>
-          <span className={styles.stepLabel}>你</span>
+          <span className={styles.stepLabel}>{tg('labels.you')}</span>
           {Array.from({ length: MAX_STEPS }, (_, i) => (
             <span
               key={i}
@@ -282,7 +285,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
           <span className={styles.stepCount}>{gameState.playerGuesses.length}/{MAX_STEPS}</span>
         </div>
         <div className={styles.stepTrack}>
-          <span className={styles.stepLabel}>AI</span>
+          <span className={styles.stepLabel}>{tg('labels.ai')}</span>
           {Array.from({ length: MAX_STEPS }, (_, i) => (
             <span
               key={i}
@@ -294,11 +297,11 @@ const BinarySearchOutputRenderer: React.FC = () => {
           <span className={styles.stepCount}>{gameState.aiGuesses.length}/{MAX_STEPS}</span>
         </div>
         <div className={styles.secretDisplay}>
-          密碼：
+          {tg('labels.secret')}
           {zoneEnded ? (
             <strong className={styles.secretRevealed}>{secret}</strong>
           ) : (
-            <span className={styles.secretHidden}>???</span>
+            <span className={styles.secretHidden}>{tg('labels.secretHidden')}</span>
           )}
         </div>
         <Button
@@ -306,9 +309,9 @@ const BinarySearchOutputRenderer: React.FC = () => {
           className={styles.newGameBtn}
           onClick={handleNewGame}
           disabled={gameState.status === 'playing'}
-          title={gameState.status === 'playing' ? '遊戲進行中，請先完成' : '重新開始（新密碼）'}
+          title={gameState.status === 'playing' ? tg('buttons.newGameDisabled') : tg('buttons.newGameTitle')}
         >
-          New Game
+          {tg('buttons.newGame')}
         </Button>
       </div>
 
@@ -331,7 +334,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
             fontSize={10}
             fontWeight={700}
           >
-            AI
+            {tg('labels.ai')}
           </text>
           <rect x={PAD_L} y={AI_BAR_Y} width={INNER_W} height={AI_BAR_H} rx={3} fill="#1a0f00" />
           {gameState.aiGuesses.map((g, i) => (
@@ -363,7 +366,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
             fontSize={10}
             fontWeight={700}
           >
-            你
+            {tg('labels.you')}
           </text>
           <rect
             x={PAD_L}
@@ -477,7 +480,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
           <div className={styles.statValue} style={{ color: '#3B82F6' }}>
             {prob}%
           </div>
-          <div className={styles.statLabel}>現在機率</div>
+          <div className={styles.statLabel}>{tg('stats.prob')}</div>
           <div className={styles.probBar}>
             <div className={styles.probFill} style={{ width: `${Math.min(100, prob)}%` }} />
           </div>
@@ -485,7 +488,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
         <div className={styles.statDivider} />
         <div className={styles.statItem}>
           <div className={styles.statValue}>{remaining}</div>
-          <div className={styles.statLabel}>剩餘候選數字</div>
+          <div className={styles.statLabel}>{tg('stats.remaining')}</div>
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statItem}>
@@ -493,9 +496,9 @@ const BinarySearchOutputRenderer: React.FC = () => {
             className={styles.statValue}
             style={{ color: maxMore <= 2 ? '#10B981' : 'var(--text-primary)' }}
           >
-            {maxMore === 0 ? '必中' : `≤ ${maxMore} 步`}
+            {maxMore === 0 ? tg('stats.certain') : tg('stats.atMost', { n: maxMore })}
           </div>
-          <div className={styles.statLabel}>理論上界（二分法）</div>
+          <div className={styles.statLabel}>{tg('stats.maxMore')}</div>
         </div>
       </div>
 
@@ -510,18 +513,22 @@ const BinarySearchOutputRenderer: React.FC = () => {
       {leaderboard.length > 0 && (
         <div className={styles.leaderboard}>
           <div className={styles.leaderboardHeader}>
-            <h4 className={styles.leaderboardTitle}><Icon name="chart-line" /> 對決記錄</h4>
+            <h4 className={styles.leaderboardTitle}><Icon name="chart-line" /> {tg('leaderboard.title')}</h4>
             <span className={styles.winRate}>
-              勝率 {winRate}%（{leaderboard.filter((e) => e.result === 'player_wins').length} / {leaderboard.length} 局）
+              {tg('leaderboard.winRate', {
+                rate: winRate,
+                wins: leaderboard.filter((e) => e.result === 'player_wins').length,
+                total: leaderboard.length,
+              })}
             </span>
           </div>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>場次</th>
-                <th>玩家步數</th>
-                <th>AI 步數</th>
-                <th>結果</th>
+                <th>{tg('leaderboard.round')}</th>
+                <th>{tg('leaderboard.playerSteps')}</th>
+                <th>{tg('leaderboard.aiSteps')}</th>
+                <th>{tg('leaderboard.result')}</th>
               </tr>
             </thead>
             <tbody>
@@ -530,15 +537,7 @@ const BinarySearchOutputRenderer: React.FC = () => {
                   <td>{i + 1}</td>
                   <td>{row.playerSteps}</td>
                   <td>{row.aiSteps}</td>
-                  <td>
-                    {row.result === 'player_wins'
-                      ? '你贏'
-                      : row.result === 'tie'
-                        ? '平手'
-                        : row.result === 'ai_wins'
-                          ? 'AI 贏'
-                          : '超時'}
-                  </td>
+                  <td>{tg(`leaderboard.${row.result ?? 'timeout'}`)}</td>
                 </tr>
               ))}
             </tbody>

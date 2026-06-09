@@ -1,0 +1,47 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "confirmLoad": "Load Data"
+  },
+  "dataRow": {
+    "loadTooltip": "Enter comma-separated numbers and click to load",
+    "loadBtn": "Load Data",
+    "resetTooltip": "Clear all data and restore to initial state",
+    "resetBtn": "Reset",
+    "randomTooltip": "Generate a random set of data",
+    "randomBtn": "Random",
+    "randomCountLabel": "Random Count:",
+    "randomCountTooltip": "Set the number of random items to generate",
+    "randomCountTooltipMax": "Set the number of random items to generate (Max: {{max}})",
+    "randomCountLimitWarning": "The maximum random count is {{max}}",
+    "loadLimitWarning": "Input exceeds the limit of {{max}} items. Only the first {{max}} items will be loaded.",
+    "loadValueRangeWarning": "Some values are out of range [{{min}}, {{max}}] and will be skipped."
+  },
+  "graphModal": {
+    "title": "Custom Graph Data",
+    "nodeCountLabel": "Node Count N:",
+    "unweightedLabel": "Edges (Format: Source Target)\nNode IDs (0 ~ N-1)",
+    "weightedLabel": "Edges (Format: Source Target Weight)\nNode IDs (0 ~ N-1)",
+    "invalidNodeCount": "Please enter a valid node count",
+    "unweightedFormatError": "Format error: Each edge must contain source and target (Format: Source Target)\nError line: {{line}}",
+    "integerError": "Source and target must be integers\nError line: {{line}}",
+    "weightedFormatError": "Format error: Each edge must contain source, target, and weight (Format: Source Target Weight)\nError line: {{line}}",
+    "weightIntegerError": "Weight must be an integer. '{{val}}' is not valid.\nError line: {{line}}",
+    "negativeWeightError": "Negative weights are not supported. Please enter a weight ≥ 0!",
+    "outOfRangeError": "The following edges have node IDs out of range (Valid range: 0 ~ {{count}}). Please fix and reload:\n{{lines}}"
+  },
+  "gridModal": {
+    "title": "Input Maze Data (0=Path, 1=Wall)",
+    "emptyWarning": "Please input maze data",
+    "invalidCellWarning": "Row {{row}} contains an invalid value '{{cell}}'. Cells must be 0 (Path) or 1 (Wall).",
+    "columnMismatchWarning": "Row {{row}} has {{cols}} columns, which does not match Row 1 ({{firstCols}} columns). All rows must have the same number of columns.",
+    "minSizeWarning": "Maze requires at least 1 row and 1 column",
+    "maxSizeWarning": "Maze size {{rows}}×{{cols}} = {{total}} cells exceeds the limit of 400 cells (Recommended max 20×20)."
+  },
+  "knapsackModal": {
+    "title": "Custom Knapsack Items",
+    "inputLabel": "Item List (Format: Weight Value, one item per line)",
+    "formatError": "Format error! Ensure each line has a weight and a value (e.g., 3 20)",
+    "positiveError": "Weight and value must be greater than 0"
+  }
+}

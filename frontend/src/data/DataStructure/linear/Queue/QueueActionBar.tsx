@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -23,12 +25,13 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
   onPeek,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/queue");
   const [inputValue, setInputValue] = useState("");
 
   const handleEnqueue = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("請輸入要 Enqueue 的數值");
+      toast.warning(t("ui.enqueueWarning"));
       return;
     }
     onAddNode(Number(inputValue), "Tail");
@@ -49,18 +52,22 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Queue Operations</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
         <Input
           type="number"
-          placeholder="數值"
+          placeholder={t("ui.valuePlaceholder")}
           value={inputValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
+            setInputValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
@@ -68,7 +75,7 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Node value"
         />
 
-        <Tooltip content="將元素加入佇列尾部">
+        <Tooltip content={t("ui.enqueueTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -77,11 +84,11 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            Enqueue
+            {t("ui.enqueue")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="移除佇列前端的元素">
+        <Tooltip content={t("ui.dequeueTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -90,12 +97,12 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            Dequeue
+            {t("ui.dequeue")}
           </Button>
         </Tooltip>
 
         {onPeek && (
-          <Tooltip content="查看佇列前端的元素（不移除）">
+          <Tooltip content={t("ui.peekTooltip")}>
             <Button
               size="sm"
               variant="secondary"
@@ -104,7 +111,7 @@ export const QueueActionBar: React.FC<DSActionBarProps> = ({
               className={styles.btnQuery}
               icon="eye"
             >
-              Peek
+              {t("ui.peek")}
             </Button>
           </Tooltip>
         )}

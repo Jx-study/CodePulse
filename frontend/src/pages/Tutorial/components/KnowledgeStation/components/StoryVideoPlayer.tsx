@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StoryVideo } from '@/types';
 import Icon from '@/shared/components/Icon';
 import styles from './StoryVideoPlayer.module.scss';
 
 interface Props {
   video?: StoryVideo;
+  title?: string;
 }
 
 function toEmbedUrl(url: string): string {
@@ -13,14 +15,15 @@ function toEmbedUrl(url: string): string {
   return `https://www.youtube.com/embed/${match[1]}`;
 }
 
-const StoryVideoPlayer: React.FC<Props> = ({ video }) => {
+const StoryVideoPlayer: React.FC<Props> = ({ video, title }) => {
+  const { t } = useTranslation('tutorial');
   if (video) {
     const embedUrl = toEmbedUrl(video.url);
     return (
       <div className={styles.videoWrapper}>
         <iframe
           src={embedUrl}
-          title={video.title}
+          title={title || t('videoPlayer.defaultTitle')}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
@@ -32,7 +35,7 @@ const StoryVideoPlayer: React.FC<Props> = ({ video }) => {
     <div className={styles.videoWrapper}>
       <div className={styles.placeholder}>
         <Icon name="play" size="2xl" />
-        <span>影片即將上線</span>
+        <span>{t('videoPlayer.comingSoon')}</span>
       </div>
     </div>
   );

@@ -96,7 +96,7 @@ export const generateGridFrame = (
       box.value = String(index);
     } else {
       // 顯示距離
-      if (distanceMap[index] !== undefined) {
+      if (distanceMap[index] !== undefined && distanceMap[index] !== Infinity) {
         box.value = String(distanceMap[index]);
       } else {
         box.value = "∞"; // 未訪問
@@ -518,6 +518,13 @@ export function createTreeNodes(
     offsetY?: number;
     degree?: number;
     type?: TreeType;
+    /**
+     * 當提供時，改用 d3.tree().nodeSize() 取代 .size()。
+     * [dx, dy]：dx 為相鄰節點水平間距，dy 為每層垂直間距。
+     * 使用此模式時，每層的 y 座標為 depth × dy（固定），
+     * 加入新層時舊節點不會往上移動。
+     */
+    nodeSize?: [number, number];
   } = {},
 ): Node[] {
   const {
@@ -527,6 +534,7 @@ export function createTreeNodes(
     offsetY = 50,
     degree = 2,
     type = "binarytree",
+    nodeSize,
   } = options;
 
   let hierarchyData: HierarchyDatum | null = null;
@@ -547,8 +555,15 @@ export function createTreeNodes(
   if (!hierarchyData) return [];
 
   const root = d3.hierarchy<HierarchyDatum>(hierarchyData);
-  const treeLayout = d3.tree<HierarchyDatum>().size([width, height]);
+
+  const treeLayout = nodeSize
+    ? d3.tree<HierarchyDatum>().nodeSize(nodeSize)
+    : d3.tree<HierarchyDatum>().size([width, height]);
+
   const rootWithPos = treeLayout(root);
+
+  // nodeSize 模式下 root 固定在 x=0，將其平移至 width/2 做水平置中
+  const xShift = nodeSize ? width / 2 : 0;
 
   const elements: Node[] = [];
   const nodeMap = new Map<string, Node>();
@@ -561,7 +576,7 @@ export function createTreeNodes(
     const node = createNodeInstance(
       d.data.id,
       d.data.value,
-      d.x + offsetX,
+      d.x + xShift + offsetX,
       d.y + offsetY,
       Status.Inactive,
       descText,

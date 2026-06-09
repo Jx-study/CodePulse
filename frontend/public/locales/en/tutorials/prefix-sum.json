@@ -1,0 +1,35 @@
+{
+  "animation": {
+    "build_init": "Start building Prefix Sum array P",
+    "build_base": "Initialize: P[0] = A[0] = {{val0}}",
+    "build_calc": "Calculate P[{{i}}]: Previous sum P[{{prev}}] ({{prevSum}}) + Current element A[{{i}}] ({{currentVal}})",
+    "build_update": "Update P[{{i}}] = {{newSum}}",
+    "build_done": "Build complete",
+    "query_start": "Start query: Calculate the sum of range [{{L}}, {{R}}]",
+    "query_get_r": "Step 1: Get prefix sum at right boundary P[{{R}}] = {{valR}}",
+    "query_get_l": "Step 2: Since L > 0, get prefix sum before left boundary P[{{prevL}}] = {{valL}}",
+    "query_return_sub": "Result: {{valR}} - {{valL}} = {{result}}",
+    "query_else": "Step 2: Since L = 0, no need to subtract any prefix",
+    "query_return_direct": "Return directly: P[{{R}}] = {{valR}}"
+  },
+  "ui": {
+    "controlLabel": "Prefix Sum Control",
+    "run": "Run Demo",
+    "runTooltip": "Execute Prefix Sum algorithm demo",
+    "invalidRange": "Please enter a valid range (Start, End) where 0 <= L <= R"
+  },
+  "statusLegend": {
+    "notCalculated": "Not Calculated",
+    "idle": "Idle",
+    "calculated": "Calculated",
+    "prevSum": "Previous Sum P[i-1]",
+    "currentElement": "Current Element A[i]",
+    "queryRight": "Query Right P[R]",
+    "queryLeft": "Subtract Prefix P[L-1]"
+  },
+  "relatedProblems": {
+    "303": "Classic prefix sum: efficiently compute range sum queries on an array",
+    "560": "Prefix sum + hash map: count subarrays whose sum equals K",
+    "304": "2D prefix sum: extend range-sum queries to a 2D matrix"
+  }
+}

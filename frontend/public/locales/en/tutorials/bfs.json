@@ -1,0 +1,67 @@
+{
+  "animation": {
+    "graph_init": "Preparing to start BFS, initializing all distances to ∞",
+    "graph_start": "Add the start node {{start}} to the queue (distance: 0)",
+    "dequeue": "While the queue is not empty, dequeue {{curr}} (distance: {{dist}})",
+    "check_end_true": "Check: {{curr}} === end, destination found!",
+    "check_end_false": "Check: {{curr}} !== end, continue searching",
+    "explore_some": "Exploring neighbors of {{curr}}, found {{count}} unvisited node(s)",
+    "explore_none": "Exploring neighbors of {{curr}}, all neighbors have already been visited",
+    "visit_neighbor": "Found unvisited neighbor {{neighbor}}, adding it to the queue",
+    "change_visited": "Update distance of neighbor {{neighbor}} to {{dist}}",
+    "path_found": "Destination found! Shortest path length: {{dist}}",
+    "not_found": "The queue is empty, destination cannot be reached",
+    "grid_blocked": "The start or destination is blocked by a wall, cannot begin",
+    "grid_init": "Preparing to start BFS: displaying cell indices (IDs). Start: {{start}}, End: {{end}}",
+    "grid_init_dist": "Initializing all distances to ∞",
+    "grid_start": "Initialize the start cell {{start}} and add it to the queue",
+    "grid_visit_neighbor": "Found neighbor {{neighbor}}, adding it to the queue"
+  },
+  "statusLegend": {
+    "notDiscovered": "Not Discovered",
+    "inQueue": "In Queue (Pending)",
+    "exploring": "Currently Exploring",
+    "explored": "Fully Explored",
+    "shortestPath": "Shortest Path"
+  },
+  "stories": {
+    "bfs-flood-fill-paint": {
+      "title": "Paint Bucket Tool: The BFS Flood Fill Behind Photoshop",
+      "category": "Image Processing",
+      "tags": ["BFS", "Flood Fill", "Pixel Art", "Image Processing"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Every Time You Click the Paint Bucket, BFS Runs Once",
+            "content": "In image editing software, the paint bucket (Fill) is one of the most intuitive tools: click on a pixel, and the connected region of the same color gets replaced by a new color. Behind this, it's typically not a recursive stack overflow, but a queue-implemented Flood Fill — essentially BFS: starting from the clicked pixel, sequentially adding four-connected neighbors with matching color to the queue, expanding outward layer by layer, until no more cells can be filled."
+          },
+          {
+            "heading": "Why BFS Instead of Just Paint Randomly",
+            "content": "Depth-First Search (DFS) could also fill the area, but BFS expands in \"near-to-far\" concentric wave fronts — visually like ripples in water, and easier to parallelize and debug. With multiple starting points filling simultaneously, it becomes multi-source BFS: each color maintains its own wave front, advancing synchronously on the global timeline — consistent with the \"multiple colors expanding simultaneously\" model in this interactive canvas."
+          },
+          {
+            "heading": "From Tool to Exam Problem",
+            "content": "Flood Fill is the prototype of classic interview and competitive programming problems (such as \"Number of Islands\" and \"Color Fill\"). Understanding \"connectivity + queue\" also connects to practical topics like scan lines and GPU filling. The mini-program below uses Python to output pattern and size metadata; the browser rasterizes the edges into an 80×80 pixel grid using Canvas 2D. You select a color and click on the webpage, the actual fill order is calculated by TypeScript-side BFS, and you can use playback controls to play, pause, and scrub through steps to observe how the algorithm overwrites the canvas cell by cell."
+          }
+        ]
+      },
+      "pythonDemoTitle": "BFS Flood Fill — Pixel Art Coloring Game",
+      "inputs": {
+        "pattern": "Pattern",
+        "border_width": "Border width"
+      }
+    }
+  },
+  "floodFill": {
+    "paletteAria": "Color Palette",
+    "colorAria": "Select color {{n}}",
+    "downloadAria": "Download image"
+  },
+  "relatedProblems": {
+    "994": "Multi-source BFS: all rotten oranges spread simultaneously, each round represents one minute",
+    "127": "Unweighted shortest path: treat each word as a node and one-letter-apart as an edge; BFS finds the shortest transformation sequence",
+    "542": "Multi-source BFS: expand from all 0-cells simultaneously, recording each 1-cell's distance to the nearest 0",
+    "286": "Multi-source BFS: start from all gates (0) simultaneously, fill each empty room with its distance to the nearest gate",
+    "1091": "BFS shortest path: move in 8 directions in a binary matrix; BFS layer expansion guarantees the shortest path"
+  }
+}

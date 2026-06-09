@@ -1,4 +1,20 @@
 {
+  "animation": {
+    "init_start": "開始插入排序",
+    "init_zero": "初始化：將第 0 個元素視為已排序區間",
+    "round_start": "第 {{i}} 輪：暫存 Index {{i}} ({{val}}) 為 insertVal，準備插入已排序區間",
+    "compare_true": "比較：檢查 Index {{j}} ({{scanVal}}) 是否大於 insertVal ({{keyVal}}) -> 為真",
+    "compare_false": "比較：停止，{{scanVal}} <= {{keyVal}}，找到插入點",
+    "shift": "搬移：{{scanVal}} > {{keyVal}}，將 {{scanVal}} 向右搬移 (Shift)",
+    "insert": "插入：將 insertVal ({{val}}) 放置於 Index {{idx}}",
+    "round_end": "Index 0~{{i}} 區間排序完成",
+    "done": "排序完成"
+  },
+  "relatedProblems": {
+    "147": "直接應用：在鏈結串列上實作插入排序",
+    "148": "進階排序：鏈結串列排序問題，可用插入排序或合併排序",
+    "88": "插入排序概念延伸：合併兩個已排序陣列"
+  },
   "introduction": {
     "sections": [
       {

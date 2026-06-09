@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import type {
   LevelImplementationConfig,
   RunParams,
@@ -37,14 +38,15 @@ interface SmartActionBarProps {
 
 export const SmartActionBar: React.FC<SmartActionBarProps> = (props) => {
   const { topicTypeConfig, ...restProps } = props;
+  const { t } = useTranslation("tutorial");
 
   if (!topicTypeConfig) {
-    return <div>載入中...</div>;
+    return <div>{t("common.loading")}</div>;
   }
 
   if (topicTypeConfig.renderActionBar) {
     return <>{topicTypeConfig.renderActionBar(restProps as any)}</>;
   }
 
-  return <div>此主題暫無操作介面</div>;
+  return <div>{t("smartActionBar.noInterface")}</div>;
 };

@@ -1,13 +1,60 @@
 {
+  "common": {
+    "loading": "Loading..."
+  },
+  "page": {
+    "openTourTitle": "Open Feature Tour",
+    "openKnowledgeStationTitle": "Open Knowledge Station",
+    "knowledgeStation": "Knowledge Station",
+    "swapLayoutTitle": "Swap Left and Right Panels",
+    "swapLayout": "Swap Layout"
+  },
+  "panelHeader": {
+    "canvas": "Visualization",
+    "inspector": "Inspector",
+    "codeEditor": "Code Implementation",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "expandPanel": "Expand panel",
+    "collapsePanel": "Collapse panel"
+  },
+  "panelRegistry": {
+    "canvas": "Visualization",
+    "actionBar": "Operations",
+    "variableStatus": "Variable Status"
+  },
+  "smartActionBar": {
+    "noInterface": "No operation interface available for this topic"
+  },
+  "toast": {
+    "maxNodesExceeded": "Data count exceeds limit. Maximum {{maxNodes}} items allowed.",
+    "invalidFormat": "Please enter a valid number format (e.g. 1,2,3)",
+    "emptyDataOperation": "No data available. Please load or generate data first.",
+    "invalidWordList": "Please enter a valid word list."
+  },
   "featureTour": {
     "outro": {
       "title": "Ready?",
       "description": "Before you start practicing, visit the Knowledge Station to learn the theoretical foundations of this algorithm!",
+      "descriptionDataStructure": "Before you start practicing, visit the Knowledge Station to learn the theoretical foundations of this data structure!",
       "primaryLabel": "Go to Knowledge Station",
       "secondaryLabel": "Skip for now, start directly"
     },
     "openTour": "Open feature tour",
     "knowledgeStation": "Knowledge Station",
+    "ariaLabelComplete": "Feature Tour Complete",
+    "ariaLabelStep": "Feature Tour Step {{step}}",
+    "closeAriaLabel": "Close Tour",
+    "skipAriaLabel": "Skip Tour",
+    "dotAriaLabel": "Go to step {{step}}",
+    "stepBadge": "STEP {{current}} OF {{total}}",
+    "readyTitle": "Ready?",
+    "algorithmReadyDesc": "Before you start practicing, visit the Knowledge Station to learn the theory behind this algorithm!",
+    "dataStructureReadyDesc": "Before you start practicing, visit the Knowledge Station to learn the theory behind this data structure!",
+    "enterKnowledgeStation": "Enter Knowledge Station",
+    "skipForNow": "Not now, start directly",
+    "previous": "Previous",
+    "next": "Next",
     "steps": {
       "swapButton": {
         "title": "Swap Layout",
@@ -42,5 +89,70 @@
         "description": "Click here to open the Knowledge Station anytime and review the theoretical foundations of this algorithm — even if you skipped the tour."
       }
     }
+  },
+  "knowledgeStation": {
+    "title": "Knowledge Station",
+    "tabs": {
+      "algorithmIntroduction": "Algorithm Introduction",
+      "dataStructureIntroduction": "Data Structure Introduction",
+      "complexity": "Complexity Analysis",
+      "problems": "Classic Problems",
+      "story": "Real World Applications"
+    }
+  },
+  "introductionTab": {
+    "algorithmTitle": "Algorithm Overview",
+    "dataStructureTitle": "Data Structure Overview",
+    "noContent": "No tutorial content provided yet."
+  },
+  "complexityTab": {
+    "title": "Complexity Analysis",
+    "timeBest": "Time Complexity (Best)",
+    "timeAverage": "Time Complexity (Average)",
+    "timeWorst": "Time Complexity (Worst)",
+    "space": "Space Complexity"
+  },
+  "problemsTab": {
+    "empty": "No related problems available"
+  },
+  "derivedContent": {
+    "title": "Related Problems"
+  },
+  "difficulty": {
+    "Easy": "Easy",
+    "Medium": "Medium",
+    "Hard": "Hard"
+  },
+  "storyTab": {
+    "empty": "No real-world application stories available for this topic yet."
+  },
+  "storyAccordion": {
+    "expandAriaLabel": "Expand",
+    "collapseAriaLabel": "Collapse",
+    "readDetails": "Read story details",
+    "collapseDetails": "Collapse story details"
+  },
+  "storyResources": {
+    "title": "Further Resources"
+  },
+  "videoPlayer": {
+    "comingSoon": "Video Coming Soon",
+    "defaultTitle": "Story Video"
+  },
+  "pythonDemo": {
+    "badge": "Python Interactive",
+    "runTab": "Run Program",
+    "codeTab": "Source Code",
+    "copyCode": "Copy Code",
+    "copied": "Copied!",
+    "runButton": "▶ Run Game",
+    "loadingPyodide": "Loading Python Environment...",
+    "running": "Running...",
+    "skipGeneration": "Skip Generation",
+    "noOutput": "(Program completed with no output)",
+    "executionError": "Execution Error:\n{{message}}",
+    "loadError": "Failed to load Pyodide. Please check your network connection.",
+    "clickToRun": "Click \"Run Game\" to see results...",
+    "localHint": "Copy and run locally: python script.py (requires Python 3.10+)"
   }
 }

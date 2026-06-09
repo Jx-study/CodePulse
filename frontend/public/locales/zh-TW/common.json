@@ -99,6 +99,13 @@
     "runningText": "分析中，請稍候…",
     "errorText": "執行失敗，請修正後重試"
   },
+  "statusLegend": {
+    "unfinished": "未完成",
+    "prepare": "準備中",
+    "target": "目標",
+    "complete": "完成",
+    "inactive": "未啟用"
+  },
   "practice": {
     "visual": {
       "groupImage": "題組圖",

@@ -1,0 +1,44 @@
+{
+  "animation": {
+    "init": "初始化：將起點 {{start}} 的距離設為 0，其餘節點設為 ∞",
+    "extract_min": "從未定案的節點中，取出距離最小的節點 {{u}} (距離={{distU}})",
+    "check_neighbors": "檢查相鄰節點 {{v}}，經過此邊的權重為 {{weight}}",
+    "relax_edge_true": "發現更短路徑！從 {{u}} 到 {{v}} 的新距離是 {{alt}}，更新距離表",
+    "relax_edge_false": "不需更新：新距離 {{alt}} 並未小於目前的距離",
+    "node_settled": "節點 {{u}} 的相鄰邊已檢查完畢，確定其最短路徑。",
+    "done_early": "節點 {{u}} 是目標終點，且已確定最短路徑 ({{distU}})，提早結束搜尋！",
+    "done_unreachable": "終點 {{end}} 不可達，演算法結束。",
+    "done_all": "演算法執行完畢！所有可達節點的最短路徑皆已找出。",
+    "done_path": "最短路徑：{{path}}，總距離 = {{dist}}"
+  },
+  "ui": {
+    "loadGraph": "載入圖形資料",
+    "loadGraphTooltip": "開啟自定義帶權重圖形資料載入介面",
+    "reset": "重設",
+    "resetTooltip": "清除所有資料，恢復初始狀態",
+    "random": "隨機",
+    "randomTooltip": "隨機生成一組帶權重的圖形資料",
+    "startPlaceholder": "起點(0)",
+    "endPlaceholder": "終點(N)",
+    "isDirected": "有向",
+    "run": "開始執行",
+    "runTooltip": "執行 Dijkstra 最短路徑演算法",
+    "noGraphData": "目前沒有圖形資料，無法指定起點/終點",
+    "startNodeNotFound": "起點 node-{{val}} 不存在",
+    "endNodeNotFound": "終點 node-{{val}} 不存在"
+  },
+  "statusLegend": {
+    "notProcessed": "未處理",
+    "currentMin": "當前最小距離節點",
+    "checkingNeighbor": "正在檢查的鄰居",
+    "settled": "最短距離已確定",
+    "visitedPath": "已走訪路徑"
+  },
+  "relatedProblems": {
+    "743": "單源最短路徑：Dijkstra 從源節點出發，求所有節點都收到訊號的最短等待時間",
+    "1631": "Dijkstra 變形：最小化路徑上相鄰格高度差的最大值，以最小堆追蹤當前最大落差",
+    "1514": "最大概率路徑：將 Dijkstra 的加法改為乘法，最大堆優先擴展當前概率最高的節點",
+    "787": "限轉機次數的最短路徑：對每個節點額外追蹤已用步數，限制最多 k 次中途停靠",
+    "778": "最小瓶頸路徑：Dijkstra 以最小堆選出當前最小的水位高度格，求到達右下角的最低水位"
+  }
+}

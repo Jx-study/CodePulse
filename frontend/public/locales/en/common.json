@@ -99,6 +99,13 @@
     "runningText": "Analyzing, please wait…",
     "errorText": "Execution failed, please fix and retry"
   },
+  "statusLegend": {
+    "unfinished": "Unfinished",
+    "prepare": "Preparing",
+    "target": "Target",
+    "complete": "Complete",
+    "inactive": "Inactive"
+  },
   "practice": {
     "visual": {
       "groupImage": "Group image",

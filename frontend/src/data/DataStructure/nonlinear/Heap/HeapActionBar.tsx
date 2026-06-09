@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -20,6 +23,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
   disabled = false,
   onCustomAction,
 }) => {
+  const { t } = useTranslation("tutorials/heap");
   const [inputValue, setInputValue] = useState("");
   const [isMinHeap, setIsMinHeap] = useState(false);
   const [isMaxHeap, setIsMaxHeap] = useState(true);
@@ -29,7 +33,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
     ? "Min-Heap"
     : isMaxHeap
       ? "Max-Heap"
-      : "Not Heap";
+      : t("ui.notHeap");
 
   const markMaxHeap = () => {
     setIsMinHeap(false);
@@ -61,12 +65,19 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
     const newMode = !isMinHeap;
     setIsMinHeap(newMode);
     setIsMaxHeap(!newMode);
-    // 切換模式時，自動觸發一次 Heapify 重新建堆！
     onCustomAction("heapify", { isMinHeap: newMode, isMaxHeap: !newMode });
   };
 
   const handleInsert = () => {
-    if (disabled || !inputValue || !onCustomAction || !isHeapReady) return;
+    if (disabled || !onCustomAction) return;
+    if (!isHeapReady) {
+      toast.warning(t("ui.needHeapifyWarning"));
+      return;
+    }
+    if (!inputValue.trim()) {
+      toast.warning(t("ui.insertWarning"));
+      return;
+    }
     const val = parseInt(inputValue, 10);
     if (!isNaN(val)) {
       onCustomAction("add", { value: val, isMinHeap, isMaxHeap });
@@ -75,12 +86,20 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
   };
 
   const handleExtract = () => {
-    if (disabled || !onCustomAction || !isHeapReady) return;
+    if (disabled || !onCustomAction) return;
+    if (!isHeapReady) {
+      toast.warning(t("ui.needHeapifyWarning"));
+      return;
+    }
     onCustomAction("delete", { isMinHeap, isMaxHeap });
   };
 
   const handlePeek = () => {
-    if (disabled || !onCustomAction || !isHeapReady) return;
+    if (disabled || !onCustomAction) return;
+    if (!isHeapReady) {
+      toast.warning(t("ui.needHeapifyWarning"));
+      return;
+    }
     onCustomAction("peek", { isMinHeap, isMaxHeap });
   };
 
@@ -100,13 +119,15 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
       <ActionBarGroup>
         <StaticLabel>{heapLabel}</StaticLabel>
 
-        <Tooltip content="切換 Heap 模式並自動重新建堆">
+        <Tooltip content={t("ui.toggleTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -116,17 +137,19 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
             icon="rotate"
           >
             {isHeapReady
-              ? `切換至 ${isMinHeap ? "Max" : "Min"}`
-              : "建 Min-Heap"}
+              ? t("ui.switchTo", { mode: isMinHeap ? "Max" : "Min" })
+              : t("ui.buildMinHeap")}
           </Button>
         </Tooltip>
 
         <Input
           type="number"
-          placeholder="輸入數字"
+          placeholder={t("ui.valuePlaceholder")}
           value={inputValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
+            setInputValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
@@ -136,8 +159,8 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
         <Tooltip
           content={
             isHeapReady
-              ? "將數值新增至 Heap (Heapify Up)"
-              : "請先 Heapify，將資料轉成 Max-Heap 或 Min-Heap"
+              ? t("ui.insertReadyTooltip")
+              : t("ui.needHeapifyTooltip")
           }
         >
           <Button
@@ -145,18 +168,20 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             className={styles.btnInsert}
             onClick={handleInsert}
-            disabled={disabled || !inputValue || !isHeapReady}
+            disabled={disabled}
             icon="plus"
           >
-            Insert
+            {t("ui.insert")}
           </Button>
         </Tooltip>
 
         <Tooltip
           content={
             isHeapReady
-              ? `取出並移除${isMinHeap ? "最小" : "最大"}值 (Heapify Down)`
-              : "請先 Heapify，才能取出 Heap 的根節點"
+              ? t("ui.extractReadyTooltip", {
+                  type: isMinHeap ? t("ui.min") : t("ui.max"),
+                })
+              : t("ui.extractNeedHeapifyTooltip")
           }
         >
           <Button
@@ -164,34 +189,36 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
             variant="secondary"
             className={styles.btnDelete}
             onClick={handleExtract}
-            disabled={disabled || !isHeapReady}
+            disabled={disabled}
             icon="arrow-up-from-bracket"
           >
             {isHeapReady
-              ? `Extract ${isMinHeap ? "Min" : "Max"}`
-              : "Extract"}
+              ? t("ui.extractBtn", { type: isMinHeap ? "Min" : "Max" })
+              : t("ui.extract")}
           </Button>
         </Tooltip>
 
         <Tooltip
           content={
             isHeapReady
-              ? `僅查看${isMinHeap ? "最小" : "最大"}值 (不移除)`
-              : "請先 Heapify，才能查看 Heap 的根節點"
+              ? t("ui.peekReadyTooltip", {
+                  type: isMinHeap ? t("ui.min") : t("ui.max"),
+                })
+              : t("ui.peekNeedHeapifyTooltip")
           }
         >
           <Button
             size="sm"
             variant="secondary"
             onClick={handlePeek}
-            disabled={disabled || !isHeapReady}
+            disabled={disabled}
             icon="eye"
           >
-            Peek
+            {t("ui.peek")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="將無序陣列轉換為 Heap (Bottom-Up 建堆)">
+        <Tooltip content={t("ui.heapifyTooltip")}>
           <Button
             size="sm"
             variant="secondary"

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -23,12 +25,13 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
   onPeek,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/stack");
   const [inputValue, setInputValue] = useState("");
 
   const handlePush = () => {
     if (disabled) return;
     if (inputValue.trim() === "") {
-      toast.warning("請輸入要 Push 的數值");
+      toast.warning(t("ui.pushWarning"));
       return;
     }
     onAddNode(Number(inputValue), "Head");
@@ -41,7 +44,6 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
 
   return (
     <ActionBarContainer>
-      {/* 第一行：資料控制 */}
       <ActionBarGroup>
         <DataRow
           onLoadData={onLoadData}
@@ -50,19 +52,22 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
-      {/* 第二行：操作控制 */}
       <ActionBarGroup>
-        <StaticLabel>Stack Operations</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
         <Input
           type="number"
-          placeholder="數值"
+          placeholder={t("ui.valuePlaceholder")}
           value={inputValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
+            setInputValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
@@ -70,7 +75,7 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
           aria-label="Node value"
         />
 
-        <Tooltip content="將元素推入堆疊頂部">
+        <Tooltip content={t("ui.pushTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -79,11 +84,11 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            Push
+            {t("ui.push")}
           </Button>
         </Tooltip>
 
-        <Tooltip content="移除堆疊頂部的元素">
+        <Tooltip content={t("ui.popTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -92,12 +97,12 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            Pop
+            {t("ui.pop")}
           </Button>
         </Tooltip>
 
         {onPeek && (
-          <Tooltip content="查看堆疊頂部的元素（不移除）">
+          <Tooltip content={t("ui.peekTooltip")}>
             <Button
               size="sm"
               variant="secondary"
@@ -106,7 +111,7 @@ export const StackActionBar: React.FC<DSActionBarProps> = ({
               className={styles.btnQuery}
               icon="eye"
             >
-              Peek
+              {t("ui.peek")}
             </Button>
           </Tooltip>
         )}

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Checkbox from "@/shared/components/Checkbox";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -25,6 +27,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
   onIsDirectedChange,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/graph");
   const [inputValue, setInputValue] = useState("");
   const [sourceNode, setSourceNode] = useState("");
   const [targetNode, setTargetNode] = useState("");
@@ -38,20 +41,25 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
       return isNaN(num) ? val : String(num);
     };
 
-    const needsNodeId = ["addVertex", "removeVertex", "getNeighbors", "getDegree"];
+    const needsNodeId = [
+      "addVertex",
+      "removeVertex",
+      "getNeighbors",
+      "getDegree",
+    ];
     const needsEdge = ["addEdge", "removeEdge", "checkAdjacent"];
 
     if (needsNodeId.includes(action) && inputValue.trim() === "") {
-      toast.warning("請輸入節點 ID");
+      toast.warning(t("ui.requireNodeId"));
       return;
     }
     if (needsEdge.includes(action)) {
       if (sourceNode.trim() === "") {
-        toast.warning("請輸入起點 (Src) 節點 ID");
+        toast.warning(t("ui.requireSourceId"));
         return;
       }
       if (targetNode.trim() === "") {
-        toast.warning("請輸入終點 (Dst) 節點 ID");
+        toast.warning(t("ui.requireTargetId"));
         return;
       }
     }
@@ -85,13 +93,13 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
 
       {/* 第一行：資料控制 */}
       <ActionBarGroup>
-        <Tooltip content="開啟自定義 Graph 資料載入介面">
+        <Tooltip content={t("ui.loadTooltip")}>
           <Button
             size="sm"
             onClick={() => setShowGraphLoader(true)}
             disabled={disabled}
           >
-            載入 Graph 資料
+            {t("ui.load")}
           </Button>
         </Tooltip>
         <DataRow
@@ -107,22 +115,21 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
 
       {/* 第二行：操作控制 */}
       <ActionBarGroup>
-        <StaticLabel>Graph Operations</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
-        <span className={styles.smallLabel}>節點:</span>
+        <span className={styles.smallLabel}>{t("ui.nodeLabel")}:</span>
         <Input
           placeholder="ID"
           type="number"
           value={inputValue}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
-          }
+          min={0}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+          onChange={(e) => setInputValue(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
           className={`${styles.input} ${styles.nodeCountInput}`}
           disabled={disabled}
           fullWidth={false}
-          aria-label="Node ID"
         />
-        <Tooltip content="新增一個節點到圖中">
+        <Tooltip content={t("ui.addVertexTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -131,10 +138,10 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            新增
+            {t("ui.add")}
           </Button>
         </Tooltip>
-        <Tooltip content="從圖中刪除指定節點">
+        <Tooltip content={t("ui.removeVertexTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -143,10 +150,10 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            刪除
+            {t("ui.remove")}
           </Button>
         </Tooltip>
-        <Tooltip content="查詢指定節點的所有鄰居">
+        <Tooltip content={t("ui.getNeighborsTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -155,10 +162,10 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnQuery}
             icon="search"
           >
-            找鄰居
+            {t("ui.neighbors")}
           </Button>
         </Tooltip>
-        <Tooltip content="查詢指定節點的度數">
+        <Tooltip content={t("ui.getDegreeTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -167,38 +174,36 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnQuery}
             icon="search"
           >
-            度數
+            {t("ui.degree")}
           </Button>
         </Tooltip>
 
-        <span className={styles.smallLabel}>邊:</span>
+        <span className={styles.smallLabel}>{t("ui.edgeLabel")}:</span>
         <Input
           placeholder="Src"
           type="number"
           value={sourceNode}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSourceNode(e.target.value)
-          }
+          min={0}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+          onChange={(e) => setSourceNode(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
           className={`${styles.input} ${styles.gridRowColInput}`}
           disabled={disabled}
           fullWidth={false}
-          aria-label="Source node"
         />
         <StaticLabel>→</StaticLabel>
         <Input
           placeholder="Dst"
           type="number"
           value={targetNode}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setTargetNode(e.target.value)
-          }
+          min={0}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_ID}
+          onChange={(e) => setTargetNode(clampNumberInput(e.target.value, 0, DATA_LIMITS.MAX_GRAPH_NODE_ID))}
           className={`${styles.input} ${styles.gridRowColInput}`}
           disabled={disabled}
           fullWidth={false}
-          aria-label="Target node"
         />
 
-        <Tooltip content="在兩個節點之間新增一條邊">
+        <Tooltip content={t("ui.addEdgeTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -207,10 +212,10 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnInsert}
             icon="plus"
           >
-            連線
+            {t("ui.link")}
           </Button>
         </Tooltip>
-        <Tooltip content="移除兩個節點之間的邊">
+        <Tooltip content={t("ui.removeEdgeTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -219,10 +224,10 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnDelete}
             icon="trash"
           >
-            斷線
+            {t("ui.unlink")}
           </Button>
         </Tooltip>
-        <Tooltip content="檢查兩個節點是否相鄰">
+        <Tooltip content={t("ui.checkAdjacentTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -231,22 +236,20 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnQuery}
             icon="search"
           >
-            檢查
+            {t("ui.adjacent")}
           </Button>
         </Tooltip>
 
         <Checkbox
-          label="有向"
+          label={t("ui.isDirected")}
           checked={isDirected}
           onChange={(e) =>
             onIsDirectedChange && onIsDirectedChange(e.target.checked)
           }
           disabled={disabled}
-          aria-label="Directed graph"
           className={styles.directedCheckbox}
         />
-
-        <Tooltip content="檢查圖是否連通">
+        <Tooltip content={t("ui.checkConnectedTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -255,10 +258,10 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnQuery}
             icon="diagram-project"
           >
-            連通性
+            {t("ui.connected")}
           </Button>
         </Tooltip>
-        <Tooltip content="檢查圖中是否存在環">
+        <Tooltip content={t("ui.checkCycleTooltip")}>
           <Button
             size="sm"
             variant="secondary"
@@ -267,7 +270,7 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
             className={styles.btnQuery}
             icon="arrows-spin"
           >
-            是否有環
+            {t("ui.cycle")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

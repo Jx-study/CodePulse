@@ -1,4 +1,157 @@
 {
+  "animation": {
+    "init": "圖形結構展示：節點 (Nodes) 與邊 (Edges)。",
+    "add_vertex": "新增節點：node-{{val}}",
+    "add_vertex_result": "節點新增完成：node-{{val}}",
+    "remove_vertex": "刪除節點：node-{{val}} 及其連接的邊",
+    "remove_vertex_update": "節點已移除，圖形重新排版",
+    "add_edge": "選擇節點 {{src}} 與 {{dst}}，建立連線",
+    "remove_edge": "選中節點 {{src}} 與 {{dst}}，斷開連線",
+    "get_neighbors_start": "準備尋找節點 {{target}} 的鄰居...",
+    "get_neighbors_find": "發現鄰居：{{neighbor}}",
+    "get_neighbors_result_true": "搜尋完成，共有 {{count}} 個鄰居：{{names}}",
+    "get_neighbors_result_false": "節點 {{target}} 沒有鄰居。",
+    "check_adjacent": "檢查 {{src}} 是否連通至 {{dst}} ({{dir}})",
+    "check_adjacent_true": "結果：True (存在邊 {{src}} -> {{dst}})",
+    "check_adjacent_false": "結果：False (不存在從 {{src}} 到 {{dst}} 的邊)",
+    "get_degree": "準備計算節點 {{target}} 的度數 ({{dir}})...",
+    "get_degree_msg": "{{msg}}",
+    "get_degree_directed_result": "節點 {{target}}：In-Degree (入度/藍) = {{inDeg}}, Out-Degree (出度/綠) = {{outDeg}}",
+    "get_degree_undirected_result": "節點 {{target}}：Degree (度數) = {{deg}}",
+    "check_connected_init": "採用 BFS，從節點 {{start}} 開始檢查連通性 (忽略方向)",
+    "check_connected_while": "BFS 處理：{{msg}}",
+    "check_connected_process_node": "正在處理節點 {{current}}，尋找未訪問的鄰居",
+    "check_connected_diffusion": "擴散中... 已訪問 {{visited}} / {{total}} 個節點 (忽略方向)",
+    "check_connected_node_done": "節點 {{current}} 處理完成",
+    "check_connected_result_true": "結果：圖是連通的 (Connected)！所有節點皆可達。",
+    "check_connected_result_false": "結果：圖不連通 (Disconnected)。橙色節點為孤島。",
+    "check_cycle_dfs": "訪問節點 {{current}} ...",
+    "check_cycle_dfs_msg": "{{msg}}",
+    "check_cycle_found_true": "發現環！({{current}} -> {{cycleNode}})",
+    "check_cycle_found_false": "節點處理完成，退回 {{current}}",
+    "check_cycle_end_true": "檢查結束：發現環 (Cyclic)。路徑：{{path}}",
+    "check_cycle_end_false": "檢查結束：此圖無環 (Acyclic)。",
+    "check_cycle_return": "退回並回到節點 {{current}}"
+  },
+  "ui": {
+    "requireNodeId": "請輸入節點 ID",
+    "requireSourceId": "請輸入起點 (Src) 節點 ID",
+    "requireTargetId": "請輸入終點 (Dst) 節點 ID",
+    "load": "載入資料",
+    "loadTooltip": "開啟自定義 Graph 資料載入介面",
+    "operations": "Graph 操作",
+    "nodeLabel": "節點",
+    "add": "新增",
+    "addVertexTooltip": "新增一個節點到圖中",
+    "remove": "刪除",
+    "removeVertexTooltip": "從圖中刪除指定節點",
+    "neighbors": "找鄰居",
+    "getNeighborsTooltip": "查詢指定節點的所有鄰居",
+    "degree": "度數",
+    "getDegreeTooltip": "查詢指定節點的度數",
+    "edgeLabel": "邊",
+    "link": "連線",
+    "addEdgeTooltip": "在兩個節點之間新增一條邊",
+    "unlink": "斷線",
+    "removeEdgeTooltip": "移除兩個節點之間的邊",
+    "adjacent": "檢查",
+    "checkAdjacentTooltip": "檢查兩個節點是否相鄰",
+    "isDirected": "有向",
+    "connected": "連通性",
+    "checkConnectedTooltip": "檢查圖是否連通",
+    "cycle": "是否有環",
+    "checkCycleTooltip": "檢查圖中是否存在環"
+  },
+  "statusLegend": {
+    "notProcessed": "未處理",
+    "normalState": "一般狀態",
+    "preparing": "準備/候選",
+    "targetCurrent": "目標/當前操作",
+    "completeConnected": "完成/連通"
+  },
+  "stories": {
+    "graph-social-network": {
+      "title": "【演算法揭密】臉書如何瞬間推薦好友？——從六度分隔到社交圖譜",
+      "category": "社群媒體",
+      "tags": ["社交圖譜", "圖形資料庫", "三元閉包"],
+      "content": {
+        "sections": [
+          {
+            "content": "「六度分隔理論」指出，世界上任何兩個陌生人之間最多只隔了六個人。然而，要在 Facebook 幾十億使用者的資料海中瞬間找出「誰是誰的朋友的誰的朋友」，對工程師來說是個天大的噩夢。如果使用傳統的資料庫，尋找關聯性就像在各自獨立的巨大 Excel 表格間進行超複雜的交叉比對（Join），會引發所謂的「運算大爆發」，導致系統卡頓數秒甚至幾分鐘之久。"
+          },
+          {
+            "heading": "圖譜魔法：天生為了「連結」而生",
+            "content": "為了解決這個難題，Facebook 採用了顛覆性的思考模型：「圖形資料庫（Graph Database）」。這種資料庫就像大腦的神經網路，天生就是為連結而生。它的基本材料只有兩種：代表獨立物件的「節點（Node）」（例如用戶、貼文、相片），以及代表物件間關係的「邊（Edge）」（例如交友關係、按讚）。成千上萬億條的邊，把所有孤立的節點編織成了一張活生生的巨大關係網。"
+          },
+          {
+            "heading": "破解「你可能認識的朋友」：三元閉包與毫秒級運算",
+            "content": "Facebook 精準的「你可能認識的朋友」推薦機制是怎麼做到的？邏輯其實很簡單：如果系統知道你（節點 A）和 Alex（節點 B）是朋友，而 Alex 和 Sam（節點 C）也是朋友，系統根本不需要翻找龐大的表格，只需沿著線「走兩步」，就能推測你和 Sam 很可能也認識。這個原理稱為「三元閉包（Triadic Closure）」。在圖形資料庫中，這整個尋找過程只需要短短幾「毫秒」，與傳統資料庫的幾分鐘相比，完全是不同次元的戰爭。"
+          },
+          {
+            "heading": "看透社群影響力：標籤屬性與中心性",
+            "content": "社交圖譜不僅能記錄朋友關係，還能透過「標籤屬性圖」讓邊帶有屬性（例如記錄按讚的時間），大幅提升數據的深度。此外，透過分析網路結構，能算出使用者的「程度中心性」（連出去的線越多，人氣指數越高），或是「中介中心性」（扮演連接兩個不認識社群的橋樑角色），藉此找出在資訊傳播鏈上佔據重要戰略位置的關鍵人物。誠如 Meta 官方文件所認證，這個基於真實世界複雜網路所建立的 Graph 概念，正是整個平台的根基。"
+          }
+        ]
+      },
+      "videoTitle": "【演算法揭密】臉書如何瞬間推薦好友？帶你搞懂「社交圖譜」與「圖形資料庫」的底層邏輯！",
+      "pythonDemoTitle": "模擬 Facebook 社交圖譜：三元閉包好友推薦",
+      "inputs": {
+        "num_users": "用戶數量",
+        "num_communities": "社群數量",
+        "density_slider": "友誼密度"
+      },
+      "resources": [
+        { "title": "Meta Graph API 總覽", "source": "Meta 開發者文件" },
+        { "title": "Social Network Graphs: Concepts, Metrics & Tools", "source": "PuppyGraph Blog" }
+      ]
+    }
+  },
+  "relatedProblems": {
+    "133": "圖的深拷貝：用雜湊表記錄已訪問節點，遞迴/BFS 複製整張無向圖",
+    "207": "有向圖環偵測：若先修課程形成環則無法完成，以拓樸排序判斷 DAG 性質",
+    "210": "拓樸排序：在 DAG 中求線性學習順序，使用 Kahn's 演算法或 DFS 輸出排列",
+    "684": "環偵測 / Union-Find：找出使無向樹出現多餘一條邊（形成環）的那條邊",
+    "269": "拓樸排序進階：從字典序推導字母偏序關係，建圖後輸出合法字母順序"
+  },
+  "game": {
+    "graph": {
+      "title": "六度分隔遊戲 — Facebook 社交圖譜模擬",
+      "descLine1": "節點 = 用戶，邊 = 好友關係。",
+      "descNodeSize": "節點大小代表朋友數（程度中心性），",
+      "descColor": "顏色代表社群分群。",
+      "legendBlue": "藍框 = 你的直接好友（已認識）",
+      "legendGold": "金框閃爍 = 可點擊認識",
+      "legendOrange": "橙虛線 = 三元閉包推薦",
+      "goal": "目標：以最少步數認識 ★ 目標用戶。點擊閃爍節點開始！",
+      "targetLabel": "目標：",
+      "noTarget": "無可用目標（請增加用戶數量）",
+      "operations": "操作數：",
+      "playingTitle": "遊戲進行中，請先完成或放棄",
+      "resetButton": "重置遊戲",
+      "viewResetTitle": "重置視圖 (滾輪縮放 / 拖曳平移)",
+      "tooltip": {
+        "friends": "朋友數：{{n}}",
+        "centrality": "中心性：{{n}}",
+        "clickToMeet": "點擊認識"
+      },
+      "wonMessage": "你可在 {{steps}} 步內認識 {{name}}！",
+      "pathLabel": "路徑：",
+      "pathLength": "路徑長度：{{steps}} 步",
+      "opCount": "操作數：{{n}}",
+      "elapsed": "耗時：{{time}}",
+      "legend": {
+        "community": "社群 {{n}}",
+        "friend": "朋友",
+        "recommend": "推薦好友"
+      },
+      "leaderboard": {
+        "title": "本局排行榜",
+        "operations": "操作數",
+        "elapsed": "耗時",
+        "path": "路徑"
+      }
+    }
+  },
   "introduction": {
     "sections": [
       {

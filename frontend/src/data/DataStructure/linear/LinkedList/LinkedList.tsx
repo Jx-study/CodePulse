@@ -1,14 +1,28 @@
 ﻿import { LevelImplementationConfig } from "@/types/implementation";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
+import i18n from "@/i18n";
 import { LinkedListActionBar } from "./LinkedListActionBar";
 import {
   LinearData as ListNodeData,
   LinearAction as ActionType,
 } from "../utils";
 import type { AnimationStep } from "@/types";
-import { selectVariant } from "./variants/selectVariant";
-import { singlyVariant } from "./variants/singly";
+import { selectVariant } from "./linkedlist/selectVariant";
+import { singlyVariant } from "./linkedlist/singly";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import type { StatusConfig } from "@/types/statusConfig";
+
+const linkedListStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/linked-list",
+  statuses: [
+    { key: Status.Unfinished, label: "statusLegend.normalNode",    color: "#1d79cfff" },
+    { key: Status.Prepare,    label: "statusLegend.currentNode",   color: "#f59e0b" },
+    { key: Status.Target,     label: "statusLegend.operationNode", color: "#ff6b35" },
+    { key: Status.Complete,   label: "statusLegend.complete",      color: "#46f336ff" },
+    { key: Status.Inactive,   label: "statusLegend.deleted",       color: "#555555" },
+  ],
+};
 export function createLinkedListAnimationSteps(
   dataList: ListNodeData[],
   action?: ActionType,
@@ -20,7 +34,7 @@ export function createLinkedListAnimationSteps(
   );
   return variant.createAnimationSteps(dataList, action);
 }
-export { makeNodeAndPointers } from "./variants/shared";
+export { makeNodeAndPointers } from "./linkedlist/shared";
 function modeFlags(payload: Record<string, unknown>) {
   return {
     isDoubly: Boolean(payload.isDoubly),
@@ -57,12 +71,12 @@ function linkedListActionHandler(
       newData.push(newNode);
     } else if (mode === "Node N") {
       if (idx < 0) {
-        context.toast.warning("索引無效：索引不能為負數");
+        context.toast.warning(i18n.t("actionHandler.indexNegative", { ns: "tutorials/linked-list" }));
         return null;
       }
       if (idx > data.length) {
         context.toast.warning(
-          `索引 ${idx} 超出範圍，插入的最大索引為 ${data.length}`,
+          i18n.t("actionHandler.insertIndexOutOfRange", { ns: "tutorials/linked-list", idx, max: data.length }),
         );
         return null;
       }
@@ -84,7 +98,7 @@ function linkedListActionHandler(
   }
   if (actionType === "delete") {
     if (newData.length === 0) {
-      context.toast.warning("鏈結串列為空");
+      context.toast.warning(i18n.t("actionHandler.listEmpty", { ns: "tutorials/linked-list" }));
       return null;
     }
     let deletedNode: ListNodeData | null = null;
@@ -97,12 +111,12 @@ function linkedListActionHandler(
     } else if (mode === "Node N") {
       const idx = index ?? -1;
       if (idx < 0) {
-        context.toast.warning("索引無效：索引不能為負數");
+        context.toast.warning(i18n.t("actionHandler.indexNegative", { ns: "tutorials/linked-list" }));
         return null;
       }
       if (idx >= newData.length) {
         context.toast.warning(
-          `索引 ${idx} 超出範圍，刪除的最大索引為 ${newData.length - 1}`,
+          i18n.t("actionHandler.deleteIndexOutOfRange", { ns: "tutorials/linked-list", idx, max: newData.length - 1 }),
         );
         return null;
       }
@@ -190,6 +204,7 @@ export const linkedListConfig: LevelImplementationConfig = {
       payload?.hasTailMode ?? false,
     ).codeConfig,
   complexity: { timeBest: "O(1)", timeAverage: "O(n)", timeWorst: "O(n)", space: "O(1)" },
+  statusConfig: linkedListStatusConfig,
   i18nNamespace: "tutorials/linked-list",
   introduction: { key: "introduction" },
   defaultData: [
@@ -199,9 +214,9 @@ export const linkedListConfig: LevelImplementationConfig = {
   actionHandler: linkedListActionHandler,
   renderActionBar: (props) => <LinkedListActionBar {...(props as any)} />,
   relatedProblems: [
-    { id: 206, title: "Reverse Linked List", concept: "鏈結串列基礎操作：反轉單向鏈結串列", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
-    { id: 141, title: "Linked List Cycle", concept: "快慢指標應用：檢測鏈結串列是否有環", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },
-    { id: 21, title: "Merge Two Sorted Lists", concept: "鏈結串列合併：合併兩個已排序的鏈結串列", difficulty: "Easy", url: "https://leetcode.com/problems/merge-two-sorted-lists/" },
+    { id: 206, title: "Reverse Linked List", concept: "relatedProblems.206", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
+    { id: 141, title: "Linked List Cycle", concept: "relatedProblems.141", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },
+    { id: 21, title: "Merge Two Sorted Lists", concept: "relatedProblems.21", difficulty: "Easy", url: "https://leetcode.com/problems/merge-two-sorted-lists/" },
   ],
   maxNodes: 20,
 };

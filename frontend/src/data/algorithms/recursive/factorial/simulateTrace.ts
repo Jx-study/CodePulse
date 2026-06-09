@@ -115,7 +115,7 @@ export function simulateFactorialTrace(targetN: number): ExecutionTrace {
   // Phase 3: 最終結果停留
   pushTrace(
     TAGS.DONE,
-    { final_result: stack[0].val },
+    { targetN, final_result: stack[0].val },
     { completeIndices: [0] },
   );
 

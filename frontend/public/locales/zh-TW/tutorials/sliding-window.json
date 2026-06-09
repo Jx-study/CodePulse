@@ -1,0 +1,38 @@
+{
+  "animation": {
+    "init_shortest": "【最短模式】開始尋找總和大於等於 {{target}} 的最短子陣列",
+    "init_longest": "【最長模式】開始尋找總和不超過 {{target}} 的最長子陣列",
+    "expand_right": "右指標擴展，移入 Index {{r}} 的數值 {{val}}",
+    "check_while": "將 {{val}} 納入窗口，目前窗口加總值為：{{sum}}",
+    "shrink_shortest": "總和仍達標 ({{sum}} >= {{target}})，嘗試將左界 Left({{l}}) 移出視窗以縮短區間",
+    "shrink_longest": "總和 {{sum}} 超過上限 {{target}}！必須將左界 Left({{l}}) 移出視窗以符合條件",
+    "update_shortest": "總和達標！成功更新最短區間紀錄為長度 {{len}} (Index {{l}} 到 {{r}})",
+    "update_longest": "條件符合！成功更新最長區間紀錄為長度 {{len}} (Index {{l}} 到 {{r}})",
+    "done_success": "掃描結束！符合條件之最佳紀錄長度為 {{len}}，完美區間落於 Index {{l}} 到 {{r}}",
+    "done_fail": "掃描結束！在此陣列中，找不到任何總和能符合條件的連續子區間。"
+  },
+  "ui": {
+    "controlLabel": "滑動視窗控制",
+    "modeLabel": "模式",
+    "modeLongest": "最長區間 (Sum ≤ Target)",
+    "modeShortest": "最短區間 (Sum ≥ Target)",
+    "placeholder": "目標和 Target",
+    "run": "開始演示",
+    "runTooltip": "執行滑動視窗演算法演示",
+    "invalidInput": "請輸入有效的目標和數值"
+  },
+  "statusLegend": {
+    "outsideWindow": "視窗外部",
+    "currentWindow": "當前視窗",
+    "aboutToLeave": "即將移出",
+    "bestInterval": "歷史最佳區間"
+  },
+  "relatedProblems": {
+    "3": "可變視窗：右指針擴展加入字元，左指針在遇到重複時縮窄，哈希集合記錄視窗內容",
+    "76": "可變視窗 + 字元計數：右擴直到覆蓋目標字元後左縮取最短，雙指針搭配頻率表",
+    "424": "可變視窗：追蹤視窗內最高頻字元，視窗大小 - 最高頻數 > k 時左縮視窗",
+    "239": "固定視窗 + 單調遞減雙端佇列：隊頭維持當前最大值，右移時淘汰隊尾較小元素",
+    "567": "固定視窗字元匹配：維護長度 |s1| 的視窗，比較視窗字元頻率與目標是否相同",
+    "438": "固定視窗滑動比對：同 567 的頻率比較策略，但需記錄所有滿足條件的視窗起始位置"
+  }
+}

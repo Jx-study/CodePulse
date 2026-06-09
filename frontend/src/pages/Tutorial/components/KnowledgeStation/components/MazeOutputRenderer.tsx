@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import ControlBar from "@/modules/core/components/ControlBar/ControlBar";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
@@ -21,6 +22,7 @@ export type MazeOutputRendererHandle = {
 
 interface Props {
   data: MazeOutputData;
+  ns?: string;
   // 供父層（例如與「執行小程式」並排顯示跳過按鈕）追蹤目前是否為生成階段
   onViewPhaseChange?: (phase: MazeViewPhase) => void;
 }
@@ -369,7 +371,10 @@ function drawMazeGen(
 }
 
 const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
-  function MazeOutputRenderer({ data, onViewPhaseChange }, ref) {
+  function MazeOutputRenderer({ data, ns, onViewPhaseChange }, ref) {
+    const { t } = useTranslation(ns || "tutorial");
+    const tg = (key: string, opts?: Record<string, unknown>) =>
+      t(`game.maze.${key}`, { ns: ns || "tutorial", ...opts });
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const rafRef = useRef<number | null>(null);
     const keysHeld = useRef(new Set<string>());
@@ -781,7 +786,7 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
     }, []);
 
     const modeLabel = (m: GameMode) =>
-      m === "solo" ? "單人" : m === "race" ? "雙人競速" : "雙人合作";
+      tg(`modes.${m === "solo" ? "solo" : m === "race" ? "race" : "coop"}`);
 
     const cell = calcCellSize(data.width, data.height);
     const totalGenSteps = data.generationSteps?.length ?? 0;
@@ -795,15 +800,15 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
     return (
       <div className={styles.wrapper}>
         <div className={styles.purpose}>
-          <div className={styles.purposeTitle}>DFS 迷宮遊戲</div>
+          <div className={styles.purposeTitle}>{tg("title")}</div>
           <div className={styles.purposeBody}>
+            <p>{tg("desc1")}</p>
             <p>
-              DFS 遞迴生成完美迷宮（無環、唯一路徑）。↑↓←→ 控制 P1，WASD 控制
-              P2。
-            </p>
-            <p>
-              點擊按鈕選擇模式，從 <strong>左上角出發</strong>，到達{" "}
-              <strong className={styles.finish}>紅色終點</strong>！
+              {tg("desc2Prefix")}{" "}
+              <strong>{tg("desc2Start")}</strong>
+              {tg("desc2Middle")}{" "}
+              <strong className={styles.finish}>{tg("desc2Finish")}</strong>
+              {tg("desc2Suffix")}
             </p>
           </div>
         </div>
@@ -850,11 +855,7 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
                       handleReset();
                     }}
                   >
-                    {m === "solo"
-                      ? "單人"
-                      : m === "race"
-                        ? "雙人競速"
-                        : "雙人合作"}
+                    {tg(`modes.${m}`)}
                   </Button>
                 ))}
               </div>
@@ -862,19 +863,15 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
                 variant={fogOn ? "primary" : "ghost"}
                 onClick={() => setFogOn((f) => !f)}
               >
-                {fogOn ? "迷霧 ON" : "迷霧 OFF"}
+                {fogOn ? tg("fog.on") : tg("fog.off")}
               </Button>
-              <Button variant="ghost" onClick={handleReset} title="重置">
-                重置
+              <Button variant="ghost" onClick={handleReset} title={tg("reset")}>
+                {tg("reset")}
               </Button>
               <div className={styles.statsBar}>
-                <span>
-                  P1: <strong>{gameState.steps.p1}</strong> 步
-                </span>
+                <span>{tg("p1Steps", { n: gameState.steps.p1 })}</span>
                 {mode !== "solo" && (
-                  <span>
-                    P2: <strong>{gameState.steps.p2}</strong> 步
-                  </span>
+                  <span>{tg("p2Steps", { n: gameState.steps.p2 })}</span>
                 )}
                 <span>{formatTime(elapsedMs)}</span>
               </div>
@@ -891,7 +888,7 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
           />
           {viewPhase === "game" && gameState.status === "idle" && (
             <div className={styles.idleOverlay}>
-              <span>按方向鍵開始！</span>
+              <span>{tg("pressToStart")}</span>
             </div>
           )}
         </div>
@@ -901,32 +898,32 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
             <div className={styles.winTitle}>
               {mode === "solo" ? (
                 <>
-                  <Icon name="check" /> 抵達終點！
+                  <Icon name="check" /> {tg("result.soloWon")}
                 </>
               ) : mode === "race" ? (
                 <>
                   <Icon name="trophy" />{" "}
                   {gameState.winner === "TIE"
-                    ? "平手！"
-                    : `${gameState.winner} 勝利！`}
+                    ? tg("result.draw")
+                    : tg("result.winner", { name: gameState.winner })}
                 </>
               ) : (
                 <>
-                  <Icon name="check" /> 合作完成！
+                  <Icon name="check" /> {tg("result.coopWon")}
                 </>
               )}
             </div>
             <div className={styles.winStats}>
               <span>
-                P1：<strong>{gameState.steps.p1} 步</strong>
+                <strong>{tg("result.p1Steps", { n: gameState.steps.p1 })}</strong>
               </span>
               {mode !== "solo" && (
                 <span>
-                  P2：<strong>{gameState.steps.p2} 步</strong>
+                  <strong>{tg("result.p2Steps", { n: gameState.steps.p2 })}</strong>
                 </span>
               )}
               <span>
-                耗時：<strong>{formatTime(elapsedMs)}</strong>
+                <strong>{tg("result.elapsed", { time: formatTime(elapsedMs) })}</strong>
               </span>
             </div>
           </div>
@@ -935,15 +932,15 @@ const MazeOutputRenderer = forwardRef<MazeOutputRendererHandle, Props>(
         {leaderboard.length >= 2 && (
           <div className={styles.leaderboard}>
             <div className={styles.leaderboardTitle}>
-              <Icon name="chart-line" /> 本局排行榜
+              <Icon name="chart-line" /> {tg("leaderboard.title")}
             </div>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>模式</th>
-                  <th>步數</th>
-                  <th>耗時</th>
+                  <th>{tg("leaderboard.mode")}</th>
+                  <th>{tg("leaderboard.steps")}</th>
+                  <th>{tg("leaderboard.elapsed")}</th>
                 </tr>
               </thead>
               <tbody>
