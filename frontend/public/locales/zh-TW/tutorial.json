@@ -31,7 +31,15 @@
       },
       "codePanel": {
         "title": "程式碼面板",
-        "description": "左側面板顯示對應的虛擬碼或 Python 實作，目前執行的行會自動高亮顯示。"
+        "description": "左側面板以虛擬碼或 Python 呈現演算法，可透過頂部的 Tab 切換模式。動畫播放時，目前執行的行會自動高亮顯示。"
+      },
+      "inspectorPanel": {
+        "title": "資訊面板",
+        "description": "「操作」Tab 可逐步執行新增、刪除等動作；切換至「變數」Tab 可觀察每個步驟中內部變數的即時變化，幫助你理解演算法的運作過程。"
+      },
+      "knowledgeStationButton": {
+        "title": "知識站",
+        "description": "隨時點擊此按鈕開啟知識站，複習此演算法的理論基礎 — 即使你跳過了導覽也沒關係。"
       }
     }
   }

@@ -376,6 +376,7 @@ export const InspectorPanelInternal = ({
       style={sortableStyle}
       {...attributes}
       className={styles.inspectorPanel}
+      data-tour="inspector-panel"
     >
       <PanelHeader
         title="資訊面板"
@@ -1151,17 +1152,19 @@ function TutorialContent() {
             icon="circle-question"
             iconOnly
           />
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsKnowledgeStationOpen(true)}
-            title={tTour('featureTour.knowledgeStation')}
-            aria-label={tTour('featureTour.knowledgeStation')}
-            icon="lightbulb"
-            iconOnly={isMobile}
-          >
-            {!isMobile && tTour('featureTour.knowledgeStation')}
-          </Button>
+          <span data-tour="knowledge-station-button">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsKnowledgeStationOpen(true)}
+              title={tTour('featureTour.knowledgeStation')}
+              aria-label={tTour('featureTour.knowledgeStation')}
+              icon="lightbulb"
+              iconOnly={isMobile}
+            >
+              {!isMobile && tTour('featureTour.knowledgeStation')}
+            </Button>
+          </span>
           {!isMobile && (
             <span data-tour="swap-button">
               <Button

@@ -47,5 +47,19 @@ export function buildFeatureTourSteps(t: TFunction): TourStep[] {
       targetSelector: '[data-tour="code-panel"]',
       placement: 'right',
     },
+    {
+      id: 'inspector-panel',
+      title: t('featureTour.steps.inspectorPanel.title'),
+      description: t('featureTour.steps.inspectorPanel.description'),
+      targetSelector: '[data-tour="inspector-panel"]',
+      placement: 'left',
+    },
+    {
+      id: 'knowledge-station-button',
+      title: t('featureTour.steps.knowledgeStationButton.title'),
+      description: t('featureTour.steps.knowledgeStationButton.description'),
+      targetSelector: '[data-tour="knowledge-station-button"]',
+      placement: 'bottom',
+    },
   ];
 }

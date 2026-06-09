@@ -31,7 +31,15 @@
       },
       "codePanel": {
         "title": "Code Panel",
-        "description": "The left panel shows the corresponding pseudocode or Python implementation. The currently executing line is highlighted automatically."
+        "description": "The left panel shows the algorithm in pseudocode or Python — switch between them using the tabs at the top. The currently executing line is highlighted automatically as the animation plays."
+      },
+      "inspectorPanel": {
+        "title": "Inspector Panel",
+        "description": "The Action tab lets you add, delete, or run operations step by step. Switch to the Variable tab to watch internal variables change at each step — great for understanding what the algorithm is actually doing."
+      },
+      "knowledgeStationButton": {
+        "title": "Knowledge Station",
+        "description": "Click here to open the Knowledge Station anytime and review the theoretical foundations of this algorithm — even if you skipped the tour."
       }
     }
   }
