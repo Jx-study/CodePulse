@@ -22,11 +22,15 @@ from seeds.questions import stack
 from seeds.questions import queue
 from seeds.questions import binary_tree
 from seeds.questions import bst
+from seeds.questions import heap
 from seeds.questions import graph
-from seeds.questions import binary_search
+from seeds.questions import trie
 from seeds.questions import bubble_sort
-from seeds.questions import insertion_sort
 from seeds.questions import selection_sort
+from seeds.questions import insertion_sort
+from seeds.questions import quick_sort
+from seeds.questions import merge_sort
+from seeds.questions import binary_search
 from seeds.questions import prefix_sum
 from seeds.questions import sliding_window
 from seeds.questions import bfs
@@ -41,11 +45,15 @@ ALL_MODULES = [
     queue,
     binary_tree,
     bst,
+    heap,
     graph,
-    binary_search,
+    trie,
     bubble_sort,
-    insertion_sort,
     selection_sort,
+    insertion_sort,
+    merge_sort,
+    quick_sort,
+    binary_search,
     prefix_sum,
     sliding_window,
     bfs,
@@ -147,6 +155,10 @@ def seed_tutorial(quiz_data: dict):
                 group_id = g.group_id
 
         base = float(q_data.get("baseRating", 1200))
+        q_visual_type = q_data.get("visual_type", "none")
+        q_visual_data = q_data.get("visual_data")
+        validate_visual(q_visual_type, q_visual_data)
+
         question = Question(
             tutorial_id=tutorial_id,
             group_id=group_id,
@@ -158,6 +170,8 @@ def seed_tutorial(quiz_data: dict):
             display_order=order,
             code=q_data.get("code"),
             language=q_data.get("language"),
+            visual_type=q_visual_type,
+            visual_data=q_visual_data,
             is_active=True,
         )
         db.session.add(question)
@@ -172,6 +186,7 @@ def seed_tutorial(quiz_data: dict):
                 stem=t["title"],
                 explanation=t.get("explanation"),
                 options=t.get("options", []),
+                visual_alt=t.get("visual_alt"),
             ))
 
     db.session.commit()

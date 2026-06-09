@@ -42,21 +42,8 @@ class Array:
     def search(self, target):
         for i in range(len(self.arr)):
             if self.arr[i] == target:
-                return i 
-        return -1
-                                                 
-    def update(self, index, value): 
-        if index < 0 or index >= len(self.arr): # L9
-            raise IndexError(\"Index out of bounds\")
-        self.arr[index] = value
-                                                 
-    def insert(self, index, value):
-        # Python's list.insert handles shifting
-        self.arr.insert(index, value)
-
-    def delete(self, index):
-        # Python's list.pop handles shifting
-        self.arr.pop(index)"""
+                return i
+        return -1"""
 
 ARRAY_DELETE_FILL_CODE = """\
 def delete_at(arr, index):
@@ -64,6 +51,28 @@ def delete_at(arr, index):
     for i in range(index, (a)):    # 左移的迴圈範圍
         arr[i] = arr[(b)]           # 將右側元素左移
     arr.(c)()                       # 移除末端多餘的位置"""
+
+ARRAY_RESIZE_FILL_CODE = """\
+def append_with_resize(arr, size, capacity, value):
+    if size == capacity:
+        new_capacity = capacity * (a)
+        new_arr = [None] * new_capacity
+        for i in range((b)):
+            new_arr[i] = arr[i]
+        arr = new_arr
+        capacity = new_capacity
+    arr[(c)] = value
+    size += 1
+    return arr, size, capacity"""
+
+MATRIX_TRANSPOSE_PREDICT_CODE = """\
+matrix = [[1, 2], [3, 4]]
+result = []
+for col in range(2):
+    row_values = []
+    for row in range(2):
+        row_values.append(matrix[row][col])
+    result.append(row_values)"""
 
 DATA = {
     "slug": "array",
@@ -86,6 +95,7 @@ DATA = {
     ],
     "questions": [
         # 【Basic 基礎】 800-950
+        # baseRating = 800 + 0(TF) + 50(L1 隨機存取定義) + 0(直觀) = 850
         {
             "id": "array-tf-1",
             "type": "true-false",
@@ -95,15 +105,16 @@ DATA = {
                 "zh-TW": {
                     "title": "陣列 (Array) 透過 Index 存取元素的時間複雜度為 O(n)，因為需要從頭逐一遍歷到指定位置。",
                     "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
-                    "explanation": "陣列的記憶體位址公式為：base_address + index × element_size。因為記憶體連續，可以直接計算位址而不需遍歷，時間複雜度為 O(1)，而非 O(n)。",
+                    "explanation": "陣列的核心優勢是可透過索引直接定位元素，不需要像線性搜尋一樣從頭逐一檢查。",
                 },
                 "en": {
-                    "title": "An Array stores data in contiguous memory, allowing any element's address to be computed directly via index, enabling O(1) random access.",
+                    "title": "Accessing an Array element by index takes O(n), because the array must be traversed from the beginning to the target position.",
                     "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
-                    "explanation": "The memory address formula is: base_address + index × element_size. Because memory is contiguous, the address can be computed directly without traversal.",
+                    "explanation": "The key advantage of an array is direct indexed access. It does not need to scan from the beginning like a linear search.",
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 0(L0 Zero-indexed 常識) + 0(直觀) = 850
         {
             "id": "array-q1",
             "type": "single-choice",
@@ -132,6 +143,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 50(L1 複雜度定義) + 0(直觀) = 900
         {
             "id": "array-q2",
             "type": "single-choice",
@@ -160,6 +172,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
         {
             "id": "array-q3",
             "type": "single-choice",
@@ -188,6 +201,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 0(TF) + 50(L1 位移概念) + 0(直觀) = 850
         {
             "id": "array-tf-2",
             "type": "true-false",
@@ -207,6 +221,7 @@ DATA = {
             },
         },
         # 【Application 應用】 1000-1200
+        # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(Zero-indexed 新手誤區) = 1100
         {
             "id": "array-q4",
             "type": "single-choice",
@@ -221,7 +236,7 @@ DATA = {
                         {"id": "C", "text": "1"},
                         {"id": "D", "text": "2"},
                     ],
-                    "explanation": "陣列採用零索引（Zero-indexed），第一個元素的索引為 0，因此 arr[2] 存取的是第三個元素。",
+                    "explanation": "陣列採用零索引（Zero-indexed），解題時要先把第一個位置視為 index 0，再對照目標索引。",
                 },
                 "en": {
                     "title": "Given arr = [5, 3, 8, 1, 9], what does arr[2] return?",
@@ -231,10 +246,11 @@ DATA = {
                         {"id": "C", "text": "1"},
                         {"id": "D", "text": "2"},
                     ],
-                    "explanation": "Arrays use zero-based indexing: the first element has index 0, so arr[2] accesses the third element.",
+                    "explanation": "Arrays use zero-based indexing. Treat the first position as index 0, then match the target index to the array.",
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(插入位移新手誤區) = 1200
         {
             "id": "array-q5",
             "type": "single-choice",
@@ -263,6 +279,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(刪除位移新手誤區) = 1100
         {
             "id": "array-q6",
             "type": "single-choice",
@@ -291,6 +308,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(索引變動新手誤區) = 1200
         {
             "id": "array-q7",
             "type": "single-choice",
@@ -319,6 +337,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(操作複雜度新手誤區) = 1100
         {
             "id": "array-multi-1",
             "type": "multiple-choice",
@@ -347,6 +366,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 50(L1 資料結構適用情境) + 0(直觀) = 900
         {
             "id": "array-q8",
             "type": "single-choice",
@@ -361,7 +381,7 @@ DATA = {
                         {"id": "C", "text": "Queue（佇列）"},
                         {"id": "D", "text": "Hash Table"},
                     ],
-                    "explanation": "Linked List 只需修改指標即可完成中間操作 (O(1))，不需搬移資料，在已知位置時比陣列快。",
+                    "explanation": "Linked List 在已知插入或刪除點位置的前提下，只需修改指標即可完成中間操作，時間複雜度為 O(1)，不需像陣列那樣搬移大量資料，因此在頻繁異動的場景下表現更好。",
                 },
                 "en": {
                     "title": "When frequent insertions or deletions in the middle are required, which data structure generally outperforms Array?",
@@ -371,10 +391,11 @@ DATA = {
                         {"id": "C", "text": "Queue"},
                         {"id": "D", "text": "Hash Table"},
                     ],
-                    "explanation": "A Linked List only needs to update pointers for mid-list operations (O(1) given a reference), avoiding the need to shift elements as in an array.",
+                    "explanation": "A Linked List only needs to update pointers for mid-list operations when the insertion or deletion point is already known (O(1) given a reference), avoiding the need to shift many elements as in an array.",
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(插入位移新手誤區) = 1200
         {
             "id": "array-group-1",
             "groupId": "group-array-inventory",
@@ -404,6 +425,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(刪除後索引新手誤區) = 1200
         {
             "id": "array-group-2",
             "groupId": "group-array-inventory",
@@ -434,10 +456,11 @@ DATA = {
             },
         },
         # 【Complexity 複雜度】 1250-1500
+        # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
         {
             "id": "array-q9",
             "type": "single-choice",
-            "baseRating": 1700,
+            "baseRating": 950,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -462,6 +485,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(陣列特性新手誤區) = 1100
         {
             "id": "array-multi-2",
             "type": "multiple-choice",
@@ -490,6 +514,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(插入邊界) = 1500
         {
             "id": "array-group-3",
             "groupId": "group-array-inventory",
@@ -511,6 +536,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(刪除邊界) = 1500
         {
             "id": "array-fill-1",
             "type": "fill-code",
@@ -531,6 +557,7 @@ DATA = {
                 },
             },
         },
+        # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(找不到目標邊界) = 1350
         {
             "id": "array-pred-1",
             "type": "predict-line",
@@ -548,6 +575,318 @@ DATA = {
                     "title": "Given an Array object with arr.arr = [10, 30] (2 elements), calling arr.search(5) (searching for a non-existent element). Write the sequence of line numbers executed by the search() method (space-separated).",
                     "options": [],
                     "explanation": "Execution flow:\n1. Enter search method (L2)\n2. for loop starts, i=0 (L3)\n3. arr[0]=10 == 5? No, continue (L4)\n4. for loop next iteration, i=1 (L3)\n5. arr[1]=30 == 5? No, continue (L4)\n6. Loop ends (range(2) exhausted), execute return -1 (L6)\nNote: L5 is never reached (if condition always False).",
+                },
+            },
+        },
+        # baseRating = 800 + 0(TF) + 50(L1 陣列同質性定義) + 0(直觀) = 850
+        {
+            "id": "array-q19",
+            "type": "true-false",
+            "baseRating": 850,
+            "correctAnswer": "false",
+            "translations": {
+                "zh-TW": {
+                    "title": "傳統陣列可以在同一個陣列中任意混放整數、字串與物件，且這正是它的核心優勢。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "傳統陣列的核心特性是同質資料與連續儲存；若需要混放不同型別，通常是列表或其他更彈性的容器較合適。",
+                },
+                "en": {
+                    "title": "A traditional array can freely mix integers, strings, and objects in the same array, and this is its main advantage.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "A traditional array is mainly homogeneous and contiguous. If mixed types are needed, a list or another flexible container is usually more appropriate.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 50(L1 固定長度定義) + 0(直觀) = 900
+        {
+            "id": "array-q20",
+            "type": "single-choice",
+            "baseRating": 900,
+            "correctAnswer": "A",
+            "translations": {
+                "zh-TW": {
+                    "title": "下列哪一項最符合「傳統陣列」的長度特性？",
+                    "options": [
+                        {"id": "A", "text": "建立時通常需要先決定固定大小"},
+                        {"id": "B", "text": "每次新增資料都會自動變成雜湊表"},
+                        {"id": "C", "text": "長度永遠等於目前非空元素數量"},
+                        {"id": "D", "text": "不需要索引即可直接找到任意元素"},
+                    ],
+                    "explanation": "傳統陣列通常需要預先配置固定空間；若資料量無法估計，動態陣列或列表會更有彈性。",
+                },
+                "en": {
+                    "title": "Which statement best describes the size behavior of a traditional array?",
+                    "options": [
+                        {"id": "A", "text": "Its fixed size is usually chosen when it is created"},
+                        {"id": "B", "text": "It automatically becomes a hash table after each append"},
+                        {"id": "C", "text": "Its length is always the number of non-empty elements"},
+                        {"id": "D", "text": "It can find any element directly without an index"},
+                    ],
+                    "explanation": "A traditional array usually reserves a fixed amount of space up front. For unknown sizes, a dynamic array or list is more flexible.",
+                },
+            },
+        },
+        # baseRating = 800 + 0(TF) + 50(L1 連續記憶體定義) + 0(直觀) = 850
+        {
+            "id": "array-q21",
+            "type": "true-false",
+            "baseRating": 850,
+            "correctAnswer": "true",
+            "translations": {
+                "zh-TW": {
+                    "title": "陣列的元素在底層通常連續存放，因此可用起始位址、索引與元素大小直接推算元素位置。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "連續記憶體是陣列能 O(1) 隨機存取的關鍵，位置可由 base_address + index × element_size 推算。",
+                },
+                "en": {
+                    "title": "Array elements are usually stored contiguously, so an element location can be computed from the base address, index, and element size.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "Contiguous memory is what enables O(1) random access: the location can be computed as base_address + index × element_size.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
+        {
+            "id": "array-q22",
+            "type": "single-choice",
+            "baseRating": 950,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "下列哪個場景最適合優先考慮使用陣列？",
+                    "options": [
+                        {"id": "A", "text": "需要頻繁在中間插入與刪除節點"},
+                        {"id": "B", "text": "需要大量透過固定索引讀取矩陣或向量資料"},
+                        {"id": "C", "text": "每筆資料型別都不同且數量完全未知"},
+                        {"id": "D", "text": "只需要依照先進先出順序取出資料"},
+                    ],
+                    "explanation": "陣列適合矩陣、向量與查詢表等需要固定索引與頻繁隨機存取的情境。",
+                },
+                "en": {
+                    "title": "Which scenario is the best fit for choosing an array first?",
+                    "options": [
+                        {"id": "A", "text": "Frequent insertions and deletions in the middle"},
+                        {"id": "B", "text": "Heavy indexed reads over matrix or vector data"},
+                        {"id": "C", "text": "Every value has a different type and the count is unknown"},
+                        {"id": "D", "text": "Only first-in-first-out removal is needed"},
+                    ],
+                    "explanation": "Arrays are a strong fit for matrices, vectors, and lookup tables where fixed indexes and frequent random access matter.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 100(動態擴充新手誤區) = 1050
+        {
+            "id": "array-q23",
+            "type": "single-choice",
+            "baseRating": 1050,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "動態陣列在容量已滿時又要 append 新元素，底層最可能先做什麼？",
+                    "options": [
+                        {"id": "A", "text": "直接覆蓋 index 0 的元素"},
+                        {"id": "B", "text": "把所有元素改成字串以節省空間"},
+                        {"id": "C", "text": "配置更大的連續空間並複製原本元素"},
+                        {"id": "D", "text": "改用線性搜尋避免搬移資料"},
+                    ],
+                    "explanation": "動態陣列滿載時通常會配置更大的新空間，再把舊元素複製過去，因此單次 append 可能有 O(n) 隱藏成本。",
+                },
+                "en": {
+                    "title": "When a dynamic array is full and another value is appended, what is it most likely to do first internally?",
+                    "options": [
+                        {"id": "A", "text": "Overwrite the element at index 0"},
+                        {"id": "B", "text": "Convert every element to a string to save space"},
+                        {"id": "C", "text": "Allocate a larger contiguous block and copy existing elements"},
+                        {"id": "D", "text": "Use linear search to avoid moving data"},
+                    ],
+                    "explanation": "When full, a dynamic array usually allocates a larger block and copies old elements into it, so one append can have hidden O(n) cost.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(滿載擴充邊界) = 1400
+        {
+            "id": "array-q24",
+            "type": "single-choice",
+            "baseRating": 1400,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "某動態陣列目前 size=4、capacity=4，擴充規則為滿載時 capacity 加倍。依序 append 5、6 後，size 與 capacity 分別是多少？",
+                    "options": [
+                        {"id": "A", "text": "size=5, capacity=5"},
+                        {"id": "B", "text": "size=6, capacity=6"},
+                        {"id": "C", "text": "size=6, capacity=8"},
+                        {"id": "D", "text": "size=8, capacity=8"},
+                    ],
+                    "explanation": "append 5 前已滿載，因此先擴充 capacity 到 8，再放入 5；append 6 時尚有空間，不再擴充。最後 size=6、capacity=8。",
+                },
+                "en": {
+                    "title": "A dynamic array has size=4 and capacity=4. Its capacity doubles when full. After appending 5 and then 6, what are size and capacity?",
+                    "options": [
+                        {"id": "A", "text": "size=5, capacity=5"},
+                        {"id": "B", "text": "size=6, capacity=6"},
+                        {"id": "C", "text": "size=6, capacity=8"},
+                        {"id": "D", "text": "size=8, capacity=8"},
+                    ],
+                    "explanation": "Before appending 5 the array is full, so capacity doubles to 8, then 5 is stored. Appending 6 uses remaining space. Final size=6 and capacity=8.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(底層表示邊界) = 1400
+        {
+            "id": "array-q25",
+            "type": "single-choice",
+            "baseRating": 1400,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "關於「傳統陣列」與「Python List」的底層差異，下列哪一項最精確？",
+                    "options": [
+                        {"id": "A", "text": "兩者都必須只儲存同一種實體數值，且永遠不能擴充"},
+                        {"id": "B", "text": "傳統陣列偏向連續儲存同質值；Python List 可動態調整，底層主要儲存物件參照"},
+                        {"id": "C", "text": "Python List 不使用索引，因此無法 O(1) 讀取元素"},
+                        {"id": "D", "text": "傳統陣列每次讀取元素都需要線性搜尋"},
+                    ],
+                    "explanation": "傳統陣列強調同質、固定大小與連續實體資料；Python List 是動態容器，能調整大小，並以參照管理物件。",
+                },
+                "en": {
+                    "title": "Which statement most accurately compares a traditional array and a Python List internally?",
+                    "options": [
+                        {"id": "A", "text": "Both must store only one kind of raw value and can never grow"},
+                        {"id": "B", "text": "A traditional array tends to store homogeneous values contiguously; a Python List can resize and mainly stores object references"},
+                        {"id": "C", "text": "A Python List does not use indexes, so it cannot read elements in O(1)"},
+                        {"id": "D", "text": "A traditional array needs linear search every time it reads an element"},
+                    ],
+                    "explanation": "Traditional arrays emphasize homogeneous fixed-size contiguous data. Python Lists are dynamic containers that can resize and manage object references.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(最壞情況邊界) = 1400
+        {
+            "id": "array-q26",
+            "type": "single-choice",
+            "baseRating": 1400,
+            "correctAnswer": "A",
+            "translations": {
+                "zh-TW": {
+                    "title": "關於動態陣列 append 的時間成本，下列哪一項最正確？",
+                    "options": [
+                        {"id": "A", "text": "多數 append 很快，但滿載觸發擴充時，單次 append 可能需要 O(n) 複製"},
+                        {"id": "B", "text": "每一次 append 都必定需要 O(n) 複製全部元素"},
+                        {"id": "C", "text": "append 永遠是 O(1)，即使容量已滿也不需搬移"},
+                        {"id": "D", "text": "append 的成本與陣列容量無關，只和元素型別名稱長度有關"},
+                    ],
+                    "explanation": "動態陣列常用預留容量換取多數 append 的效率；但容量滿載時，擴充與複製會讓該次操作變成 O(n)。",
+                },
+                "en": {
+                    "title": "Which statement about the cost of appending to a dynamic array is most accurate?",
+                    "options": [
+                        {"id": "A", "text": "Most appends are fast, but an append that triggers resizing may copy n elements in O(n)"},
+                        {"id": "B", "text": "Every append must copy all elements in O(n)"},
+                        {"id": "C", "text": "Append is always O(1), even when capacity is full"},
+                        {"id": "D", "text": "Append cost depends only on the length of the element type name"},
+                    ],
+                    "explanation": "Dynamic arrays reserve extra capacity so most appends are efficient. When capacity is full, resizing and copying can make that one append O(n).",
+                },
+            },
+        },
+        # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(滿載擴充邊界) = 1500
+        {
+            "id": "array-q27",
+            "type": "fill-code",
+            "baseRating": 1500,
+            "code": ARRAY_RESIZE_FILL_CODE,
+            "language": "python",
+            "correctAnswer": ["2", "size", "size"],
+            "translations": {
+                "zh-TW": {
+                    "title": "請填入 append_with_resize 函數中 (a)(b)(c) 處缺失的程式碼，使動態陣列在滿載時加倍擴充並正確追加新值。",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "滿載時 capacity 乘以 2；只需複製目前有效的 size 個元素；新值應放在原本的 size 位置。",
+                },
+                "en": {
+                    "title": "Fill in (a), (b), and (c) in append_with_resize so the dynamic array doubles when full and appends the new value correctly.",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "When full, capacity is multiplied by 2. Only the current size valid elements need copying. The new value belongs at the old size index.",
+                },
+            },
+        },
+        # baseRating = 800 + 150(PL) + 400(L4 複雜控制流/邊界分析) + 50(巢狀迴圈視覺干擾) = 1400
+        {
+            "id": "array-q28",
+            "type": "predict-line",
+            "baseRating": 1400,
+            "code": MATRIX_TRANSPOSE_PREDICT_CODE,
+            "language": "python",
+            "correctAnswer": "1 2 3 4 5 6 5 6 7 3 4 5 6 5 6 7",
+            "translations": {
+                "zh-TW": {
+                    "title": "上方程式會轉置 2x2 矩陣。請依序填寫實際執行到的行號序列（以空格分隔）。",
+                    "options": [],
+                    "explanation": "先執行 L1、L2。外層 col=0 時執行 L3、L4，內層 row=0、1 各執行 L5、L6，接著 L7；外層 col=1 重複同樣流程。因此序列為 1 2 3 4 5 6 5 6 7 3 4 5 6 5 6 7。",
+                },
+                "en": {
+                    "title": "The code above transposes a 2x2 matrix. Write the executed line-number sequence in order (space-separated).",
+                    "options": [],
+                    "explanation": "L1 and L2 run first. For outer col=0, L3 and L4 run, then inner row=0 and row=1 each run L5 and L6, followed by L7. Outer col=1 repeats the same flow. The sequence is 1 2 3 4 5 6 5 6 7 3 4 5 6 5 6 7.",
+                },
+            },
+        },
+        # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(擴充邊界) = 1400
+        {
+            "id": "array-q29",
+            "type": "single-choice",
+            "baseRating": 1400,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "某動態陣列目前 size=3、capacity=4，擴充規則為「滿載時 capacity 加倍，並複製所有既有元素」。依序 append A、B、C 後，哪項描述正確？",
+                    "options": [
+                        {"id": "A", "text": "三次 append 都會觸發擴充，因此總共複製 3 + 4 + 5 個元素"},
+                        {"id": "B", "text": "append A 後立刻擴充到 capacity=8，因為 size 變成 4"},
+                        {"id": "C", "text": "append B 前才會觸發擴充；最後 size=6、capacity=8，且擴充時複製 4 個既有元素"},
+                        {"id": "D", "text": "append C 會再次觸發擴充；最後 size=6、capacity=16"},
+                    ],
+                    "explanation": "初始還有 1 格空間，所以 append A 後 size=4、capacity=4，尚未搬移；append B 前已滿載，先擴充到 8 並複製 4 個元素，再放入 B；append C 不需再擴充，最後 size=6、capacity=8。",
+                },
+                "en": {
+                    "title": "A dynamic array currently has size=3 and capacity=4. Its rule is: when full, double capacity and copy all existing elements. After appending A, B, and C in order, which statement is correct?",
+                    "options": [
+                        {"id": "A", "text": "All three appends trigger resizing, so 3 + 4 + 5 elements are copied"},
+                        {"id": "B", "text": "Appending A immediately grows capacity to 8 because size becomes 4"},
+                        {"id": "C", "text": "Resizing happens right before appending B; final size=6 and capacity=8, with 4 existing elements copied during resizing"},
+                        {"id": "D", "text": "Appending C triggers another resize; final size=6 and capacity=16"},
+                    ],
+                    "explanation": "Initially there is one free slot, so appending A makes size=4 and capacity=4 without copying. Before appending B, the array is full, so it grows to 8 and copies 4 elements. Appending C needs no further resize, so final size=6 and capacity=8.",
+                },
+            },
+        },
+        # baseRating = 800 + 100(MC) + 400(L4 複雜控制流/邊界分析) + 100(Zero-indexed 位址新手誤區) = 1400
+        {
+            "id": "array-q30",
+            "type": "multiple-choice",
+            "baseRating": 1400,
+            "correctAnswer": ["opt1", "opt3"],
+            "translations": {
+                "zh-TW": {
+                    "title": "某整數陣列起始位址為 1000，每個元素佔 4 bytes。關於 arr[3] 的位址計算，哪些敘述正確？（多選）",
+                    "options": [
+                        {"id": "opt1", "text": "arr[3] 的位址是 1000 + 3 × 4 = 1012"},
+                        {"id": "opt2", "text": "arr[3] 是第四個元素，所以位址是 1000 + 4 × 4 = 1016"},
+                        {"id": "opt3", "text": "能這樣直接計算，是因為陣列元素連續儲存且大小固定"},
+                        {"id": "opt4", "text": "若元素不連續儲存，仍然可以只靠 index 與 element_size 直接算出位址"},
+                    ],
+                    "explanation": "陣列採零索引，因此 arr[3] 偏移量是 3 個元素大小。直接位址計算依賴連續儲存與固定元素大小。",
+                },
+                "en": {
+                    "title": "An integer array starts at address 1000, and each element uses 4 bytes. Which statements about the address of arr[3] are correct? (Multiple choice)",
+                    "options": [
+                        {"id": "opt1", "text": "The address of arr[3] is 1000 + 3 × 4 = 1012"},
+                        {"id": "opt2", "text": "arr[3] is the fourth element, so the address is 1000 + 4 × 4 = 1016"},
+                        {"id": "opt3", "text": "This direct calculation works because array elements are contiguous and fixed-size"},
+                        {"id": "opt4", "text": "Even if elements are not contiguous, index and element_size alone still determine the address"},
+                    ],
+                    "explanation": "Arrays are zero-indexed, so arr[3] has an offset of 3 element sizes. Direct address calculation depends on contiguous storage and fixed element size.",
                 },
             },
         },

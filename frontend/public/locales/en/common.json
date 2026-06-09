@@ -98,5 +98,19 @@
   "mascot": {
     "runningText": "Analyzing, please wait…",
     "errorText": "Execution failed, please fix and retry"
+  },
+  "practice": {
+    "visual": {
+      "groupImage": "Group image",
+      "hintImage": "Hint image"
+    }
+  },
+  "xp": {
+    "earned": "XP Earned",
+    "reason": {
+      "checkin": "Daily Check-in",
+      "tutorial": "Tutorial Complete",
+      "practice": "Practice Complete"
+    }
   }
 }

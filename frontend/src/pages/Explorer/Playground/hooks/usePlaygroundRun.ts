@@ -1,21 +1,44 @@
 import { useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { TraceEvent, CallGraph, CfgGraphMap, StdoutEvent } from "@/types/trace";
+import type {
+  TraceEvent,
+  CallGraph,
+  CfgGraphMap,
+  StdoutEvent,
+} from "@/types/trace";
 import type { AiResult, AlgoCandidate } from "@/types/ai";
 import type { RunStage } from "@/types/runStage";
 import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
-import { run as analyzeRun, AnalyzeError } from "@/services/AnalyzeService";
+import {
+  run as analyzeRun,
+  AnalyzeError,
+} from "@/services/AnalyzeService";
 import { listHistory } from "@/services/playgroundHistoryService";
 import { toast } from "@/shared/components/Toast";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 
 type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
+type InputPromptState = {
+  prompt: string;
+  inputIndex: number;
+  resolve: (value: string | null) => void;
+} | null;
+
+export class InputCancelledError extends Error {
+  constructor() {
+    super("input cancelled");
+    this.name = "InputCancelledError";
+  }
+}
+
 interface UsePlaygroundRunOptions {
   code: string;
   editorRef: React.RefObject<CodeEditorHandle | null>;
   onResetPlayback: () => void;
-  onQuotaFull: (records: PlaygroundHistoryRecord[]) => Promise<"proceed" | "skip">;
+  onQuotaFull: (
+    records: PlaygroundHistoryRecord[],
+  ) => Promise<"proceed" | "skip">;
 }
 
 export function handleDuplicateReplay(
@@ -28,6 +51,41 @@ export function handleDuplicateReplay(
   return window.setTimeout(() => {
     loadFromHistory(record);
   }, delayMs);
+}
+
+export function waitForInputPrompt(
+  prompt: string,
+  inputIndex: number,
+  setInputPrompt: (value: InputPromptState) => void,
+  signal: AbortSignal,
+): Promise<string | null> {
+  return new Promise<string | null>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+
+    let settled = false;
+    const cleanup = () => {
+      signal.removeEventListener("abort", onAbort);
+      setInputPrompt(null);
+    };
+    const settle = (value: string | null) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(value);
+    };
+    const onAbort = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+
+    signal.addEventListener("abort", onAbort, { once: true });
+    setInputPrompt({ prompt, inputIndex, resolve: settle });
+  });
 }
 
 export function usePlaygroundRun({
@@ -58,7 +116,12 @@ export function usePlaygroundRun({
   const abortRef = useRef<AbortController | null>(null);
   const duplicateTimerRef = useRef<number | null>(null);
 
+  // 互動式 input()：等待使用者輸入的彈窗狀態（null = 無彈窗）
+  // resolve 由 retry loop 注入，使用者送出或取消時呼叫
+  const [inputPrompt, setInputPrompt] = useState<InputPromptState>(null);
   const handleEditCode = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     onResetPlayback();
     setTrace([]);
     setRawTrace([]);
@@ -74,61 +137,104 @@ export function usePlaygroundRun({
     setRunStage("idle");
   }, [editorRef, onResetPlayback]);
 
-  const loadFromHistory = useCallback((record: PlaygroundHistoryRecord) => {
-    if (duplicateTimerRef.current !== null) {
-      clearTimeout(duplicateTimerRef.current);
-      duplicateTimerRef.current = null;
-    }
-    setTrace(record.execution_trace);
-    setRawTrace(record.raw_trace);
-    setRawIndexMap(record.raw_index_map);
-    const mappedCallGraph = record.call_graph
-      ? {
-          ...record.call_graph,
-          nodes: (record.call_graph.nodes as any[]).map((n) => ({
-            id: n.id,
-            funcName: n.func_name ?? n.funcName,
-            cfg: n.cfg ?? null,
-          })),
-          edges: ((record.call_graph.edges ?? []) as any[]).map((e) => ({
-            source: e.source,
-            target: e.target,
-            steps: e.steps ?? [],
-            returnSteps: e.return_steps ?? e.returnSteps ?? [],
-          })),
-          root: record.call_graph.root,
-        }
-      : null;
-    setCallGraph(mappedCallGraph);
-    setCfgGraph(record.cfg_graph);
-    setStdoutEvents(record.stdout_events);
-    setIsTruncated(record.is_truncated);
-    setAiResult({
-      detected_algorithm: record.detected_algorithm,
-      confidence_score: record.confidence_score,
-      level1_eligible: record.have_level1,
-      fallback_reason: null,
-      time_complexity: record.time_complexity,
-      analysis_source: record.analysis_source as AiResult["analysis_source"],
-      summary:
-        record.ai_summary || record.ai_feedback
-          ? { purpose: record.ai_summary ?? "", feedback: record.ai_feedback ?? "" }
-          : null,
-      suggestions: [],
-    });
-    setTop3Candidates(record.top3_candidates);
-    setAppliedAlgo(record.detected_algorithm);
-    setDrill({ mode: "call_graph" });
-    setLastRunOutcome("success");
-    setRunStage("done");
-    onResetPlayback();
-  }, [
-    setTrace, setRawTrace, setRawIndexMap, setCallGraph, setCfgGraph,
-    setStdoutEvents, setIsTruncated, setAiResult, setTop3Candidates,
-    setAppliedAlgo, setDrill, setRunStage, onResetPlayback,
-  ]);
+  const loadFromHistory = useCallback(
+    (record: PlaygroundHistoryRecord) => {
+      if (duplicateTimerRef.current !== null) {
+        clearTimeout(duplicateTimerRef.current);
+        duplicateTimerRef.current = null;
+      }
+      setTrace(record.execution_trace);
+      setRawTrace(record.raw_trace);
+      setRawIndexMap(record.raw_index_map);
+      const mappedCallGraph = record.call_graph
+        ? {
+            ...record.call_graph,
+            nodes: (record.call_graph.nodes as any[]).map((n) => ({
+              id: n.id,
+              funcName: n.func_name ?? n.funcName,
+              cfg: n.cfg ?? null,
+            })),
+            edges: ((record.call_graph.edges ?? []) as any[]).map((e) => ({
+              source: e.source,
+              target: e.target,
+              steps: e.steps ?? [],
+              returnSteps: e.return_steps ?? e.returnSteps ?? [],
+            })),
+            root: record.call_graph.root,
+          }
+        : null;
+      setCallGraph(mappedCallGraph);
+      setCfgGraph(record.cfg_graph);
+      setStdoutEvents(record.stdout_events);
+      setIsTruncated(record.is_truncated);
+      setAiResult({
+        detected_algorithm: record.detected_algorithm,
+        confidence_score: record.confidence_score,
+        level1_eligible: record.have_level1,
+        fallback_reason: null,
+        time_complexity: record.time_complexity,
+        analysis_source: record.analysis_source as AiResult["analysis_source"],
+        summary:
+          record.ai_summary || record.ai_feedback
+            ? {
+                purpose: record.ai_summary ?? "",
+                feedback: record.ai_feedback ?? "",
+              }
+            : null,
+        suggestions: [],
+      });
+      setTop3Candidates(record.top3_candidates);
+      setAppliedAlgo(record.detected_algorithm);
+      setDrill({ mode: "call_graph" });
+      setLastRunOutcome("success");
+      setRunStage("done");
+      onResetPlayback();
+    },
+    [
+      setTrace,
+      setRawTrace,
+      setRawIndexMap,
+      setCallGraph,
+      setCfgGraph,
+      setStdoutEvents,
+      setIsTruncated,
+      setAiResult,
+      setTop3Candidates,
+      setAppliedAlgo,
+      setDrill,
+      setRunStage,
+      onResetPlayback,
+    ],
+  );
 
-  const handleRun = useCallback(async () => {
+  const runWithInteractiveInput = useCallback(
+    async (controller: AbortController, options: { saveHistory: boolean; forceRun?: boolean }) => {
+      return analyzeRun(
+        code,
+        (stage) => setRunStage(stage),
+        controller.signal,
+        {
+          saveHistory: options.saveHistory,
+          isRetry: options.forceRun,
+          onInputNeeded: async (prompt, inputIndex) => {
+            const value = await waitForInputPrompt(
+              prompt,
+              inputIndex,
+              setInputPrompt,
+              controller.signal,
+            );
+            if (value === null) {
+              throw new InputCancelledError();
+            }
+            return value;
+          },
+        },
+      );
+    },
+    [code],
+  );
+
+  const handleRun = useCallback(async (forceRun = false) => {
     if (!code.trim()) {
       toast.error(t("run.emptyCode"));
       return;
@@ -136,15 +242,17 @@ export function usePlaygroundRun({
 
     let saveHistory = true;
 
-    // Quota gate
-    try {
-      const records = await listHistory();
-      if (records.length >= 5) {
-        const decision = await onQuotaFull(records);
-        saveHistory = decision === "proceed";
+    // Quota gate for fresh runs. Force runs skip it server-side; _save_history still guards capacity.
+    if (!forceRun) {
+      try {
+        const records = await listHistory();
+        if (records.length >= 5) {
+          const decision = await onQuotaFull(records);
+          saveHistory = decision === "proceed";
+        }
+      } catch {
+        // If quota check fails, continue with run anyway
       }
-    } catch {
-      // If quota check fails, continue with run anyway
     }
 
     if (duplicateTimerRef.current !== null) {
@@ -172,12 +280,7 @@ export function usePlaygroundRun({
     setAppliedAlgo(null);
 
     try {
-      const result = await analyzeRun(
-        code,
-        (stage) => setRunStage(stage),
-        controller.signal,
-        { saveHistory },
-      );
+      const result = await runWithInteractiveInput(controller, { saveHistory, forceRun });
       setTrace(result.trace);
       setRawTrace(result.rawTrace);
       setRawIndexMap(result.rawIndexMap);
@@ -192,6 +295,11 @@ export function usePlaygroundRun({
       setRunStage("done");
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
+      if (e instanceof InputCancelledError) {
+        setRunStage("idle");
+        toast.info(t("run.inputCancelled"));
+        return;
+      }
       setLastRunOutcome("error");
       setRunStage("idle");
       if (e instanceof AnalyzeError) {
@@ -212,7 +320,9 @@ export function usePlaygroundRun({
             break;
           case "syntax_error":
             if (e.lineno != null) {
-              toast.error(t("run.syntaxError", { line: e.lineno, msg: e.message }));
+              toast.error(
+                t("run.syntaxError", { line: e.lineno, msg: e.message }),
+              );
               editorRef.current?.setErrorMarker(e.lineno, e.message);
             } else {
               toast.error(t("run.syntaxErrorNoLine", { msg: e.message }));
@@ -237,7 +347,15 @@ export function usePlaygroundRun({
         toast.error(t("run.analysisFailed"));
       }
     }
-  }, [code, editorRef, loadFromHistory, onResetPlayback, onQuotaFull, t]);
+  }, [
+    code,
+    editorRef,
+    loadFromHistory,
+    onResetPlayback,
+    onQuotaFull,
+    runWithInteractiveInput,
+    t,
+  ]);
 
   const resetLastRunOutcome = useCallback(() => setLastRunOutcome("none"), []);
 
@@ -261,8 +379,10 @@ export function usePlaygroundRun({
     setIsAlgoDialogOpen,
     handleRun,
     handleEditCode,
+    handleForceRun: () => handleRun(true),
     loadFromHistory,
     resetLastRunOutcome,
+    inputPrompt,
   };
 }
 

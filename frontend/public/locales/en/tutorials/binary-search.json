@@ -1,0 +1,69 @@
+{
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "Binary search is an **algorithm** for finding a target in a [[primary|sorted]] array. Like playing a guessing game, it repeatedly halves the **search range** to eliminate half the possibilities.",
+        "items": [
+          "Requires a [[primary|sorted]] structure, since the ordering relationship determines whether to continue searching the left or right **boundary**",
+          "Calculates the **midpoint** and compares it to the target, then updates the **left boundary** or **right boundary** to eliminate half the [[primary|search space]]",
+          "Returns the **index** on a hit; if the **left boundary** exceeds the **right boundary**, the range is empty and the target [[primary|does not exist]]"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Binary search eliminates candidates by halving the interval each step, making it highly efficient. However, complexity varies between implementations and array insertion operations.",
+        "items": [
+          "**Best-case search**: Target lands exactly at the midpoint for an instant hit, time complexity [[success|O(1)]]",
+          "**General search**: Halves the search space each round until exhausted, time complexity [[success|O(log n)]]",
+          "**Element insertion**: Locating the insertion point is fast, but shifting data in an array costs [[warning|O(n)]]",
+          "**Space usage**: Iterative approach is [[success|O(1)]]; recursive approach uses [[warning|O(log n)]] call stack space"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "Binary search excels at quickly locating targets in **sorted** arrays, but is poorly suited for frequently changing data. When heavy insertion and deletion are needed, consider switching to an alternative structure.",
+        "items": [
+          "**Static lookups**: Best for simple, infrequently changing **sorted** arrays where it delivers peak search performance",
+          "**Hidden monotonicity**: Not limited to numeric values — any problem with **monotonicity** (once a condition holds, it keeps holding) can apply this technique",
+          "**Frequent modifications**: Inserting into an array requires shifting elements to preserve order, making it unsuitable for high-churn scenarios",
+          "**Alternative structures**: When only exact-value access is needed with no range queries, a **dictionary** offers better lookup performance"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Suitable Problem Types",
+        "content": "Any problem with monotonicity — e.g., if a capacity works, a larger one must too — can use binary search to eliminate half the candidates and converge quickly to the optimal answer.",
+        "items": [
+          "**Finding boundary positions**: Locate the first or last occurrence of a target in a sorted array with duplicates",
+          "**Minimizing the maximum**: e.g., shipping packages — find the minimum capacity that satisfies a day limit by searching on the answer space",
+          "**K-th smallest value**: e.g., multiplication table — search directly over the value range without fully expanding the array"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Boundary and Loop Setup",
+        "content": "Beginners often mix up **termination conditions** and **boundary updates**. A single misplaced equals sign or off-by-one can cause incorrect results or an [[danger|infinite loop]], which is why this warrants its own section.",
+        "items": [
+          "**Termination condition**: Uncertainty over whether to use `<` or `<=` in the loop can break search logic",
+          "**Boundary update**: Confusing `mid` with `mid+1` or `mid-1` can cause the range to fail to shrink",
+          "[[danger|Infinite loop]]: Any mismatch in the above conditions can trap the loop when only a few elements remain",
+          "**Avoidance technique**: To sidestep boundary mistakes, some implementations exit early when the range is small and fall back to **linear search**"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "Midpoint Calculation Pitfall",
+        "content": "Writing `(L+R)/2` seems intuitive, but in languages with **fixed integer sizes** it can trigger an [[danger|integer overflow]] error. Using `L+(R-L)/2` instead is a commonly overlooked yet critically important concept.",
+        "items": [
+          "**Risk of the naive formula**: When values are very large, `(L+R)` may exceed the variable's storage limit, causing [[danger|integer overflow]] and incorrect results",
+          "**Safe alternative**: Use `L+(R-L)/2` — compute half the interval length first, then add the left boundary, ensuring the intermediate value never exceeds the right boundary",
+          "**Language differences**: Python's arbitrary-precision integers are unaffected, but this is essential knowledge for C++ or Java"
+        ],
+        "icon": "shield-halved"
+      }
+    ]
+  }
+}

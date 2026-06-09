@@ -338,6 +338,20 @@ End Procedure`,
             max_len = right - left + 1
 
     return max_len`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n)' },                                  // def sliding_window_longest(arr, target_sum):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // left = 0
+      { lineNumber: 3,  complexity: 'O(1)' },                                  // current_sum = 0
+      { lineNumber: 4,  complexity: 'O(1)' },                                  // max_len = 0
+      { lineNumber: 6,  complexity: 'O(n)' },                                  // for right in range(len(arr)):
+      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },                 // current_sum += arr[right]
+      { lineNumber: 9,  complexity: 'O(n)' },                                  // while current_sum > target_sum and... (amortized O(n))
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n)' },                 // current_sum -= arr[left]
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // left += 1
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // if right - left + 1 > max_len:
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },                 // max_len = right - left + 1
+      { lineNumber: 16, complexity: 'O(1)' },                                  // return max_len
+    ],
   },
 };
 
@@ -391,6 +405,20 @@ End Procedure`,
             left += 1
 
     return min_len if min_len != float('inf') else -1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n)' },                                  // def sliding_window_shortest(arr, target_sum):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // left = 0
+      { lineNumber: 3,  complexity: 'O(1)' },                                  // current_sum = 0
+      { lineNumber: 4,  complexity: 'O(1)' },                                  // min_len = float('inf')
+      { lineNumber: 6,  complexity: 'O(n)' },                                  // for right in range(len(arr)):
+      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },                 // current_sum += arr[right]
+      { lineNumber: 9,  complexity: 'O(n)' },                                  // while current_sum >= target_sum and... (amortized O(n))
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n)' },                 // if right - left + 1 < min_len:
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // min_len = right - left + 1
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // current_sum -= arr[left]
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // left += 1
+      { lineNumber: 15, complexity: 'O(1)' },                                  // return min_len if min_len != float('inf') else -1
+    ],
   },
 };
 

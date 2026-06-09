@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import Dialog from "@/shared/components/Dialog";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
@@ -82,7 +82,7 @@ export function PlaygroundHistoryDialog({
         title={
           <div className={styles.quotaTitle}>
             <Icon name="triangle-exclamation" />
-            History Full
+            {t("historyDialog.quotaTitle")}
           </div>
         }
         footer={
@@ -94,22 +94,21 @@ export function PlaygroundHistoryDialog({
                 onClose();
               }}
             >
-              Don't Save This Run
+              {t("historyDialog.dontSave")}
             </Button>
             <Button
               variant="danger"
               disabled={removeTargetId === null || isDeleting}
               onClick={() => removeTargetId !== null && handleDelete(removeTargetId)}
             >
-              Remove Selected &amp; Save
+              {t("historyDialog.removeAndSave")}
             </Button>
           </div>
         }
       >
         <div className={styles.quotaBody}>
           <p className={styles.quotaDesc}>
-            You've reached the <strong>5-record limit</strong>. Remove one existing record to save
-            this run, or continue without saving.
+            <Trans i18nKey="historyDialog.quotaDesc" ns="playground" components={{ strong: <strong /> }} />
           </p>
           <div className={styles.quotaList}>
             {displayRecords.map((r) => (
@@ -151,7 +150,7 @@ export function PlaygroundHistoryDialog({
       title={
         <div className={styles.dialogTitle}>
           <Icon name="clock-rotate-left" />
-          Execution History
+          {t("historyDialog.title")}
           <span className={styles.quotaHint}>{records.length} / 5</span>
         </div>
       }
@@ -179,7 +178,7 @@ export function PlaygroundHistoryDialog({
                     {r.detected_algorithm.replace(/_/g, " ")}
                   </span>
                 ) : (
-                  <span className={`${styles.algoBadge} ${styles.algoBadgeNone}`}>Unknown</span>
+                  <span className={`${styles.algoBadge} ${styles.algoBadgeNone}`}>{t("historyDialog.unknown")}</span>
                 )}
                 <div className={styles.historyItemActions}>
                   {r.time_complexity && (
@@ -190,7 +189,7 @@ export function PlaygroundHistoryDialog({
                     iconOnly
                     icon="trash"
                     className={styles.deleteBtn}
-                    title="Delete"
+                    title={t("historyDialog.delete")}
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       handleDelete(r.id);
@@ -227,9 +226,9 @@ export function PlaygroundHistoryDialog({
               <div className={styles.previewFooter}>
                 <span className={styles.previewDate}>{formatDate(selectedRecord.created_at)}</span>
                 <div className={styles.previewActions}>
-                  <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                  <Button variant="ghost" onClick={onClose}>{t("historyDialog.cancel")}</Button>
                   <Button variant="primary" onClick={handleReplay}>
-                    {selectedRecord.execution_trace?.length ? "Replay" : "Load into Editor"}
+                    {selectedRecord.execution_trace?.length ? t("historyDialog.replay") : t("historyDialog.loadIntoEditor")}
                   </Button>
                 </div>
               </div>

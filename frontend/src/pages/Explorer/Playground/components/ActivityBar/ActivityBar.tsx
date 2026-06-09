@@ -17,6 +17,7 @@ interface SortableIconProps {
 }
 
 export function SortableIcon({ panelId, isActive, onClick, tourAttr }: SortableIconProps) {
+  const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[panelId];
   const {
     attributes,
@@ -44,7 +45,7 @@ export function SortableIcon({ panelId, isActive, onClick, tourAttr }: SortableI
       }}
       className={`${styles.icon} ${isActive ? styles.iconActive : ""} ${isDragging ? styles.iconDragging : ""}`}
       onClick={onClick}
-      title={config.label}
+      title={t(`panel.${panelId}`)}
       icon={config.icon}
       {...(tourAttr ? { "data-tour": tourAttr } : {})}
     />
@@ -80,7 +81,7 @@ export function DraggableDockedIcon({
       className={`${styles.icon} ${!isCollapsed ? styles.iconActive : ""} ${isDragging ? styles.iconDragging : ""}`}
       style={{ ["--panel-accent" as string]: `var(${config.accentVar})` }}
       onClick={onToggleCollapse}
-      title={`${config.label} ${t('activityBar.dockedHint')}`}
+      title={`${t(`panel.${panelId}`)} ${t("activityBar.dockedHint")}`}
       icon={config.icon}
     />
   );
@@ -134,8 +135,8 @@ export function LeftActivityBar({
         variant="unstyled"
         className={`${styles.icon} ${styles.iconFixed} ${isEditorOpen ? styles.iconFixedActive : ""}`}
         onClick={onToggleEditor}
-        title={t('activityBar.codeEditor')}
-        aria-label={t('activityBar.codeEditor')}
+        title={t("activityBar.codeEditor")}
+        aria-label={t("activityBar.codeEditor")}
         iconOnly
         icon="code"
       />

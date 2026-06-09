@@ -1,5 +1,6 @@
 // frontend/src/pages/Explorer/components/DockablePanel/DockablePanel.tsx
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./DockablePanel.module.scss";
 
 export type PanelId = "globalVars" | "localVars" | "callStack" | "console";
@@ -14,25 +15,25 @@ export interface PanelConfig {
 export const PANEL_CONFIGS: Record<PanelId, PanelConfig> = {
   globalVars: {
     id: "globalVars",
-    label: "Global Vars",
+    label: "panel.globalVars",
     icon: "database",
     accentVar: "--color-primary",
   },
   localVars: {
     id: "localVars",
-    label: "Local Vars",
+    label: "panel.localVars",
     icon: "location-crosshairs",
     accentVar: "--color-accent",
   },
   callStack: {
     id: "callStack",
-    label: "Call Stack",
+    label: "panel.callStack",
     icon: "layer-group",
     accentVar: "--color-pink",
   },
   console: {
     id: "console",
-    label: "Console",
+    label: "panel.console",
     icon: "terminal",
     accentVar: "--color-teal",
   },
@@ -46,6 +47,7 @@ interface DockablePanelProps {
 }
 
 export function DockablePanel({ id, subLabel, children }: DockablePanelProps) {
+  const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[id];
   return (
     <div
@@ -54,7 +56,7 @@ export function DockablePanel({ id, subLabel, children }: DockablePanelProps) {
     >
       <div className={styles.header}>
         <span className={styles.title}>
-          <span className={styles.titleText}>{config.label}</span>
+          <span className={styles.titleText}>{t(config.label)}</span>
           {subLabel && <span className={styles.subLabel}>{subLabel}</span>}
         </span>
       </div>

@@ -101,6 +101,7 @@ DATA = {
         {
             "id": "queue-tf-1",
             "type": "true-false",
+            # baseRating = 800 + 0(TF) + 50(L1 定義辨識) + 0(直觀) = 850
             "baseRating": 850,
             "correctAnswer": "false",
             "translations": {
@@ -119,6 +120,7 @@ DATA = {
         {
             "id": "queue-q1",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 FIFO 定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "A",
             "translations": {
@@ -147,6 +149,7 @@ DATA = {
         {
             "id": "queue-q2",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 操作定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -175,6 +178,7 @@ DATA = {
         {
             "id": "queue-q3",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 操作定義) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "B",
             "translations": {
@@ -203,6 +207,7 @@ DATA = {
         {
             "id": "queue-q4",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 名詞辨識) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "C",
             "translations": {
@@ -232,6 +237,7 @@ DATA = {
         {
             "id": "queue-q5",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
             "correctAnswer": "C",
             "translations": {
@@ -243,7 +249,7 @@ DATA = {
                         {"id": "C", "text": "3"},
                         {"id": "D", "text": "空的"},
                     ],
-                    "explanation": "逐步追蹤：\n1. enqueue(1) → Queue: [1]\n2. enqueue(2) → Queue: [1, 2]\n3. dequeue() → 移除 1，Queue: [2]\n4. enqueue(3) → Queue: [2, 3]\n5. dequeue() → 移除 2，Queue: [3]\n最後剩下元素 3。",
+                    "explanation": "Queue 遵循 FIFO：最早進入的元素會最早被移除。解這類題目時，可用紙筆記錄每次 enqueue 從後端加入、每次 dequeue 從前端移除，最後保留尚未被移除的元素。",
                 },
                 "en": {
                     "title": "On an empty Queue, execute: enqueue(1), enqueue(2), dequeue(), enqueue(3), dequeue(). What element remains?",
@@ -253,13 +259,14 @@ DATA = {
                         {"id": "C", "text": "3"},
                         {"id": "D", "text": "Empty"},
                     ],
-                    "explanation": "Step-by-step:\n1. enqueue(1) → [1]\n2. enqueue(2) → [1, 2]\n3. dequeue() → remove 1, [2]\n4. enqueue(3) → [2, 3]\n5. dequeue() → remove 2, [3]\nFinal remaining element: 3.",
+                    "explanation": "A Queue follows FIFO: the earliest inserted element is removed first. For this kind of question, track each enqueue at the rear and each dequeue at the front, then keep the element that has not been removed.",
                 },
             },
         },
         {
             "id": "queue-q6",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 應用辨識) + 50(相似場景干擾) = 950
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -268,54 +275,56 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "括號匹配"},
                         {"id": "B", "text": "廣度優先搜尋 (BFS)"},
-                        {"id": "C", "text": "函數調用管理"},
-                        {"id": "D", "text": "後序表達式求值"},
+                        {"id": "C", "text": "記錄 undo / redo 歷史"},
+                        {"id": "D", "text": "依權重挑選最急任務"},
                     ],
-                    "explanation": "Queue 的 FIFO 特性非常適合用於廣度優先搜尋 (BFS)。在 BFS 中，我們需要按照發現節點的順序來處理它們，先發現的節點先處理，這正是 Queue 的特性。",
+                    "explanation": "Queue 的 FIFO 特性非常適合 BFS：先被發現的節點會先被處理。undo / redo 通常使用 Stack，依權重挑選任務則較接近 Priority Queue。",
                 },
                 "en": {
                     "title": "Which problem is a Queue most commonly used to solve?",
                     "options": [
                         {"id": "A", "text": "Bracket matching"},
                         {"id": "B", "text": "Breadth-First Search (BFS)"},
-                        {"id": "C", "text": "Function call management"},
-                        {"id": "D", "text": "Postfix expression evaluation"},
+                        {"id": "C", "text": "Tracking undo / redo history"},
+                        {"id": "D", "text": "Selecting the most urgent weighted task"},
                     ],
-                    "explanation": "The FIFO property of a Queue is ideal for BFS — nodes discovered first are processed first, which is exactly what BFS requires.",
+                    "explanation": "The FIFO property of a Queue is ideal for BFS: nodes discovered first are processed first. undo / redo is usually Stack-based, while choosing by weight is closer to a Priority Queue.",
                 },
             },
         },
         {
             "id": "queue-q7",
             "type": "single-choice",
-            "baseRating": 900,
+            # baseRating = 800 + 50(SC) + 50(L1 應用辨識) + 50(相似排程結構干擾) = 950
+            "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
                     "title": "作業系統中，CPU 處理多個程式時通常使用什麼資料結構來管理任務排程？",
                     "options": [
-                        {"id": "A", "text": "Stack (堆疊)"},
+                        {"id": "A", "text": "Priority Queue (優先佇列)"},
                         {"id": "B", "text": "Queue (佇列)"},
                         {"id": "C", "text": "Linked List (鏈結串列)"},
                         {"id": "D", "text": "Binary Tree (二元樹)"},
                     ],
-                    "explanation": "CPU 排程通常使用 Queue 來管理待處理的程式。這確保了公平性：先提交的任務會先被處理，這就是 FIFO 調度的基本原則。",
+                    "explanation": "在強調先來先服務的基本排程模型中，Queue 可管理待處理程式並維持 FIFO 公平性。若排程規則加入優先權，才會改用 Priority Queue 等變體。",
                 },
                 "en": {
                     "title": "In an operating system, what data structure is typically used to manage CPU task scheduling?",
                     "options": [
-                        {"id": "A", "text": "Stack"},
+                        {"id": "A", "text": "Priority Queue"},
                         {"id": "B", "text": "Queue"},
                         {"id": "C", "text": "Linked List"},
                         {"id": "D", "text": "Binary Tree"},
                     ],
-                    "explanation": "CPU scheduling typically uses a Queue to manage pending tasks, ensuring fairness: tasks submitted first are processed first — the basic FIFO scheduling principle.",
+                    "explanation": "In a basic first-come-first-served scheduling model, a Queue manages pending tasks and preserves FIFO fairness. If the scheduler includes priority rules, a Priority Queue variant may be used instead.",
                 },
             },
         },
         {
             "id": "queue-q8",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 50(L1 應用辨識) + 50(相似結構干擾) = 950
             "baseRating": 950,
             "correctAnswer": "B",
             "translations": {
@@ -344,28 +353,29 @@ DATA = {
         {
             "id": "queue-multi-1",
             "type": "multiple-choice",
+            # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區) = 1100
             "baseRating": 1100,
-            "correctAnswer": ["opt1", "opt3"],
+            "correctAnswer": ["opt1", "opt2", "opt3"],
             "translations": {
                 "zh-TW": {
                     "title": "以下哪些場景適合使用 Queue (佇列)？(多選)",
                     "options": [
                         {"id": "opt1", "text": "印表機的列印任務排程"},
-                        {"id": "opt2", "text": "瀏覽器的上一頁功能"},
+                        {"id": "opt2", "text": "線程池的先來先服務任務分配"},
                         {"id": "opt3", "text": "廣度優先搜尋 (BFS)"},
                         {"id": "opt4", "text": "遞迴函數的呼叫管理"},
                     ],
-                    "explanation": "印表機排程和 BFS 都需要「先來先服務」的特性，因此使用 Queue。瀏覽器上一頁和遞迴呼叫則使用 Stack。",
+                    "explanation": "印表機排程、BFS、線程池先來先服務任務分配都符合 FIFO。遞迴函數呼叫管理則是典型 Stack 場景。",
                 },
                 "en": {
                     "title": "Which of the following scenarios are well-suited for a Queue? (Multiple choice)",
                     "options": [
                         {"id": "opt1", "text": "Printer job scheduling"},
-                        {"id": "opt2", "text": "Browser back navigation"},
+                        {"id": "opt2", "text": "First-come-first-served task dispatch in a thread pool"},
                         {"id": "opt3", "text": "Breadth-First Search (BFS)"},
                         {"id": "opt4", "text": "Recursive function call management"},
                     ],
-                    "explanation": "Printer scheduling and BFS both require 'first-come, first-served' behavior — use a Queue. Browser back and recursive calls use a Stack.",
+                    "explanation": "Printer scheduling, BFS, and first-come-first-served thread-pool dispatch all fit FIFO behavior. Recursive function call management is a typical Stack use case.",
                 },
             },
         },
@@ -373,7 +383,8 @@ DATA = {
         {
             "id": "queue-q9",
             "type": "single-choice",
-            "baseRating": 900,
+            # baseRating = 800 + 50(SC) + 0(L0 常見操作複雜度) + 0(直觀) = 850
+            "baseRating": 850,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
@@ -401,7 +412,8 @@ DATA = {
         {
             "id": "queue-q10",
             "type": "single-choice",
-            "baseRating": 900,
+            # baseRating = 800 + 50(SC) + 50(L1 複雜度定義) + 50(相似複雜度干擾) = 950
+            "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -412,7 +424,7 @@ DATA = {
                         {"id": "C", "text": "O(n)"},
                         {"id": "D", "text": "O(n log n)"},
                     ],
-                    "explanation": "在 Queue 中搜尋元素需要從前端開始逐個檢查，最壞情況下要檢查所有 n 個元素，時間複雜度為 O(n)。",
+                    "explanation": "Queue 只保證前後端操作快，沒有排序或索引搜尋能力。因此找特定元素時，最壞情況必須逐個檢查，不能套用 O(log n) 的二分搜尋直覺。",
                 },
                 "en": {
                     "title": "What is the worst-case time complexity of searching for a specific element in a Queue?",
@@ -422,7 +434,7 @@ DATA = {
                         {"id": "C", "text": "O(n)"},
                         {"id": "D", "text": "O(n log n)"},
                     ],
-                    "explanation": "Searching a Queue requires checking elements from the front one by one. In the worst case all n elements must be checked — O(n).",
+                    "explanation": "A Queue only makes front and rear operations fast; it does not provide sorted or indexed search. Finding a specific element may require checking items one by one, so the O(log n) binary-search intuition does not apply.",
                 },
             },
         },
@@ -431,6 +443,7 @@ DATA = {
             "id": "q-group-1",
             "groupId": "group-print-buffer",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 150(容量邊界) = 1250
             "baseRating": 1250,
             "correctAnswer": "B",
             "translations": {
@@ -460,6 +473,7 @@ DATA = {
             "id": "q-group-2",
             "groupId": "group-print-buffer",
             "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 50(相似文件干擾) = 1000
             "baseRating": 1000,
             "correctAnswer": "A",
             "translations": {
@@ -489,6 +503,7 @@ DATA = {
             "id": "q-group-3",
             "groupId": "group-print-buffer",
             "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 50(L1 複雜度與工具辨識) + 0(直觀) = 1000
             "baseRating": 1000,
             "correctAnswer": ["n", "deque"],
             "translations": {
@@ -507,6 +522,7 @@ DATA = {
         {
             "id": "queue-code-fill-1",
             "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 400(L4 指標與邊界分析) + 150(環狀邊界) = 1500
             "baseRating": 1500,
             "code": CIRCULAR_QUEUE_FILL_CODE,
             "language": "python",
@@ -527,6 +543,7 @@ DATA = {
         {
             "id": "queue-code-1",
             "type": "predict-line",
+            # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(環狀邊界) = 1350
             "baseRating": 1350,
             "code": CIRCULAR_QUEUE_CODE,
             "language": "python",
@@ -535,12 +552,357 @@ DATA = {
                 "zh-TW": {
                     "title": "請閱讀下方的 Circular Queue 實作程式碼。假設目前 Queue 內資料為 [1, 2, 3] (Capacity=5)，且 front=0, rear=3, size=3。\n\n若執行一次 `dequeue()` 操作，請依序填寫程式執行的行號序列 (以空格分隔)。",
                     "options": [],
-                    "explanation": "執行流程如下：\n1. 呼叫 dequeue (L17)\n2. 檢查 size 是否為 0 (L18)，目前 size=3，條件為 False\n3. 取出 value (L21)\n4. 更新 front 指標 (L22)\n5. 更新 size (L23)\n6. 回傳 value (L24)",
+                    "explanation": "dequeue 的邏輯是先檢查佇列是否為空；若不是空，才讀取 front 位置的值，接著讓 front 以環狀方式前進並更新元素數量，最後回傳取出的值。填行號時請對照這些邏輯階段。",
                 },
                 "en": {
                     "title": "Read the Circular Queue implementation below. Assume the queue contains [1, 2, 3] (Capacity=5) with front=0, rear=3, size=3.\n\nAfter calling `dequeue()`, write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "Execution flow:\n1. Call dequeue (L17)\n2. Check if size == 0 (L18) — size=3, condition is False\n3. Retrieve value (L21)\n4. Update front pointer (L22)\n5. Update size (L23)\n6. Return value (L24)",
+                    "explanation": "The dequeue logic first checks whether the queue is empty. If it is not empty, it reads the value at front, advances front circularly, updates the element count, and returns the removed value. Map these logical phases back to the code lines.",
+                },
+            },
+        },
+        {
+            "id": "queue-q18",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 50(相似狀態干擾) = 1000
+            "baseRating": 1000,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "線性陣列佇列中，若 rear 已到陣列最後，但 front 前方已有空格，這種「空間還在卻不能加入」的問題稱為什麼？",
+                    "options": [
+                        {"id": "A", "text": "Queue Underflow"},
+                        {"id": "B", "text": "Priority Inversion"},
+                        {"id": "C", "text": "假性滿溢"},
+                        {"id": "D", "text": "遞迴溢位"},
+                    ],
+                    "explanation": "線性佇列只讓 rear 往後走，前端被 dequeue 後留下的空格無法再利用，就會出現假性滿溢。改用環狀佇列可讓 rear 繞回前方空位。",
+                },
+                "en": {
+                    "title": "In a linear array queue, rear has reached the last index but there are free slots before front. What is this 'space exists but enqueue fails' problem called?",
+                    "options": [
+                        {"id": "A", "text": "Queue underflow"},
+                        {"id": "B", "text": "Priority inversion"},
+                        {"id": "C", "text": "False overflow"},
+                        {"id": "D", "text": "Recursion overflow"},
+                    ],
+                    "explanation": "A linear queue only moves rear forward, so freed slots before front cannot be reused. This is false overflow. A circular queue lets rear wrap around to those slots.",
+                },
+            },
+        },
+        {
+            "id": "queue-q19",
+            "type": "true-false",
+            # baseRating = 800 + 0(TF) + 100(L2 狀態比較) + 150(環狀邊界) = 1050
+            "baseRating": 1050,
+            "correctAnswer": "true",
+            "translations": {
+                "zh-TW": {
+                    "title": "若環狀佇列額外維護 size，就能用 size == 0 判斷空、size == capacity 判斷滿，不必只靠 front == rear。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "正確。front == rear 在某些設計中可能同時代表空或滿；維護 size 可以明確區分兩種狀態。",
+                },
+                "en": {
+                    "title": "If a circular queue also maintains size, it can use size == 0 for empty and size == capacity for full instead of relying only on front == rear.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "True. In some designs, front == rear can mean either empty or full. Keeping size distinguishes the two states clearly.",
+                },
+            },
+        },
+        {
+            "id": "queue-q20",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 100(L2 場景比較) + 150(容量邊界) = 1100
+            "baseRating": 1100,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "在非同步資料緩衝中，生產者速度短時間大於消費者速度時，固定容量 Queue 最需要先處理哪個狀態？",
+                    "options": [
+                        {"id": "A", "text": "佇列搜尋失敗"},
+                        {"id": "B", "text": "緩衝區滿溢或背壓處理"},
+                        {"id": "C", "text": "遞迴深度過深"},
+                        {"id": "D", "text": "二元樹失衡"},
+                    ],
+                    "explanation": "固定容量佇列在生產速度超過消費速度時會逐漸填滿，因此要先設計滿溢處理，例如拒收、等待、丟棄或背壓。",
+                },
+                "en": {
+                    "title": "In an asynchronous data buffer, if the producer is temporarily faster than the consumer, what state must a fixed-capacity Queue handle first?",
+                    "options": [
+                        {"id": "A", "text": "Queue search failure"},
+                        {"id": "B", "text": "Buffer overflow or backpressure"},
+                        {"id": "C", "text": "Excessive recursion depth"},
+                        {"id": "D", "text": "Binary tree imbalance"},
+                    ],
+                    "explanation": "A fixed-capacity queue fills up when producers outpace consumers, so it needs an overflow strategy such as rejecting, waiting, dropping, or applying backpressure.",
+                },
+            },
+        },
+        {
+            "id": "queue-q21",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
+            "baseRating": 1200,
+            "correctAnswer": "D",
+            "translations": {
+                "zh-TW": {
+                    "title": "容量為 4 的環狀佇列從空開始，依序 enqueue('A'), enqueue('B'), enqueue('C'), dequeue(), enqueue('D')。若使用 size 記錄元素數量，最後 front、rear、size 分別為何？",
+                    "options": [
+                        {"id": "A", "text": "front=0, rear=3, size=3"},
+                        {"id": "B", "text": "front=1, rear=3, size=2"},
+                        {"id": "C", "text": "front=0, rear=0, size=3"},
+                        {"id": "D", "text": "front=1, rear=0, size=3"},
+                    ],
+                    "explanation": "環狀佇列的 rear 代表下一次寫入的位置，enqueue 後會以 modulo capacity 前進；dequeue 則移動 front 並減少 size。請分別追蹤 front、rear、size，特別注意 rear 可能繞回 0。",
+                },
+                "en": {
+                    "title": "A circular queue with capacity 4 starts empty. Execute enqueue('A'), enqueue('B'), enqueue('C'), dequeue(), enqueue('D'). If size tracks the element count, what are front, rear, and size at the end?",
+                    "options": [
+                        {"id": "A", "text": "front=0, rear=3, size=3"},
+                        {"id": "B", "text": "front=1, rear=3, size=2"},
+                        {"id": "C", "text": "front=0, rear=0, size=3"},
+                        {"id": "D", "text": "front=1, rear=0, size=3"},
+                    ],
+                    "explanation": "In a circular queue, rear points to the next write position and advances modulo capacity after enqueue. dequeue advances front and decreases size. Track front, rear, and size separately, especially when rear wraps to 0.",
+                },
+            },
+        },
+        {
+            "id": "queue-q22",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 邊界分析) + 150(環狀邊界) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "使用「浪費一格」的環狀佇列判斷滿：`(rear + 1) % capacity == front`。若 capacity=5、front=2、rear=1，狀態為何？",
+                    "options": [
+                        {"id": "A", "text": "空，因為 rear 在 front 前面"},
+                        {"id": "B", "text": "滿，因為 (1 + 1) % 5 == 2"},
+                        {"id": "C", "text": "只剩一個元素"},
+                        {"id": "D", "text": "無法判斷，必須排序陣列"},
+                    ],
+                    "explanation": "在浪費一格的設計中，rear 的下一格若正好是 front，就代表再 enqueue 會覆蓋 front，因此視為 full。",
+                },
+                "en": {
+                    "title": "A circular queue uses the one-empty-slot full check: `(rear + 1) % capacity == front`. If capacity=5, front=2, rear=1, what is the state?",
+                    "options": [
+                        {"id": "A", "text": "Empty, because rear is before front"},
+                        {"id": "B", "text": "Full, because (1 + 1) % 5 == 2"},
+                        {"id": "C", "text": "It contains only one element"},
+                        {"id": "D", "text": "Impossible to know unless the array is sorted"},
+                    ],
+                    "explanation": "With the one-empty-slot design, the queue is full when rear's next slot is front; another enqueue would overwrite the front element.",
+                },
+            },
+        },
+        {
+            "id": "queue-q23",
+            "type": "fill-code",
+            # baseRating = 800 + 150(FC) + 400(L4 指標與邊界分析) + 150(環狀邊界) = 1500
+            "baseRating": 1500,
+            "code": "class OneSlotCircularQueue:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.items = [None] * capacity\n        self.front = 0\n        self.rear = 0\n\n    def is_full(self):\n        return (a)\n\n    def is_empty(self):\n        return (b)\n\n    def enqueue(self, value):\n        if self.is_full():\n            raise Exception('Queue Overflow')\n        self.items[self.rear] = value\n        self.rear = (c)",
+            "language": "python",
+            "correctAnswer": [
+                "(self.rear + 1) % self.capacity == self.front",
+                "self.front == self.rear",
+                "(self.rear + 1) % self.capacity",
+            ],
+            "translations": {
+                "zh-TW": {
+                    "title": "以下是浪費一格的環狀佇列。請填入 (a), (b), (c)，讓滿、空與 rear 環狀前進邏輯正確。",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "(a) rear 下一格等於 front 表示滿；(b) front 與 rear 相等表示空；(c) rear 前進時必須對 capacity 取餘數，才能繞回陣列開頭。",
+                },
+                "en": {
+                    "title": "This is a one-empty-slot circular queue. Fill in (a), (b), and (c) so the full, empty, and rear-advance logic is correct.",
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
+                    "explanation": "(a) Full means rear's next slot is front. (b) Empty means front equals rear. (c) rear must advance modulo capacity so it can wrap around.",
+                },
+            },
+        },
+        {
+            "id": "queue-q24",
+            "type": "predict-line",
+            # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 250(複合陷阱) = 1450
+            "baseRating": 1450,
+            "code": CIRCULAR_QUEUE_CODE,
+            "language": "python",
+            "correctAnswer": "9 10 13 14 15",
+            "translations": {
+                "zh-TW": {
+                    "title": "閱讀 Circular Queue 程式碼。假設 capacity=5、front=2、rear=4、size=2，且 queue[2] 與 queue[3] 有資料。呼叫 `enqueue(9)` 時，請寫出執行行號序列。",
+                    "options": [],
+                    "explanation": "enqueue 的邏輯可分成三段：先檢查是否已滿，接著把新值寫入目前 rear 指向的位置，最後讓 rear 以環狀方式前進並更新元素數量。請依這些階段回到程式碼找行號。",
+                },
+                "en": {
+                    "title": "Read the Circular Queue code. Assume capacity=5, front=2, rear=4, size=2, and queue[2] and queue[3] contain data. When `enqueue(9)` is called, write the executed line sequence.",
+                    "options": [],
+                    "explanation": "enqueue has three logical phases: first check whether the queue is full, then write the value at the current rear position, and finally advance rear circularly while updating the element count. Map those phases back to the code lines.",
+                },
+            },
+        },
+        {
+            "id": "queue-q25",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 600(L5 系統級分析) + 0(直觀) = 1450
+            "baseRating": 1450,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "若任務有「緊急程度」差異，不能單純依先到先處理，最適合改用哪種資料結構？",
+                    "options": [
+                        {"id": "A", "text": "一般 Queue，因為 FIFO 永遠最公平"},
+                        {"id": "B", "text": "Stack，因為最新任務通常最急"},
+                        {"id": "C", "text": "Priority Queue，讓高優先權任務先處理"},
+                        {"id": "D", "text": "Set，因為它會自動排序任務"},
+                    ],
+                    "explanation": "一般 Queue 只保證先進先出，不會考慮權重或緊急程度。需要依優先權插隊時，應改用 Priority Queue。",
+                },
+                "en": {
+                    "title": "If tasks have different urgency levels and cannot simply be processed first-come-first-served, which data structure is the best replacement?",
+                    "options": [
+                        {"id": "A", "text": "A normal Queue, because FIFO is always fairest"},
+                        {"id": "B", "text": "A Stack, because newest tasks are usually urgent"},
+                        {"id": "C", "text": "A Priority Queue, so high-priority tasks are processed first"},
+                        {"id": "D", "text": "A Set, because it automatically sorts tasks"},
+                    ],
+                    "explanation": "A normal Queue only guarantees FIFO order and ignores weights or urgency. If tasks must jump ahead by priority, use a Priority Queue.",
+                },
+            },
+        },
+        {
+            "id": "queue-q26",
+            "type": "true-false",
+            # baseRating = 800 + 0(TF) + 400(L4 複雜控制流分析) + 250(複合陷阱) = 1450
+            "baseRating": 1450,
+            "correctAnswer": "false",
+            "translations": {
+                "zh-TW": {
+                    "title": "為了避免線性佇列的假性滿溢，每次 dequeue 後把所有元素往前搬一格，就能同時保留 O(1) dequeue 效能。",
+                    "options": [{"id": "true", "text": "正確"}, {"id": "false", "text": "錯誤"}],
+                    "explanation": "錯。搬移所有元素雖然可回收前方空間，但每次 dequeue 會變成 O(n)。環狀佇列用指標取餘數前進，才能避免搬移。",
+                },
+                "en": {
+                    "title": "To avoid false overflow in a linear queue, shifting all elements left after every dequeue preserves O(1) dequeue performance.",
+                    "options": [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}],
+                    "explanation": "False. Shifting reclaims front space, but each dequeue becomes O(n). A circular queue avoids shifting by advancing pointers modulo capacity.",
+                },
+            },
+        },
+        {
+            "id": "queue-q27",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 邊界分析) + 150(環狀邊界) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "B",
+            "translations": {
+                "zh-TW": {
+                    "title": "環狀佇列若沒有 size、沒有 tag，也不浪費一格，只用 `front == rear` 判斷狀態，最大的問題是什麼？",
+                    "options": [
+                        {"id": "A", "text": "enqueue 會變成 O(n)"},
+                        {"id": "B", "text": "無法分辨全空與全滿"},
+                        {"id": "C", "text": "rear 永遠不能繞回 0"},
+                        {"id": "D", "text": "dequeue 會刪除最後端元素"},
+                    ],
+                    "explanation": "在不額外記錄資訊的環狀佇列中，front == rear 可能代表沒有元素，也可能代表剛好繞回且已滿，因此必須引入 size、tag，或浪費一格。",
+                },
+                "en": {
+                    "title": "If a circular queue has no size, no tag, and does not reserve one empty slot, but uses only `front == rear` to decide its state, what is the main problem?",
+                    "options": [
+                        {"id": "A", "text": "enqueue becomes O(n)"},
+                        {"id": "B", "text": "It cannot distinguish empty from full"},
+                        {"id": "C", "text": "rear can never wrap back to 0"},
+                        {"id": "D", "text": "dequeue removes the rear element"},
+                    ],
+                    "explanation": "Without extra information, front == rear can mean either empty or full after wraparound. Use size, a tag flag, or reserve one empty slot.",
+                },
+            },
+        },
+        {
+            "id": "queue-q28",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 600(L5 系統級分析) + 0(直觀) = 1450
+            "baseRating": 1450,
+            "correctAnswer": "A",
+            "translations": {
+                "zh-TW": {
+                    "title": "若一個演算法需要在前端移除過期資料，也需要在後端加入新資料，偶爾還要從後端移除較差候選值，哪個結構比一般 Queue 更合適？",
+                    "options": [
+                        {"id": "A", "text": "Deque，因為前後兩端都能 O(1) 操作"},
+                        {"id": "B", "text": "一般 Queue，因為只能從 front 移除更安全"},
+                        {"id": "C", "text": "Stack，因為後端操作越多越適合 LIFO"},
+                        {"id": "D", "text": "Binary Search Tree，因為它一定保留插入順序"},
+                    ],
+                    "explanation": "滑動視窗或單調佇列常需要兩端操作。一般 Queue 只提供 rear 加入、front 移除；Deque 才能自然支援前後端 O(1) 存取。",
+                },
+                "en": {
+                    "title": "An algorithm must remove expired data from the front, append new data at the rear, and sometimes remove worse candidates from the rear. Which structure fits better than a normal Queue?",
+                    "options": [
+                        {"id": "A", "text": "Deque, because both ends support O(1) operations"},
+                        {"id": "B", "text": "Normal Queue, because removing only from front is safer"},
+                        {"id": "C", "text": "Stack, because more rear operations mean LIFO fits"},
+                        {"id": "D", "text": "Binary Search Tree, because it always preserves insertion order"},
+                    ],
+                    "explanation": "Sliding-window and monotonic-queue patterns often need operations at both ends. A normal Queue only enqueues at rear and dequeues at front; a Deque supports both ends in O(1).",
+                },
+            },
+        },
+        {
+            "id": "queue-q29",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 指標連動推演) + 250(複合陷阱) = 1500
+            "baseRating": 1500,
+            "correctAnswer": "D",
+            "translations": {
+                "zh-TW": {
+                    "title": "環狀佇列執行 dequeue 並回傳 front 元素後，下列哪個更新最能維持正確不變量？",
+                    "options": [
+                        {"id": "A", "text": "front = (front + 1) % capacity，size 不變"},
+                        {"id": "B", "text": "front = front + 1，size -= 1"},
+                        {"id": "C", "text": "front = (front + 1) % capacity，rear -= 1"},
+                        {"id": "D", "text": "front = (front + 1) % capacity，size -= 1"},
+                    ],
+                    "explanation": "dequeue 移除的是 front 元素，因此要讓 front 環狀前進並減少 size。常見錯誤是忘記同步更新 size、忘記取餘數，或誤改 rear。",
+                },
+                "en": {
+                    "title": "After a circular queue dequeues and returns the front element, which update best preserves the correct invariant?",
+                    "options": [
+                        {"id": "A", "text": "front = (front + 1) % capacity, size unchanged"},
+                        {"id": "B", "text": "front = front + 1, size -= 1"},
+                        {"id": "C", "text": "front = (front + 1) % capacity, rear -= 1"},
+                        {"id": "D", "text": "front = (front + 1) % capacity, size -= 1"},
+                    ],
+                    "explanation": "dequeue removes the front element, so front advances modulo capacity and size decreases. Common mistakes are forgetting to update size, forgetting modulo wraparound, or changing rear.",
+                },
+            },
+        },
+        {
+            "id": "queue-q30",
+            "type": "single-choice",
+            # baseRating = 800 + 50(SC) + 400(L4 複雜控制流分析) + 150(邊界情況) = 1400
+            "baseRating": 1400,
+            "correctAnswer": "C",
+            "translations": {
+                "zh-TW": {
+                    "title": "在 BFS 中，為了避免同一個節點被不同鄰居重複加入 Queue，通常應該在什麼時機標記 visited？",
+                    "options": [
+                        {"id": "A", "text": "節點從 Queue dequeue 後才標記，這樣最省記憶體"},
+                        {"id": "B", "text": "每一層 BFS 結束後再統一標記"},
+                        {"id": "C", "text": "節點被 enqueue 的當下就標記"},
+                        {"id": "D", "text": "不需要 visited，FIFO 會自動去重"},
+                    ],
+                    "explanation": "若等到 dequeue 才標記，同一節點可能在被取出前已被多個鄰居重複 enqueue。加入 Queue 時立即標記，能避免重複排隊。",
+                },
+                "en": {
+                    "title": "In BFS, when should a node usually be marked visited to prevent different neighbors from enqueuing it repeatedly?",
+                    "options": [
+                        {"id": "A", "text": "Only after the node is dequeued, to save memory"},
+                        {"id": "B", "text": "After each BFS level finishes"},
+                        {"id": "C", "text": "At the moment the node is enqueued"},
+                        {"id": "D", "text": "visited is unnecessary because FIFO deduplicates automatically"},
+                    ],
+                    "explanation": "If marking waits until dequeue, the same node can be enqueued by multiple neighbors before it is processed. Marking when enqueued prevents duplicate queue entries.",
                 },
             },
         },

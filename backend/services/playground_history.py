@@ -33,22 +33,27 @@ def find_matching_history(code: str, user_id: int) -> ExploreHistory | None:
     current_hash = hashlib.sha256(normalized.encode()).hexdigest()
     history_records = (
         ExploreHistory.query
+        .with_entities(ExploreHistory.explore_id, ExploreHistory.user_code)
         .filter_by(user_id=user_id)
         .all()
     )
-    for record in history_records:
-        history_normalized = normalize_code(record.user_code)
+    matching_id = None
+    for explore_id, user_code in history_records:
+        history_normalized = normalize_code(user_code)
         if not history_normalized:
             continue
         history_hash = hashlib.sha256(history_normalized.encode()).hexdigest()
         if history_hash == current_hash:
-            return record
+            matching_id = explore_id
+            break
+
+    if matching_id is not None:
+        return ExploreHistory.query.filter_by(
+            explore_id=matching_id,
+            user_id=user_id,
+        ).first()
 
     return None
-
-
-def matches_existing_history(code: str, user_id: int) -> bool:
-    return find_matching_history(code, user_id) is not None
 
 
 def delete_user_history(record_id: int, user_id: int) -> bool:

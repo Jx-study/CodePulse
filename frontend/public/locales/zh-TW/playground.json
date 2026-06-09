@@ -29,6 +29,7 @@
   },
   "ui": {
     "editCode": "編輯程式碼",
+    "rerun": "重新執行",
     "run": "執行",
     "tabAnimation": "演算法動畫",
     "tabGraph": "呼叫圖 / CFG",
@@ -39,7 +40,62 @@
     "cfgPrefix": "CFG ·",
     "globalFrame": "（全域）",
     "runToStart": "執行程式碼以開始",
-    "waitingAnalysis": "等待分析中…"
+    "waitingAnalysis": "等待分析中…",
+    "truncatedBadge": "已截斷",
+    "callLegend": "呼叫",
+    "returnLegend": "返回",
+    "vizModeAriaLabel": "視覺化模式"
+  },
+  "activityBar": {
+    "codeEditor": "程式碼編輯器",
+    "executionHistory": "執行歷史",
+    "dockedHint": "（已固定 — 拖曳至右欄以解除固定）"
+  },
+  "panel": {
+    "globalVars": "全域變數",
+    "localVars": "區域變數",
+    "callStack": "呼叫堆疊",
+    "console": "主控台"
+  },
+  "aiDialog": {
+    "title": "AI 分析",
+    "arbitrating": "Gemini 仲裁中…",
+    "tabComplexity": "複雜度",
+    "tabAlgorithm": "演算法",
+    "tabSummary": "AI 摘要",
+    "timeComplexity": "時間複雜度",
+    "analysisError": "分析失敗 — 請重新執行。",
+    "detectedAlgorithm": "辨識演算法",
+    "learnHint": "想逐步了解這個演算法的運作方式嗎？",
+    "goToTutorial": "前往教學",
+    "codeSummary": "程式碼摘要",
+    "purpose": "用途",
+    "feedback": "回饋"
+  },
+  "algoDialog": {
+    "title": "偵測到演算法",
+    "applyHint": "是否套用此演算法的對應動畫？",
+    "applyAnimation": "套用動畫",
+    "skip": "略過",
+    "inconclusiveHint": "結果不確定，請選擇最符合的項目："
+  },
+  "historyDialog": {
+    "title": "執行歷史",
+    "quotaTitle": "歷史已滿",
+    "quotaDesc": "已達 <strong>5 筆上限</strong>。請移除一筆現有紀錄以儲存本次執行，或繼續而不儲存。",
+    "dontSave": "不儲存本次執行",
+    "removeAndSave": "移除所選並儲存",
+    "unknown": "未知",
+    "delete": "刪除",
+    "cancel": "取消",
+    "replay": "重播",
+    "loadIntoEditor": "載入編輯器"
+  },
+  "inputDialog": {
+    "title": "輸入 #{{index}}",
+    "confirm": "確認",
+    "cancel": "取消",
+    "placeholder": "輸入值並按 Enter…"
   },
   "empty": {
     "animationTitle": "無動畫資料",
@@ -115,6 +171,7 @@
     "runtimeRecursionError": "遞迴層數超過上限。",
     "poolExhausted": "伺服器繁忙，請稍後再試。",
     "analysisFailed": "分析失敗，請再試一次。",
+    "inputCancelled": "已取消輸入。準備好後可重新執行。",
     "truncated": "輸出可能已截斷，已達 trace 上限。",
     "duplicateCode": "此程式碼已存在於你的歷史紀錄。"
   }
