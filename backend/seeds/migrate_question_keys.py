@@ -1,6 +1,12 @@
 """
 一次性遷移腳本：將 seed data 的 question_key / group_key 填入現有 DB 行。
 
+對應方式：按 display_order 位置把 seed 的 "id" 貼到 DB 行，並做「內容比對」——
+比對 DB 行的 zh-TW stem/title 是否對得上 seed 的 title，對不上就標 [MISMATCH] + abort。
+這道防線用來揪出「seed 改過順序 / 增刪題導致 display_order 錯位」的情形，避免把 key 貼錯行。
+注意：若 seed 只是改了題目文字（位置沒錯），也會報 MISMATCH（保守設計，寧可誤報）；
+這種情況需人工確認後再決定是否 --apply。
+
 執行方式（在 server 上）：
     cd ~/projects/CodePulse/backend
     source venv/bin/activate
@@ -45,6 +51,19 @@ def migrate_tutorial(quiz_data: dict) -> bool:
     seed_questions = quiz_data["questions"]
     has_warn = False
 
+    # 內容比對用：取某行 zh-TW 翻譯文字（找不到回傳 None）
+    def _zh(translations, field):
+        for t in translations:
+            if t.language_code == "zh-TW":
+                return getattr(t, field, None)
+        return None
+
+    # 正規化後比對兩段文字是否「實質相同」（容忍前後空白差異）
+    def _matches(db_text, seed_text):
+        if db_text is None or seed_text is None:
+            return False
+        return db_text.strip() == seed_text.strip()
+
     # ── groups：按 display_order 對應 ──────────────────────────────────────
     db_groups = sorted(
         QuestionGroup.query.filter_by(tutorial_id=tutorial_id).all(),
@@ -60,7 +79,20 @@ def migrate_tutorial(quiz_data: dict) -> bool:
             print(f"    [WARN] '{slug}' group #{i} key 衝突：DB='{g.group_key}' seed='{g_data['id']}'")
             has_warn = True
             continue
-        print(f"    group [{i}] {g.group_id} → group_key='{g_data['id']}'")
+
+        # 內容比對：DB group 的 title 是否對得上 seed
+        db_title = _zh(g.translations, "title")
+        seed_title = g_data.get("translations", {}).get("zh-TW", {}).get("title")
+        if not _matches(db_title, seed_title):
+            print(
+                f"    [MISMATCH] '{slug}' group #{i} (id={g.group_id}) 內容對不上 seed='{g_data['id']}'\n"
+                f"        DB  : {(db_title or '')[:40]!r}\n"
+                f"        seed: {(seed_title or '')[:40]!r}"
+            )
+            has_warn = True
+            continue
+
+        print(f"    group [{i}] {g.group_id} → group_key='{g_data['id']}'  ✓內容相符")
         if not DRY_RUN:
             g.group_key = g_data["id"]
 
@@ -79,7 +111,20 @@ def migrate_tutorial(quiz_data: dict) -> bool:
             print(f"    [WARN] '{slug}' question #{i} key 衝突：DB='{q.question_key}' seed='{q_data['id']}'")
             has_warn = True
             continue
-        print(f"    question [{i}] {q.question_id} → question_key='{q_data['id']}'")
+
+        # 內容比對：DB 行的 stem 是否對得上 seed 的 title（揪出 display_order 錯位）
+        db_stem = _zh(q.translations, "stem")
+        seed_title = q_data.get("translations", {}).get("zh-TW", {}).get("title")
+        if not _matches(db_stem, seed_title):
+            print(
+                f"    [MISMATCH] '{slug}' question #{i} (id={q.question_id}) 內容對不上 seed='{q_data['id']}'\n"
+                f"        DB  : {(db_stem or '')[:40]!r}\n"
+                f"        seed: {(seed_title or '')[:40]!r}"
+            )
+            has_warn = True
+            continue
+
+        print(f"    question [{i}] {q.question_id} → question_key='{q_data['id']}'  ✓內容相符")
         if not DRY_RUN:
             q.question_key = q_data["id"]
 
