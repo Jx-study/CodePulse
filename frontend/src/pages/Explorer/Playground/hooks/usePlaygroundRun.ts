@@ -97,6 +97,9 @@ export function usePlaygroundRun({
   const { t } = useTranslation("playground");
 
   const [runStage, setRunStage] = useState<RunStage>("idle");
+  // Last run outcome (explicit semantics for tour/UI to judge success/failure — not inferred from runStage)
+  const [lastRunOutcome, setLastRunOutcome] =
+    useState<"none" | "running" | "success" | "error">("none");
   const [trace, setTrace] = useState<TraceEvent[]>([]);
   const [rawTrace, setRawTrace] = useState<TraceEvent[]>([]);
   const [rawIndexMap, setRawIndexMap] = useState<number[]>([]);
@@ -130,6 +133,7 @@ export function usePlaygroundRun({
     setAiResult(null);
     setTop3Candidates([]);
     editorRef.current?.clearErrorMarker();
+    setLastRunOutcome("none");
     setRunStage("idle");
   }, [editorRef, onResetPlayback]);
 
@@ -182,6 +186,7 @@ export function usePlaygroundRun({
       setTop3Candidates(record.top3_candidates);
       setAppliedAlgo(record.detected_algorithm);
       setDrill({ mode: "call_graph" });
+      setLastRunOutcome("success");
       setRunStage("done");
       onResetPlayback();
     },
@@ -260,6 +265,7 @@ export function usePlaygroundRun({
     const controller = new AbortController();
     abortRef.current = controller;
 
+    setLastRunOutcome("running");
     setRunStage("syntax_check");
     editorRef.current?.clearErrorMarker();
     setTrace([]);
@@ -285,6 +291,7 @@ export function usePlaygroundRun({
       setAiResult(result.aiResult);
       setTop3Candidates(result.top3Candidates);
       setDrill({ mode: "call_graph" });
+      setLastRunOutcome("success");
       setRunStage("done");
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
@@ -293,6 +300,7 @@ export function usePlaygroundRun({
         toast.info(t("run.inputCancelled"));
         return;
       }
+      setLastRunOutcome("error");
       setRunStage("idle");
       if (e instanceof AnalyzeError) {
         switch (e.type) {
@@ -349,8 +357,11 @@ export function usePlaygroundRun({
     t,
   ]);
 
+  const resetLastRunOutcome = useCallback(() => setLastRunOutcome("none"), []);
+
   return {
     runStage,
+    lastRunOutcome,
     trace,
     rawTrace,
     rawIndexMap,
@@ -370,6 +381,7 @@ export function usePlaygroundRun({
     handleEditCode,
     handleForceRun: () => handleRun(true),
     loadFromHistory,
+    resetLastRunOutcome,
     inputPrompt,
   };
 }

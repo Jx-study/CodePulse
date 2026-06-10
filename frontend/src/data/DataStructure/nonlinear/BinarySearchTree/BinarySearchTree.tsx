@@ -443,7 +443,6 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
   statusConfig: BSTStatusConfig,
   actionHandler: bstActionHandler,
   renderActionBar: (props) => <BSTActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/bst",
   relatedProblems: [
     {
       id: 700,

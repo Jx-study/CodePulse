@@ -141,7 +141,6 @@ export const mergeSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createMergeSortAnimationSteps,
   actionHandler: mergeSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/merge-sort",
   relatedProblems: [
     {
       id: 912,

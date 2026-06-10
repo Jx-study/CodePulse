@@ -81,6 +81,24 @@
   "auth": {
     "loginRequired": "請先登入才能使用此功能"
   },
+  "tour": {
+    "stepOf": "步驟 {{current}} / {{total}}",
+    "dontShowAgain": "不再顯示",
+    "previous": "上一步",
+    "next": "下一步",
+    "completed": "已完成",
+    "waitingForAction": "等待操作中…",
+    "skipThisStep": "跳過此步驟",
+    "ariaComplete": "導覽完成",
+    "ariaCloseTour": "關閉導覽",
+    "ariaStep": "導覽步驟 {{current}}",
+    "ariaSkipTour": "跳過導覽",
+    "ariaGoToStep": "前往步驟 {{step}}"
+  },
+  "mascot": {
+    "runningText": "分析中，請稍候…",
+    "errorText": "執行失敗，請修正後重試"
+  },
   "statusLegend": {
     "unfinished": "未完成",
     "prepare": "準備中",

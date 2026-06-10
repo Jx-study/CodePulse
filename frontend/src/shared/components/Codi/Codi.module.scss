@@ -1,0 +1,23 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding-top: $spacing-2xs;
+}
+
+
+.lottie {
+  width: 2.75rem;
+  height: 3.4rem;
+  flex-shrink: 0;
+}
+
+.text {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.textError {
+  color: var(--danger-color);
+}

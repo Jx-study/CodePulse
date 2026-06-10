@@ -215,7 +215,6 @@ export const StackConfig: LevelImplementationConfig = {
   createAnimationSteps: createStackAnimationSteps,
   actionHandler: stackActionHandler,
   renderActionBar: (props) => <StackActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/stack",
   relatedProblems: [
     {
       id: 20,

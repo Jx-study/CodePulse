@@ -1,4 +1,25 @@
 {
+  "activityBar": {
+    "codeEditor": "Code Editor",
+    "executionHistory": "Execution History",
+    "tourButton": "Feature Tour",
+    "openTour": "Open Feature Tour",
+    "dockedHint": "(docked — drag to right bar to undock)"
+  },
+  "canvas": {
+    "noAnimationTitle": "No animation data",
+    "noAnimationDesc": "Run code to generate the animation",
+    "noGraphTitle": "No graph data",
+    "noGraphDesc": "Submit code to generate the call graph",
+    "ariaVisualizationMode": "Visualization mode"
+  },
+  "ai": {
+    "viewResults": "View AI analysis results"
+  },
+  "status": {
+    "runToStart": "Run code to start",
+    "waitingAnalysis": "Waiting for analysis…"
+  },
   "statusBar": {
     "idle": "Ready — press Run to start analysis",
     "syntaxCheck": "Syntax check & sandbox initialising…",
@@ -84,6 +105,56 @@
     "historyEmpty": "No runs saved yet",
     "historyEmptyDesc": "Your history will appear here after running code",
     "historySelect": "Select a record to preview"
+  },
+  "tour": {
+    "outro": {
+      "title": "Start Your Algorithm Experiments!",
+      "description": "You've learned the core features of the Playground. Now write some code, run it, and watch the visualization. Algorithm animations are currently supported for {{algos}}.",
+      "primaryLabel": "Get Started",
+      "secondaryLabel": "Close"
+    },
+    "steps": {
+      "codeEditor": {
+        "title": "Code Editor",
+        "description": "Write Python code in main.py on the left — this is your starting point for experimenting with algorithms."
+      },
+      "runButton": {
+        "title": "Run Code",
+        "description": "Click \"Run\" to execute your code. After analysis completes, an algorithm detection dialog may appear — pick the best match to load the animation. Give it a try!"
+      },
+      "algoDetection": {
+        "title": "Algorithm Detection",
+        "description": "If a detection dialog appeared, your selection has been applied. If you skipped it or no match was found, you can still explore the call graph — or re-run with a supported algorithm to load the animation."
+      },
+      "tabBar": {
+        "title": "Visualization Mode",
+        "description": "After running, switch here between \"Algorithm Animation\" and \"Call Graph / CFG\" visualization modes."
+      },
+      "canvas": {
+        "title": "Visualization Canvas",
+        "description": "This is the main stage, showing how data changes at each step of the algorithm. You can zoom and pan to inspect details."
+      },
+      "controlBar": {
+        "title": "Playback Controls",
+        "description": "Use play, pause, previous, and next to control the animation. You can also drag the progress bar to jump to any step or adjust speed."
+      },
+      "aiAnalysis": {
+        "title": "AI Analysis",
+        "description": "After execution completes, click here to view the AI algorithm detection and analysis results for your code."
+      },
+      "rightPanels": {
+        "title": "Data Panels & Toolbar",
+        "description": "The right toolbar lets you toggle panels for variables, call stack, Console, and more to inspect runtime state."
+      },
+      "dragDock": {
+        "title": "Dock a Panel to the Left",
+        "description": "Grab the first panel icon in the right toolbar (right orange frame) and drag it onto the left bar (left orange frame) to dock the panel beside the editor. Give it a try!"
+      },
+      "history": {
+        "title": "Execution History",
+        "description": "Click the clock icon in the bottom-left to open execution history and replay previous runs."
+      }
+    }
   },
   "run": {
     "emptyCode": "Please enter some code before running.",

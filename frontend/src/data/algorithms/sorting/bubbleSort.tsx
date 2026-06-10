@@ -108,7 +108,6 @@ export const bubbleSortConfig: LevelImplementationConfig = {
   createAnimationSteps: createBubbleSortAnimationSteps,
   actionHandler: bubbleSortActionHandler,
   renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/bubble-sort",
   relatedProblems: [
     {
       id: 912,

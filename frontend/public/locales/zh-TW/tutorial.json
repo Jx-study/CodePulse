@@ -33,6 +33,15 @@
     "invalidWordList": "請輸入有效的單字清單。"
   },
   "featureTour": {
+    "outro": {
+      "title": "準備好了嗎？",
+      "description": "開始練習前，前往知識站學習此演算法的理論基礎吧！",
+      "descriptionDataStructure": "開始練習前，前往知識站學習此資料結構的理論基礎吧！",
+      "primaryLabel": "前往知識站",
+      "secondaryLabel": "先跳過，直接開始"
+    },
+    "openTour": "開啟功能導覽",
+    "knowledgeStation": "知識站",
     "ariaLabelComplete": "功能導覽完成",
     "ariaLabelStep": "功能導覽步驟 {{step}}",
     "closeAriaLabel": "關閉導覽",
@@ -48,28 +57,36 @@
     "next": "下一步",
     "steps": {
       "swapButton": {
-        "title": "交換佈局",
-        "description": "點擊此按鈕可以交換左側程式碼面板與右側畫布的位置，找到最適合你的學習佈局。"
+        "title": "交換版面配置",
+        "description": "點擊此按鈕可交換左側程式碼面板與右側畫布，找到最適合你的學習版面。"
       },
       "resizeHandle": {
-        "title": "水平調整面板寬度",
-        "description": "拖動左右面板之間的分隔線，可以自由調整程式碼面板與視覺化區域的寬度比例。"
+        "title": "水平調整面板大小",
+        "description": "拖曳左右面板之間的分隔線，自由調整程式碼面板與視覺化區域的寬度比例。"
       },
       "resizeHandleV": {
-        "title": "垂直調整面板高度",
-        "description": "拖動上下面板之間的分隔線，可以自由調整視覺化畫布與資料操作面板的高度比例。"
+        "title": "垂直調整面板大小",
+        "description": "拖曳上下面板之間的分隔線，自由調整視覺化畫布與資料控制面板的高度比例。"
       },
       "canvasPanel": {
         "title": "視覺化畫布",
-        "description": "這裡是演算法動畫的主要舞台。你可以縮放、平移畫布，觀察每個步驟的變化。"
+        "description": "這是演算法動畫的主要舞台，你可以縮放與拖曳畫布以觀察每個步驟的變化。"
       },
       "controlBar": {
         "title": "播放控制列",
-        "description": "使用播放、暫停、上一步、下一步來控制動畫速度，也可以拖動進度條跳至任意步驟。"
+        "description": "使用播放、暫停、上一步、下一步控制動畫速度，也可拖曳進度條跳至任意步驟。"
       },
       "codePanel": {
         "title": "程式碼面板",
-        "description": "左側顯示對應的虛擬碼或 Python 實作，當前執行行會自動高亮顯示。"
+        "description": "左側面板以虛擬碼或 Python 呈現演算法，可透過頂部的 Tab 切換模式。動畫播放時，目前執行的行會自動高亮顯示。"
+      },
+      "inspectorPanel": {
+        "title": "資訊面板",
+        "description": "「操作」Tab 可逐步執行新增、刪除等動作；切換至「變數」Tab 可觀察每個步驟中內部變數的即時變化，幫助你理解演算法的運作過程。"
+      },
+      "knowledgeStationButton": {
+        "title": "知識站",
+        "description": "隨時點擊此按鈕開啟知識站，複習此演算法的理論基礎 — 即使你跳過了導覽也沒關係。"
       }
     }
   },

@@ -304,7 +304,6 @@ export const HeapConfig: LevelImplementationConfig = {
   statusConfig: HeapStatusConfig,
   actionHandler: heapActionHandler,
   renderActionBar: (props) => <HeapActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/heap",
   relatedProblems: [
     {
       id: 703,

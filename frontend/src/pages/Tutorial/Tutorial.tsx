@@ -41,6 +41,7 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { getTourDismissed, setTourDismissed } from "./featureTourStorage";
 import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
@@ -353,6 +354,7 @@ export const InspectorPanelInternal = ({
       style={sortableStyle}
       {...attributes}
       className={styles.inspectorPanel}
+      data-tour="inspector-panel"
     >
       <PanelHeader
         title={tTutorial("panelHeader.inspector")}
@@ -403,7 +405,8 @@ function TutorialContent() {
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
 
   // Feature Tour state
-  const [showFeatureTour, setShowFeatureTour] = useState(true);
+  // Auto-open on mount unless the user has previously clicked "Don't show again"
+  const [showFeatureTour, setShowFeatureTour] = useState(() => !getTourDismissed());
   const handleSkipFeatureTour = () => {
     setShowFeatureTour(false);
     if (!hasStartedAnimation) {
@@ -416,6 +419,11 @@ function TutorialContent() {
     if (!hasStartedAnimation) {
       setTimeout(() => leftPanelRef.current?.collapse(), 0);
     }
+  };
+  // "Don't show again": persist the preference then close the tour (the "?" button still opens it manually)
+  const handleDontShowAgain = () => {
+    setTourDismissed();
+    setShowFeatureTour(false);
   };
 
   // Inspector Tab state
@@ -676,7 +684,11 @@ function TutorialContent() {
         const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
         const contentPercent = rightPanelPx > 0 ? (contentPx / rightPanelPx) * 100 : 0;
         const targetPercent = Math.min(panelSizes.codeEditor, Math.max(20, contentPercent));
-        leftPanelRef.current?.resize(`${targetPercent}%`);
+        if (rightPanelPx === 0) {
+          leftPanelRef.current?.expand();
+        } else {
+          leftPanelRef.current?.resize(`${targetPercent}%`);
+        }
       }
       setActiveInspectorTab("variableStatus");
     }, 400);
@@ -1200,25 +1212,30 @@ function TutorialContent() {
     <div className={styles.tutorialPage}>
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
-        {!isMobile && (
-          <div className={styles.buttonGroup}>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowFeatureTour(true)}
-              title={tTutorial("page.openTourTitle")}
-              icon="circle-question"
-              iconOnly
-            />
+        <div className={styles.buttonGroup}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowFeatureTour(true)}
+            title={tTutorial("page.openTourTitle")}
+            aria-label={tTutorial("page.openTourTitle")}
+            icon="circle-question"
+            iconOnly
+          />
+          <span data-tour="knowledge-station-button">
             <Button
               variant="secondary"
               size="sm"
               onClick={() => setIsKnowledgeStationOpen(true)}
               title={tTutorial("page.openKnowledgeStationTitle")}
+              aria-label={tTutorial("page.openKnowledgeStationTitle")}
               icon="lightbulb"
+              iconOnly={isMobile}
             >
-              {tTutorial("page.knowledgeStation")}
+              {!isMobile && tTutorial("page.knowledgeStation")}
             </Button>
+          </span>
+          {!isMobile && (
             <span data-tour="swap-button">
               <Button
                 variant="secondary"
@@ -1230,8 +1247,8 @@ function TutorialContent() {
                 {tTutorial("page.swapLayout")}
               </Button>
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <TopSection
@@ -1272,6 +1289,7 @@ function TutorialContent() {
         isOpen={showFeatureTour && !showCheckinDialog}
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
+        onDontShowAgain={handleDontShowAgain}
         isMobile={isMobile}
         isDataStructure={topicTypeConfig?.type === 'dataStructure'}
       />

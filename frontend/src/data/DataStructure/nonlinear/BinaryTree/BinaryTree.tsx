@@ -230,7 +230,6 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
   actionHandler: binaryTreeActionHandler,
   renderActionBar: (props) => <BinaryTreeActionBar {...(props as any)} />,
   statusConfig: BTStatusConfig,
-  i18nNamespace: "tutorials/binary-tree",
   relatedProblems: [
     {
       id: 144,

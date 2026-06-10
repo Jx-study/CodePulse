@@ -1,4 +1,25 @@
 {
+  "activityBar": {
+    "codeEditor": "程式碼編輯器",
+    "executionHistory": "執行歷史紀錄",
+    "tourButton": "操作導覽",
+    "openTour": "開啟操作導覽",
+    "dockedHint": "（已停靠 — 拖曳到右側工具列以取消停靠）"
+  },
+  "canvas": {
+    "noAnimationTitle": "尚無動畫資料",
+    "noAnimationDesc": "執行程式碼以產生動畫",
+    "noGraphTitle": "尚無圖形資料",
+    "noGraphDesc": "提交程式碼以產生呼叫圖",
+    "ariaVisualizationMode": "視覺化模式"
+  },
+  "ai": {
+    "viewResults": "查看 AI 分析結果"
+  },
+  "status": {
+    "runToStart": "執行程式碼以開始",
+    "waitingAnalysis": "等待分析中…"
+  },
   "statusBar": {
     "idle": "就緒 — 按下 Run 開始分析",
     "syntaxCheck": "語法預檢與沙箱啟動中…",
@@ -84,6 +105,56 @@
     "historyEmpty": "尚無已儲存的紀錄",
     "historyEmptyDesc": "執行程式碼後，歷史紀錄將顯示於此",
     "historySelect": "選取一筆紀錄以預覽"
+  },
+  "tour": {
+    "outro": {
+      "title": "開始你的演算法實驗！",
+      "description": "你已了解 Playground 的核心功能。現在寫些程式碼、執行它，並觀看視覺化結果。目前支援動畫的演算法：{{algos}}。",
+      "primaryLabel": "開始使用",
+      "secondaryLabel": "關閉"
+    },
+    "steps": {
+      "codeEditor": {
+        "title": "程式碼編輯器",
+        "description": "在左側的 main.py 中撰寫 Python 程式碼 — 這是你實驗演算法的起點。"
+      },
+      "runButton": {
+        "title": "執行程式碼",
+        "description": "點擊「執行」來運行程式碼。分析完成後可能會出現演算法偵測彈窗，選擇最符合的演算法即可載入動畫。試試看！"
+      },
+      "algoDetection": {
+        "title": "演算法偵測",
+        "description": "若剛才出現了偵測彈窗，你的選擇已套用。若你跳過或未偵測到符合的演算法，仍可瀏覽呼叫圖，或改用支援的演算法重新執行以載入動畫。"
+      },
+      "tabBar": {
+        "title": "視覺化模式",
+        "description": "執行後，在此切換「演算法動畫」與「呼叫圖 / CFG」視覺化模式。"
+      },
+      "canvas": {
+        "title": "視覺化畫布",
+        "description": "這是主要舞台，展示演算法每個步驟的資料變化。你可以縮放與拖曳以查看細節。"
+      },
+      "controlBar": {
+        "title": "播放控制列",
+        "description": "使用播放、暫停、上一步、下一步來控制動畫，也可拖曳進度條跳至任意步驟或調整速度。"
+      },
+      "aiAnalysis": {
+        "title": "AI 分析",
+        "description": "執行完成後，點擊此處查看 AI 演算法偵測與分析結果。"
+      },
+      "rightPanels": {
+        "title": "資料面板與工具列",
+        "description": "右側工具列可切換變數、呼叫堆疊、Console 等面板，以檢視執行時期狀態。"
+      },
+      "dragDock": {
+        "title": "將面板停靠到左側",
+        "description": "抓住右側工具列的第一個面板圖示（右側橘色框），將其拖曳到左側工具列（左側橘色框）以將面板停靠在編輯器旁。試試看！"
+      },
+      "history": {
+        "title": "執行歷史紀錄",
+        "description": "點擊左下角的時鐘圖示以開啟執行歷史紀錄，並重播先前的執行。"
+      }
+    }
   },
   "run": {
     "emptyCode": "請先輸入程式碼再執行。",

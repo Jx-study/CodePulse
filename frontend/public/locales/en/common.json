@@ -81,6 +81,24 @@
   "auth": {
     "loginRequired": "Please log in to use this feature"
   },
+  "tour": {
+    "stepOf": "STEP {{current}} OF {{total}}",
+    "dontShowAgain": "Don't show again",
+    "previous": "Previous",
+    "next": "Next",
+    "completed": "Completed",
+    "waitingForAction": "Waiting for action…",
+    "skipThisStep": "Skip this step",
+    "ariaComplete": "Tour complete",
+    "ariaCloseTour": "Close tour",
+    "ariaStep": "Tour step {{current}}",
+    "ariaSkipTour": "Skip tour",
+    "ariaGoToStep": "Go to step {{step}}"
+  },
+  "mascot": {
+    "runningText": "Analyzing, please wait…",
+    "errorText": "Execution failed, please fix and retry"
+  },
   "statusLegend": {
     "unfinished": "Unfinished",
     "prepare": "Preparing",

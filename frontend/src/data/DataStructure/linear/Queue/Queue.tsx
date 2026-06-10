@@ -229,7 +229,6 @@ export const QueueConfig: LevelImplementationConfig = {
   actionHandler: queueActionHandler,
   realWorldStories: queueRealWorldStories,
   renderActionBar: (props) => <QueueActionBar {...(props as any)} />,
-  i18nNamespace: "tutorials/queue",
   relatedProblems: [
     {
       id: 225,

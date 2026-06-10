@@ -12,10 +12,17 @@
   pointer-events: all;
 }
 
-.spotlight {
+.svgMask {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.spotlightBorder {
   position: fixed;
   border-radius: $radius-md;
-  box-shadow: 0 0 0 100vmax rgba(17, 24, 39, 0.6);
   border: 2px solid var(--primary-color);
   pointer-events: none;
   transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
@@ -24,7 +31,7 @@
 // Tooltip card
 .card {
   position: fixed;
-  width: 22.5rem; 
+  width: 22.5rem;
   background: var(--bg-tertiary);
   border: 1px solid rgba(99, 91, 255, 0.15);
   border-radius: $radius-xl;
@@ -132,4 +139,68 @@
   color: var(--primary-color) !important;
 
   &:hover:not(:disabled) { color: var(--primary-hover) !important; }
+}
+
+// ── 互動模式樣式 ──
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2xs;
+  flex-shrink: 0;
+}
+
+// 「不再顯示」：弱化文字按鈕，不搶主視覺
+.dontShowAgain {
+  color: var(--text-tertiary) !important;
+  font-size: 0.6875rem !important;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { color: var(--primary-color) !important; }
+}
+
+// 互動 step 底部「等待操作…」提示列
+.waitingHint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  padding-top: $spacing-2xs;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+// 互動 step 的脈動圓點，提示「等待中」
+.waitingDot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: $radius-full;
+  background: var(--primary-color);
+  margin-right: $spacing-2xs;
+  animation: tourPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tourPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+// 已完成的互動 step 回訪時顯示的完成標記
+.completedHint {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--success-color, #22c55e);
+}
+
+// 「跳過此步」弱化連結
+.skipStep {
+  color: var(--text-tertiary) !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { color: var(--primary-color) !important; }
 }

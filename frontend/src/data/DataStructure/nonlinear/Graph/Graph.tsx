@@ -620,7 +620,6 @@ export const GraphConfig: LevelImplementationConfig = {
   categoryName: "非線性表",
   description:
     "由節點 (Vertex) 與邊 (Edge) 組成的資料結構，用於描述物件之間的關係。",
-  i18nNamespace: "tutorials/graph",
   // TODO: 補完 Graph 的 pseudo code 與 mappings
   codeConfig: graphCodeConfig,
   linkAnimConfig: {
