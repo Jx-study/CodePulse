@@ -126,8 +126,14 @@ function AuthPage() {
     setLoading(true);
     clearAlert();
     try {
-      await register(formData.email, formData.password, formData.username);
-      navigate("/auth/verify-email", { state: { email: formData.email } });
+      const result = await register(formData.email, formData.password, formData.username);
+      navigate("/auth/verify-email", {
+        state: {
+          email: formData.email,
+          expiresAt: result?.expires_at,
+          expiresInSeconds: result?.expires_in_seconds,
+        },
+      });
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
       const errorCode = axiosError?.response?.data?.error_code;
