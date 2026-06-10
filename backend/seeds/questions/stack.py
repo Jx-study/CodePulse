@@ -137,7 +137,7 @@ DATA = {
     "slug": "stack",
     "groups": [
         {
-            "id": "group-stack-impl",
+            "id": "stack-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：堆疊操作追蹤（教學區同款實作）",
@@ -155,7 +155,7 @@ DATA = {
     "questions": [
         # 【Basic】 800-950
         {
-            "id": "stack-tf-1",
+            "id": "stack-q1",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -174,7 +174,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q1",
+            "id": "stack-q2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -203,7 +203,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q2",
+            "id": "stack-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -232,7 +232,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q3",
+            "id": "stack-q4",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一操作定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -261,7 +261,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q4",
+            "id": "stack-q5",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 100(新手誤區) = 1050
             "baseRating": 1050,
@@ -291,7 +291,7 @@ DATA = {
         },
         # 【Application】 1000-1200
         {
-            "id": "stack-q5",
+            "id": "stack-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -320,7 +320,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q6",
+            "id": "stack-q7",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 適用場景辨識) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -349,7 +349,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q7",
+            "id": "stack-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
             "baseRating": 900,
@@ -378,7 +378,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q8",
+            "id": "stack-q9",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一應用概念) + 0(直觀) = 900
             "baseRating": 900,
@@ -407,7 +407,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-multi-1",
+            "id": "stack-q10",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 0(直觀) = 1000
             "baseRating": 1000,
@@ -437,7 +437,7 @@ DATA = {
         },
         # 【Complexity】 1250-1500
         {
-            "id": "stack-q9",
+            "id": "stack-q11",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 0(L0 反射常識) + 0(直觀) = 800
             "baseRating": 800,
@@ -456,7 +456,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-q10",
+            "id": "stack-q12",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 均攤與邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -486,8 +486,8 @@ DATA = {
         },
         # 【Group Questions】
         {
-            "id": "stack-group-1",
-            "groupId": "group-stack-impl",
+            "id": "stack-q13",
+            "groupId": "stack-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 150(邊界) = 1250
             "baseRating": 1250,
@@ -516,8 +516,8 @@ DATA = {
             },
         },
         {
-            "id": "stack-group-2",
-            "groupId": "group-stack-impl",
+            "id": "stack-q14",
+            "groupId": "stack-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 150(邊界) = 1250
             "baseRating": 1250,
@@ -546,8 +546,8 @@ DATA = {
             },
         },
         {
-            "id": "stack-group-3",
-            "groupId": "group-stack-impl",
+            "id": "stack-q15",
+            "groupId": "stack-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
             "baseRating": 1500,
@@ -568,7 +568,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-adv-pred",
+            "id": "stack-q16",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 150(L2 單步追蹤) + 50(視覺/相似度干擾) = 1150
             "baseRating": 1150,
@@ -589,7 +589,7 @@ DATA = {
             },
         },
         {
-            "id": "stack-adv-fill",
+            "id": "stack-q17",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 250(複合) = 1600
             "baseRating": 1600,

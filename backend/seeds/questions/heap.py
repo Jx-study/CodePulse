@@ -53,7 +53,7 @@ DATA = {
     "slug": "heap",
     "groups": [
         {
-            "id": "group-heap-scheduler",
+            "id": "heap-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：任務排程器",
@@ -344,7 +344,7 @@ DATA = {
         # [題組/優先佇列差異] 800 + 50(SC) + 100(L2 比較/動態) + 50(視覺/相似) = 1000
         {
             "id": "heap-q11",
-            "groupId": "group-heap-scheduler",
+            "groupId": "heap-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -374,7 +374,7 @@ DATA = {
         # [題組/操作複雜度] 800 + 50(SC) + 100(L2 比較/動態) + 50(視覺/相似) = 1000
         {
             "id": "heap-q12",
-            "groupId": "group-heap-scheduler",
+            "groupId": "heap-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "C",
@@ -404,7 +404,7 @@ DATA = {
         # [題組/操作複雜度] 800 + 50(SC) + 100(L2 比較/動態) + 50(視覺/相似) = 1000
         {
             "id": "heap-q13",
-            "groupId": "group-heap-scheduler",
+            "groupId": "heap-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "A",

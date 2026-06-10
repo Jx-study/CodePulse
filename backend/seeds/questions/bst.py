@@ -65,7 +65,7 @@ DATA = {
     "slug": "bst",
     "groups": [
         {
-            "id": "group-bst-floor-ceil",
+            "id": "bst-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：數值逼近搜尋 (Floor & Ceil)",
@@ -82,7 +82,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "bst-tf-1",
+            "id": "bst-q1",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一理論與定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -101,7 +101,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q1",
+            "id": "bst-q2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -130,7 +130,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q2",
+            "id": "bst-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 100(新手誤區) = 1000
             "baseRating": 1000,
@@ -159,7 +159,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q3",
+            "id": "bst-q4",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -188,7 +188,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q4",
+            "id": "bst-q5",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -217,7 +217,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q5",
+            "id": "bst-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -246,7 +246,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q6",
+            "id": "bst-q7",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -275,7 +275,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q7",
+            "id": "bst-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -304,8 +304,8 @@ DATA = {
             },
         },
         {
-            "id": "bst-group-1",
-            "groupId": "group-bst-floor-ceil",
+            "id": "bst-q9",
+            "groupId": "bst-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -334,8 +334,8 @@ DATA = {
             },
         },
         {
-            "id": "bst-group-2",
-            "groupId": "group-bst-floor-ceil",
+            "id": "bst-q10",
+            "groupId": "bst-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -364,7 +364,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q8",
+            "id": "bst-q11",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -393,7 +393,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-multi-1",
+            "id": "bst-q12",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -422,7 +422,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-tf-2",
+            "id": "bst-q13",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 900
             "baseRating": 900,
@@ -441,8 +441,8 @@ DATA = {
             },
         },
         {
-            "id": "bst-group-3",
-            "groupId": "group-bst-floor-ceil",
+            "id": "bst-q14",
+            "groupId": "bst-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1300
             "baseRating": 1300,
@@ -463,7 +463,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-multi-2",
+            "id": "bst-q15",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -492,7 +492,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-q9",
+            "id": "bst-q16",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -521,7 +521,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-fill-1",
+            "id": "bst-q17",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1300
             "baseRating": 1300,
@@ -542,7 +542,7 @@ DATA = {
             },
         },
         {
-            "id": "bst-pred-1",
+            "id": "bst-q18",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態改變) + 150(邊界) = 1350
             "baseRating": 1350,

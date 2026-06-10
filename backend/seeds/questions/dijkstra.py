@@ -75,7 +75,7 @@ DATA = {
     "slug": "dijkstra",
     "groups": [
         {
-            "id": "group-dijkstra-path",
+            "id": "dijkstra-group-1",
             "visual_type": "image",
             "visual_data": {
                 "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1779000041/dijkstra-weighted-graph01_p7hmzo.png"
@@ -126,7 +126,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-tf-1",
+            "id": "dijkstra-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -144,7 +144,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q2",
+            "id": "dijkstra-q3",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -172,7 +172,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-tf-2",
+            "id": "dijkstra-q4",
             "type": "true-false",
             "baseRating": 1000,
             "correctAnswer": "true",
@@ -190,7 +190,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q3",
+            "id": "dijkstra-q5",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -218,8 +218,8 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-group-1",
-            "groupId": "group-dijkstra-path",
+            "id": "dijkstra-q6",
+            "groupId": "dijkstra-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -247,7 +247,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q4",
+            "id": "dijkstra-q7",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -275,8 +275,8 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-group-2",
-            "groupId": "group-dijkstra-path",
+            "id": "dijkstra-q8",
+            "groupId": "dijkstra-group-1",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -304,7 +304,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q5",
+            "id": "dijkstra-q9",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -332,7 +332,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q6",
+            "id": "dijkstra-q10",
             "type": "single-choice",
             "baseRating": 1500,
             "correctAnswer": "B",
@@ -360,7 +360,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q7",
+            "id": "dijkstra-q11",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -388,7 +388,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-multi-1",
+            "id": "dijkstra-q12",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -416,7 +416,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q8",
+            "id": "dijkstra-q13",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -444,8 +444,8 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-group-3",
-            "groupId": "group-dijkstra-path",
+            "id": "dijkstra-q14",
+            "groupId": "dijkstra-group-1",
             "type": "fill-code",
             "baseRating": 1250,
             "correctAnswer": ["v", "dist[u]", "w"],
@@ -465,7 +465,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q9",
+            "id": "dijkstra-q15",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "C",
@@ -493,7 +493,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-multi-2",
+            "id": "dijkstra-q16",
             "type": "multiple-choice",
             "baseRating": 1750,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -521,7 +521,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-fill-1",
+            "id": "dijkstra-q17",
             "type": "fill-code",
             "baseRating": 1150,
             "correctAnswer": ["dist[u]", "weight", "alt"],
@@ -541,7 +541,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-pred-1",
+            "id": "dijkstra-q18",
             "type": "predict-line",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 10 11 12 13 5 6 7 9 10 11 12 13 5 6 7 5 6 7 8 5 14",

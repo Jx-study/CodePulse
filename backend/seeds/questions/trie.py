@@ -102,7 +102,7 @@ DATA = {
     "slug": "trie",
     "groups": [
         {
-            "id": "group-trie-basic-ops",
+            "id": "trie-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：Trie 基本操作追蹤",
@@ -509,7 +509,7 @@ DATA = {
         # [題組/節點結構設計] baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
         {
             "id": "trie-q15",
-            "groupId": "group-trie-basic-ops",
+            "groupId": "trie-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "D",
@@ -539,7 +539,7 @@ DATA = {
         # [題組/操作複雜度] baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
         {
             "id": "trie-q16",
-            "groupId": "group-trie-basic-ops",
+            "groupId": "trie-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -857,7 +857,7 @@ DATA = {
         # [與雜湊表比較] baseRating = 800 + 50(SC) + 400(L4 控制流) + 150(邊界) = 1400
         {
             "id": "trie-q28",
-            "groupId": "group-trie-basic-ops",
+            "groupId": "trie-group-1",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "C",

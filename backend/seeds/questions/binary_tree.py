@@ -55,7 +55,7 @@ DATA = {
     "slug": "binarytree",
     "groups": [
         {
-            "id": "group-bt-bfs",
+            "id": "binarytree-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：廣度優先搜尋 (BFS / Level Order Traversal)",
@@ -70,7 +70,7 @@ DATA = {
             "language": "python",
         },
         {
-            "id": "group-bt-array-storage",
+            "id": "binarytree-group-2",
             "translations": {
                 "zh-TW": {
                     "title": "題組：二元樹的陣列儲存索引",
@@ -87,7 +87,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "bt-tf-1",
+            "id": "binarytree-q1",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一理論與定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -106,7 +106,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q1",
+            "id": "binarytree-q2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -135,7 +135,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q2",
+            "id": "binarytree-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -164,7 +164,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q3",
+            "id": "binarytree-q4",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -193,7 +193,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-tf-2",
+            "id": "binarytree-q5",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一理論與定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -212,7 +212,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q4",
+            "id": "binarytree-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 100(新手誤區) = 1050
             "baseRating": 1050,
@@ -241,7 +241,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q5",
+            "id": "binarytree-q7",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -270,8 +270,8 @@ DATA = {
             },
         },
         {
-            "id": "bt-group-1",
-            "groupId": "group-bt-bfs",
+            "id": "binarytree-q8",
+            "groupId": "binarytree-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 100(新手誤區) = 1000
             "baseRating": 1000,
@@ -300,7 +300,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q6",
+            "id": "binarytree-q9",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -329,7 +329,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-multi-1",
+            "id": "binarytree-q10",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 1000
             "baseRating": 1000,
@@ -358,8 +358,8 @@ DATA = {
             },
         },
         {
-            "id": "bt-group-2",
-            "groupId": "group-bt-bfs",
+            "id": "binarytree-q11",
+            "groupId": "binarytree-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -388,7 +388,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q7",
+            "id": "binarytree-q12",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -417,7 +417,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q8",
+            "id": "binarytree-q13",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -446,8 +446,8 @@ DATA = {
             },
         },
         {
-            "id": "bt-group-3",
-            "groupId": "group-bt-bfs",
+            "id": "binarytree-q14",
+            "groupId": "binarytree-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 50(L1 單一理論與定義) + 50(視覺/相似度干擾) = 1050
             "baseRating": 1050,
@@ -468,7 +468,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q9",
+            "id": "binarytree-q15",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -497,7 +497,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-fill-1",
+            "id": "binarytree-q16",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 150(L2 單步追蹤) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -518,7 +518,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-multi-2",
+            "id": "binarytree-q17",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 400(L4 複雜控制流/邊界分析) + 250(複合陷阱) = 1550
             "baseRating": 1550,
@@ -547,7 +547,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-pred-1",
+            "id": "binarytree-q18",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
             "baseRating": 1500,
@@ -568,7 +568,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q19",
+            "id": "binarytree-q19",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一理論與定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -587,7 +587,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q20",
+            "id": "binarytree-q20",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -616,8 +616,8 @@ DATA = {
             },
         },
         {
-            "id": "bt-q21",
-            "groupId": "group-bt-array-storage",
+            "id": "binarytree-q21",
+            "groupId": "binarytree-group-2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -646,8 +646,8 @@ DATA = {
             },
         },
         {
-            "id": "bt-q22",
-            "groupId": "group-bt-array-storage",
+            "id": "binarytree-q22",
+            "groupId": "binarytree-group-2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態改變) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -676,7 +676,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q23",
+            "id": "binarytree-q23",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 150(L2 單步追蹤) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -697,7 +697,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q24",
+            "id": "binarytree-q24",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -726,7 +726,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q25",
+            "id": "binarytree-q25",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -755,7 +755,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q26",
+            "id": "binarytree-q26",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
             "baseRating": 1500,
@@ -776,7 +776,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q27",
+            "id": "binarytree-q27",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -805,7 +805,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q28",
+            "id": "binarytree-q28",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -834,7 +834,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q29",
+            "id": "binarytree-q29",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 400(L4 複雜控制流/邊界分析) + 250(複合陷阱) = 1600
             "baseRating": 1600,
@@ -855,7 +855,7 @@ DATA = {
             },
         },
         {
-            "id": "bt-q30",
+            "id": "binarytree-q30",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
