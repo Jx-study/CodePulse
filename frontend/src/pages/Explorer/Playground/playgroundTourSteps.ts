@@ -82,7 +82,7 @@ export function buildPlaygroundTourSteps({
       // Use the explicit lastRunOutcome rather than inferring from runStage.
       // 'none' = Run not clicked yet (or reset when the tour opened) — show static waiting hint instead of Codi.
       waitingState: () => (lastRunOutcome === 'none' ? 'idle' : lastRunOutcome === 'error' ? 'error' : 'running'),
-      skipTargetStepId: 'algo-detection',
+      skipTargetStepId: 'tab-bar',
     },
     {
       id: 'algo-detection',
