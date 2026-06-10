@@ -16,6 +16,16 @@ interface SpotlightRect {
 
 const PADDING = 8;
 
+function areSpotlightRectsEqual(a: SpotlightRect | null, b: SpotlightRect | null): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return a.top === b.top && a.left === b.left && a.width === b.width && a.height === b.height;
+}
+
+function areTooltipStylesEqual(a: React.CSSProperties, b: React.CSSProperties): boolean {
+  return a.position === b.position && a.top === b.top && a.left === b.left;
+}
+
 /**
  * Shared tour engine: spotlight + tooltip card + rAF position tracking.
  * Supports traditional linear steps and interactive steps (auto-advances when an external condition is met).
@@ -53,6 +63,9 @@ export default function TourEngine({
   const [spotlightRect, setSpotlightRect] = useState<SpotlightRect | null>(null);
   const [secondarySpotlightRect, setSecondarySpotlightRect] = useState<SpotlightRect | null>(null);
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
+  const spotlightRectRef = useRef<SpotlightRect | null>(null);
+  const secondarySpotlightRectRef = useRef<SpotlightRect | null>(null);
+  const tooltipStyleRef = useRef<React.CSSProperties>({});
   const [isFinalStep, setIsFinalStep] = useState(false);
   // Tracks auto-completed interactive steps (keyed by step.id); on revisit shows completed state instead of auto-advancing again
   const [completedInteractiveSteps, setCompletedInteractiveSteps] = useState<Set<string>>(new Set());
@@ -80,6 +93,24 @@ export default function TourEngine({
   // Gives calculatePositions always-fresh completedInteractiveSteps without needing to rebuild on changes
   const completedInteractiveStepsRef = useRef(completedInteractiveSteps);
   completedInteractiveStepsRef.current = completedInteractiveSteps;
+
+  const updateSpotlightRect = useCallback((next: SpotlightRect | null) => {
+    if (areSpotlightRectsEqual(spotlightRectRef.current, next)) return;
+    spotlightRectRef.current = next;
+    setSpotlightRect(next);
+  }, []);
+
+  const updateSecondarySpotlightRect = useCallback((next: SpotlightRect | null) => {
+    if (areSpotlightRectsEqual(secondarySpotlightRectRef.current, next)) return;
+    secondarySpotlightRectRef.current = next;
+    setSecondarySpotlightRect(next);
+  }, []);
+
+  const updateTooltipStyle = useCallback((next: React.CSSProperties) => {
+    if (areTooltipStylesEqual(tooltipStyleRef.current, next)) return;
+    tooltipStyleRef.current = next;
+    setTooltipStyle(next);
+  }, []);
 
   const handleNext = useCallback(() => {
     if (currentIndex < steps.length - 1) {
@@ -141,16 +172,16 @@ export default function TourEngine({
 
     const el = document.querySelector(step.targetSelector);
     if (!el) {
-      setSpotlightRect(null);
-      setSecondarySpotlightRect(null);
+      updateSpotlightRect(null);
+      updateSecondarySpotlightRect(null);
       return;
     }
 
     const rect = el.getBoundingClientRect();
     // Skip elements that are hidden (e.g. collapsed panels)
     if (rect.width === 0 && rect.height === 0) {
-      setSpotlightRect(null);
-      setSecondarySpotlightRect(null);
+      updateSpotlightRect(null);
+      updateSecondarySpotlightRect(null);
       return;
     }
 
@@ -160,7 +191,7 @@ export default function TourEngine({
       width: rect.width + PADDING * 2,
       height: rect.height + PADDING * 2,
     };
-    setSpotlightRect(padded);
+    updateSpotlightRect(padded);
 
     // Second spotlight (optional)
     if (step.secondaryTargetSelector) {
@@ -168,20 +199,20 @@ export default function TourEngine({
       if (el2) {
         const r2 = el2.getBoundingClientRect();
         if (r2.width > 0 || r2.height > 0) {
-          setSecondarySpotlightRect({
+          updateSecondarySpotlightRect({
             top: r2.top - PADDING,
             left: r2.left - PADDING,
             width: r2.width + PADDING * 2,
             height: r2.height + PADDING * 2,
           });
         } else {
-          setSecondarySpotlightRect(null);
+          updateSecondarySpotlightRect(null);
         }
       } else {
-        setSecondarySpotlightRect(null);
+        updateSecondarySpotlightRect(null);
       }
     } else {
-      setSecondarySpotlightRect(null);
+      updateSecondarySpotlightRect(null);
     }
 
     const TOOLTIP_OFFSET = 16;
@@ -212,8 +243,8 @@ export default function TourEngine({
     left = Math.max(SCREEN_MARGIN, Math.min(left, vw - TOOLTIP_WIDTH - SCREEN_MARGIN));
     top = Math.max(SCREEN_MARGIN, Math.min(top, vh - TOOLTIP_HEIGHT - SCREEN_MARGIN));
 
-    setTooltipStyle({ position: 'fixed', top, left });
-  }, [handleNext]); // reads currentStepRef.current; handleNext is stable
+    updateTooltipStyle({ position: 'fixed', top, left });
+  }, [handleNext, updateSecondarySpotlightRect, updateSpotlightRect, updateTooltipStyle]); // reads currentStepRef.current; handleNext is stable
 
   // rAF loop continuously tracks target position (supports panel drag, resize, layout switch, and interactive advance)
   useEffect(() => {
@@ -253,13 +284,21 @@ export default function TourEngine({
   // Reset when the tour opens
   useEffect(() => {
     if (isOpen) {
+      advancingRef.current = false;
       setCurrentIndex(0);
       setIsFinalStep(false);
-      setSpotlightRect(null);
-      setSecondarySpotlightRect(null);
+      updateSpotlightRect(null);
+      updateSecondarySpotlightRect(null);
+      updateTooltipStyle({});
       setCompletedInteractiveSteps(new Set());
     }
-  }, [isOpen]);
+  }, [isOpen, updateSecondarySpotlightRect, updateSpotlightRect, updateTooltipStyle]);
+
+  useEffect(() => {
+    if (isOpen) {
+      advancingRef.current = false;
+    }
+  }, [currentIndex, isOpen]);
 
   if (!isOpen) return null;
   if (effectivePaused) return null;

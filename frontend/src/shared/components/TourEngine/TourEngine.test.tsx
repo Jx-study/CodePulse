@@ -4,12 +4,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TourEngine from "./TourEngine";
 import type { TourStep } from "./tourTypes";
 
+const codiRenderSpy = vi.hoisted(() => vi.fn());
+
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, values?: Record<string, number>) => {
       if (key === "tour.stepOf") return `Step ${values?.current} of ${values?.total}`;
       if (key === "tour.skipThisStep") return "Skip this step";
       if (key === "tour.waitingForAction") return "Waiting for action";
+      if (key === "tour.completed") return "Completed";
       if (key === "tour.previous") return "Previous";
       if (key === "tour.next") return "Next";
       return key;
@@ -18,7 +21,10 @@ vi.mock("react-i18next", () => ({
 }));
 
 vi.mock("@/shared/components/Codi", () => ({
-  default: () => <div data-testid="codi" />,
+  default: () => {
+    codiRenderSpy();
+    return <div data-testid="codi" />;
+  },
 }));
 
 describe("TourEngine", () => {
@@ -28,6 +34,7 @@ describe("TourEngine", () => {
 
   beforeEach(() => {
     animationFrameCallbacks = [];
+    codiRenderSpy.mockClear();
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       animationFrameCallbacks.push(callback);
       return animationFrameCallbacks.length;
@@ -265,6 +272,88 @@ describe("TourEngine", () => {
     runAnimationFrame();
 
     expect(document.querySelector("[class*='spotlightBorder']")).not.toBeNull();
+  });
+
+  it("clears the auto-advance guard when resuming on the next step", () => {
+    const steps: TourStep[] = [
+      {
+        id: "run-button",
+        title: "Run",
+        description: "Run code",
+        targetSelector: '[data-tour="interactive"]',
+        placement: "bottom",
+        interactive: true,
+        advanceWhen: () => true,
+      },
+      {
+        id: "algo-detection",
+        title: "Algorithm dialog",
+        description: "Close the dialog",
+        targetSelector: '[data-tour="first"]',
+        placement: "bottom",
+        interactive: true,
+        advanceWhen: () => true,
+      },
+      {
+        id: "tab-bar",
+        title: "Tabs",
+        description: "Inspect tabs",
+        targetSelector: '[data-tour="target"]',
+        placement: "bottom",
+      },
+    ];
+    setup(steps);
+
+    runAnimationFrame();
+    expect(document.body.textContent).toContain("Algorithm dialog");
+
+    act(() => {
+      root.render(
+        <TourEngine
+          isOpen
+          isPaused
+          steps={steps}
+          onComplete={vi.fn()}
+          onSkip={vi.fn()}
+        />,
+      );
+    });
+    act(() => {
+      root.render(
+        <TourEngine
+          isOpen
+          steps={steps}
+          onComplete={vi.fn()}
+          onSkip={vi.fn()}
+        />,
+      );
+    });
+
+    runAnimationFrame();
+
+    expect(document.body.textContent).toContain("Tabs");
+  });
+
+  it("does not re-render Codi when tracked positions are unchanged", () => {
+    setup([
+      {
+        id: "interactive",
+        title: "Run code",
+        description: "Run first",
+        targetSelector: '[data-tour="interactive"]',
+        placement: "bottom",
+        interactive: true,
+        advanceWhen: () => false,
+        waitingState: () => "running",
+      },
+    ]);
+
+    runAnimationFrame();
+    const renderCountAfterFirstPositionUpdate = codiRenderSpy.mock.calls.length;
+
+    runAnimationFrame();
+
+    expect(codiRenderSpy.mock.calls.length).toBe(renderCountAfterFirstPositionUpdate);
   });
 
   it("clears stale secondary spotlight state when the tour reopens", () => {
