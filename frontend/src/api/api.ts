@@ -24,6 +24,7 @@ interface ApiError {
   message: string;
   status: number;
   error_code?: string;
+  retryAfter?: number;
 }
 
 class ApiService {
@@ -90,6 +91,7 @@ class ApiService {
         message: data.message || "API request failed",
         status: response.status,
         error_code: data.error_code,
+        retryAfter: data.retry_after,
       } as ApiError;
     }
 
