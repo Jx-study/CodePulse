@@ -10,6 +10,7 @@ import AuthPanel from "@/modules/auth/components/AuthPanel";
 import OnboardingForm from "@/modules/auth/components/OnboardingForm";
 import { SkeletonText } from "@/shared/components/Skeleton";
 import styles from "./Auth.module.scss";
+import { STORAGE_KEYS } from "@/shared/lib/storageKeys";
 
 type TabType = "login" | "signup";
 
@@ -128,7 +129,7 @@ function AuthPage() {
     try {
       const result = await register(formData.email, formData.password, formData.username);
       if (result?.expires_at) {
-        localStorage.setItem("verify_email_expires_at", result.expires_at);
+        localStorage.setItem(STORAGE_KEYS.VERIFY_EMAIL_EXPIRES_AT, result.expires_at);
       }
       navigate("/auth/verify-email", { state: { email: formData.email } });
     } catch (error: unknown) {

@@ -7,9 +7,10 @@ import Button from "@/shared/components/Button";
 import FormItem from "@/shared/components/FormItem";
 import Input from "@/shared/components/Input";
 import styles from "./VerifyEmail.module.scss";
+import { STORAGE_KEYS } from "@/shared/lib/storageKeys";
 
 const RESEND_COOLDOWN = 60; // seconds
-const LS_KEY = "verify_email_expires_at";
+const LS_KEY = STORAGE_KEYS.VERIFY_EMAIL_EXPIRES_AT;
 
 const VERIFY_EMAIL_ERROR_CODES = new Set([
   "INVALID_EMAIL",
