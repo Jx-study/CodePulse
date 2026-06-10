@@ -111,7 +111,7 @@ DATA = {
     "slug": "linked-list",
     "groups": [
         {
-            "id": "group-ll-playlist",
+            "id": "linked-list-group-1",
             "visual_type": "image",
             "visual_data": {
                 "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778994992/linked-list01_wi7kbk.png"
@@ -135,7 +135,7 @@ DATA = {
     "questions": [
         # 【Basic 基礎】 800-950
         {
-            "id": "ll-tf-1",
+            "id": "linked-list-q1",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 節點記憶體定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -154,7 +154,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q1",
+            "id": "linked-list-q2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 節點組成定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -183,7 +183,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q2",
+            "id": "linked-list-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 尾節點定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -212,7 +212,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-tf-2",
+            "id": "linked-list-q4",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 頭部插入複雜度) + 0(直觀) = 850
             "baseRating": 850,
@@ -231,7 +231,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q3",
+            "id": "linked-list-q5",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(頭插順序新手誤區) = 1200
             "baseRating": 1200,
@@ -261,7 +261,7 @@ DATA = {
         },
         # 【Application】 1000-1250
         {
-            "id": "ll-q4",
+            "id": "linked-list-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 尾部插入流程) + 0(直觀) = 900
             "baseRating": 900,
@@ -290,8 +290,8 @@ DATA = {
             },
         },
         {
-            "id": "ll-group-1",
-            "groupId": "group-ll-playlist",
+            "id": "linked-list-q7",
+            "groupId": "linked-list-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 尾端新增複雜度) + 0(直觀) = 900
             "baseRating": 900,
@@ -320,7 +320,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q5",
+            "id": "linked-list-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 搜尋複雜度) + 0(直觀) = 900
             "baseRating": 900,
@@ -349,7 +349,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-multi-1",
+            "id": "linked-list-q9",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 陣列串列多重比較) + 100(隨機存取新手誤區) = 1100
             "baseRating": 1100,
@@ -378,8 +378,8 @@ DATA = {
             },
         },
         {
-            "id": "ll-group-2",
-            "groupId": "group-ll-playlist",
+            "id": "linked-list-q10",
+            "groupId": "linked-list-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(佇列式移除新手誤區) = 1200
             "baseRating": 1200,
@@ -408,7 +408,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q6",
+            "id": "linked-list-q11",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 已知 prev 刪除複雜度) + 100(搜尋與刪除混淆新手誤區) = 1000
             "baseRating": 1000,
@@ -437,7 +437,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q7",
+            "id": "linked-list-q12",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 陣列串列多重比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -466,7 +466,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q8",
+            "id": "linked-list-q13",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 尾部刪除複雜度) + 0(直觀) = 900
             "baseRating": 900,
@@ -496,8 +496,8 @@ DATA = {
         },
         # 【Complexity】 1300-1500
         {
-            "id": "ll-group-3",
-            "groupId": "group-ll-playlist",
+            "id": "linked-list-q14",
+            "groupId": "linked-list-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 250(L3 多步狀態) + 100(尾端連接新手誤區) = 1300
             "baseRating": 1300,
@@ -518,7 +518,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-multi-2",
+            "id": "linked-list-q15",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重特性比較) + 100(尾刪常見新手誤區) = 1100
             "baseRating": 1100,
@@ -547,7 +547,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q9",
+            "id": "linked-list-q16",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 600(L5 系統級複雜度分析) + 250(複合陷阱) = 1700
             "baseRating": 1700,
@@ -576,7 +576,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-fill-1",
+            "id": "linked-list-q17",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 250(L3 多步狀態) + 100(指標順序新手誤區) = 1300
             "baseRating": 1300,
@@ -597,7 +597,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-pred-1",
+            "id": "linked-list-q18",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(搜尋尾端邊界) = 1350
             "baseRating": 1350,
@@ -618,7 +618,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q19",
+            "id": "linked-list-q19",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 記憶體開銷定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -637,7 +637,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q20",
+            "id": "linked-list-q20",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 陣列串列多重比較) + 100(索引存取新手誤區) = 1050
             "baseRating": 1050,
@@ -666,7 +666,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q21",
+            "id": "linked-list-q21",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(單節點刪除新手誤區) = 1200
             "baseRating": 1200,
@@ -695,7 +695,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q22",
+            "id": "linked-list-q22",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 指標連動推演) + 150(斷鏈邊界) = 1400
             "baseRating": 1400,
@@ -724,7 +724,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q23",
+            "id": "linked-list-q23",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(空串列邊界) = 1400
             "baseRating": 1400,
@@ -753,7 +753,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q24",
+            "id": "linked-list-q24",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 指標連動推演) + 250(複合陷阱) = 1500
             "baseRating": 1500,
@@ -782,7 +782,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q25",
+            "id": "linked-list-q25",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 指標連動推演) + 150(斷鏈邊界) = 1500
             "baseRating": 1500,
@@ -803,7 +803,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q26",
+            "id": "linked-list-q26",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 400(L4 快慢指標追蹤) + 100(迴圈條件新手誤區) = 1450
             "baseRating": 1450,
@@ -824,7 +824,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q27",
+            "id": "linked-list-q27",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 快慢指標邊界分析) + 150(偶數長度邊界) = 1400
             "baseRating": 1400,
@@ -853,7 +853,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q28",
+            "id": "linked-list-q28",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 合併控制流分析) + 150(剩餘節點邊界) = 1400
             "baseRating": 1400,
@@ -882,7 +882,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q29",
+            "id": "linked-list-q29",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 多指標重組) + 250(複合陷阱) = 1500
             "baseRating": 1500,
@@ -911,7 +911,7 @@ DATA = {
             },
         },
         {
-            "id": "ll-q30",
+            "id": "linked-list-q30",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 400(L4 終止條件邊界分析) + 250(複合陷阱) = 1450
             "baseRating": 1450,

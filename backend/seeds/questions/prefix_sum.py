@@ -33,7 +33,7 @@ DATA = {
     "slug": "prefixsum",
     "groups": [
         {
-            "id": "group-psum-query",
+            "id": "prefixsum-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：高效區間查詢",
@@ -50,7 +50,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "psum-q1",
+            "id": "prefixsum-q1",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -78,7 +78,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-tf-1",
+            "id": "prefixsum-q2",
             "type": "true-false",
             "baseRating": 950,
             "correctAnswer": "false",
@@ -96,7 +96,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-q2",
+            "id": "prefixsum-q3",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -124,7 +124,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-tf-2",
+            "id": "prefixsum-q4",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -142,7 +142,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-q3",
+            "id": "prefixsum-q5",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -170,8 +170,8 @@ DATA = {
             },
         },
         {
-            "id": "psum-group-1",
-            "groupId": "group-psum-query",
+            "id": "prefixsum-q6",
+            "groupId": "prefixsum-group-1",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -199,8 +199,8 @@ DATA = {
             },
         },
         {
-            "id": "psum-group-2",
-            "groupId": "group-psum-query",
+            "id": "prefixsum-q7",
+            "groupId": "prefixsum-group-1",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -228,7 +228,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-q4",
+            "id": "prefixsum-q8",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -256,7 +256,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-q5",
+            "id": "prefixsum-q9",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -284,7 +284,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-multi-1",
+            "id": "prefixsum-q10",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -312,7 +312,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-q6",
+            "id": "prefixsum-q11",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -340,8 +340,8 @@ DATA = {
             },
         },
         {
-            "id": "psum-group-3",
-            "groupId": "group-psum-query",
+            "id": "prefixsum-q12",
+            "groupId": "prefixsum-group-1",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["P[i]", "P[right + 1]", "P[left]"],
@@ -361,7 +361,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-q7",
+            "id": "prefixsum-q13",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -389,7 +389,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-multi-2",
+            "id": "prefixsum-q14",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1"],
@@ -417,7 +417,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-fill-1",
+            "id": "prefixsum-q15",
             "type": "fill-code",
             "baseRating": 1600,
             "correctAnswer": ["curr_sum - k", "curr_sum - k", "1"],
@@ -437,7 +437,7 @@ DATA = {
             },
         },
         {
-            "id": "psum-pred-1",
+            "id": "prefixsum-q16",
             "type": "predict-line",
             "baseRating": 1300,
             "correctAnswer": "1 2 3 4 5 4 5 4 6",

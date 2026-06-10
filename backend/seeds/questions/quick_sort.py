@@ -39,7 +39,7 @@ DATA = {
     "slug": "quick-sort",
     "groups": [
         {
-            "id": "group-qsort-partition",
+            "id": "quick-sort-group-1",
             "code": QSORT_PARTITION_CODE,
             "language": "python",
             "translations": {
@@ -58,7 +58,7 @@ DATA = {
         # ── Basic 基礎 (< 1000) ─────────────────────────────────────────────
         # [核心概念] 800 + 0(true-false) + 50(L1定義) + 0(直觀) = 850
         {
-            "id": "qsort-q1",
+            "id": "quick-sort-q1",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -77,7 +77,7 @@ DATA = {
         },
         # [核心概念] 800 + 50(single) + 50(L1定義) + 100(常見誤區) = 1000 → 留 1000 (boundary basic)
         {
-            "id": "qsort-q2",
+            "id": "quick-sort-q2",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "C",
@@ -106,7 +106,7 @@ DATA = {
         },
         # [操作複雜度] 800 + 50(single) + 50(L1定義) + 50(視覺相似干擾) = 950
         {
-            "id": "qsort-q3",
+            "id": "quick-sort-q3",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "A",
@@ -135,7 +135,7 @@ DATA = {
         },
         # [排序不穩定性] 800 + 0(true-false) + 50(L1定義) + 0(直觀) = 850
         {
-            "id": "qsort-q4",
+            "id": "quick-sort-q4",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "false",
@@ -154,7 +154,7 @@ DATA = {
         },
         # [操作複雜度] 800 + 0(true-false) + 50(L1定義) + 100(常見誤區) = 950
         {
-            "id": "qsort-q5",
+            "id": "quick-sort-q5",
             "type": "true-false",
             "baseRating": 950,
             "correctAnswer": "false",
@@ -173,7 +173,7 @@ DATA = {
         },
         # [核心概念] 800 + 50(single) + 50(L1定義) + 0(直觀) = 900
         {
-            "id": "qsort-q6",
+            "id": "quick-sort-q6",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -203,7 +203,7 @@ DATA = {
         # [可以優化什麼] 800 + 50(single) + 100(L2多重比較) + 100(常見誤區) = 1050 → 調至 1050 (application 邊界，放 basic 尾)
         # 審題建議 1100；重算 800+50+100+100=1050，合理放 application
         {
-            "id": "qsort-q7",
+            "id": "quick-sort-q7",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "D",
@@ -233,7 +233,7 @@ DATA = {
         # [陣列分割步驟] 800 + 50(single) + 100(L2多重比較) + 100(常見誤區) = 1050 → 審題建議 1100
         # 重算 800+50+150(L2單步追蹤)+100=1100
         {
-            "id": "qsort-q8",
+            "id": "quick-sort-q8",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "C",
@@ -262,7 +262,7 @@ DATA = {
         },
         # [適合處理的問題] 800 + 50(single) + 100(L2多重比較) + 0(直觀) = 950
         {
-            "id": "qsort-q9",
+            "id": "quick-sort-q9",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -291,7 +291,7 @@ DATA = {
         },
         # [適合處理的問題] 800 + 50(single) + 100(L2多重比較) + 50(視覺相似) = 1000
         {
-            "id": "qsort-q10",
+            "id": "quick-sort-q10",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "A",
@@ -322,11 +322,11 @@ DATA = {
         # ── Application 應用 (1000–1399) ────────────────────────────────────
         # [陣列分割步驟-題組] 800 + 50(single) + 150(L2單步追蹤) + 100(常見誤區) = 1100
         {
-            "id": "qsort-group-1",
+            "id": "quick-sort-q11",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
-            "groupId": "group-qsort-partition",
+            "groupId": "quick-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組程式碼中，`i = low - 1` 的作用是什麼？",
@@ -353,11 +353,11 @@ DATA = {
         # [陣列分割步驟-題組] 800 + 50(single) + 250(L3多步追蹤) + 0(直觀) = 1100 → 審題建議降至 1050
         # 重算 800+50+150(L2單步追蹤)+100=1100；只有 3 個元素，降至 1050
         {
-            "id": "qsort-group-2",
+            "id": "quick-sort-q12",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "C",
-            "groupId": "group-qsort-partition",
+            "groupId": "quick-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "對 `arr = [3, 1, 2]`（low=0, high=2）執行題組的 partition 函式，基準點為 arr[2]=2。函式的回傳值（基準點最終落點的索引）為何？",
@@ -383,11 +383,11 @@ DATA = {
         },
         # [陣列分割步驟-題組] 800 + 50(single) + 250(L3多步追蹤) + 100(常見誤區) = 1200
         {
-            "id": "qsort-group-3",
+            "id": "quick-sort-q13",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "D",
-            "groupId": "group-qsort-partition",
+            "groupId": "quick-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "對 `arr = [5, 3, 8, 1, 4]`（low=0, high=4）執行題組的 partition 函式，基準點為 arr[4]=4。執行完畢後，陣列的狀態為何？",
@@ -413,7 +413,7 @@ DATA = {
         },
         # [陣列分割步驟/fill-code] 800 + 150(fill) + 250(L3多步) + 100(常見誤區) = 1300
         {
-            "id": "qsort-fill-1",
+            "id": "quick-sort-q14",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["low - 1", "<= pivot", "i + 1"],
@@ -435,7 +435,7 @@ DATA = {
         # [排序不穩定性] 800 + 50(single) + 250(L3多步) + 50(視覺相似干擾) = 1150 → 審題建議 1100
         # 重算 800+50+150(L2單步)+100(常見誤區)=1100
         {
-            "id": "qsort-q11",
+            "id": "quick-sort-q15",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -464,7 +464,7 @@ DATA = {
         },
         # [可以優化什麼/三點取中] 800 + 50(single) + 100(L2多重比較) + 100(常見誤區) = 1050 → 審題建議 1050
         {
-            "id": "qsort-q12",
+            "id": "quick-sort-q16",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "C",
@@ -493,7 +493,7 @@ DATA = {
         },
         # [操作複雜度/退化] 800 + 50(single) + 100(L2多重比較) + 100(常見誤區) = 1050
         {
-            "id": "qsort-q13",
+            "id": "quick-sort-q17",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "A",
@@ -522,7 +522,7 @@ DATA = {
         },
         # [可以優化什麼/fill-code] 800 + 150(fill) + 250(L3多步) + 100(off-by-one) = 1300
         {
-            "id": "qsort-fill-2",
+            "id": "quick-sort-q18",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["low < high", "low", "high"],
@@ -543,7 +543,7 @@ DATA = {
         },
         # [操作複雜度/multiple-choice] 800 + 100(multiple) + 100(L2多重比較) + 100(常見誤區) = 1100
         {
-            "id": "qsort-multi-1",
+            "id": "quick-sort-q19",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3", "opt4"],
@@ -574,7 +574,7 @@ DATA = {
         # ── Complexity 挑戰 (≥ 1400) ─────────────────────────────────────────
         # [predict-line] 800 + 150(predict) + 400(L4複雜控制流) + 100(誤區off-by-one) = 1450
         {
-            "id": "qsort-pred-1",
+            "id": "quick-sort-q20",
             "type": "predict-line",
             "baseRating": 1450,
             "correctAnswer": "1 2 3 4 5 4 5 6 7 4 8 9",
@@ -596,7 +596,7 @@ DATA = {
         # [操作複雜度/Sedgewick trick] 800 + 50(single) + 600(L5系統分析) + 150(複合) = 1600 → 審題建議 1550
         # 重算 800+50+550(L5)+150=1550
         {
-            "id": "qsort-q14",
+            "id": "quick-sort-q21",
             "type": "single-choice",
             "baseRating": 1550,
             "correctAnswer": "C",
@@ -625,7 +625,7 @@ DATA = {
         },
         # [排序不穩定性/multi-key sort] 800 + 50(single) + 250(L3多步) + 150(複合陷阱) = 1250 → 審題建議 1250
         {
-            "id": "qsort-q15",
+            "id": "quick-sort-q22",
             "type": "single-choice",
             "baseRating": 1250,
             "correctAnswer": "B",
@@ -654,7 +654,7 @@ DATA = {
         },
         # [適合問題/Quick Select 深度] 800 + 50(single) + 400(L4複雜分析) + 150(複合) = 1400
         {
-            "id": "qsort-q16",
+            "id": "quick-sort-q23",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "D",
@@ -683,7 +683,7 @@ DATA = {
         },
         # [操作複雜度/遞迴深度] 800 + 50(single) + 250(L3多步) + 100(常見誤區) = 1200 → 審題建議 1200
         {
-            "id": "qsort-q17",
+            "id": "quick-sort-q24",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -713,7 +713,7 @@ DATA = {
         # [可以優化什麼/三路分區] 800 + 50(single) + 400(L4複雜分析) + 100(常見誤區) = 1350 → 審題建議 1200
         # 重算 800+50+250(L3多步)+100=1200
         {
-            "id": "qsort-q18",
+            "id": "quick-sort-q25",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "A",
@@ -742,7 +742,7 @@ DATA = {
         },
         # [綜合/multiple-choice] 800 + 100(multiple) + 400(L4分析) + 150(複合) = 1450
         {
-            "id": "qsort-multi-2",
+            "id": "quick-sort-q26",
             "type": "multiple-choice",
             "baseRating": 1450,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -771,7 +771,7 @@ DATA = {
         },
         # [系統級/Timsort] 800 + 50(single) + 400(L4複雜分析) + 150(複合) = 1400 → 審題建議 1400
         {
-            "id": "qsort-q19",
+            "id": "quick-sort-q27",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "B",
@@ -801,7 +801,7 @@ DATA = {
         # [系統級/IntroSort] 800 + 50(single) + 400(L4複雜分析) + 150(複合) = 1400 → 審題建議 1450
         # 重算 800+50+450(L4-L5)+150=1450
         {
-            "id": "qsort-q20",
+            "id": "quick-sort-q28",
             "type": "single-choice",
             "baseRating": 1450,
             "correctAnswer": "C",

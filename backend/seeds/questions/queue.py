@@ -81,7 +81,7 @@ DATA = {
     "slug": "queue",
     "groups": [
         {
-            "id": "group-print-buffer",
+            "id": "queue-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：印表機緩衝區管理",
@@ -99,7 +99,7 @@ DATA = {
     "questions": [
         # 【Basic】 800-950
         {
-            "id": "queue-tf-1",
+            "id": "queue-q1",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 定義辨識) + 0(直觀) = 850
             "baseRating": 850,
@@ -118,7 +118,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q1",
+            "id": "queue-q2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 FIFO 定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -147,7 +147,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q2",
+            "id": "queue-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 操作定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -176,7 +176,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q3",
+            "id": "queue-q4",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 操作定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -205,7 +205,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q4",
+            "id": "queue-q5",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 名詞辨識) + 0(直觀) = 900
             "baseRating": 900,
@@ -235,7 +235,7 @@ DATA = {
         },
         # 【Application】 1000-1200
         {
-            "id": "queue-q5",
+            "id": "queue-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -264,7 +264,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q6",
+            "id": "queue-q7",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 應用辨識) + 50(相似場景干擾) = 950
             "baseRating": 950,
@@ -293,7 +293,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q7",
+            "id": "queue-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 應用辨識) + 50(相似排程結構干擾) = 950
             "baseRating": 950,
@@ -322,7 +322,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q8",
+            "id": "queue-q9",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 應用辨識) + 50(相似結構干擾) = 950
             "baseRating": 950,
@@ -351,7 +351,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-multi-1",
+            "id": "queue-q10",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -381,7 +381,7 @@ DATA = {
         },
         # 【Complexity】 1300-1500
         {
-            "id": "queue-q9",
+            "id": "queue-q11",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 0(L0 常見操作複雜度) + 0(直觀) = 850
             "baseRating": 850,
@@ -410,7 +410,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-q10",
+            "id": "queue-q12",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 複雜度定義) + 50(相似複雜度干擾) = 950
             "baseRating": 950,
@@ -440,8 +440,8 @@ DATA = {
         },
         # 【Group Questions】
         {
-            "id": "q-group-1",
-            "groupId": "group-print-buffer",
+            "id": "queue-q13",
+            "groupId": "queue-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 150(容量邊界) = 1250
             "baseRating": 1250,
@@ -470,8 +470,8 @@ DATA = {
             },
         },
         {
-            "id": "q-group-2",
-            "groupId": "group-print-buffer",
+            "id": "queue-q14",
+            "groupId": "queue-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 50(相似文件干擾) = 1000
             "baseRating": 1000,
@@ -500,8 +500,8 @@ DATA = {
             },
         },
         {
-            "id": "q-group-3",
-            "groupId": "group-print-buffer",
+            "id": "queue-q15",
+            "groupId": "queue-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 50(L1 複雜度與工具辨識) + 0(直觀) = 1000
             "baseRating": 1000,
@@ -520,7 +520,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-code-fill-1",
+            "id": "queue-q16",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 指標與邊界分析) + 150(環狀邊界) = 1500
             "baseRating": 1500,
@@ -541,7 +541,7 @@ DATA = {
             },
         },
         {
-            "id": "queue-code-1",
+            "id": "queue-q17",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(環狀邊界) = 1350
             "baseRating": 1350,

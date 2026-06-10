@@ -78,7 +78,7 @@ DATA = {
     "slug": "array",
     "groups": [
         {
-            "id": "group-array-inventory",
+            "id": "array-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：倉庫存貨管理系統",
@@ -97,7 +97,7 @@ DATA = {
         # 【Basic 基礎】 800-950
         # baseRating = 800 + 0(TF) + 50(L1 隨機存取定義) + 0(直觀) = 850
         {
-            "id": "array-tf-1",
+            "id": "array-q1",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "false",
@@ -116,7 +116,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 0(L0 Zero-indexed 常識) + 0(直觀) = 850
         {
-            "id": "array-q1",
+            "id": "array-q2",
             "type": "single-choice",
             "baseRating": 850,
             "correctAnswer": "A",
@@ -145,7 +145,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 50(L1 複雜度定義) + 0(直觀) = 900
         {
-            "id": "array-q2",
+            "id": "array-q3",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "A",
@@ -174,7 +174,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
         {
-            "id": "array-q3",
+            "id": "array-q4",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -203,7 +203,7 @@ DATA = {
         },
         # baseRating = 800 + 0(TF) + 50(L1 位移概念) + 0(直觀) = 850
         {
-            "id": "array-tf-2",
+            "id": "array-q5",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -223,7 +223,7 @@ DATA = {
         # 【Application 應用】 1000-1200
         # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(Zero-indexed 新手誤區) = 1100
         {
-            "id": "array-q4",
+            "id": "array-q6",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -252,7 +252,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(插入位移新手誤區) = 1200
         {
-            "id": "array-q5",
+            "id": "array-q7",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -281,7 +281,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 150(L2 單步追蹤) + 100(刪除位移新手誤區) = 1100
         {
-            "id": "array-q6",
+            "id": "array-q8",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -310,7 +310,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(索引變動新手誤區) = 1200
         {
-            "id": "array-q7",
+            "id": "array-q9",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -339,7 +339,7 @@ DATA = {
         },
         # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(操作複雜度新手誤區) = 1100
         {
-            "id": "array-multi-1",
+            "id": "array-q10",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2"],
@@ -368,7 +368,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 50(L1 資料結構適用情境) + 0(直觀) = 900
         {
-            "id": "array-q8",
+            "id": "array-q11",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "A",
@@ -397,8 +397,8 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(插入位移新手誤區) = 1200
         {
-            "id": "array-group-1",
-            "groupId": "group-array-inventory",
+            "id": "array-q12",
+            "groupId": "array-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -427,8 +427,8 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(刪除後索引新手誤區) = 1200
         {
-            "id": "array-group-2",
-            "groupId": "group-array-inventory",
+            "id": "array-q13",
+            "groupId": "array-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -458,7 +458,7 @@ DATA = {
         # 【Complexity 複雜度】 1250-1500
         # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
         {
-            "id": "array-q9",
+            "id": "array-q14",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "A",
@@ -487,7 +487,7 @@ DATA = {
         },
         # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(陣列特性新手誤區) = 1100
         {
-            "id": "array-multi-2",
+            "id": "array-q15",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -516,8 +516,8 @@ DATA = {
         },
         # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(插入邊界) = 1500
         {
-            "id": "array-group-3",
-            "groupId": "group-array-inventory",
+            "id": "array-q16",
+            "groupId": "array-group-1",
             "type": "fill-code",
             "baseRating": 1500,
             "code": WAREHOUSE_FILL_CODE,
@@ -538,7 +538,7 @@ DATA = {
         },
         # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(刪除邊界) = 1500
         {
-            "id": "array-fill-1",
+            "id": "array-q17",
             "type": "fill-code",
             "baseRating": 1500,
             "code": ARRAY_DELETE_FILL_CODE,
@@ -559,7 +559,7 @@ DATA = {
         },
         # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(找不到目標邊界) = 1350
         {
-            "id": "array-pred-1",
+            "id": "array-q18",
             "type": "predict-line",
             "baseRating": 1350,
             "code": ARRAY_PREDICT_CODE,

@@ -83,7 +83,7 @@ DATA = {
     "slug": "graph",
     "groups": [
         {
-            "id": "group-graph-bfs",
+            "id": "graph-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：廣度優先搜尋與連通性 (BFS & Connectivity)",
@@ -100,7 +100,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "graph-tf-1",
+            "id": "graph-q1",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -119,7 +119,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q1",
+            "id": "graph-q2",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -148,7 +148,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q2",
+            "id": "graph-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -177,7 +177,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q3",
+            "id": "graph-q4",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -206,7 +206,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-tf-2",
+            "id": "graph-q5",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -225,7 +225,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q4",
+            "id": "graph-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -254,7 +254,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q5",
+            "id": "graph-q7",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -283,7 +283,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q6",
+            "id": "graph-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 複雜度比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -312,8 +312,8 @@ DATA = {
             },
         },
         {
-            "id": "graph-group-1",
-            "groupId": "group-graph-bfs",
+            "id": "graph-q9",
+            "groupId": "graph-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 演算法特性判斷) + 0(直觀) = 950
             "baseRating": 950,
@@ -342,8 +342,8 @@ DATA = {
             },
         },
         {
-            "id": "graph-group-2",
-            "groupId": "group-graph-bfs",
+            "id": "graph-q10",
+            "groupId": "graph-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -372,7 +372,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-multi-1",
+            "id": "graph-q11",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -401,7 +401,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q-topo",
+            "id": "graph-q12",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -430,7 +430,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q7",
+            "id": "graph-q13",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 複雜度比較) + 100(新手誤區) = 1050
             "baseRating": 1050,
@@ -459,8 +459,8 @@ DATA = {
             },
         },
         {
-            "id": "graph-group-3",
-            "groupId": "group-graph-bfs",
+            "id": "graph-q14",
+            "groupId": "graph-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 100(L2 單步追蹤) + 0(直觀) = 1050
             "baseRating": 1050,
@@ -481,7 +481,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-multi-2",
+            "id": "graph-q15",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 600(L5 系統級分析) + 100(新手誤區) = 1600
             "baseRating": 1600,
@@ -510,7 +510,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-q8",
+            "id": "graph-q16",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜度邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -539,7 +539,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-fill-1",
+            "id": "graph-q17",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 250(L3 多步狀態) + 100(新手誤區) = 1300
             "baseRating": 1300,
@@ -560,7 +560,7 @@ DATA = {
             },
         },
         {
-            "id": "graph-pred-1",
+            "id": "graph-q18",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(邊界) = 1350
             "baseRating": 1350,
