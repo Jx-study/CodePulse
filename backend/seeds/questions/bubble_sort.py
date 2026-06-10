@@ -66,7 +66,7 @@ DATA = {
     "slug": "bubble-sort",
     "groups": [
         {
-            "id": "group-bsort-process",
+            "id": "bubble-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：泡沫排序的單輪過程",
@@ -84,7 +84,7 @@ DATA = {
     "questions": [
         # 【Basic 基礎】 800-950
         {
-            "id": "bsort-q1",
+            "id": "bubble-sort-q1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -119,7 +119,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-tf-1",
+            "id": "bubble-sort-q2",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -139,7 +139,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q2",
+            "id": "bubble-sort-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -168,7 +168,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-tf-2",
+            "id": "bubble-sort-q4",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 900
             "baseRating": 900,
@@ -187,7 +187,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q3",
+            "id": "bubble-sort-q5",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 語法特性) + 0(直觀) = 900
             "baseRating": 900,
@@ -216,8 +216,8 @@ DATA = {
             },
         },
         {
-            "id": "bsort-group-1",
-            "groupId": "group-bsort-process",
+            "id": "bubble-sort-q6",
+            "groupId": "bubble-sort-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 0(直觀) = 1100
             "baseRating": 1100,
@@ -246,8 +246,8 @@ DATA = {
             },
         },
         {
-            "id": "bsort-group-2",
-            "groupId": "group-bsort-process",
+            "id": "bubble-sort-q7",
+            "groupId": "bubble-sort-group-1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -276,7 +276,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q8",
+            "id": "bubble-sort-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
             "baseRating": 900,
@@ -305,7 +305,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q4",
+            "id": "bubble-sort-q9",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
             "baseRating": 900,
@@ -334,7 +334,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q5",
+            "id": "bubble-sort-q10",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
@@ -363,7 +363,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q9",
+            "id": "bubble-sort-q11",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 100(新手誤區) = 1050
             "baseRating": 1050,
@@ -392,7 +392,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-multi-1",
+            "id": "bubble-sort-q12",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 1000
             "baseRating": 1000,
@@ -421,7 +421,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q6",
+            "id": "bubble-sort-q13",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -450,8 +450,8 @@ DATA = {
             },
         },
         {
-            "id": "bsort-group-3",
-            "groupId": "group-bsort-process",
+            "id": "bubble-sort-q14",
+            "groupId": "bubble-sort-group-1",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 50(L1 單一理論) + 0(直觀) = 1000
             "baseRating": 1000,
@@ -472,7 +472,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q7",
+            "id": "bubble-sort-q15",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 50(視覺/相似度干擾) = 950
             "baseRating": 950,
@@ -501,7 +501,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-multi-2",
+            "id": "bubble-sort-q16",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區) = 1100
             "baseRating": 1100,
@@ -530,7 +530,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-fill-1",
+            "id": "bubble-sort-q17",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 100(L2 動態想像) + 100(新手誤區) = 1150
             "baseRating": 1150,
@@ -551,7 +551,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-pred-1",
+            "id": "bubble-sort-q18",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
             "baseRating": 1500,
@@ -572,7 +572,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q19",
+            "id": "bubble-sort-q19",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 250(L3 多步狀態) + 100(新手誤區) = 1150
             "baseRating": 1150,
@@ -591,7 +591,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q20",
+            "id": "bubble-sort-q20",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 100(新手誤區) = 1050
             "baseRating": 1050,
@@ -620,7 +620,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q21",
+            "id": "bubble-sort-q21",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態) + 100(新手誤區) = 1200
             "baseRating": 1200,
@@ -649,7 +649,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q22",
+            "id": "bubble-sort-q22",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 250(L3 多步狀態) + 250(複合陷阱) = 1400
             "baseRating": 1400,
@@ -678,7 +678,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q23",
+            "id": "bubble-sort-q23",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -707,7 +707,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q24",
+            "id": "bubble-sort-q24",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -736,7 +736,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q25",
+            "id": "bubble-sort-q25",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1400
             "baseRating": 1400,
@@ -767,7 +767,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q26",
+            "id": "bubble-sort-q26",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 250(複合陷阱) = 1500
             "baseRating": 1500,
@@ -796,7 +796,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q27",
+            "id": "bubble-sort-q27",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1500
             "baseRating": 1500,
@@ -817,7 +817,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q28",
+            "id": "bubble-sort-q28",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 複雜控制流/邊界分析) + 250(複合陷阱) = 1500
             "baseRating": 1500,
@@ -846,7 +846,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q29",
+            "id": "bubble-sort-q29",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 400(L4 複雜控制流/邊界分析) + 150(邊界) = 1450
             "baseRating": 1450,
@@ -875,7 +875,7 @@ DATA = {
             },
         },
         {
-            "id": "bsort-q30",
+            "id": "bubble-sort-q30",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 600(L5 演算法創造/系統級分析) + 150(邊界) = 1700
             "baseRating": 1700,

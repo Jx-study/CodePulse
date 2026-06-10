@@ -76,7 +76,7 @@ DATA = {
     "slug": "bfs",
     "groups": [
         {
-            "id": "group-bfs-traversal",
+            "id": "bfs-group-1",
             "visual_type": "image",
             "visual_data": {
                 "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778999503/BFS_pev7b1.png"
@@ -127,7 +127,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-tf-1",
+            "id": "bfs-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -145,7 +145,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q2",
+            "id": "bfs-q3",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -173,7 +173,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-tf-2",
+            "id": "bfs-q4",
             "type": "true-false",
             "baseRating": 950,
             "correctAnswer": "true",
@@ -191,7 +191,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q3",
+            "id": "bfs-q5",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -219,8 +219,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-group-1",
-            "groupId": "group-bfs-traversal",
+            "id": "bfs-q6",
+            "groupId": "bfs-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -248,7 +248,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q4",
+            "id": "bfs-q7",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -276,8 +276,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-group-2",
-            "groupId": "group-bfs-traversal",
+            "id": "bfs-q8",
+            "groupId": "bfs-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -305,7 +305,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q5",
+            "id": "bfs-q9",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -333,7 +333,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q6",
+            "id": "bfs-q10",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -361,7 +361,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-multi-1",
+            "id": "bfs-q11",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -389,7 +389,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q7",
+            "id": "bfs-q12",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -417,8 +417,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-group-3",
-            "groupId": "group-bfs-traversal",
+            "id": "bfs-q13",
+            "groupId": "bfs-group-1",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["start", "dist", "dist[node]"],
@@ -438,7 +438,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q8",
+            "id": "bfs-q14",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -466,7 +466,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-multi-2",
+            "id": "bfs-q15",
             "type": "multiple-choice",
             "baseRating": 1600,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -494,7 +494,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-fill-1",
+            "id": "bfs-q16",
             "type": "fill-code",
             "baseRating": 1450,
             "correctAnswer": ["queue.popleft()", "grid[nr][nc]", "steps"],
@@ -514,7 +514,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-pred-1",
+            "id": "bfs-q17",
             "type": "predict-line",
             "baseRating": 1600,
             "correctAnswer": "1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 5 6 7 5 6 7 5 12",

@@ -58,7 +58,7 @@ DATA = {
     "slug": "knapsack",
     "groups": [
         {
-            "id": "group-dp-trace",
+            "id": "knapsack-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：DP 表格逐格追蹤",
@@ -75,7 +75,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "kp-tf-1",
+            "id": "knapsack-q1",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -93,7 +93,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q1",
+            "id": "knapsack-q2",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -121,7 +121,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q2",
+            "id": "knapsack-q3",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -149,7 +149,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-tf-2",
+            "id": "knapsack-q4",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -167,7 +167,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q3",
+            "id": "knapsack-q5",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "C",
@@ -195,7 +195,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q4",
+            "id": "knapsack-q6",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -223,8 +223,8 @@ DATA = {
             },
         },
         {
-            "id": "kp-grp-1",
-            "groupId": "group-dp-trace",
+            "id": "knapsack-q7",
+            "groupId": "knapsack-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -252,7 +252,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q5",
+            "id": "knapsack-q8",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -280,7 +280,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-multi-1",
+            "id": "knapsack-q9",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -308,8 +308,8 @@ DATA = {
             },
         },
         {
-            "id": "kp-grp-2",
-            "groupId": "group-dp-trace",
+            "id": "knapsack-q10",
+            "groupId": "knapsack-group-1",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "D",
@@ -337,7 +337,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q6",
+            "id": "knapsack-q11",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "D",
@@ -365,7 +365,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-q7",
+            "id": "knapsack-q12",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -393,8 +393,8 @@ DATA = {
             },
         },
         {
-            "id": "kp-grp-3",
-            "groupId": "group-dp-trace",
+            "id": "knapsack-q13",
+            "groupId": "knapsack-group-1",
             "type": "single-choice",
             "baseRating": 1350,
             "correctAnswer": "B",
@@ -422,7 +422,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-tf-3",
+            "id": "knapsack-q14",
             "type": "true-false",
             "baseRating": 1000,
             "correctAnswer": "true",
@@ -440,7 +440,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-fill-1",
+            "id": "knapsack-q15",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["item_idx-1", "current_value", "max(skip_val, take_val)", "dp[item_idx-1][curr_capacity]"],
@@ -460,7 +460,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-fill-2",
+            "id": "knapsack-q16",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["capacity", "dp[curr_capacity - w]", "capacity"],
@@ -480,7 +480,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-pred-1",
+            "id": "knapsack-q17",
             "type": "predict-line",
             "baseRating": 1350,
             "correctAnswer": "1 2 4 5 6",
@@ -500,7 +500,7 @@ DATA = {
             },
         },
         {
-            "id": "kp-multi-2",
+            "id": "knapsack-q18",
             "type": "multiple-choice",
             "baseRating": 1250,
             "correctAnswer": ["opt1", "opt2", "opt4"],

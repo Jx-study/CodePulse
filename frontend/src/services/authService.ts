@@ -4,6 +4,7 @@ import type { AuthResponse, AuthStatusResponse } from '@/types';
 export interface RegisterPendingResponse {
   success: boolean;
   message?: string;
+  expires_at?: string;
 }
 
 export interface VerifyEmailResponse {
@@ -16,6 +17,7 @@ export interface ResendVerificationResponse {
   success: boolean;
   message?: string;
   remaining_attempts?: number;
+  expires_at?: string;
 }
 
 export interface OnboardingInfoResponse {

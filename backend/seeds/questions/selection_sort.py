@@ -70,7 +70,7 @@ DATA = {
     "slug": "selection-sort",
     "groups": [
         {
-            "id": "group-ssort-logic",
+            "id": "selection-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：選擇排序的最小化邏輯",
@@ -88,7 +88,7 @@ DATA = {
     "questions": [
         # 【Basic 基礎】 800-950
         {
-            "id": "ssort-q1",
+            "id": "selection-sort-q1",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -117,7 +117,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-tf-1",
+            "id": "selection-sort-q2",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 單一定義) + 0(直觀) = 850
             "baseRating": 850,
@@ -136,7 +136,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q2",
+            "id": "selection-sort-q3",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950 → 落在 900 附近，調整為 800+50+50+0=900（L1 觀念說明）
             "baseRating": 900,
@@ -165,7 +165,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-tf-2",
+            "id": "selection-sort-q4",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 觀念) + 0(直觀) = 850
             "baseRating": 850,
@@ -184,7 +184,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q3",
+            "id": "selection-sort-q5",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 定義) + 0(直觀) = 900
             "baseRating": 900,
@@ -214,12 +214,12 @@ DATA = {
         },
         # 【Application 應用】 1000-1250
         {
-            "id": "ssort-group-1",
+            "id": "selection-sort-q6",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 對應程式碼語意) + 0(直觀) = 900
             "baseRating": 900,
             "correctAnswer": "A",
-            "groupId": "group-ssort-logic",
+            "groupId": "selection-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "在題組的程式碼中，`min_idx = i` 這行初始化的意義是什麼？",
@@ -244,7 +244,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q8",
+            "id": "selection-sort-q7",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態追蹤) + 50(視覺相似度) = 1150
             "baseRating": 1150,
@@ -273,12 +273,12 @@ DATA = {
             },
         },
         {
-            "id": "ssort-group-2",
+            "id": "selection-sort-q8",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 0(直觀) = 950
             "baseRating": 950,
             "correctAnswer": "C",
-            "groupId": "group-ssort-logic",
+            "groupId": "selection-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "在題組的程式碼中，如果省略 `if min_idx != i:` 的判斷，直接執行交換，會有什麼影響？",
@@ -303,7 +303,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q4",
+            "id": "selection-sort-q9",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較情境) + 0(直觀) = 950
             "baseRating": 950,
@@ -332,7 +332,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q5",
+            "id": "selection-sort-q10",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態追蹤) + 150(邊界：第二輪起點偏移 + 正確識別 swap 後各位置) = 1250
             "baseRating": 1250,
@@ -361,7 +361,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q9",
+            "id": "selection-sort-q11",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 動態想像) + 100(新手誤區：穩定性概念) = 1050
             "baseRating": 1050,
@@ -390,7 +390,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-multi-1",
+            "id": "selection-sort-q12",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 100(L2 多重比較特性) + 100(新手誤區：穩定性) = 1100
             "baseRating": 1100,
@@ -419,7 +419,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q6",
+            "id": "selection-sort-q13",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 跨演算法比較+具體案例分析) + 100(新手誤區：混淆 swap 與 move 的差異) = 1200
             "baseRating": 1200,
@@ -449,12 +449,12 @@ DATA = {
         },
         # 【Complexity 進階】 1300-1500
         {
-            "id": "ssort-group-3",
+            "id": "selection-sort-q14",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 150(L2 單步追蹤+變數對應) + 0(直觀) = 1100
             "baseRating": 1100,
             "correctAnswer": ["current_pos", "scan_pos", "current_pos"],
-            "groupId": "group-ssort-logic",
+            "groupId": "selection-sort-group-1",
             "code": SSORT_FILL_CODE,
             "language": "python",
             "translations": {
@@ -471,7 +471,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q7",
+            "id": "selection-sort-q15",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 演算法變體理解) + 100(新手誤區：每輪兩次 swap vs 範圍縮兩格) = 1200
             "baseRating": 1200,
@@ -500,7 +500,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-multi-2",
+            "id": "selection-sort-q16",
             "type": "multiple-choice",
             # baseRating = 800 + 100(MC) + 250(L3 多演算法特性對比) + 250(複合：含部分正確的迷惑選項) = 1400
             "baseRating": 1400,
@@ -529,7 +529,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-fill-1",
+            "id": "selection-sort-q17",
             "type": "fill-code",
             # baseRating = 800 + 150(FC) + 400(L4 雙指針連動推演) + 150(邊界：max 被搬移後的位置追蹤) = 1500
             "baseRating": 1500,
@@ -551,7 +551,7 @@ DATA = {
         },
         # === 補題（q19-q30，補充未涵蓋知識點，達到 30 題目標） ===
         {
-            "id": "ssort-q19",
+            "id": "selection-sort-q18",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 50(L1 單一定義：空間複雜度) + 0(直觀) = 900
             "baseRating": 900,
@@ -580,7 +580,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q20",
+            "id": "selection-sort-q19",
             "type": "true-false",
             # baseRating = 800 + 0(TF) + 50(L1 對稱性觀念) + 0(直觀) = 850
             "baseRating": 850,
@@ -599,7 +599,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q21",
+            "id": "selection-sort-q20",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 動態想像：累加比較次數) + 100(新手誤區：忘記是 n-1 起算) = 1050
             "baseRating": 1050,
@@ -628,7 +628,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q22",
+            "id": "selection-sort-q21",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 多步狀態：3 輪追蹤) + 100(新手誤區：含一輪不交換的情境) = 1200
             "baseRating": 1200,
@@ -657,7 +657,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-pred-1",
+            "id": "selection-sort-q22",
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態+行號追蹤) + 250(複合：迴圈出口+條件判斷+交換) = 1450
             "baseRating": 1450,
@@ -678,7 +678,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q23",
+            "id": "selection-sort-q23",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 100(L2 多重比較情境) + 100(新手誤區：常誤以為已排序就會早結束) = 1050
             "baseRating": 1050,
@@ -707,7 +707,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q24",
+            "id": "selection-sort-q24",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 250(L3 跨演算法場景辨識) + 150(邊界：時間複雜度以外的取捨因素) = 1250
             "baseRating": 1250,
@@ -736,7 +736,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q25",
+            "id": "selection-sort-q25",
             "type": "fill-code",
             "code": SSORT_DESC_FILL_CODE,
             "language": "python",
@@ -757,7 +757,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q26",
+            "id": "selection-sort-q26",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 多輪交換次數歸納推演) + 150(邊界：完全逆序但實際交換次數遠少於 n-1) = 1400
             "baseRating": 1400,
@@ -786,7 +786,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q27",
+            "id": "selection-sort-q27",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 演算法結構改造+穩定性分析) + 150(邊界：理解為何 swap 必然破壞穩定性) = 1400
             "baseRating": 1400,
@@ -815,7 +815,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q28",
+            "id": "selection-sort-q28",
             "type": "fill-code",
             "code": SSORT_KEY_FILL_CODE,
             "language": "python",
@@ -836,7 +836,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q29",
+            "id": "selection-sort-q29",
             "type": "predict-line",
             "code": SSORT_PREDICT_CODE,
             "language": "python",
@@ -857,7 +857,7 @@ DATA = {
             },
         },
         {
-            "id": "ssort-q30",
+            "id": "selection-sort-q30",
             "type": "single-choice",
             # baseRating = 800 + 50(SC) + 400(L4 跨演算法效能對照分析) + 150(邊界：交換成本 vs 比較成本的權衡判斷) = 1400
             "baseRating": 1400,

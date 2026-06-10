@@ -50,7 +50,7 @@ DATA = {
     "slug": "slidingwindow",
     "groups": [
         {
-            "id": "group-sw-variable",
+            "id": "slidingwindow-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：可變窗口的狀態追蹤",
@@ -67,7 +67,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "sw-q1",
+            "id": "slidingwindow-q1",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -95,7 +95,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-tf-1",
+            "id": "slidingwindow-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "false",
@@ -113,7 +113,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q2",
+            "id": "slidingwindow-q3",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -141,7 +141,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-tf-2",
+            "id": "slidingwindow-q4",
             "type": "true-false",
             "baseRating": 900,
             "correctAnswer": "true",
@@ -159,7 +159,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q3",
+            "id": "slidingwindow-q5",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -187,8 +187,8 @@ DATA = {
             },
         },
         {
-            "id": "sw-group-1",
-            "groupId": "group-sw-variable",
+            "id": "slidingwindow-q6",
+            "groupId": "slidingwindow-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -216,7 +216,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q4",
+            "id": "slidingwindow-q7",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -244,8 +244,8 @@ DATA = {
             },
         },
         {
-            "id": "sw-group-2",
-            "groupId": "group-sw-variable",
+            "id": "slidingwindow-q8",
+            "groupId": "slidingwindow-group-1",
             "type": "single-choice",
             "baseRating": 1300,
             "correctAnswer": "D",
@@ -273,7 +273,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q5",
+            "id": "slidingwindow-q9",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -301,7 +301,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q6",
+            "id": "slidingwindow-q10",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "C",
@@ -329,7 +329,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q7",
+            "id": "slidingwindow-q11",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -357,7 +357,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-multi-1",
+            "id": "slidingwindow-q12",
             "type": "multiple-choice",
             "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -385,7 +385,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q8",
+            "id": "slidingwindow-q13",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -413,8 +413,8 @@ DATA = {
             },
         },
         {
-            "id": "sw-group-3",
-            "groupId": "group-sw-variable",
+            "id": "slidingwindow-q14",
+            "groupId": "slidingwindow-group-1",
             "type": "fill-code",
             "baseRating": 1150,
             "correctAnswer": ["arr[right]", "target", "arr[left]", "right - left + 1"],
@@ -434,7 +434,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q9",
+            "id": "slidingwindow-q15",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "A",
@@ -462,7 +462,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-multi-2",
+            "id": "slidingwindow-q16",
             "type": "multiple-choice",
             "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -490,7 +490,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-fill-1",
+            "id": "slidingwindow-q17",
             "type": "fill-code",
             "baseRating": 1150,
             "correctAnswer": ["window_sum", "i + k - 1", "window_sum"],
@@ -510,7 +510,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-pred-1",
+            "id": "slidingwindow-q18",
             "type": "predict-line",
             "baseRating": 1300,
             "correctAnswer": "1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12",

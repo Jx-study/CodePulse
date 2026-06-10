@@ -67,7 +67,7 @@ DATA = {
     "slug": "insertion-sort",
     "groups": [
         {
-            "id": "group-isort-logic",
+            "id": "insertion-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：插入排序的平移機制",
@@ -86,7 +86,7 @@ DATA = {
         # 【Basic 基礎】 800-999
         # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
         {
-            "id": "isort-q1",
+            "id": "insertion-sort-q1",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -115,7 +115,7 @@ DATA = {
         },
         # baseRating = 800 + 0(TF) + 50(L1 單一理論) + 0(直觀) = 850
         {
-            "id": "isort-tf-1",
+            "id": "insertion-sort-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -134,7 +134,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
         {
-            "id": "isort-q2",
+            "id": "insertion-sort-q3",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "A",
@@ -163,7 +163,7 @@ DATA = {
         },
         # baseRating = 800 + 0(TF) + 50(L1 單一理論) + 100(新手誤區：誤以為嚴格大於不重要) = 950
         {
-            "id": "isort-tf-2",
+            "id": "insertion-sort-q4",
             "type": "true-false",
             "baseRating": 950,
             "correctAnswer": "true",
@@ -183,7 +183,7 @@ DATA = {
         # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 100(新手誤區：誤以為重複元素=O(n log n)) = 1000  → 調回 950 維持 basic
         # baseRating = 800 + 50(SC) + 50(L1 定義) + 50(視覺干擾：O(n) / O(n²) 易混) = 950
         {
-            "id": "isort-q3",
+            "id": "insertion-sort-q5",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -212,7 +212,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 0(直觀) = 900
         {
-            "id": "isort-q5",
+            "id": "insertion-sort-q6",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -242,7 +242,7 @@ DATA = {
         # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 100(新手誤區：交換與移位易混淆) = 1000  → 950 to keep basic
         # baseRating = 800 + 50(SC) + 50(L1 定義) + 50(視覺干擾：一次 vs 三次賦值) = 950
         {
-            "id": "isort-q9",
+            "id": "insertion-sort-q7",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "A",
@@ -272,7 +272,7 @@ DATA = {
         # 【新增 Basic】
         # baseRating = 800 + 0(TF) + 50(L1 單一理論) + 0(直觀) = 850
         {
-            "id": "isort-q19",
+            "id": "insertion-sort-q8",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "false",
@@ -292,7 +292,7 @@ DATA = {
         # baseRating = 800 + 50(SC) + 50(L1 定義) + 100(新手誤區：混淆線上/離線排序概念) = 1000  → 950 for basic
         # baseRating = 800 + 50(SC) + 50(L1 定義) + 50(視覺干擾：線上/離線術語) = 900
         {
-            "id": "isort-q20",
+            "id": "insertion-sort-q9",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "C",
@@ -322,11 +322,11 @@ DATA = {
         # 【Application 應用】 1000-1399
         # baseRating = 800 + 50(SC) + 50(L1 單一理論) + 100(新手誤區：暫存目的不清) = 1000
         {
-            "id": "isort-group-1",
+            "id": "insertion-sort-q10",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "A",
-            "groupId": "group-isort-logic",
+            "groupId": "insertion-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "在題組的程式碼中，`key = arr[i]` 這行程式碼的目的是什麼？",
@@ -352,7 +352,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態：追蹤三輪後陣列) + 100(新手誤區：i=1/2 易算錯) = 1200
         {
-            "id": "isort-q8",
+            "id": "insertion-sort-q11",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -382,11 +382,11 @@ DATA = {
         # baseRating = 800 + 50(SC) + 100(L2 多重比較：j+1 語意分析) + 100(新手誤區：j 與 j+1 混淆) = 1050  → 1000
         # baseRating = 800 + 50(SC) + 100(L2 多重比較) + 50(視覺干擾：j vs j+1) = 1000
         {
-            "id": "isort-group-2",
+            "id": "insertion-sort-q12",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
-            "groupId": "group-isort-logic",
+            "groupId": "insertion-sort-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "在題組程式碼中，`while` 迴圈結束後，`arr[j + 1] = key` 的 `j + 1` 代表什麼？",
@@ -412,7 +412,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 100(L2 多重比較：穩定 vs 不穩定) + 50(視覺干擾：選項描述互相鏡像) = 1000
         {
-            "id": "isort-q4",
+            "id": "insertion-sort-q13",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -441,7 +441,7 @@ DATA = {
         },
         # baseRating = 800 + 100(MC) + 100(L2 多重比較) + 100(新手誤區：O(n²) 是否恆成立) = 1100
         {
-            "id": "isort-multi-1",
+            "id": "insertion-sort-q14",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt3"],
@@ -471,7 +471,7 @@ DATA = {
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態：追蹤穩定性具體例子) + 100(新手誤區：重複元素相對順序) = 1200  → 1100
         # baseRating = 800 + 50(SC) + 150(L2 單步追蹤：穩定性驗證) + 100(新手誤區) = 1100
         {
-            "id": "isort-q6",
+            "id": "insertion-sort-q15",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -500,7 +500,7 @@ DATA = {
         },
         # baseRating = 800 + 100(MC) + 100(L2 多重比較：三種共同特性) + 100(新手誤區：最佳時間複雜度誤以為O(n log n)) = 1100
         {
-            "id": "isort-multi-2",
+            "id": "insertion-sort-q16",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -530,7 +530,7 @@ DATA = {
         # baseRating = 800 + 150(PL) + 250(L3 多步狀態：追蹤逐行執行) + 150(極端邊界：j<0 終止) = 1350  → 調 1300
         # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 100(新手誤區：while 再次進入與否) = 1300
         {
-            "id": "isort-pred-1",
+            "id": "insertion-sort-q17",
             "type": "predict-line",
             "baseRating": 1300,
             "correctAnswer": "1 2 3 4 5 6 7 5 8 9",
@@ -552,7 +552,7 @@ DATA = {
         # 【新增 Application】
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態：追蹤完整五輪排序) + 100(新手誤區：最小值插到最左邊的過程) = 1200
         {
-            "id": "isort-q21",
+            "id": "insertion-sort-q18",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "D",
@@ -581,7 +581,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 100(L2 多重比較：常數係數 vs 漸近複雜度的權衡) + 100(新手誤區：誤以為O(n log n)總是優於O(n²)) = 1050
         {
-            "id": "isort-q22",
+            "id": "insertion-sort-q19",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "C",
@@ -611,11 +611,11 @@ DATA = {
         # 【Complexity 進階】 ≥1400
         # baseRating = 800 + 150(FC) + 400(L4 複雜控制流：雙條件 while + 越界) + 150(極端邊界：j=-1 越界) = 1500
         {
-            "id": "isort-group-3",
+            "id": "insertion-sort-q20",
             "type": "fill-code",
             "baseRating": 1500,
             "correctAnswer": ["j >= 0", "collection[j] > key", "j + 1"],
-            "groupId": "group-isort-logic",
+            "groupId": "insertion-sort-group-1",
             "code": ISORT_FILL_CODE,
             "language": "python",
             "translations": {
@@ -633,7 +633,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 250(L3 多步狀態：gap 收斂過程推理) + 100(新手誤區：與 merge sort / binary insertion 混淆) = 1200
         {
-            "id": "isort-q7",
+            "id": "insertion-sort-q21",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -662,7 +662,7 @@ DATA = {
         },
         # baseRating = 800 + 150(FC) + 400(L4 複雜控制流：遞迴追蹤 n-1 模式) + 150(極端邊界：n<=1 base case) = 1500
         {
-            "id": "isort-fill-1",
+            "id": "insertion-sort-q22",
             "type": "fill-code",
             "baseRating": 1500,
             "correctAnswer": ["1", "n - 1", "last"],
@@ -684,7 +684,7 @@ DATA = {
         # 【新增 Complexity】
         # baseRating = 800 + 50(SC) + 400(L4 複雜控制流：最壞交換次數公式推導) + 150(極端邊界：完全逆序) = 1400
         {
-            "id": "isort-q23",
+            "id": "insertion-sort-q23",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "C",
@@ -713,7 +713,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 400(L4 複雜控制流：二分搜尋改寫插入位置的效能分析) + 150(極端邊界：比較次數 vs 移位次數分離) = 1400
         {
-            "id": "isort-q24",
+            "id": "insertion-sort-q24",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "A",
@@ -742,7 +742,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 400(L4 複雜控制流：迴圈不變量推理) + 250(複合陷阱：不變量違反時機+正確性推理) = 1500
         {
-            "id": "isort-q25",
+            "id": "insertion-sort-q25",
             "type": "single-choice",
             "baseRating": 1500,
             "correctAnswer": "B",
@@ -771,7 +771,7 @@ DATA = {
         },
         # baseRating = 800 + 150(PL) + 400(L4 複雜控制流：追蹤含重複元素的穩定性行號) + 150(極端邊界：相等元素 while 不執行) = 1500
         {
-            "id": "isort-pred-2",
+            "id": "insertion-sort-q26",
             "type": "predict-line",
             "baseRating": 1500,
             "correctAnswer": "1 2 3 4 5 8 2 3 4 5 8 9",
@@ -792,7 +792,7 @@ DATA = {
         },
         # baseRating = 800 + 150(FC) + 400(L4 複雜控制流：二分搜尋找插入點 + 邊界收斂) + 250(複合陷阱：lo=mid+1 vs hi=mid 的方向判斷) = 1600
         {
-            "id": "isort-fill-2",
+            "id": "insertion-sort-q27",
             "type": "fill-code",
             "baseRating": 1600,
             "correctAnswer": ["i", "mid + 1", "lo"],
@@ -813,7 +813,7 @@ DATA = {
         },
         # baseRating = 800 + 50(SC) + 600(L5 系統級分析：最壞情況交換次數公式的逆向推導與情境辨別) + 250(複合陷阱：同時需要判斷陣列大小與逆序程度) = 1700
         {
-            "id": "isort-q26",
+            "id": "insertion-sort-q28",
             "type": "single-choice",
             "baseRating": 1700,
             "correctAnswer": "D",
@@ -842,7 +842,7 @@ DATA = {
         },
         # baseRating = 800 + 100(MC) + 400(L4 複雜控制流：多維度特性分析) + 100(新手誤區：binary insertion 誤以為整體加速、Timsort 需求誤解) = 1400
         {
-            "id": "isort-q27",
+            "id": "insertion-sort-q29",
             "type": "multiple-choice",
             "baseRating": 1400,
             "correctAnswer": ["opt1", "opt3", "opt4"],

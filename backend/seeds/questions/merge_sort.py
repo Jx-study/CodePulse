@@ -82,7 +82,7 @@ DATA = {
     "slug": "merge-sort",
     "groups": [
         {
-            "id": "group-merge-merge-fn",
+            "id": "merge-sort-group-1",
             "code": MERGE_GROUP_CODE,
             "language": "python",
             "translations": {
@@ -102,7 +102,7 @@ DATA = {
 
         # [核心概念] 800 + 0(true-false) + 50(L1定義) + 0(直觀) = 850
         {
-            "id": "msort-q1",
+            "id": "merge-sort-q1",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -122,7 +122,7 @@ DATA = {
 
         # [核心概念] 800 + 50(single) + 50(L1定義) + 50(視覺干擾) = 900
         {
-            "id": "msort-q2",
+            "id": "merge-sort-q2",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "C",
@@ -152,7 +152,7 @@ DATA = {
 
         # [操作複雜度] 800 + 0(true-false) + 50(L1定義) + 0(直觀) = 850
         {
-            "id": "msort-q3",
+            "id": "merge-sort-q3",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -172,7 +172,7 @@ DATA = {
 
         # [操作複雜度] 800 + 50(single) + 50(L1定義) + 0(直觀) = 900
         {
-            "id": "msort-q4",
+            "id": "merge-sort-q4",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -202,7 +202,7 @@ DATA = {
 
         # [核心概念 / 穩定排序] 800 + 50(single) + 50(L1定義) + 0(直觀) = 900
         {
-            "id": "msort-q5",
+            "id": "merge-sort-q5",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "A",
@@ -232,7 +232,7 @@ DATA = {
 
         # [適合處理的問題] 800 + 50(single) + 50(L1定義) + 50(視覺干擾) = 950
         {
-            "id": "msort-q6",
+            "id": "merge-sort-q6",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "D",
@@ -263,7 +263,7 @@ DATA = {
         # [遞迴執行順序] 800 + 50(single) + 100(L2比較) + 100(新手誤區) = 1050 → 調低至 950 (L1定義+視覺干擾)
         # [遞迴執行順序] 800 + 50(single) + 50(L1定義) + 50(視覺干擾) = 950
         {
-            "id": "msort-q7",
+            "id": "merge-sort-q7",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -293,7 +293,7 @@ DATA = {
 
         # [可以優化什麼] 800 + 50(single) + 50(L1定義) + 0(直觀) = 900
         {
-            "id": "msort-q8",
+            "id": "merge-sort-q8",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "C",
@@ -324,7 +324,7 @@ DATA = {
         # [關鍵的合併步驟] 800 + 50(single) + 100(L2動態想像) + 50(視覺干擾) = 1000 → 調為 basic 上限 950
         # [關鍵的合併步驟] 800 + 50(single) + 50(L1定義) + 50(視覺干擾) = 950
         {
-            "id": "msort-q9",
+            "id": "merge-sort-q9",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "A",
@@ -354,7 +354,7 @@ DATA = {
 
         # [適合處理的問題 / 反轉對] 800 + 50(single) + 100(L2比較) + 0(直觀) = 950
         {
-            "id": "msort-q10",
+            "id": "merge-sort-q10",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -386,10 +386,10 @@ DATA = {
 
         # [關鍵的合併步驟 / 題組] 800 + 50(single) + 100(L2動態) + 100(新手誤區) = 1050
         {
-            "id": "msort-group-1",
+            "id": "merge-sort-q11",
             "type": "single-choice",
             "baseRating": 1050,
-            "groupId": "group-merge-merge-fn",
+            "groupId": "merge-sort-group-1",
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
@@ -417,10 +417,10 @@ DATA = {
 
         # [關鍵的合併步驟 / 題組] 800 + 50(single) + 250(L3多步追蹤) + 50(視覺干擾) = 1150
         {
-            "id": "msort-group-2",
+            "id": "merge-sort-q12",
             "type": "single-choice",
             "baseRating": 1150,
-            "groupId": "group-merge-merge-fn",
+            "groupId": "merge-sort-group-1",
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
@@ -448,7 +448,7 @@ DATA = {
 
         # [遞迴執行順序] 800 + 50(single) + 250(L3多步) + 100(新手誤區) = 1200
         {
-            "id": "msort-q13",
+            "id": "merge-sort-q13",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "D",
@@ -478,7 +478,7 @@ DATA = {
 
         # [操作複雜度 / 比較] 800 + 50(single) + 100(L2多重比較) + 100(新手誤區) = 1050
         {
-            "id": "msort-q14",
+            "id": "merge-sort-q14",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "D",
@@ -508,7 +508,7 @@ DATA = {
 
         # [關鍵的合併步驟] 800 + 100(multiple) + 100(L2比較) + 100(新手誤區) = 1100
         {
-            "id": "msort-q15",
+            "id": "merge-sort-q15",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt2", "opt3", "opt4"],
@@ -538,7 +538,7 @@ DATA = {
 
         # [遞迴執行順序] 800 + 50(single) + 250(L3多步) + 0(直觀) = 1100
         {
-            "id": "msort-q16",
+            "id": "merge-sort-q16",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "A",
@@ -568,7 +568,7 @@ DATA = {
 
         # [可以優化什麼 / 外部排序] 800 + 50(single) + 100(L2比較) + 100(新手誤區) = 1050
         {
-            "id": "msort-q17",
+            "id": "merge-sort-q17",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -598,7 +598,7 @@ DATA = {
 
         # [核心概念 / 穩定排序應用] 800 + 50(single) + 100(L2比較) + 100(新手誤區) = 1050
         {
-            "id": "msort-q18",
+            "id": "merge-sort-q18",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "D",
@@ -628,7 +628,7 @@ DATA = {
 
         # [關鍵的合併步驟] 800 + 50(single) + 250(L3多步) + 100(新手誤區) = 1200
         {
-            "id": "msort-q19",
+            "id": "merge-sort-q19",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -658,7 +658,7 @@ DATA = {
 
         # [遞迴執行順序 / 操作複雜度] 800 + 50(single) + 100(L2比較) + 150(極端邊界) = 1100
         {
-            "id": "msort-q20",
+            "id": "merge-sort-q20",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -690,7 +690,7 @@ DATA = {
 
         # [關鍵的合併步驟 / fill-code] 800 + 150(fill) + 100(L2動態) + 150(極端邊界) = 1200
         {
-            "id": "msort-fill-1",
+            "id": "merge-sort-q21",
             "type": "fill-code",
             "baseRating": 1200,
             "correctAnswer": ["len(arr) <= 1", "arr[:mid]", "arr[mid:]"],
@@ -712,7 +712,7 @@ DATA = {
 
         # [遞迴執行順序 / predict-line] 800 + 150(predict) + 400(L4遞迴追蹤) + 150(複合邊界) = 1500
         {
-            "id": "msort-pred-1",
+            "id": "merge-sort-q22",
             "type": "predict-line",
             "baseRating": 1500,
             "correctAnswer": "2 4 5 2 3 6 2 3 7 9 10 11 12 16 17 11 18 19 20",
@@ -734,7 +734,7 @@ DATA = {
 
         # [遞迴執行順序 / 深度理解] 800 + 50(single) + 250(L3多步) + 100(新手誤區) = 1200
         {
-            "id": "msort-q23",
+            "id": "merge-sort-q23",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
@@ -764,7 +764,7 @@ DATA = {
 
         # [操作複雜度] 800 + 50(single) + 250(L3多步分析) + 200(新手誤區+視覺干擾) = 1300
         {
-            "id": "msort-q24",
+            "id": "merge-sort-q24",
             "type": "single-choice",
             "baseRating": 1300,
             "correctAnswer": "C",
@@ -794,7 +794,7 @@ DATA = {
 
         # [可以優化什麼 / Timsort] 800 + 50(single) + 400(L4系統設計理解) + 200(新手誤區+視覺干擾) = 1450
         {
-            "id": "msort-q25",
+            "id": "merge-sort-q25",
             "type": "single-choice",
             "baseRating": 1450,
             "correctAnswer": "A",
@@ -824,7 +824,7 @@ DATA = {
 
         # [關鍵的合併步驟 / 邊界分析] 800 + 50(single) + 100(L2動態) + 150(極端邊界) = 1100
         {
-            "id": "msort-q26",
+            "id": "merge-sort-q26",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -854,7 +854,7 @@ DATA = {
 
         # [遞迴執行順序 / 深度理解] 800 + 50(single) + 250(L3多步) + 250(複合陷阱) = 1350
         {
-            "id": "msort-q27",
+            "id": "merge-sort-q27",
             "type": "single-choice",
             "baseRating": 1350,
             "correctAnswer": "C",
@@ -885,7 +885,7 @@ DATA = {
         # [核心概念 / 計算反轉對進階] 800 + 50(single) + 600(L5演算法創造) + 100(新手誤區) = 1550 → 1500
         # [適合處理的問題 / 反轉對實作] 800 + 50(single) + 400(L4複雜控制流) + 250(複合陷阱) = 1500
         {
-            "id": "msort-q28",
+            "id": "merge-sort-q28",
             "type": "single-choice",
             "baseRating": 1500,
             "correctAnswer": "B",
@@ -915,7 +915,7 @@ DATA = {
 
         # [操作複雜度] 800 + 50(single) + 400(L4複雜分析) + 150(極端邊界) = 1400
         {
-            "id": "msort-q29",
+            "id": "merge-sort-q29",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "D",
@@ -945,7 +945,7 @@ DATA = {
 
         # [多重比較 / 綜合] 800 + 100(multiple) + 400(L4綜合分析) + 200(複合陷阱) = 1500
         {
-            "id": "msort-q30",
+            "id": "merge-sort-q30",
             "type": "multiple-choice",
             "baseRating": 1500,
             "correctAnswer": ["opt1", "opt3", "opt4"],

@@ -67,7 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!data.success) {
       throw new Error(data.message || '註冊失敗');
     }
-    // Registration now sends a verification code — no auto-login here
+    return {
+      expires_at: data.expires_at
+    };
   }, []);
 
   const verifyEmail = useCallback(async (email: string, code: string) => {

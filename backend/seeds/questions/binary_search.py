@@ -55,7 +55,7 @@ DATA = {
     "slug": "binary-search",
     "groups": [
         {
-            "id": "group-bs-insert",
+            "id": "binary-search-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：尋找插入位置 (Search Insert Position)",
@@ -73,7 +73,7 @@ DATA = {
     "questions": [
         # 【Basic 基礎】 800-950
         {
-            "id": "bs-tf-1",
+            "id": "binary-search-q1",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -91,7 +91,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q1",
+            "id": "binary-search-q2",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "A",
@@ -119,7 +119,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q2",
+            "id": "binary-search-q3",
             "type": "single-choice",
             "baseRating": 850,
             "correctAnswer": "B",
@@ -147,7 +147,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q3",
+            "id": "binary-search-q4",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "C",
@@ -175,7 +175,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-tf-2",
+            "id": "binary-search-q5",
             "type": "true-false",
             "baseRating": 950,
             "correctAnswer": "false",
@@ -193,7 +193,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q4",
+            "id": "binary-search-q6",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -221,7 +221,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q5",
+            "id": "binary-search-q7",
             "type": "single-choice",
             "baseRating": 1400,
             "correctAnswer": "B",
@@ -249,11 +249,11 @@ DATA = {
             },
         },
         {
-            "id": "bs-group-1",
+            "id": "binary-search-q8",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
-            "groupId": "group-bs-insert",
+            "groupId": "binary-search-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "在 `search_insert` 函式中，若目標值不存在於陣列中，函式最終回傳的 `left` 代表什麼意義？",
@@ -278,7 +278,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q6",
+            "id": "binary-search-q9",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "A",
@@ -306,11 +306,11 @@ DATA = {
             },
         },
         {
-            "id": "bs-group-2",
+            "id": "binary-search-q10",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "B",
-            "groupId": "group-bs-insert",
+            "groupId": "binary-search-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[1, 3, 5, 7]` 呼叫 `search_insert(arr, 4)`，函式會回傳什麼？",
@@ -335,7 +335,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-multi-1",
+            "id": "binary-search-q11",
             "type": "multiple-choice",
             "baseRating": 950,
             "correctAnswer": ["opt1", "opt3"],
@@ -363,7 +363,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q7",
+            "id": "binary-search-q12",
             "type": "single-choice",
             "baseRating": 1300,
             "correctAnswer": "B",
@@ -391,7 +391,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q8",
+            "id": "binary-search-q13",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "C",
@@ -419,11 +419,11 @@ DATA = {
             },
         },
         {
-            "id": "bs-group-3",
+            "id": "binary-search-q14",
             "type": "fill-code",
             "baseRating": 1400,
             "correctAnswer": ["left <= right", "mid + 1", "mid - 1"],
-            "groupId": "group-bs-insert",
+            "groupId": "binary-search-group-1",
             "code": INSERT_FILL_CODE,
             "language": "python",
             "translations": {
@@ -440,7 +440,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-q9",
+            "id": "binary-search-q15",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -468,7 +468,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-fill-1",
+            "id": "binary-search-q16",
             "type": "fill-code",
             "baseRating": 1100,
             "correctAnswer": ["mid", "left", "right"],
@@ -488,7 +488,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-multi-2",
+            "id": "binary-search-q17",
             "type": "multiple-choice",
             "baseRating": 1400,
             "correctAnswer": ["opt2", "opt3"],
@@ -516,7 +516,7 @@ DATA = {
             },
         },
         {
-            "id": "bs-pred-1",
+            "id": "binary-search-q18",
             "type": "predict-line",
             "baseRating": 1450,
             "correctAnswer": "1 2 3 4 5 6 8 9 4 5 6 7",

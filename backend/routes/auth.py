@@ -91,7 +91,11 @@ def register():
     except Exception:
         return jsonify({'success': False, 'message': '驗證碼寄送失敗，請稍後再試', 'error_code': 'MAIL_ERROR'}), 500
 
-    return jsonify({'success': True, 'message': '驗證碼已寄出，請檢查您的信箱'}), 200
+    return jsonify({
+        'success': True,
+        'message': '驗證碼已寄出，請檢查您的信箱',
+        'expires_at': verification.expires_at.isoformat(),
+    }), 200
 
 
 # Login
@@ -489,6 +493,7 @@ def resend_verification():
         'success': True,
         'message': '驗證碼已重新發送，請檢查您的信箱',
         'remaining_attempts': RESEND_DAILY_LIMIT - daily_count - 1,
+        'expires_at': verification.expires_at.isoformat(),
     }), 200
 
 
