@@ -64,6 +64,12 @@ seed-all:
     docker compose exec backend python seeds/seed_tutorials.py
     docker compose exec backend python seeds/seed_questions.py
 
+migrate-keys:
+    docker compose exec backend python seeds/migrate_question_keys.py
+
+migrate-keys-apply:
+    docker compose exec backend python seeds/migrate_question_keys.py --apply
+
 # ── Algo Identification ────────────────────────────────────────────────────
 build-embeddings:
     python scripts/build_embeddings.py

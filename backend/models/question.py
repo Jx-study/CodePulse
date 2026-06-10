@@ -22,6 +22,7 @@ class QuestionGroup(db.Model):
 
     group_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
+    group_key = db.Column(db.String(100), nullable=True)
     code = db.Column(db.Text, nullable=True)
     language = db.Column(db.String(50), nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
@@ -34,6 +35,7 @@ class QuestionGroup(db.Model):
     questions = db.relationship('Question', backref='group', cascade='all, delete-orphan')
 
     __table_args__ = (
+        db.UniqueConstraint('tutorial_id', 'group_key', name='uq_question_groups_key'),
         db.Index('ix_question_groups_tutorial_id', 'tutorial_id'),
         db.Index('ix_question_groups_tutorial_order', 'tutorial_id', 'display_order'),
     )
@@ -66,6 +68,7 @@ class Question(db.Model):
 
     question_id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     tutorial_id = db.Column(db.BigInteger, db.ForeignKey('tutorials.tutorial_id', ondelete='CASCADE'), nullable=False)
+    question_key = db.Column(db.String(100), nullable=True)
     group_id = db.Column(db.BigInteger, db.ForeignKey('question_groups.group_id', ondelete='SET NULL'), nullable=True)
     question_type = db.Column(db.Enum(QuestionType), nullable=False)
     category = db.Column(db.Enum(QuestionCategory), nullable=False, default=QuestionCategory.basic)
@@ -89,6 +92,7 @@ class Question(db.Model):
     translations = db.relationship('QuestionTranslation', backref='question', cascade='all, delete-orphan')
 
     __table_args__ = (
+        db.UniqueConstraint('tutorial_id', 'question_key', name='uq_questions_key'),
         db.Index('ix_questions_tutorial_id', 'tutorial_id'),
         db.Index('ix_questions_group_id', 'group_id'),
         db.Index('ix_questions_tutorial_order', 'tutorial_id', 'display_order'),
