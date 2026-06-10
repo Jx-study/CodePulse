@@ -5,7 +5,6 @@ export interface RegisterPendingResponse {
   success: boolean;
   message?: string;
   expires_at?: string;
-  expires_in_seconds?: number;
 }
 
 export interface VerifyEmailResponse {
@@ -19,7 +18,6 @@ export interface ResendVerificationResponse {
   message?: string;
   remaining_attempts?: number;
   expires_at?: string;
-  expires_in_seconds?: number;
 }
 
 export interface OnboardingInfoResponse {

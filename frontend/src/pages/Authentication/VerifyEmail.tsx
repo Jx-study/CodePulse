@@ -9,6 +9,7 @@ import Input from "@/shared/components/Input";
 import styles from "./VerifyEmail.module.scss";
 
 const RESEND_COOLDOWN = 60; // seconds
+const LS_KEY = "verify_email_expires_at";
 
 const VERIFY_EMAIL_ERROR_CODES = new Set([
   "INVALID_EMAIL",
@@ -25,8 +26,6 @@ const VERIFY_EMAIL_ERROR_CODES = new Set([
 
 interface LocationState {
   email?: string;
-  expiresAt?: string;
-  expiresInSeconds?: number;
 }
 
 interface ApiRequestError {
@@ -39,36 +38,21 @@ function getApiError(error: unknown): ApiRequestError {
   return typeof error === "object" && error !== null ? error as ApiRequestError : {};
 }
 
-function secondsFromRelativeExpiry(expiresInSeconds?: number): number | null {
-  if (typeof expiresInSeconds !== "number" || !Number.isFinite(expiresInSeconds)) {
-    return null;
-  }
-  return Math.max(0, Math.floor(expiresInSeconds));
-}
-
-function calcSecondsLeft(expiresAt?: string, expiresInSeconds?: number): number {
-  const relativeSeconds = secondsFromRelativeExpiry(expiresInSeconds);
-  if (relativeSeconds !== null) return relativeSeconds;
+function calcSecondsLeft(expiresAt: string | null): number {
   if (!expiresAt) return 5 * 60;
   const diff = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
   return Math.max(0, diff);
 }
 
 function startCountdown(
-  initialSeconds: number,
+  expiresAt: string | null,
   setter: React.Dispatch<React.SetStateAction<number>>,
   timerRef: React.MutableRefObject<ReturnType<typeof setInterval> | null>
 ) {
   if (timerRef.current) clearInterval(timerRef.current);
-  setter(initialSeconds);
+  setter(calcSecondsLeft(expiresAt));
   timerRef.current = setInterval(() => {
-    setter((prev: number) => {
-      if (prev <= 1) {
-        clearInterval(timerRef.current!);
-        return 0;
-      }
-      return prev - 1;
-    });
+    setter(calcSecondsLeft(expiresAt));
   }, 1000);
 }
 
@@ -80,8 +64,6 @@ function VerifyEmailPage() {
 
   const state = location.state as LocationState | null;
   const email = state?.email ?? "";
-  const expiresAt = state?.expiresAt;
-  const expiresInSeconds = state?.expiresInSeconds;
 
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState("");
@@ -90,28 +72,28 @@ function VerifyEmailPage() {
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState(() => calcSecondsLeft(expiresAt, expiresInSeconds));
+  const [secondsLeft, setSecondsLeft] = useState(() =>
+    calcSecondsLeft(localStorage.getItem(LS_KEY))
+  );
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Redirect if no email in state
   useEffect(() => {
     if (!email) {
       navigate("/auth?tab=signup", { replace: true });
     }
   }, [email, navigate]);
 
-  // Code expiry countdown — starts from real server expiry time
+  // 從 localStorage 的絕對時間戳驅動倒計時，刷新後自動續算
   useEffect(() => {
     if (!email) return;
-    const initial = calcSecondsLeft(expiresAt, expiresInSeconds);
-    startCountdown(initial, setSecondsLeft, timerRef);
+    const expiresAt = localStorage.getItem(LS_KEY);
+    startCountdown(expiresAt, setSecondsLeft, timerRef);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [email, expiresAt, expiresInSeconds]);
+  }, [email]);
 
-  // Cleanup cooldown timer on unmount
   useEffect(() => {
     return () => {
       if (cooldownRef.current) clearInterval(cooldownRef.current);
@@ -134,6 +116,7 @@ function VerifyEmailPage() {
   const isExpired = secondsLeft === 0;
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const seconds = String(secondsLeft % 60).padStart(2, "0");
+
   const getErrorMessage = useCallback((error: unknown) => {
     const err = getApiError(error);
     if (err.error_code && VERIFY_EMAIL_ERROR_CODES.has(err.error_code)) {
@@ -154,6 +137,7 @@ function VerifyEmailPage() {
 
     try {
       await verifyEmail(email, code.trim().toUpperCase());
+      localStorage.removeItem(LS_KEY);
       navigate("/", { replace: true });
     } catch (error) {
       setMessage({ type: "error", text: getErrorMessage(error) });
@@ -169,8 +153,10 @@ function VerifyEmailPage() {
     try {
       const result = await authService.resendVerification(email);
 
-      const initial = calcSecondsLeft(result.expires_at, result.expires_in_seconds);
-      startCountdown(initial, setSecondsLeft, timerRef);
+      if (result.expires_at) {
+        localStorage.setItem(LS_KEY, result.expires_at);
+      }
+      startCountdown(result.expires_at ?? null, setSecondsLeft, timerRef);
 
       setCode("");
       setCodeError("");

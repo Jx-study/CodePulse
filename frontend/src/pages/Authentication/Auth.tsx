@@ -127,13 +127,10 @@ function AuthPage() {
     clearAlert();
     try {
       const result = await register(formData.email, formData.password, formData.username);
-      navigate("/auth/verify-email", {
-        state: {
-          email: formData.email,
-          expiresAt: result?.expires_at,
-          expiresInSeconds: result?.expires_in_seconds,
-        },
-      });
+      if (result?.expires_at) {
+        localStorage.setItem("verify_email_expires_at", result.expires_at);
+      }
+      navigate("/auth/verify-email", { state: { email: formData.email } });
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
       const errorCode = axiosError?.response?.data?.error_code;

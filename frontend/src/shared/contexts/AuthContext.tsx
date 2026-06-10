@@ -68,8 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error(data.message || '註冊失敗');
     }
     return {
-      expires_at: data.expires_at,
-      expires_in_seconds: data.expires_in_seconds,
+      expires_at: data.expires_at
     };
   }, []);
 
