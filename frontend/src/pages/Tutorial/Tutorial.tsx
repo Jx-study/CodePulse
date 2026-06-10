@@ -684,7 +684,11 @@ function TutorialContent() {
         const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
         const contentPercent = rightPanelPx > 0 ? (contentPx / rightPanelPx) * 100 : 0;
         const targetPercent = Math.min(panelSizes.codeEditor, Math.max(20, contentPercent));
-        leftPanelRef.current?.resize(`${targetPercent}%`);
+        if (rightPanelPx === 0) {
+          leftPanelRef.current?.expand();
+        } else {
+          leftPanelRef.current?.resize(`${targetPercent}%`);
+        }
       }
       setActiveInspectorTab("variableStatus");
     }, 400);
