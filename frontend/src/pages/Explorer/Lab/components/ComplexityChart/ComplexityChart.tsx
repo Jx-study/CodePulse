@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
 import type {
   AlgorithmId,
@@ -27,12 +28,6 @@ const MINI_PAD_Y = (MINI_VB_H - MINI_PLOT_H) / 2;
 
 const X_TICKS = Array.from({ length: Math.ceil(N_MAX / 500) }, (_, i) => (i + 1) * 500);
 
-const CASE_LABEL: Record<(typeof CASE_TYPES)[number], string> = {
-  random: "亂序",
-  sorted: "已排序",
-  reversed: "反序",
-};
-
 export interface ComplexityChartProps {
   algorithms: LabAlgorithmState[];
   currentStep: number;
@@ -49,6 +44,7 @@ export function ComplexityChart({
   visibleCaseTypes,
   unifiedYAxis,
 }: ComplexityChartProps) {
+  const { t } = useTranslation("lab");
   const [focusedIds, setFocusedIds] = useState<Set<AlgorithmId> | null>(null);
 
   const algorithmKey = useMemo(
@@ -153,7 +149,7 @@ export function ComplexityChart({
   if (!algorithms.length) {
     return (
       <div className={styles.empty}>
-        <p>請先選擇至少一個演算法</p>
+        <p>{t("chart.empty")}</p>
       </div>
     );
   }
@@ -165,7 +161,7 @@ export function ComplexityChart({
           className={styles.svg}
           viewBox={`0 0 ${VB_W} ${VB_H}`}
           preserveAspectRatio="xMidYMid meet"
-          aria-label="空間複雜度步驟折線圖"
+          aria-label={t("chart.spaceChartAria")}
         >
           <rect
             x={PAD}
@@ -194,7 +190,7 @@ export function ComplexityChart({
             fill="var(--text-tertiary)"
             fontSize={11}
           >
-            動畫步驟
+            {t("chart.xAxisSteps")}
           </text>
           <text
             transform={`rotate(-90, 14, ${PAD + PLOT_H / 2})`}
@@ -204,7 +200,7 @@ export function ComplexityChart({
             fill="var(--text-tertiary)"
             fontSize={11}
           >
-            輔助空間
+            {t("chart.yAxisAuxSpace")}
           </text>
         </svg>
         <ul className={styles.legend}>
@@ -240,7 +236,7 @@ export function ComplexityChart({
   return (
     <div className={styles.wrap}>
       {isPartialLoading && (
-        <p className={styles.loading}>正在計算各 n 與輸入案例的執行時間…</p>
+        <p className={styles.loading}>{t("chart.loading")}</p>
       )}
       <div className={styles.curveRow}>
         {curveModels
@@ -253,12 +249,12 @@ export function ComplexityChart({
 
             return (
               <div key={model.ct} className={styles.caseBlock}>
-                <p className={styles.caseTitle}>{CASE_LABEL[model.ct]}</p>
+                <p className={styles.caseTitle}>{t(`cases.${model.ct}`)}</p>
                 <svg
                   className={styles.svg}
                   viewBox={`0 0 ${MINI_VB_W} ${MINI_VB_H}`}
                   preserveAspectRatio="xMidYMid meet"
-                  aria-label={`${CASE_LABEL[model.ct]} 複雜度圖`}
+                  aria-label={`${t(`cases.${model.ct}`)} ${t("chart.complexityChartAriaSuffix")}`}
                 >
                   <rect
                     x={MINI_PAD_X}
@@ -351,7 +347,7 @@ export function ComplexityChart({
                     fill="var(--text-tertiary)"
                     fontSize={16}
                   >
-                    理論時間複雜度
+                    {t("chart.theoreticalComplexity")}
                   </text>
                   <text
                     transform={`rotate(-90, ${MINI_PAD_X - 35}, ${MINI_PAD_Y + MINI_PLOT_H / 2})`}
@@ -361,7 +357,7 @@ export function ComplexityChart({
                     fill="var(--text-tertiary)"
                     fontSize={16}
                   >
-                    執行時間 (ms)
+                    {t("chart.execTimeMs")}
                   </text>
                   <text
                     x={MINI_PAD_X + MINI_PLOT_W / 2}
@@ -370,7 +366,7 @@ export function ComplexityChart({
                     fill="var(--text-tertiary)"
                     fontSize={16}
                   >
-                    資料筆數 n
+                    {t("chart.dataSizeN")}
                   </text>
                 </svg>
               </div>

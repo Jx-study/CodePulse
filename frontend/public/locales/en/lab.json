@@ -1,0 +1,80 @@
+{
+  "toolbar": {
+    "backToExplorer": "Back to Explorer",
+    "pageTitle": "Algorithm Lab"
+  },
+  "sidebar": {
+    "ariaLabel": "Lab Settings",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "modeTitleComplexity": "Complexity chart mode",
+    "modeTitleAnimation": "Sort animation mode",
+    "topic": "Topic",
+    "selectTopic": "Select Topic",
+    "algorithms": "Algorithms",
+    "modeAnimation": "Sort Animation",
+    "modeComplexity": "Complexity Chart",
+    "manualSort": "Manual Sort",
+    "dataSize": "Data Size",
+    "dataSizeUnit": " entries",
+    "dataSizeLocked": " (locked)",
+    "timeComplexity": "Time Complexity",
+    "spaceComplexity": "Space Complexity",
+    "showCases": "Show Cases",
+    "unifyYAxis": "Unify Y-axis",
+    "reset": "Reset"
+  },
+  "cases": {
+    "random": "Random",
+    "sorted": "Sorted",
+    "reversed": "Reversed"
+  },
+  "animationToolbar": {
+    "play": "Play",
+    "pause": "Pause",
+    "reset": "Reset",
+    "speed": "Speed",
+    "playbackSpeed": "Playback speed",
+    "layoutRight": "Layout: Right",
+    "layoutLeft": "Layout: Left"
+  },
+  "metrics": {
+    "execTime": "Execution Time (ms)",
+    "compareCount": "Comparisons",
+    "compareCountTitle": "Comparisons: COMPARE / UPDATE_MIN operations total",
+    "moveCount": "Moves",
+    "moveCountTitle": "Moves: SWAP / SHIFT / COPY / INSERT operations total",
+    "auxSpace": "Auxiliary Space (live)",
+    "auxSpaceTitle": "QuickSort: recursive call stack depth; MergeSort: auxiliary space elements; others: O(1)",
+    "selectToShow": "Select an algorithm to show",
+    "manualSortTitle": "Manual Sort",
+    "sortComplete": "Sorted!",
+    "elapsed": "Time",
+    "moves": "Moves",
+    "spaceUnitLayers": "layers",
+    "spaceUnitElements": "elements"
+  },
+  "chart": {
+    "empty": "Please select at least one algorithm",
+    "spaceChartAria": "Space complexity step line chart",
+    "xAxisSteps": "Animation Steps",
+    "yAxisAuxSpace": "Aux Space",
+    "loading": "Computing execution time for each n and case type…",
+    "complexityChartAriaSuffix": "complexity chart",
+    "theoreticalComplexity": "Theoretical Time Complexity",
+    "execTimeMs": "Execution Time (ms)",
+    "dataSizeN": "Data Size n"
+  },
+  "animationGrid": {
+    "emptyTitle": "No algorithm selected",
+    "emptyDesc": "Check sorting algorithms to compare in the left sidebar."
+  },
+  "manualSort": {
+    "resetAriaLabel": "Reset manual sort",
+    "barAriaLabel": "Slot {{slot}}, value {{val}}",
+    "barAriaLabelInPlace": "Slot {{slot}}, value {{val}}, in place"
+  },
+  "topics": {
+    "sorting": "Sorting Algorithms"
+  }
+}

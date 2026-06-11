@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
 import { useLabContext } from "../../context/LabContext";
 import type { AlgorithmId } from "../../types/lab";
@@ -34,13 +35,14 @@ function spaceValueAtStep(
   return 0;
 }
 
-function spaceUnit(id: AlgorithmId): string {
-  if (id === "quickSort") return "層";
-  if (id === "mergeSort") return "元素";
+function spaceUnitKey(id: AlgorithmId): string {
+  if (id === "quickSort") return "metrics.spaceUnitLayers";
+  if (id === "mergeSort") return "metrics.spaceUnitElements";
   return "";
 }
 
 export function MetricsDashboard() {
+  const { t } = useTranslation("lab");
   const {
     algorithms,
     currentStep,
@@ -147,7 +149,7 @@ export function MetricsDashboard() {
         value: v,
         maxValue,
         color: meta.color,
-        unit: spaceUnit(a.id),
+        unitKey: spaceUnitKey(a.id),
       };
     });
   }, [algorithms, currentStep]);
@@ -171,7 +173,7 @@ export function MetricsDashboard() {
     <div className={styles.wrap}>
       <div className={styles.section}>
         <div className={styles.sectionHead}>
-          <span className={styles.sectionTitle}>執行時間（ms）</span>
+          <span className={styles.sectionTitle}>{t("metrics.execTime")}</span>
         </div>
         <div className={styles.hBars}>
           {timeRows.map((row) => (
@@ -190,7 +192,7 @@ export function MetricsDashboard() {
             </div>
           ))}
           {!timeRows.length && (
-            <p className={styles.placeholder}>選取演算法後顯示</p>
+            <p className={styles.placeholder}>{t("metrics.selectToShow")}</p>
           )}
         </div>
       </div>
@@ -199,9 +201,9 @@ export function MetricsDashboard() {
         <div className={styles.sectionHead}>
           <span
             className={styles.sectionTitle}
-            title="比較次數：COMPARE / UPDATE_MIN 操作累計"
+            title={t("metrics.compareCountTitle")}
           >
-            比較次數
+            {t("metrics.compareCount")}
           </span>
         </div>
         <div className={styles.hBars}>
@@ -221,7 +223,7 @@ export function MetricsDashboard() {
             </div>
           ))}
           {!compareRows.length && (
-            <p className={styles.placeholder}>選取演算法後顯示</p>
+            <p className={styles.placeholder}>{t("metrics.selectToShow")}</p>
           )}
         </div>
       </div>
@@ -230,9 +232,9 @@ export function MetricsDashboard() {
         <div className={styles.sectionHead}>
           <span
             className={styles.sectionTitle}
-            title="移動次數：SWAP / SHIFT / COPY / INSERT 操作累計"
+            title={t("metrics.moveCountTitle")}
           >
-            移動次數
+            {t("metrics.moveCount")}
           </span>
         </div>
         <div className={styles.hBars}>
@@ -252,7 +254,7 @@ export function MetricsDashboard() {
             </div>
           ))}
           {!moveRows.length && (
-            <p className={styles.placeholder}>選取演算法後顯示</p>
+            <p className={styles.placeholder}>{t("metrics.selectToShow")}</p>
           )}
         </div>
       </div>
@@ -261,9 +263,9 @@ export function MetricsDashboard() {
         <div className={styles.sectionHead}>
           <span
             className={styles.sectionTitle}
-            title="QuickSort：遞迴呼叫堆疊深度；MergeSort：合併時輔助空間元素數；其餘為 O(1)"
+            title={t("metrics.auxSpaceTitle")}
           >
-            輔助空間（實時）
+            {t("metrics.auxSpace")}
           </span>
         </div>
         <div className={styles.hBars}>
@@ -280,12 +282,12 @@ export function MetricsDashboard() {
                 />
               </div>
               <span className={styles.rowValue}>
-                {row.unit ? `${row.value} ${row.unit}` : row.value}
+                {row.unitKey ? `${row.value} ${t(row.unitKey)}` : row.value}
               </span>
             </div>
           ))}
           {!spaceRows.length && (
-            <p className={styles.placeholder}>選取演算法後顯示</p>
+            <p className={styles.placeholder}>{t("metrics.selectToShow")}</p>
           )}
         </div>
       </div>
@@ -293,20 +295,20 @@ export function MetricsDashboard() {
       {manualSortEnabled && (
         <div className={`${styles.section} ${styles.sectionMetrics} ${styles.sectionManual}`}>
           <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>Manual Sort</span>
+            <span className={styles.sectionTitle}>{t("metrics.manualSortTitle")}</span>
             {isManualCompleted && (
-              <div className={styles.statBadge}>排序完成</div>
+              <div className={styles.statBadge}>{t("metrics.sortComplete")}</div>
             )}
           </div>
           <div className={styles.manualStats}>
             <div className={styles.statRow}>
-              <span className={styles.statLabel}>耗時</span>
+              <span className={styles.statLabel}>{t("metrics.elapsed")}</span>
               <span className={styles.statValue} style={{ color: MANUAL_COLOR }}>
                 {formatElapsed(elapsedMs)}
               </span>
             </div>
             <div className={styles.statRow}>
-              <span className={styles.statLabel}>移動次數</span>
+              <span className={styles.statLabel}>{t("metrics.moves")}</span>
               <span className={styles.statValue} style={{ color: MANUAL_COLOR }}>
                 {manualSortMoves}
               </span>
