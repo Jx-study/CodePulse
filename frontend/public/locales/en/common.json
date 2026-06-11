@@ -124,5 +124,13 @@
       "tutorial": "Tutorial Complete",
       "practice": "Practice Complete"
     }
+  },
+  "close": "Close",
+  "checkin": {
+    "title": "Daily Check-in",
+    "checkIn": "Check In",
+    "checking": "Checking in...",
+    "checkedIn": "Checked In",
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   }
 }

@@ -124,5 +124,13 @@
       "tutorial": "完成教學",
       "practice": "完成練習"
     }
+  },
+  "close": "關閉",
+  "checkin": {
+    "title": "每日打卡",
+    "checkIn": "打卡",
+    "checking": "打卡中...",
+    "checkedIn": "已打卡",
+    "weekdays": ["日", "一", "二", "三", "四", "五", "六"]
   }
 }
