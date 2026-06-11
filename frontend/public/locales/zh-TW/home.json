@@ -40,6 +40,8 @@
     "subtitle": "體驗 CodePulse 如何讓程式執行過程變得清晰可見",
     "current_line": "目前執行行",
     "analysis": "即時分析",
+    "analysis_label": "分析：",
+    "ready": "準備開始...",
     "analysis_text": "目前在第一層迴圈，i = 0，準備開始氣泡排序的第一輪比較",
     "cta": "開始使用 CodePulse"
   },
