@@ -18,6 +18,7 @@ import type {
   ScoreLevel,
 } from "@/types";
 import { getCategoryById } from "./CategoryService";
+import { getAllLevels } from "./LevelService";
 import apiService from "@/api/api";
 
 // ==================== 後端 API 型別 ====================
@@ -34,31 +35,29 @@ export interface ApiTutorialProgress {
 
 // ==================== 初始進度 ====================
 
+/**
+ * 從 levels.json（單一來源）動態生成初始進度的 levels map。
+ * 過去這份清單是手抄的，曾漏掉 binarytree/bst/heap/graph/trie 等關卡，
+ * 導致它們的後端進度在 mergeApiProgress 的 `slug in levels` 檢查被 skip、永遠不顯示通關。
+ * 改由 getAllLevels() 生成後，新增關卡不需再手動同步，不會再漏。
+ */
+function buildInitialLevels(): UserProgress["levels"] {
+  const levels: UserProgress["levels"] = {};
+  for (const level of getAllLevels()) {
+    levels[level.id] = {
+      levelId: level.id,
+      status: "locked",
+      stars: 0,
+      attempts: 0,
+      bestTime: 0,
+    };
+  }
+  return levels;
+}
+
 export const INITIAL_USER_PROGRESS: UserProgress = {
   userId: "guest",
-  levels: {
-    // Data Structures
-    array: { levelId: "array", status: "unlocked", stars: 0, attempts: 0, bestTime: 0 },
-    "linked-list": { levelId: "linked-list", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    stack: { levelId: "stack", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    queue: { levelId: "queue", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "doubly-linked-list": { levelId: "doubly-linked-list", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "portal-to-sorting": { levelId: "portal-to-sorting", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    // Sorting
-    "bubble-sort": { levelId: "bubble-sort", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "selection-sort": { levelId: "selection-sort", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "insertion-sort": { levelId: "insertion-sort", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "merge-sort": { levelId: "merge-sort", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "quick-sort": { levelId: "quick-sort", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "portal-to-searching": { levelId: "portal-to-searching", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    // Searching
-    "binary-search": { levelId: "binary-search", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "prefix-sum": { levelId: "prefix-sum", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    "portal-to-graph": { levelId: "portal-to-graph", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    // Graph
-    bfs: { levelId: "bfs", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-    dfs: { levelId: "dfs", status: "locked", stars: 0, attempts: 0, bestTime: 0 },
-  },
+  levels: buildInitialLevels(),
   totalStarsEarned: 0,
   totalLevelsCompleted: 0,
   lastAccessedDate: new Date().toISOString(),
@@ -361,6 +360,12 @@ export function startLevel(
   userProgress: UserProgress,
 ): UserProgress {
   const currentProgress = getLevelProgress(levelId, userProgress);
+
+  // 已通關的關卡再次開始練習時，保持 completed 不降級為 in-progress
+  // （通關是永久的；後端 practice_passed 也始終為 true）。
+  if (currentProgress.status === "completed") {
+    return userProgress;
+  }
 
   return {
     ...userProgress,
