@@ -115,12 +115,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationKey": "binaryTree",
-      "homePageMetadata": {
-        "image": "binary-tree.png",
-        "translationKey": "binary_tree",
-        "showOnHomePage": true
-      }
+      "implementationKey": "binaryTree"
     },
     {
       "id": "bst",
