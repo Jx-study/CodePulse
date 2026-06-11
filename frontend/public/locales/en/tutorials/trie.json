@@ -105,7 +105,8 @@
       "emptyWarning": "Please enter at least one word!",
       "invalidWarning": "Trie only accepts letters. The following were skipped: {{words}}",
       "noValidWords": "No valid words found. Please try again.",
-      "truncateWarning": "Limited to the first {{max}} unique words for readability."
+      "truncateWarning": "Limited to the first {{max}} unique words for readability.",
+      "tooLongWarning": "Words exceeding {{max}} characters were skipped: {{words}}"
     }
   },
   "animation": {
