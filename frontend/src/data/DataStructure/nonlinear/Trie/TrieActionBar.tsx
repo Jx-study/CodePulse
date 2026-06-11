@@ -13,6 +13,8 @@ import {
 import type { DSActionBarProps } from "@/types/implementation";
 import { TrieLoaderModal } from "@/modules/core/components/ActionBar/ActionBarCommon";
 
+const MAX_WORD_LENGTH = 10;
+
 export const TrieActionBar: React.FC<DSActionBarProps> = ({
   onLoadData,
   onResetData,
@@ -165,8 +167,11 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
           type="text"
           placeholder={t("ui.wordInput")}
           value={wordInput}
+          maxLength={MAX_WORD_LENGTH}
           onChange={(e) =>
-            setWordInput(e.target.value.replace(/[^a-zA-Z]/g, ""))
+            setWordInput(
+              e.target.value.replace(/[^a-zA-Z]/g, "").slice(0, MAX_WORD_LENGTH)
+            )
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}

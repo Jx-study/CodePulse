@@ -105,7 +105,8 @@
       "emptyWarning": "請輸入至少一個單字！",
       "invalidWarning": "字典樹僅支援英文字母，以下單字已自動忽略：{{words}}",
       "noValidWords": "沒有找到合法的英文單字，請重新輸入！",
-      "truncateWarning": "為維持視覺化效果，已自動截取前 {{max}} 筆不重複單字。"
+      "truncateWarning": "為維持視覺化效果，已自動截取前 {{max}} 筆不重複單字。",
+      "tooLongWarning": "超過 {{max}} 個字元的單字已自動略過：{{words}}"
     }
   },
   "animation": {

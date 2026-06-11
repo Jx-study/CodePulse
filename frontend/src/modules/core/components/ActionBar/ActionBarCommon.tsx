@@ -66,8 +66,9 @@ export const DataRow: React.FC<DataRowProps> = ({
             type="text"
             placeholder="10,40,30..."
             value={bulkInput}
+            maxLength={DATA_LIMITS.MAX_BULK_INPUT_LENGTH}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setBulkInput(e.target.value)
+              setBulkInput(e.target.value.slice(0, DATA_LIMITS.MAX_BULK_INPUT_LENGTH))
             }
             className={`${styles.input} ${styles.bulkDataInput}`}
             disabled={disabled}
@@ -233,15 +234,33 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
     const invalidWords: string[] = [];
     const validWords: string[] = [];
 
+    const tooLongWords: string[] = [];
+
     for (const w of rawWords) {
       if (!w) continue;
 
+      if (w.length > DATA_LIMITS.MAX_TRIE_WORD_LENGTH) {
+        tooLongWords.push(w);
+        continue;
+      }
       // 檢查是否只包含英文字母 (a-z, A-Z)
       if (!/^[a-zA-Z]+$/.test(w)) {
         invalidWords.push(w);
       } else {
         validWords.push(w.toLowerCase());
       }
+    }
+
+    if (tooLongWords.length > 0) {
+      const sample =
+        tooLongWords.slice(0, 3).join(", ") +
+        (tooLongWords.length > 3 ? "..." : "");
+      toast.warning(
+        t("ui.modal.tooLongWarning", {
+          max: DATA_LIMITS.MAX_TRIE_WORD_LENGTH,
+          words: sample,
+        }),
+      );
     }
 
     if (invalidWords.length > 0) {
@@ -303,6 +322,7 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
           value={draftInput}
           onChange={(e) => setDraftInput(e.target.value)}
           rows={8}
+          maxLength={maxWords * (DATA_LIMITS.MAX_TRIE_WORD_LENGTH + 1)}
           className={styles.modalGraphTextarea}
           placeholder={t("ui.modal.placeholder")}
         />
