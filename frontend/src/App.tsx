@@ -59,7 +59,8 @@ function CheckinWrapper() {
 function WelcomeWrapper() {
   const { pendingWelcome, setPendingWelcome, showCheckinDialog } = useAuth();
   const navigate = useNavigate();
-  if (!pendingWelcome || showCheckinDialog) return null;
+  const isAuthRoute = useMatch("/auth/*");
+  if (!pendingWelcome || showCheckinDialog || isAuthRoute) return null;
   return (
     <WelcomeOverlay
       username={pendingWelcome.username}
