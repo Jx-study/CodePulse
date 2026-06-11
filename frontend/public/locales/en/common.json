@@ -70,6 +70,11 @@
   "profile": "Profile",
   "security": "Security",
   "preferences": "Preferences",
+  "stats": "Stats",
+  "xpAndStreak": "XP & Streak",
+  "totalXp": "Total XP",
+  "currentStreak": "Current Streak",
+  "longestStreak": "Longest Streak",
   "theme": "Appearance Theme",
   "lightMode": "Light",
   "darkMode": "Dark",
@@ -119,5 +124,13 @@
       "tutorial": "Tutorial Complete",
       "practice": "Practice Complete"
     }
+  },
+  "close": "Close",
+  "checkin": {
+    "title": "Daily Check-in",
+    "checkIn": "Check In",
+    "checking": "Checking in...",
+    "checkedIn": "Checked In",
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   }
 }

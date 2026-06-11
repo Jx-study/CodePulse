@@ -1,24 +1,20 @@
 import type { ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Checkbox from "@/shared/components/Checkbox/Checkbox";
 import Icon from "@/shared/components/Icon";
 import Select from "@/shared/components/Select/Select";
 import Slider from "@/shared/components/Slider";
-import { LAB_TOPICS, TOPIC_OPTIONS } from "../../data/labTopics";
+import { LAB_TOPICS } from "../../data/labTopics";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
 import { useLabContext } from "../../context/LabContext";
 import type { AlgorithmId, CaseType, TopicId } from "../../types/lab";
 import styles from "./LabSidebar.module.scss";
 
-const CT_LABEL: Record<CaseType, string> = {
-  random: "亂序",
-  sorted: "已排序",
-  reversed: "反序",
-};
-
 const CASE_TYPE_ORDER: CaseType[] = ["random", "sorted", "reversed"];
 
 export function LabSidebar() {
+  const { t } = useTranslation("lab");
   const {
     activeTopic,
     selectedIds,
@@ -36,6 +32,11 @@ export function LabSidebar() {
   const topic = activeTopic ? LAB_TOPICS[activeTopic] : null;
   const algoList = topic?.algorithms ?? [];
 
+  const topicOptions = Object.keys(LAB_TOPICS).map((id) => ({
+    value: id as TopicId,
+    label: t(`topics.${id}`),
+  }));
+
   const onTopicChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const v = e.target.value as TopicId;
     dispatch({ type: "SET_TOPIC", topic: v });
@@ -48,7 +49,7 @@ export function LabSidebar() {
   return (
     <aside
       className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ""}`}
-      aria-label="實驗室設定"
+      aria-label={t("sidebar.ariaLabel")}
     >
       <div className={styles.header}>
         <Button
@@ -56,7 +57,7 @@ export function LabSidebar() {
           size="sm"
           onClick={() => dispatch({ type: "TOGGLE_SIDEBAR" })}
           aria-expanded={!sidebarCollapsed}
-          aria-label={sidebarCollapsed ? "展開側邊欄" : "收合側邊欄"}
+          aria-label={sidebarCollapsed ? t("sidebar.expand") : t("sidebar.collapse")}
         >
           <Icon name={sidebarCollapsed ? "chevron-right" : "chevron-left"} decorative />
         </Button>
@@ -70,7 +71,7 @@ export function LabSidebar() {
             size="sm"
             color="secondary"
             decorative
-            title={showComplexityChart ? "複雜度圖模式" : "排序動畫模式"}
+            title={showComplexityChart ? t("sidebar.modeTitleComplexity") : t("sidebar.modeTitleAnimation")}
           />
           <div className={styles.dotList}>
             {selectedIds.map((id) => (
@@ -87,7 +88,7 @@ export function LabSidebar() {
         <div className={styles.body}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="lab-topic">
-              主題
+              {t("sidebar.topic")}
             </label>
             <Select
               id="lab-topic"
@@ -95,13 +96,13 @@ export function LabSidebar() {
               fullWidth
               size="sm"
               value={activeTopic ?? ""}
-              options={TOPIC_OPTIONS}
+              options={topicOptions}
               onChange={onTopicChange}
-              aria-label="選擇主題"
+              aria-label={t("sidebar.selectTopic")}
             />
           </div>
           <div className={styles.checklist}>
-            <span className={styles.label}>演算法</span>
+            <span className={styles.label}>{t("sidebar.algorithms")}</span>
             <ul className={styles.list}>
               {algoList.map((id) => (
                 <li key={id}>
@@ -123,7 +124,7 @@ export function LabSidebar() {
               onClick={() =>
                 showComplexityChart && dispatch({ type: "TOGGLE_COMPLEXITY_CHART" })}
             >
-              排序動畫
+              {t("sidebar.modeAnimation")}
             </button>
             <button
               type="button"
@@ -131,7 +132,7 @@ export function LabSidebar() {
               onClick={() =>
                 !showComplexityChart && dispatch({ type: "TOGGLE_COMPLEXITY_CHART" })}
             >
-              複雜度圖
+              {t("sidebar.modeComplexity")}
             </button>
           </div>
 
@@ -139,14 +140,14 @@ export function LabSidebar() {
             <div className={styles.field}>
               <Checkbox
                 name="manual-sort"
-                label="Manual Sort"
+                label={t("sidebar.manualSort")}
                 checked={manualSortEnabled}
                 onChange={() => dispatch({ type: "TOGGLE_MANUAL_SORT" })}
               />
               <div className={styles.sizeRow}>
-                <span className={styles.label}>資料量</span>
+                <span className={styles.label}>{t("sidebar.dataSize")}</span>
                 <span className={styles.sizeValue}>
-                  {inputSize} 筆{manualSortEnabled ? "（鎖定）" : ""}
+                  {inputSize}{t("sidebar.dataSizeUnit")}{manualSortEnabled ? t("sidebar.dataSizeLocked") : ""}
                 </span>
               </div>
               <Slider
@@ -156,7 +157,7 @@ export function LabSidebar() {
                 value={inputSize}
                 disabled={manualSortEnabled}
                 onChange={(v) => dispatch({ type: "SET_INPUT_SIZE", size: v })}
-                ariaLabel="資料量"
+                ariaLabel={t("sidebar.dataSize")}
               />
             </div>
           ) : (
@@ -168,7 +169,7 @@ export function LabSidebar() {
                   onClick={() =>
                     dispatch({ type: "SET_COMPLEXITY_CHART_MODE", mode: "curve" })}
                 >
-                  時間複雜度
+                  {t("sidebar.timeComplexity")}
                 </button>
                 <button
                   type="button"
@@ -176,13 +177,13 @@ export function LabSidebar() {
                   onClick={() =>
                     dispatch({ type: "SET_COMPLEXITY_CHART_MODE", mode: "space" })}
                 >
-                  空間複雜度
+                  {t("sidebar.spaceComplexity")}
                 </button>
               </div>
 
               {complexityChartMode === "curve" && (
                 <div className={styles.caseFilter}>
-                  <span className={styles.label}>顯示案例</span>
+                  <span className={styles.label}>{t("sidebar.showCases")}</span>
                   {CASE_TYPE_ORDER.map((ct) => {
                     const isOnly =
                       visibleCaseTypes.length === 1 && visibleCaseTypes[0] === ct;
@@ -190,7 +191,7 @@ export function LabSidebar() {
                       <Checkbox
                         key={ct}
                         name={`case-${ct}`}
-                        label={CT_LABEL[ct]}
+                        label={t(`cases.${ct}`)}
                         checked={visibleCaseTypes.includes(ct)}
                         disabled={isOnly}
                         onChange={() =>
@@ -206,7 +207,7 @@ export function LabSidebar() {
                     aria-pressed={unifiedYAxis}
                   >
                     <Icon name="lock" decorative />
-                    統一 Y 軸
+                    {t("sidebar.unifyYAxis")}
                   </Button>
                   <Button
                     variant="secondary"
@@ -215,7 +216,7 @@ export function LabSidebar() {
                     onClick={() => dispatch({ type: "RESET_BENCHMARK" })}
                   >
                     <Icon name="rotate" decorative />
-                    重置
+                    {t("sidebar.reset")}
                   </Button>
                 </div>
               )}
@@ -235,7 +236,7 @@ export function LabSidebar() {
                   }
                 >
                   <Icon name="rotate" decorative />
-                  重置
+                  {t("sidebar.reset")}
                 </Button>
               )}
             </div>

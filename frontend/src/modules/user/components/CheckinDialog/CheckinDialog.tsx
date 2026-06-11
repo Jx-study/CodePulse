@@ -105,7 +105,7 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
       ) : (
         <>
           <div className={styles.calendar}>
-            {['日', '一', '二', '三', '四', '五', '六'].map(d => (
+            {(t('checkin.weekdays', { returnObjects: true }) as string[]).map(d => (
               <div key={d} className={styles.weekday}>{d}</div>
             ))}
             {cells.map((day, idx) => {

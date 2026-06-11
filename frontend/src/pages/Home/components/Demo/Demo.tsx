@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CodeBlock from '@/shared/components/CodeBlock';
 import styles from './Demo.module.scss';
 import { createBubbleSortAnimationSteps } from '@/data/algorithms/sorting/bubbleSort';
@@ -49,6 +50,7 @@ const DEMO_STATUS_COLOR_MAP: StatusColorMap = {
 };
 
 function Demo() {
+  const { t } = useTranslation('home');
   const containerRef = useRef<HTMLDivElement>(null);
   const [steps, setSteps] = useState<AnimationStep[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -98,7 +100,7 @@ function Demo() {
     : [];
   const description = typeof currentStep?.description === 'string'
     ? currentStep.description
-    : '準備開始...';
+    : t('demo_section.ready');
 
   // useMemo 防止每次 render 都重建陣列，
   // 避免 D3Canvas 在每次步驟推進時重算 viewBox。
@@ -119,7 +121,7 @@ function Demo() {
         {/* Analysis box */}
         <div className={styles.analysisBox}>
           <Icon name="lightbulb" size='lg' className={styles.analysisIcon} />
-          <strong>分析：</strong>
+          <strong>{t('demo_section.analysis_label')}</strong>
           {description}
         </div>
 

@@ -70,6 +70,11 @@
   "profile": "個人資料",
   "security": "安全性",
   "preferences": "偏好設定",
+  "stats": "統計",
+  "xpAndStreak": "XP 與連續打卡",
+  "totalXp": "累計 XP",
+  "currentStreak": "目前連續天數",
+  "longestStreak": "最長連續天數",
   "theme": "外觀主題",
   "lightMode": "淺色",
   "darkMode": "深色",
@@ -119,5 +124,13 @@
       "tutorial": "完成教學",
       "practice": "完成練習"
     }
+  },
+  "close": "關閉",
+  "checkin": {
+    "title": "每日打卡",
+    "checkIn": "打卡",
+    "checking": "打卡中...",
+    "checkedIn": "已打卡",
+    "weekdays": ["日", "一", "二", "三", "四", "五", "六"]
   }
 }
