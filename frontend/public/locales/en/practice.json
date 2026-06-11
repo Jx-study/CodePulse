@@ -1,4 +1,13 @@
 {
+  "submitError": "Submit failed, please check your connection and try again",
+  "breadcrumb": {
+    "dataStructures": "Data Structures",
+    "unknownCategory": "Unknown"
+  },
+  "visual": {
+    "groupImage": "Group Image",
+    "hintImage": "Hint Image"
+  },
   "result": {
     "title": "Quiz Result",
     "correct": "Correct",
@@ -7,6 +16,11 @@
     "timeSpent": "Time",
     "retry": "Try Again",
     "backToDashboard": "Back to Dashboard",
+    "scoreUnit": "pts",
+    "timeFormat": {
+      "minutes": "{{mins}}m {{secs}}s",
+      "seconds": "{{secs}}s"
+    },
     "tier": {
       "label": "Tier",
       "promoted": "Tier Up!",
@@ -29,7 +43,9 @@
   },
   "sidebar": {
     "questionList": "Questions",
+    "questionNumber": "Q{{number}}",
     "progress": "Progress",
+    "answeredCount": "Answered: {{answered}} / {{total}}",
     "answered": "Answered",
     "passingCondition": "Passing Condition",
     "passingScore": "Accuracy ≥ {{score}}%",
@@ -53,5 +69,16 @@
     "prev": "Previous",
     "next": "Next",
     "submit": "Submit"
+  },
+  "answerList": {
+    "title": "Review ({{count}} questions)",
+    "questionNumber": "Q{{number}}",
+    "timeInstant": "Instant",
+    "timeStuck": "Stuck?",
+    "yourAnswer": "Your Answer:",
+    "notAnswered": "Not answered",
+    "correctAnswer": "Correct Answer:",
+    "explanation": "Explanation:",
+    "points": "{{points}} pts"
   }
 }

@@ -44,14 +44,16 @@ const ResultModal: React.FC<ResultModalProps> = ({
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.round(seconds % 60);
-    return mins > 0 ? `${mins} 分 ${secs} 秒` : `${secs} 秒`;
+    return mins > 0
+      ? t('result.timeFormat.minutes', { mins, secs })
+      : t('result.timeFormat.seconds', { secs });
   };
 
   const renderTierProgress = () => {
     if (result.newRating === undefined) return null;
 
     const rating = Math.min(result.newRating, 2000);
-    const tierIndex = TIER_THRESHOLDS.findIndex((t) => rating < t) - 1;
+    const tierIndex = TIER_THRESHOLDS.findIndex((threshold) => rating < threshold) - 1;
     const safeTier = Math.min(Math.max(tierIndex, 0), 4);
     const tierMin = TIER_THRESHOLDS[safeTier];
     const tierMax = TIER_THRESHOLDS[safeTier + 1];
@@ -62,7 +64,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
     const deltaClass = delta >= 0 ? styles.ratingPositive : styles.ratingNegative;
 
     const oldTierIndex = result.oldRating !== undefined
-      ? Math.min(Math.max(TIER_THRESHOLDS.findIndex((t) => (result.oldRating ?? 0) < t) - 1, 0), 4)
+      ? Math.min(Math.max(TIER_THRESHOLDS.findIndex((threshold) => (result.oldRating ?? 0) < threshold) - 1, 0), 4)
       : safeTier;
     const promoted = oldTierIndex < safeTier;
 
@@ -101,7 +103,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
         <div className={styles.scoreSummary}>
           <div className={styles.scoreCircle} data-passed={result.isPassed}>
             <span className={styles.scoreValue}>{result.score}</span>
-            <span className={styles.scoreLabel}>分</span>
+            <span className={styles.scoreLabel}>{t('result.scoreUnit')}</span>
           </div>
 
           <div className={styles.scoreDetails}>

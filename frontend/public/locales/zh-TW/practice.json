@@ -1,4 +1,13 @@
 {
+  "submitError": "提交失敗，請檢查網路後再試",
+  "breadcrumb": {
+    "dataStructures": "資料結構",
+    "unknownCategory": "未知分類"
+  },
+  "visual": {
+    "groupImage": "題組圖",
+    "hintImage": "提示圖"
+  },
   "result": {
     "title": "測驗結果",
     "correct": "正確",
@@ -7,6 +16,11 @@
     "timeSpent": "用時",
     "retry": "再試一次",
     "backToDashboard": "返回 Dashboard",
+    "scoreUnit": "分",
+    "timeFormat": {
+      "minutes": "{{mins}} 分 {{secs}} 秒",
+      "seconds": "{{secs}} 秒"
+    },
     "tier": {
       "label": "段位",
       "promoted": "段位提升！",
@@ -29,7 +43,9 @@
   },
   "sidebar": {
     "questionList": "題目列表",
+    "questionNumber": "題目 {{number}}",
     "progress": "進度",
+    "answeredCount": "已答題: {{answered}} / {{total}}",
     "answered": "已答題",
     "passingCondition": "通關條件",
     "passingScore": "正確率 {{score}}% 以上",
@@ -53,5 +69,16 @@
     "prev": "上一題",
     "next": "下一題",
     "submit": "提交"
+  },
+  "answerList": {
+    "title": "答題回顧 ({{count}} 題)",
+    "questionNumber": "第 {{number}} 題",
+    "timeInstant": "秒殺",
+    "timeStuck": "卡關？",
+    "yourAnswer": "你的答案：",
+    "notAnswered": "未作答",
+    "correctAnswer": "正確答案：",
+    "explanation": "解析：",
+    "points": "{{points}} 分"
   }
 }
