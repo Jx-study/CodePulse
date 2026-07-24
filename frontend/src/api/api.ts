@@ -1,3 +1,6 @@
+import i18n from "@/i18n";
+import { toast } from "@/shared/components/Toast";
+
 // dev：空字串走 Vite proxy；prod：需設 VITE_API_URL 或 VITE_BACKEND_URL（指向後端域名）
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "";
@@ -87,6 +90,11 @@ class ApiService {
     }
 
     if (!response.ok) {
+      // 全站統一的限流提醒；帶 retry_after 的 429（如重寄驗證碼冷卻）
+      // 由各頁面自行處理倒數顯示，不重複跳 toast
+      if (response.status === 429 && data.retry_after === undefined) {
+        toast.warning(i18n.t("errors.RATE_LIMITED"));
+      }
       throw {
         message: data.message || "API request failed",
         status: response.status,
