@@ -50,6 +50,7 @@ def _user_to_dict(user):
 # Register
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("5 per minute; 20 per hour")
 def register():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
@@ -206,6 +207,7 @@ def get_current_user():
 # Verify Email
 
 @auth_bp.route('/verify-email', methods=['POST'])
+@limiter.limit("10 per minute; 30 per hour")
 def verify_email():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
@@ -409,6 +411,7 @@ RESEND_COOLDOWN_SECONDS = 60
 RESEND_DAILY_LIMIT = 5
 
 @auth_bp.route('/resend-verification', methods=['POST'])
+@limiter.limit("3 per minute; 10 per hour")
 def resend_verification():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
@@ -657,6 +660,7 @@ FORGOT_COOLDOWN_SECONDS = 60
 FORGOT_DAILY_LIMIT = 5
 
 @auth_bp.route('/forgot-password', methods=['POST'])
+@limiter.limit("3 per minute; 10 per hour")
 def forgot_password():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
@@ -750,6 +754,7 @@ def _validate_password(password: str) -> str | None:
     return None
 
 @auth_bp.route('/reset-password', methods=['POST'])
+@limiter.limit("10 per minute; 30 per hour")
 def reset_password():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
