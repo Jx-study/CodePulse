@@ -148,11 +148,10 @@ export interface FormFieldProps {
   onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   'aria-label'?: string;
   'aria-describedby'?: string;
-  [key: string]: any;
 }
 
 // ==================== Switch Component ====================
-export interface SwitchProps {
+export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'checked' | 'defaultChecked' | 'onChange' | 'size'> {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -165,10 +164,11 @@ export interface SwitchProps {
   className?: string;
   labelClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== Slider Component ====================
+// Note: unused by the actual Slider component (which defines its own local
+// props type); kept minimal since there's no rest-prop spreading to type.
 export interface SliderProps {
   value?: number;
   defaultValue?: number;
@@ -182,5 +182,4 @@ export interface SliderProps {
   onChangeCommitted?: (value: number) => void;
   className?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }

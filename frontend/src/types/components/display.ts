@@ -12,7 +12,7 @@ export interface BaseCanvasProps {
 }
 
 // ==================== InfoBlock Component ====================
-export interface InfoBlockProps {
+export interface InfoBlockProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   title?: React.ReactNode;
   variant?: 'default' | 'outlined' | 'filled';
   size?: 'sm' | 'md' | 'lg';
@@ -25,11 +25,10 @@ export interface InfoBlockProps {
   titleClassName?: string;
   contentClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== ProgressBar Component ====================
-export interface ProgressBarProps {
+export interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number;
   max?: number;
   variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
@@ -43,11 +42,10 @@ export interface ProgressBarProps {
   style?: React.CSSProperties;
   'aria-label'?: string;
   formatLabel?: (value: number, max: number) => string;
-  [key: string]: any;
 }
 
 // ==================== StarRating Component ====================
-export interface StarRatingProps {
+export interface StarRatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number;
   max?: number;
   readonly?: boolean;
@@ -61,5 +59,4 @@ export interface StarRatingProps {
   gap?: number;
   'aria-label'?: string;
   showValue?: boolean;
-  [key: string]: any;
 }

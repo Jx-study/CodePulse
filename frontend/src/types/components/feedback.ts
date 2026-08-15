@@ -4,7 +4,7 @@
  */
 
 // ==================== Dialog Component ====================
-export interface DialogProps {
+export interface DialogProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   isOpen: boolean;
   onClose: () => void;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -28,7 +28,6 @@ export interface DialogProps {
   animationDuration?: number;
   onAfterOpen?: () => void;
   onAfterClose?: () => void;
-  [key: string]: any;
 }
 
 // ==================== Sidebar Component ====================
@@ -58,11 +57,10 @@ export interface TooltipProps {
   className?: string;
   tooltipClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== EmptyState Component ====================
-export interface EmptyStateProps {
+export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   icon?: React.ReactNode;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -74,5 +72,4 @@ export interface EmptyStateProps {
   titleClassName?: string;
   descriptionClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }
