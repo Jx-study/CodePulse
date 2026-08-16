@@ -178,6 +178,9 @@ export function makeNodeAndPointers(
   }
 
   const pointers = createPointers(x, y, { isHead, isTail, extraLabel });
-  (node as any).pointers = pointers;
+  // `Node.pointers` is typed as the adjacency list (Node[]) used by
+  // Graph/BST; LinkedList repurposes the same field to stash the visual
+  // head/tail/extra markers (Pointer[]) for this node instead.
+  (node as unknown as { pointers: Pointer[] }).pointers = pointers;
   return [node, ...pointers];
 }

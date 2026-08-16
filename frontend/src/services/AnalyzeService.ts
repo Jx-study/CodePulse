@@ -16,7 +16,7 @@ import type {
 } from "@/types/trace";
 import type { AiResult, AlgoCandidate } from "@/types/ai";
 import type { RunStage } from "@/types/runStage";
-import { mapAiResult } from "@/services/ComplexityService";
+import { mapAiResult, type RawAiResult } from "@/services/ComplexityService";
 import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 
 export type AnalyzeErrorType =
@@ -106,9 +106,14 @@ export async function run(
       stdin_inputs: options.stdinInputs ?? [],
       is_retry: options.isRetry ?? false,
     }, undefined, signal);
-  } catch (err: any) {
-    const body = err?.response?.data;
-    if (err?.response?.status === 422 && body?.error) {
+  } catch (err: unknown) {
+    // apiService may reject with a backend error envelope shaped like this;
+    // narrowed defensively since the thrown value isn't a typed contract.
+    const submitErr = err as {
+      response?: { status?: number; data?: { error?: string; message?: string; lineno?: number } };
+    };
+    const body = submitErr?.response?.data;
+    if (submitErr?.response?.status === 422 && body?.error) {
       if (body.error === "empty_code") {
         throw new AnalyzeError("empty_code", body.message ?? "empty code");
       }
@@ -141,6 +146,16 @@ export async function run(
 }
 
 // Internal helpers
+
+/** Shape of messages sent over the /api/analyze/stream SSE connection. */
+interface AnalyzeStreamEvent {
+  status: "running" | "input_needed" | "completed" | "failed";
+  stage?: RunStage;
+  prompt?: string;
+  input_index?: number;
+  stdout_events?: StdoutEvent[];
+  error?: string;
+}
 
 function streamProgress(
   taskId: string,
@@ -184,7 +199,7 @@ function streamProgress(
     es.onmessage = (e) => {
       if (signal?.aborted || settled) return;
 
-      let event: any;
+      let event: AnalyzeStreamEvent;
       try {
         event = JSON.parse(e.data);
       } catch {
@@ -267,12 +282,42 @@ function throwIfAborted(signal?: AbortSignal): void {
   }
 }
 
+interface RawCallNode {
+  id: string;
+  func_name: string;
+  cfg: CfgGraph | null;
+}
+
+interface RawCallEdge {
+  source: string;
+  target: string;
+  steps: number[];
+  return_steps?: number[];
+}
+
+interface RawCallGraph {
+  nodes: RawCallNode[];
+  edges?: RawCallEdge[];
+  root: string;
+}
+
+/** Raw (snake_case) shape of the /api/analyze/result/:taskId response body. */
+interface AnalyzeResultResponse extends RawAiResult {
+  execution_trace?: TraceEvent[];
+  raw_trace?: TraceEvent[];
+  raw_index_map?: number[];
+  is_truncated?: boolean;
+  stdout_events?: StdoutEvent[];
+  call_graph?: RawCallGraph | null;
+  cfg_graph?: CfgGraphMap;
+}
+
 async function fetchResult(
   taskId: string,
   signal?: AbortSignal,
 ): Promise<AnalyzeResult> {
   throwIfAborted(signal);
-  const res = await apiService.get<any>(
+  const res = await apiService.get<AnalyzeResultResponse>(
     `/api/analyze/result/${taskId}`,
     undefined,
     signal,
@@ -283,26 +328,17 @@ async function fetchResult(
   const callGraph: CallGraph | null = r.call_graph
     ? {
         ...r.call_graph,
-        nodes: r.call_graph.nodes.map(
-          (n: { id: string; func_name: string; cfg: CfgGraph | null }) => ({
-            id: n.id,
-            funcName: n.func_name,
-            cfg: n.cfg,
-          }),
-        ),
-        edges: (r.call_graph.edges ?? []).map(
-          (e: {
-            source: string;
-            target: string;
-            steps: number[];
-            return_steps: number[];
-          }) => ({
-            source: e.source,
-            target: e.target,
-            steps: e.steps ?? [],
-            returnSteps: e.return_steps ?? [],
-          }),
-        ),
+        nodes: r.call_graph.nodes.map((n) => ({
+          id: n.id,
+          funcName: n.func_name,
+          cfg: n.cfg,
+        })),
+        edges: (r.call_graph.edges ?? []).map((e) => ({
+          source: e.source,
+          target: e.target,
+          steps: e.steps ?? [],
+          returnSteps: e.return_steps ?? [],
+        })),
       }
     : null;
 

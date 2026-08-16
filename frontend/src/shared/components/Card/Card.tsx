@@ -37,7 +37,7 @@ const Card: React.FC<CardProps> = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (isClickable && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
-      onClick?.(event as any);
+      onClick?.(event as unknown as React.MouseEvent<HTMLDivElement>);
     }
   };
 

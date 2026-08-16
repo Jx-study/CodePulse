@@ -20,7 +20,7 @@ export interface TabListProps {
   className?: string;
   tabClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

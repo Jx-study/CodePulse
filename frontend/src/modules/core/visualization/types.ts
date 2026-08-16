@@ -73,7 +73,7 @@ export interface AlgorithmNode {
   x?: number;
   y?: number;
   position?: { x: number; y: number };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** 圖形資料結構 */

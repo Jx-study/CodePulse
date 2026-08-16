@@ -10,6 +10,44 @@
 import levelsData from "./levels.json";
 import type { CategoryType } from "@/types";
 
+/**
+ * This validator's whole job is to catch levels.json entries that are
+ * missing fields the app expects — so its record type must stay loose
+ * (dynamic `level[field]` presence checks) rather than a strict interface
+ * that would just assume those fields exist.
+ */
+interface LevelValidationRecord {
+  id: string;
+  category?: CategoryType;
+  difficulty?: number;
+  prerequisites?: {
+    type: string;
+    levelIds?: string[];
+  };
+  graphPosition?: {
+    layer?: number;
+    branch?: string;
+    horizontalIndex?: number;
+  };
+  pathMetadata?: {
+    pathType: string;
+    targetCategory?: string;
+  };
+  implementationType?: string;
+  homePageMetadata?: {
+    showOnHomePage?: boolean;
+    displayOrder?: unknown;
+    image?: string;
+    translationKey?: string;
+  };
+  [key: string]: unknown;
+}
+
+interface CategoryValidationRecord {
+  order?: number;
+  [key: string]: unknown;
+}
+
 interface ValidationError {
   type: string;
   message: string;
@@ -51,7 +89,7 @@ export function validateLevelsData(): ValidationResult {
   const levelIds = new Set<string>();
   const categories = new Set<CategoryType>();
 
-  for (const level of levelsData.levels as any[]) {
+  for (const level of levelsData.levels as LevelValidationRecord[]) {
     // 檢查必要欄位
     if (!level.id) {
       errors.push({
@@ -244,10 +282,10 @@ export function validateLevelsData(): ValidationResult {
 
   // 3. 驗證 Categories
   const categoryConfigs = Object.entries(levelsData.categories);
-  const categoryOrders = new Set<number>();
+  const categoryOrders = new Set<number | undefined>();
 
   for (const [id, config] of categoryConfigs) {
-    const cat = config as any;
+    const cat = config as CategoryValidationRecord;
 
     // 檢查必要欄位
     const requiredFields = [
@@ -290,7 +328,7 @@ export function validateLevelsData(): ValidationResult {
 
   // 4. 檢查循環依賴
   const graph = new Map<string, string[]>();
-  for (const level of levelsData.levels as any[]) {
+  for (const level of levelsData.levels as LevelValidationRecord[]) {
     if (level.prerequisites?.levelIds) {
       graph.set(level.id, level.prerequisites.levelIds);
     }

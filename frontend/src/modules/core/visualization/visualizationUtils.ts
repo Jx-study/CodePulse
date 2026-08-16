@@ -1,4 +1,5 @@
 import type { AlgorithmNode, GraphData } from "./types";
+import type { GridCellData } from "@/data/DataStructure/nonlinear/utils";
 
 /** 深拷貝資料 */
 export function cloneData<T>(source: T): T {
@@ -9,7 +10,7 @@ export function cloneData<T>(source: T): T {
 export function initLinearData(
   rawValues: number[],
   nextIdRef: { current: number }
-): any[] {
+): { id: string; value: number; position: { x: number; y: number } }[] {
   return rawValues.map((val) => ({
     id: `box-${nextIdRef.current++}`,
     value: val,
@@ -19,8 +20,8 @@ export function initLinearData(
 
 
 /** 生成隨機 Grid（BFS/DFS 用） */
-export function generateRandomGrid(rows: number, cols: number): any[] {
-  const grid = [];
+export function generateRandomGrid(rows: number, cols: number): GridCellData[] {
+  const grid: GridCellData[] = [];
   for (let i = 0; i < rows * cols; i++) {
     const isWall = Math.random() < 0.4 ? 1 : 0;
     grid.push({ id: `box-${i}`, val: isWall });

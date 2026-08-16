@@ -1,10 +1,11 @@
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { BSTActionBar } from "./BSTActionBar";
 import {
   simulateBSTTrace,
   getBSTArrayAfterDelete,
   BSTInputItem,
+  type BSTAction,
 } from "./simulateTrace";
 import { bstTraceToSteps } from "./traceToSteps";
 import type {
@@ -97,9 +98,14 @@ function bstActionHandler(
   return null;
 }
 
+interface BSTRunAction extends BSTAction {
+  type?: string;
+  index?: number;
+}
+
 export function createBinarySearchTreeAnimationSteps(
-  inputData: any[],
-  action?: any,
+  inputData: BSTInputItem[],
+  action?: BSTRunAction,
 ): AnimationStep[] {
   const traceAction =
     action?.type === "add"
@@ -447,7 +453,7 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
   createAnimationSteps: createBinarySearchTreeAnimationSteps,
   statusConfig: BSTStatusConfig,
   actionHandler: bstActionHandler,
-  renderActionBar: (props) => <BSTActionBar {...(props as any)} />,
+  renderActionBar: (props) => <BSTActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 700,

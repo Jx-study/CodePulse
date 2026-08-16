@@ -3,7 +3,7 @@ import { TAGS } from "./tags";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
-interface GraphAction {
+export interface GraphAction {
   type?: string;
   isDirected?: boolean;
   value?: string;

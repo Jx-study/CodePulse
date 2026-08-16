@@ -1,6 +1,7 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import type { LinearData } from "@/data/DataStructure/linear/utils";
 import type {
   ActionContext,
   ActionResult,
@@ -16,9 +17,9 @@ const baseActionHandler = createLinearActionHandler();
 function fibonacciActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: LinearData[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<LinearData[]> | null {
   if (actionType === "fibonacci" || actionType === "run") {
     let rawN = payload.n;
     let n = typeof rawN === "string" ? parseInt(rawN, 10) : (rawN as number);
@@ -38,9 +39,15 @@ function fibonacciActionHandler(
   return baseActionHandler(actionType, payload, data, context);
 }
 
+interface FibonacciRunAction {
+  n?: number;
+  animationParams?: { n?: number };
+  payload?: { n?: number };
+}
+
 export function createFibonacciAnimationSteps(
-  _dataList: any[],
-  action?: any,
+  _dataList: LinearData[],
+  action?: FibonacciRunAction,
 ): AnimationStep[] {
   const targetN =
     action?.n ?? action?.animationParams?.n ?? action?.payload?.n ?? 4;
@@ -96,7 +103,7 @@ export const fibonacciRecursiveConfig: LevelImplementationConfig = {
   defaultData: [],
   createAnimationSteps: createFibonacciAnimationSteps,
   actionHandler: fibonacciActionHandler,
-  renderActionBar: (props) => <FibonacciActionBar {...(props as any)} />,
+  renderActionBar: (props) => <FibonacciActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 509,

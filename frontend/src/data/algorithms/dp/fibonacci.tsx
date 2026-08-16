@@ -1,6 +1,7 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import type { LinearData } from "@/data/DataStructure/linear/utils";
 import type {
   ActionContext,
   ActionResult,
@@ -13,16 +14,14 @@ import { fibonacciDPTraceToSteps } from "./fibonacci/traceToSteps";
 
 const baseActionHandler = createLinearActionHandler();
 
-type FibDPPayload = { n?: number };
-
 function fibonacciDPActionHandler(
   actionType: string,
-  payload: FibDPPayload,
-  data: any[],
+  payload: Record<string, unknown>,
+  data: LinearData[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<LinearData[]> | null {
   if (actionType === "run") {
-    let n = payload.n ?? 6;
+    let n = (payload.n as number | undefined) ?? 6;
     n = Math.min(Math.max(n, 1), 12);
     return {
       animationData: data,
@@ -34,9 +33,15 @@ function fibonacciDPActionHandler(
   return baseActionHandler(actionType, payload, data, context);
 }
 
+interface FibonacciDPRunAction {
+  n?: number;
+  animationParams?: { n?: number };
+  payload?: { n?: number };
+}
+
 export function createFibonacciDPAnimationSteps(
-  _dataList: any[],
-  action?: any,
+  _dataList: LinearData[],
+  action?: FibonacciDPRunAction,
 ): AnimationStep[] {
   const targetN =
     action?.n ?? action?.animationParams?.n ?? action?.payload?.n ?? 6;
@@ -99,7 +104,7 @@ export const fibonacciDPConfig: LevelImplementationConfig = {
   defaultData: [],
   createAnimationSteps: createFibonacciDPAnimationSteps,
   actionHandler: fibonacciDPActionHandler,
-  renderActionBar: (props) => <FibonacciDPActionBar {...(props as any)} />,
+  renderActionBar: (props) => <FibonacciDPActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 70,

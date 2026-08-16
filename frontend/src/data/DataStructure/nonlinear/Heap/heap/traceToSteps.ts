@@ -101,7 +101,7 @@ export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       local_vars: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

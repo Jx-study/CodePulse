@@ -2,7 +2,7 @@ import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, TrieStatus } from "./tags";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
-interface TrieAction {
+export interface TrieAction {
   trieType?: string;
   word?: string;
   existed?: boolean;

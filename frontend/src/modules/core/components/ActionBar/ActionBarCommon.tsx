@@ -29,7 +29,7 @@ export const StaticLabel: React.FC<{ children: React.ReactNode }> = ({
 export interface DataRowProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
-  onRandomData: (params?: any) => void;
+  onRandomData: (params?: unknown) => void;
   onMaxNodesChange?: (count: number) => void;
   disabled?: boolean;
   maxNodes?: number;

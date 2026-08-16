@@ -1,7 +1,11 @@
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { BinaryTreeActionBar } from "./BinaryTreeActionBar";
-import { simulateBinaryTreeTrace, BTInputItem } from "./simulateTrace";
+import {
+  simulateBinaryTreeTrace,
+  BTInputItem,
+  type BTAction,
+} from "./simulateTrace";
 import { binaryTreeTraceToSteps } from "./traceToSteps";
 import { BTStatus, TAGS } from "./tags";
 import type {
@@ -22,8 +26,8 @@ export const BTStatusConfig: StatusConfig = {
 };
 
 export function createBinaryTreeAnimationSteps(
-  inputData: any[],
-  action?: any,
+  inputData: BTInputItem[],
+  action?: BTAction,
 ): AnimationStep[] {
   const trace = simulateBinaryTreeTrace(inputData, action);
   return binaryTreeTraceToSteps(trace);
@@ -229,7 +233,7 @@ export const BinaryTreeConfig: LevelImplementationConfig = {
   },
   createAnimationSteps: createBinaryTreeAnimationSteps,
   actionHandler: binaryTreeActionHandler,
-  renderActionBar: (props) => <BinaryTreeActionBar {...(props as any)} />,
+  renderActionBar: (props) => <BinaryTreeActionBar {...(props as DSActionBarProps)} />,
   statusConfig: BTStatusConfig,
   relatedProblems: [
     {

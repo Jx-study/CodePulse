@@ -1,29 +1,34 @@
 import type { AnimationStep, CodeConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { graphRealWorldStories } from "./graph.stories";
 import type { ActionContext } from "@/modules/core/visualization/types";
 import { GraphActionBar } from "./GraphActionBar";
 import { generateRandomGraphDS } from "@/modules/core/visualization/visualizationUtils";
 import type { ActionResult } from "@/modules/core/visualization/types";
-import type { GraphData } from "@/modules/core/visualization/types";
-import { simulateGraphTrace } from "./simulateTrace";
+import type {
+  GraphData,
+  AlgorithmNode,
+} from "@/modules/core/visualization/types";
+import { simulateGraphTrace, type GraphAction } from "./simulateTrace";
 import { graphTraceToSteps } from "./traceToSteps";
 import { GraphStatusConfig, TAGS } from "./tags";
 import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
 export function createGraphAnimationSteps(
-  inputData: any[],
-  action?: any,
+  inputData: { nodes: RawGraphNode[]; edges: string[][] },
+  action?: GraphAction,
 ): AnimationStep[] {
-  const trace = simulateGraphTrace(
-    inputData as unknown as { nodes: RawGraphNode[]; edges: string[][] },
-    action,
-  );
+  const trace = simulateGraphTrace(inputData, action);
   return graphTraceToSteps(trace);
 }
 
-function isGraphData(d: any): d is GraphData {
-  return d && !Array.isArray(d) && Array.isArray(d.nodes);
+function isGraphData(d: unknown): d is GraphData {
+  return (
+    !!d &&
+    typeof d === "object" &&
+    !Array.isArray(d) &&
+    Array.isArray((d as GraphData).nodes)
+  );
 }
 
 /** Graph actionHandler */
@@ -34,7 +39,7 @@ function graphActionHandler(
   context: ActionContext,
 ): ActionResult<GraphData> | null {
   if (!isGraphData(data)) return null;
-  const newData = JSON.parse(JSON.stringify(data));
+  const newData: GraphData = JSON.parse(JSON.stringify(data));
   const { nodes, edges } = newData;
   const isDirected = payload.isDirected as boolean;
 
@@ -45,7 +50,7 @@ function graphActionHandler(
       context.toast.warning("請輸入節點 ID");
       return null;
     }
-    if (nodes.find((n: any) => n.id === id)) {
+    if (nodes.find((n) => n.id === id)) {
       context.toast.warning(`節點 ${val} 已存在`);
       return null;
     }
@@ -64,18 +69,18 @@ function graphActionHandler(
       context.toast.warning("請輸入節點 ID");
       return null;
     }
-    const idx = nodes.findIndex((n: any) => n.id === targetIdVal);
+    const idx = nodes.findIndex((n) => n.id === targetIdVal);
     if (idx === -1) {
       context.toast.warning(`節點 ${targetVal} 不存在`);
       return null;
     }
     const relatedEdges = edges.filter(
-      (e: any[]) => e[0] === targetIdVal || e[1] === targetIdVal,
+      (e) => e[0] === targetIdVal || e[1] === targetIdVal,
     );
     const deletedNodeCoords = { x: nodes[idx].x, y: nodes[idx].y };
     nodes.splice(idx, 1);
     newData.edges = edges.filter(
-      (e: any[]) => e[0] !== targetIdVal && e[1] !== targetIdVal,
+      (e) => e[0] !== targetIdVal && e[1] !== targetIdVal,
     );
     return {
       animationData: newData,
@@ -95,14 +100,14 @@ function graphActionHandler(
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
     if (
-      !nodes.find((n: any) => n.id === sourceId) ||
-      !nodes.find((n: any) => n.id === targetIdVal)
+      !nodes.find((n) => n.id === sourceId) ||
+      !nodes.find((n) => n.id === targetIdVal)
     ) {
       context.toast.warning("來源或目標節點不存在");
       return null;
     }
     const exists = edges.some(
-      (e: any[]) =>
+      (e) =>
         (e[0] === sourceId && e[1] === targetIdVal) ||
         (!isDirected && e[0] === targetIdVal && e[1] === sourceId),
     );
@@ -128,7 +133,7 @@ function graphActionHandler(
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
     const initialLength = edges.length;
-    newData.edges = edges.filter((e: any[]) => {
+    newData.edges = edges.filter((e) => {
       const isForward = e[0] === sourceId && e[1] === targetIdVal;
       const isBackward = e[0] === targetIdVal && e[1] === sourceId;
       return isDirected ? !isForward : !(isForward || isBackward);
@@ -177,15 +182,15 @@ function graphActionHandler(
       return null;
     }
     if (actionType === "getNeighbors" || actionType === "getDegree") {
-      if (!nodes.find((n: any) => n.id === `node-${payload.id}`)) {
+      if (!nodes.find((n) => n.id === `node-${payload.id}`)) {
         context.toast.warning(`節點 ${payload.id} 不存在`);
         return null;
       }
     }
     if (actionType === "checkAdjacent") {
       if (
-        !nodes.find((n: any) => n.id === `node-${payload.source}`) ||
-        !nodes.find((n: any) => n.id === `node-${payload.target}`)
+        !nodes.find((n) => n.id === `node-${payload.source}`) ||
+        !nodes.find((n) => n.id === `node-${payload.target}`)
       ) {
         context.toast.warning("來源或目標節點不存在");
         return null;
@@ -220,12 +225,12 @@ function graphActionHandler(
     }
     if (actionType === "reset") {
       const defaultData = (context.defaultData ?? data) as GraphData;
-      const resetData = JSON.parse(JSON.stringify(defaultData));
+      const resetData: GraphData = JSON.parse(JSON.stringify(defaultData));
       if (isGraphData(data)) {
         const coordMap = new Map(
-          data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+          data.nodes.map((n) => [n.id, { x: n.x, y: n.y }]),
         );
-        resetData.nodes.forEach((n: any) => {
+        resetData.nodes.forEach((n) => {
           const saved = coordMap.get(n.id);
           if (saved?.x !== undefined && saved?.y !== undefined) {
             n.x = saved.x;
@@ -252,7 +257,7 @@ function graphActionHandler(
         if (parts.length >= 3) {
           const nodeCount = parseInt(parts[1]);
           const edgeStr = parts.slice(2).join(":");
-          const nodesArr: any[] = [];
+          const nodesArr: AlgorithmNode[] = [];
           for (let i = 0; i < nodeCount; i++)
             nodesArr.push({ id: `node-${i}`, value: String(i) });
           const edgesArr: string[][] = [];
@@ -670,7 +675,7 @@ export const GraphConfig: LevelImplementationConfig = {
   statusConfig: GraphStatusConfig,
   actionHandler: graphActionHandler,
   maxNodes: 20,
-  renderActionBar: (props) => <GraphActionBar {...(props as any)} />,
+  renderActionBar: (props) => <GraphActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 133,

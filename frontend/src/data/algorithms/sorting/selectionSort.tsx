@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
@@ -106,7 +106,7 @@ export const selectionSortConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createSelectionSortAnimationSteps,
   actionHandler: selectionSortActionHandler,
-  renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  renderActionBar: (props) => <SortingActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 215,

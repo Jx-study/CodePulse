@@ -17,6 +17,22 @@ import { listHistory } from "@/services/playgroundHistoryService";
 import { toast } from "@/shared/components/Toast";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 
+// Older stored history records may still have snake_case backend keys instead
+// of the normalized camelCase `CallGraph` shape — this covers both.
+interface RawCallNode {
+  id: string;
+  func_name?: string;
+  funcName?: string;
+  cfg?: CallGraph["nodes"][number]["cfg"];
+}
+interface RawCallEdge {
+  source: string;
+  target: string;
+  steps?: number[];
+  return_steps?: number[];
+  returnSteps?: number[];
+}
+
 type DrillState = { mode: "call_graph" } | { mode: "cfg"; funcId: string };
 
 type InputPromptState = {
@@ -149,12 +165,16 @@ export function usePlaygroundRun({
       const mappedCallGraph = record.call_graph
         ? {
             ...record.call_graph,
-            nodes: (record.call_graph.nodes as any[]).map((n) => ({
+            nodes: (
+              record.call_graph.nodes as unknown as RawCallNode[]
+            ).map((n) => ({
               id: n.id,
-              funcName: n.func_name ?? n.funcName,
+              funcName: n.func_name ?? n.funcName ?? "",
               cfg: n.cfg ?? null,
             })),
-            edges: ((record.call_graph.edges ?? []) as any[]).map((e) => ({
+            edges: (
+              (record.call_graph.edges ?? []) as unknown as RawCallEdge[]
+            ).map((e) => ({
               source: e.source,
               target: e.target,
               steps: e.steps ?? [],

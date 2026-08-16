@@ -9,9 +9,15 @@ import {
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
+export interface DijkstraAction {
+  isDirected?: boolean;
+  startNode?: string;
+  endNode?: string;
+}
+
 export function simulateDijkstraTrace(
   inputData: { nodes: RawGraphNode[]; edges: string[][] },
-  action?: { isDirected?: boolean; startNode?: string; endNode?: string },
+  action?: DijkstraAction,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   if (!inputData || !inputData.nodes) return trace;

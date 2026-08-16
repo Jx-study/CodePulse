@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import type {
   ActionContext,
   ActionResult,
@@ -8,7 +8,11 @@ import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAc
 
 import { HeapActionBar } from "./HeapActionBar";
 import { TAGS } from "./heap/tags";
-import { simulateHeapTrace, HeapNode } from "./heap/simulateTrace";
+import {
+  simulateHeapTrace,
+  HeapNode,
+  type HeapAction,
+} from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
@@ -206,14 +210,21 @@ export function heapActionHandler(
     | null;
 }
 
+interface HeapRunAction extends HeapAction {
+  isHeapAction?: boolean;
+  oldData?: HeapNode[];
+  animationParams?: HeapAction & { isHeapAction?: boolean; oldData?: HeapNode[] };
+}
+
 export function createHeapAnimationSteps(
-  dataList: any[],
-  action?: any,
+  dataList: HeapNode[],
+  action?: HeapRunAction,
 ): AnimationStep[] {
   const params = action?.isHeapAction ? action : action?.animationParams;
 
   if (params && params.isHeapAction) {
-    const traceData = params.heapType === "init" ? dataList : params.oldData;
+    const traceData =
+      params.heapType === "init" ? dataList : (params.oldData ?? dataList);
     const trace = simulateHeapTrace(traceData, params);
     return heapTraceToSteps(trace);
   }
@@ -311,7 +322,7 @@ export const HeapConfig: LevelImplementationConfig = {
   createAnimationSteps: createHeapAnimationSteps,
   statusConfig: HeapStatusConfig,
   actionHandler: heapActionHandler,
-  renderActionBar: (props) => <HeapActionBar {...(props as any)} />,
+  renderActionBar: (props) => <HeapActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 703,

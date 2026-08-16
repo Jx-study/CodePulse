@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 import type { LinearData } from "@/data/DataStructure/linear/utils";
 import type {
@@ -11,8 +11,13 @@ import { TrieActionBar } from "./TrieActionBar";
 import { TAGS, TrieStatusConfig } from "./trie/tags";
 
 const TRIE_MAX_WORDS = 20;
-import { simulateTrieTrace } from "./trie/simulateTrace";
+import { simulateTrieTrace, type TrieAction } from "./trie/simulateTrace";
 import { trieTraceToSteps } from "./trie/traceToSteps";
+
+interface TrieRunAction extends TrieAction {
+  isTrieAction?: boolean;
+  animationParams?: TrieAction & { isTrieAction?: boolean };
+}
 
 const baseActionHandler = createLinearActionHandler();
 
@@ -177,8 +182,8 @@ function trieActionHandler(
 }
 
 export function createTrieAnimationSteps(
-  dataList: any[],
-  action?: any,
+  dataList: string[],
+  action?: TrieRunAction,
 ): AnimationStep[] {
   const params = action?.isTrieAction ? action : action?.animationParams;
 
@@ -294,6 +299,6 @@ export const TrieConfig: LevelImplementationConfig = {
   createAnimationSteps: createTrieAnimationSteps,
   statusConfig: TrieStatusConfig,
   actionHandler: trieActionHandler,
-  renderActionBar: (props) => <TrieActionBar {...(props as any)} />,
+  renderActionBar: (props) => <TrieActionBar {...(props as DSActionBarProps)} />,
   maxNodes: TRIE_MAX_WORDS,
 };

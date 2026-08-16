@@ -60,6 +60,13 @@ export interface Link {
   direction?: "next" | "prev";
 }
 
+interface LinkDatum {
+  s: Node;
+  t: Node;
+  status?: string;
+  weight?: number | string;
+}
+
 /**
  * 從 node1 的邊緣開始，動畫伸長到 node2 的邊緣
  * @param svgEl SVG 元素
@@ -440,30 +447,25 @@ export function renderAll(
 
       // 如果是有向圖，全部保留
       return true;
-    }) as {
-    s: Node;
-    t: Node;
-    status?: string;
-    weight?: number | string;
-  }[];
+    }) as LinkDatum[];
 
   // 快速查詢某條邊是否有「反向邊」存在
   const linkSet = new Set(linkData.map((d) => `${d.s.id}->${d.t.id}`));
 
   // 把每一條線與它的權重文字包在一個 <g class="link-group"> 裡面
   const linkGroups = scene
-    .selectAll<SVGGElement, any>("g.link-group")
-    .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
+    .selectAll<SVGGElement, LinkDatum>("g.link-group")
+    .data(linkData, (d) => `${d.s.id}->${d.t.id}`);
 
   // 1. Exit：移除非當前的線，終點縮向起點 (與登場動畫對稱)
-  const exitingLinks = linkGroups.exit();
+  const exitingLinks = linkGroups.exit<LinkDatum>();
 
   exitingLinks
-    .select("path.link")
+    .select<SVGPathElement>("path.link")
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("d", (d: any) => {
+    .attr("d", (d) => {
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
       const pathOffset =
         (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
@@ -548,7 +550,7 @@ export function renderAll(
     .style("opacity", 0); // 初始隱藏，伸長後顯示
 
   // 3. Merge & Update：更新所有群組的位置與狀態
-  const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
+  const mergedLinkGroups = linkGroupEnter.merge(linkGroups);
 
   // 更新線條動畫
   mergedLinkGroups.each(function (d) {
@@ -657,12 +659,12 @@ export function renderAll(
   });
 
   // 如果線條有狀態，把整個群組提上來，避免被其他線蓋住
-  mergedLinkGroups.filter((d: any) => !!d.status).raise();
+  mergedLinkGroups.filter((d) => !!d.status).raise();
 
   // NODES / BOXES（在上層）
   const items = scene
     .selectAll<SVGGElement, BaseElement>("g.el")
-    .data(elements, (d: any) => String(d.id));
+    .data(elements, (d) => String(d.id));
 
   items.exit().remove();
 
@@ -674,7 +676,7 @@ export function renderAll(
     .style("opacity", (d) => d.opacity ?? 1);
 
   // 依型別建立一次對應圖形元素
-  enter.each(function (d: any) {
+  enter.each(function (d) {
     const g = d3.select(this);
     if (d.kind === "node" || d instanceof Node) {
       g.append("circle");
@@ -713,7 +715,7 @@ export function renderAll(
   });
 
   // === NODES 渲染同步修正 ===
-  const merged = enter.merge(items as any);
+  const merged = enter.merge(items);
 
   // 位移 transition（命名為 "move"，不含 opacity）
   merged
@@ -746,26 +748,27 @@ export function renderAll(
     const g = d3.select(this);
 
     if (d.kind === "node" || d instanceof Node) {
+      const node = d as Node;
       g.select<SVGCircleElement>("circle")
-        .attr("r", d.radius)
+        .attr("r", node.radius)
         .attr("fill", "none")
-        .attr("stroke", d.getColor())
+        .attr("stroke", node.getColor())
         .attr("stroke-width", 2);
 
       // 文字置中，放在圓下方（半徑 + 14px）
       g.select<SVGTextElement>("text.desc")
         .attr("text-anchor", "middle")
-        .attr("y", d.radius + 14)
+        .attr("y", node.radius + 14)
         .attr("font-size", 12)
         .attr("fill", "#ccc")
-        .text(d.description || "");
+        .text(node.description || "");
       // 文字置中，放在圓中間
       g.select<SVGTextElement>("text.val")
         .attr("text-anchor", "middle")
-        .attr("y", d.radius / 2 - 5)
+        .attr("y", node.radius / 2 - 5)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value);
+        .text(node.value);
     } else if (d.kind === "box" || d instanceof Box) {
       const box = d as Box;
       const rect = g.select<SVGRectElement>("rect");

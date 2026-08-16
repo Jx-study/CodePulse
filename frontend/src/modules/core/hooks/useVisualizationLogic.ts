@@ -9,15 +9,24 @@ import {
   cloneData,
 } from "@/modules/core/visualization/visualizationUtils";
 import type { LevelImplementationConfig } from "@/types/implementation";
+import type { AnimationStep } from "@/types";
 
 const noop = () => {};
 
 export const useVisualizationLogic = (config: LevelImplementationConfig | null) => {
+  // `data`'s shape is heterogeneous across the ~30 registered DS/algorithm
+  // modules (see LevelImplementationConfig's own `any`s in types/implementation.ts) —
+  // this hook is the same erasure boundary, so `data` stays loosely typed.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any>(config?.defaultData ?? []);
-  const [activeSteps, setActiveSteps] = useState<any[]>([]);
+  const [activeSteps, setActiveSteps] = useState<AnimationStep[]>([]);
   const nextIdRef = useRef(100);
 
-  const createSteps = (inputData: any, actionParams?: any, extra?: any) => {
+  const createSteps = (
+    inputData: unknown,
+    actionParams?: unknown,
+    extra?: unknown,
+  ) => {
     if (config?.createAnimationSteps) {
       return config.createAnimationSteps(inputData, actionParams, extra);
     }
@@ -35,18 +44,21 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
     if (config.type === "algorithm") {
       // 演算法初始化
       if (!config.defaultData) return;
-      let initialData: any;
-      let initParams: any = {};
+      let initialData: unknown;
+      let initParams: Record<string, unknown> = {};
 
       if (Array.isArray(config.defaultData)) {
         const isObjectArray = typeof config.defaultData[0] === "object";
         if (isObjectArray) {
           initialData = cloneData(config.defaultData);
         } else {
-          initialData = config.defaultData.map((d: any) => ({
-            ...d,
-            id: d.id || `box-${nextIdRef.current++}`,
-          }));
+          initialData = (config.defaultData as unknown[]).map((d) => {
+            const id = (d as Record<string, unknown> | undefined)?.id;
+            return {
+              ...(d as object),
+              id: id || `box-${nextIdRef.current++}`,
+            };
+          });
         }
         if (config.id === "slidingwindow") {
           initParams = { mode: "longest_lte", targetSum: 20 };
@@ -80,12 +92,13 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
   }, [config]);
 
   const executeAction = useCallback(
-    (actionType: string, payload: any): any[] => {
+    (actionType: string, payload: unknown): AnimationStep[] => {
       if (!config) return [];
       if (config.actionHandler) {
+        const payloadRecord = (payload ?? {}) as Record<string, unknown>;
         const result = config.actionHandler(
           actionType,
-          payload ?? {},
+          payloadRecord,
           cloneData(data),
           {
             nextId: () => `node-${nextIdRef.current++}`,
@@ -98,23 +111,26 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
         const animData = result.animationData;
         const stateData = result.stateData ?? result.animationData;
 
-        let animationParams: any;
+        let animationParams: Record<string, unknown> | undefined;
         if (result.useRawAnimationParams) {
-          animationParams = result.animationParams;
+          animationParams = result.animationParams as
+            | Record<string, unknown>
+            | undefined;
         } else if (result.isResetAction) {
           animationParams = undefined;
         } else {
           animationParams = {
             type: actionType,
-            ...(payload ?? {}),
+            ...payloadRecord,
             ...((result.animationParams as object) ?? {}),
           };
         }
 
         const steps = config.createAnimationSteps(animData, animationParams, {
           hasTailMode:
-            animationParams?.hasTailMode ?? payload?.hasTailMode ?? false,
-          isDoubly: animationParams?.isDoubly ?? payload?.isDoubly ?? false,
+            animationParams?.hasTailMode ?? payloadRecord?.hasTailMode ?? false,
+          isDoubly:
+            animationParams?.isDoubly ?? payloadRecord?.isDoubly ?? false,
         });
 
         setData(stateData);

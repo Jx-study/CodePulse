@@ -1,5 +1,5 @@
 import type { AnimationStep, CodeConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import type {
   ActionContext,
   ActionResult,
@@ -96,14 +96,17 @@ function topoActionHandler(
   if (actionType === "reset") {
     const newData = cloneData(context.defaultData as GraphData);
 
-    const isGraphData = (d: any): d is GraphData =>
-      d && !Array.isArray(d) && Array.isArray(d.nodes);
+    const isGraphData = (d: unknown): d is GraphData =>
+      !!d &&
+      typeof d === "object" &&
+      !Array.isArray(d) &&
+      Array.isArray((d as GraphData).nodes);
 
     if (isGraphData(data)) {
       const coordMap = new Map(
-        data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+        data.nodes.map((n) => [n.id, { x: n.x, y: n.y }]),
       );
-      newData.nodes.forEach((n: any) => {
+      newData.nodes.forEach((n) => {
         const saved = coordMap.get(n.id);
         if (saved?.x != null && saved?.y != null) {
           n.x = saved.x;
@@ -130,9 +133,9 @@ function topoActionHandler(
 }
 
 export function createTopologicalSortAnimationSteps(
-  inputData: any,
+  inputData: GraphData,
 ): AnimationStep[] {
-  const trace = simulateTopologicalSortTrace(inputData as GraphData);
+  const trace = simulateTopologicalSortTrace(inputData);
   return topologicalSortTraceToSteps(trace, inputData);
 }
 
@@ -287,5 +290,5 @@ export const topologicalSortConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/course-schedule-iv/",
     },
   ],
-  renderActionBar: (props) => <TopologicalSortActionBar {...(props as any)} />,
+  renderActionBar: (props) => <TopologicalSortActionBar {...(props as AlgoActionBarProps)} />,
 };

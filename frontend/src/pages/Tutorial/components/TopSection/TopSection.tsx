@@ -2,6 +2,7 @@ import { Fragment, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
 import {
   DndContext,
   DragEndEvent,
+  DragStartEvent,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -21,6 +22,8 @@ import { usePanelContext } from '@/pages/Tutorial/context/PanelContext';
 import { InspectorPanelInternal, type InspectorPanelInternalProps } from '@/pages/Tutorial/Tutorial';
 import type { CodeEditorHandle } from '@/modules/core/components/CodeEditor/CodeEditor';
 import type { CanvasPanelProps } from '@/types/canvasTypes';
+import type { CodeConfig } from '@/types';
+import type { LevelImplementationConfig } from '@/types/implementation';
 import styles from './TopSection.module.scss';
 import { useTranslation } from 'react-i18next';
 
@@ -29,7 +32,7 @@ interface TopSectionProps {
   activeDragId: string | null;
   mainPanelOrder: string[];
   rightPanelOrder: string[];
-  handleDragStart: (event: any) => void;
+  handleDragStart: (event: DragStartEvent) => void;
   handleDragEnd: (event: DragEndEvent) => void;
   handleDragCancel: () => void;
 
@@ -54,12 +57,12 @@ interface TopSectionProps {
   handleToggleLeftPanel: () => void;
 
   // Topic 配置
-  topicTypeConfig: any;
+  topicTypeConfig: LevelImplementationConfig | null;
 
   // CodeEditor
   codeMode: "pseudo" | "python";
   handleModeToggle: (mode: "pseudo" | "python") => void;
-  currentCodeConfig: any;
+  currentCodeConfig: CodeConfig | null;
   highlightLines: number[];
   codeEditorRef?: React.RefObject<CodeEditorHandle | null>;
 }

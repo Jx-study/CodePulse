@@ -6,7 +6,7 @@ export interface HeapNode {
   value: number;
 }
 
-interface HeapAction {
+export interface HeapAction {
   isMinHeap?: boolean;
   isMaxHeap?: boolean;
   heapType?: string;

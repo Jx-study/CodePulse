@@ -266,7 +266,7 @@ export function bstTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: [...treeElements] as any,
+      elements: [...treeElements],
       links,
     };
   });

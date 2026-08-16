@@ -1,4 +1,4 @@
-﻿import { LevelImplementationConfig } from "@/types/implementation";
+﻿import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import i18n from "@/i18n";
@@ -212,7 +212,7 @@ export const linkedListConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createLinkedListAnimationSteps,
   actionHandler: linkedListActionHandler,
-  renderActionBar: (props) => <LinkedListActionBar {...(props as any)} />,
+  renderActionBar: (props) => <LinkedListActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     { id: 206, title: "Reverse Linked List", concept: "relatedProblems.206", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
     { id: 141, title: "Linked List Cycle", concept: "relatedProblems.141", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },

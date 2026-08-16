@@ -4,7 +4,7 @@ import type { PanelId } from "./DockablePanel";
 interface PanelContentProps {
   id: PanelId;
   globalVars: Record<string, string>;
-  localVars: Record<string, any>;
+  localVars: Record<string, unknown>;
   callStack: string[];
   stdoutEvents: StdoutEvent[];
   currentStep: number;

@@ -1,6 +1,7 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import type { LinearData } from "@/data/DataStructure/linear/utils";
 import type {
   ActionContext,
   ActionResult,
@@ -16,9 +17,9 @@ const baseActionHandler = createLinearActionHandler();
 function factorialActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: LinearData[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<LinearData[]> | null {
   if (actionType === "run" || actionType === "factorial") {
     let n = (payload.n as number) ?? 5;
     n = Math.min(Math.max(n, 1), 10);
@@ -32,9 +33,14 @@ function factorialActionHandler(
   return baseActionHandler(actionType, payload, data, context);
 }
 
+interface FactorialRunAction {
+  n?: number;
+  animationParams?: { n?: number };
+}
+
 export function createFactorialAnimationSteps(
-  _dataList: any[],
-  action?: any,
+  _dataList: LinearData[],
+  action?: FactorialRunAction,
 ): AnimationStep[] {
   const targetN = action?.n ?? action?.animationParams?.n ?? 5;
   const trace = simulateFactorialTrace(targetN);
@@ -99,7 +105,7 @@ export const factorialConfig: LevelImplementationConfig = {
   defaultData: [],
   createAnimationSteps: createFactorialAnimationSteps,
   actionHandler: factorialActionHandler,
-  renderActionBar: (props) => <FactorialActionBar {...(props as any)} />,
+  renderActionBar: (props) => <FactorialActionBar {...(props as AlgoActionBarProps)} />,
   i18nNamespace: "tutorials/factorial",
   maxNodes: 10,
 };
