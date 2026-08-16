@@ -9,7 +9,7 @@ interface StatusBarProps {
   stage: RunStage;
 }
 
-export function StatusBar({ stage }: StatusBarProps) {
+function StatusBar({ stage }: StatusBarProps) {
   const { t } = useTranslation("playground");
   const isRunning = stage !== "idle" && stage !== "done";
   const isDone    = stage === "done";

@@ -11,7 +11,7 @@ import { getHomePageLevels } from "@/services/LevelService";
 const imageModules = import.meta.glob<{ default: string }>('./assets/*.png', { eager: true });
 
 // 建立圖片映射表：檔名 -> 圖片路徑
-export const algorithmImages: Record<string, string> = Object.keys(imageModules).reduce((acc, path) => {
+const algorithmImages: Record<string, string> = Object.keys(imageModules).reduce((acc, path) => {
   // 從路徑提取檔名，例如 './assets/bubble-sort.png' -> 'bubble-sort.png'
   const fileName = path.replace('./assets/', '');
   acc[fileName] = imageModules[path].default;

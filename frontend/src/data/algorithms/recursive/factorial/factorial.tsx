@@ -38,7 +38,7 @@ interface FactorialRunAction {
   animationParams?: { n?: number };
 }
 
-export function createFactorialAnimationSteps(
+function createFactorialAnimationSteps(
   _dataList: LinearData[],
   action?: FactorialRunAction,
 ): AnimationStep[] {

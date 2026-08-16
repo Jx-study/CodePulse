@@ -197,7 +197,7 @@ interface DFSRunAction {
   cols?: number;
 }
 
-export function createDFSAnimationSteps(
+function createDFSAnimationSteps(
   inputData: GridCellData[] | { nodes: RawGraphNode[]; edges: string[][] },
   action?: DFSRunAction,
 ): AnimationStep[] {

@@ -6,19 +6,6 @@ export function cloneData<T>(source: T): T {
   return JSON.parse(JSON.stringify(source));
 }
 
-/** 將純數字陣列轉為 Box 物件 (給排序/搜尋用) */
-export function initLinearData(
-  rawValues: number[],
-  nextIdRef: { current: number }
-): { id: string; value: number; position: { x: number; y: number } }[] {
-  return rawValues.map((val) => ({
-    id: `box-${nextIdRef.current++}`,
-    value: val,
-    position: { x: 0, y: 0 },
-  }));
-}
-
-
 /** 生成隨機 Grid（BFS/DFS 用） */
 export function generateRandomGrid(rows: number, cols: number): GridCellData[] {
   const grid: GridCellData[] = [];

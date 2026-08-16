@@ -52,7 +52,7 @@ function sortingOverrideMap(tag: string, e: TraceEvent): Record<number, Status> 
   return override;
 }
 
-export function sortingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
+function sortingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
     const sortedIndices = new Set<number>(
       (event.meta?.sorted_indices as number[] | undefined) ?? [],
@@ -145,7 +145,7 @@ function searchingOverrideMap(tag: string, e: TraceEvent): Record<number, Status
   return override;
 }
 
-export function searchingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
+function searchingTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => ({
     stepNumber: idx + 1,
     description: SEARCH_DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },

@@ -256,4 +256,3 @@ function formatDate(iso: string): string {
   });
 }
 
-export default PlaygroundHistoryDialog;

@@ -14,7 +14,7 @@ import type {
 } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 
-export const BTStatusConfig: StatusConfig = {
+const BTStatusConfig: StatusConfig = {
   i18nNs: "tutorials/binary-tree",
   statuses: [
     { key: BTStatus.Inactive,  label: "statusLegend.notVisited",      color: "#555555" },
@@ -25,7 +25,7 @@ export const BTStatusConfig: StatusConfig = {
   ],
 };
 
-export function createBinaryTreeAnimationSteps(
+function createBinaryTreeAnimationSteps(
   inputData: BTInputItem[],
   action?: BTAction,
 ): AnimationStep[] {

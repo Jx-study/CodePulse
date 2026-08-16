@@ -16,7 +16,7 @@ import {
 import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
-export const HeapStatusConfig: StatusConfig = {
+const HeapStatusConfig: StatusConfig = {
   i18nNs: "tutorials/heap",
   statuses: [
     { key: Status.Inactive,   label: "statusLegend.notBuilt",        color: "#555555" },
@@ -29,7 +29,7 @@ export const HeapStatusConfig: StatusConfig = {
 
 const baseActionHandler = createLinearActionHandler();
 
-export function heapActionHandler(
+function heapActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
   data: HeapNode[],
@@ -216,7 +216,7 @@ interface HeapRunAction extends HeapAction {
   animationParams?: HeapAction & { isHeapAction?: boolean; oldData?: HeapNode[] };
 }
 
-export function createHeapAnimationSteps(
+function createHeapAnimationSteps(
   dataList: HeapNode[],
   action?: HeapRunAction,
 ): AnimationStep[] {

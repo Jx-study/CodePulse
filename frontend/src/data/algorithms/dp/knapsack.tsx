@@ -60,7 +60,7 @@ function knapsackActionHandler(
   return null;
 }
 
-export function createKnapsackAnimationSteps(
+function createKnapsackAnimationSteps(
   inputData: KnapsackItem[],
   action?: { capacity?: number },
 ): AnimationStep[] {

@@ -28,7 +28,7 @@ interface PanelHeaderProps {
   onTabChange?: (key: string) => void;
 }
 
-export function PanelHeader({
+function PanelHeader({
   title,
   icon,
   collapsible = false,

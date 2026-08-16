@@ -39,7 +39,7 @@ interface FibonacciDPRunAction {
   payload?: { n?: number };
 }
 
-export function createFibonacciDPAnimationSteps(
+function createFibonacciDPAnimationSteps(
   _dataList: LinearData[],
   action?: FibonacciDPRunAction,
 ): AnimationStep[] {

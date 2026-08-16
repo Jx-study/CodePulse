@@ -181,7 +181,7 @@ function trieActionHandler(
   ) as unknown as ActionResult<string[]> | null;
 }
 
-export function createTrieAnimationSteps(
+function createTrieAnimationSteps(
   dataList: string[],
   action?: TrieRunAction,
 ): AnimationStep[] {

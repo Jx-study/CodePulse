@@ -1,23 +1,7 @@
-import type { Level, UserProgress } from '@/types';
+import type { Level } from '@/types';
 export {
-  isLevelUnlocked,
   computeAllUnlockStatus,
 } from '@/services/LevelService';
-
-/**
- * 取得關卡的未完成前置關卡 ID（用於顯示提示）
- */
-export function getUncompletedPrerequisites(
-  level: Level,
-  _levels: Level[],
-  userProgress: UserProgress
-): string[] {
-  const prereq = level.prerequisites;
-  if (!prereq || prereq.type === 'NONE') return [];
-
-  return prereq.levelIds
-    .filter((id) => userProgress.levels[id]?.status !== 'completed');
-}
 
 /**
  * 根據 category 篩選關卡

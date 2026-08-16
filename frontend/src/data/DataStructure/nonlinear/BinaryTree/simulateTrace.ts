@@ -18,7 +18,7 @@ export interface BTAction {
   mode?: string;
 }
 
-export function buildLogicalTree(data: BTInputItem[]): LogicTreeNode | null {
+function buildLogicalTree(data: BTInputItem[]): LogicTreeNode | null {
   if (data.length === 0) return null;
   const nodes: LogicTreeNode[] = data.map((d) => ({ ...d }));
   const root = nodes[0];

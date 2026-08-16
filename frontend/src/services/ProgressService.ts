@@ -326,33 +326,6 @@ export function calculateCategoryProgress(
 }
 
 /**
- * 完成關卡（更新進度）
- */
-export function completeLevel(
-  levelId: string,
-  userProgress: UserProgress,
-  newStars: 0 | 1 | 2 | 3,
-): UserProgress {
-  const currentProgress = getLevelProgress(levelId, userProgress);
-  const wasCompleted = currentProgress.status === "completed";
-
-  return {
-    ...userProgress,
-    levels: {
-      ...userProgress.levels,
-      [levelId]: {
-        ...currentProgress,
-        status: "completed" as const,
-        stars: Math.max(currentProgress.stars, newStars) as 0 | 1 | 2 | 3,
-        attempts: currentProgress.attempts + 1,
-      },
-    },
-    totalLevelsCompleted: userProgress.totalLevelsCompleted + (wasCompleted ? 0 : 1),
-    totalStarsEarned: userProgress.totalStarsEarned + (wasCompleted ? 0 : newStars),
-  };
-}
-
-/**
  * 更新關卡狀態為「進行中」
  */
 export function startLevel(

@@ -67,7 +67,7 @@ interface TopSectionProps {
   codeEditorRef?: React.RefObject<CodeEditorHandle | null>;
 }
 
-export function TopSection(props: TopSectionProps) {
+function TopSection(props: TopSectionProps) {
   const {
     activeDragId,
     mainPanelOrder,

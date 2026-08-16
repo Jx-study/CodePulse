@@ -16,7 +16,7 @@ interface SortableIconProps {
   tourAttr?: string;
 }
 
-export function SortableIcon({ panelId, isActive, onClick, tourAttr }: SortableIconProps) {
+function SortableIcon({ panelId, isActive, onClick, tourAttr }: SortableIconProps) {
   const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[panelId];
   const {
@@ -59,7 +59,7 @@ interface DraggableDockedIconProps {
   onToggleCollapse: () => void;
 }
 
-export function DraggableDockedIcon({
+function DraggableDockedIcon({
   panelId,
   isCollapsed,
   onToggleCollapse,
@@ -92,7 +92,7 @@ interface LeftDropZoneProps {
   isVisible: boolean;
 }
 
-export function LeftDropZone({ isVisible }: LeftDropZoneProps) {
+function LeftDropZone({ isVisible }: LeftDropZoneProps) {
   const { setNodeRef, isOver } = useDroppable({ id: "left-drop-zone" });
   if (!isVisible) return null;
   return (

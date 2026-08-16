@@ -102,7 +102,7 @@ export function getLabel(
   return labels.length > 0 ? labels.join("/") : "";
 }
 
-export function createPointers(
+function createPointers(
   x: number,
   y: number,
   config: {

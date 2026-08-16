@@ -11,7 +11,7 @@ import { TAGS } from "./tags";
 import { simulateStackTrace } from "./simulateTrace";
 import { stackTraceToSteps } from "./traceToSteps";
 
-export function createStackAnimationSteps(
+function createStackAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {

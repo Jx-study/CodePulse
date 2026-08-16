@@ -19,7 +19,7 @@ interface AiAnalysisDialogProps {
 
 type DialogTab = "complexity" | "algorithm" | "summary";
 
-export function AiAnalysisDialog({
+function AiAnalysisDialog({
   isOpen,
   onClose,
   runStage,

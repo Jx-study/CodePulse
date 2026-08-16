@@ -16,7 +16,7 @@ import { simulateArrayTrace } from "./array/simulateTrace";
 import { arrayTraceToSteps } from "./array/traceToSteps";
 
 
-export function createArrayAnimationSteps(
+function createArrayAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {

@@ -118,7 +118,7 @@ function dijkstraActionHandler(
   return null;
 }
 
-export function createDijkstraAnimationSteps(
+function createDijkstraAnimationSteps(
   inputData: { nodes: RawGraphNode[]; edges: string[][] },
   action?: DijkstraAction,
 ): AnimationStep[] {

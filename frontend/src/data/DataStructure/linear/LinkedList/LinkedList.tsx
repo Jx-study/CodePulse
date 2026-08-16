@@ -23,7 +23,7 @@ const linkedListStatusConfig: StatusConfig = {
     { key: Status.Inactive,   label: "statusLegend.deleted",       color: "#555555" },
   ],
 };
-export function createLinkedListAnimationSteps(
+function createLinkedListAnimationSteps(
   dataList: ListNodeData[],
   action?: ActionType,
   config?: { hasTailMode?: boolean; isDoubly?: boolean },
@@ -34,7 +34,6 @@ export function createLinkedListAnimationSteps(
   );
   return variant.createAnimationSteps(dataList, action);
 }
-export { makeNodeAndPointers } from "./linkedlist/shared";
 function modeFlags(payload: Record<string, unknown>) {
   return {
     isDoubly: Boolean(payload.isDoubly),

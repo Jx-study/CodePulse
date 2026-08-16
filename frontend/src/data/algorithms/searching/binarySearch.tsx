@@ -13,7 +13,7 @@ const binarySearchActionHandler = createLinearActionHandler({
   sortOnLoad: true,
 });
 
-export function createBinarySearchAnimationSteps(
+function createBinarySearchAnimationSteps(
   inputData: LinearData[],
   action?: { searchValue?: number },
 ): AnimationStep[] {

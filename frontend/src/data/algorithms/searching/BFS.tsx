@@ -197,7 +197,7 @@ interface BFSRunAction {
   cols?: number;
 }
 
-export function createBFSAnimationSteps(
+function createBFSAnimationSteps(
   inputData: GridCellData[] | { nodes: RawGraphNode[]; edges: string[][] },
   action?: BFSRunAction,
 ): AnimationStep[] {

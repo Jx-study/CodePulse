@@ -11,7 +11,7 @@ const prefixSumActionHandler = createLinearActionHandler({
   randomValueRange: [0, 100],
 });
 
-export function createPrefixSumAnimationSteps(
+function createPrefixSumAnimationSteps(
   inputData: LinearData[],
   action?: { range?: [number, number] },
 ): AnimationStep[] {

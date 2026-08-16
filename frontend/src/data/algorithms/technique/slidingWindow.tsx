@@ -11,7 +11,7 @@ const slidingWindowActionHandler = createLinearActionHandler({
   randomValueRange: [1, 15],
 });
 
-export function createSlidingWindowAnimationSteps(
+function createSlidingWindowAnimationSteps(
   inputData: LinearData[],
   action?: { mode?: string; targetSum?: number },
 ): AnimationStep[] {

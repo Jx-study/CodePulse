@@ -33,7 +33,7 @@ export interface GridCellData {
   val: number;
 }
 
-export function createGridElements(
+function createGridElements(
   rawGrid: GridCellData[],
   cols: number = 5,
 ): Box[] {
@@ -348,7 +348,7 @@ export interface HierarchyDatum {
   isEndOfWord?: boolean; // Trie 專用
 }
 
-export function buildD3HierarchyData(
+function buildD3HierarchyData(
   data: { id: string; value: number; count?: number }[],
   degree: number = 2,
 ): HierarchyDatum | null {
@@ -380,7 +380,7 @@ export function buildD3HierarchyData(
   return root;
 }
 
-export function buildTrieHierarchyData(
+function buildTrieHierarchyData(
   visiblePaths: string[],
   realWords: string[],
 ): HierarchyDatum | null {
@@ -431,7 +431,7 @@ interface BSTBuildNode extends HierarchyDatum {
   right: BSTBuildNode | null;
 }
 
-export function buildBSTHierarchyData(
+function buildBSTHierarchyData(
   data: { id: string; value: number; count?: number }[],
 ): HierarchyDatum | null {
   if (data.length === 0) return null;

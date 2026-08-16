@@ -54,7 +54,7 @@ function nQueensActionHandler(
   return null;
 }
 
-export function createNQueensAnimationSteps(
+function createNQueensAnimationSteps(
   inputData: unknown,
   action?: unknown,
 ): AnimationStep[] {

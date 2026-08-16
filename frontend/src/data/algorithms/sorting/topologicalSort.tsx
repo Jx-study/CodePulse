@@ -132,7 +132,7 @@ function topoActionHandler(
   return null;
 }
 
-export function createTopologicalSortAnimationSteps(
+function createTopologicalSortAnimationSteps(
   inputData: GraphData,
 ): AnimationStep[] {
   const trace = simulateTopologicalSortTrace(inputData);

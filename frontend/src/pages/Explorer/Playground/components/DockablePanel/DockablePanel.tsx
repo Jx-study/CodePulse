@@ -46,7 +46,7 @@ interface DockablePanelProps {
   children: ReactNode;
 }
 
-export function DockablePanel({ id, subLabel, children }: DockablePanelProps) {
+function DockablePanel({ id, subLabel, children }: DockablePanelProps) {
   const { t } = useTranslation("playground");
   const config = PANEL_CONFIGS[id];
   return (

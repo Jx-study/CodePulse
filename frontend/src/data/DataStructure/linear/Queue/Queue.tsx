@@ -12,7 +12,7 @@ import { simulateQueueTrace } from "./simulateTrace";
 import { queueTraceToSteps } from "./traceToSteps";
 import { TAGS } from "./tags";
 
-export function createQueueAnimationSteps(
+function createQueueAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {

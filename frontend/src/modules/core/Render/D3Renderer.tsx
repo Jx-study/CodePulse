@@ -2,7 +2,6 @@ import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
-import { LinkManager } from "../DataLogic/LinkManager";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
@@ -27,16 +26,6 @@ export type linkStatus =
   | "prepare"
   | "target"
   | "complete";
-
-export const linkStatusColorMap: Record<linkStatus, string> = {
-  default: "#888",
-  unfinished: "#1d79cfff",
-  visited: "#1d79cfff",
-  path: "yellow",
-  prepare: "#f59e0b",
-  target: "orange",
-  complete: "#46f336ff",
-};
 
 /** 未傳入 statusColorMap 時的預設對照（與 buildStatusColorMap(DEFAULT_STATUS_CONFIG) 一致） */
 export const defaultStatusColorMap: StatusColorMap = buildStatusColorMap(
@@ -65,83 +54,6 @@ interface LinkDatum {
   t: Node;
   status?: string;
   weight?: number | string;
-}
-
-/**
- * 從 node1 的邊緣開始，動畫伸長到 node2 的邊緣
- * @param svgEl SVG 元素
- * @param elements 所有元素
- * @param manager LinkManager 實例
- * @param sourceId 來源節點 ID
- * @param targetId 目標節點 ID
- * @param duration 動畫持續時間（毫秒），預設 800ms
- * @returns Promise，動畫完成後 resolve
- */
-export function animateConnect(
-  svgEl: SVGSVGElement,
-  elements: BaseElement[],
-  manager: LinkManager,
-  sourceId: string,
-  targetId: string,
-  duration: number = 800,
-): Promise<void> {
-  return new Promise((resolve) => {
-    const svg = d3.select(svgEl);
-    const scene = svg.select<SVGGElement>("g.scene");
-
-    // 建立連線
-    manager.connect(sourceId, targetId);
-
-    // 查找節點
-    const byId = new Map(elements.map((e) => [String(e.id), e]));
-    const sourceNode = byId.get(sourceId);
-    const targetNode = byId.get(targetId);
-
-    if (!(sourceNode instanceof Node) || !(targetNode instanceof Node)) {
-      resolve();
-      return;
-    }
-
-    // 計算起點與終點（圓邊界）
-    const p1 = circleBoundaryPoint(
-      {
-        x: sourceNode.position.x,
-        y: sourceNode.position.y,
-        r: sourceNode.radius ?? 0,
-      },
-      { x: targetNode.position.x, y: targetNode.position.y },
-    );
-    const p2 = circleBoundaryPoint(
-      {
-        x: targetNode.position.x,
-        y: targetNode.position.y,
-        r: targetNode.radius ?? 0,
-      },
-      { x: sourceNode.position.x, y: sourceNode.position.y },
-    );
-
-    // 建立臨時動畫線段
-    const animLine = scene
-      .append("line")
-      .attr("class", "link-anim")
-      .attr("x1", p1.x)
-      .attr("y1", p1.y)
-      .attr("x2", p1.x) // 起點與終點相同，線段長度為 0
-      .attr("y2", p1.y);
-
-    // 從 0 伸長到 1 的動畫
-    animLine
-      .transition()
-      .duration(duration)
-      .ease(d3.easeQuadOut)
-      .attr("x2", p2.x)
-      .attr("y2", p2.y)
-      .on("end", () => {
-        // 動畫完成後移除臨時線段
-        animLine.remove();
-        resolve();
-      });
-  });
 }
 
 type BBox = { minX: number; minY: number; maxX: number; maxY: number };

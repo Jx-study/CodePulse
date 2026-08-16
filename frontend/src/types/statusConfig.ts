@@ -68,23 +68,3 @@ export function buildStatusColorMap(config: StatusConfig): StatusColorMap {
   });
   return map;
 }
-
-/**
- * Get color for a status key with fallback mechanism
- * 取得狀態顏色（含 fallback 機制）
- *
- * @param statusKey - The status key to look up
- * @param colorMap - The color map to search in
- * @param fallbackColor - Fallback color if key not found (default: "#888888")
- * @returns The color code
- *
- * @example
- * const color = getStatusColor("prepare", colorMap); // Returns color or fallback
- */
-export function getStatusColor(
-  statusKey: string,
-  colorMap: StatusColorMap,
-  fallbackColor: string = "#888888"
-): string {
-  return colorMap[statusKey] ?? fallbackColor;
-}

@@ -14,7 +14,7 @@ interface ResizeHandleProps {
   'data-tour'?: string;
 }
 
-export function ResizeHandle({
+function ResizeHandle({
   direction = 'horizontal',
   className = '',
   onDoubleClick,

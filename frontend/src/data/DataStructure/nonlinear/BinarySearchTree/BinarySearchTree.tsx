@@ -15,7 +15,7 @@ import type {
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import { TAGS, BSTStatus } from "./tags";
 
-export const BSTStatusConfig: StatusConfig = {
+const BSTStatusConfig: StatusConfig = {
   i18nNs: "tutorials/bst",
   statuses: [
     { key: BSTStatus.Inactive,  label: "statusLegend.notVisited",       color: "#555555" },
@@ -103,7 +103,7 @@ interface BSTRunAction extends BSTAction {
   index?: number;
 }
 
-export function createBinarySearchTreeAnimationSteps(
+function createBinarySearchTreeAnimationSteps(
   inputData: BSTInputItem[],
   action?: BSTRunAction,
 ): AnimationStep[] {

@@ -14,7 +14,7 @@ import { graphTraceToSteps } from "./traceToSteps";
 import { GraphStatusConfig, TAGS } from "./tags";
 import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
-export function createGraphAnimationSteps(
+function createGraphAnimationSteps(
   inputData: { nodes: RawGraphNode[]; edges: string[][] },
   action?: GraphAction,
 ): AnimationStep[] {
