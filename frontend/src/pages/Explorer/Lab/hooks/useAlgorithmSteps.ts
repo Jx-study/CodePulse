@@ -7,7 +7,6 @@ import { createMergeSortAnimationSteps } from "@/data/algorithms/sorting/mergeSo
 import { createQuickSortAnimationSteps } from "@/data/algorithms/sorting/quickSort";
 import type {
   AlgorithmId,
-  BenchmarkPoint,
   CaseType,
   LabAlgorithmState,
 } from "../types/lab";
@@ -208,7 +207,6 @@ export function benchmarkExecMs(id: AlgorithmId, data?: number[]): number {
   return elapsed / runs;
 }
 
-// export const BENCHMARK_NS = [100, 300, 600, 1000, 2000, 5000];
 export const BENCHMARK_NS = Array.from({ length: 69 }, (_, i) => 100 + i * 100);
 
 export const CASE_TYPES: CaseType[] = ["random", "sorted", "reversed"];
@@ -222,13 +220,6 @@ export function generateCaseData(n: number, caseType: CaseType): number[] {
     default:
       return Array.from({ length: n }, () => Math.floor(Math.random() * 1000));
   }
-}
-
-export function buildBenchmarkPoints(id: AlgorithmId): BenchmarkPoint[] {
-  return BENCHMARK_NS.map((n) => ({
-    n,
-    ms: benchmarkExecMs(id, generateCaseData(n, "random")),
-  }));
 }
 
 export function buildAlgorithmStates(
