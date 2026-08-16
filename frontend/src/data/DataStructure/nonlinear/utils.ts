@@ -6,7 +6,7 @@ import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
-export type TreeType = "bst" | "binarytree" | "trie" | "custom";
+type TreeType = "bst" | "binarytree" | "trie" | "custom";
 
 export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
 

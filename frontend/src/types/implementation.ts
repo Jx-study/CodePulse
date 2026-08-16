@@ -6,7 +6,7 @@ import type { VisualizationActionHandler } from "@/modules/core/visualization/ty
 import type { RealWorldStory } from "./realWorldStory";
 
 /** 哪些 link.status 變化時要播放邊動畫（由演算法 config 選填） */
-export interface LinkAnimConfig {
+interface LinkAnimConfig {
   /** 這些 status 觸發動畫並阻塞 step 推進 */
   animateOn: string[];
   /** 這些 status 直接換色（step 推進後 re-render 自動套用，不阻塞）；僅作為文件語義 */
@@ -46,7 +46,7 @@ export interface ProblemReference {
   url: string;
 }
 
-export interface IntroductionReference {
+interface IntroductionReference {
   key: string;
 }
 
@@ -98,7 +98,7 @@ export type RunParams =
 // through the single `renderActionBar` slot on LevelImplementationConfig (see
 // below). The `any`s here are the deliberate type-erasure points for that —
 // each module's concrete component narrows them back via its own local types.
-export interface BaseActionBarProps {
+interface BaseActionBarProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
   onRandomData: (params?: any) => void;
@@ -174,7 +174,7 @@ export interface LevelImplementationConfig {
   actionHandler?: VisualizationActionHandler<any>;
 }
 
-export type ImplementationId =
+type ImplementationId =
   | "array"
   | "linkedlist"
   | "stack"

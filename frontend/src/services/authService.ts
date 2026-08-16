@@ -1,37 +1,31 @@
 import apiService from '@/api/api';
 import type { AuthResponse, AuthStatusResponse } from '@/types';
 
-export interface RegisterPendingResponse {
+interface RegisterPendingResponse {
   success: boolean;
   message?: string;
   expires_at?: string;
 }
 
-export interface VerifyEmailResponse {
-  success: boolean;
-  message?: string;
-  user?: AuthResponse['user'];
-}
-
-export interface ResendVerificationResponse {
+interface ResendVerificationResponse {
   success: boolean;
   message?: string;
   remaining_attempts?: number;
   expires_at?: string;
 }
 
-export interface OnboardingInfoResponse {
+interface OnboardingInfoResponse {
   success: boolean;
   display_name: string;
   email: string;
 }
 
-export interface ForgotPasswordResponse {
+interface ForgotPasswordResponse {
   success: boolean;
   message?: string;
 }
 
-export interface ResetPasswordResponse {
+interface ResetPasswordResponse {
   success: boolean;
   message?: string;
 }

@@ -46,7 +46,7 @@ export interface AuthContextType {
 }
 
 // ==================== Auth Response Types ====================
-export interface AuthSession {
+interface AuthSession {
   access_token: string;
   refresh_token: string;
   expires_in?: number;

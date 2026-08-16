@@ -70,7 +70,7 @@ function deduplicateLinks(links: Link[], isDirected: boolean): GSimLink[] {
   }, []);
 }
 
-export type GraphCanvasProps = D3CanvasProps;
+type GraphCanvasProps = D3CanvasProps;
 
 export interface GraphCanvasRef extends AnimatableCanvasRef { }
 

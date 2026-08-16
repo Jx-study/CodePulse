@@ -48,7 +48,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 }
 
 // ==================== Select Component ====================
-export interface SelectOption {
+interface SelectOption {
   value: string | number;
   label: string;
   disabled?: boolean;
@@ -111,59 +111,6 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   'aria-label'?: string;
   'aria-describedby'?: string;
-}
-
-// ==================== FormField Component (DEPRECATED) ====================
-/**
- * @deprecated 請使用 FormItem + Input/Select/Textarea/Checkbox 的組合
- *
- * 舊寫法：
- * <FormField type="text" label="Email" error={errors.email} />
- *
- * 新寫法：
- * <FormItem label="Email" error={errors.email}>
- *   <Input name="email" hasError={!!errors.email} />
- * </FormItem>
- */
-export interface FormFieldProps {
-  label?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'checkbox' | 'select';
-  name?: string;
-  value?: string | number | boolean;
-  placeholder?: string;
-  error?: string;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  autoComplete?: string;
-  rows?: number;
-  options?: Array<{ value: string | number; label: string }>;
-  className?: string;
-  labelClassName?: string;
-  inputClassName?: string;
-  errorClassName?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
-}
-
-// ==================== Switch Component ====================
-export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'checked' | 'defaultChecked' | 'onChange' | 'size'> {
-  checked?: boolean;
-  defaultChecked?: boolean;
-  onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
-  label?: React.ReactNode;
-  labelPosition?: 'left' | 'right';
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  loading?: boolean;
-  name?: string;
-  className?: string;
-  labelClassName?: string;
-  'aria-label'?: string;
 }
 
 // ==================== Slider Component ====================

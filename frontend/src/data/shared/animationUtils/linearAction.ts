@@ -3,7 +3,7 @@ import { cloneData } from '@/modules/core/visualization/visualizationUtils';
 import { DATA_LIMITS } from '@/constants/dataLimits';
 import type { ActionContext, ActionResult } from '@/modules/core/visualization/types';
 
-export interface LinearActionHandlerOptions {
+interface LinearActionHandlerOptions {
   randomValueRange?: [number, number];
   sortOnLoad?: boolean;
 }

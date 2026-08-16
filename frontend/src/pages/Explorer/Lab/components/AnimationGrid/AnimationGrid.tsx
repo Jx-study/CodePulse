@@ -14,7 +14,7 @@ function displayStepIndex(currentStep: number, stepCount: number): number {
   return Math.min(currentStep, stepCount - 1);
 }
 
-export interface AnimationGridProps {
+interface AnimationGridProps {
   algorithms: LabAlgorithmState[];
   currentStep: number;
   manualSortEnabled?: boolean;

@@ -9,7 +9,7 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
  * Individual status definition
  * 單一狀態定義
  */
-export interface StatusDefinition {
+interface StatusDefinition {
   /** Status identifier (used in code) - 狀態識別碼（程式碼中使用） */
   key: string;
   /** Display name (Chinese label) - 顯示名稱（中文標籤） */

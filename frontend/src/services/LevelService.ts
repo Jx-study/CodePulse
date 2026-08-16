@@ -27,7 +27,7 @@ import {
 /**
  * Home 頁面展示用的輕量級資料
  */
-export interface HomePageAlgorithmMetadata {
+interface HomePageAlgorithmMetadata {
   id: number; // 展示順序 ID
   levelId: string; // 關卡真實 ID
   category: CategoryType;

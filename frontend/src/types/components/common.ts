@@ -23,7 +23,7 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
 }
 
 // ==================== Card Component ====================
-export interface CardCategory {
+interface CardCategory {
   label: string;
   variant?: 'primary' | 'success' | 'warning' | 'danger';
 }

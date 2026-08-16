@@ -4,7 +4,7 @@ import Icon from '@/shared/components/Icon';
 import Slider from '@/shared/components/Slider';
 import styles from './ControlBar.module.scss';
 
-export interface ControlBarProps {
+interface ControlBarProps {
   isPlaying: boolean;
   currentStep: number;
   totalSteps: number;

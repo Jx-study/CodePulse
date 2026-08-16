@@ -10,7 +10,7 @@ const INLINE_TEXT_TONES = [
   "muted",
 ] as const;
 
-export type InlineTextTone = (typeof INLINE_TEXT_TONES)[number];
+type InlineTextTone = (typeof INLINE_TEXT_TONES)[number];
 
 interface RenderInlineTextOptions {
   tones?: Partial<Record<InlineTextTone, string>>;

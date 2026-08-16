@@ -53,7 +53,7 @@ export interface SidebarProps {
  * arbitrary other DOM props (e.g. `aria-describedby`) pass through
  * `cloneElement` without excess-property errors.
  */
-export interface TooltipChildProps {
+interface TooltipChildProps {
   ref?: React.Ref<HTMLElement>;
   className?: string;
   onMouseEnter?: (e: React.MouseEvent) => void;

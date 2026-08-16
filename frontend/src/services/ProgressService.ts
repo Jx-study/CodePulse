@@ -23,7 +23,7 @@ import apiService from "@/api/api";
 
 // ==================== 後端 API 型別 ====================
 
-export interface ApiTutorialProgress {
+interface ApiTutorialProgress {
   tutorial_slug: string;
   teaching_completed: boolean;
   best_score: number | null;

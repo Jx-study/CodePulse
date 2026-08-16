@@ -19,7 +19,7 @@ export type VisualData = ImageVisualData | null;
 // 題目類型
 // ==========================================
 
-export interface Option {
+interface Option {
   id: string;
   text: string;
 }
@@ -56,36 +56,6 @@ export interface Question {
     visual_data: VisualData;
     visual_alt: string | null;
   } | null;
-}
-
-export interface QuestionGroup {
-  id: string;
-  title: string; // 題組標題
-  description: string; // 題組共用的前提/情境描述
-  code?: string; // 題組共用的程式碼 (如果有)
-  language?: string;
-  questionIds: string[]; // 包含的子題目 ID 列表
-}
-
-export interface PracticeQuiz {
-  levelId: string; // 'stack'
-  levelName: string; // '堆疊 (Stack)'
-  questions: Question[];
-  groups?: QuestionGroup[];
-  passingScore: number;
-  timeLimit?: number; // 時間限制（秒，可選）
-}
-
-export interface PracticeSession {
-  sessionId: string;
-  levelId: string;
-  questions: Question[];
-  userAnswers: Record<string, string | string[]>;
-  startTime: number;
-  endTime?: number;
-  status: "in-progress" | "completed" | "abandoned";
-  userStartRating: number;
-  timeRecords: Record<string, number>;
 }
 
 export interface PracticeResult {

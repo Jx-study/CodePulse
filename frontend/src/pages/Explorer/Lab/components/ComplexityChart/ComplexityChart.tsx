@@ -28,7 +28,7 @@ const MINI_PAD_Y = (MINI_VB_H - MINI_PLOT_H) / 2;
 
 const X_TICKS = Array.from({ length: Math.ceil(N_MAX / 500) }, (_, i) => (i + 1) * 500);
 
-export interface ComplexityChartProps {
+interface ComplexityChartProps {
   algorithms: LabAlgorithmState[];
   currentStep: number;
   maxSteps: number;

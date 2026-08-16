@@ -3,7 +3,7 @@ import React from "react";
 /**
  * 面板分類
  */
-export type PanelCategory = "visualization" | "control" | "info";
+type PanelCategory = "visualization" | "control" | "info";
 
 /**
  * 面板配置介面

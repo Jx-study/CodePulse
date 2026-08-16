@@ -12,7 +12,7 @@ export interface GameConfig {
 
 export type GameStatus = 'idle' | 'playing' | 'survived' | 'gameover';
 export type SwipeDir = 'left' | 'right';
-export type FeedbackType = 'correct' | 'wrong' | 'overflow' | null;
+type FeedbackType = 'correct' | 'wrong' | 'overflow' | null;
 
 export interface GameState {
   status: GameStatus;

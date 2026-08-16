@@ -11,22 +11,6 @@ export interface BaseCanvasProps {
   height?: number;
 }
 
-// ==================== InfoBlock Component ====================
-export interface InfoBlockProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
-  title?: React.ReactNode;
-  variant?: 'default' | 'outlined' | 'filled';
-  size?: 'sm' | 'md' | 'lg';
-  icon?: React.ReactNode;
-  footer?: React.ReactNode;
-  collapsible?: boolean;
-  defaultCollapsed?: boolean;
-  children: React.ReactNode;
-  className?: string;
-  titleClassName?: string;
-  contentClassName?: string;
-  'aria-label'?: string;
-}
-
 // ==================== ProgressBar Component ====================
 export interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number;

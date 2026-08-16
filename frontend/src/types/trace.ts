@@ -17,14 +17,14 @@ export interface TraceEvent {
 
 export type ExecutionTrace = TraceEvent[];
 
-export interface CfgNode {
+interface CfgNode {
   id: string;
   lines: number[];
   label: string;
   kind: "entry" | "exit" | "branch" | "loop" | "basic" | "call" | "return";
 }
 
-export interface CfgEdge {
+interface CfgEdge {
   source: string;
   target: string;
   label: string;
@@ -38,14 +38,14 @@ export interface CfgGraph {
 /** func_name → CfgGraph，對應後端 cfg_graph dict key（Python function name） */
 export type CfgGraphMap = Record<string, CfgGraph>;
 
-export interface CallNode {
+interface CallNode {
   id: string;
   /** 後端 JSON key 為 func_name（snake_case），存入 state 時需手動 mapping → funcName */
   funcName: string;
   cfg: CfgGraph | null;
 }
 
-export interface CallEdge {
+interface CallEdge {
   source: string;
   target: string;
   steps: number[];

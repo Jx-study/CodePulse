@@ -1,10 +1,10 @@
-export interface NodePoint {
+interface NodePoint {
   x: number;
   y: number;
   r: number;
 }
 
-export interface Point {
+interface Point {
   x: number;
   y: number;
 }

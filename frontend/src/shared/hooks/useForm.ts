@@ -5,7 +5,7 @@ type ValidationRules<T> = Partial<Record<keyof T, ValidationRule<T>>>;
 type Errors<T> = Partial<Record<keyof T, string>>;
 type Touched<T> = Partial<Record<keyof T, boolean>>;
 
-export interface UseFormReturn<T extends object> {
+interface UseFormReturn<T extends object> {
   values: T;
   errors: Errors<T>;
   touched: Touched<T>;

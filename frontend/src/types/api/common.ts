@@ -26,28 +26,3 @@ export interface ApiConfig {
   headers?: Record<string, string>;
   withCredentials?: boolean;
 }
-
-// ==================== Request Options ====================
-export interface RequestOptions extends RequestInit {
-  params?: Record<string, unknown>;
-  data?: unknown;
-  timeout?: number;
-}
-
-// ==================== Pagination ====================
-export interface PaginationParams {
-  page: number;
-  pageSize: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T = unknown> {
-  data: T[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-}

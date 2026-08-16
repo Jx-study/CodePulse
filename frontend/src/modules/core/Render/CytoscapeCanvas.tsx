@@ -8,7 +8,7 @@ import styles from "./CytoscapeCanvas.module.scss";
 
 cytoscape.use(dagre);
 
-export interface CytoscapeCanvasProps extends BaseCanvasProps {
+interface CytoscapeCanvasProps extends BaseCanvasProps {
   elements: cytoscape.ElementDefinition[];
   stylesheet: cytoscape.StylesheetStyle[];
   layout?: cytoscape.LayoutOptions;

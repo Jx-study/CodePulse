@@ -19,7 +19,7 @@ import type { RunStage } from "@/types/runStage";
 import { mapAiResult, type RawAiResult } from "@/services/ComplexityService";
 import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 
-export type AnalyzeErrorType =
+type AnalyzeErrorType =
   | "empty_code"
   | "syntax_error"
   | "timeout"
@@ -56,7 +56,7 @@ export class InputNeededError extends Error {
   }
 }
 
-export interface AnalyzeResult {
+interface AnalyzeResult {
   trace: TraceEvent[];
   rawTrace: TraceEvent[];
   rawIndexMap: number[];
@@ -68,7 +68,7 @@ export interface AnalyzeResult {
   top3Candidates: AlgoCandidate[];
 }
 
-export type AnalyzeRunOptions = {
+type AnalyzeRunOptions = {
   saveHistory?: boolean;
   stdinInputs?: string[];
   isRetry?: boolean;
