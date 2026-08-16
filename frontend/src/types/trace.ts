@@ -1,9 +1,18 @@
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
 export interface TraceEvent {
   tag: string;
-  local_vars: Record<string, any>;
+  local_vars: Record<string, JsonValue>;
   global_vars?: Record<string, string>;
   dataSnapshot: { id: string; value: number | string | undefined }[];
-  meta?: Record<string, any>;
+  meta?: Record<string, JsonValue>;
 }
 
 export type ExecutionTrace = TraceEvent[];

@@ -10,6 +10,7 @@ import {
 } from "../../utils";
 import {
   addStep,
+  isNode,
   linkForVariant,
   wireIndexDoublyLinkNext,
   wireIndexDoublySuccPrev,
@@ -28,11 +29,11 @@ export function createLinkedListSteps(
 ): AnimationStep[] {
 function createInsertTailHasTailSteps(
   dataList: ListNodeData[],
-  value: any,
+  value: number,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   hasTailMode: boolean,
   isDoubly: boolean,
 ): AnimationStep[] {
@@ -54,9 +55,9 @@ function createInsertTailHasTailSteps(
     ),
   );
   const actualS1OldNodes = s1OldElements.filter(
-    (n: any) => !(n instanceof Pointer),
+    isNode,
   );
-  linkForVariant(actualS1OldNodes as any, isDoubly);
+  linkForVariant(actualS1OldNodes, isDoubly);
 
   const s1NewElement = makeNodeAndPointers(
     newNodeData,
@@ -73,7 +74,7 @@ function createInsertTailHasTailSteps(
   steps.push({
     stepNumber: steps.length + 1,
     description: { key: "animation.insert_tail_create", params: { value } },
-    elements: [...s1OldElements, ...s1NewElement] as any,
+    elements: [...s1OldElements, ...s1NewElement],
     actionTag: TAGS.INSERT_TAIL_CREATE,
     local_vars: { value, "newNode.value": value },
   });
@@ -101,9 +102,7 @@ function createInsertTailHasTailSteps(
     "new",
   );
   const allS2 = [...s2OldElements, ...s2NewElement];
-  const actualAllS2 = allS2.filter(
-    (n: any) => !(n instanceof Pointer),
-  ) as any[];
+  const actualAllS2 = allS2.filter(isNode);
 
   if (isDoubly) {
     linkNodesDoubly(actualAllS2);
@@ -116,7 +115,7 @@ function createInsertTailHasTailSteps(
   steps.push({
     stepNumber: steps.length + 1,
     description: { key: "animation.insert_tail_link" },
-    elements: allS2 as any,
+    elements: allS2,
     actionTag: TAGS.INSERT_TAIL_LINK,
     local_vars: { "tail.next": value },
   });
@@ -145,9 +144,7 @@ function createInsertTailHasTailSteps(
       "new",
     );
     const allS2b = [...s2bOldElements, ...s2bNewElement];
-    const actualAllS2b = allS2b.filter(
-      (n: any) => !(n instanceof Pointer),
-    ) as Node[];
+    const actualAllS2b = allS2b.filter(isNode);
 
     linkNodesDoubly(actualAllS2b);
     syncPointersFromNextPrev(actualAllS2b);
@@ -155,7 +152,7 @@ function createInsertTailHasTailSteps(
     steps.push({
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_tail_link_prev_has_tail" },
-      elements: allS2b as any,
+      elements: allS2b,
       actionTag: TAGS.INSERT_TAIL_LINK_PREV,
       local_vars: { "newNode.prev": oldNodesData[oldLen - 1]?.value ?? null },
     });
@@ -186,13 +183,13 @@ function createInsertTailHasTailSteps(
     "new",
   );
   const allS3 = [...s3OldElements, ...s3NewElement];
-  const actualAllS3 = allS3.filter((n: any) => !(n instanceof Pointer));
-  linkForVariant(actualAllS3 as any, isDoubly);
+  const actualAllS3 = allS3.filter(isNode);
+  linkForVariant(actualAllS3, isDoubly);
 
   steps.push({
     stepNumber: steps.length + 1,
     description: { key: "animation.insert_tail_pointer_move", params: { value } },
-    elements: allS3 as any,
+    elements: allS3,
     actionTag: TAGS.INSERT_TAIL_POINTER_MOVE,
     local_vars: { tail: value },
   });
@@ -208,13 +205,13 @@ function createInsertTailHasTailSteps(
       Status.Complete,
     ),
   );
-  const actualS4Nodes = s4Elements.filter((n: any) => !(n instanceof Pointer));
-  linkForVariant(actualS4Nodes as any, isDoubly);
+  const actualS4Nodes = s4Elements.filter(isNode);
+  linkForVariant(actualS4Nodes, isDoubly);
 
   steps.push({
     stepNumber: steps.length + 1,
     description: { key: "animation.insert_tail_end" },
-    elements: s4Elements as any,
+    elements: s4Elements,
     actionTag: TAGS.INSERT_TAIL_END_NOTNULL || TAGS.INSERT_TAIL_END,
     local_vars: { tail: value, length: totalLen },
   });
@@ -224,11 +221,11 @@ function createInsertTailHasTailSteps(
 
 function createSearchSteps(
   dataList: ListNodeData[],
-  value: any,
+  value: number,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   hasTailMode: boolean,
   isDoubly: boolean,
 ): AnimationStep[] {
@@ -266,13 +263,13 @@ function createSearchSteps(
       );
     });
 
-    const actualNodes = compareElements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(actualNodes as any, isDoubly);
+    const actualNodes = compareElements.filter(isNode);
+    linkForVariant(actualNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.search_compare", params: { index: i, current: dataList[i].value, target: value } },
-      elements: compareElements as any,
+      elements: compareElements,
       actionTag: TAGS.SEARCH_COMPARE,
       local_vars: {
         current: dataList[i].value ?? null,
@@ -305,14 +302,14 @@ function createSearchSteps(
       });
 
       const actualFoundNodes = foundElements.filter(
-        (n) => !(n instanceof Pointer),
+        isNode,
       );
-      linkForVariant(actualFoundNodes as any, isDoubly);
+      linkForVariant(actualFoundNodes, isDoubly);
 
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: { key: "animation.search_found", params: { index: i, value } },
-        elements: foundElements as any,
+        elements: foundElements,
         actionTag: TAGS.SEARCH_FOUND,
         local_vars: {
           current: dataList[i].value ?? null,
@@ -337,14 +334,14 @@ function createSearchSteps(
       ),
     );
     const actualNotFoundNodes = notFoundElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualNotFoundNodes as any, isDoubly);
+    linkForVariant(actualNotFoundNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.search_not_found", params: { value } },
-      elements: notFoundElements as any,
+      elements: notFoundElements,
       actionTag: TAGS.SEARCH_NOT_FOUND,
       local_vars: { current: null, target: value, index: -1 },
     });
@@ -354,12 +351,12 @@ function createSearchSteps(
 
 function createInsertHeadSteps(
   dataList: ListNodeData[],
-  value: any,
+  value: number,
   hasTailMode: boolean,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   isDoubly: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -391,9 +388,9 @@ function createInsertHeadSteps(
 
   const s1OldElements = createOldNodesWithHeadLabel();
   const actualS1OldNodes = s1OldElements.filter(
-    (n: any) => !(n instanceof Pointer),
+    isNode,
   );
-  linkForVariant(actualS1OldNodes as any, isDoubly);
+  linkForVariant(actualS1OldNodes, isDoubly);
 
   const s1NewElement = makeNodeAndPointers(
     newNodeData,
@@ -410,7 +407,7 @@ function createInsertHeadSteps(
   addStep(steps, {
     stepNumber: 1,
     description: { key: "animation.insert_head_create", params: { value } },
-    elements: [...s1NewElement, ...s1OldElements] as any,
+    elements: [...s1NewElement, ...s1OldElements],
     actionTag: TAGS.INSERT_HEAD_CREATE,
     local_vars: {
       value: value,
@@ -450,9 +447,7 @@ function createInsertHeadSteps(
   );
 
   const allS2 = [...s2NewElement, ...s2OldElements];
-  const actualAllS2 = allS2.filter(
-    (n: any) => !(n instanceof Pointer),
-  ) as Node[];
+  const actualAllS2 = allS2.filter(isNode);
 
   let currentStepIdx = 2; // Step 1 is CREATE
 
@@ -467,7 +462,7 @@ function createInsertHeadSteps(
     addStep(steps, {
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_head_link", params: { head: oldNodesData[0]?.value ?? "null" } },
-      elements: allS2 as any,
+      elements: allS2,
       actionTag: TAGS.INSERT_HEAD_LINK,
       local_vars: {
         "newNode.next": oldNodesData[0]?.value ?? null,
@@ -503,14 +498,12 @@ function createInsertHeadSteps(
       "new",
     );
     const allS2b = [...s2bNewElement, ...s2bOldElements];
-    const actualAllS2b = allS2b.filter(
-      (n: any) => !(n instanceof Pointer),
-    ) as Node[];
+    const actualAllS2b = allS2b.filter(isNode);
     linkNodesDoubly(actualAllS2b);
     addStep(steps, {
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_head_link_prev" },
-      elements: allS2b as any,
+      elements: allS2b,
       actionTag: TAGS.INSERT_HEAD_LINK_PREV,
       local_vars: { "head.prev": value },
     });
@@ -519,7 +512,7 @@ function createInsertHeadSteps(
     addStep(steps, {
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_head_link", params: { head: oldNodesData[0]?.value ?? "null" } },
-      elements: allS2 as any,
+      elements: allS2,
       actionTag: TAGS.INSERT_HEAD_LINK,
       local_vars: {
         "newNode.next": oldNodesData[0]?.value ?? null,
@@ -560,8 +553,8 @@ function createInsertHeadSteps(
   );
 
   const allS3 = [...s3NewElement, ...s3OldElements];
-  const actualAllS3 = allS3.filter((n: any) => !(n instanceof Pointer));
-  linkForVariant(actualAllS3 as any, isDoubly);
+  const actualAllS3 = allS3.filter(isNode);
+  linkForVariant(actualAllS3, isDoubly);
 
   let updateTag = TAGS.INSERT_HEAD_UPDATE;
   if (isDoubly) {
@@ -571,7 +564,7 @@ function createInsertHeadSteps(
   addStep(steps, {
     stepNumber: currentStepIdx++,
     description: { key: "animation.insert_head_update", params: { value } },
-    elements: allS3 as any,
+    elements: allS3,
     actionTag: updateTag,
     local_vars: { head: value },
   });
@@ -590,14 +583,14 @@ function createInsertHeadSteps(
       "new",
     );
     const actualTailNodes = sTailNewElement.filter(
-      (n: any) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualTailNodes as any, isDoubly);
+    linkForVariant(actualTailNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_head_update_tail" },
-      elements: sTailNewElement as any,
+      elements: sTailNewElement,
       actionTag: TAGS.INSERT_HEAD_UPDATE_TAIL,
       local_vars: { head: value, tail: value },
     });
@@ -617,14 +610,14 @@ function createInsertHeadSteps(
     ),
   );
   const actualFinalNodes = sFinalElements.filter(
-    (n: any) => !(n instanceof Pointer),
+    isNode,
   );
-  linkForVariant(actualFinalNodes as any, isDoubly);
+  linkForVariant(actualFinalNodes, isDoubly);
 
   addStep(steps, {
     stepNumber: currentStepIdx++,
     description: { key: "animation.insert_head_end" },
-    elements: sFinalElements as any,
+    elements: sFinalElements,
     actionTag: TAGS.INSERT_HEAD_END,
     local_vars: { head: value, length: totalLen },
   });
@@ -634,12 +627,12 @@ function createInsertHeadSteps(
 
 function createInsertTailSteps(
   dataList: ListNodeData[],
-  value: any,
+  value: number,
   hasTailMode: boolean,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   isDoubly: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -652,7 +645,7 @@ function createInsertTailSteps(
     steps.push({
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_tail_check_null" },
-      elements: [] as any,
+      elements: [],
       actionTag: TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE,
       local_vars: { head: null },
     });
@@ -672,7 +665,7 @@ function createInsertTailSteps(
     steps.push({
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_tail_create_new" },
-      elements: s1Elements as any,
+      elements: s1Elements,
       actionTag: TAGS.INSERT_TAIL_CREATE_NEW_NODE_ISNULL,
       local_vars: { head: null },
     });
@@ -692,7 +685,7 @@ function createInsertTailSteps(
     steps.push({
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_tail_update_head", params: { value } },
-      elements: s2Elements as any,
+      elements: s2Elements,
       actionTag: updateHeadTag,
       local_vars: { head: value, length: 1 },
     });
@@ -711,7 +704,7 @@ function createInsertTailSteps(
       steps.push({
         stepNumber: currentStepIdx++,
         description: { key: "animation.insert_tail_update_tail_null", params: { value } },
-        elements: s3Elements as any,
+        elements: s3Elements,
         actionTag: TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL,
         local_vars: { head: value, tail: value, length: 1 },
       });
@@ -729,14 +722,14 @@ function createInsertTailSteps(
       ),
     );
     const actualFinalNodes = sFinalElements.filter(
-      (n: any) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualFinalNodes as any, isDoubly);
+    linkForVariant(actualFinalNodes, isDoubly);
 
     steps.push({
       stepNumber: currentStepIdx++,
       description: { key: "animation.insert_tail_end" },
-      elements: sFinalElements as any,
+      elements: sFinalElements,
       actionTag: TAGS.INSERT_TAIL_END_ISNULL || TAGS.INSERT_TAIL_END,
       local_vars: { head: value, tail: hasTailMode ? value : undefined, length: 1 },
     });
@@ -777,14 +770,14 @@ function createInsertTailSteps(
         );
       });
       const actualTraverseNodes = traverseElements.filter(
-        (n) => !(n instanceof Pointer),
+        isNode,
       );
-      linkForVariant(actualTraverseNodes as any, isDoubly);
+      linkForVariant(actualTraverseNodes, isDoubly);
 
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: { key: "animation.insert_tail_traverse", params: { current: oldNodesData[i].value, index: i } },
-        elements: traverseElements as any,
+        elements: traverseElements,
         actionTag: TAGS.INSERT_TAIL_TRAVERSE,
         local_vars: { current: oldNodesData[i].value ?? null, index: i },
       });
@@ -804,9 +797,9 @@ function createInsertTailSteps(
       ),
     );
     const actualNewCreateNodes = sNewCreateElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualNewCreateNodes as any, isDoubly);
+    linkForVariant(actualNewCreateNodes, isDoubly);
 
     const sNewElement = makeNodeAndPointers(
       newNodeData,
@@ -823,7 +816,7 @@ function createInsertTailSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_tail_create_notail", params: { value, current: oldNodesData[oldLen - 1].value } },
-      elements: [...sNewCreateElements, ...sNewElement] as any,
+      elements: [...sNewCreateElements, ...sNewElement],
       actionTag: TAGS.INSERT_TAIL_CREATE,
       local_vars: {
         "newNode.value": value,
@@ -856,9 +849,7 @@ function createInsertTailSteps(
       "new",
     );
     const allConnect = [...sConnectOldElements, ...sConnectNewElement];
-    const actualAllConnect = allConnect.filter(
-      (n) => !(n instanceof Pointer),
-    ) as any[];
+    const actualAllConnect = allConnect.filter(isNode);
 
     // 先連雙向，再斷 prev
     if (isDoubly) {
@@ -872,7 +863,7 @@ function createInsertTailSteps(
     steps.push({
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_tail_link_current", params: { value, current: oldNodesData[oldLen - 1].value } },
-      elements: allConnect as any,
+      elements: allConnect,
       actionTag: TAGS.INSERT_TAIL_LINK,
       local_vars: {
         "current.next": value,
@@ -906,9 +897,7 @@ function createInsertTailSteps(
         "new",
       );
       const allConnectB = [...sConnectB_OldElements, ...sConnectB_NewElement];
-      const actualAllConnectB = allConnectB.filter(
-        (n) => !(n instanceof Pointer),
-      ) as any[];
+      const actualAllConnectB = allConnectB.filter(isNode);
 
       // 全連，prev 出現
       linkNodesDoubly(actualAllConnectB);
@@ -917,7 +906,7 @@ function createInsertTailSteps(
       steps.push({
         stepNumber: steps.length + 1,
         description: { key: "animation.insert_tail_link_prev_notail" },
-        elements: allConnectB as any,
+        elements: allConnectB,
         actionTag: TAGS.INSERT_TAIL_LINK_PREV || TAGS.INSERT_TAIL_LINK,
         local_vars: { "newNode.prev": oldNodesData[oldLen - 1].value ?? null },
       });
@@ -934,13 +923,13 @@ function createInsertTailSteps(
         Status.Complete,
       ),
     );
-    const actualDoneNodes = doneElements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(actualDoneNodes as any, isDoubly);
+    const actualDoneNodes = doneElements.filter(isNode);
+    linkForVariant(actualDoneNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_tail_end" },
-      elements: doneElements as any,
+      elements: doneElements,
       actionTag: TAGS.INSERT_TAIL_END_NOTNULL || TAGS.INSERT_TAIL_END,
       local_vars: { tail: value, length: totalLen },
     });
@@ -950,13 +939,13 @@ function createInsertTailSteps(
 
 function createInsertIndexSteps(
   dataList: ListNodeData[],
-  value: any,
+  value: number,
   actionIndex: number | undefined,
   hasTailMode: boolean,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   isDoubly: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -980,14 +969,14 @@ function createInsertIndexSteps(
         ),
       );
     const actualCheckNodes = checkElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualCheckNodes as any, isDoubly);
+    linkForVariant(actualCheckNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_index_if_zero", params: { value, index: N } },
-      elements: checkElements as any,
+      elements: checkElements,
       actionTag: TAGS.INSERT_INDEX_IFZERO,
       local_vars: {
         index: N,
@@ -1029,14 +1018,14 @@ function createInsertIndexSteps(
         ),
       );
     const actualCheckNodes = checkElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualCheckNodes as any, isDoubly);
+    linkForVariant(actualCheckNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_index_if_tail", params: { value, index: N, length: currentLen } },
-      elements: checkElements as any,
+      elements: checkElements,
       actionTag: TAGS.INSERT_INDEX_IFTAIL,
       local_vars: {
         index: N,
@@ -1092,14 +1081,14 @@ function createInsertIndexSteps(
       );
     });
     const actualTraverseNodes = traverseElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualTraverseNodes as any, isDoubly);
+    linkForVariant(actualTraverseNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_index_traverse", params: { index: i, targetIndex: N } },
-      elements: traverseElements as any,
+      elements: traverseElements,
       actionTag: TAGS.INSERT_INDEX_TRAVERSE,
       local_vars: {
         current: oldNodesData[i].value ?? null,
@@ -1126,8 +1115,8 @@ function createInsertIndexSteps(
       i === N - 1 ? "current" : undefined,
     );
   });
-  const actualS3OldNodes = s3OldElements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS3OldNodes as any, isDoubly);
+  const actualS3OldNodes = s3OldElements.filter(isNode);
+  linkForVariant(actualS3OldNodes, isDoubly);
 
   const s3NewElement = makeNodeAndPointers(
     newNodeData,
@@ -1144,7 +1133,7 @@ function createInsertIndexSteps(
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.insert_index_create", params: { value } },
-    elements: [...s3OldElements, ...s3NewElement] as any,
+    elements: [...s3OldElements, ...s3NewElement],
     actionTag: TAGS.INSERT_INDEX_CREATE,
     local_vars: {
       "newNode.value": value,
@@ -1168,9 +1157,7 @@ function createInsertIndexSteps(
         i === N - 1 ? "current" : undefined,
       );
     });
-    const actualS4OldNodes = s4OldElements.filter(
-      (n) => !(n instanceof Pointer),
-    ) as Node[];
+    const actualS4OldNodes = s4OldElements.filter(isNode);
     const s4NewElement = makeNodeAndPointers(
       newNodeData,
       N,
@@ -1210,7 +1197,7 @@ function createInsertIndexSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_index_link_new_next", params: { N } },
-      elements: [...s4OldElements, ...s4NewElement] as any,
+      elements: [...s4OldElements, ...s4NewElement],
       actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
       local_vars: {
         "newNode.next": oldNodesData[N]?.value ?? null,
@@ -1233,9 +1220,7 @@ function createInsertIndexSteps(
         i === N - 1 ? "current" : undefined,
       );
     });
-    const actualS5OldNodes = s5OldElements.filter(
-      (n) => !(n instanceof Pointer),
-    ) as Node[];
+    const actualS5OldNodes = s5OldElements.filter(isNode);
     linkForVariant(actualS5OldNodes, isDoubly);
 
     const s5NewElement = makeNodeAndPointers(
@@ -1271,7 +1256,7 @@ function createInsertIndexSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_index_link_current_next", params: { N: N - 1 } },
-      elements: [...s5OldElements, ...s5NewElement] as any,
+      elements: [...s5OldElements, ...s5NewElement],
       actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
       local_vars: {
         "current.next": value,
@@ -1285,7 +1270,7 @@ function createInsertIndexSteps(
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: { key: "animation.insert_index_link_new_next", params: { N } },
-        elements: [...p1.s4OldElements, ...p1.s4NewElement] as any,
+        elements: [...p1.s4OldElements, ...p1.s4NewElement],
         actionTag: TAGS.INSERT_INDEX_LINK_NEW_NEXT,
         local_vars: {
           "newNode.next": oldNodesData[N]?.value ?? null,
@@ -1299,7 +1284,7 @@ function createInsertIndexSteps(
         addStep(steps, {
           stepNumber: steps.length + 1,
           description: { key: "animation.insert_index_link_next_prev", params: { N } },
-          elements: [...p2.s4OldElements, ...p2.s4NewElement] as any,
+          elements: [...p2.s4OldElements, ...p2.s4NewElement],
           actionTag: TAGS.INSERT_INDEX_LINK_NEXT_PREV,
           local_vars: {
             [`node[${N}].prev`]: value,
@@ -1317,7 +1302,7 @@ function createInsertIndexSteps(
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: { key: "animation.insert_index_link_current_next", params: { N: N - 1 } },
-        elements: [...p3.s4OldElements, ...p3.s4NewElement] as any,
+        elements: [...p3.s4OldElements, ...p3.s4NewElement],
         actionTag: TAGS.INSERT_INDEX_LINK_CURRENT_NEXT,
         local_vars: {
           "current.next": value,
@@ -1335,7 +1320,7 @@ function createInsertIndexSteps(
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: { key: "animation.insert_index_link_new_prev", params: { N: N - 1 } },
-        elements: [...p4.s4OldElements, ...p4.s4NewElement] as any,
+        elements: [...p4.s4OldElements, ...p4.s4NewElement],
         actionTag: TAGS.INSERT_INDEX_LINK_NEW_PREV,
         local_vars: {
           "newNode.prev": oldNodesData[N - 1]?.value ?? null,
@@ -1355,14 +1340,14 @@ function createInsertIndexSteps(
       Status.Complete,
     ),
   );
-  const actualS6Nodes = s6Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS6Nodes as any, isDoubly);
+  const actualS6Nodes = s6Elements.filter(isNode);
+  linkForVariant(actualS6Nodes, isDoubly);
 
   if (hasTailMode && N === totalLen - 1) {
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.insert_index_update_tail", params: { value } },
-      elements: s6Elements as any,
+      elements: s6Elements,
       actionTag: TAGS.INSERT_INDEX_UPDATE_TAIL,
       local_vars: { tail: value },
     });
@@ -1371,7 +1356,7 @@ function createInsertIndexSteps(
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.insert_index_end" },
-    elements: s6Elements as any,
+    elements: s6Elements,
     actionTag: TAGS.INSERT_INDEX_END,
     local_vars: { length: totalLen },
   });
@@ -1380,14 +1365,14 @@ function createInsertIndexSteps(
 
 function createDeleteHeadSteps(
   dataList: ListNodeData[],
-  deletedNodeData: any,
+  deletedNodeData: ListNodeData,
   mode: string,
   actionIndex: number | undefined,
   hasTailMode: boolean,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   isDoubly: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -1411,14 +1396,14 @@ function createDeleteHeadSteps(
       ),
     );
     const actualCheckNodes = checkElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualCheckNodes as any, isDoubly);
+    linkForVariant(actualCheckNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_index_if_zero", params: { value, index: N } },
-      elements: checkElements as any,
+      elements: checkElements,
       actionTag: TAGS.DELETE_INDEX_IFZERO,
       local_vars: {
         index: N,
@@ -1451,13 +1436,13 @@ function createDeleteHeadSteps(
     ),
   );
   const allS1 = [...s1DelElement, ...s1RestElements];
-  const actualAllS1 = allS1.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualAllS1 as any, isDoubly);
+  const actualAllS1 = allS1.filter(isNode);
+  linkForVariant(actualAllS1, isDoubly);
 
   addStep(steps, {
     stepNumber: 1,
     description: { key: "animation.delete_head_start", params: { value: deletedNodeData.value } },
-    elements: allS1 as any,
+    elements: allS1,
     actionTag: TAGS.DELETE_HEAD_START,
     local_vars: { head: deletedNodeData.value },
   });
@@ -1489,7 +1474,7 @@ function createDeleteHeadSteps(
     );
   });
   const allS2 = [...s2DelElement, ...s2RestElements];
-  const actualAllS2 = allS2.filter((n) => !(n instanceof Pointer)) as any[];
+  const actualAllS2 = allS2.filter(isNode);
 
   // 先讓舊節點與新節點保持完整的連線 (包含雙向)
   if (isDoubly) {
@@ -1503,7 +1488,7 @@ function createDeleteHeadSteps(
   steps.push({
     stepNumber: currentStepIdx++,
     description: { key: "animation.delete_head_update_head" },
-    elements: allS2 as any,
+    elements: allS2,
     actionTag: TAGS.DELETE_HEAD_UPDATE_HEAD,
     local_vars: { head: dataList[0]?.value ?? null },
   });
@@ -1537,7 +1522,7 @@ function createDeleteHeadSteps(
     });
 
     const allS3b = [...s3bDelElement, ...s3bRestElements];
-    const actualAllS3b = allS3b.filter((n) => !(n instanceof Pointer)) as any[];
+    const actualAllS3b = allS3b.filter(isNode);
 
     linkNodesDoubly(actualAllS3b);
     actualAllS3b[1].prev = null; // 手動斷開新 Head 回指舊 Head 的 prev 箭頭
@@ -1546,7 +1531,7 @@ function createDeleteHeadSteps(
     steps.push({
       stepNumber: currentStepIdx++,
       description: { key: "animation.delete_head_update_prev" },
-      elements: allS3b as any,
+      elements: allS3b,
       actionTag: TAGS.DELETE_HEAD_UPDATE_PREV,
       local_vars: { head: dataList[0]?.value ?? null },
     });
@@ -1568,7 +1553,7 @@ function createDeleteHeadSteps(
     steps.push({
       stepNumber: currentStepIdx++,
       description: { key: isDoubly ? "animation.delete_head_update_tail_doubly" : "animation.delete_head_update_tail_singly" },
-      elements: s2DelElementNoTail as any, // 使用不帶標籤的元素
+      elements: s2DelElementNoTail, // 使用不帶標籤的元素
       actionTag: TAGS.DELETE_HEAD_UPDATE_TAIL,
       local_vars: { head: null, tail: null },
     });
@@ -1602,7 +1587,7 @@ function createDeleteHeadSteps(
   });
 
   const allS3 = [...s3DelElement, ...s3RestElements];
-  const actualAllS3 = allS3.filter((n) => !(n instanceof Pointer)) as any[];
+  const actualAllS3 = allS3.filter(isNode);
 
   if (isDoubly) {
     linkNodesDoubly(actualAllS3);
@@ -1613,15 +1598,15 @@ function createDeleteHeadSteps(
     syncPointersFromNextPrev(actualAllS3);
   } else {
     // 單向直接讓後面的節點互連，舊節點把 pointers 清空即可
-    const restNodesOnly = s3RestElements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(restNodesOnly as any, isDoubly);
+    const restNodesOnly = s3RestElements.filter(isNode);
+    linkForVariant(restNodesOnly, isDoubly);
     actualAllS3[0].pointers = [];
   }
 
   steps.push({
     stepNumber: currentStepIdx++,
     description: { key: "animation.delete_free" },
-    elements: allS3 as any,
+    elements: allS3,
     actionTag: TAGS.DELETE_HEAD_FREE,
     local_vars: { head: dataList[0]?.value ?? null },
   });
@@ -1637,13 +1622,13 @@ function createDeleteHeadSteps(
       Status.Prepare,
     ),
   );
-  const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS4Nodes as any, isDoubly);
+  const actualS4Nodes = s4Elements.filter(isNode);
+  linkForVariant(actualS4Nodes, isDoubly);
 
   steps.push({
     stepNumber: currentStepIdx++,
     description: { key: "animation.delete_head_remove" },
-    elements: s4Elements as any,
+    elements: s4Elements,
     actionTag: TAGS.DELETE_HEAD_END,
     local_vars: { head: dataList[0]?.value ?? null, length: currentLen },
   });
@@ -1659,13 +1644,13 @@ function createDeleteHeadSteps(
       Status.Complete,
     ),
   );
-  const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS5Nodes as any, isDoubly);
+  const actualS5Nodes = s5Elements.filter(isNode);
+  linkForVariant(actualS5Nodes, isDoubly);
 
   steps.push({
     stepNumber: currentStepIdx++,
     description: { key: "animation.delete_head_end" },
-    elements: s5Elements as any,
+    elements: s5Elements,
     actionTag: TAGS.DELETE_HEAD_END,
     local_vars: { head: dataList[0]?.value ?? null, length: currentLen },
   });
@@ -1675,14 +1660,14 @@ function createDeleteHeadSteps(
 
 function createDeleteTailSteps(
   dataList: ListNodeData[],
-  deletedNodeData: any,
+  deletedNodeData: ListNodeData,
   mode: string,
   actionIndex: number | undefined,
   hasTailMode: boolean,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   isDoubly: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -1707,14 +1692,14 @@ function createDeleteTailSteps(
       ),
     );
     const actualCheckNodes = checkElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualCheckNodes as any, isDoubly);
+    linkForVariant(actualCheckNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_index_if_tail", params: { value, index: N, length: currentLen } },
-      elements: checkElements as any,
+      elements: checkElements,
       actionTag: TAGS.DELETE_INDEX_IFTAIL,
       local_vars: {
         index: N,
@@ -1737,13 +1722,13 @@ function createDeleteTailSteps(
       ),
       ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Target, "tail")
     ];
-    const actualS1 = s1Elements.filter(n => !(n instanceof Pointer));
-    linkForVariant(actualS1 as any, isDoubly);
+    const actualS1 = s1Elements.filter(isNode);
+    linkForVariant(actualS1, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_tail_start", params: { value } },
-      elements: s1Elements as any,
+      elements: s1Elements,
       actionTag: TAGS.DELETE_TAIL_START,
       local_vars: {
         current: value,
@@ -1758,13 +1743,13 @@ function createDeleteTailSteps(
       ),
       ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Target, "tail")
     ];
-    const actualS2 = s2Elements.filter(n => !(n instanceof Pointer));
-    linkForVariant(actualS2 as any, isDoubly);
+    const actualS2 = s2Elements.filter(isNode);
+    linkForVariant(actualS2, isDoubly);
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_tail_traverse_prev" },
-      elements: s2Elements as any,
+      elements: s2Elements,
       actionTag: TAGS.DELETE_TAIL_TRAVERSE,
       local_vars: {
         current: value,
@@ -1779,7 +1764,7 @@ function createDeleteTailSteps(
       ),
       ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Inactive)
     ];
-    const actualS3 = s3Elements.filter(n => !(n instanceof Pointer)) as Node[];
+    const actualS3 = s3Elements.filter(isNode);
     linkNodesDoubly(actualS3);
     actualS3[currentLen - 1].next = null;
     syncPointersFromNextPrev(actualS3);
@@ -1787,7 +1772,7 @@ function createDeleteTailSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_tail_unlink_pre_next" },
-      elements: s3Elements as any,
+      elements: s3Elements,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
       local_vars: {
         "pre.next": null,
@@ -1804,7 +1789,7 @@ function createDeleteTailSteps(
       }),
       ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Inactive, "")
     ];
-    const actualS4 = s4Elements.filter(n => !(n instanceof Pointer)) as Node[];
+    const actualS4 = s4Elements.filter(isNode);
     linkNodesDoubly(actualS4);
     actualS4[currentLen - 1].next = null;
     syncPointersFromNextPrev(actualS4);
@@ -1812,7 +1797,7 @@ function createDeleteTailSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_update_tail" },
-      elements: s4Elements as any,
+      elements: s4Elements,
       actionTag: TAGS.DELETE_TAIL_END,
       local_vars: {
         tail: preNodeData.value ?? null,
@@ -1824,12 +1809,12 @@ function createDeleteTailSteps(
     const s5Elements = dataList.flatMap((item, i) =>
       makeNodeAndPointers(item, i, currentLen, startX + i * gap, baseY, hasTailMode, Status.Complete)
     );
-    const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(actualS5Nodes as any, isDoubly);
+    const actualS5Nodes = s5Elements.filter(isNode);
+    linkForVariant(actualS5Nodes, isDoubly);
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_tail_end" },
-      elements: s5Elements as any,
+      elements: s5Elements,
       actionTag: TAGS.DELETE_TAIL_END,
       local_vars: {
         tail: dataList[currentLen - 1].value ?? null,
@@ -1866,19 +1851,19 @@ function createDeleteTailSteps(
           isLastStep ? "current" : undefined,
         ),
       ];
-      const actualTraverseNodes = traverseElements.filter((n) => !(n instanceof Pointer));
-      linkForVariant(actualTraverseNodes as any, isDoubly);
+      const actualTraverseNodes = traverseElements.filter(isNode);
+      linkForVariant(actualTraverseNodes, isDoubly);
 
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: i < currentLen
           ? { key: "animation.delete_tail_traverse" }
           : { key: "animation.delete_tail_found", params: { value: deletedNodeData.value } },
-        elements: traverseElements as any,
+        elements: traverseElements,
         actionTag: TAGS.DELETE_TAIL_TRAVERSE,
         local_vars: {
           current: i < currentLen
-            ? (actualTraverseNodes[i] as any)?.value ?? null
+            ? actualTraverseNodes[i]?.value ?? null
             : deletedNodeData.value,
         },
       });
@@ -1897,7 +1882,7 @@ function createDeleteTailSteps(
       }),
       ...makeNodeAndPointers(deletedNodeData, currentLen, currentLen + 1, startX + currentLen * gap, baseY, hasTailMode, Status.Inactive, "", "current"),
     ];
-    const actualDoublyUnlinkNodes = doublyUnlinkElements.filter((n) => !(n instanceof Pointer)) as Node[];
+    const actualDoublyUnlinkNodes = doublyUnlinkElements.filter(isNode);
     linkNodesDoubly(actualDoublyUnlinkNodes);
     actualDoublyUnlinkNodes[currentLen - 1].next = null;
     syncPointersFromNextPrev(actualDoublyUnlinkNodes);
@@ -1905,7 +1890,7 @@ function createDeleteTailSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_tail_unlink_doubly" },
-      elements: doublyUnlinkElements as any,
+      elements: doublyUnlinkElements,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
       local_vars: { "current.prev.next": null, current: deletedNodeData.value },
     });
@@ -1913,13 +1898,13 @@ function createDeleteTailSteps(
     const doublyEndElements = dataList.flatMap((item, i) =>
       makeNodeAndPointers(item, i, currentLen, startX + i * gap, baseY, hasTailMode, Status.Complete),
     );
-    const actualDoublyEndNodes = doublyEndElements.filter((n) => !(n instanceof Pointer)) as Node[];
+    const actualDoublyEndNodes = doublyEndElements.filter(isNode);
     linkNodesDoubly(actualDoublyEndNodes);
     syncPointersFromNextPrev(actualDoublyEndNodes);
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_tail_end" },
-      elements: doublyEndElements as any,
+      elements: doublyEndElements,
       actionTag: TAGS.DELETE_TAIL_END,
       local_vars: { length: currentLen },
     });
@@ -1947,16 +1932,16 @@ function createDeleteTailSteps(
           hasTailMode ? "tail" : "",
         ),
       ];
-      const actualTraverseNodes = traverseElements.filter((n) => !(n instanceof Pointer));
-      linkForVariant(actualTraverseNodes as any, isDoubly);
+      const actualTraverseNodes = traverseElements.filter(isNode);
+      linkForVariant(actualTraverseNodes, isDoubly);
 
       addStep(steps, {
         stepNumber: steps.length + 1,
         description: { key: "animation.delete_tail_traverse" },
-        elements: traverseElements as any,
+        elements: traverseElements,
         actionTag: TAGS.DELETE_TAIL_TRAVERSE,
         local_vars: {
-          current: (actualTraverseNodes[i] as any)?.value ?? null,
+          current: actualTraverseNodes[i]?.value ?? null,
           index: i,
         },
       });
@@ -1983,12 +1968,12 @@ function createDeleteTailSteps(
       Status.Target, "tail", "current",
     ),
   ];
-  const actualS2Nodes = s2Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS2Nodes as any, isDoubly);
+  const actualS2Nodes = s2Elements.filter(isNode);
+  linkForVariant(actualS2Nodes, isDoubly);
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.delete_tail_start", params: { value: deletedNodeData.value } },
-    elements: s2Elements as any,
+    elements: s2Elements,
     actionTag: TAGS.DELETE_TAIL_TRAVERSE,
     local_vars: {
       current: deletedNodeData.value,
@@ -2014,21 +1999,21 @@ function createDeleteTailSteps(
       Status.Inactive, hasTailMode ? "tail" : "", "current",
     ),
   ];
-  const actualS3Nodes = s3Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS3Nodes as any, isDoubly);
+  const actualS3Nodes = s3Elements.filter(isNode);
+  linkForVariant(actualS3Nodes, isDoubly);
 
   const newTailObj = actualS3Nodes.find(
-    (n: any) => n.description === String(currentLen - 1),
+    (n) => n.description === String(currentLen - 1),
   ) as Node | undefined;
   if (newTailObj) {
     newTailObj.next = null;
-    (newTailObj as any).pointers = [];
+    newTailObj.pointers = [];
   }
 
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.delete_tail_unlink_pre_next" },
-    elements: s3Elements as any,
+    elements: s3Elements,
     actionTag: TAGS.DELETE_TAIL_UNLINK,
     local_vars: {
       "pre.next": null,
@@ -2056,20 +2041,20 @@ function createDeleteTailSteps(
         Status.Inactive, "", "current",
       ),
     ];
-    const actualSTailNodes = sTailElements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(actualSTailNodes as any, isDoubly);
+    const actualSTailNodes = sTailElements.filter(isNode);
+    linkForVariant(actualSTailNodes, isDoubly);
     const tailPreObj = actualSTailNodes.find(
-      (n: any) => n.description === String(currentLen - 1),
+      (n) => n.description === String(currentLen - 1),
     ) as Node | undefined;
     if (tailPreObj) {
       tailPreObj.next = null;
-      (tailPreObj as any).pointers = [];
+      tailPreObj.pointers = [];
     }
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_update_tail" },
-      elements: sTailElements as any,
+      elements: sTailElements,
       actionTag: TAGS.DELETE_TAIL_UNLINK,
       local_vars: {
         tail: dataList[currentLen - 1].value ?? null,
@@ -2081,12 +2066,12 @@ function createDeleteTailSteps(
   const s4Elements = dataList.flatMap((item, i) =>
     makeNodeAndPointers(item, i, currentLen, startX + i * gap, baseY, hasTailMode, Status.Complete),
   );
-  const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS4Nodes as any, isDoubly);
+  const actualS4Nodes = s4Elements.filter(isNode);
+  linkForVariant(actualS4Nodes, isDoubly);
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.delete_tail_end" },
-    elements: s4Elements as any,
+    elements: s4Elements,
     actionTag: TAGS.DELETE_TAIL_END,
     local_vars: {
       tail: dataList[currentLen - 1].value ?? null,
@@ -2098,13 +2083,13 @@ function createDeleteTailSteps(
 
 function createDeleteIndexSteps(
   dataList: ListNodeData[],
-  deletedNodeData: any,
+  deletedNodeData: ListNodeData,
   actionIndex: number | undefined,
   hasTailMode: boolean,
   startX: number,
   gap: number,
   baseY: number,
-  TAGS: any,
+  TAGS: Record<string, string>,
   isDoubly: boolean,
 ): AnimationStep[] {
   const steps: AnimationStep[] = [];
@@ -2140,13 +2125,13 @@ function createDeleteIndexSteps(
       );
     });
     const actualTraverseNodes = traverseElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualTraverseNodes as any, isDoubly);
+    linkForVariant(actualTraverseNodes, isDoubly);
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_index_traverse", params: { index: i, targetIndex: N } },
-      elements: traverseElements as any,
+      elements: traverseElements,
       actionTag: TAGS.DELETE_INDEX_TRAVERSE,
       local_vars: {
         current: oldList[i].value ?? null,
@@ -2182,13 +2167,13 @@ function createDeleteIndexSteps(
       extra,
     );
   });
-  const actualS3Nodes = s3Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS3Nodes as any, isDoubly);
+  const actualS3Nodes = s3Elements.filter(isNode);
+  linkForVariant(actualS3Nodes, isDoubly);
   const preNodeObj = actualS3Nodes.find(
-    (n: any) => n.description === String(N - 1),
+    (n) => n.description === String(N - 1),
   );
   const nextNodeObj = actualS3Nodes.find(
-    (n: any) => n.description === String(N + 1),
+    (n) => n.description === String(N + 1),
   );
   if (isDoubly) {
     if (preNodeObj && nextNodeObj) {
@@ -2199,14 +2184,14 @@ function createDeleteIndexSteps(
   } else {
     if (preNodeObj && nextNodeObj) {
       (preNodeObj as Node).next = nextNodeObj as Node;
-      (preNodeObj as any).pointers = [nextNodeObj];
+      preNodeObj.pointers = [nextNodeObj];
     }
   }
 
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.delete_index_unlink" },
-    elements: s3Elements as any,
+    elements: s3Elements,
     actionTag: TAGS.DELETE_INDEX_UNLINK,
     local_vars: {
       "pre.next": oldList[N + 1]?.value ?? null,
@@ -2242,14 +2227,14 @@ function createDeleteIndexSteps(
         extra,
       );
     });
-    const actualS3bNodes = s3bElements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(actualS3bNodes as any, isDoubly);
+    const actualS3bNodes = s3bElements.filter(isNode);
+    linkForVariant(actualS3bNodes, isDoubly);
 
     const preNodeObjB = actualS3bNodes.find(
-      (n: any) => n.description === String(N - 1),
+      (n) => n.description === String(N - 1),
     );
     const nextNodeObjB = actualS3bNodes.find(
-      (n: any) => n.description === String(N + 1),
+      (n) => n.description === String(N + 1),
     );
 
     if (preNodeObjB && nextNodeObjB) {
@@ -2262,7 +2247,7 @@ function createDeleteIndexSteps(
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_index_unlink_prev" },
-      elements: s3bElements as any,
+      elements: s3bElements,
       actionTag: TAGS.DELETE_INDEX_UNLINK,
       local_vars: {
         "current.next.prev": oldList[N - 1]?.value ?? null,
@@ -2294,12 +2279,12 @@ function createDeleteIndexSteps(
       );
     });
     const actualSTailNodes = sTailElements.filter(
-      (n) => !(n instanceof Pointer),
+      isNode,
     );
-    linkForVariant(actualSTailNodes as any, isDoubly);
+    linkForVariant(actualSTailNodes, isDoubly);
 
     const preObj = actualSTailNodes.find(
-      (n: any) => n.description === String(N - 1),
+      (n) => n.description === String(N - 1),
     );
     if (isDoubly) {
       if (preObj) {
@@ -2309,14 +2294,14 @@ function createDeleteIndexSteps(
     } else {
       if (preObj) {
         (preObj as Node).next = null;
-        (preObj as any).pointers = [];
+        preObj.pointers = [];
       }
     }
 
     addStep(steps, {
       stepNumber: steps.length + 1,
       description: { key: "animation.delete_update_tail" },
-      elements: sTailElements as any,
+      elements: sTailElements,
       actionTag: TAGS.DELETE_INDEX_UNLINK,
       local_vars: {
         tail: oldList[N - 1].value ?? null,
@@ -2347,16 +2332,16 @@ function createDeleteIndexSteps(
       extra,
     );
   });
-  const actualS4Nodes = s4Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS4Nodes as any, isDoubly);
+  const actualS4Nodes = s4Elements.filter(isNode);
+  linkForVariant(actualS4Nodes, isDoubly);
   const preNodeObj4 = actualS4Nodes.find(
-    (n: any) => n.description === String(N - 1),
+    (n) => n.description === String(N - 1),
   );
   const nextNodeObj4 = actualS4Nodes.find(
-    (n: any) => n.description === String(N + 1),
+    (n) => n.description === String(N + 1),
   );
   const delNodeObj4 = actualS4Nodes.find(
-    (n: any) => n.description === String(N),
+    (n) => n.description === String(N),
   );
   if (isDoubly) {
     if (preNodeObj4 && nextNodeObj4) {
@@ -2371,18 +2356,18 @@ function createDeleteIndexSteps(
   } else {
     if (preNodeObj4 && nextNodeObj4) {
       (preNodeObj4 as Node).next = nextNodeObj4 as Node;
-      (preNodeObj4 as any).pointers = [nextNodeObj4];
+      preNodeObj4.pointers = [nextNodeObj4];
     }
     if (delNodeObj4) {
       (delNodeObj4 as Node).next = null;
-      (delNodeObj4 as any).pointers = [];
+      delNodeObj4.pointers = [];
     }
   }
 
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.delete_free" },
-    elements: s4Elements as any,
+    elements: s4Elements,
     actionTag: TAGS.DELETE_INDEX_END,
     local_vars: {
       "current.next": null,
@@ -2402,12 +2387,12 @@ function createDeleteIndexSteps(
       Status.Complete,
     ),
   );
-  const actualS5Nodes = s5Elements.filter((n) => !(n instanceof Pointer));
-  linkForVariant(actualS5Nodes as any, isDoubly);
+  const actualS5Nodes = s5Elements.filter(isNode);
+  linkForVariant(actualS5Nodes, isDoubly);
   addStep(steps, {
     stepNumber: steps.length + 1,
     description: { key: "animation.delete_index_end" },
-    elements: s5Elements as any,
+    elements: s5Elements,
     actionTag: TAGS.DELETE_INDEX_END,
     local_vars: { length: currentLen },
   });
@@ -2432,13 +2417,13 @@ function createDeleteIndexSteps(
         Status.Unfinished,
       ),
     );
-    const actualNodes = elements.filter((n) => !(n instanceof Pointer));
-    linkForVariant(actualNodes as any, isDoubly);
+    const actualNodes = elements.filter(isNode);
+    linkForVariant(actualNodes, isDoubly);
 
     addStep(steps, {
       stepNumber: 1,
       description: { key: isDoubly ? "animation.initial_state_doubly" : "animation.initial_state_singly" },
-      elements: elements as any,
+      elements: elements,
     });
     return steps;
   }

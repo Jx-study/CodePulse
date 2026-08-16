@@ -93,6 +93,11 @@ export type RunParams =
   | { type: "fibonacciDP"; n: number }
   | { type: "fibonacciRecursive"; n: number };
 
+// ActionBarProps below is a heterogeneous registry union: every data-structure/
+// algorithm module renders its own ActionBar with its own params/payload shape
+// through the single `renderActionBar` slot on LevelImplementationConfig (see
+// below). The `any`s here are the deliberate type-erasure points for that —
+// each module's concrete component narrows them back via its own local types.
 export interface BaseActionBarProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
@@ -128,6 +133,14 @@ export interface AlgoActionBarProps extends BaseActionBarProps {
 
 export type ActionBarProps = DSActionBarProps | AlgoActionBarProps;
 
+// LevelImplementationConfig is likewise a heterogeneous registry: every
+// module's `data`/`action`/`config` types differ (e.g. LinkedList's
+// ListNodeData[] vs BST's BSTInputItem[]), but they're all dispatched through
+// one ImplementationMap keyed by string id. The `any`s below are the
+// deliberate type-erasure points for that dispatch — this is the standard
+// TypeScript escape hatch for a plugin/strategy registry; concrete modules
+// keep their own properly-typed `create*AnimationSteps` internally and are
+// only erased at the point they're assigned into this shared config shape.
 export interface LevelImplementationConfig {
   id: ImplementationId;
   type: "algorithm" | "dataStructure";

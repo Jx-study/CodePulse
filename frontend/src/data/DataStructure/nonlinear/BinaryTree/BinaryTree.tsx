@@ -1,7 +1,7 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { BinaryTreeActionBar } from "./BinaryTreeActionBar";
-import { simulateBinaryTreeTrace } from "./simulateTrace";
+import { simulateBinaryTreeTrace, BTInputItem } from "./simulateTrace";
 import { binaryTreeTraceToSteps } from "./traceToSteps";
 import { BTStatus, TAGS } from "./tags";
 import type {
@@ -136,9 +136,9 @@ def bfs(root):
 function binaryTreeActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: BTInputItem[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<BTInputItem[]> | null {
   const { value, index } = payload as { value?: number; index?: number };
   const newData = [...data];
 
@@ -153,7 +153,7 @@ function binaryTreeActionHandler(
 
   if (actionType === "delete") {
     const delValue = index ?? value;
-    const delIndex = newData.findIndex((n: any) => n.value === delValue);
+    const delIndex = newData.findIndex((n) => n.value === delValue);
     if (delIndex === -1) {
       context.toast.warning(`數值 ${delValue} 不存在`);
       return null;
@@ -177,8 +177,9 @@ function binaryTreeActionHandler(
       return { animationData: randData, isResetAction: true };
     }
     if (actionType === "reset") {
-      const defaultData = (context.defaultData as any[] | undefined) ?? data;
-      const resetData = defaultData.map((d: any) => ({
+      const defaultData =
+        (context.defaultData as BTInputItem[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
         ...d,
         id: context.nextId(),
       }));

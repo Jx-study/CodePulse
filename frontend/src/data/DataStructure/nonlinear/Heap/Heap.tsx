@@ -8,7 +8,7 @@ import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAc
 
 import { HeapActionBar } from "./HeapActionBar";
 import { TAGS } from "./heap/tags";
-import { simulateHeapTrace } from "./heap/simulateTrace";
+import { simulateHeapTrace, HeapNode } from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
@@ -28,9 +28,9 @@ const baseActionHandler = createLinearActionHandler();
 export function heapActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: HeapNode[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<HeapNode[]> | null {
   const newData = data.map((d) => ({ ...d }));
   const oldData = data.map((d) => ({ ...d }));
 
@@ -44,7 +44,11 @@ export function heapActionHandler(
     actionType === "load" ||
     actionType === "reset"
   ) {
-    const result = baseActionHandler(actionType, payload, data, context);
+    // Heap data is a numeric-only subset of LinearData; the shared handler's
+    // LinearData[] result is safely a HeapNode[] for this call site.
+    const result = baseActionHandler(actionType, payload, data, context) as
+      | ActionResult<HeapNode[]>
+      | null;
     if (!result) return null;
 
     return {
@@ -195,7 +199,11 @@ export function heapActionHandler(
     };
   }
 
-  return baseActionHandler(actionType, payload, data, context);
+  // Heap data is a numeric-only subset of LinearData; the shared handler's
+  // LinearData[] result is safely a HeapNode[] for this call site.
+  return baseActionHandler(actionType, payload, data, context) as
+    | ActionResult<HeapNode[]>
+    | null;
 }
 
 export function createHeapAnimationSteps(

@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, BTStatus } from "./tags";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
@@ -9,9 +9,18 @@ export interface LogicTreeNode {
   right?: LogicTreeNode;
 }
 
-export function buildLogicalTree(data: any[]): LogicTreeNode | null {
+export interface BTInputItem {
+  id: string;
+  value: number;
+}
+
+export interface BTAction {
+  mode?: string;
+}
+
+export function buildLogicalTree(data: BTInputItem[]): LogicTreeNode | null {
   if (data.length === 0) return null;
-  const nodes = data.map((d) => ({ ...d }));
+  const nodes: LogicTreeNode[] = data.map((d) => ({ ...d }));
   const root = nodes[0];
   const queue = [root];
   let i = 1;
@@ -32,8 +41,8 @@ export function buildLogicalTree(data: any[]): LogicTreeNode | null {
 }
 
 export function simulateBinaryTreeTrace(
-  inputData: any[],
-  action: any,
+  inputData: BTInputItem[],
+  action: BTAction | undefined,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const root = buildLogicalTree(inputData);
@@ -44,13 +53,15 @@ export function simulateBinaryTreeTrace(
     linearList: LogicTreeNode[],
     animationState: "idle" | "pushing" | "popping",
     containerType: "stack" | "queue",
-    local_vars: any,
+    local_vars: Record<string, JsonValue>,
     linkStatusMap: Record<string, linkStatus> = {},
   ) => {
     trace.push({
       tag,
       local_vars,
       dataSnapshot: [],
+      // meta carries typed domain objects (LogicTreeNode trees) rather than
+      // JSON, so it's cast at the boundary of TraceEvent.meta's JSON-only type.
       meta: {
         inputData: inputData.map((d) => ({ ...d })),
         statusMap: { ...statusMap },
@@ -58,7 +69,7 @@ export function simulateBinaryTreeTrace(
         linearList: [...linearList],
         animationState,
         containerType,
-      },
+      } as unknown as Record<string, JsonValue>,
     });
   };
 

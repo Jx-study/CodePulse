@@ -1,10 +1,16 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, TrieStatus } from "./tags";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
+interface TrieAction {
+  trieType?: string;
+  word?: string;
+  existed?: boolean;
+}
+
 export function simulateTrieTrace(
   currentWords: string[],
-  action: any,
+  action: TrieAction | undefined,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const { trieType = "init", word = "", existed = false } = action || {};
@@ -24,7 +30,7 @@ export function simulateTrieTrace(
 
   const pushTrace = (
     tag: string,
-    local_vars: Record<string, any>,
+    local_vars: Record<string, JsonValue>,
     metaOpts: { highlightId?: string; statusMap?: Record<string, Status> } = {},
   ) => {
     trace.push({

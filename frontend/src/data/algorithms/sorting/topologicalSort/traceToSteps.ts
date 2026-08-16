@@ -3,9 +3,32 @@ import { AnimationStep, StepDescription } from "@/types";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createGraphElements } from "@/data/DataStructure/nonlinear/utils";
+import {
+  createGraphElements,
+  RawGraphNode,
+} from "@/data/DataStructure/nonlinear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS, TopoStatus } from "./tags";
+
+interface TopoLocalVars {
+  currId?: string;
+  neighborId?: string;
+  deg?: number;
+  resLen?: number;
+  nodeLen?: number;
+}
+
+interface TopoMeta {
+  remainingEdges?: string[][];
+  inDegree?: Record<string, number>;
+  nodeStatus?: Record<string, string>;
+  edgeStatus?: Record<string, string>;
+  queue?: string[];
+  result?: string[];
+  poppingNodeId?: string;
+  pushingNodeId?: string;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
@@ -13,46 +36,73 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.WHILE_LOOP]: () => ({ key: "animation.while_loop" }),
   [TAGS.DEQUEUE]: (e) => ({
     key: "animation.dequeue",
-    params: { curr: e.local_vars.currId.replace("node-", "") },
+    params: {
+      curr: (asTrace<TopoLocalVars>(e.local_vars).currId ?? "").replace(
+        "node-",
+        "",
+      ),
+    },
   }),
   [TAGS.ADD_TO_RESULT]: (e) => ({
     key: "animation.add_to_result",
-    params: { curr: e.local_vars.currId.replace("node-", "") },
-  }),
-  [TAGS.REDUCE_NEIGHBOR]: (e) => ({
-    key: "animation.reduce_neighbor",
     params: {
-      curr: e.local_vars.currId.replace("node-", ""),
-      neighbor: e.local_vars.neighborId.replace("node-", ""),
+      curr: (asTrace<TopoLocalVars>(e.local_vars).currId ?? "").replace(
+        "node-",
+        "",
+      ),
     },
   }),
+  [TAGS.REDUCE_NEIGHBOR]: (e) => {
+    const lv = asTrace<TopoLocalVars>(e.local_vars);
+    return {
+      key: "animation.reduce_neighbor",
+      params: {
+        curr: (lv.currId ?? "").replace("node-", ""),
+        neighbor: (lv.neighborId ?? "").replace("node-", ""),
+      },
+    };
+  },
   [TAGS.CHECK_ZERO_TRUE]: (e) => ({
     key: "animation.check_zero_true",
-    params: { neighbor: e.local_vars.neighborId.replace("node-", "") },
-  }),
-  [TAGS.CHECK_ZERO_FALSE]: (e) => ({
-    key: "animation.check_zero_false",
     params: {
-      neighbor: e.local_vars.neighborId.replace("node-", ""),
-      deg: e.local_vars.deg,
+      neighbor: (asTrace<TopoLocalVars>(e.local_vars).neighborId ?? "").replace(
+        "node-",
+        "",
+      ),
     },
   }),
+  [TAGS.CHECK_ZERO_FALSE]: (e) => {
+    const lv = asTrace<TopoLocalVars>(e.local_vars);
+    return {
+      key: "animation.check_zero_false",
+      params: {
+        neighbor: (lv.neighborId ?? "").replace("node-", ""),
+        deg: lv.deg ?? null,
+      },
+    };
+  },
   [TAGS.CYCLE_CHECK_START]: () => ({ key: "animation.cycle_check_start" }),
-  [TAGS.CYCLE_DETECTED]: (e) => ({
-    key: "animation.cycle_detected",
-    params: { resLen: e.local_vars.resLen, nodeLen: e.local_vars.nodeLen },
-  }),
+  [TAGS.CYCLE_DETECTED]: (e) => {
+    const lv = asTrace<TopoLocalVars>(e.local_vars);
+    return {
+      key: "animation.cycle_detected",
+      params: { resLen: lv.resLen ?? null, nodeLen: lv.nodeLen ?? null },
+    };
+  },
   [TAGS.CYCLE_DEADLOCK]: () => ({ key: "animation.cycle_deadlock" }),
-  [TAGS.SUCCESS_VERIFY]: (e) => ({
-    key: "animation.success_verify",
-    params: { resLen: e.local_vars.resLen, nodeLen: e.local_vars.nodeLen },
-  }),
+  [TAGS.SUCCESS_VERIFY]: (e) => {
+    const lv = asTrace<TopoLocalVars>(e.local_vars);
+    return {
+      key: "animation.success_verify",
+      params: { resLen: lv.resLen ?? null, nodeLen: lv.nodeLen ?? null },
+    };
+  },
   [TAGS.DONE]: () => ({ key: "animation.done" }),
 };
 
 export function topologicalSortTraceToSteps(
   trace: ExecutionTrace,
-  graph: any,
+  graph: { nodes: RawGraphNode[]; edges: string[][] },
 ): AnimationStep[] {
   const layoutNodes = createGraphElements(graph, true, {
     width: 700,
@@ -63,14 +113,14 @@ export function topologicalSortTraceToSteps(
   const layoutMap = new Map(layoutNodes.map((n) => [n.id, n.position]));
 
   return trace.map((event, idx) => {
-    const meta = event.meta ?? {};
-    const nodes = event.dataSnapshot as any[];
-    const remainingEdges = (meta.remainingEdges as string[][]) || [];
-    const inDegree = (meta.inDegree as Record<string, number>) || {};
-    const nodeStatus = (meta.nodeStatus as Record<string, string>) || {};
-    const edgeStatus = (meta.edgeStatus as Record<string, string>) || {};
-    const queue = (meta.queue as string[]) || [];
-    const result = (meta.result as string[]) || [];
+    const meta = asTrace<TopoMeta>(event.meta);
+    const nodes = event.dataSnapshot as RawGraphNode[];
+    const remainingEdges = meta.remainingEdges || [];
+    const inDegree = meta.inDegree || {};
+    const nodeStatus = meta.nodeStatus || {};
+    const edgeStatus = meta.edgeStatus || {};
+    const queue = meta.queue || [];
+    const result = meta.result || [];
     const poppingNodeId = meta.poppingNodeId;
     const pushingNodeId = meta.pushingNodeId;
 
@@ -80,7 +130,7 @@ export function topologicalSortTraceToSteps(
     nodes.forEach((n) => {
       const node = new Node();
       node.id = n.id;
-      node.value = n.value || n.id.replace("node-", "");
+      node.value = String(n.value || n.id.replace("node-", ""));
       node.description = `In: ${inDegree[n.id]}`;
 
       const pos = layoutMap.get(n.id) || { x: n.x ?? 500, y: n.y ?? 200 };

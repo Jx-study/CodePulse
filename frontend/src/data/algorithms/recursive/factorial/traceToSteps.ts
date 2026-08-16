@@ -2,7 +2,21 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface FactorialStackItem {
+  n: number;
+  val: number;
+}
+
+interface FactorialMeta {
+  stack?: FactorialStackItem[];
+  preparingNode?: FactorialStackItem | null;
+  poppingNode?: FactorialStackItem | null;
+  highlightIndices?: number[];
+  completeIndices?: number[];
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
@@ -61,11 +75,12 @@ export function factorialTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
     const elements: Box[] = [];
 
-    const stack: { n: number; val: number }[] = event.meta?.stack || [];
-    const preparingNode = event.meta?.preparingNode;
-    const poppingNode = event.meta?.poppingNode;
-    const highlightIndices: number[] = event.meta?.highlightIndices || [];
-    const completeIndices: number[] = event.meta?.completeIndices || [];
+    const meta = asTrace<FactorialMeta>(event.meta);
+    const stack = meta.stack || [];
+    const preparingNode = meta.preparingNode;
+    const poppingNode = meta.poppingNode;
+    const highlightIndices = meta.highlightIndices || [];
+    const completeIndices = meta.completeIndices || [];
 
     const createFactBox = (
       n: number,
@@ -117,7 +132,7 @@ export function factorialTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

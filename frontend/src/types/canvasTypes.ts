@@ -3,7 +3,8 @@ import type { BaseElement } from "../modules/core/DataLogic/BaseElement";
 import type { Link } from "../modules/core/Render/D3Renderer";
 import type { StatusColorMap, StatusConfig } from "@/types/statusConfig";
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import type { AlgorithmViewMode } from "@/types/implementation";
+import type { AlgorithmViewMode, LevelImplementationConfig } from "@/types/implementation";
+import type { AnimationStep } from "@/types/animation";
 import type { D3CanvasRef } from "../modules/core/Render/D3Canvas";
 import type { GraphCanvasRef } from "../modules/core/Render/GraphCanvas";
 
@@ -13,13 +14,13 @@ export interface CanvasPanelProps {
   canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
   isMobile: boolean;
   canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  currentStepData: any;
+  currentStepData: AnimationStep | undefined;
   allStepsElements?: BaseElement[][];
   currentLinks: Link[];
   canvasSize: { width: number; height: number };
-  topicTypeConfig: any;
-  currentStatusColorMap: any;
-  currentStatusConfig: any;
+  topicTypeConfig: LevelImplementationConfig | null;
+  currentStatusColorMap: StatusColorMap;
+  currentStatusConfig: StatusConfig;
   isDirected: boolean;
   showBidirectionalArrows: boolean;
   viewMode: AlgorithmViewMode | "";

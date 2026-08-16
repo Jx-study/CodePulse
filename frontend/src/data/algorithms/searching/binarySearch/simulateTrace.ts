@@ -1,10 +1,10 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 
 export function simulateBinarySearchTrace(
   inputData: LinearData[],
-  action?: any,
+  action?: { searchValue?: number },
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const arr = inputData.map((d) => ({ ...d }));
@@ -17,7 +17,11 @@ export function simulateBinarySearchTrace(
     target = Number(arr[targetIndex].value) || 0;
   }
 
-  const pushTrace = (tag: string, vars: any, meta: any) => {
+  const pushTrace = (
+    tag: string,
+    vars: Record<string, JsonValue>,
+    meta: Record<string, JsonValue>,
+  ) => {
     trace.push({
       tag,
       local_vars: vars,

@@ -6,7 +6,17 @@ import { Box } from "@/modules/core/DataLogic/Box";
 import { createTreeNodes, buildLinksFromNodes } from "../utils";
 import { TAGS, BTStatus } from "./tags";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
-import { LogicTreeNode } from "./simulateTrace";
+import { asTrace } from "@/data/shared/traceValue";
+import { LogicTreeNode, BTInputItem } from "./simulateTrace";
+
+interface BTTraceMeta {
+  inputData?: BTInputItem[];
+  statusMap?: Record<string, string>;
+  linkStatusMap?: Record<string, linkStatus>;
+  linearList?: LogicTreeNode[];
+  animationState?: "idle" | "pushing" | "popping";
+  containerType?: "stack" | "queue";
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT_DONE]: (e) => ({
@@ -111,8 +121,8 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function binaryTreeTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta || {};
-    const inputData: any[] = meta.inputData || [];
+    const meta = asTrace<BTTraceMeta>(event.meta);
+    const inputData = meta.inputData || [];
 
     if (event.tag === TAGS.INIT_DONE) {
       const treeElements = createTreeNodes(inputData, {
@@ -130,17 +140,16 @@ export function binaryTreeTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
         actionTag: event.tag,
         variables: event.local_vars,
-        elements: treeElements as any,
+        elements: treeElements,
         links: initLinks,
       };
     }
 
-    const statusMap: Record<string, string> = meta.statusMap || {};
-    const linkStatusMap: Record<string, linkStatus> = meta.linkStatusMap || {};
-    const linearList: LogicTreeNode[] = meta.linearList || [];
-    const animationState: "idle" | "pushing" | "popping" =
-      meta.animationState || "idle";
-    const containerType: "stack" | "queue" = meta.containerType || "stack";
+    const statusMap = meta.statusMap || {};
+    const linkStatusMap = meta.linkStatusMap || {};
+    const linearList = meta.linearList || [];
+    const animationState = meta.animationState || "idle";
+    const containerType = meta.containerType || "stack";
 
     const treeElements = createTreeNodes(inputData, {
       degree: 2,
@@ -201,7 +210,7 @@ export function binaryTreeTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: [...treeElements, ...listElements] as any,
+      elements: [...treeElements, ...listElements],
       links,
     };
   });

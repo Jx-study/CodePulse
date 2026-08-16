@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, KnapsackStatus } from "./tags";
 
 export type KnapsackItem = { weight: number; value: number };
@@ -19,7 +19,7 @@ export function simulateKnapsackTrace(
     .map(() => Array(capacity + 1).fill(0));
   const statusMap: Record<string, string> = {};
 
-  const pushTrace = (tag: string, vars: any) => {
+  const pushTrace = (tag: string, vars: Record<string, JsonValue>) => {
     trace.push({
       tag,
       local_vars: vars,

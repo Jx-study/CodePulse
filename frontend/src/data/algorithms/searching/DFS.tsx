@@ -16,6 +16,7 @@ import {
   simulateGraphDFSTrace,
   simulateGridDFSTrace,
 } from "./DFS/simulateTrace";
+import type { RawGraphNode, GridCellData } from "@/data/DataStructure/nonlinear/utils";
 import { dfsTraceToSteps } from "./DFS/traceToSteps";
 import { TAGS, DFSStatusConfig } from "./DFS/tags";
 
@@ -193,12 +194,16 @@ export function createDFSAnimationSteps(
   const trace =
     action?.mode === "grid"
       ? simulateGridDFSTrace(
-          inputData,
+          inputData as GridCellData[],
           action?.cols || 5,
           startNodeId,
           endNodeId,
         )
-      : simulateGraphDFSTrace(inputData, startNodeId, endNodeId);
+      : simulateGraphDFSTrace(
+          inputData as unknown as { nodes: RawGraphNode[]; edges: string[][] },
+          startNodeId,
+          endNodeId,
+        );
 
   return dfsTraceToSteps(trace);
 }

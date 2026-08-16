@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import type { HierarchyDatum } from "@/data/DataStructure/nonlinear/utils";
 import { TAGS } from "./tags";
 
@@ -15,17 +15,23 @@ export function simulateFibonacciTrace(targetN: number): ExecutionTrace {
   const statusMap: Record<string, string> = {};
   const valueMap: Record<string, number> = {};
 
-  const pushTrace = (tag: string, local_vars: any, highlightId?: string) => {
+  const pushTrace = (
+    tag: string,
+    local_vars: Record<string, JsonValue>,
+    highlightId?: string,
+  ) => {
     trace.push({
       tag,
       local_vars,
       dataSnapshot: [], // 不使用 dataSnapshot，交給 meta 的 tree 產生
+      // meta.tree carries a typed HierarchyDatum tree rather than JSON, so
+      // it's cast at the boundary of TraceEvent.meta's declared JSON-only type.
       meta: {
         tree: structuredClone(rootNode), // deep clone so each trace frame captures an independent snapshot
         statusMap: { ...statusMap },
         valueMap: { ...valueMap },
         highlightId,
-      },
+      } as unknown as Record<string, JsonValue>,
     });
   };
 

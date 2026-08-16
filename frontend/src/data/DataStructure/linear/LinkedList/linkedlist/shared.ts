@@ -15,6 +15,10 @@ export function addStep(steps: AnimationStep[], stepData: AnimationStep) {
   steps.push(stepData);
 }
 
+export function isNode(n: Node | Pointer): n is Node {
+  return !(n instanceof Pointer);
+}
+
 export function linkForVariant(nodes: Node[], isDoubly: boolean) {
   if (isDoubly) {
     linkNodesDoubly(nodes);

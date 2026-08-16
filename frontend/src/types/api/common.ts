@@ -4,7 +4,7 @@
  */
 
 // ==================== Generic API Response ====================
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -15,7 +15,7 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   code: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   statusCode?: number;
 }
 
@@ -29,8 +29,8 @@ export interface ApiConfig {
 
 // ==================== Request Options ====================
 export interface RequestOptions extends RequestInit {
-  params?: Record<string, any>;
-  data?: any;
+  params?: Record<string, unknown>;
+  data?: unknown;
   timeout?: number;
 }
 
@@ -42,7 +42,7 @@ export interface PaginationParams {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface PaginatedResponse<T = any> {
+export interface PaginatedResponse<T = unknown> {
   data: T[];
   pagination: {
     page: number;

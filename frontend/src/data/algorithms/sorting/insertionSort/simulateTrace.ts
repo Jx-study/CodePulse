@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 
@@ -10,7 +10,7 @@ export function simulateInsertionSortTrace(
   const n = arr.length;
   const sortedIndices = new Set<number>();
 
-  const pushTrace = (tag: string, vars: any, meta: any) => {
+  const pushTrace = (tag: string, vars: Record<string, JsonValue>, meta: Record<string, JsonValue>) => {
     trace.push({
       tag,
       local_vars: vars,

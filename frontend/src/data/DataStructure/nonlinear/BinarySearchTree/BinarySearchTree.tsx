@@ -1,7 +1,11 @@
 import { LevelImplementationConfig } from "@/types/implementation";
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { BSTActionBar } from "./BSTActionBar";
-import { simulateBSTTrace, getBSTArrayAfterDelete } from "./simulateTrace";
+import {
+  simulateBSTTrace,
+  getBSTArrayAfterDelete,
+  BSTInputItem,
+} from "./simulateTrace";
 import { bstTraceToSteps } from "./traceToSteps";
 import type {
   ActionContext,
@@ -24,9 +28,9 @@ export const BSTStatusConfig: StatusConfig = {
 function bstActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: BSTInputItem[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<BSTInputItem[]> | null {
   const { value, index } = payload as { value?: number; index?: number };
   const newData = [...data];
 
@@ -71,8 +75,9 @@ function bstActionHandler(
       return { animationData: randData, isResetAction: true };
     }
     if (actionType === "reset") {
-      const defaultData = (context.defaultData as any[] | undefined) ?? data;
-      const resetData = defaultData.map((d: any) => ({
+      const defaultData =
+        (context.defaultData as BSTInputItem[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
         ...d,
         id: context.nextId(),
       }));

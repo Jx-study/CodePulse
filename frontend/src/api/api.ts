@@ -13,7 +13,7 @@ interface ApiConfig {
 }
 
 // API 響應類型
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   status: number;
@@ -76,7 +76,7 @@ class ApiService {
     }
 
     // 處理最終結果
-    let data: any;
+    let data: unknown;
     try {
       data = await response.json();
     } catch {
@@ -86,19 +86,25 @@ class ApiService {
       } as ApiError;
     }
 
+    const payload = data as {
+      message?: string;
+      error_code?: string;
+      retry_after?: number;
+    };
+
     if (!response.ok) {
       throw {
-        message: data.message || "API request failed",
+        message: payload.message || "API request failed",
         status: response.status,
-        error_code: data.error_code,
-        retryAfter: data.retry_after,
+        error_code: payload.error_code,
+        retryAfter: payload.retry_after,
       } as ApiError;
     }
 
     return {
-      data,
+      data: data as T,
       status: response.status,
-      message: data.message,
+      message: payload.message,
     };
   }
 
@@ -112,7 +118,7 @@ class ApiService {
 
   async post<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>,
     signal?: AbortSignal,
   ): Promise<ApiResponse<T>> {
@@ -126,7 +132,7 @@ class ApiService {
 
   async put<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
@@ -138,7 +144,7 @@ class ApiService {
 
   async patch<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {

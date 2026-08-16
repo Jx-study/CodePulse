@@ -3,7 +3,12 @@ import { AnimationStep, StepDescription } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS, PrefixSumStatus } from "./tags";
+
+interface PrefixSumLocalVars {
+  i?: number;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.BUILD_INIT]: () => ({ key: "animation.build_init" }),
@@ -11,15 +16,18 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.build_base",
     params: { val0: e.local_vars.val0 },
   }),
-  [TAGS.BUILD_CALC]: (e) => ({
-    key: "animation.build_calc",
-    params: {
-      i: e.local_vars.i,
-      prev: e.local_vars.i - 1,
-      prevSum: e.local_vars.prevSum,
-      currentVal: e.local_vars.currentVal,
-    },
-  }),
+  [TAGS.BUILD_CALC]: (e) => {
+    const i = asTrace<PrefixSumLocalVars>(e.local_vars).i;
+    return {
+      key: "animation.build_calc",
+      params: {
+        i: i ?? null,
+        prev: i !== undefined ? i - 1 : null,
+        prevSum: e.local_vars.prevSum,
+        currentVal: e.local_vars.currentVal,
+      },
+    };
+  },
   [TAGS.BUILD_UPDATE]: (e) => ({
     key: "animation.build_update",
     params: { i: e.local_vars.i, newSum: e.local_vars.newSum },
@@ -92,7 +100,7 @@ export function prefixSumTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       getDescription: (_item, index) => `P[${index}]`,
     });
 
-    sourceBoxes.forEach((box: any) => {
+    sourceBoxes.forEach((box) => {
       box.autoScale = true;
       box.scaleGroup = "source";
       box.maxHeight = 80;
@@ -121,7 +129,7 @@ export function prefixSumTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: [...sourceBoxes, ...prefixBoxes] as any,
+      elements: [...sourceBoxes, ...prefixBoxes],
     };
   });
 }

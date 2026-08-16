@@ -9,12 +9,16 @@ import type { GraphData } from "@/modules/core/visualization/types";
 import { simulateGraphTrace } from "./simulateTrace";
 import { graphTraceToSteps } from "./traceToSteps";
 import { GraphStatusConfig, TAGS } from "./tags";
+import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
 export function createGraphAnimationSteps(
   inputData: any[],
   action?: any,
 ): AnimationStep[] {
-  const trace = simulateGraphTrace(inputData, action);
+  const trace = simulateGraphTrace(
+    inputData as unknown as { nodes: RawGraphNode[]; edges: string[][] },
+    action,
+  );
   return graphTraceToSteps(trace);
 }
 

@@ -1,8 +1,9 @@
 import React from "react";
+import type { JsonValue } from "@/types/trace";
 import styles from "./VariableWatch.module.scss";
 
 interface VariableWatchProps {
-  variables?: Record<string, string | number | boolean | null>;
+  variables?: Record<string, JsonValue>;
 }
 
 export const VariableWatch: React.FC<VariableWatchProps> = ({ variables }) => {

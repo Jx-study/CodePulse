@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 
@@ -15,7 +15,7 @@ export function simulateSlidingWindowTrace(
 
   const pushTrace = (
     tag: string,
-    vars: any,
+    vars: Record<string, JsonValue>,
     pointers: {
       left: number;
       right: number;

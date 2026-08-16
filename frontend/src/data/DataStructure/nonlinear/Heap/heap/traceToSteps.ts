@@ -6,7 +6,14 @@ import {
   toStatus,
   toOverrideMap,
 } from "@/data/implementations/traceConverters";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface HeapMeta {
+  status?: string;
+  overrideStatusMap?: Record<number, string>;
+  highlightIndex?: number;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
@@ -59,17 +66,21 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const elements = createTreeNodes(event.dataSnapshot as any[], {
-      width: 700,
-      height: 300,
-      offsetX: 0,
-      offsetY: 50,
-      type: "binarytree",
-    });
+    const meta = asTrace<HeapMeta>(event.meta);
+    const elements = createTreeNodes(
+      event.dataSnapshot as { id: string; value: number }[],
+      {
+        width: 700,
+        height: 300,
+        offsetX: 0,
+        offsetY: 50,
+        type: "binarytree",
+      },
+    );
 
-    const defaultStatus = toStatus(event.meta?.status);
-    const overrideMap = toOverrideMap(event.meta?.overrideStatusMap);
-    const highlightIdx = event.meta?.highlightIndex ?? -1;
+    const defaultStatus = toStatus(meta.status);
+    const overrideMap = toOverrideMap(meta.overrideStatusMap);
+    const highlightIdx = meta.highlightIndex ?? -1;
 
     elements.forEach((node, i) => {
       const isHighlighted = highlightIdx === i;

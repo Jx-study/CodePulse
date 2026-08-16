@@ -2,7 +2,22 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes } from "@/data/DataStructure/linear/utils";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface FibDPLocalVars {
+  n?: number;
+  i?: number;
+  "dp[i-1]"?: number;
+  "dp[i-2]"?: number;
+  "dp[i]"?: number;
+  result?: number;
+}
+
+interface FibDPMeta {
+  overrideStatusMap?: Record<string, string>;
+  status?: string;
+}
 
 const STATUS_MAP: Record<string, Status> = {
   Target: Status.Target,
@@ -26,35 +41,47 @@ function toOverrideMap(raw?: Record<string, string>): Record<number, Status> {
 }
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
-  [TAGS.INIT]: (e) => ({
-    key: "animation.init",
-    params: { n: e.local_vars.n, size: e.local_vars.n + 1 },
-  }),
+  [TAGS.INIT]: (e) => {
+    const lv = asTrace<FibDPLocalVars>(e.local_vars);
+    return {
+      key: "animation.init",
+      params: {
+        n: lv.n ?? null,
+        size: lv.n !== undefined ? lv.n + 1 : null,
+      },
+    };
+  },
   [TAGS.BASE_CASES]: () => ({
     key: "animation.base_cases",
   }),
-  [TAGS.CALC_PREPARE]: (e) => ({
-    key: "animation.calc_prepare",
-    params: {
-      i: e.local_vars.i,
-      item1: e.local_vars.i - 1,
-      item2: e.local_vars.i - 2,
-      val1: e.local_vars["dp[i-1]"],
-      val2: e.local_vars["dp[i-2]"],
-    },
-  }),
-  [TAGS.CALC_DONE]: (e) => ({
-    key: "animation.calc_done",
-    params: {
-      i: e.local_vars.i,
-      val1: e.local_vars["dp[i-1]"],
-      val2: e.local_vars["dp[i-2]"],
-      result: e.local_vars["dp[i]"],
-    },
-  }),
+  [TAGS.CALC_PREPARE]: (e) => {
+    const lv = asTrace<FibDPLocalVars>(e.local_vars);
+    return {
+      key: "animation.calc_prepare",
+      params: {
+        i: lv.i ?? null,
+        item1: lv.i !== undefined ? lv.i - 1 : null,
+        item2: lv.i !== undefined ? lv.i - 2 : null,
+        val1: lv["dp[i-1]"] ?? null,
+        val2: lv["dp[i-2]"] ?? null,
+      },
+    };
+  },
+  [TAGS.CALC_DONE]: (e) => {
+    const lv = asTrace<FibDPLocalVars>(e.local_vars);
+    return {
+      key: "animation.calc_done",
+      params: {
+        i: lv.i ?? null,
+        val1: lv["dp[i-1]"] ?? null,
+        val2: lv["dp[i-2]"] ?? null,
+        result: lv["dp[i]"] ?? null,
+      },
+    };
+  },
   [TAGS.DONE]: (e) => ({
     key: "animation.done",
-    params: { result: e.local_vars.result },
+    params: { result: asTrace<FibDPLocalVars>(e.local_vars).result ?? null },
   }),
 };
 
@@ -62,15 +89,16 @@ export function fibonacciDPTraceToSteps(
   trace: ExecutionTrace,
 ): AnimationStep[] {
   return trace.map((event, idx) => {
-    const overrideMap = toOverrideMap(event.meta?.overrideStatusMap);
-    const defaultStatus = toStatus(event.meta?.status);
+    const meta = asTrace<FibDPMeta>(event.meta);
+    const overrideMap = toOverrideMap(meta.overrideStatusMap);
+    const defaultStatus = toStatus(meta.status);
 
     return {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: createBoxes(event.dataSnapshot as any[], {
+      elements: createBoxes(event.dataSnapshot, {
         startX: 50,
         startY: 250,
         gap: 70,

@@ -1,6 +1,7 @@
 import { AnimationStep, CodeConfig } from "@/types";
 import { LevelImplementationConfig } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import type { LinearData } from "@/data/DataStructure/linear/utils";
 import type {
   ActionContext,
   ActionResult,
@@ -18,9 +19,9 @@ const baseActionHandler = createLinearActionHandler();
 function trieActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[], // data 會是字串陣列
+  data: string[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<string[]> | null {
   const currentWords = [...data];
 
   if (actionType === "load") {
@@ -163,7 +164,16 @@ function trieActionHandler(
     };
   }
 
-  return baseActionHandler(actionType, payload, data, context);
+  // Unreachable in practice — every actionType the TrieActionBar dispatches
+  // is handled above. data is a bare string[] (words), not LinearData[]-shaped,
+  // so the shared handler's contract doesn't really apply here; kept only as
+  // a defensive fallback with its prior (loosely-typed) behavior preserved.
+  return baseActionHandler(
+    actionType,
+    payload,
+    data as unknown as LinearData[],
+    context,
+  ) as unknown as ActionResult<string[]> | null;
 }
 
 export function createTrieAnimationSteps(

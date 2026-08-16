@@ -16,6 +16,7 @@ import {
   simulateGraphBFSTrace,
   simulateGridBFSTrace,
 } from "./BFS/simulateTrace";
+import type { RawGraphNode, GridCellData } from "@/data/DataStructure/nonlinear/utils";
 import { bfsTraceToSteps } from "./BFS/traceToSteps";
 import { TAGS, BFSStatusConfig } from "./BFS/tags";
 
@@ -193,12 +194,16 @@ export function createBFSAnimationSteps(
   const trace =
     action?.mode === "grid"
       ? simulateGridBFSTrace(
-          inputData,
+          inputData as GridCellData[],
           action?.cols || 5,
           startNodeId,
           endNodeId,
         )
-      : simulateGraphBFSTrace(inputData, startNodeId, endNodeId);
+      : simulateGraphBFSTrace(
+          inputData as unknown as { nodes: RawGraphNode[]; edges: string[][] },
+          startNodeId,
+          endNodeId,
+        );
 
   return bfsTraceToSteps(trace);
 }
