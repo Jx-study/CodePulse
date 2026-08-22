@@ -1,6 +1,247 @@
 import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import styles from './PulseBackground.module.scss';
 
+const PARTICLE_COLORS = ["#FF0000", "#FFFF00", "#0000FF"];
+
+// --- WanderingParticle Class ---
+// Module-scope (not defined inside the component) so it isn't redefined on every render.
+class WanderingParticle {
+  static DIRECTIONS = [
+    { dx: 0, dy: -1 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 1, dy: 0 }
+  ];
+
+  // Instance properties
+  x: number;
+  y: number;
+  canvas: HTMLCanvasElement;
+  size: number;
+  color: string;
+  currentDirection: number;
+  normalSpeed: number;
+  attractSpeed: number;
+  dx: number;
+  dy: number;
+  turnTimer: number;
+  turnInterval: number;
+  lastTime: number;
+  trail: Array<{ x: number; y: number }>;
+  maxTrailLength: number;
+  isAttracted: boolean;
+  targetX: number;
+  targetY: number;
+
+  constructor(x: number, y: number, canvas: HTMLCanvasElement) {
+    this.x = x;
+    this.y = y;
+    this.canvas = canvas;
+    this.size = 3;
+    this.color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+
+    this.currentDirection = Math.floor(Math.random() * 4);
+    const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
+    this.normalSpeed = 120; // pixels per second
+    this.attractSpeed = 240; // pixels per second
+    this.dx = direction.dx * this.normalSpeed;
+    this.dy = direction.dy * this.normalSpeed;
+
+    this.turnTimer = 0;
+    this.turnInterval = 2000 + Math.random() * 2000;
+    this.lastTime = performance.now();
+
+    this.trail = [];
+    this.maxTrailLength = 55;
+
+    this.isAttracted = false;
+    this.targetX = 0;
+    this.targetY = 0;
+  }
+
+  update() {
+    const currentTime = performance.now();
+    const deltaTime = currentTime - this.lastTime;
+    this.lastTime = currentTime;
+
+    this.trail.push({ x: this.x, y: this.y });
+    if (this.trail.length > this.maxTrailLength) {
+      this.trail.shift();
+    }
+
+    if (this.isAttracted) {
+      this.updateWithAttraction(deltaTime);
+    } else {
+      this.updateNormal(deltaTime);
+    }
+  }
+
+  updateNormal(deltaTime: number) {
+    // Apply deltaTime to make movement frame-rate independent
+    const timeScale = deltaTime / 1000; // convert ms to seconds
+    this.x += this.dx * timeScale;
+    this.y += this.dy * timeScale;
+
+    this.turnTimer += deltaTime;
+    if (this.turnTimer >= this.turnInterval) {
+      this.changeDirection();
+      this.turnTimer = 0;
+      this.turnInterval = 2000 + Math.random() * 1000;
+    }
+  }
+
+  updateWithAttraction(deltaTime: number) {
+    // 貪婪算法：選擇使距離目標最近的方向
+    const distanceX = this.targetX - this.x;
+    const distanceY = this.targetY - this.y;
+
+    // 檢查是否已經接近目標 - 使用較小的距離以確保能進入銷毀狀態
+    if (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10) {
+      return; // 停止移動，已經足夠接近目標
+    }
+
+    // Apply deltaTime to make movement frame-rate independent
+    const timeScale = deltaTime / 1000; // convert ms to seconds
+    const moveDistance = this.attractSpeed * timeScale;
+
+    // 選擇移動方向（上下左右）
+    let bestDirection = 0;
+    let minDistance = Infinity;
+
+    // 檢查四個可能的方向
+    WanderingParticle.DIRECTIONS.forEach((dir, index) => {
+      const newX = this.x + dir.dx * moveDistance;
+      const newY = this.y + dir.dy * moveDistance;
+      const distance = Math.abs(this.targetX - newX) + Math.abs(this.targetY - newY);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        bestDirection = index;
+      }
+    });
+
+    // 設置新的方向和速度
+    this.currentDirection = bestDirection;
+    const direction = WanderingParticle.DIRECTIONS[bestDirection];
+    this.dx = direction.dx * this.attractSpeed;
+    this.dy = direction.dy * this.attractSpeed;
+
+    // 移動（應用時間縮放）
+    this.x += direction.dx * moveDistance;
+    this.y += direction.dy * moveDistance;
+  }
+
+
+  changeDirection() {
+    if (Math.random() < 0.7) {
+      const speed = this.normalSpeed;
+      const turnChoice = Math.floor(Math.random() * 3);
+
+      let newDirection = this.currentDirection;
+      if (turnChoice === 1) {
+        newDirection = (this.currentDirection + 1) % 4;
+      } else if (turnChoice === 2) {
+        newDirection = (this.currentDirection + 3) % 4;
+      }
+
+      this.currentDirection = newDirection;
+      this.dx = WanderingParticle.DIRECTIONS[newDirection].dx * speed;
+      this.dy = WanderingParticle.DIRECTIONS[newDirection].dy * speed;
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+
+    if (this.trail.length > 1) {
+      for (let i = 0; i < this.trail.length - 1; i++) {
+        const point = this.trail[i];
+        const nextPoint = this.trail[i + 1];
+
+        const alpha = (i / this.trail.length) * 0.2 + 0.05;
+        const size = (i / this.trail.length) * this.size;
+
+        if (alpha > 0.05) {
+          ctx.globalAlpha = alpha;
+          ctx.strokeStyle = this.color;
+          ctx.lineWidth = Math.max(size, 0.5);
+          ctx.lineCap = 'round';
+
+          ctx.beginPath();
+          ctx.moveTo(point.x, point.y);
+          ctx.lineTo(nextPoint.x, nextPoint.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    ctx.globalAlpha = 1;
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 100;
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  isDead() {
+    const margin = 100;
+
+    // 檢查邊界條件
+    const outOfBounds = (this.x < -margin || this.x > this.canvas.width + margin ||
+                        this.y < -margin || this.y > this.canvas.height + margin);
+
+    // 檢查是否到達目標點（CTA）
+    const reachedTarget = this.isAttracted &&
+                         Math.abs(this.targetX - this.x) < 20 &&
+                         Math.abs(this.targetY - this.y) < 20;
+
+    return outOfBounds || reachedTarget;
+  }
+
+  cleanup() {
+    this.trail.length = 0;
+    this.turnTimer = 0;
+    this.lastTime = performance.now();
+  }
+
+  setAttractTarget(targetX: number, targetY: number) {
+    this.isAttracted = true;
+    this.targetX = targetX;
+    this.targetY = targetY;
+  }
+
+  resetAttract() {
+    this.isAttracted = false;
+    // 恢復正常移動
+    const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
+    this.dx = direction.dx * this.normalSpeed;
+    this.dy = direction.dy * this.normalSpeed;
+  }
+
+  reset(x: number, y: number, canvas: HTMLCanvasElement) {
+    this.x = x;
+    this.y = y;
+    this.canvas = canvas;
+    this.color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+
+    this.currentDirection = Math.floor(Math.random() * 4);
+    const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
+    this.dx = direction.dx * this.normalSpeed;
+    this.dy = direction.dy * this.normalSpeed;
+
+    this.turnInterval = 2000 + Math.random() * 2000;
+
+    this.isAttracted = false;
+    this.targetX = 0;
+    this.targetY = 0;
+
+    this.cleanup();
+  }
+}
+
 const PulseBackground = forwardRef((_props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<WanderingParticle[]>([]);
@@ -12,246 +253,6 @@ const PulseBackground = forwardRef((_props, ref) => {
 
   const MAX_WANDERING_PARTICLES = 15;
   const MAX_DEAD_PARTICLES = 15;
-
-  const colors = ["#FF0000", "#FFFF00", "#0000FF"];
-
-  // --- WanderingParticle Class ---
-  class WanderingParticle {
-    static DIRECTIONS = [
-      { dx: 0, dy: -1 }, { dx: -1, dy: 0 }, { dx: 0, dy: 1 }, { dx: 1, dy: 0 }
-    ];
-
-    // Instance properties
-    x: number;
-    y: number;
-    canvas: HTMLCanvasElement;
-    size: number;
-    color: string;
-    currentDirection: number;
-    normalSpeed: number;
-    attractSpeed: number;
-    dx: number;
-    dy: number;
-    turnTimer: number;
-    turnInterval: number;
-    lastTime: number;
-    trail: Array<{ x: number; y: number }>;
-    maxTrailLength: number;
-    isAttracted: boolean;
-    targetX: number;
-    targetY: number;
-
-    constructor(x: number, y: number, canvas: HTMLCanvasElement) {
-      this.x = x;
-      this.y = y;
-      this.canvas = canvas;
-      this.size = 3;
-      this.color = colors[Math.floor(Math.random() * colors.length)];
-      
-      this.currentDirection = Math.floor(Math.random() * 4);
-      const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
-      this.normalSpeed = 120; // pixels per second
-      this.attractSpeed = 240; // pixels per second
-      this.dx = direction.dx * this.normalSpeed;
-      this.dy = direction.dy * this.normalSpeed;
-      
-      this.turnTimer = 0;
-      this.turnInterval = 2000 + Math.random() * 2000; 
-      this.lastTime = performance.now();
-      
-      this.trail = [];
-      this.maxTrailLength = 55;
-      
-      this.isAttracted = false;
-      this.targetX = 0;
-      this.targetY = 0;
-    }
-
-    update() {
-      const currentTime = performance.now();
-      const deltaTime = currentTime - this.lastTime;
-      this.lastTime = currentTime;
-
-      this.trail.push({ x: this.x, y: this.y });
-      if (this.trail.length > this.maxTrailLength) {
-        this.trail.shift();
-      }
-
-      if (this.isAttracted) {
-        this.updateWithAttraction(deltaTime);
-      } else {
-        this.updateNormal(deltaTime);
-      }
-    }
-
-    updateNormal(deltaTime: number) {
-      // Apply deltaTime to make movement frame-rate independent
-      const timeScale = deltaTime / 1000; // convert ms to seconds
-      this.x += this.dx * timeScale;
-      this.y += this.dy * timeScale;
-
-      this.turnTimer += deltaTime;
-      if (this.turnTimer >= this.turnInterval) {
-        this.changeDirection();
-        this.turnTimer = 0;
-        this.turnInterval = 2000 + Math.random() * 1000;
-      }
-    }
-
-    updateWithAttraction(deltaTime: number) {
-      // 貪婪算法：選擇使距離目標最近的方向
-      const distanceX = this.targetX - this.x;
-      const distanceY = this.targetY - this.y;
-
-      // 檢查是否已經接近目標 - 使用較小的距離以確保能進入銷毀狀態
-      if (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10) {
-        return; // 停止移動，已經足夠接近目標
-      }
-
-      // Apply deltaTime to make movement frame-rate independent
-      const timeScale = deltaTime / 1000; // convert ms to seconds
-      const moveDistance = this.attractSpeed * timeScale;
-
-      // 選擇移動方向（上下左右）
-      let bestDirection = 0;
-      let minDistance = Infinity;
-
-      // 檢查四個可能的方向
-      WanderingParticle.DIRECTIONS.forEach((dir, index) => {
-        const newX = this.x + dir.dx * moveDistance;
-        const newY = this.y + dir.dy * moveDistance;
-        const distance = Math.abs(this.targetX - newX) + Math.abs(this.targetY - newY);
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          bestDirection = index;
-        }
-      });
-
-      // 設置新的方向和速度
-      this.currentDirection = bestDirection;
-      const direction = WanderingParticle.DIRECTIONS[bestDirection];
-      this.dx = direction.dx * this.attractSpeed;
-      this.dy = direction.dy * this.attractSpeed;
-
-      // 移動（應用時間縮放）
-      this.x += direction.dx * moveDistance;
-      this.y += direction.dy * moveDistance;
-    }
-
-
-    changeDirection() {
-      if (Math.random() < 0.7) {
-        const speed = this.normalSpeed;
-        const turnChoice = Math.floor(Math.random() * 3);
-        
-        let newDirection = this.currentDirection;
-        if (turnChoice === 1) {
-          newDirection = (this.currentDirection + 1) % 4;
-        } else if (turnChoice === 2) {
-          newDirection = (this.currentDirection + 3) % 4;
-        }
-        
-        this.currentDirection = newDirection;
-        this.dx = WanderingParticle.DIRECTIONS[newDirection].dx * speed;
-        this.dy = WanderingParticle.DIRECTIONS[newDirection].dy * speed;
-      }
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-      ctx.save();
-      
-      if (this.trail.length > 1) {
-        for (let i = 0; i < this.trail.length - 1; i++) {
-          const point = this.trail[i];
-          const nextPoint = this.trail[i + 1];
-          
-          const alpha = (i / this.trail.length) * 0.2 + 0.05;
-          const size = (i / this.trail.length) * this.size;
-          
-          if (alpha > 0.05) {
-            ctx.globalAlpha = alpha;
-            ctx.strokeStyle = this.color;
-            ctx.lineWidth = Math.max(size, 0.5);
-            ctx.lineCap = 'round';
-            
-            ctx.beginPath();
-            ctx.moveTo(point.x, point.y);
-            ctx.lineTo(nextPoint.x, nextPoint.y);
-            ctx.stroke();
-          }
-        }
-      }
-      
-      ctx.globalAlpha = 1;
-      
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = this.color;
-      ctx.fill();
-      
-      ctx.shadowColor = this.color;
-      ctx.shadowBlur = 100;
-      ctx.fill();
-      
-      ctx.restore();
-    }
-
-    isDead() {
-      const margin = 100;
-      
-      // 檢查邊界條件
-      const outOfBounds = (this.x < -margin || this.x > this.canvas.width + margin || 
-                          this.y < -margin || this.y > this.canvas.height + margin);
-      
-      // 檢查是否到達目標點（CTA）
-      const reachedTarget = this.isAttracted && 
-                           Math.abs(this.targetX - this.x) < 20 && 
-                           Math.abs(this.targetY - this.y) < 20;
-      
-      return outOfBounds || reachedTarget;
-    }
-
-    cleanup() {
-      this.trail.length = 0;
-      this.turnTimer = 0;
-      this.lastTime = performance.now();
-    }
-
-    setAttractTarget(targetX: number, targetY: number) {
-      this.isAttracted = true;
-      this.targetX = targetX;
-      this.targetY = targetY;
-    }
-
-    resetAttract() {
-      this.isAttracted = false;
-      // 恢復正常移動
-      const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
-      this.dx = direction.dx * this.normalSpeed;
-      this.dy = direction.dy * this.normalSpeed;
-    }
-
-    reset(x: number, y: number, canvas: HTMLCanvasElement) {
-      this.x = x;
-      this.y = y;
-      this.canvas = canvas;
-      this.color = colors[Math.floor(Math.random() * colors.length)];
-      
-      this.currentDirection = Math.floor(Math.random() * 4);
-      const direction = WanderingParticle.DIRECTIONS[this.currentDirection];
-      this.dx = direction.dx * this.normalSpeed;
-      this.dy = direction.dy * this.normalSpeed;
-      
-      this.turnInterval = 2000 + Math.random() * 2000;
-      
-      this.isAttracted = false;
-      this.targetX = 0;
-      this.targetY = 0;
-      
-      this.cleanup();
-    }
-  }
 
   useImperativeHandle(ref, () => ({
     addWanderingParticle: (x: number, y: number) => {
@@ -276,7 +277,7 @@ const PulseBackground = forwardRef((_props, ref) => {
         clearInterval(particleIntervalId.current);
         particleIntervalId.current = null;
       }
-      
+
       particles.current.forEach((particle) => {
         particle.setAttractTarget(targetX, targetY);
       });
@@ -287,7 +288,7 @@ const PulseBackground = forwardRef((_props, ref) => {
       if (!particleIntervalId.current) {
         particleIntervalId.current = setInterval(generateWanderingParticle, 3000);
       }
-      
+
       particles.current.forEach((particle) => {
         particle.resetAttract();
       });
@@ -307,7 +308,7 @@ const PulseBackground = forwardRef((_props, ref) => {
     for (let i = particles.current.length - 1; i >= 0; i--) {
       const particle = particles.current[i];
       particle.update();
-      
+
       if (particle.isDead()) {
         if (deadParticles.current.length < MAX_DEAD_PARTICLES) {
           particle.cleanup();
@@ -384,7 +385,7 @@ const PulseBackground = forwardRef((_props, ref) => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
-      
+
       particles.current.forEach(p => p.cleanup && p.cleanup());
       deadParticles.current.forEach(p => p.cleanup && p.cleanup());
       particles.current.length = 0;
