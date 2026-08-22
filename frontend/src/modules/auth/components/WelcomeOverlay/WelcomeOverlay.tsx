@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import Icon from '@/shared/components/Icon';
+import { DURATION_BASE, DURATION_SLOW } from '@/shared/motion/transitions';
 import styles from './WelcomeOverlay.module.scss';
 
 interface WelcomeOverlayProps {
@@ -65,7 +66,7 @@ function WelcomeOverlay({ username, onComplete }: WelcomeOverlayProps) {
       className={styles.overlay}
       initial={{ opacity: 0 }}
       animate={{ opacity: showExit ? 0 : 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: DURATION_BASE }}
       onAnimationComplete={() => {
         if (showExit) onComplete();
       }}
@@ -97,7 +98,7 @@ function WelcomeOverlay({ username, onComplete }: WelcomeOverlayProps) {
           className={styles.card}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
+          transition={{ delay: 0.1, duration: DURATION_SLOW }}
         >
           <div className={styles.titleBlock}>
             <motion.h2
@@ -123,7 +124,7 @@ function WelcomeOverlay({ username, onComplete }: WelcomeOverlayProps) {
             className={styles.infoBlocks}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.3, duration: 0.3 }}
+            transition={{ delay: 1.3, duration: DURATION_BASE }}
           >
             <div className={styles.infoBlock}>
               <span className={styles.blockLabel}>SESSION</span>
@@ -138,7 +139,7 @@ function WelcomeOverlay({ username, onComplete }: WelcomeOverlayProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.8, duration: 0.3 }}
+            transition={{ delay: 1.8, duration: DURATION_BASE }}
           >
             <div className={styles.progressHeader}>
               <span className={styles.progressLabel}>
@@ -160,7 +161,7 @@ function WelcomeOverlay({ username, onComplete }: WelcomeOverlayProps) {
             className={styles.redirectSection}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2.3, duration: 0.3 }}
+            transition={{ delay: 2.3, duration: DURATION_BASE }}
           >
             <Icon
               name="rotate"
@@ -177,7 +178,7 @@ function WelcomeOverlay({ username, onComplete }: WelcomeOverlayProps) {
           className={styles.footer}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.4 }}
+          transition={{ delay: 0.5, duration: DURATION_SLOW }}
         >
           <div className={styles.footerLeft}>
             <div className={styles.footerItem}>
