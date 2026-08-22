@@ -7,6 +7,7 @@ import Icon from '@/shared/components/Icon';
 import { xp } from '@/shared/components/XpFloat';
 import { userService } from '@/services/userService';
 import { useAuth } from '@/shared/contexts/AuthContext';
+import { DURATION_FAST } from '@/shared/motion/transitions';
 import styles from './CheckinDialog.module.scss';
 
 // Note: `new Date('YYYY-MM-DD')` parses as UTC midnight — in non-UTC timezones
@@ -127,7 +128,7 @@ export default function CheckinDialog({ isOpen, onClose }: CheckinDialogProps) {
                   ].filter(Boolean).join(' ')}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: isFuture ? 0.3 : 1, scale: 1 }}
-                  transition={{ duration: 0.2, delay: idx * 0.01 }}
+                  transition={{ duration: DURATION_FAST, delay: idx * 0.01 }}
                   whileHover={!isFuture ? { scale: 1.08 } : undefined}
                 >
                   <AnimatePresence mode="wait">
