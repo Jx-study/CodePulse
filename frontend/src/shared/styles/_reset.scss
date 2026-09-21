@@ -20,3 +20,17 @@ html[lang^="zh"] body {
     font-family: $font-family-zh;
     line-height: 1.7; /* 中文需要稍大的行高 */
 }
+
+// 尊重使用者作業系統的「減少動態效果」偏好：全域縮短所有 CSS animation/transition。
+// 涵蓋純 CSS 驅動的動畫（@keyframes、transition），JS 驅動的動畫（motion/react、
+// requestAnimationFrame 迴圈）需各自處理，不受此規則影響。
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
