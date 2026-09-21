@@ -17,7 +17,6 @@ import {
   zoom as d3Zoom,
   zoomIdentity,
   easeQuadOut,
-  interpolateRgb,
 } from "d3";
 import type { SimulationNodeDatum, SimulationLinkDatum } from "d3";
 import { Node } from "../DataLogic/Node";
@@ -31,6 +30,11 @@ import {
   straightLinkPath,
   weightLabelCenter,
 } from "./linkGeometry";
+import {
+  linkAnimBoundaryPoints,
+  makeLinkAnimIds,
+  runLinkColorAnimation,
+} from "./linkColorAnimation";
 import styles from "./GraphCanvas.module.scss";
 
 // SVG arc 自環路徑：在 angle 方向畫一個近圓形的環
@@ -1009,7 +1013,6 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(
         duration = 1200,
         onComplete?: () => void,
       ) {
-        const BLEND = 0.12;
         if (sourceId === targetId) return;
 
         // Try caller's direction first; fallback to reverse for undirected graphs.
@@ -1048,156 +1051,47 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(
           return;
         }
 
-        // key uses caller's direction for deduplication; elemKey guards the actual element.
-        const key = `${sourceId}->${targetId}`;
-        const elemKey = `${elemSourceId}->${elemTargetId}`;
-        const gradId = `gc-anim-${sourceId}-${targetId}`.replace(
-          /[^a-zA-Z0-9_-]/g,
-          "_",
-        );
-        const arrowMarkerId = `gc-anim-arrow-${sourceId}-${targetId}`.replace(
-          /[^a-zA-Z0-9_-]/g,
-          "_",
+        const { gradId, arrowMarkerId } = makeLinkAnimIds(
+          "gc",
+          sourceId,
+          targetId,
         );
 
-        const existing = animStateRef.current.get(key);
-        if (existing !== undefined) {
-          cancelAnimationFrame(existing);
-          if (animDefsRef.current) {
-            const ad = d3Select(animDefsRef.current);
-            ad.select(`#${gradId}`).remove();
-            ad.select(`#${arrowMarkerId}`).remove();
-          }
-        }
-
-        const setAnimState = (id: number) => {
-          animStateRef.current.set(key, id);
-          if (elemKey !== key) animStateRef.current.set(elemKey, id);
-        };
-        const deleteAnimState = () => {
-          animStateRef.current.delete(key);
-          if (elemKey !== key) animStateRef.current.delete(elemKey);
-        };
-
-        const elemFilter = (d: GSimLink) =>
-          d.sourceId === elemSourceId && d.targetId === elemTargetId;
-
-        const startTime = performance.now();
-        const tick = () => {
-          const svgEl = svgRef.current;
-          const defs = animDefsRef.current;
-          if (!svgEl || !defs) return;
-
-          const s = Math.min((performance.now() - startTime) / duration, 1);
-          const linkT = s;
-          const frontPct = `${linkT * 100}%`;
-          const blendEndPct = `${Math.min(linkT + BLEND, 1) * 100}%`;
-
-          // Positions use caller's sourceId/targetId so gradient flows in traversal direction.
-          const nodes = simNodesRef.current;
-          const src = nodes.find((n) => n.id === sourceId);
-          const tgt = nodes.find((n) => n.id === targetId);
-          if (!src || !tgt) return;
-
-          const p1 = circleBoundaryPoint(
-            { x: src.x ?? 0, y: src.y ?? 0, r: src.radius },
-            { x: tgt.x ?? 0, y: tgt.y ?? 0 },
-          );
-          const p2 = circleBoundaryPoint(
-            { x: tgt.x ?? 0, y: tgt.y ?? 0, r: tgt.radius },
-            { x: src.x ?? 0, y: src.y ?? 0 },
-          );
-
-          const d3Defs = d3Select(defs);
-
-          if (d3Defs.select(`#${gradId}`).empty()) {
-            const g = d3Defs
-              .append("linearGradient")
-              .attr("id", gradId)
-              .attr("gradientUnits", "userSpaceOnUse");
-            g.append("stop").attr("class", "g-s1");
-            g.append("stop").attr("class", "g-s2");
-            g.append("stop").attr("class", "g-s3");
-            g.append("stop").attr("class", "g-s4");
-          }
-          d3Defs
-            .select(`#${gradId}`)
-            .attr("x1", p1.x)
-            .attr("y1", p1.y)
-            .attr("x2", p2.x)
-            .attr("y2", p2.y);
-          d3Defs
-            .select(`#${gradId} .g-s1`)
-            .attr("offset", "0%")
-            .attr("stop-color", toColor);
-          d3Defs
-            .select(`#${gradId} .g-s2`)
-            .attr("offset", frontPct)
-            .attr("stop-color", toColor);
-          d3Defs
-            .select(`#${gradId} .g-s3`)
-            .attr("offset", blendEndPct)
-            .attr("stop-color", fromColor);
-          d3Defs
-            .select(`#${gradId} .g-s4`)
-            .attr("offset", "100%")
-            .attr("stop-color", fromColor);
-
-          // Apply gradient to the actual element (may differ from caller's direction).
-          d3Select(svgEl)
-            .selectAll<SVGPathElement, GSimLink>(".gc-link")
-            .filter(elemFilter)
-            .attr("stroke", `url(#${gradId})`);
-
-          if (isDirectedRef.current) {
-            if (d3Defs.select(`#${arrowMarkerId}`).empty()) {
-              const m = d3Defs
-                .append("marker")
-                .attr("id", arrowMarkerId)
-                .attr("viewBox", "0 -5 10 10")
-                .attr("refX", 10)
-                .attr("refY", 0)
-                .attr("markerWidth", 6)
-                .attr("markerHeight", 6)
-                .attr("orient", "auto");
-              m.append("path").attr("d", "M0,-5L10,0L0,5");
-              d3Select(svgEl)
-                .selectAll<SVGPathElement, GSimLink>(".gc-link")
-                .filter(elemFilter)
-                .attr("marker-end", `url(#${arrowMarkerId})`);
-            }
-            const arrowT = Math.max(0, (linkT - (1 - BLEND)) / BLEND);
-            d3Defs
-              .select(`#${arrowMarkerId} path`)
-              .attr(
-                "fill",
-                interpolateRgb(fromColor, toColor)(Math.min(arrowT, 1)),
-              );
-          }
-
-          if (s < 1) {
-            setAnimState(requestAnimationFrame(tick));
-          } else {
+        runLinkColorAnimation({
+          // key uses caller's direction for deduplication; elemKey guards the actual element.
+          key: `${sourceId}->${targetId}`,
+          elemKey: `${elemSourceId}->${elemTargetId}`,
+          gradId,
+          arrowMarkerId,
+          fromColor,
+          toColor,
+          duration,
+          getSvgEl: () => svgRef.current,
+          getAnimDefs: () => animDefsRef.current,
+          getBoundaryPoints: () => {
+            // Positions use caller's sourceId/targetId so gradient flows in traversal direction.
+            const nodes = simNodesRef.current;
+            const src = nodes.find((n) => n.id === sourceId);
+            const tgt = nodes.find((n) => n.id === targetId);
+            if (!src || !tgt) return null;
+            return linkAnimBoundaryPoints(
+              { x: src.x ?? 0, y: src.y ?? 0, r: src.radius },
+              { x: tgt.x ?? 0, y: tgt.y ?? 0, r: tgt.radius },
+            );
+          },
+          selectLinkPath: (svgEl) =>
+            // Apply gradient to the actual element (may differ from caller's direction).
             d3Select(svgEl)
               .selectAll<SVGPathElement, GSimLink>(".gc-link")
-              .filter(elemFilter)
-              .attr("stroke", toColor);
-            d3Defs.select(`#${gradId}`).remove();
-
-            if (isDirectedRef.current) {
-              d3Defs.select(`#${arrowMarkerId}`).remove();
-              d3Select(svgEl)
-                .selectAll<SVGPathElement, GSimLink>(".gc-link")
-                .filter(elemFilter)
-                .attr("marker-end", "url(#gc-arrowhead)");
-            }
-
-            deleteAnimState();
-            onComplete?.();
-          }
-        };
-
-        setAnimState(requestAnimationFrame(tick));
+              .filter(
+                (d) =>
+                  d.sourceId === elemSourceId && d.targetId === elemTargetId,
+              ),
+          showDirectedArrow: isDirectedRef.current,
+          defaultArrowMarkerUrl: "url(#gc-arrowhead)",
+          animStateRef,
+          onComplete,
+        });
       },
     }));
 
