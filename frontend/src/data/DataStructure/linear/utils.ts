@@ -16,7 +16,7 @@ export interface LinearAction {
   oldValue?: number;
 }
 
-export interface CreateBoxesOptions {
+interface CreateBoxesOptions {
   startX?: number;
   startY?: number;
   gap?: number;

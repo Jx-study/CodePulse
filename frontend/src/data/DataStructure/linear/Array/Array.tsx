@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
@@ -16,7 +16,7 @@ import { simulateArrayTrace } from "./array/simulateTrace";
 import { arrayTraceToSteps } from "./array/traceToSteps";
 
 
-export function createArrayAnimationSteps(
+function createArrayAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {
@@ -269,7 +269,7 @@ export const ArrayConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createArrayAnimationSteps,
   actionHandler: arrayActionHandler,
-  renderActionBar: (props) => <ArrayActionBar {...(props as any)} />,
+  renderActionBar: (props) => <ArrayActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 1,

@@ -1,5 +1,5 @@
 import type cytoscape from "cytoscape";
-import type { CallGraph } from "@/types/trace";
+import type { CallGraph, CfgGraphMap } from "@/types/trace";
 
 const CG_COLORS = {
   nodeBg:       "#1e1e2e",
@@ -126,7 +126,7 @@ export const CALL_GRAPH_LAYOUT: cytoscape.LayoutOptions = {
 export function buildCallGraphElements(
   callGraph: CallGraph,
   currentStep: number,
-  cfgGraph: Record<string, unknown> = {},
+  cfgGraph: CfgGraphMap = {},
 ): cytoscape.ElementDefinition[] {
   // root 永遠是 func_<global>（後端已保證）
   const rootId = callGraph.root || "func_<global>";
@@ -165,8 +165,7 @@ export function buildCallGraphElements(
   const nodes = callGraph.nodes.map((n) => {
     const isModule = n.funcName === "<module>";
     const hasCfg = isModule
-      ? "<global>" in cfgGraph &&
-        (cfgGraph["<global>"] as any)?.nodes?.length > 0
+      ? "<global>" in cfgGraph && cfgGraph["<global>"].nodes.length > 0
       : n.funcName in cfgGraph;
     const label = isModule ? "<global>" : n.funcName;
     const width = Math.max(80, label.length * 8 + 16);

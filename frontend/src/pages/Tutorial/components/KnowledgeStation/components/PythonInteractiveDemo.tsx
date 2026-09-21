@@ -38,11 +38,18 @@ interface Props {
   ns?: string;
 }
 
-// ── Pyodide 全域緩存（跨元件共享，只載入一次）───────────────────
-let pyodideInstance: any = null;
-let pyodideLoadPromise: Promise<any> | null = null;
+/** Minimal subset of the Pyodide WASM runtime API this file actually uses. */
+interface PyodideInterface {
+  globals: { set: (name: string, value: unknown) => void };
+  runPython: (code: string) => string;
+  runPythonAsync: (code: string) => Promise<string>;
+}
 
-async function getPyodide(): Promise<any> {
+// ── Pyodide 全域緩存（跨元件共享，只載入一次）───────────────────
+let pyodideInstance: PyodideInterface | null = null;
+let pyodideLoadPromise: Promise<PyodideInterface> | null = null;
+
+async function getPyodide(): Promise<PyodideInterface> {
   if (pyodideInstance) return pyodideInstance;
   if (!pyodideLoadPromise) {
     pyodideLoadPromise = new Promise((resolve, reject) => {
@@ -50,7 +57,12 @@ async function getPyodide(): Promise<any> {
       script.src = PYODIDE_CDN;
       script.onload = async () => {
         try {
-          const py = await (window as any).loadPyodide({
+          const loadPyodide = (
+            window as unknown as {
+              loadPyodide: (opts: { indexURL: string }) => Promise<PyodideInterface>;
+            }
+          ).loadPyodide;
+          const py = await loadPyodide({
             indexURL: PYODIDE_INDEX_URL,
           });
           pyodideInstance = py;

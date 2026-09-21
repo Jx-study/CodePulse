@@ -7,7 +7,6 @@ import { createMergeSortAnimationSteps } from "@/data/algorithms/sorting/mergeSo
 import { createQuickSortAnimationSteps } from "@/data/algorithms/sorting/quickSort";
 import type {
   AlgorithmId,
-  BenchmarkPoint,
   CaseType,
   LabAlgorithmState,
 } from "../types/lab";
@@ -24,7 +23,7 @@ const OP_TAGS = new Set([
 const COMPARE_TAGS = new Set(["COMPARE", "UPDATE_MIN"]);
 const MOVE_TAGS = new Set(["SWAP", "SHIFT", "COPY", "INSERT"]);
 
-export function buildOpCountPerStep(steps: AnimationStep[]): number[] {
+function buildOpCountPerStep(steps: AnimationStep[]): number[] {
   let count = 0;
   return steps.map((s) => {
     if (s.actionTag && OP_TAGS.has(s.actionTag)) count++;
@@ -32,7 +31,7 @@ export function buildOpCountPerStep(steps: AnimationStep[]): number[] {
   });
 }
 
-export function buildCompareCountPerStep(steps: AnimationStep[]): number[] {
+function buildCompareCountPerStep(steps: AnimationStep[]): number[] {
   let count = 0;
   return steps.map((s) => {
     if (s.actionTag && COMPARE_TAGS.has(s.actionTag)) count++;
@@ -40,7 +39,7 @@ export function buildCompareCountPerStep(steps: AnimationStep[]): number[] {
   });
 }
 
-export function buildMoveCountPerStep(steps: AnimationStep[]): number[] {
+function buildMoveCountPerStep(steps: AnimationStep[]): number[] {
   let count = 0;
   return steps.map((s) => {
     if (s.actionTag && MOVE_TAGS.has(s.actionTag)) count++;
@@ -48,7 +47,7 @@ export function buildMoveCountPerStep(steps: AnimationStep[]): number[] {
   });
 }
 
-export function buildStackDepthPerStep(steps: AnimationStep[]): number[] {
+function buildStackDepthPerStep(steps: AnimationStep[]): number[] {
   let depth = 0;
   return steps.map((s) => {
     if (typeof s.local_vars?.stackDepth === "number") {
@@ -58,7 +57,7 @@ export function buildStackDepthPerStep(steps: AnimationStep[]): number[] {
   });
 }
 
-export function buildAuxSizePerStep(steps: AnimationStep[]): number[] {
+function buildAuxSizePerStep(steps: AnimationStep[]): number[] {
   let auxSize = 0;
   return steps.map((s) => {
     if (typeof s.local_vars?.auxSize === "number") {
@@ -68,7 +67,7 @@ export function buildAuxSizePerStep(steps: AnimationStep[]): number[] {
   });
 }
 
-export function numbersToLinearData(nums: number[]): LinearData[] {
+function numbersToLinearData(nums: number[]): LinearData[] {
   return nums.map((v, i) => ({ id: String(i), value: v }));
 }
 
@@ -208,7 +207,6 @@ export function benchmarkExecMs(id: AlgorithmId, data?: number[]): number {
   return elapsed / runs;
 }
 
-// export const BENCHMARK_NS = [100, 300, 600, 1000, 2000, 5000];
 export const BENCHMARK_NS = Array.from({ length: 69 }, (_, i) => 100 + i * 100);
 
 export const CASE_TYPES: CaseType[] = ["random", "sorted", "reversed"];
@@ -222,13 +220,6 @@ export function generateCaseData(n: number, caseType: CaseType): number[] {
     default:
       return Array.from({ length: n }, () => Math.floor(Math.random() * 1000));
   }
-}
-
-export function buildBenchmarkPoints(id: AlgorithmId): BenchmarkPoint[] {
-  return BENCHMARK_NS.map((n) => ({
-    n,
-    ms: benchmarkExecMs(id, generateCaseData(n, "random")),
-  }));
 }
 
 export function buildAlgorithmStates(

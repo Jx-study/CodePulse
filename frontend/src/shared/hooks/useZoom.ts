@@ -274,5 +274,3 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     transformOrigin,
   };
 }
-
-export default useZoom;

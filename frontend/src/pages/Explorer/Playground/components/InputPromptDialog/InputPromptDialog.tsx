@@ -69,4 +69,3 @@ export function InputPromptDialog({
   );
 }
 
-export default InputPromptDialog;

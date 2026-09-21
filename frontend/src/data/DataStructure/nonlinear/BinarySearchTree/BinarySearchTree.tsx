@@ -1,7 +1,12 @@
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
 import { BSTActionBar } from "./BSTActionBar";
-import { simulateBSTTrace, getBSTArrayAfterDelete } from "./simulateTrace";
+import {
+  simulateBSTTrace,
+  getBSTArrayAfterDelete,
+  BSTInputItem,
+  type BSTAction,
+} from "./simulateTrace";
 import { bstTraceToSteps } from "./traceToSteps";
 import type {
   ActionContext,
@@ -10,7 +15,7 @@ import type {
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import { TAGS, BSTStatus } from "./tags";
 
-export const BSTStatusConfig: StatusConfig = {
+const BSTStatusConfig: StatusConfig = {
   i18nNs: "tutorials/bst",
   statuses: [
     { key: BSTStatus.Inactive,  label: "statusLegend.notVisited",       color: "#555555" },
@@ -24,9 +29,9 @@ export const BSTStatusConfig: StatusConfig = {
 function bstActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: BSTInputItem[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<BSTInputItem[]> | null {
   const { value, index } = payload as { value?: number; index?: number };
   const newData = [...data];
 
@@ -71,8 +76,9 @@ function bstActionHandler(
       return { animationData: randData, isResetAction: true };
     }
     if (actionType === "reset") {
-      const defaultData = (context.defaultData as any[] | undefined) ?? data;
-      const resetData = defaultData.map((d: any) => ({
+      const defaultData =
+        (context.defaultData as BSTInputItem[] | undefined) ?? data;
+      const resetData = defaultData.map((d) => ({
         ...d,
         id: context.nextId(),
       }));
@@ -92,9 +98,14 @@ function bstActionHandler(
   return null;
 }
 
-export function createBinarySearchTreeAnimationSteps(
-  inputData: any[],
-  action?: any,
+interface BSTRunAction extends BSTAction {
+  type?: string;
+  index?: number;
+}
+
+function createBinarySearchTreeAnimationSteps(
+  inputData: BSTInputItem[],
+  action?: BSTRunAction,
 ): AnimationStep[] {
   const traceAction =
     action?.type === "add"
@@ -442,7 +453,7 @@ export const BinarySearchTreeConfig: LevelImplementationConfig = {
   createAnimationSteps: createBinarySearchTreeAnimationSteps,
   statusConfig: BSTStatusConfig,
   actionHandler: bstActionHandler,
-  renderActionBar: (props) => <BSTActionBar {...(props as any)} />,
+  renderActionBar: (props) => <BSTActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 700,

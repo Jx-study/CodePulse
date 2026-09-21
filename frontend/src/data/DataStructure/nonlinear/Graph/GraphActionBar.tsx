@@ -64,7 +64,13 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
       }
     }
 
-    const payload: any = { isDirected };
+    const payload: {
+      isDirected: boolean;
+      value?: string;
+      id?: string;
+      source?: string;
+      target?: string;
+    } = { isDirected };
 
     if (action === "addVertex") {
       payload.value = normalizeId(inputValue);

@@ -5,8 +5,27 @@ import { BaseElement, Status } from "@/modules/core/DataLogic/BaseElement";
 import {
   generateGridFrame,
   generateGraphFrame,
+  GridCellData,
 } from "@/data/DataStructure/nonlinear/utils";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS, DFSStatus } from "./tags";
+
+interface DFSMeta {
+  viewMode?: "graph" | "grid";
+  baseElements?: Node[];
+  statusMap?: Record<string, Status>;
+  distanceMap?: Record<string, number>;
+  linkStatusMap?: Record<string, linkStatus>;
+  cols?: number;
+  showIdAsValue?: boolean;
+  stack?: string[];
+  result?: string[];
+  poppingNodeId?: string;
+  pushingNodeIds?: string[];
+  pathLength?: number;
+}
 
 function appendStackAndResultBoxes(
   elements: BaseElement[],
@@ -90,13 +109,16 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
         : "animation.check_end_false",
     params: { curr: e.local_vars.curr },
   }),
-  [TAGS.EXPLORE]: (e) => ({
-    key:
-      e.local_vars.unvisitedCount > 0
-        ? "animation.explore_some"
-        : "animation.explore_none",
-    params: { curr: e.local_vars.curr, count: e.local_vars.unvisitedCount },
-  }),
+  [TAGS.EXPLORE]: (e) => {
+    const unvisitedCount = e.local_vars.unvisitedCount;
+    return {
+      key:
+        typeof unvisitedCount === "number" && unvisitedCount > 0
+          ? "animation.explore_some"
+          : "animation.explore_none",
+      params: { curr: e.local_vars.curr, count: unvisitedCount },
+    };
+  },
   [TAGS.PUSH_NEIGHBOR]: (e) => ({
     key: e.meta?.pushingNodeIds
       ? "animation.push_neighbor"
@@ -114,14 +136,14 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function dfsTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta ?? {};
+    const meta = asTrace<DFSMeta>(event.meta);
     let frame;
 
     const descObj = DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag };
 
     if (meta.viewMode === "graph") {
       frame = generateGraphFrame(
-        meta.baseElements,
+        meta.baseElements ?? [],
         meta.statusMap || {},
         meta.distanceMap || {},
         descObj.key,
@@ -130,8 +152,8 @@ export function dfsTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       );
     } else {
       frame = generateGridFrame(
-        event.dataSnapshot as any[],
-        meta.cols,
+        event.dataSnapshot as unknown as GridCellData[],
+        meta.cols ?? 5,
         meta.statusMap || {},
         meta.distanceMap || {},
         descObj.key,
@@ -141,8 +163,8 @@ export function dfsTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
 
     appendStackAndResultBoxes(
       frame.elements,
-      meta.stack,
-      meta.result,
+      meta.stack ?? [],
+      meta.result ?? [],
       meta.poppingNodeId,
       meta.pushingNodeIds,
     );

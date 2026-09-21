@@ -1,23 +1,34 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import { AnimationStep, StepDescription } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
 import { TrackedItem } from "./simulateTrace";
+
+interface MergeSortLocalVars {
+  chosenVal?: number;
+  depth?: number;
+  leftVal?: number;
+  rightVal?: number;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
   [TAGS.IF_RETURN]: (e) => ({
     key: "animation.if_return",
-    params: { val: e.local_vars.chosenVal },
+    params: { val: asTrace<MergeSortLocalVars>(e.local_vars).chosenVal ?? null },
   }),
   [TAGS.DIVIDE]: (e) => ({
     key: "animation.divide",
-    params: { depth: e.local_vars.depth },
+    params: { depth: asTrace<MergeSortLocalVars>(e.local_vars).depth ?? null },
   }),
-  [TAGS.MERGE_START]: (e) => ({
-    key: "animation.merge_start",
-    params: { depth: e.local_vars.depth - 1 },
-  }),
+  [TAGS.MERGE_START]: (e) => {
+    const lv = asTrace<MergeSortLocalVars>(e.local_vars);
+    return {
+      key: "animation.merge_start",
+      params: { depth: lv.depth !== undefined ? lv.depth - 1 : null },
+    };
+  },
   [TAGS.COMPARE]: (e) => ({
     key: "animation.compare",
     params: { v1: e.local_vars.leftVal, v2: e.local_vars.rightVal },
@@ -63,7 +74,7 @@ export function mergeSortTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

@@ -10,27 +10,27 @@ export interface LayoutConfig {
 }
 
 // 響應式斷點
-export const BREAKPOINTS = {
+const BREAKPOINTS = {
   MOBILE: 768,
   TABLET: 1024,
 } as const;
 
 // Desktop 配置 (≥1024px)
-export const DESKTOP_CONFIG: LayoutConfig = {
+const DESKTOP_CONFIG: LayoutConfig = {
   layerSpacing: 250,
   branchSpacing: 350,
   nodeSpacing: 300,
 };
 
 // Tablet 配置 (768-1023px)
-export const TABLET_CONFIG: LayoutConfig = {
+const TABLET_CONFIG: LayoutConfig = {
   layerSpacing: 200,
   branchSpacing: 290,
   nodeSpacing: 200,
 };
 
 // Mobile 配置 (<768px)
-export const MOBILE_CONFIG: LayoutConfig = {
+const MOBILE_CONFIG: LayoutConfig = {
   layerSpacing: 200 ,
   branchSpacing: 250,
   nodeSpacing: 200,

@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { PrefixSumActionBar } from "./PrefixSumActionBar";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
@@ -11,11 +11,11 @@ const prefixSumActionHandler = createLinearActionHandler({
   randomValueRange: [0, 100],
 });
 
-export function createPrefixSumAnimationSteps(
-  inputData: any[],
-  action?: any,
+function createPrefixSumAnimationSteps(
+  inputData: LinearData[],
+  action?: { range?: [number, number] },
 ): AnimationStep[] {
-  const trace = simulatePrefixSumTrace(inputData as LinearData[], action);
+  const trace = simulatePrefixSumTrace(inputData, action);
   return prefixSumTraceToSteps(trace);
 }
 
@@ -121,7 +121,7 @@ export const prefixSumConfig: LevelImplementationConfig = {
   createAnimationSteps: createPrefixSumAnimationSteps,
   statusConfig: PrefixSumStatusConfig,
   actionHandler: prefixSumActionHandler,
-  renderActionBar: (props) => <PrefixSumActionBar {...(props as any)} />,
+  renderActionBar: (props) => <PrefixSumActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 303,

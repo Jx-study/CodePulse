@@ -38,11 +38,11 @@ export const DijkstraActionBar: React.FC<AlgoActionBarProps> = ({
   const handleRun = () => {
     let startId, endId;
     if (graphStartElement !== "" || graphEndElement !== "") {
-      if (!currentData || !(currentData as any).nodes) {
+      if (!currentData || !currentData.nodes) {
         toast.warning(t("ui.noGraphData"));
         return;
       }
-      const nodes = (currentData as any).nodes as { id: string }[];
+      const nodes = currentData.nodes as { id: string }[];
 
       if (graphStartElement !== "") {
         const targetId = `node-${normalizeId(graphStartElement)}`;

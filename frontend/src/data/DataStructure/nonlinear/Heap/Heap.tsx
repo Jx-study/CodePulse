@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig, StatusConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import type {
   ActionContext,
   ActionResult,
@@ -8,11 +8,15 @@ import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAc
 
 import { HeapActionBar } from "./HeapActionBar";
 import { TAGS } from "./heap/tags";
-import { simulateHeapTrace } from "./heap/simulateTrace";
+import {
+  simulateHeapTrace,
+  HeapNode,
+  type HeapAction,
+} from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 
-export const HeapStatusConfig: StatusConfig = {
+const HeapStatusConfig: StatusConfig = {
   i18nNs: "tutorials/heap",
   statuses: [
     { key: Status.Inactive,   label: "statusLegend.notBuilt",        color: "#555555" },
@@ -25,12 +29,12 @@ export const HeapStatusConfig: StatusConfig = {
 
 const baseActionHandler = createLinearActionHandler();
 
-export function heapActionHandler(
+function heapActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: HeapNode[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<HeapNode[]> | null {
   const newData = data.map((d) => ({ ...d }));
   const oldData = data.map((d) => ({ ...d }));
 
@@ -44,7 +48,11 @@ export function heapActionHandler(
     actionType === "load" ||
     actionType === "reset"
   ) {
-    const result = baseActionHandler(actionType, payload, data, context);
+    // Heap data is a numeric-only subset of LinearData; the shared handler's
+    // LinearData[] result is safely a HeapNode[] for this call site.
+    const result = baseActionHandler(actionType, payload, data, context) as
+      | ActionResult<HeapNode[]>
+      | null;
     if (!result) return null;
 
     return {
@@ -195,17 +203,28 @@ export function heapActionHandler(
     };
   }
 
-  return baseActionHandler(actionType, payload, data, context);
+  // Heap data is a numeric-only subset of LinearData; the shared handler's
+  // LinearData[] result is safely a HeapNode[] for this call site.
+  return baseActionHandler(actionType, payload, data, context) as
+    | ActionResult<HeapNode[]>
+    | null;
 }
 
-export function createHeapAnimationSteps(
-  dataList: any[],
-  action?: any,
+interface HeapRunAction extends HeapAction {
+  isHeapAction?: boolean;
+  oldData?: HeapNode[];
+  animationParams?: HeapAction & { isHeapAction?: boolean; oldData?: HeapNode[] };
+}
+
+function createHeapAnimationSteps(
+  dataList: HeapNode[],
+  action?: HeapRunAction,
 ): AnimationStep[] {
   const params = action?.isHeapAction ? action : action?.animationParams;
 
   if (params && params.isHeapAction) {
-    const traceData = params.heapType === "init" ? dataList : params.oldData;
+    const traceData =
+      params.heapType === "init" ? dataList : (params.oldData ?? dataList);
     const trace = simulateHeapTrace(traceData, params);
     return heapTraceToSteps(trace);
   }
@@ -303,7 +322,7 @@ export const HeapConfig: LevelImplementationConfig = {
   createAnimationSteps: createHeapAnimationSteps,
   statusConfig: HeapStatusConfig,
   actionHandler: heapActionHandler,
-  renderActionBar: (props) => <HeapActionBar {...(props as any)} />,
+  renderActionBar: (props) => <HeapActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 703,

@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 
 interface StackItem {
@@ -12,7 +12,7 @@ export function simulateFactorialTrace(targetN: number): ExecutionTrace {
 
   const pushTrace = (
     tag: string,
-    local_vars: Record<string, any>,
+    local_vars: Record<string, JsonValue>,
     metaOpts: {
       preparingNode?: StackItem | null;
       poppingNode?: StackItem | null;
@@ -26,8 +26,8 @@ export function simulateFactorialTrace(targetN: number): ExecutionTrace {
       dataSnapshot: [],
       meta: {
         stack: stack.map((s) => ({ ...s })),
-        preparingNode: metaOpts.preparingNode || null,
-        poppingNode: metaOpts.poppingNode || null,
+        preparingNode: metaOpts.preparingNode ? { ...metaOpts.preparingNode } : null,
+        poppingNode: metaOpts.poppingNode ? { ...metaOpts.poppingNode } : null,
         highlightIndices: metaOpts.highlightIndices || [],
         completeIndices: metaOpts.completeIndices || [],
       },

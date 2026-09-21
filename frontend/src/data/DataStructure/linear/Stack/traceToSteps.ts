@@ -3,12 +3,14 @@ import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
   createBoxes as baseCreateBoxes,
 } from "../utils";
+import type { StackTraceMeta } from "./simulateTrace";
 
 const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
   return baseCreateBoxes(list, {
@@ -76,14 +78,14 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   const gap = 70;
 
   return trace.map((event, idx) => {
-    const meta = event.meta || {};
+    const meta = asTrace<StackTraceMeta>(event.meta);
     const dataList: BoxData[] = meta.dataList || [];
     const action: ActionType | undefined = meta.action;
     let elements: (Box | Pointer)[] = [];
 
     const createBox = (
       id: string,
-      val: any,
+      val: number | string | undefined,
       x: number,
       status: Status,
       desc: string,
@@ -171,7 +173,7 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         elements = [createTopPointer(-1, startX, startY, gap)];
       } else {
         const deletedNode = {
-          id: (action as any).targetId || "deleted-temp",
+          id: action.targetId || "deleted-temp",
           value: action.value,
         };
         const oldTop = dataList.length;
@@ -289,7 +291,7 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

@@ -6,10 +6,16 @@ import PulseBackground from "./PulseBackground";
 import Demo from "../Demo/Demo";
 import Button from "@/shared/components/Button";
 
+interface PulseBackgroundHandle {
+  addWanderingParticle: (x: number, y: number) => void;
+  attractParticles: (targetX: number, targetY: number) => void;
+  resetParticles: () => void;
+}
+
 function Hero() {
   const { t } = useTranslation('home');
   const navigate = useNavigate();
-  const pulseBackgroundRef = useRef<any>(null);
+  const pulseBackgroundRef = useRef<PulseBackgroundHandle>(null);
   const ctaButtonRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
 

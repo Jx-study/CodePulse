@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import Avatar from '@/shared/components/Avatar';
 import Badge from '@/shared/components/Badge';
 import Divider from '@/shared/components/Divider';
+import { DURATION_SLOW } from '@/shared/motion/transitions';
 import styles from './About.module.scss';
 
 const teamMembers = [
@@ -99,7 +100,7 @@ function About() {
               initial={{ opacity: 0.3, filter: "grayscale(100%)" }}
               whileInView={{ opacity: 1, filter: "grayscale(0%)" }}
               viewport={{ once: false, margin: "-35% 0px -35% 0px" }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: DURATION_SLOW }}
               className={styles.memberRow}
             >
               {/* Center node + connector */}

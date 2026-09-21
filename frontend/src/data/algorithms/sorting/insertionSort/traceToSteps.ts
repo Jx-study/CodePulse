@@ -65,7 +65,7 @@ export function insertionSortTraceToSteps(
       actionTag: event.tag,
       variables: event.local_vars,
       elements: createSortingFrame(
-        event.dataSnapshot as any[],
+        event.dataSnapshot,
         statusMap,
         sortedIndices,
       ),

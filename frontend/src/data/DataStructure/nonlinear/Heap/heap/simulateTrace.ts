@@ -1,14 +1,22 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import { TAGS } from "./tags";
 
-interface HeapNode {
+export interface HeapNode {
   id: string;
   value: number;
 }
 
+export interface HeapAction {
+  isMinHeap?: boolean;
+  isMaxHeap?: boolean;
+  heapType?: string;
+  value?: number;
+  targetId?: string;
+}
+
 export function simulateHeapTrace(
   dataList: HeapNode[],
-  action: any,
+  action: HeapAction | undefined,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const currentList = dataList.map((d) => ({ ...d }));
@@ -149,7 +157,7 @@ export function simulateHeapTrace(
 
   if (action.heapType === "add") {
     const { value, targetId } = action;
-    const newNode = { id: targetId, value: value };
+    const newNode = { id: targetId!, value: value! };
     currentList.push(newNode);
     let idx = currentList.length - 1;
 

@@ -1,10 +1,10 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, PrefixSumStatus } from "./tags";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 
 export function simulatePrefixSumTrace(
   inputData: LinearData[],
-  action?: any,
+  action?: { range?: [number, number] },
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const sourceData = inputData.map((d) => ({ ...d }));
@@ -12,7 +12,7 @@ export function simulatePrefixSumTrace(
 
   const pushTrace = (
     tag: string,
-    vars: any,
+    vars: Record<string, JsonValue>,
     prefixList: (number | null)[],
     prefixStatusMap: Record<number, string>,
     sourceStatusMap: Record<number, string>,

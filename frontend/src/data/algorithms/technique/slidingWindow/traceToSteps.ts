@@ -4,6 +4,7 @@ import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS, SlidingWindowStatus } from "./tags";
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
@@ -82,11 +83,19 @@ const createSlidingPointers = (
   return [leftPtr, rightPtr];
 };
 
+interface SlidingWindowMeta {
+  left?: number;
+  right?: number;
+  bestLeft?: number;
+  bestRight?: number;
+  shrinkIndex?: number;
+}
+
 export function slidingWindowTraceToSteps(
   trace: ExecutionTrace,
 ): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta ?? {};
+    const meta = asTrace<SlidingWindowMeta>(event.meta);
     const left = meta.left ?? 0;
     const right = meta.right ?? -1;
     const bestLeft = meta.bestLeft ?? -1;
@@ -125,7 +134,7 @@ export function slidingWindowTraceToSteps(
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: [...boxes, ...pointers] as any,
+      elements: [...boxes, ...pointers],
     };
   });
 }

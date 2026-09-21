@@ -1,13 +1,21 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
+
+/** Purely client-side simulation (no backend trace) — `meta` carries the
+ * actual typed domain objects rather than JSON, so it's cast at the
+ * boundary of `TraceEvent.meta`'s declared JSON-only contract. */
+export interface StackTraceMeta {
+  dataList: BoxData[];
+  action?: ActionType;
+}
 
 export function simulateStackTrace(
   dataList: BoxData[],
   action?: ActionType,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
-  const meta = { dataList, action };
+  const meta = { dataList, action } as unknown as Record<string, JsonValue>;
 
   if (!action) {
     const currentTop = dataList.length - 1;
@@ -70,7 +78,7 @@ export function simulateStackTrace(
 
     const fullList = [
       ...dataList,
-      { id: (action as any).targetId || "deleted-temp", value },
+      { id: action.targetId || "deleted-temp", value },
     ];
     let currentTop = fullList.length - 1;
 

@@ -2,7 +2,15 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { createBoxes } from "@/data/DataStructure/linear/utils";
 import { toStatus, toOverrideMap } from "@/data/implementations/traceConverters";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface ArrayMeta {
+  isInitial?: boolean;
+  highlightIndex?: number;
+  status?: string;
+  overrideStatusMap?: Record<number, string>;
+}
 
 // tag → StepDescription factory
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
@@ -103,22 +111,25 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 };
 
 export function arrayTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
-  return trace.map((event, idx) => ({
-    stepNumber: idx + 1,
-    description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
-    elements: createBoxes(event.dataSnapshot, {
-      startX: 50,
-      startY: 200,
-      gap: 70,
-      highlightIndex: event.meta?.highlightIndex ?? -1,
-      status: toStatus(event.meta?.status),
-      forceXShiftIndex: -1,
-      shiftDirection: 0,
-      overrideStatusMap: toOverrideMap(event.meta?.overrideStatusMap),
-      getDescription: (_, i) => `${i}`,
-    }),
-    actionTag: event.tag,
-    local_vars: event.local_vars,
-    global_vars: event.global_vars,
-  }));
+  return trace.map((event, idx) => {
+    const meta = asTrace<ArrayMeta>(event.meta);
+    return {
+      stepNumber: idx + 1,
+      description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
+      elements: createBoxes(event.dataSnapshot, {
+        startX: 50,
+        startY: 200,
+        gap: 70,
+        highlightIndex: meta.highlightIndex ?? -1,
+        status: toStatus(meta.status),
+        forceXShiftIndex: -1,
+        shiftDirection: 0,
+        overrideStatusMap: toOverrideMap(meta.overrideStatusMap),
+        getDescription: (_, i) => `${i}`,
+      }),
+      actionTag: event.tag,
+      local_vars: event.local_vars,
+      global_vars: event.global_vars,
+    };
+  });
 }

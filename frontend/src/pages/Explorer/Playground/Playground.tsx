@@ -546,7 +546,7 @@ function Playground() {
                         const hasCfg =
                           node.funcName === "<module>"
                             ? "<global>" in cfgGraph &&
-                              (cfgGraph["<global>"] as any)?.nodes?.length > 0
+                              (cfgGraph["<global>"]?.nodes?.length ?? 0) > 0
                             : node.funcName in cfgGraph;
                         if (!hasCfg) return;
                         setDrill({ mode: "cfg", funcId });
@@ -710,7 +710,7 @@ function Playground() {
 interface PanelContentProps {
   id: PanelId;
   globalVars: Record<string, string>;
-  localVars: Record<string, any>;
+  localVars: Record<string, unknown>;
   callStack: string[];
   stdoutEvents: StdoutEvent[];
   currentStep: number;

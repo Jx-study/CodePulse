@@ -1,5 +1,5 @@
 import type { AnimationStep, CodeConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { KnapsackActionBar } from "@/data/algorithms/dp/KnapsackActionBar";
 import type {
   ActionContext,
@@ -60,11 +60,11 @@ function knapsackActionHandler(
   return null;
 }
 
-export function createKnapsackAnimationSteps(
-  inputData: any,
-  action?: any,
+function createKnapsackAnimationSteps(
+  inputData: KnapsackItem[],
+  action?: { capacity?: number },
 ): AnimationStep[] {
-  const trace = simulateKnapsackTrace(inputData as KnapsackItem[], action);
+  const trace = simulateKnapsackTrace(inputData, action);
   return knapsackTraceToSteps(trace);
 }
 
@@ -156,7 +156,7 @@ export const knapsackConfig: LevelImplementationConfig = {
   ],
   actionHandler: knapsackActionHandler,
   createAnimationSteps: createKnapsackAnimationSteps,
-  renderActionBar: (props) => <KnapsackActionBar {...(props as any)} />,
+  renderActionBar: (props) => <KnapsackActionBar {...(props as AlgoActionBarProps)} />,
   statusConfig: KnapsackStatusConfig,
   maxNodes: 6,
   realWorldStories: [

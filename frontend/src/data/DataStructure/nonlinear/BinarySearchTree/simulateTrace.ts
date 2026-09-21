@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, BSTStatus } from "./tags";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
@@ -12,7 +12,18 @@ export interface LogicTreeNode {
   right?: LogicTreeNode;
 }
 
-export function buildBST(data: any[]): LogicTreeNode | null {
+export interface BSTInputItem {
+  id: string;
+  value: number;
+  count?: number;
+}
+
+export interface BSTAction {
+  mode?: string;
+  value?: number;
+}
+
+export function buildBST(data: BSTInputItem[]): LogicTreeNode | null {
   if (data.length === 0) return null;
   const rootData = data[0];
   const root: LogicTreeNode = {
@@ -50,7 +61,7 @@ function insertNodeLogic(root: LogicTreeNode, newNode: LogicTreeNode) {
 
 export function flattenUniqueNodes(
   node: LogicTreeNode | undefined,
-  list: any[],
+  list: BSTInputItem[],
 ) {
   if (!node) return;
   list.push({ id: node.id, value: node.value, count: node.count });
@@ -59,9 +70,9 @@ export function flattenUniqueNodes(
 }
 
 export function getBSTArrayAfterDelete(
-  data: any[],
+  data: BSTInputItem[],
   targetValue: number,
-): any[] {
+): BSTInputItem[] {
   targetValue = Math.round(targetValue);
   const root = buildBST(data);
   if (!root) return data;
@@ -118,16 +129,16 @@ export function getBSTArrayAfterDelete(
 }
 
 export function simulateBSTTrace(
-  inputData: any[],
-  action: any,
+  inputData: BSTInputItem[],
+  action: BSTAction | undefined,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
 
   const pushTrace = (
-    data: any[],
+    data: BSTInputItem[],
     statusMap: Record<string, string>,
     tag: string,
-    local_vars: any,
+    local_vars: Record<string, JsonValue>,
     linkStatusMap: Record<string, linkStatus> = {},
   ) => {
     trace.push({
@@ -147,7 +158,8 @@ export function simulateBSTTrace(
     return trace;
   }
 
-  const { mode, value: targetValue } = action;
+  const { mode, value: rawTargetValue } = action;
+  const targetValue = rawTargetValue ?? 0;
 
   // INSERT
   if (mode === "Insert") {
@@ -693,7 +705,12 @@ export function simulateBSTTrace(
       curr?: LogicTreeNode | null,
       candidateVal?: number | null,
     ) => {
-      const v = { target: targetValue, curr: curr?.value ?? null } as any;
+      const v: {
+        target: number;
+        curr: number | null;
+        floor?: number | null;
+        ceil?: number | null;
+      } = { target: targetValue, curr: curr?.value ?? null };
       if (isFloor) v.floor = candidateVal ?? null;
       else v.ceil = candidateVal ?? null;
       return v;

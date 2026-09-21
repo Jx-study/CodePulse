@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import type { LinearData } from "@/data/DataStructure/linear/utils";
 import { TAGS } from "./tags";
 
@@ -23,7 +23,7 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
 
   function pushTrace(
     tag: string,
-    vars: any,
+    vars: Record<string, JsonValue>,
     highlightMap: Record<number, string> = {},
   ) {
     const currentLayout = getLayoutMeta();

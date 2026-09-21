@@ -1,8 +1,16 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { createTreeNodes } from "@/data/DataStructure/nonlinear/utils";
+import { createTreeNodes, HierarchyDatum } from "@/data/DataStructure/nonlinear/utils";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface FibMeta {
+  tree?: HierarchyDatum;
+  statusMap?: Record<string, string>;
+  valueMap?: Record<string, number>;
+  highlightId?: string;
+}
 
 const STATUS_MAP: Record<string, Status> = {
   Target: Status.Target,
@@ -45,10 +53,11 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function fibonacciTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const treeRoot = event.meta?.tree;
-    const statusMap = event.meta?.statusMap || {};
-    const valueMap = event.meta?.valueMap || {};
-    const highlightId = event.meta?.highlightId;
+    const meta = asTrace<FibMeta>(event.meta);
+    const treeRoot = meta.tree ?? { id: "root", value: "" };
+    const statusMap = meta.statusMap || {};
+    const valueMap = meta.valueMap || {};
+    const highlightId = meta.highlightId;
 
     // 將深拷貝的動態樹直接餵給 createTreeNodes 產生排版
     const elements = createTreeNodes(treeRoot, {
@@ -86,7 +95,7 @@ export function fibonacciTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

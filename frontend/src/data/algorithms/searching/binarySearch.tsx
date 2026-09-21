@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SearchingActionBar } from "./SearchingActionBar";
 import { binarySearchRealWorldStories } from "@/data/algorithms/searching/binarySearch.stories";
@@ -13,11 +13,11 @@ const binarySearchActionHandler = createLinearActionHandler({
   sortOnLoad: true,
 });
 
-export function createBinarySearchAnimationSteps(
-  inputData: any[],
-  action?: any,
+function createBinarySearchAnimationSteps(
+  inputData: LinearData[],
+  action?: { searchValue?: number },
 ): AnimationStep[] {
-  const trace = simulateBinarySearchTrace(inputData as LinearData[], action);
+  const trace = simulateBinarySearchTrace(inputData, action);
   return binarySearchTraceToSteps(trace);
 }
 
@@ -113,7 +113,7 @@ export const binarySearchConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createBinarySearchAnimationSteps,
   actionHandler: binarySearchActionHandler,
-  renderActionBar: (props) => <SearchingActionBar {...(props as any)} />,
+  renderActionBar: (props) => <SearchingActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 704,

@@ -48,7 +48,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 }
 
 // ==================== Select Component ====================
-export interface SelectOption {
+interface SelectOption {
   value: string | number;
   label: string;
   disabled?: boolean;
@@ -113,62 +113,9 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   'aria-describedby'?: string;
 }
 
-// ==================== FormField Component (DEPRECATED) ====================
-/**
- * @deprecated 請使用 FormItem + Input/Select/Textarea/Checkbox 的組合
- *
- * 舊寫法：
- * <FormField type="text" label="Email" error={errors.email} />
- *
- * 新寫法：
- * <FormItem label="Email" error={errors.email}>
- *   <Input name="email" hasError={!!errors.email} />
- * </FormItem>
- */
-export interface FormFieldProps {
-  label?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'checkbox' | 'select';
-  name?: string;
-  value?: string | number | boolean;
-  placeholder?: string;
-  error?: string;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  autoComplete?: string;
-  rows?: number;
-  options?: Array<{ value: string | number; label: string }>;
-  className?: string;
-  labelClassName?: string;
-  inputClassName?: string;
-  errorClassName?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
-  [key: string]: any;
-}
-
-// ==================== Switch Component ====================
-export interface SwitchProps {
-  checked?: boolean;
-  defaultChecked?: boolean;
-  onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
-  label?: React.ReactNode;
-  labelPosition?: 'left' | 'right';
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  loading?: boolean;
-  name?: string;
-  className?: string;
-  labelClassName?: string;
-  'aria-label'?: string;
-  [key: string]: any;
-}
-
 // ==================== Slider Component ====================
+// Note: unused by the actual Slider component (which defines its own local
+// props type); kept minimal since there's no rest-prop spreading to type.
 export interface SliderProps {
   value?: number;
   defaultValue?: number;
@@ -182,5 +129,4 @@ export interface SliderProps {
   onChangeCommitted?: (value: number) => void;
   className?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }

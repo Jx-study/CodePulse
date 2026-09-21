@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
 import { StackActionBar } from "./StackActionBar";
 import type {
@@ -11,7 +11,7 @@ import { TAGS } from "./tags";
 import { simulateStackTrace } from "./simulateTrace";
 import { stackTraceToSteps } from "./traceToSteps";
 
-export function createStackAnimationSteps(
+function createStackAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {
@@ -214,7 +214,7 @@ export const StackConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createStackAnimationSteps,
   actionHandler: stackActionHandler,
-  renderActionBar: (props) => <StackActionBar {...(props as any)} />,
+  renderActionBar: (props) => <StackActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 20,

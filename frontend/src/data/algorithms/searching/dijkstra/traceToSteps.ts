@@ -1,7 +1,19 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import { AnimationStep, StepDescription } from "@/types";
 import { generateGraphFrame } from "@/data/DataStructure/nonlinear/utils";
+import { Node } from "@/modules/core/DataLogic/Node";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface DijkstraMeta {
+  baseElements?: Node[];
+  statusMap?: Record<string, Status>;
+  linkStatusMap?: Record<string, linkStatus>;
+  weightMap?: Record<string, number | string>;
+  dist?: Record<string, number>;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
@@ -49,7 +61,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function dijkstraTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta ?? {};
+    const meta = asTrace<DijkstraMeta>(event.meta);
     const rawDist = meta.dist || {};
 
     const distString = Object.entries(rawDist)
@@ -62,7 +74,7 @@ export function dijkstraTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     const descObj = DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag };
 
     const frame = generateGraphFrame(
-      meta.baseElements,
+      meta.baseElements ?? [],
       meta.statusMap || {},
       rawDist,
       descObj.key,

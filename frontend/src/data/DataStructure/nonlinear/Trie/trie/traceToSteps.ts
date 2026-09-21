@@ -2,7 +2,15 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createTreeNodes } from "@/data/DataStructure/nonlinear/utils";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS, TrieStatus } from "./tags";
+
+interface TrieMeta {
+  visiblePaths?: string[];
+  realWords?: string[];
+  highlightId?: string;
+  overrideStatusMap?: Record<string, Status>;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
@@ -58,12 +66,11 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta ?? {};
-    const visiblePaths: string[] = meta.visiblePaths || [];
-    const realWords: string[] = meta.realWords || [];
+    const meta = asTrace<TrieMeta>(event.meta);
+    const visiblePaths = meta.visiblePaths || [];
+    const realWords = meta.realWords || [];
     const highlightId = meta.highlightId;
-    const overrideStatusMap =
-      (meta.overrideStatusMap as Record<string, Status>) || {};
+    const overrideStatusMap = meta.overrideStatusMap || {};
 
     const elements = createTreeNodes(
       { visiblePaths, realWords },
@@ -88,7 +95,7 @@ export function trieTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

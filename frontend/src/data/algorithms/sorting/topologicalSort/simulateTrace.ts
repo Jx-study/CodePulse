@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, TopoStatus } from "./tags";
 
 export type GraphData = {
@@ -24,7 +24,11 @@ export function simulateTopologicalSortTrace(graph: GraphData): ExecutionTrace {
   const result: string[] = [];
   let poppingNodeId: string | undefined = undefined;
 
-  const pushTrace = (tag: string, vars: any, meta: any = {}) => {
+  const pushTrace = (
+    tag: string,
+    vars: Record<string, JsonValue>,
+    meta: Record<string, JsonValue> = {},
+  ) => {
     trace.push({
       tag,
       local_vars: vars,

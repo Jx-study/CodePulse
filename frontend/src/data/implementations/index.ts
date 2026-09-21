@@ -75,22 +75,3 @@ export const implementationsMap: ImplementationMap = {
 export function getImplementation(implementationKey: string) {
   return implementationsMap[implementationKey] || null;
 }
-
-/**
- * 獲取所有實作配置
- * @returns 所有實作配置的陣列
- */
-export function getAllImplementations() {
-  return Object.values(implementationsMap);
-}
-
-/**
- * 根據類型獲取實作列表
- * @param type 實作類型（'algorithm' 或 'dataStructure'）
- * @returns 該類型下的所有實作配置
- */
-export function getImplementationsByType(type: "algorithm" | "dataStructure") {
-  return Object.values(implementationsMap).filter(
-    (config) => config.type === type,
-  );
-}

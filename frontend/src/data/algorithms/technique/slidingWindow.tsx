@@ -1,6 +1,6 @@
 import type { AnimationStep } from "@/types";
 import { LinearData } from "@/data/DataStructure/linear/utils";
-import { CodeConfig, LevelImplementationConfig } from "@/types";
+import { CodeConfig, LevelImplementationConfig, AlgoActionBarProps } from "@/types";
 import { SlidingWindowActionBar } from "./SlidingWindowActionBar";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 import { simulateSlidingWindowTrace } from "./slidingWindow/simulateTrace";
@@ -11,11 +11,11 @@ const slidingWindowActionHandler = createLinearActionHandler({
   randomValueRange: [1, 15],
 });
 
-export function createSlidingWindowAnimationSteps(
-  inputData: any[],
+function createSlidingWindowAnimationSteps(
+  inputData: LinearData[],
   action?: { mode?: string; targetSum?: number },
 ): AnimationStep[] {
-  const trace = simulateSlidingWindowTrace(inputData as LinearData[], action);
+  const trace = simulateSlidingWindowTrace(inputData, action);
   return slidingWindowTraceToSteps(trace);
 }
 
@@ -160,7 +160,7 @@ export const slidingWindowConfig: LevelImplementationConfig = {
   description: "用雙指標維護一個區間，解決連續子陣列問題",
   i18nNamespace: "tutorials/sliding-window",
   codeConfig: longestLteCodeConfig,
-  getCodeConfig: (payload?: any) => {
+  getCodeConfig: (payload?: { mode?: string }) => {
     if (payload?.mode === "shortest_gte") {
       return shortestGteCodeConfig;
     }
@@ -187,7 +187,7 @@ export const slidingWindowConfig: LevelImplementationConfig = {
   createAnimationSteps: createSlidingWindowAnimationSteps,
   statusConfig: SlidingWindowStatusConfig,
   actionHandler: slidingWindowActionHandler,
-  renderActionBar: (props) => <SlidingWindowActionBar {...(props as any)} />,
+  renderActionBar: (props) => <SlidingWindowActionBar {...(props as AlgoActionBarProps)} />,
   maxNodes: 30,
   relatedProblems: [
     {

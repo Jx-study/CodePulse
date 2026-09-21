@@ -1,10 +1,11 @@
 import { BaseElement } from "../modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { LineComplexity } from "@/modules/core/components/CodeEditor/features/TimeComplexity/types";
+import type { JsonValue } from "./trace";
 
 export interface StepDescription {
   key: string;
-  params?: Record<string, any>;
+  params?: Record<string, JsonValue>;
 }
 
 /**
@@ -15,8 +16,8 @@ export interface AnimationStep {
   description: string | StepDescription;
   elements: BaseElement[];
   actionTag?: string; // 用於對應代碼高亮的標籤
-  local_vars?: Record<string, any>;
-  global_vars?: Record<string, any>;
+  local_vars?: Record<string, JsonValue>;
+  global_vars?: Record<string, JsonValue>;
   links?: {
     sourceId: string;
     targetId: string;

@@ -1,16 +1,23 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, DijkstraStatus } from "./tags";
 import {
   createGraphElements,
   getLinkKey,
   updateLinkStatus,
+  RawGraphNode,
 } from "@/data/DataStructure/nonlinear/utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
+export interface DijkstraAction {
+  isDirected?: boolean;
+  startNode?: string;
+  endNode?: string;
+}
+
 export function simulateDijkstraTrace(
-  inputData: any,
-  action?: any,
+  inputData: { nodes: RawGraphNode[]; edges: string[][] },
+  action?: DijkstraAction,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   if (!inputData || !inputData.nodes) return trace;
@@ -25,8 +32,8 @@ export function simulateDijkstraTrace(
   const adjList: Record<string, { to: string; weight: number }[]> = {};
   const weightMap: Record<string, number> = {};
 
-  rawNodes.forEach((n: any) => (adjList[n.id] = []));
-  rawEdges.forEach((edge: any) => {
+  rawNodes.forEach((n) => (adjList[n.id] = []));
+  rawEdges.forEach((edge) => {
     const u = edge[0],
       v = edge[1];
     const weight =
@@ -47,18 +54,24 @@ export function simulateDijkstraTrace(
   const visited: Set<string> = new Set();
   const prev: Record<string, string | null> = {};
 
-  rawNodes.forEach((n: any) => {
+  rawNodes.forEach((n) => {
     prev[n.id] = null;
     dist[n.id] = Infinity;
     statusMap[n.id] = DijkstraStatus.Inactive as Status;
   });
   dist[startNodeId] = 0;
 
-  const pushTrace = (tag: string, vars: any, meta: any = {}) => {
+  const pushTrace = (
+    tag: string,
+    vars: Record<string, JsonValue>,
+    meta: Record<string, JsonValue> = {},
+  ) => {
     trace.push({
       tag,
       local_vars: vars,
-      dataSnapshot: inputData,
+      dataSnapshot: [],
+      // meta.baseElements carries typed Node[] rather than JSON, so it's
+      // cast at the boundary of TraceEvent.meta's declared JSON-only type.
       meta: {
         baseElements,
         statusMap: { ...statusMap },
@@ -66,13 +79,13 @@ export function simulateDijkstraTrace(
         dist: { ...dist },
         weightMap,
         ...meta,
-      },
+      } as unknown as Record<string, JsonValue>,
     });
   };
 
   pushTrace(TAGS.INIT, { start: startNodeId });
 
-  const pq = [...rawNodes.map((n: any) => n.id)];
+  const pq = [...rawNodes.map((n) => n.id)];
 
   while (pq.length > 0) {
     pq.sort((a, b) => dist[a] - dist[b]);

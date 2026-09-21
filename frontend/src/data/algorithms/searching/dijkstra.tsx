@@ -12,13 +12,18 @@ import type {
   ActionContext,
   ActionResult,
 } from "@/modules/core/visualization/types";
-import { simulateDijkstraTrace } from "./dijkstra/simulateTrace";
+import {
+  simulateDijkstraTrace,
+  type DijkstraAction,
+} from "./dijkstra/simulateTrace";
 import { dijkstraTraceToSteps } from "./dijkstra/traceToSteps";
 import { TAGS, DijkstraStatusConfig } from "./dijkstra/tags";
+import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
+import type { GraphData } from "@/modules/core/visualization/types";
 
 function parseGraphLoadPayload(
   dataStr: string,
-): { nodes: any[]; edges: string[][] } | null {
+): { nodes: RawGraphNode[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
@@ -57,10 +62,10 @@ function parseGraphLoadPayload(
 function dijkstraActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any,
+  data: GraphData,
   context: ActionContext,
 ): ActionResult<unknown> | null {
-  const defaultData = context.defaultData as { graph: any };
+  const defaultData = context.defaultData as { graph: GraphData };
 
   if (actionType === "random") {
     const count = Math.floor(Math.random() * 6) + 5;
@@ -113,9 +118,9 @@ function dijkstraActionHandler(
   return null;
 }
 
-export function createDijkstraAnimationSteps(
-  inputData: any,
-  action?: any,
+function createDijkstraAnimationSteps(
+  inputData: { nodes: RawGraphNode[]; edges: string[][] },
+  action?: DijkstraAction,
 ): AnimationStep[] {
   const trace = simulateDijkstraTrace(inputData, action);
   return dijkstraTraceToSteps(trace);

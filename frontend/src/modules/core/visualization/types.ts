@@ -1,5 +1,5 @@
 /** Toast API，供 actionHandler 顯示警告等 */
-export interface ToastAPI {
+interface ToastAPI {
   warning: (msg: string) => void;
 }
 
@@ -12,7 +12,7 @@ export interface ActionContext {
 }
 
 /** 基礎 Action 型別 */
-export interface BaseAction {
+interface BaseAction {
   type: string;
   payload: Record<string, unknown>;
 }
@@ -73,7 +73,7 @@ export interface AlgorithmNode {
   x?: number;
   y?: number;
   position?: { x: number; y: number };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** 圖形資料結構 */
@@ -81,6 +81,3 @@ export interface GraphData {
   nodes: AlgorithmNode[];
   edges: string[][];
 }
-
-/** 視覺化資料：線性陣列或圖形 */
-export type VisualizationData = AlgorithmNode[] | GraphData;

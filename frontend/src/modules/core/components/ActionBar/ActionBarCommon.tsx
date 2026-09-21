@@ -26,10 +26,10 @@ export const StaticLabel: React.FC<{ children: React.ReactNode }> = ({
 
 // ─── DataRow：共用的第一行（載入/重設/隨機 + 隨機筆數） ──────
 
-export interface DataRowProps {
+interface DataRowProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
-  onRandomData: (params?: any) => void;
+  onRandomData: (params?: unknown) => void;
   onMaxNodesChange?: (count: number) => void;
   disabled?: boolean;
   maxNodes?: number;
@@ -201,7 +201,7 @@ export const DataRow: React.FC<DataRowProps> = ({
 
 // ─── TrieLoaderModal ─────────────────────────────────────────
 
-export interface TrieLoaderModalProps {
+interface TrieLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
@@ -337,7 +337,7 @@ export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
 // ─── GraphLoaderModal ────────────────────────────────────────
 
 // 注入 TFunction 以支援 i18n
-export type EdgeValidator = (
+type EdgeValidator = (
   parts: string[],
   count: number,
   t: TFunction,
@@ -382,7 +382,7 @@ const WEIGHTED_DEFAULTS = {
   edgePlaceholder: "0 1 4\n1 2 5\n2 0 10",
 };
 
-export interface GraphLoaderModalProps {
+interface GraphLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
@@ -525,7 +525,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
 
 // ─── GridLoaderModal ────────────────────────────────────────
 
-export interface GridLoaderModalProps {
+interface GridLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
@@ -646,7 +646,7 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
 
 // ─── KnapsackLoaderModal ──────────────────────────────────────
 
-export interface KnapsackLoaderModalProps {
+interface KnapsackLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (itemsStr: string) => void;

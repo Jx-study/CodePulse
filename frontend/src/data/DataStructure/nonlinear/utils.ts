@@ -6,7 +6,7 @@ import { AnimationStep } from "@/types";
 import { createNodeInstance } from "../linear/utils";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
-export type TreeType = "bst" | "binarytree" | "trie" | "custom";
+type TreeType = "bst" | "binarytree" | "trie" | "custom";
 
 export const getLinkKey = (s: string, t: string) => `${s}->${t}`;
 
@@ -33,7 +33,7 @@ export interface GridCellData {
   val: number;
 }
 
-export function createGridElements(
+function createGridElements(
   rawGrid: GridCellData[],
   cols: number = 5,
 ): Box[] {
@@ -68,7 +68,7 @@ export function createGridElements(
 
 interface SimNode extends d3.SimulationNodeDatum {
   id: string;
-  val: number;
+  val: number | string;
 }
 
 interface SimLink extends d3.SimulationLinkDatum<SimNode> {
@@ -77,7 +77,7 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
 }
 
 export const generateGridFrame = (
-  gridData: any[],
+  gridData: GridCellData[],
   cols: number,
   statusMap: Record<number, Status>,
   distanceMap: Record<number, number>,
@@ -202,9 +202,16 @@ export const generateGraphFrame = (
   };
 };
 
+export interface RawGraphNode {
+  id: string;
+  value?: number | string;
+  x?: number;
+  y?: number;
+}
+
 export function createGraphElements(
   rawGraph: {
-    nodes: any[];
+    nodes: RawGraphNode[];
     edges: string[][];
   },
   isDirected: boolean = false,
@@ -243,7 +250,7 @@ export function createGraphElements(
       const node = new Node();
       node.id = n.id;
       node.value = String(n.value ?? i);
-      node.moveTo(n.x, n.y); // 直接使用儲存的座標
+      node.moveTo(n.x!, n.y!); // 直接使用儲存的座標（hasCachedPositions 已確保存在）
 
       elements.push(node);
       nodeMap.set(node.id, node);
@@ -276,7 +283,7 @@ export function createGraphElements(
         "link",
         d3
           .forceLink(simLinks)
-          .id((d: any) => d.id)
+          .id((d) => (d as SimNode).id)
           .distance(150), // 連線距離
       )
       .force("charge", d3.forceManyBody().strength(chargeStrength)) // 斥力：增加強度避免重疊
@@ -341,7 +348,7 @@ export interface HierarchyDatum {
   isEndOfWord?: boolean; // Trie 專用
 }
 
-export function buildD3HierarchyData(
+function buildD3HierarchyData(
   data: { id: string; value: number; count?: number }[],
   degree: number = 2,
 ): HierarchyDatum | null {
@@ -373,7 +380,7 @@ export function buildD3HierarchyData(
   return root;
 }
 
-export function buildTrieHierarchyData(
+function buildTrieHierarchyData(
   visiblePaths: string[],
   realWords: string[],
 ): HierarchyDatum | null {
@@ -418,16 +425,22 @@ export function buildTrieHierarchyData(
   return root;
 }
 
-export function buildBSTHierarchyData(
+interface BSTBuildNode extends HierarchyDatum {
+  children: HierarchyDatum[];
+  left: BSTBuildNode | null;
+  right: BSTBuildNode | null;
+}
+
+function buildBSTHierarchyData(
   data: { id: string; value: number; count?: number }[],
 ): HierarchyDatum | null {
   if (data.length === 0) return null;
 
-  const nodes = data.map((d) => ({
+  const nodes: BSTBuildNode[] = data.map((d) => ({
     ...d,
     children: [] as HierarchyDatum[],
-    left: null as any,
-    right: null as any,
+    left: null,
+    right: null,
   }));
 
   const root = nodes[0];
@@ -459,7 +472,7 @@ export function buildBSTHierarchyData(
   return root;
 }
 
-function convertToChildren(node: any) {
+function convertToChildren(node: BSTBuildNode) {
   if (node.left || node.right) {
     if (node.left) {
       node.children.push(node.left);
@@ -506,11 +519,19 @@ function getTreeNodeDescription(
   return "";
 }
 
+/** Shape depends on the sibling `type` option: array data for bst/binarytree,
+ * `{ visiblePaths, realWords }` for trie, or an already-built HierarchyDatum
+ * tree for custom (e.g. recursive trace snapshots). */
+type TreeInputData =
+  | { id: string; value: number; count?: number }[]
+  | { visiblePaths?: string[]; realWords?: string[] }
+  | HierarchyDatum;
+
 /**
  * 通用的樹狀結構生成器
  */
 export function createTreeNodes(
-  inputData: any,
+  inputData: TreeInputData,
   options: {
     width?: number;
     height?: number;
@@ -540,16 +561,24 @@ export function createTreeNodes(
   let hierarchyData: HierarchyDatum | null = null;
 
   if (type === "bst") {
-    hierarchyData = buildBSTHierarchyData(inputData);
+    hierarchyData = buildBSTHierarchyData(
+      inputData as { id: string; value: number; count?: number }[],
+    );
   } else if (type === "trie") {
     // 解構傳入的可見路徑與真實單字
-    const { visiblePaths = [], realWords = [] } = inputData;
+    const { visiblePaths = [], realWords = [] } = inputData as {
+      visiblePaths?: string[];
+      realWords?: string[];
+    };
     hierarchyData = buildTrieHierarchyData(visiblePaths, realWords);
   } else if (type === "custom") {
     // inputData is already a HierarchyDatum tree (e.g. recursive trace snapshot)
     hierarchyData = inputData as HierarchyDatum;
   } else {
-    hierarchyData = buildD3HierarchyData(inputData, degree);
+    hierarchyData = buildD3HierarchyData(
+      inputData as { id: string; value: number; count?: number }[],
+      degree,
+    );
   }
 
   if (!hierarchyData) return [];

@@ -55,7 +55,7 @@ export const HeapActionBar: React.FC<DSActionBarProps> = ({
     onResetData();
   };
 
-  const handleRandomData = (params?: any) => {
+  const handleRandomData = (params?: unknown) => {
     markNotHeap();
     onRandomData(params);
   };

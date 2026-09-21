@@ -4,7 +4,8 @@
  */
 
 // ==================== Button Component ====================
-export interface ButtonProps {
+export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'type'> {
+  ref?: React.Ref<HTMLButtonElement>;
   variant?: 'primary' | 'primaryOutline' | 'secondary' | 'ghost' | 'danger' | 'icon' | 'dot' | 'glass' | 'gameCtrl' | 'unstyled' | 'glow';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   disabled?: boolean;
@@ -19,16 +20,15 @@ export interface ButtonProps {
   className?: string;
   children?: React.ReactNode;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== Card Component ====================
-export interface CardCategory {
+interface CardCategory {
   label: string;
   variant?: 'primary' | 'success' | 'warning' | 'danger';
 }
 
-export interface CardProps {
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick' | 'title' | 'role'> {
   variant?: 'default' | 'algorithm';
   layout?: 'vertical' | 'horizontal';
   size?: 'sm' | 'md' | 'lg';
@@ -48,11 +48,10 @@ export interface CardProps {
   'aria-label'?: string;
   role?: string;
   children?: React.ReactNode;
-  [key: string]: any;
 }
 
 // ==================== Avatar Component ====================
-export interface AvatarProps {
+export interface AvatarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
   username?: string;
   src?: string;
   alt?: string;
@@ -63,11 +62,10 @@ export interface AvatarProps {
   className?: string;
   onClick?: () => void;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== Badge Component ====================
-export interface BadgeProps {
+export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'onClick' | 'role'> {
   variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   shape?: 'pill' | 'rounded' | 'square';
@@ -80,7 +78,6 @@ export interface BadgeProps {
   style?: React.CSSProperties;
   'aria-label'?: string;
   role?: string;
-  [key: string]: any;
 }
 
 // ==================== Icon Component ====================
@@ -101,7 +98,7 @@ export interface IconProps {
 }
 
 // ==================== Divider Component ====================
-export interface DividerProps {
+export interface DividerProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: 'horizontal' | 'vertical';
   spacing?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   color?: 'default' | 'primary' | 'light';
@@ -110,5 +107,4 @@ export interface DividerProps {
   label?: React.ReactNode;
   className?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }

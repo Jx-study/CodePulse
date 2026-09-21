@@ -2,7 +2,6 @@ import * as d3 from "d3";
 import { BaseElement } from "../DataLogic/BaseElement";
 import { Node } from "../DataLogic/Node";
 import { Box } from "../DataLogic/Box";
-import { LinkManager } from "../DataLogic/LinkManager";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
@@ -28,16 +27,6 @@ export type linkStatus =
   | "target"
   | "complete";
 
-export const linkStatusColorMap: Record<linkStatus, string> = {
-  default: "#888",
-  unfinished: "#1d79cfff",
-  visited: "#1d79cfff",
-  path: "yellow",
-  prepare: "#f59e0b",
-  target: "orange",
-  complete: "#46f336ff",
-};
-
 /** 未傳入 statusColorMap 時的預設對照（與 buildStatusColorMap(DEFAULT_STATUS_CONFIG) 一致） */
 export const defaultStatusColorMap: StatusColorMap = buildStatusColorMap(
   DEFAULT_STATUS_CONFIG,
@@ -60,81 +49,11 @@ export interface Link {
   direction?: "next" | "prev";
 }
 
-/**
- * 從 node1 的邊緣開始，動畫伸長到 node2 的邊緣
- * @param svgEl SVG 元素
- * @param elements 所有元素
- * @param manager LinkManager 實例
- * @param sourceId 來源節點 ID
- * @param targetId 目標節點 ID
- * @param duration 動畫持續時間（毫秒），預設 800ms
- * @returns Promise，動畫完成後 resolve
- */
-export function animateConnect(
-  svgEl: SVGSVGElement,
-  elements: BaseElement[],
-  manager: LinkManager,
-  sourceId: string,
-  targetId: string,
-  duration: number = 800,
-): Promise<void> {
-  return new Promise((resolve) => {
-    const svg = d3.select(svgEl);
-    const scene = svg.select<SVGGElement>("g.scene");
-
-    // 建立連線
-    manager.connect(sourceId, targetId);
-
-    // 查找節點
-    const byId = new Map(elements.map((e) => [String(e.id), e]));
-    const sourceNode = byId.get(sourceId);
-    const targetNode = byId.get(targetId);
-
-    if (!(sourceNode instanceof Node) || !(targetNode instanceof Node)) {
-      resolve();
-      return;
-    }
-
-    // 計算起點與終點（圓邊界）
-    const p1 = circleBoundaryPoint(
-      {
-        x: sourceNode.position.x,
-        y: sourceNode.position.y,
-        r: sourceNode.radius ?? 0,
-      },
-      { x: targetNode.position.x, y: targetNode.position.y },
-    );
-    const p2 = circleBoundaryPoint(
-      {
-        x: targetNode.position.x,
-        y: targetNode.position.y,
-        r: targetNode.radius ?? 0,
-      },
-      { x: sourceNode.position.x, y: sourceNode.position.y },
-    );
-
-    // 建立臨時動畫線段
-    const animLine = scene
-      .append("line")
-      .attr("class", "link-anim")
-      .attr("x1", p1.x)
-      .attr("y1", p1.y)
-      .attr("x2", p1.x) // 起點與終點相同，線段長度為 0
-      .attr("y2", p1.y);
-
-    // 從 0 伸長到 1 的動畫
-    animLine
-      .transition()
-      .duration(duration)
-      .ease(d3.easeQuadOut)
-      .attr("x2", p2.x)
-      .attr("y2", p2.y)
-      .on("end", () => {
-        // 動畫完成後移除臨時線段
-        animLine.remove();
-        resolve();
-      });
-  });
+interface LinkDatum {
+  s: Node;
+  t: Node;
+  status?: string;
+  weight?: number | string;
 }
 
 type BBox = { minX: number; minY: number; maxX: number; maxY: number };
@@ -440,30 +359,25 @@ export function renderAll(
 
       // 如果是有向圖，全部保留
       return true;
-    }) as {
-    s: Node;
-    t: Node;
-    status?: string;
-    weight?: number | string;
-  }[];
+    }) as LinkDatum[];
 
   // 快速查詢某條邊是否有「反向邊」存在
   const linkSet = new Set(linkData.map((d) => `${d.s.id}->${d.t.id}`));
 
   // 把每一條線與它的權重文字包在一個 <g class="link-group"> 裡面
   const linkGroups = scene
-    .selectAll<SVGGElement, any>("g.link-group")
-    .data(linkData, (d: any) => `${d.s.id}->${d.t.id}`);
+    .selectAll<SVGGElement, LinkDatum>("g.link-group")
+    .data(linkData, (d) => `${d.s.id}->${d.t.id}`);
 
   // 1. Exit：移除非當前的線，終點縮向起點 (與登場動畫對稱)
-  const exitingLinks = linkGroups.exit();
+  const exitingLinks = linkGroups.exit<LinkDatum>();
 
   exitingLinks
-    .select("path.link")
+    .select<SVGPathElement>("path.link")
     .transition()
     .duration(transitionDuration)
     .ease(transitionEase)
-    .attr("d", (d: any) => {
+    .attr("d", (d) => {
       const hasReverse = linkSet.has(`${d.t.id}->${d.s.id}`);
       const pathOffset =
         (isDirected || showBidirectionalArrows) && hasReverse ? 8 : 0;
@@ -548,7 +462,7 @@ export function renderAll(
     .style("opacity", 0); // 初始隱藏，伸長後顯示
 
   // 3. Merge & Update：更新所有群組的位置與狀態
-  const mergedLinkGroups = linkGroupEnter.merge(linkGroups as any);
+  const mergedLinkGroups = linkGroupEnter.merge(linkGroups);
 
   // 更新線條動畫
   mergedLinkGroups.each(function (d) {
@@ -657,12 +571,12 @@ export function renderAll(
   });
 
   // 如果線條有狀態，把整個群組提上來，避免被其他線蓋住
-  mergedLinkGroups.filter((d: any) => !!d.status).raise();
+  mergedLinkGroups.filter((d) => !!d.status).raise();
 
   // NODES / BOXES（在上層）
   const items = scene
     .selectAll<SVGGElement, BaseElement>("g.el")
-    .data(elements, (d: any) => String(d.id));
+    .data(elements, (d) => String(d.id));
 
   items.exit().remove();
 
@@ -674,7 +588,7 @@ export function renderAll(
     .style("opacity", (d) => d.opacity ?? 1);
 
   // 依型別建立一次對應圖形元素
-  enter.each(function (d: any) {
+  enter.each(function (d) {
     const g = d3.select(this);
     if (d.kind === "node" || d instanceof Node) {
       g.append("circle");
@@ -713,7 +627,7 @@ export function renderAll(
   });
 
   // === NODES 渲染同步修正 ===
-  const merged = enter.merge(items as any);
+  const merged = enter.merge(items);
 
   // 位移 transition（命名為 "move"，不含 opacity）
   merged
@@ -746,26 +660,27 @@ export function renderAll(
     const g = d3.select(this);
 
     if (d.kind === "node" || d instanceof Node) {
+      const node = d as Node;
       g.select<SVGCircleElement>("circle")
-        .attr("r", d.radius)
+        .attr("r", node.radius)
         .attr("fill", "none")
-        .attr("stroke", d.getColor())
+        .attr("stroke", node.getColor())
         .attr("stroke-width", 2);
 
       // 文字置中，放在圓下方（半徑 + 14px）
       g.select<SVGTextElement>("text.desc")
         .attr("text-anchor", "middle")
-        .attr("y", d.radius + 14)
+        .attr("y", node.radius + 14)
         .attr("font-size", 12)
         .attr("fill", "#ccc")
-        .text(d.description || "");
+        .text(node.description || "");
       // 文字置中，放在圓中間
       g.select<SVGTextElement>("text.val")
         .attr("text-anchor", "middle")
-        .attr("y", d.radius / 2 - 5)
+        .attr("y", node.radius / 2 - 5)
         .attr("font-size", 18)
         .attr("fill", "#ccc")
-        .text(d.value);
+        .text(node.value);
     } else if (d.kind === "box" || d instanceof Box) {
       const box = d as Box;
       const rect = g.select<SVGRectElement>("rect");

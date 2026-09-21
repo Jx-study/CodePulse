@@ -42,7 +42,7 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
   const handleRandomGrid = () => {
     const r = parseInt(gridRows) || 3;
     const c = parseInt(gridCols) || 5;
-    (onRandomData as any)({ rows: r, cols: c });
+    onRandomData({ rows: r, cols: c });
   };
 
   const normalizeId = (val: string) => {
@@ -111,11 +111,11 @@ export const BFSDFSActionBar: React.FC<AlgoActionBarProps> = ({
     } else {
       let startId, endId;
       if (graphStartElement !== "" || graphEndElement !== "") {
-        if (!currentData || !(currentData as any).nodes) {
+        if (!currentData || !currentData.nodes) {
           toast.warning(t("noGraphData"));
           return;
         }
-        const nodes = (currentData as any).nodes as { id: string }[];
+        const nodes = currentData.nodes as { id: string }[];
         if (graphStartElement !== "") {
           const targetId = `node-${normalizeId(graphStartElement)}`;
           if (!nodes.find((n) => n.id === targetId)) {

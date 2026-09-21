@@ -2,9 +2,16 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { createTreeNodes, buildLinksFromNodes } from "../utils";
-import { buildBST, flattenUniqueNodes } from "./simulateTrace";
+import { buildBST, flattenUniqueNodes, BSTInputItem } from "./simulateTrace";
 import { TAGS, BSTStatus } from "./tags";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import { asTrace } from "@/data/shared/traceValue";
+
+interface BSTTraceMeta {
+  inputData?: BSTInputItem[];
+  statusMap?: Record<string, string>;
+  linkStatusMap?: Record<string, linkStatus>;
+}
 
 const BST_LAYOUT = {
   degree: 2,
@@ -226,13 +233,13 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function bstTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta || {};
-    const inputData: any[] = meta.inputData || [];
-    const statusMap: Record<string, string> = meta.statusMap || {};
-    const linkStatusMap: Record<string, linkStatus> = meta.linkStatusMap || {};
+    const meta = asTrace<BSTTraceMeta>(event.meta);
+    const inputData = meta.inputData || [];
+    const statusMap = meta.statusMap || {};
+    const linkStatusMap = meta.linkStatusMap || {};
 
     const root = buildBST(inputData);
-    const uniqueData: any[] = [];
+    const uniqueData: BSTInputItem[] = [];
     flattenUniqueNodes(root || undefined, uniqueData);
 
     const treeElements = createTreeNodes(uniqueData, BST_LAYOUT);
@@ -259,7 +266,7 @@ export function bstTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: [...treeElements] as any,
+      elements: [...treeElements],
       links,
     };
   });

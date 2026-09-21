@@ -15,6 +15,10 @@ export function addStep(steps: AnimationStep[], stepData: AnimationStep) {
   steps.push(stepData);
 }
 
+export function isNode(n: Node | Pointer): n is Node {
+  return !(n instanceof Pointer);
+}
+
 export function linkForVariant(nodes: Node[], isDoubly: boolean) {
   if (isDoubly) {
     linkNodesDoubly(nodes);
@@ -98,7 +102,7 @@ export function getLabel(
   return labels.length > 0 ? labels.join("/") : "";
 }
 
-export function createPointers(
+function createPointers(
   x: number,
   y: number,
   config: {
@@ -174,6 +178,9 @@ export function makeNodeAndPointers(
   }
 
   const pointers = createPointers(x, y, { isHead, isTail, extraLabel });
-  (node as any).pointers = pointers;
+  // `Node.pointers` is typed as the adjacency list (Node[]) used by
+  // Graph/BST; LinkedList repurposes the same field to stash the visual
+  // head/tail/extra markers (Pointer[]) for this node instead.
+  (node as unknown as { pointers: Pointer[] }).pointers = pointers;
   return [node, ...pointers];
 }

@@ -13,7 +13,7 @@ interface AlgoDetectionDialogProps {
   onApply: (algoName: string) => void;
 }
 
-export function AlgoDetectionDialog({
+function AlgoDetectionDialog({
   isOpen,
   onClose,
   aiResult,

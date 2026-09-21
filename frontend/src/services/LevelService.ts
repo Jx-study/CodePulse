@@ -27,7 +27,7 @@ import {
 /**
  * Home 頁面展示用的輕量級資料
  */
-export interface HomePageAlgorithmMetadata {
+interface HomePageAlgorithmMetadata {
   id: number; // 展示順序 ID
   levelId: string; // 關卡真實 ID
   category: CategoryType;
@@ -44,13 +44,6 @@ export interface HomePageAlgorithmMetadata {
  */
 export function getAllLevels(): Level[] {
   return getRawLevels().map((raw) => levelConfigToLevel(rawToLevelConfig(raw)));
-}
-
-/**
- * 取得所有關卡配置（含 implementationKey）
- */
-export function getAllLevelConfigs(): LevelConfig[] {
-  return getRawLevels().map(rawToLevelConfig);
 }
 
 /**
@@ -82,25 +75,6 @@ export function getLevelByImplKey(implementationKey: string): LevelConfig | null
 }
 
 // ==================== 分類查詢 ====================
-
-/**
- * 根據分類取得關卡列表
- */
-export function getLevelsByCategory(category: CategoryType | "all"): Level[] {
-  if (category === "all") return getAllLevels();
-  return getRawLevels()
-    .filter((l) => l.category === category)
-    .map((raw) => levelConfigToLevel(rawToLevelConfig(raw)));
-}
-
-/**
- * 取得所有已開發的關卡
- */
-export function getDevelopedLevels(): Level[] {
-  return getRawLevels()
-    .filter((l) => l.isDeveloped)
-    .map((raw) => levelConfigToLevel(rawToLevelConfig(raw)));
-}
 
 // ==================== 首頁展示 ====================
 
@@ -231,17 +205,9 @@ export function computeAllUnlockStatus(
 // ==================== Boss 與 Portal 邏輯 ====================
 
 /**
- * 檢查關卡是否為 Boss Level
- */
-export function isBossLevel(levelId: string): boolean {
-  const level = getLevelConfigById(levelId);
-  return level?.pathMetadata?.pathType === "boss";
-}
-
-/**
  * 檢查關卡是否為 Portal Node
  */
-export function isPortalNode(levelId: string): boolean {
+function isPortalNode(levelId: string): boolean {
   const level = getLevelConfigById(levelId);
   return level?.pathMetadata?.pathType === "portal";
 }
@@ -252,16 +218,6 @@ export function isPortalNode(levelId: string): boolean {
 export function getCategoryBossLevel(category: CategoryType): Level | null {
   const raw = getRawLevels().find(
     (l) => l.category === category && l.pathMetadata?.pathType === "boss",
-  );
-  return raw ? levelConfigToLevel(rawToLevelConfig(raw)) : null;
-}
-
-/**
- * 取得指定分類的 Portal Node
- */
-export function getCategoryPortalNode(category: CategoryType): Level | null {
-  const raw = getRawLevels().find(
-    (l) => l.category === category && l.pathMetadata?.pathType === "portal",
   );
   return raw ? levelConfigToLevel(rawToLevelConfig(raw)) : null;
 }

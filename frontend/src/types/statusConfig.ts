@@ -9,7 +9,7 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
  * Individual status definition
  * 單一狀態定義
  */
-export interface StatusDefinition {
+interface StatusDefinition {
   /** Status identifier (used in code) - 狀態識別碼（程式碼中使用） */
   key: string;
   /** Display name (Chinese label) - 顯示名稱（中文標籤） */
@@ -67,24 +67,4 @@ export function buildStatusColorMap(config: StatusConfig): StatusColorMap {
     map[status.key] = status.color;
   });
   return map;
-}
-
-/**
- * Get color for a status key with fallback mechanism
- * 取得狀態顏色（含 fallback 機制）
- *
- * @param statusKey - The status key to look up
- * @param colorMap - The color map to search in
- * @param fallbackColor - Fallback color if key not found (default: "#888888")
- * @returns The color code
- *
- * @example
- * const color = getStatusColor("prepare", colorMap); // Returns color or fallback
- */
-export function getStatusColor(
-  statusKey: string,
-  colorMap: StatusColorMap,
-  fallbackColor: string = "#888888"
-): string {
-  return colorMap[statusKey] ?? fallbackColor;
 }

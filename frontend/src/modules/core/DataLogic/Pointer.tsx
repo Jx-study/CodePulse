@@ -1,6 +1,6 @@
 import { BaseElement } from "./BaseElement";
 
-export type PointerDirection = "up" | "down";
+type PointerDirection = "up" | "down";
 
 export class Pointer extends BaseElement {
   label: string;

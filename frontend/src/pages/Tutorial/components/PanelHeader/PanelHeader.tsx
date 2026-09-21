@@ -1,8 +1,17 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, type HTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './PanelHeader.module.scss';
 import Button from '@/shared/components/Button';
 import { TabList, type TabConfig } from '@/shared/components/Tabs';
+
+/**
+ * Drag-handle prop bag spread onto the handle element — sourced from
+ * @dnd-kit's `attributes`/`listeners` (varies by call site), an optional
+ * `ref` callback, and occasionally ad hoc style overrides.
+ */
+type DragHandleProps = {
+  ref?: (element: HTMLElement | null) => void;
+} & HTMLAttributes<HTMLDivElement>;
 
 interface PanelHeaderProps {
   title: string;
@@ -12,14 +21,14 @@ interface PanelHeaderProps {
   onToggleCollapse?: () => void;
   className?: string;
   draggable?: boolean;
-  dragHandleProps?: any;
+  dragHandleProps?: DragHandleProps;
   rightContent?: ReactNode;
   tabs?: TabConfig[];
   activeTab?: string;
   onTabChange?: (key: string) => void;
 }
 
-export function PanelHeader({
+function PanelHeader({
   title,
   icon,
   collapsible = false,

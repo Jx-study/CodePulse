@@ -23,7 +23,7 @@ import apiService from "@/api/api";
 
 // ==================== 後端 API 型別 ====================
 
-export interface ApiTutorialProgress {
+interface ApiTutorialProgress {
   tutorial_slug: string;
   teaching_completed: boolean;
   best_score: number | null;
@@ -323,33 +323,6 @@ export function calculateCategoryProgress(
     },
     {} as Record<CategoryType, CategoryProgressInfo>,
   );
-}
-
-/**
- * 完成關卡（更新進度）
- */
-export function completeLevel(
-  levelId: string,
-  userProgress: UserProgress,
-  newStars: 0 | 1 | 2 | 3,
-): UserProgress {
-  const currentProgress = getLevelProgress(levelId, userProgress);
-  const wasCompleted = currentProgress.status === "completed";
-
-  return {
-    ...userProgress,
-    levels: {
-      ...userProgress.levels,
-      [levelId]: {
-        ...currentProgress,
-        status: "completed" as const,
-        stars: Math.max(currentProgress.stars, newStars) as 0 | 1 | 2 | 3,
-        attempts: currentProgress.attempts + 1,
-      },
-    },
-    totalLevelsCompleted: userProgress.totalLevelsCompleted + (wasCompleted ? 0 : 1),
-    totalStarsEarned: userProgress.totalStarsEarned + (wasCompleted ? 0 : newStars),
-  };
 }
 
 /**

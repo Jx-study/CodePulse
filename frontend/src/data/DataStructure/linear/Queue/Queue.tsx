@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
 import { QueueActionBar } from "./QueueActionBar";
 import { queueRealWorldStories } from "./queue.stories";
@@ -12,7 +12,7 @@ import { simulateQueueTrace } from "./simulateTrace";
 import { queueTraceToSteps } from "./traceToSteps";
 import { TAGS } from "./tags";
 
-export function createQueueAnimationSteps(
+function createQueueAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {
@@ -228,7 +228,7 @@ export const QueueConfig: LevelImplementationConfig = {
   createAnimationSteps: createQueueAnimationSteps,
   actionHandler: queueActionHandler,
   realWorldStories: queueRealWorldStories,
-  renderActionBar: (props) => <QueueActionBar {...(props as any)} />,
+  renderActionBar: (props) => <QueueActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 225,

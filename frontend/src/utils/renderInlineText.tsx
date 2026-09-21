@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./renderInlineText.module.scss";
 
-export const INLINE_TEXT_TONES = [
+const INLINE_TEXT_TONES = [
   "primary",
   "success",
   "warning",
@@ -10,14 +10,14 @@ export const INLINE_TEXT_TONES = [
   "muted",
 ] as const;
 
-export type InlineTextTone = (typeof INLINE_TEXT_TONES)[number];
+type InlineTextTone = (typeof INLINE_TEXT_TONES)[number];
 
 interface RenderInlineTextOptions {
   tones?: Partial<Record<InlineTextTone, string>>;
   code?: string;
 }
 
-export const defaultInlineTextOptions: RenderInlineTextOptions = {
+const defaultInlineTextOptions: RenderInlineTextOptions = {
   tones: {
     primary: styles.tonePrimary,
     success: styles.toneSuccess,

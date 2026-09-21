@@ -1,5 +1,5 @@
 import type { AnimationStep, CodeConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { bfsRealWorldStories } from "@/data/algorithms/searching/bfs.stories";
 import { BFSDFSActionBar } from "./BFSDFSActionBar";
 import {
@@ -16,12 +16,13 @@ import {
   simulateGraphBFSTrace,
   simulateGridBFSTrace,
 } from "./BFS/simulateTrace";
+import type { RawGraphNode, GridCellData } from "@/data/DataStructure/nonlinear/utils";
 import { bfsTraceToSteps } from "./BFS/traceToSteps";
 import { TAGS, BFSStatusConfig } from "./BFS/tags";
 
 function parseGraphLoadPayload(
   dataStr: string,
-): { nodes: any[]; edges: string[][] } | null {
+): { nodes: RawGraphNode[]; edges: string[][] } | null {
   const parts = dataStr.split(":");
   if (parts.length < 3) return null;
   const nodeCount = parseInt(parts[1], 10);
@@ -71,10 +72,13 @@ function parseGridLoadPayload(
 function bfsActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any,
+  data: GraphData | GridCellData[],
   context: ActionContext,
 ): ActionResult<unknown> | null {
-  const defaultData = context.defaultData as { graph: GraphData; grid: any[] };
+  const defaultData = context.defaultData as {
+    graph: GraphData;
+    grid: GridCellData[];
+  };
 
   if (actionType === "random") {
     const mode = (payload.mode as string) || "graph";
@@ -141,13 +145,16 @@ function bfsActionHandler(
       };
     }
     const newData = cloneData(defaultData.graph) as GraphData;
-    const isGraphData = (d: any): d is GraphData =>
-      d && !Array.isArray(d) && Array.isArray(d.nodes);
+    const isGraphData = (d: unknown): d is GraphData =>
+      !!d &&
+      typeof d === "object" &&
+      !Array.isArray(d) &&
+      Array.isArray((d as GraphData).nodes);
     if (isGraphData(data)) {
       const coordMap = new Map(
-        data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+        data.nodes.map((n) => [n.id, { x: n.x, y: n.y }]),
       );
-      newData.nodes.forEach((n: any) => {
+      newData.nodes.forEach((n) => {
         const saved = coordMap.get(n.id);
         if (saved?.x != null && saved?.y != null) {
           n.x = saved.x;
@@ -183,9 +190,16 @@ function bfsActionHandler(
   return null;
 }
 
-export function createBFSAnimationSteps(
-  inputData: any[],
-  action?: any,
+interface BFSRunAction {
+  mode?: "graph" | "grid";
+  startNode?: string;
+  endNode?: string;
+  cols?: number;
+}
+
+function createBFSAnimationSteps(
+  inputData: GridCellData[] | { nodes: RawGraphNode[]; edges: string[][] },
+  action?: BFSRunAction,
 ): AnimationStep[] {
   const startNodeId = action?.startNode;
   const endNodeId = action?.endNode;
@@ -193,12 +207,16 @@ export function createBFSAnimationSteps(
   const trace =
     action?.mode === "grid"
       ? simulateGridBFSTrace(
-          inputData,
+          inputData as GridCellData[],
           action?.cols || 5,
           startNodeId,
           endNodeId,
         )
-      : simulateGraphBFSTrace(inputData, startNodeId, endNodeId);
+      : simulateGraphBFSTrace(
+          inputData as { nodes: RawGraphNode[]; edges: string[][] },
+          startNodeId,
+          endNodeId,
+        );
 
   return bfsTraceToSteps(trace);
 }
@@ -340,7 +358,7 @@ export const BFSConfig: LevelImplementationConfig = {
   description: "廣度優先搜尋演算法，用於圖或樹的遍歷",
   i18nNamespace: "tutorials/bfs",
   codeConfig: bfsGraphCodeConfig,
-  getCodeConfig: (payload?: any): CodeConfig => {
+  getCodeConfig: (payload?: { mode?: string }): CodeConfig => {
     if (payload?.mode === "grid") return bfsGridCodeConfig;
     return bfsGraphCodeConfig;
   },
@@ -405,7 +423,7 @@ BFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量�
     animateOn: ["prepare"],
     directOn: ["target", "complete"],
   },
-  renderActionBar: (props) => <BFSDFSActionBar {...(props as any)} />,
+  renderActionBar: (props) => <BFSDFSActionBar {...(props as AlgoActionBarProps)} />,
   maxNodes: 15,
   realWorldStories: bfsRealWorldStories,
   relatedProblems: [

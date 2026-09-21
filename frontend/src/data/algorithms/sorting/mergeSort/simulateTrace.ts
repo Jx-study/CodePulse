@@ -1,4 +1,4 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
@@ -30,7 +30,7 @@ export function simulateMergeSortTrace(
     status: Status.Unfinished,
   }));
 
-  const pushTrace = (tag: string, vars: any = {}) => {
+  const pushTrace = (tag: string, vars: Record<string, JsonValue> = {}) => {
     trace.push({
       tag,
       local_vars: vars,

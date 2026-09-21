@@ -2,6 +2,7 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { toStatus } from "@/data/implementations/traceConverters";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
 import type { QSLayoutInfo } from "./simulateTrace";
 
@@ -48,7 +49,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 
 export function quickSortTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const layout = (event.meta?.layout as QSLayoutInfo[]) ?? [];
+    const layout = asTrace<{ layout?: QSLayoutInfo[] }>(event.meta).layout ?? [];
 
     const startX = 50;
     const gapX = 70;
@@ -79,7 +80,7 @@ export function quickSortTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: descriptionData ?? String(event.tag),
       actionTag: event.tag,
       local_vars: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

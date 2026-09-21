@@ -4,7 +4,18 @@ import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createBoxes, LinearData } from "@/data/DataStructure/linear/utils";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface BinarySearchMeta {
+  left?: number;
+  right?: number;
+  mid?: number;
+  foundIndex?: number;
+  targetIndices?: number[];
+  prepareIndices?: number[];
+  completeIndices?: number[];
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
@@ -99,13 +110,15 @@ export function binarySearchTraceToSteps(
   trace: ExecutionTrace,
 ): AnimationStep[] {
   return trace.map((event, idx) => {
-    const meta = event.meta ?? {};
-    const { left, right, mid } = meta;
+    const meta = asTrace<BinarySearchMeta>(event.meta);
+    const left = meta.left ?? 0;
+    const right = meta.right ?? -1;
+    const mid = meta.mid ?? -1;
     const foundIndex = meta.foundIndex ?? -1;
 
-    const targetIndices = (meta.targetIndices as number[]) ?? [];
-    const prepareIndices = (meta.prepareIndices as number[]) ?? [];
-    const completeIndices = (meta.completeIndices as number[]) ?? [];
+    const targetIndices = meta.targetIndices ?? [];
+    const prepareIndices = meta.prepareIndices ?? [];
+    const completeIndices = meta.completeIndices ?? [];
 
     const overrideStatusMap: Record<number, Status> = {};
     targetIndices.forEach((i) => (overrideStatusMap[i] = Status.Target));
@@ -133,7 +146,7 @@ export function binarySearchTraceToSteps(
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       variables: event.local_vars,
-      elements: [...boxes, ...pointers] as any,
+      elements: [...boxes, ...pointers],
     };
   });
 }

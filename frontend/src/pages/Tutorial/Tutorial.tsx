@@ -10,7 +10,7 @@ import { tutorialService } from "@/services/tutorialService";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
-import { DragEndEvent } from "@dnd-kit/core";
+import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
@@ -27,6 +27,8 @@ import type { BreadcrumbItem } from "@/types";
 import {
   DEFAULT_LINK_ANIM_CONFIG,
   type AlgorithmViewMode,
+  type LevelImplementationConfig,
+  type RunParams,
 } from "@/types/implementation";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
@@ -48,13 +50,13 @@ import {
   DEFAULT_STATUS_CONFIG,
 } from "@/types/statusConfig";
 import { useTranslation } from "react-i18next";
-import type { StepDescription } from "@/types";
+import type { AnimationStep, StepDescription } from "@/types";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import type { CanvasPanelProps } from "@/types/canvasTypes";
 
 function renderDescription(
   desc: string | StepDescription | undefined,
-  t: (key: string, params?: Record<string, any>) => string,
+  t: (key: string, params?: Record<string, unknown>) => string,
 ): string {
   if (!desc) return "";
   if (typeof desc === "string") return desc;
@@ -197,12 +199,12 @@ export interface InspectorPanelInternalProps {
   isMobile: boolean;
   activeInspectorTab: string;
   setActiveInspectorTab: (tab: string) => void;
-  topicTypeConfig: any;
+  topicTypeConfig: LevelImplementationConfig | null;
   handleLoadData: (raw: string) => void;
-  handleRandomData: (params?: any) => void;
+  handleRandomData: (params?: Record<string, unknown>) => void;
   handleResetData: () => void;
   isProcessing: boolean;
-  handleRunAlgorithm: (params?: any) => void;
+  handleRunAlgorithm: (params?: RunParams) => void;
   handleAddNode: (value: number, mode: string, index?: number) => void;
   handleDeleteNode: (mode: string, index?: number) => void;
   handleSearchNode: (value: number, mode?: string) => void;
@@ -213,14 +215,14 @@ export interface InspectorPanelInternalProps {
   hasTailMode: boolean;
   handleListModeChange: (mode: "singly" | "doubly") => void;
   listMode: "singly" | "doubly";
-  handleGraphAction: (action: string, payload: any) => void;
-  handleCustomAction: (action: string, payload: any) => void;
+  handleGraphAction: (action: string, payload: unknown) => void;
+  handleCustomAction: (action: string, payload: unknown) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
   viewMode: AlgorithmViewMode | "";
   handleViewModeChange: (mode: AlgorithmViewMode) => void;
-  currentData: any;
-  currentStepData: any;
+  currentData: unknown;
+  currentStepData: AnimationStep | undefined;
   disabledTabs: Set<string>;
 }
 
@@ -339,7 +341,7 @@ export const InspectorPanelInternal = ({
               style={isActive ? undefined : { display: "none" }}
             >
               <Suspense fallback={<div>{tTutorial("common.loading")}</div>}>
-                <PanelComponent {...(tabProps as any)} />
+                <PanelComponent {...tabProps} />
               </Suspense>
             </div>
           );
@@ -701,9 +703,9 @@ function TutorialContent() {
   }, [activeSteps]);
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
-  const currentLinks = useMemo(() => {
+  const currentLinks = useMemo((): Link[] => {
     if (currentStepData?.links) {
-      return currentStepData.links;
+      return currentStepData.links as Link[];
     }
 
     const links: Link[] = [];
@@ -798,7 +800,7 @@ function TutorialContent() {
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
-  const handleRandomData = (params?: any) => {
+  const handleRandomData = (params?: Record<string, unknown>) => {
     executeAction("random", {
       randomCount: randomCountRef.current,
       hasTailMode,
@@ -900,7 +902,7 @@ function TutorialContent() {
     }
   };
 
-  const handleRunAlgorithm = (params?: any) => {
+  const handleRunAlgorithm = (params?: RunParams) => {
     if (!isAlgorithm) return;
 
     const steps = executeAction("run", params); // 執行演算法
@@ -919,7 +921,7 @@ function TutorialContent() {
     setIsPlaying(false);
   };
 
-  const handleGraphAction = (action: string, payload: any) => {
+  const handleGraphAction = (action: string, payload: unknown) => {
     if (isProcessing) return;
 
     const steps = logic.executeAction(action, payload);
@@ -930,7 +932,7 @@ function TutorialContent() {
     }
   };
 
-  const handleCustomAction = (action: string, payload: any) => {
+  const handleCustomAction = (action: string, payload: unknown) => {
     if (isProcessing) return;
 
     const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
@@ -1093,8 +1095,8 @@ function TutorialContent() {
   };
 
   // Drag and Drop handlers
-  const handleDragStart = (event: any) => {
-    setActiveDragId(event.active.id);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {

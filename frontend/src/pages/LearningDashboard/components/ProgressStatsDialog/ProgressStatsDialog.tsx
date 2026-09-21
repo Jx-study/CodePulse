@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { DURATION_BASE } from '@/shared/motion/transitions';
 import styles from './ProgressStatsDialog.module.scss';
 import Dialog from '@/shared/components/Dialog';
 import Card from '@/shared/components/Card';
@@ -35,7 +36,7 @@ function ProgressStatsDialog({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: DURATION_BASE }}
         >
           <Card hoverable={false} className={styles.heroCard}>
             <div className={styles.heroInner}>
@@ -74,7 +75,7 @@ function ProgressStatsDialog({
           className={styles.statsGrid}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          transition={{ duration: DURATION_BASE, delay: 0.1 }}
         >
           <div className={styles.statItem}>
             <div className={styles.statIcon}>

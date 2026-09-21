@@ -67,8 +67,7 @@ export function simulateArrayTrace(
   // Update
   } else if (type === "add" && action.mode === "Update") {
     const idx = index !== undefined ? index : -1;
-    const oldValue =
-      (action as any).oldValue !== undefined ? (action as any).oldValue : value;
+    const oldValue = action.oldValue !== undefined ? action.oldValue : value;
 
     if (idx >= 0 && idx < dataList.length) {
       const snapBefore = snapshot(dataList);
@@ -176,7 +175,7 @@ export function simulateArrayTrace(
     const idx = index !== undefined ? index : -1;
     if (idx >= 0) {
       const poppedNode = {
-        id: (action as any).targetId || "temp-pop",
+        id: action.targetId || "temp-pop",
         value: 0 as number | string | undefined,
       };
       let currentList = [...dataList, poppedNode].map((item) => ({ ...item }));

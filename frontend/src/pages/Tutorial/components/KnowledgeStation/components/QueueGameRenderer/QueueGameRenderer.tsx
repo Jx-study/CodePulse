@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
+import { DURATION_BASE } from '@/shared/motion/transitions';
 import classNames from 'classnames';
 import Icon from '@/shared/components/Icon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -277,7 +278,7 @@ export default function QueueGameRenderer({ data, ns }: Props) {
                 exit={{
                   opacity: 0,
                   scale: 0.8,
-                  transition: { duration: 0.3 },
+                  transition: { duration: DURATION_BASE },
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 style={{

@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 
-type ValidationRule<T> = (value: any, values: T) => string | null;
+type ValidationRule<T> = (value: T[keyof T], values: T) => string | null;
 type ValidationRules<T> = Partial<Record<keyof T, ValidationRule<T>>>;
 type Errors<T> = Partial<Record<keyof T, string>>;
 type Touched<T> = Partial<Record<keyof T, boolean>>;
 
-export interface UseFormReturn<T extends Record<string, any>> {
+interface UseFormReturn<T extends object> {
   values: T;
   errors: Errors<T>;
   touched: Touched<T>;
@@ -18,11 +18,11 @@ export interface UseFormReturn<T extends Record<string, any>> {
   /** Write an API-level error directly to a field (e.g. "username taken"). */
   setFieldError: (field: keyof T, message: string) => void;
   /** Programmatic value update without triggering validation. */
-  setValue: (field: keyof T, value: any) => void;
+  setValue: (field: keyof T, value: unknown) => void;
   reset: () => void;
 }
 
-function computeIsValid<T extends Record<string, any>>(
+function computeIsValid<T extends object>(
   errors: Errors<T>,
   touched: Touched<T>,
   rules: ValidationRules<T>
@@ -33,7 +33,7 @@ function computeIsValid<T extends Record<string, any>>(
   );
 }
 
-function useForm<T extends Record<string, any>>(config: {
+function useForm<T extends object>(config: {
   initialValues: T;
   validationRules: ValidationRules<T>;
   onSubmit: (values: T) => Promise<void> | void;
@@ -73,7 +73,7 @@ function useForm<T extends Record<string, any>>(config: {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateField = useCallback(
-    (field: keyof T, value: any, currentValues: T): string => {
+    (field: keyof T, value: T[keyof T], currentValues: T): string => {
       const rule = validationRules[field];
       return rule ? rule(value, currentValues) ?? "" : "";
     },
@@ -89,7 +89,8 @@ function useForm<T extends Record<string, any>>(config: {
       setValues((prev) => {
         const next = { ...prev, [name]: newValue };
         if (touched[name as keyof T]) {
-          const err = validateField(name as keyof T, newValue, next);
+          // DOM input values are trusted to match the field's declared type.
+          const err = validateField(name as keyof T, newValue as T[keyof T], next);
           setErrors((prevErr) => ({ ...prevErr, [name]: err }));
         }
         return next;
@@ -103,7 +104,8 @@ function useForm<T extends Record<string, any>>(config: {
       const { name, value } = e.target;
       setTouched((prev) => ({ ...prev, [name]: true }));
       setValues((prev) => {
-        const err = validateField(name as keyof T, value, prev);
+        // DOM input values are trusted to match the field's declared type.
+        const err = validateField(name as keyof T, value as T[keyof T], prev);
         setErrors((prevErr) => ({ ...prevErr, [name]: err }));
         return prev;
       });
@@ -138,7 +140,7 @@ function useForm<T extends Record<string, any>>(config: {
     setErrors((prev) => ({ ...prev, [field]: message }));
   }, []);
 
-  const setValue = useCallback((field: keyof T, value: any) => {
+  const setValue = useCallback((field: keyof T, value: unknown) => {
     setValues((prev) => ({ ...prev, [field]: value }));
   }, []);
 

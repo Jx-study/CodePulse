@@ -8,7 +8,7 @@ import type {
 } from "@/types/practice";
 import { PracticeService } from "@/services/PracticeService";
 import { tutorialService } from "@/services/tutorialService";
-import type { ApiQuestion } from "@/services/tutorialService";
+import type { ApiQuestion, SubmitResult } from "@/services/tutorialService";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
@@ -281,8 +281,10 @@ function Practice() {
 
     try {
       const resp = await tutorialService.submitPractice(levelId, payload, i18n.language);
-      const answerResults: AnswerResult[] = resp.results.map((r: any) => {
+      const answerResults: AnswerResult[] = resp.results.map((r) => {
         const q = randomizedQuestions.find((q) => q.backendId === r.question_id)!;
+        // `points` is returned by the backend but not yet modeled on SubmitResult.
+        const { points } = r as SubmitResult & { points: number };
         return {
           questionId: q.id,
           isCorrect: r.is_correct,
@@ -290,7 +292,7 @@ function Practice() {
           correctAnswer: r.correct_answer ?? '',
           explanation: r.explanation ?? '',
           timeSpent: Math.round((finalTimeRecords[q.id] || 0) / 1000),
-          points: r.points,
+          points,
         };
       });
 

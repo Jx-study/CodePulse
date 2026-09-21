@@ -1,10 +1,22 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
+
+export interface GraphAction {
+  type?: string;
+  isDirected?: boolean;
+  value?: string;
+  id?: string;
+  source?: string;
+  target?: string;
+  deletedEdges?: [string, string][];
+  deletedNodeCoords?: { x?: number; y?: number };
+}
 
 export function simulateGraphTrace(
-  inputData: any,
-  action?: any,
+  inputData: { nodes: RawGraphNode[]; edges: string[][] },
+  action?: GraphAction,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const type = action?.type;
@@ -14,22 +26,24 @@ export function simulateGraphTrace(
 
   const pushTrace = (
     tag: string,
-    vars: any,
+    vars: Record<string, JsonValue>,
     statusMap: Record<string, Status> = {},
     linkStatusMap: Record<string, string> = {},
-    metaOpts: any = {},
+    metaOpts: Record<string, JsonValue> = {},
   ) => {
     trace.push({
       tag,
       local_vars: vars,
-      dataSnapshot: rawNodes.map((n: any) => ({ id: n.id, value: n.value })),
+      dataSnapshot: rawNodes.map((n) => ({ id: n.id, value: n.value })),
+      // meta.graphData carries typed RawGraphNode[] rather than JSON, so it's
+      // cast at the boundary of TraceEvent.meta's declared JSON-only type.
       meta: {
         graphData: inputData,
         isDirected,
         statusMap: { ...statusMap },
         linkStatusMap: { ...linkStatusMap },
         ...metaOpts,
-      },
+      } as unknown as Record<string, JsonValue>,
     });
   };
 
@@ -42,7 +56,7 @@ export function simulateGraphTrace(
   }
 
   if (type === "addVertex") {
-    const targetId = ensurePrefix(action.value);
+    const targetId = ensurePrefix(action.value!);
     pushTrace(
       TAGS.ADD_VERTEX,
       { insertVal: action.value },
@@ -54,7 +68,7 @@ export function simulateGraphTrace(
       { [targetId]: Status.Complete },
     );
   } else if (type === "removeVertex") {
-    const targetId = ensurePrefix(action.id);
+    const targetId = ensurePrefix(action.id!);
     const linkStatusMap: Record<string, string> = {};
 
     // Ghost elements logic: 標記準備被刪掉的線
@@ -81,8 +95,8 @@ export function simulateGraphTrace(
     );
     pushTrace(TAGS.REMOVE_VERTEX_UPDATE, { removeVal: action.id }, {}, {});
   } else if (type === "addEdge") {
-    const sId = ensurePrefix(action.source);
-    const tId = ensurePrefix(action.target);
+    const sId = ensurePrefix(action.source!);
+    const tId = ensurePrefix(action.target!);
     const linkStatusMap: Record<string, string> = {};
 
     pushTrace(
@@ -103,8 +117,8 @@ export function simulateGraphTrace(
       linkStatusMap,
     );
   } else if (type === "removeEdge") {
-    const sId = ensurePrefix(action.source);
-    const tId = ensurePrefix(action.target);
+    const sId = ensurePrefix(action.source!);
+    const tId = ensurePrefix(action.target!);
     const linkStatusMap: Record<string, string> = {};
 
     linkStatusMap[`${sId}->${tId}`] = Status.Target;
@@ -124,7 +138,7 @@ export function simulateGraphTrace(
       {},
     );
   } else if (type === "getNeighbors") {
-    const targetId = ensurePrefix(action.id);
+    const targetId = ensurePrefix(action.id!);
     pushTrace(
       TAGS.GET_NEIGHBORS,
       { target: action.id },
@@ -132,12 +146,12 @@ export function simulateGraphTrace(
     );
 
     const neighbors = rawEdges
-      .filter((e: any) => e[0] === targetId)
-      .map((e: any) => e[1]);
+      .filter((e) => e[0] === targetId)
+      .map((e) => e[1]);
     if (!isDirected) {
       rawEdges
-        .filter((e: any) => e[1] === targetId)
-        .forEach((e: any) => neighbors.push(e[0]));
+        .filter((e) => e[1] === targetId)
+        .forEach((e) => neighbors.push(e[0]));
     }
 
     if (neighbors.length === 0) {
@@ -181,8 +195,8 @@ export function simulateGraphTrace(
       );
     }
   } else if (type === "checkAdjacent") {
-    const sId = ensurePrefix(action.source);
-    const tId = ensurePrefix(action.target);
+    const sId = ensurePrefix(action.source!);
+    const tId = ensurePrefix(action.target!);
     pushTrace(
       TAGS.CHECK_ADJACENT,
       {
@@ -193,7 +207,7 @@ export function simulateGraphTrace(
       { [sId]: Status.Target, [tId]: Status.Target },
     );
 
-    const isConnected = rawEdges.some((e: any) => e[0] === sId && e[1] === tId);
+    const isConnected = rawEdges.some((e) => e[0] === sId && e[1] === tId);
     if (isConnected) {
       pushTrace(
         TAGS.CHECK_ADJACENT_RESULT_TRUE,
@@ -209,7 +223,7 @@ export function simulateGraphTrace(
       );
     }
   } else if (type === "getDegree") {
-    const targetId = ensurePrefix(action.id);
+    const targetId = ensurePrefix(action.id!);
     const tag = isDirected
       ? TAGS.GET_DEGREE_DIRECTED
       : TAGS.GET_DEGREE_UNDIRECTED;
@@ -221,20 +235,20 @@ export function simulateGraphTrace(
 
     const statusMap: Record<string, Status> = {};
     const linkStatusMap: Record<string, string> = {};
-    let local_vars: any = { target: action.id };
+    const local_vars: Record<string, JsonValue> = { target: action.id ?? null };
 
     if (isDirected) {
       const outNeighbors = rawEdges
-        .filter((e: any) => e[0] === targetId)
-        .map((e: any) => e[1]);
+        .filter((e) => e[0] === targetId)
+        .map((e) => e[1]);
       outNeighbors.forEach((nId: string) => {
         statusMap[nId] = Status.Complete;
         linkStatusMap[`${targetId}->${nId}`] = Status.Complete;
       });
 
       const inNeighbors = rawEdges
-        .filter((e: any) => e[1] === targetId)
-        .map((e: any) => e[0]);
+        .filter((e) => e[1] === targetId)
+        .map((e) => e[0]);
       inNeighbors.forEach((nId: string) => {
         statusMap[nId] = Status.Unfinished;
         linkStatusMap[`${nId}->${targetId}`] = Status.Unfinished;
@@ -244,7 +258,7 @@ export function simulateGraphTrace(
       local_vars.outDegree = outNeighbors.length;
     } else {
       let degree = 0;
-      rawEdges.forEach((e: any) => {
+      rawEdges.forEach((e) => {
         if (e[0] === targetId) {
           statusMap[e[1]] = Status.Complete;
           linkStatusMap[`${e[0]}->${e[1]}`] = Status.Complete;
@@ -265,8 +279,8 @@ export function simulateGraphTrace(
   else if (type === "checkConnected") {
     if (rawNodes.length === 0) return trace;
     const undirectedAdj = new Map<string, string[]>();
-    rawNodes.forEach((n: any) => undirectedAdj.set(n.id, []));
-    rawEdges.forEach((e: any) => {
+    rawNodes.forEach((n) => undirectedAdj.set(n.id, []));
+    rawEdges.forEach((e) => {
       undirectedAdj.get(e[0])?.push(e[1]);
       if (e[0] !== e[1]) undirectedAdj.get(e[1])?.push(e[0]);
     });
@@ -350,7 +364,7 @@ export function simulateGraphTrace(
     const isConnected = visited.size === rawNodes.length;
     const finalStatusMap: Record<string, Status> = { ...statusMap };
     if (!isConnected) {
-      rawNodes.forEach((n: any) => {
+      rawNodes.forEach((n) => {
         if (!visited.has(n.id))
           finalStatusMap[n.id] = Status.Target; // 孤島
         else finalStatusMap[n.id] = Status.Unfinished;
@@ -377,8 +391,8 @@ export function simulateGraphTrace(
     let hasCycle = false;
 
     const adj = new Map<string, string[]>();
-    rawNodes.forEach((n: any) => adj.set(n.id, []));
-    rawEdges.forEach((e: any) => {
+    rawNodes.forEach((n) => adj.set(n.id, []));
+    rawEdges.forEach((e) => {
       adj.get(e[0])?.push(e[1]);
       if (!isDirected && e[0] !== e[1]) adj.get(e[1])?.push(e[0]);
     });

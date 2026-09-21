@@ -1,13 +1,21 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS } from "./tags";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
+
+/** Purely client-side simulation (no backend trace) — `meta` carries the
+ * actual typed domain objects rather than JSON, so it's cast at the
+ * boundary of `TraceEvent.meta`'s declared JSON-only contract. */
+export interface QueueTraceMeta {
+  dataList: BoxData[];
+  action?: ActionType;
+}
 
 export function simulateQueueTrace(
   dataList: BoxData[],
   action?: ActionType,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
-  const meta = { dataList, action };
+  const meta = { dataList, action } as unknown as Record<string, JsonValue>;
 
   if (!action) {
     const rear = dataList.length - 1;
@@ -69,7 +77,7 @@ export function simulateQueueTrace(
     }
 
     const fullList = [
-      { id: (action as any).targetId || "del-temp", value },
+      { id: action.targetId || "del-temp", value },
       ...dataList,
     ];
     const oldRear = fullList.length - 1;

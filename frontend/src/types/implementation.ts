@@ -6,7 +6,7 @@ import type { VisualizationActionHandler } from "@/modules/core/visualization/ty
 import type { RealWorldStory } from "./realWorldStory";
 
 /** 哪些 link.status 變化時要播放邊動畫（由演算法 config 選填） */
-export interface LinkAnimConfig {
+interface LinkAnimConfig {
   /** 這些 status 觸發動畫並阻塞 step 推進 */
   animateOn: string[];
   /** 這些 status 直接換色（step 推進後 re-render 自動套用，不阻塞）；僅作為文件語義 */
@@ -46,7 +46,7 @@ export interface ProblemReference {
   url: string;
 }
 
-export interface IntroductionReference {
+interface IntroductionReference {
   key: string;
 }
 
@@ -93,7 +93,12 @@ export type RunParams =
   | { type: "fibonacciDP"; n: number }
   | { type: "fibonacciRecursive"; n: number };
 
-export interface BaseActionBarProps {
+// ActionBarProps below is a heterogeneous registry union: every data-structure/
+// algorithm module renders its own ActionBar with its own params/payload shape
+// through the single `renderActionBar` slot on LevelImplementationConfig (see
+// below). The `any`s here are the deliberate type-erasure points for that —
+// each module's concrete component narrows them back via its own local types.
+interface BaseActionBarProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
   onRandomData: (params?: any) => void;
@@ -128,6 +133,14 @@ export interface AlgoActionBarProps extends BaseActionBarProps {
 
 export type ActionBarProps = DSActionBarProps | AlgoActionBarProps;
 
+// LevelImplementationConfig is likewise a heterogeneous registry: every
+// module's `data`/`action`/`config` types differ (e.g. LinkedList's
+// ListNodeData[] vs BST's BSTInputItem[]), but they're all dispatched through
+// one ImplementationMap keyed by string id. The `any`s below are the
+// deliberate type-erasure points for that dispatch — this is the standard
+// TypeScript escape hatch for a plugin/strategy registry; concrete modules
+// keep their own properly-typed `create*AnimationSteps` internally and are
+// only erased at the point they're assigned into this shared config shape.
 export interface LevelImplementationConfig {
   id: ImplementationId;
   type: "algorithm" | "dataStructure";
@@ -161,7 +174,7 @@ export interface LevelImplementationConfig {
   actionHandler?: VisualizationActionHandler<any>;
 }
 
-export type ImplementationId =
+type ImplementationId =
   | "array"
   | "linkedlist"
   | "stack"

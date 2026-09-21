@@ -1,16 +1,25 @@
-import type { ExecutionTrace, TraceEvent } from "@/types/trace";
+import type { ExecutionTrace, TraceEvent, JsonValue } from "@/types/trace";
 import { TAGS, DFSStatus } from "./tags";
 import {
   createGraphElements,
   updateLinkStatus,
+  RawGraphNode,
+  GridCellData,
 } from "@/data/DataStructure/nonlinear/utils";
 import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { linkStatus } from "@/modules/core/Render/D3Renderer";
 
+interface DFSMetaOpts {
+  pushingNodeIds?: string[];
+  poppingNodeId?: string;
+  pathLength?: number;
+  showIdAsValue?: boolean;
+}
+
 // Graph DFS
 export function simulateGraphDFSTrace(
-  graphData: any,
+  graphData: { nodes: RawGraphNode[]; edges: string[][] },
   startId?: string,
   endId?: string,
 ): ExecutionTrace {
@@ -38,11 +47,17 @@ export function simulateGraphDFSTrace(
 
   baseElements.forEach((n) => (distanceMap[n.id] = Infinity));
 
-  const pushTrace = (tag: string, vars: any, meta: any) => {
+  const pushTrace = (
+    tag: string,
+    vars: Record<string, JsonValue>,
+    meta: DFSMetaOpts,
+  ) => {
     trace.push({
       tag,
       local_vars: vars,
-      dataSnapshot: graphData,
+      dataSnapshot: [],
+      // meta carries typed domain objects (Node[] graph elements) rather
+      // than JSON, so it's cast at the boundary of TraceEvent.meta's JSON-only type.
       meta: {
         viewMode: "graph",
         baseElements,
@@ -52,7 +67,7 @@ export function simulateGraphDFSTrace(
         stack: stack.map((s) => s.id),
         result: [...result],
         ...meta,
-      },
+      } as unknown as Record<string, JsonValue>,
     });
   };
 
@@ -238,7 +253,7 @@ export function simulateGraphDFSTrace(
 
 // Grid DFS
 export function simulateGridDFSTrace(
-  gridData: any[],
+  gridData: GridCellData[],
   cols: number = 5,
   startId?: string,
   endId?: string,
@@ -261,11 +276,17 @@ export function simulateGridDFSTrace(
   const stack: number[] = [];
   const result: number[] = [];
 
-  const pushTrace = (tag: string, vars: any, meta: any) => {
+  const pushTrace = (
+    tag: string,
+    vars: Record<string, JsonValue>,
+    meta: DFSMetaOpts,
+  ) => {
     trace.push({
       tag,
       local_vars: vars,
-      dataSnapshot: gridData,
+      // Grid events actually carry {id,val} (consumed by generateGridFrame),
+      // not the declared {id,value} shape — cast at this boundary.
+      dataSnapshot: gridData as unknown as TraceEvent["dataSnapshot"],
       meta: {
         viewMode: "grid",
         cols,
@@ -274,7 +295,7 @@ export function simulateGridDFSTrace(
         stack: stack.map(String),
         result: result.map(String),
         ...meta,
-      },
+      } as unknown as Record<string, JsonValue>,
     });
   };
 

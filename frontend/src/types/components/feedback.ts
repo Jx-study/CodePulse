@@ -4,7 +4,7 @@
  */
 
 // ==================== Dialog Component ====================
-export interface DialogProps {
+export interface DialogProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   isOpen: boolean;
   onClose: () => void;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -28,7 +28,6 @@ export interface DialogProps {
   animationDuration?: number;
   onAfterOpen?: () => void;
   onAfterClose?: () => void;
-  [key: string]: any;
 }
 
 // ==================== Sidebar Component ====================
@@ -48,21 +47,37 @@ export interface SidebarProps {
 }
 
 // ==================== Tooltip Component ====================
+/**
+ * Props shape Tooltip actually reads/writes on its `children` element
+ * (merges refs, wraps mouse/focus handlers). The index signature lets
+ * arbitrary other DOM props (e.g. `aria-describedby`) pass through
+ * `cloneElement` without excess-property errors.
+ */
+interface TooltipChildProps {
+  ref?: React.Ref<HTMLElement>;
+  className?: string;
+  onMouseEnter?: (e: React.MouseEvent) => void;
+  onMouseLeave?: (e: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent) => void;
+  onFocus?: (e: React.FocusEvent) => void;
+  onBlur?: (e: React.FocusEvent) => void;
+  [key: string]: unknown;
+}
+
 export interface TooltipProps {
   content: React.ReactNode;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   trigger?: 'hover' | 'click' | 'focus';
   delay?: number;
   disabled?: boolean;
-  children: React.ReactElement;
+  children: React.ReactElement<TooltipChildProps>;
   className?: string;
   tooltipClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== EmptyState Component ====================
-export interface EmptyStateProps {
+export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   icon?: React.ReactNode;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -74,5 +89,4 @@ export interface EmptyStateProps {
   titleClassName?: string;
   descriptionClassName?: string;
   'aria-label'?: string;
-  [key: string]: any;
 }

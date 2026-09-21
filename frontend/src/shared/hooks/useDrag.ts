@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Point2D } from '@/types';
 
-export interface UseDragOptions {
+interface UseDragOptions {
   /** 是否啟用拖拽功能 (預設: true) */
   enabled?: boolean;
   /** 初始位移 (預設: {x: 0, y: 0}) */
@@ -27,7 +27,7 @@ export interface UseDragOptions {
   onDragEnd?: (offset: Point2D) => void;
 }
 
-export interface UseDragReturn<T extends HTMLElement = HTMLElement> {
+interface UseDragReturn<T extends HTMLElement = HTMLElement> {
   /** 當前位移 */
   offset: Point2D;
   isDragging: boolean;

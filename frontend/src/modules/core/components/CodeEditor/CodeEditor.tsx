@@ -8,7 +8,7 @@ import { useTheme } from '@/shared/contexts/ThemeContext';
 
 // ==================== 類型定義 ====================
 
-export interface CodeEditorProps {
+interface CodeEditorProps {
   // 基本配置
   mode?: 'single' | 'split';
   language?: string;
