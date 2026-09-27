@@ -42,7 +42,7 @@ describe("portal unlock state", () => {
     expect(nQueens).not.toBeNull();
     expect(getEffectivePrerequisiteInfo(nQueens!)).toEqual({
       type: "AND",
-      levelIds: ["factorial"],
+      levelIds: ["fibonacci-recursive"],
     });
   });
 
