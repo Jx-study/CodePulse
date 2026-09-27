@@ -87,7 +87,7 @@ TUTORIALS = [
     # dp
     ("dp-fibonacci",        "dp",              2, False),
     ("knapsack",            "dp",              3, True),
-    ("lcs",                 "dp",              3, False),
+    ("lcs",                 "dp",              3, True),
 ]
 
 

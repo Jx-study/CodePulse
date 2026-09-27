@@ -36,6 +36,7 @@ from seeds.questions import bfs
 from seeds.questions import dfs
 from seeds.questions import dijkstra
 from seeds.questions import knapsack
+from seeds.questions import lcs
 
 ALL_MODULES = [
     array,
@@ -59,6 +60,7 @@ ALL_MODULES = [
     dfs,
     dijkstra,
     knapsack,
+    lcs,
 ]
 
 # ── 型別對應 ──────────────────────────────────────────────────────────────────
