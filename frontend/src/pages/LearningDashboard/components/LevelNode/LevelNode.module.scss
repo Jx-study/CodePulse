@@ -30,11 +30,38 @@
     box-shadow: $shadow-sm;
   }
 
-  // 鎖定狀態 - 灰色
-  &.locked {
-    background: $level-undeveloped-bg;
+  &.locked:not(.boss) {
+    background: #6b6b70;
     border-color: rgba($black-color, 0.2);
     box-shadow: $shadow-md;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: $radius-full;
+      background: #57e9f2;
+      border: 2px solid rgba($black-color, 0.2);
+      clip-path: inset(0 50% 0 0);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(
+        180deg,
+        rgba($white-color, 0.35) 0%,
+        transparent 100%
+      );
+      border-radius: $radius-full $radius-full 0 0;
+      pointer-events: none;
+    }
   }
 
   // 已解鎖 - 藍發光效果
@@ -123,9 +150,12 @@
     background: var(--category-color, #ff6b6b);
     border-color: rgba($white-color, 0.9);
     box-shadow:
-      0 0 1.875rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-      0 0 3.125rem color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
-      0 0.5rem 1.25rem color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
+      0 0 1.875rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+      0 0 3.125rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
+      0 0.5rem 1.25rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
       inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
     animation: bossPulse 2.5s ease-in-out infinite;
 
@@ -148,9 +178,12 @@
     &:hover:not(.undeveloped) {
       transform: translateX(-50%) translateY(-50%) scale(1.1);
       box-shadow:
-        0 0 2.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
-        0 0 4rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-        0 0.75rem 1.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
+        0 0 2.5rem
+          color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
+        0 0 4rem
+          color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+        0 0.75rem 1.5rem
+          color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
         inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
     }
 
@@ -170,7 +203,6 @@
       font-size: $font-lg;
     }
 
-    // Boss Level 鎖定狀態：移除動畫和發光效果
     &.locked {
       animation: none;
       filter: brightness(0.7);
@@ -178,40 +210,40 @@
       &:hover {
         transform: translateX(-50%) translateY(-50%) scale(1.05);
       }
+
+      .lockBadge {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+
+      .lockBadgeIcon {
+        font-size: 1rem;
+      }
     }
   }
 }
 
-// Boss Level 鎖定遮罩層 - 黑色半透明
-.bossLockOverlay {
+// 鎖定角落 badge - 只代表測驗（Practice）未解鎖，教學內容仍可點開觀看
+.lockBadge {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba($black-color, 0.5);
+  bottom: -0.125rem;
+  right: -0.125rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: $radius-full;
-  pointer-events: none;
-  z-index: 2;
-}
-
-// 鎖定覆蓋層容器
-.lockOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  background: $level-undeveloped-bg;
+  border: 2px solid rgba($white-color, 0.8);
+  box-shadow: $shadow-sm;
   @include flex(center, center, column);
   z-index: 3;
   pointer-events: none;
 }
 
 // 鎖頭 icon
-.lockIcon {
-  font-size: 1.5rem; // 24px - 與 PortalNode 一致
+.lockBadgeIcon {
+  font-size: 0.75rem; // 12px
   color: $white-color;
-  filter: drop-shadow(0 2px 4px rgba($black-color, 0.8));
+  filter: drop-shadow(0 1px 2px rgba($black-color, 0.6));
 }
 
 @keyframes gemPulse {
@@ -235,16 +267,22 @@
   0%,
   100% {
     box-shadow:
-      0 0 1.875rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-      0 0 3.125rem color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
-      0 0.5rem 1.25rem color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
+      0 0 1.875rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+      0 0 3.125rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
+      0 0.5rem 1.25rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
       inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
   }
   50% {
     box-shadow:
-      0 0 2.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
-      0 0 4rem color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-      0 0.75rem 1.5rem color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
+      0 0 2.5rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
+      0 0 4rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
+      0 0.75rem 1.5rem
+        color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
       inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
   }
 }
@@ -267,6 +305,34 @@
     font-size: $font-4xl; // 36px
     filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
   }
+}
+
+// 鎖定狀態的一半一半圖示：左書本（教學可看）、右鎖頭（練習未解鎖）
+.splitIcon {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.splitIconHalf {
+  flex: 1;
+  position: relative;
+  @include flex-center;
+
+  &:first-child::after {
+    content: "";
+    position: absolute;
+    top: 22%;
+    bottom: 22%;
+    right: 0;
+    width: 1px;
+    background: rgba($white-color, 0.35);
+  }
+}
+
+.splitIconGlyph {
+  font-size: $font-lg; // 20px，兩個圖示共用空間所以縮小
+  filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
 }
 
 // 星星容器 - 顯示在節點外部上方

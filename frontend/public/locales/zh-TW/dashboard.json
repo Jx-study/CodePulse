@@ -12,7 +12,7 @@
   },
   "levelUnavailable": {
     "undeveloped": "此關卡尚未開放，敬請期待",
-    "locked": "完成前置關卡後解鎖"
+    "locked": "完成前置關卡後解鎖練習模式"
   },
   "categoryFilter": {
     "moduleCount_one": "{{count}} 個模組",
