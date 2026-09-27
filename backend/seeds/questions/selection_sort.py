@@ -661,7 +661,7 @@ DATA = {
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態+行號追蹤) + 250(複合：迴圈出口+條件判斷+交換) = 1450
             "baseRating": 1450,
-            "correctAnswer": "1 2 3 4 5 6 7 8 9 5 6 7 8 10 11 3 4 5 6 7 8 10 12",
+            "correctAnswer": "1 2 3 4 5 6 7 8 9 5 6 7 8 5 10 11 3 4 5 6 7 8 9 5 10 11 3 12",
             "code": SSORT_PREDICT_CODE,
             "language": "python",
             "translations": {

@@ -774,7 +774,7 @@ DATA = {
             "id": "insertion-sort-q26",
             "type": "predict-line",
             "baseRating": 1500,
-            "correctAnswer": "1 2 3 4 5 8 2 3 4 5 8 9",
+            "correctAnswer": "1 2 3 4 5 8 2 9",
             "code": ISORT_PREDICT_CODE_2,
             "language": "python",
             "translations": {
