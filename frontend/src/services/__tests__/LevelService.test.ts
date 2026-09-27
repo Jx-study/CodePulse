@@ -32,7 +32,7 @@ describe("getLevelByImplKey", () => {
 describe("portal unlock state", () => {
   it("traces through undeveloped prerequisites to the nearest developed gate", () => {
     expect(resolveEffectivePrerequisites(["bit-mask"])).toEqual([
-      "sliding-window",
+      "two-pointers",
     ]);
   });
 
@@ -52,8 +52,8 @@ describe("portal unlock state", () => {
       ...INITIAL_USER_PROGRESS,
       levels: {
         ...INITIAL_USER_PROGRESS.levels,
-        "sliding-window": {
-          levelId: "sliding-window",
+        "two-pointers": {
+          levelId: "two-pointers",
           status: "locked" as const,
           stars: 0 as const,
           attempts: 0,
@@ -73,8 +73,8 @@ describe("portal unlock state", () => {
       ...INITIAL_USER_PROGRESS,
       levels: {
         ...INITIAL_USER_PROGRESS.levels,
-        "sliding-window": {
-          levelId: "sliding-window",
+        "two-pointers": {
+          levelId: "two-pointers",
           status: "completed" as const,
           stars: 3 as const,
           attempts: 1,

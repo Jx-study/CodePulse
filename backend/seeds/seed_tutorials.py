@@ -73,7 +73,7 @@ TUTORIALS = [
     # technique
     ("prefix-sum",          "technique",       2, True),
     ("sliding-window",      "technique",       2, True),
-    ("two-pointers",        "technique",       2, False),
+    ("two-pointers",        "technique",       2, True),
     ("bit-mask",            "technique",       3, False),
     ("portal-to-graph",     "technique",       1, True),
     # graph
