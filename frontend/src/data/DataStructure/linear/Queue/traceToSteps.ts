@@ -298,7 +298,7 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.local_vars,
+      local_vars: event.local_vars,
       elements,
     };
   });
