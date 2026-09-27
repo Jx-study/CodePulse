@@ -88,6 +88,7 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "lcs"; textA: string; textB: string }
   | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number }
   | { type: "fibonacciDP"; n: number }
@@ -201,6 +202,7 @@ type ImplementationId =
   | "fibonacciDP"
   | "fibonacciRecursive"
   | "knapsack"
+  | "lcs"
   | "n-queens"
   | "topological-sort"
   | "factorial";

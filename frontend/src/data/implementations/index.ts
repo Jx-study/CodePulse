@@ -24,6 +24,7 @@ import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
+import { lcsConfig } from "../algorithms/dp/lcs";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
 import { fibonacciDPConfig } from "../algorithms/dp/fibonacci";
@@ -60,6 +61,7 @@ export const implementationsMap: ImplementationMap = {
   slidingWindow: slidingWindowConfig,
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
+  lcs: lcsConfig,
   nQueens: nQueensConfig,
   topologicalSort: topologicalSortConfig,
   fibonacciDP: fibonacciDPConfig,
