@@ -460,12 +460,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成 `selection_sort` 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "填空時先對照三個角色：外層目前位置、內層正在掃描的位置、以及目前記錄的最小值位置。初始化要從未排序區首位開始；找到更小值時，要把最小值位置更新成正在掃描的位置；最後只有當最小值位置不同於外層目前位置時才交換。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the `selection_sort` function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "Match each blank to its role: the current outer position, the inner scanning position, and the current minimum position. Initialization starts at the first position of the unsorted region; when a smaller value is found, the minimum position becomes the current scan position; the final check compares the minimum position with the outer position to avoid self-swaps.",
                 },
             },
@@ -539,12 +539,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成雙端選擇排序 (Double Selection Sort) 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "雙端版本同一輪要同時追蹤目前最小值與最大值，所以兩個更新分支都應指向「正在掃描的索引」。特殊情況是最大值原本就在 left：先把最小值換到左端後，原本 left 的最大值會被移到最小值原本的位置，因此右端交換前必須把最大值索引修正到它的新位置。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the Double Selection Sort function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "The double-ended version tracks both the current minimum and maximum in the same scan, so both update branches should point to the index currently being scanned. The special case is when the maximum was originally at left: after swapping the minimum to the left end, that maximum moves to the minimum's old position, so the max index must be corrected before swapping with the right end.",
                 },
             },
@@ -746,12 +746,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成「降序」選擇排序 `selection_sort_descending` 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "降序的邏輯與升序對稱：把「每輪找最小值」改為「每輪找最大值」，只需調整內層比較符號；swap 的兩端仍是「未排序區首位」與「已找到的極值位置」，順序一樣。注意變數名稱 target_idx 在這裡記錄的是當前最大值的索引。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the descending Selection Sort function `selection_sort_descending`.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "Descending logic is symmetric to ascending: change 'find minimum each round' to 'find maximum each round' by adjusting the inner comparison operator. The two sides of the swap remain 'first position of the unsorted region' and 'the index of the found extreme', same as before. Note that target_idx here tracks the index of the current maximum.",
                 },
             },
@@ -825,12 +825,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成「依 key 函式排序」的泛型版本 `selection_sort_by_key`，使其能對 dict 或物件依某個鍵值排序。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "核心原則：比較時要讓 key() 套用在「同一個基準」上，才能正確找到最小值；swap 時要交換「整個物件」而非只更新 key。注意 min_idx 在迴圈中可能被更新，(a) 填入的索引必須反映「當前找到的最小值候選」，而非固定的起點。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the generic 'sort by key function' version `selection_sort_by_key` so it can sort dicts or objects by a chosen key.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "Core principle: key() must be applied to a consistent baseline so the minimum is found correctly; the swap must exchange the entire object, not just the key value. Note that min_idx may be updated inside the loop, so the index in slot (a) must reflect the current minimum candidate, not a fixed starting point.",
                 },
             },
