@@ -822,17 +822,17 @@ DATA = {
             "baseRating": 1450,
             "code": MONO_STACK_PREDICT_CODE,
             "language": "python",
-            "correctAnswer": "1 2 3 4 5 8 4 5 8 4 5 6 7 5 6 7 5 8 9",
+            "correctAnswer": "1 2 3 4 5 8 4 5 8 4 5 6 7 5 6 7 5 8 4 9",
             "translations": {
                 "zh-TW": {
                     "title": "執行這段單調堆疊程式時，請寫出實際經過的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "這段程式最後會印出 [3, 3, -1]；行號序列需依實際控制流程逐步追蹤。",
+                    "explanation": "這段程式最後會印出 [3, 3, -1]。x=2、x=1 時 while 條件都不成立，直接 L8 推入；x=3 時 while 連續彈出兩次（L6、L7 各兩次），再回到 L5 發現堆疊空了才離開，接著 L8。for 走完三個元素後會再回到 L4 一次才結束，最後 L9 印出結果。迴圈最後一次判斷不成立也算一行。完整序列：1 2 3 4 5 8 4 5 8 4 5 6 7 5 6 7 5 8 4 9。",
                 },
                 "en": {
                     "title": "When this monotonic stack program runs, write the actual sequence of executed line numbers (space-separated).",
                     "options": [],
-                    "explanation": "This program finally prints [3, 3, -1]; the line sequence must be traced from the actual control flow.",
+                    "explanation": "The program finally prints [3, 3, -1]. For x=2 and x=1 the while condition fails immediately, so L8 pushes directly; for x=3 the while pops twice (L6 and L7 twice each), then returns to L5, finds the stack empty, and exits, followed by L8. After three elements the for loop returns to L4 once more before ending, and L9 prints the result. A loop's final failing check counts as a line too. Full sequence: 1 2 3 4 5 8 4 5 8 4 5 6 7 5 6 7 5 8 4 9.",
                 },
             },
         },

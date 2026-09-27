@@ -533,19 +533,19 @@ DATA = {
             "id": "insertion-sort-q17",
             "type": "predict-line",
             "baseRating": 1300,
-            "correctAnswer": "1 2 3 4 5 6 7 5 8 9",
+            "correctAnswer": "1 2 3 4 5 6 7 5 8 2 9",
             "code": ISORT_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[3, 1]` 呼叫 `insertion_sort([3, 1])`，請依序寫出每次被執行到的行號（以空格分隔）。",
                     "options": [],
-                    "explanation": "關鍵在於 while 迴圈（L5）：進入迴圈體後，j 遞減至 -1，再回到 L5 時條件不成立才退出。因此 L5 會被執行**兩次**（一次 true、一次 false）。掌握「條件失敗仍算一次執行」這個規律，就能正確算出行號序列。",
+                    "explanation": "關鍵在於 while 迴圈（L5）：進入迴圈體後，j 遞減至 -1，再回到 L5 時條件不成立才退出。因此 L5 會被執行**兩次**（一次 true、一次 false）。外層 for（L2）也一樣：唯一的一輪做完後會再回到 L2 判斷一次，發現範圍已取完才離開。掌握「條件失敗仍算一次執行」這個規律，就能正確算出行號序列：1 2 3 4 5 6 7 5 8 2 9。",
                 },
                 "en": {
                     "title": "Calling `insertion_sort([3, 1])` on `[3, 1]`, write the line numbers executed in order (space-separated).",
                     "options": [],
-                    "explanation": "The key is the while loop (L5): after entering the loop body, j decrements to -1, then L5 is re-evaluated and the condition fails, exiting. So L5 executes **twice** — once true, once false. Remembering that a failed condition still counts as one execution of that line is the key to producing the correct sequence.",
+                    "explanation": "The key is the while loop (L5): after entering the loop body, j decrements to -1, then L5 is re-evaluated and the condition fails, exiting. So L5 executes **twice** — once true, once false. The outer for loop (L2) works the same way: after its only iteration it returns to L2 once more, finds the range exhausted, and exits. Remembering that a failed condition still counts as one execution of that line gives the sequence: 1 2 3 4 5 6 7 5 8 2 9.",
                 },
             },
         },
