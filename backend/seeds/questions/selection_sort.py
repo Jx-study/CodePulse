@@ -531,7 +531,7 @@ DATA = {
         {
             "id": "selection-sort-q17",
             "type": "fill-code",
-            # baseRating = 800 + 150(FC) + 400(L4 雙指針連動推演) + 150(邊界：max 被搬移後的位置追蹤) = 1500
+            # baseRating = 800 + 150(FC) + 400(L4 雙指標連動推演) + 150(邊界：max 被搬移後的位置追蹤) = 1500
             "baseRating": 1500,
             "correctAnswer": ["i", "i", "min_idx"],
             "code": DOUBLE_SSORT_FILL_CODE,
