@@ -12,7 +12,7 @@
   },
   "levelUnavailable": {
     "undeveloped": "This level is not available yet. Stay tuned.",
-    "locked": "Complete prerequisite levels to unlock"
+    "locked": "Complete prerequisite levels to unlock practice mode"
   },
   "categoryFilter": {
     "moduleCount_one": "{{count}} Module",
