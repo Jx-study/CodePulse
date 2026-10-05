@@ -63,15 +63,20 @@ export type AlgorithmViewMode =
   | "graph"
   | "grid"
   | "longest_lte"
-  | "shortest_gte";
+  | "shortest_gte"
+  | "two_sum"
+  | "remove_duplicates";
 /** Sliding window run payload mode (matches ActionBar options). */
 export type SlidingWindowMode = "longest_lte" | "shortest_gte";
+/** Two pointers run payload mode: opposite-direction vs same-direction. */
+export type TwoPointersMode = "two_sum" | "remove_duplicates";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
   | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
+  | { type: "twoPointers"; mode: TwoPointersMode; target?: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
