@@ -542,19 +542,19 @@ DATA = {
             "id": "dfs-q18",
             "type": "predict-line",
             "baseRating": 1450,
-            "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 5 6 7 9 10 5 14",
+            "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 11 5 6 7 9 10 11 5 14",
             "code": DFS_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀 dfs 函數（取出時標記版本）。使用圖 graph = {'A': ['B'], 'B': []}，呼叫 dfs(graph, 'A') 時，請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "L1-L4 初始化，stack=['A']；L5 while；L6 pop A；L7 A in visited({})?No；L9 add A；L10 append；L11-L13 push B；L5 while；L6 pop B；L7 B in visited?No；L9 add B；L10 append；L11 L12 no unvisited；L5 while stack 空?No... stack 空，L5 失敗；L14 return。序列：1 2 3 4 5 6 7 9 10 11 12 13 5 6 7 9 10 5 14。",
+                    "explanation": "L1-L4 初始化，stack=['A']。L5 進入迴圈 → L6 pop A → L7 A 已拜訪？否 → L9 標記 A → L10 加入結果 → L11-L13 將 B 推入堆疊 → L11 A 的鄰居走完。L5 → L6 pop B → L7 否 → L9 標記 B → L10 加入結果 → L11 B 沒有鄰居，for 直接結束。L5 堆疊已空 → L14 回傳。迴圈最後一次判斷不成立也算一行。序列：1 2 3 4 5 6 7 9 10 11 12 13 11 5 6 7 9 10 11 5 14。",
                 },
                 "en": {
                     "title": "Read the dfs function (mark-on-dequeue version). Using graph = {'A': ['B'], 'B': []}, calling dfs(graph, 'A') — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "L1-L4 initialize, stack=['A']; L5 while; L6 pop A; L7 A in visited({})? No; L9 add A; L10 append; L11-L13 push B; L5 while; L6 pop B; L7 B in visited? No; L9 add B; L10 append; L11-L12 no unvisited neighbors; L5 stack empty → L14 return. Sequence: 1 2 3 4 5 6 7 9 10 11 12 13 5 6 7 9 10 5 14.",
+                    "explanation": "L1-L4 initialize, stack=['A']. L5 enter the loop → L6 pop A → L7 A visited? No → L9 mark A → L10 append → L11-L13 push B → L11 A's neighbors done. L5 → L6 pop B → L7 No → L9 mark B → L10 append → L11 B has no neighbors, the for loop ends immediately. L5 stack empty → L14 return. A loop's final failing check counts as a line too. Sequence: 1 2 3 4 5 6 7 9 10 11 12 13 11 5 6 7 9 10 11 5 14.",
                 },
             },
         },

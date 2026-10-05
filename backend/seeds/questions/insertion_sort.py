@@ -533,19 +533,19 @@ DATA = {
             "id": "insertion-sort-q17",
             "type": "predict-line",
             "baseRating": 1300,
-            "correctAnswer": "1 2 3 4 5 6 7 5 8 9",
+            "correctAnswer": "1 2 3 4 5 6 7 5 8 2 9",
             "code": ISORT_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "對陣列 `[3, 1]` 呼叫 `insertion_sort([3, 1])`，請依序寫出每次被執行到的行號（以空格分隔）。",
                     "options": [],
-                    "explanation": "關鍵在於 while 迴圈（L5）：進入迴圈體後，j 遞減至 -1，再回到 L5 時條件不成立才退出。因此 L5 會被執行**兩次**（一次 true、一次 false）。掌握「條件失敗仍算一次執行」這個規律，就能正確算出行號序列。",
+                    "explanation": "關鍵在於 while 迴圈（L5）：進入迴圈體後，j 遞減至 -1，再回到 L5 時條件不成立才退出。因此 L5 會被執行**兩次**（一次 true、一次 false）。外層 for（L2）也一樣：唯一的一輪做完後會再回到 L2 判斷一次，發現範圍已取完才離開。掌握「條件失敗仍算一次執行」這個規律，就能正確算出行號序列：1 2 3 4 5 6 7 5 8 2 9。",
                 },
                 "en": {
                     "title": "Calling `insertion_sort([3, 1])` on `[3, 1]`, write the line numbers executed in order (space-separated).",
                     "options": [],
-                    "explanation": "The key is the while loop (L5): after entering the loop body, j decrements to -1, then L5 is re-evaluated and the condition fails, exiting. So L5 executes **twice** — once true, once false. Remembering that a failed condition still counts as one execution of that line is the key to producing the correct sequence.",
+                    "explanation": "The key is the while loop (L5): after entering the loop body, j decrements to -1, then L5 is re-evaluated and the condition fails, exiting. So L5 executes **twice** — once true, once false. The outer for loop (L2) works the same way: after its only iteration it returns to L2 once more, finds the range exhausted, and exits. Remembering that a failed condition still counts as one execution of that line gives the sequence: 1 2 3 4 5 6 7 5 8 2 9.",
                 },
             },
         },
@@ -621,12 +621,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成 `insertion_sort` 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "三個空格各自守護一個核心邏輯：(a) 負責防止索引超出陣列左端；(b) 負責決定「是否繼續平移」的比較條件，注意這裡要用嚴格大於以維持穩定性；(c) 負責在迴圈結束後，把 key 放回到正確的空位——思考迴圈結束時 j 停在哪裡，空位又在哪裡。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the `insertion_sort` function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "Each blank guards one core piece of logic: (a) prevents the index from going past the left end of the array; (b) determines the comparison condition for 'keep shifting' — note the comparison must be strict greater-than to preserve stability; (c) places key into the correct gap after the loop ends — think about where j lands when the loop stops, and where the empty slot is.",
                 },
             },
@@ -671,12 +671,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成遞迴版本的插入排序。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "三個空格對應遞迴設計的三個關鍵決策：(a) 遞迴的終止條件——問自己「最小的已排序情況是幾個元素？」；(b) 遞迴呼叫的子問題規模——每次要縮小多少？(c) 子問題解決後，剩下要處理的是哪個元素，它應該放在哪裡？",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the recursive version of Insertion Sort.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "The three blanks correspond to three key decisions in the recursive design: (a) the base case — ask yourself 'what is the smallest already-sorted situation?'; (b) the sub-problem size for the recursive call — how much does it shrink each time? (c) after the sub-problem is solved, which element still needs to be handled, and where should it go?",
                 },
             },
@@ -774,7 +774,7 @@ DATA = {
             "id": "insertion-sort-q26",
             "type": "predict-line",
             "baseRating": 1500,
-            "correctAnswer": "1 2 3 4 5 8 2 3 4 5 8 9",
+            "correctAnswer": "1 2 3 4 5 8 2 9",
             "code": ISORT_PREDICT_CODE_2,
             "language": "python",
             "translations": {
@@ -801,12 +801,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成「二元插入排序（Binary Insertion Sort）」，其使用二分搜尋找到每個元素的插入位置。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "三個空格對應二分搜尋「邊界設定 → 邊界收縮 → 取結果」三個步驟：(a) 要搜尋的範圍右端是哪裡？已排序區的長度是多少？(b) 當 arr[mid] 不大於 key 時，插入點在 mid 的哪一側？lo 應該往哪個方向移動？(c) 搜尋結束時，lo 與 hi 重合——這個位置代表什麼語義？",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete Binary Insertion Sort, which uses binary search to find each element's insertion position.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "The three blanks map to the three steps of binary search — 'set bounds → shrink bounds → read result': (a) where is the right end of the search range? How long is the sorted region? (b) when arr[mid] is not greater than key, which side of mid is the insertion point, and which direction should lo move? (c) when the search ends lo and hi converge — what does that position mean?",
                 },
             },

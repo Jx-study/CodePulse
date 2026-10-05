@@ -544,19 +544,19 @@ DATA = {
             "id": "dijkstra-q18",
             "type": "predict-line",
             "baseRating": 1500,
-            "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 10 11 12 13 5 6 7 9 10 11 12 13 5 6 7 5 6 7 8 5 14",
+            "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 5 6 7 9 5 14",
             "code": DIJKSTRA_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀 dijkstra 函數。使用圖 graph = {0: [(1, 1)], 1: []}（節點 0 有一條權重 1 的邊指向節點 1），呼叫 dijkstra(graph, 0) 時，請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "L1-L4 初始化；L5 while pq；L6 pop (0,0)；L7 0>0? No；L9 處理節點 0 的邊 (1,1)；L10 new_d=1；L11 1<inf? Yes；L12 dist[1]=1；L13 push；L5 再進；L6 pop (1,1)；L7 1>1? No；L9 節點 1 無邊，迴圈空；L5 pq 空，結束；L14 return。",
+                    "explanation": "L1 進入 → L2-L4 初始化。L5 pq 非空 → L6 pop (0, 0) → L7 0 > 0? 否 → L9 處理節點 0 的邊 (1, 1) → L10 new_d = 1 → L11 1 < inf? 是 → L12 dist[1] = 1 → L13 push (1, 1) → L9 節點 0 的邊處理完。L5 → L6 pop (1, 1) → L7 1 > 1? 否 → L9 節點 1 沒有邊，for 直接結束。L5 pq 已空 → L14 回傳。完整序列：1 2 3 4 5 6 7 9 10 11 12 13 9 5 6 7 9 5 14。",
                 },
                 "en": {
                     "title": "Read the dijkstra function. Using graph = {0: [(1, 1)], 1: []} (node 0 has one edge with weight 1 to node 1), calling dijkstra(graph, 0) — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "L1-L4 initialize; L5 while pq; L6 pop (0,0); L7 0>0? No; L9 process node 0's edge (1,1); L10 new_d=1; L11 1<inf? Yes; L12 dist[1]=1; L13 push; L5 again; L6 pop (1,1); L7 1>1? No; L9 node 1 has no edges, loop empty; L5 pq empty, exit; L14 return.",
+                    "explanation": "L1 enter → L2-L4 initialize. L5 pq non-empty → L6 pop (0, 0) → L7 0 > 0? No → L9 process node 0's edge (1, 1) → L10 new_d = 1 → L11 1 < inf? Yes → L12 dist[1] = 1 → L13 push (1, 1) → L9 node 0's edges done. L5 → L6 pop (1, 1) → L7 1 > 1? No → L9 node 1 has no edges, the for loop ends immediately. L5 pq empty → L14 return. Full sequence: 1 2 3 4 5 6 7 9 10 11 12 13 9 5 6 7 9 5 14.",
                 },
             },
         },

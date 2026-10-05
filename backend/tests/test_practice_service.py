@@ -425,6 +425,31 @@ def test_check_answer_multiple_choice_json_serialized():
     assert _check_answer('["C","A"]', correct_in_db) is True
 
 
+def test_check_answer_fill_code_is_positional_with_question_type():
+    """沒有 | 等價答案的 fill-code 以前會被誤判成 multiple-choice（順序無關）。
+    傳入題型後必須按位置比對，填錯格就算錯。"""
+    from services.practice_service import _check_answer
+    from models.question import QuestionType
+    import json
+
+    correct_in_db = json.dumps(["i", "i", "min_idx"])
+
+    assert _check_answer(["i", "i", "min_idx"], correct_in_db, QuestionType.fill_code) is True
+    assert _check_answer(["i ", "i", "min_idx"], correct_in_db, QuestionType.fill_code) is True
+    assert _check_answer(["min_idx", "i", "i"], correct_in_db, QuestionType.fill_code) is False
+
+
+def test_check_answer_multiple_choice_ignores_order_with_question_type():
+    from services.practice_service import _check_answer
+    from models.question import QuestionType
+    import json
+
+    correct_in_db = json.dumps(["A", "C"])
+
+    assert _check_answer("C,A", correct_in_db, QuestionType.multiple_choice) is True
+    assert _check_answer("A", correct_in_db, QuestionType.multiple_choice) is False
+
+
 # ---------------------------------------------------------------------------
 # get_questions_for_user — group-aware tests
 # ---------------------------------------------------------------------------

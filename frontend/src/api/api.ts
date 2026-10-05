@@ -98,7 +98,7 @@ class ApiService {
     if (!response.ok) {
       // 全站統一的限流提醒；帶 retry_after 的 429（如重寄驗證碼冷卻）
       // 由各頁面自行處理倒數顯示，不重複跳 toast
-      if (response.status === 429 && data.retry_after === undefined) {
+      if (response.status === 429 && payload.retry_after === undefined) {
         toast.warning(i18n.t("errors.RATE_LIMITED"));
       }
       throw {

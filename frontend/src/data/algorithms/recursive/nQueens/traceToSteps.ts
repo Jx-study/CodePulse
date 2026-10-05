@@ -119,7 +119,7 @@ export function nQueensTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: {
+      local_vars: {
         "N (Size)": N ?? null,
         Row: currentRow === -1 ? "-" : (currentRow ?? null),
         Col: currentCol === -1 ? "-" : (currentCol ?? null),

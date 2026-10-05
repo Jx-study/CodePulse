@@ -564,17 +564,17 @@ DATA = {
             "baseRating": 1350,
             "code": ARRAY_PREDICT_CODE,
             "language": "python",
-            "correctAnswer": "2 3 4 3 4 6",
+            "correctAnswer": "2 3 4 3 4 3 6",
             "translations": {
                 "zh-TW": {
                     "title": "給定 arr 物件，其 arr.arr = [10, 30]（共 2 個元素），接著執行 arr.search(5)（搜尋不存在的元素）。請依序填寫 search() 方法執行時，經過的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "執行流程如下：\n1. 進入 search 方法 (L2)\n2. for 迴圈開始，i=0 (L3)\n3. 判斷 arr[0]=10 是否等於 5？不等於，繼續 (L4)\n4. for 迴圈下一輪，i=1 (L3)\n5. 判斷 arr[1]=30 是否等於 5？不等於，繼續 (L4)\n6. 迴圈結束（range(2) 已耗盡），執行 return -1 (L6)\n注意：L5 從未執行（if 條件始終為 False）。",
+                    "explanation": "執行流程如下：\n1. 進入 search 方法 (L2)\n2. for 迴圈開始，i=0 (L3)\n3. 判斷 arr[0]=10 是否等於 5？不等於，繼續 (L4)\n4. for 迴圈下一輪，i=1 (L3)\n5. 判斷 arr[1]=30 是否等於 5？不等於，繼續 (L4)\n6. 回到 for 迴圈，range(2) 已耗盡，迴圈結束 (L3)\n7. 執行 return -1 (L6)\n注意：L5 從未執行（if 條件始終為 False）；for 最後一次取不到值、離開迴圈的那次也算執行 L3。完整序列：2 3 4 3 4 3 6。",
                 },
                 "en": {
                     "title": "Given an Array object with arr.arr = [10, 30] (2 elements), calling arr.search(5) (searching for a non-existent element). Write the sequence of line numbers executed by the search() method (space-separated).",
                     "options": [],
-                    "explanation": "Execution flow:\n1. Enter search method (L2)\n2. for loop starts, i=0 (L3)\n3. arr[0]=10 == 5? No, continue (L4)\n4. for loop next iteration, i=1 (L3)\n5. arr[1]=30 == 5? No, continue (L4)\n6. Loop ends (range(2) exhausted), execute return -1 (L6)\nNote: L5 is never reached (if condition always False).",
+                    "explanation": "Execution flow:\n1. Enter search method (L2)\n2. for loop starts, i=0 (L3)\n3. arr[0]=10 == 5? No, continue (L4)\n4. for loop next iteration, i=1 (L3)\n5. arr[1]=30 == 5? No, continue (L4)\n6. Back to the for loop: range(2) is exhausted, the loop ends (L3)\n7. Execute return -1 (L6)\nNote: L5 is never reached (the if condition is always False); the final pass where the for loop finds no more values still counts as executing L3. Full sequence: 2 3 4 3 4 3 6.",
                 },
             },
         },
@@ -818,17 +818,17 @@ DATA = {
             "baseRating": 1400,
             "code": MATRIX_TRANSPOSE_PREDICT_CODE,
             "language": "python",
-            "correctAnswer": "1 2 3 4 5 6 5 6 7 3 4 5 6 5 6 7",
+            "correctAnswer": "1 2 3 4 5 6 5 6 5 7 3 4 5 6 5 6 5 7 3",
             "translations": {
                 "zh-TW": {
                     "title": "上方程式會轉置 2x2 矩陣。請依序填寫實際執行到的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "先執行 L1、L2。外層 col=0 時執行 L3、L4，內層 row=0、1 各執行 L5、L6，接著 L7；外層 col=1 重複同樣流程。因此序列為 1 2 3 4 5 6 5 6 7 3 4 5 6 5 6 7。",
+                    "explanation": "先執行 L1、L2。外層 col=0 時執行 L3、L4，內層 row=0、1 各執行 L5、L6，內層取完後再回到 L5 判斷一次才離開，接著 L7；外層 col=1 重複同樣流程。最後外層回到 L3 發現取完才結束。迴圈最後一次判斷不成立也算一行，因此序列為 1 2 3 4 5 6 5 6 5 7 3 4 5 6 5 6 5 7 3。",
                 },
                 "en": {
                     "title": "The code above transposes a 2x2 matrix. Write the executed line-number sequence in order (space-separated).",
                     "options": [],
-                    "explanation": "L1 and L2 run first. For outer col=0, L3 and L4 run, then inner row=0 and row=1 each run L5 and L6, followed by L7. Outer col=1 repeats the same flow. The sequence is 1 2 3 4 5 6 5 6 7 3 4 5 6 5 6 7.",
+                    "explanation": "L1 and L2 run first. For outer col=0, L3 and L4 run, then inner row=0 and row=1 each run L5 and L6; the inner loop checks L5 once more before exiting, followed by L7. Outer col=1 repeats the same flow. Finally the outer loop returns to L3, finds nothing left, and ends. A loop's final failing check counts as a line too, so the sequence is 1 2 3 4 5 6 5 6 5 7 3 4 5 6 5 6 5 7 3.",
                 },
             },
         },
