@@ -741,7 +741,7 @@
       "id": "lcs",
       "category": "dp",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",

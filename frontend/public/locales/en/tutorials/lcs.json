@@ -1,0 +1,41 @@
+{
+  "animation": {
+    "init": "Initialize: build a ({{m}}+1) × ({{n}}+1) DP table. Row 0 and column 0 stand for the empty string, so their LCS length is 0",
+    "match": "Fill dp[{{i}}][{{j}}]: textA[{{i}}-1] and textB[{{j}}-1] are both '{{char}}' — a match! Take the upper-left cell plus 1: dp[{{i}}-1][{{j}}-1] + 1 = {{diag}} + 1 = {{dpVal}}",
+    "no_match": "Fill dp[{{i}}][{{j}}]: '{{charA}}' ≠ '{{charB}}', no match. Take the larger of the cell above and the cell to the left: max({{up}}, {{left}}) = {{dpVal}}",
+    "trace_start": "Table filled — the LCS length is dp[{{i}}][{{j}}] = {{length}}. Now backtrack from the bottom-right corner to recover the subsequence itself",
+    "trace_match": "Both characters at dp[{{i}}][{{j}}] are '{{char}}', so it belongs to the LCS! Move to the upper-left. Subsequence so far: '{{lcs}}'",
+    "trace_up": "No match, and above ({{up}}) ≥ left ({{left}}): this value was inherited from above, so move up",
+    "trace_left": "No match, and left ({{left}}) > above ({{up}}): this value was inherited from the left, so move left",
+    "done": "Backtracking complete! The longest common subsequence is '{{lcs}}' with length {{length}}",
+    "done_empty": "One of the strings is empty, so the LCS length is 0"
+  },
+  "ui": {
+    "controlLabel": "LCS Controls",
+    "placeholderA": "String A",
+    "placeholderB": "String B",
+    "ariaA": "LCS string A",
+    "ariaB": "LCS string B",
+    "run": "Fill Table",
+    "runTooltip": "Run LCS: fill the DP table, then backtrack the subsequence (up to 8 characters per string)",
+    "random": "Random",
+    "reset": "Reset",
+    "invalidInput": "Please enter at least one character in both fields"
+  },
+  "statusLegend": {
+    "header": "Header / empty string",
+    "cell": "DP cell",
+    "comparing": "Characters being compared",
+    "current": "Current cell",
+    "match": "Match: upper-left + 1",
+    "candidate": "No match: compare above / left",
+    "path": "Backtrack path / LCS character"
+  },
+  "relatedProblems": {
+    "1143": "The LCS problem itself: fill a 2D DP table — on a match take upper-left + 1, otherwise the max of above and left",
+    "583": "Delete characters until both strings are equal: answer = len(A) + len(B) - 2 × LCS length",
+    "1035": "Uncrossed lines is LCS in disguise — lines that must not cross are a subsequence that must keep its order",
+    "72": "Edit distance uses the same 2D table, but each cell compares insert, delete and replace",
+    "1092": "Shortest common supersequence: build the LCS table, then while backtracking also keep the characters not in the LCS"
+  }
+}
