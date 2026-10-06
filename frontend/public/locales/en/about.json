@@ -2,26 +2,15 @@
   "hero": {
     "title": "Our Story:",
     "titleAccent": "Visualizing",
-    "titleSuffix": "The Logic."
-  },
-  "features": {
-    "visualLogic": {
-      "tag": "VISUAL_LOGIC",
-      "date": "2025.06",
-      "subject": "See every step of data",
-      "subjectAccent": "moving through structure",
-      "body": "We don't just show code — we expose every pointer shift, node state change, and recursive call as it happens. Graph traversal, tree expansion, linked list rewiring: nothing is a black box."
-    },
-    "interactiveLearning": {
-      "tag": "INTERACTIVE",
-      "date": "2025.06",
-      "subject": "Watch the animation,",
-      "subjectAccent": "then do it yourself",
-      "body": "Watching isn't enough. Every data structure has an interactive challenge — insert a node by hand, walk BFS on the canvas yourself. Do it a few times and the algorithm becomes muscle memory."
-    }
+    "titleSuffix": " The Logic.",
+    "story": "The hard part of learning data structures is often not the concepts. It's that you can't see the data change while code runs, so how a pointer moves or a recursion unfolds is left for you to simulate in your head. CodePulse started as our capstone project in Computer Science at National Taipei University of Technology. We draw every step of execution so you can follow it alongside the code, then try it yourself on the canvas or run your own Python code and watch what it does.",
+    "pulseLabel": "The CodePulse heartbeat line",
+    "pulseHint": "// TRACE THE PULSE — CLICK TO BEAT",
+    "pulseHintTouch": "// TAP THE PULSE TO BEAT"
   },
   "team": {
-    "sectionLabel": "CORE_TEAM",
+    "title": "Core Team",
+    "githubLabel": "{{name}} on GitHub (opens in a new tab)",
     "members": {
       "julian": {
         "role": "Full-Stack Engineer",
@@ -38,15 +27,21 @@
     }
   },
   "techStack": {
-    "sectionLabel": "RUNTIME_LAYER",
-    "title": "Built on a",
+    "title": "Built on a ",
     "titleAccent": "stack we stand behind",
-    "desc": "Every layer chosen deliberately, from UI rendering down to the database."
+    "desc": "Every layer chosen deliberately, from UI rendering down to the database.",
+    "items": {
+      "react": "Component UI with concurrent rendering — drives every interactive canvas.",
+      "typescript": "Static types across the whole project. Refactor without fear.",
+      "viz": "The core engine behind every data-structure animation and graph layout.",
+      "flask": "Lightweight Python backend carrying the API, sandbox and analysis pipeline.",
+      "postgres": "The single source of truth for users, progress and XP."
+    }
   },
   "milestones": {
-    "sectionLabel": "BUILD_HISTORY",
     "title": "From the first commit to a",
     "titleAccent": "complete platform",
+    "navLabel": "Build phase navigation",
     "items": [
       {
         "tag": "PHASE_01",
@@ -54,7 +49,8 @@
         "title": "Visualization Engine",
         "titleAccent": "v1",
         "body": "Built the animation core from scratch — Array, Linked List, Stack, Queue, Binary Tree, and sorting algorithms, with a Pseudo code line-sync system.",
-        "pills": ["+11 animations", "+1 feature"]
+        "pills": ["+11 animations", "+1 feature"],
+        "note": "v1 started here"
       },
       {
         "tag": "PHASE_02",
@@ -78,7 +74,8 @@
         "title": "AI Analysis Engine",
         "titleAccent": "Online",
         "body": "Built the full code analysis pipeline: Docker sandbox execution, AST complexity analysis, Big-O curve fitting, MiniLM algorithm detection, and Gemini AI reports.",
-        "pills": ["+1 Playground", "+7 features"]
+        "pills": ["+1 Playground", "+7 features"],
+        "note": "AI is live!"
       },
       {
         "tag": "PHASE_05",
@@ -89,5 +86,11 @@
         "pills": ["+5 animations", "+4 features"]
       }
     ]
+  },
+  "cta": {
+    "title": "Ready to start?",
+    "desc": "Start from the basic data structures and build solid algorithmic intuition, one step at a time.",
+    "button": "Start Learning",
+    "eofNote": "End of this commit"
   }
 }
