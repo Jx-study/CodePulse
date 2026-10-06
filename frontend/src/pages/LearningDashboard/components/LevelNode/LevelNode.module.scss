@@ -1,435 +1,341 @@
+@use "sass:color";
+
+// LevelNode：中央圖示表示整體進度，外環左半是教學、右半是練習
+// 分類主題色只用在 Boss 底色，一般節點只用固定的狀態色
+
+$ring-teach: #57e9f2;
+$ring-practice: #43e97b;
+$node-core-bg: $dark-bg-tertiary;
+$node-core-bg-dim: $dark-bg-secondary;
+$ring-track-locked: $dark-border;
+$ring-lock-border: #8a85a3;
+$undeveloped-border: #4b4663;
+$undeveloped-icon: #7a7596;
+
 .levelNode {
   position: absolute;
-  width: 5rem; // 80px
-  height: 5rem; // 80px
-  border-radius: $radius-full;
+  width: $level-node-size;
+  height: $level-node-size;
   @include flex(center, center, column);
   cursor: pointer;
-  transition: $transition-base;
-  transform: translateX(-50%) translateY(-50%);
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s $ease-smooth;
   z-index: 10;
-  border: 2px solid transparent;
-  overflow: visible; // 允許星星顯示在節點外部
+  outline: none;
 
   &:hover:not(.undeveloped) {
-    transform: translateX(-50%) translateY(-50%) scale(1.15);
-    transition: all 0.3s $ease-smooth;
-
-    .levelTooltip {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, 0);
-    }
+    transform: translate(-50%, -50%) scale(1.1);
   }
 
-  // 未開發的功能（灰色）
-  &.undeveloped {
-    background: $level-undeveloped-bg;
-    border-color: rgba($black-color, 0.2);
-    cursor: help;
-    box-shadow: $shadow-sm;
-  }
-
-  &.locked:not(.boss) {
-    background: #6b6b70;
-    border-color: rgba($black-color, 0.2);
-    box-shadow: $shadow-md;
-
-    &::after {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      border-radius: $radius-full;
-      background: #57e9f2;
-      border: 2px solid rgba($black-color, 0.2);
-      clip-path: inset(0 50% 0 0);
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: linear-gradient(
-        180deg,
-        rgba($white-color, 0.35) 0%,
-        transparent 100%
-      );
-      border-radius: $radius-full $radius-full 0 0;
-      pointer-events: none;
-    }
-  }
-
-  // 已解鎖 - 藍發光效果
-  &.unlocked {
-    background: $gradient-unlocked;
-    border-color: rgba($white-color, 0.8);
-    box-shadow:
-      0 0 0.9375rem rgba($primary-color, 0.5),
-      0 0.25rem 0.625rem rgba($primary-color, 0.3),
-      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: linear-gradient(
-        180deg,
-        rgba($white-color, 0.3) 0%,
-        transparent 100%
-      );
-      border-radius: $radius-full $radius-full 0 0;
-      pointer-events: none;
-    }
-  }
-
-  // 進行中 - 粉紅脈動發光
-  &.in-progress {
-    background: $gradient-in-progress;
-    border-color: rgba($white-color, 0.8);
-    box-shadow:
-      0 0 1.25rem $level-in-progress-glow,
-      0 0.25rem 0.75rem rgba($accent-color, 0.4),
-      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
-    animation: gemPulse 2s ease-in-out infinite;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: linear-gradient(
-        180deg,
-        rgba($white-color, 0.4) 0%,
-        transparent 100%
-      );
-      border-radius: $radius-full $radius-full 0 0;
-      pointer-events: none;
-    }
-  }
-
-  // 已完成 - 綠光
-  &.completed {
-    background: $gradient-completed;
-    border-color: rgba($white-color, 0.5);
-    box-shadow:
-      0 0 1.25rem rgba($execution-color, 0.6),
-      0 0.25rem 0.75rem rgba($execution-color, 0.4),
-      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: linear-gradient(
-        180deg,
-        rgba($white-color, 0.3) 0%,
-        transparent 100%
-      );
-      border-radius: $radius-full $radius-full 0 0;
-      pointer-events: none;
-    }
-  }
-
-  // Boss Level
-  &.boss {
-    width: 6rem; // 96px
-    height: 6rem; // 96px
-    background: var(--category-color, #ff6b6b);
-    border-color: rgba($white-color, 0.9);
-    box-shadow:
-      0 0 1.875rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-      0 0 3.125rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
-      0 0.5rem 1.25rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
-      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
-    animation: bossPulse 2.5s ease-in-out infinite;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      background: linear-gradient(
-        180deg,
-        rgba($white-color, 0.5) 0%,
-        transparent 100%
-      );
-      border-radius: $radius-full $radius-full 0 0;
-      pointer-events: none;
-    }
-
-    &:hover:not(.undeveloped) {
-      transform: translateX(-50%) translateY(-50%) scale(1.1);
-      box-shadow:
-        0 0 2.5rem
-          color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
-        0 0 4rem
-          color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-        0 0.75rem 1.5rem
-          color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
-        inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
-    }
-
-    .nodeContent {
-      .bossIcon {
-        font-size: $font-3xl;
-      }
-    }
-
-    .starsContainer {
-      top: -26px;
-      width: 80px;
-      height: 26px;
-    }
-
-    .star {
-      font-size: $font-lg;
-    }
-
-    &.locked {
-      animation: none;
-      filter: brightness(0.7);
-
-      &:hover {
-        transform: translateX(-50%) translateY(-50%) scale(1.05);
-      }
-
-      .lockBadge {
-        width: 1.75rem;
-        height: 1.75rem;
-      }
-
-      .lockBadgeIcon {
-        font-size: 1rem;
-      }
-    }
+  &:focus-visible .core {
+    box-shadow: 0 0 0 3px $white-color;
   }
 }
 
-// 鎖定角落 badge - 只代表測驗（Practice）未解鎖，教學內容仍可點開觀看
-.lockBadge {
+.core {
   position: absolute;
-  bottom: -0.125rem;
-  right: -0.125rem;
-  width: 1.5rem;
-  height: 1.5rem;
+  inset: 0;
   border-radius: $radius-full;
-  background: $level-undeveloped-bg;
-  border: 2px solid rgba($white-color, 0.8);
-  box-shadow: $shadow-sm;
-  @include flex(center, center, column);
+  background: $node-core-bg;
+  z-index: 0;
+  transition:
+    box-shadow 0.3s $ease-smooth,
+    background 0.3s $ease-smooth;
+}
+
+.completed .core {
+  background: color.mix($ring-practice, $node-core-bg, 22%);
+}
+
+.practiceLocked:not(.boss) .core {
+  background: $node-core-bg-dim;
+}
+
+// ==================== 外環 ====================
+
+.ring {
+  position: absolute;
+  inset: -0.4375rem;
+  width: calc(100% + 0.875rem);
+  height: calc(100% + 0.875rem);
+  overflow: visible;
+  z-index: 1;
+  pointer-events: none;
+
+  path {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke 0.4s $ease-smooth;
+  }
+}
+
+.arcTeachDone { stroke: $ring-teach; }
+.arcTeachOpen { stroke: color.mix($ring-teach, $node-core-bg, 32%); }
+.arcPracticeDone { stroke: $ring-practice; }
+.arcPracticeOpen { stroke: color.mix($ring-practice, $node-core-bg, 35%); }
+.arcPracticeLocked { stroke: $ring-track-locked; }
+
+.ringLock {
+  position: absolute;
+  right: -1.1875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: $radius-full;
+  background: $dark-bg-primary;
+  border: 2px solid $ring-lock-border;
+  @include flex-center;
   z-index: 3;
   pointer-events: none;
 }
 
-// 鎖頭 icon
-.lockBadgeIcon {
-  font-size: 0.75rem; // 12px
-  color: $white-color;
-  filter: drop-shadow(0 1px 2px rgba($black-color, 0.6));
+.ringLockIcon {
+  font-size: $font-xs;
+  color: $dark-text-primary;
 }
 
-@keyframes gemPulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 1.25rem $level-in-progress-glow,
-      0 0.25rem 0.75rem rgba($accent-color, 0.4),
-      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
-  }
-  50% {
-    box-shadow:
-      0 0 2.5rem $level-in-progress-glow-strong,
-      0 0.25rem 0.75rem rgba($accent-color, 0.6),
-      inset 0 -0.125rem 0.5rem rgba($black-color, 0.2);
-  }
-}
-
-// Boss Level 脈衝動畫
-@keyframes bossPulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 1.875rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-      0 0 3.125rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 40%, transparent),
-      0 0.5rem 1.25rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 30%, transparent),
-      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
-  }
-  50% {
-    box-shadow:
-      0 0 2.5rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 80%, transparent),
-      0 0 4rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 60%, transparent),
-      0 0.75rem 1.5rem
-        color-mix(in srgb, var(--category-color, #ff6b6b) 50%, transparent),
-      inset 0 -0.25rem 0.75rem rgba($black-color, 0.2);
-  }
-}
-
+// ==================== 中央圖示 ====================
 .nodeContent {
-  @include flex-center;
-  color: $white-color;
-  text-align: center;
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  @include flex-center;
   width: 100%;
   height: 100%;
+}
+
+.icon {
+  font-size: $font-2xl;
+  color: rgba($white-color, 0.55);
+  transition: color 0.3s $ease-smooth;
+
+  [data-phase="in-progress"] & { color: $ring-teach; }
+  [data-phase="completed"] & { color: $ring-practice; }
+}
+
+// ==================== 建議節點 ====================
+.recommended .core {
+  box-shadow:
+    0 0 0 4px rgba($white-color, 0.22),
+    0 0 1.75rem 0.375rem rgba($white-color, 0.4);
+  animation: recommendPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes recommendPulse {
+  50% {
+    box-shadow:
+      0 0 0 0.4375rem rgba($white-color, 0.14),
+      0 0 2.375rem 0.625rem rgba($white-color, 0.3);
+  }
+}
+
+// ==================== 未開發 ====================
+
+.undeveloped {
+  cursor: help;
+
+  .core {
+    border: 2px dashed $undeveloped-border;
+  }
 
   .icon {
-    font-size: $font-3xl; // 32px
-    filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
-  }
-
-  .bossIcon {
-    font-size: $font-4xl; // 36px
-    filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+    color: $undeveloped-icon;
   }
 }
 
-// 鎖定狀態的一半一半圖示：左書本（教學可看）、右鎖頭（練習未解鎖）
-.splitIcon {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
+// ==================== Boss ====================
 
-.splitIconHalf {
-  flex: 1;
-  position: relative;
-  @include flex-center;
+.boss {
+  --boss-color: var(--category-color, #ff6b6b);
+  width: 5.5rem; // 88px
+  height: 5.5rem;
 
-  &:first-child::after {
-    content: "";
-    position: absolute;
-    top: 22%;
-    bottom: 22%;
-    right: 0;
-    width: 1px;
-    background: rgba($white-color, 0.35);
+  .core { background: $dark-bg-primary; }
+  .icon { color: $white-color; }
+  .ringLock { right: -1.375rem; }
+  .starsContainer { top: -4.75rem; }
+
+  .levelTooltip {
+    top: calc(100% + 2.125rem);
+    background: var(--boss-color);
+    border-color: color-mix(in srgb, var(--boss-color) 60%, $white-color);
+    color: $white-color;
+    font-weight: 800;
+    box-shadow: 0 0 0.875rem color-mix(in srgb, var(--boss-color) 55%, transparent);
   }
 }
 
-.splitIconGlyph {
-  font-size: $font-lg; // 20px，兩個圖示共用空間所以縮小
-  filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
-}
-
-// 星星容器 - 顯示在節點外部上方
-.starsContainer {
+.bossPlate,
+.bossPlate::after {
   position: absolute;
-  top: -24px; // 在節點上方
+  clip-path: polygon(50% 0, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%);
+  pointer-events: none;
+}
+
+.bossPlate {
+  inset: -1.75rem;
+  z-index: -1;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--boss-color) 55%, $white-color) 0%,
+    var(--boss-color) 40%,
+    color-mix(in srgb, var(--boss-color) 55%, $black-color) 100%
+  );
+
+  &::after {
+    content: "";
+    inset: 0.375rem;
+    background: linear-gradient(
+      200deg,
+      color-mix(in srgb, var(--boss-color) 70%, $black-color),
+      color-mix(in srgb, var(--boss-color) 35%, $dark-bg-primary)
+    );
+  }
+}
+
+.bossAura {
+  position: absolute;
+  inset: -2.875rem;
+  z-index: -2;
+  border-radius: $radius-full;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 8%,
+    color-mix(in srgb, var(--boss-color) 80%, transparent) 14%,
+    transparent 22% 33%,
+    color-mix(in srgb, var(--boss-color) 80%, transparent) 40%,
+    transparent 48% 58%,
+    color-mix(in srgb, var(--boss-color) 80%, transparent) 66%,
+    transparent 74% 83%,
+    color-mix(in srgb, var(--boss-color) 80%, transparent) 90%,
+    transparent 97%
+  );
+  filter: blur(0.625rem);
+  opacity: 0.75;
+  animation: auraSpin 9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes auraSpin {
+  to { transform: rotate(1turn); }
+}
+
+.bossCrown {
+  position: absolute;
+  top: -3.125rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 24px;
-  z-index: 2;
+  font-size: 2rem;
+  color: $star-color;
+  z-index: 4;
+  filter: drop-shadow(0 0 0.375rem rgba($star-color, 0.7))
+    drop-shadow(0 2px 2px rgba($black-color, 0.6));
+  pointer-events: none;
+}
+
+.bossChip {
+  font-size: $font-2xs;
+  letter-spacing: 0.1em;
+  padding: 0 0.3125rem;
+  border-radius: $radius-sm;
+  background: rgba($black-color, 0.3);
+}
+
+// ==================== 星星（練習成績，維持原本的上方弧形） ====================
+
+.starsContainer {
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: $level-node-size;
+  height: 1.5rem;
+  z-index: 4;
   pointer-events: none;
 }
 
 .star {
   position: absolute;
   font-size: $font-lg;
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
   display: inline-block;
+  filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
 
   &.filled {
     color: $star-color;
-    filter: drop-shadow(0 0 8px rgba($star-color, 0.8))
+    filter: drop-shadow(0 0 0.5rem rgba($star-color, 0.8))
       drop-shadow(0 2px 4px rgba($black-color, 0.6));
   }
 
   &.empty {
-    color: rgba($white-color, 0.6); // 灰色輪廓
-    filter: drop-shadow(0 2px 4px rgba($black-color, 0.6));
+    color: rgba($white-color, 0.6);
   }
 }
 
+// ==================== 標籤（實底、12px，解決對比不足） ====================
+
 .levelTooltip {
   position: absolute;
-  top: calc(100% + $spacing-xs);
+  top: calc(100% + 0.875rem);
   left: 50%;
-  transform: translate(-50%, 0);
-  background: rgba($dark-bg-tertiary, 0.6);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $spacing-2xs;
+  background: $dark-bg-tertiary;
   color: $dark-text-primary;
-  padding: $spacing-2xs $spacing-md;
-  border-radius: $radius-sm;
-  border: 1px solid rgba($dark-text-primary, 0.1);
+  padding: 0.125rem $spacing-xs;
+  border-radius: $radius-md;
+  border: 1px solid rgba($dark-text-primary, 0.18);
   white-space: nowrap;
-  font-size: $font-2xs;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: $font-xs;
+  font-weight: 600;
   pointer-events: none;
-  opacity: 1;
-  transition: $transition-base;
   z-index: 100;
-  backdrop-filter: blur(8px);
-  box-shadow: $shadow-lg;
 }
 
-// 響應式設計
+@include reduced-motion {
+  .recommended .core,
+  .bossAura {
+    animation: none;
+  }
+}
+
+// ==================== 手機 ====================
+
 @media (max-width: $mobile-max) {
   .levelNode {
-    width: 4rem; // 64px
-    height: 4rem; // 64px
+    width: $level-node-size-mobile;
+    height: $level-node-size-mobile;
+  }
 
-    .nodeContent {
-      .icon {
-        font-size: $font-2xl; // 24px
-      }
-    }
+  .icon {
+    font-size: $font-lg;
+  }
 
-    .starsContainer {
-      top: -20px;
-      width: 64px;
-      height: 20px;
-    }
+  .starsContainer {
+    top: -1.75rem;
+    width: $level-node-size-mobile;
+    height: 1.25rem;
+  }
 
-    .star {
-      font-size: $font-sm;
-    }
+  .star {
+    font-size: $font-sm;
+  }
 
-    // Mobile Boss Level
-    &.boss {
-      width: 5rem; // 80px
-      height: 5rem; // 80px
+  .boss {
+    width: 4.5rem; // 72px
+    height: 4.5rem;
 
-      .nodeContent {
-        .bossIcon {
-          font-size: $font-2xl; // 24px - Mobile Boss 皇冠
-        }
-      }
+    .starsContainer { top: -4.25rem; }
+    .levelTooltip { top: calc(100% + 1.75rem); }
+  }
 
-      .starsContainer {
-        top: -20px;
-        width: 64px;
-        height: 20px;
-      }
+  .bossPlate { inset: -1.375rem; }
+  .bossAura { inset: -2.25rem; }
 
-      .star {
-        font-size: $font-sm;
-      }
-    }
+  .bossCrown {
+    top: -2.625rem;
+    font-size: 1.625rem;
   }
 }

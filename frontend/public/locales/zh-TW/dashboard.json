@@ -76,7 +76,8 @@
     "locked": "完成 Boss Level 以解鎖"
   },
   "node": {
-    "ariaLabel": "關卡：{{levelName}}"
+    "ariaLabel": "關卡：{{levelName}}",
+    "recommended": "建議下一步"
   },
   "levels": {
     "array": {

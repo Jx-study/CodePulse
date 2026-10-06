@@ -76,7 +76,8 @@
     "locked": "Complete the Boss Level to unlock"
   },
   "node": {
-    "ariaLabel": "Level: {{levelName}}"
+    "ariaLabel": "Level: {{levelName}}",
+    "recommended": "Recommended next"
   },
   "levels": {
     "array": {

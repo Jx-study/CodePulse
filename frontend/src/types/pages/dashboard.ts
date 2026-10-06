@@ -139,13 +139,12 @@ interface BaseNodeProps {
 
 export interface LevelNodeProps extends BaseNodeProps {
   level: Level;
-  status: LevelStatus;
-  stars: ScoreLevel;
-  isLocked: boolean;
-
+  progress?: LevelProgress; // 未登入或沒有紀錄時為 undefined
+  isPracticeLocked: boolean; // 練習的前置條件未滿足；教學一律開放
+  isRecommended?: boolean; // 全圖唯一的建議節點
   isBossLevel?: boolean; // 是否為 Boss Level
   pathMetadata?: PathMetadata; // 路徑元數據
-  categoryColor?: string; // 分類主題色（Boss Level 光暈用）
+  categoryColor?: string; // 分類主題色（Boss 底座用）
 }
 
 export interface PortalNodeProps extends BaseNodeProps {

@@ -35,6 +35,7 @@ import {
 import {
   getLevelProgress,
   calculateDisplayStatus,
+  getRecommendedLevelId,
   calculateOverallProgress,
   calculateCategoryProgress,
   isProgressTrackableLevel,
@@ -142,6 +143,9 @@ function LearningDashboardInner() {
   const getDisplayStatus = (level: Level & { isUnlocked: boolean }) => {
     return calculateDisplayStatus(level, filteredLevels, userProgress);
   };
+
+  // 全圖唯一的建議節點，只在目前分類內挑
+  const recommendedLevelId = getRecommendedLevelId(filteredLevels, userProgress);
 
   // 使用 ProgressService 計算進度統計
   const { totalLevels, completedLevels, totalStars, earnedStars, completionRate } =
@@ -380,9 +384,9 @@ function LearningDashboardInner() {
               ) : (
                 <LevelNode
                   level={level}
-                  status={getDisplayStatus(level)}
-                  stars={userProgress.levels[level.id]?.stars || 0}
-                  isLocked={!level.isUnlocked}
+                  progress={userProgress.levels[level.id]}
+                  isPracticeLocked={!level.isUnlocked}
+                  isRecommended={level.id === recommendedLevelId}
                   position={position}
                   onClick={() => handleLevelClick(level)}
                   isBossLevel={level.pathMetadata?.pathType === "boss"}
