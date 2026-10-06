@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { AvatarProps } from '@/types';
 import styles from './Avatar.module.scss';
 
@@ -33,6 +33,9 @@ const Avatar: React.FC<AvatarProps> = ({
     return colors[charCode % colors.length];
   };
 
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const showImage = !!src && src !== failedSrc;
+
   const initials = getInitials(username);
   const finalColorScheme = colorScheme === 'auto' ? getAutoColor(username) : colorScheme;
 
@@ -40,7 +43,7 @@ const Avatar: React.FC<AvatarProps> = ({
     styles.avatar,
     styles[size],
     styles[shape],
-    src ? styles.colorImage : styles[`color${finalColorScheme.charAt(0).toUpperCase()}${finalColorScheme.slice(1)}`],
+    showImage ? styles.colorImage : styles[`color${finalColorScheme.charAt(0).toUpperCase()}${finalColorScheme.slice(1)}`],
     showBorder && styles.bordered,
     onClick && styles.clickable,
     className
@@ -67,12 +70,14 @@ const Avatar: React.FC<AvatarProps> = ({
       aria-label={ariaLabel || `Avatar for ${username || 'user'}`}
       {...restProps}
     >
-      {src ? (
+      {showImage ? (
         <img
           src={src}
           alt={alt || username || 'Avatar'}
           className={styles.image}
           loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setFailedSrc(src)}
         />
       ) : (
         <span className={styles.initials}>{initials}</span>

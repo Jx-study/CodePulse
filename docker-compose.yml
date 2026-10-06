@@ -41,6 +41,7 @@ services:
     restart: unless-stopped
 
   backend:
+    image: codepulse-backend
     build:
       context: ./backend
       args:
@@ -69,10 +70,9 @@ services:
     command: python app.py
 
   celery-worker:
-    build:
-      context: ./backend
-      args:
-        REGISTRY_PREFIX: ${REGISTRY_PREFIX:-}
+    # 與 backend 共用同一個 image，避免重複 build
+    image: codepulse-backend
+    pull_policy: never
     volumes:
       - ./backend:/app
       - /app/__pycache_
@@ -85,6 +85,9 @@ services:
       - SANDBOX_SIDECAR_URL=http://sandbox-sidecar:8080
       - USE_CELERY=1
     depends_on:
+      # image 由 backend 的 build 產生，單獨啟動 celery 時也要先 build backend
+      backend:
+        condition: service_started
       redis:
         condition: service_healthy
       postgres:
