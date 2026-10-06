@@ -227,6 +227,40 @@ export function calculateDisplayStatus(
   return "unlocked";
 }
 
+// ==================== 建議節點 ====================
+
+/**
+ * 在目前分類的關卡中挑出唯一的建議節點，技能樹上只有它帶光暈。
+ *
+ * 規則：
+ * 1. 候選是練習已解鎖、已開發、非 portal、尚未通過練習的關卡
+ * 2. 只看 layer 最小的一層
+ * 3. 該層有已開始的（學完教學或練習過）就選它，否則選陣列中第一個
+ */
+export function getRecommendedLevelId(
+  levels: Level[],
+  userProgress: UserProgress,
+): string | null {
+  const candidates = levels.filter(
+    (l) =>
+      l.isUnlocked &&
+      l.isDeveloped &&
+      isProgressTrackableLevel(l) &&
+      userProgress.levels[l.id]?.status !== "completed",
+  );
+  if (candidates.length === 0) return null;
+
+  const layerOf = (l: Level) => l.graphPosition?.layer ?? 0;
+  const minLayer = Math.min(...candidates.map(layerOf));
+  const frontLayer = candidates.filter((l) => layerOf(l) === minLayer);
+
+  const started = frontLayer.find((l) => {
+    const p = userProgress.levels[l.id];
+    return p?.teachingCompleted === true || (p?.attempts ?? 0) > 0;
+  });
+  return (started ?? frontLayer[0]).id;
+}
+
 // ==================== 進度統計 ====================
 
 export function isProgressTrackableLevel(level: Level): boolean {
