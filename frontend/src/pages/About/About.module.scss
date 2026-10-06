@@ -104,6 +104,7 @@
 
 .heroPulse {
   margin-top: $spacing-xxl;
+  user-select: none;
 
   svg {
     display: block;
