@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./LearningDashboard.module.scss";
 
@@ -296,6 +297,12 @@ function LearningDashboardInner() {
 
   return (
     <div className={styles.dashboard}>
+      <div
+        className={styles.categoryAmbient}
+        style={{ "--category-color": categoryColors[activeCategory] } as CSSProperties}
+        aria-hidden="true"
+      />
+
       {/* 全屏垂直關卡地圖 */}
       <GraphContainer levels={filteredLevels} userProgress={userProgress}>
         {(level, _index, position, containerWidth) => {

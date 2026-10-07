@@ -5,8 +5,32 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   z-index: 0;
+}
+
+.categoryAmbient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 70% 40% at 50% 0%,
+      color-mix(in srgb, var(--category-color) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 60% 30% at 50% 100%,
+      color-mix(in srgb, var(--category-color) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+        circle,
+        color-mix(in srgb, var(--category-color) 25%, transparent) 1px,
+        transparent 1.5px
+      )
+      0 0 / 1.125rem 1.125rem;
 }
 
 // Toast 提示樣式

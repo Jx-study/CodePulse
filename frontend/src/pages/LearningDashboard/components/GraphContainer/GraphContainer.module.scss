@@ -5,7 +5,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--bg-secondary);
+  // 底色在 LearningDashboard 的 .dashboard，這裡透明才露得出分類背景
+  background: transparent;
   cursor: grab;
   user-select: none;
 
