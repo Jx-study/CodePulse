@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .pathConnection {
   z-index: 0;
   pointer-events: none;
@@ -13,18 +15,17 @@
     stroke: #374151;
   }
 
-  // 已解鎖 - 藍色
+  // 可練習
   &.unlocked {
-    stroke: $info-color;
-    stroke-width: 2.5;
-    filter: drop-shadow(0 0 4px rgba($info-color, 0.4));
+    stroke: color.mix($success-color, $dark-bg-tertiary, 45%);
+    stroke-width: 2;
   }
 
-  // 已完成 - 綠色
+  // 練習通過
   &.completed {
-    stroke: $execution-color;
-    stroke-width: 3;
-    filter: drop-shadow(0 0 6px rgba($execution-color, 0.5));
+    stroke: $success-color;
+    stroke-width: 3.5;
+    filter: drop-shadow(0 0 6px rgba($success-color, 0.75));
   }
 
 }
