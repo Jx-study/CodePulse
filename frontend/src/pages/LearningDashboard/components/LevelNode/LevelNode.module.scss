@@ -3,8 +3,8 @@
 // LevelNode：中央圖示表示整體進度，外環左半是教學、右半是練習
 // 分類主題色只用在 Boss 底色，一般節點只用固定的狀態色
 
-$ring-teach: #57e9f2;
-$ring-practice: #43e97b;
+$ring-teach: #3b82f6;
+$ring-practice: $success-color;
 $node-core-bg: $dark-bg-tertiary;
 $node-core-bg-dim: $dark-bg-secondary;
 $ring-track-locked: $dark-border;
@@ -28,7 +28,8 @@ $undeveloped-icon: #7a7596;
   }
 
   &:focus-visible .core {
-    box-shadow: 0 0 0 3px $white-color;
+    outline: 2px solid $primary-color;
+    outline-offset: 0.625rem;
   }
 }
 
@@ -71,9 +72,9 @@ $undeveloped-icon: #7a7596;
 }
 
 .arcTeachDone { stroke: $ring-teach; }
-.arcTeachOpen { stroke: color.mix($ring-teach, $node-core-bg, 32%); }
+.arcTeachOpen { stroke: color.mix($ring-teach, $node-core-bg, 45%); }
 .arcPracticeDone { stroke: $ring-practice; }
-.arcPracticeOpen { stroke: color.mix($ring-practice, $node-core-bg, 35%); }
+.arcPracticeOpen { stroke: color.mix($ring-practice, $node-core-bg, 45%); }
 .arcPracticeLocked { stroke: $ring-track-locked; }
 
 .ringLock {
@@ -117,16 +118,16 @@ $undeveloped-icon: #7a7596;
 // ==================== 建議節點 ====================
 .recommended .core {
   box-shadow:
-    0 0 0 4px rgba($white-color, 0.22),
-    0 0 1.75rem 0.375rem rgba($white-color, 0.4);
+    0 0 0 4px color-mix(in srgb, var(--recommend-glow) 40%, transparent),
+    0 0 1.75rem 0.375rem var(--recommend-glow);
   animation: recommendPulse 2.2s ease-in-out infinite;
 }
 
 @keyframes recommendPulse {
   50% {
     box-shadow:
-      0 0 0 0.4375rem rgba($white-color, 0.14),
-      0 0 2.375rem 0.625rem rgba($white-color, 0.3);
+      0 0 0 0.4375rem color-mix(in srgb, var(--recommend-glow) 20%, transparent),
+      0 0 2.375rem 0.625rem color-mix(in srgb, var(--recommend-glow) 70%, transparent);
   }
 }
 

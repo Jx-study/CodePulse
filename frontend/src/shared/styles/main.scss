@@ -50,6 +50,7 @@
   --glow-color-hover: #{$primary-color};
   --glow-shadow: 0 2px 12px #{rgba($primary-color, 0.2)};
   --glow-shadow-hover: 0 4px 20px #{rgba($primary-color, 0.35)};
+  --recommend-glow: #{rgba($light-text-primary, 0.35)};
 
   /* Header Height */
   --header-height: #{$header-height};
@@ -87,6 +88,7 @@
     --glow-color-hover: #{$white-color};
     --glow-shadow: 0 0 10px #{rgba($primary-color, 0.3)};
     --glow-shadow-hover: 0 0 18px #{rgba($primary-color, 0.6)}, 0 0 38px #{rgba($primary-color, 0.22)};
+    --recommend-glow: #{rgba($white-color, 0.2)};
   }
 }
 
@@ -117,6 +119,7 @@
   --glow-color-hover: #{$white-color};
   --glow-shadow: 0 0 10px #{rgba($primary-color, 0.3)};
   --glow-shadow-hover: 0 0 18px #{rgba($primary-color, 0.6)}, 0 0 38px #{rgba($primary-color, 0.22)};
+  --recommend-glow: #{rgba($white-color, 0.2)};
 }
 
 // Explicit light mode (overrides OS dark preference)
