@@ -85,7 +85,7 @@ const arrayCodeConfig: CodeConfig = {
       [TAGS.UPDATE_ERROR]: [16, 17, 18],
       [TAGS.UPDATE_ASSIGN]: [21],
       [TAGS.UPDATE_COMPLETE]: [22],
-      [TAGS.INSERT_START]: [24, 25],
+      [TAGS.INSERT_START]: [25, 26],
       [TAGS.INSERT_SHIFT]: [28, 29, 30, 31],
       [TAGS.INSERT_ASSIGN]: [34, 35],
       [TAGS.INSERT_COMPLETE]: [36],

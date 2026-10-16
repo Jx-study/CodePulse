@@ -60,12 +60,14 @@ const factorialCodeConfig: CodeConfig = {
   Return result
 End Procedure`,
     mappings: {
+      [TAGS.INIT]: [1],
       [TAGS.PUSH_START]: [1],
       [TAGS.PUSH_ASSIGN]: [6],
       [TAGS.BASE_CASE]: [2, 3],
       [TAGS.CALC_START]: [6],
       [TAGS.CALC_MULTIPLY]: [7],
       [TAGS.POP_RIGHT]: [9],
+      [TAGS.DONE]: [9],
     },
   },
   python: {

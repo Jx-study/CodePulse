@@ -116,7 +116,7 @@ export function simulateTrieTrace(
 
       if (visiblePaths.some((p) => p.startsWith(prefix))) {
         pushTrace(
-          TAGS.CHAR_MATCH,
+          TAGS.SEARCH_CHAR_MATCH,
           { char, prefix, index: i },
           {
             highlightId: nodeId,
@@ -158,7 +158,7 @@ export function simulateTrieTrace(
           );
         } else {
           pushTrace(
-            TAGS.SEARCH_NOT_FOUND,
+            TAGS.SEARCH_NOT_WORD,
             { word, error: "路徑存在，但該處並非單字結尾" },
             { highlightId: finalNodeId },
           );
@@ -181,7 +181,7 @@ export function simulateTrieTrace(
 
       if (visiblePaths.some((p) => p.startsWith(prefix))) {
         pushTrace(
-          TAGS.CHAR_MATCH,
+          TAGS.DELETE_CHAR_MATCH,
           { char, prefix, index: i },
           {
             highlightId: nodeId,
@@ -205,7 +205,7 @@ export function simulateTrieTrace(
 
       if (!isExactWord) {
         pushTrace(
-          TAGS.DELETE_NOT_FOUND,
+          TAGS.DELETE_NOT_WORD,
           { word, error: `路徑存在，但 '${word}' 並非單字結尾` },
           { highlightId: finalNodeId },
         );

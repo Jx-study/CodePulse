@@ -22,6 +22,14 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.char_match",
     params: { char: e.local_vars.char, prefix: e.local_vars.prefix },
   }),
+  [TAGS.SEARCH_CHAR_MATCH]: (e) => ({
+    key: "animation.char_match",
+    params: { char: e.local_vars.char, prefix: e.local_vars.prefix },
+  }),
+  [TAGS.DELETE_CHAR_MATCH]: (e) => ({
+    key: "animation.char_match",
+    params: { char: e.local_vars.char, prefix: e.local_vars.prefix },
+  }),
   [TAGS.CHAR_CREATE]: (e) => ({
     key: "animation.char_create",
     params: { char: e.local_vars.char, prefix: e.local_vars.prefix },
@@ -42,6 +50,10 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.search_not_found",
     params: { error: e.local_vars.error },
   }),
+  [TAGS.SEARCH_NOT_WORD]: (e) => ({
+    key: "animation.search_not_found",
+    params: { error: e.local_vars.error },
+  }),
   [TAGS.DELETE_START]: (e) => ({
     key: "animation.delete_start",
     params: { word: e.local_vars.word },
@@ -58,6 +70,10 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.DELETE_NOT_FOUND]: (e) => ({
+    key: "animation.delete_not_found",
+    params: { error: e.local_vars.error },
+  }),
+  [TAGS.DELETE_NOT_WORD]: (e) => ({
     key: "animation.delete_not_found",
     params: { error: e.local_vars.error },
   }),

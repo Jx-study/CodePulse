@@ -218,15 +218,36 @@ Class Trie:
       If Not curr.children.contains(char) Then
         Return False
       curr ← curr.children[char]
-    Return isPrefixMode Or curr.isEndOfWord`,
+    Return isPrefixMode Or curr.isEndOfWord
+
+  Procedure Delete(word):
+    curr ← root
+    For char In word Do
+      If Not curr.children.contains(char) Then
+        Return False
+      curr ← curr.children[char]
+    If Not curr.isEndOfWord Then
+      Return False
+    curr.isEndOfWord ← False
+    While curr ≠ root And curr.children is Empty And Not curr.isEndOfWord Do
+      Remove curr from its parent
+      curr ← curr.parent`,
     mappings: {
       [TAGS.INSERT_START]: [7],
-      [TAGS.CHAR_CREATE]: [10, 11],
-      [TAGS.CHAR_MATCH]: [11, 19],
+      [TAGS.CHAR_CREATE]: [9, 10, 11],
+      [TAGS.CHAR_MATCH]: [9, 11],
       [TAGS.SET_END]: [12],
       [TAGS.SEARCH_START]: [15, 16],
-      [TAGS.SEARCH_NOT_FOUND]: [18],
+      [TAGS.SEARCH_CHAR_MATCH]: [17, 19],
+      [TAGS.SEARCH_NOT_FOUND]: [17, 18],
+      [TAGS.SEARCH_NOT_WORD]: [20],
       [TAGS.SEARCH_FOUND]: [20],
+      [TAGS.DELETE_START]: [22, 23],
+      [TAGS.DELETE_CHAR_MATCH]: [25, 27],
+      [TAGS.DELETE_NOT_FOUND]: [25, 26],
+      [TAGS.DELETE_NOT_WORD]: [28, 29],
+      [TAGS.DELETE_UNMARK]: [30],
+      [TAGS.DELETE_PRUNE]: [31, 32, 33],
     },
   },
   python: {

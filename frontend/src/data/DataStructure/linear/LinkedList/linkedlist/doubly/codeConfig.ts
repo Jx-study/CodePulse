@@ -45,7 +45,7 @@ export const codeConfig: CodeConfig = {
           Return
         End If
         current ← head
-        For i ← 0 To index - 1 Do
+        For i ← 0 To index - 2 Do
           current ← current.next
         End For
         newNode ← new Node(value)
