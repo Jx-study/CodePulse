@@ -443,6 +443,7 @@ function TechCell({ item, tip }: { item: (typeof techItems)[number]; tip: string
       aria-pressed={pinned}
       onClick={() => setPinned((p) => !p)}
     >
+      <span className={styles.techToggle} aria-hidden="true" />
       <span className={styles.techRole}>{item.role}</span>
       <span className={styles.techName}>{item.name}</span>
       <span className={styles.techTip}>{tip}</span>
