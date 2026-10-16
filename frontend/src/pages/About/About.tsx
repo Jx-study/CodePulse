@@ -173,7 +173,7 @@ function HeroPulse({
   const [follower, setFollower] = useState<{ x: number; y: number } | null>(null);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
   const rippleId = useRef(0);
-  const rippleTimers = useRef<number[]>([]);
+  const rippleTimers = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     const path = pathRef.current;
@@ -225,9 +225,9 @@ function HeroPulse({
           setRipples((rs) => [...rs, { id, x: pt.x, y: pt.y }]);
           const timer = window.setTimeout(() => {
             setRipples((rs) => rs.filter((r) => r.id !== id));
-            rippleTimers.current = rippleTimers.current.filter((tid) => tid !== timer);
+            rippleTimers.current.delete(timer);
           }, 700);
-          rippleTimers.current.push(timer);
+          rippleTimers.current.add(timer);
         }}
       >
         <motion.path
