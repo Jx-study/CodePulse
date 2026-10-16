@@ -40,5 +40,40 @@
     "1514": "Maximum probability path: replace addition with multiplication in Dijkstra, max-heap prioritizes the highest current probability",
     "787": "Shortest path with at most K stops: track steps used per node, limiting to at most k intermediate stops",
     "778": "Minimum bottleneck path: Dijkstra selects the minimum water-level cell with a min-heap to reach the bottom-right corner"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Dijkstra's algorithm solves the **single-source shortest path** problem with a [[primary|greedy strategy]]: each round it picks the closest unfinished node and fixes its shortest distance.",
+        "items": [
+          "Split nodes into a **finished** set and an **unfinished** set; the source starts at 0 and all others at infinity",
+          "Each round, pick the node with the [[primary|smallest distance]] from the unfinished set and mark it finished",
+          "**Relax** every neighbor of that node: update its distance if the route through it is shorter",
+          "Repeat until all nodes are finished or the target is settled"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "The cost depends on how the minimum-distance node is selected; a **min-heap** (priority queue) speeds this up considerably.",
+        "items": [
+          "**With a min-heap**: [[success|O((V + E) log V)]], good for sparse graphs",
+          "**With a linear array scan**: [[warning|O(V²)]], actually better on dense graphs",
+          "**Space complexity**: [[success|O(V)]] for the distance table and predecessors"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Limits & Cautions",
+        "content": "Correctness relies on the assumption that once a node is finished, its distance can never improve.",
+        "items": [
+          "**Negative edge weights are not supported** — a negative edge could improve an already finished node",
+          "With negative weights, use [[primary|Bellman-Ford]]",
+          "If all edges have equal weight, plain [[primary|BFS]] is simpler and faster"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

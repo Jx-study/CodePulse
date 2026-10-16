@@ -379,8 +379,7 @@ export const DFSConfig: LevelImplementationConfig = {
     timeWorst: "O(V + E)",
     space: "O(V)",
   },
-  introduction: `深度優先搜尋 (DFS) 是一種圖或樹的遍歷演算法，它從根節點開始，逐層遍歷所有節點。它使用堆疊來管理待訪問的節點，確保每一層的節點都被訪問過一次。
-DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量。空間複雜度為 O(V)。`,
+  introduction: { key: "introduction" },
   defaultData: {
     // 分開定義兩種預設資料
     graph: {

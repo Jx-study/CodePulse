@@ -129,5 +129,40 @@
     "130": "Boundary DFS: mark regions reachable from the border O, then flip all remaining unmarked O to X",
     "417": "Reverse DFS: flow uphill from both Pacific and Atlantic borders, take the intersection as the answer",
     "329": "Memoized DFS: compute the longest increasing path from each cell, using a dp cache to avoid recomputation"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Depth-First Search (DFS) is a **traversal algorithm** for graphs and trees. It follows one path [[primary|as deep as possible]] and only **backtracks** to the previous branch point when it hits a dead end.",
+        "items": [
+          "Uses a **stack** (or the recursion call stack) to record the path, following [[primary|last-in, first-out]] order",
+          "On reaching a node, mark it **visited** and dive into an unvisited neighbor",
+          "At a dead end, **backtrack** and try another branch of the previous node",
+          "The visiting order depends on how neighbors are ordered, so one graph can have several valid DFS orders"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Each node is visited once and each edge examined at most once, so the cost grows linearly with graph size.",
+        "items": [
+          "**Time complexity**: [[success|O(V + E)]], where V is the number of nodes and E the number of edges",
+          "**Space complexity**: [[warning|O(V)]] — in the worst case the path covers every node, giving a stack depth of V",
+          "The recursive version can cause a **stack overflow** on very deep graphs; rewrite it with an explicit stack"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Uses & Limits",
+        "content": "DFS excels at exploring \"every possibility\", but the first path it finds is not necessarily the shortest.",
+        "items": [
+          "**Cycle detection** and counting **connected components**",
+          "**Topological sort**, path existence in mazes, and backtracking problems such as N-Queens",
+          "**Limit**: no shortest-path guarantee — use [[primary|BFS]] when you need the fewest steps"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

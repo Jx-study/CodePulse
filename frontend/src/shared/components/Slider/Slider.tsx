@@ -8,7 +8,7 @@ export interface SliderProps {
   value: number;
   onChange: (value: number) => void;
   showValue?: boolean;
-  formatValue?: (value: number) => string;  // 數值格式化函數（預設顯示 1 位小數）
+  formatValue?: (value: number) => string;  // 數值格式化函式（預設顯示 1 位小數）
   disabled?: boolean;
   className?: string;
   ariaLabel?: string;

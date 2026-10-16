@@ -99,8 +99,7 @@ export const fibonacciDPConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(n)",
   },
-  introduction:
-    "費氏數列除了使用遞迴，更有效率的方式是使用「動態規劃 (Bottom-Up DP)」。\n我們建立一個一維陣列來記錄每個子問題的最佳解 (狀態)，從左掃描到右，每個格子都依賴前兩個格子的運算結果。這種將時間複雜度從 O(2^n) 降至 O(n) 的技巧稱為「空間換取時間 (Tabulation)」。",
+  introduction: { key: "introduction" },
   defaultData: [],
   createAnimationSteps: createFibonacciDPAnimationSteps,
   actionHandler: fibonacciDPActionHandler,

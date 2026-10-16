@@ -148,7 +148,7 @@ export const knapsackConfig: LevelImplementationConfig = {
     timeWorst: "O(numItems * capacity)",
     space: "O(numItems * capacity)", // 可優化為 O(capacity) 但此處展示二維
   },
-  introduction: `0/1 背包問題是動態規劃的經典問題。每個物品只有「拿（1）」或「不拿（0）」兩種選擇。我們定義 dp[itemIdx][currCapacity] 為：在只考慮前 itemIdx 個物品，且背包容量為 currCapacity 的情況下，能裝入的最大價值。透過逐列填表，我們可以找到最佳解。`,
+  introduction: { key: "introduction" },
   defaultData: [
     { weight: 1, value: 15 },
     { weight: 3, value: 20 },

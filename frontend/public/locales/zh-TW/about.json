@@ -28,7 +28,7 @@
   },
   "techStack": {
     "title": "支撐整個系統的",
-    "titleAccent": "技術棧",
+    "titleAccent": "技術堆疊",
     "desc": "從 UI 渲染到資料庫，每一層都有存在的理由。",
     "items": {
       "react": "元件化 UI 與並行渲染，驅動所有互動介面與教學畫布。",

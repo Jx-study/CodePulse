@@ -168,7 +168,7 @@ export const twoPointersConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(1)",
   },
-  introduction: `雙指標是用兩個索引在陣列上協作移動的技巧。「對向」雙指標從兩端往中間夾（例如排序陣列的兩數之和）：每次比較後都能確定排除一側的元素；「同向」雙指標（快慢指標）一前一後往同方向走（例如原地移除重複元素）：快指標負責掃描，慢指標負責標記已處理好的區域。兩種寫法都讓每個元素只被看過常數次，把暴力解的 O(n²) 降到 O(n)。`,
+  introduction: { key: "introduction" },
   // 9 格：10 格時右上角的狀態圖例會壓到最右邊的格子
   defaultData: [
     { id: "box-0", value: 1 },

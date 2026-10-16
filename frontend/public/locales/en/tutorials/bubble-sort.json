@@ -87,7 +87,7 @@
           "**Pythonic swap**: with `a, b = b, a` multiple assignment, two values trade places in one line — no `temp` variable required",
           "**Long retired in practice**: Python's built-in [[primary|Timsort]] and Java's **Dual-Pivot Quicksort** both run in [[success|O(n log n)]], so Bubble Sort survives mainly as a teaching tool"
         ],
-        "icon": "sparkles"
+        "icon": "wand-magic-sparkles"
       }
     ]
   }

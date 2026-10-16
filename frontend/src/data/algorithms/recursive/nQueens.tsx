@@ -148,7 +148,7 @@ export const nQueensConfig: LevelImplementationConfig = {
     timeWorst: "O(N!)",
     space: "O(N)",
   },
-  introduction: `N 皇后問題是回溯法的經典題。我們逐列 (Row) 嘗試放置皇后，如果該位置不在任何已放置皇后的攻擊範圍（同行、同列、對角線）內，就暫時放上去，並繼續遞迴尋找下一列。如果下一列找不到解，我們就「回溯（拔起皇后）」，換下一個位置繼續試。`,
+  introduction: { key: "introduction" },
   defaultData: [{ n: 4 }],
   actionHandler: nQueensActionHandler,
   createAnimationSteps: createNQueensAnimationSteps,
