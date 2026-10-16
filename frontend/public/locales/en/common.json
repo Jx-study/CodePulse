@@ -109,7 +109,8 @@
     "prepare": "Preparing",
     "target": "Target",
     "complete": "Complete",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "rejected": "Rejected / Error"
   },
   "practice": {
     "visual": {

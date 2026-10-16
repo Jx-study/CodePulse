@@ -109,7 +109,8 @@
     "prepare": "準備中",
     "target": "目標",
     "complete": "完成",
-    "inactive": "未啟用"
+    "inactive": "未啟用",
+    "rejected": "被拒絕 / 錯誤"
   },
   "practice": {
     "visual": {

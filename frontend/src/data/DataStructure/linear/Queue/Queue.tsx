@@ -1,4 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
+import { statusConfigWithRejected } from "@/data/shared/rejectedSlot";
 import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
 import { QueueActionBar } from "./QueueActionBar";
@@ -264,4 +265,5 @@ export const QueueConfig: LevelImplementationConfig = {
   ],
   maxNodes: 12,
   animateOverflow: true,
+  statusConfig: statusConfigWithRejected,
 };

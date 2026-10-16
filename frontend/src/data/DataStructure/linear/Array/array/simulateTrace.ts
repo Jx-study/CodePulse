@@ -121,6 +121,20 @@ export function simulateArrayTrace(
   // Insert
   } else if (type === "add") {
     const idx = index !== undefined ? index : dataList.length - 1;
+    const originalLength = dataList.length - 1;
+    const requestedIndex = action.requestedIndex ?? idx;
+    const originalList = dataList.slice(0, -1).map((item, i) => ({
+      id: item.id,
+      value: i < idx ? dataList[i].value : dataList[i + 1].value,
+    }));
+    const wasClamped = requestedIndex !== idx;
+    trace.push({
+      tag: wasClamped ? TAGS.INSERT_CLAMP : TAGS.INSERT_CHECK_INDEX,
+      local_vars: wasClamped
+        ? { index: requestedIndex, clamped: idx, length: originalLength }
+        : { index: idx, length: originalLength },
+      dataSnapshot: snapshot(originalList),
+    });
     let currentList = dataList.map((item) => ({ ...item }));
 
     for (let i = idx; i < dataList.length - 1; i++) {

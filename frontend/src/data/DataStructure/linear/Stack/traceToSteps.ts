@@ -4,6 +4,11 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { asTrace } from "@/data/shared/traceValue";
+import {
+  REJECTED_STATUS,
+  markRejected,
+  createGuardSlot,
+} from "@/data/shared/rejectedSlot";
 import { TAGS } from "./tags";
 import {
   LinearData as BoxData,
@@ -11,9 +16,6 @@ import {
   createBoxes as baseCreateBoxes,
 } from "../utils";
 import type { StackTraceMeta } from "./simulateTrace";
-
-const REJECTED_STATUS = "rejected" as Status;
-const REJECTED_COLOR_MAP = { [REJECTED_STATUS]: "#ef4444" };
 
 const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
   return baseCreateBoxes(list, {
@@ -131,7 +133,7 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         "New",
       );
       if (isError) {
-        rejectedBox.setCustomColorMap(REJECTED_COLOR_MAP);
+        markRejected(rejectedBox);
       }
       const isDiscarded = event.tag === TAGS.PUSH_DISCARD;
       elements = [
@@ -216,7 +218,17 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       }
     } else if (action?.type === "delete") {
       if (action.value === undefined) {
-        elements = [createTopPointer(-1, startX, startY, gap)];
+        elements = [
+          createTopPointer(-1, startX, startY, gap),
+          createGuardSlot({
+            id: "empty-guard",
+            index: 0,
+            startX,
+            startY,
+            gap,
+            rejected: event.tag === TAGS.POP_ERROR,
+          }),
+        ];
       } else {
         const deletedNode = {
           id: action.targetId || "deleted-temp",
@@ -307,7 +319,17 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     } else if (action?.type === "peek") {
       const currentTop = dataList.length - 1;
       if (dataList.length === 0) {
-        elements = [createTopPointer(-1, startX, startY, gap)];
+        elements = [
+          createTopPointer(-1, startX, startY, gap),
+          createGuardSlot({
+            id: "empty-guard",
+            index: 0,
+            startX,
+            startY,
+            gap,
+            rejected: event.tag === TAGS.PEEK_ERROR,
+          }),
+        ];
       } else {
         if (event.tag === TAGS.PEEK_CHECK_EMPTY) {
           elements = [

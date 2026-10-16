@@ -1,6 +1,7 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { createBoxes } from "@/data/DataStructure/linear/utils";
+import { createGuardSlot } from "@/data/shared/rejectedSlot";
 import { toStatus, toOverrideMap } from "@/data/implementations/traceConverters";
 import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
@@ -11,6 +12,15 @@ interface ArrayMeta {
   status?: string;
   overrideStatusMap?: Record<number, string>;
 }
+
+const BOX_START_X = 50;
+const BOX_GAP = 70;
+
+const INVALID_CHECK_TAGS: string[] = [
+  TAGS.UPDATE_CHECK_INDEX,
+  TAGS.DELETE_CHECK_INDEX,
+];
+const INVALID_ERROR_TAGS: string[] = [TAGS.UPDATE_ERROR, TAGS.DELETE_ERROR];
 
 // tag → StepDescription factory
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
@@ -58,6 +68,20 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.UPDATE_ERROR]: (e) => ({
     key: "animation.update_error",
     params: { index: e.local_vars.index },
+  }),
+
+  [TAGS.INSERT_CHECK_INDEX]: (e) => ({
+    key: "animation.insert_check_index",
+    params: { index: e.local_vars.index, length: e.local_vars.length },
+  }),
+
+  [TAGS.INSERT_CLAMP]: (e) => ({
+    key: "animation.insert_clamp",
+    params: {
+      index: e.local_vars.index,
+      clamped: e.local_vars.clamped,
+      length: e.local_vars.length,
+    },
   }),
 
   [TAGS.INSERT_START]: (_e) => ({ key: "animation.insert_start" }),
@@ -128,20 +152,52 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 export function arrayTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
     const meta = asTrace<ArrayMeta>(event.meta);
+    const index = Number(event.local_vars.index);
+    const length = event.dataSnapshot.length;
+    const isOutOfRange = index < 0 || index >= length;
+    const isInvalidCheck = INVALID_CHECK_TAGS.includes(event.tag) && isOutOfRange;
+    const isInvalidError = INVALID_ERROR_TAGS.includes(event.tag);
+    const isClamp = event.tag === TAGS.INSERT_CLAMP;
+    const boxes = createBoxes(event.dataSnapshot, {
+      startX: BOX_START_X,
+      startY: 200,
+      gap: BOX_GAP,
+      highlightIndex: meta.highlightIndex ?? -1,
+      status: toStatus(meta.status),
+      forceXShiftIndex: -1,
+      shiftDirection: 0,
+      overrideStatusMap: toOverrideMap(meta.overrideStatusMap),
+      getDescription: (_, i) => `${i}`,
+    });
     return {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
-      elements: createBoxes(event.dataSnapshot, {
-        startX: 50,
-        startY: 200,
-        gap: 70,
-        highlightIndex: meta.highlightIndex ?? -1,
-        status: toStatus(meta.status),
-        forceXShiftIndex: -1,
-        shiftDirection: 0,
-        overrideStatusMap: toOverrideMap(meta.overrideStatusMap),
-        getDescription: (_, i) => `${i}`,
-      }),
+      elements: isClamp
+        ? [
+            ...boxes,
+            createGuardSlot({
+              id: "insert-slot",
+              index: Number(event.local_vars.clamped),
+              startX: BOX_START_X,
+              startY: 200,
+              gap: BOX_GAP,
+              rejected: false,
+              label: "",
+            }),
+          ]
+        : isInvalidCheck || isInvalidError
+          ? [
+              ...boxes,
+              createGuardSlot({
+                id: "invalid-slot",
+                index,
+                startX: BOX_START_X,
+                startY: 200,
+                gap: BOX_GAP,
+                rejected: isInvalidError,
+              }),
+            ]
+          : boxes,
       actionTag: event.tag,
       local_vars: event.local_vars,
       global_vars: event.global_vars,

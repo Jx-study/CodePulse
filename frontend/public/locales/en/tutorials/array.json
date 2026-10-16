@@ -76,6 +76,8 @@
     "update_complete": "Update complete",
     "update_check_index": "Check if Index {{index}} is in range (length {{length}})",
     "update_error": "Error: Index {{index}} out of range",
+    "insert_check_index": "Check whether Index {{index}} exceeds the current length {{length}}",
+    "insert_clamp": "Index {{index}} exceeds length {{length}}, so insert at the end (Index {{clamped}}) instead",
     "insert_start": "Expand array by one slot at the end",
     "insert_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) right to Index {{to}}",
     "insert_shift_done": "Shift complete: Index {{index}} is now {{value}}",
