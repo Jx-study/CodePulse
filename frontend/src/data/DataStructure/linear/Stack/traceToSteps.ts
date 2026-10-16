@@ -12,6 +12,9 @@ import {
 } from "../utils";
 import type { StackTraceMeta } from "./simulateTrace";
 
+const REJECTED_STATUS = "rejected" as Status;
+const REJECTED_COLOR_MAP = { [REJECTED_STATUS]: "#ef4444" };
+
 const createBoxes = (list: BoxData[], status: Status = Status.Unfinished) => {
   return baseCreateBoxes(list, {
     startX: 100,
@@ -39,6 +42,12 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.push_start",
     params: { value: e.local_vars.value },
   }),
+  [TAGS.PUSH_CHECK_FULL]: (e) => ({
+    key: "animation.push_check_full",
+    params: { size: e.local_vars.size },
+  }),
+  [TAGS.PUSH_ERROR]: () => ({ key: "animation.push_error" }),
+  [TAGS.PUSH_DISCARD]: () => ({ key: "animation.push_discard" }),
   [TAGS.PUSH_INC_TOP]: (e) => ({
     key: "animation.push_inc_top",
     params: { top: e.local_vars.top },
@@ -109,12 +118,49 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         ...createBoxes(dataList),
         createTopPointer(dataList.length - 1, startX, startY, gap),
       ];
+    } else if (action?.type === "add" && action.overflow) {
+      const top = dataList.length - 1;
+      const slotX = startX + dataList.length * gap;
+      const farX = slotX + 3 * gap;
+      const isError = event.tag === TAGS.PUSH_ERROR;
+      const rejectedBox = createBox(
+        "overflow-new",
+        action.value,
+        event.tag === TAGS.PUSH_CHECK_FULL ? slotX : farX,
+        isError ? REJECTED_STATUS : Status.Prepare,
+        "New",
+      );
+      if (isError) {
+        rejectedBox.setCustomColorMap(REJECTED_COLOR_MAP);
+      }
+      const isDiscarded = event.tag === TAGS.PUSH_DISCARD;
+      elements = [
+        ...createBoxes(
+          dataList,
+          event.tag === TAGS.PUSH_CHECK_FULL ? Status.Target : Status.Unfinished,
+        ),
+        ...(isDiscarded ? [] : [rejectedBox]),
+        createTopPointer(top, startX, startY, gap),
+      ];
     } else if (action?.type === "add") {
       const oldList = dataList.slice(0, -1);
       const newNode = dataList[dataList.length - 1];
       const top = oldList.length - 1;
 
       if (event.tag === TAGS.PUSH_START) {
+        const newBox = createBox(
+          newNode.id,
+          newNode.value,
+          950,
+          Status.Prepare,
+          "New",
+        );
+        elements = [
+          ...createBoxes(oldList),
+          newBox,
+          createTopPointer(top, startX, startY, gap),
+        ];
+      } else if (event.tag === TAGS.PUSH_CHECK_FULL) {
         const newBox = createBox(
           newNode.id,
           newNode.value,

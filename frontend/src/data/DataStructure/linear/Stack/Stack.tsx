@@ -27,6 +27,9 @@ const stackCodeConfig: CodeConfig = {
     stack ← Array of Size
 
   Procedure push(value):
+    If top = Size - 1 Then
+      Return Error
+    End If
     top ← top + 1
     stack[top] ← value
   End Procedure
@@ -49,21 +52,24 @@ const stackCodeConfig: CodeConfig = {
     mappings: {
       [TAGS.INIT]: [2, 3, 4],
       [TAGS.PUSH_START]: [6],
-      [TAGS.PUSH_INC_TOP]: [7],
-      [TAGS.PUSH_ASSIGN]: [8],
-      [TAGS.PUSH_COMPLETE]: [9],
-      [TAGS.POP_START]: [11],
-      [TAGS.POP_CHECK_EMPTY]: [12],
-      [TAGS.POP_ERROR]: [13],
-      [TAGS.POP_GET_VALUE]: [15],
-      [TAGS.POP_DEC_TOP]: [16],
-      [TAGS.POP_RETURN]: [17],
-      [TAGS.POP_COMPLETE]: [18],
-      [TAGS.PEEK_START]: [20],
-      [TAGS.PEEK_CHECK_EMPTY]: [21],
-      [TAGS.PEEK_ERROR]: [22],
-      [TAGS.PEEK_RETURN]: [24],
-      [TAGS.PEEK_COMPLETE]: [25],
+      [TAGS.PUSH_CHECK_FULL]: [7],
+      [TAGS.PUSH_ERROR]: [8],
+      [TAGS.PUSH_DISCARD]: [8],
+      [TAGS.PUSH_INC_TOP]: [10],
+      [TAGS.PUSH_ASSIGN]: [11],
+      [TAGS.PUSH_COMPLETE]: [12],
+      [TAGS.POP_START]: [14],
+      [TAGS.POP_CHECK_EMPTY]: [15],
+      [TAGS.POP_ERROR]: [16],
+      [TAGS.POP_GET_VALUE]: [18],
+      [TAGS.POP_DEC_TOP]: [19],
+      [TAGS.POP_RETURN]: [20],
+      [TAGS.POP_COMPLETE]: [21],
+      [TAGS.PEEK_START]: [23],
+      [TAGS.PEEK_CHECK_EMPTY]: [24],
+      [TAGS.PEEK_ERROR]: [25],
+      [TAGS.PEEK_RETURN]: [27],
+      [TAGS.PEEK_COMPLETE]: [28],
     },
   },
   python: {
@@ -124,6 +130,13 @@ function stackActionHandler(
 ): ActionResult<BoxData[]> | null {
   const { value } = payload as { value?: number };
   const newData = [...data];
+
+  if (actionType === "add" && payload.overflow) {
+    return {
+      animationData: data,
+      animationParams: { value, mode: "Push", overflow: true },
+    };
+  }
 
   if (actionType === "add") {
     const newId = context.nextId();
@@ -268,4 +281,5 @@ export const StackConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 12,
+  animateOverflow: true,
 };

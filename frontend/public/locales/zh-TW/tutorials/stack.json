@@ -2,6 +2,9 @@
   "animation": {
     "init": "Stack 狀態",
     "push_start": "Push({{value}}): 準備推入新元素",
+    "push_check_full": "Push(): 檢查是否已滿 (目前 {{size}} 筆)",
+    "push_error": "錯誤: 堆疊上溢 (Stack Overflow)，無法再推入新元素",
+    "push_discard": "新元素被丟棄，堆疊維持不變",
     "push_inc_top": "top = top + 1 (現在 top 指向 {{top}})",
     "push_assign": "stack[{{top}}] = {{value}}",
     "push_complete": "Push 完成",
