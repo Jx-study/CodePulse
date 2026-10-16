@@ -18,7 +18,7 @@ import Avatar from '@/shared/components/Avatar';
 import Badge from '@/shared/components/Badge';
 import Button from '@/shared/components/Button';
 import MilestoneFigure from './components/MilestoneFigure';
-import { marqueeItems } from './marqueeItems';
+import { developedCategoryCount, developedLevelIds, marqueeItems } from './marqueeItems';
 import styles from './About.module.scss';
 
 const MotionBadge = motion.create(Badge);
@@ -56,11 +56,11 @@ const techItems = [
   { name: 'PostgreSQL', role: 'DATABASE', tipKey: 'postgres' },
 ] as const;
 
+const REPO_URL = 'https://github.com/Jx-study/CodePulse';
+
 const HERO_PULSE_PATH =
   'M0,60 H160 L180,48 L200,60 H320 L340,14 L360,84 L380,60 H560 L580,50 L600,60 ' +
   'H760 L780,10 L800,86 L820,60 H1000 L1020,48 L1040,60 H1150';
-
-const CTA_PULSE_PATH = 'M0,26 H420 L440,18 L460,26 H560 L580,4 L600,36 L620,26 H1200';
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
@@ -763,19 +763,30 @@ function About() {
       {/* ── CTA ── */}
       <section className={styles.ctaWrap}>
         <div className={styles.container}>
-          <div className={styles.cta}>
-            <div className={styles.ctaPulse} aria-hidden="true">
-              <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
-                <path d={CTA_PULSE_PATH} />
-              </svg>
+          <h2 className={styles.ctaTitle}>{t('cta.title')}</h2>
+          <p className={styles.ctaDesc}>{t('cta.desc')}</p>
+          <dl className={styles.ctaStats}>
+            <div className={styles.ctaStat}>
+              <dd>{developedLevelIds.length}</dd>
+              <dt>{t('cta.stats.levels')}</dt>
             </div>
-            <h2 className={styles.ctaTitle}>{t('cta.title')}</h2>
-            <p className={styles.ctaDesc}>{t('cta.desc')}</p>
-            <div className={styles.ctaLink}>
-              <Button variant="primary" size="lg" onClick={() => navigate('/dashboard')}>
-                {t('cta.button')}
-              </Button>
+            <div className={styles.ctaStat}>
+              <dd>{developedCategoryCount}</dd>
+              <dt>{t('cta.stats.categories')}</dt>
             </div>
+          </dl>
+          <div className={styles.ctaActions}>
+            <Button variant="primary" size="lg" onClick={() => navigate('/dashboard')}>
+              {t('cta.button')}
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              aria-label={t('cta.sourceLabel')}
+              onClick={() => window.open(REPO_URL, '_blank', 'noopener,noreferrer')}
+            >
+              {t('cta.source')}
+            </Button>
           </div>
         </div>
       </section>

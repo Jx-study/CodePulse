@@ -91,6 +91,12 @@
     "title": "Ready to start?",
     "desc": "Start from the basic data structures and build solid algorithmic intuition, one step at a time.",
     "button": "Start Learning",
-    "eofNote": "End of this commit"
+    "eofNote": "End of this commit",
+    "stats": {
+      "levels": "interactive levels",
+      "categories": "learning categories"
+    },
+    "source": "View source on GitHub",
+    "sourceLabel": "View source on GitHub (opens in a new tab)"
   }
 }

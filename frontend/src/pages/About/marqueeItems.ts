@@ -48,3 +48,7 @@ export const developedLevelIds = levelsData.levels
 export const marqueeItems = developedLevelIds.map(
   (id) => MARQUEE_LABELS[id] ?? toTitle(id),
 );
+
+export const developedCategoryCount = new Set(
+  levelsData.levels.filter(isListedLevel).map((level) => level.category),
+).size;

@@ -1190,83 +1190,74 @@
 
 /* ============ CTA + [NULL] ============ */
 .ctaWrap {
-  padding: ($spacing-xxl + $spacing-lg) 0 ($spacing-xxl + $spacing-xl);
-}
-
-.cta {
   position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: ($spacing-sm - 0.125rem);
-  padding: $spacing-xxl $spacing-lg;
-  background: var(--bg-secondary);
-  border: 1px solid var(--primary-line);
-  border-radius: $radius-2xl;
-  text-align: center;
-}
+  border-top: 1px solid var(--border);
+  padding: ($spacing-xxl + $spacing-lg) 0 ($spacing-xxl + $spacing-lg);
 
-@media (hover: hover) and (pointer: fine) {
-  .cta:hover .ctaPulse path {
-    stroke: $primary-color;
-    stroke-dasharray: 1600;
-    animation: ctaDraw 1.6s $ease-smooth;
-  }
-}
-
-.ctaPulse {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: $spacing-md;
-  opacity: 0.5;
-  pointer-events: none;
-
-  svg {
-    display: block;
-    width: 100%;
-    height: 2.5rem;
+  // 與開場同一種光暈，只是從右下角收尾
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 55% 60% at 80% 90%, var(--primary-soft), transparent 70%);
+    pointer-events: none;
   }
 
-  path {
-    fill: none;
-    stroke: var(--primary-line);
-    stroke-width: 1.5;
-  }
-}
-
-@keyframes ctaDraw {
-  from {
-    stroke-dashoffset: 1600;
-  }
-
-  to {
-    stroke-dashoffset: 0;
+  .container {
+    position: relative;
   }
 }
 
 .ctaTitle {
-  position: relative;
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(2.25rem, 6vw, 4rem);
   font-weight: 800;
-  line-height: 1.3;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   margin: 0;
   text-wrap: balance;
 }
 
 .ctaDesc {
-  position: relative;
-  font-size: $font-sm;
+  max-width: 34rem;
+  margin: $spacing-md 0 0;
+  font-size: $font-lg;
   color: var(--text-secondary);
-  margin: 0;
-  max-width: 28rem;
+  text-wrap: pretty;
 }
 
-.ctaLink {
-  position: relative;
-  margin-top: $spacing-xs;
-  text-decoration: none;
+.ctaStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-xl;
+  margin: $spacing-lg 0 0;
+}
+
+.ctaStat {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-xs;
+
+  dd {
+    margin: 0;
+    font-family: $font-family-code;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1;
+    color: $primary-color;
+  }
+
+  dt {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+}
+
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
 }
 
 /* ============ 響應式 ============ */
@@ -1483,8 +1474,7 @@
   .monitorDot,
   .msEntry.passed .msNode::after,
   .msEntry.passed .msFigure *,
-  .spineEnd.lit::after,
-  .cta:hover .ctaPulse path {
+  .spineEnd.lit::after {
     animation: none;
   }
 

@@ -91,6 +91,12 @@
     "title": "準備好開始了嗎？",
     "desc": "從基礎資料結構開始，一步一步建立扎實的演算法直覺。",
     "button": "開始學習",
-    "eofNote": "本次 commit 到此結束"
+    "eofNote": "本次 commit 到此結束",
+    "stats": {
+      "levels": "個互動關卡",
+      "categories": "個學習分類"
+    },
+    "source": "在 GitHub 看原始碼",
+    "sourceLabel": "在 GitHub 看原始碼（在新分頁開啟）"
   }
 }
