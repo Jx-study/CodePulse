@@ -43,7 +43,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     isDisabled: isZoomDisabled,
   });
 
-  // 動態計算滾動限制的輔助函數
+  // 動態計算滾動限制的輔助函式
   const calculateScrollBounds = useCallback((container: HTMLElement | null | undefined) => {
     if (!container) {
       return { minScrollY: -1000, maxScrollY: 1000, maxScrollX: 300 };

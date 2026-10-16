@@ -40,7 +40,7 @@ function heapActionHandler(
 
   const isMinHeap = payload.isMinHeap === true;
   const isMaxHeap = payload.isMaxHeap === true;
-  // 優先權判斷函數：如果是 Min-Heap，數字越小優先權越高 (a < b)
+  // 優先權判斷函式：如果是 Min-Heap，數字越小優先權越高 (a < b)
   const isPrior = (a: number, b: number) => (isMinHeap ? a < b : a > b);
 
   if (
