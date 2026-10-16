@@ -87,7 +87,7 @@
           "**Pythonic 交換**：透過 `a, b = b, a` 多重賦值即可一行對調，無須 `temp` 暫存變數",
           "**早已被淘汰**：Python 內建 [[primary|Timsort]] 與 Java 的 **Dual-Pivot Quicksort** 皆達 [[success|O(n log n)]]，實務中僅保留氣泡排序作為教學素材"
         ],
-        "icon": "sparkles"
+        "icon": "wand-magic-sparkles"
       }
     ]
   }
