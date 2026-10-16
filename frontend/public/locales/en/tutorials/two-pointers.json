@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "autoSorted": "Two pointers requires sorted data, so the loaded data was sorted in ascending order"
+  },
   "animation": {
     "init_two_sum": "[Two Sum] L starts at the far left and R at the far right, looking for a pair that sums to {{target}}",
     "init_dedup": "[Remove Duplicates] slow marks the end of the kept region; fast starts scanning from Index 1",

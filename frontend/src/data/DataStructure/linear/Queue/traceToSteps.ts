@@ -4,6 +4,11 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { asTrace } from "@/data/shared/traceValue";
+import {
+  REJECTED_STATUS,
+  markRejected,
+  createGuardSlot,
+} from "@/data/shared/rejectedSlot";
 import { TAGS } from "./tags";
 import {
   LinearData as BoxData,
@@ -51,6 +56,12 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.enqueue_start",
     params: { value: e.local_vars.value },
   }),
+  [TAGS.ENQUEUE_CHECK_FULL]: (e) => ({
+    key: "animation.enqueue_check_full",
+    params: { size: e.local_vars.size },
+  }),
+  [TAGS.ENQUEUE_ERROR]: () => ({ key: "animation.enqueue_error" }),
+  [TAGS.ENQUEUE_DISCARD]: () => ({ key: "animation.enqueue_discard" }),
   [TAGS.ENQUEUE_INC_REAR]: (e) => ({
     key: "animation.enqueue_inc_rear",
     params: { rear: e.local_vars.rear },
@@ -121,12 +132,51 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         ...createBoxes(dataList),
         ...createQueuePointers(0, dataList.length - 1, startX, startY, gap),
       ];
+    } else if (action?.type === "add" && action.overflow) {
+      const rear = dataList.length - 1;
+      const slotX = startX + dataList.length * gap;
+      const farX = slotX + 3 * gap;
+      const isError = event.tag === TAGS.ENQUEUE_ERROR;
+      const rejectedBox = createBox(
+        "overflow-new",
+        action.value,
+        event.tag === TAGS.ENQUEUE_CHECK_FULL ? slotX : farX,
+        isError ? REJECTED_STATUS : Status.Prepare,
+        "New",
+      );
+      if (isError) {
+        markRejected(rejectedBox);
+      }
+      const isDiscarded = event.tag === TAGS.ENQUEUE_DISCARD;
+      elements = [
+        ...createBoxes(
+          dataList,
+          event.tag === TAGS.ENQUEUE_CHECK_FULL
+            ? Status.Target
+            : Status.Unfinished,
+        ),
+        ...(isDiscarded ? [] : [rejectedBox]),
+        ...createQueuePointers(0, rear, startX, startY, gap),
+      ];
     } else if (action?.type === "add") {
       const oldList = dataList.slice(0, -1);
       const newNode = dataList[dataList.length - 1];
       const currentRear = oldList.length - 1;
 
       if (event.tag === TAGS.ENQUEUE_START) {
+        const newBox = createBox(
+          newNode.id,
+          newNode.value,
+          950,
+          Status.Prepare,
+          "New",
+        );
+        elements = [
+          ...createBoxes(oldList),
+          newBox,
+          ...createQueuePointers(0, currentRear, startX, startY, gap),
+        ];
+      } else if (event.tag === TAGS.ENQUEUE_CHECK_FULL) {
         const newBox = createBox(
           newNode.id,
           newNode.value,
@@ -182,7 +232,17 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       }
     } else if (action?.type === "delete") {
       if (action.value === undefined) {
-        elements = [...createQueuePointers(0, -1, startX, startY, gap)];
+        elements = [
+          ...createQueuePointers(0, -1, startX, startY, gap),
+          createGuardSlot({
+            id: "empty-guard",
+            index: 0,
+            startX,
+            startY,
+            gap,
+            rejected: event.tag === TAGS.DEQUEUE_ERROR,
+          }),
+        ];
       } else {
         const deletedNode = {
           id: action.targetId || "del-temp",
@@ -269,7 +329,17 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     } else if (action?.type === "peek") {
       const rear = dataList.length - 1;
       if (dataList.length === 0) {
-        elements = [...createQueuePointers(0, -1, startX, startY, gap)];
+        elements = [
+          ...createQueuePointers(0, -1, startX, startY, gap),
+          createGuardSlot({
+            id: "empty-guard",
+            index: 0,
+            startX,
+            startY,
+            gap,
+            rejected: event.tag === TAGS.PEEK_ERROR,
+          }),
+        ];
       } else {
         if (event.tag === TAGS.PEEK_CHECK_EMPTY) {
           elements = [

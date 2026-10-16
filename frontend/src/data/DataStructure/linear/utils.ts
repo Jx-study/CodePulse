@@ -14,6 +14,9 @@ export interface LinearAction {
   index?: number;
   targetId?: string;
   oldValue?: number;
+  overflow?: boolean;
+  invalid?: boolean;
+  requestedIndex?: number;
 }
 
 interface CreateBoxesOptions {

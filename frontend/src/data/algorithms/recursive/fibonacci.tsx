@@ -68,9 +68,11 @@ const fibonacciCodeConfig: CodeConfig = {
   Return left + right
 End Procedure`,
     mappings: {
+      [TAGS.FIB_START]: [1],
       [TAGS.FIB_CALL]: [1],
       [TAGS.FIB_BASE]: [2, 3],
       [TAGS.FIB_CALC]: [6, 7, 9],
+      [TAGS.FIB_DONE]: [9],
     },
   },
   python: {

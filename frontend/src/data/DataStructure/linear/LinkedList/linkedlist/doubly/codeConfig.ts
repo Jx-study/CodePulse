@@ -45,7 +45,7 @@ export const codeConfig: CodeConfig = {
           Return
         End If
         current ← head
-        For i ← 0 To index - 1 Do
+        For i ← 0 To index - 2 Do
           current ← current.next
         End For
         newNode ← new Node(value)
@@ -136,7 +136,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_HEAD_FREE]: [57],
       [TAGS.DELETE_HEAD_END]: [57],
 
-      [TAGS.DELETE_TAIL_START]: [59],
+      [TAGS.DELETE_TAIL_START]: [59, 60],
       [TAGS.DELETE_TAIL_ISNEXTNULL]: [61],
       [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [62, 63],
       [TAGS.DELETE_TAIL_TRAVERSE]: [65, 66, 67, 68],
@@ -149,7 +149,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_INDEX_UNLINK]: [82, 83],
       [TAGS.DELETE_INDEX_END]: [84],
 
-      [TAGS.SEARCH_START]: [86],
+      [TAGS.SEARCH_START]: [86, 87, 88],
       [TAGS.SEARCH_COMPARE]: [89, 90, 91, 92],
       [TAGS.SEARCH_FOUND]: [90],
       [TAGS.SEARCH_NEXT]: [91, 92],

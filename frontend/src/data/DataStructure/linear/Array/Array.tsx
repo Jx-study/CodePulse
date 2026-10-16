@@ -1,4 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
+import { statusConfigWithRejected } from "@/data/shared/rejectedSlot";
 import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import {
   LinearData as BoxData,
@@ -41,8 +42,8 @@ const arrayCodeConfig: CodeConfig = {
   End Procedure
 
   Procedure update(index, value):
-    If value is Empty Then
-      Alert "Value cannot be empty"
+    If index < 0 or index ≥ length Then
+      Alert "Index out of range"
       Return
     End If
     
@@ -50,6 +51,10 @@ const arrayCodeConfig: CodeConfig = {
   End Procedure
 
   Procedure insert(index, value):
+    If index > length Then
+      index ← length
+    End If
+
     // 1. Expand array size (append at back)
     length ← length + 1
     
@@ -82,17 +87,22 @@ const arrayCodeConfig: CodeConfig = {
       [TAGS.SEARCH_FOUND]: [9],
       [TAGS.SEARCH_NOT_FOUND]: [12],
       [TAGS.UPDATE_START]: [15],
-      [TAGS.UPDATE_ERROR]: [16, 17, 18],
+      [TAGS.UPDATE_CHECK_INDEX]: [16],
+      [TAGS.UPDATE_ERROR]: [17, 18],
       [TAGS.UPDATE_ASSIGN]: [21],
       [TAGS.UPDATE_COMPLETE]: [22],
-      [TAGS.INSERT_START]: [24, 25],
-      [TAGS.INSERT_SHIFT]: [28, 29, 30, 31],
-      [TAGS.INSERT_ASSIGN]: [34, 35],
-      [TAGS.INSERT_COMPLETE]: [36],
-      [TAGS.DELETE_START]: [38],
-      [TAGS.DELETE_SHIFT]: [43, 44, 45],
-      [TAGS.DELETE_REMOVE]: [48, 49],
-      [TAGS.DELETE_COMPLETE]: [50],
+      [TAGS.INSERT_CHECK_INDEX]: [25],
+      [TAGS.INSERT_CLAMP]: [25, 26],
+      [TAGS.INSERT_START]: [29, 30],
+      [TAGS.INSERT_SHIFT]: [32, 33, 34, 35],
+      [TAGS.INSERT_ASSIGN]: [38, 39],
+      [TAGS.INSERT_COMPLETE]: [40],
+      [TAGS.DELETE_START]: [42],
+      [TAGS.DELETE_CHECK_INDEX]: [43],
+      [TAGS.DELETE_ERROR]: [44],
+      [TAGS.DELETE_SHIFT]: [47, 48, 49],
+      [TAGS.DELETE_REMOVE]: [52, 53],
+      [TAGS.DELETE_COMPLETE]: [54],
     },
   },
   python: {
@@ -164,7 +174,12 @@ function arrayActionHandler(
     newData[safeIdx].value = value!;
     return {
       animationData: newData,
-      animationParams: { targetId: newId, value, index: safeIdx },
+      animationParams: {
+        targetId: newId,
+        value,
+        index: safeIdx,
+        requestedIndex: idx,
+      },
     };
   }
 
@@ -183,18 +198,19 @@ function arrayActionHandler(
         },
       };
     }
-    return null;
+    return {
+      animationData: data,
+      animationParams: { value, index: idx, invalid: true },
+    };
   }
 
   if (actionType === "delete") {
     const idx = index;
-    if (newData.length === 0) {
-      context.toast.warning("陣列為空");
-      return null;
-    }
     if (idx === undefined || idx >= newData.length || idx < 0) {
-      context.toast.warning("索引無效");
-      return null;
+      return {
+        animationData: data,
+        animationParams: { index: idx ?? -1, invalid: true },
+      };
     }
     const deletedValue = newData[idx].value;
     const lastBox = newData[newData.length - 1];
@@ -253,6 +269,7 @@ export const ArrayConfig: LevelImplementationConfig = {
   description: "連續記憶體空間",
   i18nNamespace: "tutorials/array",
   codeConfig: arrayCodeConfig,
+  statusConfig: statusConfigWithRejected,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(n)",

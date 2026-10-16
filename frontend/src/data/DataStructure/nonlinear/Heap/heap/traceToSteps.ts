@@ -40,6 +40,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { extVal: e.local_vars.extVal },
   }),
   [TAGS.EXTRACT_SWAP_LAST]: () => ({ key: "animation.extract_swap_last" }),
+  [TAGS.EXTRACT_ONLY]: () => ({ key: "animation.extract_only" }),
   [TAGS.EXTRACT_REMOVE]: () => ({ key: "animation.extract_remove" }),
   [TAGS.HEAPIFY_DOWN_COMPARE]: (e) => ({
     key: e.local_vars.isMinHeap

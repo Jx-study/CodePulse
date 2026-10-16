@@ -81,6 +81,13 @@ export function simulateArrayTrace(
       });
 
       trace.push({
+        tag: TAGS.UPDATE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
+        dataSnapshot: snapBefore,
+        meta: { highlightIndex: idx, status: "Target" },
+      });
+
+      trace.push({
         tag: TAGS.UPDATE_ASSIGN,
         local_vars: { index: idx, value, [`data[${idx}]`]: value },
         dataSnapshot: snapshot(dataList),
@@ -95,6 +102,16 @@ export function simulateArrayTrace(
       });
     } else {
       trace.push({
+        tag: TAGS.UPDATE_START,
+        local_vars: { index: idx, value },
+        dataSnapshot: snapshot(dataList),
+      });
+      trace.push({
+        tag: TAGS.UPDATE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
+        dataSnapshot: snapshot(dataList),
+      });
+      trace.push({
         tag: TAGS.UPDATE_ERROR,
         local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapshot(dataList),
@@ -104,6 +121,20 @@ export function simulateArrayTrace(
   // Insert
   } else if (type === "add") {
     const idx = index !== undefined ? index : dataList.length - 1;
+    const originalLength = dataList.length - 1;
+    const requestedIndex = action.requestedIndex ?? idx;
+    const originalList = dataList.slice(0, -1).map((item, i) => ({
+      id: item.id,
+      value: i < idx ? dataList[i].value : dataList[i + 1].value,
+    }));
+    const wasClamped = requestedIndex !== idx;
+    trace.push({
+      tag: wasClamped ? TAGS.INSERT_CLAMP : TAGS.INSERT_CHECK_INDEX,
+      local_vars: wasClamped
+        ? { index: requestedIndex, clamped: idx, length: originalLength }
+        : { index: idx, length: originalLength },
+      dataSnapshot: snapshot(originalList),
+    });
     let currentList = dataList.map((item) => ({ ...item }));
 
     for (let i = idx; i < dataList.length - 1; i++) {
@@ -171,6 +202,23 @@ export function simulateArrayTrace(
     });
 
   // Delete
+  } else if (type === "delete" && action.invalid) {
+    const idx = index !== undefined ? index : -1;
+    trace.push({
+      tag: TAGS.DELETE_START,
+      local_vars: { index: idx },
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.DELETE_CHECK_INDEX,
+      local_vars: { index: idx, length: dataList.length },
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.DELETE_ERROR,
+      local_vars: { index: idx, length: dataList.length },
+      dataSnapshot: snapshot(dataList),
+    });
   } else if (type === "delete") {
     const idx = index !== undefined ? index : -1;
     if (idx >= 0) {
@@ -188,6 +236,13 @@ export function simulateArrayTrace(
       trace.push({
         tag: TAGS.DELETE_START,
         local_vars: { index: idx, value },
+        dataSnapshot: snapshot(currentList),
+        meta: { highlightIndex: idx, status: "Target" },
+      });
+
+      trace.push({
+        tag: TAGS.DELETE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapshot(currentList),
         meta: { highlightIndex: idx, status: "Target" },
       });

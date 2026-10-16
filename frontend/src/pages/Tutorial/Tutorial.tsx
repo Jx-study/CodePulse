@@ -749,12 +749,14 @@ function TutorialContent() {
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
+    let overflow = false;
     if (maxNodes !== undefined) {
       const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
-      if (currentCount >= maxNodes) {
+      if (currentCount >= maxNodes && !topicTypeConfig?.animateOverflow) {
         toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
         return;
       }
+      overflow = currentCount >= maxNodes;
     }
     const steps = executeAction("add", {
       value,
@@ -762,6 +764,7 @@ function TutorialContent() {
       index,
       hasTailMode,
       isDoubly: listMode === "doubly",
+      overflow,
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);

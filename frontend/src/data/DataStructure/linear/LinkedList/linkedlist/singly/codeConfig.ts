@@ -38,7 +38,7 @@ export const codeConfig: CodeConfig = {
           Return
         End If
         current ← head
-        For i ← 0 To index - 1 Do
+        For i ← 0 To index - 2 Do
           current ← current.next
         End For
         newNode ← new Node(value)
@@ -121,23 +121,23 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_HEAD_FREE]: [47],
       [TAGS.DELETE_HEAD_END]: [47],
 
-      [TAGS.DELETE_TAIL_START]: [48],
+      [TAGS.DELETE_TAIL_START]: [49, 50],
       [TAGS.DELETE_TAIL_ISNEXTNULL]: [51],
       [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [52],
       [TAGS.DELETE_TAIL_TRAVERSE]: [55, 56, 57, 58, 59],
       [TAGS.DELETE_TAIL_UNLINK]: [61],
       [TAGS.DELETE_TAIL_END]: [62],
 
-      [TAGS.DELETE_INDEX_START]: [63],
+      [TAGS.DELETE_INDEX_START]: [64],
       [TAGS.DELETE_INDEX_IFZERO]: [64, 65, 66],
       [TAGS.DELETE_INDEX_TRAVERSE]: [69, 70, 71, 72, 73, 74, 75],
       [TAGS.DELETE_INDEX_UNLINK]: [76],
       [TAGS.DELETE_INDEX_END]: [77],
 
-      [TAGS.SEARCH_START]: [78],
-      [TAGS.SEARCH_COMPARE]: [82, 84, 85],
+      [TAGS.SEARCH_START]: [79, 80, 81],
+      [TAGS.SEARCH_COMPARE]: [82, 83, 84, 85],
       [TAGS.SEARCH_FOUND]: [83],
-      [TAGS.SEARCH_NEXT]: [83, 84, 85],
+      [TAGS.SEARCH_NEXT]: [84, 85],
       [TAGS.SEARCH_NOT_FOUND]: [86, 87],
     },
   },

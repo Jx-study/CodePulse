@@ -41,7 +41,7 @@ export interface ComplexityInfo {
 export interface CodeConfig {
   pseudo: {
     content: string;
-    mappings: Record<string, number[]>; // actionTag -> 行號陣列 (0-based)
+    mappings: Record<string, number[]>; // actionTag -> 行號陣列 (1-based)
   };
   python: {
     content: string;

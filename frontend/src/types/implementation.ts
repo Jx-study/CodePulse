@@ -169,6 +169,8 @@ export interface LevelImplementationConfig {
   getCodeConfig?: (payload?: any) => CodeConfig;
   /** 最大資料筆數。undefined = 真的不限制（由 viewBox 自動縮放）。 */
   maxNodes?: number;
+  /** 達到 maxNodes 時是否仍播放「容量已滿」的動畫（而非直接 toast 擋下）。 */
+  animateOverflow?: boolean;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
   /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */

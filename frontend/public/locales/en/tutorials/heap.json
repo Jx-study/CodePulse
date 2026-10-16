@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "heapEmpty": "The heap is empty, so this operation is not available"
+  },
   "animation": {
     "init": "Initialize {{heapName}}",
     "insert_start": "Add value {{value}} to the end of the array (index: {{index}})",
@@ -8,6 +11,7 @@
     "extract_start_min": "Prepare to extract minimum value: {{extVal}}",
     "extract_start_max": "Prepare to extract maximum value: {{extVal}}",
     "extract_swap_last": "Swap Root with the last node",
+    "extract_only": "Only one node left, remove it directly",
     "extract_remove": "Remove the last node and Heapify Down the new Root",
     "heapify_down_compare_min": "Find the smaller child for comparison",
     "heapify_down_compare_max": "Find the larger child for comparison",

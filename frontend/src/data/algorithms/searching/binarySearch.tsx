@@ -11,6 +11,7 @@ import { TAGS } from "./binarySearch/tags";
 const binarySearchActionHandler = createLinearActionHandler({
   randomValueRange: [0, 100],
   sortOnLoad: true,
+  sortNoticeNamespace: "tutorials/binary-search",
 });
 
 function createBinarySearchAnimationSteps(

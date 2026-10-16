@@ -7,6 +7,7 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 
+import i18n from "@/i18n";
 import { TrieActionBar } from "./TrieActionBar";
 import { TAGS, TrieStatusConfig } from "./trie/tags";
 
@@ -55,6 +56,23 @@ function trieActionHandler(
       0,
       TRIE_MAX_WORDS,
     );
+    const rawWords = Array.isArray(payload.data)
+      ? payload.data.map((w) => String(w))
+      : String(payload.data ?? "")
+          .replace("TRIE:", "")
+          .split(/[\s,]+/)
+          .filter(Boolean);
+    if (
+      rawWords.length !== uniqueWords.length ||
+      rawWords.some((w, i) => w !== uniqueWords[i])
+    ) {
+      context.toast.warning(
+        i18n.t("actionHandler.loadNormalized", {
+          ns: "tutorials/trie",
+          max: TRIE_MAX_WORDS,
+        }),
+      );
+    }
 
     return {
       animationData: uniqueWords,
@@ -218,15 +236,36 @@ Class Trie:
       If Not curr.children.contains(char) Then
         Return False
       curr ← curr.children[char]
-    Return isPrefixMode Or curr.isEndOfWord`,
+    Return isPrefixMode Or curr.isEndOfWord
+
+  Procedure Delete(word):
+    curr ← root
+    For char In word Do
+      If Not curr.children.contains(char) Then
+        Return False
+      curr ← curr.children[char]
+    If Not curr.isEndOfWord Then
+      Return False
+    curr.isEndOfWord ← False
+    While curr ≠ root And curr.children is Empty And Not curr.isEndOfWord Do
+      Remove curr from its parent
+      curr ← curr.parent`,
     mappings: {
       [TAGS.INSERT_START]: [7],
-      [TAGS.CHAR_CREATE]: [10, 11],
-      [TAGS.CHAR_MATCH]: [12],
-      [TAGS.SET_END]: [13],
+      [TAGS.CHAR_CREATE]: [8, 9, 10, 11],
+      [TAGS.CHAR_MATCH]: [8, 9, 11],
+      [TAGS.SET_END]: [12],
       [TAGS.SEARCH_START]: [15, 16],
-      [TAGS.SEARCH_NOT_FOUND]: [19],
-      [TAGS.SEARCH_FOUND]: [21],
+      [TAGS.SEARCH_CHAR_MATCH]: [16, 17, 19],
+      [TAGS.SEARCH_NOT_FOUND]: [17, 18],
+      [TAGS.SEARCH_NOT_WORD]: [20],
+      [TAGS.SEARCH_FOUND]: [20],
+      [TAGS.DELETE_START]: [22, 23],
+      [TAGS.DELETE_CHAR_MATCH]: [24, 25, 27],
+      [TAGS.DELETE_NOT_FOUND]: [25, 26],
+      [TAGS.DELETE_NOT_WORD]: [28, 29],
+      [TAGS.DELETE_UNMARK]: [30],
+      [TAGS.DELETE_PRUNE]: [31, 32, 33],
     },
   },
   python: {

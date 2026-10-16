@@ -30,6 +30,35 @@ export function simulateStackTrace(
 
   const { type, value } = action;
 
+  if (type === "add" && action.overflow) {
+    const currentTop = dataList.length - 1;
+    trace.push({
+      tag: TAGS.PUSH_START,
+      local_vars: { top: currentTop, value },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.PUSH_CHECK_FULL,
+      local_vars: { top: currentTop, size: dataList.length },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.PUSH_ERROR,
+      local_vars: { top: currentTop, size: dataList.length },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.PUSH_DISCARD,
+      local_vars: { top: currentTop, size: dataList.length },
+      dataSnapshot: [],
+      meta,
+    });
+    return trace;
+  }
+
   if (type === "add") {
     const oldList = dataList.slice(0, -1);
     let currentTop = oldList.length - 1;
@@ -37,6 +66,12 @@ export function simulateStackTrace(
     trace.push({
       tag: TAGS.PUSH_START,
       local_vars: { top: currentTop, value },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.PUSH_CHECK_FULL,
+      local_vars: { top: currentTop, size: oldList.length },
       dataSnapshot: [],
       meta,
     });

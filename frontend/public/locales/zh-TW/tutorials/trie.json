@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "loadNormalized": "載入時已調整單字：只保留英文字母並轉為小寫，重複的單字合併，並限制最多 {{max}} 個"
+  },
   "introduction": {
     "sections": [
       {

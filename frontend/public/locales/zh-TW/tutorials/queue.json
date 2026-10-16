@@ -2,6 +2,9 @@
   "animation": {
     "init": "Queue 狀態",
     "enqueue_start": "Enqueue({{value}}): 準備入列",
+    "enqueue_check_full": "Enqueue(): 檢查是否已滿 (目前 {{size}} 筆)",
+    "enqueue_error": "錯誤: 佇列上溢 (Queue Overflow)，無法再入列新元素",
+    "enqueue_discard": "新元素被丟棄，佇列維持不變",
     "enqueue_inc_rear": "rear = rear + 1 (現在 rear 指向 {{rear}})",
     "enqueue_assign": "queue[{{rear}}] = {{value}}",
     "enqueue_complete": "Enqueue 完成",

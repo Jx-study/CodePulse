@@ -434,14 +434,14 @@ End Class`,
       [TAGS.CHECK_CONNECTED_INIT]: [72, 73, 74, 75, 76, 77],
       [TAGS.CHECK_CONNECTED_WHILE]: [79, 80, 81, 82, 83, 84, 85, 86],
       [TAGS.CHECK_CONNECTED_RESULT]: [89],
-      [TAGS.CHECK_CYCLE_INIT]: [92, 93, 94],
+      [TAGS.CHECK_CYCLE_INIT]: [92, 93, 94, 95],
       [TAGS.CHECK_CYCLE_DFS]: [
         97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
         112,
       ],
-      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [105, 106],
+      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [105, 106, 107],
       [TAGS.CHECK_CYCLE_FOUND_FALSE]: [112],
-      [TAGS.CHECK_CYCLE_END_TRUE]: [116, 117, 118],
+      [TAGS.CHECK_CYCLE_END_TRUE]: [115, 116, 117, 118],
       [TAGS.CHECK_CYCLE_END_FALSE]: [120],
     },
   },
@@ -629,7 +629,6 @@ export const GraphConfig: LevelImplementationConfig = {
   categoryName: "非線性表",
   description:
     "由節點 (Vertex) 與邊 (Edge) 組成的資料結構，用於描述物件之間的關係。",
-  // TODO: 補完 Graph 的 pseudo code 與 mappings
   codeConfig: graphCodeConfig,
   linkAnimConfig: {
     animateOn: ["prepare", "target"],

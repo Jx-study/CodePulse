@@ -157,10 +157,11 @@ const topoCodeConfig: CodeConfig = {
     Return "Cycle Detected"
   Return Result`,
     mappings: {
-      [TAGS.INIT]: [2],
+      [TAGS.INIT]: [2, 3],
       [TAGS.ENQUEUE_ZERO]: [4, 5],
       [TAGS.WHILE_LOOP]: [6],
       [TAGS.DEQUEUE]: [7, 8],
+      [TAGS.ADD_TO_RESULT]: [8],
       [TAGS.REDUCE_NEIGHBOR]: [9, 10, 11],
 
       [TAGS.CHECK_ZERO_TRUE]: [12],

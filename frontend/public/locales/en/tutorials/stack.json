@@ -2,6 +2,9 @@
   "animation": {
     "init": "Stack State",
     "push_start": "Push({{value}}): Preparing to push new element",
+    "push_check_full": "Push(): Checking if full ({{size}} items now)",
+    "push_error": "Error: Stack Overflow, cannot push another element",
+    "push_discard": "The new element is discarded; the stack is unchanged",
     "push_inc_top": "top = top + 1 (top now points to {{top}})",
     "push_assign": "stack[{{top}}] = {{value}}",
     "push_complete": "Push Complete",
