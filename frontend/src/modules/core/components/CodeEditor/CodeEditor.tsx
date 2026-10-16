@@ -29,7 +29,7 @@ interface CodeEditorProps {
   splitRatio?: number;
   highlightedLine?: number[] | null;
 
-  // 回調函數
+  // 回調函式
   onChange?: (value: string) => void;
   onBottomChange?: (value: string) => void;
   onLanguageChange?: (language: string) => void;

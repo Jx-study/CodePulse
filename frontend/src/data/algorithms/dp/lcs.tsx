@@ -150,7 +150,7 @@ export const lcsConfig: LevelImplementationConfig = {
     timeWorst: "O(m * n)",
     space: "O(m * n)",
   },
-  introduction: `最長公共子序列（LCS）是字串型動態規劃的經典問題。子序列不需要連續，只要保持原本的先後順序即可。我們定義 dp[i][j] 為：textA 的前 i 個字元與 textB 的前 j 個字元之間的 LCS 長度。若兩個字元相同，就從左上角 dp[i-1][j-1] 加 1；若不同，就取上方 dp[i-1][j] 與左方 dp[i][j-1] 中較大者。填完表後，再從右下角沿著來源回溯，就能還原出子序列本身。`,
+  introduction: { key: "introduction" },
   defaultData: { textA: "ABCBDAB", textB: "BDCABA" },
   actionHandler: lcsActionHandler,
   createAnimationSteps: createLCSAnimationSteps,

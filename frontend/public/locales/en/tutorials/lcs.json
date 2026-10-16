@@ -37,5 +37,40 @@
     "1035": "Uncrossed lines is LCS in disguise — lines that must not cross are a subsequence that must keep its order",
     "72": "Edit distance uses the same 2D table, but each cell compares insert, delete and replace",
     "1092": "Shortest common supersequence: build the LCS table, then while backtracking also keep the characters not in the LCS"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Longest Common Subsequence (LCS) is a classic **string dynamic-programming** problem. A subsequence need not be contiguous — it only has to keep the original [[primary|relative order]].",
+        "items": [
+          "Define **dp[i][j]** as the LCS length of the first i characters of textA and the first j of textB",
+          "When characters **match**, extend from the diagonal: dp[i][j] = dp[i-1][j-1] + 1",
+          "When they **differ**, take the larger of up and left: max(dp[i-1][j], dp[i][j-1])",
+          "After filling the table, **trace back** from the bottom-right to recover the subsequence itself"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Every pair of characters from the two strings is evaluated once, so the whole 2D table must be filled.",
+        "items": [
+          "**Time complexity**: [[warning|O(m × n)]], where m and n are the string lengths",
+          "**Space complexity**: [[warning|O(m × n)]] — the full DP table is kept for tracing back",
+          "Row 0 and column 0 represent the **empty string**, whose LCS length is always 0"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "LCS is not just an exercise — it underpins many real tools.",
+        "items": [
+          "**Rolling array**: if only the length is needed, space drops to [[success|O(min(m, n))]]; recovering the subsequence requires the full table",
+          "**Real uses**: file diffing, DNA sequence alignment",
+          "The same recurrence idea extends to other string DP problems such as **edit distance**"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

@@ -195,7 +195,7 @@ export const linkedListConfig: LevelImplementationConfig = {
   type: "dataStructure",
   name: "鏈結串列 (Linked List)",
   categoryName: "資料結構",
-  description: "動態的線性數據結構",
+  description: "動態的線性資料結構",
   codeConfig: singlyVariant.codeConfig,
   getCodeConfig: (payload?: { isDoubly?: boolean; hasTailMode?: boolean }) =>
     selectVariant(
