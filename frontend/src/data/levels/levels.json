@@ -540,10 +540,10 @@
       "implementationKey": "twoPointers"
     },
     {
-      "id": "bit-mask",
+      "id": "bit-manipulation",
       "category": "technique",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -556,7 +556,7 @@
       "pathMetadata": {
         "pathType": "boss"
       },
-      "implementationKey": "bitMask"
+      "implementationKey": "bitManipulation"
     },
     {
       "id": "portal-to-graph",
@@ -566,7 +566,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
-        "levelIds": ["bit-mask"]
+        "levelIds": ["bit-manipulation"]
       },
       "graphPosition": {
         "layer": 4,
@@ -586,7 +586,7 @@
       "isUnlocked": false,
       "prerequisites": {
         "type": "OR",
-        "levelIds": ["bit-mask"]
+        "levelIds": ["bit-manipulation"]
       },
       "graphPosition": {
         "layer": 0,
