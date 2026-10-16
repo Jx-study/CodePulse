@@ -15,6 +15,7 @@ import {
 } from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
+import i18n from "@/i18n";
 
 const HeapStatusConfig: StatusConfig = {
   i18nNs: "tutorials/heap",
@@ -66,6 +67,13 @@ function heapActionHandler(
       isResetAction: true,
       useRawAnimationParams: true,
     };
+  }
+
+  if ((actionType === "peek" || actionType === "delete") && newData.length === 0) {
+    context.toast.warning(
+      i18n.t("actionHandler.heapEmpty", { ns: "tutorials/heap" }),
+    );
+    return null;
   }
 
   if (actionType === "peek") {

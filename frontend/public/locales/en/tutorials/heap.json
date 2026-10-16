@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "heapEmpty": "The heap is empty, so this operation is not available"
+  },
   "animation": {
     "init": "Initialize {{heapName}}",
     "insert_start": "Add value {{value}} to the end of the array (index: {{index}})",

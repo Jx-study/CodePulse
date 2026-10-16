@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "heapEmpty": "堆積為空，無法執行此操作"
+  },
   "animation": {
     "init": "初始化 {{heapName}}",
     "insert_start": "將數值 {{value}} 加入陣列尾端 (index: {{index}})",
