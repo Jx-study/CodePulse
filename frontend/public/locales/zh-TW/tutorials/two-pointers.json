@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "autoSorted": "雙指標需要已排序的資料，已自動將載入的資料由小到大排序"
+  },
   "animation": {
     "init_two_sum": "【兩數之和】左指標 L 從最左、右指標 R 從最右出發，尋找兩數和等於 {{target}} 的組合",
     "init_dedup": "【移除重複】slow 標記已保留區域的最後一格，fast 從 Index 1 開始往右掃描",

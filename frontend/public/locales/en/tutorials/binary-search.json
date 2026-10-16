@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "autoSorted": "Binary search requires sorted data, so the loaded data was sorted in ascending order"
+  },
   "animation": {
     "init": "Start Binary Search: Target is {{target}}",
     "check_while": "Check: Left ({{left}}) <= Right ({{right}}), continue search",

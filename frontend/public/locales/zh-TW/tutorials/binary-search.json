@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "autoSorted": "二分搜尋需要已排序的資料，已自動將載入的資料由小到大排序"
+  },
   "animation": {
     "init": "開始二分搜尋：目標值為 {{target}}",
     "check_while": "檢查：Left ({{left}}) <= Right ({{right}})，繼續搜尋",

@@ -16,6 +16,7 @@ import { TAGS, TwoPointersStatusConfig } from "./twoPointers/tags";
 const linearActionHandler = createLinearActionHandler({
   randomValueRange: [1, 20],
   sortOnLoad: true,
+  sortNoticeNamespace: "tutorials/two-pointers",
 });
 
 function twoPointersActionHandler(

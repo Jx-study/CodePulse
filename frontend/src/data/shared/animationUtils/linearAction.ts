@@ -2,14 +2,16 @@ import { LinearData } from '@/data/DataStructure/linear/utils';
 import { cloneData } from '@/modules/core/visualization/visualizationUtils';
 import { DATA_LIMITS } from '@/constants/dataLimits';
 import type { ActionContext, ActionResult } from '@/modules/core/visualization/types';
+import i18n from '@/i18n';
 
 interface LinearActionHandlerOptions {
   randomValueRange?: [number, number];
   sortOnLoad?: boolean;
+  sortNoticeNamespace?: string;
 }
 
 export function createLinearActionHandler(options: LinearActionHandlerOptions = {}) {
-  const { randomValueRange = [-20, 80], sortOnLoad = false } = options;
+  const { randomValueRange = [-20, 80], sortOnLoad = false, sortNoticeNamespace } = options;
   const [min, max] = randomValueRange;
 
   return function (
@@ -34,6 +36,9 @@ export function createLinearActionHandler(options: LinearActionHandlerOptions = 
       const values = payload.data as number[];
       if (!values?.length) return null;
       const sorted = sortOnLoad ? [...values].sort((a, b) => a - b) : values;
+      if (sortOnLoad && sortNoticeNamespace && sorted.some((v, i) => v !== values[i])) {
+        context.toast.warning(i18n.t('actionHandler.autoSorted', { ns: sortNoticeNamespace }));
+      }
       return {
         animationData: sorted.map((v) => ({ id: context.nextId(), value: v })),
         isResetAction: true,

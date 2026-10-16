@@ -7,6 +7,7 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 
+import i18n from "@/i18n";
 import { TrieActionBar } from "./TrieActionBar";
 import { TAGS, TrieStatusConfig } from "./trie/tags";
 
@@ -55,6 +56,23 @@ function trieActionHandler(
       0,
       TRIE_MAX_WORDS,
     );
+    const rawWords = Array.isArray(payload.data)
+      ? payload.data.map((w) => String(w))
+      : String(payload.data ?? "")
+          .replace("TRIE:", "")
+          .split(/[\s,]+/)
+          .filter(Boolean);
+    if (
+      rawWords.length !== uniqueWords.length ||
+      rawWords.some((w, i) => w !== uniqueWords[i])
+    ) {
+      context.toast.warning(
+        i18n.t("actionHandler.loadNormalized", {
+          ns: "tutorials/trie",
+          max: TRIE_MAX_WORDS,
+        }),
+      );
+    }
 
     return {
       animationData: uniqueWords,
