@@ -87,7 +87,7 @@ export function dijkstraTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx,
       description: descObj,
       actionTag: event.tag,
-      variables: {
+      local_vars: {
         ...event.local_vars,
         Distances: distString,
       },

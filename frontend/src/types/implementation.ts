@@ -64,6 +64,8 @@ export type AlgorithmViewMode =
   | "grid"
   | "longest_lte"
   | "shortest_gte"
+  | "two_sum"
+  | "remove_duplicates"
   | "bit_ops"
   | "single_bit"
   | "xor_swap"
@@ -72,6 +74,8 @@ export type AlgorithmViewMode =
   | "subsets";
 /** Sliding window run payload mode (matches ActionBar options). */
 export type SlidingWindowMode = "longest_lte" | "shortest_gte";
+/** Two pointers run payload mode: opposite-direction vs same-direction. */
+export type TwoPointersMode = "two_sum" | "remove_duplicates";
 /**
  * Bit manipulation run payload mode: bitwise ops, single-bit ops, XOR swap,
  * lowbit (a & -a), n & (n - 1) bit count, subset enumeration.
@@ -89,6 +93,7 @@ export type RunParams =
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
   | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
+  | { type: "twoPointers"; mode: TwoPointersMode; target?: number }
   | {
       type: "bitManipulation";
       mode: BitManipulationMode;
@@ -117,6 +122,7 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "lcs"; textA: string; textB: string }
   | { type: "factorial"; n: number }
   | { type: "nQueens"; nQueensCount: number }
   | { type: "fibonacciDP"; n: number }
@@ -231,6 +237,7 @@ type ImplementationId =
   | "fibonacciDP"
   | "fibonacciRecursive"
   | "knapsack"
+  | "lcs"
   | "n-queens"
   | "topological-sort"
   | "factorial";

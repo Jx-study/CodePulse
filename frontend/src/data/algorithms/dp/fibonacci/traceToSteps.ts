@@ -97,7 +97,7 @@ export function fibonacciDPTraceToSteps(
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.local_vars,
+      local_vars: event.local_vars,
       elements: createBoxes(event.dataSnapshot, {
         startX: 50,
         startY: 250,

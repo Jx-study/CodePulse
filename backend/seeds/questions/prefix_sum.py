@@ -30,7 +30,7 @@ COUNT_SUM_K_FILL_CODE = """def count_sum_k(arr, k):
     return count"""
 
 DATA = {
-    "slug": "prefixsum",
+    "slug": "prefix-sum",
     "groups": [
         {
             "id": "prefixsum-group-1",

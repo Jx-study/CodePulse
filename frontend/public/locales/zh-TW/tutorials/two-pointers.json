@@ -1,0 +1,40 @@
+{
+  "animation": {
+    "init_two_sum": "【兩數之和】左指標 L 從最左、右指標 R 從最右出發，尋找兩數和等於 {{target}} 的組合",
+    "init_dedup": "【移除重複】slow 標記已保留區域的最後一格，fast 從 Index 1 開始往右掃描",
+    "compare": "計算 arr[{{l}}] + arr[{{r}}] = {{sum}}，與目標 {{target}} 比較",
+    "move_left": "{{sum}} < {{target}}，和太小：L 右移換一個更大的數（L 左邊的元素再怎麼配都不夠大，可以排除）",
+    "move_right": "{{sum}} > {{target}}，和太大：R 左移換一個更小的數（R 右邊的元素再怎麼配都太大，可以排除）",
+    "found": "找到了！arr[{{l}}] + arr[{{r}}] = {{target}}",
+    "scan": "fast 掃描到 Index {{fast}} 的值 {{fastVal}}，與 slow 目前保留的值 {{slowVal}} 比較",
+    "skip_duplicate": "{{val}} 與保留的值重複，fast 直接跳過，slow 不動",
+    "write_unique": "遇到新的值 {{val}}：slow 前進到 Index {{slow}} 並寫入，擴大保留區域",
+    "done_dedup": "掃描結束！前 {{len}} 格就是去除重複後的結果",
+    "done_not_found": "L 與 R 相遇，陣列中不存在兩數和等於 {{target}} 的組合"
+  },
+  "ui": {
+    "controlLabel": "雙指標控制",
+    "modeLabel": "模式",
+    "modeTwoSum": "兩數之和（對向）",
+    "modeDedup": "移除重複（同向）",
+    "placeholder": "目標和 Target",
+    "run": "開始演示",
+    "runTooltip": "執行雙指標演算法演示（資料會自動排序）",
+    "invalidInput": "請輸入有效的目標和數值"
+  },
+  "statusLegend": {
+    "pending": "尚未處理",
+    "excluded": "已排除",
+    "active": "指標所在",
+    "duplicate": "重複跳過",
+    "result": "答案 / 已保留"
+  },
+  "relatedProblems": {
+    "167": "對向雙指標：排序陣列兩端往中間夾，和太小左指標右移、太大右指標左移",
+    "26": "同向快慢指標：fast 掃描、slow 標記不重複區域的尾端，遇到新值才寫入",
+    "15": "固定一個數後轉成兩數之和：排序後對剩餘區間跑對向雙指標，並跳過重複值",
+    "11": "對向雙指標：每次移動較矮的那一邊，因為移動較高的一邊面積不可能變大",
+    "125": "對向雙指標：兩端往中間比對字元，跳過非英數字元",
+    "283": "同向快慢指標：slow 指向下一個非零元素要放的位置，fast 掃描並交換"
+  }
+}

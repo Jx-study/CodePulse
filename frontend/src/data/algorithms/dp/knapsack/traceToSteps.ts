@@ -213,7 +213,7 @@ export function knapsackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.local_vars,
+      local_vars: event.local_vars,
       elements,
     };
   });

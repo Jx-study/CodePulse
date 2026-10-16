@@ -208,7 +208,7 @@ export function topologicalSortTraceToSteps(
       actionTag: event.tag,
       elements,
       links: stepLinks,
-      variables: {
+      local_vars: {
         Queue:
           queue.length > 0
             ? queue.map((id) => id.replace("node-", "")).join(", ")

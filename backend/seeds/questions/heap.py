@@ -819,17 +819,17 @@ DATA = {
             "baseRating": 1600,
             "code": HEAP_PREDICT_CODE,
             "language": "python",
-            "correctAnswer": "1 2 3 4 6 7 2 3 4 6 7",
+            "correctAnswer": "1 2 3 4 6 7 2 3 4 6 7 2",
             "translations": {
                 "zh-TW": {
                     "title": "給定 heap = [3, 5, 4, 9, 1]，執行 sift_up(heap, 4)。請依序填寫執行經過的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "sift_up 每一輪都會先檢查目前索引是否仍有父節點，再比較父子大小；若違反 min-heap 性質就交換並繼續往根節點方向前進。",
+                    "explanation": "sift_up 每一輪都會先檢查目前索引是否仍有父節點，再比較父子大小；若違反 min-heap 性質就交換並繼續往根節點方向前進。i=4 時父節點 5 > 1，交換後 i=1；父節點 3 > 1，交換後 i=0；回到 L2 發現 i > 0 不成立，迴圈結束。迴圈最後一次判斷不成立也算一行。完整序列：1 2 3 4 6 7 2 3 4 6 7 2。",
                 },
                 "en": {
                     "title": "Given heap = [3, 5, 4, 9, 1], run sift_up(heap, 4). Write the executed line-number sequence, separated by spaces.",
                     "options": [],
-                    "explanation": "Each sift_up round first checks whether the current index still has a parent, then compares parent and child. If the min-heap property is violated, it swaps and continues toward the root.",
+                    "explanation": "Each sift_up round first checks whether the current index still has a parent, then compares parent and child. If the min-heap property is violated, it swaps and continues toward the root. At i=4 the parent 5 > 1, swap, i=1; the parent 3 > 1, swap, i=0; back at L2, i > 0 fails and the loop ends. A loop's final failing check counts as a line too. Full sequence: 1 2 3 4 6 7 2 3 4 6 7 2.",
                 },
             },
         },

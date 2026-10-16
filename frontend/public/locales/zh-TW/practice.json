@@ -62,7 +62,7 @@
       "single-choice": "單選"
     },
     "fillCodeHint": "請在下方填入對應代號的值：",
-    "predictLineHint": "請輸入行號 (例如: 12 13 15)：",
+    "predictLineHint": "請依執行順序輸入行號，以空格分隔（例如: 12 13 15）。迴圈條件最後一次判斷不成立、離開迴圈的那次也算一行：",
     "predictLinePlaceholder": "輸入答案...",
     "fillCodePlaceholder": "填入 ({{id}}) 的答案...",
     "groupBadge": "題組",

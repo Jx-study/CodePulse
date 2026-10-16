@@ -62,7 +62,7 @@
       "single-choice": "Single Choice"
     },
     "fillCodeHint": "Fill in the value for each blank:",
-    "predictLineHint": "Enter line numbers (e.g. 12 13 15):",
+    "predictLineHint": "Enter line numbers in execution order, space-separated (e.g. 12 13 15). A loop condition's final failing check, when the loop exits, counts as a line too:",
     "predictLinePlaceholder": "Enter answer...",
     "fillCodePlaceholder": "Answer for ({{id}})...",
     "groupBadge": "Group",

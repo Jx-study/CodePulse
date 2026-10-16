@@ -1,0 +1,40 @@
+{
+  "animation": {
+    "init_two_sum": "[Two Sum] L starts at the far left and R at the far right, looking for a pair that sums to {{target}}",
+    "init_dedup": "[Remove Duplicates] slow marks the end of the kept region; fast starts scanning from Index 1",
+    "compare": "arr[{{l}}] + arr[{{r}}] = {{sum}}, compare with target {{target}}",
+    "move_left": "{{sum}} < {{target}}, too small: move L right to a larger number (the element L leaves can never reach the target)",
+    "move_right": "{{sum}} > {{target}}, too large: move R left to a smaller number (the element R leaves is always too large)",
+    "found": "Found it! arr[{{l}}] + arr[{{r}}] = {{target}}",
+    "scan": "fast reaches Index {{fast}} with value {{fastVal}}; compare with the kept value {{slowVal}} at slow",
+    "skip_duplicate": "{{val}} duplicates the kept value: fast skips it, slow stays",
+    "write_unique": "New value {{val}}: slow advances to Index {{slow}} and writes it, growing the kept region",
+    "done_dedup": "Scan complete! The first {{len}} slots hold the de-duplicated result",
+    "done_not_found": "L and R met: no pair in the array sums to {{target}}"
+  },
+  "ui": {
+    "controlLabel": "Two Pointers Controls",
+    "modeLabel": "Mode",
+    "modeTwoSum": "Two Sum (opposite)",
+    "modeDedup": "Remove Duplicates (same direction)",
+    "placeholder": "Target sum",
+    "run": "Run",
+    "runTooltip": "Run the two pointers demo (data is sorted automatically)",
+    "invalidInput": "Please enter a valid target sum"
+  },
+  "statusLegend": {
+    "pending": "Not processed",
+    "excluded": "Excluded",
+    "active": "Under pointer",
+    "duplicate": "Duplicate (skipped)",
+    "result": "Answer / Kept"
+  },
+  "relatedProblems": {
+    "167": "Opposite pointers: squeeze from both ends of the sorted array; move left if the sum is too small, right if too large",
+    "26": "Fast/slow pointers: fast scans, slow marks the end of the unique region and writes only on a new value",
+    "15": "Fix one number and reduce to Two Sum: sort, then run opposite pointers on the rest while skipping duplicates",
+    "11": "Opposite pointers: always move the shorter side, since moving the taller side can never increase the area",
+    "125": "Opposite pointers: compare characters from both ends inward, skipping non-alphanumerics",
+    "283": "Fast/slow pointers: slow marks where the next non-zero goes; fast scans and swaps"
+  }
+}

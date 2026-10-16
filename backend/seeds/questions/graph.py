@@ -564,19 +564,19 @@ DATA = {
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 250(L3 多步狀態) + 150(邊界) = 1350
             "baseRating": 1350,
-            "correctAnswer": "1 2 3 4 5 3 4 3 4 5 6",
+            "correctAnswer": "1 2 3 4 5 3 4 3 4 5 3 6",
             "code": IN_DEGREE_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "給定有向圖 graph = {'A': ['B'], 'B': ['C'], 'C': ['B']}。呼叫 get_in_degree(graph, 'B') 計算節點 B 的入度。請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "先執行函式進入與初始化，再對每個 node 回到迴圈行。每次都會檢查 target 是否在該 node 的鄰居串列中；命中時才進入累加行，未命中則回到下一輪迴圈。",
+                    "explanation": "先執行函式進入與初始化，再對每個 node 回到迴圈行。每次都會檢查 target 是否在該 node 的鄰居串列中；命中時才進入累加行，未命中則回到下一輪迴圈。A、C 的鄰居含 B（命中），B 的不含。三個節點走完後會再回到 L3 一次、發現沒有下一個節點才離開迴圈，接著 L6 回傳。完整序列：1 2 3 4 5 3 4 3 4 5 3 6。",
                 },
                 "en": {
                     "title": "Given directed graph = {'A': ['B'], 'B': ['C'], 'C': ['B']}, calling get_in_degree(graph, 'B') to compute node B's in-degree — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "Enter the function and initialize first, then return to the loop line for each node. Each iteration checks whether the target appears in that node's neighbor list; only matches enter the increment line, while misses move to the next loop iteration.",
+                    "explanation": "Enter the function and initialize first, then return to the loop line for each node. Each iteration checks whether the target appears in that node's neighbor list; only matches enter the increment line, while misses move to the next iteration. A's and C's lists contain B (match), B's does not. After all three nodes the loop returns to L3 once more, finds no next node, and exits, then L6 returns. Full sequence: 1 2 3 4 5 3 4 3 4 5 3 6.",
                 },
             },
         },
@@ -878,19 +878,19 @@ DATA = {
             "type": "predict-line",
             # baseRating = 800 + 150(PL) + 400(L4 複雜控制流) + 150(邊界) = 1500
             "baseRating": 1500,
-            "correctAnswer": "1 2 3 4 5 6 7 8 9 4 5 6 7 8 9 10 4 5 6 4 11",
+            "correctAnswer": "1 2 3 4 5 6 7 8 9 7 4 5 6 7 8 9 10 7 4 5 6 7 4 11",
             "code": TOPO_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "給定 graph = {'A': ['C'], 'B': ['C'], 'C': []}、indegree = {'A': 0, 'B': 0, 'C': 2}，呼叫 topo_order(graph, indegree)。請依序填寫執行行號（以空格分隔）。",
                     "options": [],
-                    "explanation": "控制流先完成初始化，再處理一開始就可執行的兩個節點。前一次處理只讓 C 更接近可執行狀態；後一次處理才讓 C 進入待處理佇列。最後處理沒有後繼的 C，迴圈結束後回傳。",
+                    "explanation": "控制流先完成初始化，再處理一開始就可執行的兩個節點。前一次處理只讓 C 更接近可執行狀態；後一次處理才讓 C 進入待處理佇列。最後處理沒有後繼的 C，迴圈結束後回傳。每個節點的 for 走完後都會再回到 L7 判斷一次才離開，while 最後也會回到 L4 發現佇列已空；迴圈最後一次判斷不成立也算一行。完整序列：1 2 3 4 5 6 7 8 9 7 4 5 6 7 8 9 10 7 4 5 6 7 4 11。",
                 },
                 "en": {
                     "title": "Given graph = {'A': ['C'], 'B': ['C'], 'C': []} and indegree = {'A': 0, 'B': 0, 'C': 2}, call topo_order(graph, indegree). Write the executed line-number sequence (space-separated).",
                     "options": [],
-                    "explanation": "The control flow initializes first, then processes the two nodes that are ready at the start. The earlier processing step only moves C closer to being ready; the later one puts C into the pending queue. Finally C has no successors, the loop ends, and the function returns.",
+                    "explanation": "The control flow initializes first, then processes the two nodes that are ready at the start. The earlier processing step only moves C closer to being ready; the later one puts C into the pending queue. Finally C has no successors, the loop ends, and the function returns. After each node's for loop, L7 is checked once more before exiting, and the while loop returns to L4 to find the queue empty; a loop's final failing check counts as a line too. Full sequence: 1 2 3 4 5 6 7 8 9 7 4 5 6 7 8 9 10 7 4 5 6 7 4 11.",
                 },
             },
         },

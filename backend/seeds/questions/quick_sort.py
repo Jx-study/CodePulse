@@ -422,12 +422,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確程式碼，完成 Lomuto Partition 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "三個空格分別對應 Lomuto Partition 的三個關鍵設計決策：(a) 邊界指標的初始語意——代表「已確認區域為空」；(b) 決定哪些元素應被納入左側區域的條件；(c) 走訪結束後 pivot 歸位的目標索引。注意 (b) 若改成嚴格小於，遇到相等值時行為會出錯。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the Lomuto Partition function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "The three blanks correspond to three key design decisions in Lomuto Partition: (a) the initial semantic of the boundary pointer — representing an empty confirmed region; (b) the condition that determines which elements belong in the left region; (c) the target index where the pivot is placed after traversal ends. Note: using strict less-than in (b) would mishandle equal values.",
                 },
             },
@@ -531,12 +531,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確程式碼，完成快速排序的遞迴函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "三個空格的語意：(a) 遞迴的終止條件，子陣列需有至少兩個元素才需排序（low >= high 代表 0 或 1 個元素，直接返回）；(b)(c) 左右子陣列的邊界——pivot_idx 已確定位置，左側遞迴不碰它，右側同理。注意邊界不對會產生無限遞迴或跳過元素。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the recursive Quick Sort function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "The three blanks: (a) the recursion base case — at least two elements needed before sorting (low >= high means 0 or 1 element, return immediately); (b)(c) the boundaries of the left and right sub-arrays — pivot_idx is already in its final position and is excluded from both sides. Wrong boundaries cause either infinite recursion or skipped elements.",
                 },
             },
