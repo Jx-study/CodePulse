@@ -18,6 +18,7 @@ import Avatar from '@/shared/components/Avatar';
 import Badge from '@/shared/components/Badge';
 import Button from '@/shared/components/Button';
 import MilestoneFigure from './components/MilestoneFigure';
+import { marqueeItems } from './marqueeItems';
 import styles from './About.module.scss';
 
 const MotionBadge = motion.create(Badge);
@@ -54,21 +55,6 @@ const techItems = [
   { name: 'Flask', role: 'BACKEND_CORE', tipKey: 'flask' },
   { name: 'PostgreSQL', role: 'DATABASE', tipKey: 'postgres' },
 ] as const;
-
-// 跑馬燈：平台涵蓋的資料結構與演算法（取自里程碑內文），術語兩個語系都用原文
-const marqueeItems = [
-  'Array',
-  'Linked List',
-  'Doubly Linked List',
-  'Stack',
-  'Queue',
-  'Binary Tree',
-  'BST',
-  'Heap',
-  'Graph',
-  'BFS / DFS',
-  'Dijkstra',
-];
 
 const HERO_PULSE_PATH =
   'M0,60 H160 L180,48 L200,60 H320 L340,14 L360,84 L380,60 H560 L580,50 L600,60 ' +
@@ -785,7 +771,7 @@ function About() {
             <h2 className={styles.ctaTitle}>{t('cta.title')}</h2>
             <p className={styles.ctaDesc}>{t('cta.desc')}</p>
             <div className={styles.ctaLink}>
-              <Button variant="primary" size="lg" onClick={() => navigate('/tutorial')}>
+              <Button variant="primary" size="lg" onClick={() => navigate('/dashboard')}>
                 {t('cta.button')}
               </Button>
             </div>

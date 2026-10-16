@@ -1,9 +1,10 @@
 import React from 'react';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import About from './About';
+import { MARQUEE_LABELS, developedLevelIds } from './marqueeItems';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -106,5 +107,36 @@ describe('About', () => {
         );
       });
     }).not.toThrow();
+  });
+
+  it('sends the call to action to the learning dashboard', () => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+
+    act(() => {
+      root?.render(
+        <MemoryRouter initialEntries={['/about']}>
+          <Routes>
+            <Route path="/about" element={<About />} />
+            <Route path="/dashboard" element={<div data-testid="dashboard" />} />
+          </Routes>
+        </MemoryRouter>,
+      );
+    });
+
+    const cta = Array.from(container.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('cta.button'),
+    );
+    expect(cta).toBeTruthy();
+    act(() => {
+      cta?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(container.querySelector('[data-testid="dashboard"]')).not.toBeNull();
+  });
+
+  it('has a marquee label for every developed level', () => {
+    const missing = developedLevelIds.filter((id) => !MARQUEE_LABELS[id]);
+    expect(missing).toEqual([]);
   });
 });
