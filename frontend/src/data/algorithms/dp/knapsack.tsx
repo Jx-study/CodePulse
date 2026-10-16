@@ -92,7 +92,7 @@ const knapsackCodeConfig: CodeConfig = {
   Return dp[numItems][capacity]
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [3, 4, 5],
+      [TAGS.INIT]: [2, 3, 4, 5],
       [TAGS.CHECK_WEIGHT]: [7, 8, 10],
       [TAGS.TAKE_ITEM]: [11, 12, 13],
       [TAGS.SKIP_ITEM]: [14, 15],

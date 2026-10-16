@@ -41,8 +41,8 @@ Procedure Partition(arr, low, high):
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [1],
-      [TAGS.CALL]: [1, 2],
-      [TAGS.PARTITION_START]: [9, 10],
+      [TAGS.CALL]: [1, 2, 3],
+      [TAGS.PARTITION_START]: [9, 10, 11],
       [TAGS.COMPARE]: [12, 13],
       [TAGS.SWAP]: [14, 15],
       [TAGS.PIVOT_SET]: [18, 19],

@@ -121,7 +121,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_HEAD_FREE]: [47],
       [TAGS.DELETE_HEAD_END]: [47],
 
-      [TAGS.DELETE_TAIL_START]: [49],
+      [TAGS.DELETE_TAIL_START]: [49, 50],
       [TAGS.DELETE_TAIL_ISNEXTNULL]: [51],
       [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [52],
       [TAGS.DELETE_TAIL_TRAVERSE]: [55, 56, 57, 58, 59],

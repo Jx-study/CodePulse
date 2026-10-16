@@ -136,7 +136,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_HEAD_FREE]: [52],
       [TAGS.DELETE_HEAD_END]: [52],
 
-      [TAGS.DELETE_TAIL_START]: [54],
+      [TAGS.DELETE_TAIL_START]: [54, 55],
       [TAGS.DELETE_TAIL_ISNEXTNULL]: [56],
       [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [57, 58, 59],
       [TAGS.DELETE_TAIL_TRAVERSE]: [61, 62, 63, 64, 65, 66],
@@ -146,7 +146,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_INDEX_START]: [71],
       [TAGS.DELETE_INDEX_IFZERO]: [72, 73, 74],
       [TAGS.DELETE_INDEX_IFTAIL]: [76, 77, 78],
-      [TAGS.DELETE_INDEX_TRAVERSE]: [82, 83, 84, 85],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [80, 81, 82, 83, 84, 85],
       [TAGS.DELETE_INDEX_UNLINK]: [87],
       [TAGS.DELETE_INDEX_END]: [88],
 

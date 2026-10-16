@@ -107,7 +107,7 @@ export const codeConfig: CodeConfig = {
         Return -1
       End Procedure`,
     mappings: {
-      [TAGS.INSERT_HEAD_START]: [12],
+      [TAGS.INSERT_HEAD_START]: [12, 14],
       [TAGS.INSERT_HEAD_CREATE]: [13],
       [TAGS.INSERT_HEAD_LINK]: [18],
       [TAGS.INSERT_HEAD_LINK_PREV]: [19],
@@ -146,7 +146,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_HEAD_FREE]: [62],
       [TAGS.DELETE_HEAD_END]: [62],
 
-      [TAGS.DELETE_TAIL_START]: [64],
+      [TAGS.DELETE_TAIL_START]: [64, 65],
       [TAGS.DELETE_TAIL_ISNEXTNULL]: [66],
       [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [67, 68],
       [TAGS.DELETE_TAIL_TRAVERSE]: [71],
@@ -160,7 +160,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.DELETE_INDEX_UNLINK]: [89, 90, 91],
       [TAGS.DELETE_INDEX_END]: [92],
 
-      [TAGS.SEARCH_START]: [94],
+      [TAGS.SEARCH_START]: [94, 95, 96],
       [TAGS.SEARCH_COMPARE]: [97, 98, 99, 100],
       [TAGS.SEARCH_FOUND]: [98],
       [TAGS.SEARCH_NEXT]: [99, 100],
