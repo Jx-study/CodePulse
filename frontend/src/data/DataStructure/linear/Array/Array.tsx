@@ -41,8 +41,8 @@ const arrayCodeConfig: CodeConfig = {
   End Procedure
 
   Procedure update(index, value):
-    If value is Empty Then
-      Alert "Value cannot be empty"
+    If index < 0 or index ≥ length Then
+      Alert "Index out of range"
       Return
     End If
     
@@ -82,7 +82,8 @@ const arrayCodeConfig: CodeConfig = {
       [TAGS.SEARCH_FOUND]: [9],
       [TAGS.SEARCH_NOT_FOUND]: [12],
       [TAGS.UPDATE_START]: [15],
-      [TAGS.UPDATE_ERROR]: [16, 17, 18],
+      [TAGS.UPDATE_CHECK_INDEX]: [16],
+      [TAGS.UPDATE_ERROR]: [17, 18],
       [TAGS.UPDATE_ASSIGN]: [21],
       [TAGS.UPDATE_COMPLETE]: [22],
       [TAGS.INSERT_START]: [25, 26],
@@ -90,6 +91,8 @@ const arrayCodeConfig: CodeConfig = {
       [TAGS.INSERT_ASSIGN]: [34, 35],
       [TAGS.INSERT_COMPLETE]: [36],
       [TAGS.DELETE_START]: [38],
+      [TAGS.DELETE_CHECK_INDEX]: [39],
+      [TAGS.DELETE_ERROR]: [40],
       [TAGS.DELETE_SHIFT]: [43, 44, 45],
       [TAGS.DELETE_REMOVE]: [48, 49],
       [TAGS.DELETE_COMPLETE]: [50],
@@ -183,18 +186,19 @@ function arrayActionHandler(
         },
       };
     }
-    return null;
+    return {
+      animationData: data,
+      animationParams: { value, index: idx, invalid: true },
+    };
   }
 
   if (actionType === "delete") {
     const idx = index;
-    if (newData.length === 0) {
-      context.toast.warning("陣列為空");
-      return null;
-    }
     if (idx === undefined || idx >= newData.length || idx < 0) {
-      context.toast.warning("索引無效");
-      return null;
+      return {
+        animationData: data,
+        animationParams: { index: idx ?? -1, invalid: true },
+      };
     }
     const deletedValue = newData[idx].value;
     const lastBox = newData[newData.length - 1];

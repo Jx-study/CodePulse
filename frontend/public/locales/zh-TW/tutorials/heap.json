@@ -8,6 +8,7 @@
     "extract_start_min": "準備取出最小值：{{extVal}}",
     "extract_start_max": "準備取出最大值：{{extVal}}",
     "extract_swap_last": "將 Root 與最後一個節點交換",
+    "extract_only": "堆積只剩一個節點，直接移除即可",
     "extract_remove": "移除最後一個節點，並將新 Root 進行 Heapify Down",
     "heapify_down_compare_min": "尋找子節點中較小者進行比較",
     "heapify_down_compare_max": "尋找子節點中較大者進行比較",

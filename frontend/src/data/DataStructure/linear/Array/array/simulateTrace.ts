@@ -81,6 +81,13 @@ export function simulateArrayTrace(
       });
 
       trace.push({
+        tag: TAGS.UPDATE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
+        dataSnapshot: snapBefore,
+        meta: { highlightIndex: idx, status: "Target" },
+      });
+
+      trace.push({
         tag: TAGS.UPDATE_ASSIGN,
         local_vars: { index: idx, value, [`data[${idx}]`]: value },
         dataSnapshot: snapshot(dataList),
@@ -94,6 +101,16 @@ export function simulateArrayTrace(
         meta: { highlightIndex: idx, status: "Complete" },
       });
     } else {
+      trace.push({
+        tag: TAGS.UPDATE_START,
+        local_vars: { index: idx, value },
+        dataSnapshot: snapshot(dataList),
+      });
+      trace.push({
+        tag: TAGS.UPDATE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
+        dataSnapshot: snapshot(dataList),
+      });
       trace.push({
         tag: TAGS.UPDATE_ERROR,
         local_vars: { index: idx, length: dataList.length },
@@ -171,6 +188,23 @@ export function simulateArrayTrace(
     });
 
   // Delete
+  } else if (type === "delete" && action.invalid) {
+    const idx = index !== undefined ? index : -1;
+    trace.push({
+      tag: TAGS.DELETE_START,
+      local_vars: { index: idx },
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.DELETE_CHECK_INDEX,
+      local_vars: { index: idx, length: dataList.length },
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.DELETE_ERROR,
+      local_vars: { index: idx, length: dataList.length },
+      dataSnapshot: snapshot(dataList),
+    });
   } else if (type === "delete") {
     const idx = index !== undefined ? index : -1;
     if (idx >= 0) {
@@ -188,6 +222,13 @@ export function simulateArrayTrace(
       trace.push({
         tag: TAGS.DELETE_START,
         local_vars: { index: idx, value },
+        dataSnapshot: snapshot(currentList),
+        meta: { highlightIndex: idx, status: "Target" },
+      });
+
+      trace.push({
+        tag: TAGS.DELETE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapshot(currentList),
         meta: { highlightIndex: idx, status: "Target" },
       });

@@ -227,7 +227,7 @@ export function simulateHeapTrace(
     if (currentList.length === 1) {
       currentList.pop();
       trace.push({
-        tag: TAGS.EXTRACT_REMOVE,
+        tag: TAGS.EXTRACT_ONLY,
         local_vars: { extVal, heapSize: currentList.length },
         dataSnapshot: getSnapshot(),
         meta: { highlightIndex: -1, overrideStatusMap: { 0: "Prepare" } },

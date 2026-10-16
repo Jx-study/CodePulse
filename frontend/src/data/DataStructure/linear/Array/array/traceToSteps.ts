@@ -43,6 +43,11 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { index: e.local_vars.index },
   }),
 
+  [TAGS.UPDATE_CHECK_INDEX]: (e) => ({
+    key: "animation.update_check_index",
+    params: { index: e.local_vars.index, length: e.local_vars.length },
+  }),
+
   [TAGS.UPDATE_ASSIGN]: (e) => ({
     key: "animation.update_assign",
     params: { index: e.local_vars.index, value: e.local_vars.value },
@@ -85,6 +90,16 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.DELETE_START]: (e) => ({
     key: "animation.delete_start",
     params: { index: e.local_vars.index, value: e.local_vars.value },
+  }),
+
+  [TAGS.DELETE_CHECK_INDEX]: (e) => ({
+    key: "animation.delete_check_index",
+    params: { index: e.local_vars.index, length: e.local_vars.length },
+  }),
+
+  [TAGS.DELETE_ERROR]: (e) => ({
+    key: "animation.delete_error",
+    params: { index: e.local_vars.index },
   }),
 
   [TAGS.DELETE_SHIFT]: (e) =>
