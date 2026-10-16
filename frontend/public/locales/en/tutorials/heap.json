@@ -105,7 +105,7 @@
           "**Finding children**: for a node at index i, its left child is at [[primary|2i+1]] and its right child at [[primary|2i+2]]",
           "**Finding the parent**: for a node at index i, its parent is found via integer division at [[primary|(i-1)//2]]"
         ],
-        "icon": "list-tree"
+        "icon": "sitemap"
       },
       {
         "heading": "Priority Queue vs. Heap",
