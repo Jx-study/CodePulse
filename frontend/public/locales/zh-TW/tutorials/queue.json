@@ -31,7 +31,7 @@
   "relatedProblems": {
     "225": "佇列應用：用佇列實作堆疊的功能",
     "622": "佇列設計：實作環形佇列 (Circular Queue)",
-    "933": "佇列的實際應用：計算最近請求數量 (滑動窗口)"
+    "933": "佇列的實際應用：計算最近請求數量 (滑動視窗)"
   },
   "stories": {
     "queue-multidomain-applications": {
