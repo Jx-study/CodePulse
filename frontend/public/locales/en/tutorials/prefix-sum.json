@@ -40,7 +40,7 @@
         "items": [
           "Build a new array **P** where P[i] is the sum of A from index 0 to i",
           "Recurrence: P[i] = P[i-1] + A[i]",
-          "The sum of range [L, R] is [[primary|P[R] - P[L-1]]]",
+          "The sum of range [L, R] is `P[R] - P[L-1]`",
           "When L = 0, just use P[R]; an extra **sentinel cell** handles this uniformly"
         ],
         "icon": "compass"
