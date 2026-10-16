@@ -222,11 +222,11 @@ Class Trie:
     mappings: {
       [TAGS.INSERT_START]: [7],
       [TAGS.CHAR_CREATE]: [10, 11],
-      [TAGS.CHAR_MATCH]: [12],
-      [TAGS.SET_END]: [13],
+      [TAGS.CHAR_MATCH]: [11, 19],
+      [TAGS.SET_END]: [12],
       [TAGS.SEARCH_START]: [15, 16],
-      [TAGS.SEARCH_NOT_FOUND]: [19],
-      [TAGS.SEARCH_FOUND]: [21],
+      [TAGS.SEARCH_NOT_FOUND]: [18],
+      [TAGS.SEARCH_FOUND]: [20],
     },
   },
   python: {

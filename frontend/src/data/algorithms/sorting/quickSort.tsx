@@ -40,11 +40,12 @@ Procedure Partition(arr, low, high):
   Return i + 1
 End Procedure`,
     mappings: {
+      [TAGS.INIT]: [1],
       [TAGS.CALL]: [1, 2],
       [TAGS.PARTITION_START]: [9, 10],
-      [TAGS.COMPARE]: [11, 12],
-      [TAGS.SWAP]: [13, 14],
-      [TAGS.PIVOT_SET]: [17, 18],
+      [TAGS.COMPARE]: [12, 13],
+      [TAGS.SWAP]: [14, 15],
+      [TAGS.PIVOT_SET]: [18, 19],
       [TAGS.BASE_CASE]: [2],
       [TAGS.DONE]: [7],
     },

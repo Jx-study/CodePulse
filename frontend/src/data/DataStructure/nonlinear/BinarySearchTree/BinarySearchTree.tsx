@@ -207,7 +207,7 @@ Procedure Ceil(root, target):
       [TAGS.DEL_FOUND]: [16, 22],
       [TAGS.DEL_LEFT]: [17],
       [TAGS.DEL_RIGHT]: [18],
-      [TAGS.DEL_NOT_FOUND]: [19, 23, 24],
+      [TAGS.DEL_NOT_FOUND]: [19, 23],
 
       [TAGS.DEL_COUNT_DEC]: [25, 26, 27],
 
