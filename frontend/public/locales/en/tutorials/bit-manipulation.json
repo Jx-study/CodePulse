@@ -1,4 +1,75 @@
 {
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Integers are stored in [[primary|binary]], and bit manipulation works on those 0s and 1s directly. Three ideas — **bits**, **bit weights** and **masks** — explain most of the tricks.",
+        "items": [
+          "[[primary|Bit]]: each binary digit is 0 or 1, and the rightmost one is **bit 0**",
+          "[[primary|Bit weight]]: bit k is worth 2^k, e.g. 12 = 00001100 = 8 + 4",
+          "[[primary|Mask]]: a hand-picked number such as `1 << k`, which has only bit k set, used to read, set or clear chosen bits"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Basic Operators",
+        "content": "Bitwise operators pair up the two numbers **bit by bit**; each position is computed on its own, with no carries.",
+        "items": [
+          "**AND** `a & b`: 1 only when both bits are 1, often used to **extract** bits",
+          "**OR** `a | b`: 1 when either bit is 1, often used to **set** bits",
+          "**XOR** `a ^ b`: 1 when the bits differ, so equal numbers **cancel out** (`x ^ x = 0`)",
+          "**NOT** `~a`: flips every bit; Python integers have no fixed width, so `~a` gives -a - 1",
+          "**Left shift** `a << s`: moves the whole row s places left and fills 0s on the right, multiplying by 2^s",
+          "**Right shift** `a >> s`: moves the whole row s places right, dividing by 2^s and rounding down"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Common Tricks",
+        "content": "Combining operators with masks replaces loops or branches with one or two operations.",
+        "items": [
+          "**Single-bit operations**: `a | (1 << k)` sets, `a & (1 << k)` tests, `a & ~(1 << k)` clears and `a ^ (1 << k)` toggles bit k",
+          "**XOR swap**: `a = a ^ b`, `b = a ^ b`, `a = a ^ b` swaps two numbers without a temporary variable",
+          "**Clear the lowest 1**: `n & (n - 1)`; repeat it to count 1 bits, and a result of 0 means n is a power of two",
+          "**Keep only the lowest 1**: `n & -n` (lowbit), the core of the Fenwick tree",
+          "**Parity**: `n & 1` is 1 for odd numbers and 0 for even ones"
+        ],
+        "icon": "wand-magic-sparkles"
+      },
+      {
+        "heading": "Operations and Complexity",
+        "content": "A single bitwise operation has a fixed cost regardless of the number's size; only bit-by-bit or element-by-element enumeration grows.",
+        "items": [
+          "**One bitwise operation**: [[success|O(1)]]",
+          "**Counting 1 bits**: one round per 1 bit, at most [[success|O(number of bits)]]",
+          "**Enumerating all subsets of n elements**: 2^n masks, each checking n bits, for [[danger|O(n · 2^n)]] — usually only for n up to about 20"
+        ],
+        "icon": "stopwatch"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "Think of bit manipulation when a problem says each element is \"picked or not\", things \"come in pairs that cancel\", or states are simply \"on or off\".",
+        "items": [
+          "**Subset enumeration and bitmask DP**: one integer records which elements are chosen, as in `dp[mask][i]` for the traveling salesman problem",
+          "**Finding the number that appears once**: XOR everything together and the pairs cancel",
+          "**Counting and checks**: number of 1 bits, powers of two, Hamming distance",
+          "**Flags and masks**: file permissions, network subnet masks, on/off states in games"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Common Pitfalls",
+        "content": "Bit tricks are short to write, but a few details are easy to get wrong.",
+        "items": [
+          "**No fixed width**: Python's `~a` is negative, so use a mask such as `& 0xFF` to look at a fixed number of bits",
+          "**Operator precedence**: in Python comparisons bind more loosely than `&`, so `n & (n - 1) == 0` works; in C and Java `==` binds first, so `(n & (n - 1)) == 0` is the safe spelling",
+          "**XOR-swapping one slot**: when i == j, `arr[i]` and `arr[j]` are the same slot, and the first step turns it into [[danger|0]]",
+          "**Subset explosion**: 2^n grows extremely fast, so make sure n is small before enumerating"
+        ],
+        "icon": "triangle-exclamation"
+      }
+    ]
+  },
   "animation": {
     "ops_init": "Initialize: write a = {{a}} and b = {{b}} as 8-bit binary, then compute a {{op}} b one bit at a time, starting from bit 0 (the rightmost)",
     "ops_init_not": "Initialize: write a = {{a}} as 8-bit binary, then compute ~a bit by bit, flipping every bit",

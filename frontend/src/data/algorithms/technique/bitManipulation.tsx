@@ -369,7 +369,7 @@ export const bitManipulationConfig: LevelImplementationConfig = {
     timeWorst: "O(n · 2^n)",
     space: "O(1)",
   },
-  introduction: `整數在電腦裡是以二進位儲存的，位元運算就是直接對這些 0 和 1 動手。AND（&）兩位都是 1 才得 1，常用來「取出」某些位元；OR（|）有一位是 1 就得 1，常用來「設定」位元；XOR（^）兩位不同才得 1，相同的數互相抵銷；NOT（~）把每一位反轉。左移 a << s 把所有位元往左搬 s 格，等於乘以 2^s；右移 a >> s 則等於除以 2^s 取整數。把這些運算和只有第 k 位是 1 的遮罩 1 << k 搭配，就能設定、檢查、清除或翻轉任意一個位元。利用 XOR 相同就抵銷的性質，a = a ^ b、b = a ^ b、a = a ^ b 三步就能不用暫存變數交換兩個數。經典技巧 n & (n - 1) 會清掉最低位的 1，可以用來數 1 的個數、判斷 2 的冪次；n & -n 則只留下最低位的 1（lowbit），是樹狀陣列的核心；n & 1 能判斷奇偶。更進一步，把一個 n 位元的整數 mask 當成「第 j 位是 1 就代表選了第 j 個元素」，從 0 數到 2^n - 1 就能枚舉所有子集，這正是狀態壓縮 DP 的基礎。單一次位元運算是 O(1)，枚舉子集則是 O(n · 2^n)。`,
+  introduction: { key: "introduction" },
   defaultData: {
     mode: "bit_ops",
     a: 12,
