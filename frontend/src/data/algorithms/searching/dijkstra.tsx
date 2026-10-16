@@ -216,7 +216,7 @@ export const dijkstraConfig: LevelImplementationConfig = {
     timeWorst: "O((V+E) log V)",
     space: "O(V)",
   },
-  introduction: `Dijkstra 演算法用於解決「單源最短路徑」問題。它將節點分為「已完成」與「未完成」兩個集合，每次從未完成集合中挑選距離起點最近的節點，並更新（鬆弛）它的所有相鄰節點的距離。請注意，它無法處理帶有負權重的邊。`,
+  introduction: { key: "introduction" },
   defaultData: {
     graph: {
       nodes: [

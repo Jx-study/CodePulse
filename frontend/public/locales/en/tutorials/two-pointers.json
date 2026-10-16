@@ -36,5 +36,39 @@
     "11": "Opposite pointers: always move the shorter side, since moving the taller side can never increase the area",
     "125": "Opposite pointers: compare characters from both ends inward, skipping non-alphanumerics",
     "283": "Fast/slow pointers: slow marks where the next non-zero goes; fast scans and swaps"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Two pointers uses **two indices** moving in coordination over an array, often reducing a nested-loop problem to a single pass.",
+        "items": [
+          "**Opposite pointers**: squeeze inward from both ends; each comparison lets you [[primary|rule out one side]], e.g. Two Sum on a sorted array",
+          "**Same-direction pointers** (fast/slow): move the same way, one behind the other — the fast pointer **scans** while the slow pointer marks the **finished** region, e.g. removing duplicates in place",
+          "Both styles look at each element only a constant number of times"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "The two pointers move at most n steps in total, and no extra data structure is needed.",
+        "items": [
+          "**Time complexity**: [[success|O(n)]], down from the brute-force [[danger|O(n²)]]",
+          "**Space complexity**: [[success|O(1)]] — just two extra variables",
+          "If sorting is required first, the total becomes [[warning|O(n log n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "To decide whether two pointers fits, check whether the data has some **order** or a rule that tells you **which way to move**.",
+        "items": [
+          "**Opposite**: data is **sorted** and the current sum tells you which end to move",
+          "**Same-direction**: you must modify the array in place or maintain a range in one scan",
+          "**Extension**: when the condition involves a contiguous range, it grows into a [[primary|sliding window]]"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

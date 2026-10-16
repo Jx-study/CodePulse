@@ -31,5 +31,42 @@
     "303": "Classic prefix sum: efficiently compute range sum queries on an array",
     "560": "Prefix sum + hash map: count subarrays whose sum equals K",
     "304": "2D prefix sum: extend range-sum queries to a 2D matrix"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Prefix sum is a key **preprocessing** technique: spend linear time building a table once, then answer range queries in [[primary|constant time]].",
+        "items": [
+          "Build a new array **P** where P[i] is the sum of A from index 0 to i",
+          "Recurrence: P[i] = P[i-1] + A[i]",
+          "The sum of range [L, R] is [[primary|P[R] - P[L-1]]]",
+          "When L = 0, just use P[R]; an extra **sentinel cell** handles this uniformly"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Repeated summing is concentrated in preprocessing, so each query never has to walk the range again.",
+        "items": [
+          "**Build**: [[success|O(n)]] — one scan of the array",
+          "**Per query**: [[success|O(1)]] — a single subtraction",
+          "**Space complexity**: [[warning|O(n)]] for the extra prefix array",
+          "Versus re-summing each query at [[danger|O(n)]], it pays off more the more queries you run"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Extensions",
+        "content": "The prefix-sum idea extends to many other settings.",
+        "items": [
+          "**2D prefix sum**: use inclusion-exclusion to get any sub-rectangle sum in O(1)",
+          "**Difference array**: the inverse operation, ideal for many range-add updates",
+          "Combined with a **hash map**, it solves problems like \"subarray sum equals K\"",
+          "**Limit**: if the array changes, switch to a Fenwick tree or segment tree"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

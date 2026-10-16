@@ -37,5 +37,40 @@
     "210": "Topological sort: output a valid course completion order (full topological sequence)",
     "802": "Reverse topological sort: find all nodes that will never be stuck in a cycle (safe nodes)",
     "1462": "Topological sort + transitive closure: determine prerequisite relationships between courses"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Topological sort handles dependencies in a **directed acyclic graph** (DAG), producing an order in which every node comes [[primary|after all its prerequisites]].",
+        "items": [
+          "Compute each node's **in-degree**: the number of edges pointing to it",
+          "Put nodes with in-degree 0 into a queue — they have no unfinished prerequisites",
+          "Dequeue a node into the result and remove its outgoing edges, **decrementing the in-degree** of successors",
+          "Nodes whose in-degree drops to 0 are enqueued; repeat until the queue is empty"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Each node is enqueued once and each edge is removed once.",
+        "items": [
+          "**Time complexity**: [[success|O(V + E)]], where V is the number of nodes and E the number of edges",
+          "**Space complexity**: [[success|O(V)]] for the in-degree table and queue",
+          "This is **Kahn's algorithm**; the alternative is reversing the DFS post-order"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Properties & Uses",
+        "content": "The result is not necessarily unique — when several nodes have in-degree 0, their order is interchangeable.",
+        "items": [
+          "**Cycle detection**: if fewer than V nodes get processed, the graph has a [[danger|cycle]] and cannot be sorted",
+          "**Real uses**: course prerequisite planning, build-tool dependency order, task scheduling",
+          "**Limit**: only works on DAGs; a graph with a cycle has no valid topological order"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

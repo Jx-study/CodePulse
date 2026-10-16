@@ -155,7 +155,7 @@ export const slidingWindowConfig: LevelImplementationConfig = {
   id: "slidingwindow",
   type: "algorithm",
   defaultViewMode: "longest_lte",
-  name: "滑動窗口 (Sliding Window)",
+  name: "滑動視窗 (Sliding Window)",
   categoryName: "演算法技巧",
   description: "用雙指標維護一個區間，解決連續子陣列問題",
   i18nNamespace: "tutorials/sliding-window",
@@ -172,7 +172,7 @@ export const slidingWindowConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(1)",
   },
-  introduction: `滑動窗口是一種雙指標技巧，通常用於解決「陣列/字串中連續子區間」的問題。我們維護一個由 left 和 right 組成的窗口，根據條件不斷向右擴展 (right++) 或縮小 (left++)。因為每個元素最多進出窗口各一次，時間複雜度通常能從 O(n²) 降到 O(n)。`,
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 3 },
     { id: "box-1", value: 1 },

@@ -63,5 +63,40 @@
     "542": "Multi-source BFS: expand from all 0-cells simultaneously, recording each 1-cell's distance to the nearest 0",
     "286": "Multi-source BFS: start from all gates (0) simultaneously, fill each empty room with its distance to the nearest gate",
     "1091": "BFS shortest path: move in 8 directions in a binary matrix; BFS layer expansion guarantees the shortest path"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Breadth-First Search (BFS) is a **traversal algorithm** for graphs and trees. It expands outward from the start one layer at a time, visiting all [[primary|nearest]] nodes before moving farther.",
+        "items": [
+          "Uses a **queue** to manage nodes to visit, following [[primary|first-in, first-out]] order",
+          "Dequeue the front node and enqueue its unvisited **neighbors** at the back",
+          "Nodes are marked **visited** when enqueued so none is added twice",
+          "Layer-by-layer expansion lets it find the [[success|shortest path in unweighted graphs]]"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Each node is enqueued and dequeued at most once, and each edge is examined at most once, so the cost grows linearly with graph size.",
+        "items": [
+          "**Time complexity**: [[success|O(V + E)]], where V is the number of nodes and E the number of edges",
+          "**Space complexity**: [[warning|O(V)]] — the queue and visited set may hold every node in the worst case",
+          "The graph must be stored as an **adjacency list** to reach this bound; an adjacency matrix degrades it to [[danger|O(V²)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Uses & Limits",
+        "content": "BFS suits **fewest-steps** problems, but the queue holds a whole layer at once, which is memory-hungry in graphs with high branching.",
+        "items": [
+          "**Shortest path**: mazes, or the [[primary|fewest hops]] in a social network",
+          "**Level-order traversal**: tree level order, flood fill",
+          "**Limit**: with unequal edge weights BFS no longer guarantees the shortest path — use [[primary|Dijkstra]] instead"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }
