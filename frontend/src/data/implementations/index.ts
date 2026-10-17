@@ -23,6 +23,7 @@ import { DFSConfig } from "../algorithms/searching/DFS";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
 import { twoPointersConfig } from "../algorithms/technique/twoPointers";
+import { bitManipulationConfig } from "../algorithms/technique/bitManipulation";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { lcsConfig } from "../algorithms/dp/lcs";
@@ -61,6 +62,7 @@ export const implementationsMap: ImplementationMap = {
   prefixSum: prefixSumConfig,
   slidingWindow: slidingWindowConfig,
   twoPointers: twoPointersConfig,
+  bitManipulation: bitManipulationConfig,
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
   lcs: lcsConfig,

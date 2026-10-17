@@ -33,6 +33,7 @@ from seeds.questions import binary_search
 from seeds.questions import prefix_sum
 from seeds.questions import sliding_window
 from seeds.questions import two_pointers
+from seeds.questions import bit_manipulation
 from seeds.questions import bfs
 from seeds.questions import dfs
 from seeds.questions import dijkstra
@@ -58,6 +59,7 @@ ALL_MODULES = [
     prefix_sum,
     sliding_window,
     two_pointers,
+    bit_manipulation,
     bfs,
     dfs,
     dijkstra,
