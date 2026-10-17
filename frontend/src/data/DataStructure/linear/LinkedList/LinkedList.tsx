@@ -97,6 +97,17 @@ function linkedListActionHandler(
   }
   if (actionType === "delete") {
     if (newData.length === 0) {
+      if (mode === "Head" || mode === "Tail") {
+        return {
+          animationData: data,
+          animationParams: {
+            mode,
+            emptyGuard: true,
+            ...defaultParams,
+            ...modeFlags(payload),
+          },
+        };
+      }
       context.toast.warning(i18n.t("actionHandler.listEmpty", { ns: "tutorials/linked-list" }));
       return null;
     }

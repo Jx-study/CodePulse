@@ -99,6 +99,8 @@ export const codeConfig: CodeConfig = {
       [TAGS.INSERT_HEAD_END]: [14],
 
       [TAGS.INSERT_TAIL_START]: [16],
+
+      [TAGS.INSERT_TAIL_CHECK_HEAD]: [17],
       [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [17],
       [TAGS.INSERT_TAIL_CREATE_NEW_NODE_ISNULL]: [18],
       [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [19],
@@ -115,7 +117,7 @@ export const codeConfig: CodeConfig = {
       [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [41],
       [TAGS.INSERT_INDEX_END]: [42],
 
-      [TAGS.DELETE_HEAD_START]: [44],
+      [TAGS.DELETE_HEAD_START]: [44, 45],
       [TAGS.DELETE_HEAD_CHECK]: [45],
       [TAGS.DELETE_HEAD_UPDATE_HEAD]: [46],
       [TAGS.DELETE_HEAD_FREE]: [47],

@@ -4,11 +4,6 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { asTrace } from "@/data/shared/traceValue";
-import {
-  REJECTED_STATUS,
-  markRejected,
-  createGuardSlot,
-} from "@/data/shared/rejectedSlot";
 import { TAGS } from "./tags";
 import {
   LinearData as BoxData,
@@ -50,6 +45,12 @@ const createQueuePointers = (
   return pointers;
 };
 
+const GUARD_ERROR_TAGS = new Set<string>([
+  TAGS.ENQUEUE_ERROR,
+  TAGS.DEQUEUE_ERROR,
+]);
+const INFO_TAGS = new Set<string>([TAGS.PEEK_ERROR]);
+
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
   [TAGS.ENQUEUE_START]: (e) => ({
@@ -61,7 +62,6 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { size: e.local_vars.size },
   }),
   [TAGS.ENQUEUE_ERROR]: () => ({ key: "animation.enqueue_error" }),
-  [TAGS.ENQUEUE_DISCARD]: () => ({ key: "animation.enqueue_discard" }),
   [TAGS.ENQUEUE_INC_REAR]: (e) => ({
     key: "animation.enqueue_inc_rear",
     params: { rear: e.local_vars.rear },
@@ -133,21 +133,6 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         ...createQueuePointers(0, dataList.length - 1, startX, startY, gap),
       ];
     } else if (action?.type === "add" && action.overflow) {
-      const rear = dataList.length - 1;
-      const slotX = startX + dataList.length * gap;
-      const farX = slotX + 3 * gap;
-      const isError = event.tag === TAGS.ENQUEUE_ERROR;
-      const rejectedBox = createBox(
-        "overflow-new",
-        action.value,
-        event.tag === TAGS.ENQUEUE_CHECK_FULL ? slotX : farX,
-        isError ? REJECTED_STATUS : Status.Prepare,
-        "New",
-      );
-      if (isError) {
-        markRejected(rejectedBox);
-      }
-      const isDiscarded = event.tag === TAGS.ENQUEUE_DISCARD;
       elements = [
         ...createBoxes(
           dataList,
@@ -155,8 +140,7 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
             ? Status.Target
             : Status.Unfinished,
         ),
-        ...(isDiscarded ? [] : [rejectedBox]),
-        ...createQueuePointers(0, rear, startX, startY, gap),
+        ...createQueuePointers(0, dataList.length - 1, startX, startY, gap),
       ];
     } else if (action?.type === "add") {
       const oldList = dataList.slice(0, -1);
@@ -232,17 +216,7 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       }
     } else if (action?.type === "delete") {
       if (action.value === undefined) {
-        elements = [
-          ...createQueuePointers(0, -1, startX, startY, gap),
-          createGuardSlot({
-            id: "empty-guard",
-            index: 0,
-            startX,
-            startY,
-            gap,
-            rejected: event.tag === TAGS.DEQUEUE_ERROR,
-          }),
-        ];
+        elements = [...createQueuePointers(0, -1, startX, startY, gap)];
       } else {
         const deletedNode = {
           id: action.targetId || "del-temp",
@@ -329,17 +303,7 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     } else if (action?.type === "peek") {
       const rear = dataList.length - 1;
       if (dataList.length === 0) {
-        elements = [
-          ...createQueuePointers(0, -1, startX, startY, gap),
-          createGuardSlot({
-            id: "empty-guard",
-            index: 0,
-            startX,
-            startY,
-            gap,
-            rejected: event.tag === TAGS.PEEK_ERROR,
-          }),
-        ];
+        elements = [...createQueuePointers(0, -1, startX, startY, gap)];
       } else {
         if (event.tag === TAGS.PEEK_CHECK_EMPTY) {
           elements = [
@@ -368,6 +332,8 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      warn: GUARD_ERROR_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
       local_vars: event.local_vars,
       elements,
     };

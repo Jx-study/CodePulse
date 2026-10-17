@@ -1,5 +1,4 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { statusConfigWithRejected } from "@/data/shared/rejectedSlot";
 import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import {
   LinearData as BoxData,
@@ -43,8 +42,7 @@ const arrayCodeConfig: CodeConfig = {
 
   Procedure update(index, value):
     If index < 0 or index ≥ length Then
-      Alert "Index out of range"
-      Return
+      Return Error
     End If
     
     data[index] ← value
@@ -88,21 +86,21 @@ const arrayCodeConfig: CodeConfig = {
       [TAGS.SEARCH_NOT_FOUND]: [12],
       [TAGS.UPDATE_START]: [15],
       [TAGS.UPDATE_CHECK_INDEX]: [16],
-      [TAGS.UPDATE_ERROR]: [17, 18],
-      [TAGS.UPDATE_ASSIGN]: [21],
-      [TAGS.UPDATE_COMPLETE]: [22],
-      [TAGS.INSERT_CHECK_INDEX]: [25],
-      [TAGS.INSERT_CLAMP]: [25, 26],
-      [TAGS.INSERT_START]: [29, 30],
-      [TAGS.INSERT_SHIFT]: [32, 33, 34, 35],
-      [TAGS.INSERT_ASSIGN]: [38, 39],
-      [TAGS.INSERT_COMPLETE]: [40],
-      [TAGS.DELETE_START]: [42],
-      [TAGS.DELETE_CHECK_INDEX]: [43],
-      [TAGS.DELETE_ERROR]: [44],
-      [TAGS.DELETE_SHIFT]: [47, 48, 49],
-      [TAGS.DELETE_REMOVE]: [52, 53],
-      [TAGS.DELETE_COMPLETE]: [54],
+      [TAGS.UPDATE_ERROR]: [17],
+      [TAGS.UPDATE_ASSIGN]: [20],
+      [TAGS.UPDATE_COMPLETE]: [21],
+      [TAGS.INSERT_CHECK_INDEX]: [24],
+      [TAGS.INSERT_CLAMP]: [24, 25],
+      [TAGS.INSERT_START]: [28, 29],
+      [TAGS.INSERT_SHIFT]: [31, 32, 33, 34],
+      [TAGS.INSERT_ASSIGN]: [37, 38],
+      [TAGS.INSERT_COMPLETE]: [39],
+      [TAGS.DELETE_START]: [41],
+      [TAGS.DELETE_CHECK_INDEX]: [42],
+      [TAGS.DELETE_ERROR]: [43],
+      [TAGS.DELETE_SHIFT]: [46, 47, 48],
+      [TAGS.DELETE_REMOVE]: [51, 52],
+      [TAGS.DELETE_COMPLETE]: [53],
     },
   },
   python: {
@@ -269,7 +267,6 @@ export const ArrayConfig: LevelImplementationConfig = {
   description: "連續記憶體空間",
   i18nNamespace: "tutorials/array",
   codeConfig: arrayCodeConfig,
-  statusConfig: statusConfigWithRejected,
   complexity: {
     timeBest: "O(1)",
     timeAverage: "O(n)",

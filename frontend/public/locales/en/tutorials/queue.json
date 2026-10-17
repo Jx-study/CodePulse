@@ -4,7 +4,6 @@
     "enqueue_start": "Enqueue({{value}}): Preparing to enqueue",
     "enqueue_check_full": "Enqueue(): Checking if full ({{size}} items now)",
     "enqueue_error": "Error: Queue Overflow, cannot enqueue another element",
-    "enqueue_discard": "The new element is discarded; the queue is unchanged",
     "enqueue_inc_rear": "rear = rear + 1 (rear now points to {{rear}})",
     "enqueue_assign": "queue[{{rear}}] = {{value}}",
     "enqueue_complete": "Enqueue Complete",

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createLinearActionHandler } from '../linearAction';
 
 const existingData = [
@@ -9,7 +9,7 @@ const existingData = [
 let idCounter = 0;
 const mockContext = {
   nextId: () => `id-${idCounter++}`,
-  toast: { warning: () => {} },
+  toast: { warning: () => {}, info: () => {} },
   defaultData: existingData,
 };
 
@@ -90,5 +90,14 @@ describe('createLinearActionHandler', () => {
     const handler = createLinearActionHandler();
     const result = handler('unknown', {}, existingData, mockContext);
     expect(result).toBeNull();
+  });
+
+  it('load: 自動排序時用 info 提示，不用 warning', () => {
+    const warning = vi.fn();
+    const info = vi.fn();
+    const handler = createLinearActionHandler({ sortOnLoad: true, sortNoticeNamespace: 'tutorials/stack' });
+    handler('load', { data: [3, 1, 2] }, existingData, { ...mockContext, toast: { warning, info } });
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(warning).not.toHaveBeenCalled();
   });
 });

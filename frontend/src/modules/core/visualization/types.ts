@@ -1,6 +1,7 @@
-/** Toast API，供 actionHandler 顯示警告等 */
+/** Toast API，供 actionHandler 顯示提示：warning 用於操作被擋下，info 用於已自動調整輸入但仍會執行 */
 interface ToastAPI {
   warning: (msg: string) => void;
+  info: (msg: string) => void;
 }
 
 /** ActionHandler 的 context，僅含純函式所需工具 */

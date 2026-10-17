@@ -169,8 +169,10 @@ export interface LevelImplementationConfig {
   getCodeConfig?: (payload?: any) => CodeConfig;
   /** 最大資料筆數。undefined = 真的不限制（由 viewBox 自動縮放）。 */
   maxNodes?: number;
-  /** 達到 maxNodes 時是否仍播放「容量已滿」的動畫（而非直接 toast 擋下）。 */
-  animateOverflow?: boolean;
+  /** 虛擬碼是否有容量檢查：有的話達到 maxNodes 仍會播放步驟（亮起檢查行並 toast），否則直接 toast 擋下。 */
+  hasCapacityGuard?: boolean;
+  /** 虛擬碼自己處理空資料（有空檢查，或空資料時走原本的找不到流程）：delete／peek 空資料仍會播放步驟，不被通用 toast 攔下。 */
+  hasEmptyGuard?: boolean;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
   /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */

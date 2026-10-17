@@ -1,7 +1,4 @@
 {
-  "actionHandler": {
-    "heapEmpty": "堆積為空，無法執行此操作"
-  },
   "animation": {
     "init": "初始化 {{heapName}}",
     "insert_start": "將數值 {{value}} 加入陣列尾端 (index: {{index}})",
@@ -19,7 +16,9 @@
     "peek_min": "取得最小值：{{extVal}}",
     "peek_max": "取得最大值：{{extVal}}",
     "heapify_start": "開始 Bottom-Up 建堆 (共有 {{length}} 個節點)，目標：{{heapName}}",
-    "done": "{{heapName}} 操作完成"
+    "done": "{{heapName}} 操作完成",
+    "extract_empty": "堆積為空，沒有元素可以取出（Return Error）",
+    "peek_empty": "堆積為空，沒有元素可以查看（Return Error）"
   },
   "ui": {
     "notHeap": "尚未建堆",

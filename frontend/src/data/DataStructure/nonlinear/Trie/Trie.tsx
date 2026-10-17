@@ -66,7 +66,7 @@ function trieActionHandler(
       rawWords.length !== uniqueWords.length ||
       rawWords.some((w, i) => w !== uniqueWords[i])
     ) {
-      context.toast.warning(
+      context.toast.info(
         i18n.t("actionHandler.loadNormalized", {
           ns: "tutorials/trie",
           max: TRIE_MAX_WORDS,
@@ -264,7 +264,7 @@ Class Trie:
       [TAGS.DELETE_CHAR_MATCH]: [24, 25, 27],
       [TAGS.DELETE_NOT_FOUND]: [25, 26],
       [TAGS.DELETE_NOT_WORD]: [28, 29],
-      [TAGS.DELETE_UNMARK]: [30],
+      [TAGS.DELETE_UNMARK]: [28, 30],
       [TAGS.DELETE_PRUNE]: [31, 32, 33],
     },
   },
@@ -337,6 +337,7 @@ export const TrieConfig: LevelImplementationConfig = {
   defaultData: ["app", "apple", "cat"], // 預設資料即為字串陣列
   createAnimationSteps: createTrieAnimationSteps,
   statusConfig: TrieStatusConfig,
+  hasEmptyGuard: true,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as DSActionBarProps)} />,
   maxNodes: TRIE_MAX_WORDS,

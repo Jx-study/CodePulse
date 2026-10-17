@@ -4,11 +4,6 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { Pointer } from "@/modules/core/DataLogic/Pointer";
 import { asTrace } from "@/data/shared/traceValue";
-import {
-  REJECTED_STATUS,
-  markRejected,
-  createGuardSlot,
-} from "@/data/shared/rejectedSlot";
 import { TAGS } from "./tags";
 import {
   LinearData as BoxData,
@@ -38,6 +33,9 @@ const createTopPointer = (
   return ptr;
 };
 
+const GUARD_ERROR_TAGS = new Set<string>([TAGS.PUSH_ERROR, TAGS.POP_ERROR]);
+const INFO_TAGS = new Set<string>([TAGS.PEEK_ERROR]);
+
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
   [TAGS.PUSH_START]: (e) => ({
@@ -49,7 +47,6 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { size: e.local_vars.size },
   }),
   [TAGS.PUSH_ERROR]: () => ({ key: "animation.push_error" }),
-  [TAGS.PUSH_DISCARD]: () => ({ key: "animation.push_discard" }),
   [TAGS.PUSH_INC_TOP]: (e) => ({
     key: "animation.push_inc_top",
     params: { top: e.local_vars.top },
@@ -121,28 +118,12 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         createTopPointer(dataList.length - 1, startX, startY, gap),
       ];
     } else if (action?.type === "add" && action.overflow) {
-      const top = dataList.length - 1;
-      const slotX = startX + dataList.length * gap;
-      const farX = slotX + 3 * gap;
-      const isError = event.tag === TAGS.PUSH_ERROR;
-      const rejectedBox = createBox(
-        "overflow-new",
-        action.value,
-        event.tag === TAGS.PUSH_CHECK_FULL ? slotX : farX,
-        isError ? REJECTED_STATUS : Status.Prepare,
-        "New",
-      );
-      if (isError) {
-        markRejected(rejectedBox);
-      }
-      const isDiscarded = event.tag === TAGS.PUSH_DISCARD;
       elements = [
         ...createBoxes(
           dataList,
           event.tag === TAGS.PUSH_CHECK_FULL ? Status.Target : Status.Unfinished,
         ),
-        ...(isDiscarded ? [] : [rejectedBox]),
-        createTopPointer(top, startX, startY, gap),
+        createTopPointer(dataList.length - 1, startX, startY, gap),
       ];
     } else if (action?.type === "add") {
       const oldList = dataList.slice(0, -1);
@@ -218,17 +199,7 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       }
     } else if (action?.type === "delete") {
       if (action.value === undefined) {
-        elements = [
-          createTopPointer(-1, startX, startY, gap),
-          createGuardSlot({
-            id: "empty-guard",
-            index: 0,
-            startX,
-            startY,
-            gap,
-            rejected: event.tag === TAGS.POP_ERROR,
-          }),
-        ];
+        elements = [createTopPointer(-1, startX, startY, gap)];
       } else {
         const deletedNode = {
           id: action.targetId || "deleted-temp",
@@ -319,17 +290,7 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     } else if (action?.type === "peek") {
       const currentTop = dataList.length - 1;
       if (dataList.length === 0) {
-        elements = [
-          createTopPointer(-1, startX, startY, gap),
-          createGuardSlot({
-            id: "empty-guard",
-            index: 0,
-            startX,
-            startY,
-            gap,
-            rejected: event.tag === TAGS.PEEK_ERROR,
-          }),
-        ];
+        elements = [createTopPointer(-1, startX, startY, gap)];
       } else {
         if (event.tag === TAGS.PEEK_CHECK_EMPTY) {
           elements = [
@@ -358,6 +319,8 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      warn: GUARD_ERROR_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
       local_vars: event.local_vars,
       elements,
     };

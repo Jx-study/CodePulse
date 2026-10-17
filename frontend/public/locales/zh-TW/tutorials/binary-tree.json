@@ -9,7 +9,6 @@
     "pre_right_enter": "準備進入右子節點 {{child}}",
     "pre_right_return": "右子樹完成，回到節點 {{curr}}",
     "pre_done": "前序遍歷完成",
-
     "in_init": "開始中序遍歷 (左-根-右)",
     "in_null": "節點為空 (Null)，回溯",
     "in_left_enter": "準備進入左子節點 {{child}}",
@@ -18,7 +17,6 @@
     "in_right_enter": "準備進入右子節點 {{child}}",
     "in_right_return": "右子樹完成，回到節點 {{curr}}",
     "in_done": "中序遍歷完成",
-
     "post_init": "開始後序遍歷 (左-右-根)",
     "post_null": "節點為空 (Null)，回溯",
     "post_left_enter": "準備進入左子節點 {{child}}",
@@ -27,7 +25,6 @@
     "post_right_return": "右子樹完成，回到節點 {{curr}}",
     "post_visit": "[訪問] 紀錄節點 {{curr}}",
     "post_done": "後序遍歷完成",
-
     "bfs_init": "開始層序遍歷 (BFS)：將 Root 入隊",
     "bfs_while": "檢查佇列是否爲空",
     "bfs_dequeue": "取出佇列首位節點，Dequeue 節點 {{curr}}",

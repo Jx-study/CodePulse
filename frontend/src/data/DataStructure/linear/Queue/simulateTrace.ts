@@ -50,12 +50,6 @@ export function simulateQueueTrace(
       dataSnapshot: [],
       meta,
     });
-    trace.push({
-      tag: TAGS.ENQUEUE_DISCARD,
-      local_vars: { front: 0, rear: currentRear, size: dataList.length },
-      dataSnapshot: [],
-      meta,
-    });
     return trace;
   }
 

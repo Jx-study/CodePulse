@@ -129,7 +129,10 @@
     "delete_index_traverse": "Traversing: current = current.next (searching for index {{targetIndex}})",
     "delete_index_unlink": "pre.next = current.next (predecessor skips target to point to next node)",
     "delete_index_unlink_prev": "current.next.prev = pre (successor's prev points back to predecessor)",
-    "delete_index_end": "DeleteAtIndex complete"
+    "delete_index_end": "DeleteAtIndex complete",
+    "delete_empty": "The linked list is empty (head = null), so there is no node to delete",
+    "insert_tail_check_head": "Check if empty: head == null, false, so walk from head to the tail",
+    "delete_tail_check_head": "Check if empty: head == null, false, so the tail node can be deleted"
   },
   "actionHandler": {
     "indexNegative": "Invalid index: index cannot be negative",

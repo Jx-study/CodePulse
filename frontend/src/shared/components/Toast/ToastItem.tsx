@@ -4,7 +4,7 @@ import type { ToastItem as ToastItemType } from "./types";
 import styles from "./Toast.module.scss";
 
 const ICON_MAP: Record<ToastItemType["variant"], string> = {
-  warning: "exclamation-circle",
+  warning: "triangle-exclamation",
   error: "exclamation-circle",
   success: "check-circle",
   info: "info-circle",

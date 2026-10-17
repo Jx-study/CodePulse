@@ -31,7 +31,16 @@
     "check_cycle_found_false": "節點處理完成，退回 {{current}}",
     "check_cycle_end_true": "檢查結束：發現環 (Cyclic)。路徑：{{path}}",
     "check_cycle_end_false": "檢查結束：此圖無環 (Acyclic)。",
-    "check_cycle_return": "退回並回到節點 {{current}}"
+    "check_cycle_return": "退回並回到節點 {{current}}",
+    "add_vertex_duplicate": "節點 {{val}} 已存在，不重複新增",
+    "remove_vertex_missing": "節點 {{val}} 不存在，無法刪除",
+    "add_edge_missing_vertex": "來源 {{src}} 或目標 {{dst}} 節點不存在，無法新增連線",
+    "add_edge_duplicate": "連線 {{src}} → {{dst}} 已存在，不重複新增",
+    "remove_edge_missing_vertex": "來源 {{src}} 或目標 {{dst}} 節點不存在，無法刪除連線",
+    "remove_edge_not_found": "找不到連線 {{src}} → {{dst}}，無法刪除",
+    "get_neighbors_missing": "節點 {{target}} 不存在，回傳空串列",
+    "check_adjacent_missing": "來源 {{src}} 或目標 {{dst}} 節點不存在，回傳 False",
+    "get_degree_missing": "節點 {{target}} 不存在，回傳 -1"
   },
   "ui": {
     "requireNodeId": "請輸入節點 ID",
@@ -73,7 +82,11 @@
     "graph-social-network": {
       "title": "【演算法揭密】臉書如何瞬間推薦好友？——從六度分隔到社交圖譜",
       "category": "社群媒體",
-      "tags": ["社交圖譜", "圖形資料庫", "三元閉包"],
+      "tags": [
+        "社交圖譜",
+        "圖形資料庫",
+        "三元閉包"
+      ],
       "content": {
         "sections": [
           {
@@ -101,8 +114,14 @@
         "density_slider": "友誼密度"
       },
       "resources": [
-        { "title": "Meta Graph API 總覽", "source": "Meta 開發者文件" },
-        { "title": "Social Network Graphs: Concepts, Metrics & Tools", "source": "PuppyGraph Blog" }
+        {
+          "title": "Meta Graph API 總覽",
+          "source": "Meta 開發者文件"
+        },
+        {
+          "title": "Social Network Graphs: Concepts, Metrics & Tools",
+          "source": "PuppyGraph Blog"
+        }
       ]
     }
   },
@@ -218,5 +237,8 @@
         "icon": "route"
       }
     ]
+  },
+  "toast": {
+    "emptyGraph": "圖形為空"
   }
 }

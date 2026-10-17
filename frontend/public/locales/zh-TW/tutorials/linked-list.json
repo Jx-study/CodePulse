@@ -129,7 +129,10 @@
     "delete_index_traverse": "遍歷中：current = current.next (尋找 index {{targetIndex}})",
     "delete_index_unlink": "pre.next = current.next (前驅節點跳過目標指向下一個節點)",
     "delete_index_unlink_prev": "current.next.prev = pre (後繼節點的 prev 回指前驅節點)",
-    "delete_index_end": "DeleteAtIndex 完成"
+    "delete_index_end": "DeleteAtIndex 完成",
+    "delete_empty": "鏈結串列為空 (head = null)，沒有節點可以刪除",
+    "insert_tail_check_head": "檢查是否為空串列: head == null，不成立，改為從 head 走到尾端",
+    "delete_tail_check_head": "檢查是否為空串列: head == null，不成立，可以刪除尾端節點"
   },
   "actionHandler": {
     "indexNegative": "索引無效：索引不能為負數",

@@ -15,7 +15,6 @@ import {
 } from "./heap/simulateTrace";
 import { heapTraceToSteps } from "./heap/traceToSteps";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
-import i18n from "@/i18n";
 
 const HeapStatusConfig: StatusConfig = {
   i18nNs: "tutorials/heap",
@@ -70,10 +69,19 @@ function heapActionHandler(
   }
 
   if ((actionType === "peek" || actionType === "delete") && newData.length === 0) {
-    context.toast.warning(
-      i18n.t("actionHandler.heapEmpty", { ns: "tutorials/heap" }),
-    );
-    return null;
+    return {
+      animationData: newData,
+      animationParams: {
+        isHeapAction: true,
+        heapType: actionType,
+        oldData,
+        isMinHeap,
+        isMaxHeap,
+        empty: true,
+      },
+      isResetAction: true,
+      useRawAnimationParams: true,
+    };
   }
 
   if (actionType === "peek") {
@@ -163,7 +171,6 @@ function heapActionHandler(
   }
 
   if (actionType === "delete") {
-    if (newData.length === 0) return null;
     const extractedVal = newData[0].value;
 
     if (newData.length > 1) {
@@ -254,6 +261,7 @@ const heapCodeConfig: CodeConfig = {
     HeapifyUp(array.length - 1)
 
   Procedure ExtractExtreme():
+    If array.length = 0 Then Return Error
     extValue ← array[0]
     If array.length = 1 Then
       array.pop()
@@ -263,6 +271,7 @@ const heapCodeConfig: CodeConfig = {
     Return extValue
 
   Procedure Peek():
+    If array.length = 0 Then Return Error
     Return array[0]
 
   Procedure HeapifyUp(i):
@@ -287,15 +296,17 @@ const heapCodeConfig: CodeConfig = {
     mappings: {
       [TAGS.HEAPIFY_START]: [2, 3, 4],
       [TAGS.INSERT_START]: [7, 8, 9],
-      [TAGS.HEAPIFY_UP_COMPARE]: [24, 25, 26],
-      [TAGS.HEAPIFY_UP_SWAP]: [27, 28],
-      [TAGS.EXTRACT_START]: [11, 12],
-      [TAGS.EXTRACT_ONLY]: [13, 14, 15],
-      [TAGS.EXTRACT_SWAP_LAST]: [16],
-      [TAGS.EXTRACT_REMOVE]: [16, 17],
-      [TAGS.HEAPIFY_DOWN_COMPARE]: [33, 34, 35, 36, 37, 38, 39],
-      [TAGS.HEAPIFY_DOWN_SWAP]: [40, 41],
-      [TAGS.PEEK]: [20, 21],
+      [TAGS.HEAPIFY_UP_COMPARE]: [26, 27, 28],
+      [TAGS.HEAPIFY_UP_SWAP]: [29, 30],
+      [TAGS.EXTRACT_START]: [11, 12, 13],
+      [TAGS.EXTRACT_EMPTY]: [12],
+      [TAGS.EXTRACT_ONLY]: [14, 15, 16],
+      [TAGS.EXTRACT_SWAP_LAST]: [14, 17],
+      [TAGS.EXTRACT_REMOVE]: [17, 18],
+      [TAGS.HEAPIFY_DOWN_COMPARE]: [35, 36, 37, 38, 39, 40, 41],
+      [TAGS.HEAPIFY_DOWN_SWAP]: [42, 43],
+      [TAGS.PEEK]: [21, 22, 23],
+      [TAGS.PEEK_EMPTY]: [22],
     },
   },
   python: {
@@ -310,6 +321,7 @@ const heapCodeConfig: CodeConfig = {
         self._heapify_up(len(self.heap) - 1)
 
     def extract_extreme(self):
+        if not self.heap: raise IndexError("Heap Underflow")
         ext_val = self.heap[0]
         if len(self.heap) == 1:
             self.heap.pop()
@@ -319,6 +331,7 @@ const heapCodeConfig: CodeConfig = {
         return ext_val
 
     def peek(self):
+        if not self.heap: raise IndexError("Heap Underflow")
         return self.heap[0]
 
     def _heapify_up(self, i):
@@ -356,38 +369,40 @@ const heapCodeConfig: CodeConfig = {
       { lineNumber: 8,  complexity: 'O(1)'                       },  // self.heap.append — list.append is O(1) amortized
       { lineNumber: 9,  complexity: 'O(log n)'                   },  // self._heapify_up(...) — O(log n) bubble-up
       { lineNumber: 11, complexity: 'O(log n)'                   },  // def extract_extreme(self): — overall O(log n)
-      { lineNumber: 12, complexity: 'O(1)'                       },  // ext_val = self.heap[0] — O(1) index access
-      { lineNumber: 13, complexity: 'O(1)'                       },  // if len(self.heap) == 1:
-      { lineNumber: 14, complexity: 'O(1)'                       },  // self.heap.pop()
-      { lineNumber: 15, complexity: 'O(1)'                       },  // return ext_val
-      { lineNumber: 16, complexity: 'O(1)'                       },  // self.heap[0] = self.heap.pop() — O(1)
-      { lineNumber: 17, complexity: 'O(log n)'                   },  // self._heapify_down(0) — O(log n) sift-down
-      { lineNumber: 18, complexity: 'O(1)'                       },  // return ext_val
-      { lineNumber: 20, complexity: 'O(1)'                       },  // def peek(self):
-      { lineNumber: 21, complexity: 'O(1)'                       },  // return self.heap[0]
-      { lineNumber: 23, complexity: 'O(log n)'                   },  // def _heapify_up(self, i): — overall O(log n)
-      { lineNumber: 24, complexity: 'O(log n)'                   },  // while i > 0: — at most tree height iterations
-      { lineNumber: 25, complexity: 'O(1)', context: 'O(log n)'  },  // parent = (i - 1) // 2
-      { lineNumber: 26, complexity: 'O(1)', context: 'O(log n)'  },  // if self._has_priority(i, parent):
-      { lineNumber: 27, complexity: 'O(1)', context: 'O(log n)'  },  // swap with parent
-      { lineNumber: 28, complexity: 'O(1)', context: 'O(log n)'  },  // i = parent
-      { lineNumber: 29, complexity: 'O(1)', context: 'O(log n)'  },  // else:
-      { lineNumber: 30, complexity: 'O(1)', context: 'O(log n)'  },  // break
-      { lineNumber: 32, complexity: 'O(log n)'                   },  // def _heapify_down(self, i): — overall O(log n)
-      { lineNumber: 33, complexity: 'O(1)'                       },  // n = len(self.heap)
-      { lineNumber: 34, complexity: 'O(log n)'                   },  // while True: — at most tree height iterations
-      { lineNumber: 35, complexity: 'O(1)', context: 'O(log n)'  },  // target = i
-      { lineNumber: 36, complexity: 'O(1)', context: 'O(log n)'  },  // left, right = 2 * i + 1, 2 * i + 2
-      { lineNumber: 37, complexity: 'O(1)', context: 'O(log n)'  },  // if left < n and ...
-      { lineNumber: 38, complexity: 'O(1)', context: 'O(log n)'  },  // target = left
-      { lineNumber: 39, complexity: 'O(1)', context: 'O(log n)'  },  // if right < n and ...
-      { lineNumber: 40, complexity: 'O(1)', context: 'O(log n)'  },  // target = right
-      { lineNumber: 41, complexity: 'O(1)', context: 'O(log n)'  },  // if target == i:
-      { lineNumber: 42, complexity: 'O(1)', context: 'O(log n)'  },  // break
-      { lineNumber: 43, complexity: 'O(1)', context: 'O(log n)'  },  // swap with target
-      { lineNumber: 44, complexity: 'O(1)', context: 'O(log n)'  },  // i = target
-      { lineNumber: 46, complexity: 'O(1)'                       },  // def _has_priority(self, a, b):
-      { lineNumber: 47, complexity: 'O(1)'                       },  // return self.heap[a] < self.heap[b]
+      { lineNumber: 12, complexity: 'O(1)'                       },  // if not self.heap: raise IndexError
+      { lineNumber: 13, complexity: 'O(1)'                       },  // ext_val = self.heap[0] — O(1) index access
+      { lineNumber: 14, complexity: 'O(1)'                       },  // if len(self.heap) == 1:
+      { lineNumber: 15, complexity: 'O(1)'                       },  // self.heap.pop()
+      { lineNumber: 16, complexity: 'O(1)'                       },  // return ext_val
+      { lineNumber: 17, complexity: 'O(1)'                       },  // self.heap[0] = self.heap.pop() — O(1)
+      { lineNumber: 18, complexity: 'O(log n)'                   },  // self._heapify_down(0) — O(log n) sift-down
+      { lineNumber: 19, complexity: 'O(1)'                       },  // return ext_val
+      { lineNumber: 21, complexity: 'O(1)'                       },  // def peek(self):
+      { lineNumber: 22, complexity: 'O(1)'                       },  // if not self.heap: raise IndexError
+      { lineNumber: 23, complexity: 'O(1)'                       },  // return self.heap[0]
+      { lineNumber: 25, complexity: 'O(log n)'                   },  // def _heapify_up(self, i): — overall O(log n)
+      { lineNumber: 26, complexity: 'O(log n)'                   },  // while i > 0: — at most tree height iterations
+      { lineNumber: 27, complexity: 'O(1)', context: 'O(log n)'  },  // parent = (i - 1) // 2
+      { lineNumber: 28, complexity: 'O(1)', context: 'O(log n)'  },  // if self._has_priority(i, parent):
+      { lineNumber: 29, complexity: 'O(1)', context: 'O(log n)'  },  // swap with parent
+      { lineNumber: 30, complexity: 'O(1)', context: 'O(log n)'  },  // i = parent
+      { lineNumber: 31, complexity: 'O(1)', context: 'O(log n)'  },  // else:
+      { lineNumber: 32, complexity: 'O(1)', context: 'O(log n)'  },  // break
+      { lineNumber: 34, complexity: 'O(log n)'                   },  // def _heapify_down(self, i): — overall O(log n)
+      { lineNumber: 35, complexity: 'O(1)'                       },  // n = len(self.heap)
+      { lineNumber: 36, complexity: 'O(log n)'                   },  // while True: — at most tree height iterations
+      { lineNumber: 37, complexity: 'O(1)', context: 'O(log n)'  },  // target = i
+      { lineNumber: 38, complexity: 'O(1)', context: 'O(log n)'  },  // left, right = 2 * i + 1, 2 * i + 2
+      { lineNumber: 39, complexity: 'O(1)', context: 'O(log n)'  },  // if left < n and ...
+      { lineNumber: 40, complexity: 'O(1)', context: 'O(log n)'  },  // target = left
+      { lineNumber: 41, complexity: 'O(1)', context: 'O(log n)'  },  // if right < n and ...
+      { lineNumber: 42, complexity: 'O(1)', context: 'O(log n)'  },  // target = right
+      { lineNumber: 43, complexity: 'O(1)', context: 'O(log n)'  },  // if target == i:
+      { lineNumber: 44, complexity: 'O(1)', context: 'O(log n)'  },  // break
+      { lineNumber: 45, complexity: 'O(1)', context: 'O(log n)'  },  // swap with target
+      { lineNumber: 46, complexity: 'O(1)', context: 'O(log n)'  },  // i = target
+      { lineNumber: 48, complexity: 'O(1)'                       },  // def _has_priority(self, a, b):
+      { lineNumber: 49, complexity: 'O(1)'                       },  // return self.heap[a] < self.heap[b]
     ],
   },
 };
@@ -417,6 +432,7 @@ export const HeapConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createHeapAnimationSteps,
   statusConfig: HeapStatusConfig,
+  hasEmptyGuard: true,
   actionHandler: heapActionHandler,
   renderActionBar: (props) => <HeapActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [

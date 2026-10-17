@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@/shared/components/Button';
+import Tooltip from '@/shared/components/Tooltip';
 import styles from './Tabs.module.scss';
 
 export interface TabConfig {
@@ -7,6 +8,8 @@ export interface TabConfig {
   label: React.ReactNode;
   icon?: React.ReactNode;
   disabled?: boolean;
+  /** disabled 時 hover 顯示的原因提示 */
+  disabledHint?: string;
 }
 
 export interface TabListProps {
@@ -104,25 +107,32 @@ const TabList: React.FC<TabListProps> = ({
         ].filter(Boolean).join(' ');
 
         return (
-          <div
+          <Tooltip
             key={tab.key}
-            role="tab"
-            aria-selected={isActive}
-            aria-controls={`tabpanel-${tab.key}`}
-            aria-disabled={tab.disabled}
-            tabIndex={isActive ? 0 : -1}
+            content={tab.disabledHint}
+            placement="bottom"
+            disabled={!tab.disabled || !tab.disabledHint}
           >
-            <Button
-              variant="ghost"
-              className={tabClasses}
-              onClick={() => handleTabClick(tab.key, tab.disabled)}
-              disabled={tab.disabled}
-              aria-label={typeof tab.label === 'string' ? tab.label : undefined}
+            <div
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`tabpanel-${tab.key}`}
+              aria-disabled={tab.disabled}
+              tabIndex={isActive ? 0 : -1}
+              className={tab.disabled ? styles.tabDisabledWrapper : undefined}
             >
-              {tab.icon && <span className={styles.tabIcon}>{tab.icon}</span>}
-              <span className={styles.tabLabel}>{tab.label}</span>
-            </Button>
-          </div>
+              <Button
+                variant="ghost"
+                className={tabClasses}
+                onClick={() => handleTabClick(tab.key, tab.disabled)}
+                disabled={tab.disabled}
+                aria-label={typeof tab.label === 'string' ? tab.label : undefined}
+              >
+                {tab.icon && <span className={styles.tabIcon}>{tab.icon}</span>}
+                <span className={styles.tabLabel}>{tab.label}</span>
+              </Button>
+            </div>
+          </Tooltip>
         );
       })}
     </div>

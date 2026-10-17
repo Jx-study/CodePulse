@@ -109,7 +109,7 @@ export const codeConfig: CodeConfig = {
     mappings: {
       [TAGS.INSERT_HEAD_START]: [12, 14],
       [TAGS.INSERT_HEAD_CREATE]: [13],
-      [TAGS.INSERT_HEAD_LINK]: [18],
+      [TAGS.INSERT_HEAD_LINK]: [14, 18],
       [TAGS.INSERT_HEAD_LINK_PREV]: [19],
       [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [20],
       [TAGS.INSERT_HEAD_UPDATE_ISNULL]: [15],
@@ -117,6 +117,8 @@ export const codeConfig: CodeConfig = {
       [TAGS.INSERT_HEAD_END]: [22],
 
       [TAGS.INSERT_TAIL_START]: [24],
+
+      [TAGS.INSERT_TAIL_CHECK_HEAD]: [26],
       [TAGS.INSERT_TAIL_CREATE]: [25],
       [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [26],
       [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [27],
@@ -136,9 +138,9 @@ export const codeConfig: CodeConfig = {
       [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [52],
       [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [53],
       [TAGS.INSERT_INDEX_UPDATE_TAIL]: [54],
-      [TAGS.INSERT_INDEX_END]: [55],
+      [TAGS.INSERT_INDEX_END]: [54, 55],
 
-      [TAGS.DELETE_HEAD_START]: [57],
+      [TAGS.DELETE_HEAD_START]: [57, 58],
       [TAGS.DELETE_HEAD_CHECK]: [58],
       [TAGS.DELETE_HEAD_UPDATE_HEAD]: [59],
       [TAGS.DELETE_HEAD_UPDATE_PREV]: [60],

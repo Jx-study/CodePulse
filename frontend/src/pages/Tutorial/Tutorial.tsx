@@ -50,18 +50,10 @@ import {
   DEFAULT_STATUS_CONFIG,
 } from "@/types/statusConfig";
 import { useTranslation } from "react-i18next";
-import type { AnimationStep, StepDescription } from "@/types";
+import type { AnimationStep } from "@/types";
+import { renderDescription, showStepNotice } from "./stepNotice";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import type { CanvasPanelProps } from "@/types/canvasTypes";
-
-function renderDescription(
-  desc: string | StepDescription | undefined,
-  t: (key: string, params?: Record<string, unknown>) => string,
-): string {
-  if (!desc) return "";
-  if (typeof desc === "string") return desc;
-  return t(desc.key, desc.params);
-}
 
 // ==================== Canvas Panel Component ====================
 const CanvasPanel = ({
@@ -269,6 +261,10 @@ export const InspectorPanelInternal = ({
         label: tTutorial(config.title),
         icon: config.icon,
         disabled: disabledTabs.has(config.id),
+        disabledHint:
+          config.id === "actionBar"
+            ? tTutorial("actionBarBusyHint")
+            : undefined,
       }));
   }, [activePanels, disabledTabs, tTutorial]);
 
@@ -524,6 +520,9 @@ function TutorialContent() {
     const implementation = getImplementationByLevelId(levelId);
     return implementation;
   }, [levelId]);
+  const { t: tStructure } = useTranslation(
+    topicTypeConfig?.i18nNamespace ?? "animation",
+  );
 
   // 計算當前演算法的狀態顏色映射表（memoized）
   const currentStatusColorMap = useMemo(() => {
@@ -556,8 +555,8 @@ function TutorialContent() {
 
   const isAtLastStep =
     hasStartedAnimation &&
-    activeSteps.length > 1 &&
-    currentStep === activeSteps.length - 1;
+    currentStep === activeSteps.length - 1 &&
+    (activeSteps.length > 1 || !isPlaying);
 
   const showControls = hasStartedAnimation || showFeatureTour;
 
@@ -591,6 +590,11 @@ function TutorialContent() {
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
+
+  // guard 被觸發的步驟：與虛擬碼高亮同步 toast
+  useEffect(() => {
+    showStepNotice(currentStepData, tStructure);
+  }, [currentStepData]);
 
   // 根據 hasTailMode / listMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
@@ -752,7 +756,7 @@ function TutorialContent() {
     let overflow = false;
     if (maxNodes !== undefined) {
       const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
-      if (currentCount >= maxNodes && !topicTypeConfig?.animateOverflow) {
+      if (currentCount >= maxNodes && !topicTypeConfig?.hasCapacityGuard) {
         toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
         return;
       }
@@ -945,7 +949,11 @@ function TutorialContent() {
       return;
     }
 
-    if ((action === "delete" || action === "peek") && currentCount === 0) {
+    if (
+      (action === "delete" || action === "peek") &&
+      currentCount === 0 &&
+      !topicTypeConfig?.hasEmptyGuard
+    ) {
       toast.warning(tTutorial("toast.emptyDataOperation"));
       return;
     }

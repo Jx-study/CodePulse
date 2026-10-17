@@ -79,6 +79,14 @@ function createInsertTailHasTailSteps(
     local_vars: { value, "newNode.value": value },
   });
 
+  steps.push({
+    stepNumber: steps.length + 1,
+    description: { key: "animation.insert_tail_check_head" },
+    elements: [...s1OldElements, ...s1NewElement],
+    actionTag: TAGS.INSERT_TAIL_CHECK_HEAD,
+    local_vars: { head: oldNodesData[0].value ?? null },
+  });
+
   const s2OldElements = oldNodesData.flatMap((item, i) =>
     makeNodeAndPointers(
       item,
@@ -753,6 +761,26 @@ function createInsertTailSteps(
       isDoubly,
     );
   } else {
+    const checkHeadElements = oldNodesData.flatMap((item, idx) =>
+      makeNodeAndPointers(
+        item,
+        idx,
+        oldLen,
+        startX + idx * gap,
+        baseY,
+        hasTailMode,
+        Status.Unfinished,
+      ),
+    );
+    linkForVariant(checkHeadElements.filter(isNode), isDoubly);
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: { key: "animation.insert_tail_check_head" },
+      elements: checkHeadElements,
+      actionTag: TAGS.INSERT_TAIL_CHECK_HEAD,
+      local_vars: { head: oldNodesData[0].value ?? null },
+    });
+
     for (let i = 0; i < oldNodesData.length; i++) {
       const traverseElements = oldNodesData.flatMap((item, idx) => {
         let extra = undefined;
@@ -1710,6 +1738,28 @@ function createDeleteTailSteps(
     });
   }
 
+  if (!(isDoubly && hasTailMode && currentLen >= 1)) {
+    const checkHeadElements = [...dataList, deletedNodeData].flatMap((item, i) =>
+      makeNodeAndPointers(
+        item,
+        i,
+        originalLen,
+        startX + i * gap,
+        baseY,
+        hasTailMode,
+        Status.Unfinished,
+      ),
+    );
+    linkForVariant(checkHeadElements.filter(isNode), isDoubly);
+    addStep(steps, {
+      stepNumber: steps.length + 1,
+      description: { key: "animation.delete_tail_check_head" },
+      elements: checkHeadElements,
+      actionTag: TAGS.DELETE_TAIL_START,
+      local_vars: { head: dataList[0]?.value ?? deletedNodeData.value ?? null },
+    });
+  }
+
   if (isDoubly && hasTailMode && currentLen >= 1) {
     // 雙向鏈結串列且有 Tail：細分步驟，不再遍歷
     const preNodeData = dataList[currentLen - 1]; 
@@ -2481,6 +2531,17 @@ function createDeleteIndexSteps(
       );
     }
   }
+  if (type === "delete" && action?.emptyGuard) {
+    addStep(steps, {
+      stepNumber: 1,
+      description: { key: "animation.delete_empty" },
+      elements: [],
+      actionTag:
+        mode === "Tail" ? TAGS.DELETE_TAIL_START : TAGS.DELETE_HEAD_CHECK,
+      warn: true,
+    });
+    return steps;
+  }
   if (type === "delete") {
     const deletedNodeData = { id: targetId || "temp-del", value: value };
     const N = actionIndex !== undefined ? actionIndex : -1;
@@ -2518,18 +2579,25 @@ function createDeleteIndexSteps(
       );
       addStep(steps, {
         stepNumber: 1,
+        description: { key: "animation.delete_tail_check_head" },
+        elements: s1DelElement,
+        actionTag: TAGS.DELETE_TAIL_START,
+        local_vars: { head: deletedNodeData.value ?? null },
+      });
+      addStep(steps, {
+        stepNumber: 2,
         description: { key: "animation.delete_single_start" },
         elements: s1DelElement,
         actionTag: TAGS.DELETE_TAIL_ISNEXTNULL,
       });
       addStep(steps, {
-        stepNumber: 2,
+        stepNumber: 3,
         description: { key: hasTailMode ? "animation.delete_single_remove_with_tail" : "animation.delete_single_remove" },
         elements: [],
         actionTag: TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE,
       });
       addStep(steps, {
-        stepNumber: 3,
+        stepNumber: 4,
         description: { key: "animation.delete_single_complete" },
         elements: [],
         actionTag: TAGS.DELETE_TAIL_END,
