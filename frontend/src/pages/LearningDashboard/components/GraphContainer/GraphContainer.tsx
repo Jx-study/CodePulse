@@ -5,6 +5,7 @@ import {
   calculateGraphNodePosition,
   calculateContentBounds,
 } from './utils/positionCalculator';
+import { getFocusLevelIndex } from './utils/focusLevel';
 import { getLayoutConfig } from './utils/layoutConfig';
 import { useZoom } from '@/shared/hooks/useZoom';
 import { useDrag } from '@/shared/hooks/useDrag';
@@ -13,7 +14,13 @@ import { useZoomDisable } from '@/pages/LearningDashboard/context/ZoomDisableCon
 import type { GraphContainerProps } from '@/types';
 
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見
-function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
+function GraphContainer({
+  levels,
+  userProgress,
+  focusLevelId,
+  isProgressReady = true,
+  children,
+}: GraphContainerProps) {
   const { isZoomDisabled: isContextDisabled } = useZoomDisable();
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const isZoomDisabled = isContextDisabled || isOverlayOpen;
@@ -85,14 +92,11 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     },
   });
 
-  // 找到當前進度的關卡（第一個未完成的關卡）
-  const currentLevelIndex = useMemo(() => {
-    const index = levels.findIndex((level) => {
-      const progress = userProgress.levels[level.id];
-      return !progress || !progress.completedAt;
-    });
-    return index !== -1 ? index : levels.length - 1; // 如果都完成了，定位到最後一關
-  }, [levels, userProgress]);
+  // 初始鏡頭對準建議節點
+  const currentLevelIndex = useMemo(
+    () => getFocusLevelIndex(levels, userProgress, focusLevelId),
+    [levels, userProgress, focusLevelId],
+  );
 
   // 偵測外部 overlay（Dialog/Sidebar）開啟，阻止 wheel/drag 事件穿透
   useEffect(() => {
@@ -142,9 +146,9 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowWidth, calculateScrollBounds]);
 
-  // 初始化：自動定位到當前進度關卡
+  // 初始化：進度載入後定位到建議節點，只做一次（換分類時由父層重新掛載）
   useEffect(() => {
-    if (isInitialized || !drag.containerRef.current || levels.length === 0) return;
+    if (isInitialized || !isProgressReady || !drag.containerRef.current || levels.length === 0) return;
 
     const containerHeight = drag.containerRef.current.clientHeight;
     const currentLevel = levels[currentLevelIndex];
@@ -176,7 +180,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
       drag.setOffset({ x: 0, y: initialScrollY });
       setIsInitialized(true);
     }
-  }, [isInitialized, levels, currentLevelIndex, zoomLevel, drag, calculateScrollBounds]);
+  }, [isInitialized, isProgressReady, levels, currentLevelIndex, zoomLevel, drag, calculateScrollBounds]);
 
   // ==================== 渲染 ====================
 

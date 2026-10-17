@@ -80,10 +80,14 @@ function LearningDashboardInner() {
     tRef.current = t;
   }, [t]);
 
+  // 鏡頭要等進度到了才定位，否則建議節點還沒算出來
+  const [isProgressReady, setIsProgressReady] = useState(false);
+
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
       setUserProgress(INITIAL_USER_PROGRESS);
+      setIsProgressReady(true);
       return;
     }
     fetchMyProgress()
@@ -92,6 +96,9 @@ function LearningDashboardInner() {
       })
       .catch(() => {
         toast.error(tRef.current('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
+      })
+      .finally(() => {
+        setIsProgressReady(true);
       });
   }, [isLoading, isAuthenticated, location.key]);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
@@ -302,7 +309,14 @@ function LearningDashboardInner() {
       />
 
       {/* 全屏垂直關卡地圖 */}
-      <GraphContainer levels={filteredLevels} userProgress={userProgress}>
+      {/* 換分類時重新掛載，鏡頭才會重新定位 */}
+      <GraphContainer
+        key={activeCategory}
+        levels={filteredLevels}
+        userProgress={userProgress}
+        focusLevelId={recommendedLevelId}
+        isProgressReady={isProgressReady}
+      >
         {(level, _index, position, containerWidth) => {
           // 根據 prerequisites 繪製連線
           const prereqIds = level.prerequisites?.levelIds || [];

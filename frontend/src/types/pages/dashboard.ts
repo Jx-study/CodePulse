@@ -183,6 +183,8 @@ export interface LayoutConfig {
 export interface GraphContainerProps {
   levels: Level[]; // 當前 Graph 的關卡清單
   userProgress: UserProgress; // 使用者進度
+  focusLevelId?: string | null; // 初始鏡頭對準的關卡（建議節點）
+  isProgressReady?: boolean; // 進度載入完成前不定位鏡頭
   children: (
     level: Level,
     index: number,
