@@ -55,6 +55,8 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: e.local_vars.isMinHeap ? "animation.peek_min" : "animation.peek_max",
     params: { extVal: e.local_vars.extVal },
   }),
+  [TAGS.EXTRACT_EMPTY]: () => ({ key: "animation.extract_empty" }),
+  [TAGS.PEEK_EMPTY]: () => ({ key: "animation.peek_empty" }),
   [TAGS.HEAPIFY_START]: (e) => ({
     key: "animation.heapify_start",
     params: { length: e.local_vars.length, heapName: e.local_vars.heapName },
@@ -101,6 +103,7 @@ export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      warn: event.tag === TAGS.EXTRACT_EMPTY || event.tag === TAGS.PEEK_EMPTY,
       local_vars: event.local_vars,
       elements,
     };

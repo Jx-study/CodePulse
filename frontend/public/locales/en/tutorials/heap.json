@@ -1,7 +1,4 @@
 {
-  "actionHandler": {
-    "heapEmpty": "The heap is empty, so this operation is not available"
-  },
   "animation": {
     "init": "Initialize {{heapName}}",
     "insert_start": "Add value {{value}} to the end of the array (index: {{index}})",
@@ -19,7 +16,9 @@
     "peek_min": "Peek minimum value: {{extVal}}",
     "peek_max": "Peek maximum value: {{extVal}}",
     "heapify_start": "Start Bottom-Up Heapify ({{length}} nodes total), Target: {{heapName}}",
-    "done": "{{heapName}} operation complete"
+    "done": "{{heapName}} operation complete",
+    "extract_empty": "The heap is empty, so there is nothing to extract (Return Error)",
+    "peek_empty": "The heap is empty, so there is nothing to peek at (Return Error)"
   },
   "ui": {
     "notHeap": "Not a Heap",

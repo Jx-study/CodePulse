@@ -958,7 +958,11 @@ function TutorialContent() {
       return;
     }
 
-    if ((action === "delete" || action === "peek") && currentCount === 0) {
+    if (
+      (action === "delete" || action === "peek") &&
+      currentCount === 0 &&
+      !topicTypeConfig?.hasEmptyGuard
+    ) {
       toast.warning(tTutorial("toast.emptyDataOperation"));
       return;
     }

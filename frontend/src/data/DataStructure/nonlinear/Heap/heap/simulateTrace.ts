@@ -12,6 +12,7 @@ export interface HeapAction {
   heapType?: string;
   value?: number;
   targetId?: string;
+  empty?: boolean;
 }
 
 export function simulateHeapTrace(
@@ -41,6 +42,16 @@ export function simulateHeapTrace(
       local_vars: { heapName },
       dataSnapshot: getSnapshot(),
       meta: { isInitial: true, status: defaultNodeStatus },
+    });
+    return trace;
+  }
+
+  if (action.empty) {
+    trace.push({
+      tag: action.heapType === "peek" ? TAGS.PEEK_EMPTY : TAGS.EXTRACT_EMPTY,
+      local_vars: { isMinHeap },
+      dataSnapshot: getSnapshot(),
+      meta: { status: defaultNodeStatus },
     });
     return trace;
   }

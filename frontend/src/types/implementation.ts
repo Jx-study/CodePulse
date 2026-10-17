@@ -171,6 +171,8 @@ export interface LevelImplementationConfig {
   maxNodes?: number;
   /** 偽代碼是否有容量檢查：有的話達到 maxNodes 仍會播放步驟（亮起檢查行並 toast），否則直接 toast 擋下。 */
   hasCapacityGuard?: boolean;
+  /** 偽代碼自己處理空資料（有空檢查，或空資料時走原本的找不到流程）：delete／peek 空資料仍會播放步驟，不被通用 toast 攔下。 */
+  hasEmptyGuard?: boolean;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
   /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */

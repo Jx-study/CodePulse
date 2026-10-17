@@ -337,6 +337,7 @@ export const TrieConfig: LevelImplementationConfig = {
   defaultData: ["app", "apple", "cat"], // 預設資料即為字串陣列
   createAnimationSteps: createTrieAnimationSteps,
   statusConfig: TrieStatusConfig,
+  hasEmptyGuard: true,
   actionHandler: trieActionHandler,
   renderActionBar: (props) => <TrieActionBar {...(props as DSActionBarProps)} />,
   maxNodes: TRIE_MAX_WORDS,
