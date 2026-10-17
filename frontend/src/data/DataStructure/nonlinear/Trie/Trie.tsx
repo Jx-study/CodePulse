@@ -264,7 +264,7 @@ Class Trie:
       [TAGS.DELETE_CHAR_MATCH]: [24, 25, 27],
       [TAGS.DELETE_NOT_FOUND]: [25, 26],
       [TAGS.DELETE_NOT_WORD]: [28, 29],
-      [TAGS.DELETE_UNMARK]: [30],
+      [TAGS.DELETE_UNMARK]: [28, 30],
       [TAGS.DELETE_PRUNE]: [31, 32, 33],
     },
   },
