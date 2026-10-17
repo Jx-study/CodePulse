@@ -15,6 +15,7 @@ export interface LinearAction {
   targetId?: string;
   oldValue?: number;
   overflow?: boolean;
+  capacity?: number;
   invalid?: boolean;
   emptyGuard?: boolean;
   requestedIndex?: number;

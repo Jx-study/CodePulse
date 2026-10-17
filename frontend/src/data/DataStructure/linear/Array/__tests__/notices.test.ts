@@ -30,4 +30,37 @@ describe("array toast levels", () => {
 
     expect(array.warning).toHaveBeenCalledWith("animation.delete_error");
   });
+
+  describe("full array", () => {
+    const full = Array.from({ length: ArrayConfig.maxNodes! }, (_, i) => ({
+      id: `box-${i}`,
+      value: i,
+    }));
+
+    it("inserting shows the capacity error as a warning and changes nothing", () => {
+      const array = mountStructure(ArrayConfig, {}, full);
+
+      const steps = array.add(7, "Insert", 0);
+
+      expect(array.warning).toHaveBeenCalledWith("animation.insert_error");
+      expect(steps.every((s) => s.elements.length === full.length)).toBe(true);
+    });
+
+    it("updating a full array still works", () => {
+      const array = mountStructure(ArrayConfig, {}, full);
+
+      array.add(7, "Update", 0);
+
+      expect(array.warning).not.toHaveBeenCalled();
+    });
+
+    it("inserting with space left lights the capacity check", () => {
+      const array = mountStructure(ArrayConfig);
+
+      const steps = array.add(7, "Insert", 0);
+
+      expect(steps[0].actionTag).toBe("INSERT_CHECK_FULL");
+      expect(array.warning).not.toHaveBeenCalled();
+    });
+  });
 });

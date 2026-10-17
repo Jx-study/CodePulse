@@ -76,6 +76,8 @@
     "update_complete": "更新完成",
     "update_check_index": "檢查 Index {{index}} 是否在範圍內 (長度 {{length}})",
     "update_error": "錯誤：Index {{index}} 超出範圍",
+    "insert_check_full": "檢查陣列是否已滿：目前長度 {{length}}，容量 {{capacity}}",
+    "insert_error": "陣列已滿（{{length}}/{{capacity}}），無法再插入（Return Error）",
     "insert_check_index": "檢查 Index {{index}} 是否超過目前長度 {{length}}",
     "insert_clamp": "Index {{index}} 超過長度 {{length}}，改為插入在尾端 Index {{clamped}}",
     "insert_start": "在陣列尾端擴充一個空間",

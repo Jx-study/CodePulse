@@ -76,6 +76,8 @@
     "update_complete": "Update complete",
     "update_check_index": "Check if Index {{index}} is in range (length {{length}})",
     "update_error": "Error: Index {{index}} out of range",
+    "insert_check_full": "Check whether the array is full: length {{length}}, capacity {{capacity}}",
+    "insert_error": "The array is full ({{length}}/{{capacity}}), so nothing can be inserted (Return Error)",
     "insert_check_index": "Check whether Index {{index}} exceeds the current length {{length}}",
     "insert_clamp": "Index {{index}} exceeds length {{length}}, so insert at the end (Index {{clamped}}) instead",
     "insert_start": "Expand array by one slot at the end",
