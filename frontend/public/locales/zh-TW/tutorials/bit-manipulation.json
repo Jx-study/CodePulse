@@ -187,6 +187,7 @@
     "random": "隨機",
     "reset": "重設",
     "invalidNumber": "請輸入 0 ~ 255 之間的整數",
+    "shiftCapped": "位移超過 {{max}} 位元會把所有位元移出，位移量已調整為 {{max}}",
     "invalidItems": "請輸入 1 ~ 5 個以逗號分隔、介於 1 ~ 99 的整數，並填寫目標總和"
   },
   "statusLegend": {

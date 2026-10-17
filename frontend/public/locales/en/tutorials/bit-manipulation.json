@@ -187,6 +187,7 @@
     "random": "Random",
     "reset": "Reset",
     "invalidNumber": "Please enter an integer between 0 and 255",
+    "shiftCapped": "Shifting by more than {{max}} bits pushes every bit out, so the shift amount was set to {{max}}",
     "invalidItems": "Please enter 1 – 5 comma-separated integers between 1 and 99, and a target sum"
   },
   "statusLegend": {

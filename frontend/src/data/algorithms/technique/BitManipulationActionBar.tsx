@@ -142,11 +142,13 @@ export const BitManipulationActionBar: React.FC<AlgoActionBarProps> = ({
     if (currentMode === "bit_ops") {
       const b = parseInt(inputs.b, 10);
       if (isNaN(a) || (inputs.op !== "NOT" && isNaN(b))) return invalid("ui.invalidNumber");
+      const shiftTooLarge = isShift(inputs.op) && b > BIT_WIDTH;
+      if (shiftTooLarge) toast.info(t("ui.shiftCapped", { max: BIT_WIDTH }));
       onRun({
         type: "bitManipulation",
         mode: currentMode,
         a,
-        b: isNaN(b) ? 0 : isShift(inputs.op) ? Math.min(b, BIT_WIDTH) : b,
+        b: isNaN(b) ? 0 : shiftTooLarge ? BIT_WIDTH : b,
         op: inputs.op,
       });
       return;

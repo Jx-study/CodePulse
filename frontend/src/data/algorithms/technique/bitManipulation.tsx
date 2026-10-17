@@ -5,15 +5,11 @@ import type {
   ActionResult,
 } from "@/modules/core/visualization/types";
 import { cloneData } from "@/modules/core/visualization/visualizationUtils";
-import { DATA_LIMITS } from "@/constants/dataLimits";
 import { BitManipulationActionBar } from "./BitManipulationActionBar";
 import {
   simulateBitManipulationTrace,
-  MAX_BIT_VALUE,
   type BitManipulationData,
   type BitManipulationMode,
-  type BitOp,
-  type SingleBitOp,
 } from "./bitManipulation/simulateTrace";
 import { bitManipulationTraceToSteps } from "./bitManipulation/traceToSteps";
 import { TAGS, BitManipulationStatusConfig } from "./bitManipulation/tags";
@@ -27,42 +23,18 @@ const MODES: BitManipulationMode[] = [
   "count_bits",
   "subsets",
 ];
-const OPS: BitOp[] = ["AND", "OR", "XOR", "NOT", "SHL", "SHR"];
-const SINGLE_OPS: SingleBitOp[] = ["SET", "TEST", "CLEAR", "TOGGLE"];
-
-const clampInt = (raw: unknown, min: number, max: number, fallback: number) => {
-  const num = Math.trunc(Number(raw));
-  if (!Number.isFinite(num)) return fallback;
-  return Math.min(Math.max(num, min), max);
-};
 
 const toMode = (raw: unknown, fallback: BitManipulationMode): BitManipulationMode =>
   MODES.includes(raw as BitManipulationMode) ? (raw as BitManipulationMode) : fallback;
 
-function sanitize(payload: Record<string, unknown>, data: BitManipulationData): BitManipulationData {
-  const rawItems = Array.isArray(payload.items) ? payload.items : data.items;
-  const items = rawItems
-    .map((v) => clampInt(v, DATA_LIMITS.MIN_SUBSET_ITEM, DATA_LIMITS.MAX_SUBSET_ITEM, NaN))
-    .filter((v) => !Number.isNaN(v))
-    .slice(0, DATA_LIMITS.MAX_SUBSET_ITEMS);
-  return {
-    mode: toMode(payload.mode, data.mode),
-    a: clampInt(payload.a ?? data.a, 0, MAX_BIT_VALUE, data.a),
-    b: clampInt(payload.b ?? data.b, 0, MAX_BIT_VALUE, data.b),
-    op: OPS.includes(payload.op as BitOp) ? (payload.op as BitOp) : data.op,
-    k: clampInt(payload.k ?? data.k, 0, 7, data.k),
-    singleOp: SINGLE_OPS.includes(payload.singleOp as SingleBitOp)
-      ? (payload.singleOp as SingleBitOp)
-      : data.singleOp,
-    n: clampInt(payload.n ?? data.n, 0, MAX_BIT_VALUE, data.n),
-    items: items.length > 0 ? items : data.items,
-    target: clampInt(
-      payload.target ?? data.target,
-      0,
-      DATA_LIMITS.MAX_SUBSET_ITEM * DATA_LIMITS.MAX_SUBSET_ITEMS,
-      data.target,
-    ),
-  };
+const INPUT_KEYS = ["a", "b", "op", "k", "singleOp", "n", "items", "target"] as const;
+
+function mergeInputs(payload: Record<string, unknown>, data: BitManipulationData): BitManipulationData {
+  const merged = { ...data, mode: toMode(payload.mode, data.mode) };
+  INPUT_KEYS.forEach((key) => {
+    if (payload[key] !== undefined) Object.assign(merged, { [key]: payload[key] });
+  });
+  return merged;
 }
 
 function bitManipulationActionHandler(
@@ -72,7 +44,7 @@ function bitManipulationActionHandler(
   context: ActionContext,
 ): ActionResult<BitManipulationData> | null {
   if (actionType === "run" || actionType === "random") {
-    return { animationData: sanitize(payload, data), isResetAction: true };
+    return { animationData: mergeInputs(payload, data), isResetAction: true };
   }
 
   // 模式存在資料裡，切換時只換模式、保留各模式上次的輸入
@@ -254,11 +226,11 @@ const countBitsCodeConfig: CodeConfig = {
   count ← 0
   While n ≠ 0:
     m ← n - 1
-    n ← n & m
+    n ← n AND m
     count ← count + 1
   End While
   isPowerOfTwo ← (count = 1)
-  Return count
+  Return count, isPowerOfTwo
 End Procedure`,
     mappings: {
       [TAGS.COUNT_INIT]: [2],
@@ -273,20 +245,16 @@ End Procedure`,
     while n:
         n &= n - 1
         count += 1
-    return count
-
-
-def is_power_of_two(n):
-    return n > 0 and n & (n - 1) == 0`,
+    is_power_of_two = count == 1
+    return count, is_power_of_two`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(n)' },                  // def count_bits(n): (迴圈次數 = 1 的個數)
       { lineNumber: 2,  complexity: 'O(1)' },                  // count = 0
       { lineNumber: 3,  complexity: 'O(n)' },                  // while n:
       { lineNumber: 4,  complexity: 'O(1)', context: 'O(n)' }, // n &= n - 1
       { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)' }, // count += 1
-      { lineNumber: 6,  complexity: 'O(1)' },                  // return count
-      { lineNumber: 9,  complexity: 'O(1)' },                  // def is_power_of_two(n):
-      { lineNumber: 10, complexity: 'O(1)' },                  // return n > 0 and n & (n - 1) == 0
+      { lineNumber: 6,  complexity: 'O(1)' },                  // is_power_of_two = count == 1
+      { lineNumber: 7,  complexity: 'O(1)' },                  // return count, is_power_of_two
     ],
   },
 };
