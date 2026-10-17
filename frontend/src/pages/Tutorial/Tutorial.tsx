@@ -563,8 +563,8 @@ function TutorialContent() {
 
   const isAtLastStep =
     hasStartedAnimation &&
-    activeSteps.length > 1 &&
-    currentStep === activeSteps.length - 1;
+    currentStep === activeSteps.length - 1 &&
+    (activeSteps.length > 1 || !isPlaying);
 
   const showControls = hasStartedAnimation || showFeatureTour;
 
