@@ -6,7 +6,6 @@
 $ring-teach: #3b82f6;
 $ring-practice: $success-color;
 $node-core-bg: $dark-bg-tertiary;
-$node-core-bg-dim: $dark-bg-secondary;
 $ring-track-locked: $dark-border;
 $ring-lock-border: #8a85a3;
 $undeveloped-border: #4b4663;
@@ -46,10 +45,6 @@ $undeveloped-icon: #7a7596;
 
 .completed .core {
   background: color.mix($ring-practice, $node-core-bg, 22%);
-}
-
-.practiceLocked:not(.boss) .core {
-  background: $node-core-bg-dim;
 }
 
 // ==================== 外環 ====================
@@ -157,10 +152,11 @@ $undeveloped-icon: #7a7596;
   .ringLock { right: -1.375rem; }
   .starsContainer { top: -4.75rem; }
 
+  // 白字不壓在分類色上，分類色只用在邊框和 BOSS chip 的暗底
   .levelTooltip {
     top: calc(100% + 2.125rem);
-    background: var(--boss-color);
-    border-color: color-mix(in srgb, var(--boss-color) 60%, $white-color);
+    background: $dark-bg-primary;
+    border: 2px solid var(--boss-color);
     color: $white-color;
     font-weight: 800;
     box-shadow: 0 0 0.875rem color-mix(in srgb, var(--boss-color) 55%, transparent);
@@ -240,7 +236,7 @@ $undeveloped-icon: #7a7596;
   letter-spacing: 0.1em;
   padding: 0 0.3125rem;
   border-radius: $radius-sm;
-  background: rgba($black-color, 0.3);
+  background: color-mix(in srgb, var(--boss-color) 35%, $dark-bg-primary);
 }
 
 // ==================== 星星（練習成績，維持原本的上方弧形） ====================
