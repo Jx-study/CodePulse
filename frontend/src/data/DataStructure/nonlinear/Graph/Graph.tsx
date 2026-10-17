@@ -59,10 +59,6 @@ function graphActionHandler(
   if (actionType === "addVertex") {
     const val = payload.value ? String(payload.value) : `node-${nodes.length}`;
     const id = `node-${val}`;
-    if (!val || val.trim() === "") {
-      context.toast.warning(tt("toast.requireNodeId"));
-      return null;
-    }
     if (nodes.find((n) => n.id === id)) {
       return guardResult(TAGS.ADD_VERTEX_DUPLICATE, { value: val });
     }
@@ -77,10 +73,6 @@ function graphActionHandler(
   if (actionType === "removeVertex") {
     const targetVal = String(payload.id ?? "");
     const targetIdVal = `node-${targetVal}`;
-    if (!targetVal || targetVal.trim() === "") {
-      context.toast.warning(tt("toast.requireNodeId"));
-      return null;
-    }
     const idx = nodes.findIndex((n) => n.id === targetIdVal);
     if (idx === -1) {
       return guardResult(TAGS.REMOVE_VERTEX_MISSING, { id: targetVal });
@@ -174,23 +166,6 @@ function graphActionHandler(
       "checkCycle",
     ].includes(actionType)
   ) {
-    if (
-      (actionType === "getNeighbors" || actionType === "getDegree") &&
-      (!payload.id || String(payload.id).trim() === "")
-    ) {
-      context.toast.warning(tt("toast.requireNodeId"));
-      return null;
-    }
-    if (
-      actionType === "checkAdjacent" &&
-      (!payload.source ||
-        String(payload.source).trim() === "" ||
-        !payload.target ||
-        String(payload.target).trim() === "")
-    ) {
-      context.toast.warning(tt("toast.requireSourceAndTarget"));
-      return null;
-    }
     if (
       (actionType === "getNeighbors" || actionType === "getDegree") &&
       !hasNode(payload.id)

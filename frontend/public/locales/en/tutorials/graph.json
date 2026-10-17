@@ -239,8 +239,6 @@
     ]
   },
   "toast": {
-    "requireNodeId": "Please enter a node ID",
-    "requireSourceAndTarget": "Please enter both source and destination node IDs",
     "emptyGraph": "The graph is empty"
   }
 }

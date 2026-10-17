@@ -239,8 +239,6 @@
     ]
   },
   "toast": {
-    "requireNodeId": "請輸入節點 ID",
-    "requireSourceAndTarget": "請輸入來源與目標節點 ID",
     "emptyGraph": "圖形為空"
   }
 }
