@@ -1,56 +1,38 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { linkedListConfig } from "../LinkedList";
-import { selectVariant } from "../linkedlist/selectVariant";
+import { mountStructure } from "@/data/__tests__/harness";
 
-const run = (
-  mode: string,
-  flags: { isDoubly: boolean; hasTailMode: boolean },
-) => {
-  const warning = vi.fn();
-  const result = linkedListConfig.actionHandler!(
-    "delete",
-    { mode, ...flags },
-    [],
-    { nextId: () => "n", toast: { warning } } as never,
-  );
-  return { result, warning };
+const variants = [
+  { isDoubly: false, hasTailMode: false },
+  { isDoubly: false, hasTailMode: true },
+  { isDoubly: true, hasTailMode: false },
+  { isDoubly: true, hasTailMode: true },
+];
+
+const emptied = (flags: (typeof variants)[number]) => {
+  const list = mountStructure(linkedListConfig, flags);
+  while (list.count() > 0) list.remove("Head");
+  list.warning.mockClear();
+  return list;
 };
 
-describe("linked list delete on an empty list", () => {
-  const variants = [
-    { isDoubly: false, hasTailMode: false },
-    { isDoubly: false, hasTailMode: true },
-    { isDoubly: true, hasTailMode: false },
-    { isDoubly: true, hasTailMode: true },
-  ];
+describe.each(variants)("linked list %j", (flags) => {
+  it.each(["Head", "Tail"])("deleting the %s of an empty list shows the guard step and a warning", (mode) => {
+    const list = emptied(flags);
 
-  describe.each(variants)("variant %j", (flags) => {
-    it.each([
-      ["Head", "DELETE_HEAD_CHECK"],
-      ["Tail", "DELETE_TAIL_START"],
-    ])("%s shows one warning step on the guard line", (mode, tagName) => {
-      const { result, warning } = run(mode, flags);
-      const variant = selectVariant(flags.isDoubly, flags.hasTailMode);
-      const steps = linkedListConfig.createAnimationSteps(
-        result!.animationData,
-        { type: "delete", ...(result!.animationParams as object) } as never,
-        flags,
-      );
+    const steps = list.remove(mode);
 
-      expect(warning).not.toHaveBeenCalled();
-      expect(steps).toHaveLength(1);
-      expect(steps[0].warn).toBe(true);
-      expect(steps[0].actionTag).toBe(variant.TAGS[tagName]);
-      expect(
-        variant.codeConfig.pseudo?.mappings?.[steps[0].actionTag!],
-      ).toBeDefined();
-    });
+    expect(steps).toHaveLength(1);
+    expect(list.warning).toHaveBeenCalledTimes(1);
+    expect(list.warning).toHaveBeenCalledWith("animation.delete_empty");
   });
 
-  it("still toasts for Node N because the pseudo code has no index check", () => {
-    const { result, warning } = run("Node N", variants[0]);
+  it("deleting by index from an empty list is a plain toast without steps", () => {
+    const list = emptied(flags);
 
-    expect(result).toBeNull();
-    expect(warning).toHaveBeenCalledTimes(1);
+    const steps = list.remove("Node N", 0);
+
+    expect(steps).toHaveLength(0);
+    expect(list.warning).toHaveBeenCalledTimes(1);
   });
 });

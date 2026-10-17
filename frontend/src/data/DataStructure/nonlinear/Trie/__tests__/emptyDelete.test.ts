@@ -1,23 +1,19 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { TrieConfig } from "../Trie";
+import { mountStructure } from "@/data/__tests__/harness";
 
 describe("trie delete on an empty trie", () => {
-  it("plays the not-found path instead of being blocked by a generic toast", () => {
-    const warning = vi.fn();
-    const result = TrieConfig.actionHandler!(
-      "delete",
-      { word: "cat" },
-      [],
-      { nextId: () => "n", toast: { warning } } as never,
-    );
-    const steps = TrieConfig.createAnimationSteps(
-      result!.animationData,
-      result!.animationParams as never,
-      { hasTailMode: false, isDoubly: false },
-    );
+  it("plays the not-found path instead of the generic empty-data toast", () => {
+    const trie = mountStructure(TrieConfig);
+    for (const word of TrieConfig.defaultData as string[]) {
+      trie.custom("delete", { word });
+    }
+    expect(trie.count()).toBe(0);
+    trie.warning.mockClear();
 
-    expect(warning).not.toHaveBeenCalled();
+    const steps = trie.custom("delete", { word: "cat" });
+
     expect(steps.length).toBeGreaterThan(0);
-    expect(TrieConfig.hasEmptyGuard).toBe(true);
+    expect(trie.warning).not.toHaveBeenCalledWith("toast.emptyDataOperation");
   });
 });

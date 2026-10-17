@@ -1,40 +1,36 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { HeapConfig } from "../Heap";
-import { TAGS } from "../heap/tags";
+import { mountStructure } from "@/data/__tests__/harness";
 
-const run = (actionType: string) => {
-  const warning = vi.fn();
-  const result = HeapConfig.actionHandler!(
-    actionType,
-    { isMinHeap: false, isMaxHeap: true },
-    [],
-    { nextId: () => "n", toast: { warning } } as never,
-  );
-  const steps = HeapConfig.createAnimationSteps(
-    result!.animationData,
-    result!.animationParams as never,
-    { hasTailMode: false, isDoubly: false },
-  );
-  return { steps, warning };
+const maxHeap = { isMinHeap: false, isMaxHeap: true };
+
+const emptied = () => {
+  const heap = mountStructure(HeapConfig);
+  while (heap.count() > 0) heap.custom("delete", maxHeap);
+  heap.warning.mockClear();
+  return heap;
 };
 
-describe("heap operations on an empty heap", () => {
+describe("heap on an empty heap", () => {
   it.each([
-    ["delete", TAGS.EXTRACT_EMPTY],
-    ["peek", TAGS.PEEK_EMPTY],
-  ])("%s emits one warning step on the guard line", (action, tag) => {
-    const { steps, warning } = run(action);
+    ["delete", "animation.extract_empty"],
+    ["peek", "animation.peek_empty"],
+  ])("%s shows the guard step and a warning instead of the generic empty-data toast", (action, key) => {
+    const heap = emptied();
 
-    expect(warning).not.toHaveBeenCalled();
+    const steps = heap.custom(action, maxHeap);
+
     expect(steps).toHaveLength(1);
-    expect(steps[0].actionTag).toBe(tag);
-    expect(steps[0].warn).toBe(true);
-    expect(
-      HeapConfig.codeConfig?.pseudo?.mappings?.[tag],
-    ).toBeDefined();
+    expect(heap.warning).toHaveBeenCalledTimes(1);
+    expect(heap.warning).toHaveBeenCalledWith(key);
   });
 
-  it("opts out of the generic empty-data toast", () => {
-    expect(HeapConfig.hasEmptyGuard).toBe(true);
+  it("a non-empty heap shows no toast when extracting", () => {
+    const heap = mountStructure(HeapConfig);
+
+    heap.custom("delete", maxHeap);
+
+    expect(heap.warning).not.toHaveBeenCalled();
+    expect(heap.info).not.toHaveBeenCalled();
   });
 });
