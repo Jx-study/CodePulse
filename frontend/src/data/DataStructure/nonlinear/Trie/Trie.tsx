@@ -292,7 +292,24 @@ class Trie:
             if char not in curr.children:
                 return False
             curr = curr.children[char]
-        return True if is_prefix else curr.is_end_of_word`,
+        return True if is_prefix else curr.is_end_of_word
+
+    def delete(self, word: str) -> bool:
+        curr = self.root
+        path = []
+        for char in word:
+            if char not in curr.children:
+                return False
+            path.append((curr, char))
+            curr = curr.children[char]
+        if not curr.is_end_of_word:
+            return False
+        curr.is_end_of_word = False
+        while path and not curr.children and not curr.is_end_of_word:
+            parent, char = path.pop()
+            del parent.children[char]
+            curr = parent
+        return True`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(1)'                  },  // class TrieNode:
       { lineNumber: 2,  complexity: 'O(1)'                  },  // def __init__(self):
@@ -315,6 +332,22 @@ class Trie:
       { lineNumber: 22, complexity: 'O(1)' },  // return False — inside loop, O(1) × n
       { lineNumber: 23, complexity: 'O(1)', context: 'O(n)' },  // curr = curr.children[char] — O(1) × n
       { lineNumber: 24, complexity: 'O(1)'                  },  // return ... — outside loop
+      { lineNumber: 26, complexity: 'O(n)' },  // def delete(self, word: str): — overall O(n)
+      { lineNumber: 27, complexity: 'O(1)' },  // curr = self.root
+      { lineNumber: 28, complexity: 'O(1)' },  // path = []
+      { lineNumber: 29, complexity: 'O(n)' },  // for char in word
+      { lineNumber: 30, complexity: 'O(1)', context: 'O(n)' },  // if char not in curr.children
+      { lineNumber: 31, complexity: 'O(1)' },  // return False
+      { lineNumber: 32, complexity: 'O(1)', context: 'O(n)' },  // path.append((curr, char))
+      { lineNumber: 33, complexity: 'O(1)', context: 'O(n)' },  // curr = curr.children[char]
+      { lineNumber: 34, complexity: 'O(1)' },  // if not curr.is_end_of_word:
+      { lineNumber: 35, complexity: 'O(1)' },  // return False
+      { lineNumber: 36, complexity: 'O(1)' },  // curr.is_end_of_word = False
+      { lineNumber: 37, complexity: 'O(n)' },  // while path and not curr.children and not curr.is_end_of_word:
+      { lineNumber: 38, complexity: 'O(1)', context: 'O(n)' },  // parent, char = path.pop()
+      { lineNumber: 39, complexity: 'O(1)', context: 'O(n)' },  // del parent.children[char]
+      { lineNumber: 40, complexity: 'O(1)', context: 'O(n)' },  // curr = parent
+      { lineNumber: 41, complexity: 'O(1)' },  // return True
     ],
   },
 };

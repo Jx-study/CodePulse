@@ -104,7 +104,7 @@ const shortestGteCodeConfig: CodeConfig = {
   End For
 
   If minLen = ∞ Then
-    Return Error
+    Return -1
   Else
     Return minLen
   End If

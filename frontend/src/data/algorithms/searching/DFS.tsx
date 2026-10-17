@@ -360,7 +360,40 @@ End Procedure`,
       [TAGS.NOT_FOUND]: [27],
     } as Record<string, number[]>,
   },
-  python: dfsGraphCodeConfig.python,
+  python: {
+    content: `def dfs_grid(grid, cols, start, end):
+    if grid[start] == 1 or grid[end] == 1:
+        return -1
+
+    distance = [float('inf')] * len(grid)
+    distance[start] = 0
+    stack = [start]
+    visited = {start}
+
+    while stack:
+        curr = stack.pop()
+
+        if curr == end:
+            return distance[end]
+
+        for neighbor in adjacent(curr, grid, cols):
+            if neighbor not in visited and grid[neighbor] != 1:
+                visited.add(neighbor)
+                distance[neighbor] = distance[curr] + 1
+                stack.append(neighbor)
+
+        # nothing pushed: dead end, backtrack
+
+    return -1
+
+def adjacent(curr, grid, cols):
+    rows = len(grid) // cols
+    r, c = divmod(curr, cols)
+    for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < rows and 0 <= nc < cols:
+            yield nr * cols + nc`,
+  },
 };
 
 export const DFSConfig: LevelImplementationConfig = {

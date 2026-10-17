@@ -349,7 +349,43 @@ End Procedure`,
       [TAGS.NOT_FOUND]: [27],
     } as Record<string, number[]>,
   },
-  python: bfsGraphCodeConfig.python,
+  python: {
+    content: `from collections import deque
+
+def bfs_grid(grid, cols, start, end):
+    if grid[start] == 1 or grid[end] == 1:
+        return -1
+
+    distance = [float('inf')] * len(grid)
+    distance[start] = 0
+    queue = [start]
+    visited = {start}
+
+    while queue:
+        next_queue = []
+
+        if end in queue:
+            return distance[end]
+
+        for curr in queue:
+            for neighbor in adjacent(curr, grid, cols):
+                if neighbor not in visited and grid[neighbor] != 1:
+                    visited.add(neighbor)
+                    distance[neighbor] = distance[curr] + 1
+                    next_queue.append(neighbor)
+
+        queue = next_queue
+
+    return -1
+
+def adjacent(curr, grid, cols):
+    rows = len(grid) // cols
+    r, c = divmod(curr, cols)
+    for dr, dc in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < rows and 0 <= nc < cols:
+            yield nr * cols + nc`,
+  },
 };
 
 export const BFSConfig: LevelImplementationConfig = {
