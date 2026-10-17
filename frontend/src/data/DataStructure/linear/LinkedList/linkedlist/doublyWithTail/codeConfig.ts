@@ -3,179 +3,167 @@ import { TAGS } from "./tags";
 
 export const codeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Node:
-    Data:
-      value ← null
-      next ← null
-      prev ← null
+    content: `Procedure insertAtHead(value):
+  newNode ← new Node(value)
+  If head = null Then
+    head ← newNode
+    tail ← newNode
+  Else
+    newNode.next ← head
+    head.prev ← newNode
+    head ← newNode
+  End If
+End Procedure
 
-    Class DoublyLinkedList:
-      Data:
-        head ← null
-        tail ← null
-        length ← 0  // number of nodes, updated by every insert and delete
+Procedure insertAtTail(value):
+  newNode ← new Node(value)
+  If head = null Then
+    head ← newNode
+    tail ← newNode
+    Return
+  End If
+  tail.next ← newNode
+  newNode.prev ← tail
+  tail ← newNode
+End Procedure
 
-      Procedure insertAtHead(value):
-        newNode ← new Node(value)
-        If head = null Then
-          head ← newNode
-          tail ← newNode
-        Else
-          newNode.next ← head
-          head.prev ← newNode
-          head ← newNode
-        End If
-      End Procedure
+Procedure insertAtIndex(index, value):
+  If index < 0 Or index > length Then
+    Return Error
+  End If
+  If index = 0 Then
+    insertAtHead(value)
+    Return
+  End If
+  If tail ≠ null And index = length Then
+    insertAtTail(value)
+    Return
+  End If
+  current ← head
+  For i ← 0 To index - 2 Do
+    current ← current.next
+  End For
+  newNode ← new Node(value)
+  newNode.next ← current.next
+  If current.next ≠ null Then current.next.prev ← newNode
+  current.next ← newNode
+  newNode.prev ← current
+  If newNode.next = null Then tail ← newNode
+End Procedure
 
-      Procedure insertAtTail(value):
-        newNode ← new Node(value)
-        If head = null Then
-          head ← newNode
-          tail ← newNode
-          Return
-        End If
-        tail.next ← newNode
-        newNode.prev ← tail
-        tail ← newNode
-      End Procedure
+Procedure deleteAtHead():
+  If head = null Then Return
+  head ← head.next
+  If head ≠ null Then head.prev ← null
+  Else tail ← null
+End Procedure
 
-      Procedure insertAtIndex(index, value):
-        If index < 0 Or index > length Then
-          Return Error
-        End If
-        If index = 0 Then
-          insertAtHead(value)
-          Return
-        End If
-        If tail ≠ null And index = length Then
-          insertAtTail(value)
-          Return
-        End If
-        current ← head
-        For i ← 0 To index - 2 Do
-          current ← current.next
-        End For
-        newNode ← new Node(value)
-        newNode.next ← current.next
-        If current.next ≠ null Then current.next.prev ← newNode
-        current.next ← newNode
-        newNode.prev ← current
-        If newNode.next = null Then tail ← newNode
-      End Procedure
+Procedure deleteAtTail():
+  If head = null Then Return
+  If head.next = null Then
+    head ← null
+    tail ← null
+    Return
+  End If
+  prev ← tail.prev
+  prev.next ← null
+  tail ← prev
+End Procedure
 
-      Procedure deleteAtHead():
-        If head = null Then Return
-        head ← head.next
-        If head ≠ null Then head.prev ← null
-        Else tail ← null
-      End Procedure
+Procedure deleteAtIndex(index):
+  If index < 0 Or index ≥ length Then
+    Return Error
+  End If
+  If index = 0 Then
+    deleteAtHead()
+    Return
+  End If
+  If tail ≠ null And index = length - 1 Then
+    deleteAtTail()
+    Return
+  End If
+  current ← head
+  For i ← 0 To index - 1 Do
+    current ← current.next
+  End For
+  current.prev.next ← current.next
+  If current.next ≠ null Then current.next.prev ← current.prev
+  Else tail ← current.prev
+End Procedure
 
-      Procedure deleteAtTail():
-        If head = null Then Return
-        If head.next = null Then
-          head ← null
-          tail ← null
-          Return
-        End If
-        prev ← tail.prev
-        prev.next ← null
-        tail ← prev
-      End Procedure
-
-      Procedure deleteAtIndex(index):
-        If index < 0 Or index ≥ length Then
-          Return Error
-        End If
-        If index = 0 Then
-          deleteAtHead()
-          Return
-        End If
-        If tail ≠ null And index = length - 1 Then
-          deleteAtTail()
-          Return
-        End If
-        current ← head
-        For i ← 0 To index - 1 Do
-          current ← current.next
-        End For
-        current.prev.next ← current.next
-        If current.next ≠ null Then current.next.prev ← current.prev
-        Else tail ← current.prev
-      End Procedure
-
-      Procedure search(value):
-        current ← head
-        index ← 0
-        While current ≠ null Do
-          If current.value = value Then Return index
-          current ← current.next
-          index ← index + 1
-        End While
-        Return -1
-      End Procedure`,
+Procedure search(value):
+  current ← head
+  index ← 0
+  While current ≠ null Do
+    If current.value = value Then Return index
+    current ← current.next
+    index ← index + 1
+  End While
+  Return -1
+End Procedure`,
     mappings: {
-      [TAGS.INSERT_HEAD_START]: [13, 15],
-      [TAGS.INSERT_HEAD_CREATE]: [14],
-      [TAGS.INSERT_HEAD_LINK]: [15, 19],
-      [TAGS.INSERT_HEAD_LINK_PREV]: [20],
-      [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [21],
-      [TAGS.INSERT_HEAD_UPDATE_ISNULL]: [16],
-      [TAGS.INSERT_HEAD_UPDATE_TAIL]: [17],
-      [TAGS.INSERT_HEAD_END]: [23],
+      [TAGS.INSERT_HEAD_START]: [1, 3],
+      [TAGS.INSERT_HEAD_CREATE]: [2],
+      [TAGS.INSERT_HEAD_LINK]: [3, 7],
+      [TAGS.INSERT_HEAD_LINK_PREV]: [8],
+      [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [9],
+      [TAGS.INSERT_HEAD_UPDATE_ISNULL]: [4],
+      [TAGS.INSERT_HEAD_UPDATE_TAIL]: [5],
+      [TAGS.INSERT_HEAD_END]: [11],
 
-      [TAGS.INSERT_TAIL_START]: [25],
+      [TAGS.INSERT_TAIL_START]: [13],
 
-      [TAGS.INSERT_TAIL_CHECK_HEAD]: [27],
-      [TAGS.INSERT_TAIL_CREATE]: [26],
-      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [27],
-      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [28],
-      [TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL]: [29],
-      [TAGS.INSERT_TAIL_LINK]: [32],
-      [TAGS.INSERT_TAIL_LINK_PREV]: [33],
-      [TAGS.INSERT_TAIL_POINTER_MOVE]: [34],
-      [TAGS.INSERT_TAIL_END]: [35],
+      [TAGS.INSERT_TAIL_CHECK_HEAD]: [15],
+      [TAGS.INSERT_TAIL_CREATE]: [14],
+      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [15],
+      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [16],
+      [TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL]: [17],
+      [TAGS.INSERT_TAIL_LINK]: [20],
+      [TAGS.INSERT_TAIL_LINK_PREV]: [21],
+      [TAGS.INSERT_TAIL_POINTER_MOVE]: [22],
+      [TAGS.INSERT_TAIL_END]: [23],
 
-      [TAGS.INSERT_INDEX_START]: [37, 38],
-      [TAGS.INSERT_INDEX_ERROR]: [39],
-      [TAGS.INSERT_INDEX_IFZERO]: [38, 41, 42, 43],
-      [TAGS.INSERT_INDEX_IFTAIL]: [45, 46, 47],
-      [TAGS.INSERT_INDEX_TRAVERSE]: [49, 50, 51, 52],
-      [TAGS.INSERT_INDEX_CREATE]: [53],
-      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [54],
-      [TAGS.INSERT_INDEX_LINK_NEXT_PREV]: [55],
-      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [56],
-      [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [57],
-      [TAGS.INSERT_INDEX_UPDATE_TAIL]: [58],
-      [TAGS.INSERT_INDEX_END]: [58, 59],
+      [TAGS.INSERT_INDEX_START]: [25, 26],
+      [TAGS.INSERT_INDEX_ERROR]: [27],
+      [TAGS.INSERT_INDEX_IFZERO]: [26, 29, 30, 31],
+      [TAGS.INSERT_INDEX_IFTAIL]: [33, 34, 35],
+      [TAGS.INSERT_INDEX_TRAVERSE]: [37, 38, 39, 40],
+      [TAGS.INSERT_INDEX_CREATE]: [41],
+      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [42],
+      [TAGS.INSERT_INDEX_LINK_NEXT_PREV]: [43],
+      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [44],
+      [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [45],
+      [TAGS.INSERT_INDEX_UPDATE_TAIL]: [46],
+      [TAGS.INSERT_INDEX_END]: [46, 47],
 
-      [TAGS.DELETE_HEAD_START]: [61, 62],
-      [TAGS.DELETE_HEAD_CHECK]: [62],
-      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [63],
-      [TAGS.DELETE_HEAD_UPDATE_PREV]: [64],
-      [TAGS.DELETE_HEAD_UPDATE_TAIL]: [65],
-      [TAGS.DELETE_HEAD_FREE]: [66],
-      [TAGS.DELETE_HEAD_END]: [66],
+      [TAGS.DELETE_HEAD_START]: [49, 50],
+      [TAGS.DELETE_HEAD_CHECK]: [50],
+      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [51],
+      [TAGS.DELETE_HEAD_UPDATE_PREV]: [52],
+      [TAGS.DELETE_HEAD_UPDATE_TAIL]: [53],
+      [TAGS.DELETE_HEAD_FREE]: [54],
+      [TAGS.DELETE_HEAD_END]: [54],
 
-      [TAGS.DELETE_TAIL_START]: [68, 69],
-      [TAGS.DELETE_TAIL_ISNEXTNULL]: [70],
-      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [71, 72],
-      [TAGS.DELETE_TAIL_TRAVERSE]: [75],
-      [TAGS.DELETE_TAIL_UNLINK]: [76],
-      [TAGS.DELETE_TAIL_END]: [77],
+      [TAGS.DELETE_TAIL_START]: [56, 57],
+      [TAGS.DELETE_TAIL_ISNEXTNULL]: [58],
+      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [59, 60],
+      [TAGS.DELETE_TAIL_TRAVERSE]: [63],
+      [TAGS.DELETE_TAIL_UNLINK]: [64],
+      [TAGS.DELETE_TAIL_END]: [65],
 
-      [TAGS.DELETE_INDEX_START]: [80, 81],
-      [TAGS.DELETE_INDEX_ERROR]: [82],
-      [TAGS.DELETE_INDEX_IFZERO]: [81, 84, 85, 86],
-      [TAGS.DELETE_INDEX_IFTAIL]: [88, 89, 90],
-      [TAGS.DELETE_INDEX_TRAVERSE]: [92, 93, 94],
-      [TAGS.DELETE_INDEX_UNLINK]: [96, 97, 98],
-      [TAGS.DELETE_INDEX_END]: [99],
+      [TAGS.DELETE_INDEX_START]: [68, 69],
+      [TAGS.DELETE_INDEX_ERROR]: [70],
+      [TAGS.DELETE_INDEX_IFZERO]: [69, 72, 73, 74],
+      [TAGS.DELETE_INDEX_IFTAIL]: [76, 77, 78],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [80, 81, 82],
+      [TAGS.DELETE_INDEX_UNLINK]: [84, 85, 86],
+      [TAGS.DELETE_INDEX_END]: [87],
 
-      [TAGS.SEARCH_START]: [101, 102, 103],
-      [TAGS.SEARCH_COMPARE]: [104, 105, 106, 107],
-      [TAGS.SEARCH_FOUND]: [105],
-      [TAGS.SEARCH_NEXT]: [106, 107],
-      [TAGS.SEARCH_NOT_FOUND]: [109],
+      [TAGS.SEARCH_START]: [89, 90, 91],
+      [TAGS.SEARCH_COMPARE]: [92, 93, 94, 95],
+      [TAGS.SEARCH_FOUND]: [93],
+      [TAGS.SEARCH_NEXT]: [94, 95],
+      [TAGS.SEARCH_NOT_FOUND]: [97],
     },
   },
   python: {

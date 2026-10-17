@@ -28,87 +28,82 @@ const ARRAY_CAPACITY = 20;
 
 const arrayCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Array:
-  Data:
-    length ← 0
-    data ← [] // fixed size: holds at most capacity items
-
-  Procedure search(target):
-    For i ← 0 to length - 1:
-      If data[i] == target Then
-        Return i  // Found
-      End If
-    End For
-    Return -1     // Not Found
-  End Procedure
-
-  Procedure update(index, value):
-    If index < 0 or index ≥ length Then
-      Return Error
+    content: `Procedure search(target):
+  For i ← 0 to length - 1:
+    If data[i] == target Then
+      Return i  // Found
     End If
-    
-    data[index] ← value
-  End Procedure
+  End For
+  Return -1     // Not Found
+End Procedure
 
-  Procedure insert(index, value):
-    If length = capacity Then
-      Return Error
-    End If
+Procedure update(index, value):
+  If index < 0 or index ≥ length Then
+    Return Error
+  End If
+  
+  data[index] ← value
+End Procedure
 
-    If index > length Then
-      index ← length
-    End If
+Procedure insert(index, value):
+  If length = capacity Then
+    Return Error
+  End If
 
-    // 1. Expand array size (append at back)
-    length ← length + 1
-    
-    // 2. Shift elements to the right
-    // (Prepare space for the new value at index)
-    For i ← length - 1 down to index + 1:
-      data[i] ← data[i - 1]
-    End For
-    
-    // 3. Insert value
-    data[index] ← value
-  End Procedure
+  If index > length Then
+    index ← length
+  End If
 
-  Procedure delete(index):
-    If index < 0 or index ≥ length Then
-      Return Error
-    End If
+  // 1. Expand array size (append at back)
+  length ← length + 1
+  
+  // 2. Shift elements to the right
+  // (Prepare space for the new value at index)
+  For i ← length - 1 down to index + 1:
+    data[i] ← data[i - 1]
+  End For
+  
+  // 3. Insert value
+  data[index] ← value
+End Procedure
 
-    // Shift elements to the left
-    For i ← index to length - 2:
-      data[i] ← data[i + 1]
-    End For
+Procedure delete(index):
+  If index < 0 or index ≥ length Then
+    Return Error
+  End If
 
-    // Remove last element
-    length ← length - 1
-  End Procedure`,
+  // Shift elements to the left
+  For i ← index to length - 2:
+    data[i] ← data[i + 1]
+  End For
+
+  // Remove last element
+  length ← length - 1
+End Procedure`,
     mappings: {
-      [TAGS.SEARCH_START]: [6],
-      [TAGS.SEARCH_COMPARE]: [7, 8],
-      [TAGS.SEARCH_FOUND]: [9],
-      [TAGS.SEARCH_NOT_FOUND]: [12],
-      [TAGS.UPDATE_START]: [15],
-      [TAGS.UPDATE_CHECK_INDEX]: [16],
-      [TAGS.UPDATE_ERROR]: [17],
-      [TAGS.UPDATE_ASSIGN]: [20],
-      [TAGS.UPDATE_COMPLETE]: [21],
-      [TAGS.INSERT_CHECK_FULL]: [24],
-      [TAGS.INSERT_ERROR]: [25],
-      [TAGS.INSERT_CHECK_INDEX]: [28],
-      [TAGS.INSERT_CLAMP]: [28, 29],
-      [TAGS.INSERT_START]: [32, 33],
-      [TAGS.INSERT_SHIFT]: [35, 36, 37, 38],
-      [TAGS.INSERT_ASSIGN]: [41, 42],
-      [TAGS.INSERT_COMPLETE]: [43],
-      [TAGS.DELETE_START]: [45],
-      [TAGS.DELETE_CHECK_INDEX]: [46],
-      [TAGS.DELETE_ERROR]: [47],
-      [TAGS.DELETE_SHIFT]: [50, 51, 52],
-      [TAGS.DELETE_REMOVE]: [55, 56],
-      [TAGS.DELETE_COMPLETE]: [57],
+      [TAGS.SEARCH_START]: [1],
+      [TAGS.SEARCH_COMPARE]: [2, 3],
+      [TAGS.SEARCH_FOUND]: [4],
+      [TAGS.SEARCH_NOT_FOUND]: [7],
+      [TAGS.UPDATE_START]: [10],
+      [TAGS.UPDATE_CHECK_INDEX]: [11],
+      [TAGS.UPDATE_ERROR]: [12],
+      [TAGS.UPDATE_ASSIGN]: [15],
+      [TAGS.UPDATE_COMPLETE]: [16],
+      [TAGS.INSERT_CHECK_FULL]: [19],
+      [TAGS.INSERT_ERROR]: [20],
+      [TAGS.INSERT_CHECK_INDEX]: [23],
+      [TAGS.INSERT_CLAMP]: [23, 24],
+      [TAGS.INSERT_START]: [27, 28],
+      [TAGS.INSERT_SHIFT]: [30, 31, 32, 33],
+      [TAGS.INSERT_ASSIGN]: [36, 37],
+      [TAGS.INSERT_COMPLETE]: [38],
+      [TAGS.DELETE_START]: [40],
+      [TAGS.DELETE_CHECK_INDEX]: [41],
+      [TAGS.DELETE_ERROR]: [42],
+      [TAGS.DELETE_SHIFT]: [45, 46, 47],
+      [TAGS.DELETE_REMOVE]: [50, 51],
+      [TAGS.DELETE_COMPLETE]: [52],
     },
   },
   python: {

@@ -250,66 +250,65 @@ function createHeapAnimationSteps(
 
 const heapCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Heap:
-  Procedure BuildHeap(array):
-    For i ← Floor(array.length / 2) - 1 Down To 0 Do
-      HeapifyDown(i)
-    End For
+    content: `Procedure BuildHeap(array):
+  For i ← Floor(array.length / 2) - 1 Down To 0 Do
+    HeapifyDown(i)
+  End For
 
-  Procedure Insert(value):
-    array.push(value)
-    HeapifyUp(array.length - 1)
+Procedure Insert(value):
+  array.push(value)
+  HeapifyUp(array.length - 1)
 
-  Procedure ExtractExtreme():
-    If array.length = 0 Then Return Error
-    extValue ← array[0]
-    If array.length = 1 Then
-      array.pop()
-      Return extValue
-    array[0] ← array.pop()
-    HeapifyDown(0)
+Procedure ExtractExtreme():
+  If array.length = 0 Then Return Error
+  extValue ← array[0]
+  If array.length = 1 Then
+    array.pop()
     Return extValue
+  array[0] ← array.pop()
+  HeapifyDown(0)
+  Return extValue
 
-  Procedure Peek():
-    If array.length = 0 Then Return Error
-    Return array[0]
+Procedure Peek():
+  If array.length = 0 Then Return Error
+  Return array[0]
 
-  Procedure HeapifyUp(i):
-    While i > 0 Do
-      parent ← Floor((i - 1) / 2)
-      If array[i] has higher priority than array[parent] Then
-        Swap(array[i], array[parent])
-        i ← parent
-      Else
-        Break
+Procedure HeapifyUp(i):
+  While i > 0 Do
+    parent ← Floor((i - 1) / 2)
+    If array[i] has higher priority than array[parent] Then
+      Swap(array[i], array[parent])
+      i ← parent
+    Else
+      Break
 
-  Procedure HeapifyDown(i):
-    While True Do
-      target ← i
-      left ← 2 * i + 1
-      right ← 2 * i + 2
-      If left < array.length And array[left] has higher priority than array[target] Then target ← left
-      If right < array.length And array[right] has higher priority than array[target] Then target ← right
-      If target = i Then Break
-      Swap(array[i], array[target])
-      i ← target`,
+Procedure HeapifyDown(i):
+  While True Do
+    target ← i
+    left ← 2 * i + 1
+    right ← 2 * i + 2
+    If left < array.length And array[left] has higher priority than array[target] Then target ← left
+    If right < array.length And array[right] has higher priority than array[target] Then target ← right
+    If target = i Then Break
+    Swap(array[i], array[target])
+    i ← target`,
     mappings: {
-      [TAGS.HEAPIFY_START]: [2, 3, 4],
-      [TAGS.INSERT_START]: [7, 8, 9],
-      [TAGS.HEAPIFY_UP_COMPARE]: [26, 27, 28],
-      [TAGS.HEAPIFY_UP_SWAP]: [29, 30],
-      [TAGS.EXTRACT_START]: [11, 12, 13],
-      [TAGS.EXTRACT_EMPTY]: [12],
-      [TAGS.EXTRACT_ONLY]: [14, 15, 16],
-      [TAGS.EXTRACT_SWAP_LAST]: [14, 17],
-      [TAGS.EXTRACT_REMOVE]: [17, 18],
-      [TAGS.HEAPIFY_DOWN_COMPARE]: [35, 36, 37, 38, 39, 40, 41],
-      [TAGS.HEAPIFY_DOWN_SWAP]: [42, 43],
-      [TAGS.HEAPIFY_UP_STOP]: [31, 32],
-      [TAGS.HEAPIFY_DOWN_STOP]: [41],
-      [TAGS.EXTRACT_RETURN]: [19],
-      [TAGS.PEEK]: [21, 22, 23],
-      [TAGS.PEEK_EMPTY]: [22],
+      [TAGS.HEAPIFY_START]: [1, 2, 3],
+      [TAGS.INSERT_START]: [6, 7, 8],
+      [TAGS.HEAPIFY_UP_COMPARE]: [25, 26, 27],
+      [TAGS.HEAPIFY_UP_SWAP]: [28, 29],
+      [TAGS.EXTRACT_START]: [10, 11, 12],
+      [TAGS.EXTRACT_EMPTY]: [11],
+      [TAGS.EXTRACT_ONLY]: [13, 14, 15],
+      [TAGS.EXTRACT_SWAP_LAST]: [13, 16],
+      [TAGS.EXTRACT_REMOVE]: [16, 17],
+      [TAGS.HEAPIFY_DOWN_COMPARE]: [34, 35, 36, 37, 38, 39, 40],
+      [TAGS.HEAPIFY_DOWN_SWAP]: [41, 42],
+      [TAGS.HEAPIFY_UP_STOP]: [30, 31],
+      [TAGS.HEAPIFY_DOWN_STOP]: [40],
+      [TAGS.EXTRACT_RETURN]: [18],
+      [TAGS.PEEK]: [20, 21, 22],
+      [TAGS.PEEK_EMPTY]: [21],
     },
   },
   python: {

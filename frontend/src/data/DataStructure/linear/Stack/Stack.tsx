@@ -21,54 +21,48 @@ function createStackAnimationSteps(
 
 const stackCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Stack:
-  Data:
-    top ← -1
-    stack ← Array of Size
+    content: `Procedure push(value):
+  If top = Size - 1 Then
+    Return Error
+  End If
+  top ← top + 1
+  stack[top] ← value
+End Procedure
 
-  Procedure push(value):
-    If top = Size - 1 Then
-      Return Error
-    End If
-    top ← top + 1
-    stack[top] ← value
-  End Procedure
+Procedure pop():
+  If is_empty() Then
+    Return Error
+  End If
+  removed_value ← stack[top]
+  top ← top - 1
+  Return removed_value
+End Procedure
 
-  Procedure pop():
-    If is_empty() Then
-      Return Error
-    End If
-    removed_value ← stack[top]
-    top ← top - 1
-    Return removed_value
-  End Procedure
-
-  Procedure peek():
-    If is_empty() Then
-      Return null
-    End If
-    Return stack[top]
-  End Procedure`,
+Procedure peek():
+  If is_empty() Then
+    Return null
+  End If
+  Return stack[top]
+End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3, 4],
-      [TAGS.PUSH_START]: [6],
-      [TAGS.PUSH_CHECK_FULL]: [7],
-      [TAGS.PUSH_ERROR]: [8],
-      [TAGS.PUSH_INC_TOP]: [10],
-      [TAGS.PUSH_ASSIGN]: [11],
-      [TAGS.PUSH_COMPLETE]: [12],
-      [TAGS.POP_START]: [14],
-      [TAGS.POP_CHECK_EMPTY]: [15],
-      [TAGS.POP_ERROR]: [16],
-      [TAGS.POP_GET_VALUE]: [18],
-      [TAGS.POP_DEC_TOP]: [19],
-      [TAGS.POP_RETURN]: [20],
-      [TAGS.POP_COMPLETE]: [21],
-      [TAGS.PEEK_START]: [23],
-      [TAGS.PEEK_CHECK_EMPTY]: [24],
-      [TAGS.PEEK_ERROR]: [25],
-      [TAGS.PEEK_RETURN]: [27],
-      [TAGS.PEEK_COMPLETE]: [28],
+      [TAGS.PUSH_START]: [1],
+      [TAGS.PUSH_CHECK_FULL]: [2],
+      [TAGS.PUSH_ERROR]: [3],
+      [TAGS.PUSH_INC_TOP]: [5],
+      [TAGS.PUSH_ASSIGN]: [6],
+      [TAGS.PUSH_COMPLETE]: [7],
+      [TAGS.POP_START]: [9],
+      [TAGS.POP_CHECK_EMPTY]: [10],
+      [TAGS.POP_ERROR]: [11],
+      [TAGS.POP_GET_VALUE]: [13],
+      [TAGS.POP_DEC_TOP]: [14],
+      [TAGS.POP_RETURN]: [15],
+      [TAGS.POP_COMPLETE]: [16],
+      [TAGS.PEEK_START]: [18],
+      [TAGS.PEEK_CHECK_EMPTY]: [19],
+      [TAGS.PEEK_ERROR]: [20],
+      [TAGS.PEEK_RETURN]: [22],
+      [TAGS.PEEK_COMPLETE]: [23],
     },
   },
   python: {

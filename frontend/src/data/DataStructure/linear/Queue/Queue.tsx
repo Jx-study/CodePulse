@@ -22,58 +22,50 @@ function createQueueAnimationSteps(
 
 const queueCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Queue:
-  Data:
-    front ← 0
-    rear ← -1
-    size ← 0
-    queue ← Array of Size
+    content: `Procedure enqueue(value):
+  If size = Size Then
+    Return Error
+  End If
+  size ← size + 1
+  rear ← rear + 1
+  queue[rear] ← value
+End Procedure
 
-  Procedure enqueue(value):
-    If size = Size Then
-      Return Error
-    End If
-    size ← size + 1
-    rear ← rear + 1
-    queue[rear] ← value
-  End Procedure
+Procedure dequeue():
+  If size = 0 Then
+    Return Error
+  End If
+  removed_value ← queue[front]
+  front ← front + 1
+  size ← size - 1
+  Return removed_value
+End Procedure
 
-  Procedure dequeue():
-    If size = 0 Then
-      Return Error
-    End If
-    removed_value ← queue[front]
-    front ← front + 1
-    size ← size - 1
-    Return removed_value
-  End Procedure
-
-  Procedure peek():
-    If size = 0 Then
-        Return null
-    End If
-    Return queue[front]
-  End Procedure`,
+Procedure peek():
+  If size = 0 Then
+      Return null
+  End If
+  Return queue[front]
+End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3, 4, 5, 6],
-      [TAGS.ENQUEUE_START]: [8],
-      [TAGS.ENQUEUE_CHECK_FULL]: [9],
-      [TAGS.ENQUEUE_ERROR]: [10],
-      [TAGS.ENQUEUE_INC_REAR]: [12, 13],
-      [TAGS.ENQUEUE_ASSIGN]: [14],
-      [TAGS.ENQUEUE_COMPLETE]: [15],
-      [TAGS.DEQUEUE_START]: [17],
-      [TAGS.DEQUEUE_CHECK_EMPTY]: [18],
-      [TAGS.DEQUEUE_ERROR]: [19],
-      [TAGS.DEQUEUE_GET_VALUE]: [21],
-      [TAGS.DEQUEUE_DEC_REAR]: [22, 23],
-      [TAGS.DEQUEUE_RETURN]: [24],
-      [TAGS.DEQUEUE_COMPLETE]: [25],
-      [TAGS.PEEK_START]: [27],
-      [TAGS.PEEK_CHECK_EMPTY]: [28],
-      [TAGS.PEEK_ERROR]: [29],
-      [TAGS.PEEK_RETURN]: [31],
-      [TAGS.PEEK_COMPLETE]: [32],
+      [TAGS.ENQUEUE_START]: [1],
+      [TAGS.ENQUEUE_CHECK_FULL]: [2],
+      [TAGS.ENQUEUE_ERROR]: [3],
+      [TAGS.ENQUEUE_INC_REAR]: [5, 6],
+      [TAGS.ENQUEUE_ASSIGN]: [7],
+      [TAGS.ENQUEUE_COMPLETE]: [8],
+      [TAGS.DEQUEUE_START]: [10],
+      [TAGS.DEQUEUE_CHECK_EMPTY]: [11],
+      [TAGS.DEQUEUE_ERROR]: [12],
+      [TAGS.DEQUEUE_GET_VALUE]: [14],
+      [TAGS.DEQUEUE_DEC_REAR]: [15, 16],
+      [TAGS.DEQUEUE_RETURN]: [17],
+      [TAGS.DEQUEUE_COMPLETE]: [18],
+      [TAGS.PEEK_START]: [20],
+      [TAGS.PEEK_CHECK_EMPTY]: [21],
+      [TAGS.PEEK_ERROR]: [22],
+      [TAGS.PEEK_RETURN]: [24],
+      [TAGS.PEEK_COMPLETE]: [25],
     },
   },
   python: {
