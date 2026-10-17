@@ -10,11 +10,13 @@
 
 ## 檢查放在哪一層
 
+資料狀態的檢查（滿了、空了、索引越界、重複、不存在）是演算法本身會做的事，一定要寫進虛擬碼並演出來。只有輸入格式與畫面容量限制（`maxNodes`）可以只用 toast。
+
 | 類型 | 例子 | 放哪裡 | 結果 |
 | --- | --- | --- | --- |
 | 輸入格式 | 欄位空白、不是數字、BFS 起點不存在、區間不合法 | ActionBar，呼叫前 | `toast.warning`，不執行 |
 | 資料狀態，虛擬碼有這行檢查 | 滿了、空了、索引越界、重複、節點不存在 | actionHandler 回傳 guard 步驟 | 虛擬碼高亮加 toast |
-| 資料狀態，虛擬碼沒有這行檢查 | 索引越界但虛擬碼沒寫 | actionHandler，`context.toast.warning` 後回傳 `null`（動作不執行） | 只 toast |
+| 資料狀態，虛擬碼沒有這行檢查 | 只限不屬於演算法的畫面限制（例如 `maxNodes`） | actionHandler，`context.toast.warning` 後回傳 `null`（動作不執行） | 只 toast |
 | 通用後備 | `maxNodes`、空資料 | `Tutorial.tsx` | 只給沒有 guard 的結構用 |
 
 同一種檢查只放一個地方。ActionBar 已經擋掉的輸入，handler 不必再檢查（那會變成永遠不會執行的程式碼）。反過來，要演出 guard 步驟的檢查，ActionBar 不可以事先擋掉，否則步驟永遠不會播放。

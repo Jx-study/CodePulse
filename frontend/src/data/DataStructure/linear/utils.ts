@@ -18,6 +18,7 @@ export interface LinearAction {
   capacity?: number;
   invalid?: boolean;
   emptyGuard?: boolean;
+  indexGuard?: boolean;
   requestedIndex?: number;
 }
 

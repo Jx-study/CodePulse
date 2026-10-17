@@ -131,14 +131,10 @@
     "delete_index_unlink_prev": "current.next.prev = pre (後繼節點的 prev 回指前驅節點)",
     "delete_index_end": "DeleteAtIndex 完成",
     "delete_empty": "鏈結串列為空 (head = null)，沒有節點可以刪除",
+    "insert_index_out_of_range": "索引 {{index}} 超出範圍（目前長度 {{length}}），無法插入節點（Return Error）",
+    "delete_index_out_of_range": "索引 {{index}} 超出範圍（目前長度 {{length}}），沒有節點可以刪除（Return Error）",
     "insert_tail_check_head": "檢查是否為空串列: head == null，不成立，改為從 head 走到尾端",
     "delete_tail_check_head": "檢查是否為空串列: head == null，不成立，可以刪除尾端節點"
-  },
-  "actionHandler": {
-    "indexNegative": "索引無效：索引不能為負數",
-    "insertIndexOutOfRange": "索引 {{idx}} 超出範圍，插入的最大索引為 {{max}}",
-    "deleteIndexOutOfRange": "索引 {{idx}} 超出範圍，刪除的最大索引為 {{max}}",
-    "listEmpty": "鏈結串列為空"
   },
   "ui": {
     "operations": "Linked List 操作",

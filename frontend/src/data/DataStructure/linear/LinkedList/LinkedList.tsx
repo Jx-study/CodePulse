@@ -1,7 +1,6 @@
 ﻿import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
-import i18n from "@/i18n";
 import { LinkedListActionBar } from "./LinkedListActionBar";
 import {
   LinearData as ListNodeData,
@@ -69,15 +68,17 @@ function linkedListActionHandler(
     } else if (mode === "Tail") {
       newData.push(newNode);
     } else if (mode === "Node N") {
-      if (idx < 0) {
-        context.toast.warning(i18n.t("actionHandler.indexNegative", { ns: "tutorials/linked-list" }));
-        return null;
-      }
-      if (idx > data.length) {
-        context.toast.warning(
-          i18n.t("actionHandler.insertIndexOutOfRange", { ns: "tutorials/linked-list", idx, max: data.length }),
-        );
-        return null;
+      if (idx < 0 || idx > data.length) {
+        return {
+          animationData: data,
+          animationParams: {
+            mode,
+            index,
+            indexGuard: true,
+            ...defaultParams,
+            ...modeFlags(payload),
+          },
+        };
       }
       if (idx === 0) newData.unshift(newNode);
       else if (idx === data.length) newData.push(newNode);
@@ -96,20 +97,16 @@ function linkedListActionHandler(
     };
   }
   if (actionType === "delete") {
-    if (newData.length === 0) {
-      if (mode === "Head" || mode === "Tail") {
-        return {
-          animationData: data,
-          animationParams: {
-            mode,
-            emptyGuard: true,
-            ...defaultParams,
-            ...modeFlags(payload),
-          },
-        };
-      }
-      context.toast.warning(i18n.t("actionHandler.listEmpty", { ns: "tutorials/linked-list" }));
-      return null;
+    if (newData.length === 0 && (mode === "Head" || mode === "Tail")) {
+      return {
+        animationData: data,
+        animationParams: {
+          mode,
+          emptyGuard: true,
+          ...defaultParams,
+          ...modeFlags(payload),
+        },
+      };
     }
     let deletedNode: ListNodeData | null = null;
     if (mode === "Head") {
@@ -120,15 +117,17 @@ function linkedListActionHandler(
       if (deletedNode) newData.pop();
     } else if (mode === "Node N") {
       const idx = index ?? -1;
-      if (idx < 0) {
-        context.toast.warning(i18n.t("actionHandler.indexNegative", { ns: "tutorials/linked-list" }));
-        return null;
-      }
-      if (idx >= newData.length) {
-        context.toast.warning(
-          i18n.t("actionHandler.deleteIndexOutOfRange", { ns: "tutorials/linked-list", idx, max: newData.length - 1 }),
-        );
-        return null;
+      if (idx < 0 || idx >= newData.length) {
+        return {
+          animationData: data,
+          animationParams: {
+            mode,
+            index,
+            indexGuard: true,
+            ...defaultParams,
+            ...modeFlags(payload),
+          },
+        };
       }
       deletedNode = newData[idx];
       newData.splice(idx, 1);
