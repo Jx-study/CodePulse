@@ -77,7 +77,12 @@
   },
   "node": {
     "ariaLabel": "關卡：{{levelName}}",
-    "recommended": "建議下一步"
+    "recommended": "建議下一步",
+    "boss": "Boss 關卡",
+    "bossChip": "BOSS",
+    "tutorialDone": "教學已完成",
+    "practicePassed_one": "練習已通過，{{count}} 顆星",
+    "practicePassed_other": "練習已通過，{{count}} 顆星"
   },
   "levels": {
     "array": {

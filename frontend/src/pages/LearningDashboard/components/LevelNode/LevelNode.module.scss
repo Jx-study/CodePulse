@@ -26,9 +26,18 @@ $undeveloped-icon: #7a7596;
     transform: translate(-50%, -50%) scale(1.1);
   }
 
-  &:focus-visible .core {
-    outline: 2px solid $primary-color;
-    outline-offset: 0.625rem;
+  // 白內圈＋深色外圈，疊在光暈、Boss 底座或淺底上都至少有一圈看得到
+  // 疊在鎖頭（3）和星星（4）之上，不會被切斷
+  &:focus-visible::after {
+    content: "";
+    position: absolute;
+    inset: -0.625rem;
+    border-radius: $radius-full;
+    box-shadow:
+      0 0 0 2px $white-color,
+      0 0 0 4px $dark-bg-primary;
+    z-index: 5;
+    pointer-events: none;
   }
 }
 

@@ -13,6 +13,10 @@ vi.mock("react-i18next", () => ({
       if (key === "levels.trie.name") return "Trie";
       if (key === "node.ariaLabel") return `Level: ${options?.levelName}`;
       if (key === "node.recommended") return "Recommended next";
+      if (key === "node.boss") return "Boss level";
+      if (key === "node.bossChip") return "BOSS";
+      if (key === "node.tutorialDone") return "Tutorial completed";
+      if (key === "node.practicePassed") return `Practice passed, ${options?.count} stars`;
       if (key === "levelUnavailable.undeveloped") {
         return "This level is not available yet. Stay tuned.";
       }
@@ -132,6 +136,19 @@ describe("LevelNode undeveloped state", () => {
     expect(node.querySelector("[data-icon='hourglass-half']")).not.toBeNull();
   });
 
+  it("shows only the hourglass for an undeveloped level that was passed before", () => {
+    const { node } = renderLevelNode({
+      level: undeveloped,
+      progress: prog({ status: "completed", stars: 3, teachingCompleted: true }),
+    });
+    expect(node.getAttribute("data-phase")).toBe("not-started");
+    expect(node.querySelector("[data-filled]")).toBeNull();
+    expect(node.querySelector("[data-icon='hourglass-half']")).not.toBeNull();
+    expect(node.getAttribute("aria-label")).toBe(
+      "Level: Trie. This level is not available yet. Stay tuned.",
+    );
+  });
+
   it("is never marked as recommended", () => {
     const { node } = renderLevelNode({ level: undeveloped, isRecommended: true });
     expect(node.getAttribute("data-recommended")).toBe("false");
@@ -226,5 +243,56 @@ describe("LevelNode recommendation and boss", () => {
     expect(node.querySelector("[data-boss-plate]")).not.toBeNull();
     expect(node.textContent).toContain("BOSS");
     expect(arc("practice")).toBe("locked");
+  });
+});
+
+describe("LevelNode accessible name", () => {
+  it("announces boss, tutorial, practice result and stars in order", () => {
+    const { node } = renderLevelNode({
+      isBossLevel: true,
+      progress: prog({ status: "completed", stars: 2, teachingCompleted: true }),
+    });
+    expect(node.getAttribute("aria-label")).toBe(
+      "Level: Trie. Boss level. Tutorial completed. Practice passed, 2 stars",
+    );
+  });
+
+  it("announces a finished tutorial before the practice lock", () => {
+    const { node } = renderLevelNode({
+      isPracticeLocked: true,
+      progress: prog({ teachingCompleted: true }),
+    });
+    expect(node.getAttribute("aria-label")).toBe(
+      "Level: Trie. Tutorial completed. Complete prerequisite levels to unlock practice mode",
+    );
+  });
+});
+
+describe("LevelNode keyboard", () => {
+  it.each(["Enter", " "])("opens the level with %j", (key) => {
+    const onClick = vi.fn();
+    const { node } = renderLevelNode({ onClick });
+    act(() => {
+      node.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+    });
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens a practice-locked level so its tutorial stays reachable", () => {
+    const onClick = vi.fn();
+    const { node } = renderLevelNode({ isPracticeLocked: true, onClick });
+    act(() => {
+      node.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    });
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores other keys", () => {
+    const onClick = vi.fn();
+    const { node } = renderLevelNode({ onClick });
+    act(() => {
+      node.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }));
+    });
+    expect(onClick).not.toHaveBeenCalled();
   });
 });

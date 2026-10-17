@@ -16,12 +16,24 @@ export interface LevelNodeVisualState {
  * 由單一關卡的進度推出節點外觀。
  * 外環左半看教學是否完成，右半看練習是否通過或被前置條件鎖住。
  * 練習一旦通過就不再顯示鎖，避免前置條件變動後已通關的節點被鎖起來。
+ * 未開發的關卡只顯示沙漏，舊進度不顯示（關卡還沒做，成績不代表現在的內容）。
  */
 export function getLevelNodeVisualState(
   level: Level,
   progress: LevelProgress | undefined,
   isPracticeLocked: boolean,
 ): LevelNodeVisualState {
+  if (!level.isDeveloped) {
+    return {
+      isUndeveloped: true,
+      phase: "not-started",
+      teachingDone: false,
+      practiceDone: false,
+      practiceLocked: false,
+      stars: 0,
+    };
+  }
+
   const teachingDone = progress?.teachingCompleted === true;
   const practiceDone = progress?.status === "completed";
 
@@ -33,7 +45,7 @@ export function getLevelNodeVisualState(
   }
 
   return {
-    isUndeveloped: !level.isDeveloped,
+    isUndeveloped: false,
     phase,
     teachingDone,
     practiceDone,

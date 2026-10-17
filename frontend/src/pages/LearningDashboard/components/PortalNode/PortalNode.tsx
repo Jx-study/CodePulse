@@ -1,3 +1,4 @@
+import type React from "react";
 import styles from "./PortalNode.module.scss";
 import Icon from "@/shared/components/Icon";
 import type { PortalNodeProps } from "@/types";
@@ -18,6 +19,13 @@ function PortalNode({
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleClick();
+    }
+  };
+
   const nodeClassName = [
     styles.portalNode,
     isUnlocked ? styles.unlocked : styles.locked,
@@ -34,6 +42,7 @@ function PortalNode({
         top: `${position.y}px`,
       }}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       role="button"
       tabIndex={isUnlocked ? 0 : -1}
       aria-label={t("portal.ariaLabel", { targetCategoryName })}

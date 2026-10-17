@@ -42,8 +42,12 @@ function LevelNode({
   const showRecommended = isRecommended && !state.isUndeveloped;
   const showBossDecor = isBossLevel && !state.isUndeveloped;
 
+  // 外環、星星、BOSS 標籤都是視覺資訊，報讀器只聽得到 aria-label
   const ariaLabel = [
     t("node.ariaLabel", { levelName }),
+    isBossLevel && t("node.boss"),
+    state.teachingDone && t("node.tutorialDone"),
+    state.practiceDone && t("node.practicePassed", { count: state.stars }),
     state.isUndeveloped && unavailableMessage,
     !state.isUndeveloped && state.practiceLocked && practiceLockedMessage,
     showRecommended && t("node.recommended"),
@@ -78,11 +82,19 @@ function LevelNode({
       : {}),
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  };
+
   const nodeElement = (
     <div
       className={nodeClassName}
       style={nodeStyle}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
       aria-label={ariaLabel}
@@ -160,7 +172,7 @@ function LevelNode({
       )}
 
       <div className={styles.levelTooltip}>
-        {isBossLevel && <span className={styles.bossChip}>BOSS</span>}
+        {isBossLevel && <span className={styles.bossChip}>{t("node.bossChip")}</span>}
         <span>{levelName}</span>
       </div>
     </div>

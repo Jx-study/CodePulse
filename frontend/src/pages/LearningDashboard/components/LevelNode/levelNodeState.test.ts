@@ -80,13 +80,20 @@ describe("getLevelNodeVisualState", () => {
     expect(state.practiceLocked).toBe(false);
   });
 
-  it("flags undeveloped levels regardless of progress", () => {
+  it("drops all progress from an undeveloped level, even a passed one", () => {
     const state = getLevelNodeVisualState(
       { ...level, isDeveloped: false },
-      progress({ status: "completed", stars: 3 }),
-      false,
+      progress({ status: "completed", stars: 3, teachingCompleted: true }),
+      true,
     );
-    expect(state.isUndeveloped).toBe(true);
+    expect(state).toEqual({
+      isUndeveloped: true,
+      phase: "not-started",
+      teachingDone: false,
+      practiceDone: false,
+      practiceLocked: false,
+      stars: 0,
+    });
   });
 
   it("hides stars until practice passes", () => {
@@ -119,8 +126,12 @@ describe("getPathStatus", () => {
     expect(getPathStatus(state)).toBe("locked");
   });
 
-  it("marks the edge locked for an undeveloped level without a pass", () => {
-    const state = getLevelNodeVisualState({ ...level, isDeveloped: false }, undefined, false);
+  it("marks the edge locked for an undeveloped level, even a passed one", () => {
+    const state = getLevelNodeVisualState(
+      { ...level, isDeveloped: false },
+      progress({ status: "completed", stars: 3 }),
+      false,
+    );
     expect(getPathStatus(state)).toBe("locked");
   });
 });

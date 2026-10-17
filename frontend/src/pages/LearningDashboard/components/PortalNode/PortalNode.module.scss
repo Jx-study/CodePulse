@@ -10,6 +10,20 @@
   z-index: 10;
   border: 3px solid transparent;
   overflow: visible; // 允許能量封印顯示在節點外部
+  outline: none;
+
+  // 與 LevelNode 相同的雙色焦點框
+  &:focus-visible::after {
+    content: "";
+    position: absolute;
+    inset: -0.625rem;
+    border-radius: $radius-full;
+    box-shadow:
+      0 0 0 2px $white-color,
+      0 0 0 4px $dark-bg-primary;
+    z-index: 5;
+    pointer-events: none;
+  }
 
   &.unlocked {
     background: radial-gradient(circle, #667eea 0%, #764ba2 100%);
