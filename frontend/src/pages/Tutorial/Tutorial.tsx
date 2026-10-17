@@ -269,6 +269,10 @@ export const InspectorPanelInternal = ({
         label: tTutorial(config.title),
         icon: config.icon,
         disabled: disabledTabs.has(config.id),
+        disabledHint:
+          config.id === "actionBar"
+            ? tTutorial("actionBarBusyHint")
+            : undefined,
       }));
   }, [activePanels, disabledTabs, tTutorial]);
 
