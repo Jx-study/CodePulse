@@ -12,6 +12,7 @@ import type {
 import { simulateGraphTrace, type GraphAction } from "./simulateTrace";
 import { graphTraceToSteps } from "./traceToSteps";
 import { GraphStatusConfig, TAGS } from "./tags";
+import i18n from "@/i18n";
 import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
 function createGraphAnimationSteps(
@@ -43,16 +44,27 @@ function graphActionHandler(
   const { nodes, edges } = newData;
   const isDirected = payload.isDirected as boolean;
 
+  const tt = (key: string, params?: Record<string, unknown>) =>
+    i18n.t(key, { ns: "tutorials/graph", ...params });
+  const guardResult = (
+    guardTag: string,
+    params: Record<string, unknown>,
+  ): ActionResult<GraphData> => ({
+    animationData: data,
+    useRawAnimationParams: true,
+    animationParams: { type: actionType, guardTag, isDirected, ...params },
+  });
+  const hasNode = (val: unknown) => nodes.some((n) => n.id === `node-${val}`);
+
   if (actionType === "addVertex") {
     const val = payload.value ? String(payload.value) : `node-${nodes.length}`;
     const id = `node-${val}`;
     if (!val || val.trim() === "") {
-      context.toast.warning("請輸入節點 ID");
+      context.toast.warning(tt("toast.requireNodeId"));
       return null;
     }
     if (nodes.find((n) => n.id === id)) {
-      context.toast.warning(`節點 ${val} 已存在`);
-      return null;
+      return guardResult(TAGS.ADD_VERTEX_DUPLICATE, { value: val });
     }
     nodes.push({ id, value: val });
     return {
@@ -66,13 +78,12 @@ function graphActionHandler(
     const targetVal = String(payload.id ?? "");
     const targetIdVal = `node-${targetVal}`;
     if (!targetVal || targetVal.trim() === "") {
-      context.toast.warning("請輸入節點 ID");
+      context.toast.warning(tt("toast.requireNodeId"));
       return null;
     }
     const idx = nodes.findIndex((n) => n.id === targetIdVal);
     if (idx === -1) {
-      context.toast.warning(`節點 ${targetVal} 不存在`);
-      return null;
+      return guardResult(TAGS.REMOVE_VERTEX_MISSING, { id: targetVal });
     }
     const relatedEdges = edges.filter(
       (e) => e[0] === targetIdVal || e[1] === targetIdVal,
@@ -99,12 +110,9 @@ function graphActionHandler(
   if (actionType === "addEdge") {
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
-    if (
-      !nodes.find((n) => n.id === sourceId) ||
-      !nodes.find((n) => n.id === targetIdVal)
-    ) {
-      context.toast.warning("來源或目標節點不存在");
-      return null;
+    const endpoints = { source: payload.source, target: payload.target };
+    if (!hasNode(payload.source) || !hasNode(payload.target)) {
+      return guardResult(TAGS.ADD_EDGE_MISSING_VERTEX, endpoints);
     }
     const exists = edges.some(
       (e) =>
@@ -112,8 +120,7 @@ function graphActionHandler(
         (!isDirected && e[0] === targetIdVal && e[1] === sourceId),
     );
     if (exists) {
-      context.toast.warning("該連線已存在");
-      return null;
+      return guardResult(TAGS.ADD_EDGE_DUPLICATE, endpoints);
     }
     edges.push([sourceId, targetIdVal]);
     return {
@@ -132,6 +139,10 @@ function graphActionHandler(
   if (actionType === "removeEdge") {
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
+    const endpoints = { source: payload.source, target: payload.target };
+    if (!hasNode(payload.source) || !hasNode(payload.target)) {
+      return guardResult(TAGS.REMOVE_EDGE_MISSING_VERTEX, endpoints);
+    }
     const initialLength = edges.length;
     newData.edges = edges.filter((e) => {
       const isForward = e[0] === sourceId && e[1] === targetIdVal;
@@ -139,8 +150,7 @@ function graphActionHandler(
       return isDirected ? !isForward : !(isForward || isBackward);
     });
     if (newData.edges.length === initialLength) {
-      context.toast.warning("找不到該連線，無法刪除");
-      return null;
+      return guardResult(TAGS.REMOVE_EDGE_NOT_FOUND, endpoints);
     }
     return {
       animationData: newData,
@@ -168,7 +178,7 @@ function graphActionHandler(
       (actionType === "getNeighbors" || actionType === "getDegree") &&
       (!payload.id || String(payload.id).trim() === "")
     ) {
-      context.toast.warning("請輸入節點 ID");
+      context.toast.warning(tt("toast.requireNodeId"));
       return null;
     }
     if (
@@ -178,29 +188,34 @@ function graphActionHandler(
         !payload.target ||
         String(payload.target).trim() === "")
     ) {
-      context.toast.warning("請輸入來源與目標節點 ID");
+      context.toast.warning(tt("toast.requireSourceAndTarget"));
       return null;
     }
-    if (actionType === "getNeighbors" || actionType === "getDegree") {
-      if (!nodes.find((n) => n.id === `node-${payload.id}`)) {
-        context.toast.warning(`節點 ${payload.id} 不存在`);
-        return null;
-      }
+    if (
+      (actionType === "getNeighbors" || actionType === "getDegree") &&
+      !hasNode(payload.id)
+    ) {
+      return guardResult(
+        actionType === "getNeighbors"
+          ? TAGS.GET_NEIGHBORS_MISSING
+          : TAGS.GET_DEGREE_MISSING,
+        { id: payload.id },
+      );
     }
-    if (actionType === "checkAdjacent") {
-      if (
-        !nodes.find((n) => n.id === `node-${payload.source}`) ||
-        !nodes.find((n) => n.id === `node-${payload.target}`)
-      ) {
-        context.toast.warning("來源或目標節點不存在");
-        return null;
-      }
+    if (
+      actionType === "checkAdjacent" &&
+      (!hasNode(payload.source) || !hasNode(payload.target))
+    ) {
+      return guardResult(TAGS.CHECK_ADJACENT_MISSING, {
+        source: payload.source,
+        target: payload.target,
+      });
     }
     if (
       (actionType === "checkConnected" || actionType === "checkCycle") &&
       nodes.length === 0
     ) {
-      context.toast.warning("圖形為空");
+      context.toast.warning(tt("toast.emptyGraph"));
       return null;
     }
     return {
@@ -344,7 +359,7 @@ const graphCodeConfig: CodeConfig = {
   End Procedure
 
   Procedure CheckAdjacent(u, v):
-    If u is in adjList Then
+    If u is in adjList And v is in adjList Then
       Return v is in adjList[u]
     End If
     Return False
@@ -443,6 +458,15 @@ End Class`,
       [TAGS.CHECK_CYCLE_FOUND_FALSE]: [112],
       [TAGS.CHECK_CYCLE_END_TRUE]: [115, 116, 117, 118],
       [TAGS.CHECK_CYCLE_END_FALSE]: [120],
+      [TAGS.ADD_VERTEX_DUPLICATE]: [3],
+      [TAGS.REMOVE_VERTEX_MISSING]: [9],
+      [TAGS.ADD_EDGE_MISSING_VERTEX]: [20],
+      [TAGS.ADD_EDGE_DUPLICATE]: [21],
+      [TAGS.REMOVE_EDGE_MISSING_VERTEX]: [33],
+      [TAGS.REMOVE_EDGE_NOT_FOUND]: [34],
+      [TAGS.GET_NEIGHBORS_MISSING]: [46, 49],
+      [TAGS.CHECK_ADJACENT_MISSING]: [53, 56],
+      [TAGS.GET_DEGREE_MISSING]: [60, 61],
     },
   },
   python: {
@@ -483,7 +507,7 @@ End Class`,
         return []
 
     def check_adjacent(self, source: str, target: str) -> bool:
-        if source in self.adj_list:
+        if source in self.adj_list and target in self.adj_list:
             return target in self.adj_list[source]
         return False
 

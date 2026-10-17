@@ -9,9 +9,10 @@ import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import type { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { asTrace } from "@/data/shared/traceValue";
-import { TAGS } from "./tags";
+import { TAGS, GUARD_TAGS } from "./tags";
 
 interface GraphLocalVars {
+  val?: number | string;
   insertVal?: number | string;
   removeVal?: number | string;
   source?: string;
@@ -210,6 +211,57 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.CHECK_CYCLE_END_FALSE]: () => ({
     key: "animation.check_cycle_end_false",
   }),
+  [TAGS.ADD_VERTEX_DUPLICATE]: (e) => ({
+    key: "animation.add_vertex_duplicate",
+    params: { val: asTrace<GraphLocalVars>(e.local_vars).val ?? null },
+  }),
+  [TAGS.REMOVE_VERTEX_MISSING]: (e) => ({
+    key: "animation.remove_vertex_missing",
+    params: { val: asTrace<GraphLocalVars>(e.local_vars).val ?? null },
+  }),
+  [TAGS.ADD_EDGE_MISSING_VERTEX]: (e) => {
+    const lv = asTrace<GraphLocalVars>(e.local_vars);
+    return {
+      key: "animation.add_edge_missing_vertex",
+      params: { src: lv.source ?? null, dst: lv.target ?? null },
+    };
+  },
+  [TAGS.ADD_EDGE_DUPLICATE]: (e) => {
+    const lv = asTrace<GraphLocalVars>(e.local_vars);
+    return {
+      key: "animation.add_edge_duplicate",
+      params: { src: lv.source ?? null, dst: lv.target ?? null },
+    };
+  },
+  [TAGS.REMOVE_EDGE_MISSING_VERTEX]: (e) => {
+    const lv = asTrace<GraphLocalVars>(e.local_vars);
+    return {
+      key: "animation.remove_edge_missing_vertex",
+      params: { src: lv.source ?? null, dst: lv.target ?? null },
+    };
+  },
+  [TAGS.REMOVE_EDGE_NOT_FOUND]: (e) => {
+    const lv = asTrace<GraphLocalVars>(e.local_vars);
+    return {
+      key: "animation.remove_edge_not_found",
+      params: { src: lv.source ?? null, dst: lv.target ?? null },
+    };
+  },
+  [TAGS.GET_NEIGHBORS_MISSING]: (e) => ({
+    key: "animation.get_neighbors_missing",
+    params: { target: asTrace<GraphLocalVars>(e.local_vars).target ?? null },
+  }),
+  [TAGS.CHECK_ADJACENT_MISSING]: (e) => {
+    const lv = asTrace<GraphLocalVars>(e.local_vars);
+    return {
+      key: "animation.check_adjacent_missing",
+      params: { src: lv.source ?? null, dst: lv.target ?? null },
+    };
+  },
+  [TAGS.GET_DEGREE_MISSING]: (e) => ({
+    key: "animation.get_degree_missing",
+    params: { target: asTrace<GraphLocalVars>(e.local_vars).target ?? null },
+  }),
 };
 
 interface GraphMeta {
@@ -289,6 +341,7 @@ export function graphTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx,
       description: descObj,
       actionTag: event.tag,
+      warn: GUARD_TAGS.has(event.tag),
       local_vars: event.local_vars,
       elements: frame.elements,
       links: frame.links,
