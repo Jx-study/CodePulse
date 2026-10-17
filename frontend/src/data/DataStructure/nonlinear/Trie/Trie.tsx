@@ -217,55 +217,50 @@ function createTrieAnimationSteps(
 
 const trieCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class TrieNode:
-  children ← Map()
-  isEndOfWord ← False
+    content: `Procedure Insert(word):
+  curr ← root
+  For char In word Do
+    If Not curr.children.contains(char) Then
+      curr.children[char] ← new TrieNode()
+    curr ← curr.children[char]
+  curr.isEndOfWord ← True
 
-Class Trie:
-  Procedure Insert(word):
-    curr ← root
-    For char In word Do
-      If Not curr.children.contains(char) Then
-        curr.children[char] ← new TrieNode()
-      curr ← curr.children[char]
-    curr.isEndOfWord ← True
-
-  Procedure Search(word, isPrefixMode):
-    curr ← root
-    For char In word Do
-      If Not curr.children.contains(char) Then
-        Return False
-      curr ← curr.children[char]
-    Return isPrefixMode Or curr.isEndOfWord
-
-  Procedure Delete(word):
-    curr ← root
-    For char In word Do
-      If Not curr.children.contains(char) Then
-        Return False
-      curr ← curr.children[char]
-    If Not curr.isEndOfWord Then
+Procedure Search(word, isPrefixMode):
+  curr ← root
+  For char In word Do
+    If Not curr.children.contains(char) Then
       Return False
-    curr.isEndOfWord ← False
-    While curr ≠ root And curr.children is Empty And Not curr.isEndOfWord Do
-      Remove curr from its parent
-      curr ← curr.parent`,
+    curr ← curr.children[char]
+  Return isPrefixMode Or curr.isEndOfWord
+
+Procedure Delete(word):
+  curr ← root
+  For char In word Do
+    If Not curr.children.contains(char) Then
+      Return False
+    curr ← curr.children[char]
+  If Not curr.isEndOfWord Then
+    Return False
+  curr.isEndOfWord ← False
+  While curr ≠ root And curr.children is Empty And Not curr.isEndOfWord Do
+    Remove curr from its parent
+    curr ← curr.parent`,
     mappings: {
-      [TAGS.INSERT_START]: [7],
-      [TAGS.CHAR_CREATE]: [8, 9, 10, 11],
-      [TAGS.CHAR_MATCH]: [8, 9, 11],
-      [TAGS.SET_END]: [12],
-      [TAGS.SEARCH_START]: [15, 16],
-      [TAGS.SEARCH_CHAR_MATCH]: [16, 17, 19],
-      [TAGS.SEARCH_NOT_FOUND]: [17, 18],
-      [TAGS.SEARCH_NOT_WORD]: [20],
-      [TAGS.SEARCH_FOUND]: [20],
-      [TAGS.DELETE_START]: [22, 23],
-      [TAGS.DELETE_CHAR_MATCH]: [24, 25, 27],
-      [TAGS.DELETE_NOT_FOUND]: [25, 26],
-      [TAGS.DELETE_NOT_WORD]: [28, 29],
-      [TAGS.DELETE_UNMARK]: [28, 30],
-      [TAGS.DELETE_PRUNE]: [31, 32, 33],
+      [TAGS.INSERT_START]: [2],
+      [TAGS.CHAR_CREATE]: [3, 4, 5, 6],
+      [TAGS.CHAR_MATCH]: [3, 4, 6],
+      [TAGS.SET_END]: [7],
+      [TAGS.SEARCH_START]: [10, 11],
+      [TAGS.SEARCH_CHAR_MATCH]: [11, 12, 14],
+      [TAGS.SEARCH_NOT_FOUND]: [12, 13],
+      [TAGS.SEARCH_NOT_WORD]: [15],
+      [TAGS.SEARCH_FOUND]: [15],
+      [TAGS.DELETE_START]: [17, 18],
+      [TAGS.DELETE_CHAR_MATCH]: [19, 20, 22],
+      [TAGS.DELETE_NOT_FOUND]: [20, 21],
+      [TAGS.DELETE_NOT_WORD]: [23, 24],
+      [TAGS.DELETE_UNMARK]: [23, 25],
+      [TAGS.DELETE_PRUNE]: [26, 27, 28],
     },
   },
   python: {
@@ -292,7 +287,24 @@ class Trie:
             if char not in curr.children:
                 return False
             curr = curr.children[char]
-        return True if is_prefix else curr.is_end_of_word`,
+        return True if is_prefix else curr.is_end_of_word
+
+    def delete(self, word: str) -> bool:
+        curr = self.root
+        path = []
+        for char in word:
+            if char not in curr.children:
+                return False
+            path.append((curr, char))
+            curr = curr.children[char]
+        if not curr.is_end_of_word:
+            return False
+        curr.is_end_of_word = False
+        while path and not curr.children and not curr.is_end_of_word:
+            parent, char = path.pop()
+            del parent.children[char]
+            curr = parent
+        return True`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(1)'                  },  // class TrieNode:
       { lineNumber: 2,  complexity: 'O(1)'                  },  // def __init__(self):
@@ -315,6 +327,22 @@ class Trie:
       { lineNumber: 22, complexity: 'O(1)' },  // return False — inside loop, O(1) × n
       { lineNumber: 23, complexity: 'O(1)', context: 'O(n)' },  // curr = curr.children[char] — O(1) × n
       { lineNumber: 24, complexity: 'O(1)'                  },  // return ... — outside loop
+      { lineNumber: 26, complexity: 'O(n)' },  // def delete(self, word: str): — overall O(n)
+      { lineNumber: 27, complexity: 'O(1)' },  // curr = self.root
+      { lineNumber: 28, complexity: 'O(1)' },  // path = []
+      { lineNumber: 29, complexity: 'O(n)' },  // for char in word
+      { lineNumber: 30, complexity: 'O(1)', context: 'O(n)' },  // if char not in curr.children
+      { lineNumber: 31, complexity: 'O(1)' },  // return False
+      { lineNumber: 32, complexity: 'O(1)', context: 'O(n)' },  // path.append((curr, char))
+      { lineNumber: 33, complexity: 'O(1)', context: 'O(n)' },  // curr = curr.children[char]
+      { lineNumber: 34, complexity: 'O(1)' },  // if not curr.is_end_of_word:
+      { lineNumber: 35, complexity: 'O(1)' },  // return False
+      { lineNumber: 36, complexity: 'O(1)' },  // curr.is_end_of_word = False
+      { lineNumber: 37, complexity: 'O(n)' },  // while path and not curr.children and not curr.is_end_of_word:
+      { lineNumber: 38, complexity: 'O(1)', context: 'O(n)' },  // parent, char = path.pop()
+      { lineNumber: 39, complexity: 'O(1)', context: 'O(n)' },  // del parent.children[char]
+      { lineNumber: 40, complexity: 'O(1)', context: 'O(n)' },  // curr = parent
+      { lineNumber: 41, complexity: 'O(1)' },  // return True
     ],
   },
 };

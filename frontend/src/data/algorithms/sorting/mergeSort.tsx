@@ -37,11 +37,9 @@ Procedure Merge(left, right):
   While left is not empty And right is not empty Do
     If left[leftIndex] ≤ right[rightIndex] Then
       append left[leftIndex] to result
-      remove first element from left
       leftIndex ← leftIndex + 1
     Else
       append right[rightIndex] to result
-      remove first element from right
       rightIndex ← rightIndex + 1
     End If
   End While
@@ -56,12 +54,12 @@ End Procedure`,
       [TAGS.IF_RETURN]: [2, 3, 4],
       [TAGS.DIVIDE]: [6, 7, 8],
       [TAGS.MERGE_START]: [10, 13, 14, 15, 16],
-      [TAGS.COMPARE]: [17, 18, 22],
-      [TAGS.LEFT_COPY]: [19, 20, 21],
-      [TAGS.RIGHT_COPY]: [23, 24, 25],
-      [TAGS.REMAINING]: [29, 30],
-      [TAGS.MERGE_END]: [32],
-      [TAGS.DONE]: [32],
+      [TAGS.COMPARE]: [17, 18, 21],
+      [TAGS.LEFT_COPY]: [19, 20],
+      [TAGS.RIGHT_COPY]: [22, 23],
+      [TAGS.REMAINING]: [27, 28],
+      [TAGS.MERGE_END]: [30],
+      [TAGS.DONE]: [30],
     },
   },
   python: {

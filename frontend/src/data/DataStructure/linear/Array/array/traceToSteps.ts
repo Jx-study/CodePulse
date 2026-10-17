@@ -15,7 +15,11 @@ interface ArrayMeta {
 const BOX_START_X = 50;
 const BOX_GAP = 70;
 
-const WARN_TAGS = new Set<string>([TAGS.UPDATE_ERROR, TAGS.DELETE_ERROR]);
+const WARN_TAGS = new Set<string>([
+  TAGS.UPDATE_ERROR,
+  TAGS.DELETE_ERROR,
+  TAGS.INSERT_ERROR,
+]);
 const INFO_TAGS = new Set<string>([TAGS.INSERT_CLAMP]);
 
 // tag → StepDescription factory
@@ -64,6 +68,16 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.UPDATE_ERROR]: (e) => ({
     key: "animation.update_error",
     params: { index: e.local_vars.index },
+  }),
+
+  [TAGS.INSERT_CHECK_FULL]: (e) => ({
+    key: "animation.insert_check_full",
+    params: { length: e.local_vars.length, capacity: e.local_vars.capacity },
+  }),
+
+  [TAGS.INSERT_ERROR]: (e) => ({
+    key: "animation.insert_error",
+    params: { length: e.local_vars.length, capacity: e.local_vars.capacity },
   }),
 
   [TAGS.INSERT_CHECK_INDEX]: (e) => ({

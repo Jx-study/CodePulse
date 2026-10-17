@@ -40,6 +40,8 @@
     "remove_edge_not_found": "找不到連線 {{src}} → {{dst}}，無法刪除",
     "get_neighbors_missing": "節點 {{target}} 不存在，回傳空串列",
     "check_adjacent_missing": "來源 {{src}} 或目標 {{dst}} 節點不存在，回傳 False",
+    "check_cycle_empty": "圖是空的，沒有環（Return Null）",
+    "check_connected_empty": "圖是空的，視為連通（Return True）",
     "get_degree_missing": "節點 {{target}} 不存在，回傳 -1"
   },
   "ui": {
@@ -237,8 +239,5 @@
         "icon": "route"
       }
     ]
-  },
-  "toast": {
-    "emptyGraph": "圖形為空"
   }
 }

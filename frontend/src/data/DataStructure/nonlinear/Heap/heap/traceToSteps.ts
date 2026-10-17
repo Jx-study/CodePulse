@@ -51,6 +51,12 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.heapify_down_swap",
     params: { heapName: e.local_vars.heapName },
   }),
+  [TAGS.HEAPIFY_UP_STOP]: () => ({ key: "animation.heapify_up_stop" }),
+  [TAGS.HEAPIFY_DOWN_STOP]: () => ({ key: "animation.heapify_down_stop" }),
+  [TAGS.EXTRACT_RETURN]: (e) => ({
+    key: "animation.extract_return",
+    params: { extVal: e.local_vars.extVal },
+  }),
   [TAGS.PEEK]: (e) => ({
     key: e.local_vars.isMinHeap ? "animation.peek_min" : "animation.peek_max",
     params: { extVal: e.local_vars.extVal },

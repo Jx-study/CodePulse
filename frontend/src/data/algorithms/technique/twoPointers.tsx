@@ -126,8 +126,6 @@ End Procedure`,
   },
   python: {
     content: `def remove_duplicates(arr):
-    if not arr:
-        return 0
     slow = 0
 
     for fast in range(1, len(arr)):
@@ -139,15 +137,13 @@ End Procedure`,
     return slow + 1`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(n)' },                      // def remove_duplicates(arr):
-      { lineNumber: 2,  complexity: 'O(1)' },                      // if not arr:
-      { lineNumber: 3,  complexity: 'O(1)' },                      // return 0
-      { lineNumber: 4,  complexity: 'O(1)' },                      // slow = 0
-      { lineNumber: 6,  complexity: 'O(n)' },                      // for fast in range(1, len(arr)):
-      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },     // if arr[fast] == arr[slow]:
-      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n)' },     // continue
-      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n)' },     // slow += 1
-      { lineNumber: 10, complexity: 'O(1)', context: 'O(n)' },     // arr[slow] = arr[fast]
-      { lineNumber: 12, complexity: 'O(1)' },                      // return slow + 1
+      { lineNumber: 2,  complexity: 'O(1)' },                      // slow = 0
+      { lineNumber: 4,  complexity: 'O(n)' },                      // for fast in range(1, len(arr)):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)' },     // if arr[fast] == arr[slow]:
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n)' },     // continue
+      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },     // slow += 1
+      { lineNumber: 8, complexity: 'O(1)', context: 'O(n)' },     // arr[slow] = arr[fast]
+      { lineNumber: 10, complexity: 'O(1)' },                      // return slow + 1
     ],
   },
 };

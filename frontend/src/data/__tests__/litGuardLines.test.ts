@@ -56,6 +56,21 @@ describe("guard lines light up in a normal run", () => {
     );
   });
 
+  it("heap extract lights its Return and both Break lines", () => {
+    const code = HeapConfig.codeConfig!;
+    const lit = litLines(HeapConfig, code, (h) => [
+      ...h.custom("delete", maxHeap),
+      ...h.custom("add", { ...maxHeap, value: 1 }),
+    ]);
+
+    const returns = lineNumbers(code, "Return extValue");
+
+    expect(lit.has(returns[returns.length - 1])).toBe(true);
+    ["If target = i Then Break", "Break"].forEach((text) =>
+      lineNumbers(code, text).forEach((n) => expect(lit.has(n)).toBe(true)),
+    );
+  });
+
   it("graph degree shows the missing-vertex check", () => {
     const code = GraphConfig.codeConfig!;
     const lit = litLines(GraphConfig, code, (h) => [

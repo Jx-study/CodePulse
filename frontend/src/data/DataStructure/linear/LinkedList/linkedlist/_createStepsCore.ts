@@ -2480,6 +2480,35 @@ function createDeleteIndexSteps(
 
   const { type, value, mode, targetId, index: actionIndex } = action;
 
+  if (action.indexGuard) {
+    const elements = dataList.flatMap((item, i) =>
+      makeNodeAndPointers(
+        item,
+        i,
+        dataList.length,
+        startX + i * gap,
+        baseY,
+        hasTailMode,
+        Status.Unfinished,
+      ),
+    );
+    linkForVariant(elements.filter(isNode), isDoubly);
+    const isInsert = type === "add";
+    addStep(steps, {
+      stepNumber: 1,
+      description: {
+        key: isInsert
+          ? "animation.insert_index_out_of_range"
+          : "animation.delete_index_out_of_range",
+        params: { index: actionIndex, length: dataList.length },
+      },
+      elements,
+      actionTag: isInsert ? TAGS.INSERT_INDEX_ERROR : TAGS.DELETE_INDEX_ERROR,
+      warn: true,
+    });
+    return steps;
+  }
+
   if (type === "search") {
     return createSearchSteps(
       dataList,

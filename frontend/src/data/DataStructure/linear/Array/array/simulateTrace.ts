@@ -118,6 +118,21 @@ export function simulateArrayTrace(
       });
     }
 
+  // Insert on a full array
+  } else if (type === "add" && action.overflow) {
+    const capacity = action.capacity ?? dataList.length;
+    const fullVars = { length: dataList.length, capacity, full: true };
+    trace.push({
+      tag: TAGS.INSERT_CHECK_FULL,
+      local_vars: fullVars,
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.INSERT_ERROR,
+      local_vars: fullVars,
+      dataSnapshot: snapshot(dataList),
+    });
+
   // Insert
   } else if (type === "add") {
     const idx = index !== undefined ? index : dataList.length - 1;
@@ -128,6 +143,15 @@ export function simulateArrayTrace(
       value: i < idx ? dataList[i].value : dataList[i + 1].value,
     }));
     const wasClamped = requestedIndex !== idx;
+    trace.push({
+      tag: TAGS.INSERT_CHECK_FULL,
+      local_vars: {
+        length: originalLength,
+        capacity: action.capacity ?? originalLength + 1,
+        full: false,
+      },
+      dataSnapshot: snapshot(originalList),
+    });
     trace.push({
       tag: wasClamped ? TAGS.INSERT_CLAMP : TAGS.INSERT_CHECK_INDEX,
       local_vars: wasClamped

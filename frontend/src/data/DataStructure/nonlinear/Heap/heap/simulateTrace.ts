@@ -152,6 +152,12 @@ export function simulateHeapTrace(
           });
           idx = targetIdx;
         } else {
+          trace.push({
+            tag: TAGS.HEAPIFY_DOWN_STOP,
+            local_vars: { idx },
+            dataSnapshot: getSnapshot(),
+            meta: { overrideStatusMap: { [idx]: "Target" } },
+          });
           break;
         }
       }
@@ -214,6 +220,14 @@ export function simulateHeapTrace(
 
         idx = parentIdx;
       } else {
+        trace.push({
+          tag: TAGS.HEAPIFY_UP_STOP,
+          local_vars: { idx, parentIdx },
+          dataSnapshot: getSnapshot(),
+          meta: {
+            overrideStatusMap: { [idx]: "Target", [parentIdx]: "Prepare" },
+          },
+        });
         break;
       }
     }
@@ -334,9 +348,22 @@ export function simulateHeapTrace(
         });
         idx = targetIdx;
       } else {
+        trace.push({
+          tag: TAGS.HEAPIFY_DOWN_STOP,
+          local_vars: { idx },
+          dataSnapshot: getSnapshot(),
+          meta: { overrideStatusMap: { [idx]: "Target" } },
+        });
         break;
       }
     }
+
+    trace.push({
+      tag: TAGS.EXTRACT_RETURN,
+      local_vars: { extVal },
+      dataSnapshot: getSnapshot(),
+      meta: { status: "Complete" },
+    });
 
     trace.push({
       tag: TAGS.DONE,

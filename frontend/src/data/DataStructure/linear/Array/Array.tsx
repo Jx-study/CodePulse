@@ -24,83 +24,86 @@ function createArrayAnimationSteps(
   return arrayTraceToSteps(trace);
 }
 
+const ARRAY_CAPACITY = 20;
+
 const arrayCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Array:
-  Data:
-    length ← 0
-    data ← []
-
-  Procedure search(target):
-    For i ← 0 to length - 1:
-      If data[i] == target Then
-        Return i  // Found
-      End If
-    End For
-    Return -1     // Not Found
-  End Procedure
-
-  Procedure update(index, value):
-    If index < 0 or index ≥ length Then
-      Return Error
+    content: `Procedure search(target):
+  For i ← 0 to length - 1:
+    If data[i] == target Then
+      Return i  // Found
     End If
-    
-    data[index] ← value
-  End Procedure
+  End For
+  Return -1     // Not Found
+End Procedure
 
-  Procedure insert(index, value):
-    If index > length Then
-      index ← length
-    End If
+Procedure update(index, value):
+  If index < 0 or index ≥ length Then
+    Return Error
+  End If
+  
+  data[index] ← value
+End Procedure
 
-    // 1. Expand array size (append at back)
-    length ← length + 1
-    
-    // 2. Shift elements to the right
-    // (Prepare space for the new value at index)
-    For i ← length - 1 down to index + 1:
-      data[i] ← data[i - 1]
-    End For
-    
-    // 3. Insert value
-    data[index] ← value
-  End Procedure
+Procedure insert(index, value):
+  If length = capacity Then
+    Return Error
+  End If
 
-  Procedure delete(index):
-    If index < 0 or index ≥ length Then
-      Return Error
-    End If
+  If index > length Then
+    index ← length
+  End If
 
-    // Shift elements to the left
-    For i ← index to length - 2:
-      data[i] ← data[i + 1]
-    End For
+  // 1. Expand array size (append at back)
+  length ← length + 1
+  
+  // 2. Shift elements to the right
+  // (Prepare space for the new value at index)
+  For i ← length - 1 down to index + 1:
+    data[i] ← data[i - 1]
+  End For
+  
+  // 3. Insert value
+  data[index] ← value
+End Procedure
 
-    // Remove last element
-    length ← length - 1
-  End Procedure`,
+Procedure delete(index):
+  If index < 0 or index ≥ length Then
+    Return Error
+  End If
+
+  // Shift elements to the left
+  For i ← index to length - 2:
+    data[i] ← data[i + 1]
+  End For
+
+  // Remove last element
+  length ← length - 1
+End Procedure`,
     mappings: {
-      [TAGS.SEARCH_START]: [6],
-      [TAGS.SEARCH_COMPARE]: [7, 8],
-      [TAGS.SEARCH_FOUND]: [9],
-      [TAGS.SEARCH_NOT_FOUND]: [12],
-      [TAGS.UPDATE_START]: [15],
-      [TAGS.UPDATE_CHECK_INDEX]: [16],
-      [TAGS.UPDATE_ERROR]: [17],
-      [TAGS.UPDATE_ASSIGN]: [20],
-      [TAGS.UPDATE_COMPLETE]: [21],
-      [TAGS.INSERT_CHECK_INDEX]: [24],
-      [TAGS.INSERT_CLAMP]: [24, 25],
-      [TAGS.INSERT_START]: [28, 29],
-      [TAGS.INSERT_SHIFT]: [31, 32, 33, 34],
-      [TAGS.INSERT_ASSIGN]: [37, 38],
-      [TAGS.INSERT_COMPLETE]: [39],
-      [TAGS.DELETE_START]: [41],
-      [TAGS.DELETE_CHECK_INDEX]: [42],
-      [TAGS.DELETE_ERROR]: [43],
-      [TAGS.DELETE_SHIFT]: [46, 47, 48],
-      [TAGS.DELETE_REMOVE]: [51, 52],
-      [TAGS.DELETE_COMPLETE]: [53],
+      [TAGS.SEARCH_START]: [1],
+      [TAGS.SEARCH_COMPARE]: [2, 3],
+      [TAGS.SEARCH_FOUND]: [4],
+      [TAGS.SEARCH_NOT_FOUND]: [7],
+      [TAGS.UPDATE_START]: [10],
+      [TAGS.UPDATE_CHECK_INDEX]: [11],
+      [TAGS.UPDATE_ERROR]: [12],
+      [TAGS.UPDATE_ASSIGN]: [15],
+      [TAGS.UPDATE_COMPLETE]: [16],
+      [TAGS.INSERT_CHECK_FULL]: [19],
+      [TAGS.INSERT_ERROR]: [20],
+      [TAGS.INSERT_CHECK_INDEX]: [23],
+      [TAGS.INSERT_CLAMP]: [23, 24],
+      [TAGS.INSERT_START]: [27, 28],
+      [TAGS.INSERT_SHIFT]: [30, 31, 32, 33],
+      [TAGS.INSERT_ASSIGN]: [36, 37],
+      [TAGS.INSERT_COMPLETE]: [38],
+      [TAGS.DELETE_START]: [40],
+      [TAGS.DELETE_CHECK_INDEX]: [41],
+      [TAGS.DELETE_ERROR]: [42],
+      [TAGS.DELETE_SHIFT]: [45, 46, 47],
+      [TAGS.DELETE_REMOVE]: [50, 51],
+      [TAGS.DELETE_COMPLETE]: [52],
     },
   },
   python: {
@@ -117,6 +120,8 @@ const arrayCodeConfig: CodeConfig = {
         self.arr[index] = value
 
     def insert(self, index, value):
+        if len(self.arr) == self.capacity:
+            raise OverflowError("Array is full")
         # Python's list.insert handles shifting
         self.arr.insert(index, value)
 
@@ -137,12 +142,14 @@ const arrayCodeConfig: CodeConfig = {
       { lineNumber: 11, complexity: 'O(1)' },                             // self.arr[index] = value
       // L12: blank line — skipped
       { lineNumber: 13, complexity: 'O(n)' },                             // def insert(self, index, value):
-      // # L14: Python's list.insert handles shifting
-      { lineNumber: 15, complexity: 'O(n)' },                             // self.arr.insert(index, value) — O(n) itself
-      // L16: blank line — skipped
-      { lineNumber: 17, complexity: 'O(n)' },                             // def delete(self, index):
-      // L18: # Python's list.pop handles shifting
-      { lineNumber: 19, complexity: 'O(n)' },                             // self.arr.pop(index) — O(n) itself
+      { lineNumber: 14, complexity: 'O(1)' },                             // if len(self.arr) == self.capacity:
+      { lineNumber: 15, complexity: 'O(1)' },                             // raise OverflowError(...)
+      // # L16: Python's list.insert handles shifting
+      { lineNumber: 17, complexity: 'O(n)' },                             // self.arr.insert(index, value) — O(n) itself
+      // L18: blank line — skipped
+      { lineNumber: 19, complexity: 'O(n)' },                             // def delete(self, index):
+      // L20: # Python's list.pop handles shifting
+      { lineNumber: 21, complexity: 'O(n)' },                             // self.arr.pop(index) — O(n) itself
     ],
   },
 };
@@ -161,6 +168,19 @@ function arrayActionHandler(
   };
   const newData = data.map((d) => ({ ...d }));
 
+  if (actionType === "add" && mode === "Insert" && payload.overflow) {
+    return {
+      animationData: data,
+      animationParams: {
+        value,
+        mode: "Insert",
+        index,
+        overflow: true,
+        capacity: ARRAY_CAPACITY,
+      },
+    };
+  }
+
   if (actionType === "add" && mode === "Insert") {
     const idx = index ?? newData.length;
     const safeIdx = Math.max(0, Math.min(idx, newData.length));
@@ -177,6 +197,7 @@ function arrayActionHandler(
         value,
         index: safeIdx,
         requestedIndex: idx,
+        capacity: ARRAY_CAPACITY,
       },
     };
   }
@@ -307,6 +328,7 @@ export const ArrayConfig: LevelImplementationConfig = {
       url: "https://leetcode.com/problems/rotate-array/",
     },
   ],
-  maxNodes: 20,
+  maxNodes: ARRAY_CAPACITY,
+  hasCapacityGuard: true,
   realWorldStories: arrayRealWorldStories,
 };
