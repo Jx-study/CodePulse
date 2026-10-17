@@ -64,6 +64,16 @@ describe("graph guards through the real action pipeline", () => {
     expect(graph.warning).not.toHaveBeenCalled();
   });
 
+  it("checking for a cycle in an empty graph shows one info step", () => {
+    const graph = mountStructure(GraphConfig, {}, { nodes: [], edges: [] });
+
+    const steps = graph.graph("checkCycle", undirected);
+
+    expect(steps).toHaveLength(1);
+    expect(graph.info).toHaveBeenCalledWith("animation.check_cycle_empty");
+    expect(graph.warning).not.toHaveBeenCalled();
+  });
+
   it("a valid action plays several steps and shows no toast", () => {
     const graph = mountStructure(GraphConfig);
 

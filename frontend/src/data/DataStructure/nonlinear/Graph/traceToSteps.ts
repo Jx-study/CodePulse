@@ -261,6 +261,9 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.CHECK_CONNECTED_EMPTY]: () => ({
     key: "animation.check_connected_empty",
   }),
+  [TAGS.CHECK_CYCLE_EMPTY]: () => ({
+    key: "animation.check_cycle_empty",
+  }),
   [TAGS.GET_DEGREE_MISSING]: (e) => ({
     key: "animation.get_degree_missing",
     params: { target: asTrace<GraphLocalVars>(e.local_vars).target ?? null },

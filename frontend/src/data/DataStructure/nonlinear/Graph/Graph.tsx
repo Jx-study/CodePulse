@@ -12,7 +12,6 @@ import type {
 import { simulateGraphTrace, type GraphAction } from "./simulateTrace";
 import { graphTraceToSteps } from "./traceToSteps";
 import { GraphStatusConfig, TAGS } from "./tags";
-import i18n from "@/i18n";
 import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
 function createGraphAnimationSteps(
@@ -44,8 +43,6 @@ function graphActionHandler(
   const { nodes, edges } = newData;
   const isDirected = payload.isDirected as boolean;
 
-  const tt = (key: string, params?: Record<string, unknown>) =>
-    i18n.t(key, { ns: "tutorials/graph", ...params });
   const guardResult = (
     guardTag: string,
     params: Record<string, unknown>,
@@ -190,8 +187,7 @@ function graphActionHandler(
       return guardResult(TAGS.CHECK_CONNECTED_EMPTY, {});
     }
     if (actionType === "checkCycle" && nodes.length === 0) {
-      context.toast.warning(tt("toast.emptyGraph"));
-      return null;
+      return guardResult(TAGS.CHECK_CYCLE_EMPTY, {});
     }
     return {
       animationData: data,
@@ -443,6 +439,7 @@ End Procedure`,
       [TAGS.GET_NEIGHBORS_MISSING]: [45, 48],
       [TAGS.CHECK_ADJACENT_MISSING]: [52, 55],
       [TAGS.GET_DEGREE_MISSING]: [59, 60],
+      [TAGS.CHECK_CYCLE_EMPTY]: [117, 122],
       [TAGS.CHECK_CONNECTED_EMPTY]: [72, 73],
     },
   },
