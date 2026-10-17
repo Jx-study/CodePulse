@@ -15,11 +15,8 @@ interface ArrayMeta {
 const BOX_START_X = 50;
 const BOX_GAP = 70;
 
-const WARN_TAGS = new Set<string>([
-  TAGS.UPDATE_ERROR,
-  TAGS.DELETE_ERROR,
-  TAGS.INSERT_CLAMP,
-]);
+const WARN_TAGS = new Set<string>([TAGS.UPDATE_ERROR, TAGS.DELETE_ERROR]);
+const INFO_TAGS = new Set<string>([TAGS.INSERT_CLAMP]);
 
 // tag → StepDescription factory
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
@@ -167,6 +164,7 @@ export function arrayTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       elements: boxes,
       warn: WARN_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
       actionTag: event.tag,
       local_vars: event.local_vars,
       global_vars: event.global_vars,

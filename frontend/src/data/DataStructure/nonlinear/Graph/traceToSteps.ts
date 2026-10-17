@@ -9,7 +9,7 @@ import { Node } from "@/modules/core/DataLogic/Node";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import type { linkStatus } from "@/modules/core/Render/D3Renderer";
 import { asTrace } from "@/data/shared/traceValue";
-import { TAGS, GUARD_TAGS } from "./tags";
+import { TAGS, GUARD_TAGS, INFO_GUARD_TAGS } from "./tags";
 
 interface GraphLocalVars {
   val?: number | string;
@@ -341,7 +341,8 @@ export function graphTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx,
       description: descObj,
       actionTag: event.tag,
-      warn: GUARD_TAGS.has(event.tag),
+      warn: GUARD_TAGS.has(event.tag) && !INFO_GUARD_TAGS.has(event.tag),
+      info: INFO_GUARD_TAGS.has(event.tag),
       local_vars: event.local_vars,
       elements: frame.elements,
       links: frame.links,

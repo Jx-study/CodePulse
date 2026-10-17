@@ -49,6 +49,7 @@ const GUARD_ERROR_TAGS = new Set<string>([
   TAGS.ENQUEUE_ERROR,
   TAGS.DEQUEUE_ERROR,
 ]);
+const INFO_TAGS = new Set<string>([TAGS.PEEK_ERROR]);
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
@@ -332,6 +333,7 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
       warn: GUARD_ERROR_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
       local_vars: event.local_vars,
       elements,
     };

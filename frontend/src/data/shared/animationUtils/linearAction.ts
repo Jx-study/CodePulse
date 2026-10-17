@@ -37,7 +37,7 @@ export function createLinearActionHandler(options: LinearActionHandlerOptions = 
       if (!values?.length) return null;
       const sorted = sortOnLoad ? [...values].sort((a, b) => a - b) : values;
       if (sortOnLoad && sortNoticeNamespace && sorted.some((v, i) => v !== values[i])) {
-        context.toast.warning(i18n.t('actionHandler.autoSorted', { ns: sortNoticeNamespace }));
+        context.toast.info(i18n.t('actionHandler.autoSorted', { ns: sortNoticeNamespace }));
       }
       return {
         animationData: sorted.map((v) => ({ id: context.nextId(), value: v })),

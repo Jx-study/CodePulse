@@ -52,6 +52,12 @@ export const GUARD_TAGS: ReadonlySet<string> = new Set([
   TAGS.GET_DEGREE_MISSING,
 ]);
 
+export const INFO_GUARD_TAGS: ReadonlySet<string> = new Set([
+  TAGS.GET_NEIGHBORS_MISSING,
+  TAGS.CHECK_ADJACENT_MISSING,
+  TAGS.GET_DEGREE_MISSING,
+]);
+
 export const GraphStatusConfig: StatusConfig = {
   i18nNs: "tutorials/graph",
   statuses: [

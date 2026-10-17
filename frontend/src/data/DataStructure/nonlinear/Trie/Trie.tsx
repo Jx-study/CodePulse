@@ -66,7 +66,7 @@ function trieActionHandler(
       rawWords.length !== uniqueWords.length ||
       rawWords.some((w, i) => w !== uniqueWords[i])
     ) {
-      context.toast.warning(
+      context.toast.info(
         i18n.t("actionHandler.loadNormalized", {
           ns: "tutorials/trie",
           max: TRIE_MAX_WORDS,
