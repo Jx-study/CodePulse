@@ -16,6 +16,7 @@ export interface AnimationStep {
   description: string | StepDescription;
   elements: BaseElement[];
   actionTag?: string; // 用於對應代碼高亮的標籤
+  warn?: boolean; // 播放到此步驟時，以 toast 顯示 description（用於 guard 被觸發）
   local_vars?: Record<string, JsonValue>;
   global_vars?: Record<string, JsonValue>;
   links?: {

@@ -524,6 +524,9 @@ function TutorialContent() {
     const implementation = getImplementationByLevelId(levelId);
     return implementation;
   }, [levelId]);
+  const { t: tStructure } = useTranslation(
+    topicTypeConfig?.i18nNamespace ?? "animation",
+  );
 
   // 計算當前演算法的狀態顏色映射表（memoized）
   const currentStatusColorMap = useMemo(() => {
@@ -591,6 +594,12 @@ function TutorialContent() {
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
+
+  // guard 被觸發的步驟：與偽代碼高亮同步 toast
+  useEffect(() => {
+    if (!currentStepData?.warn) return;
+    toast.warning(renderDescription(currentStepData.description, tStructure));
+  }, [currentStepData]);
 
   // 根據 hasTailMode / listMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
@@ -752,7 +761,7 @@ function TutorialContent() {
     let overflow = false;
     if (maxNodes !== undefined) {
       const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
-      if (currentCount >= maxNodes && !topicTypeConfig?.animateOverflow) {
+      if (currentCount >= maxNodes && !topicTypeConfig?.hasCapacityGuard) {
         toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
         return;
       }

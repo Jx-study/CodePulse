@@ -50,12 +50,6 @@ export function simulateStackTrace(
       dataSnapshot: [],
       meta,
     });
-    trace.push({
-      tag: TAGS.PUSH_DISCARD,
-      local_vars: { top: currentTop, size: dataList.length },
-      dataSnapshot: [],
-      meta,
-    });
     return trace;
   }
 

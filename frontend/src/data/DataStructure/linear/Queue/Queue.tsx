@@ -1,5 +1,4 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { statusConfigWithRejected } from "@/data/shared/rejectedSlot";
 import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
 import { QueueActionBar } from "./QueueActionBar";
@@ -60,7 +59,6 @@ const queueCodeConfig: CodeConfig = {
       [TAGS.ENQUEUE_START]: [8],
       [TAGS.ENQUEUE_CHECK_FULL]: [9],
       [TAGS.ENQUEUE_ERROR]: [10],
-      [TAGS.ENQUEUE_DISCARD]: [10],
       [TAGS.ENQUEUE_INC_REAR]: [12, 13],
       [TAGS.ENQUEUE_ASSIGN]: [14],
       [TAGS.ENQUEUE_COMPLETE]: [15],
@@ -264,6 +262,5 @@ export const QueueConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 12,
-  animateOverflow: true,
-  statusConfig: statusConfigWithRejected,
+  hasCapacityGuard: true,
 };

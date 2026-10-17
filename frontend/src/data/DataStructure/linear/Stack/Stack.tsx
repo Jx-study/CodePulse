@@ -1,5 +1,4 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { statusConfigWithRejected } from "@/data/shared/rejectedSlot";
 import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { LinearData as BoxData, LinearAction as ActionType } from "../utils";
 import { StackActionBar } from "./StackActionBar";
@@ -55,7 +54,6 @@ const stackCodeConfig: CodeConfig = {
       [TAGS.PUSH_START]: [6],
       [TAGS.PUSH_CHECK_FULL]: [7],
       [TAGS.PUSH_ERROR]: [8],
-      [TAGS.PUSH_DISCARD]: [8],
       [TAGS.PUSH_INC_TOP]: [10],
       [TAGS.PUSH_ASSIGN]: [11],
       [TAGS.PUSH_COMPLETE]: [12],
@@ -282,6 +280,5 @@ export const StackConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 12,
-  animateOverflow: true,
-  statusConfig: statusConfigWithRejected,
+  hasCapacityGuard: true,
 };
