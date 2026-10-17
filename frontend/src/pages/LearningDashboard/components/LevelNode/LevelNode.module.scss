@@ -3,7 +3,7 @@
 // LevelNode：中央圖示表示整體進度，外環左半是教學、右半是練習
 // 分類主題色只用在 Boss 底色，一般節點只用固定的狀態色
 
-$ring-teach: #3b82f6;
+$ring-teach: $info-color;
 $ring-practice: $success-color;
 $node-core-bg: $dark-bg-tertiary;
 $ring-track-locked: $dark-border;
@@ -120,18 +120,16 @@ $undeveloped-icon: #7a7596;
 }
 
 // ==================== 建議節點 ====================
+// 只用柔光，spread 蓋到外環外緣，光從環外開始散，不在環旁邊多一圈硬邊
+// 平常收小偏暗，峰值放大到全亮；放大時不能同時變淡，否則總亮度抵銷，看起來不會動
 .recommended .core {
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--recommend-glow) 40%, transparent),
-    0 0 1.75rem 0.375rem var(--recommend-glow);
+  box-shadow: 0 0 1rem 0.625rem color-mix(in srgb, var(--recommend-glow) 45%, transparent);
   animation: recommendPulse 2.2s ease-in-out infinite;
 }
 
 @keyframes recommendPulse {
   50% {
-    box-shadow:
-      0 0 0 0.4375rem color-mix(in srgb, var(--recommend-glow) 20%, transparent),
-      0 0 2.375rem 0.625rem color-mix(in srgb, var(--recommend-glow) 70%, transparent);
+    box-shadow: 0 0 2rem 0.875rem var(--recommend-glow);
   }
 }
 

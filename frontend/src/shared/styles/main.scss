@@ -11,7 +11,7 @@
 
 // 主題
 :root {
-  --primary-color: $primary-color;
+  --primary-color: #{$primary-color};
   /* Light Mode */
   --bg-primary: #{$light-bg-primary};
   --bg-secondary: #{$light-bg-secondary};
@@ -50,7 +50,7 @@
   --glow-color-hover: #{$primary-color};
   --glow-shadow: 0 2px 12px #{rgba($primary-color, 0.2)};
   --glow-shadow-hover: 0 4px 20px #{rgba($primary-color, 0.35)};
-  --recommend-glow: #{rgba($light-text-primary, 0.35)};
+  --recommend-glow: #{rgba($primary-color, 0.5)};
 
   /* Header Height */
   --header-height: #{$header-height};

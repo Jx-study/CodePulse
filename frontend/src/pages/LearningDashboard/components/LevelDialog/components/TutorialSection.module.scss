@@ -1,6 +1,6 @@
 @use 'sass:color';
 // 藍色主題色
-$blue-theme: #3b82f6;
+$blue-theme: $info-color;
 $blue-border-light: rgba(59, 130, 246, 0.2);
 $blue-border-dark: rgba(59, 130, 246, 0.15);
 
