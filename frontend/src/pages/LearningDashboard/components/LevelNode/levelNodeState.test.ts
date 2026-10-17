@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Level, LevelProgress } from "@/types";
-import { getLevelNodeVisualState } from "./levelNodeState";
+import { getLevelNodeVisualState, getPathStatus } from "./levelNodeState";
 
 const level: Level = {
   id: "bubble-sort",
@@ -96,5 +96,31 @@ describe("getLevelNodeVisualState", () => {
       false,
     );
     expect(state.stars).toBe(0);
+  });
+});
+
+describe("getPathStatus", () => {
+  it("keeps the edge completed when a passed level's prerequisites are no longer met", () => {
+    const state = getLevelNodeVisualState(
+      level,
+      progress({ status: "completed", stars: 3 }),
+      true,
+    );
+    expect(getPathStatus(state)).toBe("completed");
+  });
+
+  it("marks the edge unlocked when practice is open", () => {
+    const state = getLevelNodeVisualState(level, progress({ teachingCompleted: true }), false);
+    expect(getPathStatus(state)).toBe("unlocked");
+  });
+
+  it("marks the edge locked when practice is locked", () => {
+    const state = getLevelNodeVisualState(level, progress(), true);
+    expect(getPathStatus(state)).toBe("locked");
+  });
+
+  it("marks the edge locked for an undeveloped level without a pass", () => {
+    const state = getLevelNodeVisualState({ ...level, isDeveloped: false }, undefined, false);
+    expect(getPathStatus(state)).toBe("locked");
   });
 });

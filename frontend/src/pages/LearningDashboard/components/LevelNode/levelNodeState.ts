@@ -1,4 +1,5 @@
 import type { Level, LevelProgress, ScoreLevel } from "@/types";
+import { isLevelStarted } from "@/shared/lib/levelProgress";
 
 export type NodePhase = "not-started" | "in-progress" | "completed";
 
@@ -23,13 +24,11 @@ export function getLevelNodeVisualState(
 ): LevelNodeVisualState {
   const teachingDone = progress?.teachingCompleted === true;
   const practiceDone = progress?.status === "completed";
-  const practiceStarted =
-    (progress?.attempts ?? 0) > 0 || progress?.status === "in-progress";
 
   let phase: NodePhase = "not-started";
   if (practiceDone) {
     phase = "completed";
-  } else if (teachingDone || practiceStarted) {
+  } else if (isLevelStarted(progress)) {
     phase = "in-progress";
   }
 
@@ -41,4 +40,16 @@ export function getLevelNodeVisualState(
     practiceLocked: isPracticeLocked && !practiceDone,
     stars: practiceDone ? (progress?.stars ?? 0) : 0,
   };
+}
+
+export type PathStatus = "locked" | "unlocked" | "completed";
+
+/**
+ * 連進某關的路徑線狀態，跟著目標節點的練習半環走。
+ * 練習通過就維持 completed，前置條件後來變動也不會變回 locked。
+ */
+export function getPathStatus(state: LevelNodeVisualState): PathStatus {
+  if (state.practiceDone) return "completed";
+  if (state.isUndeveloped || state.practiceLocked) return "locked";
+  return "unlocked";
 }

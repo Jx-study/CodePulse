@@ -3,7 +3,7 @@
  *
  * 職責：
  * - 從後端取得用戶進度（HTTP）
- * - 計算關卡顯示狀態（locked, unlocked, in-progress, completed）
+ * - 挑選技能樹上的建議節點
  * - 處理關卡進度查詢
  * - 計算進度統計數據
  */
@@ -18,6 +18,7 @@ import type {
   ScoreLevel,
 } from "@/types";
 import { getCategoryById } from "./CategoryService";
+import { isLevelStarted } from "@/shared/lib/levelProgress";
 import { getAllLevels } from "./LevelService";
 import apiService from "@/api/api";
 
@@ -151,82 +152,6 @@ export function getLevelProgress(
   );
 }
 
-// ==================== 關卡顯示狀態計算 ====================
-
-/**
- * 計算關卡應該顯示的狀態
- *
- * 規則：
- * 1. 在同一 category 中，找出所有已解鎖但未完成的關卡
- * 2. 只有 layer 最小的關卡才會顯示為可玩狀態
- * 3. 如果整個 category 只有一個可玩關卡，顯示為 "in-progress"
- * 4. 如果有多個可玩關卡，顯示為 "unlocked"
- */
-export function calculateDisplayStatus(
-  level: Level & { isUnlocked: boolean },
-  filteredLevels: (Level & { isUnlocked: boolean })[],
-  userProgress: UserProgress,
-): LevelStatus {
-  if (!level.isUnlocked) {
-    return "locked";
-  }
-
-  // 未實作的關卡：保留用戶既有進度，避免 in-progress/completed 狀態視覺消失
-  if (!level.isDeveloped) {
-    const progressStatus = userProgress.levels[level.id]?.status;
-    if (progressStatus === "completed" || progressStatus === "in-progress") {
-      return progressStatus;
-    }
-    return "locked";
-  }
-
-  // 獲取用戶進度中的狀態（若不存在則視為 "locked"）
-  const progressStatus = userProgress.levels[level.id]?.status || "locked";
-
-  // 如果已經是 "completed" 或 "in-progress"，保持原狀態
-  if (progressStatus === "completed" || progressStatus === "in-progress") {
-    return progressStatus;
-  }
-
-  // 找出所有已解鎖但未完成的關卡（包含 status 為 "locked" 或 "unlocked" 的）
-  const unlockedNotCompletedLevels = filteredLevels.filter(
-    (l) =>
-      l.isUnlocked &&
-      l.isDeveloped &&
-      userProgress.levels[l.id]?.status !== "completed" &&
-      userProgress.levels[l.id]?.status !== "in-progress",
-  );
-
-  // 如果沒有未完成的關卡，返回 "unlocked"（這種情況應該不會發生，因為當前關卡也是已解鎖的）
-  if (unlockedNotCompletedLevels.length === 0) {
-    return "unlocked";
-  }
-
-  // 找到 layer 最小的關卡
-  const minLayer = Math.min(
-    ...unlockedNotCompletedLevels.map((l) => l.graphPosition?.layer ?? 0),
-  );
-
-  // 找出所有 layer 最小的未完成關卡
-  const minLayerLevels = unlockedNotCompletedLevels.filter(
-    (l) => l.graphPosition?.layer === minLayer,
-  );
-
-  // 如果當前關卡不是 layer 最小的，顯示為 "unlocked"（已解鎖但不是推薦順序）
-  const isInMinLayer = minLayerLevels.some((l) => l.id === level.id);
-  if (!isInMinLayer) {
-    return "unlocked";
-  }
-
-  // 如果只有一個 layer 最小的未完成關卡（就是當前這個），顯示為 "in-progress"
-  if (minLayerLevels.length === 1) {
-    return "in-progress";
-  }
-
-  // 如果有多個 layer 最小的未完成關卡，顯示為 "unlocked"
-  return "unlocked";
-}
-
 // ==================== 建議節點 ====================
 
 /**
@@ -235,7 +160,7 @@ export function calculateDisplayStatus(
  * 規則：
  * 1. 候選是練習已解鎖、已開發、非 portal、尚未通過練習的關卡
  * 2. 只看 layer 最小的一層
- * 3. 該層有已開始的（學完教學或練習過）就選它，否則選陣列中第一個
+ * 3. 該層有已開始的（見 isLevelStarted）就選它，否則選陣列中第一個
  */
 export function getRecommendedLevelId(
   levels: Level[],
@@ -254,10 +179,7 @@ export function getRecommendedLevelId(
   const minLayer = Math.min(...candidates.map(layerOf));
   const frontLayer = candidates.filter((l) => layerOf(l) === minLayer);
 
-  const started = frontLayer.find((l) => {
-    const p = userProgress.levels[l.id];
-    return p?.teachingCompleted === true || (p?.attempts ?? 0) > 0;
-  });
+  const started = frontLayer.find((l) => isLevelStarted(userProgress.levels[l.id]));
   return (started ?? frontLayer[0]).id;
 }
 

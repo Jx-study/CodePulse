@@ -40,6 +40,12 @@ describe("getRecommendedLevelId", () => {
     expect(getRecommendedLevelId(levels, progress)).toBe("insertion");
   });
 
+  it("treats a level whose practice was entered but not submitted as started", () => {
+    const levels = [lv("selection", 1), lv("insertion", 1)];
+    const progress = withProgress({ insertion: { status: "in-progress", attempts: 0 } });
+    expect(getRecommendedLevelId(levels, progress)).toBe("insertion");
+  });
+
   it("skips practice-locked levels", () => {
     const levels = [lv("quick", 0, { isUnlocked: false }), lv("merge", 1)];
     expect(getRecommendedLevelId(levels, withProgress({}))).toBe("merge");

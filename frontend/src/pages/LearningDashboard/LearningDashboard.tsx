@@ -7,6 +7,10 @@ import ProgressStatsDialog from "./components/ProgressStatsDialog/ProgressStatsD
 import CategoryFilter from "./components/CategoryFilter/CategoryFilter";
 import GraphContainer from "./components/GraphContainer/GraphContainer";
 import LevelNode from "./components/LevelNode/LevelNode";
+import {
+  getLevelNodeVisualState,
+  getPathStatus,
+} from "./components/LevelNode/levelNodeState";
 import PortalNode from "./components/PortalNode/PortalNode";
 import PathConnection from "./components/PathConnection/PathConnection";
 import LevelDialog from "./components/LevelDialog/LevelDialog";
@@ -35,7 +39,6 @@ import {
 } from "@/services/ProgressService";
 import {
   getLevelProgress,
-  calculateDisplayStatus,
   getRecommendedLevelId,
   calculateOverallProgress,
   calculateCategoryProgress,
@@ -139,11 +142,6 @@ function LearningDashboardInner() {
     levelsWithUnlockStatus,
     activeCategory
   );
-
-  // 使用 ProgressService 計算顯示狀態
-  const getDisplayStatus = (level: Level & { isUnlocked: boolean }) => {
-    return calculateDisplayStatus(level, filteredLevels, userProgress);
-  };
 
   // 全圖唯一的建議節點，只在目前分類內挑
   const recommendedLevelId = getRecommendedLevelId(filteredLevels, userProgress);
@@ -310,6 +308,14 @@ function LearningDashboardInner() {
           const prereqIds = level.prerequisites?.levelIds || [];
           const prereqType = level.prerequisites?.type || "AND";
           const isPortal = level.pathMetadata?.pathType === "portal";
+          // 連線顏色跟著目標節點的練習半環
+          const pathStatus = getPathStatus(
+            getLevelNodeVisualState(
+              level,
+              userProgress.levels[level.id],
+              !level.isUnlocked,
+            ),
+          );
 
           // 使用 LevelService 檢查 Portal 解鎖狀態
           const portalUnlocked =
@@ -340,16 +346,6 @@ function LearningDashboardInner() {
                       filteredLevels.indexOf(prereqLevel),
                       filteredLevels.length,
                     );
-
-                // 決定連線狀態：目標關卡（toNode）的狀態決定連線顏色
-                const targetStatus = getDisplayStatus(level);
-                const pathStatus: "locked" | "unlocked" | "completed" =
-                  targetStatus === "completed"
-                    ? "completed"
-                    : targetStatus === "unlocked" ||
-                        targetStatus === "in-progress"
-                      ? "unlocked"
-                      : "locked";
 
                 return (
                   <PathConnection
