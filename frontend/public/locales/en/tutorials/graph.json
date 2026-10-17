@@ -40,6 +40,7 @@
     "remove_edge_not_found": "Edge {{src}} → {{dst}} was not found, cannot remove it",
     "get_neighbors_missing": "Node {{target}} does not exist, return an empty list",
     "check_adjacent_missing": "Source {{src}} or destination {{dst}} does not exist, return False",
+    "check_connected_empty": "The graph is empty, so it is trivially connected (Return True)",
     "get_degree_missing": "Node {{target}} does not exist, return -1"
   },
   "ui": {

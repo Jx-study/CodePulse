@@ -205,6 +205,9 @@ class DoublyLinkedList:
         if index == 0:
             self.insert_at_head(value)
             return
+        if self.tail and index == self.length:
+            self.insert_at_tail(value)
+            return
         new_node = Node(value)
         current = self.head
         for _ in range(index - 1):
@@ -242,6 +245,9 @@ class DoublyLinkedList:
             raise IndexError("Index out of range")
         if index == 0:
             self.delete_at_head()
+            return
+        if self.tail and index == self.length - 1:
+            self.delete_at_tail()
             return
         current = self.head
         for i in range(index):
@@ -296,58 +302,64 @@ class DoublyLinkedList:
       { lineNumber: 36, complexity: 'O(1)'                  },  // if index == 0 — before loop
       { lineNumber: 37, complexity: 'O(1)'                  },  // self.insert_at_head — before loop
       { lineNumber: 38, complexity: 'O(1)'                  },  // return — before loop
-      { lineNumber: 39, complexity: 'O(1)'                  },  // new_node = Node(value) — before loop
-      { lineNumber: 40, complexity: 'O(1)'                  },  // current = self.head — before loop
-      { lineNumber: 41, complexity: 'O(n)'                  },  // for _ in range(index-1) — top-level for
-      { lineNumber: 42, complexity: 'O(1)', context: 'O(n)' },  // current = current.next — O(1) × n
-      { lineNumber: 43, complexity: 'O(1)'                  },  // new_node.next = current.next — after loop
-      { lineNumber: 44, complexity: 'O(1)'                  },  // if current.next — after loop
-      { lineNumber: 45, complexity: 'O(1)'                  },  // current.next.prev = new_node — after loop
-      { lineNumber: 46, complexity: 'O(1)'                  },  // new_node.prev = current — after loop
-      { lineNumber: 47, complexity: 'O(1)'                  },  // current.next = new_node — after loop
-      { lineNumber: 48, complexity: 'O(1)'                  },  // if new_node.next is None — after loop
-      { lineNumber: 49, complexity: 'O(1)'                  },  // self.tail = new_node — after loop
-      { lineNumber: 50, complexity: 'O(1)' },  // self.length += 1
-      { lineNumber: 52, complexity: 'O(1)'                  },  // def delete_at_head(self):
-      { lineNumber: 53, complexity: 'O(1)'                  },  // if not self.head: return
-      { lineNumber: 54, complexity: 'O(1)'                  },  // self.head = self.head.next
-      { lineNumber: 55, complexity: 'O(1)'                  },  // if self.head
-      { lineNumber: 56, complexity: 'O(1)'                  },  // self.head.prev = None
-      { lineNumber: 57, complexity: 'O(1)'                  },  // else
-      { lineNumber: 58, complexity: 'O(1)'                  },  // self.tail = None
-      { lineNumber: 59, complexity: 'O(1)' },  // self.length -= 1
-      { lineNumber: 61, complexity: 'O(1)'                  },  // def delete_at_tail(self):
-      { lineNumber: 62, complexity: 'O(1)'                  },  // if not self.head: return
-      { lineNumber: 63, complexity: 'O(1)'                  },  // if not self.head.next
-      { lineNumber: 64, complexity: 'O(1)'                  },  // self.head = self.tail = None
-      { lineNumber: 65, complexity: 'O(1)' },  // self.length -= 1
-      { lineNumber: 66, complexity: 'O(1)'                  },  // return
-      { lineNumber: 67, complexity: 'O(1)'                  },  // self.tail = self.tail.prev
-      { lineNumber: 68, complexity: 'O(1)'                  },  // self.tail.next = None
-      { lineNumber: 69, complexity: 'O(1)' },  // self.length -= 1
-      { lineNumber: 71, complexity: 'O(n)'                  },  // def delete_at_index(self, index): — overall O(n)
-      { lineNumber: 72, complexity: 'O(1)' },  // if index < 0 or index >= self.length:
-      { lineNumber: 73, complexity: 'O(1)' },  // raise IndexError("Index out of range")
-      { lineNumber: 74, complexity: 'O(1)'                  },  // if index == 0 — before loop
-      { lineNumber: 75, complexity: 'O(1)'                  },  // self.delete_at_head() — before loop
-      { lineNumber: 76, complexity: 'O(1)'                  },  // return — before loop
-      { lineNumber: 77, complexity: 'O(1)'                  },  // current = self.head — before loop
-      { lineNumber: 78, complexity: 'O(n)'                  },  // for i in range(index) — top-level for
-      { lineNumber: 79, complexity: 'O(1)', context: 'O(n)' },  // current = current.next — O(1) × n
-      { lineNumber: 80, complexity: 'O(1)'                  },  // current.prev.next = current.next — after loop
-      { lineNumber: 81, complexity: 'O(1)'                  },  // if current.next — after loop
-      { lineNumber: 82, complexity: 'O(1)'                  },  // current.next.prev = current.prev — after loop
-      { lineNumber: 83, complexity: 'O(1)'                  },  // else — after loop
-      { lineNumber: 84, complexity: 'O(1)'                  },  // self.tail = current.prev — after loop
-      { lineNumber: 85, complexity: 'O(1)' },  // self.length -= 1
-      { lineNumber: 87, complexity: 'O(n)'                  },  // def search(self, value): — overall O(n)
-      { lineNumber: 88, complexity: 'O(1)'                  },  // current = self.head — before loop
-      { lineNumber: 89, complexity: 'O(1)'                  },  // index = 0 — before loop
-      { lineNumber: 90, complexity: 'O(n)'                  },  // while current — top-level while
-      { lineNumber: 91, complexity: 'O(1)', context: 'O(n)' },  // if current.value == value — O(1) × n
-      { lineNumber: 92, complexity: 'O(1)', context: 'O(n)' },  // current = current.next — O(1) × n
-      { lineNumber: 93, complexity: 'O(1)', context: 'O(n)' },  // index += 1 — O(1) × n
-      { lineNumber: 94, complexity: 'O(1)'                  },  // return -1 — after loop
+      { lineNumber: 39, complexity: 'O(1)' },  // if self.tail and index == self.length:
+      { lineNumber: 40, complexity: 'O(1)' },  // self.insert_at_tail(value)
+      { lineNumber: 41, complexity: 'O(1)' },  // return
+      { lineNumber: 42, complexity: 'O(1)'                  },  // new_node = Node(value) — before loop
+      { lineNumber: 43, complexity: 'O(1)'                  },  // current = self.head — before loop
+      { lineNumber: 44, complexity: 'O(n)'                  },  // for _ in range(index-1) — top-level for
+      { lineNumber: 45, complexity: 'O(1)', context: 'O(n)' },  // current = current.next — O(1) × n
+      { lineNumber: 46, complexity: 'O(1)'                  },  // new_node.next = current.next — after loop
+      { lineNumber: 47, complexity: 'O(1)'                  },  // if current.next — after loop
+      { lineNumber: 48, complexity: 'O(1)'                  },  // current.next.prev = new_node — after loop
+      { lineNumber: 49, complexity: 'O(1)'                  },  // new_node.prev = current — after loop
+      { lineNumber: 50, complexity: 'O(1)'                  },  // current.next = new_node — after loop
+      { lineNumber: 51, complexity: 'O(1)'                  },  // if new_node.next is None — after loop
+      { lineNumber: 52, complexity: 'O(1)'                  },  // self.tail = new_node — after loop
+      { lineNumber: 53, complexity: 'O(1)' },  // self.length += 1
+      { lineNumber: 55, complexity: 'O(1)'                  },  // def delete_at_head(self):
+      { lineNumber: 56, complexity: 'O(1)'                  },  // if not self.head: return
+      { lineNumber: 57, complexity: 'O(1)'                  },  // self.head = self.head.next
+      { lineNumber: 58, complexity: 'O(1)'                  },  // if self.head
+      { lineNumber: 59, complexity: 'O(1)'                  },  // self.head.prev = None
+      { lineNumber: 60, complexity: 'O(1)'                  },  // else
+      { lineNumber: 61, complexity: 'O(1)'                  },  // self.tail = None
+      { lineNumber: 62, complexity: 'O(1)' },  // self.length -= 1
+      { lineNumber: 64, complexity: 'O(1)'                  },  // def delete_at_tail(self):
+      { lineNumber: 65, complexity: 'O(1)'                  },  // if not self.head: return
+      { lineNumber: 66, complexity: 'O(1)'                  },  // if not self.head.next
+      { lineNumber: 67, complexity: 'O(1)'                  },  // self.head = self.tail = None
+      { lineNumber: 68, complexity: 'O(1)' },  // self.length -= 1
+      { lineNumber: 69, complexity: 'O(1)'                  },  // return
+      { lineNumber: 70, complexity: 'O(1)'                  },  // self.tail = self.tail.prev
+      { lineNumber: 71, complexity: 'O(1)'                  },  // self.tail.next = None
+      { lineNumber: 72, complexity: 'O(1)' },  // self.length -= 1
+      { lineNumber: 74, complexity: 'O(n)'                  },  // def delete_at_index(self, index): — overall O(n)
+      { lineNumber: 75, complexity: 'O(1)' },  // if index < 0 or index >= self.length:
+      { lineNumber: 76, complexity: 'O(1)' },  // raise IndexError("Index out of range")
+      { lineNumber: 77, complexity: 'O(1)'                  },  // if index == 0 — before loop
+      { lineNumber: 78, complexity: 'O(1)'                  },  // self.delete_at_head() — before loop
+      { lineNumber: 79, complexity: 'O(1)'                  },  // return — before loop
+      { lineNumber: 80, complexity: 'O(1)' },  // if self.tail and index == self.length - 1:
+      { lineNumber: 81, complexity: 'O(1)' },  // self.delete_at_tail()
+      { lineNumber: 82, complexity: 'O(1)' },  // return
+      { lineNumber: 83, complexity: 'O(1)'                  },  // current = self.head — before loop
+      { lineNumber: 84, complexity: 'O(n)'                  },  // for i in range(index) — top-level for
+      { lineNumber: 85, complexity: 'O(1)', context: 'O(n)' },  // current = current.next — O(1) × n
+      { lineNumber: 86, complexity: 'O(1)'                  },  // current.prev.next = current.next — after loop
+      { lineNumber: 87, complexity: 'O(1)'                  },  // if current.next — after loop
+      { lineNumber: 88, complexity: 'O(1)'                  },  // current.next.prev = current.prev — after loop
+      { lineNumber: 89, complexity: 'O(1)'                  },  // else — after loop
+      { lineNumber: 90, complexity: 'O(1)'                  },  // self.tail = current.prev — after loop
+      { lineNumber: 91, complexity: 'O(1)' },  // self.length -= 1
+      { lineNumber: 93, complexity: 'O(n)'                  },  // def search(self, value): — overall O(n)
+      { lineNumber: 94, complexity: 'O(1)'                  },  // current = self.head — before loop
+      { lineNumber: 95, complexity: 'O(1)'                  },  // index = 0 — before loop
+      { lineNumber: 96, complexity: 'O(n)'                  },  // while current — top-level while
+      { lineNumber: 97, complexity: 'O(1)', context: 'O(n)' },  // if current.value == value — O(1) × n
+      { lineNumber: 98, complexity: 'O(1)', context: 'O(n)' },  // current = current.next — O(1) × n
+      { lineNumber: 99, complexity: 'O(1)', context: 'O(n)' },  // index += 1 — O(1) × n
+      { lineNumber: 100, complexity: 'O(1)'                  },  // return -1 — after loop
     ],
   },
 };

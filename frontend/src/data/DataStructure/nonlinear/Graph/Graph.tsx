@@ -186,10 +186,10 @@ function graphActionHandler(
         target: payload.target,
       });
     }
-    if (
-      (actionType === "checkConnected" || actionType === "checkCycle") &&
-      nodes.length === 0
-    ) {
+    if (actionType === "checkConnected" && nodes.length === 0) {
+      return guardResult(TAGS.CHECK_CONNECTED_EMPTY, {});
+    }
+    if (actionType === "checkCycle" && nodes.length === 0) {
       context.toast.warning(tt("toast.emptyGraph"));
       return null;
     }
@@ -353,6 +353,9 @@ Procedure GetDegree(id):
 End Procedure
 
 Procedure CheckConnected():
+  If adjList is Empty Then
+    Return True
+  End If
   visited ← Empty Set
   queue ← Empty Queue
   start ← First node in adjList
@@ -419,18 +422,18 @@ End Procedure`,
       [TAGS.CHECK_ADJACENT_RESULT_FALSE]: [55],
       [TAGS.GET_DEGREE_UNDIRECTED]: [59, 62, 63],
       [TAGS.GET_DEGREE_DIRECTED]: [59, 64, 65, 66, 67, 68],
-      [TAGS.CHECK_CONNECTED_INIT]: [71, 72, 73, 74, 75, 76],
-      [TAGS.CHECK_CONNECTED_WHILE]: [78, 79, 80, 81, 82, 83, 84, 85],
-      [TAGS.CHECK_CONNECTED_RESULT]: [88],
-      [TAGS.CHECK_CYCLE_INIT]: [91, 92, 93, 94],
+      [TAGS.CHECK_CONNECTED_INIT]: [71, 72, 75, 76, 77, 78, 79],
+      [TAGS.CHECK_CONNECTED_WHILE]: [81, 82, 83, 84, 85, 86, 87, 88],
+      [TAGS.CHECK_CONNECTED_RESULT]: [91],
+      [TAGS.CHECK_CYCLE_INIT]: [94, 95, 96, 97],
       [TAGS.CHECK_CYCLE_DFS]: [
         97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
         112,
       ],
-      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [104, 105, 106],
-      [TAGS.CHECK_CYCLE_FOUND_FALSE]: [111],
-      [TAGS.CHECK_CYCLE_END_TRUE]: [114, 115, 116, 117],
-      [TAGS.CHECK_CYCLE_END_FALSE]: [119],
+      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [107, 108, 109],
+      [TAGS.CHECK_CYCLE_FOUND_FALSE]: [114],
+      [TAGS.CHECK_CYCLE_END_TRUE]: [117, 118, 119, 120],
+      [TAGS.CHECK_CYCLE_END_FALSE]: [122],
       [TAGS.ADD_VERTEX_DUPLICATE]: [2],
       [TAGS.REMOVE_VERTEX_MISSING]: [8],
       [TAGS.ADD_EDGE_MISSING_VERTEX]: [19],
@@ -440,6 +443,7 @@ End Procedure`,
       [TAGS.GET_NEIGHBORS_MISSING]: [45, 48],
       [TAGS.CHECK_ADJACENT_MISSING]: [52, 55],
       [TAGS.GET_DEGREE_MISSING]: [59, 60],
+      [TAGS.CHECK_CONNECTED_EMPTY]: [72, 73],
     },
   },
   python: {
