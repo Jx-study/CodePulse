@@ -2481,6 +2481,17 @@ function createDeleteIndexSteps(
       );
     }
   }
+  if (type === "delete" && action?.emptyGuard) {
+    addStep(steps, {
+      stepNumber: 1,
+      description: { key: "animation.delete_empty" },
+      elements: [],
+      actionTag:
+        mode === "Tail" ? TAGS.DELETE_TAIL_START : TAGS.DELETE_HEAD_CHECK,
+      warn: true,
+    });
+    return steps;
+  }
   if (type === "delete") {
     const deletedNodeData = { id: targetId || "temp-del", value: value };
     const N = actionIndex !== undefined ? actionIndex : -1;

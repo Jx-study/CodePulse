@@ -143,29 +143,6 @@ function binaryTreeActionHandler(
   data: BTInputItem[],
   context: ActionContext,
 ): ActionResult<BTInputItem[]> | null {
-  const { value, index } = payload as { value?: number; index?: number };
-  const newData = [...data];
-
-  if (actionType === "add") {
-    const newId = context.nextId();
-    newData.push({ id: newId, value: value! });
-    return {
-      animationData: newData,
-      animationParams: { targetId: newId, value },
-    };
-  }
-
-  if (actionType === "delete") {
-    const delValue = index ?? value;
-    const delIndex = newData.findIndex((n) => n.value === delValue);
-    if (delIndex === -1) {
-      context.toast.warning(`數值 ${delValue} 不存在`);
-      return null;
-    }
-    newData.splice(delIndex, 1);
-    return { animationData: newData, animationParams: { value: delValue } };
-  }
-
   if (actionType === "search") {
     return { animationData: data };
   }
