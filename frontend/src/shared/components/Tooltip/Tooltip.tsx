@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import type { TooltipProps } from '@/types';
 import styles from './Tooltip.module.scss';
@@ -19,6 +19,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   const triggerRef = useRef<HTMLElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tooltipId = useId();
 
   const showTooltip = () => {
     if (disabled) return;
@@ -173,7 +174,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       handleBlur();
       childProps.onBlur?.(e);
     },
-    'aria-describedby': isVisible ? 'tooltip' : undefined,
+    'aria-describedby': isVisible ? tooltipId : undefined,
     className: [childProps.className, className].filter(Boolean).join(' ')
   });
 
@@ -186,7 +187,7 @@ const Tooltip: React.FC<TooltipProps> = ({
         left: `${position.left}px`
       }}
       role="tooltip"
-      id="tooltip"
+      id={tooltipId}
       aria-label={ariaLabel}
     >
       {content}
