@@ -39,7 +39,7 @@ const longestLteCodeConfig: CodeConfig = {
     End If
   End For
 
-  Return maxLen
+  Return maxLen  // 0 if no valid window
 End Procedure`,
     mappings: {
       [TAGS.INIT]: [2, 3, 4],
@@ -66,7 +66,7 @@ End Procedure`,
         if right - left + 1 > max_len:
             max_len = right - left + 1
 
-    return max_len`,
+    return max_len  # 0 if no valid window`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(n)' },                                  // def sliding_window_longest(arr, target_sum):
       { lineNumber: 2,  complexity: 'O(1)' },                                  // left = 0
@@ -104,7 +104,7 @@ const shortestGteCodeConfig: CodeConfig = {
   End For
 
   If minLen = ∞ Then
-    Return -1
+    Return -1  // No valid window
   Else
     Return minLen
   End If
@@ -133,7 +133,7 @@ End Procedure`,
             current_sum -= arr[left]
             left += 1
 
-    return min_len if min_len != float('inf') else -1`,
+    return min_len if min_len != float('inf') else -1  # no valid window`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(n)' },                                  // def sliding_window_shortest(arr, target_sum):
       { lineNumber: 2,  complexity: 'O(1)' },                                  // left = 0
