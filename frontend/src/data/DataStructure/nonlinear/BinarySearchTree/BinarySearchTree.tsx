@@ -191,6 +191,8 @@ Procedure Ceil(root, target):
       [TAGS.INS_RIGHT]: [8, 9],
       [TAGS.INS_PLACE_LEFT]: [7],
       [TAGS.INS_PLACE_RIGHT]: [10],
+      [TAGS.INS_DONE_LEFT]: [7],
+      [TAGS.INS_DONE_RIGHT]: [10],
 
       [TAGS.SRCH_INIT]: [12, 14],
       [TAGS.SRCH_EMPTY]: [13],

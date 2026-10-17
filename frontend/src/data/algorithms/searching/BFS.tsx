@@ -310,6 +310,7 @@ def bfs(graph, start, end):
 const bfsGridCodeConfig = {
   pseudo: {
     content: `Procedure BFS_Grid(grid, cols, start, end):
+  If grid[start] or grid[end] is wall Then Return -1
   Initialize distance[all] ← ∞
   distance[start] ← 0
   Queue ← [start], visited ← {start}
@@ -337,14 +338,15 @@ const bfsGridCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
+      [TAGS.GRID_BLOCKED]: [2],
       [TAGS.GRID_INIT]: [1],
-      [TAGS.GRID_INIT_DIST]: [2],
-      [TAGS.GRID_START]: [3, 4],
-      [TAGS.DEQUEUE]: [6, 7],
-      [TAGS.CHECK_END]: [9],
-      [TAGS.VISIT_NEIGHBOR]: [13, 14, 15, 16, 17, 18],
-      [TAGS.PATH_FOUND]: [10],
-      [TAGS.NOT_FOUND]: [26],
+      [TAGS.GRID_INIT_DIST]: [3],
+      [TAGS.GRID_START]: [4, 5],
+      [TAGS.DEQUEUE]: [7, 8],
+      [TAGS.CHECK_END]: [10],
+      [TAGS.VISIT_NEIGHBOR]: [14, 15, 16, 17, 18, 19],
+      [TAGS.PATH_FOUND]: [11],
+      [TAGS.NOT_FOUND]: [27],
     } as Record<string, number[]>,
   },
   python: bfsGraphCodeConfig.python,

@@ -6,6 +6,8 @@
     "compare": "Comparing: Is {{scanVal}} less than or equal to pivot {{pivotVal}}?",
     "swap": "Yes! Swapped {{valI}} and {{valJ}}",
     "pivot_set": "Partitioning complete, placing pivot {{pivotVal}} at its correct sorted position (Index {{pivotIdx}})",
+    "recurse_left": "Recursing into the left of the pivot: range [{{low}}, {{high}}]",
+    "recurse_right": "Recursing into the right of the pivot: range [{{low}}, {{high}}]",
     "base_case": "Range has only one element {{value}}, marking it directly as sorted",
     "done": "Quick Sort complete! All elements are now in their correct positions."
   },

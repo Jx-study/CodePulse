@@ -6,6 +6,8 @@
     "compare": "比較：{{scanVal}} 是否小於等於基準點 {{pivotVal}}？",
     "swap": "是！將 {{valI}} 與 {{valJ}} 互換",
     "pivot_set": "分區完成，將基準點 {{pivotVal}} 放回正確的排序位置 (Index {{pivotIdx}})",
+    "recurse_left": "遞迴處理基準點左側區間 [{{low}}, {{high}}]",
+    "recurse_right": "遞迴處理基準點右側區間 [{{low}}, {{high}}]",
     "base_case": "區間只剩一個元素 {{value}}，直接標記為已排序",
     "done": "快速排序完成！所有元素皆已在正確位置。"
   },

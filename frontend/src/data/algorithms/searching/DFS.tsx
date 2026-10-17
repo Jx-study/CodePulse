@@ -321,6 +321,7 @@ End Procedure`,
 const dfsGridCodeConfig = {
   pseudo: {
     content: `Procedure DFS_Grid(grid, cols, start, end):
+  If grid[start] or grid[end] is wall Then Return -1
   Initialize distance[all] ← ∞
   distance[start] ← 0
   Stack ← [start], visited ← {start}
@@ -348,14 +349,15 @@ const dfsGridCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3],
-      [TAGS.START]: [4],
-      [TAGS.POP]: [6, 7],
-      [TAGS.CHECK_END]: [9],
-      [TAGS.PATH_FOUND]: [10],
-      [TAGS.PUSH_NEIGHBOR]: [13, 14, 15, 16, 17],
-      [TAGS.BACKTRACK]: [21, 22],
-      [TAGS.NOT_FOUND]: [26],
+      [TAGS.GRID_BLOCKED]: [2],
+      [TAGS.INIT]: [3, 4],
+      [TAGS.START]: [5],
+      [TAGS.POP]: [7, 8],
+      [TAGS.CHECK_END]: [10],
+      [TAGS.PATH_FOUND]: [11],
+      [TAGS.PUSH_NEIGHBOR]: [14, 15, 16, 17, 18],
+      [TAGS.BACKTRACK]: [22, 23],
+      [TAGS.NOT_FOUND]: [27],
     } as Record<string, number[]>,
   },
   python: dfsGraphCodeConfig.python,

@@ -138,7 +138,19 @@ export function simulateQuickSortTrace(dataList: LinearData[]): ExecutionTrace {
     );
 
     // 4. 遞迴左右兩半
+    pushTrace(TAGS.RECURSE_LEFT, {
+      low,
+      high: i - 1,
+      pivotIdx: i,
+      stackDepth: depth,
+    });
     qs(low, i - 1, depth + 1);
+    pushTrace(TAGS.RECURSE_RIGHT, {
+      low: i + 1,
+      high,
+      pivotIdx: i,
+      stackDepth: depth,
+    });
     qs(i + 1, high, depth + 1);
   }
 
