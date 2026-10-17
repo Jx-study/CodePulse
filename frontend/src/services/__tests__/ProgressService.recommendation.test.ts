@@ -46,6 +46,35 @@ describe("getRecommendedLevelId", () => {
     expect(getRecommendedLevelId(levels, progress)).toBe("insertion");
   });
 
+  it("prefers a started level on a higher layer over an untouched front layer", () => {
+    const levels = [lv("bst", 3), lv("heap", 4), lv("graph", 4), lv("trie", 5)];
+    const progress = withProgress({ bst: { status: "completed" }, trie: { attempts: 2 } });
+    expect(getRecommendedLevelId(levels, progress)).toBe("trie");
+  });
+
+  it("prefers practice attempts over a tutorial-only level on a lower layer", () => {
+    const levels = [lv("heap", 4), lv("trie", 5)];
+    const progress = withProgress({
+      heap: { teachingCompleted: true },
+      trie: { status: "in-progress", attempts: 0 },
+    });
+    expect(getRecommendedLevelId(levels, progress)).toBe("trie");
+  });
+
+  it("picks the lowest layer among equally started levels", () => {
+    const levels = [lv("trie", 5), lv("heap", 4), lv("graph", 4)];
+    const progress = withProgress({
+      trie: { teachingCompleted: true },
+      graph: { teachingCompleted: true },
+    });
+    expect(getRecommendedLevelId(levels, progress)).toBe("graph");
+  });
+
+  it("treats a level without graphPosition as layer 0", () => {
+    const levels = [lv("selection", 1), { ...lv("bubble", 0), graphPosition: undefined }];
+    expect(getRecommendedLevelId(levels, withProgress({}))).toBe("bubble");
+  });
+
   it("skips practice-locked levels", () => {
     const levels = [lv("quick", 0, { isUnlocked: false }), lv("merge", 1)];
     expect(getRecommendedLevelId(levels, withProgress({}))).toBe("merge");

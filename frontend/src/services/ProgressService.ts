@@ -159,8 +159,9 @@ export function getLevelProgress(
  *
  * 規則：
  * 1. 候選是練習已解鎖、已開發、非 portal、尚未通過練習的關卡
- * 2. 只看 layer 最小的一層
- * 3. 該層有已開始的（見 isLevelStarted）就選它，否則選陣列中第一個
+ * 2. 依進度分三級，取最高的一級：進過練習 > 只看過教學（見 isLevelStarted）> 沒碰過
+ *    回訪者在高層做到一半的關卡，不會輸給低層沒碰過的關卡
+ * 3. 同一級取 layer 最小的，同層取陣列中第一個
  */
 export function getRecommendedLevelId(
   levels: Level[],
@@ -175,12 +176,17 @@ export function getRecommendedLevelId(
   );
   if (candidates.length === 0) return null;
 
-  const layerOf = (l: Level) => l.graphPosition?.layer ?? 0;
-  const minLayer = Math.min(...candidates.map(layerOf));
-  const frontLayer = candidates.filter((l) => layerOf(l) === minLayer);
+  const tierOf = (l: Level) => {
+    const p = userProgress.levels[l.id];
+    if ((p?.attempts ?? 0) > 0 || p?.status === "in-progress") return 2;
+    return isLevelStarted(p) ? 1 : 0;
+  };
+  const topTier = Math.max(...candidates.map(tierOf));
+  const tierLevels = candidates.filter((l) => tierOf(l) === topTier);
 
-  const started = frontLayer.find((l) => isLevelStarted(userProgress.levels[l.id]));
-  return (started ?? frontLayer[0]).id;
+  const layerOf = (l: Level) => l.graphPosition?.layer ?? 0;
+  const best = tierLevels.reduce((a, b) => (layerOf(b) < layerOf(a) ? b : a));
+  return best.id;
 }
 
 // ==================== 進度統計 ====================
