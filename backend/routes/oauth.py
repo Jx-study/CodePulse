@@ -3,7 +3,7 @@ import secrets
 import uuid
 import requests as http_requests
 from datetime import datetime, timezone
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from flask import Blueprint, redirect, request, current_app, make_response
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
@@ -20,6 +20,7 @@ from auth_utils import (
 GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
+GOOGLE_AVATAR_HOST_SUFFIX = 'googleusercontent.com'
 OAUTH_STATE_MAX_AGE = 600   # 10 minutes
 LINK_TOKEN_MAX_AGE = 300    # 5 minutes for link confirmation
 
@@ -34,6 +35,14 @@ def _backend_url():
 
 def _cookie_secure():
     return current_app.config.get('SESSION_COOKIE_SECURE', False)
+
+
+def _is_replaceable_avatar(avatar_url):
+    """空值或 Google 頭像可被覆寫；其他來源（如 Cloudinary 自訂頭像）不動"""
+    if not avatar_url:
+        return True
+    host = urlparse(avatar_url).hostname or ''
+    return host == GOOGLE_AVATAR_HOST_SUFFIX or host.endswith('.' + GOOGLE_AVATAR_HOST_SUFFIX)
 
 
 def register_oauth_routes(app):
@@ -143,6 +152,9 @@ def register_oauth_routes(app):
                 user = db.session.get(User, existing_identity.user_id)
                 if not user or user.deleted_at is not None:
                     return redirect(f'{frontend_cb}?error=account_disabled')
+
+                if picture and _is_replaceable_avatar(user.avatar_url):
+                    user.avatar_url = picture
 
             else:
                 user = User.query.filter_by(email=email).first()

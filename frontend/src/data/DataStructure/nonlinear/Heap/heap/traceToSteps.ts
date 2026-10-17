@@ -40,6 +40,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { extVal: e.local_vars.extVal },
   }),
   [TAGS.EXTRACT_SWAP_LAST]: () => ({ key: "animation.extract_swap_last" }),
+  [TAGS.EXTRACT_ONLY]: () => ({ key: "animation.extract_only" }),
   [TAGS.EXTRACT_REMOVE]: () => ({ key: "animation.extract_remove" }),
   [TAGS.HEAPIFY_DOWN_COMPARE]: (e) => ({
     key: e.local_vars.isMinHeap
@@ -50,10 +51,18 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     key: "animation.heapify_down_swap",
     params: { heapName: e.local_vars.heapName },
   }),
+  [TAGS.HEAPIFY_UP_STOP]: () => ({ key: "animation.heapify_up_stop" }),
+  [TAGS.HEAPIFY_DOWN_STOP]: () => ({ key: "animation.heapify_down_stop" }),
+  [TAGS.EXTRACT_RETURN]: (e) => ({
+    key: "animation.extract_return",
+    params: { extVal: e.local_vars.extVal },
+  }),
   [TAGS.PEEK]: (e) => ({
     key: e.local_vars.isMinHeap ? "animation.peek_min" : "animation.peek_max",
     params: { extVal: e.local_vars.extVal },
   }),
+  [TAGS.EXTRACT_EMPTY]: () => ({ key: "animation.extract_empty" }),
+  [TAGS.PEEK_EMPTY]: () => ({ key: "animation.peek_empty" }),
   [TAGS.HEAPIFY_START]: (e) => ({
     key: "animation.heapify_start",
     params: { length: e.local_vars.length, heapName: e.local_vars.heapName },
@@ -100,6 +109,7 @@ export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      warn: event.tag === TAGS.EXTRACT_EMPTY || event.tag === TAGS.PEEK_EMPTY,
       local_vars: event.local_vars,
       elements,
     };

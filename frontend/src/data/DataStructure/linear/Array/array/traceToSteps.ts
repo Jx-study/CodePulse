@@ -12,6 +12,16 @@ interface ArrayMeta {
   overrideStatusMap?: Record<number, string>;
 }
 
+const BOX_START_X = 50;
+const BOX_GAP = 70;
+
+const WARN_TAGS = new Set<string>([
+  TAGS.UPDATE_ERROR,
+  TAGS.DELETE_ERROR,
+  TAGS.INSERT_ERROR,
+]);
+const INFO_TAGS = new Set<string>([TAGS.INSERT_CLAMP]);
+
 // tag → StepDescription factory
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.SEARCH_START]: (e) =>
@@ -43,6 +53,11 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { index: e.local_vars.index },
   }),
 
+  [TAGS.UPDATE_CHECK_INDEX]: (e) => ({
+    key: "animation.update_check_index",
+    params: { index: e.local_vars.index, length: e.local_vars.length },
+  }),
+
   [TAGS.UPDATE_ASSIGN]: (e) => ({
     key: "animation.update_assign",
     params: { index: e.local_vars.index, value: e.local_vars.value },
@@ -53,6 +68,30 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.UPDATE_ERROR]: (e) => ({
     key: "animation.update_error",
     params: { index: e.local_vars.index },
+  }),
+
+  [TAGS.INSERT_CHECK_FULL]: (e) => ({
+    key: "animation.insert_check_full",
+    params: { length: e.local_vars.length, capacity: e.local_vars.capacity },
+  }),
+
+  [TAGS.INSERT_ERROR]: (e) => ({
+    key: "animation.insert_error",
+    params: { length: e.local_vars.length, capacity: e.local_vars.capacity },
+  }),
+
+  [TAGS.INSERT_CHECK_INDEX]: (e) => ({
+    key: "animation.insert_check_index",
+    params: { index: e.local_vars.index, length: e.local_vars.length },
+  }),
+
+  [TAGS.INSERT_CLAMP]: (e) => ({
+    key: "animation.insert_clamp",
+    params: {
+      index: e.local_vars.index,
+      clamped: e.local_vars.clamped,
+      length: e.local_vars.length,
+    },
   }),
 
   [TAGS.INSERT_START]: (_e) => ({ key: "animation.insert_start" }),
@@ -87,6 +126,16 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { index: e.local_vars.index, value: e.local_vars.value },
   }),
 
+  [TAGS.DELETE_CHECK_INDEX]: (e) => ({
+    key: "animation.delete_check_index",
+    params: { index: e.local_vars.index, length: e.local_vars.length },
+  }),
+
+  [TAGS.DELETE_ERROR]: (e) => ({
+    key: "animation.delete_error",
+    params: { index: e.local_vars.index },
+  }),
+
   [TAGS.DELETE_SHIFT]: (e) =>
     e.meta?.isShiftDone
       ? {
@@ -113,20 +162,23 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
 export function arrayTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
     const meta = asTrace<ArrayMeta>(event.meta);
+    const boxes = createBoxes(event.dataSnapshot, {
+      startX: BOX_START_X,
+      startY: 200,
+      gap: BOX_GAP,
+      highlightIndex: meta.highlightIndex ?? -1,
+      status: toStatus(meta.status),
+      forceXShiftIndex: -1,
+      shiftDirection: 0,
+      overrideStatusMap: toOverrideMap(meta.overrideStatusMap),
+      getDescription: (_, i) => `${i}`,
+    });
     return {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
-      elements: createBoxes(event.dataSnapshot, {
-        startX: 50,
-        startY: 200,
-        gap: 70,
-        highlightIndex: meta.highlightIndex ?? -1,
-        status: toStatus(meta.status),
-        forceXShiftIndex: -1,
-        shiftDirection: 0,
-        overrideStatusMap: toOverrideMap(meta.overrideStatusMap),
-        getDescription: (_, i) => `${i}`,
-      }),
+      elements: boxes,
+      warn: WARN_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
       actionTag: event.tag,
       local_vars: event.local_vars,
       global_vars: event.global_vars,

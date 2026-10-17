@@ -43,8 +43,8 @@ End Procedure`,
     mappings: {
       [TAGS.BUILD_INIT]: [2],
       [TAGS.BUILD_BASE]: [3],
-      [TAGS.BUILD_CALC]: [6],
-      [TAGS.BUILD_UPDATE]: [6],
+      [TAGS.BUILD_CALC]: [5, 6],
+      [TAGS.BUILD_UPDATE]: [5, 6],
       [TAGS.BUILD_DONE]: [8],
       [TAGS.QUERY_START]: [10],
       [TAGS.QUERY_GET_R]: [11],
@@ -108,9 +108,7 @@ export const prefixSumConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(n)",
   },
-  introduction: `前綴和是一種重要的資料預處理技巧。
-  它的核心概念是建立一個新陣列 P，其中 P[i] 代表原始陣列 A 從 index 0 加到 index i 的總和。
-  一旦建立完成，我們就可以利用 P[R] - P[L-1] 快速求出任意區間 [L, R] 的總和，將查詢複雜度從 O(n) 降為 O(1)。`,
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 3 },
     { id: "box-1", value: 5 },

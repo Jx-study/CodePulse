@@ -102,7 +102,7 @@ export const useVisualizationLogic = (config: LevelImplementationConfig | null) 
           cloneData(data),
           {
             nextId: () => `node-${nextIdRef.current++}`,
-            toast: { warning: toast.warning },
+            toast: { warning: toast.warning, info: toast.info },
             defaultData: config.defaultData,
           },
         );

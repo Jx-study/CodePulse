@@ -82,7 +82,7 @@
           "Short trace example: in `merge([1,4], [2,3])`, the while loop appends 1, then 2, then 3; once the right half is exhausted, the remaining 4 is appended by `extend(left[i:])` instead of another comparison",
           "When one sub-array is exhausted first, all remaining elements from the other sub-array must be appended to the end of the merged result; if `merge([1,2,3], [])` is called, the while loop is false immediately and the result becomes `[1,2,3]` from the remaining elements"
         ],
-        "icon": "merge"
+        "icon": "code-merge"
       },
       {
         "heading": "Merge Sort vs Quick Sort",

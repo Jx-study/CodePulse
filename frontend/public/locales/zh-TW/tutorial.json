@@ -23,6 +23,7 @@
     "actionBar": "操作面板",
     "variableStatus": "變數狀態"
   },
+  "actionBarBusyHint": "動畫播放中，請等步驟完成後再切回操作面板",
   "smartActionBar": {
     "noInterface": "此主題暫無操作介面"
   },

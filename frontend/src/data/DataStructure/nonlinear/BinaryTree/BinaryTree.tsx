@@ -66,21 +66,37 @@ Procedure BFS(root):
       [TAGS.PRE_VISIT]: [3],
       [TAGS.PRE_LEFT]: [4],
       [TAGS.PRE_RIGHT]: [5],
+      [TAGS.PRE_LEFT_ENTER]: [4],
+      [TAGS.PRE_LEFT_RETURN]: [4],
+      [TAGS.PRE_RIGHT_ENTER]: [5],
+      [TAGS.PRE_RIGHT_RETURN]: [5],
       [TAGS.IN_INIT]: [7],
       [TAGS.IN_NULL]: [8],
       [TAGS.IN_LEFT]: [9],
       [TAGS.IN_VISIT]: [10],
       [TAGS.IN_RIGHT]: [11],
+      [TAGS.IN_LEFT_ENTER]: [9],
+      [TAGS.IN_LEFT_RETURN]: [9],
+      [TAGS.IN_RIGHT_ENTER]: [11],
+      [TAGS.IN_RIGHT_RETURN]: [11],
       [TAGS.POST_INIT]: [13],
       [TAGS.POST_NULL]: [14],
       [TAGS.POST_LEFT]: [15],
       [TAGS.POST_RIGHT]: [16],
+      [TAGS.POST_LEFT_ENTER]: [15],
+      [TAGS.POST_LEFT_RETURN]: [15],
+      [TAGS.POST_RIGHT_ENTER]: [16],
+      [TAGS.POST_RIGHT_RETURN]: [16],
       [TAGS.POST_VISIT]: [17],
       [TAGS.BFS_INIT]: [20],
       [TAGS.BFS_WHILE]: [21],
       [TAGS.BFS_DEQUEUE]: [22],
       [TAGS.BFS_VISIT]: [23],
       [TAGS.BFS_ENQUEUE]: [24, 25],
+      [TAGS.BFS_ENQUEUE_LEFT]: [24],
+      [TAGS.BFS_SKIP_LEFT]: [24],
+      [TAGS.BFS_ENQUEUE_RIGHT]: [25],
+      [TAGS.BFS_SKIP_RIGHT]: [25],
     },
   },
   python: {
@@ -143,29 +159,6 @@ function binaryTreeActionHandler(
   data: BTInputItem[],
   context: ActionContext,
 ): ActionResult<BTInputItem[]> | null {
-  const { value, index } = payload as { value?: number; index?: number };
-  const newData = [...data];
-
-  if (actionType === "add") {
-    const newId = context.nextId();
-    newData.push({ id: newId, value: value! });
-    return {
-      animationData: newData,
-      animationParams: { targetId: newId, value },
-    };
-  }
-
-  if (actionType === "delete") {
-    const delValue = index ?? value;
-    const delIndex = newData.findIndex((n) => n.value === delValue);
-    if (delIndex === -1) {
-      context.toast.warning(`數值 ${delValue} 不存在`);
-      return null;
-    }
-    newData.splice(delIndex, 1);
-    return { animationData: newData, animationParams: { value: delValue } };
-  }
-
   if (actionType === "search") {
     return { animationData: data };
   }

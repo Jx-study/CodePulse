@@ -9,7 +9,6 @@
     "pre_right_enter": "Prepare to enter right child {{child}}",
     "pre_right_return": "Right subtree finished, return to node {{curr}}",
     "pre_done": "Preorder traversal complete",
-
     "in_init": "Start Inorder Traversal (Left-Root-Right)",
     "in_null": "Node is empty (Null), backtracking",
     "in_left_enter": "Prepare to enter left child {{child}}",
@@ -18,7 +17,6 @@
     "in_right_enter": "Prepare to enter right child {{child}}",
     "in_right_return": "Right subtree finished, return to node {{curr}}",
     "in_done": "Inorder traversal complete",
-
     "post_init": "Start Postorder Traversal (Left-Right-Root)",
     "post_null": "Node is empty (Null), backtracking",
     "post_left_enter": "Prepare to enter left child {{child}}",
@@ -27,7 +25,6 @@
     "post_right_return": "Right subtree finished, return to node {{curr}}",
     "post_visit": "[Visit] Record node {{curr}}",
     "post_done": "Postorder traversal complete",
-
     "bfs_init": "Start Level-order Traversal (BFS): Enqueue Root",
     "bfs_while": "Check if queue is empty",
     "bfs_dequeue": "Dequeue first node {{curr}}",

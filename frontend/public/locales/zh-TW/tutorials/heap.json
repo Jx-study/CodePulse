@@ -8,14 +8,20 @@
     "extract_start_min": "準備取出最小值：{{extVal}}",
     "extract_start_max": "準備取出最大值：{{extVal}}",
     "extract_swap_last": "將 Root 與最後一個節點交換",
+    "extract_only": "堆積只剩一個節點，直接移除即可",
     "extract_remove": "移除最後一個節點，並將新 Root 進行 Heapify Down",
     "heapify_down_compare_min": "尋找子節點中較小者進行比較",
     "heapify_down_compare_max": "尋找子節點中較大者進行比較",
     "heapify_down_swap": "不符合 {{heapName}} 規則，執行交換 (Swap)",
+    "heapify_up_stop": "當前節點不比父節點優先，已在正確位置，停止上浮 (Break)",
+    "heapify_down_stop": "當前節點已比子節點優先，停止下沉 (Break)",
+    "extract_return": "回傳取出的值：{{extVal}}",
     "peek_min": "取得最小值：{{extVal}}",
     "peek_max": "取得最大值：{{extVal}}",
     "heapify_start": "開始 Bottom-Up 建堆 (共有 {{length}} 個節點)，目標：{{heapName}}",
-    "done": "{{heapName}} 操作完成"
+    "done": "{{heapName}} 操作完成",
+    "extract_empty": "堆積為空，沒有元素可以取出（Return Error）",
+    "peek_empty": "堆積為空，沒有元素可以查看（Return Error）"
   },
   "ui": {
     "notHeap": "尚未建堆",
@@ -57,11 +63,11 @@
     "sections": [
       {
         "heading": "核心概念",
-        "content": "**Heap** 是概念上的 [[primary|完全二元樹]]，卻常被形容為「披著二元樹羊皮的 **陣列** 」。其本質是維持嚴格的父子大小關係，以確保能最高效取得 [[primary|極值]]。",
+        "content": "**Heap** 是概念上的[[primary|完全二元樹]]，卻常被形容為「披著二元樹羊皮的**陣列**」。其本質是維持嚴格的父子大小關係，以確保能最高效取得[[primary|極值]]。",
         "items": [
-          "使用一維 **陣列** 儲存，透過簡單的 [[primary|索引計算]]（如左節點 2i+1）來模擬樹結構，省去指標開銷",
-          "如同 [[primary|錦標賽]] 晉級，每個節點都是其下方的贏家，因此 **根節點** 永遠會是全局極值",
-          "必須滿足特定的 [[primary|堆積性質]]：所有 **父節點** 的值恆大於等於（或小於等於）其 **子節點**"
+          "使用一維**陣列**儲存，透過簡單的[[primary|索引計算]]（如左節點 2i+1）來模擬樹結構，省去指標開銷",
+          "如同[[primary|錦標賽]]晉級，每個節點都是其下方的贏家，因此**根節點**永遠會是全局極值",
+          "必須滿足特定的[[primary|堆積性質]]：所有**父節點**的值恆大於等於（或小於等於）其**子節點**"
         ],
         "icon": "compass"
       },
@@ -105,7 +111,7 @@
           "**計算子節點**：若節點索引為 i，其左子節點必在 [[primary|2i+1]]，右子節點必在 [[primary|2i+2]]",
           "**計算父節點**：若某節點的索引為 i，可透過整數除法算出其父節點位於 [[primary|(i-1)//2]]"
         ],
-        "icon": "list-tree"
+        "icon": "sitemap"
       },
       {
         "heading": "優先佇列差異",

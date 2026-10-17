@@ -16,6 +16,7 @@ import { TAGS, TwoPointersStatusConfig } from "./twoPointers/tags";
 const linearActionHandler = createLinearActionHandler({
   randomValueRange: [1, 20],
   sortOnLoad: true,
+  sortNoticeNamespace: "tutorials/two-pointers",
 });
 
 function twoPointersActionHandler(
@@ -125,8 +126,6 @@ End Procedure`,
   },
   python: {
     content: `def remove_duplicates(arr):
-    if not arr:
-        return 0
     slow = 0
 
     for fast in range(1, len(arr)):
@@ -138,15 +137,13 @@ End Procedure`,
     return slow + 1`,
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(n)' },                      // def remove_duplicates(arr):
-      { lineNumber: 2,  complexity: 'O(1)' },                      // if not arr:
-      { lineNumber: 3,  complexity: 'O(1)' },                      // return 0
-      { lineNumber: 4,  complexity: 'O(1)' },                      // slow = 0
-      { lineNumber: 6,  complexity: 'O(n)' },                      // for fast in range(1, len(arr)):
-      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },     // if arr[fast] == arr[slow]:
-      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n)' },     // continue
-      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n)' },     // slow += 1
-      { lineNumber: 10, complexity: 'O(1)', context: 'O(n)' },     // arr[slow] = arr[fast]
-      { lineNumber: 12, complexity: 'O(1)' },                      // return slow + 1
+      { lineNumber: 2,  complexity: 'O(1)' },                      // slow = 0
+      { lineNumber: 4,  complexity: 'O(n)' },                      // for fast in range(1, len(arr)):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)' },     // if arr[fast] == arr[slow]:
+      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n)' },     // continue
+      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n)' },     // slow += 1
+      { lineNumber: 8, complexity: 'O(1)', context: 'O(n)' },     // arr[slow] = arr[fast]
+      { lineNumber: 10, complexity: 'O(1)' },                      // return slow + 1
     ],
   },
 };
@@ -168,7 +165,7 @@ export const twoPointersConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(1)",
   },
-  introduction: `雙指標是用兩個索引在陣列上協作移動的技巧。「對向」雙指標從兩端往中間夾（例如排序陣列的兩數之和）：每次比較後都能確定排除一側的元素；「同向」雙指標（快慢指標）一前一後往同方向走（例如原地移除重複元素）：快指標負責掃描，慢指標負責標記已處理好的區域。兩種寫法都讓每個元素只被看過常數次，把暴力解的 O(n²) 降到 O(n)。`,
+  introduction: { key: "introduction" },
   // 9 格：10 格時右上角的狀態圖例會壓到最右邊的格子
   defaultData: [
     { id: "box-0", value: 1 },

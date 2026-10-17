@@ -169,13 +169,10 @@ def dijkstra(graph, start_node):
     pq = [(0, start_node)]
     
     while pq:
-        current_dist, curr_node = heapq.heappop(pq)
+        _, curr_node = heapq.heappop(pq)
         
-        if current_dist > dist[curr_node]:
-            continue
-            
         for neighbor, weight in graph[curr_node]:
-            new_dist = current_dist + weight
+            new_dist = dist[curr_node] + weight
             
             if new_dist < dist[neighbor]:
                 dist[neighbor] = new_dist
@@ -189,15 +186,13 @@ def dijkstra(graph, start_node):
       { lineNumber: 5,  complexity: 'O(1)' },                                  // dist[start_node] = 0
       { lineNumber: 6,  complexity: 'O(1)' },                                  // pq = [(0, start_node)]
       { lineNumber: 8,  complexity: 'O(n log n)' },                            // while pq:
-      { lineNumber: 9,  complexity: 'O(log n)', context: 'O(n)' },             // current_dist, curr_node = heapq.heappop(pq)
-      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // if current_dist > dist[curr_node]:
-      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // continue
-      { lineNumber: 14, complexity: 'O(n)', context: 'O(n)' },                 // for neighbor, weight in graph[curr_node]:
-      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },                 // new_dist = current_dist + weight
-      { lineNumber: 17, complexity: 'O(1)', context: 'O(n)' },                 // if new_dist < dist[neighbor]:
-      { lineNumber: 18, complexity: 'O(1)', context: 'O(n)' },                 // dist[neighbor] = new_dist
-      { lineNumber: 19, complexity: 'O(log n)', context: 'O(n)' },             // heapq.heappush(pq, (new_dist, neighbor))
-      { lineNumber: 21, complexity: 'O(1)' },                                  // return dist
+      { lineNumber: 9,  complexity: 'O(log n)', context: 'O(n)' },             // _, curr_node = heapq.heappop(pq)
+      { lineNumber: 11, complexity: 'O(n)', context: 'O(n)' },                 // for neighbor, weight in graph[curr_node]:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // new_dist = dist[curr_node] + weight
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)' },                 // if new_dist < dist[neighbor]:
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)' },                 // dist[neighbor] = new_dist
+      { lineNumber: 16, complexity: 'O(log n)', context: 'O(n)' },             // heapq.heappush(pq, (new_dist, neighbor))
+      { lineNumber: 18, complexity: 'O(1)' },                                  // return dist
     ],
   },
 };
@@ -216,7 +211,7 @@ export const dijkstraConfig: LevelImplementationConfig = {
     timeWorst: "O((V+E) log V)",
     space: "O(V)",
   },
-  introduction: `Dijkstra 演算法用於解決「單源最短路徑」問題。它將節點分為「已完成」與「未完成」兩個集合，每次從未完成集合中挑選距離起點最近的節點，並更新（鬆弛）它的所有相鄰節點的距離。請注意，它無法處理帶有負權重的邊。`,
+  introduction: { key: "introduction" },
   defaultData: {
     graph: {
       nodes: [

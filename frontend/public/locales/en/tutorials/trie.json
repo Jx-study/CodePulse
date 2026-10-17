@@ -1,4 +1,7 @@
 {
+  "actionHandler": {
+    "loadNormalized": "Words were adjusted on load: only letters are kept and lowercased, duplicates are merged, and the list is capped at {{max}} words"
+  },
   "introduction": {
     "sections": [
       {

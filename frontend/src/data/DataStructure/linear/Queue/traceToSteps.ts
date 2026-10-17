@@ -45,12 +45,23 @@ const createQueuePointers = (
   return pointers;
 };
 
+const GUARD_ERROR_TAGS = new Set<string>([
+  TAGS.ENQUEUE_ERROR,
+  TAGS.DEQUEUE_ERROR,
+]);
+const INFO_TAGS = new Set<string>([TAGS.PEEK_ERROR]);
+
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
   [TAGS.ENQUEUE_START]: (e) => ({
     key: "animation.enqueue_start",
     params: { value: e.local_vars.value },
   }),
+  [TAGS.ENQUEUE_CHECK_FULL]: (e) => ({
+    key: "animation.enqueue_check_full",
+    params: { size: e.local_vars.size },
+  }),
+  [TAGS.ENQUEUE_ERROR]: () => ({ key: "animation.enqueue_error" }),
   [TAGS.ENQUEUE_INC_REAR]: (e) => ({
     key: "animation.enqueue_inc_rear",
     params: { rear: e.local_vars.rear },
@@ -121,12 +132,35 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         ...createBoxes(dataList),
         ...createQueuePointers(0, dataList.length - 1, startX, startY, gap),
       ];
+    } else if (action?.type === "add" && action.overflow) {
+      elements = [
+        ...createBoxes(
+          dataList,
+          event.tag === TAGS.ENQUEUE_CHECK_FULL
+            ? Status.Target
+            : Status.Unfinished,
+        ),
+        ...createQueuePointers(0, dataList.length - 1, startX, startY, gap),
+      ];
     } else if (action?.type === "add") {
       const oldList = dataList.slice(0, -1);
       const newNode = dataList[dataList.length - 1];
       const currentRear = oldList.length - 1;
 
       if (event.tag === TAGS.ENQUEUE_START) {
+        const newBox = createBox(
+          newNode.id,
+          newNode.value,
+          950,
+          Status.Prepare,
+          "New",
+        );
+        elements = [
+          ...createBoxes(oldList),
+          newBox,
+          ...createQueuePointers(0, currentRear, startX, startY, gap),
+        ];
+      } else if (event.tag === TAGS.ENQUEUE_CHECK_FULL) {
         const newBox = createBox(
           newNode.id,
           newNode.value,
@@ -298,6 +332,8 @@ export function queueTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      warn: GUARD_ERROR_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
       local_vars: event.local_vars,
       elements,
     };

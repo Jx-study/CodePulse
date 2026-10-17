@@ -12,6 +12,7 @@ export interface HeapAction {
   heapType?: string;
   value?: number;
   targetId?: string;
+  empty?: boolean;
 }
 
 export function simulateHeapTrace(
@@ -41,6 +42,16 @@ export function simulateHeapTrace(
       local_vars: { heapName },
       dataSnapshot: getSnapshot(),
       meta: { isInitial: true, status: defaultNodeStatus },
+    });
+    return trace;
+  }
+
+  if (action.empty) {
+    trace.push({
+      tag: action.heapType === "peek" ? TAGS.PEEK_EMPTY : TAGS.EXTRACT_EMPTY,
+      local_vars: { isMinHeap },
+      dataSnapshot: getSnapshot(),
+      meta: { status: defaultNodeStatus },
     });
     return trace;
   }
@@ -141,6 +152,12 @@ export function simulateHeapTrace(
           });
           idx = targetIdx;
         } else {
+          trace.push({
+            tag: TAGS.HEAPIFY_DOWN_STOP,
+            local_vars: { idx },
+            dataSnapshot: getSnapshot(),
+            meta: { overrideStatusMap: { [idx]: "Target" } },
+          });
           break;
         }
       }
@@ -203,6 +220,14 @@ export function simulateHeapTrace(
 
         idx = parentIdx;
       } else {
+        trace.push({
+          tag: TAGS.HEAPIFY_UP_STOP,
+          local_vars: { idx, parentIdx },
+          dataSnapshot: getSnapshot(),
+          meta: {
+            overrideStatusMap: { [idx]: "Target", [parentIdx]: "Prepare" },
+          },
+        });
         break;
       }
     }
@@ -227,7 +252,7 @@ export function simulateHeapTrace(
     if (currentList.length === 1) {
       currentList.pop();
       trace.push({
-        tag: TAGS.EXTRACT_REMOVE,
+        tag: TAGS.EXTRACT_ONLY,
         local_vars: { extVal, heapSize: currentList.length },
         dataSnapshot: getSnapshot(),
         meta: { highlightIndex: -1, overrideStatusMap: { 0: "Prepare" } },
@@ -323,9 +348,22 @@ export function simulateHeapTrace(
         });
         idx = targetIdx;
       } else {
+        trace.push({
+          tag: TAGS.HEAPIFY_DOWN_STOP,
+          local_vars: { idx },
+          dataSnapshot: getSnapshot(),
+          meta: { overrideStatusMap: { [idx]: "Target" } },
+        });
         break;
       }
     }
+
+    trace.push({
+      tag: TAGS.EXTRACT_RETURN,
+      local_vars: { extVal },
+      dataSnapshot: getSnapshot(),
+      meta: { status: "Complete" },
+    });
 
     trace.push({
       tag: TAGS.DONE,

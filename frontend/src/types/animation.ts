@@ -16,6 +16,8 @@ export interface AnimationStep {
   description: string | StepDescription;
   elements: BaseElement[];
   actionTag?: string; // 用於對應代碼高亮的標籤
+  warn?: boolean; // 播放到此步驟時，以 warning toast 顯示 description（guard 被觸發、操作被擋下）
+  info?: boolean; // 播放到此步驟時，以 info toast 顯示 description（輸入已被自動調整，但操作仍會執行）
   local_vars?: Record<string, JsonValue>;
   global_vars?: Record<string, JsonValue>;
   links?: {
@@ -41,7 +43,7 @@ export interface ComplexityInfo {
 export interface CodeConfig {
   pseudo: {
     content: string;
-    mappings: Record<string, number[]>; // actionTag -> 行號陣列 (0-based)
+    mappings: Record<string, number[]>; // actionTag -> 行號陣列 (1-based)
   };
   python: {
     content: string;

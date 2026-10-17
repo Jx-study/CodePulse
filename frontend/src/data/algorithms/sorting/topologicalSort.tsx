@@ -157,10 +157,11 @@ const topoCodeConfig: CodeConfig = {
     Return "Cycle Detected"
   Return Result`,
     mappings: {
-      [TAGS.INIT]: [2],
+      [TAGS.INIT]: [2, 3],
       [TAGS.ENQUEUE_ZERO]: [4, 5],
       [TAGS.WHILE_LOOP]: [6],
       [TAGS.DEQUEUE]: [7, 8],
+      [TAGS.ADD_TO_RESULT]: [8],
       [TAGS.REDUCE_NEIGHBOR]: [9, 10, 11],
 
       [TAGS.CHECK_ZERO_TRUE]: [12],
@@ -234,7 +235,7 @@ export const topologicalSortConfig: LevelImplementationConfig = {
     timeWorst: "O(V + E)",
     space: "O(V + E)",
   },
-  introduction: `拓撲排序專門用來處理「有向無環圖 (DAG)」的依賴關係。只有當一個節點的「入度 (In-degree)」為 0 時才能被執行。每執行完一個節點，就把它連出去的邊拔掉，釋放後續節點的依賴。`,
+  introduction: { key: "introduction" },
   defaultData: {
     nodes: [
       { id: "node-0", value: "0" },
