@@ -74,7 +74,7 @@
           "**Left-right (LR) and right-left (RL)**: rotate the child first, then the node",
           "Each rotation changes only a few pointers, so it takes [[success|O(1)]] time"
         ],
-        "icon": "cog"
+        "icon": "shuffle"
       },
       {
         "heading": "Operation Complexity",
@@ -85,7 +85,7 @@
           "A deletion may rotate on **several levels** on the way up",
           "**Space complexity**: [[success|O(n)]]"
         ],
-        "icon": "clock"
+        "icon": "cog"
       },
       {
         "heading": "Things to Watch",
