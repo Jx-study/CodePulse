@@ -46,7 +46,7 @@
     "del_two_child": "{{val}} 左右都有子節點，不能直接拿掉。要找後繼者（右子樹中最小的值）來頂替它",
     "del_succ_find": "後繼者候選是 {{succ}}，它還有左子節點，所以繼續往左走",
     "del_succ_found": "{{succ}} 沒有左子節點，它就是後繼者（右子樹中最小的值）",
-    "del_succ_copy": "node.value ← s.value：把 {{val}} 的位置改存後繼者的值 {{succ}}（計數一起帶過來），原本的後繼者節點稍後拿掉",
+    "del_succ_copy": "node.value ← successor.value：把 {{val}} 的位置改存後繼者的值 {{succ}}（計數一起帶過來），原本的後繼者節點稍後拿掉",
     "del_succ_remove_leaf": "node.right ← RemoveMin(node.right)：移除後繼者節點 {{succ}}，它沒有右子節點，所以它的位置變成空的",
     "del_succ_remove_child": "node.right ← RemoveMin(node.right)：移除後繼者節點 {{succ}}，它的右子節點 {{child}} 接上它原本的位置",
     "del_done": "刪除 {{val}} 完成，沿路徑往上的節點都重新恢復平衡"

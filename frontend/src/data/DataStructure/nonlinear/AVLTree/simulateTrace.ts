@@ -225,16 +225,18 @@ function createRun(inputData: AVLInputItem[]) {
   ) => {
     for (let i = path.length - 1; i >= 0; i--) {
       const node = path[i];
+      // Ancestors not yet checked stay blue, checked ones go back to plain
+      const base: StatusMap = { ...visited(path.slice(0, i)), ...fresh };
       const bf = balanceFactor(node);
 
       push(checkTag(i), { node: node.value, height: height(node), bf }, {
-        ...fresh,
+        ...base,
         [node.id]: AVLStatus.Target,
       });
 
       if (Math.abs(bf) <= 1) {
         push(TAGS.BALANCED, { node: node.value, bf }, {
-          ...fresh,
+          ...base,
           [node.id]: AVLStatus.Visited,
         });
         continue;
@@ -257,7 +259,7 @@ function createRun(inputData: AVLInputItem[]) {
         leftHeavy ? TAGS.UNBALANCED_LEFT : TAGS.UNBALANCED_RIGHT,
         { node: node.value, bf, child: child.value, childBf, case: caseName },
         {
-          ...fresh,
+          ...base,
           [node.id]: AVLStatus.Unbalanced,
           [child.id]: AVLStatus.Prepare,
           [grand.id]: AVLStatus.Prepare,
@@ -265,7 +267,7 @@ function createRun(inputData: AVLInputItem[]) {
       );
 
       const involved: StatusMap = {
-        ...fresh,
+        ...base,
         [node.id]: AVLStatus.Unbalanced,
         [child.id]: AVLStatus.Rotating,
         [grand.id]: AVLStatus.Rotating,
@@ -277,7 +279,7 @@ function createRun(inputData: AVLInputItem[]) {
           { node: child.value, pivot: grand.value },
           involved,
         );
-        rotateWithFrames(child, leftHeavy ? "left" : "right", fresh, (sub) => {
+        rotateWithFrames(child, leftHeavy ? "left" : "right", base, (sub) => {
           if (leftHeavy) node.left = sub;
           else node.right = sub;
         });
@@ -287,9 +289,9 @@ function createRun(inputData: AVLInputItem[]) {
       push(
         leftHeavy ? TAGS.ROTATE_RIGHT : TAGS.ROTATE_LEFT,
         { node: node.value, pivot: pivot.value, case: caseName },
-        { ...fresh, [node.id]: AVLStatus.Unbalanced, [pivot.id]: AVLStatus.Rotating },
+        { ...base, [node.id]: AVLStatus.Unbalanced, [pivot.id]: AVLStatus.Rotating },
       );
-      rotateWithFrames(node, leftHeavy ? "right" : "left", fresh, (sub) =>
+      rotateWithFrames(node, leftHeavy ? "right" : "left", base, (sub) =>
         replaceInParent(path, i, node, sub),
       );
     }

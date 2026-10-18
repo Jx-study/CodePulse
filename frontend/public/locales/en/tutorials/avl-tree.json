@@ -46,7 +46,7 @@
     "del_two_child": "{{val}} has two children, so it cannot just be cut out. Find its successor (the smallest value in the right subtree) to take its place",
     "del_succ_find": "Successor candidate is {{succ}}, which still has a left child, so keep going left",
     "del_succ_found": "{{succ}} has no left child, so it is the successor (the smallest value in the right subtree)",
-    "del_succ_copy": "node.value ← s.value: the node that held {{val}} now stores the successor's value {{succ}} (with its count). The original successor node is removed next",
+    "del_succ_copy": "node.value ← successor.value: the node that held {{val}} now stores the successor's value {{succ}} (with its count). The original successor node is removed next",
     "del_succ_remove_leaf": "node.right ← RemoveMin(node.right): remove the successor node {{succ}}. It has no right child, so its place becomes empty",
     "del_succ_remove_child": "node.right ← RemoveMin(node.right): remove the successor node {{succ}}, and its right child {{child}} takes its place",
     "del_done": "Deleting {{val}} is complete and every node along the path is balanced again"

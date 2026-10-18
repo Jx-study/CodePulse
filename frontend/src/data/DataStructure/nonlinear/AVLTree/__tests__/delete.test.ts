@@ -10,7 +10,7 @@ import {
 } from "../avl";
 import { simulateAVLTrace, type AVLInputItem } from "../simulateTrace";
 import { avlTraceToSteps } from "../traceToSteps";
-import { TAGS } from "../tags";
+import { TAGS, AVLStatus } from "../tags";
 import { mountStructure } from "@/data/__tests__/harness";
 
 const stateOf = (values: number[]): AVLInputItem[] =>
@@ -210,6 +210,21 @@ describe("AVL delete trace", () => {
       [10, [5, null, null], null],
       [40, [35, null, null], [50, null, null]],
     ]);
+  });
+
+  it("keeps the ancestors not yet checked blue while walking back up", () => {
+    const steps = avlTraceToSteps(
+      deleteTrace([40, 20, 60, 10, 30, 50, 70], 10),
+    );
+    const checks = steps.filter((s) => s.actionTag === TAGS.DEL_BF_CHECK);
+    const statusOf = (step: (typeof steps)[number], id: string) =>
+      step.elements.find((el) => el.id === id)!.status;
+
+    // n0 = 40 (root), n1 = 20: the first check is on 20, so the root is still pending
+    expect(statusOf(checks[0], "n1")).toBe(AVLStatus.Target);
+    expect(statusOf(checks[0], "n0")).toBe(AVLStatus.Visited);
+    // by the time the root is checked, 20 is plain again
+    expect(statusOf(checks[1], "n1")).toBe(AVLStatus.Inactive);
   });
 
   it("keeps every node in place between finding the successor and copying its value", () => {

@@ -163,9 +163,9 @@ Procedure Delete(node, value):
       Return node
     If node.left is Null Then Return node.right
     If node.right is Null Then Return node.left
-    s ← MinNode(node.right)
-    node.value ← s.value
-    node.count ← s.count
+    successor ← MinNode(node.right)
+    node.value ← successor.value
+    node.count ← successor.count
     node.right ← RemoveMin(node.right)
   UpdateHeight(node)
   Return Rebalance(node)
@@ -302,9 +302,9 @@ def delete(node, value):
             return node.right
         if node.right is None:
             return node.left
-        s = min_node(node.right)
-        node.value = s.value
-        node.count = s.count
+        successor = min_node(node.right)
+        node.value = successor.value
+        node.count = successor.count
         node.right = remove_min(node.right)
     update_height(node)
     return rebalance(node)
