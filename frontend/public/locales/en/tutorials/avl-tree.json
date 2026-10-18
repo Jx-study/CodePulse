@@ -1,0 +1,102 @@
+{
+  "animation": {
+    "init": "AVL tree with {{count}} value(s). BF (balance factor) = height(left) - height(right), and every node must stay between -1 and +1"
+  },
+  "ui": {
+    "operations": "AVL operations",
+    "valuePlaceholder": "Value",
+    "comingSoon": "Coming soon",
+    "group": {
+      "modify": "Modify",
+      "query": "Query",
+      "traversal": "Traversal",
+      "balance": "Balance"
+    },
+    "insert": "Insert",
+    "insertTooltip": "Insert the value like a BST, then rebalance on the way back up",
+    "delete": "Delete",
+    "deleteTooltip": "Delete the value like a BST, then rebalance on the way back up",
+    "search": "Search",
+    "searchTooltip": "Search for the value; the tree height keeps this at O(log n)",
+    "min": "Min",
+    "minTooltip": "Walk left to the smallest value",
+    "max": "Max",
+    "maxTooltip": "Walk right to the largest value",
+    "floor": "Floor",
+    "floorTooltip": "Find the largest value that is less than or equal to the input",
+    "ceil": "Ceil",
+    "ceilTooltip": "Find the smallest value that is greater than or equal to the input",
+    "preorder": "Preorder",
+    "preorderTooltip": "Visit root, then left, then right",
+    "inorder": "Inorder",
+    "inorderTooltip": "Visit left, then root, then right (sorted order)",
+    "postorder": "Postorder",
+    "postorderTooltip": "Visit left, then right, then root",
+    "levelorder": "Level-order",
+    "levelorderTooltip": "Visit the tree level by level with a queue",
+    "checkBalance": "Check balance",
+    "checkBalanceTooltip": "Check the balance factor of every node and mark the ones outside -1 to +1",
+    "rotateLeft": "Rotate left",
+    "rotateLeftTooltip": "Rotate left around the node with this value",
+    "rotateRight": "Rotate right",
+    "rotateRightTooltip": "Rotate right around the node with this value",
+    "autoBalance": "Auto-balance",
+    "autoBalanceTooltip": "Turn automatic rebalancing on or off to compare with a plain BST",
+    "rebalance": "Rebalance",
+    "rebalanceTooltip": "Rebalance the whole tree after auto-balance was off"
+  },
+  "statusLegend": {
+    "notVisited": "Not visited",
+    "visitedPath": "Visited path",
+    "exploreDirection": "Direction to explore",
+    "currentNode": "Current node",
+    "completeTarget": "Target found"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "An AVL tree is a **binary search tree that rebalances itself**. After every insertion or deletion it checks the height of each subtree and rotates nodes so the tree never leans too far to one side.",
+        "items": [
+          "**Balance factor (BF)**: height of the left subtree minus height of the right subtree",
+          "**AVL rule**: every node must have a BF of [[primary|-1, 0 or +1]]",
+          "A plain BST can degrade into a linked list; the AVL rule keeps the height at [[success|O(log n)]]",
+          "The same ordering rule as a BST still holds: left is smaller, right is larger"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Rotations",
+        "content": "When a node's BF becomes +2 or -2, a rotation restores the balance without breaking the BST ordering.",
+        "items": [
+          "**Right rotation (LL case)**: the left child becomes the new root of the subtree",
+          "**Left rotation (RR case)**: the right child becomes the new root of the subtree",
+          "**Left-right (LR) and right-left (RL)**: rotate the child first, then the node",
+          "Each rotation changes only a few pointers, so it takes [[success|O(1)]] time"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Because the height stays logarithmic, every operation stays fast even in the worst case.",
+        "items": [
+          "**Search, insert, delete**: [[success|O(log n)]] in the worst case",
+          "An insertion needs **at most one rebalancing** (one or two rotations)",
+          "A deletion may rotate on **several levels** on the way up",
+          "**Space complexity**: [[success|O(n)]]"
+        ],
+        "icon": "clock"
+      },
+      {
+        "heading": "Things to Watch",
+        "content": "AVL trees trade a little extra work on writes for predictable reads.",
+        "items": [
+          "The tree is stricter than a red-black tree, so it **rotates more often** but is slightly shallower",
+          "Duplicate values are counted on the existing node, like the BST level",
+          "Turn auto-balance off to see how an AVL tree would degrade like a plain BST"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

@@ -142,6 +142,15 @@
         "Analyze the impact of balance on performance"
       ]
     },
+    "avl_tree": {
+      "name": "AVL Tree",
+      "description": "A self-balancing binary search tree that keeps every subtree height difference within 1",
+      "objectives": [
+        "Understand the balance factor and the AVL rule",
+        "Master the four rotation cases: LL, RR, LR and RL",
+        "See how rebalancing keeps search, insertion and deletion at O(log n)"
+      ]
+    },
     "heap": {
       "name": "Heap",
       "description": "A complete binary tree structure supporting fast retrieval of the maximum or minimum value",
@@ -466,6 +475,7 @@
     "lifo_structure": "LIFO Structure",
     "fifo_structure": "FIFO Structure",
     "sorting_tree": "Sorted Tree Structure",
+    "balanced_tree": "Balanced Tree Structure",
     "priority_structure": "Priority Structure",
     "network_structure": "Network Structure",
     "selection_strategy": "Selection Strategy",

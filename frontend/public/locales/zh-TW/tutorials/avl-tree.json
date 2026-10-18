@@ -1,0 +1,102 @@
+{
+  "animation": {
+    "init": "AVL 樹，目前有 {{count}} 個值。BF（平衡因子）= 左子樹高度 - 右子樹高度，每個節點都必須落在 -1 到 +1 之間"
+  },
+  "ui": {
+    "operations": "AVL 樹操作",
+    "valuePlaceholder": "數值",
+    "comingSoon": "即將推出",
+    "group": {
+      "modify": "修改",
+      "query": "查詢",
+      "traversal": "走訪",
+      "balance": "平衡"
+    },
+    "insert": "插入",
+    "insertTooltip": "像 BST 一樣插入，再沿著路徑往上重新平衡",
+    "delete": "刪除",
+    "deleteTooltip": "像 BST 一樣刪除，再沿著路徑往上重新平衡",
+    "search": "搜尋",
+    "searchTooltip": "搜尋這個值；樹高受控，所以是 O(log n)",
+    "min": "最小值",
+    "minTooltip": "一路往左走到最小值",
+    "max": "最大值",
+    "maxTooltip": "一路往右走到最大值",
+    "floor": "Floor",
+    "floorTooltip": "找出小於或等於輸入值的最大值",
+    "ceil": "Ceil",
+    "ceilTooltip": "找出大於或等於輸入值的最小值",
+    "preorder": "前序",
+    "preorderTooltip": "先拜訪根，再左子樹，再右子樹",
+    "inorder": "中序",
+    "inorderTooltip": "先左子樹，再根，再右子樹（由小到大）",
+    "postorder": "後序",
+    "postorderTooltip": "先左子樹，再右子樹，最後根",
+    "levelorder": "層序",
+    "levelorderTooltip": "用佇列一層一層拜訪",
+    "checkBalance": "檢查平衡",
+    "checkBalanceTooltip": "檢查每個節點的平衡因子，標出不在 -1 到 +1 之間的節點",
+    "rotateLeft": "左旋",
+    "rotateLeftTooltip": "以這個值的節點為軸心左旋",
+    "rotateRight": "右旋",
+    "rotateRightTooltip": "以這個值的節點為軸心右旋",
+    "autoBalance": "自動平衡",
+    "autoBalanceTooltip": "開關自動重新平衡，用來和一般 BST 比較",
+    "rebalance": "重新平衡",
+    "rebalanceTooltip": "在關閉自動平衡後，把整棵樹重新平衡"
+  },
+  "statusLegend": {
+    "notVisited": "尚未拜訪",
+    "visitedPath": "已走過的路徑",
+    "exploreDirection": "接下來要走的方向",
+    "currentNode": "目前節點",
+    "completeTarget": "找到目標"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "AVL 樹是**會自己維持平衡的二元搜尋樹**。每次插入或刪除之後，它都會檢查每棵子樹的高度，必要時旋轉節點，讓樹不會過度偏向一邊。",
+        "items": [
+          "**平衡因子 (BF)**：左子樹高度減去右子樹高度",
+          "**AVL 規則**：每個節點的 BF 必須是 [[primary|-1、0 或 +1]]",
+          "一般 BST 可能退化成鏈結串列，AVL 規則讓樹高維持在 [[success|O(log n)]]",
+          "BST 的大小順序仍然成立：左邊比較小，右邊比較大"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "旋轉",
+        "content": "當某個節點的 BF 變成 +2 或 -2，就用旋轉恢復平衡，而且不會破壞 BST 的大小順序。",
+        "items": [
+          "**右旋 (LL 情況)**：左子節點變成這棵子樹新的根",
+          "**左旋 (RR 情況)**：右子節點變成這棵子樹新的根",
+          "**左右 (LR) 與右左 (RL)**：先旋轉子節點，再旋轉這個節點",
+          "每次旋轉只改動少數幾個指標，所以只要 [[success|O(1)]] 的時間"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "因為樹高維持在對數等級，即使在最壞情況，每個操作都很快。",
+        "items": [
+          "**搜尋、插入、刪除**：最壞情況 [[success|O(log n)]]",
+          "插入**最多只需要一次重新平衡**（一次或兩次旋轉）",
+          "刪除可能在往上走的路上**多個層級都要旋轉**",
+          "**空間複雜度**：[[success|O(n)]]"
+        ],
+        "icon": "clock"
+      },
+      {
+        "heading": "注意事項",
+        "content": "AVL 樹用寫入時多一點工作，換來可預期的讀取速度。",
+        "items": [
+          "它比紅黑樹更嚴格，所以**旋轉得比較頻繁**，但樹高稍微更矮",
+          "重複的值會記在原本的節點上，跟 BST 關卡一樣",
+          "關掉自動平衡，就能看到它像一般 BST 一樣退化"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

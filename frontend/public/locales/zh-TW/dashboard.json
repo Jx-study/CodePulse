@@ -142,6 +142,15 @@
         "分析平衡性對效能的影響"
       ]
     },
+    "avl_tree": {
+      "name": "AVL 樹",
+      "description": "自動維持平衡的二元搜尋樹，每棵子樹的高度差都不超過 1",
+      "objectives": [
+        "理解平衡因子與 AVL 規則",
+        "掌握 LL、RR、LR、RL 四種旋轉情況",
+        "看見重新平衡如何讓搜尋、插入、刪除維持 O(log n)"
+      ]
+    },
     "heap": {
       "name": "堆積",
       "description": "完全二元樹結構，支援快速取得最大或最小值",
@@ -466,6 +475,7 @@
     "lifo_structure": "LIFO 結構",
     "fifo_structure": "FIFO 結構",
     "sorting_tree": "排序樹結構",
+    "balanced_tree": "平衡樹結構",
     "priority_structure": "優先權結構",
     "network_structure": "網狀結構",
     "selection_strategy": "選擇策略",

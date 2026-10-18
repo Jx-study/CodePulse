@@ -139,6 +139,26 @@
       "implementationKey": "bst"
     },
     {
+      "id": "avl-tree",
+      "category": "data-structures",
+      "difficulty": 4,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["bst"]
+      },
+      "graphPosition": {
+        "layer": 5,
+        "branch": "left"
+      },
+      "pathMetadata": {
+        "pathType": "branch",
+        "branchLabelKey": "balanced_tree"
+      },
+      "implementationKey": "avlTree"
+    },
+    {
       "id": "heap",
       "category": "data-structures",
       "difficulty": 3,

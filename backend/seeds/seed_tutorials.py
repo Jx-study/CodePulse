@@ -49,6 +49,7 @@ TUTORIALS = [
     ("bst",                 "data-structures", 3, True),
     ("heap",                "data-structures", 3, False),
     ("graph",               "data-structures", 2, True),
+    ("avl-tree",            "data-structures", 4, True),
     ("trie",                "data-structures", 3, False),
     ("portal-to-sorting",   "data-structures", 1, True),
     # sorting
