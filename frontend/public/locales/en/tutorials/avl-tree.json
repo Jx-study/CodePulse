@@ -1,6 +1,37 @@
 {
   "animation": {
-    "init": "AVL tree with {{count}} value(s). BF (balance factor) = height(left) - height(right), and every node must stay between -1 and +1"
+    "init": "AVL tree with {{count}} value(s). BF (balance factor) = height(left) - height(right), and every node must stay between -1 and +1",
+    "ins_compare": "Compare {{val}} with node {{curr}}",
+    "ins_left": "{{val}} < {{curr}}, so go to the left child",
+    "ins_right": "{{val}} > {{curr}}, so go to the right child",
+    "ins_equal": "{{val}} already exists, so its count becomes {{count}} and the tree shape does not change",
+    "ins_place_root": "The tree is empty, so {{val}} becomes the root",
+    "ins_place": "There is nothing to the side, so {{val}} is placed as a new leaf under {{parent}}",
+    "bf_check": "Back at node {{node}}: height = {{height}}, BF = height(left) - height(right) = {{bf}}",
+    "balanced": "BF {{bf}} is within -1 to +1, so node {{node}} stays as it is",
+    "unbalanced_ll": "Node {{node}} has BF {{bf}} and its left child {{child}} leans left (BF {{childBf}}): a left-left (LL) case, one right rotation fixes it",
+    "unbalanced_lr": "Node {{node}} has BF {{bf}} and its left child {{child}} leans right (BF {{childBf}}): a left-right (LR) case, rotate the child left first, then the node right",
+    "unbalanced_rr": "Node {{node}} has BF {{bf}} and its right child {{child}} leans right (BF {{childBf}}): a right-right (RR) case, one left rotation fixes it",
+    "unbalanced_rl": "Node {{node}} has BF {{bf}} and its right child {{child}} leans left (BF {{childBf}}): a right-left (RL) case, rotate the child right first, then the node left",
+    "rotate_child_left": "Call node.left ← RotateLeft(node.left): rotate {{node}} to the left, so its right child {{pivot}} will move up and the shape becomes a left-left line",
+    "rotate_child_right": "Call node.right ← RotateRight(node.right): rotate {{node}} to the right, so its left child {{pivot}} will move up and the shape becomes a right-right line",
+    "rotate_right": "Call RotateRight on {{node}}: its left child {{pivot}} is going to become the root of this subtree. Watch the pointers change one by one",
+    "rotate_left": "Call RotateLeft on {{node}}: its right child {{pivot}} is going to become the root of this subtree. Watch the pointers change one by one",
+    "ins_done": "Inserting {{val}} is complete and every node is balanced again",
+    "rot_right_pivot": "x ← y.left: label the node being rotated, {{node}}, as y and its left child, {{pivot}}, as x. Nothing has moved yet",
+    "rot_right_move": "y.left ← x.right: y now points to x's old right subtree T2 (root {{t2}}) as its left child. T2 is briefly linked from both x and y",
+    "rot_right_move_empty": "y.left ← x.right: x has no right subtree, so y's left child becomes empty",
+    "rot_right_link": "x.right ← y: y becomes the right child of x, which replaces the link to T2",
+    "rot_right_height_node": "UpdateHeight(y): y = {{node}} now sits lower, and its height becomes {{height}}",
+    "rot_right_height_pivot": "UpdateHeight(x): x = {{pivot}} is now above y, and its height becomes {{height}}",
+    "rot_right_return": "Return x: {{pivot}} is the new root of this subtree, and the parent now points to it instead of {{node}}",
+    "rot_left_pivot": "y ← x.right: label the node being rotated, {{node}}, as x and its right child, {{pivot}}, as y. Nothing has moved yet",
+    "rot_left_move": "x.right ← y.left: x now points to y's old left subtree T2 (root {{t2}}) as its right child. T2 is briefly linked from both y and x",
+    "rot_left_move_empty": "x.right ← y.left: y has no left subtree, so x's right child becomes empty",
+    "rot_left_link": "y.left ← x: x becomes the left child of y, which replaces the link to T2",
+    "rot_left_height_node": "UpdateHeight(x): x = {{node}} now sits lower, and its height becomes {{height}}",
+    "rot_left_height_pivot": "UpdateHeight(y): y = {{pivot}} is now above x, and its height becomes {{height}}",
+    "rot_left_return": "Return y: {{pivot}} is the new root of this subtree, and the parent now points to it instead of {{node}}"
   },
   "ui": {
     "operations": "AVL operations",
@@ -43,14 +74,17 @@
     "autoBalance": "Auto-balance",
     "autoBalanceTooltip": "Turn automatic rebalancing on or off to compare with a plain BST",
     "rebalance": "Rebalance",
-    "rebalanceTooltip": "Rebalance the whole tree after auto-balance was off"
+    "rebalanceTooltip": "Rebalance the whole tree after auto-balance was off",
+    "insertWarning": "Please enter a value to insert"
   },
   "statusLegend": {
     "notVisited": "Not visited",
     "visitedPath": "Visited path",
     "exploreDirection": "Direction to explore",
     "currentNode": "Current node",
-    "completeTarget": "Target found"
+    "completeTarget": "Target found",
+    "unbalanced": "Unbalanced node (BF is +2 or -2)",
+    "rotating": "Nodes being rotated"
   },
   "introduction": {
     "sections": [

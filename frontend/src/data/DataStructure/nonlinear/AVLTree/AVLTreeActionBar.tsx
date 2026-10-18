@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
+import { toast } from "@/shared/components/Toast";
 import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { DSActionBarProps } from "@/types/implementation";
 import {
@@ -38,10 +39,21 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
   onRandomData,
   onMaxNodesChange,
   disabled = false,
+  onAddNode,
   maxNodes,
 }) => {
   const { t } = useTranslation("tutorials/avl-tree");
   const [inputValue, setInputValue] = useState("");
+
+  const handlers: Partial<Record<AVLOpId, () => void>> = {
+    insert: () => {
+      if (inputValue.trim() === "") {
+        toast.warning(t("ui.insertWarning"));
+        return;
+      }
+      onAddNode(Number(inputValue), "Insert");
+    },
+  };
 
   return (
     <ActionBarContainer>
@@ -94,6 +106,7 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
                 size="sm"
                 variant="secondary"
                 disabled={disabled || !op.implemented}
+                onClick={handlers[op.id]}
                 className={OP_STYLE[op.id] ?? styles.btnQuery}
                 icon={OP_ICON[op.id]}
               >

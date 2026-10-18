@@ -88,7 +88,8 @@ describe("AVL level config", () => {
       .map((el) => el.description);
 
     expect(labels).toHaveLength(7);
-    expect(labels.every((l) => l === "BF 0")).toBe(true);
+    expect(labels.every((l) => l?.endsWith("BF 0"))).toBe(true);
+    expect(labels).toContain("h3 · BF 0");
   });
 
   it("builds an AVL tree when loading values in an unbalanced order", () => {

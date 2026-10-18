@@ -1,6 +1,37 @@
 {
   "animation": {
-    "init": "AVL 樹，目前有 {{count}} 個值。BF（平衡因子）= 左子樹高度 - 右子樹高度，每個節點都必須落在 -1 到 +1 之間"
+    "init": "AVL 樹，目前有 {{count}} 個值。BF（平衡因子）= 左子樹高度 - 右子樹高度，每個節點都必須落在 -1 到 +1 之間",
+    "ins_compare": "把 {{val}} 和節點 {{curr}} 比較",
+    "ins_left": "{{val}} < {{curr}}，往左子節點走",
+    "ins_right": "{{val}} > {{curr}}，往右子節點走",
+    "ins_equal": "{{val}} 已經存在，所以它的計數變成 {{count}}，樹的形狀不變",
+    "ins_place_root": "樹是空的，所以 {{val}} 成為根節點",
+    "ins_place": "那一側沒有節點了，所以把 {{val}} 放成 {{parent}} 底下的新葉節點",
+    "bf_check": "回到節點 {{node}}：高度 = {{height}}，BF = 左子樹高度 - 右子樹高度 = {{bf}}",
+    "balanced": "BF {{bf}} 在 -1 到 +1 之間，節點 {{node}} 不用調整",
+    "unbalanced_ll": "節點 {{node}} 的 BF 是 {{bf}}，而且左子節點 {{child}} 也偏左（BF {{childBf}}）：左左 (LL) 情況，一次右旋就能修好",
+    "unbalanced_lr": "節點 {{node}} 的 BF 是 {{bf}}，但左子節點 {{child}} 偏右（BF {{childBf}}）：左右 (LR) 情況，先把子節點左旋，再把節點右旋",
+    "unbalanced_rr": "節點 {{node}} 的 BF 是 {{bf}}，而且右子節點 {{child}} 也偏右（BF {{childBf}}）：右右 (RR) 情況，一次左旋就能修好",
+    "unbalanced_rl": "節點 {{node}} 的 BF 是 {{bf}}，但右子節點 {{child}} 偏左（BF {{childBf}}）：右左 (RL) 情況，先把子節點右旋，再把節點左旋",
+    "rotate_child_left": "呼叫 node.left ← RotateLeft(node.left)：把 {{node}} 左旋，它的右子節點 {{pivot}} 會上移，讓形狀變成左左的一直線",
+    "rotate_child_right": "呼叫 node.right ← RotateRight(node.right)：把 {{node}} 右旋，它的左子節點 {{pivot}} 會上移，讓形狀變成右右的一直線",
+    "rotate_right": "呼叫 RotateRight 處理 {{node}}：它的左子節點 {{pivot}} 即將成為這棵子樹的根。接下來看指標一個一個改動",
+    "rotate_left": "呼叫 RotateLeft 處理 {{node}}：它的右子節點 {{pivot}} 即將成為這棵子樹的根。接下來看指標一個一個改動",
+    "ins_done": "插入 {{val}} 完成，所有節點都重新恢復平衡",
+    "rot_right_pivot": "x ← y.left：把要旋轉的節點 {{node}} 標為 y，它的左子節點 {{pivot}} 標為 x。還沒有任何東西移動",
+    "rot_right_move": "y.left ← x.right：y 的左子節點改成 x 原本的右子樹 T2（根是 {{t2}}）。T2 暫時同時被 x 和 y 指著",
+    "rot_right_move_empty": "y.left ← x.right：x 沒有右子樹，所以 y 的左子節點變成空的",
+    "rot_right_link": "x.right ← y：y 變成 x 的右子節點，取代原本指向 T2 的連線",
+    "rot_right_height_node": "UpdateHeight(y)：y = {{node}} 現在位置比較低，高度更新為 {{height}}",
+    "rot_right_height_pivot": "UpdateHeight(x)：x = {{pivot}} 現在在 y 上面，高度更新為 {{height}}",
+    "rot_right_return": "Return x：{{pivot}} 成為這棵子樹新的根，父節點改成指向它，不再指向 {{node}}",
+    "rot_left_pivot": "y ← x.right：把要旋轉的節點 {{node}} 標為 x，它的右子節點 {{pivot}} 標為 y。還沒有任何東西移動",
+    "rot_left_move": "x.right ← y.left：x 的右子節點改成 y 原本的左子樹 T2（根是 {{t2}}）。T2 暫時同時被 y 和 x 指著",
+    "rot_left_move_empty": "x.right ← y.left：y 沒有左子樹，所以 x 的右子節點變成空的",
+    "rot_left_link": "y.left ← x：x 變成 y 的左子節點，取代原本指向 T2 的連線",
+    "rot_left_height_node": "UpdateHeight(x)：x = {{node}} 現在位置比較低，高度更新為 {{height}}",
+    "rot_left_height_pivot": "UpdateHeight(y)：y = {{pivot}} 現在在 x 上面，高度更新為 {{height}}",
+    "rot_left_return": "Return y：{{pivot}} 成為這棵子樹新的根，父節點改成指向它，不再指向 {{node}}"
   },
   "ui": {
     "operations": "AVL 樹操作",
@@ -43,14 +74,17 @@
     "autoBalance": "自動平衡",
     "autoBalanceTooltip": "開關自動重新平衡，用來和一般 BST 比較",
     "rebalance": "重新平衡",
-    "rebalanceTooltip": "在關閉自動平衡後，把整棵樹重新平衡"
+    "rebalanceTooltip": "在關閉自動平衡後，把整棵樹重新平衡",
+    "insertWarning": "請輸入要插入的數值"
   },
   "statusLegend": {
     "notVisited": "尚未拜訪",
     "visitedPath": "已走過的路徑",
     "exploreDirection": "接下來要走的方向",
     "currentNode": "目前節點",
-    "completeTarget": "找到目標"
+    "completeTarget": "找到目標",
+    "unbalanced": "失衡的節點（BF 為 +2 或 -2）",
+    "rotating": "正在旋轉的節點"
   },
   "introduction": {
     "sections": [

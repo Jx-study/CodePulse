@@ -9,10 +9,11 @@ import {
   type BSTInputItem,
   type LogicTreeNode,
 } from "../BinarySearchTree/simulateTrace";
-import { balanceFactor, fromState } from "./avl";
+import { balanceFactor, fromState, height } from "./avl";
 import { TAGS, AVLStatus } from "./tags";
 
 interface AVLTraceMeta {
+  rotation?: { edges: string[][]; labels: Record<string, string> };
   inputData?: BSTInputItem[];
   statusMap?: Record<string, string>;
   linkStatusMap?: Record<string, linkStatus>;
@@ -28,20 +29,126 @@ const AVL_LAYOUT = {
   nodeSize: [120, 100] as [number, number],
 };
 
+const lv = (e: TraceEvent) => e.local_vars;
+
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
     key: "animation.init",
-    params: { count: e.local_vars.nodeCount },
+    params: { count: lv(e).nodeCount },
+  }),
+  [TAGS.INS_COMPARE]: (e) => ({
+    key: "animation.ins_compare",
+    params: { val: lv(e).val, curr: lv(e).curr },
+  }),
+  [TAGS.INS_LEFT]: (e) => ({
+    key: "animation.ins_left",
+    params: { val: lv(e).val, curr: lv(e).curr },
+  }),
+  [TAGS.INS_RIGHT]: (e) => ({
+    key: "animation.ins_right",
+    params: { val: lv(e).val, curr: lv(e).curr },
+  }),
+  [TAGS.INS_EQUAL]: (e) => ({
+    key: "animation.ins_equal",
+    params: { val: lv(e).val, count: lv(e).count },
+  }),
+  [TAGS.INS_PLACE]: (e) => ({
+    key:
+      lv(e).parent === null
+        ? "animation.ins_place_root"
+        : "animation.ins_place",
+    params: { val: lv(e).val, parent: lv(e).parent },
+  }),
+  [TAGS.BF_CHECK]: (e) => ({
+    key: "animation.bf_check",
+    params: { node: lv(e).node, height: lv(e).height, bf: lv(e).bf },
+  }),
+  [TAGS.BALANCED]: (e) => ({
+    key: "animation.balanced",
+    params: { node: lv(e).node, bf: lv(e).bf },
+  }),
+  [TAGS.UNBALANCED_LEFT]: (e) => ({
+    key: `animation.unbalanced_${String(lv(e).case).toLowerCase()}`,
+    params: {
+      node: lv(e).node,
+      bf: lv(e).bf,
+      child: lv(e).child,
+      childBf: lv(e).childBf,
+    },
+  }),
+  [TAGS.UNBALANCED_RIGHT]: (e) => ({
+    key: `animation.unbalanced_${String(lv(e).case).toLowerCase()}`,
+    params: {
+      node: lv(e).node,
+      bf: lv(e).bf,
+      child: lv(e).child,
+      childBf: lv(e).childBf,
+    },
+  }),
+  [TAGS.ROTATE_CHILD_LEFT]: (e) => ({
+    key: "animation.rotate_child_left",
+    params: { node: lv(e).node, pivot: lv(e).pivot },
+  }),
+  [TAGS.ROTATE_CHILD_RIGHT]: (e) => ({
+    key: "animation.rotate_child_right",
+    params: { node: lv(e).node, pivot: lv(e).pivot },
+  }),
+  [TAGS.ROTATE_RIGHT]: (e) => ({
+    key: "animation.rotate_right",
+    params: { node: lv(e).node, pivot: lv(e).pivot },
+  }),
+  [TAGS.ROTATE_LEFT]: (e) => ({
+    key: "animation.rotate_left",
+    params: { node: lv(e).node, pivot: lv(e).pivot },
+  }),
+  ...rotationDescriptions(),
+  [TAGS.INS_DONE]: (e) => ({
+    key: "animation.ins_done",
+    params: { val: lv(e).val },
   }),
 };
 
-const formatBalanceFactor = (bf: number) => `BF ${bf > 0 ? "+" : ""}${bf}`;
+function rotationDescriptions(): Record<
+  string,
+  (e: TraceEvent) => StepDescription
+> {
+  const step =
+    (key: string) =>
+    (e: TraceEvent): StepDescription => ({
+      key: `animation.${key}`,
+      params: {
+        node: lv(e).node,
+        pivot: lv(e).pivot,
+        t2: lv(e).t2,
+        height: lv(e).height,
+      },
+    });
+  return {
+    [TAGS.ROT_RIGHT_PIVOT]: step("rot_right_pivot"),
+    [TAGS.ROT_RIGHT_MOVE]: (e) =>
+      step(lv(e).t2 === null ? "rot_right_move_empty" : "rot_right_move")(e),
+    [TAGS.ROT_RIGHT_LINK]: step("rot_right_link"),
+    [TAGS.ROT_RIGHT_HEIGHT_NODE]: step("rot_right_height_node"),
+    [TAGS.ROT_RIGHT_HEIGHT_PIVOT]: step("rot_right_height_pivot"),
+    [TAGS.ROT_RIGHT_RETURN]: step("rot_right_return"),
+    [TAGS.ROT_LEFT_PIVOT]: step("rot_left_pivot"),
+    [TAGS.ROT_LEFT_MOVE]: (e) =>
+      step(lv(e).t2 === null ? "rot_left_move_empty" : "rot_left_move")(e),
+    [TAGS.ROT_LEFT_LINK]: step("rot_left_link"),
+    [TAGS.ROT_LEFT_HEIGHT_NODE]: step("rot_left_height_node"),
+    [TAGS.ROT_LEFT_HEIGHT_PIVOT]: step("rot_left_height_pivot"),
+    [TAGS.ROT_LEFT_RETURN]: step("rot_left_return"),
+  };
+}
 
-function balanceFactorById(root: LogicTreeNode | null) {
-  const map: Record<string, number> = {};
+const formatLabel = (h: number, bf: number) =>
+  `h${h} · BF ${bf > 0 ? "+" : ""}${bf}`;
+
+function labelsById(root: LogicTreeNode | null) {
+  const map: Record<string, string> = {};
   const walk = (node: LogicTreeNode | undefined) => {
     if (!node) return;
-    map[node.id] = balanceFactor(node);
+    map[node.id] = formatLabel(height(node), balanceFactor(node));
     walk(node.left);
     walk(node.right);
   };
@@ -59,16 +166,30 @@ export function avlTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     const root = fromState(inputData);
     const uniqueData: BSTInputItem[] = [];
     flattenUniqueNodes(root || undefined, uniqueData);
-    const bfOf = balanceFactorById(root);
+    const labels = meta.rotation ? meta.rotation.labels : labelsById(root);
 
     const treeElements = createTreeNodes(uniqueData, AVL_LAYOUT);
     treeElements.forEach((el) => {
       if (el instanceof Node) {
         el.setStatus(statusMap[el.id] || AVLStatus.Inactive);
         if (el.value !== "") el.value = String(Math.round(Number(el.value)));
-        el.description = formatBalanceFactor(bfOf[el.id] ?? 0);
+        el.description = labels[el.id] ?? "";
       }
     });
+
+    if (meta.rotation) {
+      const byId = new Map(
+        treeElements.filter((el): el is Node => el instanceof Node).map((el) => [el.id, el]),
+      );
+      byId.forEach((el) => {
+        el.pointers = [];
+      });
+      meta.rotation.edges.forEach(([from, to]) => {
+        const source = byId.get(from);
+        const target = byId.get(to);
+        if (source && target) source.addPointer(target);
+      });
+    }
 
     treeElements.sort((a, b) => {
       const isNodeA = a instanceof Node;
