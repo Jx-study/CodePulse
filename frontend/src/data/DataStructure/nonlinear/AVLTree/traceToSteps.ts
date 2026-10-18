@@ -102,11 +102,83 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     params: { node: lv(e).node, pivot: lv(e).pivot },
   }),
   ...rotationDescriptions(),
+  ...deleteDescriptions(),
   [TAGS.INS_DONE]: (e) => ({
     key: "animation.ins_done",
     params: { val: lv(e).val },
   }),
 };
+
+function deleteDescriptions(): Record<
+  string,
+  (e: TraceEvent) => StepDescription
+> {
+  const val = (e: TraceEvent) => ({ val: lv(e).val });
+  const bf = (e: TraceEvent): StepDescription => ({
+    key: "animation.bf_check",
+    params: { node: lv(e).node, height: lv(e).height, bf: lv(e).bf },
+  });
+  return {
+    [TAGS.DEL_EMPTY]: (e) => ({ key: "animation.del_empty", params: val(e) }),
+    [TAGS.DEL_COMPARE]: (e) => ({
+      key: "animation.del_compare",
+      params: { val: lv(e).val, curr: lv(e).curr },
+    }),
+    [TAGS.DEL_LEFT]: (e) => ({
+      key: "animation.del_left",
+      params: { val: lv(e).val, curr: lv(e).curr },
+    }),
+    [TAGS.DEL_RIGHT]: (e) => ({
+      key: "animation.del_right",
+      params: { val: lv(e).val, curr: lv(e).curr },
+    }),
+    [TAGS.DEL_NOT_FOUND]: (e) => ({
+      key: "animation.del_not_found",
+      params: val(e),
+    }),
+    [TAGS.DEL_FOUND]: (e) => ({ key: "animation.del_found", params: val(e) }),
+    [TAGS.DEL_COUNT_DEC]: (e) => ({
+      key: "animation.del_count_dec",
+      params: { val: lv(e).val, count: lv(e).count },
+    }),
+    [TAGS.DEL_LEAF]: (e) => ({ key: "animation.del_leaf", params: val(e) }),
+    [TAGS.DEL_ONE_CHILD]: (e) => ({
+      key: "animation.del_one_child",
+      params: { val: lv(e).val, child: lv(e).child },
+    }),
+    [TAGS.DEL_REMOVE]: (e) => ({
+      key:
+        lv(e).child === null
+          ? "animation.del_remove_leaf"
+          : "animation.del_remove_child",
+      params: { val: lv(e).val, child: lv(e).child },
+    }),
+    [TAGS.DEL_TWO_CHILD]: (e) => ({
+      key: "animation.del_two_child",
+      params: val(e),
+    }),
+    [TAGS.DEL_SUCC_FIND]: (e) => ({
+      key: lv(e).last
+        ? "animation.del_succ_found"
+        : "animation.del_succ_find",
+      params: { val: lv(e).val, succ: lv(e).succ },
+    }),
+    [TAGS.DEL_SUCC_COPY]: (e) => ({
+      key: "animation.del_succ_copy",
+      params: { val: lv(e).val, succ: lv(e).succ },
+    }),
+    [TAGS.DEL_SUCC_REMOVE]: (e) => ({
+      key:
+        lv(e).child === null
+          ? "animation.del_succ_remove_leaf"
+          : "animation.del_succ_remove_child",
+      params: { succ: lv(e).succ, child: lv(e).child },
+    }),
+    [TAGS.DEL_BF_CHECK]: bf,
+    [TAGS.DEL_BF_CHECK_SUCC]: bf,
+    [TAGS.DEL_DONE]: (e) => ({ key: "animation.del_done", params: val(e) }),
+  };
+}
 
 function rotationDescriptions(): Record<
   string,
@@ -141,14 +213,18 @@ function rotationDescriptions(): Record<
   };
 }
 
-const formatLabel = (h: number, bf: number) =>
-  `h${h} · BF ${bf > 0 ? "+" : ""}${bf}`;
+const formatLabel = (h: number, bf: number, count: number) =>
+  `h${h} · BF ${bf > 0 ? "+" : ""}${bf}${count > 1 ? ` · ×${count}` : ""}`;
 
 function labelsById(root: LogicTreeNode | null) {
   const map: Record<string, string> = {};
   const walk = (node: LogicTreeNode | undefined) => {
     if (!node) return;
-    map[node.id] = formatLabel(height(node), balanceFactor(node));
+    map[node.id] = formatLabel(
+      height(node),
+      balanceFactor(node),
+      node.count,
+    );
     walk(node.left);
     walk(node.right);
   };

@@ -56,6 +56,37 @@ export function insertItem(
   return rebalance(root);
 }
 
+function removeMin(node: AVLNode): AVLNode | undefined {
+  if (!node.left) return node.right;
+  node.left = removeMin(node.left);
+  return rebalance(node);
+}
+
+export function deleteItem(
+  root: AVLNode | undefined,
+  value: number,
+): AVLNode | undefined {
+  if (!root) return undefined;
+  if (value < Number(root.value)) {
+    root.left = deleteItem(root.left, value);
+  } else if (value > Number(root.value)) {
+    root.right = deleteItem(root.right, value);
+  } else {
+    if (root.count > 1) {
+      root.count -= 1;
+      return root;
+    }
+    if (!root.left) return root.right;
+    if (!root.right) return root.left;
+    let successor = root.right;
+    while (successor.left) successor = successor.left;
+    root.value = successor.value;
+    root.count = successor.count;
+    root.right = removeMin(root.right);
+  }
+  return rebalance(root);
+}
+
 export function buildAVL(items: BSTInputItem[]): AVLNode | null {
   let root: AVLNode | undefined;
   items.forEach((item) => {

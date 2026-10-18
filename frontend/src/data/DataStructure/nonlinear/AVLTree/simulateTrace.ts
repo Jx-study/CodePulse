@@ -31,6 +31,10 @@ export function simulateAVLTrace(
     return simulateInsert(inputData, Number(action.value), action.targetId);
   }
 
+  if (action?.mode === "Delete" && action.value !== undefined) {
+    return simulateDelete(inputData, Math.round(Number(action.value)));
+  }
+
   return [
     {
       tag: TAGS.INIT,
@@ -45,11 +49,14 @@ export function simulateAVLTrace(
   ];
 }
 
-function simulateInsert(
-  inputData: AVLInputItem[],
-  value: number,
-  newId: string,
-): ExecutionTrace {
+const visited = (path: AVLNode[]): StatusMap =>
+  Object.fromEntries(path.map((n) => [n.id, AVLStatus.Visited]));
+
+/**
+ * The recorder shared by insert and delete: it owns the logic tree, appends
+ * one frame per step, and replays the walk back up the path that rebalances.
+ */
+function createRun(inputData: AVLInputItem[]) {
   const trace: ExecutionTrace = [];
   let root = fromState(inputData);
 
@@ -70,61 +77,14 @@ function simulateInsert(
     });
   };
 
-  const created = (): AVLNode => ({ id: newId, value, count: 1 });
-  const visited = (path: AVLNode[]): StatusMap =>
-    Object.fromEntries(path.map((n) => [n.id, AVLStatus.Visited]));
-
-  if (!root) {
-    root = created();
-    push(TAGS.INS_PLACE, { val: value, parent: null }, {
-      [newId]: AVLStatus.Complete,
-    });
-    push(TAGS.INS_DONE, { val: value }, { [newId]: AVLStatus.Complete });
-    return trace;
-  }
-
-  const path: AVLNode[] = [];
-  let curr: AVLNode = root;
-  for (;;) {
-    push(TAGS.INS_COMPARE, { val: value, curr: curr.value }, {
-      ...visited(path),
-      [curr.id]: AVLStatus.Target,
-    });
-
-    if (value === Number(curr.value)) {
-      curr.count += 1;
-      push(TAGS.INS_EQUAL, { val: value, count: curr.count }, {
-        ...visited(path),
-        [curr.id]: AVLStatus.Complete,
-      });
-      push(TAGS.INS_DONE, { val: value }, { [curr.id]: AVLStatus.Complete });
-      return trace;
-    }
-
-    const goLeft = value < Number(curr.value);
-    push(goLeft ? TAGS.INS_LEFT : TAGS.INS_RIGHT, { val: value, curr: curr.value }, {
-      ...visited(path),
-      [curr.id]: AVLStatus.Prepare,
-    });
-    path.push(curr);
-
-    const next: AVLNode | undefined = goLeft ? curr.left : curr.right;
-    if (!next) {
-      const node = created();
-      if (goLeft) curr.left = node;
-      else curr.right = node;
-      push(TAGS.INS_PLACE, { val: value, parent: curr.value }, {
-        ...visited(path),
-        [newId]: AVLStatus.Complete,
-      });
-      break;
-    }
-    curr = next;
-  }
-
-  const replaceInParent = (index: number, node: AVLNode, sub: AVLNode) => {
+  const replaceInParent = (
+    path: AVLNode[],
+    index: number,
+    node: AVLNode,
+    sub: AVLNode | undefined,
+  ) => {
     const parent = path[index - 1];
-    if (!parent) root = sub;
+    if (!parent) root = sub ?? null;
     else if (parent.left === node) parent.left = sub;
     else parent.right = sub;
   };
@@ -257,78 +217,284 @@ function simulateInsert(
     });
   };
 
-  for (let i = path.length - 1; i >= 0; i--) {
-    const node = path[i];
-    const bf = balanceFactor(node);
-    const fresh: StatusMap = { [newId]: AVLStatus.Complete };
+  /** Walks the path from the bottom up, checking every node and rotating where needed. */
+  const rebalancePath = (
+    path: AVLNode[],
+    fresh: StatusMap,
+    checkTag: (index: number) => string,
+  ) => {
+    for (let i = path.length - 1; i >= 0; i--) {
+      const node = path[i];
+      const bf = balanceFactor(node);
 
-    push(TAGS.BF_CHECK, { node: node.value, height: height(node), bf }, {
-      ...fresh,
-      [node.id]: AVLStatus.Target,
-    });
-
-    if (Math.abs(bf) <= 1) {
-      push(TAGS.BALANCED, { node: node.value, bf }, {
+      push(checkTag(i), { node: node.value, height: height(node), bf }, {
         ...fresh,
-        [node.id]: AVLStatus.Visited,
+        [node.id]: AVLStatus.Target,
       });
-      continue;
-    }
 
-    const leftHeavy = bf > 1;
-    const child = (leftHeavy ? node.left : node.right)!;
-    const childBf = balanceFactor(child);
-    const isDouble = leftHeavy ? childBf < 0 : childBf > 0;
-    const caseName = leftHeavy
-      ? isDouble ? "LR" : "LL"
-      : isDouble ? "RL" : "RR";
-    const grand = (
-      isDouble
-        ? leftHeavy ? child.right : child.left
-        : leftHeavy ? child.left : child.right
-    )!;
+      if (Math.abs(bf) <= 1) {
+        push(TAGS.BALANCED, { node: node.value, bf }, {
+          ...fresh,
+          [node.id]: AVLStatus.Visited,
+        });
+        continue;
+      }
 
-    push(
-      leftHeavy ? TAGS.UNBALANCED_LEFT : TAGS.UNBALANCED_RIGHT,
-      { node: node.value, bf, child: child.value, childBf, case: caseName },
-      {
+      const leftHeavy = bf > 1;
+      const child = (leftHeavy ? node.left : node.right)!;
+      const childBf = balanceFactor(child);
+      const isDouble = leftHeavy ? childBf < 0 : childBf > 0;
+      const caseName = leftHeavy
+        ? isDouble ? "LR" : "LL"
+        : isDouble ? "RL" : "RR";
+      const grand = (
+        isDouble
+          ? leftHeavy ? child.right : child.left
+          : leftHeavy ? child.left : child.right
+      )!;
+
+      push(
+        leftHeavy ? TAGS.UNBALANCED_LEFT : TAGS.UNBALANCED_RIGHT,
+        { node: node.value, bf, child: child.value, childBf, case: caseName },
+        {
+          ...fresh,
+          [node.id]: AVLStatus.Unbalanced,
+          [child.id]: AVLStatus.Prepare,
+          [grand.id]: AVLStatus.Prepare,
+        },
+      );
+
+      const involved: StatusMap = {
         ...fresh,
         [node.id]: AVLStatus.Unbalanced,
-        [child.id]: AVLStatus.Prepare,
-        [grand.id]: AVLStatus.Prepare,
-      },
-    );
+        [child.id]: AVLStatus.Rotating,
+        [grand.id]: AVLStatus.Rotating,
+      };
 
-    const involved: StatusMap = {
-      ...fresh,
-      [node.id]: AVLStatus.Unbalanced,
-      [child.id]: AVLStatus.Rotating,
-      [grand.id]: AVLStatus.Rotating,
-    };
+      if (isDouble) {
+        push(
+          leftHeavy ? TAGS.ROTATE_CHILD_LEFT : TAGS.ROTATE_CHILD_RIGHT,
+          { node: child.value, pivot: grand.value },
+          involved,
+        );
+        rotateWithFrames(child, leftHeavy ? "left" : "right", fresh, (sub) => {
+          if (leftHeavy) node.left = sub;
+          else node.right = sub;
+        });
+      }
 
-    if (isDouble) {
+      const pivot = (leftHeavy ? node.left : node.right)!;
       push(
-        leftHeavy ? TAGS.ROTATE_CHILD_LEFT : TAGS.ROTATE_CHILD_RIGHT,
-        { node: child.value, pivot: grand.value },
-        involved,
+        leftHeavy ? TAGS.ROTATE_RIGHT : TAGS.ROTATE_LEFT,
+        { node: node.value, pivot: pivot.value, case: caseName },
+        { ...fresh, [node.id]: AVLStatus.Unbalanced, [pivot.id]: AVLStatus.Rotating },
       );
-      rotateWithFrames(child, leftHeavy ? "left" : "right", fresh, (sub) => {
-        if (leftHeavy) node.left = sub;
-        else node.right = sub;
-      });
+      rotateWithFrames(node, leftHeavy ? "right" : "left", fresh, (sub) =>
+        replaceInParent(path, i, node, sub),
+      );
     }
+  };
 
-    const pivot = (leftHeavy ? node.left : node.right)!;
-    push(
-      leftHeavy ? TAGS.ROTATE_RIGHT : TAGS.ROTATE_LEFT,
-      { node: node.value, pivot: pivot.value, case: caseName },
-      { ...fresh, [node.id]: AVLStatus.Unbalanced, [pivot.id]: AVLStatus.Rotating },
-    );
-    rotateWithFrames(node, leftHeavy ? "right" : "left", fresh, (sub) =>
-      replaceInParent(i, node, sub),
-    );
+  return {
+    trace,
+    push,
+    rebalancePath,
+    replaceInParent,
+    getRoot: () => root,
+    setRoot: (node: AVLNode | null) => {
+      root = node;
+    },
+  };
+}
+
+function simulateInsert(
+  inputData: AVLInputItem[],
+  value: number,
+  newId: string,
+): ExecutionTrace {
+  const run = createRun(inputData);
+  const { trace, push } = run;
+  const root = run.getRoot();
+
+  const created = (): AVLNode => ({ id: newId, value, count: 1 });
+
+  if (!root) {
+    run.setRoot(created());
+    push(TAGS.INS_PLACE, { val: value, parent: null }, {
+      [newId]: AVLStatus.Complete,
+    });
+    push(TAGS.INS_DONE, { val: value }, { [newId]: AVLStatus.Complete });
+    return trace;
   }
 
+  const path: AVLNode[] = [];
+  let curr: AVLNode = root;
+  for (;;) {
+    push(TAGS.INS_COMPARE, { val: value, curr: curr.value }, {
+      ...visited(path),
+      [curr.id]: AVLStatus.Target,
+    });
+
+    if (value === Number(curr.value)) {
+      curr.count += 1;
+      push(TAGS.INS_EQUAL, { val: value, count: curr.count }, {
+        ...visited(path),
+        [curr.id]: AVLStatus.Complete,
+      });
+      push(TAGS.INS_DONE, { val: value }, { [curr.id]: AVLStatus.Complete });
+      return trace;
+    }
+
+    const goLeft = value < Number(curr.value);
+    push(goLeft ? TAGS.INS_LEFT : TAGS.INS_RIGHT, { val: value, curr: curr.value }, {
+      ...visited(path),
+      [curr.id]: AVLStatus.Prepare,
+    });
+    path.push(curr);
+
+    const next: AVLNode | undefined = goLeft ? curr.left : curr.right;
+    if (!next) {
+      const node = created();
+      if (goLeft) curr.left = node;
+      else curr.right = node;
+      push(TAGS.INS_PLACE, { val: value, parent: curr.value }, {
+        ...visited(path),
+        [newId]: AVLStatus.Complete,
+      });
+      break;
+    }
+    curr = next;
+  }
+
+  run.rebalancePath(path, { [newId]: AVLStatus.Complete }, () => TAGS.BF_CHECK);
+
   push(TAGS.INS_DONE, { val: value }, { [newId]: AVLStatus.Complete });
+  return trace;
+}
+
+function simulateDelete(
+  inputData: AVLInputItem[],
+  value: number,
+): ExecutionTrace {
+  const run = createRun(inputData);
+  const { trace, push } = run;
+  const root = run.getRoot();
+
+  if (!root) {
+    push(TAGS.DEL_EMPTY, { val: value });
+    return trace;
+  }
+
+  const path: AVLNode[] = [];
+  let curr: AVLNode = root;
+  for (;;) {
+    push(TAGS.DEL_COMPARE, { val: value, curr: curr.value }, {
+      ...visited(path),
+      [curr.id]: AVLStatus.Target,
+    });
+    if (value === Number(curr.value)) break;
+
+    const goLeft = value < Number(curr.value);
+    push(goLeft ? TAGS.DEL_LEFT : TAGS.DEL_RIGHT, { val: value, curr: curr.value }, {
+      ...visited(path),
+      [curr.id]: AVLStatus.Prepare,
+    });
+    path.push(curr);
+
+    const next: AVLNode | undefined = goLeft ? curr.left : curr.right;
+    if (!next) {
+      push(TAGS.DEL_NOT_FOUND, { val: value }, visited(path));
+      return trace;
+    }
+    curr = next;
+  }
+
+  const target = curr;
+  push(TAGS.DEL_FOUND, { val: value, count: target.count }, {
+    ...visited(path),
+    [target.id]: AVLStatus.Complete,
+  });
+
+  if (target.count > 1) {
+    target.count -= 1;
+    push(TAGS.DEL_COUNT_DEC, { val: value, count: target.count }, {
+      ...visited(path),
+      [target.id]: AVLStatus.Complete,
+    });
+    return trace;
+  }
+
+  if (!target.left || !target.right) {
+    const child = target.left ?? target.right;
+    push(child ? TAGS.DEL_ONE_CHILD : TAGS.DEL_LEAF, {
+      val: value,
+      child: child ? child.value : null,
+    }, {
+      ...visited(path),
+      [target.id]: AVLStatus.Target,
+      ...(child ? { [child.id]: AVLStatus.Prepare } : {}),
+    });
+
+    run.replaceInParent(path, path.length, target, child);
+    push(TAGS.DEL_REMOVE, { val: value, child: child ? child.value : null }, {
+      ...visited(path),
+      ...(child ? { [child.id]: AVLStatus.Complete } : {}),
+    });
+
+    run.rebalancePath(path, {}, () => TAGS.DEL_BF_CHECK);
+    push(TAGS.DEL_DONE, { val: value });
+    return trace;
+  }
+
+  push(TAGS.DEL_TWO_CHILD, { val: value }, {
+    ...visited(path),
+    [target.id]: AVLStatus.Target,
+  });
+
+  const succPath: AVLNode[] = [];
+  let succ = target.right;
+  for (;;) {
+    const last = !succ.left;
+    push(TAGS.DEL_SUCC_FIND, { val: value, succ: succ.value, last }, {
+      ...visited(path),
+      [target.id]: AVLStatus.Target,
+      ...visited(succPath),
+      [succ.id]: last ? AVLStatus.Complete : AVLStatus.Prepare,
+    });
+    if (last) break;
+    succPath.push(succ);
+    succ = succ.left!;
+  }
+
+  // The successor's value is nudged by 0.0001 while both nodes exist, so
+  // replaying the preorder does not merge them into one counted node
+  const succValue = Number(succ.value);
+  target.value = succValue;
+  target.count = succ.count;
+  succ.value = succValue + 0.0001;
+  push(TAGS.DEL_SUCC_COPY, { val: value, succ: succValue }, {
+    ...visited(path),
+    ...visited(succPath),
+    [target.id]: AVLStatus.Complete,
+    [succ.id]: AVLStatus.Target,
+  });
+
+  const full = [...path, target, ...succPath];
+  run.replaceInParent(full, full.length, succ, succ.right);
+  push(TAGS.DEL_SUCC_REMOVE, {
+    val: value,
+    succ: succValue,
+    child: succ.right ? succ.right.value : null,
+  }, {
+    ...visited(full),
+    [target.id]: AVLStatus.Complete,
+  });
+
+  run.rebalancePath(
+    full,
+    { [target.id]: AVLStatus.Complete },
+    (i) => (i > path.length ? TAGS.DEL_BF_CHECK_SUCC : TAGS.DEL_BF_CHECK),
+  );
+  push(TAGS.DEL_DONE, { val: value }, { [target.id]: AVLStatus.Complete });
   return trace;
 }

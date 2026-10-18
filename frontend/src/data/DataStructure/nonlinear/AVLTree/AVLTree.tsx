@@ -10,7 +10,13 @@ import type {
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import { AVLTreeActionBar } from "./AVLTreeActionBar";
 import { AVLStatusConfig, TAGS } from "./tags";
-import { buildAVL, fromState, insertItem, toState } from "./avl";
+import {
+  buildAVL,
+  deleteItem,
+  fromState,
+  insertItem,
+  toState,
+} from "./avl";
 import {
   simulateAVLTrace,
   type AVLAction,
@@ -42,6 +48,16 @@ function avlActionHandler(
       animationData: data,
       stateData: toState(inserted),
       animationParams: { mode: "Insert", value, targetId: newId },
+    };
+  }
+
+  if (actionType === "delete") {
+    const value = Math.round(Number(payload.index ?? payload.value));
+    const remaining = deleteItem(fromState(data) ?? undefined, value);
+    return {
+      animationData: data,
+      stateData: toState(remaining),
+      animationParams: { mode: "Delete", value },
     };
   }
 
@@ -135,6 +151,36 @@ Procedure Rebalance(node):
     If BalanceFactor(node.right) > 0 Then node.right ← RotateRight(node.right)
     Return RotateLeft(node)
   Return node
+End Procedure
+
+Procedure Delete(node, value):
+  If node is Null Then Return Null
+  If value < node.value Then node.left ← Delete(node.left, value)
+  Else If value > node.value Then node.right ← Delete(node.right, value)
+  Else
+    If node.count > 1 Then
+      node.count ← node.count - 1
+      Return node
+    If node.left is Null Then Return node.right
+    If node.right is Null Then Return node.left
+    s ← MinNode(node.right)
+    node.value ← s.value
+    node.count ← s.count
+    node.right ← RemoveMin(node.right)
+  UpdateHeight(node)
+  Return Rebalance(node)
+End Procedure
+
+Procedure MinNode(node):
+  If node.left is Null Then Return node
+  Return MinNode(node.left)
+End Procedure
+
+Procedure RemoveMin(node):
+  If node.left is Null Then Return node.right
+  node.left ← RemoveMin(node.left)
+  UpdateHeight(node)
+  Return Rebalance(node)
 End Procedure`,
     mappings: {
       [TAGS.INS_COMPARE]: [2, 3],
@@ -163,6 +209,23 @@ End Procedure`,
       [TAGS.ROT_LEFT_HEIGHT_PIVOT]: [39, 17, 18],
       [TAGS.ROT_LEFT_RETURN]: [40],
       [TAGS.INS_DONE]: [10],
+      [TAGS.DEL_EMPTY]: [55],
+      [TAGS.DEL_COMPARE]: [56, 57],
+      [TAGS.DEL_LEFT]: [56],
+      [TAGS.DEL_RIGHT]: [57],
+      [TAGS.DEL_NOT_FOUND]: [55],
+      [TAGS.DEL_FOUND]: [58, 59],
+      [TAGS.DEL_COUNT_DEC]: [59, 60, 61],
+      [TAGS.DEL_LEAF]: [62],
+      [TAGS.DEL_ONE_CHILD]: [62, 63],
+      [TAGS.DEL_REMOVE]: [62, 63],
+      [TAGS.DEL_TWO_CHILD]: [62, 63],
+      [TAGS.DEL_SUCC_FIND]: [64, 72, 73, 74],
+      [TAGS.DEL_SUCC_COPY]: [65, 66],
+      [TAGS.DEL_SUCC_REMOVE]: [67, 78],
+      [TAGS.DEL_BF_CHECK]: [68, 69, 17, 18, 12, 13, 14, 44, 21, 22],
+      [TAGS.DEL_BF_CHECK_SUCC]: [79, 80, 81, 17, 18, 12, 13, 14, 44, 21, 22],
+      [TAGS.DEL_DONE]: [69],
     },
   },
   python: {
@@ -222,7 +285,39 @@ def rebalance(node):
         if balance_factor(node.right) > 0:
             node.right = rotate_right(node.right)
         return rotate_left(node)
-    return node`,
+    return node
+
+def delete(node, value):
+    if node is None:
+        return None
+    if value < node.value:
+        node.left = delete(node.left, value)
+    elif value > node.value:
+        node.right = delete(node.right, value)
+    else:
+        if node.count > 1:
+            node.count -= 1
+            return node
+        if node.left is None:
+            return node.right
+        if node.right is None:
+            return node.left
+        s = min_node(node.right)
+        node.value = s.value
+        node.count = s.count
+        node.right = remove_min(node.right)
+    update_height(node)
+    return rebalance(node)
+
+def min_node(node):
+    return node if node.left is None else min_node(node.left)
+
+def remove_min(node):
+    if node.left is None:
+        return node.right
+    node.left = remove_min(node.left)
+    update_height(node)
+    return rebalance(node)`,
     lineComplexity: [
       { lineNumber: 1, complexity: 'O(1)' }, // class Node:
       { lineNumber: 2, complexity: 'O(1)' }, // def __init__(self, value):
@@ -274,6 +369,35 @@ def rebalance(node):
       { lineNumber: 55, complexity: 'O(1)' }, // node.right = rotate_right(node.right)
       { lineNumber: 56, complexity: 'O(1)' }, // return rotate_left(node)
       { lineNumber: 57, complexity: 'O(1)' }, // return node
+      { lineNumber: 59, complexity: 'O(log n)' }, // def delete(node, value):
+      { lineNumber: 60, complexity: 'O(1)' }, // if node is None:
+      { lineNumber: 61, complexity: 'O(1)' }, // return None
+      { lineNumber: 62, complexity: 'O(1)' }, // if value < node.value:
+      { lineNumber: 63, complexity: 'O(log n)' }, // node.left = delete(node.left, value)
+      { lineNumber: 64, complexity: 'O(1)' }, // elif value > node.value:
+      { lineNumber: 65, complexity: 'O(log n)' }, // node.right = delete(node.right, value)
+      { lineNumber: 66, complexity: 'O(1)' }, // else:
+      { lineNumber: 67, complexity: 'O(1)' }, // if node.count > 1:
+      { lineNumber: 68, complexity: 'O(1)' }, // node.count -= 1
+      { lineNumber: 69, complexity: 'O(1)' }, // return node
+      { lineNumber: 70, complexity: 'O(1)' }, // if node.left is None:
+      { lineNumber: 71, complexity: 'O(1)' }, // return node.right
+      { lineNumber: 72, complexity: 'O(1)' }, // if node.right is None:
+      { lineNumber: 73, complexity: 'O(1)' }, // return node.left
+      { lineNumber: 74, complexity: 'O(log n)' }, // s = min_node(node.right)
+      { lineNumber: 75, complexity: 'O(1)' }, // node.value = s.value
+      { lineNumber: 76, complexity: 'O(1)' }, // node.count = s.count
+      { lineNumber: 77, complexity: 'O(log n)' }, // node.right = remove_min(node.right)
+      { lineNumber: 78, complexity: 'O(1)' }, // update_height(node)
+      { lineNumber: 79, complexity: 'O(1)' }, // return rebalance(node)
+      { lineNumber: 81, complexity: 'O(log n)' }, // def min_node(node):
+      { lineNumber: 82, complexity: 'O(log n)' }, // return node if node.left is None else min_node(node.left)
+      { lineNumber: 84, complexity: 'O(log n)' }, // def remove_min(node):
+      { lineNumber: 85, complexity: 'O(1)' }, // if node.left is None:
+      { lineNumber: 86, complexity: 'O(1)' }, // return node.right
+      { lineNumber: 87, complexity: 'O(log n)' }, // node.left = remove_min(node.left)
+      { lineNumber: 88, complexity: 'O(1)' }, // update_height(node)
+      { lineNumber: 89, complexity: 'O(1)' }, // return rebalance(node)
     ],
   },
 };

@@ -136,7 +136,10 @@ describe("AVL insert trace", () => {
         (mappings[e.tag] ?? []).forEach((n) => lit.add(n)),
       ),
     );
-    const lines = avlTreeConfig.codeConfig!.pseudo!.content.split("\n");
+    const content = avlTreeConfig.codeConfig!.pseudo!.content;
+    const lines = content
+      .slice(0, content.indexOf("Procedure Delete"))
+      .split("\n");
     const unlit = lines
       .map((text, i) => [i + 1, text.trim()] as const)
       .filter(([n, text]) => text.startsWith("If ") && !lit.has(n));

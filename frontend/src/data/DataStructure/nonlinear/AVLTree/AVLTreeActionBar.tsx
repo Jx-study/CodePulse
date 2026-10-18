@@ -40,6 +40,7 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
   onMaxNodesChange,
   disabled = false,
   onAddNode,
+  onDeleteNode,
   maxNodes,
 }) => {
   const { t } = useTranslation("tutorials/avl-tree");
@@ -52,6 +53,13 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
         return;
       }
       onAddNode(Number(inputValue), "Insert");
+    },
+    delete: () => {
+      if (inputValue.trim() === "") {
+        toast.warning(t("ui.deleteWarning"));
+        return;
+      }
+      onDeleteNode("Delete", Number(inputValue));
     },
   };
 

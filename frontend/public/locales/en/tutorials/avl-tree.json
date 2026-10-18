@@ -31,7 +31,25 @@
     "rot_left_link": "y.left ← x: x becomes the left child of y, which replaces the link to T2",
     "rot_left_height_node": "UpdateHeight(x): x = {{node}} now sits lower, and its height becomes {{height}}",
     "rot_left_height_pivot": "UpdateHeight(y): y = {{pivot}} is now above x, and its height becomes {{height}}",
-    "rot_left_return": "Return y: {{pivot}} is the new root of this subtree, and the parent now points to it instead of {{node}}"
+    "rot_left_return": "Return y: {{pivot}} is the new root of this subtree, and the parent now points to it instead of {{node}}",
+    "del_empty": "The tree is empty, so there is nothing to delete",
+    "del_compare": "Compare the value to delete, {{val}}, with node {{curr}}",
+    "del_left": "{{val}} < {{curr}}, so look in the left child",
+    "del_right": "{{val}} > {{curr}}, so look in the right child",
+    "del_not_found": "{{val}} is not in the tree, so nothing is deleted and the tree stays as it is",
+    "del_found": "Found the node to delete: {{val}}",
+    "del_count_dec": "{{val}} is stored several times, so only its count drops to {{count}} and the node and the tree shape stay the same",
+    "del_leaf": "{{val}} has no children (a leaf), so it can simply be removed",
+    "del_one_child": "{{val}} has a single child, {{child}}, so {{child}} takes its place",
+    "del_remove_leaf": "Leaf {{val}} is removed and the matching pointer of its parent becomes empty",
+    "del_remove_child": "{{val}} is removed and its parent now points straight to {{child}}",
+    "del_two_child": "{{val}} has two children, so it cannot just be cut out. Find its successor (the smallest value in the right subtree) to take its place",
+    "del_succ_find": "Successor candidate is {{succ}}, which still has a left child, so keep going left",
+    "del_succ_found": "{{succ}} has no left child, so it is the successor (the smallest value in the right subtree)",
+    "del_succ_copy": "node.value ← s.value: the node that held {{val}} now stores the successor's value {{succ}} (with its count). The original successor node is removed next",
+    "del_succ_remove_leaf": "node.right ← RemoveMin(node.right): remove the successor node {{succ}}. It has no right child, so its place becomes empty",
+    "del_succ_remove_child": "node.right ← RemoveMin(node.right): remove the successor node {{succ}}, and its right child {{child}} takes its place",
+    "del_done": "Deleting {{val}} is complete and every node along the path is balanced again"
   },
   "ui": {
     "operations": "AVL operations",
@@ -75,7 +93,8 @@
     "autoBalanceTooltip": "Turn automatic rebalancing on or off to compare with a plain BST",
     "rebalance": "Rebalance",
     "rebalanceTooltip": "Rebalance the whole tree after auto-balance was off",
-    "insertWarning": "Please enter a value to insert"
+    "insertWarning": "Please enter a value to insert",
+    "deleteWarning": "Please enter a value to delete"
   },
   "statusLegend": {
     "notVisited": "Not visited",

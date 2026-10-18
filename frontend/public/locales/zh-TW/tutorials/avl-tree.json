@@ -31,7 +31,25 @@
     "rot_left_link": "y.left ← x：x 變成 y 的左子節點，取代原本指向 T2 的連線",
     "rot_left_height_node": "UpdateHeight(x)：x = {{node}} 現在位置比較低，高度更新為 {{height}}",
     "rot_left_height_pivot": "UpdateHeight(y)：y = {{pivot}} 現在在 x 上面，高度更新為 {{height}}",
-    "rot_left_return": "Return y：{{pivot}} 成為這棵子樹新的根，父節點改成指向它，不再指向 {{node}}"
+    "rot_left_return": "Return y：{{pivot}} 成為這棵子樹新的根，父節點改成指向它，不再指向 {{node}}",
+    "del_empty": "樹是空的，沒有可以刪除的值",
+    "del_compare": "把要刪除的 {{val}} 和節點 {{curr}} 比較",
+    "del_left": "{{val}} < {{curr}}，往左子節點找",
+    "del_right": "{{val}} > {{curr}}，往右子節點找",
+    "del_not_found": "樹裡沒有 {{val}}，所以什麼都不用刪，樹維持原樣",
+    "del_found": "找到要刪除的節點 {{val}}",
+    "del_count_dec": "{{val}} 重複存了多份，只把計數減為 {{count}}，節點和樹的形狀都不變",
+    "del_leaf": "{{val}} 沒有子節點（葉節點），直接把它拿掉就好",
+    "del_one_child": "{{val}} 只有一個子節點 {{child}}，讓 {{child}} 接替它的位置",
+    "del_remove_leaf": "已移除葉節點 {{val}}，父節點的對應指標變成空的",
+    "del_remove_child": "已移除 {{val}}，父節點改成直接指向 {{child}}",
+    "del_two_child": "{{val}} 左右都有子節點，不能直接拿掉。要找後繼者（右子樹中最小的值）來頂替它",
+    "del_succ_find": "後繼者候選是 {{succ}}，它還有左子節點，所以繼續往左走",
+    "del_succ_found": "{{succ}} 沒有左子節點，它就是後繼者（右子樹中最小的值）",
+    "del_succ_copy": "node.value ← s.value：把 {{val}} 的位置改存後繼者的值 {{succ}}（計數一起帶過來），原本的後繼者節點稍後拿掉",
+    "del_succ_remove_leaf": "node.right ← RemoveMin(node.right)：移除後繼者節點 {{succ}}，它沒有右子節點，所以它的位置變成空的",
+    "del_succ_remove_child": "node.right ← RemoveMin(node.right)：移除後繼者節點 {{succ}}，它的右子節點 {{child}} 接上它原本的位置",
+    "del_done": "刪除 {{val}} 完成，沿路徑往上的節點都重新恢復平衡"
   },
   "ui": {
     "operations": "AVL 樹操作",
@@ -75,7 +93,8 @@
     "autoBalanceTooltip": "開關自動重新平衡，用來和一般 BST 比較",
     "rebalance": "重新平衡",
     "rebalanceTooltip": "在關閉自動平衡後，把整棵樹重新平衡",
-    "insertWarning": "請輸入要插入的數值"
+    "insertWarning": "請輸入要插入的數值",
+    "deleteWarning": "請輸入要刪除的數值"
   },
   "statusLegend": {
     "notVisited": "尚未拜訪",

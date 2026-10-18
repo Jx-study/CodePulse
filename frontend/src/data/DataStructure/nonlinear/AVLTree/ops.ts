@@ -27,7 +27,7 @@ export interface AVLOp {
 
 export const AVL_OPS: AVLOp[] = [
   { id: "insert", group: "modify", needsValue: true, implemented: true },
-  { id: "delete", group: "modify", needsValue: true, implemented: false },
+  { id: "delete", group: "modify", needsValue: true, implemented: true },
   { id: "search", group: "query", needsValue: true, implemented: false },
   { id: "min", group: "query", needsValue: false, implemented: false },
   { id: "max", group: "query", needsValue: false, implemented: false },
