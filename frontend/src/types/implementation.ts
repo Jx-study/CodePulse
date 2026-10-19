@@ -65,11 +65,28 @@ export type AlgorithmViewMode =
   | "longest_lte"
   | "shortest_gte"
   | "two_sum"
-  | "remove_duplicates";
+  | "remove_duplicates"
+  | "bit_ops"
+  | "single_bit"
+  | "xor_swap"
+  | "lowbit"
+  | "count_bits"
+  | "subsets";
 /** Sliding window run payload mode (matches ActionBar options). */
 export type SlidingWindowMode = "longest_lte" | "shortest_gte";
 /** Two pointers run payload mode: opposite-direction vs same-direction. */
 export type TwoPointersMode = "two_sum" | "remove_duplicates";
+/**
+ * Bit manipulation run payload mode: bitwise ops, single-bit ops, XOR swap,
+ * lowbit (a & -a), n & (n - 1) bit count, subset enumeration.
+ */
+export type BitManipulationMode =
+  | "bit_ops"
+  | "single_bit"
+  | "xor_swap"
+  | "lowbit"
+  | "count_bits"
+  | "subsets";
 
 export type RunParams =
   | { type: "sorting" }
@@ -77,6 +94,18 @@ export type RunParams =
   | { type: "prefixSum"; range?: [number, number] }
   | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
   | { type: "twoPointers"; mode: TwoPointersMode; target?: number }
+  | {
+      type: "bitManipulation";
+      mode: BitManipulationMode;
+      a?: number;
+      b?: number;
+      op?: "AND" | "OR" | "XOR" | "NOT" | "SHL" | "SHR";
+      k?: number;
+      singleOp?: "SET" | "TEST" | "CLEAR" | "TOGGLE";
+      n?: number;
+      items?: number[];
+      target?: number;
+    }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
@@ -208,6 +237,7 @@ type ImplementationId =
   | "prefixsum"
   | "slidingwindow"
   | "twopointers"
+  | "bitmanipulation"
   | "fibonacciDP"
   | "fibonacciRecursive"
   | "knapsack"

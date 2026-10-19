@@ -325,13 +325,13 @@
         "Remove duplicates from a sorted array in place with fast/slow pointers"
       ]
     },
-    "bit_mask": {
+    "bit_manipulation": {
       "name": "Bit Manipulation",
       "description": "Use bitwise operations to achieve efficient state compression and computation",
       "objectives": [
         "Understand basic bitwise operators",
         "Master common bit tricks (parity check, swap, powers of two)",
-        "Apply to bitmask DP"
+        "Enumerate subsets with a bitmask, the foundation of bitmask DP"
       ]
     },
     "portal_to_graph": {
