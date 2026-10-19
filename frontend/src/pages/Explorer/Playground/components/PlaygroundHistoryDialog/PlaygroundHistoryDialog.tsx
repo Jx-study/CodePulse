@@ -114,6 +114,7 @@ export function PlaygroundHistoryDialog({
             {displayRecords.map((r) => (
               <button
                 key={r.id}
+                type="button"
                 className={`${styles.quotaItem} ${removeTargetId === r.id ? styles.quotaItemSelected : ""}`}
                 onClick={() => setRemoveTargetId(r.id)}
               >
