@@ -33,6 +33,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ item, onClose }) => {
       </div>
       <p className={styles.message}>{item.message}</p>
       <button
+        type="button"
         className={styles.closeBtn}
         onClick={() => onClose(item.id)}
         aria-label="關閉"
