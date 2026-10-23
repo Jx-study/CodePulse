@@ -306,6 +306,15 @@ describe("AVL delete trace", () => {
 });
 
 describe("AVL delete through the action pipeline", () => {
+  it("tells the learner when the tree is empty and stores nothing", () => {
+    const avl = mountStructure(avlTreeConfig, {}, []);
+
+    const steps = avl.remove("Delete", 5);
+
+    expect(steps.map((s) => s.actionTag)).toEqual([TAGS.DEL_EMPTY]);
+    expect(avl.count()).toBe(0);
+  });
+
   it("plays the steps and stores the tree without the value", () => {
     const avl = mountStructure(avlTreeConfig, {}, stateOf([20, 10, 30]));
 

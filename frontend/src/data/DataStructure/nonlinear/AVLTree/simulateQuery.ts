@@ -7,7 +7,6 @@ import { AVLStatus, TAGS } from "./tags";
 
 type StatusMap = Record<string, string>;
 
-/** Read-only walk: the tree never changes, only the highlighted path does. */
 export function simulateSearch(
   inputData: BSTInputItem[],
   value: number,

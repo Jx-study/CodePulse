@@ -264,7 +264,6 @@ export function createRun(inputData: BSTInputItem[]) {
     return pivot;
   };
 
-  /** Walks the path from the bottom up, checking every node and rotating where needed. */
   const rebalancePath = (
     path: AVLNode[],
     fresh: StatusMap,

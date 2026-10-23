@@ -226,6 +226,16 @@ describe("AVL rotation, one pointer change per step", () => {
 });
 
 describe("AVL insert through the action pipeline", () => {
+  it("starts a tree from nothing and the next value goes below it", () => {
+    const avl = mountStructure(avlTreeConfig, {}, []);
+
+    avl.add(20, "Insert");
+    const second = avl.add(10, "Insert");
+
+    expect(second.map((s) => s.actionTag)).toContain(TAGS.INS_LEFT);
+    expect(avl.count()).toBe(2);
+  });
+
   it("plays the steps and stores the rebalanced tree", () => {
     const avl = mountStructure(avlTreeConfig, {}, stateOf([30, 20]));
 

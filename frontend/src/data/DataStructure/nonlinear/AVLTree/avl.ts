@@ -73,7 +73,6 @@ function settle(node: AVLNode): AVLNode {
   return top;
 }
 
-/** Rebalances an arbitrary BST bottom up using only rotations. */
 export function rebalanceTree(node: AVLNode | undefined): AVLNode | undefined {
   if (!node) return undefined;
   node.left = rebalanceTree(node.left);

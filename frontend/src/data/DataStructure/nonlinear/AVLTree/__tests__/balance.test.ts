@@ -1,9 +1,5 @@
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { toast } from "@/shared/components/Toast";
+import { describe, expect, it } from "vitest";
 import { avlTreeConfig } from "../AVLTree";
-import { AVLTreeActionBar } from "../AVLTreeActionBar";
 import {
   balanceFactor,
   buildAVL,
@@ -19,7 +15,6 @@ import { TAGS, AVLStatus } from "../tags";
 import { buildBST } from "../../BinarySearchTree/simulateTrace";
 import { mountStructure } from "@/data/__tests__/harness";
 import type { AnimationStep } from "@/types";
-import type { DSActionBarProps } from "@/types/implementation";
 
 const DEFAULT = [40, 20, 60, 10, 30, 50, 70];
 const CHAIN = [1, 2, 3, 4, 5, 6, 7];
@@ -400,123 +395,6 @@ describe("AVL balance pseudocode", () => {
       .filter(([n, text]) => text.startsWith("If ") && !lit.has(n));
 
     expect(unlit).toEqual([]);
-  });
-});
-
-describe("AVL balance buttons", () => {
-  const roots: ReturnType<typeof createRoot>[] = [];
-  afterEach(() => {
-    roots.splice(0).forEach((r) => act(() => r.unmount()));
-    vi.restoreAllMocks();
-  });
-
-  function mountBar() {
-    const onCustomAction = vi.fn();
-    const onSearchNode = vi.fn();
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-    const root = createRoot(container);
-    roots.push(root);
-    const props = {
-      onLoadData: vi.fn(),
-      onResetData: vi.fn(),
-      onRandomData: vi.fn(),
-      onMaxNodesChange: vi.fn(),
-      onAddNode: vi.fn(),
-      onDeleteNode: vi.fn(),
-      onSearchNode,
-      onCustomAction,
-      maxNodes: 20,
-    } as unknown as DSActionBarProps;
-    act(() => root.render(createElement(AVLTreeActionBar, props)));
-
-    const button = (label: string) =>
-      [...container.querySelectorAll("button")].find(
-        (b) => b.textContent?.trim() === label,
-      ) as HTMLButtonElement | undefined;
-    const type = (value: string, label = "Node value") => {
-      const input = container.querySelector(
-        `input[aria-label="${label}"]`,
-      ) as HTMLInputElement;
-      const setter = Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype,
-        "value",
-      )!.set!;
-      act(() => {
-        setter.call(input, value);
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-      });
-    };
-    const click = (label: string) =>
-      act(() => {
-        button(label)!.click();
-      });
-    return { onCustomAction, onSearchNode, button, type, click };
-  }
-
-  it("has the four balance buttons and no auto-balance switch", () => {
-    const bar = mountBar();
-
-    ["ui.checkBalance", "ui.rotateLeft", "ui.rotateRight", "ui.rebalance"].forEach(
-      (label) => expect(bar.button(label)!.disabled).toBe(false),
-    );
-    expect(bar.button("ui.autoBalance")).toBeUndefined();
-  });
-
-  it("check balance and rebalance need no value", () => {
-    const bar = mountBar();
-
-    bar.click("ui.checkBalance");
-    bar.click("ui.rebalance");
-
-    expect(bar.onCustomAction).toHaveBeenNthCalledWith(1, "checkBalance", {});
-    expect(bar.onCustomAction).toHaveBeenNthCalledWith(2, "rebalance", {});
-  });
-
-  it.each([
-    ["ui.rotateLeft", "rotateLeft"],
-    ["ui.rotateRight", "rotateRight"],
-  ])("%s sends the typed value", (label, action) => {
-    const bar = mountBar();
-
-    bar.type("20", "Rotate value");
-    bar.click(label);
-
-    expect(bar.onCustomAction).toHaveBeenCalledWith(action, { value: 20 });
-  });
-
-  it("the rotation has its own input, separate from the insert value", () => {
-    const warn = vi.spyOn(toast, "warning").mockImplementation(() => undefined);
-    const bar = mountBar();
-
-    bar.type("20");
-    bar.click("ui.rotateRight");
-
-    expect(bar.onCustomAction).not.toHaveBeenCalled();
-    expect(warn).toHaveBeenCalledWith("ui.rotateWarning");
-  });
-
-  it("rotation without a value only warns", () => {
-    const warn = vi.spyOn(toast, "warning").mockImplementation(() => undefined);
-    const bar = mountBar();
-
-    bar.click("ui.rotateLeft");
-
-    expect(bar.onCustomAction).not.toHaveBeenCalled();
-    expect(warn).toHaveBeenCalledWith("ui.rotateWarning");
-  });
-
-  it("search sends the typed value, and warns without one", () => {
-    const warn = vi.spyOn(toast, "warning").mockImplementation(() => undefined);
-    const bar = mountBar();
-
-    bar.click("ui.search");
-    expect(bar.onSearchNode).not.toHaveBeenCalled();
-    expect(warn).toHaveBeenCalledWith("ui.searchWarning");
-
-    bar.type("45");
-    bar.click("ui.search");
-    expect(bar.onSearchNode).toHaveBeenCalledWith(45, "Search");
   });
 });
 

@@ -136,7 +136,6 @@ export function simulateRebalance(inputData: BSTInputItem[]): ExecutionTrace {
   return run.trace;
 }
 
-/** Rotates the node holding `value`, one pointer change per frame. */
 export function simulateRotate(
   inputData: BSTInputItem[],
   dir: "left" | "right",
