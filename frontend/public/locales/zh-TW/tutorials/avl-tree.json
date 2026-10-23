@@ -1,0 +1,258 @@
+{
+  "animation": {
+    "init": "AVL 樹，目前有 {{count}} 個值。BF（平衡因子）= 左子樹高度 - 右子樹高度，每個節點都必須落在 -1 到 +1 之間",
+    "ins_compare": "把 {{val}} 和節點 {{curr}} 比較",
+    "ins_left": "{{val}} < {{curr}}，往左子節點走",
+    "ins_right": "{{val}} > {{curr}}，往右子節點走",
+    "ins_equal": "{{val}} 已經存在，所以它的計數變成 {{count}}，樹的形狀不變",
+    "ins_place_root": "樹是空的，所以 {{val}} 成為根節點",
+    "ins_place": "那一側沒有節點了，所以把 {{val}} 放成 {{parent}} 底下的新葉節點",
+    "bf_check": "回到節點 {{node}}：高度 = {{height}}，BF = 左子樹高度 - 右子樹高度 = {{bf}}",
+    "balanced": "BF {{bf}} 在 -1 到 +1 之間，節點 {{node}} 不用調整",
+    "unbalanced_ll": "節點 {{node}} 的 BF 是 {{bf}}，而且左子節點 {{child}} 也偏左（BF {{childBf}}）：左左 (LL) 情況，一次右旋就能修好",
+    "unbalanced_lr": "節點 {{node}} 的 BF 是 {{bf}}，但左子節點 {{child}} 偏右（BF {{childBf}}）：左右 (LR) 情況，先把子節點左旋，再把節點右旋",
+    "unbalanced_rr": "節點 {{node}} 的 BF 是 {{bf}}，而且右子節點 {{child}} 也偏右（BF {{childBf}}）：右右 (RR) 情況，一次左旋就能修好",
+    "unbalanced_rl": "節點 {{node}} 的 BF 是 {{bf}}，但右子節點 {{child}} 偏左（BF {{childBf}}）：右左 (RL) 情況，先把子節點右旋，再把節點左旋",
+    "rotate_child_left": "呼叫 node.left ← RotateLeft(node.left)：把 {{node}} 左旋，它的右子節點 {{pivot}} 會上移，讓形狀變成左左的一直線",
+    "rotate_child_right": "呼叫 node.right ← RotateRight(node.right)：把 {{node}} 右旋，它的左子節點 {{pivot}} 會上移，讓形狀變成右右的一直線",
+    "rotate_right": "呼叫 RotateRight 處理 {{node}}：它的左子節點 {{pivot}} 即將成為這棵子樹的根。接下來看指標一個一個改動",
+    "rotate_left": "呼叫 RotateLeft 處理 {{node}}：它的右子節點 {{pivot}} 即將成為這棵子樹的根。接下來看指標一個一個改動",
+    "ins_done": "插入 {{val}} 完成，所有節點都重新恢復平衡",
+    "rot_right_pivot": "x ← y.left：把要旋轉的節點 {{node}} 標為 y，它的左子節點 {{pivot}} 標為 x。還沒有任何東西移動",
+    "rot_right_move": "y.left ← x.right：y 的左子節點改成 x 原本的右子樹 T2（根是 {{t2}}）。T2 暫時同時被 x 和 y 指著",
+    "rot_right_move_empty": "y.left ← x.right：x 沒有右子樹，所以 y 的左子節點變成空的",
+    "rot_right_link": "x.right ← y：y 變成 x 的右子節點，取代原本指向 T2 的連線",
+    "rot_right_height_node": "UpdateHeight(y)：y = {{node}} 現在位置比較低，高度更新為 {{height}}",
+    "rot_right_height_pivot": "UpdateHeight(x)：x = {{pivot}} 現在在 y 上面，高度更新為 {{height}}",
+    "rot_right_return": "Return x：{{pivot}} 成為這棵子樹新的根，父節點改成指向它，不再指向 {{node}}",
+    "rot_left_pivot": "y ← x.right：把要旋轉的節點 {{node}} 標為 x，它的右子節點 {{pivot}} 標為 y。還沒有任何東西移動",
+    "rot_left_move": "x.right ← y.left：x 的右子節點改成 y 原本的左子樹 T2（根是 {{t2}}）。T2 暫時同時被 y 和 x 指著",
+    "rot_left_move_empty": "x.right ← y.left：y 沒有左子樹，所以 x 的右子節點變成空的",
+    "rot_left_link": "y.left ← x：x 變成 y 的左子節點，取代原本指向 T2 的連線",
+    "rot_left_height_node": "UpdateHeight(x)：x = {{node}} 現在位置比較低，高度更新為 {{height}}",
+    "rot_left_height_pivot": "UpdateHeight(y)：y = {{pivot}} 現在在 x 上面，高度更新為 {{height}}",
+    "rot_left_return": "Return y：{{pivot}} 成為這棵子樹新的根，父節點改成指向它，不再指向 {{node}}",
+    "del_empty": "樹是空的，沒有可以刪除的值",
+    "del_compare": "把要刪除的 {{val}} 和節點 {{curr}} 比較",
+    "del_left": "{{val}} < {{curr}}，往左子節點找",
+    "del_right": "{{val}} > {{curr}}，往右子節點找",
+    "del_not_found": "樹裡沒有 {{val}}，所以什麼都不用刪，樹維持原樣",
+    "del_found": "找到要刪除的節點 {{val}}",
+    "del_count_dec": "{{val}} 重複存了多份，只把計數減為 {{count}}，節點和樹的形狀都不變",
+    "del_leaf": "{{val}} 沒有子節點（葉節點），直接把它拿掉就好",
+    "del_one_child": "{{val}} 只有一個子節點 {{child}}，讓 {{child}} 接替它的位置",
+    "del_remove_leaf": "已移除葉節點 {{val}}，父節點的對應指標變成空的",
+    "del_remove_child": "已移除 {{val}}，父節點改成直接指向 {{child}}",
+    "del_two_child": "{{val}} 左右都有子節點，不能直接拿掉。要找後繼者（右子樹中最小的值）來頂替它",
+    "del_succ_find": "後繼者候選是 {{succ}}，它還有左子節點，所以繼續往左走",
+    "del_succ_found": "{{succ}} 沒有左子節點，它就是後繼者（右子樹中最小的值）",
+    "del_succ_copy": "node.value ← successor.value：把 {{val}} 的位置改存後繼者的值 {{succ}}（計數一起帶過來），原本的後繼者節點稍後拿掉",
+    "del_succ_remove_leaf": "node.right ← RemoveMin(node.right)：移除後繼者節點 {{succ}}，它沒有右子節點，所以它的位置變成空的",
+    "del_succ_remove_child": "node.right ← RemoveMin(node.right)：移除後繼者節點 {{succ}}，它的右子節點 {{child}} 接上它原本的位置",
+    "del_done": "刪除 {{val}} 完成，沿路徑往上的節點都重新恢復平衡",
+    "need_balance": "這棵樹有節點失衡（標紅的節點），插入和刪除都假設樹本來就是平衡的。請先按「重新平衡」",
+    "chk_empty": "樹是空的，沒有節點需要檢查",
+    "chk_ok": "BF {{bf}} 在 -1 到 +1 之間，子樹也都平衡，所以 {{node}} 回傳 left And right = True",
+    "chk_bad": "BF {{bf}} 超出 -1 到 +1，{{node}} 失衡，回傳 False",
+    "chk_done_ok": "每個節點的 BF 都在 -1 到 +1 之間，這棵樹是平衡的",
+    "chk_done_bad": "檢查完畢，有 {{bad}} 個節點失衡（標紅）。可以按「重新平衡」修好它們",
+    "rb_already_empty": "樹是空的，不需要重新平衡",
+    "rb_already": "每個節點的 BF 都在 -1 到 +1 之間，這棵樹已經是平衡的，不用調整",
+    "rb_done": "重新平衡完成，每個節點的 BF 都回到 -1 到 +1 之間",
+    "rot_missing": "樹裡沒有 {{val}}，不能對它旋轉",
+    "rot_blocked_left": "{{val}} 沒有右子節點，左旋時沒有節點可以上移，所以不能左旋",
+    "rot_blocked_right": "{{val}} 沒有左子節點，右旋時沒有節點可以上移，所以不能右旋",
+    "rot_select": "選定要旋轉的節點 {{val}}",
+    "rot_done": "旋轉完成：{{pivot}} 取代了 {{val}} 原本的位置。旋轉不會破壞大小順序，但節點的 BF 可能改變（失衡的會標紅）",
+    "srch_empty": "樹是空的，找不到 {{val}}",
+    "srch_compare": "把要找的 {{val}} 和節點 {{curr}} 比較（第 {{steps}} 個節點）",
+    "srch_left": "{{val}} < {{curr}}，往左子節點找",
+    "srch_right": "{{val}} > {{curr}}，往右子節點找",
+    "srch_found": "找到 {{val}}，一共比較了 {{steps}} 個節點",
+    "srch_not_found": "那一側已經沒有節點，樹裡沒有 {{val}}（一共比較了 {{steps}} 個節點）",
+    "chk_call": "呼叫 IsBalanced({{node}})（第 {{depth}} 層）：節點不是 Null，要先檢查它的左右子樹",
+    "chk_null_left": "{{parent}} 的左子節點是空的：IsBalanced(Null) 直接回傳 True",
+    "chk_null_right": "{{parent}} 的右子節點是空的：IsBalanced(Null) 直接回傳 True",
+    "chk_go_left": "left ← IsBalanced({{node}}.left)：先檢查 {{node}} 的左子樹",
+    "chk_go_right": "right ← IsBalanced({{node}}.right)：左子樹檢查完了，換右子樹",
+    "chk_bf": "兩邊子樹都檢查完了，現在算 {{node}} 自己：高度 {{height}}，BF = {{bf}}",
+    "chk_ok_child_bad": "{{node}} 自己的 BF {{bf}} 在 -1 到 +1 之間，但子樹裡有失衡的節點，所以 left And right = False，回傳給上一層"
+  },
+  "ui": {
+    "operations": "AVL 樹操作",
+    "valuePlaceholder": "數值",
+    "comingSoon": "即將推出",
+    "group": {
+      "balance": "平衡"
+    },
+    "insert": "插入",
+    "insertTooltip": "像 BST 一樣插入，再沿著路徑往上重新平衡",
+    "delete": "刪除",
+    "deleteTooltip": "像 BST 一樣刪除，再沿著路徑往上重新平衡",
+    "checkBalance": "檢查平衡",
+    "checkBalanceTooltip": "由下往上檢查每個節點的平衡因子，標出不在 -1 到 +1 之間的節點",
+    "rotateLeft": "左旋",
+    "rotateLeftTooltip": "以這個值的節點為軸心左旋",
+    "rotateRight": "右旋",
+    "rotateRightTooltip": "以這個值的節點為軸心右旋",
+    "rebalance": "重新平衡",
+    "rebalanceTooltip": "把整棵樹用旋轉修成平衡。載入的資料可能是不平衡的，插入和刪除前要先做這一步",
+    "insertWarning": "請輸入要插入的數值",
+    "deleteWarning": "請輸入要刪除的數值",
+    "searchWarning": "請輸入要搜尋的數值",
+    "rotateWarning": "請輸入要旋轉的節點數值",
+    "searchTooltip": "搜尋這個值，並數出比較了幾個節點。樹越平衡，需要比較的節點越少",
+    "search": "搜尋",
+    "rotatePlaceholder": "旋轉的節點值"
+  },
+  "statusLegend": {
+    "notVisited": "尚未拜訪",
+    "visitedPath": "已走過的路徑",
+    "exploreDirection": "接下來要走的方向",
+    "currentNode": "目前節點",
+    "completeTarget": "找到目標，或檢查後平衡的節點",
+    "unbalanced": "失衡的節點（BF 超出 -1 到 +1）",
+    "rotating": "正在旋轉的節點"
+  },
+  "relatedProblems": {
+    "110": "平衡檢查：判斷一棵二元樹是否為高度平衡的二元樹（對應「檢查平衡」）",
+    "108": "建立平衡樹：把排序好的陣列轉成高度平衡的二元搜尋樹",
+    "450": "刪除節點：在二元搜尋樹中刪除節點，並維持大小順序（用後繼者取代）",
+    "1382": "重新平衡：把一棵不平衡的二元搜尋樹改成平衡（對應「重新平衡」）"
+  },
+  "stories": {
+    "avl-when-to-use": {
+      "title": "什麼時候該選 AVL 樹？查得多、改得少的有序資料",
+      "category": "資料結構選擇",
+      "tags": [
+        "AVL 樹",
+        "查詢",
+        "字典",
+        "平衡",
+        "資料結構選擇"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "一個比喻：永遠排好序的字典",
+            "content": "想像一本字典：查單字的次數遠比新增單字多，所以字典一定先排好序，才能很快翻到那一頁。AVL 樹做的是類似的事：它讓資料一直保持「排好序、而且左右兩邊高度差不多」，所以不管之前新增或刪除過什麼，找一筆資料都只要走 O(log n) 步。"
+          },
+          {
+            "heading": "為什麼要在意「平衡」",
+            "content": "一般的二元搜尋樹如果依序放入 1、2、3、…，會變成一條鏈，找最後一個值要走 n 步。你可以在教學區載入 1 到 7，搜尋 7 數數看比較了幾個節點，再按「重新平衡」搜尋一次，差別一目了然。AVL 樹由 Adelson-Velsky 和 Landis 在 1962 年發表，靠旋轉保證樹高永遠是 O(log n)。"
+          },
+          {
+            "heading": "實際會用在哪裡",
+            "content": "教學資源常舉的例子有：拼字檢查、文字編輯器與自動校正用它來存字典；資料庫索引；檔案系統的目錄結構與編譯器的符號表；網路路由的查詢。程式庫裡也看得到它：C++ 的 Boost.Intrusive 就提供以 AVL 樹實作的 avl_set 與 avl_multiset，用法類似標準的 set 和 multiset。"
+          },
+          {
+            "heading": "AVL 樹還是紅黑樹？",
+            "content": "兩者都保證 O(log n)，差別在取捨：AVL 樹的平衡規則更嚴格，所以查詢更快，但插入和刪除要旋轉得更頻繁。因此「查得多、改得少」的工作適合 AVL 樹，「常常新增刪除」的工作則常選紅黑樹。另外要注意，如果只是用鍵找值、不在乎順序，雜湊表通常更簡單；AVL 樹的優勢是資料一直保持排序，可以做範圍查詢、找最小或最大值、找前一個與下一個。"
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "AVL tree",
+          "source": "Wikipedia"
+        },
+        {
+          "title": "Boost.Intrusive：avl_set 與 avl_multiset",
+          "source": "Boost C++ Libraries"
+        },
+        {
+          "title": "How to optimize the database indexing using AVL trees",
+          "source": "Educative"
+        }
+      ]
+    },
+    "avl-linux-vma-tree": {
+      "title": "進階閱讀：Linux 核心曾經用 AVL 樹查找記憶體",
+      "category": "作業系統",
+      "tags": [
+        "進階",
+        "AVL 樹",
+        "Linux 核心",
+        "紅黑樹"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "作業系統怎麼知道一個位址屬於哪一塊記憶體",
+            "content": "作業系統會把每個程式用到的記憶體分成一塊塊區域。每次發生缺頁（程式碰到還沒準備好的記憶體），Linux 核心就要先查出這個位址落在哪一塊區域。早期是沿著鏈結串列一個個比對，區域一多就很慢，是 O(n)。1998 年有一份補丁在串列旁邊加了一棵 AVL 樹，查找變成 O(log n)。補丁提到，一般程式大約只有 6 塊區域，但資料庫或 Java 這類執行環境可以多到約 3000 塊。"
+          },
+          {
+            "heading": "為什麼當時選 AVL，後來又換成紅黑樹",
+            "content": "1999 年，維護者 Andrea Arcangeli 解釋選擇 AVL 的理由：查詢（每次缺頁都要查一次）遠多於修改（只有配置與釋放記憶體時才改），對這種讀多寫少的工作，嚴格平衡的 AVL 樹有利。2001 年的 2.4.9 版之後，核心改用紅黑樹；2021 年 LWN 的報導指出，現在是「修改過的紅黑樹再加一條鏈結串列」。同一個問題在不同時期用過鏈結串列、AVL 樹和紅黑樹，可見資料結構的選擇會隨需求取捨。"
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "[PATCH] Re: 2.1.xxx makes Electric Fence 22x slower",
+          "source": "Linux Kernel Mailing List (1998)"
+        },
+        {
+          "title": "Re: AVL trees vs. Red-Black trees",
+          "source": "Linux Kernel Mailing List (1999)"
+        },
+        {
+          "title": "mmap-rb-1：把 VMA 的 AVL 樹換成紅黑樹（Linux 2.4.9）",
+          "source": "kernel.org"
+        },
+        {
+          "title": "Introducing maple trees",
+          "source": "LWN.net (2021)"
+        }
+      ]
+    }
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "AVL 樹是**會自己維持平衡的二元搜尋樹**。每次插入或刪除之後，它都會檢查每棵子樹的高度，必要時旋轉節點，讓樹不會過度偏向一邊。",
+        "items": [
+          "**平衡因子 (BF)**：左子樹高度減去右子樹高度",
+          "**AVL 規則**：每個節點的 BF 必須是 [[primary|-1、0 或 +1]]",
+          "一般 BST 可能退化成鏈結串列，AVL 規則讓樹高維持在 [[success|O(log n)]]",
+          "BST 的大小順序仍然成立：左邊比較小，右邊比較大"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "旋轉",
+        "content": "當某個節點的 BF 超出 -1 到 +1（插入或刪除後會剛好是 +2 或 -2），就用旋轉恢復平衡，而且不會破壞 BST 的大小順序。",
+        "items": [
+          "**右旋 (LL 情況)**：左子節點變成這棵子樹新的根",
+          "**左旋 (RR 情況)**：右子節點變成這棵子樹新的根",
+          "**左右 (LR) 與右左 (RL)**：先旋轉子節點，再旋轉這個節點",
+          "每次旋轉只改動少數幾個指標，所以只要 [[success|O(1)]] 的時間"
+        ],
+        "icon": "shuffle"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "因為樹高維持在對數等級，即使在最壞情況，每個操作都很快。",
+        "items": [
+          "**搜尋、插入、刪除**：最壞情況 [[success|O(log n)]]",
+          "以上都以**樹是平衡的**為前提。載入的資料若不平衡，搜尋最壞會退化成 [[danger|O(n)]]，重新平衡後才回到 [[success|O(log n)]]。可以用搜尋數一數比較了幾個節點",
+          "插入**最多只需要一次重新平衡**（一次或兩次旋轉）",
+          "刪除可能在往上走的路上**多個層級都要旋轉**",
+          "**空間複雜度**：[[success|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "注意事項",
+        "content": "AVL 樹用寫入時多一點工作，換來可預期的讀取速度。",
+        "items": [
+          "它比紅黑樹更嚴格，所以**旋轉得比較頻繁**，但樹高稍微更矮",
+          "重複的值會記在原本的節點上，跟 BST 關卡一樣",
+          "載入的資料會照輸入順序建成一般 BST，可能是不平衡的，要先重新平衡才能插入或刪除"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

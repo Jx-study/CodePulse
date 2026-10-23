@@ -1,0 +1,258 @@
+{
+  "animation": {
+    "init": "AVL tree with {{count}} value(s). BF (balance factor) = height(left) - height(right), and every node must stay between -1 and +1",
+    "ins_compare": "Compare {{val}} with node {{curr}}",
+    "ins_left": "{{val}} < {{curr}}, so go to the left child",
+    "ins_right": "{{val}} > {{curr}}, so go to the right child",
+    "ins_equal": "{{val}} already exists, so its count becomes {{count}} and the tree shape does not change",
+    "ins_place_root": "The tree is empty, so {{val}} becomes the root",
+    "ins_place": "There is nothing to the side, so {{val}} is placed as a new leaf under {{parent}}",
+    "bf_check": "Back at node {{node}}: height = {{height}}, BF = height(left) - height(right) = {{bf}}",
+    "balanced": "BF {{bf}} is within -1 to +1, so node {{node}} stays as it is",
+    "unbalanced_ll": "Node {{node}} has BF {{bf}} and its left child {{child}} leans left (BF {{childBf}}): a left-left (LL) case, one right rotation fixes it",
+    "unbalanced_lr": "Node {{node}} has BF {{bf}} and its left child {{child}} leans right (BF {{childBf}}): a left-right (LR) case, rotate the child left first, then the node right",
+    "unbalanced_rr": "Node {{node}} has BF {{bf}} and its right child {{child}} leans right (BF {{childBf}}): a right-right (RR) case, one left rotation fixes it",
+    "unbalanced_rl": "Node {{node}} has BF {{bf}} and its right child {{child}} leans left (BF {{childBf}}): a right-left (RL) case, rotate the child right first, then the node left",
+    "rotate_child_left": "Call node.left ← RotateLeft(node.left): rotate {{node}} to the left, so its right child {{pivot}} will move up and the shape becomes a left-left line",
+    "rotate_child_right": "Call node.right ← RotateRight(node.right): rotate {{node}} to the right, so its left child {{pivot}} will move up and the shape becomes a right-right line",
+    "rotate_right": "Call RotateRight on {{node}}: its left child {{pivot}} is going to become the root of this subtree. Watch the pointers change one by one",
+    "rotate_left": "Call RotateLeft on {{node}}: its right child {{pivot}} is going to become the root of this subtree. Watch the pointers change one by one",
+    "ins_done": "Inserting {{val}} is complete and every node is balanced again",
+    "rot_right_pivot": "x ← y.left: label the node being rotated, {{node}}, as y and its left child, {{pivot}}, as x. Nothing has moved yet",
+    "rot_right_move": "y.left ← x.right: y now points to x's old right subtree T2 (root {{t2}}) as its left child. T2 is briefly linked from both x and y",
+    "rot_right_move_empty": "y.left ← x.right: x has no right subtree, so y's left child becomes empty",
+    "rot_right_link": "x.right ← y: y becomes the right child of x, which replaces the link to T2",
+    "rot_right_height_node": "UpdateHeight(y): y = {{node}} now sits lower, and its height becomes {{height}}",
+    "rot_right_height_pivot": "UpdateHeight(x): x = {{pivot}} is now above y, and its height becomes {{height}}",
+    "rot_right_return": "Return x: {{pivot}} is the new root of this subtree, and the parent now points to it instead of {{node}}",
+    "rot_left_pivot": "y ← x.right: label the node being rotated, {{node}}, as x and its right child, {{pivot}}, as y. Nothing has moved yet",
+    "rot_left_move": "x.right ← y.left: x now points to y's old left subtree T2 (root {{t2}}) as its right child. T2 is briefly linked from both y and x",
+    "rot_left_move_empty": "x.right ← y.left: y has no left subtree, so x's right child becomes empty",
+    "rot_left_link": "y.left ← x: x becomes the left child of y, which replaces the link to T2",
+    "rot_left_height_node": "UpdateHeight(x): x = {{node}} now sits lower, and its height becomes {{height}}",
+    "rot_left_height_pivot": "UpdateHeight(y): y = {{pivot}} is now above x, and its height becomes {{height}}",
+    "rot_left_return": "Return y: {{pivot}} is the new root of this subtree, and the parent now points to it instead of {{node}}",
+    "del_empty": "The tree is empty, so there is nothing to delete",
+    "del_compare": "Compare the value to delete, {{val}}, with node {{curr}}",
+    "del_left": "{{val}} < {{curr}}, so look in the left child",
+    "del_right": "{{val}} > {{curr}}, so look in the right child",
+    "del_not_found": "{{val}} is not in the tree, so nothing is deleted and the tree stays as it is",
+    "del_found": "Found the node to delete: {{val}}",
+    "del_count_dec": "{{val}} is stored several times, so only its count drops to {{count}} and the node and the tree shape stay the same",
+    "del_leaf": "{{val}} has no children (a leaf), so it can simply be removed",
+    "del_one_child": "{{val}} has a single child, {{child}}, so {{child}} takes its place",
+    "del_remove_leaf": "Leaf {{val}} is removed and the matching pointer of its parent becomes empty",
+    "del_remove_child": "{{val}} is removed and its parent now points straight to {{child}}",
+    "del_two_child": "{{val}} has two children, so it cannot just be cut out. Find its successor (the smallest value in the right subtree) to take its place",
+    "del_succ_find": "Successor candidate is {{succ}}, which still has a left child, so keep going left",
+    "del_succ_found": "{{succ}} has no left child, so it is the successor (the smallest value in the right subtree)",
+    "del_succ_copy": "node.value ← successor.value: the node that held {{val}} now stores the successor's value {{succ}} (with its count). The original successor node is removed next",
+    "del_succ_remove_leaf": "node.right ← RemoveMin(node.right): remove the successor node {{succ}}. It has no right child, so its place becomes empty",
+    "del_succ_remove_child": "node.right ← RemoveMin(node.right): remove the successor node {{succ}}, and its right child {{child}} takes its place",
+    "del_done": "Deleting {{val}} is complete and every node along the path is balanced again",
+    "need_balance": "Some nodes are out of balance (shown in red), and insert and delete assume the tree is balanced already. Press Rebalance first",
+    "chk_empty": "The tree is empty, so there is nothing to check",
+    "chk_ok": "BF {{bf}} is within -1 to +1 and the subtrees are balanced too, so {{node}} returns left And right = True",
+    "chk_bad": "BF {{bf}} is outside -1 to +1, so {{node}} is unbalanced and returns False",
+    "chk_done_ok": "Every node has a BF between -1 and +1, so the tree is balanced",
+    "chk_done_bad": "Check complete: {{bad}} node(s) are unbalanced (in red). Press Rebalance to fix them",
+    "rb_already_empty": "The tree is empty, so there is nothing to rebalance",
+    "rb_already": "Every node has a BF between -1 and +1, so the tree is already balanced and nothing changes",
+    "rb_done": "Rebalancing is complete and every node has a BF between -1 and +1 again",
+    "rot_missing": "{{val}} is not in the tree, so it cannot be rotated",
+    "rot_blocked_left": "{{val}} has no right child to move up, so it cannot be rotated left",
+    "rot_blocked_right": "{{val}} has no left child to move up, so it cannot be rotated right",
+    "rot_select": "Node {{val}} is selected for the rotation",
+    "rot_done": "Rotation complete: {{pivot}} took the place of {{val}}. A rotation never breaks the ordering, but BF values can change (unbalanced nodes turn red)",
+    "srch_empty": "The tree is empty, so {{val}} cannot be found",
+    "srch_compare": "Compare the value to find, {{val}}, with node {{curr}} (node number {{steps}})",
+    "srch_left": "{{val}} < {{curr}}, so look in the left child",
+    "srch_right": "{{val}} > {{curr}}, so look in the right child",
+    "srch_found": "Found {{val}} after comparing {{steps}} node(s)",
+    "srch_not_found": "There is no node on that side, so {{val}} is not in the tree ({{steps}} node(s) compared)",
+    "chk_call": "Call IsBalanced({{node}}) (level {{depth}}): the node is not Null, so check its subtrees first",
+    "chk_null_left": "The left child of {{parent}} is empty: IsBalanced(Null) returns True right away",
+    "chk_null_right": "The right child of {{parent}} is empty: IsBalanced(Null) returns True right away",
+    "chk_go_left": "left ← IsBalanced({{node}}.left): check the left subtree of {{node}} first",
+    "chk_go_right": "right ← IsBalanced({{node}}.right): the left subtree is done, now the right one",
+    "chk_bf": "Both subtrees are checked, so now {{node}} itself: height {{height}}, BF = {{bf}}",
+    "chk_ok_child_bad": "The BF {{bf}} of {{node}} is within -1 to +1, but a subtree holds an unbalanced node, so left And right = False and that goes back to the caller"
+  },
+  "ui": {
+    "operations": "AVL operations",
+    "valuePlaceholder": "Value",
+    "comingSoon": "Coming soon",
+    "group": {
+      "balance": "Balance"
+    },
+    "insert": "Insert",
+    "insertTooltip": "Insert the value like a BST, then rebalance on the way back up",
+    "delete": "Delete",
+    "deleteTooltip": "Delete the value like a BST, then rebalance on the way back up",
+    "checkBalance": "Check balance",
+    "checkBalanceTooltip": "Check the balance factor of every node from the bottom up and mark the ones outside -1 to +1",
+    "rotateLeft": "Rotate left",
+    "rotateLeftTooltip": "Rotate left around the node with this value",
+    "rotateRight": "Rotate right",
+    "rotateRightTooltip": "Rotate right around the node with this value",
+    "rebalance": "Rebalance",
+    "rebalanceTooltip": "Rotate the whole tree back into balance. Loaded data can be unbalanced, so do this before insert or delete",
+    "insertWarning": "Please enter a value to insert",
+    "deleteWarning": "Please enter a value to delete",
+    "searchWarning": "Please enter a value to search",
+    "rotateWarning": "Please enter the value of the node to rotate",
+    "searchTooltip": "Search for this value and count how many nodes were compared. The more balanced the tree, the fewer nodes",
+    "search": "Search",
+    "rotatePlaceholder": "Node to rotate"
+  },
+  "statusLegend": {
+    "notVisited": "Not visited",
+    "visitedPath": "Visited path",
+    "exploreDirection": "Direction to explore",
+    "currentNode": "Current node",
+    "completeTarget": "Target found, or a node checked as balanced",
+    "unbalanced": "Unbalanced node (BF outside -1 to +1)",
+    "rotating": "Nodes being rotated"
+  },
+  "relatedProblems": {
+    "110": "Balance check: decide whether a binary tree is height-balanced (matches 'Check balance')",
+    "108": "Build a balanced tree: turn a sorted array into a height-balanced binary search tree",
+    "450": "Delete a node: remove a node from a BST and keep the ordering (replace it with the successor)",
+    "1382": "Rebalance: turn an unbalanced binary search tree into a balanced one (matches 'Rebalance')"
+  },
+  "stories": {
+    "avl-when-to-use": {
+      "title": "When to pick an AVL tree: ordered data that is read a lot and changed a little",
+      "category": "Choosing a data structure",
+      "tags": [
+        "AVL tree",
+        "Lookup",
+        "Dictionary",
+        "Balance",
+        "Choosing a data structure"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "An analogy: a dictionary that is always sorted",
+            "content": "Think of a dictionary: words are looked up far more often than they are added, so it is always kept sorted and you can flip to the right page quickly. An AVL tree does something similar. It keeps its data sorted and keeps the two sides about equally tall, so no matter what was inserted or deleted before, finding a value takes only O(log n) steps."
+          },
+          {
+            "heading": "Why balance matters",
+            "content": "A plain binary search tree that receives 1, 2, 3, ... in order turns into a chain, and finding the last value takes n steps. In the tutorial, load 1 to 7, search for 7 and count the compared nodes, then press Rebalance and search again; the difference is obvious. The AVL tree was published by Adelson-Velsky and Landis in 1962 and uses rotations to keep the height at O(log n)."
+          },
+          {
+            "heading": "Where it is used",
+            "content": "Examples that teaching resources often give: spell checkers, text editors and auto-correction holding their dictionaries; database indexes; file system directory structures and compiler symbol tables; network route lookups. You can also find it in libraries: C++ Boost.Intrusive offers avl_set and avl_multiset, built on AVL trees and used like the standard set and multiset."
+          },
+          {
+            "heading": "AVL tree or red-black tree?",
+            "content": "Both guarantee O(log n); the difference is the trade-off. AVL trees balance more strictly, so lookups are faster, but insertions and deletions rotate more often. That makes AVL a good fit for work that reads a lot and changes little, while workloads with frequent inserts and deletes often pick red-black trees. Also note that if you only look values up by key and do not care about order, a hash table is usually simpler; the strength of an AVL tree is that the data stays sorted, so it supports range queries, finding the minimum or maximum, and finding the previous or next value."
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "AVL tree",
+          "source": "Wikipedia"
+        },
+        {
+          "title": "Boost.Intrusive: avl_set and avl_multiset",
+          "source": "Boost C++ Libraries"
+        },
+        {
+          "title": "How to optimize the database indexing using AVL trees",
+          "source": "Educative"
+        }
+      ]
+    },
+    "avl-linux-vma-tree": {
+      "title": "Going deeper: the Linux kernel once used an AVL tree to find memory",
+      "category": "Operating Systems",
+      "tags": [
+        "Advanced",
+        "AVL tree",
+        "Linux kernel",
+        "Red-black tree"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "How an operating system knows which block of memory an address belongs to",
+            "content": "An operating system splits the memory a program uses into areas. On every page fault (the program touches memory that is not ready yet), the Linux kernel first has to find which area the address falls into. Early on it walked a linked list and compared one by one, which gets slow when there are many areas: O(n). A patch in 1998 added an AVL tree next to the list, making the lookup O(log n). The patch notes that ordinary programs have only about 6 areas, but databases or runtimes such as Java can have about 3000."
+          },
+          {
+            "heading": "Why AVL then, and why a red-black tree later",
+            "content": "In 1999 the maintainer Andrea Arcangeli explained the choice of AVL: lookups (one per page fault) far outnumber modifications (which only happen when memory is allocated or released), and for such a read-heavy workload a strictly balanced AVL tree helps. After version 2.4.9 in 2001 the kernel switched to a red-black tree, and an LWN article in 2021 reports that it is now 'a modified red-black tree with an additional linked list'. The same problem was solved with a linked list, an AVL tree and a red-black tree at different times, so the choice of data structure follows the needs of the moment."
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "[PATCH] Re: 2.1.xxx makes Electric Fence 22x slower",
+          "source": "Linux Kernel Mailing List (1998)"
+        },
+        {
+          "title": "Re: AVL trees vs. Red-Black trees",
+          "source": "Linux Kernel Mailing List (1999)"
+        },
+        {
+          "title": "mmap-rb-1: replace the VMA AVL tree with a red-black tree (Linux 2.4.9)",
+          "source": "kernel.org"
+        },
+        {
+          "title": "Introducing maple trees",
+          "source": "LWN.net (2021)"
+        }
+      ]
+    }
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "An AVL tree is a **binary search tree that rebalances itself**. After every insertion or deletion it checks the height of each subtree and rotates nodes so the tree never leans too far to one side.",
+        "items": [
+          "**Balance factor (BF)**: height of the left subtree minus height of the right subtree",
+          "**AVL rule**: every node must have a BF of [[primary|-1, 0 or +1]]",
+          "A plain BST can degrade into a linked list; the AVL rule keeps the height at [[success|O(log n)]]",
+          "The same ordering rule as a BST still holds: left is smaller, right is larger"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Rotations",
+        "content": "When a node's BF leaves -1 to +1 (exactly +2 or -2 right after an insertion or deletion), a rotation restores the balance without breaking the BST ordering.",
+        "items": [
+          "**Right rotation (LL case)**: the left child becomes the new root of the subtree",
+          "**Left rotation (RR case)**: the right child becomes the new root of the subtree",
+          "**Left-right (LR) and right-left (RL)**: rotate the child first, then the node",
+          "Each rotation changes only a few pointers, so it takes [[success|O(1)]] time"
+        ],
+        "icon": "shuffle"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Because the height stays logarithmic, every operation stays fast even in the worst case.",
+        "items": [
+          "**Search, insert, delete**: [[success|O(log n)]] in the worst case",
+          "All of this assumes **the tree is balanced**. Loaded data that is unbalanced can make a search degrade to [[danger|O(n)]] in the worst case, and only rebalancing brings it back to [[success|O(log n)]]. Use search to count how many nodes get compared",
+          "An insertion needs **at most one rebalancing** (one or two rotations)",
+          "A deletion may rotate on **several levels** on the way up",
+          "**Space complexity**: [[success|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Things to Watch",
+        "content": "AVL trees trade a little extra work on writes for predictable reads.",
+        "items": [
+          "The tree is stricter than a red-black tree, so it **rotates more often** but is slightly shallower",
+          "Duplicate values are counted on the existing node, like the BST level",
+          "Loaded data is built as a plain BST in the order you typed it and can be unbalanced, so rebalance it before inserting or deleting"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

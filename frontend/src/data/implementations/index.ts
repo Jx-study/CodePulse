@@ -26,6 +26,7 @@ import { twoPointersConfig } from "../algorithms/technique/twoPointers";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
 import { lcsConfig } from "../algorithms/dp/lcs";
+import { avlTreeConfig } from "../DataStructure/nonlinear/AVLTree/AVLTree";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
 import { fibonacciDPConfig } from "../algorithms/dp/fibonacci";
@@ -65,6 +66,7 @@ export const implementationsMap: ImplementationMap = {
   knapsack: knapsackConfig,
   lcs: lcsConfig,
   nQueens: nQueensConfig,
+  avlTree: avlTreeConfig,
   topologicalSort: topologicalSortConfig,
   fibonacciDP: fibonacciDPConfig,
   fibonacciRecursive: fibonacciRecursiveConfig,

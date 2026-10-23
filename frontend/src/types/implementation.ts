@@ -213,6 +213,7 @@ type ImplementationId =
   | "knapsack"
   | "lcs"
   | "n-queens"
+  | "avl-tree"
   | "topological-sort"
   | "factorial";
 
