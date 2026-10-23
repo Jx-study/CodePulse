@@ -27,6 +27,7 @@ import {
   type AVLInputItem,
 } from "./simulateTrace";
 import { avlTraceToSteps } from "./traceToSteps";
+import { avlRealWorldStories } from "./avl.stories";
 
 const buildState = (items: AVLInputItem[]): AVLInputItem[] =>
   toState(buildAVL(items));
@@ -586,5 +587,36 @@ export const avlTreeConfig: LevelImplementationConfig = {
   renderActionBar: (props) => (
     <AVLTreeActionBar {...(props as DSActionBarProps)} />
   ),
+  realWorldStories: avlRealWorldStories,
+  relatedProblems: [
+    {
+      id: 110,
+      title: "Balanced Binary Tree",
+      concept: "relatedProblems.110",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/balanced-binary-tree/",
+    },
+    {
+      id: 108,
+      title: "Convert Sorted Array to Binary Search Tree",
+      concept: "relatedProblems.108",
+      difficulty: "Easy",
+      url: "https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/",
+    },
+    {
+      id: 450,
+      title: "Delete Node in a BST",
+      concept: "relatedProblems.450",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/delete-node-in-a-bst/",
+    },
+    {
+      id: 1382,
+      title: "Balance a Binary Search Tree",
+      concept: "relatedProblems.1382",
+      difficulty: "Medium",
+      url: "https://leetcode.com/problems/balance-a-binary-search-tree/",
+    },
+  ],
   maxNodes: 20,
 };

@@ -111,9 +111,102 @@
     "visitedPath": "Visited path",
     "exploreDirection": "Direction to explore",
     "currentNode": "Current node",
-    "completeTarget": "Target found",
-    "unbalanced": "Unbalanced node (BF is +2 or -2)",
+    "completeTarget": "Target found, or a node checked as balanced",
+    "unbalanced": "Unbalanced node (BF outside -1 to +1)",
     "rotating": "Nodes being rotated"
+  },
+  "relatedProblems": {
+    "110": "Balance check: decide whether a binary tree is height-balanced (matches 'Check balance')",
+    "108": "Build a balanced tree: turn a sorted array into a height-balanced binary search tree",
+    "450": "Delete a node: remove a node from a BST and keep the ordering (replace it with the successor)",
+    "1382": "Rebalance: turn an unbalanced binary search tree into a balanced one (matches 'Rebalance')"
+  },
+  "stories": {
+    "avl-when-to-use": {
+      "title": "When to pick an AVL tree: ordered data that is read a lot and changed a little",
+      "category": "Choosing a data structure",
+      "tags": [
+        "AVL tree",
+        "Lookup",
+        "Dictionary",
+        "Balance",
+        "Choosing a data structure"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "An analogy: a dictionary that is always sorted",
+            "content": "Think of a dictionary: words are looked up far more often than they are added, so it is always kept sorted and you can flip to the right page quickly. An AVL tree does something similar. It keeps its data sorted and keeps the two sides about equally tall, so no matter what was inserted or deleted before, finding a value takes only O(log n) steps."
+          },
+          {
+            "heading": "Why balance matters",
+            "content": "A plain binary search tree that receives 1, 2, 3, ... in order turns into a chain, and finding the last value takes n steps. In the tutorial, load 1 to 7, search for 7 and count the compared nodes, then press Rebalance and search again; the difference is obvious. The AVL tree was published by Adelson-Velsky and Landis in 1962 and uses rotations to keep the height at O(log n)."
+          },
+          {
+            "heading": "Where it is used",
+            "content": "Examples that teaching resources often give: spell checkers, text editors and auto-correction holding their dictionaries; database indexes; file system directory structures and compiler symbol tables; network route lookups. You can also find it in libraries: C++ Boost.Intrusive offers avl_set and avl_multiset, built on AVL trees and used like the standard set and multiset."
+          },
+          {
+            "heading": "AVL tree or red-black tree?",
+            "content": "Both guarantee O(log n); the difference is the trade-off. AVL trees balance more strictly, so lookups are faster, but insertions and deletions rotate more often. That makes AVL a good fit for work that reads a lot and changes little, while workloads with frequent inserts and deletes often pick red-black trees. Also note that if you only look values up by key and do not care about order, a hash table is usually simpler; the strength of an AVL tree is that the data stays sorted, so it supports range queries, finding the minimum or maximum, and finding the previous or next value."
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "AVL tree",
+          "source": "Wikipedia"
+        },
+        {
+          "title": "Boost.Intrusive: avl_set and avl_multiset",
+          "source": "Boost C++ Libraries"
+        },
+        {
+          "title": "How to optimize the database indexing using AVL trees",
+          "source": "Educative"
+        }
+      ]
+    },
+    "avl-linux-vma-tree": {
+      "title": "Going deeper: the Linux kernel once used an AVL tree to find memory",
+      "category": "Operating Systems",
+      "tags": [
+        "Advanced",
+        "AVL tree",
+        "Linux kernel",
+        "Red-black tree"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "How an operating system knows which block of memory an address belongs to",
+            "content": "An operating system splits the memory a program uses into areas. On every page fault (the program touches memory that is not ready yet), the Linux kernel first has to find which area the address falls into. Early on it walked a linked list and compared one by one, which gets slow when there are many areas: O(n). A patch in 1998 added an AVL tree next to the list, making the lookup O(log n). The patch notes that ordinary programs have only about 6 areas, but databases or runtimes such as Java can have about 3000."
+          },
+          {
+            "heading": "Why AVL then, and why a red-black tree later",
+            "content": "In 1999 the maintainer Andrea Arcangeli explained the choice of AVL: lookups (one per page fault) far outnumber modifications (which only happen when memory is allocated or released), and for such a read-heavy workload a strictly balanced AVL tree helps. After version 2.4.9 in 2001 the kernel switched to a red-black tree, and an LWN article in 2021 reports that it is now 'a modified red-black tree with an additional linked list'. The same problem was solved with a linked list, an AVL tree and a red-black tree at different times, so the choice of data structure follows the needs of the moment."
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "[PATCH] Re: 2.1.xxx makes Electric Fence 22x slower",
+          "source": "Linux Kernel Mailing List (1998)"
+        },
+        {
+          "title": "Re: AVL trees vs. Red-Black trees",
+          "source": "Linux Kernel Mailing List (1999)"
+        },
+        {
+          "title": "mmap-rb-1: replace the VMA AVL tree with a red-black tree (Linux 2.4.9)",
+          "source": "kernel.org"
+        },
+        {
+          "title": "Introducing maple trees",
+          "source": "LWN.net (2021)"
+        }
+      ]
+    }
   },
   "introduction": {
     "sections": [
@@ -130,7 +223,7 @@
       },
       {
         "heading": "Rotations",
-        "content": "When a node's BF becomes +2 or -2, a rotation restores the balance without breaking the BST ordering.",
+        "content": "When a node's BF leaves -1 to +1 (exactly +2 or -2 right after an insertion or deletion), a rotation restores the balance without breaking the BST ordering.",
         "items": [
           "**Right rotation (LL case)**: the left child becomes the new root of the subtree",
           "**Left rotation (RR case)**: the right child becomes the new root of the subtree",
@@ -144,6 +237,7 @@
         "content": "Because the height stays logarithmic, every operation stays fast even in the worst case.",
         "items": [
           "**Search, insert, delete**: [[success|O(log n)]] in the worst case",
+          "All of this assumes **the tree is balanced**. Loaded data that is unbalanced can make a search degrade to [[danger|O(n)]] in the worst case, and only rebalancing brings it back to [[success|O(log n)]]. Use search to count how many nodes get compared",
           "An insertion needs **at most one rebalancing** (one or two rotations)",
           "A deletion may rotate on **several levels** on the way up",
           "**Space complexity**: [[success|O(n)]]"

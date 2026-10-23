@@ -111,9 +111,102 @@
     "visitedPath": "已走過的路徑",
     "exploreDirection": "接下來要走的方向",
     "currentNode": "目前節點",
-    "completeTarget": "找到目標",
-    "unbalanced": "失衡的節點（BF 為 +2 或 -2）",
+    "completeTarget": "找到目標，或檢查後平衡的節點",
+    "unbalanced": "失衡的節點（BF 超出 -1 到 +1）",
     "rotating": "正在旋轉的節點"
+  },
+  "relatedProblems": {
+    "110": "平衡檢查：判斷一棵二元樹是否為高度平衡的二元樹（對應「檢查平衡」）",
+    "108": "建立平衡樹：把排序好的陣列轉成高度平衡的二元搜尋樹",
+    "450": "刪除節點：在二元搜尋樹中刪除節點，並維持大小順序（用後繼者取代）",
+    "1382": "重新平衡：把一棵不平衡的二元搜尋樹改成平衡（對應「重新平衡」）"
+  },
+  "stories": {
+    "avl-when-to-use": {
+      "title": "什麼時候該選 AVL 樹？查得多、改得少的有序資料",
+      "category": "資料結構選擇",
+      "tags": [
+        "AVL 樹",
+        "查詢",
+        "字典",
+        "平衡",
+        "資料結構選擇"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "一個比喻：永遠排好序的字典",
+            "content": "想像一本字典：查單字的次數遠比新增單字多，所以字典一定先排好序，才能很快翻到那一頁。AVL 樹做的是類似的事：它讓資料一直保持「排好序、而且左右兩邊高度差不多」，所以不管之前新增或刪除過什麼，找一筆資料都只要走 O(log n) 步。"
+          },
+          {
+            "heading": "為什麼要在意「平衡」",
+            "content": "一般的二元搜尋樹如果依序放入 1、2、3、…，會變成一條鏈，找最後一個值要走 n 步。你可以在教學區載入 1 到 7，搜尋 7 數數看比較了幾個節點，再按「重新平衡」搜尋一次，差別一目了然。AVL 樹由 Adelson-Velsky 和 Landis 在 1962 年發表，靠旋轉保證樹高永遠是 O(log n)。"
+          },
+          {
+            "heading": "實際會用在哪裡",
+            "content": "教學資源常舉的例子有：拼字檢查、文字編輯器與自動校正用它來存字典；資料庫索引；檔案系統的目錄結構與編譯器的符號表；網路路由的查詢。程式庫裡也看得到它：C++ 的 Boost.Intrusive 就提供以 AVL 樹實作的 avl_set 與 avl_multiset，用法類似標準的 set 和 multiset。"
+          },
+          {
+            "heading": "AVL 樹還是紅黑樹？",
+            "content": "兩者都保證 O(log n)，差別在取捨：AVL 樹的平衡規則更嚴格，所以查詢更快，但插入和刪除要旋轉得更頻繁。因此「查得多、改得少」的工作適合 AVL 樹，「常常新增刪除」的工作則常選紅黑樹。另外要注意，如果只是用鍵找值、不在乎順序，雜湊表通常更簡單；AVL 樹的優勢是資料一直保持排序，可以做範圍查詢、找最小或最大值、找前一個與下一個。"
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "AVL tree",
+          "source": "Wikipedia"
+        },
+        {
+          "title": "Boost.Intrusive：avl_set 與 avl_multiset",
+          "source": "Boost C++ Libraries"
+        },
+        {
+          "title": "How to optimize the database indexing using AVL trees",
+          "source": "Educative"
+        }
+      ]
+    },
+    "avl-linux-vma-tree": {
+      "title": "進階閱讀：Linux 核心曾經用 AVL 樹查找記憶體",
+      "category": "作業系統",
+      "tags": [
+        "進階",
+        "AVL 樹",
+        "Linux 核心",
+        "紅黑樹"
+      ],
+      "content": {
+        "sections": [
+          {
+            "heading": "作業系統怎麼知道一個位址屬於哪一塊記憶體",
+            "content": "作業系統會把每個程式用到的記憶體分成一塊塊區域。每次發生缺頁（程式碰到還沒準備好的記憶體），Linux 核心就要先查出這個位址落在哪一塊區域。早期是沿著鏈結串列一個個比對，區域一多就很慢，是 O(n)。1998 年有一份補丁在串列旁邊加了一棵 AVL 樹，查找變成 O(log n)。補丁提到，一般程式大約只有 6 塊區域，但資料庫或 Java 這類執行環境可以多到約 3000 塊。"
+          },
+          {
+            "heading": "為什麼當時選 AVL，後來又換成紅黑樹",
+            "content": "1999 年，維護者 Andrea Arcangeli 解釋選擇 AVL 的理由：查詢（每次缺頁都要查一次）遠多於修改（只有配置與釋放記憶體時才改），對這種讀多寫少的工作，嚴格平衡的 AVL 樹有利。2001 年的 2.4.9 版之後，核心改用紅黑樹；2021 年 LWN 的報導指出，現在是「修改過的紅黑樹再加一條鏈結串列」。同一個問題在不同時期用過鏈結串列、AVL 樹和紅黑樹，可見資料結構的選擇會隨需求取捨。"
+          }
+        ]
+      },
+      "resources": [
+        {
+          "title": "[PATCH] Re: 2.1.xxx makes Electric Fence 22x slower",
+          "source": "Linux Kernel Mailing List (1998)"
+        },
+        {
+          "title": "Re: AVL trees vs. Red-Black trees",
+          "source": "Linux Kernel Mailing List (1999)"
+        },
+        {
+          "title": "mmap-rb-1：把 VMA 的 AVL 樹換成紅黑樹（Linux 2.4.9）",
+          "source": "kernel.org"
+        },
+        {
+          "title": "Introducing maple trees",
+          "source": "LWN.net (2021)"
+        }
+      ]
+    }
   },
   "introduction": {
     "sections": [
@@ -130,7 +223,7 @@
       },
       {
         "heading": "旋轉",
-        "content": "當某個節點的 BF 變成 +2 或 -2，就用旋轉恢復平衡，而且不會破壞 BST 的大小順序。",
+        "content": "當某個節點的 BF 超出 -1 到 +1（插入或刪除後會剛好是 +2 或 -2），就用旋轉恢復平衡，而且不會破壞 BST 的大小順序。",
         "items": [
           "**右旋 (LL 情況)**：左子節點變成這棵子樹新的根",
           "**左旋 (RR 情況)**：右子節點變成這棵子樹新的根",
@@ -144,6 +237,7 @@
         "content": "因為樹高維持在對數等級，即使在最壞情況，每個操作都很快。",
         "items": [
           "**搜尋、插入、刪除**：最壞情況 [[success|O(log n)]]",
+          "以上都以**樹是平衡的**為前提。載入的資料若不平衡，搜尋最壞會退化成 [[danger|O(n)]]，重新平衡後才回到 [[success|O(log n)]]。可以用搜尋數一數比較了幾個節點",
           "插入**最多只需要一次重新平衡**（一次或兩次旋轉）",
           "刪除可能在往上走的路上**多個層級都要旋轉**",
           "**空間複雜度**：[[success|O(n)]]"
