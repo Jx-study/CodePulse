@@ -478,6 +478,7 @@
     "balanced_tree": "Balanced Tree Structure",
     "priority_structure": "Priority Structure",
     "network_structure": "Network Structure",
+    "string_structure": "String Structure",
     "selection_strategy": "Selection Strategy",
     "insertion_strategy": "Insertion Strategy",
     "divide_conquer": "Divide & Conquer",
@@ -486,6 +487,7 @@
     "dag_application": "DAG Application",
     "set_management": "Set Management",
     "combination_optimization": "Combination Optimization",
+    "heuristic_search": "Heuristic Search",
     "string_dp": "String DP"
   }
 }

@@ -215,7 +215,8 @@
         "branch": "center"
       },
       "pathMetadata": {
-        "pathType": "boss"
+        "pathType": "boss",
+        "branchLabelKey": "string_structure"
       },
       "suggestedPrerequisites": ["binarytree"],
       "implementationKey": "trie"
@@ -228,7 +229,7 @@
       "isUnlocked": true,
       "prerequisites": {
         "type": "OR",
-        "levelIds": ["trie", "heap", "graph"]
+        "levelIds": ["trie"]
       },
       "graphPosition": {
         "layer": 6,
@@ -338,7 +339,8 @@
         "branch": "main"
       },
       "pathMetadata": {
-        "pathType": "boss"
+        "pathType": "boss",
+        "branchLabelKey": "divide_conquer"
       },
       "implementationKey": "quickSort"
     },
@@ -452,7 +454,7 @@
       },
       "graphPosition": {
         "layer": 2,
-        "branch": "center"
+        "branch": "left"
       },
       "pathMetadata": {
         "pathType": "branch",
@@ -476,7 +478,8 @@
         "horizontalIndex": 0
       },
       "pathMetadata": {
-        "pathType": "boss"
+        "pathType": "boss",
+        "branchLabelKey": "state_exhaustion"
       },
       "implementationKey": "nQueens"
     },
@@ -574,7 +577,8 @@
         "branch": "main"
       },
       "pathMetadata": {
-        "pathType": "boss"
+        "pathType": "boss",
+        "branchLabelKey": "set_management"
       },
       "implementationKey": "bitMask"
     },
@@ -692,7 +696,8 @@
         "branch": "main"
       },
       "pathMetadata": {
-        "pathType": "boss"
+        "pathType": "boss",
+        "branchLabelKey": "heuristic_search"
       },
       "implementationKey": "astar"
     },

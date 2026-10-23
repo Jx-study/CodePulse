@@ -477,6 +477,7 @@
     "sorting_tree": "排序樹結構",
     "balanced_tree": "平衡樹結構",
     "priority_structure": "優先權結構",
+    "string_structure": "字串結構",
     "network_structure": "網狀結構",
     "selection_strategy": "選擇策略",
     "insertion_strategy": "插入策略",
@@ -486,6 +487,7 @@
     "dag_application": "DAG 應用",
     "set_management": "集合管理",
     "combination_optimization": "組合最佳化",
+    "heuristic_search": "啟發式搜尋",
     "string_dp": "字串 DP"
   }
 }

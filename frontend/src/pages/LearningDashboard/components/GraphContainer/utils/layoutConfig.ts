@@ -24,14 +24,14 @@ const DESKTOP_CONFIG: LayoutConfig = {
 
 // Tablet 配置 (768-1023px)
 const TABLET_CONFIG: LayoutConfig = {
-  layerSpacing: 200,
+  layerSpacing: 250,
   branchSpacing: 290,
   nodeSpacing: 200,
 };
 
 // Mobile 配置 (<768px)
 const MOBILE_CONFIG: LayoutConfig = {
-  layerSpacing: 200 ,
+  layerSpacing: 250,
   branchSpacing: 250,
   nodeSpacing: 200,
 };
