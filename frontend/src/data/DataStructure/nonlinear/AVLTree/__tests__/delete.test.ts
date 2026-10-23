@@ -291,7 +291,10 @@ describe("AVL delete trace", () => {
         (mappings[e.tag] ?? []).forEach((n) => lit.add(n)),
       ),
     );
-    const lines = avlTreeConfig.codeConfig!.pseudo!.content.split("\n");
+    const content = avlTreeConfig.codeConfig!.pseudo!.content;
+    const lines = content
+      .slice(0, content.indexOf("Procedure IsBalanced"))
+      .split("\n");
     const start = lines.findIndex((l) => l.startsWith("Procedure Delete"));
     const unlit = lines
       .map((text, i) => [i + 1, text.trim()] as const)

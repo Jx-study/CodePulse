@@ -92,7 +92,7 @@ describe("AVL level config", () => {
     expect(labels).toContain("h3 · BF 0");
   });
 
-  it("builds an AVL tree when loading values in an unbalanced order", () => {
+  it("loads values in the order typed, so the tree can be unbalanced", () => {
     const handler = avlTreeConfig.actionHandler!;
     let id = 0;
     const context = { nextId: () => `id-${id++}`, defaultData: [] } as never;
@@ -100,27 +100,18 @@ describe("AVL level config", () => {
     const result = handler("load", { data: [1, 2, 3, 4, 5, 6, 7] }, [], context)!;
     const root = fromState(result.animationData as never)!;
 
-    expect(root.value).toBe(4);
-    everyNode(root, (n) => expect(Math.abs(balanceFactor(n))).toBeLessThanOrEqual(1));
+    expect(root.value).toBe(1);
+    expect(balanceFactor(root)).toBe(-6);
   });
 
-  it("lists every planned operation in the action bar registry", () => {
+  it("lists the operations that stay on the action bar", () => {
     expect(AVL_OPS.map((op) => op.id)).toEqual([
       "insert",
       "delete",
       "search",
-      "min",
-      "max",
-      "floor",
-      "ceil",
-      "preorder",
-      "inorder",
-      "postorder",
-      "levelorder",
-      "checkBalance",
       "rotateLeft",
       "rotateRight",
-      "autoBalance",
+      "checkBalance",
       "rebalance",
     ]);
   });

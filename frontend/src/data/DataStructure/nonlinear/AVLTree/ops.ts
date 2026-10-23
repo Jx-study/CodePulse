@@ -1,21 +1,12 @@
-export type AVLOpGroup = "modify" | "query" | "traversal" | "balance";
+export type AVLOpGroup = "modify" | "query" | "balance";
 
 export type AVLOpId =
   | "insert"
   | "delete"
   | "search"
-  | "min"
-  | "max"
-  | "floor"
-  | "ceil"
-  | "preorder"
-  | "inorder"
-  | "postorder"
-  | "levelorder"
-  | "checkBalance"
   | "rotateLeft"
   | "rotateRight"
-  | "autoBalance"
+  | "checkBalance"
   | "rebalance";
 
 export interface AVLOp {
@@ -28,18 +19,9 @@ export interface AVLOp {
 export const AVL_OPS: AVLOp[] = [
   { id: "insert", group: "modify", needsValue: true, implemented: true },
   { id: "delete", group: "modify", needsValue: true, implemented: true },
-  { id: "search", group: "query", needsValue: true, implemented: false },
-  { id: "min", group: "query", needsValue: false, implemented: false },
-  { id: "max", group: "query", needsValue: false, implemented: false },
-  { id: "floor", group: "query", needsValue: true, implemented: false },
-  { id: "ceil", group: "query", needsValue: true, implemented: false },
-  { id: "preorder", group: "traversal", needsValue: false, implemented: false },
-  { id: "inorder", group: "traversal", needsValue: false, implemented: false },
-  { id: "postorder", group: "traversal", needsValue: false, implemented: false },
-  { id: "levelorder", group: "traversal", needsValue: false, implemented: false },
-  { id: "checkBalance", group: "balance", needsValue: false, implemented: false },
-  { id: "rotateLeft", group: "balance", needsValue: true, implemented: false },
-  { id: "rotateRight", group: "balance", needsValue: true, implemented: false },
-  { id: "autoBalance", group: "balance", needsValue: false, implemented: false },
-  { id: "rebalance", group: "balance", needsValue: false, implemented: false },
+  { id: "search", group: "query", needsValue: true, implemented: true },
+  { id: "rotateLeft", group: "balance", needsValue: true, implemented: true },
+  { id: "rotateRight", group: "balance", needsValue: true, implemented: true },
+  { id: "checkBalance", group: "balance", needsValue: false, implemented: true },
+  { id: "rebalance", group: "balance", needsValue: false, implemented: true },
 ];

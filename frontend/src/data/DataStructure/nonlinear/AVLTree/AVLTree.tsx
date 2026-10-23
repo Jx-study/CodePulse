@@ -15,8 +15,12 @@ import {
   deleteItem,
   fromState,
   insertItem,
+  isBalancedTree,
+  rebalanceTree,
+  rotateAt,
   toState,
 } from "./avl";
+import { buildBST } from "../BinarySearchTree/simulateTrace";
 import {
   simulateAVLTrace,
   type AVLAction,
@@ -37,6 +41,15 @@ function avlActionHandler(
   data: AVLInputItem[],
   context: ActionContext,
 ): ActionResult<AVLInputItem[]> | null {
+  const needsBalancedTree = actionType === "add" || actionType === "delete";
+  if (needsBalancedTree && !isBalancedTree(fromState(data) ?? undefined)) {
+    return {
+      animationData: data,
+      useRawAnimationParams: true,
+      animationParams: { mode: "NeedBalance" },
+    };
+  }
+
   if (actionType === "add") {
     const value = payload.value as number;
     const newId = context.nextId();
@@ -61,6 +74,46 @@ function avlActionHandler(
     };
   }
 
+  if (actionType === "search") {
+    return {
+      animationData: data,
+      useRawAnimationParams: true,
+      animationParams: { mode: "Search", value: payload.value },
+    };
+  }
+
+  if (actionType === "checkBalance") {
+    return {
+      animationData: data,
+      useRawAnimationParams: true,
+      animationParams: { mode: "CheckBalance" },
+    };
+  }
+
+  if (actionType === "rebalance") {
+    return {
+      animationData: data,
+      stateData: toState(rebalanceTree(fromState(data) ?? undefined)),
+      useRawAnimationParams: true,
+      animationParams: { mode: "Rebalance" },
+    };
+  }
+
+  if (actionType === "rotateLeft" || actionType === "rotateRight") {
+    const value = Math.round(Number(payload.value));
+    const dir = actionType === "rotateLeft" ? "left" : "right";
+    const rotated = rotateAt(fromState(data) ?? undefined, value, dir);
+    return {
+      animationData: data,
+      stateData: toState(rotated.root),
+      useRawAnimationParams: true,
+      animationParams: {
+        mode: actionType === "rotateLeft" ? "RotateLeft" : "RotateRight",
+        value,
+      },
+    };
+  }
+
   if (actionType === "random") {
     const count =
       (payload.randomCount as number) ?? DATA_LIMITS.DEFAULT_RANDOM_COUNT;
@@ -81,7 +134,10 @@ function avlActionHandler(
   if (actionType === "load") {
     const values = (payload.data as number[]) ?? [];
     const items = values.map((value) => ({ id: context.nextId(), value }));
-    return { animationData: buildState(items), isResetAction: true };
+    return {
+      animationData: toState(buildBST(items)),
+      isResetAction: true,
+    };
   }
 
   if (actionType === "refresh") {
@@ -181,6 +237,34 @@ Procedure RemoveMin(node):
   node.left ← RemoveMin(node.left)
   UpdateHeight(node)
   Return Rebalance(node)
+End Procedure
+
+Procedure IsBalanced(node):
+  If node is Null Then Return True
+  left ← IsBalanced(node.left)
+  right ← IsBalanced(node.right)
+  bf ← BalanceFactor(node)
+  If bf > 1 Or bf < -1 Then Return False
+  Return left And right
+End Procedure
+
+Procedure RebalanceTree(node):
+  If node is Null Then Return Null
+  node.left ← RebalanceTree(node.left)
+  node.right ← RebalanceTree(node.right)
+  While BalanceFactor(node) > 1 Or BalanceFactor(node) < -1:
+    node ← Rebalance(node)
+    node.left ← RebalanceTree(node.left)
+    node.right ← RebalanceTree(node.right)
+  UpdateHeight(node)
+  Return node
+End Procedure
+
+Procedure Search(node, value):
+  If node is Null Then Return Not Found
+  If value = node.value Then Return node
+  If value < node.value Then Return Search(node.left, value)
+  Return Search(node.right, value)
 End Procedure`,
     mappings: {
       [TAGS.INS_COMPARE]: [2, 3],
@@ -226,6 +310,25 @@ End Procedure`,
       [TAGS.DEL_BF_CHECK]: [68, 69, 17, 18, 12, 13, 14, 44, 21, 22],
       [TAGS.DEL_BF_CHECK_SUCC]: [79, 80, 81, 17, 18, 12, 13, 14, 44, 21, 22],
       [TAGS.DEL_DONE]: [69],
+      [TAGS.CHK_EMPTY]: [85],
+      [TAGS.CHK_CALL]: [85],
+      [TAGS.CHK_NULL]: [85],
+      [TAGS.CHK_GO_LEFT]: [86],
+      [TAGS.CHK_GO_RIGHT]: [87],
+      [TAGS.CHK_BF]: [13, 14, 22, 88],
+      [TAGS.CHK_OK]: [90],
+      [TAGS.CHK_BAD]: [89],
+      [TAGS.CHK_DONE_OK]: [90],
+      [TAGS.CHK_DONE_BAD]: [90],
+      [TAGS.RB_ALREADY]: [94, 97],
+      [TAGS.RB_BF_CHECK]: [13, 14, 22, 95, 96, 97],
+      [TAGS.RB_DONE]: [101, 102],
+      [TAGS.SRCH_EMPTY]: [106],
+      [TAGS.SRCH_COMPARE]: [107, 108],
+      [TAGS.SRCH_LEFT]: [108],
+      [TAGS.SRCH_RIGHT]: [109],
+      [TAGS.SRCH_FOUND]: [107],
+      [TAGS.SRCH_NOT_FOUND]: [106],
     },
   },
   python: {
@@ -317,7 +420,38 @@ def remove_min(node):
         return node.right
     node.left = remove_min(node.left)
     update_height(node)
-    return rebalance(node)`,
+    return rebalance(node)
+
+def is_balanced(node):
+    if node is None:
+        return True
+    left = is_balanced(node.left)
+    right = is_balanced(node.right)
+    bf = balance_factor(node)
+    if bf > 1 or bf < -1:
+        return False
+    return left and right
+
+def rebalance_tree(node):
+    if node is None:
+        return None
+    node.left = rebalance_tree(node.left)
+    node.right = rebalance_tree(node.right)
+    while abs(balance_factor(node)) > 1:
+        node = rebalance(node)
+        node.left = rebalance_tree(node.left)
+        node.right = rebalance_tree(node.right)
+    update_height(node)
+    return node
+
+def search(node, value):
+    if node is None:
+        return None
+    if value == node.value:
+        return node
+    if value < node.value:
+        return search(node.left, value)
+    return search(node.right, value)`,
     lineComplexity: [
       { lineNumber: 1, complexity: 'O(1)' }, // class Node:
       { lineNumber: 2, complexity: 'O(1)' }, // def __init__(self, value):
@@ -398,6 +532,34 @@ def remove_min(node):
       { lineNumber: 87, complexity: 'O(log n)' }, // node.left = remove_min(node.left)
       { lineNumber: 88, complexity: 'O(1)' }, // update_height(node)
       { lineNumber: 89, complexity: 'O(1)' }, // return rebalance(node)
+      { lineNumber: 91, complexity: 'O(n)' }, // def is_balanced(node):
+      { lineNumber: 92, complexity: 'O(1)' }, // if node is None:
+      { lineNumber: 93, complexity: 'O(1)' }, // return True
+      { lineNumber: 94, complexity: 'O(n)' }, // left = is_balanced(node.left)
+      { lineNumber: 95, complexity: 'O(n)' }, // right = is_balanced(node.right)
+      { lineNumber: 96, complexity: 'O(1)' }, // bf = balance_factor(node)
+      { lineNumber: 97, complexity: 'O(1)' }, // if bf > 1 or bf < -1:
+      { lineNumber: 98, complexity: 'O(1)' }, // return False
+      { lineNumber: 99, complexity: 'O(1)' }, // return left and right
+      { lineNumber: 101, complexity: 'O(n log n)' }, // def rebalance_tree(node):
+      { lineNumber: 102, complexity: 'O(1)' }, // if node is None:
+      { lineNumber: 103, complexity: 'O(1)' }, // return None
+      { lineNumber: 104, complexity: 'O(n log n)' }, // node.left = rebalance_tree(node.left)
+      { lineNumber: 105, complexity: 'O(n log n)' }, // node.right = rebalance_tree(node.right)
+      { lineNumber: 106, complexity: 'O(1)' }, // while abs(balance_factor(node)) > 1:
+      { lineNumber: 107, complexity: 'O(1)' }, // node = rebalance(node)
+      { lineNumber: 108, complexity: 'O(n log n)' }, // node.left = rebalance_tree(node.left)
+      { lineNumber: 109, complexity: 'O(n log n)' }, // node.right = rebalance_tree(node.right)
+      { lineNumber: 110, complexity: 'O(1)' }, // update_height(node)
+      { lineNumber: 111, complexity: 'O(1)' }, // return node
+      { lineNumber: 113, complexity: 'O(log n)' }, // def search(node, value):
+      { lineNumber: 114, complexity: 'O(1)' }, // if node is None:
+      { lineNumber: 115, complexity: 'O(1)' }, // return None
+      { lineNumber: 116, complexity: 'O(1)' }, // if value == node.value:
+      { lineNumber: 117, complexity: 'O(1)' }, // return node
+      { lineNumber: 118, complexity: 'O(1)' }, // if value < node.value:
+      { lineNumber: 119, complexity: 'O(log n)' }, // return search(node.left, value)
+      { lineNumber: 120, complexity: 'O(log n)' }, // return search(node.right, value)
     ],
   },
 };

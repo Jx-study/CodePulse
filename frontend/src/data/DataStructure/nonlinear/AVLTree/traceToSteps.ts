@@ -103,6 +103,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   }),
   ...rotationDescriptions(),
   ...deleteDescriptions(),
+  ...balanceDescriptions(),
   [TAGS.INS_DONE]: (e) => ({
     key: "animation.ins_done",
     params: { val: lv(e).val },
@@ -180,6 +181,55 @@ function deleteDescriptions(): Record<
   };
 }
 
+function plain(key: string) {
+  return (e: TraceEvent): StepDescription => ({
+    key: `animation.${key}`,
+    params: { ...lv(e) },
+  });
+}
+
+function balanceDescriptions(): Record<
+  string,
+  (e: TraceEvent) => StepDescription
+> {
+  return {
+    [TAGS.NEED_BALANCE]: plain("need_balance"),
+    [TAGS.CHK_EMPTY]: plain("chk_empty"),
+    [TAGS.CHK_CALL]: plain("chk_call"),
+    [TAGS.CHK_NULL]: (e) =>
+      plain(lv(e).side === "left" ? "chk_null_left" : "chk_null_right")(e),
+    [TAGS.CHK_GO_LEFT]: plain("chk_go_left"),
+    [TAGS.CHK_GO_RIGHT]: plain("chk_go_right"),
+    [TAGS.CHK_BF]: plain("chk_bf"),
+    [TAGS.CHK_OK]: (e) =>
+      plain(lv(e).result ? "chk_ok" : "chk_ok_child_bad")(e),
+    [TAGS.CHK_BAD]: plain("chk_bad"),
+    [TAGS.CHK_DONE_OK]: plain("chk_done_ok"),
+    [TAGS.CHK_DONE_BAD]: plain("chk_done_bad"),
+    [TAGS.RB_ALREADY]: (e) =>
+      plain(lv(e).empty ? "rb_already_empty" : "rb_already")(e),
+    [TAGS.RB_BF_CHECK]: plain("bf_check"),
+    [TAGS.RB_DONE]: plain("rb_done"),
+    [TAGS.ROT_MISSING]: plain("rot_missing"),
+    [TAGS.ROT_BLOCKED]: (e) =>
+      plain(lv(e).dir === "left" ? "rot_blocked_left" : "rot_blocked_right")(e),
+    [TAGS.ROT_SELECT]: plain("rot_select"),
+    [TAGS.ROT_DONE]: plain("rot_done"),
+    [TAGS.SRCH_EMPTY]: plain("srch_empty"),
+    [TAGS.SRCH_COMPARE]: plain("srch_compare"),
+    [TAGS.SRCH_LEFT]: plain("srch_left"),
+    [TAGS.SRCH_RIGHT]: plain("srch_right"),
+    [TAGS.SRCH_FOUND]: plain("srch_found"),
+    [TAGS.SRCH_NOT_FOUND]: plain("srch_not_found"),
+  };
+}
+
+const WARN_TAGS = new Set<string>([
+  TAGS.NEED_BALANCE,
+  TAGS.ROT_MISSING,
+  TAGS.ROT_BLOCKED,
+]);
+
 function rotationDescriptions(): Record<
   string,
   (e: TraceEvent) => StepDescription
@@ -216,6 +266,18 @@ function rotationDescriptions(): Record<
 const formatLabel = (h: number, bf: number, count: number) =>
   `h${h} · BF ${bf > 0 ? "+" : ""}${bf}${count > 1 ? ` · ×${count}` : ""}`;
 
+function bfById(root: LogicTreeNode | null) {
+  const map: Record<string, number> = {};
+  const walk = (node: LogicTreeNode | undefined) => {
+    if (!node) return;
+    map[node.id] = balanceFactor(node);
+    walk(node.left);
+    walk(node.right);
+  };
+  walk(root ?? undefined);
+  return map;
+}
+
 function labelsById(root: LogicTreeNode | null) {
   const map: Record<string, string> = {};
   const walk = (node: LogicTreeNode | undefined) => {
@@ -244,10 +306,16 @@ export function avlTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
     flattenUniqueNodes(root || undefined, uniqueData);
     const labels = meta.rotation ? meta.rotation.labels : labelsById(root);
 
+    // A node nobody is looking at yet still shows when it breaks the AVL rule
+    const bfs = meta.rotation ? {} : bfById(root);
     const treeElements = createTreeNodes(uniqueData, AVL_LAYOUT);
     treeElements.forEach((el) => {
       if (el instanceof Node) {
-        el.setStatus(statusMap[el.id] || AVLStatus.Inactive);
+        const broken = Math.abs(bfs[el.id] ?? 0) > 1;
+        el.setStatus(
+          statusMap[el.id] ||
+            (broken ? AVLStatus.Unbalanced : AVLStatus.Inactive),
+        );
         if (el.value !== "") el.value = String(Math.round(Number(el.value)));
         el.description = labels[el.id] ?? "";
       }
@@ -279,6 +347,7 @@ export function avlTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      ...(WARN_TAGS.has(event.tag) ? { warn: true } : {}),
       local_vars: event.local_vars,
       elements: [...treeElements],
       links: buildLinksFromNodes(treeElements, linkStatusMap),

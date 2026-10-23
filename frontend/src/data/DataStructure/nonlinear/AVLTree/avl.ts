@@ -56,6 +56,57 @@ export function insertItem(
   return rebalance(root);
 }
 
+export const isBalancedTree = (node: AVLNode | undefined): boolean =>
+  !node ||
+  (Math.abs(balanceFactor(node)) <= 1 &&
+    isBalancedTree(node.left) &&
+    isBalancedTree(node.right));
+
+/** Keeps rotating until the node is balanced; each rotation can unbalance the nodes that moved down. */
+function settle(node: AVLNode): AVLNode {
+  let top = node;
+  for (let guard = 0; guard < 200 && Math.abs(balanceFactor(top)) > 1; guard++) {
+    top = rebalance(top);
+    top.left = rebalanceTree(top.left);
+    top.right = rebalanceTree(top.right);
+  }
+  return top;
+}
+
+/** Rebalances an arbitrary BST bottom up using only rotations. */
+export function rebalanceTree(node: AVLNode | undefined): AVLNode | undefined {
+  if (!node) return undefined;
+  node.left = rebalanceTree(node.left);
+  node.right = rebalanceTree(node.right);
+  return settle(node);
+}
+
+export type RotateStatus = "ok" | "missing" | "blocked";
+
+/** Rotates the node holding `value`; blocked means it has no child to move up. */
+export function rotateAt(
+  root: AVLNode | undefined,
+  value: number,
+  dir: "left" | "right",
+): { root: AVLNode | undefined; status: RotateStatus } {
+  const path: AVLNode[] = [];
+  let curr = root;
+  while (curr && Number(curr.value) !== value) {
+    path.push(curr);
+    curr = value < Number(curr.value) ? curr.left : curr.right;
+  }
+  if (!curr) return { root, status: "missing" };
+  if (!(dir === "left" ? curr.right : curr.left)) {
+    return { root, status: "blocked" };
+  }
+  const sub = dir === "left" ? rotateLeft(curr) : rotateRight(curr);
+  const parent = path[path.length - 1];
+  if (!parent) return { root: sub, status: "ok" };
+  if (parent.left === curr) parent.left = sub;
+  else parent.right = sub;
+  return { root, status: "ok" };
+}
+
 function removeMin(node: AVLNode): AVLNode | undefined {
   if (!node.left) return node.right;
   node.left = removeMin(node.left);

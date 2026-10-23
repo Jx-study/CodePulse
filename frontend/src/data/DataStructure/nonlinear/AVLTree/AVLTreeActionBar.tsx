@@ -29,7 +29,6 @@ const OP_STYLE: Partial<Record<AVLOpId, string>> = {
 
 const ROWS: { groups: AVLOpGroup[]; labelKey: string }[] = [
   { groups: ["modify", "query"], labelKey: "ui.operations" },
-  { groups: ["traversal"], labelKey: "ui.group.traversal" },
   { groups: ["balance"], labelKey: "ui.group.balance" },
 ];
 
@@ -41,10 +40,32 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
   disabled = false,
   onAddNode,
   onDeleteNode,
+  onSearchNode,
+  onCustomAction,
   maxNodes,
 }) => {
   const { t } = useTranslation("tutorials/avl-tree");
   const [inputValue, setInputValue] = useState("");
+  const [rotateValue, setRotateValue] = useState("");
+
+  const rotate = (action: "rotateLeft" | "rotateRight") => {
+    if (rotateValue.trim() === "") {
+      toast.warning(t("ui.rotateWarning"));
+      return;
+    }
+    onCustomAction?.(action, { value: Number(rotateValue) });
+  };
+
+  const limitTo = (set: (value: string) => void) => (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) =>
+    set(
+      clampNumberInput(
+        e.target.value,
+        DATA_LIMITS.MIN_NODE_VALUE,
+        DATA_LIMITS.MAX_NODE_VALUE,
+      ),
+    );
 
   const handlers: Partial<Record<AVLOpId, () => void>> = {
     insert: () => {
@@ -61,6 +82,17 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
       }
       onDeleteNode("Delete", Number(inputValue));
     },
+    search: () => {
+      if (inputValue.trim() === "") {
+        toast.warning(t("ui.searchWarning"));
+        return;
+      }
+      onSearchNode(Number(inputValue), "Search");
+    },
+    checkBalance: () => onCustomAction?.("checkBalance", {}),
+    rebalance: () => onCustomAction?.("rebalance", {}),
+    rotateLeft: () => rotate("rotateLeft"),
+    rotateRight: () => rotate("rotateRight"),
   };
 
   return (
@@ -81,28 +113,20 @@ export const AVLTreeActionBar: React.FC<DSActionBarProps> = ({
       {ROWS.map((row, index) => (
         <ActionBarGroup key={row.groups.join("-")}>
           <StaticLabel>{t(row.labelKey)}</StaticLabel>
-          {index === 0 && (
-            <Input
-              type="number"
-              placeholder={t("ui.valuePlaceholder")}
-              value={inputValue}
-              min={DATA_LIMITS.MIN_NODE_VALUE}
-              max={DATA_LIMITS.MAX_NODE_VALUE}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setInputValue(
-                  clampNumberInput(
-                    e.target.value,
-                    DATA_LIMITS.MIN_NODE_VALUE,
-                    DATA_LIMITS.MAX_NODE_VALUE,
-                  ),
-                )
-              }
-              className={`${styles.input} ${styles.valueInput}`}
-              disabled={disabled}
-              fullWidth={false}
-              aria-label="Node value"
-            />
-          )}
+          <Input
+            type="number"
+            placeholder={t(
+              index === 0 ? "ui.valuePlaceholder" : "ui.rotatePlaceholder",
+            )}
+            value={index === 0 ? inputValue : rotateValue}
+            min={DATA_LIMITS.MIN_NODE_VALUE}
+            max={DATA_LIMITS.MAX_NODE_VALUE}
+            onChange={limitTo(index === 0 ? setInputValue : setRotateValue)}
+            className={`${styles.input} ${styles.valueInput}`}
+            disabled={disabled}
+            fullWidth={false}
+            aria-label={index === 0 ? "Node value" : "Rotate value"}
+          />
           {AVL_OPS.filter((op) => row.groups.includes(op.group)).map((op) => (
             <Tooltip
               key={op.id}
