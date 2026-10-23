@@ -8,6 +8,7 @@ export const MARQUEE_LABELS: Record<string, string> = {
   queue: 'Queue',
   binarytree: 'Binary Tree',
   bst: 'BST',
+  'avl-tree': 'AVL Tree',
   heap: 'Heap',
   graph: 'Graph',
   trie: 'Trie',
