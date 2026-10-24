@@ -1,0 +1,77 @@
+{
+  "actionHandler": {
+    "autoSorted": "Two pointers requires sorted data, so the loaded data was sorted in ascending order"
+  },
+  "animation": {
+    "init_two_sum": "[Two Sum] L starts at the far left and R at the far right, looking for a pair that sums to {{target}}",
+    "init_dedup": "[Remove Duplicates] slow marks the end of the kept region; fast starts scanning from Index 1",
+    "compare": "arr[{{l}}] + arr[{{r}}] = {{sum}}, compare with target {{target}}",
+    "move_left": "{{sum}} < {{target}}, too small: move L right to a larger number (the element L leaves can never reach the target)",
+    "move_right": "{{sum}} > {{target}}, too large: move R left to a smaller number (the element R leaves is always too large)",
+    "found": "Found it! arr[{{l}}] + arr[{{r}}] = {{target}}",
+    "scan": "fast reaches Index {{fast}} with value {{fastVal}}; compare with the kept value {{slowVal}} at slow",
+    "skip_duplicate": "{{val}} duplicates the kept value: fast skips it, slow stays",
+    "write_unique": "New value {{val}}: slow advances to Index {{slow}} and writes it, growing the kept region",
+    "done_dedup": "Scan complete! The first {{len}} slots hold the de-duplicated result",
+    "done_not_found": "L and R met: no pair in the array sums to {{target}}"
+  },
+  "ui": {
+    "controlLabel": "Two Pointers Controls",
+    "modeLabel": "Mode",
+    "modeTwoSum": "Two Sum (opposite)",
+    "modeDedup": "Remove Duplicates (same direction)",
+    "placeholder": "Target sum",
+    "run": "Run",
+    "runTooltip": "Run the two pointers demo (data is sorted automatically)",
+    "invalidInput": "Please enter a valid target sum"
+  },
+  "statusLegend": {
+    "pending": "Not processed",
+    "excluded": "Excluded",
+    "active": "Under pointer",
+    "duplicate": "Duplicate (skipped)",
+    "result": "Answer / Kept"
+  },
+  "relatedProblems": {
+    "167": "Opposite pointers: squeeze from both ends of the sorted array; move left if the sum is too small, right if too large",
+    "26": "Fast/slow pointers: fast scans, slow marks the end of the unique region and writes only on a new value",
+    "15": "Fix one number and reduce to Two Sum: sort, then run opposite pointers on the rest while skipping duplicates",
+    "11": "Opposite pointers: always move the shorter side, since moving the taller side can never increase the area",
+    "125": "Opposite pointers: compare characters from both ends inward, skipping non-alphanumerics",
+    "283": "Fast/slow pointers: slow marks where the next non-zero goes; fast scans and swaps"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Two pointers uses **two indices** moving in coordination over an array, often reducing a nested-loop problem to a single pass.",
+        "items": [
+          "**Opposite pointers**: squeeze inward from both ends; each comparison lets you [[primary|rule out one side]], e.g. Two Sum on a sorted array",
+          "**Same-direction pointers** (fast/slow): move the same way, one behind the other — the fast pointer **scans** while the slow pointer marks the **finished** region, e.g. removing duplicates in place",
+          "Both styles look at each element only a constant number of times"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "The two pointers move at most n steps in total, and no extra data structure is needed.",
+        "items": [
+          "**Time complexity**: [[success|O(n)]], down from the brute-force [[danger|O(n²)]]",
+          "**Space complexity**: [[success|O(1)]] — just two extra variables",
+          "If sorting is required first, the total becomes [[warning|O(n log n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "To decide whether two pointers fits, check whether the data has some **order** or a rule that tells you **which way to move**.",
+        "items": [
+          "**Opposite**: data is **sorted** and the current sum tells you which end to move",
+          "**Same-direction**: you must modify the array in place or maintain a range in one scan",
+          "**Extension**: when the condition involves a contiguous range, it grows into a [[primary|sliding window]]"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

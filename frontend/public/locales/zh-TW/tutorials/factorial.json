@@ -1,0 +1,52 @@
+{
+  "animation": {
+    "init": "Stack 初始化：準備計算 f({{targetN}})",
+    "push_start": "呼叫 f({{n}})：準備自右側進場推入堆疊",
+    "push_assign": "f({{n}}) 正式進入堆疊槽位",
+    "base_case": "達到 Base Case：f({{n}}) = {{val}}，準備開始回溯累乘",
+    "calc_start": "準備將 f({{current_f}}-1) 的回傳值 ({{child_val}}) 與當前數值 ({{current_val}}) 相乘",
+    "calc_multiply": "更新數值：{{current_f}} * {{child_val}} = {{new_val}}",
+    "pop_right": "f({{returned_f}}) 結算完成回傳 {{returned_val}}，移出堆疊往右退場",
+    "done": "遞迴全部完成！最終結果 f({{targetN}}) = {{final_result}} 結算成功"
+  },
+  "ui": {
+    "title": "階乘 (N!)",
+    "placeholder": "輸入 N (1-10)",
+    "run": "執行遞迴"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "階乘（n!）是學習**遞迴**最好的入門題。n! 等於 n 乘上 (n-1)!，問題每次縮小一點，直到碰到最簡單的情況為止。",
+        "items": [
+          "**Base Case**：0! = 1（或 1! = 1），是遞迴停止的[[primary|終止條件]]",
+          "**遞迴關係**：n! = n × (n-1)!，把大問題交給更小的同類問題",
+          "每次呼叫都會在**呼叫堆疊**中新增一個堆疊框架，保存當下的 n",
+          "抵達 Base Case 後，結果會依序**回傳**並逐層相乘"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "遞迴呼叫共 n 層，每層只做一次乘法，但每一層都需要保留一個堆疊框架。",
+        "items": [
+          "**時間複雜度**：[[success|O(n)]]，共 n 次遞迴呼叫",
+          "**空間複雜度**：[[warning|O(n)]]。呼叫堆疊最深會累積 n 個框架",
+          "改寫成**迴圈**可將空間降為 [[success|O(1)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "注意事項",
+        "content": "階乘成長極快，實作時要特別留意遞迴深度與數值範圍。",
+        "items": [
+          "**缺少 Base Case** 會導致無限遞迴，最終發生**堆疊溢位**",
+          "n 稍大就會超出固定位元整數範圍，需考慮**大數運算**",
+          "遞迴版本最重要的價值在於**理解呼叫堆疊**，實務上多用迴圈實作"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

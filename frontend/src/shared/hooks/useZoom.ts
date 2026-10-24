@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * 3. ZoomControls 按鈕縮放
  *
  * @param options - 縮放配置選項
- * @returns 縮放狀態和控制函數
+ * @returns 縮放狀態和控制函式
  *
  * @example
  * const { zoomLevel, zoomIn, zoomOut, resetZoom, transformOrigin } = useZoom({
@@ -206,7 +206,7 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
 
         // 記錄初始雙指距離
         touchStartDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
-        // 使用 state 回調函數來獲取最新的 zoomLevel，避免依賴 zoomLevel
+        // 使用 state 回調函式來獲取最新的 zoomLevel，避免依賴 zoomLevel
         setZoomLevelState((currentZoom) => {
           lastZoomRef.current = currentZoom;
           return currentZoom;
@@ -274,5 +274,3 @@ export function useZoom(options: UseZoomOptions = {}): UseZoomReturn {
     transformOrigin,
   };
 }
-
-export default useZoom;

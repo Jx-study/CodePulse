@@ -1,0 +1,9 @@
+{
+  "ui": {
+    "searchingControl": "Searching Control",
+    "searchValue": "Target",
+    "run": "Search",
+    "runTooltip": "Execute searching algorithm",
+    "invalidInput": "Please enter a valid search value"
+  }
+}

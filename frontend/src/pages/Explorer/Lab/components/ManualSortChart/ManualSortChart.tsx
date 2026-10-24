@@ -1,4 +1,5 @@
 import { useRef, useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 import { useLabContext } from "../../context/LabContext";
@@ -9,6 +10,7 @@ const COLOR_CORRECT = "#46f336ff";
 const COLOR_DRAGGING = "#ff6b35";
 
 export function ManualSortChart() {
+  const { t } = useTranslation("lab");
   const {
     inputData,
     manualSortData,
@@ -123,7 +125,7 @@ export function ManualSortChart() {
           variant="ghost"
           className={styles.buttonClass}
           onClick={() => dispatch({ type: "MANUAL_SORT_RESET" })}
-          aria-label="重置手動排序"
+          aria-label={t("manualSort.resetAriaLabel")}
         >
           <Icon name="rotate" decorative />
         </Button>
@@ -138,7 +140,11 @@ export function ManualSortChart() {
             onPointerMove={(e) => onPointerMove(e, i)}
             onPointerUp={(e) => onPointerUp(e, i)}
             onPointerCancel={onPointerCancel}
-            aria-label={`第 ${i + 1} 格，值 ${val}${val === sortedRef[i] ? "，已就位" : ""}`}
+            aria-label={
+              val === sortedRef[i]
+                ? t("manualSort.barAriaLabelInPlace", { slot: i + 1, val })
+                : t("manualSort.barAriaLabel", { slot: i + 1, val })
+            }
             style={{
               transform: `translateX(${getTranslateX(i)}px)`,
               transition: getTransition(i),

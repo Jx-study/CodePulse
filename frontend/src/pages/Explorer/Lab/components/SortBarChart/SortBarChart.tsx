@@ -11,7 +11,7 @@ function barColor(status: string): string {
   return statusColorMap[s] ?? statusColorMap[Status.Unfinished];
 }
 
-export interface SortBarChartProps {
+interface SortBarChartProps {
   title: string;
   titleColor?: string;
   elements: BaseElement[];

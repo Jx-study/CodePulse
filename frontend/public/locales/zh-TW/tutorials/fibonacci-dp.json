@@ -1,0 +1,51 @@
+{
+  "animation": {
+    "init": "準備計算 Fibonacci({{n}})，建立長度為 {{size}} 的 DP 陣列",
+    "base_cases": "填入基本條件 (Base Cases)：dp[0] = 0, dp[1] = 1",
+    "calc_prepare": "計算 dp[{{i}}]：取得前兩項 dp[{{item1}}]: {{val1}} 與 dp[{{item2}}]: {{val2}}",
+    "calc_done": "dp[{{i}}] = {{val1}} + {{val2}} = {{result}}",
+    "done": "計算完成！結果為 {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci DP",
+    "placeholder": "輸入 N (1-12)",
+    "button": "Run DP",
+    "validation": "請輸入 1 到 12 之間的數字",
+    "ariaLabel": "輸入 Fibonacci DP 的 N 值"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "費氏數列除了遞迴，更有效率的做法是**動態規劃**（Bottom-Up DP）：由小到大逐一算出答案，並把每個子問題的結果[[primary|記錄下來]]。",
+        "items": [
+          "建立一維陣列 dp，**dp[i]**代表第 i 個費氏數",
+          "**狀態轉移**：dp[i] = dp[i-1] + dp[i-2]，每格只依賴前兩格",
+          "從左掃描到右，每個子問題**只計算一次**",
+          "這種由小到大填表的做法稱為 [[primary|Tabulation]]（自底向上）；保留遞迴並加上備忘錄的 [[primary|Memoization]]（自頂向下）同樣是以空間換取時間，兩者的轉移式完全相同"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "相較於遞迴版本的指數時間，動態規劃把重複計算完全消除，複雜度大幅下降。",
+        "items": [
+          "**時間複雜度**：[[success|O(n)]]，每個格子只計算一次",
+          "**空間複雜度**：[[warning|O(n)]]，需要一個長度為 n 的陣列",
+          "對比單純遞迴的 [[danger|O(2ⁿ)]]，差距會隨 n 增大而急遽擴大"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "可以優化什麼",
+        "content": "由於每格只依賴前兩格，不需要保留整個陣列。",
+        "items": [
+          "**滾動變數**：只保留最近兩個值，空間降為 [[success|O(1)]]",
+          "**Top-Down 記憶化**：保留遞迴寫法，並用備忘錄避免重複計算",
+          "理解這個模式後，可延伸應用在**爬樓梯**等相同轉移式的題目"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

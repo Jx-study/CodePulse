@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import Badge from "@/shared/components/Badge";
 import Icon from "@/shared/components/Icon";
+import { DURATION_FAST } from "@/shared/motion/transitions";
 import styles from "./FAQItem.module.scss";
 
 interface FAQItemProps {
@@ -40,7 +41,7 @@ function FAQItem({ id, index, question, answer, isOpen, onToggle }: FAQItemProps
         <motion.span
           className={styles.chevron}
           animate={{ rotate: isOpen ? 90 : 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: DURATION_FAST }}
         >
           <Icon name="chevron-right" decorative />
         </motion.span>

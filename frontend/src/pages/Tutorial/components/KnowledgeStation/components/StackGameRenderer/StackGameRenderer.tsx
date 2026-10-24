@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
 import Icon  from '@/shared/components/Icon';
 import type {
   GameState,
   PopupInstance,
   PopupTypeState,
 } from "@/types/games/stackGameTypes";
-import type { PopupDefinition, SpawnChildItem } from "./gameConfig";
+import type { PopupDefinition, ResolvedPopupDefinition, SpawnChildItem } from "./gameConfig";
 import {
   POPUP_SEQUENCE,
   RULES_POPUP,
@@ -19,6 +20,10 @@ import PopupWindow from "./PopupWindow";
 import StackVisualizer from "./StackVisualizer";
 import Button from "@/shared/components/Button";
 import styles from "./StackGameRenderer.module.scss";
+
+interface Props {
+  ns?: string;
+}
 
 function computeSpiralPositions(
   defs: PopupDefinition[],
@@ -79,7 +84,7 @@ function getInitialTypeState(type: PopupInstance["type"]): PopupTypeState {
 }
 
 function createPopupInstance(
-  def: PopupDefinition,
+  def: ResolvedPopupDefinition,
   canvasSize: { w: number; h: number },
   id?: string,
   positionOverride?: { x: number; y: number },
@@ -173,7 +178,11 @@ function buildInitialState(): GameState {
   };
 }
 
-const StackGameRenderer: React.FC = () => {
+const StackGameRenderer: React.FC<Props> = ({ ns }) => {
+  const { t } = useTranslation(ns || 'tutorial');
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.stack.${key}`, { ns: ns || 'tutorial', ...opts });
+
   const [gameState, setGameState] = useState<GameState>(buildInitialState);
   const [containerSize, setContainerSize] = useState({ w: 1000, h: 500 });
   const [shakingId, setShakingId] = useState<string | null>(null);
@@ -197,6 +206,12 @@ const StackGameRenderer: React.FC = () => {
     return () => ro.disconnect();
   }, []);
 
+  const resolveTitle = useCallback(
+    (def: PopupDefinition): string => tg(`titles.${def.titleKey}`),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [ns],
+  );
+
   const handleStartGame = useCallback(() => {
     const queue = [...POPUP_SEQUENCE, RULES_POPUP];
     const spiralPositions = computeSpiralPositions(
@@ -213,8 +228,9 @@ const StackGameRenderer: React.FC = () => {
         clearInterval(interval);
         return;
       }
+      const defWithTitle = { ...queue[i], title: resolveTitle(queue[i]) };
       const instance = createPopupInstance(
-        queue[i],
+        defWithTitle,
         { w: gameCanvasW, h: gameCanvasH },
         undefined,
         spiralPositions[i],
@@ -222,7 +238,7 @@ const StackGameRenderer: React.FC = () => {
       setGameState((s) => pushPopup(s, instance));
       i++;
     }, POPUP_PUSH_INTERVAL_MS);
-  }, [gameCanvasW, gameCanvasH]);
+  }, [gameCanvasW, gameCanvasH, resolveTitle]);
 
   useEffect(() => {
     if (gameState.status === "playing") {
@@ -247,10 +263,10 @@ const StackGameRenderer: React.FC = () => {
   const pushWarningPopup = useCallback(
     (blockedPopupId: string) => {
       const blocked = gameState.popups.get(blockedPopupId);
-      const title = blocked?.title ?? "未知彈窗";
-      const def = {
+      const blockedTitle = blocked?.title ?? tg('titles.unknown');
+      const def: ResolvedPopupDefinition = {
         type: "warning" as const,
-        title: `請先關閉「${title}」`,
+        title: tg('warning.title', { title: blockedTitle }),
         iconName: "exclamation-circle" as const,
         size: { w: 320, h: 120 },
       };
@@ -260,11 +276,12 @@ const StackGameRenderer: React.FC = () => {
       });
       (instance as PopupInstance).typeState = {
         kind: "warning",
-        blockedPopupTitle: title,
+        blockedPopupTitle: blockedTitle,
       };
       setGameState((s) => pushPopup(s, instance));
     },
-    [gameState.popups, gameCanvasW, gameCanvasH],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [gameState.popups, gameCanvasW, gameCanvasH, ns],
   );
 
   const handleCanvasMouseDown = useCallback(
@@ -360,10 +377,10 @@ const StackGameRenderer: React.FC = () => {
         }
 
         if (newState.stack.length === 0 && newState.status === "playing") {
-          const congrats = createPopupInstance(CONGRATS_POPUP, {
-            w: gameCanvasW,
-            h: gameCanvasH,
-          });
+          const congrats = createPopupInstance(
+            { ...CONGRATS_POPUP, title: tg('titles.congrats') },
+            { w: gameCanvasW, h: gameCanvasH },
+          );
           newState = pushPopup(newState, congrats);
           newState = { ...newState, status: "congrats" };
         }
@@ -533,12 +550,13 @@ const StackGameRenderer: React.FC = () => {
 
         {gameState.status === "idle" && (
           <div className={styles.startOverlay}>
-            <h3 className={styles.startTitle}>PopupStack 彈窗大戰</h3>
+            <h3 className={styles.startTitle}>{tg('start.title')}</h3>
             <p className={styles.startDesc}>
-              教授發動彈窗攻擊！
+              {tg('start.desc1')}
               <br />
-              記住：<strong>最後出現的彈窗必須最先關閉</strong>（LIFO）
-              <br />在 120 秒內關閉所有彈窗！
+              {tg('start.desc2')}
+              <br />
+              {tg('start.desc3')}
             </p>
             <Button
               type="button"
@@ -546,7 +564,7 @@ const StackGameRenderer: React.FC = () => {
               className={styles.startBtn}
               onClick={handleStartGame}
             >
-              <Icon name="play" /> 開始遊戲
+              <Icon name="play" /> {tg('start.button')}
             </Button>
           </div>
         )}
@@ -572,6 +590,7 @@ const StackGameRenderer: React.FC = () => {
             canvasSize={{ w: gameCanvasW, h: gameCanvasH }}
             closeHistory={gameState.closeHistory}
             isShaking={isShaking(popup.id)}
+            ns={ns}
           />
         ))}
 
@@ -584,25 +603,25 @@ const StackGameRenderer: React.FC = () => {
           >
             <h3>
               {gameState.status === "won" ? (
-                <><Icon name="trophy" /> 恭喜過關！</>
+                <><Icon name="trophy" /> {tg('result.won')}</>
               ) : (
-                <><Icon name="stopwatch" /> 時間到！</>
+                <><Icon name="stopwatch" /> {tg('result.failed')}</>
               )}
             </h3>
             <p>
               {gameState.status === "won" &&
               gameState.wonAt &&
               gameState.startTime
-                ? `用時：${Math.round((gameState.wonAt - gameState.startTime) / 1000)} 秒`
+                ? tg('result.timeUsed', { seconds: Math.round((gameState.wonAt - gameState.startTime) / 1000) })
                 : gameState.status === "failed"
-                  ? "請再試一次，記得先關閉頂層彈窗！"
+                  ? tg('result.tryAgain')
                   : ""}
             </p>
           </div>
         )}
       </div>
 
-      <StackVisualizer stack={gameState.stack} popups={gameState.popups} />
+      <StackVisualizer stack={gameState.stack} popups={gameState.popups} ns={ns} />
     </div>
   );
 };

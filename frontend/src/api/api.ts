@@ -1,3 +1,6 @@
+import i18n from "@/i18n";
+import { toast } from "@/shared/components/Toast";
+
 // dev：空字串走 Vite proxy；prod：需設 VITE_API_URL 或 VITE_BACKEND_URL（指向後端域名）
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "";
@@ -13,7 +16,7 @@ interface ApiConfig {
 }
 
 // API 響應類型
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   status: number;
@@ -24,6 +27,7 @@ interface ApiError {
   message: string;
   status: number;
   error_code?: string;
+  retryAfter?: number;
 }
 
 class ApiService {
@@ -75,7 +79,7 @@ class ApiService {
     }
 
     // 處理最終結果
-    let data: any;
+    let data: unknown;
     try {
       data = await response.json();
     } catch {
@@ -85,18 +89,30 @@ class ApiService {
       } as ApiError;
     }
 
+    const payload = data as {
+      message?: string;
+      error_code?: string;
+      retry_after?: number;
+    };
+
     if (!response.ok) {
+      // 全站統一的限流提醒；帶 retry_after 的 429（如重寄驗證碼冷卻）
+      // 由各頁面自行處理倒數顯示，不重複跳 toast
+      if (response.status === 429 && payload.retry_after === undefined) {
+        toast.warning(i18n.t("errors.RATE_LIMITED"));
+      }
       throw {
-        message: data.message || "API request failed",
+        message: payload.message || "API request failed",
         status: response.status,
-        error_code: data.error_code,
+        error_code: payload.error_code,
+        retryAfter: payload.retry_after,
       } as ApiError;
     }
 
     return {
-      data,
+      data: data as T,
       status: response.status,
-      message: data.message,
+      message: payload.message,
     };
   }
 
@@ -110,19 +126,21 @@ class ApiService {
 
   async post<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>,
+    signal?: AbortSignal,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(body),
       headers,
+      signal,
     });
   }
 
   async put<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
@@ -134,7 +152,7 @@ class ApiService {
 
   async patch<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {

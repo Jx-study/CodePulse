@@ -3,48 +3,168 @@
     "sections": [
       {
         "heading": "Core Concept",
-        "content": "The core idea of a linked list is: **nodes connected by pointers**.",
+        "content": "A linked list is like a treasure hunt — each clue points to the next location. It is built from a series of **nodes** chained together via **pointers**, linking data scattered across memory into a highly flexible [[primary|dynamic data structure]].",
         "items": [
-          "Each node stores a **value** and uses **next** to point to the following node.",
-          "Nodes do not need to be contiguous in memory; pointer links define the order.",
-          "A singly linked list only moves forward; a doubly linked list adds **prev** so you can move backward.",
-          "With a **tail pointer**, appending at the end avoids walking from head to the last node."
+          "Each **node** contains a **data field** that stores a value and a **pointer field** that points to the next address — the [[primary|building block]] of the list",
+          "The first node is called the **Head**; the last node's **pointer** points to null, marking the [[primary|end of the sequence]]",
+          "A singly linked list only moves forward; a doubly linked list adds **prev**, allowing backward traversal",
+          "Because nodes are scattered randomly in memory, the list does not support [[primary|random access]] — you must **traverse** from the head to reach any specific element"
         ],
         "icon": "compass"
       },
       {
         "heading": "Operation Complexity",
-        "content": "To estimate linked list operation cost, ask: **Do we already have the target node, or do we need to traverse first?**",
+        "content": "Performance depends on pointer mechanics. When estimating operation cost, ask: **Do we already have the target node, or do we need to traverse first?**",
         "items": [
-          "**Head insert/delete**: update the head pointer directly, time complexity [[success|O(1)]].",
-          "**Tail insert**: [[success|O(1)]] with a tail pointer; [[warning|O(n)]] without one because you must traverse.",
-          "**Search / access by index**: move from head node by node; worst case [[warning|O(n)]].",
-          "**Middle insert/delete**: [[success|O(1)]] if you already have the previous node; if you only know an index, finding the position still costs [[warning|O(n)]]."
+          "**Read and search**: [[warning|O(n)]]. No random access — must traverse sequentially from the head to find the target",
+          "**Head insert/delete**: [[success|O(1)]]. Only the head pointer changes; no other nodes are affected",
+          "**Tail insert**: [[success|O(1)]] with a **tail pointer**; [[warning|O(n)]] without one, because traversal to the end is required",
+          "**Insert/delete at a known position**: [[success|O(1)]]. Only adjacent node pointers need updating — no element shifting"
         ],
         "icon": "cog"
       },
       {
-        "heading": "When To Use It",
-        "content": "Linked lists are strong for **local rewiring, node reordering, and pointer techniques**.",
+        "heading": "What It Optimizes",
+        "content": "It excels at **frequent insertions and deletions** and data whose size is unknown in advance. It is not well-suited for **random access** or **frequent searches** — use an **array** instead when read performance matters.",
         "items": [
-          "Good for frequent insertions or deletions at the head.",
-          "Good for **fast and slow pointer** patterns: finding the middle, detecting cycles, or locating an intersection.",
-          "Good for reversing a list, merging sorted lists, and removing nodes by reconnecting links.",
-          "When data size changes often and random access is not needed, it can feel more natural than an array."
+          "**Frequent node insert/delete**: especially efficient at the head and tail, making it ideal for implementing **stacks** and **queues**",
+          "**Dynamically changing data size**: no need to pre-allocate contiguous memory — the list grows and shrinks on demand",
+          "**Not suited for random access**: without an index mechanism, reaching a specific position requires traversal from the head",
+          "**Memory-constrained scenarios**: each node needs extra space to store its **pointer**, which increases total memory overhead"
         ],
         "icon": "lightbulb"
       },
       {
-        "heading": "When To Avoid It",
-        "content": "Linked lists are usually not the first choice when the problem needs:",
+        "heading": "When To Use It",
+        "content": "A linked list is a strong signal when the problem involves frequent head/tail insertions and deletions, cannot rely on index-based random access, or requires merging, splitting, or reversing dynamic sequences.",
         "items": [
-          "Frequent reads of the **k-th element**, because each access starts from the head.",
-          "Cache-friendly sequential scans; scattered nodes reduce locality.",
-          "Index-based binary search or fast jumps; arrays are usually better for that.",
-          "Small, simple data where pointer bookkeeping costs more than it helps."
+          "**Reverse a linked list**: flip the order of an existing sequence (e.g. 1->2->3 becomes 3->2->1) — a pure test of pointer redirection and temporary storage",
+          "**Find the middle or k-th-from-end node**: locate the midpoint or N-th-from-last element without knowing the total length — the classic use case for the fast-and-slow pointer technique",
+          "**Merge sorted lists**: interleave two sorted sequences by rewiring pointers alone — no data movement needed",
+          "**Odd-even node regrouping**: split and reconnect nodes by position parity — tests the ability to maintain and update multiple pointer chains simultaneously"
         ],
         "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Pointer Pitfalls",
+        "content": "Beginners often break the entire list by **reversing the pointer assignment order**, causing nodes to be lost permanently. Forgetting to handle an **empty list** or **head/tail boundaries** leads to [[danger|Null Dereference]] crashes — the most common stumbling block in implementation.",
+        "items": [
+          "**Reversed assignment order**: when inserting, modifying the original pointer before saving the new node's pointer causes all subsequent nodes to [[danger|be lost forever]]",
+          "**Ignoring null pointer exceptions**: accessing a pointer's property without first checking for an **empty list** causes [[danger|a program crash]]",
+          "**Missing head/tail boundary updates**: during head or tail operations, forgetting to sync the **Head** or **Tail** variable, or not setting the tail's pointer to **Null**",
+          "**Incorrect deletion**: removing a node before reconnecting its neighbors creates an orphan node that is unreachable"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "Array vs Linked List",
+        "content": "Beginners are often anchored to the [[primary|contiguous memory]] mindset of arrays. Comparing the fundamental difference in how the two structures allocate memory helps you switch mental models faster and understand why **pointers** are necessary.",
+        "items": [
+          "Arrays occupy a fixed block of **contiguous memory**; linked list nodes are scattered randomly and can [[success|grow or shrink]] dynamically",
+          "Arrays support [[success|O(1)]] random access by index; linked lists must follow **pointers** node by node, taking [[warning|O(n)]]",
+          "Arrays require shifting many elements on insert/delete; linked lists only rewire neighboring **pointers**, so insert/delete is [[success|O(1)]]"
+        ],
+        "icon": "table-columns"
       }
     ]
+  },
+  "animation": {
+    "initial_state_singly": "Initial singly linked list",
+    "initial_state_doubly": "Initial doubly linked list",
+    "search_empty": "Linked list is empty, cannot search",
+    "search_compare": "Traverse node {{index}}: is {{current}} equal to target {{target}}?",
+    "search_found": "Search succeeded! Found value {{value}} at node {{index}} (index {{index}})",
+    "search_not_found": "Search complete: value {{value}} not found in linked list",
+    "insert_head_create": "InsertHead({{value}}): create new node and allocate memory",
+    "insert_head_link": "newNode.next = head (new node points to old head {{head}})",
+    "insert_head_link_prev": "head.prev = newNode (old head's prev points back to new node)",
+    "insert_head_update": "head = newNode (update head pointer to new node)",
+    "insert_head_update_tail": "Linked list was empty, update tail pointer to new node",
+    "insert_head_end": "InsertHead complete",
+    "insert_tail_check_null": "Check if empty: head == null, true",
+    "insert_tail_create_new": "Create new node",
+    "insert_tail_update_head": "head = newNode (update head pointer to new node)",
+    "insert_tail_update_tail_null": "tail = newNode (list was empty, also update tail pointer)",
+    "insert_tail_end": "InsertTail complete",
+    "insert_tail_create": "InsertTail({{value}}): create new node at tail and allocate memory",
+    "insert_tail_link": "tail.next = newNode (old tail node points to new node)",
+    "insert_tail_link_prev_has_tail": "newNode.prev = tail (new node's prev points back to old tail)",
+    "insert_tail_pointer_move": "tail = newNode (update tail pointer to new node)",
+    "insert_tail_traverse": "Traversing: current = current.next (currently at node {{current}})",
+    "insert_tail_create_notail": "InsertTail({{value}}): found tail, create new node and allocate memory",
+    "insert_tail_link_current": "current.next = newNode (last node points to new node)",
+    "insert_tail_link_prev_notail": "newNode.prev = current (new node's prev points back to last node)",
+    "insert_index_if_zero": "InsertAtIndex({{value}}, {{index}}): index is 0, calling InsertHead",
+    "insert_index_if_tail": "InsertAtIndex({{value}}, {{index}}): index equals length {{length}}, calling InsertTail",
+    "insert_index_traverse": "Traverse: found position {{index}} (Node {{index}})",
+    "insert_index_create": "1. Create new node {{value}}",
+    "insert_index_link_new_next": "2. Point new node to original Node {{N}}",
+    "insert_index_link_next_prev": "2b. Original Node {{N}}'s prev points back to new node",
+    "insert_index_link_current_next": "3. Point Node {{N}} to new node",
+    "insert_index_link_new_prev": "3b. New node's prev points back to Node {{N}}",
+    "insert_index_update_tail": "If newNode.next = null, true — update tail",
+    "insert_index_end": "InsertAtIndex complete",
+    "delete_index_if_zero": "DeleteAtIndex({{value}}, {{index}}): index is 0, calling DeleteHead",
+    "delete_head_start": "DeleteHead(): mark head node {{value}} for deletion",
+    "delete_head_update_head": "head = head.next (move head pointer to next node)",
+    "delete_head_update_prev": "If head ≠ null, head.prev = null (unlink new head's backward pointer)",
+    "delete_head_update_tail_doubly": "Else tail = null (list is now empty, clear tail)",
+    "delete_head_update_tail_singly": "If head = null, tail = null (list is now empty, clear tail)",
+    "delete_free": "Free memory: unlink deleted node",
+    "delete_head_remove": "Remove old node instance",
+    "delete_head_end": "DeleteHead complete",
+    "delete_single_start": "Delete: linked list has only one node, marking for deletion",
+    "delete_single_remove_with_tail": "Remove node, set head and tail to null",
+    "delete_single_remove": "Remove node, set head to null",
+    "delete_single_complete": "Delete complete, linked list is now empty",
+    "delete_index_if_tail": "DeleteAtIndex({{value}}, {{index}}): index equals length {{length}}, calling DeleteTail",
+    "delete_tail_start": "DeleteTail(): found tail node {{value}}",
+    "delete_tail_traverse_prev": "prev = tail.prev (find predecessor of tail node)",
+    "delete_tail_unlink_pre_next": "pre.next = null (unlink predecessor's forward pointer)",
+    "delete_update_tail": "tail = pre (update tail pointer to new tail node)",
+    "delete_tail_end": "DeleteTail complete",
+    "delete_tail_traverse": "Traversing: current = current.next (searching for tail node)",
+    "delete_tail_found": "Found tail node {{value}}",
+    "delete_tail_unlink_doubly": "current.prev.next = null (unlink through predecessor's prev pointer)",
+    "delete_index_traverse": "Traversing: current = current.next (searching for index {{targetIndex}})",
+    "delete_index_unlink": "pre.next = current.next (predecessor skips target to point to next node)",
+    "delete_index_unlink_prev": "current.next.prev = pre (successor's prev points back to predecessor)",
+    "delete_index_end": "DeleteAtIndex complete",
+    "delete_empty": "The linked list is empty (head = null), so there is no node to delete",
+    "insert_index_out_of_range": "Index {{index}} is out of range (length is {{length}}), so the node cannot be inserted (Return Error)",
+    "delete_index_out_of_range": "Index {{index}} is out of range (length is {{length}}), so there is no node to delete (Return Error)",
+    "insert_tail_check_head": "Check if empty: head == null, false, so walk from head to the tail",
+    "delete_tail_check_head": "Check if empty: head == null, false, so the tail node can be deleted"
+  },
+  "ui": {
+    "operations": "Linked List Operations",
+    "valuePlaceholder": "Value",
+    "indexPlaceholder": "Index",
+    "searchPlaceholder": "Search Value",
+    "insert": "Insert",
+    "delete": "Delete",
+    "search": "Search",
+    "insertTooltip": "Insert a new node at the specified position",
+    "deleteTooltip": "Delete the node at the specified position",
+    "searchTooltip": "Search for a node with the specified value",
+    "insertWarning": "Please enter a value to insert",
+    "indexWarning": "Node N mode requires an index",
+    "searchWarning": "Please enter a search value",
+    "singly": "Singly",
+    "doubly": "Doubly",
+    "noTail": "No Tail Pointer",
+    "hasTail": "With Tail Pointer"
+  },
+  "statusLegend": {
+    "normalNode": "Normal Node",
+    "currentNode": "Current Node",
+    "operationNode": "Operation Node",
+    "complete": "Complete",
+    "deleted": "Deleted"
+  },
+  "relatedProblems": {
+    "206": "Linked list basics: reverse a singly linked list",
+    "141": "Fast & slow pointer: detect if a linked list has a cycle",
+    "21": "Linked list merge: merge two sorted linked lists"
   }
 }

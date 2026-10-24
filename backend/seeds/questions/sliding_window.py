@@ -47,10 +47,10 @@ SW_PREDICT_CODE = """def sliding_window(arr, target):        # L1
     return max_len                      # L12"""
 
 DATA = {
-    "slug": "slidingwindow",
+    "slug": "sliding-window",
     "groups": [
         {
-            "id": "group-sw-variable",
+            "id": "slidingwindow-group-1",
             "translations": {
                 "zh-TW": {
                     "title": "題組：可變窗口的狀態追蹤",
@@ -67,7 +67,7 @@ DATA = {
     ],
     "questions": [
         {
-            "id": "sw-q1",
+            "id": "slidingwindow-q1",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -95,7 +95,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-tf-1",
+            "id": "slidingwindow-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "false",
@@ -113,7 +113,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q2",
+            "id": "slidingwindow-q3",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -141,7 +141,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-tf-2",
+            "id": "slidingwindow-q4",
             "type": "true-false",
             "baseRating": 900,
             "correctAnswer": "true",
@@ -159,7 +159,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q3",
+            "id": "slidingwindow-q5",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -187,8 +187,8 @@ DATA = {
             },
         },
         {
-            "id": "sw-group-1",
-            "groupId": "group-sw-variable",
+            "id": "slidingwindow-q6",
+            "groupId": "slidingwindow-group-1",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -216,7 +216,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q4",
+            "id": "slidingwindow-q7",
             "type": "single-choice",
             "baseRating": 1100,
             "correctAnswer": "B",
@@ -244,11 +244,11 @@ DATA = {
             },
         },
         {
-            "id": "sw-group-2",
-            "groupId": "group-sw-variable",
+            "id": "slidingwindow-q8",
+            "groupId": "slidingwindow-group-1",
             "type": "single-choice",
             "baseRating": 1300,
-            "correctAnswer": "D",
+            "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
                     "title": "承上題（arr = [3, 1, 2, 7, 4]，target = 7），整個函數執行結束後，max_len 的最終值為何？",
@@ -258,7 +258,7 @@ DATA = {
                         {"id": "C", "text": "3"},
                         {"id": "D", "text": "4"},
                     ],
-                    "explanation": "追蹤各步驟最大窗口：right=0 後 left=0，窗口長 1；right=1 後 left=0，窗口長 2；right=2 後 left=0，窗口長 3；right=3 後 left=3，窗口長 1；right=4 後 left=3，窗口長 2（3+4=7≤7，但 right=4 時 window=[7,4]=11>7... 實際 left 會在 4）。最長合法窗口長度為 3（arr[0..2]=[3,1,2]，sum=6≤7）。",
+                    "explanation": "逐步追蹤：right=0 時窗口 [3]，長 1；right=1 時 [3,1]，長 2；right=2 時 [3,1,2]，總和 6 ≤ 7，長 3；right=3 時加入 7 後總和 13 > 7，縮到 left=3，窗口 [7]，長 1；right=4 時加入 4 後總和 11 > 7，縮到 left=4，窗口 [4]，長 1。最長合法窗口長度為 3（arr[0..2] = [3,1,2]）。",
                 },
                 "en": {
                     "title": "Continuing the trace (arr = [3, 1, 2, 7, 4], target = 7), what is the final value of max_len after the entire function executes?",
@@ -268,12 +268,12 @@ DATA = {
                         {"id": "C", "text": "3"},
                         {"id": "D", "text": "4"},
                     ],
-                    "explanation": "Tracking max window at each step: after right=0: left=0, length=1; right=1: left=0, length=2; right=2: left=0, length=3 (sum=6≤7); right=3: left=3, length=1; right=4: left=4, length=1 (sum=4≤7). Maximum valid window length is 3.",
+                    "explanation": "Step by step: right=0 gives window [3], length 1; right=1 gives [3,1], length 2; right=2 gives [3,1,2] with sum 6 ≤ 7, length 3; right=3 adds 7 for sum 13 > 7, shrinking to left=3 and window [7], length 1; right=4 adds 4 for sum 11 > 7, shrinking to left=4 and window [4], length 1. The longest valid window has length 3 (arr[0..2] = [3,1,2]).",
                 },
             },
         },
         {
-            "id": "sw-q5",
+            "id": "slidingwindow-q9",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -301,7 +301,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q6",
+            "id": "slidingwindow-q10",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "C",
@@ -329,7 +329,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q7",
+            "id": "slidingwindow-q11",
             "type": "single-choice",
             "baseRating": 1200,
             "correctAnswer": "C",
@@ -357,7 +357,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-multi-1",
+            "id": "slidingwindow-q12",
             "type": "multiple-choice",
             "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -385,7 +385,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q8",
+            "id": "slidingwindow-q13",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -413,8 +413,8 @@ DATA = {
             },
         },
         {
-            "id": "sw-group-3",
-            "groupId": "group-sw-variable",
+            "id": "slidingwindow-q14",
+            "groupId": "slidingwindow-group-1",
             "type": "fill-code",
             "baseRating": 1150,
             "correctAnswer": ["arr[right]", "target", "arr[left]", "right - left + 1"],
@@ -434,7 +434,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-q9",
+            "id": "slidingwindow-q15",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "A",
@@ -462,7 +462,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-multi-2",
+            "id": "slidingwindow-q16",
             "type": "multiple-choice",
             "baseRating": 1000,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -490,7 +490,7 @@ DATA = {
             },
         },
         {
-            "id": "sw-fill-1",
+            "id": "slidingwindow-q17",
             "type": "fill-code",
             "baseRating": 1150,
             "correctAnswer": ["window_sum", "i + k - 1", "window_sum"],
@@ -510,22 +510,22 @@ DATA = {
             },
         },
         {
-            "id": "sw-pred-1",
+            "id": "slidingwindow-q18",
             "type": "predict-line",
             "baseRating": 1300,
-            "correctAnswer": "1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12",
+            "correctAnswer": "1 2 3 4 5 6 7 10 11 5 6 7 8 9 7 10 5 12",
             "code": SW_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀 sliding_window 函數。給定 arr = [1, 2]，target = 2，呼叫 sliding_window(arr, target) 時，請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "right=0: L5->L6(curr_sum=1)->L7(1>2?No)->L10(1>0)->L11(max_len=1); right=1: L5->L6(curr_sum=3)->L7(3>2)->L8(curr_sum=2)->L9(left=1)->L7(2>2?No)->L10(1>1?No)->L12 return。完整序列：1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12。",
+                    "explanation": "L1 進入函數 → L2 L3 L4 初始化。right=0：L5 → L6(curr_sum=1) → L7(1>2? 否) → L10(1>0 是) → L11(max_len=1)。right=1：L5 → L6(curr_sum=3) → L7(3>2 是) → L8(curr_sum=2) → L9(left=1) → L7(2>2? 否) → L10(1>1? 否)。L5 迴圈結束 → L12 回傳。完整序列：1 2 3 4 5 6 7 10 11 5 6 7 8 9 7 10 5 12。",
                 },
                 "en": {
                     "title": "Read the sliding_window function. Given arr = [1, 2] and target = 2, calling sliding_window(arr, target) — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "right=0: L5->L6(curr_sum=1)->L7(1>2? No)->L10(1>0)->L11(max_len=1); right=1: L5->L6(curr_sum=3)->L7(3>2 Yes)->L8(curr_sum=2)->L9(left=1)->L7(2>2? No)->L10(1>1? No)->L12 return. Full sequence: 1 2 3 4 5 6 7 10 11 5 6 7 10 11 5 6 7 8 9 7 10 12.",
+                    "explanation": "L1 enter → L2 L3 L4 initialize. right=0: L5 → L6(curr_sum=1) → L7(1>2? No) → L10(1>0 Yes) → L11(max_len=1). right=1: L5 → L6(curr_sum=3) → L7(3>2 Yes) → L8(curr_sum=2) → L9(left=1) → L7(2>2? No) → L10(1>1? No). L5 loop ends → L12 return. Full sequence: 1 2 3 4 5 6 7 10 11 5 6 7 8 9 7 10 5 12.",
                 },
             },
         },

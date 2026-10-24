@@ -1,0 +1,72 @@
+{
+  "animation": {
+    "build_init": "Start building Prefix Sum array P",
+    "build_base": "Initialize: P[0] = A[0] = {{val0}}",
+    "build_calc": "Calculate P[{{i}}]: Previous sum P[{{prev}}] ({{prevSum}}) + Current element A[{{i}}] ({{currentVal}})",
+    "build_update": "Update P[{{i}}] = {{newSum}}",
+    "build_done": "Build complete",
+    "query_start": "Start query: Calculate the sum of range [{{L}}, {{R}}]",
+    "query_get_r": "Step 1: Get prefix sum at right boundary P[{{R}}] = {{valR}}",
+    "query_get_l": "Step 2: Since L > 0, get prefix sum before left boundary P[{{prevL}}] = {{valL}}",
+    "query_return_sub": "Result: {{valR}} - {{valL}} = {{result}}",
+    "query_else": "Step 2: Since L = 0, no need to subtract any prefix",
+    "query_return_direct": "Return directly: P[{{R}}] = {{valR}}"
+  },
+  "ui": {
+    "controlLabel": "Prefix Sum Control",
+    "run": "Run Demo",
+    "runTooltip": "Execute Prefix Sum algorithm demo",
+    "invalidRange": "Please enter a valid range (Start, End) where 0 <= L <= R"
+  },
+  "statusLegend": {
+    "notCalculated": "Not Calculated",
+    "idle": "Idle",
+    "calculated": "Calculated",
+    "prevSum": "Previous Sum P[i-1]",
+    "currentElement": "Current Element A[i]",
+    "queryRight": "Query Right P[R]",
+    "queryLeft": "Subtract Prefix P[L-1]"
+  },
+  "relatedProblems": {
+    "303": "Classic prefix sum: efficiently compute range sum queries on an array",
+    "560": "Prefix sum + hash map: count subarrays whose sum equals K",
+    "304": "2D prefix sum: extend range-sum queries to a 2D matrix"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Prefix sum is a key **preprocessing** technique: spend linear time building a table once, then answer range queries in [[primary|constant time]].",
+        "items": [
+          "Build a new array **P** where P[i] is the sum of A from index 0 to i",
+          "Recurrence: P[i] = P[i-1] + A[i]",
+          "The sum of range [L, R] is `P[R] - P[L-1]`",
+          "When L = 0, just use P[R]; an extra **sentinel cell** handles this uniformly"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Repeated summing is concentrated in preprocessing, so each query never has to walk the range again.",
+        "items": [
+          "**Build**: [[success|O(n)]] — one scan of the array",
+          "**Per query**: [[success|O(1)]] — a single subtraction",
+          "**Space complexity**: [[warning|O(n)]] for the extra prefix array",
+          "Versus re-summing each query at [[danger|O(n)]], it pays off more the more queries you run"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Extensions",
+        "content": "The prefix-sum idea extends to many other settings.",
+        "items": [
+          "**2D prefix sum**: use inclusion-exclusion to get any sub-rectangle sum in O(1)",
+          "**Difference array**: the inverse operation, ideal for many range-add updates",
+          "Combined with a **hash map**, it solves problems like \"subarray sum equals K\"",
+          "**Limit**: if the array changes, switch to a Fenwick tree or segment tree"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

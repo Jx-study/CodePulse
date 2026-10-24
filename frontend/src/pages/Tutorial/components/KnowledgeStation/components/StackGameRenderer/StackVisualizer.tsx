@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
 import Icon from '@/shared/components/Icon';
 import type { IconName } from '@/shared/lib/iconMap';
 import type { PopupInstance } from "@/types/games/stackGameTypes";
@@ -10,9 +11,11 @@ const SLIDE_OUT_MS = 150;
 interface Props {
   stack: string[];
   popups: Map<string, PopupInstance>;
+  ns?: string;
 }
 
-const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
+const StackVisualizer: React.FC<Props> = ({ stack, popups, ns }) => {
+  const { t } = useTranslation(ns || 'tutorial');
   const [visibleIds, setVisibleIds] = useState<string[]>(() =>
     [...stack].reverse(),
   );
@@ -59,7 +62,7 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
 
   return (
     <div className={styles.visualizer}>
-      <div className={styles.header}><span className={styles.rainbowIcon}><Icon name="layer-group" /></span> Stack 堆疊</div>
+      <div className={styles.header}><span className={styles.rainbowIcon}><Icon name="layer-group" /></span> {t('game.stack.visualizer.header', { ns: ns || 'tutorial' })}</div>
       <div className={styles.uContainer}>
         <div className={styles.topLabel}><span className={styles.rainbowIcon}><Icon name="arrow-left" /></span> TOP</div>
         <div className={styles.stackScrollArea}>
@@ -86,7 +89,7 @@ const StackVisualizer: React.FC<Props> = ({ stack, popups }) => {
             </div>
           ))}
         </div>
-        <div className={styles.bottomBar}>BOTTOM</div>
+        <div className={styles.bottomBar}>{t('game.stack.visualizer.bottom', { ns: ns || 'tutorial' })}</div>
       </div>
     </div>
   );

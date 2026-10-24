@@ -3,6 +3,12 @@ import type { DropdownItem, DropdownProps } from "@/types";
 import styles from "./Dropdown.module.scss";
 import Icon from "../Icon";
 
+/** Props Dropdown actually reads/writes when injecting the chevron into `trigger`. */
+interface DropdownTriggerProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
 const Dropdown: React.FC<DropdownProps> = ({
   trigger,
   items,
@@ -154,13 +160,13 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   // 如果需要顯示 chevron，則將其新增至 trigger 內部
   const triggerWithChevron =
-    showChevron && React.isValidElement(trigger)
-      ? React.cloneElement(trigger as React.ReactElement<any>, {
+    showChevron && React.isValidElement<DropdownTriggerProps>(trigger)
+      ? React.cloneElement(trigger, {
           className:
-            `${(trigger as any).props.className || ""} ${styles.triggerWithChevron}`.trim(),
+            `${trigger.props.className || ""} ${styles.triggerWithChevron}`.trim(),
           children: (
             <>
-              {(trigger as any).props.children}
+              {trigger.props.children}
               <Icon
                 name={isOpen ? "chevron-down" : "chevron-right"}
                 size="sm"

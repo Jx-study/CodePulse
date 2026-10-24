@@ -1,18 +1,22 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { RealWorldStory } from '@/types';
 import StoryAccordionItem from './StoryAccordionItem';
 import styles from './StoryTab.module.scss';
 
 interface StoryTabProps {
   stories?: RealWorldStory[];
+  i18nNamespace?: string;
 }
 
-const StoryTab: React.FC<StoryTabProps> = ({ stories }) => {
+const StoryTab: React.FC<StoryTabProps> = ({ stories, i18nNamespace }) => {
+  const { t } = useTranslation('tutorial');
+
   if (!stories || stories.length === 0) {
     return (
       <div className={styles.storyTab}>
         <div className={styles.emptyState}>
-          <p>目前尚未提供此主題的真實世界應用故事。</p>
+          <p>{t('storyTab.empty')}</p>
         </div>
       </div>
     );
@@ -21,7 +25,7 @@ const StoryTab: React.FC<StoryTabProps> = ({ stories }) => {
   return (
     <div className={styles.storyTab}>
       {stories.map((story) => (
-        <StoryAccordionItem key={story.id} story={story} />
+        <StoryAccordionItem key={story.id} story={story} i18nNamespace={i18nNamespace} />
       ))}
     </div>
   );

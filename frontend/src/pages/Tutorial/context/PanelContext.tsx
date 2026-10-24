@@ -59,7 +59,7 @@ export function PanelProvider({ children }: PanelProviderProps) {
   ]);
 
   const [collapsedPanels, setCollapsedPanels] = useState<Set<string>>(
-    new Set(),
+    new Set(["codeEditor"]),
   );
 
   // Panel sizes tracking (記錄每個面板的當前尺寸)

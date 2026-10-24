@@ -1,5 +1,5 @@
 import { useEffect, Suspense, lazy } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // Auth Context
@@ -47,7 +47,8 @@ import WelcomeOverlay from "./modules/auth/components/WelcomeOverlay";
 
 function CheckinWrapper() {
   const { isLoading, showCheckinDialog, setShowCheckinDialog } = useAuth();
-  if (isLoading) return null;
+  const isAuthRoute = useMatch("/auth/*");
+  if (isLoading || isAuthRoute) return null;
   return (
     <CheckinDialog
       isOpen={showCheckinDialog}
@@ -57,9 +58,10 @@ function CheckinWrapper() {
 }
 
 function WelcomeWrapper() {
-  const { pendingWelcome, setPendingWelcome } = useAuth();
+  const { pendingWelcome, setPendingWelcome, showCheckinDialog } = useAuth();
   const navigate = useNavigate();
-  if (!pendingWelcome) return null;
+  const isAuthRoute = useMatch("/auth/*");
+  if (!pendingWelcome || showCheckinDialog || isAuthRoute) return null;
   return (
     <WelcomeOverlay
       username={pendingWelcome.username}

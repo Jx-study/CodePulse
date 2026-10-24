@@ -1,0 +1,29 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.prompt {
+  font-family: monospace;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-xs $spacing-sm;
+  font-family: monospace;
+  font-size: $font-sm;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-primary);
+  }
+}

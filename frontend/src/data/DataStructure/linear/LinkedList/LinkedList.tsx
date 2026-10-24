@@ -1,4 +1,4 @@
-﻿import { LevelImplementationConfig } from "@/types/implementation";
+﻿import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import type { ActionContext, ActionResult } from "@/modules/core/visualization/types";
 import { DATA_LIMITS } from "@/constants/dataLimits";
 import { LinkedListActionBar } from "./LinkedListActionBar";
@@ -7,9 +7,22 @@ import {
   LinearAction as ActionType,
 } from "../utils";
 import type { AnimationStep } from "@/types";
-import { selectVariant } from "./variants/selectVariant";
-import { singlyVariant } from "./variants/singly";
-export function createLinkedListAnimationSteps(
+import { selectVariant } from "./linkedlist/selectVariant";
+import { singlyVariant } from "./linkedlist/singly";
+import { Status } from "@/modules/core/DataLogic/BaseElement";
+import type { StatusConfig } from "@/types/statusConfig";
+
+const linkedListStatusConfig: StatusConfig = {
+  i18nNs: "tutorials/linked-list",
+  statuses: [
+    { key: Status.Unfinished, label: "statusLegend.normalNode",    color: "#1d79cfff" },
+    { key: Status.Prepare,    label: "statusLegend.currentNode",   color: "#f59e0b" },
+    { key: Status.Target,     label: "statusLegend.operationNode", color: "#ff6b35" },
+    { key: Status.Complete,   label: "statusLegend.complete",      color: "#46f336ff" },
+    { key: Status.Inactive,   label: "statusLegend.deleted",       color: "#555555" },
+  ],
+};
+function createLinkedListAnimationSteps(
   dataList: ListNodeData[],
   action?: ActionType,
   config?: { hasTailMode?: boolean; isDoubly?: boolean },
@@ -20,7 +33,6 @@ export function createLinkedListAnimationSteps(
   );
   return variant.createAnimationSteps(dataList, action);
 }
-export { makeNodeAndPointers } from "./variants/shared";
 function modeFlags(payload: Record<string, unknown>) {
   return {
     isDoubly: Boolean(payload.isDoubly),
@@ -56,15 +68,17 @@ function linkedListActionHandler(
     } else if (mode === "Tail") {
       newData.push(newNode);
     } else if (mode === "Node N") {
-      if (idx < 0) {
-        context.toast.warning("索引無效：索引不能為負數");
-        return null;
-      }
-      if (idx > data.length) {
-        context.toast.warning(
-          `索引 ${idx} 超出範圍，插入的最大索引為 ${data.length}`,
-        );
-        return null;
+      if (idx < 0 || idx > data.length) {
+        return {
+          animationData: data,
+          animationParams: {
+            mode,
+            index,
+            indexGuard: true,
+            ...defaultParams,
+            ...modeFlags(payload),
+          },
+        };
       }
       if (idx === 0) newData.unshift(newNode);
       else if (idx === data.length) newData.push(newNode);
@@ -83,9 +97,16 @@ function linkedListActionHandler(
     };
   }
   if (actionType === "delete") {
-    if (newData.length === 0) {
-      context.toast.warning("鏈結串列為空");
-      return null;
+    if (newData.length === 0 && (mode === "Head" || mode === "Tail")) {
+      return {
+        animationData: data,
+        animationParams: {
+          mode,
+          emptyGuard: true,
+          ...defaultParams,
+          ...modeFlags(payload),
+        },
+      };
     }
     let deletedNode: ListNodeData | null = null;
     if (mode === "Head") {
@@ -96,15 +117,17 @@ function linkedListActionHandler(
       if (deletedNode) newData.pop();
     } else if (mode === "Node N") {
       const idx = index ?? -1;
-      if (idx < 0) {
-        context.toast.warning("索引無效：索引不能為負數");
-        return null;
-      }
-      if (idx >= newData.length) {
-        context.toast.warning(
-          `索引 ${idx} 超出範圍，刪除的最大索引為 ${newData.length - 1}`,
-        );
-        return null;
+      if (idx < 0 || idx >= newData.length) {
+        return {
+          animationData: data,
+          animationParams: {
+            mode,
+            index,
+            indexGuard: true,
+            ...defaultParams,
+            ...modeFlags(payload),
+          },
+        };
       }
       deletedNode = newData[idx];
       newData.splice(idx, 1);
@@ -182,7 +205,7 @@ export const linkedListConfig: LevelImplementationConfig = {
   type: "dataStructure",
   name: "鏈結串列 (Linked List)",
   categoryName: "資料結構",
-  description: "動態的線性數據結構",
+  description: "動態的線性資料結構",
   codeConfig: singlyVariant.codeConfig,
   getCodeConfig: (payload?: { isDoubly?: boolean; hasTailMode?: boolean }) =>
     selectVariant(
@@ -190,6 +213,7 @@ export const linkedListConfig: LevelImplementationConfig = {
       payload?.hasTailMode ?? false,
     ).codeConfig,
   complexity: { timeBest: "O(1)", timeAverage: "O(n)", timeWorst: "O(n)", space: "O(1)" },
+  statusConfig: linkedListStatusConfig,
   i18nNamespace: "tutorials/linked-list",
   introduction: { key: "introduction" },
   defaultData: [
@@ -197,11 +221,11 @@ export const linkedListConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createLinkedListAnimationSteps,
   actionHandler: linkedListActionHandler,
-  renderActionBar: (props) => <LinkedListActionBar {...(props as any)} />,
+  renderActionBar: (props) => <LinkedListActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
-    { id: 206, title: "Reverse Linked List", concept: "鏈結串列基礎操作：反轉單向鏈結串列", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
-    { id: 141, title: "Linked List Cycle", concept: "快慢指標應用：檢測鏈結串列是否有環", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },
-    { id: 21, title: "Merge Two Sorted Lists", concept: "鏈結串列合併：合併兩個已排序的鏈結串列", difficulty: "Easy", url: "https://leetcode.com/problems/merge-two-sorted-lists/" },
+    { id: 206, title: "Reverse Linked List", concept: "relatedProblems.206", difficulty: "Easy", url: "https://leetcode.com/problems/reverse-linked-list/" },
+    { id: 141, title: "Linked List Cycle", concept: "relatedProblems.141", difficulty: "Easy", url: "https://leetcode.com/problems/linked-list-cycle/" },
+    { id: 21, title: "Merge Two Sorted Lists", concept: "relatedProblems.21", difficulty: "Easy", url: "https://leetcode.com/problems/merge-two-sorted-lists/" },
   ],
   maxNodes: 20,
 };

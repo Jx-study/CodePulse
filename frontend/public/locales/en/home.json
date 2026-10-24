@@ -40,6 +40,8 @@
     "subtitle": "Experience how CodePulse makes program execution processes clear and visible",
     "current_line": "Current executing line",
     "analysis": "Real-time Analysis",
+    "analysis_label": "Analysis:",
+    "ready": "Ready to start...",
     "analysis_text": "Currently in the first loop, i = 0, preparing to start the first round of bubble sort comparison",
     "cta": "Start Using CodePulse"
   },

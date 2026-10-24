@@ -1,0 +1,244 @@
+{
+  "animation": {
+    "init": "Stack 狀態",
+    "push_start": "Push({{value}}): 準備推入新元素",
+    "push_check_full": "Push(): 檢查是否已滿 (目前 {{size}} 筆)",
+    "push_error": "錯誤: 堆疊上溢 (Stack Overflow)，無法再推入新元素",
+    "push_inc_top": "top = top + 1 (現在 top 指向 {{top}})",
+    "push_assign": "stack[{{top}}] = {{value}}",
+    "push_complete": "Push 完成",
+    "pop_check_empty": "Pop(): 檢查是否為空",
+    "pop_error": "錯誤: 堆疊下溢 (Stack Underflow)",
+    "pop_get_value": "removed_value = stack[{{top}}] ({{val}})",
+    "pop_dec_top": "top = top - 1 (現在 top 指向 {{top}})",
+    "pop_return": "回傳 {{val}}",
+    "pop_complete": "Pop 完成",
+    "peek_check_empty": "Peek(): 檢查是否為空",
+    "peek_error": "回傳 Null",
+    "peek_return": "回傳 stack[{{top}}] ({{val}})",
+    "peek_complete": "Peek 完成"
+  },
+  "ui": {
+    "operations": "堆疊操作",
+    "valuePlaceholder": "數值",
+    "push": "Push",
+    "pop": "Pop",
+    "peek": "Peek",
+    "pushTooltip": "將元素推入堆疊頂部",
+    "popTooltip": "移除堆疊頂部的元素",
+    "peekTooltip": "查看堆疊頂部的元素（不移除）",
+    "pushWarning": "請輸入要 Push 的數值"
+  },
+  "relatedProblems": {
+    "20": "堆疊經典應用：檢查括號是否匹配",
+    "155": "堆疊設計：實作支援 O(1) 取得最小值的堆疊",
+    "232": "堆疊應用：用堆疊實作佇列的功能"
+  },
+  "stories": {
+    "basic-stack-intro": {
+      "title": "堆疊的隱形力量 — 從復原鍵到瀏覽器的幕後英雄",
+      "category": "軟體開發 / 日常應用",
+      "tags": ["LIFO", "後進先出", "資料結構", "Undo/Redo"],
+      "content": {
+        "sections": [
+          {
+            "heading": "生活中的直覺法則",
+            "content": "每天我們都在不知不覺中遵守著「堆疊」的秩序。想像自助餐檯上的一疊盤子，或是只能單向進出的單線道停車場，我們永遠只能從「最上面」拿取盤子，最後開進去的車子也必須最先開出來。這種「後進先出」（LIFO, Last In, First Out）的簡單規則，不僅是空間有限下最有效率的管理方式，更是數位世界運作的核心骨架。"
+          },
+          {
+            "heading": "軟體的時光機：復原與重做",
+            "content": "當你打錯字按下「復原」（Undo）時，彷彿時光倒流。這背後其實是系統將你的每個動作「推入」（Push）堆疊中。當需要復原時，就把最上面的動作「彈出」（Pop）。更聰明的是，系統會同時維護兩個堆疊來實現「重做」（Redo）功能，將復原的動作悄悄移到隔壁的重做堆疊裡，讓你隨時可以再次套用。"
+          },
+          {
+            "heading": "網頁導覽的幕後推手",
+            "content": "瀏覽器的「上一頁」與「下一頁」同樣是雙堆疊概念的完美應用。每一個點開的新網頁都會被存入「上一頁堆疊」，當你點擊上一頁時，目前的網頁就會被彈出並存入「下一頁堆疊」，讓你在複雜的網頁歷史紀錄中穿梭自如。"
+          },
+          {
+            "heading": "支撐程式運作的隱形守護者",
+            "content": "在程式碼的最底層，堆疊更是無所不在。「呼叫堆疊」（Call Stack）就像是程式在迷宮中沿路留下的麵包屑，確保主程式在呼叫無數個子功能後，永遠能準確找到回來的路。此外，編譯器也依賴堆疊這個超級嚴格的檢查員來驗證括號是否正確配對，甚至開發者會利用堆疊「後進先出」的特性來快速完成字串反轉。"
+          }
+        ]
+      },
+      "videoTitle": "堆疊的隱形力量",
+      "resources": [
+        { "title": "Real-life Applications of Stack Data Structure", "source": "EnjoyAlgorithms" },
+        { "title": "Implement Undo and Redo", "source": "GeeksforGeeks" },
+        { "title": "Top 12 Stack Examples in Real Life", "source": "upGrad" }
+      ]
+    },
+    "2": {
+      "title": "PopupStack 彈窗大戰 — 體驗後進先出的真實感",
+      "category": "資料結構 / 互動遊戲",
+      "tags": ["LIFO", "後進先出", "Stack", "互動遊戲"],
+      "content": {
+        "sections": [
+          {
+            "heading": "遊戲背景",
+            "content": "你的電腦突然遭受神秘教授的彈窗攻擊！一個個視窗接連彈出，塞滿了你的螢幕……"
+          },
+          {
+            "heading": "Stack 就藏在這裡",
+            "content": "當你同時打開多個應用程式視窗時，作業系統用 Stack 來管理「焦點順序」——最後彈出的視窗永遠在最上層，你必須從最上層開始逐一關閉，這正是 LIFO（後進先出）的體現。"
+          },
+          {
+            "heading": "挑戰開始",
+            "content": "每個彈窗都有自己的個性：有的會四處逃跑，有的需要你答對問題，有的甚至會呼叫小弟增援。但規則只有一條：必須先關閉最後出現的彈窗！"
+          },
+          {
+            "heading": "完成挑戰後，你將理解",
+            "content": "Stack 的 push（堆入）和 pop（彈出）不只是抽象概念，而是你每天都在無意識中體驗的真實機制。"
+          }
+        ]
+      }
+    }
+  },
+  "game": {
+    "stack": {
+      "titles": {
+        "speedTest":      "手速測驗",
+        "randomWalk":     "抓不到我！",
+        "quiz":           "資料結構小測驗",
+        "boss":           "大魔王彈窗",
+        "sineWave":       "正弦波攻擊！",
+        "cornerTeleport": "角落鬼影",
+        "tvBouncing":     "老舊電視",
+        "bouncingH":      "彈彈彈！",
+        "hiddenClose":    "找找關閉按鈕",
+        "rules":          "遊戲規則",
+        "congrats":       "恭喜過關！",
+        "minion":         "小弟 #{{n}}",
+        "sineChild":      "子彈窗 {{n}}",
+        "extraPopup":     "額外彈窗",
+        "unknown":        "未知彈窗"
+      },
+      "warning": { "title": "請先關閉「{{title}}」" },
+      "start": {
+        "title":  "PopupStack 彈窗大戰",
+        "desc1":  "教授發動彈窗攻擊！",
+        "desc2":  "記住：最後出現的彈窗必須最先關閉（LIFO）",
+        "desc3":  "在 120 秒內關閉所有彈窗！",
+        "button": "開始遊戲"
+      },
+      "result": {
+        "won":      "恭喜過關！",
+        "failed":   "時間到！",
+        "timeUsed": "用時：{{seconds}} 秒",
+        "tryAgain": "請再試一次，記得先關閉頂層彈窗！"
+      },
+      "visualizer": { "header": "Stack 堆疊", "bottom": "BOTTOM" },
+      "popup": {
+        "rules": {
+          "desc1":  "彈窗遵循 LIFO（後進先出）：最後出現的彈窗必須最先關閉！",
+          "desc2":  "關閉此視窗即可開始倒計時。",
+          "button": "我知道了，開始遊戲！"
+        },
+        "hiddenClose": {
+          "desc1": "這段文字裡藏著關閉按鈕……",
+          "desc2": "找到了嗎？點擊",
+          "link":  "[關閉此視窗]"
+        },
+        "cornerTeleport": { "clicks": "還需點擊 {{n}} 次" },
+        "boss": {
+          "desc":      "等我的小弟們都走了再說…",
+          "remaining": "剩餘：{{n}} 個"
+        },
+        "sineWave":  { "desc": "你以為關掉我就結束了？" },
+        "quiz": {
+          "question":   "關於 Stack，以下哪個描述正確？",
+          "optA":       "A. 先進先出（FIFO）",
+          "optB":       "B. 先進後出（LIFO）",
+          "optC":       "C. 隨機存取",
+          "optD":       "D. 雙向存取",
+          "correctKey": "B",
+          "submit":     "提交"
+        },
+        "speedTest": { "button": "快點擊我！" },
+        "congrats": {
+          "desc1": "恭喜！所有彈窗已關閉！",
+          "desc2": "請點擊 X 完成挑戰"
+        },
+        "default":   { "desc": "點擊右上角 X 關閉" },
+        "closeAria": "關閉"
+      }
+    }
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "堆疊（**Stack**）是一種基於[[primary|後進先出]]（**LIFO**）原則的資料結構。如同堆疊空盤子，最後放上的必定最先被拿走，且只能在資料的[[primary|頂端]]進行操作。",
+        "items": [
+          "透過 **Push** 操作，可以將新的資料放入 **Stack** 的[[primary|頂端]]",
+          "透過 **Pop** 操作，可以將 **Stack** [[primary|頂端]]的資料移除並取出",
+          "透過 **Peek** 操作，可以查看[[primary|頂端]]的資料而不移除它",
+          "這些操作的[[primary|時間複雜度]]皆為 **O(1)**，且不允許隨機存取中間的資料"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "堆疊只能在單一端（頂端）存取資料，不需要搬移或遍歷結構內的其他元素，因此主要操作都能保持極高的效率。",
+        "items": [
+          "**Push (推入)**：將資料加入頂端，無須搬移或遍歷其他元素，時間複雜度為 [[success|O(1)]]",
+          "**Pop (彈出)**：移除並取出頂端資料，無須搬移或遍歷其他元素，時間複雜度為 [[success|O(1)]]",
+          "**Peek (查看)**：僅查看頂端資料但不移除，透過指標直接存取，時間複雜度為 [[success|O(1)]]",
+          "**Search (搜尋)**：不允許隨機存取，須逐一彈出頂端資料來尋找，時間複雜度為 [[warning|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "可以優化什麼",
+        "content": "堆疊專精於**後進先出**的單端操作。但其不允許隨機存取，若遇雙端操作或需尋找中間資料的情境，效能將大幅降低，此時應針對需求改用合適的替代結構。",
+        "items": [
+          "擅長**狀態回溯**：如瀏覽器回上一頁、**Undo (復原)** 或是 **DFS (深度優先搜尋)** 等線性情境",
+          "不擅長**先進先出**：若需從底端存取，複雜度會退化，此時應改用 **Queue (佇列)** 或 **Deque (雙端佇列)**",
+          "不擅長**隨機存取**：無法直接讀取或修改中間的資料，若需頻繁查詢特定位置，建議改用 **Array (陣列)**"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "適合處理的問題",
+        "content": "若問題具備「後進先出」或需「狀態回溯」特性，堆疊即為最佳解。只要看見需暫存歷史軌跡，並從最新狀態開始倒序處理的線索，就該聯想到它。",
+        "items": [
+          "需回到上一狀態的情境，例如瀏覽器的上一頁或編輯器的**復原 (Undo)** 機制",
+          "探索路徑到底後需折返的情境，例如圖或樹狀結構的**深度優先搜尋 (DFS)**",
+          "需處理運算優先級與括號配對的算式，例如**四則運算**或**中序轉後序表示式**",
+          "追蹤多層次任務的暫停與返回順序，例如程式底層的**呼叫堆疊 (Call Stack)**"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "認識堆疊溢位",
+        "content": "初學者實作**函式遞迴**時極易遭遇[[danger|堆疊溢位]]錯誤。獨立說明此概念，能幫助釐清 **Stack** 資料結構與系統記憶體運作的緊密關聯。",
+        "items": [
+          "系統以**呼叫堆疊**記錄函式狀態，直接印證了資料結構與記憶體的關聯",
+          "當**函式遞迴**過深或無窮迴圈時，不斷推入新狀態將耗盡系統的堆疊容量",
+          "堆疊使用量一旦超過系統預設限制，即會引發 [[danger|Stack Overflow]] 錯誤",
+          "釐清機制後，初學者便懂得透過限制遞迴深度，或改用**迭代法**來防範"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "實作工具選擇",
+        "content": "初學者常難以判斷在考量效能或多執行緒安全等不同情境下，該挑選 **list**、**deque** 還是 **LifoQueue**。獨立說明能協助你精準決策。",
+        "items": [
+          "**list**：尾端存取為 [[success|O(1)]]，但缺乏執行緒安全且有記憶體重配問題，適合單純任務",
+          "**deque**：雙端操作皆為 [[success|O(1)]] 且無記憶體重配耗損，是**單執行緒**下效能最佳的選擇",
+          "**LifoQueue**：專為**多執行緒**打造，具備完整的[[warning|執行緒安全]]特性，能確保併發存取安全"
+        ],
+        "icon": "screwdriver-wrench"
+      },
+      {
+        "heading": "進階變體",
+        "content": "解決不同課題常需實作不同的堆疊變體。獨立說明此觀念，能幫助初學者跳脫單一思維，靈活運用 **Stack** 變形來解決複雜問題。",
+        "items": [
+          "運用雙堆疊實作 [[primary|MinStack]]，可在 [[success|O(1)]] 時間內取得內部最小值",
+          "透過雙堆疊反轉來實作 **Queue (佇列)**，利用兩次後進先出達成先進先出",
+          "維護資料遞增或遞減的**單調堆疊**，專門用來解決尋找相鄰極值或邊界等題型",
+          "面對高併發課題，可實作 **Treiber Stack** 等無鎖結構來確保執行緒安全"
+        ],
+        "icon": "code-branch"
+      }
+    ]
+  }
+}

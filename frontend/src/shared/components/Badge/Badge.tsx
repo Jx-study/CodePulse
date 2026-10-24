@@ -28,7 +28,7 @@ const Badge: React.FC<BadgeProps> = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
     if (isClickable && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
-      onClick?.(event as any);
+      onClick?.(event as unknown as React.MouseEvent<HTMLSpanElement>);
     }
   };
 

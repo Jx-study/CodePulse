@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createLinearActionHandler } from '../linearAction';
 
 const existingData = [
@@ -9,7 +9,7 @@ const existingData = [
 let idCounter = 0;
 const mockContext = {
   nextId: () => `id-${idCounter++}`,
-  toast: { warning: () => {} },
+  toast: { warning: () => {}, info: () => {} },
   defaultData: existingData,
 };
 
@@ -26,7 +26,7 @@ describe('createLinearActionHandler', () => {
   it('random: 預設值域為 -20~80（值在範圍內）', () => {
     const handler = createLinearActionHandler();
     const result = handler('random', { randomCount: 100 }, existingData, mockContext);
-    (result!.animationData as any[]).forEach(({ value }) => {
+    result!.animationData.forEach(({ value }) => {
       expect(value).toBeGreaterThanOrEqual(-20);
       expect(value).toBeLessThan(80);
     });
@@ -35,7 +35,7 @@ describe('createLinearActionHandler', () => {
   it('random: 自訂值域 [1, 15]', () => {
     const handler = createLinearActionHandler({ randomValueRange: [1, 15] });
     const result = handler('random', { randomCount: 100 }, existingData, mockContext);
-    (result!.animationData as any[]).forEach(({ value }) => {
+    result!.animationData.forEach(({ value }) => {
       expect(value).toBeGreaterThanOrEqual(1);
       expect(value).toBeLessThan(15);
     });
@@ -44,7 +44,7 @@ describe('createLinearActionHandler', () => {
   it('random: sortOnLoad=true 時資料已排序', () => {
     const handler = createLinearActionHandler({ sortOnLoad: true });
     const result = handler('random', { randomCount: 10 }, existingData, mockContext);
-    const values = (result!.animationData as any[]).map((d) => d.value);
+    const values = result!.animationData.map((d) => d.value as number);
     for (let i = 1; i < values.length; i++) {
       expect(values[i]).toBeGreaterThanOrEqual(values[i - 1]);
     }
@@ -54,7 +54,7 @@ describe('createLinearActionHandler', () => {
     const handler = createLinearActionHandler();
     const result = handler('load', { data: [5, 3, 7] }, existingData, mockContext);
     expect(result?.animationData).toHaveLength(3);
-    expect((result!.animationData as any[])[0].value).toBe(5);
+    expect(result!.animationData[0].value).toBe(5);
     expect(result?.isResetAction).toBe(true);
   });
 
@@ -67,7 +67,7 @@ describe('createLinearActionHandler', () => {
   it('load: sortOnLoad=true 時資料已排序', () => {
     const handler = createLinearActionHandler({ sortOnLoad: true });
     const result = handler('load', { data: [7, 2, 5] }, existingData, mockContext);
-    const values = (result!.animationData as any[]).map((d) => d.value);
+    const values = result!.animationData.map((d) => d.value);
     expect(values).toEqual([2, 5, 7]);
   });
 
@@ -90,5 +90,14 @@ describe('createLinearActionHandler', () => {
     const handler = createLinearActionHandler();
     const result = handler('unknown', {}, existingData, mockContext);
     expect(result).toBeNull();
+  });
+
+  it('load: 自動排序時用 info 提示，不用 warning', () => {
+    const warning = vi.fn();
+    const info = vi.fn();
+    const handler = createLinearActionHandler({ sortOnLoad: true, sortNoticeNamespace: 'tutorials/stack' });
+    handler('load', { data: [3, 1, 2] }, existingData, { ...mockContext, toast: { warning, info } });
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(warning).not.toHaveBeenCalled();
   });
 });

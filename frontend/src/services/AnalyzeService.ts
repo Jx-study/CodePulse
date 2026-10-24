@@ -16,9 +16,10 @@ import type {
 } from "@/types/trace";
 import type { AiResult, AlgoCandidate } from "@/types/ai";
 import type { RunStage } from "@/types/runStage";
-import { mapAiResult } from "@/services/ComplexityService";
+import { mapAiResult, type RawAiResult } from "@/services/ComplexityService";
+import type { PlaygroundHistoryRecord } from "@/types/playgroundHistory";
 
-export type AnalyzeErrorType =
+type AnalyzeErrorType =
   | "empty_code"
   | "syntax_error"
   | "timeout"
@@ -33,13 +34,29 @@ export class AnalyzeError extends Error {
     public readonly type: AnalyzeErrorType,
     message: string,
     public readonly lineno?: number,
+    public readonly duplicateRecord?: PlaygroundHistoryRecord,
   ) {
     super(message);
     this.name = "AnalyzeError";
   }
 }
 
-export interface AnalyzeResult {
+/**
+ * 程式執行到 input() 但 stdin 已用罄時拋出
+ * 未提供互動式輸入 handler 時，保留舊呼叫端可辨識的暫停訊號。
+ */
+export class InputNeededError extends Error {
+  constructor(
+    public readonly prompt: string,
+    public readonly inputIndex: number,
+    public readonly stdoutEvents: StdoutEvent[] = [],
+  ) {
+    super(`input needed at index ${inputIndex}: ${prompt}`);
+    this.name = "InputNeededError";
+  }
+}
+
+interface AnalyzeResult {
   trace: TraceEvent[];
   rawTrace: TraceEvent[];
   rawIndexMap: number[];
@@ -51,6 +68,13 @@ export interface AnalyzeResult {
   top3Candidates: AlgoCandidate[];
 }
 
+type AnalyzeRunOptions = {
+  saveHistory?: boolean;
+  stdinInputs?: string[];
+  isRetry?: boolean;
+  onInputNeeded?: (prompt: string, inputIndex: number) => Promise<string | null>;
+};
+
 /**
  * Submit code, stream progress via SSE, and return fully-mapped result.
  * @param code       Python source code to analyze
@@ -61,18 +85,35 @@ export async function run(
   code: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
-  options: { saveHistory?: boolean } = {},
+  options: AnalyzeRunOptions = {},
 ): Promise<AnalyzeResult> {
   // 1. Submit
-  let submitRes: { data: { task_id?: string; duplicate?: boolean } };
+  let submitRes: {
+    data: {
+      task_id?: string;
+      duplicate?: boolean;
+      duplicate_record?: PlaygroundHistoryRecord;
+    };
+  };
   try {
-    submitRes = await apiService.post<{ task_id?: string; duplicate?: boolean }>(
-      "/api/analyze/submit",
-      { code, save_history: options.saveHistory ?? true },
-    );
-  } catch (err: any) {
-    const body = err?.response?.data;
-    if (err?.response?.status === 422 && body?.error) {
+    submitRes = await apiService.post<{
+      task_id?: string;
+      duplicate?: boolean;
+      duplicate_record?: PlaygroundHistoryRecord;
+    }>("/api/analyze/submit", {
+      code,
+      save_history: options.saveHistory ?? true,
+      stdin_inputs: options.stdinInputs ?? [],
+      is_retry: options.isRetry ?? false,
+    }, undefined, signal);
+  } catch (err: unknown) {
+    // apiService may reject with a backend error envelope shaped like this;
+    // narrowed defensively since the thrown value isn't a typed contract.
+    const submitErr = err as {
+      response?: { status?: number; data?: { error?: string; message?: string; lineno?: number } };
+    };
+    const body = submitErr?.response?.data;
+    if (submitErr?.response?.status === 422 && body?.error) {
       if (body.error === "empty_code") {
         throw new AnalyzeError("empty_code", body.message ?? "empty code");
       }
@@ -87,36 +128,78 @@ export async function run(
     throw err;
   }
 
+  throwIfAborted(signal);
+
   if (submitRes.data.duplicate) {
-    throw new AnalyzeError("duplicate_code", "duplicate");
+    throw new AnalyzeError(
+      "duplicate_code",
+      "duplicate",
+      undefined,
+      submitRes.data.duplicate_record,
+    );
   }
 
   const taskId = submitRes.data.task_id!;
 
   // 2. Stream progress via SSE
-  return streamProgress(taskId, onProgress, signal);
+  return streamProgress(taskId, onProgress, signal, options.onInputNeeded);
 }
 
 // Internal helpers
+
+/** Shape of messages sent over the /api/analyze/stream SSE connection. */
+interface AnalyzeStreamEvent {
+  status: "running" | "input_needed" | "completed" | "failed";
+  stage?: RunStage;
+  prompt?: string;
+  input_index?: number;
+  stdout_events?: StdoutEvent[];
+  error?: string;
+}
 
 function streamProgress(
   taskId: string,
   onProgress: (stage: RunStage) => void,
   signal?: AbortSignal,
+  onInputNeeded?: (prompt: string, inputIndex: number) => Promise<string | null>,
 ): Promise<AnalyzeResult> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+
     const url = `${API_BASE_URL}/api/analyze/stream/${taskId}`;
     const es = new EventSource(url, { withCredentials: true });
 
-    const cleanup = () => es.close();
-
-    signal?.addEventListener("abort", () => {
+    let settled = false;
+    const cleanup = () => {
+      signal?.removeEventListener("abort", onAbort);
+      es.close();
+    };
+    const settleReject = (err: unknown) => {
+      if (settled) return;
+      settled = true;
       cleanup();
-      reject(new DOMException("Aborted", "AbortError"));
-    });
+      reject(err);
+    };
+    const settleResolve = (result: AnalyzeResult) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+    const onAbort = () => {
+      if (!settled) cancelRun(taskId).catch(() => undefined);
+      settleReject(new DOMException("Aborted", "AbortError"));
+    };
+
+    signal?.addEventListener("abort", onAbort, { once: true });
 
     es.onmessage = (e) => {
-      let event: any;
+      if (signal?.aborted || settled) return;
+
+      let event: AnalyzeStreamEvent;
       try {
         event = JSON.parse(e.data);
       } catch {
@@ -128,67 +211,134 @@ function streamProgress(
         return;
       }
 
+      if (event.status === "input_needed") {
+        const prompt = event.prompt ?? "";
+        const inputIndex = event.input_index ?? 0;
+        // 任務正卡在後端 BLPOP 等輸入；任何「不送值就結束」的路徑（無 callback、
+        // 使用者取消對話框、callback 拋錯）都必須先打 cancel 端點喚醒後端，
+        // 否則 Celery task 會卡到 120s input timeout 才釋放。
+        const cancelAndReject = (err: unknown) => {
+          if (!settled) cancelRun(taskId).catch(() => undefined);
+          settleReject(err);
+        };
+        if (!onInputNeeded) {
+          cancelAndReject(new InputNeededError(
+            prompt,
+            inputIndex,
+            event.stdout_events ?? [],
+          ));
+          return;
+        }
+        onInputNeeded(prompt, inputIndex)
+          .then((value) => {
+            if (signal?.aborted || settled) return;
+            if (value === null) {
+              cancelAndReject(new InputNeededError(prompt, inputIndex));
+              return;
+            }
+            return submitInput(taskId, value, signal);
+          })
+          .catch(cancelAndReject);
+        return;
+      }
+
       if (event.status === "completed") {
         cleanup();
-        fetchResult(taskId).then(resolve).catch(reject);
+        fetchResult(taskId, signal).then(settleResolve).catch(settleReject);
         return;
       }
 
       if (event.status === "failed") {
-        cleanup();
         const detail: string | undefined = event.error;
         if (detail === "timeout") {
-          reject(new AnalyzeError("timeout", "timeout"));
+          settleReject(new AnalyzeError("timeout", "timeout"));
+        } else if (detail === "cancelled") {
+          settleReject(new DOMException("Aborted", "AbortError"));
         } else if (detail?.startsWith("pool_exhausted")) {
-          reject(new AnalyzeError("pool_exhausted", detail));
+          settleReject(new AnalyzeError("pool_exhausted", detail));
         } else if (detail) {
           const m = detail.match(/^lineno:(\d+):(.+)$/);
           if (m) {
-            reject(new AnalyzeError("runtime_error", m[2], parseInt(m[1], 10)));
+            settleReject(new AnalyzeError("runtime_error", m[2], parseInt(m[1], 10)));
           } else {
-            reject(new AnalyzeError("runtime_error", detail));
+            settleReject(new AnalyzeError("runtime_error", detail));
           }
         } else {
-          reject(new AnalyzeError("analysis_failed", "analysis failed"));
+          settleReject(new AnalyzeError("analysis_failed", "analysis failed"));
         }
         return;
       }
     };
 
     es.onerror = () => {
-      cleanup();
-      reject(new AnalyzeError("analysis_failed", "SSE connection error"));
+      settleReject(new AnalyzeError("analysis_failed", "SSE connection error"));
     };
   });
 }
 
-async function fetchResult(taskId: string): Promise<AnalyzeResult> {
-  const res = await apiService.get<any>(`/api/analyze/result/${taskId}`);
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException("Aborted", "AbortError");
+  }
+}
+
+interface RawCallNode {
+  id: string;
+  func_name: string;
+  cfg: CfgGraph | null;
+}
+
+interface RawCallEdge {
+  source: string;
+  target: string;
+  steps: number[];
+  return_steps?: number[];
+}
+
+interface RawCallGraph {
+  nodes: RawCallNode[];
+  edges?: RawCallEdge[];
+  root: string;
+}
+
+/** Raw (snake_case) shape of the /api/analyze/result/:taskId response body. */
+interface AnalyzeResultResponse extends RawAiResult {
+  execution_trace?: TraceEvent[];
+  raw_trace?: TraceEvent[];
+  raw_index_map?: number[];
+  is_truncated?: boolean;
+  stdout_events?: StdoutEvent[];
+  call_graph?: RawCallGraph | null;
+  cfg_graph?: CfgGraphMap;
+}
+
+async function fetchResult(
+  taskId: string,
+  signal?: AbortSignal,
+): Promise<AnalyzeResult> {
+  throwIfAborted(signal);
+  const res = await apiService.get<AnalyzeResultResponse>(
+    `/api/analyze/result/${taskId}`,
+    undefined,
+    signal,
+  );
+  throwIfAborted(signal);
   const r = res.data;
 
   const callGraph: CallGraph | null = r.call_graph
     ? {
         ...r.call_graph,
-        nodes: r.call_graph.nodes.map(
-          (n: { id: string; func_name: string; cfg: CfgGraph | null }) => ({
-            id: n.id,
-            funcName: n.func_name,
-            cfg: n.cfg,
-          }),
-        ),
-        edges: (r.call_graph.edges ?? []).map(
-          (e: {
-            source: string;
-            target: string;
-            steps: number[];
-            return_steps: number[];
-          }) => ({
-            source: e.source,
-            target: e.target,
-            steps: e.steps ?? [],
-            returnSteps: e.return_steps ?? [],
-          }),
-        ),
+        nodes: r.call_graph.nodes.map((n) => ({
+          id: n.id,
+          funcName: n.func_name,
+          cfg: n.cfg,
+        })),
+        edges: (r.call_graph.edges ?? []).map((e) => ({
+          source: e.source,
+          target: e.target,
+          steps: e.steps ?? [],
+          returnSteps: e.return_steps ?? [],
+        })),
       }
     : null;
 
@@ -205,4 +355,22 @@ async function fetchResult(taskId: string): Promise<AnalyzeResult> {
     aiResult,
     top3Candidates,
   };
+}
+
+async function submitInput(
+  taskId: string,
+  value: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  throwIfAborted(signal);
+  await apiService.post(
+    `/api/analyze/input/${taskId}`,
+    { value },
+    undefined,
+    signal,
+  );
+}
+
+async function cancelRun(taskId: string): Promise<void> {
+  await apiService.post(`/api/analyze/cancel/${taskId}`, {});
 }

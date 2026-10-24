@@ -1,6 +1,7 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
+import type { LinearData } from "@/data/DataStructure/linear/utils";
 import type {
   ActionContext,
   ActionResult,
@@ -16,9 +17,9 @@ const baseActionHandler = createLinearActionHandler();
 function factorialActionHandler(
   actionType: string,
   payload: Record<string, unknown>,
-  data: any[],
+  data: LinearData[],
   context: ActionContext,
-): ActionResult<any[]> | null {
+): ActionResult<LinearData[]> | null {
   if (actionType === "run" || actionType === "factorial") {
     let n = (payload.n as number) ?? 5;
     n = Math.min(Math.max(n, 1), 10);
@@ -32,9 +33,14 @@ function factorialActionHandler(
   return baseActionHandler(actionType, payload, data, context);
 }
 
-export function createFactorialAnimationSteps(
-  _dataList: any[],
-  action?: any,
+interface FactorialRunAction {
+  n?: number;
+  animationParams?: { n?: number };
+}
+
+function createFactorialAnimationSteps(
+  _dataList: LinearData[],
+  action?: FactorialRunAction,
 ): AnimationStep[] {
   const targetN = action?.n ?? action?.animationParams?.n ?? 5;
   const trace = simulateFactorialTrace(targetN);
@@ -54,11 +60,14 @@ const factorialCodeConfig: CodeConfig = {
   Return result
 End Procedure`,
     mappings: {
+      [TAGS.INIT]: [1],
       [TAGS.PUSH_START]: [1],
+      [TAGS.PUSH_ASSIGN]: [6],
       [TAGS.BASE_CASE]: [2, 3],
       [TAGS.CALC_START]: [6],
       [TAGS.CALC_MULTIPLY]: [7],
       [TAGS.POP_RIGHT]: [9],
+      [TAGS.DONE]: [9],
     },
   },
   python: {
@@ -70,6 +79,14 @@ End Procedure`,
     result = n * child_result
     
     return result`,
+    lineComplexity: [
+      { lineNumber: 1, complexity: 'O(n)' },   // def factorial(n):
+      { lineNumber: 2, complexity: 'O(1)' },   // if n <= 1:
+      { lineNumber: 3, complexity: 'O(1)' },   // return 1
+      { lineNumber: 5, complexity: 'O(n)' },   // child_result = factorial(n - 1)
+      { lineNumber: 6, complexity: 'O(1)' },   // result = n * child_result
+      { lineNumber: 8, complexity: 'O(1)' },   // return result
+    ],
   },
 };
 
@@ -86,11 +103,11 @@ export const factorialConfig: LevelImplementationConfig = {
     timeWorst: "O(n)",
     space: "O(n)",
   },
-  introduction:
-    "階乘 (N!) 是學習遞迴最好的入門磚！\n\n觀察畫面的橫向生長，你會發現電腦在執行遞迴時，會建立一個「呼叫堆疊 (Call Stack)」。新呼叫會不斷自右向左推入，直到觸發最左側的 Base Case 後，才會雙雙標亮鄰近方塊，將數值依序往右乘回去並退場！",
+  introduction: { key: "introduction" },
   defaultData: [],
   createAnimationSteps: createFactorialAnimationSteps,
   actionHandler: factorialActionHandler,
-  renderActionBar: (props) => <FactorialActionBar {...(props as any)} />,
+  renderActionBar: (props) => <FactorialActionBar {...(props as AlgoActionBarProps)} />,
+  i18nNamespace: "tutorials/factorial",
   maxNodes: 10,
 };

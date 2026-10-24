@@ -67,8 +67,7 @@ export function simulateArrayTrace(
   // Update
   } else if (type === "add" && action.mode === "Update") {
     const idx = index !== undefined ? index : -1;
-    const oldValue =
-      (action as any).oldValue !== undefined ? (action as any).oldValue : value;
+    const oldValue = action.oldValue !== undefined ? action.oldValue : value;
 
     if (idx >= 0 && idx < dataList.length) {
       const snapBefore = snapshot(dataList);
@@ -77,6 +76,13 @@ export function simulateArrayTrace(
       trace.push({
         tag: TAGS.UPDATE_START,
         local_vars: { index: idx, value, [`data[${idx}]`]: oldValue },
+        dataSnapshot: snapBefore,
+        meta: { highlightIndex: idx, status: "Target" },
+      });
+
+      trace.push({
+        tag: TAGS.UPDATE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapBefore,
         meta: { highlightIndex: idx, status: "Target" },
       });
@@ -96,15 +102,63 @@ export function simulateArrayTrace(
       });
     } else {
       trace.push({
+        tag: TAGS.UPDATE_START,
+        local_vars: { index: idx, value },
+        dataSnapshot: snapshot(dataList),
+      });
+      trace.push({
+        tag: TAGS.UPDATE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
+        dataSnapshot: snapshot(dataList),
+      });
+      trace.push({
         tag: TAGS.UPDATE_ERROR,
         local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapshot(dataList),
       });
     }
 
+  // Insert on a full array
+  } else if (type === "add" && action.overflow) {
+    const capacity = action.capacity ?? dataList.length;
+    const fullVars = { length: dataList.length, capacity, full: true };
+    trace.push({
+      tag: TAGS.INSERT_CHECK_FULL,
+      local_vars: fullVars,
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.INSERT_ERROR,
+      local_vars: fullVars,
+      dataSnapshot: snapshot(dataList),
+    });
+
   // Insert
   } else if (type === "add") {
     const idx = index !== undefined ? index : dataList.length - 1;
+    const originalLength = dataList.length - 1;
+    const requestedIndex = action.requestedIndex ?? idx;
+    const originalList = dataList.slice(0, -1).map((item, i) => ({
+      id: item.id,
+      value: i < idx ? dataList[i].value : dataList[i + 1].value,
+    }));
+    const wasClamped = requestedIndex !== idx;
+    trace.push({
+      tag: TAGS.INSERT_CHECK_FULL,
+      local_vars: {
+        length: originalLength,
+        capacity: action.capacity ?? originalLength + 1,
+        full: false,
+      },
+      dataSnapshot: snapshot(originalList),
+    });
+    trace.push({
+      tag: wasClamped ? TAGS.INSERT_CLAMP : TAGS.INSERT_CHECK_INDEX,
+      local_vars: wasClamped
+        ? { index: requestedIndex, clamped: idx, length: originalLength }
+        : { index: idx, length: originalLength },
+      dataSnapshot: snapshot(originalList),
+    });
     let currentList = dataList.map((item) => ({ ...item }));
 
     for (let i = idx; i < dataList.length - 1; i++) {
@@ -172,11 +226,28 @@ export function simulateArrayTrace(
     });
 
   // Delete
+  } else if (type === "delete" && action.invalid) {
+    const idx = index !== undefined ? index : -1;
+    trace.push({
+      tag: TAGS.DELETE_START,
+      local_vars: { index: idx },
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.DELETE_CHECK_INDEX,
+      local_vars: { index: idx, length: dataList.length },
+      dataSnapshot: snapshot(dataList),
+    });
+    trace.push({
+      tag: TAGS.DELETE_ERROR,
+      local_vars: { index: idx, length: dataList.length },
+      dataSnapshot: snapshot(dataList),
+    });
   } else if (type === "delete") {
     const idx = index !== undefined ? index : -1;
     if (idx >= 0) {
       const poppedNode = {
-        id: (action as any).targetId || "temp-pop",
+        id: action.targetId || "temp-pop",
         value: 0 as number | string | undefined,
       };
       let currentList = [...dataList, poppedNode].map((item) => ({ ...item }));
@@ -189,6 +260,13 @@ export function simulateArrayTrace(
       trace.push({
         tag: TAGS.DELETE_START,
         local_vars: { index: idx, value },
+        dataSnapshot: snapshot(currentList),
+        meta: { highlightIndex: idx, status: "Target" },
+      });
+
+      trace.push({
+        tag: TAGS.DELETE_CHECK_INDEX,
+        local_vars: { index: idx, length: dataList.length },
         dataSnapshot: snapshot(currentList),
         meta: { highlightIndex: idx, status: "Target" },
       });

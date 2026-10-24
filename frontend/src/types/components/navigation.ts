@@ -24,7 +24,7 @@ export interface DropdownItem {
   onClick?: () => void;
 }
 
-export interface DropdownProps {
+export interface DropdownProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   trigger: React.ReactNode;
   items: DropdownItem[];
   placement?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
@@ -36,7 +36,6 @@ export interface DropdownProps {
   triggerClassName?: string;
   onSelect?: (key: string) => void;
   'aria-label'?: string;
-  [key: string]: any;
 }
 
 // ==================== Tabs Component ====================
@@ -48,7 +47,7 @@ export interface TabItem {
   disabled?: boolean;
 }
 
-export interface TabsProps {
+export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   tabs: TabItem[];
   defaultTab?: string;
   activeTab?: string;
@@ -62,5 +61,4 @@ export interface TabsProps {
   contentClassName?: string;
   onChange?: (key: string) => void;
   'aria-label'?: string;
-  [key: string]: any;
 }

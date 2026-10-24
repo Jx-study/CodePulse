@@ -83,8 +83,17 @@
   transition: filter 0.2s, transform 0.2s;
 
   &:hover:not(:disabled) {
-    filter: brightness(1.1);
+    background: color-mix(in srgb, $execution-color 88%, $success-color) !important;
+    border-color: transparent !important;
+    box-shadow: 0 8px 14px rgba($execution-color, 0.28);
+    filter: brightness(1.04);
     transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background: color-mix(in srgb, $execution-color 94%, $black-color) !important;
+    box-shadow: 0 3px 6px rgba($execution-color, 0.2);
+    transform: translateY(0);
   }
 
   &:disabled {
@@ -98,6 +107,12 @@
   overflow: auto;
   min-height: 0;
   min-width: 0;
+}
+
+.editorBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
 }
 
 .editCodeBtn {

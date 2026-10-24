@@ -2,7 +2,7 @@ import { Box } from '@/modules/core/DataLogic/Box';
 import { Status } from '@/modules/core/DataLogic/BaseElement';
 import { createBoxes, LinearData } from '@/data/DataStructure/linear/utils';
 
-export interface SortingFrameConfig {
+interface SortingFrameConfig {
   startX?: number;
   startY?: number;
   gap?: number;

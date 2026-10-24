@@ -44,5 +44,15 @@ jobs:
             source backend/venv/bin/activate
             pip install -r backend/requirements.prod.txt
             sudo systemctl restart codepulse-backend
+            echo "Waiting for sandbox to be ready..."
+            for i in $(seq 1 12); do
+              RESULT=$(curl -s -X POST http://127.0.0.1:8080/run \
+                -H "Content-Type: application/json" \
+                -d '{"code": "print(1+1)"}')
+              echo "$RESULT" | grep -q '"2"' && echo "Sandbox OK" && break
+              echo "Attempt $i failed, retrying in 5s..."
+              sleep 5
+              if [ "$i" = "12" ]; then echo "Sandbox check FAILED after 60s"; exit 1; fi
+            done
             echo "Deployment Successful at $(date)"
           ENDSSH

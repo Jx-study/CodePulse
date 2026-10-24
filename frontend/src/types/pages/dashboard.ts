@@ -9,7 +9,7 @@ import type { CategoryType } from "@/services/adapters/levelAdapter";
 export type { CategoryType };
 
 // 先決條件類型
-export type PrerequisiteType = "AND" | "OR" | "NONE";
+type PrerequisiteType = "AND" | "OR" | "NONE";
 
 // 難度類型（1-5 星）
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
@@ -27,7 +27,7 @@ export type LevelStatus = "locked" | "unlocked" | "in-progress" | "completed";
  * `boss`：Boss Level
  * `portal`：Portal Node
  */
-export type PathType =
+type PathType =
   | "main"
   | "branch"
   | "boss"
@@ -132,7 +132,7 @@ export interface NodePosition {
 }
 
 // 節點共用屬性
-export interface BaseNodeProps {
+interface BaseNodeProps {
   position: NodePosition;
   onClick: () => void;
 }
@@ -198,13 +198,6 @@ export interface GraphPosition {
   layer: number; // 層級（0 = 底部入口）
   branch: string; // 分支名稱（'sorting-basic', 'search-path'）
   horizontalIndex: number; // 同一層內的水平位置（0, 1, 2...）
-}
-
-// ==================== Category Filter Component ====================
-export interface CategoryFilterItem extends Category {
-  levels: Level[]; // 該 Category 的所有關卡
-  bossLevelId?: string; // Boss Level 的 ID
-  portalTargetCategory?: CategoryType; // Portal 目標 Category ID
 }
 
 // ==================== Progress Stats Dialog Component ====================

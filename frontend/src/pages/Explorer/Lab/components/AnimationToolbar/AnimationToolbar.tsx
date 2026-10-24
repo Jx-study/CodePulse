@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Icon from "@/shared/components/Icon";
 import Select from "@/shared/components/Select/Select";
@@ -13,6 +14,7 @@ const SPEED_OPTIONS = [
 ];
 
 export function AnimationToolbar() {
+  const { t } = useTranslation("lab");
   const {
     playState,
     speed,
@@ -36,7 +38,7 @@ export function AnimationToolbar() {
           variant="primary"
           disabled={disabled || playState === "playing"}
           onClick={onPlay}
-          aria-label="播放"
+          aria-label={t("animationToolbar.play")}
         >
           <Icon name="play" decorative />
         </Button>
@@ -45,7 +47,7 @@ export function AnimationToolbar() {
           variant="secondary"
           disabled={disabled || playState !== "playing"}
           onClick={onPause}
-          aria-label="暫停"
+          aria-label={t("animationToolbar.pause")}
         >
           <Icon name="pause" decorative />
         </Button>
@@ -54,14 +56,14 @@ export function AnimationToolbar() {
           variant="secondary"
           disabled={disabled}
           onClick={onReset}
-          aria-label="重置"
+          aria-label={t("animationToolbar.reset")}
         >
           <Icon name="rotate" decorative />
         </Button>
       </div>
 
       <label className={styles.speed}>
-        <span className={styles.speedLabel}>速度</span>
+        <span className={styles.speedLabel}>{t("animationToolbar.speed")}</span>
         <Select
           size="sm"
           value={String(speed)}
@@ -69,7 +71,7 @@ export function AnimationToolbar() {
           onChange={(e) =>
             dispatch({ type: "SET_SPEED", speed: parseFloat(e.target.value) })
           }
-          aria-label="播放速度"
+          aria-label={t("animationToolbar.playbackSpeed")}
         />
       </label>
 
@@ -80,7 +82,7 @@ export function AnimationToolbar() {
         onClick={() => dispatch({ type: "TOGGLE_LAYOUT_FLIP" })}
         aria-pressed={layoutFlipped}
       >
-        {layoutFlipped ? "佈局：右欄" : "佈局：左欄"}
+        {layoutFlipped ? t("animationToolbar.layoutRight") : t("animationToolbar.layoutLeft")}
       </Button>
     </div>
   );

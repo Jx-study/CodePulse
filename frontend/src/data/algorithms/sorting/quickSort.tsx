@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
 import type { LinearData } from "@/data/DataStructure/linear/utils";
 
@@ -40,11 +40,14 @@ Procedure Partition(arr, low, high):
   Return i + 1
 End Procedure`,
     mappings: {
-      [TAGS.CALL]: [1, 2],
-      [TAGS.PARTITION_START]: [9, 10],
-      [TAGS.COMPARE]: [11, 12],
-      [TAGS.SWAP]: [13, 14],
-      [TAGS.PIVOT_SET]: [17, 18],
+      [TAGS.INIT]: [1],
+      [TAGS.CALL]: [1, 2, 3],
+      [TAGS.PARTITION_START]: [9, 10, 11],
+      [TAGS.COMPARE]: [12, 13],
+      [TAGS.SWAP]: [14, 15],
+      [TAGS.PIVOT_SET]: [18, 19],
+      [TAGS.RECURSE_LEFT]: [4],
+      [TAGS.RECURSE_RIGHT]: [5],
       [TAGS.BASE_CASE]: [2],
       [TAGS.DONE]: [7],
     },
@@ -66,6 +69,22 @@ def partition(arr, low, high):
             
     arr[i + 1], arr[high] = arr[high], arr[i + 1]
     return i + 1`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n log n)' },                            // def quick_sort(arr, low, high):
+      { lineNumber: 2,  complexity: 'O(1)' },                                  // if low < high:
+      { lineNumber: 3,  complexity: 'O(n)' },                                  // pivot_idx = partition(arr, low, high)
+      { lineNumber: 4,  complexity: 'O(n log n)' },                            // quick_sort(arr, low, pivot_idx - 1)
+      { lineNumber: 5,  complexity: 'O(n log n)' },                            // quick_sort(arr, pivot_idx + 1, high)
+      { lineNumber: 7,  complexity: 'O(n)' },                                  // def partition(arr, low, high):
+      { lineNumber: 8,  complexity: 'O(1)' },                                  // pivot = arr[high]
+      { lineNumber: 9,  complexity: 'O(1)' },                                  // i = low - 1
+      { lineNumber: 10, complexity: 'O(n)' },                                  // for j in range(low, high):
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n)' },                 // if arr[j] <= pivot:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n)' },                 // i += 1
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n)' },                 // arr[i], arr[j] = arr[j], arr[i]
+      { lineNumber: 15, complexity: 'O(1)' },                                  // arr[i+1], arr[high] = arr[high], arr[i+1]
+      { lineNumber: 16, complexity: 'O(1)' },                                  // return i + 1
+    ],
   },
 };
 
@@ -82,8 +101,8 @@ export const quickSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(log n)",
   },
-  introduction:
-    "快速排序（Quick Sort）是極為實用且高效的分治法排序演算法。它會挑選一個「基準點 (Pivot)」，然後將陣列分為兩半：比基準點小的放左邊，大的放右邊。接著對左右兩半重複這個動作，直到排序完成。\n\n可以看到未排序的子陣列會被「往下推」，而已經排好序的基準點，會像泡泡一樣浮回最上層的最終位置！",
+  i18nNamespace: "tutorials/quick-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 38 },
     { id: "box-1", value: 27 },
@@ -95,21 +114,19 @@ export const quickSortConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createQuickSortAnimationSteps,
   actionHandler: baseActionHandler,
-  renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  renderActionBar: (props) => <SortingActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 912,
       title: "Sort an Array",
-      concept:
-        "基礎排序：適合用 Quick Sort (搭配 Randomized Pivot) 實現 O(n log n) 時間複雜度",
+      concept: "relatedProblems.912",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/sort-an-array/",
     },
     {
       id: 215,
       title: "Kth Largest Element in an Array",
-      concept:
-        "Quick Select：利用 Quick Sort 的 Partition 思想快速找到第 K 大元素",
+      concept: "relatedProblems.215",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     },

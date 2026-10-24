@@ -1,7 +1,7 @@
 import apiService from '@/api/api';
 import type { ApiError } from '@/api/api';
 
-export interface CheckinResponse {
+interface CheckinResponse {
   success: boolean;
   already_checked_in: boolean;
   xp_earned: number;
@@ -10,7 +10,7 @@ export interface CheckinResponse {
   total_xp: number;
 }
 
-export interface CheckinHistoryResponse {
+interface CheckinHistoryResponse {
   dates: string[];
 }
 

@@ -1,0 +1,80 @@
+{
+  "toolbar": {
+    "backToExplorer": "返回 Explorer",
+    "pageTitle": "演算法實驗室"
+  },
+  "sidebar": {
+    "ariaLabel": "實驗室設定",
+    "expand": "展開側邊欄",
+    "collapse": "收合側邊欄",
+    "modeTitleComplexity": "複雜度圖模式",
+    "modeTitleAnimation": "排序動畫模式",
+    "topic": "主題",
+    "selectTopic": "選擇主題",
+    "algorithms": "演算法",
+    "modeAnimation": "排序動畫",
+    "modeComplexity": "複雜度圖",
+    "manualSort": "Manual Sort",
+    "dataSize": "資料量",
+    "dataSizeUnit": " 筆",
+    "dataSizeLocked": "（鎖定）",
+    "timeComplexity": "時間複雜度",
+    "spaceComplexity": "空間複雜度",
+    "showCases": "顯示案例",
+    "unifyYAxis": "統一 Y 軸",
+    "reset": "重置"
+  },
+  "cases": {
+    "random": "亂序",
+    "sorted": "已排序",
+    "reversed": "反序"
+  },
+  "animationToolbar": {
+    "play": "播放",
+    "pause": "暫停",
+    "reset": "重置",
+    "speed": "速度",
+    "playbackSpeed": "播放速度",
+    "layoutRight": "佈局：右欄",
+    "layoutLeft": "佈局：左欄"
+  },
+  "metrics": {
+    "execTime": "執行時間（ms）",
+    "compareCount": "比較次數",
+    "compareCountTitle": "比較次數：COMPARE / UPDATE_MIN 操作累計",
+    "moveCount": "移動次數",
+    "moveCountTitle": "移動次數：SWAP / SHIFT / COPY / INSERT 操作累計",
+    "auxSpace": "輔助空間（實時）",
+    "auxSpaceTitle": "QuickSort：遞迴呼叫堆疊深度；MergeSort：合併時輔助空間元素數；其餘為 O(1)",
+    "selectToShow": "選取演算法後顯示",
+    "manualSortTitle": "Manual Sort",
+    "sortComplete": "排序完成",
+    "elapsed": "耗時",
+    "moves": "移動次數",
+    "spaceUnitLayers": "層",
+    "spaceUnitElements": "元素"
+  },
+  "chart": {
+    "empty": "請先選擇至少一個演算法",
+    "spaceChartAria": "空間複雜度步驟折線圖",
+    "xAxisSteps": "動畫步驟",
+    "yAxisAuxSpace": "輔助空間",
+    "loading": "正在計算各 n 與輸入案例的執行時間…",
+    "complexityChartAriaSuffix": "複雜度圖",
+    "theoreticalComplexity": "理論時間複雜度",
+    "execTimeMs": "執行時間 (ms)",
+    "dataSizeN": "資料筆數 n"
+  },
+  "animationGrid": {
+    "emptyTitle": "尚未選擇演算法",
+    "emptyDesc": "請在左側側邊欄勾選要比較的排序演算法。"
+  },
+  "manualSort": {
+    "resetAriaLabel": "重置手動排序",
+    "barAriaLabel": "第 {{slot}} 格，值 {{val}}",
+    "barAriaLabelInPlace": "第 {{slot}} 格，值 {{val}}，已就位"
+  },
+  "topics": {
+    "sorting": "排序演算法"
+  }
+}

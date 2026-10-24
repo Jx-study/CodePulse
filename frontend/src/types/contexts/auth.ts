@@ -30,7 +30,11 @@ export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (emailOrDisplayName: string, password: string) => Promise<void>;
-  register: (email: string, password: string, display_name: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    display_name: string
+  ) => Promise<{ expires_at?: string; expires_in_seconds?: number }>;
   verifyEmail: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
@@ -42,7 +46,7 @@ export interface AuthContextType {
 }
 
 // ==================== Auth Response Types ====================
-export interface AuthSession {
+interface AuthSession {
   access_token: string;
   refresh_token: string;
   expires_in?: number;

@@ -140,7 +140,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   const mergeRefs = useCallback((node: HTMLElement | null) => {
     triggerRef.current = node;
 
-    const childRef = (children as any).ref;
+    const childRef = children.props.ref;
     if (typeof childRef === 'function') {
       childRef(node);
     } else if (childRef) {
@@ -149,7 +149,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   }, [children]);
 
   // Get child props safely
-  const childProps = children.props as any;
+  const childProps = children.props;
 
   const clonedChild = React.cloneElement(children, {
     ref: mergeRefs,
@@ -175,7 +175,7 @@ const Tooltip: React.FC<TooltipProps> = ({
     },
     'aria-describedby': isVisible ? 'tooltip' : undefined,
     className: [childProps.className, className].filter(Boolean).join(' ')
-  } as any);
+  });
 
   const tooltipPortal = isVisible && createPortal(
     <div

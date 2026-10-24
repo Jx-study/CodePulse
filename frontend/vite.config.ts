@@ -78,6 +78,7 @@ export default defineConfig((_env) => {
     build: {
       cssCodeSplit: true, // 啟用 CSS 代碼分割
       chunkSizeWarningLimit: 1000, // 設置 chunk 大小警告限制
+      modulePreload: { polyfill: false }, // 避免產生 inline script，讓 CSP hash 不會每次 build 都變
       rollupOptions: {
         output: {
           manualChunks: {

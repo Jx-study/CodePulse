@@ -2,16 +2,17 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Box } from "@/modules/core/DataLogic/Box";
 import { toStatus } from "@/data/implementations/traceConverters";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
 import type { QSLayoutInfo } from "./simulateTrace";
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
-    key: "qs.init",
+    key: "animation.init",
     params: { length: e.local_vars.length },
   }),
   [TAGS.CALL]: (e) => ({
-    key: "qs.call",
+    key: "animation.call",
     params: {
       low: e.local_vars.low,
       high: e.local_vars.high,
@@ -19,36 +20,44 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.PARTITION_START]: (e) => ({
-    key: "qs.partition_start",
+    key: "animation.partition_start",
     params: { pivotVal: e.local_vars.pivotVal },
   }),
   [TAGS.COMPARE]: (e) => ({
-    key: "qs.compare",
+    key: "animation.compare",
     params: { scanVal: e.local_vars.scanVal, pivotVal: e.local_vars.pivotVal },
   }),
   [TAGS.SWAP]: (e) => ({
-    key: "qs.swap",
+    key: "animation.swap",
     params: { valI: e.local_vars.valI, valJ: e.local_vars.valJ },
   }),
   [TAGS.PIVOT_SET]: (e) => ({
-    key: "qs.pivot_set",
+    key: "animation.pivot_set",
     params: {
       pivotVal: e.local_vars.pivotVal,
       pivotIdx: e.local_vars.pivotIdx,
     },
   }),
+  [TAGS.RECURSE_LEFT]: (e) => ({
+    key: "animation.recurse_left",
+    params: { low: e.local_vars.low, high: e.local_vars.high },
+  }),
+  [TAGS.RECURSE_RIGHT]: (e) => ({
+    key: "animation.recurse_right",
+    params: { low: e.local_vars.low, high: e.local_vars.high },
+  }),
   [TAGS.BASE_CASE]: (e) => ({
-    key: "qs.base_case",
+    key: "animation.base_case",
     params: { value: e.local_vars.value },
   }),
   [TAGS.DONE]: () => ({
-    key: "qs.done",
+    key: "animation.done",
   }),
 };
 
 export function quickSortTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const layout = (event.meta?.layout as QSLayoutInfo[]) ?? [];
+    const layout = asTrace<{ layout?: QSLayoutInfo[] }>(event.meta).layout ?? [];
 
     const startX = 50;
     const gapX = 70;
@@ -79,7 +88,7 @@ export function quickSortTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       description: descriptionData ?? String(event.tag),
       actionTag: event.tag,
       local_vars: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

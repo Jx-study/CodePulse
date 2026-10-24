@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
+import { DURATION_BASE } from '@/shared/motion/transitions';
 import classNames from 'classnames';
 import Icon from '@/shared/components/Icon';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -96,9 +98,13 @@ function generateCard(nextIdRef: React.RefObject<number>): CardItem {
 
 interface Props {
   data: QueueCardOutputData;
+  ns?: string;
 }
 
-export default function QueueGameRenderer({ data }: Props) {
+export default function QueueGameRenderer({ data, ns }: Props) {
+  const { t } = useTranslation(ns || 'tutorial');
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.queue.${key}`, { ns: ns || 'tutorial', ...opts });
   const config: GameConfig = {
     spawnRateMs: data.config.spawn_rate_ms,
     maxQueueSize: data.config.max_queue_size,
@@ -223,7 +229,7 @@ export default function QueueGameRenderer({ data }: Props) {
             </span>
           ))}
         </div>
-        <div className={styles.score}>Score: {gameState.score}</div>
+        <div className={styles.score}>{tg('score', { n: gameState.score })}</div>
         <div className={styles.timer}>
           {gameState.status === 'playing' || gameState.status === 'survived'
             ? gameState.timeLeft
@@ -236,7 +242,7 @@ export default function QueueGameRenderer({ data }: Props) {
             style={{ width: `${queuePercent}%` }}
           />
           <span className={styles.queueBarLabel}>
-            Queue {gameState.queue.length}/{config.maxQueueSize}
+            {tg('queueBar', { current: gameState.queue.length, max: config.maxQueueSize })}
           </span>
         </div>
       </div>
@@ -272,7 +278,7 @@ export default function QueueGameRenderer({ data }: Props) {
                 exit={{
                   opacity: 0,
                   scale: 0.8,
-                  transition: { duration: 0.3 },
+                  transition: { duration: DURATION_BASE },
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 style={{
@@ -287,7 +293,7 @@ export default function QueueGameRenderer({ data }: Props) {
       </div>
 
       {gameState.feedback === 'overflow' && (
-        <div className={styles.overflowText}>Queue 溢出！</div>
+        <div className={styles.overflowText}>{tg('overflow')}</div>
       )}
 
       <AnimatePresence>
@@ -299,15 +305,15 @@ export default function QueueGameRenderer({ data }: Props) {
             exit={{ opacity: 0 }}
           >
             <div className={styles.resultCard}>
-              <h3><Icon name="trophy" /> Queue Cleared!</h3>
-              <p>Score: {gameState.score}</p>
+              <h3><Icon name="trophy" /> {tg('survived.title')}</h3>
+              <p>{tg('score', { n: gameState.score })}</p>
               <Button
                 type="button"
                 variant="ghost"
                 className={styles.newGameBtn}
                 onClick={handleNewGame}
               >
-                New Game
+                {tg('survived.newGame')}
               </Button>
             </div>
           </motion.div>
@@ -320,15 +326,15 @@ export default function QueueGameRenderer({ data }: Props) {
             exit={{ opacity: 0 }}
           >
             <div className={classNames(styles.resultCard, styles.gameoverCard)}>
-              <h3>Game Over</h3>
-              <p>Score: {gameState.score}</p>
+              <h3>{tg('gameover.title')}</h3>
+              <p>{tg('score', { n: gameState.score })}</p>
               <Button
                 type="button"
                 variant="ghost"
                 className={styles.newGameBtn}
                 onClick={handleNewGame}
               >
-                New Game
+                {tg('gameover.newGame')}
               </Button>
             </div>
           </motion.div>
@@ -342,7 +348,7 @@ export default function QueueGameRenderer({ data }: Props) {
           className={styles.startBtn}
           onClick={handleStart}
         >
-          Start
+          {tg('start')}
         </Button>
       )}
     </div>

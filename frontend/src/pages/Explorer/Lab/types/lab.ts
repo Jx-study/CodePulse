@@ -9,7 +9,7 @@ export type AlgorithmId =
 
 export type TopicId = "sorting";
 
-export type PlayState = "idle" | "playing" | "paused" | "done";
+type PlayState = "idle" | "playing" | "paused" | "done";
 
 export type CaseType = "random" | "sorted" | "reversed";
 

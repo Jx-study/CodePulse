@@ -1,0 +1,51 @@
+{
+  "animation": {
+    "init": "Preparing to calculate Fibonacci({{n}}), creating a DP array of length {{size}}",
+    "base_cases": "Filling in the base cases: dp[0] = 0, dp[1] = 1",
+    "calc_prepare": "Calculating dp[{{i}}]: retrieving the previous two values dp[{{item1}}]: {{val1}} and dp[{{item2}}]: {{val2}}",
+    "calc_done": "dp[{{i}}] = {{val1}} + {{val2}} = {{result}}",
+    "done": "Calculation complete! The result is {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci DP",
+    "placeholder": "Input N (1-12)",
+    "button": "Run DP",
+    "validation": "Please enter a number between 1 and 12",
+    "ariaLabel": "Input N for Fibonacci DP"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Beyond recursion, a far more efficient approach is **dynamic programming** (Bottom-Up DP): compute answers from small to large and [[primary|record]] each subproblem's result.",
+        "items": [
+          "Build a 1D array dp where **dp[i]** is the i-th Fibonacci number",
+          "**Transition**: dp[i] = dp[i-1] + dp[i-2] — each cell depends only on the previous two",
+          "Scan left to right so every subproblem is **computed exactly once**",
+          "Filling the table from small to large is called [[primary|Tabulation]] (bottom-up); keeping the recursion and adding a cache, [[primary|Memoization]] (top-down), also trades space for time — both share the same recurrence"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Compared with the exponential recursive version, DP eliminates all repeated work and drastically lowers the cost.",
+        "items": [
+          "**Time complexity**: [[success|O(n)]] — each cell is computed once",
+          "**Space complexity**: [[warning|O(n)]] — an array of length n is required",
+          "Versus naive recursion's [[danger|O(2ⁿ)]], the gap widens sharply as n grows"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Since each cell depends only on the previous two, the whole array need not be kept.",
+        "items": [
+          "**Rolling variables**: keep only the latest two values, reducing space to [[success|O(1)]]",
+          "**Top-Down memoization**: keep the recursive form and cache results to avoid recomputation",
+          "Once you grasp the pattern, it extends to problems like **Climbing Stairs** with the same recurrence"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

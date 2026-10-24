@@ -1,0 +1,165 @@
+{
+  "animation": {
+    "ins_init_empty": "樹為空，插入根節點 {{val}}",
+    "ins_init": "準備插入新節點：{{val}}",
+    "ins_compare": "比較：{{val}} vs {{curr}}",
+    "ins_equal": "數值 {{val}} 已存在，計數器加 1",
+    "ins_left": "{{val}} < {{curr}}，往左子樹尋找",
+    "ins_right": "{{val}} >= {{curr}}，往右子樹尋找",
+    "ins_place_left": "{{val}} < {{curr}}，且無左子節點，找到插入位置",
+    "ins_place_right": "{{val}} >= {{curr}}，且無右子節點，找到插入位置",
+    "ins_done": "插入節點 {{val}} 完成",
+    "srch_init": "開始搜尋：{{target}}",
+    "srch_empty": "樹為空",
+    "srch_compare": "比較：{{target}} vs {{curr}}",
+    "srch_found": "找到目標 {{target}}",
+    "srch_left": "{{target}} < {{curr}} 往左",
+    "srch_right": "{{target}} > {{curr}} 往右",
+    "srch_not_found": "未找到",
+    "del_init": "準備刪除節點：{{target}}",
+    "del_empty": "樹為空，無法刪除",
+    "del_search": "尋找刪除目標：{{target}} vs {{curr}}",
+    "del_found": "找到目標節點 {{target}}",
+    "del_left": "{{target}} < {{curr}}，往左",
+    "del_right": "{{target}} > {{curr}}，往右",
+    "del_not_found": "未找到數值 {{target}}，刪除失敗",
+    "del_count_dec": "Count > 1，僅減少計數 (Count: {{count}})",
+    "del_leaf": "檢查子節點：無 (葉子節點)，直接移除",
+    "del_leaf_remove": "刪除完成",
+    "del_one_child_replace": "將目標節點數值更新為 {{val}}",
+    "del_one_child_done": "移除原本的子節點，刪除完成",
+    "del_two_child": "左右皆有。需尋找後繼者 (右子樹的最小值)",
+    "del_successor_find": "尋找後繼者：{{val}}",
+    "del_successor_replace": "將目標節點 {{target}} 的值替換為 {{val}}",
+    "del_successor_remove": "移除後繼者節點 {{val}}，刪除完成",
+    "min_init": "尋找最小值：一路向左",
+    "min_traverse": "往左移動 (當前節點 {{curr}})",
+    "min_found": "抵達最左節點 {{curr}}，即為最小值",
+
+    "max_init": "尋找最大值：一路向右",
+    "max_traverse": "往右移動 (當前節點 {{curr}})",
+    "max_found": "抵達最右節點 {{curr}}，即為最大值",
+
+    "floor_init": "尋找 Floor({{target}})",
+    "floor_compare": "比較：{{target}} vs {{curr}}",
+    "floor_equal": "找到相等值，Floor 為 {{val}}",
+    "floor_left": "{{target}} < {{curr}}，往左尋找",
+    "floor_right": "{{target}} > {{curr}}，暫定 Floor 為 {{floor}}，往右尋找更大的",
+    "floor_found": "搜尋結束，Floor 為 {{floor}}",
+    "floor_not_found": "搜尋結束，未找到不大於 {{target}} 的值",
+
+    "ceil_init": "尋找 Ceil({{target}})",
+    "ceil_compare": "比較：{{target}} vs {{curr}}",
+    "ceil_equal": "找到相等值，Ceil 為 {{val}}",
+    "ceil_left": "{{target}} < {{curr}}，暫定 Ceil 為 {{ceil}}，往左尋找更小的",
+    "ceil_right": "{{target}} > {{curr}}，往右尋找",
+    "ceil_found": "搜尋結束，Ceil 為 {{ceil}}",
+    "ceil_not_found": "搜尋結束，未找到不小於 {{target}} 的值",
+
+    "load_done": "二元搜尋樹狀態 (節點數: {{count}})"
+  },
+  "ui": {
+    "operations": "二元搜尋樹操作",
+    "valuePlaceholder": "數值",
+    "searchPlaceholder": "搜尋值",
+    "insert": "插入",
+    "delete": "刪除",
+    "search": "搜尋",
+    "min": "最小值",
+    "max": "最大值",
+    "floor": "下界 Floor",
+    "ceil": "上界 Ceil",
+    "insertTooltip": "將數值插入 BST",
+    "deleteTooltip": "從 BST 中刪除指定數值",
+    "searchTooltip": "在 BST 中搜尋指定數值",
+    "minTooltip": "找到 BST 中的最小值",
+    "maxTooltip": "找到 BST 中的最大值",
+    "floorTooltip": "找到不大於指定值的最大數",
+    "ceilTooltip": "找到不小於指定值的最小數",
+    "insertWarning": "請輸入要插入的數值",
+    "deleteWarning": "請輸入要刪除的數值",
+    "searchWarning": "請輸入搜尋值",
+    "floorWarning": "下界需要輸入參考數值",
+    "ceilWarning": "上界需要輸入參考數值",
+    "deleteNotFound": "數值 {{val}} 不存在"
+  },
+  "statusLegend": {
+    "notVisited": "未參訪",
+    "visitedPath": "已參訪路徑",
+    "exploreDirection": "探索方向",
+    "currentNode": "當前節點",
+    "completeTarget": "完成 / 目標"
+  },
+  "relatedProblems": {
+    "700": "BST 基礎操作：在二元搜尋樹中查找節點",
+    "701": "BST 插入操作：在二元搜尋樹中插入新節點",
+    "98": "BST 驗證：判斷二元樹是否為有效的二元搜尋樹"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "核心概念",
+        "content": "二元搜尋樹是基於[[primary|分治法]]的結構，如同翻閱電話簿，每次比較都能排除一半的節點。所有**節點**皆嚴格遵守[[primary|左小右大]]的規則。",
+        "items": [
+          "嚴格排序：**節點**的**左子樹**僅含較小值，**右子樹**僅含較大值，整體維持[[primary|左小右大]]的特性",
+          "遞迴特性：每個**子樹**本身也都必須是一棵合法的二元搜尋樹，且通常不允許有[[primary|重複鍵值]]",
+          "高效操作：如同在陣列執行**二分搜尋**，向下走訪能排除一半空間，使尋找達到[[primary|對數時間]]"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "操作複雜度",
+        "content": "操作效能完全取決於樹的高度。若結構平衡能對半排除資料，但若退化成單向鏈結串列，效能將大幅衰退。",
+        "items": [
+          "搜尋：藉由比對鍵值向下尋找，平均為 [[success|O(log n)]]，最差退化至 [[danger|O(n)]]",
+          "插入：向下走訪至適當空位新增，平均為 [[success|O(log n)]]，最差退化至 [[danger|O(n)]]",
+          "刪除：視子節點數尋找前驅或後繼替換，平均為 [[success|O(log n)]]，最差退化至 [[danger|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "可以優化什麼",
+        "content": "標準結構適合處理隨機資料，但不擅長**已排序資料**，這會使其退化成低效的**鏈結串列**。此時建議改用 **AVL樹**或**紅黑樹**等**自平衡二元搜尋樹**進行優化。",
+        "items": [
+          "擅長動態管理：極適合需頻繁進行**搜尋**、**插入**與**刪除**的隨機資料集，維持優異效能",
+          "擅長維持順序：利用**中序遍歷**能迅速輸出排序結果，常應用於字典或**優先佇列**",
+          "不擅長有序輸入：若連續輸入遞增或遞減資料，樹高會嚴重傾斜並退化為 **O(n)** 的**鏈結串列**",
+          "優化替代結構：面對失衡風險，應改用 **AVL樹**等**自平衡二元搜尋樹**來確保**對數時間**效能"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "適合處理的問題",
+        "content": "當題目要求維護動態變動的資料流，且需頻繁執行插入、刪除，並同時快速尋找極值、特定排名或相鄰大小的數值時，這就是聯想到二元搜尋樹的關鍵線索。",
+        "items": [
+          "要求動態尋找特定排名數字的**第 K 小元素 (Select K)** 題型",
+          "需要同時支援快速取得並移除最大值與最小值的**雙端優先佇列**情境",
+          "處理動態陣列並統計右側較小元素個數的 **Count Smaller Elements** 題型",
+          "要求動態找出右側最小但比當前元素大的 **Smallest Greater Element** 題型"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "節點刪除機制",
+        "content": "刪除操作不像新增單純，須依目標的子節點數量分為三種狀況。其中**雙子節點**尋找替代節點的邏輯最繁複，是初學者最易卡關的痛點。",
+        "items": [
+          "遇到**無子節點**時，直接移除該**葉節點**即可，額外處理時間僅需 [[success|O(1)]]",
+          "面對**單一子節點**，只需將目標移除，並讓唯一的子節點接上父節點，僅需 [[success|O(1)]]",
+          "處理**雙子節點**最繁瑣，需耗時 [[warning|O(h)]] 尋找**右子樹最小值**或**左子樹最大值**來替換"
+        ],
+        "icon": "scissors"
+      },
+      {
+        "heading": "自平衡搜尋樹",
+        "content": "標準結構面臨極端輸入時會退化成**鏈結串列**，實務多改用 **AVL樹**或**紅黑樹**等變體，確保任何情況皆維持 [[success|O(log n)]] 高效。",
+        "items": [
+          "若連續輸入已排序資料，樹結構將嚴重傾斜，效能退化至 [[danger|O(n)]]",
+          "實務上多採用 **AVL樹**與**紅黑樹**等**自平衡二元搜尋樹**來防範退化風險",
+          "當結構失衡時，會主動觸發**樹旋轉**與變色機制，動態將樹高修正回平衡狀態",
+          "無論資料如何增刪，皆能保證尋找、插入與刪除維持 [[success|O(log n)]] 高效能"
+        ],
+        "icon": "scale-balanced"
+      }
+    ]
+  }
+}

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 import Button from "@/shared/components/Button";
 import Dialog from "@/shared/components/Dialog";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import Textarea from "@/shared/components/Textarea";
 import { toast } from "@/shared/components/Toast";
-import { DATA_LIMITS } from "@/constants/dataLimits";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import styles from "./ActionBar.module.scss";
 
 // ─── Layout 元件 ─────────────────────────────────────────────
@@ -24,14 +26,16 @@ export const StaticLabel: React.FC<{ children: React.ReactNode }> = ({
 
 // ─── DataRow：共用的第一行（載入/重設/隨機 + 隨機筆數） ──────
 
-export interface DataRowProps {
+interface DataRowProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
-  onRandomData: (params?: any) => void;
+  onRandomData: (params?: unknown) => void;
   onMaxNodesChange?: (count: number) => void;
   disabled?: boolean;
   maxNodes?: number;
   hideLoadButton?: boolean;
+  minValue?: number;
+  maxValue?: number;
 }
 
 export const DataRow: React.FC<DataRowProps> = ({
@@ -42,7 +46,10 @@ export const DataRow: React.FC<DataRowProps> = ({
   disabled = false,
   maxNodes,
   hideLoadButton = false,
+  minValue,
+  maxValue,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const [bulkInput, setBulkInput] = useState("");
   const [randomCount, setRandomCount] = useState(
     DATA_LIMITS.DEFAULT_RANDOM_COUNT,
@@ -59,27 +66,61 @@ export const DataRow: React.FC<DataRowProps> = ({
             type="text"
             placeholder="10,40,30..."
             value={bulkInput}
+            maxLength={DATA_LIMITS.MAX_BULK_INPUT_LENGTH}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setBulkInput(e.target.value)
+              setBulkInput(e.target.value.slice(0, DATA_LIMITS.MAX_BULK_INPUT_LENGTH))
             }
             className={`${styles.input} ${styles.bulkDataInput}`}
             disabled={disabled}
             fullWidth={false}
             aria-label="Bulk data input"
           />
-          <Tooltip content="輸入逗號分隔的數字，點擊載入">
+          <Tooltip content={t("dataRow.loadTooltip")}>
             <Button
               size="sm"
-              onClick={() => onLoadData(bulkInput)}
+              onClick={() => {
+                let items = bulkInput
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+
+                if (minValue !== undefined || maxValue !== undefined) {
+                  const min = minValue ?? -Infinity;
+                  const max = maxValue ?? Infinity;
+                  const invalid = items.filter((s) => {
+                    const n = Number(s);
+                    return isNaN(n) || n < min || n > max;
+                  });
+                  if (invalid.length > 0) {
+                    toast.warning(
+                      t("dataRow.loadValueRangeWarning", { min, max }),
+                    );
+                    items = items.filter((s) => {
+                      const n = Number(s);
+                      return !isNaN(n) && n >= min && n <= max;
+                    });
+                    if (items.length === 0) return;
+                  }
+                }
+
+                if (maxNodes !== undefined && items.length > maxNodes) {
+                  toast.warning(
+                    t("dataRow.loadLimitWarning", { max: maxNodes }),
+                  );
+                  items = items.slice(0, maxNodes);
+                }
+
+                onLoadData(items.join(","));
+              }}
               disabled={disabled}
               icon="download"
             >
-              載入資料
+              {t("dataRow.loadBtn")}
             </Button>
           </Tooltip>
         </>
       )}
-      <Tooltip content="清除所有資料，恢復初始狀態">
+      <Tooltip content={t("dataRow.resetTooltip")}>
         <Button
           variant="secondary"
           size="sm"
@@ -87,10 +128,10 @@ export const DataRow: React.FC<DataRowProps> = ({
           disabled={disabled}
           icon="rotate-right"
         >
-          重設
+          {t("dataRow.resetBtn")}
         </Button>
       </Tooltip>
-      <Tooltip content="隨機生成一組資料">
+      <Tooltip content={t("dataRow.randomTooltip")}>
         <Button
           variant="secondary"
           size="sm"
@@ -98,97 +139,250 @@ export const DataRow: React.FC<DataRowProps> = ({
           disabled={disabled}
           icon="shuffle"
         >
-          隨機
+          {t("dataRow.randomBtn")}
         </Button>
       </Tooltip>
 
       <div className={styles.settingItem}>
-        <label className={styles.smallLabel}>隨機筆數:</label>
-        <Tooltip content={maxNodes !== undefined ? `設定隨機生成的資料筆數，上限為 ${maxNodes}` : "設定隨機生成的資料筆數"}>
-        <Input
-          type="number"
-          value={randomCountInput}
-          min={DATA_LIMITS.MIN_RANDOM_COUNT}
-          max={maxNodes}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setRandomCountInput(e.target.value)
+        <label className={styles.smallLabel}>
+          {t("dataRow.randomCountLabel")}
+        </label>
+        <Tooltip
+          content={
+            maxNodes !== undefined
+              ? t("dataRow.randomCountTooltipMax", { max: maxNodes })
+              : t("dataRow.randomCountTooltip")
           }
-          onBlur={() => {
-            const num = Number(randomCountInput);
-            if (isNaN(num) || randomCountInput.trim() === "") {
-              setRandomCountInput(String(randomCount));
-            } else if (num < 0) {
-              setRandomCountInput(String(randomCount));
-            } else {
-              if (maxNodes !== undefined && num > maxNodes) {
-                toast.warning(`隨機筆數上限為 ${maxNodes}`);
+        >
+          <Input
+            type="number"
+            value={randomCountInput}
+            min={DATA_LIMITS.MIN_RANDOM_COUNT}
+            max={maxNodes}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setRandomCountInput(e.target.value)
+            }
+            onBlur={() => {
+              const num = Number(randomCountInput);
+              if (isNaN(num) || randomCountInput.trim() === "") {
+                setRandomCountInput(String(randomCount));
+              } else if (num < 0) {
+                setRandomCountInput(String(randomCount));
+              } else {
+                if (maxNodes !== undefined && num > maxNodes) {
+                  toast.warning(
+                    t("dataRow.randomCountLimitWarning", { max: maxNodes }),
+                  );
+                }
+                const v = Math.min(
+                  Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
+                  maxNodes ?? num,
+                );
+                setRandomCount(v);
+                setRandomCountInput(String(v));
+                onMaxNodesChange?.(v);
               }
-              const v = Math.min(
-                Math.max(num, DATA_LIMITS.MIN_RANDOM_COUNT),
-                maxNodes ?? num,
-              );
-              setRandomCount(v);
-              setRandomCountInput(String(v));
-              onMaxNodesChange?.(v);
-            }
-          }}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter") {
-              (e.target as HTMLInputElement).blur();
-            }
-          }}
-          className={`${styles.input} ${styles.valueInput}`}
-          disabled={disabled}
-          fullWidth={false}
-          aria-label="Random count"
-        />
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            className={`${styles.input} ${styles.valueInput}`}
+            disabled={disabled}
+            fullWidth={false}
+            aria-label="Random count"
+          />
         </Tooltip>
       </div>
     </>
   );
 };
 
-// ─── GraphLoaderModal：Graph 資料載入的 modal ────────────────
+// ─── TrieLoaderModal ─────────────────────────────────────────
 
-export type EdgeValidator = (parts: string[], count: number) => string | null;
+interface TrieLoaderModalProps {
+  show: boolean;
+  onClose: () => void;
+  onLoad: (data: string) => void;
+  maxWords?: number; // 預設限制載入筆數，避免樹狀圖過度龐大
+}
 
-const unweightedEdgeValidator: EdgeValidator = (parts, _count) => {
+const TRIE_DEFAULT_INPUT = "app\napple\napply\nape\nbat\nball\ncat\ncare";
+
+export const TrieLoaderModal: React.FC<TrieLoaderModalProps> = ({
+  show,
+  onClose,
+  onLoad,
+  maxWords = 20,
+}) => {
+  const { t } = useTranslation("tutorials/trie"); // Trie 保留自己的 namespace
+  const [committedInput, setCommittedInput] = useState(TRIE_DEFAULT_INPUT);
+  const [draftInput, setDraftInput] = useState(TRIE_DEFAULT_INPUT);
+
+  useEffect(() => {
+    if (show) setDraftInput(committedInput);
+  }, [show, committedInput]);
+
+  const handleLoad = () => {
+    if (!draftInput.trim()) {
+      toast.warning(t("ui.modal.emptyWarning"));
+      return;
+    }
+
+    const rawWords = draftInput.split(/[\s,]+/);
+    const invalidWords: string[] = [];
+    const validWords: string[] = [];
+
+    const tooLongWords: string[] = [];
+
+    for (const w of rawWords) {
+      if (!w) continue;
+
+      if (w.length > DATA_LIMITS.MAX_TRIE_WORD_LENGTH) {
+        tooLongWords.push(w);
+        continue;
+      }
+      // 檢查是否只包含英文字母 (a-z, A-Z)
+      if (!/^[a-zA-Z]+$/.test(w)) {
+        invalidWords.push(w);
+      } else {
+        validWords.push(w.toLowerCase());
+      }
+    }
+
+    if (tooLongWords.length > 0) {
+      const sample =
+        tooLongWords.slice(0, 3).join(", ") +
+        (tooLongWords.length > 3 ? "..." : "");
+      toast.warning(
+        t("ui.modal.tooLongWarning", {
+          max: DATA_LIMITS.MAX_TRIE_WORD_LENGTH,
+          words: sample,
+        }),
+      );
+    }
+
+    if (invalidWords.length > 0) {
+      const sample =
+        invalidWords.slice(0, 5).join(", ") +
+        (invalidWords.length > 5 ? "..." : "");
+      toast.warning(t("ui.modal.invalidWarning", { words: sample }));
+    }
+
+    const uniqueWords = Array.from(new Set(validWords));
+
+    if (uniqueWords.length === 0) {
+      toast.warning(t("ui.modal.noValidWords"));
+      return;
+    }
+
+    let finalWords = uniqueWords;
+    if (finalWords.length > maxWords) {
+      toast.warning(t("ui.modal.truncateWarning", { max: maxWords }));
+      finalWords = finalWords.slice(0, maxWords);
+    }
+
+    const outputString = finalWords.join(" ");
+    setCommittedInput(draftInput);
+    onLoad(`TRIE:${outputString}`);
+    onClose();
+  };
+
+  return (
+    <Dialog
+      isOpen={show}
+      onClose={onClose}
+      size="sm"
+      showCloseButton={false}
+      className={styles.loaderDialog}
+      headerClassName={styles.loaderDialogHeader}
+      contentClassName={styles.loaderDialogContent}
+      footerClassName={styles.loaderDialogFooter}
+      title={t("ui.modal.title")}
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
+            {t("ui.modal.cancel")}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            {t("ui.modal.loadButton")}
+          </Button>
+        </>
+      }
+    >
+      <div className={styles.modalFieldColumn}>
+        <label className={styles.modalLabel}>{t("ui.modal.inputLabel")}</label>
+        <Textarea
+          value={draftInput}
+          onChange={(e) => setDraftInput(e.target.value)}
+          rows={8}
+          maxLength={maxWords * (DATA_LIMITS.MAX_TRIE_WORD_LENGTH + 1)}
+          className={styles.modalGraphTextarea}
+          placeholder={t("ui.modal.placeholder")}
+        />
+        <span style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+          {t("ui.modal.hint", { max: maxWords })}
+        </span>
+      </div>
+    </Dialog>
+  );
+};
+
+// ─── GraphLoaderModal ────────────────────────────────────────
+
+// 注入 TFunction 以支援 i18n
+type EdgeValidator = (
+  parts: string[],
+  count: number,
+  t: TFunction,
+) => string | null;
+
+const unweightedEdgeValidator: EdgeValidator = (parts, _count, t) => {
   if (parts.length !== 2) {
-    return `格式錯誤：每條邊需包含來源、目標兩個數字 (格式: 來源 目標)\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.unweightedFormatError", { line: parts.join(" ") });
   }
   if (isNaN(parseInt(parts[0], 10)) || isNaN(parseInt(parts[1], 10))) {
-    return `來源與目標必須是整數\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.integerError", { line: parts.join(" ") });
   }
   return null;
 };
 
-const weightedEdgeValidator: EdgeValidator = (parts, _count) => {
+const weightedEdgeValidator: EdgeValidator = (parts, _count, t) => {
   if (parts.length !== 3) {
-    return `格式錯誤：每條邊需包含來源、目標、權重三個數字 (格式: 來源 目標 權重)\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.weightedFormatError", { line: parts.join(" ") });
   }
   const w = parseInt(parts[2], 10);
   if (isNaN(w)) {
-    return `權重必須是整數，「${parts[2]}」不是有效數字\n錯誤行：${parts.join(" ")}`;
+    return t("graphModal.weightIntegerError", {
+      val: parts[2],
+      line: parts.join(" "),
+    });
   }
   if (w < 0) {
-    return "不支援負權重邊，請輸入大於或等於 0 的權重！";
+    return t("graphModal.negativeWeightError");
   }
   return null;
 };
 
 const UNWEIGHTED_DEFAULTS = {
-  edgeLabel: "邊 (格式: 來源 目標)\n節點編號 (0 ~ N-1)",
+  edgeLabelKey: "graphModal.unweightedLabel",
   defaultEdgeInput: "0 1\n0 2\n1 3\n2 4\n3 5\n4 5",
   edgePlaceholder: "0 1\n1 2\n2 0",
 };
 
 const WEIGHTED_DEFAULTS = {
-  edgeLabel: "邊 (格式: 來源 目標 權重)\n節點編號 (0 ~ N-1)",
+  edgeLabelKey: "graphModal.weightedLabel",
   defaultEdgeInput: "0 1 4\n0 2 2\n1 2 5\n1 3 10\n2 4 3\n4 3 4\n5 2 6",
   edgePlaceholder: "0 1 4\n1 2 5\n2 0 10",
 };
 
-export interface GraphLoaderModalProps {
+interface GraphLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
@@ -203,13 +397,20 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   isWeighted = false,
   edgeValidator,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const defaults = isWeighted ? WEIGHTED_DEFAULTS : UNWEIGHTED_DEFAULTS;
-  const resolvedValidator = edgeValidator ?? (isWeighted ? weightedEdgeValidator : unweightedEdgeValidator);
+  const resolvedValidator =
+    edgeValidator ??
+    (isWeighted ? weightedEdgeValidator : unweightedEdgeValidator);
 
   const [committedNodeCount, setCommittedNodeCount] = useState("6");
-  const [committedEdgeInput, setCommittedEdgeInput] = useState(defaults.defaultEdgeInput);
+  const [committedEdgeInput, setCommittedEdgeInput] = useState(
+    defaults.defaultEdgeInput,
+  );
   const [draftNodeCount, setDraftNodeCount] = useState("6");
-  const [draftEdgeInput, setDraftEdgeInput] = useState(defaults.defaultEdgeInput);
+  const [draftEdgeInput, setDraftEdgeInput] = useState(
+    defaults.defaultEdgeInput,
+  );
 
   useEffect(() => {
     if (show) {
@@ -221,7 +422,7 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   const handleLoad = () => {
     const count = parseInt(draftNodeCount);
     if (isNaN(count) || count <= 0) {
-      toast.warning("請輸入有效的節點數量");
+      toast.warning(t("graphModal.invalidNodeCount"));
       return;
     }
 
@@ -229,13 +430,12 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line !== "");
-
     const invalidLines: string[] = [];
+
     for (const line of lines) {
       const parts = line.split(/\s+/);
-
       if (resolvedValidator) {
-        const error = resolvedValidator(parts, count);
+        const error = resolvedValidator(parts, count, t);
         if (error) {
           toast.warning(error);
           return;
@@ -252,7 +452,10 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
 
     if (invalidLines.length > 0) {
       toast.warning(
-        `以下邊的節點編號超出範圍 (合法範圍：0 ~ ${count - 1})，請修正後再載入：\n${invalidLines.join(", ")}`,
+        t("graphModal.outOfRangeError", {
+          count: count - 1,
+          lines: invalidLines.join(", "),
+        }),
       );
       return;
     }
@@ -274,33 +477,40 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="自定義 Graph 資料"
+      title={t("graphModal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("common.cancel")}
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
-            確認載入
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            {t("common.confirmLoad")}
           </Button>
         </>
       }
     >
       <div className={styles.modalFieldRow}>
-        <label className={styles.modalLabel}>節點數量 N:</label>
+        <label className={styles.modalLabel}>
+          {t("graphModal.nodeCountLabel")}
+        </label>
         <Input
           type="number"
           value={draftNodeCount}
           fullWidth={false}
-          onChange={(e) => setDraftNodeCount(e.target.value)}
+          min={1}
+          max={DATA_LIMITS.MAX_GRAPH_NODE_COUNT}
+          onChange={(e) => setDraftNodeCount(clampNumberInput(e.target.value, 1, DATA_LIMITS.MAX_GRAPH_NODE_COUNT))}
           className={`${styles.input} ${styles.nodeCountInput}`}
           aria-label="Node count"
         />
       </div>
       <div className={styles.modalFieldColumn}>
-        <label className={styles.modalLabel}>
-          {defaults.edgeLabel}
-        </label>
+        <label className={styles.modalLabel}>{t(defaults.edgeLabelKey)}</label>
         <Textarea
           value={draftEdgeInput}
           onChange={(e) => setDraftEdgeInput(e.target.value)}
@@ -313,9 +523,9 @@ export const GraphLoaderModal: React.FC<GraphLoaderModalProps> = ({
   );
 };
 
-// ─── GridLoaderModal：Grid 迷宮資料載入的 modal ──────────────
+// ─── GridLoaderModal ────────────────────────────────────────
 
-export interface GridLoaderModalProps {
+interface GridLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (data: string) => void;
@@ -326,24 +536,26 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const DEFAULT_GRID = "0 0 0 0 0\n0 1 1 1 0\n0 0 0 0 0";
   const [committedGridText, setCommittedGridText] = useState(DEFAULT_GRID);
   const [draftGridText, setDraftGridText] = useState(DEFAULT_GRID);
 
   useEffect(() => {
-    if (show) {
-      setDraftGridText(committedGridText);
-    }
+    if (show) setDraftGridText(committedGridText);
   }, [show]);
 
   const handleLoad = () => {
     const trimmed = draftGridText.trim();
     if (trimmed === "") {
-      toast.warning("請輸入迷宮資料");
+      toast.warning(t("gridModal.emptyWarning"));
       return;
     }
 
-    const rowsArr = trimmed.split("\n").map((r) => r.trim()).filter((r) => r !== "");
+    const rowsArr = trimmed
+      .split("\n")
+      .map((r) => r.trim())
+      .filter((r) => r !== "");
     const parsedRows: number[][] = [];
     let firstRowCols = -1;
 
@@ -351,7 +563,9 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       const cells = rowsArr[i].split(/[\s,]+/).filter(Boolean);
       for (const cell of cells) {
         if (cell !== "0" && cell !== "1") {
-          toast.warning(`第 ${i + 1} 行包含非法值「${cell}」，每格只能是 0（路）或 1（牆）`);
+          toast.warning(
+            t("gridModal.invalidCellWarning", { row: i + 1, cell }),
+          );
           return;
         }
       }
@@ -359,7 +573,13 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       if (firstRowCols === -1) {
         firstRowCols = nums.length;
       } else if (nums.length !== firstRowCols) {
-        toast.warning(`第 ${i + 1} 行有 ${nums.length} 格，與第 1 行的 ${firstRowCols} 格不一致，每行欄數必須相同`);
+        toast.warning(
+          t("gridModal.columnMismatchWarning", {
+            row: i + 1,
+            cols: nums.length,
+            firstCols: firstRowCols,
+          }),
+        );
         return;
       }
       parsedRows.push(nums);
@@ -369,12 +589,14 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
     const cols = firstRowCols;
 
     if (rows < 1 || cols < 1) {
-      toast.warning("迷宮至少需要 1 行 1 欄");
+      toast.warning(t("gridModal.minSizeWarning"));
       return;
     }
 
     if (rows * cols > 400) {
-      toast.warning(`迷宮大小 ${rows}×${cols} = ${rows * cols} 格，超過上限 400 格（建議最大 20×20）`);
+      toast.warning(
+        t("gridModal.maxSizeWarning", { rows, cols, total: rows * cols }),
+      );
       return;
     }
 
@@ -394,14 +616,19 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="輸入迷宮資料 (0=路, 1=牆)"
+      title={t("gridModal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("common.cancel")}
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
-            確認載入
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            {t("common.confirmLoad")}
           </Button>
         </>
       }
@@ -417,9 +644,9 @@ export const GridLoaderModal: React.FC<GridLoaderModalProps> = ({
   );
 };
 
-// ─── KnapsackLoaderModal：背包問題資料載入的 modal ──────────────
+// ─── KnapsackLoaderModal ──────────────────────────────────────
 
-export interface KnapsackLoaderModalProps {
+interface KnapsackLoaderModalProps {
   show: boolean;
   onClose: () => void;
   onLoad: (itemsStr: string) => void;
@@ -430,14 +657,13 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   onClose,
   onLoad,
 }) => {
+  const { t } = useTranslation("tutorials/actionbar");
   const DEFAULT_ITEMS = "1 15\n3 20\n4 30";
   const [committedItemInput, setCommittedItemInput] = useState(DEFAULT_ITEMS);
   const [draftItemInput, setDraftItemInput] = useState(DEFAULT_ITEMS);
 
   useEffect(() => {
-    if (show) {
-      setDraftItemInput(committedItemInput);
-    }
+    if (show) setDraftItemInput(committedItemInput);
   }, [show]);
 
   const handleLoad = () => {
@@ -453,11 +679,11 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
         isNaN(Number(parts[0])) ||
         isNaN(Number(parts[1]))
       ) {
-        toast.warning("格式錯誤！請確保每行都有重量與價值 (例如: 3 20)");
+        toast.warning(t("knapsackModal.formatError"));
         return;
       }
       if (Number(parts[0]) <= 0 || Number(parts[1]) <= 0) {
-        toast.warning("重量與價值必須大於 0");
+        toast.warning(t("knapsackModal.positiveError"));
         return;
       }
     }
@@ -478,21 +704,26 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
       headerClassName={styles.loaderDialogHeader}
       contentClassName={styles.loaderDialogContent}
       footerClassName={styles.loaderDialogFooter}
-      title="自定義背包物品"
+      title={t("knapsackModal.title")}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            取消
+            {t("common.cancel")}
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleLoad} className={styles.modalConfirmButton}>
-            確認載入
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLoad}
+            className={styles.modalConfirmButton}
+          >
+            {t("common.confirmLoad")}
           </Button>
         </>
       }
     >
       <div className={styles.modalFieldColumn}>
         <label className={styles.modalLabel}>
-          物品清單 (格式: 重量 價值，一行一個物品)
+          {t("knapsackModal.inputLabel")}
         </label>
         <Textarea
           value={draftItemInput}
@@ -506,5 +737,4 @@ export const KnapsackLoaderModal: React.FC<KnapsackLoaderModalProps> = ({
   );
 };
 
-// Re-export styles 供各 ActionBar 使用
 export { styles };

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
 import Icon from '@/shared/components/Icon';
 import type { IconName } from '@/shared/lib/iconMap';
 import type {
@@ -28,6 +29,7 @@ interface PopupWindowProps {
   canvasSize: { w: number; h: number };
   closeHistory: number[];
   isShaking: boolean;
+  ns?: string;
 }
 
 function useBouncingH(
@@ -158,7 +160,11 @@ function useBossSpawn(
   popup: PopupInstance,
   onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void,
   onUpdateTypeState: (id: string, state: PopupTypeState) => void,
+  tg: (key: string, opts?: Record<string, unknown>) => string,
 ) {
+  const tgRef = useRef(tg);
+  tgRef.current = tg;
+
   useEffect(() => {
     if (
       !active ||
@@ -171,13 +177,12 @@ function useBossSpawn(
       minionsSpawned: true,
       minionsRemaining: 3,
     });
-    [
-      { def: { type: "minion" as const, title: "小弟 #1", iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE } },
-      { def: { type: "minion" as const, title: "小弟 #2", iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE } },
-      { def: { type: "minion" as const, title: "小弟 #3", iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE } },
-    ].forEach((item, i) => {
+    [1, 2, 3].map((n) => ({
+      def: { type: "minion" as const, title: tgRef.current('titles.minion', { n }), iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE },
+    })).forEach((item, i) => {
       setTimeout(() => onSpawnChild(popup.id, [item]), i * 150);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, popup.id, popup.typeState.kind, onSpawnChild, onUpdateTypeState]);
 }
 
@@ -187,7 +192,11 @@ function useSineWaveSpawn(
   canvasSize: { w: number; h: number },
   onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void,
   onUpdateTypeState: (id: string, state: PopupTypeState) => void,
+  tg: (key: string, opts?: Record<string, unknown>) => string,
 ) {
+  const tgRef = useRef(tg);
+  tgRef.current = tg;
+
   useEffect(() => {
     if (
       !active ||
@@ -205,7 +214,7 @@ function useSineWaveSpawn(
     Array.from({ length: 6 }, (_, i) => ({
       def: {
         type: "sine-child" as const,
-        title: `子彈窗 ${i + 1}`,
+        title: tgRef.current('titles.sineChild', { n: i + 1 }),
         iconName: "wave-square" as const,
         size: SINE_CHILD_POPUP_SIZE,
       },
@@ -216,14 +225,8 @@ function useSineWaveSpawn(
     })).forEach((item, i) => {
       setTimeout(() => onSpawnChild(popup.id, [item]), i * 50);
     });
-  }, [
-    active,
-    popup.id,
-    popup.typeState.kind,
-    canvasSize,
-    onSpawnChild,
-    onUpdateTypeState,
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, popup.id, popup.typeState.kind, canvasSize, onSpawnChild, onUpdateTypeState]);
 }
 
 function useSpeedTestWatch(
@@ -232,12 +235,15 @@ function useSpeedTestWatch(
   isLocked: boolean,
   closeHistory: number[],
   onSpawnChild: (parentId: string, items: SpawnChildItem[]) => void,
+  tg: (key: string, opts?: Record<string, unknown>) => string,
 ) {
   const timerSetRef = useRef(false);
   const onSpawnChildRef = useRef(onSpawnChild);
   onSpawnChildRef.current = onSpawnChild;
   const closeHistoryRef = useRef(closeHistory);
   closeHistoryRef.current = closeHistory;
+  const tgRef = useRef(tg);
+  tgRef.current = tg;
 
   useEffect(() => {
     if (!active || isLocked || timerSetRef.current) return;
@@ -254,7 +260,7 @@ function useSpeedTestWatch(
       Array.from({ length: 5 }, () => ({
         def: {
           type: "speed-test-child" as const,
-          title: "額外彈窗",
+          title: tgRef.current('titles.extraPopup'),
           iconName: "stopwatch" as const,
           size: NORMAL_POPUP_SIZE,
         },
@@ -273,10 +279,12 @@ function PopupContent({
   popup,
   onClose,
   onUpdateTypeState,
+  tg,
 }: {
   popup: PopupInstance;
   onClose: (id: string) => void;
   onUpdateTypeState: (id: string, state: PopupTypeState) => void;
+  tg: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
 
@@ -284,34 +292,31 @@ function PopupContent({
     case "rules":
       return (
         <div className={styles.contentRules}>
-          <p>
-            彈窗遵循 <strong>LIFO（後進先出）</strong>
-            ：最後出現的彈窗必須最先關閉！
-          </p>
-          <p>關閉此視窗即可開始倒計時。</p>
+          <p>{tg('popup.rules.desc1')}</p>
+          <p>{tg('popup.rules.desc2')}</p>
           <Button
             type="button"
             variant="primary"
             className={styles.primaryBtn}
             onClick={() => onClose(popup.id)}
           >
-            我知道了，開始遊戲！
+            {tg('popup.rules.button')}
           </Button>
         </div>
       );
     case "hidden-close":
       return (
         <div className={styles.contentHidden}>
-          <p>這段文字裡藏著關閉按鈕……</p>
+          <p>{tg('popup.hiddenClose.desc1')}</p>
           <p>
-            找到了嗎？點擊
+            {tg('popup.hiddenClose.desc2')}
             <Button
               type="button"
               variant="ghost"
               className={styles.inlineClose}
               onClick={() => onClose(popup.id)}
             >
-              [關閉此視窗]
+              {tg('popup.hiddenClose.link')}
             </Button>
           </p>
         </div>
@@ -320,53 +325,55 @@ function PopupContent({
       return (
         <div className={styles.contentCorner}>
           <p>
-            還需點擊{" "}
-            {popup.typeState.kind === "corner-teleport"
-              ? popup.typeState.clicksRemaining
-              : 4}{" "}
-            次
+            {tg('popup.cornerTeleport.clicks', {
+              n: popup.typeState.kind === "corner-teleport"
+                ? popup.typeState.clicksRemaining
+                : 4,
+            })}
           </p>
         </div>
       );
     case "boss":
       return (
         <div className={styles.contentBoss}>
-          <p>等我的小弟們都走了再說…</p>
+          <p>{tg('popup.boss.desc')}</p>
           <p>
-            剩餘：
-            {popup.typeState.kind === "boss"
-              ? popup.typeState.minionsRemaining
-              : 3}{" "}
-            個
+            {tg('popup.boss.remaining', {
+              n: popup.typeState.kind === "boss"
+                ? popup.typeState.minionsRemaining
+                : 3,
+            })}
           </p>
         </div>
       );
     case "sine-wave":
       return (
         <div className={styles.contentSine}>
-          <p>你以為關掉我就結束了？</p>
+          <p>{tg('popup.sineWave.desc')}</p>
         </div>
       );
-    case "quiz":
+    case "quiz": {
+      const opts = [
+        { key: "A", label: tg('popup.quiz.optA') },
+        { key: "B", label: tg('popup.quiz.optB') },
+        { key: "C", label: tg('popup.quiz.optC') },
+        { key: "D", label: tg('popup.quiz.optD') },
+      ];
+      const correctKey = "B";
       return (
         <div className={styles.contentQuiz}>
-          <p>關於 Stack，以下哪個描述正確？</p>
+          <p>{tg('popup.quiz.question')}</p>
           <div className={styles.radioGroup}>
-            {[
-              "A. 先進先出（FIFO）",
-              "B. 先進後出（LIFO）",
-              "C. 隨機存取",
-              "D. 雙向存取",
-            ].map((opt) => (
-              <label key={opt}>
+            {opts.map(({ key, label }) => (
+              <label key={key}>
                 <input
                   type="radio"
                   name={`quiz-${popup.id}`}
-                  value={opt}
-                  checked={quizAnswer === opt}
-                  onChange={() => setQuizAnswer(opt)}
+                  value={key}
+                  checked={quizAnswer === key}
+                  onChange={() => setQuizAnswer(key)}
                 />
-                {opt}
+                {label}
               </label>
             ))}
           </div>
@@ -375,7 +382,7 @@ function PopupContent({
             variant="primary"
             className={styles.primaryBtn}
             onClick={() => {
-              if (quizAnswer === "B. 先進後出（LIFO）") {
+              if (quizAnswer === correctKey) {
                 onClose(popup.id);
               } else if (quizAnswer) {
                 onUpdateTypeState(popup.id, {
@@ -386,10 +393,11 @@ function PopupContent({
               }
             }}
           >
-            提交
+            {tg('popup.quiz.submit')}
           </Button>
         </div>
       );
+    }
     case "speed-test":
       return (
         <div className={styles.contentSpeed}>
@@ -399,7 +407,7 @@ function PopupContent({
             className={styles.speedBtn}
             onClick={() => onClose(popup.id)}
           >
-            快點擊我！
+            {tg('popup.speedTest.button')}
           </Button>
         </div>
       );
@@ -412,14 +420,14 @@ function PopupContent({
     case "congrats":
       return (
         <div className={styles.contentCongrats}>
-          <p>恭喜！所有彈窗已關閉！</p>
-          <p>請點擊 X 完成挑戰</p>
+          <p>{tg('popup.congrats.desc1')}</p>
+          <p>{tg('popup.congrats.desc2')}</p>
         </div>
       );
     default:
       return (
         <div className={styles.contentNormal}>
-          <p>點擊右上角 X 關閉</p>
+          <p>{tg('popup.default.desc')}</p>
         </div>
       );
   }
@@ -438,7 +446,12 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
   canvasSize,
   closeHistory,
   isShaking,
+  ns,
 }) => {
+  const { t } = useTranslation(ns || 'tutorial');
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.stack.${key}`, { ns: ns || 'tutorial', ...opts });
+
   const active = isTop && gameStatus === "playing";
 
   useBouncingH(
@@ -464,6 +477,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
     popup,
     onSpawnChild,
     onUpdateTypeState,
+    tg,
   );
   useSineWaveSpawn(
     active && popup.type === "sine-wave",
@@ -471,6 +485,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
     canvasSize,
     onSpawnChild,
     onUpdateTypeState,
+    tg,
   );
   useSpeedTestWatch(
     active && popup.type === "speed-test",
@@ -480,6 +495,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
       : false,
     closeHistory,
     onSpawnChild,
+    tg,
   );
 
   const handleCloseClick = useCallback(() => {
@@ -565,7 +581,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
             className={styles.closeBtn}
             onClick={handleCloseClick}
             disabled={!canClose}
-            aria-label="關閉"
+            aria-label={tg('popup.closeAria')}
           >
             <Icon name="times" />
           </Button>
@@ -576,6 +592,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
           popup={popup}
           onClose={onClose}
           onUpdateTypeState={onUpdateTypeState}
+          tg={tg}
         />
       </div>
     </div>

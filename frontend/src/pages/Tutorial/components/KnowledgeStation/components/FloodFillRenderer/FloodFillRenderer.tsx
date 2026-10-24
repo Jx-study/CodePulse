@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import ControlBar from '@/modules/core/components/ControlBar/ControlBar';
 import Button from '@/shared/components/Button/Button';
@@ -152,9 +153,11 @@ function computeFloodFillCells(
 
 interface Props {
   data: FloodFillOutputData;
+  ns?: string;
 }
 
-const FloodFillRenderer: React.FC<Props> = ({ data }) => {
+const FloodFillRenderer: React.FC<Props> = ({ data, ns }) => {
+  const { t } = useTranslation(ns || 'tutorial');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalGridRef = useRef<number[][] | null>(null);
   const permanentGridRef = useRef<number[][] | null>(null);
@@ -357,13 +360,13 @@ const FloodFillRenderer: React.FC<Props> = ({ data }) => {
       </div>
 
       <div className={styles.controlRow}>
-        <div className={styles.palette} role="listbox" aria-label="填色色盤">
+        <div className={styles.palette} role="listbox" aria-label={t('floodFill.paletteAria')}>
           {PALETTE.map((color, i) => (
             <button
               key={i}
               type="button"
               role="option"
-              aria-label={`選擇顏色 ${i + 1}`}
+              aria-label={t('floodFill.colorAria', { n: i + 1 })}
               aria-selected={selectedColor === i + 1}
               className={classNames(styles.paletteColor, {
                 [styles.paletteColorSelected]: selectedColor === i + 1,
@@ -378,7 +381,7 @@ const FloodFillRenderer: React.FC<Props> = ({ data }) => {
           size="sm"
           icon="download"
           iconOnly
-          aria-label="下載圖片"
+          aria-label={t('floodFill.downloadAria')}
           onClick={handleDownload}
         />
       </div>

@@ -2,27 +2,41 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { Box } from "@/modules/core/DataLogic/Box";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface FactorialStackItem {
+  n: number;
+  val: number;
+}
+
+interface FactorialMeta {
+  stack?: FactorialStackItem[];
+  preparingNode?: FactorialStackItem | null;
+  poppingNode?: FactorialStackItem | null;
+  highlightIndices?: number[];
+  completeIndices?: number[];
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
-    key: "factorial.init",
+    key: "animation.init",
     params: { targetN: e.local_vars.targetN },
   }),
   [TAGS.PUSH_START]: (e) => ({
-    key: "factorial.push_start",
+    key: "animation.push_start",
     params: { n: e.local_vars.n },
   }),
   [TAGS.PUSH_ASSIGN]: (e) => ({
-    key: "factorial.push_assign",
+    key: "animation.push_assign",
     params: { n: e.local_vars.n },
   }),
   [TAGS.BASE_CASE]: (e) => ({
-    key: "factorial.base_case",
+    key: "animation.base_case",
     params: { n: e.local_vars.n, val: e.local_vars.val },
   }),
   [TAGS.CALC_START]: (e) => ({
-    key: "factorial.calc_start",
+    key: "animation.calc_start",
     params: {
       current_f: e.local_vars.current_f,
       child_val: e.local_vars.child_val,
@@ -30,7 +44,7 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.CALC_MULTIPLY]: (e) => ({
-    key: "factorial.calc_multiply",
+    key: "animation.calc_multiply",
     params: {
       current_f: e.local_vars.current_f,
       child_val: e.local_vars.child_val,
@@ -38,15 +52,18 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
     },
   }),
   [TAGS.POP_RIGHT]: (e) => ({
-    key: "factorial.pop_right",
+    key: "animation.pop_right",
     params: {
       returned_f: e.local_vars.returned_f,
       returned_val: e.local_vars.returned_val,
     },
   }),
   [TAGS.DONE]: (e) => ({
-    key: "factorial.done",
-    params: { final_result: e.local_vars.final_result },
+    key: "animation.done",
+    params: {
+      targetN: e.local_vars.targetN,
+      final_result: e.local_vars.final_result,
+    },
   }),
 };
 
@@ -58,11 +75,12 @@ export function factorialTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
     const elements: Box[] = [];
 
-    const stack: { n: number; val: number }[] = event.meta?.stack || [];
-    const preparingNode = event.meta?.preparingNode;
-    const poppingNode = event.meta?.poppingNode;
-    const highlightIndices: number[] = event.meta?.highlightIndices || [];
-    const completeIndices: number[] = event.meta?.completeIndices || [];
+    const meta = asTrace<FactorialMeta>(event.meta);
+    const stack = meta.stack || [];
+    const preparingNode = meta.preparingNode;
+    const poppingNode = meta.poppingNode;
+    const highlightIndices = meta.highlightIndices || [];
+    const completeIndices = meta.completeIndices || [];
 
     const createFactBox = (
       n: number,
@@ -113,8 +131,8 @@ export function factorialTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.local_vars,
-      elements: elements as any,
+      local_vars: event.local_vars,
+      elements,
     };
   });
 }

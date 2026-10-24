@@ -1,1227 +1,34 @@
 import type { AnimationStep, CodeConfig } from "@/types";
-import type { LevelImplementationConfig } from "@/types/implementation";
+import type { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import { graphRealWorldStories } from "./graph.stories";
 import type { ActionContext } from "@/modules/core/visualization/types";
 import { GraphActionBar } from "./GraphActionBar";
-import {
-  createGraphElements,
-  generateGraphFrame,
-  updateLinkStatus,
-} from "@/data/DataStructure/nonlinear/utils";
 import { generateRandomGraphDS } from "@/modules/core/visualization/visualizationUtils";
 import type { ActionResult } from "@/modules/core/visualization/types";
-import type { GraphData } from "@/modules/core/visualization/types";
-import { Node } from "@/modules/core/DataLogic/Node";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
-import { linkStatus } from "@/modules/core/Render/D3Renderer";
+import type {
+  GraphData,
+  AlgorithmNode,
+} from "@/modules/core/visualization/types";
+import { simulateGraphTrace, type GraphAction } from "./simulateTrace";
+import { graphTraceToSteps } from "./traceToSteps";
+import { GraphStatusConfig, TAGS } from "./tags";
+import type { RawGraphNode } from "@/data/DataStructure/nonlinear/utils";
 
-const TAGS = {
-  INIT: "INIT",
-  ADD_VERTEX: "ADD_VERTEX",
-  ADD_VERTEX_RESULT: "ADD_VERTEX_RESULT",
-  REMOVE_VERTEX: "REMOVE_VERTEX",
-  REMOVE_VERTEX_UPDATE: "REMOVE_VERTEX_UPDATE",
-  ADD_EDGE: "ADD_EDGE",
-  ADD_EDGE_UNDIRECTED: "ADD_EDGE_UNDIRECTED",
-  REMOVE_EDGE: "REMOVE_EDGE",
-  REMOVE_EDGE_UNDIRECTED: "REMOVE_EDGE_UNDIRECTED",
-  GET_NEIGHBORS: "GET_NEIGHBORS",
-  GET_NEIGHBORS_RESULT_TRUE: "GET_NEIGHBORS_RESULT_TRUE",
-  GET_NEIGHBORS_RESULT_FALSE: "GET_NEIGHBORS_RESULT_FALSE",
-  CHECK_ADJACENT: "CHECK_ADJACENT",
-  CHECK_ADJACENT_RESULT_TRUE: "CHECK_ADJACENT_RESULT_TRUE",
-  CHECK_ADJACENT_RESULT_FALSE: "CHECK_ADJACENT_RESULT_FALSE",
-  GET_DEGREE_UNDIRECTED: "GET_DEGREE_UNDIRECTED",
-  GET_DEGREE_DIRECTED: "GET_DEGREE_DIRECTED",
-  CHECK_CONNECTED_INIT: "CHECK_CONNECTED_INIT",
-  CHECK_CONNECTED_WHILE: "CHECK_CONNECTED_WHILE",
-  CHECK_CONNECTED_RESULT: "CHECK_CONNECTED_RESULT",
-  CHECK_CYCLE_INIT: "CHECK_CYCLE_INIT",
-  CHECK_CYCLE_DFS: "CHECK_CYCLE_DFS",
-  CHECK_CYCLE_FOUND_TRUE: "CHECK_CYCLE_FOUND_TRUE",
-  CHECK_CYCLE_FOUND_FALSE: "CHECK_CYCLE_FOUND_FALSE",
-  CHECK_CYCLE_END_TRUE: "CHECK_CYCLE_END_TRUE",
-  CHECK_CYCLE_END_FALSE: "CHECK_CYCLE_END_FALSE",
-};
-
-function runRefresh(graphData: any, isDirected: boolean): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  // 建立結構
-  let baseElements: Node[] = [];
-  if (graphData.nodes && graphData.edges) {
-    baseElements = createGraphElements(graphData, isDirected);
-  } else {
-    return steps;
-  }
-
-  const nodeMap = new Map<string, Node>();
-  baseElements.forEach((node) => nodeMap.set(node.id, node));
-
-  // 初始靜態畫面
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      {},
-      {},
-      `圖形結構展示：節點 (Nodes) 與邊 (Edges)。`,
-      true, // 顯示 ID
-    ),
-    actionTag: TAGS.INIT,
-    local_vars: {},
-  });
-
-  return steps;
-}
-
-function runAddNode(
-  graphData: any,
-  newNodeId: string,
-  isDirected: boolean,
+function createGraphAnimationSteps(
+  inputData: { nodes: RawGraphNode[]; edges: string[][] },
+  action?: GraphAction,
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  // 建立基本元素 (包含剛剛新增的 Node)
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const statusMap: Record<string, Status> = {};
-  const distanceMap: Record<string, number> = {};
-
-  const targetId = newNodeId.startsWith("node-")
-    ? newNodeId
-    : `node-${newNodeId}`;
-  statusMap[targetId] = Status.Target;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      distanceMap,
-      `新增節點：${newNodeId}`,
-      true, // 顯示 ID
-    ),
-    actionTag: TAGS.ADD_VERTEX,
-    local_vars: { insertVal: newNodeId },
-  });
-
-  statusMap[targetId] = Status.Complete;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      distanceMap,
-      `節點新增完成：${newNodeId}`,
-      true, // 顯示 ID
-    ),
-    actionTag: TAGS.ADD_VERTEX_RESULT,
-    local_vars: { insertVal: newNodeId },
-  });
-  return steps;
+  const trace = simulateGraphTrace(inputData, action);
+  return graphTraceToSteps(trace);
 }
 
-function runRemoveNode(
-  graphData: any,
-  deletedNodeId: string,
-  isDirected: boolean,
-  deletedEdges: string[][] = [],
-  deletedNodeX?: number,
-  deletedNodeY?: number,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  const distanceMap: Record<string, number> = {};
-
-  const targetId = deletedNodeId.startsWith("node-")
-    ? deletedNodeId
-    : `node-${deletedNodeId}`;
-
-  const ghostElements = [...baseElements];
-
-  const ghostNode = new Node();
-
-  if (deletedNodeX !== undefined && deletedNodeY !== undefined) {
-    ghostNode.moveTo(deletedNodeX, deletedNodeY);
-  }
-
-  ghostNode.id = targetId;
-
-  deletedEdges.forEach(([source, target]) => {
-    if (source === targetId) {
-      const targetNode = baseElements.find((n) => n.id === target);
-      if (targetNode) {
-        ghostNode.pointers.push(targetNode);
-        updateLinkStatus(
-          linkStatusMap,
-          targetId,
-          target,
-          Status.Target,
-          isDirected,
-        );
-      }
-    }
-
-    if (target === targetId) {
-      const sourceNode = baseElements.find((n) => n.id === source);
-      if (sourceNode) {
-        sourceNode.pointers.push(ghostNode);
-        updateLinkStatus(
-          linkStatusMap,
-          source,
-          targetId,
-          Status.Target,
-          isDirected,
-        );
-      }
-    }
-  });
-  ghostElements.push(ghostNode);
-
-  statusMap[targetId] = Status.Target;
-
-  steps.push({
-    ...generateGraphFrame(
-      ghostElements,
-      statusMap,
-      distanceMap,
-      `刪除節點：${deletedNodeId} 及其連接的邊`,
-      true,
-      { ...linkStatusMap },
-    ),
-    actionTag: TAGS.REMOVE_VERTEX,
-    local_vars: { removeVal: deletedNodeId },
-  });
-
-  // 還原被 mutate 的 pointers，避免 clean step 的 links 仍含已刪除節點
-  baseElements.forEach((node) => {
-    node.pointers = node.pointers.filter((p) => p.id !== targetId);
-  });
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      {},
-      {},
-      "節點已移除，圖形重新排版",
-      true,
-    ),
-    actionTag: TAGS.REMOVE_VERTEX_UPDATE,
-    local_vars: { removeVal: deletedNodeId },
-  });
-
-  return steps;
-}
-
-function runAddEdge(
-  graphData: any,
-  sourceId: string,
-  targetId: string,
-  isDirected: boolean,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const sId = sourceId.startsWith("node-") ? sourceId : `node-${sourceId}`;
-  const tId = targetId.startsWith("node-") ? targetId : `node-${targetId}`;
-
-  const sNode = baseElements.find((n) => n.id === sId);
-  const tNode = baseElements.find((n) => n.id === tId);
-
-  // 暫時移除連線
-  // 把已經存在的 pointer 拿掉，讓這一幀看起來就像還沒連線
-  if (sNode) {
-    sNode.pointers = sNode.pointers.filter((n) => n.id !== tId);
-  }
-  // 如果是無向圖，雙向都有 pointer
-  if (!isDirected && tNode) {
-    tNode.pointers = tNode.pointers.filter((n) => n.id !== sId);
-  }
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  statusMap[sId] = Status.Target;
-  statusMap[tId] = Status.Target;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `選擇節點 ${sourceId} 與 ${targetId} 準備連線`,
-      true,
-    ),
-    actionTag: TAGS.ADD_EDGE,
-    local_vars: { source: sourceId, target: targetId },
-  });
-
-  // 恢復連線
-  if (sNode && tNode) {
-    // 檢查是否已經存在 (避免重複添加)
-    if (!sNode.pointers.find((n) => n.id === tId)) {
-      sNode.pointers = [...sNode.pointers, tNode];
-      updateLinkStatus(linkStatusMap, sId, tId, Status.Complete, isDirected);
-    }
-    // 雙向處理
-    if (!isDirected) {
-      if (!tNode.pointers.find((n) => n.id === sId)) {
-        tNode.pointers = [...tNode.pointers, sNode];
-        updateLinkStatus(linkStatusMap, tId, sId, Status.Complete, isDirected);
-      }
-    }
-  }
-
-  statusMap[sId] = Status.Complete;
-  statusMap[tId] = Status.Complete;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `邊已新增：${sourceId} - ${targetId}`,
-      true,
-      { ...linkStatusMap },
-    ),
-    actionTag: isDirected ? TAGS.ADD_EDGE : TAGS.ADD_EDGE_UNDIRECTED,
-    local_vars: { source: sourceId, target: targetId },
-  });
-
-  return steps;
-}
-
-function runRemoveEdge(
-  graphData: any,
-  sourceId: string,
-  targetId: string,
-  isDirected: boolean,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const sId = sourceId.startsWith("node-") ? sourceId : `node-${sourceId}`;
-  const tId = targetId.startsWith("node-") ? targetId : `node-${targetId}`;
-
-  const sNode = baseElements.find((n) => n.id === sId);
-  const tNode = baseElements.find((n) => n.id === tId);
-
-  // 標記兩點 + 手動補回連線 (Ghost Edge)
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-
-  statusMap[sId] = Status.Target;
-  statusMap[tId] = Status.Target;
-
-  if (sNode && tNode) {
-    sNode.pointers = [...sNode.pointers, tNode];
-    updateLinkStatus(linkStatusMap, sId, tId, Status.Target, isDirected);
-
-    // 如果是無向圖，把反向的加回去
-    if (!isDirected) {
-      tNode.pointers = [...tNode.pointers, sNode];
-      updateLinkStatus(linkStatusMap, tId, sId, Status.Target, isDirected);
-    }
-  }
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements, // 包含手動加入的 Ghost Edge
-      statusMap,
-      {},
-      `選中節點 ${sourceId} 與 ${targetId}，準備斷開連線`,
-      true,
-      { ...linkStatusMap },
-    ),
-    actionTag: TAGS.REMOVE_EDGE,
-    local_vars: { source: sourceId, target: targetId },
-  });
-
-  // 移除連線
-  if (sNode && tNode) {
-    sNode.pointers = sNode.pointers.filter((n) => n.id !== tId);
-
-    // 如果是無向圖，也要移除反向的連線
-    if (!isDirected) {
-      tNode.pointers = tNode.pointers.filter((n) => n.id !== sId);
-    }
-  }
-
-  statusMap[sId] = Status.Complete;
-  statusMap[tId] = Status.Complete;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `連線已移除：${sourceId} - ${targetId}`,
-      true,
-    ),
-    actionTag: isDirected ? TAGS.REMOVE_EDGE : TAGS.REMOVE_EDGE_UNDIRECTED,
-    local_vars: { source: sourceId, target: targetId },
-  });
-
-  return steps;
-}
-
-function runGetNeighbors(
-  graphData: any,
-  nodeId: string,
-  isDirected: boolean,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const targetId = nodeId.startsWith("node-") ? nodeId : `node-${nodeId}`;
-  const targetNode = baseElements.find((n) => n.id === targetId);
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  statusMap[targetId] = Status.Target;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `準備尋找節點 ${nodeId} 的鄰居 (讀取 Adjacency List)...`,
-      true,
-    ),
-    actionTag: TAGS.GET_NEIGHBORS,
-    local_vars: { target: nodeId },
-  });
-
-  if (targetNode) {
-    const neighbors = targetNode.pointers;
-
-    if (neighbors.length === 0) {
-      steps.push({
-        ...generateGraphFrame(
-          baseElements,
-          statusMap,
-          {},
-          `節點 ${nodeId} 沒有鄰居 (Out-Degree = 0)。`,
-          true,
-        ),
-        actionTag: TAGS.GET_NEIGHBORS_RESULT_FALSE,
-        local_vars: { target: nodeId, neighborsCount: 0 },
-      });
-    } else {
-      neighbors.forEach((neighbor, index) => {
-        statusMap[neighbor.id] = Status.Prepare;
-        updateLinkStatus(
-          linkStatusMap,
-          targetId,
-          neighbor.id,
-          "prepare",
-          true,
-        );
-        steps.push({
-          ...generateGraphFrame(
-            baseElements,
-            { ...statusMap },
-            {},
-            `發現第 ${index + 1} 個鄰居：${neighbor.id.replace("node-", "")}`,
-            true,
-            { ...linkStatusMap },
-          ),
-          actionTag: TAGS.GET_NEIGHBORS,
-          local_vars: { target: nodeId, currentNeighbor: neighbor.id },
-        });
-        updateLinkStatus(
-          linkStatusMap,
-          targetId,
-          neighbor.id,
-          Status.Complete,
-          isDirected,
-        );
-        statusMap[neighbor.id] = Status.Complete;
-      });
-
-      const neighborNames = neighbors.map((n) => n.id.replace("node-", ""));
-      steps.push({
-        ...generateGraphFrame(
-          baseElements,
-          statusMap,
-          {},
-          `搜尋完成，共有 ${neighbors.length} 個鄰居：${neighborNames.join(", ")}`,
-          true,
-          { ...linkStatusMap },
-        ),
-        actionTag: TAGS.GET_NEIGHBORS_RESULT_TRUE,
-        local_vars: { target: nodeId, neighborsCount: neighbors.length },
-      });
-    }
-  } else {
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        {},
-        {},
-        `節點 ${nodeId} 不存在`,
-        true,
-      ),
-      actionTag: TAGS.GET_NEIGHBORS,
-      local_vars: { target: nodeId, error: true },
-    });
-  }
-
-  return steps;
-}
-
-function runCheckAdjacent(
-  graphData: any,
-  sourceId: string,
-  targetId: string,
-  isDirected: boolean,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const sId = sourceId.startsWith("node-") ? sourceId : `node-${sourceId}`;
-  const tId = targetId.startsWith("node-") ? targetId : `node-${targetId}`;
-  const sNode = baseElements.find((n) => n.id === sId);
-  const tNode = baseElements.find((n) => n.id === tId);
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-  statusMap[sId] = Status.Target;
-  statusMap[tId] = Status.Target;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `檢查 ${sourceId} 是否連通至 ${targetId} (${isDirected ? "有向" : "無向"})`,
-      true,
-    ),
-    actionTag: TAGS.CHECK_ADJACENT,
-    local_vars: { source: sourceId, target: targetId },
-  });
-
-  if (sNode && tNode) {
-    const isConnected = sNode.pointers.some((n) => n.id === tId);
-
-    if (isConnected) {
-      statusMap[sId] = Status.Complete;
-      statusMap[tId] = Status.Complete;
-      updateLinkStatus(linkStatusMap, sId, tId, Status.Complete, isDirected);
-      steps.push({
-        ...generateGraphFrame(
-          baseElements,
-          statusMap,
-          {},
-          `結果：True (存在邊 ${sourceId} -> ${targetId})`,
-          true,
-          { ...linkStatusMap },
-        ),
-        actionTag: TAGS.CHECK_ADJACENT_RESULT_TRUE,
-        local_vars: { source: sourceId, target: targetId, isAdjacent: true },
-      });
-    } else {
-      statusMap[sId] = Status.Complete;
-      statusMap[tId] = Status.Complete;
-      steps.push({
-        ...generateGraphFrame(
-          baseElements,
-          statusMap,
-          {},
-          `結果：False (不存在從 ${sourceId} 到 ${targetId} 的邊)`,
-          true,
-        ),
-        actionTag: TAGS.CHECK_ADJACENT_RESULT_FALSE,
-        local_vars: { source: sourceId, target: targetId, isAdjacent: false },
-      });
-    }
-  } else {
-    const missingNode = !sNode ? sourceId : targetId;
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        {},
-        {},
-        `錯誤：節點 ${missingNode} 不存在`,
-        true,
-      ),
-      actionTag: TAGS.CHECK_ADJACENT_RESULT_FALSE,
-      local_vars: { source: sourceId, target: targetId, error: true },
-    });
-  }
-
-  return steps;
-}
-
-function runGetDegree(
-  graphData: any,
-  nodeId: string,
-  isDirected: boolean,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const targetId = nodeId.startsWith("node-") ? nodeId : `node-${nodeId}`;
-  const targetNode = baseElements.find((n) => n.id === targetId);
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-
-  statusMap[targetId] = Status.Target;
-
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `準備計算節點 ${nodeId} 的度數 (${isDirected ? "有向" : "無向"})...`,
-      true,
-    ),
-    actionTag: isDirected
-      ? TAGS.GET_DEGREE_DIRECTED
-      : TAGS.GET_DEGREE_UNDIRECTED,
-    local_vars: { target: nodeId },
-  });
-
-  // In: prepare, Out: unfinished
-  if (targetNode) {
-    let msg = "";
-
-    // 有向圖邏輯
-    if (isDirected) {
-      // Out-Degree (出度): Target 指向別人
-      // 狀態設為 Status.Unfinished
-      const outDegree = targetNode.pointers.length;
-      targetNode.pointers.forEach((neighbor) => {
-        statusMap[neighbor.id] = Status.Complete;
-        updateLinkStatus(
-          linkStatusMap,
-          targetId,
-          neighbor.id,
-          Status.Complete,
-          isDirected,
-        );
-      });
-
-      // In-Degree (入度): 別人指向 Target
-      // 狀態設為 Status.Prepare
-      let inDegree = 0;
-      baseElements.forEach((otherNode) => {
-        // 檢查 otherNode 是否指向 targetId
-        if (otherNode.pointers.some((n) => n.id === targetId)) {
-          // 如果發生雙向 (A<->B) 或 自環 (A->A)，顏色會被覆蓋。
-          // 這裡 Status.Prepare (In) 會覆蓋掉 Status.Unfinished (Out)
-          statusMap[otherNode.id] = Status.Unfinished;
-          updateLinkStatus(
-            linkStatusMap,
-            otherNode.id,
-            targetId,
-            Status.Unfinished,
-            true,
-          );
-          inDegree++;
-        }
-      });
-
-      msg = `節點 ${nodeId}：In-Degree (入度/藍) = ${inDegree}, Out-Degree (出度/綠) = ${outDegree}`;
-    } else {
-      // 無向圖邏輯
-
-      // Degree: 所有相連的都算，統一設為 Status.Prepare
-      const degree = targetNode.pointers.length;
-      targetNode.pointers.forEach((neighbor) => {
-        statusMap[neighbor.id] = Status.Complete;
-        updateLinkStatus(
-          linkStatusMap,
-          targetId,
-          neighbor.id,
-          Status.Complete,
-          true,
-        );
-      });
-
-      msg = `節點 ${nodeId}：Degree (度數) = ${degree}`;
-    }
-
-    // statusMap[targetId] = Status.Complete;
-
-    steps.push({
-      ...generateGraphFrame(baseElements, statusMap, {}, msg, true, {
-        ...linkStatusMap,
-      }),
-      actionTag: isDirected
-        ? TAGS.GET_DEGREE_DIRECTED
-        : TAGS.GET_DEGREE_UNDIRECTED,
-      local_vars: {
-        target: nodeId,
-        ...(!isDirected
-          ? { degree: targetNode.pointers.length }
-          : {
-              outDegree: targetNode.pointers.length,
-              inDegree: baseElements.filter((otherNode) =>
-                otherNode.pointers.some((n) => n.id === targetId),
-              ).length,
-            }),
-      },
-    });
-  } else {
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        {},
-        {},
-        `錯誤：節點 ${nodeId} 不存在`,
-        true,
-      ),
-      actionTag: isDirected
-        ? TAGS.GET_DEGREE_DIRECTED
-        : TAGS.GET_DEGREE_UNDIRECTED,
-      local_vars: { target: nodeId, error: true },
-    });
-  }
-
-  return steps;
-}
-
-function runCheckConnected(
-  graphData: any,
-  isDirected: boolean,
-): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  if (baseElements.length === 0) return steps;
-
-  // 建立一個「無向」的鄰接表 (Adjacency List) 用於演算法計算
-  // 目的：不管使用者選有向或無向，知道「結構上」是否連在一起
-  const undirectedAdj = new Map<string, string[]>();
-
-  baseElements.forEach((n) => undirectedAdj.set(n.id, []));
-
-  // 填入邊 (強制雙向)
-  baseElements.forEach((source) => {
-    source.pointers.forEach((target) => {
-      // 正向
-      undirectedAdj.get(source.id)?.push(target.id);
-      // 反向：自環不需要反向（自己就是自己的鄰居），避免重複累積
-      if (source.id !== target.id) {
-        undirectedAdj.get(target.id)?.push(source.id);
-      }
-    });
-  });
-
-  // BFS 初始化
-  const startNode = baseElements[0]; // 從第一個節點開始
-  const visited = new Set<string>();
-  const queue: string[] = [startNode.id];
-  visited.add(startNode.id);
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-
-  statusMap[startNode.id] = Status.Target;
-  steps.push({
-    ...generateGraphFrame(
-      baseElements,
-      statusMap,
-      {},
-      `採用 BFS，從節點 ${startNode.id} 開始檢查連通性 (忽略方向)`,
-      true,
-    ),
-    actionTag: TAGS.CHECK_CONNECTED_INIT,
-    local_vars: { start: startNode.id, queue: queue.join(", ") },
-  });
-
-  // BFS 過程
-  // 為了動畫流暢，把「一層」做成一個 Frame
-
-  // 逐步感染的動畫
-  while (queue.length > 0) {
-    const currId = queue.shift()!;
-
-    statusMap[currId] = Status.Target;
-    // 先推一個 Frame，顯示當前正在處理的節點 (Target)
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        { ...statusMap },
-        {},
-        `正在處理節點 ${currId.replace("node-", "")}，尋找未訪問的鄰居`,
-        true,
-        { ...linkStatusMap },
-      ),
-      actionTag: TAGS.CHECK_CONNECTED_WHILE,
-      local_vars: { current: currId, queue: queue.join(", ") },
-    });
-
-    const neighbors = undirectedAdj.get(currId) || [];
-
-    let newFound = false;
-    neighbors.forEach((neighborId) => {
-      if (!visited.has(neighborId)) {
-        visited.add(neighborId);
-        queue.push(neighborId);
-        statusMap[neighborId] = Status.Prepare;
-        newFound = true;
-        // undirectedAdj 不保留原始邊方向，寫兩個 key 確保命中實際存在的方向
-        updateLinkStatus(
-          linkStatusMap,
-          currId,
-          neighborId,
-          Status.Prepare,
-          false,
-        );
-      } else if (statusMap[neighborId] === Status.Prepare) {
-    // Cross edge：對方已 visited 但還是 Prepare，邊也染 Prepare
-    updateLinkStatus(linkStatusMap, currId, neighborId, Status.Prepare, false);
-    newFound = true;
-  }
-    });
-
-    // 如果有新發現的節點，推一個 Frame 顯示擴散進度
-    if (newFound) {
-      steps.push({
-        ...generateGraphFrame(
-          baseElements,
-          { ...statusMap },
-          {},
-          `擴散中... 已訪問 ${visited.size} / ${baseElements.length} 個節點 (忽略方向)`,
-          true,
-          { ...linkStatusMap },
-        ),
-        actionTag: TAGS.CHECK_CONNECTED_WHILE,
-        local_vars: { current: currId, queue: queue.join(", ") },
-      });
-    }
-    statusMap[currId] = Status.Complete;
-    // 節點變為 Complete 時，與已訪問鄰居之間的邊也立即變綠
-    neighbors.forEach((neighborId) => {
-      if (visited.has(neighborId)) {
-        updateLinkStatus(
-          linkStatusMap,
-          currId,
-          neighborId,
-          Status.Complete,
-          false,
-        );
-      }
-    });
-
-    // 推一個 Frame 顯示當前節點變綠且連線變綠的狀態
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        { ...statusMap },
-        {},
-        `節點 ${currId.replace("node-", "")} 處理完成，已訪問 ${visited.size} / ${baseElements.length} 個節點`,
-        true,
-        { ...linkStatusMap },
-      ),
-      actionTag: TAGS.CHECK_CONNECTED_WHILE,
-      local_vars: { current: currId, queue: queue.join(", ") },
-    });
-  }
-
-  // Frame Final: 結果判定
-  const isConnected = visited.size === baseElements.length;
-  let resultMsg = "";
-
-  const finalStatusMap: Record<string, Status> = { ...statusMap };
-  const finalLinkStatusMap: Record<string, linkStatus> = { ...linkStatusMap };
-
-  if (isConnected) {
-    resultMsg = "結果：圖是連通的 (Connected)！所有節點皆可達。";
-    
-  } else {
-    resultMsg = "結果：圖不連通 (Disconnected)。橙色節點為孤島。";
-    baseElements.forEach((n) => {
-      if (!visited.has(n.id)) {
-        finalStatusMap[n.id] = Status.Target; // 孤島設為橙色
-      } else {
-        finalStatusMap[n.id] = Status.Unfinished; // 已訪問設為藍色
-        // 處理已訪問節點之間的邊
-        n.pointers.forEach((neighbor) => {
-          if (visited.has(neighbor.id)) {
-            updateLinkStatus(
-              finalLinkStatusMap,
-              n.id,
-              neighbor.id,
-              Status.Unfinished,
-              isDirected,
-            );
-          }
-        });
-      }
-    });
-  }
-
-  steps.push({
-    ...generateGraphFrame(baseElements, finalStatusMap, {}, resultMsg, true, {
-      ...finalLinkStatusMap,
-    }),
-    actionTag: TAGS.CHECK_CONNECTED_RESULT,
-    local_vars: { isConnected: isConnected },
-  });
-
-  return steps;
-}
-
-// 檢查是否有環 (DFS)
-function runCheckCycle(graphData: any, isDirected: boolean): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-
-  let baseElements: Node[] = [];
-  if (graphData.nodes) {
-    baseElements = createGraphElements(graphData, isDirected);
-  }
-
-  const visited = new Set<string>();
-  const recStack = new Set<string>();
-  const pathStack: string[] = [];
-
-  const statusMap: Record<string, Status> = {};
-  const linkStatusMap: Record<string, linkStatus> = {};
-
-  // 用來儲存找到的環，以便在最後一步顯示
-  let cyclePath: string[] = [];
-  // 用來儲存造成環的那個「連接點」，讓路徑顯示更完整 (A->B->C->A)
-  let cycleConnectTo: string = "";
-  let hasCycle = false;
-
-  const dfs = (
-    currId: string,
-    parentId: string | null, // 僅用於無向圖，避免走回頭路
-  ): boolean => {
-    visited.add(currId);
-    pathStack.push(currId);
-
-    // 有向圖：加入遞迴堆疊
-    if (isDirected) recStack.add(currId);
-
-    statusMap[currId] = Status.Target;
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        { ...statusMap },
-        {},
-        `訪問節點 ${currId} ...`,
-        true,
-        { ...linkStatusMap },
-      ),
-      actionTag: TAGS.CHECK_CYCLE_DFS,
-      local_vars: { current: currId },
-    });
-
-    const currNode = baseElements.find((n) => n.id === currId);
-    if (currNode) {
-      for (const neighbor of currNode.pointers) {
-        const neighborId = neighbor.id;
-
-        updateLinkStatus(
-          linkStatusMap,
-          currId,
-          neighborId,
-          Status.Target,
-          true,
-        );
-
-        if (!visited.has(neighborId)) {
-          if (dfs(neighborId, currId)) return true;
-
-          statusMap[currId] = Status.Target;
-          updateLinkStatus(
-            linkStatusMap,
-            currId,
-            neighborId,
-            Status.Complete,
-            true,
-          );
-          steps.push({
-            ...generateGraphFrame(
-              baseElements,
-              { ...statusMap },
-              {},
-              `回到節點 ${currId}`,
-              true,
-              { ...linkStatusMap },
-            ),
-            actionTag: TAGS.CHECK_CYCLE_DFS,
-            local_vars: { current: currId },
-          });
-          statusMap[currId] = Status.Prepare;
-        } else {
-          // 發現已訪問過的節點，檢查是否為環
-          let isCycle = false;
-          if (isDirected) {
-            if (recStack.has(neighborId)) isCycle = true;
-          } else {
-            if (neighborId !== parentId) isCycle = true;
-          }
-
-          if (isCycle) {
-            const startIndex = pathStack.indexOf(neighborId);
-            cyclePath = pathStack.slice(startIndex);
-            cycleConnectTo = neighborId; // 記錄最後接回哪裡
-
-            // 環路徑上的邊設為 target
-            for (let i = 0; i < cyclePath.length - 1; i++) {
-              const u = cyclePath[i];
-              const v = cyclePath[i + 1];
-              updateLinkStatus(linkStatusMap, u, v, Status.Target, true);
-            }
-
-            cyclePath.forEach((id) => (statusMap[id] = Status.Target));
-
-            steps.push({
-              ...generateGraphFrame(
-                baseElements,
-                { ...statusMap },
-                {},
-                `發現環！(${currId} -> ${neighborId})`,
-                true,
-                { ...linkStatusMap },
-              ),
-              actionTag: TAGS.CHECK_CYCLE_FOUND_TRUE,
-              local_vars: { current: currId, cycleNode: neighborId },
-            });
-            return true;
-          } else if (neighborId !== parentId) {
-            // 已經走訪過，非環，不在堆疊裡，標成 visited
-            updateLinkStatus(
-              linkStatusMap,
-              currId,
-              neighborId,
-              Status.Complete,
-              true,
-            );
-          } 
-        }
-      }
-    }
-
-    // 離開節點 (Backtrack)
-    if (isDirected) recStack.delete(currId);
-    pathStack.pop();
-
-    statusMap[currId] = Status.Complete;
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        { ...statusMap },
-        {},
-        `節點 ${currId} 處理完成`,
-        true,
-        { ...linkStatusMap },
-      ),
-      actionTag: TAGS.CHECK_CYCLE_FOUND_FALSE,
-      local_vars: { current: parentId || currId },
-    });
-    if (parentId !== null) {
-      updateLinkStatus(linkStatusMap, currId, parentId, "visited", isDirected);
-    }
-
-    return false;
-  };
-
-  // 對每個未訪問的節點執行 DFS (處理森林/非連通圖的情況)
-  // 如果是無向圖，需要先將 baseElements 排序或按順序遍歷，避免順序混亂
-  for (const node of baseElements) {
-    if (!visited.has(node.id)) {
-      if (dfs(node.id, null)) {
-        hasCycle = true;
-        break; // 只要找到一個環就可以結束了
-      }
-    }
-  }
-
-  // 最終結果
-  if (!hasCycle) {
-    const finalStatusMap: Record<string, Status> = {};
-    const finalLinkStatusMap: Record<string, linkStatus> = {};
-
-    visited.forEach((id) => {
-      finalStatusMap[id] = Status.Unfinished;
-      const node = baseElements.find((n) => n.id === id);
-      if (node) {
-        node.pointers.forEach((neighbor) => {
-          if (visited.has(neighbor.id)) {
-            updateLinkStatus(
-              finalLinkStatusMap,
-              id,
-              neighbor.id,
-              Status.Unfinished,
-              isDirected,
-            );
-          }
-        });
-      }
-    });
-
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        finalStatusMap,
-        {},
-        "檢查結束：此圖無環 (Acyclic)。",
-        true,
-        finalLinkStatusMap,
-      ),
-      actionTag: TAGS.CHECK_CYCLE_END_FALSE,
-      local_vars: { hasCycle: false },
-    });
-  } else {
-    const finalStatusMap: Record<string, Status> = {};
-
-    visited.forEach((id) => {
-      finalStatusMap[id] = Status.Unfinished;
-      // 將與已訪問節點相連的所有邊也設為 Unfinished (藍色)
-      const node = baseElements.find((n) => n.id === id);
-      if (node) {
-        node.pointers.forEach((neighbor) => {
-          if (visited.has(neighbor.id)) {
-            updateLinkStatus(
-              linkStatusMap,
-              id,
-              neighbor.id,
-              Status.Unfinished,
-              isDirected,
-            );
-          }
-        });
-      }
-    });
-
-    cyclePath.forEach((id) => {
-      finalStatusMap[id] = Status.Target; // 環設 target
-      const node = baseElements.find((n) => n.id === id);
-      if (node) {
-        node.pointers.forEach((neighbor) => {
-          if (visited.has(neighbor.id)) {
-            updateLinkStatus(
-              linkStatusMap,
-              id,
-              neighbor.id,
-              Status.Target,
-              isDirected,
-            );
-          }
-        });
-      }
-    });
-
-    // 格式化路徑字串 (例如: A -> B -> C -> A)
-    const pathNames = cyclePath.map((id) => id.replace("node-", ""));
-    const connectToName = cycleConnectTo.replace("node-", "");
-    const fullPathStr = [...pathNames, connectToName].join(" -> ");
-
-    steps.push({
-      ...generateGraphFrame(
-        baseElements,
-        finalStatusMap,
-        {},
-        `檢查結束：發現環 (Cyclic)。路徑：${fullPathStr}`,
-        true,
-        linkStatusMap,
-      ),
-      actionTag: TAGS.CHECK_CYCLE_END_TRUE,
-      local_vars: { hasCycle: true, cyclePath: fullPathStr },
-    });
-  }
-
-  return steps;
-}
-
-export function createGraphAnimationSteps(
-  inputData: any[],
-  action?: any,
-): AnimationStep[] {
-  if (action?.type === "addVertex") {
-    return runAddNode(inputData, action.value, action.isDirected);
-  }
-  if (action?.type === "removeVertex") {
-    return runRemoveNode(
-      inputData,
-      action.id,
-      action.isDirected,
-      action.deletedEdges,
-      action.deletedNodeCoords?.x,
-      action.deletedNodeCoords?.y,
-    );
-  }
-  if (action?.type === "addEdge") {
-    return runAddEdge(
-      inputData,
-      action.source,
-      action.target,
-      action.isDirected,
-    );
-  }
-  if (action?.type === "removeEdge") {
-    return runRemoveEdge(
-      inputData,
-      action.source,
-      action.target,
-      action.isDirected,
-    );
-  }
-  if (action?.type === "getNeighbors") {
-    return runGetNeighbors(inputData, action.id, action.isDirected);
-  }
-  if (action?.type === "checkAdjacent") {
-    return runCheckAdjacent(
-      inputData,
-      action.source,
-      action.target,
-      action.isDirected,
-    );
-  }
-  if (action?.type === "getDegree") {
-    return runGetDegree(inputData, action.id, action.isDirected);
-  }
-  if (action?.type === "checkConnected") {
-    // 這裡傳入 isDirected 用於產生正確的視覺箭頭
-    // 內部的演算法會視為無向來檢查結構
-    return runCheckConnected(inputData, action.isDirected);
-  }
-  if (action?.type === "checkCycle") {
-    return runCheckCycle(inputData, action.isDirected);
-  }
-  return runRefresh(inputData, action?.isDirected);
-}
-
-function isGraphData(d: any): d is GraphData {
-  return d && !Array.isArray(d) && Array.isArray(d.nodes);
+function isGraphData(d: unknown): d is GraphData {
+  return (
+    !!d &&
+    typeof d === "object" &&
+    !Array.isArray(d) &&
+    Array.isArray((d as GraphData).nodes)
+  );
 }
 
 /** Graph actionHandler */
@@ -1232,20 +39,25 @@ function graphActionHandler(
   context: ActionContext,
 ): ActionResult<GraphData> | null {
   if (!isGraphData(data)) return null;
-  const newData = JSON.parse(JSON.stringify(data));
+  const newData: GraphData = JSON.parse(JSON.stringify(data));
   const { nodes, edges } = newData;
   const isDirected = payload.isDirected as boolean;
+
+  const guardResult = (
+    guardTag: string,
+    params: Record<string, unknown>,
+  ): ActionResult<GraphData> => ({
+    animationData: data,
+    useRawAnimationParams: true,
+    animationParams: { type: actionType, guardTag, isDirected, ...params },
+  });
+  const hasNode = (val: unknown) => nodes.some((n) => n.id === `node-${val}`);
 
   if (actionType === "addVertex") {
     const val = payload.value ? String(payload.value) : `node-${nodes.length}`;
     const id = `node-${val}`;
-    if (!val || val.trim() === "") {
-      context.toast.warning("請輸入節點 ID");
-      return null;
-    }
-    if (nodes.find((n: any) => n.id === id)) {
-      context.toast.warning(`節點 ${val} 已存在`);
-      return null;
+    if (nodes.find((n) => n.id === id)) {
+      return guardResult(TAGS.ADD_VERTEX_DUPLICATE, { value: val });
     }
     nodes.push({ id, value: val });
     return {
@@ -1258,22 +70,17 @@ function graphActionHandler(
   if (actionType === "removeVertex") {
     const targetVal = String(payload.id ?? "");
     const targetIdVal = `node-${targetVal}`;
-    if (!targetVal || targetVal.trim() === "") {
-      context.toast.warning("請輸入節點 ID");
-      return null;
-    }
-    const idx = nodes.findIndex((n: any) => n.id === targetIdVal);
+    const idx = nodes.findIndex((n) => n.id === targetIdVal);
     if (idx === -1) {
-      context.toast.warning(`節點 ${targetVal} 不存在`);
-      return null;
+      return guardResult(TAGS.REMOVE_VERTEX_MISSING, { id: targetVal });
     }
     const relatedEdges = edges.filter(
-      (e: any[]) => e[0] === targetIdVal || e[1] === targetIdVal,
+      (e) => e[0] === targetIdVal || e[1] === targetIdVal,
     );
     const deletedNodeCoords = { x: nodes[idx].x, y: nodes[idx].y };
     nodes.splice(idx, 1);
     newData.edges = edges.filter(
-      (e: any[]) => e[0] !== targetIdVal && e[1] !== targetIdVal,
+      (e) => e[0] !== targetIdVal && e[1] !== targetIdVal,
     );
     return {
       animationData: newData,
@@ -1292,20 +99,17 @@ function graphActionHandler(
   if (actionType === "addEdge") {
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
-    const sExists = nodes.find((n: any) => n.id === sourceId);
-    const tExists = nodes.find((n: any) => n.id === targetIdVal);
-    if (!sExists || !tExists) {
-      context.toast.warning("來源或目標節點不存在");
-      return null;
+    const endpoints = { source: payload.source, target: payload.target };
+    if (!hasNode(payload.source) || !hasNode(payload.target)) {
+      return guardResult(TAGS.ADD_EDGE_MISSING_VERTEX, endpoints);
     }
     const exists = edges.some(
-      (e: any[]) =>
+      (e) =>
         (e[0] === sourceId && e[1] === targetIdVal) ||
         (!isDirected && e[0] === targetIdVal && e[1] === sourceId),
     );
     if (exists) {
-      context.toast.warning("該連線已存在");
-      return null;
+      return guardResult(TAGS.ADD_EDGE_DUPLICATE, endpoints);
     }
     edges.push([sourceId, targetIdVal]);
     return {
@@ -1324,15 +128,18 @@ function graphActionHandler(
   if (actionType === "removeEdge") {
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
+    const endpoints = { source: payload.source, target: payload.target };
+    if (!hasNode(payload.source) || !hasNode(payload.target)) {
+      return guardResult(TAGS.REMOVE_EDGE_MISSING_VERTEX, endpoints);
+    }
     const initialLength = edges.length;
-    newData.edges = edges.filter((e: any[]) => {
+    newData.edges = edges.filter((e) => {
       const isForward = e[0] === sourceId && e[1] === targetIdVal;
       const isBackward = e[0] === targetIdVal && e[1] === sourceId;
       return isDirected ? !isForward : !(isForward || isBackward);
     });
     if (newData.edges.length === initialLength) {
-      context.toast.warning("找不到該連線，無法刪除");
-      return null;
+      return guardResult(TAGS.REMOVE_EDGE_NOT_FOUND, endpoints);
     }
     return {
       animationData: newData,
@@ -1358,42 +165,29 @@ function graphActionHandler(
   ) {
     if (
       (actionType === "getNeighbors" || actionType === "getDegree") &&
-      (!payload.id || String(payload.id).trim() === "")
+      !hasNode(payload.id)
     ) {
-      context.toast.warning("請輸入節點 ID");
-      return null;
+      return guardResult(
+        actionType === "getNeighbors"
+          ? TAGS.GET_NEIGHBORS_MISSING
+          : TAGS.GET_DEGREE_MISSING,
+        { id: payload.id },
+      );
     }
     if (
       actionType === "checkAdjacent" &&
-      (!payload.source ||
-        String(payload.source).trim() === "" ||
-        !payload.target ||
-        String(payload.target).trim() === "")
+      (!hasNode(payload.source) || !hasNode(payload.target))
     ) {
-      context.toast.warning("請輸入來源與目標節點 ID");
-      return null;
+      return guardResult(TAGS.CHECK_ADJACENT_MISSING, {
+        source: payload.source,
+        target: payload.target,
+      });
     }
-    if (actionType === "getNeighbors" || actionType === "getDegree") {
-      const nodeId = `node-${payload.id}`;
-      if (!nodes.find((n: any) => n.id === nodeId)) {
-        context.toast.warning(`節點 ${payload.id} 不存在`);
-        return null;
-      }
+    if (actionType === "checkConnected" && nodes.length === 0) {
+      return guardResult(TAGS.CHECK_CONNECTED_EMPTY, {});
     }
-    if (actionType === "checkAdjacent") {
-      const sId = `node-${payload.source}`;
-      const tId = `node-${payload.target}`;
-      if (!nodes.find((n: any) => n.id === sId) || !nodes.find((n: any) => n.id === tId)) {
-        context.toast.warning("來源或目標節點不存在");
-        return null;
-      }
-    }
-    if (
-      (actionType === "checkConnected" || actionType === "checkCycle") &&
-      nodes.length === 0
-    ) {
-      context.toast.warning("圖形為空");
-      return null;
+    if (actionType === "checkCycle" && nodes.length === 0) {
+      return guardResult(TAGS.CHECK_CYCLE_EMPTY, {});
     }
     return {
       animationData: data,
@@ -1404,8 +198,10 @@ function graphActionHandler(
 
   if (["random", "reset", "load", "refresh"].includes(actionType)) {
     if (actionType === "random") {
-      const randomCount = Math.floor(Math.random() * 6) + 5;
-      const randData = generateRandomGraphDS(randomCount);
+      const nodeCount = typeof payload.randomCount === "number" && payload.randomCount > 0
+        ? payload.randomCount
+        : Math.floor(Math.random() * 6) + 5;
+      const randData = generateRandomGraphDS(nodeCount);
       return {
         animationData: randData,
         isResetAction: true,
@@ -1415,12 +211,12 @@ function graphActionHandler(
     }
     if (actionType === "reset") {
       const defaultData = (context.defaultData ?? data) as GraphData;
-      const resetData = JSON.parse(JSON.stringify(defaultData));
+      const resetData: GraphData = JSON.parse(JSON.stringify(defaultData));
       if (isGraphData(data)) {
         const coordMap = new Map(
-          data.nodes.map((n: any) => [n.id, { x: n.x, y: n.y }]),
+          data.nodes.map((n) => [n.id, { x: n.x, y: n.y }]),
         );
-        resetData.nodes.forEach((n: any) => {
+        resetData.nodes.forEach((n) => {
           const saved = coordMap.get(n.id);
           if (saved?.x !== undefined && saved?.y !== undefined) {
             n.x = saved.x;
@@ -1447,7 +243,7 @@ function graphActionHandler(
         if (parts.length >= 3) {
           const nodeCount = parseInt(parts[1]);
           const edgeStr = parts.slice(2).join(":");
-          const nodesArr: any[] = [];
+          const nodesArr: AlgorithmNode[] = [];
           for (let i = 0; i < nodeCount; i++)
             nodesArr.push({ id: `node-${i}`, value: String(i) });
           const edgesArr: string[][] = [];
@@ -1457,9 +253,8 @@ function graphActionHandler(
               if (u && v) edgesArr.push([`node-${u}`, `node-${v}`]);
             });
           }
-          const loadData = { nodes: nodesArr, edges: edgesArr };
           return {
-            animationData: loadData,
+            animationData: { nodes: nodesArr, edges: edgesArr },
             isResetAction: true,
             useRawAnimationParams: true,
             animationParams: {
@@ -1478,163 +273,174 @@ function graphActionHandler(
       animationParams: { type: "refresh", mode: "graph", isDirected },
     };
   }
-
   return null;
 }
 
 const graphCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Graph:
-  Procedure AddVertex(id):
-    If id is not in adjList Then
-      adjList[id] ← Empty List
-    End If
-  End Procedure
+    content: `Procedure AddVertex(id):
+  If id is not in adjList Then
+    adjList[id] ← Empty List
+  End If
+End Procedure
 
-  Procedure RemoveVertex(id):
-    If id is in adjList Then
-      Remove adjList[id]
-      For Each u in adjList Do
-        If id is in adjList[u] Then
-          Remove id from adjList[u]
-        End If
-      End For
-    End If
-  End Procedure
-
-  Procedure AddEdge(u, v):
-    If u in adjList And v in adjList Then
-      If v is not in adjList[u] Then
-        Append v to adjList[u]
+Procedure RemoveVertex(id):
+  If id is in adjList Then
+    Remove adjList[id]
+    For Each u in adjList Do
+      If id is in adjList[u] Then
+        Remove id from adjList[u]
       End If
-      If isDirected = False Then
-        If u is not in adjList[v] Then
-          Append u to adjList[v]
-        End If
-      End If
-    End If
-  End Procedure
+    End For
+  End If
+End Procedure
 
-  Procedure RemoveEdge(u, v):
-    If u in adjList And v in adjList Then
-      If v is in adjList[u] Then
-        Remove v from adjList[u]
-      End If
-      If isDirected = False Then
-        If u is in adjList[v] Then
-          Remove u from adjList[v]
-        End If
-      End If
-    End If
-  End Procedure
-
-  Procedure GetNeighbors(id):
-    If id is in adjList Then
-      Return adjList[id]
-    End If
-    Return Empty List
-  End Procedure
-
-  Procedure CheckAdjacent(u, v):
-    If u is in adjList Then
-      Return v is in adjList[u]
-    End If
-    Return False
-  End Procedure
-
-  Procedure GetDegree(id):
-    If id is not in adjList Then
-      Return -1
+Procedure AddEdge(u, v):
+  If u in adjList And v in adjList Then
+    If v is not in adjList[u] Then
+      Append v to adjList[u]
     End If
     If isDirected = False Then
-      Return size of adjList[id]
-    Else
-      outDeg ← size of adjList[id]
-      inDeg ← number of nodes that point to id
-      Return outDeg, inDeg
+      If u is not in adjList[v] Then
+        Append u to adjList[v]
+      End If
     End If
-  End Procedure
+  End If
+End Procedure
 
-  Procedure CheckConnected():
-    visited ← Empty Set
-    queue ← Empty Queue
-    start ← First node in adjList
-    visited.Add(start)
-    queue.Enqueue(start)
+Procedure RemoveEdge(u, v):
+  If u in adjList And v in adjList Then
+    If v is in adjList[u] Then
+      Remove v from adjList[u]
+    End If
+    If isDirected = False Then
+      If u is in adjList[v] Then
+        Remove u from adjList[v]
+      End If
+    End If
+  End If
+End Procedure
 
-    While queue is not Empty Do
-      curr ← queue.Dequeue()
-      For Each neighbor in adjList[curr] Do
-        If neighbor is not in visited Then
-          visited.Add(neighbor)
-          queue.Enqueue(neighbor)
-        End If
-      End For
-    End While
+Procedure GetNeighbors(id):
+  If id is in adjList Then
+    Return adjList[id]
+  End If
+  Return Empty List
+End Procedure
 
-    Return size of visited = size of adjList
-  End Procedure
+Procedure CheckAdjacent(u, v):
+  If u is in adjList And v is in adjList Then
+    Return v is in adjList[u]
+  End If
+  Return False
+End Procedure
 
-  Procedure CheckCycle():
-    visited ← Empty Set
-    recStack ← Empty Set
-    pathStack ← Empty Stack
+Procedure GetDegree(id):
+  If id is not in adjList Then
+    Return -1
+  End If
+  If isDirected = False Then
+    Return size of adjList[id]
+  Else
+    outDeg ← size of adjList[id]
+    inDeg ← number of nodes that point to id
+    Return outDeg, inDeg
+  End If
+End Procedure
 
-    Function DFS(curr, parent):
-      visited.Add(curr)
-      recStack.Add(curr)
-      pathStack.Push(curr)
+Procedure CheckConnected():
+  If adjList is Empty Then
+    Return True
+  End If
+  visited ← Empty Set
+  queue ← Empty Queue
+  start ← First node in adjList
+  visited.Add(start)
+  queue.Enqueue(start)
 
-      For Each neighbor in adjList[curr] Do
-        If neighbor is not in visited Then
-          result ← DFS(neighbor, curr)
-          If result is not Null Then Return result
-        Else If isDirected = True And neighbor is in recStack Then Return pathStack
-        Else If isDirected = False And neighbor ≠ parent Then Return pathStack
-      End For
-
-      recStack.Remove(curr)
-      pathStack.Pop()
-      Return Null
-    End Function
-
-    For Each node in adjList Do
-      If node is not in visited Then
-        result ← DFS(node, Null)
-        If result is not Null Then Return result
+  While queue is not Empty Do
+    curr ← queue.Dequeue()
+    For Each neighbor in adjList[curr] Do
+      If neighbor is not in visited Then
+        visited.Add(neighbor)
+        queue.Enqueue(neighbor)
+      End If
     End For
+  End While
+
+  Return size of visited = size of adjList
+End Procedure
+
+Procedure CheckCycle():
+  visited ← Empty Set
+  recStack ← Empty Set
+  pathStack ← Empty Stack
+
+  Function DFS(curr, parent):
+    visited.Add(curr)
+    recStack.Add(curr)
+    pathStack.Push(curr)
+
+    For Each neighbor in adjList[curr] Do
+      If neighbor is not in visited Then
+        result ← DFS(neighbor, curr)
+        If result is not Null Then Return result
+      Else If isDirected = True And neighbor is in recStack Then Return pathStack
+      Else If isDirected = False And neighbor ≠ parent Then Return pathStack
+    End For
+
+    recStack.Remove(curr)
+    pathStack.Pop()
     Return Null
-  End Procedure
-End Class`,
+  End Function
+
+  For Each node in adjList Do
+    If node is not in visited Then
+      result ← DFS(node, Null)
+      If result is not Null Then Return result
+  End For
+  Return Null
+End Procedure`,
     mappings: {
-      [TAGS.ADD_VERTEX]: [2, 3, 4],
-      [TAGS.ADD_VERTEX_RESULT]: [6],
-      [TAGS.REMOVE_VERTEX]: [8, 9],
-      [TAGS.REMOVE_VERTEX_UPDATE]: [10, 11, 12, 13, 14],
-      [TAGS.ADD_EDGE]: [19, 20, 21, 22],
-      [TAGS.ADD_EDGE_UNDIRECTED]: [24, 25, 26, 27],
-      [TAGS.REMOVE_EDGE]: [32, 33, 34, 35],
-      [TAGS.REMOVE_EDGE_UNDIRECTED]: [37, 38, 39, 40],
-      [TAGS.GET_NEIGHBORS]: [45, 46],
-      [TAGS.GET_NEIGHBORS_RESULT_TRUE]: [47],
-      [TAGS.GET_NEIGHBORS_RESULT_FALSE]: [49],
-      [TAGS.CHECK_ADJACENT]: [52, 53],
-      [TAGS.CHECK_ADJACENT_RESULT_TRUE]: [54],
-      [TAGS.CHECK_ADJACENT_RESULT_FALSE]: [56],
-      [TAGS.GET_DEGREE_UNDIRECTED]: [63, 64],
-      [TAGS.GET_DEGREE_DIRECTED]: [65, 66, 67, 68, 69],
-      [TAGS.CHECK_CONNECTED_INIT]: [72, 73, 74, 75, 76, 77],
-      [TAGS.CHECK_CONNECTED_WHILE]: [79, 80, 81, 82, 83, 84, 85, 86],
-      [TAGS.CHECK_CONNECTED_RESULT]: [89],
-      [TAGS.CHECK_CYCLE_INIT]: [92, 93, 94],
+      [TAGS.ADD_VERTEX]: [1, 2, 3],
+      [TAGS.ADD_VERTEX_RESULT]: [5],
+      [TAGS.REMOVE_VERTEX]: [7, 8],
+      [TAGS.REMOVE_VERTEX_UPDATE]: [9, 10, 11, 12, 13],
+      [TAGS.ADD_EDGE]: [18, 19, 20, 21],
+      [TAGS.ADD_EDGE_UNDIRECTED]: [23, 24, 25, 26],
+      [TAGS.REMOVE_EDGE]: [31, 32, 33, 34],
+      [TAGS.REMOVE_EDGE_UNDIRECTED]: [36, 37, 38, 39],
+      [TAGS.GET_NEIGHBORS]: [44, 45],
+      [TAGS.GET_NEIGHBORS_RESULT_TRUE]: [46],
+      [TAGS.GET_NEIGHBORS_RESULT_FALSE]: [48],
+      [TAGS.CHECK_ADJACENT]: [51, 52],
+      [TAGS.CHECK_ADJACENT_RESULT_TRUE]: [53],
+      [TAGS.CHECK_ADJACENT_RESULT_FALSE]: [55],
+      [TAGS.GET_DEGREE_UNDIRECTED]: [59, 62, 63],
+      [TAGS.GET_DEGREE_DIRECTED]: [59, 64, 65, 66, 67, 68],
+      [TAGS.CHECK_CONNECTED_INIT]: [71, 72, 75, 76, 77, 78, 79],
+      [TAGS.CHECK_CONNECTED_WHILE]: [81, 82, 83, 84, 85, 86, 87, 88],
+      [TAGS.CHECK_CONNECTED_RESULT]: [91],
+      [TAGS.CHECK_CYCLE_INIT]: [94, 95, 96, 97],
       [TAGS.CHECK_CYCLE_DFS]: [
         97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
         112,
       ],
-      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [105, 106],
-      [TAGS.CHECK_CYCLE_FOUND_FALSE]: [112],
-      [TAGS.CHECK_CYCLE_END_TRUE]: [116, 117, 118],
-      [TAGS.CHECK_CYCLE_END_FALSE]: [120],
+      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [107, 108, 109],
+      [TAGS.CHECK_CYCLE_FOUND_FALSE]: [114],
+      [TAGS.CHECK_CYCLE_END_TRUE]: [117, 118, 119, 120],
+      [TAGS.CHECK_CYCLE_END_FALSE]: [122],
+      [TAGS.ADD_VERTEX_DUPLICATE]: [2],
+      [TAGS.REMOVE_VERTEX_MISSING]: [8],
+      [TAGS.ADD_EDGE_MISSING_VERTEX]: [19],
+      [TAGS.ADD_EDGE_DUPLICATE]: [20],
+      [TAGS.REMOVE_EDGE_MISSING_VERTEX]: [32],
+      [TAGS.REMOVE_EDGE_NOT_FOUND]: [33],
+      [TAGS.GET_NEIGHBORS_MISSING]: [45, 48],
+      [TAGS.CHECK_ADJACENT_MISSING]: [52, 55],
+      [TAGS.GET_DEGREE_MISSING]: [59, 60],
+      [TAGS.CHECK_CYCLE_EMPTY]: [117, 122],
+      [TAGS.CHECK_CONNECTED_EMPTY]: [72, 73],
     },
   },
   python: {
@@ -1675,7 +481,7 @@ End Class`,
         return []
 
     def check_adjacent(self, source: str, target: str) -> bool:
-        if source in self.adj_list:
+        if source in self.adj_list and target in self.adj_list:
             return target in self.adj_list[source]
         return False
 
@@ -1731,20 +537,99 @@ End Class`,
                 result = dfs(node, None)
                 if result: return result
         return []`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)'                  },  // class Graph:
+      { lineNumber: 2,  complexity: 'O(1)'                  },  // def __init__(self, is_directed...):
+      { lineNumber: 3,  complexity: 'O(1)'                  },  // self.adj_list = {}
+      { lineNumber: 4,  complexity: 'O(1)'                  },  // self.is_directed = is_directed
+      { lineNumber: 6,  complexity: 'O(1)'                  },  // def add_vertex(self, vertex_id):
+      { lineNumber: 7,  complexity: 'O(1)'                  },  // if vertex_id not in self.adj_list
+      { lineNumber: 8,  complexity: 'O(1)'                  },  // self.adj_list[vertex_id] = []
+      { lineNumber: 10, complexity: 'O(n)'                  },  // def remove_vertex(self, vertex_id): — overall O(n)
+      { lineNumber: 11, complexity: 'O(1)'                  },  // if vertex_id in self.adj_list — before loop
+      { lineNumber: 12, complexity: 'O(1)'                  },  // del self.adj_list[vertex_id] — before loop
+      { lineNumber: 13, complexity: 'O(n)'                  },  // for u in self.adj_list — top-level for
+      { lineNumber: 14, complexity: 'O(n)', context: 'O(n)' },  // if vertex_id in self.adj_list[u] — list `in` is O(n) × n
+      { lineNumber: 15, complexity: 'O(n)', context: 'O(n)' },  // self.adj_list[u].remove — list remove is O(n) × n
+      { lineNumber: 17, complexity: 'O(1)'                  },  // def add_edge(self, source, target):
+      { lineNumber: 18, complexity: 'O(1)'                  },  // if source in self.adj_list and...
+      { lineNumber: 19, complexity: 'O(1)'                  },  // if target not in self.adj_list[source]
+      { lineNumber: 20, complexity: 'O(1)'                  },  // self.adj_list[source].append(target)
+      { lineNumber: 21, complexity: 'O(1)'                  },  // if not self.is_directed
+      { lineNumber: 22, complexity: 'O(1)'                  },  // if source not in self.adj_list[target]
+      { lineNumber: 23, complexity: 'O(1)'                  },  // self.adj_list[target].append(source)
+      { lineNumber: 25, complexity: 'O(1)'                  },  // def remove_edge(self, source, target):
+      { lineNumber: 26, complexity: 'O(1)'                  },  // if source in self.adj_list and...
+      { lineNumber: 27, complexity: 'O(1)'                  },  // if target in self.adj_list[source]
+      { lineNumber: 28, complexity: 'O(1)'                  },  // self.adj_list[source].remove(target)
+      { lineNumber: 29, complexity: 'O(1)'                  },  // if not self.is_directed and...
+      { lineNumber: 30, complexity: 'O(1)'                  },  // self.adj_list[target].remove(source)
+      { lineNumber: 32, complexity: 'O(1)'                  },  // def get_neighbors(self, vertex_id):
+      { lineNumber: 33, complexity: 'O(1)'                  },  // if vertex_id in self.adj_list
+      { lineNumber: 34, complexity: 'O(1)'                  },  // return self.adj_list[vertex_id]
+      { lineNumber: 35, complexity: 'O(1)'                  },  // return []
+      { lineNumber: 37, complexity: 'O(1)'                  },  // def check_adjacent(self, source, target):
+      { lineNumber: 38, complexity: 'O(1)'                  },  // if source in self.adj_list
+      { lineNumber: 39, complexity: 'O(1)'                  },  // return target in self.adj_list[source]
+      { lineNumber: 40, complexity: 'O(1)'                  },  // return False
+      { lineNumber: 42, complexity: 'O(n)'                  },  // def get_degree(self, vertex_id): — overall O(n)
+      { lineNumber: 43, complexity: 'O(1)'                  },  // if vertex_id not in self.adj_list — before loop
+      { lineNumber: 44, complexity: 'O(1)'                  },  // return -1 — before loop
+      { lineNumber: 45, complexity: 'O(1)'                  },  // if not self.is_directed — before loop
+      { lineNumber: 46, complexity: 'O(1)'                  },  // return len(self.adj_list[vertex_id]) — O(1)
+      { lineNumber: 47, complexity: 'O(1)'                  },  // out_deg = len(...) — O(1)
+      { lineNumber: 48, complexity: 'O(n)'                  },  // in_deg = sum(1 for u in ...) — O(n) generator
+      { lineNumber: 49, complexity: 'O(1)'                  },  // return out_deg, in_deg
+      { lineNumber: 51, complexity: 'O(n)'                  },  // def check_connected(self): — overall O(n)
+      { lineNumber: 52, complexity: 'O(1)'                  },  // if not self.adj_list — before loop
+      { lineNumber: 53, complexity: 'O(1)'                  },  // return True — before loop
+      { lineNumber: 54, complexity: 'O(1)'                  },  // visited = set() — before loop
+      { lineNumber: 55, complexity: 'O(1)'                  },  // start = next(iter(...)) — before loop
+      { lineNumber: 56, complexity: 'O(1)'                  },  // queue = [start] — before loop
+      { lineNumber: 57, complexity: 'O(1)'                  },  // visited.add(start) — before loop
+      { lineNumber: 59, complexity: 'O(n)'                  },  // while queue — top-level while, O(n) iterations
+      { lineNumber: 60, complexity: 'O(n)', context: 'O(n)' },  // curr = queue.pop(0) — list pop(0) is O(n) × n
+      { lineNumber: 61, complexity: 'O(n)', context: 'O(n)' },  // for neighbor in ... — inner for inside while
+      { lineNumber: 62, complexity: 'O(1)', context: 'O(n)' },  // if neighbor not in visited — O(1) × n (simplified)
+      { lineNumber: 63, complexity: 'O(1)', context: 'O(n)' },  // visited.add(neighbor) — O(1) × n
+      { lineNumber: 64, complexity: 'O(1)', context: 'O(n)' },  // queue.append(neighbor) — O(1) × n
+      { lineNumber: 66, complexity: 'O(1)'                  },  // return len(visited) == ... — outside loop
+      { lineNumber: 68, complexity: 'O(n)'                  },  // def check_cycle(self): — overall O(n)
+      { lineNumber: 69, complexity: 'O(1)'                  },  // visited = set() — before outer for
+      { lineNumber: 70, complexity: 'O(1)'                  },  // rec_stack = set() — before outer for
+      { lineNumber: 71, complexity: 'O(1)'                  },  // path_stack = [] — before outer for
+      { lineNumber: 73, complexity: 'O(n)'                  },  // def dfs(curr, parent): — inner fn, O(n) overall
+      { lineNumber: 74, complexity: 'O(1)', context: 'O(n)' },  // visited.add(curr) — O(1) × n (dfs called n times)
+      { lineNumber: 75, complexity: 'O(1)', context: 'O(n)' },  // rec_stack.add(curr) — O(1) × n
+      { lineNumber: 76, complexity: 'O(1)', context: 'O(n)' },  // path_stack.append(curr) — O(1) × n
+      { lineNumber: 78, complexity: 'O(n)', context: 'O(n)' },  // for neighbor in ... — for inside dfs
+      { lineNumber: 79, complexity: 'O(1)', context: 'O(n)' },  // if neighbor not in visited — O(1) × n
+      { lineNumber: 80, complexity: 'O(n)', context: 'O(n)' },  // result = dfs(neighbor) — O(n) recursive
+      { lineNumber: 81, complexity: 'O(1)', context: 'O(n)' },  // if result: return result — O(1) × n
+      { lineNumber: 82, complexity: 'O(n)', context: 'O(n)' },  // elif self.is_directed... path_stack.copy() is O(n) × n
+      { lineNumber: 83, complexity: 'O(n)', context: 'O(n)' },  // elif not self.is_directed... path_stack.copy() is O(n) × n
+      { lineNumber: 85, complexity: 'O(1)', context: 'O(n)' },  // rec_stack.remove(curr) — O(1) × n
+      { lineNumber: 86, complexity: 'O(1)', context: 'O(n)' },  // path_stack.pop() — O(1) × n
+      { lineNumber: 87, complexity: 'O(1)', context: 'O(n)' },  // return [] — O(1) × n (inside dfs)
+      { lineNumber: 89, complexity: 'O(n)'                  },  // for node in self.adj_list — top-level for
+      { lineNumber: 90, complexity: 'O(1)', context: 'O(n)' },  // if node not in visited — O(1) × n
+      { lineNumber: 91, complexity: 'O(n)', context: 'O(n)' },  // result = dfs(node, None) — O(n) dfs × n
+      { lineNumber: 92, complexity: 'O(1)', context: 'O(n)' },  // if result: return result — O(1) × n
+      { lineNumber: 93, complexity: 'O(1)'                  },  // return [] — outside for
+    ],
   },
 };
 
 export const GraphConfig: LevelImplementationConfig = {
-  id: "graph", // 對應 level.json 的 implementationKey
+  id: "graph",
   type: "dataStructure",
   name: "圖 (Graph)",
   categoryName: "非線性表",
   description:
     "由節點 (Vertex) 與邊 (Edge) 組成的資料結構，用於描述物件之間的關係。",
-  // TODO: 補完 Graph 的 pseudo code 與 mappings
   codeConfig: graphCodeConfig,
   linkAnimConfig: {
-    animateOn: ["prepare","target"],
+    animateOn: ["prepare", "target"],
     directOn: ["complete"],
   },
   complexity: {
@@ -1753,12 +638,8 @@ export const GraphConfig: LevelImplementationConfig = {
     timeWorst: "O(V + E)",
     space: "O(V + E)", // 儲存空間
   },
-  introduction: `圖 (Graph) 是一種非線性的資料結構，由節點 (Vertex) 和邊 (Edge) 組成。
-  
-  - **節點 (Vertex)**: 代表資料元素，例如地圖上的城市、社交網絡中的人。
-  - **邊 (Edge)**: 代表節點之間的關係，例如城市間的道路、朋友關係。
-  
-  圖可以分為「有向圖」與「無向圖」，也可以帶有權重 (Weighted)。在此演示中，我們展示的是無向無權圖。`,
+  i18nNamespace: "tutorials/graph",
+  introduction: { key: "introduction" },
 
   // 這裡使用了包含 graph 和 grid 的雙重結構，以支援切換模式
   defaultData: {
@@ -1788,45 +669,43 @@ export const GraphConfig: LevelImplementationConfig = {
   },
   createAnimationSteps: createGraphAnimationSteps,
   realWorldStories: graphRealWorldStories,
+  statusConfig: GraphStatusConfig,
   actionHandler: graphActionHandler,
   maxNodes: 20,
-  renderActionBar: (props) => <GraphActionBar {...(props as any)} />,
+  renderActionBar: (props) => <GraphActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 133,
       title: "Clone Graph",
-      concept: "圖的深拷貝：用雜湊表記錄已訪問節點，遞迴/BFS 複製整張無向圖",
+      concept: "relatedProblems.133",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/clone-graph/",
     },
     {
       id: 207,
       title: "Course Schedule",
-      concept:
-        "有向圖環偵測：若先修課程形成環則無法完成，以拓樸排序判斷 DAG 性質",
+      concept: "relatedProblems.207",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/course-schedule/",
     },
     {
       id: 210,
       title: "Course Schedule II",
-      concept:
-        "拓樸排序：在 DAG 中求線性學習順序，使用 Kahn's 演算法或 DFS 輸出排列",
+      concept: "relatedProblems.210",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/course-schedule-ii/",
     },
     {
       id: 684,
       title: "Redundant Connection",
-      concept:
-        "環偵測 / Union-Find：找出使無向樹出現多餘一條邊（形成環）的那條邊",
+      concept: "relatedProblems.684",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/redundant-connection/",
     },
     {
       id: 269,
       title: "Alien Dictionary",
-      concept: "拓樸排序進階：從字典序推導字母偏序關係，建圖後輸出合法字母順序",
+      concept: "relatedProblems.269",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/alien-dictionary/",
     },

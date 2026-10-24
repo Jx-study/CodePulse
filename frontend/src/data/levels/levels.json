@@ -115,12 +115,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "implementationKey": "binaryTree",
-      "homePageMetadata": {
-        "image": "binary-tree.png",
-        "translationKey": "binary_tree",
-        "showOnHomePage": true
-      }
+      "implementationKey": "binaryTree"
     },
     {
       "id": "bst",
@@ -189,7 +184,7 @@
       "id": "trie",
       "category": "data-structures",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -410,7 +405,7 @@
       "id": "fibonacci-recursive",
       "category": "recursive",
       "difficulty": 2,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -528,7 +523,7 @@
       "id": "two-pointers",
       "category": "technique",
       "difficulty": 2,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -699,13 +694,13 @@
         "pathType": "portal",
         "targetCategory": "dp"
       },
-      "implementationKey": "dpFibonacci"
+      "implementationKey": "fibonacciDP"
     },
     {
       "id": "dp-fibonacci",
       "category": "dp",
       "difficulty": 2,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",
@@ -719,7 +714,7 @@
         "pathType": "main"
       },
       "suggestedPrerequisites": ["fibonacci-recursive"],
-      "implementationKey": "dpFibonacci"
+      "implementationKey": "fibonacciDP"
     },
     {
       "id": "knapsack",
@@ -746,7 +741,7 @@
       "id": "lcs",
       "category": "dp",
       "difficulty": 3,
-      "isDeveloped": false,
+      "isDeveloped": true,
       "isUnlocked": false,
       "prerequisites": {
         "type": "AND",

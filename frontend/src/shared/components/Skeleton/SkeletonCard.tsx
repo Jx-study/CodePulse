@@ -1,7 +1,7 @@
 import type { SkeletonCardProps } from '@/types';
 import styles from './Skeleton.module.scss';
 
-export function SkeletonCard({
+function SkeletonCard({
   width = '100%',
   height = '200px',
   variant = 'rounded',

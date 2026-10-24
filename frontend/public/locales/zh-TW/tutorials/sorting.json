@@ -1,0 +1,7 @@
+{
+  "ui": {
+    "sortingControl": "排序操作",
+    "run": "開始排序",
+    "runTooltip": "執行排序演算法"
+  }
+}

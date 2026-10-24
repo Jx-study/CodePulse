@@ -1,14 +1,23 @@
 import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import { TAGS } from "./tags";
 
-interface HeapNode {
+export interface HeapNode {
   id: string;
   value: number;
 }
 
+export interface HeapAction {
+  isMinHeap?: boolean;
+  isMaxHeap?: boolean;
+  heapType?: string;
+  value?: number;
+  targetId?: string;
+  empty?: boolean;
+}
+
 export function simulateHeapTrace(
   dataList: HeapNode[],
-  action: any,
+  action: HeapAction | undefined,
 ): ExecutionTrace {
   const trace: TraceEvent[] = [];
   const currentList = dataList.map((d) => ({ ...d }));
@@ -16,22 +25,33 @@ export function simulateHeapTrace(
   const getSnapshot = () => currentList.map((d) => ({ ...d }));
 
   const isMinHeap = action?.isMinHeap === true;
-  const isMaxHeap =
-    action?.isMaxHeap === true ||
-    (action?.isMaxHeap !== false && !isMinHeap);
+  const isMaxHeap = action
+    ? action.isMaxHeap === true || (action.isMaxHeap !== false && !isMinHeap)
+    : false;
+
+  // 如果是 Heap 就亮藍色，如果不是 (剛 load/random) 就亮灰色
+  const isHeapReady = isMinHeap || isMaxHeap;
+
+  const defaultNodeStatus = isHeapReady ? "Unfinished" : "Inactive";
   const isPrior = (a: number, b: number) => (isMinHeap ? a < b : a > b);
-  const heapName = isMinHeap
-    ? "Min-Heap"
-    : isMaxHeap
-      ? "Max-Heap"
-      : "Not Heap";
+  const heapName = isMinHeap ? "Min-Heap" : isMaxHeap ? "Max-Heap" : "Not Heap";
 
   if (!action || action.heapType === "init") {
     trace.push({
       tag: TAGS.INIT,
       local_vars: { heapName },
       dataSnapshot: getSnapshot(),
-      meta: { isInitial: true },
+      meta: { isInitial: true, status: defaultNodeStatus },
+    });
+    return trace;
+  }
+
+  if (action.empty) {
+    trace.push({
+      tag: action.heapType === "peek" ? TAGS.PEEK_EMPTY : TAGS.EXTRACT_EMPTY,
+      local_vars: { isMinHeap },
+      dataSnapshot: getSnapshot(),
+      meta: { status: defaultNodeStatus },
     });
     return trace;
   }
@@ -42,7 +62,13 @@ export function simulateHeapTrace(
         tag: TAGS.PEEK,
         local_vars: { extVal: currentList[0].value, isMinHeap },
         dataSnapshot: getSnapshot(),
-        meta: { highlightIndex: 0, status: "Complete" },
+        meta: { highlightIndex: 0 },
+      });
+      trace.push({
+        tag: TAGS.PEEK,
+        local_vars: { extVal: currentList[0].value, isMinHeap },
+        dataSnapshot: getSnapshot(),
+        meta: { highlightIndex: 0, overrideStatusMap: { 0: "Complete" } },
       });
     }
     return trace;
@@ -126,6 +152,12 @@ export function simulateHeapTrace(
           });
           idx = targetIdx;
         } else {
+          trace.push({
+            tag: TAGS.HEAPIFY_DOWN_STOP,
+            local_vars: { idx },
+            dataSnapshot: getSnapshot(),
+            meta: { overrideStatusMap: { [idx]: "Target" } },
+          });
           break;
         }
       }
@@ -142,7 +174,7 @@ export function simulateHeapTrace(
 
   if (action.heapType === "add") {
     const { value, targetId } = action;
-    const newNode = { id: targetId, value: value };
+    const newNode = { id: targetId!, value: value! };
     currentList.push(newNode);
     let idx = currentList.length - 1;
 
@@ -150,7 +182,7 @@ export function simulateHeapTrace(
       tag: TAGS.INSERT_START,
       local_vars: { value, index: idx },
       dataSnapshot: getSnapshot(),
-      meta: { highlightIndex: idx, status: "Target" },
+      meta: { highlightIndex: idx, status: defaultNodeStatus },
     });
 
     while (idx > 0) {
@@ -188,6 +220,14 @@ export function simulateHeapTrace(
 
         idx = parentIdx;
       } else {
+        trace.push({
+          tag: TAGS.HEAPIFY_UP_STOP,
+          local_vars: { idx, parentIdx },
+          dataSnapshot: getSnapshot(),
+          meta: {
+            overrideStatusMap: { [idx]: "Target", [parentIdx]: "Prepare" },
+          },
+        });
         break;
       }
     }
@@ -212,9 +252,10 @@ export function simulateHeapTrace(
     if (currentList.length === 1) {
       currentList.pop();
       trace.push({
-        tag: TAGS.EXTRACT_REMOVE,
+        tag: TAGS.EXTRACT_ONLY,
         local_vars: { extVal, heapSize: currentList.length },
         dataSnapshot: getSnapshot(),
+        meta: { highlightIndex: -1, overrideStatusMap: { 0: "Prepare" } },
       });
       return trace;
     }
@@ -307,9 +348,22 @@ export function simulateHeapTrace(
         });
         idx = targetIdx;
       } else {
+        trace.push({
+          tag: TAGS.HEAPIFY_DOWN_STOP,
+          local_vars: { idx },
+          dataSnapshot: getSnapshot(),
+          meta: { overrideStatusMap: { [idx]: "Target" } },
+        });
         break;
       }
     }
+
+    trace.push({
+      tag: TAGS.EXTRACT_RETURN,
+      local_vars: { extVal },
+      dataSnapshot: getSnapshot(),
+      meta: { status: "Complete" },
+    });
 
     trace.push({
       tag: TAGS.DONE,

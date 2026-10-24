@@ -10,6 +10,7 @@
  */
 
 import React, { useState, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import type { AnswerResult, Question } from "@/types/practice";
 const CodeEditor = lazy(() => import("@/modules/core/components/CodeEditor/CodeEditor"));
 import Badge from "@/shared/components/Badge";
@@ -28,6 +29,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
   answerResults,
   questions,
 }) => {
+  const { t } = useTranslation('practice');
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const getQuestionById = (questionId: string): Question | undefined => {
@@ -53,7 +55,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
       return answer
         .map((val, idx) => {
           const label = question.options?.[idx]?.id || `?`;
-          return `(${label}) ${val || "(空)"}`;
+          return `(${label}) ${val || t('answerList.notAnswered')}`;
         })
         .join(" ");
     }
@@ -82,10 +84,10 @@ const AnswerList: React.FC<AnswerListProps> = ({
 
   const renderTimeAnalysis = (seconds: number) => {
     if (seconds < 5) {
-      return <Badge variant="warning" size="xs" shape="rounded">{seconds}s（秒殺）</Badge>;
+      return <Badge variant="warning" size="xs" shape="rounded">{seconds}s（{t('answerList.timeInstant')}）</Badge>;
     }
     if (seconds > 60) {
-      return <Badge variant="secondary" size="xs" shape="rounded">{seconds}s（卡關？）</Badge>;
+      return <Badge variant="secondary" size="xs" shape="rounded">{seconds}s（{t('answerList.timeStuck')}）</Badge>;
     }
     return <Badge variant="info" size="xs" shape="rounded">{seconds}s</Badge>;
   };
@@ -93,7 +95,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
   return (
     <div className={styles.answerSection}>
       <h4 className={styles.answerTitle}>
-        答題回顧 ({answerResults.length} 題)
+        {t('answerList.title', { count: answerResults.length })}
       </h4>
 
       <div className={styles.answerList}>
@@ -117,7 +119,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
                 aria-expanded={isExpanded}
               >
                 <span className={`${styles.questionNumber} ${correctClass}`}>
-                  第 {index + 1} 題
+                  {t('answerList.questionNumber', { number: index + 1 })}
                   {renderTimeAnalysis(ar.timeSpent)}
                 </span>
                 <span className={styles.questionPreview}>
@@ -207,15 +209,15 @@ const AnswerList: React.FC<AnswerListProps> = ({
 
                   <div className={styles.answerComparison}>
                     <div className={`${styles.userAnswerRow} ${ar.isCorrect ? styles.correct : styles.wrong}`}>
-                      <span className={styles.answerLabel}>你的答案：</span>
+                      <span className={styles.answerLabel}>{t('answerList.yourAnswer')}</span>
                       <span className={styles.answerValue}>
                         {ar.userAnswer
                           ? renderInlineText(formatAnswer(question, ar.userAnswer))
-                          : "未作答"}
+                          : t('answerList.notAnswered')}
                       </span>
                     </div>
                     <div className={styles.correctAnswer}>
-                      <span className={styles.answerLabel}>正確答案：</span>
+                      <span className={styles.answerLabel}>{t('answerList.correctAnswer')}</span>
                       <span className={styles.answerValue}>
                         {renderInlineText(formatAnswer(question, ar.correctAnswer))}
                       </span>
@@ -223,13 +225,13 @@ const AnswerList: React.FC<AnswerListProps> = ({
                   </div>
 
                   <div className={styles.explanation}>
-                    <span className={styles.explanationLabel}>解析：</span>
+                    <span className={styles.explanationLabel}>{t('answerList.explanation')}</span>
                     <p className={styles.explanationText}>
                       {renderInlineText(ar.explanation)}
                     </p>
                   </div>
 
-                  <Badge variant="primary" size="sm" shape="rounded">{ar.points} 分</Badge>
+                  <Badge variant="primary" size="sm" shape="rounded">{t('answerList.points', { points: ar.points })}</Badge>
                 </div>
               )}
             </div>

@@ -1,0 +1,73 @@
+{
+  "animation": {
+    "init_shortest": "[Shortest Mode] Start finding the SHORTEST subarray with sum ≥ {{target}}",
+    "init_longest": "[Longest Mode] Start finding the LONGEST subarray with sum ≤ {{target}}",
+    "expand_right": "Right pointer expanded, shifted in value {{val}} at Index {{r}}",
+    "check_while": "Include {{val}} into the window, current window sum is: {{sum}}",
+    "shrink_shortest": "Sum satisfies condition ({{sum}} ≥ {{target}}). Try shrinking Left({{l}}) to find a shorter range",
+    "shrink_longest": "Sum {{sum}} exceeds target {{target}}! Shrinking Left({{l}}) to satisfy the condition",
+    "update_shortest": "Condition met! Updated minimum window length record to {{len}} (Index {{l}} to {{r}})",
+    "update_longest": "Condition met! Updated maximum window length record to {{len}} (Index {{l}} to {{r}})",
+    "done_success": "Scan complete! Optimal window length found is {{len}} from Index {{l}} to {{r}}",
+    "done_fail": "Scan complete! No continuous subarray matches the given condition."
+  },
+  "ui": {
+    "controlLabel": "Sliding Window Control",
+    "modeLabel": "Mode",
+    "modeLongest": "Longest Subarray (Sum ≤ Target)",
+    "modeShortest": "Shortest Subarray (Sum ≥ Target)",
+    "placeholder": "Target Sum",
+    "run": "Run Demo",
+    "runTooltip": "Execute sliding window algorithm animation",
+    "invalidInput": "Please enter a valid target sum"
+  },
+  "statusLegend": {
+    "outsideWindow": "Outside Window",
+    "currentWindow": "Current Window",
+    "aboutToLeave": "About to Leave",
+    "bestInterval": "Best Interval So Far"
+  },
+  "relatedProblems": {
+    "3": "Variable window: expand right to add characters, shrink left on duplicates, hash set tracks window contents",
+    "76": "Variable window + char count: expand right until all target chars covered, then shrink left for minimum length",
+    "424": "Variable window: track the highest-frequency char; shrink left when window size - max freq > k",
+    "239": "Fixed window + monotone deque: deque head holds current maximum, pop tail when smaller elements enter",
+    "567": "Fixed window char matching: maintain a window of length |s1|, compare window char frequencies against target",
+    "438": "Fixed window sliding comparison: same frequency strategy as #567, but record all valid window start positions"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Sliding window is a **two-pointer** technique for problems on **contiguous subranges** of arrays or strings. The window is bounded by left and right and adjusts dynamically with the condition.",
+        "items": [
+          "right keeps **expanding**, pulling new elements into the window",
+          "When the window stops satisfying the condition, left **shrinks** it until the condition holds again",
+          "The window may be **fixed-size** or **dynamically sized** by the condition",
+          "Only the state inside the window (sum, character counts, etc.) is maintained, never recomputed from scratch"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Since left and right only move forward, each element enters and leaves the window at most once.",
+        "items": [
+          "**Time complexity**: [[success|O(n)]], beating the brute-force [[danger|O(n²)]]",
+          "**Space complexity**: usually [[success|O(1)]]; with character counts it is [[warning|O(k)]], k being the number of distinct characters",
+          "The key is updating state **incrementally** in O(1) as elements enter and leave"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "When to Use It",
+        "content": "The signals for a sliding window are \"contiguous\" and \"monotonicity\".",
+        "items": [
+          "**Contiguous subarray / substring**: e.g. longest substring without repeats, maximum sum of length K",
+          "**Monotonicity**: growing the window makes the condition harder (or easier) to meet, so you know when to shrink",
+          "**Limit**: with negative numbers and a \"sum at least target\" condition, monotonicity fails — use prefix sums or similar"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

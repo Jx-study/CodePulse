@@ -48,6 +48,7 @@ import DockablePanel from "./components/DockablePanel";
 import type { PanelId } from "./components/DockablePanel";
 import AiAnalysisDialog from "./components/AiAnalysisDialog";
 import AlgoDetectionDialog from "./components/AlgoDetectionDialog";
+import { InputPromptDialog } from "./components/InputPromptDialog";
 import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
 import type { StdoutEvent } from "@/types/trace";
 import {
@@ -60,6 +61,12 @@ import { usePlaygroundPlayback } from "./hooks/usePlaygroundPlayback";
 import { usePlaygroundAnimationSteps } from "./hooks/usePlaygroundAnimationSteps";
 import { usePlaygroundPanelLayout } from "./hooks/usePlaygroundPanelLayout";
 import { usePlaygroundRun } from "./hooks/usePlaygroundRun";
+import TourEngine from "@/shared/components/TourEngine";
+import { buildPlaygroundTourSteps, getSupportedAlgoLabels } from "./playgroundTourSteps";
+import {
+  getPlaygroundTourDismissed,
+  setPlaygroundTourDismissed,
+} from "./playgroundTourStorage";
 import styles from "./Playground.module.scss";
 
 const DEFAULT_CODE = `def bubble_sort(arr):
@@ -131,6 +138,7 @@ function Playground() {
   // Run logic
   const {
     runStage,
+    lastRunOutcome,
     trace,
     rawTrace,
     rawIndexMap,
@@ -147,8 +155,11 @@ function Playground() {
     isAlgoDialogOpen,
     setIsAlgoDialogOpen,
     handleRun,
+    handleForceRun,
     handleEditCode,
     loadFromHistory,
+    resetLastRunOutcome,
+    inputPrompt,
   } = usePlaygroundRun({
     code,
     editorRef,
@@ -214,6 +225,21 @@ function Playground() {
     (id) => id !== leftDockedId && !collapsedPanels.has(id),
   );
 
+  // Auto-open on mount unless the user has previously clicked "Don't show again"
+  const [isTourOpen, setIsTourOpen] = useState(() => !getPlaygroundTourDismissed());
+  const closeTour = useCallback(() => setIsTourOpen(false), []);
+  const handleTourOpen = useCallback(() => {
+    resetLastRunOutcome();
+    setIsTourOpen(true);
+  }, [resetLastRunOutcome]);
+  // "Don't show again": persist the preference then close the tour (the "?" button still opens it manually)
+  const handleTourDontShowAgain = useCallback(() => {
+    setPlaygroundTourDismissed();
+    setIsTourOpen(false);
+  }, []);
+  // Switch to the animation tab (used by step onEnter)
+  const goAnimationTab = useCallback(() => setActiveTab("animation"), []);
+
   const handleToggleEditor = useCallback(() => {
     const panel = editorPanelRef.current;
     if (!panel) return;
@@ -224,6 +250,15 @@ function Playground() {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
+
+  const tourSteps = buildPlaygroundTourSteps({
+    runStage,
+    lastRunOutcome,
+    goAnimationTab,
+    leftDockedId,
+    isAlgoDialogOpen,
+    t,
+  });
 
   return (
     <DndContext
@@ -244,6 +279,7 @@ function Playground() {
             setQuotaRecords(null);
             setIsHistoryOpen(true);
           }}
+          onOpenTour={handleTourOpen}
         />
 
         <PanelGroup
@@ -279,33 +315,47 @@ function Playground() {
                 }
                 minSize="30%"
               >
-                <div className={styles.editorPanelInner}>
+                <div className={styles.editorPanelInner} data-tour="pg-editor">
                   <div className={styles.editorHeader}>
                     <div className={styles.editorFilename}>
                       <span className={styles.filenameDot} />
                       <span className={styles.filename}>main.py</span>
                     </div>
                     {isLocked ? (
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        className={styles.editCodeBtn}
-                        onClick={handleEditCode}
-                        icon="pen-to-square"
-                      >
-                        Edit Code
-                      </Button>
+                      <div className={styles.editorBtnGroup}>
+                        {runStage === "done" && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleForceRun}
+                            icon="rotate-right"
+                          >
+                            {t("ui.rerun")}
+                          </Button>
+                        )}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          className={styles.editCodeBtn}
+                          onClick={handleEditCode}
+                          icon="pen-to-square"
+                        >
+                          {t("ui.editCode")}
+                        </Button>
+                      </div>
                     ) : (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className={styles.runBtn}
-                        onClick={handleRun}
-                        disabled={false}
-                        icon="play"
-                      >
-                        Run
-                      </Button>
+                      <span data-tour="pg-run">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className={styles.runBtn}
+                          onClick={() => handleRun()}
+                          disabled={false}
+                          icon="play"
+                        >
+                          {t("ui.run")}
+                        </Button>
+                      </span>
                     )}
                   </div>
                   <div
@@ -334,7 +384,7 @@ function Playground() {
                       id={leftDockedId}
                       subLabel={
                         leftDockedId === "localVars" && activeFrame
-                          ? `· ${activeFrame === "<module>" ? "(global)" : activeFrame}`
+                          ? `· ${activeFrame === "<module>" ? t("ui.globalFrame") : activeFrame}`
                           : undefined
                       }
                     >
@@ -356,10 +406,10 @@ function Playground() {
           <ResizeHandle direction="horizontal" />
 
           <Panel className={styles.canvasPanel} style={{ minWidth: 0 }}>
-            <div className={styles.canvasArea}>
+            <div className={styles.canvasArea} data-tour="pg-canvas">
               <StatusBar stage={runStage} />
 
-              <div className={styles.canvasTabBar}>
+              <div className={styles.canvasTabBar} data-tour="pg-tabbar">
                 <TabList
                   variant="underline"
                   size="sm"
@@ -369,49 +419,51 @@ function Playground() {
                     handleStepChange(0);
                     handlePause();
                   }}
-                  aria-label="Visualization mode"
+                  aria-label={t('canvas.ariaVisualizationMode')}
                   tabs={[
                     ...(hasAnimationTemplate
                       ? [
                           {
                             key: "animation",
-                            label: "Algorithm Animation",
+                            label: t("ui.tabAnimation"),
                             icon: <Icon name="diagram-project" />,
                           },
                         ]
                       : []),
                     {
                       key: "graph",
-                      label: "Call Graph / CFG",
+                      label: t("ui.tabGraph"),
                       icon: <Icon name="code-branch" />,
                     },
                   ]}
                 />
                 {isTruncated && (
-                  <span className={styles.truncatedBadge}>⚠ truncated</span>
+                  <span className={styles.truncatedBadge}>{t("ui.truncatedBadge")}</span>
                 )}
-                <Button
-                  variant="unstyled"
-                  className={`${styles.aiBtn} ${
-                    runStage === "idle"
-                      ? styles.aiBtnDisabled
-                      : runStage === "done"
-                        ? styles.aiBtnActive
-                        : styles.aiBtnLoading
-                  }`}
-                  disabled={runStage !== "done"}
-                  onClick={() => setIsAiDialogOpen(true)}
-                  title="查看 AI 分析結果"
-                  aria-label="查看 AI 分析結果"
-                >
-                  {runStage === "analysis" ? (
-                    <>
-                      <span className={styles.aiBtnDot} /> AI Analysis…
-                    </>
-                  ) : (
-                    <>✦ AI Analysis</>
-                  )}
-                </Button>
+                <span data-tour="pg-ai">
+                  <Button
+                    variant="unstyled"
+                    className={`${styles.aiBtn} ${
+                      runStage === "idle"
+                        ? styles.aiBtnDisabled
+                        : runStage === "done"
+                          ? styles.aiBtnActive
+                          : styles.aiBtnLoading
+                    }`}
+                    disabled={runStage !== "done"}
+                    onClick={() => setIsAiDialogOpen(true)}
+                    title={t("ai.viewResults")}
+                    aria-label={t("ai.viewResults")}
+                  >
+                    {runStage === "analysis" ? (
+                      <>
+                        <span className={styles.aiBtnDot} /> {t("ui.aiAnalysisLoading")}
+                      </>
+                    ) : (
+                      <>{t("ui.aiAnalysis")}</>
+                    )}
+                  </Button>
+                </span>
               </div>
 
               <div
@@ -430,16 +482,18 @@ function Playground() {
                     />
                   ) : (
                     <EmptyState
+                      size="md"
                       icon={<Icon name="film" />}
-                      title="No animation data"
-                      description="Run code to generate the animation"
+                      title={t("canvas.noAnimationTitle")}
+                      description={t("canvas.noAnimationDesc")}
                     />
                   )
                 ) : !callGraph ? (
                   <EmptyState
+                    size="md"
                     icon={<Icon name="circle-xmark" />}
-                    title="No graph data"
-                    description="Submit code to generate the call graph"
+                    title={t("canvas.noGraphTitle")}
+                    description={t("canvas.noGraphDesc")}
                   />
                 ) : drill.mode === "cfg" ? (
                   (() => {
@@ -455,12 +509,12 @@ function Playground() {
                             onClick={() => setDrill({ mode: "call_graph" })}
                             iconLeft={<Icon name="chevron-left" />}
                           >
-                            Call Graph
+                            {t("ui.callGraph")}
                           </Button>
                           <span className={styles.cfgLabel}>
-                            CFG ·{" "}
+                            {t("ui.cfgPrefix")}{" "}
                             {node?.funcName === "<module>"
-                              ? "<global>"
+                              ? t("ui.globalFrame")
                               : (node?.funcName ??
                                 (drill as { mode: "cfg"; funcId: string }).funcId)}
                           </span>
@@ -492,7 +546,7 @@ function Playground() {
                         const hasCfg =
                           node.funcName === "<module>"
                             ? "<global>" in cfgGraph &&
-                              (cfgGraph["<global>"] as any)?.nodes?.length > 0
+                              (cfgGraph["<global>"]?.nodes?.length ?? 0) > 0
                             : node.funcName in cfgGraph;
                         if (!hasCfg) return;
                         setDrill({ mode: "cfg", funcId });
@@ -500,10 +554,10 @@ function Playground() {
                     />
                     <div className={styles.callGraphLegend}>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineSolid} /> call
+                        <span className={styles.legendLineSolid} /> {t("ui.callLegend")}
                       </span>
                       <span className={styles.legendItem}>
-                        <span className={styles.legendLineDashed} /> return
+                        <span className={styles.legendLineDashed} /> {t("ui.returnLegend")}
                       </span>
                     </div>
                   </div>
@@ -512,6 +566,7 @@ function Playground() {
 
               <div
                 className={`${styles.controlRow} ${runStage === "idle" ? styles.controlRowHidden : ""}`}
+                data-tour="pg-controlbar"
               >
                 {totalSteps > 0 && isAnimationUnlocked ? (
                   <ControlBar
@@ -529,7 +584,7 @@ function Playground() {
                   />
                 ) : (
                   <div className={styles.emptyControl}>
-                    {runStage === "idle" ? "Run code to start" : "Waiting for analysis…"}
+                    {runStage === "idle" ? t("status.runToStart") : t("status.waitingAnalysis")}
                   </div>
                 )}
               </div>
@@ -557,7 +612,7 @@ function Playground() {
                         id={id}
                         subLabel={
                           id === "localVars" && activeFrame
-                            ? `· ${activeFrame === "<module>" ? "(global)" : activeFrame}`
+                            ? `· ${activeFrame === "<module>" ? t("ui.globalFrame") : activeFrame}`
                             : undefined
                         }
                       >
@@ -610,6 +665,13 @@ function Playground() {
           setAppliedAlgo(name);
         }}
       />
+      <InputPromptDialog
+        isOpen={inputPrompt !== null}
+        prompt={inputPrompt?.prompt ?? ""}
+        inputIndex={inputPrompt?.inputIndex ?? 0}
+        onSubmit={(value) => inputPrompt?.resolve(value)}
+        onCancel={() => inputPrompt?.resolve(null)}
+      />
       <PlaygroundHistoryDialog
         isOpen={isHistoryOpen}
         onClose={() => {
@@ -628,6 +690,18 @@ function Playground() {
           quotaResolveRef.current = null;
         }}
       />
+      <TourEngine
+        isOpen={isTourOpen && !isHistoryOpen}
+        isPaused={isAlgoDialogOpen}
+        steps={tourSteps}
+        onComplete={closeTour}
+        onSkip={closeTour}
+        onDontShowAgain={handleTourDontShowAgain}
+        finalTitle={t('tour.outro.title')}
+        finalDescription={t('tour.outro.description', { algos: getSupportedAlgoLabels().join(', ') })}
+        finalPrimaryLabel={t('tour.outro.primaryLabel')}
+        finalSecondaryLabel={t('tour.outro.secondaryLabel')}
+      />
     </DndContext>
   );
 }
@@ -636,7 +710,7 @@ function Playground() {
 interface PanelContentProps {
   id: PanelId;
   globalVars: Record<string, string>;
-  localVars: Record<string, any>;
+  localVars: Record<string, unknown>;
   callStack: string[];
   stdoutEvents: StdoutEvent[];
   currentStep: number;
@@ -650,6 +724,7 @@ function PanelContent({
   stdoutEvents,
   currentStep,
 }: PanelContentProps) {
+  const { t } = useTranslation("playground");
   if (id === "globalVars") {
     return Object.entries(globalVars).length === 0 ? (
       <span style={{ color: "var(--text-tertiary)" }}>—</span>
@@ -692,7 +767,7 @@ function PanelContent({
             {i === 0 && (
               <span style={{ color: "var(--color-primary)", marginRight: 4 }}>➔</span>
             )}
-            {fname === "<module>" ? "(global)" : fname}
+            {fname === "<module>" ? t("ui.globalFrame") : fname}
           </div>
         ))}
       </>

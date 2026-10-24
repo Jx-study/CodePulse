@@ -2,71 +2,94 @@ import type { ExecutionTrace, TraceEvent } from "@/types/trace";
 import type { AnimationStep, StepDescription } from "@/types";
 import { Status } from "@/modules/core/DataLogic/BaseElement";
 import { createTreeNodes } from "@/data/DataStructure/nonlinear/utils";
-import { toStatus, toOverrideMap } from "@/data/implementations/traceConverters";
+import {
+  toStatus,
+  toOverrideMap,
+} from "@/data/implementations/traceConverters";
+import { asTrace } from "@/data/shared/traceValue";
 import { TAGS } from "./tags";
+
+interface HeapMeta {
+  status?: string;
+  overrideStatusMap?: Record<number, string>;
+  highlightIndex?: number;
+}
 
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: (e) => ({
-    key: "heap.init",
+    key: "animation.init",
     params: { heapName: e.local_vars.heapName ?? "Heap" },
   }),
   [TAGS.INSERT_START]: (e) => ({
-    key: "heap.insert_start",
+    key: "animation.insert_start",
     params: { value: e.local_vars.value, index: e.local_vars.index },
   }),
   [TAGS.HEAPIFY_UP_COMPARE]: (e) => ({
-    key: "heap.heapify_up_compare",
+    key: "animation.heapify_up_compare",
     params: { curVal: e.local_vars.curVal, parentVal: e.local_vars.parentVal },
   }),
   [TAGS.HEAPIFY_UP_SWAP]: (e) => ({
     key: e.local_vars.isMinHeap
-      ? "heap.heapify_up_swap_min"
-      : "heap.heapify_up_swap_max",
+      ? "animation.heapify_up_swap_min"
+      : "animation.heapify_up_swap_max",
   }),
   [TAGS.EXTRACT_START]: (e) => ({
     key: e.local_vars.isMinHeap
-      ? "heap.extract_start_min"
-      : "heap.extract_start_max",
+      ? "animation.extract_start_min"
+      : "animation.extract_start_max",
     params: { extVal: e.local_vars.extVal },
   }),
-  [TAGS.EXTRACT_SWAP_LAST]: () => ({ key: "heap.extract_swap_last" }),
-  [TAGS.EXTRACT_REMOVE]: () => ({ key: "heap.extract_remove" }),
+  [TAGS.EXTRACT_SWAP_LAST]: () => ({ key: "animation.extract_swap_last" }),
+  [TAGS.EXTRACT_ONLY]: () => ({ key: "animation.extract_only" }),
+  [TAGS.EXTRACT_REMOVE]: () => ({ key: "animation.extract_remove" }),
   [TAGS.HEAPIFY_DOWN_COMPARE]: (e) => ({
     key: e.local_vars.isMinHeap
-      ? "heap.heapify_down_compare_min"
-      : "heap.heapify_down_compare_max",
+      ? "animation.heapify_down_compare_min"
+      : "animation.heapify_down_compare_max",
   }),
   [TAGS.HEAPIFY_DOWN_SWAP]: (e) => ({
-    key: "heap.heapify_down_swap",
+    key: "animation.heapify_down_swap",
     params: { heapName: e.local_vars.heapName },
   }),
-  [TAGS.PEEK]: (e) => ({
-    key: e.local_vars.isMinHeap ? "heap.peek_min" : "heap.peek_max",
+  [TAGS.HEAPIFY_UP_STOP]: () => ({ key: "animation.heapify_up_stop" }),
+  [TAGS.HEAPIFY_DOWN_STOP]: () => ({ key: "animation.heapify_down_stop" }),
+  [TAGS.EXTRACT_RETURN]: (e) => ({
+    key: "animation.extract_return",
     params: { extVal: e.local_vars.extVal },
   }),
+  [TAGS.PEEK]: (e) => ({
+    key: e.local_vars.isMinHeap ? "animation.peek_min" : "animation.peek_max",
+    params: { extVal: e.local_vars.extVal },
+  }),
+  [TAGS.EXTRACT_EMPTY]: () => ({ key: "animation.extract_empty" }),
+  [TAGS.PEEK_EMPTY]: () => ({ key: "animation.peek_empty" }),
   [TAGS.HEAPIFY_START]: (e) => ({
-    key: "heap.heapify_start",
+    key: "animation.heapify_start",
     params: { length: e.local_vars.length, heapName: e.local_vars.heapName },
   }),
   [TAGS.DONE]: (e) => ({
-    key: "heap.done",
+    key: "animation.done",
     params: { heapName: e.local_vars.heapName },
   }),
 };
 
 export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
   return trace.map((event, idx) => {
-    const elements = createTreeNodes(event.dataSnapshot as any[], {
-      width: 700,
-      height: 300,
-      offsetX: 0,
-      offsetY: 50,
-      type: "binarytree",
-    });
+    const meta = asTrace<HeapMeta>(event.meta);
+    const elements = createTreeNodes(
+      event.dataSnapshot as { id: string; value: number }[],
+      {
+        width: 700,
+        height: 300,
+        offsetX: 0,
+        offsetY: 50,
+        type: "binarytree",
+      },
+    );
 
-    const defaultStatus = toStatus(event.meta?.status);
-    const overrideMap = toOverrideMap(event.meta?.overrideStatusMap);
-    const highlightIdx = event.meta?.highlightIndex ?? -1;
+    const defaultStatus = toStatus(meta.status);
+    const overrideMap = toOverrideMap(meta.overrideStatusMap);
+    const highlightIdx = meta.highlightIndex ?? -1;
 
     elements.forEach((node, i) => {
       const isHighlighted = highlightIdx === i;
@@ -79,15 +102,16 @@ export function heapTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         node.setStatus(defaultStatus);
       }
 
-      node.description = `[${i}]`;
+      node.description = `${i}`;
     });
 
     return {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
+      warn: event.tag === TAGS.EXTRACT_EMPTY || event.tag === TAGS.PEEK_EMPTY,
       local_vars: event.local_vars,
-      elements: elements as any,
+      elements,
     };
   });
 }

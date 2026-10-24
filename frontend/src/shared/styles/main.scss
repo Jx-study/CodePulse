@@ -39,6 +39,7 @@
   --color-accent:    #{$accent-color};
   --color-pink:      #{$pink-color};
   --color-teal:      #{$teal-color};
+  --color-blue:      #{$blue-color};
 
   /* Glow Button — Light Mode */
   --glow-bg: #{rgba($white-color, 0.85)};
@@ -76,6 +77,7 @@
     --color-accent:    #{color.adjust($accent-color,  $lightness: -8%)};
     --color-pink:      #{color.adjust($pink-color,    $lightness: -8%)};
     --color-teal:      #{color.adjust($teal-color,    $lightness: -8%)};
+    --color-blue:      #{color.adjust($blue-color,    $lightness: -8%)};
     /* Glow Button — Dark Mode */
     --glow-bg: #{rgba($primary-color, 0.16)};
     --glow-bg-hover: #{rgba($primary-color, 0.28)};
@@ -105,6 +107,7 @@
   --color-accent:    #{color.adjust($accent-color,  $lightness: -8%)};
   --color-pink:      #{color.adjust($pink-color,    $lightness: -8%)};
   --color-teal:      #{color.adjust($teal-color,    $lightness: -8%)};
+  --color-blue:      #{color.adjust($blue-color,    $lightness: -8%)};
   /* Glow Button — Dark Mode */
   --glow-bg: #{rgba($primary-color, 0.16)};
   --glow-bg-hover: #{rgba($primary-color, 0.28)};

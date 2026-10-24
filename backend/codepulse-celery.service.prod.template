@@ -12,7 +12,8 @@ ExecStart=/home/codepulse/projects/CodePulse/backend/venv/bin/celery \
     -A celery_worker worker \
     --loglevel=info \
     --concurrency=2 \
-    --pool=prefork
+    --pool=prefork \
+    -Q celery,interactive
 Restart=always
 RestartSec=5
 

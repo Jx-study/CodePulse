@@ -11,7 +11,7 @@ import { AnimationToolbar } from "./Lab/components/AnimationToolbar/AnimationToo
 import styles from "./Lab.module.scss";
 
 function LabShell() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common", "lab"]);
   const {
     algorithms,
     currentStep,
@@ -33,12 +33,12 @@ function LabShell() {
     <div className={styles.lab}>
       <div className={styles.toolbar}>
         <div className={styles.toolbarLeft}>
-          <Link to="/explorer" className={styles.backBtn} aria-label="返回 Explorer">
+          <Link to="/explorer" className={styles.backBtn} aria-label={t("lab:toolbar.backToExplorer")}>
             <Icon name="arrow-left" decorative />
           </Link>
           <div className={styles.divider} />
           <h1 className={styles.toolbarTitle}>
-            {t("explorer")} — 演算法實驗室
+            {t("explorer")} — {t("lab:toolbar.pageTitle")}
           </h1>
         </div>
       </div>

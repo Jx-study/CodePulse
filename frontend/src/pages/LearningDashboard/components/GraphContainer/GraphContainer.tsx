@@ -15,9 +15,7 @@ import type { GraphContainerProps } from '@/types';
 const CONTENT_PADDING = 300; // 上下內邊距，確保所有內容（包括 tooltip）都可見
 function GraphContainer({ levels, userProgress, children }: GraphContainerProps) {
   const { isZoomDisabled: isContextDisabled } = useZoomDisable();
-  const [isOverlayOpen, setIsOverlayOpen] = useState(
-    () => document.body.hasAttribute('data-dialog-open')
-  );
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const isZoomDisabled = isContextDisabled || isOverlayOpen;
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -45,7 +43,7 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
     isDisabled: isZoomDisabled,
   });
 
-  // 動態計算滾動限制的輔助函數
+  // 動態計算滾動限制的輔助函式
   const calculateScrollBounds = useCallback((container: HTMLElement | null | undefined) => {
     if (!container) {
       return { minScrollY: -1000, maxScrollY: 1000, maxScrollX: 300 };
@@ -98,8 +96,14 @@ function GraphContainer({ levels, userProgress, children }: GraphContainerProps)
 
   // 偵測外部 overlay（Dialog/Sidebar）開啟，阻止 wheel/drag 事件穿透
   useEffect(() => {
-    const observer = new MutationObserver(() => {
+    const syncOverlayState = () => {
       setIsOverlayOpen(document.body.hasAttribute('data-dialog-open'));
+    };
+
+    syncOverlayState();
+
+    const observer = new MutationObserver(() => {
+      syncOverlayState();
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['data-dialog-open'] });
     return () => observer.disconnect();

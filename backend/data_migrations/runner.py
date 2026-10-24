@@ -10,7 +10,8 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app import create_app, db
+from app import create_app
+from database import db
 import sqlalchemy as sa
 
 MIGRATIONS_DIR = os.path.dirname(os.path.abspath(__file__))

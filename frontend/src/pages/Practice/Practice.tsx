@@ -8,7 +8,7 @@ import type {
 } from "@/types/practice";
 import { PracticeService } from "@/services/PracticeService";
 import { tutorialService } from "@/services/tutorialService";
-import type { ApiQuestion } from "@/services/tutorialService";
+import type { ApiQuestion, SubmitResult } from "@/services/tutorialService";
 import Breadcrumb from "@/shared/components/Breadcrumb";
 import { ResultModal } from "./components/ResultModal";
 import type { BreadcrumbItem } from "@/types";
@@ -38,6 +38,9 @@ function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
     language: q.language ?? undefined,
     groupId: q.group_id ? String(q.group_id) : undefined,
     group: q.group ?? undefined,
+    visual_type: q.visual_type,
+    visual_data: q.visual_data,
+    visual_alt: q.visual_alt,
     correctAnswer: '',
     explanation: '',
   }));
@@ -50,7 +53,7 @@ function Practice() {
   }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('practice');
   const currentUserRating = user?.skill_rating ?? DEFAULT_RATING;
 
   // 從後端載入題目
@@ -65,7 +68,7 @@ function Practice() {
       .then((apiQs) => {
         setApiQuestions(mapApiQuestionsToLocal(apiQs));
       })
-      .catch(() => setLoadError('無法載入題目，請重新整理'))
+      .catch(() => setLoadError('error'))
       .finally(() => setIsLoadingQuestions(false));
   }, [levelId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -88,6 +91,7 @@ function Practice() {
               ...q,
               title: qt.stem,
               options: qt.options ?? q.options,
+              visual_alt: qt.visual_alt ?? q.visual_alt,
             };
             if (q.groupId) {
               const gt = data.groups[q.groupId];
@@ -135,6 +139,7 @@ function Practice() {
   >({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<PracticeResult | null>(null);
+  const [activeVisual, setActiveVisual] = useState<'group' | 'question'>('group');
   const [startTime, setStartTime] = useState(Date.now());
 
   // 記錄每一題的累積時間
@@ -190,17 +195,20 @@ function Practice() {
     setShowResult(false);
     setResult(null);
     setTimeRecords({});
+    setActiveVisual('group');
   }, [apiQuestions, retryCount]);
 
   const handleSelectQuestion = (index: number) => {
     updateTimeRecord();
     setCurrentQuestionIndex(index);
+    setActiveVisual('group');
   };
 
   const handleNext = () => {
     if (currentQuestionIndex < randomizedQuestions.length - 1) {
       updateTimeRecord();
       setCurrentQuestionIndex((prev) => prev + 1);
+      setActiveVisual('group');
     }
   };
 
@@ -208,6 +216,7 @@ function Practice() {
     if (currentQuestionIndex > 0) {
       updateTimeRecord();
       setCurrentQuestionIndex((prev) => prev - 1);
+      setActiveVisual('group');
     }
   };
 
@@ -272,8 +281,10 @@ function Practice() {
 
     try {
       const resp = await tutorialService.submitPractice(levelId, payload, i18n.language);
-      const answerResults: AnswerResult[] = resp.results.map((r: any) => {
+      const answerResults: AnswerResult[] = resp.results.map((r) => {
         const q = randomizedQuestions.find((q) => q.backendId === r.question_id)!;
+        // `points` is returned by the backend but not yet modeled on SubmitResult.
+        const { points } = r as SubmitResult & { points: number };
         return {
           questionId: q.id,
           isCorrect: r.is_correct,
@@ -281,7 +292,7 @@ function Practice() {
           correctAnswer: r.correct_answer ?? '',
           explanation: r.explanation ?? '',
           timeSpent: Math.round((finalTimeRecords[q.id] || 0) / 1000),
-          points: r.points,
+          points,
         };
       });
 
@@ -306,11 +317,11 @@ function Practice() {
       setResult(calculatedResult);
       setShowResult(true);
       if ((resp.xp_earned ?? 0) > 0) {
-        xp.show(resp.xp_earned ?? 0);
+        xp.show(resp.xp_earned ?? 0, { reason: 'practice' });
       }
     } catch (err) {
       console.error('[Practice] Submit failed:', err);
-      toast.error('提交失敗，請檢查網路後再試');
+      toast.error(t('submitError'));
     }
   };
 
@@ -323,15 +334,31 @@ function Practice() {
     navigate("/dashboard");
   };
 
-  if (isLoadingQuestions) return <div className={styles.loading}>載入題目中...</div>;
-  if (loadError) return <div className={styles.error}>{loadError}</div>;
+  if (isLoadingQuestions) return <div className={styles.loading}>{t('loading')}</div>;
+  if (loadError) return <div className={styles.error}>{t('loadError')}</div>;
   if (randomizedQuestions.length === 0) {
-    if ((apiQuestions?.length ?? 0) > 0) return <div className={styles.loading}>載入題目中...</div>;
-    return <div className={styles.error}>此關卡尚無題目</div>;
+    if ((apiQuestions?.length ?? 0) > 0) return <div className={styles.loading}>{t('loading')}</div>;
+    return <div className={styles.error}>{t('noQuestions')}</div>;
   }
 
   const currentQuestion = randomizedQuestions[currentQuestionIndex];
   const currentGroup = getCurrentGroup(currentQuestion);
+
+  const groupVisualUrl = currentGroup?.visual_type === 'image'
+    ? safeImageUrl(currentGroup.visual_data)
+    : null;
+  const questionVisualUrl = currentQuestion.visual_type === 'image'
+    ? safeImageUrl(currentQuestion.visual_data ?? null)
+    : null;
+  const showVisualToggle = Boolean(groupVisualUrl && questionVisualUrl);
+  const visualToShow = showVisualToggle
+    ? activeVisual
+    : questionVisualUrl
+      ? 'question'
+      : groupVisualUrl
+        ? 'group'
+        : null;
+
   const isMultipleChoice = currentQuestion.type === "multiple-choice";
   const isPredictLineQuestion = currentQuestion.type === "predict-line";
   const isFillCodeQuestion = currentQuestion.type === "fill-code";
@@ -343,8 +370,9 @@ function Practice() {
 
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label:
-        category === "data-structures" ? "資料結構" : category || "未知分類",
+      label: category === "data-structures"
+        ? t('breadcrumb.dataStructures')
+        : category || t('breadcrumb.unknownCategory'),
       path: `/dashboard?category=${category}`,
     },
     { label: levelId ?? '', path: null },
@@ -359,7 +387,7 @@ function Practice() {
       <div className={styles.practiceLayout}>
         <div className={styles.sidebar}>
           <div className={styles.sidebarSection}>
-            <h3 className={styles.sidebarTitle}>題目列表</h3>
+            <h3 className={styles.sidebarTitle}>{t('sidebar.questionList')}</h3>
             <div className={styles.questionList}>
               {/* 判斷是否為題組，給予特殊樣式 */}
               {randomizedQuestions.map((q, index) => {
@@ -419,7 +447,7 @@ function Practice() {
                         G{groupIndex + 1}.
                       </span>
                     )}
-                    題目 {index + 1}
+                    {t('sidebar.questionNumber', { number: index + 1 })}
                   </Button>
                 );
               })}
@@ -427,17 +455,15 @@ function Practice() {
           </div>
 
           <div className={styles.sidebarSection}>
-            <h3 className={styles.sidebarTitle}>進度</h3>
-            <p>
-              已答題: {answeredCount} / {randomizedQuestions.length}
-            </p>
+            <h3 className={styles.sidebarTitle}>{t('sidebar.progress')}</h3>
+            <p>{t('sidebar.answeredCount', { answered: answeredCount, total: randomizedQuestions.length })}</p>
           </div>
 
           <div className={styles.sidebarSection}>
-            <h3 className={styles.sidebarTitle}>通關條件</h3>
+            <h3 className={styles.sidebarTitle}>{t('sidebar.passingCondition')}</h3>
             <ul className={styles.requirementList}>
-              <li>正確率 60% 以上</li>
-              <li>完成所有題目</li>
+              <li>{t('sidebar.passingScore', { score: 60 })}</li>
+              <li>{t('sidebar.completeAll')}</li>
             </ul>
           </div>
 
@@ -447,7 +473,7 @@ function Practice() {
             onClick={handleSubmit}
             disabled={answeredCount < randomizedQuestions.length}
           >
-            提交全部
+            {t('sidebar.submitAll')}
           </Button>
         </div>
 
@@ -455,7 +481,7 @@ function Practice() {
           {currentGroup && (
             <div className={styles.groupContextContainer}>
               <div className={styles.groupHeader}>
-                <span className={styles.groupBadge}>題組</span>
+                <span className={styles.groupBadge}>{t('question.groupBadge')}</span>
                 <h3 className={styles.groupTitle}>{currentGroup.title}</h3>
               </div>
 
@@ -463,20 +489,6 @@ function Practice() {
                 <p className={styles.groupDesc}>
                   {renderInlineText(currentGroup.description ?? "")}
                 </p>
-                {currentGroup.visual_type === "image" && (() => {
-                  const url = safeImageUrl(currentGroup.visual_data);
-                  if (!url) return null;
-                  return (
-                    <figure className={styles.groupVisual}>
-                      <img
-                        src={url}
-                        alt={currentGroup.visual_alt ?? currentGroup.title}
-                        loading="lazy"
-                        className={styles.groupVisualImage}
-                      />
-                    </figure>
-                  );
-                })()}
                 {currentGroup.code && (
                   <div className={styles.groupCodeBlock}>
                     <Suspense fallback={null}>
@@ -497,20 +509,59 @@ function Practice() {
           )}
           <div className={styles.questionHeader}>
             <h2 className={styles.questionTitle}>
-              題目 {currentQuestionIndex + 1} of {randomizedQuestions.length}
+              {t('question.of', { current: currentQuestionIndex + 1, total: randomizedQuestions.length })}
               <span className={styles.typeBadge}>
-                {isMultipleChoice
-                  ? " (多選)"
-                  : isPredictLineQuestion
-                    ? " (行數填空)"
-                    : currentQuestion.type === "true-false"
-                      ? " (是非)"
-                      : currentQuestion.type === "fill-code"
-                        ? " (程式填空)"
-                        : " (單選)"}
+                {` (${t(`question.types.${currentQuestion.type}`)})`}
               </span>
             </h2>
           </div>
+
+          {visualToShow && (
+            <div className={styles.visualSection}>
+              {showVisualToggle && (
+                <div className={styles.visualToggle}>
+                  <Button
+                    variant={activeVisual === 'group' ? 'primaryOutline' : 'ghost'}
+                    size="sm"
+                    className={activeVisual !== 'group' ? styles.visualToggleBtnInactive : ''}
+                    aria-pressed={activeVisual === 'group'}
+                    onClick={() => setActiveVisual('group')}
+                  >
+                    {t('visual.groupImage')}
+                  </Button>
+                  <Button
+                    variant={activeVisual === 'question' ? 'primaryOutline' : 'ghost'}
+                    size="sm"
+                    className={activeVisual !== 'question' ? styles.visualToggleBtnInactive : ''}
+                    aria-pressed={activeVisual === 'question'}
+                    onClick={() => setActiveVisual('question')}
+                  >
+                    {t('visual.hintImage')}
+                  </Button>
+                </div>
+              )}
+              {visualToShow === 'group' && groupVisualUrl && currentGroup && (
+                <figure className={styles.groupVisual}>
+                  <img
+                    src={groupVisualUrl}
+                    alt={currentGroup.visual_alt ?? currentGroup.title}
+                    loading="lazy"
+                    className={styles.groupVisualImage}
+                  />
+                </figure>
+              )}
+              {visualToShow === 'question' && questionVisualUrl && (
+                <figure className={styles.groupVisual}>
+                  <img
+                    src={questionVisualUrl}
+                    alt={currentQuestion.visual_alt ?? currentQuestion.title}
+                    loading="lazy"
+                    className={styles.groupVisualImage}
+                  />
+                </figure>
+              )}
+            </div>
+          )}
 
           <div className={styles.questionContent}>
             <p className={styles.questionText}>
@@ -543,7 +594,7 @@ function Practice() {
                     fontSize: "14px",
                   }}
                 >
-                  請輸入行號 (例如: 12 13 15)：
+                  {t('question.predictLineHint')}
                 </label>
                 <Input
                   type="text"
@@ -555,7 +606,7 @@ function Practice() {
                       false,
                     )
                   }
-                  placeholder="輸入答案..."
+                  placeholder={t('question.predictLinePlaceholder')}
                 />
               </div>
             ) : isFillCodeQuestion ? (
@@ -567,7 +618,7 @@ function Practice() {
                     marginBottom: "8px",
                   }}
                 >
-                  請在下方填入對應代號的值：
+                  {t('question.fillCodeHint')}
                 </p>
                 {currentQuestion.options?.map((opt, index) => {
                   const currentAnsArray =
@@ -602,7 +653,7 @@ function Practice() {
                             e.target.value,
                           )
                         }
-                        placeholder={`填入 (${opt.id}) 的答案...`}
+                        placeholder={t('question.fillCodePlaceholder', { id: opt.id })}
                       />
                     </div>
                   );
@@ -656,7 +707,7 @@ function Practice() {
               onClick={handlePrev}
               disabled={currentQuestionIndex === 0}
             >
-              上一題
+              {t('question.prev')}
             </Button>
             <Button
               variant="primary"
@@ -664,7 +715,7 @@ function Practice() {
               onClick={isLastQuestion ? handleSubmit : handleNext}
               disabled={isLastQuestion ? !canSubmit : false}
             >
-              {isLastQuestion ? "提交" : "下一題"}
+              {isLastQuestion ? t('question.submit') : t('question.next')}
             </Button>
           </div>
         </div>

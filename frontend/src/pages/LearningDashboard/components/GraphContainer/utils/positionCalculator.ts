@@ -254,55 +254,6 @@ function calculateBranchX(
 }
 
 /**
- * 計算貝塞爾曲線控制點
- * @param from 起始節點位置
- * @param to 目標節點位置
- * @returns SVG path 的 d 屬性值
- */
-export const calculatePathD = (
-  from: { x: number; y: number },
-  to: { x: number; y: number }
-): string => {
-  const controlPointOffset = 50; // 控制點偏移量
-
-  // 計算控制點（讓曲線更平滑）
-  const cp1x = from.x;
-  const cp1y = from.y - controlPointOffset;
-  const cp2x = to.x;
-  const cp2y = to.y + controlPointOffset;
-
-  // 使用三次貝塞爾曲線
-  return `M ${from.x} ${from.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${to.x} ${to.y}`;
-};
-
-/**
- * 將 CSS calc 表達式轉換為實際像素值（用於 SVG 路徑計算）
- * @param calcStr CSS calc 字串（例：'calc(50% - 120px)'）
- * @param containerWidth 容器寬度
- * @returns 計算後的像素值
- */
-export const resolveCalcToPixels = (calcStr: string, containerWidth: number): number => {
-  // 增強版 Regex：支援標準格式 'calc(50% ± Xpx)' 以及可能的負數
-  const match = calcStr.match(/calc\(50%\s*([+-])\s*(-?\d+)px\)/);
-
-  if (!match) {
-    // 如果不是 calc 表達式，檢查是否為純 50%
-    if (calcStr === '50%') {
-      return containerWidth / 2;
-    }
-    // Fallback: 回傳容器中心
-    return containerWidth / 2;
-  }
-
-  const operator = match[1];
-  const offset = parseInt(match[2]); // parseInt 會自動處理負號
-  const halfWidth = containerWidth / 2;
-
-  // 處理運算符：如果原本是 calc(50% + -120px)，operator 是 '+'，offset 是 -120
-  return operator === '-' ? halfWidth - offset : halfWidth + offset;
-};
-
-/**
  * 計算內容的邊界範圍
  * @param levels 所有關卡
  * @param config 可選的佈局配置

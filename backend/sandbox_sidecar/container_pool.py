@@ -73,6 +73,10 @@ class ContainerPool:
                         "--read-only", "--tmpfs", "/tmp:rw,exec,size=64m",
                         "--user", "nobody",
                         "--memory", "128m", "--cpus", "0.5",
+                        # 深度防禦：丟棄全部 capabilities、禁止提權、限制 pid 數（防 fork bomb，/tmp 是 rw,exec）
+                        "--cap-drop", "ALL",
+                        "--security-opt", "no-new-privileges",
+                        "--pids-limit", "64",
                         "--name", f"sandbox-{uuid.uuid4().hex[:8]}",
                         "--entrypoint", "tail",
                         IMAGE_NAME,

@@ -3,6 +3,10 @@
   gap: $spacing-md;
   font-size: $font-sm;
   color: var(--text-secondary);
+
+  @include mobile {
+    gap: $spacing-xs;
+  }
 }
 
 .backButton {
@@ -17,6 +21,10 @@
   font-weight: 500;
   cursor: pointer;
   transition: $transition-base;
+
+  @include mobile {
+    padding: $spacing-xs $spacing-xs;
+  }
 
   &:hover {
     background: var(--bg-secondary);
@@ -48,6 +56,10 @@
   @include flex($align: center);
   gap: $spacing-xs;
   margin-left: $spacing-sm;
+
+  @include mobile {
+    margin-left: $spacing-xs;
+  }
 }
 
 .separator {
@@ -84,15 +96,11 @@
 
 // 響應式設計
 @include mobile {
-  .breadcrumb {
-    gap: $spacing-sm;
-  }
-  
   .breadcrumbList {
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    
+
     &::-webkit-scrollbar {
       display: none;
     }

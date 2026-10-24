@@ -16,7 +16,3 @@ export const LAB_TOPICS: Record<
     ],
   },
 };
-
-export const TOPIC_OPTIONS: { value: TopicId; label: string }[] = [
-  { value: "sorting", label: "排序演算法" },
-];

@@ -2,8 +2,8 @@ import time
 from collections import deque
 from threading import Condition, Lock
 
-RPM_LIMIT = 14        # block when 60-second window reaches this (Google cap is 15, -1 buffer)
-RPD_LIMIT = 460       # hard-stop when 24-hour window reaches this (Google cap is 500, -40 buffer)
+RPM_LIMIT = 2000      # block when 60-second window reaches this
+RPD_LIMIT = 10000     # hard-stop when 24-hour window reaches this
 RPM_WINDOW = 60       # seconds
 RPD_WINDOW = 86400    # seconds
 RPM_WAIT_TIMEOUT = 30 # seconds

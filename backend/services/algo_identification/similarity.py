@@ -1,6 +1,6 @@
 import numpy as np
 
-THRESHOLD: float = 0.87
+THRESHOLD: float = 0.80
 
 
 def find_top_match(

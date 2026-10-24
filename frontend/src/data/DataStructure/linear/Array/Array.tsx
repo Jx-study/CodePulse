@@ -1,5 +1,5 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
+import { LevelImplementationConfig, DSActionBarProps } from "@/types/implementation";
 import {
   LinearData as BoxData,
   LinearAction as ActionType,
@@ -16,7 +16,7 @@ import { simulateArrayTrace } from "./array/simulateTrace";
 import { arrayTraceToSteps } from "./array/traceToSteps";
 
 
-export function createArrayAnimationSteps(
+function createArrayAnimationSteps(
   dataList: BoxData[],
   action?: ActionType,
 ): AnimationStep[] {
@@ -24,75 +24,86 @@ export function createArrayAnimationSteps(
   return arrayTraceToSteps(trace);
 }
 
+const ARRAY_CAPACITY = 20;
+
 const arrayCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Array:
-  Data:
-    length ← 0
-    data ← []
-
-  Procedure search(target):
-    For i ← 0 to length - 1:
-      If data[i] == target Then
-        Return i  // Found
-      End If
-    End For
-    Return -1     // Not Found
-  End Procedure
-
-  Procedure update(index, value):
-    If value is Empty Then
-      Alert "Value cannot be empty"
-      Return
+    content: `Procedure search(target):
+  For i ← 0 to length - 1:
+    If data[i] == target Then
+      Return i  // Found
     End If
-    
-    data[index] ← value
-  End Procedure
+  End For
+  Return -1     // Not Found
+End Procedure
 
-  Procedure insert(index, value):
-    // 1. Expand array size (append at back)
-    length ← length + 1
-    
-    // 2. Shift elements to the right
-    // (Prepare space for the new value at index)
-    For i ← length - 1 down to index + 1:
-      data[i] ← data[i - 1]
-    End For
-    
-    // 3. Insert value
-    data[index] ← value
-  End Procedure
+Procedure update(index, value):
+  If index < 0 or index ≥ length Then
+    Return Error
+  End If
+  
+  data[index] ← value
+End Procedure
 
-  Procedure delete(index):
-    If index < 0 or index ≥ length Then
-      Return Error
-    End If
+Procedure insert(index, value):
+  If length = capacity Then
+    Return Error
+  End If
 
-    // Shift elements to the left
-    For i ← index to length - 2:
-      data[i] ← data[i + 1]
-    End For
+  If index > length Then
+    index ← length
+  End If
 
-    // Remove last element
-    length ← length - 1
-  End Procedure`,
+  // 1. Expand array size (append at back)
+  length ← length + 1
+  
+  // 2. Shift elements to the right
+  // (Prepare space for the new value at index)
+  For i ← length - 1 down to index + 1:
+    data[i] ← data[i - 1]
+  End For
+  
+  // 3. Insert value
+  data[index] ← value
+End Procedure
+
+Procedure delete(index):
+  If index < 0 or index ≥ length Then
+    Return Error
+  End If
+
+  // Shift elements to the left
+  For i ← index to length - 2:
+    data[i] ← data[i + 1]
+  End For
+
+  // Remove last element
+  length ← length - 1
+End Procedure`,
     mappings: {
-      [TAGS.SEARCH_START]: [6],
-      [TAGS.SEARCH_COMPARE]: [7, 8],
-      [TAGS.SEARCH_FOUND]: [9],
-      [TAGS.SEARCH_NOT_FOUND]: [12],
-      [TAGS.UPDATE_START]: [15],
-      [TAGS.UPDATE_ERROR]: [16, 17, 18],
-      [TAGS.UPDATE_ASSIGN]: [21],
-      [TAGS.UPDATE_COMPLETE]: [22],
-      [TAGS.INSERT_START]: [24, 25],
-      [TAGS.INSERT_SHIFT]: [28, 29, 30, 31],
-      [TAGS.INSERT_ASSIGN]: [34, 35],
-      [TAGS.INSERT_COMPLETE]: [36],
-      [TAGS.DELETE_START]: [38],
-      [TAGS.DELETE_SHIFT]: [43, 44, 45],
-      [TAGS.DELETE_REMOVE]: [48, 49],
-      [TAGS.DELETE_COMPLETE]: [50],
+      [TAGS.SEARCH_START]: [1],
+      [TAGS.SEARCH_COMPARE]: [2, 3],
+      [TAGS.SEARCH_FOUND]: [4],
+      [TAGS.SEARCH_NOT_FOUND]: [7],
+      [TAGS.UPDATE_START]: [10],
+      [TAGS.UPDATE_CHECK_INDEX]: [11],
+      [TAGS.UPDATE_ERROR]: [12],
+      [TAGS.UPDATE_ASSIGN]: [15],
+      [TAGS.UPDATE_COMPLETE]: [16],
+      [TAGS.INSERT_CHECK_FULL]: [19],
+      [TAGS.INSERT_ERROR]: [20],
+      [TAGS.INSERT_CHECK_INDEX]: [23],
+      [TAGS.INSERT_CLAMP]: [23, 24],
+      [TAGS.INSERT_START]: [27, 28],
+      [TAGS.INSERT_SHIFT]: [30, 31, 32, 33],
+      [TAGS.INSERT_ASSIGN]: [36, 37],
+      [TAGS.INSERT_COMPLETE]: [38],
+      [TAGS.DELETE_START]: [40],
+      [TAGS.DELETE_CHECK_INDEX]: [41],
+      [TAGS.DELETE_ERROR]: [42],
+      [TAGS.DELETE_SHIFT]: [45, 46, 47],
+      [TAGS.DELETE_REMOVE]: [50, 51],
+      [TAGS.DELETE_COMPLETE]: [52],
     },
   },
   python: {
@@ -109,12 +120,37 @@ const arrayCodeConfig: CodeConfig = {
         self.arr[index] = value
 
     def insert(self, index, value):
+        if len(self.arr) == self.capacity:
+            raise OverflowError("Array is full")
         # Python's list.insert handles shifting
         self.arr.insert(index, value)
 
     def delete(self, index):
         # Python's list.pop handles shifting
         self.arr.pop(index)`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(1)' },                             // class Array:
+      { lineNumber: 2,  complexity: 'O(n)' },                             // def search(self, target):
+      { lineNumber: 3,  complexity: 'O(n)' },                             // for i in range(...) — loop iterates n times
+      { lineNumber: 4,  complexity: 'O(1)', context: 'O(n)' },           // if self.arr[i] == target: — O(1) stmt × n
+      { lineNumber: 5,  complexity: 'O(1)'},           // return i — O(1)
+      { lineNumber: 6,  complexity: 'O(1)' },                             // return -1 — outside loop
+      // L7: blank line — skipped
+      { lineNumber: 8,  complexity: 'O(1)' },                             // def update(self, index, value):
+      { lineNumber: 9,  complexity: 'O(1)' },                             // if index < 0 or index >= len(...)
+      { lineNumber: 10, complexity: 'O(1)' },                             // raise IndexError(...)
+      { lineNumber: 11, complexity: 'O(1)' },                             // self.arr[index] = value
+      // L12: blank line — skipped
+      { lineNumber: 13, complexity: 'O(n)' },                             // def insert(self, index, value):
+      { lineNumber: 14, complexity: 'O(1)' },                             // if len(self.arr) == self.capacity:
+      { lineNumber: 15, complexity: 'O(1)' },                             // raise OverflowError(...)
+      // # L16: Python's list.insert handles shifting
+      { lineNumber: 17, complexity: 'O(n)' },                             // self.arr.insert(index, value) — O(n) itself
+      // L18: blank line — skipped
+      { lineNumber: 19, complexity: 'O(n)' },                             // def delete(self, index):
+      // L20: # Python's list.pop handles shifting
+      { lineNumber: 21, complexity: 'O(n)' },                             // self.arr.pop(index) — O(n) itself
+    ],
   },
 };
 
@@ -132,6 +168,19 @@ function arrayActionHandler(
   };
   const newData = data.map((d) => ({ ...d }));
 
+  if (actionType === "add" && mode === "Insert" && payload.overflow) {
+    return {
+      animationData: data,
+      animationParams: {
+        value,
+        mode: "Insert",
+        index,
+        overflow: true,
+        capacity: ARRAY_CAPACITY,
+      },
+    };
+  }
+
   if (actionType === "add" && mode === "Insert") {
     const idx = index ?? newData.length;
     const safeIdx = Math.max(0, Math.min(idx, newData.length));
@@ -143,7 +192,13 @@ function arrayActionHandler(
     newData[safeIdx].value = value!;
     return {
       animationData: newData,
-      animationParams: { targetId: newId, value, index: safeIdx },
+      animationParams: {
+        targetId: newId,
+        value,
+        index: safeIdx,
+        requestedIndex: idx,
+        capacity: ARRAY_CAPACITY,
+      },
     };
   }
 
@@ -162,18 +217,19 @@ function arrayActionHandler(
         },
       };
     }
-    return null;
+    return {
+      animationData: data,
+      animationParams: { value, index: idx, invalid: true },
+    };
   }
 
   if (actionType === "delete") {
     const idx = index;
-    if (newData.length === 0) {
-      context.toast.warning("陣列為空");
-      return null;
-    }
     if (idx === undefined || idx >= newData.length || idx < 0) {
-      context.toast.warning("索引無效");
-      return null;
+      return {
+        animationData: data,
+        animationParams: { index: idx ?? -1, invalid: true },
+      };
     }
     const deletedValue = newData[idx].value;
     const lastBox = newData[newData.length - 1];
@@ -248,30 +304,31 @@ export const ArrayConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createArrayAnimationSteps,
   actionHandler: arrayActionHandler,
-  renderActionBar: (props) => <ArrayActionBar {...(props as any)} />,
+  renderActionBar: (props) => <ArrayActionBar {...(props as DSActionBarProps)} />,
   relatedProblems: [
     {
       id: 1,
       title: "Two Sum",
-      concept: "陣列基礎應用：在陣列中尋找兩數之和",
+      concept: "relatedProblems.1",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/two-sum/",
     },
     {
       id: 27,
       title: "Remove Element",
-      concept: "陣列刪除操作：移除指定元素 (In-place)",
+      concept: "relatedProblems.27",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/remove-element/",
     },
     {
       id: 189,
       title: "Rotate Array",
-      concept: "陣列操作進階：旋轉陣列元素",
+      concept: "relatedProblems.189",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/rotate-array/",
     },
   ],
-  maxNodes: 20,
+  maxNodes: ARRAY_CAPACITY,
+  hasCapacityGuard: true,
   realWorldStories: arrayRealWorldStories,
 };

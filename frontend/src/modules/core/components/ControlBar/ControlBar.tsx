@@ -4,7 +4,7 @@ import Icon from '@/shared/components/Icon';
 import Slider from '@/shared/components/Slider';
 import styles from './ControlBar.module.scss';
 
-export interface ControlBarProps {
+interface ControlBarProps {
   isPlaying: boolean;
   currentStep: number;
   totalSteps: number;
@@ -52,6 +52,8 @@ function ControlBar({
   const hideSpeedButtons  = barWidth < HIDE_SPEED_BUTTONS_THRESHOLD;
   const hideSpeedSelector = barWidth < HIDE_SPEED_SELECTOR_THRESHOLD;
   const hideStepIndicator = barWidth < HIDE_STEP_INDICATOR_THRESHOLD;
+  // 只有一個步驟時 min = max，原生滑桿會停在最左邊；改成滿格（拖曳也只會回到唯一的步驟）
+  const isSingleStep = totalSteps <= 1;
 
   return (
     <div
@@ -117,9 +119,9 @@ function ControlBar({
           <div className={styles.stepSlider}>
             <Slider
               min={0}
-              max={totalSteps - 1}
+              max={isSingleStep ? 1 : totalSteps - 1}
               step={1}
-              value={currentStep}
+              value={isSingleStep ? 1 : currentStep}
               onChange={onStepChange}
               showValue={false}
               ariaLabel="Step progress"

@@ -1,0 +1,47 @@
+{
+  "common": {
+    "cancel": "取消",
+    "confirmLoad": "確認載入"
+  },
+  "dataRow": {
+    "loadTooltip": "輸入逗號分隔的數字，點擊載入",
+    "loadBtn": "載入資料",
+    "resetTooltip": "清除所有資料，恢復初始狀態",
+    "resetBtn": "重設",
+    "randomTooltip": "隨機生成一組資料",
+    "randomBtn": "隨機",
+    "randomCountLabel": "隨機筆數:",
+    "randomCountTooltip": "設定隨機生成的資料筆數",
+    "randomCountTooltipMax": "設定隨機生成的資料筆數，上限為 {{max}}",
+    "randomCountLimitWarning": "隨機筆數上限為 {{max}}",
+    "loadLimitWarning": "輸入資料超過上限 {{max}} 筆，已截取前 {{max}} 筆載入",
+    "loadValueRangeWarning": "部分值超出範圍 [{{min}}, {{max}}]，已略過無效值"
+  },
+  "graphModal": {
+    "title": "自定義 Graph 資料",
+    "nodeCountLabel": "節點數量 N:",
+    "unweightedLabel": "邊 (格式: 來源 目標)\n節點編號 (0 ~ N-1)",
+    "weightedLabel": "邊 (格式: 來源 目標 權重)\n節點編號 (0 ~ N-1)",
+    "invalidNodeCount": "請輸入有效的節點數量",
+    "unweightedFormatError": "格式錯誤：每條邊需包含來源、目標兩個數字 (格式: 來源 目標)\n錯誤行：{{line}}",
+    "integerError": "來源與目標必須是整數\n錯誤行：{{line}}",
+    "weightedFormatError": "格式錯誤：每條邊需包含來源、目標、權重三個數字 (格式: 來源 目標 權重)\n錯誤行：{{line}}",
+    "weightIntegerError": "權重必須是整數，「{{val}}」不是有效數字\n錯誤行：{{line}}",
+    "negativeWeightError": "不支援負權重邊，請輸入大於或等於 0 的權重！",
+    "outOfRangeError": "以下邊的節點編號超出範圍 (合法範圍：0 ~ {{count}})，請修正後再載入：\n{{lines}}"
+  },
+  "gridModal": {
+    "title": "輸入迷宮資料 (0=路, 1=牆)",
+    "emptyWarning": "請輸入迷宮資料",
+    "invalidCellWarning": "第 {{row}} 行包含非法值「{{cell}}」，每格只能是 0（路）或 1（牆）",
+    "columnMismatchWarning": "第 {{row}} 行有 {{cols}} 格，與第 1 行的 {{firstCols}} 格不一致，每行欄數必須相同",
+    "minSizeWarning": "迷宮至少需要 1 行 1 欄",
+    "maxSizeWarning": "迷宮大小 {{rows}}×{{cols}} = {{total}} 格，超過上限 400 格（建議最大 20×20）"
+  },
+  "knapsackModal": {
+    "title": "自定義背包物品",
+    "inputLabel": "物品清單 (格式: 重量 價值，一行一個物品)",
+    "formatError": "格式錯誤！請確保每行都有重量與價值 (例如: 3 20)",
+    "positiveError": "重量與價值必須大於 0"
+  }
+}

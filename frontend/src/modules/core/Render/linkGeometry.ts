@@ -1,10 +1,10 @@
-export interface NodePoint {
+interface NodePoint {
   x: number;
   y: number;
   r: number;
 }
 
-export interface Point {
+interface Point {
   x: number;
   y: number;
 }
@@ -17,7 +17,7 @@ export function circleBoundaryPoint(from: NodePoint, to: Point): Point {
   return { x: from.x + (dx / len) * from.r, y: from.y + (dy / len) * from.r };
 }
 
-export function normalVector(
+function normalVector(
   p1: Point,
   p2: Point,
 ): { nx: number; ny: number; dist: number } {

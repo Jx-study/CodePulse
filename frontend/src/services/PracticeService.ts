@@ -9,15 +9,17 @@
 
 import type { Question, PracticeResult } from "@/types/practice";
 
-type ValidatorFn = (question: Question, userAnswer: any) => boolean;
+type ValidatorFn = (question: Question, userAnswer: string | string[]) => boolean;
 
 const Validators: Record<string, ValidatorFn> = {
   "single-choice": (q, ans) => ans === q.correctAnswer,
 
   "multiple-choice": (q, ans) => {
-    const correct = Array.isArray(q.correctAnswer)
+    // multiple-choice correctAnswer is always a flat string[] of option ids
+    // (unlike fill-code, which allows nested (string | string[])[]).
+    const correct = (Array.isArray(q.correctAnswer)
       ? q.correctAnswer
-      : [q.correctAnswer];
+      : [q.correctAnswer]) as string[];
     const user = Array.isArray(ans) ? ans : [ans];
     if (correct.length !== user.length) return false;
     return correct.every((a) => user.includes(a));

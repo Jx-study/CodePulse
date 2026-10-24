@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Point2D } from '@/types';
 
-export interface UseDragOptions {
+interface UseDragOptions {
   /** 是否啟用拖拽功能 (預設: true) */
   enabled?: boolean;
   /** 初始位移 (預設: {x: 0, y: 0}) */
@@ -13,7 +13,7 @@ export interface UseDragOptions {
     minY?: number;
     maxY?: number;
   };
-  /** 動態計算邊界限制的函數 (優先於 bounds) */
+  /** 動態計算邊界限制的函式 (優先於 bounds) */
   calculateBounds?: (containerRef: HTMLElement | null | undefined) => {
     minX?: number;
     maxX?: number;
@@ -27,7 +27,7 @@ export interface UseDragOptions {
   onDragEnd?: (offset: Point2D) => void;
 }
 
-export interface UseDragReturn<T extends HTMLElement = HTMLElement> {
+interface UseDragReturn<T extends HTMLElement = HTMLElement> {
   /** 當前位移 */
   offset: Point2D;
   isDragging: boolean;
@@ -85,7 +85,7 @@ export function useDrag<T extends HTMLElement = HTMLElement>(
       } = {};
 
       if (calculateBounds) {
-        // 1. 使用自定義計算函數
+        // 1. 使用自定義計算函式
         effectiveBounds = calculateBounds(containerRef.current);
       } else if (boundaryRatio !== undefined && containerRef.current) {
         // 2. 使用容器尺寸比例（類似 D3Canvas 的邏輯）

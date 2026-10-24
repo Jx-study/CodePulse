@@ -4,7 +4,7 @@ import StatusLegend from '../components/StatusLegend';
 import type { StatusConfig } from '@/types/statusConfig';
 import styles from './CanvasShell.module.scss';
 
-export interface CanvasShellProps {
+interface CanvasShellProps {
   children: ReactNode;
   statusConfig?: StatusConfig;
   enableZoom?: boolean;

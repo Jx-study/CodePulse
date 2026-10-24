@@ -1,158 +1,19 @@
 import { AnimationStep, CodeConfig } from "@/types";
-import { LevelImplementationConfig } from "@/types/implementation";
-import { Status } from "@/modules/core/DataLogic/BaseElement";
+import { LevelImplementationConfig, AlgoActionBarProps } from "@/types/implementation";
 import { LinearData } from "@/data/DataStructure/linear/utils";
 import { SortingActionBar } from "./SortingActionBar";
-import { createSortingFrame } from "@/data/shared/animationUtils/linearFrame";
 import { createLinearActionHandler } from "@/data/shared/animationUtils/linearAction";
-
-const TAGS = {
-  INIT: "INIT",
-  ROUND_START: "ROUND_START",
-  COMPARE: "COMPARE",
-  UPDATE_MIN: "UPDATE_MIN",
-  SWAP: "SWAP",
-  DONE: "DONE",
-};
+import { simulateSelectionSortTrace } from "./selectionSort/simulateTrace";
+import { selectionSortTraceToSteps } from "./selectionSort/traceToSteps";
+import { TAGS } from "./selectionSort/tags";
 
 const selectionSortActionHandler = createLinearActionHandler();
 
 export function createSelectionSortAnimationSteps(
   inputData: LinearData[],
 ): AnimationStep[] {
-  const steps: AnimationStep[] = [];
-  let arr = inputData.map((d) => ({ ...d }));
-  const n = arr.length;
-  const sortedIndices = new Set<number>();
-
-  steps.push({
-    stepNumber: 0,
-    description: "開始選擇排序",
-    actionTag: TAGS.INIT,
-    local_vars: { totalItems: n },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  for (let i = 0; i < n - 1; i++) {
-    let minIdx = i;
-
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `第 ${i + 1} 輪開始：暫定 Index ${i} 為最小值`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: { currentPos: i, minPos: i },
-      elements: createSortingFrame(
-        arr,
-        { [minIdx]: Status.Target },
-        sortedIndices,
-      ),
-    });
-
-    for (let j = i + 1; j < n; j++) {
-      const scanVal = Number(arr[j].value);
-      const minVal = Number(arr[minIdx].value);
-
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `比較：檢查 Index ${j} (${scanVal}) 是否小於目前最小值 (${minVal})`,
-        actionTag: TAGS.COMPARE,
-        local_vars: {
-          currentPos: i,
-          scanPos: j,
-          minPos: minIdx,
-          scanVal: scanVal,
-          minVal: minVal,
-          condition: `${scanVal} < ${minVal}`,
-          result: scanVal < minVal,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [i]: Status.Target, [minIdx]: Status.Target, [j]: Status.Prepare },
-          sortedIndices,
-        ),
-      });
-
-      if (scanVal < minVal) {
-        minIdx = j;
-
-        steps.push({
-          stepNumber: steps.length + 1,
-          description: `發現更小值！更新最小值索引為 ${minIdx}`,
-          actionTag: TAGS.UPDATE_MIN,
-          local_vars: {
-            minPos: minIdx,
-            scanVal: scanVal,
-          },
-          elements: createSortingFrame(
-            arr,
-            { [i]: Status.Target, [minIdx]: Status.Target },
-            sortedIndices,
-          ),
-        });
-      }
-    }
-
-    if (minIdx !== i) {
-      const temp = arr[i];
-      arr[i] = arr[minIdx];
-      arr[minIdx] = temp;
-
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `本輪最小值 ${arr[i].value} (Index ${minIdx}) 與 Index ${i} 交換`,
-        actionTag: TAGS.SWAP,
-        local_vars: {
-          currentPos: i,
-          minPos: minIdx,
-          [`collection[${i}]`]: arr[i].value ?? null,
-          [`collection[${minIdx}]`]: arr[minIdx].value ?? null,
-          hasSwapped: true,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [i]: Status.Target, [minIdx]: Status.Target },
-          sortedIndices,
-        ),
-      });
-    } else {
-      steps.push({
-        stepNumber: steps.length + 1,
-        description: `Index ${i} 已經是最小值，無需交換`,
-        actionTag: TAGS.SWAP,
-        local_vars: {
-          currentPos: i,
-          minPos: minIdx,
-          hasSwapped: false,
-        },
-        elements: createSortingFrame(
-          arr,
-          { [i]: Status.Target },
-          sortedIndices,
-        ),
-      });
-    }
-
-    sortedIndices.add(i);
-    steps.push({
-      stepNumber: steps.length + 1,
-      description: `Index ${i} 已排序完成`,
-      actionTag: TAGS.ROUND_START,
-      local_vars: { currentPos: i },
-      elements: createSortingFrame(arr, {}, sortedIndices),
-    });
-  }
-
-  sortedIndices.add(n - 1);
-
-  steps.push({
-    stepNumber: steps.length + 1,
-    description: "排序完成",
-    actionTag: TAGS.DONE,
-    local_vars: { isSorted: true },
-    elements: createSortingFrame(arr, {}, sortedIndices),
-  });
-
-  return steps;
+  const trace = simulateSelectionSortTrace(inputData);
+  return selectionSortTraceToSteps(trace);
 }
 
 const selectionSortCodeConfig: CodeConfig = {
@@ -183,6 +44,7 @@ End Procedure`,
       [TAGS.COMPARE]: [7, 8, 9, 11],
       [TAGS.UPDATE_MIN]: [12],
       [TAGS.SWAP]: [16, 17],
+      [TAGS.ROUND_END]: [19],
       [TAGS.DONE]: [20],
     },
   },
@@ -204,6 +66,20 @@ End Procedure`,
             collection[current_pos], collection[min_pos] = collection[min_pos], collection[current_pos]
             
     return collection`,
+    lineComplexity: [
+      { lineNumber: 1,  complexity: 'O(n^2)' },                            // def selection_sort(collection):
+      { lineNumber: 2,  complexity: 'O(1)'   },                            // total_items = len(collection)
+      { lineNumber: 4,  complexity: 'O(n)'   },                            // for current_pos in range(total_items - 1):
+      { lineNumber: 5,  complexity: 'O(1)', context: 'O(n)'   },           // min_pos = current_pos
+      { lineNumber: 7,  complexity: 'O(n)', context: 'O(n)'   },           // for scan_pos in range(current_pos + 1, ...):
+      { lineNumber: 8,  complexity: 'O(1)', context: 'O(n^2)' },           // scan_val = collection[scan_pos]
+      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },           // min_val = collection[min_pos]
+      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },           // if scan_val < min_val:
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n^2)' },           // min_pos = scan_pos
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n)'   },           // if min_pos != current_pos:
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n)'   },           // collection[current_pos], ... = ...
+      { lineNumber: 17, complexity: 'O(1)' },                              // return collection
+    ],
   },
 };
 
@@ -220,7 +96,8 @@ export const selectionSortConfig: LevelImplementationConfig = {
     timeWorst: "O(n²)",
     space: "O(1)",
   },
-  introduction: `選擇排序（Selection Sort）是一種簡單直觀的排序演算法。它的工作原理是每一次從待排序的資料元素中選出最小（或最大）的一個元素，存放在序列的起始位置，直到全部待排序的資料元素排完。`,
+  i18nNamespace: "tutorials/selection-sort",
+  introduction: { key: "introduction" },
   defaultData: [
     { id: "box-0", value: 64 },
     { id: "box-1", value: 25 },
@@ -230,26 +107,26 @@ export const selectionSortConfig: LevelImplementationConfig = {
   ],
   createAnimationSteps: createSelectionSortAnimationSteps,
   actionHandler: selectionSortActionHandler,
-  renderActionBar: (props) => <SortingActionBar {...(props as any)} />,
+  renderActionBar: (props) => <SortingActionBar {...(props as AlgoActionBarProps)} />,
   relatedProblems: [
     {
       id: 215,
       title: "Kth Largest Element in an Array",
-      concept: "選擇排序思想應用：尋找第 K 大元素，可用部分排序優化",
+      concept: "relatedProblems.215",
       difficulty: "Medium",
       url: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     },
     {
       id: 414,
       title: "Third Maximum Number",
-      concept: "選擇最大/最小值概念：找出陣列中第三大的數字",
+      concept: "relatedProblems.414",
       difficulty: "Easy",
       url: "https://leetcode.com/problems/third-maximum-number/",
     },
     {
       id: 164,
       title: "Maximum Gap",
-      concept: "進階排序問題：找出排序後相鄰元素的最大差值",
+      concept: "relatedProblems.164",
       difficulty: "Hard",
       url: "https://leetcode.com/problems/maximum-gap/",
     },

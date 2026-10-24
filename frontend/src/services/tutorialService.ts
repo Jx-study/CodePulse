@@ -1,12 +1,12 @@
 import apiService from "@/api/api";
 import type { VisualType, VisualData } from "@/types/practice";
 
-export interface SessionResponse {
+interface SessionResponse {
   success: boolean;
   session_id: number;
 }
 
-export interface TeachingCompleteResponse {
+interface TeachingCompleteResponse {
   success: boolean;
   xp_earned: number;
 }
@@ -20,6 +20,9 @@ export interface ApiQuestion {
   code: string | null;
   language: string | null;
   group_id: number | null;
+  visual_type: VisualType;
+  visual_data: VisualData;
+  visual_alt: string | null;
   group?: {
     title: string;
     description: string;
@@ -31,30 +34,31 @@ export interface ApiQuestion {
   } | null;
 }
 
-export interface QuestionsResponse {
+interface QuestionsResponse {
   success: boolean;
   questions: ApiQuestion[];
 }
 
-export interface QuestionTranslationMap {
+interface QuestionTranslationMap {
   stem: string;
   options: { id: string; text: string }[] | null;
   explanation: string | null;
+  visual_alt: string | null;
 }
 
-export interface GroupTranslationMap {
+interface GroupTranslationMap {
   title: string;
   description: string | null;
   visual_alt: string | null;
 }
 
-export interface TranslationsResponse {
+interface TranslationsResponse {
   success: boolean;
   questions: Record<string, QuestionTranslationMap>;
   groups: Record<string, GroupTranslationMap>;
 }
 
-export interface SubmitAnswerPayload {
+interface SubmitAnswerPayload {
   question_id: number;
   user_answer: string | string[];
   time_spent_seconds: number;
@@ -67,7 +71,7 @@ export interface SubmitResult {
   explanation: string;
 }
 
-export interface SubmitResponse {
+interface SubmitResponse {
   success: boolean;
   score: number;
   correct_count: number;

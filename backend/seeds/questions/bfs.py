@@ -76,7 +76,7 @@ DATA = {
     "slug": "bfs",
     "groups": [
         {
-            "id": "group-bfs-traversal",
+            "id": "bfs-group-1",
             "visual_type": "image",
             "visual_data": {
                 "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1778999503/BFS_pev7b1.png"
@@ -127,7 +127,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-tf-1",
+            "id": "bfs-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -145,7 +145,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q2",
+            "id": "bfs-q3",
+            "groupId": "bfs-group-1",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -173,7 +174,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-tf-2",
+            "id": "bfs-q4",
             "type": "true-false",
             "baseRating": 950,
             "correctAnswer": "true",
@@ -191,7 +192,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q3",
+            "id": "bfs-q5",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -219,8 +220,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-group-1",
-            "groupId": "group-bfs-traversal",
+            "id": "bfs-q6",
+            "groupId": "bfs-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -248,7 +249,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q4",
+            "id": "bfs-q7",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -276,8 +277,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-group-2",
-            "groupId": "group-bfs-traversal",
+            "id": "bfs-q8",
+            "groupId": "bfs-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -305,7 +306,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q5",
+            "id": "bfs-q9",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -333,7 +334,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q6",
+            "id": "bfs-q10",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -361,7 +362,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-multi-1",
+            "id": "bfs-q11",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -389,7 +390,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q7",
+            "id": "bfs-q12",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -417,8 +418,8 @@ DATA = {
             },
         },
         {
-            "id": "bfs-group-3",
-            "groupId": "group-bfs-traversal",
+            "id": "bfs-q13",
+            "groupId": "bfs-group-1",
             "type": "fill-code",
             "baseRating": 1300,
             "correctAnswer": ["start", "dist", "dist[node]"],
@@ -438,7 +439,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-q8",
+            "id": "bfs-q14",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
@@ -466,7 +467,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-multi-2",
+            "id": "bfs-q15",
             "type": "multiple-choice",
             "baseRating": 1600,
             "correctAnswer": ["opt1", "opt2", "opt3"],
@@ -494,7 +495,7 @@ DATA = {
             },
         },
         {
-            "id": "bfs-fill-1",
+            "id": "bfs-q16",
             "type": "fill-code",
             "baseRating": 1450,
             "correctAnswer": ["queue.popleft()", "grid[nr][nc]", "steps"],
@@ -514,22 +515,23 @@ DATA = {
             },
         },
         {
-            "id": "bfs-pred-1",
+            "id": "bfs-q17",
+            "groupId": "bfs-group-1",
             "type": "predict-line",
             "baseRating": 1600,
-            "correctAnswer": "1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 5 6 7 5 6 7 5 12",
+            "correctAnswer": "1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 5 6 7 8 5 12",
             "code": BFS_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀 bfs 函數。使用題組中的有向圖，呼叫 bfs(graph, 'A') 時，請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "L1-L4 初始化；L5 while queue 非空；L6 取出 A；L7 加入 result；L8-L11 將 B 和 C 加入佇列並標記；L5 再次進入；L6 取出 B；L7；L8-L11 將 D 加入；繼續取出 C 和 D，E；最後佇列空，L5 條件失敗，L12 return。",
+                    "explanation": "題組的圖為 A→B、A→C、B→D、C→E。L1 進入 → L2-L4 初始化。取出 A：L5 L6 L7，L8-L11 將 B、C 加入並標記，L8 鄰居走完。取出 B：L5 L6 L7，L8-L11 加入 D，L8 結束。取出 C：L5 L6 L7，L8-L11 加入 E，L8 結束。取出 D、E：各為 L5 L6 L7 L8（沒有鄰居，for 直接結束）。L5 佇列已空 → L12 回傳 ['A', 'B', 'C', 'D', 'E']。完整序列：1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 5 6 7 8 5 12。",
                 },
                 "en": {
                     "title": "Read the bfs function. Using the directed graph from the group, calling bfs(graph, 'A') — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "L1-L4 initialize; L5 while queue non-empty; L6 dequeue A; L7 append to result; L8-L11 enqueue and mark B and C; L5 again; L6 dequeue B; L7; L8-L11 enqueue D; continue dequeuing C, D, E; finally queue empty, L5 condition fails, L12 return.",
+                    "explanation": "The group graph is A→B, A→C, B→D, C→E. L1 enter → L2-L4 initialize. Dequeue A: L5 L6 L7, L8-L11 enqueue and mark B and C, L8 neighbors done. Dequeue B: L5 L6 L7, L8-L11 enqueue D, L8 done. Dequeue C: L5 L6 L7, L8-L11 enqueue E, L8 done. Dequeue D and E: L5 L6 L7 L8 each (no neighbors, the for loop ends immediately). L5 queue empty → L12 return ['A', 'B', 'C', 'D', 'E']. Full sequence: 1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 5 6 7 8 5 12.",
                 },
             },
         },

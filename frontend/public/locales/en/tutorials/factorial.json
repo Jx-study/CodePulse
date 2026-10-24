@@ -1,0 +1,52 @@
+{
+  "animation": {
+    "init": "Stack Initialization: Preparing to calculate f({{targetN}})",
+    "push_start": "Call f({{n}}): Preparing to push onto the stack from the right",
+    "push_assign": "f({{n}}) successfully placed in the stack slot",
+    "base_case": "Base Case reached: f({{n}}) = {{val}}, starting backtracking and multiplication",
+    "calc_start": "Preparing to multiply the returned value of f({{current_f}}-1) ({{child_val}}) by current value ({{current_val}})",
+    "calc_multiply": "Value updated: {{current_f}} * {{child_val}} = {{new_val}}",
+    "pop_right": "f({{returned_f}}) completed returning {{returned_val}}, popped and exiting to the right",
+    "done": "Recursion complete! Final result f({{targetN}}) = {{final_result}} calculated successfully"
+  },
+  "ui": {
+    "title": "Factorial (N!)",
+    "placeholder": "Enter N (1-10)",
+    "run": "Run Recursion"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "The factorial (n!) is the classic first problem for learning **recursion**. n! equals n times (n-1)!, shrinking the problem each step until the simplest case is reached.",
+        "items": [
+          "**Base Case**: 0! = 1 (or 1! = 1) is the [[primary|stopping condition]] of the recursion",
+          "**Recurrence**: n! = n × (n-1)! hands the larger problem to a smaller one of the same kind",
+          "Each call pushes a new frame onto the **call stack**, holding the current n",
+          "After the Base Case, results are **returned** and multiplied layer by layer"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "There are n levels of recursion, each doing one multiplication, but every level keeps a stack frame alive.",
+        "items": [
+          "**Time complexity**: [[success|O(n)]] — n recursive calls",
+          "**Space complexity**: [[warning|O(n)]] — the call stack grows to n frames",
+          "Rewriting it as a **loop** reduces space to [[success|O(1)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Things to Watch",
+        "content": "Factorials grow extremely fast, so mind both recursion depth and numeric range.",
+        "items": [
+          "**A missing Base Case** causes infinite recursion and eventually a **stack overflow**",
+          "Even modest n exceeds fixed-width integers; consider **big-number arithmetic**",
+          "The recursive version is mainly valuable for **understanding the call stack**; loops are preferred in practice"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

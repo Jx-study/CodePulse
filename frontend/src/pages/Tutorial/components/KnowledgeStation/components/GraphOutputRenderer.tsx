@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+import { useTranslation } from "react-i18next";
 import {
   forceSimulation,
   forceLink,
@@ -24,6 +25,7 @@ import type {
 } from "@/types/implementation";
 import styles from "./GraphOutputRenderer.module.scss";
 import Button from "@/shared/components/Button";
+import Icon from "@/shared/components/Icon";
 
 const SVG_WIDTH = 580;
 const SVG_HEIGHT = 420;
@@ -73,6 +75,7 @@ interface TooltipState {
 
 interface Props {
   data: GraphOutputData;
+  ns?: string;
 }
 
 function getEdgeEndId(x: number | GraphSimNode): number {
@@ -246,7 +249,11 @@ function formatTime(ms: number): string {
   return `${Math.floor(ms / 1000)}.${String(ms % 1000).slice(0, 1)}s`;
 }
 
-const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
+const GraphOutputRenderer: React.FC<Props> = ({ data, ns }) => {
+  const { t } = useTranslation(ns || 'tutorial');
+  const tg = (key: string, opts?: Record<string, unknown>) =>
+    t(`game.graph.${key}`, { ns: ns || 'tutorial', ...opts });
+
   const svgRef = useRef<SVGSVGElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const simulationRef = useRef<ReturnType<
@@ -711,23 +718,22 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
     <div className={styles.wrapper}>
       <div className={styles.purpose}>
         <div className={styles.purposeTitle}>
-          六度分隔遊戲 — Facebook 社交圖譜模擬
+          {tg('title')}
         </div>
         <div className={styles.purposeBody}>
           <p>
-            節點 = 用戶，邊 = 好友關係。<strong>節點大小</strong>
-            代表朋友數（程度中心性），<strong>顏色</strong>代表社群分群。
+            {tg('descLine1')} <strong>{tg('descNodeSize')}</strong> {tg('descColor')}
           </p>
           <p>
             <span className={styles.badge} style={{ background: "#4F46E5" }} />
-            藍框 = 你的直接好友（已認識）　
+            {tg('legendBlue')}
             <span className={styles.badge} style={{ background: "#FBBF24" }} />
-            金框閃爍 = 可點擊認識　
+            {tg('legendGold')}
             <span className={styles.badge} style={{ background: "#F97316" }} />
-            橙虛線 = 三元閉包推薦
+            {tg('legendOrange')}
           </p>
           <p>
-            目標：以<strong>最少步數</strong>認識 ★ 目標用戶。點擊閃爍節點開始！
+            {tg('goal')}
           </p>
         </div>
       </div>
@@ -736,15 +742,15 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
         <div className={styles.gameTarget}>
           {gameState.targetId !== null ? (
             <>
-              目標：<span className={styles.targetName}>★ {targetName}</span>
+              {tg('targetLabel')}<span className={styles.targetName}>★ {targetName}</span>
             </>
           ) : (
-            <span>無可用目標（請增加用戶數量）</span>
+            <span>{tg('noTarget')}</span>
           )}
         </div>
         <div className={styles.gameStats}>
           <span>
-            操作數：<strong>{gameState.operations}</strong>
+            {tg('operations')}<strong>{gameState.operations}</strong>
           </span>
           <span>{formatTime(elapsed)}</span>
         </div>
@@ -755,11 +761,11 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
           disabled={gameState.status === "playing"}
           title={
             gameState.status === "playing"
-              ? "遊戲進行中，請先完成或放棄"
-              : "重新開始"
+              ? tg('playingTitle')
+              : tg('resetButton')
           }
         >
-          重置遊戲
+          {tg('resetButton')}
         </Button>
       </div>
 
@@ -774,9 +780,9 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
           variant="ghost"
           className={styles.resetViewBtn}
           onClick={handleResetZoom}
-          title="重置視圖 (滾輪縮放 / 拖曳平移)"
+          title={tg('viewResetTitle')}
         >
-          重置視圖
+          <Icon name="compress" />
         </Button>
         {tooltip && (
           <div
@@ -784,10 +790,10 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
             style={{ left: tooltip.x + 14, top: tooltip.y - 14 }}
           >
             <span className={styles.tooltipName}>{tooltip.node.name}</span>
-            <span>朋友數：{tooltip.node.degree}</span>
-            <span>中心性：{tooltip.node.centrality.toFixed(2)}</span>
+            <span>{tg('tooltip.friends', { n: tooltip.node.degree })}</span>
+            <span>{tg('tooltip.centrality', { n: tooltip.node.centrality.toFixed(2) })}</span>
             {isReachable && (
-              <span className={styles.tooltipHint}>點擊認識</span>
+              <span className={styles.tooltipHint}>{tg('tooltip.clickToMeet')}</span>
             )}
           </div>
         )}
@@ -796,23 +802,23 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
       {gameState.status === "won" && gameState.targetId !== null && (
         <div className={styles.winCard}>
           <div className={styles.winTitle}>
-            🎉 你可在 {gameState.path.length - 1} 步內認識 {targetName}！
+            <Icon name="check-circle" /> {tg('wonMessage', { steps: gameState.path.length - 1, name: targetName })}
           </div>
           <div className={styles.winPath}>
-            路徑：
+            {tg('pathLabel')}
             {gameState.path
               .map((id) => data.nodes.find((n) => n.id === id)?.name)
               .join(" → ")}
           </div>
           <div className={styles.winStats}>
             <span>
-              路徑長度：<strong>{gameState.path.length - 1} 步</strong>
+              <strong>{tg('pathLength', { steps: gameState.path.length - 1 })}</strong>
             </span>
             <span>
-              操作數：<strong>{gameState.operations}</strong>
+              <strong>{tg('opCount', { n: gameState.operations })}</strong>
             </span>
             <span>
-              耗時：<strong>{formatTime(elapsed)}</strong>
+              <strong>{tg('elapsed', { time: formatTime(elapsed) })}</strong>
             </span>
           </div>
         </div>
@@ -834,30 +840,30 @@ const GraphOutputRenderer: React.FC<Props> = ({ data }) => {
                 background: COMMUNITY_COLORS[i % COMMUNITY_COLORS.length],
               }}
             />
-            <span>社群 {i + 1}</span>
+            <span>{tg('legend.community', { n: i + 1 })}</span>
           </div>
         ))}
         <div className={styles.legendDivider} />
         <div className={styles.legendItem}>
           <span className={styles.legendLine} />
-          <span>朋友</span>
+          <span>{tg('legend.friend')}</span>
         </div>
         <div className={styles.legendItem}>
           <span className={styles.legendDashed} />
-          <span>推薦好友</span>
+          <span>{tg('legend.recommend')}</span>
         </div>
       </div>
 
       {leaderboard.length > 0 && (
         <div className={styles.leaderboard}>
-          <div className={styles.leaderboardTitle}>📊 本局排行榜</div>
+          <div className={styles.leaderboardTitle}><Icon name="chart-line" /> {tg('leaderboard.title')}</div>
           <table className={styles.table}>
             <thead>
               <tr>
                 <th>#</th>
-                <th>操作數</th>
-                <th>耗時</th>
-                <th>路徑</th>
+                <th>{tg('leaderboard.operations')}</th>
+                <th>{tg('leaderboard.elapsed')}</th>
+                <th>{tg('leaderboard.path')}</th>
               </tr>
             </thead>
             <tbody>

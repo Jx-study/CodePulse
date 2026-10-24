@@ -1,6 +1,19 @@
 import type { AiResult, AlgoCandidate } from "@/types/ai";
 
-export function mapAiResult(r: Record<string, any>): {
+/** Raw (snake_case) AI analysis fields as returned by the backend. */
+export interface RawAiResult {
+  detected_algorithm?: string | null;
+  confidence_score?: number | null;
+  level1_eligible?: boolean;
+  fallback_reason?: string | null;
+  time_complexity?: string | null;
+  analysis_source?: AiResult["analysis_source"];
+  gemini_summary?: AiResult["summary"];
+  suggestions?: string[];
+  top3_candidates?: AlgoCandidate[];
+}
+
+export function mapAiResult(r: RawAiResult): {
   aiResult: AiResult;
   top3Candidates: AlgoCandidate[];
 } {

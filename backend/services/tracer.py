@@ -10,10 +10,34 @@ tracer.py — sys.settrace PoC
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from services.cfg_builder import CfgGraph
+
+
+class LegacyInputNeededError(Exception):
+    """[LEGACY — runner exit / re-submit fallback only]
+
+    使用者程式碼呼叫 input() 但 stdin_inputs queue 已用罄時拋出。
+
+    這是舊的 re-submit 暫停路徑：runner 直接退出，前端把使用者輸入值 append 到
+    stdin_inputs 後重新送出整段 code 來恢復執行。與 live session（input_provider）
+    模式互斥——有 input_provider 時永遠不會走到這裡。
+
+    攜帶 prompt 與該次 input 呼叫的索引（0-based），讓前端能渲染有標籤的輸入彈窗。
+    """
+    def __init__(
+        self,
+        prompt: str,
+        input_index: int,
+        stdout_events: list[dict] | None = None,
+    ):
+        super().__init__(f"input_needed at index {input_index}: {prompt!r}")
+        self.prompt = prompt
+        self.input_index = input_index
+        self.stdout_events = list(stdout_events or [])
 
 
 MAX_TRACE_STEPS = 2000
@@ -86,7 +110,14 @@ class TraceResult:
 # 核心 tracer
 # ---------------------------------------------------------------------------
 
-def run_trace(user_code: str) -> TraceResult:
+InputProvider = Callable[[str, int, list[dict]], str]
+
+
+def run_trace(
+    user_code: str,
+    stdin_inputs: list[str] | None = None,
+    input_provider: InputProvider | None = None,
+) -> TraceResult:
     """
     執行 user_code，收集 TraceEvent[] 並建構 CallGraph。
     執行緒安全：所有狀態以閉包封裝。
@@ -103,6 +134,41 @@ def run_trace(user_code: str) -> TraceResult:
     trace_log: list[TraceEvent] = []
     is_truncated = False
     stdout_events: list[dict] = []
+
+    _stdin_queue = list(stdin_inputs or [])
+    _input_call_count = [0]  # mutable container for closure
+
+    def _traced_input(prompt=""):
+        prompt_str = str(prompt) if prompt else ""
+        if not _stdin_queue:
+            if input_provider is not None:
+                # 暫停 tracing 再呼叫 input_provider：否則 runner 的 emit_event /
+                # json.dumps / stdin decoder 等內部 frame 會被 sys.settrace 當成使用者
+                # 程式記進 trace，污染結果、撐大 trace，複雜輸入下甚至拖垮 runner。
+                old_trace = sys.gettrace()
+                sys.settrace(None)
+                try:
+                    value = input_provider(prompt_str, _input_call_count[0], stdout_events)
+                finally:
+                    sys.settrace(old_trace)
+                _input_call_count[0] += 1
+                stdout_events.append({"step": len(trace_log), "text": prompt_str + value})
+                return value
+
+            # queue 用罄才彈窗，此時還沒拿到輸入值，先只記 prompt（若有）
+            if prompt_str:
+                stdout_events.append({"step": len(trace_log), "text": prompt_str})
+            raise LegacyInputNeededError(
+                prompt=prompt_str,
+                input_index=_input_call_count[0],
+                stdout_events=stdout_events,
+            )
+        value = _stdin_queue.pop(0)
+        _input_call_count[0] += 1
+        # 模擬終端機：prompt 與使用者輸入值拼在同一行（像 `a: 2`），重現 REPL 體驗
+        # 無 prompt 時輸入值單獨成一行（終端機仍會 echo 按鍵）
+        stdout_events.append({"step": len(trace_log), "text": prompt_str + value})
+        return value
 
     call_graph = CallGraph()
     call_stack: list[str] = []   # func_name stack
@@ -219,6 +285,7 @@ def run_trace(user_code: str) -> TraceResult:
                 if hasattr(_builtins_module, k)
             },
             "print": _traced_print,
+            "input": _traced_input,
         },
         "__name__": "__main__",
     }
@@ -226,6 +293,8 @@ def run_trace(user_code: str) -> TraceResult:
     sys.settrace(tracer)
     try:
         exec(user_code, sandboxed_globals)  # noqa: S102
+    except LegacyInputNeededError:
+        raise  # 由 runner 層 catch 並轉為結構化 JSON 輸出，不要被泛用 except 吃掉
     finally:
         sys.settrace(None)
 
@@ -236,5 +305,3 @@ def run_trace(user_code: str) -> TraceResult:
         step_count=len(trace_log),
         stdout_events=stdout_events,
     )
-
-

@@ -1,0 +1,244 @@
+{
+  "animation": {
+    "init": "Stack State",
+    "push_start": "Push({{value}}): Preparing to push new element",
+    "push_check_full": "Push(): Checking if full ({{size}} items now)",
+    "push_error": "Error: Stack Overflow, cannot push another element",
+    "push_inc_top": "top = top + 1 (top now points to {{top}})",
+    "push_assign": "stack[{{top}}] = {{value}}",
+    "push_complete": "Push Complete",
+    "pop_check_empty": "Pop(): Checking if empty",
+    "pop_error": "Error: Stack Underflow",
+    "pop_get_value": "removed_value = stack[{{top}}] ({{val}})",
+    "pop_dec_top": "top = top - 1 (top now points to {{top}})",
+    "pop_return": "Return {{val}}",
+    "pop_complete": "Pop Complete",
+    "peek_check_empty": "Peek(): Checking if empty",
+    "peek_error": "Return Null",
+    "peek_return": "Return stack[{{top}}] ({{val}})",
+    "peek_complete": "Peek Complete"
+  },
+  "ui": {
+    "operations": "Stack Operations",
+    "valuePlaceholder": "Value",
+    "push": "Push",
+    "pop": "Pop",
+    "peek": "Peek",
+    "pushTooltip": "Push an element to the top of the stack",
+    "popTooltip": "Remove the element from the top of the stack",
+    "peekTooltip": "View the top element without removing it",
+    "pushWarning": "Please enter a value to Push"
+  },
+  "relatedProblems": {
+    "20": "Stack classic: check if parentheses are properly matched",
+    "155": "Stack design: implement a stack that supports O(1) minimum retrieval",
+    "232": "Stack application: implement a queue using stacks"
+  },
+  "stories": {
+    "basic-stack-intro": {
+      "title": "The Hidden Power of Stack — From Undo Button to Browser's Behind-the-Scenes Hero",
+      "category": "Software Development / Everyday Applications",
+      "tags": ["LIFO", "Last In First Out", "Data Structures", "Undo/Redo"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Life's Intuitive Rule",
+            "content": "Every day, we unconsciously follow the order of the \"stack.\" Imagine a stack of plates at a buffet, or a one-way-in, one-way-out parking lot — we can only take a plate from \"the top,\" and the last car in must be the first car out. This simple \"Last In, First Out\" (LIFO) rule is not only the most efficient management method in limited space, but also the core framework of the digital world."
+          },
+          {
+            "heading": "Software's Time Machine: Undo and Redo",
+            "content": "When you make a typing mistake and press \"Undo,\" it feels like time is rewinding. Behind this, the system is \"pushing\" (Push) each of your actions onto the stack. When you need to undo, it \"pops\" (Pop) the top action off. Even smarter, the system maintains two stacks simultaneously to implement \"Redo\" — quietly moving undone actions to a neighboring redo stack so you can reapply them at any time."
+          },
+          {
+            "heading": "The Browser's Backstage Driver",
+            "content": "A browser's \"Back\" and \"Forward\" buttons are a perfect application of the dual-stack concept. Every new webpage you open gets stored in the \"back stack,\" and when you click Back, the current page is popped and stored in the \"forward stack,\" letting you navigate through complex browsing history with ease."
+          },
+          {
+            "heading": "The Invisible Guardian Supporting Programs",
+            "content": "At the deepest level of code, stacks are everywhere. The \"Call Stack\" is like breadcrumbs left along a path in a maze, ensuring the main program can always find its way back after calling countless sub-functions. Additionally, compilers rely on the stack as a super-strict checker to verify that brackets are correctly paired, and developers use the stack's LIFO property to efficiently reverse strings."
+          }
+        ]
+      },
+      "videoTitle": "The Hidden Power of Stack",
+      "resources": [
+        { "title": "Real-life Applications of Stack Data Structure", "source": "EnjoyAlgorithms" },
+        { "title": "Implement Undo and Redo", "source": "GeeksforGeeks" },
+        { "title": "Top 12 Stack Examples in Real Life", "source": "upGrad" }
+      ]
+    },
+    "2": {
+      "title": "PopupStack Battle — Experience the Reality of Last In First Out",
+      "category": "Data Structures / Interactive Game",
+      "tags": ["LIFO", "Last In First Out", "Stack", "Interactive Game"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Game Background",
+            "content": "Your computer is suddenly under attack by mysterious professor popups! Windows pop up one after another, filling your screen..."
+          },
+          {
+            "heading": "Stack Is Hidden Here",
+            "content": "When you open multiple application windows simultaneously, the operating system uses a Stack to manage \"focus order\" — the last popped window is always on top, and you must close them one by one starting from the top. This is the embodiment of LIFO (Last In, First Out)."
+          },
+          {
+            "heading": "Challenge Begins",
+            "content": "Each popup has its own personality: some will run around, some require you to answer questions correctly, some will even call in reinforcements. But there's only one rule: you must close the most recently appeared popup first!"
+          },
+          {
+            "heading": "After Completing the Challenge, You Will Understand",
+            "content": "Stack's push and pop are not just abstract concepts — they are real mechanisms you experience unconsciously every day."
+          }
+        ]
+      }
+    }
+  },
+  "game": {
+    "stack": {
+      "titles": {
+        "speedTest":      "Speed Challenge",
+        "randomWalk":     "Catch Me If You Can!",
+        "quiz":           "Data Structures Quiz",
+        "boss":           "Boss Popup",
+        "sineWave":       "Sine Wave Attack!",
+        "cornerTeleport": "Corner Ghost",
+        "tvBouncing":     "Old TV",
+        "bouncingH":      "Boing Boing!",
+        "hiddenClose":    "Find the Close Button",
+        "rules":          "Game Rules",
+        "congrats":       "Congratulations!",
+        "minion":         "Minion #{{n}}",
+        "sineChild":      "Sub-window {{n}}",
+        "extraPopup":     "Extra Popup",
+        "unknown":        "Unknown Popup"
+      },
+      "warning": { "title": "Close \"{{title}}\" First!" },
+      "start": {
+        "title":  "PopupStack Battle",
+        "desc1":  "The professor has launched a popup attack!",
+        "desc2":  "Remember: the last popup must be closed first (LIFO)",
+        "desc3":  "Close all popups within 120 seconds!",
+        "button": "Start Game"
+      },
+      "result": {
+        "won":      "You Win!",
+        "failed":   "Time's Up!",
+        "timeUsed": "Time: {{seconds}}s",
+        "tryAgain": "Try again — remember to close the top popup first!"
+      },
+      "visualizer": { "header": "Stack", "bottom": "BOTTOM" },
+      "popup": {
+        "rules": {
+          "desc1":  "Popups follow LIFO (Last-In, First-Out): the last popup that appeared must be closed first!",
+          "desc2":  "Close this window to start the countdown.",
+          "button": "Got it, start!"
+        },
+        "hiddenClose": {
+          "desc1": "The close button is hidden somewhere in this text…",
+          "desc2": "Found it? Click",
+          "link":  "[Close this window]"
+        },
+        "cornerTeleport": { "clicks": "{{n}} more click(s) to go" },
+        "boss": {
+          "desc":      "Not until my minions are gone…",
+          "remaining": "Remaining: {{n}}"
+        },
+        "sineWave":  { "desc": "You thought closing me was the end?" },
+        "quiz": {
+          "question":   "Which statement about Stack is correct?",
+          "optA":       "A. First-In First-Out (FIFO)",
+          "optB":       "B. Last-In First-Out (LIFO)",
+          "optC":       "C. Random Access",
+          "optD":       "D. Bidirectional Access",
+          "correctKey": "B",
+          "submit":     "Submit"
+        },
+        "speedTest": { "button": "Click Me Fast!" },
+        "congrats": {
+          "desc1": "Congrats! All popups closed!",
+          "desc2": "Click X to complete the challenge"
+        },
+        "default":    { "desc": "Click the X to close" },
+        "closeAria":  "Close"
+      }
+    }
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "A **Stack** is a data structure based on the [[primary|Last-In, First-Out]] (**LIFO**) principle. Like a stack of plates, the last one placed on top is always the first to be removed — operations are only allowed at the [[primary|top]].",
+        "items": [
+          "The **Push** operation places new data onto the [[primary|top]] of the **Stack**",
+          "The **Pop** operation removes and retrieves the data at the [[primary|top]] of the **Stack**",
+          "The **Peek** operation inspects the [[primary|top]] element without removing it",
+          "All these operations have a [[primary|time complexity]] of **O(1)**, and random access to elements in the middle is not permitted"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "A Stack only accesses data at one end (the top), requiring no shifting or traversal of other elements — this is why its core operations maintain exceptional efficiency.",
+        "items": [
+          "**Push**: Adds data to the top with no shifting or traversal required; time complexity is [[success|O(1)]]",
+          "**Pop**: Removes and returns the top element with no shifting or traversal required; time complexity is [[success|O(1)]]",
+          "**Peek**: Views the top element without removing it, accessed directly via pointer; time complexity is [[success|O(1)]]",
+          "**Search**: Random access is not supported — elements must be popped one by one to find a target; time complexity is [[warning|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "A Stack excels at single-ended **Last-In, First-Out** operations. However, it does not support random access, so double-ended operations or retrieving elements from the middle will degrade performance significantly — in those cases, a more suitable structure should be used.",
+        "items": [
+          "Great for **state backtracking**: linear scenarios like browser back navigation, **Undo**, or **Depth-First Search (DFS)**",
+          "Poor for **First-In, First-Out** access: accessing from the bottom degrades complexity — use a **Queue** or **Deque** instead",
+          "Poor for **random access**: cannot directly read or modify middle elements — use an **Array** when frequent positional lookups are needed"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "Problems It Solves",
+        "content": "Whenever a problem involves Last-In, First-Out ordering or requires state backtracking, a Stack is the natural solution. If you see a need to store a history and process it in reverse from the most recent state, think Stack.",
+        "items": [
+          "Scenarios requiring a return to a previous state, such as browser back navigation or an editor's **Undo** mechanism",
+          "Scenarios where exploration must reverse after reaching a dead end, such as **Depth-First Search (DFS)** on graphs or trees",
+          "Expressions requiring operator precedence and bracket matching, such as **arithmetic evaluation** or **infix-to-postfix conversion**",
+          "Tracking the pause and resume order of nested tasks, such as the **Call Stack** at the program execution level"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Understanding Stack Overflow",
+        "content": "Beginners implementing **function recursion** frequently encounter [[danger|Stack Overflow]] errors. A dedicated explanation of this concept helps clarify the close relationship between the **Stack** data structure and how system memory works.",
+        "items": [
+          "The system uses the **Call Stack** to record function state — a direct illustration of the link between data structures and memory",
+          "When **function recursion** is too deep or forms an infinite loop, each new call pushed onto the stack eventually exhausts available capacity",
+          "Once stack usage exceeds the system's preset limit, a [[danger|Stack Overflow]] error is triggered",
+          "Once the mechanism is clear, beginners can prevent this by limiting recursion depth or switching to an **iterative approach**"
+        ],
+        "icon": "triangle-exclamation"
+      },
+      {
+        "heading": "Choosing the Right Tool",
+        "content": "Beginners often struggle to decide whether to use **list**, **deque**, or **LifoQueue** when performance or thread safety is a concern. A dedicated explanation helps you make the right call.",
+        "items": [
+          "**list**: Tail access is [[success|O(1)]], but lacks thread safety and may incur memory reallocation costs — suitable for simple, single-threaded tasks",
+          "**deque**: Both ends are [[success|O(1)]] with no reallocation overhead — the best-performing choice for **single-threaded** use",
+          "**LifoQueue**: Built for **multi-threaded** environments with full [[warning|thread safety]], ensuring safe concurrent access"
+        ],
+        "icon": "screwdriver-wrench"
+      },
+      {
+        "heading": "Advanced Variants",
+        "content": "Different problems often call for different Stack variants. A dedicated explanation helps beginners think beyond a single Stack and apply creative variations to tackle more complex challenges.",
+        "items": [
+          "Use a dual-stack design to implement a [[primary|MinStack]] that retrieves the internal minimum in [[success|O(1)]] time",
+          "Implement a **Queue** using two Stacks — two rounds of LIFO produce FIFO behavior",
+          "A **Monotonic Stack** maintains elements in ascending or descending order, ideal for problems involving adjacent extremes or boundaries",
+          "For high-concurrency scenarios, lock-free structures such as a **Treiber Stack** can ensure thread-safe access"
+        ],
+        "icon": "code-branch"
+      }
+    ]
+  }
+}

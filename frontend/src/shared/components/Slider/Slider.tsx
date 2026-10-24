@@ -8,7 +8,7 @@ export interface SliderProps {
   value: number;
   onChange: (value: number) => void;
   showValue?: boolean;
-  formatValue?: (value: number) => string;  // 數值格式化函數（預設顯示 1 位小數）
+  formatValue?: (value: number) => string;  // 數值格式化函式（預設顯示 1 位小數）
   disabled?: boolean;
   className?: string;
   ariaLabel?: string;
@@ -27,7 +27,7 @@ function Slider({
   ariaLabel = 'Slider',
 }: SliderProps) {
   // 計算進度百分比（用於進度條填充效果）
-  const progress = ((value - min) / (max - min)) * 100;
+  const progress = max > min ? ((value - min) / (max - min)) * 100 : 100;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(e.target.value);

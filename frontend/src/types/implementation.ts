@@ -6,7 +6,7 @@ import type { VisualizationActionHandler } from "@/modules/core/visualization/ty
 import type { RealWorldStory } from "./realWorldStory";
 
 /** 哪些 link.status 變化時要播放邊動畫（由演算法 config 選填） */
-export interface LinkAnimConfig {
+interface LinkAnimConfig {
   /** 這些 status 觸發動畫並阻塞 step 推進 */
   animateOn: string[];
   /** 這些 status 直接換色（step 推進後 re-render 自動套用，不阻塞）；僅作為文件語義 */
@@ -46,7 +46,7 @@ export interface ProblemReference {
   url: string;
 }
 
-export interface IntroductionReference {
+interface IntroductionReference {
   key: string;
 }
 
@@ -63,15 +63,20 @@ export type AlgorithmViewMode =
   | "graph"
   | "grid"
   | "longest_lte"
-  | "shortest_gte";
+  | "shortest_gte"
+  | "two_sum"
+  | "remove_duplicates";
 /** Sliding window run payload mode (matches ActionBar options). */
 export type SlidingWindowMode = "longest_lte" | "shortest_gte";
+/** Two pointers run payload mode: opposite-direction vs same-direction. */
+export type TwoPointersMode = "two_sum" | "remove_duplicates";
 
 export type RunParams =
   | { type: "sorting" }
   | { type: "searching"; searchValue: number }
   | { type: "prefixSum"; range?: [number, number] }
   | { type: "slidingWindow"; mode: SlidingWindowMode; targetSum: number }
+  | { type: "twoPointers"; mode: TwoPointersMode; target?: number }
   | {
       type: "bfsDfs";
       mode: "graph" | "grid";
@@ -88,10 +93,18 @@ export type RunParams =
       isDirected: boolean;
     }
   | { type: "knapsack"; capacity: number }
+  | { type: "lcs"; textA: string; textB: string }
   | { type: "factorial"; n: number }
-  | { type: "nQueens"; nQueensCount: number };
+  | { type: "nQueens"; nQueensCount: number }
+  | { type: "fibonacciDP"; n: number }
+  | { type: "fibonacciRecursive"; n: number };
 
-export interface BaseActionBarProps {
+// ActionBarProps below is a heterogeneous registry union: every data-structure/
+// algorithm module renders its own ActionBar with its own params/payload shape
+// through the single `renderActionBar` slot on LevelImplementationConfig (see
+// below). The `any`s here are the deliberate type-erasure points for that —
+// each module's concrete component narrows them back via its own local types.
+interface BaseActionBarProps {
   onLoadData: (data: string) => void;
   onResetData: () => void;
   onRandomData: (params?: any) => void;
@@ -126,6 +139,14 @@ export interface AlgoActionBarProps extends BaseActionBarProps {
 
 export type ActionBarProps = DSActionBarProps | AlgoActionBarProps;
 
+// LevelImplementationConfig is likewise a heterogeneous registry: every
+// module's `data`/`action`/`config` types differ (e.g. LinkedList's
+// ListNodeData[] vs BST's BSTInputItem[]), but they're all dispatched through
+// one ImplementationMap keyed by string id. The `any`s below are the
+// deliberate type-erasure points for that dispatch — this is the standard
+// TypeScript escape hatch for a plugin/strategy registry; concrete modules
+// keep their own properly-typed `create*AnimationSteps` internally and are
+// only erased at the point they're assigned into this shared config shape.
 export interface LevelImplementationConfig {
   id: ImplementationId;
   type: "algorithm" | "dataStructure";
@@ -148,6 +169,10 @@ export interface LevelImplementationConfig {
   getCodeConfig?: (payload?: any) => CodeConfig;
   /** 最大資料筆數。undefined = 真的不限制（由 viewBox 自動縮放）。 */
   maxNodes?: number;
+  /** 虛擬碼是否有容量檢查：有的話達到 maxNodes 仍會播放步驟（亮起檢查行並 toast），否則直接 toast 擋下。 */
+  hasCapacityGuard?: boolean;
+  /** 虛擬碼自己處理空資料（有空檢查，或空資料時走原本的找不到流程）：delete／peek 空資料仍會播放步驟，不被通用 toast 攔下。 */
+  hasEmptyGuard?: boolean;
   /** ActionBar 的預設視圖模式，切換關卡時用來初始化 viewMode state。 */
   defaultViewMode?: AlgorithmViewMode;
   /** 是否預設為有向圖（無 ActionBar toggle 時使用）。 */
@@ -159,7 +184,7 @@ export interface LevelImplementationConfig {
   actionHandler?: VisualizationActionHandler<any>;
 }
 
-export type ImplementationId =
+type ImplementationId =
   | "array"
   | "linkedlist"
   | "stack"
@@ -169,6 +194,7 @@ export type ImplementationId =
   | "bst"
   | "graph"
   | "heap"
+  | "trie"
   | "bubblesort"
   | "selectionsort"
   | "insertionsort"
@@ -182,8 +208,10 @@ export type ImplementationId =
   | "prefixsum"
   | "slidingwindow"
   | "twopointers"
-  | "fibonacci"
+  | "fibonacciDP"
+  | "fibonacciRecursive"
   | "knapsack"
+  | "lcs"
   | "n-queens"
   | "topological-sort"
   | "factorial";

@@ -43,10 +43,10 @@
   color: var(--panel-accent);
 }
 
-.iconFixed      { color: var(--color-teal); }
+.iconFixed      { color: var(--color-blue); }
 .iconFixedActive {
-  background: color-mix(in srgb, var(--color-teal) 15%, transparent);
-  color: var(--color-teal);
+  background: color-mix(in srgb, var(--color-blue) 15%, transparent);
+  color: var(--color-blue);
 }
 
 .iconDimmed {

@@ -9,6 +9,7 @@ import { BinaryTreeConfig } from "../DataStructure/nonlinear/BinaryTree/BinaryTr
 import { BinarySearchTreeConfig } from "../DataStructure/nonlinear/BinarySearchTree/BinarySearchTree";
 import { GraphConfig } from "../DataStructure/nonlinear/Graph/Graph";
 import { HeapConfig } from "../DataStructure/nonlinear/Heap/Heap";
+import { TrieConfig } from "../DataStructure/nonlinear/Trie/Trie";
 
 // Import Algorithm Configs
 import { bubbleSortConfig } from "../algorithms/sorting/bubbleSort";
@@ -21,10 +22,14 @@ import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
+import { twoPointersConfig } from "../algorithms/technique/twoPointers";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
+import { lcsConfig } from "../algorithms/dp/lcs";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
+import { fibonacciDPConfig } from "../algorithms/dp/fibonacci";
+import { fibonacciRecursiveConfig } from "../algorithms/recursive/fibonacci";
 import { factorialConfig } from "../algorithms/recursive/factorial/factorial";
 
 /**
@@ -42,6 +47,7 @@ export const implementationsMap: ImplementationMap = {
   bst: BinarySearchTreeConfig,
   graph: GraphConfig,
   heap: HeapConfig,
+  trie: TrieConfig,
 
   // Algorithms
   bubbleSort: bubbleSortConfig,
@@ -54,10 +60,14 @@ export const implementationsMap: ImplementationMap = {
   dfs: DFSConfig,
   prefixSum: prefixSumConfig,
   slidingWindow: slidingWindowConfig,
+  twoPointers: twoPointersConfig,
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
+  lcs: lcsConfig,
   nQueens: nQueensConfig,
   topologicalSort: topologicalSortConfig,
+  fibonacciDP: fibonacciDPConfig,
+  fibonacciRecursive: fibonacciRecursiveConfig,
   factorial: factorialConfig,
 };
 
@@ -68,23 +78,4 @@ export const implementationsMap: ImplementationMap = {
  */
 export function getImplementation(implementationKey: string) {
   return implementationsMap[implementationKey] || null;
-}
-
-/**
- * 獲取所有實作配置
- * @returns 所有實作配置的陣列
- */
-export function getAllImplementations() {
-  return Object.values(implementationsMap);
-}
-
-/**
- * 根據類型獲取實作列表
- * @param type 實作類型（'algorithm' 或 'dataStructure'）
- * @returns 該類型下的所有實作配置
- */
-export function getImplementationsByType(type: "algorithm" | "dataStructure") {
-  return Object.values(implementationsMap).filter(
-    (config) => config.type === type,
-  );
 }

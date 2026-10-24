@@ -1,26 +1,14 @@
 import type { AlgorithmNode, GraphData } from "./types";
+import type { GridCellData } from "@/data/DataStructure/nonlinear/utils";
 
 /** 深拷貝資料 */
 export function cloneData<T>(source: T): T {
   return JSON.parse(JSON.stringify(source));
 }
 
-/** 將純數字陣列轉為 Box 物件 (給排序/搜尋用) */
-export function initLinearData(
-  rawValues: number[],
-  nextIdRef: { current: number }
-): any[] {
-  return rawValues.map((val) => ({
-    id: `box-${nextIdRef.current++}`,
-    value: val,
-    position: { x: 0, y: 0 },
-  }));
-}
-
-
 /** 生成隨機 Grid（BFS/DFS 用） */
-export function generateRandomGrid(rows: number, cols: number): any[] {
-  const grid = [];
+export function generateRandomGrid(rows: number, cols: number): GridCellData[] {
+  const grid: GridCellData[] = [];
   for (let i = 0; i < rows * cols; i++) {
     const isWall = Math.random() < 0.4 ? 1 : 0;
     grid.push({ id: `box-${i}`, val: isWall });

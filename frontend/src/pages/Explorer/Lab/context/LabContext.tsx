@@ -235,7 +235,7 @@ function labReducer(state: LabReducerState, action: LabAction): LabReducerState 
   }
 }
 
-export interface LabContextValue extends LabState {
+interface LabContextValue extends LabState {
   dispatch: Dispatch<LabAction>;
 }
 

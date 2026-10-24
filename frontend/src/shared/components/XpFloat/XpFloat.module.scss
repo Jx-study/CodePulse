@@ -55,3 +55,10 @@
   color: $primary-color;
   line-height: 1.4;
 }
+
+.reason {
+  font-size: $font-xs;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}

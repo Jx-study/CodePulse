@@ -17,7 +17,7 @@ import { getCategoryBossLevel } from "./LevelService";
  * 取得所有分類配置
  * 按 order 欄位排序
  */
-export function getAllCategories(): Category[] {
+function getAllCategories(): Category[] {
   const rawCategories = getRawCategories();
 
   return Object.values(rawCategories)
@@ -49,23 +49,6 @@ export function getCategoryById(categoryId: CategoryType): Category | null {
   };
 }
 
-
-/**
- * 取得下一個分類
- * 根據 category.order 欄位判斷
- */
-export function getNextCategory(
-  currentCategoryId: CategoryType,
-): CategoryType | null {
-  const rawCategories = getRawCategories();
-  const currentCat = rawCategories[currentCategoryId];
-  if (!currentCat) return null;
-
-  const nextCat = Object.values(rawCategories).find(
-    (cat) => cat.order === currentCat.order + 1,
-  );
-  return nextCat?.id ?? null;
-}
 
 // ==================== 解鎖邏輯 ====================
 

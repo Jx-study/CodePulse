@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import EmptyState from "@/shared/components/EmptyState";
 import Icon from "@/shared/components/Icon";
 import { ALGORITHM_META } from "../../data/algorithmMeta";
@@ -13,13 +14,14 @@ function displayStepIndex(currentStep: number, stepCount: number): number {
   return Math.min(currentStep, stepCount - 1);
 }
 
-export interface AnimationGridProps {
+interface AnimationGridProps {
   algorithms: LabAlgorithmState[];
   currentStep: number;
   manualSortEnabled?: boolean;
 }
 
 export function AnimationGrid({ algorithms, currentStep, manualSortEnabled = false }: AnimationGridProps) {
+  const { t } = useTranslation("lab");
   const { dispatch } = useLabContext();
 
   const handleMaxItemsChange = useCallback(
@@ -31,10 +33,10 @@ export function AnimationGrid({ algorithms, currentStep, manualSortEnabled = fal
     return (
       <EmptyState
         icon={<Icon name="chart-bar" size="xl" />}
-        title="尚未選擇演算法"
-        description="請在左側側邊欄勾選要比較的排序演算法。"
+        title={t("animationGrid.emptyTitle")}
+        description={t("animationGrid.emptyDesc")}
         className={styles.empty}
-        aria-label="尚未選擇演算法"
+        aria-label={t("animationGrid.emptyTitle")}
       />
     );
   }

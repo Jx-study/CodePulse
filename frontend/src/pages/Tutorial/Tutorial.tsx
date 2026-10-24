@@ -10,7 +10,7 @@ import { tutorialService } from "@/services/tutorialService";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useParams } from "react-router-dom";
 import { Panel, PanelImperativeHandle } from "react-resizable-panels";
-import { DragEndEvent } from "@dnd-kit/core";
+import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "@/shared/components/Breadcrumb";
@@ -27,6 +27,8 @@ import type { BreadcrumbItem } from "@/types";
 import {
   DEFAULT_LINK_ANIM_CONFIG,
   type AlgorithmViewMode,
+  type LevelImplementationConfig,
+  type RunParams,
 } from "@/types/implementation";
 import { getImplementationByLevelId } from "@/services/ImplementationService";
 import PanelHeader from "./components/PanelHeader";
@@ -41,58 +43,19 @@ import { useVisualizationLogic } from "@/modules/core/hooks/useVisualizationLogi
 import { PanelProvider, usePanelContext } from "./context/PanelContext";
 import KnowledgeStation from "./components/KnowledgeStation";
 import FeatureTour from "./components/FeatureTour";
+import { getTourDismissed, setTourDismissed } from "./featureTourStorage";
 import { xp } from "@/shared/components/XpFloat";
 import {
   buildStatusColorMap,
   DEFAULT_STATUS_CONFIG,
 } from "@/types/statusConfig";
 import { useTranslation } from "react-i18next";
-import type { StepDescription } from "@/types";
-
-function renderDescription(
-  desc: string | StepDescription | undefined,
-  t: (key: string, params?: Record<string, any>) => string,
-): string {
-  if (!desc) return "";
-  if (typeof desc === "string") return desc;
-  return t(desc.key, desc.params);
-}
+import type { AnimationStep } from "@/types";
+import { renderDescription, showStepNotice } from "./stepNotice";
+import type { CodeEditorHandle } from "@/modules/core/components/CodeEditor/CodeEditor";
+import type { CanvasPanelProps } from "@/types/canvasTypes";
 
 // ==================== Canvas Panel Component ====================
-interface CanvasPanelProps {
-  canvasPanelRef: React.RefObject<PanelImperativeHandle | null>;
-  isMobile: boolean;
-  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  currentStepData: any;
-  allStepsElements?: BaseElement[][];
-  currentLinks: Link[];
-  canvasSize: { width: number; height: number };
-  topicTypeConfig: any;
-  currentStatusColorMap: any;
-  currentStatusConfig: any;
-  isDirected: boolean;
-  /** Doubly 鏈結時為 true，驅動 D3 雙向平行箭頭 */
-  showBidirectionalArrows: boolean;
-  viewMode: AlgorithmViewMode | "";
-
-  // 保留 ControlBar props (內嵌在 Canvas 中)
-  isPlaying: boolean;
-  currentStep: number;
-  activeStepsLength: number;
-  playbackSpeed: number;
-  handlePlay: () => void;
-  handlePause: () => void;
-  handleNext: () => void;
-  handlePrev: () => void;
-  handleResetStep: () => void;
-  setPlaybackSpeed: (speed: number) => void;
-  handleStepChange: (step: number) => void;
-
-  graphCanvasRef: React.RefObject<GraphCanvasRef | null>;
-  d3CanvasRef: React.RefObject<D3CanvasRef | null>;
-  useGraphCanvas: boolean;
-}
-
 const CanvasPanel = ({
   canvasPanelRef,
   isMobile,
@@ -121,8 +84,10 @@ const CanvasPanel = ({
   graphCanvasRef,
   d3CanvasRef,
   useGraphCanvas,
+  showControls,
 }: CanvasPanelProps) => {
   const { t } = useTranslation(topicTypeConfig?.i18nNamespace ?? "animation");
+  const { t: tTutorial } = useTranslation("tutorial");
   const {
     attributes,
     listeners,
@@ -159,7 +124,7 @@ const CanvasPanel = ({
         data-tour="canvas-panel"
       >
         <PanelHeader
-          title="視覺化動畫"
+          title={tTutorial("panelHeader.canvas")}
           draggable={!isMobile}
           dragHandleProps={dragHandleProps}
         />
@@ -194,24 +159,28 @@ const CanvasPanel = ({
             />
           )}
         </div>
-        <div className={styles.stepDescription}>
-          {renderDescription(currentStepData?.description, t)}
-        </div>
-
-        {/* ControlBar 直接渲染,無 PanelHeader */}
-        <ControlBar
-          isPlaying={isPlaying}
-          currentStep={currentStep}
-          totalSteps={activeStepsLength}
-          playbackSpeed={playbackSpeed}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onReset={handleResetStep}
-          onSpeedChange={setPlaybackSpeed}
-          onStepChange={handleStepChange}
-        />
+        {showControls && (
+          <>
+            <div className={styles.stepDescription}>
+              {renderDescription(currentStepData?.description, t)}
+            </div>
+            <div data-tour="control-bar">
+              <ControlBar
+                isPlaying={isPlaying}
+                currentStep={currentStep}
+                totalSteps={activeStepsLength}
+                playbackSpeed={playbackSpeed}
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onNext={handleNext}
+                onPrev={handlePrev}
+                onReset={handleResetStep}
+                onSpeedChange={setPlaybackSpeed}
+                onStepChange={handleStepChange}
+              />
+            </div>
+          </>
+        )}
       </div>
     </Panel>
   );
@@ -222,12 +191,12 @@ export interface InspectorPanelInternalProps {
   isMobile: boolean;
   activeInspectorTab: string;
   setActiveInspectorTab: (tab: string) => void;
-  topicTypeConfig: any;
+  topicTypeConfig: LevelImplementationConfig | null;
   handleLoadData: (raw: string) => void;
-  handleRandomData: (params?: any) => void;
+  handleRandomData: (params?: Record<string, unknown>) => void;
   handleResetData: () => void;
   isProcessing: boolean;
-  handleRunAlgorithm: (params?: any) => void;
+  handleRunAlgorithm: (params?: RunParams) => void;
   handleAddNode: (value: number, mode: string, index?: number) => void;
   handleDeleteNode: (mode: string, index?: number) => void;
   handleSearchNode: (value: number, mode?: string) => void;
@@ -238,14 +207,15 @@ export interface InspectorPanelInternalProps {
   hasTailMode: boolean;
   handleListModeChange: (mode: "singly" | "doubly") => void;
   listMode: "singly" | "doubly";
-  handleGraphAction: (action: string, payload: any) => void;
-  handleCustomAction: (action: string, payload: any) => void;
+  handleGraphAction: (action: string, payload: unknown) => void;
+  handleCustomAction: (action: string, payload: unknown) => void;
   isDirected: boolean;
   setIsDirected: (isDirected: boolean) => void;
   viewMode: AlgorithmViewMode | "";
   handleViewModeChange: (mode: AlgorithmViewMode) => void;
-  currentData: any;
-  currentStepData: any;
+  currentData: unknown;
+  currentStepData: AnimationStep | undefined;
+  disabledTabs: Set<string>;
 }
 
 export const InspectorPanelInternal = ({
@@ -276,8 +246,10 @@ export const InspectorPanelInternal = ({
   handleViewModeChange,
   currentData,
   currentStepData,
+  disabledTabs,
 }: InspectorPanelInternalProps) => {
   const { activePanels } = usePanelContext();
+  const { t: tTutorial } = useTranslation("tutorial");
 
   // 從 PANEL_REGISTRY 過濾出 Inspector Tabs
   const inspectorTabs: TabConfig[] = useMemo(() => {
@@ -286,10 +258,15 @@ export const InspectorPanelInternal = ({
       .filter((config) => activePanels.includes(config.id))
       .map((config) => ({
         key: config.id,
-        label: config.title,
+        label: tTutorial(config.title),
         icon: config.icon,
+        disabled: disabledTabs.has(config.id),
+        disabledHint:
+          config.id === "actionBar"
+            ? tTutorial("actionBarBusyHint")
+            : undefined,
       }));
-  }, [activePanels]);
+  }, [activePanels, disabledTabs, tTutorial]);
 
   // 拖拽邏輯
   const {
@@ -359,8 +336,8 @@ export const InspectorPanelInternal = ({
               className={styles.tabContent}
               style={isActive ? undefined : { display: "none" }}
             >
-              <Suspense fallback={<div>載入中...</div>}>
-                <PanelComponent {...(tabProps as any)} />
+              <Suspense fallback={<div>{tTutorial("common.loading")}</div>}>
+                <PanelComponent {...tabProps} />
               </Suspense>
             </div>
           );
@@ -375,9 +352,10 @@ export const InspectorPanelInternal = ({
       style={sortableStyle}
       {...attributes}
       className={styles.inspectorPanel}
+      data-tour="inspector-panel"
     >
       <PanelHeader
-        title="資訊面板"
+        title={tTutorial("panelHeader.inspector")}
         draggable={!isMobile}
         dragHandleProps={listeners}
         tabs={inspectorTabs}
@@ -402,6 +380,8 @@ function TutorialContent() {
     panelSizes,
     collapsedPanels,
   } = usePanelContext();
+  const { t: tTutorial } = useTranslation("tutorial");
+  const { t: tDashboard } = useTranslation("dashboard");
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
   // Panel refs for programmatic control
@@ -414,6 +394,7 @@ function TutorialContent() {
   const isAnimatingRef = useRef(false);
   const isPlayingRef = useRef(false);
   const handleNextRef = useRef<() => void>(() => {});
+  const codeEditorRef = useRef<CodeEditorHandle>(null);
 
   // Collapse states (使用 context 的 collapsed state)
   const isLeftPanelCollapsed = collapsedPanels.has("codeEditor");
@@ -422,16 +403,31 @@ function TutorialContent() {
   const [isKnowledgeStationOpen, setIsKnowledgeStationOpen] = useState(false);
 
   // Feature Tour state
-  const [showFeatureTour, setShowFeatureTour] = useState(true);
-  const handleSkipFeatureTour = () => setShowFeatureTour(false);
+  // Auto-open on mount unless the user has previously clicked "Don't show again"
+  const [showFeatureTour, setShowFeatureTour] = useState(() => !getTourDismissed());
+  const handleSkipFeatureTour = () => {
+    setShowFeatureTour(false);
+    if (!hasStartedAnimation) {
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
+    }
+  };
   const handleCompleteFeatureTour = () => {
     setShowFeatureTour(false);
     setIsKnowledgeStationOpen(true);
+    if (!hasStartedAnimation) {
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
+    }
+  };
+  // "Don't show again": persist the preference then close the tour (the "?" button still opens it manually)
+  const handleDontShowAgain = () => {
+    setTourDismissed();
+    setShowFeatureTour(false);
   };
 
   // Inspector Tab state
   const [activeInspectorTab, setActiveInspectorTab] =
     useState<string>("actionBar");
+  const [hasStartedAnimation, setHasStartedAnimation] = useState(false);
 
   // RWD: 检测屏幕宽度
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -451,7 +447,7 @@ function TutorialContent() {
   }>();
 
   // Session 管理
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, showCheckinDialog } = useAuth();
   const sessionIdRef = useRef<number | null>(null);
   const sessionStartRef = useRef<number>(Date.now());
 
@@ -463,7 +459,7 @@ function TutorialContent() {
       const res = await tutorialService.markTeachingComplete(levelId);
       teachingDoneRef.current = true;
       if (res.xp_earned > 0) {
-        xp.show(res.xp_earned);
+        xp.show(res.xp_earned, { reason: 'tutorial' });
       }
     } catch {
       // 403 = 未滿 30 秒，靜默忽略
@@ -524,6 +520,9 @@ function TutorialContent() {
     const implementation = getImplementationByLevelId(levelId);
     return implementation;
   }, [levelId]);
+  const { t: tStructure } = useTranslation(
+    topicTypeConfig?.i18nNamespace ?? "animation",
+  );
 
   // 計算當前演算法的狀態顏色映射表（memoized）
   const currentStatusColorMap = useMemo(() => {
@@ -554,6 +553,19 @@ function TutorialContent() {
       currentStep > 0 &&
       currentStep < activeSteps.length - 1);
 
+  const isAtLastStep =
+    hasStartedAnimation &&
+    currentStep === activeSteps.length - 1 &&
+    (activeSteps.length > 1 || !isPlaying);
+
+  const showControls = hasStartedAnimation || showFeatureTour;
+
+  const disabledTabs = useMemo((): Set<string> => {
+    if (!hasStartedAnimation) return new Set(["variableStatus"]);
+    if (isAtLastStep) return new Set();
+    return new Set(["actionBar"]);
+  }, [hasStartedAnimation, isAtLastStep]);
+
   const maxNodes = topicTypeConfig?.maxNodes;
   const randomCountRef = useRef(5);
 
@@ -578,6 +590,11 @@ function TutorialContent() {
 
   // 計算目前的動畫步驟數據
   const currentStepData = activeSteps[currentStep];
+
+  // guard 被觸發的步驟：與虛擬碼高亮同步 toast
+  useEffect(() => {
+    showStepNotice(currentStepData, tStructure);
+  }, [currentStepData]);
 
   // 根據 hasTailMode / listMode 動態計算當前的 codeConfig
   const currentCodeConfig = useMemo(() => {
@@ -613,6 +630,10 @@ function TutorialContent() {
       setIsPlaying(false);
       setViewMode(topicTypeConfig.defaultViewMode ?? "");
       setIsDirected(topicTypeConfig.defaultIsDirected ?? false);
+      setHasStartedAnimation(false);
+      setActiveInspectorTab("actionBar");
+      // setTimeout 讓 collapse 在當前 render 完成後執行，避免 react-resizable-panels 尚未完成 remount
+      setTimeout(() => leftPanelRef.current?.collapse(), 0);
     }
   }, [topicTypeConfig]);
 
@@ -641,14 +662,54 @@ function TutorialContent() {
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed]);
 
+  // 5. FeatureTour：開啟時展開 CodeEditor 讓導覽步驟可見；關閉由 handler 負責收起
+  useEffect(() => {
+    if (showFeatureTour && !hasStartedAnimation) {
+      setTimeout(() => {
+        if (leftPanelRef.current?.isCollapsed()) {
+          leftPanelRef.current.expand();
+        }
+      }, 0);
+    }
+  }, [showFeatureTour]);
+
+  // 6. Progressive disclosure：偵測首次開始播放
+  useEffect(() => {
+    if (isPlaying && !hasStartedAnimation) {
+      setHasStartedAnimation(true);
+    }
+  }, [isPlaying, hasStartedAnimation]);
+
+  // 7. Progressive disclosure：首次開始後，時序展開 CodeEditor 並切換 tab（只觸發一次）
+  useEffect(() => {
+    if (!hasStartedAnimation) return;
+    const timer = setTimeout(() => {
+      const currentPercent = leftPanelRef.current?.getSize().asPercentage ?? 0;
+      if (currentPercent < panelSizes.codeEditor) {
+        const contentPx = codeEditorRef.current?.getContentWidth() ?? 0;
+        const rightPanelPx = rightPanelRef.current?.getSize().inPixels ?? 0;
+        const contentPercent = rightPanelPx > 0 ? (contentPx / rightPanelPx) * 100 : 0;
+        const targetPercent = Math.min(panelSizes.codeEditor, Math.max(20, contentPercent));
+        if (rightPanelPx === 0) {
+          leftPanelRef.current?.expand();
+        } else {
+          leftPanelRef.current?.resize(`${targetPercent}%`);
+        }
+      }
+      setActiveInspectorTab("variableStatus");
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [hasStartedAnimation]);
+
+
   const allStepsElements = useMemo(() => {
     return activeSteps.map((step) => step?.elements ?? []);
   }, [activeSteps]);
 
   // 5. 處理連線 (從 Node 的 pointers 提取，支援伸縮動畫)
-  const currentLinks = useMemo(() => {
+  const currentLinks = useMemo((): Link[] => {
     if (currentStepData?.links) {
-      return currentStepData.links;
+      return currentStepData.links as Link[];
     }
 
     const links: Link[] = [];
@@ -692,12 +753,14 @@ function TutorialContent() {
   // 6. 控制行為
   const handleAddNode = (value: number, mode: string, index?: number) => {
     if (isAlgorithm) return;
+    let overflow = false;
     if (maxNodes !== undefined) {
       const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
-      if (currentCount >= maxNodes) {
-        toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
+      if (currentCount >= maxNodes && !topicTypeConfig?.hasCapacityGuard) {
+        toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
         return;
       }
+      overflow = currentCount >= maxNodes;
     }
     const steps = executeAction("add", {
       value,
@@ -705,6 +768,7 @@ function TutorialContent() {
       index,
       hasTailMode,
       isDoubly: listMode === "doubly",
+      overflow,
     });
     if (steps && steps.length > 0) {
       setCurrentStep(0);
@@ -743,7 +807,7 @@ function TutorialContent() {
   };
 
   // 隨機資料：數字在 -99~99，筆數不超過 maxNodes
-  const handleRandomData = (params?: any) => {
+  const handleRandomData = (params?: Record<string, unknown>) => {
     executeAction("random", {
       randomCount: randomCountRef.current,
       hasTailMode,
@@ -790,17 +854,39 @@ function TutorialContent() {
       return;
     }
 
+    if (raw.startsWith("TRIE:")) {
+      // 拔掉 "TRIE:" 前綴，然後用空白切成純字串陣列
+      const wordsStr = raw.replace("TRIE:", "").trim();
+      const parsedWords = wordsStr ? wordsStr.split(" ") : [];
+
+      if (parsedWords.length === 0) {
+        toast.warning(tTutorial("toast.invalidWordList"));
+        return;
+      }
+
+      const steps = executeAction("load", {
+        data: parsedWords,
+        hasTailMode,
+      });
+
+      if (steps && steps.length > 0) {
+        setCurrentStep(0);
+        setIsPlaying(false);
+      }
+      return;
+    }
+
     const parsed = raw
       .split(",")
       .map((v) => parseInt(v.trim()))
       .filter((v) => !isNaN(v));
 
     if (parsed.length === 0) {
-      toast.warning("請輸入有效的數字格式 (例如: 1,2,3)");
+      toast.warning(tTutorial("toast.invalidFormat"));
       return;
     }
     if (maxNodes !== undefined && parsed.length > maxNodes) {
-      toast.warning(`資料數量超過限制，最多只能有 ${maxNodes} 筆資料。`);
+      toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
       return;
     }
     const steps = executeAction("load", {
@@ -823,7 +909,7 @@ function TutorialContent() {
     }
   };
 
-  const handleRunAlgorithm = (params?: any) => {
+  const handleRunAlgorithm = (params?: RunParams) => {
     if (!isAlgorithm) return;
 
     const steps = executeAction("run", params); // 執行演算法
@@ -842,7 +928,7 @@ function TutorialContent() {
     setIsPlaying(false);
   };
 
-  const handleGraphAction = (action: string, payload: any) => {
+  const handleGraphAction = (action: string, payload: unknown) => {
     if (isProcessing) return;
 
     const steps = logic.executeAction(action, payload);
@@ -853,8 +939,24 @@ function TutorialContent() {
     }
   };
 
-  const handleCustomAction = (action: string, payload: any) => {
+  const handleCustomAction = (action: string, payload: unknown) => {
     if (isProcessing) return;
+
+    const currentCount = logic.data?.length ?? logic.data?.nodes?.length ?? 0;
+
+    if (action === "add" && maxNodes !== undefined && currentCount >= maxNodes) {
+      toast.warning(tTutorial("toast.maxNodesExceeded", { maxNodes }));
+      return;
+    }
+
+    if (
+      (action === "delete" || action === "peek") &&
+      currentCount === 0 &&
+      !topicTypeConfig?.hasEmptyGuard
+    ) {
+      toast.warning(tTutorial("toast.emptyDataOperation"));
+      return;
+    }
 
     const steps = logic.executeAction(action, payload);
 
@@ -1004,8 +1106,8 @@ function TutorialContent() {
   };
 
   // Drag and Drop handlers
-  const handleDragStart = (event: any) => {
-    setActiveDragId(event.active.id);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -1066,14 +1168,24 @@ function TutorialContent() {
     handleViewModeChange,
     currentData: logic.data,
     currentStepData,
+    disabledTabs,
   };
 
+  const categoryKey = category?.replace(/-/g, "_") ?? "";
+  const levelKey = levelId?.replace(/-/g, "_") ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
     {
-      label: topicTypeConfig.categoryName,
+      label: tDashboard(`categories.${categoryKey}.name`, {
+        defaultValue: topicTypeConfig.categoryName,
+      }),
       path: `/dashboard?category=${category}`,
     },
-    { label: topicTypeConfig.name, path: null },
+    {
+      label: tDashboard(`levels.${levelKey}.name`, {
+        defaultValue: topicTypeConfig.name,
+      }),
+      path: null,
+    },
   ];
 
   // Props for CanvasPanel
@@ -1105,44 +1217,50 @@ function TutorialContent() {
     graphCanvasRef,
     d3CanvasRef,
     useGraphCanvas,
+    showControls,
   };
 
   return (
     <div className={styles.tutorialPage}>
       <div className={styles.breadcrumbContainer}>
         <Breadcrumb items={breadcrumbItems} showBackButton={true} />
-        {!isMobile && (
-          <div className={styles.buttonGroup}>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowFeatureTour(true)}
-              title="開啟功能導覽"
-              icon="circle-question"
-              iconOnly
-            />
+        <div className={styles.buttonGroup}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowFeatureTour(true)}
+            title={tTutorial("page.openTourTitle")}
+            aria-label={tTutorial("page.openTourTitle")}
+            icon="circle-question"
+            iconOnly
+          />
+          <span data-tour="knowledge-station-button">
             <Button
               variant="secondary"
               size="sm"
               onClick={() => setIsKnowledgeStationOpen(true)}
-              title="開啟知識補充站"
+              title={tTutorial("page.openKnowledgeStationTitle")}
+              aria-label={tTutorial("page.openKnowledgeStationTitle")}
               icon="lightbulb"
+              iconOnly={isMobile}
             >
-              知識補充站
+              {!isMobile && tTutorial("page.knowledgeStation")}
             </Button>
+          </span>
+          {!isMobile && (
             <span data-tour="swap-button">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleSwapMainPanels}
-                title="交換左右面板"
+                title={tTutorial("page.swapLayoutTitle")}
                 icon="right-left"
               >
-                交換佈局
+                {tTutorial("page.swapLayout")}
               </Button>
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <TopSection
@@ -1167,6 +1285,7 @@ function TutorialContent() {
         handleModeToggle={handleModeToggle}
         currentCodeConfig={currentCodeConfig}
         highlightLines={highlightLines}
+        codeEditorRef={codeEditorRef}
       />
 
       {/* Knowledge Station Dialog */}
@@ -1179,10 +1298,12 @@ function TutorialContent() {
       )}
       {/* Feature Tour */}
       <FeatureTour
-        isOpen={showFeatureTour}
+        isOpen={showFeatureTour && !showCheckinDialog}
         onComplete={handleCompleteFeatureTour}
         onSkip={handleSkipFeatureTour}
+        onDontShowAgain={handleDontShowAgain}
         isMobile={isMobile}
+        isDataStructure={topicTypeConfig?.type === 'dataStructure'}
       />
     </div>
   );

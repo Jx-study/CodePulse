@@ -20,7 +20,7 @@ export type PopupType =
   | 'warning'
   | 'congrats';
 
-export interface PopupPosition {
+interface PopupPosition {
   x: number;
   y: number;
 }

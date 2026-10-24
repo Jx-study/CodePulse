@@ -1,0 +1,165 @@
+{
+  "animation": {
+    "ins_init_empty": "Tree is empty, inserting root node {{val}}",
+    "ins_init": "Preparing to insert new node: {{val}}",
+    "ins_compare": "Comparing: {{val}} vs {{curr}}",
+    "ins_equal": "Value {{val}} already exists, incrementing counter by 1",
+    "ins_left": "{{val}} < {{curr}}, moving to the left subtree",
+    "ins_right": "{{val}} >= {{curr}}, moving to the right subtree",
+    "ins_place_left": "{{val}} < {{curr}}, and no left child exists, insertion point found",
+    "ins_place_right": "{{val}} >= {{curr}}, and no right child exists, insertion point found",
+    "ins_done": "Node {{val}} inserted successfully",
+    "srch_init": "Starting search: {{target}}",
+    "srch_empty": "Tree is empty",
+    "srch_compare": "Comparing: {{target}} vs {{curr}}",
+    "srch_found": "Target {{target}} found",
+    "srch_left": "{{target}} < {{curr}}, moving left",
+    "srch_right": "{{target}} > {{curr}}, moving right",
+    "srch_not_found": "Not found",
+    "del_init": "Preparing to delete node: {{target}}",
+    "del_empty": "Tree is empty, cannot delete",
+    "del_search": "Searching for deletion target: {{target}} vs {{curr}}",
+    "del_found": "Target node {{target}} found",
+    "del_left": "{{target}} < {{curr}}, moving left",
+    "del_right": "{{target}} > {{curr}}, moving right",
+    "del_not_found": "Value {{target}} not found, deletion failed",
+    "del_count_dec": "Count > 1, decrementing counter only (Count: {{count}})",
+    "del_leaf": "Checking child nodes: none (leaf node), removing directly",
+    "del_leaf_remove": "Deletion completed",
+    "del_one_child_replace": "Updating target node value to {{val}}",
+    "del_one_child_done": "Original child node removed, deletion completed",
+    "del_two_child": "Both children exist. Finding successor (minimum value in right subtree)",
+    "del_successor_find": "Finding successor: {{val}}",
+    "del_successor_replace": "Replacing target node {{target}} with value {{val}}",
+    "del_successor_remove": "Removing successor node {{val}}, deletion completed",
+    "min_init": "Find Minimum: Go all the way left",
+    "min_traverse": "Move left (Current node: {{curr}})",
+    "min_found": "Reached the leftmost node {{curr}}, which is the minimum",
+
+    "max_init": "Find Maximum: Go all the way right",
+    "max_traverse": "Move right (Current node: {{curr}})",
+    "max_found": "Reached the rightmost node {{curr}}, which is the maximum",
+
+    "floor_init": "Find Floor({{target}})",
+    "floor_compare": "Compare: {{target}} vs {{curr}}",
+    "floor_equal": "Exact match found, Floor is {{val}}",
+    "floor_left": "{{target}} < {{curr}}, go left to find a smaller value",
+    "floor_right": "{{target}} > {{curr}}, set temp Floor to {{floor}}, go right to find a larger value",
+    "floor_found": "Search complete, Floor is {{floor}}",
+    "floor_not_found": "Search complete, no value less than or equal to {{target}} found",
+
+    "ceil_init": "Find Ceil({{target}})",
+    "ceil_compare": "Compare: {{target}} vs {{curr}}",
+    "ceil_equal": "Exact match found, Ceil is {{val}}",
+    "ceil_left": "{{target}} < {{curr}}, set temp Ceil to {{ceil}}, go left to find a smaller value",
+    "ceil_right": "{{target}} > {{curr}}, go right to find a larger value",
+    "ceil_found": "Search complete, Ceil is {{ceil}}",
+    "ceil_not_found": "Search complete, no value greater than or equal to {{target}} found",
+
+    "load_done": "BST state (Node count: {{count}})"
+  },
+  "ui": {
+    "operations": "Binary Search Tree Operations",
+    "valuePlaceholder": "Value",
+    "searchPlaceholder": "Search value",
+    "insert": "Insert",
+    "delete": "Delete",
+    "search": "Search",
+    "min": "Min",
+    "max": "Max",
+    "floor": "Floor",
+    "ceil": "Ceil",
+    "insertTooltip": "Insert a value into the BST",
+    "deleteTooltip": "Delete a specified value from the BST",
+    "searchTooltip": "Search for a specified value in the BST",
+    "minTooltip": "Find the minimum value in the BST",
+    "maxTooltip": "Find the maximum value in the BST",
+    "floorTooltip": "Find the largest value less than or equal to the given value",
+    "ceilTooltip": "Find the smallest value greater than or equal to the given value",
+    "insertWarning": "Please enter a value to insert",
+    "deleteWarning": "Please enter a value to delete",
+    "searchWarning": "Please enter a search value",
+    "floorWarning": "Floor requires a reference value",
+    "ceilWarning": "Ceil requires a reference value",
+    "deleteNotFound": "Value {{val}} does not exist"
+  },
+  "statusLegend": {
+    "notVisited": "Not Visited",
+    "visitedPath": "Visited Path",
+    "exploreDirection": "Explore Direction",
+    "currentNode": "Current Node",
+    "completeTarget": "Complete / Target"
+  },
+  "relatedProblems": {
+    "700": "BST basics: search for a node in a binary search tree",
+    "701": "BST insertion: insert a new node into a binary search tree",
+    "98": "BST validation: determine if a binary tree is a valid BST"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concept",
+        "content": "A Binary Search Tree is a [[primary|divide-and-conquer]] structure — like flipping through a phone book, each comparison eliminates half the remaining nodes. Every **node** strictly follows the [[primary|left-smaller, right-larger]] rule.",
+        "items": [
+          "Strict ordering: a **node**'s **left subtree** holds only smaller values, the **right subtree** holds only larger values, maintaining the [[primary|left-smaller, right-larger]] invariant throughout",
+          "Recursive property: every **subtree** must itself be a valid BST, and [[primary|duplicate keys]] are generally not permitted",
+          "Efficient operations: like binary search on an array, each step downward eliminates half the search space, achieving [[primary|logarithmic time]] lookup"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Performance depends entirely on tree height. A balanced tree halves the data at each step, but a degenerate tree that collapses into a one-sided linked list sees performance drop sharply.",
+        "items": [
+          "Search: compare keys and walk downward — average [[success|O(log n)]], worst-case degrades to [[danger|O(n)]]",
+          "Insert: traverse to the correct empty position — average [[success|O(log n)]], worst-case degrades to [[danger|O(n)]]",
+          "Delete: locate a predecessor or successor based on child count — average [[success|O(log n)]], worst-case degrades to [[danger|O(n)]]"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What Can Be Optimized",
+        "content": "The standard structure handles random data well, but struggles with **sorted input**, which causes it to degenerate into an inefficient **linked list**. Switch to **AVL Trees** or **Red-Black Trees** — **self-balancing BST** variants — to address this.",
+        "items": [
+          "Great for dynamic management: ideal for datasets with frequent **searches**, **inserts**, and **deletes** on random data while maintaining strong performance",
+          "Great for maintaining order: **inorder traversal** instantly produces a sorted sequence, useful for dictionaries and **priority queues**",
+          "Poor with sorted input: inserting ascending or descending data in sequence causes severe skew and degrades to an **O(n)** **linked list**",
+          "Optimized alternatives: to guard against imbalance, switch to **AVL Trees** or other **self-balancing BSTs** to guarantee **logarithmic time** performance"
+        ],
+        "icon": "lightbulb"
+      },
+      {
+        "heading": "When to Use a BST",
+        "content": "Reach for a BST when a problem requires maintaining a dynamically changing data stream with frequent inserts and deletes, while also needing fast lookup of extremes, specific ranks, or nearest neighbors.",
+        "items": [
+          "Problems requiring dynamic lookup of a specific rank, such as **K-th Smallest Element (Select K)**",
+          "Scenarios needing fast retrieval and removal of both maximum and minimum values — a **double-ended priority queue**",
+          "Problems counting smaller elements to the right of each element in a dynamic array — **Count Smaller Elements**",
+          "Problems dynamically finding the smallest value greater than the current element — **Smallest Greater Element**"
+        ],
+        "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Node Deletion Mechanics",
+        "content": "Deletion is more complex than insertion — it must be handled differently depending on how many children the target node has. The **two-children** case, which requires finding a replacement, is the most involved and the most common sticking point for beginners.",
+        "items": [
+          "When the target has **no children**, simply remove the **leaf node** — no structural repair needed, [[success|O(1)]] extra work",
+          "When the target has **one child**, remove the node and link its single child directly to the parent — [[success|O(1)]] extra work",
+          "When the target has **two children**, spend [[warning|O(h)]] finding the **right subtree minimum** or **left subtree maximum** to replace it"
+        ],
+        "icon": "scissors"
+      },
+      {
+        "heading": "Self-Balancing Search Trees",
+        "content": "The standard BST degenerates into a **linked list** under extreme input. In practice, variants like **AVL Trees** and **Red-Black Trees** are used to guarantee [[success|O(log n)]] performance under any conditions.",
+        "items": [
+          "Inserting already-sorted data causes severe skew, degrading performance to [[danger|O(n)]]",
+          "In practice, **AVL Trees** and **Red-Black Trees** — **self-balancing BSTs** — are used to prevent degeneration",
+          "When the tree becomes unbalanced, **tree rotations** and color-flip operations automatically restore balance",
+          "Regardless of how data is inserted or deleted, lookup, insert, and delete all stay at [[success|O(log n)]]"
+        ],
+        "icon": "scale-balanced"
+      }
+    ]
+  }
+}

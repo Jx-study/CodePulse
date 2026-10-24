@@ -75,7 +75,7 @@ DATA = {
     "slug": "dijkstra",
     "groups": [
         {
-            "id": "group-dijkstra-path",
+            "id": "dijkstra-group-1",
             "visual_type": "image",
             "visual_data": {
                 "url": "https://res.cloudinary.com/dpte4xere/image/upload/v1779000041/dijkstra-weighted-graph01_p7hmzo.png"
@@ -126,7 +126,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-tf-1",
+            "id": "dijkstra-q2",
             "type": "true-false",
             "baseRating": 850,
             "correctAnswer": "true",
@@ -144,7 +144,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q2",
+            "id": "dijkstra-q3",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -172,7 +172,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-tf-2",
+            "id": "dijkstra-q4",
             "type": "true-false",
             "baseRating": 1000,
             "correctAnswer": "true",
@@ -190,7 +190,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q3",
+            "id": "dijkstra-q5",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -218,8 +218,8 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-group-1",
-            "groupId": "group-dijkstra-path",
+            "id": "dijkstra-q6",
+            "groupId": "dijkstra-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "B",
@@ -247,7 +247,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q4",
+            "id": "dijkstra-q7",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "B",
@@ -275,8 +275,8 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-group-2",
-            "groupId": "group-dijkstra-path",
+            "id": "dijkstra-q8",
+            "groupId": "dijkstra-group-1",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -304,7 +304,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q5",
+            "id": "dijkstra-q9",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -332,7 +332,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q6",
+            "id": "dijkstra-q10",
             "type": "single-choice",
             "baseRating": 1500,
             "correctAnswer": "B",
@@ -360,7 +360,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q7",
+            "id": "dijkstra-q11",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "B",
@@ -388,7 +388,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-multi-1",
+            "id": "dijkstra-q12",
             "type": "multiple-choice",
             "baseRating": 1100,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -416,7 +416,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q8",
+            "id": "dijkstra-q13",
             "type": "single-choice",
             "baseRating": 900,
             "correctAnswer": "B",
@@ -444,8 +444,8 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-group-3",
-            "groupId": "group-dijkstra-path",
+            "id": "dijkstra-q14",
+            "groupId": "dijkstra-group-1",
             "type": "fill-code",
             "baseRating": 1250,
             "correctAnswer": ["v", "dist[u]", "w"],
@@ -465,7 +465,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-q9",
+            "id": "dijkstra-q15",
             "type": "single-choice",
             "baseRating": 1050,
             "correctAnswer": "C",
@@ -493,7 +493,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-multi-2",
+            "id": "dijkstra-q16",
             "type": "multiple-choice",
             "baseRating": 1750,
             "correctAnswer": ["opt1", "opt2", "opt4"],
@@ -521,7 +521,7 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-fill-1",
+            "id": "dijkstra-q17",
             "type": "fill-code",
             "baseRating": 1150,
             "correctAnswer": ["dist[u]", "weight", "alt"],
@@ -541,22 +541,22 @@ DATA = {
             },
         },
         {
-            "id": "dijkstra-pred-1",
+            "id": "dijkstra-q18",
             "type": "predict-line",
             "baseRating": 1500,
-            "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 10 11 12 13 5 6 7 9 10 11 12 13 5 6 7 5 6 7 8 5 14",
+            "correctAnswer": "1 2 3 4 5 6 7 9 10 11 12 13 9 5 6 7 9 5 14",
             "code": DIJKSTRA_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀 dijkstra 函數。使用圖 graph = {0: [(1, 1)], 1: []}（節點 0 有一條權重 1 的邊指向節點 1），呼叫 dijkstra(graph, 0) 時，請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "L1-L4 初始化；L5 while pq；L6 pop (0,0)；L7 0>0? No；L9 處理節點 0 的邊 (1,1)；L10 new_d=1；L11 1<inf? Yes；L12 dist[1]=1；L13 push；L5 再進；L6 pop (1,1)；L7 1>1? No；L9 節點 1 無邊，迴圈空；L5 pq 空，結束；L14 return。",
+                    "explanation": "L1 進入 → L2-L4 初始化。L5 pq 非空 → L6 pop (0, 0) → L7 0 > 0? 否 → L9 處理節點 0 的邊 (1, 1) → L10 new_d = 1 → L11 1 < inf? 是 → L12 dist[1] = 1 → L13 push (1, 1) → L9 節點 0 的邊處理完。L5 → L6 pop (1, 1) → L7 1 > 1? 否 → L9 節點 1 沒有邊，for 直接結束。L5 pq 已空 → L14 回傳。完整序列：1 2 3 4 5 6 7 9 10 11 12 13 9 5 6 7 9 5 14。",
                 },
                 "en": {
                     "title": "Read the dijkstra function. Using graph = {0: [(1, 1)], 1: []} (node 0 has one edge with weight 1 to node 1), calling dijkstra(graph, 0) — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "L1-L4 initialize; L5 while pq; L6 pop (0,0); L7 0>0? No; L9 process node 0's edge (1,1); L10 new_d=1; L11 1<inf? Yes; L12 dist[1]=1; L13 push; L5 again; L6 pop (1,1); L7 1>1? No; L9 node 1 has no edges, loop empty; L5 pq empty, exit; L14 return.",
+                    "explanation": "L1 enter → L2-L4 initialize. L5 pq non-empty → L6 pop (0, 0) → L7 0 > 0? No → L9 process node 0's edge (1, 1) → L10 new_d = 1 → L11 1 < inf? Yes → L12 dist[1] = 1 → L13 push (1, 1) → L9 node 0's edges done. L5 → L6 pop (1, 1) → L7 1 > 1? No → L9 node 1 has no edges, the for loop ends immediately. L5 pq empty → L14 return. Full sequence: 1 2 3 4 5 6 7 9 10 11 12 13 9 5 6 7 9 5 14.",
                 },
             },
         },

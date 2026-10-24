@@ -26,6 +26,13 @@ def create_app(config_name=None):
     app.config.from_object(cfg)
     cfg.init_app(app)
 
+    if config_name == 'production':
+        # 生產環境 gunicorn 綁 127.0.0.1，前面有 reverse proxy：
+        # 沒有 ProxyFix 時 request.remote_addr 恆為 proxy IP，
+        # flask-limiter 的 per-IP 限制會退化成全站共用一個配額
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
     limiter.init_app(app)
 
     logging.basicConfig(level=logging.INFO)
@@ -57,6 +64,16 @@ def create_app(config_name=None):
 
     if not app.config.get("TESTING") and os.getenv("SKIP_ML_WARMUP") != "1":
         algo_warmup()
+
+    @app.errorhandler(429)
+    def handle_rate_limit(e):
+        # flask-limiter 觸發限流時預設回 HTML，統一轉成前端可解析的 JSON。
+        # 各 route 自行 jsonify 的 429（如重寄驗證碼冷卻）不走此 handler。
+        return jsonify({
+            'success': False,
+            'error_code': 'RATE_LIMITED',
+            'message': '操作太頻繁，請幾分鐘後再試',
+        }), 429
 
     @app.route('/api/health')
     def health_check():

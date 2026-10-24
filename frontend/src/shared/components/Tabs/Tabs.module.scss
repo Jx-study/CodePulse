@@ -65,6 +65,15 @@
   }
 }
 
+// disabled 的 button 不會觸發 hover，讓外層 wrapper 接收滑鼠事件才能顯示 disabledHint
+.tabDisabledWrapper {
+  cursor: not-allowed;
+
+  > button {
+    pointer-events: none;
+  }
+}
+
 // ========== Size Variants ==========
 .sm .tab {
   padding: $spacing-xs $spacing-md;

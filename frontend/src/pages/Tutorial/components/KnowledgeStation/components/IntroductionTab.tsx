@@ -9,6 +9,7 @@ import styles from './IntroductionTab.module.scss';
 interface IntroductionTabProps {
   introduction: IntroductionContent;
   i18nNamespace?: string;
+  isDataStructure?: boolean;
 }
 
 const DEFAULT_SECTION_ICONS: IconName[] = [
@@ -29,8 +30,11 @@ function isIntroductionSectionArray(value: unknown): value is IntroductionSectio
 const IntroductionTab: React.FC<IntroductionTabProps> = ({
   introduction,
   i18nNamespace,
+  isDataStructure = false,
 }) => {
   const { t } = useTranslation(i18nNamespace ?? 'common');
+  const { t: tUi } = useTranslation('tutorial');
+  const titleKey = isDataStructure ? 'introductionTab.dataStructureTitle' : 'introductionTab.algorithmTitle';
 
   if (typeof introduction === 'string') {
     return (
@@ -38,7 +42,7 @@ const IntroductionTab: React.FC<IntroductionTabProps> = ({
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>
             <span className={styles.cardTitleIcon}><Icon name="compass" decorative /></span>
-            演算法簡介
+            {tUi(titleKey)}
           </h3>
           <p className={styles.cardContent}>{introduction}</p>
         </div>
@@ -57,9 +61,9 @@ const IntroductionTab: React.FC<IntroductionTabProps> = ({
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>
             <span className={styles.cardTitleIcon}><Icon name="compass" decorative /></span>
-            演算法簡介
+            {tUi(titleKey)}
           </h3>
-          <p className={styles.cardContent}>尚未提供教學內容。</p>
+          <p className={styles.cardContent}>{tUi('introductionTab.noContent')}</p>
         </div>
       </div>
     );

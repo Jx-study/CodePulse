@@ -51,6 +51,7 @@
 
 .macWindow {
   text-align: left;
+  border-radius: 8px 8px 0 0;
 
   @include mobile {
     font-size: $font-xs;

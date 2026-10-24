@@ -139,6 +139,55 @@
   line-height: 1.7;
 }
 
+// Algorithm tab
+.algoBlock {
+  padding: $spacing-sm;
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+}
+
+.algoName {
+  font-family: "SF Mono", Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: $font-lg;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: capitalize;
+}
+
+.algoConfidence {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+  border-radius: $radius-sm;
+  padding: 2px $spacing-xs;
+  font-size: $font-2xs;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.tutorialCta {
+  background: var(--bg-tutorial-cta, color-mix(in srgb, var(--color-primary) 6%, var(--bg-secondary)));
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+  border-radius: $radius-xl;
+  padding: $spacing-sm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.tutorialCtaHint {
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
 .suggestions {
   list-style: none;
   display: flex;

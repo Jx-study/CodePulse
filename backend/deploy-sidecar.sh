@@ -5,6 +5,9 @@ REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 IMAGE="codepulse-sidecar"
 CONTAINER="sandbox-sidecar"
 
+echo "Building codepulse-sandbox..."
+docker build -t codepulse-sandbox -f "$REPO_DIR/backend/docker/Dockerfile" "$REPO_DIR/backend/"
+
 echo "Building $IMAGE..."
 docker build -t "$IMAGE" "$REPO_DIR/backend/sandbox_sidecar"
 

@@ -1,14 +1,13 @@
 import { useEffect, useRef } from "react";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import Button from "@/shared/components/Button";
 import type { BaseCanvasProps } from "@/types/components/display";
-import canvasStyles from "./canvas.module.scss";
+import CanvasShell from "./CanvasShell";
 import styles from "./CytoscapeCanvas.module.scss";
 
 cytoscape.use(dagre);
 
-export interface CytoscapeCanvasProps extends BaseCanvasProps {
+interface CytoscapeCanvasProps extends BaseCanvasProps {
   elements: cytoscape.ElementDefinition[];
   stylesheet: cytoscape.StylesheetStyle[];
   layout?: cytoscape.LayoutOptions;
@@ -116,22 +115,14 @@ function CytoscapeCanvas({
   };
 
   return (
-    <div className={styles.container}>
+    <CanvasShell
+      enableZoom={enableZoom}
+      enablePan={enablePan}
+      showStatusLegend={false}
+      onReset={handleReset}
+    >
       <div ref={containerRef} className={styles.cytoscape} />
-      {(enableZoom || enablePan) && (
-        <div className={canvasStyles.resetButtonContainer}>
-          <Button
-            variant="icon"
-            size="sm"
-            onClick={handleReset}
-            aria-label="重置視圖"
-            className={canvasStyles.resetButton}
-            icon="rotate-right"
-            iconOnly
-          />
-        </div>
-      )}
-    </div>
+    </CanvasShell>
   );
 }
 

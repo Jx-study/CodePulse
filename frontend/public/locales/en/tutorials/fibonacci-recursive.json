@@ -1,0 +1,51 @@
+{
+  "animation": {
+    "start": "Preparing to calculate Fibonacci({{targetN}})",
+    "call": "Diving into recursion: calling fib({{n}})",
+    "base": "Reached the base case! fib({{n}}) = {{result}}, preparing to return",
+    "calc": "Combining results: fib({{n}}) = left subtree ({{leftVal}}) + right subtree ({{rightVal}}) = {{result}}",
+    "done": "Calculation complete! The final result at the root node is {{result}}"
+  },
+  "ui": {
+    "label": "Fibonacci Recursive",
+    "placeholder": "Input N (1-6)",
+    "button": "Run Recursion",
+    "validation": "Please enter a number between 1 and 6 (recursive tree grows fast)",
+    "ariaLabel": "Input N for Fibonacci Recursive"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "Recursion solves a big problem by splitting it into **smaller problems of the same shape**. The Fibonacci definition F(n) = F(n-1) + F(n-2) is naturally recursive.",
+        "items": [
+          "**Base Case**: F(0) = 0 and F(1) = 1 are the [[primary|stopping conditions]]",
+          "Each call spawns **two** more calls, forming a recursion tree",
+          "Call state lives on the **call stack** until the Base Case returns",
+          "Results are then **combined** layer by layer into the final answer"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Because every call produces two sub-calls, the number of calls roughly doubles with each extra level.",
+        "items": [
+          "**Time complexity**: [[danger|O(2ⁿ)]] — call count grows exponentially with n",
+          "**Space complexity**: [[warning|O(n)]] — the maximum call-stack depth is n",
+          "Naive recursion becomes noticeably slow once n reaches around 40"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "Why It Is So Slow",
+        "content": "The recursion tree shows identical subproblems (such as f(2)) being **recomputed** a huge number of times.",
+        "items": [
+          "**Overlapping subproblems** are the root cause of the inefficiency",
+          "**Memoization**: cache computed results so each repeated subproblem is solved once, cutting time to [[success|O(n)]]; it uses the same recurrence as DP, just top-down",
+          "Better still, use **dynamic programming** to compute bottom-up and avoid recursion overhead entirely"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
+  }
+}

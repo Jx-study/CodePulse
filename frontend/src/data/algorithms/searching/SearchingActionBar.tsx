@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import Input from "@/shared/components/Input";
 import { toast } from "@/shared/components/Toast";
+import { DATA_LIMITS, clampNumberInput } from "@/constants/dataLimits";
 import type { AlgoActionBarProps } from "@/types/implementation";
 import {
   ActionBarContainer,
@@ -21,6 +23,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
   onRun,
   maxNodes,
 }) => {
+  const { t } = useTranslation("tutorials/searching");
   const [searchValue, setSearchValue] = useState("");
 
   const handleRun = () => {
@@ -28,7 +31,7 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
     if (!isNaN(val)) {
       onRun({ type: "searching", searchValue: val });
     } else {
-      toast.warning("請輸入有效的搜尋數值");
+      toast.warning(t("ui.invalidInput"));
     }
   };
 
@@ -42,31 +45,35 @@ export const SearchingActionBar: React.FC<AlgoActionBarProps> = ({
           onMaxNodesChange={onMaxNodesChange}
           disabled={disabled}
           maxNodes={maxNodes}
+          minValue={DATA_LIMITS.MIN_NODE_VALUE}
+          maxValue={DATA_LIMITS.MAX_NODE_VALUE}
         />
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Searching Control</StaticLabel>
+        <StaticLabel>{t("ui.searchingControl")}</StaticLabel>
         <Input
           type="number"
-          placeholder="搜尋值"
+          placeholder={t("ui.searchValue")}
           value={searchValue}
+          min={DATA_LIMITS.MIN_NODE_VALUE}
+          max={DATA_LIMITS.MAX_NODE_VALUE}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSearchValue(e.target.value)
+            setSearchValue(clampNumberInput(e.target.value, DATA_LIMITS.MIN_NODE_VALUE, DATA_LIMITS.MAX_NODE_VALUE))
           }
           className={`${styles.input} ${styles.valueInput}`}
           disabled={disabled}
           fullWidth={false}
           aria-label="Search value"
         />
-        <Tooltip content="執行搜尋演算法">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             onClick={handleRun}
             disabled={disabled}
             className={`${styles.runButton} ${styles.runButtonSearching}`}
           >
-            開始搜尋
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

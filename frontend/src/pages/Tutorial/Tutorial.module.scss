@@ -14,12 +14,22 @@
   align-items: center;
   justify-content: space-between;
   gap: $spacing-md;
+
+  @include mobile {
+    padding: $spacing-xs $spacing-xs;
+    gap: $spacing-xs;
+  }
 }
 
 .buttonGroup {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
+  flex-shrink: 0;
+
+  @include mobile {
+    gap: $spacing-xs;
+  }
 }
 
 .swapButton {

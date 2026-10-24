@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/shared/components/Button";
 import Tooltip from "@/shared/components/Tooltip";
 import {
@@ -16,6 +17,7 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
   disabled = false,
   onRun,
 }) => {
+  const { t } = useTranslation("tutorials/topological-sort");
   const [showLoader, setShowLoader] = useState(false);
 
   return (
@@ -27,17 +29,17 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
       />
 
       <ActionBarGroup>
-        <Tooltip content="自定義有向無環圖 (DAG)">
+        <Tooltip content={t("ui.loadTooltip")}>
           <Button
             size="sm"
             onClick={() => setShowLoader(true)}
             disabled={disabled}
             icon="download"
           >
-            載入資料
+            {t("ui.load")}
           </Button>
         </Tooltip>
-        <Tooltip content="清除所有資料，恢復預設">
+        <Tooltip content={t("ui.resetTooltip")}>
           <Button
             variant="secondary"
             size="sm"
@@ -45,10 +47,10 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
             disabled={disabled}
             icon="rotate-right"
           >
-            重設
+            {t("ui.reset")}
           </Button>
         </Tooltip>
-        <Tooltip content="隨機生成有向無環圖 (DAG)">
+        <Tooltip content={t("ui.randomTooltip")}>
           <Button
             variant="secondary"
             size="sm"
@@ -56,13 +58,13 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
             disabled={disabled}
             icon="shuffle"
           >
-            隨機圖形
+            {t("ui.random")}
           </Button>
         </Tooltip>
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <Tooltip content="執行 Kahn's Algorithm (拓撲排序)">
+        <Tooltip content={t("ui.runTooltip")}>
           <Button
             size="sm"
             onClick={() => onRun()}
@@ -71,7 +73,7 @@ export const TopologicalSortActionBar: React.FC<AlgoActionBarProps> = ({
             icon="play"
             variant="secondary"
           >
-            開始拓撲排序
+            {t("ui.run")}
           </Button>
         </Tooltip>
       </ActionBarGroup>

@@ -3,46 +3,65 @@
     "sections": [
       {
         "heading": "Core Concept",
-        "content": "The core idea of an array is: **contiguous storage + fixed indexes**.",
+        "content": "An array is like a box packed with macarons, dedicated to storing data of the same type. Under the hood it allocates a block of [[primary|contiguous space]] and uses [[primary|fixed indexes]] to compute the exact storage address of every **element**.",
         "items": [
-          "**Zero-based indexing**: the first element is at Index 0.",
-          "For length **n**, the last element is at **Index n - 1**.",
-          "If you know the index, you can jump directly to the element. That is **Random Access**."
+          "[[primary|Single type]]: just as the box only holds macarons, an array's **elements** must share one data type and cannot be mixed",
+          "[[primary|Adjacent storage]]: macarons sit side by side, and an array likewise occupies contiguous **memory** addresses with no gaps in between",
+          "[[primary|Fixed length]]: the box size cannot change, so an array's length must be specified in advance; data is accessed directly through its **index**"
         ],
         "icon": "compass"
       },
       {
         "heading": "Operation Complexity",
-        "content": "To estimate array operation cost, ask: **Do we know the index? Do elements need to shift?**",
+        "content": "Thanks to contiguous memory, arrays read data extremely fast. But changing an element in the middle requires shifting many elements to keep things contiguous, which carries a higher time cost.",
         "items": [
-          "**Read / update**: known index, time complexity [[success|O(1)]].",
-          "**Search**: unknown position, scan one by one; worst case [[warning|O(n)]].",
-          "**Append**: dynamic arrays are usually amortized [[success|O(1)]]; resizing may copy the whole array.",
-          "**Insert / delete at front or middle**: elements must shift; worst case [[warning|O(n)]]."
+          "**Read or update data**: [[success|O(1)]], the index lets you access the corresponding memory address directly.",
+          "**Search data**: [[warning|O(n)]], when the position is unknown you must scan from the start one cell at a time, comparing up to n times in the worst case",
+          "**Append or remove at the tail**: [[success|O(1)]], other elements are unaffected, so you just operate at the array's end",
+          "**Insert or delete in the middle**: [[warning|O(n)]], to preserve contiguity you must shift every element after the target position"
         ],
         "icon": "cog"
       },
       {
         "heading": "What It Optimizes",
-        "content": "Arrays are strong when a problem is about **known positions, preserved order, and linear scans**.",
+        "content": "Arrays suit **frequent reads** and data of fixed length. For heavy **dynamic insertion and deletion**, a traditional array is very costly, so switch to an alternative structure in scenarios it handles poorly.",
         "items": [
-          "Good for getting the **k-th element** or updating a known position.",
-          "Good for scanning left to right and reasoning about **neighbors** or **ranges**.",
-          "Often used as the base for **prefix sums, two pointers, sliding windows, and sorting**.",
-          "Not ideal for frequent front or middle insert/delete; consider **Linked List** or **Deque**."
+          "Good for **random access**: when you frequently look up data at specific positions (such as matrix operations), the index enables extremely fast reads",
+          "Poor for **frequent insert/delete in the middle**: shifting large amounts of data is inefficient, so consider a **linked list** here",
+          "Poor for **data of unknown length**: a traditional array has a fixed length and overflows easily, so use a **dynamic array** when the size cannot be estimated"
         ],
         "icon": "lightbulb"
       },
       {
         "heading": "When To Use It",
-        "content": "Start with arrays when you see these clues:",
+        "content": "When a problem hints at contiguous indexes, multidimensional matrix operations, or frequent random reads of specific data, think of arrays. They are great for storing state and batch numeric processing.",
         "items": [
-          "The data has order, and the problem mentions **index / position**.",
-          "You need to preserve or rearrange order, such as **Rotate Array**.",
-          "You need to scan a sequence, such as **Remove Element**.",
-          "You need index-based lookup or bookkeeping, such as **Two Sum**."
+          "For a **Find the Missing Number** problem about gaps in a run of consecutive numbers, traverse the array and compute a sum to solve it",
+          "A **2D Matrix Transpose** involving row/column swaps or grid structures relies heavily on the fixed-index access of multidimensional arrays",
+          "A **lookup table** scenario that pre-stores state for ultra-fast retrieval maps perfectly onto direct array-index access",
+          "**Vector quantization** involving coordinate-distance comparisons or heavy numeric computation is ideal for the efficiency of array traits"
         ],
         "icon": "location-crosshairs"
+      },
+      {
+        "heading": "Array vs. List",
+        "content": "Beginners often confuse traditional arrays with lists. An array is [[primary|homogeneous]] and **fixed size**, while a list is [[primary|heterogeneous]] and **dynamically resizable**. Clarifying these underlying differences avoids conceptual and structural misuse.",
+        "items": [
+          "**Data type**: a traditional array stores only a [[primary|single type]]; a list is flexible and can mix various **heterogeneous data**",
+          "**Length adjustment**: a traditional array allocates [[primary|fixed space]] and cannot expand; a list grows or shrinks with its contents, automatically **resizing dynamically**",
+          "**Underlying structure**: a traditional array stores actual values contiguously; a list instead stores a collection of [[primary|pointers]] to separate, independent objects"
+        ],
+        "icon": "right-left"
+      },
+      {
+        "heading": "Dynamic Array Resizing",
+        "content": "When a dynamic array runs out of space, it incurs the hidden cost of **reallocating memory** and **moving every element**. Understanding this growth mechanism helps beginners avoid a potential [[danger|performance trap]].",
+        "items": [
+          "**Full-capacity trigger**: when the reserved space is exhausted but more data must be added, the underlying layer must request a larger, brand-new block of **contiguous memory** from the system",
+          "**Cost of moving data**: after obtaining the new space, every old array element must be copied over, incurring a hidden time cost as high as [[danger|O(n)]]",
+          "**Trading space for time**: to avoid frequent moves, the underlying layer usually pre-allocates space larger than actually needed, by a multiple (such as 1.5x or 2x)"
+        ],
+        "icon": "layer-group"
       }
     ]
   },
@@ -55,16 +74,139 @@
     "update_start": "Access Index {{index}}",
     "update_assign": "Update Index {{index}} to {{value}}",
     "update_complete": "Update complete",
+    "update_check_index": "Check if Index {{index}} is in range (length {{length}})",
     "update_error": "Error: Index {{index}} out of range",
+    "insert_check_full": "Check whether the array is full: length {{length}}, capacity {{capacity}}",
+    "insert_error": "The array is full ({{length}}/{{capacity}}), so nothing can be inserted (Return Error)",
+    "insert_check_index": "Check whether Index {{index}} exceeds the current length {{length}}",
+    "insert_clamp": "Index {{index}} exceeds length {{length}}, so insert at the end (Index {{clamped}}) instead",
     "insert_start": "Expand array by one slot at the end",
     "insert_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) right to Index {{to}}",
     "insert_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "insert_assign": "Insert value {{value}} at Index {{index}}",
     "insert_complete": "Insert complete",
-    "delete_start": "Mark Index {{index}} (value: {{value}}) for deletion",
+    "delete_start": "Mark Index {{index}} ({{value}}) for deletion",
+    "delete_check_index": "Check if Index {{index}} is in range (length {{length}})",
+    "delete_error": "Error: Index {{index}} out of range, cannot delete",
     "delete_shift_prepare": "Prepare to shift Index {{from}} ({{fromValue}}) left to Index {{to}}",
     "delete_shift_done": "Shift complete: Index {{index}} is now {{value}}",
     "delete_remove": "Remove the last redundant slot",
     "delete_complete": "Delete complete"
+  },
+  "ui": {
+    "operations": "Array Operations",
+    "valuePlaceholder": "Value",
+    "indexPlaceholder": "Index",
+    "searchPlaceholder": "Search Value",
+    "insert": "Insert",
+    "update": "Update",
+    "delete": "Delete",
+    "search": "Search",
+    "insertTooltip": "Insert an element at the specified index",
+    "updateTooltip": "Update the element's value at the specified index",
+    "deleteTooltip": "Delete the element at the specified index",
+    "searchTooltip": "Search for a specific value in the array",
+    "insertWarning": "Please enter a value to insert",
+    "updateWarning": "Update requires both a value and an index",
+    "updateIndexOutOfRange": "Index out of range. Valid range: 0 – {{max}}",
+    "deleteWarning": "Please enter an index to delete",
+    "searchWarning": "Please enter a search value"
+  },
+  "relatedProblems": {
+    "1": "Array basics: find two numbers in an array that add up to the target",
+    "27": "Array deletion: remove specified elements in-place",
+    "189": "Array manipulation: rotate array elements"
+  },
+  "stories": {
+    "array-whack-a-mole": {
+      "title": "Array Index Whack-a-Mole: Why O(1) Direct Access Is Blazing Fast",
+      "category": "Game Development",
+      "tags": ["Array", "Indexing", "Random Access", "O(1)"],
+      "content": {
+        "sections": [
+          {
+            "heading": "Why Is Array Lookup So Fast?",
+            "content": "Arrays occupy contiguous positions in memory. Each element's address = base address + index × element size. This formula requires only one multiplication and one addition — no matter how long the array, the time is always O(1)."
+          },
+          {
+            "heading": "Whack-a-Mole Is the Essence of Direct Access",
+            "content": "In the whack-a-mole game below, each hole has a clear index label. When a mole pops up at index 5, your eyes directly lock onto slot 5 — no counting from the start, no traversal. This is the essence of array[5]: give me an index, and I'll give you the answer instantly."
+          },
+          {
+            "heading": "1D vs 2D: Same Principle, Different Dimensions",
+            "content": "A 1D array uses a single index; a 2D array uses [row][col] two coordinates. But the principle is identical: address = base + (row × cols + col) × size. No matter how large the grid, knowing the coordinates lets you arrive instantly — just like knowing [2][1] in a 3×3 grid takes you directly to that hole."
+          }
+        ]
+      }
+    },
+    "tech-array-001": {
+      "title": "Arrays in Action: From Daily Life to Screen — The Invisible Backbone of the Digital World",
+      "category": "Digital Technology / Algorithm Science",
+      "tags": ["Array", "Data Structures", "Multidimensional Arrays"],
+      "content": {
+        "sections": [
+          {
+            "content": "Arrays are the skeleton of our entire digital world, hidden everywhere in our phones and computers. You can think of an array as a row of perfectly organized lockers — each locker holds items of the same type, arranged consecutively with no gaps. This structure transforms chaos into order; for example, instead of declaring 60 separate variables for 60 students, using an array with 60 slots is far cleaner and more manageable."
+          },
+          {
+            "heading": "1D Arrays: The Linear Lists of Life",
+            "content": "A one-dimensional array is a linear list. Egg cartons, movie theater seats, your Spotify playlist, contact lists, and a weather station's weekly temperature records are all real-world 1D arrays. The greatest power of arrays lies in their \"Index\" — like a locker number — letting the computer instantly locate any specific piece of data with maximum efficiency. Notably, in computer programming, indices usually start from 0."
+          },
+          {
+            "heading": "2D Arrays: Tables and Digital Images",
+            "content": "Stack a few lines together to form a flat grid, and you get a 2D array. Besides the Excel spreadsheets you use every day and chessboards, every digital photo on your phone is fundamentally a 2D array. Zoom in to maximum and you'll see a grid made of \"pixels\"; in a grayscale photo, each pixel stores a number representing brightness (e.g., 0 for pure black, 255 for pure white). In computer graphics, this matrix is sometimes called a \"channel.\""
+          },
+          {
+            "heading": "3D and 4D Arrays: Color and Motion Video",
+            "content": "Arrays can continue to stack dimensions. Layer three 2D arrays representing red (R), green (G), and blue (B) channels, and you get a full-color 3D array photograph. Medical MRI scans and 3D models in computer graphics are also 3D array applications.\n\nWhen we string a series of 3D arrays (color photos) together along the \"time\" dimension, we get a \"4D array\" — which is essentially the videos we watch every day. The YouTube video you're watching is at its core a massive 4D array playing back rapidly. Video games and VR also rely on 4D arrays to store and render the virtual worlds players interact with."
+          },
+          {
+            "heading": "Higher Dimensions: The Future of Scientific Computing",
+            "content": "5D arrays (formed by stacking multiple 4D arrays) are currently used primarily in physics and chemistry to run molecular dynamics or quantum mechanics simulations, capturing complex changes in particle positions and velocities."
+          },
+          {
+            "content": "In summary, arrays are the foundation of all high-performance computing. Because of their simple, contiguous memory layout, computers can \"hop\" to retrieve data at any position instantly — which is why everything from game map coordinates and database systems to today's hottest AI machine learning models all rely on arrays at their core."
+          }
+        ]
+      },
+      "videoTitle": "Arrays in Action: From Daily Life to Screen.mp4",
+      "resources": [
+        { "title": "Applications of Array Explained", "source": "Masai School" },
+        { "title": "Arrays in C Programming with Practical Examples Guide", "source": "Naresh IT" },
+        { "title": "n-D arrays understanding with real life examples", "source": "DEV Community" }
+      ]
+    }
+  },
+  "game": {
+    "whackAMole": {
+      "config": {
+        "mode": "Mode",
+        "cols": "Columns",
+        "rows": "Rows",
+        "difficulty": "Difficulty"
+      },
+      "modes": {
+        "1d": "1D Array",
+        "2d": "2D Array"
+      },
+      "difficulties": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+      "stats": {
+        "score": "Score: {{n}}",
+        "missed": "Missed: {{n}}",
+        "combo": "Combo: {{n}}",
+        "maxCombo": "Max Combo: {{n}}",
+        "time": "Time: {{n}}s",
+        "nextHint": "Next: {{label}}"
+      },
+      "controls": {
+        "start": "Start",
+        "restart": "Restart"
+      },
+      "gameover": "Game Over — Final Score {{score}}, Max Combo {{maxCombo}}, Missed {{missed}}"
+    }
   }
 }

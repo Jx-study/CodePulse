@@ -52,6 +52,22 @@
 .sm {
   width: 90vw;
   max-width: 600px;
+
+  .dialogHeader {
+    padding: $spacing-xs $spacing-md;
+
+    h2 {
+      font-size: $font-lg;
+    }
+  }
+
+  .dialogContent {
+    padding: $spacing-sm $spacing-md;
+  }
+
+  .dialogFooter {
+    padding: $spacing-xs $spacing-md;
+  }
 }
 
 .md {

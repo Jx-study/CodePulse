@@ -140,6 +140,9 @@ def _serialize_questions(questions: list, lang: str) -> list[dict]:
             'group_id': q.group_id,
             'stem': qt.stem if qt else '',
             'options': qt.options if qt else [],
+            'visual_type': q.visual_type,
+            'visual_data': q.visual_data,
+            'visual_alt': qt.visual_alt if qt else None,
         }
         if q.group_id and q.group_id in groups:
             grp = groups[q.group_id]
@@ -257,13 +260,16 @@ def _normalize(s: str) -> str:
     return str(s).replace(' ', '')
 
 
-def _check_answer(user_answer, correct_answer: str) -> bool:
+def _check_answer(user_answer, correct_answer: str, question_type=None) -> bool:
     """判斷 user_answer 是否正確
 
     correct_answer 格式有兩種：
     - 純字串（single-choice / true-false / predict-line）：用 | 分隔多個可接受答案
     - JSON 陣列字串（multiple-choice / fill-code）：["ans1", "ans2"]，
       由 seed_questions._serialize_answer 序列化而來，每個位置獨立比對
+
+    question_type：有傳入時以題型決定陣列答案的比對方式（fill-code 按位置、
+    multiple-choice 忽略順序）；未傳入時退回以「是否含 |」推測題型。
     """
     # 嘗試解析 JSON 陣列（multiple-choice / fill-code）
     try:
@@ -288,8 +294,12 @@ def _check_answer(user_answer, correct_answer: str) -> bool:
 
         # fill-code：按位置比對（順序有意義，每格可含 | 等價答案）
         # multiple-choice：選項沒有位置語意，改用排序後集合比對
-        # 判斷方式：correct_list 每格是否含 | → 有的話是 fill-code
-        is_fill_code = any('|' in str(c) for c in correct_list)
+        # 只靠「是否含 |」推測時，沒有等價答案的填空題會被誤當成複選題、
+        # 變成不論順序都判對，所以有題型時一律以題型為準
+        if question_type is not None:
+            is_fill_code = getattr(question_type, 'value', question_type) == 'fill-code'
+        else:
+            is_fill_code = any('|' in str(c) for c in correct_list)
         if is_fill_code:
             for u, c in zip(user_list, correct_list):
                 u_norm = _normalize(u)
@@ -369,7 +379,7 @@ def submit_answers(
         snap_rating = q.difficulty_rating
         points = derive_points(snap_rating)
 
-        is_correct = _check_answer(a['user_answer'], q.correct_answer)
+        is_correct = _check_answer(a['user_answer'], q.correct_answer, q.question_type)
         if is_correct:
             correct_count += 1
             earned_points += points
@@ -543,6 +553,7 @@ def get_question_translations(
                 'stem': qt.stem,
                 'options': qt.options,
                 'explanation': qt.explanation if include_explanation else None,
+                'visual_alt': qt.visual_alt,
             }
 
     g_translations: dict[str, dict] = {}

@@ -4,7 +4,7 @@ import type { ToastItem as ToastItemType } from "./types";
 import styles from "./Toast.module.scss";
 
 const ICON_MAP: Record<ToastItemType["variant"], string> = {
-  warning: "exclamation-circle",
+  warning: "triangle-exclamation",
   error: "exclamation-circle",
   success: "check-circle",
   info: "info-circle",
@@ -33,6 +33,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ item, onClose }) => {
       </div>
       <p className={styles.message}>{item.message}</p>
       <button
+        type="button"
         className={styles.closeBtn}
         onClick={() => onClose(item.id)}
         aria-label="關閉"

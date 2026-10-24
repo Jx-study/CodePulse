@@ -9,7 +9,7 @@ import { Status } from "@/modules/core/DataLogic/BaseElement";
  * Individual status definition
  * 單一狀態定義
  */
-export interface StatusDefinition {
+interface StatusDefinition {
   /** Status identifier (used in code) - 狀態識別碼（程式碼中使用） */
   key: string;
   /** Display name (Chinese label) - 顯示名稱（中文標籤） */
@@ -25,6 +25,8 @@ export interface StatusDefinition {
 export interface StatusConfig {
   /** Array of status definitions (ordered for legend display) - 狀態陣列（依序顯示於圖例） */
   statuses: StatusDefinition[];
+  /** i18n namespace for translating labels; when set, label values are i18n keys */
+  i18nNs?: string;
 }
 
 /**
@@ -38,12 +40,13 @@ export type StatusColorMap = Record<string, string>;
  * 預設狀態配置（對應目前的5個狀態）
  */
 export const DEFAULT_STATUS_CONFIG: StatusConfig = {
+  i18nNs: "common",
   statuses: [
-    { key: Status.Unfinished, label: "未完成", color: "#1d79cfff" },
-    { key: Status.Prepare, label: "準備中", color: "#f59e0b" },
-    { key: Status.Target, label: "目標", color: "#ff6b35" },
-    { key: Status.Complete, label: "完成", color: "#46f336ff" },
-    { key: Status.Inactive, label: "未啟用", color: "#555555" },
+    { key: Status.Unfinished, label: "statusLegend.unfinished", color: "#1d79cfff" },
+    { key: Status.Prepare, label: "statusLegend.prepare", color: "#f59e0b" },
+    { key: Status.Target, label: "statusLegend.target", color: "#ff6b35" },
+    { key: Status.Complete, label: "statusLegend.complete", color: "#46f336ff" },
+    { key: Status.Inactive, label: "statusLegend.inactive", color: "#555555" },
   ],
 };
 
@@ -64,24 +67,4 @@ export function buildStatusColorMap(config: StatusConfig): StatusColorMap {
     map[status.key] = status.color;
   });
   return map;
-}
-
-/**
- * Get color for a status key with fallback mechanism
- * 取得狀態顏色（含 fallback 機制）
- *
- * @param statusKey - The status key to look up
- * @param colorMap - The color map to search in
- * @param fallbackColor - Fallback color if key not found (default: "#888888")
- * @returns The color code
- *
- * @example
- * const color = getStatusColor("prepare", colorMap); // Returns color or fallback
- */
-export function getStatusColor(
-  statusKey: string,
-  colorMap: StatusColorMap,
-  fallbackColor: string = "#888888"
-): string {
-  return colorMap[statusKey] ?? fallbackColor;
 }
