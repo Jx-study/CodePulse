@@ -126,27 +126,26 @@ DATA = {
         },
         {
             "id": "dp-fibonacci-q4",
-            "groupId": "dp-fibonacci-group-1",
             "type": "single-choice",
             "baseRating": 950,
             "correctAnswer": "C",
             "translations": {
                 "zh-TW": {
-                    "title": "「由上而下（記憶化遞迴）」與「由下而上（本題的迴圈填表）」最主要的差別是什麼？",
+                    "title": "「由上而下（記憶化遞迴）」與「由下而上（用迴圈填表）」最主要的差別是什麼？",
                     "options": [
                         {"id": "A", "text": "由上而下的時間複雜度一定較高"},
                         {"id": "B", "text": "由下而上無法得到正確答案"},
-                        {"id": "C", "text": "由下而上從 base case 開始依序往上算，不需要遞迴；由上而下則從目標問題往下遞迴並快取"},
+                        {"id": "C", "text": "由下而上用迴圈從 base case 往上算；由上而下用遞迴加快取"},
                         {"id": "D", "text": "兩者完全相同，只是名稱不同"},
                     ],
                     "explanation": "兩者都避免重複計算、複雜度相同。由下而上用迴圈從最小的子問題逐步推到 n，沒有遞迴開銷；由上而下則由 n 往下遞迴，遇到算過的值就直接取用。",
                 },
                 "en": {
-                    "title": "What is the main difference between top-down (memoized recursion) and bottom-up (the loop filling the table here)?",
+                    "title": "What is the main difference between top-down (memoized recursion) and bottom-up (filling a table with a loop)?",
                     "options": [
                         {"id": "A", "text": "Top-down always has a higher time complexity"},
                         {"id": "B", "text": "Bottom-up cannot produce the right answer"},
-                        {"id": "C", "text": "Bottom-up starts from the base cases and builds upward without recursion; top-down recurses from the target and caches results"},
+                        {"id": "C", "text": "Bottom-up loops up from base cases; top-down recurses with a cache"},
                         {"id": "D", "text": "They are identical, only the names differ"},
                     ],
                     "explanation": "Both avoid recomputation and have the same complexity. Bottom-up uses a loop to go from the smallest subproblems up to n without recursion overhead, while top-down recurses from n and reuses cached values.",
@@ -184,15 +183,14 @@ DATA = {
         },
         {
             "id": "dp-fibonacci-q6",
-            "groupId": "dp-fibonacci-group-1",
             "type": "single-choice",
             "baseRating": 1000,
             "correctAnswer": "A",
             "translations": {
                 "zh-TW": {
-                    "title": "這段 DP 程式的空間複雜度為 O(n)。若只需要最後一個答案，可以優化成什麼？",
+                    "title": "用陣列 dp 儲存所有費氏數的 DP 做法，空間複雜度為 O(n)。若只需要最後一個答案，可以優化成什麼？",
                     "options": [
-                        {"id": "A", "text": "只用兩個變數滾動保存前兩項，空間降為 O(1)"},
+                        {"id": "A", "text": "用兩個變數滾動保存，空間 O(1)"},
                         {"id": "B", "text": "空間無法再降低"},
                         {"id": "C", "text": "改用二維陣列"},
                         {"id": "D", "text": "改用遞迴，空間降為 O(1)"},
@@ -200,9 +198,9 @@ DATA = {
                     "explanation": "計算 F(i) 只會用到 F(i-1) 與 F(i-2)，所以只需保留最近兩個值並滾動更新，空間可以降到 O(1)，時間仍是 O(n)。遞迴版反而需要 O(n) 的呼叫堆疊。",
                 },
                 "en": {
-                    "title": "This DP code uses O(n) space. If only the final answer is needed, what optimization is possible?",
+                    "title": "A DP approach that stores every Fibonacci number in an array dp uses O(n) space. If only the final answer is needed, what optimization is possible?",
                     "options": [
-                        {"id": "A", "text": "Keep only the previous two values in two rolling variables, reducing space to O(1)"},
+                        {"id": "A", "text": "Keep two rolling variables, O(1) space"},
                         {"id": "B", "text": "The space cannot be reduced further"},
                         {"id": "C", "text": "Use a 2D array"},
                         {"id": "D", "text": "Switch to recursion, which uses O(1) space"},
@@ -250,7 +248,7 @@ DATA = {
                     "title": "呼叫程式碼中的 fibonacci_dp(0) 會發生什麼事？",
                     "options": [
                         {"id": "A", "text": "回傳 0"},
-                        {"id": "B", "text": "發生 IndexError，因為 dp 長度只有 1，卻存取了 dp[1]"},
+                        {"id": "B", "text": "IndexError：dp[1] 超出長度 1"},
                         {"id": "C", "text": "回傳 1"},
                         {"id": "D", "text": "進入無窮迴圈"},
                     ],
@@ -260,7 +258,7 @@ DATA = {
                     "title": "What happens when calling fibonacci_dp(0) with the code shown?",
                     "options": [
                         {"id": "A", "text": "It returns 0"},
-                        {"id": "B", "text": "An IndexError, because dp has length 1 but dp[1] is accessed"},
+                        {"id": "B", "text": "IndexError: dp[1] is out of range"},
                         {"id": "C", "text": "It returns 1"},
                         {"id": "D", "text": "It loops forever"},
                     ],
@@ -327,7 +325,6 @@ DATA = {
         },
         {
             "id": "dp-fibonacci-q11",
-            "groupId": "dp-fibonacci-group-1",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "A",
@@ -335,7 +332,7 @@ DATA = {
                 "zh-TW": {
                     "title": "迴圈 `for i in range(2, n + 1)` 為什麼從 2 開始，而不是從 0 開始？",
                     "options": [
-                        {"id": "A", "text": "因為 dp[0] 與 dp[1] 是已經直接給定的初始值（base case），從 2 開始才需要用前兩項計算"},
+                        {"id": "A", "text": "dp[0]、dp[1] 是給定的初始值，從 2 開始才需要前兩項"},
                         {"id": "B", "text": "因為 Python 的 range 不能從 0 開始"},
                         {"id": "C", "text": "因為費氏數列從第 2 項才有意義"},
                         {"id": "D", "text": "這只是寫法習慣，從 0 開始結果也一樣"},
@@ -345,7 +342,7 @@ DATA = {
                 "en": {
                     "title": "Why does the loop `for i in range(2, n + 1)` start at 2 instead of 0?",
                     "options": [
-                        {"id": "A", "text": "dp[0] and dp[1] are given base values, and only from 2 on do we need the previous two terms"},
+                        {"id": "A", "text": "dp[0], dp[1] are base values; from 2 on we need two earlier terms"},
                         {"id": "B", "text": "Python's range cannot start at 0"},
                         {"id": "C", "text": "Fibonacci numbers only make sense from the second term"},
                         {"id": "D", "text": "It is just a habit; starting at 0 gives the same result"},

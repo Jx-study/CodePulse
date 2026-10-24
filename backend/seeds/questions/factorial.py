@@ -43,7 +43,7 @@ DATA = {
                     "title": "遞迴函式一定要有哪個部分，才能保證最終停止？",
                     "options": [
                         {"id": "A", "text": "迴圈計數器"},
-                        {"id": "B", "text": "終止條件（Base Case）"},
+                        {"id": "B", "text": "終止條件"},
                         {"id": "C", "text": "全域變數"},
                         {"id": "D", "text": "回傳值型別宣告"},
                     ],
@@ -203,7 +203,7 @@ DATA = {
                     "title": "在 factorial(4) 的執行過程中，乘法 n * factorial(n-1) 是在什麼時候真正被計算出結果？",
                     "options": [
                         {"id": "A", "text": "往下呼叫的過程中，每進入一層就立刻算出"},
-                        {"id": "B", "text": "到達終止條件後，在逐層回傳（回溯）的過程中"},
+                        {"id": "B", "text": "到達終止條件後，逐層回傳時"},
                         {"id": "C", "text": "所有呼叫開始之前"},
                         {"id": "D", "text": "只有在 n 為偶數時"},
                     ],
@@ -213,7 +213,7 @@ DATA = {
                     "title": "During factorial(4), when is the multiplication n * factorial(n-1) actually evaluated?",
                     "options": [
                         {"id": "A", "text": "Immediately on each level while going down"},
-                        {"id": "B", "text": "After the base case is reached, while returning level by level"},
+                        {"id": "B", "text": "On the way back, after the base case"},
                         {"id": "C", "text": "Before any call starts"},
                         {"id": "D", "text": "Only when n is even"},
                     ],
@@ -233,7 +233,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "回傳 1"},
                         {"id": "B", "text": "回傳 -1"},
-                        {"id": "C", "text": "不斷遞迴直到發生遞迴深度錯誤（RecursionError）"},
+                        {"id": "C", "text": "不斷遞迴直到 RecursionError"},
                         {"id": "D", "text": "回傳 0"},
                     ],
                     "explanation": "n 從 -1 變成 -2、-3…，永遠不會等於 0，沒有任何一次呼叫能到達 base case，最後會超過遞迴深度上限而丟出 RecursionError。使用 n <= 1 能避免這類問題。",
@@ -243,7 +243,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "It returns 1"},
                         {"id": "B", "text": "It returns -1"},
-                        {"id": "C", "text": "It recurses until a RecursionError occurs"},
+                        {"id": "C", "text": "Recurses until RecursionError"},
                         {"id": "D", "text": "It returns 0"},
                     ],
                     "explanation": "n goes -1, -2, -3, … and never equals 0, so no call reaches the base case and the recursion depth limit is exceeded with a RecursionError. Using n <= 1 avoids this kind of problem.",
@@ -262,7 +262,7 @@ DATA = {
                         {"id": "A", "text": "時間複雜度更高"},
                         {"id": "B", "text": "答案會不一樣"},
                         {"id": "C", "text": "程式碼一定更長"},
-                        {"id": "D", "text": "需要額外的呼叫堆疊空間，n 太大時可能發生堆疊溢位"},
+                        {"id": "D", "text": "額外堆疊空間，n 大時可能溢位"},
                     ],
                     "explanation": "兩者時間複雜度都是 O(n)，結果相同；但遞迴版需要 O(n) 的呼叫堆疊空間，n 過大時可能超過遞迴深度上限。",
                 },
@@ -272,7 +272,7 @@ DATA = {
                         {"id": "A", "text": "Higher time complexity"},
                         {"id": "B", "text": "The answers differ"},
                         {"id": "C", "text": "The code is always longer"},
-                        {"id": "D", "text": "It needs extra call-stack space and may overflow the stack when n is large"},
+                        {"id": "D", "text": "Extra stack space; may overflow for large n"},
                     ],
                     "explanation": "Both are O(n) in time and give the same result, but the recursive version needs O(n) call-stack space and may exceed the recursion depth limit for large n.",
                 },
@@ -288,7 +288,7 @@ DATA = {
                     "title": "factorial(n) 若改成「尾端遞迴」寫法（多帶一個累積參數 acc），主要想解決的是什麼問題？",
                     "options": [
                         {"id": "A", "text": "減少乘法的次數"},
-                        {"id": "B", "text": "讓編譯器／直譯器有機會重用同一個框架，避免堆疊持續增長"},
+                        {"id": "B", "text": "重用同一個框架，避免堆疊持續增長"},
                         {"id": "C", "text": "讓 n 可以是負數"},
                         {"id": "D", "text": "讓結果變成浮點數"},
                     ],
@@ -298,7 +298,7 @@ DATA = {
                     "title": "If factorial(n) is rewritten in tail-recursive form (with an extra accumulator parameter acc), what problem is it mainly trying to solve?",
                     "options": [
                         {"id": "A", "text": "Fewer multiplications"},
-                        {"id": "B", "text": "Letting the compiler/interpreter reuse the same frame so the stack does not keep growing"},
+                        {"id": "B", "text": "Reusing one frame so the stack stops growing"},
                         {"id": "C", "text": "Allowing negative n"},
                         {"id": "D", "text": "Making the result a float"},
                     ],

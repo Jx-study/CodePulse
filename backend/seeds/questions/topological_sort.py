@@ -46,7 +46,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "任何無向圖"},
                         {"id": "B", "text": "帶負權重的圖"},
-                        {"id": "C", "text": "有向無環圖（DAG）"},
+                        {"id": "C", "text": "有向無環圖"},
                         {"id": "D", "text": "完全圖"},
                     ],
                     "explanation": "拓撲排序要求圖是有向且沒有環。若有環，環上的節點彼此互為先決條件，就找不到合法的線性順序。",
@@ -56,7 +56,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "Any undirected graph"},
                         {"id": "B", "text": "A graph with negative weights"},
-                        {"id": "C", "text": "A directed acyclic graph (DAG)"},
+                        {"id": "C", "text": "A directed acyclic graph"},
                         {"id": "D", "text": "A complete graph"},
                     ],
                     "explanation": "Topological sort requires a directed graph without cycles. With a cycle, the nodes on it are prerequisites of each other and no valid linear order exists.",
@@ -179,7 +179,7 @@ DATA = {
                         {"id": "A", "text": "只有佇列一開始是空的才表示有環"},
                         {"id": "B", "text": "result 中出現重複節點"},
                         {"id": "C", "text": "有任何節點的入度為負數"},
-                        {"id": "D", "text": "result 的節點數少於圖的節點數"},
+                        {"id": "D", "text": "result 比節點總數少"},
                     ],
                     "explanation": "環上的節點入度永遠無法降到 0，不會進入佇列，所以 result 的長度會小於節點總數。這就是 Kahn 演算法偵測環的方法。",
                 },
@@ -189,7 +189,7 @@ DATA = {
                         {"id": "A", "text": "Only if the queue is empty at the start"},
                         {"id": "B", "text": "A node appears twice in result"},
                         {"id": "C", "text": "Some node has a negative in-degree"},
-                        {"id": "D", "text": "result contains fewer nodes than the graph"},
+                        {"id": "D", "text": "result has fewer nodes than the graph"},
                     ],
                     "explanation": "Nodes on a cycle never reach in-degree 0 and never enter the queue, so result is shorter than the node count. That is how Kahn's algorithm detects a cycle.",
                 },
@@ -261,7 +261,7 @@ DATA = {
                     "title": "除了 Kahn 演算法之外，另一種常見的拓撲排序做法是什麼？",
                     "options": [
                         {"id": "A", "text": "對圖做廣度優先搜尋並直接輸出走訪順序"},
-                        {"id": "B", "text": "對圖做深度優先搜尋，並將節點「完成走訪」的順序反轉"},
+                        {"id": "B", "text": "DFS，並反轉節點完成走訪的順序"},
                         {"id": "C", "text": "使用 Dijkstra 演算法"},
                         {"id": "D", "text": "使用快速排序對節點編號排序"},
                     ],
@@ -271,7 +271,7 @@ DATA = {
                     "title": "Besides Kahn's algorithm, what is another common way to compute a topological order?",
                     "options": [
                         {"id": "A", "text": "Run BFS and output the visit order directly"},
-                        {"id": "B", "text": "Run DFS and reverse the order in which nodes finish"},
+                        {"id": "B", "text": "DFS, then reverse the finish order"},
                         {"id": "C", "text": "Use Dijkstra's algorithm"},
                         {"id": "D", "text": "Sort the node ids with quick sort"},
                     ],
@@ -290,7 +290,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "回傳 A, B, C"},
                         {"id": "B", "text": "回傳 A, C, B"},
-                        {"id": "C", "text": "只處理到 A，result 長度為 1，小於 3，判定圖中有環"},
+                        {"id": "C", "text": "只處理 A，result 長度 1 < 3，判定有環"},
                         {"id": "D", "text": "佇列一開始就是空的"},
                     ],
                     "explanation": "入度：A=0、B=2（來自 A 與 C）、C=1。只有 A 入度為 0，處理 A 後 B 的入度變成 1，仍不為 0，佇列變空。result 只有 [A]，長度 1 < 3，判定有環（B 與 C 互相依賴）。",
@@ -300,7 +300,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "It returns A, B, C"},
                         {"id": "B", "text": "It returns A, C, B"},
-                        {"id": "C", "text": "It only processes A; result has length 1 < 3, so a cycle is detected"},
+                        {"id": "C", "text": "Only A is processed; 1 < 3, so a cycle"},
                         {"id": "D", "text": "The queue is empty from the start"},
                     ],
                     "explanation": "In-degrees: A=0, B=2 (from A and C), C=1. Only A starts in the queue; after processing A, B's in-degree drops to 1, not 0, and the queue empties. result is just [A], length 1 < 3, so a cycle is detected (B and C depend on each other).",

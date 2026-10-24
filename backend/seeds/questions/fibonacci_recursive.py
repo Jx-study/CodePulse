@@ -143,7 +143,7 @@ DATA = {
                         {"id": "A", "text": "Recursion is always slower than loops"},
                         {"id": "B", "text": "Integer arithmetic in Python is slow"},
                         {"id": "C", "text": "The base case is wrong"},
-                        {"id": "D", "text": "The same subproblems are computed over and over"},
+                        {"id": "D", "text": "Subproblems get recomputed"},
                     ],
                     "explanation": "The computations of fib(n-1) and fib(n-2) overlap heavily, e.g. fib(3) is evaluated again and again. Because the results are not stored, the running time grows exponentially.",
                 },
@@ -211,7 +211,7 @@ DATA = {
                     "title": "若 fib 只保留 `if n == 0: return 0` 這個終止條件而沒有處理 n == 1，呼叫 fib(1) 會發生什麼事？",
                     "options": [
                         {"id": "A", "text": "回傳 1"},
-                        {"id": "B", "text": "fib(1) 會呼叫 fib(0) 與 fib(-1)，fib(-1) 永遠不會到達終止條件，造成無限遞迴"},
+                        {"id": "B", "text": "fib(-1) 永遠到不了終止條件，無限遞迴"},
                         {"id": "C", "text": "回傳 0"},
                         {"id": "D", "text": "回傳 2"},
                     ],
@@ -221,7 +221,7 @@ DATA = {
                     "title": "If fib only keeps the base case `if n == 0: return 0` and does not handle n == 1, what happens when calling fib(1)?",
                     "options": [
                         {"id": "A", "text": "It returns 1"},
-                        {"id": "B", "text": "fib(1) calls fib(0) and fib(-1), and fib(-1) never reaches a base case, causing infinite recursion"},
+                        {"id": "B", "text": "fib(-1) never hits a base case: infinite recursion"},
                         {"id": "C", "text": "It returns 0"},
                         {"id": "D", "text": "It returns 2"},
                     ],
@@ -314,7 +314,7 @@ DATA = {
                 "zh-TW": {
                     "title": "記憶化版本的 fib(n) 使用 O(n) 空間，主要是因為哪兩個部分？",
                     "options": [
-                        {"id": "A", "text": "儲存結果的備忘錄（字典／陣列）與最深 n 層的遞迴堆疊"},
+                        {"id": "A", "text": "備忘錄加上最深 n 層的遞迴堆疊"},
                         {"id": "B", "text": "只有備忘錄"},
                         {"id": "C", "text": "只有遞迴堆疊，備忘錄不佔空間"},
                         {"id": "D", "text": "兩個變數 a 與 b"},
@@ -324,7 +324,7 @@ DATA = {
                 "en": {
                     "title": "A memoized fib(n) uses O(n) space. Which two parts account for this?",
                     "options": [
-                        {"id": "A", "text": "The memo (dict/array) holding results plus a recursion stack up to depth n"},
+                        {"id": "A", "text": "The memo plus a recursion stack of depth n"},
                         {"id": "B", "text": "Only the memo"},
                         {"id": "C", "text": "Only the recursion stack; the memo takes no space"},
                         {"id": "D", "text": "Two variables a and b"},

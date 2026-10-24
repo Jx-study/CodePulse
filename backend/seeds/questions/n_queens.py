@@ -69,7 +69,7 @@ DATA = {
                     "title": "N 皇后問題最常用哪一種演算法技巧來求解？",
                     "options": [
                         {"id": "A", "text": "貪婪法（Greedy）"},
-                        {"id": "B", "text": "回溯法（Backtracking）"},
+                        {"id": "B", "text": "回溯法"},
                         {"id": "C", "text": "二分搜尋"},
                         {"id": "D", "text": "分治合併排序"},
                     ],
@@ -150,7 +150,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "讓皇后之間不可能在斜線上衝突"},
                         {"id": "B", "text": "讓時間複雜度變成 O(n)"},
-                        {"id": "C", "text": "從結構上就排除了同列衝突，只需要檢查行與斜線"},
+                        {"id": "C", "text": "已排除同列衝突，只需檢查行與斜線"},
                         {"id": "D", "text": "可以不用回溯"},
                     ],
                     "explanation": "每列只放一個皇后，同列衝突根本不會發生，搜尋空間也縮小為「每一列選一個行」，只需檢查行與兩個方向的斜線。",
@@ -160,7 +160,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "Queens can never conflict diagonally"},
                         {"id": "B", "text": "The time complexity becomes O(n)"},
-                        {"id": "C", "text": "Same-row conflicts are excluded by construction, so only columns and diagonals need checking"},
+                        {"id": "C", "text": "No same-row conflicts, so only columns and diagonals are checked"},
                         {"id": "D", "text": "Backtracking is no longer needed"},
                     ],
                     "explanation": "With one queen per row, same-row conflicts cannot happen and the search space shrinks to choosing a column per row, so only columns and the two diagonal directions need checking.",
@@ -259,7 +259,7 @@ DATA = {
                         {"id": "A", "text": "重新從第 0 列開始整個演算法"},
                         {"id": "B", "text": "把棋盤清空後隨機重放"},
                         {"id": "C", "text": "跳過目前這一列"},
-                        {"id": "D", "text": "撤回上一列放的皇后（還原行與斜線標記），改試下一個位置"},
+                        {"id": "D", "text": "撤回上一列的皇后並還原標記，改試下一個位置"},
                     ],
                     "explanation": "當某一列所有位置都衝突時，要回到上一列，把剛放的皇后拿掉（cols、d1、d2 都要還原），再試該列的下一個位置。",
                 },
@@ -269,7 +269,7 @@ DATA = {
                         {"id": "A", "text": "Restart the whole algorithm from row 0"},
                         {"id": "B", "text": "Clear the board and replace queens randomly"},
                         {"id": "C", "text": "Skip the current row"},
-                        {"id": "D", "text": "Remove the queen placed in the previous row (restore the column/diagonal marks) and try its next position"},
+                        {"id": "D", "text": "Undo the previous row's queen and try its next position"},
                     ],
                     "explanation": "When every position in a row conflicts, we return to the previous row, remove the queen just placed (restoring cols, d1 and d2) and try the next position in that row.",
                 },
@@ -312,7 +312,7 @@ DATA = {
                 "zh-TW": {
                     "title": "相較於先把 n 個皇后全放上棋盤再檢查是否衝突，回溯法為什麼快得多？",
                     "options": [
-                        {"id": "A", "text": "一旦部分擺放已經衝突就立刻放棄，不再往更深層探索（剪枝）"},
+                        {"id": "A", "text": "部分擺放一衝突就放棄，不再深入（剪枝）"},
                         {"id": "B", "text": "因為使用了遞迴"},
                         {"id": "C", "text": "因為只檢查一半的棋盤"},
                         {"id": "D", "text": "因為皇后數量變少"},
@@ -322,7 +322,7 @@ DATA = {
                 "en": {
                     "title": "Compared with placing all n queens first and then checking for conflicts, why is backtracking much faster?",
                     "options": [
-                        {"id": "A", "text": "It abandons a partial placement as soon as it conflicts instead of exploring deeper (pruning)"},
+                        {"id": "A", "text": "It abandons a conflicting partial placement (pruning)"},
                         {"id": "B", "text": "Because it uses recursion"},
                         {"id": "C", "text": "Because it only checks half of the board"},
                         {"id": "D", "text": "Because there are fewer queens"},
@@ -341,7 +341,7 @@ DATA = {
                     "title": "在 `if solve(row + 1, n, cols, d1, d2): return True` 這段程式中，return True 的作用是什麼？",
                     "options": [
                         {"id": "A", "text": "表示目前這一列放置成功"},
-                        {"id": "B", "text": "只要更深的列找到完整解，就沿著呼叫鏈一路回傳 True，不再繼續搜尋其他可能"},
+                        {"id": "B", "text": "找到完整解就一路回傳 True，不再搜尋其他可能"},
                         {"id": "C", "text": "把所有解數加一"},
                         {"id": "D", "text": "還原棋盤狀態"},
                     ],
@@ -351,7 +351,7 @@ DATA = {
                     "title": "In `if solve(row + 1, n, cols, d1, d2): return True`, what does return True do?",
                     "options": [
                         {"id": "A", "text": "Marks the current row as placed successfully"},
-                        {"id": "B", "text": "Once a complete solution is found deeper, it propagates True up the call chain and stops searching other options"},
+                        {"id": "B", "text": "Once a solution is found, True propagates up and the search stops"},
                         {"id": "C", "text": "Increments the solution count"},
                         {"id": "D", "text": "Restores the board state"},
                     ],
@@ -428,7 +428,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "第 0 列的皇后，同一條左上到右下的斜線"},
                         {"id": "B", "text": "第 0 列的皇后，同一行"},
-                        {"id": "C", "text": "第 1 列的皇后，同一條右上到左下的斜線（row + col 相同）"},
+                        {"id": "C", "text": "第 1 列的皇后，row + col 相同的斜線"},
                         {"id": "D", "text": "不會衝突"},
                     ],
                     "explanation": "(2,2) 的 row + col = 4，(1,3) 的 row + col = 4，兩者位於同一條右上到左下的斜線，因此衝突。與 (0,1) 的 row - col 分別是 0 與 -1，row + col 分別是 4 與 1，沒有衝突。",
@@ -438,7 +438,7 @@ DATA = {
                     "options": [
                         {"id": "A", "text": "The queen in row 0, on the same top-left to bottom-right diagonal"},
                         {"id": "B", "text": "The queen in row 0, in the same column"},
-                        {"id": "C", "text": "The queen in row 1, on the same top-right to bottom-left diagonal (same row + col)"},
+                        {"id": "C", "text": "The row 1 queen, same row + col diagonal"},
                         {"id": "D", "text": "No conflict"},
                     ],
                     "explanation": "(2,2) has row + col = 4 and (1,3) also has 4, so they share a top-right to bottom-left diagonal and conflict. Against (0,1), row - col is 0 vs -1 and row + col is 4 vs 1, so there is no conflict.",
@@ -453,7 +453,7 @@ DATA = {
             "correctAnswer": "true",
             "translations": {
                 "zh-TW": {
-                    "title": "下方棋盤是一組合法的 4 皇后解。",
+                    "title": "題組中的棋盤是一組合法的 4 皇后解。",
                     "options": [
                         {"id": "true", "text": "正確"},
                         {"id": "false", "text": "錯誤"},
@@ -461,7 +461,7 @@ DATA = {
                     "explanation": "正確。四個皇后位於 (0,1)、(1,3)、(2,0)、(3,2)：行 1、3、0、2 互不相同；row - col 為 -1、-2、2、1 互不相同；row + col 為 1、4、2、5 互不相同，因此沒有任何兩個皇后互相攻擊。",
                 },
                 "en": {
-                    "title": "The board below is a valid 4-Queens solution.",
+                    "title": "The board in the group is a valid 4-Queens solution.",
                     "options": [
                         {"id": "true", "text": "True"},
                         {"id": "false", "text": "False"},
@@ -478,7 +478,7 @@ DATA = {
             "correctAnswer": "B",
             "translations": {
                 "zh-TW": {
-                    "title": "若用陣列 board 表示解，board[i] 代表第 i 列皇后所在的行，則下方棋盤對應的陣列為何？",
+                    "title": "若用陣列 board 表示解，board[i] 代表第 i 列皇后所在的行，則題組中的棋盤對應的陣列為何？",
                     "options": [
                         {"id": "A", "text": "[0, 1, 2, 3]"},
                         {"id": "B", "text": "[1, 3, 0, 2]"},
@@ -488,7 +488,7 @@ DATA = {
                     "explanation": "由上到下讀取每一列皇后所在的行：第 0 列在第 1 行、第 1 列在第 3 行、第 2 列在第 0 行、第 3 列在第 2 行，所以是 [1, 3, 0, 2]。",
                 },
                 "en": {
-                    "title": "If a solution is stored in an array board where board[i] is the column of the queen in row i, which array matches the board below?",
+                    "title": "If a solution is stored in an array board where board[i] is the column of the queen in row i, which array matches the board in the group?",
                     "options": [
                         {"id": "A", "text": "[0, 1, 2, 3]"},
                         {"id": "B", "text": "[1, 3, 0, 2]"},
