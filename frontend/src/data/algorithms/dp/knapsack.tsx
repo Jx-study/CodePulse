@@ -92,7 +92,7 @@ const knapsackCodeConfig: CodeConfig = {
   Return dp[numItems][capacity]
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [3, 4, 5],
+      [TAGS.INIT]: [2, 3, 4, 5],
       [TAGS.CHECK_WEIGHT]: [7, 8, 10],
       [TAGS.TAKE_ITEM]: [11, 12, 13],
       [TAGS.SKIP_ITEM]: [14, 15],
@@ -103,33 +103,39 @@ End Procedure`,
     content: `def knapsack(capacity, weights, values, num_items):
     dp = [[0 for _ in range(capacity + 1)] for _ in range(num_items + 1)]
     
-    for item_idx in range(1, num_items + 1):
-        for curr_capacity in range(1, capacity + 1):
-            current_weight = weights[item_idx-1]
-            current_value = values[item_idx-1]
-            
-            if current_weight <= curr_capacity:
-                skip_val = dp[item_idx-1][curr_capacity]
-                take_val = dp[item_idx-1][curr_capacity-current_weight] + current_value
-                dp[item_idx][curr_capacity] = max(skip_val, take_val)
+    for item_idx in range(num_items + 1):
+        for curr_capacity in range(capacity + 1):
+            if item_idx == 0 or curr_capacity == 0:
+                dp[item_idx][curr_capacity] = 0
             else:
-                dp[item_idx][curr_capacity] = dp[item_idx-1][curr_capacity]
+                current_weight = weights[item_idx-1]
+                current_value = values[item_idx-1]
+                
+                if current_weight <= curr_capacity:
+                    skip_val = dp[item_idx-1][curr_capacity]
+                    take_val = dp[item_idx-1][curr_capacity-current_weight] + current_value
+                    dp[item_idx][curr_capacity] = max(skip_val, take_val)
+                else:
+                    dp[item_idx][curr_capacity] = dp[item_idx-1][curr_capacity]
                 
     return dp[num_items][capacity]`,
     lineComplexity: [
-      { lineNumber: 1,  complexity: 'O(n^2)' },                                // def knapsack(capacity, weights, values, num_items):
-      { lineNumber: 2,  complexity: 'O(n^2)' },                                // dp = [[0 for _ in range(...)] for _ in range(...)]
-      { lineNumber: 4,  complexity: 'O(n)' },                                  // for item_idx in range(1, num_items + 1):
-      { lineNumber: 5,  complexity: 'O(n)', context: 'O(n)' },                 // for curr_capacity in range(1, capacity + 1):
-      { lineNumber: 6,  complexity: 'O(1)', context: 'O(n^2)' },               // current_weight = weights[item_idx-1]
-      { lineNumber: 7,  complexity: 'O(1)', context: 'O(n^2)' },               // current_value = values[item_idx-1]
-      { lineNumber: 9,  complexity: 'O(1)', context: 'O(n^2)' },               // if current_weight <= curr_capacity:
-      { lineNumber: 10, complexity: 'O(1)', context: 'O(n^2)' },               // skip_val = dp[item_idx-1][curr_capacity]
-      { lineNumber: 11, complexity: 'O(1)', context: 'O(n^2)' },               // take_val = dp[item_idx-1][...] + current_value
-      { lineNumber: 12, complexity: 'O(1)', context: 'O(n^2)' },               // dp[item_idx][curr_capacity] = max(...)
-      { lineNumber: 13, complexity: 'O(1)', context: 'O(n^2)' },               // else:
-      { lineNumber: 14, complexity: 'O(1)', context: 'O(n^2)' },               // dp[item_idx][curr_capacity] = dp[item_idx-1][...]
-      { lineNumber: 16, complexity: 'O(1)' },                                  // return dp[num_items][capacity]
+      { lineNumber: 1, complexity: 'O(n^2)' }, // def knapsack(capacity, weights, values, num_items):
+      { lineNumber: 2, complexity: 'O(n^2)' }, // dp = [[0 for _ in range(...)] for _ in range(...)]
+      { lineNumber: 4, complexity: 'O(n)' }, // for item_idx in range(num_items + 1):
+      { lineNumber: 5, complexity: 'O(n)', context: 'O(n)' }, // for curr_capacity in range(capacity + 1):
+      { lineNumber: 6, complexity: 'O(1)', context: 'O(n^2)' }, // if item_idx == 0 or curr_capacity == 0:
+      { lineNumber: 7, complexity: 'O(1)', context: 'O(n^2)' }, // dp[item_idx][curr_capacity] = 0
+      { lineNumber: 8, complexity: 'O(1)', context: 'O(n^2)' }, // else:
+      { lineNumber: 9, complexity: 'O(1)', context: 'O(n^2)' }, // current_weight = weights[item_idx-1]
+      { lineNumber: 10, complexity: 'O(1)', context: 'O(n^2)' }, // current_value = values[item_idx-1]
+      { lineNumber: 12, complexity: 'O(1)', context: 'O(n^2)' }, // if current_weight <= curr_capacity:
+      { lineNumber: 13, complexity: 'O(1)', context: 'O(n^2)' }, // skip_val = dp[item_idx-1][curr_capacity]
+      { lineNumber: 14, complexity: 'O(1)', context: 'O(n^2)' }, // take_val = dp[item_idx-1][...] + current_value
+      { lineNumber: 15, complexity: 'O(1)', context: 'O(n^2)' }, // dp[item_idx][curr_capacity] = max(...)
+      { lineNumber: 16, complexity: 'O(1)', context: 'O(n^2)' }, // else:
+      { lineNumber: 17, complexity: 'O(1)', context: 'O(n^2)' }, // dp[item_idx][curr_capacity] = dp[item_idx-1][...]
+      { lineNumber: 19, complexity: 'O(1)' }, // return dp[num_items][capacity]
     ],
   },
 };
@@ -148,7 +154,7 @@ export const knapsackConfig: LevelImplementationConfig = {
     timeWorst: "O(numItems * capacity)",
     space: "O(numItems * capacity)", // 可優化為 O(capacity) 但此處展示二維
   },
-  introduction: `0/1 背包問題是動態規劃的經典問題。每個物品只有「拿（1）」或「不拿（0）」兩種選擇。我們定義 dp[itemIdx][currCapacity] 為：在只考慮前 itemIdx 個物品，且背包容量為 currCapacity 的情況下，能裝入的最大價值。透過逐列填表，我們可以找到最佳解。`,
+  introduction: { key: "introduction" },
   defaultData: [
     { weight: 1, value: 15 },
     { weight: 3, value: 20 },

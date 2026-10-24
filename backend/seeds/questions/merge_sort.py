@@ -699,12 +699,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成 `merge_sort` 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "(a) 遞迴必須有終止條件，思考「什麼情況下陣列已天然有序、不需要再拆？」(b)(c) `mid = len(arr) // 2` 已算好切割點，左半邊是 mid 之前的部分，右半邊是 mid 之後（含 mid）的部分；Python 的 slice 語法讓這個切割極為簡潔。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the `merge_sort` function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "(a) Every recursion needs a base case — think about when an array is already trivially sorted and needs no further splitting. (b)(c) `mid = len(arr) // 2` gives the split point; the left half is everything before mid, the right half is everything from mid onward (inclusive). Python's slice syntax makes this cut concise.",
                 },
             },

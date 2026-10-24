@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams, useLocation, useMatch } from "react-router-dom";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -34,6 +34,7 @@ function AuthPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [usernameError, setUsernameError] = useState("");
   const [formError, setFormError] = useState("");
+  const isCompletingOnboardingRef = useRef(false);
 
   const setAlert = (type: FormAlertType, message: string) => {
     setAlertType(type);
@@ -57,11 +58,20 @@ function AuthPage() {
     authService
       .getOnboardingInfo()
       .then((data) => setOnboardingInfo({ email: data.email, display_name: data.display_name }))
-      .catch(() => navigate("/", { replace: true }))
+      .catch(() => {
+        navigate("/auth?tab=login", {
+          replace: true,
+          state: {
+            oauthError: t("onboardingExpired", "連結已過期，請重新使用 Google 登入"),
+          },
+        });
+      })
       .finally(() => setIsInitialLoading(false));
-  }, [isOnboarding]);
+  }, [isOnboarding, navigate, t]);
 
   const handleOnboardingSubmit = async (username: string, displayName: string) => {
+    if (isCompletingOnboardingRef.current) return;
+    isCompletingOnboardingRef.current = true;
     setLoading(true);
     setUsernameError("");
     setFormError("");
@@ -71,10 +81,11 @@ function AuthPage() {
         await checkAuthStatus();
       } catch {}
       setPendingWelcome({ username });
+      navigate("/", { replace: true });
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
-      const errorCode = axiosError?.response?.data?.error_code;
-      const status = axiosError?.response?.status;
+      const apiError = error as { status?: number; error_code?: string };
+      const status = apiError?.status;
+      const errorCode = apiError?.error_code;
       if (status === 400 && errorCode === "INVALID_USERNAME") {
         setUsernameError(t("invalidUsername", "用戶名格式不正確"));
       } else if (status === 400 && errorCode === "RESERVED_USERNAME") {
@@ -93,6 +104,7 @@ function AuthPage() {
         setFormError(t("unknownError", "發生了神祕的錯誤，請重新整理頁面再試一次"));
       }
     } finally {
+      isCompletingOnboardingRef.current = false;
       setLoading(false);
     }
   };
@@ -133,8 +145,8 @@ function AuthPage() {
       }
       navigate("/auth/verify-email", { state: { email: formData.email } });
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: { error_code?: string }; status?: number } };
-      const errorCode = axiosError?.response?.data?.error_code;
+      const apiError = error as { status?: number; error_code?: string };
+      const errorCode = apiError?.error_code;
       const registerErrorMap: Record<string, string> = {
         INVALID_EMAIL: t("register.errors.INVALID_EMAIL"),
         WEAK_PASSWORD: t("register.errors.WEAK_PASSWORD"),

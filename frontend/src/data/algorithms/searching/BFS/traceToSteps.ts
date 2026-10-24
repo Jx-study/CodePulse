@@ -174,7 +174,7 @@ export function bfsTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: descObj,
       actionTag: event.tag,
-      variables: event.local_vars,
+      local_vars: event.local_vars,
       elements: frame.elements,
       links: frame.links,
     };

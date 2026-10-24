@@ -12,7 +12,7 @@
   },
   "levelUnavailable": {
     "undeveloped": "此關卡尚未開放，敬請期待",
-    "locked": "完成前置關卡後解鎖"
+    "locked": "完成前置關卡後解鎖練習模式"
   },
   "categoryFilter": {
     "moduleCount_one": "{{count}} 個模組",
@@ -322,7 +322,7 @@
       "objectives": [
         "理解同向與對向雙指標",
         "掌握排序陣列中的兩數之和",
-        "應用於字串回文判斷"
+        "用快慢指標原地移除排序陣列中的重複元素"
       ]
     },
     "bit_mask": {
@@ -384,10 +384,10 @@
     },
     "astar": {
       "name": "A* 搜尋",
-      "description": "結合啟發式函數的最短路徑搜尋演算法",
+      "description": "結合啟發式函式的最短路徑搜尋演算法",
       "objectives": [
         "理解 f(x) = g(x) + h(x) 的估算邏輯",
-        "掌握啟發式函數的設計原則",
+        "掌握啟發式函式的設計原則",
         "比較 A* 與 Dijkstra 的差異"
       ]
     },

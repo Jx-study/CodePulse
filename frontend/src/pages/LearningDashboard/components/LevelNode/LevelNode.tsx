@@ -19,30 +19,42 @@ function LevelNode({
   const isDeveloped = level.isDeveloped;
   const levelName = t(`levels.${level.id.replace(/-/g, "_")}.name`);
   const unavailableMessage = t("levelUnavailable.undeveloped");
-  const ariaLabel = isDeveloped
-    ? t("node.ariaLabel", { levelName })
-    : `${t("node.ariaLabel", { levelName })}. ${unavailableMessage}`;
+  // 教學內容一律開放，鎖定只影響測驗，提示文字要說清楚差異
+  const practiceLockedMessage = t("levelUnavailable.locked");
 
   const isCompleted = status === "completed";
   const isInProgress = status === "in-progress";
   const isUnlocked = status === "unlocked";
   const isLockedState = status === "locked";
 
+  const ariaLabel = !isDeveloped
+    ? `${t("node.ariaLabel", { levelName })}. ${unavailableMessage}`
+    : isLockedState
+      ? `${t("node.ariaLabel", { levelName })}. ${practiceLockedMessage}`
+      : t("node.ariaLabel", { levelName });
+
   const handleClick = () => {
     onClick();
   };
 
   const renderStatusIcon = () => {
-    if (isBossLevel && !isLockedState) {
+    if (isBossLevel) {
+      // Boss 關卡即使測驗鎖定，皇冠依然可見；鎖定另外用角落 badge 標示
       return <Icon name="crown" className={styles.bossIcon} />;
     }
 
-    if (isBossLevel && isLockedState) {
-      return null;
-    }
-
     if (isLockedState) {
-      return <Icon name="lock" className={styles.icon} />;
+      // 教學已開放、練習未解鎖：左半書本、右半鎖頭，一眼看出兩者狀態不同
+      return (
+        <div className={styles.splitIcon}>
+          <span className={styles.splitIconHalf}>
+            <Icon name="book-open" className={styles.splitIconGlyph} />
+          </span>
+          <span className={styles.splitIconHalf}>
+            <Icon name="lock" className={styles.splitIconGlyph} />
+          </span>
+        </div>
+      );
     }
     if (isCompleted) {
       return <Icon name="check" className={styles.icon} />;
@@ -120,17 +132,13 @@ function LevelNode({
       aria-disabled={!isDeveloped}
       data-level-id={level.id}
     >
-      {isBossLevel && status === "locked" && (
-        <div className={styles.bossLockOverlay} />
-      )}
-
       {renderStars()}
 
       <div className={styles.nodeContent}>{renderStatusIcon()}</div>
 
-      {isBossLevel && status === "locked" && (
-        <div className={styles.lockOverlay}>
-          <Icon name="lock" className={styles.lockIcon} />
+      {isBossLevel && isLockedState && (
+        <div className={styles.lockBadge}>
+          <Icon name="lock" className={styles.lockBadgeIcon} />
         </div>
       )}
 
@@ -143,6 +151,14 @@ function LevelNode({
   if (!isDeveloped) {
     return (
       <Tooltip content={unavailableMessage} placement="top">
+        {nodeElement}
+      </Tooltip>
+    );
+  }
+
+  if (isLockedState) {
+    return (
+      <Tooltip content={practiceLockedMessage} placement="top">
         {nodeElement}
       </Tooltip>
     );

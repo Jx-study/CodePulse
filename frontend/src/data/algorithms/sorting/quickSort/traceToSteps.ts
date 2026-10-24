@@ -38,6 +38,14 @@ const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
       pivotIdx: e.local_vars.pivotIdx,
     },
   }),
+  [TAGS.RECURSE_LEFT]: (e) => ({
+    key: "animation.recurse_left",
+    params: { low: e.local_vars.low, high: e.local_vars.high },
+  }),
+  [TAGS.RECURSE_RIGHT]: (e) => ({
+    key: "animation.recurse_right",
+    params: { low: e.local_vars.low, high: e.local_vars.high },
+  }),
   [TAGS.BASE_CASE]: (e) => ({
     key: "animation.base_case",
     params: { value: e.local_vars.value },

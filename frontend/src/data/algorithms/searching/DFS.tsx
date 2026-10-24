@@ -321,6 +321,7 @@ End Procedure`,
 const dfsGridCodeConfig = {
   pseudo: {
     content: `Procedure DFS_Grid(grid, cols, start, end):
+  If grid[start] or grid[end] is wall Then Return -1
   Initialize distance[all] ← ∞
   distance[start] ← 0
   Stack ← [start], visited ← {start}
@@ -348,17 +349,51 @@ const dfsGridCodeConfig = {
   Return -1
 End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3],
-      [TAGS.START]: [4],
-      [TAGS.POP]: [6, 7],
-      [TAGS.CHECK_END]: [9],
-      [TAGS.PATH_FOUND]: [10],
-      [TAGS.PUSH_NEIGHBOR]: [14, 15, 16, 17],
-      [TAGS.BACKTRACK]: [21, 22],
-      [TAGS.NOT_FOUND]: [26],
+      [TAGS.GRID_BLOCKED]: [2],
+      [TAGS.INIT]: [3, 4],
+      [TAGS.START]: [5],
+      [TAGS.POP]: [7, 8],
+      [TAGS.CHECK_END]: [10],
+      [TAGS.PATH_FOUND]: [11],
+      [TAGS.PUSH_NEIGHBOR]: [14, 15, 16, 17, 18],
+      [TAGS.BACKTRACK]: [22, 23],
+      [TAGS.NOT_FOUND]: [27],
     } as Record<string, number[]>,
   },
-  python: dfsGraphCodeConfig.python,
+  python: {
+    content: `def dfs_grid(grid, cols, start, end):
+    if grid[start] == 1 or grid[end] == 1:
+        return -1
+
+    distance = [float('inf')] * len(grid)
+    distance[start] = 0
+    stack = [start]
+    visited = {start}
+
+    while stack:
+        curr = stack.pop()
+
+        if curr == end:
+            return distance[end]
+
+        for neighbor in adjacent(curr, grid, cols):
+            if neighbor not in visited and grid[neighbor] != 1:
+                visited.add(neighbor)
+                distance[neighbor] = distance[curr] + 1
+                stack.append(neighbor)
+
+        # nothing pushed: dead end, backtrack
+
+    return -1
+
+def adjacent(curr, grid, cols):
+    rows = len(grid) // cols
+    r, c = divmod(curr, cols)
+    for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < rows and 0 <= nc < cols:
+            yield nr * cols + nc`,
+  },
 };
 
 export const DFSConfig: LevelImplementationConfig = {
@@ -379,8 +414,7 @@ export const DFSConfig: LevelImplementationConfig = {
     timeWorst: "O(V + E)",
     space: "O(V)",
   },
-  introduction: `深度優先搜尋 (DFS) 是一種圖或樹的遍歷演算法，它從根節點開始，逐層遍歷所有節點。它使用堆疊來管理待訪問的節點，確保每一層的節點都被訪問過一次。
-DFS 的時間複雜度為 O(V + E)，其中 V 是節點數量，E 是邊數量。空間複雜度為 O(V)。`,
+  introduction: { key: "introduction" },
   defaultData: {
     // 分開定義兩種預設資料
     graph: {

@@ -23,6 +23,7 @@
     "actionBar": "Operations",
     "variableStatus": "Variable Status"
   },
+  "actionBarBusyHint": "Animation in progress. Wait for the steps to finish before switching back.",
   "smartActionBar": {
     "noInterface": "No operation interface available for this topic"
   },

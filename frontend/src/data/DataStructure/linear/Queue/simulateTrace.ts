@@ -30,6 +30,29 @@ export function simulateQueueTrace(
 
   const { type, value } = action;
 
+  if (type === "add" && action.overflow) {
+    const currentRear = dataList.length - 1;
+    trace.push({
+      tag: TAGS.ENQUEUE_START,
+      local_vars: { front: 0, rear: currentRear, value },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.ENQUEUE_CHECK_FULL,
+      local_vars: { front: 0, rear: currentRear, size: dataList.length },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.ENQUEUE_ERROR,
+      local_vars: { front: 0, rear: currentRear, size: dataList.length },
+      dataSnapshot: [],
+      meta,
+    });
+    return trace;
+  }
+
   if (type === "add") {
     const oldList = dataList.slice(0, -1);
     let currentRear = oldList.length - 1;
@@ -37,6 +60,12 @@ export function simulateQueueTrace(
     trace.push({
       tag: TAGS.ENQUEUE_START,
       local_vars: { front: 0, rear: currentRear, value },
+      dataSnapshot: [],
+      meta,
+    });
+    trace.push({
+      tag: TAGS.ENQUEUE_CHECK_FULL,
+      local_vars: { front: 0, rear: currentRear, size: oldList.length },
       dataSnapshot: [],
       meta,
     });

@@ -22,8 +22,10 @@ import { BFSConfig } from "../algorithms/searching/BFS";
 import { DFSConfig } from "../algorithms/searching/DFS";
 import { prefixSumConfig } from "../algorithms/technique/prefixSum";
 import { slidingWindowConfig } from "../algorithms/technique/slidingWindow";
+import { twoPointersConfig } from "../algorithms/technique/twoPointers";
 import { dijkstraConfig } from "../algorithms/searching/dijkstra";
 import { knapsackConfig } from "../algorithms/dp/knapsack";
+import { lcsConfig } from "../algorithms/dp/lcs";
 import { nQueensConfig } from "../algorithms/recursive/nQueens";
 import { topologicalSortConfig } from "../algorithms/sorting/topologicalSort";
 import { fibonacciDPConfig } from "../algorithms/dp/fibonacci";
@@ -58,8 +60,10 @@ export const implementationsMap: ImplementationMap = {
   dfs: DFSConfig,
   prefixSum: prefixSumConfig,
   slidingWindow: slidingWindowConfig,
+  twoPointers: twoPointersConfig,
   dijkstra: dijkstraConfig,
   knapsack: knapsackConfig,
+  lcs: lcsConfig,
   nQueens: nQueensConfig,
   topologicalSort: topologicalSortConfig,
   fibonacciDP: fibonacciDPConfig,

@@ -191,7 +191,7 @@ function LearningDashboardInner() {
     }
   }, [userProgress]); // 監聽整個 userProgress
 
-  // 統一的關卡導航函數
+  // 統一的關卡導航函式
   const navigateToLevel = (
     levelId: string,
     targetCategory?: CategoryType,

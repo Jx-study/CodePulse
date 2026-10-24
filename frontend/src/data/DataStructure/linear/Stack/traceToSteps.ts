@@ -33,12 +33,20 @@ const createTopPointer = (
   return ptr;
 };
 
+const GUARD_ERROR_TAGS = new Set<string>([TAGS.PUSH_ERROR, TAGS.POP_ERROR]);
+const INFO_TAGS = new Set<string>([TAGS.PEEK_ERROR]);
+
 const DESCRIPTION_MAP: Record<string, (e: TraceEvent) => StepDescription> = {
   [TAGS.INIT]: () => ({ key: "animation.init" }),
   [TAGS.PUSH_START]: (e) => ({
     key: "animation.push_start",
     params: { value: e.local_vars.value },
   }),
+  [TAGS.PUSH_CHECK_FULL]: (e) => ({
+    key: "animation.push_check_full",
+    params: { size: e.local_vars.size },
+  }),
+  [TAGS.PUSH_ERROR]: () => ({ key: "animation.push_error" }),
   [TAGS.PUSH_INC_TOP]: (e) => ({
     key: "animation.push_inc_top",
     params: { top: e.local_vars.top },
@@ -109,12 +117,33 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
         ...createBoxes(dataList),
         createTopPointer(dataList.length - 1, startX, startY, gap),
       ];
+    } else if (action?.type === "add" && action.overflow) {
+      elements = [
+        ...createBoxes(
+          dataList,
+          event.tag === TAGS.PUSH_CHECK_FULL ? Status.Target : Status.Unfinished,
+        ),
+        createTopPointer(dataList.length - 1, startX, startY, gap),
+      ];
     } else if (action?.type === "add") {
       const oldList = dataList.slice(0, -1);
       const newNode = dataList[dataList.length - 1];
       const top = oldList.length - 1;
 
       if (event.tag === TAGS.PUSH_START) {
+        const newBox = createBox(
+          newNode.id,
+          newNode.value,
+          950,
+          Status.Prepare,
+          "New",
+        );
+        elements = [
+          ...createBoxes(oldList),
+          newBox,
+          createTopPointer(top, startX, startY, gap),
+        ];
+      } else if (event.tag === TAGS.PUSH_CHECK_FULL) {
         const newBox = createBox(
           newNode.id,
           newNode.value,
@@ -290,7 +319,9 @@ export function stackTraceToSteps(trace: ExecutionTrace): AnimationStep[] {
       stepNumber: idx + 1,
       description: DESCRIPTION_MAP[event.tag]?.(event) ?? { key: event.tag },
       actionTag: event.tag,
-      variables: event.local_vars,
+      warn: GUARD_ERROR_TAGS.has(event.tag),
+      info: INFO_TAGS.has(event.tag),
+      local_vars: event.local_vars,
       elements,
     };
   });

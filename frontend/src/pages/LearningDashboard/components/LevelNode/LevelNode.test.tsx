@@ -15,6 +15,9 @@ vi.mock("react-i18next", () => ({
       if (key === "levelUnavailable.undeveloped") {
         return "This level is not available yet. Stay tuned.";
       }
+      if (key === "levelUnavailable.locked") {
+        return "Complete prerequisite levels to unlock practice mode";
+      }
       return key;
     },
   }),
@@ -32,6 +35,14 @@ const undevelopedLevel: Level = {
   difficulty: 2,
   isDeveloped: false,
   isUnlocked: true,
+};
+
+const developedLevel: Level = {
+  id: "trie",
+  category: "data-structures",
+  difficulty: 2,
+  isDeveloped: true,
+  isUnlocked: false,
 };
 
 const position: NodePosition = {
@@ -54,7 +65,10 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function renderLevelNode(onClick = vi.fn()) {
+function renderLevelNode(
+  onClick = vi.fn(),
+  overrides: Partial<{ level: Level; status: "locked" | "unlocked" }> = {},
+) {
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
@@ -62,8 +76,8 @@ function renderLevelNode(onClick = vi.fn()) {
   act(() => {
     root?.render(
       <LevelNode
-        level={undevelopedLevel}
-        status="unlocked"
+        level={overrides.level ?? undevelopedLevel}
+        status={overrides.status ?? "unlocked"}
         stars={0}
         isLocked={false}
         position={position}
@@ -110,5 +124,61 @@ describe("LevelNode unavailable state", () => {
     expect(document.body.textContent).toContain(
       "This level is not available yet. Stay tuned.",
     );
+  });
+});
+
+describe("LevelNode locked (developed) state", () => {
+  it("keeps a locked but developed level clickable, not aria-disabled", () => {
+    const { node } = renderLevelNode(vi.fn(), {
+      level: developedLevel,
+      status: "locked",
+    });
+
+    expect(node.getAttribute("aria-disabled")).toBe("false");
+    expect(node.getAttribute("aria-label")).toBe(
+      "Level: Trie. Complete prerequisite levels to unlock practice mode",
+    );
+  });
+
+  it("shows the tutorial (book) icon instead of a lock covering the whole node", () => {
+    const { node } = renderLevelNode(vi.fn(), {
+      level: developedLevel,
+      status: "locked",
+    });
+
+    expect(node.querySelector("[data-icon='book-open']")).not.toBeNull();
+  });
+
+  it("shows the lock only as a small corner badge, clarifying it gates practice only", () => {
+    vi.useFakeTimers();
+    const { node } = renderLevelNode(vi.fn(), {
+      level: developedLevel,
+      status: "locked",
+    });
+
+    expect(node.querySelector("[data-icon='lock']")).not.toBeNull();
+
+    act(() => {
+      node.focus();
+      vi.advanceTimersByTime(200);
+    });
+
+    expect(document.body.textContent).toContain(
+      "Complete prerequisite levels to unlock practice mode",
+    );
+  });
+
+  it("delegates locked-but-developed level clicks to the dashboard handler", () => {
+    const onClick = vi.fn();
+    const { node } = renderLevelNode(onClick, {
+      level: developedLevel,
+      status: "locked",
+    });
+
+    act(() => {
+      node.click();
+    });
+
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

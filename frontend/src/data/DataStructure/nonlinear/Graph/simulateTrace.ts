@@ -12,6 +12,7 @@ export interface GraphAction {
   target?: string;
   deletedEdges?: [string, string][];
   deletedNodeCoords?: { x?: number; y?: number };
+  guardTag?: string;
 }
 
 export function simulateGraphTrace(
@@ -52,6 +53,34 @@ export function simulateGraphTrace(
 
   if (!type || ["refresh", "random", "reset", "load"].includes(type)) {
     pushTrace(TAGS.INIT, {});
+    return trace;
+  }
+
+  if (action?.guardTag) {
+    const vertexId = action.value ?? action.id;
+    const statusMap: Record<string, Status> = {};
+    const linkStatusMap: Record<string, string> = {};
+    [vertexId, action.source, action.target].forEach((raw) => {
+      if (!raw) return;
+      const id = ensurePrefix(raw);
+      if (rawNodes.some((n) => n.id === id)) statusMap[id] = Status.Target;
+    });
+    if (action.guardTag === TAGS.ADD_EDGE_DUPLICATE) {
+      const sId = ensurePrefix(action.source!);
+      const tId = ensurePrefix(action.target!);
+      linkStatusMap[`${sId}->${tId}`] = Status.Target;
+      if (!isDirected) linkStatusMap[`${tId}->${sId}`] = Status.Target;
+    }
+    pushTrace(
+      action.guardTag,
+      {
+        val: vertexId ?? null,
+        source: action.source ?? null,
+        target: action.target ?? action.id ?? null,
+      },
+      statusMap,
+      linkStatusMap,
+    );
     return trace;
   }
 

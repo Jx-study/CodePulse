@@ -1,8 +1,8 @@
 import type { TFunction } from "i18next";
 
 /**
- * 基础表單驗證函數
- * 每個函數只驗證單一欄位，返回錯誤訊息或 null
+ * 基础表單驗證函式
+ * 每個函式只驗證單一欄位，返回錯誤訊息或 null
  */
 
 export const validateLoginIdentifier = (value: string, t: TFunction): string | null => {

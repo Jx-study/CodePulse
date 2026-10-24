@@ -429,12 +429,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成 `search_insert` 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "(a) 迴圈需在搜尋範圍「仍然有效」時持續執行，思考 left 與 right 的相對關係何時代表「還有元素可看」。(b)(c) 每次比較後必須把 mid 本身從範圍中排除——確認目標在哪一側，就把對應邊界移到 mid 的鄰格而非 mid 本身。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the `search_insert` function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "(a) The loop should continue as long as the search range is still valid — think about what relationship between left and right means 'there are still elements to examine'. (b)(c) After each comparison, mid itself must be excluded from the new range: whichever side the target is on, move that boundary to the slot adjacent to mid, not to mid itself.",
                 },
             },
@@ -477,12 +477,12 @@ DATA = {
             "translations": {
                 "zh-TW": {
                     "title": "請填入正確的程式碼，完成標準的 `binary_search` 函式。",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "(a) `mid`：找到目標時回傳其索引。(b) `left`：目標在右半邊，更新左邊界為 mid + 1。(c) `right`：目標在左半邊，更新右邊界為 mid - 1。",
                 },
                 "en": {
                     "title": "Fill in the correct code to complete the standard `binary_search` function.",
-                    "options": [],
+                    "options": [{"id": "a", "text": ""}, {"id": "b", "text": ""}, {"id": "c", "text": ""}],
                     "explanation": "(a) `mid`: return the index when the target is found. (b) `left`: target is in the right half, update the left boundary to mid + 1. (c) `right`: target is in the left half, update the right boundary to mid - 1.",
                 },
             },

@@ -2,6 +2,8 @@
   "animation": {
     "init": "Queue 狀態",
     "enqueue_start": "Enqueue({{value}}): 準備入列",
+    "enqueue_check_full": "Enqueue(): 檢查是否已滿 (目前 {{size}} 筆)",
+    "enqueue_error": "錯誤: 佇列上溢 (Queue Overflow)，無法再入列新元素",
     "enqueue_inc_rear": "rear = rear + 1 (現在 rear 指向 {{rear}})",
     "enqueue_assign": "queue[{{rear}}] = {{value}}",
     "enqueue_complete": "Enqueue 完成",
@@ -31,7 +33,7 @@
   "relatedProblems": {
     "225": "佇列應用：用佇列實作堆疊的功能",
     "622": "佇列設計：實作環形佇列 (Circular Queue)",
-    "933": "佇列的實際應用：計算最近請求數量 (滑動窗口)"
+    "933": "佇列的實際應用：計算最近請求數量 (滑動視窗)"
   },
   "stories": {
     "queue-multidomain-applications": {
@@ -50,7 +52,7 @@
           },
           {
             "heading": "作業系統的排程樞紐：排程佇列 (Scheduling Queues)",
-            "content": "作業系統必須管理多個同時競爭 CPU 資源的程式，它是透過建立多個不同的排程佇列來實現這個複雜的任務。當任何程式剛啟動時，會先進入包含所有進程的工作佇列 (Job Queue)。接著，準備好執行並等待 CPU 資源的進程會被放入就緒佇列 (Ready Queue)；而如果進程正在等待外部設備（如硬碟讀取、網路資料），則會被暫停並移入裝置佇列 (Device Queues) 中等待。作業系統的排程器會不斷在這些佇列間調度進程，以維持電腦的高效運行。"
+            "content": "作業系統必須管理多個同時競爭 CPU 資源的程式，它是透過建立多個不同的排程佇列來實現這個複雜的任務。當任何程式剛啟動時，會先進入包含所有行程的工作佇列 (Job Queue)。接著，準備好執行並等待 CPU 資源的行程會被放入就緒佇列 (Ready Queue)；而如果行程正在等待外部設備（如硬碟讀取、網路資料），則會被暫停並移入裝置佇列 (Device Queues) 中等待。作業系統的排程器會不斷在這些佇列間排程行程，以維持電腦的高效運行。"
           },
           {
             "heading": "日常設備的隱形幫手：列印多工緩衝處理器 (Print Spooler)",

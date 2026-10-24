@@ -273,6 +273,7 @@ function SettingPanel({
       {/* Change Password Accordion */}
       <div className={styles.accordion}>
         <button
+          type="button"
           className={styles.accordionHeader}
           onClick={() => setIsPasswordOpen((v) => !v)}
           aria-expanded={isPasswordOpen}

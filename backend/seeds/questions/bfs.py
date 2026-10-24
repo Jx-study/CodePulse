@@ -146,6 +146,7 @@ DATA = {
         },
         {
             "id": "bfs-q3",
+            "groupId": "bfs-group-1",
             "type": "single-choice",
             "baseRating": 1150,
             "correctAnswer": "B",
@@ -515,21 +516,22 @@ DATA = {
         },
         {
             "id": "bfs-q17",
+            "groupId": "bfs-group-1",
             "type": "predict-line",
             "baseRating": 1600,
-            "correctAnswer": "1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 5 6 7 5 6 7 5 12",
+            "correctAnswer": "1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 5 6 7 8 5 12",
             "code": BFS_PREDICT_CODE,
             "language": "python",
             "translations": {
                 "zh-TW": {
                     "title": "請閱讀 bfs 函數。使用題組中的有向圖，呼叫 bfs(graph, 'A') 時，請依序填寫執行的行號序列（以空格分隔）。",
                     "options": [],
-                    "explanation": "L1-L4 初始化；L5 while queue 非空；L6 取出 A；L7 加入 result；L8-L11 將 B 和 C 加入佇列並標記；L5 再次進入；L6 取出 B；L7；L8-L11 將 D 加入；繼續取出 C 和 D，E；最後佇列空，L5 條件失敗，L12 return。",
+                    "explanation": "題組的圖為 A→B、A→C、B→D、C→E。L1 進入 → L2-L4 初始化。取出 A：L5 L6 L7，L8-L11 將 B、C 加入並標記，L8 鄰居走完。取出 B：L5 L6 L7，L8-L11 加入 D，L8 結束。取出 C：L5 L6 L7，L8-L11 加入 E，L8 結束。取出 D、E：各為 L5 L6 L7 L8（沒有鄰居，for 直接結束）。L5 佇列已空 → L12 回傳 ['A', 'B', 'C', 'D', 'E']。完整序列：1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 5 6 7 8 5 12。",
                 },
                 "en": {
                     "title": "Read the bfs function. Using the directed graph from the group, calling bfs(graph, 'A') — write the sequence of line numbers executed (space-separated).",
                     "options": [],
-                    "explanation": "L1-L4 initialize; L5 while queue non-empty; L6 dequeue A; L7 append to result; L8-L11 enqueue and mark B and C; L5 again; L6 dequeue B; L7; L8-L11 enqueue D; continue dequeuing C, D, E; finally queue empty, L5 condition fails, L12 return.",
+                    "explanation": "The group graph is A→B, A→C, B→D, C→E. L1 enter → L2-L4 initialize. Dequeue A: L5 L6 L7, L8-L11 enqueue and mark B and C, L8 neighbors done. Dequeue B: L5 L6 L7, L8-L11 enqueue D, L8 done. Dequeue C: L5 L6 L7, L8-L11 enqueue E, L8 done. Dequeue D and E: L5 L6 L7 L8 each (no neighbors, the for loop ends immediately). L5 queue empty → L12 return ['A', 'B', 'C', 'D', 'E']. Full sequence: 1 2 3 4 5 6 7 8 9 10 11 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 9 10 11 8 5 6 7 8 5 6 7 8 5 12.",
                 },
             },
         },

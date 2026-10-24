@@ -24,5 +24,40 @@
     "queenPlaced": "Queen Placed",
     "attacked": "Under Attack",
     "backtrack": "Backtracking"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "N-Queens is a classic **backtracking** problem: place N queens on an N × N board so that no two share a row, column, or diagonal.",
+        "items": [
+          "Try placing a queen **row by row**, exactly one per row",
+          "If a square is outside every placed queen's [[primary|attack range]], place it tentatively and recurse to the next row",
+          "If the next row has no valid square, **backtrack**: remove the queen and try the next position",
+          "Filling all N rows yields one **solution**"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "Backtracking searches all possible placements, but **pruning** abandons most invalid branches early.",
+        "items": [
+          "**Time complexity**: [[danger|O(N!)]] in the worst case, since available squares shrink row by row",
+          "**Space complexity**: [[success|O(N)]] — only the column of each row's queen is stored",
+          "The real work is far below N! because conflicting branches are pruned very early"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Conflict checking is the hot spot, and a good data structure speeds it up greatly.",
+        "items": [
+          "**Set marking**: track used columns, main diagonals (row - col), and anti-diagonals (row + col) in three sets, making the check [[success|O(1)]]",
+          "**Bit operations**: bitmasks for occupancy are a faster advanced technique",
+          "Exploit **left-right symmetry**: search only half the first-row choices and mirror, saving about half the time"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

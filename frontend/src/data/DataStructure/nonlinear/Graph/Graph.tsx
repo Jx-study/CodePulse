@@ -43,16 +43,21 @@ function graphActionHandler(
   const { nodes, edges } = newData;
   const isDirected = payload.isDirected as boolean;
 
+  const guardResult = (
+    guardTag: string,
+    params: Record<string, unknown>,
+  ): ActionResult<GraphData> => ({
+    animationData: data,
+    useRawAnimationParams: true,
+    animationParams: { type: actionType, guardTag, isDirected, ...params },
+  });
+  const hasNode = (val: unknown) => nodes.some((n) => n.id === `node-${val}`);
+
   if (actionType === "addVertex") {
     const val = payload.value ? String(payload.value) : `node-${nodes.length}`;
     const id = `node-${val}`;
-    if (!val || val.trim() === "") {
-      context.toast.warning("請輸入節點 ID");
-      return null;
-    }
     if (nodes.find((n) => n.id === id)) {
-      context.toast.warning(`節點 ${val} 已存在`);
-      return null;
+      return guardResult(TAGS.ADD_VERTEX_DUPLICATE, { value: val });
     }
     nodes.push({ id, value: val });
     return {
@@ -65,14 +70,9 @@ function graphActionHandler(
   if (actionType === "removeVertex") {
     const targetVal = String(payload.id ?? "");
     const targetIdVal = `node-${targetVal}`;
-    if (!targetVal || targetVal.trim() === "") {
-      context.toast.warning("請輸入節點 ID");
-      return null;
-    }
     const idx = nodes.findIndex((n) => n.id === targetIdVal);
     if (idx === -1) {
-      context.toast.warning(`節點 ${targetVal} 不存在`);
-      return null;
+      return guardResult(TAGS.REMOVE_VERTEX_MISSING, { id: targetVal });
     }
     const relatedEdges = edges.filter(
       (e) => e[0] === targetIdVal || e[1] === targetIdVal,
@@ -99,12 +99,9 @@ function graphActionHandler(
   if (actionType === "addEdge") {
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
-    if (
-      !nodes.find((n) => n.id === sourceId) ||
-      !nodes.find((n) => n.id === targetIdVal)
-    ) {
-      context.toast.warning("來源或目標節點不存在");
-      return null;
+    const endpoints = { source: payload.source, target: payload.target };
+    if (!hasNode(payload.source) || !hasNode(payload.target)) {
+      return guardResult(TAGS.ADD_EDGE_MISSING_VERTEX, endpoints);
     }
     const exists = edges.some(
       (e) =>
@@ -112,8 +109,7 @@ function graphActionHandler(
         (!isDirected && e[0] === targetIdVal && e[1] === sourceId),
     );
     if (exists) {
-      context.toast.warning("該連線已存在");
-      return null;
+      return guardResult(TAGS.ADD_EDGE_DUPLICATE, endpoints);
     }
     edges.push([sourceId, targetIdVal]);
     return {
@@ -132,6 +128,10 @@ function graphActionHandler(
   if (actionType === "removeEdge") {
     const sourceId = `node-${payload.source}`;
     const targetIdVal = `node-${payload.target}`;
+    const endpoints = { source: payload.source, target: payload.target };
+    if (!hasNode(payload.source) || !hasNode(payload.target)) {
+      return guardResult(TAGS.REMOVE_EDGE_MISSING_VERTEX, endpoints);
+    }
     const initialLength = edges.length;
     newData.edges = edges.filter((e) => {
       const isForward = e[0] === sourceId && e[1] === targetIdVal;
@@ -139,8 +139,7 @@ function graphActionHandler(
       return isDirected ? !isForward : !(isForward || isBackward);
     });
     if (newData.edges.length === initialLength) {
-      context.toast.warning("找不到該連線，無法刪除");
-      return null;
+      return guardResult(TAGS.REMOVE_EDGE_NOT_FOUND, endpoints);
     }
     return {
       animationData: newData,
@@ -166,42 +165,29 @@ function graphActionHandler(
   ) {
     if (
       (actionType === "getNeighbors" || actionType === "getDegree") &&
-      (!payload.id || String(payload.id).trim() === "")
+      !hasNode(payload.id)
     ) {
-      context.toast.warning("請輸入節點 ID");
-      return null;
+      return guardResult(
+        actionType === "getNeighbors"
+          ? TAGS.GET_NEIGHBORS_MISSING
+          : TAGS.GET_DEGREE_MISSING,
+        { id: payload.id },
+      );
     }
     if (
       actionType === "checkAdjacent" &&
-      (!payload.source ||
-        String(payload.source).trim() === "" ||
-        !payload.target ||
-        String(payload.target).trim() === "")
+      (!hasNode(payload.source) || !hasNode(payload.target))
     ) {
-      context.toast.warning("請輸入來源與目標節點 ID");
-      return null;
+      return guardResult(TAGS.CHECK_ADJACENT_MISSING, {
+        source: payload.source,
+        target: payload.target,
+      });
     }
-    if (actionType === "getNeighbors" || actionType === "getDegree") {
-      if (!nodes.find((n) => n.id === `node-${payload.id}`)) {
-        context.toast.warning(`節點 ${payload.id} 不存在`);
-        return null;
-      }
+    if (actionType === "checkConnected" && nodes.length === 0) {
+      return guardResult(TAGS.CHECK_CONNECTED_EMPTY, {});
     }
-    if (actionType === "checkAdjacent") {
-      if (
-        !nodes.find((n) => n.id === `node-${payload.source}`) ||
-        !nodes.find((n) => n.id === `node-${payload.target}`)
-      ) {
-        context.toast.warning("來源或目標節點不存在");
-        return null;
-      }
-    }
-    if (
-      (actionType === "checkConnected" || actionType === "checkCycle") &&
-      nodes.length === 0
-    ) {
-      context.toast.warning("圖形為空");
-      return null;
+    if (actionType === "checkCycle" && nodes.length === 0) {
+      return guardResult(TAGS.CHECK_CYCLE_EMPTY, {});
     }
     return {
       animationData: data,
@@ -292,157 +278,169 @@ function graphActionHandler(
 
 const graphCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Graph:
-  Procedure AddVertex(id):
-    If id is not in adjList Then
-      adjList[id] ← Empty List
-    End If
-  End Procedure
+    content: `Procedure AddVertex(id):
+  If id is not in adjList Then
+    adjList[id] ← Empty List
+  End If
+End Procedure
 
-  Procedure RemoveVertex(id):
-    If id is in adjList Then
-      Remove adjList[id]
-      For Each u in adjList Do
-        If id is in adjList[u] Then
-          Remove id from adjList[u]
-        End If
-      End For
-    End If
-  End Procedure
-
-  Procedure AddEdge(u, v):
-    If u in adjList And v in adjList Then
-      If v is not in adjList[u] Then
-        Append v to adjList[u]
+Procedure RemoveVertex(id):
+  If id is in adjList Then
+    Remove adjList[id]
+    For Each u in adjList Do
+      If id is in adjList[u] Then
+        Remove id from adjList[u]
       End If
-      If isDirected = False Then
-        If u is not in adjList[v] Then
-          Append u to adjList[v]
-        End If
-      End If
-    End If
-  End Procedure
+    End For
+  End If
+End Procedure
 
-  Procedure RemoveEdge(u, v):
-    If u in adjList And v in adjList Then
-      If v is in adjList[u] Then
-        Remove v from adjList[u]
-      End If
-      If isDirected = False Then
-        If u is in adjList[v] Then
-          Remove u from adjList[v]
-        End If
-      End If
-    End If
-  End Procedure
-
-  Procedure GetNeighbors(id):
-    If id is in adjList Then
-      Return adjList[id]
-    End If
-    Return Empty List
-  End Procedure
-
-  Procedure CheckAdjacent(u, v):
-    If u is in adjList Then
-      Return v is in adjList[u]
-    End If
-    Return False
-  End Procedure
-
-  Procedure GetDegree(id):
-    If id is not in adjList Then
-      Return -1
+Procedure AddEdge(u, v):
+  If u in adjList And v in adjList Then
+    If v is not in adjList[u] Then
+      Append v to adjList[u]
     End If
     If isDirected = False Then
-      Return size of adjList[id]
-    Else
-      outDeg ← size of adjList[id]
-      inDeg ← number of nodes that point to id
-      Return outDeg, inDeg
+      If u is not in adjList[v] Then
+        Append u to adjList[v]
+      End If
     End If
-  End Procedure
+  End If
+End Procedure
 
-  Procedure CheckConnected():
-    visited ← Empty Set
-    queue ← Empty Queue
-    start ← First node in adjList
-    visited.Add(start)
-    queue.Enqueue(start)
+Procedure RemoveEdge(u, v):
+  If u in adjList And v in adjList Then
+    If v is in adjList[u] Then
+      Remove v from adjList[u]
+    End If
+    If isDirected = False Then
+      If u is in adjList[v] Then
+        Remove u from adjList[v]
+      End If
+    End If
+  End If
+End Procedure
 
-    While queue is not Empty Do
-      curr ← queue.Dequeue()
-      For Each neighbor in adjList[curr] Do
-        If neighbor is not in visited Then
-          visited.Add(neighbor)
-          queue.Enqueue(neighbor)
-        End If
-      End For
-    End While
+Procedure GetNeighbors(id):
+  If id is in adjList Then
+    Return adjList[id]
+  End If
+  Return Empty List
+End Procedure
 
-    Return size of visited = size of adjList
-  End Procedure
+Procedure CheckAdjacent(u, v):
+  If u is in adjList And v is in adjList Then
+    Return v is in adjList[u]
+  End If
+  Return False
+End Procedure
 
-  Procedure CheckCycle():
-    visited ← Empty Set
-    recStack ← Empty Set
-    pathStack ← Empty Stack
+Procedure GetDegree(id):
+  If id is not in adjList Then
+    Return -1
+  End If
+  If isDirected = False Then
+    Return size of adjList[id]
+  Else
+    outDeg ← size of adjList[id]
+    inDeg ← number of nodes that point to id
+    Return outDeg, inDeg
+  End If
+End Procedure
 
-    Function DFS(curr, parent):
-      visited.Add(curr)
-      recStack.Add(curr)
-      pathStack.Push(curr)
+Procedure CheckConnected():
+  If adjList is Empty Then
+    Return True
+  End If
+  visited ← Empty Set
+  queue ← Empty Queue
+  start ← First node in adjList
+  visited.Add(start)
+  queue.Enqueue(start)
 
-      For Each neighbor in adjList[curr] Do
-        If neighbor is not in visited Then
-          result ← DFS(neighbor, curr)
-          If result is not Null Then Return result
-        Else If isDirected = True And neighbor is in recStack Then Return pathStack
-        Else If isDirected = False And neighbor ≠ parent Then Return pathStack
-      End For
-
-      recStack.Remove(curr)
-      pathStack.Pop()
-      Return Null
-    End Function
-
-    For Each node in adjList Do
-      If node is not in visited Then
-        result ← DFS(node, Null)
-        If result is not Null Then Return result
+  While queue is not Empty Do
+    curr ← queue.Dequeue()
+    For Each neighbor in adjList[curr] Do
+      If neighbor is not in visited Then
+        visited.Add(neighbor)
+        queue.Enqueue(neighbor)
+      End If
     End For
+  End While
+
+  Return size of visited = size of adjList
+End Procedure
+
+Procedure CheckCycle():
+  visited ← Empty Set
+  recStack ← Empty Set
+  pathStack ← Empty Stack
+
+  Function DFS(curr, parent):
+    visited.Add(curr)
+    recStack.Add(curr)
+    pathStack.Push(curr)
+
+    For Each neighbor in adjList[curr] Do
+      If neighbor is not in visited Then
+        result ← DFS(neighbor, curr)
+        If result is not Null Then Return result
+      Else If isDirected = True And neighbor is in recStack Then Return pathStack
+      Else If isDirected = False And neighbor ≠ parent Then Return pathStack
+    End For
+
+    recStack.Remove(curr)
+    pathStack.Pop()
     Return Null
-  End Procedure
-End Class`,
+  End Function
+
+  For Each node in adjList Do
+    If node is not in visited Then
+      result ← DFS(node, Null)
+      If result is not Null Then Return result
+  End For
+  Return Null
+End Procedure`,
     mappings: {
-      [TAGS.ADD_VERTEX]: [2, 3, 4],
-      [TAGS.ADD_VERTEX_RESULT]: [6],
-      [TAGS.REMOVE_VERTEX]: [8, 9],
-      [TAGS.REMOVE_VERTEX_UPDATE]: [10, 11, 12, 13, 14],
-      [TAGS.ADD_EDGE]: [19, 20, 21, 22],
-      [TAGS.ADD_EDGE_UNDIRECTED]: [24, 25, 26, 27],
-      [TAGS.REMOVE_EDGE]: [32, 33, 34, 35],
-      [TAGS.REMOVE_EDGE_UNDIRECTED]: [37, 38, 39, 40],
-      [TAGS.GET_NEIGHBORS]: [45, 46],
-      [TAGS.GET_NEIGHBORS_RESULT_TRUE]: [47],
-      [TAGS.GET_NEIGHBORS_RESULT_FALSE]: [49],
-      [TAGS.CHECK_ADJACENT]: [52, 53],
-      [TAGS.CHECK_ADJACENT_RESULT_TRUE]: [54],
-      [TAGS.CHECK_ADJACENT_RESULT_FALSE]: [56],
-      [TAGS.GET_DEGREE_UNDIRECTED]: [63, 64],
-      [TAGS.GET_DEGREE_DIRECTED]: [65, 66, 67, 68, 69],
-      [TAGS.CHECK_CONNECTED_INIT]: [72, 73, 74, 75, 76, 77],
-      [TAGS.CHECK_CONNECTED_WHILE]: [79, 80, 81, 82, 83, 84, 85, 86],
-      [TAGS.CHECK_CONNECTED_RESULT]: [89],
-      [TAGS.CHECK_CYCLE_INIT]: [92, 93, 94],
+      [TAGS.ADD_VERTEX]: [1, 2, 3],
+      [TAGS.ADD_VERTEX_RESULT]: [5],
+      [TAGS.REMOVE_VERTEX]: [7, 8],
+      [TAGS.REMOVE_VERTEX_UPDATE]: [9, 10, 11, 12, 13],
+      [TAGS.ADD_EDGE]: [18, 19, 20, 21],
+      [TAGS.ADD_EDGE_UNDIRECTED]: [23, 24, 25, 26],
+      [TAGS.REMOVE_EDGE]: [31, 32, 33, 34],
+      [TAGS.REMOVE_EDGE_UNDIRECTED]: [36, 37, 38, 39],
+      [TAGS.GET_NEIGHBORS]: [44, 45],
+      [TAGS.GET_NEIGHBORS_RESULT_TRUE]: [46],
+      [TAGS.GET_NEIGHBORS_RESULT_FALSE]: [48],
+      [TAGS.CHECK_ADJACENT]: [51, 52],
+      [TAGS.CHECK_ADJACENT_RESULT_TRUE]: [53],
+      [TAGS.CHECK_ADJACENT_RESULT_FALSE]: [55],
+      [TAGS.GET_DEGREE_UNDIRECTED]: [59, 62, 63],
+      [TAGS.GET_DEGREE_DIRECTED]: [59, 64, 65, 66, 67, 68],
+      [TAGS.CHECK_CONNECTED_INIT]: [71, 72, 75, 76, 77, 78, 79],
+      [TAGS.CHECK_CONNECTED_WHILE]: [81, 82, 83, 84, 85, 86, 87, 88],
+      [TAGS.CHECK_CONNECTED_RESULT]: [91],
+      [TAGS.CHECK_CYCLE_INIT]: [94, 95, 96, 97],
       [TAGS.CHECK_CYCLE_DFS]: [
         97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
         112,
       ],
-      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [105, 106],
-      [TAGS.CHECK_CYCLE_FOUND_FALSE]: [112],
-      [TAGS.CHECK_CYCLE_END_TRUE]: [116, 117, 118],
-      [TAGS.CHECK_CYCLE_END_FALSE]: [120],
+      [TAGS.CHECK_CYCLE_FOUND_TRUE]: [107, 108, 109],
+      [TAGS.CHECK_CYCLE_FOUND_FALSE]: [114],
+      [TAGS.CHECK_CYCLE_END_TRUE]: [117, 118, 119, 120],
+      [TAGS.CHECK_CYCLE_END_FALSE]: [122],
+      [TAGS.ADD_VERTEX_DUPLICATE]: [2],
+      [TAGS.REMOVE_VERTEX_MISSING]: [8],
+      [TAGS.ADD_EDGE_MISSING_VERTEX]: [19],
+      [TAGS.ADD_EDGE_DUPLICATE]: [20],
+      [TAGS.REMOVE_EDGE_MISSING_VERTEX]: [32],
+      [TAGS.REMOVE_EDGE_NOT_FOUND]: [33],
+      [TAGS.GET_NEIGHBORS_MISSING]: [45, 48],
+      [TAGS.CHECK_ADJACENT_MISSING]: [52, 55],
+      [TAGS.GET_DEGREE_MISSING]: [59, 60],
+      [TAGS.CHECK_CYCLE_EMPTY]: [117, 122],
+      [TAGS.CHECK_CONNECTED_EMPTY]: [72, 73],
     },
   },
   python: {
@@ -483,7 +481,7 @@ End Class`,
         return []
 
     def check_adjacent(self, source: str, target: str) -> bool:
-        if source in self.adj_list:
+        if source in self.adj_list and target in self.adj_list:
             return target in self.adj_list[source]
         return False
 
@@ -629,7 +627,6 @@ export const GraphConfig: LevelImplementationConfig = {
   categoryName: "非線性表",
   description:
     "由節點 (Vertex) 與邊 (Edge) 組成的資料結構，用於描述物件之間的關係。",
-  // TODO: 補完 Graph 的 pseudo code 與 mappings
   codeConfig: graphCodeConfig,
   linkAnimConfig: {
     animateOn: ["prepare", "target"],

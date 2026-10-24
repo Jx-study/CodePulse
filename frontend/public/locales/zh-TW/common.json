@@ -126,6 +126,9 @@
     }
   },
   "close": "關閉",
+  "errors": {
+    "RATE_LIMITED": "操作太頻繁，請幾分鐘後再試"
+  },
   "checkin": {
     "title": "每日打卡",
     "checkIn": "打卡",

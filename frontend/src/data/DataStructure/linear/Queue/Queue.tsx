@@ -22,72 +22,66 @@ function createQueueAnimationSteps(
 
 const queueCodeConfig: CodeConfig = {
   pseudo: {
-    content: `Class Queue:
-  Data:
-    front ← 0
-    rear ← -1
-    size ← 0
-    queue ← Array of Size
+    content: `Procedure enqueue(value):
+  If size = Size Then
+    Return Error
+  End If
+  size ← size + 1
+  rear ← rear + 1
+  queue[rear] ← value
+End Procedure
 
-  Procedure enqueue(value):
-    If size = Size Then
-        Return Error
-    End If
-    size ← size + 1
-    rear ← rear + 1
-    queue[rear] ← value
-  End Procedure
+Procedure dequeue():
+  If size = 0 Then
+    Return Error
+  End If
+  removed_value ← queue[front]
+  front ← front + 1
+  size ← size - 1
+  Return removed_value
+End Procedure
 
-  Procedure dequeue():
-    If size = 0 Then
-        Return Error
-    End If
-    removed_value ← queue[front]
-    front ← front + 1
-    size ← size - 1
-    Return removed_value
-  End Procedure
-
-  Procedure peek():
-    If size = 0 Then
-        Return null
-    End If
-    Return queue[front]
-  End Procedure`,
+Procedure peek():
+  If size = 0 Then
+      Return null
+  End If
+  Return queue[front]
+End Procedure`,
     mappings: {
-      [TAGS.INIT]: [2, 3, 4, 5, 6],
-      [TAGS.ENQUEUE_START]: [8],
-      [TAGS.ENQUEUE_INC_REAR]: [12, 13],
-      [TAGS.ENQUEUE_ASSIGN]: [14],
-      [TAGS.ENQUEUE_COMPLETE]: [15],
-      [TAGS.DEQUEUE_START]: [17],
-      [TAGS.DEQUEUE_CHECK_EMPTY]: [18],
-      [TAGS.DEQUEUE_ERROR]: [19],
-      [TAGS.DEQUEUE_GET_VALUE]: [21],
-      [TAGS.DEQUEUE_DEC_REAR]: [22, 23],
-      [TAGS.DEQUEUE_RETURN]: [24],
-      [TAGS.DEQUEUE_COMPLETE]: [25],
-      [TAGS.PEEK_START]: [27],
-      [TAGS.PEEK_CHECK_EMPTY]: [28],
-      [TAGS.PEEK_ERROR]: [29],
-      [TAGS.PEEK_RETURN]: [31],
-      [TAGS.PEEK_COMPLETE]: [32],
+      [TAGS.ENQUEUE_START]: [1],
+      [TAGS.ENQUEUE_CHECK_FULL]: [2],
+      [TAGS.ENQUEUE_ERROR]: [3],
+      [TAGS.ENQUEUE_INC_REAR]: [5, 6],
+      [TAGS.ENQUEUE_ASSIGN]: [7],
+      [TAGS.ENQUEUE_COMPLETE]: [8],
+      [TAGS.DEQUEUE_START]: [10],
+      [TAGS.DEQUEUE_CHECK_EMPTY]: [11],
+      [TAGS.DEQUEUE_ERROR]: [12],
+      [TAGS.DEQUEUE_GET_VALUE]: [14],
+      [TAGS.DEQUEUE_DEC_REAR]: [15, 16],
+      [TAGS.DEQUEUE_RETURN]: [17],
+      [TAGS.DEQUEUE_COMPLETE]: [18],
+      [TAGS.PEEK_START]: [20],
+      [TAGS.PEEK_CHECK_EMPTY]: [21],
+      [TAGS.PEEK_ERROR]: [22],
+      [TAGS.PEEK_RETURN]: [24],
+      [TAGS.PEEK_COMPLETE]: [25],
     },
   },
   python: {
     content: `from collections import deque
 
 class Queue:
-    def __init__(self):
-        # 使用 deque 作為底層儲存
+    def __init__(self, capacity):
+        self.capacity = capacity
         self.queue = deque()
 
     def enqueue(self, value):
-        # 從右邊（尾部）加入
+        if len(self.queue) >= self.capacity:
+            raise Exception("Queue Overflow")
         self.queue.append(value)
 
     def dequeue(self):
-        # 從左邊（頭部）取出
         if self.is_empty():
             raise Exception("Queue Underflow")
         return self.queue.popleft()
@@ -105,14 +99,14 @@ class Queue:
     lineComplexity: [
       { lineNumber: 1,  complexity: 'O(1)' },  // from collections import deque
       { lineNumber: 3,  complexity: 'O(1)' },  // class Queue:
-      { lineNumber: 4,  complexity: 'O(1)' },  // def __init__(self):
-      { lineNumber: 5,  complexity: 'O(1)' },  // # 使用 deque 作為底層儲存
+      { lineNumber: 4,  complexity: 'O(1)' },  // def __init__(self, capacity):
+      { lineNumber: 5,  complexity: 'O(1)' },  // self.capacity = capacity
       { lineNumber: 6,  complexity: 'O(1)' },  // self.queue = deque()
       { lineNumber: 8,  complexity: 'O(1)' },  // def enqueue(self, value):
-      { lineNumber: 9,  complexity: 'O(1)' },  // # 從右邊（尾部）加入
-      { lineNumber: 10, complexity: 'O(1)' },  // self.queue.append(value)
-      { lineNumber: 12, complexity: 'O(1)' },  // def dequeue(self):
-      { lineNumber: 13, complexity: 'O(1)' },  // # 從左邊（頭部）取出
+      { lineNumber: 9,  complexity: 'O(1)' },  // if len(self.queue) >= self.capacity:
+      { lineNumber: 10, complexity: 'O(1)' },  // raise Exception("Queue Overflow")
+      { lineNumber: 11, complexity: 'O(1)' },  // self.queue.append(value)
+      { lineNumber: 13, complexity: 'O(1)' },  // def dequeue(self):
       { lineNumber: 14, complexity: 'O(1)' },  // if self.is_empty():
       { lineNumber: 15, complexity: 'O(1)' },  // raise Exception("Queue Underflow")
       { lineNumber: 16, complexity: 'O(1)' },  // return self.queue.popleft()
@@ -137,6 +131,13 @@ function queueActionHandler(
 ): ActionResult<BoxData[]> | null {
   const { value } = payload as { value?: number };
   const newData = [...data];
+
+  if (actionType === "add" && payload.overflow) {
+    return {
+      animationData: data,
+      animationParams: { value, mode: "Enqueue", overflow: true },
+    };
+  }
 
   if (actionType === "add") {
     const newId = context.nextId();
@@ -253,4 +254,5 @@ export const QueueConfig: LevelImplementationConfig = {
     },
   ],
   maxNodes: 12,
+  hasCapacityGuard: true,
 };

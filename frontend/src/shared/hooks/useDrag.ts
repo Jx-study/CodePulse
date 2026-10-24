@@ -13,7 +13,7 @@ interface UseDragOptions {
     minY?: number;
     maxY?: number;
   };
-  /** 動態計算邊界限制的函數 (優先於 bounds) */
+  /** 動態計算邊界限制的函式 (優先於 bounds) */
   calculateBounds?: (containerRef: HTMLElement | null | undefined) => {
     minX?: number;
     maxX?: number;
@@ -85,7 +85,7 @@ export function useDrag<T extends HTMLElement = HTMLElement>(
       } = {};
 
       if (calculateBounds) {
-        // 1. 使用自定義計算函數
+        // 1. 使用自定義計算函式
         effectiveBounds = calculateBounds(containerRef.current);
       } else if (boundaryRatio !== undefined && containerRef.current) {
         // 2. 使用容器尺寸比例（類似 D3Canvas 的邏輯）

@@ -129,13 +129,12 @@
     "delete_index_traverse": "Traversing: current = current.next (searching for index {{targetIndex}})",
     "delete_index_unlink": "pre.next = current.next (predecessor skips target to point to next node)",
     "delete_index_unlink_prev": "current.next.prev = pre (successor's prev points back to predecessor)",
-    "delete_index_end": "DeleteAtIndex complete"
-  },
-  "actionHandler": {
-    "indexNegative": "Invalid index: index cannot be negative",
-    "insertIndexOutOfRange": "Index {{idx}} is out of range; maximum insert index is {{max}}",
-    "deleteIndexOutOfRange": "Index {{idx}} is out of range; maximum delete index is {{max}}",
-    "listEmpty": "Linked list is empty"
+    "delete_index_end": "DeleteAtIndex complete",
+    "delete_empty": "The linked list is empty (head = null), so there is no node to delete",
+    "insert_index_out_of_range": "Index {{index}} is out of range (length is {{length}}), so the node cannot be inserted (Return Error)",
+    "delete_index_out_of_range": "Index {{index}} is out of range (length is {{length}}), so there is no node to delete (Return Error)",
+    "insert_tail_check_head": "Check if empty: head == null, false, so walk from head to the tail",
+    "delete_tail_check_head": "Check if empty: head == null, false, so the tail node can be deleted"
   },
   "ui": {
     "operations": "Linked List Operations",

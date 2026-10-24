@@ -68,9 +68,11 @@ const fibonacciCodeConfig: CodeConfig = {
   Return left + right
 End Procedure`,
     mappings: {
+      [TAGS.FIB_START]: [1],
       [TAGS.FIB_CALL]: [1],
       [TAGS.FIB_BASE]: [2, 3],
       [TAGS.FIB_CALC]: [6, 7, 9],
+      [TAGS.FIB_DONE]: [9],
     },
   },
   python: {
@@ -98,8 +100,7 @@ export const fibonacciRecursiveConfig: LevelImplementationConfig = {
     timeWorst: "O(2^n)",
     space: "O(n)", // 呼叫堆疊的深度
   },
-  introduction:
-    "遞迴（Recursion）是將大問題切割成小問題來解決的策略。在這個視覺化中，你可以清楚地看到每一個函數呼叫是如何將狀態保留在「呼叫堆疊 (Call Stack)」中，直到最底層的 Base Case 回傳後，再一層一層地將結果合併上來。\n\n⚠️ 注意觀察：你會發現很多相同的節點（例如 f(2)）被重複計算了非常多次，這就是為什麼這個演算法的時間複雜度會高達可怕的 O(2^n)！",
+  introduction: { key: "introduction" },
   defaultData: [],
   createAnimationSteps: createFibonacciAnimationSteps,
   actionHandler: fibonacciActionHandler,

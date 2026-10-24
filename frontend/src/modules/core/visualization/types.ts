@@ -1,9 +1,10 @@
-/** Toast API，供 actionHandler 顯示警告等 */
+/** Toast API，供 actionHandler 顯示提示：warning 用於操作被擋下，info 用於已自動調整輸入但仍會執行 */
 interface ToastAPI {
   warning: (msg: string) => void;
+  info: (msg: string) => void;
 }
 
-/** ActionHandler 的 context，僅含純函數所需工具 */
+/** ActionHandler 的 context，僅含純函式所需工具 */
 export interface ActionContext {
   nextId: () => string;
   toast: ToastAPI;
@@ -57,7 +58,7 @@ export interface ActionResult<TData = unknown> {
 
 /**
  * Strategy 模式：config 自帶的 actionHandler 型別
- * 純函數，處理 data 變換，不碰 React state
+ * 純函式，處理 data 變換，不碰 React state
  */
 export type VisualizationActionHandler<TData = unknown, TAction extends BaseAction = BaseAction> = (
   actionType: TAction["type"],

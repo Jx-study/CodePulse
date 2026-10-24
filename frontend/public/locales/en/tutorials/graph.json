@@ -31,7 +31,18 @@
     "check_cycle_found_false": "Finished processing node, backtracking from {{current}}",
     "check_cycle_end_true": "Check complete: Graph contains a cycle. Path: {{path}}",
     "check_cycle_end_false": "Check complete: The graph is acyclic.",
-    "check_cycle_return": "Backtracked and returned to node {{current}}"
+    "check_cycle_return": "Backtracked and returned to node {{current}}",
+    "add_vertex_duplicate": "Node {{val}} already exists, so it is not added again",
+    "remove_vertex_missing": "Node {{val}} does not exist, cannot remove it",
+    "add_edge_missing_vertex": "Source {{src}} or destination {{dst}} does not exist, cannot add the edge",
+    "add_edge_duplicate": "Edge {{src}} → {{dst}} already exists, so it is not added again",
+    "remove_edge_missing_vertex": "Source {{src}} or destination {{dst}} does not exist, cannot remove the edge",
+    "remove_edge_not_found": "Edge {{src}} → {{dst}} was not found, cannot remove it",
+    "get_neighbors_missing": "Node {{target}} does not exist, return an empty list",
+    "check_adjacent_missing": "Source {{src}} or destination {{dst}} does not exist, return False",
+    "check_cycle_empty": "The graph is empty, so there is no cycle (Return Null)",
+    "check_connected_empty": "The graph is empty, so it is trivially connected (Return True)",
+    "get_degree_missing": "Node {{target}} does not exist, return -1"
   },
   "ui": {
     "requireNodeId": "Please enter a node ID",
@@ -73,7 +84,11 @@
     "graph-social-network": {
       "title": "【Algorithm Revealed】How Does Facebook Instantly Recommend Friends? — From Six Degrees to Social Graph",
       "category": "Social Media",
-      "tags": ["Social Graph", "Graph Database", "Triadic Closure"],
+      "tags": [
+        "Social Graph",
+        "Graph Database",
+        "Triadic Closure"
+      ],
       "content": {
         "sections": [
           {
@@ -101,8 +116,14 @@
         "density_slider": "Friendship density"
       },
       "resources": [
-        { "title": "Meta Graph API Overview", "source": "Meta Developer Docs" },
-        { "title": "Social Network Graphs: Concepts, Metrics & Tools", "source": "PuppyGraph Blog" }
+        {
+          "title": "Meta Graph API Overview",
+          "source": "Meta Developer Docs"
+        },
+        {
+          "title": "Social Network Graphs: Concepts, Metrics & Tools",
+          "source": "PuppyGraph Blog"
+        }
       ]
     }
   },

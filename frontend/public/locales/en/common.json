@@ -126,6 +126,9 @@
     }
   },
   "close": "Close",
+  "errors": {
+    "RATE_LIMITED": "Too many requests. Please try again in a few minutes."
+  },
   "checkin": {
     "title": "Daily Check-in",
     "checkIn": "Check In",

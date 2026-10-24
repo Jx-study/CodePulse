@@ -121,5 +121,40 @@
     "494": "0/1 knapsack variant: assign +/- signs to reach a target sum, reducible to a subset-sum problem",
     "1049": "0/1 knapsack application: split stones into two piles to minimize the weight difference",
     "474": "Multi-dimensional 0/1 knapsack: find the maximum subset size given constraints on both 0s and 1s"
+  },
+  "introduction": {
+    "sections": [
+      {
+        "heading": "Core Concepts",
+        "content": "The 0/1 knapsack is a classic **dynamic-programming** problem: each item is either taken (1) or left (0), and the goal is to [[primary|maximize]] total value within the capacity.",
+        "items": [
+          "Define **dp[i][w]**: the best value using the first i items with capacity w",
+          "**Skip** item i: dp[i][w] = dp[i-1][w]",
+          "**Take** item i (if it fits): dp[i-1][w - weight] + value",
+          "Take the larger of the two and fill the table row by row to get the optimum"
+        ],
+        "icon": "compass"
+      },
+      {
+        "heading": "Operation Complexity",
+        "content": "The cost depends on both the number of items and the knapsack capacity.",
+        "items": [
+          "**Time complexity**: [[warning|O(n × W)]], where n is the item count and W the capacity",
+          "**Space complexity**: [[warning|O(n × W)]] for the full 2D table",
+          "This is **pseudo-polynomial**: W is counted by value, not bit length, so a huge W is still slow"
+        ],
+        "icon": "cog"
+      },
+      {
+        "heading": "What It Optimizes",
+        "content": "Each transition depends only on the previous row, so space can be compressed.",
+        "items": [
+          "**1D rolling array**: space drops to [[success|O(W)]]; update capacity from **large to small** so an item is never used twice",
+          "**Greedy does not work**: sorting by value-per-weight is not guaranteed optimal for 0/1 knapsack",
+          "If items can be reused, it becomes **unbounded knapsack**, updating capacity from small to large"
+        ],
+        "icon": "lightbulb"
+      }
+    ]
   }
 }

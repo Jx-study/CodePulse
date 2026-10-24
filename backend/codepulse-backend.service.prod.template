@@ -6,6 +6,7 @@ After=postgresql.service
 User=codepulse
 WorkingDirectory=/home/codepulse/projects/CodePulse/backend
 Environment=FLASK_APP=app
+Environment=FLASK_ENV=production
 Environment=SANDBOX_SIDECAR_URL=http://127.0.0.1:8080
 Environment=REDIS_URL=redis://127.0.0.1:6379/0
 Environment=USE_CELERY=1
