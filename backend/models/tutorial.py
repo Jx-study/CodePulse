@@ -24,8 +24,6 @@ class Tutorial(db.Model):
     category_id = db.Column(db.BigInteger, db.ForeignKey('algorithm_categories.category_id', ondelete='RESTRICT'), nullable=False)
     slug = db.Column(db.String(100), unique=True, nullable=False)
     difficulty = db.Column(db.Integer, nullable=False, default=1)
-    practice_enabled = db.Column(db.Boolean, default=False)
-    is_published = db.Column(db.Boolean, default=False)
 
     xp_teaching = db.Column(db.Integer, nullable=False, default=10)
     xp_practice_base = db.Column(db.Integer, nullable=False, default=20)
@@ -39,7 +37,6 @@ class Tutorial(db.Model):
     __table_args__ = (
         db.Index('ix_tutorials_category_id', 'category_id'),
         db.Index('ix_tutorials_slug', 'slug'),
-        db.Index('ix_tutorials_published', 'is_published'),
     )
 
     def __repr__(self):

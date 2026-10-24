@@ -13,6 +13,7 @@ export const codeConfig: CodeConfig = {
     head.prev ← newNode
     head ← newNode
   End If
+  length ← length + 1
 End Procedure
 
 Procedure insertAtTail(value):
@@ -20,11 +21,13 @@ Procedure insertAtTail(value):
   If head = null Then
     head ← newNode
     tail ← newNode
+    length ← length + 1
     Return
   End If
   tail.next ← newNode
   newNode.prev ← tail
   tail ← newNode
+  length ← length + 1
 End Procedure
 
 Procedure insertAtIndex(index, value):
@@ -49,6 +52,7 @@ Procedure insertAtIndex(index, value):
   current.next ← newNode
   newNode.prev ← current
   If newNode.next = null Then tail ← newNode
+  length ← length + 1
 End Procedure
 
 Procedure deleteAtHead():
@@ -56,6 +60,7 @@ Procedure deleteAtHead():
   head ← head.next
   If head ≠ null Then head.prev ← null
   Else tail ← null
+  length ← length - 1
 End Procedure
 
 Procedure deleteAtTail():
@@ -63,11 +68,13 @@ Procedure deleteAtTail():
   If head.next = null Then
     head ← null
     tail ← null
+    length ← length - 1
     Return
   End If
   prev ← tail.prev
   prev.next ← null
   tail ← prev
+  length ← length - 1
 End Procedure
 
 Procedure deleteAtIndex(index):
@@ -89,6 +96,7 @@ Procedure deleteAtIndex(index):
   current.prev.next ← current.next
   If current.next ≠ null Then current.next.prev ← current.prev
   Else tail ← current.prev
+  length ← length - 1
 End Procedure
 
 Procedure search(value):
@@ -106,64 +114,64 @@ End Procedure`,
       [TAGS.INSERT_HEAD_CREATE]: [2],
       [TAGS.INSERT_HEAD_LINK]: [3, 7],
       [TAGS.INSERT_HEAD_LINK_PREV]: [8],
-      [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [9],
+      [TAGS.INSERT_HEAD_UPDATE_NOTNULL]: [9, 11],
       [TAGS.INSERT_HEAD_UPDATE_ISNULL]: [4],
-      [TAGS.INSERT_HEAD_UPDATE_TAIL]: [5],
-      [TAGS.INSERT_HEAD_END]: [11],
+      [TAGS.INSERT_HEAD_UPDATE_TAIL]: [5, 11],
+      [TAGS.INSERT_HEAD_END]: [12],
 
-      [TAGS.INSERT_TAIL_START]: [13],
+      [TAGS.INSERT_TAIL_START]: [14],
 
-      [TAGS.INSERT_TAIL_CHECK_HEAD]: [15],
-      [TAGS.INSERT_TAIL_CREATE]: [14],
-      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [15],
-      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [16],
-      [TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL]: [17],
-      [TAGS.INSERT_TAIL_LINK]: [20],
-      [TAGS.INSERT_TAIL_LINK_PREV]: [21],
-      [TAGS.INSERT_TAIL_POINTER_MOVE]: [22],
-      [TAGS.INSERT_TAIL_END]: [23],
+      [TAGS.INSERT_TAIL_CHECK_HEAD]: [16],
+      [TAGS.INSERT_TAIL_CREATE]: [15],
+      [TAGS.INSERT_TAIL_UPDATE_ISNULL_TRUE]: [16],
+      [TAGS.INSERT_TAIL_UPDATE_HEAD_ISNULL]: [17, 19],
+      [TAGS.INSERT_TAIL_UPDATE_TAIL_ISNULL_ISNULL]: [18, 19],
+      [TAGS.INSERT_TAIL_LINK]: [22],
+      [TAGS.INSERT_TAIL_LINK_PREV]: [23, 25],
+      [TAGS.INSERT_TAIL_POINTER_MOVE]: [24, 25],
+      [TAGS.INSERT_TAIL_END]: [26],
 
-      [TAGS.INSERT_INDEX_START]: [25, 26],
-      [TAGS.INSERT_INDEX_ERROR]: [27],
-      [TAGS.INSERT_INDEX_IFZERO]: [26, 29, 30, 31],
-      [TAGS.INSERT_INDEX_IFTAIL]: [33, 34, 35],
-      [TAGS.INSERT_INDEX_TRAVERSE]: [37, 38, 39, 40],
-      [TAGS.INSERT_INDEX_CREATE]: [41],
-      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [42],
-      [TAGS.INSERT_INDEX_LINK_NEXT_PREV]: [43],
-      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [44],
-      [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [45],
-      [TAGS.INSERT_INDEX_UPDATE_TAIL]: [46],
-      [TAGS.INSERT_INDEX_END]: [46, 47],
+      [TAGS.INSERT_INDEX_START]: [28, 29],
+      [TAGS.INSERT_INDEX_ERROR]: [30],
+      [TAGS.INSERT_INDEX_IFZERO]: [29, 32, 33, 34],
+      [TAGS.INSERT_INDEX_IFTAIL]: [36, 37, 38],
+      [TAGS.INSERT_INDEX_TRAVERSE]: [40, 41, 42, 43],
+      [TAGS.INSERT_INDEX_CREATE]: [44],
+      [TAGS.INSERT_INDEX_LINK_NEW_NEXT]: [45],
+      [TAGS.INSERT_INDEX_LINK_NEXT_PREV]: [46],
+      [TAGS.INSERT_INDEX_LINK_CURRENT_NEXT]: [47],
+      [TAGS.INSERT_INDEX_LINK_NEW_PREV]: [48, 50],
+      [TAGS.INSERT_INDEX_UPDATE_TAIL]: [49, 50],
+      [TAGS.INSERT_INDEX_END]: [49, 50, 51],
 
-      [TAGS.DELETE_HEAD_START]: [49, 50],
-      [TAGS.DELETE_HEAD_CHECK]: [50],
-      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [51],
-      [TAGS.DELETE_HEAD_UPDATE_PREV]: [52],
-      [TAGS.DELETE_HEAD_UPDATE_TAIL]: [53],
-      [TAGS.DELETE_HEAD_FREE]: [54],
-      [TAGS.DELETE_HEAD_END]: [54],
+      [TAGS.DELETE_HEAD_START]: [53, 54],
+      [TAGS.DELETE_HEAD_CHECK]: [54],
+      [TAGS.DELETE_HEAD_UPDATE_HEAD]: [55],
+      [TAGS.DELETE_HEAD_UPDATE_PREV]: [56, 58],
+      [TAGS.DELETE_HEAD_UPDATE_TAIL]: [57, 58],
+      [TAGS.DELETE_HEAD_FREE]: [59],
+      [TAGS.DELETE_HEAD_END]: [59],
 
-      [TAGS.DELETE_TAIL_START]: [56, 57],
-      [TAGS.DELETE_TAIL_ISNEXTNULL]: [58],
-      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [59, 60],
-      [TAGS.DELETE_TAIL_TRAVERSE]: [63],
-      [TAGS.DELETE_TAIL_UNLINK]: [64],
-      [TAGS.DELETE_TAIL_END]: [65],
+      [TAGS.DELETE_TAIL_START]: [61, 62],
+      [TAGS.DELETE_TAIL_ISNEXTNULL]: [63],
+      [TAGS.DELETE_TAIL_ISNEXTNULL_REMOVE]: [64, 65, 66],
+      [TAGS.DELETE_TAIL_TRAVERSE]: [69],
+      [TAGS.DELETE_TAIL_UNLINK]: [70, 72],
+      [TAGS.DELETE_TAIL_END]: [71, 72],
 
-      [TAGS.DELETE_INDEX_START]: [68, 69],
-      [TAGS.DELETE_INDEX_ERROR]: [70],
-      [TAGS.DELETE_INDEX_IFZERO]: [69, 72, 73, 74],
-      [TAGS.DELETE_INDEX_IFTAIL]: [76, 77, 78],
-      [TAGS.DELETE_INDEX_TRAVERSE]: [80, 81, 82],
-      [TAGS.DELETE_INDEX_UNLINK]: [84, 85, 86],
-      [TAGS.DELETE_INDEX_END]: [87],
+      [TAGS.DELETE_INDEX_START]: [75, 76],
+      [TAGS.DELETE_INDEX_ERROR]: [77],
+      [TAGS.DELETE_INDEX_IFZERO]: [76, 79, 80, 81],
+      [TAGS.DELETE_INDEX_IFTAIL]: [83, 84, 85],
+      [TAGS.DELETE_INDEX_TRAVERSE]: [87, 88, 89],
+      [TAGS.DELETE_INDEX_UNLINK]: [91, 92, 93, 94],
+      [TAGS.DELETE_INDEX_END]: [95],
 
-      [TAGS.SEARCH_START]: [89, 90, 91],
-      [TAGS.SEARCH_COMPARE]: [92, 93, 94, 95],
-      [TAGS.SEARCH_FOUND]: [93],
-      [TAGS.SEARCH_NEXT]: [94, 95],
-      [TAGS.SEARCH_NOT_FOUND]: [97],
+      [TAGS.SEARCH_START]: [97, 98, 99],
+      [TAGS.SEARCH_COMPARE]: [100, 101, 102, 103],
+      [TAGS.SEARCH_FOUND]: [101],
+      [TAGS.SEARCH_NEXT]: [102, 103],
+      [TAGS.SEARCH_NOT_FOUND]: [105],
     },
   },
   python: {

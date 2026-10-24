@@ -5,6 +5,7 @@ import Badge from '@/shared/components/Badge';
 import type { Level, PrerequisiteConfig } from '@/types';
 import Icon from '@/shared/components/Icon/Icon';
 import { getLevelById } from '@/services/LevelService';
+import { levelHasPractice } from '@/services/ProgressService';
 import { useTranslation } from 'react-i18next';
 
 interface PracticeSectionProps {
@@ -26,6 +27,7 @@ function formatTime(seconds: number): string {
 }
 
 function PracticeSection({
+  level,
   onStartPractice,
   bestStars,
   attempts,
@@ -35,6 +37,16 @@ function PracticeSection({
   prerequisiteInfo
 }: PracticeSectionProps) {
   const { t } = useTranslation('dashboard');
+
+  if (!levelHasPractice(level)) {
+    return (
+      <div className={styles.practiceSection}>
+        <h3>{t("practiceSection.title")}</h3>
+        <p className={styles.lockedHint}>{t("practiceSection.noPracticeHint")}</p>
+      </div>
+    );
+  }
+
   const isCompleted = bestStars > 0;
   const hasAttempted = attempts > 0;
   const prerequisiteLevelNames = prerequisiteInfo?.levelIds

@@ -20,12 +20,6 @@ from app import create_app
 from database import db
 from models.tutorial import AlgorithmCategory, Tutorial
 
-# levels.json 中有題目的 tutorial（practice_enabled=True）
-PRACTICE_ENABLED_SLUGS = {
-    "bubble-sort",
-    "array",
-}
-
 # 與 frontend/src/data/levels/levels.json categories 同步
 CATEGORIES = [
     "data-structures",
@@ -38,56 +32,56 @@ CATEGORIES = [
 ]
 
 # 與 frontend/src/data/levels/levels.json levels 同步
-# 欄位：(slug, category, difficulty, is_published)
+# 欄位：(slug, category, difficulty)
 TUTORIALS = [
     # data-structures
-    ("array",               "data-structures", 1, True),
-    ("linked-list",         "data-structures", 1, True),
-    ("stack",               "data-structures", 2, True),
-    ("queue",               "data-structures", 2, True),
-    ("binarytree",          "data-structures", 2, True),
-    ("bst",                 "data-structures", 3, True),
-    ("heap",                "data-structures", 3, False),
-    ("graph",               "data-structures", 2, True),
-    ("trie",                "data-structures", 3, False),
-    ("portal-to-sorting",   "data-structures", 1, True),
+    ("array",               "data-structures", 1),
+    ("linked-list",         "data-structures", 1),
+    ("stack",               "data-structures", 2),
+    ("queue",               "data-structures", 2),
+    ("binarytree",          "data-structures", 2),
+    ("bst",                 "data-structures", 3),
+    ("heap",                "data-structures", 3),
+    ("graph",               "data-structures", 2),
+    ("trie",                "data-structures", 3),
+    ("portal-to-sorting",   "data-structures", 1),
     # sorting
-    ("bubble-sort",         "sorting",         1, True),
-    ("selection-sort",      "sorting",         1, True),
-    ("insertion-sort",      "sorting",         1, True),
-    ("merge-sort",          "sorting",         3, False),
-    ("quick-sort",          "sorting",         3, False),
-    ("portal-to-searching", "sorting",         1, True),
+    ("bubble-sort",         "sorting",         1),
+    ("selection-sort",      "sorting",         1),
+    ("insertion-sort",      "sorting",         1),
+    ("merge-sort",          "sorting",         3),
+    ("quick-sort",          "sorting",         3),
+    ("portal-to-searching", "sorting",         1),
     # searching
-    ("linear-search",       "searching",       1, False),
-    ("binary-search",       "searching",       2, True),
-    ("portal-to-recursive", "searching",       1, True),
+    ("linear-search",       "searching",       1),
+    ("binary-search",       "searching",       2),
+    ("portal-to-recursive", "searching",       1),
     # recursive
-    ("factorial",           "recursive",       1, False),
-    ("fibonacci-recursive", "recursive",       2, False),
-    ("merge-sort-recursive","recursive",       3, False),
-    ("hanoi",               "recursive",       3, False),
-    ("quick-sort-recursive","recursive",       3, False),
-    ("n-queens",            "recursive",       4, True),
-    ("portal-to-technique", "recursive",       1, True),
+    ("factorial",           "recursive",       1),
+    ("fibonacci-recursive", "recursive",       2),
+    ("merge-sort-recursive","recursive",       3),
+    ("hanoi",               "recursive",       3),
+    ("quick-sort-recursive","recursive",       3),
+    ("n-queens",            "recursive",       4),
+    ("portal-to-technique", "recursive",       1),
     # technique
-    ("prefix-sum",          "technique",       2, True),
-    ("sliding-window",      "technique",       2, True),
-    ("two-pointers",        "technique",       2, True),
-    ("bit-mask",            "technique",       3, False),
-    ("portal-to-graph",     "technique",       1, True),
+    ("prefix-sum",          "technique",       2),
+    ("sliding-window",      "technique",       2),
+    ("two-pointers",        "technique",       2),
+    ("bit-mask",            "technique",       3),
+    ("portal-to-graph",     "technique",       1),
     # graph
-    ("bfs",                 "graph",           3, True),
-    ("dfs",                 "graph",           3, True),
-    ("topological-sort",    "graph",           3, False),
-    ("union-find",          "graph",           3, False),
-    ("dijkstra",            "graph",           4, True),
-    ("astar",               "graph",           4, False),
-    ("portal-to-dp",        "graph",           1, False),
+    ("bfs",                 "graph",           3),
+    ("dfs",                 "graph",           3),
+    ("topological-sort",    "graph",           3),
+    ("union-find",          "graph",           3),
+    ("dijkstra",            "graph",           4),
+    ("astar",               "graph",           4),
+    ("portal-to-dp",        "graph",           1),
     # dp
-    ("dp-fibonacci",        "dp",              2, False),
-    ("knapsack",            "dp",              3, True),
-    ("lcs",                 "dp",              3, True),
+    ("dp-fibonacci",        "dp",              2),
+    ("knapsack",            "dp",              3),
+    ("lcs",                 "dp",              3),
 ]
 
 
@@ -115,31 +109,26 @@ def _seed_categories():
 
 
 def _seed_tutorials():
-    for slug, category_slug, difficulty, is_published in TUTORIALS:
+    for slug, category_slug, difficulty in TUTORIALS:
         cat = AlgorithmCategory.query.filter_by(slug=category_slug).first()
         if not cat:
             print(f"  [SKIP] Tutorial '{slug}': category '{category_slug}' not found")
             continue
 
         tutorial = Tutorial.query.filter_by(slug=slug).first()
-        practice_enabled = slug in PRACTICE_ENABLED_SLUGS
 
         if not tutorial:
             db.session.add(Tutorial(
                 slug=slug,
                 category_id=cat.category_id,
                 difficulty=difficulty,
-                practice_enabled=practice_enabled,
-                is_published=is_published,
                 xp_teaching=10,
                 xp_practice_base=20,
                 xp_perfect_bonus=10,
             ))
-            print(f"  [INSERT] tutorial '{slug}' (practice_enabled={practice_enabled})")
+            print(f"  [INSERT] tutorial '{slug}'")
         else:
             tutorial.difficulty = difficulty
-            tutorial.practice_enabled = practice_enabled
-            tutorial.is_published = is_published
             print(f"  [UPDATE] tutorial '{slug}'")
 
     db.session.commit()

@@ -38,6 +38,11 @@ from seeds.questions import dfs
 from seeds.questions import dijkstra
 from seeds.questions import knapsack
 from seeds.questions import lcs
+from seeds.questions import factorial
+from seeds.questions import fibonacci_recursive
+from seeds.questions import n_queens
+from seeds.questions import topological_sort
+from seeds.questions import dp_fibonacci
 
 ALL_MODULES = [
     array,
@@ -63,6 +68,11 @@ ALL_MODULES = [
     dijkstra,
     knapsack,
     lcs,
+    factorial,
+    fibonacci_recursive,
+    n_queens,
+    topological_sort,
+    dp_fibonacci,
 ]
 
 # ── 型別對應 ──────────────────────────────────────────────────────────────────
