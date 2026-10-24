@@ -68,7 +68,8 @@
     "lockedOrHint": "完成以下任一關卡即可解鎖：{{levels}}",
     "lockedFallbackHint": "完成前置關卡以解鎖練習模式",
     "listSeparator": "、",
-    "completedBadge": "已完成練習"
+    "completedBadge": "已完成練習",
+    "noPracticeHint": "本關不提供練習題，完成教學即視為通關。"
   },
   "portal": {
     "ariaLabel": "傳送門：前往 {{targetCategoryName}}",
