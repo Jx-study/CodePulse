@@ -58,6 +58,8 @@ export interface PrerequisiteConfig {
   levelIds: string[]; // 前置關卡 ID 列表
 }
 
+export type StructureType = 'linear' | 'non-linear';
+
 export interface Level {
   id: string;
   category: CategoryType;
@@ -66,6 +68,7 @@ export interface Level {
   isUnlocked: boolean;
   isLesson?: boolean; // 內容是投影片課程（/lesson），不是動畫教學頁
   hasPractice?: boolean; // 預設 true；false 代表本關不提供練習題，看完教學即視為完成
+  structureType?: StructureType; // 資料結構關卡的分類（入門課程的結構圖用）
 
   prerequisites?: PrerequisiteConfig;
   graphPosition?: GraphPosition;
