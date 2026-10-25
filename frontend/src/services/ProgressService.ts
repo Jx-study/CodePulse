@@ -252,6 +252,22 @@ export function isProgressTrackableLevel(level: Level): boolean {
 }
 
 /**
+ * 沒有指定分類時，學習地圖要先打開哪一個分類：
+ * 還沒開始過入門以外的任何關卡就從入門開始，否則維持資料結構
+ */
+export function getDefaultCategory(
+  allLevels: Level[],
+  userProgress: UserProgress,
+): CategoryType {
+  const startedElsewhere = allLevels.some((level) => {
+    if (level.category === "foundations") return false;
+    const status = userProgress.levels[level.id]?.status;
+    return status === "completed" || status === "in-progress";
+  });
+  return startedElsewhere ? "data-structures" : "foundations";
+}
+
+/**
  * 計算總體進度統計
  */
 export function calculateOverallProgress(

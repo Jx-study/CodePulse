@@ -14,6 +14,7 @@ vi.mock("@/services/LevelService", () => ({
 import {
   INITIAL_USER_PROGRESS,
   calculateOverallProgress,
+  getDefaultCategory,
   levelHasPractice,
   mergeApiProgress,
 } from "@/services/ProgressService";
@@ -64,5 +65,37 @@ describe("calculateOverallProgress", () => {
     const result = calculateOverallProgress(levels, INITIAL_USER_PROGRESS);
     expect(result.totalLevels).toBe(2);
     expect(result.totalStars).toBe(3);
+  });
+});
+
+describe("getDefaultCategory", () => {
+  const all = [
+    { id: "what-is-dsa", category: "foundations" },
+    { id: "array", category: "data-structures" },
+    { id: "bubble-sort", category: "sorting" },
+  ] as unknown as Level[];
+
+  const progress = (statuses: Record<string, string>) => ({
+    ...INITIAL_USER_PROGRESS,
+    levels: Object.fromEntries(
+      Object.entries(statuses).map(([id, status]) => [id, { levelId: id, status, stars: 0, attempts: 0, bestTime: 0 }]),
+    ),
+  }) as unknown as typeof INITIAL_USER_PROGRESS;
+
+  it("starts a visitor with no progress in 入門", () => {
+    expect(getDefaultCategory(all, progress({}))).toBe("foundations");
+  });
+
+  it("keeps someone who only did lessons in 入門", () => {
+    expect(getDefaultCategory(all, progress({ "what-is-dsa": "completed" }))).toBe("foundations");
+  });
+
+  it("sends someone who has started another category to 資料結構", () => {
+    expect(getDefaultCategory(all, progress({ array: "in-progress" }))).toBe("data-structures");
+    expect(getDefaultCategory(all, progress({ "bubble-sort": "completed" }))).toBe("data-structures");
+  });
+
+  it("ignores levels that are only unlocked", () => {
+    expect(getDefaultCategory(all, progress({ array: "unlocked" }))).toBe("foundations");
   });
 });
