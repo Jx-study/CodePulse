@@ -13,7 +13,9 @@
     "goToSlide": "Slide {{n}}",
     "nextSteps": "Where to go next",
     "currentLesson": "Current lesson",
-    "notFound": "Lesson not found"
+    "notFound": "Lesson not found",
+    "finishWait": "Finish lesson ({{seconds}})",
+    "nextLesson": "Next lesson"
   },
   "visuals": {
     "bigO": {

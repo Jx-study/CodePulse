@@ -15,8 +15,9 @@ import styles from './TeachingLevel.module.scss';
 
 /** 後端要求停留滿這麼久才能標記教學完成（見 routes/tutorials.py） */
 const MIN_READING_SECONDS = 30;
-const COMPLETE_RETRY_MS = 2000;
-const COMPLETE_MAX_ATTEMPTS = 3;
+/** 計時從 startSession 回應前就開始，多留 1 秒避免被後端判成時間不足 */
+const READING_MARGIN_SECONDS = 1;
+const REQUIRED_SECONDS = MIN_READING_SECONDS + READING_MARGIN_SECONDS;
 
 export default function TeachingLevel() {
   const lessons = useLessons();
@@ -47,6 +48,9 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
   const progress = ((slideIndex + 1) / totalSlides) * 100;
   const lessonIndex = lessons.findIndex((l) => l.id === lesson.id);
   const nextLesson = lessons[lessonIndex + 1];
+  const isCompleted = completedIds.has(lesson.id);
+  const [secondsLeft, setSecondsLeft] = useState(REQUIRED_SECONDS);
+  const [completing, setCompleting] = useState(false);
 
   const markCompleted = useCallback((id: string) => {
     setCompletedIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
@@ -74,6 +78,11 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
   const sessionIdRef = useRef<number | null>(null);
   const startedAtRef = useRef(Date.now());
   const completedRef = useRef(false);
+  const reachedEndRef = useRef(false);
+
+  useEffect(() => {
+    reachedEndRef.current = reachedEndRef.current || isLast;
+  }, [isLast]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -90,6 +99,15 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
       const sessionId = sessionIdRef.current;
       if (sessionId === null) return;
       const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+      // 還沒按「完成本課」就離開（例如直接點「接下來可以前往」）時，補上完成
+      if (reachedEndRef.current && !completedRef.current && elapsed >= REQUIRED_SECONDS) {
+        tutorialService
+          .markTeachingComplete(lesson.id)
+          .then((res) => {
+            if (res.xp_earned > 0) xp.show(res.xp_earned, { reason: 'tutorial' });
+          })
+          .catch(() => {});
+      }
       const blob = new Blob([JSON.stringify({ duration_seconds: elapsed })], {
         type: 'application/json',
       });
@@ -99,33 +117,31 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
     };
   }, [isAuthenticated, lesson.id]);
 
-  // 完成條件：看到最後一張，且停留滿 MIN_READING_SECONDS
+  // 最後一張的倒數：停留滿 REQUIRED_SECONDS 才能按「完成本課」
   useEffect(() => {
-    if (!isAuthenticated || !isLast || completedRef.current) return;
+    if (!isAuthenticated || !isLast || isCompleted) return;
+    const tick = () =>
+      setSecondsLeft(
+        Math.max(0, Math.ceil(REQUIRED_SECONDS - (Date.now() - startedAtRef.current) / 1000)),
+      );
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [isAuthenticated, isLast, isCompleted]);
 
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    const attempt = async (remaining: number) => {
-      if (cancelled || completedRef.current) return;
-      try {
-        const res = await tutorialService.markTeachingComplete(lesson.id);
-        completedRef.current = true;
-        markCompleted(lesson.id);
-        if (res.xp_earned > 0) xp.show(res.xp_earned, { reason: 'tutorial' });
-      } catch {
-        if (remaining > 1) timer = setTimeout(() => attempt(remaining - 1), COMPLETE_RETRY_MS);
-      }
-    };
-
-    const waitMs = Math.max(0, MIN_READING_SECONDS * 1000 - (Date.now() - startedAtRef.current));
-    timer = setTimeout(() => attempt(COMPLETE_MAX_ATTEMPTS), waitMs + 500);
-
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-    };
-  }, [isAuthenticated, isLast, lesson.id, markCompleted]);
+  const completeLesson = useCallback(async () => {
+    setCompleting(true);
+    try {
+      const res = await tutorialService.markTeachingComplete(lesson.id);
+      completedRef.current = true;
+      markCompleted(lesson.id);
+      if (res.xp_earned > 0) xp.show(res.xp_earned, { reason: 'tutorial' });
+    } catch {
+      // 後端判定時間不足等失敗時維持原狀，使用者可再按一次
+    } finally {
+      setCompleting(false);
+    }
+  }, [lesson.id, markCompleted]);
 
   const handleSelectLesson = useCallback(
     (id: string) => navigate(`/lesson/${id}`),
@@ -134,13 +150,26 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
 
   const handlePrev = useCallback(() => setSlideIndex((i) => Math.max(0, i - 1)), []);
 
+  // 最後一頁：登入且尚未完成時，按鈕負責「標記完成」並留在頁面，讓使用者還能看接下來可以前往
+  const needsCompleting = isLast && isAuthenticated && !isCompleted;
+
   const handleNext = useCallback(() => {
     if (!isLast) {
       setSlideIndex((i) => i + 1);
       return;
     }
+    if (needsCompleting) {
+      void completeLesson();
+      return;
+    }
     navigate(nextLesson ? `/lesson/${nextLesson.id}` : '/dashboard');
-  }, [isLast, navigate, nextLesson]);
+  }, [isLast, needsCompleting, completeLesson, navigate, nextLesson]);
+
+  const nextLabel = (() => {
+    if (!isLast) return t('ui.next');
+    if (!needsCompleting) return nextLesson ? t('ui.nextLesson') : t('ui.backToMap');
+    return secondsLeft > 0 ? t('ui.finishWait', { seconds: secondsLeft }) : t('ui.finish');
+  })();
 
   return (
     <div className={styles.page}>
@@ -203,11 +232,13 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
               </Button>
               <Button
                 variant="primary"
-                iconRight={<Icon name={isLast ? 'check' : 'arrow-right'} decorative />}
+                iconRight={<Icon name={needsCompleting ? 'check' : 'arrow-right'} decorative />}
                 onClick={handleNext}
+                disabled={needsCompleting && secondsLeft > 0}
+                loading={completing}
                 style={{ background: lesson.color, borderColor: lesson.color }}
               >
-                {isLast ? t('ui.finish') : t('ui.next')}
+                {nextLabel}
               </Button>
             </div>
           </footer>
