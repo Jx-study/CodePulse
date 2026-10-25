@@ -85,6 +85,23 @@ const leafKeys = (value: unknown, prefix = ''): string[] =>
     ? Object.entries(value).flatMap(([k, v]) => leafKeys(v, `${prefix}${k}.`))
     : [prefix];
 
+describe('data structure diagram', () => {
+  const structures = levelsData.levels.filter((l) => l.category === 'data-structures' && !l.id.startsWith('portal-'));
+  const dashboard = readJson('zh-TW', 'dashboard');
+
+  it('tags every data structure level as linear or non-linear', () => {
+    for (const level of structures) {
+      expect(['linear', 'non-linear'], level.id).toContain((level as { structureType?: string }).structureType);
+    }
+  });
+
+  it('has a display name for every data structure level', () => {
+    for (const level of structures) {
+      expect(dashboard.levels[level.id.replace(/-/g, '_')]?.name, level.id).toBeTruthy();
+    }
+  });
+});
+
 describe('lessons text parity', () => {
   const zh = readJson('zh-TW', 'lessons');
   const en = readJson('en', 'lessons');
@@ -95,8 +112,7 @@ describe('lessons text parity', () => {
     for (const name of ['growthExplorer', 'stepCounter', 'searchCases']) {
       expect(leafKeys(en.visuals[name]), name).toEqual(leafKeys(zh.visuals[name]));
     }
-    expect(en.visuals.dsDiagram.linearItems).toHaveLength(zh.visuals.dsDiagram.linearItems.length);
-    expect(en.visuals.dsDiagram.nonLinearItems).toHaveLength(zh.visuals.dsDiagram.nonLinearItems.length);
+    expect(Object.keys(en.visuals.dsDiagram).sort()).toEqual(Object.keys(zh.visuals.dsDiagram).sort());
   });
 
   it('keeps code samples the same length in both languages', () => {

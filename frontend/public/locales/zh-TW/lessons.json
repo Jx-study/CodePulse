@@ -27,19 +27,7 @@
     "dsDiagram": {
       "root": "資料結構",
       "linear": "線性結構",
-      "nonLinear": "非線性結構",
-      "linearItems": [
-        "Array 陣列",
-        "Linked List 鏈結串列",
-        "Stack 堆疊",
-        "Queue 佇列"
-      ],
-      "nonLinearItems": [
-        "Tree 樹",
-        "Graph 圖",
-        "Heap 堆積",
-        "Trie 字典樹"
-      ]
+      "nonLinear": "非線性結構"
     },
     "growthExplorer": {
       "ariaLabel": "成長類別互動比較",

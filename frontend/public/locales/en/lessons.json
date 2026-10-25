@@ -27,19 +27,7 @@
     "dsDiagram": {
       "root": "Data Structures",
       "linear": "Linear",
-      "nonLinear": "Non-linear",
-      "linearItems": [
-        "Array",
-        "Linked List",
-        "Stack",
-        "Queue"
-      ],
-      "nonLinearItems": [
-        "Tree",
-        "Graph",
-        "Heap",
-        "Trie"
-      ]
+      "nonLinear": "Non-linear"
     },
     "growthExplorer": {
       "ariaLabel": "Interactive growth rate comparison",
