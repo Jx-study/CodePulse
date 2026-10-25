@@ -261,20 +261,31 @@
         },
         {
           "title": "How to read O()",
-          "body": "O(n) is read \"Big-O of n\". It means the number of steps grows at most roughly in proportion to n.\n\n• O(1): the same number of steps no matter how much data\n• O(n): twice the data, about twice the steps\n• O(n²): twice the data, about four times the steps\n\nBig-O describes the trend of growth, not an exact number of seconds."
-        },
-        {
-          "title": "Two examples",
-          "comparisons": [
-            {
-              "label": "Reading by index: arr[3]",
-              "description": "No matter how long the array is, the position is computed directly, so the number of steps is fixed → O(1)."
-            },
-            {
-              "label": "Finding the maximum",
-              "description": "Every element must be checked once to be sure. Twice the data means twice the checks → O(n)."
-            }
-          ]
+          "table": {
+            "headers": [
+              "Notation",
+              "Twice the data",
+              "Example"
+            ],
+            "rows": [
+              [
+                "O(1)",
+                "The same number of steps",
+                "Reading by index, arr[3]: no matter how long the array is, the position is computed directly"
+              ],
+              [
+                "O(n)",
+                "About twice the steps",
+                "Finding the maximum: every element must be checked once to be sure"
+              ],
+              [
+                "O(n²)",
+                "About four times the steps",
+                "Two nested loops: every element is paired with every element"
+              ]
+            ],
+            "note": "O(n) is read \"Big-O of n\". It means the number of steps grows at most roughly in proportion to n. Big-O describes the trend of growth, not an exact number of seconds."
+          }
         },
         {
           "title": "Key takeaways",
@@ -301,55 +312,58 @@
               "Growth rate",
               "n = 10",
               "n = 1,000",
-              "n = 1,000,000"
+              "n = 1,000,000",
+              "Time at n = 1,000,000"
             ],
             "rows": [
               [
                 "O(1)",
                 "1",
                 "1",
-                "1"
+                "1",
+                "instant"
               ],
               [
                 "O(log n)",
                 "about 3",
                 "about 10",
-                "about 20"
+                "about 20",
+                "instant"
               ],
               [
                 "O(n)",
                 "10",
                 "1,000",
-                "1,000,000"
+                "1,000,000",
+                "about 0.001 s"
               ],
               [
                 "O(n log n)",
                 "about 33",
                 "about 10,000",
-                "about 20 million"
+                "about 20 million",
+                "about 0.02 s"
               ],
               [
                 "O(n²)",
                 "100",
                 "1,000,000",
-                "10¹² (a trillion)"
+                "10¹² (a trillion)",
+                "about 17 minutes"
               ],
               [
                 "O(2ⁿ)",
                 "1,024",
                 "about 10³⁰¹",
-                "never finishes"
+                "never finishes",
+                "longer than the age of the universe"
               ]
             ],
-            "note": "Numbers are approximate step counts; log is base 2."
+            "note": "Numbers are approximate step counts; log is base 2. Time assumes a computer doing one billion steps per second. With little data you cannot tell the difference; with a lot of data the gap goes from \"a bit slower\" to \"impossible\"."
           }
         },
         {
           "title": "Drag n and see the gap"
-        },
-        {
-          "title": "Turning steps into time",
-          "body": "Assume a computer can do one billion steps per second. With n = 1,000,000:\n• O(n): about 0.001 seconds\n• O(n log n): about 0.02 seconds\n• O(n²): about 1,000 seconds, roughly 17 minutes\n• O(2ⁿ): longer than the age of the universe\n\nWith little data you cannot tell the difference. With a lot of data, the gap goes from \"a bit slower\" to \"impossible\"."
         },
         {
           "title": "What each growth rate looks like ①",
@@ -362,25 +376,47 @@
           "body": "O(n log n) is common for \"split in half, process, then merge\", such as merge sort.\nO(2ⁿ) becomes unusably slow with even a modest n."
         },
         {
-          "title": "Where they show up on this platform",
-          "comparisons": [
-            {
-              "label": "O(log n): binary search",
-              "description": "Each step discards half of the data, so one million items take only about 20 steps."
-            },
-            {
-              "label": "O(n log n): merge sort",
-              "description": "Split, sort, merge. This is the efficient level comparison sorts can reach."
-            },
-            {
-              "label": "O(n²): bubble, selection, insertion sort",
-              "description": "Two nested loops: ten times the data, a hundred times the time."
-            }
-          ]
-        },
-        {
           "title": "Quick ways to tell",
-          "body": "When reading code, look for these clues first:\n• No loop, just reading a value → O(1)\n• One loop over all the data → O(n)\n• The range is halved each time → O(log n)\n• Two loops that each run n times → O(n²)\n• Split in half, process, then merge → O(n log n)\n• One call splits into two calls and nothing is reused → often O(2ⁿ)\n\nThis is only a first guess. Real questions still need the details."
+          "table": {
+            "headers": [
+              "Complexity",
+              "The clue in the code",
+              "Where it shows up here"
+            ],
+            "rows": [
+              [
+                "O(1)",
+                "No loop, just reading a value",
+                "Reading an array by index"
+              ],
+              [
+                "O(log n)",
+                "The range is halved each time",
+                "Binary search: one million items take only about 20 steps"
+              ],
+              [
+                "O(n)",
+                "One loop over all the data",
+                "Finding the maximum, linear search"
+              ],
+              [
+                "O(n log n)",
+                "Split in half, process, then merge",
+                "Merge sort: split, sort, merge"
+              ],
+              [
+                "O(n²)",
+                "Two loops that each run n times",
+                "Bubble, selection and insertion sort: ten times the data, a hundred times the time"
+              ],
+              [
+                "O(2ⁿ)",
+                "One call splits into two calls and nothing is reused",
+                "Recursive Fibonacci"
+              ]
+            ],
+            "note": "This is only a first guess. Real questions still need the details."
+          }
         },
         {
           "title": "Complexity quiz"

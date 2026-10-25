@@ -212,7 +212,7 @@ function TableSlide({ slide }: { slide: Slide }) {
     <div className={styles.tableSlide}>
       <h2 className={styles.slideTitle}>{slide.title}</h2>
       <div className={styles.tableWrap}>
-        <table className={styles.table}>
+        <table className={`${styles.table} ${headers.length > 3 ? styles.tableWide : ''}`}>
           <thead>
             <tr>
               {headers.map((header) => (

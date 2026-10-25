@@ -7,6 +7,14 @@
   margin: 0 auto;
 }
 
+@media (max-width: $mobile-max) {
+  // the slide area already pads the sides, so the slide itself adds none
+  .slide > div {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 .slideTitle {
   font-size: $font-3xl;
   font-weight: 700;
@@ -350,7 +358,7 @@
 
   th,
   td {
-    padding: $spacing-md $spacing-md;
+    padding: 0.75rem $spacing-md;
     text-align: left;
     border-bottom: 1px solid var(--border);
     line-height: 1.5;
@@ -378,6 +386,38 @@
     border-bottom: none;
   }
 
+
+  // on a phone the columns share the screen and their text wraps, instead of scrolling sideways
+  @media (max-width: $mobile-max) {
+    min-width: 0;
+    font-size: $font-base;
+
+    th,
+    td {
+      padding: 0.5rem 0.5rem;
+    }
+
+    // only the header text may wrap; the complexity labels in the first column stay on one line
+    thead th {
+      white-space: normal;
+    }
+
+    // four or more columns do not fit a phone: keep them readable and scroll sideways
+    &.tableWide {
+      min-width: 560px;
+      font-size: $font-lg;
+
+      th,
+      td {
+        padding: 0.75rem $spacing-md;
+      }
+
+      thead th,
+      tbody th {
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 .tableNote {
