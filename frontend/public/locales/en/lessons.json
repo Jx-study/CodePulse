@@ -406,7 +406,7 @@
             "Worst case — the input that hurts the algorithm most. Linear search: the target is last or missing, O(n)",
             "Average case — the typical performance over all possible inputs. Linear search: about half the array, roughly n/2 steps, still O(n)"
           ],
-          "body": "The same algorithm can be much faster on some inputs than on others. Take \"looking for a number in an array from the start\": if you are lucky it is the first one; if not, it is the last, or not in the array at all, and you still look at everything. So \"how long does searching take\" is not enough. You also need to say which case you mean:"
+          "body": "The same algorithm can be much faster on some inputs than on others. Take \"looking for a number in an array from the start\" (called linear search): if you are lucky it is the first one; if not, it is the last, or not in the array at all, and you still look at everything. So \"how long does searching take\" is not enough. You also need to say which case you mean:"
         },
         {
           "title": "Try linear search yourself"
@@ -418,14 +418,14 @@
         {
           "title": "Example: bubble sort with early exit",
           "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(n - 1 - i):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n                swapped = True\n        if not swapped:      # a pass with no swap means it is sorted, so stop early\n            break",
-          "body": "Already sorted data stops after one pass with no swaps: best case O(n).\nCompletely reversed data swaps in every pass: worst case O(n²).\nSame code, and the two cases differ by a factor of n."
+          "body": "Bubble sort keeps comparing two neighbors and swaps them when they are in the wrong order.\nAlready sorted data stops after one pass with no swaps: best case O(n).\nCompletely reversed data swaps in every pass: worst case O(n²).\nSame code, and the two cases differ by a factor of n."
         },
         {
           "title": "Example: the shape of a BST",
           "comparisons": [
             {
               "label": "A balanced BST",
-              "description": "Every step down discards half of the nodes. The height is about log n, so search is O(log n)."
+              "description": "In a BST (binary search tree), every node has smaller values on its left and larger values on its right, so each step down discards one side. When the tree is balanced, each step discards half of the nodes, the height (how many levels deep it goes) is about log n, and search is O(log n)."
             },
             {
               "label": "A degenerate BST",
@@ -457,7 +457,7 @@
       "slides": [
         {
           "title": "What is space complexity",
-          "body": "Time complexity asks \"how many steps\". Space complexity asks \"how much more memory\".\n\nMost textbooks and questions count only the extra space: what the algorithm allocates on its own, such as new arrays and dictionaries, plus the data kept on the stack during recursion.\n\nThe input itself is usually not counted."
+          "body": "Time complexity asks \"how many steps\". Space complexity asks \"how much more memory\".\n\nMost textbooks and questions count only the extra space: what the algorithm allocates on its own, such as new arrays and dictionaries, plus the data kept on the stack during recursion (a function calling itself), which you will see below.\n\nThe input itself is usually not counted."
         },
         {
           "title": "The difference between O(1) and O(n)",
@@ -484,7 +484,7 @@
               "description": "Each call handles half of the range and the stack gets at most log n layers deep, so the extra space is O(log n)."
             },
             {
-              "label": "Recursive DFS on a degenerate tree",
+              "label": "Recursive DFS (go as deep as possible, then back up) on a degenerate tree",
               "description": "When the tree is a line, the recursion depth equals the number of nodes, so the extra space is O(n)."
             }
           ]
@@ -516,7 +516,7 @@
           "title": "Common variables",
           "items": [
             "V — the number of vertices in a graph",
-            "E — the number of edges in a graph. BFS and DFS look at each vertex and each edge once, so the time is O(V + E)",
+            "E — the number of edges in a graph. BFS and DFS (two ways to walk through a graph) look at each vertex and each edge once, so the time is O(V + E)",
             "h — the height of a tree. About log n when balanced and n when degenerate, so BST operations are O(h)",
             "R × C — rows and columns of a grid. Visiting the whole map is O(R × C)"
           ]
@@ -534,7 +534,7 @@
             },
             {
               "label": "Dijkstra",
-              "description": "O((V + E) log V) with a min-heap, and O(V²) when the minimum is found by scanning an array."
+              "description": "Dijkstra finds shortest paths. It is O((V + E) log V) with a min-heap (a structure that gives the minimum quickly), and O(V²) when the minimum is found by scanning an array."
             }
           ]
         },
