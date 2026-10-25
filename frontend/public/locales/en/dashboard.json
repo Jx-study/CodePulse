@@ -68,7 +68,8 @@
     "lockedOrHint": "Complete any of these levels to unlock: {{levels}}",
     "lockedFallbackHint": "Complete prerequisite levels to unlock practice mode",
     "listSeparator": ", ",
-    "completedBadge": "Practice Completed"
+    "completedBadge": "Practice Completed",
+    "noPracticeHint": "This level has no practice questions. Finish the tutorial to complete the level."
   },
   "portal": {
     "ariaLabel": "Portal: go to {{targetCategoryName}}",

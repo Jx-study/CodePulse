@@ -67,6 +67,7 @@
     "removeEdgeTooltip": "Remove the edge between two nodes",
     "adjacent": "Check",
     "checkAdjacentTooltip": "Check whether two nodes are adjacent",
+    "analysis": "Graph Analysis",
     "isDirected": "Directed",
     "connected": "Connectivity",
     "checkConnectedTooltip": "Check whether the graph is connected",

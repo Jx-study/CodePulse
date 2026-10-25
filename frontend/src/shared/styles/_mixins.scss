@@ -141,6 +141,31 @@
 
 
 // ===========================
+//  彩虹圖示動畫（rainbowFlow）
+// ===========================
+// @keyframes 拆成獨立 mixin：CSS Modules 各檔案獨立編譯，@include 只能把定義
+// 展開到呼叫處，不能跨檔案共用同一份 @keyframes，因此每個引用檔仍需各自
+// @include 一次；但至少動畫定義只需維護這一份原始碼。
+@mixin rainbow-flow-keyframes {
+  @keyframes rainbowFlow {
+    from {
+      filter: hue-rotate(0deg);
+    }
+
+    to {
+      filter: hue-rotate(360deg);
+    }
+  }
+}
+
+@mixin rainbow-icon($duration: 2.5s) {
+  display: inline-block;
+  color: hsl(0, 90%, 65%);
+  animation: rainbowFlow $duration linear infinite;
+}
+
+
+// ===========================
 //  容器寬度
 // ===========================
 @mixin container($width: 1200px) {

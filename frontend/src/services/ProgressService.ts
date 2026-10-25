@@ -18,7 +18,7 @@ import type {
   ScoreLevel,
 } from "@/types";
 import { getCategoryById } from "./CategoryService";
-import { getAllLevels } from "./LevelService";
+import { getAllLevels, getLevelById } from "./LevelService";
 import apiService from "@/api/api";
 
 // ==================== 後端 API 型別 ====================
@@ -91,6 +91,18 @@ export function mergeApiProgress(
   apiProgress.forEach((p) => {
     const slug = p.tutorial_slug;
     if (!(slug in updated.levels)) return;
+
+    const slugLevel = getLevelById(slug);
+    if (slugLevel && !levelHasPractice(slugLevel)) {
+      // 沒有練習題的關卡：看完教學即完成，不計星數
+      updated.levels[slug] = {
+        ...updated.levels[slug],
+        status: p.teaching_completed ? "completed" : updated.levels[slug].status,
+        stars: 0,
+        teachingCompleted: p.teaching_completed,
+      };
+      return;
+    }
 
     let stars: ScoreLevel = 0;
     if (p.best_score !== null) {
@@ -229,6 +241,11 @@ export function calculateDisplayStatus(
 
 // ==================== 進度統計 ====================
 
+/** 關卡是否提供練習題（未標記時預設有） */
+export function levelHasPractice(level: Level): boolean {
+  return level.hasPractice !== false;
+}
+
 export function isProgressTrackableLevel(level: Level): boolean {
   return level.pathMetadata?.pathType !== "portal";
 }
@@ -255,7 +272,8 @@ export function calculateOverallProgress(
   const completedLevels = progressTrackableLevels.filter(
     (level) => userProgress.levels[level.id]?.status === "completed",
   ).length;
-  const totalStars = totalLevels * 3;
+  const totalStars =
+    progressTrackableLevels.filter(levelHasPractice).length * 3;
   const earnedStars = Object.values(userProgress.levels).reduce(
     (sum, progress) =>
       progressTrackableLevelIds.has(progress.levelId)

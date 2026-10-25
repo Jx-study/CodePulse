@@ -64,6 +64,7 @@ export interface Level {
   difficulty: DifficultyLevel;
   isDeveloped: boolean;
   isUnlocked: boolean;
+  hasPractice?: boolean; // 預設 true；false 代表本關不提供練習題，看完教學即視為完成
 
   prerequisites?: PrerequisiteConfig;
   graphPosition?: GraphPosition;
