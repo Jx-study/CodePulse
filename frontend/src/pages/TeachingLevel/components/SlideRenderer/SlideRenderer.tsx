@@ -119,18 +119,18 @@ function ListSlide({ slide }: { slide: Slide }) {
       <ol className={styles.orderedList}>
         {(slide.items ?? []).map((item, i) => {
           const [head, ...rest] = item.split(' — ');
+          const description = rest.join(' — ');
           return (
             <li key={i} className={styles.listItem}>
               <span className={styles.listNum}>{String(i + 1).padStart(2, '0')}</span>
-              <span>
-                {rest.length > 0 ? (
-                  <>
-                    <strong>{head}</strong> — {rest.join(' — ')}
-                  </>
-                ) : (
-                  head
-                )}
-              </span>
+              {description ? (
+                <>
+                  <strong className={styles.listHead}>{head}</strong>
+                  <span className={styles.listDesc}>{description}</span>
+                </>
+              ) : (
+                <span className={styles.listWhole}>{head}</span>
+              )}
             </li>
           );
         })}
