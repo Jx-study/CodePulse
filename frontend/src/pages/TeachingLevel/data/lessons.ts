@@ -30,7 +30,7 @@ export const LESSON_SPECS: LessonSpec[] = [
     id: 'big-o-basics',
     icon: 'chart-line',
     color: '#10b981',
-    estimatedMinutes: 5,
+    estimatedMinutes: 7,
     slides: [
       { type: 'concept' },
       { type: 'code', language: 'python' },
@@ -52,7 +52,7 @@ export const LESSON_SPECS: LessonSpec[] = [
     id: 'growth-rates',
     icon: 'signal',
     color: '#f59e0b',
-    estimatedMinutes: 6,
+    estimatedMinutes: 10,
     slides: [
       { type: 'visual', visual: 'big-o-chart' },
       { type: 'table' },
