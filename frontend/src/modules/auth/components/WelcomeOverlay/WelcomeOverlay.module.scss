@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   background-color: $dark-bg-primary;
-  z-index: 1000;
+  z-index: 1200; // 全螢幕歡迎畫面要蓋住 header（1050）
   overflow: hidden;
   color: $light-bg-tertiary;
 }
