@@ -71,6 +71,116 @@
         "worst": "目標在最後一個，或根本不在陣列裡，必須比較 {{count}} 次（全部）→ O(n)。"
       },
       "hint": "試著選第一個數字 7、最後一個數字 6，再試試「不在陣列裡」，比較三次的差別。"
+    },
+    "dominantTerm": {
+      "ariaLabel": "只看最高次方",
+      "nLabel": "n",
+      "power": "（{{power}} 次方）",
+      "bigEnough": "n 夠大了：{{term}} 已經比其他項加起來還大。",
+      "stillSmall": "n 還小，{{term}} 暫時沒有贏，但 n 超過 {{at}} 之後它就會超過其他項加起來。把 n 拉大看看。",
+      "rule": "Big-O 只看次方最高的那一項、係數也不算：{{expression}} 寫成 {{bigO}}。"
+    },
+    "callStack": {
+      "ariaLabel": "呼叫堆疊動畫",
+      "recursive": "遞迴版",
+      "iterative": "迭代版",
+      "nLabel": "n",
+      "next": "下一步",
+      "reset": "重來",
+      "depth": "目前層數",
+      "maxDepth": "最深層數",
+      "waiting": "等著算 {{expr}}",
+      "returned": "回傳 {{value}}",
+      "empty": "（堆疊是空的）",
+      "hintRecursive": "按「下一步」：函式呼叫自己會多疊一層，回傳時再一層層拿掉。",
+      "hintIterative": "迭代版只用同一組變數一直更新，堆疊始終只有一層。",
+      "finishedRecursive": "最深疊到 {{depth}} 層，所以遞迴版階乘的額外空間是 O(n)。",
+      "finishedIterative": "全程只有 {{depth}} 層，額外空間是 O(1)。"
+    },
+    "graphStorage": {
+      "ariaLabel": "鄰接矩陣與鄰接串列的空間比較",
+      "vLabel": "點 V",
+      "eLabel": "邊 E",
+      "matrix": "鄰接矩陣",
+      "list": "鄰接串列",
+      "matrixFormula": "V² = {{value}} 格",
+      "listFormula": "V + E = {{value}} 格",
+      "sparse": "邊很少（稀疏圖），串列省很多空間。",
+      "dense": "邊很多（稠密圖），兩者差不多。",
+      "hint": "左邊的方格是鄰接矩陣：用一張 V × V 的表格記錄哪兩點之間有邊，有邊的格子會填色。鄰接串列則是每個點只記自己連到哪些點。"
+    },
+    "bstShape": {
+      "ariaLabel": "二元搜尋樹的形狀",
+      "balanced": "平衡",
+      "sorted": "依序插入",
+      "shuffled": "隨機順序",
+      "next": "插入下一個",
+      "all": "全部插入",
+      "reset": "重來",
+      "inserted": "已插入",
+      "height": "高度",
+      "hintStart": "選一種插入順序，按「插入下一個」看樹怎麼長。",
+      "degenerate": "每個節點都只有一邊的子節點，樹退化成一條線，高度 {{height}}，搜尋最多要比較 {{height}} 次。",
+      "shallow": "高度只有 {{height}}，搜尋最多比較 {{height}} 次。"
+    },
+    "complexityQuiz": {
+      "ariaLabel": "判斷時間複雜度小測驗",
+      "progress": "第 {{n}} 題／共 {{total}} 題",
+      "prompt": "這段程式的時間複雜度是？",
+      "correct": "答對了！",
+      "wrong": "答案是 {{answer}}。",
+      "next": "下一題",
+      "seeResult": "看結果",
+      "score": "答對 {{score}} / {{total}} 題",
+      "perfect": "全對！看迴圈的層數和範圍怎麼變，就能抓到複雜度。",
+      "review": "可以回頭看「怎麼快速判斷」那頁的線索，再做一次。",
+      "retry": "再做一次",
+      "questions": [
+        {
+          "code": "def f(arr):\n    return arr[0] + arr[-1]",
+          "answer": "O(1)",
+          "explanation": "只取兩個固定位置，和 arr 多長無關。"
+        },
+        {
+          "code": "def f(arr):\n    total = 0\n    for x in arr:\n        total += x\n    return total",
+          "answer": "O(n)",
+          "explanation": "一層迴圈，每個元素碰一次。"
+        },
+        {
+          "code": "def f(n):\n    steps = 0\n    while n > 1:\n        n //= 2\n        steps += 1\n    return steps",
+          "answer": "O(log n)",
+          "explanation": "每次把 n 砍掉一半。"
+        },
+        {
+          "code": "def f(arr):\n    for a in arr:\n        for b in arr:\n            print(a, b)",
+          "answer": "O(n²)",
+          "explanation": "兩層迴圈各跑 n 次，共 n × n 次。"
+        },
+        {
+          "code": "def sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = sort(arr[:mid])\n    right = sort(arr[mid:])\n    return merge(left, right)",
+          "answer": "O(n log n)",
+          "explanation": "切半共約 log n 層，每一層合併都要處理 n 個元素。"
+        },
+        {
+          "code": "def fib(n):\n    if n < 2:\n        return n\n    return fib(n - 1) + fib(n - 2)",
+          "answer": "O(2ⁿ)",
+          "explanation": "每次呼叫又分成兩次呼叫，而且沒有重複利用結果。"
+        }
+      ]
+    },
+    "numberGuess": {
+      "ariaLabel": "猜數字",
+      "rangeLabel": "數字範圍",
+      "pick": "猜 {{guess}}",
+      "start": "我心裡想了一個 1 到 {{max}} 的數字，點一個數字來猜。試試看猜中間的數字，一次能排除多少個？",
+      "tooLow": "{{guess}} 太小了，比它小的數字都不用再猜。",
+      "tooHigh": "{{guess}} 太大了，比它大的數字都不用再猜。",
+      "found": "猜中了！答案是 {{guess}}。",
+      "result": "你猜了 {{used}} 次。如果每次都猜剩下範圍的中間，最多只要 {{best}} 次；從 1 開始一個個猜，最壞要 {{max}} 次。",
+      "used": "已猜",
+      "remaining": "剩下可能",
+      "middle": "幫我猜中間",
+      "again": "重新出題"
     }
   },
   "lessons": {
@@ -83,7 +193,7 @@
           "comparisons": [
             {
               "label": "演算法",
-              "description": "「怎麼做」：解決問題的一組明確步驟，例如搜尋、排序、走訪。同樣要在一疊名片裡找人，一張張翻和先排好再從中間翻，步驟數差很多；學演算法，就是學會挑出又快又省的那一種。"
+              "description": "「怎麼做」：解決問題的一組明確步驟，例如搜尋、排序、走訪（把資料每個都看過一遍）。同樣是猜 1 到 100 的數字，從 1 開始一個個猜，最壞要猜 100 次；每次都猜中間，最多只要 7 次。學演算法，就是學會挑出又快又省的那一種。"
             },
             {
               "label": "資料結構",
@@ -94,6 +204,9 @@
               "description": "好的做法配上合適的放法，才能又快又省；放法不對，再聰明的步驟也會很慢。"
             }
           ]
+        },
+        {
+          "title": "猜數字"
         },
         {
           "title": "這個平台會教的資料結構"
@@ -141,6 +254,9 @@
             "只留成長最快的項 — n² + n + 1 簡化成 O(n²)，n 很大時，其他項的影響小到可以忽略",
             "例子 — 3n + 5 寫成 O(n)；n² + 100n 寫成 O(n²)；固定的 7 步寫成 O(1)"
           ]
+        },
+        {
+          "title": "只看最高次方"
         },
         {
           "title": "怎麼讀 O()",
@@ -266,6 +382,9 @@
           "body": "看程式碼時，可以先抓這些線索：\n• 沒有迴圈，直接取值 → O(1)\n• 一層迴圈走過全部資料 → O(n)\n• 每次把範圍減半 → O(log n)\n• 兩層迴圈各跑 n 次 → O(n²)\n• 切半處理再合併 → O(n log n)\n• 一次呼叫分成兩次，又沒有重複利用結果 → 常是 O(2ⁿ)\n\n這只是初步判斷，實際題目還要看細節。"
         },
         {
+          "title": "判斷複雜度小測驗"
+        },
+        {
           "title": "本關重點",
           "items": [
             "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)",
@@ -319,6 +438,9 @@
           ]
         },
         {
+          "title": "BST 長什麼樣"
+        },
+        {
           "title": "本關重點",
           "items": [
             "同一個演算法，不同輸入會有不同的複雜度",
@@ -346,6 +468,9 @@
           "title": "遞迴也會佔用空間",
           "code": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)",
           "body": "每次函式呼叫自己，電腦都要在「呼叫堆疊」上多放一層，記住等一下回來要做什麼。\nfactorial(5) 會一路呼叫到 factorial(1)，堆疊最深有 5 層。\n所以遞迴版階乘的額外空間是 O(n)，雖然程式裡沒有宣告任何陣列。"
+        },
+        {
+          "title": "看呼叫堆疊長高"
         },
         {
           "title": "迭代與遞迴的空間",
@@ -412,6 +537,9 @@
               "description": "使用最小堆積時是 O((V + E) log V)，用陣列線性搜尋則是 O(V²)。"
             }
           ]
+        },
+        {
+          "title": "點與邊怎麼存"
         },
         {
           "title": "速查表：資料結構",

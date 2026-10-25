@@ -1,14 +1,20 @@
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon';
 import { getLevelById } from '@/services/LevelService';
 import BigOChart from '../BigOChart/BigOChart';
 import DSDiagram from '../DSDiagram/DSDiagram';
+import BstShape from '../Interactive/BstShape';
+import CallStack from '../Interactive/CallStack';
+import ComplexityQuiz from '../Interactive/ComplexityQuiz';
+import DominantTerm from '../Interactive/DominantTerm';
+import GraphStorage from '../Interactive/GraphStorage';
 import GrowthExplorer from '../Interactive/GrowthExplorer';
+import NumberGuess from '../Interactive/NumberGuess';
 import SearchCases from '../Interactive/SearchCases';
 import StepCounter from '../Interactive/StepCounter';
-import type { Lesson, Slide } from '../../types';
+import type { Lesson, Slide, VisualType } from '../../types';
 import styles from './SlideRenderer.module.scss';
 
 interface Props {
@@ -149,16 +155,26 @@ function ComparisonSlide({ slide }: { slide: Slide }) {
   );
 }
 
+const VISUALS: Record<VisualType, ReactNode> = {
+  'big-o-chart': <BigOChart />,
+  'ds-diagram': <DSDiagram />,
+  'growth-explorer': <GrowthExplorer />,
+  'step-counter': <StepCounter />,
+  'search-cases': <SearchCases />,
+  'number-guess': <NumberGuess />,
+  'dominant-term': <DominantTerm />,
+  'call-stack': <CallStack />,
+  'graph-storage': <GraphStorage />,
+  'bst-shape': <BstShape />,
+  'complexity-quiz': <ComplexityQuiz />,
+};
+
 function VisualSlide({ slide }: { slide: Slide }) {
   return (
     <div className={styles.visual}>
       <h2 className={styles.slideTitle}>{slide.title}</h2>
       <div className={styles.visualContent}>
-        {slide.visual === 'big-o-chart' && <BigOChart />}
-        {slide.visual === 'ds-diagram' && <DSDiagram />}
-        {slide.visual === 'growth-explorer' && <GrowthExplorer />}
-        {slide.visual === 'step-counter' && <StepCounter />}
-        {slide.visual === 'search-cases' && <SearchCases />}
+        {slide.visual && VISUALS[slide.visual]}
       </div>
     </div>
   );

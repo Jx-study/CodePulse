@@ -71,6 +71,116 @@
         "worst": "The target is last or missing, so all {{count}} items were compared → O(n)."
       },
       "hint": "Pick the first number 7, the last number 6, then \"not in the array\", and compare the three runs."
+    },
+    "dominantTerm": {
+      "ariaLabel": "Only the highest power counts",
+      "nLabel": "n",
+      "power": " (power {{power}})",
+      "bigEnough": "n is big enough: {{term}} is already larger than all the other terms together.",
+      "stillSmall": "n is still small, so {{term}} has not won yet, but once n passes {{at}} it is bigger than all the others together. Drag n higher.",
+      "rule": "Big-O keeps only the term with the highest power and drops its coefficient: {{expression}} becomes {{bigO}}."
+    },
+    "callStack": {
+      "ariaLabel": "Call stack animation",
+      "recursive": "Recursive",
+      "iterative": "Iterative",
+      "nLabel": "n",
+      "next": "Next step",
+      "reset": "Reset",
+      "depth": "Current depth",
+      "maxDepth": "Deepest",
+      "waiting": "waiting to compute {{expr}}",
+      "returned": "returns {{value}}",
+      "empty": "(the stack is empty)",
+      "hintRecursive": "Press \"Next step\": each call to itself adds a layer, and each return removes one.",
+      "hintIterative": "The iterative version keeps updating the same variables, so the stack never has more than one layer.",
+      "finishedRecursive": "The stack got {{depth}} layers deep, so the recursive factorial uses O(n) extra space.",
+      "finishedIterative": "Only {{depth}} layer the whole time, so the extra space is O(1)."
+    },
+    "graphStorage": {
+      "ariaLabel": "Space of an adjacency matrix and an adjacency list",
+      "vLabel": "Vertices V",
+      "eLabel": "Edges E",
+      "matrix": "Adjacency matrix",
+      "list": "Adjacency list",
+      "matrixFormula": "V² = {{value}} cells",
+      "listFormula": "V + E = {{value}} cells",
+      "sparse": "Few edges (a sparse graph): the list saves a lot of space.",
+      "dense": "Many edges (a dense graph): the two are about the same.",
+      "hint": "The grid on the left is the adjacency matrix: a V × V table that records which pairs of vertices have an edge, with edge cells filled. An adjacency list instead stores, for each vertex, only the vertices it connects to."
+    },
+    "bstShape": {
+      "ariaLabel": "Shape of a binary search tree",
+      "balanced": "Balanced",
+      "sorted": "In order",
+      "shuffled": "Shuffled",
+      "next": "Insert next",
+      "all": "Insert all",
+      "reset": "Reset",
+      "inserted": "Inserted",
+      "height": "Height",
+      "hintStart": "Pick an insertion order and press \"Insert next\" to see the tree grow.",
+      "degenerate": "Every node has a child on one side only, so the tree is a line of height {{height}} and a search compares up to {{height}} times.",
+      "shallow": "The height is only {{height}}, so a search compares at most {{height}} times."
+    },
+    "complexityQuiz": {
+      "ariaLabel": "Time complexity quiz",
+      "progress": "Question {{n}} of {{total}}",
+      "prompt": "What is the time complexity of this code?",
+      "correct": "Correct!",
+      "wrong": "The answer is {{answer}}.",
+      "next": "Next question",
+      "seeResult": "See result",
+      "score": "{{score}} / {{total}} correct",
+      "perfect": "All correct! Watch how the loops nest and how the range changes, and you can spot the complexity.",
+      "review": "Go back to the \"How to tell quickly\" slide for the clues, then try again.",
+      "retry": "Try again",
+      "questions": [
+        {
+          "code": "def f(arr):\n    return arr[0] + arr[-1]",
+          "answer": "O(1)",
+          "explanation": "It only reads two fixed positions, no matter how long arr is."
+        },
+        {
+          "code": "def f(arr):\n    total = 0\n    for x in arr:\n        total += x\n    return total",
+          "answer": "O(n)",
+          "explanation": "One loop that touches each element once."
+        },
+        {
+          "code": "def f(n):\n    steps = 0\n    while n > 1:\n        n //= 2\n        steps += 1\n    return steps",
+          "answer": "O(log n)",
+          "explanation": "Each step cuts n in half."
+        },
+        {
+          "code": "def f(arr):\n    for a in arr:\n        for b in arr:\n            print(a, b)",
+          "answer": "O(n²)",
+          "explanation": "Two loops that each run n times, n × n in total."
+        },
+        {
+          "code": "def sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = sort(arr[:mid])\n    right = sort(arr[mid:])\n    return merge(left, right)",
+          "answer": "O(n log n)",
+          "explanation": "Halving gives about log n levels, and every level merges n elements."
+        },
+        {
+          "code": "def fib(n):\n    if n < 2:\n        return n\n    return fib(n - 1) + fib(n - 2)",
+          "answer": "O(2ⁿ)",
+          "explanation": "Each call splits into two more calls, and no result is reused."
+        }
+      ]
+    },
+    "numberGuess": {
+      "ariaLabel": "Guess the number",
+      "rangeLabel": "Number range",
+      "pick": "Guess {{guess}}",
+      "start": "I am thinking of a number from 1 to {{max}}. Click a number to guess. Try the middle one: how many numbers does it rule out at once?",
+      "tooLow": "{{guess}} is too low, so every number below it is ruled out.",
+      "tooHigh": "{{guess}} is too high, so every number above it is ruled out.",
+      "found": "You got it! The answer is {{guess}}.",
+      "result": "You used {{used}} guesses. Guessing the middle of what is left every time needs at most {{best}}; guessing 1, 2, 3, … needs up to {{max}} in the worst case.",
+      "used": "Guesses",
+      "remaining": "Still possible",
+      "middle": "Guess the middle for me",
+      "again": "New number"
     }
   },
   "lessons": {
@@ -83,7 +193,7 @@
           "comparisons": [
             {
               "label": "Algorithm",
-              "description": "\"How to do it\": a set of clear steps that solves a problem, such as searching, sorting and traversing. To find one person in a pile of business cards, flipping one by one and sorting first then opening in the middle take very different numbers of steps. Learning algorithms means learning to pick the fast and cheap one."
+              "description": "\"How to do it\": a set of clear steps that solves a problem, such as searching, sorting and traversing (looking at every item once). To guess a number from 1 to 100, guessing 1, 2, 3, … takes up to 100 tries in the worst case, while always guessing the middle takes at most 7. Learning algorithms means learning to pick the fast and cheap one."
             },
             {
               "label": "Data structure",
@@ -94,6 +204,9 @@
               "description": "A good method paired with a suitable arrangement is fast and cheap. With the wrong arrangement, even clever steps are slow."
             }
           ]
+        },
+        {
+          "title": "Guess the number"
         },
         {
           "title": "Data structures you will learn here"
@@ -141,6 +254,9 @@
             "Keep only the fastest-growing term — n² + n + 1 simplifies to O(n²). For large n the other terms are too small to matter",
             "Examples — 3n + 5 is O(n); n² + 100n is O(n²); a fixed 7 steps is O(1)"
           ]
+        },
+        {
+          "title": "Only the highest power counts"
         },
         {
           "title": "How to read O()",
@@ -266,6 +382,9 @@
           "body": "When reading code, look for these clues first:\n• No loop, just reading a value → O(1)\n• One loop over all the data → O(n)\n• The range is halved each time → O(log n)\n• Two loops that each run n times → O(n²)\n• Split in half, process, then merge → O(n log n)\n• One call splits into two calls and nothing is reused → often O(2ⁿ)\n\nThis is only a first guess. Real questions still need the details."
         },
         {
+          "title": "Complexity quiz"
+        },
+        {
           "title": "Key takeaways",
           "items": [
             "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)",
@@ -319,6 +438,9 @@
           ]
         },
         {
+          "title": "Watch a BST grow"
+        },
+        {
           "title": "Key takeaways",
           "items": [
             "One algorithm can have different complexity on different inputs",
@@ -346,6 +468,9 @@
           "title": "Recursion uses space too",
           "code": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)",
           "body": "Every time a function calls itself, the computer puts one more layer on the call stack to remember what to do when it returns.\nfactorial(5) calls all the way down to factorial(1), so the stack is 5 layers deep.\nSo the recursive factorial uses O(n) extra space even though the code declares no array."
+        },
+        {
+          "title": "Watch the call stack grow"
         },
         {
           "title": "Iterative versus recursive space",
@@ -412,6 +537,9 @@
               "description": "O((V + E) log V) with a min-heap, and O(V²) when the minimum is found by scanning an array."
             }
           ]
+        },
+        {
+          "title": "How to store vertices and edges"
         },
         {
           "title": "Cheat sheet: data structures",

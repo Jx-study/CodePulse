@@ -1,7 +1,13 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import BstShape, { insertKey, treeHeight } from './BstShape';
+import CallStack from './CallStack';
+import ComplexityQuiz from './ComplexityQuiz';
+import { crossover } from './DominantTerm';
+import { edgeCells } from './GraphStorage';
 import GrowthExplorer from './GrowthExplorer';
+import NumberGuess, { worstCaseGuesses } from './NumberGuess';
 import SearchCases from './SearchCases';
 import StepCounter from './StepCounter';
 
@@ -9,7 +15,15 @@ import StepCounter from './StepCounter';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: Record<string, unknown>) => (options ? `${key} ${JSON.stringify(options)}` : key),
+    t: (key: string, options?: Record<string, unknown>) => {
+      if (key === 'visuals.complexityQuiz.questions') {
+        return [
+          { code: 'a', answer: 'O(1)', explanation: 'e1' },
+          { code: 'b', answer: 'O(n)', explanation: 'e2' },
+        ];
+      }
+      return options ? `${key} ${JSON.stringify(options)}` : key;
+    },
     i18n: { language: 'en' },
   }),
 }));
@@ -71,5 +85,74 @@ describe('GrowthExplorer', () => {
     for (const label of ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)']) {
       expect(el.textContent).toContain(label);
     }
+  });
+});
+
+describe('pure helpers', () => {
+  it('finds where the highest power term overtakes the rest', () => {
+    const square = { label: 'n²', degree: 2, value: (n: number) => n * n };
+    const linear = { label: '100n', degree: 1, value: (n: number) => 100 * n };
+    expect(crossover([square, linear])).toBe(101);
+    expect(crossover([{ label: '3n', degree: 1, value: (n: number) => 3 * n }, { label: '5', degree: 0, value: () => 5 }])).toBe(2);
+  });
+
+  it('knows the most guesses a number range can need', () => {
+    expect(worstCaseGuesses(100)).toBe(7);
+    expect(worstCaseGuesses(32)).toBe(6);
+    expect(worstCaseGuesses(8)).toBe(4);
+  });
+
+  it('fills exactly E distinct edge cells without self loops', () => {
+    const cells = edgeCells(5, 12);
+    expect(cells.size).toBe(12);
+    for (const cell of cells) expect(Math.floor(cell / 5)).not.toBe(cell % 5);
+    expect(edgeCells(4, 12).size).toBe(12);
+  });
+
+  it('grows a balanced tree and a degenerate one', () => {
+    const build = (keys: number[]) => keys.reduce<ReturnType<typeof insertKey> | null>((t, k) => insertKey(t, k), null);
+    expect(treeHeight(build([30, 20, 40, 10, 25, 35, 45]))).toBe(3);
+    expect(treeHeight(build([10, 20, 30, 40, 50]))).toBe(5);
+  });
+});
+
+describe('CallStack', () => {
+  it('goes n deep and reports it when finished', () => {
+    const el = mount(<CallStack />);
+    const next = buttonByText(el, 'visuals.callStack.next');
+    for (let i = 0; i < 8; i++) act(() => next.click());
+    expect(next.disabled).toBe(true);
+    expect(el.textContent).toContain('visuals.callStack.finishedRecursive {"depth":4}');
+  });
+});
+
+describe('BstShape', () => {
+  it('shows a degenerate tree after sorted inserts', () => {
+    const el = mount(<BstShape />);
+    act(() => buttonByText(el, 'visuals.bstShape.all').click());
+    expect(el.textContent).toContain('visuals.bstShape.degenerate');
+  });
+});
+
+describe('ComplexityQuiz', () => {
+  it('scores answers and shows the result', () => {
+    const el = mount(<ComplexityQuiz />);
+    act(() => buttonByText(el, 'O(1)').click());
+    expect(el.textContent).toContain('visuals.complexityQuiz.correct');
+    act(() => buttonByText(el, 'visuals.complexityQuiz.next').click());
+    act(() => buttonByText(el, 'O(log n)').click());
+    expect(el.textContent).toContain('visuals.complexityQuiz.wrong');
+    act(() => buttonByText(el, 'visuals.complexityQuiz.seeResult').click());
+    expect(el.textContent).toContain('"score":1');
+  });
+});
+
+describe('NumberGuess', () => {
+  it('finds the number by always guessing the middle within the worst case', () => {
+    const el = mount(<NumberGuess />);
+    const middle = buttonByText(el, 'visuals.numberGuess.middle');
+    for (let i = 0; i < 6 && !middle.disabled; i++) act(() => middle.click());
+    expect(middle.disabled).toBe(true);
+    expect(el.textContent).toContain('visuals.numberGuess.found');
   });
 });

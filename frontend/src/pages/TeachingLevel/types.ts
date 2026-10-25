@@ -15,7 +15,13 @@ export type VisualType =
   | 'ds-diagram'
   | 'growth-explorer'
   | 'step-counter'
-  | 'search-cases';
+  | 'search-cases'
+  | 'number-guess'
+  | 'dominant-term'
+  | 'call-stack'
+  | 'graph-storage'
+  | 'bst-shape'
+  | 'complexity-quiz';
 
 export interface ComparisonStyle {
   icon: string;

@@ -193,6 +193,215 @@
   background: rgba($primary-color, 0.22);
 }
 
+// ===== Step rows (bars with a text label and value) =====
+.stepRow {
+  display: grid;
+  grid-template-columns: 6.5em 1fr minmax(5em, 9em);
+  align-items: center;
+  gap: $spacing-xs;
+
+  @media (max-width: $mobile-max) {
+    grid-template-columns: 5em 1fr;
+  }
+}
+
+.stepLabel {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.stepSub {
+  display: block;
+  font-size: $font-xs;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.stepValue {
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  color: var(--text-primary);
+
+  @media (max-width: $mobile-max) {
+    grid-column: 1 / -1;
+  }
+}
+
+// Button's "unstyled" variant resets background and padding, so the tile styles are chained to win
+.tile.guessTile {
+  min-width: 40px;
+  padding: 8px 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  background: rgba(128, 128, 128, 0.15);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: rgba($primary-color, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &.guessOut {
+    color: var(--text-tertiary);
+    background: transparent;
+    opacity: 0.4;
+  }
+
+  &.guessUsed {
+    color: var(--text-tertiary);
+    background: rgba(239, 68, 68, 0.18);
+    text-decoration: line-through;
+  }
+
+  &.guessHit {
+    color: #fff;
+    background: #10b981;
+  }
+}
+
+// ===== Call stack =====
+.stackArea {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+  padding: $spacing-xs;
+  background: rgba(128, 128, 128, 0.1);
+  border-bottom: 3px solid var(--text-tertiary);
+  border-radius: $radius-lg $radius-lg 0 0;
+}
+
+.stackEmpty {
+  margin: auto;
+  font-size: $font-sm;
+  color: var(--text-tertiary);
+}
+
+.frame {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  align-items: center;
+  padding: 2px $spacing-sm;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+
+  code {
+    font-family: $font-family-code;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.frameTop {
+  border-color: $primary-color;
+  background: rgba($primary-color, 0.1);
+}
+
+.frameNote {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  text-align: right;
+}
+
+// ===== Graph storage =====
+.matrixRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.matrix {
+  display: grid;
+  gap: 2px;
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.matrixCell {
+  aspect-ratio: 1;
+  background: rgba(128, 128, 128, 0.15);
+  border-radius: 2px;
+}
+
+.matrixCellOn {
+  background: $primary-color;
+}
+
+.matrixStats {
+  display: flex;
+  flex: 1 1 10em;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+// ===== BST =====
+.keyDone {
+  color: var(--text-tertiary);
+}
+
+.keyNext {
+  color: $primary-color;
+  font-weight: 700;
+}
+
+.keyTodo {
+  color: var(--text-secondary);
+}
+
+.bstSvg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.bstEdge {
+  stroke: var(--text-tertiary);
+  stroke-width: 2;
+}
+
+.bstNode {
+  fill: var(--bg-primary);
+  stroke: $primary-color;
+  stroke-width: 2;
+}
+
+.bstText {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  font-weight: 700;
+  fill: var(--text-primary);
+}
+
+// ===== Quiz =====
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.quizScore {
+  margin: 0;
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 // ===== Stats / actions =====
 .stats {
   display: flex;
@@ -206,6 +415,12 @@
   flex-direction: column;
   gap: 2px;
   padding: $spacing-xs $spacing-sm;
+}
+
+.stats .statInline {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
 .statLabel {

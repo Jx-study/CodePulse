@@ -20,6 +20,7 @@ export const LESSON_SPECS: LessonSpec[] = [
           { icon: 'bolt', color: '#f59e0b' },
         ],
       },
+      { type: 'visual', visual: 'number-guess' },
       { type: 'visual', visual: 'ds-diagram' },
       { type: 'list' },
       { type: 'summary', nextLevelIds: ['big-o-basics'] },
@@ -35,6 +36,7 @@ export const LESSON_SPECS: LessonSpec[] = [
       { type: 'code', language: 'python' },
       { type: 'visual', visual: 'step-counter' },
       { type: 'list' },
+      { type: 'visual', visual: 'dominant-term' },
       { type: 'concept' },
       {
         type: 'comparison',
@@ -67,6 +69,7 @@ export const LESSON_SPECS: LessonSpec[] = [
         ],
       },
       { type: 'concept' },
+      { type: 'visual', visual: 'complexity-quiz' },
       { type: 'summary', nextLevelIds: ['array', 'case-analysis'] },
     ],
   },
@@ -88,6 +91,7 @@ export const LESSON_SPECS: LessonSpec[] = [
           { icon: 'scale-balanced', color: '#3b82f6' },
         ],
       },
+      { type: 'visual', visual: 'bst-shape' },
       { type: 'summary', nextLevelIds: ['bubble-sort', 'bst'] },
     ],
   },
@@ -100,6 +104,7 @@ export const LESSON_SPECS: LessonSpec[] = [
       { type: 'concept' },
       { type: 'code', language: 'python' },
       { type: 'code', language: 'python' },
+      { type: 'visual', visual: 'call-stack' },
       {
         type: 'comparison',
         comparisons: [
@@ -128,6 +133,7 @@ export const LESSON_SPECS: LessonSpec[] = [
           { icon: 'route', color: '#3b82f6' },
         ],
       },
+      { type: 'visual', visual: 'graph-storage' },
       { type: 'table' },
       { type: 'table' },
       { type: 'summary', nextLevelIds: ['bfs', 'dijkstra', 'binarytree'] },

@@ -85,6 +85,20 @@ const leafKeys = (value: unknown, prefix = ''): string[] =>
     ? Object.entries(value).flatMap(([k, v]) => leafKeys(v, `${prefix}${k}.`))
     : [prefix];
 
+describe('complexity quiz', () => {
+  const options = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)'];
+  const zh = readJson('zh-TW', 'lessons').visuals.complexityQuiz.questions as { code: string; answer: string }[];
+  const en = readJson('en', 'lessons').visuals.complexityQuiz.questions as { code: string; answer: string }[];
+
+  it('only has answers that are offered as options', () => {
+    for (const q of zh) expect(options, q.answer).toContain(q.answer);
+  });
+
+  it('asks the same questions with the same answers in every language', () => {
+    expect(en.map((q) => [q.code, q.answer])).toEqual(zh.map((q) => [q.code, q.answer]));
+  });
+});
+
 describe('data structure diagram', () => {
   const structures = levelsData.levels.filter((l) => l.category === 'data-structures' && !l.id.startsWith('portal-'));
   const dashboard = readJson('zh-TW', 'dashboard');
@@ -109,7 +123,7 @@ describe('lessons text parity', () => {
   it('has the same ui and visuals keys in every language', () => {
     expect(Object.keys(en.ui).sort()).toEqual(Object.keys(zh.ui).sort());
     expect(Object.keys(en.visuals.bigO).sort()).toEqual(Object.keys(zh.visuals.bigO).sort());
-    for (const name of ['growthExplorer', 'stepCounter', 'searchCases']) {
+    for (const name of ['growthExplorer', 'stepCounter', 'searchCases', 'numberGuess', 'dominantTerm', 'callStack', 'graphStorage', 'bstShape', 'complexityQuiz']) {
       expect(leafKeys(en.visuals[name]), name).toEqual(leafKeys(zh.visuals[name]));
     }
     expect(Object.keys(en.visuals.dsDiagram).sort()).toEqual(Object.keys(zh.visuals.dsDiagram).sort());
