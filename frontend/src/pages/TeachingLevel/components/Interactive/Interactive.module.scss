@@ -39,6 +39,7 @@
 }
 
 .barLabel {
+  white-space: nowrap;
   font-family: $font-family-code;
   font-size: $font-sm;
   font-weight: 600;
@@ -460,7 +461,7 @@
 
 @media (max-width: $mobile-max) {
   .barRow {
-    grid-template-columns: 4.5em 1fr;
+    grid-template-columns: 6.5em 1fr;
   }
 
   .barValue {

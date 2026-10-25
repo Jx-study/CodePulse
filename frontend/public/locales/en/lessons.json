@@ -23,7 +23,7 @@
       "ariaLabel": "Big-O growth comparison chart",
       "xAxis": "n (input size)",
       "yAxis": "Operations",
-      "note": "* Fast-growing curves (O(n²), O(n log n)) stop once they leave the chart, which is exactly why they are inefficient."
+      "note": "* Fast-growing curves (O(n²), O(n log n)) stop once they leave the chart, which is exactly why they are inefficient."
     },
     "dsDiagram": {
       "root": "Data Structures",
@@ -324,10 +324,10 @@
                 "instant"
               ],
               [
-                "O(log n)",
-                "about 3",
-                "about 10",
-                "about 20",
+                "O(log n)",
+                "about 3",
+                "about 10",
+                "about 20",
                 "instant"
               ],
               [
@@ -335,26 +335,26 @@
                 "10",
                 "1,000",
                 "1,000,000",
-                "about 0.001 s"
+                "about 0.001 s"
               ],
               [
-                "O(n log n)",
-                "about 33",
-                "about 10,000",
-                "about 20 million",
-                "about 0.02 s"
+                "O(n log n)",
+                "about 33",
+                "about 10,000",
+                "about 20 million",
+                "about 0.02 s"
               ],
               [
                 "O(n²)",
                 "100",
                 "1,000,000",
                 "10¹² (a trillion)",
-                "about 17 minutes"
+                "about 17 minutes"
               ],
               [
                 "O(2ⁿ)",
                 "1,024",
-                "about 10³⁰¹",
+                "about 10³⁰¹",
                 "never finishes",
                 "longer than the age of the universe"
               ]
@@ -373,7 +373,7 @@
         {
           "title": "What each growth rate looks like ②",
           "code": "def halve(n):               # O(log n): cut the range in half each time\n    steps = 0\n    while n > 1:\n        n //= 2\n        steps += 1\n    return steps\n\ndef all_pairs(arr):         # O(n²): two nested loops\n    for a in arr:\n        for b in arr:\n            print(a, b)\n\ndef fib(n):                 # O(2ⁿ): every call makes two more calls\n    return n if n < 2 else fib(n - 1) + fib(n - 2)",
-          "body": "O(n log n) is common for \"split in half, process, then merge\", such as merge sort.\nO(2ⁿ) becomes unusably slow with even a modest n."
+          "body": "O(n log n) is common for \"split in half, process, then merge\", such as merge sort.\nO(2ⁿ) becomes unusably slow with even a modest n."
         },
         {
           "title": "Quick ways to tell",
@@ -390,7 +390,7 @@
                 "Reading an array by index"
               ],
               [
-                "O(log n)",
+                "O(log n)",
                 "The range is halved each time",
                 "Binary search: one million items take only about 20 steps"
               ],
@@ -400,7 +400,7 @@
                 "Finding the maximum, linear search"
               ],
               [
-                "O(n log n)",
+                "O(n log n)",
                 "Split in half, process, then merge",
                 "Merge sort: split, sort, merge"
               ],
@@ -424,10 +424,10 @@
         {
           "title": "Key takeaways",
           "items": [
-            "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)",
+            "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)",
             "With little data the gap is small. With a lot of data it decides whether the program is usable",
             "Counting loop levels and how the range shrinks gives a quick guess of the growth rate",
-            "Binary search is O(log n), advanced sorts are O(n log n), basic sorts are O(n²)"
+            "Binary search is O(log n), advanced sorts are O(n log n), basic sorts are O(n²)"
           ]
         }
       ]
@@ -462,7 +462,7 @@
           "comparisons": [
             {
               "label": "A balanced BST",
-              "description": "In a BST (binary search tree), every node has smaller values on its left and larger values on its right, so each step down discards one side. When the tree is balanced, each step discards half of the nodes, the height (how many levels deep it goes) is about log n, and search is O(log n)."
+              "description": "In a BST (binary search tree), every node has smaller values on its left and larger values on its right, so each step down discards one side. When the tree is balanced, each step discards half of the nodes, the height (how many levels deep it goes) is about log n, and search is O(log n)."
             },
             {
               "label": "A degenerate BST",
@@ -470,7 +470,7 @@
             },
             {
               "label": "How to avoid it",
-              "description": "Self-balancing trees such as AVL and red-black trees adjust their shape automatically, keeping even the worst case at O(log n)."
+              "description": "Self-balancing trees such as AVL and red-black trees adjust their shape automatically, keeping even the worst case at O(log n)."
             }
           ]
         },
@@ -518,7 +518,7 @@
             },
             {
               "label": "Recursive binary search",
-              "description": "Each call handles half of the range and the stack gets at most log n layers deep, so the extra space is O(log n)."
+              "description": "Each call handles half of the range and the stack gets at most log n layers deep, so the extra space is O(log n)."
             },
             {
               "label": "Recursive DFS (go as deep as possible, then back up) on a degenerate tree",
@@ -528,7 +528,7 @@
         },
         {
           "title": "Common misunderstandings",
-          "body": "• \"No array declared\" does not mean O(1): the recursion call stack counts too\n• \"Fast in time\" does not mean \"small in space\": merge sort is O(n log n) in time but needs O(n) extra space\n• In-place algorithms change the input directly and use O(1) extra space: bubble, selection and insertion sort all do\n\nTime and space are often a trade-off: a little more memory can buy more speed."
+          "body": "• \"No array declared\" does not mean O(1): the recursion call stack counts too\n• \"Fast in time\" does not mean \"small in space\": merge sort is O(n log n) in time but needs O(n) extra space\n• In-place algorithms change the input directly and use O(1) extra space: bubble, selection and insertion sort all do\n\nTime and space are often a trade-off: a little more memory can buy more speed."
         },
         {
           "title": "Key takeaways",
@@ -553,9 +553,9 @@
           "title": "Common variables",
           "items": [
             "V — the number of vertices in a graph",
-            "E — the number of edges in a graph. BFS and DFS (two ways to walk through a graph) look at each vertex and each edge once, so the time is O(V + E)",
+            "E — the number of edges in a graph. BFS and DFS (two ways to walk through a graph) look at each vertex and each edge once, so the time is O(V + E)",
             "h — the height of a tree. About log n when balanced and n when degenerate, so BST operations are O(h)",
-            "R × C — rows and columns of a grid. Visiting the whole map is O(R × C)"
+            "R × C — rows and columns of a grid. Visiting the whole map is O(R × C)"
           ]
         },
         {
@@ -563,15 +563,15 @@
           "comparisons": [
             {
               "label": "BFS / DFS",
-              "description": "Each vertex is visited once and each edge is checked once, so time is O(V + E). The queue or stack holds at most all the vertices, so space is O(V)."
+              "description": "Each vertex is visited once and each edge is checked once, so time is O(V + E). The queue or stack holds at most all the vertices, so space is O(V)."
             },
             {
               "label": "BST search",
-              "description": "Each step down drops part of the nodes, so the steps are proportional to the height h and the time is O(h): O(log n) on average, O(n) in the worst case."
+              "description": "Each step down drops part of the nodes, so the steps are proportional to the height h and the time is O(h): O(log n) on average, O(n) in the worst case."
             },
             {
               "label": "Dijkstra",
-              "description": "Dijkstra finds shortest paths. It is O((V + E) log V) with a min-heap (a structure that gives the minimum quickly), and O(V²) when the minimum is found by scanning an array."
+              "description": "Dijkstra finds shortest paths. It is O((V + E) log V) with a min-heap (a structure that gives the minimum quickly), and O(V²) when the minimum is found by scanning an array."
             }
           ]
         },
@@ -614,15 +614,15 @@
               ],
               [
                 "BST",
-                "Average O(log n) / worst O(n)",
-                "Average O(log n) / worst O(n)",
-                "Average O(log n) / worst O(n)"
+                "Average O(log n) / worst O(n)",
+                "Average O(log n) / worst O(n)",
+                "Average O(log n) / worst O(n)"
               ],
               [
                 "Heap",
                 "Peek extreme O(1)",
-                "O(log n)",
-                "Remove extreme O(log n)"
+                "O(log n)",
+                "Remove extreme O(log n)"
               ]
             ],
             "note": "The BST worst case happens when the tree degenerates into a line."
@@ -654,22 +654,22 @@
               ],
               [
                 "Merge sort",
-                "O(n log n) (all cases)",
+                "O(n log n) (all cases)",
                 "O(n)"
               ],
               [
                 "Quick sort",
-                "Average O(n log n) / worst O(n²)",
-                "Average O(log n) (recursion stack)"
+                "Average O(n log n) / worst O(n²)",
+                "Average O(log n) (recursion stack)"
               ],
               [
                 "Binary search",
-                "O(log n)",
-                "Iterative O(1) / recursive O(log n)"
+                "O(log n)",
+                "Iterative O(1) / recursive O(log n)"
               ],
               [
                 "BFS / DFS",
-                "O(V + E)",
+                "O(V + E)",
                 "O(V)"
               ],
               [
