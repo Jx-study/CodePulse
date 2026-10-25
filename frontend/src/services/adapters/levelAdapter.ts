@@ -35,6 +35,7 @@ interface RawLevelData {
   isDeveloped: boolean;
   isUnlocked: boolean;
   hasPractice?: boolean;
+  isLesson?: boolean;
   prerequisites: PrerequisiteConfig;
   graphPosition: GraphPosition;
   pathMetadata: PathMetadata;
@@ -64,6 +65,7 @@ export function rawToLevelConfig(raw: RawLevelData): LevelConfig {
     isDeveloped: raw.isDeveloped,
     isUnlocked: raw.isUnlocked,
     ...(raw.hasPractice === undefined ? {} : { hasPractice: raw.hasPractice }),
+    ...(raw.isLesson === undefined ? {} : { isLesson: raw.isLesson }),
     prerequisites: raw.prerequisites,
     graphPosition: raw.graphPosition,
     pathMetadata: raw.pathMetadata,

@@ -80,6 +80,60 @@
     "ariaLabel": "關卡：{{levelName}}"
   },
   "levels": {
+    "what_is_dsa": {
+      "name": "什麼是演算法與資料結構",
+      "description": "先弄懂這個平台在教什麼，以及為什麼值得學",
+      "objectives": [
+        "說明演算法與資料結構各是什麼",
+        "理解兩者如何一起解決問題",
+        "知道動畫、教學與練習怎麼搭配使用"
+      ]
+    },
+    "big_o_basics": {
+      "name": "Big-O 是什麼",
+      "description": "學會用 O() 描述程式的執行成本",
+      "objectives": [
+        "理解為什麼用操作次數而不是秒數衡量",
+        "學會忽略常數與低次項",
+        "能讀懂 O(1)、O(n) 這類符號"
+      ]
+    },
+    "growth_rates": {
+      "name": "常見成長類別",
+      "description": "比較 O(1) 到 O(2ⁿ) 的差距有多大",
+      "objectives": [
+        "認得六種常見的成長類別",
+        "用實際數字感受它們的差距",
+        "把成長類別對應到常見的程式寫法"
+      ]
+    },
+    "case_analysis": {
+      "name": "最佳、最壞、平均情況",
+      "description": "同一個演算法，為什麼會有不同的答案",
+      "objectives": [
+        "分辨最佳、最壞與平均情況",
+        "說明為什麼題目通常問最壞情況",
+        "看懂 BST 退化與提前終止如何改變複雜度"
+      ]
+    },
+    "space_complexity": {
+      "name": "空間複雜度與遞迴堆疊",
+      "description": "計算額外使用的記憶體，包含遞迴的呼叫堆疊",
+      "objectives": [
+        "分辨輸入本身與額外空間",
+        "理解遞迴的呼叫堆疊深度",
+        "比較迭代與遞迴的空間差異"
+      ]
+    },
+    "multi_variable_complexity": {
+      "name": "用多個變數描述複雜度",
+      "description": "圖的 V、E 與樹高 h，以及各結構的速查表",
+      "objectives": [
+        "知道什麼時候 n 不夠用",
+        "讀懂 O(V + E)、O(h) 這類表示",
+        "用速查表快速對照各結構與演算法"
+      ]
+    },
     "array": {
       "name": "陣列",
       "description": "最基礎的線性資料結構",
@@ -424,6 +478,10 @@
     }
   },
   "categories": {
+    "foundations": {
+      "name": "入門",
+      "description": "從零開始：什麼是演算法、資料結構與複雜度"
+    },
     "data_structures": {
       "name": "資料結構",
       "description": "學習各種資料結構的運作原理與應用"

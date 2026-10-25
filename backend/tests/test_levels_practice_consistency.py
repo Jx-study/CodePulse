@@ -48,3 +48,20 @@ def test_every_question_bank_is_registered_for_seeding():
         if f"from seeds.questions import {stem}\n" not in text
     ]
     assert not unregistered, f"題庫未登錄到 seed_questions.py: {unregistered}"
+
+
+def test_every_level_is_seeded_as_a_tutorial_with_matching_category_and_difficulty():
+    from seeds.seed_tutorials import CATEGORIES, TUTORIALS
+
+    seeded = {slug: (category, difficulty) for slug, category, difficulty in TUTORIALS}
+    categories = json.loads(LEVELS_JSON.read_text(encoding="utf-8"))["categories"]
+    problems = []
+    for level in _levels():
+        expected = seeded.get(level["id"])
+        if expected is None:
+            problems.append(f"{level['id']}: missing from seed_tutorials.TUTORIALS")
+        elif expected != (level["category"], level["difficulty"]):
+            problems.append(f"{level['id']}: seed has {expected}, levels.json has {(level['category'], level['difficulty'])}")
+    missing_categories = [c for c in categories if c not in CATEGORIES]
+    assert not problems, problems
+    assert not missing_categories, f"categories missing from seed_tutorials.CATEGORIES: {missing_categories}"

@@ -22,6 +22,7 @@ from models.tutorial import AlgorithmCategory, Tutorial
 
 # 與 frontend/src/data/levels/levels.json categories 同步
 CATEGORIES = [
+    "foundations",
     "data-structures",
     "sorting",
     "searching",
@@ -34,6 +35,13 @@ CATEGORIES = [
 # 與 frontend/src/data/levels/levels.json levels 同步
 # 欄位：(slug, category, difficulty)
 TUTORIALS = [
+    # foundations
+    ("what-is-dsa",               "foundations",     1),
+    ("big-o-basics",              "foundations",     1),
+    ("growth-rates",              "foundations",     1),
+    ("case-analysis",             "foundations",     2),
+    ("space-complexity",          "foundations",     2),
+    ("multi-variable-complexity", "foundations",     2),
     # data-structures
     ("array",               "data-structures", 1),
     ("linked-list",         "data-structures", 1),

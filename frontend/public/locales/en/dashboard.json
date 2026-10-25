@@ -80,6 +80,60 @@
     "ariaLabel": "Level: {{levelName}}"
   },
   "levels": {
+    "what_is_dsa": {
+      "name": "What Are Algorithms and Data Structures",
+      "description": "Understand what this platform teaches and why it matters",
+      "objectives": [
+        "Explain what an algorithm and a data structure are",
+        "See how the two work together to solve problems",
+        "Know how animations, tutorials and practice fit together"
+      ]
+    },
+    "big_o_basics": {
+      "name": "What Is Big-O",
+      "description": "Learn to describe the cost of a program with O()",
+      "objectives": [
+        "See why we count operations instead of seconds",
+        "Drop constants and lower-order terms",
+        "Read notations such as O(1) and O(n)"
+      ]
+    },
+    "growth_rates": {
+      "name": "Common Growth Rates",
+      "description": "See how far apart O(1) and O(2ⁿ) really are",
+      "objectives": [
+        "Recognize the six common growth rates",
+        "Feel the gap with real numbers",
+        "Match each growth rate to a familiar code pattern"
+      ]
+    },
+    "case_analysis": {
+      "name": "Best, Worst and Average Case",
+      "description": "Why one algorithm can have different answers",
+      "objectives": [
+        "Tell best, worst and average case apart",
+        "Explain why questions usually ask about the worst case",
+        "See how a degenerate BST or early exit changes complexity"
+      ]
+    },
+    "space_complexity": {
+      "name": "Space Complexity and the Call Stack",
+      "description": "Count the extra memory, including the recursion call stack",
+      "objectives": [
+        "Separate the input itself from extra space",
+        "Understand recursion depth on the call stack",
+        "Compare iterative and recursive space"
+      ]
+    },
+    "multi_variable_complexity": {
+      "name": "Describing Complexity with Several Variables",
+      "description": "V and E for graphs, height h for trees, and a cheat sheet",
+      "objectives": [
+        "Know when n is not enough",
+        "Read O(V + E) and O(h)",
+        "Use the cheat sheet to compare structures and algorithms"
+      ]
+    },
     "array": {
       "name": "Array",
       "description": "The most fundamental linear data structure",
@@ -424,6 +478,10 @@
     }
   },
   "categories": {
+    "foundations": {
+      "name": "Foundations",
+      "description": "Start here: algorithms, data structures and complexity"
+    },
     "data_structures": {
       "name": "Data Structures",
       "description": "Learn the working principles and applications of various data structures"

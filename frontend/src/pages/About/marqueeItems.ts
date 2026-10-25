@@ -32,8 +32,8 @@ export const MARQUEE_LABELS: Record<string, string> = {
   lcs: 'LCS',
 };
 
-const isListedLevel = (level: { id: string; isDeveloped: boolean }) =>
-  level.isDeveloped && !level.id.startsWith('portal-to-');
+const isListedLevel = (level: { id: string; isDeveloped: boolean; isLesson?: boolean }) =>
+  level.isDeveloped && !level.isLesson && !level.id.startsWith('portal-to-');
 
 const toTitle = (id: string) =>
   id

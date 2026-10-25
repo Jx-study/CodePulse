@@ -19,6 +19,7 @@ import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContex
 import {
   getAllLevels,
   getEffectivePrerequisiteInfo,
+  getLevelById,
   getPortalTargetCategory,
   isLevelUnlocked,
   isPortalUnlocked,
@@ -262,7 +263,11 @@ function LearningDashboardInner() {
   // 跳轉到 Tutorial Page
   const handleStartTutorial = () => {
     if (selectedLevel) {
-      navigate(`/tutorial/${selectedLevel.category}/${selectedLevel.id}`);
+      navigate(
+        selectedLevel.isLesson
+          ? `/lesson/${selectedLevel.id}`
+          : `/tutorial/${selectedLevel.category}/${selectedLevel.id}`,
+      );
     }
   };
 
@@ -458,6 +463,10 @@ function LearningDashboardInner() {
           tutorialLocked={false}
           practiceLocked={isSelectedLevelPracticeLocked}
           prerequisiteInfo={selectedLevelPrerequisiteInfo}
+          onSelectLevel={(levelId) => {
+            const target = getLevelById(levelId);
+            if (target) navigateToLevel(levelId, target.category);
+          }}
         />
       )}
 

@@ -62,6 +62,7 @@ export const INITIAL_USER_PROGRESS: UserProgress = {
   totalLevelsCompleted: 0,
   lastAccessedDate: new Date().toISOString(),
   categoryUnlocks: {
+    foundations: true,
     "data-structures": true,
     sorting: false,
     searching: false,
