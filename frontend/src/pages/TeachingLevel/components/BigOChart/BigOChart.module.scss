@@ -4,13 +4,13 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: $spacing-sm;
 }
 
 .svg {
   width: 100%;
-  max-width: 500px;
+  max-width: 720px;
   height: auto;
   color: var(--text-secondary);
   overflow: visible;
@@ -31,7 +31,7 @@
 .legend {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: $spacing-xs $spacing-sm;
 }
 
@@ -57,8 +57,8 @@
 .note {
   font-size: $font-xs;
   color: var(--text-tertiary);
-  text-align: center;
-  max-width: 480px;
+  text-align: left;
+  max-width: 560px;
   line-height: 1.5;
   margin: 0;
 }

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon';
@@ -16,6 +17,14 @@ interface Props {
 }
 
 export default function SlideRenderer({ slide, lesson }: Props) {
+  return (
+    <div className={styles.slide} style={{ '--lesson-color': lesson.color } as CSSProperties}>
+      <SlideContent slide={slide} lesson={lesson} />
+    </div>
+  );
+}
+
+function SlideContent({ slide, lesson }: Props) {
   switch (slide.type) {
     case 'cover':
       return <CoverSlide slide={slide} lesson={lesson} />;
@@ -32,7 +41,7 @@ export default function SlideRenderer({ slide, lesson }: Props) {
     case 'table':
       return <TableSlide slide={slide} />;
     case 'summary':
-      return <SummarySlide slide={slide} lesson={lesson} />;
+      return <SummarySlide slide={slide} />;
     default:
       return null;
   }
@@ -42,21 +51,14 @@ function CoverSlide({ slide, lesson }: { slide: Slide; lesson: Lesson }) {
   const { t } = useTranslation('lessons');
   return (
     <div className={styles.cover}>
-      <div className={styles.coverIcon} style={{ background: `${lesson.color}22`, color: lesson.color }}>
-        <Icon name={lesson.icon} />
-      </div>
+      <span className={styles.coverKicker}>{t('ui.lessonList')}</span>
       <h1 className={styles.coverTitle}>{slide.title}</h1>
       {slide.subtitle && <p className={styles.coverSubtitle}>{slide.subtitle}</p>}
-      <div className={styles.coverMeta}>
-        <span>
-          <Icon name="stopwatch" decorative />
-          {t('ui.minutes', { count: lesson.estimatedMinutes })}
-        </span>
-        <span>
-          <Icon name="layer-group" decorative />
-          {t('ui.units', { count: lesson.slides.length })}
-        </span>
-      </div>
+      <p className={styles.coverMeta}>
+        {t('ui.minutes', { count: lesson.estimatedMinutes })}
+        <span aria-hidden="true"> · </span>
+        {t('ui.units', { count: lesson.slides.length })}
+      </p>
     </div>
   );
 }
@@ -112,7 +114,7 @@ function ListSlide({ slide }: { slide: Slide }) {
           const [head, ...rest] = item.split(' — ');
           return (
             <li key={i} className={styles.listItem}>
-              <span className={styles.listNum}>{i + 1}</span>
+              <span className={styles.listNum}>{String(i + 1).padStart(2, '0')}</span>
               <span>
                 {rest.length > 0 ? (
                   <>
@@ -136,10 +138,7 @@ function ComparisonSlide({ slide }: { slide: Slide }) {
       <h2 className={styles.slideTitle}>{slide.title}</h2>
       <div className={styles.comparisonGrid}>
         {(slide.comparisons ?? []).map((item) => (
-          <div key={item.label} className={styles.comparisonCard} style={{ borderColor: `${item.color}44` }}>
-            <div className={styles.comparisonIcon} style={{ color: item.color }}>
-              <Icon name={item.icon} />
-            </div>
+          <div key={item.label} className={styles.comparisonCard} style={{ borderTopColor: item.color }}>
             <h3 className={styles.comparisonLabel}>{item.label}</h3>
             <p className={styles.comparisonDesc}>{item.description}</p>
           </div>
@@ -172,11 +171,6 @@ function CodeSlide({ slide }: { slide: Slide }) {
         <div className={styles.codeBlock}>
           <div className={styles.codeHeader}>
             <span className={styles.codeLang}>{slide.code.language}</span>
-            <span className={styles.codeDots}>
-              <span />
-              <span />
-              <span />
-            </span>
           </div>
           <pre className={styles.codePre}>
             <code>{slide.code.content}</code>
@@ -233,35 +227,23 @@ function TableSlide({ slide }: { slide: Slide }) {
   );
 }
 
-function SummarySlide({ slide, lesson }: { slide: Slide; lesson: Lesson }) {
-  const { t } = useTranslation('lessons');
+function SummarySlide({ slide }: { slide: Slide }) {
   return (
     <div className={styles.summary}>
-      <div className={styles.summaryHeader}>
-        <div className={styles.summaryBadge} style={{ background: `${lesson.color}22`, color: lesson.color }}>
-          <Icon name="check-circle" decorative />
-          {t('ui.done')}
-        </div>
-        <h2 className={styles.slideTitle}>{slide.title}</h2>
-      </div>
+      <h2 className={styles.slideTitle}>{slide.title}</h2>
       <ul className={styles.summaryList}>
         {(slide.items ?? []).map((item, i) => (
           <li key={i} className={styles.summaryItem}>
-            <span className={styles.summaryCheck} style={{ color: lesson.color }}>
-              <Icon name="check-circle" />
-            </span>
-            <span>{item}</span>
+            {item}
           </li>
         ))}
       </ul>
-      {slide.nextLevelIds && slide.nextLevelIds.length > 0 && (
-        <NextSteps levelIds={slide.nextLevelIds} color={lesson.color} />
-      )}
+      {slide.nextLevelIds && slide.nextLevelIds.length > 0 && <NextSteps levelIds={slide.nextLevelIds} />}
     </div>
   );
 }
 
-function NextSteps({ levelIds, color }: { levelIds: string[]; color: string }) {
+function NextSteps({ levelIds }: { levelIds: string[] }) {
   const { t } = useTranslation('lessons');
   const { t: tDashboard } = useTranslation('dashboard');
   const navigate = useNavigate();
@@ -275,13 +257,7 @@ function NextSteps({ levelIds, color }: { levelIds: string[]; color: string }) {
           if (!level) return null;
           const target = level.isLesson ? `/lesson/${id}` : `/tutorial/${level.category}/${id}`;
           return (
-            <button
-              key={id}
-              type="button"
-              className={styles.nextCard}
-              style={{ borderColor: `${color}55` }}
-              onClick={() => navigate(target)}
-            >
+            <button key={id} type="button" className={styles.nextLink} onClick={() => navigate(target)}>
               <span>{tDashboard(`levels.${id.replace(/-/g, '_')}.name`)}</span>
               <Icon name="arrow-right" decorative />
             </button>
