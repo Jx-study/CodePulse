@@ -123,6 +123,13 @@
   padding: $spacing-lg;
 }
 
+.listIntro {
+  margin: 0 0 $spacing-sm;
+  font-size: $font-xl;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
 .orderedList {
   list-style: none;
   padding: 0;

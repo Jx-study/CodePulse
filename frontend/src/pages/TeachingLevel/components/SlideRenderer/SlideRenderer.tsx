@@ -109,6 +109,7 @@ function ListSlide({ slide }: { slide: Slide }) {
   return (
     <div className={styles.list}>
       <h2 className={styles.slideTitle}>{slide.title}</h2>
+      {slide.body && <p className={styles.listIntro}>{slide.body}</p>}
       <ol className={styles.orderedList}>
         {(slide.items ?? []).map((item, i) => {
           const [head, ...rest] = item.split(' — ');

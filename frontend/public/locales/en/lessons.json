@@ -91,23 +91,15 @@
       "subtitle": "Understand what this platform teaches",
       "slides": [
         {
-          "title": "Algorithm: steps that solve a problem",
-          "body": "An algorithm is a set of clear steps that solves a problem.\n\nA problem usually has several solutions. Say you want to find one person in a pile of business cards:\n• Flip through the cards one by one until you find them\n• Sort them by surname first, then open the pile in the middle like a dictionary\n\nBoth ways find the person, but the number of steps is very different. Learning algorithms means learning to pick the one that is fast and cheap."
-        },
-        {
-          "title": "Data structure: how data is arranged",
-          "body": "A data structure is a way of organizing and storing data. It decides how data is placed, found and changed.\n\nWith the same pile of books, different arrangements make different things easy:\n• Stacked in one pile (stack): you can only take the top book\n• Lined up in a row (queue): first in, first out\n• Shelved by topic (tree): you follow the categories down level by level\n\nNo arrangement is always the best. It depends on what you do most often."
-        },
-        {
-          "title": "How the two work together",
+          "title": "Algorithms and data structures",
           "comparisons": [
             {
               "label": "Algorithm",
-              "description": "\"How to do it\": the steps that solve a problem, such as searching, sorting and traversing."
+              "description": "\"How to do it\": a set of clear steps that solves a problem, such as searching, sorting and traversing. To find one person in a pile of business cards, flipping one by one and sorting first then opening in the middle take very different numbers of steps. Learning algorithms means learning to pick the fast and cheap one."
             },
             {
               "label": "Data structure",
-              "description": "\"Where it lives\": how data is stored, which decides which steps are fast."
+              "description": "\"Where it lives\": a way of organizing and storing data, which decides how data is placed, found and changed. A stack only gives you the top book, a queue is first in first out, and a tree is followed down by category. No arrangement is always best; it depends on what you do most often."
             },
             {
               "label": "Together they set the speed",
@@ -302,15 +294,12 @@
       "slides": [
         {
           "title": "One algorithm, different inputs",
-          "body": "The same algorithm can be much faster on some inputs than on others.\n\nTake \"looking for a number in an array from the start\":\n• Lucky: it is the first one → look at 1 item\n• Unlucky: it is the last one → look at n items\n• Not in the array at all → still look at all n items\n\nSo \"how long does searching take\" is not enough. You also need to say which case you mean."
-        },
-        {
-          "title": "Three cases",
           "items": [
             "Best case — the input that favors the algorithm most. Linear search: the target is first, O(1)",
             "Worst case — the input that hurts the algorithm most. Linear search: the target is last or missing, O(n)",
             "Average case — the typical performance over all possible inputs. Linear search: about half the array, roughly n/2 steps, still O(n)"
-          ]
+          ],
+          "body": "The same algorithm can be much faster on some inputs than on others. Take \"looking for a number in an array from the start\": if you are lucky it is the first one; if not, it is the last, or not in the array at all, and you still look at everything. So \"how long does searching take\" is not enough. You also need to say which case you mean:"
         },
         {
           "title": "Try linear search yourself"

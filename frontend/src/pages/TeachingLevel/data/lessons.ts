@@ -12,8 +12,6 @@ export const LESSON_SPECS: LessonSpec[] = [
     color: '#635bff',
     estimatedMinutes: 4,
     slides: [
-      { type: 'concept' },
-      { type: 'concept' },
       {
         type: 'comparison',
         comparisons: [
@@ -78,7 +76,6 @@ export const LESSON_SPECS: LessonSpec[] = [
     color: '#ef4444',
     estimatedMinutes: 6,
     slides: [
-      { type: 'concept' },
       { type: 'list' },
       { type: 'visual', visual: 'search-cases' },
       { type: 'concept' },
