@@ -1,0 +1,263 @@
+@use '@/shared/styles/_variables.scss' as *;
+
+.panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.controlRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.controlLabel {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.slider {
+  flex: 1 1 10rem;
+}
+
+// ===== Growth bars =====
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 5.5em 1fr minmax(6em, 9em);
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.barLabel {
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  font-weight: 600;
+}
+
+.barTrack {
+  height: 10px;
+  background: rgba(128, 128, 128, 0.2);
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: $radius-full;
+  transition: width 0.25s ease-out;
+}
+
+.barValue {
+  display: flex;
+  flex-direction: column;
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.barTime {
+  color: var(--text-tertiary);
+}
+
+// ===== Array cells =====
+.prompt {
+  margin: 0;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.cell {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-code;
+  font-size: $font-base;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  border-radius: $radius-lg;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.15s;
+}
+
+// Button's "unstyled" variant resets border and background, so the tile styles are chained to win
+.cellButton {
+  cursor: pointer;
+
+  &.cell {
+    padding: 0;
+    color: var(--text-primary);
+    font-weight: 600;
+    background: var(--bg-primary);
+    border: 2px solid var(--border);
+    border-radius: $radius-lg;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.1);
+    box-shadow: 0 4px 10px rgba($primary-color, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+
+  &.cellDone {
+    background: rgba($primary-color, 0.14);
+    border-color: rgba($primary-color, 0.5);
+  }
+
+  &.cellTarget {
+    background: rgba($primary-color, 0.18);
+    border: 2px dashed $primary-color;
+  }
+
+  &.cellHit {
+    background: rgba(16, 185, 129, 0.2);
+    border: 2px solid #10b981;
+  }
+}
+
+// ===== Step counter: code + read-only tiles =====
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  cursor: default;
+  user-select: none;
+}
+
+.tileSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.tilePointer {
+  font-family: $font-family-code;
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $primary-color;
+  visibility: hidden;
+
+  &::after {
+    content: ' ▾';
+  }
+}
+
+.tilePointerOn {
+  visibility: visible;
+}
+
+.tile {
+  min-width: 36px;
+  padding: 6px 0;
+  text-align: center;
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  color: var(--text-tertiary);
+  background: rgba(128, 128, 128, 0.12);
+  border-radius: $radius-md;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tileDone {
+  color: var(--text-primary);
+  background: rgba($primary-color, 0.22);
+}
+
+// ===== Stats / actions =====
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.stats .stat {
+  flex: 1 1 8em;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: $spacing-xs $spacing-sm;
+}
+
+.statLabel {
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+}
+
+.statValue {
+  font-family: $font-family-code;
+  font-size: $font-lg;
+  color: var(--text-primary);
+}
+
+.stats .verdict_best {
+  box-shadow: inset 0 0 0 2px #10b981;
+}
+
+.stats .verdict_middle {
+  box-shadow: inset 0 0 0 2px #f59e0b;
+}
+
+.stats .verdict_worst {
+  box-shadow: inset 0 0 0 2px #ef4444;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (max-width: $mobile-max) {
+  .barRow {
+    grid-template-columns: 4.5em 1fr;
+  }
+
+  .barValue {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    gap: $spacing-xs;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill,
+  .cell {
+    transition: none;
+  }
+}

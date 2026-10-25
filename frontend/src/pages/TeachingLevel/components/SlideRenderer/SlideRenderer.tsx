@@ -4,6 +4,9 @@ import Icon from '@/shared/components/Icon';
 import { getLevelById } from '@/services/LevelService';
 import BigOChart from '../BigOChart/BigOChart';
 import DSDiagram from '../DSDiagram/DSDiagram';
+import GrowthExplorer from '../Interactive/GrowthExplorer';
+import SearchCases from '../Interactive/SearchCases';
+import StepCounter from '../Interactive/StepCounter';
 import type { Lesson, Slide } from '../../types';
 import styles from './SlideRenderer.module.scss';
 
@@ -153,6 +156,9 @@ function VisualSlide({ slide }: { slide: Slide }) {
       <div className={styles.visualContent}>
         {slide.visual === 'big-o-chart' && <BigOChart />}
         {slide.visual === 'ds-diagram' && <DSDiagram />}
+        {slide.visual === 'growth-explorer' && <GrowthExplorer />}
+        {slide.visual === 'step-counter' && <StepCounter />}
+        {slide.visual === 'search-cases' && <SearchCases />}
       </div>
     </div>
   );

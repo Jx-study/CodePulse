@@ -80,6 +80,11 @@ describe.each(LOCALES)('lessons text (%s)', (lng) => {
   });
 });
 
+const leafKeys = (value: unknown, prefix = ''): string[] =>
+  typeof value === 'object' && value !== null
+    ? Object.entries(value).flatMap(([k, v]) => leafKeys(v, `${prefix}${k}.`))
+    : [prefix];
+
 describe('lessons text parity', () => {
   const zh = readJson('zh-TW', 'lessons');
   const en = readJson('en', 'lessons');
@@ -87,6 +92,9 @@ describe('lessons text parity', () => {
   it('has the same ui and visuals keys in every language', () => {
     expect(Object.keys(en.ui).sort()).toEqual(Object.keys(zh.ui).sort());
     expect(Object.keys(en.visuals.bigO).sort()).toEqual(Object.keys(zh.visuals.bigO).sort());
+    for (const name of ['growthExplorer', 'stepCounter', 'searchCases']) {
+      expect(leafKeys(en.visuals[name]), name).toEqual(leafKeys(zh.visuals[name]));
+    }
     expect(en.visuals.dsDiagram.linearItems).toHaveLength(zh.visuals.dsDiagram.linearItems.length);
     expect(en.visuals.dsDiagram.nonLinearItems).toHaveLength(zh.visuals.dsDiagram.nonLinearItems.length);
   });

@@ -35,6 +35,7 @@ export const LESSON_SPECS: LessonSpec[] = [
     slides: [
       { type: 'concept' },
       { type: 'code', language: 'python' },
+      { type: 'visual', visual: 'step-counter' },
       { type: 'list' },
       { type: 'concept' },
       {
@@ -55,6 +56,7 @@ export const LESSON_SPECS: LessonSpec[] = [
     slides: [
       { type: 'visual', visual: 'big-o-chart' },
       { type: 'table' },
+      { type: 'visual', visual: 'growth-explorer' },
       { type: 'concept' },
       { type: 'code', language: 'python' },
       { type: 'code', language: 'python' },
@@ -78,6 +80,7 @@ export const LESSON_SPECS: LessonSpec[] = [
     slides: [
       { type: 'concept' },
       { type: 'list' },
+      { type: 'visual', visual: 'search-cases' },
       { type: 'concept' },
       { type: 'code', language: 'python' },
       {

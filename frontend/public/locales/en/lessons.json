@@ -38,6 +38,49 @@
         "Heap",
         "Trie"
       ]
+    },
+    "growthExplorer": {
+      "ariaLabel": "Interactive growth rate comparison",
+      "nLabel": "n (input size)",
+      "hint": "Bars use a log scale: each tick is 10× more steps. Time assumes 1 billion steps per second. Drag n above 100 and watch what happens to O(2ⁿ).",
+      "units": {
+        "instant": "instant",
+        "second": "~{{value}} s",
+        "minute": "~{{value}} min",
+        "hour": "~{{value}} hours",
+        "day": "~{{value}} days",
+        "year": "~{{value}} years",
+        "never": "never finishes"
+      }
+    },
+    "stepCounter": {
+      "ariaLabel": "Interactive step counting",
+      "nLabel": "Number of items n",
+      "steps": "Steps so far",
+      "result": "Running total",
+      "next": "Next step",
+      "reset": "Reset",
+      "hint": "Press \"Next step\" to run the highlighted line; each executed line counts as 1 step, and the x ▾ below shows which item is being handled. You can also drag n and count again.",
+      "finished": "n = {{n}}, {{total}} steps in total (n loop steps plus 1 at the start and 1 at the end). Double n and count again: the steps roughly double too. That is O(n)."
+    },
+    "searchCases": {
+      "ariaLabel": "Interactive best and worst case of linear search",
+      "prompt": "Click a number as the target and see how many comparisons linear search needs.",
+      "pick": "Search for {{value}}",
+      "missing": "Search for a number not in the array",
+      "compared": "Compared",
+      "case": "Which case is this",
+      "verdict": {
+        "best": "Best case",
+        "middle": "Typical case",
+        "worst": "Worst case"
+      },
+      "explain": {
+        "best": "The target is in the first position, so only {{count}} comparison → O(1).",
+        "middle": "The target is in the middle and took {{count}} comparisons. On average you scan about half the data.",
+        "worst": "The target is last or missing, so all {{count}} items were compared → O(n)."
+      },
+      "hint": "Pick the first number 7, the last number 6, then \"not in the array\", and compare the three runs."
     }
   },
   "lessons": {
@@ -105,6 +148,9 @@
           "title": "Count the steps",
           "code": "def total(nums):\n    result = 0          # runs once\n    for x in nums:      # the loop runs n times\n        result += x     # a fixed few steps each time, n times in all\n    return result       # runs once",
           "body": "With n items the loop runs n times, so the total is a few times n plus a little extra.\nWhen the data becomes 10 times larger, the steps become about 10 times larger. That is \"proportional to n\", written O(n)."
+        },
+        {
+          "title": "Count the steps yourself"
         },
         {
           "title": "Two simplification rules",
@@ -200,6 +246,9 @@
           }
         },
         {
+          "title": "Drag n and see the gap"
+        },
+        {
           "title": "Turning steps into time",
           "body": "Assume a computer can do one billion steps per second. With n = 1,000,000:\n• O(n): about 0.001 seconds\n• O(n log n): about 0.02 seconds\n• O(n²): about 1,000 seconds, roughly 17 minutes\n• O(2ⁿ): longer than the age of the universe\n\nWith little data you cannot tell the difference. With a lot of data, the gap goes from \"a bit slower\" to \"impossible\"."
         },
@@ -260,6 +309,9 @@
             "Worst case — the input that hurts the algorithm most. Linear search: the target is last or missing, O(n)",
             "Average case — the typical performance over all possible inputs. Linear search: about half the array, roughly n/2 steps, still O(n)"
           ]
+        },
+        {
+          "title": "Try linear search yourself"
         },
         {
           "title": "Why the worst case is used so often",

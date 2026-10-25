@@ -10,7 +10,12 @@ export type SlideType =
 /** 封面由課程標題自動產生，不在 SlideSpec 裡 */
 export type RenderedSlideType = SlideType | 'cover';
 
-export type VisualType = 'big-o-chart' | 'ds-diagram';
+export type VisualType =
+  | 'big-o-chart'
+  | 'ds-diagram'
+  | 'growth-explorer'
+  | 'step-counter'
+  | 'search-cases';
 
 export interface ComparisonStyle {
   icon: string;
