@@ -75,28 +75,39 @@
 }
 
 .conceptBody {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: $radius-xl;
-  padding: $spacing-lg;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: $spacing-xs;
+  gap: $spacing-md;
+  max-width: 780px;
+  padding-bottom: $spacing-lg;
 
   p {
-    font-size: $font-base;
+    font-size: $font-lg;
     color: var(--text-secondary);
-    line-height: 1.8;
+    line-height: 1.85;
     margin: 0;
   }
+}
 
-  .bullet {
-    padding-left: $spacing-sm;
+.bulletList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  li {
+    padding: $spacing-xs $spacing-md;
     border-left: 3px solid $primary-color;
-    color: var(--text-primary) !important;
+    background: rgba($primary-color, 0.05);
+    border-radius: 0 $radius-lg $radius-lg 0;
+    font-size: $font-lg;
+    line-height: 1.7;
     font-weight: 500;
+    color: var(--text-primary);
   }
 }
 
@@ -126,9 +137,9 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: $radius-lg;
-  font-size: $font-sm;
+  font-size: $font-base;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.7;
   transition: $transition-base;
 
   &:hover {
@@ -165,9 +176,11 @@
 
 .comparisonGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: $spacing-md;
   flex: 1;
+  align-content: center;
+  align-items: start;
 
   @media (max-width: $tablet-max) {
     grid-template-columns: 1fr;
@@ -178,10 +191,10 @@
   background: var(--bg-secondary);
   border: 2px solid;
   border-radius: $radius-xl;
-  padding: $spacing-md;
+  padding: $spacing-lg;
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: $spacing-sm;
   transition: $transition-base;
 
   &:hover {
@@ -196,17 +209,17 @@
 }
 
 .comparisonLabel {
-  font-size: $font-base;
+  font-size: $font-lg;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
 }
 
 .comparisonDesc {
-  font-size: $font-sm;
+  font-size: $font-base;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 
 // ===== Visual =====
@@ -233,12 +246,12 @@
 .codeSlide {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
   padding: $spacing-lg;
 }
 
 .codeBlock {
-  flex: 1;
+  flex: 0 0 auto;
   border-radius: $radius-xl;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -286,7 +299,7 @@
   background: #1a1625;
   overflow: auto;
   font-family: $font-family-code;
-  font-size: $font-sm;
+  font-size: 0.9375rem;
   line-height: 1.7;
   color: #e2e8f0;
 
@@ -339,9 +352,9 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: $radius-lg;
-  font-size: $font-sm;
+  font-size: $font-base;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .summaryCheck {
@@ -349,4 +362,125 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
+}
+
+// ===== Code caption =====
+.codeCaption {
+  margin-top: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  font-size: $font-base;
+  line-height: 1.8;
+  color: var(--text-secondary);
+
+  p {
+    margin: 0;
+  }
+}
+
+// ===== Table =====
+.tableSlide {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: $spacing-lg;
+}
+
+.tableWrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: $radius-xl;
+}
+
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: $font-base;
+  color: var(--text-secondary);
+
+  th,
+  td {
+    padding: $spacing-sm $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody th {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-family: $font-family-code;
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:nth-child(even) {
+    background: var(--bg-secondary);
+  }
+}
+
+.tableNote {
+  margin: $spacing-sm 0 0;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+}
+
+// ===== Next steps (summary) =====
+.nextSteps {
+  margin-top: $spacing-sm;
+}
+
+.nextTitle {
+  margin: 0 0 $spacing-xs;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.nextList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.nextCard {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
 }

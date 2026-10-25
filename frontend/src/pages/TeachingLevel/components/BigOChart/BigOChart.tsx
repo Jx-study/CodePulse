@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import styles from "./BigOChart.module.scss";
 
 const CHART_W = 320;
@@ -49,6 +50,7 @@ function lastPoint(fn: (n: number) => number): { x: number; y: number } {
 }
 
 export default function BigOChart() {
+  const { t } = useTranslation("lessons");
   const PAD = { top: 10, right: 60, bottom: 28, left: 32 };
   const totalW = CHART_W + PAD.left + PAD.right;
   const totalH = CHART_H + PAD.top + PAD.bottom;
@@ -59,7 +61,7 @@ export default function BigOChart() {
         viewBox={`0 0 ${totalW} ${totalH}`}
         className={styles.svg}
         role="img"
-        aria-label="Big O 複雜度比較圖"
+        aria-label={t("visuals.bigO.ariaLabel")}
       >
         <g transform={`translate(${PAD.left},${PAD.top})`}>
           {/* Axes */}
@@ -72,10 +74,10 @@ export default function BigOChart() {
 
           {/* Axis labels */}
           <text x={CHART_W / 2} y={CHART_H + 18} textAnchor="middle" className={styles.axisLabel}>
-            n（輸入規模）
+            {t("visuals.bigO.xAxis")}
           </text>
           <text x={-CHART_H / 2} y={-20} textAnchor="middle" transform="rotate(-90)" className={styles.axisLabel}>
-            操作次數
+            {t("visuals.bigO.yAxis")}
           </text>
 
           {/* Complexity curves */}
@@ -118,7 +120,7 @@ export default function BigOChart() {
       </div>
 
       <p className={styles.note}>
-        ＊ 成長過快的曲線（O(n²)、O(n log n)）在超出範圍後即停止繪製，這正是它們效率差的體現。
+        {t("visuals.bigO.note")}
       </p>
     </div>
   );

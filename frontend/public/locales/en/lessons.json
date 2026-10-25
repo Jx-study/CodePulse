@@ -1,0 +1,500 @@
+{
+  "ui": {
+    "backToMap": "Back to Learning Map",
+    "lessonList": "Foundations",
+    "minutes": "About {{count}} min",
+    "minutesShort": "{{count}} min",
+    "units": "{{count}} slides",
+    "done": "Done!",
+    "completedCount": "{{done}} / {{total}} completed",
+    "prev": "Previous",
+    "next": "Next",
+    "finish": "Finish lesson!",
+    "goToSlide": "Slide {{n}}",
+    "nextSteps": "Where to go next",
+    "currentLesson": "Current lesson",
+    "notFound": "Lesson not found"
+  },
+  "visuals": {
+    "bigO": {
+      "ariaLabel": "Big-O growth comparison chart",
+      "xAxis": "n (input size)",
+      "yAxis": "Operations",
+      "note": "* Fast-growing curves (O(n²), O(n log n)) stop once they leave the chart, which is exactly why they are inefficient."
+    },
+    "dsDiagram": {
+      "root": "Data Structures",
+      "linear": "Linear",
+      "nonLinear": "Non-linear",
+      "linearItems": [
+        "Array",
+        "Linked List",
+        "Stack",
+        "Queue"
+      ],
+      "nonLinearItems": [
+        "Tree",
+        "Graph",
+        "Heap",
+        "Trie"
+      ]
+    }
+  },
+  "lessons": {
+    "what-is-dsa": {
+      "title": "What Are Algorithms and Data Structures",
+      "subtitle": "Understand what this platform teaches",
+      "slides": [
+        {
+          "title": "Algorithm: steps that solve a problem",
+          "body": "An algorithm is a set of clear steps that solves a problem.\n\nA problem usually has several solutions. Say you want to find one person in a pile of business cards:\n• Flip through the cards one by one until you find them\n• Sort them by surname first, then open the pile in the middle like a dictionary\n\nBoth ways find the person, but the number of steps is very different. Learning algorithms means learning to pick the one that is fast and cheap."
+        },
+        {
+          "title": "Data structure: how data is arranged",
+          "body": "A data structure is a way of organizing and storing data. It decides how data is placed, found and changed.\n\nWith the same pile of books, different arrangements make different things easy:\n• Stacked in one pile (stack): you can only take the top book\n• Lined up in a row (queue): first in, first out\n• Shelved by topic (tree): you follow the categories down level by level\n\nNo arrangement is always the best. It depends on what you do most often."
+        },
+        {
+          "title": "How the two work together",
+          "comparisons": [
+            {
+              "label": "Algorithm",
+              "description": "\"How to do it\": the steps that solve a problem, such as searching, sorting and traversing."
+            },
+            {
+              "label": "Data structure",
+              "description": "\"Where it lives\": how data is stored, which decides which steps are fast."
+            },
+            {
+              "label": "Together they set the speed",
+              "description": "A good method paired with a suitable arrangement is fast and cheap. With the wrong arrangement, even clever steps are slow."
+            }
+          ]
+        },
+        {
+          "title": "Data structures you will learn here"
+        },
+        {
+          "title": "How to learn on this platform",
+          "items": [
+            "Watch the animation — see step by step how the data changes. This is the \"how\"",
+            "Read the code — pseudo code and Python side by side, so you know what each line does",
+            "Do the practice — questions check that you really understood, not just watched",
+            "Learn complexity — animations show the steps but not \"what it costs\". That is what the next lessons are about"
+          ]
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "An algorithm is a set of clear steps that solves a problem",
+            "A data structure is a way of organizing and storing data",
+            "Together they decide how efficient a program is",
+            "Animations show you how. Complexity tells you whether it is worth it"
+          ]
+        }
+      ]
+    },
+    "big-o-basics": {
+      "title": "What Is Big-O",
+      "subtitle": "Describe the cost of a program with O()",
+      "slides": [
+        {
+          "title": "Why not just measure seconds?",
+          "body": "The most natural way to compare two algorithms is to measure how long they run.\n\nBut seconds depend on many things:\n• How fast the computer is\n• Which programming language is used\n• How many other programs are running\n\nThe same code can take very different time on someone else's machine. So we ask a different question:\nWhen the amount of data grows, how many more steps does the program take?"
+        },
+        {
+          "title": "Count the steps",
+          "code": "def total(nums):\n    result = 0          # runs once\n    for x in nums:      # the loop runs n times\n        result += x     # a fixed few steps each time, n times in all\n    return result       # runs once",
+          "body": "With n items the loop runs n times, so the total is a few times n plus a little extra.\nWhen the data becomes 10 times larger, the steps become about 10 times larger. That is \"proportional to n\", written O(n)."
+        },
+        {
+          "title": "Two simplification rules",
+          "items": [
+            "Ignore constant factors — 2n, 100n and n/2 all simplify to O(n). When data grows, the trend is what matters",
+            "Keep only the fastest-growing term — n² + n + 1 simplifies to O(n²). For large n the other terms are too small to matter",
+            "Examples — 3n + 5 is O(n); n² + 100n is O(n²); a fixed 7 steps is O(1)"
+          ]
+        },
+        {
+          "title": "How to read O()",
+          "body": "O(n) is read \"Big-O of n\". It means the number of steps grows at most roughly in proportion to n.\n\n• O(1): the same number of steps no matter how much data\n• O(n): twice the data, about twice the steps\n• O(n²): twice the data, about four times the steps\n\nBig-O describes the trend of growth, not an exact number of seconds."
+        },
+        {
+          "title": "Two examples",
+          "comparisons": [
+            {
+              "label": "Reading by index: arr[3]",
+              "description": "No matter how long the array is, the position is computed directly, so the number of steps is fixed → O(1)."
+            },
+            {
+              "label": "Finding the maximum",
+              "description": "Every element must be checked once to be sure. Twice the data means twice the checks → O(n)."
+            }
+          ]
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "Instead of seconds, look at how steps grow as the data grows",
+            "Big-O ignores constant factors and keeps the fastest-growing term",
+            "O(1) is a fixed number of steps, O(n) grows with the data, O(n²) grows with its square",
+            "Big-O describes a trend, not an exact number of seconds"
+          ]
+        }
+      ]
+    },
+    "growth-rates": {
+      "title": "Common Growth Rates",
+      "subtitle": "See how far apart O(1) and O(2ⁿ) really are",
+      "slides": [
+        {
+          "title": "Growth curves at a glance"
+        },
+        {
+          "title": "How big is the gap as n grows",
+          "table": {
+            "headers": [
+              "Growth rate",
+              "n = 10",
+              "n = 1,000",
+              "n = 1,000,000"
+            ],
+            "rows": [
+              [
+                "O(1)",
+                "1",
+                "1",
+                "1"
+              ],
+              [
+                "O(log n)",
+                "about 3",
+                "about 10",
+                "about 20"
+              ],
+              [
+                "O(n)",
+                "10",
+                "1,000",
+                "1,000,000"
+              ],
+              [
+                "O(n log n)",
+                "about 33",
+                "about 10,000",
+                "about 20 million"
+              ],
+              [
+                "O(n²)",
+                "100",
+                "1,000,000",
+                "10¹² (a trillion)"
+              ],
+              [
+                "O(2ⁿ)",
+                "1,024",
+                "about 10³⁰¹",
+                "never finishes"
+              ]
+            ],
+            "note": "Numbers are approximate step counts; log is base 2."
+          }
+        },
+        {
+          "title": "Turning steps into time",
+          "body": "Assume a computer can do one billion steps per second. With n = 1,000,000:\n• O(n): about 0.001 seconds\n• O(n log n): about 0.02 seconds\n• O(n²): about 1,000 seconds, roughly 17 minutes\n• O(2ⁿ): longer than the age of the universe\n\nWith little data you cannot tell the difference. With a lot of data, the gap goes from \"a bit slower\" to \"impossible\"."
+        },
+        {
+          "title": "What each growth rate looks like ①",
+          "code": "def first(arr):             # O(1): one step no matter the length\n    return arr[0]\n\ndef total(arr):             # O(n): touch every element once\n    s = 0\n    for x in arr:\n        s += x\n    return s",
+          "body": "Reading one value is O(1). Walking from start to end is O(n)."
+        },
+        {
+          "title": "What each growth rate looks like ②",
+          "code": "def halve(n):               # O(log n): cut the range in half each time\n    steps = 0\n    while n > 1:\n        n //= 2\n        steps += 1\n    return steps\n\ndef all_pairs(arr):         # O(n²): two nested loops\n    for a in arr:\n        for b in arr:\n            print(a, b)\n\ndef fib(n):                 # O(2ⁿ): every call makes two more calls\n    return n if n < 2 else fib(n - 1) + fib(n - 2)",
+          "body": "O(n log n) is common for \"split in half, process, then merge\", such as merge sort.\nO(2ⁿ) becomes unusably slow with even a modest n."
+        },
+        {
+          "title": "Where they show up on this platform",
+          "comparisons": [
+            {
+              "label": "O(log n): binary search",
+              "description": "Each step discards half of the data, so one million items take only about 20 steps."
+            },
+            {
+              "label": "O(n log n): merge sort",
+              "description": "Split, sort, merge. This is the efficient level comparison sorts can reach."
+            },
+            {
+              "label": "O(n²): bubble, selection, insertion sort",
+              "description": "Two nested loops: ten times the data, a hundred times the time."
+            }
+          ]
+        },
+        {
+          "title": "Quick ways to tell",
+          "body": "When reading code, look for these clues first:\n• No loop, just reading a value → O(1)\n• One loop over all the data → O(n)\n• The range is halved each time → O(log n)\n• Two loops that each run n times → O(n²)\n• Split in half, process, then merge → O(n log n)\n• One call splits into two calls and nothing is reused → often O(2ⁿ)\n\nThis is only a first guess. Real questions still need the details."
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)",
+            "With little data the gap is small. With a lot of data it decides whether the program is usable",
+            "Counting loop levels and how the range shrinks gives a quick guess of the growth rate",
+            "Binary search is O(log n), advanced sorts are O(n log n), basic sorts are O(n²)"
+          ]
+        }
+      ]
+    },
+    "case-analysis": {
+      "title": "Best, Worst and Average Case",
+      "subtitle": "Why one algorithm can have different answers",
+      "slides": [
+        {
+          "title": "One algorithm, different inputs",
+          "body": "The same algorithm can be much faster on some inputs than on others.\n\nTake \"looking for a number in an array from the start\":\n• Lucky: it is the first one → look at 1 item\n• Unlucky: it is the last one → look at n items\n• Not in the array at all → still look at all n items\n\nSo \"how long does searching take\" is not enough. You also need to say which case you mean."
+        },
+        {
+          "title": "Three cases",
+          "items": [
+            "Best case — the input that favors the algorithm most. Linear search: the target is first, O(1)",
+            "Worst case — the input that hurts the algorithm most. Linear search: the target is last or missing, O(n)",
+            "Average case — the typical performance over all possible inputs. Linear search: about half the array, roughly n/2 steps, still O(n)"
+          ]
+        },
+        {
+          "title": "Why the worst case is used so often",
+          "body": "The worst case is a guarantee: however bad the input, the time will not exceed it.\n\nThat is why it is the case you will look at most when learning and comparing algorithms.\nA question usually says which case it means. When it does not, think of the worst case first.\n\nThe best case is too optimistic, and the average case needs to know how the inputs are distributed, which is not always easy."
+        },
+        {
+          "title": "Example: bubble sort with early exit",
+          "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(n - 1 - i):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n                swapped = True\n        if not swapped:      # a pass with no swap means it is sorted, so stop early\n            break",
+          "body": "Already sorted data stops after one pass with no swaps: best case O(n).\nCompletely reversed data swaps in every pass: worst case O(n²).\nSame code, and the two cases differ by a factor of n."
+        },
+        {
+          "title": "Example: the shape of a BST",
+          "comparisons": [
+            {
+              "label": "A balanced BST",
+              "description": "Every step down discards half of the nodes. The height is about log n, so search is O(log n)."
+            },
+            {
+              "label": "A degenerate BST",
+              "description": "Insert 10, 20, 30, 40, 50 in order and the tree becomes a line. The height is n, so search degrades to O(n)."
+            },
+            {
+              "label": "How to avoid it",
+              "description": "Self-balancing trees such as AVL and red-black trees adjust their shape automatically, keeping even the worst case at O(log n)."
+            }
+          ]
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "One algorithm can have different complexity on different inputs",
+            "Best, worst and average case are stated separately",
+            "When nothing is said, think of the worst case first",
+            "Sorted input and a degenerate BST are common sources of the gap between best and worst case"
+          ]
+        }
+      ]
+    },
+    "space-complexity": {
+      "title": "Space Complexity and the Call Stack",
+      "subtitle": "Count the extra memory",
+      "slides": [
+        {
+          "title": "What is space complexity",
+          "body": "Time complexity asks \"how many steps\". Space complexity asks \"how much more memory\".\n\nMost textbooks and questions count only the extra space: what the algorithm allocates on its own, such as new arrays and dictionaries, plus the data kept on the stack during recursion.\n\nThe input itself is usually not counted."
+        },
+        {
+          "title": "The difference between O(1) and O(n)",
+          "code": "def total(nums):            # extra space O(1)\n    result = 0              # just one extra variable\n    for x in nums:\n        result += x\n    return result\n\ndef doubled(nums):          # extra space O(n)\n    return [x * 2 for x in nums]   # builds a new list of length n",
+          "body": "total uses one extra variable no matter how long nums is.\ndoubled builds a new list as long as the input, so its extra space grows with n."
+        },
+        {
+          "title": "Recursion uses space too",
+          "code": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)",
+          "body": "Every time a function calls itself, the computer puts one more layer on the call stack to remember what to do when it returns.\nfactorial(5) calls all the way down to factorial(1), so the stack is 5 layers deep.\nSo the recursive factorial uses O(n) extra space even though the code declares no array."
+        },
+        {
+          "title": "Iterative versus recursive space",
+          "comparisons": [
+            {
+              "label": "Iterative binary search",
+              "description": "It only keeps left, right and mid, so the extra space is O(1)."
+            },
+            {
+              "label": "Recursive binary search",
+              "description": "Each call handles half of the range and the stack gets at most log n layers deep, so the extra space is O(log n)."
+            },
+            {
+              "label": "Recursive DFS on a degenerate tree",
+              "description": "When the tree is a line, the recursion depth equals the number of nodes, so the extra space is O(n)."
+            }
+          ]
+        },
+        {
+          "title": "Common misunderstandings",
+          "body": "• \"No array declared\" does not mean O(1): the recursion call stack counts too\n• \"Fast in time\" does not mean \"small in space\": merge sort is O(n log n) in time but needs O(n) extra space\n• In-place algorithms change the input directly and use O(1) extra space: bubble, selection and insertion sort all do\n\nTime and space are often a trade-off: a little more memory can buy more speed."
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "Space complexity counts the extra memory, not the input itself",
+            "The depth of the recursion call stack counts too",
+            "Iterative versions usually use less space than recursive ones",
+            "Time and space are often a trade-off"
+          ]
+        }
+      ]
+    },
+    "multi-variable-complexity": {
+      "title": "Describing Complexity with Several Variables",
+      "subtitle": "V, E, tree height h, and a cheat sheet",
+      "slides": [
+        {
+          "title": "Why n is not always enough",
+          "body": "Some problems have more than one \"size\".\n• A graph has vertices and edges\n• A two-dimensional map has rows and columns\n• How fast a tree is depends on its height, not on the number of nodes\n\nIn these cases complexity needs several variables, otherwise it is misleading."
+        },
+        {
+          "title": "Common variables",
+          "items": [
+            "V — the number of vertices in a graph",
+            "E — the number of edges in a graph. BFS and DFS look at each vertex and each edge once, so the time is O(V + E)",
+            "h — the height of a tree. About log n when balanced and n when degenerate, so BST operations are O(h)",
+            "R × C — rows and columns of a grid. Visiting the whole map is O(R × C)"
+          ]
+        },
+        {
+          "title": "Examples",
+          "comparisons": [
+            {
+              "label": "BFS / DFS",
+              "description": "Each vertex is visited once and each edge is checked once, so time is O(V + E). The queue or stack holds at most all the vertices, so space is O(V)."
+            },
+            {
+              "label": "BST search",
+              "description": "Each step down drops part of the nodes, so the steps are proportional to the height h and the time is O(h): O(log n) on average, O(n) in the worst case."
+            },
+            {
+              "label": "Dijkstra",
+              "description": "O((V + E) log V) with a min-heap, and O(V²) when the minimum is found by scanning an array."
+            }
+          ]
+        },
+        {
+          "title": "Cheat sheet: data structures",
+          "table": {
+            "headers": [
+              "Data structure",
+              "Search / peek",
+              "Insert",
+              "Delete"
+            ],
+            "rows": [
+              [
+                "Array",
+                "Search O(n); read by index O(1)",
+                "End O(1) / middle O(n)",
+                "End O(1) / middle O(n)"
+              ],
+              [
+                "Linked list",
+                "O(n)",
+                "Head O(1)",
+                "Head O(1)"
+              ],
+              [
+                "Stack",
+                "O(n)",
+                "Push O(1)",
+                "Pop O(1)"
+              ],
+              [
+                "Queue",
+                "O(n)",
+                "Enqueue O(1)",
+                "Dequeue O(1)"
+              ],
+              [
+                "BST",
+                "Average O(log n) / worst O(n)",
+                "Average O(log n) / worst O(n)",
+                "Average O(log n) / worst O(n)"
+              ],
+              [
+                "Heap",
+                "Peek extreme O(1)",
+                "O(log n)",
+                "Remove extreme O(log n)"
+              ]
+            ],
+            "note": "The BST worst case happens when the tree degenerates into a line."
+          }
+        },
+        {
+          "title": "Cheat sheet: algorithms",
+          "table": {
+            "headers": [
+              "Algorithm",
+              "Time",
+              "Extra space"
+            ],
+            "rows": [
+              [
+                "Bubble sort",
+                "Worst O(n²) / best O(n) (early exit)",
+                "O(1)"
+              ],
+              [
+                "Selection sort",
+                "O(n²) (all cases)",
+                "O(1)"
+              ],
+              [
+                "Insertion sort",
+                "Worst O(n²) / best O(n)",
+                "O(1)"
+              ],
+              [
+                "Merge sort",
+                "O(n log n) (all cases)",
+                "O(n)"
+              ],
+              [
+                "Quick sort",
+                "Average O(n log n) / worst O(n²)",
+                "Average O(log n) (recursion stack)"
+              ],
+              [
+                "Binary search",
+                "O(log n)",
+                "Iterative O(1) / recursive O(log n)"
+              ],
+              [
+                "BFS / DFS",
+                "O(V + E)",
+                "O(V)"
+              ],
+              [
+                "Fibonacci: recursive / DP",
+                "O(2ⁿ) / O(n)",
+                "O(n) / O(n)"
+              ]
+            ],
+            "note": "These agree with each level's tutorial. See the matching level for details."
+          }
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "When a problem has several sizes, describe complexity with several variables",
+            "Graphs use V and E, trees use height h, grids use R × C",
+            "The cheat sheet quickly compares common structures and algorithms",
+            "When unsure, go back to the basics: count the steps and read the loops"
+          ]
+        }
+      ]
+    }
+  }
+}

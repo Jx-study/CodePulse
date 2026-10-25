@@ -1,4 +1,7 @@
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon';
+import { getLevelById } from '@/services/LevelService';
 import BigOChart from '../BigOChart/BigOChart';
 import DSDiagram from '../DSDiagram/DSDiagram';
 import type { Lesson, Slide } from '../../types';
@@ -23,6 +26,8 @@ export default function SlideRenderer({ slide, lesson }: Props) {
       return <VisualSlide slide={slide} />;
     case 'code':
       return <CodeSlide slide={slide} />;
+    case 'table':
+      return <TableSlide slide={slide} />;
     case 'summary':
       return <SummarySlide slide={slide} lesson={lesson} />;
     default:
@@ -31,6 +36,7 @@ export default function SlideRenderer({ slide, lesson }: Props) {
 }
 
 function CoverSlide({ slide, lesson }: { slide: Slide; lesson: Lesson }) {
+  const { t } = useTranslation('lessons');
   return (
     <div className={styles.cover}>
       <div className={styles.coverIcon} style={{ background: `${lesson.color}22`, color: lesson.color }}>
@@ -40,31 +46,53 @@ function CoverSlide({ slide, lesson }: { slide: Slide; lesson: Lesson }) {
       {slide.subtitle && <p className={styles.coverSubtitle}>{slide.subtitle}</p>}
       <div className={styles.coverMeta}>
         <span>
-          <Icon name="clock" decorative />
-          約 {lesson.estimatedMinutes} 分鐘
+          <Icon name="stopwatch" decorative />
+          {t('ui.minutes', { count: lesson.estimatedMinutes })}
         </span>
         <span>
           <Icon name="layer-group" decorative />
-          {lesson.slides.length} 個單元
+          {t('ui.units', { count: lesson.slides.length })}
         </span>
       </div>
     </div>
   );
 }
 
+type BodyBlock = { kind: 'p'; text: string } | { kind: 'ul'; items: string[] };
+
+/** 把 body 拆成段落與項目清單：空行分段，以「•」開頭的連續行合成一個清單 */
+function parseBody(body: string): BodyBlock[] {
+  const blocks: BodyBlock[] = [];
+  for (const line of body.split('\n')) {
+    const text = line.trim();
+    if (text === '') continue;
+    if (text.startsWith('•')) {
+      const item = text.replace(/^•\s*/, '');
+      const last = blocks[blocks.length - 1];
+      if (last?.kind === 'ul') last.items.push(item);
+      else blocks.push({ kind: 'ul', items: [item] });
+    } else {
+      blocks.push({ kind: 'p', text });
+    }
+  }
+  return blocks;
+}
+
 function ConceptSlide({ slide }: { slide: Slide }) {
-  const lines = slide.body?.split('\n') ?? [];
+  const blocks = parseBody(slide.body ?? '');
   return (
     <div className={styles.concept}>
       <h2 className={styles.slideTitle}>{slide.title}</h2>
       <div className={styles.conceptBody}>
-        {lines.map((line, i) =>
-          line === '' ? (
-            <br key={i} />
+        {blocks.map((block, i) =>
+          block.kind === 'p' ? (
+            <p key={i}>{block.text}</p>
           ) : (
-            <p key={i} className={line.startsWith('•') ? styles.bullet : undefined}>
-              {line}
-            </p>
+            <ul key={i} className={styles.bulletList}>
+              {block.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           )
         )}
       </div>
@@ -149,17 +177,64 @@ function CodeSlide({ slide }: { slide: Slide }) {
           </pre>
         </div>
       )}
+      {slide.body && (
+        <div className={styles.codeCaption}>
+          {slide.body.split('\n').map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TableSlide({ slide }: { slide: Slide }) {
+  if (!slide.table) return null;
+  const { headers, rows, note } = slide.table;
+  return (
+    <div className={styles.tableSlide}>
+      <h2 className={styles.slideTitle}>{slide.title}</h2>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              {headers.map((header) => (
+                <th key={header} scope="col">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row[0]}>
+                {row.map((cell, i) =>
+                  i === 0 ? (
+                    <th key={i} scope="row">
+                      {cell}
+                    </th>
+                  ) : (
+                    <td key={i}>{cell}</td>
+                  )
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {note && <p className={styles.tableNote}>{note}</p>}
     </div>
   );
 }
 
 function SummarySlide({ slide, lesson }: { slide: Slide; lesson: Lesson }) {
+  const { t } = useTranslation('lessons');
   return (
     <div className={styles.summary}>
       <div className={styles.summaryHeader}>
         <div className={styles.summaryBadge} style={{ background: `${lesson.color}22`, color: lesson.color }}>
           <Icon name="check-circle" decorative />
-          完成！
+          {t('ui.done')}
         </div>
         <h2 className={styles.slideTitle}>{slide.title}</h2>
       </div>
@@ -167,12 +242,46 @@ function SummarySlide({ slide, lesson }: { slide: Slide; lesson: Lesson }) {
         {(slide.items ?? []).map((item, i) => (
           <li key={i} className={styles.summaryItem}>
             <span className={styles.summaryCheck} style={{ color: lesson.color }}>
-              <Icon name="circle-check" />
+              <Icon name="check-circle" />
             </span>
             <span>{item}</span>
           </li>
         ))}
       </ul>
+      {slide.nextLevelIds && slide.nextLevelIds.length > 0 && (
+        <NextSteps levelIds={slide.nextLevelIds} color={lesson.color} />
+      )}
+    </div>
+  );
+}
+
+function NextSteps({ levelIds, color }: { levelIds: string[]; color: string }) {
+  const { t } = useTranslation('lessons');
+  const { t: tDashboard } = useTranslation('dashboard');
+  const navigate = useNavigate();
+
+  return (
+    <div className={styles.nextSteps}>
+      <h3 className={styles.nextTitle}>{t('ui.nextSteps')}</h3>
+      <div className={styles.nextList}>
+        {levelIds.map((id) => {
+          const level = getLevelById(id);
+          if (!level) return null;
+          const target = level.isLesson ? `/lesson/${id}` : `/tutorial/${level.category}/${id}`;
+          return (
+            <button
+              key={id}
+              type="button"
+              className={styles.nextCard}
+              style={{ borderColor: `${color}55` }}
+              onClick={() => navigate(target)}
+            >
+              <span>{tDashboard(`levels.${id.replace(/-/g, '_')}.name`)}</span>
+              <Icon name="arrow-right" decorative />
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import Icon from '@/shared/components/Icon';
 import type { Lesson } from '../../types';
 import styles from './LessonSidebar.module.scss';
@@ -10,11 +11,12 @@ interface Props {
 }
 
 export default function LessonSidebar({ lessons, activeId, completedIds, onSelect }: Props) {
+  const { t } = useTranslation('lessons');
   return (
     <aside className={styles.sidebar}>
       <div className={styles.header}>
-        <Icon name="graduation-cap" decorative />
-        <span>教學關卡</span>
+        <Icon name="book-open" decorative />
+        <span>{t('ui.lessonList')}</span>
       </div>
 
       <nav className={styles.nav}>
@@ -36,8 +38,8 @@ export default function LessonSidebar({ lessons, activeId, completedIds, onSelec
                 <div className={styles.itemInfo}>
                   <span className={styles.itemTitle}>{lesson.title}</span>
                   <span className={styles.itemMeta}>
-                    <Icon name="clock" decorative />
-                    {lesson.estimatedMinutes} 分鐘
+                    <Icon name="stopwatch" decorative />
+                    {t('ui.minutesShort', { count: lesson.estimatedMinutes })}
                   </span>
                 </div>
               </div>
@@ -49,7 +51,7 @@ export default function LessonSidebar({ lessons, activeId, completedIds, onSelec
 
       <div className={styles.footer}>
         <span className={styles.footerText}>
-          {completedIds.size} / {lessons.length} 完成
+          {t('ui.completedCount', { done: completedIds.size, total: lessons.length })}
         </span>
         <div className={styles.footerBar}>
           <div

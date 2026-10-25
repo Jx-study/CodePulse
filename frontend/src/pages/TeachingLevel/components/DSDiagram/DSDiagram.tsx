@@ -1,16 +1,18 @@
+import { useTranslation } from "react-i18next";
 import styles from "./DSDiagram.module.scss";
 
 const LINEAR_COLOR = "#3b82f6";
 const NONLINEAR_COLOR = "#10b981";
 
-const linear = ["Array 陣列", "Linked List 鏈結串列", "Stack 堆疊", "Queue 佇列"];
-const nonLinear = ["Tree 樹", "Graph 圖", "Hash Table 雜湊表", "Heap 堆積"];
-
 export default function DSDiagram() {
+  const { t } = useTranslation("lessons");
+  const linear = t("visuals.dsDiagram.linearItems", { returnObjects: true }) as string[];
+  const nonLinear = t("visuals.dsDiagram.nonLinearItems", { returnObjects: true }) as string[];
+
   return (
     <div className={styles.wrapper}>
       {/* Root */}
-      <div className={styles.root}>資料結構</div>
+      <div className={styles.root}>{t("visuals.dsDiagram.root")}</div>
 
       {/* Vertical line from root */}
       <div className={styles.rootLine} />
@@ -24,7 +26,7 @@ export default function DSDiagram() {
         <div className={styles.branch}>
           <div className={styles.branchLine} />
           <div className={styles.category} style={{ borderColor: LINEAR_COLOR, color: LINEAR_COLOR }}>
-            線性結構
+            {t("visuals.dsDiagram.linear")}
           </div>
           <div className={styles.catLine} />
           <div className={styles.items}>
@@ -40,7 +42,7 @@ export default function DSDiagram() {
         <div className={styles.branch}>
           <div className={styles.branchLine} />
           <div className={styles.category} style={{ borderColor: NONLINEAR_COLOR, color: NONLINEAR_COLOR }}>
-            非線性結構
+            {t("visuals.dsDiagram.nonLinear")}
           </div>
           <div className={styles.catLine} />
           <div className={styles.items}>
