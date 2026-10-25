@@ -15,7 +15,8 @@
     "currentLesson": "目前課程",
     "notFound": "找不到這堂課",
     "finishWait": "完成本課（{{seconds}}）",
-    "nextLesson": "前往下一課"
+    "nextLesson": "前往下一課",
+    "toMap": "回到學習地圖"
   },
   "visuals": {
     "bigO": {

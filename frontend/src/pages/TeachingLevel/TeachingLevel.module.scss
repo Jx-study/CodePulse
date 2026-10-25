@@ -48,6 +48,12 @@
   }
 }
 
+.backLabel {
+  @media (max-width: $mobile-max) {
+    display: none;
+  }
+}
+
 .topbarCenter {
   display: flex;
   align-items: center;
@@ -179,4 +185,17 @@
   display: flex;
   gap: $spacing-sm;
   flex-shrink: 0;
+
+  // on a phone the two buttons share the row, so a long label wraps instead of running off the screen
+  @media (max-width: $mobile-max) {
+    width: 100%;
+
+    > * {
+      flex: 1 1 0;
+      min-width: 0;
+      height: auto;
+      min-height: 2.5rem;
+      white-space: normal;
+    }
+  }
 }

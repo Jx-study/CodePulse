@@ -15,7 +15,8 @@
     "currentLesson": "Current lesson",
     "notFound": "Lesson not found",
     "finishWait": "Finish lesson ({{seconds}})",
-    "nextLesson": "Next lesson"
+    "nextLesson": "Next lesson",
+    "toMap": "Back to map"
   },
   "visuals": {
     "bigO": {

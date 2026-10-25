@@ -167,16 +167,16 @@ function LessonView({ lesson, lessons }: LessonViewProps) {
 
   const nextLabel = (() => {
     if (!isLast) return t('ui.next');
-    if (!needsCompleting) return nextLesson ? t('ui.nextLesson') : t('ui.backToMap');
+    if (!needsCompleting) return nextLesson ? t('ui.nextLesson') : t('ui.toMap');
     return secondsLeft > 0 ? t('ui.finishWait', { seconds: secondsLeft }) : t('ui.finish');
   })();
 
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
-        <button className={styles.backBtn} onClick={() => navigate('/dashboard')}>
+        <button className={styles.backBtn} aria-label={t('ui.backToMap')} onClick={() => navigate('/dashboard')}>
           <Icon name="arrow-left" decorative />
-          {t('ui.backToMap')}
+          <span className={styles.backLabel}>{t('ui.backToMap')}</span>
         </button>
 
         <div className={styles.topbarCenter}>
