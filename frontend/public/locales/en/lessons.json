@@ -33,7 +33,7 @@
     "growthExplorer": {
       "ariaLabel": "Interactive growth rate comparison",
       "nLabel": "n (input size)",
-      "hint": "Bars use a log scale: each tick is 10× more steps. Time assumes 1 billion steps per second. Drag n above 100 and watch what happens to O(2ⁿ).",
+      "hint": "Bars use a log scale: each tick is 10× more steps.\nTime assumes 1 billion steps per second.\nDrag n above 100 and watch what happens to O(2ⁿ).",
       "units": {
         "instant": "instant",
         "second": "~{{value}} s",
@@ -51,8 +51,8 @@
       "result": "Running total",
       "next": "Next step",
       "reset": "Reset",
-      "hint": "Press \"Next step\" to run the highlighted line; each executed line counts as 1 step, and the x ▾ below shows which item is being handled. You can also drag n and count again.",
-      "finished": "n = {{n}}, {{total}} steps in total (n loop steps plus 1 at the start and 1 at the end). Double n and count again: the steps roughly double too. That is O(n)."
+      "hint": "Press \"Next step\" to run the highlighted line;\neach executed line counts as 1 step, and the x ▾ below shows which item is being handled.\nYou can also drag n and count again.",
+      "finished": "n = {{n}}, {{total}} steps in total (n loop steps plus 1 at the start and 1 at the end).\nDouble n and count again: the steps roughly double too.\nThat is O(n)."
     },
     "searchCases": {
       "ariaLabel": "Interactive best and worst case of linear search",
@@ -78,7 +78,7 @@
       "nLabel": "n",
       "power": " (power {{power}})",
       "bigEnough": "n is big enough: {{term}} is already larger than all the other terms together.",
-      "stillSmall": "n is still small, so {{term}} has not won yet, but once n passes {{at}} it is bigger than all the others together. Drag n higher.",
+      "stillSmall": "n is still small, so {{term}} has not won yet, but once n passes {{at}} it is bigger than all the others together.\nDrag n higher.",
       "rule": "Big-O keeps only the term with the highest power and drops its coefficient: {{expression}} becomes {{bigO}}."
     },
     "callStack": {
@@ -108,7 +108,7 @@
       "listFormula": "V + E = {{value}} cells",
       "sparse": "Few edges (a sparse graph): the list saves a lot of space.",
       "dense": "Many edges (a dense graph): the two are about the same.",
-      "hint": "The grid on the left is the adjacency matrix: a V × V table that records which pairs of vertices have an edge, with edge cells filled. An adjacency list instead stores, for each vertex, only the vertices it connects to."
+      "hint": "The grid on the left is the adjacency matrix: a V × V table that records which pairs of vertices have an edge, with edge cells filled.\nAn adjacency list instead stores, for each vertex, only the vertices it connects to."
     },
     "bstShape": {
       "ariaLabel": "Shape of a binary search tree",
@@ -133,7 +133,7 @@
       "next": "Next question",
       "seeResult": "See result",
       "score": "{{score}} / {{total}} correct",
-      "perfect": "All correct! Watch how the loops nest and how the range changes, and you can spot the complexity.",
+      "perfect": "All correct!\nWatch how the loops nest and how the range changes, and you can spot the complexity.",
       "review": "Go back to the \"How to tell quickly\" slide for the clues, then try again.",
       "retry": "Try again",
       "questions": [
@@ -173,11 +173,11 @@
       "ariaLabel": "Guess the number",
       "rangeLabel": "Number range",
       "pick": "Guess {{guess}}",
-      "start": "I am thinking of a number from 1 to {{max}}. Click a number to guess. Try the middle one: how many numbers does it rule out at once?",
+      "start": "I am thinking of a number from 1 to {{max}}.\nClick a number to guess.\nTry the middle one: how many numbers does it rule out at once?",
       "tooLow": "{{guess}} is too low, so every number below it is ruled out.",
       "tooHigh": "{{guess}} is too high, so every number above it is ruled out.",
       "found": "You got it! The answer is {{guess}}.",
-      "result": "You used {{used}} guesses. Guessing the middle of what is left every time needs at most {{best}}; guessing 1, 2, 3, … needs up to {{max}} in the worst case.",
+      "result": "You used {{used}} guesses.\nGuessing the middle of what is left every time needs at most {{best}};\nguessing 1, 2, 3, … needs up to {{max}} in the worst case.",
       "used": "Guesses",
       "remaining": "Still possible",
       "middle": "Guess the middle for me",
@@ -194,8 +194,8 @@
       "output": "Output",
       "next": "Run this line",
       "reset": "Reset",
-      "hint": "The highlighted line is the one that runs next. Press \"Run this line\" and watch how the variables change.",
-      "finished": "Done after running {{count}} lines. Compare the final variables and the output with what you expected."
+      "hint": "The highlighted line is the one that runs next.\nPress \"Run this line\" and watch how the variables change.",
+      "finished": "Done after running {{count}} lines.\nCompare the final variables and the output with what you expected."
     },
     "codeQuiz": {
       "ariaLabel": "Predict the output",
@@ -287,7 +287,7 @@
       },
       "pseudo": "PSEUDOCODE",
       "hint": "Hover over (or click) any line and the matching lines on the other side light up.",
-      "noCounterpart": "This line only marks where a block ends. Python shows that with indentation, so there is no matching line."
+      "noCounterpart": "This line only marks where a block ends.\nPython shows that with indentation, so there is no matching line."
     },
     "pseudoQuiz": {
       "ariaLabel": "Pseudocode quiz",
@@ -382,15 +382,15 @@
           "comparisons": [
             {
               "label": "Algorithm",
-              "description": "\"How to do it\": a set of clear steps that solves a problem, such as searching, sorting and traversing (looking at every item once). To guess a number from 1 to 100, guessing 1, 2, 3, … takes up to 100 tries in the worst case, while always guessing the middle takes at most 7. Learning algorithms means learning to pick the fast and cheap one."
+              "description": "\"How to do it\": a set of clear steps that solves a problem, such as searching, sorting and traversing (looking at every item once).\nTo guess a number from 1 to 100, guessing 1, 2, 3, … takes up to 100 tries in the worst case, while always guessing the middle takes at most 7.\nLearning algorithms means learning to pick the fast and cheap one."
             },
             {
               "label": "Data structure",
-              "description": "\"Where it lives\": a way of organizing and storing data, which decides how data is placed, found and changed. A stack only gives you the top book, a queue is first in first out, and a tree is followed down by category. No arrangement is always best; it depends on what you do most often."
+              "description": "\"Where it lives\": a way of organizing and storing data, which decides how data is placed, found and changed.\nA stack only gives you the top book, a queue is first in first out, and a tree is followed down by category.\nNo arrangement is always best; it depends on what you do most often."
             },
             {
               "label": "Together they set the speed",
-              "description": "A good method paired with a suitable arrangement is fast and cheap. With the wrong arrangement, even clever steps are slow."
+              "description": "A good method paired with a suitable arrangement is fast and cheap.\nWith the wrong arrangement, even clever steps are slow."
             }
           ]
         },
@@ -426,7 +426,7 @@
       "slides": [
         {
           "title": "You do not need to write it, just read it",
-          "body": "Every example on this platform is written in Python. You do not need to be able to write programs. If you can read what each line does, you can follow the animations and the complexity that come later.\n\nThis lesson covers only five things:\n• Variables: names for data\n• Lists: a row of data you pick from by number\n• Loops: do a piece of code again and again\n• Conditions: do something only if it holds\n• Functions: wrap code up and give it a name\n\nLook up any other syntax when you meet it; there is no need to memorize it all at once."
+          "body": "Every example on this platform is written in Python.\nYou do not need to be able to write programs.\nIf you can read what each line does, you can follow the animations and the complexity that come later.\n\nThis lesson covers only five things:\n• Variables: names for data\n• Lists: a row of data you pick from by number\n• Loops: do a piece of code again and again\n• Conditions: do something only if it holds\n• Functions: wrap code up and give it a name\n\nLook up any other syntax when you meet it; there is no need to memorize it all at once."
         },
         {
           "title": "Variables: names for data",
@@ -485,7 +485,7 @@
       "slides": [
         {
           "title": "What is pseudocode",
-          "body": "Pseudocode is a set of steps written for people. It looks like a program, but it belongs to no programming language and a computer will not run it.\n\nIt helps because:\n• You can work out \"how to do it\" first and worry about syntax later\n• The same pseudocode can be written in Python, Java or any other language\n• Every algorithm animation on this platform shows pseudocode next to Python\n\nThere is no single standard way to write it: this platform uses Procedure, If … Then, For each … Do and While … Do, and writes ← for \"put into\".\nWhen you write your own, any style will do as long as a reader can follow it."
+          "body": "Pseudocode is a set of steps written for people.\nIt looks like a program, but it belongs to no programming language and a computer will not run it.\n\nIt helps because:\n• You can work out \"how to do it\" first and worry about syntax later\n• The same pseudocode can be written in Python, Java or any other language\n• Every algorithm animation on this platform shows pseudocode next to Python\n\nThere is no single standard way to write it: this platform uses Procedure, If … Then, For each … Do and While … Do, and writes ← for \"put into\".\nWhen you write your own, any style will do as long as a reader can follow it."
         },
         {
           "title": "How the platform writes it",
@@ -527,7 +527,7 @@
                 "Define a function called Total"
               ]
             ],
-            "note": "In pseudocode, If, For and While each have an End If, End For and End While that mark where the block ends; Python shows it with indentation instead.\nThis is only the platform's habit. You do not have to copy it when you write your own, and the next slides show other ways."
+            "note": "In pseudocode, If, For and While each have an End If, End For and End While that mark where the block ends;\nPython shows it with indentation instead.\nThis is only the platform's habit. You do not have to copy it when you write your own, and the next slides show other ways."
           }
         },
         {
@@ -543,7 +543,7 @@
         },
         {
           "title": "Turning pseudocode into Python",
-          "body": "Turning pseudocode into Python is mostly a change of spelling:\n• ← becomes =\n• If … Then becomes if …:, and the closing End If is dropped in favor of indentation\n• For each x in nums Do becomes for x in nums:\n• While … Do becomes while …:\n• Procedure name(parameters) becomes def name(parameters):\n• To compare two things, pseudocode writes = and Python writes ==\n\nEvery End … (End If, End For, End While, End Procedure) has no line of its own in Python; the block ends when the indentation goes back to the left."
+          "body": "Turning pseudocode into Python is mostly a change of spelling:\n• ← becomes =\n• If … Then becomes if …:, and the closing End If is dropped in favor of indentation\n• For each x in nums Do becomes for x in nums:\n• While … Do becomes while …:\n• Procedure name(parameters) becomes def name(parameters):\n• To compare two things, pseudocode writes = and Python writes ==\n\nEvery End … (End If, End For, End While, End Procedure) has no line of its own in Python;\nthe block ends when the indentation goes back to the left."
         },
         {
           "title": "How to write pseudocode yourself",
@@ -621,7 +621,7 @@
                 "Two nested loops: every element is paired with every element"
               ]
             ],
-            "note": "O(n) is read \"Big-O of n\". It means the number of steps grows at most roughly in proportion to n. Big-O describes the trend of growth, not an exact number of seconds."
+            "note": "O(n) is read \"Big-O of n\".\nIt means the number of steps grows at most roughly in proportion to n.\nBig-O describes the trend of growth, not an exact number of seconds."
           }
         },
         {
@@ -696,7 +696,7 @@
                 "longer than the age of the universe"
               ]
             ],
-            "note": "Numbers are approximate step counts; log is base 2. Time assumes a computer doing one billion steps per second. With little data you cannot tell the difference; with a lot of data the gap goes from \"a bit slower\" to \"impossible\"."
+            "note": "Numbers are approximate step counts; log is base 2.\nTime assumes a computer doing one billion steps per second.\nWith little data you cannot tell the difference;\nwith a lot of data the gap goes from \"a bit slower\" to \"impossible\"."
           }
         },
         {
@@ -778,9 +778,9 @@
           "items": [
             "Best case — the input that favors the algorithm most. Linear search: the target is first, O(1)",
             "Worst case — the input that hurts the algorithm most. Linear search: the target is last or missing, O(n)",
-            "Average case — the typical performance over all possible inputs. Linear search: about half the array, roughly n/2 steps, still O(n)"
+            "Average case — the typical performance over all possible inputs.\nLinear search: about half the array, roughly n/2 steps, still O(n)"
           ],
-          "body": "The same algorithm can be much faster on some inputs than on others. Take \"looking for a number in an array from the start\" (called linear search): if you are lucky it is the first one; if not, it is the last, or not in the array at all, and you still look at everything. So \"how long does searching take\" is not enough. You also need to say which case you mean:"
+          "body": "The same algorithm can be much faster on some inputs than on others.\nTake \"looking for a number in an array from the start\" (called linear search): if you are lucky it is the first one;\nif not, it is the last, or not in the array at all, and you still look at everything.\nSo \"how long does searching take\" is not enough.\nYou also need to say which case you mean:"
         },
         {
           "title": "Try linear search yourself"
@@ -799,11 +799,11 @@
           "comparisons": [
             {
               "label": "A balanced BST",
-              "description": "In a BST (binary search tree), every node has smaller values on its left and larger values on its right, so each step down discards one side. When the tree is balanced, each step discards half of the nodes, the height (how many levels deep it goes) is about log n, and search is O(log n)."
+              "description": "In a BST (binary search tree), every node has smaller values on its left and larger values on its right, so each step down discards one side.\nWhen the tree is balanced, each step discards half of the nodes, the height (how many levels deep it goes) is about log n, and search is O(log n)."
             },
             {
               "label": "A degenerate BST",
-              "description": "Insert 10, 20, 30, 40, 50 in order and the tree becomes a line. The height is n, so search degrades to O(n)."
+              "description": "Insert 10, 20, 30, 40, 50 in order and the tree becomes a line.\nThe height is n, so search degrades to O(n)."
             },
             {
               "label": "How to avoid it",
@@ -890,7 +890,7 @@
           "title": "Common variables",
           "items": [
             "V — the number of vertices in a graph",
-            "E — the number of edges in a graph. BFS and DFS (two ways to walk through a graph) look at each vertex and each edge once, so the time is O(V + E)",
+            "E — the number of edges in a graph.\nBFS and DFS (two ways to walk through a graph) look at each vertex and each edge once, so the time is O(V + E)",
             "h — the height of a tree. About log n when balanced and n when degenerate, so BST operations are O(h)",
             "R × C — rows and columns of a grid. Visiting the whole map is O(R × C)"
           ]
@@ -900,7 +900,7 @@
           "comparisons": [
             {
               "label": "BFS / DFS",
-              "description": "Each vertex is visited once and each edge is checked once, so time is O(V + E). The queue or stack holds at most all the vertices, so space is O(V)."
+              "description": "Each vertex is visited once and each edge is checked once, so time is O(V + E).\nThe queue or stack holds at most all the vertices, so space is O(V)."
             },
             {
               "label": "BST search",
@@ -908,7 +908,7 @@
             },
             {
               "label": "Dijkstra",
-              "description": "Dijkstra finds shortest paths. It is O((V + E) log V) with a min-heap (a structure that gives the minimum quickly), and O(V²) when the minimum is found by scanning an array."
+              "description": "Dijkstra finds shortest paths.\nIt is O((V + E) log V) with a min-heap (a structure that gives the minimum quickly), and O(V²) when the minimum is found by scanning an array."
             }
           ]
         },

@@ -52,11 +52,8 @@ export default function NumberGuess() {
   const message = () => {
     if (guesses.length === 0) return t('visuals.numberGuess.start', { max });
     if (found) {
-      return `${t('visuals.numberGuess.found', { guess: last })} ${t('visuals.numberGuess.result', {
-        used: guesses.length,
-        best: worstCaseGuesses(max),
-        max,
-      })}`;
+      const result = t('visuals.numberGuess.result', { used: guesses.length, best: worstCaseGuesses(max), max });
+      return `${t('visuals.numberGuess.found', { guess: last })}\n${result}`;
     }
     return t(last < secret ? 'visuals.numberGuess.tooLow' : 'visuals.numberGuess.tooHigh', { guess: last });
   };

@@ -138,6 +138,7 @@
 }
 
 .listIntro {
+  white-space: pre-line;
   margin: 0 0 $spacing-sm;
   font-size: $font-xl;
   line-height: 1.85;
@@ -176,6 +177,7 @@
 }
 
 .listDesc {
+  white-space: pre-line;
   color: var(--text-secondary);
 
   @media (max-width: $mobile-max) {
@@ -215,7 +217,7 @@
   gap: $spacing-md;
   align-items: baseline;
   border-top: 3px solid var(--border);
-  padding: $spacing-md 0 $spacing-lg;
+  padding: $spacing-sm 0 $spacing-md;
 
   @media (max-width: $mobile-max) {
     grid-template-columns: 1fr;
@@ -231,6 +233,7 @@
 }
 
 .comparisonDesc {
+  white-space: pre-line;
   font-size: $font-lg;
   color: var(--text-secondary);
   margin: 0;
@@ -320,6 +323,7 @@
 }
 
 .summaryItem {
+  white-space: pre-line;
   padding: $spacing-md 0;
   border-bottom: 1px solid var(--border);
   font-size: $font-lg;
@@ -427,6 +431,7 @@
 }
 
 .tableNote {
+  white-space: pre-line;
   margin: $spacing-sm 0 0;
   font-size: $font-xs;
   color: var(--text-tertiary);

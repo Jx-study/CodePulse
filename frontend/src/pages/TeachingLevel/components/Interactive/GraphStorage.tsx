@@ -87,7 +87,7 @@ export default function GraphStorage() {
       </div>
 
       <p className={styles.hint} aria-live="polite">
-        {t(sparse ? 'visuals.graphStorage.sparse' : 'visuals.graphStorage.dense')} {t('visuals.graphStorage.hint')}
+        {`${t(sparse ? 'visuals.graphStorage.sparse' : 'visuals.graphStorage.dense')}\n${t('visuals.graphStorage.hint')}`}
       </p>
     </div>
   );

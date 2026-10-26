@@ -218,11 +218,13 @@ function CodeSlide({ slide }: { slide: Slide }) {
 function TableSlide({ slide }: { slide: Slide }) {
   if (!slide.table) return null;
   const { headers, rows, note } = slide.table;
+  // too many columns, or a first column too long to share a phone screen: scroll sideways instead of squeezing
+  const wide = headers.length > 3 || rows.some((row) => row[0].length > 14);
   return (
     <div className={styles.tableSlide}>
       <h2 className={styles.slideTitle}>{slide.title}</h2>
       <div className={styles.tableWrap}>
-        <table className={`${styles.table} ${headers.length > 3 ? styles.tableWide : ''}`}>
+        <table className={`${styles.table} ${wide ? styles.tableWide : ''}`}>
           <thead>
             <tr>
               {headers.map((header) => (
