@@ -85,6 +85,7 @@
       "description": "Understand what this platform teaches and why it matters",
       "objectives": [
         "Explain what an algorithm and a data structure are",
+        "Play a guessing game and feel how discarding half each time beats guessing one by one",
         "See how the two work together to solve problems",
         "Know how animations, tutorials and practice fit together"
       ]
@@ -115,8 +116,9 @@
       "description": "Learn to describe the cost of a program with O()",
       "objectives": [
         "See why we count operations instead of seconds",
-        "Drop constants and lower-order terms",
-        "Read notations such as O(1) and O(n)"
+        "Count the steps of a program yourself",
+        "Know that only the highest power counts, not coefficients or lower terms",
+        "Read notations such as O(1), O(n) and O(n²)"
       ]
     },
     "growth_rates": {
@@ -124,8 +126,9 @@
       "description": "See how far apart O(1) and O(2ⁿ) really are",
       "objectives": [
         "Recognize the six common growth rates",
-        "Feel the gap with real numbers",
-        "Match each growth rate to a familiar code pattern"
+        "Drag n and feel the gap with real numbers",
+        "Match each growth rate to a familiar code pattern",
+        "Take a quiz on judging the complexity of code"
       ]
     },
     "case_analysis": {
@@ -134,7 +137,8 @@
       "objectives": [
         "Tell best, worst and average case apart",
         "Explain why questions usually ask about the worst case",
-        "See how a degenerate BST or early exit changes complexity"
+        "See how a degenerate BST or early exit changes complexity",
+        "Insert keys yourself and watch a BST turn into a line"
       ]
     },
     "space_complexity": {
@@ -143,6 +147,7 @@
       "objectives": [
         "Separate the input itself from extra space",
         "Understand recursion depth on the call stack",
+        "Watch the call stack grow and shrink step by step",
         "Compare iterative and recursive space"
       ]
     },
@@ -152,6 +157,7 @@
       "objectives": [
         "Know when n is not enough",
         "Read O(V + E) and O(h)",
+        "Compare the space of an adjacency matrix and an adjacency list",
         "Use the cheat sheet to compare structures and algorithms"
       ]
     },
@@ -501,7 +507,7 @@
   "categories": {
     "foundations": {
       "name": "Foundations",
-      "description": "Start here: algorithms, data structures and complexity"
+      "description": "Start here: reading code and pseudocode, algorithms, data structures and complexity"
     },
     "data_structures": {
       "name": "Data Structures",

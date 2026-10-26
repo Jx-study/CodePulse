@@ -7,7 +7,7 @@
     "startBtn": "Start Learning",
     "faqBtn": "View FAQ"
   },
-  "section": "6 modules · quick tour",
+  "section": "7 modules · quick tour",
   "card": { "goLabel": "Go" },
   "cta": {
     "title": "Still have questions?",
@@ -24,6 +24,15 @@
       "steps": ["Click \"Login\" in the top-right corner", "Authorize with your Google account", "Your learning record is created automatically"],
       "linkLabel": "Go to Login",
       "linkTo": "/auth"
+    },
+    {
+      "id": "foundations",
+      "badge": "Start here",
+      "title": "Foundations",
+      "desc": "No programming or algorithms background needed: from reading code and pseudocode to Big-O and complexity, every lesson has a small interactive to try.",
+      "steps": ["Pick the \"Foundations\" category on the Learning Map", "Read in order and try the interactive in each lesson", "Press \"Finish lesson\" on the last slide to save your progress"],
+      "linkLabel": "Start Foundations",
+      "linkTo": "/dashboard?category=foundations"
     },
     {
       "id": "dashboard",

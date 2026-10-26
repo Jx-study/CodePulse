@@ -7,7 +7,7 @@
     "startBtn": "開始學習",
     "faqBtn": "查看 FAQ"
   },
-  "section": "功能導覽 · 6 個模組",
+  "section": "功能導覽 · 7 個模組",
   "card": { "goLabel": "前往" },
   "cta": {
     "title": "還有疑問？",
@@ -24,6 +24,15 @@
       "steps": ["點擊右上角「登入」", "選擇 Google 帳號授權", "自動建立學習紀錄"],
       "linkLabel": "前往登入",
       "linkTo": "/auth"
+    },
+    {
+      "id": "foundations",
+      "badge": "新手先看",
+      "title": "入門課程",
+      "desc": "沒學過程式或演算法也能開始：從讀懂程式碼與虛擬碼，到 Big-O 與複雜度，每堂都有可以動手操作的小互動。",
+      "steps": ["在學習地圖選「入門」分類", "依序閱讀，並操作每堂的小互動", "看到最後一頁後按「完成本課」記錄進度"],
+      "linkLabel": "開始入門課程",
+      "linkTo": "/dashboard?category=foundations"
     },
     {
       "id": "dashboard",
