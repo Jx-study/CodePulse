@@ -23,6 +23,11 @@
       "answer": "Yes. All Tutorial views and Practice results sync to the cloud in real time. You can continue where you left off on any device as long as you're signed in."
     },
     {
+      "id": "beginner",
+      "question": "I haven't learned programming or algorithms. Where do I start?",
+      "answer": "Start with the \"Foundations\" category on the Learning Map. It first teaches you to read the Python and pseudocode used on the platform, then introduces algorithms, data structures, and time and space complexity. Each lesson takes a few minutes and has a small interactive to try, with no practice questions to worry about. Press \"Finish lesson\" on the last slide to save your progress."
+    },
+    {
       "id": "tutorial-vs-practice",
       "question": "What's the difference between Tutorial and Practice?",
       "answer": "Tutorial covers concepts with animated visualizations. Practice tests your understanding through problems with instant feedback and explanations."

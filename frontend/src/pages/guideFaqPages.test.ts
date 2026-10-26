@@ -14,10 +14,10 @@ describe("guide and FAQ public pages", () => {
   });
 
   it("ships matching bilingual Guide and FAQ content", () => {
-    expect(guideZh.cards).toHaveLength(6);
-    expect(guideEn.cards).toHaveLength(6);
-    expect(faqZh.items).toHaveLength(8);
-    expect(faqEn.items).toHaveLength(8);
+    expect(guideZh.cards).toHaveLength(7);
+    expect(guideEn.cards).toHaveLength(7);
+    expect(faqZh.items).toHaveLength(9);
+    expect(faqEn.items).toHaveLength(9);
     expect(guideZh.cards.map((item) => item.id)).toEqual(guideEn.cards.map((item) => item.id));
     expect(faqZh.items.map((item) => item.id)).toEqual(faqEn.items.map((item) => item.id));
   });
@@ -32,6 +32,7 @@ describe("guide and FAQ public pages", () => {
   it("keeps zh-TW guide card titles consistently localized", () => {
     expect(guideZh.cards.map((item) => item.title)).toEqual([
       "開始學習與登入",
+      "入門課程",
       "學習儀表板",
       "教學導覽",
       "互動練習",

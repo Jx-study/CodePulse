@@ -1,0 +1,1033 @@
+{
+  "ui": {
+    "backToMap": "Back to Learning Map",
+    "lessonList": "Foundations",
+    "minutes": "About {{count}} min",
+    "minutesShort": "{{count}} min",
+    "units": "{{count}} slides",
+    "done": "Done!",
+    "completedCount": "{{done}} / {{total}} completed",
+    "prev": "Previous",
+    "next": "Next",
+    "finish": "Finish lesson!",
+    "goToSlide": "Slide {{n}}",
+    "nextSteps": "Where to go next",
+    "currentLesson": "Current lesson",
+    "notFound": "Lesson not found",
+    "finishWait": "Finish lesson ({{seconds}})",
+    "nextLesson": "Next lesson",
+    "toMap": "Back to map"
+  },
+  "visuals": {
+    "bigO": {
+      "ariaLabel": "Big-O growth comparison chart",
+      "xAxis": "n (input size)",
+      "yAxis": "Operations",
+      "note": "* Fast-growing curves (O(n²), O(n log n)) stop once they leave the chart, which is exactly why they are inefficient."
+    },
+    "dsDiagram": {
+      "root": "Data Structures",
+      "linear": "Linear",
+      "nonLinear": "Non-linear"
+    },
+    "growthExplorer": {
+      "ariaLabel": "Interactive growth rate comparison",
+      "nLabel": "n (input size)",
+      "hint": "Bars use a log scale: each tick is 10× more steps.\nTime assumes 1 billion steps per second.\nDrag n above 100 and watch what happens to O(2ⁿ).",
+      "units": {
+        "instant": "instant",
+        "second": "~{{value}} s",
+        "minute": "~{{value}} min",
+        "hour": "~{{value}} hours",
+        "day": "~{{value}} days",
+        "year": "~{{value}} years",
+        "never": "never finishes"
+      }
+    },
+    "stepCounter": {
+      "ariaLabel": "Interactive step counting",
+      "nLabel": "Number of items n",
+      "steps": "Steps so far",
+      "result": "Running total",
+      "next": "Next step",
+      "reset": "Reset",
+      "hint": "Press \"Next step\" to run the highlighted line;\neach executed line counts as 1 step, and the x ▾ below shows which item is being handled.\nYou can also drag n and count again.",
+      "finished": "n = {{n}}, {{total}} steps in total (n loop steps plus 1 at the start and 1 at the end).\nDouble n and count again: the steps roughly double too.\nThat is O(n)."
+    },
+    "searchCases": {
+      "ariaLabel": "Interactive best and worst case of linear search",
+      "prompt": "Click a number as the target and see how many comparisons linear search needs.",
+      "pick": "Search for {{value}}",
+      "missing": "Search for a number not in the array",
+      "compared": "Compared",
+      "case": "Which case is this",
+      "verdict": {
+        "best": "Best case",
+        "middle": "Typical case",
+        "worst": "Worst case"
+      },
+      "explain": {
+        "best": "The target is in the first position, so only {{count}} comparison → O(1).",
+        "middle": "The target is in the middle and took {{count}} comparisons. On average you scan about half the data.",
+        "worst": "The target is last or missing, so all {{count}} items were compared → O(n)."
+      },
+      "hint": "Pick the first number 7, the last number 6, then \"not in the array\", and compare the three runs."
+    },
+    "dominantTerm": {
+      "ariaLabel": "Only the highest power counts",
+      "nLabel": "n",
+      "power": " (power {{power}})",
+      "bigEnough": "n is big enough: {{term}} is already larger than all the other terms together.",
+      "stillSmall": "n is still small, so {{term}} has not won yet, but once n passes {{at}} it is bigger than all the others together.\nDrag n higher.",
+      "rule": "Big-O keeps only the term with the highest power and drops its coefficient: {{expression}} becomes {{bigO}}."
+    },
+    "callStack": {
+      "ariaLabel": "Call stack animation",
+      "recursive": "Recursive",
+      "iterative": "Iterative",
+      "nLabel": "n",
+      "next": "Next step",
+      "reset": "Reset",
+      "depth": "Current depth",
+      "maxDepth": "Deepest",
+      "waiting": "waiting to compute {{expr}}",
+      "returned": "returns {{value}}",
+      "empty": "(the stack is empty)",
+      "hintRecursive": "Press \"Next step\": each call to itself adds a layer, and each return removes one.",
+      "hintIterative": "The iterative version keeps updating the same variables, so the stack never has more than one layer.",
+      "finishedRecursive": "The stack got {{depth}} layers deep, so the recursive factorial uses O(n) extra space.",
+      "finishedIterative": "Only {{depth}} layer the whole time, so the extra space is O(1)."
+    },
+    "graphStorage": {
+      "ariaLabel": "Space of an adjacency matrix and an adjacency list",
+      "vLabel": "Vertices V",
+      "eLabel": "Edges E",
+      "matrix": "Adjacency matrix",
+      "list": "Adjacency list",
+      "matrixFormula": "V² = {{value}} cells",
+      "listFormula": "V + E = {{value}} cells",
+      "sparse": "Few edges (a sparse graph): the list saves a lot of space.",
+      "dense": "Many edges (a dense graph): the two are about the same.",
+      "hint": "The grid on the left is the adjacency matrix: a V × V table that records which pairs of vertices have an edge, with edge cells filled.\nAn adjacency list instead stores, for each vertex, only the vertices it connects to."
+    },
+    "bstShape": {
+      "ariaLabel": "Shape of a binary search tree",
+      "balanced": "Balanced",
+      "sorted": "In order",
+      "shuffled": "Shuffled",
+      "next": "Insert next",
+      "all": "Insert all",
+      "reset": "Reset",
+      "inserted": "Inserted",
+      "height": "Height",
+      "hintStart": "Pick an insertion order and press \"Insert next\" to see the tree grow.",
+      "degenerate": "Every node has a child on one side only, so the tree is a line of height {{height}} and a search compares up to {{height}} times.",
+      "shallow": "The height is only {{height}}, so a search compares at most {{height}} times."
+    },
+    "complexityQuiz": {
+      "ariaLabel": "Time complexity quiz",
+      "progress": "Question {{n}} of {{total}}",
+      "prompt": "What is the time complexity of this code?",
+      "correct": "Correct!",
+      "wrong": "The answer is {{answer}}.",
+      "next": "Next question",
+      "seeResult": "See result",
+      "score": "{{score}} / {{total}} correct",
+      "perfect": "All correct!\nWatch how the loops nest and how the range changes, and you can spot the complexity.",
+      "review": "Go back to the \"How to tell quickly\" slide for the clues, then try again.",
+      "retry": "Try again",
+      "questions": [
+        {
+          "code": "def f(arr):\n    return arr[0] + arr[-1]",
+          "answer": "O(1)",
+          "explanation": "It only reads two fixed positions, no matter how long arr is."
+        },
+        {
+          "code": "def f(arr):\n    total = 0\n    for x in arr:\n        total += x\n    return total",
+          "answer": "O(n)",
+          "explanation": "One loop that touches each element once."
+        },
+        {
+          "code": "def f(n):\n    steps = 0\n    while n > 1:\n        n //= 2\n        steps += 1\n    return steps",
+          "answer": "O(log n)",
+          "explanation": "Each step cuts n in half."
+        },
+        {
+          "code": "def f(arr):\n    for a in arr:\n        for b in arr:\n            print(a, b)",
+          "answer": "O(n²)",
+          "explanation": "Two loops that each run n times, n × n in total."
+        },
+        {
+          "code": "def sort(arr):\n    if len(arr) <= 1:\n        return arr\n    mid = len(arr) // 2\n    left = sort(arr[:mid])\n    right = sort(arr[mid:])\n    return merge(left, right)",
+          "answer": "O(n log n)",
+          "explanation": "Halving gives about log n levels, and every level merges n elements."
+        },
+        {
+          "code": "def fib(n):\n    if n < 2:\n        return n\n    return fib(n - 1) + fib(n - 2)",
+          "answer": "O(2ⁿ)",
+          "explanation": "Each call splits into two more calls, and no result is reused."
+        }
+      ]
+    },
+    "numberGuess": {
+      "ariaLabel": "Guess the number",
+      "rangeLabel": "Number range",
+      "pick": "Guess {{guess}}",
+      "start": "I am thinking of a number from 1 to {{max}}.\nClick a number to guess.\nTry the middle one: how many numbers does it rule out at once?",
+      "tooLow": "{{guess}} is too low, so every number below it is ruled out.",
+      "tooHigh": "{{guess}} is too high, so every number above it is ruled out.",
+      "found": "You got it! The answer is {{guess}}.",
+      "result": "You used {{used}} guesses.\nGuessing the middle of what is left every time needs at most {{best}};\nguessing 1, 2, 3, … needs up to {{max}} in the worst case.",
+      "used": "Guesses",
+      "remaining": "Still possible",
+      "middle": "Guess the middle for me",
+      "again": "New number"
+    },
+    "codeStepper": {
+      "ariaLabel": "Run a program one line at a time",
+      "programs": {
+        "sum": "Add up",
+        "max": "Find the maximum",
+        "halve": "Keep halving"
+      },
+      "variables": "Variables",
+      "output": "Output",
+      "next": "Run this line",
+      "reset": "Reset",
+      "hint": "The highlighted line is the one that runs next.\nPress \"Run this line\" and watch how the variables change.",
+      "finished": "Done after running {{count}} lines.\nCompare the final variables and the output with what you expected."
+    },
+    "codeQuiz": {
+      "ariaLabel": "Predict the output",
+      "progress": "Question {{n}} of {{total}}",
+      "prompt": "What does this code print?",
+      "correct": "Correct!",
+      "wrong": "The answer is {{answer}}.",
+      "next": "Next question",
+      "seeResult": "See result",
+      "score": "{{score}} / {{total}} correct",
+      "perfect": "All correct! Tracking the variables line by line gets you the answer.",
+      "review": "Go back to the earlier slides, or track it again with \"Run it one line at a time\".",
+      "retry": "Try again",
+      "questions": [
+        {
+          "code": "nums = [4, 8, 15]\nprint(nums[1])",
+          "options": [
+            "4",
+            "8",
+            "15",
+            "1"
+          ],
+          "answer": "8",
+          "explanation": "The index starts at 0, so nums[1] is the second item, which is 8."
+        },
+        {
+          "code": "x = 5\nx = x + 2\nprint(x)",
+          "options": [
+            "5",
+            "7",
+            "2",
+            "x + 2"
+          ],
+          "answer": "7",
+          "explanation": "The right side, 5 + 2, is worked out first and then put back into x."
+        },
+        {
+          "code": "total = 0\nfor i in range(3):\n    total += i\nprint(total)",
+          "options": [
+            "3",
+            "6",
+            "0",
+            "2"
+          ],
+          "answer": "3",
+          "explanation": "i is 0, 1, 2 in turn, and they add up to 3."
+        },
+        {
+          "code": "x = 10\nif x > 10:\n    print(\"A\")\nelif x == 10:\n    print(\"B\")\nelse:\n    print(\"C\")",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "Nothing is printed"
+          ],
+          "answer": "B",
+          "explanation": "x > 10 does not hold, then x == 10 holds, so B is printed and the rest is skipped."
+        },
+        {
+          "code": "def double(n):\n    return n * 2\n\nprint(double(4) + 1)",
+          "options": [
+            "9",
+            "8",
+            "5",
+            "double(4) + 1"
+          ],
+          "answer": "9",
+          "explanation": "double(4) hands back 8, and 8 + 1 is 9."
+        },
+        {
+          "code": "n = 16\nsteps = 0\nwhile n > 1:\n    n = n // 2\n    steps += 1\nprint(steps)",
+          "options": [
+            "3",
+            "4",
+            "8",
+            "16"
+          ],
+          "answer": "4",
+          "explanation": "n goes 16 → 8 → 4 → 2 → 1, so the loop runs 4 times."
+        }
+      ]
+    },
+    "pseudoCompare": {
+      "ariaLabel": "Pseudocode next to Python",
+      "programs": {
+        "max": "Find the maximum",
+        "search": "Linear search",
+        "halve": "Keep halving"
+      },
+      "pseudo": "PSEUDOCODE",
+      "hint": "Hover over (or click) any line and the matching lines on the other side light up.",
+      "noCounterpart": "This line only marks where a block ends.\nPython shows that with indentation, so there is no matching line."
+    },
+    "pseudoQuiz": {
+      "ariaLabel": "Pseudocode quiz",
+      "progress": "Question {{n}} of {{total}}",
+      "prompt": "What does this pseudocode do?",
+      "correct": "Correct!",
+      "wrong": "The answer is \"{{answer}}\".",
+      "next": "Next question",
+      "seeResult": "See result",
+      "score": "{{score}} / {{total}} correct",
+      "perfect": "All correct!",
+      "review": "Go back to \"Turning pseudocode into Python\" and read it again.",
+      "retry": "Try again",
+      "questions": [
+        {
+          "code": "total ← 0\nFor each x in nums Do\n  total ← total + x\nEnd For\nReturn total",
+          "options": [
+            "Add them up",
+            "Find the maximum",
+            "Sort them",
+            "Count them"
+          ],
+          "answer": "Add them up",
+          "explanation": "Every x is added into total, and total is handed back at the end."
+        },
+        {
+          "prompt": "Which line of Python matches this pseudocode?",
+          "code": "n ← n ÷ 2",
+          "options": [
+            "n = n // 2",
+            "n == n // 2",
+            "n = n * 2",
+            "n ← n // 2"
+          ],
+          "answer": "n = n // 2",
+          "explanation": "← becomes =, and whole-number division is written //."
+        },
+        {
+          "prompt": "Which line of Python matches this pseudocode?",
+          "code": "If x = 5 Then",
+          "options": [
+            "if x = 5:",
+            "if x == 5:",
+            "if x == 5 Then",
+            "if (x ← 5):"
+          ],
+          "answer": "if x == 5:",
+          "explanation": "Python compares with two equals signs and ends the line with a colon."
+        },
+        {
+          "prompt": "How is \"End If\" written in Python?",
+          "code": "If x > 0 Then\n  Return x\nEnd If",
+          "options": [
+            "Write end if",
+            "Nothing: going back to the left margin ends the block",
+            "Write pass",
+            "Write break"
+          ],
+          "answer": "Nothing: going back to the left margin ends the block",
+          "explanation": "Python marks blocks with indentation, so there is no closing line."
+        }
+      ]
+    },
+    "pseudoStyles": {
+      "ariaLabel": "Three ways to write the same thing",
+      "styles": {
+        "platform": "Platform style",
+        "steps": "Numbered list",
+        "mixed": "Close to Python"
+      },
+      "notes": {
+        "platform": "Procedure, For each and End If spell the structure out in full, which suits readers who do not know a particular language.",
+        "steps": "A plain numbered list of steps. It is good for getting the idea straight first, or for jotting something down in a discussion.",
+        "mixed": "It borrows Python but does not follow its syntax. Anything left out is fine as long as a reader can follow it."
+      },
+      "stepsLines": [
+        "1. Take the first number as the biggest so far",
+        "2. Look at every number in turn",
+        "3. If it is bigger than the biggest so far, make it the new biggest",
+        "4. When you have looked at all of them, the biggest so far is the answer"
+      ],
+      "hint": "All three do the same thing, and all three are fine.\nWhat matters is that a reader can follow them, no step is missing, and the style stays consistent within one piece."
+    }
+  },
+  "lessons": {
+    "what-is-dsa": {
+      "title": "What Are Algorithms and Data Structures",
+      "subtitle": "Understand what this platform teaches",
+      "slides": [
+        {
+          "title": "Algorithms and data structures",
+          "comparisons": [
+            {
+              "label": "Algorithm",
+              "description": "\"How to do it\": a set of clear steps that solves a problem, such as searching, sorting and traversing (looking at every item once).\nTo guess a number from 1 to 100, guessing 1, 2, 3, … takes up to 100 tries in the worst case, while always guessing the middle takes at most 7.\nLearning algorithms means learning to pick the fast and cheap one."
+            },
+            {
+              "label": "Data structure",
+              "description": "\"Where it lives\": a way of organizing and storing data, which decides how data is placed, found and changed.\nA stack only gives you the top book, a queue is first in first out, and a tree is followed down by category.\nNo arrangement is always best; it depends on what you do most often."
+            },
+            {
+              "label": "Together they set the speed",
+              "description": "A good method paired with a suitable arrangement is fast and cheap.\nWith the wrong arrangement, even clever steps are slow."
+            }
+          ]
+        },
+        {
+          "title": "Guess the number"
+        },
+        {
+          "title": "Data structures you will learn here"
+        },
+        {
+          "title": "How to learn on this platform",
+          "items": [
+            "Watch the animation — see step by step how the data changes. This is the \"how\"",
+            "Read the code — pseudo code and Python side by side, so you know what each line does",
+            "Do the practice — questions check that you really understood, not just watched",
+            "Learn complexity — animations show the steps but not \"what it costs\". That is what the next lessons are about"
+          ]
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "An algorithm is a set of clear steps that solves a problem",
+            "A data structure is a way of organizing and storing data",
+            "Together they decide how efficient a program is",
+            "Animations show you how. Complexity tells you whether it is worth it"
+          ]
+        }
+      ]
+    },
+    "read-code": {
+      "title": "Reading Example Code",
+      "subtitle": "Understanding the Python used on this platform is enough",
+      "slides": [
+        {
+          "title": "You do not need to write it, just read it",
+          "body": "Every example on this platform is written in Python.\nYou do not need to be able to write programs.\nIf you can read what each line does, you can follow the animations and the complexity that come later.\n\nThis lesson covers only five things:\n• Variables: names for data\n• Lists: a row of data you pick from by number\n• Loops: do a piece of code again and again\n• Conditions: do something only if it holds\n• Functions: wrap code up and give it a name\n\nLook up any other syntax when you meet it; there is no need to memorize it all at once."
+        },
+        {
+          "title": "Variables: names for data",
+          "code": "count = 3                 # a number\nname = \"CodePulse\"        # text\nnums = [4, 8, 15]         # a list: a row of data\ncount = count + 1         # a variable can change: count is now 4",
+          "body": "\"=\" is not the \"equals\" of maths. It means \"put the value on the right into the name on the left\".\nSo count = count + 1 means: work out the right side (3 + 1) first, then put the result back into count."
+        },
+        {
+          "title": "Lists and indexes: pick by number",
+          "code": "nums = [4, 8, 15, 16]\nnums[0]       # 4: the index starts at 0, so nums[0] is the first\nnums[2]       # 15\nnums[-1]      # 16: -1 means the last one\nlen(nums)     # 4: how many items",
+          "body": "An index is the number of the position, counted from 0.\nWith a number you can take the item at any position directly, without searching from the start."
+        },
+        {
+          "title": "Loops: repeat a piece of code",
+          "code": "total = 0\nfor x in nums:        # take one item from nums into x each time\n    total += x        # total += x means total = total + x\n\nfor i in range(3):    # i is 0, 1, 2: it runs 3 times\n    print(i)\n\nn = 8\nwhile n > 1:          # repeat as long as the condition holds\n    n = n // 2        # // is whole-number division: 8 → 4 → 2 → 1",
+          "body": "When you see for, ask first: \"how many times will it run?\" for means \"do it once for each item\", while means \"keep doing it as long as the condition holds\".\nIndentation (the spaces at the start of a line) shows that the line is inside the loop."
+        },
+        {
+          "title": "Conditions: do it only if it holds",
+          "code": "if x > 10:\n    print(\"big\")\nelif x == 10:        # note: two equals signs ask \"are they equal\"\n    print(\"exactly\")\nelse:\n    print(\"small\")",
+          "body": "if, elif and else are checked in order. The first one that holds runs and the rest are skipped.\n\"=\" puts a value in, while \"==\" compares two sides. Do not mix them up."
+        },
+        {
+          "title": "Functions: wrap it up and name it",
+          "code": "def total(nums):            # define a function called total that takes nums\n    result = 0\n    for x in nums:\n        result += x\n    return result           # hand the result back\n\nprint(total([4, 8, 15]))    # call it: prints 27",
+          "body": "def defines a function and return hands the result back to where it was called. A function only runs when it is called.\nNames you will see later, such as total and find_max, are all functions."
+        },
+        {
+          "title": "Four habits for reading code",
+          "items": [
+            "Read the function name and its parameters first — know what data it takes and what it returns",
+            "Find the loops — how many times a loop runs is the number of steps you will count in the next lesson",
+            "Track the variables — run it one line at a time and note how each variable changes",
+            "Watch the indentation — lines with the same indentation belong together, and a line pushed to the right is inside"
+          ]
+        },
+        {
+          "title": "Run it one line at a time"
+        },
+        {
+          "title": "Predict the output"
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "A variable is a name, and \"=\" puts the right-hand value into it",
+            "A list is picked by number, and numbering starts at 0",
+            "for does something once per item, while repeats as long as the condition holds",
+            "if checks a condition and == is the comparison; def defines a function and return hands back the result"
+          ]
+        }
+      ]
+    },
+    "pseudocode": {
+      "title": "Pseudocode",
+      "subtitle": "Write down the steps of an algorithm in near-everyday language",
+      "slides": [
+        {
+          "title": "What is pseudocode",
+          "body": "Pseudocode is a set of steps written for people.\nIt looks like a program, but it belongs to no programming language and a computer will not run it.\n\nIt helps because:\n• You can work out \"how to do it\" first and worry about syntax later\n• The same pseudocode can be written in Python, Java or any other language\n• Every algorithm animation on this platform shows pseudocode next to Python\n\nThere is no single standard way to write it: this platform uses Procedure, If … Then, For each … Do and While … Do, and writes ← for \"put into\".\nWhen you write your own, any style will do as long as a reader can follow it."
+        },
+        {
+          "title": "How the platform writes it",
+          "table": {
+            "headers": [
+              "Pseudocode",
+              "Python",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "x ← 5",
+                "x = 5",
+                "Put 5 into x"
+              ],
+              [
+                "If x > 10 Then",
+                "if x > 10:",
+                "If x is greater than 10"
+              ],
+              [
+                "For each x in nums Do",
+                "for x in nums:",
+                "Do it once for each item"
+              ],
+              [
+                "While n > 1 Do",
+                "while n > 1:",
+                "Keep repeating while the condition holds"
+              ],
+              [
+                "Return result",
+                "return result",
+                "Hand the result back"
+              ],
+              [
+                "Procedure Total(nums)",
+                "def total(nums):",
+                "Define a function called Total"
+              ]
+            ],
+            "note": "In pseudocode, If, For and While each have an End If, End For and End While that mark where the block ends;\nPython shows it with indentation instead.\nThis is only the platform's habit. You do not have to copy it when you write your own, and the next slides show other ways."
+          }
+        },
+        {
+          "title": "Example: find the maximum",
+          "code": "Procedure FindMax(nums):\n  biggest ← nums[0]\n  For each x in nums Do\n    If x > biggest Then\n      biggest ← x\n    End If\n  End For\n  Return biggest\nEnd Procedure",
+          "body": "Indentation shows \"which level it belongs to\", and End If and End For mark where a block ends.\n\"←\" reads \"put into\": biggest ← x puts x into biggest.\nThis is the same thing as finding the maximum in \"Run it one line at a time\" in the previous lesson."
+        },
+        {
+          "title": "Pseudocode next to Python"
+        },
+        {
+          "title": "You do not have to copy the platform style"
+        },
+        {
+          "title": "Turning pseudocode into Python",
+          "body": "Turning pseudocode into Python is mostly a change of spelling:\n• ← becomes =\n• If … Then becomes if …:, and the closing End If is dropped in favor of indentation\n• For each x in nums Do becomes for x in nums:\n• While … Do becomes while …:\n• Procedure name(parameters) becomes def name(parameters):\n• To compare two things, pseudocode writes = and Python writes ==\n\nEvery End … (End If, End For, End While, End Procedure) has no line of its own in Python;\nthe block ends when the indentation goes back to the left."
+        },
+        {
+          "title": "How to write pseudocode yourself",
+          "items": [
+            "Say the goal in one sentence — what comes in and what you want out",
+            "Write every step down and ignore syntax — it only has to be clear to a reader, so focus on order and conditions",
+            "Use indentation for levels — steps inside a loop or condition move to the right",
+            "Run it by hand on a small example — check the result step by step and find the cases you missed"
+          ]
+        },
+        {
+          "title": "Pseudocode quiz"
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "Pseudocode is steps written for people and belongs to no programming language",
+            "You can choose your own style, as long as a reader can follow it and no step is missing",
+            "The platform writes it with Procedure, If, For each, While and ←",
+            "To turn it into Python, ← becomes = and End … becomes indentation",
+            "Work out the steps first and worry about syntax later"
+          ]
+        }
+      ]
+    },
+    "big-o-basics": {
+      "title": "What Is Big-O",
+      "subtitle": "Describe the cost of a program with O()",
+      "slides": [
+        {
+          "title": "Why not just measure seconds?",
+          "body": "The most natural way to compare two algorithms is to measure how long they run.\n\nBut seconds depend on many things:\n• How fast the computer is\n• Which programming language is used\n• How many other programs are running\n\nThe same code can take very different time on someone else's machine. So we ask a different question:\nWhen the amount of data grows, how many more steps does the program take?"
+        },
+        {
+          "title": "Count the steps",
+          "code": "def total(nums):\n    result = 0          # runs once\n    for x in nums:      # the loop runs n times\n        result += x     # a fixed few steps each time, n times in all\n    return result       # runs once",
+          "body": "With n items the loop runs n times, so the total is a few times n plus a little extra.\nWhen the data becomes 10 times larger, the steps become about 10 times larger. That is \"proportional to n\", written O(n)."
+        },
+        {
+          "title": "Count the steps yourself"
+        },
+        {
+          "title": "Two simplification rules",
+          "items": [
+            "Ignore constant factors — 2n, 100n and n/2 all simplify to O(n). When data grows, the trend is what matters",
+            "Keep only the fastest-growing term — n² + n + 1 simplifies to O(n²). For large n the other terms are too small to matter",
+            "Examples — 3n + 5 is O(n); n² + 100n is O(n²); a fixed 7 steps is O(1)"
+          ]
+        },
+        {
+          "title": "Only the highest power counts"
+        },
+        {
+          "title": "How to read O()",
+          "table": {
+            "headers": [
+              "Notation",
+              "Twice the data",
+              "Example"
+            ],
+            "rows": [
+              [
+                "O(1)",
+                "The same number of steps",
+                "Reading by index, arr[3]: no matter how long the array is, the position is computed directly"
+              ],
+              [
+                "O(n)",
+                "About twice the steps",
+                "Finding the maximum: every element must be checked once to be sure"
+              ],
+              [
+                "O(n²)",
+                "About four times the steps",
+                "Two nested loops: every element is paired with every element"
+              ]
+            ],
+            "note": "O(n) is read \"Big-O of n\".\nIt means the number of steps grows at most roughly in proportion to n.\nBig-O describes the trend of growth, not an exact number of seconds."
+          }
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "Instead of seconds, look at how steps grow as the data grows",
+            "Big-O ignores constant factors and keeps the fastest-growing term",
+            "O(1) is a fixed number of steps, O(n) grows with the data, O(n²) grows with its square",
+            "Big-O describes a trend, not an exact number of seconds"
+          ]
+        }
+      ]
+    },
+    "growth-rates": {
+      "title": "Common Growth Rates",
+      "subtitle": "See how far apart O(1) and O(2ⁿ) really are",
+      "slides": [
+        {
+          "title": "Growth curves at a glance"
+        },
+        {
+          "title": "How big is the gap as n grows",
+          "table": {
+            "headers": [
+              "Growth rate",
+              "n = 10",
+              "n = 1,000",
+              "n = 1,000,000",
+              "Time at n = 1,000,000"
+            ],
+            "rows": [
+              [
+                "O(1)",
+                "1",
+                "1",
+                "1",
+                "instant"
+              ],
+              [
+                "O(log n)",
+                "about 3",
+                "about 10",
+                "about 20",
+                "instant"
+              ],
+              [
+                "O(n)",
+                "10",
+                "1,000",
+                "1,000,000",
+                "about 0.001 s"
+              ],
+              [
+                "O(n log n)",
+                "about 33",
+                "about 10,000",
+                "about 20 million",
+                "about 0.02 s"
+              ],
+              [
+                "O(n²)",
+                "100",
+                "1,000,000",
+                "10¹² (a trillion)",
+                "about 17 minutes"
+              ],
+              [
+                "O(2ⁿ)",
+                "1,024",
+                "about 10³⁰¹",
+                "never finishes",
+                "longer than the age of the universe"
+              ]
+            ],
+            "note": "Numbers are approximate step counts; log is base 2.\nTime assumes a computer doing one billion steps per second.\nWith little data you cannot tell the difference;\nwith a lot of data the gap goes from \"a bit slower\" to \"impossible\"."
+          }
+        },
+        {
+          "title": "Drag n and see the gap"
+        },
+        {
+          "title": "What each growth rate looks like ①",
+          "code": "def first(arr):             # O(1): one step no matter the length\n    return arr[0]\n\ndef total(arr):             # O(n): touch every element once\n    s = 0\n    for x in arr:\n        s += x\n    return s",
+          "body": "Reading one value is O(1). Walking from start to end is O(n)."
+        },
+        {
+          "title": "What each growth rate looks like ②",
+          "code": "def halve(n):               # O(log n): cut the range in half each time\n    steps = 0\n    while n > 1:\n        n //= 2\n        steps += 1\n    return steps\n\ndef all_pairs(arr):         # O(n²): two nested loops\n    for a in arr:\n        for b in arr:\n            print(a, b)\n\ndef fib(n):                 # O(2ⁿ): every call makes two more calls\n    return n if n < 2 else fib(n - 1) + fib(n - 2)",
+          "body": "O(n log n) is common for \"split in half, process, then merge\", such as merge sort.\nO(2ⁿ) becomes unusably slow with even a modest n."
+        },
+        {
+          "title": "Quick ways to tell",
+          "table": {
+            "headers": [
+              "Complexity",
+              "The clue in the code",
+              "Where it shows up here"
+            ],
+            "rows": [
+              [
+                "O(1)",
+                "No loop, just reading a value",
+                "Reading an array by index"
+              ],
+              [
+                "O(log n)",
+                "The range is halved each time",
+                "Binary search: one million items take only about 20 steps"
+              ],
+              [
+                "O(n)",
+                "One loop over all the data",
+                "Finding the maximum, linear search"
+              ],
+              [
+                "O(n log n)",
+                "Split in half, process, then merge",
+                "Merge sort: split, sort, merge"
+              ],
+              [
+                "O(n²)",
+                "Two loops that each run n times",
+                "Bubble, selection and insertion sort: ten times the data, a hundred times the time"
+              ],
+              [
+                "O(2ⁿ)",
+                "One call splits into two calls and nothing is reused",
+                "Recursive Fibonacci"
+              ]
+            ],
+            "note": "This is only a first guess. Real questions still need the details."
+          }
+        },
+        {
+          "title": "Complexity quiz"
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)",
+            "With little data the gap is small. With a lot of data it decides whether the program is usable",
+            "Counting loop levels and how the range shrinks gives a quick guess of the growth rate",
+            "Binary search is O(log n), advanced sorts are O(n log n), basic sorts are O(n²)"
+          ]
+        }
+      ]
+    },
+    "case-analysis": {
+      "title": "Best, Worst and Average Case",
+      "subtitle": "Why one algorithm can have different answers",
+      "slides": [
+        {
+          "title": "One algorithm, different inputs",
+          "items": [
+            "Best case — the input that favors the algorithm most. Linear search: the target is first, O(1)",
+            "Worst case — the input that hurts the algorithm most. Linear search: the target is last or missing, O(n)",
+            "Average case — the typical performance over all possible inputs.\nLinear search: about half the array, roughly n/2 steps, still O(n)"
+          ],
+          "body": "The same algorithm can be much faster on some inputs than on others.\nTake \"looking for a number in an array from the start\" (called linear search): if you are lucky it is the first one;\nif not, it is the last, or not in the array at all, and you still look at everything.\nSo \"how long does searching take\" is not enough.\nYou also need to say which case you mean:"
+        },
+        {
+          "title": "Try linear search yourself"
+        },
+        {
+          "title": "Why the worst case is used so often",
+          "body": "The worst case is a guarantee: however bad the input, the time will not exceed it.\n\nThat is why it is the case you will look at most when learning and comparing algorithms.\nA question usually says which case it means. When it does not, think of the worst case first.\n\nThe best case is too optimistic, and the average case needs to know how the inputs are distributed, which is not always easy."
+        },
+        {
+          "title": "Example: bubble sort with early exit",
+          "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(n - 1 - i):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n                swapped = True\n        if not swapped:      # a pass with no swap means it is sorted, so stop early\n            break",
+          "body": "Bubble sort keeps comparing two neighbors and swaps them when they are in the wrong order.\nAlready sorted data stops after one pass with no swaps: best case O(n).\nCompletely reversed data swaps in every pass: worst case O(n²).\nSame code, and the two cases differ by a factor of n."
+        },
+        {
+          "title": "Example: the shape of a BST",
+          "comparisons": [
+            {
+              "label": "A balanced BST",
+              "description": "In a BST (binary search tree), every node has smaller values on its left and larger values on its right, so each step down discards one side.\nWhen the tree is balanced, each step discards half of the nodes, the height (how many levels deep it goes) is about log n, and search is O(log n)."
+            },
+            {
+              "label": "A degenerate BST",
+              "description": "Insert 10, 20, 30, 40, 50 in order and the tree becomes a line.\nThe height is n, so search degrades to O(n)."
+            },
+            {
+              "label": "How to avoid it",
+              "description": "Self-balancing trees such as AVL and red-black trees adjust their shape automatically, keeping even the worst case at O(log n)."
+            }
+          ]
+        },
+        {
+          "title": "Watch a BST grow"
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "One algorithm can have different complexity on different inputs",
+            "Best, worst and average case are stated separately",
+            "When nothing is said, think of the worst case first",
+            "Sorted input and a degenerate BST are common sources of the gap between best and worst case"
+          ]
+        }
+      ]
+    },
+    "space-complexity": {
+      "title": "Space Complexity and the Call Stack",
+      "subtitle": "Count the extra memory",
+      "slides": [
+        {
+          "title": "What is space complexity",
+          "body": "Time complexity asks \"how many steps\". Space complexity asks \"how much more memory\".\n\nMost textbooks and questions count only the extra space: what the algorithm allocates on its own, such as new arrays and dictionaries, plus the data kept on the stack during recursion (a function calling itself), which you will see below.\n\nThe input itself is usually not counted."
+        },
+        {
+          "title": "The difference between O(1) and O(n)",
+          "code": "def total(nums):            # extra space O(1)\n    result = 0              # just one extra variable\n    for x in nums:\n        result += x\n    return result\n\ndef doubled(nums):          # extra space O(n)\n    return [x * 2 for x in nums]   # builds a new list of length n",
+          "body": "total uses one extra variable no matter how long nums is.\ndoubled builds a new list as long as the input, so its extra space grows with n."
+        },
+        {
+          "title": "Recursion uses space too",
+          "code": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)",
+          "body": "Every time a function calls itself, the computer puts one more layer on the call stack to remember what to do when it returns.\nfactorial(5) calls all the way down to factorial(1), so the stack is 5 layers deep.\nSo the recursive factorial uses O(n) extra space even though the code declares no array."
+        },
+        {
+          "title": "Watch the call stack grow"
+        },
+        {
+          "title": "Iterative versus recursive space",
+          "comparisons": [
+            {
+              "label": "Iterative binary search",
+              "description": "It only keeps left, right and mid, so the extra space is O(1)."
+            },
+            {
+              "label": "Recursive binary search",
+              "description": "Each call handles half of the range and the stack gets at most log n layers deep, so the extra space is O(log n)."
+            },
+            {
+              "label": "Recursive DFS (go as deep as possible, then back up) on a degenerate tree",
+              "description": "When the tree is a line, the recursion depth equals the number of nodes, so the extra space is O(n)."
+            }
+          ]
+        },
+        {
+          "title": "Common misunderstandings",
+          "body": "• \"No array declared\" does not mean O(1): the recursion call stack counts too\n• \"Fast in time\" does not mean \"small in space\": merge sort is O(n log n) in time but needs O(n) extra space\n• In-place algorithms change the input directly and use O(1) extra space: bubble, selection and insertion sort all do\n\nTime and space are often a trade-off: a little more memory can buy more speed."
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "Space complexity counts the extra memory, not the input itself",
+            "The depth of the recursion call stack counts too",
+            "Iterative versions usually use less space than recursive ones",
+            "Time and space are often a trade-off"
+          ]
+        }
+      ]
+    },
+    "multi-variable-complexity": {
+      "title": "Describing Complexity with Several Variables",
+      "subtitle": "V, E, tree height h, and a cheat sheet",
+      "slides": [
+        {
+          "title": "Why n is not always enough",
+          "body": "Some problems have more than one \"size\".\n• A graph has vertices and edges\n• A two-dimensional map has rows and columns\n• How fast a tree is depends on its height, not on the number of nodes\n\nIn these cases complexity needs several variables, otherwise it is misleading."
+        },
+        {
+          "title": "Common variables",
+          "items": [
+            "V — the number of vertices in a graph",
+            "E — the number of edges in a graph.\nBFS and DFS (two ways to walk through a graph) look at each vertex and each edge once, so the time is O(V + E)",
+            "h — the height of a tree. About log n when balanced and n when degenerate, so BST operations are O(h)",
+            "R × C — rows and columns of a grid. Visiting the whole map is O(R × C)"
+          ]
+        },
+        {
+          "title": "Examples",
+          "comparisons": [
+            {
+              "label": "BFS / DFS",
+              "description": "Each vertex is visited once and each edge is checked once, so time is O(V + E).\nThe queue or stack holds at most all the vertices, so space is O(V)."
+            },
+            {
+              "label": "BST search",
+              "description": "Each step down drops part of the nodes, so the steps are proportional to the height h and the time is O(h): O(log n) on average, O(n) in the worst case."
+            },
+            {
+              "label": "Dijkstra",
+              "description": "Dijkstra finds shortest paths.\nIt is O((V + E) log V) with a min-heap (a structure that gives the minimum quickly), and O(V²) when the minimum is found by scanning an array."
+            }
+          ]
+        },
+        {
+          "title": "How to store vertices and edges"
+        },
+        {
+          "title": "Cheat sheet: data structures",
+          "table": {
+            "headers": [
+              "Data structure",
+              "Search / peek",
+              "Insert",
+              "Delete"
+            ],
+            "rows": [
+              [
+                "Array",
+                "Search O(n); read by index O(1)",
+                "End O(1) / middle O(n)",
+                "End O(1) / middle O(n)"
+              ],
+              [
+                "Linked list",
+                "O(n)",
+                "Head O(1)",
+                "Head O(1)"
+              ],
+              [
+                "Stack",
+                "O(n)",
+                "Push O(1)",
+                "Pop O(1)"
+              ],
+              [
+                "Queue",
+                "O(n)",
+                "Enqueue O(1)",
+                "Dequeue O(1)"
+              ],
+              [
+                "BST",
+                "Average O(log n) / worst O(n)",
+                "Average O(log n) / worst O(n)",
+                "Average O(log n) / worst O(n)"
+              ],
+              [
+                "Heap",
+                "Peek extreme O(1)",
+                "O(log n)",
+                "Remove extreme O(log n)"
+              ]
+            ],
+            "note": "The BST worst case happens when the tree degenerates into a line."
+          }
+        },
+        {
+          "title": "Cheat sheet: algorithms",
+          "table": {
+            "headers": [
+              "Algorithm",
+              "Time",
+              "Extra space"
+            ],
+            "rows": [
+              [
+                "Bubble sort",
+                "Worst O(n²) / best O(n) (early exit)",
+                "O(1)"
+              ],
+              [
+                "Selection sort",
+                "O(n²) (all cases)",
+                "O(1)"
+              ],
+              [
+                "Insertion sort",
+                "Worst O(n²) / best O(n)",
+                "O(1)"
+              ],
+              [
+                "Merge sort",
+                "O(n log n) (all cases)",
+                "O(n)"
+              ],
+              [
+                "Quick sort",
+                "Average O(n log n) / worst O(n²)",
+                "Average O(log n) (recursion stack)"
+              ],
+              [
+                "Binary search",
+                "O(log n)",
+                "Iterative O(1) / recursive O(log n)"
+              ],
+              [
+                "BFS / DFS",
+                "O(V + E)",
+                "O(V)"
+              ],
+              [
+                "Fibonacci: recursive / DP",
+                "O(2ⁿ) / O(n)",
+                "O(n) / O(n)"
+              ]
+            ],
+            "note": "These agree with each level's tutorial. See the matching level for details."
+          }
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "When a problem has several sizes, describe complexity with several variables",
+            "Graphs use V and E, trees use height h, grids use R × C",
+            "The cheat sheet quickly compares common structures and algorithms",
+            "When unsure, go back to the basics: count the steps and read the loops"
+          ]
+        }
+      ]
+    }
+  }
+}

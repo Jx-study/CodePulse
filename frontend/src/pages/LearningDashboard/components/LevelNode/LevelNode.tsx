@@ -22,14 +22,18 @@ function LevelNode({
   // 教學內容一律開放，鎖定只影響測驗，提示文字要說清楚差異
   const practiceLockedMessage = t("levelUnavailable.locked");
 
+  // 沒有測驗的關卡：教學一律開放，不顯示鎖頭，也不顯示「測驗未解鎖」
+  const hasNoPractice = level.hasPractice === false;
+
   const isCompleted = status === "completed";
   const isInProgress = status === "in-progress";
   const isUnlocked = status === "unlocked";
   const isLockedState = status === "locked";
+  const showsPracticeLock = isLockedState && !hasNoPractice;
 
   const ariaLabel = !isDeveloped
     ? `${t("node.ariaLabel", { levelName })}. ${unavailableMessage}`
-    : isLockedState
+    : showsPracticeLock
       ? `${t("node.ariaLabel", { levelName })}. ${practiceLockedMessage}`
       : t("node.ariaLabel", { levelName });
 
@@ -41,6 +45,10 @@ function LevelNode({
     if (isBossLevel) {
       // Boss 關卡即使測驗鎖定，皇冠依然可見；鎖定另外用角落 badge 標示
       return <Icon name="crown" className={styles.bossIcon} />;
+    }
+
+    if (isLockedState && hasNoPractice) {
+      return <Icon name="book-open" className={styles.icon} />;
     }
 
     if (isLockedState) {
@@ -69,6 +77,9 @@ function LevelNode({
   };
 
   const renderStars = () => {
+    // 沒有練習題的關卡不計星數
+    if (level.hasPractice === false) return null;
+
     let filledStars = 0;
     if (isCompleted) {
       filledStars = stars;
@@ -107,6 +118,7 @@ function LevelNode({
     styles[status],
     styles[position.alignment],
     !isDeveloped && styles.undeveloped,
+    hasNoPractice && styles.noPractice,
     isBossLevel && styles.boss,
     pathMetadata?.pathType && styles[pathMetadata.pathType],
   ]
@@ -156,7 +168,7 @@ function LevelNode({
     );
   }
 
-  if (isLockedState) {
+  if (showsPracticeLock) {
     return (
       <Tooltip content={practiceLockedMessage} placement="top">
         {nodeElement}

@@ -10,10 +10,11 @@ interface TutorialSectionProps {
   onStartTutorial: () => void;
   isCompleted: boolean;
   isLocked: boolean;
-  suggestedLevelNames?: string[];
+  suggestedLevels?: { id: string; name: string }[];
+  onSelectSuggested?: (levelId: string) => void;
 }
 
-function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, suggestedLevelNames }: TutorialSectionProps) {
+function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, suggestedLevels, onSelectSuggested }: TutorialSectionProps) {
   const { t } = useTranslation('dashboard');
   const levelKey = level.id.replace(/-/g, '_');
   const description = t(`levels.${levelKey}.description`);
@@ -45,14 +46,22 @@ function TutorialSection({ level, onStartTutorial, isCompleted, isLocked, sugges
         </div>
       )}
 
-      {suggestedLevelNames && suggestedLevelNames.length > 0 && (
+      {suggestedLevels && suggestedLevels.length > 0 && (
         <div className={styles.suggested}>
           <h4>{t("tutorialSection.suggestedTitle")}</h4>
           <div className={styles.suggestedBadges}>
-            {suggestedLevelNames.map((name, i) => (
-              <Badge key={i} variant="danger" size="sm" shape="pill">
-                {name}
-              </Badge>
+            {suggestedLevels.map(({ id, name }) => (
+              <button
+                key={id}
+                type="button"
+                className={styles.suggestedButton}
+                onClick={() => onSelectSuggested?.(id)}
+                disabled={!onSelectSuggested}
+              >
+                <Badge variant="danger" size="sm" shape="pill">
+                  {name}
+                </Badge>
+              </button>
             ))}
           </div>
         </div>

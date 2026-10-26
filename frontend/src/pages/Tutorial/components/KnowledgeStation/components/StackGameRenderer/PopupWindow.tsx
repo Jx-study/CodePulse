@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
-import Icon from '@/shared/components/Icon';
-import type { IconName } from '@/shared/lib/iconMap';
+import Icon from "@/shared/components/Icon";
+import type { IconName } from "@/shared/lib/iconMap";
 import type {
   PopupInstance,
   PopupTypeState,
@@ -32,32 +32,65 @@ interface PopupWindowProps {
   ns?: string;
 }
 
-function useBouncingH(
+const H_BOUNCE_SPEED = 1; // px per 60fps frame
+const TV_BOUNCE_SPEED = 1.2; // px per 60fps frame
+const REFERENCE_FRAME_MS = 1000 / 60;
+const noop = () => {};
+
+function useBounce(
   active: boolean,
   popup: PopupInstance,
   canvasSize: { w: number; h: number },
   onUpdatePosition: (id: string, pos: { x: number; y: number }) => void,
+  axis: "x" | "xy",
+  speed: number,
 ) {
-  const posRef = useRef({ x: popup.position.x, vx: 1 });
+  const posRef = useRef({
+    x: popup.position.x,
+    y: popup.position.y,
+    vx: speed,
+    vy: speed,
+  });
+  const fixedYRef = useRef(popup.position.y);
+  fixedYRef.current = popup.position.y;
+
+  const { w: popupW, h: popupH } = popup.size;
+  const { w: canvasW, h: canvasH } = canvasSize;
 
   useEffect(() => {
     if (!active) return;
-    let { x, vx } = posRef.current;
+    let { x, y, vx, vy } = posRef.current;
     let raf: number;
+    let lastTime: number | null = null;
 
-    const animate = () => {
-      const w = popup.size.w;
-      const cw = canvasSize.w;
-      x += vx;
+    const animate = (time: number) => {
+      const dt = lastTime === null ? 1 : (time - lastTime) / REFERENCE_FRAME_MS;
+      lastTime = time;
+
+      x += vx * dt;
       if (x <= 0) {
         x = 0;
-        vx = 1;
-      } else if (x >= cw - w) {
-        x = cw - w;
-        vx = -1;
+        vx = speed;
+      } else if (x >= canvasW - popupW) {
+        x = canvasW - popupW;
+        vx = -speed;
       }
-      posRef.current = { x, vx };
-      onUpdatePosition(popup.id, { x, y: popup.position.y });
+
+      if (axis === "xy") {
+        y += vy * dt;
+        if (y <= 0) {
+          y = 0;
+          vy = speed;
+        } else if (y >= canvasH - popupH) {
+          y = canvasH - popupH;
+          vy = -speed;
+        }
+      } else {
+        y = fixedYRef.current;
+      }
+
+      posRef.current = { x, y, vx, vy };
+      onUpdatePosition(popup.id, { x, y });
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
@@ -65,59 +98,14 @@ function useBouncingH(
   }, [
     active,
     popup.id,
-    popup.position.y,
-    popup.size.w,
-    canvasSize.w,
+    popupW,
+    popupH,
+    canvasW,
+    canvasH,
     onUpdatePosition,
+    axis,
+    speed,
   ]);
-}
-
-function useTVBouncing(
-  active: boolean,
-  popup: PopupInstance,
-  canvasSize: { w: number; h: number },
-  onUpdatePosition: (id: string, pos: { x: number; y: number }) => void,
-) {
-  const posRef = useRef({
-    x: popup.position.x,
-    y: popup.position.y,
-    vx: 1.2,
-    vy: 1.2,
-  });
-
-  useEffect(() => {
-    if (!active) return;
-    let { x, y, vx, vy } = posRef.current;
-    let raf: number;
-
-    const animate = () => {
-      const w = popup.size.w;
-      const h = popup.size.h;
-      const cw = canvasSize.w;
-      const ch = canvasSize.h;
-      x += vx;
-      y += vy;
-      if (x <= 0) {
-        x = 0;
-        vx = 1.2;
-      } else if (x >= cw - w) {
-        x = cw - w;
-        vx = -1.2;
-      }
-      if (y <= 0) {
-        y = 0;
-        vy = 1.2;
-      } else if (y >= ch - h) {
-        y = ch - h;
-        vy = -1.2;
-      }
-      posRef.current = { x, y, vx, vy };
-      onUpdatePosition(popup.id, { x, y });
-      raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
-  }, [active, popup.id, popup.size, canvasSize, onUpdatePosition]);
 }
 
 function useRandomWalk(
@@ -177,12 +165,19 @@ function useBossSpawn(
       minionsSpawned: true,
       minionsRemaining: 3,
     });
-    [1, 2, 3].map((n) => ({
-      def: { type: "minion" as const, title: tgRef.current('titles.minion', { n }), iconName: "screwdriver-wrench" as const, size: MINION_POPUP_SIZE },
-    })).forEach((item, i) => {
-      setTimeout(() => onSpawnChild(popup.id, [item]), i * 150);
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    [1, 2, 3]
+      .map((n) => ({
+        def: {
+          type: "minion" as const,
+          title: tgRef.current("titles.minion", { n }),
+          iconName: "screwdriver-wrench" as const,
+          size: MINION_POPUP_SIZE,
+        },
+      }))
+      .forEach((item, i) => {
+        setTimeout(() => onSpawnChild(popup.id, [item]), i * 150);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, popup.id, popup.typeState.kind, onSpawnChild, onUpdateTypeState]);
 }
 
@@ -214,7 +209,7 @@ function useSineWaveSpawn(
     Array.from({ length: 6 }, (_, i) => ({
       def: {
         type: "sine-child" as const,
-        title: tgRef.current('titles.sineChild', { n: i + 1 }),
+        title: tgRef.current("titles.sineChild", { n: i + 1 }),
         iconName: "wave-square" as const,
         size: SINE_CHILD_POPUP_SIZE,
       },
@@ -225,8 +220,15 @@ function useSineWaveSpawn(
     })).forEach((item, i) => {
       setTimeout(() => onSpawnChild(popup.id, [item]), i * 50);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, popup.id, popup.typeState.kind, canvasSize, onSpawnChild, onUpdateTypeState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    active,
+    popup.id,
+    popup.typeState.kind,
+    canvasSize,
+    onSpawnChild,
+    onUpdateTypeState,
+  ]);
 }
 
 function useSpeedTestWatch(
@@ -255,21 +257,24 @@ function useSpeedTestWatch(
         ? history.reduce((a, b) => a + b, 0) / history.length
         : 10;
 
-    const timer = setTimeout(() => {
-      timerSetRef.current = false;
-      Array.from({ length: 5 }, () => ({
-        def: {
-          type: "speed-test-child" as const,
-          title: tgRef.current('titles.extraPopup'),
-          iconName: "stopwatch" as const,
-          size: NORMAL_POPUP_SIZE,
-        },
-      })).forEach((item, i) => {
-        setTimeout(() => {
-          onSpawnChildRef.current(popupId, [item]);
-        }, i * 80);
-      });
-    }, Math.max(avg, 80));
+    const timer = setTimeout(
+      () => {
+        timerSetRef.current = false;
+        Array.from({ length: 5 }, () => ({
+          def: {
+            type: "speed-test-child" as const,
+            title: tgRef.current("titles.extraPopup"),
+            iconName: "stopwatch" as const,
+            size: NORMAL_POPUP_SIZE,
+          },
+        })).forEach((item, i) => {
+          setTimeout(() => {
+            onSpawnChildRef.current(popupId, [item]);
+          }, i * 80);
+        });
+      },
+      Math.max(avg, 80),
+    );
 
     return () => clearTimeout(timer);
   }, [active, isLocked, popupId]);
@@ -292,31 +297,31 @@ function PopupContent({
     case "rules":
       return (
         <div className={styles.contentRules}>
-          <p>{tg('popup.rules.desc1')}</p>
-          <p>{tg('popup.rules.desc2')}</p>
+          <p>{tg("popup.rules.desc1")}</p>
+          <p>{tg("popup.rules.desc2")}</p>
           <Button
             type="button"
             variant="primary"
             className={styles.primaryBtn}
             onClick={() => onClose(popup.id)}
           >
-            {tg('popup.rules.button')}
+            {tg("popup.rules.button")}
           </Button>
         </div>
       );
     case "hidden-close":
       return (
         <div className={styles.contentHidden}>
-          <p>{tg('popup.hiddenClose.desc1')}</p>
+          <p>{tg("popup.hiddenClose.desc1")}</p>
           <p>
-            {tg('popup.hiddenClose.desc2')}
+            {tg("popup.hiddenClose.desc2")}
             <Button
               type="button"
               variant="ghost"
               className={styles.inlineClose}
               onClick={() => onClose(popup.id)}
             >
-              {tg('popup.hiddenClose.link')}
+              {tg("popup.hiddenClose.link")}
             </Button>
           </p>
         </div>
@@ -325,10 +330,11 @@ function PopupContent({
       return (
         <div className={styles.contentCorner}>
           <p>
-            {tg('popup.cornerTeleport.clicks', {
-              n: popup.typeState.kind === "corner-teleport"
-                ? popup.typeState.clicksRemaining
-                : 4,
+            {tg("popup.cornerTeleport.clicks", {
+              n:
+                popup.typeState.kind === "corner-teleport"
+                  ? popup.typeState.clicksRemaining
+                  : 4,
             })}
           </p>
         </div>
@@ -336,12 +342,13 @@ function PopupContent({
     case "boss":
       return (
         <div className={styles.contentBoss}>
-          <p>{tg('popup.boss.desc')}</p>
+          <p>{tg("popup.boss.desc")}</p>
           <p>
-            {tg('popup.boss.remaining', {
-              n: popup.typeState.kind === "boss"
-                ? popup.typeState.minionsRemaining
-                : 3,
+            {tg("popup.boss.remaining", {
+              n:
+                popup.typeState.kind === "boss"
+                  ? popup.typeState.minionsRemaining
+                  : 3,
             })}
           </p>
         </div>
@@ -349,20 +356,20 @@ function PopupContent({
     case "sine-wave":
       return (
         <div className={styles.contentSine}>
-          <p>{tg('popup.sineWave.desc')}</p>
+          <p>{tg("popup.sineWave.desc")}</p>
         </div>
       );
     case "quiz": {
       const opts = [
-        { key: "A", label: tg('popup.quiz.optA') },
-        { key: "B", label: tg('popup.quiz.optB') },
-        { key: "C", label: tg('popup.quiz.optC') },
-        { key: "D", label: tg('popup.quiz.optD') },
+        { key: "A", label: tg("popup.quiz.optA") },
+        { key: "B", label: tg("popup.quiz.optB") },
+        { key: "C", label: tg("popup.quiz.optC") },
+        { key: "D", label: tg("popup.quiz.optD") },
       ];
       const correctKey = "B";
       return (
         <div className={styles.contentQuiz}>
-          <p>{tg('popup.quiz.question')}</p>
+          <p>{tg("popup.quiz.question")}</p>
           <div className={styles.radioGroup}>
             {opts.map(({ key, label }) => (
               <label key={key}>
@@ -393,7 +400,7 @@ function PopupContent({
               }
             }}
           >
-            {tg('popup.quiz.submit')}
+            {tg("popup.quiz.submit")}
           </Button>
         </div>
       );
@@ -407,7 +414,7 @@ function PopupContent({
             className={styles.speedBtn}
             onClick={() => onClose(popup.id)}
           >
-            {tg('popup.speedTest.button')}
+            {tg("popup.speedTest.button")}
           </Button>
         </div>
       );
@@ -420,14 +427,14 @@ function PopupContent({
     case "congrats":
       return (
         <div className={styles.contentCongrats}>
-          <p>{tg('popup.congrats.desc1')}</p>
-          <p>{tg('popup.congrats.desc2')}</p>
+          <p>{tg("popup.congrats.desc1")}</p>
+          <p>{tg("popup.congrats.desc2")}</p>
         </div>
       );
     default:
       return (
         <div className={styles.contentNormal}>
-          <p>{tg('popup.default.desc')}</p>
+          <p>{tg("popup.default.desc")}</p>
         </div>
       );
   }
@@ -448,23 +455,27 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
   isShaking,
   ns,
 }) => {
-  const { t } = useTranslation(ns || 'tutorial');
+  const { t } = useTranslation(ns || "tutorial");
   const tg = (key: string, opts?: Record<string, unknown>) =>
-    t(`game.stack.${key}`, { ns: ns || 'tutorial', ...opts });
+    t(`game.stack.${key}`, { ns: ns || "tutorial", ...opts });
 
   const active = isTop && gameStatus === "playing";
 
-  useBouncingH(
+  useBounce(
     active && popup.type === "bouncing-h",
     popup,
     canvasSize,
-    onUpdatePosition ?? (() => {}),
+    onUpdatePosition ?? noop,
+    "x",
+    H_BOUNCE_SPEED,
   );
-  useTVBouncing(
+  useBounce(
     active && popup.type === "tv-bouncing",
     popup,
     canvasSize,
-    onUpdatePosition ?? (() => {}),
+    onUpdatePosition ?? noop,
+    "xy",
+    TV_BOUNCE_SPEED,
   );
   useRandomWalk(
     active && popup.type === "random-walk",
@@ -557,7 +568,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
         left: position.x,
         top: position.y,
         width: popup.size.w,
-        height:  "auto",
+        height: "auto",
         zIndex,
         transition:
           popup.type === "random-walk"
@@ -581,7 +592,7 @@ const PopupWindow: React.FC<PopupWindowProps> = ({
             className={styles.closeBtn}
             onClick={handleCloseClick}
             disabled={!canClose}
-            aria-label={tg('popup.closeAria')}
+            aria-label={tg("popup.closeAria")}
           >
             <Icon name="times" />
           </Button>

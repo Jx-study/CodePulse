@@ -54,6 +54,11 @@
       "3": "Intermediate",
       "4": "Advanced",
       "5": "Expert"
+    },
+    "foundations": {
+      "title": "New here?",
+      "desc": "Start with Foundations: learn to read code and pseudocode, get to know complexity, then move on to the data structures.",
+      "cta": "Go to Foundations"
     }
   }
 }

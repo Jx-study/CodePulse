@@ -1,8 +1,177 @@
 {
   "levels": [
     {
+      "id": "what-is-dsa",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": true,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "NONE",
+        "levelIds": []
+      },
+      "graphPosition": {
+        "layer": 0,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "read-code",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["what-is-dsa"]
+      },
+      "graphPosition": {
+        "layer": 1,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "pseudocode",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["read-code"]
+      },
+      "graphPosition": {
+        "layer": 2,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "big-o-basics",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["pseudocode"]
+      },
+      "graphPosition": {
+        "layer": 3,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "growth-rates",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["big-o-basics"]
+      },
+      "graphPosition": {
+        "layer": 4,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "case-analysis",
+      "category": "foundations",
+      "difficulty": 2,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["growth-rates"]
+      },
+      "graphPosition": {
+        "layer": 5,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "space-complexity",
+      "category": "foundations",
+      "difficulty": 2,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["case-analysis"]
+      },
+      "graphPosition": {
+        "layer": 6,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "multi-variable-complexity",
+      "category": "foundations",
+      "difficulty": 2,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["space-complexity"]
+      },
+      "graphPosition": {
+        "layer": 7,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
       "id": "array",
       "category": "data-structures",
+      "structureType": "linear",
       "difficulty": 1,
       "isDeveloped": true,
       "isUnlocked": true,
@@ -17,6 +186,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["what-is-dsa", "read-code", "pseudocode", "big-o-basics", "growth-rates", "case-analysis"],
       "implementationKey": "array",
       "homePageMetadata": {
         "image": "array.png",
@@ -27,6 +197,7 @@
     {
       "id": "linked-list",
       "category": "data-structures",
+      "structureType": "linear",
       "difficulty": 1,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -41,6 +212,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["space-complexity"],
       "implementationKey": "linkedList",
       "homePageMetadata": {
         "image": "linked-list.png",
@@ -51,6 +223,7 @@
     {
       "id": "stack",
       "category": "data-structures",
+      "structureType": "linear",
       "difficulty": 2,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -66,6 +239,7 @@
         "pathType": "branch",
         "branchLabelKey": "lifo_structure"
       },
+      "suggestedPrerequisites": ["space-complexity"],
       "implementationKey": "stack",
       "homePageMetadata": {
         "image": "stack.png",
@@ -76,6 +250,7 @@
     {
       "id": "queue",
       "category": "data-structures",
+      "structureType": "linear",
       "difficulty": 2,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -91,6 +266,7 @@
         "pathType": "branch",
         "branchLabelKey": "fifo_structure"
       },
+      "suggestedPrerequisites": ["space-complexity"],
       "implementationKey": "queue",
       "homePageMetadata": {
         "image": "queue.png",
@@ -101,6 +277,7 @@
     {
       "id": "binarytree",
       "category": "data-structures",
+      "structureType": "non-linear",
       "difficulty": 2,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -115,11 +292,13 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["multi-variable-complexity", "space-complexity", "factorial"],
       "implementationKey": "binaryTree"
     },
     {
       "id": "bst",
       "category": "data-structures",
+      "structureType": "non-linear",
       "difficulty": 3,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -135,12 +314,13 @@
         "pathType": "branch",
         "branchLabelKey": "sorting_tree"
       },
-      "suggestedPrerequisites": ["binary-search"],
+      "suggestedPrerequisites": ["binary-search", "case-analysis"],
       "implementationKey": "bst"
     },
     {
       "id": "heap",
       "category": "data-structures",
+      "structureType": "non-linear",
       "difficulty": 3,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -162,6 +342,7 @@
     {
       "id": "graph",
       "category": "data-structures",
+      "structureType": "non-linear",
       "difficulty": 2,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -177,12 +358,13 @@
         "pathType": "branch",
         "branchLabelKey": "network_structure"
       },
-      "suggestedPrerequisites": ["array", "linked-list"],
+      "suggestedPrerequisites": ["array", "linked-list", "multi-variable-complexity"],
       "implementationKey": "graph"
     },
     {
       "id": "trie",
       "category": "data-structures",
+      "structureType": "non-linear",
       "difficulty": 3,
       "isDeveloped": true,
       "isUnlocked": false,
@@ -237,6 +419,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["case-analysis"],
       "implementationKey": "bubbleSort",
       "homePageMetadata": {
         "image": "bubble-sort.png",
@@ -301,6 +484,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["space-complexity", "factorial"],
       "implementationKey": "mergeSort"
     },
     {
@@ -320,6 +504,7 @@
       "pathMetadata": {
         "pathType": "boss"
       },
+      "suggestedPrerequisites": ["case-analysis", "factorial"],
       "implementationKey": "quickSort"
     },
     {
@@ -359,7 +544,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["bubble-sort"],
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "binarySearch"
     },
     {
@@ -399,6 +584,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["space-complexity"],
       "implementationKey": "factorial"
     },
     {
@@ -497,6 +683,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "prefixSum"
     },
     {
@@ -595,7 +782,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["queue"],
+      "suggestedPrerequisites": ["graph", "queue", "multi-variable-complexity"],
       "implementationKey": "bfs"
     },
     {
@@ -615,7 +802,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["stack"],
+      "suggestedPrerequisites": ["stack", "multi-variable-complexity"],
       "implementationKey": "dfs"
     },
     {
@@ -635,6 +822,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["graph", "queue"],
       "implementationKey": "topologicalSort"
     },
     {
@@ -654,7 +842,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["heap"],
+      "suggestedPrerequisites": ["heap", "multi-variable-complexity"],
       "implementationKey": "dijkstra"
     },
     {
@@ -760,6 +948,13 @@
     }
   ],
   "categories": {
+    "foundations": {
+      "id": "foundations",
+      "icon": "book-open",
+      "colorTheme": "#0EA5E9",
+      "isDeveloped": true,
+      "order": 0
+    },
     "data-structures": {
       "id": "data-structures",
       "icon": "sitemap",

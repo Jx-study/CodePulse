@@ -67,6 +67,7 @@
     "removeEdgeTooltip": "移除兩個節點之間的邊",
     "adjacent": "檢查",
     "checkAdjacentTooltip": "檢查兩個節點是否相鄰",
+    "analysis": "圖形分析",
     "isDirected": "有向",
     "connected": "連通性",
     "checkConnectedTooltip": "檢查圖是否連通",

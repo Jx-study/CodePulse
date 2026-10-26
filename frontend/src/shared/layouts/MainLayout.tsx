@@ -9,6 +9,7 @@ const NO_FOOTER_PATHS = [
   '/tutorial',
   '/practice',
   '/explorer',
+  '/lesson',
 ];
 
 function MainLayout() {

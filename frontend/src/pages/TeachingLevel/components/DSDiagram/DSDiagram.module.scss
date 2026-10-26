@@ -1,0 +1,65 @@
+@use "@/shared/styles/_variables.scss" as *;
+
+.wrapper {
+  width: 100%;
+}
+
+.root {
+  margin: 0 0 $spacing-md;
+  font-size: $font-base;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-lg;
+
+  @media (max-width: $mobile-max) {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+.group {
+  border-top: 3px solid var(--border);
+  padding-top: $spacing-md;
+}
+
+.groupTitle {
+  margin: 0 0 $spacing-sm;
+  font-size: $font-2xl;
+  font-weight: 700;
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: $spacing-sm 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  font-size: $font-lg;
+  line-height: 1.6;
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $primary-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+  }
+}

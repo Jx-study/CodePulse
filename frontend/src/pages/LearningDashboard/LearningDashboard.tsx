@@ -19,6 +19,7 @@ import { ZoomDisableProvider, useZoomDisable } from "./context/ZoomDisableContex
 import {
   getAllLevels,
   getEffectivePrerequisiteInfo,
+  getLevelById,
   getPortalTargetCategory,
   isLevelUnlocked,
   isPortalUnlocked,
@@ -30,6 +31,7 @@ import {
 import {
   INITIAL_USER_PROGRESS,
   fetchMyProgress,
+  getDefaultCategory,
   mergeApiProgress,
 } from "@/services/ProgressService";
 import {
@@ -84,6 +86,7 @@ function LearningDashboardInner() {
     fetchMyProgress()
       .then((apiProgress) => {
         setUserProgress((prev) => mergeApiProgress(prev, apiProgress));
+        setProgressLoaded(true);
       })
       .catch(() => {
         toast.error(tRef.current('errors.progressLoadFailed', '進度載入失敗，請重新整理頁面'));
@@ -92,13 +95,29 @@ function LearningDashboardInner() {
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
-    (searchParams.get("category") as CategoryType) || "data-structures",
+    (searchParams.get("category") as CategoryType) || "foundations",
   );
+  // 網址或使用者已經指定分類後，就不再依進度自動挑選
+  const categoryLockedRef = useRef(
+    Boolean(searchParams.get("category") || searchParams.get("levelId")),
+  );
+  const chooseCategory = (category: CategoryType) => {
+    categoryLockedRef.current = true;
+    setActiveCategory(category);
+  };
+  const [progressLoaded, setProgressLoaded] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // 從統一配置獲取所有關卡
   const allLevels = getAllLevels();
+
+  // 進度載入後，沒有指定分類的話，依進度挑選要打開的分類
+  useEffect(() => {
+    if (!progressLoaded || categoryLockedRef.current) return;
+    categoryLockedRef.current = true;
+    setActiveCategory(getDefaultCategory(allLevels, userProgress));
+  }, [progressLoaded, allLevels, userProgress]);
 
   const graphValidation = useGraphValidation(allLevels);
   useEffect(() => {
@@ -213,7 +232,7 @@ function LearningDashboardInner() {
 
     // 1. 切換到目標分類（如果提供）
     if (targetCategory) {
-      setActiveCategory(targetCategory);
+      chooseCategory(targetCategory);
     }
 
     // 2. 延遲滾動並打開 dialog
@@ -262,7 +281,11 @@ function LearningDashboardInner() {
   // 跳轉到 Tutorial Page
   const handleStartTutorial = () => {
     if (selectedLevel) {
-      navigate(`/tutorial/${selectedLevel.category}/${selectedLevel.id}`);
+      navigate(
+        selectedLevel.isLesson
+          ? `/lesson/${selectedLevel.id}`
+          : `/tutorial/${selectedLevel.category}/${selectedLevel.id}`,
+      );
     }
   };
 
@@ -309,7 +332,7 @@ function LearningDashboardInner() {
             if (portalUnlocked) {
               const targetCategory = getPortalTargetCategory(level.id);
               if (targetCategory) {
-                setActiveCategory(targetCategory);
+                chooseCategory(targetCategory);
               }
             }
           };
@@ -428,7 +451,7 @@ function LearningDashboardInner() {
           activeCategory={activeCategory}
           levelCounts={levelCounts}
           onCategoryChange={(category) => {
-            setActiveCategory(category);
+            chooseCategory(category);
             setIsSidebarOpen(false);
           }}
         />
@@ -458,6 +481,10 @@ function LearningDashboardInner() {
           tutorialLocked={false}
           practiceLocked={isSelectedLevelPracticeLocked}
           prerequisiteInfo={selectedLevelPrerequisiteInfo}
+          onSelectLevel={(levelId) => {
+            const target = getLevelById(levelId);
+            if (target) navigateToLevel(levelId, target.category);
+          }}
         />
       )}
 

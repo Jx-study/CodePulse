@@ -58,12 +58,17 @@ export interface PrerequisiteConfig {
   levelIds: string[]; // 前置關卡 ID 列表
 }
 
+export type StructureType = 'linear' | 'non-linear';
+
 export interface Level {
   id: string;
   category: CategoryType;
   difficulty: DifficultyLevel;
   isDeveloped: boolean;
   isUnlocked: boolean;
+  isLesson?: boolean; // 內容是投影片課程（/lesson），不是動畫教學頁
+  hasPractice?: boolean; // 預設 true；false 代表本關不提供練習題，看完教學即視為完成
+  structureType?: StructureType; // 資料結構關卡的分類（入門課程的結構圖用）
 
   prerequisites?: PrerequisiteConfig;
   graphPosition?: GraphPosition;
@@ -116,6 +121,7 @@ export interface LevelDialogProps extends Pick<
   tutorialLocked: boolean; // Tutorial 永遠為 false
   practiceLocked: boolean; // Practice 依賴前置關卡
   prerequisiteInfo?: PrerequisiteConfig; // 前置關卡配置
+  onSelectLevel?: (levelId: string) => void; // 點擊「建議先學」標籤時切換到該關卡
 }
 
 // ==================== Level Node Component ====================

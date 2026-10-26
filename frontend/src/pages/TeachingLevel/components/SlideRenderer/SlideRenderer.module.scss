@@ -1,0 +1,480 @@
+@use '@/shared/styles/_variables.scss' as *;
+
+// ===== Shared =====
+.slide {
+  height: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+
+  // avoid a single character or word alone on the last line, and break Chinese at phrase boundaries
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+
+@media (max-width: $mobile-max) {
+  // the slide area already pads the sides, so the slide itself adds none
+  .slide > div {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.slideTitle {
+  text-wrap: balance;
+  font-size: $font-3xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 $spacing-lg;
+  line-height: 1.3;
+
+  @media (max-width: $mobile-max) {
+    font-size: $font-2xl;
+  }
+}
+
+// ===== Cover =====
+.cover {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: $spacing-sm;
+  height: 100%;
+  max-width: 720px;
+  padding: $spacing-xl $spacing-lg;
+}
+
+.coverKicker {
+  font-size: $font-sm;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--lesson-color);
+}
+
+.coverTitle {
+  text-wrap: balance;
+  font-size: $font-4xl;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin: 0;
+
+  @media (max-width: $mobile-max) {
+    font-size: $font-3xl;
+  }
+}
+
+.coverSubtitle {
+  font-size: $font-lg;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.coverMeta {
+  margin: $spacing-sm 0 0;
+  padding-top: $spacing-sm;
+  border-top: 1px solid var(--border);
+  align-self: stretch;
+  color: var(--text-tertiary);
+  font-size: $font-sm;
+}
+
+// ===== Concept =====
+.concept {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.conceptBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: $spacing-md;
+  padding-bottom: $spacing-lg;
+
+  p {
+    font-size: $font-xl;
+    color: var(--text-secondary);
+    line-height: 1.85;
+    margin: 0;
+  }
+}
+
+.bulletList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  li {
+    position: relative;
+    padding-left: 1.5em;
+    font-size: $font-xl;
+    line-height: 1.8;
+    color: var(--text-primary);
+
+    &::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--lesson-color);
+      font-weight: 700;
+    }
+  }
+}
+
+// ===== List =====
+.list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.listIntro {
+  white-space: pre-line;
+  margin: 0 0 $spacing-sm;
+  font-size: $font-xl;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.orderedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  // number | term | description: every row shares the columns, so the terms line up
+  grid-template-columns: auto fit-content(17em) minmax(0, 1fr);
+  column-gap: $spacing-md;
+  align-content: start;
+  flex: 1;
+
+  @media (max-width: $mobile-max) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+}
+
+.listItem {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: baseline;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid var(--border);
+  font-size: $font-lg;
+  line-height: 1.7;
+}
+
+.listHead {
+  color: var(--text-primary);
+}
+
+.listDesc {
+  white-space: pre-line;
+  color: var(--text-secondary);
+
+  @media (max-width: $mobile-max) {
+    grid-column: 2;
+  }
+}
+
+.listWhole {
+  grid-column: 2 / -1;
+  color: var(--text-primary);
+}
+
+.listNum {
+  flex-shrink: 0;
+  font-family: $font-family-code;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: var(--lesson-color);
+}
+
+// ===== Comparison =====
+.comparison {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+}
+
+.comparisonGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+.comparisonCard {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) 1fr;
+  gap: $spacing-md;
+  align-items: baseline;
+  border-top: 3px solid var(--border);
+  padding: $spacing-sm 0 $spacing-md;
+
+  @media (max-width: $mobile-max) {
+    grid-template-columns: 1fr;
+    gap: $spacing-xs;
+  }
+}
+
+.comparisonLabel {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.comparisonDesc {
+  white-space: pre-line;
+  font-size: $font-lg;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.75;
+}
+
+// ===== Visual =====
+.visual {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: $spacing-lg;
+}
+
+.visualContent {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+// ===== Code =====
+.codeSlide {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: $spacing-lg;
+}
+
+.codeBlock {
+  flex: 0 0 auto;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.codeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px $spacing-md;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.codeLang {
+  font-size: $font-xs;
+  font-family: $font-family-code;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codePre {
+  flex: 1;
+  margin: 0;
+  padding: $spacing-md;
+  background: #1a1625;
+  overflow: auto;
+  font-family: $font-family-code;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #e2e8f0;
+
+  code {
+    font-family: inherit;
+  }
+}
+
+// ===== Summary =====
+.summary {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: $spacing-lg;
+  gap: $spacing-md;
+}
+
+.summaryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryItem {
+  white-space: pre-line;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid var(--border);
+  font-size: $font-lg;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+// ===== Code caption =====
+.codeCaption {
+  margin-top: $spacing-md;
+  padding-left: $spacing-md;
+  border-left: 3px solid var(--lesson-color);
+  font-size: $font-lg;
+  line-height: 1.8;
+  color: var(--text-secondary);
+
+  p {
+    margin: 0;
+  }
+}
+
+// ===== Table =====
+.tableSlide {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: $spacing-lg;
+}
+
+.tableWrap {
+  overflow: auto;
+  border-top: 2px solid var(--text-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: $font-lg;
+  color: var(--text-secondary);
+
+  th,
+  td {
+    padding: 0.75rem $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody th {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-family: $font-family-code;
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+
+  // on a phone the columns share the screen and their text wraps, instead of scrolling sideways
+  @media (max-width: $mobile-max) {
+    min-width: 0;
+    font-size: $font-base;
+
+    th,
+    td {
+      padding: 0.5rem 0.5rem;
+    }
+
+    // only the header text may wrap; the complexity labels in the first column stay on one line
+    thead th {
+      white-space: normal;
+    }
+
+    // four or more columns do not fit a phone: keep them readable and scroll sideways
+    &.tableWide {
+      min-width: 560px;
+      font-size: $font-lg;
+
+      th,
+      td {
+        padding: 0.75rem $spacing-md;
+      }
+
+      thead th,
+      tbody th {
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+.tableNote {
+  white-space: pre-line;
+  margin: $spacing-sm 0 0;
+  font-size: $font-xs;
+  color: var(--text-tertiary);
+}
+
+// ===== Next steps (summary) =====
+.nextSteps {
+  margin-top: $spacing-md;
+}
+
+.nextTitle {
+  margin: 0 0 $spacing-xs;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.nextList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs $spacing-md;
+}
+
+.nextLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: $font-base;
+  font-weight: 600;
+  color: var(--lesson-color);
+  cursor: pointer;
+
+  &:hover span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--lesson-color);
+    outline-offset: 3px;
+    border-radius: $radius-sm;
+  }
+}

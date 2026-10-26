@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { MotionConfig } from 'motion/react'
 import App from './App.tsx'
 import { ThemeProvider } from '@/shared/contexts/ThemeContext'
 import './shared/styles/main.scss';
@@ -9,7 +10,10 @@ import './i18n';
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <ThemeProvider>
-      <App />
+      {/* reducedMotion="user"：讓所有 motion/react 動畫全域尊重 OS 的 prefers-reduced-motion 設定 */}
+      <MotionConfig reducedMotion="user">
+        <App />
+      </MotionConfig>
     </ThemeProvider>
   </BrowserRouter>
 )

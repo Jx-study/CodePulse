@@ -14,6 +14,7 @@ import type {
   GraphPosition,
   PathMetadata,
   DifficultyLevel,
+  StructureType,
 } from "@/types";
 import levelsData from "@/data/levels/levels.json";
 
@@ -34,6 +35,9 @@ interface RawLevelData {
   difficulty: DifficultyLevel;
   isDeveloped: boolean;
   isUnlocked: boolean;
+  hasPractice?: boolean;
+  isLesson?: boolean;
+  structureType?: StructureType;
   prerequisites: PrerequisiteConfig;
   graphPosition: GraphPosition;
   pathMetadata: PathMetadata;
@@ -62,6 +66,9 @@ export function rawToLevelConfig(raw: RawLevelData): LevelConfig {
     difficulty: raw.difficulty,
     isDeveloped: raw.isDeveloped,
     isUnlocked: raw.isUnlocked,
+    ...(raw.hasPractice === undefined ? {} : { hasPractice: raw.hasPractice }),
+    ...(raw.isLesson === undefined ? {} : { isLesson: raw.isLesson }),
+    ...(raw.structureType === undefined ? {} : { structureType: raw.structureType }),
     prerequisites: raw.prerequisites,
     graphPosition: raw.graphPosition,
     pathMetadata: raw.pathMetadata,

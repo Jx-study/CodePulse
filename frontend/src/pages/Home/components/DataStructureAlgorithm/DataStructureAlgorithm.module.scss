@@ -6,6 +6,32 @@
     padding: $spacing-xl 0;
   }
 
+  .foundationsBanner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm $spacing-md;
+    margin: 0 auto $spacing-lg;
+    padding: $spacing-sm $spacing-md;
+    max-width: 960px;
+    border: 1px solid var(--border);
+    border-left: 3px solid $primary-color;
+    border-radius: $radius-lg;
+    background: var(--bg-secondary);
+  }
+
+  .foundationsText {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    text-wrap: pretty;
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
   .sliderContainer {
     position: relative;
     width: 100%;

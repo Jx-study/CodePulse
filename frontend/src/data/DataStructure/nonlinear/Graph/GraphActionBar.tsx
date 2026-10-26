@@ -255,6 +255,11 @@ export const GraphActionBar: React.FC<DSActionBarProps> = ({
           disabled={disabled}
           className={styles.directedCheckbox}
         />
+      </ActionBarGroup>
+
+      {/* 第三行：圖形分析 */}
+      <ActionBarGroup>
+        <StaticLabel>{t("ui.analysis")}</StaticLabel>
         <Tooltip content={t("ui.checkConnectedTooltip")}>
           <Button
             size="sm"

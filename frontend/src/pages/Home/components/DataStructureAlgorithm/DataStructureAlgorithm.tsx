@@ -83,6 +83,20 @@ function DataStructureAlgorithm() {
       <div className="container">
         <h2 className="section-title">{t("algorithms_section.title")}</h2>
 
+        <div className={styles.foundationsBanner}>
+          <p className={styles.foundationsText}>
+            <strong>{t("algorithms_section.foundations.title")}</strong>{" "}
+            {t("algorithms_section.foundations.desc")}
+          </p>
+          <Button
+            variant="primaryOutline"
+            size="sm"
+            onClick={() => navigate("/dashboard?category=foundations")}
+          >
+            {t("algorithms_section.foundations.cta")}
+          </Button>
+        </div>
+
         <div className={styles.sliderContainer}>
           <div className={`${styles.algorithmGrid} common-grid`}>
             {getCurrentSlideAlgorithms().map((algorithm) => (

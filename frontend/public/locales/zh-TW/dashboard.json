@@ -68,7 +68,8 @@
     "lockedOrHint": "完成以下任一關卡即可解鎖：{{levels}}",
     "lockedFallbackHint": "完成前置關卡以解鎖練習模式",
     "listSeparator": "、",
-    "completedBadge": "已完成練習"
+    "completedBadge": "已完成練習",
+    "noPracticeHint": "本關不提供練習題，完成教學即視為通關。"
   },
   "portal": {
     "ariaLabel": "傳送門：前往 {{targetCategoryName}}",
@@ -79,6 +80,87 @@
     "ariaLabel": "關卡：{{levelName}}"
   },
   "levels": {
+    "what_is_dsa": {
+      "name": "什麼是演算法與資料結構",
+      "description": "先弄懂這個平台在教什麼，以及為什麼值得學",
+      "objectives": [
+        "說明演算法與資料結構各是什麼",
+        "玩猜數字，感受「每次排除一半」比一個個猜快很多",
+        "理解兩者如何一起解決問題",
+        "知道動畫、教學與練習怎麼搭配使用"
+      ]
+    },
+    "read_code": {
+      "name": "讀懂範例程式碼",
+      "description": "認識變數、清單、迴圈、判斷與函式，看懂平台上的 Python",
+      "objectives": [
+        "看懂變數與「=」的意思",
+        "用索引取出清單裡的資料",
+        "讀懂 for、while、if 與函式",
+        "一行一行追蹤變數怎麼變"
+      ]
+    },
+    "pseudocode": {
+      "name": "虛擬碼",
+      "description": "用接近日常語言寫下演算法，並對照 Python",
+      "objectives": [
+        "說明虛擬碼是什麼、為什麼要用",
+        "讀懂平台使用的虛擬碼寫法",
+        "知道虛擬碼可以用自己的方式寫",
+        "把虛擬碼改寫成 Python",
+        "練習自己寫出虛擬碼"
+      ]
+    },
+    "big_o_basics": {
+      "name": "Big-O 是什麼",
+      "description": "學會用 O() 描述程式的執行成本",
+      "objectives": [
+        "理解為什麼用操作次數而不是秒數衡量",
+        "親手數出一段程式的步驟數",
+        "知道只看最高次方，係數與低次項都不算",
+        "能讀懂 O(1)、O(n)、O(n²) 這類符號"
+      ]
+    },
+    "growth_rates": {
+      "name": "常見成長類別",
+      "description": "比較 O(1) 到 O(2ⁿ) 的差距有多大",
+      "objectives": [
+        "認得六種常見的成長類別",
+        "拖動 n，用實際數字感受它們的差距",
+        "把成長類別對應到常見的程式寫法",
+        "做小測驗，練習判斷一段程式的複雜度"
+      ]
+    },
+    "case_analysis": {
+      "name": "最佳、最壞、平均情況",
+      "description": "同一個演算法，為什麼會有不同的答案",
+      "objectives": [
+        "分辨最佳、最壞與平均情況",
+        "說明為什麼題目通常問最壞情況",
+        "看懂 BST 退化與提前終止如何改變複雜度",
+        "親手插入資料，看 BST 如何變成一條線"
+      ]
+    },
+    "space_complexity": {
+      "name": "空間複雜度與遞迴堆疊",
+      "description": "計算額外使用的記憶體，包含遞迴的呼叫堆疊",
+      "objectives": [
+        "分辨輸入本身與額外空間",
+        "理解遞迴的呼叫堆疊深度",
+        "一步一步看呼叫堆疊長高再退掉",
+        "比較迭代與遞迴的空間差異"
+      ]
+    },
+    "multi_variable_complexity": {
+      "name": "用多個變數描述複雜度",
+      "description": "圖的 V、E 與樹高 h，以及各結構的速查表",
+      "objectives": [
+        "知道什麼時候 n 不夠用",
+        "讀懂 O(V + E)、O(h) 這類表示",
+        "比較鄰接矩陣與鄰接串列需要的空間",
+        "用速查表快速對照各結構與演算法"
+      ]
+    },
     "array": {
       "name": "陣列",
       "description": "最基礎的線性資料結構",
@@ -423,6 +505,10 @@
     }
   },
   "categories": {
+    "foundations": {
+      "name": "入門",
+      "description": "從零開始：讀懂程式碼與虛擬碼、演算法、資料結構與複雜度"
+    },
     "data_structures": {
       "name": "資料結構",
       "description": "學習各種資料結構的運作原理與應用"

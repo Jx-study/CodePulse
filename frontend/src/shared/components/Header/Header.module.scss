@@ -8,7 +8,8 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    // 高於 Sidebar（1001/1002）與 Dialog（999）的遮罩，header 裡的選單才不會被蓋住；低於 MobileMenu（1100）
+    z-index: 1050;
 }
 
 .navContainer {

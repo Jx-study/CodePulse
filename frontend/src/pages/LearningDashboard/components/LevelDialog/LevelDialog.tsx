@@ -25,14 +25,15 @@ function LevelDialog({
   userProgress,
   tutorialLocked,
   practiceLocked,
-  prerequisiteInfo
+  prerequisiteInfo,
+  onSelectLevel
 }: LevelDialogProps) {
   const { t } = useTranslation('dashboard');
 
-  const suggestedLevelNames = level.suggestedPrerequisites
+  const suggestedLevels = level.suggestedPrerequisites
     ?.map(id => {
       const l = getLevelById(id);
-      return l ? t(`levels.${l.id.replace(/-/g, '_')}.name`) : id;
+      return { id, name: l ? t(`levels.${l.id.replace(/-/g, '_')}.name`) : id };
     })
     ?? [];
 
@@ -64,7 +65,8 @@ function LevelDialog({
         onStartTutorial={onStartTutorial}
         isCompleted={userProgress.teachingCompleted === true}
         isLocked={tutorialLocked}
-        suggestedLevelNames={suggestedLevelNames}
+        suggestedLevels={suggestedLevels}
+        onSelectSuggested={onSelectLevel}
       />
       <PracticeSection
         level={level}

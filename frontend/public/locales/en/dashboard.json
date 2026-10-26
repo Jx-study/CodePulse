@@ -68,7 +68,8 @@
     "lockedOrHint": "Complete any of these levels to unlock: {{levels}}",
     "lockedFallbackHint": "Complete prerequisite levels to unlock practice mode",
     "listSeparator": ", ",
-    "completedBadge": "Practice Completed"
+    "completedBadge": "Practice Completed",
+    "noPracticeHint": "This level has no practice questions. Finish the tutorial to complete the level."
   },
   "portal": {
     "ariaLabel": "Portal: go to {{targetCategoryName}}",
@@ -79,6 +80,87 @@
     "ariaLabel": "Level: {{levelName}}"
   },
   "levels": {
+    "what_is_dsa": {
+      "name": "What Are Algorithms and Data Structures",
+      "description": "Understand what this platform teaches and why it matters",
+      "objectives": [
+        "Explain what an algorithm and a data structure are",
+        "Play a guessing game and feel how discarding half each time beats guessing one by one",
+        "See how the two work together to solve problems",
+        "Know how animations, tutorials and practice fit together"
+      ]
+    },
+    "read_code": {
+      "name": "Reading Example Code",
+      "description": "Meet variables, lists, loops, conditions and functions so you can read the Python on the platform",
+      "objectives": [
+        "Understand variables and what \"=\" means",
+        "Pick items out of a list by index",
+        "Read for, while, if and functions",
+        "Track how variables change one line at a time"
+      ]
+    },
+    "pseudocode": {
+      "name": "Pseudocode",
+      "description": "Write down an algorithm in near-everyday language and match it to Python",
+      "objectives": [
+        "Explain what pseudocode is and why it is used",
+        "Read the pseudocode style the platform uses",
+        "Know that pseudocode can be written in your own way",
+        "Turn pseudocode into Python",
+        "Practice writing pseudocode yourself"
+      ]
+    },
+    "big_o_basics": {
+      "name": "What Is Big-O",
+      "description": "Learn to describe the cost of a program with O()",
+      "objectives": [
+        "See why we count operations instead of seconds",
+        "Count the steps of a program yourself",
+        "Know that only the highest power counts, not coefficients or lower terms",
+        "Read notations such as O(1), O(n) and O(n²)"
+      ]
+    },
+    "growth_rates": {
+      "name": "Common Growth Rates",
+      "description": "See how far apart O(1) and O(2ⁿ) really are",
+      "objectives": [
+        "Recognize the six common growth rates",
+        "Drag n and feel the gap with real numbers",
+        "Match each growth rate to a familiar code pattern",
+        "Take a quiz on judging the complexity of code"
+      ]
+    },
+    "case_analysis": {
+      "name": "Best, Worst and Average Case",
+      "description": "Why one algorithm can have different answers",
+      "objectives": [
+        "Tell best, worst and average case apart",
+        "Explain why questions usually ask about the worst case",
+        "See how a degenerate BST or early exit changes complexity",
+        "Insert keys yourself and watch a BST turn into a line"
+      ]
+    },
+    "space_complexity": {
+      "name": "Space Complexity and the Call Stack",
+      "description": "Count the extra memory, including the recursion call stack",
+      "objectives": [
+        "Separate the input itself from extra space",
+        "Understand recursion depth on the call stack",
+        "Watch the call stack grow and shrink step by step",
+        "Compare iterative and recursive space"
+      ]
+    },
+    "multi_variable_complexity": {
+      "name": "Describing Complexity with Several Variables",
+      "description": "V and E for graphs, height h for trees, and a cheat sheet",
+      "objectives": [
+        "Know when n is not enough",
+        "Read O(V + E) and O(h)",
+        "Compare the space of an adjacency matrix and an adjacency list",
+        "Use the cheat sheet to compare structures and algorithms"
+      ]
+    },
     "array": {
       "name": "Array",
       "description": "The most fundamental linear data structure",
@@ -423,6 +505,10 @@
     }
   },
   "categories": {
+    "foundations": {
+      "name": "Foundations",
+      "description": "Start here: reading code and pseudocode, algorithms, data structures and complexity"
+    },
     "data_structures": {
       "name": "Data Structures",
       "description": "Learn the working principles and applications of various data structures"

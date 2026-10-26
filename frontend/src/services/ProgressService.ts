@@ -18,7 +18,7 @@ import type {
   ScoreLevel,
 } from "@/types";
 import { getCategoryById } from "./CategoryService";
-import { getAllLevels } from "./LevelService";
+import { getAllLevels, getLevelById } from "./LevelService";
 import apiService from "@/api/api";
 
 // ==================== 後端 API 型別 ====================
@@ -62,6 +62,7 @@ export const INITIAL_USER_PROGRESS: UserProgress = {
   totalLevelsCompleted: 0,
   lastAccessedDate: new Date().toISOString(),
   categoryUnlocks: {
+    foundations: true,
     "data-structures": true,
     sorting: false,
     searching: false,
@@ -91,6 +92,18 @@ export function mergeApiProgress(
   apiProgress.forEach((p) => {
     const slug = p.tutorial_slug;
     if (!(slug in updated.levels)) return;
+
+    const slugLevel = getLevelById(slug);
+    if (slugLevel && !levelHasPractice(slugLevel)) {
+      // 沒有練習題的關卡：看完教學即完成，不計星數
+      updated.levels[slug] = {
+        ...updated.levels[slug],
+        status: p.teaching_completed ? "completed" : updated.levels[slug].status,
+        stars: 0,
+        teachingCompleted: p.teaching_completed,
+      };
+      return;
+    }
 
     let stars: ScoreLevel = 0;
     if (p.best_score !== null) {
@@ -229,8 +242,29 @@ export function calculateDisplayStatus(
 
 // ==================== 進度統計 ====================
 
+/** 關卡是否提供練習題（未標記時預設有） */
+export function levelHasPractice(level: Level): boolean {
+  return level.hasPractice !== false;
+}
+
 export function isProgressTrackableLevel(level: Level): boolean {
   return level.pathMetadata?.pathType !== "portal";
+}
+
+/**
+ * 沒有指定分類時，學習地圖要先打開哪一個分類：
+ * 還沒開始過入門以外的任何關卡就從入門開始，否則維持資料結構
+ */
+export function getDefaultCategory(
+  allLevels: Level[],
+  userProgress: UserProgress,
+): CategoryType {
+  const startedElsewhere = allLevels.some((level) => {
+    if (level.category === "foundations") return false;
+    const status = userProgress.levels[level.id]?.status;
+    return status === "completed" || status === "in-progress";
+  });
+  return startedElsewhere ? "data-structures" : "foundations";
 }
 
 /**
@@ -255,7 +289,8 @@ export function calculateOverallProgress(
   const completedLevels = progressTrackableLevels.filter(
     (level) => userProgress.levels[level.id]?.status === "completed",
   ).length;
-  const totalStars = totalLevels * 3;
+  const totalStars =
+    progressTrackableLevels.filter(levelHasPractice).length * 3;
   const earnedStars = Object.values(userProgress.levels).reduce(
     (sum, progress) =>
       progressTrackableLevelIds.has(progress.levelId)

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type {
   PracticeResult,
@@ -7,6 +7,8 @@ import type {
   AnswerResult,
 } from "@/types/practice";
 import { PracticeService } from "@/services/PracticeService";
+import { getLevelById } from "@/services/LevelService";
+import { levelHasPractice } from "@/services/ProgressService";
 import { tutorialService } from "@/services/tutorialService";
 import type { ApiQuestion, SubmitResult } from "@/services/tutorialService";
 import Breadcrumb from "@/shared/components/Breadcrumb";
@@ -46,7 +48,7 @@ function mapApiQuestionsToLocal(apiQuestions: ApiQuestion[]): Question[] {
   }));
 }
 
-function Practice() {
+function PracticeSession() {
   const { category, levelId } = useParams<{
     category: string;
     levelId: string;
@@ -734,6 +736,17 @@ function Practice() {
       )}
     </div>
   );
+}
+
+function Practice() {
+  const { levelId } = useParams<{ levelId: string }>();
+  const level = levelId ? getLevelById(levelId) : null;
+
+  // 沒有練習題的關卡：直接輸入網址也導回儀表板
+  if (level && !levelHasPractice(level)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <PracticeSession />;
 }
 
 export default Practice;

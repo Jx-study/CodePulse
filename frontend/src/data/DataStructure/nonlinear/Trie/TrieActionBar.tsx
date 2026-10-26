@@ -161,7 +161,7 @@ export const TrieActionBar: React.FC<DSActionBarProps> = ({
       </ActionBarGroup>
 
       <ActionBarGroup>
-        <StaticLabel>Trie Operation</StaticLabel>
+        <StaticLabel>{t("ui.operations")}</StaticLabel>
 
         <Input
           type="text"

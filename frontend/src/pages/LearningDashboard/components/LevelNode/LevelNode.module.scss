@@ -64,6 +64,15 @@
     }
   }
 
+  // 沒有測驗的關卡：未完成時整顆圓都是教學色，不分左右半邊
+  &.locked.noPractice:not(.boss) {
+    background: #57e9f2;
+
+    &::after {
+      display: none;
+    }
+  }
+
   // 已解鎖 - 藍發光效果
   &.unlocked {
     background: $gradient-unlocked;
