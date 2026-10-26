@@ -186,7 +186,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["what-is-dsa", "big-o-basics", "growth-rates", "case-analysis"],
+      "suggestedPrerequisites": ["what-is-dsa", "read-code", "pseudocode", "big-o-basics", "growth-rates", "case-analysis"],
       "implementationKey": "array",
       "homePageMetadata": {
         "image": "array.png",
@@ -292,7 +292,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["multi-variable-complexity", "space-complexity"],
+      "suggestedPrerequisites": ["multi-variable-complexity", "space-complexity", "factorial"],
       "implementationKey": "binaryTree"
     },
     {
@@ -484,6 +484,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["space-complexity", "factorial"],
       "implementationKey": "mergeSort"
     },
     {
@@ -503,6 +504,7 @@
       "pathMetadata": {
         "pathType": "boss"
       },
+      "suggestedPrerequisites": ["case-analysis", "factorial"],
       "implementationKey": "quickSort"
     },
     {
@@ -542,7 +544,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["bubble-sort"],
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "binarySearch"
     },
     {
@@ -681,6 +683,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["array"],
       "implementationKey": "prefixSum"
     },
     {
@@ -779,7 +782,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
-      "suggestedPrerequisites": ["queue", "multi-variable-complexity"],
+      "suggestedPrerequisites": ["graph", "queue", "multi-variable-complexity"],
       "implementationKey": "bfs"
     },
     {
@@ -819,6 +822,7 @@
       "pathMetadata": {
         "pathType": "main"
       },
+      "suggestedPrerequisites": ["graph", "queue"],
       "implementationKey": "topologicalSort"
     },
     {
