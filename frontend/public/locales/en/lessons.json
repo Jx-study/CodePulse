@@ -182,6 +182,194 @@
       "remaining": "Still possible",
       "middle": "Guess the middle for me",
       "again": "New number"
+    },
+    "codeStepper": {
+      "ariaLabel": "Run a program one line at a time",
+      "programs": {
+        "sum": "Add up",
+        "max": "Find the maximum",
+        "halve": "Keep halving"
+      },
+      "variables": "Variables",
+      "output": "Output",
+      "next": "Run this line",
+      "reset": "Reset",
+      "hint": "The highlighted line is the one that runs next. Press \"Run this line\" and watch how the variables change.",
+      "finished": "Done after running {{count}} lines. Compare the final variables and the output with what you expected."
+    },
+    "codeQuiz": {
+      "ariaLabel": "Predict the output",
+      "progress": "Question {{n}} of {{total}}",
+      "prompt": "What does this code print?",
+      "correct": "Correct!",
+      "wrong": "The answer is {{answer}}.",
+      "next": "Next question",
+      "seeResult": "See result",
+      "score": "{{score}} / {{total}} correct",
+      "perfect": "All correct! Tracking the variables line by line gets you the answer.",
+      "review": "Go back to the earlier slides, or track it again with \"Run it one line at a time\".",
+      "retry": "Try again",
+      "questions": [
+        {
+          "code": "nums = [4, 8, 15]\nprint(nums[1])",
+          "options": [
+            "4",
+            "8",
+            "15",
+            "1"
+          ],
+          "answer": "8",
+          "explanation": "The index starts at 0, so nums[1] is the second item, which is 8."
+        },
+        {
+          "code": "x = 5\nx = x + 2\nprint(x)",
+          "options": [
+            "5",
+            "7",
+            "2",
+            "x + 2"
+          ],
+          "answer": "7",
+          "explanation": "The right side, 5 + 2, is worked out first and then put back into x."
+        },
+        {
+          "code": "total = 0\nfor i in range(3):\n    total += i\nprint(total)",
+          "options": [
+            "3",
+            "6",
+            "0",
+            "2"
+          ],
+          "answer": "3",
+          "explanation": "i is 0, 1, 2 in turn, and they add up to 3."
+        },
+        {
+          "code": "x = 10\nif x > 10:\n    print(\"A\")\nelif x == 10:\n    print(\"B\")\nelse:\n    print(\"C\")",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "Nothing is printed"
+          ],
+          "answer": "B",
+          "explanation": "x > 10 does not hold, then x == 10 holds, so B is printed and the rest is skipped."
+        },
+        {
+          "code": "def double(n):\n    return n * 2\n\nprint(double(4) + 1)",
+          "options": [
+            "9",
+            "8",
+            "5",
+            "double(4) + 1"
+          ],
+          "answer": "9",
+          "explanation": "double(4) hands back 8, and 8 + 1 is 9."
+        },
+        {
+          "code": "n = 16\nsteps = 0\nwhile n > 1:\n    n = n // 2\n    steps += 1\nprint(steps)",
+          "options": [
+            "3",
+            "4",
+            "8",
+            "16"
+          ],
+          "answer": "4",
+          "explanation": "n goes 16 → 8 → 4 → 2 → 1, so the loop runs 4 times."
+        }
+      ]
+    },
+    "pseudoCompare": {
+      "ariaLabel": "Pseudocode next to Python",
+      "programs": {
+        "max": "Find the maximum",
+        "search": "Linear search",
+        "halve": "Keep halving"
+      },
+      "pseudo": "PSEUDOCODE",
+      "hint": "Hover over (or click) any line and the matching lines on the other side light up.",
+      "noCounterpart": "This line only marks where a block ends. Python shows that with indentation, so there is no matching line."
+    },
+    "pseudoQuiz": {
+      "ariaLabel": "Pseudocode quiz",
+      "progress": "Question {{n}} of {{total}}",
+      "prompt": "What does this pseudocode do?",
+      "correct": "Correct!",
+      "wrong": "The answer is \"{{answer}}\".",
+      "next": "Next question",
+      "seeResult": "See result",
+      "score": "{{score}} / {{total}} correct",
+      "perfect": "All correct!",
+      "review": "Go back to \"Turning pseudocode into Python\" and read it again.",
+      "retry": "Try again",
+      "questions": [
+        {
+          "code": "total ← 0\nFor each x in nums Do\n  total ← total + x\nEnd For\nReturn total",
+          "options": [
+            "Add them up",
+            "Find the maximum",
+            "Sort them",
+            "Count them"
+          ],
+          "answer": "Add them up",
+          "explanation": "Every x is added into total, and total is handed back at the end."
+        },
+        {
+          "prompt": "Which line of Python matches this pseudocode?",
+          "code": "n ← n ÷ 2",
+          "options": [
+            "n = n // 2",
+            "n == n // 2",
+            "n = n * 2",
+            "n ← n // 2"
+          ],
+          "answer": "n = n // 2",
+          "explanation": "← becomes =, and whole-number division is written //."
+        },
+        {
+          "prompt": "Which line of Python matches this pseudocode?",
+          "code": "If x = 5 Then",
+          "options": [
+            "if x = 5:",
+            "if x == 5:",
+            "if x == 5 Then",
+            "if (x ← 5):"
+          ],
+          "answer": "if x == 5:",
+          "explanation": "Python compares with two equals signs and ends the line with a colon."
+        },
+        {
+          "prompt": "How is \"End If\" written in Python?",
+          "code": "If x > 0 Then\n  Return x\nEnd If",
+          "options": [
+            "Write end if",
+            "Nothing: going back to the left margin ends the block",
+            "Write pass",
+            "Write break"
+          ],
+          "answer": "Nothing: going back to the left margin ends the block",
+          "explanation": "Python marks blocks with indentation, so there is no closing line."
+        }
+      ]
+    },
+    "pseudoStyles": {
+      "ariaLabel": "Three ways to write the same thing",
+      "styles": {
+        "platform": "Platform style",
+        "steps": "Numbered list",
+        "mixed": "Close to Python"
+      },
+      "notes": {
+        "platform": "Procedure, For each and End If spell the structure out in full, which suits readers who do not know a particular language.",
+        "steps": "A plain numbered list of steps. It is good for getting the idea straight first, or for jotting something down in a discussion.",
+        "mixed": "It borrows Python but does not follow its syntax. Anything left out is fine as long as a reader can follow it."
+      },
+      "stepsLines": [
+        "1. Take the first number as the biggest so far",
+        "2. Look at every number in turn",
+        "3. If it is bigger than the biggest so far, make it the new biggest",
+        "4. When you have looked at all of them, the biggest so far is the answer"
+      ],
+      "hint": "All three do the same thing, and all three are fine.\nWhat matters is that a reader can follow them, no step is missing, and the style stays consistent within one piece."
     }
   },
   "lessons": {
@@ -228,6 +416,155 @@
             "A data structure is a way of organizing and storing data",
             "Together they decide how efficient a program is",
             "Animations show you how. Complexity tells you whether it is worth it"
+          ]
+        }
+      ]
+    },
+    "read-code": {
+      "title": "Reading Example Code",
+      "subtitle": "Understanding the Python used on this platform is enough",
+      "slides": [
+        {
+          "title": "You do not need to write it, just read it",
+          "body": "Every example on this platform is written in Python. You do not need to be able to write programs. If you can read what each line does, you can follow the animations and the complexity that come later.\n\nThis lesson covers only five things:\n• Variables: names for data\n• Lists: a row of data you pick from by number\n• Loops: do a piece of code again and again\n• Conditions: do something only if it holds\n• Functions: wrap code up and give it a name\n\nLook up any other syntax when you meet it; there is no need to memorize it all at once."
+        },
+        {
+          "title": "Variables: names for data",
+          "code": "count = 3                 # a number\nname = \"CodePulse\"        # text\nnums = [4, 8, 15]         # a list: a row of data\ncount = count + 1         # a variable can change: count is now 4",
+          "body": "\"=\" is not the \"equals\" of maths. It means \"put the value on the right into the name on the left\".\nSo count = count + 1 means: work out the right side (3 + 1) first, then put the result back into count."
+        },
+        {
+          "title": "Lists and indexes: pick by number",
+          "code": "nums = [4, 8, 15, 16]\nnums[0]       # 4: the index starts at 0, so nums[0] is the first\nnums[2]       # 15\nnums[-1]      # 16: -1 means the last one\nlen(nums)     # 4: how many items",
+          "body": "An index is the number of the position, counted from 0.\nWith a number you can take the item at any position directly, without searching from the start."
+        },
+        {
+          "title": "Loops: repeat a piece of code",
+          "code": "total = 0\nfor x in nums:        # take one item from nums into x each time\n    total += x        # total += x means total = total + x\n\nfor i in range(3):    # i is 0, 1, 2: it runs 3 times\n    print(i)\n\nn = 8\nwhile n > 1:          # repeat as long as the condition holds\n    n = n // 2        # // is whole-number division: 8 → 4 → 2 → 1",
+          "body": "When you see for, ask first: \"how many times will it run?\" for means \"do it once for each item\", while means \"keep doing it as long as the condition holds\".\nIndentation (the spaces at the start of a line) shows that the line is inside the loop."
+        },
+        {
+          "title": "Conditions: do it only if it holds",
+          "code": "if x > 10:\n    print(\"big\")\nelif x == 10:        # note: two equals signs ask \"are they equal\"\n    print(\"exactly\")\nelse:\n    print(\"small\")",
+          "body": "if, elif and else are checked in order. The first one that holds runs and the rest are skipped.\n\"=\" puts a value in, while \"==\" compares two sides. Do not mix them up."
+        },
+        {
+          "title": "Functions: wrap it up and name it",
+          "code": "def total(nums):            # define a function called total that takes nums\n    result = 0\n    for x in nums:\n        result += x\n    return result           # hand the result back\n\nprint(total([4, 8, 15]))    # call it: prints 27",
+          "body": "def defines a function and return hands the result back to where it was called. A function only runs when it is called.\nNames you will see later, such as total and find_max, are all functions."
+        },
+        {
+          "title": "Four habits for reading code",
+          "items": [
+            "Read the function name and its parameters first — know what data it takes and what it returns",
+            "Find the loops — how many times a loop runs is the number of steps you will count in the next lesson",
+            "Track the variables — run it one line at a time and note how each variable changes",
+            "Watch the indentation — lines with the same indentation belong together, and a line pushed to the right is inside"
+          ]
+        },
+        {
+          "title": "Run it one line at a time"
+        },
+        {
+          "title": "Predict the output"
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "A variable is a name, and \"=\" puts the right-hand value into it",
+            "A list is picked by number, and numbering starts at 0",
+            "for does something once per item, while repeats as long as the condition holds",
+            "if checks a condition and == is the comparison; def defines a function and return hands back the result"
+          ]
+        }
+      ]
+    },
+    "pseudocode": {
+      "title": "Pseudocode",
+      "subtitle": "Write down the steps of an algorithm in near-everyday language",
+      "slides": [
+        {
+          "title": "What is pseudocode",
+          "body": "Pseudocode is a set of steps written for people. It looks like a program, but it belongs to no programming language and a computer will not run it.\n\nIt helps because:\n• You can work out \"how to do it\" first and worry about syntax later\n• The same pseudocode can be written in Python, Java or any other language\n• Every algorithm animation on this platform shows pseudocode next to Python\n\nThere is no single standard way to write it: this platform uses Procedure, If … Then, For each … Do and While … Do, and writes ← for \"put into\".\nWhen you write your own, any style will do as long as a reader can follow it."
+        },
+        {
+          "title": "How the platform writes it",
+          "table": {
+            "headers": [
+              "Pseudocode",
+              "Python",
+              "Meaning"
+            ],
+            "rows": [
+              [
+                "x ← 5",
+                "x = 5",
+                "Put 5 into x"
+              ],
+              [
+                "If x > 10 Then",
+                "if x > 10:",
+                "If x is greater than 10"
+              ],
+              [
+                "For each x in nums Do",
+                "for x in nums:",
+                "Do it once for each item"
+              ],
+              [
+                "While n > 1 Do",
+                "while n > 1:",
+                "Keep repeating while the condition holds"
+              ],
+              [
+                "Return result",
+                "return result",
+                "Hand the result back"
+              ],
+              [
+                "Procedure Total(nums)",
+                "def total(nums):",
+                "Define a function called Total"
+              ]
+            ],
+            "note": "In pseudocode, If, For and While each have an End If, End For and End While that mark where the block ends; Python shows it with indentation instead.\nThis is only the platform's habit. You do not have to copy it when you write your own, and the next slides show other ways."
+          }
+        },
+        {
+          "title": "Example: find the maximum",
+          "code": "Procedure FindMax(nums):\n  biggest ← nums[0]\n  For each x in nums Do\n    If x > biggest Then\n      biggest ← x\n    End If\n  End For\n  Return biggest\nEnd Procedure",
+          "body": "Indentation shows \"which level it belongs to\", and End If and End For mark where a block ends.\n\"←\" reads \"put into\": biggest ← x puts x into biggest.\nThis is the same thing as finding the maximum in \"Run it one line at a time\" in the previous lesson."
+        },
+        {
+          "title": "Pseudocode next to Python"
+        },
+        {
+          "title": "You do not have to copy the platform style"
+        },
+        {
+          "title": "Turning pseudocode into Python",
+          "body": "Turning pseudocode into Python is mostly a change of spelling:\n• ← becomes =\n• If … Then becomes if …:, and the closing End If is dropped in favor of indentation\n• For each x in nums Do becomes for x in nums:\n• While … Do becomes while …:\n• Procedure name(parameters) becomes def name(parameters):\n• To compare two things, pseudocode writes = and Python writes ==\n\nEvery End … (End If, End For, End While, End Procedure) has no line of its own in Python; the block ends when the indentation goes back to the left."
+        },
+        {
+          "title": "How to write pseudocode yourself",
+          "items": [
+            "Say the goal in one sentence — what comes in and what you want out",
+            "Write every step down and ignore syntax — it only has to be clear to a reader, so focus on order and conditions",
+            "Use indentation for levels — steps inside a loop or condition move to the right",
+            "Run it by hand on a small example — check the result step by step and find the cases you missed"
+          ]
+        },
+        {
+          "title": "Pseudocode quiz"
+        },
+        {
+          "title": "Key takeaways",
+          "items": [
+            "Pseudocode is steps written for people and belongs to no programming language",
+            "You can choose your own style, as long as a reader can follow it and no step is missing",
+            "The platform writes it with Procedure, If, For each, While and ←",
+            "To turn it into Python, ← becomes = and End … becomes indentation",
+            "Work out the steps first and worry about syntax later"
           ]
         }
       ]

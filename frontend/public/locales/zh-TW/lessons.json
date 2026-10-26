@@ -182,6 +182,194 @@
       "remaining": "剩下可能",
       "middle": "幫我猜中間",
       "again": "重新出題"
+    },
+    "codeStepper": {
+      "ariaLabel": "一行一行執行程式",
+      "programs": {
+        "sum": "加總",
+        "max": "找最大值",
+        "halve": "一直除以 2"
+      },
+      "variables": "變數",
+      "output": "輸出",
+      "next": "執行這一行",
+      "reset": "重來",
+      "hint": "亮起來的是「接下來要執行」的那一行。按「執行這一行」，看變數怎麼變。",
+      "finished": "跑完了，共執行 {{count}} 行。對照最後的變數和輸出，看看和你預期的一不一樣。"
+    },
+    "codeQuiz": {
+      "ariaLabel": "預測輸出小測驗",
+      "progress": "第 {{n}} 題／共 {{total}} 題",
+      "prompt": "這段程式印出什麼？",
+      "correct": "答對了！",
+      "wrong": "答案是 {{answer}}。",
+      "next": "下一題",
+      "seeResult": "看結果",
+      "score": "答對 {{score}} / {{total}} 題",
+      "perfect": "全對！一行一行追蹤變數，就能算出結果。",
+      "review": "可以回到前面的頁面，或用「一行一行跑跑看」再追蹤一次。",
+      "retry": "再做一次",
+      "questions": [
+        {
+          "code": "nums = [4, 8, 15]\nprint(nums[1])",
+          "options": [
+            "4",
+            "8",
+            "15",
+            "1"
+          ],
+          "answer": "8",
+          "explanation": "索引從 0 開始，nums[1] 是第二個，也就是 8。"
+        },
+        {
+          "code": "x = 5\nx = x + 2\nprint(x)",
+          "options": [
+            "5",
+            "7",
+            "2",
+            "x + 2"
+          ],
+          "answer": "7",
+          "explanation": "先算右邊的 5 + 2，再把結果放回 x。"
+        },
+        {
+          "code": "total = 0\nfor i in range(3):\n    total += i\nprint(total)",
+          "options": [
+            "3",
+            "6",
+            "0",
+            "2"
+          ],
+          "answer": "3",
+          "explanation": "i 依序是 0、1、2，加起來是 3。"
+        },
+        {
+          "code": "x = 10\nif x > 10:\n    print(\"A\")\nelif x == 10:\n    print(\"B\")\nelse:\n    print(\"C\")",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "什麼都不印"
+          ],
+          "answer": "B",
+          "explanation": "x > 10 不成立，接著 x == 10 成立，印出 B，後面的就跳過。"
+        },
+        {
+          "code": "def double(n):\n    return n * 2\n\nprint(double(4) + 1)",
+          "options": [
+            "9",
+            "8",
+            "5",
+            "double(4) + 1"
+          ],
+          "answer": "9",
+          "explanation": "double(4) 交回 8，再加 1 是 9。"
+        },
+        {
+          "code": "n = 16\nsteps = 0\nwhile n > 1:\n    n = n // 2\n    steps += 1\nprint(steps)",
+          "options": [
+            "3",
+            "4",
+            "8",
+            "16"
+          ],
+          "answer": "4",
+          "explanation": "n 依序是 16 → 8 → 4 → 2 → 1，迴圈共執行 4 次。"
+        }
+      ]
+    },
+    "pseudoCompare": {
+      "ariaLabel": "虛擬碼與 Python 對照",
+      "programs": {
+        "max": "找最大值",
+        "search": "線性搜尋",
+        "halve": "一直除以 2"
+      },
+      "pseudo": "虛擬碼",
+      "hint": "把滑鼠移到（或點）任一行，另一邊對應的行會亮起來。",
+      "noCounterpart": "這一行只是標出區塊的結尾，Python 靠縮排表示，沒有對應的行。"
+    },
+    "pseudoQuiz": {
+      "ariaLabel": "虛擬碼小測驗",
+      "progress": "第 {{n}} 題／共 {{total}} 題",
+      "prompt": "這段虛擬碼在做什麼？",
+      "correct": "答對了！",
+      "wrong": "答案是「{{answer}}」。",
+      "next": "下一題",
+      "seeResult": "看結果",
+      "score": "答對 {{score}} / {{total}} 題",
+      "perfect": "全對！",
+      "review": "可以回到「虛擬碼改寫成 Python」那頁再看一次。",
+      "retry": "再做一次",
+      "questions": [
+        {
+          "code": "total ← 0\nFor each x in nums Do\n  total ← total + x\nEnd For\nReturn total",
+          "options": [
+            "加總",
+            "找最大值",
+            "排序",
+            "數有幾個"
+          ],
+          "answer": "加總",
+          "explanation": "每個 x 都加進 total，最後把 total 交回去。"
+        },
+        {
+          "prompt": "哪一行 Python 對應這行虛擬碼？",
+          "code": "n ← n ÷ 2",
+          "options": [
+            "n = n // 2",
+            "n == n // 2",
+            "n = n * 2",
+            "n ← n // 2"
+          ],
+          "answer": "n = n // 2",
+          "explanation": "← 換成 =，要取整數的除法用 //。"
+        },
+        {
+          "prompt": "哪一行 Python 對應這行虛擬碼？",
+          "code": "If x = 5 Then",
+          "options": [
+            "if x = 5:",
+            "if x == 5:",
+            "if x == 5 Then",
+            "if (x ← 5):"
+          ],
+          "answer": "if x == 5:",
+          "explanation": "比較是否相等時 Python 要寫兩個等號，結尾加冒號。"
+        },
+        {
+          "prompt": "「End If」在 Python 裡要怎麼寫？",
+          "code": "If x > 0 Then\n  Return x\nEnd If",
+          "options": [
+            "寫 end if",
+            "不用寫，回到左邊的縮排就結束",
+            "寫 pass",
+            "寫 break"
+          ],
+          "answer": "不用寫，回到左邊的縮排就結束",
+          "explanation": "Python 靠縮排表示區塊，所以沒有對應的結尾。"
+        }
+      ]
+    },
+    "pseudoStyles": {
+      "ariaLabel": "同一件事的三種寫法",
+      "styles": {
+        "platform": "平台寫法",
+        "steps": "條列文字",
+        "mixed": "接近 Python"
+      },
+      "notes": {
+        "platform": "用 Procedure、For each、End If 把結構寫得很完整，適合給不熟某個程式語言的人看。",
+        "steps": "完全用中文寫成一步一步的清單，適合先把想法理清楚，或是討論時隨手寫下。",
+        "mixed": "借用 Python 的寫法，但不必照著語法，省略的地方別人看得懂就好。"
+      },
+      "stepsLines": [
+        "1. 把第一個數字當成目前最大的",
+        "2. 依序看每一個數字",
+        "3. 如果它比目前最大的還大，就換成它",
+        "4. 全部看完後，目前最大的就是答案"
+      ],
+      "hint": "三種寫法做的是同一件事，都是對的。\n重點是別人看得懂、步驟沒有漏掉、同一份裡的寫法前後一致。"
     }
   },
   "lessons": {
@@ -228,6 +416,155 @@
             "資料結構是組織與儲存資料的方式",
             "兩者一起決定程式的效率",
             "動畫教你怎麼做，複雜度告訴你值不值得這樣做"
+          ]
+        }
+      ]
+    },
+    "read-code": {
+      "title": "讀懂範例程式碼",
+      "subtitle": "看懂這個平台用的 Python 就夠了",
+      "slides": [
+        {
+          "title": "不用會寫，先學會讀",
+          "body": "這個平台的範例程式都用 Python 寫。你不需要會寫程式，只要能讀懂每一行在做什麼，就能跟上後面的動畫和複雜度。\n\n本課只介紹五樣東西：\n• 變數：給資料取名字\n• 清單（list）：一排資料，用編號取值\n• 迴圈：把一段程式重複做\n• 判斷：條件成立才做\n• 函式：把一段程式包起來，取個名字\n\n其他語法遇到再查，不用一次記完。"
+        },
+        {
+          "title": "變數：給資料取名字",
+          "code": "count = 3                 # 數字\nname = \"CodePulse\"        # 文字\nnums = [4, 8, 15]         # 清單：一排資料\ncount = count + 1         # 變數可以被改掉，現在 count 是 4",
+          "body": "「=」不是數學的「等於」，而是「把右邊的值放進左邊的名字」。\n所以 count = count + 1 的意思是：先算右邊（3 + 1），再把結果放回 count。"
+        },
+        {
+          "title": "list 與索引：用編號取值",
+          "code": "nums = [4, 8, 15, 16]\nnums[0]       # 4：索引從 0 開始，nums[0] 是第一個\nnums[2]       # 15\nnums[-1]      # 16：-1 代表最後一個\nlen(nums)     # 4：有幾個資料",
+          "body": "索引是「第幾個」的編號，從 0 開始算。\n有了編號，就能直接取出任何位置的資料，不用從頭一個個找。"
+        },
+        {
+          "title": "迴圈：把一段程式重複做",
+          "code": "total = 0\nfor x in nums:        # 每次從 nums 拿出一個資料放進 x\n    total += x        # total += x 就是 total = total + x\n\nfor i in range(3):    # i 依序是 0、1、2，一共跑 3 次\n    print(i)\n\nn = 8\nwhile n > 1:          # 條件成立就一直重複\n    n = n // 2        # // 是整數除法：8 → 4 → 2 → 1",
+          "body": "看到 for 先問：「會跑幾次？」for 是「每個資料各做一次」，while 是「條件成立就一直做」。\n縮排（行首的空格）代表這一行屬於迴圈裡面。"
+        },
+        {
+          "title": "判斷：條件成立才做",
+          "code": "if x > 10:\n    print(\"大\")\nelif x == 10:        # 注意：兩個等號才是「是否相等」\n    print(\"剛好\")\nelse:\n    print(\"小\")",
+          "body": "if、elif、else 依序檢查，第一個成立的就執行，其餘跳過。\n「=」是放進去，「==」才是比較兩邊是否相等，這兩個不要搞混。"
+        },
+        {
+          "title": "函式：包起來取個名字",
+          "code": "def total(nums):            # 定義一個叫 total 的函式，要給它 nums\n    result = 0\n    for x in nums:\n        result += x\n    return result           # 把結果交回去\n\nprint(total([4, 8, 15]))    # 呼叫它：印出 27",
+          "body": "def 是定義，return 是把結果交回呼叫的地方。函式只有在被呼叫時才會執行。\n後面看到的 total、find_max 這類名字，都是函式。"
+        },
+        {
+          "title": "讀程式碼的四個習慣",
+          "items": [
+            "先看函式名稱和參數 — 知道它要處理什麼資料、回傳什麼",
+            "找出迴圈 — 迴圈跑幾次，就是下一課要數的步數",
+            "追蹤變數 — 一行一行跑，記下每個變數怎麼變",
+            "看縮排 — 縮排一樣的屬於同一塊，往右縮的是裡面"
+          ]
+        },
+        {
+          "title": "一行一行跑跑看"
+        },
+        {
+          "title": "預測輸出小測驗"
+        },
+        {
+          "title": "本關重點",
+          "items": [
+            "變數是名字，「=」是把右邊的值放進去",
+            "清單用編號取值，編號從 0 開始",
+            "for 是每個資料各做一次，while 是條件成立就重複",
+            "if 判斷條件，== 才是比較；def 定義函式、return 交回結果"
+          ]
+        }
+      ]
+    },
+    "pseudocode": {
+      "title": "虛擬碼",
+      "subtitle": "用接近日常語言寫下演算法的步驟",
+      "slides": [
+        {
+          "title": "什麼是虛擬碼",
+          "body": "虛擬碼（Pseudocode）是寫給人看的步驟，長得像程式，但不屬於任何程式語言，電腦也不會執行它。\n\n它的好處是：\n• 先把「怎麼做」想清楚，再去煩惱語法\n• 同一份虛擬碼，可以寫成 Python、Java 或任何語言\n• 平台上每個演算法動畫，旁邊都有虛擬碼和 Python 對照\n\n虛擬碼沒有唯一的標準寫法：本平台採用 Procedure、If … Then、For each … Do、While … Do，並用 ← 表示「放進去」。\n你自己寫的時候，用什麼方式寫都可以，只要別人看得懂。"
+        },
+        {
+          "title": "平台的虛擬碼寫法",
+          "table": {
+            "headers": [
+              "虛擬碼",
+              "Python",
+              "意思"
+            ],
+            "rows": [
+              [
+                "x ← 5",
+                "x = 5",
+                "把 5 放進 x"
+              ],
+              [
+                "If x > 10 Then",
+                "if x > 10:",
+                "如果 x 大於 10"
+              ],
+              [
+                "For each x in nums Do",
+                "for x in nums:",
+                "每個資料各做一次"
+              ],
+              [
+                "While n > 1 Do",
+                "while n > 1:",
+                "條件成立就一直重複"
+              ],
+              [
+                "Return result",
+                "return result",
+                "把結果交回去"
+              ],
+              [
+                "Procedure Total(nums)",
+                "def total(nums):",
+                "定義一個叫 Total 的函式"
+              ]
+            ],
+            "note": "虛擬碼的 If、For、While 都有對應的 End If、End For、End While 標出區塊結尾；Python 則靠縮排表示。\n這只是平台的習慣，你自己寫時不必照著寫，後面會看到其他寫法。"
+          }
+        },
+        {
+          "title": "例子：找出最大值",
+          "code": "Procedure FindMax(nums):\n  biggest ← nums[0]\n  For each x in nums Do\n    If x > biggest Then\n      biggest ← x\n    End If\n  End For\n  Return biggest\nEnd Procedure",
+          "body": "縮排表示「屬於哪一層」，End If、End For 標出一個區塊的結尾。\n「←」讀作「放進去」：biggest ← x 就是把 x 放進 biggest。\n這份虛擬碼和上一課「一行一行跑跑看」裡的找最大值是同一件事。"
+        },
+        {
+          "title": "虛擬碼與 Python 對照"
+        },
+        {
+          "title": "不一定要照平台寫"
+        },
+        {
+          "title": "虛擬碼改寫成 Python",
+          "body": "要把虛擬碼寫成 Python，大多只是換寫法：\n• ← 換成 =\n• If … Then 換成 if …:，結尾的 End If 不用寫，改用縮排\n• For each x in nums Do 換成 for x in nums:\n• While … Do 換成 while …:\n• Procedure 名稱(參數) 換成 def 名稱(參數):\n• 比較是否相等時，虛擬碼寫 =，Python 要寫 ==\n\n每個 End …（End If、End For、End While、End Procedure）在 Python 裡都沒有對應的行，區塊的結束靠縮排回到左邊。"
+        },
+        {
+          "title": "怎麼自己寫虛擬碼",
+          "items": [
+            "先用一句話說清楚目標 — 輸入是什麼、要得到什麼",
+            "把每一步寫下來，不用在意語法 — 讓別人看得懂就好，重點是順序與條件",
+            "用縮排表示層次 — 迴圈或判斷裡面的步驟往右縮",
+            "拿一組小資料手動跑一遍 — 一步一步確認結果，找出漏掉的情況"
+          ]
+        },
+        {
+          "title": "虛擬碼小測驗"
+        },
+        {
+          "title": "本關重點",
+          "items": [
+            "虛擬碼是寫給人看的步驟，不屬於任何程式語言",
+            "寫法可以自己決定，別人看得懂、步驟完整就好",
+            "平台用 Procedure、If、For each、While 和 ← 來寫",
+            "改寫成 Python 時，← 換成 =，End … 改用縮排",
+            "先想清楚步驟，再煩惱語法"
           ]
         }
       ]

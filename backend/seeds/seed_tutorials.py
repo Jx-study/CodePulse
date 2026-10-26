@@ -37,6 +37,8 @@ CATEGORIES = [
 TUTORIALS = [
     # foundations
     ("what-is-dsa",               "foundations",     1),
+    ("read-code",                 "foundations",     1),
+    ("pseudocode",                "foundations",     1),
     ("big-o-basics",              "foundations",     1),
     ("growth-rates",              "foundations",     1),
     ("case-analysis",             "foundations",     2),

@@ -22,7 +22,7 @@
       "implementationKey": "lesson"
     },
     {
-      "id": "big-o-basics",
+      "id": "read-code",
       "category": "foundations",
       "difficulty": 1,
       "isDeveloped": true,
@@ -43,6 +43,48 @@
       "implementationKey": "lesson"
     },
     {
+      "id": "pseudocode",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["read-code"]
+      },
+      "graphPosition": {
+        "layer": 2,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
+      "id": "big-o-basics",
+      "category": "foundations",
+      "difficulty": 1,
+      "isDeveloped": true,
+      "isUnlocked": false,
+      "hasPractice": false,
+      "isLesson": true,
+      "prerequisites": {
+        "type": "AND",
+        "levelIds": ["pseudocode"]
+      },
+      "graphPosition": {
+        "layer": 3,
+        "branch": "main"
+      },
+      "pathMetadata": {
+        "pathType": "main"
+      },
+      "implementationKey": "lesson"
+    },
+    {
       "id": "growth-rates",
       "category": "foundations",
       "difficulty": 1,
@@ -55,7 +97,7 @@
         "levelIds": ["big-o-basics"]
       },
       "graphPosition": {
-        "layer": 2,
+        "layer": 4,
         "branch": "main"
       },
       "pathMetadata": {
@@ -76,7 +118,7 @@
         "levelIds": ["growth-rates"]
       },
       "graphPosition": {
-        "layer": 3,
+        "layer": 5,
         "branch": "main"
       },
       "pathMetadata": {
@@ -97,7 +139,7 @@
         "levelIds": ["case-analysis"]
       },
       "graphPosition": {
-        "layer": 4,
+        "layer": 6,
         "branch": "main"
       },
       "pathMetadata": {
@@ -118,7 +160,7 @@
         "levelIds": ["space-complexity"]
       },
       "graphPosition": {
-        "layer": 5,
+        "layer": 7,
         "branch": "main"
       },
       "pathMetadata": {

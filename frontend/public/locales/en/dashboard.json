@@ -89,6 +89,27 @@
         "Know how animations, tutorials and practice fit together"
       ]
     },
+    "read_code": {
+      "name": "Reading Example Code",
+      "description": "Meet variables, lists, loops, conditions and functions so you can read the Python on the platform",
+      "objectives": [
+        "Understand variables and what \"=\" means",
+        "Pick items out of a list by index",
+        "Read for, while, if and functions",
+        "Track how variables change one line at a time"
+      ]
+    },
+    "pseudocode": {
+      "name": "Pseudocode",
+      "description": "Write down an algorithm in near-everyday language and match it to Python",
+      "objectives": [
+        "Explain what pseudocode is and why it is used",
+        "Read the pseudocode style the platform uses",
+        "Know that pseudocode can be written in your own way",
+        "Turn pseudocode into Python",
+        "Practice writing pseudocode yourself"
+      ]
+    },
     "big_o_basics": {
       "name": "What Is Big-O",
       "description": "Learn to describe the cost of a program with O()",
