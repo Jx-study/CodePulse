@@ -389,6 +389,74 @@
   fill: var(--text-primary);
 }
 
+// ===== Pseudocode next to Python =====
+.pairs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-sm;
+
+  @media (max-width: $mobile-max) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pairColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pairTitle {
+  font-size: $font-xs;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.pairCode {
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-xs 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  overflow-x: auto;
+}
+
+// Button's "unstyled" variant resets padding and background, so the line styles are chained to win
+.pairCode .pairLine {
+  display: block;
+  width: 100%;
+  padding: 2px $spacing-sm;
+  text-align: left;
+  white-space: pre;
+  color: var(--text-secondary);
+  background: transparent;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+
+  code {
+    font-family: $font-family-code;
+    font-size: $font-sm;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+  }
+
+  &.pairLineOn {
+    color: var(--text-primary);
+    background: rgba($primary-color, 0.14);
+    border-left-color: $primary-color;
+  }
+}
+
 // ===== Quiz =====
 .options {
   display: flex;

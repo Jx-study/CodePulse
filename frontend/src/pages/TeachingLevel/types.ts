@@ -21,7 +21,12 @@ export type VisualType =
   | 'call-stack'
   | 'graph-storage'
   | 'bst-shape'
-  | 'complexity-quiz';
+  | 'complexity-quiz'
+  | 'code-stepper'
+  | 'code-quiz'
+  | 'pseudo-compare'
+  | 'pseudo-styles'
+  | 'pseudo-quiz';
 
 export interface ComparisonStyle {
   icon: string;

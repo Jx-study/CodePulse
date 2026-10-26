@@ -3,11 +3,15 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import BstShape, { insertKey, treeHeight } from './BstShape';
 import CallStack from './CallStack';
+import CodeQuiz from './CodeQuiz';
+import CodeStepper, { PROGRAMS as STEPPER_PROGRAMS } from './CodeStepper';
 import ComplexityQuiz from './ComplexityQuiz';
 import { crossover } from './DominantTerm';
 import { edgeCells } from './GraphStorage';
 import GrowthExplorer from './GrowthExplorer';
 import NumberGuess, { worstCaseGuesses } from './NumberGuess';
+import PseudoCompare, { PROGRAMS as PAIR_PROGRAMS } from './PseudoCompare';
+import PseudoStyles from './PseudoStyles';
 import SearchCases from './SearchCases';
 import StepCounter from './StepCounter';
 
@@ -20,6 +24,13 @@ vi.mock('react-i18next', () => ({
         return [
           { code: 'a', answer: 'O(1)', explanation: 'e1' },
           { code: 'b', answer: 'O(n)', explanation: 'e2' },
+        ];
+      }
+      if (key === 'visuals.pseudoStyles.stepsLines') return ['step one', 'step two'];
+      if (key === 'visuals.codeQuiz.questions') {
+        return [
+          { prompt: 'own prompt', code: 'a', options: ['x', 'y'], answer: 'y', explanation: 'e1' },
+          { code: 'b', options: ['p', 'q', 'r'], answer: 'p', explanation: 'e2' },
         ];
       }
       return options ? `${key} ${JSON.stringify(options)}` : key;
@@ -154,5 +165,90 @@ describe('NumberGuess', () => {
     for (let i = 0; i < 6 && !middle.disabled; i++) act(() => middle.click());
     expect(middle.disabled).toBe(true);
     expect(el.textContent).toContain('visuals.numberGuess.found');
+  });
+});
+
+describe('code stepper programs', () => {
+  it.each([
+    ['sum', '27'],
+    ['max', '9'],
+    ['halve', '4'],
+  ])('%s ends with the output %s', (key, output) => {
+    const steps = STEPPER_PROGRAMS.find((p) => p.key === key)!.trace();
+    const last = steps[steps.length - 1];
+    expect(last.line).toBeNull();
+    expect(last.output).toEqual([output]);
+  });
+
+  it('only visits lines that exist and always starts on the first line', () => {
+    for (const program of STEPPER_PROGRAMS) {
+      const steps = program.trace();
+      expect(steps[0].line).toBe(0);
+      for (const step of steps) {
+        if (step.line !== null) expect(step.line).toBeLessThan(program.lines.length);
+      }
+    }
+  });
+});
+
+describe('CodeStepper', () => {
+  it('runs a program to the end one line at a time', () => {
+    const el = mount(<CodeStepper />);
+    const next = buttonByText(el, 'visuals.codeStepper.next');
+    const total = STEPPER_PROGRAMS[0].trace().length - 1;
+    for (let i = 0; i < total; i++) act(() => next.click());
+    expect(next.disabled).toBe(true);
+    expect(el.textContent).toContain('visuals.codeStepper.finished');
+  });
+});
+
+describe('pseudocode next to Python', () => {
+  it('maps every pseudocode line and covers every Python line', () => {
+    for (const program of PAIR_PROGRAMS) {
+      expect(program.pythonOf, program.key).toHaveLength(program.pseudo.length);
+      const covered = new Set(program.pythonOf.flat());
+      for (const target of covered) expect(target).toBeLessThan(program.python.length);
+      for (let i = 0; i < program.python.length; i++) expect(covered.has(i), `${program.key} python line ${i}`).toBe(true);
+    }
+  });
+
+  it('lights up the matching Python line when a pseudocode line is chosen', () => {
+    const el = mount(<PseudoCompare />);
+    const lines = Array.from(el.querySelectorAll('button[aria-pressed]')).filter((b) => b.querySelector('code')) as HTMLButtonElement[];
+    const pseudoLine = lines.find((b) => b.textContent === '  biggest ← nums[0]')!;
+    act(() => pseudoLine.click());
+    const lit = lines.filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.textContent?.trim());
+    expect(lit).toContain('biggest ← nums[0]');
+    expect(lit).toContain('biggest = nums[0]');
+  });
+
+  it('explains that an End line has no Python counterpart', () => {
+    const el = mount(<PseudoCompare />);
+    const lines = Array.from(el.querySelectorAll('button[aria-pressed]')).filter((b) => b.querySelector('code')) as HTMLButtonElement[];
+    act(() => lines.find((b) => b.textContent === '    End If')!.click());
+    expect(el.textContent).toContain('visuals.pseudoCompare.noCounterpart');
+  });
+});
+
+describe('CodeQuiz', () => {
+  it('uses the options and prompt that belong to each question', () => {
+    const el = mount(<CodeQuiz />);
+    expect(el.textContent).toContain('own prompt');
+    expect(buttonByText(el, 'x')).toBeTruthy();
+    act(() => buttonByText(el, 'y').click());
+    expect(el.textContent).toContain('visuals.codeQuiz.correct');
+    act(() => buttonByText(el, 'visuals.codeQuiz.next').click());
+    expect(buttonByText(el, 'r')).toBeTruthy();
+  });
+});
+
+describe('PseudoStyles', () => {
+  it('shows the same algorithm in three styles', () => {
+    const el = mount(<PseudoStyles />);
+    expect(el.textContent).toContain('Procedure FindMax(nums):');
+    act(() => buttonByText(el, 'visuals.pseudoStyles.styles.steps').click());
+    expect(el.textContent).toContain('step one');
+    act(() => buttonByText(el, 'visuals.pseudoStyles.styles.mixed').click());
+    expect(el.textContent).toContain('biggest = nums[0]');
   });
 });

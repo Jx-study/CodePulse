@@ -7,11 +7,16 @@ import BigOChart from '../BigOChart/BigOChart';
 import DSDiagram from '../DSDiagram/DSDiagram';
 import BstShape from '../Interactive/BstShape';
 import CallStack from '../Interactive/CallStack';
+import CodeQuiz from '../Interactive/CodeQuiz';
+import CodeStepper from '../Interactive/CodeStepper';
 import ComplexityQuiz from '../Interactive/ComplexityQuiz';
 import DominantTerm from '../Interactive/DominantTerm';
 import GraphStorage from '../Interactive/GraphStorage';
 import GrowthExplorer from '../Interactive/GrowthExplorer';
 import NumberGuess from '../Interactive/NumberGuess';
+import PseudoCompare from '../Interactive/PseudoCompare';
+import PseudoQuiz from '../Interactive/PseudoQuiz';
+import PseudoStyles from '../Interactive/PseudoStyles';
 import SearchCases from '../Interactive/SearchCases';
 import StepCounter from '../Interactive/StepCounter';
 import type { Lesson, Slide, VisualType } from '../../types';
@@ -167,6 +172,11 @@ const VISUALS: Record<VisualType, ReactNode> = {
   'graph-storage': <GraphStorage />,
   'bst-shape': <BstShape />,
   'complexity-quiz': <ComplexityQuiz />,
+  'code-stepper': <CodeStepper />,
+  'code-quiz': <CodeQuiz />,
+  'pseudo-compare': <PseudoCompare />,
+  'pseudo-styles': <PseudoStyles />,
+  'pseudo-quiz': <PseudoQuiz />,
 };
 
 function VisualSlide({ slide }: { slide: Slide }) {
